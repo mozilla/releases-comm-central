@@ -456,27 +456,35 @@ module.exports = {
       {
         min: 3,
         exceptions: [
-          /* sorting */ "a",
+          /* sorting */
+          "a",
           "b",
-          /* exceptions */ "e",
+          /* exceptions */
+          "e",
           "ex",
-          /* loop indices */ "i",
+          /* loop indices */
+          "i",
           "j",
           "k",
           "n",
-          /* coordinates */ "x",
+          /* coordinates */
+          "x",
           "y",
-          /* regexes */ "re",
-          /* known words */ "rc",
+          /* regexes */
+          "re",
+          /* known words */
+          "rc",
           "rv",
           "id",
           "OS",
           "os",
           "db",
           "is",
-          /* mail/calendar words */ "to",
+          /* mail/calendar words */
+          "to",
           "cc",
-          /* Components */ "Ci",
+          /* Components */
+          "Ci",
           "Cc",
           "Cu",
           "Cr",

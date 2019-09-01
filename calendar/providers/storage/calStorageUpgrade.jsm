@@ -109,11 +109,11 @@ function getSql(tblName, tblData, alternateName) {
     // If this is an index, we need construct the SQL differently
     let idxTbl = tblData[tblName].shift();
     let idxOn = idxTbl + "(" + tblData[tblName].join(",") + ")";
-    sql = "CREATE INDEX " + altName + " ON " + idxOn + ";";
+    sql = `CREATE INDEX ${altName} ON ${idxOn};`;
   } else {
-    sql = "CREATE TABLE " + altName + " (\n";
+    sql = `CREATE TABLE ${altName} (\n`;
     for (let [key, type] of Object.entries(tblData[tblName])) {
-      sql += "    " + key + " " + type + ",\n";
+      sql += `    ${key} ${type},\n`;
     }
   }
 
@@ -251,14 +251,11 @@ function upgradeDB(db) {
  * @param version   The version to set
  */
 function setDbVersionAndCommit(db, version) {
-  executeSimpleSQL(
-    db,
+  let sql =
     "DELETE FROM cal_calendar_schema_version;" +
-      "INSERT INTO cal_calendar_schema_version " +
-      "(version) VALUES (" +
-      version +
-      ")"
-  );
+    `INSERT INTO cal_calendar_schema_version (version) VALUES (${version})`;
+
+  executeSimpleSQL(db, sql);
   if (db && db.transactionInProgress) {
     commitTransaction(db);
   }
@@ -336,10 +333,7 @@ function createIndex(tblData, tblName, colNameArray, db) {
   tblData[idxName].unshift(tblName);
 
   // Execute the sql, if there is a db
-  return executeSimpleSQL(
-    db,
-    "CREATE INDEX IF NOT EXISTS " + idxName + "                        ON " + idxOn
-  );
+  return executeSimpleSQL(db, `CREATE INDEX IF NOT EXISTS ${idxName} ON ${idxOn}`);
 }
 
 /**
@@ -367,12 +361,7 @@ function reportErrorAndRollback(db, e) {
     rollbackTransaction(db);
   }
   cal.ERROR(
-    "++++++ Storage error!" +
-      "++++++ DB Error: " +
-      lastErrorString(db) +
-      "\n" +
-      "++++++ Exception: " +
-      e
+    `++++++ Storage error! ++++++ DB Error: ${lastErrorString(db)}\n++++++ Exception: ${e}`
   );
   return e;
 }
@@ -447,69 +436,25 @@ function ensureUpdatedTimezones(db) {
       for (let update of zonesToUpdate) {
         executeSimpleSQL(
           db,
-          "UPDATE cal_attendees    SET recurrence_id_tz = '" +
-            update.newTzId +
-            "' WHERE recurrence_id_tz = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_events       SET recurrence_id_tz = '" +
-            update.newTzId +
-            "' WHERE recurrence_id_tz = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_events       SET event_start_tz   = '" +
-            update.newTzId +
-            "' WHERE event_start_tz   = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_events       SET event_end_tz     = '" +
-            update.newTzId +
-            "' WHERE event_end_tz     = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_properties   SET recurrence_id_tz = '" +
-            update.newTzId +
-            "' WHERE recurrence_id_tz = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_todos        SET recurrence_id_tz = '" +
-            update.newTzId +
-            "' WHERE recurrence_id_tz = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_todos        SET todo_entry_tz    = '" +
-            update.newTzId +
-            "' WHERE todo_entry_tz    = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_todos        SET todo_due_tz      = '" +
-            update.newTzId +
-            "' WHERE todo_due_tz      = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_alarms       SET recurrence_id_tz = '" +
-            update.newTzId +
-            "' WHERE recurrence_id_tz = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_relations    SET recurrence_id_tz = '" +
-            update.newTzId +
-            "' WHERE recurrence_id_tz = '" +
-            update.oldTzId +
-            "'; " +
-            "UPDATE cal_attachments  SET recurrence_id_tz = '" +
-            update.newTzId +
-            "' WHERE recurrence_id_tz = '" +
-            update.oldTzId +
-            "';"
+          // prettier-ignore
+          `UPDATE cal_attendees    SET recurrence_id_tz = '${update.newTzId}' WHERE recurrence_id_tz = '${update.oldTzId}'; ` +
+          `UPDATE cal_events       SET recurrence_id_tz = '${update.newTzId}' WHERE recurrence_id_tz = '${update.oldTzId}'; ` +
+          `UPDATE cal_events       SET event_start_tz   = '${update.newTzId}' WHERE event_start_tz   = '${update.oldTzId}'; ` +
+          `UPDATE cal_events       SET event_end_tz     = '${update.newTzId}' WHERE event_end_tz     = '${update.oldTzId}'; ` +
+          `UPDATE cal_properties   SET recurrence_id_tz = '${update.newTzId}' WHERE recurrence_id_tz = '${update.oldTzId}'; ` +
+          `UPDATE cal_todos        SET recurrence_id_tz = '${update.newTzId}' WHERE recurrence_id_tz = '${update.oldTzId}'; ` +
+          `UPDATE cal_todos        SET todo_entry_tz    = '${update.newTzId}' WHERE todo_entry_tz    = '${update.oldTzId}'; ` +
+          `UPDATE cal_todos        SET todo_due_tz      = '${update.newTzId}' WHERE todo_due_tz      = '${update.oldTzId}'; ` +
+          `UPDATE cal_alarms       SET recurrence_id_tz = '${update.newTzId}' WHERE recurrence_id_tz = '${update.oldTzId}'; ` +
+          `UPDATE cal_relations    SET recurrence_id_tz = '${update.newTzId}' WHERE recurrence_id_tz = '${update.oldTzId}'; ` +
+          `UPDATE cal_attachments  SET recurrence_id_tz = '${update.newTzId}' WHERE recurrence_id_tz = '${update.oldTzId}';`
         );
       }
       executeSimpleSQL(
         db,
+        // prettier-ignore
         "DELETE FROM cal_tz_version; " +
-          "INSERT INTO cal_tz_version VALUES ('" +
-          cal.getTimezoneService().version +
-          "');"
+        `INSERT INTO cal_tz_version VALUES ('${cal.getTimezoneService().version}');`
       );
       commitTransaction(db);
     } catch (e) {
@@ -530,10 +475,10 @@ function ensureUpdatedTimezones(db) {
  * @param db            (optional) The database to apply the operation on
  */
 function addColumn(tblData, tblName, colName, colType, db) {
-  cal.ASSERT(tblName in tblData, "Table " + tblName + " is missing from table def", true);
+  cal.ASSERT(tblName in tblData, `Table ${tblName} is missing from table def`, true);
   tblData[tblName][colName] = colType;
 
-  executeSimpleSQL(db, "ALTER TABLE " + tblName + "  ADD COLUMN " + colName + " " + colType);
+  executeSimpleSQL(db, `ALTER TABLE ${tblName} ADD COLUMN ${colName} ${colType}`);
 }
 
 /**
@@ -553,29 +498,17 @@ function deleteColumns(tblData, tblName, colNameArray, db) {
   executeSimpleSQL(db, getSql(tblName, tblData, tblName + "_temp"));
   executeSimpleSQL(
     db,
-    "INSERT INTO " +
-      tblName +
-      "_temp" +
-      "  (" +
-      columns.join(",") +
-      ") " +
-      "SELECT " +
-      columns.join(",") +
-      "  FROM " +
-      tblName +
-      ";"
+    // prettier-ignore
+    `INSERT INTO ${tblName}_temp (${columns.join(",")}) ` +
+    `SELECT ${columns.join(",")}` +
+    `  FROM ${tblName};`
   );
   executeSimpleSQL(
     db,
-    "DROP TABLE " +
-      tblName +
-      "; " +
-      "ALTER TABLE " +
-      tblName +
-      "_temp" +
-      "  RENAME TO " +
-      tblName +
-      ";"
+    // prettier-ignore
+    `DROP TABLE ${tblName}; ` +
+    `ALTER TABLE ${tblName}_temp` +
+    `  RENAME TO ${tblName};`
   );
 }
 
@@ -600,20 +533,10 @@ function copyTable(tblData, tblName, newTblName, db, condition, selectOptions) {
   executeSimpleSQL(db, getSql(newTblName, tblData));
   executeSimpleSQL(
     db,
-    "INSERT INTO " +
-      newTblName +
-      "  (" +
-      columns.join(",") +
-      ") " +
-      "SELECT " +
-      selectOptions +
-      " " +
-      columns.join(",") +
-      "  FROM " +
-      tblName +
-      " " +
-      (condition ? condition : "") +
-      ";"
+    // prettier-ignore
+    `INSERT INTO ${newTblName} (${columns.join(",")}) ` +
+    `SELECT ${selectOptions} ${columns.join(",")}` +
+    `  FROM ${tblName} ${condition ? condition : ""};`
   );
 }
 
@@ -635,29 +558,17 @@ function alterTypes(tblData, tblName, colNameArray, newType, db) {
   executeSimpleSQL(db, getSql(tblName, tblData, tblName + "_temp"));
   executeSimpleSQL(
     db,
-    "INSERT INTO " +
-      tblName +
-      "_temp" +
-      "  (" +
-      columns.join(",") +
-      ") " +
-      "SELECT " +
-      columns.join(",") +
-      "  FROM " +
-      tblName +
-      ";"
+    // prettier-ignore
+    `INSERT INTO ${tblName}_temp (${columns.join(",")}) ` +
+    `SELECT ${columns.join(",")}` +
+    `  FROM ${tblName};`
   );
   executeSimpleSQL(
     db,
-    "DROP TABLE " +
-      tblName +
-      "; " +
-      "ALTER TABLE " +
-      tblName +
-      "_temp" +
-      "  RENAME TO " +
-      tblName +
-      ";"
+    // prettier-ignore
+    `DROP TABLE ${tblName}; ` +
+    `ALTER TABLE ${tblName}_temp` +
+    `  RENAME TO ${tblName};`
   );
 }
 
@@ -677,7 +588,12 @@ function renameTable(tblData, tblName, newTblName, db, overwrite) {
   }
   tblData[newTblName] = tblData[tblName];
   delete tblData[tblName];
-  executeSimpleSQL(db, "ALTER TABLE " + tblName + "  RENAME TO " + newTblName);
+  executeSimpleSQL(
+    db,
+    // prettier-ignore
+    `ALTER TABLE ${tblName}` +
+    `  RENAME TO ${newTblName}`
+  );
 }
 
 /**
@@ -690,7 +606,7 @@ function renameTable(tblData, tblName, newTblName, db, overwrite) {
 function dropTable(tblData, tblName, db) {
   delete tblData[tblName];
 
-  executeSimpleSQL(db, "DROP TABLE IF EXISTS " + tblName + ";");
+  executeSimpleSQL(db, `DROP TABLE IF EXISTS ${tblName};`);
 }
 
 /**
@@ -720,21 +636,16 @@ function addTable(tblData, tblName, def, db) {
  */
 function migrateToIcalString(tblData, tblName, userFuncName, oldColumns, db) {
   addColumn(tblData, tblName, ["icalString"], "TEXT", db);
+  // prettier-ignore
   let updateSql =
-    "UPDATE " +
-    tblName +
-    " " +
-    "SET icalString = " +
-    userFuncName +
-    "(" +
-    oldColumns.join(",") +
-    ")";
+    `UPDATE ${tblName} ` +
+    `  SET icalString = ${userFuncName}(${oldColumns.join(",")})`;
   executeSimpleSQL(db, updateSql);
   deleteColumns(tblData, tblName, oldColumns, db);
 
   // If null was returned, its an invalid attendee. Make sure to remove them,
   // they might break things later on.
-  let cleanupSql = "DELETE FROM " + tblName + " WHERE icalString IS NULL";
+  let cleanupSql = `DELETE FROM ${tblName} WHERE icalString IS NULL`;
   executeSimpleSQL(db, cleanupSql);
 }
 
@@ -862,7 +773,7 @@ upgrade.v2 = upgrade.v1 = function(db, version) {
   };
 
   for (let tbl in tblData) {
-    executeSimpleSQL(db, "DROP TABLE IF EXISTS " + tbl);
+    executeSimpleSQL(db, `DROP TABLE IF EXISTS ${tbl}`);
   }
   return tblData;
 };
@@ -878,7 +789,9 @@ upgrade.v3 = function(db, version) {
   function updateSql(tbl, field) {
     executeSimpleSQL(
       db,
-      "UPDATE " + tbl + " SET " + field + "_tz='UTC' WHERE " + field + " IS NOT NULL"
+      // prettier-ignore
+      `UPDATE ${tbl} SET ${field}_tz='UTC'` +
+      ` WHERE ${field} IS NOT NULL`
     );
   }
 
@@ -1193,7 +1106,7 @@ upgrade.v13 = function(db, version) {
     let calIds = {};
     if (db) {
       for (let itemTable of ["events", "todos"]) {
-        let stmt = createStatement(db, "SELECT id, cal_id FROM cal_" + itemTable);
+        let stmt = createStatement(db, `SELECT id, cal_id FROM cal_${itemTable}`);
         try {
           while (stmt.executeStep()) {
             calIds[stmt.row.id] = stmt.row.cal_id;
@@ -1210,13 +1123,10 @@ upgrade.v13 = function(db, version) {
       for (let itemId in calIds) {
         executeSimpleSQL(
           db,
-          "UPDATE cal_" +
-            tblid +
-            "   SET cal_id = " +
-            calIds[itemId] +
-            " WHERE item_id = '" +
-            itemId +
-            "'"
+          // prettier-ignore
+          `UPDATE cal_${tblid}` +
+          `   SET cal_id = ${calIds[itemId]}` +
+          ` WHERE item_id = '${itemId}'`
         );
       }
     }
@@ -1224,9 +1134,10 @@ upgrade.v13 = function(db, version) {
     executeSimpleSQL(db, "DROP INDEX IF EXISTS idx_cal_properies_item_id");
     executeSimpleSQL(
       db,
+      // prettier-ignore
       "CREATE INDEX IF NOT EXISTS" +
-        " idx_cal_properies_item_id" +
-        " ON cal_properties(cal_id, item_id);"
+      " idx_cal_properies_item_id" +
+      " ON cal_properties(cal_id, item_id);"
     );
     setDbVersionAndCommit(db, 13);
   } catch (e) {
@@ -1354,17 +1265,16 @@ upgrade.v16 = function(db, version) {
       const transAlarm = "translateAlarm(alarm_offset, alarm_related, alarm_time, alarm_time_tz)";
       executeSimpleSQL(
         db,
+        // prettier-ignore
         "INSERT INTO cal_alarms (cal_id, item_id," +
-          "                        recurrence_id, " +
-          "                        recurrence_id_tz, " +
-          "                        icalString)" +
-          " SELECT cal_id, id, recurrence_id," +
-          "        recurrence_id_tz, " +
-          transAlarm +
-          "   FROM " +
-          tblName +
-          "  WHERE alarm_offset IS NOT NULL" +
-          "     OR alarm_time IS NOT NULL;"
+        "                        recurrence_id, " +
+        "                        recurrence_id_tz, " +
+        "                        icalString)" +
+        " SELECT cal_id, id, recurrence_id," +
+        `        recurrence_id_tz, ${transAlarm}` +
+        `   FROM ${tblName}` +
+        "  WHERE alarm_offset IS NOT NULL" +
+        "     OR alarm_time IS NOT NULL;"
       );
     };
     copyDataOver("cal_events");
@@ -1374,23 +1284,23 @@ upgrade.v16 = function(db, version) {
     // Make sure the alarm flag is set on the item
     executeSimpleSQL(
       db,
+      // prettier-ignore
       "UPDATE cal_events " +
-        "   SET flags = flags | " +
-        CAL_ITEM_FLAG.HAS_ALARMS +
-        " WHERE id IN" +
-        "  (SELECT item_id " +
-        "     FROM cal_alarms " +
-        "    WHERE cal_alarms.cal_id = cal_events.cal_id)"
+      `   SET flags = flags | ${CAL_ITEM_FLAG.HAS_ALARMS}` +
+      " WHERE id IN" +
+      "  (SELECT item_id " +
+      "     FROM cal_alarms " +
+      "    WHERE cal_alarms.cal_id = cal_events.cal_id)"
     );
     executeSimpleSQL(
       db,
+      // prettier-ignore
       "UPDATE cal_todos " +
-        "   SET flags = flags | " +
-        CAL_ITEM_FLAG.HAS_ALARMS +
-        " WHERE id IN" +
-        "  (SELECT item_id " +
-        "     FROM cal_alarms " +
-        "     WHERE cal_alarms.cal_id = cal_todos.cal_id)"
+      `   SET flags = flags | ${CAL_ITEM_FLAG.HAS_ALARMS}` +
+      " WHERE id IN" +
+      "  (SELECT item_id " +
+      "     FROM cal_alarms " +
+      "    WHERE cal_alarms.cal_id = cal_todos.cal_id)"
     );
 
     // Remote obsolete columns
@@ -1432,7 +1342,7 @@ upgrade.v17 = function(db, version) {
         // then swallowing the error is ok too since the cols will
         // already be added in v16.
         stmt = db.createStatement(
-          "SELECT recurrence_id_tz, recurrence_id FROM cal_" + tblName + " LIMIT 1"
+          `SELECT recurrence_id_tz, recurrence_id FROM cal_${tblName} LIMIT 1`
         );
         stmt.executeStep();
       } catch (e) {
@@ -1857,16 +1767,14 @@ upgrade.v22 = function(db, version) {
     addColumn(tbl, "cal_recurrence", ["tmp_date_tz"], "", db);
     executeSimpleSQL(
       db,
+      // prettier-ignore
       "UPDATE cal_recurrence SET tmp_date_tz = " +
-        "(SELECT e.flags " +
-        "FROM cal_events AS e " +
-        "WHERE e.id = cal_recurrence.item_id " +
-        "AND e.cal_id = cal_recurrence.cal_id " +
-        "UNION " +
-        "SELECT t.flags " +
-        "FROM cal_todos AS t " +
-        "WHERE t.id = cal_recurrence.item_id " +
-        "AND t.cal_id = cal_recurrence.cal_id)"
+      "(SELECT e.flags FROM cal_events AS e " +
+      "   WHERE e.id = cal_recurrence.item_id " +
+      "     AND e.cal_id = cal_recurrence.cal_id " +
+      " UNION SELECT t.flags FROM cal_todos AS t " +
+      "   WHERE t.id = cal_recurrence.item_id " +
+      "     AND t.cal_id = cal_recurrence.cal_id)"
     );
 
     migrateToIcalString(

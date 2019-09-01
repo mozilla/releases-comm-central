@@ -526,7 +526,8 @@ var calitem = {
       date = item.endDate.clone();
       date.addDuration(offset);
       item.endDate = date;
-    } /* isToDo */ else {
+    } else {
+      /* isToDo */
       if (item.entryDate) {
         let date = item.entryDate.clone();
         date.addDuration(offset);

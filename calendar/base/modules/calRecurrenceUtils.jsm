@@ -62,10 +62,13 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
     let byparts = [
       "BYSECOND",
       "BYMINUTE",
-      /* "BYDAY", */ "BYHOUR" /* "BYMONTHDAY", */,
+      /* "BYDAY", */
+      "BYHOUR",
+      /* "BYMONTHDAY", */
       "BYYEARDAY",
       "BYWEEKNO",
-      /* "BYMONTH", */ "BYSETPOS",
+      /* "BYMONTH", */
+      "BYSETPOS",
     ];
 
     if (rule && !checkRecurrenceRule(rule, byparts)) {

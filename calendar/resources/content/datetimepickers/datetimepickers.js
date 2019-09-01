@@ -1399,8 +1399,8 @@
     ampmIndex = null;
     // Digits         HR           sep          MIN         sep          SEC         sep
     //   Index:       2            3            4           5            6           7
-    let digitsExpr =
-      "(\\d?\\d)\\s?(\\D)?\\s?(?:(\\d\\d)\\s?(\\D)?\\s?(?:(\\d\\d)\\s?(\\D)?\\s?)?)?";
+    // prettier-ignore
+    let digitsExpr = "(\\d?\\d)\\s?(\\D)?\\s?(?:(\\d\\d)\\s?(\\D)?\\s?(?:(\\d\\d)\\s?(\\D)?\\s?)?)?";
     // digitsExpr has 6 captures, so index of first ampmExpr is 1, of last is 8.
     let probeTimeRegExp = new RegExp("^\\s*(\\D*)\\s?" + digitsExpr + "\\s?(\\D*)\\s*$");
     const PRE_INDEX = 1,
