@@ -154,7 +154,7 @@
       <hbox id="statusContainerBox" flex="1">
         <label id="statusText"
                class="statusbarpanel"
-               crop="right"
+               crop="end"
                flex="1"/>
         <hbox id="statusbar-progresspanel"
               class="statusbarpanel statusbarpanel-progress"

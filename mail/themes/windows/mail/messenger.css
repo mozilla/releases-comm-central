@@ -807,13 +807,11 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
   --tabs-border-color: hsla(0,0%,60%,.4);
 }
 
-statusbarpanel,
 .statusbarpanel {
   -moz-appearance: none;
   border-inline-end: 1px solid ThreeDLightShadow;
 }
 
-statusbarpanel:-moz-lwtheme,
 .statsubarpanel:-moz-lwtheme {
   border-inline-end-color: var(--tabs-border-color);
 }
@@ -829,7 +827,6 @@ statusbarpanel:-moz-lwtheme,
 }
 
 @media (-moz-windows-classic) {
-  statusbarpanel:not(:-moz-lwtheme),
   .statusbarpanel:not(:-moz-lwtheme) {
     -moz-appearance: statusbarpanel;
   }

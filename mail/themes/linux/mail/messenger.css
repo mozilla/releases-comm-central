@@ -768,7 +768,6 @@ menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
   --tabs-border-color: hsla(0,0%,60%,.4);
 }
 
-statusbarpanel,
 .statusbarpanel {
   -moz-appearance: none;
 }
