@@ -180,7 +180,6 @@
     <command id="cmd_findNext"      oncommand="goDoCommand('cmd_findNext');"/>
     <command id="cmd_findPrev"      oncommand="goDoCommand('cmd_findPrev');"/>
     <command id="cmd_spelling"      oncommand="goDoCommand('cmd_spelling')"/>
-    <command id="cmd_checkLinks"    oncommand="goDoCommand('cmd_checkLinks')"/>
     <command id="cmd_pasteQuote"
              label="&pasteAsQuotationCmd.label;"
              accesskey="&pasteAsQuotationCmd.accesskey;"

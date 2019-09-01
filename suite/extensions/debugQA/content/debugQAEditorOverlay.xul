@@ -36,8 +36,6 @@
                   oncommand="try { GetCurrentEditor().stripCites(); } catch (e) {}"/>
         <menuitem label="&insertTextCmd.label;"
                   oncommand="EditorInsertText('All good things come to those who wait. ')"/>
-        <menuitem id="menu_checkLinks" observes="cmd_checkLinks"
-                  label="&checkLinksCmd.label;"/>
         <menuseparator/>
         <menu accesskey="&insertFormMenu.accesskey;" id="insertFormMenu"
               label="&insertFormMenu.label;">

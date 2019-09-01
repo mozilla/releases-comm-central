@@ -32,7 +32,6 @@
 <!ENTITY statusText.label "Done loading page">
 <!ENTITY editStripQuotesCmd.label "Strip Quotes">
 <!ENTITY editRewrapCmd.label "Rewrap">
-<!ENTITY checkLinksCmd.label "Check Links">
 <!ENTITY insertFormMenu.label "Form">
 <!ENTITY insertFormMenu.accesskey "F">
 <!ENTITY insertFormCmd.label "Define Form…">

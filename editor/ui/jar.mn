@@ -199,8 +199,6 @@ comm.jar:
       content/editor/images/tag-ul.gif                         (composer/content/images/tag-ul.gif)
       content/editor/images/tag-var.gif                        (composer/content/images/tag-var.gif)
       content/editor/images/tag-userdefined.gif                (composer/content/images/tag-userdefined.gif)
-      content/editor/EdLinkChecker.xul                         (dialogs/content/EdLinkChecker.xul)
-      content/editor/EdLinkChecker.js                          (dialogs/content/EdLinkChecker.js)
       content/editor/EdSnapToGrid.xul                          (dialogs/content/EdSnapToGrid.xul)
       content/editor/EdSnapToGrid.js                           (dialogs/content/EdSnapToGrid.js)
       content/editor/EditConflict.xul                          (dialogs/content/EditConflict.xul)
