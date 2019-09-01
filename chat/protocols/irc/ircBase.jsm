@@ -68,8 +68,9 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
 
   for (let channelName of aChannels) {
     if (!aAccount.conversations.has(channelName)) {
+      // Handle when we closed the window.
       continue;
-    } // Handle when we closed the window
+    }
     let conversation = aAccount.getConversation(channelName);
     for (let nick of aNicks) {
       let msg;
@@ -357,8 +358,8 @@ var ircBase = {
       // duplication and use a localized version.
       let quitMsg = aMessage.params[0] || "";
       if (quitMsg.startsWith("Quit: ")) {
-        quitMsg = quitMsg.slice(6);
-      } // "Quit: ".length
+        quitMsg = quitMsg.slice(6); // "Quit: ".length
+      }
       // If a quit message was included, show it.
       let nick = aMessage.origin;
       let msg = _(

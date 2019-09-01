@@ -295,8 +295,9 @@ UIConversation.prototype = {
   },
   checkClose() {
     if (!this._currentTargetId) {
+      // Already closed.
       return true;
-    } // already closed.
+    }
 
     if (
       !Services.prefs.getBoolPref("messenger.conversations.alwaysClose") &&
@@ -409,8 +410,9 @@ UIConversation.prototype = {
 
     this._disconnected = true;
     if (this.contact) {
+      // Handled by the contact observer.
       return;
-    } // handled by the contact observer.
+    }
 
     if (this.isChat && this.left) {
       this._wasLeft = true;
@@ -571,8 +573,9 @@ UIConversation.prototype = {
 
     for (let observer of this._observers) {
       if (!observer.observe && !this._observers.includes(observer)) {
+        // Observer removed by a previous call to another observer.
         continue;
-      } // observer removed by a previous call to another observer.
+      }
       observer.observe(aSubject, aTopic, aData);
     }
     this._notifyUnreadCountChanged();

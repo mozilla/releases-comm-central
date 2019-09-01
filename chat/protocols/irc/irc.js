@@ -192,9 +192,8 @@ function _setMode(aAddNewMode, aNewModes) {
     // If the mode is in the list of modes and we want to remove it.
     if (hasMode && !aAddNewMode) {
       this._modes.delete(newMode);
-    }
-    // If the mode is not in the list of modes and we want to add it.
-    else if (!hasMode && aAddNewMode) {
+    } else if (!hasMode && aAddNewMode) {
+      // If the mode is not in the list of modes and we want to add it.
       this._modes.add(newMode);
     }
   }
@@ -1140,8 +1139,9 @@ ircAccount.prototype = {
       }
       this.sendMessage("AWAY", text); // Mark as away.
     } else if (type == Ci.imIStatusInfo.STATUS_AVAILABLE && this.isAway) {
+      // Mark as back.
       this.sendMessage("AWAY");
-    } // Mark as back.
+    }
   },
 
   // The user's user mode.
@@ -1208,8 +1208,9 @@ ircAccount.prototype = {
       !aIsUserRequest &&
       !Services.prefs.getBoolPref("chat.irc.automaticList")
     ) {
+      // Pretend we can't return roomInfo.
       throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-    } // Pretend we can't return roomInfo.
+    }
     if (this._roomInfoCallbacks.has(aCallback)) {
       // Callback is not new.
       return;
@@ -1222,9 +1223,8 @@ ircAccount.prototype = {
       this._pendingList = true;
       this._lastListTime = Date.now();
       this.sendMessage("LIST");
-    }
-    // Otherwise, pass channels that have already been received to the callback.
-    else {
+    } else {
+      // Otherwise, pass channels that have already been received to the callback.
       let rooms = [...this._channelList.keys()];
       aCallback.onRoomInfoAvailable(rooms, !this._pendingList, rooms.length);
     }

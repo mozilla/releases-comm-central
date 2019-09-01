@@ -229,8 +229,9 @@ var Socket = {
 
     if ("_proxyCancel" in this) {
       if (this._proxyCancel) {
+        // Has to give a failure code.
         this._proxyCancel.cancel(Cr.NS_ERROR_ABORT);
-      } // Has to give a failure code
+      }
       delete this._proxyCancel;
     }
 

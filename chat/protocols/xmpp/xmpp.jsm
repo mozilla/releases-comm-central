@@ -86,9 +86,8 @@ function parseStatus(aStanza) {
     if (show == "away") {
       statusType = Ci.imIStatusInfo.STATUS_AWAY;
     } else if (show == "chat") {
-      statusType = Ci.imIStatusInfo.STATUS_AVAILABLE;
-    } // FIXME
-    else if (show == "dnd") {
+      statusType = Ci.imIStatusInfo.STATUS_AVAILABLE; // FIXME
+    } else if (show == "dnd") {
       statusType = Ci.imIStatusInfo.STATUS_UNAVAILABLE;
     } else if (show == "xa") {
       statusType = Ci.imIStatusInfo.STATUS_IDLE;
@@ -1305,8 +1304,9 @@ var XMPPAccountBuddyPrototype = {
 
     if (type == "unavailable" || type == "error") {
       if (!this._resources || !(resource in this._resources)) {
+        // Ignore for already offline resources.
         return;
-      } // ignore for already offline resources.
+      }
       delete this._resources[resource];
       if (preferred == resource) {
         preferred = undefined;
@@ -1552,9 +1552,9 @@ var XMPPAccountPrototype = {
     let muc = this._mucs.get(jid);
     if (muc) {
       if (!muc.left) {
+        // We are already in this conversation.
         return muc;
-      } // We are already in this conversation.
-      else if (!muc.chatRoomFields) {
+      } else if (!muc.chatRoomFields) {
         // We are rejoining a room that was parted by the user.
         muc._rejoined = true;
       }

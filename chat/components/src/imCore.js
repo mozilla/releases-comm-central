@@ -235,8 +235,9 @@ UserStatus.prototype = {
   getUserIcon() {
     let filename = Services.prefs.getCharPref(kPrefUserIconFilename);
     if (!filename) {
+      // No icon has been set.
       return null;
-    } // No icon has been set.
+    }
 
     let file = this._getProfileDir();
     file.append(filename);

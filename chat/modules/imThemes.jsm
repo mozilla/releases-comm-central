@@ -930,8 +930,9 @@ SelectedMessage.prototype = {
   // also initialize _selectedText and _cutBegin/End.
   _initSelectedText() {
     if ("_textSelected" in this) {
+      // Already initialized.
       return;
-    } // already initialized
+    }
 
     let spanNode = this._getSpanNode();
     if (!spanNode) {

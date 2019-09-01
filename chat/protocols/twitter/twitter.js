@@ -838,8 +838,9 @@ Account.prototype = {
       function(aData, aXHR) {
         let user = JSON.parse(aData);
         if (!("id_str" in user)) {
+          // Unexpected response...
           return;
-        } // Unexpected response...
+        }
         this._friends.delete(user.id_str);
         this.timeline.removeParticipant(user.screen_name);
         let date = aXHR.getResponseHeader("Date");

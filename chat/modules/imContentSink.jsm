@@ -5,15 +5,14 @@
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 this.EXPORTED_SYMBOLS = [
-  "cleanupImMarkup", // used to clean up incoming IMs.
-  // This will use the global ruleset of acceptable stuff
-  // except if another (custom one) is provided
-  "createDerivedRuleset", // used to create a ruleset that inherits from the
-  // default one
-  // useful if you want to allow or forbid
-  // an additional thing in a specific
-  // conversation but take into account all
-  // the other global settings.
+  // cleanImMarkup is used to clean up incoming IMs. It will use the global
+  // ruleset of acceptable stuff except if another (custom one) is provided.
+  "cleanupImMarkup",
+  // createDerivedRuleset is used to create a ruleset that inherits from the
+  // default one. Useful if you want to allow or forbid an additional thing in
+  // a specific conversation but take into account all the other global
+  // settings.
+  "createDerivedRuleset",
   "addGlobalAllowedTag",
   "removeGlobalAllowedTag",
   "addGlobalAllowedAttribute",

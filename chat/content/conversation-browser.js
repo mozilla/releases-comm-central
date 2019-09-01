@@ -271,8 +271,9 @@
               reason & Ci.nsISelectionListener.KEYPRESS_REASON
             )
           ) {
+            // We are still dragging, don't bother with the selection.
             return;
-          } // we are still dragging, don't bother with the selection
+          }
 
           Cc["@mozilla.org/widget/clipboardhelper;1"]
             .getService(Ci.nsIClipboardHelper)

@@ -1772,8 +1772,9 @@ ContactsService.prototype = {
           statement.getUTF8String(0) == aUserName &&
           statement.getUTF8String(1) == aPrplId
         ) {
+          // The account is already stored correctly.
           return;
-        } // The account is already stored correctly.
+        }
         throw Cr.NS_ERROR_UNEXPECTED; // Corrupted database?!?
       }
     } finally {

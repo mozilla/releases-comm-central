@@ -221,9 +221,8 @@ CommandsService.prototype = {
     // don't look at any other commands.
     if (this._commands.hasOwnProperty(aName)) {
       commandNames = [aName];
-    }
-    // Otherwise, check if there is a partial match.
-    else {
+    } else {
+      // Otherwise, check if there is a partial match.
       commandNames = Object.keys(this._commands).filter(command =>
         command.startsWith(aName)
       );
