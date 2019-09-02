@@ -32,7 +32,9 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/mailViewSetup.js"/>
   <script src="chrome://messenger/content/searchTerm.js"/>
+  <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/dateFormat.js"/>
+  <script src="chrome://messenger/content/customElements.js"/>
 
   <vbox flex="1">
     <separator class="thin"/>
