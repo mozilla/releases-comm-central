@@ -113,6 +113,14 @@
       ["menus"]
     ]
   },
+  "messageDisplay": {
+    "url": "chrome://messenger/content/parent/ext-messageDisplay.js",
+    "schema": "chrome://messenger/content/schemas/messageDisplay.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["messageDisplay"]
+    ]
+  },
   "messages": {
     "url": "chrome://messenger/content/parent/ext-messages.js",
     "schema": "chrome://messenger/content/schemas/messages.json",
