@@ -2723,6 +2723,7 @@ function addTagCallback(aName, aColor) {
   tagListBox.ensureElementIsVisible(item);
   tagListBox.selectItem(item);
   tagListBox.focus();
+  return true;
 }
 
 function editTagCallback() {
@@ -2730,19 +2731,22 @@ function editTagCallback() {
   let tagListEl = document.getElementById("tagList");
   let index = tagListEl.selectedIndex;
   if (index < 0) {
-    return;
+    return false;
   }
 
   let tagElToEdit = tagListEl.getItemAtIndex(index);
   let key = tagElToEdit.getAttribute("value");
   let color = MailServices.tags.getColorForKey(key);
   // update the color and label elements
-  tagElToEdit.setAttribute("label", MailServices.tags.getTagForKey(key));
+  tagElToEdit
+    .querySelector("label")
+    .setAttribute("value", MailServices.tags.getTagForKey(key));
   tagElToEdit.style.color = color;
 
   // Add to style sheet. We simply add the new color, the rule is added at the
   // end and will overrule the previous rule.
   TagUtils.addTagToAllDocumentSheets(key, color);
+  return true;
 }
 
 Preferences.get("mailnews.start_page.enabled").on(

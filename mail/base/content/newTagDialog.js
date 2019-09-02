@@ -9,8 +9,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-document.addEventListener("dialogaccept", onOKNewTag);
-
 var dialog;
 
 /**
@@ -30,6 +28,9 @@ function onLoad() {
   dialog.okCallback = windowArgs.okCallback;
   if (windowArgs.keyToEdit) {
     initializeForEditing(windowArgs.keyToEdit);
+    document.addEventListener("dialogaccept", event => onOKEditTag(event));
+  } else {
+    document.addEventListener("dialogaccept", event => onOKNewTag(event));
   }
 
   doEnabling();
@@ -45,12 +46,6 @@ function initializeForEditing(aTagKey) {
   var messengerBundle = document.getElementById("bundle_messenger");
   document.title = messengerBundle.getString("editTagTitle");
 
-  // override the OK button
-  document.documentElement.setAttribute(
-    "ondialogaccept",
-    "return onOKEditTag();"
-  );
-
   // extract the color and name for the current tag
   document.getElementById(
     "tagColorPicker"
@@ -61,7 +56,7 @@ function initializeForEditing(aTagKey) {
 /**
  * on OK handler for editing a new tag.
  */
-function onOKEditTag() {
+function onOKEditTag(event) {
   // get the tag name of the current key we are editing
   let existingTagName = MailServices.tags.getTagForKey(dialog.editTagKey);
 
@@ -70,7 +65,8 @@ function onOKEditTag() {
     // don't let the user edit a tag to the name of another existing tag
     if (MailServices.tags.getKeyForTag(dialog.nameField.value)) {
       alertForExistingTag();
-      return false; // abort the OK
+      event.preventDefault();
+      return;
     }
 
     MailServices.tags.setTagForKey(dialog.editTagKey, dialog.nameField.value);
@@ -80,7 +76,9 @@ function onOKEditTag() {
     dialog.editTagKey,
     document.getElementById("tagColorPicker").value
   );
-  return dialog.okCallback();
+  if (!dialog.okCallback()) {
+    event.preventDefault();
+  }
 }
 
 /**
