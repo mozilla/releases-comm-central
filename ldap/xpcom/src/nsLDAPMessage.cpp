@@ -564,21 +564,12 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
   nsresult rv;
   for (i = 0; i < numVals; i++) {
     // create an nsBERValue object
-    //
-    nsCOMPtr<nsILDAPBERValue> berValue = new nsLDAPBERValue();
-    if (!berValue) {
-      NS_ERROR(
-          "nsLDAPMessage::GetBinaryValues(): out of memory"
-          " creating nsLDAPBERValue object");
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(i, aValues);
-      ldap_value_free_len(values);
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
+    RefPtr<nsLDAPBERValue> berValue = new nsLDAPBERValue();
 
     // copy the value from the struct into the nsBERValue
     //
-    rv = berValue->Set(values[i]->bv_len,
-                       reinterpret_cast<uint8_t *>(values[i]->bv_val));
+    rv = berValue->SetRaw(values[i]->bv_len,
+                          reinterpret_cast<uint8_t *>(values[i]->bv_val));
     if (NS_FAILED(rv)) {
       NS_ERROR(
           "nsLDAPMessage::GetBinaryValues(): error setting"
@@ -588,8 +579,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
     }
 
     // put the nsIBERValue object into the out array
-    //
-    NS_ADDREF((*aValues)[i] = berValue.get());
+    berValue.forget(aValues[i]);
   }
 
   *aCount = numVals;

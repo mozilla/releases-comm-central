@@ -18,37 +18,24 @@ nsLDAPBERValue::~nsLDAPBERValue() {
   }
 }
 
-// void get (out unsigned long aCount,
-//           [array, size_is (aCount), retval] out octet aRetVal); */
+// Array<octet> get();
 NS_IMETHODIMP
-nsLDAPBERValue::Get(uint32_t *aCount, uint8_t **aRetVal) {
-  // if mSize = 0, return a count of a 0 and a null pointer
-
-  if (mSize) {
-    // get a buffer to hold a copy of the data
-    //
-    uint8_t *array = static_cast<uint8_t *>(moz_xmalloc(mSize));
-
-    if (!array) {
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
-
-    // copy and return
-    //
-    memcpy(array, mValue, mSize);
-    *aRetVal = array;
+nsLDAPBERValue::Get(nsTArray<uint8_t>& aRetVal) {
+  if (mSize > 0) {
+    aRetVal.ReplaceElementsAt(0, aRetVal.Length(), mValue, mSize);
   } else {
-    *aRetVal = 0;
+    aRetVal.SetLength(0);
   }
-
-  *aCount = mSize;
   return NS_OK;
 }
 
-// void set(in unsigned long aCount,
-//          [array, size_is(aCount)] in octet aValue);
+// void set(in Array<octet> aValue);
 NS_IMETHODIMP
-nsLDAPBERValue::Set(uint32_t aCount, uint8_t *aValue) {
+nsLDAPBERValue::Set(nsTArray<uint8_t> const& aValue) {
+  return SetRaw(aValue.Length(), aValue.Elements());
+}
+
+nsresult nsLDAPBERValue::SetRaw(uint32_t aCount, const uint8_t* aValue) {
   // get rid of any old value being held here
   //
   if (mValue) {
@@ -60,7 +47,7 @@ nsLDAPBERValue::Set(uint32_t aCount, uint8_t *aValue) {
   if (aCount) {
     // get a buffer to hold a copy of this data
     //
-    mValue = static_cast<uint8_t *>(moz_xmalloc(aCount));
+    mValue = static_cast<uint8_t*>(moz_xmalloc(aCount));
     if (!mValue) {
       return NS_ERROR_OUT_OF_MEMORY;
     }
@@ -81,7 +68,7 @@ nsLDAPBERValue::Set(uint32_t aCount, uint8_t *aValue) {
 // void setFromUTF8(in AUTF8String aValue);
 //
 NS_IMETHODIMP
-nsLDAPBERValue::SetFromUTF8(const nsACString &aValue) {
+nsLDAPBERValue::SetFromUTF8(const nsACString& aValue) {
   // get rid of any old value being held here
   //
   if (mValue) {
@@ -92,7 +79,7 @@ nsLDAPBERValue::SetFromUTF8(const nsACString &aValue) {
   //
   mSize = aValue.Length();
   if (mSize) {
-    mValue = reinterpret_cast<uint8_t *>(ToNewCString(aValue));
+    mValue = reinterpret_cast<uint8_t*>(ToNewCString(aValue));
   } else {
     mValue = 0;
   }

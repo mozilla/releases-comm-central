@@ -20,8 +20,7 @@ interface nsILDAPBERValue : nsISupports
      *
      * @exception NS_ERROR_OUT_OF_MEMORY    couldn't allocate buffer to copy to
      */
-    void set(in unsigned long aCount,
-             [array, size_is(aCount)] in octet aValue);
+    void set(in Array<octet> aValue);
 
     /**
      * Set the BER value from a UTF8 string (copies).
@@ -38,7 +37,6 @@ interface nsILDAPBERValue : nsISupports
      *
      * @exception NS_ERROR_OUT_OF_MEMORY    couldn't allocate buffer to copy to
      */
-    void get(out unsigned long aCount,
-             [retval, array, size_is(aCount)] out octet aRetVal);
+    Array<octet> get();
 };
 

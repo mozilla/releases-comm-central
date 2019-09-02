@@ -15,7 +15,6 @@
 #include "mozilla/Encoding.h"
 #include "ldap.h"
 
-
 // The two schemes we support, LDAP and LDAPS
 //
 NS_NAMED_LITERAL_CSTRING(LDAP_SCHEME, "ldap");

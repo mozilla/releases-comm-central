@@ -26,6 +26,8 @@ class nsLDAPBERValue : public nsILDAPBERValue {
 
   nsLDAPBERValue();
 
+  nsresult SetRaw(uint32_t aCount, const uint8_t* aValue);
+
  protected:
   virtual ~nsLDAPBERValue();
 
@@ -35,7 +37,7 @@ class nsLDAPBERValue : public nsILDAPBERValue {
    */
   friend class nsLDAPControl;
 
-  uint8_t *mValue;  // pointer to an array
+  uint8_t* mValue;  // pointer to an array
   uint32_t mSize;   // size of the value, in bytes
 };
 

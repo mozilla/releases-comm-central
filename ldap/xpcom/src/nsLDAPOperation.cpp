@@ -884,20 +884,35 @@ nsresult nsLDAPOperation::CopyValues(nsILDAPModification *aMod,
   for (valueIndex = 0; valueIndex < valuesCount; ++valueIndex) {
     nsCOMPtr<nsILDAPBERValue> value(do_QueryElementAt(values, valueIndex, &rv));
 
-    berval *bval = new berval;
-    if (NS_FAILED(rv) || !bval) {
-      for (uint32_t counter = 0; counter < valueIndex && counter < valuesCount;
-           ++counter)
-        delete (*aBValues)[valueIndex];
-
-      free(*aBValues);
-      delete bval;
-      return NS_ERROR_OUT_OF_MEMORY;
+    nsTArray<uint8_t> tmp;
+    rv = value->Get(tmp);
+    if (NS_FAILED(rv)) {
+      goto bailout;
     }
-    value->Get((uint32_t *)&bval->bv_len, (uint8_t **)&bval->bv_val);
+    berval *bval = new berval;
+    bval->bv_len = tmp.Length() * sizeof(uint8_t);
+    bval->bv_val = static_cast<char *>(moz_xmalloc(bval->bv_len));
+    if (!bval->bv_val) {
+      rv = NS_ERROR_OUT_OF_MEMORY;
+      delete bval;
+      goto bailout;
+    }
+    memcpy(bval->bv_val, tmp.Elements(), bval->bv_len);
     (*aBValues)[valueIndex] = bval;
   }
 
   (*aBValues)[valuesCount] = 0;
   return NS_OK;
+
+bailout:
+  if (*aBValues) {
+    // Free all the entries we created before the failure.
+    for (uint32_t i = 0; i < valueIndex; ++i) {
+      berval *bval = (*aBValues)[i];
+      free(bval->bv_val);
+      delete bval;
+    }
+    free(*aBValues);
+  }
+  return rv;
 }
