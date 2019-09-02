@@ -326,7 +326,7 @@ nsMsgStatusFeedback.prototype = {
     } else {
       // Statusbar invisible: Show link in statuspanel instead.
       // TODO: consider porting the Firefox implementation of LinkTargetDisplay.
-      this._statusPanel.value = url;
+      this._statusPanel.label = url;
     }
   },
 
