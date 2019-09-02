@@ -302,8 +302,10 @@ this.windows = class extends ExtensionAPI {
           win.updateGeometry(updateInfo);
 
           if (updateInfo.titlePreface) {
-            win.setTitlePreface(updateInfo.titlePreface);
-            win.window.gBrowser.updateTitlebar();
+            if (win instanceof TabmailWindow) {
+              win.setTitlePreface(updateInfo.titlePreface);
+              win.window.document.getElementById("tabmail").setDocumentTitle();
+            }
           }
 
           // TODO: All the other properties, focused=false...

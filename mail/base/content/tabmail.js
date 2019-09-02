@@ -1883,12 +1883,16 @@
     /**
      * Set the document title based on the tab title
      */
-    setDocumentTitle(aTab) {
+    setDocumentTitle(aTab = this.selectedTab) {
       let docTitle = aTab.title ? aTab.title.trim() : "";
       let docElement = document.documentElement;
       // If the document title is blank, add the default title.
       if (!docTitle) {
         docTitle = docElement.getAttribute("defaultTabTitle");
+      }
+
+      if (docElement.hasAttribute("titlepreface")) {
+        docTitle = docElement.getAttribute("titlepreface") + docTitle;
       }
 
       // If we're on Mac, don't display the separator and the modifier.
