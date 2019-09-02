@@ -965,7 +965,9 @@ const menuTracker = {
     for (const window of windowTracker.browserWindows()) {
       for (const id of this.menuIds) {
         const menu = window.document.getElementById(id);
-        menu.removeEventListener("popupshowing", this);
+        if (menu) {
+          menu.removeEventListener("popupshowing", this);
+        }
       }
     }
     windowTracker.removeOpenListener(this.onWindowOpen);
@@ -979,7 +981,9 @@ const menuTracker = {
   onWindowOpen(window) {
     for (const id of menuTracker.menuIds) {
       const menu = window.document.getElementById(id);
-      menu.addEventListener("popupshowing", menuTracker);
+      if (menu) {
+        menu.addEventListener("popupshowing", menuTracker);
+      }
     }
   },
 

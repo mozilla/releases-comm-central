@@ -35,7 +35,9 @@ module.exports = {
     // These are defined in ext-mail.js.
     ExtensionError: true,
     Tab: true,
+    TabmailTab: true,
     Window: true,
+    TabmailWindow: true,
     convertFolder: true,
     convertMessage: true,
     folderPathToURI: true,

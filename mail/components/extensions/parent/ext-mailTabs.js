@@ -80,11 +80,11 @@ var uiListener = new (class extends EventEmitter {
   constructor() {
     super();
     this.listenerCount = 0;
-    this.handleSelect = this.handleSelect.bind(this);
+    this.handleEvent = this.handleEvent.bind(this);
     this.lastSelected = new WeakMap();
   }
 
-  handleSelect(event) {
+  handleEvent(event) {
     let tab = tabTracker.activeTab;
     if (event.target.id == "folderTree") {
       let folder = tab.folderDisplay.displayedFolder;
@@ -104,28 +104,16 @@ var uiListener = new (class extends EventEmitter {
     }
   }
 
-  addListenersToWindow(window) {
-    window.addEventListener("select", uiListener.handleSelect);
-  }
-  removeListenersFromWindow(window) {
-    window.removeEventListener("select", uiListener.handleSelect);
-  }
   incrementListeners() {
     this.listenerCount++;
     if (this.listenerCount == 1) {
-      for (let window of windowTracker.browserWindows()) {
-        this.addListenersToWindow(window);
-      }
-      windowTracker.addOpenListener(this.addListenersToWindow);
+      windowTracker.addListener("select", this);
     }
   }
   decrementListeners() {
     this.listenerCount--;
     if (this.listenerCount == 0) {
-      for (let window of windowTracker.browserWindows()) {
-        this.removeListenersFromWindow(window);
-      }
-      windowTracker.removeOpenListener(this.addListenersToWindow);
+      windowTracker.removeListener("select", this);
       this.lastSelected = new WeakMap();
     }
   }

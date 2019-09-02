@@ -120,7 +120,7 @@ class TabsUpdateFilterEventManager extends EventManager {
       }
 
       function getWindowID(windowId) {
-        if (windowId === Window.WINDOW_ID_CURRENT) {
+        if (windowId === WindowBase.WINDOW_ID_CURRENT) {
           return windowTracker.getId(windowTracker.topWindow);
         }
         return windowId;
@@ -438,6 +438,10 @@ this.tabs = class extends ExtensionAPI {
 
           for (let tabId of tabs) {
             let nativeTabInfo = tabTracker.getTab(tabId);
+            if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
+              nativeTabInfo.close();
+              continue;
+            }
             let browser = getTabBrowser(nativeTabInfo);
             let tabmail = browser.ownerDocument.getElementById("tabmail");
             tabmail.closeTab(nativeTabInfo);
@@ -446,6 +450,11 @@ this.tabs = class extends ExtensionAPI {
 
         async update(tabId, updateProperties) {
           let nativeTabInfo = getTabOrActive(tabId);
+          if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
+            throw new ExtensionError(
+              "tabs.update is not applicable to this tab."
+            );
+          }
           let browser = getTabBrowser(nativeTabInfo);
           let tabmail = browser.ownerDocument.getElementById("tabmail");
 
@@ -478,6 +487,11 @@ this.tabs = class extends ExtensionAPI {
 
         async reload(tabId, reloadProperties) {
           let nativeTabInfo = getTabOrActive(tabId);
+          if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
+            throw new ExtensionError(
+              "tabs.reload is not applicable to this tab."
+            );
+          }
           let browser = getTabBrowser(nativeTabInfo);
 
           let flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
@@ -578,6 +592,12 @@ this.tabs = class extends ExtensionAPI {
 
           let tabs = tabIds.map(tabId => tabTracker.getTab(tabId));
           for (let nativeTabInfo of tabs) {
+            if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
+              throw new ExtensionError(
+                "tabs.move is not applicable to this tab."
+              );
+            }
+
             // If the window is not specified, use the window from the tab.
             let browser = getTabBrowser(nativeTabInfo);
 
@@ -640,6 +660,11 @@ this.tabs = class extends ExtensionAPI {
 
         duplicate(tabId) {
           let nativeTabInfo = tabTracker.getTab(tabId);
+          if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
+            throw new ExtensionError(
+              "tabs.duplicate is not applicable to this tab."
+            );
+          }
           let browser = getTabBrowser(nativeTabInfo);
           let tabmail = browser.ownerDocument.getElementById("tabmail");
 

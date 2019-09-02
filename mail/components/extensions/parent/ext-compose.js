@@ -86,7 +86,6 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
   }
 
   params.composeFields = composeFields;
-  console.log(params);
   MailServices.compose.OpenComposeWindowWithParams(null, params);
 }
 

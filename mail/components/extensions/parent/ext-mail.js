@@ -135,12 +135,18 @@ function getTabBrowser(nativeTabInfo) {
     return null;
   }
 
-  if (nativeTabInfo.mode.getBrowser) {
-    return nativeTabInfo.mode.getBrowser(nativeTabInfo);
+  if (nativeTabInfo.mode) {
+    if (nativeTabInfo.mode.getBrowser) {
+      return nativeTabInfo.mode.getBrowser(nativeTabInfo);
+    }
+
+    if (nativeTabInfo.mode.tabType.getBrowser) {
+      return nativeTabInfo.mode.tabType.getBrowser(nativeTabInfo);
+    }
   }
 
-  if (nativeTabInfo.mode.tabType.getBrowser) {
-    return nativeTabInfo.mode.tabType.getBrowser(nativeTabInfo);
+  if (nativeTabInfo.ownerGlobal && nativeTabInfo.ownerGlobal.getBrowser) {
+    return nativeTabInfo.ownerGlobal.getBrowser();
   }
 
   return null;
@@ -199,7 +205,12 @@ class WindowTracker extends WindowTrackerBase {
   isBrowserWindow(window) {
     let { documentElement } = window.document;
 
-    return documentElement.getAttribute("windowtype") === "mail:3pane";
+    return [
+      "mail:3pane",
+      "mail:addressbook",
+      "msgcompose",
+      "mail:messageWindow",
+    ].includes(documentElement.getAttribute("windowtype"));
   }
 
   /**
@@ -449,6 +460,10 @@ class TabTracker extends TabTrackerBase {
    */
   _handleWindowOpen(window) {
     let tabmail = window.document.getElementById("tabmail");
+    if (!tabmail) {
+      return;
+    }
+
     for (let nativeTabInfo of tabmail.tabInfo) {
       if (!getTabBrowser(nativeTabInfo)) {
         continue;
@@ -465,6 +480,10 @@ class TabTracker extends TabTrackerBase {
    */
   _handleWindowClose(window) {
     let tabmail = window.document.getElementById("tabmail");
+    if (!tabmail) {
+      return;
+    }
+
     for (let nativeTabInfo of tabmail.tabInfo) {
       if (!getTabBrowser(nativeTabInfo)) {
         continue;
@@ -591,17 +610,9 @@ Object.assign(global, { tabTracker, windowTracker });
  * Extension-specific wrapper around a Thunderbird tab.
  */
 class Tab extends TabBase {
-  constructor(extension, nativeTab, id) {
-    if (nativeTab.localName == "tab") {
-      let tabmail = nativeTab.ownerDocument.getElementById("tabmail");
-      nativeTab = tabmail._getTabContextForTabbyThing(nativeTab)[1];
-    }
-    super(extension, nativeTab, id);
-  }
-
   /** Returns true if this tab is a 3-pane tab. */
   get mailTab() {
-    return this.nativeTab.mode.type == "folder";
+    return false;
   }
 
   /** Overrides the matches function to enable querying for 3-pane tabs. */
@@ -636,14 +647,14 @@ class Tab extends TabBase {
     return result;
   }
 
-  /** Returns the XUL browser for the tab. */
-  get browser() {
-    return getTabBrowser(this.nativeTab);
+  /** Always returns false. This feature doesn't exist in Thunderbird. */
+  get _incognito() {
+    return false;
   }
 
-  /** Returns the tabmail element for the tab. */
-  get tabmail() {
-    return this.browser.ownerDocument.getElementById("tabmail");
+  /** Returns the XUL browser for the tab. */
+  get browser() {
+    return null;
   }
 
   /** Returns the frame loader for the tab. */
@@ -655,7 +666,7 @@ class Tab extends TabBase {
 
   /** Returns the favIcon, without permission checks. */
   get _favIconUrl() {
-    return this.browser.mIconURL;
+    return null;
   }
 
   /** Returns the last accessed time. */
@@ -690,9 +701,7 @@ class Tab extends TabBase {
 
   /** Returns the tab index. */
   get index() {
-    return this.tabmail.tabInfo
-      .filter(info => getTabBrowser(info))
-      .indexOf(this.nativeTab);
+    return 0;
   }
 
   /** Returns information about the muted state of the tab. */
@@ -712,7 +721,7 @@ class Tab extends TabBase {
 
   /** Returns the active state of the tab. */
   get active() {
-    return this.nativeTab == this.tabmail.selectedTab;
+    return true;
   }
 
   /** Returns the highlighted state of the tab. */
@@ -727,13 +736,12 @@ class Tab extends TabBase {
 
   /** Returns the loading status of the tab. */
   get status() {
-    return this.browser.webProgress.isLoadingDocument ? "loading" : "complete";
+    return "complete";
   }
 
   /** Returns the title of the tab, without permission checks. */
   get _title() {
-    let tabNode = this.tabmail._getTabContextForTabbyThing(this.nativeTab)[2];
-    return tabNode.getAttribute("label");
+    return this.nativeTab.ownerDocument.title;
   }
 
   /** Returns the width of the tab. */
@@ -743,7 +751,7 @@ class Tab extends TabBase {
 
   /** Returns the native window object of the tab. */
   get window() {
-    return this.browser.ownerGlobal;
+    return this.nativeTab;
   }
 
   /** Returns the window id of the tab. */
@@ -772,10 +780,94 @@ class Tab extends TabBase {
   }
 }
 
+class TabmailTab extends Tab {
+  constructor(extension, nativeTab, id) {
+    if (nativeTab.localName == "tab") {
+      let tabmail = nativeTab.ownerDocument.getElementById("tabmail");
+      nativeTab = tabmail._getTabContextForTabbyThing(nativeTab)[1];
+    }
+    super(extension, nativeTab, id);
+  }
+
+  /** Returns the XUL browser for the tab. */
+  get browser() {
+    return getTabBrowser(this.nativeTab);
+  }
+
+  /** Returns the favIcon, without permission checks. */
+  get _favIconUrl() {
+    return this.browser.mIconURL;
+  }
+
+  /** Returns the tabmail element for the tab. */
+  get tabmail() {
+    return this.browser.ownerDocument.getElementById("tabmail");
+  }
+
+  /** Returns true if this tab is a 3-pane tab. */
+  get mailTab() {
+    return this.nativeTab.mode.type == "folder";
+  }
+
+  /** Returns the tab index. */
+  get index() {
+    return this.tabmail.tabInfo
+      .filter(info => getTabBrowser(info))
+      .indexOf(this.nativeTab);
+  }
+
+  /** Returns the active state of the tab. */
+  get active() {
+    return this.nativeTab == this.tabmail.selectedTab;
+  }
+
+  /** Returns the loading status of the tab. */
+  get status() {
+    if (this.browser && this.browser.webProgress) {
+      return this.browser.webProgress.isLoadingDocument
+        ? "loading"
+        : "complete";
+    }
+    return "complete";
+  }
+
+  /** Returns the title of the tab, without permission checks. */
+  get _title() {
+    let [, , tabNode] = this.tabmail._getTabContextForTabbyThing(
+      this.nativeTab
+    );
+    return tabNode.getAttribute("label");
+  }
+
+  /** Returns the native window object of the tab. */
+  get window() {
+    return this.tabmail.ownerGlobal;
+  }
+}
+
 /**
  * Extension-specific wrapper around a Thunderbird window.
  */
 class Window extends WindowBase {
+  /**
+   * @property {string} type
+   *        The type of the window, as defined by the WebExtension API. May be
+   *        either "normal" or "popup".
+   *        @readonly
+   */
+  get type() {
+    switch (this.window.document.documentElement.getAttribute("windowtype")) {
+      case "mail:addressbook":
+        return "addressBook";
+      case "msgcompose":
+        return "messageCompose";
+      case "mail:messageWindow":
+        return "messageDisplay";
+      default:
+        return super.type;
+    }
+  }
+
   /**
    * Update the geometry of the mail window.
    *
@@ -807,11 +899,6 @@ class Window extends WindowBase {
         options.height === null ? window.outerHeight : options.height;
       window.resizeTo(width, height);
     }
-  }
-
-  /** Returns the tabmail element for the tab. */
-  get tabmail() {
-    return this.window.document.getElementById("tabmail");
   }
 
   /** Returns the title of the tab, without permission checks. */
@@ -956,6 +1043,43 @@ class Window extends WindowBase {
    */
   *getTabs() {
     let { tabManager } = this.extension;
+    yield tabManager.getWrapper(this.window);
+  }
+
+  /** Retrieves the active tab in this window */
+  get activeTab() {
+    let { tabManager } = this.extension;
+    return tabManager.getWrapper(this.window);
+  }
+
+  /**
+   * Retrieves the tab at the given index.
+   *
+   * @param {Number} index      The index to look at
+   * @return {Tab}              The wrapped tab at the index
+   */
+  getTabAtIndex(index) {
+    let { tabManager } = this.extension;
+    if (index == 0) {
+      return tabManager.getWrapper(this.window);
+    }
+    return null;
+  }
+}
+
+class TabmailWindow extends Window {
+  /** Returns the tabmail element for the tab. */
+  get tabmail() {
+    return this.window.document.getElementById("tabmail");
+  }
+
+  /**
+   * Retrieves the (relevant) tabs in this window.
+   *
+   * @yields {Tab}      The wrapped Tab in this window
+   */
+  *getTabs() {
+    let { tabManager } = this.extension;
 
     for (let nativeTabInfo of this.tabmail.tabInfo) {
       if (getTabBrowser(nativeTabInfo)) {
@@ -1054,7 +1178,11 @@ class TabManager extends TabManagerBase {
    * @return {Tab}                              The wrapped native tab
    */
   wrapTab(nativeTabInfo) {
-    return new Tab(
+    let tabClass = TabmailTab;
+    if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
+      tabClass = Tab;
+    }
+    return new tabClass(
       this.extension,
       nativeTabInfo,
       tabTracker.getId(nativeTabInfo)
@@ -1097,7 +1225,13 @@ class WindowManager extends WindowManagerBase {
    * @returns {Window}              The wrapped window
    */
   wrapWindow(window) {
-    return new Window(this.extension, window, windowTracker.getId(window));
+    let windowClass = Window;
+    if (
+      window.document.documentElement.getAttribute("windowtype") == "mail:3pane"
+    ) {
+      windowClass = TabmailWindow;
+    }
+    return new windowClass(this.extension, window, windowTracker.getId(window));
   }
 }
 
