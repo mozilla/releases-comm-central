@@ -118,7 +118,9 @@ function onAcceptDialog() {
     gCalendar.deleteProperty("auto-enabled");
   }
 }
-document.addEventListener("dialogaccept", onAcceptDialog);
+// When this event fires, onAcceptDialog might not be the function defined
+// above, so call it indirectly.
+document.addEventListener("dialogaccept", () => onAcceptDialog());
 
 /**
  * When the calendar is disabled, we need to disable a number of other elements
