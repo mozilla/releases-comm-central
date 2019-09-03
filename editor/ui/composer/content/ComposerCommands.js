@@ -10,6 +10,9 @@
 
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */
+/* globals CreatePublishDataFromUrl editPage FormatDirForPublishing getTopWin
+   goPreferences nsIPromptService openComposeWindow openNewPrivateWith
+   PrintPreviewListener SavePublishDataToPrefs SavePassword savePWObj */
 
 var gComposerJSCommandControllerID = 0;
 
@@ -507,10 +510,10 @@ var nsDummyHTMLCommand = {
   },
 };
 
-/* eslint-disable */
 var nsOpenCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return true;    // we can always do this
+    // We can always do this.
+    return true;
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -528,8 +531,9 @@ var nsOpenCommand = {
     // Direct user to prefer HTML files and/or text files depending on whether
     // loading into Composer or Text editor, so we call separately to control
     // the order of the filter list.
-    if (fileType == "html")
+    if (fileType == "html") {
       fp.appendFilters(nsIFilePicker.filterHTML);
+    }
     fp.appendFilters(nsIFilePicker.filterText);
     fp.appendFilters(nsIFilePicker.filterAll);
 
@@ -545,7 +549,6 @@ var nsOpenCommand = {
     });
   },
 };
-/* eslint-enable */
 
 // STRUCTURE TOOLBAR
 //
@@ -667,7 +670,6 @@ var nsSaveAndChangeEncodingCommand = {
   },
 };
 
-/* eslint-disable */
 var nsPublishCommand = {
   isCommandEnabled(aCommand, dummy) {
     if (IsDocumentEditable()) {
@@ -676,8 +678,12 @@ var nsPublishCommand = {
       //  when you first open any local file.
       try {
         var docUrl = GetDocumentUrl();
-        return IsDocumentModified() || IsHTMLSourceChanged()
-               || IsUrlAboutBlank(docUrl) || GetScheme(docUrl) == "file";
+        return (
+          IsDocumentModified() ||
+          IsHTMLSourceChanged() ||
+          IsUrlAboutBlank(docUrl) ||
+          GetScheme(docUrl) == "file"
+        );
       } catch (e) {
         return false;
       }
@@ -695,7 +701,9 @@ var nsPublishCommand = {
       let publishData;
 
       // First check pref to always show publish dialog
-      let showPublishDialog = Services.prefs.getBoolPref("editor.always_show_publish_dialog");
+      let showPublishDialog = Services.prefs.getBoolPref(
+        "editor.always_show_publish_dialog"
+      );
 
       if (!showPublishDialog && filename) {
         // Try to get publish data from the document url
@@ -711,13 +719,21 @@ var nsPublishCommand = {
         publishData = {};
         window.ok = false;
         let oldTitle = GetDocumentTitle();
-        window.openDialog("chrome://editor/content/EditorPublish.xul", "_blank",
-                          "chrome,close,titlebar,modal", "", "", publishData);
-        if (GetDocumentTitle() != oldTitle)
+        window.openDialog(
+          "chrome://editor/content/EditorPublish.xul",
+          "_blank",
+          "chrome,close,titlebar,modal",
+          "",
+          "",
+          publishData
+        );
+        if (GetDocumentTitle() != oldTitle) {
           UpdateWindowTitle();
+        }
 
-        if (!window.ok)
+        if (!window.ok) {
           return false;
+        }
       }
       if (publishData) {
         SetEditMode(gPreviousNonSourceDisplayMode);
@@ -727,7 +743,6 @@ var nsPublishCommand = {
     return false;
   },
 };
-/* eslint-enable */
 
 var nsPublishAsCommand = {
   isCommandEnabled(aCommand, dummy) {
@@ -1098,7 +1113,6 @@ const kErrorBindingAborted = 2152398850;
 const kErrorBindingRedirected = 2152398851;
 const kFileNotFound = 2152857618;
 
-/* eslint-disable */
 var gEditorOutputProgressListener = {
   /* eslint-disable complexity */
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
@@ -1110,38 +1124,50 @@ var gEditorOutputProgressListener = {
       var channel = aRequest.QueryInterface(nsIChannel);
       requestSpec = StripUsernamePasswordFromURI(channel.URI);
     } catch (e) {
-      if (gShowDebugOutputStateChange)
+      if (gShowDebugOutputStateChange) {
         dump("***** onStateChange; NO REQUEST CHANNEL\n");
+      }
     }
 
     var pubSpec;
-    if (gPublishData)
-      pubSpec = gPublishData.publishUrl + gPublishData.docDir + gPublishData.filename;
+    if (gPublishData) {
+      pubSpec =
+        gPublishData.publishUrl + gPublishData.docDir + gPublishData.filename;
+    }
 
     if (gShowDebugOutputStateChange) {
       dump("\n***** onStateChange request: " + requestSpec + "\n");
       dump("      state flags: ");
 
-      if (aStateFlags & nsIWebProgressListener.STATE_START)
+      if (aStateFlags & nsIWebProgressListener.STATE_START) {
         dump(" STATE_START, ");
-      if (aStateFlags & nsIWebProgressListener.STATE_STOP)
+      }
+      if (aStateFlags & nsIWebProgressListener.STATE_STOP) {
         dump(" STATE_STOP, ");
-      if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK)
+      }
+      if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
         dump(" STATE_IS_NETWORK ");
+      }
 
-      dump("\n * requestSpec=" + requestSpec + ", pubSpec=" + pubSpec + ", aStatus=" + aStatus + "\n");
+      dump(
+        `\n * requestSpec=${requestSpec}, pubSpec=${pubSpec}, aStatus=${aStatus}\n`
+      );
 
       DumpDebugStatus(aStatus);
     }
     // The rest only concerns publishing, so bail out if no dialog
-    if (!gProgressDialog)
+    if (!gProgressDialog) {
       return;
+    }
 
     // Detect start of file upload of any file:
     // (We ignore any START messages after gPersistObj says publishing is finished
-    if ((aStateFlags & nsIWebProgressListener.STATE_START)
-         && gPersistObj && requestSpec
-         && (gPersistObj.currentState != gPersistObj.PERSIST_STATE_FINISHED)) {
+    if (
+      aStateFlags & nsIWebProgressListener.STATE_START &&
+      gPersistObj &&
+      requestSpec &&
+      gPersistObj.currentState != gPersistObj.PERSIST_STATE_FINISHED
+    ) {
       try {
         // Add url to progress dialog's list showing each file uploading
         gProgressDialog.SetProgressStatus(GetFilename(requestSpec), "busy");
@@ -1155,32 +1181,41 @@ var gEditorOutputProgressListener = {
         // check http channel for response: 200 range is ok; other ranges are not
         var httpChannel = aRequest.QueryInterface(Ci.nsIHttpChannel);
         var httpResponse = httpChannel.responseStatus;
-        if (httpResponse < 200 || httpResponse >= 300)
-          aStatus = httpResponse;   // not a real error but enough to pass check below
-        else if (aStatus == kErrorBindingAborted)
+        if (httpResponse < 200 || httpResponse >= 300) {
+          // Not a real error but enough to pass check below.
+          aStatus = httpResponse;
+        } else if (aStatus == kErrorBindingAborted) {
           aStatus = 0;
+        }
 
-        if (gShowDebugOutputStateChange)
+        if (gShowDebugOutputStateChange) {
           dump("http response is: " + httpResponse + "\n");
+        }
       } catch (e) {
-        if (aStatus == kErrorBindingAborted)
+        if (aStatus == kErrorBindingAborted) {
           aStatus = 0;
+        }
       }
 
       // We abort publishing for all errors except if image src file is not found
-      var abortPublishing = (aStatus != 0 && aStatus != kFileNotFound);
+      var abortPublishing = aStatus != 0 && aStatus != kFileNotFound;
 
       // Notify progress dialog when we receive the STOP
       //  notification for a file if there was an error
       //  or a successful finish
       //  (Check requestSpec to be sure message is for destination url)
-      if (aStatus != 0
-           || (requestSpec && requestSpec.startsWith(GetScheme(gPublishData.publishUrl)))) {
+      if (
+        aStatus != 0 ||
+        (requestSpec &&
+          requestSpec.startsWith(GetScheme(gPublishData.publishUrl)))
+      ) {
         try {
-          gProgressDialog.SetProgressFinished(GetFilename(requestSpec), aStatus);
+          gProgressDialog.SetProgressFinished(
+            GetFilename(requestSpec),
+            aStatus
+          );
         } catch (e) {}
       }
-
 
       if (abortPublishing) {
         // Cancel publishing
@@ -1222,8 +1257,13 @@ var gEditorOutputProgressListener = {
       //    notification with a null "requestSpec", and
       //    the gPersistObj is destroyed before we get here!
       //    So create an new object so we can flow through normal processing below
-      if (!requestSpec && GetScheme(gPublishData.publishUrl) == "file"
-          && (!gPersistObj || gPersistObj.currentState == nsIWebBrowserPersist.PERSIST_STATE_FINISHED)) {
+      if (
+        !requestSpec &&
+        GetScheme(gPublishData.publishUrl) == "file" &&
+        (!gPersistObj ||
+          gPersistObj.currentState ==
+            nsIWebBrowserPersist.PERSIST_STATE_FINISHED)
+      ) {
         aStateFlags |= nsIWebProgressListener.STATE_IS_NETWORK;
         if (!gPersistObj) {
           gPersistObj = {
@@ -1234,12 +1274,17 @@ var gEditorOutputProgressListener = {
       }
 
       // STATE_IS_NETWORK signals end of publishing, as does the gPersistObj.currentState
-      if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK
-          && gPersistObj.currentState == nsIWebBrowserPersist.PERSIST_STATE_FINISHED) {
+      if (
+        aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK &&
+        gPersistObj.currentState == nsIWebBrowserPersist.PERSIST_STATE_FINISHED
+      ) {
         if (GetScheme(gPublishData.publishUrl) == "file") {
           // XXX "file://" hack: We don't get notified about the HTML file, so end progress for it
           // (This covers both "Case 1 and 2" described above)
-          gProgressDialog.SetProgressFinished(gPublishData.filename, gPersistObj.result);
+          gProgressDialog.SetProgressFinished(
+            gPublishData.filename,
+            gPersistObj.result
+          );
         }
 
         if (gPersistObj.result == 0) {
@@ -1248,7 +1293,9 @@ var gEditorOutputProgressListener = {
             // Make a new docURI from the "browse location" in case "publish location" was FTP
             // We need to set document uri before notifying listeners
             var docUrl = GetDocUrlFromPublishData(gPublishData);
-            SetDocumentURI(Services.io.newURI(docUrl, editor.documentCharacterSet));
+            SetDocumentURI(
+              Services.io.newURI(docUrl, editor.documentCharacterSet)
+            );
 
             UpdateWindowTitle();
 
@@ -1256,6 +1303,8 @@ var gEditorOutputProgressListener = {
             editor.resetModificationCount();
 
             // Set UI based on whether we're editing a remote or local url
+            // Why is urlstring undefined?
+            /* eslint-disable-next-line no-undef */
             SetSaveAndPublishUI(urlstring);
           } catch (e) {}
 
@@ -1285,26 +1334,50 @@ var gEditorOutputProgressListener = {
   },
   /* eslint-enable complexity */
 
-  onProgressChange(aWebProgress, aRequest, aCurSelfProgress,
-                              aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
-    if (!gPersistObj)
+  onProgressChange(
+    aWebProgress,
+    aRequest,
+    aCurSelfProgress,
+    aMaxSelfProgress,
+    aCurTotalProgress,
+    aMaxTotalProgress
+  ) {
+    if (!gPersistObj) {
       return;
+    }
 
     if (gShowDebugOutputProgress) {
-      dump("\n onProgressChange: gPersistObj.result=" + gPersistObj.result + "\n");
+      dump(
+        "\n onProgressChange: gPersistObj.result=" + gPersistObj.result + "\n"
+      );
       try {
-      var channel = aRequest.QueryInterface(nsIChannel);
-      dump("***** onProgressChange request: " + channel.URI.spec + "\n");
+        var channel = aRequest.QueryInterface(nsIChannel);
+        dump("***** onProgressChange request: " + channel.URI.spec + "\n");
       } catch (e) {}
-      dump("*****       self:  " + aCurSelfProgress + " / " + aMaxSelfProgress + "\n");
-      dump("*****       total: " + aCurTotalProgress + " / " + aMaxTotalProgress + "\n\n");
+      dump(
+        "*****       self:  " +
+          aCurSelfProgress +
+          " / " +
+          aMaxSelfProgress +
+          "\n"
+      );
+      dump(
+        "*****       total: " +
+          aCurTotalProgress +
+          " / " +
+          aMaxTotalProgress +
+          "\n\n"
+      );
 
-      if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_READY)
+      if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_READY) {
         dump(" Persister is ready to save data\n\n");
-      else if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_SAVING)
+      } else if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_SAVING) {
         dump(" Persister is saving data.\n\n");
-      else if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_FINISHED)
+      } else if (
+        gPersistObj.currentState == gPersistObj.PERSIST_STATE_FINISHED
+      ) {
         dump(" PERSISTER HAS FINISHED SAVING DATA\n\n\n");
+      }
     }
   },
 
@@ -1331,12 +1404,17 @@ var gEditorOutputProgressListener = {
       DumpDebugStatus(aStatus);
 
       if (gPersistObj) {
-        if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_READY)
+        if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_READY) {
           dump(" Persister is ready to save data\n\n");
-        else if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_SAVING)
+        } else if (
+          gPersistObj.currentState == gPersistObj.PERSIST_STATE_SAVING
+        ) {
           dump(" Persister is saving data.\n\n");
-        else if (gPersistObj.currentState == gPersistObj.PERSIST_STATE_FINISHED)
+        } else if (
+          gPersistObj.currentState == gPersistObj.PERSIST_STATE_FINISHED
+        ) {
           dump(" PERSISTER HAS FINISHED SAVING DATA\n\n\n");
+        }
       }
     }
   },
@@ -1350,17 +1428,22 @@ var gEditorOutputProgressListener = {
     }
   },
 
-  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {
-  },
+  onContentBlockingEvent(aWebProgress, aRequest, aEvent) {},
 
-  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener",
-                                          "nsISupportsWeakReference",
-                                          "nsIPrompt",
-                                          "nsIAuthPrompt"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+    "nsIPrompt",
+    "nsIAuthPrompt",
+  ]),
 
   // nsIPrompt
   alert(dlgTitle, text) {
-    Services.prompt.alert(gProgressDialog ? gProgressDialog : window, dlgTitle, text);
+    Services.prompt.alert(
+      gProgressDialog ? gProgressDialog : window,
+      dlgTitle,
+      text
+    );
   },
   alertCheck(dialogTitle, text, checkBoxLabel, checkObj) {
     Services.prompt.alert(window, dialogTitle, text);
@@ -1369,13 +1452,39 @@ var gEditorOutputProgressListener = {
     return ConfirmWithTitle(dlgTitle, text, null, null);
   },
   confirmCheck(dlgTitle, text, checkBoxLabel, checkObj) {
-    Services.prompt.confirmEx(window, dlgTitle, text, nsIPromptService.STD_OK_CANCEL_BUTTONS,
-                              "", "", "", checkBoxLabel, checkObj);
+    Services.prompt.confirmEx(
+      window,
+      dlgTitle,
+      text,
+      nsIPromptService.STD_OK_CANCEL_BUTTONS,
+      "",
+      "",
+      "",
+      checkBoxLabel,
+      checkObj
+    );
   },
-  confirmEx(dlgTitle, text, btnFlags, btn0Title, btn1Title, btn2Title, checkBoxLabel, checkVal) {
-    return Services.prompt.confirmEx(window, dlgTitle, text, btnFlags,
-                                     btn0Title, btn1Title, btn2Title,
-                                     checkBoxLabel, checkVal);
+  confirmEx(
+    dlgTitle,
+    text,
+    btnFlags,
+    btn0Title,
+    btn1Title,
+    btn2Title,
+    checkBoxLabel,
+    checkVal
+  ) {
+    return Services.prompt.confirmEx(
+      window,
+      dlgTitle,
+      text,
+      btnFlags,
+      btn0Title,
+      btn1Title,
+      btn2Title,
+      checkBoxLabel,
+      checkVal
+    );
   },
 
   /** ***********************************************************************
@@ -1424,22 +1533,36 @@ var gEditorOutputProgressListener = {
    *************************************************************************/
 
   select(dlgTitle, text, selectList, outSelection) {
-    return Services.prompt.select(window, dlgTitle, text, selectList, outSelection);
+    return Services.prompt.select(
+      window,
+      dlgTitle,
+      text,
+      selectList,
+      outSelection
+    );
   },
 
   // nsIAuthPrompt
   prompt(dlgTitle, text, pwrealm, savePW, defaultText, result) {
-    var ret = Services.prompt.prompt(gProgressDialog ? gProgressDialog : window,
-                                     dlgTitle, text, defaultText, pwrealm, savePWObj);
-    if (!ret)
+    var ret = Services.prompt.prompt(
+      gProgressDialog ? gProgressDialog : window,
+      dlgTitle,
+      text,
+      defaultText,
+      pwrealm,
+      savePWObj
+    );
+    if (!ret) {
       setTimeout(CancelPublishing, 0);
+    }
     return ret;
   },
 
   promptUsernameAndPassword(dlgTitle, text, pwrealm, savePW, userObj, pwObj) {
     var ret = PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj);
-    if (!ret)
+    if (!ret) {
       setTimeout(CancelPublishing, 0);
+    }
     return ret;
   },
 
@@ -1450,25 +1573,38 @@ var gEditorOutputProgressListener = {
       // "inout" savePassword param, while nsIAuthPrompt is just "in"
       // Also nsIAuth doesn't supply "checkBoxLabel"
       // Initialize with user's previous preference for this site
-      var savePWObj = {value: savePW};
+      var savePWObj = { value: savePW };
       // Initialize with user's previous preference for this site
-      if (gPublishData)
+      if (gPublishData) {
         savePWObj.value = gPublishData.savePassword;
+      }
 
-      ret = Services.prompt.promptPassword(gProgressDialog ? gProgressDialog : window,
-                                           dlgTitle, text, pwObj, GetString("SavePassword"), savePWObj);
+      ret = Services.prompt.promptPassword(
+        gProgressDialog ? gProgressDialog : window,
+        dlgTitle,
+        text,
+        pwObj,
+        GetString("SavePassword"),
+        savePWObj
+      );
 
-      if (!ret)
+      if (!ret) {
         setTimeout(CancelPublishing, 0);
+      }
 
-      if (ret && gPublishData)
-        UpdateUsernamePasswordFromPrompt(gPublishData, gPublishData.username, pwObj.value, savePWObj.value);
+      if (ret && gPublishData) {
+        UpdateUsernamePasswordFromPrompt(
+          gPublishData,
+          gPublishData.username,
+          pwObj.value,
+          savePWObj.value
+        );
+      }
     } catch (e) {}
 
     return ret;
   },
 };
-/* eslint-enable */
 
 function PromptUsernameAndPassword(dlgTitle, text, savePW, userObj, pwObj) {
   // HTTP prompts us twice even if user Cancels from 1st attempt!
@@ -1655,38 +1791,48 @@ function IsSupportedTextMimeType(aMimeType) {
   return false;
 }
 
-/* eslint-disable */
 /* eslint-disable complexity */
 // throws an error or returns true if user attempted save; false if user canceled save
 async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   var editor = GetCurrentEditor();
-  if (!aMimeType || !editor)
+  if (!aMimeType || !editor) {
     throw Cr.NS_ERROR_NOT_INITIALIZED;
+  }
 
   var editorDoc = editor.document;
-  if (!editorDoc)
+  if (!editorDoc) {
     throw Cr.NS_ERROR_NOT_INITIALIZED;
+  }
 
   // if we don't have the right editor type bail (we handle text and html)
   var editorType = GetCurrentEditorType();
-  if (!["text", "html", "htmlmail", "textmail"].includes(editorType))
+  if (!["text", "html", "htmlmail", "textmail"].includes(editorType)) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  }
 
   var saveAsTextFile = IsSupportedTextMimeType(aMimeType);
 
   // check if the file is to be saved is a format we don't understand; if so, bail
-  if (aMimeType != kHTMLMimeType && aMimeType != kXHTMLMimeType && !saveAsTextFile)
+  if (
+    aMimeType != kHTMLMimeType &&
+    aMimeType != kXHTMLMimeType &&
+    !saveAsTextFile
+  ) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  }
 
-  if (saveAsTextFile)
+  if (saveAsTextFile) {
     aMimeType = "text/plain";
+  }
 
   var urlstring = GetDocumentUrl();
-  var mustShowFileDialog = (aSaveAs || IsUrlAboutBlank(urlstring) || (urlstring == ""));
+  var mustShowFileDialog =
+    aSaveAs || IsUrlAboutBlank(urlstring) || urlstring == "";
 
   // If editing a remote URL, force SaveAs dialog
-  if (!mustShowFileDialog && GetScheme(urlstring) != "file")
+  if (!mustShowFileDialog && GetScheme(urlstring) != "file") {
     mustShowFileDialog = true;
+  }
 
   var doUpdateURI = false;
   var tempLocalFile = null;
@@ -1694,26 +1840,38 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   if (mustShowFileDialog) {
     try {
       // Prompt for title if we are saving to HTML
-      if (!saveAsTextFile && (editorType == "html")) {
+      if (!saveAsTextFile && editorType == "html") {
         var userContinuing = PromptAndSetTitleIfNone(); // not cancel
-        if (!userContinuing)
+        if (!userContinuing) {
           return false;
+        }
       }
 
-      var dialogResult = await PromptForSaveLocation(saveAsTextFile, editorType, aMimeType, urlstring);
-      if (!dialogResult)
+      var dialogResult = await PromptForSaveLocation(
+        saveAsTextFile,
+        editorType,
+        aMimeType,
+        urlstring
+      );
+      if (!dialogResult) {
         return false;
+      }
 
-      replacing = (dialogResult.filepickerClick == nsIFilePicker.returnReplace);
+      // What is this unused 'replacing' var supposed to be doing?
+      /* eslint-disable-next-line no-unused-vars */
+      var replacing =
+        dialogResult.filepickerClick == nsIFilePicker.returnReplace;
+
       urlstring = dialogResult.resultingURIString;
       tempLocalFile = dialogResult.resultingLocalFile;
 
       // update the new URL for the webshell unless we are saving a copy
-      if (!aSaveCopy)
+      if (!aSaveCopy) {
         doUpdateURI = true;
+      }
     } catch (e) {
-       Cu.reportError(e);
-       return false;
+      Cu.reportError(e);
+      return false;
     }
   } // mustShowFileDialog
 
@@ -1727,7 +1885,9 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
 
       if (docURI.schemeIs("file")) {
         var fileHandler = GetFileProtocolHandler();
-        tempLocalFile = fileHandler.getFileFromURLSpec(urlstring).QueryInterface(Ci.nsIFile);
+        tempLocalFile = fileHandler
+          .getFileFromURLSpec(urlstring)
+          .QueryInterface(Ci.nsIFile);
       }
     }
 
@@ -1743,23 +1903,35 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
           // grab old location, chop off file
           // grab new location, chop off file, compare
           var oldLocation = GetDocumentUrl();
-          var oldLocationLastSlash = oldLocation.lastIndexOf("\/");
-          if (oldLocationLastSlash != -1)
+          var oldLocationLastSlash = oldLocation.lastIndexOf("/");
+          if (oldLocationLastSlash != -1) {
             oldLocation = oldLocation.slice(0, oldLocationLastSlash);
+          }
 
           var relatedFilesDirStr = urlstring;
-          var newLocationLastSlash = relatedFilesDirStr.lastIndexOf("\/");
-          if (newLocationLastSlash != -1)
-            relatedFilesDirStr = relatedFilesDirStr.slice(0, newLocationLastSlash);
-          if (oldLocation == relatedFilesDirStr || IsUrlAboutBlank(oldLocation))
+          var newLocationLastSlash = relatedFilesDirStr.lastIndexOf("/");
+          if (newLocationLastSlash != -1) {
+            relatedFilesDirStr = relatedFilesDirStr.slice(
+              0,
+              newLocationLastSlash
+            );
+          }
+          if (
+            oldLocation == relatedFilesDirStr ||
+            IsUrlAboutBlank(oldLocation)
+          ) {
             relatedFilesDir = null;
-          else
+          } else {
             relatedFilesDir = tempLocalFile.parent;
+          }
         } else {
-          var lastSlash = urlstring.lastIndexOf("\/");
+          var lastSlash = urlstring.lastIndexOf("/");
           if (lastSlash != -1) {
-            var relatedFilesDirString = urlstring.slice(0, lastSlash + 1);  // include last slash
-            relatedFilesDir = Services.io.newURI(relatedFilesDirString, editor.documentCharacterSet);
+            var relatedFilesDirString = urlstring.slice(0, lastSlash + 1); // include last slash
+            relatedFilesDir = Services.io.newURI(
+              relatedFilesDirString,
+              editor.documentCharacterSet
+            );
           }
         }
       } catch (e) {
@@ -1769,7 +1941,12 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
 
     let destinationLocation = tempLocalFile ? tempLocalFile : docURI;
 
-    success = OutputFileWithPersistAPI(editorDoc, destinationLocation, relatedFilesDir, aMimeType);
+    success = OutputFileWithPersistAPI(
+      editorDoc,
+      destinationLocation,
+      relatedFilesDir,
+      aMimeType
+    );
   } catch (e) {
     success = false;
   }
@@ -1777,9 +1954,10 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   if (success) {
     try {
       if (doUpdateURI) {
-         // If a local file, we must create a new uri from nsIFile
-        if (tempLocalFile)
+        // If a local file, we must create a new uri from nsIFile
+        if (tempLocalFile) {
           docURI = GetFileProtocolHandler().newFileURI(tempLocalFile);
+        }
 
         // We need to set new document uri before notifying listeners
         SetDocumentURI(docURI);
@@ -1790,20 +1968,24 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
       //   window title loses the extra [filename] part that this adds
       UpdateWindowTitle();
 
-      if (!aSaveCopy)
+      if (!aSaveCopy) {
         editor.resetModificationCount();
+      }
       // this should cause notification to listeners that document has changed
 
       // Set UI based on whether we're editing a remote or local url
       SetSaveAndPublishUI(urlstring);
     } catch (e) {}
   } else {
-    Services.prompt.alert(window, GetString("SaveDocument"), GetString("SaveFileFailed"));
+    Services.prompt.alert(
+      window,
+      GetString("SaveDocument"),
+      GetString("SaveFileFailed")
+    );
   }
   return success;
 }
 /* eslint-enable complexity */
-/* eslint-enable */
 
 function SetDocumentURI(uri) {
   try {
@@ -1985,26 +2167,29 @@ function FinishPublishing() {
   }
 }
 
-/* eslint-disable */
 // Create a nsIURI object filled in with all required publishing info
 function CreateURIFromPublishData(publishData, doDocUri) {
-  if (!publishData || !publishData.publishUrl)
+  if (!publishData || !publishData.publishUrl) {
     return null;
+  }
 
   var URI;
   try {
     var spec = publishData.publishUrl;
-    if (doDocUri)
+    if (doDocUri) {
       spec += FormatDirForPublishing(publishData.docDir) + publishData.filename;
-    else
+    } else {
       spec += FormatDirForPublishing(publishData.otherDir);
+    }
 
     URI = Services.io.newURI(spec, GetCurrentEditor().documentCharacterSet);
 
-    if (publishData.username)
+    if (publishData.username) {
       URI.username = publishData.username;
-    if (publishData.password)
+    }
+    if (publishData.password) {
       URI.password = publishData.password;
+    }
   } catch (e) {}
 
   return URI;
@@ -2012,8 +2197,9 @@ function CreateURIFromPublishData(publishData, doDocUri) {
 
 // Resolve the correct "http:" document URL when publishing via ftp
 function GetDocUrlFromPublishData(publishData) {
-  if (!publishData || !publishData.filename || !publishData.publishUrl)
+  if (!publishData || !publishData.filename || !publishData.publishUrl) {
     return "";
+  }
 
   // If user was previously editing an "ftp" url, then keep that as the new scheme
   var url;
@@ -2021,19 +2207,20 @@ function GetDocUrlFromPublishData(publishData) {
   // Always use the "HTTP" address if available
   // XXX Should we do some more validation here for bad urls???
   // Let's at least check for a scheme!
-  if (!GetScheme(publishData.browseUrl))
+  if (!GetScheme(publishData.browseUrl)) {
     url = publishData.publishUrl;
-  else
+  } else {
     url = publishData.browseUrl;
+  }
 
   url += FormatDirForPublishing(publishData.docDir) + publishData.filename;
 
-  if (GetScheme(url) == "ftp")
+  if (GetScheme(url) == "ftp") {
     url = InsertUsernameIntoUrl(url, publishData.username);
+  }
 
   return url;
 }
-/* eslint-enable */
 
 function SetSaveAndPublishUI(urlstring) {
   // Be sure enabled state of toolbar buttons are correct
@@ -2153,10 +2340,10 @@ async function CloseWindow() {
   }
 }
 
-/* eslint-disable */
 var nsOpenRemoteCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return true;    // we can always do this
+    // We can always do this.
+    return true;
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2164,7 +2351,12 @@ var nsOpenRemoteCommand = {
 
   doCommand(aCommand) {
     var params = { action: "2", url: "" };
-    openDialog("chrome://communicator/content/openLocation.xul", "_blank", "chrome,modal,titlebar", params);
+    openDialog(
+      "chrome://communicator/content/openLocation.xul",
+      "_blank",
+      "chrome,modal,titlebar",
+      params
+    );
     var win = getTopWin();
     switch (params.action) {
       case "0": // current window
@@ -2172,8 +2364,16 @@ var nsOpenRemoteCommand = {
         win.loadURI(params.url, null, null, true);
         break;
       case "1": // new window
-        openDialog(getBrowserURL(), "_blank", "all,dialog=no", params.url, null,
-                   null, null, true);
+        openDialog(
+          getBrowserURL(),
+          "_blank",
+          "all,dialog=no",
+          params.url,
+          null,
+          null,
+          null,
+          true
+        );
         break;
       case "2": // edit
         editPage(params.url);
@@ -2181,7 +2381,9 @@ var nsOpenRemoteCommand = {
       case "3": // new tab
         win.focus();
         var browser = win.getBrowser();
-        browser.selectedTab = browser.addTab(params.url, {allowThirdPartyFixup: true});
+        browser.selectedTab = browser.addTab(params.url, {
+          allowThirdPartyFixup: true,
+        });
         break;
       case "4": // private
         openNewPrivateWith(params.url);
@@ -2191,7 +2393,6 @@ var nsOpenRemoteCommand = {
     }
   },
 };
-/* eslint-enable */
 
 var nsPreviewCommand = {
   isCommandEnabled(aCommand, dummy) {
@@ -2252,11 +2453,11 @@ var nsPreviewCommand = {
   },
 };
 
-/* eslint-disable */
 var nsSendPageCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return (IsDocumentEditable() &&
-            (DocumentHasBeenSaved() || IsDocumentModified()));
+    return (
+      IsDocumentEditable() && (DocumentHasBeenSaved() || IsDocumentModified())
+    );
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2265,8 +2466,11 @@ var nsSendPageCommand = {
   async doCommand(aCommand) {
     // Don't continue if user canceled during prompt for saving
     // DocumentHasBeenSaved will test if we have a URL and suppress "Don't Save" button if not
-    if (!(await CheckAndSaveDocument("cmd_editSendPage", DocumentHasBeenSaved())))
+    if (
+      !(await CheckAndSaveDocument("cmd_editSendPage", DocumentHasBeenSaved()))
+    ) {
       return;
+    }
 
     // Check if we saved again just in case?
     if (DocumentHasBeenSaved()) {
@@ -2279,7 +2483,6 @@ var nsSendPageCommand = {
     }
   },
 };
-/* eslint-enable */
 
 var nsPrintCommand = {
   isCommandEnabled(aCommand, dummy) {
@@ -2299,10 +2502,10 @@ var nsPrintCommand = {
   },
 };
 
-/* eslint-disable */
 var nsPrintPreviewCommand = {
   isCommandEnabled(aCommand, dummy) {
-    return true;    // we can always do this
+    // We can always do this.
+    return true;
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -2316,7 +2519,6 @@ var nsPrintPreviewCommand = {
     } catch (e) {}
   },
 };
-/* eslint-enable */
 
 var nsPrintSetupCommand = {
   isCommandEnabled(aCommand, dummy) {
@@ -3232,11 +3434,10 @@ var nsRemoveNamedAnchorsCommand = {
   },
 };
 
-/* eslint-disable */
 var nsEditLinkCommand = {
   isCommandEnabled(aCommand, dummy) {
     // Not really used -- this command is only in context menu, and we do enabling there
-    return (IsDocumentEditable() && IsEditingRenderedHTML());
+    return IsDocumentEditable() && IsEditingRenderedHTML();
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
@@ -3245,13 +3446,13 @@ var nsEditLinkCommand = {
   doCommand(aCommand) {
     try {
       var element = GetCurrentEditor().getSelectedElement("href");
-      if (element)
+      if (element) {
         editPage(element.href);
+      }
     } catch (e) {}
     window.content.focus();
   },
 };
-/* eslint-enable */
 
 var nsNormalModeCommand = {
   isCommandEnabled(aCommand, dummy) {
@@ -3768,7 +3969,6 @@ var nsTableOrCellColorCommand = {
   },
 };
 
-/* eslint-disable */
 var nsPreferencesCommand = {
   isCommandEnabled(aCommand, dummy) {
     return true;
@@ -3781,7 +3981,6 @@ var nsPreferencesCommand = {
     goPreferences("composer_pane");
   },
 };
-/* eslint-enable */
 
 var nsFinishHTMLSource = {
   isCommandEnabled(aCommand, dummy) {
