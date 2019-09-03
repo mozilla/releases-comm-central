@@ -650,6 +650,13 @@ pref("xpinstall.signatures.required", false);
 // Built-in default permissions.
 pref("permissions.manager.defaultsUrl", "resource:///defaults/permissions");
 
+// Set default fallback values for site permissions we want
+// the user to be able to globally change.
+pref("permissions.default.camera", 0);
+pref("permissions.default.microphone", 0);
+pref("permissions.default.geo", 0);
+pref("permissions.default.desktop-notification", 0);
+
 // Customizable toolbar stuff
 pref("custtoolbar.personal_toolbar_folder", "");
 // Use a popup window for the customize toolbar UI

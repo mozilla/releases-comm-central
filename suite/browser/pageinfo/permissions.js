@@ -75,15 +75,15 @@ function initRow(aPartId)
   }
   checkbox.removeAttribute("disabled");
   var {state} = SitePermissions.get(gPermURI, aPartId);
+  let defaultState = SitePermissions.getDefault(aPartId);
 
-  if (state != SitePermissions.UNKNOWN) {
+  if (state != defaultState) {
     checkbox.checked = false;
     command.removeAttribute("disabled");
   }
   else {
     checkbox.checked = true;
     command.setAttribute("disabled", "true");
-    state = SitePermissions.getDefault(aPartId);
   }
   setRadioState(aPartId, state);
 }
@@ -134,8 +134,7 @@ function createRow(aPartId) {
   for (let state of SitePermissions.getAvailableStates(aPartId)) {
     let radio = document.createElement("radio");
     radio.setAttribute("id", aPartId + "#" + state);
-    radio.setAttribute("label",
-                       SitePermissions.getMultichoiceStateLabel(state));
+    radio.setAttribute("label", SitePermissions.getMultichoiceStateLabel(aPartId, state));
     radio.setAttribute("command", commandId);
     radiogroup.appendChild(radio);
   }
