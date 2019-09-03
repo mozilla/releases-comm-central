@@ -17,6 +17,9 @@ var TCount = 28;
 var NCount = VCount * TCount;
 // End of Unicode 3.0
 
+document.addEventListener("dialogaccept", onAccept);
+document.addEventListener("dialogcancel", onClose);
+
 // dialog initialization code
 function Startup() {
   if (!GetCurrentEditor()) {
@@ -34,7 +37,7 @@ function Startup() {
   SetWindowLocation();
 }
 
-function onAccept() {
+function onAccept(event) {
   // Insert the character
   try {
     GetCurrentEditor().insertText(LatinM.label);
@@ -47,7 +50,7 @@ function onAccept() {
   CategoryGroup.setAttribute("char_index", indexM);
 
   // Don't close the dialog
-  return false;
+  event.preventDefault();
 }
 
 // Don't allow inserting in HTML Source Mode
@@ -63,7 +66,6 @@ function onFocus() {
 function onClose() {
   window.opener.InsertCharWindow = null;
   SaveWindowLocation();
-  return true;
 }
 
 // ------------------------------------------------------------------

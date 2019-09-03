@@ -14,8 +14,6 @@
         onfocus = "onFocus()"
         buttonlabelaccept="&insertButton.label;"
         buttonlabelcancel="&closeButton.label;"
-        ondialogaccept = "return onAccept();"
-        ondialogcancel = "return onClose();"
         style = "width: 20em">
 
   <!-- Methods common to all editor dialogs -->
