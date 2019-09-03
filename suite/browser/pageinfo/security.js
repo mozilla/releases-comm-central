@@ -4,6 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var security = {
+  init: function(uri, windowInfo) {
+    this.uri = uri;
+    this.windowInfo = windowInfo;
+  },
+
   // Display the server certificate (static)
   viewCert : function () {
     var cert = security._cert;
@@ -11,48 +16,38 @@ var security = {
   },
 
   _getSecurityInfo : function() {
-    const nsIX509Cert = Ci.nsIX509Cert;
-    const nsIX509CertDB = Ci.nsIX509CertDB;
-    const nsX509CertDB = "@mozilla.org/security/x509certdb;1";
-    const nsISSLStatusProvider = Ci.nsISSLStatusProvider;
-    const nsISSLStatus = Ci.nsISSLStatus;
-    const nsIWebProgressListener = Ci.nsIWebProgressListener;
-
     // We don't have separate info for a frame, return null until further notice
     // (see bug 138479)
-    if (gWindow != gWindow.top)
+    if (!this.windowInfo.isTopWindow)
       return null;
 
-    var hName = null;
-    try {
-      hName = gWindow.location.host;
-    }
-    catch (exception) { }
+    var hostName = this.windowInfo.hostName;
 
     var ui = security._getSecurityUI();
+    if (!ui)
+      return null;
 
     var isBroken = ui &&
-      (ui.state & nsIWebProgressListener.STATE_IS_BROKEN);
+      (ui.state & Ci.nsIWebProgressListener.STATE_IS_BROKEN);
     var isInsecure = ui &&
-      (ui.state & nsIWebProgressListener.STATE_IS_INSECURE);
+      (ui.state & Ci.nsIWebProgressListener.STATE_IS_INSECURE);
     var isEV = ui &&
-      (ui.state & nsIWebProgressListener.STATE_IDENTITY_EV_TOPLEVEL);
-    var status = ui ? ui.QueryInterface(nsISSLStatusProvider).SSLStatus : null;
+      (ui.state & Ci.nsIWebProgressListener.STATE_IDENTITY_EV_TOPLEVEL);
+    var status = ui ? ui.QueryInterface(Ci.nsISSLStatusProvider).SSLStatus : null;
 
     if (!isInsecure && status) {
-      status.QueryInterface(nsISSLStatus);
+      status.QueryInterface(Ci.nsISSLStatus);
       var cert = status.serverCert;
       var issuerName = cert.issuerOrganization || cert.issuerName;
 
       var retval = {
-        hostName : hName,
+        hostName : hostName,
         cAName : issuerName,
         encryptionAlgorithm : undefined,
         encryptionStrength : undefined,
         isBroken : isBroken,
         isEV : isEV,
-        cert : cert,
-        fullLocation : gWindow.location
+        cert : cert
       };
 
       try {
@@ -63,18 +58,16 @@ var security = {
       }
 
       return retval;
-    } else {
-      return {
-        hostName : hName,
-        cAName : "",
-        encryptionAlgorithm : "",
-        encryptionStrength : 0,
-        isBroken : isBroken,
-        isEV : isEV,
-        cert : null,
-        fullLocation : gWindow.location
-      };
     }
+    return {
+      hostName : hostName,
+      cAName : "",
+      encryptionAlgorithm : "",
+      encryptionStrength : 0,
+      isBroken : isBroken,
+      isEV : isEV,
+      cert : null
+    };
   },
 
   // Find the secureBrowserUI object (if present)
@@ -89,14 +82,15 @@ var security = {
    */
   viewCookies : function()
   {
-    var hostName = "";
+    var eTLD;
     try {
-      hostName = gDocument.documentURIObject.asciiHost;
-    }
-    catch (e) {
+      eTLD = Services.eTLD.getBaseDomain(this.uri);
+    } catch (e) {
+      // getBaseDomain will fail if the host is an IP address or is empty
+      eTLD = this.uri.asciiHost;
     }
 
-    toDataManager(hostName + '|cookies');
+    toDataManager(eTLD + '|cookies');
   },
 
   /**
@@ -110,7 +104,9 @@ var security = {
   _cert : null
 };
 
-function securityOnLoad() {
+function securityOnLoad(uri, windowInfo) {
+  security.init(uri, windowInfo);
+
   var info = security._getSecurityInfo();
   if (!info)
     return;
@@ -167,7 +163,6 @@ function securityOnLoad() {
   var yesStr = pageInfoBundle.getString("yes");
   var noStr = pageInfoBundle.getString("no");
 
-  var uri = gDocument.documentURIObject;
   var hasCookies = hostHasCookies(uri);
   setText("security-privacy-cookies-value", hasCookies ? yesStr : noStr);
   document.getElementById("security-view-cookies").disabled = !hasCookies;

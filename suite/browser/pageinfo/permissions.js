@@ -38,13 +38,13 @@ function initPermission()
   onResetRegistry.push(onUnloadPermission);
 }
 
-function onLoadPermission()
+function onLoadPermission(uri, principal)
 {
-  gPermURI = BrowserUtils.makeURIFromCPOW(gDocument.documentURIObject);
-  if (!SitePermissions.isSupportedURI(gPermURI))
+  if (!SitePermissions.isSupportedURI(uri))
     return;
-  gPermPrincipal = gDocument.nodePrincipal;
-  if (!gPermPrincipal.isSystemPrincipal) {
+  gPermURI = uri;
+  gPermPrincipal = principal;
+  if (gPermPrincipal && !gPermPrincipal.isSystemPrincipal) {
     var hostText = document.getElementById("hostText");
     hostText.value = gPermPrincipal.origin;
     Services.obs.addObserver(permissionObserver, "perm-changed");
@@ -55,7 +55,7 @@ function onLoadPermission()
 
 function onUnloadPermission()
 {
-  if (!gPermPrincipal.isSystemPrincipal) {
+  if (gPermPrincipal && !gPermPrincipal.isSystemPrincipal) {
     Services.obs.removeObserver(permissionObserver, "perm-changed");
   }
 }
@@ -66,7 +66,7 @@ function initRow(aPartId)
 
   var checkbox = document.getElementById(aPartId + "Def");
   var command  = document.getElementById("cmd_" + aPartId + "Toggle");
-  if (gPermPrincipal.isSystemPrincipal) {
+  if (gPermPrincipal && gPermPrincipal.isSystemPrincipal) {
     checkbox.checked = false;
     checkbox.setAttribute("disabled", "true");
     command.setAttribute("disabled", "true");

@@ -3,41 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-XPCOMUtils.defineLazyModuleGetter(this, "Feeds",
-                                  "resource:///modules/Feeds.jsm");
-
-function initFeedTab()
+function initFeedTab(feeds)
 {
-  const feedTypes = {
-    "application/rss+xml": gBundle.getString("feedRss"),
-    "application/atom+xml": gBundle.getString("feedAtom"),
-    "text/xml": gBundle.getString("feedXML"),
-    "application/xml": gBundle.getString("feedXML"),
-    "application/rdf+xml": gBundle.getString("feedXML")
-  };
-
-  // get the feeds
-  var linkNodes = gDocument.getElementsByTagName("link");
-  var length = linkNodes.length;
-  for (var i = 0; i < length; i++) {
-    var link = linkNodes[i];
-    if (!link.href)
-      continue;
-
-    var rel = link.rel && link.rel.toLowerCase();
-    var isFeed = /(?:^|\s)feed(?:\s|$)/i.test(rel);
-    if (isFeed || (/(?:^|\s)alternate(?:\s|$)/i.test(rel) &&
-                   !/(?:^|\s)stylesheet(?:\s|$)/i.test(rel))) {
-      var type = Feeds.isValidFeed(link, link.nodePrincipal, isFeed);
-      if (type) {
-        if (type in feedTypes)
-          type = feedTypes[type];
-        else
-          type = feedTypes["application/rss+xml"];
-        addRow(link.title, type, link.href);
-      }
-    }
+  for (let feed of feeds) {
+    let [name, type, url] = feed;
+    addRow(name, type, url);
   }
+
   var feedListbox = document.getElementById("feedListbox");
   document.getElementById("feedTab").hidden = feedListbox.getRowCount() == 0;
 }

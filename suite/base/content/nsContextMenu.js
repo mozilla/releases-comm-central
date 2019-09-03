@@ -973,7 +973,8 @@ nsContextMenu.prototype = {
   },
 
   viewFrameInfo: function() {
-    BrowserPageInfo(this.target.ownerDocument);
+    BrowserPageInfo(this.target.ownerDocument, null, null,
+                    gContextMenuContentData.frameOuterWindowID);
   },
 
   toggleImageSize: function() {
