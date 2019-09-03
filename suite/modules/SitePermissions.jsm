@@ -4,8 +4,8 @@
 
 var EXPORTED_SYMBOLS = [ "SitePermissions" ];
 
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var gStringBundle =
   Services.strings.createBundle("chrome://communicator/locale/sitePermissions.properties");
@@ -252,7 +252,7 @@ var SitePermissions = {
    * @return {boolean} if the URI is supported.
    */
   isSupportedURI(uri) {
-    return uri && ["http", "https", "moz-extension"].includes(uri.scheme);
+    return uri && ["file", "http", "https", "moz-extension"].includes(uri.scheme);
   },
 
   /**

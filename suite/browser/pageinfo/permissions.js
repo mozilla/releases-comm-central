@@ -6,61 +6,28 @@
  * This Source Code Form is "Incompatible With Secondary Licenses", as
  * defined by the Mozilla Public License, v. 2.0. */
 
-const nsICookiePermission  = Ci.nsICookiePermission;
-const ALLOW = Services.perms.ALLOW_ACTION;         // 1
-const BLOCK = Services.perms.DENY_ACTION;          // 2
-const SESSION = nsICookiePermission.ACCESS_SESSION;// 8
+const { SitePermissions } = ChromeUtils.import("resource:///modules/SitePermissions.jsm");
+const { BrowserUtils } = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm"");
+
+var gPermURI;
 var gPermPrincipal;
 
-var gPermObj = {
-  image: function getImageDefaultPermission()
-  {
-    if (Services.prefs.getIntPref("permissions.default.image") == 2)
-      return BLOCK;
-    return ALLOW;
-  },
-  cookie: function getCookieDefaultPermission()
-  {
-    if (Services.prefs.getIntPref("network.cookie.cookieBehavior") == 2)
-      return BLOCK;
-
-    if (Services.prefs.getIntPref("network.cookie.lifetimePolicy") == 2)
-      return SESSION;
-    return ALLOW;
-  },
-  "desktop-notification": function getNotificationDefaultPermission()
-  {
-    return BLOCK;
-  },
-  popup: function getPopupDefaultPermission()
-  {
-    if (Services.prefs.getBoolPref("dom.disable_open_during_load"))
-      return BLOCK;
-    return ALLOW;
-  },
-  install: function getInstallDefaultPermission()
-  {
-    try {
-      if (!Services.prefs.getBoolPref("xpinstall.whitelist.required"))
-        return ALLOW;
-    }
-    catch (e) {
-    }
-    return BLOCK;
-  },
-  geo: function getGeoDefaultPermission()
-  {
-    return BLOCK;
-  }
-};
+// Array of permissionIDs sorted alphabetically by label.
+var gPermissions = SitePermissions.listPermissions().sort((a, b) => {
+  let firstLabel = SitePermissions.getPermissionLabel(a);
+  let secondLabel = SitePermissions.getPermissionLabel(b);
+  return firstLabel.localeCompare(secondLabel);
+});
 
 var permissionObserver = {
   observe: function (aSubject, aTopic, aData)
   {
     if (aTopic == "perm-changed") {
       var permission = aSubject.QueryInterface(Ci.nsIPermission);
-      if (permission.type in gPermObj && permission.matches(gPermPrincipal, true))
+      if (permission.matches(gPermPrincipal, true) &&
+          gPermissions.includes(permission.type)) {
         initRow(permission.type);
+      }
     }
   }
 };
@@ -73,13 +40,16 @@ function initPermission()
 
 function onLoadPermission()
 {
+  gPermURI = BrowserUtils.makeURIFromCPOW(gDocument.documentURIObject);
+  if (!SitePermissions.isSupportedURI(gPermURI))
+    return;
   gPermPrincipal = gDocument.nodePrincipal;
   if (!gPermPrincipal.isSystemPrincipal) {
     var hostText = document.getElementById("hostText");
     hostText.value = gPermPrincipal.origin;
     Services.obs.addObserver(permissionObserver, "perm-changed");
   }
-  for (var i in gPermObj)
+  for (var i of gPermissions)
     initRow(i);
 }
 
@@ -92,6 +62,8 @@ function onUnloadPermission()
 
 function initRow(aPartId)
 {
+  createRow(aPartId);
+
   var checkbox = document.getElementById(aPartId + "Def");
   var command  = document.getElementById("cmd_" + aPartId + "Toggle");
   if (gPermPrincipal.isSystemPrincipal) {
@@ -102,20 +74,76 @@ function initRow(aPartId)
     return;
   }
   checkbox.removeAttribute("disabled");
-  var pm = Services.perms;
-  var perm = aPartId == "geo" ? pm.testExactPermissionFromPrincipal(gPermPrincipal, aPartId) :
-                                pm.testPermissionFromPrincipal(gPermPrincipal, aPartId);
+  var {state} = SitePermissions.get(gPermURI, aPartId);
 
-  if (perm) {
+  if (state != SitePermissions.UNKNOWN) {
     checkbox.checked = false;
     command.removeAttribute("disabled");
   }
   else {
     checkbox.checked = true;
     command.setAttribute("disabled", "true");
-    perm = gPermObj[aPartId]();
+    state = SitePermissions.getDefault(aPartId);
   }
-  setRadioState(aPartId, perm);
+  setRadioState(aPartId, state);
+}
+
+function createRow(aPartId) {
+  let rowId = "perm-" + aPartId + "-row";
+  if (document.getElementById(rowId))
+    return;
+
+  let commandId = "cmd_" + aPartId + "Toggle";
+  let labelId = "perm-" + aPartId + "-label";
+  let radiogroupId = aPartId + "RadioGroup";
+
+  let command = document.createElement("command");
+  command.setAttribute("id", commandId);
+  command.setAttribute("oncommand", "onRadioClick('" + aPartId + "');");
+  document.getElementById("pageInfoCommandSet").appendChild(command);
+
+  let row = document.createElement("richlistitem");
+  row.setAttribute("id", rowId);
+  row.setAttribute("class", "permission");
+  row.setAttribute("orient", "vertical");
+
+  let label = document.createElement("label");
+  label.setAttribute("id", labelId);
+  label.setAttribute("control", radiogroupId);
+  label.setAttribute("value", SitePermissions.getPermissionLabel(aPartId));
+  label.setAttribute("class", "permissionLabel");
+  row.appendChild(label);
+
+  let controls = document.createElement("hbox");
+  controls.setAttribute("role", "group");
+  controls.setAttribute("aria-labelledby", labelId);
+
+  let checkbox = document.createElement("checkbox");
+  checkbox.setAttribute("id", aPartId + "Def");
+  checkbox.setAttribute("oncommand", "onCheckboxClick('" + aPartId + "');");
+  checkbox.setAttribute("label", gBundle.getString("permissions.useDefault"));
+  controls.appendChild(checkbox);
+
+  let spacer = document.createElement("spacer");
+  spacer.setAttribute("flex", "1");
+  controls.appendChild(spacer);
+
+  let radiogroup = document.createElement("radiogroup");
+  radiogroup.setAttribute("id", radiogroupId);
+  radiogroup.setAttribute("orient", "horizontal");
+  for (let state of SitePermissions.getAvailableStates(aPartId)) {
+    let radio = document.createElement("radio");
+    radio.setAttribute("id", aPartId + "#" + state);
+    radio.setAttribute("label",
+                       SitePermissions.getMultichoiceStateLabel(state));
+    radio.setAttribute("command", commandId);
+    radiogroup.appendChild(radio);
+  }
+  controls.appendChild(radiogroup);
+
+  row.appendChild(controls);
+
+  document.getElementById("permList").appendChild(row);
 }
 
 function onCheckboxClick(aPartId)
@@ -123,9 +151,9 @@ function onCheckboxClick(aPartId)
   var command  = document.getElementById("cmd_" + aPartId + "Toggle");
   var checkbox = document.getElementById(aPartId + "Def");
   if (checkbox.checked) {
-    Services.perms.removeFromPrincipal(gPermPrincipal, aPartId);
+    SitePermissions.remove(gPermURI, aPartId);
     command.setAttribute("disabled", "true");
-    var perm = gPermObj[aPartId]();
+    var perm = SitePermissions.getDefault(aPartId);
     setRadioState(aPartId, perm);
   }
   else {
@@ -138,12 +166,14 @@ function onRadioClick(aPartId)
 {
   var radioGroup = document.getElementById(aPartId + "RadioGroup");
   var id = radioGroup.selectedItem.id;
-  var permission = id.replace(/.*-/, "");
-  Services.perms.addFromPrincipal(gPermPrincipal, aPartId, permission);
+  var permission = parseInt(id.split("#")[1]);
+  SitePermissions.set(gPermURI, aPartId, permission);
 }
 
 function setRadioState(aPartId, aValue)
 {
-  var radio = document.getElementById(aPartId + "-" + aValue);
-  radio.radioGroup.selectedItem = radio;
+  var radio = document.getElementById(aPartId + "#" + aValue);
+  if (radio) {
+    radio.radioGroup.selectedItem = radio;
+  }
 }
