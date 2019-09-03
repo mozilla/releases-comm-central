@@ -28,9 +28,9 @@ function onLoad() {
   dialog.okCallback = windowArgs.okCallback;
   if (windowArgs.keyToEdit) {
     initializeForEditing(windowArgs.keyToEdit);
-    document.addEventListener("dialogaccept", event => onOKEditTag(event));
+    document.addEventListener("dialogaccept", onOKEditTag);
   } else {
-    document.addEventListener("dialogaccept", event => onOKNewTag(event));
+    document.addEventListener("dialogaccept", onOKNewTag);
   }
 
   doEnabling();
