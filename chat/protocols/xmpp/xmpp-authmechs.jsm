@@ -347,28 +347,28 @@ function saslName(aName) {
   return saslName;
 }
 
-// Converts aMessage to array of bytes then apply SHA-1 hashing.
-function bytesAndSHA1(aMessage) {
+// Converts aMessage to array of bytes then apply hashing.
+function bytesAndHash(aMessage, aHash) {
   let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
     Ci.nsICryptoHash
   );
-  hasher.init(hasher.SHA1);
+  hasher.init(hasher[aHash]);
 
   return CryptoUtils.digestBytes(aMessage, hasher);
 }
 
 /**
- * PBKDF2 password stretching with SHA-1 hmac.
+ * PBKDF2 password stretching with hmac.
  *
- * This is a copy of CryptoUtils.pbkdf2Generate, but using SHA-1 instead of
- * SHA-256.
+ * This is a copy of CryptoUtils.pbkdf2Generate, but with an additional argument to take the hash type.
  *
  * @param {string} passphrase Passphrase as an octet string.
  * @param {string} salt Salt as an octet string.
  * @param {string} iterations Number of iterations, a positive integer.
  * @param {string} len Desired output length in bytes.
+ * @param {string} hash The desired hash algorithm (e.g. SHA-1 or SHA-256).
  */
-async function pbkdf2Generate(passphrase, salt, iterations, len) {
+async function pbkdf2Generate(passphrase, salt, iterations, len, hash) {
   passphrase = CommonUtils.byteStringToArrayBuffer(passphrase);
   salt = CommonUtils.byteStringToArrayBuffer(salt);
   const key = await crypto.subtle.importKey(
@@ -381,7 +381,7 @@ async function pbkdf2Generate(passphrase, salt, iterations, len) {
   const output = await crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
-      hash: "SHA-1",
+      hash,
       salt,
       iterations,
     },
@@ -391,141 +391,169 @@ async function pbkdf2Generate(passphrase, salt, iterations, len) {
   return CommonUtils.arrayBufferToByteString(new Uint8Array(output));
 }
 
-function* scramSHA1Auth(aUsername, aPassword, aDomain, aNonce) {
-  // RFC 5802 (5): SCRAM Authentication Exchange.
-  const gs2Header = "n,,";
-  // If a hard-coded nonce was given (e.g. for testing), use it.
-  let cNonce = aNonce ? aNonce : createNonce(32);
+/*
+ * Given hash functions return a generator to be used as an XMPP authentication
+ * mechanism.
+ *
+ * @param {string} aHashFunctionName The name of a hash, e.g. SHA-1 or SHA-256.
+ * @param {string} aDigestLength The length of a hash digest, e.g. 20 for SHA-1 or 32 for SHA-256.
+ */
+function generateScramAuth(aHashFunctionName, aDigestLength) {
+  function* scramAuth(aUsername, aPassword, aDomain, aNonce) {
+    // The hash function name, without the '-' in it (e.g. convert SHA-1 to SHA1).
+    const hashFunctionProp = aHashFunctionName.replace("-", "");
 
-  let clientFirstMessageBare = "n=" + saslName(aUsername) + ",r=" + cNonce;
-  let clientFirstMessage = gs2Header + clientFirstMessageBare;
+    // RFC 5802 (5): SCRAM Authentication Exchange.
+    const gs2Header = "n,,";
+    // If a hard-coded nonce was given (e.g. for testing), use it.
+    let cNonce = aNonce ? aNonce : createNonce(32);
 
-  let receivedStanza = yield {
-    send: Stanza.node(
-      "auth",
-      Stanza.NS.sasl,
-      { mechanism: "SCRAM-SHA-1" },
-      btoa(clientFirstMessage)
-    ),
-  };
+    let clientFirstMessageBare = "n=" + saslName(aUsername) + ",r=" + cNonce;
+    let clientFirstMessage = gs2Header + clientFirstMessageBare;
 
-  if (receivedStanza.localName != "challenge") {
-    throw new Error("Not authorized");
-  }
-
-  // RFC 5802 (3): SCRAM Algorithm Overview.
-  let decodedChallenge = atob(receivedStanza.innerText);
-
-  // Expected to contain the user’s iteration count (i) and the user’s
-  // salt (s), and the server appends its own nonce to the client-specified
-  // one (r).
-  let attributes = parseChallenge(decodedChallenge);
-  if (attributes.hasOwnProperty("e")) {
-    throw new Error("Authentication failed: " + attributes.e);
-  } else if (
-    !attributes.hasOwnProperty("i") ||
-    !attributes.hasOwnProperty("s") ||
-    !attributes.hasOwnProperty("r")
-  ) {
-    throw new Error("Unexpected response: " + decodedChallenge);
-  }
-  if (!attributes.r.startsWith(cNonce)) {
-    throw new Error("Nonce is not correct");
-  }
-
-  let clientFinalMessageWithoutProof =
-    "c=" + btoa(gs2Header) + ",r=" + attributes.r;
-
-  // Calculate ClientProof.
-
-  // SaltedPassword := Hi(Normalize(password), salt, i)
-  // Normalize using saslPrep.
-  // dkLen MUST be equal to the SHA-1 digest size.
-  let passwordPromise = pbkdf2Generate(
-    saslPrep(aPassword),
-    atob(attributes.s),
-    parseInt(attributes.i),
-    20
-  );
-
-  // The server signature is calculated below, but needs to escape back to the main scope.
-  let serverSignature;
-
-  // Once the promise resolves, continue with the handshake..
-  receivedStanza = yield passwordPromise.then(saltedPassword => {
-    // ClientKey := HMAC(SaltedPassword, "Client Key")
-    let saltedPasswordHasher = CryptoUtils.makeHMACHasher(
-      Ci.nsICryptoHMAC.SHA1,
-      CryptoUtils.makeHMACKey(saltedPassword)
-    );
-    let clientKey = CryptoUtils.digestBytes("Client Key", saltedPasswordHasher);
-
-    // StoredKey := H(ClientKey)
-    let storedKey = bytesAndSHA1(clientKey);
-
-    let authMessage =
-      clientFirstMessageBare +
-      "," +
-      decodedChallenge +
-      "," +
-      clientFinalMessageWithoutProof;
-
-    // ClientSignature := HMAC(StoredKey, AuthMessage)
-    let storedKeyHasher = CryptoUtils.makeHMACHasher(
-      Ci.nsICryptoHMAC.SHA1,
-      CryptoUtils.makeHMACKey(storedKey)
-    );
-    let clientSignature = CryptoUtils.digestBytes(authMessage, storedKeyHasher);
-
-    // ClientProof := ClientKey XOR ClientSignature
-    let clientProof = CryptoUtils.xor(clientKey, clientSignature);
-
-    // Calculate ServerSignature.
-
-    // ServerKey := HMAC(SaltedPassword, "Server Key")
-    let serverKey = CryptoUtils.digestBytes("Server Key", saltedPasswordHasher);
-
-    // ServerSignature := HMAC(ServerKey, AuthMessage)
-    let serverKeyHasher = CryptoUtils.makeHMACHasher(
-      Ci.nsICryptoHMAC.SHA1,
-      CryptoUtils.makeHMACKey(serverKey)
-    );
-    serverSignature = CryptoUtils.digestBytes(authMessage, serverKeyHasher);
-
-    let clientFinalMessage =
-      clientFinalMessageWithoutProof + ",p=" + btoa(clientProof);
-
-    return {
+    let receivedStanza = yield {
       send: Stanza.node(
-        "response",
+        "auth",
         Stanza.NS.sasl,
-        null,
-        btoa(clientFinalMessage)
+        { mechanism: "SCRAM-" + aHashFunctionName },
+        btoa(clientFirstMessage)
       ),
-      log:
-        "<response/> (base64 encoded SCRAM response containing password not logged)",
     };
-  });
 
-  // Only check server signature if we succeed to authenticate.
-  if (receivedStanza.localName != "success") {
-    throw new Error("Didn't receive the expected auth success stanza.");
+    if (receivedStanza.localName != "challenge") {
+      throw new Error("Not authorized");
+    }
+
+    // RFC 5802 (3): SCRAM Algorithm Overview.
+    let decodedChallenge = atob(receivedStanza.innerText);
+
+    // Expected to contain the user’s iteration count (i) and the user’s
+    // salt (s), and the server appends its own nonce to the client-specified
+    // one (r).
+    let attributes = parseChallenge(decodedChallenge);
+    if (attributes.hasOwnProperty("e")) {
+      throw new Error("Authentication failed: " + attributes.e);
+    } else if (
+      !attributes.hasOwnProperty("i") ||
+      !attributes.hasOwnProperty("s") ||
+      !attributes.hasOwnProperty("r")
+    ) {
+      throw new Error("Unexpected response: " + decodedChallenge);
+    }
+    if (!attributes.r.startsWith(cNonce)) {
+      throw new Error("Nonce is not correct");
+    }
+
+    let clientFinalMessageWithoutProof =
+      "c=" + btoa(gs2Header) + ",r=" + attributes.r;
+
+    // Calculate ClientProof.
+
+    // SaltedPassword := Hi(Normalize(password), salt, i)
+    // Normalize using saslPrep.
+    // dkLen MUST be equal to the SHA digest size.
+    let passwordPromise = pbkdf2Generate(
+      saslPrep(aPassword),
+      atob(attributes.s),
+      parseInt(attributes.i),
+      aDigestLength,
+      aHashFunctionName
+    );
+
+    // The server signature is calculated below, but needs to escape back to the main scope.
+    let serverSignature;
+
+    // Once the promise resolves, continue with the handshake.
+    receivedStanza = yield passwordPromise.then(saltedPassword => {
+      // ClientKey := HMAC(SaltedPassword, "Client Key")
+      let saltedPasswordHasher = CryptoUtils.makeHMACHasher(
+        Ci.nsICryptoHMAC[hashFunctionProp],
+        CryptoUtils.makeHMACKey(saltedPassword)
+      );
+      let clientKey = CryptoUtils.digestBytes(
+        "Client Key",
+        saltedPasswordHasher
+      );
+
+      // StoredKey := H(ClientKey)
+      let storedKey = bytesAndHash(clientKey, hashFunctionProp);
+
+      let authMessage =
+        clientFirstMessageBare +
+        "," +
+        decodedChallenge +
+        "," +
+        clientFinalMessageWithoutProof;
+
+      // ClientSignature := HMAC(StoredKey, AuthMessage)
+      let storedKeyHasher = CryptoUtils.makeHMACHasher(
+        Ci.nsICryptoHMAC[hashFunctionProp],
+        CryptoUtils.makeHMACKey(storedKey)
+      );
+      let clientSignature = CryptoUtils.digestBytes(
+        authMessage,
+        storedKeyHasher
+      );
+
+      // ClientProof := ClientKey XOR ClientSignature
+      let clientProof = CryptoUtils.xor(clientKey, clientSignature);
+
+      // Calculate ServerSignature.
+
+      // ServerKey := HMAC(SaltedPassword, "Server Key")
+      let serverKey = CryptoUtils.digestBytes(
+        "Server Key",
+        saltedPasswordHasher
+      );
+
+      // ServerSignature := HMAC(ServerKey, AuthMessage)
+      let serverKeyHasher = CryptoUtils.makeHMACHasher(
+        Ci.nsICryptoHMAC[hashFunctionProp],
+        CryptoUtils.makeHMACKey(serverKey)
+      );
+      serverSignature = CryptoUtils.digestBytes(authMessage, serverKeyHasher);
+
+      let clientFinalMessage =
+        clientFinalMessageWithoutProof + ",p=" + btoa(clientProof);
+
+      return {
+        send: Stanza.node(
+          "response",
+          Stanza.NS.sasl,
+          null,
+          btoa(clientFinalMessage)
+        ),
+        log:
+          "<response/> (base64 encoded SCRAM response containing password not logged)",
+      };
+    });
+
+    // Only check server signature if we succeed to authenticate.
+    if (receivedStanza.localName != "success") {
+      throw new Error("Didn't receive the expected auth success stanza.");
+    }
+
+    let decodedResponse = atob(receivedStanza.innerText);
+
+    // Expected to contain a base64-encoded ServerSignature (v).
+    attributes = parseChallenge(decodedResponse);
+    if (!attributes.hasOwnProperty("v")) {
+      throw new Error("Unexpected response: " + decodedResponse);
+    }
+
+    // Compare ServerSignature with our ServerSignature which we calculated in
+    // _generateResponse.
+    let serverSignatureResponse = atob(attributes.v);
+    if (serverSignature != serverSignatureResponse) {
+      throw new Error("Server signature does not match");
+    }
   }
 
-  let decodedResponse = atob(receivedStanza.innerText);
-
-  // Expected to contain a base64-encoded ServerSignature (v).
-  attributes = parseChallenge(decodedResponse);
-  if (!attributes.hasOwnProperty("v")) {
-    throw new Error("Unexpected response: " + decodedResponse);
-  }
-
-  // Compare ServerSignature with our ServerSignature which we calculated in
-  // _generateResponse.
-  let serverSignatureResponse = atob(attributes.v);
-  if (serverSignature != serverSignatureResponse) {
-    throw new Error("Server signature does not match");
-  }
+  return scramAuth;
 }
 
-var XMPPAuthMechanisms = { PLAIN: PlainAuth, "SCRAM-SHA-1": scramSHA1Auth };
+var XMPPAuthMechanisms = {
+  PLAIN: PlainAuth,
+  "SCRAM-SHA-1": generateScramAuth("SHA-1", 20),
+  "SCRAM-SHA-256": generateScramAuth("SHA-256", 32),
+};

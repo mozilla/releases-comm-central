@@ -475,7 +475,7 @@ XMPPSession.prototype = {
 
       // Select the auth mechanism we will use. PLAIN will be treated
       // a bit differently as we want to avoid it over an unencrypted
-      // connection, except if the user has explicly allowed that
+      // connection, except if the user has explicitly allowed that
       // behavior.
       let authMechanisms = this._account.authMechanisms || XMPPAuthMechanisms;
       let selectedMech = "";

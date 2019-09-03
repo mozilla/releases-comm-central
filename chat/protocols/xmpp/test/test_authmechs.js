@@ -20,6 +20,8 @@ add_task(async function testPlain() {
   ok(!result.done);
   let value = await Promise.resolve(result.value);
 
+  // Check the algorithm.
+  equal(value.send.attributes.mechanism, "PLAIN");
   // Check the PLAIN content.
   equal(value.send.children[0].text, "AGp1bGlldAByMG0zMG15cjBtMzA=");
 
@@ -37,7 +39,7 @@ add_task(async function testPlain() {
  * Full test vectors of intermediate values are available at:
  * https://wiki.xmpp.org/web/SASL_and_SCRAM-SHA-1
  */
-add_task(async function testScram() {
+add_task(async function testScramSha1() {
   const username = "user";
   const password = "pencil";
 
@@ -56,6 +58,8 @@ add_task(async function testScram() {
   ok(!result.done);
   let value = await Promise.resolve(result.value);
 
+  // Check the algorithm.
+  equal(value.send.attributes.mechanism, "SCRAM-SHA-1");
   // Check the SCRAM content.
   equal(
     atob(value.send.children[0].text),
@@ -87,6 +91,65 @@ add_task(async function testScram() {
     Stanza.NS.sasl,
     null,
     btoa("v=rmF9pqV8S7suAoZWja4dJRkFsKQ=")
+  );
+  result = mech.next(response);
+  ok(result.done);
+  // There is no final value.
+  equal(result.value, undefined);
+});
+
+/*
+ * Test SCRAM-SHA-256 using the examples given in section 3 of RFC 7677.
+ */
+add_task(async function testScramSha256() {
+  const username = "user";
+  const password = "pencil";
+
+  // Use a constant value for the nonce.
+  const nonce = "rOprNGfwEbeRWgbNEkqO";
+
+  let mech = XMPPAuthMechanisms["SCRAM-SHA-256"](
+    username,
+    password,
+    undefined,
+    nonce
+  );
+
+  // Send the client-first-message.
+  let result = mech.next();
+  ok(!result.done);
+  let value = await Promise.resolve(result.value);
+
+  // Check the algorithm.
+  equal(value.send.attributes.mechanism, "SCRAM-SHA-256");
+  // Check the SCRAM content.
+  equal(atob(value.send.children[0].text), "n,,n=user,r=rOprNGfwEbeRWgbNEkqO");
+
+  // Receive the server-first-message and send the client-final-message.
+  let response = Stanza.node(
+    "challenge",
+    Stanza.NS.sasl,
+    null,
+    btoa(
+      "r=rOprNGfwEbeRWgbNEkqO%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,s=W22ZaJ0SNY7soEsUEjb6gQ==,i=4096"
+    )
+  );
+  result = mech.next(response);
+  ok(!result.done);
+  value = await Promise.resolve(result.value);
+
+  // Check the SCRAM content.
+  equal(
+    atob(value.send.children[0].text),
+    "c=biws,r=rOprNGfwEbeRWgbNEkqO%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0,p=dHzbZapWIk4jUhN+Ute9ytag9zjfMHgsqmmiz7AndVQ="
+  );
+
+  // Receive the server-final-message.
+  response = Stanza.node(
+    "success",
+    Stanza.NS.sasl,
+    null,
+    btoa("v=6rriTRBi23WpRR/wtup+mMhUZUn/dB5nLTJRsjl95G4=")
   );
   result = mech.next(response);
   ok(result.done);
