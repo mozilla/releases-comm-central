@@ -93,7 +93,7 @@ function fillDirectoryList(aItem = null) {
   // We also select an edited or recently added item.
   abList.focus();
   if (aItem) {
-    abList.selectedIndex = holdingArray.findIndex((d) => {
+    abList.selectedIndex = holdingArray.findIndex(d => {
       return d && d.URI == aItem.URI;
     });
   }
