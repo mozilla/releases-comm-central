@@ -1397,6 +1397,14 @@ function doCopy(isLinkMode)
     .copyString(text.join("\n"));
 }
 
+function doSelectAllMedia()
+{
+  var tree = document.getElementById("imagetree");
+
+  if (tree)
+    tree.view.selection.selectAll();
+}
+
 function doSelectAll()
 {
   var elem = document.commandDispatcher.focusedElement;
