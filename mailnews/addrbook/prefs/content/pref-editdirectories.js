@@ -16,7 +16,7 @@ var { MailServices } = ChromeUtils.import(
 var gAddressBookAbListener = {
   onItemAdded(parentDir, item) {
     if (item instanceof Ci.nsIAbDirectory) {
-      fillDirectoryList();
+      fillDirectoryList(item);
     }
   },
   onItemRemoved(parentDir, item) {
@@ -26,7 +26,7 @@ var gAddressBookAbListener = {
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
     if (item instanceof Ci.nsIAbDirectory) {
-      fillDirectoryList();
+      fillDirectoryList(item);
     }
   },
 };
@@ -57,7 +57,7 @@ function onUninitEditDirectories() {
   MailServices.ab.removeAddressBookListener(gAddressBookAbListener);
 }
 
-function fillDirectoryList() {
+function fillDirectoryList(aItem = null) {
   var abList = document.getElementById("directoriesList");
 
   // Empty out anything in the list
@@ -88,6 +88,15 @@ function fillDirectoryList() {
 
     abList.appendChild(item);
   });
+
+  // Forces the focus back on the list and on the first item.
+  // We also select an edited or recently added item.
+  abList.focus();
+  if (aItem) {
+    abList.selectedIndex = holdingArray.findIndex((d) => {
+      return d && d.URI == aItem.URI;
+    });
+  }
 }
 
 function selectDirectory() {
