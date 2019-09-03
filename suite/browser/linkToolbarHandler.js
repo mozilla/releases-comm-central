@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+XPCOMUtils.defineLazyModuleGetter(this, "Feeds",
+                                  "resource:///modules/Feeds.jsm");
+
 /**
  * LinkToolbarHandler is a Singleton that displays LINK elements
  * and nodeLists of LINK elements in the Link Toolbar.  It
@@ -82,7 +85,7 @@ function(relAttribute, element)
       isFeed = true;
       // fall through
     case "alternate":
-      if (isValidFeed(element, element.nodePrincipal, isFeed)) {
+      if (Feeds.isValidFeed(element, element.nodePrincipal, isFeed)) {
         return "feed";
       }
 

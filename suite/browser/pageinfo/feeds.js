@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+XPCOMUtils.defineLazyModuleGetter(this, "Feeds",
+                                  "resource:///modules/Feeds.jsm");
+
 function initFeedTab()
 {
   const feedTypes = {
@@ -25,7 +28,7 @@ function initFeedTab()
     var isFeed = /(?:^|\s)feed(?:\s|$)/i.test(rel);
     if (isFeed || (/(?:^|\s)alternate(?:\s|$)/i.test(rel) &&
                    !/(?:^|\s)stylesheet(?:\s|$)/i.test(rel))) {
-      var type = isValidFeed(link, link.nodePrincipal, isFeed);
+      var type = Feeds.isValidFeed(link, link.nodePrincipal, isFeed);
       if (type) {
         if (type in feedTypes)
           type = feedTypes[type];

@@ -1,14 +1,24 @@
+XPCOMUtils.defineLazyModuleGetter(this, "Feeds",
+                                  "resource:///modules/Feeds.jsm");
+
 function test() {
-  var ioserv = Cc["@mozilla.org/network/io-service;1"].
-               getService(Ci.nsIIOService);
+  var ioserv = Cc["@mozilla.org/network/io-service;1"]
+                 .getService(Ci.nsIIOService);
   var exampleUri = ioserv.newURI("http://example.com/");
-  var secman = Cc["@mozilla.org/scriptsecuritymanager;1"].
-               getService(Ci.nsIScriptSecurityManager);
+  var secman = Cc["@mozilla.org/scriptsecuritymanager;1"]
+                 .getService(Ci.nsIScriptSecurityManager);
   var principal = secman.createCodebasePrincipal(exampleUri, {});
 
   function testIsFeed(aTitle, aHref, aType, aKnown) {
-    var link = { title: aTitle, href: aHref, type: aType };
-    return isValidFeed(link, principal, aKnown);
+    var link = {
+      title: aTitle,
+      href: aHref,
+      type: aType,
+      ownerDocument: {
+        characterSet: "UTF-8"
+      }
+    };
+    return Feeds.isValidFeed(link, principal, aKnown);
   }
 
   var href = "http://example.com/feed/";

@@ -1307,36 +1307,6 @@ function disablePopupBlockerNotifications()
   Services.prefs.setBoolPref("privacy.popups.showBrowserMessage", false);
 }
 
-/**
- * isValidFeed: checks whether the given data represents a valid feed.
- *
- * @param  aData
- *         An object representing a feed with title, href and type.
- * @param  aPrincipal
- *         The principal of the document, used for security check.
- * @param  aIsFeed
- *         Whether this is already a known feed or not, if true only a security
- *         check will be performed.
- */
-function isValidFeed(aData, aPrincipal, aIsFeed)
-{
-  if (!aData || !aPrincipal)
-    return null;
-
-  var type = aData.type.toLowerCase().replace(/^\s+|\s*(?:;.*)?$/g, "");
-  if (aIsFeed || /^application\/(?:atom|rss)\+xml$/.test(type)) {
-    try {
-      urlSecurityCheck(aData.href, aPrincipal,
-                       Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL);
-      return type || "application/rss+xml";
-    }
-    catch(ex) {
-    }
-  }
-
-  return null;
-}
-
 // Used as an onclick handler for UI elements with link-like behavior.
 // e.g. onclick="checkForMiddleClick(this, event);"
 function checkForMiddleClick(node, event) {
