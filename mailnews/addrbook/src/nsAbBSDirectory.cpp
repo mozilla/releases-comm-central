@@ -64,9 +64,13 @@ nsresult nsAbBSDirectory::CreateDirectoriesFromFactory(const nsACString &aURI,
     nsCOMPtr<nsIAbDirectory> childDir = do_QueryInterface(newDirSupports, &rv);
     if (NS_FAILED(rv)) continue;
 
-    // Define a relationship between the preference
-    // entry and the directory
-    mServers.Put(aURI, aServer);
+    // In some cases (LDAP) the actual URI of the directory may differ from
+    // aURI. Use the URI of the directory.
+    nsCString uri;
+    childDir->GetURI(uri);
+
+    // Define a relationship between the preference entry and the directory.
+    mServers.Put(uri, aServer);
 
     mSubDirectories.AppendObject(childDir);
 

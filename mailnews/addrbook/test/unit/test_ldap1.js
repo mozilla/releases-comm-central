@@ -14,12 +14,17 @@ function run_test() {
     return;
   }
 
+  let abCountBeforeStart = [...MailServices.ab.directories].length;
+
   // Test - Create an LDAP directory
   let abUri = MailServices.ab.newAddressBook(
     "test",
     kLDAPTestSpec,
     kLDAPDirectory
   );
+
+  let abCountAfterCreate = [...MailServices.ab.directories].length;
+  Assert.equal(abCountAfterCreate, abCountBeforeStart + 1);
 
   // Test - Check we have the directory.
   let abDir = MailServices.ab
@@ -193,4 +198,9 @@ function run_test() {
   }
 
   localAcTests.forEach(checkAc);
+
+  MailServices.ab.deleteAddressBook(abDir.URI);
+
+  let abCountAfterDelete = [...MailServices.ab.directories].length;
+  Assert.equal(abCountAfterDelete, abCountBeforeStart);
 }
