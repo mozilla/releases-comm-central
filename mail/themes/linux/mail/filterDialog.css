@@ -57,7 +57,8 @@ checkbox:not([label]) .checkbox-label-box {
   margin-inline-end: 4px;
 }
 
-.search-menulist, .search-value-menulist {
+.search-menulist,
+.search-value-menulist {
   width: 12em;
 }
 

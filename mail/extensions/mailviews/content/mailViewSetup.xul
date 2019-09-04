@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
-
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xml-stylesheet href="chrome://messenger/skin/shared/input-fields.css" type="text/css" ?>
 <?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
 
 <!DOCTYPE dialog [
@@ -15,7 +14,8 @@
 ]>
 
 <dialog id="mailViewSetupDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="mailViewOnLoad();"
         onunload="mailViewOnUnLoad();"
         buttons="accept,cancel"
@@ -40,8 +40,13 @@
     <separator class="thin"/>
     <vbox>
       <hbox align="center">
-        <label value="&mailViewHeading.label;" accesskey="&mailViewHeading.accesskey;" control="name"/>
-        <textbox tabindex="0" id="name" oninput="doEnabling();"/>
+        <label value="&mailViewHeading.label;"
+               accesskey="&mailViewHeading.accesskey;"
+               control="name"/>
+        <html:input id="name"
+                    class="input-inline"
+                    tabindex="0"
+                    oninput="doEnabling();"/>
       </hbox>
     </vbox>
 

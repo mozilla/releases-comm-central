@@ -10,8 +10,9 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
-#searchTerms  {
+#searchTerms {
   margin: 8px 6px 0;
 }
 
@@ -43,7 +44,7 @@
   color: GrayText;
 }
 
-.search-value-textbox {
+html|input.search-value-textbox {
   padding-top: 0;
   padding-bottom: 0;
 }

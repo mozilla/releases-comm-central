@@ -704,7 +704,7 @@
       if (!this.hasChildNodes()) {
         this.appendChild(
           MozXULElement.parseXULToFragment(`
-        <textbox flex="1" class="search-value-textbox" inherits="disabled"></textbox>
+        <html:input flex="1" class="input-inline search-value-textbox" inherits="disabled"/>
         <menulist flex="1" class="search-value-menulist" inherits="disabled">
           <menupopup class="search-value-popup">
             <menuitem value="6" stringTag="priorityHighest" class="search-value-menuitem"></menuitem>
@@ -723,7 +723,7 @@
             <menuitem value="4" stringTag="flagged" class="search-value-menuitem"></menuitem>
           </menupopup>
         </menulist>
-        <textbox flex="1" class="search-value-textbox" inherits="disabled"></textbox>
+        <html:input flex="1" class="input-inline search-value-textbox" inherits="disabled"/>
         <menulist is="menulist-addrbooks" flex="1" class="search-value-menulist" inherits="disabled" localonly="true"/>
         <menulist flex="1" class="search-value-menulist" inherits="disabled">
           <menupopup class="search-value-popup"></menupopup>
@@ -747,7 +747,7 @@
             <menuitem value="imapflag" stringTag="junkScoreOriginImapFlag" class="search-value-menuitem"></menuitem>
           </menupopup>
         </menulist>
-        <html:input type="number" class="search-value-textbox" inherits="disabled"/>
+        <html:input type="number" class="input-inline search-value-textbox" inherits="disabled"/>
         <hbox flex="1" class="search-value-custom" inherits="disabled"></hbox>
       `)
         );
