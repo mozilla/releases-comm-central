@@ -108,14 +108,24 @@ this.windows = class extends ExtensionAPI {
           return Promise.resolve(windowManager.convert(window, getInfo));
         },
 
-        getCurrent(getInfo) {
+        async getCurrent(getInfo) {
           let window = context.currentWindow || windowTracker.topWindow;
-          return Promise.resolve(windowManager.convert(window, getInfo));
+          if (window.document.readyState != "complete") {
+            await new Promise(resolve =>
+              window.addEventListener("load", resolve, { once: true })
+            );
+          }
+          return windowManager.convert(window, getInfo);
         },
 
-        getLastFocused(getInfo) {
+        async getLastFocused(getInfo) {
           let window = windowTracker.topWindow;
-          return Promise.resolve(windowManager.convert(window, getInfo));
+          if (window.document.readyState != "complete") {
+            await new Promise(resolve =>
+              window.addEventListener("load", resolve, { once: true })
+            );
+          }
+          return windowManager.convert(window, getInfo);
         },
 
         getAll(getInfo) {
