@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsXULAppAPI.h"
+#include "mozilla/CmdLineAndEnvUtils.h"
 #include "mozilla/XREAppData.h"
 #include "application.ini.h"
 #include "mozilla/Bootstrap.h"
@@ -206,6 +207,11 @@ static int do_main(int argc, char* argv[], char* envp[]) {
   if (getenv("LIBFUZZER"))
     gBootstrap->XRE_LibFuzzerSetDriver(fuzzer::FuzzerDriver);
 #endif
+
+  // Note: FF needs to keep in sync with LauncherProcessWin,
+  //       TB doesn't have that file.
+  const char* acceptableParams[] = {"compose", "mail", nullptr};
+  EnsureCommandlineSafe(argc, argv, acceptableParams);
 
   return gBootstrap->XRE_main(argc, argv, config);
 }
