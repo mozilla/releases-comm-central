@@ -390,8 +390,10 @@ MimeAddressParser.prototype = {
   makeFromDisplayAddress(aDisplay, count) {
     // The basic idea is to split on every comma, so long as there is a
     // preceding @.
+    // First make sure we don't have any "empty addresses".
+    aDisplay = aDisplay.replace(/,\s*,/g, ", ");
     let output = [];
-    while (aDisplay.length) {
+    while (aDisplay.length > 0) {
       let at = aDisplay.indexOf("@");
       let comma = aDisplay.indexOf(",", at + 1);
       let addr;
@@ -402,7 +404,10 @@ MimeAddressParser.prototype = {
         addr = aDisplay;
         aDisplay = "";
       }
-      output.push(this._makeSingleAddress(addr.trimLeft()));
+      addr = addr.trimLeft();
+      if (addr) {
+        output.push(this._makeSingleAddress(addr));
+      }
     }
     if (count) {
       count.value = output.length;

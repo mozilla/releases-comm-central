@@ -58,6 +58,16 @@ function run_test() {
         ["Bond, James", "test2@foo.invalid"],
       ],
     },
+    // Multiple commas
+    {
+      displayString:
+        "Doe, John <test@foo.invalid>,, Bond, James <test2@foo.invalid>, , Gold Finger <goldfinger@example.com> ,, ",
+      addresses: [
+        ["Doe, John", "test@foo.invalid"],
+        ["Bond, James", "test2@foo.invalid"],
+        ["Gold Finger", "goldfinger@example.com"],
+      ],
+    },
     // More tests where the user forgot to close the quote or added extra quotes.
     {
       displayString: '"Yatter King1 <a@a.a.a>',
