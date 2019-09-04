@@ -9,6 +9,24 @@
 # to the Thunderbird (comm) repository.
 # We need to have accurate source repository information for MPL compliance.
 
+
+def get_fail_msg(source_name, repo_name, rev_name):
+    return """Unable to determine {} source repository.
+Try setting {} and {}
+environment variables or build from a Mercurial checkout.""".format(
+        source_name, repo_name, rev_name)
+
+
+# Wrap check_cmd_output so that it does not fatally end configure on command
+# failure.
+def hg_cmd_output(*args, **kwargs):
+    def hg_error():
+        return None
+    kwargs['onerror'] = hg_error
+
+    return check_cmd_output(*args, **kwargs)
+
+
 @template
 def read_sourcestamp(repository):
     """
@@ -128,10 +146,10 @@ def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
             log.info(
                 "Determining COMM source information from "
                 "Mercurial...")
-            comm_rev = check_cmd_output(hg, '-R', paths.commtopsrcdir,
-                                        'id', '-T', '{p1.node}')
-            comm_repo = check_cmd_output(hg, '-R', paths.commtopsrcdir,
-                                         'path', 'default')
+            comm_rev = hg_cmd_output(hg, '-R', paths.commtopsrcdir,
+                                     'parent', '--template={node}')
+            comm_repo = hg_cmd_output(hg, '-R', paths.commtopsrcdir,
+                                      'path', 'default')
             if comm_repo:
                 comm_repo = comm_repo.strip()
                 if comm_repo.startswith('ssh://'):
@@ -154,17 +172,19 @@ def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
             return namespace(comm_repo=comm_repo, comm_rev=comm_rev)
 
 
-@depends(comm_repo_from_environ, comm_repo_heuristics)
-def comm_source_repo(from_environ, from_config):
+@depends(comm_repo_from_environ, comm_repo_heuristics, 'MOZ_AUTOMATION')
+def comm_source_repo(from_environ, from_config, automation):
     rv = None
     if from_environ:
         rv = from_environ
     elif from_config:
         rv = from_config
+    elif automation:
+        die(get_fail_msg("COMM", "MOZ_SOURCE_REPO", "MOZ_SOURCE_CHANGESET"))
     else:
-        die("Unable to determine COMM source repository."
-            "Try setting COMM_HEAD_REPOSITORY and COMM_HEAD_REV"
-            "environment variables or build from a Mercurial checkout.")
+        log.info(
+            get_fail_msg("COMM", "MOZ_SOURCE_REPO", "MOZ_SOURCE_CHANGESET"))
+        rv = namespace(comm_repo="unknown", comm_rev="unknown")
 
     log.info('COMM_SOURCE_REPOSITORY: {}'.format(rv.comm_repo))
     log.info('COMM_SOURCE_CHANGESET: {}'.format(rv.comm_rev))
@@ -223,8 +243,8 @@ def gecko_repo_heuristics(gecko_environ, paths, hg, sourcestamp, gecko_yml):
                     log.info(
                         "Determining GECKO source information from "
                         "Mercurial...")
-                    gecko_rev = check_cmd_output(hg, '-R', paths.moztopsrcdir,
-                                                 'id', '-T', '{p1.node}')
+                    gecko_rev = hg_cmd_output(hg, '-R', paths.moztopsrcdir,
+                                              'parent', '--template={node}')
                 # TODO: git-cinnabar support?
 
         if not gecko_repo or not gecko_rev:
@@ -241,17 +261,19 @@ def gecko_repo_heuristics(gecko_environ, paths, hg, sourcestamp, gecko_yml):
             return namespace(gecko_repo=gecko_repo, gecko_rev=gecko_rev)
 
 
-@depends(gecko_repo_from_environ, gecko_repo_heuristics)
-def gecko_source_repo(from_environ, from_heuristics):
+@depends(gecko_repo_from_environ, gecko_repo_heuristics, 'MOZ_AUTOMATION')
+def gecko_source_repo(from_environ, from_heuristics, automation):
     rv = None
     if from_environ:
         rv = from_environ
     elif from_heuristics:
         rv = from_heuristics
+    elif automation:
+        die(get_fail_msg("GECKO", "GECKO_HEAD_REPOSITORY", "GECKO_HEAD_REV"))
     else:
-        die("Unable to determine GECKO source repository."
-            "Try setting GECKO_HEAD_REPOSITORY and GECKO_HEAD_REV"
-            "environment variables or build from a Mercurial checkout.")
+        log.info(
+            get_fail_msg("GECKO", "GECKO_HEAD_REPOSITORY", "GECKO_HEAD_REV"))
+        rv = namespace(gecko_repo="unknown", gecko_rev="unknown")
 
     log.info('GECKO_SOURCE_REPOSITORY: {}'.format(rv.gecko_repo))
     log.info('GECKO_SOURCE_CHANGESET: {}'.format(rv.gecko_rev))
