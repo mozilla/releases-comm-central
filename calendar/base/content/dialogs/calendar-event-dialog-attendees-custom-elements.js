@@ -2681,7 +2681,7 @@
       this.mMaxFreeBusy = 0;
       this.mPendingRequests = [];
 
-      window.addEventListener("load", this.onInitialize.bind(this), true);
+      this.onInitialize();
       window.addEventListener("unload", this.onUnload.bind(this), true);
     }
 

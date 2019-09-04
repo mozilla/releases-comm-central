@@ -40,7 +40,6 @@ function onLoad() {
 
   // first of all, attach all event handlers
   window.addEventListener("resize", onResize, true);
-  window.addEventListener("modify", onModify, true);
   window.addEventListener("rowchange", onRowChange, true);
   window.addEventListener("DOMAttrModified", onAttrModified, true);
   window.addEventListener("timebar", onTimebar, true);
@@ -1127,6 +1126,7 @@ function onCalendarEventAttendeesListLoad() {
 
   attendeesList.setFocus(attendeesList.mMaxAttendees);
 
+  window.addEventListener("modify", onModify, true);
   attendeesList.init();
 }
 
