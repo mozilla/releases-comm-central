@@ -1,0 +1,7 @@
+53a946e223427462aa507710ba2ae238aad9676c - Paul Morris - Bug 1577606 - Reformat calendar code with eslint and Prettier. r=darktrojan
+e5737872508567abf8b0444f43eb4ee4ce211c75 - Paul Morris - Bug 1577835 - Reformat chat/ code with eslint and Prettier. r=mkmelin
+ab9b63f9d2266b4607b926ba227d89ae117bb3f9 - Paul Morris - Bug 1577835 - Reformat common/ and ldap/ code. r=mkmelin
+8d3544b6352837c58cc4984fdd0412800f863e7c - Paul Morris - Bug 1577835 - Reformat editor/ code with eslint and Prettier. r=mkmelin
+883449e17f9dc912d4f5487faac540db61850ca1 - Paul Morris - Bug 1577835 - Reformat mail/ code with eslint and Prettier. r=mkmelin
+5b47088d84e77f42fd810d0c68c9518be20bc6f5 - Paul Morris - Bug 1577835 - Reformat mailnews/ code with eslint and Prettier. r=mkmelin
+8177b85d18db77c4787461cd6db9575ef9935aea - Paul Morris - Bug 1577835 - Reformat the .eslintrc.js files with Prettier. r=mkmelin
