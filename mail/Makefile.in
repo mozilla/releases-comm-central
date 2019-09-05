@@ -19,9 +19,7 @@ endif
 # As fallout from bug 1247162, the sourcestamp in application.ini and
 # platform.ini are the same, which isn't a problem for Firefox, but
 # it's not right for anything else. So we correct platform.ini here.
-# The first expression is a URL with / characters, so use _ for a delimiter
 libs:: $(DIST)/bin/platform.ini
-	sed -i -e "s_^\(SourceRepository=\).*_\1$(MOZ_GECKO_SOURCE_REPO)_" \
-		-e "s/^\(SourceStamp=\).*/\1$(MOZ_GECKO_SOURCE_CHANGESET)/" \
+	$(PYTHON) $(commtopsrcdir)/build/source_repos.py gen_platformini \
 		$(DIST)/bin/platform.ini
 

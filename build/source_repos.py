@@ -15,6 +15,25 @@ sourcestamp_tmpl = """{buildid}
 """
 
 
+def gen_platformini(output, platform_ini):
+    gecko_repo = buildconfig.substs.get('MOZ_GECKO_SOURCE_REPO', '')
+    gecko_rev = buildconfig.substs.get('MOZ_GECKO_SOURCE_CHANGESET', '')
+
+    with open(platform_ini, 'r') as fp:
+        data = fp.readlines()
+
+    for i in range(len(data)):
+        if data[i].startswith('SourceRepository='):
+            data[i] = 'SourceRepository=%s\n' % gecko_repo
+        elif data[i].startswith('SourceStamp='):
+            data[i] = 'SourceStamp=%s\n' % gecko_rev
+
+    with open(platform_ini, 'w') as fp:
+        fp.writelines(data)
+
+    output.write('platform.ini updated.\n')
+
+
 def gen_sourcestamp(output):
     data = dict(buildid=os.environ.get('MOZ_BUILD_DATE', 'unknown'),
         gecko_repo=buildconfig.substs.get('MOZ_GECKO_SOURCE_REPO', None),
@@ -60,7 +79,7 @@ def main(args):
     if args:
         func = globals().get(args[0])
         if func:
-            return func(sys.stdout, *args[2:])
+            return func(sys.stdout, *args[1:])
 
     return 1
 
