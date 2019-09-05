@@ -31,12 +31,12 @@ add_task(async function test_update_preferences_ui() {
         resolve(subject);
       }
     }, "chrome-document-loaded");
-    window.openPreferencesTab("paneAdvanced", "updateTab");
+    window.openPreferencesTab("paneGeneral", "updateApp");
   });
 
   let prefsWindow = prefsDocument.ownerGlobal;
-  if (prefsWindow.getCurrentPaneID() != "paneAdvanced") {
-    let pane = prefsDocument.getElementById("paneAdvanced");
+  if (prefsWindow.getCurrentPaneID() != "paneGeneral") {
+    let pane = prefsDocument.getElementById("paneGeneral");
     await new Promise(resolve => {
       pane.addEventListener("paneSelected", resolve, { once: true });
     });
