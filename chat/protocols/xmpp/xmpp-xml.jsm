@@ -4,7 +4,6 @@
 
 this.EXPORTED_SYMBOLS = ["Stanza", "XMPPParser", "SupportedFeatures"];
 
-/* eslint-disable key-spacing */
 var NS = {
   xml: "http://www.w3.org/XML/1998/namespace",
   xhtml: "http://www.w3.org/1999/xhtml",
@@ -93,7 +92,6 @@ var TOP_LEVEL_ELEMENTS = {
   challenge: "urn:ietf:params:xml:ns:xmpp-sasl",
   error: "urn:ietf:params:xml:ns:xmpp-streams",
 };
-/* eslint-enable key-spacing */
 
 // Features that we support in XMPP.
 // Don't forget to add your new features here.
