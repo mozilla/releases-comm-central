@@ -2093,13 +2093,11 @@ AttachmentInfo.prototype = {
     // news urls with credentials (username, userPass), we must remove them
     // as Request fails such urls with a MSG_URL_HAS_CREDENTIALS error.
     if (url.startsWith("imap://") || url.startsWith("news://")) {
-      let uri = makeURI(url);
-      if (uri.username) {
-        url = url.replace(uri.username + "@", "");
-      }
-      if (uri.userPass) {
-        url = url.replace(uri.userPass + "@", "");
-      }
+      url = makeURI(url)
+        .mutate()
+        .setUsername("")
+        .setUserPass("")
+        .finalize().spec;
     }
 
     let request = new Request(url, options);
