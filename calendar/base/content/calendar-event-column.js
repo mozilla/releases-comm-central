@@ -165,10 +165,6 @@
       // times in a short interval, and therefore improves performance.
       this.mEventMapTimeout = null;
 
-      // Sometimes we need to add resize handlers for columns with special
-      // widths.  When we relayout, we need to cancel those handlers.
-      this.mHandlersToRemove = [];
-
       // Set this true so that we know in our onAddItem listener to start
       // modifying an event when it comes back to us as created.
       this.mCreatedNewEvent = false;
@@ -477,16 +473,6 @@
       while (this.topbox && this.topbox.hasChildNodes()) {
         this.topbox.lastChild.remove();
       }
-      for (let handler of this.mHandlersToRemove) {
-        document
-          .getElementById("calendarviewBroadcaster")
-          .removeEventListener(
-            this.calendarView.getAttribute("type") + "viewresized",
-            handler,
-            true
-          );
-      }
-      this.mHandlersToRemove = [];
       this.mSelectedChunks = [];
     }
 

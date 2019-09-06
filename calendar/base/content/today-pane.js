@@ -47,7 +47,9 @@ var TodayPane = {
     document
       .getElementById("modeBroadcaster")
       .addEventListener("DOMAttrModified", TodayPane.onModeModified);
-    document.getElementById("today-splitter").addEventListener("command", onCalendarViewResize);
+    document.getElementById("today-splitter").addEventListener("command", () => {
+      document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+    });
 
     Services.obs.addObserver(TodayPane, "defaultTimezoneChanged");
   },
@@ -59,7 +61,6 @@ var TodayPane = {
     document
       .getElementById("modeBroadcaster")
       .removeEventListener("DOMAttrModified", TodayPane.onModeModified);
-    document.getElementById("today-splitter").removeEventListener("command", onCalendarViewResize);
     Services.obs.removeObserver(TodayPane, "defaultTimezoneChanged");
   },
 
@@ -130,7 +131,7 @@ var TodayPane = {
       }
     }
 
-    onCalendarViewResize();
+    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
   },
 
   /**

@@ -47,8 +47,12 @@ async function commonInitCalendar() {
 
   // Start alarm service
   Cc["@mozilla.org/calendar/alarm-service;1"].getService(Ci.calIAlarmService).startup();
-  document.getElementById("calsidebar_splitter").addEventListener("command", onCalendarViewResize);
-  window.addEventListener("resize", onCalendarViewResize, true);
+  document.getElementById("calsidebar_splitter").addEventListener("command", () => {
+    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+  });
+  window.addEventListener("resize", () => {
+    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+  });
 
   // Set calendar color CSS on this window
   cal.view.colorTracker.registerWindow(window);
@@ -89,25 +93,8 @@ function commonFinishCalendar() {
   // Remove the command controller
   removeCalendarCommandController();
 
-  document
-    .getElementById("calsidebar_splitter")
-    .removeEventListener("command", onCalendarViewResize);
-  window.removeEventListener("resize", onCalendarViewResize, true);
-
   // Clean up window pref observers
   calendarWindowPrefs.cleanup();
-}
-
-/**
- * Handler function to create |viewtype + "viewresized"| events that are
- * dispatched through the calendarviewBroadcaster.
- *
- * XXX this has nothing to do with startup, needs to go somewhere else.
- */
-function onCalendarViewResize(aEvent) {
-  let event = document.createEvent("Events");
-  event.initEvent(currentView().type + "viewresized", true, false);
-  document.getElementById("calendarviewBroadcaster").dispatchEvent(event);
 }
 
 /**

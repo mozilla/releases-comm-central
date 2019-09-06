@@ -445,7 +445,6 @@
       this.mSelectedItems = [];
       this.mLongWeekdayTotalPixels = -1;
 
-      this.mResizeHandler = null;
       this.mDropShadowsLength = null;
 
       this.mShadowOffset = null;
@@ -502,12 +501,14 @@
       alarmService.addObserver(this.mObserver);
 
       this.setAttribute("type", this.type);
-      this.mResizeHandler = () => {
-        this.onResize(this);
-      };
-      document
-        .getElementById("calendarviewBroadcaster")
-        .addEventListener(this.getAttribute("type") + "viewresized", this.mResizeHandler, true);
+
+      this.addEventListener(
+        "viewresize",
+        event => {
+          this.onResize(this);
+        },
+        true
+      );
 
       // Add a preference observer to monitor changes.
       Services.prefs.addObserver("calendar.", this.mPrefObserver);
@@ -521,7 +522,7 @@
       this.mLog = Log4Moz.getConfiguredLogger("calBaseView");
       this.mFlashingEvents = {};
 
-      // Remove observers and listeners on window unload.
+      // Remove observers on window unload.
       window.addEventListener(
         "unload",
         () => {
@@ -531,19 +532,21 @@
 
           alarmService.removeObserver(this.mObserver);
 
-          document
-            .getElementById("calendarviewBroadcaster")
-            .removeEventListener(
-              this.getAttribute("type") + "viewresized",
-              this.mResizeHandler,
-              true
-            );
-
           Services.prefs.removeObserver("calendar.", this.mPrefObserver);
           Services.obs.removeObserver(this.mTimezoneObserver, "defaultTimezoneChanged");
         },
         { once: true }
       );
+    }
+
+    /**
+     * Handle resizing by adjusting the view to the new size.
+     *
+     * @param {calICalendarView} [calViewElem] - A calendar view element.
+     */
+    onResize(calView) {
+      // Child classes should provide the implementation.
+      throw new Error(this.constructor.name + ".onResize not implemented");
     }
 
     get type() {

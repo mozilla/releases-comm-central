@@ -674,7 +674,7 @@ function ltnSwitch2Calendar() {
     window.setCursor("auto");
 
     // make sure the view is sized correctly
-    onCalendarViewResize();
+    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
 
     // Load the unifinder if it isn't already loaded.
     ensureUnifinderLoaded();

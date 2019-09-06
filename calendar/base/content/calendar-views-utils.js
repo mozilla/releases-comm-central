@@ -280,7 +280,7 @@ function switchToView(viewType) {
   view.goToDay(selectedDay);
   view.setSelectedItems(currentSelection.length, currentSelection);
 
-  onCalendarViewResize();
+  view.onResize(view);
 }
 
 /**
