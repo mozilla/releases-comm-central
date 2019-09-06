@@ -982,9 +982,10 @@ function awRecipientKeyPress(event, element) {
   switch (event.key) {
     case "Enter":
     case "Tab":
-      // If the recipient input text contains a comma (we also convert pasted line
-      // feeds into commas), check if multiple recipients and add them accordingly.
-      if (element.value.includes(",")) {
+      // If the recipient input text contains a comma (we also convert pasted
+      // line feeds into commas), check if multiple recipients and add them
+      // accordingly. Handle semicolons too.
+      if (element.value.includes(",") || element.value.includes(";")) {
         let addresses = element.value;
         element.value = ""; // Clear out the current line so we don't try to autocomplete it.
         parseAndAddAddresses(

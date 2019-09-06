@@ -388,6 +388,14 @@ MimeAddressParser.prototype = {
   },
 
   makeFromDisplayAddress(aDisplay, count) {
+    if (aDisplay.includes(";") && !/:.*;/.test(aDisplay)) {
+      // Using semicolons as mailbox separators in against the standard, but
+      // used in the wild by some clients.
+      // Looks like this isn't using group syntax, so let's assume it's a
+      // non-standards compliant input string, and fix it.
+      aDisplay = aDisplay.replace(/;/g, ",");
+    }
+
     // The basic idea is to split on every comma, so long as there is a
     // preceding @.
     // First make sure we don't have any "empty addresses".
