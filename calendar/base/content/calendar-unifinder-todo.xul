@@ -35,7 +35,7 @@
         <tree is="calendar-task-tree-todaypane" id="unifinder-todo-tree"
               flex="1"
               visible-columns="completed priority title"
-              persist="visible-columns ordinals widths sort-active sort-direction"
+              persist="visible-columns ordinals widths sort-active sort-direction filterValue"
               context="taskitem-context-menu"/>
         <html:input id="unifinder-task-edit-field"
                     class="task-edit-field themeableSearchBox"

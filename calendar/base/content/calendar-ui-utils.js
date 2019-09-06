@@ -393,53 +393,6 @@ function setAttributeToChildren(aParent, aAttribute, aValue, aFilterAttribute, a
 }
 
 /**
- * Checks a radio control or a radio-menuitem.
- *
- * @param {Element} parent  The parent node of the 'radio controls', either:
- *                           - `radio` elements
- *                           - `menuitem` elements of type 'radio'
- *                           - `toolbarbutton` elements of type 'radio' (e.g. in appmenu)
- * @param {string} value    The value of the radio control bound to be checked.
- * @return {boolean}        Whether the 'radio control' could be checked.
- */
-function checkRadioControl(parent, value) {
-  for (const element of parent.childNodes) {
-    if (element.hasAttribute("value")) {
-      let compValue = element.getAttribute("value");
-      if (compValue == value) {
-        if (element.localName == "menuitem" || element.localName == "toolbarbutton") {
-          if (element.getAttribute("type") == "radio") {
-            element.setAttribute("checked", "true");
-            return true;
-          }
-        } else if (element.localName == "radio") {
-          element.radioGroup.selectedItem = element;
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
-/**
- * Checks a `toolbarbutton` of type "radio" in the appmenu. (For some reason we
- * need to clear all the checked values before checking the new one.)
- *
- * @param {Element} parent  The parent node that contains the radio elements.
- * @param {string} value    The value of the radio element to be checked.
- * @return {boolean}        Whether the radio element could be checked.
- */
-function checkRadioControlAppmenu(parent, value) {
-  for (const node of parent.childNodes) {
-    if (node.localName == "toolbarbutton" && node.getAttribute("type") == "radio") {
-      node.removeAttribute("checked");
-    }
-  }
-  return checkRadioControl(parent, value);
-}
-
-/**
  * Enables or disables the given element depending on the checkbox state.
  *
  * @param checkboxId    The ID of the XUL checkbox element.

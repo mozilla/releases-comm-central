@@ -16,9 +16,6 @@
   <broadcasterset id="calendar_broadcasters">
     <broadcaster id="modeBroadcaster" mode="calendar"/>
     <broadcaster id="calendarviewBroadcaster"/>
-    <broadcaster id="unifinder-todo-filter-broadcaster"
-                 persist="value"
-                 value="throughcurrent"/>
   </broadcasterset>
 
   <commandset id="calendar_commands"
@@ -790,9 +787,6 @@
             label="&calendar.tasks.view.filtertasks.label;"
             accesskey="&calendar.tasks.view.filtertasks.accesskey;">
         <menupopup id="task-context-menu-filter-todaypane-popup">
-          <observes element="unifinder-todo-filter-broadcaster"
-                    attribute="value"
-                    onbroadcast="checkRadioControl(this.parentNode, document.getElementById(this.getAttribute('element')).getAttribute('value'));"/>
           <menuitem id="task-context-menu-filter-todaypane-current"
                     name="filtergrouptodaypane"
                     value="throughcurrent"

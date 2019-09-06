@@ -2,16 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported prepareCalendarToDoUnifinder, finishCalendarToDoUnifinder */
+/* exported prepareCalendarToDoUnifinder */
 
 /* import-globals-from calendar-views-utils.js */
+
+// TODO: just include these in today-pane.js
 
 /**
  * Called when the window is loaded to set up the unifinder-todo.
  */
 function prepareCalendarToDoUnifinder() {
   // add listener to update the date filters
-  getViewDeck().addEventListener("dayselect", updateCalendarToDoUnifinder);
+  getViewDeck().addEventListener("dayselect", event => {
+    updateCalendarToDoUnifinder();
+  });
 
   updateCalendarToDoUnifinder();
 }
@@ -19,29 +23,27 @@ function prepareCalendarToDoUnifinder() {
 /**
  * Updates the applied filter and show completed view of the unifinder todo.
  *
- * @param aFilter        The filter name to set.
+ * @param {String} [filter] - The filter name to set.
  */
-function updateCalendarToDoUnifinder(aFilter) {
+function updateCalendarToDoUnifinder(filter) {
   let tree = document.getElementById("unifinder-todo-tree");
 
   // Set up hiding completed tasks for the unifinder-todo tree
+  filter = filter || tree.getAttribute("filterValue") || "throughcurrent";
+  tree.setAttribute("filterValue", filter);
+
+  document
+    .querySelectorAll('menuitem[command="calendar_task_filter_todaypane_command"][type="radio"]')
+    .forEach(item => {
+      if (item.getAttribute("value") == filter) {
+        item.setAttribute("checked", "true");
+      } else {
+        item.removeAttribute("checked");
+      }
+    });
+
   let showCompleted = document.getElementById("show-completed-checkbox").checked;
-  let oldFilter = document
-    .getElementById("unifinder-todo-filter-broadcaster")
-    .getAttribute("value");
-  let filter = oldFilter;
-
-  // This function acts as an event listener, in which case we get the Event as the
-  // parameter instead of a filter.
-  if (aFilter && !(aFilter instanceof Event)) {
-    filter = aFilter;
-  }
-
-  if (filter && filter != oldFilter) {
-    document.getElementById("unifinder-todo-filter-broadcaster").setAttribute("value", aFilter);
-  }
-
-  if (filter && !showCompleted) {
+  if (!showCompleted) {
     let filterProps = tree.mFilter.getDefinedFilterProperties(filter);
     if (filterProps) {
       filterProps.status =
@@ -54,13 +56,4 @@ function updateCalendarToDoUnifinder(aFilter) {
   // update the filter
   tree.showCompleted = showCompleted;
   tree.updateFilter(filter);
-}
-
-/**
- * Called when the window is unloaded to clean up the unifinder-todo. Note that
- * this function could be called even if prepareCalendarToDoUnifinder hasn't.
- */
-function finishCalendarToDoUnifinder() {
-  // remove listeners
-  getViewDeck().removeEventListener("dayselect", updateCalendarToDoUnifinder);
 }
