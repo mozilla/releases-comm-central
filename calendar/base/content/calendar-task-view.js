@@ -349,23 +349,32 @@ var taskDetailsView = {
  * Updates the currently applied filter for the task view and refreshes the task
  * tree.
  *
- * @param aFilter        The filter name to set.
+ * @param {String} [filter] - The filter name to set.
  */
-function taskViewUpdate(aFilter) {
+function taskViewUpdate(filter) {
   let tree = document.getElementById("calendar-task-tree");
-  let broadcaster = document.getElementById("filterBroadcaster");
-  let oldFilter = broadcaster.getAttribute("value");
-  let filter = oldFilter;
-
-  if (aFilter && !(aFilter instanceof Event)) {
-    filter = aFilter;
-  }
-
+  let oldFilter = tree.getAttribute("filterValue");
   if (filter && filter != oldFilter) {
-    broadcaster.setAttribute("value", filter);
+    tree.setAttribute("filterValue", filter);
+    document
+      .querySelectorAll(
+        `menuitem[command="calendar_task_filter_command"][type="radio"],
+         toolbarbutton[command="calendar_task_filter_command"][type="radio"]`
+      )
+      .forEach(item => {
+        if (item.getAttribute("value") == filter) {
+          item.setAttribute("checked", "true");
+        } else {
+          item.removeAttribute("checked");
+        }
+      });
+    let radio = document.querySelector(
+      `radio[command="calendar_task_filter_command"][value="${filter}"]`
+    );
+    if (radio) {
+      radio.radioGroup.selectedItem = radio;
+    }
   }
-
-  // update the filter
   tree.updateFilter(filter || "all");
 }
 

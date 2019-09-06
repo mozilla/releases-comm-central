@@ -120,9 +120,7 @@
       <key id="calendar-new-todo-key" key="&lightning.keys.todo.new;" modifiers="accel" command="calendar_new_todo_command"/>
     </keyset>
 
-    <broadcasterset id="calendar_broadcasters">
-      <broadcaster id="filterBroadcaster" value="all"/>
-    </broadcasterset>
+    <broadcasterset id="calendar_broadcasters"/>
 
     <popupset id="calendar-popupset">
       <menupopup id="list-calendars-context-menu"
@@ -239,9 +237,6 @@
                                  refcontrol="task-tree-filter-header">
                 <radiogroup id="task-tree-filtergroup" class="task-tree-subpane"
                             persist="value">
-                  <observes element="filterBroadcaster"
-                            attribute="value"
-                            onbroadcast="checkRadioControl(this.parentNode, document.getElementById('filterBroadcaster').getAttribute('value'));"/>
                   <radio id="opt_throughcurrent_filter" label="&calendar.task.filter.current.label;" value="throughcurrent" command="calendar_task_filter_command"/>
                   <radio id="opt_today_filter" label="&calendar.task.filter.today.label;" value="throughtoday" command="calendar_task_filter_command"/>
                   <radio id="opt_next7days_filter" label="&calendar.task.filter.next7days.label;" value="throughsevendays" command="calendar_task_filter_command"/>

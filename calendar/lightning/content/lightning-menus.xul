@@ -214,9 +214,6 @@
           label="&lightning.menu.view.tasks.label;"
           accesskey="&lightning.menu.view.tasks.accesskey;">
       <menupopup id="ltnTasksMenuPopup">
-        <observes element="filterBroadcaster"
-                  attribute="value"
-                  onbroadcast="checkRadioControl(this.parentNode, document.getElementById(this.getAttribute('element')).getAttribute('value'));"/>
         <menuitem id="ltnTasksViewFilterTasks"
                   type="checkbox"
                   label="&calendar.tasks.view.filtertasks.label;"
@@ -876,9 +873,6 @@
     <panelview id="appmenu_ltnTasksView"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
-        <observes element="filterBroadcaster"
-                  attribute="value"
-                  onbroadcast="checkRadioControlAppmenu(this.parentNode, document.getElementById(this.getAttribute('element')).getAttribute('value'));"/>
         <toolbarbutton id="appmenu_ltnTasksViewFilterTasks"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
