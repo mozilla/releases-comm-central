@@ -445,8 +445,10 @@ var calendarController = {
           // Unless a task tree is focused, make the default controller
           // take care.
           this.defaultController.doCommand(aCommand);
-        } else {
-          selectAllItems();
+        } else if (this.todo_tasktree_focused) {
+          getTaskTree().selectAll();
+        } else if (this.isInMode("calendar")) {
+          selectAllEvents();
         }
         break;
 
@@ -873,18 +875,7 @@ function minimonthPick(aNewDate) {
 }
 
 /**
- * Selects all items, based on which mode we are currently in and what task tree is focused
- */
-function selectAllItems() {
-  if (calendarController.todo_tasktree_focused) {
-    getTaskTree().selectAll();
-  } else if (calendarController.isInMode("calendar")) {
-    selectAllEvents();
-  }
-}
-
-/**
- * Returns the selected items, based on which mode we are currently in and what task tree is focused
+ * Returns the selected items, based on which mode we are currently in and what task tree is focused.
  */
 function getSelectedItems() {
   if (calendarController.todo_tasktree_focused) {

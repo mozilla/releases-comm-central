@@ -5,7 +5,7 @@
 /* exported refreshUIBits, switchCalendarView, rescheduleInvitationsUpdate,
  *          openInvitationsDialog, onToolbarsPopupShowingWithMode,
  *          InitViewCalendarPaneMenu, onToolbarsPopupShowingForTabType,
- *          customizeMailToolbarForTabType
+ *          customizeMailToolbarForTabType, gCurrentMode
  */
 
 /* import-globals-from ../../base/content/calendar-common-sets.js */
@@ -399,8 +399,7 @@ async function ltnOnLoad(event) {
 
   let filter = document.getElementById("task-tree-filtergroup");
   filter.value = filter.value || "all";
-  document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
-  document.getElementById("modeBroadcaster").setAttribute("checked", "true");
+  changeMode();
 
   let mailContextPopup = document.getElementById("mailContext");
   if (mailContextPopup) {
@@ -631,22 +630,46 @@ function openInvitationsDialog() {
 }
 
 /**
- * the current mode is set to a string defining the current
- * mode we're in. allowed values are:
+ * The current mode defining the current mode we're in. Allowed values are:
  *  - 'mail'
  *  - 'calendar'
  *  - 'task'
+ * @global
  */
 var gCurrentMode = "mail";
 
 /**
- * ltnSwitch2Mail() switches to the mail mode
+ * Changes the mode (gCurrentMode) and adapts the UI to the new mode.
+ * @param {string} [mode="mail"] - the new mode: one of 'mail', 'calendar' or 'task'
  */
+function changeMode(mode = "mail") {
+  gCurrentMode = mode; // eslint-disable-line no-global-assign
 
+  document
+    .querySelectorAll(
+      `menuitem[command="switch2calendar"],menuitem[command="switch2task"],
+       toolbarbutton[command="switch2calendar"],toolbarbutton[command="switch2task"]`
+    )
+    .forEach(elem => {
+      elem.setAttribute("checked", elem.getAttribute("value") == gCurrentMode);
+    });
+
+  document.querySelectorAll("calendar-modebox,calendar-modevbox").forEach(elem => {
+    elem.setAttribute("current", gCurrentMode);
+  });
+
+  TodayPane.onModeModified();
+  if (gCurrentMode != "calendar") {
+    timeIndicator.cancel();
+  }
+}
+
+/**
+ * Switches to the mail mode.
+ */
 function ltnSwitch2Mail() {
   if (gCurrentMode != "mail") {
-    gCurrentMode = "mail";
-    document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
+    changeMode("mail");
 
     document.commandDispatcher.updateCommands("calendar_commands");
     window.setCursor("auto");
@@ -654,13 +677,11 @@ function ltnSwitch2Mail() {
 }
 
 /**
- * ltnSwitch2Calendar() switches to the calendar mode
+ * Switches to the calendar mode.
  */
-
 function ltnSwitch2Calendar() {
   if (gCurrentMode != "calendar") {
-    gCurrentMode = "calendar";
-    document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
+    changeMode("calendar");
 
     // display the calendar panel on the display deck
     let deck = document.getElementById("calendarDisplayDeck");
@@ -682,13 +703,11 @@ function ltnSwitch2Calendar() {
 }
 
 /**
- * ltnSwitch2Task() switches to the task mode
+ * Switches to the task mode.
  */
-
 function ltnSwitch2Task() {
   if (gCurrentMode != "task") {
-    gCurrentMode = "task";
-    document.getElementById("modeBroadcaster").setAttribute("mode", gCurrentMode);
+    changeMode("task");
 
     // display the task panel on the display deck
     let deck = document.getElementById("calendarDisplayDeck");

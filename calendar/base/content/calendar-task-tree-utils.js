@@ -296,12 +296,10 @@ function deleteToDoCommand(aEvent, aDoNotConfirm) {
  * @return    The XUL task tree element.
  */
 function getTaskTree() {
-  let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
-  if (currentMode == "task") {
+  if (gCurrentMode == "task") {
     return document.getElementById("calendar-task-tree");
-  } else {
-    return document.getElementById("unifinder-todo-tree");
   }
+  return document.getElementById("unifinder-todo-tree");
 }
 
 /**

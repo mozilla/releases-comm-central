@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements, MozXULElement, timeIndicator */
+/* global MozElements, MozXULElement */
 
 "use strict";
 
@@ -18,22 +18,14 @@
 {
   var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
   var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
   /**
    * The calendar view for viewing a single day.
    *
    * @extends {MozElements.CalendarMultidayBaseView}
+   * @implements {calICalendarView}
    */
   class CalendarDayView extends MozElements.CalendarMultidayBaseView {
-    connectedCallback() {
-      if (this.delayConnectedCallback() || this.hasConnected) {
-        return;
-      }
-      // this.hasConnected is set to true via super.connectedCallback.
-      super.connectedCallback();
-    }
-
-    // calICalendarView Methods and Properties.
-
     get observerID() {
       return "day-view-observer";
     }
@@ -61,8 +53,6 @@
         this.goToDay(cal.dtz.now());
       }
     }
-
-    // End calICalendarView Methods and Properties.
   }
 
   MozXULElement.implementCustomInterface(CalendarDayView, [Ci.calICalendarView]);
@@ -73,43 +63,9 @@
    * The calendar view for viewing a single week.
    *
    * @extends {MozElements.CalendarMultidayBaseView}
+   * @implements {calICalendarView}
    */
   class CalendarWeekView extends MozElements.CalendarMultidayBaseView {
-    connectedCallback() {
-      if (this.delayConnectedCallback() || this.hasConnected) {
-        return;
-      }
-      // this.hasConnected is set to true via super.connectedCallback.
-      super.connectedCallback();
-
-      // Add a listener for mode changes.
-      this.mModeHandler = event => {
-        if (event.attrName != "mode") {
-          return;
-        }
-        const currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
-        if (currentMode != "calendar") {
-          timeIndicator.cancel();
-        }
-      };
-
-      document
-        .getElementById("modeBroadcaster")
-        .addEventListener("DOMAttrModified", this.mModeHandler, true);
-
-      window.addEventListener(
-        "unload",
-        () => {
-          document
-            .getElementById("modeBroadcaster")
-            .removeEventListener("DOMAttrModified", this.mModeHandler, true);
-        },
-        { once: true }
-      );
-    }
-
-    // calICalendarView Methods and Properties.
-
     get observerID() {
       return "week-view-observer";
     }
@@ -138,8 +94,6 @@
         this.goToDay(cal.dtz.now());
       }
     }
-
-    // End calICalendarView Methods and Properties.
   }
 
   MozXULElement.implementCustomInterface(CalendarWeekView, [Ci.calICalendarView]);
@@ -150,6 +104,7 @@
    * The calendar view for viewing multiple weeks.
    *
    * @extends {MozElements.CalendarMonthBaseView}
+   * @implements {calICalendarView}
    */
   class CalendarMultiweekView extends MozElements.CalendarMonthBaseView {
     connectedCallback() {
@@ -172,8 +127,6 @@
     get weeksInView() {
       return this.mWeeksInView;
     }
-
-    // calICalendarView Methods and Properties.
 
     get supportsZoom() {
       return true;
@@ -242,8 +195,6 @@
         this.selectedDay = date;
       }
     }
-
-    // End calICalendarView Methods and Properties.
   }
 
   MozXULElement.implementCustomInterface(CalendarMultiweekView, [Ci.calICalendarView]);
@@ -254,6 +205,7 @@
    * The calendar view for viewing a single month.
    *
    * @extends {MozElements.CalendarMonthBaseView}
+   * @implements {calICalendarView}
    */
   class CalendarMonthView extends MozElements.CalendarMonthBaseView {
     connectedCallback() {

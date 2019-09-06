@@ -41,12 +41,9 @@ var TodayPane = {
     TodayPane.setShortWeekdays();
     TodayPane.updateDisplay();
     TodayPane.updateSplitterState();
-    TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
+    TodayPane.previousMode = gCurrentMode;
     TodayPane.showTodayPaneStatusLabel();
 
-    document
-      .getElementById("modeBroadcaster")
-      .addEventListener("DOMAttrModified", TodayPane.onModeModified);
     document.getElementById("today-splitter").addEventListener("command", () => {
       document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
     });
@@ -58,9 +55,6 @@ var TodayPane = {
    * Unload handler, cleans up the today pane on window unload.
    */
   onUnload: function() {
-    document
-      .getElementById("modeBroadcaster")
-      .removeEventListener("DOMAttrModified", TodayPane.onModeModified);
     Services.obs.removeObserver(TodayPane, "defaultTimezoneChanged");
   },
 
@@ -78,9 +72,8 @@ var TodayPane = {
    * views. (event+task, task only, event only)
    */
   updateDisplay: function() {
-    let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
-    let agendaIsVisible = document.getElementById("agenda-panel").isVisible(currentMode);
-    let todoIsVisible = document.getElementById("todo-tab-panel").isVisible(currentMode);
+    let agendaIsVisible = document.getElementById("agenda-panel").isVisible(gCurrentMode);
+    let todoIsVisible = document.getElementById("todo-tab-panel").isVisible(gCurrentMode);
     let index = 2;
     if (agendaIsVisible && todoIsVisible) {
       index = 0;
@@ -313,9 +306,8 @@ var TodayPane = {
     }
     let agendaPanel = document.getElementById("agenda-panel");
     let todoPanel = document.getElementById("todo-tab-panel");
-    let currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
-    let isTodoPanelVisible = index != 2 && todoPanel.isVisibleInMode(currentMode);
-    let isAgendaPanelVisible = index != 1 && agendaPanel.isVisibleInMode(currentMode);
+    let isTodoPanelVisible = index != 2 && todoPanel.isVisibleInMode(gCurrentMode);
+    let isAgendaPanelVisible = index != 1 && agendaPanel.isVisibleInMode(gCurrentMode);
     todoPanel.setVisible(isTodoPanelVisible);
     agendaPanel.setVisible(isAgendaPanelVisible);
     this.updateDisplay();
@@ -438,22 +430,17 @@ var TodayPane = {
   },
 
   /**
-   * Handler function for the DOMAttrModified event used to observe the
-   * todaypane-splitter.
-   *
-   * @param aEvent        The DOM event occurring on attribute modification.
+   * Handler function to update the today-pane when the current mode changes.
    */
-  onModeModified: function(aEvent) {
-    if (aEvent.attrName == "mode") {
-      let todaypane = document.getElementById("today-pane-panel");
-      // Store the previous mode panel's width.
-      todaypane.setModeAttribute("modewidths", todaypane.width, TodayPane.previousMode);
+  onModeModified: function() {
+    let todayPanePanel = document.getElementById("today-pane-panel");
+    // Store the previous mode panel's width.
+    todayPanePanel.setModeAttribute("modewidths", todayPanePanel.width, TodayPane.previousMode);
 
-      TodayPane.updateDisplay();
-      TodayPane.updateSplitterState();
-      todaypane.width = todaypane.getModeAttribute("modewidths");
-      TodayPane.previousMode = document.getElementById("modeBroadcaster").getAttribute("mode");
-    }
+    TodayPane.updateDisplay();
+    TodayPane.updateSplitterState();
+    todayPanePanel.width = todayPanePanel.getModeAttribute("modewidths");
+    TodayPane.previousMode = gCurrentMode;
   },
 
   get isVisible() {

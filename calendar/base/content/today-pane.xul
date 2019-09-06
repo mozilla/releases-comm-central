@@ -13,8 +13,12 @@
 ]>
 
 <?xml-stylesheet href="chrome://calendar/skin/today-pane.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-task-view.css"?>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
 
   <script src="chrome://calendar/content/agenda-listbox.js"/>
   <script src="chrome://calendar/content/today-pane.js"/>
@@ -23,18 +27,20 @@
   <script src="chrome://calendar/content/calendar-dnd-listener.js"/>
   <script src="chrome://calendar/content/calendar-item-editing.js"/>
 
+  <script src="chrome://calendar/content/calFilter.js"/>
+  <script src="chrome://calendar/content/calendar-task-tree-utils.js"/>
+  <script src="chrome://calendar/content/calendar-unifinder-todo.js"/>
+
   <calendar-modevbox id="today-pane-panel"
                      mode="mail,calendar,task"
                      modewidths="200,200,200"
                      modesplitterstates="open,open,open"
                      refcontrol="calendar_toggle_todaypane_command"
-                     broadcaster="modeBroadcaster"
                      persist="modewidths">
     <sidebarheader align="center">
-      <label id ="today-pane-header"/>
+      <label id="today-pane-header"/>
       <spacer flex="1"/>
-      <calendar-modebox mode="mail,calendar"
-                        broadcaster="modeBroadcaster">
+      <calendar-modebox mode="mail,calendar">
         <toolbarbutton id="today-pane-cycler-prev"
                        dir="prev"
                        class="today-pane-cycler"
@@ -55,19 +61,16 @@
                          flex="1"
                          mode="mail,calendar,task"
                          collapsedinmodes="calendar"
-                         persist="collapsed height collapsedinmodes"
-                         broadcaster="modeBroadcaster">
+                         persist="collapsed height collapsedinmodes">
         <calendar-modebox id="today-none-box"
                           mode="mail,calendar,task"
                           collapsedinmodes="mail,calendar,task"
-                          broadcaster="modeBroadcaster"
                           refcontrol="ltnTodayPaneDisplayNone"
                           persist="collapsedinmodes"/>
         <calendar-modebox id="today-minimonth-box"
                           pack="center"
                           class="today-subpane"
                           mode="mail,calendar,task"
-                          broadcaster="modeBroadcaster"
                           collapsedinmodes="mail,calendar,task"
                           refcontrol="ltnTodayPaneDisplayMinimonth"
                           persist="collapsedinmodes">
@@ -78,7 +81,6 @@
                           mode="mail,calendar,task"
                           class="today-subpane"
                           refcontrol="ltnTodayPaneDisplayMiniday"
-                          broadcaster="modeBroadcaster"
                           collapsedinmodes=""
                           persist="collapsedinmodes"
                           onDOMMouseScroll="TodayPane.advance(event.detail > 0 ? 1 : -1);">
@@ -378,11 +380,36 @@
                          flex="1"
                          mode="mail,calendar"
                          collapsedinmodes="mail,task"
-                         broadcaster="modeBroadcaster"
                          persist="height collapsedinmodes"
                          ondragstart="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
                          ondragover="nsDragAndDrop.dragOver(event, calendarTaskButtonDNDObserver);"
-                         ondrop="nsDragAndDrop.drop(event, calendarTaskButtonDNDObserver);"/>
+                         ondrop="nsDragAndDrop.drop(event, calendarTaskButtonDNDObserver);">
+        <!-- This second vbox means all of this is added to the DOM at once,
+             so the label's binding doesn't complain about not having a control. -->
+        <vbox flex="1">
+          <box id="show-completed-checkbox-box" align="center">
+            <checkbox id="show-completed-checkbox"
+                      label="&calendar.unifinder.showcompletedtodos.label;"
+                      flex="1"
+                      crop="end"
+                      oncommand="updateCalendarToDoUnifinder()"
+                      persist="checked"
+                      autocheck="false"/>
+          </box>
+          <vbox id="calendar-task-tree-detail" flex="1">
+            <tree is="calendar-task-tree-todaypane" id="unifinder-todo-tree"
+                  flex="1"
+                  visible-columns="completed priority title"
+                  persist="visible-columns ordinals widths sort-active sort-direction filterValue"
+                  context="taskitem-context-menu"/>
+            <html:input id="unifinder-task-edit-field"
+                        class="task-edit-field themeableSearchBox"
+                        onfocus="taskEdit.onFocus(event)"
+                        onblur="taskEdit.onBlur(event)"
+                        onkeypress="taskEdit.onKeyPress(event)"/>
+          </vbox>
+        </vbox>
+      </calendar-modevbox>
     </vbox>
   </calendar-modevbox>
 

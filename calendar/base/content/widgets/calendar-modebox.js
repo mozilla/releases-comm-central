@@ -18,9 +18,7 @@
    *
    * - The attribute "mode" denotes a comma-separated list of all modes that the modebox should
    *   not be collapsed in, e.g. `mode="calendar,task"`.
-   * - The attribute "broadcaster" points to the id of a broadcaster that is supposed to be
-   *   notified (by the application) as soon as the mode changes. When this happens the modebox
-   *   will be notified and then either will or won't collapse itself.
+   * - The attribute "current" denotes the current viewing mode.
    * - The attribute "refcontrol" points to a control, either a "command", "checkbox" or other
    *   elements that support a "checked" attribute, that is often used to denote whether a
    *   modebox should be displayed or not. If "refcontrol" is set to the id of a command you
@@ -38,18 +36,16 @@
    * @extends {MozXULElement}
    */
   class CalendarModebox extends MozXULElement {
+    static get observedAttributes() {
+      return ["current"];
+    }
+
     connectedCallback() {
       if (this.delayConnectedCallback()) {
         return;
       }
 
-      this.mBroadcaster = null;
       this.mRefControl = null;
-
-      if (this.hasAttribute("broadcaster")) {
-        // This sets up an event listener for the broadcaster.
-        this.setAttribute("broadcaster", this.getAttribute("broadcaster"));
-      }
 
       if (this.hasAttribute("refcontrol")) {
         this.mRefControl = document.getElementById(this.getAttribute("refcontrol"));
@@ -59,11 +55,15 @@
       }
     }
 
-    get currentMode() {
-      if (this.mBroadcaster && this.mBroadcaster.hasAttribute("mode")) {
-        return this.mBroadcaster.getAttribute("mode");
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (name == "current" && oldValue != newValue) {
+        let display = this.isVisibleInMode(newValue);
+        this.setVisible(display, false, true);
       }
-      return "";
+    }
+
+    get currentMode() {
+      return this.getAttribute("current");
     }
 
     /**
@@ -74,8 +74,6 @@
     handleEvent(event) {
       if (event.type == "CheckboxStateChange") {
         this.onCheckboxStateChange(event);
-      } else if (event.type == "DOMAttrModified") {
-        this.onModeModified(event);
       }
     }
 
@@ -207,18 +205,6 @@
     }
 
     /**
-     * Handles changes to the current mode by making the modebox visible or not.
-     *
-     * @param {Event} event  An event, e.g. "DOMAttributeModified".
-     */
-    onModeModified(event) {
-      if (event.attrName == "mode") {
-        let display = this.isVisibleInMode(event.newValue);
-        this.setVisible(display, false, true);
-      }
-    }
-
-    /**
      * Used to toggle the checked state of a command connected to this modebox, and set the
      * visibility of this modebox accordingly.
      *
@@ -239,37 +225,6 @@
     onCheckboxStateChange(event) {
       let newValue = event.target.checked;
       this.setVisible(newValue, true, true);
-    }
-
-    /**
-     * Set an attribute to a value. If the attribute is "broadcaster" then also set up an
-     * event listener for the new broadcaster and remove any existing event listener from
-     * the previous broadcaster.
-     *
-     * @param {string} attr  The attribute to set.
-     * @param {string} val  The value to set.
-     */
-    setAttribute(attr, val) {
-      if (attr == "broadcaster") {
-        const newBroadcaster = document.getElementById(val);
-        if (newBroadcaster) {
-          if (this.mBroadcaster) {
-            this.mBroadcaster.removeEventListener("DOMAttrModified", this, true);
-          }
-          this.mBroadcaster = newBroadcaster;
-          this.mBroadcaster.addEventListener("DOMAttrModified", this, true);
-        }
-      }
-      return super.setAttribute(attr, val);
-    }
-
-    disconnectedCallback() {
-      if (this.mBroadcaster) {
-        this.mBroadcaster.removeEventListener("DOMAttrModified", this, true);
-      }
-      if (this.mRefControl) {
-        this.mRefControl.removeEventListener("CheckboxStateChange", this, true);
-      }
     }
   }
 

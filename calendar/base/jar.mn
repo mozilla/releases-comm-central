@@ -38,7 +38,6 @@ calendar.jar:
     content/calendar-task-view.xul                              (content/calendar-task-view.xul)
     content/calendar-ui-utils.js                                (content/calendar-ui-utils.js)
     content/calendar-unifinder-todo.js                          (content/calendar-unifinder-todo.js)
-    content/calendar-unifinder-todo.xul                         (content/calendar-unifinder-todo.xul)
     content/calendar-unifinder.js                               (content/calendar-unifinder.js)
     content/calendar-unifinder.xul                              (content/calendar-unifinder.xul)
     content/calendar-views-utils.js                             (content/calendar-views-utils.js)

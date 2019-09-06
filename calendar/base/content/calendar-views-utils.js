@@ -11,6 +11,7 @@
 
 /* import-globals-from calendar-chrome-startup.js */
 /* import-globals-from calendar-item-editing.js */
+/* global gCurrentMode */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
@@ -608,7 +609,7 @@ cal.navigationBar = {
       }
       docTitle = intervalLabel.value;
     }
-    if (document.getElementById("modeBroadcaster").getAttribute("mode") == "calendar") {
+    if (gCurrentMode == "calendar") {
       document.title =
         (docTitle ? docTitle + " - " : "") +
         cal.l10n.getAnyString("branding", "brand", "brandFullName");

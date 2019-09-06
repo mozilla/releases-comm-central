@@ -30,6 +30,10 @@
 
 <overlay id="ltnSidebarOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+
+  <script src="chrome://lightning/content/lightning-utils.js"/>
+  <script src="chrome://lightning/content/messenger-overlay-sidebar.js"/>
+
   <script src="chrome://calendar/content/calendar-day-label.js"/>
 
   <!-- NEEDED FOR MULTIPLE CALENDAR SUPPORT -->
@@ -72,8 +76,6 @@
 
   <script src="chrome://calendar/content/calendar-extract.js"/>
 
-  <script src="chrome://lightning/content/lightning-utils.js"/>
-  <script src="chrome://lightning/content/messenger-overlay-sidebar.js"/>
   <script src="chrome://calendar/content/calendar-invitations-manager.js"/>
 
   <!-- NEEDED FOR EVENT/TASK IN A TAB -->
@@ -119,8 +121,6 @@
       <key id="calendar-new-event-key" key="&lightning.keys.event.new;" modifiers="accel" command="calendar_new_event_command"/>
       <key id="calendar-new-todo-key" key="&lightning.keys.todo.new;" modifiers="accel" command="calendar_new_todo_command"/>
     </keyset>
-
-    <broadcasterset id="calendar_broadcasters"/>
 
     <popupset id="calendar-popupset">
       <menupopup id="list-calendars-context-menu"
@@ -197,13 +197,11 @@
            we need to differ which toolbar is being shown. The actual toolbar
            content will be added via a further overlay -->
       <calendar-modevbox id="calendar-toolbox-container"
-                         mode="calendar"
-                         broadcaster="modeBroadcaster">
+                         mode="calendar">
         <toolbox id="calendar-toolbox"/>
       </calendar-modevbox>
       <calendar-modevbox id="task-toolbox-container"
-                         mode="task"
-                         broadcaster="modeBroadcaster">
+                         mode="task">
         <toolbox id="task-toolbox"/>
       </calendar-modevbox>
       <hbox id="calendarContent" flex="1">
@@ -212,7 +210,6 @@
               persist="collapsed width">
           <calendar-modevbox id="minimonth-pane"
                              mode="calendar,task"
-                             broadcaster="modeBroadcaster"
                              refcontrol="calendar_toggle_minimonthpane_command">
             <vbox align="center">
               <hbox id="calMinimonthBox" pack="center">
@@ -224,7 +221,6 @@
           <vbox id="calendar-panel" flex="1">
             <calendar-modevbox id="task-filter-pane"
                                mode="task"
-                               broadcaster="modeBroadcaster"
                                refcontrol="calendar_toggle_filter_command">
               <checkbox id="task-tree-filter-header"
                                checked="true"
@@ -233,7 +229,6 @@
               <calendar-modevbox id="task-filtertree-pane"
                                  flex="1"
                                  mode="task"
-                                 broadcaster="modeBroadcaster"
                                  refcontrol="task-tree-filter-header">
                 <radiogroup id="task-tree-filtergroup" class="task-tree-subpane"
                             persist="value">
@@ -251,7 +246,6 @@
             <calendar-modevbox id="calendar-list-pane"
                                flex="1"
                                mode="calendar,task"
-                               broadcaster="modeBroadcaster"
                                refcontrol="calendar_toggle_calendarlist_command">
               <checkbox id="calendar-list-header"
                                checked="true"
@@ -260,7 +254,6 @@
               <calendar-modevbox id="calendar-list-inner-pane"
                                  flex="1"
                                  mode="calendar,task"
-                                 broadcaster="modeBroadcaster"
                                  refcontrol="calendar-list-header">
                 <richlistbox id="calendar-list" flex="1" context="list-calendars-context-menu"/>
               </calendar-modevbox>

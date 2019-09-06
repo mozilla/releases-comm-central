@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* global currentView, getOtherOrientation, MozElements, MozXULElement, Services,
-   setAttributeToChildren, setBooleanAttribute, timeIndicator */
+   setAttributeToChildren, setBooleanAttribute, timeIndicator, gCurrentMode */
 
 "use strict";
 
@@ -564,11 +564,9 @@
 
       // Update the timer but only under some circumstances, otherwise
       // it will update the wrong view or it will start without need.
-      const currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
       const currView = currentView().type;
-
       if (
-        currentMode == "calendar" &&
+        gCurrentMode == "calendar" &&
         currView == this.type &&
         !hideIndicator &&
         (currView == "day" || currView == "week")
@@ -706,10 +704,8 @@
       // Adjust the time indicator position and the related timer.
       if (this.mTimeIndicatorInterval != 0) {
         const viewHasChanged = isARelayout && timeIndicator.lastView != this.id;
-        const currentMode = document.getElementById("modeBroadcaster").getAttribute("mode");
-
         if (
-          currentMode == "calendar" &&
+          gCurrentMode == "calendar" &&
           (!timeIndicator.timer || ppmHasChanged || viewHasChanged)
         ) {
           self.updateTimeIndicatorPosition(true, ppmHasChanged, viewHasChanged);

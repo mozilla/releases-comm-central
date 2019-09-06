@@ -349,22 +349,18 @@
                   label="&lightning.toolbar.calendar.label;"
                   accesskey="&lightning.toolbar.calendar.accesskey;"
                   command="switch2calendar"
+                  value="calendar"
                   key="openLightningKey"
                   autocheck="false">
-          <observes element="modeBroadcaster"
-                    attribute="mode"
-                    onbroadcast="this.parentNode.setAttribute('checked', '' + document.getElementById('modeBroadcaster').getAttribute('mode') == 'calendar')"/>
         </menuitem>
         <menuitem id="ltnMenuSwitchToTask"
                   type="checkbox"
                   label="&lightning.toolbar.task.label;"
                   accesskey="&lightning.toolbar.task.accesskey;"
                   command="switch2task"
+                  value="task"
                   key="openTasksKey"
                   autocheck="false">
-          <observes element="modeBroadcaster"
-                    attribute="mode"
-                    onbroadcast="this.parentNode.setAttribute('checked', '' + document.getElementById('modeBroadcaster').getAttribute('mode') == 'task')"/>
         </menuitem>
         <menuseparator id="ltnBeforeCalendarSection"/>
         <menuitem id="ltnExportCalendar"
@@ -611,20 +607,16 @@
                        type="checkbox"
                        label="&lightning.toolbar.calendar.label;"
                        command="switch2calendar"
+                       value="calendar"
                        autocheck="false">
-          <observes element="modeBroadcaster"
-                    attribute="mode"
-                    onbroadcast="this.parentNode.setAttribute('checked', '' + document.getElementById('modeBroadcaster').getAttribute('mode') == 'calendar')"/>
         </toolbarbutton>
         <toolbarbutton id="appmenu_ltnMenuSwitchToTask"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&lightning.toolbar.task.label;"
                        command="switch2task"
+                       value="task"
                        autocheck="false">
-          <observes element="modeBroadcaster"
-                    attribute="mode"
-                    onbroadcast="this.parentNode.setAttribute('checked', '' + document.getElementById('modeBroadcaster').getAttribute('mode') == 'task')"/>
         </toolbarbutton>
         <toolbarseparator id="appmenu_ltnBeforeCalendarSection"/>
         <toolbarbutton id="appmenu_ltnExportCalendar"
