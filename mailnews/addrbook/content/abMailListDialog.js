@@ -334,10 +334,7 @@ function SetInputValue(inputValue, parentNode, templateNode) {
 
   var input = newNode.getElementsByTagName(awInputElementName());
   if (input && input.length == 1) {
-    // We need to set the value using both setAttribute and .value else we will
-    // lose the content when the field is not visible. See bug 37435
     input[0].setAttribute("value", inputValue);
-    input[0].value = inputValue;
     input[0].setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
   }
 }
