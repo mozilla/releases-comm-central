@@ -20,40 +20,45 @@
 linux64/opt:
     build-platform: linux64/opt
     test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
-        - mochitest-tests
-        - marionette-tests
 
 linux64-shippable/opt:
     build-platform: linux64-shippable/opt
     test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
-        - mochitest-tests
-        - marionette-tests
 
 linux64/debug:
     build-platform: linux64/debug
     test-sets:
+        - gtest-tests
+        - marionette-tests
         - mozmill-tests
         - xpcshell-tests
-        - marionette-tests
 
 linux32-shippable/opt:
     build-platform: linux-shippable/opt
     test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
-        - mochitest-tests
-        - marionette-tests
 
 linux32/debug:
     build-platform: linux/debug
     test-sets:
+        - gtest-tests
+        - marionette-tests
         - mozmill-tests
         - xpcshell-tests
-        - marionette-tests
 
 # Windows platforms (matching /windows.*/)
 
@@ -61,63 +66,71 @@ linux32/debug:
 windows7-32/opt:
     build-platform: win32/opt
     test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
-        - mochitest-tests
-        - marionette-tests
 
 windows7-32-shippable/opt:
     build-platform: win32-shippable/opt
     test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
-        - mochitest-tests
-        - marionette-tests
 
 windows7-32/debug:
     build-platform: win32/debug
     test-sets:
+        - gtest-tests
+        - marionette-tests
         - mozmill-tests
         - xpcshell-tests
-        - marionette-tests
 
 # win64
 windows10-64/opt:
     build-platform: win64/opt
     test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
-        - mochitest-tests
-        - marionette-tests
 
 windows10-64-shippable/opt:
     build-platform: win64-shippable/opt
     test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
-        - mochitest-tests
-        - marionette-tests
 
 windows10-64/debug:
     build-platform: win64/debug
     test-sets:
+        - gtest-tests
+        - marionette-tests
         - mozmill-tests
         - xpcshell-tests
-        - marionette-tests
 
 # MacOS X platforms (matching /macosx.*/)
 
 macosx1014-64/debug:
     build-platform: macosx64/debug
     test-sets:
+        - gtest-tests
+        - marionette-tests
         - mozmill-tests
         - xpcshell-tests
-        - marionette-tests
 
 macosx1014-64-shippable/opt:
     build-platform: macosx64-shippable/opt
     test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
-        - mochitest-tests
-        - marionette-tests

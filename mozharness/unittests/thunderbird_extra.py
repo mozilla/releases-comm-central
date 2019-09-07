@@ -15,6 +15,13 @@ config = {
         "mozbase/*",
         "tools/*",
     ],
+    "all_gtest_suites": {
+        "gtest": {
+            "env": {
+                "GTEST_FILTER": "TestMail*:TestMsg*"
+            }
+        },
+    },
     "all_mozmill_suites": {
         "mozmill": ["--list=tests/mozmill/mozmilltests.list"],
     },

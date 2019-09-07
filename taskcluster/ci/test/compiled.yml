@@ -1,0 +1,32 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+job-defaults:
+    e10s: false
+    mozharness:
+        script: desktop_unittest.py
+        config:
+            by-test-platform:
+                linux.*:
+                    - unittests/linux_unittest.py
+                    - remove_executables.py
+                    - unittests/thunderbird_extra.py
+                macosx.*:
+                    - unittests/mac_unittest.py
+                    - unittests/thunderbird_extra.py
+                windows.*:
+                    - unittests/win_unittest.py
+                    - unittests/thunderbird_extra.py
+
+gtest:
+    description: "GTests run"
+    suite: gtest
+    treeherder-symbol: GTest
+    instance-size: xlarge
+    run-on-projects:
+        by-test-platform:
+             macosx1014-*: []  # currently fails on macOS
+             default: built-projects
+    target: null
+    tier: default

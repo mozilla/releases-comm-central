@@ -17,8 +17,9 @@ transforms:
     - taskgraph.transforms.task:transforms
 
 jobs-from:
-    - tests.yml
+    - compiled.yml
     - marionette.yml
+    - tests.yml
 
 # These apply to all included test yml files listed in jobs-from
 job-defaults:
