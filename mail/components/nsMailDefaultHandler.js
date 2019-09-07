@@ -344,16 +344,11 @@ var nsMailDefaultHandler = {
         dump(e);
       }
     }
-
     if (uri) {
-      if (uri.toLowerCase().startsWith("feed:")) {
-        try {
-          Cc["@mozilla.org/newsblog-feed-downloader;1"]
-            .getService(Ci.nsINewsBlogFeedDownloader)
-            .subscribeToFeed(uri, null, null);
-        } catch (e) {
-          // If feed handling is not installed, do nothing
-        }
+      if (/^https?:/i.test(uri)) {
+        Cc["@mozilla.org/newsblog-feed-downloader;1"]
+          .getService(Ci.nsINewsBlogFeedDownloader)
+          .subscribeToFeed(uri, null, null);
       } else if (
         uri.toLowerCase().endsWith(".mozeml") ||
         uri.toLowerCase().endsWith(".wdseml")
