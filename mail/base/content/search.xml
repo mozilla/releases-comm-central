@@ -39,7 +39,7 @@
         nsDragAndDrop.drop(event, this.searchInputDNDObserver);
       ]]></handler>
 
-      <handler event="keypress" keycode="VK_RETURN"><![CDATA[
+      <handler event="keypress" group="system" keycode="VK_RETURN"><![CDATA[
         this.doSearch();
         event.preventDefault();
         event.stopPropagation();
