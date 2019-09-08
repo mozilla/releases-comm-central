@@ -1810,14 +1810,16 @@ FolderDisplayWidget.prototype = {
   _showAccountCentral() {
     var accountBox = document.getElementById("accountCentralBox");
     document.getElementById("displayDeck").selectedPanel = accountBox;
-    var prefName = "mailnews.account_central_page.url";
     var acctCentralPage = Services.prefs.getComplexValue(
-      prefName,
+      "mailnews.account_central_page.url",
       Ci.nsIPrefLocalizedString
     ).data;
     // Prevent a second load if necessary.
-    if (window.frames.accountCentralPane.location.href != acctCentralPage) {
-      window.frames.accountCentralPane.location.href = acctCentralPage;
+    let loadURL =
+      acctCentralPage +
+      (this.displayedFolder ? "?folderURI=" + this.displayedFolder.URI : "");
+    if (window.frames.accountCentralPane.location.href != loadURL) {
+      window.frames.accountCentralPane.location.href = loadURL;
     }
   },
 
