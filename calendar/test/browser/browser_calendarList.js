@@ -81,8 +81,19 @@ add_task(async () => {
 
   function checkDisplayed(...expected) {
     let calendarList = document.getElementById("calendar-list");
+    ok(calendarList.itemCount > Math.max(...expected));
     for (let i = 0; i < calendarList.itemCount; i++) {
       is(calendarList.itemChildren[i].querySelector("checkbox").checked, expected.includes(i));
+    }
+  }
+
+  function checkSortOrder(...expected) {
+    let orderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "wrong");
+    isnot(orderPref, "wrong");
+    let order = orderPref.split(" ");
+    is(order.length, expected.length);
+    for (let i = 0; i < expected.length; i++) {
+      is(order[i], calendars[expected[i]].id);
     }
   }
 
@@ -94,12 +105,14 @@ add_task(async () => {
   await openCalendarTab();
 
   // Check the default calendar.
-  is(manager.getCalendars({}).length, 1);
+  let calendars = manager.getCalendars({});
+  is(calendars.length, 1);
   is(calendarList.itemCount, 1);
   checkProperties(0, {
     color: "rgb(168, 194, 225)",
     name: "Home",
   });
+  checkSortOrder(0);
 
   // Test adding calendars.
 
@@ -111,7 +124,6 @@ add_task(async () => {
   );
 
   // Add some new calendars, check their properties.
-  let calendars = [];
   let uri = Services.io.newURI("moz-memory-calendar://");
   for (let i = 1; i <= 3; i++) {
     calendars[i] = manager.createCalendar("memory", uri);
@@ -130,6 +142,7 @@ add_task(async () => {
       name: `Mochitest ${i}`,
     });
   }
+  checkSortOrder(0, 1, 2, 3);
 
   // Test the context menu.
 
@@ -152,37 +165,37 @@ add_task(async () => {
   is(document.activeElement, calendarList);
   is(calendarList.selectedItem, calendarList.itemChildren[2]);
   is(composite.getCalendarById(calendars[2].id), null);
-  checkDisplayed(0, 1, 3, 4);
+  checkDisplayed(0, 1, 3);
 
   composite.removeCalendar(calendars[1]);
-  checkDisplayed(0, 3, 4);
+  checkDisplayed(0, 3);
 
   await calendarListContextMenu(
     calendarList.itemChildren[3],
     "list-calendars-context-togglevisible"
   );
-  checkDisplayed(0, 4);
+  checkDisplayed(0);
 
   EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[2].querySelector("checkbox"), {});
   is(composite.getCalendarById(calendars[2].id), calendars[2]);
   is(document.activeElement, calendarList);
   is(calendarList.selectedItem, calendarList.itemChildren[2]);
-  checkDisplayed(0, 2, 4);
+  checkDisplayed(0, 2);
 
   composite.addCalendar(calendars[1]);
-  checkDisplayed(0, 1, 2, 4);
+  checkDisplayed(0, 1, 2);
 
   await calendarListContextMenu(
     calendarList.itemChildren[3],
     "list-calendars-context-togglevisible"
   );
-  checkDisplayed(0, 1, 2, 3, 4);
+  checkDisplayed(0, 1, 2, 3);
 
   await calendarListContextMenu(calendarList.itemChildren[1], "list-calendars-context-showonly");
   checkDisplayed(1);
 
   await calendarListContextMenu(calendarList, "list-calendars-context-showall");
-  checkDisplayed(0, 1, 2, 3, 4);
+  checkDisplayed(0, 1, 2, 3);
 
   // Test editing calendars.
 
@@ -251,19 +264,33 @@ add_task(async () => {
   calendars[1].setProperty("disabled", false);
   checkProperties(1, { disabled: false });
 
+  // Test reordering calendars.
+
+  await EventUtils.synthesizePlainDragAndDrop({
+    srcElement: calendarList.itemChildren[3],
+    destElement: calendarList.itemChildren[0],
+  });
+  checkSortOrder(0, 3, 1, 2);
+
+  is(document.activeElement, calendarList);
+  is(calendarList.selectedItem, calendarList.itemChildren[1]);
+
   // Test deleting calendars.
 
   // Delete a calendar by unregistering it.
   manager.unregisterCalendar(calendars[3]);
   is(manager.getCalendars({}).length, 3);
   is(calendarList.itemCount, 3);
+  checkSortOrder(0, 1, 2);
 
   // Start to remove a calendar. Cancel the prompt.
+  EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], {});
   await withMockPromptService(1, () => {
     EventUtils.synthesizeKey("VK_DELETE");
   });
   is(manager.getCalendars({}).length, 3);
   is(calendarList.itemCount, 3);
+  checkSortOrder(0, 1, 2);
 
   // Remove a calendar with the keyboard.
   await withMockPromptService(0, () => {
@@ -271,6 +298,7 @@ add_task(async () => {
   });
   is(manager.getCalendars({}).length, 2);
   is(calendarList.itemCount, 2);
+  checkSortOrder(0, 2);
 
   // Remove a calendar with the context menu.
   await withMockPromptService(0, async () => {
@@ -279,6 +307,7 @@ add_task(async () => {
   });
   is(manager.getCalendars({}).length, 1);
   is(calendarList.itemCount, 1);
+  checkSortOrder(0);
 
   await closeCalendarTab();
 });

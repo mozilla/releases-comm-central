@@ -172,6 +172,16 @@ function loadCalendarManager() {
     }
   }
 
+  function saveSortOrder() {
+    let order = [...calendarList.children].map(i => i.getAttribute("calendar-id"));
+    Services.prefs.setStringPref("calendar.list.sortOrder", order.join(" "));
+    try {
+      Services.prefs.savePrefFile(null);
+    } catch (ex) {
+      cal.ERROR(ex);
+    }
+  }
+
   calendarList.addEventListener("click", event => {
     if (!event.target.matches("checkbox.calendar-displayed")) {
       return;
@@ -286,13 +296,7 @@ function loadCalendarManager() {
     }
     calendarList.insertBefore(item, existing);
 
-    let order = [...calendarList.children].map(i => i.getAttribute("calendar-id"));
-    Services.prefs.setStringPref("calendar.list.sortOrder", order.join(" "));
-    try {
-      Services.prefs.savePrefFile(null);
-    } catch (ex) {
-      cal.ERROR(ex);
-    }
+    saveSortOrder();
   });
   calendarList.addEventListener("keypress", event => {
     let item = calendarList.selectedItem;
@@ -381,11 +385,13 @@ function loadCalendarManager() {
         compositeCalendar.addCalendar(calendar);
       }
       addCalendarItem(calendar);
+      saveSortOrder();
     },
     onCalendarUnregistering(calendar) {
       compositeCalendar.removeCalendar(calendar);
       let item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
       item.remove();
+      saveSortOrder();
     },
     onCalendarDeleting(calendar) {},
   };
