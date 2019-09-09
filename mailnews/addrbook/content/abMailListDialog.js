@@ -285,13 +285,14 @@ function OnLoadEditList() {
     }
 
     document.documentElement.buttons = "accept";
-    document.documentElement.removeAttribute("ondialogaccept");
 
     // Getting a sane read-only implementation for the addressing widget would
     // basically need a separate dialog. Given I'm not sure about the future of
     // the mailing list dialog in its current state, let's just disable it
     // completely.
     document.getElementById("addressingWidget").disabled = true;
+  } else {
+    document.addEventListener("dialogaccept", EditListOKButton);
   }
 
   if (AppConstants.MOZ_APP_NAME == "seamonkey") {

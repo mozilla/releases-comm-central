@@ -354,10 +354,11 @@ function OnLoadEditCard() {
         document.getElementById("preferDisplayName").disabled = true;
 
         document.documentElement.buttons = "accept";
-        document.documentElement.removeAttribute("ondialogaccept");
+        return;
       }
     }
   }
+  document.addEventListener("dialogaccept", EditCardOKButton);
 }
 
 /* Registers functions that are called when loading the card

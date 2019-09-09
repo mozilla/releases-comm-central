@@ -22,9 +22,6 @@
   <script src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
   <script src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script src="chrome://messenger/content/addressbook/abMailListDialog.js"/>
-  <script><![CDATA[
-    document.addEventListener("dialogaccept", EditListOKButton);
-  ]]></script>
 
   <vbox id="editlist">
     <hbox id="ListNameContainer" align="center">

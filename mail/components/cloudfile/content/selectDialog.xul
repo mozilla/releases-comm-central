@@ -9,8 +9,7 @@
 <!DOCTYPE dialog SYSTEM "chrome://global/locale/commonDialog.dtd">
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      onload="cloudfileDialogOnLoad()"
-      ondialogaccept="return dialogOK();">
+      onload="cloudfileDialogOnLoad();">
 
   <script type="application/javascript" src="chrome://messenger/content/cloudfile/selectDialog.js" />
   <script type="application/javascript" src="chrome://global/content/selectDialog.js" />

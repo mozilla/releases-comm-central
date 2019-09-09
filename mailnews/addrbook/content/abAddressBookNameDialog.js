@@ -19,8 +19,6 @@ var kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
 var kAllDirectoryRoot = "moz-abdirectory://";
 var kPABDirectory = 2; // defined in nsDirPrefs.h
 
-document.addEventListener("dialogaccept", abNameOKButton);
-
 function abNameOnLoad() {
   // Get the document elements.
   gOkButton = document.documentElement.getButton("accept");
@@ -59,8 +57,8 @@ function abNameOnLoad() {
     // only have an ok button that doesn't do anything.
     gNameInput.readOnly = true;
     document.documentElement.buttons = "accept";
-    document.documentElement.removeAttribute("ondialogaccept");
   } else {
+    document.addEventListener("dialogaccept", abNameOKButton);
     gNameInput.focus();
     abNameDoOkEnabling();
   }
