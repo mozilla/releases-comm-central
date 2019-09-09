@@ -100,10 +100,11 @@ function run_test() {
     // Handle invalid mailbox separation with semicolons gracefully.
     {
       displayString:
-        "Bart <bart@example.com> ; lisa@example.com; Marge <marge@example.com>; ",
+        'Bart <bart@example.com> ; lisa@example.com;  "Homer, J; President" <pres@example.com>, Marge <marge@example.com>; ',
       addresses: [
         ["Bart", "bart@example.com"],
         ["", "lisa@example.com"],
+        ['"Homer, J; President"', "pres@example.com"],
         ["Marge", "marge@example.com"],
       ],
     },
