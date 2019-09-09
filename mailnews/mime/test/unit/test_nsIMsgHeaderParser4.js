@@ -61,9 +61,9 @@ function run_test() {
     // Multiple commas
     {
       displayString:
-        "Doe, John <test@foo.invalid>,, Bond, James <test2@foo.invalid>, , Gold Finger <goldfinger@example.com> ,, ",
+        "Doe,, John <test@foo.invalid>,, Bond, James <test2@foo.invalid>, , Gold Finger <goldfinger@example.com> ,, ",
       addresses: [
-        ["Doe, John", "test@foo.invalid"],
+        ["Doe,, John", "test@foo.invalid"],
         ["Bond, James", "test2@foo.invalid"],
         ["Gold Finger", "goldfinger@example.com"],
       ],

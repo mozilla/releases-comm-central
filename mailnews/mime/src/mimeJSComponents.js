@@ -398,8 +398,6 @@ MimeAddressParser.prototype = {
 
     // The basic idea is to split on every comma, so long as there is a
     // preceding @.
-    // First make sure we don't have any "empty addresses".
-    aDisplay = aDisplay.replace(/,\s*,/g, ", ");
     let output = [];
     while (aDisplay.length > 0) {
       let at = aDisplay.indexOf("@");
@@ -408,6 +406,13 @@ MimeAddressParser.prototype = {
       if (comma > 0) {
         addr = aDisplay.substr(0, comma);
         aDisplay = aDisplay.substr(comma + 1);
+
+        // Make sure we don't have any "empty addresses" (multiple commas).
+        comma = 0;
+        while (/[,\s]/.test(aDisplay.charAt(comma))) {
+          comma++;
+        }
+        aDisplay = aDisplay.substr(comma);
       } else {
         addr = aDisplay;
         aDisplay = "";
