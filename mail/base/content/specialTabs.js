@@ -1324,6 +1324,13 @@ var specialTabs = {
     if (href) {
       let uri = makeURI(href);
       if (
+        aEvent.target.ownerDocument.location.href ==
+          "chrome://mozapps/content/extensions/aboutaddons.html" &&
+        uri.schemeIs("addons")
+      ) {
+        // Prevent internal AOM links showing the "open link" dialog.
+        aEvent.preventDefault();
+      } else if (
         !this._protocolSvc.isExposedProtocol(uri.scheme) ||
         ((uri.schemeIs("http") ||
           uri.schemeIs("https") ||
