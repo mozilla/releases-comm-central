@@ -7,5 +7,8 @@
 EXTRA_JS_MODULES.themes['light'] += [
     'experiment.css',
     'icon.svg',
+]
+
+EXTRA_PP_JS_MODULES.themes['light'] += [
     'manifest.json',
 ]

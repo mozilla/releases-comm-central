@@ -902,6 +902,16 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
     border: solid ThreeDShadow;
 }
 
+:root[lwt-tree] #view-deck {
+    background-color: var(--sidebar-background-color);
+    border-color: var(--sidebar-border-color);
+    scrollbar-color: rgba(128,128,128,.5) rgba(230,230,235,.5);
+}
+
+:root[lwt-tree-brighttext] #view-deck {
+    scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+}
+
 .navigation-inner-box {
     border-bottom: 1px solid var(--calview-border-bottom-color);
 }
@@ -912,7 +922,7 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
 }
 
 radiogroup#view-tabs{
-    margin: 0px;
+    margin: 0;
 }
 
 radio.calview {
