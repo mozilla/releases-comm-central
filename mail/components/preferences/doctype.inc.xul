@@ -13,7 +13,7 @@
 %displayDTD;
 <!ENTITY % composeDTD SYSTEM "chrome://messenger/locale/preferences/compose.dtd">
 %composeDTD;
-<!ENTITY % editorOverlayDTD SYSTEM "chrome://editor/locale/editorOverlay.dtd">
+<!ENTITY % editorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/editorOverlay.dtd">
 %editorOverlayDTD;
 <!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/preferences/chat.dtd">
 %chatDTD;

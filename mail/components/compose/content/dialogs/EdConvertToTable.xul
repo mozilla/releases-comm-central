@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EdConvertToTable.dtd">
+
+<dialog title="&windowTitle.label;"
+   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+   onload = "Startup()"
+   style="min-width:20em">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <!--- Element-specific methods -->
+  <script src="chrome://messenger/content/messengercompose/EdConvertToTable.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+  <description class="wrap" flex="1">&instructions1.label;</description>
+  <description class="wrap" flex="1">&instructions2.label;</description>
+  <radiogroup id="SepRadioGroup" persist="index character" index="0" character="">
+    <radio id="comma" label="&commaRadio.label;" oncommand="SelectCharacter('0');"/>
+    <radio id="space" label="&spaceRadio.label;" oncommand="SelectCharacter('1');"/>
+    <hbox>
+      <spacer class="radio-spacer"/>
+      <checkbox id="CollapseSpaces" label="&collapseSpaces.label;"
+                checked="true" persist="checked"
+                tooltiptext="&collapseSpaces.tooltip;"/>
+    </hbox>
+    <hbox align="center">
+      <radio id="other" label="&otherRadio.label;" oncommand="SelectCharacter('2');"/>
+      <textbox class="narrow" id="SepCharacterInput" oninput="InputSepCharacter()"/>
+    </hbox>
+  </radiogroup>
+  <spacer class="spacer"/>
+  <checkbox id="DeleteSepCharacter" label="&deleteCharCheck.label;" persist="checked"/>
+  <separator class="groove"/>
+</dialog>

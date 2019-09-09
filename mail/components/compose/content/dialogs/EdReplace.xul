@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorReplace.dtd">
+
+<dialog id="replaceDlg" title="&replaceDialog.title;"
+   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+   persist="screenX screenY"
+   buttons="cancel"
+   onload="onLoad()">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdReplace.js"/>
+  <stringbundle id="findBundle" src="chrome://global/locale/finddialog.properties"/>
+
+  <hbox>
+    <vbox>
+      <spacer class="spacer"/>
+      <grid align="start">
+        <columns><column/><column/></columns>
+        <rows>
+          <row align="center">
+            <label value="&findField.label;" accesskey="&findField.accesskey;" control="dialog.findInput"/>
+            <textbox id="dialog.findInput" oninput="doEnabling();"/>
+          </row>
+          <row align="center">
+            <label value="&replaceField.label;" accesskey="&replaceField.accesskey;" control="dialog.replaceInput"/>
+            <textbox id="dialog.replaceInput" oninput="doEnabling();"/>
+          </row>
+          <row align="start">
+            <spacer/>
+            <vbox align="start">
+              <spacer class="bigspacer"/>
+              <checkbox id="dialog.caseSensitive" label="&caseSensitiveCheckbox.label;"
+                  accesskey="&caseSensitiveCheckbox.accesskey;"/>
+              <checkbox id="dialog.wrap" label="&wrapCheckbox.label;"
+                  accesskey="&wrapCheckbox.accesskey;"/>
+              <checkbox id="dialog.searchBackwards" label="&backwardsCheckbox.label;"
+                  accesskey="&backwardsCheckbox.accesskey;"/>
+            </vbox>
+          </row>
+        </rows>
+      </grid>
+    </vbox>
+    <vbox>
+      <button id="findNext" label="&findNextButton.label;" accesskey="&findNextButton.accesskey;"
+          oncommand="onFindNext();" default="true"/>
+      <button id="replace" label="&replaceButton.label;" accesskey="&replaceButton.accesskey;"
+          oncommand="onReplace();"/>
+      <button id="replaceAndFind" label="&replaceAndFindButton.label;"
+          accesskey="&replaceAndFindButton.accesskey;" oncommand="onReplace(); onFindNext();"/>
+      <button id="replaceAll" label="&replaceAllButton.label;"
+          accesskey="&replaceAllButton.accesskey;" oncommand="onReplaceAll();"/>
+      <button dlgtype="cancel" label="&closeButton.label;" accesskey="&closeButton.accesskey;"/>
+    </vbox>
+  </hbox>
+</dialog>

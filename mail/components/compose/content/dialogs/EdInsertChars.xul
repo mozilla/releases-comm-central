@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertChars.dtd">
+
+<dialog id="insertCharsDlg" title="&windowTitle.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload = "Startup()"
+        onfocus = "onFocus()"
+        buttonlabelaccept="&insertButton.label;"
+        buttonlabelcancel="&closeButton.label;"
+        style = "width: 20em">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdInsertChars.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&category.label;</label>
+    </hbox>
+    <radiogroup id="CatGrp" persist="category letter_index char_index">
+      <radio id="AccentUpper" label="&accentUpper.label;"   oncommand="ChangeCategory(this.id)"/>
+      <radio id="AccentLower" label="&accentLower.label;"   oncommand="ChangeCategory(this.id)"/>
+      <radio id="Upper"       label="&otherUpper.label;"    oncommand="ChangeCategory(this.id)"/>
+      <radio id="Lower"       label="&otherLower.label;"    oncommand="ChangeCategory(this.id)"/>
+      <radio id="Symbol"      label="&commonSymbols.label;" oncommand="ChangeCategory(this.id)"/>
+    </radiogroup>
+    <spacer class="spacer"/>
+  </groupbox>
+  <hbox equalsize="always">
+    <vbox flex="1">
+      <!-- value is set in JS from editor.properties strings -->
+      <label id="LatinL_Label" control="LatinL" value="&letter.label;" accesskey="&letter.accessKey;"/>
+      <menulist class="larger" flex="1" id="LatinL" oncommand="SelectLatinLetter()">
+        <menupopup/>
+      </menulist>
+    </vbox>
+    <vbox flex="1">
+      <label id="LatinM_Label" control="LatinM" value="&character.label;" accesskey="&character.accessKey;"/>
+      <menulist class="larger" flex="1" id="LatinM" oncommand="SelectLatinModifier()">
+        <menupopup/>
+      </menulist>
+    </vbox>
+  </hbox>
+  <separator class="groove"/>
+</dialog>

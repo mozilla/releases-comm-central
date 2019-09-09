@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % edHLineProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorHLineProperties.dtd">
+%edHLineProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog title="&windowTitle.label;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+    onload="Startup()">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <!--- Element-specific methods -->
+  <script src="chrome://messenger/content/messengercompose/EdHLineProps.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&dimensionsBox.label;</label>
+    </hbox>
+    <grid>
+      <columns><column/><column/><column /></columns>
+      <rows>
+        <row align="center">
+          <label control="width"
+                 value="&widthEditField.label;"
+                 accesskey="&widthEditField.accessKey;"/>
+          <textbox class="narrow" id="width" flex="1" oninput="forceInteger('width')"/>
+          <menulist id="pixelOrPercentMenulist" />
+          <!-- menupopup and menuitems added by JS -->
+        </row>
+        <row align="center">
+          <label control="height"
+                 value="&heightEditField.label;"
+                 accesskey="&heightEditField.accessKey;"/>
+          <textbox class="narrow" id="height" oninput="forceInteger('height')"/>
+          <label value="&pixelsPopup.value;" />
+        </row>
+      </rows>
+    </grid>
+    <checkbox id="3dShading" label="&threeDShading.label;" accesskey="&threeDShading.accessKey;"/>
+  </groupbox>
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&alignmentBox.label;</label>
+    </hbox>
+    <radiogroup id="alignmentGroup" orient="horizontal">
+      <spacer class="spacer"/>
+      <radio id="leftAlign"   label="&leftRadio.label;"   accesskey="&leftRadio.accessKey;"/>
+      <radio id="centerAlign" label="&centerRadio.label;" accesskey="&centerRadio.accessKey;"/>
+      <radio id="rightAlign"  label="&rightRadio.label;"  accesskey="&rightRadio.accessKey;"/>
+    </radiogroup>
+  </groupbox>
+  <spacer class="spacer"/>
+  <hbox>
+    <button  id="SaveDefault" label="&saveSettings.label;"
+         accesskey="&saveSettings.accessKey;"
+         oncommand="onSaveDefault()"
+         tooltiptext="&saveSettings.tooltip;" />
+    <spacer flex="1"/>
+    <button id="AdvancedEditButton"
+            oncommand="onAdvancedEdit();"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"/>
+  </hbox>
+  <separator class="groove"/>
+</dialog>

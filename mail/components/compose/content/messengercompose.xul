@@ -26,7 +26,7 @@
   %baseMenuOverlayDTD;
   <!ENTITY % msgCompSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgCompSMIMEOverlay.dtd">
   %msgCompSMIMEDTD;
-  <!ENTITY % editorOverlayDTD SYSTEM "chrome://editor/locale/editorOverlay.dtd">
+  <!ENTITY % editorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/editorOverlay.dtd">
   %editorOverlayDTD;
   <!ENTITY % utilityOverlayDTD SYSTEM
     "chrome://communicator/locale/utilityOverlay.dtd">
@@ -66,9 +66,9 @@
 <script src="chrome://messenger/content/accountUtils.js"/>
 <script src="chrome://messenger/content/mailCore.js"/>
 <script src="chrome://communicator/content/contentAreaClick.js"/>
-<script src="chrome://editor/content/editor.js"/>
-<script src="chrome://editor/content/editorUtilities.js"/>
-<script src="chrome://editor/content/ComposerCommands.js"/>
+<script src="chrome://messenger/content/messengercompose/editor.js"/>
+<script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+<script src="chrome://messenger/content/messengercompose/ComposerCommands.js"/>
 <script src="chrome://messenger/content/button-menu-button.js"/>
 <script src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
 <script src="chrome://messenger/content/messengercompose/bigFileObserver.js"/>

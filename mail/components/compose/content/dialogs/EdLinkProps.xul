@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % linkPropertiesDTD SYSTEM "chrome://messenger/locale/messengercompose/EditorLinkProperties.dtd">
+%linkPropertiesDTD;
+<!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
+%composeEditorOverlayDTD;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog id="linkDlg" title="&windowTitle.label;"
+   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+   onload = "Startup()">
+
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdLinkProps.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdImageLinkLoader.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <vbox style="min-width: 20em">
+    <groupbox>
+      <hbox class="groupbox-title">
+        <label id="linkTextCaption" class="header"/>
+      </hbox>
+      <vbox>
+        <label id="linkTextMessage" control="linkTextInput"/>
+        <textbox id="linkTextInput"/>
+      </vbox>
+    </groupbox>
+
+    <groupbox id="LinkURLBox">
+      <hbox class="groupbox-title">
+        <label class="header">&LinkURLBox.label;</label>
+      </hbox>
+      <vbox id="LinkLocationBox">
+        <label control="hrefInput"
+               accesskey="&LinkURLEditField2.accessKey;"
+               width="1">&LinkURLEditField2.label;</label>
+        <textbox id="hrefInput" type="text"
+                 class="uri-element padded" oninput="ChangeLinkLocation();"/>
+        <hbox align="center">
+          <checkbox id="MakeRelativeLink"
+                    for="hrefInput"
+                    label="&makeUrlRelative.label;"
+                    accesskey="&makeUrlRelative.accessKey;"
+                    oncommand="MakeInputValueRelativeOrAbsolute(this);"
+                    tooltiptext="&makeUrlRelative.tooltip;"/>
+          <spacer flex="1"/>
+          <button label="&chooseFileLinkButton.label;" accesskey="&chooseFileLinkButton.accessKey;"
+                  oncommand="chooseLinkFile();"/>
+        </hbox>
+      </vbox>
+      <checkbox id="AttachSourceToMail"
+                hidden="true"
+                label="&attachLinkSource.label;"
+                accesskey="&attachLinkSource.accesskey;"
+                oncommand="DoAttachSourceCheckbox()"/>
+    </groupbox>
+  </vbox>
+  <vbox id="AdvancedEdit">
+    <hbox flex="1" style="margin-top: 0.2em" align="center">
+      <!-- This will right-align the button -->
+      <spacer flex="1"/>
+      <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
+              accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
+    </hbox>
+    <separator id="advancedSeparator" class="groove"/>
+  </vbox>
+</dialog>

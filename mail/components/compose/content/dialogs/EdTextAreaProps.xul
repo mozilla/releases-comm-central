@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % edTextAreaProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorTextAreaProperties.dtd">
+%edTextAreaProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog title="&windowTitle.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup();"
+        buttons="accept,cancel">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdTextAreaProps.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&Settings.label;</label>
+    </hbox>
+    <grid><columns><column/><column/></columns>
+      <rows>
+        <row align="center">
+          <label control="TextAreaName" value="&TextAreaName.label;" accesskey="&TextAreaName.accessKey;"/>
+          <textbox id="TextAreaName" oninput="onInput();"/>
+        </row>
+        <row align="center">
+          <label control="TextAreaRows" value="&TextAreaRows.label;" accesskey="&TextAreaRows.accessKey;"/>
+          <hbox>
+            <textbox id="TextAreaRows" class="narrow" oninput="forceInteger(this.id); onInput();"/>
+          </hbox>
+        </row>
+        <row align="center">
+          <label control="TextAreaCols" value="&TextAreaCols.label;" accesskey="&TextAreaCols.accessKey;"/>
+          <hbox>
+            <textbox id="TextAreaCols" class="narrow" oninput="forceInteger(this.id); onInput();"/>
+          </hbox>
+        </row>
+      </rows>
+    </grid>
+    <hbox>
+      <button id="MoreFewerButton" oncommand="onMoreFewer();" persist="more"/>
+    </hbox>
+    <grid id="MoreSection"><columns><column/><column/></columns>
+      <rows>
+        <row align="center">
+          <label control="TextAreaWrap" value="&TextAreaWrap.label;" accesskey="&TextAreaWrap.accessKey;"/>
+          <menulist id="TextAreaWrap">
+            <menupopup>
+              <menuitem label="&WrapDefault.value;"/>
+              <menuitem label="&WrapOff.value;" value="off"/>
+              <menuseparator/>
+              <menuitem label="&WrapSoft.value;" value="soft"/>
+              <menuitem label="&WrapHard.value;" value="hard"/>
+              <menuseparator/>
+              <menuitem label="&WrapPhysical.value;" value="physical"/>
+              <menuitem label="&WrapVirtual.value;" value="virtual"/>
+              <menuseparator/>
+              <menuitem label="normal" value="normal"/>
+              <menuitem label="nowrap" value="nowrap"/>
+              <menuitem label="pre" value="pre"/>
+            </menupopup>
+          </menulist>
+        </row>
+        <row>
+          <spacer/>
+          <checkbox id="TextAreaReadOnly" label="&TextAreaReadOnly.label;" accesskey="&TextAreaReadOnly.accessKey;"/>
+        </row>
+        <row>
+          <spacer/>
+          <checkbox id="TextAreaDisabled" label="&TextAreaDisabled.label;" accesskey="&TextAreaDisabled.accessKey;"/>
+        </row>
+        <row align="center">
+          <label control="TextAreaTabIndex" value="&TextAreaTabIndex.label;" accesskey="&TextAreaTabIndex.accessKey;"/>
+          <hbox>
+            <textbox id="TextAreaTabIndex" class="narrow" oninput="forceInteger(this.id);"/>
+          </hbox>
+        </row>
+        <row align="center">
+          <label control="TextAreaAccessKey" value="&TextAreaAccessKey.label;" accesskey="&TextAreaAccessKey.accessKey;"/>
+          <hbox>
+            <textbox id="TextAreaAccessKey" class="narrow" maxlength="1"/>
+          </hbox>
+        </row>
+        <row>
+          <label control="TextAreaValue" value="&InitialText.label;" accesskey="&InitialText.accessKey;"/>
+        </row>
+        <html:textarea id="TextAreaValue" flex="1" rows="5"/>
+      </rows>
+    </grid>
+  </groupbox>
+
+  <vbox id="AdvancedEdit">
+    <hbox flex="1" style="margin-top: 0.2em" align="center">
+      <!-- This will right-align the button -->
+      <spacer flex="1"/>
+      <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
+              accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
+    </hbox>
+    <separator id="advancedSeparator" class="groove"/>
+  </vbox>
+
+</dialog>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % edNamedAnchorProperties SYSTEM "chrome://messenger/locale/messengercompose/EdNamedAnchorProperties.dtd">
+%edNamedAnchorProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog title="&windowTitle.label;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+    onload="Startup()">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdNamedAnchorProps.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <label control="nameInput"
+         value="&anchorNameEditField.label;"
+         accesskey="&anchorNameEditField.accessKey;"/>
+  <textbox class="MinWidth20em" id="nameInput" oninput="ChangeName()"
+             tooltiptext="&nameInput.tooltip;"/>
+  <spacer class="spacer"/>
+  <vbox id="AdvancedEdit">
+    <hbox flex="1" style="margin-top: 0.2em" align="center">
+      <!-- This will right-align the button -->
+      <spacer flex="1"/>
+      <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
+              accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
+    </hbox>
+    <separator id="advancedSeparator" class="groove"/>
+  </vbox>
+</dialog>

@@ -1,0 +1,62 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Styles to alter look of things in the Editor content window
+ *  for the "Normal Edit Mode" These settings will be removed
+ *  when we display in completely WYSIWYG "Edit Preview" mode
+ *  Anything that should never change, like cursors, should be
+ *  place in EditorOverride.css, instead of here.
+*/
+
+@import url(chrome://communicator/skin/smileys.css);
+
+a[name] {
+  min-height: 17px; margin-left: 2px; margin-top: 2px;
+  padding-left: 20px;
+  background-image: url(chrome://messenger/content/messengercompose/images/tag-anchor.gif);
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+/* Force border display for empty cells
+   and tables with 0 border
+*/
+table {
+  empty-cells: show;
+}
+
+/* give a red dotted border to tables and cells with no border
+   otherwise they are invisible
+*/
+table[empty-cells],
+  table[border="0"],
+  /* next two selectors on line below for the case where tbody is omitted */
+  table[border="0"] > tr > td, table[border="0"] > tr > th,
+  table[border="0"] > thead > tr > td, table[border="0"] > tbody > tr > td, table[border="0"] > tfoot > tr > td,
+  table[border="0"] > thead > tr > th, table[border="0"] > tbody > tr > th, table[border="0"] > tfoot > tr > th,
+  table:not([border]),
+  /* next two selectors on line below for the case where tbody is omitted */
+  table:not([border]) > tr > td, table:not([border]) > tr >  th,
+  table:not([border]) > thead > tr > td, table:not([border]) > tbody > tr > td, table:not([border]) > tfoot > tr > td,
+  table:not([border]) > thead > tr > th, table:not([border]) > tbody > tr > th, table:not([border]) > tfoot > tr > th
+{
+  border: 1px dotted red;
+}
+
+/* give a green dashed border to forms otherwise they are invisible
+*/
+form
+{
+  border: 2px dashed green;
+}
+/* give a green dotted border to labels otherwise they are invisible
+*/
+label
+{
+  border: 1px dotted green;
+}
+
+img {
+  -moz-force-broken-image-icon: 1;
+}

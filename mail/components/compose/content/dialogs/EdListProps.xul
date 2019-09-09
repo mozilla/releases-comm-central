@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % edListProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorListProperties.dtd">
+%edListProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog title="&windowTitle.label;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+    onload="Startup()">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdListProps.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <groupbox flex="1">
+    <hbox class="groupbox-title">
+      <label class="header">&ListType.label;</label>
+    </hbox>
+    <menulist id="ListType" oncommand="SelectListType()">
+      <menupopup>
+        <menuitem label="&none.value;"/>
+        <menuitem value="ul" label="&bulletList.value;"/>
+        <menuitem value="ol" label="&numberList.value;"/>
+        <menuitem value="dl" label="&definitionList.value;"/>
+      </menupopup>
+    </menulist>
+  </groupbox>
+  <spacer class="spacer"/>
+
+  <!-- message text and list items are set in JS
+       text value should be identical to string with id=BulletStyle in editor.properties
+  -->
+  <groupbox flex="1">
+    <hbox class="groupbox-title">
+      <label id="BulletStyleLabel" class="header">&bulletStyle.label;</label>
+    </hbox>
+    <menulist class="MinWidth10em" id="BulletStyle" oncommand="SelectBulletStyle()">
+      <menupopup/>
+    </menulist>
+    <spacer class="spacer"/>
+    <hbox>
+      <label id="StartingNumberLabel" control="StartingNumber"
+             value="&startingNumber.label;" accesskey="&startingNumber.accessKey;"/>
+      <textbox class="narrow" id="StartingNumber"/>
+      <spacer/>
+    </hbox>
+  </groupbox>
+  <radiogroup id="RadioGroup" index="0" persist="index">
+    <radio id="ChangeAll"      label="&changeEntireListRadio.label;" accesskey="&changeEntireListRadio.accessKey;"/>
+    <radio id="ChangeSelected" label="&changeSelectedRadio.label;"   accesskey="&changeSelectedRadio.accessKey;"/>
+  </radiogroup>
+  <vbox id="AdvancedEdit">
+    <hbox flex="1" style="margin-top: 0.2em" align="center">
+      <!-- This will right-align the button -->
+      <spacer flex="1"/>
+      <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
+              accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
+    </hbox>
+    <separator id="advancedSeparator" class="groove"/>
+  </vbox>
+</dialog>

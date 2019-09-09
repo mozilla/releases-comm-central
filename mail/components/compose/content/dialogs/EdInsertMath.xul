@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+- License, v. 2.0. If a copy of the MPL was not distributed with this
+- file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertMath.dtd">
+
+<dialog title="&windowTitle.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup();"
+        buttonlabelaccept="&insertButton.label;"
+        buttonaccesskeyaccept="&insertButton.accesskey;">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdInsertMath.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <label id="srcMessage" value="&sourceEditField.label;"/>
+  <html:textarea id="input" rows="5" oninput="updateMath();"
+                 placeholder="\sqrt{x_1} + \frac{π^3}{2}"/>
+  <vbox flex="1" style="overflow: auto; width: 30em; height: 5em;">
+    <description id="output"/>
+  </vbox>
+  <tabbox id="tabboxInsertLaTeXCommand">
+    <tabs/>
+    <tabpanels oncommand="insertLaTeXCommand(event.target);"/>
+  </tabbox>
+  <spacer class="spacer"/>
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&options.label;</label>
+    </hbox>
+    <hbox>
+      <radiogroup id="optionMode" oncommand="updateMode();">
+        <radio label="&optionInline.label;"
+               accesskey="&optionInline.accesskey;"/>
+        <radio label="&optionDisplay.label;"
+               accesskey="&optionDisplay.accesskey;"/>
+      </radiogroup>
+      <radiogroup id="optionDirection" oncommand="updateDirection();">
+        <radio label="&optionLTR.label;"
+               accesskey="&optionLTR.accesskey;"/>
+        <radio label="&optionRTL.label;"
+               accesskey="&optionRTL.accesskey;"/>
+      </radiogroup>
+    </hbox>
+  </groupbox>
+  <spacer class="spacer"/>
+  <separator class="groove"/>
+</dialog>

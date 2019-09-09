@@ -4,13 +4,13 @@
 
 /* global MozElements */
 
-/* import-globals-from ../../../../editor/ui/composer/content/ComposerCommands.js */
-/* import-globals-from ../../../../editor/ui/composer/content/editor.js */
-/* import-globals-from ../../../../editor/ui/composer/content/editorUtilities.js */
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
 /* import-globals-from ../../../base/content/mailCore.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from addressingWidgetOverlay.js */
+/* import-globals-from ComposerCommands.js */
+/* import-globals-from editor.js */
+/* import-globals-from editorUtilities.js */
 
 /**
  * Commands for the message composition window.
@@ -962,7 +962,7 @@ var defaultController = {
           window.document.documentElement.getAttribute("windowtype") ==
           "msgcompose";
         window.openDialog(
-          "chrome://editor/content/EdSpellCheck.xul",
+          "chrome://messenger/content/messengercompose/EdSpellCheck.xul",
           "_blank",
           "dialog,close,titlebar,modal,resizable",
           false,
@@ -3565,7 +3565,7 @@ function GenericSendMessage(msgType) {
       SetMsgBodyFrameFocus();
       window.cancelSendMessage = false;
       window.openDialog(
-        "chrome://editor/content/EdSpellCheck.xul",
+        "chrome://messenger/content/messengercompose/EdSpellCheck.xul",
         "_blank",
         "dialog,close,titlebar,modal,resizable",
         true,

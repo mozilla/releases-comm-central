@@ -28,6 +28,5 @@ if CONFIG['MOZ_CALENDAR']:
 
 DIRS += [
     '/%s/chat' % CONFIG['commreltopsrcdir'],
-    '/%s/editor/ui' % CONFIG['commreltopsrcdir'],
     '/%s/mail' % CONFIG['commreltopsrcdir'],
 ]

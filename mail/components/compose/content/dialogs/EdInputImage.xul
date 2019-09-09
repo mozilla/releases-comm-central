@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % edInputProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorInputProperties.dtd">
+%edInputProperties;
+<!ENTITY % edImageProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorImageProperties.dtd">
+%edImageProperties;
+<!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
+%composeEditorOverlayDTD;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog title="&windowTitleImage.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup();">
+
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdInputImage.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdImageDialog.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <tabbox id="TabBox">
+    <tabs flex="1">
+      <tab id="imageInputTab" label="&imageInputTab.label;"/>
+      <tab id="imageLocationTab" label="&imageLocationTab.label;"/>
+      <tab id="imageDimensionsTab" label="&imageDimensionsTab.label;"/>
+      <tab id="imageAppearanceTab" label="&imageAppearanceTab.label;"/>
+    </tabs>
+    <tabpanels>
+      <groupbox>
+        <hbox class="groupbox-title">
+          <label class="header">&InputSettings.label;</label>
+        </hbox>
+        <grid><columns><column/><column/></columns>
+          <rows>
+            <row align="center">
+              <label value="&InputName.label;"/>
+              <textbox id="InputName"/>
+            </row>
+            <row>
+              <spacer/>
+              <checkbox id="InputDisabled" label="&InputDisabled.label;"/>
+            </row>
+            <row align="center">
+              <label value="&tabIndex.label;"/>
+              <hbox>
+                <textbox id="InputTabIndex" class="narrow" oninput="forceInteger(this.id);"/>
+              </hbox>
+            </row>
+          </rows>
+        </grid>
+      </groupbox>
+#include edImage.inc.xul
+    </tabpanels>
+  </tabbox>
+
+  <hbox align="end">
+    <groupbox id="imagePreview" orient="horizontal" flex="1">
+      <hbox class="groupbox-title">
+        <label class="header">&previewBox.label;</label>
+      </hbox>
+      <hbox id="preview-image-box" align="center">
+        <spacer flex="1"/>
+        <description id="preview-image-holder"/>
+        <spacer flex="1"/>
+      </hbox>
+      <vbox id="PreviewSize" collapsed="true">
+        <spacer flex="1"/>
+        <label value="&actualSize.label;"/>
+        <hbox>
+          <label value="&widthEditField.label;"/>
+          <spacer flex="1"/>
+          <label id="PreviewWidth"/>
+        </hbox>
+        <hbox>
+          <label value="&heightEditField.label;"/>
+          <spacer flex="1"/>
+          <label id="PreviewHeight"/>
+        </hbox>
+        <spacer flex="1"/>
+      </vbox>
+    </groupbox>
+
+    <vbox id="AdvancedEdit">
+      <hbox flex="1" style="margin-top: 0.2em" align="center">
+        <!-- This will right-align the button -->
+        <spacer flex="1"/>
+        <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
+                accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
+      </hbox>
+      <separator id="advancedSeparator" class="groove"/>
+    </vbox>
+  </hbox>
+
+</dialog>

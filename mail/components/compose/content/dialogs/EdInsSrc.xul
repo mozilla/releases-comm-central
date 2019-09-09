@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertSource.dtd">
+
+<dialog title="&windowTitle.label;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    onload = "Startup()"
+    buttonlabelaccept="&insertButton.label;"
+    buttonaccesskeyaccept="&insertButton.accesskey;">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdInsSrc.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <label id="srcMessage" value="&sourceEditField.label;"/>
+  <vbox flex="1" style="width: 30em; height: 20em;">
+    <html:textarea id="srcInput" rows="18" flex="1"/>
+  </vbox>
+  <!-- Will this accept the embedded HTML tags? -->
+  <hbox>
+    <spacer class="bigspacer"/>
+    <label value="&example.label;"/>
+    <label class="bold" value="&exampleOpenTag.label;"/>
+    <label class="bold italic" value="&exampleText.label;"/>
+    <label class="bold" value="&exampleCloseTag.label;"/>
+  </hbox>
+  <spacer class="spacer"/>
+  <separator class="groove"/>
+</dialog>

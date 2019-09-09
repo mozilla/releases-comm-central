@@ -3,7 +3,7 @@ def test(mod, path, entity=None):
   # ignore anything but Thunderbird
   if mod not in ("netwerk", "dom", "toolkit", "security/manager",
                  "devtools/shared", "devtools/client",
-                 "mail", "chat", "editor/ui", "extensions/spellcheck",
+                 "mail", "chat", "extensions/spellcheck",
                  "other-licenses/branding/thunderbird",
                  "mail/branding/thunderbird"):
     return "ignore"

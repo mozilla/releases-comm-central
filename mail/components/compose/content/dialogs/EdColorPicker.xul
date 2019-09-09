@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EdColorPicker.dtd">
+
+<dialog title="&windowTitle.label;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    onload="Startup()">
+
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdColorPicker.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <hbox id="TableOrCellGroup" align="center" collapsed="true">
+    <label control="CellOrTableGroup" value="&background.label;" accesskey="&background.accessKey;"/>
+    <radiogroup id="CellOrTableGroup" orient="horizontal">
+      <radio id="TableRadio" label="&table.label;" accesskey="&table.accessKey;"/>
+      <radio id="CellRadio"  label="&cell.label;"  accesskey="&cell.accessKey;"/>
+  </radiogroup>
+  </hbox>
+  <label value="&chooseColor1.label;"/>
+  <html:input type="color" id="ColorPicker"
+    onclick="SetDefaultToOk();"
+    ondblclick="if (onAccept()) { window.close(); }"
+    onkeypress="SelectColorByKeypress(event);"
+    onchange="SelectColor();"/>
+
+  <spacer class="spacer"/>
+  <vbox flex="1">
+    <button id="LastPickedButton" crop="right" oncommand="SelectLastPickedColor();">
+      <spacer id="LastPickedColor"
+                  LastTextColor="" LastBackgroundColor=""
+                  persist="LastTextColor LastBackgroundColor"/>
+      <label value="&lastPickedColor.label;" accesskey="&lastPickedColor.accessKey;" flex="1" style="text-align: center;"/>
+    </button>
+    <label value="&chooseColor2.label;" accesskey="&chooseColor2.accessKey;" control="ColorInput"/>
+    <label value="&setColorExample.label;"/>
+    <hbox align="center" flex="1=">
+      <textbox id="ColorInput" style="width: 8em" oninput="SetColorSwatch(); SetDefaultToOk();"/>
+      <spacer flex="1"/>
+      <spacer id="ColorPickerSwatch"/>
+      <spacer flex="1"/>
+      <button id="DefaultColorButton" label="&default.label;" accesskey="&default.accessKey;"
+        style="margin-right:0px;" oncommand="RemoveColor()"/>
+    </hbox>
+  </vbox>
+  <separator class="groove"/>
+</dialog>

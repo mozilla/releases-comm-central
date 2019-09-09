@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorSpellCheck.dtd">
+
+<!-- dialog containing a control requiring initial setup -->
+<dialog id="spellCheckDlg" buttons="cancel" title="&windowTitle.label;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+    persist="screenX screenY"
+    onload="Startup()">
+
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdSpellCheck.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
+
+  <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
+  <stringbundle id="regionBundle" src="chrome://global/locale/regionNames.properties"/>
+
+  <grid>
+    <columns>
+      <column class="spell-check"/>
+      <column class="spell-check" flex="1"/>
+      <column class="spell-check"/>
+    </columns>
+    <rows>
+      <row align="center">
+        <label id="MisspelledWordLabel" value="&misspelledWord.label;"/>
+        <label class="bold" id="MisspelledWord" crop="end"/>
+        <button class="spell-check" label="&recheckButton2.label;" oncommand="Recheck();"
+                accesskey="&recheckButton2.accessKey;"/>
+      </row>
+      <row align="center">
+        <label id="ReplaceWordLabel" value="&wordEditField.label;"
+               control="ReplaceWordInput"
+               accesskey="&wordEditField.accessKey;"/>
+        <textbox id="ReplaceWordInput" oninput="ChangeReplaceWord()" flex="1"/>
+        <button id="CheckWord" oncommand="CheckWord()" label="&checkwordButton.label;"
+                accesskey="&checkwordButton.accessKey;"/>
+      </row>
+    </rows>
+  </grid>
+  <label id="SuggestedListLabel" value="&suggestions.label;"
+         control="SuggestedList"
+         accesskey="&suggestions.accessKey;"/>
+  <grid flex="1">
+    <columns><column flex="1"/><column/></columns>
+    <rows>
+      <row flex="1">
+        <!-- BUG! setting class="MinWidth20em" on tree doesn't work (width=0) -->
+        <richlistbox id="SuggestedList"
+                     class="theme-listbox"
+                     onselect="SelectSuggestedWord()"
+                     ondblclick="if (gAllowSelectWord) { Replace(event.target.value); }"/>
+        <vbox>
+          <grid>
+            <columns><column class="spell-check" flex="1"/><column class="spell-check" flex="1"/></columns>
+            <rows>
+              <row>
+                <button id="Replace" label="&replaceButton.label;"
+                        oncommand="Replace(gDialog.ReplaceWordInput.value);"
+                        accesskey="&replaceButton.accessKey;"/>
+                <button id="Ignore"  oncommand="Ignore();" label="&ignoreButton.label;"
+                        accesskey="&ignoreButton.accessKey;"/>
+              </row>
+              <row>
+                <button id="ReplaceAll" oncommand="ReplaceAll();" label="&replaceAllButton.label;"
+                        accesskey="&replaceAllButton.accessKey;"/>
+                <button id="IgnoreAll"  oncommand="IgnoreAll();" label="&ignoreAllButton.label;"
+                        accesskey="&ignoreAllButton.accessKey;"/>
+              </row>
+            </rows>
+          </grid>
+          <separator/>
+          <label value="&userDictionary.label;"/>
+          <hbox align="start">
+            <button class="spell-check" id="AddToDictionary" oncommand="AddToDictionary()" label="&addToUserDictionaryButton.label;"
+                    accesskey="&addToUserDictionaryButton.accessKey;"/>
+            <button class="spell-check" id="EditDictionary"  oncommand="EditDictionary()" label="&editUserDictionaryButton.label;"
+                    accesskey="&editUserDictionaryButton.accessKey;"/>
+          </hbox>
+        </vbox>
+      </row>
+      <label value ="&languagePopup.label;"
+             control="LanguageMenulist"
+             accesskey="&languagePopup.accessKey;"/>
+      <row>
+        <menulist id="LanguageMenulist" oncommand="SelectLanguage()">
+          <menupopup onpopupshowing="InitLanguageMenu(gDialog.LanguageMenulist.selectedItem.value);">
+            <!-- dynamic content populated by JS -->
+            <menuseparator/>
+            <menuitem value="more-cmd" label="&moreDictionaries.label;"/>
+          </menupopup>
+        </menulist>
+        <hbox flex="1">
+          <button class="spell-check" dlgtype="cancel" id="Stop" label="&stopButton.label;" oncommand="CancelSpellCheck();"
+                  accesskey="&stopButton.accessKey;"/>
+          <spacer flex="1"/>
+          <button class="spell-check" id="Close" label="&closeButton.label;" oncommand="onClose();"
+                  accesskey="&closeButton.accessKey;"/>
+          <button class="spell-check" id="Send" label="&sendButton.label;" oncommand="onClose();"
+                  accesskey="&sendButton.accessKey;" hidden="true"/>
+        </hbox>
+      </row>
+    </rows>
+  </grid>
+</dialog>

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorPersonalDictionary.dtd">
+<dialog buttons="cancel" title="&windowTitle.label;"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+    persist="screenX screenY"
+    onload="Startup()">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDictionary.js"/>
+
+  <grid>
+    <columns><column style="width: 15em" flex="1"/><column flex="1"/></columns>
+    <rows>
+      <row>
+        <label value="&wordEditField.label;"
+               control="WordInput"
+               accesskey="&wordEditField.accessKey;"/>
+        <spacer/>
+      </row>
+      <row>
+        <textbox id="WordInput" flex="1"/>
+        <button id="AddWord" oncommand="AddWord()" label="&AddButton.label;"
+                accesskey="&AddButton.accessKey;"/>
+      </row>
+      <row>
+        <label value="&DictionaryList.label;"
+               control="DictionaryList"
+               accesskey="&DictionaryList.accessKey;"/>
+        <spacer/>
+      </row>
+      <row>
+        <richlistbox id="DictionaryList"
+                     class="theme-listbox"
+                     flex="1"
+                     height="150px"/>
+        <vbox flex="1">
+          <button  id="ReplaceWord" oncommand="ReplaceWord()" label="&ReplaceButton.label;"
+                   accesskey="&ReplaceButton.accessKey;"/>
+          <spacer class="spacer"/>
+          <button  id="RemoveWord" oncommand="RemoveWord()" label="&RemoveButton.label;"
+                   accesskey="&RemoveButton.accessKey;"/>
+          <spacer class="spacer"/>
+          <spacer flex="1"/>
+          <button dlgtype="cancel" class="exit-dialog" id="close" label="&CloseButton.label;"
+                  default="true" oncommand="onClose();"
+                  accesskey="&CloseButton.accessKey;"/>
+        </vbox>
+      </row>
+    </rows>
+  </grid>
+</dialog>

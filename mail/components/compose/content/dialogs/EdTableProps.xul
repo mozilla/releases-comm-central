@@ -1,0 +1,287 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % edTableProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorTableProperties.dtd">
+%edTableProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog title="&tableWindow.title;"
+    id="tableDlg"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+    onload="Startup()"
+    buttons="accept,extra1,cancel"
+    buttonlabelclose="&closeButton.label;"
+    buttonlabelextra1="&applyButton.label;"
+    buttonaccesskeyextra1="&applyButton.accesskey;">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdTableProps.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <tabbox id="TabBox">
+    <tabs flex="1">
+      <tab id="TableTab" label="&tableTab.label;"/>
+      <tab id="CellTab" label="&cellTab.label;"/>
+    </tabs>
+    <tabpanels>
+
+      <!-- TABLE PANEL -->
+      <vbox>
+        <groupbox orient="horizontal">
+          <hbox class="groupbox-title">
+            <label class="header">&size.label;</label>
+          </hbox>
+          <grid>
+            <columns><column/><column/><column/><column/><column/></columns>
+              <rows>
+                <row align="center">
+                  <label value="&tableRows.label;" accesskey="&tableRows.accessKey;" control="TableRowsInput"/>
+                  <textbox class="narrow" id="TableRowsInput" oninput="forceInteger(this.id);"/>
+                  <spring class="bigspacer"/>
+                  <label value="&tableHeight.label;" accesskey="&tableHeight.accessKey;"
+                         id="TableHeightLabel" control="TableHeightInput"/>
+                  <textbox class="narrow" id="TableHeightInput" oninput="forceInteger(this.id);"/>
+                  <menulist id="TableHeightUnits"/>
+                </row>
+              <row align="center">
+                <label value="&tableColumns.label;" accesskey="&tableColumns.accessKey;" control="TableColumnsInput"/>
+                <textbox class="narrow" id="TableColumnsInput" oninput="forceInteger(this.id);"/>
+                <spring class="bigspacer"/>
+                <label value="&tableWidth.label;" accesskey="&tableWidth.accessKey;" control="TableWidthInput"/>
+                <textbox class="narrow" id="TableWidthInput" oninput="forceInteger(this.id);"/>
+                <menulist id="TableWidthUnits"/>
+              </row>
+            </rows>
+            <!-- KEEP GRID LAYOUT here since we will be adding back support for table HEIGHT via CSS -->
+          </grid>
+        </groupbox>
+        <groupbox>
+          <hbox class="groupbox-title">
+            <label class="header">&tableBorderSpacing.label;</label>
+          </hbox>
+        <grid>
+          <columns><column/><column/><column/></columns>
+          <rows>
+            <row align="center">
+              <label control="BorderWidthInput"
+                     value="&tableBorderWidth.label;"
+                     accesskey="&tableBorderWidth.accessKey;"/>
+              <textbox class="narrow" id="BorderWidthInput" oninput="forceInteger(this.id);"/>
+              <label align="left" value="&pixels.label;"/>
+            </row>
+            <row align="center">
+              <label control="SpacingInput"
+                     value="&tableSpacing.label;"
+                     accesskey="&tableSpacing.accessKey;"/>
+              <textbox class="narrow" id="SpacingInput" oninput="forceInteger(this.id);"/>
+              <label value="&tablePxBetwCells.label;"/>
+            </row>
+            <row align="center">
+              <label control="PaddingInput"
+                     value="&tablePadding.label;"
+                     accesskey="&tablePadding.accessKey;"/>
+              <textbox class="narrow" id="PaddingInput" oninput="forceInteger(this.id);"/>
+              <label value="&tablePxBetwBrdrCellContent.label;"/>
+            </row>
+          </rows>
+        </grid>
+        </groupbox>
+        <!-- Table Alignment and Caption -->
+        <hbox flex="1" align="center">
+          <label control="TableAlignList"
+                 value="&tableAlignment.label;"
+                 accesskey="&tableAlignment.accessKey;"/>
+          <menulist id="TableAlignList">
+            <menupopup>
+              <menuitem label="&AlignLeft.label;"   value="left"/>
+              <menuitem label="&AlignCenter.label;" value="center"/>
+              <menuitem label="&AlignRight.label;"  value="right"/>
+            </menupopup>
+          </menulist>
+          <spacer class="spacer"/>
+          <label control="TableCaptionList"
+                 value="&tableCaption.label;"
+                 accesskey="&tableCaption.accessKey;"/>
+          <menulist id="TableCaptionList">
+            <menupopup>
+              <menuitem label="&tableCaptionNone.label;"  value=""/>
+              <menuitem label="&tableCaptionAbove.label;" value="top"/>
+              <menuitem label="&tableCaptionBelow.label;" value="bottom"/>
+              <menuitem label="&tableCaptionLeft.label;"  value="left"/>
+              <menuitem label="&tableCaptionRight.label;" value="right"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+        <separator class="groove"/>
+        <hbox align="center">
+          <label value="&backgroundColor.label;"/>
+          <button id="tableBackground" class="color-button" oncommand="GetColorAndUpdate('tableBackgroundCW');">
+            <spacer id="tableBackgroundCW" class="color-well"/>
+          </button>
+          <spacer class="spacer"/>
+          <label id="TableInheritColor" value="&tableInheritColor.label;" collapsed="true"/>
+        </hbox>
+        <separator class="groove"/>
+        <hbox flex="1" align="center">
+          <spacer flex="1"/>
+          <button id="AdvancedEditButton"
+            oncommand="onAdvancedEdit();"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"/>
+        </hbox>
+        <spacer flex="1"/>
+      </vbox><!-- Table Panel -->
+
+      <!-- CELL PANEL -->
+      <vbox>
+        <groupbox orient="horizontal" align="center">
+          <hbox class="groupbox-title">
+            <label class="header">&cellSelection.label;</label>
+          </hbox>
+          <vbox>
+            <menulist id="SelectionList" oncommand="ChangeSelection(event.target.value)" flex="1">
+              <menupopup>
+                <!-- JS code assumes order is Cell, Row, Column -->
+                <menuitem label="&cellSelectCell.label;"   value="1"/>
+                <menuitem label="&cellSelectRow.label;"    value="2"/>
+                <menuitem label="&cellSelectColumn.label;" value="3"/>
+              </menupopup>
+            </menulist>
+            <hbox flex="1">
+              <button id="PreviousButton"
+                      oncommand="MoveSelection(0)"
+                      flex="1"
+                      align="center">
+                <image/>
+                <label value="&cellSelectPrevious.label;"
+                       accesskey="&cellSelectPrevious.accessKey;"
+                       control="PreviousButton"/>
+              </button>
+              <button id="NextButton"
+                      oncommand="MoveSelection(1)"
+                      class="align-right"
+                      flex="1"
+                      align="center">
+                <image/>
+                <label value="&cellSelectNext.label;"
+                       accesskey="&cellSelectNext.accessKey;"
+                       control="NextButton"/>
+              </button>
+            </hbox>
+          </vbox>
+          <spacer class="bigspacer"/>
+            <description class="wrap" flex="1">&applyBeforeChange.label;</description>
+        </groupbox>
+        <hbox align="center">
+          <!-- cell size groupbox -->
+          <groupbox>
+            <hbox class="groupbox-title">
+              <label class="header">&size.label;</label>
+            </hbox>
+            <grid>
+              <columns><column/><column/><column flex="1"/></columns>
+              <rows>
+                <row align="center">
+                  <checkbox id="CellHeightCheckbox" label="&tableHeight.label;" accesskey="&tableHeight.accessKey;"/>
+                  <textbox class="narrow" id="CellHeightInput"
+                           oninput="ChangeIntTextbox(this.id, 'CellHeightCheckbox');"/>
+                  <menulist id="CellHeightUnits" oncommand="SetCheckbox('CellHeightCheckbox');"/>
+                </row>
+                <row align="center">
+                  <checkbox id="CellWidthCheckbox" label="&tableWidth.label;" accesskey="&tableWidth.accessKey;"/>
+                  <textbox class="narrow" id="CellWidthInput"
+                           oninput="ChangeIntTextbox(this.id, 'CellWidthCheckbox');"/>
+                  <menulist id="CellWidthUnits" oncommand="SetCheckbox('CellWidthCheckbox');"/>
+                </row>
+              </rows>
+            </grid>
+            <spacer class="bigspacer"/>
+          </groupbox>
+          <!-- Alignment -->
+          <groupbox>
+            <hbox class="groupbox-title">
+              <label class="header">&cellContentAlignment.label;</label>
+            </hbox>
+            <grid>
+              <columns><column/><column flex="1"/><column/></columns>
+              <rows>
+                <row align="center">
+                  <checkbox id="CellVAlignCheckbox" label="&cellVertical.label;" accesskey="&cellVertical.accessKey;"/>
+                  <menulist id="CellVAlignList" oncommand="SetCheckbox('CellVAlignCheckbox');">
+                    <menupopup>
+                      <menuitem label="&cellAlignTop.label;"    value="top"/>
+                      <menuitem label="&cellAlignMiddle.label;" value="middle"/>
+                      <menuitem label="&cellAlignBottom.label;" value="bottom"/>
+                    </menupopup>
+                  </menulist>
+                </row>
+                <row align="center">
+                  <checkbox id="CellHAlignCheckbox" label="&cellHorizontal.label;" accesskey="&cellHorizontal.accessKey;"/>
+                  <menulist id="CellHAlignList"  oncommand="SelectCellHAlign()">
+                    <menupopup>
+                      <menuitem label="&AlignLeft.label;"        value="left"/>
+                      <menuitem label="&AlignCenter.label;"      value="center"/>
+                      <menuitem label="&AlignRight.label;"       value="right"/>
+                      <menuitem label="&cellAlignJustify.label;" value="justify"/>
+                    </menupopup>
+                  </menulist>
+                </row>
+              </rows>
+            </grid>
+          </groupbox>
+        </hbox>
+        <spacer class="spacer"/>
+        <hbox align="center">
+          <checkbox id="CellStyleCheckbox" label="&cellStyle.label;" accesskey="&cellStyle.accessKey;"/>
+          <menulist id="CellStyleList" oncommand="SetCheckbox('CellStyleCheckbox');">
+            <menupopup>
+              <menuitem label="&cellNormal.label;" value="td"/>
+              <menuitem label="&cellHeader.label;" value="th"/>
+            </menupopup>
+          </menulist>
+          <spacer class="bigspacer"/>
+          <checkbox id="TextWrapCheckbox" label="&cellTextWrap.label;" accesskey="&cellTextWrap.accessKey;"/>
+          <menulist id="TextWrapList" oncommand="SetCheckbox('TextWrapCheckbox');">
+            <menupopup>
+              <menuitem label="&cellWrap.label;" value="wrap"/>
+              <menuitem label="&cellNoWrap.label;" value="nowrap"/>
+            </menupopup>
+          </menulist>
+        </hbox>
+        <separator class="groove"/>
+        <hbox align="center">
+          <checkbox id="CellColorCheckbox" label="&backgroundColor.label;" accesskey="&backgroundColor.accessKey;"/>
+          <button class="color-button" oncommand="GetColorAndUpdate('cellBackgroundCW');">
+            <spacer id="cellBackgroundCW" class="color-well"/>
+          </button>
+          <spacer class="spacer"/>
+          <label id="CellInheritColor" value="&cellInheritColor.label;" collapsed="true"/>
+        </hbox>
+        <separator class="groove"/>
+        <hbox align="center">
+          <description class="wrap" flex="1" style="width: 1em">&cellUseCheckboxHelp.label;</description>
+          <button id="AdvancedEditButton2"
+                  oncommand="onAdvancedEdit()"
+                  label="&AdvancedEditButton.label;"
+                  accesskey="&AdvancedEditButton.accessKey;"
+                  tooltiptext="&AdvancedEditButton.tooltip;"/>
+        </hbox>
+        <spacer flex="1"/>
+      </vbox><!-- Cell Panel -->
+    </tabpanels>
+  </tabbox>
+  <spacer class="spacer"/>
+</dialog>

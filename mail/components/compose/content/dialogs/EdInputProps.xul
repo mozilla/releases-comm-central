@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % edInputProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorInputProperties.dtd">
+%edInputProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog title="&windowTitle.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup();"
+        buttons="accept,cancel">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdInputProps.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header" control="InputType" accesskey="&InputType.accesskey;">&InputType.label;</label>
+    </hbox>
+    <menulist id="InputType" oncommand="SelectInputType();">
+      <menupopup>
+        <menuitem label="&text.value;"/>
+        <menuitem label="&password.value;"/>
+        <menuitem label="&checkbox.value;"/>
+        <menuitem label="&radio.value;"/>
+        <menuitem label="&submit.value;"/>
+        <menuitem label="&reset.value;"/>
+        <menuitem label="&file.value;"/>
+        <menuitem label="&hidden.value;"/>
+        <menuitem label="&image.value;"/>
+        <menuitem label="&button.value;"/>
+      </menupopup>
+    </menulist>
+  </groupbox>
+
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header">&InputSettings.label;</label>
+    </hbox>
+    <grid><columns><column/><column/></columns>
+      <rows>
+        <row align="center">
+          <deck id="InputNameDeck">
+            <label control="InputName" value="&InputName.label;" accesskey="&InputName.accesskey;"/>
+            <label control="InputName" value="&GroupName.label;" accesskey="&GroupName.accesskey;"/>
+          </deck>
+          <textbox id="InputName" oninput="onInput();"/>
+        </row>
+        <row align="center">
+          <deck id="InputValueDeck">
+            <label control="InputValue" value="&InputValue.label;" accesskey="&InputValue.accesskey;"/>
+            <label control="InputValue" value="&InitialValue.label;" accesskey="&InitialValue.accesskey;"/>
+          </deck>
+          <textbox id="InputValue" oninput="onInput();"/>
+        </row>
+        <row>
+          <spacer/>
+          <deck id="InputDeck" persist="index">
+            <checkbox id="InputChecked" label="&InputChecked.label;" accesskey="&InputChecked.accesskey;"/>
+            <checkbox id="InputSelected" label="&InputSelected.label;" accesskey="&InputSelected.accesskey;"/>
+            <checkbox id="InputReadOnly" label="&InputReadOnly.label;" accesskey="&InputReadOnly.accesskey;"/>
+          </deck>
+        </row>
+      </rows>
+    </grid>
+    <hbox>
+      <button id="MoreFewerButton" oncommand="onMoreFewer();" persist="more"/>
+    </hbox>
+    <grid id="MoreSection" align="start">
+      <columns><column/><column/></columns>
+      <rows>
+        <row>
+          <spacer/>
+          <checkbox id="InputDisabled" label="&InputDisabled.label;" accesskey="&InputDisabled.accesskey;"/>
+        </row>
+        <row align="center">
+          <label control="InputTabIndex" value="&tabIndex.label;" accesskey="&tabIndex.accesskey;"/>
+          <hbox>
+            <textbox id="InputTabIndex" class="narrow" oninput="forceInteger(this.id);"/>
+          </hbox>
+        </row>
+        <row align="center">
+          <label control="InputAccessKey" value="&AccessKey.label;" accesskey="&AccessKey.accesskey;"/>
+          <hbox>
+            <textbox id="InputAccessKey" class="narrow"/>
+          </hbox>
+        </row>
+        <row align="center">
+          <label control="InputSize" value="&TextSize.label;" accesskey="&TextSize.accesskey;"/>
+          <hbox>
+            <textbox id="InputSize" class="narrow" oninput="forceInteger(this.id);"/>
+          </hbox>
+        </row>
+        <row align="center">
+          <label control="InputMaxLength" value="&TextLength.label;" accesskey="&TextLength.accesskey;"/>
+          <hbox>
+            <textbox id="InputMaxLength" class="narrow" oninput="forceInteger(this.id);"/>
+          </hbox>
+        </row>
+        <row align="center">
+          <label control="InputAccept" value="&Accept.label;" accesskey="&Accept.accesskey;"/>
+          <textbox id="InputAccept"/>
+        </row>
+      </rows>
+    </grid>
+  </groupbox>
+
+  <!-- from EdDialogOverlay -->
+  <hbox flex="1" style="margin-top: 0.2em">
+    <!-- This will right-align the button -->
+    <spacer flex="1"/>
+    <deck id="AdvancedEditDeck">
+      <button id="AdvancedEditButton"
+        oncommand="onAdvancedEdit();"
+        label="&AdvancedEditButton.label;"
+        accesskey="&AdvancedEditButton.accessKey;"
+        tooltiptext="&AdvancedEditButton.tooltip;"/>
+      <button label="&ImageProperties.label;" accesskey="&ImageProperties.accesskey;" oncommand="doImageProperties();"/>
+    </deck>
+  </hbox>
+  <separator class="groove"/>
+
+</dialog>

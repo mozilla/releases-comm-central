@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
+<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+
+<!DOCTYPE dialog [
+<!ENTITY % edFieldSetProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorFieldSetProperties.dtd">
+%edFieldSetProperties;
+<!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
+%edDialogOverlay;
+]>
+
+<dialog title="&windowTitle.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup();"
+        buttons="accept,cancel">
+
+  <!-- Methods common to all editor dialogs -->
+  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
+  <script src="chrome://messenger/content/messengercompose/EdFieldSetProps.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+
+  <groupbox>
+    <hbox class="groupbox-title">
+      <label class="header" accesskey="&Legend.accesskey;">&Legend.label;</label>
+    </hbox>
+    <grid><columns><column/><column/></columns>
+      <rows>
+        <row align="center">
+          <checkbox id="EditText" label="&EditLegendText.label;" accesskey="&EditLegendText.accesskey;" checked="true" disabled="true"
+            oncommand="gDialog.legendText.disabled = !gDialog.editText.checked;"/>
+          <textbox id="LegendText" accesskey="&Legend.accesskey;"/>
+        </row>
+        <row align="center">
+          <label control="LegendAlign" value="&LegendAlign.label;" accesskey="&LegendAlign.accesskey;"/>
+          <menulist id="LegendAlign">
+            <menupopup>
+              <menuitem label="&AlignDefault.label;"/>
+              <menuitem label="&AlignLeft.label;" value="left"/>
+              <menuitem label="&AlignCenter.label;" value="center"/>
+              <menuitem label="&AlignRight.label;" value="right"/>
+            </menupopup>
+          </menulist>
+        </row>
+      </rows>
+    </grid>
+  </groupbox>
+
+  <!-- from EdDialogOverlay -->
+  <hbox flex="1" style="margin-top: 0.2em">
+    <button id="RemoveFieldSet" label="&RemoveFieldSet.label;" accesskey="&RemoveFieldSet.accesskey;" oncommand="RemoveFieldSet();"/>
+    <!-- This will right-align the button -->
+    <spacer flex="1"/>
+    <button id="AdvancedEditButton"
+            oncommand="onAdvancedEdit();"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"/>
+  </hbox>
+  <separator class="groove"/>
+
+</dialog>
