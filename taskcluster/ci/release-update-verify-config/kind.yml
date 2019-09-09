@@ -39,11 +39,6 @@ job-defaults:
             by-release-level:
                 staging: "https://stage.balrog.nonprod.cloudops.mozgcp.net"
                 production: "https://aus5.mozilla.org"
-        # This is overridden for devedition to exclude 58.0b1
-        # because of the special case added by
-        # https://bugzilla.mozilla.org/show_bug.cgi?id=1419189
-        # The devedition override can be removed after 58.0b1
-        # is behind a watershed
         include-version:
             by-release-type:
                 beta: beta
@@ -51,17 +46,8 @@ job-defaults:
                 default: beta
         last-watershed:
             by-release-type:
-                beta:
-                    by-platform:
-                        win32.*: "68.0b1"
-                        win64.*: "68.0b1"
-                        default: "56.0b3"
-                release:
-                    by-platform:
-                        win64.*: "60.0"
-                        default: "52.0"
-                # For 68.0 release have a watershed on 60.8
-                # release: "60.8"
+                beta: "68.0b1"
+                release: "60.9"
                 default: "default"
 
 jobs:
