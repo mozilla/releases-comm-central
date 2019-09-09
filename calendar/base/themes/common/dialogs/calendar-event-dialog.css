@@ -353,6 +353,10 @@ label.label {
     background-color: #fff;
 }
 
+#timebar {
+    overflow: hidden;
+}
+
 #timebar > .listbox-noborder {
     border-bottom-style: none;
 }
@@ -413,8 +417,7 @@ calendar-event-scroll-container > box {
 
 /* negative margins to clear freebusy-day's border and margin */
 calendar-event-freebusy-day > box {
-    margin-inline-start: -1px;
-    margin-inline-end: -3px;
+    margin-inline: -1px;
 }
 
 .freebusy-content {
@@ -429,10 +432,14 @@ calendar-event-freebusy-day > box {
 }
 
 .freebusy-timebar-hour {
-    padding-inline-start: 2px;
-    padding-inline-end: 3px;
     margin-top: 2px;
     margin-bottom: 3px;
+    border-inline-start: 1px solid transparent;
+    padding-inline: 2px;
+}
+
+.freebusy-timebar-hour.last-in-day {
+    border-inline-end: 1px solid transparent;
 }
 
 .freebusy-timebar-hour[scheduled="true"] {
@@ -447,10 +454,10 @@ calendar-event-freebusy-day > box {
 
 .freebusy-grid {
     border-inline-start: 1px solid var(--eventGridStartBorderColor);
+    padding-inline: 2px;
     background-color: #E09EBD;
     color: #E09EBD;
     min-height: 16px;
-    padding-inline-start: 1px;
 }
 
 .freebusy-grid[state="busy"] {
