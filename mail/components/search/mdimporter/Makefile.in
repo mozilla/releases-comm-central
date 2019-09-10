@@ -6,15 +6,15 @@
 # framework will be located here.
 FRAMEWORK_DIR := $(DIST)/package/thunderbird.mdimporter
 
-STRING_FILES := English.lproj/InfoPlist.strings English.lproj/schema.strings
+STRING_FILES := $(srcdir)/English.lproj/InfoPlist.strings $(srcdir)/English.lproj/schema.strings
 STRING_DEST := $(FRAMEWORK_DIR)/Contents/Resources/English.lproj
 INSTALL_TARGETS += STRING
 
-SCHEMA_FILES := schema.xml
+SCHEMA_FILES := $(srcdir)/schema.xml
 SCHEMA_DEST := $(FRAMEWORK_DIR)/Contents/Resources
 INSTALL_TARGETS += SCHEMA
 
-PLIST_FILES := Info.plist
+PLIST_FILES := $(srcdir)/Info.plist
 PLIST_DEST := $(FRAMEWORK_DIR)/Contents
 INSTALL_TARGETS += PLIST
 
