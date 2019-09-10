@@ -31,6 +31,8 @@ jobs:
     - linux64-rust-macos
     - linux64-sccache
     - linux64-upx
+    - macosx64-node
+    - win32-node
     - win64-cbindgen
     - win64-clang-cl
     - win64-nasm
