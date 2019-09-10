@@ -4,11 +4,13 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/preferences/applicationManager.dtd">
 
 <dialog id="appManager"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         buttons="accept,cancel"
         onload="gAppManagerDialog.init();"
         title="&appManager.title;"
@@ -54,6 +56,6 @@
   <vbox id="appDetails">
     <separator class="thin"/>
     <label id="appType"/>
-    <textbox id="appLocation" readonly="true" class="plain"/>
+    <html:input id="appLocation" type="text" readonly="readonly"/>
   </vbox>
 </dialog>

@@ -41,13 +41,15 @@
                     preference="mailnews.start_page.enabled"
                     accesskey="&enableStartPage.accesskey;"/>
         </hbox>
-        <hbox align="center">
+        <hbox align="center" class="input-container">
           <label value="&location.label;" accesskey="&location1.accesskey;" control="mailnewsStartPageUrl"/>
-          <textbox id="mailnewsStartPageUrl" flex="1" class="uri-element"
-                   preference="mailnews.start_page.url"/>
-          <button label="&useDefault.label;" accesskey="&useDefault.accesskey;"
+          <html:input id="mailnewsStartPageUrl"
+                      type="text"
+                      preference="mailnews.start_page.url"/>
+          <button id="browseForStartPageUrl"
+                  label="&useDefault.label;"
+                  accesskey="&useDefault.accesskey;"
                   oncommand="gGeneralPane.restoreDefaultStartPage();">
-            <observes element="mailnewsStartPageUrl" attribute="disabled"/>
           </button>
         </hbox>
     </groupbox>
@@ -318,21 +320,18 @@
         </hbox>
       </radiogroup>
 #endif
-      <hbox align="center">
-        <textbox id="soundUrlLocation"
-                 type="filefield"
-                 class="indent"
-                 readonly="true"
-                 preference="mail.biff.play_sound.url"
-                 preference-editable="true"
-                 aria-labelledby="custom"
-                 flex="1"/>
+      <hbox align="center" class="input-container">
+        <html:input id="soundUrlLocation"
+                    type="text"
+                    class="input-filefield indent"
+                    readonly="readonly"
+                    preference="mail.biff.play_sound.url"
+                    preference-editable="true"
+                    aria-labelledby="custom"/>
         <button id="browseForSound"
                 label="&browse.label;"
                 accesskey="&browse.accesskey;"
-                oncommand="gGeneralPane.browseForSoundFile();">
-          <observes element="soundUrlLocation" attribute="disabled"/>
-        </button>
+                oncommand="gGeneralPane.browseForSoundFile();"/>
       </hbox>
     </groupbox>
 
@@ -370,15 +369,16 @@
       <vbox align="start">
         <radiogroup id="saveWhere" flex="1"
                     preference="browser.download.useDownloadDir">
-          <hbox id="saveToRow" align="center">
+          <hbox id="saveToRow" align="center" class="input-container">
             <radio id="saveTo" value="true"
                    label="&saveTo.label;"
                    accesskey="&saveTo.accesskey;"
                    aria-labelledby="saveTo downloadFolder"/>
-            <textbox id="downloadFolder" flex="1"
-                     type="filefield"
-                     readonly="true"
-                     aria-labelledby="saveTo"/>
+            <html:input id="downloadFolder"
+                        class="input-filefield"
+                        type="text"
+                        readonly="readonly"
+                        aria-labelledby="saveTo"/>
             <button id="chooseFolder" oncommand="gDownloadDirSection.chooseFolder();"
 #ifdef XP_MACOSX
                     accesskey="&chooseFolderMac.accesskey;"

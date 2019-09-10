@@ -9,6 +9,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
 <dialog id="ConnectionsDialog" type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -51,9 +52,10 @@
             <hbox pack="end">
               <label value="&http.label;" accesskey="&http.accesskey;" control="networkProxyHTTP"/>
             </hbox>
-            <hbox align="center">
-              <textbox id="networkProxyHTTP" flex="1" class="uri-element"
-                       preference="network.proxy.http"/>
+            <hbox align="center" class="input-container">
+              <html:input id="networkProxyHTTP"
+                          type="text"
+                          preference="network.proxy.http"/>
               <label value="&HTTPport.label;" accesskey="&HTTPport.accesskey;" control="networkProxyHTTP_Port"/>
               <html:input id="networkProxyHTTP_Port" type="number" class="size5" max="65535"
                           preference="network.proxy.http_port"/>
@@ -63,16 +65,17 @@
             <hbox/>
             <hbox>
               <checkbox id="shareAllProxies" label="&shareproxy.label;" accesskey="&shareproxy.accesskey;"
-                        preference="network.proxy.share_proxy_settings"/>
+                        preference="network.proxy.share_proxy_settings" class="align-no-label"/>
             </hbox>
           </row>
           <row align="center">
             <hbox pack="end">
               <label value="&ssl.label;" accesskey="&ssl.accesskey;" control="networkProxySSL"/>
             </hbox>
-            <hbox align="center">
-              <textbox id="networkProxySSL" flex="1" class="uri-element"
-                       preference="network.proxy.ssl"/>
+            <hbox align="center" class="input-container">
+              <html:input id="networkProxySSL"
+                          type="text"
+                          preference="network.proxy.ssl"/>
               <label value="&SSLport.label;" accesskey="&SSLport.accesskey;" control="networkProxySSL_Port"/>
               <html:input id="networkProxySSL_Port" type="number" class="size5" max="65535"
                           preference="network.proxy.ssl_port"/>
@@ -82,9 +85,10 @@
             <hbox pack="end">
               <label value="&socks.label;" accesskey="&socks.accesskey;" control="networkProxySOCKS"/>
             </hbox>
-            <hbox align="center">
-              <textbox id="networkProxySOCKS" flex="1" class="uri-element"
-                       preference="network.proxy.socks"/>
+            <hbox align="center" class="input-container">
+              <html:input id="networkProxySOCKS"
+                          type="text"
+                          preference="network.proxy.socks"/>
               <label value="&SOCKSport.label;" accesskey="&SOCKSport.accesskey;" control="networkProxySOCKS_Port"/>
               <html:input id="networkProxySOCKS_Port" type="number" class="size5" max="65535"
                           preference="network.proxy.socks_port"/>
@@ -92,7 +96,9 @@
           </row>
           <row>
             <spacer/>
-            <radiogroup id="networkProxySOCKSVersion" orient="horizontal"
+            <radiogroup id="networkProxySOCKSVersion"
+                        orient="horizontal"
+                        class="align-no-label"
                         preference="network.proxy.socks_version">
               <radio id="networkProxySOCKSVersion4" value="4" label="&socks4.label;" accesskey="&socks4.accesskey;" />
               <radio id="networkProxySOCKSVersion5" value="5" label="&socks5.label;" accesskey="&socks5.accesskey;" />
@@ -101,10 +107,11 @@
         </rows>
       </grid>
       <radio value="2" label="&autoTypeRadio.label;" accesskey="&autoTypeRadio.accesskey;"/>
-      <hbox class="indent" flex="1" align="center">
-        <textbox id="networkProxyAutoconfigURL" flex="1" class="uri-element"
-                 preference="network.proxy.autoconfig_url"
-                 oninput="gConnectionsDialog.updateReloadButton();"/>
+      <hbox class="indent input-container" flex="1" align="center">
+        <html:input id="networkProxyAutoconfigURL"
+                    type="url"
+                    preference="network.proxy.autoconfig_url"
+                    oninput="gConnectionsDialog.updateReloadButton();"/>
         <button id="autoReload" label="&reload.label;" accesskey="&reload.accesskey;"
                 oncommand="gConnectionsDialog.reloadPAC();"
                 preference="pref.advanced.proxies.disable_button.reload"/>
@@ -143,14 +150,18 @@
       <menulist id="networkDnsOverHttpsResolverChoices" flex="1"
                 oncommand="gConnectionsDialog.updateDnsOverHttpsUI()"/>
     </hbox>
-    <hbox align="center" id="customDnsOverHttpsContainer" style="visibility: hidden;">
+    <hbox id="customDnsOverHttpsContainer"
+          align="center"
+          class="input-container"
+          style="visibility: hidden;">
       <hbox>
         <label id="networkCustomDnsOverHttpsInputLabel"
                data-l10n-id="connection-dns-over-https-custom-label"
                control="networkCustomDnsOverHttpsInput"/>
       </hbox>
-      <textbox id="networkCustomDnsOverHttpsInput" flex="1"
-               preference="network.trr.custom_uri"/>
+      <html:input id="networkCustomDnsOverHttpsInput"
+                  type="url"
+                  preference="network.trr.custom_uri"/>
     </hbox>
   </vbox>
   <separator/>

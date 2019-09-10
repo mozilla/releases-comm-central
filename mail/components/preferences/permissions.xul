@@ -6,19 +6,23 @@
 
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/preferences/permissions.dtd">
 
 <window id="PermissionsDialog" class="windowDialog"
         windowtype="mailnews:permissions"
         title="&window.title;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: &window.width;;"
         onload="gPermissionManager.onLoad();"
         onunload="gPermissionManager.uninit();"
         persist="screenX screenY width height"
         onkeypress="gPermissionManager.onWindowKeyPress(event);">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://global/content/treeUtils.js"/>
   <script src="chrome://messenger/content/preferences/permissions.js"/>
 
@@ -33,10 +37,11 @@
     <description id="permissionsText" control="url"/>
     <separator class="thin"/>
     <label id="urlLabel" control="url" value="&address.label;" accesskey="&address.accesskey;"/>
-    <hbox align="start">
-      <textbox id="url" flex="1"
-               oninput="gPermissionManager.onHostInput(event.target);"
-               onkeypress="gPermissionManager.onHostKeyPress(event);"/>
+    <hbox align="start" class="input-container">
+      <html:input id="url"
+                  type="text"
+                  oninput="gPermissionManager.onHostInput(event.target);"
+                  onkeypress="gPermissionManager.onHostKeyPress(event);"/>
     </hbox>
     <hbox pack="end">
       <button id="btnBlock" disabled="true" label="&block.label;" accesskey="&block.accesskey;"

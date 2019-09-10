@@ -2,7 +2,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this file,
    - You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@namespace html "http://www.w3.org/1999/xhtml";
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
   --in-content-categories-background: #ebebef;
@@ -234,21 +234,6 @@ radio[pane=paneLightning] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/in-content/calendar.svg");
 }
 
-textbox[type="filefield"] {
-  padding-inline-start: 30px;
-  background-position-x: left 8px;
-  background-color: var(--in-content-box-background);
-  border-color: var(--in-content-box-border-color);
-}
-
-textbox[type="filefield"]:-moz-locale-dir(rtl) {
-  background-position-x: right 8px;
-}
-
-textbox[type="filefield"][disabled="true"] {
-  color: var(--in-content-text-color);
-}
-
 html|input[type="number"] {
   margin-inline-start: 4px;
   padding: 1px;
@@ -291,7 +276,7 @@ html|input[type="number"]::-moz-number-spin-up {
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-radius: 1px 1px 0 0;
-  background-image: url("chrome://global/skin/icons/arrow-up-12.svg")
+  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
 }
 
 html|input[type="number"]::-moz-number-spin-down {
@@ -332,8 +317,13 @@ description > html|a {
   height: 220px;
 }
 
-.indent {
+.indent,
+html|input.indent {
   margin-inline-start: 33px;
+}
+
+.align-no-label {
+  margin-inline-start: 4px;
 }
 
 .tail-with-learn-more {

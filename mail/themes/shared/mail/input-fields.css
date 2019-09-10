@@ -11,6 +11,33 @@ html|input.input-inline {
   padding-inline-start: 4px;
 }
 
+html|input.input-filefield {
+  -moz-appearance: none;
+  padding-inline-start: 20px !important;
+  background-position-x: left 8px;
+  background-color: var(--in-content-box-background);
+  border-color: var(--in-content-box-border-color);
+  border: 1px solid threedshadow;
+}
+
+html|input.input-filefield:-moz-locale-dir(rtl) {
+  background-position-x: right 2px;
+}
+
+html|input.input-filefield[disabled] {
+  opacity: 0.5;
+  color: -moz-DialogText;
+}
+
 html|input.input-inline-color {
   margin: 2px 4px;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+}
+
+.input-container html|input:not([type="number"]) {
+  flex-grow: 1;
 }

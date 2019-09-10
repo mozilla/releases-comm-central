@@ -7,7 +7,7 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://lightning-common/skin/datetimepickers.css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/input-fields.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/grid-layout.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-print-dialog.css"?>
 

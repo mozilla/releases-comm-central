@@ -48,9 +48,10 @@
                       preference="messenger.status.awayWhenIdle"/>
             <spacer flex="1"/>
           </hbox>
-          <textbox id="defaultIdleAwayMessage"
-                   class="idle-reporting-enabled indent"
-                   preference="messenger.status.defaultIdleAwayMessage"/>
+          <html:input id="defaultIdleAwayMessage"
+                      type="text"
+                      class="idle-reporting-enabled indent"
+                      preference="messenger.status.defaultIdleAwayMessage"/>
         </vbox>
     </groupbox>
 
@@ -119,21 +120,18 @@
                  accesskey="&customsound.accesskey;"/>
           <spacer flex="1"/>
         </hbox>
-        <hbox align="center">
-          <textbox id="chatSoundUrlLocation"
-                   type="filefield"
-                   class="indent"
-                   readonly="true"
-                   preference="mail.chat.play_sound.url"
-                   preference-editable="true"
-                   aria-labelledby="chatSoundCustom"
-                   flex="1"/>
+        <hbox align="center" class="input-container">
+          <html:input id="chatSoundUrlLocation"
+                      type="text"
+                      class="input-filefield indent"
+                      readonly="readonly"
+                      preference="mail.chat.play_sound.url"
+                      preference-editable="true"
+                      aria-labelledby="chatSoundCustom"/>
           <button id="browseForChatSound"
                   label="&browse.label;"
                   accesskey="&browse.accesskey;"
-                  oncommand="gChatPane.browseForSoundFile();">
-            <observes element="chatSoundUrlLocation" attribute="disabled"/>
-          </button>
+                  oncommand="gChatPane.browseForSoundFile();"/>
         </hbox>
       </radiogroup>
     </groupbox>

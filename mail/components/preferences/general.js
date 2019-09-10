@@ -430,6 +430,10 @@ var gGeneralPane = {
     Preferences.addSyncFromPrefListener(menulist, () =>
       this.readFontSelection()
     );
+    Preferences.addSyncFromPrefListener(
+      document.getElementById("soundUrlLocation"),
+      () => this.readSoundLocation()
+    );
   },
 
   /**
@@ -498,7 +502,6 @@ var gGeneralPane = {
       soundUrlLocation.style.backgroundImage =
         "url(moz-icon://" + soundUrlLocation.label + "?size=16)";
     }
-    return undefined;
   },
 
   previewSound() {
@@ -577,6 +580,8 @@ var gGeneralPane = {
       soundTypeEl.disabled = soundsDisabled;
       document.getElementById("soundUrlLocation").disabled =
         soundsDisabled || soundType != 1;
+      document.getElementById("browseForSound").disabled =
+        soundsDisabled || soundType != 1;
       document.getElementById("playSound").disabled =
         soundsDisabled || (!soundUrlLocation && soundType != 0);
     } else {
@@ -598,6 +603,9 @@ var gGeneralPane = {
     document.getElementById("mailnewsStartPageUrl").disabled = !Preferences.get(
       "mailnews.start_page.enabled"
     ).value;
+    document.getElementById(
+      "browseForStartPageUrl"
+    ).disabled = !Preferences.get("mailnews.start_page.enabled").value;
   },
 
   updateCustomizeAlert() {

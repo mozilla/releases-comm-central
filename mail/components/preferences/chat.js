@@ -185,10 +185,11 @@ var gChatPane = {
     let soundsEnabled = Preferences.get("mail.chat.play_sound").value;
     let soundTypeValue = Preferences.get("mail.chat.play_sound.type").value;
     let soundUrlLocation = Preferences.get("mail.chat.play_sound.url").value;
+    let soundDisabled = !soundsEnabled || soundTypeValue != 1;
 
     document.getElementById("chatSoundType").disabled = !soundsEnabled;
-    document.getElementById("chatSoundUrlLocation").disabled =
-      !soundsEnabled || soundTypeValue != 1;
+    document.getElementById("chatSoundUrlLocation").disabled = soundDisabled;
+    document.getElementById("browseForChatSound").disabled = soundDisabled;
     document.getElementById("playChatSound").disabled =
       !soundsEnabled || (!soundUrlLocation && soundTypeValue != 0);
   },
