@@ -124,8 +124,8 @@ GARBAGE += ical.h
 PARAMETERDEPS =	\
 	$(ICALSCRIPTS)/mkderivedparameters.pl \
 	$(DESIGNDATA)/parameters.csv	\
-	icalderivedparameter.c.in \
-	icalderivedparameter.h.in
+	$(srcdir)/icalderivedparameter.c.in \
+	$(srcdir)/icalderivedparameter.h.in
 
 icalderivedparameter.h: $(PARAMETERDEPS) 
 	$(PERL) -I$(ICALSCRIPTS) $(ICALSCRIPTS)/mkderivedparameters.pl -i $(srcdir)/icalderivedparameter.h.in -h $(DESIGNDATA)/parameters.csv > icalderivedparameter.h
@@ -139,8 +139,8 @@ PROPERTYDEPS =					\
 	$(ICALSCRIPTS)/mkderivedproperties.pl	\
 	$(DESIGNDATA)/properties.csv		\
 	$(DESIGNDATA)/value-types.csv		\
-	icalderivedproperty.c.in		\
-	icalderivedproperty.h.in
+	$(srcdir)/icalderivedproperty.c.in		\
+	$(srcdir)/icalderivedproperty.h.in
 
 
 icalderivedproperty.h: $(PROPERTYDEPS)
@@ -158,7 +158,7 @@ icalderivedproperty.c: $(PROPERTYDEPS) $(BUILT_COMBINEDHEADERS)
 RESTRICTIONDEPS =				\
 	$(ICALSCRIPTS)/mkrestrictiontable.pl	\
 	$(DESIGNDATA)/restrictions.csv		\
-	icalrestriction.c.in
+	$(srcdir)/icalrestriction.c.in
 
 icalrestriction.c: $(RESTRICTIONDEPS)
 	$(PERL) $(ICALSCRIPTS)/mkrestrictiontable.pl  -i $(srcdir)/icalrestriction.c.in \
@@ -169,8 +169,8 @@ icalrestriction.c: $(RESTRICTIONDEPS)
 VALUEDEPS =					\
 	$(ICALSCRIPTS)/mkderivedvalues.pl  	\
 	$(DESIGNDATA)/value-types.csv		\
-	icalderivedvalue.c.in				\
-	icalderivedvalue.h.in
+	$(srcdir)/icalderivedvalue.c.in				\
+	$(srcdir)/icalderivedvalue.h.in
 
 icalderivedvalue.h: $(VALUEDEPS)
 	$(PERL) -I$(ICALSCRIPTS)  $(ICALSCRIPTS)/mkderivedvalues.pl \

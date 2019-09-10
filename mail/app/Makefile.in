@@ -55,7 +55,7 @@ GARBAGE += write-message.ico address-book.ico
 # (this dependency should really be just for thunderbird.exe, not other targets)
 # Note the manifest file exists in the tree, so we use the explicit filename
 # here.
-EXTRA_DEPS += thunderbird.exe.manifest
+EXTRA_DEPS += $(srcdir)/thunderbird.exe.manifest
 endif
 
 include $(moztopsrcdir)/config/rules.mk
@@ -99,7 +99,7 @@ BRANDED_ICONS = \
 DESKTOP_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(DESKTOP_ICONS) $(DESKTOP_ICONS_SMALL))
 BRANDED_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(BRANDED_ICONS) $(BRANDED_ICONS_SMALL))
 
-libs:: $(addprefix icons/$(MOZ_WIDGET_TOOLKIT)/,$(DESKTOP_ICON_FILES))
+libs:: $(addprefix $(srcdir)/icons/$(MOZ_WIDGET_TOOLKIT)/,$(DESKTOP_ICON_FILES))
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
 
 libs:: $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/messengerWindow.ico

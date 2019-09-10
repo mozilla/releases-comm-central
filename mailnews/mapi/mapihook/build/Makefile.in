@@ -13,7 +13,7 @@ MIDL_GENERATED_FILES = \
 
 $(MIDL_GENERATED_FILES): done_gen ;
 
-done_gen: msgMapi.idl
+done_gen: $(srcdir)/msgMapi.idl
 	$(MIDL) $(MIDL_FLAGS) -I $(srcdir) -Oicf $(srcdir)/msgMapi.idl
 	touch $@
 
