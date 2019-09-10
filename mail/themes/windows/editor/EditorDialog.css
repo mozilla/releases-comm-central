@@ -71,6 +71,7 @@ groupbox > hbox > .header {
   width: 20px;
   height: 12px;
   border: 1px inset #CCCCCC;
+  margin: 1px 0px;
 }
 
 .color-well[default="true"] {
@@ -82,6 +83,12 @@ groupbox > hbox > .header {
   /* override large default min-width */
   min-width : 0px;
   margin: 2px;
+}
+
+button.color-button .button-text {
+  /* override default margin-inline-* */
+  margin-inline-start: 0;
+  margin-inline-end: 0;
 }
 
 .menu-list[focused="true"] {

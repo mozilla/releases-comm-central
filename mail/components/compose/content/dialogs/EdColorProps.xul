@@ -38,51 +38,52 @@
         tooltiptext="&customColorsRadio.tooltip;" />
     </radiogroup>
     <hbox class="indent">
-      <grid>
-        <columns><column/><column/></columns>
-        <rows>
-          <row align="center">
+      <hbox>
+        <vbox>
+          <hbox flex="1" align="center">
             <label id="Text" control="TextButton"
                    value="&normalText.label;&colon.character;"
                    accesskey="&normalText.accessKey;"/>
-            <button id="TextButton" class="color-button" oncommand="GetColorAndUpdate('textCW');">
-              <spacer id="textCW" class="color-well"/>
-            </button>
-          </row>
-          <row align="center">
-            <label id="Link" control="LinkButton"
+          </hbox>
+          <hbox flex="1" align="center">
+            <label id="Link" flex="1" control="LinkButton"
                    value="&linkText.label;&colon.character;"
                    accesskey="&linkText.accessKey;"/>
-            <button id="LinkButton" class="color-button" oncommand="GetColorAndUpdate('linkCW');">
-              <spacer id="linkCW" class="color-well"/>
-            </button>
-          </row>
-          <row align="center">
-            <label id="Active" control="ActiveLinkButton"
+          </hbox>
+          <hbox flex="1" align="center">
+            <label id="Active" flex="1" control="ActiveLinkButton"
                    value="&activeLinkText.label;&colon.character;"
                    accesskey="&activeLinkText.accessKey;"/>
-            <button id="ActiveLinkButton" class="color-button" oncommand="GetColorAndUpdate('activeCW');">
-              <spacer id="activeCW" class="color-well"/>
-            </button>
-          </row>
-          <row align="center">
-            <label id="Visited" control="VisitedLinkButton"
+          </hbox>
+          <hbox flex="1" align="center">
+            <label id="Visited" flex="1" control="VisitedLinkButton"
                    value="&visitedLinkText.label;&colon.character;"
                    accesskey="&visitedLinkText.accessKey;"/>
-            <button id="VisitedLinkButton" class="color-button" oncommand="GetColorAndUpdate('visitedCW');">
-              <spacer id="visitedCW" class="color-well"/>
-            </button>
-          </row>
-          <row align="center">
-            <label id="Background" control="BackgroundButton"
+          </hbox>
+          <hbox flex="1" align="center">
+            <label id="Background" flex="1" control="BackgroundButton"
                    value="&background.label;"
                    accesskey="&background.accessKey;"/>
-            <button id="BackgroundButton" class="color-button" oncommand="GetColorAndUpdate('backgroundCW');">
-              <spacer id="backgroundCW" class="color-well"/>
-            </button>
-          </row>
-        </rows>
-      </grid>
+          </hbox>
+        </vbox>
+        <vbox>
+          <button id="TextButton" class="color-button" oncommand="GetColorAndUpdate('textCW');">
+            <spacer id="textCW" class="color-well"/>
+          </button>
+          <button id="LinkButton" class="color-button" oncommand="GetColorAndUpdate('linkCW');">
+            <spacer id="linkCW" class="color-well"/>
+          </button>
+          <button id="ActiveLinkButton" class="color-button" oncommand="GetColorAndUpdate('activeCW');">
+            <spacer id="activeCW" class="color-well"/>
+          </button>
+          <button id="VisitedLinkButton" class="color-button" oncommand="GetColorAndUpdate('visitedCW');">
+            <spacer id="visitedCW" class="color-well"/>
+          </button>
+          <button id="BackgroundButton" class="color-button" oncommand="GetColorAndUpdate('backgroundCW');">
+            <spacer id="backgroundCW" class="color-well"/>
+          </button>
+        </vbox>
+      </hbox>
       <vbox id="ColorPreview" flex="1">
         <spacer flex="1"/>
         <label class="larger" id="NormalText"      value="&normalText.label;"/>
