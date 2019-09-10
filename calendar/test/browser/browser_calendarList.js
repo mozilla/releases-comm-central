@@ -266,14 +266,33 @@ add_task(async () => {
 
   // Test reordering calendars.
 
-  await EventUtils.synthesizePlainDragAndDrop({
-    srcElement: calendarList.itemChildren[3],
-    destElement: calendarList.itemChildren[0],
-  });
-  checkSortOrder(0, 3, 1, 2);
+  let dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
+  dragSession.startDragSession();
+
+  EventUtils.synthesizeDragStart(calendarList.itemChildren[3], null, null, 2, 2);
+  await new Promise(resolve => setTimeout(resolve));
+
+  let [result, dataTransfer] = EventUtils.synthesizeDragOver(
+    calendarList.itemChildren[3],
+    calendarList.itemChildren[0],
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    {
+      screenY: calendarList.itemChildren[0].getBoundingClientRect().top + 1,
+    }
+  );
+  await new Promise(resolve => setTimeout(resolve));
+
+  EventUtils.synthesizeDropAfterDragOver(result, dataTransfer, calendarList.itemChildren[0]);
+  dragSession.endDragSession(true);
+  await new Promise(resolve => setTimeout(resolve));
+
+  checkSortOrder(3, 0, 1, 2);
 
   is(document.activeElement, calendarList);
-  is(calendarList.selectedItem, calendarList.itemChildren[1]);
+  is(calendarList.selectedItem, calendarList.itemChildren[0]);
 
   // Test deleting calendars.
 
