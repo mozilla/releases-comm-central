@@ -212,7 +212,10 @@ bool nsGNOMEShellService::checkDefault(const char *const *aProtocols,
       if (NS_FAILED(rv) || !handlerApp) {
         return false;
       }
-      nsCOMPtr<nsIGIOMimeApp> app = do_QueryInterface(handlerApp);
+      nsCOMPtr<nsIGIOMimeApp> app = do_QueryInterface(handlerApp, &rv);
+      if (NS_FAILED(rv) || !app) {
+        return false;
+      }
       rv = app->GetCommand(handler);
       if (NS_SUCCEEDED(rv) && !CheckHandlerMatchesAppName(handler)) {
         return false;
