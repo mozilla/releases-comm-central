@@ -434,6 +434,10 @@ var gGeneralPane = {
       document.getElementById("soundUrlLocation"),
       () => this.readSoundLocation()
     );
+
+    if (!Services.policies.isAllowed("about:config")) {
+      document.getElementById("configEditor").disabled = true;
+    }
   },
 
   /**
