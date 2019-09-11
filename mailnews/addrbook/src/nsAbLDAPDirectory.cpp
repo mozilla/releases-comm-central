@@ -673,24 +673,19 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
   rv = GetRdnAttributes(prefString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  CharPtrArrayGuard rdnAttrs;
-  rv = SplitStringList(prefString, rdnAttrs.GetSizeAddr(),
-                       rdnAttrs.GetArrayAddr());
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<nsCString> rdnAttrs;
+  ParseString(prefString, ',', rdnAttrs);
 
   rv = GetObjectClasses(prefString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  CharPtrArrayGuard objClass;
-  rv = SplitStringList(prefString, objClass.GetSizeAddr(),
-                       objClass.GetArrayAddr());
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<nsCString> objClass;
+  ParseString(prefString, ',', objClass);
 
   // Process updates
   nsCOMPtr<nsIArray> modArray;
-  rv = card->GetLDAPMessageInfo(
-      attrMap, objClass.GetSize(), objClass.GetArray(),
-      nsILDAPModification::MOD_ADD, getter_AddRefs(modArray));
+  rv = card->GetLDAPMessageInfo(attrMap, objClass, nsILDAPModification::MOD_ADD,
+                                getter_AddRefs(modArray));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // For new cards, the base DN is the search base DN
@@ -704,7 +699,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
 
   // Calculate DN
   nsAutoCString cardDN;
-  rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(), cardDN);
+  rv = card->BuildRdn(attrMap, rdnAttrs, cardDN);
   NS_ENSURE_SUCCESS(rv, rv);
   cardDN.Append(',');
   cardDN.Append(baseDN);
@@ -778,16 +773,14 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard) {
   rv = GetObjectClasses(prefString);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  CharPtrArrayGuard objClass;
-  rv = SplitStringList(prefString, objClass.GetSizeAddr(),
-                       objClass.GetArrayAddr());
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<nsCString> objClass;
+  ParseString(prefString, ',', objClass);
 
   // Process updates
   nsCOMPtr<nsIArray> modArray;
-  rv = card->GetLDAPMessageInfo(
-      attrMap, objClass.GetSize(), objClass.GetArray(),
-      nsILDAPModification::MOD_REPLACE, getter_AddRefs(modArray));
+  rv = card->GetLDAPMessageInfo(attrMap, objClass,
+                                nsILDAPModification::MOD_REPLACE,
+                                getter_AddRefs(modArray));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Get current DN
@@ -802,14 +795,13 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard *aUpdatedCard) {
   // Retrieve base DN and RDN attributes
   nsAutoCString baseDN;
   nsAutoCString oldRDN;
-  CharPtrArrayGuard rdnAttrs;
-  rv = ldapSvc->ParseDn(oldDN.get(), oldRDN, baseDN, rdnAttrs.GetSizeAddr(),
-                        rdnAttrs.GetArrayAddr());
+  nsTArray<nsCString> rdnAttrs;
+  rv = ldapSvc->ParseDn(oldDN.get(), oldRDN, baseDN, rdnAttrs);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Calculate new RDN and check whether it has changed
   nsAutoCString newRDN;
-  rv = card->BuildRdn(attrMap, rdnAttrs.GetSize(), rdnAttrs.GetArray(), newRDN);
+  rv = card->BuildRdn(attrMap, rdnAttrs, newRDN);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (newRDN.Equals(oldRDN)) {
@@ -853,29 +845,4 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetObjectClasses(nsACString &aObjectClasses) {
 NS_IMETHODIMP nsAbLDAPDirectory::SetObjectClasses(
     const nsACString &aObjectClasses) {
   return SetStringValue("objectClasses", aObjectClasses);
-}
-
-nsresult nsAbLDAPDirectory::SplitStringList(const nsACString &aString,
-                                            uint32_t *aCount, char ***aValues) {
-  NS_ENSURE_ARG_POINTER(aCount);
-  NS_ENSURE_ARG_POINTER(aValues);
-
-  nsTArray<nsCString> strarr;
-  ParseString(aString, ',', strarr);
-
-  char **cArray = nullptr;
-  if (!(cArray = static_cast<char **>(
-            moz_xmalloc(strarr.Length() * sizeof(char *)))))
-    return NS_ERROR_OUT_OF_MEMORY;
-
-  for (uint32_t i = 0; i < strarr.Length(); ++i) {
-    if (!(cArray[i] = ToNewCString(strarr[i]))) {
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(strarr.Length(), cArray);
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
-  }
-
-  *aCount = strarr.Length();
-  *aValues = cArray;
-  return NS_OK;
 }

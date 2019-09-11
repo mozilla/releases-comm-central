@@ -17,7 +17,6 @@ interface nsIAbLDAPCard : nsISupports
    * Returns the required information for an LDAP update message.
    *
    * @param  aAttrMap    The map between LDAP attributes and card properties
-   * @param  aClassCount The number of objectClass values
    * @param  aClasses    The objectClass values that the card needs to have
    * @param  updateType  This should be one of:
    *                         nsILDAPModification::MOD_ADD
@@ -27,8 +26,7 @@ interface nsIAbLDAPCard : nsISupports
    *                     add or replace the card in the ldap directory.
    */
   nsIArray getLDAPMessageInfo(in nsIAbLDAPAttributeMap aAttrMap,
-                              in unsigned long aClassCount,
-                              [array, size_is(aClassCount)] in string aClasses,
+                              in Array<ACString> aClasses,
                               in long updateType);
 
   /**
@@ -36,13 +34,12 @@ interface nsIAbLDAPCard : nsISupports
    * attributes.
    *
    * @param  aAttrMap    The map between LDAP attributes and card properties
-   * @param  aAttrCount  The number of attributes to use for the RDN
-   * @param  aAttributes The name of the attributes to use for the RDN
+   * @param  aAttributes The attributes to use for the RDN
    *
+   * @return             The resulting RDN.
    */
   ACString buildRdn(in nsIAbLDAPAttributeMap aAttrMap,
-                    in unsigned long aAttrCount,
-                    [array, size_is(aAttrCount)] in string aAttributes);
+                    in Array<ACString> aAttributes);
 
   /**
    * Stores meta-properties from a raw LDAP search result.

@@ -55,9 +55,6 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
   virtual ~nsAbLDAPDirectory();
   nsresult Initiate();
 
-  nsresult SplitStringList(const nsACString &aString, uint32_t *aCount,
-                           char ***aValues);
-
   bool mPerformingQuery;
   int32_t mContext;
   int32_t mMaxHits;

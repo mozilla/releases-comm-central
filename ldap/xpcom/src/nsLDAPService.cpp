@@ -767,10 +767,9 @@ NS_IMETHODIMP nsLDAPService::CreateFilter(
 // Parse a distinguished name (DN) and returns the relative DN,
 // base DN and the list of attributes that make up the relative DN.
 NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn, nsACString &aRdn,
-                                     nsACString &aBaseDn, uint32_t *aRdnCount,
-                                     char ***aRdnAttrs) {
-  NS_ENSURE_ARG_POINTER(aRdnCount);
-  NS_ENSURE_ARG_POINTER(aRdnAttrs);
+                                     nsACString &aBaseDn,
+                                     nsTArray<nsCString> &aRdnAttrs) {
+  aRdnAttrs.Clear();
 
   // explode the DN
   char **dnComponents = ldap_explode_dn(aDn, 0);
@@ -779,7 +778,7 @@ NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn, nsACString &aRdn,
     return NS_ERROR_UNEXPECTED;
   }
 
-  // count DN components
+  // require at least 2 components
   if (!*dnComponents || !*(dnComponents + 1)) {
     NS_ERROR("nsLDAPService::ParseDn: DN has too few components");
     ldap_value_free(dnComponents);
@@ -812,44 +811,25 @@ NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn, nsACString &aRdn,
   }
 
   // get the RDN attribute names
-  char **attrNameArray =
-      static_cast<char **>(moz_xmalloc(rdnCount * sizeof(char *)));
-  if (!attrNameArray) {
-    NS_ERROR("nsLDAPService::ParseDn: out of memory ");
-    ldap_value_free(dnComponents);
-    ldap_value_free(rdnComponents);
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
-  uint32_t index = 0;
+  aRdnAttrs.SetCapacity(rdnCount);
   for (char **component = rdnComponents; *component; ++component) {
     uint32_t len = 0;
     char *p;
     for (p = *component; *p != '\0' && *p != '='; ++p) ++len;
     if (*p != '=') {
       NS_ERROR(
-          "nsLDAPService::parseDn: "
+          "nsLDAPService::ParseDn: "
           "could not find '=' in RDN component");
       ldap_value_free(dnComponents);
       ldap_value_free(rdnComponents);
       return NS_ERROR_UNEXPECTED;
     }
-    if (!(attrNameArray[index] = (char *)moz_xmalloc(len + 1))) {
-      NS_ERROR("nsLDAPService::ParseDn: out of memory ");
-      ldap_value_free(dnComponents);
-      ldap_value_free(rdnComponents);
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(index, attrNameArray);
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
-    memcpy(attrNameArray[index], *component, len);
-    *(attrNameArray[index] + len) = '\0';
-    ++index;
+    aRdnAttrs.AppendElement(nsCString(*component, len));
   }
 
   // perform assignments
   aRdn.Assign(*dnComponents);
   aBaseDn.Assign(baseDn);
-  *aRdnCount = rdnCount;
-  *aRdnAttrs = attrNameArray;
 
   ldap_value_free(dnComponents);
   ldap_value_free(rdnComponents);

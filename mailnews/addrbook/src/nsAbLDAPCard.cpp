@@ -46,10 +46,9 @@ NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPCard, nsAbCardProperty, nsIAbLDAPCard)
  * "somewhere in between" the original card and the updated card.
  */
 NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
-    nsIAbLDAPAttributeMap *aAttributeMap, const uint32_t aClassCount,
-    const char **aClasses, int32_t aType, nsIArray **aLDAPAddMessageInfo) {
+    nsIAbLDAPAttributeMap *aAttributeMap, nsTArray<nsCString> const &aClasses,
+    int32_t aType, nsIArray **aLDAPAddMessageInfo) {
   NS_ENSURE_ARG_POINTER(aAttributeMap);
-  NS_ENSURE_ARG_POINTER(aClasses);
   NS_ENSURE_ARG_POINTER(aLDAPAddMessageInfo);
 
   nsresult rv;
@@ -61,8 +60,8 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
   // classes: if an entry has additional object classes, it's probably
   // for a good reason.
   nsAutoCString oclass;
-  for (uint32_t i = 0; i < aClassCount; ++i) {
-    oclass.Assign(nsDependentCString(aClasses[i]));
+  for (uint32_t i = 0; i < aClasses.Length(); ++i) {
+    oclass.Assign(aClasses[i]);
     ToLowerCase(oclass);
 
     if (!m_objectClass.Contains(oclass)) {
@@ -175,23 +174,18 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
 }
 
 NS_IMETHODIMP nsAbLDAPCard::BuildRdn(nsIAbLDAPAttributeMap *aAttributeMap,
-                                     const uint32_t aAttrCount,
-                                     const char **aAttributes,
+                                     nsTArray<nsCString> const &aAttributes,
                                      nsACString &aRdn) {
   NS_ENSURE_ARG_POINTER(aAttributeMap);
-  NS_ENSURE_ARG_POINTER(aAttributes);
 
   nsresult rv;
-  nsCString attr;
   nsAutoCString prop;
   nsCString propvalue;
 
   aRdn.Truncate();
-  for (uint32_t i = 0; i < aAttrCount; ++i) {
-    attr.Assign(nsDependentCString(aAttributes[i]));
-
+  for (uint32_t i = 0; i < aAttributes.Length(); ++i) {
     // Lookup the property corresponding to the attribute
-    rv = aAttributeMap->GetProperty(attr, prop);
+    rv = aAttributeMap->GetProperty(aAttributes[i], prop);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Get the property value
@@ -205,10 +199,10 @@ NS_IMETHODIMP nsAbLDAPCard::BuildRdn(nsIAbLDAPAttributeMap *aAttributeMap,
       return NS_ERROR_NOT_INITIALIZED;
     }
 
-    aRdn.Append(attr);
+    aRdn.Append(aAttributes[i]);
     aRdn.Append('=');
     aRdn.Append(propvalue);
-    if (i < aAttrCount - 1) aRdn.Append('+');
+    if (i < aAttributes.Length() - 1) aRdn.Append('+');
   }
   return NS_OK;
 }
