@@ -4,6 +4,10 @@
 
 @import url("chrome://messenger/skin/shared/aboutDownloads.css");
 
+.downloadIconShow > .button-box > .button-icon {
+  list-style-image: url("chrome://messenger/skin/icons/panel-icon-folder.svg");
+}
+
 @media (-moz-windows-default-theme) {
   /*
   -moz-appearance: menuitem is almost right, but the hover effect is not

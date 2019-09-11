@@ -79,6 +79,7 @@
   skin/classic/messenger/icons/previousmsg.svg                (../shared/mail/icons/previousmsg.svg)
   skin/classic/messenger/icons/previousunread.svg             (../shared/mail/icons/previousunread.svg)
   skin/classic/messenger/icons/print.svg                      (../shared/mail/icons/print.svg)
+  skin/classic/messenger/icons/panel-icon-magnifier.svg       (../shared/mail/icons/panel-icon-magnifier.svg)
   skin/classic/messenger/icons/quit.svg                       (../shared/mail/icons/quit.svg)
   skin/classic/messenger/icons/quote.svg                      (../shared/mail/icons/quote.svg)
   skin/classic/messenger/icons/readcol.svg                    (../shared/mail/icons/readcol.svg)
@@ -152,9 +153,11 @@
   skin/classic/messenger/icons/link.svg                       (../shared/mail/icons/link.svg)
   skin/classic/messenger/icons/number-list.svg                (../shared/mail/icons/number-list.svg)
   skin/classic/messenger/icons/outdent.svg                    (../shared/mail/icons/outdent.svg)
+  skin/classic/messenger/icons/panel-icon-folder.svg          (../shared/mail/icons/panel-icon-folder.svg)
   skin/classic/messenger/icons/right-align.svg                (../shared/mail/icons/right-align.svg)
   skin/classic/messenger/icons/size.svg                       (../shared/mail/icons/size.svg)
   skin/classic/messenger/icons/smiley.svg                     (../shared/mail/icons/smiley.svg)
   skin/classic/messenger/icons/table.svg                      (../shared/mail/icons/table.svg)
   skin/classic/messenger/icons/underline.svg                  (../shared/mail/icons/underline.svg)
 #endif
+

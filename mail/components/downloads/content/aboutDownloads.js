@@ -272,12 +272,23 @@ DownloadItem.prototype = {
     vbox.appendChild(size);
     vbox.appendChild(startDate);
 
+    let vbox2 = document.createXULElement("vbox");
+    vbox2.appendChild(sender);
+
+    let downloadButton = document.createXULElement("button");
+    downloadButton.classList.add("downloadButton", "downloadIconShow");
+
+    vbox2.appendChild(downloadButton);
+
     element.appendChild(image);
     element.appendChild(vbox);
-    element.appendChild(sender);
+    element.appendChild(vbox2);
 
     // launch the download if double clicked
-    element.addEventListener("dblclick", aEvent => this.launch());
+    vbox.addEventListener("dblclick", aEvent => this.launch());
+
+    // Show the downloaded file in folder if the folder icon is clicked.
+    downloadButton.addEventListener("click", aEvent => this.show());
 
     // set download as an expando property for the context menu
     element.download = this.download;
