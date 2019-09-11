@@ -340,6 +340,10 @@ toolbarpaletteitem toolbarbutton {
   padding: 0 4px;
 }
 
+.statusbarpanel-progress {
+  -moz-box-align: center;
+}
+
 /* ::::: online/offline icons ::::: */
 
 #offline-status {
