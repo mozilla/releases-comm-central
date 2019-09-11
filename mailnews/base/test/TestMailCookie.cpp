@@ -105,7 +105,7 @@ void InitPrefsMail(nsIPrefBranch *aPrefBranch) {
   aPrefBranch->SetIntPref(kCookiesMaxPerHost, 50);
 }
 
-TEST(TestMailCookie, TestMailCookieMain)
+TEST(TestMailCookie, DISABLED_TestMailCookieMain)
 {
   nsresult rv0;
 
