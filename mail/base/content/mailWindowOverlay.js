@@ -2198,8 +2198,8 @@ function getDestinationFolder(preselectedFolder, server) {
 }
 
 /** Open subscribe window. */
-function MsgSubscribe() {
-  var preselectedFolder = GetFirstSelectedMsgFolder();
+function MsgSubscribe(folder) {
+  var preselectedFolder = folder || GetFirstSelectedMsgFolder();
 
   if (FeedMessageHandler.isFeedFolder(preselectedFolder)) {
     // Open feed subscription dialog.
