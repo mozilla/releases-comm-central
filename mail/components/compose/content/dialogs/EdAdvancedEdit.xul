@@ -67,36 +67,33 @@
           <spacer flex="1"/>
           <button label="&removeAttribute.label;" oncommand="RemoveHTMLAttribute();"/>
         </hbox>
-        <grid>
-          <columns>
-            <column flex="1"/><column flex="1"/>
-          </columns>
-          <rows>
-            <row equalsize="always">
-              <label control="AddHTMLAttributeNameInput" value="&AttName.label;"/>
-              <label control="AddHTMLAttributeValueInput" value="&AttValue.label;"/>
-            </row>
-            <row align="top" equalsize="always">
-              <!-- Lists are built at runtime -->
-              <menulist is="menulist-editable" id="AddHTMLAttributeNameInput"
-                        editable="true" flex="1"
-                        oninput="onInputHTMLAttributeName();"
-                        oncommand="onInputHTMLAttributeName();"/>
-              <deck id="AddHTMLAttributeValueDeck" selectedIndex="0">
-                <hbox align="top">
-                  <textbox id="AddHTMLAttributeValueTextbox" flex="1"
-                           oninput="onInputHTMLAttributeValue();"/>
-                </hbox>
-                <hbox align="top">
-                  <menulist is="menulist-editable" id="AddHTMLAttributeValueMenulist"
-                            editable="true" flex="1"
-                            oninput="onInputHTMLAttributeValue();"
-                            oncommand="onInputHTMLAttributeValue();"/>
-                </hbox>
-              </deck>
-            </row>
-          </rows>
-        </grid>
+        <hbox>
+          <vbox flex="1">
+            <label control="AddHTMLAttributeNameInput" value="&AttName.label;"/>
+            <menulist is="menulist-editable" id="AddHTMLAttributeNameInput"
+                      class="editorAdvancedEditableMenulist"
+                      editable="true" flex="1"
+                      style="margin:5px 2px 3px;"
+                      oninput="onInputHTMLAttributeName();"
+                      oncommand="onInputHTMLAttributeName();"/>
+          </vbox>
+          <vbox flex="1">
+            <label control="AddHTMLAttributeValueInput" value="&AttValue.label;"/>
+            <deck id="AddHTMLAttributeValueDeck" selectedIndex="0">
+              <hbox flex="1">
+                <textbox id="AddHTMLAttributeValueTextbox" flex="1"
+                         oninput="onInputHTMLAttributeValue();"/>
+              </hbox>
+              <hbox flex="1">
+                <menulist is="menulist-editable" id="AddHTMLAttributeValueMenulist"
+                          editable="true" flex="1"
+                          style="margin:5px 2px 3px;"
+                          oninput="onInputHTMLAttributeValue();"
+                          oncommand="onInputHTMLAttributeValue();"/>
+              </hbox>
+            </deck>
+          </vbox>
+        </hbox>
       </vbox>
       <!-- ============================================================== -->
       <!--                         CSS Attributes                         -->
@@ -119,23 +116,18 @@
           <spacer flex="1"/>
           <button label="&removeAttribute.label;" oncommand="RemoveCSSAttribute();"/>
         </hbox>
-        <grid>
-          <columns>
-            <column flex="1"/><column flex="1"/>
-          </columns>
-          <rows>
-            <row equalsize="always">
-              <label value="&PropertyName.label;"/>
-              <label value="&AttValue.label;"/>
-            </row>
-            <row align="top" equalsize="always">
-              <textbox id="AddCSSAttributeNameInput" flex="1"
-                oninput="onInputCSSAttributeName();"/>
-          	  <textbox id="AddCSSAttributeValueInput" flex="1"
-                oninput="onChangeCSSAttribute();"/>
-            </row>
-          </rows>
-        </grid>
+        <hbox>
+          <vbox flex="1">
+            <label value="&PropertyName.label;"/>
+            <textbox id="AddCSSAttributeNameInput" flex="1"
+                     oninput="onInputCSSAttributeName();"/>
+          </vbox>
+          <vbox flex="1">
+            <label value="&AttValue.label;"/>
+            <textbox id="AddCSSAttributeValueInput" flex="1"
+                     oninput="onChangeCSSAttribute();"/>
+          </vbox>
+        </hbox>
       </vbox>
       <!-- ============================================================== -->
       <!--                    JavaScript Event Handlers                   -->
@@ -158,24 +150,18 @@
           <spacer flex="1"/>
           <button label="&removeAttribute.label;" oncommand="RemoveJSEAttribute()"/>
         </hbox>
-        <grid>
-          <columns>
-            <column flex="1"/><column flex="1"/>
-          </columns>
-          <rows>
-            <row equalsize="always">
-              <label value="&AttName.label;"/>
-              <label value="&AttValue.label;"/>
-            </row>
-            <row align="top" equalsize="always">
-              <!-- List is built at runtime -->
-              <menulist id="AddJSEAttributeNameList" flex="1"
-                oncommand="onSelectJSEAttribute();"/>
-          	  <textbox id="AddJSEAttributeValueInput" flex="1"
-                oninput="onInputJSEAttributeValue();"/>
-            </row>
-          </rows>
-        </grid>
+        <hbox>
+          <vbox flex="1">
+            <label value="&AttName.label;"/>
+            <menulist id="AddJSEAttributeNameList"
+                      oncommand="onSelectJSEAttribute();"/>
+          </vbox>
+          <vbox flex="1">
+            <label value="&AttValue.label;"/>
+            <textbox id="AddJSEAttributeValueInput"
+                     oninput="onInputJSEAttributeValue();"/>
+          </vbox>
+        </hbox>
       </vbox>
     </tabpanels>
   </tabbox>
