@@ -157,12 +157,10 @@ nsresult nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage *aMessage) {
 
   // Iterate through the attributes received in this message
   for (uint32_t i = 0; i < attributes.Length(); i++) {
-    char16_t **vals;
-    uint32_t valueCount;
-
     // Get the values of this attribute.
     // XXX better failure handling
-    rv = aMessage->GetValues(attributes[i].get(), &valueCount, &vals);
+    nsTArray<nsString> vals;
+    rv = aMessage->GetValues("objectClass", vals);
     if (NS_FAILED(rv)) {
       NS_WARNING(
           "nsLDAPSyncQuery:OnLDAPSearchEntry(): "
@@ -172,14 +170,12 @@ nsresult nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage *aMessage) {
     }
 
     // Store all values of this attribute in the mResults.
-    for (uint32_t j = 0; j < valueCount; j++) {
+    for (uint32_t j = 0; j < vals.Length(); j++) {
       mResults.Append(char16_t('\n'));
       mResults.Append(NS_ConvertUTF8toUTF16(attributes[i]));
       mResults.Append(char16_t('='));
       mResults.Append(vals[j]);
     }
-
-    NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(valueCount, vals);
   }
 
   return rv;

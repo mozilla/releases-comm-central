@@ -42,16 +42,15 @@ interface nsILDAPMessage : nsISupports
      * Get an array of all the attribute values in this message.
      *
      * @param attr      The attribute whose values are to be returned
-     * @param count     Number of values in the outbound array.
-     * @param values    Array of values
      *
      * @exception NS_ERROR_UNEXPECTED           Bug or memory corruption
      * @exception NS_ERROR_LDAP_DECODING_ERROR  Attribute not found or other
      *                                          decoding error.
      * @exception NS_ERROR_OUT_OF_MEMORY
+     *
+     * @return  Array of values for attr.
      */
-    void getValues(in string attr, out unsigned long count,
-                   [retval, array, size_is(count)] out wstring values);
+    Array<AString> getValues(in string attr);
 
     /**
      * The operation this message originated from
@@ -156,14 +155,13 @@ interface nsILDAPMessage : nsISupports
      * around the LDAP C SDK's get_values_len()).
      *
      * @param attr      The attribute whose values are to be returned
-     * @param count     Number of values in the outbound array.
-     * @param values    Array of nsILDAPBERValue objects
      *
      * @exception NS_ERROR_UNEXPECTED           Bug or memory corruption
      * @exception NS_ERROR_LDAP_DECODING_ERROR  Attribute not found or other
      *                                          decoding error.
      * @exception NS_ERROR_OUT_OF_MEMORY
+     *
+     * @return   Array of nsILDAPBERValue objects.
      */
-    void getBinaryValues(in string attr, out unsigned long count,
-                         [retval, array, size_is(count)] out nsILDAPBERValue values);
+    Array<nsILDAPBERValue> getBinaryValues(in string attr);
 };

@@ -242,9 +242,8 @@ NS_IMETHODIMP nsAbLDAPCard::SetMetaProperties(nsILDAPMessage *aMessage) {
 
   // Get the objectClass values
   m_objectClass.Clear();
-  PRUnicharPtrArrayGuard vals;
-  rv = aMessage->GetValues("objectClass", vals.GetSizeAddr(),
-                           vals.GetArrayAddr());
+  nsTArray<nsString> vals;
+  rv = aMessage->GetValues("objectClass", vals);
 
   // objectClass is not always included in search result entries and
   // nsILDAPMessage::GetValues returns NS_ERROR_LDAP_DECODING_ERROR if the
@@ -254,8 +253,8 @@ NS_IMETHODIMP nsAbLDAPCard::SetMetaProperties(nsILDAPMessage *aMessage) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString oclass;
-  for (uint32_t i = 0; i < vals.GetSize(); ++i) {
-    oclass.Assign(NS_LossyConvertUTF16toASCII(nsDependentString(vals[i])));
+  for (uint32_t i = 0; i < vals.Length(); ++i) {
+    oclass.Assign(NS_LossyConvertUTF16toASCII(vals[i]));
     ToLowerCase(oclass);
     m_objectClass.AppendElement(oclass);
   }

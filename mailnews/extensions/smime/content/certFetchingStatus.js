@@ -232,11 +232,10 @@ ldapMessageListener.prototype.onLDAPMessage = function(aMessage) {
   }
 
   if (Ci.nsILDAPMessage.RES_SEARCH_ENTRY == aMessage.type) {
-    var outSize = {};
     try {
-      var outBinValues = aMessage.getBinaryValues(CertAttribute, outSize);
+      var outBinValues = aMessage.getBinaryValues(CertAttribute);
 
-      for (let i = 0; i < outSize.value; ++i) {
+      for (let i = 0; i < outBinValues.length; ++i) {
         importCert(outBinValues[i]);
       }
     } catch (e) {}

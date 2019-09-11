@@ -297,8 +297,8 @@ NS_IMETHODIMP nsLDAPMessage::GetDn(nsACString &aDn) {
 // wrapper for ldap_get_values()
 //
 NS_IMETHODIMP
-nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
-                         char16_t ***aValues) {
+nsLDAPMessage::GetValues(const char *aAttr, nsTArray<nsString> &aValues) {
+  aValues.Clear();
   char **values;
 
 #if defined(DEBUG)
@@ -334,51 +334,32 @@ nsLDAPMessage::GetValues(const char *aAttr, uint32_t *aCount,
     }
   }
 
-  // count the values
-  //
-  uint32_t numVals = ldap_count_values(values);
-
-  // create an array of the appropriate size
-  //
-  *aValues =
-      static_cast<char16_t **>(moz_xmalloc(numVals * sizeof(char16_t *)));
-  if (!*aValues) {
-    ldap_value_free(values);
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
-
   // clone the array (except for the trailing NULL entry) using the
   // shared allocator for XPCOM correctness
   //
+  uint32_t numVals = ldap_count_values(values);
+  aValues.SetCapacity(numVals);
   uint32_t i;
   for (i = 0; i < numVals; i++) {
     nsDependentCString sValue(values[i]);
     if (IsUTF8(sValue))
-      (*aValues)[i] = ToNewUnicode(NS_ConvertUTF8toUTF16(sValue));
+      aValues.AppendElement(NS_ConvertUTF8toUTF16(sValue));
     else
-      (*aValues)[i] = ToNewUnicode(NS_ConvertASCIItoUTF16(sValue));
-    if (!(*aValues)[i]) {
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(i, aValues);
-      ldap_value_free(values);
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
+      aValues.AppendElement(NS_ConvertASCIItoUTF16(sValue));
   }
-
-  // now free our value array since we already cloned the values array
-  // to the 'aValues' results array.
   ldap_value_free(values);
 
-  *aCount = numVals;
   return NS_OK;
 }
 
 // wrapper for get_values_len
 //
 NS_IMETHODIMP
-nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
-                               nsILDAPBERValue ***aValues) {
+nsLDAPMessage::GetBinaryValues(const char *aAttr,
+                               nsTArray<RefPtr<nsILDAPBERValue>> &aValues) {
   struct berval **values;
 
+  aValues.Clear();
 #if defined(DEBUG)
   // We only want this being logged for debug builds so as not to affect
   // performance too much.
@@ -416,15 +397,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
   // count the values
   //
   uint32_t numVals = ldap_count_values_len(values);
-
-  // create the out array
-  //
-  *aValues = static_cast<nsILDAPBERValue **>(
-      moz_xmalloc(numVals * sizeof(nsILDAPBERValue)));
-  if (!aValues) {
-    ldap_value_free_len(values);
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
+  aValues.SetCapacity(numVals);
 
   // clone the array (except for the trailing NULL entry) using the
   // shared allocator for XPCOM correctness
@@ -448,10 +421,9 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr, uint32_t *aCount,
     }
 
     // put the nsIBERValue object into the out array
-    berValue.forget(aValues[i]);
+    aValues.AppendElement(berValue);
   }
 
-  *aCount = numVals;
   ldap_value_free_len(values);
   return NS_OK;
 }
