@@ -36,8 +36,7 @@ interface nsILDAPMessage : nsISupports
      *
      * @return  array of all attributes in the current message
      */
-    void getAttributes(out unsigned long count,
-                       [retval, array, size_is(count)] out string aAttributes);
+    Array<AUTF8String> getAttributes();
 
     /**
      * Get an array of all the attribute values in this message.

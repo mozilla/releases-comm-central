@@ -229,172 +229,41 @@ nsLDAPMessage::GetType(int32_t *aType) {
   return NS_OK;
 }
 
-// we don't get to use exceptions, so we'll fake it.  this is an error
-// handler for IterateAttributes().
-//
-nsresult nsLDAPMessage::IterateAttrErrHandler(int32_t aLderrno,
-                                              uint32_t *aAttrCount,
-                                              char ***aAttributes,
-                                              BerElement *position) {
-  // if necessary, free the position holder used by
-  // ldap_{first,next}_attribute()
-  //
-  if (position) {
-    ldap_ber_free(position, 0);
+// Array<AUTF8String> getAttributes();
+NS_IMETHODIMP
+nsLDAPMessage::GetAttributes(nsTArray<nsCString> &attrs) {
+  attrs.Clear();
+  BerElement *ber = nullptr;
+  char *attr = ldap_first_attribute(mConnectionHandle, mMsgHandle, &ber);
+  while (attr) {
+    attrs.AppendElement(attr);
+    ldap_memfree(attr);
+    attr = ldap_next_attribute(mConnectionHandle, mMsgHandle, ber);
   }
-
-  // deallocate any entries in the array that have been allocated, then
-  // the array itself
-  //
-  if (*aAttributes) {
-    NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(*aAttrCount, *aAttributes);
+  if (ber) {
+    ber_free(ber, 0);
   }
-
-  // possibly spit out a debugging message, then return an appropriate
-  // error code
-  //
-  switch (aLderrno) {
+  // Finished or failed?
+  int32_t lderrno = ldap_get_lderrno(mConnectionHandle, 0, 0);
+  switch (lderrno) {
+    case LDAP_SUCCESS:
+      return NS_OK;  // Hooray!
     case LDAP_PARAM_ERROR:
       NS_WARNING(
-          "nsLDAPMessage::IterateAttributes() failure; probable bug "
+          "nsLDAPMessage::GetAttributes() failure; probable bug "
           "or memory corruption encountered");
       return NS_ERROR_UNEXPECTED;
-      break;
-
     case LDAP_DECODING_ERROR:
-      NS_WARNING("nsLDAPMessage::IterateAttributes(): decoding error");
+      NS_WARNING("nsLDAPMessage::GetAttributes(): decoding error");
       return NS_ERROR_LDAP_DECODING_ERROR;
-      break;
-
     case LDAP_NO_MEMORY:
       return NS_ERROR_OUT_OF_MEMORY;
-      break;
+    default:
+      NS_WARNING(
+          "nsLDAPMessage::GetAttributes(): LDAP C SDK returned "
+          "unexpected value; possible bug or memory corruption");
+      return NS_ERROR_UNEXPECTED;
   }
-
-  NS_WARNING(
-      "nsLDAPMessage::IterateAttributes(): LDAP C SDK returned "
-      "unexpected value; possible bug or memory corruption");
-  return NS_ERROR_UNEXPECTED;
-}
-
-// wrapper for ldap_first_attribute
-//
-NS_IMETHODIMP
-nsLDAPMessage::GetAttributes(uint32_t *aAttrCount, char ***aAttributes) {
-  return IterateAttributes(aAttrCount, aAttributes, true);
-}
-
-// if getP is true, we get the attributes by recursing once
-// (without getP set) in order to fill in *attrCount, then allocate
-// and fill in the *aAttributes.
-//
-// if getP is false, just fill in *attrCount and return
-//
-nsresult nsLDAPMessage::IterateAttributes(uint32_t *aAttrCount,
-                                          char ***aAttributes, bool getP) {
-  BerElement *position;
-  nsresult rv;
-
-  if (!aAttrCount || !aAttributes) {
-    return NS_ERROR_INVALID_POINTER;
-  }
-
-  // if we've been called from GetAttributes, recurse once in order to
-  // count the elements in this message.
-  //
-  if (getP) {
-    *aAttributes = 0;
-    *aAttrCount = 0;
-
-    rv = IterateAttributes(aAttrCount, aAttributes, false);
-    if (NS_FAILED(rv)) return rv;
-
-    // create an array of the appropriate size
-    //
-    *aAttributes =
-        static_cast<char **>(moz_xmalloc(*aAttrCount * sizeof(char *)));
-    if (!*aAttributes) {
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
-  }
-
-  // get the first attribute
-  //
-  char *attr = ldap_first_attribute(mConnectionHandle, mMsgHandle, &position);
-  if (!attr) {
-    return IterateAttrErrHandler(ldap_get_lderrno(mConnectionHandle, 0, 0),
-                                 aAttrCount, aAttributes, position);
-  }
-
-  // if we're getting attributes, try and fill in the first field
-  //
-  if (getP) {
-    (*aAttributes)[0] = NS_xstrdup(attr);
-    if (!(*aAttributes)[0]) {
-      ldap_memfree(attr);
-      free(*aAttributes);
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
-
-    // note that we start counting again, in order to keep our place in
-    // the array so that we can unwind gracefully and avoid leakage if
-    // we hit an error as we're filling in the array
-    //
-    *aAttrCount = 1;
-  } else {
-    // otherwise just update the count
-    //
-    *aAttrCount = 1;
-  }
-  ldap_memfree(attr);
-
-  while (1) {
-    // get the next attribute
-    //
-    attr = ldap_next_attribute(mConnectionHandle, mMsgHandle, position);
-
-    // check to see if there is an error, or if we're just done iterating
-    //
-    if (!attr) {
-      // bail out if there's an error
-      //
-      int32_t lderrno = ldap_get_lderrno(mConnectionHandle, 0, 0);
-      if (lderrno != LDAP_SUCCESS) {
-        return IterateAttrErrHandler(lderrno, aAttrCount, aAttributes,
-                                     position);
-      }
-
-      // otherwise, there are no more attributes; we're done with
-      // the while loop
-      //
-      break;
-
-    } else if (getP) {
-      // if ldap_next_attribute did return successfully, and
-      // we're supposed to fill in a value, do so.
-      //
-      (*aAttributes)[*aAttrCount] = NS_xstrdup(attr);
-      if (!(*aAttributes)[*aAttrCount]) {
-        ldap_memfree(attr);
-        return IterateAttrErrHandler(LDAP_NO_MEMORY, aAttrCount, aAttributes,
-                                     position);
-      }
-    }
-    ldap_memfree(attr);
-
-    // we're done using *aAttrCount as a c-style array index (ie starting
-    // at 0).  update it to reflect the number of elements now in the array
-    //
-    *aAttrCount += 1;
-  }
-
-  // free the position pointer, if necessary
-  //
-  if (position) {
-    ldap_ber_free(position, 0);
-  }
-
-  return NS_OK;
 }
 
 // readonly attribute wstring dn;

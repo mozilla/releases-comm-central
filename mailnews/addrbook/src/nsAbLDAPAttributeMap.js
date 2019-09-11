@@ -131,8 +131,7 @@ nsAbLDAPAttributeMap.prototype = {
   setCardPropertiesFromLDAPMessage(aMessage, aCard) {
     var cardValueWasSet = false;
 
-    var msgAttrCount = {};
-    var msgAttrs = aMessage.getAttributes(msgAttrCount);
+    var msgAttrs = aMessage.getAttributes();
 
     // downcase the array for comparison
     function toLower(a) {

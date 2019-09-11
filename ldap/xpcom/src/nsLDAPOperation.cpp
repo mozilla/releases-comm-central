@@ -882,7 +882,7 @@ nsresult nsLDAPOperation::CopyValues(nsILDAPModification *aMod,
 
   uint32_t valueIndex;
   for (valueIndex = 0; valueIndex < valuesCount; ++valueIndex) {
-    nsCOMPtr<nsILDAPBERValue> value(do_QueryElementAt(values, valueIndex, &rv));
+    nsCOMPtr<nsILDAPBERValue> value = do_QueryElementAt(values, valueIndex);
 
     nsTArray<uint8_t> tmp;
     rv = value->Get(tmp);

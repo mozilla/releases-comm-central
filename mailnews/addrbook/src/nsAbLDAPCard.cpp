@@ -233,16 +233,11 @@ NS_IMETHODIMP nsAbLDAPCard::SetMetaProperties(nsILDAPMessage *aMessage) {
   SetDn(dn);
 
   // Get the list of set attributes
-  CharPtrArrayGuard attrs;
-  rv = aMessage->GetAttributes(attrs.GetSizeAddr(), attrs.GetArrayAddr());
+  rv = aMessage->GetAttributes(m_attributes);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoCString attr;
-  m_attributes.Clear();
-  for (uint32_t i = 0; i < attrs.GetSize(); ++i) {
-    attr.Assign(nsDependentCString(attrs[i]));
-    ToLowerCase(attr);
-    m_attributes.AppendElement(attr);
+  for (uint32_t i = 0; i < m_attributes.Length(); ++i) {
+    ToLowerCase(m_attributes[i]);
   }
 
   // Get the objectClass values
