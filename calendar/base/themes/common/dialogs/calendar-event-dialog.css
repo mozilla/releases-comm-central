@@ -527,7 +527,6 @@ calendar-event-freebusy-day > box {
      the attendee-list always have the same height,
      regardless of the font size. */
     height: 17px;
-    overflow: hidden;
 }
 
 .addressingWidgetCell {

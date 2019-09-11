@@ -198,48 +198,6 @@
     }
 
     /**
-     * Scrolls to a new date.
-     *
-     * @param {Number} val       New scroll offset
-     * @returns {Number}         New scroll offset
-     */
-    set scroll(val) {
-      this.mScrollOffset = val;
-
-      // How much pixels spans a single day
-      let oneday = this.contentWidth;
-
-      // The difference in pixels between the content and the container.
-      let shift = oneday * this.mRange - this.containerWidth;
-
-      // Now calculate the (positive) offset in pixels which the content needs to be shifted.
-      // This is a simple scaling in one dimension.
-      let offset = Math.floor(val * shift);
-
-      // Now find out how much days this offset effectively skips. This is a simple division which
-      // always yields a positive integer value.
-      this.dayOffset = (offset - (offset % oneday)) / oneday;
-
-      // Set the pixel offset for the content which will always need to be in the range
-      // [0 <= offset <= oneday].
-      offset %= oneday;
-
-      // Set the offset at the content node.
-      let container = this.getElementsByTagName("calendar-event-scroll-container")[0];
-      container.x = offset;
-      return val;
-    }
-
-    /**
-     * Gets scroll offset of freebusy-timebar.
-     *
-     * @returns {Number}       Scroll offset
-     */
-    get scroll() {
-      return this.mScrollOffset;
-    }
-
-    /**
      * Refreshes calendar-event-scroll-container's children. calendar-event-scroll-container
      * contains date and time labels with regular interval gap.
      */
@@ -1605,20 +1563,6 @@
     }
 
     /**
-     * Scrolls the element to a particular x value.
-     *
-     * @param {Number} val      New x value
-     * @returns {Number}        New x value
-     */
-    set scroll(val) {
-      let timebarContainer = document.querySelector("#timebar calendar-event-scroll-container");
-      let offset = timebarContainer.x;
-      // Set the offset at the content node.
-      this.containerNode.x = offset;
-      return val;
-    }
-
-    /**
      * Setup some properties of the element.
      */
     onLoad() {
@@ -2300,6 +2244,9 @@
 
     connectedCallback() {
       if (!this.hasChildNodes() || !this.delayConnectedCallback()) {
+        // The width of the second inner box is set dynamically to ensure that
+        // the outer scrollbox is at least as wide as the free/busy grid.
+        // Otherwise it won't scroll properly.
         this.appendChild(
           MozXULElement.parseXULToFragment(`
                 <scrollbox width="0" orient="horizontal" flex="1">
@@ -2308,6 +2255,7 @@
                         <spacer class="selection-bar-spacer" flex="1"></spacer>
                         <box class="selection-bar-right"></box>
                     </box>
+                    <box class="selection-padding"/>
                 </scrollbox>
             `)
         );
@@ -2319,7 +2267,9 @@
       // the number of days we should be able to show. the start- and enddate is the time the
       // event is scheduled for.
       this.mRange = Number(this.getAttribute("range"));
+      this.mScrollBox = this.getElementsByTagName("scrollbox")[0];
       this.mSelectionbar = this.querySelector(".selection-bar");
+      this.mPaddingBox = this.querySelector(".selection-padding");
     }
 
     /**
@@ -2482,6 +2432,25 @@
       this.mHeaderHeight = height + 2;
       this.mMargin = 0;
       this.update();
+    }
+
+    /**
+     * Scrolls horizontally to align with the free/busy grid.
+     *
+     * @param {Number} x        X position to scroll to
+     * @param {Number} y        Ignored
+     */
+    scrollTo(x, y) {
+      return this.mScrollBox.scrollTo(x, 0);
+    }
+
+    /**
+     * Ensures the scrollWidth of this element is at least the specified width.
+     *
+     * @param {Number} width    Width in pixels
+     */
+    padTo(width) {
+      return this.mPaddingBox.setAttribute("width", width);
     }
 
     /**
@@ -2823,21 +2792,6 @@
     }
 
     /**
-     * Sets scroll offset value of freebusy grid element and and scroll property of all
-     * freebusy-row elements.
-     *
-     * @param {Number} val       Scroll offset value
-     * @return {Number}          Scroll offset value
-     */
-    set scroll(val) {
-      this.mScrollOffset = val;
-      for (let i = 1; i <= this.mMaxFreeBusy; i++) {
-        this.getFreeBusyElement(i).scroll = val;
-      }
-      return val;
-    }
-
-    /**
      * Cancel pending free/busy requests.
      */
     onUnload() {
@@ -2941,9 +2895,6 @@
           freebusy.setAttribute("dirty", "true");
         }
       }
-
-      // Align all rows
-      this.scroll = this.mScrollOffset;
 
       this.updateFreeBusy();
     }

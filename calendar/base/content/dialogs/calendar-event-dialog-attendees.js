@@ -91,6 +91,7 @@ function onLoad() {
 
   loadDateTime(startTime, endTime);
   propagateDateTime();
+  onResize();
   // Set the scroll bar at where the event is
   scrollToCurrentTime();
   updateButtons();
@@ -562,12 +563,14 @@ function onResize() {
   }
 
   let grid = document.getElementById("freebusy-grid");
-  let gridScrollbar = document.getElementById("horizontal-scrollbar");
   grid.fitDummyRows();
-  let gridRatio = grid.getBoundingClientRect().width / grid.documentSize;
-  let gridMaxpos = gridScrollbar.getAttribute("maxpos");
-  let gridInc = (gridMaxpos * gridRatio) / (1 - gridRatio);
-  gridScrollbar.setAttribute("pageincrement", gridInc);
+
+  let gridScrollbar = document.getElementById("horizontal-scrollbar");
+  gridScrollbar.setAttribute("maxpos", grid.scrollWidth - grid.clientWidth);
+  gridScrollbar.setAttribute("pageincrement", grid.clientWidth);
+
+  let selectionbar = document.getElementById("selection-bar");
+  selectionbar.padTo(grid.scrollWidth);
 
   let attendees = document.getElementById("attendees-list");
   let attendeesScrollbar = document.getElementById("vertical-scrollbar");
@@ -752,16 +755,6 @@ function applyCurrentZoomFactor() {
   // that needs to adopt the previously made changes. We need to call
   // this after the changes have actually been made...
   onResize();
-
-  let scrollbar = document.getElementById("horizontal-scrollbar");
-  if (scrollbar.hasAttribute("maxpos")) {
-    let curpos = scrollbar.getAttribute("curpos");
-    let maxpos = scrollbar.getAttribute("maxpos");
-    let ratio = curpos / maxpos;
-    timebar.scroll = ratio;
-    grid.scroll = ratio;
-    selectionbar.ratio = ratio;
-  }
 }
 
 /**
@@ -792,17 +785,6 @@ function setForce24Hours(aValue) {
   // that needs to adopt the previously made changes. We need to call
   // this after the changes have actually been made...
   onResize();
-
-  let scrollbar = document.getElementById("horizontal-scrollbar");
-  if (!scrollbar.hasAttribute("maxpos")) {
-    return aValue;
-  }
-  let curpos = scrollbar.getAttribute("curpos");
-  let maxpos = scrollbar.getAttribute("maxpos");
-  let ratio = curpos / maxpos;
-  timebar.scroll = ratio;
-  grid.scroll = ratio;
-  selectionbar.ratio = ratio;
 
   return aValue;
 }
@@ -898,14 +880,12 @@ function onAttrModified(event) {
         grid.firstVisibleRow = attendees.firstVisibleRow;
       } else if (scrollbar.getAttribute("id") == "horizontal-scrollbar") {
         if (event.attrName == "curpos") {
-          let maxpos = scrollbar.getAttribute("maxpos");
-          let ratio = event.newValue / maxpos;
           let timebar = document.getElementById("timebar");
           let grid = document.getElementById("freebusy-grid");
           let selectionbar = document.getElementById("selection-bar");
-          timebar.scroll = ratio;
-          grid.scroll = ratio;
-          selectionbar.ratio = ratio;
+          timebar.scrollTo(event.newValue, 0);
+          grid.scrollTo(event.newValue, grid.scrollTop);
+          selectionbar.scrollTo(event.newValue, 0);
         }
       }
     }
