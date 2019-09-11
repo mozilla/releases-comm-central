@@ -580,7 +580,9 @@ function openAddonsMgr(aView) {
   let addonSiteRegExp = Services.prefs.getCharPref(
     "extensions.getAddons.siteRegExp"
   );
-  openContentTab("about:addons", "tab", addonSiteRegExp);
+  let tab = openContentTab("about:addons", "tab", addonSiteRegExp);
+  tab.browser.droppedLinkHandler = event =>
+    tab.browser.contentWindow.gDragDrop.onDrop(event);
 
   if (aView) {
     // This must be a new load, else the ping/pong would have

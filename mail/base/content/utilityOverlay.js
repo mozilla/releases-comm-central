@@ -259,14 +259,13 @@ function openTab(tabType, tabParams, where) {
     }
 
     if (tabmail) {
-      tabmail.openTab(tabType, tabParams);
-      return;
+      return tabmail.openTab(tabType, tabParams);
     }
   }
 
   // Either we explicitly wanted to open in a new window, or we fell through to
   // here because there's no 3pane.
-  window.openDialog(
+  return window.openDialog(
     "chrome://messenger/content/",
     "_blank",
     "chrome,dialog=no,all",
@@ -294,7 +293,7 @@ function openContentTab(url, where, handlerRegExp) {
       '"));';
   }
 
-  openTab("contentTab", { contentPage: url, clickHandler }, where);
+  return openTab("contentTab", { contentPage: url, clickHandler }, where);
 }
 
 /**
