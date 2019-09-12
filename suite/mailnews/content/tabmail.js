@@ -318,7 +318,7 @@ var gMailNewsTabsType =
     else if (gMsgFolderSelected.isServer)
     {
       // Load AccountCentral page here.
-      ShowAccountCentral();
+      ShowAccountCentral(gMsgFolderSelected);
     }
     UpdateLocationBar(gMsgFolderSelected);
     UpdateMailToolbar("tab changed");
@@ -881,14 +881,20 @@ function MsgToggleThreadPane()
 // shown via the displayDeck, we need to switch the displayDeck to show the
 // accountCentralBox and load the iframe in the AccountCentral box with the
 // corresponding page.
-function ShowAccountCentral()
+function ShowAccountCentral(displayedFolder)
 {
   GetDisplayDeck().selectedPanel = accountCentralBox;
   let acctCentralPage = GetLocalizedStringPref("mailnews.account_central_page.url");
-  if (acctCentralPage)
-    window.frames["accountCentralPane"].location.href = acctCentralPage;
-  else
+  if (acctCentralPage) {
+    let loadURL =
+      acctCentralPage +
+      (displayedFolder ? "?folderURI=" + displayedFolder : "");
+    if (window.frames["accountCentralPane"].location.href != loadURL) {
+      window.frames["accountCentralPane"].location.href = loadURL;
+    }
+  } else {
     dump("Error loading AccountCentral page\n");
+  }
 }
 
 function ShowingAccountCentral()

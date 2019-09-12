@@ -1541,9 +1541,9 @@ function getDestinationFolder(preselectedFolder, server)
     return destinationFolder;
 }
 
-function MsgSubscribe()
+function MsgSubscribe(folder)
 {
-  var preselectedFolder = GetFirstSelectedMsgFolder();
+  var preselectedFolder = folder || GetFirstSelectedMsgFolder();
 
   if (preselectedFolder && preselectedFolder.server.type == "rss")
     openSubscriptionsDialog(preselectedFolder); // open feed subscription dialog
@@ -3037,10 +3037,9 @@ function IgnoreMDNResponse()
   gMessageNotificationBar.mdnGenerator.userDeclined();
 }
 
-function MsgSearchMessages()
+function MsgSearchMessages(preselectedFolder)
 {
-  var preselectedFolder = null;
-  if ("GetFirstSelectedMsgFolder" in window)
+  if (!preselectedFolder && ("GetFirstSelectedMsgFolder" in window))
     preselectedFolder = GetFirstSelectedMsgFolder();
 
   var args = { folder: preselectedFolder };

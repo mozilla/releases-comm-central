@@ -166,7 +166,7 @@ function ChangeFolder(folder, viewFolder, viewType, viewFlags, sortType, sortOrd
     ClearThreadPane();
 
     // Load AccountCentral page here.
-    ShowAccountCentral();
+    ShowAccountCentral(folder);
 
     return;
   }
