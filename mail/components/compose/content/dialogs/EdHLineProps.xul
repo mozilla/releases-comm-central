@@ -30,26 +30,30 @@
     <hbox class="groupbox-title">
       <label class="header">&dimensionsBox.label;</label>
     </hbox>
-    <grid>
-      <columns><column/><column/><column /></columns>
-      <rows>
-        <row align="center">
+    <hbox>
+      <vbox>
+        <hbox align="center" flex="1">
           <label control="width"
                  value="&widthEditField.label;"
                  accesskey="&widthEditField.accessKey;"/>
-          <textbox class="narrow" id="width" flex="1" oninput="forceInteger('width')"/>
-          <menulist id="pixelOrPercentMenulist" />
-          <!-- menupopup and menuitems added by JS -->
-        </row>
-        <row align="center">
+        </hbox>
+        <hbox align="center" flex="1">
           <label control="height"
                  value="&heightEditField.label;"
                  accesskey="&heightEditField.accessKey;"/>
-          <textbox class="narrow" id="height" oninput="forceInteger('height')"/>
-          <label value="&pixelsPopup.value;" />
-        </row>
-      </rows>
-    </grid>
+        </hbox>
+      </vbox>
+      <vbox>
+        <textbox class="narrow" id="width" flex="1" oninput="forceInteger('width')"/>
+        <textbox class="narrow" id="height" flex="1" oninput="forceInteger('height')"/>
+      </vbox>
+      <vbox>
+        <menulist id="pixelOrPercentMenulist"/>
+        <hbox align="center" flex="1">
+          <label value="&pixelsPopup.value;"/>
+        </hbox>
+      </vbox>
+    </hbox>
     <checkbox id="3dShading" label="&threeDShading.label;" accesskey="&threeDShading.accessKey;"/>
   </groupbox>
   <groupbox>
