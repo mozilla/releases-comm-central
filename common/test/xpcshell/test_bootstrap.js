@@ -543,6 +543,7 @@ add_task(async function test_8() {
   await checkBootstrappedPref();
 });
 
+/* Disabled test 9 and test 10, see bug 1580642.
 // Test that items detected as removed during startup get removed properly
 add_task(async function test_9() {
   await promiseShutdownManager();
@@ -651,6 +652,7 @@ add_task(async function test_10() {
   await checkBootstrappedPref();
   startupCacheMonitor.check(false);
 });
+*/
 
 // Tests that uninstalling a disabled add-on still calls the uninstall method
 add_task(async function test_11() {
