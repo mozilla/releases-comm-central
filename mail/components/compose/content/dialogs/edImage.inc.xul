@@ -16,7 +16,6 @@
                  tooltiptext="&locationEditField.tooltip;"/>
         <hbox id="MakeRelativeHbox">
           <checkbox id="MakeRelativeCheckbox"
-                    for="srcInput"
                     tabindex="2"
                     label="&makeUrlRelative.label;"
                     accesskey="&makeUrlRelative.accessKey;"
@@ -36,50 +35,44 @@
         </hbox>
         <spacer class="spacer"/>
         <radiogroup id="altTextRadioGroup" flex="1">
-          <grid>
-            <columns><column/><column flex="1"/></columns>
-            <rows>
-              <row align="center">
-                <label
-                  style   = "margin-left: 26px"
-                  control = "titleInput"
-                  accesskey = "&title.accessKey;"
-                  value   ="&title.label;"
-                  tooltiptext="&title.tooltip;"
-                  for     = "titleInput"/>
-                <textbox flex="1"
-                  id      = "titleInput"
-                  class   = "MinWidth20em"
-                  tooltiptext="&title.tooltip;"
-                  tabindex="4"/>
-              </row>
-              <row align="center">
+          <hbox>
+            <vbox>
+              <hbox align="center" flex="1">
+                <label style="margin-left: 26px"
+                       control="titleInput"
+                       accesskey="&title.accessKey;"
+                       value="&title.label;"
+                       tooltiptext="&title.tooltip;"/>
+              </hbox>
+              <hbox align="center" flex="1">
                 <radio id="altTextRadio" value="usealt-yes"
                        label="&altText.label;"
                        accesskey="&altText.accessKey;"
                        tooltiptext="&altTextEditField.tooltip;"
-#ifndef MOZ_SUITE
-            persist="selected"
-#endif
-                  oncommand = "SetAltTextDisabled(false);"
-                  tabindex="5"/>
-                <textbox flex="1"
-                  id      = "altTextInput"
-                  class   = "MinWidth20em"
-                  tooltiptext="&altTextEditField.tooltip;"
-                  oninput = "SetAltTextDisabled(false);"
-                  tabindex="6"/>
-              </row>
-            </rows>
-          </grid>
-
+                       persist="selected"
+                       oncommand = "SetAltTextDisabled(false);"
+                       tabindex="5"/>
+              </hbox>
+            </vbox>
+            <vbox>
+              <textbox id="titleInput"
+                       flex="1"
+                       class="MinWidth20em"
+                       tooltiptext="&title.tooltip;"
+                       tabindex="4"/>
+              <textbox id="altTextInput"
+                       flex="1"
+                       class="MinWidth20em"
+                       tooltiptext="&altTextEditField.tooltip;"
+                       oninput="SetAltTextDisabled(false);"
+                       tabindex="6"/>
+            </vbox>
+          </hbox>
           <radio id="noAltTextRadio" value="usealt-no"
                  label="&noAltText.label;"
                  accesskey = "&noAltText.accessKey;"
-#ifndef MOZ_SUITE
-            persist="selected"
-#endif
-            oncommand = "SetAltTextDisabled(true);"/>
+                 persist="selected"
+                 oncommand = "SetAltTextDisabled(true);"/>
         </radiogroup>
       </vbox>
 
@@ -87,64 +80,61 @@
         <spacer class="spacer"/>
         <hbox>
           <radiogroup id="imgSizeGroup">
-            <radio
-              id      = "actualSizeRadio"
-              label   = "&actualSizeRadio.label;"
-              accesskey = "&actualSizeRadio.accessKey;"
-              tooltiptext="&actualSizeRadio.tooltip;"
-              oncommand = "SetActualSize()"
-              value="actual"/>
-            <radio
-              id      = "customSizeRadio"
-              label   = "&customSizeRadio.label;"
-              selected = "true"
-              accesskey = "&customSizeRadio.accessKey;"
-              tooltiptext="&customSizeRadio.tooltip;"
-              oncommand = "doDimensionEnabling();"
-              value="custom"/>
+            <radio id="actualSizeRadio"
+                   label="&actualSizeRadio.label;"
+                   accesskey="&actualSizeRadio.accessKey;"
+                   tooltiptext="&actualSizeRadio.tooltip;"
+                   oncommand="SetActualSize()"
+                   value="actual"/>
+            <radio id="customSizeRadio"
+                   label="&customSizeRadio.label;"
+                   selected="true"
+                   accesskey="&customSizeRadio.accessKey;"
+                   tooltiptext="&customSizeRadio.tooltip;"
+                   oncommand="doDimensionEnabling();"
+                   value="custom"/>
           </radiogroup>
           <spacer flex="1"/>
           <vbox>
             <spacer flex="1"/>
             <checkbox id="constrainCheckbox" label="&constrainCheckbox.label;"
-                 accesskey="&constrainCheckbox.accessKey;"
-                 oncommand="ToggleConstrain()"
-                 tooltiptext="&constrainCheckbox.tooltip;"/>
+                      accesskey="&constrainCheckbox.accessKey;"
+                      oncommand="ToggleConstrain()"
+                      tooltiptext="&constrainCheckbox.tooltip;"/>
           </vbox>
           <spacer flex="1"/>
         </hbox>
         <spacer class="spacer"/>
-        <grid class="indent">
-          <columns><column/><column/><column flex="1"/></columns>
-          <rows>
-            <row align="center">
-              <label id    = "widthLabel"
-                control   = "widthInput"
-                accesskey = "&widthEditField.accessKey;"
-                value = "&widthEditField.label;" />
-              <textbox
-                id       = "widthInput"
-                class    = "narrow"
-                oninput  = "constrainProportions(this.id, 'heightInput')"/>
-              <menulist id = "widthUnitsMenulist"
-                oncommand = "doDimensionEnabling();" />
-              <!-- contents are appended by JS -->
-            </row>
-            <row align="center">
-              <label id    = "heightLabel"
-                control   = "heightInput"
-                accesskey = "&heightEditField.accessKey;"
-                value = "&heightEditField.label;" />
-              <textbox
-                id       = "heightInput"
-                class    = "narrow"
-                oninput  = "constrainProportions(this.id, 'widthInput')"/>
-              <menulist id = "heightUnitsMenulist"
-                oncommand = "doDimensionEnabling();" />
-              <!-- contents are appended by JS -->
-            </row>
-          </rows>
-        </grid>
+        <hbox class="indent">
+          <vbox>
+            <hbox flex="1" align="center">
+              <label id="widthLabel"
+                     control="widthInput"
+                     accesskey="&widthEditField.accessKey;"
+                     value="&widthEditField.label;"/>
+            </hbox>
+            <hbox flex="1" align="center">
+              <label id="heightLabel"
+                     control="heightInput"
+                     accesskey="&heightEditField.accessKey;"
+                     value="&heightEditField.label;"/>
+            </hbox>
+          </vbox>
+          <vbox>
+            <textbox id="widthInput"
+                     class="narrow"
+                     oninput="constrainProportions(this.id, 'heightInput')"/>
+            <textbox id="heightInput"
+                     class="narrow"
+                     oninput="constrainProportions(this.id, 'widthInput')"/>
+          </vbox>
+          <vbox flex="1">
+            <menulist id="widthUnitsMenulist"
+                      oncommand="doDimensionEnabling();" />
+            <menulist id="heightUnitsMenulist"
+                      oncommand="doDimensionEnabling();" />
+          </vbox>
+        </hbox>
         <spacer flex="1"/>
       </vbox>
 
@@ -153,55 +143,56 @@
           <hbox class="groupbox-title">
             <label id="spacingLabel" class="header">&spacingBox.label;</label>
           </hbox>
-          <grid>
-            <columns><column/><column/><column/></columns>
-            <rows>
-              <row align="center">
-                <label
-                  class = "align-right"
-                  id    = "leftrightLabel"
-                  control = "imageleftrightInput"
-                  accesskey = "&leftRightEditField.accessKey;"
-                  value = "&leftRightEditField.label;"/>
-                <textbox
-                  class     = "narrow"
-                  id        = "imageleftrightInput"
-                  oninput   = "forceInteger(this.id)"/>
-                <label
-                  id    = "leftrighttypeLabel"
-                  value = "&pixelsPopup.value;" />
-              </row>
-              <spacer class="spacer"/>
-              <row align="center">
-                <label
-                  class = "align-right"
-                  id    = "topbottomLabel"
-                  control = "imagetopbottomInput"
-                  accesskey = "&topBottomEditField.accessKey;"
-                  value = "&topBottomEditField.label;"/>
-                <textbox
-                  class     = "narrow"
-                  id        = "imagetopbottomInput"
-                  oninput   = "forceInteger(this.id)"/>
-                <label id="topbottomtypeLabel"
-                       value="&pixelsPopup.value;" />
-              </row>
-              <spacer class="spacer"/>
-              <row align="center">
-                <label class="align-right"
-                       id="borderLabel"
+          <hbox>
+            <vbox>
+              <hbox flex="1" align="center">
+                <label id="leftrightLabel"
+                       class="align-right"
+                       control="imageleftrightInput"
+                       accesskey="&leftRightEditField.accessKey;"
+                       value="&leftRightEditField.label;"/>
+              </hbox>
+              <hbox flex="1" align="center">
+                <label id="topbottomLabel"
+                       class="align-right"
+                       control="imagetopbottomInput"
+                       accesskey="&topBottomEditField.accessKey;"
+                       value="&topBottomEditField.label;"/>
+              </hbox>
+              <hbox flex="1" align="center">
+                <label id="borderLabel"
+                       class="align-right"
                        control="border"
                        accesskey="&borderEditField.accessKey;"
                        value="&borderEditField.label;"/>
-                <textbox
-                  class     = "narrow"
-                  id        = "border"
-                  oninput   = "forceInteger(this.id)"/>
+              </hbox>
+            </vbox>
+            <vbox>
+              <textbox id="imageleftrightInput"
+                       class="narrow"
+                       oninput="forceInteger(this.id)"/>
+              <textbox id="imagetopbottomInput"
+                       class="narrow"
+                       oninput="forceInteger(this.id)"/>
+              <textbox id="border"
+                       class="narrow"
+                       oninput="forceInteger(this.id)"/>
+            </vbox>
+            <vbox>
+              <hbox flex="1" align="center">
+                <label id="leftrighttypeLabel"
+                       value="&pixelsPopup.value;" />
+              </hbox>
+              <hbox flex="1" align="center">
+                <label id="topbottomtypeLabel"
+                       value="&pixelsPopup.value;" />
+              </hbox>
+              <hbox flex="1" align="center">
                 <label id="bordertypeLabel"
                        value="&pixelsPopup.value;" />
-              </row>
-            </rows>
-          </grid>
+              </hbox>
+            </vbox>
+          </hbox>
         </groupbox>
 
         <vbox>
