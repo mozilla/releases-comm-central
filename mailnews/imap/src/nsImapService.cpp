@@ -2537,9 +2537,8 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
     server->GetKey(serverKey);
     nsCString fullFolderName;
     if (parent) fullFolderName = folderName;
-    if (!parent &&
-        !folderName.IsEmpty())  // check if this folder is another user's folder
-    {
+    if (!parent && !folderName.IsEmpty() && imapRoot) {
+      // Check if this folder is another user's folder.
       fullFolderName =
           nsIMAPNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
               serverKey.get(), folderName.get(), userPass.get(),
