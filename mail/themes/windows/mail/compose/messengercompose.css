@@ -9,7 +9,7 @@
 @import url("chrome://messenger/skin/");
 @import url("chrome://messenger/skin/shared/messengercompose.css");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 #attachmentBucket {
   background-color: -moz-Field;
@@ -144,7 +144,7 @@
   }
 
   #msgSubject:hover,
-  #msgSubject[focused="true"] {
+  #msgSubject:focus {
     background-color: -moz-field;
     border-color: #a9b7c9;
   }
@@ -156,7 +156,7 @@
   }
 
   #msgSubject:hover,
-  #msgSubject[focused="true"] {
+  #msgSubject:focus {
     background-color: -moz-field;
     border-color: ThreeDShadow;
   }

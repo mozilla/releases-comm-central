@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messengercompose/messengercompose.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/attachmentList.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/smime-compose.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE window [
   <!ENTITY % messengercomposeDTD SYSTEM "chrome://messenger/locale/messengercompose/messengercompose.dtd" >
@@ -62,6 +63,8 @@
   <html:link rel="localization" href="messenger/menubar.ftl"/>
 </linkset>
 
+<script src="chrome://global/content/globalOverlay.js"/>
+<script src="chrome://global/content/editMenuOverlay.js"/>
 <script src="chrome://global/content/printUtils.js"/>
 <script src="chrome://messenger/content/accountUtils.js"/>
 <script src="chrome://messenger/content/mailCore.js"/>
@@ -2062,9 +2065,15 @@
             <hbox align="center" pack="end" style="&headersSpace.style;">
               <label id="subjectLabel" value="&subject.label;" accesskey="&subject.accesskey;" control="msgSubject"/>
             </hbox>
-            <textbox id="msgSubject" flex="1" class="toolbar" disableonsend="true" spellcheck="true"
-                     oninput="gContentChanged = true; SetComposeWindowTitle();"
-                     onkeypress="subjectKeyPress(event);" />
+            <hbox flex="1" align="center" class="input-container">
+              <html:input id="msgSubject"
+                          type="text"
+                          class="input-inline"
+                          disableonsend="true"
+                          spellcheck="true"
+                          oninput="gContentChanged = true; SetComposeWindowTitle();"
+                          onkeypress="subjectKeyPress(event);"/>
+            </hbox>
           </hbox>
         </vbox>
         <splitter id="attachmentbucket-sizer"

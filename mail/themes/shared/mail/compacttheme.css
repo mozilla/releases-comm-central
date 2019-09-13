@@ -6,6 +6,8 @@
    is preffed on.  The bulk of the styling is here in the shared file, but
    there are overrides for each platform in their compacttheme.css files. */
 
+@namespace html url("http://www.w3.org/1999/xhtml");
+
 :root:-moz-lwtheme {
   --toolbar-non-lwt-bgcolor: var(--toolbar-bgcolor);
   --toolbar-non-lwt-textcolor: var(--lwt-text-color);
@@ -122,7 +124,7 @@ textbox.textbox-addressingWidget,
 #msgIdentity:focus,
 #msgIdentity:focus-within,
 #msgSubject:hover,
-#msgSubject[focused="true"],
+#msgSubject:focus,
 textbox.textbox-addressingWidget:hover,
 textbox.textbox-addressingWidget[focused="true"] {
   background-color: var(--lwt-toolbar-field-background-color);

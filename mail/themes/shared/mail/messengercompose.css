@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
   --lwt-additional-images: none;
@@ -52,7 +52,7 @@
 :root[lwt-default-theme-in-dark-mode] #msgIdentity:focus,
 :root[lwt-default-theme-in-dark-mode] #msgIdentity:focus-within,
 :root[lwt-default-theme-in-dark-mode] #msgSubject:hover,
-:root[lwt-default-theme-in-dark-mode] #msgSubject[focused="true"],
+:root[lwt-default-theme-in-dark-mode] #msgSubject:focus,
 :root[lwt-default-theme-in-dark-mode] textbox.textbox-addressingWidget:hover,
 :root[lwt-default-theme-in-dark-mode] textbox.textbox-addressingWidget[focused="true"] {
   background-color: var(--lwt-toolbar-field-background-color);
