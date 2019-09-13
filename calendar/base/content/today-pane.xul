@@ -29,7 +29,6 @@
 
   <script src="chrome://calendar/content/calFilter.js"/>
   <script src="chrome://calendar/content/calendar-task-tree-utils.js"/>
-  <script src="chrome://calendar/content/calendar-unifinder-todo.js"/>
 
   <calendar-modevbox id="today-pane-panel"
                      mode="mail,calendar,task"

@@ -5,7 +5,7 @@
 /* import-globals-from ../../lightning/content/messenger-overlay-sidebar.js */
 /* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-chrome-startup.js */
-/* import-globals-from calendar-unifinder-todo.js */
+/* import-globals-from calendar-views-utils.js */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -120,11 +120,53 @@ var TodayPane = {
         }
       }
       if (todoIsVisible) {
-        prepareCalendarToDoUnifinder();
+        // Add listener to update the date filters.
+        getViewDeck().addEventListener("dayselect", event => {
+          this.updateCalendarToDoUnifinder();
+        });
+        this.updateCalendarToDoUnifinder();
       }
     }
 
     document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+  },
+
+  /**
+   * Updates the applied filter and show completed view of the unifinder todo.
+   *
+   * @param {String} [filter] - The filter name to set.
+   */
+  updateCalendarToDoUnifinder: function(filter) {
+    let tree = document.getElementById("unifinder-todo-tree");
+
+    // Set up hiding completed tasks for the unifinder-todo tree
+    filter = filter || tree.getAttribute("filterValue") || "throughcurrent";
+    tree.setAttribute("filterValue", filter);
+
+    document
+      .querySelectorAll('menuitem[command="calendar_task_filter_todaypane_command"][type="radio"]')
+      .forEach(item => {
+        if (item.getAttribute("value") == filter) {
+          item.setAttribute("checked", "true");
+        } else {
+          item.removeAttribute("checked");
+        }
+      });
+
+    let showCompleted = document.getElementById("show-completed-checkbox").checked;
+    if (!showCompleted) {
+      let filterProps = tree.mFilter.getDefinedFilterProperties(filter);
+      if (filterProps) {
+        filterProps.status =
+          (filterProps.status || filterProps.FILTER_STATUS_ALL) &
+          (filterProps.FILTER_STATUS_INCOMPLETE | filterProps.FILTER_STATUS_IN_PROGRESS);
+        filter = filterProps;
+      }
+    }
+
+    // update the filter
+    tree.showCompleted = showCompleted;
+    tree.updateFilter(filter);
   },
 
   /**
@@ -409,7 +451,7 @@ var TodayPane = {
   updatePeriod: function() {
     agendaListbox.refreshPeriodDates(this.start.clone());
     if (document.getElementById("todo-tab-panel").isVisible()) {
-      updateCalendarToDoUnifinder();
+      this.updateCalendarToDoUnifinder();
     }
   },
 

@@ -5,7 +5,6 @@
 /* import-globals-from ../../lightning/content/messenger-overlay-sidebar.js */
 /* import-globals-from calendar-common-sets.js */
 /* import-globals-from calendar-management.js */
-/* import-globals-from calendar-unifinder-todo.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-views-utils.js */
 /* globals PanelUI */
