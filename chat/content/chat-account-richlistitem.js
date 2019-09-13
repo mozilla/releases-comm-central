@@ -44,7 +44,7 @@
           // something with the first click, we should ignore the event
           let localName = event.originalTarget.localName;
           if (localName != "button" && localName != "checkbox") {
-            this.buttons.proceedDefaultAction();
+            this.proceedDefaultAction();
           }
         }
         // Prevent from loading an account wizzard
