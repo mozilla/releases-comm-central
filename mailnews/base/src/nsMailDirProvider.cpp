@@ -103,19 +103,7 @@ nsMailDirProvider::GetFiles(const char *aKey, nsISimpleEnumerator **aResult) {
                                  currentProcessDir);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> combinedEnumerator;
-  nsCOMPtr<nsISimpleEnumerator> extensionsEnum;
-
-  // xpcshell-tests don't have XRE_EXTENSIONS_DIR_LIST, so accept a null return
-  // here.
-  dirSvc->Get(XRE_EXTENSIONS_DIR_LIST, NS_GET_IID(nsISimpleEnumerator),
-              getter_AddRefs(extensionsEnum));
-
-  rv = NS_NewUnionEnumerator(getter_AddRefs(combinedEnumerator),
-                             directoryEnumerator, extensionsEnum);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  NS_ADDREF(*aResult = new AppendingEnumerator(combinedEnumerator));
+  NS_ADDREF(*aResult = new AppendingEnumerator(directoryEnumerator));
   return NS_SUCCESS_AGGREGATE_RESULT;
 }
 
