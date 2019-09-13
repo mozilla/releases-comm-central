@@ -3074,7 +3074,7 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
     case "COMPLETED":
       document.getElementById("todo-status").selectedIndex = 3;
       document.getElementById("percent-complete-textbox").removeAttribute("disabled");
-      document.getElementById("percent-complete-label").setAttribute("disabled", "true");
+      document.getElementById("percent-complete-label").removeAttribute("disabled");
       // if there is no aCompletedDate, set it to the previous value
       if (!aCompletedDate) {
         aCompletedDate = oldCompletedDate;
@@ -3083,13 +3083,13 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
     case "IN-PROCESS":
       document.getElementById("todo-status").selectedIndex = 2;
       document.getElementById("completed-date-picker").setAttribute("disabled", "true");
-      document.getElementById("percent-complete-textbox").setAttribute("disabled", "true");
-      document.getElementById("percent-complete-label").setAttribute("disabled", "true");
+      document.getElementById("percent-complete-textbox").removeAttribute("disabled");
+      document.getElementById("percent-complete-label").removeAttribute("disabled");
       break;
     case "NEEDS-ACTION":
       document.getElementById("todo-status").selectedIndex = 1;
-      document.getElementById("percent-complete-textbox").setAttribute("disabled", "true");
-      document.getElementById("percent-complete-label").setAttribute("disabled", "true");
+      document.getElementById("percent-complete-textbox").removeAttribute("disabled");
+      document.getElementById("percent-complete-label").removeAttribute("disabled");
       break;
   }
 
@@ -3101,7 +3101,7 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
   } else if (aStatus == "COMPLETED") {
     newPercentComplete = 100;
     setElementValue("completed-date-picker", aCompletedDate);
-    document.getElementById("completed-date-picker").setAttribute("disabled", "true");
+    document.getElementById("completed-date-picker").removeAttribute("disabled");
   } else {
     newPercentComplete = oldPercentComplete;
     setElementValue("completed-date-picker", oldCompletedDate);
