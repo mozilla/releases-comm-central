@@ -84,4 +84,6 @@ with only_when(target_is_linux & compile_environment):
 include('../build/moz.configure/gecko_source.configure')
 
 include('../mailnews/moz.configure')
+
+imply_option('--enable-app-system-headers', True)
 include('../../toolkit/moz.configure')
