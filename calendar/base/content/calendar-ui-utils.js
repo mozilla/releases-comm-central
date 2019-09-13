@@ -4,10 +4,9 @@
 
 /* exported getElementValue, setBooleanAttribute,
  *          disableElementWithLock,
- *          enableElementWithLock, uncheckChildNodes, removeChildren,
+ *          enableElementWithLock, removeChildren,
  *          appendCalendarItems, setAttributeToChildren, checkRadioControl,
  *          checkRadioControlAppmenu,
- *          processEnableCheckbox, updateListboxDeleteButton,
  *          updateUnitLabelPlural, updateMenuLabelsPlural, menuListSelectItem,
  *          getOptimalMinimumWidth, getOptimalMinimumHeight,
  *          getOtherOrientation, updateSelectedLabel, setupAttendanceMenu
@@ -169,23 +168,6 @@ function enableElementWithLock(elementId, lockId) {
 }
 
 /**
- * Unchecks the commands of the child elements of a DOM-tree-node i.e of a menu
- *
- * @param aEvent    The event from which the target is taken to retrieve the
- *                    child elements
- */
-function uncheckChildNodes(aEvent) {
-  let liveList = aEvent.target.getElementsByAttribute("checked", "true");
-  for (let i = liveList.length - 1; i >= 0; i--) {
-    let commandName = liveList.item(i).getAttribute("command");
-    let command = document.getElementById(commandName);
-    if (command) {
-      command.setAttribute("checked", "false");
-    }
-  }
-}
-
-/**
  * Removes all child nodes of the given node
  *
  * @param aElement  The Node (or its id) to remove children from
@@ -336,30 +318,6 @@ function setAttributeToChildren(aParent, aAttribute, aValue, aFilterAttribute, a
       }
     }
   }
-}
-
-/**
- * Enables or disables the given element depending on the checkbox state.
- *
- * @param checkboxId    The ID of the XUL checkbox element.
- * @param elementId     The element to change the disabled state on.
- */
-function processEnableCheckbox(checkboxId, elementId) {
-  let checked = document.getElementById(checkboxId).checked;
-  setElementValue(elementId, !checked && "true", "disabled");
-}
-
-/**
- * Enable/disable button if there are children in a listbox
- *
- * XXX This function needs renaming, it can do more than just buttons.
- *
- * @param listboxId     The ID of the listbox to check.
- * @param buttonId      The element to change the disabled state on.
- */
-function updateListboxDeleteButton(listboxId, buttonId) {
-  let rowCount = document.getElementById(listboxId).getRowCount();
-  setElementValue(buttonId, rowCount < 1 && "true", "disabled");
 }
 
 /**
