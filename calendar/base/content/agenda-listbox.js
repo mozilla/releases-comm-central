@@ -5,7 +5,7 @@
 "use strict";
 
 /* global MozXULElement, MozElements, unitPluralForm, agendaListbox,
-   invokeEventDragSession, setBooleanAttribute, hideElement, onMouseOverItem */
+   invokeEventDragSession, setBooleanAttribute, onMouseOverItem */
 {
   var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
   /**
@@ -170,7 +170,7 @@
         date = dateFormatter.formatDate(endPreviousDay);
       } else {
         iconType = "continue";
-        hideElement(allDayDateLabel);
+        allDayDateLabel.setAttribute("hidden", "true");
       }
       let multiDayImage = this.querySelector(".agenda-multiDayEvent-image");
       multiDayImage.setAttribute("type", iconType);

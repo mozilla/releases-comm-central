@@ -6,7 +6,6 @@
  *          caldavUpdateForceEmailSchedulingControl
  */
 
-/* import-globals-from ../../../base/content/calendar-ui-utils.js */
 /* import-globals-from ../../../lightning/content/lightning-utils.js */
 /* globals gCalendar */
 
@@ -29,7 +28,9 @@ function caldavInitForceEmailScheduling() {
     }
     caldavUpdateForceEmailSchedulingControl();
   } else {
-    collapseElement("calendar-force-email-scheduling-row");
+    document
+      .getElementById("calendar-force-email-scheduling-row")
+      .setAttribute("collapsed", "true");
   }
 }
 

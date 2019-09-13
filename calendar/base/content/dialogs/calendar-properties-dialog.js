@@ -60,7 +60,7 @@ function onLoad() {
   let calendarDisabled = false;
   if (gCalendar.getProperty("force-disabled")) {
     document.getElementById("force-disabled-description").removeAttribute("hidden");
-    disableElement("calendar-enabled-checkbox");
+    document.getElementById("calendar-enabled-checkbox").setAttribute("disabled", "true");
   } else {
     calendarDisabled = gCalendar.getProperty("disabled");
     document.getElementById("calendar-enabled-checkbox").checked = !calendarDisabled;

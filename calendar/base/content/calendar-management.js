@@ -489,10 +489,10 @@ function calendarListSetupContextMenu(event) {
   setElementValue("list-calendars-context-find", hasProviders, "collapsed");
 
   if (calendar) {
-    enableElement("list-calendars-context-edit");
-    enableElement("list-calendars-context-publish");
+    document.getElementById("list-calendars-context-edit").removeAttribute("disabled");
+    document.getElementById("list-calendars-context-publish").removeAttribute("disabled");
 
-    enableElement("list-calendars-context-togglevisible");
+    document.getElementById("list-calendars-context-togglevisible").removeAttribute("disabled");
     setElementValue("list-calendars-context-togglevisible", false, "collapsed");
     let stringName = composite.getCalendarById(calendar.id) ? "hideCalendar" : "showCalendar";
     setElementValue(
@@ -505,7 +505,7 @@ function calendarListSetupContextMenu(event) {
       .getAttribute(composite.getCalendarById(calendar.id) ? "accesskeyhide" : "accesskeyshow");
     setElementValue("list-calendars-context-togglevisible", accessKey, "accesskey");
 
-    enableElement("list-calendars-context-showonly");
+    document.getElementById("list-calendars-context-showonly").removeAttribute("disabled");
     setElementValue("list-calendars-context-showonly", false, "collapsed");
     setElementValue(
       "list-calendars-context-showonly",
@@ -519,12 +519,14 @@ function calendarListSetupContextMenu(event) {
     let calendars = cal.getCalendarManager().getCalendars({});
     setElementValue("list-calendars-context-delete", calendars.length < 2 && "true", "disabled");
   } else {
-    disableElement("list-calendars-context-edit");
-    disableElement("list-calendars-context-publish");
-    disableElement("list-calendars-context-delete");
-    disableElement("list-calendars-context-togglevisible");
+    document.getElementById("list-calendars-context-edit").setAttribute("disabled", "true");
+    document.getElementById("list-calendars-context-publish").setAttribute("disabled", "true");
+    document.getElementById("list-calendars-context-delete").setAttribute("disabled", "true");
+    document
+      .getElementById("list-calendars-context-togglevisible")
+      .setAttribute("disabled", "true");
     setElementValue("list-calendars-context-togglevisible", true, "collapsed");
-    disableElement("list-calendars-context-showonly");
+    document.getElementById("list-calendars-context-showonly").setAttribute("disabled", "true");
     setElementValue("list-calendars-context-showonly", true, "collapsed");
     setupDeleteMenuitem("list-calendars-context-delete", null);
   }

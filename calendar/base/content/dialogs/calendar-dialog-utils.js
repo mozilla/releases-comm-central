@@ -197,8 +197,8 @@ function updateReminderDetails() {
       setElementValue(reminderSingleLabel, reminders[0].toString(window.calendarItem));
     }
   } else {
-    hideElement(reminderMultipleLabel);
-    hideElement(reminderSingleLabel);
+    reminderMultipleLabel.setAttribute("hidden", "true");
+    reminderSingleLabel.setAttribute("hidden", "true");
     if (reminderList.value == "none") {
       // No reminder selected means show no icons.
       removeChildren(iconBox);

@@ -432,7 +432,7 @@ function onNewReminder() {
   listbox.selectItem(listitem);
 
   // Since we've added an item, its safe to always enable the button
-  enableElement("reminder-remove-button");
+  document.getElementById("reminder-remove-button").removeAttribute("disabled");
 
   // Set up the enabled state and max reminders
   setupRadioEnabledState();

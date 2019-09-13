@@ -1566,8 +1566,8 @@ function loadRepeat(aRepeatType, aUntilDate, aItem) {
   gLastRepeatSelection = repeatMenu.selectedIndex;
 
   if (aItem.parentItem != aItem) {
-    disableElement("item-repeat");
-    disableElement("repeat-until-datepicker");
+    document.getElementById("item-repeat").setAttribute("disabled", "true");
+    document.getElementById("repeat-until-datepicker").setAttribute("disabled", "true");
   }
   // Show the repeat-until-datepicker and set its date
   document.getElementById("repeat-deck").selectedIndex = 0;
@@ -2642,11 +2642,11 @@ function updateCalendar() {
   }
 
   if (!canNotifyAttendees(calendar, item) && calendar.getProperty("imip.identity")) {
-    enableElement("notify-attendees-checkbox");
-    enableElement("undisclose-attendees-checkbox");
+    document.getElementById("notify-attendees-checkbox").removeAttribute("disabled");
+    document.getElementById("undisclose-attendees-checkbox").removeAttribute("disabled");
   } else {
-    disableElement("notify-attendees-checkbox");
-    disableElement("undisclose-attendees-checkbox");
+    document.getElementById("notify-attendees-checkbox").setAttribute("disabled", "true");
+    document.getElementById("undisclose-attendees-checkbox").setttribute("disabled", "true");
   }
 
   // update the accept button
@@ -2710,8 +2710,8 @@ function updateCalendar() {
     // disable repeat menupopup if this is an occurrence
     item = window.calendarItem;
     if (item.parentItem != item) {
-      disableElement("item-repeat");
-      disableElement("repeat-until-datepicker");
+      document.getElementById("item-repeat").setAttribute("disabled", "true");
+      document.getElementById("repeat-until-datepicker").setAttribute("disabled", "true");
       let repeatDetails = document.getElementById("repeat-details");
       let numChilds = repeatDetails.childNodes.length;
       for (let i = 0; i < numChilds; i++) {
@@ -2725,7 +2725,7 @@ function updateCalendar() {
     // If the item is a proxy occurrence/instance, a few things aren't
     // valid.
     if (item.parentItem != item) {
-      disableElement("item-calendar");
+      document.getElementById("item-calendar").setAttribute("disabled", "true");
 
       // don't allow to revoke the entrydate of recurring todo's.
       disableElementWithLock("todo-has-entrydate", "permanent-lock");
@@ -3063,18 +3063,18 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
     case "NONE":
       oldPercentComplete = 0;
       document.getElementById("todo-status").selectedIndex = 0;
-      disableElement("percent-complete-textbox");
-      disableElement("percent-complete-label");
+      document.getElementById("percent-complete-textbox").setAttribute("disabled", "true");
+      document.getElementById("percent-complete-label").setAttribute("disabled", "true");
       break;
     case "CANCELLED":
       document.getElementById("todo-status").selectedIndex = 4;
-      disableElement("percent-complete-textbox");
-      disableElement("percent-complete-label");
+      document.getElementById("percent-complete-textbox").setAttribute("disabled", "true");
+      document.getElementById("percent-complete-label").setAttribute("disabled", "true");
       break;
     case "COMPLETED":
       document.getElementById("todo-status").selectedIndex = 3;
-      enableElement("percent-complete-textbox");
-      enableElement("percent-complete-label");
+      document.getElementById("percent-complete-textbox").removeAttribute("disabled");
+      document.getElementById("percent-complete-label").setAttribute("disabled", "true");
       // if there is no aCompletedDate, set it to the previous value
       if (!aCompletedDate) {
         aCompletedDate = oldCompletedDate;
@@ -3082,14 +3082,14 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
       break;
     case "IN-PROCESS":
       document.getElementById("todo-status").selectedIndex = 2;
-      disableElement("completed-date-picker");
-      enableElement("percent-complete-textbox");
-      enableElement("percent-complete-label");
+      document.getElementById("completed-date-picker").setAttribute("disabled", "true");
+      document.getElementById("percent-complete-textbox").setAttribute("disabled", "true");
+      document.getElementById("percent-complete-label").setAttribute("disabled", "true");
       break;
     case "NEEDS-ACTION":
       document.getElementById("todo-status").selectedIndex = 1;
-      enableElement("percent-complete-textbox");
-      enableElement("percent-complete-label");
+      document.getElementById("percent-complete-textbox").setAttribute("disabled", "true");
+      document.getElementById("percent-complete-label").setAttribute("disabled", "true");
       break;
   }
 
@@ -3097,15 +3097,15 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
   if ((aStatus == "IN-PROCESS" || aStatus == "NEEDS-ACTION") && oldPercentComplete == 100) {
     newPercentComplete = 0;
     setElementValue("completed-date-picker", oldCompletedDate);
-    disableElement("completed-date-picker");
+    document.getElementById("completed-date-picker").setAttribute("disabled", "true");
   } else if (aStatus == "COMPLETED") {
     newPercentComplete = 100;
     setElementValue("completed-date-picker", aCompletedDate);
-    enableElement("completed-date-picker");
+    document.getElementById("completed-date-picker").setAttribute("disabled", "true");
   } else {
     newPercentComplete = oldPercentComplete;
     setElementValue("completed-date-picker", oldCompletedDate);
-    disableElement("completed-date-picker");
+    document.getElementById("completed-date-picker").setAttribute("disabled", "true");
   }
 
   gConfig.percentComplete = newPercentComplete;

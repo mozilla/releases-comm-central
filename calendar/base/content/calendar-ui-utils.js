@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported getElementValue, setBooleanAttribute,
- *          uncollapseElement, collapseElement, disableElementWithLock,
+ *          disableElementWithLock,
  *          enableElementWithLock, uncheckChildNodes, removeChildren,
  *          appendCalendarItems, setAttributeToChildren, checkRadioControl,
  *          checkRadioControlAppmenu,
@@ -111,42 +111,6 @@ function setBooleanAttribute(aXulElement, aAttribute, aValue) {
 }
 
 /**
- * Unconditionally show the element (collapsed attribute)
- *
- * @param aElement      ID of XUL element to set, or the element node itself
- */
-function uncollapseElement(aElement) {
-  setElementValue(aElement, false, "collapsed");
-}
-
-/**
- * Unconditionally hide the element (collapsed attribute)
- *
- * @param aElement      ID of XUL element to set, or the element node itself
- */
-function collapseElement(aElement) {
-  setElementValue(aElement, "true", "collapsed");
-}
-
-/**
- * Unconditionally enable the element (hidden attribute)
- *
- * @param aElement      ID of XUL element to set, or the element node itself
- */
-function enableElement(aElement) {
-  setElementValue(aElement, false, "disabled");
-}
-
-/**
- * Unconditionally disable the element (hidden attribute)
- *
- * @param aElement      ID of XUL element to set, or the element node itself
- */
-function disableElement(aElement) {
-  setElementValue(aElement, "true", "disabled");
-}
-
-/**
  * This function unconditionally disables the element for
  * which the id has been passed as argument. Furthermore, it
  * remembers who was responsible for this action by using
@@ -159,7 +123,7 @@ function disableElement(aElement) {
  */
 function disableElementWithLock(elementId, lockId) {
   // unconditionally disable the element.
-  disableElement(elementId);
+  document.getElementById(elementId).setAttribute("disabled", "true");
 
   // remember that this element has been locked with
   // the key passed as argument. we keep a primitive
@@ -199,7 +163,7 @@ function enableElementWithLock(elementId, lockId) {
       element.removeAttribute("lock");
     }
     if (n <= 0) {
-      enableElement(elementId);
+      element.removeAttribute("disabled");
     }
   }
 }
