@@ -45,8 +45,6 @@ var gViewsPane = {
    */
   initializeViewStartEndMenus: function() {
     const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-    let labelIdStart;
-    let labelIdEnd;
 
     let calTime = cal.createDateTime();
     calTime.minute = 0;
@@ -58,17 +56,14 @@ var gViewsPane = {
       calTime.hour = theHour;
       let time = timeFormatter.formatTime(calTime);
 
-      labelIdStart = "timeStart" + theHour;
-      labelIdEnd = "timeEnd" + theHour;
+      let labelIdStart = "timeStart" + theHour;
+      let labelIdEnd = "timeEnd" + theHour;
       // This if block to keep Noon as the localized string, instead of as a number.
       if (theHour != 12) {
         document.getElementById(labelIdStart).setAttribute("label", time);
         document.getElementById(labelIdEnd).setAttribute("label", time);
       }
     }
-    // Deselect and reselect to update visible item title
-    updateSelectedLabel("daystarthour");
-    updateSelectedLabel("dayendhour");
   },
 
   /**

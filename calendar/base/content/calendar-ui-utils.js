@@ -9,7 +9,7 @@
  *          checkRadioControlAppmenu,
  *          updateUnitLabelPlural, updateMenuLabelsPlural, menuListSelectItem,
  *          getOptimalMinimumWidth, getOptimalMinimumHeight,
- *          getOtherOrientation, updateSelectedLabel, setupAttendanceMenu
+ *          getOtherOrientation, setupAttendanceMenu
  */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
@@ -492,21 +492,6 @@ function getOptimalMinimumHeight(aXULElement) {
  */
 function getOtherOrientation(aOrientation) {
   return aOrientation == "horizontal" ? "vertical" : "horizontal";
-}
-
-/**
- * Setting labels on a menuitem doesn't update the label that is shown when the
- * menuitem is selected. This function takes care by reselecting the item
- *
- * @param aElement  The element to update, or its id as a string
- */
-function updateSelectedLabel(aElement) {
-  if (typeof aElement == "string") {
-    aElement = document.getElementById(aElement);
-  }
-  let selectedIndex = aElement.selectedIndex;
-  aElement.selectedIndex = -1;
-  aElement.selectedIndex = selectedIndex;
 }
 
 /**

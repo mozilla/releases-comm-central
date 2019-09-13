@@ -49,7 +49,6 @@ var gCalendarGeneralPane = {
       .setAttribute("label", labelShort + ": " + dateFormattedShort);
 
     // deselect and reselect to update visible item title
-    updateSelectedLabel("dateformat");
     updateUnitLabelPlural("defaultlength", "defaultlengthunit", "minutes");
     this.updateDefaultTodoDates();
 
