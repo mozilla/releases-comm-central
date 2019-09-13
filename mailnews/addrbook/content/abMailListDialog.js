@@ -340,17 +340,6 @@ function SetInputValue(inputValue, parentNode, templateNode) {
   }
 }
 
-function awNotAnEmptyArea(event) {
-  // This is temporary until i figure out how to ensure to always having an empty space after the last row
-
-  var lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-  if (lastInput && lastInput.value) {
-    awAppendNewRow(false);
-  }
-
-  event.stopPropagation();
-}
-
 function awClickEmptySpace(target, setFocus) {
   if (target == null || target.localName != "hbox") {
     return;

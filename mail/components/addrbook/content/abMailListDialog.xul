@@ -87,7 +87,7 @@
                    minresultsforpopup="3"
                    onkeypress="awAbRecipientKeyPress(event, this);"
                    onkeydown="awRecipientKeyDown(event, this);"
-                   onclick="awNotAnEmptyArea(event);"/>
+                   onclick="onRecipientClicked(event, this);"/>
         </hbox>
       </richlistitem>
     </richlistbox>

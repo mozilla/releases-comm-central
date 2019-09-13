@@ -907,6 +907,24 @@ function awRecipientOnFocus(inputElement) {
   inputElement.select();
 }
 
+function onRecipientClicked(event, inputElement) {
+  // If the clicked element has a "panel" somewhere in its ancestors, it was
+  // inside the auto-complete results popup and we want to advance to next row.
+  let targetNode = event.originalTarget;
+  while (targetNode) {
+    if (targetNode.id.startsWith("addressCol")) {
+      // We're not on the auto-complete popup, so return to avoid
+      // climbing up the hierarchy.
+      return;
+    }
+    if (targetNode.localName == "panel") {
+      awReturnHit(inputElement);
+      return;
+    }
+    targetNode = targetNode.parentNode;
+  }
+}
+
 /**
  * Handles keypress events for the email address inputs (that auto-fill)
  * in the Address Book Mailing List dialogs. When a comma-separated list of
