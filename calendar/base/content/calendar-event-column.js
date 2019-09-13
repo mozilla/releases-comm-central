@@ -4,7 +4,7 @@
 
 "use strict";
 
-/* global MozXULElement, getSelectedCalendar, getOtherOrientation, invokeEventDragSession, currentView */
+/* global MozXULElement, getSelectedCalendar, invokeEventDragSession, currentView */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -487,7 +487,7 @@
 
       // 'bgbox' is used mainly for drawing the grid. At some point it may
       // also be used for all-day events.
-      let otherorient = getOtherOrientation(orient);
+      let otherOrient = orient == "horizontal" ? "vertical" : "horizontal";
       let configBox = this.querySelector("calendar-event-box");
       configBox.removeAttribute("hidden");
       let minSize = configBox.getOptimalMinSize();
@@ -540,10 +540,10 @@
       this.fgboxes.box.setAttribute("orient", orient);
       this.querySelector(".fgdragspacer").setAttribute("orient", orient);
 
-      // This one is set to otherorient, since it will contain
+      // This one is set to otherOrient, since it will contain
       // child boxes set to "orient" (one for each set of
       // overlapping event areas).
-      this.topbox.setAttribute("orient", otherorient);
+      this.topbox.setAttribute("orient", otherOrient);
 
       this.mEventMap = this.computeEventMap();
       this.mEventBoxes = [];
@@ -568,7 +568,7 @@
         // For each layer we create a box below the stack just created above.
         // So each different layer lives in a box that's contained in the stack.
         let xulColumn = document.createXULElement("box");
-        xulColumn.setAttribute("orient", otherorient);
+        xulColumn.setAttribute("orient", otherOrient);
         xulColumn.setAttribute("flex", "1");
         xulColumn.setAttribute("class", "calendar-xul-column");
         stack.appendChild(xulColumn);

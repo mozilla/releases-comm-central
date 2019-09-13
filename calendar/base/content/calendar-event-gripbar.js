@@ -4,7 +4,7 @@
 
 "use strict";
 
-/* global MozXULElement, getOtherOrientation */
+/* global MozXULElement */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -59,7 +59,8 @@
      */
     set parentorient(val) {
       this.setAttribute("parentorient", val);
-      this._image.setAttribute("orient", getOtherOrientation(val));
+      let otherOrient = val == "horizontal" ? "vertical" : "horizontal";
+      this._image.setAttribute("orient", otherOrient);
       return val;
     }
 

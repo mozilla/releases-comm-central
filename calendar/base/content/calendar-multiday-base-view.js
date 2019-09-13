@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global currentView, getOtherOrientation, MozElements, MozXULElement, Services,
+/* global currentView, MozElements, MozXULElement, Services,
    setAttributeToChildren, setBooleanAttribute, timeIndicator, gCurrentMode */
 
 "use strict";
@@ -1096,7 +1096,7 @@
       }
 
       const orient = this.getAttribute("orient") || "horizontal";
-      const otherOrient = getOtherOrientation(orient);
+      const otherOrient = orient == "horizontal" ? "vertical" : "horizontal";
 
       const computedDateList = [];
       const startDate = this.mStartDate.clone();

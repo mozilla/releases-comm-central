@@ -9,7 +9,7 @@
  *          checkRadioControlAppmenu,
  *          updateUnitLabelPlural, updateMenuLabelsPlural, menuListSelectItem,
  *          getOptimalMinimumWidth, getOptimalMinimumHeight,
- *          getOtherOrientation, setupAttendanceMenu
+ *          setupAttendanceMenu
  */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
@@ -481,17 +481,6 @@ function getOptimalMinimumHeight(aXULElement) {
     "border-top-width",
   ]);
   return firstEntity + secondEntity;
-}
-
-/**
- * Gets the "other" orientation value, i.e if "horizontal" is passed, "vertical"
- * is returned and vice versa.
- *
- * @param aOrientation    The orientation value to turn around.
- * @return                The opposite orientation value.
- */
-function getOtherOrientation(aOrientation) {
-  return aOrientation == "horizontal" ? "vertical" : "horizontal";
 }
 
 /**
