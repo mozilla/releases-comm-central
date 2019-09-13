@@ -38,8 +38,6 @@ messenger.jar:
     content/messenger/messengercompose/EdInsertMath.js               (content/dialogs/EdInsertMath.js)
     content/messenger/messengercompose/EdTableProps.xul              (content/dialogs/EdTableProps.xul)
     content/messenger/messengercompose/EdTableProps.js               (content/dialogs/EdTableProps.js)
-*   content/messenger/messengercompose/EdInputImage.xul              (content/dialogs/EdInputImage.xul)
-    content/messenger/messengercompose/EdInputImage.js               (content/dialogs/EdInputImage.js)
     content/messenger/messengercompose/EdInsSrc.xul                  (content/dialogs/EdInsSrc.xul)
     content/messenger/messengercompose/EdInsSrc.js                   (content/dialogs/EdInsSrc.js)
     content/messenger/messengercompose/EdInsertChars.xul             (content/dialogs/EdInsertChars.xul)
