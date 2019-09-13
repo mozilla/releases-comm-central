@@ -157,9 +157,7 @@
                            orient="horizontal"
                            label="&calendar.newevent.button.label;"
                            tooltiptext="&calendar.newevent.button.tooltip;"
-                           oncommand="agendaListbox.createNewEvent(event)">
-              <observes element="calendar_new_event_command" attribute="disabled"/>
-            </toolbarbutton>
+                           command="calendar_new_event_todaypane_command"/>
           </hbox>
           <richlistbox id="agenda-listbox" flex="1" context="_child"
                        onblur="agendaListbox.onBlur();"

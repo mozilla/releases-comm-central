@@ -572,7 +572,7 @@ agendaListbox.deleteSelectedItem = function(aDoNotConfirm) {
  * @param aEvent            The DOM event that targets the period.
  */
 agendaListbox.createNewEvent = function(aEvent) {
-  if (!this.isEventListItem(aEvent.target)) {
+  if (!this.isEventListItem(aEvent.explicitOriginalTarget)) {
     // Create new event for the date currently displayed in the agenda. Setting
     // isDate = true automatically makes the start time be the next full hour.
     let eventStart = agendaListbox.today.start.clone();

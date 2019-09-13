@@ -18,6 +18,7 @@
               events="calendar_commands"
               oncommandupdate="calendarController.updateCommands()">
     <command id="calendar_new_event_command" oncommand="goDoCommand('calendar_new_event_command')"/>
+    <command id="calendar_new_event_todaypane_command" oncommand="agendaListbox.createNewEvent(event)"/>
     <command id="calendar_new_event_context_command" oncommand="goDoCommand('calendar_new_event_context_command')"/>
     <command id="calendar_modify_event_command" oncommand="goDoCommand('calendar_modify_event_command')"/>
     <command id="calendar_delete_event_command" oncommand="goDoCommand('calendar_delete_event_command')"/>

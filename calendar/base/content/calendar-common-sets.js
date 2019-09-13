@@ -130,6 +130,7 @@ var calendarController = {
     switch (aCommand) {
       case "calendar_new_event_command":
       case "calendar_new_event_context_command":
+      case "calendar_new_event_todaypane_command":
         return CalendarNewEventsCommandEnabled;
       case "calendar_modify_focused_item_command":
         return this.item_selected;
