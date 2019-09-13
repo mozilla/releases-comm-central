@@ -2572,9 +2572,9 @@ function attachmentClick(aEvent) {
 
   for (let node of aEvent.target.children) {
     if (item.localName == "richlistitem" || node.id == "attachment-popup-attachPage") {
-      showElement(node);
+      node.removeAttribute("hidden");
     } else {
-      hideElement(node);
+      node.setAttribute("hidden", "true");
     }
   }
 }
@@ -3982,20 +3982,19 @@ function setAttendeeContext(aEvent) {
     let invite = document.getElementById("attendee-popup-invite-menuitem");
     for (let node of popup.childNodes) {
       if (node == invite) {
-        showElement(node);
+        node.removeAttribute("hidden");
       } else {
-        hideElement(node);
+        node.setAttribute("hidden", "true");
       }
     }
   } else {
     if (window.attendees.length > 1) {
       let removeall = document.getElementById("attendee-popup-removeallattendees-menuitem");
-      showElement(removeall);
+      removeall.removeAttribute("hidden");
     }
-    let sendEmail = document.getElementById("attendee-popup-sendemail-menuitem");
-    let sendTentativeEmail = document.getElementById("attendee-popup-sendtentativeemail-menuitem");
-    let firstSeparator = document.getElementById("attendee-popup-first-separator");
-    [sendEmail, sendTentativeEmail, firstSeparator].forEach(showElement);
+    document.getElementById("attendee-popup-sendemail-menuitem").removeAttribute("hidden");
+    document.getElementById("attendee-popup-sendtentativeemail-menuitem").removeAttribute("hidden");
+    document.getElementById("attendee-popup-first-separator").removeAttribute("hidden");
 
     // setup attendee specific menu items if appropriate otherwise hide respective menu items
     let mailto = document.getElementById("attendee-popup-emailattendee-menuitem");
@@ -4004,12 +4003,17 @@ function setAttendeeContext(aEvent) {
     let attId = aEvent.target.parentNode.getAttribute("attendeeid");
     let attendee = window.attendees.find(aAtt => aAtt.id == attId);
     if (attendee) {
-      [mailto, remove, secondSeparator].forEach(showElement);
+      mailto.removeAttribute("hidden");
+      remove.removeAttribute("hidden");
+      secondSeparator.removeAttribute("hidden");
+
       mailto.setAttribute("label", attendee.toString());
       mailto.attendee = attendee;
       remove.attendee = attendee;
     } else {
-      [mailto, remove, secondSeparator].forEach(hideElement);
+      mailto.setAttribute("hidden", "true");
+      remove.setAttribute("hidden", "true");
+      secondSeparator.setAttribute("hidden", "true");
     }
 
     if (window.attendees.some(isAttendeeUndecided)) {

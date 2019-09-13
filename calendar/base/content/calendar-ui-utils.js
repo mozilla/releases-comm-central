@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported getElementValue, setBooleanAttribute, showElement, hideElement,
+/* exported getElementValue, setBooleanAttribute,
  *          uncollapseElement, collapseElement, disableElementWithLock,
  *          enableElementWithLock, uncheckChildNodes, removeChildren,
  *          appendCalendarItems, setAttributeToChildren, checkRadioControl,
@@ -108,24 +108,6 @@ function getElementValue(aElement, aPropertyName) {
 function setBooleanAttribute(aXulElement, aAttribute, aValue) {
   setElementValue(aXulElement, aValue ? "true" : false, aAttribute);
   return aValue;
-}
-
-/**
- * Unconditionally show the element (hidden attribute)
- *
- * @param aElement      ID of XUL element to set, or the element node itself
- */
-function showElement(aElement) {
-  setElementValue(aElement, false, "hidden");
-}
-
-/**
- * Unconditionally hide the element (hidden attribute)
- *
- * @param aElement      ID of XUL element to set, or the element node itself
- */
-function hideElement(aElement) {
-  setElementValue(aElement, "true", "hidden");
 }
 
 /**

@@ -136,8 +136,12 @@ var ltnImipBar = {
    */
   resetButtons: function() {
     let buttons = ltnImipBar.getButtons();
-    buttons.forEach(hideElement);
-    buttons.forEach(aButton => ltnImipBar.getMenuItems(aButton).forEach(showElement));
+    for (let button of buttons) {
+      button.setAttribute("hidden", "true");
+      for (let item of ltnImipBar.getMenuItems(button)) {
+        item.removeAttribute("hidden");
+      }
+    }
   },
 
   /**
@@ -259,10 +263,10 @@ var ltnImipBar = {
     // apart from that, we need this to adapt the accept button depending on
     // whether three or four button style is present
     for (let item of data.hideItems) {
-      hideElement(document.getElementById(item));
+      document.getElementById(item).setAttribute("hidden", "true");
     }
     for (let item of data.showItems) {
-      showElement(document.getElementById(item));
+      document.getElementById(item).removeAttribute("hidden");
     }
     // adjust button style if necessary
     ltnImipBar.conformButtonType();

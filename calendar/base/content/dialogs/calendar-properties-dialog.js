@@ -59,12 +59,12 @@ function onLoad() {
   // Set up the disabled checkbox
   let calendarDisabled = false;
   if (gCalendar.getProperty("force-disabled")) {
-    showElement("force-disabled-description");
+    document.getElementById("force-disabled-description").removeAttribute("hidden");
     disableElement("calendar-enabled-checkbox");
   } else {
     calendarDisabled = gCalendar.getProperty("disabled");
     document.getElementById("calendar-enabled-checkbox").checked = !calendarDisabled;
-    hideElement(document.documentElement.getButton("extra1"));
+    document.documentElement.getButton("extra1").setAttribute("hidden", "true");
   }
   setupEnabledCheckbox();
 
