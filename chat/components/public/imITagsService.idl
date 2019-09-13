@@ -16,8 +16,7 @@ interface imITag: nsISupports {
   //  Contacts can either "have the tag" (added by user action) or
   //  have inherited the tag because it was the server side group for
   //  one of the AccountBuddy of the contact.
-  void getContacts([optional] out unsigned long contactCount,
-                   [retval, array, size_is(contactCount)] out imIContact contacts);
+  Array<imIContact> getContacts();
 
   void addObserver(in nsIObserver aObserver);
   void removeObserver(in nsIObserver aObserver);
@@ -47,8 +46,7 @@ interface imITagsService: nsISupports {
   // if not found.
   imITag getTagByName(in AUTF8String aName);
   // Get an array of all existing tags.
-  void getTags([optional] out unsigned long tagCount,
-               [retval, array, size_is(tagCount)] out imITag tags);
+  Array<imITag> getTags();
 
   boolean isTagHidden(in imITag aTag);
   void hideTag(in imITag aTag);

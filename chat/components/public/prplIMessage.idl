@@ -70,6 +70,5 @@ interface prplIMessage: nsISupports {
      The first action will be the 'default' and may be performed
      automatically when the message is double clicked.
      'Reply' is usually a good default action. */
-  void getActions([optional] out unsigned long actionCount,
-                  [retval, array, size_is(actionCount)] out prplIMessageAction actions);
+  Array<prplIMessageAction> getActions();
 };

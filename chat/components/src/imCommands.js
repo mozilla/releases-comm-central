@@ -76,7 +76,7 @@ CommandsService.prototype = {
         // Handle when no command is given, list all possible commands that are
         // available for this conversation (alphabetically).
         if (!aMsg) {
-          let commands = this.cmdSrv.listCommandsForConversation(aConv, {});
+          let commands = this.cmdSrv.listCommandsForConversation(aConv);
           if (!commands.length) {
             return false;
           }
@@ -168,7 +168,7 @@ CommandsService.prototype = {
       }
     }
   },
-  listCommandsForConversation(aConversation, commandCount) {
+  listCommandsForConversation(aConversation) {
     let result = [];
     let prplId = aConversation && aConversation.account.protocol.id;
     for (let name in this._commands) {
@@ -183,11 +183,10 @@ CommandsService.prototype = {
     if (aConversation) {
       result = result.filter(this._usageContextFilter(aConversation));
     }
-    commandCount.value = result.length;
     return result;
   },
   // List only the commands for a protocol (excluding the global commands).
-  listCommandsForProtocol(aPrplId, commandCount) {
+  listCommandsForProtocol(aPrplId) {
     if (!aPrplId) {
       throw new Error("You must provide a prpl ID.");
     }
@@ -199,7 +198,6 @@ CommandsService.prototype = {
         result.push(commands[aPrplId]);
       }
     }
-    commandCount.value = result.length;
     return result;
   },
   _usageContextFilter(aConversation) {

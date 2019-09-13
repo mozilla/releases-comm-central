@@ -30,7 +30,7 @@ irc.GenericIRCConversation._account = {
 function run_test() {
   for (let message in messages) {
     let msg = { message };
-    let generatedMsgs = irc.GenericIRCConversation.prepareForSending(msg, {});
+    let generatedMsgs = irc.GenericIRCConversation.prepareForSending(msg);
 
     // The expected messages as defined above.
     let expectedMsgs = messages[message];

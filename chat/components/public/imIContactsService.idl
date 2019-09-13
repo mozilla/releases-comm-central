@@ -21,8 +21,7 @@ interface imIContactsService: nsISupports {
 
   imIContact getContactById(in long aId);
   // Get an array of all existing contacts.
-  void getContacts([optional] out unsigned long contactCount,
-                   [retval, array, size_is(contactCount)] out imIContact contacts);
+  Array<imIContact> getContacts();
   imIBuddy getBuddyById(in long aId);
   imIBuddy getBuddyByNameAndProtocol(in AUTF8String aNormalizedName,
                                      in prplIProtocol aPrpl);
@@ -76,8 +75,7 @@ interface imIContact: imIStatusInfo {
   readonly attribute long id;
   attribute AUTF8String alias;
 
-  void getTags([optional] out unsigned long tagCount,
-               [retval, array, size_is(tagCount)] out imITag tags);
+  Array<imITag> getTags();
 
   // Will do nothing if the contact already has aTag.
   void addTag(in imITag aTag);
@@ -85,8 +83,7 @@ interface imIContact: imIStatusInfo {
   void removeTag(in imITag aTag);
 
   readonly attribute imIBuddy preferredBuddy;
-  void getBuddies([optional] out unsigned long buddyCount,
-                  [retval, array, size_is(buddyCount)] out imIBuddy buddies);
+  Array<imIBuddy> getBuddies();
 
   // Move all the buddies of aContact into the current contact,
   // and copy all its tags.
@@ -181,8 +178,7 @@ interface imIBuddy: imIStatusInfo {
 
   readonly attribute imIContact contact;
   readonly attribute prplIAccountBuddy preferredAccountBuddy;
-  void getAccountBuddies([optional] out unsigned long accountBuddyCount,
-                         [retval, array, size_is(accountBuddyCount)] out prplIAccountBuddy accountBuddies);
+  Array<prplIAccountBuddy> getAccountBuddies();
 
   // remove the buddy from the buddy list. If the contact becomes empty, it will be removed too.
   void remove();

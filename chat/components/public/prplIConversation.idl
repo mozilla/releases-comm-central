@@ -48,9 +48,7 @@ interface prplIConversation: nsISupports {
 
   /* Preprocess messages before they are sent (eg. split long messages).
      Can return null if no changes are to be made. */
-  void prepareForSending(in imIOutgoingMessage aMsg,
-                         [optional] out unsigned long aMsgCount,
-                         [retval, array, size_is(aMsgCount)] out wstring aMsgs);
+  Array<AString> prepareForSending(in imIOutgoingMessage aMsg);
 
   /* Postprocess messages before they are displayed (eg. escaping). The
      implementation can set aMsg.displayMessage, otherwise the originalMessage

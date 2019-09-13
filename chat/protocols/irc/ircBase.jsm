@@ -967,11 +967,7 @@ var ircBase = {
       // Give callbacks a batch of channels of length _channelsPerBatch.
       if (this._currentBatch.length == this._channelsPerBatch) {
         for (let callback of this._roomInfoCallbacks) {
-          callback.onRoomInfoAvailable(
-            this._currentBatch,
-            false,
-            this._channelsPerBatch
-          );
+          callback.onRoomInfoAvailable(this._currentBatch, false);
         }
         this._currentBatch = [];
       }

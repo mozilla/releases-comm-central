@@ -31,8 +31,7 @@ interface imILogConversation: nsISupports {
   readonly attribute boolean isChat; // always false (compatibility with prplIConversation).
   readonly attribute prplIAccountBuddy buddy; // always null (compatibility with prplIConvIM).
 
-  void getMessages([optional] out unsigned long messageCount,
-                   [retval, array, size_is(messageCount)] out imIMessage messages);
+  Array<imIMessage> getMessages();
 
   // Callers that process the messages asynchronously should use the enumerator
   // instead of the array version of the getMessages* methods to avoid paying

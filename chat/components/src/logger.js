@@ -548,10 +548,7 @@ LogConversation.prototype = {
       statusInfo: Services.core.globalUserStatus,
     };
   },
-  getMessages(aMessageCount) {
-    if (aMessageCount) {
-      aMessageCount.value = this._messages.length;
-    }
+  getMessages() {
     return this._messages.map(m => new LogMessage(m, this));
   },
   getMessagesEnumerator(aMessageCount) {

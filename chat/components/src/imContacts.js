@@ -183,7 +183,7 @@ TagsService.prototype = {
     }
   },
   // Get an array of all existing tags.
-  getTags(aTagCount) {
+  getTags() {
     if (Tags.length) {
       Tags.sort((a, b) =>
         a.name.toLowerCase().localeCompare(b.name.toLowerCase())
@@ -192,9 +192,6 @@ TagsService.prototype = {
       this.defaultTag;
     }
 
-    if (aTagCount) {
-      aTagCount.value = Tags.length;
-    }
     return Tags;
   },
 
@@ -251,12 +248,8 @@ Tag.prototype = {
     // FIXME move the account buddies if some use this tag as their group
     return aNewName;
   },
-  getContacts(aContactCount) {
-    let contacts = this._contacts.filter(c => !c._empty);
-    if (aContactCount) {
-      aContactCount.value = contacts.length;
-    }
-    return contacts;
+  getContacts() {
+    return this._contacts.filter(c => !c._empty);
   },
   _addContact(aContact) {
     this._contacts.push(aContact);
@@ -398,12 +391,8 @@ var otherContactsTag = {
   set name(aNewName) {
     throw Cr.NS_ERROR_NOT_AVAILABLE;
   },
-  getContacts(aContactCount) {
-    let contacts = Object.keys(this._contacts).map(id => this._contacts[id]);
-    if (aContactCount) {
-      aContactCount.value = contacts.length;
-    }
-    return contacts;
+  getContacts() {
+    return Object.keys(this._contacts).map(id => this._contacts[id]);
   },
   _addContact(aContact) {
     this._contacts[aContact.id] = aContact;
@@ -506,10 +495,7 @@ Contact.prototype = {
     executeAsyncThenFinalize(statement);
   },
 
-  getTags(aTagCount) {
-    if (aTagCount) {
-      aTagCount.value = this._tags.length;
-    }
+  getTags() {
     return this._tags;
   },
   addTag(aTag, aInherited) {
@@ -679,10 +665,7 @@ Contact.prototype = {
     Services.obs.notifyObservers(this, "contact-moved");
   },
 
-  getBuddies(aBuddyCount) {
-    if (aBuddyCount) {
-      aBuddyCount.value = this._buddies.length;
-    }
+  getBuddies() {
     return this._buddies;
   },
   get _empty() {
@@ -1165,10 +1148,7 @@ Buddy.prototype = {
     }
     return false;
   },
-  getAccountBuddies(aAccountBuddyCount) {
-    if (aAccountBuddyCount) {
-      aAccountBuddyCount.value = this._accounts.length;
-    }
+  getAccountBuddies() {
     return this._accounts;
   },
 
@@ -1600,14 +1580,10 @@ ContactsService.prototype = {
 
   getContactById: aId => ContactsById[aId],
   // Get an array of all existing contacts.
-  getContacts(aContactCount) {
-    let contacts = Object.keys(ContactsById)
+  getContacts() {
+    return Object.keys(ContactsById)
       .filter(id => !ContactsById[id]._empty)
       .map(id => ContactsById[id]);
-    if (aContactCount) {
-      aContactCount.value = contacts.length;
-    }
-    return contacts;
   },
   getBuddyById: aId => BuddiesById[aId],
   getBuddyByNameAndProtocol(aNormalizedName, aPrpl) {

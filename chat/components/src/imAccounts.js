@@ -396,7 +396,7 @@ imAccount.prototype = {
     );
     return { logLevel: 0, message: scriptError };
   },
-  getDebugMessages(aCount) {
+  getDebugMessages() {
     let messages = [];
     if (this._omittedDebugMessagesBeforeError) {
       let text = this._omittedDebugMessagesBeforeError + " messages omitted";
@@ -421,9 +421,6 @@ imAccount.prototype = {
       messages.unshift(this._createDebugMessage(header));
     }
 
-    if (aCount) {
-      aCount.value = messages.length;
-    }
     return messages;
   },
 

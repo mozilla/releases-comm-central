@@ -134,8 +134,8 @@ imMessage.prototype = {
   get originalMessage() {
     return this.prplMessage.originalMessage;
   },
-  getActions(aCount) {
-    return this.prplMessage.getActions(aCount || {});
+  getActions() {
+    return this.prplMessage.getActions();
   },
 };
 
@@ -287,10 +287,7 @@ UIConversation.prototype = {
       );
     }
   },
-  getMessages(aMessageCount) {
-    if (aMessageCount) {
-      aMessageCount.value = this._messages.length;
-    }
+  getMessages() {
     return this._messages;
   },
   checkClose() {
@@ -801,7 +798,7 @@ ConversationsService.prototype = {
     );
   },
 
-  getUIConversations(aConvCount) {
+  getUIConversations() {
     let rv = [];
     if (this._uiConv) {
       for (let prplConvId in this._uiConv) {
@@ -813,9 +810,6 @@ ConversationsService.prototype = {
           rv.push(uiConv);
         }
       }
-    }
-    if (aConvCount) {
-      aConvCount.value = rv.length;
     }
     return rv;
   },

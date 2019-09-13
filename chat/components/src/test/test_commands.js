@@ -211,7 +211,7 @@ function run_test() {
 
     // Check which commands are available in which context.
     let cmdlist = cmdserv
-      .listCommandsForConversation(test.conv, {})
+      .listCommandsForConversation(test.conv)
       .map(aCmd => aCmd.name)
       .sort()
       .join(", ");

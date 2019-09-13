@@ -594,10 +594,7 @@ var GenericMessagePrototype = {
   notification: false,
   noLinkification: false,
 
-  getActions(aCount) {
-    if (aCount) {
-      aCount.value = 0;
-    }
+  getActions() {
     return [];
   },
 };
@@ -663,7 +660,7 @@ var GenericConversationPrototype = {
     }
   },
 
-  prepareForSending: (aOutgoingMessage, aCount) => null,
+  prepareForSending: aOutgoingMessage => null,
   prepareForDisplaying(aImMessage) {
     if (aImMessage.displayMessage !== aImMessage.message) {
       this.DEBUG(

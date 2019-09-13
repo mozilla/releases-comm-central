@@ -64,9 +64,7 @@ interface prplIRoomInfoCallback: nsISupports {
    * in each batch is left for the prplIAccount implementation to decide.
    * aCompleted will be true when aRooms is the last batch.
    */
-  void onRoomInfoAvailable([array, size_is(aCount)] in wstring aRooms,
-                           in boolean aCompleted,
-                           in unsigned long aCount);
+  void onRoomInfoAvailable(in Array<AString> aRooms, in boolean aCompleted);
 };
 
 
@@ -313,8 +311,7 @@ interface imIAccount: prplIAccount {
   void logDebugMessage(in nsIScriptError aMessage, in short aLevel);
 
   /* Get an array of the 50 most recent debug messages. */
-  void getDebugMessages([optional] out unsigned long aCount,
-                        [retval, array, size_is(aCount)] out imIDebugMessage aMessages);
+  Array<imIDebugMessage> getDebugMessages();
 
   /* The imIUserStatusInfo instance this account should observe for
      status changes. When this is null (the default value), the

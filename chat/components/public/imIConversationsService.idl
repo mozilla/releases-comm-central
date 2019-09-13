@@ -43,8 +43,7 @@ interface imIConversation: prplIConversation {
   boolean checkClose();
 
   // Get an array of all messages of the conversation.
-  void getMessages([optional] out unsigned long messageCount,
-                   [retval, array, size_is(messageCount)] out imIMessage messages);
+  Array<imIMessage> getMessages();
 };
 
 [scriptable, uuid(984e182c-d395-4fba-ba6e-cc80c71f57bf)]
@@ -57,8 +56,7 @@ interface imIConversationsService: nsISupports {
   void addConversation(in prplIConversation aConversation);
   void removeConversation(in prplIConversation aConversation);
 
-  void getUIConversations([optional] out unsigned long conversationCount,
-                          [retval, array, size_is(conversationCount)] out imIConversation conversations);
+  Array<imIConversation> getUIConversations();
   imIConversation getUIConversation(in prplIConversation aConversation);
   imIConversation getUIConversationByContactId(in long aId);
 
@@ -94,15 +92,15 @@ interface imIOutgoingMessage: nsISupports {
 // the message.
 [scriptable, uuid(3f88cc5c-6940-4eb5-a576-c65770f49ce9)]
 interface imIMessage: prplIMessage {
-           attribute boolean cancelled;
-           // Holds the sender color for Chats.
-           // Empty string by default, it is set by the conversation binding.
-           attribute AUTF8String color;
+  attribute boolean cancelled;
+  // Holds the sender color for Chats.
+  // Empty string by default, it is set by the conversation binding.
+  attribute AUTF8String color;
 
-           // What eventually gets shown to the user.
-           attribute AUTF8String displayMessage;
+  // What eventually gets shown to the user.
+  attribute AUTF8String displayMessage;
 
-           // The related incoming or outgoing message is transmitted
-           // with encryption.
-           attribute boolean encrypted;
+  // The related incoming or outgoing message is transmitted
+  // with encryption.
+  attribute boolean encrypted;
 };

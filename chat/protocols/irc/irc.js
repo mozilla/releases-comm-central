@@ -272,7 +272,7 @@ var GenericIRCConversation = {
     aMsg.displayMessage = ctcpFormatToHTML(aMsg.displayMessage);
     GenericConversationPrototype.prepareForDisplaying.apply(this, arguments);
   },
-  prepareForSending(aOutgoingMessage, aCount) {
+  prepareForSending(aOutgoingMessage) {
     // Split the message by line breaks and send each one individually.
     let messages = aOutgoingMessage.message.split(/[\r\n]+/);
 
@@ -300,10 +300,6 @@ var GenericIRCConversation = {
         message.substr(0, index == -1 ? maxLength : index),
         message.substr(index + 1 || maxLength)
       );
-    }
-
-    if (aCount) {
-      aCount.value = messages.length;
     }
 
     return messages;
@@ -1226,7 +1222,7 @@ ircAccount.prototype = {
     } else {
       // Otherwise, pass channels that have already been received to the callback.
       let rooms = [...this._channelList.keys()];
-      aCallback.onRoomInfoAvailable(rooms, !this._pendingList, rooms.length);
+      aCallback.onRoomInfoAvailable(rooms, !this._pendingList);
     }
 
     if (this._pendingList) {
@@ -1237,11 +1233,7 @@ ircAccount.prototype = {
   _sendRemainingRoomInfo() {
     if (this._currentBatch.length) {
       for (let callback of this._roomInfoCallbacks) {
-        callback.onRoomInfoAvailable(
-          this._currentBatch,
-          true,
-          this._currentBatch.length
-        );
+        callback.onRoomInfoAvailable(this._currentBatch, true);
       }
     }
     this._roomInfoCallbacks.clear();

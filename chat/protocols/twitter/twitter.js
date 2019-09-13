@@ -72,12 +72,9 @@ function Tweet(aTweet, aWho, aMessage, aObject) {
 Tweet.prototype = {
   __proto__: GenericMessagePrototype,
   _deleted: false,
-  getActions(aCount) {
+  getActions() {
     // Direct messages have no actions.
     if (!this.conversation.isChat) {
-      if (aCount) {
-        aCount.value = 0;
-      }
       return [];
     }
 
@@ -151,9 +148,6 @@ Tweet.prototype = {
         this
       )
     );
-    if (aCount) {
-      aCount.value = actions.length;
-    }
     return actions;
   },
   destroy() {

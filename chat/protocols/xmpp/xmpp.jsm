@@ -2364,7 +2364,7 @@ var XMPPAccountPrototype = {
       this.sendStanza(iq, this.onRoomDiscovery, this);
     } else {
       let rooms = [...this._roomList.keys()];
-      aCallback.onRoomInfoAvailable(rooms, !this._pendingList, rooms.length);
+      aCallback.onRoomInfoAvailable(rooms, !this._pendingList);
     }
 
     if (this._pendingList) {
@@ -2410,11 +2410,7 @@ var XMPPAccountPrototype = {
       rooms.push(name);
     });
 
-    this._roomInfoCallback.onRoomInfoAvailable(
-      rooms,
-      !this._pendingList,
-      rooms.length
-    );
+    this._roomInfoCallback.onRoomInfoAvailable(rooms, !this._pendingList);
   },
 
   getRoomInfo(aName) {

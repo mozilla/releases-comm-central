@@ -58,14 +58,10 @@ interface imICommandsService: nsISupports {
   void unregisterCommand(in AUTF8String aCommandName,
                          [optional] in AUTF8String aPrplId);
 
-  void listCommandsForConversation(
-    [optional] in prplIConversation aConversation,
-    [optional] out unsigned long commandCount,
-    [retval, array, size_is(commandCount)] out imICommand commands);
+  Array<imICommand> listCommandsForConversation(
+    [optional] in prplIConversation aConversation);
 
-  void listCommandsForProtocol(in AUTF8String aPrplId,
-    [optional] out unsigned long commandCount,
-    [retval, array, size_is(commandCount)] out imICommand commands);
+  Array<imICommand> listCommandsForProtocol(in AUTF8String aPrplId);
 
   // Will return true if a command handled the message (it should not be sent).
   // The aConversation parameters is required to execute protocol specific
