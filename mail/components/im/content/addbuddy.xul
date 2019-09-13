@@ -5,16 +5,21 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/imMenulist.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/addbuddy.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-  id="addBuddyDialog"
-  windowtype="Messenger:AddBuddy"
-  title="&addBuddyWindow.title;"
-  buttons="accept,cancel"
-  onload="addBuddy.onload()"
-  buttondisabledaccept="true">
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        id="addBuddyDialog"
+        windowtype="Messenger:AddBuddy"
+        title="&addBuddyWindow.title;"
+        buttons="accept,cancel"
+        onload="addBuddy.onload()"
+        buttondisabledaccept="true">
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/chat/addbuddy.js"/>
 
   <stringbundle id="chatBundle" src="chrome://messenger/locale/chat.properties"/>
@@ -28,7 +33,10 @@
       </hbox>
     </vbox>
     <vbox id="accountBox">
-      <textbox id="name" oninput="addBuddy.oninput()"/>
+      <html:input id="name"
+                  type="text"
+                  class="input-inline"
+                  oninput="addBuddy.oninput()"/>
       <menulist id="accountlist"/>
     </vbox>
   </hbox>

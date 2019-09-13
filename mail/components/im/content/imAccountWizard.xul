@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/imAccountWizard.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE wizard [
   <!ENTITY % accountWizardDTD SYSTEM "chrome://messenger/locale/imAccountWizard.dtd">
@@ -15,11 +16,15 @@
   %brandDTD;
 ]>
 
-<wizard id="accountWizard" title="&windowTitle.label;"
+<wizard id="accountWizard"
+        title="&windowTitle.label;"
         windowtype="Messenger:accountWizard"
         onload="accountWizard.onload();"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://chat/content/imAccountOptionsHelper.js"/>
   <script src="chrome://messenger/content/chat/imAccountWizard.js"/>
 
@@ -52,9 +57,12 @@
               label="&accountPasswordTitle.label;">
     <description>&accountPasswordInfo.label;</description>
     <separator/>
-    <hbox id="passwordBox" align="baseline">
-      <label value="&accountPasswordField.label;" control="password" id="passwordLabel"/>
-      <textbox id="password" type="password"/>
+    <hbox id="passwordBox" align="baseline" class="input-container">
+      <label id="passwordLabel"
+             value="&accountPasswordField.label;"
+             class="label-inline"
+             control="password"/>
+      <html:input id="password" type="password" class="input-inline"/>
     </hbox>
     <separator/>
     <description id="passwordManagerDescription">&accountPasswordManager.label;</description>
@@ -68,9 +76,12 @@
       <hbox class="groupbox-title">
         <label id="aliasGroupboxCaption" class="header">&accountAliasGroupbox.caption;</label>
       </hbox>
-      <hbox id="aliasBox" align="baseline">
-        <label value="&accountAliasField.label;" control="alias" id="aliasLabel"/>
-        <textbox id="alias"/>
+      <hbox id="aliasBox" align="baseline" class="input-container">
+        <label id="aliasLabel"
+               value="&accountAliasField.label;"
+               class="label-inline"
+               control="alias" />
+        <html:input id="alias" type="text" class="input-inline"/>
       </hbox>
       <description>&accountAliasInfo.label;</description>
     </groupbox>

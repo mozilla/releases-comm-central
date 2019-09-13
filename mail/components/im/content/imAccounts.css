@@ -7,7 +7,7 @@
 }
 
 #displayName,
-#statusMessage:not([statusType="offline"]) {
+#statusMessageLabel:not([statusType="offline"]) {
   cursor: text;
 }
 

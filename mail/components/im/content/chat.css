@@ -46,16 +46,20 @@ richlistitem[is="chat-imconv"] {
   cursor: pointer;
 }
 
-#statusMessage, #statusMessageInput {
+.status-container {
   width: 15em;
 }
 
-#statusMessage:not([statusType="offline"]):not([disabled]), .statusMessageInput[editable] {
+#statusMessageLabel:not([statusType="offline"]):not([disabled]), .statusMessageInput[editable] {
   cursor: text;
 }
 
 #statusMessageInput[editing], .statusMessageInput[editing] {
   -moz-appearance: textfield;
+}
+
+#statusMessageInput.status-message-input {
+  margin: 0;
 }
 
 toolbar[mode="text"] #button-chat {
@@ -108,4 +112,8 @@ toolbar[mode="text"] .badgeButton-badge {
 }
 .required {
   visibility: hidden;
+}
+
+#participantCount {
+  background: transparent;
 }

@@ -11,6 +11,10 @@ html|input.input-inline {
   padding-inline-start: 4px;
 }
 
+html|input.input-inline.plain {
+  background-color: transparent;
+}
+
 html|input.input-filefield {
   -moz-appearance: none;
   padding-inline-start: 20px !important;
@@ -38,6 +42,13 @@ html|input.input-inline-color {
   align-items: center;
 }
 
-.input-container html|input:not([type="number"]) {
-  flex-grow: 1;
+.input-container html|input:not([type="number"]),
+.input-container .label-inline {
+  flex: 1;
+}
+
+html|input[type="number"].input-number-inline {
+  flex: 1 !important;
+  padding: 2px 2px 3px;
+  margin-inline-start: 2px;
 }

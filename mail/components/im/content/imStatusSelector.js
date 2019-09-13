@@ -36,7 +36,7 @@ var statusSelector = {
 
   displayStatusType(aStatusType) {
     document
-      .getElementById("statusMessage")
+      .getElementById("statusMessageLabel")
       .setAttribute("statusType", aStatusType);
     let statusString = Status.toLabel(aStatusType);
     let statusTypeIcon = document.getElementById("statusTypeIcon");
@@ -49,7 +49,7 @@ var statusSelector = {
     let us = Services.core.globalUserStatus;
     let status = Status.toAttribute(us.statusType);
     let message = status == "offline" ? "" : us.statusText;
-    let statusMessage = document.getElementById("statusMessage");
+    let statusMessage = document.getElementById("statusMessageLabel");
     if (!statusMessage) {
       // Chat toolbar not in the DOM yet
       return;
@@ -90,10 +90,10 @@ var statusSelector = {
   },
 
   statusMessageClick() {
-    let statusMessage = document.getElementById("statusMessage");
+    let statusMessage = document.getElementById("statusMessageLabel");
     let statusMessageInput = document.getElementById("statusMessageInput");
-    statusMessage.setAttribute("collapsed", "true");
-    statusMessageInput.setAttribute("collapsed", "false");
+    statusMessage.setAttribute("hidden", "true");
+    statusMessageInput.removeAttribute("hidden");
     let statusType = document
       .getElementById("statusTypeIcon")
       .getAttribute("status");
@@ -103,7 +103,9 @@ var statusSelector = {
 
     if (!statusMessageInput.hasAttribute("editing")) {
       statusMessageInput.setAttribute("editing", "true");
-      statusMessageInput.addEventListener("blur", this.statusMessageBlur);
+      statusMessageInput.addEventListener("blur", event => {
+        this.finishEditStatusMessage(true);
+      });
       if (statusMessage.hasAttribute("usingDefault")) {
         if (
           "_statusTypeBeforeEditing" in this &&
@@ -149,15 +151,6 @@ var statusSelector = {
     );
   },
 
-  statusMessageBlur(aEvent) {
-    if (
-      aEvent.originalTarget ==
-      document.getElementById("statusMessageInput").inputField
-    ) {
-      statusSelector.finishEditStatusMessage(true);
-    }
-  },
-
   statusMessageKeyPress(aEvent) {
     if (!this.hasAttribute("editing")) {
       if (aEvent.keyCode == aEvent.DOM_VK_DOWN) {
@@ -184,10 +177,10 @@ var statusSelector = {
   finishEditStatusMessage(aSave) {
     clearTimeout(this._stopEditStatusTimeout);
     delete this._stopEditStatusTimeout;
-    let statusMessage = document.getElementById("statusMessage");
+    let statusMessage = document.getElementById("statusMessageLabel");
     let statusMessageInput = document.getElementById("statusMessageInput");
-    statusMessage.setAttribute("collapsed", "false");
-    statusMessageInput.setAttribute("collapsed", "true");
+    statusMessage.removeAttribute("hidden");
+    statusMessageInput.toggleAttribute("hidden", "true");
     if (aSave) {
       let newStatus = Ci.imIStatusInfo.STATUS_UNKNOWN;
       if ("_statusTypeEditing" in this) {
@@ -226,7 +219,9 @@ var statusSelector = {
     }
 
     statusMessageInput.removeAttribute("editing");
-    statusMessageInput.removeEventListener("blur", this.statusMessageBlur);
+    statusMessageInput.removeEventListener("blur", event => {
+      this.finishEditStatusMessage(true);
+    });
 
     // We need to put the focus back on the label after the textbox
     // binding has been detached, otherwise the focus gets lost (it's
@@ -257,8 +252,8 @@ var statusSelector = {
   displayNameClick() {
     let displayName = document.getElementById("displayName");
     let displayNameInput = document.getElementById("displayNameInput");
-    displayName.setAttribute("collapsed", "true");
-    displayNameInput.setAttribute("collapsed", "false");
+    displayName.setAttribute("hidden", "true");
+    displayNameInput.removeAttribute("hidden");
     if (!displayNameInput.hasAttribute("editing")) {
       displayNameInput.setAttribute("editing", "true");
       if (displayName.hasAttribute("usingDefault")) {
@@ -270,7 +265,9 @@ var statusSelector = {
         );
       }
       displayNameInput.addEventListener("keypress", this.displayNameKeyPress);
-      displayNameInput.addEventListener("blur", this.displayNameBlur);
+      displayNameInput.addEventListener("blur", event => {
+        this.finishEditDisplayName(true);
+      });
       // force binding attachmant by forcing layout
       displayNameInput.getBoundingClientRect();
       displayNameInput.select();
@@ -288,15 +285,6 @@ var statusSelector = {
       timeBeforeAutoValidate,
       true
     );
-  },
-
-  displayNameBlur(aEvent) {
-    if (
-      aEvent.originalTarget ==
-      document.getElementById("displayNameInput").inputField
-    ) {
-      statusSelector.finishEditDisplayName(true);
-    }
   },
 
   displayNameKeyPress(aEvent) {
@@ -318,8 +306,8 @@ var statusSelector = {
     clearTimeout(this._stopEditDisplayNameTimeout);
     let displayName = document.getElementById("displayName");
     let displayNameInput = document.getElementById("displayNameInput");
-    displayName.setAttribute("collapsed", "false");
-    displayNameInput.setAttribute("collapsed", "true");
+    displayName.removeAttribute("hidden");
+    displayNameInput.toggleAttribute("hidden", "true");
     // Apply the new display name only if it is different from the current one.
     if (
       aSave &&
@@ -335,7 +323,9 @@ var statusSelector = {
 
     displayNameInput.removeAttribute("editing");
     displayNameInput.removeEventListener("keypress", this.displayNameKeyPress);
-    displayNameInput.removeEventListener("blur", this.displayNameBlur);
+    displayNameInput.removeEventListener("blur", event => {
+      this.finishEditDisplayName(true);
+    });
   },
 
   init() {
@@ -352,7 +342,7 @@ var statusSelector = {
       statusSelector.displayUserIcon();
     }
 
-    let statusMessage = document.getElementById("statusMessage");
+    let statusMessage = document.getElementById("statusMessageLabel");
     let statusMessageInput = document.getElementById("statusMessageInput");
     if (statusMessage && statusMessageInput) {
       statusMessage.addEventListener("keypress", this.statusMessageKeyPress);

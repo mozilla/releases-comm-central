@@ -72,7 +72,7 @@
   margin: 28px 0 -1px -2px;
 }
 
-#displayNameAndstatusMessageStack #statusMessage, #statusMessageInput {
+#displayNameAndstatusMessageStack #statusMessageLabel, #statusMessageInput {
   margin: 32px 0 0;
 }
 

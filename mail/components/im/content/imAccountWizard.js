@@ -93,7 +93,7 @@ var accountWizard = {
   },
 
   getUsername() {
-    // If the first username textbox is empty, make sure we return an empty
+    // If the first username input is empty, make sure we return an empty
     // string so that it blocks the 'next' button of the wizard.
     if (!this.userNameBoxes[0].value) {
       return "";
@@ -128,24 +128,31 @@ var accountWizard = {
     hbox.setAttribute("id", aName + "-hbox");
     hbox.setAttribute("align", "baseline");
     hbox.setAttribute("equalsize", "always");
+    hbox.classList.add("input-container");
 
     var label = document.createXULElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     label.setAttribute("id", aName + "-label");
+    label.classList.add("label-inline");
     hbox.appendChild(label);
 
-    var textbox = document.createXULElement("textbox");
-    textbox.setAttribute("id", aName);
-    textbox.setAttribute("flex", 1);
+    var input = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "input"
+    );
+    input.setAttribute("id", aName);
+    input.classList.add("input-inline");
     if (aDefaultValue) {
-      textbox.setAttribute("value", aDefaultValue);
+      input.setAttribute("value", aDefaultValue);
     }
-    textbox.addEventListener("input", accountWizard.checkUsername);
-    hbox.appendChild(textbox);
+    input.addEventListener("input", event => {
+      this.checkUsername();
+    });
+    hbox.appendChild(input);
 
     aParent.appendChild(hbox);
-    return textbox;
+    return input;
   },
 
   showUsernamePage() {
@@ -238,22 +245,23 @@ var accountWizard = {
     hbox.setAttribute("equalsize", "always");
 
     var label = document.createXULElement("label");
-    label.setAttribute("class", "header");
+    label.classList.add("header", "label-inline");
     if (aLabel.length > 20) {
       aLabel = aLabel.substring(0, 20);
       aLabel += "…";
     }
 
     label.setAttribute("value", aLabel);
-    var hboxWrapper = document.createXULElement("hbox");
-    hboxWrapper.appendChild(label);
-    hbox.appendChild(hboxWrapper);
+    hbox.appendChild(label);
 
-    var textbox = document.createXULElement("textbox");
-    textbox.setAttribute("value", aValue);
-    textbox.setAttribute("class", "plain");
-    textbox.setAttribute("readonly", true);
-    hbox.appendChild(textbox);
+    var input = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "input"
+    );
+    input.setAttribute("value", aValue);
+    input.classList.add("plain", "input-inline");
+    input.setAttribute("readonly", true);
+    hbox.appendChild(input);
 
     return hbox;
   },

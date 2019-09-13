@@ -7,32 +7,30 @@ var accountOptionsHelper = {
     let container = document.createXULElement("hbox");
     container.setAttribute("align", "baseline");
     container.setAttribute("equalsize", "always");
+    container.classList.add("input-container");
 
     let label = document.createXULElement("label");
     label.textContent = aLabel;
     label.setAttribute("control", aName);
-    label.setAttribute("flex", "1");
+    label.classList.add("label-inline");
     container.appendChild(label);
 
-    let hbox = document.createXULElement("hbox");
-    let textbox =
-      aType != "number"
-        ? document.createXULElement("textbox")
-        : document.createElementNS("http://www.w3.org/1999/xhtml", "input");
+    let input = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "input"
+    );
     if (aType == "number") {
-      textbox.style.width = "100%";
+      input.classList.add("input-number-inline");
+    } else {
+      input.classList.add("input-inline");
     }
     if (aType) {
-      textbox.setAttribute("type", aType);
+      input.setAttribute("type", aType);
     }
-    textbox.setAttribute("value", aValue);
-    textbox.setAttribute("id", aName);
-    textbox.setAttribute("flex", "1");
-    hbox.setAttribute("flex", "1");
-    hbox.setAttribute("align", "start");
-    hbox.appendChild(textbox);
+    input.setAttribute("value", aValue);
+    input.setAttribute("id", aName);
 
-    container.appendChild(hbox);
+    container.appendChild(input);
     return container;
   },
 

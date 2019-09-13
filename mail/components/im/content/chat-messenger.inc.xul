@@ -44,11 +44,19 @@
                               status="offline" class="menuitem-iconic"/>
                   </menupopup>
                 </toolbarbutton>
-                <vbox flex="1" orient="horizontal" align="center">
-                  <label id="statusMessage" flex="1" value="" class="statusMessageToolbarItem"
+                <vbox flex="1"
+                      orient="horizontal"
+                      align="center"
+                      class="input-container status-container">
+                  <label id="statusMessageLabel"
+                         flex="1"
+                         value=""
+                         class="statusMessageToolbarItem label-inline"
                          onclick="statusSelector.statusMessageClick();"/>
-                  <textbox id="statusMessageInput" flex="1" value="" class="statusMessageToolbarItem"
-                           collapsed="true" style="margin:0;"/>
+                  <html:input id="statusMessageInput"
+                              value=""
+                              class="statusMessageToolbarItem status-message-input"
+                              hidden="hidden"/>
                 </vbox>
               </toolbaritem>
               <toolbarbutton id="button-chat-accounts"
@@ -166,11 +174,12 @@
                 <chat-conversation-info id="conv-top-info" class="conv-top-info"/>
                 <vbox id="contextPaneFlexibleBox" flex="1">
                   <vbox flex="1" class="conv-chat" width="150">
-                    <hbox align="baseline" class="conv-nicklist-header">
-                      <label class="conv-nicklist-header-label"
-                             id="participantLabel" control="participantCount"
+                    <hbox align="baseline" class="conv-nicklist-header input-container">
+                      <label id="participantLabel"
+                             class="conv-nicklist-header-label"
+                             control="participantCount"
                              value="&chat.participants;"/>
-                      <textbox flex="1" readonly="true" class="plain" id="participantCount"/>
+                      <html:input id="participantCount" readonly="readonly" class="plain"/>
                     </hbox>
                     <richlistbox id="nicklist" class="conv-nicklist theme-listbox"
                                  flex="1" seltype="multiple"

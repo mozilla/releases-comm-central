@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % imDTD SYSTEM "chrome://messenger/locale/am-im.dtd">
@@ -18,6 +19,9 @@
       title="&accountWindow.title;"
       buttons="accept,cancel"
       onload="parent.onPanelLoaded('am-im.xul');">
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://chat/content/imAccountOptionsHelper.js"/>
   <script src="chrome://messenger/content/am-im.js"/>
 
@@ -50,15 +54,34 @@
         <tabpanels flex="1">
           <tabpanel orient="vertical">
             <label class="header" data-l10n-id="account-settingsTitle" />
-            <hbox id="passwordBox" equalsize="always" align="baseline">
-              <label value="&account.password;" control="server.password" flex="1"/>
-              <textbox id="server.password" flex="1" type="password"
-                       preftype="wstring" genericattr="true"/>
+            <hbox id="passwordBox"
+                  equalsize="always"
+                  align="baseline"
+                  class="input-container">
+              <label value="&account.password;"
+                     control="server.password"
+                     class="label-inline"
+                     flex="1"/>
+              <html:input id="server.password"
+                          type="password"
+                          preftype="wstring"
+                          genericattr="true"
+                          class="input-inline"/>
             </hbox>
-            <hbox id="aliasBox" equalsize="always" align="baseline">
-              <label value="&account.alias;" control="server.alias" flex="1"/>
-              <textbox id="server.alias" flex="1" preftype="wstring"
-                       wsm_persist="true" genericattr="true"/>
+            <hbox id="aliasBox"
+                  equalsize="always"
+                  align="baseline"
+                  class="input-container">
+              <label value="&account.alias;"
+                     control="server.alias"
+                     class="label-inline"
+                     flex="1"/>
+              <html:input id="server.alias"
+                          type="text"
+                          preftype="wstring"
+                          wsm_persist="true"
+                          genericattr="true"
+                          class="input-inline"/>
             </hbox>
             <separator class="thin"/>
 
@@ -66,7 +89,11 @@
               <label class="header" data-l10n-id="account-channelTitle" />
               <vbox>
                 <label value="&account.autojoin;" control="server.autojoin" flex="1"/>
-                <textbox id="server.autojoin" flex="1" preftype="wstring" genericattr="true"/>
+                <html:input id="server.autojoin"
+                            type="text"
+                            preftype="wstring"
+                            genericattr="true"
+                            class="input-inline"/>
               </vbox>
               <separator class="thin"/>
             </vbox>
@@ -110,11 +137,12 @@
               <label class="header" data-l10n-id="otr-encryption-title" />
               <label data-l10n-id="otr-encryption-caption" />
               <separator class="thin"/>
-              <hbox align="baseline">
+              <hbox align="baseline" class="input-container">
                 <label data-l10n-id="otr-fingerprint-label" />
-                <textbox id="otrFingerprint"
-                         readonly="true"
-                         flex="1"/>
+                <html:input id="otrFingerprint"
+                            type="text"
+                            class="input-inline"
+                            readonly="readonly"/>
               </hbox>
               <separator class="thin"/>
               <hbox pack="start">

@@ -76,7 +76,7 @@
             <image class="prplIcon"></image>
           </hbox>
           <description class="statusMessage" mousethrough="never" crop="end" flex="100000"/>
-          <textbox class="statusMessageInput" mousethrough="never" crop="end" flex="100000" collapsed="true"/>
+          <html:input class="statusMessageInput input-inline" hidden="hidden"/>
         </stack>
       </hbox>
       <hbox class="otr-container" align="left" valign="middle" hidden="true">
@@ -128,8 +128,8 @@
 
       let topic = this.topic;
       let topicInput = this.topicInput;
-      topic.setAttribute("collapsed", "false");
-      topicInput.setAttribute("collapsed", "true");
+      topic.removeAttribute("hidden");
+      topicInput.toggleAttribute("hidden", "true");
       if (save) {
         // apply the new topic only if it is different from the current one
         if (topicInput.value != topicInput.getAttribute("value")) {
@@ -162,7 +162,7 @@
     }
 
     topicBlur(event) {
-      if (event.originalTarget == this.topicInput.inputField) {
+      if (event.originalTarget == this.topicInput) {
         this.finishEditTopic(true);
       }
     }
@@ -175,8 +175,8 @@
       }
 
       this.setAttribute("editing", "true");
-      topicInput.setAttribute("collapsed", "false");
-      topic.setAttribute("collapsed", "true");
+      topicInput.removeAttribute("hidden");
+      topic.setAttribute("hidden", "true");
       this._topicKeyPress = this.topicKeyPress.bind(this);
       topicInput.addEventListener("keypress", this._topicKeyPress);
       this._topicBlur = this.topicBlur.bind(this);
@@ -187,7 +187,7 @@
       } else {
         topicInput.value = topic.value;
       }
-      topicInput.inputField.select();
+      topicInput.select();
     }
 
     otrButtonClicked(aEvent) {
