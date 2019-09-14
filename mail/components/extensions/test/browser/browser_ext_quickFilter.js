@@ -4,6 +4,8 @@
 
 let account, rootFolder, subFolders;
 
+Services.prefs.setBoolPref("extensions.webextensions.warnings-as-errors", false);
+
 add_task(async () => {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
