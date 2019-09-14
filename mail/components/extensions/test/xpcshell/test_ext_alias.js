@@ -22,7 +22,10 @@ server.registerPathHandler("/dummy", (request, response) => {
   );
 });
 
-Services.prefs.setBoolPref("extensions.webextensions.warnings-as-errors", false);
+Services.prefs.setBoolPref(
+  "extensions.webextensions.warnings-as-errors",
+  false
+);
 
 add_task(async function test_alias() {
   let extension = ExtensionTestUtils.loadExtension({

@@ -2,7 +2,10 @@
 /* vim: set sts=2 sw=2 et tw=80: */
 "use strict";
 
-Services.prefs.setBoolPref("extensions.webextensions.warnings-as-errors", false);
+Services.prefs.setBoolPref(
+  "extensions.webextensions.warnings-as-errors",
+  false
+);
 
 add_task(async function test_user_defined_commands() {
   const testCommands = [
