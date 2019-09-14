@@ -1325,11 +1325,11 @@ var filePhotoHandler = {
   _showFilename(aCard, aDocument) {
     let photoElem = aDocument.getElementById("PhotoFile");
     let photoFile = photoElem.file ? photoElem.file : null;
-    let photoSpec = Services.io
-      .getProtocolHandler("file")
-      .QueryInterface(Ci.nsIFileProtocolHandler)
-      .getURLSpecFromFile(photoFile);
     if (photoFile) {
+      let photoSpec = Services.io
+        .getProtocolHandler("file")
+        .QueryInterface(Ci.nsIFileProtocolHandler)
+        .getURLSpecFromFile(photoFile);
       photoElem.style.backgroundImage =
         "url(moz-icon://" + photoSpec + "?size=16)";
       photoElem.value = photoFile.leafName;
