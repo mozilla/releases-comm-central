@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-window {
+:root {
     --viewColor: #000;
     --viewBackground: #fff;
     --viewBorderColor: #d2d2d2;
     --viewHighlightBorderColor: #67acd8;
     --viewTodayBorderColor: #7fb9ee;
+    --viewTodayColor: inherit;
     --viewTodayBackground: #e1f0fd;
     --viewTodayLabelColor: #616163;
     --viewTodayLabelBackground: #d2e3f3;
@@ -40,11 +41,57 @@ window {
     --viewDropshadowBackground: #ffa47d;
 }
 
-window[systemcolors] {
+:root[lwt-tree] {
+    --viewColor: var(--sidebar-text-color);
+    --viewBackground: var(--sidebar-background-color);
+    --viewBorderColor: var(--sidebar-border-color);
+    --viewTodayColor: var(--sidebar-highlight-text-color, HighlightText);
+    --viewTodayBackground: var(--sidebar-highlight-background-color, Highlight);
+    --viewTodayLabelColor: var(--sidebar-highlight-text-color, HighlightText);
+    --viewTodayLabelBackground: var(--sidebar-highlight-background-color, Highlight);
+    --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, Highlight);
+    --viewMonthCurrentBackground: rgba(0, 0, 0, 0.1);
+    --viewMonthDayOtherLabelBackground: rgba(0, 0, 0, 0.2);
+    --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
+    --viewMonthDayBoxLabelColor: var(--sidebar-text-color);
+    --viewMonthDayBoxWeekLabel: var(--sidebar-text-color);
+    --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
+    --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
+}
+
+:root[lwt-tree-brighttext] {
+    --viewHighlightBorderColor: #9fa3d9;
+    --viewTodayColor: var(--sidebar-highlight-text-color, #fff);
+    --viewTodayBorderColor: var(--sidebar-highlight-text-color, #9fa3d9);
+    --viewTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
+    --viewTodayLabelColor: var(--sidebar-highlight-text-color, #fff);
+    --viewTodayLabelBackground: var(--sidebar-highlight-background-color, #3b3f77);
+    --viewTodayDayLabelBackground: var(--sidebar-highlight-background-color, #393b66);
+    --viewMonthCurrentBackground: rgba(255, 255, 255, 0.2);
+    --viewMonthDayOtherLabelBackground: rgba(255, 255, 255, 0.3);
+    --viewMonthOtherBackground: rgba(255, 255, 255, 0.3);
+    --viewOffTimeBackground: rgba(255, 255, 255, 0.05);
+    --viewTodayOffBackground: #5358a4;
+    --viewTodayWeekendBackground: #5358a4;
+    --viewTodayLabelSelectedColor: #e8e8f9;
+    --viewTodayLabelSelectedBackground: #6d6d8e;
+    --viewWeekendBackground: #646a56;
+    --viewHeaderSelectedBackground: #8b8bbd;
+    --viewDayBoxSelectedBackground: #8b8bbd;
+    --viewDayBoxOffSelectedBackground: #676795;
+    --viewDayBoxOtherSelectedBackground: #fffcd8;
+    --viewMonthDayBoxSelectedColor: #d7d7ec;
+    --viewMonthDayBoxSelectedBackground: #70709f;
+    --viewMonthDayOtherBackground: rgba(255, 255, 255, 0.3);
+    --viewMonthDayOffLabelBackground: #4f5935;
+}
+
+:root[systemcolors] {
     --viewColor: WindowText;
     --viewBackground: -moz-Field;
     --viewBorderColor: ThreeDShadow;
     --viewHighlightBorderColor: Highlight;
+    --viewTodayColor: inherit;
     --viewTodayBorderColor: Highlight;
     --viewTodayBackground: -moz-Field;
     --viewTodayLabelColor: Highlight;
@@ -569,6 +616,7 @@ calendar-day-label[relation="today"],
 calendar-day-label[relation="today1day"] {
     background-color: var(--viewTodayDayLabelBackground);
     border: 1px solid var(--viewHighlightBorderColor);
+    color: var(--viewTodayColor);
     margin-inline-end: -1px;
     margin-top: -1px;
     position: relative;
@@ -910,6 +958,10 @@ agenda-richlist-item[status="CANCELLED"] .agenda-container-box {
 
 :root[lwt-tree-brighttext] #view-deck {
     scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+}
+
+:root[systemcolors] #view-deck {
+  background-color: -moz-Field;
 }
 
 .navigation-inner-box {
