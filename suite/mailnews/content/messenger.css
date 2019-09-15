@@ -243,3 +243,8 @@ dummy.usesMailWidgets {
   overflow-x: hidden;
   max-height: 14em;
 }
+
+/* Lightning toobar menu button */
+.button-appmenu {
+display: none;
+}
