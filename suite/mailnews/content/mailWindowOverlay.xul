@@ -1278,32 +1278,32 @@
                     name="viewFeedBodyHTMLGroup"
                     label="&bodySanitized.label;"
                     accesskey="&bodySanitized.accesskey;"
-                    oncommand="MsgFeedBodyRenderPrefs(false, 3, disallow_classes_no_html)"/>
+                    oncommand="MsgFeedBodyRenderPrefs(false, 3, gDisallow_classes_no_html)"/>
           <menuitem id="bodyFeedSummaryAsPlaintext"
                     type="radio"
                     name="viewFeedBodyHTMLGroup"
                     label="&bodyAsPlaintext.label;"
                     accesskey="&bodyAsPlaintext.accesskey;"
-                    oncommand="MsgFeedBodyRenderPrefs(true, 1, disallow_classes_no_html)"/>
+                    oncommand="MsgFeedBodyRenderPrefs(true, 1, gDisallow_classes_no_html)"/>
           <menuseparator id="viewFeedSummarySeparator"/>
           <menuitem id="bodyFeedGlobalWebPage"
                     type="radio"
                     name="viewFeedSummaryGroup"
                     label="&viewFeedWebPage.label;"
                     accesskey="&viewFeedWebPage.accesskey;"
-                    oncommand="ChangeFeedShowSummaryPref(0)"/>
+                    oncommand="FeedMessageHandler.onSelectPref = 0"/>
           <menuitem id="bodyFeedGlobalSummary"
                     type="radio"
                     name="viewFeedSummaryGroup"
                     label="&viewFeedSummary.label;"
                     accesskey="&viewFeedSummary.accesskey;"
-                    oncommand="ChangeFeedShowSummaryPref(1)"/>
+                    oncommand="FeedMessageHandler.onSelectPref = 1"/>
           <menuitem id="bodyFeedPerFolderPref"
                     type="radio"
                     name="viewFeedSummaryGroup"
                     label="&viewFeedSummaryFeedPropsPref.label;"
                     accesskey="&viewFeedSummaryFeedPropsPref.accesskey;"
-                    oncommand="ChangeFeedShowSummaryPref(2)"/>
+                    oncommand="FeedMessageHandler.onSelectPref = 2"/>
         </menupopup>
       </menu>
       <menuitem id="viewAttachmentsInlineMenuitem"
@@ -1523,19 +1523,19 @@
                     name="openFeedGroup"
                     label="&openFeedWebPageInWindow.label;"
                     accesskey="&openFeedWebPageInWindow.accesskey;"
-                    oncommand="ChangeFeedOpenHandler(0);"/>
+                    oncommand="FeedMessageHandler.onOpenPref = 0"/>
           <menuitem id="menu_openFeedSummaryInWindow"
                     type="radio"
                     name="openFeedGroup"
                     label="&openFeedSummaryInWindow.label;"
                     accesskey="&openFeedSummaryInWindow.accesskey;"
-                    oncommand="ChangeFeedOpenHandler(1);"/>
+                    oncommand="FeedMessageHandler.onOpenPref = 1"/>
           <menuitem id="menu_openFeedWebPageInMessagePane"
                     type="radio"
                     name="openFeedGroup"
                     label="&openFeedWebPageInMP.label;"
                     accesskey="&openFeedWebPageInMP.accesskey;"
-                    oncommand="ChangeFeedOpenHandler(2);"/>
+                    oncommand="FeedMessageHandler.onOpenPref = 2"/>
         </menupopup>
       </menu>
      <menuseparator id="messageAfterOpenMsgSeparator"/>

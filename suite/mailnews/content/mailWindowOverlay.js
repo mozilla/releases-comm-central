@@ -53,7 +53,7 @@ if (gTimelineEnabled) {
   }
 }
 
-var disallow_classes_no_html = 1; /* the user preference,
+var gDisallow_classes_no_html = 1; /* the user preference,
      if HTML is not allowed. I assume, that the user could have set this to a
      value > 1 in his prefs.js or user.js, but that the value will not
      change during runtime other than through the MsgBody*() functions below.*/
@@ -159,29 +159,23 @@ function view_init()
     charset_menuitem.setAttribute("disabled", !gMessageDisplay.displayedMessage);
 
   // Initialize the Message Body menuitem
-  var isFeed = gFolderDisplay.selectedMessageIsFeed;
-  document.getElementById('viewBodyMenu').hidden = isFeed;
+  let isFeed = gFolderDisplay &&
+               ((gFolderDisplay.displayedFolder &&
+                 gFolderDisplay.displayedFolder.server.type == "rss") ||
+                gFolderDisplay.selectedMessageIsFeed);
+  document.getElementById("viewBodyMenu").hidden = isFeed;
 
   // Initialize the Show Feed Summary menu
-  var viewFeedSummary = document.getElementById('viewFeedSummary');
-  var winType = document.documentElement.getAttribute('windowtype');
-  if (winType != "mail:3pane")
-    viewFeedSummary.hidden = !gShowFeedSummary;
-  else
-    viewFeedSummary.hidden = !isFeed;
+  let viewFeedSummary = document.getElementById("viewFeedSummary");
+  viewFeedSummary.hidden = !isFeed;
 
-  var viewRssMenuItemIds = ["bodyFeedGlobalWebPage",
+  let viewRssMenuItemIds = ["bodyFeedGlobalWebPage",
                             "bodyFeedGlobalSummary",
                             "bodyFeedPerFolderPref"];
-  var checked = Services.prefs.getIntPref("rss.show.summary");
-  document.getElementById(viewRssMenuItemIds[checked])
-          .setAttribute("checked", true);
-
-  if (winType != "mail:3pane") {
-    document.getElementById("viewFeedSummarySeparator").hidden = true;
-    document.getElementById("bodyFeedGlobalWebPage").hidden = true;
-    document.getElementById("bodyFeedGlobalSummary").hidden = true;
-    document.getElementById("bodyFeedPerFolderPref").hidden = true;
+  let checked = FeedMessageHandler.onSelectPref;
+  for (let [index, id] of viewRssMenuItemIds.entries()) {
+    document.getElementById(id)
+            .setAttribute("checked", index == checked);
   }
 
   // Initialize the Display Attachments Inline menu.
@@ -374,10 +368,11 @@ function InitMessageMenu()
     document.getElementById('openMessageWindowMenuitem').hidden = isFeed;
 
   // Initialize the Open Feed Message handler menu
-  var index = GetFeedOpenHandler();
+  let index = FeedMessageHandler.onOpenPref;
   document.getElementById("menu_openFeedMessage")
           .childNodes[index].setAttribute("checked", true);
-  var openRssMenu = document.getElementById("openFeedMessage");
+
+  let openRssMenu = document.getElementById("openFeedMessage");
   openRssMenu.hidden = !isFeed;
   if (winType != "mail:3pane")
     openRssMenu.hidden = true;
@@ -421,10 +416,16 @@ function InitViewHeadersMenu()
 
 function InitViewBodyMenu()
 {
-  var html_as = 0;
-  var prefer_plaintext = false;
-  var disallow_classes = 0;
-  var isFeed = gFolderDisplay.selectedMessageIsFeed;
+  // Separate render prefs not implemented for feeds, bug 458606.  Show the
+  // checked item for feeds as for the regular pref.
+  //  let html_as = Services.prefs.getIntPref("rss.display.html_as");
+  //  let prefer_plaintext = Services.prefs.getBoolPref("rss.display.prefer_plaintext");
+  //  let disallow_classes = Services.prefs.getIntPref("rss.display.disallow_mime_handlers");
+
+  let html_as = Services.prefs.getIntPref("mailnews.display.html_as");
+  let prefer_plaintext = Services.prefs.getBoolPref("mailnews.display.prefer_plaintext");
+  let disallow_classes = Services.prefs.getIntPref("mailnews.display.disallow_mime_handlers");
+  let isFeed = gFolderDisplay.selectedMessageIsFeed;
   const defaultIDs = ["bodyAllowHTML",
                       "bodySanitized",
                       "bodyAsPlaintext",
@@ -432,35 +433,16 @@ function InitViewBodyMenu()
   const rssIDs = ["bodyFeedSummaryAllowHTML",
                   "bodyFeedSummarySanitized",
                   "bodyFeedSummaryAsPlaintext"];
-  var menuIDs = isFeed ? rssIDs : defaultIDs;
-  try
-  {
-    // Get prefs
-    if (isFeed) {
-      prefer_plaintext = Services.prefs.getBoolPref("rss.display.prefer_plaintext");
-      html_as = Services.prefs.getIntPref("rss.display.html_as");
-      disallow_classes = Services.prefs.getIntPref("rss.display.disallow_mime_handlers");
-    }
-    else {
-      prefer_plaintext = Services.prefs.getBoolPref("mailnews.display.prefer_plaintext");
-      html_as = Services.prefs.getIntPref("mailnews.display.html_as");
-      disallow_classes =
-                    Services.prefs.getIntPref("mailnews.display.disallow_mime_handlers");
-    }
+  let menuIDs = isFeed ? rssIDs : defaultIDs;
 
-    if (disallow_classes > 0)
-      disallow_classes_no_html = disallow_classes;
-    // else disallow_classes_no_html keeps its inital value (see top)
-  }
-  catch (ex)
-  {
-    dump("failed to get the body plaintext vs. HTML prefs\n");
-  }
+  if (disallow_classes > 0)
+    gDisallow_classes_no_html = disallow_classes;
+  // else gDisallow_classes_no_html keeps its inital value (see top)
 
-  var AllowHTML_menuitem = document.getElementById(menuIDs[0]);
-  var Sanitized_menuitem = document.getElementById(menuIDs[1]);
-  var AsPlaintext_menuitem = document.getElementById(menuIDs[2]);
-  var AllBodyParts_menuitem;
+  let AllowHTML_menuitem = document.getElementById(menuIDs[0]);
+  let Sanitized_menuitem = document.getElementById(menuIDs[1]);
+  let AsPlaintext_menuitem = document.getElementById(menuIDs[2]);
+  let AllBodyParts_menuitem;
   if (!isFeed) {
     AllBodyParts_menuitem = document.getElementById(menuIDs[3]);
     AllBodyParts_menuitem.hidden =
@@ -482,10 +464,10 @@ function InitViewBodyMenu()
   // else (the user edited prefs/user.js) check none of the radio menu items
 
   if (isFeed) {
-    AllowHTML_menuitem.hidden = !gShowFeedSummary;
-    Sanitized_menuitem.hidden = !gShowFeedSummary;
-    AsPlaintext_menuitem.hidden = !gShowFeedSummary;
-    document.getElementById("viewFeedSummarySeparator").hidden = !gShowFeedSummary;
+    AllowHTML_menuitem.hidden = !FeedMessageHandler.gShowSummary;
+    Sanitized_menuitem.hidden = !FeedMessageHandler.gShowSummary;
+    AsPlaintext_menuitem.hidden = !FeedMessageHandler.gShowSummary;
+    document.getElementById("viewFeedSummarySeparator").hidden = !FeedMessageHandler.gShowSummary;
   }
 }
 
@@ -1635,12 +1617,21 @@ function MsgOpenNewWindowForFolder(uri, key)
 
 function MsgOpenSelectedMessages()
 {
-  // Toggle message body (rss summary) and content-base url in message
-  // pane per pref, otherwise open summary or web page in new window.
-  if (gFolderDisplay.selectedMessageIsFeed && GetFeedOpenHandler() == 2)
-  {
-    FeedSetContentViewToggle();
-    return;
+  // Toggle message body (feed summary) and content-base url in message pane or
+  // load in browser, per pref, otherwise open summary or web page in new window
+  // or tab, per that pref.
+  if (gFolderDisplay.selectedMessageIsFeed) {
+    let msgHdr = gFolderDisplay.selectedMessage;
+    if (document.documentElement.getAttribute("windowtype") == "mail:3pane" &&
+        FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenToggleInMessagePane) {
+      let showSummary = FeedMessageHandler.shouldShowSummary(msgHdr, true);
+      FeedMessageHandler.setContent(msgHdr, showSummary);
+      return;
+    }
+    if (FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenLoadInBrowser) {
+      setTimeout(FeedMessageHandler.loadWebPage, 20, msgHdr, {browser:true});
+      return;
+    }
   }
 
   var dbView = GetDBView();
@@ -1975,7 +1966,7 @@ function MsgBodySanitized()
     Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
     Services.prefs.setIntPref("mailnews.display.html_as", 3);
     Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers",
-                           disallow_classes_no_html);
+                              gDisallow_classes_no_html);
     ReloadMessage();
     return true;
 }
@@ -1985,7 +1976,7 @@ function MsgBodyAsPlaintext()
     Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
     Services.prefs.setIntPref("mailnews.display.html_as", 1);
     Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers",
-                           disallow_classes_no_html);
+                              gDisallow_classes_no_html);
     ReloadMessage();
     return true;
 }
@@ -2001,31 +1992,15 @@ function MsgBodyAllParts()
 
 function MsgFeedBodyRenderPrefs(plaintext, html, mime)
 {
-  Services.prefs.setBoolPref("rss.display.prefer_plaintext", plaintext);
-  Services.prefs.setIntPref("rss.display.html_as", html);
-  Services.prefs.setIntPref("rss.display.disallow_mime_handlers", mime);
+  // Separate render prefs not implemented for feeds, bug 458606.
+  //  Services.prefs.setBoolPref("rss.display.prefer_plaintext", plaintext);
+  //  Services.prefs.setIntPref("rss.display.html_as", html);
+  //  Services.prefs.setIntPref("rss.display.disallow_mime_handlers", mime);
+
+  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", plaintext);
+  Services.prefs.setIntPref("mailnews.display.html_as", html);
+  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", mime);
   // Reload only if showing rss summary; menuitem hidden if web page..
-  ReloadMessage();
-}
-
-//How to load message with content-base url on enter in threadpane
-function GetFeedOpenHandler()
-{
-  return Services.prefs.getIntPref("rss.show.content-base");
-}
-
-function ChangeFeedOpenHandler(val)
-{
-  Services.prefs.setIntPref("rss.show.content-base", val);
-}
-
-//Current state: load web page if 0, show summary if 1
-var gShowFeedSummary;
-var gShowFeedSummaryToggle = false;
-
-function ChangeFeedShowSummaryPref(val)
-{
-  Services.prefs.setIntPref("rss.show.summary", val);
   ReloadMessage();
 }
 
@@ -2877,10 +2852,6 @@ function ClearPendingReadTimer()
 
 function OnMsgParsed(aUrl)
 {
-  // If rss feed (has 'content-base' header), show summary or load web
-  // page per pref; earliest we have content DOM is here (onMsgParsed).
-  FeedSetContentView();
-
   gMessageNotificationBar.setPhishingMsg(aUrl);
 
   // notify anyone (e.g., extensions) who's interested in when a message is loaded.
@@ -3091,136 +3062,6 @@ function OpenOrFocusWindow(args, windowType, chromeURL)
   }
   else
     window.openDialog(chromeURL, "", "chrome,resizable,status,centerscreen,dialog=no", args);
-}
-
-// Switch between message body (feed summary) and content-base url in
-// the Message Pane, called in MsgOpenSelectedMessages
-function FeedSetContentViewToggle()
-{
-  gShowFeedSummaryToggle = true;
-  FeedSetContentView(gShowFeedSummary ? 0 : 1);
-}
-
-// Check message format
-function FeedCheckContentFormat()
-{
-  // Not an rss message. This also rules out no 3pane to get the browser of.
-  if (!gFolderDisplay.selectedMessageIsFeed)
-    return false;
-
-  var contentWindowDoc = getBrowser().contentDocument;
-
-  // Thunderbird 2 rss messages with 'Show article summary' not selected,
-  // ie message body constructed to show web page in an iframe, can't show
-  // a summary - notify user.
-  var rssIframe = contentWindowDoc.getElementById('_mailrssiframe');
-  if (rssIframe) {
-    if (gShowFeedSummaryToggle || Services.prefs.getIntPref("rss.show.summary") == 1)
-      gShowFeedSummaryToggle = false;
-    return false;
-  }
-
-  return true;
-}
-
-// View summary or load web page for feeds
-function FeedSetContentView(val)
-{
-  // Check it..
-  if (!FeedCheckContentFormat())
-    return;
-
-  var showSummary;
-  var wintype = document.documentElement.getAttribute('windowtype');
-  var contentBase = currentHeaderData["content-base"];
-  var contentWindowDoc = getBrowser().contentDocument;
-  var divHTML = new XPCNativeWrapper(contentWindowDoc,
-                      "getElementsByClassName()")
-                      .getElementsByClassName("moz-text-html")[0];
-  var divPLAIN = new XPCNativeWrapper(contentWindowDoc,
-                      "getElementsByClassName()")
-                      .getElementsByClassName("moz-text-plain")[0];
-
-  if (val == null)
-    // Not passed a value, so generic select unless in toggle mode
-    if (!gShowFeedSummaryToggle)
-      // Not in toggle mode, get prefs
-      val = Services.prefs.getIntPref("rss.show.summary");
-    else {
-      // Coming in again from toggle, summary already 'reloadMessage'ed,
-      // just need to set display for summary on.
-      gShowFeedSummaryToggle = false;
-      if (divHTML)
-        divHTML.parentNode.setAttribute("selected", gShowFeedSummary);
-      if (divPLAIN)
-        divPLAIN.parentNode.setAttribute("selected", gShowFeedSummary);
-      return;
-    }
-
-  switch (val) {
-    case 0:
-      showSummary = false;
-      break;
-    case 1:
-      showSummary = true
-      break;
-    case 2:
-      if (wintype == "mail:3pane") {
-        // Get quickmode per feed pref from feeds.rdf
-        var quickMode, targetRes;
-        try
-        {
-          targetRes = FeedUtils.getParentTargetForChildResource(
-                        gFolderDisplay.displayedFolder.URI,
-                        FeedUtils.FZ_QUICKMODE,
-                        gFolderDisplay.displayedFolder.server);
-        }
-        catch (ex) {};
-
-        if (targetRes)
-        {
-          quickMode = targetRes.QueryInterface(Ci
-                               .nsIRDFLiteral);
-          quickMode = quickMode.Value;
-          quickMode = eval(quickMode);
-        }
-        else
-          // Do not have this item's feed anymore in feeds.rdf though its
-          // message folder remains and its items exist in feeditems.rdf
-          // (Bug 309449), or the item has been moved to another folder,
-          // or some error on the file. Default to show summary.
-          quickMode = true;
-      }
-      showSummary = quickMode;
-      break;
-  }
-
-  gShowFeedSummary = showSummary;
-
-  // Message window - here only if GetFeedOpenHandler() = 0 or 1
-  if (wintype == "mail:messageWindow") {
-    // Set global var for message window
-    gShowFeedSummary = GetFeedOpenHandler();
-    // Get pref since may be reusable message window and changed in 3pane
-    showSummary = gShowFeedSummary == 0 ? false : true;
-  }
-
-  if (divHTML)
-    divHTML.parentNode.setAttribute("selected", showSummary);
-  if (divPLAIN)
-    divPLAIN.parentNode.setAttribute("selected", showSummary);
-
-  if (showSummary) {
-    if (gShowFeedSummaryToggle) {
-      if (gDBView && GetNumSelectedMessages() == 1) {
-        ReloadMessage();
-      }
-    }
-  }
-  else if(contentBase.headerValue) {
-    getMessageBrowser().loadURI(contentBase.headerValue, null, null);
-    gShowFeedSummaryToggle = false;
-  }
 }
 
 function getMailToolbox()

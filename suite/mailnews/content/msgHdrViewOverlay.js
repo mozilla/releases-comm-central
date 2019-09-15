@@ -385,6 +385,12 @@ var messageHeaderSink = {
 
       EnsureSubjectValue(); // make sure there is a subject even if it's empty so we'll show the subject and the twisty
 
+      // Load feed web page if so configured. This entry point works for
+      // messagepane loads in 3pane folder tab, 3pane message tab, and the
+      // standalone message window.
+      if (!FeedMessageHandler.shouldShowSummary(gMessageDisplay.displayedMessage, false))
+        FeedMessageHandler.setContent(gMessageDisplay.displayedMessage, false);
+
       ShowMessageHeaderPane();
       UpdateMessageHeaders();
       ShowEditMessageBox();

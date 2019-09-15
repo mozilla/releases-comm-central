@@ -227,7 +227,7 @@ function ComposeMessage(type, format, folder, messageArray)
         var messageUri = messageArray[i];
         hdr = messenger.msgHdrFromURI(messageUri);
         identity = GetIdentityForHeader(hdr, type);
-        if (hdr.folder && hdr.folder.server.type == "rss")
+        if (FeedMessageHandler.isFeedMessage(hdr))
           openComposeWindowForRSSArticle(null, hdr, messageUri, type,
                                          format, identity, msgWindow);
         else

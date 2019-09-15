@@ -27,9 +27,7 @@ var gFolderDisplay =
 
   get selectedMessageIsFeed()
   {
-    var message = this.selectedMessage;
-    return message && message.folder &&
-           message.folder.server.type == "rss";
+    return FeedMessageHandler.isFeedMessage(this.selectedMessage);
   },
 
   get selectedMessageIsImap()
