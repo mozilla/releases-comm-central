@@ -345,9 +345,9 @@ nsContextMenu.prototype = {
     this.showItem("context-sep-popup", this.popupPrincipal);
 
     // BiDi UI
-    this.showItem("context-sep-bidi", gShowBiDi);
+    this.showItem("context-sep-bidi", !this.onNumeric && top.gBidiUI);
     this.showItem("context-bidi-text-direction-toggle",
-                  this.onTextInput && gShowBiDi);
+                  this.onTextInput && !this.onNumeric && top.gBidiUI);
     this.showItem("context-bidi-page-direction-toggle",
                   !this.onTextInput && gShowBiDi);
   },
@@ -555,6 +555,7 @@ nsContextMenu.prototype = {
     this.onAudio               = false;
     this.onMetaDataItem        = false;
     this.onTextInput           = false;
+    this.onNumeric             = false;
     this.onKeywordField        = false;
     this.mediaURL              = "";
     this.onLink                = false;
@@ -634,6 +635,7 @@ nsContextMenu.prototype = {
       }
       else if (editFlags & (SpellCheckHelper.INPUT | SpellCheckHelper.TEXTAREA)) {
         this.onTextInput = (editFlags & SpellCheckHelper.TEXTINPUT) !== 0;
+        this.onNumeric = (editFlags & SpellCheckHelper.NUMERIC) !== 0;
         this.onEditableArea = (editFlags & SpellCheckHelper.EDITABLE) !== 0;
         if (this.onEditableArea) {
           InlineSpellCheckerUI.init(this.target.editor);
