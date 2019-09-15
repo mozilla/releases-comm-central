@@ -155,6 +155,16 @@ items are mutually exclusive. -->
 <!ENTITY spellDictionaries.accesskey    "L">
 <!ENTITY spellAddDictionaries.label     "Download More Dictionaries…">
 <!ENTITY spellAddDictionaries.accesskey "D">
+
+<!ENTITY fillLoginMenu.label          "Fill Login">
+<!ENTITY fillLoginMenu.accesskey      "F">
+<!ENTITY fillPasswordMenu.label       "Fill Password">
+<!ENTITY fillPasswordMenu.accesskey   "F">
+<!ENTITY fillUsernameMenu.label       "Fill Username">
+<!ENTITY fillUsernameMenu.accesskey   "F">
+<!ENTITY noLoginSuggestions.label     "(No Login Suggestions)">
+<!ENTITY viewSavedLogins.label        "View Saved Logins">
+
 <!-- Developer Tools -->
 <!ENTITY devtoolsInspect.label          "Inspect Element">
 <!ENTITY devtoolsInspect.accesskey      "n">

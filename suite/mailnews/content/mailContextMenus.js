@@ -104,12 +104,12 @@ function FillMailContextMenu(aTarget, aEvent)
   var inThreadPane = InThreadPane(aTarget);
   gContextMenu = new nsContextMenu(aTarget);
 
-  // Need to call nsContextMenu's initItems to hide what is not used.
-  gContextMenu.initItems();
-
   // Initialize gContextMenuContentData.
   if (aEvent)
     gContextMenu.initContentData(aEvent);
+
+  // Need to call nsContextMenu's initItems to hide what is not used.
+  gContextMenu.initItems();
 
   var numSelected = GetNumSelectedMessages();
   var oneOrMore = (numSelected > 0);

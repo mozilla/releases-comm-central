@@ -374,6 +374,28 @@
                 label="&bidiSwitchPageDirectionItem.label;"
                 accesskey="&bidiSwitchPageDirectionItem.accesskey;"
                 oncommand="SwitchDocumentDirection(window.content);"/>
+      <menuseparator id="fill-login-separator" hidden="true"/>
+      <menu id="fill-login"
+            label="&fillLoginMenu.label;"
+            label-login="&fillLoginMenu.label;"
+            label-password="&fillPasswordMenu.label;"
+            label-username="&fillUsernameMenu.label;"
+            accesskey="&fillLoginMenu.accesskey;"
+            accesskey-login="&fillLoginMenu.accesskey;"
+            accesskey-password="&fillPasswordMenu.accesskey;"
+            accesskey-username="&fillUsernameMenu.accesskey;"
+            hidden="true">
+        <menupopup id="fill-login-popup">
+          <menuitem id="fill-login-no-logins"
+                    label="&noLoginSuggestions.label;"
+                    disabled="true"
+                    hidden="true"/>
+          <menuseparator id="saved-logins-separator"/>
+          <menuitem id="fill-login-saved-passwords"
+                    label="&viewSavedLogins.label;"
+                    oncommand="gContextMenu.openPasswordManager();"/>
+        </menupopup>
+      </menu>
       <menuseparator id="inspect-separator"
                      hidden="true"/>
       <menuitem id="context-inspect"
