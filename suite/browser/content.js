@@ -86,10 +86,14 @@ let PageInfoListener = {
       window = content.window;
     }
 
+    let imageElement = message.objects.imageElement;
+
     let pageInfoData = {metaViewRows: this.getMetaInfo(document),
                         docInfo: this.getDocumentInfo(document),
                         feeds: this.getFeedsInfo(document, strings),
-                        windowInfo: this.getWindowInfo(window)};
+                        windowInfo: this.getWindowInfo(window),
+                        imageInfo: this.getImageInfo(imageElement)};
+
     sendAsyncMessage("PageInfo:data", pageInfoData);
 
     // Separate step so page info dialog isn't blank while waiting for this
@@ -106,6 +110,19 @@ let PageInfoListener = {
     this.formViewRows = null;
 
     sendAsyncMessage("PageInfo:mediaData", pageInfoMediaData);
+  },
+
+  getImageInfo: function(imageElement) {
+    let imageInfo = null;
+    if (imageElement) {
+      imageInfo = {
+        currentSrc: imageElement.currentSrc,
+        width: imageElement.width,
+        height: imageElement.height,
+        imageText: imageElement.title || imageElement.alt
+      };
+    }
+    return imageInfo;
   },
 
   getMetaInfo: function(document) {

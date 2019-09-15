@@ -2452,18 +2452,27 @@ function BrowserViewSource(aBrowser) {
   });
 }
 
-// doc - document to use for source, or null for the current tab
+// documentURL - URL of the document to view, or null for this window's document
 // initialTab - id of the initial tab to display, or null for the first tab
 // imageElement - image to load in the Media Tab of the Page Info window;
 //                can be null/omitted
 // frameOuterWindowID - the id of the frame that the context menu opened in;
 //                      can be null/omitted
-function BrowserPageInfo(doc, initialTab, imageElement, frameOuterWindowID) {
-  var args = {doc: doc, initialTab: initialTab, imageElement: imageElement,
-              frameOuterWindowID: frameOuterWindowID};
+// browser - the browser containing the document we're interested in inspecting;
+//           can be null/omitted
+function BrowserPageInfo(documentURL, initialTab, imageElement,
+                         frameOuterWindowID, browser) {
+  if (documentURL instanceof HTMLDocument) {
+    Deprecated.warning("Please pass the location URL instead of the document " +
+                       "to BrowserPageInfo() as the first argument.",
+                       "https://bugzilla.mozilla.org/show_bug.cgi?id=1575830");
+    documentURL = documentURL.location;
+  }
+
+  let args = { initialTab, imageElement, frameOuterWindowID, browser };
   var windows = Services.wm.getEnumerator("Browser:page-info");
 
-  var documentURL = doc ? doc.location : window.gBrowser.selectedBrowser.currentURI.spec;
+  documentURL = documentURL || window.gBrowser.selectedBrowser.currentURI.spec;
 
   // Check for windows matching the url.
   while (windows.hasMoreElements()) {

@@ -1031,17 +1031,18 @@ nsContextMenu.prototype = {
   },
 
   viewInfo: function() {
-    BrowserPageInfo();
+    BrowserPageInfo(gContextMenuContentData.docLocation, null,
+                    null, null, this.browser);
   },
 
   viewImageInfo: function() {
-    BrowserPageInfo(this.target.ownerDocument.defaultView.top.document,
-                    "mediaTab", this.target);
+    BrowserPageInfo(gContextMenuContentData.docLocation, "mediaTab",
+                    this.target, null, this.browser);
   },
 
   viewFrameInfo: function() {
-    BrowserPageInfo(this.target.ownerDocument, null, null,
-                    gContextMenuContentData.frameOuterWindowID);
+    BrowserPageInfo(gContextMenuContentData.docLocation, null, null,
+                    gContextMenuContentData.frameOuterWindowID, this.browser);
   },
 
   toggleImageSize: function() {

@@ -232,9 +232,6 @@ var diskStorage = Services.cache2.diskCacheStorage(loadContextInfo, false);
 const nsICertificateDialogs = Ci.nsICertificateDialogs;
 const CERTIFICATEDIALOGS_CONTRACTID = "@mozilla.org/nsCertificateDialogs;1"
 
-// Interface for image loading content
-const nsIImageLoadingContent = Ci.nsIImageLoadingContent;
-
 /* Overlays register functions here.
  * These arrays are used to hold callbacks that Page Info will call at
  * various stages. Use them by simply appending a function to them.
@@ -302,9 +299,10 @@ function onLoadPageInfo()
   Services.obs.notifyObservers(window, "page-info-dialog-loaded");
 }
 
-function loadPageInfo(frameOuterWindowID)
+function loadPageInfo(frameOuterWindowID, imageElement, browser)
 {
-  let mm = window.opener.gBrowser.selectedBrowser.messageManager;
+  browser = browser || window.opener.gBrowser.selectedBrowser;
+  let mm = browser.messageManager;
 
   gStrings["application/rss+xml"]  = gBundle.getString("feedRss");
   gStrings["application/atom+xml"] = gBundle.getString("feedAtom");
@@ -315,7 +313,8 @@ function loadPageInfo(frameOuterWindowID)
   // Look for pageInfoListener in content.js.
   // Sends message to listener with arguments.
   mm.sendAsyncMessage("PageInfo:getData", {strings: gStrings,
-                      frameOuterWindowID: frameOuterWindowID});
+                      frameOuterWindowID: frameOuterWindowID},
+                      { imageElement });
 
   let pageInfoData = null;
 
@@ -330,6 +329,8 @@ function loadPageInfo(frameOuterWindowID)
                       docInfo.documentURIObject.originCharset);
     let principal = docInfo.principal;
     gDocInfo = docInfo;
+
+    gImageElement = pageInfoData.imageInfo;
 
     var titleFormat = windowInfo.isTopWindow ? "pageInfo.page.title"
                                              : "pageInfo.frame.title";
@@ -433,19 +434,11 @@ function loadTab(args)
   // If the "View Image Info" context menu item was used, the related image
   // element is provided as an argument. This can't be a background image.
   let imageElement = args && args.imageElement;
-  if (imageElement) {
-    gImageElement = {currentSrc: imageElement.currentSrc,
-                     width: imageElement.width, height: imageElement.height,
-                     imageText: imageElement.title || imageElement.alt};
-  }
-  else {
-    gImageElement = null;
-  }
-
   let frameOuterWindowID = args && args.frameOuterWindowID;
+  let browser = args && args.browser;
 
   /* Load the page info */
-  loadPageInfo(frameOuterWindowID);
+  loadPageInfo(frameOuterWindowID, imageElement, browser);
 
   /* Select the requested tab, if the name is specified */
   var initialTab = (args && args.initialTab) || "generalTab";
