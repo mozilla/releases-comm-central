@@ -1165,11 +1165,11 @@ var gImageDownloader = (function() {
         null,
         null,
         null,
-        null,
         tempFile,
         privacy
       );
-    } catch (err) {
+    } catch (e) {
+      Cu.reportError(e);
       cleanup();
       if (callbackError) {
         callbackError(ERROR_SAVE);
@@ -1325,7 +1325,6 @@ var gImageDownloader = (function() {
     downloader.saveURI(
       source,
       principal,
-      null,
       null,
       null,
       null,
