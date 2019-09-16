@@ -2646,7 +2646,7 @@ function updateCalendar() {
     document.getElementById("undisclose-attendees-checkbox").removeAttribute("disabled");
   } else {
     document.getElementById("notify-attendees-checkbox").setAttribute("disabled", "true");
-    document.getElementById("undisclose-attendees-checkbox").setttribute("disabled", "true");
+    document.getElementById("undisclose-attendees-checkbox").setAttribute("disabled", "true");
   }
 
   // update the accept button
