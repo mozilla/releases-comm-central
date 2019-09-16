@@ -394,14 +394,16 @@ calview.colorTracker = {
     style.removeProperty(`--calendar-${cssSafeId}-forecolor`);
   },
   _addCategoryToDocument(aDocument, aCategoryName) {
+    // aCategoryName should already be formatted for CSS, because that's
+    // what is stored in the prefs, and this function is only called with
+    // arguments that come from the prefs.
     if (/[^\w-]/.test(aCategoryName)) {
       return;
     }
 
-    let cssSafeName = calview.formatStringForCSSRule(aCategoryName);
     let style = aDocument.documentElement.style;
     let color = this.categoryBranch.getStringPref(aCategoryName, "transparent");
-    style.setProperty(`--category-${cssSafeName}-color`, color);
+    style.setProperty(`--category-${aCategoryName}-color`, color);
   },
   _addAllCategoriesToDocument(aDocument) {
     for (let categoryName of this.categoryBranch.getChildList("")) {
