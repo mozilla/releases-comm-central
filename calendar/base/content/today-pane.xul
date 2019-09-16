@@ -391,7 +391,7 @@
                       label="&calendar.unifinder.showcompletedtodos.label;"
                       flex="1"
                       crop="end"
-                      oncommand="updateCalendarToDoUnifinder()"
+                      oncommand="TodayPane.updateCalendarToDoUnifinder()"
                       persist="checked"
                       autocheck="false"/>
           </box>
