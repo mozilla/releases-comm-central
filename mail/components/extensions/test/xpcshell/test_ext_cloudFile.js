@@ -13,11 +13,6 @@ var { ExtensionTestUtils } = ChromeUtils.import(
 
 ExtensionTestUtils.init(this);
 
-Services.prefs.setBoolPref(
-  "extensions.webextensions.warnings-as-errors",
-  false
-);
-
 add_task(async () => {
   async function background() {
     function createCloudfileAccount() {
@@ -274,6 +269,9 @@ add_task(async () => {
     account.deleteFile(uploads.cloudFile1.id);
   });
 
+  // Deprecated property "settings_url". See bug 1581496 for removal.
+  ExtensionTestUtils.failOnSchemaWarnings(false);
+
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
   await extension.startup();
   Assert.ok(cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
@@ -284,4 +282,6 @@ add_task(async () => {
 
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
   Assert.equal(cloudFileAccounts.accounts.length, 0);
+
+  ExtensionTestUtils.failOnSchemaWarnings(true);
 });

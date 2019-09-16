@@ -4,11 +4,6 @@
 
 let account, rootFolder, subFolders;
 
-Services.prefs.setBoolPref(
-  "extensions.webextensions.warnings-as-errors",
-  false
-);
-
 add_task(async () => {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
@@ -144,9 +139,13 @@ add_task(async () => {
   card.setProperty("PrimaryEmail", author[2]);
   MailServices.ab.directories.getNext().addCard(card);
 
+  // Deprecated "starred" property. See bug 1581498 for removal.
+  ExtensionTestUtils.failOnSchemaWarnings(false);
+
   await extension.startup();
   await extension.awaitFinish("quickFilter");
   await extension.unload();
 
   window.gFolderTreeView.selectFolder(rootFolder);
+  ExtensionTestUtils.failOnSchemaWarnings(true);
 });
