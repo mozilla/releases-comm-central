@@ -27,6 +27,8 @@
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <!-- Javascript includes -->
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://calendar/content/calendar-event-dialog-attendees-custom-elements.js"/>
   <script src="chrome://calendar/content/calendar-event-dialog-attendees.js"/>
   <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
@@ -81,22 +83,20 @@
             <image class="usertype-icon"/>
           </hbox>
           <hbox class="addressingWidgetCell" flex="1">
-            <textbox class="plain textbox-addressingWidget uri-element"
-                     type="autocomplete"
-                     flex="1"
-                     autocompletesearch="addrbook ldap"
-                     autocompletesearchparam="{}"
-                     timeout="300"
-                     maxrows="4"
-                     completedefaultindex="true"
-                     forcecomplete="true"
-                     completeselectedindex="true"
-                     minresultsforpopup="1"
-                     onblur="onAttendeesInputBlur(this);"
-                     ignoreblurwhilesearching="true"
-                     oninput="this.setAttribute('dirty', 'true');"
-                     onkeypress="onAttendeesInputKeyPress(event, this);">
-            </textbox>
+            <html:input is="autocomplete-input" id="attendeesInput"
+                        class="plain textbox-addressingWidget uri-element"
+                        autocompletesearch="addrbook ldap"
+                        autocompletesearchparam="{}"
+                        timeout="300"
+                        maxrows="4"
+                        completedefaultindex="true"
+                        forcecomplete="true"
+                        completeselectedindex="true"
+                        minresultsforpopup="1"
+                        onblur="onAttendeesInputBlur(this);"
+                        ignoreblurwhilesearching="true"
+                        oninput="this.setAttribute('dirty', 'true');"
+                        onkeypress="onAttendeesInputKeyPress(event, this);"/>
           </hbox>
         </richlistitem>
       </calendar-event-attendees-list>

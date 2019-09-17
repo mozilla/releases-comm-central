@@ -42,7 +42,7 @@
 
 :root[lwt-default-theme-in-dark-mode] #msgIdentity,
 :root[lwt-default-theme-in-dark-mode] #msgSubject,
-:root[lwt-default-theme-in-dark-mode] textbox.textbox-addressingWidget,
+:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget,
 :root[lwt-default-theme-in-dark-mode] .dummy-row-cell:last-child {
   border-bottom-color: var(--composer-header-border-color) !important;
   color: var(--lwt-text-color);
@@ -53,8 +53,8 @@
 :root[lwt-default-theme-in-dark-mode] #msgIdentity:focus-within,
 :root[lwt-default-theme-in-dark-mode] #msgSubject:hover,
 :root[lwt-default-theme-in-dark-mode] #msgSubject:focus,
-:root[lwt-default-theme-in-dark-mode] textbox.textbox-addressingWidget:hover,
-:root[lwt-default-theme-in-dark-mode] textbox.textbox-addressingWidget[focused="true"] {
+:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget:hover,
+:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget:focus {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
   border-color: var(--lwt-toolbar-field-border-color) !important;

@@ -79,20 +79,6 @@ function awInitializeNumberOfRowsShown() {
   awCreateOrRemoveDummyRows();
 }
 
-function awInputElementName() {
-  if (inputElementType == "") {
-    inputElementType = document.getElementById("addressCol2#1").localName;
-  }
-  return inputElementType;
-}
-
-function awSelectElementName() {
-  if (selectElementType == "") {
-    selectElementType = document.getElementById("addressCol1#1").localName;
-  }
-  return selectElementType;
-}
-
 // TODO: replace awGetSelectItemIndex with recipient type index constants
 
 function awGetSelectItemIndex(itemData) {
@@ -323,14 +309,14 @@ function _awSetInputAndPopup(inputValue, popupValue, parentNode, templateNode) {
   var newNode = templateNode.cloneNode(true);
   parentNode.appendChild(newNode); // we need to insert the new node before we set the value of the select element!
 
-  var input = newNode.getElementsByTagName(awInputElementName());
-  var select = newNode.getElementsByTagName(awSelectElementName());
+  var input = newNode.querySelector(`input[is="autocomplete-input"]`);
+  var select = newNode.querySelector("menulist");
 
-  if (input && input.length == 1 && select && select.length == 1) {
+  if (input && select) {
     awSetInputAndPopupValue(
-      input[0],
+      input,
       inputValue,
-      select[0],
+      select,
       popupValue,
       top.MAX_RECIPIENTS
     );
@@ -498,8 +484,10 @@ function awTestRowSequence() {
   if (listitems.length >= top.MAX_RECIPIENTS) {
     for (let i = 1; i <= listitems.length; i++) {
       let item = listitems[i - 1];
-      let inputID = item.querySelector(awInputElementName()).id.split("#")[1];
-      let popupID = item.querySelector(awSelectElementName()).id.split("#")[1];
+      let inputID = item
+        .querySelector(`input[is="autocomplete-input"]`)
+        .id.split("#")[1];
+      let popupID = item.querySelector("menulist").id.split("#")[1];
       if (inputID != i || popupID != i) {
         dump(
           "#ERROR: sequence broken at row " +
@@ -606,7 +594,7 @@ function awReturnHit(inputElement) {
 function awDeleteAddressOnClick(deleteAddressElement) {
   awDeleteHit(
     deleteAddressElement.parentNode.parentNode.querySelector(
-      "textbox.textbox-addressingWidget"
+      ".textbox-addressingWidget"
     ),
     true
   );
@@ -615,9 +603,9 @@ function awDeleteAddressOnClick(deleteAddressElement) {
 /**
  * Delete recipient row (addressingWidgetItem) from UI.
  *
- * @param {<xul:textbox>} inputElement  the recipient input XUL textbox element
- *                                      (textbox-addressingWidget) whose parent
- *                                      row (addressingWidgetItem) will be deleted.
+ * @param {<html:input>} inputElement  the recipient input element
+ *                                     (textbox-addressingWidget) whose parent
+ *                                     row (addressingWidgetItem) will be deleted.
  * @param {boolean} deleteForward  true: focus next row after deleting the row
  *                                 false: focus previous row after deleting the row
  */
@@ -683,27 +671,16 @@ function awAppendNewRow(setFocus) {
 
     top.MAX_RECIPIENTS++;
 
-    var input = newNode.getElementsByTagName(awInputElementName());
-    if (input && input.length == 1) {
-      input[0].value = "";
-
-      // We always clone the first row.  The problem is that the first row
-      // could be focused.  When we clone that row, we end up with a cloned
-      // XUL textbox that has a focused attribute set.  Therefore we think
-      // we're focused and don't properly refocus.  The best solution to this
-      // would be to clone a template row that didn't really have any presentation,
-      // rather than using the real visible first row of the listbox.
-      //
-      // For now we'll just put in a hack that ensures the focused attribute
-      // is never copied when the node is cloned.
-      input[0].removeAttribute("focused");
+    var input = newNode.querySelector(`input[is="autocomplete-input"]`);
+    if (input) {
+      input.value = "";
 
       // Reset autocomplete attribute "nomatch" so we don't cause red addresses
       // on a cloned row.
-      input[0].removeAttribute("nomatch");
+      input.removeAttribute("nomatch");
     }
-    var select = newNode.getElementsByTagName(awSelectElementName());
-    if (select && select.length == 1) {
+    var select = newNode.querySelector("menulist");
+    if (select) {
       // It only makes sense to clone some field types; others
       // should not be cloned, since it just makes the user have
       // to go to the trouble of selecting something else. In such
@@ -713,26 +690,26 @@ function awAppendNewRow(setFocus) {
       switch (lastRecipientType) {
         case "addr_reply":
         case "addr_other":
-          select[0].selectedIndex = awGetSelectItemIndex("addr_to");
+          select.selectedIndex = awGetSelectItemIndex("addr_to");
           break;
         case "addr_followup":
-          select[0].selectedIndex = awGetSelectItemIndex("addr_newsgroups");
+          select.selectedIndex = awGetSelectItemIndex("addr_newsgroups");
           break;
         default:
           // e.g. "addr_to","addr_cc","addr_bcc","addr_newsgroups":
-          select[0].selectedIndex = awGetSelectItemIndex(lastRecipientType);
+          select.selectedIndex = awGetSelectItemIndex(lastRecipientType);
       }
 
-      awSetInputAndPopupId(input[0], select[0], top.MAX_RECIPIENTS);
+      awSetInputAndPopupId(input, select, top.MAX_RECIPIENTS);
 
       if (input) {
-        _awSetAutoComplete(select[0], input[0]);
+        _awSetAutoComplete(select, input);
       }
     }
 
     // Focus the new input widget
-    if (setFocus && input[0]) {
-      awSetFocusTo(input[0]);
+    if (setFocus && input) {
+      awSetFocusTo(input);
     }
   }
 }
@@ -753,7 +730,7 @@ function awGetPopupElement(row) {
  * Returns the recipient inputbox for a row.
  *
  * @param row  Index of the recipient row to return. Starts at 1.
- * @return     This returns the textbox element.
+ * @return     This returns the input element.
  */
 function awGetInputElement(row) {
   return document.getElementById("addressCol2#" + row);
@@ -774,7 +751,7 @@ function awGetListItem(row) {
 }
 
 /**
- * @param inputElement  The textbox of recipient input.
+ * @param inputElement  The recipient input element.
  * @return              The row index (starting from 1) where the input element
  *                      is found. 0 if the element is not found.
  */
@@ -1036,7 +1013,7 @@ function awRecipientKeyPress(event, element) {
 }
 
 /**
- * Handle keydown event on a recipient input textbox.
+ * Handle keydown event on a recipient input.
  * Enables recipient row deletion with DEL or BACKSPACE and
  * recipient list navigation with cursor up/down.
  *
@@ -1044,8 +1021,8 @@ function awRecipientKeyPress(event, element) {
  * autocomplete as user enters a recipient text.
  *
  * @param {keydown event} event  the keydown event fired on a recipient input
- * @param {<xul:textbox>} inputElement  the recipient input XUL textbox element
- *                                      on which the event fired (textbox-addressingWidget)
+ * @param {<html:input>} inputElement  the recipient input element
+ *                                     on which the event fired (textbox-addressingWidget)
  */
 function awRecipientKeyDown(event, inputElement) {
   switch (event.key) {

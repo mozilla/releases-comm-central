@@ -2035,29 +2035,26 @@
                   </menupopup>
                 </menulist>
               </hbox>
-              <hbox class="addressingWidgetCell" flex="1">
-                <textbox id="addressCol2#1"
-                         class="plain textbox-addressingWidget uri-element"
-                         aria-labelledby="addressCol1#1"
-                         type="autocomplete"
-                         flex="1"
-                         autocompletesearch="mydomain addrbook ldap news"
-                         autocompletesearchparam="{}"
-                         timeout="300"
-                         maxrows="6"
-                         completedefaultindex="true"
-                         forcecomplete="true"
-                         completeselectedindex="true"
-                         minresultsforpopup="2"
-                         ignoreblurwhilesearching="true"
-                         onfocus="awRecipientOnFocus(this);"
-                         onchange="onRecipientsChanged();"
-                         oninput="onRecipientsChanged();"
-                         onclick="onRecipientClicked(event, this);"
-                         onkeypress="awRecipientKeyPress(event, this)"
-                         onkeydown="awRecipientKeyDown(event, this)"
-                         disableonsend="true">
-                </textbox>
+              <hbox class="addressingWidgetCell input-container" flex="1">
+                <html:input is="autocomplete-input" id="addressCol2#1"
+                            class="plain textbox-addressingWidget uri-element"
+                            aria-labelledby="addressCol1#1"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="300"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="awRecipientOnFocus(this);"
+                            onchange="onRecipientsChanged();"
+                            oninput="onRecipientsChanged();"
+                            onclick="onRecipientClicked(event, this);"
+                            onkeypress="awRecipientKeyPress(event, this)"
+                            onkeydown="awRecipientKeyDown(event, this)"
+                            disableonsend="true"/>
               </hbox>
             </richlistitem>
           </richlistbox>

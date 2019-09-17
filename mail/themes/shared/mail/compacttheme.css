@@ -114,7 +114,7 @@
 
 #msgIdentity,
 #msgSubject,
-textbox.textbox-addressingWidget,
+.textbox-addressingWidget,
 .dummy-row-cell:last-child {
   border-bottom-color: var(--composer-header-border-color) !important;
   color: var(--lwt-text-color);
@@ -125,8 +125,8 @@ textbox.textbox-addressingWidget,
 #msgIdentity:focus-within,
 #msgSubject:hover,
 #msgSubject:focus,
-textbox.textbox-addressingWidget:hover,
-textbox.textbox-addressingWidget[focused="true"] {
+.textbox-addressingWidget:hover,
+.textbox-addressingWidget:focus {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
   border-color: var(--lwt-toolbar-field-border-color) !important;

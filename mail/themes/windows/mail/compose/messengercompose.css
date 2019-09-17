@@ -188,24 +188,25 @@
   padding-bottom: 2px;
 }
 
-textbox.textbox-addressingWidget,
+html|input.textbox-addressingWidget,
 .dummy-row-cell:last-child {
   margin-bottom: 2px !important;
   padding: 2px !important;
   padding-inline-start: 5px !important;
   border: 1px solid transparent !important;
   transition: border .2s, background-color .2s;
+  background-color: transparent;
 }
 
 @media (-moz-windows-default-theme: 0) {
-  textbox.textbox-addressingWidget,
+  html|input.textbox-addressingWidget,
     .dummy-row-cell:last-child {
     border-bottom-color: ThreeDShadow !important;
     margin-inline-end: 1px !important;
   }
 
-  textbox.textbox-addressingWidget:hover,
-  textbox.textbox-addressingWidget[focused="true"] {
+  html|input.textbox-addressingWidget:hover,
+  html|input.textbox-addressingWidget:focus {
     background-color: -moz-field;
     border-color: ThreeDShadow !important;
   }
@@ -653,13 +654,13 @@ toolbar:not(:-moz-lwtheme) {
 /* ::::: addressing widget ::::: */
 
 @media (-moz-windows-default-theme) {
-  textbox.textbox-addressingWidget,
+  html|input.textbox-addressingWidget,
   .dummy-row-cell:last-child {
     border-bottom-color: #a9b7c9 !important;
   }
 
-  textbox.textbox-addressingWidget:hover,
-  textbox.textbox-addressingWidget[focused="true"] {
+  html|input.textbox-addressingWidget:hover,
+  html|input.textbox-addressingWidget:focus {
     background-color: -moz-field;
     border-color: #a9b7c9 !important;
   }

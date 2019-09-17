@@ -337,17 +337,22 @@
             return;
           }
           if (event.originalTarget.localName == "input") {
+            let input = event.originalTarget;
+
+            input.setAttribute("autocompleteinput", input.id);
+            this.mPopupOpen = true;
+
             switch (event.key) {
               case "ArrowUp":
-                this.arrowHit(event.originalTarget, -1);
+                this.arrowHit(input, -1);
                 event.stopPropagation();
                 break;
               case "ArrowDown":
-                this.arrowHit(event.originalTarget, 1);
+                this.arrowHit(input, 1);
                 event.stopPropagation();
                 break;
               case "Tab":
-                this.arrowHit(event.originalTarget, event.shiftKey ? -1 : +1);
+                this.arrowHit(input, event.shiftKey ? -1 : +1);
                 break;
             }
           }
@@ -613,18 +618,6 @@
       let roleStatusIcon = newNode.querySelector(".status-icon");
       let userTypeIcon = newNode.querySelector(".usertype-icon");
 
-      // We always clone the first row. The problem is that the first row
-      // could be focused. When we clone that row, we end up with a cloned
-      // XUL textbox that has a focused attribute set.  Therefore we think
-      // we're focused and don't properly refocus.  The best solution to this
-      // would be to clone a template row that didn't really have any presentation,
-      // rather than using the real visible first row of the listbox.
-      // For now we'll just put in a hack that ensures the focused attribute
-      // is never copied when the node is cloned.
-      if (input.getAttribute("focused") != "") {
-        input.removeAttribute("focused");
-      }
-
       // The template could have its fields disabled,
       // that's why we need to reset their status.
       input.removeAttribute("disabled");
@@ -667,7 +660,6 @@
       // Don't set value with null, otherwise autocomplete stops working,
       // but make sure attendee and dirty are set.
       if (inputValue.length) {
-        input.setAttribute("value", inputValue);
         input.value = inputValue;
       }
       input.attendee = attendee;
@@ -1200,7 +1192,7 @@
     }
 
     /**
-     * Sets foucs on the textbox in the row `row`.
+     * Sets foucs on the input element in the row `row`.
      *
      * @param {Element|Number} row      Row number or row
      */

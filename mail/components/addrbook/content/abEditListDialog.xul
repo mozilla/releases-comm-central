@@ -58,23 +58,21 @@
 
     <richlistbox id="addressingWidget" style="height: 15em;" onclick="awClickEmptySpace(event.target, true)">
       <richlistitem class="addressingWidgetItem" allowevents="true">
-        <hbox class="addressingWidgetCell" flex="1">
+        <hbox class="addressingWidgetCell input-container" flex="1">
           <image onclick="this.nextElementSibling.select();" class="person-icon"/>
-          <textbox id="addressCol1#1"
-                   class="plain textbox-addressingWidget uri-element"
-                   type="autocomplete"
-                   flex="1"
-                   autocompletesearch="addrbook ldap"
-                   autocompletesearchparam="{}"
-                   timeout="300"
-                   maxrows="4"
-                   completedefaultindex="true"
-                   forcecomplete="true"
-                   completeselectedindex="true"
-                   minresultsforpopup="3"
-                   onkeypress="awAbRecipientKeyPress(event, this);"
-                   onkeydown="awRecipientKeyDown(event, this);"
-                   onclick="onRecipientClicked(event, this);"/>
+          <html:input is="autocomplete-input" id="addressCol1#1"
+                      class="plain textbox-addressingWidget uri-element"
+                      autocompletesearch="addrbook ldap"
+                      autocompletesearchparam="{}"
+                      timeout="300"
+                      maxrows="4"
+                      completedefaultindex="true"
+                      forcecomplete="true"
+                      completeselectedindex="true"
+                      minresultsforpopup="3"
+                      onkeypress="awAbRecipientKeyPress(event, this);"
+                      onkeydown="awRecipientKeyDown(event, this);"
+                      onclick="onRecipientClicked(event, this);"/>
         </hbox>
       </richlistitem>
     </richlistbox>

@@ -6,6 +6,10 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 /* this is for attendee and organizer decoration in summary and event dialog */
+html|input.textbox-addressingWidget {
+    width: 100%;
+    background-color: transparent !important;
+}
 
 #item-attendees-box {
     -moz-appearance: listbox;
