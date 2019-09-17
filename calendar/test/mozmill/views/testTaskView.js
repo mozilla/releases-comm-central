@@ -99,12 +99,12 @@ function testTaskView() {
   );
 
   // Verify description and status in details pane.
-  controller.assertValue(
-    lookup(`
-        ${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/{"flex":"1"}/
-        id("calendar-task-details-description")
-    `),
-    DESCRIPTION
+  controller.waitFor(
+    () =>
+      lookup(`
+    ${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/{"flex":"1"}/
+    id("calendar-task-details-description")
+  `).getNode().value == DESCRIPTION
   );
   controller.assertJSProperty(eid("calendar-task-details-status"), "textContent", "Needs Action");
 

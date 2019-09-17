@@ -106,7 +106,7 @@ function testWeekView() {
         anon({"class":"calendar-event-details-core event-name-label"})`
   );
   controller.waitForElement(eventName);
-  controller.assertJSProperty(eventName, "textContent", TITLE2);
+  controller.waitFor(() => eventName.getNode().textContent == TITLE2);
 
   // Delete event.
   controller.click(eventBox);

@@ -132,7 +132,7 @@ function loadEventsFromFile(aCalendar) {
  * @param aItems        An array of items to put into the calendar.
  * @param aFilePath     The original file path, for error messages.
  */
-function putItemsIntoCal(destCal, aItems, aFilePath) {
+async function putItemsIntoCal(destCal, aItems, aFilePath) {
   // Set batch for the undo/redo transaction manager
   startBatchTransaction();
 
@@ -152,47 +152,37 @@ function putItemsIntoCal(destCal, aItems, aFilePath) {
   // (example of something very wrong: importing the same file twice.
   //  quite easy to trigger, so we really should do this)
   let lastError;
-  let listener = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+
+  let pcal = cal.async.promisifyCalendar(destCal);
+  for (let item of aItems) {
+    // XXX prompt when finding a duplicate.
+    try {
+      await pcal.addItem(item);
       count++;
-      if (!Components.isSuccessCode(aStatus)) {
-        if (aStatus == Ci.calIErrors.DUPLICATE_ID) {
-          duplicateCount++;
-        } else {
-          failedCount++;
-          lastError = aStatus;
-        }
-      }
       // See if it is time to end the calendar's batch.
       if (count == aItems.length) {
         destCal.endBatch();
-        if (!failedCount && duplicateCount) {
-          cal.showError(
-            cal.l10n.getCalString("duplicateError", [duplicateCount, aFilePath]),
-            window
-          );
-        } else if (failedCount) {
+        if (failedCount) {
           cal.showError(
             cal.l10n.getCalString("importItemsFailed", [failedCount, lastError.toString()]),
             window
           );
+        } else if (duplicateCount) {
+          cal.showError(
+            cal.l10n.getCalString("duplicateError", [duplicateCount, aFilePath]),
+            window
+          );
         }
       }
-    },
-  };
-
-  for (let item of aItems) {
-    // XXX prompt when finding a duplicate.
-    try {
-      destCal.addItem(item, listener);
     } catch (e) {
-      failedCount++;
-      lastError = e;
-      // Call the listener's operationComplete, to increase the
-      // counter and not miss failed items. Otherwise, endBatch might
-      // never be called.
-      listener.onOperationComplete(null, null, null, null, null);
+      count++;
+      if (e == Ci.calIErrors.DUPLICATE_ID) {
+        duplicateCount++;
+      } else {
+        failedCount++;
+        lastError = e;
+      }
+
       Cu.reportError("Import error: " + e);
     }
   }

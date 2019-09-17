@@ -21,9 +21,9 @@ var cICL = Ci.calIChangeLog;
 
 function calStorageCalendar() {
   this.initProviderBase();
-  this.mItemCache = {};
-  this.mRecEventCache = {};
-  this.mRecTodoCache = {};
+  this.mItemCache = new Map();
+  this.mRecEventCache = new Map();
+  this.mRecTodoCache = new Map();
 }
 var calStorageCalendarClassID = Components.ID("{b3eaa1c4-5dfe-4c0a-b62a-b3a514218461}");
 var calStorageCalendarInterfaces = [
@@ -49,7 +49,7 @@ calStorageCalendar.prototype = {
   //
   mDB: null,
   mItemCache: null,
-  mRecItemCacheInited: false,
+  mRecItemCachePromise: null,
   mRecEventCache: null,
   mRecTodoCache: null,
   mLastStatement: null,
@@ -69,51 +69,27 @@ calStorageCalendar.prototype = {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
-  deleteCalendar: function(aCalendar, listener) {
+  deleteCalendar: async function(aCalendar, listener) {
+    let stmts = [];
     aCalendar = aCalendar.wrappedJSObject;
 
     if (this.mDeleteEventExtras) {
       for (let stmt of this.mDeleteEventExtras) {
-        try {
-          this.prepareStatement(stmt);
-          stmt.executeStep();
-        } finally {
-          stmt.reset();
-        }
+        stmts.push(this.prepareStatement(stmt));
       }
     }
 
     if (this.mDeleteTodoExtras) {
       for (let stmt of this.mDeleteTodoExtras) {
-        try {
-          this.prepareStatement(stmt);
-          stmt.executeStep();
-        } finally {
-          stmt.reset();
-        }
+        stmts.push(this.prepareStatement(stmt));
       }
     }
 
-    try {
-      this.prepareStatement(this.mDeleteAllEvents);
-      this.mDeleteAllEvents.executeStep();
-    } finally {
-      this.mDeleteAllEvents.reset();
-    }
+    stmts.push(this.prepareStatement(this.mDeleteAllEvents));
+    stmts.push(this.prepareStatement(this.mDeleteAllTodos));
+    stmts.push(this.prepareStatement(this.mDeleteAllMetaData));
 
-    try {
-      this.prepareStatement(this.mDeleteAllTodos);
-      this.mDeleteAllTodos.executeStep();
-    } finally {
-      this.mDeleteAllTodos.reset();
-    }
-
-    try {
-      this.prepareStatement(this.mDeleteAllMetaData);
-      this.mDeleteAllMetaData.executeStep();
-    } finally {
-      this.mDeleteAllMetaData.reset();
-    }
+    await this.executeAsync(stmts);
 
     try {
       if (listener) {
@@ -236,6 +212,7 @@ calStorageCalendar.prototype = {
     } catch (e) {
       this.logError("prepareStatement exception", e);
     }
+    return aStmt;
   },
 
   /**
@@ -245,13 +222,13 @@ calStorageCalendar.prototype = {
    * @param aIdParam      The name of the parameter referring to the item id.
    * @param aId           The id of the item.
    */
-  executeItemStatement: function(aStmt, aIdParam, aId) {
+  executeSyncItemStatement: function(aStmt, aIdParam, aId) {
     try {
       aStmt.params.cal_id = this.id;
       aStmt.params[aIdParam] = aId;
       aStmt.executeStep();
     } catch (e) {
-      this.logError("executeItemStatement exception", e);
+      this.logError("executeSyncItemStatement exception", e);
       throw e;
     } finally {
       aStmt.reset();
@@ -277,14 +254,42 @@ calStorageCalendar.prototype = {
     aStmts.push(aStmt);
   },
 
-  executeAsync: function(aStmts) {
+  executeAsync: function(aStmts, aCallback) {
+    if (!Array.isArray(aStmts)) {
+      aStmts = [aStmts];
+    }
     return new Promise((resolve, reject) => {
       this.mDB.executeAsync(aStmts, {
-        handleResult() {},
-        handleError() {},
-        handleCompletion(aReason) {
+        resultPromises: [],
+
+        handleResult(aResultSet) {
+          this.resultPromises.push(this.handleResultInner(aResultSet));
+        },
+        async handleResultInner(aResultSet) {
+          let row = aResultSet.getNextRow();
+          while (row) {
+            try {
+              await aCallback(row);
+            } catch (ex) {
+              this.handleError(ex);
+            }
+            if (this.finishCalled) {
+              this.logError(
+                "Async query completed before all rows consumed. This should never happen."
+              );
+            }
+            row = aResultSet.getNextRow();
+          }
+        },
+        handleError(aError) {
+          cal.WARN(aError);
+        },
+        async handleCompletion(aReason) {
+          await Promise.all(this.resultPromises);
+
           switch (aReason) {
             case Ci.mozIStorageStatementCallback.REASON_FINISHED:
+              this.finishCalled = true;
               resolve();
               break;
             case Ci.mozIStorageStatementCallback.REASON_CANCELLED:
@@ -326,7 +331,7 @@ calStorageCalendar.prototype = {
       // is this an error?  Or should we generate an IID?
       aItem.id = cal.getUUID();
     } else {
-      let olditem = this.getItemById(aItem.id);
+      let olditem = await this.getItemById(aItem.id);
       if (olditem) {
         if (this.relaxedMode) {
           // we possibly want to interact with the user before deleting
@@ -435,7 +440,7 @@ calStorageCalendar.prototype = {
     // Pick up the old item from the database and use this as an old item
     // later on.
     if (!aOldItem) {
-      aOldItem = this.getItemById(aNewItem.id);
+      aOldItem = await this.getItemById(aNewItem.id);
     }
 
     if (this.relaxedMode) {
@@ -446,7 +451,10 @@ calStorageCalendar.prototype = {
       }
       aOldItem = aOldItem.parentItem;
     } else {
-      let storedOldItem = aOldItem ? this.getItemById(aOldItem.id) : null;
+      let storedOldItem = null;
+      if (aOldItem) {
+        storedOldItem = await this.getItemById(aOldItem.id);
+      }
       if (!aOldItem || !storedOldItem) {
         // no old item found?  should be using addItem, then.
         return reportError("ID does not already exist for modifyItem");
@@ -470,7 +478,7 @@ calStorageCalendar.prototype = {
 
     modifiedItem.makeImmutable();
     await this.flushItem(modifiedItem, aOldItem);
-    this.setOfflineJournalFlag(aNewItem, oldOfflineFlag);
+    await this.setOfflineJournalFlag(aNewItem, oldOfflineFlag);
 
     this.notifyOperationComplete(
       aListener,
@@ -530,12 +538,12 @@ calStorageCalendar.prototype = {
   },
 
   // void getItem( in string id, in calIOperationListener aListener );
-  getItem: function(aId, aListener) {
+  getItem: async function(aId, aListener) {
     if (!aListener) {
       return;
     }
 
-    let item = this.getItemById(aId);
+    let item = await this.getItemById(aId);
     if (!item) {
       // querying by id is a valid use case, even if no item is returned:
       this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
@@ -566,12 +574,7 @@ calStorageCalendar.prototype = {
   // void getItems( in unsigned long aItemFilter, in unsigned long aCount,
   //                in calIDateTime aRangeStart, in calIDateTime aRangeEnd,
   //                in calIOperationListener aListener );
-  getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
-    cal.postPone(() => {
-      this.getItems_(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener);
-    });
-  },
-  getItems_: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
+  getItems: async function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
     if (!aListener) {
       return;
     }
@@ -619,10 +622,10 @@ calStorageCalendar.prototype = {
     // Hence we need to update the mRecEventCacheOfflineFlags and  mRecTodoCacheOfflineFlags hash-tables
     // It can be an expensive operation but is only used in Online Reconciliation mode
     if (wantOfflineCreatedItems | wantOfflineDeletedItems | wantOfflineModifiedItems) {
-      this.mRecItemCacheInited = false;
+      this.mRecItemCachePromise = null;
     }
 
-    this.assureRecurringItemCaches();
+    await this.assureRecurringItemCaches();
 
     let itemCompletedFilter = (aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_YES) != 0;
     let itemNotCompletedFilter = (aItemFilter & kCalICalendar.ITEM_FILTER_COMPLETED_NO) != 0;
@@ -687,11 +690,13 @@ calStorageCalendar.prototype = {
         expandedItems = [item];
       }
 
-      if (expandedItems.length && optionalFilterFunc) {
-        expandedItems = expandedItems.filter(optionalFilterFunc);
+      if (expandedItems.length) {
+        if (optionalFilterFunc) {
+          expandedItems = expandedItems.filter(optionalFilterFunc);
+        }
+        queueItems(expandedItems, theIID);
       }
 
-      queueItems(expandedItems, theIID);
       return expandedItems.length;
     }
 
@@ -736,14 +741,12 @@ calStorageCalendar.prototype = {
         params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
         params.offline_journal = requestedOfflineJournal;
 
-        while (this.mSelectNonRecurringEventsByRange.executeStep()) {
-          let row = this.mSelectNonRecurringEventsByRange.row;
-          resultItems.push(this.getEventFromRow(row, {}));
-        }
+        await this.executeAsync(this.mSelectNonRecurringEventsByRange, async row => {
+          let event = await this.getEventFromRow(row);
+          resultItems.push(event);
+        });
       } catch (e) {
         this.logError("Error selecting non recurring events by range!\n", e);
-      } finally {
-        this.mSelectNonRecurringEventsByRange.reset();
       }
 
       // Process the non-recurring events:
@@ -755,9 +758,8 @@ calStorageCalendar.prototype = {
       }
 
       // Process the recurring events from the cache
-      for (let id in this.mRecEventCache) {
-        let evitem = this.mRecEventCache[id];
-        let cachedJournalFlag = this.mRecEventCacheOfflineFlags[evitem.id] || null;
+      for (let [id, evitem] of this.mRecEventCache.entries()) {
+        let cachedJournalFlag = this.mRecEventCacheOfflineFlags.get(id);
         // No need to return flagged unless asked i.e. requestedOfflineJournal == cachedJournalFlag
         // Return created and modified offline records if requestedOfflineJournal is null alongwith events that have no flag
         if (
@@ -797,14 +799,12 @@ calStorageCalendar.prototype = {
         params.end_offset = aRangeEnd ? aRangeEnd.timezoneOffset * USECS_PER_SECOND : 0;
         params.offline_journal = requestedOfflineJournal;
 
-        while (this.mSelectNonRecurringTodosByRange.executeStep()) {
-          let row = this.mSelectNonRecurringTodosByRange.row;
-          resultItems.push(this.getTodoFromRow(row, {}));
-        }
+        await this.executeAsync(this.mSelectNonRecurringTodosByRange, async row => {
+          let todo = await this.getTodoFromRow(row);
+          resultItems.push(todo);
+        });
       } catch (e) {
         this.logError("Error selecting non recurring todos by range", e);
-      } finally {
-        this.mSelectNonRecurringTodosByRange.reset();
       }
 
       // process the non-recurring todos:
@@ -820,9 +820,8 @@ calStorageCalendar.prototype = {
       //       Moreover item.todo_complete etc seems to be a leftover...
 
       // process the recurring todos from the cache
-      for (let id in this.mRecTodoCache) {
-        let todoitem = this.mRecTodoCache[id];
-        let cachedJournalFlag = this.mRecTodoCacheOfflineFlags[todoitem.id] || null;
+      for (let [id, todoitem] of this.mRecTodoCache.entries()) {
+        let cachedJournalFlag = this.mRecTodoCacheOfflineFlags.get(id);
         if (
           (requestedOfflineJournal == null &&
             (cachedJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD ||
@@ -845,84 +844,51 @@ calStorageCalendar.prototype = {
     this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
   },
 
-  getItemOfflineFlag: function(aItem, aListener) {
+  getItemOfflineFlag: async function(aItem, aListener) {
     let flag = null;
     if (aItem) {
-      let aID = aItem.id;
-      let self = this;
-      let listener = {
-        handleResult: function(aResultSet) {
-          let row = aResultSet.getNextRow();
+      let query = cal.item.isEvent(aItem) ? this.mSelectEvent : this.mSelectTodo;
+      this.prepareStatement(query);
+      query.params.id = aItem.id;
+      try {
+        await this.executeAsync(query, row => {
           flag = row.getResultByName("offline_journal") || null;
-        },
-        handleError: function(aError) {
-          self.logError("Error getting offline flag", aError);
-          aListener.onOperationComplete(
-            self,
-            Cr.NS_ERROR_FAILURE,
-            Ci.calIOperationListener.GET,
-            aItem.id,
-            aItem
-          );
-        },
-        handleCompletion: function(aReason) {
-          aListener.onOperationComplete(
-            self,
-            Cr.NS_OK,
-            Ci.calIOperationListener.GET,
-            aItem.id,
-            flag
-          );
-        },
-      };
-      if (cal.item.isEvent(aItem)) {
-        this.prepareStatement(this.mSelectEvent);
-        this.mSelectEvent.params.id = aID;
-        this.mSelectEvent.executeAsync(listener);
-      } else if (cal.item.isToDo(aItem)) {
-        this.prepareStatement(this.mSelectTodo);
-        this.mSelectTodo.params.id = aID;
-        this.mSelectTodo.executeAsync(listener);
+        });
+      } catch (ex) {
+        aListener.onOperationComplete(
+          self,
+          ex.result,
+          Ci.calIOperationListener.GET,
+          aItem.id,
+          aItem
+        );
+        return;
       }
-    } else {
-      // It is possible that aItem can be null, flag provided should be null in this case
-      aListener.onOperationComplete(this, Cr.NS_OK, Ci.calIOperationListener.GET, null, flag);
     }
+
+    // It is possible that aItem can be null, flag provided should be null in this case
+    aListener.onOperationComplete(this, Cr.NS_OK, Ci.calIOperationListener.GET, aItem, flag);
   },
 
-  setOfflineJournalFlag: function(aItem, flag) {
+  setOfflineJournalFlag: async function(aItem, flag) {
     let aID = aItem.id;
-    if (cal.item.isEvent(aItem)) {
-      this.prepareStatement(this.mEditEventOfflineFlag);
-      this.mEditEventOfflineFlag.params.id = aID;
-      this.mEditEventOfflineFlag.params.offline_journal = flag || null;
-      try {
-        this.mEditEventOfflineFlag.executeStep();
-      } catch (e) {
-        this.logError("Error setting offline journal flag for " + aItem.title, e);
-      } finally {
-        this.mEditEventOfflineFlag.reset();
-      }
-    } else if (cal.item.isToDo(aItem)) {
-      this.prepareStatement(this.mEditTodoOfflineFlag);
-      this.mEditTodoOfflineFlag.params.id = aID;
-      this.mEditTodoOfflineFlag.params.offline_journal = flag || null;
-      try {
-        this.mEditTodoOfflineFlag.executeStep();
-      } catch (e) {
-        this.logError("Error setting offline journal flag for " + aItem.title, e);
-      } finally {
-        this.mEditTodoOfflineFlag.reset();
-      }
+    let query = cal.item.isEvent(aItem) ? this.mEditEventOfflineFlag : this.mEditTodoOfflineFlag;
+    this.prepareStatement(query);
+    query.params.id = aID;
+    query.params.offline_journal = flag || null;
+    try {
+      await this.executeAsync(query);
+    } catch (e) {
+      this.logError("Error setting offline journal flag for " + aItem.title, e);
     }
   },
 
   //
   // calIOfflineStorage interface
   //
-  addOfflineItem: function(aItem, aListener) {
+  addOfflineItem: async function(aItem, aListener) {
     let newOfflineJournalFlag = cICL.OFFLINE_FLAG_CREATED_RECORD;
-    this.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
+    await this.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
     this.notifyOperationComplete(
       aListener,
       Cr.NS_OK,
@@ -937,7 +903,7 @@ calStorageCalendar.prototype = {
     let opListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
       onGetResult: function(calendar, status, itemType, detail, count, items) {},
-      onOperationComplete: function(calendar, status, opType, id, oldOfflineJournalFlag) {
+      onOperationComplete: async function(calendar, status, opType, id, oldOfflineJournalFlag) {
         let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
         if (
           oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
@@ -945,7 +911,7 @@ calStorageCalendar.prototype = {
         ) {
           // Do nothing since a flag of "created" or "deleted" exists
         } else {
-          self.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
+          await self.setOfflineJournalFlag(aItem, newOfflineJournalFlag);
         }
         self.notifyOperationComplete(
           aListener,
@@ -970,10 +936,10 @@ calStorageCalendar.prototype = {
           if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_CREATED_RECORD) {
             await self.deleteItemById(aItem.id);
           } else if (oldOfflineJournalFlag == cICL.OFFLINE_FLAG_MODIFIED_RECORD) {
-            self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+            await self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
           }
         } else {
-          self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
+          await self.setOfflineJournalFlag(aItem, cICL.OFFLINE_FLAG_DELETED_RECORD);
         }
 
         self.notifyOperationComplete(
@@ -990,8 +956,8 @@ calStorageCalendar.prototype = {
     this.getItemOfflineFlag(aItem, opListener);
   },
 
-  resetItemOfflineFlag: function(aItem, aListener) {
-    this.setOfflineJournalFlag(aItem, null);
+  resetItemOfflineFlag: async function(aItem, aListener) {
+    await this.setOfflineJournalFlag(aItem, null);
     this.notifyOperationComplete(
       aListener,
       Cr.NS_OK,
@@ -1006,7 +972,7 @@ calStorageCalendar.prototype = {
   //
 
   // database initialization
-  // assumes mDB is valid
+  // assumes m0DB is valid
 
   initDB: function() {
     cal.ASSERT(this.mDB, "Database has not been opened!", true);
@@ -1014,14 +980,14 @@ calStorageCalendar.prototype = {
     try {
       this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
 
-      this.mSelectEvent = this.mDB.createStatement(
+      this.mSelectEvent = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_events " +
           "WHERE id = :id AND cal_id = :cal_id " +
           " AND recurrence_id IS NULL " +
           "LIMIT 1"
       );
 
-      this.mSelectTodo = this.mDB.createStatement(
+      this.mSelectTodo = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_todos " +
           "WHERE id = :id AND cal_id = :cal_id " +
           " AND recurrence_id IS NULL " +
@@ -1042,7 +1008,7 @@ calStorageCalendar.prototype = {
       let floatingEventEnd = "event_end_tz = 'floating' AND event_end";
       let nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
       // The query needs to take both floating and non floating into account
-      this.mSelectNonRecurringEventsByRange = this.mDB.createStatement(
+      this.mSelectNonRecurringEventsByRange = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_events " +
           "WHERE " +
           " ((" +
@@ -1092,7 +1058,7 @@ calStorageCalendar.prototype = {
       let floatingCompleted = "todo_completed_tz = 'floating' AND todo_completed";
       let nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
 
-      this.mSelectNonRecurringTodosByRange = this.mDB.createStatement(
+      this.mSelectNonRecurringTodosByRange = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_todos " +
           "WHERE " +
           "((((" +
@@ -1151,87 +1117,112 @@ calStorageCalendar.prototype = {
           "  OR (offline_journal == :offline_journal))"
       );
 
-      this.mSelectEventsWithRecurrence = this.mDB.createStatement(
+      this.mSelectEventsWithRecurrence = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_events " +
           " WHERE flags & 16 == 16 " +
           "   AND cal_id = :cal_id AND recurrence_id is NULL"
       );
 
-      this.mSelectTodosWithRecurrence = this.mDB.createStatement(
+      this.mSelectTodosWithRecurrence = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_todos " +
           " WHERE flags & 16 == 16 " +
           "   AND cal_id = :cal_id AND recurrence_id IS NULL"
       );
 
-      this.mSelectEventExceptions = this.mDB.createStatement(
+      this.mSelectEventExceptions = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_events " +
           "WHERE id = :id AND cal_id = :cal_id" +
           " AND recurrence_id IS NOT NULL"
       );
+      this.mSelectAllEventExceptions = this.mDB.createAsyncStatement(
+        "SELECT * FROM cal_events WHERE cal_id = :cal_id AND recurrence_id IS NOT NULL"
+      );
 
-      this.mSelectTodoExceptions = this.mDB.createStatement(
+      this.mSelectTodoExceptions = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_todos " +
           "WHERE id = :id AND cal_id = :cal_id" +
           " AND recurrence_id IS NOT NULL"
       );
+      this.mSelectAllTodoExceptions = this.mDB.createAsyncStatement(
+        "SELECT * FROM cal_todos WHERE cal_id = :cal_id AND recurrence_id IS NOT NULL"
+      );
 
-      // For the extra-item data, we used to use mDBTwo, so that
-      // these could be executed while a selectItems was running.
-      // This no longer seems to be needed and actually causes
-      // havoc when transactions are in use.
-      this.mSelectAttendeesForItem = this.mDB.createStatement(
+      this.mSelectAttendeesForItem = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_attendees " +
           "WHERE item_id = :item_id AND cal_id = :cal_id" +
           " AND recurrence_id IS NULL"
       );
 
-      this.mSelectAttendeesForItemWithRecurrenceId = this.mDB.createStatement(
+      this.mSelectAttendeesForItemWithRecurrenceId = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_attendees " +
           "WHERE item_id = :item_id AND cal_id = :cal_id" +
           " AND recurrence_id = :recurrence_id" +
           " AND recurrence_id_tz = :recurrence_id_tz"
       );
+      this.mSelectAllAttendees = this.mDB.createAsyncStatement(
+        "SELECT item_id, icalString FROM cal_attendees " +
+          "WHERE cal_id = :cal_id" +
+          " AND recurrence_id IS NULL"
+      );
 
-      this.mSelectPropertiesForItem = this.mDB.createStatement(
+      this.mSelectPropertiesForItem = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_properties" +
           " WHERE item_id = :item_id" +
           "   AND cal_id = :cal_id" +
           "   AND recurrence_id IS NULL"
       );
 
-      this.mSelectPropertiesForItemWithRecurrenceId = this.mDB.createStatement(
+      this.mSelectPropertiesForItemWithRecurrenceId = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_properties " +
           "WHERE item_id = :item_id AND cal_id = :cal_id" +
           "  AND recurrence_id = :recurrence_id" +
           "  AND recurrence_id_tz = :recurrence_id_tz"
       );
-
-      this.mSelectRecurrenceForItem = this.mDB.createStatement(
-        "SELECT * FROM cal_recurrence WHERE item_id = :item_id AND cal_id = :cal_id"
+      this.mSelectAllProperties = this.mDB.createAsyncStatement(
+        "SELECT item_id, key, value FROM cal_properties" +
+          " WHERE cal_id = :cal_id" +
+          "   AND recurrence_id IS NULL"
       );
 
-      this.mSelectAttachmentsForItem = this.mDB.createStatement(
+      this.mSelectRecurrenceForItem = this.mDB.createAsyncStatement(
+        "SELECT * FROM cal_recurrence WHERE item_id = :item_id AND cal_id = :cal_id"
+      );
+      this.mSelectAllRecurrences = this.mDB.createAsyncStatement(
+        "SELECT item_id, icalString FROM cal_recurrence WHERE cal_id = :cal_id"
+      );
+
+      this.mSelectAttachmentsForItem = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_attachments " +
           "WHERE item_id = :item_id AND cal_id = :cal_id" +
           " AND recurrence_id IS NULL"
       );
-      this.mSelectAttachmentsForItemWithRecurrenceId = this.mDB.createStatement(
+      this.mSelectAttachmentsForItemWithRecurrenceId = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_attachments" +
           " WHERE item_id = :item_id AND cal_id = :cal_id" +
           " AND recurrence_id = :recurrence_id" +
           " AND recurrence_id_tz = :recurrence_id_tz"
       );
+      this.mSelectAllAttachments = this.mDB.createAsyncStatement(
+        "SELECT item_id, icalString FROM cal_attachments " +
+          "WHERE cal_id = :cal_id" +
+          " AND recurrence_id IS NULL"
+      );
 
-      this.mSelectRelationsForItem = this.mDB.createStatement(
+      this.mSelectRelationsForItem = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_relations " +
           "WHERE item_id = :item_id AND cal_id = :cal_id" +
           " AND recurrence_id IS NULL"
       );
-      this.mSelectRelationsForItemWithRecurrenceId = this.mDB.createStatement(
+      this.mSelectRelationsForItemWithRecurrenceId = this.mDB.createAsyncStatement(
         "SELECT * FROM cal_relations" +
           " WHERE item_id = :item_id AND cal_id = :cal_id" +
           " AND recurrence_id = :recurrence_id" +
           " AND recurrence_id_tz = :recurrence_id_tz"
+      );
+      this.mSelectAllRelations = this.mDB.createAsyncStatement(
+        "SELECT item_id, icalString FROM cal_relations " +
+          "WHERE cal_id = :cal_id" +
+          " AND recurrence_id IS NULL"
       );
 
       this.mSelectMetaData = this.mDB.createStatement(
@@ -1242,17 +1233,22 @@ calStorageCalendar.prototype = {
         "SELECT * FROM cal_metadata WHERE cal_id = :cal_id"
       );
 
-      this.mSelectAlarmsForItem = this.mDB.createStatement(
+      this.mSelectAlarmsForItem = this.mDB.createAsyncStatement(
         "SELECT icalString FROM cal_alarms" +
           " WHERE item_id = :item_id AND cal_id = :cal_id" +
           " AND recurrence_id IS NULL"
       );
 
-      this.mSelectAlarmsForItemWithRecurrenceId = this.mDB.createStatement(
+      this.mSelectAlarmsForItemWithRecurrenceId = this.mDB.createAsyncStatement(
         "SELECT icalString FROM cal_alarms" +
           " WHERE item_id = :item_id AND cal_id = :cal_id" +
           " AND recurrence_id = :recurrence_id" +
           " AND recurrence_id_tz = :recurrence_id_tz"
+      );
+      this.mSelectAllAlarms = this.mDB.createAsyncStatement(
+        "SELECT item_id, icalString FROM cal_alarms" +
+          " WHERE cal_id = :cal_id" +
+          " AND recurrence_id IS NULL"
       );
 
       // insert statements
@@ -1374,14 +1370,14 @@ calStorageCalendar.prototype = {
       this.mDeleteTodoExtras = [];
 
       for (let table in extrasTables) {
-        this.mDeleteEventExtras[table] = this.mDB.createStatement(
+        this.mDeleteEventExtras[table] = this.mDB.createAsyncStatement(
           "DELETE FROM " +
             extrasTables[table] +
             " WHERE item_id IN" +
             "  (SELECT id FROM cal_events WHERE cal_id = :cal_id)" +
             " AND cal_id = :cal_id"
         );
-        this.mDeleteTodoExtras[table] = this.mDB.createStatement(
+        this.mDeleteTodoExtras[table] = this.mDB.createAsyncStatement(
           "DELETE FROM " +
             extrasTables[table] +
             " WHERE item_id IN" +
@@ -1392,10 +1388,10 @@ calStorageCalendar.prototype = {
 
       // Note that you must delete the "extras" _first_ using the above two
       // statements, before you delete the events themselves.
-      this.mDeleteAllEvents = this.mDB.createStatement(
+      this.mDeleteAllEvents = this.mDB.createAsyncStatement(
         "DELETE from cal_events WHERE cal_id = :cal_id"
       );
-      this.mDeleteAllTodos = this.mDB.createStatement(
+      this.mDeleteAllTodos = this.mDB.createAsyncStatement(
         "DELETE from cal_todos WHERE cal_id = :cal_id"
       );
 
@@ -1484,6 +1480,9 @@ calStorageCalendar.prototype = {
       if (this.mSelectAlarmsForItemWithRecurrenceId) {
         this.mSelectAlarmsForItemWithRecurrenceId.finalize();
       }
+      if (this.mSelectAllAlarms) {
+        this.mSelectAllAlarms.finalize();
+      }
       if (this.mSelectAllMetaData) {
         this.mSelectAllMetaData.finalize();
       }
@@ -1493,17 +1492,26 @@ calStorageCalendar.prototype = {
       if (this.mSelectAttachmentsForItemWithRecurrenceId) {
         this.mSelectAttachmentsForItemWithRecurrenceId.finalize();
       }
+      if (this.mSelectAllAttachments) {
+        this.mSelectAllAttachments.finalize();
+      }
       if (this.mSelectAttendeesForItem) {
         this.mSelectAttendeesForItem.finalize();
       }
       if (this.mSelectAttendeesForItemWithRecurrenceId) {
         this.mSelectAttendeesForItemWithRecurrenceId.finalize();
       }
+      if (this.mSelectAllAttendees) {
+        this.mSelectAllAttendees.finalize();
+      }
       if (this.mSelectEvent) {
         this.mSelectEvent.finalize();
       }
       if (this.mSelectEventExceptions) {
         this.mSelectEventExceptions.finalize();
+      }
+      if (this.mSelectAllEventExceptions) {
+        this.mSelectAllEventExceptions.finalize();
       }
       if (this.mSelectEventsWithRecurrence) {
         this.mSelectEventsWithRecurrence.finalize();
@@ -1523,8 +1531,14 @@ calStorageCalendar.prototype = {
       if (this.mSelectPropertiesForItemWithRecurrenceId) {
         this.mSelectPropertiesForItemWithRecurrenceId.finalize();
       }
+      if (this.mSelectAllProperties) {
+        this.mSelectAllProperties.finalize();
+      }
       if (this.mSelectRecurrenceForItem) {
         this.mSelectRecurrenceForItem.finalize();
+      }
+      if (this.mSelectAllRecurrences) {
+        this.mSelectAllRecurrences.finalize();
       }
       if (this.mSelectRelationsForItem) {
         this.mSelectRelationsForItem.finalize();
@@ -1532,11 +1546,17 @@ calStorageCalendar.prototype = {
       if (this.mSelectRelationsForItemWithRecurrenceId) {
         this.mSelectRelationsForItemWithRecurrenceId.finalize();
       }
+      if (this.mSelectAllRelations) {
+        this.mSelectAllRelations.finalize();
+      }
       if (this.mSelectTodo) {
         this.mSelectTodo.finalize();
       }
       if (this.mSelectTodoExceptions) {
         this.mSelectTodoExceptions.finalize();
+      }
+      if (this.mSelectAllTodoExceptions) {
+        this.mSelectAllTodoExceptions.finalize();
       }
       if (this.mSelectTodosWithRecurrence) {
         this.mSelectTodosWithRecurrence.finalize();
@@ -1567,174 +1587,288 @@ calStorageCalendar.prototype = {
 
   // read in the common ItemBase attributes from aDBRow, and stick
   // them on item
-  getItemBaseFromRow: function(row, flags, item) {
+  getItemBaseFromRow: function(row, item) {
     item.calendar = this.superCalendar;
-    item.id = row.id;
-    if (row.title) {
-      item.title = row.title;
+    item.id = row.getResultByName("id");
+    if (row.getResultByName("title")) {
+      item.title = row.getResultByName("title");
     }
-    if (row.priority) {
-      item.priority = row.priority;
+    if (row.getResultByName("priority")) {
+      item.priority = row.getResultByName("priority");
     }
-    if (row.privacy) {
-      item.privacy = row.privacy;
+    if (row.getResultByName("privacy")) {
+      item.privacy = row.getResultByName("privacy");
     }
-    if (row.ical_status) {
-      item.status = row.ical_status;
+    if (row.getResultByName("ical_status")) {
+      item.status = row.getResultByName("ical_status");
     }
 
-    if (row.alarm_last_ack) {
+    if (row.getResultByName("alarm_last_ack")) {
       // alarm acks are always in utc
-      item.alarmLastAck = newDateTime(row.alarm_last_ack, "UTC");
+      item.alarmLastAck = newDateTime(row.getResultByName("alarm_last_ack"), "UTC");
     }
 
-    if (row.recurrence_id) {
-      item.recurrenceId = newDateTime(row.recurrence_id, row.recurrence_id_tz);
-      if ((row.flags & CAL_ITEM_FLAG.RECURRENCE_ID_ALLDAY) != 0) {
+    if (row.getResultByName("recurrence_id")) {
+      item.recurrenceId = newDateTime(
+        row.getResultByName("recurrence_id"),
+        row.getResultByName("recurrence_id_tz")
+      );
+      if ((row.getResultByName("flags") & CAL_ITEM_FLAG.RECURRENCE_ID_ALLDAY) != 0) {
         item.recurrenceId.isDate = true;
       }
     }
 
-    if (flags) {
-      flags.value = row.flags;
-    }
-
-    if (row.time_created) {
-      item.setProperty("CREATED", newDateTime(row.time_created, "UTC"));
+    if (row.getResultByName("time_created")) {
+      item.setProperty("CREATED", newDateTime(row.getResultByName("time_created"), "UTC"));
     }
 
     // This must be done last because the setting of any other property
     // after this would overwrite it again.
-    if (row.last_modified) {
-      item.setProperty("LAST-MODIFIED", newDateTime(row.last_modified, "UTC"));
+    if (row.getResultByName("last_modified")) {
+      item.setProperty("LAST-MODIFIED", newDateTime(row.getResultByName("last_modified"), "UTC"));
     }
   },
 
   cacheItem: function(item) {
-    this.mItemCache[item.id] = item;
+    this.mItemCache.set(item.id, item);
     if (item.recurrenceInfo) {
       if (cal.item.isEvent(item)) {
-        this.mRecEventCache[item.id] = item;
+        this.mRecEventCache.set(item.id, item);
       } else {
-        this.mRecTodoCache[item.id] = item;
+        this.mRecTodoCache.set(item.id, item);
       }
     }
   },
 
-  mRecEventCacheOfflineFlags: {},
-  mRecTodoCacheOfflineFlags: {},
+  mRecEventCacheOfflineFlags: new Map(),
+  mRecTodoCacheOfflineFlags: new Map(),
   assureRecurringItemCaches: function() {
-    if (this.mRecItemCacheInited) {
-      return;
+    if (!this.mRecItemCachePromise) {
+      this.mRecItemCachePromise = this._assureRecurringItemCaches();
     }
+    return this.mRecItemCachePromise;
+  },
+  _assureRecurringItemCaches: async function() {
     // build up recurring event and todo cache with its offline flags,
     // because we need that on every query: for recurring items, we need to
     // query database-wide.. yuck
-
-    try {
-      this.prepareStatement(this.mSelectEventsWithRecurrence);
-      while (this.mSelectEventsWithRecurrence.executeStep()) {
-        let row = this.mSelectEventsWithRecurrence.row;
-        let item = this.getEventFromRow(row, {});
-        this.mRecEventCache[item.id] = item;
-        this.mRecEventCacheOfflineFlags[item.id] = row.offline_journal || null;
-      }
-    } catch (e) {
-      this.logError("Error selecting events with recurrence!", e);
-    } finally {
-      this.mSelectEventsWithRecurrence.reset();
+    let events = [];
+    let itemsMap = new Map();
+    this.prepareStatement(this.mSelectEventsWithRecurrence);
+    await this.executeAsync(this.mSelectEventsWithRecurrence, async row => {
+      events.push(row);
+    });
+    for (let row of events) {
+      let item = await this.getEventFromRow(row, false);
+      this.mRecEventCache.set(item.id, item);
+      this.mRecEventCacheOfflineFlags.set(item.id, row.getResultByName("offline_journal") || null);
+      itemsMap.set(item.id, item);
     }
 
-    try {
-      this.prepareStatement(this.mSelectTodosWithRecurrence);
-      while (this.mSelectTodosWithRecurrence.executeStep()) {
-        let row = this.mSelectTodosWithRecurrence.row;
-        let item = this.getTodoFromRow(row, {});
-        this.mRecTodoCache[item.id] = item;
-        this.mRecTodoCacheOfflineFlags[item.id] = row.offline_journal || null;
-      }
-    } catch (e) {
-      this.logError("Error selecting todos with recurrence!", e);
-    } finally {
-      this.mSelectTodosWithRecurrence.reset();
+    let todos = [];
+    this.prepareStatement(this.mSelectTodosWithRecurrence);
+    await this.executeAsync(this.mSelectTodosWithRecurrence, async row => {
+      todos.push(row);
+    });
+    for (let row of todos) {
+      let item = await this.getTodoFromRow(row, false);
+      this.mRecTodoCache.set(item.id, item);
+      this.mRecTodoCacheOfflineFlags.set(item.id, row.getResultByName("offline_journal") || null);
+      itemsMap.set(item.id, item);
     }
 
-    this.mRecItemCacheInited = true;
+    this.prepareStatement(this.mSelectAllAttendees);
+    await this.executeAsync(this.mSelectAllAttendees, row => {
+      let item = itemsMap.get(row.getResultByName("item_id"));
+      if (!item) {
+        return;
+      }
+
+      let attendee = cal.createAttendee(row.getResultByName("icalString"));
+      if (attendee && attendee.id) {
+        if (attendee.isOrganizer) {
+          item.organizer = attendee;
+        } else {
+          item.addAttendee(attendee);
+        }
+      } else {
+        cal.WARN(
+          "[calStorageCalendar] Skipping invalid attendee for item '" +
+            item.title +
+            "' (" +
+            item.id +
+            ")."
+        );
+      }
+    });
+
+    this.prepareStatement(this.mSelectAllProperties);
+    await this.executeAsync(this.mSelectAllProperties, row => {
+      let item = itemsMap.get(row.getResultByName("item_id"));
+      if (!item) {
+        return;
+      }
+
+      let name = row.getResultByName("key");
+      switch (name) {
+        case "DURATION":
+          // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
+          break;
+        case "CATEGORIES": {
+          let cats = cal.category.stringToArray(row.getResultByName("value"));
+          item.setCategories(cats.length, cats);
+          break;
+        }
+        default:
+          item.setProperty(name, row.getResultByName("value"));
+          break;
+      }
+    });
+
+    this.prepareStatement(this.mSelectAllRecurrences);
+    await this.executeAsync(this.mSelectAllRecurrences, row => {
+      let item = itemsMap.get(row.getResultByName("item_id"));
+      if (!item) {
+        return;
+      }
+
+      let recInfo = cal.createRecurrenceInfo(item);
+      item.recurrenceInfo = recInfo;
+
+      let ritem = this.getRecurrenceItemFromRow(row);
+      recInfo.appendRecurrenceItem(ritem);
+    });
+
+    this.prepareStatement(this.mSelectAllEventExceptions);
+    await this.executeAsync(this.mSelectAllEventExceptions, async row => {
+      let item = itemsMap.get(row.getResultByName("id"));
+      if (!item) {
+        return;
+      }
+
+      let rec = item.recurrenceInfo;
+      let exc = await this.getEventFromRow(row, false);
+      rec.modifyException(exc, true);
+    });
+
+    this.prepareStatement(this.mSelectAllTodoExceptions);
+    await this.executeAsync(this.mSelectAllTodoExceptions, async row => {
+      let item = itemsMap.get(row.getResultByName("id"));
+      if (!item) {
+        return;
+      }
+
+      let rec = item.recurrenceInfo;
+      let exc = await this.getTodoFromRow(row, false);
+      rec.modifyException(exc, true);
+    });
+
+    this.prepareStatement(this.mSelectAllAttachments);
+    await this.executeAsync(this.mSelectAllAttachments, row => {
+      let item = itemsMap.get(row.getResultByName("item_id"));
+      if (item) {
+        item.addAttachment(cal.createAttachment(row.getResultByName("icalString")));
+      }
+    });
+
+    this.prepareStatement(this.mSelectAllRelations);
+    await this.executeAsync(this.mSelectAllRelations, row => {
+      let item = itemsMap.get(row.getResultByName("item_id"));
+      if (item) {
+        item.addRelation(cal.createRelation(row.getResultByName("icalString")));
+      }
+    });
+
+    this.prepareStatement(this.mSelectAllAlarms);
+    await this.executeAsync(this.mSelectAllAlarms, row => {
+      let item = itemsMap.get(row.getResultByName("item_id"));
+      if (item) {
+        item.addAlarm(cal.createAlarm(row.getResultByName("icalString")));
+      }
+    });
+
+    for (let item of itemsMap.values()) {
+      item.makeImmutable();
+      this.mItemCache.set(item.id, item);
+    }
   },
 
-  // xxx todo: consider removing flags parameter
-  getEventFromRow: function(row, flags, isException) {
-    let item;
-    if (!isException) {
-      // only parent items are cached
-      item = this.mItemCache[row.id];
-      if (item) {
-        return item;
-      }
+  getEventFromRow: async function(row, getAdditionalData = true) {
+    let item = this.mItemCache.get(row.getResultByName("id"));
+    if (item) {
+      return item;
     }
 
     item = cal.createEvent();
+    let flags = row.getResultByName("flags");
 
-    if (row.event_start) {
-      item.startDate = newDateTime(row.event_start, row.event_start_tz);
+    if (row.getResultByName("event_start")) {
+      item.startDate = newDateTime(
+        row.getResultByName("event_start"),
+        row.getResultByName("event_start_tz")
+      );
     }
-    if (row.event_end) {
-      item.endDate = newDateTime(row.event_end, row.event_end_tz);
+    if (row.getResultByName("event_end")) {
+      item.endDate = newDateTime(
+        row.getResultByName("event_end"),
+        row.getResultByName("event_end_tz")
+      );
     }
-    if (row.event_stamp) {
-      item.setProperty("DTSTAMP", newDateTime(row.event_stamp, "UTC"));
+    if (row.getResultByName("event_stamp")) {
+      item.setProperty("DTSTAMP", newDateTime(row.getResultByName("event_stamp"), "UTC"));
     }
-    if ((row.flags & CAL_ITEM_FLAG.EVENT_ALLDAY) != 0) {
+    if (flags & CAL_ITEM_FLAG.EVENT_ALLDAY) {
       item.startDate.isDate = true;
       item.endDate.isDate = true;
     }
 
     // This must be done last to keep the modification time intact.
-    this.getItemBaseFromRow(row, flags, item);
-    this.getAdditionalDataForItem(item, flags.value);
-
-    if (!isException) {
-      // keep exceptions modifiable to set the parentItem
+    this.getItemBaseFromRow(row, item);
+    if (getAdditionalData) {
+      await this.getAdditionalDataForItem(item, flags);
       item.makeImmutable();
       this.cacheItem(item);
     }
     return item;
   },
 
-  getTodoFromRow: function(row, flags, isException) {
-    let item;
-    if (!isException) {
-      // only parent items are cached
-      item = this.mItemCache[row.id];
-      if (item) {
-        return item;
-      }
+  getTodoFromRow: async function(row, getAdditionalData = true) {
+    let item = this.mItemCache.get(row.getResultByName("id"));
+    if (item) {
+      return item;
     }
 
     item = cal.createTodo();
 
-    if (row.todo_entry) {
-      item.entryDate = newDateTime(row.todo_entry, row.todo_entry_tz);
+    if (row.getResultByName("todo_entry")) {
+      item.entryDate = newDateTime(
+        row.getResultByName("todo_entry"),
+        row.getResultByName("todo_entry_tz")
+      );
     }
-    if (row.todo_due) {
-      item.dueDate = newDateTime(row.todo_due, row.todo_due_tz);
+    if (row.getResultByName("todo_due")) {
+      item.dueDate = newDateTime(
+        row.getResultByName("todo_due"),
+        row.getResultByName("todo_due_tz")
+      );
     }
-    if (row.todo_stamp) {
-      item.setProperty("DTSTAMP", newDateTime(row.todo_stamp, "UTC"));
+    if (row.getResultByName("todo_stamp")) {
+      item.setProperty("DTSTAMP", newDateTime(row.getResultByName("todo_stamp"), "UTC"));
     }
-    if (row.todo_completed) {
-      item.completedDate = newDateTime(row.todo_completed, row.todo_completed_tz);
+    if (row.getResultByName("todo_completed")) {
+      item.completedDate = newDateTime(
+        row.getResultByName("todo_completed"),
+        row.getResultByName("todo_completed_tz")
+      );
     }
-    if (row.todo_complete) {
-      item.percentComplete = row.todo_complete;
+    if (row.getResultByName("todo_complete")) {
+      item.percentComplete = row.getResultByName("todo_complete");
     }
 
     // This must be done last to keep the modification time intact.
-    this.getItemBaseFromRow(row, flags, item);
-    this.getAdditionalDataForItem(item, flags.value);
-
-    if (!isException) {
-      // keep exceptions modifiable to set the parentItem
+    this.getItemBaseFromRow(row, item);
+    if (getAdditionalData) {
+      await this.getAdditionalDataForItem(item, row.getResultByName("flags"));
       item.makeImmutable();
       this.cacheItem(item);
     }
@@ -1747,7 +1881,7 @@ calStorageCalendar.prototype = {
   // We used to use mDBTwo for this, so this can be run while a
   // select is executing but this no longer seems to be required.
 
-  getAdditionalDataForItem: function(item, flags) {
+  getAdditionalDataForItem: async function(item, flags) {
     // This is needed to keep the modification time intact.
     let savedLastModifiedTime = item.lastModifiedTime;
 
@@ -1763,8 +1897,8 @@ calStorageCalendar.prototype = {
       try {
         this.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
-        while (selectItem.executeStep()) {
-          let attendee = cal.createAttendee(selectItem.row.icalString);
+        await this.executeAsync(selectItem, row => {
+          let attendee = cal.createAttendee(row.getResultByName("icalString"));
           if (attendee && attendee.id) {
             if (attendee.isOrganizer) {
               item.organizer = attendee;
@@ -1773,21 +1907,14 @@ calStorageCalendar.prototype = {
             }
           } else {
             cal.WARN(
-              "[calStorageCalendar] Skipping invalid attendee for item '" +
-                item.title +
-                "' (" +
-                item.id +
-                ")."
+              `[calStorageCalendar] Skipping invalid attendee for item '${item.title}' (${
+                item.id
+              }).`
             );
           }
-        }
+        });
       } catch (e) {
-        this.logError(
-          "Error getting attendees for item '" + item.title + "' (" + item.id + ")!",
-          e
-        );
-      } finally {
-        selectItem.reset();
+        this.logError(`Error getting attendees for item '${item.title}' (${item.id})!`, e);
       }
     }
 
@@ -1803,30 +1930,27 @@ calStorageCalendar.prototype = {
       try {
         this.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
-        while (selectItem.executeStep()) {
-          let row = selectItem.row;
-          let name = row.key;
+        await this.executeAsync(selectItem, row => {
+          let name = row.getResultByName("key");
           switch (name) {
             case "DURATION":
               // for events DTEND/DUE is enforced by calEvent/calTodo, so suppress DURATION:
               break;
             case "CATEGORIES": {
-              let cats = cal.category.stringToArray(row.value);
+              let cats = cal.category.stringToArray(row.getResultByName("value"));
               item.setCategories(cats.length, cats);
               break;
             }
             default:
-              item.setProperty(name, row.value);
+              item.setProperty(name, row.getResultByName("value"));
               break;
           }
-        }
+        });
       } catch (e) {
         this.logError(
           "Error getting extra properties for item '" + item.title + "' (" + item.id + ")!",
           e
         );
-      } finally {
-        selectItem.reset();
       }
     }
 
@@ -1841,18 +1965,15 @@ calStorageCalendar.prototype = {
       try {
         this.prepareStatement(this.mSelectRecurrenceForItem);
         this.mSelectRecurrenceForItem.params.item_id = item.id;
-        while (this.mSelectRecurrenceForItem.executeStep()) {
-          let row = this.mSelectRecurrenceForItem.row;
+        await this.executeAsync(this.mSelectRecurrenceForItem, row => {
           let ritem = this.getRecurrenceItemFromRow(row);
           recInfo.appendRecurrenceItem(ritem);
-        }
+        });
       } catch (e) {
         this.logError(
           "Error getting recurrence for item '" + item.title + "' (" + item.id + ")!",
           e
         );
-      } finally {
-        this.mSelectRecurrenceForItem.reset();
       }
     }
 
@@ -1870,35 +1991,29 @@ calStorageCalendar.prototype = {
         this.mSelectEventExceptions.params.id = item.id;
         this.prepareStatement(this.mSelectEventExceptions);
         try {
-          while (this.mSelectEventExceptions.executeStep()) {
-            let row = this.mSelectEventExceptions.row;
-            let exc = this.getEventFromRow(row, {}, true /* isException */);
+          await this.executeAsync(this.mSelectEventExceptions, async row => {
+            let exc = await this.getEventFromRow(row, false);
             rec.modifyException(exc, true);
-          }
+          });
         } catch (e) {
           this.logError(
             "Error getting exceptions for event '" + item.title + "' (" + item.id + ")!",
             e
           );
-        } finally {
-          this.mSelectEventExceptions.reset();
         }
       } else if (cal.item.isToDo(item)) {
         this.mSelectTodoExceptions.params.id = item.id;
         this.prepareStatement(this.mSelectTodoExceptions);
         try {
-          while (this.mSelectTodoExceptions.executeStep()) {
-            let row = this.mSelectTodoExceptions.row;
-            let exc = this.getTodoFromRow(row, {}, true /* isException */);
+          await this.executeAsync(this.mSelectTodoExceptions, async row => {
+            let exc = await this.getTodoFromRow(row, false);
             rec.modifyException(exc, true);
-          }
+          });
         } catch (e) {
           this.logError(
             "Error getting exceptions for task '" + item.title + "' (" + item.id + ")!",
             e
           );
-        } finally {
-          this.mSelectTodoExceptions.reset();
         }
       } else {
         throw Cr.NS_ERROR_UNEXPECTED;
@@ -1914,17 +2029,14 @@ calStorageCalendar.prototype = {
       try {
         this.prepareStatement(selectAttachment);
         selectAttachment.params.item_id = item.id;
-        while (selectAttachment.executeStep()) {
-          let row = selectAttachment.row;
-          item.addAttachment(cal.createAttachment(row.icalString));
-        }
+        await this.executeAsync(selectAttachment, row => {
+          item.addAttachment(cal.createAttachment(row.getResultByName("icalString")));
+        });
       } catch (e) {
         this.logError(
           "Error getting attachments for item '" + item.title + "' (" + item.id + ")!",
           e
         );
-      } finally {
-        selectAttachment.reset();
       }
     }
 
@@ -1937,17 +2049,14 @@ calStorageCalendar.prototype = {
       try {
         this.prepareStatement(selectRelation);
         selectRelation.params.item_id = item.id;
-        while (selectRelation.executeStep()) {
-          let row = selectRelation.row;
-          item.addRelation(cal.createRelation(row.icalString));
-        }
+        await this.executeAsync(selectRelation, row => {
+          item.addRelation(cal.createRelation(row.getResultByName("icalString")));
+        });
       } catch (e) {
         this.logError(
           "Error getting relations for item '" + item.title + "' (" + item.id + ")!",
           e
         );
-      } finally {
-        selectRelation.reset();
       }
     }
 
@@ -1960,14 +2069,11 @@ calStorageCalendar.prototype = {
       try {
         selectAlarm.params.item_id = item.id;
         this.prepareStatement(selectAlarm);
-        while (selectAlarm.executeStep()) {
-          let row = selectAlarm.row;
-          item.addAlarm(cal.createAlarm(row.icalString));
-        }
+        await this.executeAsync(selectAlarm, row => {
+          item.addAlarm(cal.createAlarm(row.getResultByName("icalString")));
+        });
       } catch (e) {
         this.logError("Error getting alarms for item '" + item.title + "' (" + item.id + ")!", e);
-      } finally {
-        selectAlarm.reset();
       }
     }
 
@@ -1977,7 +2083,7 @@ calStorageCalendar.prototype = {
 
   getRecurrenceItemFromRow: function(row, item) {
     let ritem;
-    let prop = cal.getIcsService().createIcalPropertyFromString(row.icalString);
+    let prop = cal.getIcsService().createIcalPropertyFromString(row.getResultByName("icalString"));
     switch (prop.propertyName) {
       case "RDATE":
       case "EXDATE":
@@ -1998,29 +2104,24 @@ calStorageCalendar.prototype = {
   //
   // get item from db or from cache with given iid
   //
-  getItemById: function(aID) {
-    this.assureRecurringItemCaches();
+  getItemById: async function(aID) {
+    await this.assureRecurringItemCaches();
 
     // cached?
-    let item = this.mItemCache[aID];
+    let item = this.mItemCache.get(aID);
     if (item) {
       return item;
     }
-
-    // not cached; need to read from the db
-    let flags = {};
 
     try {
       // try events first
       this.prepareStatement(this.mSelectEvent);
       this.mSelectEvent.params.id = aID;
-      if (this.mSelectEvent.executeStep()) {
-        item = this.getEventFromRow(this.mSelectEvent.row, flags);
-      }
+      await this.executeAsync(this.mSelectEvent, async row => {
+        item = await this.getEventFromRow(row);
+      });
     } catch (e) {
       this.logError("Error selecting item by id " + aID + "!", e);
-    } finally {
-      this.mSelectEvent.reset();
     }
 
     // try todo if event fails
@@ -2028,13 +2129,11 @@ calStorageCalendar.prototype = {
       try {
         this.prepareStatement(this.mSelectTodo);
         this.mSelectTodo.params.id = aID;
-        if (this.mSelectTodo.executeStep()) {
-          item = this.getTodoFromRow(this.mSelectTodo.row, flags);
-        }
+        await this.executeAsync(this.mSelectTodo, async row => {
+          item = await this.getTodoFromRow(row);
+        });
       } catch (e) {
         this.logError("Error selecting item by id " + aID + "!", e);
-      } finally {
-        this.mSelectTodo.reset();
       }
     }
 
@@ -2347,9 +2446,9 @@ calStorageCalendar.prototype = {
     this.prepareItemStatement(stmts, this.mDeleteAlarms, "item_id", aID);
     await this.executeAsync(stmts);
 
-    delete this.mItemCache[aID];
-    delete this.mRecEventCache[aID];
-    delete this.mRecTodoCache[aID];
+    this.mItemCache.delete(aID);
+    this.mRecEventCache.delete(aID);
+    this.mRecTodoCache.delete(aID);
   },
 
   //
@@ -2357,7 +2456,7 @@ calStorageCalendar.prototype = {
   //
 
   setMetaData: function(id, value) {
-    this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
+    this.executeSyncItemStatement(this.mDeleteMetaData, "item_id", id);
     try {
       this.prepareStatement(this.mInsertMetaData);
       let params = this.mInsertMetaData.params;
@@ -2379,7 +2478,7 @@ calStorageCalendar.prototype = {
   },
 
   deleteMetaData: function(id) {
-    this.executeItemStatement(this.mDeleteMetaData, "item_id", id);
+    this.executeSyncItemStatement(this.mDeleteMetaData, "item_id", id);
   },
 
   getMetaData: function(id) {
@@ -2453,7 +2552,8 @@ calStorageCalendar.prototype = {
 
     if (this.mLastStatement) {
       logMessage += "\nLast DB Statement: " + this.mLastStatement;
-      if (this.mLastStatement.params) {
+      // Async statements do not allow enumeration of parameters.
+      if (this.mLastStatement instanceof Ci.mozIStorageStatement && this.mLastStatement.params) {
         for (let param in this.mLastStatement.params) {
           logMessage +=
             "\nLast Statement param [" + param + "]: " + this.mLastStatement.params[param];

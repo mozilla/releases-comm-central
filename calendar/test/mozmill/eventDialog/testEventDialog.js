@@ -208,12 +208,14 @@ function testEventDialog() {
 
   // Verify all deleted.
   controller.waitForElementNotPresent(lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH));
-  controller.assertNodeNotExist(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
-  controller.assertNodeNotExist(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH));
+  controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
+  controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH));
 
   for (let row = 2; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      controller.assertNodeNotExist(lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH));
+      controller.waitForElementNotPresent(
+        lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH)
+      );
     }
   }
 }

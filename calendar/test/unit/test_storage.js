@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function run_test() {
-  do_calendar_startup(testAttachRoundtrip);
-}
+add_task(async () => {
+  await new Promise(resolve => {
+    do_calendar_startup(resolve);
+  });
 
-function testAttachRoundtrip() {
   let storage = getStorageCal();
   let str = [
     "BEGIN:VEVENT",
@@ -23,84 +23,85 @@ function testAttachRoundtrip() {
 
   let storageItem = createEventFromIcalString(str);
 
-  do_test_pending();
-  storage.addItem(storageItem, {
-    onOperationComplete: function(calendar, status, opType, id, addedItem) {
-      addedItem.QueryInterface(Ci.calIEvent);
-      executeSoon(() => {
-        // Make sure the cache is cleared, otherwise we'll get the cached item.
-        delete storage.wrappedJSObject.mItemCache[addedItem.id];
-        storage.getItem(addedItem.id, retrieveItem);
-      });
-    },
+  let addedItemId = await new Promise(resolve => {
+    storage.addItem(storageItem, {
+      onOperationComplete: function(calendar, status, opType, id, addedItem) {
+        addedItem.QueryInterface(Ci.calIEvent);
+        resolve(addedItem.id);
+      },
+    });
   });
 
-  let retrieveItem = {
-    found: false,
-    onGetResult: function(calendar, status, type, detail, count, items) {
-      let item = items[0];
+  // Make sure the cache is cleared, otherwise we'll get the cached item.
+  delete storage.wrappedJSObject.mItemCache[addedItemId];
 
-      // Check start date
-      equal(item.startDate.compare(cal.createDateTime("20120101T010101Z")), 0);
+  await new Promise(resolve => {
+    storage.getItem(addedItemId, {
+      found: false,
+      onGetResult: function(calendar, status, type, detail, count, items) {
+        let item = items[0];
 
-      // Check attachment
-      let attaches = item.getAttachments({});
-      let attach = attaches[0];
-      equal(attaches.length, 1);
-      equal(attach.uri.spec, "http://example.com/test.ics");
-      equal(attach.formatType, "text/calendar");
-      equal(attach.encoding, "BASE64");
-      equal(attach.getParameter("FILENAME"), "test.ics");
+        // Check start date
+        equal(item.startDate.compare(cal.createDateTime("20120101T010101Z")), 0);
 
-      // Check attendee
-      let attendees = item.getAttendees({});
-      let attendee = attendees[0];
-      equal(attendees.length, 1);
-      equal(attendee.id, "mailto:test@example.com");
-      equal(attendee.commonName, "Name");
-      equal(attendee.rsvp, "TRUE");
-      equal(attendee.isOrganizer, false);
-      equal(attendee.role, "REQ-PARTICIPANT");
-      equal(attendee.participationStatus, "ACCEPTED");
-      equal(attendee.userType, "INDIVIDUAL");
-      equal(attendee.getProperty("X-THING"), "BAR");
+        // Check attachment
+        let attaches = item.getAttachments({});
+        let attach = attaches[0];
+        equal(attaches.length, 1);
+        equal(attach.uri.spec, "http://example.com/test.ics");
+        equal(attach.formatType, "text/calendar");
+        equal(attach.encoding, "BASE64");
+        equal(attach.getParameter("FILENAME"), "test.ics");
 
-      // Check relation
-      let relations = item.getRelations({});
-      let rel = relations[0];
-      equal(relations.length, 1);
-      equal(rel.relType, "SIBLING");
-      equal(rel.relId, "VALUE");
-      equal(rel.getParameter("FOO"), "BAR");
+        // Check attendee
+        let attendees = item.getAttendees({});
+        let attendee = attendees[0];
+        equal(attendees.length, 1);
+        equal(attendee.id, "mailto:test@example.com");
+        equal(attendee.commonName, "Name");
+        equal(attendee.rsvp, "TRUE");
+        equal(attendee.isOrganizer, false);
+        equal(attendee.role, "REQ-PARTICIPANT");
+        equal(attendee.participationStatus, "ACCEPTED");
+        equal(attendee.userType, "INDIVIDUAL");
+        equal(attendee.getProperty("X-THING"), "BAR");
 
-      // Check recurrence item
-      for (let ritem of item.recurrenceInfo.getRecurrenceItems({})) {
-        if (ritem instanceof Ci.calIRecurrenceRule) {
-          equal(ritem.type, "MONTHLY");
-          equal(ritem.interval, 2);
-          equal(ritem.count, 5);
-          equal(ritem.isByCount, true);
-          equal(ritem.getComponent("BYDAY", {}).toString(), [2].toString());
-          equal(ritem.isNegative, false);
-        } else if (ritem instanceof Ci.calIRecurrenceDate) {
-          if (ritem.isNegative) {
-            equal(ritem.date.compare(cal.createDateTime("20120301T010101Z")), 0);
+        // Check relation
+        let relations = item.getRelations({});
+        let rel = relations[0];
+        equal(relations.length, 1);
+        equal(rel.relType, "SIBLING");
+        equal(rel.relId, "VALUE");
+        equal(rel.getParameter("FOO"), "BAR");
+
+        // Check recurrence item
+        for (let ritem of item.recurrenceInfo.getRecurrenceItems({})) {
+          if (ritem instanceof Ci.calIRecurrenceRule) {
+            equal(ritem.type, "MONTHLY");
+            equal(ritem.interval, 2);
+            equal(ritem.count, 5);
+            equal(ritem.isByCount, true);
+            equal(ritem.getComponent("BYDAY", {}).toString(), [2].toString());
+            equal(ritem.isNegative, false);
+          } else if (ritem instanceof Ci.calIRecurrenceDate) {
+            if (ritem.isNegative) {
+              equal(ritem.date.compare(cal.createDateTime("20120301T010101Z")), 0);
+            } else {
+              equal(ritem.date.compare(cal.createDateTime("20120201T010101Z")), 0);
+            }
           } else {
-            equal(ritem.date.compare(cal.createDateTime("20120201T010101Z")), 0);
+            do_throw("Found unknown recurrence item " + ritem);
           }
-        } else {
-          do_throw("Found unknown recurrence item " + ritem);
         }
-      }
 
-      this.found = true;
-    },
-    onOperationComplete: function() {
-      if (!this.found) {
-        do_throw("Could not find item");
-      }
-      do_test_finished();
-      run_next_test();
-    },
-  };
-}
+        this.found = true;
+      },
+      onOperationComplete: function() {
+        if (!this.found) {
+          do_throw("Could not find item");
+        }
+        resolve();
+      },
+    });
+  });
+});

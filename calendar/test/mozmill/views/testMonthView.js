@@ -108,7 +108,7 @@ function testMonthView() {
   );
 
   controller.waitForElement(eventName);
-  controller.assertValue(eventName, TITLE2);
+  controller.waitFor(() => eventName.getNode().value == TITLE2);
 
   // Delete event.
   controller.click(eventBox);

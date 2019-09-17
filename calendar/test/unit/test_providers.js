@@ -122,14 +122,7 @@ var icalStringArray = [
   "BEGIN:VEVENT\n" + "DTSTART:20020403T000000Z\n" + "DURATION:P1D\n" + "END:VEVENT\n",
 ];
 
-function run_test() {
-  testIcalData();
-  testMetaData();
-
-  run_next_test();
-}
-
-function testIcalData() {
+add_task(async function testIcalData() {
   // First entry is test number, second item is expected result for testGetItems().
   let wantedArray = [
     [1, 1],
@@ -182,8 +175,8 @@ function testIcalData() {
     }
 
     print("Test " + wantedArray[i][0]);
-    testGetItems(item, itemArray[1]);
-    testGetItem(item);
+    await testGetItems(item, itemArray[1]);
+    await testGetItem(item);
   }
 
   /**
@@ -193,13 +186,13 @@ function testIcalData() {
    * The amount of returned items is compared with expected amount (aResult).
    * Additionally, the properties of the returned item are compared with aItem.
    */
-  function testGetItems(aItem, aResult) {
+  async function testGetItems(aItem, aResult) {
     for (let calendar of [getStorageCal(), getMemoryCal()]) {
-      checkCalendar(calendar, aItem, aResult);
+      await checkCalendar(calendar, aItem, aResult);
     }
   }
 
-  function checkCalendar(calendar, aItem, aResult) {
+  async function checkCalendar(calendar, aItem, aResult) {
     // construct range
     let rangeStart = createDate(2002, 3, 2); // 3 = April
     let rangeEnd = rangeStart.clone();
@@ -213,30 +206,31 @@ function testIcalData() {
 
     // implement listener
     let count = 0;
-    let listener = {
-      onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
-        equal(aStatus, 0);
-        if (aOperationType == Ci.calIOperationListener.ADD) {
-          // perform getItems() on calendar
-          aCalendar.getItems(filter, 0, rangeStart, rangeEnd, listener);
-        } else if (aOperationType == Ci.calIOperationListener.GET) {
-          equal(count, aResult);
-          do_test_finished();
-        }
-      },
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-        if (aCount) {
-          count += aCount;
-          for (let i = 0; i < aCount; i++) {
-            compareItemsSpecific(aItems[i].parentItem, aItem);
+    await new Promise(resolve => {
+      let listener = {
+        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+          equal(aStatus, 0);
+          if (aOperationType == Ci.calIOperationListener.ADD) {
+            // perform getItems() on calendar
+            aCalendar.getItems(filter, 0, rangeStart, rangeEnd, listener);
+          } else if (aOperationType == Ci.calIOperationListener.GET) {
+            equal(count, aResult);
+            resolve();
           }
-        }
-      },
-    };
+        },
+        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+          if (aCount) {
+            count += aCount;
+            for (let i = 0; i < aCount; i++) {
+              compareItemsSpecific(aItems[i].parentItem, aItem);
+            }
+          }
+        },
+      };
 
-    // add item to calendar
-    do_test_pending();
-    calendar.addItem(aItem, listener);
+      // add item to calendar
+      calendar.addItem(aItem, listener);
+    });
   }
 
   /**
@@ -245,7 +239,7 @@ function testIcalData() {
    * (2) Perform a getItem() call.
    * The properties of the returned item are compared with the passed item.
    */
-  function testGetItem(aItem) {
+  async function testGetItem(aItem) {
     // get calendars
     let calArray = [];
     calArray.push(getStorageCal());
@@ -255,16 +249,21 @@ function testIcalData() {
       let count = 0;
       let returnedItem = null;
       let listener = {
-        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+        promises: [],
+        onOperationComplete: async function(aCalendar, aStatus, aOperationType, aId, aDetail) {
           equal(aStatus, 0);
           if (aOperationType == Ci.calIOperationListener.ADD) {
             compareItemsSpecific(aDetail, aItem);
             // perform getItem() on calendar
-            aCalendar.getItem(aId, listener);
+            await new Promise(resolve => {
+              listener.promises.push(resolve);
+              aCalendar.getItem(aId, listener);
+            });
           } else if (aOperationType == Ci.calIOperationListener.GET) {
             equal(count, 1);
             compareItemsSpecific(returnedItem, aItem);
           }
+          this.promises.pop()();
         },
         onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
           if (aCount) {
@@ -273,28 +272,42 @@ function testIcalData() {
           }
         },
       };
-      // add item to calendar
-      calendar.addItem(aItem, listener);
+
+      await new Promise(resolve => {
+        listener.promises.push(resolve);
+        // add item to calendar
+        calendar.addItem(aItem, listener);
+      });
     }
   }
-}
+});
 
-function testMetaData() {
-  function testMetaData_(aCalendar) {
+add_task(async function testMetaData() {
+  async function testMetaData_(aCalendar) {
     dump("testMetaData_() calendar type: " + aCalendar.type + "\n");
     let event1 = createEventFromIcalString(
       "BEGIN:VEVENT\n" + "DTSTART;VALUE=DATE:20020402\n" + "END:VEVENT\n"
     );
 
     event1.id = "item1";
-    aCalendar.addItem(event1, null);
+    await new Promise(resolve => {
+      aCalendar.addItem(event1, {
+        onGetResult: function() {},
+        onOperationComplete: resolve,
+      });
+    });
     aCalendar.setMetaData("item1", "meta1");
     equal(aCalendar.getMetaData("item1"), "meta1");
     equal(aCalendar.getMetaData("unknown"), null);
 
     let event2 = event1.clone();
     event2.id = "item2";
-    aCalendar.addItem(event2, null);
+    await new Promise(resolve => {
+      aCalendar.addItem(event2, {
+        onGetResult: function() {},
+        onOperationComplete: resolve,
+      });
+    });
     aCalendar.setMetaData("item2", "meta2-");
     equal(aCalendar.getMetaData("item2"), "meta2-");
 
@@ -311,7 +324,12 @@ function testMetaData() {
     ok(values.value[0] == "meta1" || values.value[1] == "meta1");
     ok(values.value[0] == "meta2" || values.value[1] == "meta2");
 
-    aCalendar.deleteItem(event1, null);
+    await new Promise(resolve => {
+      aCalendar.deleteItem(event1, {
+        onGetResult: () => {},
+        onOperationComplete: resolve,
+      });
+    });
     equal(aCalendar.getMetaData("item1"), null);
     aCalendar.getAllMetaData(count, ids, values);
     equal(count.value, 1);
@@ -325,7 +343,12 @@ function testMetaData() {
 
     aCalendar.setMetaData("item2", "meta2");
     equal(aCalendar.getMetaData("item2"), "meta2");
-    aCalendar.QueryInterface(Ci.calICalendarProvider).deleteCalendar(aCalendar, null);
+    await new Promise(resolve => {
+      aCalendar.QueryInterface(Ci.calICalendarProvider).deleteCalendar(aCalendar, {
+        onCreateCalendar: () => {},
+        onDeleteCalendar: resolve,
+      });
+    });
     equal(aCalendar.getMetaData("item2"), null);
     aCalendar.getAllMetaData(count, ids, values);
     equal(count.value, 0);
@@ -333,9 +356,9 @@ function testMetaData() {
     aCalendar.deleteMetaData("unknown"); // check graceful return
   }
 
-  testMetaData_(getMemoryCal());
-  testMetaData_(getStorageCal());
-}
+  await testMetaData_(getMemoryCal());
+  await testMetaData_(getStorageCal());
+});
 
 /*
 async function testOfflineStorage(storageGetter, isRecurring) {
