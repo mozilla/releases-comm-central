@@ -22,6 +22,11 @@ server.registerPathHandler("/dummy", (request, response) => {
   );
 });
 
+Services.prefs.setBoolPref(
+  "extensions.webextensions.warnings-as-errors",
+  false
+);
+
 add_task(async function test_alias() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
@@ -135,11 +140,7 @@ add_task(async function test_alias() {
     },
   });
 
-  // Deprecated proxy functions and events. This test will fail once
-  // bug 1545811 is fixed, and the proxy parts should be removed then.
-  // ExtensionTestUtils.failOnSchemaWarnings(false);
   await extension.startup();
-  ExtensionTestUtils.failOnSchemaWarnings(true);
 
   const contentPage = await ExtensionTestUtils.loadContentPage(
     "http://example.com/dummy"
