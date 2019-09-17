@@ -362,8 +362,8 @@
       let visibleColumns = this.getAttribute("visible-columns").split(" ");
       let ordinals = this.getAttribute("ordinals").split(" ");
       let widths = this.getAttribute("widths").split(" ");
-      let sorted = this.getAttribute("sortActive");
-      let sortDirection = this.getAttribute("sortDirection") || "ascending";
+      let sorted = this.getAttribute("sort-active");
+      let sortDirection = this.getAttribute("sort-direction") || "ascending";
 
       this.querySelectorAll("treecol").forEach(col => {
         const itemProperty = col.getAttribute("itemproperty");
