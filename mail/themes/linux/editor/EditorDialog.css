@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@namespace url("http://www.w3.org/1999/xhtml");
+@namespace html url("http://www.w3.org/1999/xhtml");
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 /* The defaults are WAY to big! */
@@ -40,8 +40,12 @@ groupbox {
   font-size: 120%;
 }
 
-.narrow {
+*|*.narrow {
   width: 3em;
+}
+
+.menulist-narrow {
+  width: 10em;
 }
 
 .wrap {
@@ -301,4 +305,9 @@ groupbox {
   -moz-appearance: groupbox;
   margin: 5px;
   padding: 5px;
+}
+
+html|table html|th {
+  font-weight: normal;
+  text-align: start;
 }
