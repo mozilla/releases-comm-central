@@ -74,31 +74,6 @@ function AddWord() {
   }
 }
 
-function ReplaceWord() {
-  if (ValidateWordToAdd()) {
-    var selItem = gDialog.DictionaryList.selectedItem;
-    if (selItem) {
-      try {
-        gSpellChecker.RemoveWordFromDictionary(selItem.label);
-      } catch (e) {}
-
-      try {
-        // Add to the dictionary list
-        gSpellChecker.AddWordToDictionary(gWordToAdd);
-
-        // Just change the text on the selected item instead of rebuilding the list.
-        // The items are richlist items, so the label sits in the first child.
-        selItem.firstChild.setAttribute("value", gWordToAdd);
-      } catch (e) {
-        // Rebuild list and select the word - it was probably already in the list
-        dump("Exception occurred adding word in ReplaceWord\n");
-        FillDictionaryList();
-        SelectWordToAddInList();
-      }
-    }
-  }
-}
-
 function RemoveWord() {
   var selIndex = gDialog.DictionaryList.selectedIndex;
   if (selIndex >= 0) {

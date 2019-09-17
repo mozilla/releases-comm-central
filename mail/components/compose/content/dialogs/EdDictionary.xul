@@ -5,55 +5,55 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorPersonalDictionary.dtd">
-<dialog buttons="cancel" title="&windowTitle.label;"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-    persist="screenX screenY"
-    onload="Startup()">
+<dialog title="&windowTitle.label;"
+        buttons="accept"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        persist="screenX screenY"
+        buttonlabelaccept="&CloseButton.label;"
+        buttonaccesskeyaccept="&CloseButton.accessKey;"
+        onload="Startup()">
 
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDictionary.js"/>
 
-  <grid>
-    <columns><column style="width: 15em" flex="1"/><column flex="1"/></columns>
-    <rows>
-      <row>
-        <label value="&wordEditField.label;"
-               control="WordInput"
-               accesskey="&wordEditField.accessKey;"/>
-        <spacer/>
-      </row>
-      <row>
-        <textbox id="WordInput" flex="1"/>
-        <button id="AddWord" oncommand="AddWord()" label="&AddButton.label;"
-                accesskey="&AddButton.accessKey;"/>
-      </row>
-      <row>
-        <label value="&DictionaryList.label;"
-               control="DictionaryList"
-               accesskey="&DictionaryList.accessKey;"/>
-        <spacer/>
-      </row>
-      <row>
-        <richlistbox id="DictionaryList"
-                     class="theme-listbox"
-                     flex="1"
-                     height="150px"/>
-        <vbox flex="1">
-          <button  id="ReplaceWord" oncommand="ReplaceWord()" label="&ReplaceButton.label;"
-                   accesskey="&ReplaceButton.accessKey;"/>
-          <spacer class="spacer"/>
-          <button  id="RemoveWord" oncommand="RemoveWord()" label="&RemoveButton.label;"
-                   accesskey="&RemoveButton.accessKey;"/>
-          <spacer class="spacer"/>
-          <spacer flex="1"/>
-          <button dlgtype="cancel" class="exit-dialog" id="close" label="&CloseButton.label;"
-                  default="true" oncommand="onClose();"
-                  accesskey="&CloseButton.accessKey;"/>
-        </vbox>
-      </row>
-    </rows>
-  </grid>
+  <hbox flex="1">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="grid-two-column">
+      <div class="flex-items-center grid-item-span-row">
+        <xul:label value="&wordEditField.label;"
+                   control="WordInput"
+                   accesskey="&wordEditField.accessKey;"/>
+      </div>
+      <div>
+        <xul:textbox id="WordInput" style="width:15em;"/>
+      </div>
+      <div>
+        <xul:button id="AddWord"
+                    oncommand="AddWord()"
+                    label="&AddButton.label;"
+                    accesskey="&AddButton.accessKey;"/>
+      </div>
+      <div class="flex-items-center grid-item-span-row">
+        <xul:label value="&DictionaryList.label;"
+                   control="DictionaryList"
+                   accesskey="&DictionaryList.accessKey;"/>
+      </div>
+      <div>
+        <xul:richlistbox id="DictionaryList"
+                         class="theme-listbox"
+                         height="150px"
+                         style="width:15em;"/>
+      </div>
+      <div>
+        <xul:button id="RemoveWord"
+                    oncommand="RemoveWord()"
+                    label="&RemoveButton.label;"
+                    accesskey="&RemoveButton.accessKey;"/>
+      </div>
+    </div>
+  </hbox>
 </dialog>

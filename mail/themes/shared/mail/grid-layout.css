@@ -29,3 +29,7 @@
 .flex-content-center {
   justify-content: center;
 }
+
+.grid-item-span-row {
+  grid-column: 1 / -1;
+}
