@@ -333,10 +333,10 @@ function SetInputValue(inputValue, parentNode, templateNode) {
   var newNode = templateNode.cloneNode(true);
   parentNode.appendChild(newNode); // we need to insert the new node before we set the value of the select element!
 
-  var input = newNode.getElementsByTagName(awInputElementName());
-  if (input && input.length == 1) {
-    input[0].setAttribute("value", inputValue);
-    input[0].setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
+  var input = newNode.querySelector(`input[is="autocomplete-input"]`);
+  if (input) {
+    input.value = inputValue;
+    input.setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
   }
 }
 
@@ -395,13 +395,6 @@ function awInputChanged(inputElement) {
   top.doNotCreateANewRow = false;
 }
 
-function awInputElementName() {
-  if (inputElementType == "") {
-    inputElementType = document.getElementById("addressCol1#1").localName;
-  }
-  return inputElementType;
-}
-
 /**
  * Append a new row.
  *
@@ -424,21 +417,17 @@ function awAppendNewRow(setFocus) {
 
     top.MAX_RECIPIENTS++;
 
-    input = newNode.getElementsByTagName(awInputElementName());
-    if (input && input.length == 1) {
-      input[0].setAttribute("value", "");
-      input[0].setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
-
-      if (input[0].getAttribute("focused") != "") {
-        input[0].removeAttribute("focused");
-      }
+    input = newNode.querySelector(`input[is="autocomplete-input"]`);
+    if (input) {
+      input.value = "";
+      input.setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
     }
     // Focus the new input widget.
     if (setFocus && input) {
-      awSetFocusTo(input[0]);
+      awSetFocusTo(input);
     }
   }
-  return input ? input[0] : null;
+  return input ? input : null;
 }
 
 // functions for accessing the elements in the addressing widget

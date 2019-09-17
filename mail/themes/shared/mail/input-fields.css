@@ -11,7 +11,7 @@ html|input.input-inline {
   padding-inline-start: 4px;
 }
 
-html|input.input-inline.plain {
+html|input.plain {
   background-color: transparent;
 }
 
