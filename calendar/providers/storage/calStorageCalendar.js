@@ -1732,8 +1732,11 @@ calStorageCalendar.prototype = {
         return;
       }
 
-      let recInfo = cal.createRecurrenceInfo(item);
-      item.recurrenceInfo = recInfo;
+      let recInfo = item.recurrenceInfo;
+      if (!recInfo) {
+        recInfo = cal.createRecurrenceInfo(item);
+        item.recurrenceInfo = recInfo;
+      }
 
       let ritem = this.getRecurrenceItemFromRow(row);
       recInfo.appendRecurrenceItem(ritem);
