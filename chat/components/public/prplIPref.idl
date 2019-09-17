@@ -24,7 +24,9 @@ interface prplIPref: nsISupports {
   boolean     getBool();
   long        getInt();
   AUTF8String getString();
-  // enumerator of prplIKeyValuePair
+  /**
+   * @returns enumerator of prplIKeyValuePair
+   */
   nsISimpleEnumerator getList();
   AUTF8String getListDefault();
 };

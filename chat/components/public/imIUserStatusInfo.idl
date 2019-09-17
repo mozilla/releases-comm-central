@@ -17,18 +17,28 @@ interface imIUserStatusInfo: nsISupports {
   // See imIStatusInfo for the values.
   readonly attribute short statusType;
 
-  // Only works with STATUS_OFFLINE, STATUS_UNAVAILABLE, STATUS_AWAY,
-  // STATUS_AVAILABLE and STATUS_INVISIBLE.
-  // - When called with the status type STATUS_UNSET, only the status
-  //   message will be changed.
-  // - When called with STATUS_OFFLINE, the aMessage parameter is ignored.
+  /**
+   * Set the user's current status (e.g. available or away).
+   *
+   * When called with the status type STATUS_UNSET, only the status
+   * message will be changed.
+   *
+   * @param aStatus the new status to use. Only works with STATUS_OFFLINE,
+   *    STATUS_UNAVAILABLE, STATUS_AWAY, STATUS_AVAILABLE and STATUS_INVISIBLE.
+   * @param aMessage the new status message. Ignored when aStatus is STATUS_OFFLINE.
+   */
   void setStatus(in short aStatus, in AUTF8String aMessage);
 
-  // Sets the user icon, or removes it if null is passed as a parameter.
-  // Will fire a user-icon-changed notificaton.
+  /**
+   * Sets the user icon, or removes it if null is passed as a parameter.
+   *
+   * Calling this will fire a user-icon-changed notificaton.
+   */
   void setUserIcon(in nsIFile aIconFile);
 
-  // Returns the location of the current user icon, or null if no icon is set.
+  /**
+   * Returns the location of the current user icon, or null if no icon is set.
+   */
   nsIFileURL getUserIcon();
 
   /* The setter will fire a user-display-name-changed notificaton. */

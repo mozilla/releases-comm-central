@@ -66,9 +66,13 @@ interface prplIMessage: nsISupports {
   /*  PURPLE_MESSAGE_NO_LINKIFY  = 0x4000  /**< Message should not be auto-linkified */
   readonly attribute boolean noLinkification;
 
-  /* An array of actions the user may perform on this message.
-     The first action will be the 'default' and may be performed
-     automatically when the message is double clicked.
-     'Reply' is usually a good default action. */
+  /**
+   * Get an array of actions the user may perform on this message.
+   * The first action will be the 'default' and may be performed
+   * automatically when the message is double clicked.
+   * For example, 'Reply' is usually a good default action.
+   *
+   * @returns prplIMessageAction[]
+   */
   Array<prplIMessageAction> getActions();
 };

@@ -43,33 +43,51 @@ interface prplIConversation: nsISupports {
   /* Setable only once by purpleCoreService while calling addConversation. */
            attribute unsigned long id;
 
-  /* Send a message in the conversation */
+  /**
+   * Send a message in the conversation
+   */
   void sendMsg(in AUTF8String aMsg);
 
-  /* Preprocess messages before they are sent (eg. split long messages).
-     Can return null if no changes are to be made. */
+  /**
+   * Preprocess messages before they are sent (eg. split long messages).
+   *
+   * @returns the modified message or null if no changes are to be made.
+   */
   Array<AString> prepareForSending(in imIOutgoingMessage aMsg);
 
-  /* Postprocess messages before they are displayed (eg. escaping). The
-     implementation can set aMsg.displayMessage, otherwise the originalMessage
-     is used. */
+  /**
+   * Postprocess messages before they are displayed (eg. escaping). The
+   * implementation can set aMsg.displayMessage, otherwise the originalMessage
+   * is used.
+   */
   void prepareForDisplaying(in imIMessage aMsg);
 
-  /* Send information about the current typing state to the server.
-     aString should contain the content currently in the text field. The
-     protocol should return the number of characters that can still be typed. */
+  /**
+   * Send information about the current typing state to the server.
+   *
+   * @param aString should contain the content currently in the text field.
+   * @returns the number of characters that can still be typed.
+   */
   long sendTyping(in AUTF8String aString);
   const long NO_TYPING_LIMIT = 2147483647; // max int = 2 ^ 31 - 1
 
-  /* Un-initialize the conversation. Will be called by
-     purpleCoreService::RemoveConversation when the conversation is
-     closed or by purpleCoreService::Quit while exiting. */
+  /**
+   * Un-initialize the conversation.
+   *
+   * This will be called by purpleCoreService::RemoveConversation
+   * when the conversation is closed or by purpleCoreService::Quit
+   * while exiting.
+   */
   void unInit();
 
-  /* When the conversation is closed from the UI. */
+  /**
+   * Called when the conversation is closed from the UI.
+   */
   void close();
 
-  /* Method to add or remove an observer */
+  /**
+   * Method to add or remove an observer.
+   */
   void addObserver(in nsIObserver aObserver);
   void removeObserver(in nsIObserver aObserver);
 
@@ -125,17 +143,28 @@ interface prplIConvChatBuddy: nsISupports {
 [scriptable, uuid(72c17398-639f-4141-a19c-78cbdeb39fba)]
 interface prplIConvChat: prplIConversation {
 
-  /* Get the prplIConvChatBuddy if a participant with name aName (the
-     participant's nick in the conversation) exists, otherwise return null */
+  /**
+   * Get the prplIConvChatBuddy of a participant.
+   *
+   * @param aName the participant's nick in the conversation exists
+   * @returns prplIConvChatBuddy if the participant exists, otherwise null
+   */
   prplIConvChatBuddy getParticipant(in AUTF8String aName);
 
-  /* Get an nsISimpleEnumerator of prplIConvChatBuddy objects:
-     The list of people participating in this chat */
+  /**
+   * Get the list of people participating in this chat.
+   *
+   * @returns an nsISimpleEnumerator of prplIConvChatBuddy objects.
+   */
   nsISimpleEnumerator getParticipants();
 
-  /* The normalized chat buddy name will be suitable for calling
-     createConversation to start a private conversation or calling
-     requestBuddyInfo. */
+  /**
+   * Normalize the name of a chat buddy. This will be suitable for calling
+   * createConversation to start a private conversation or calling
+   * requestBuddyInfo.
+   *
+   * @returns the normalized chat buddy name.
+   */
   AUTF8String getNormalizedChatBuddyName(in AUTF8String aChatBuddyName);
 
   /* The topic of this chat room */

@@ -8,9 +8,12 @@
 
 [scriptable, uuid(7d302db0-3813-4c51-8372-c7eb5fc9f3d3)]
 interface prplIProtocol: nsISupports {
-  // aId is the prpl id, this method is used so that classes
-  // implementing several protocol plugins can know which protocol is
-  // desired for this instance.
+  /**
+   * This method is used so that classes implementing several protocol
+   * plugins can know which protocol is desired for this instance.
+   *
+   * @param aId The prpl id.
+   */
   void init(in AUTF8String aId);
 
   readonly attribute AUTF8String name;
@@ -23,10 +26,14 @@ interface prplIProtocol: nsISupports {
   // icon.png icon32.png and icon48.png
   readonly attribute AUTF8String iconBaseURI;
 
-  // returns an enumerator of prplIPref
+  /**
+   * @returns an enumerator of prplIPref
+   */
   nsISimpleEnumerator getOptions();
 
-  // returns an enumerator of prplIUsernameSplit
+  /**
+   * @returns an enumerator of prplIUsernameSplit
+   */
   nsISimpleEnumerator getUsernameSplit();
 
   // descriptive text to put in the username input box when it is empty
@@ -85,8 +92,10 @@ interface prplIProtocol: nsISupports {
   // account, or uses the Mozilla proxy settings for all accounts.
   readonly attribute boolean usePurpleProxy;
 
-  // Get the protocol specific part of an already initialized
-  // imIAccount instance.
+  /**
+   * Get the protocol specific part of an already initialized
+   * imIAccount instance.
+   */
   prplIAccount getAccount(in imIAccount aImAccount);
 };
 

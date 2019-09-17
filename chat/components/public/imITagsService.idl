@@ -12,10 +12,13 @@ interface imITag: nsISupports {
   readonly attribute long id;
            attribute AUTF8String name;
 
-  // Get an array of all the contacts associated with this tag.
-  //  Contacts can either "have the tag" (added by user action) or
-  //  have inherited the tag because it was the server side group for
-  //  one of the AccountBuddy of the contact.
+  /**
+   * Get an array of all the contacts associated with this tag.
+   *
+   * Contacts can either "have the tag" (added by user action) or
+   * have inherited the tag because it was the server side group for
+   * one of the AccountBuddy of the contact.
+   */
   Array<imIContact> getContacts();
 
   void addObserver(in nsIObserver aObserver);
@@ -38,14 +41,36 @@ interface imITag: nsISupports {
 interface imITagsService: nsISupports {
   // Get the default tag (ie. "Contacts" for en-US).
   readonly attribute imITag defaultTag;
-  // Create a new tags or return the existing one if it already exists
+
+  /**
+   * Creates a new tag or gets an existing tag if one already exists.
+   *
+   * @param aName the name of the new tag.
+   * @returns imITag
+   */
   imITag createTag(in AUTF8String aName);
-  // Get an existing tag by (numeric) id. Returns null if not found.
+
+  /**
+   * Get an existing tag by ID.
+   *
+   * @param aId the numeric tag ID.
+   * @returns the tag or null if the tag doesn't exist.
+   */
   imITag getTagById(in long aId);
-  // Get an existing tag by name (will do an SQL query). Returns null
-  // if not found.
+
+  /**
+   * Get an existing tag by name (note that this will do an SQL query).
+   *
+   * @param aName the tag name.
+   * @returns the tag or null if the tag doesn't exist.
+   */
   imITag getTagByName(in AUTF8String aName);
-  // Get an array of all existing tags.
+
+  /**
+   * Get an array of all existing tags.
+   *
+   * @returns imITag[]
+   */
   Array<imITag> getTags();
 
   boolean isTagHidden(in imITag aTag);

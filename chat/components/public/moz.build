@@ -23,4 +23,3 @@ XPIDL_SOURCES += [
 ]
 
 XPIDL_MODULE = 'chat'
-
