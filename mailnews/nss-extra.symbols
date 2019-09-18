@@ -1,4 +1,7 @@
 CERT_GetCertNicknames
+NSSBase64Decoder_Create_Util
+NSSBase64Decoder_Destroy_Util
+NSSBase64Decoder_Update_Util
 NSS_CMSContentInfo_GetBulkKey
 NSS_CMSContentInfo_GetBulkKeySize
 NSS_CMSContentInfo_GetContentEncAlgTag
