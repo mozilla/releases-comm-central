@@ -5,35 +5,35 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 dialog {
-    --eventBorderColor: #8d8e90;
-    --eventWidgetBorderColor: #cacaff;
-    --eventGridStartBorderColor: #bdbec0;
+  --eventBorderColor: #8d8e90;
+  --eventWidgetBorderColor: #cacaff;
+  --eventGridStartBorderColor: #bdbec0;
 }
 
 dialog[systemcolors] {
-    --eventBorderColor: ThreeDShadow;
-    --eventWidgetBorderColor: ThreeDShadow;
-    --eventGridStartBorderColor: ThreeDShadow;
+  --eventBorderColor: ThreeDShadow;
+  --eventWidgetBorderColor: ThreeDShadow;
+  --eventGridStartBorderColor: ThreeDShadow;
 }
 
 #calendar-event-dialog,
 #calendar-task-dialog {
-    min-width: 444px;
-    min-height: 476px;
+  min-width: 444px;
+  min-height: 476px;
 }
 
 #calendar-event-dialog,
 #calendar-task-dialog,
 #calendar-event-dialog-inner,
 #calendar-task-dialog-inner {
-    padding: 0px;
+  padding: 0px;
 }
 
 #calendar-event-dialog .todo-only,
 #calendar-task-dialog .event-only,
 #calendar-event-dialog-inner .todo-only,
 #calendar-task-dialog-inner .event-only {
-    display: none;
+  display: none;
 }
 
 /*--------------------------------------------------------------------
@@ -41,67 +41,67 @@ dialog[systemcolors] {
  *-------------------------------------------------------------------*/
 
 #button-save {
-    list-style-image: url(chrome://calendar-common/skin/icons/save.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/save.svg);
 }
 
 #button-save[mode="send"] {
-    list-style-image: url("chrome://messenger/skin/icons/send.svg");
+  list-style-image: url("chrome://messenger/skin/icons/send.svg");
 }
 
 #saveandcloseButton,
 #button-saveandclose {
-    list-style-image: url(chrome://calendar-common/skin/icons/save-close.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/save-close.svg);
 }
 
 #button-saveandclose[mode="send"] {
-    list-style-image: url("chrome://messenger/skin/icons/send.svg");
+  list-style-image: url("chrome://messenger/skin/icons/send.svg");
 }
 
 #button-attendees {
-    list-style-image: url(chrome://calendar-common/skin/icons/address.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/address.svg);
 }
 
 #button-privacy {
-    list-style-image: url(chrome://calendar-common/skin/icons/security.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/security.svg);
 }
 
 #button-url {
-    list-style-image: url(chrome://calendar-common/skin/icons/attach.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/attach.svg);
 }
 
 #deleteButton,
 #button-delete.cal-event-toolbarbutton {
-    /* !important to override the SM #button-delete states */
-    list-style-image: url(chrome://calendar-common/skin/icons/delete.svg) !important;
-    -moz-image-region: auto !important;
+  /* !important to override the SM #button-delete states */
+  list-style-image: url(chrome://calendar-common/skin/icons/delete.svg) !important;
+  -moz-image-region: auto !important;
 }
 
 #button-priority {
-    list-style-image: url(chrome://calendar-common/skin/icons/priority.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/priority.svg);
 }
 
 #button-status {
-    list-style-image: url(chrome://calendar-common/skin/icons/status.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/status.svg);
 }
 
 #button-freebusy {
-    list-style-image: url(chrome://calendar-common/skin/icons/freebusy.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/freebusy.svg);
 }
 
 #button-timezones {
-    list-style-image: url(chrome://calendar-common/skin/icons/timezones.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/timezones.svg);
 }
 
 #acceptButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/complete.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/complete.svg);
 }
 
 #tentativeButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/tentative.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/tentative.svg);
 }
 
 #declineButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/decline.svg);
+  list-style-image: url(chrome://calendar-common/skin/icons/decline.svg);
 }
 
 /*--------------------------------------------------------------------
@@ -109,25 +109,25 @@ dialog[systemcolors] {
  *-------------------------------------------------------------------*/
 
 #counter-proposal-box {
-    background-color: rgb(186, 238, 255);
-    border-bottom: 1px solid #444444;
+  background-color: rgb(186, 238, 255);
+  border-bottom: 1px solid #444444;
 }
 
 #counter-proposal-property-values > description {
-    margin-bottom: 2px;
+  margin-bottom: 2px;
 }
 
 #counter-proposal-summary {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .counter-buttons {
-    max-height: 25px;
+  max-height: 25px;
 }
 
 #yearly-period-of-label,
 label.label {
-    text-align: right;
+  text-align: right;
 }
 
 #item-calendar,
@@ -135,24 +135,98 @@ label.label {
 #item-repeat,
 #item-alarm,
 .datepicker-text-class {
-    min-width: 12em;
+  min-width: 12em;
 }
 
 .cal-event-toolbarbutton .toolbarbutton-icon {
-    width: 18px;
-    height: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .icon-holder[type="calendarEvent"],
 .tabmail-tab[type="calendarEvent"] {
-    list-style-image: url(chrome://calendar-common/skin/icons/event.svg);
-    -moz-image-region: auto;
+  list-style-image: url(chrome://calendar-common/skin/icons/event.svg);
+  -moz-image-region: auto;
 }
 
 .icon-holder[type="calendarTask"],
 .tabmail-tab[type="calendarTask"] {
-    list-style-image: url(chrome://calendar-common/skin/icons/task.svg);
-    -moz-image-region: auto;
+  list-style-image: url(chrome://calendar-common/skin/icons/task.svg);
+  -moz-image-region: auto;
+}
+
+#event-grid {
+  padding-top: 8px;
+  padding-inline-start: 8px;
+  padding-inline-end: 10px;
+  border-spacing: 0;
+  height: 100%;
+}
+
+#event-grid menulist {
+  margin-bottom: 1px;
+}
+
+#event-grid > tr > th {
+  text-align: left;
+  font-weight: normal;
+}
+
+#event-grid > tr > td,
+.full-width {
+  width: 100%;
+}
+
+#event-grid-tab-box-row,
+#event-grid-tabbox,
+.event-grid-tabpanels {
+  height: 100%;
+}
+
+.event-input-td > input {
+  width: 100%;
+}
+
+.event-input-td {
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+}
+
+#event-grid > tr > th,
+#event-grid > tr > td {
+  padding: 0;
+}
+
+#item-categories-textbox {
+  margin: 0px 8px;
+}
+
+#item-calendar,
+#item-categories {
+  width: 100%;
+}
+
+#event-grid-tab-vbox {
+  padding-bottom: 10px;
+  padding-inline-start: 8px;
+  padding-inline-end: 10px;
+}
+
+:root {
+  --separator-padding: 6px;
+}
+
+.above-separator {
+  padding-bottom: var(--separator-padding) !important;
+  border-bottom: 1px solid #A3A3A3;
+}
+
+.below-separator {
+  padding-top: calc(var(--separator-padding) - 2px) !important;
+}
+
+.below-separator-task {
+  padding-top: calc(var(--separator-padding) - 5px) !important;
 }
 
 /*--------------------------------------------------------------------
@@ -160,26 +234,26 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #event-grid-tabbox {
-    margin: 5px 0;
+  margin: 5px 0;
 }
 
 #event-grid-tabbox #notify-options {
-    padding: 0px 9px;
+  padding: 0px 9px;
 }
 
 #event-grid-tabpanel-description {
-    display: flex;
+  display: flex;
 }
 
 #event-grid-tabpanel-description > #item-description {
-    width: 100%;
-    box-sizing: border-box;
-    min-height: 7em;
-    margin: 2px 4px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 7em;
+  margin: 2px 4px;
 }
 
 #event-grid-tabpanel-attendees > vbox > hbox > #item-attendees-box {
-    margin: 2px 4px;
+  margin: 2px 4px;
 }
 
 /*--------------------------------------------------------------------
@@ -187,51 +261,51 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #keepduration-button {
-    list-style-image: url(chrome://calendar-common/skin/chain-unlock.svg);
-    padding-top: 3px;
-    padding-bottom: 3px;
-    margin-inline-start: -3px;
-    margin-bottom: -15px;
-    position: relative;
-    -moz-user-focus: normal;
-    -moz-context-properties: fill;
-    fill: CurrentColor;
+  list-style-image: url(chrome://calendar-common/skin/chain-unlock.svg);
+  padding-top: 3px;
+  padding-bottom: 3px;
+  margin-inline-start: -3px;
+  margin-bottom: -15px;
+  position: relative;
+  -moz-user-focus: normal;
+  -moz-context-properties: fill;
+  fill: CurrentColor;
 }
 
 #keepduration-button[keep="true"] {
-    list-style-image: url(chrome://calendar-common/skin/chain-lock.svg);
-    fill: Highlight;
+  list-style-image: url(chrome://calendar-common/skin/chain-lock.svg);
+  fill: Highlight;
 }
 
 #keepduration-button[disabled="true"] {
-    fill: GrayText;
+  fill: GrayText;
 }
 
 #keepduration-button > label {
-    display: none;
+  display: none;
 }
 
 .keepduration-link-image {
-    margin-inline-start: -1px;
-    -moz-context-properties: fill, stroke-opacity;
-    fill: CurrentColor;
-    stroke-opacity: 0;
+  margin-inline-start: -1px;
+  -moz-context-properties: fill, stroke-opacity;
+  fill: CurrentColor;
+  stroke-opacity: 0;
 }
 
 #link-image-top {
-    list-style-image: url(chrome://calendar-common/skin/link-image-top.svg);
-    margin-top: 0.6em;
-    margin-bottom: -0.6em;
+  list-style-image: url(chrome://calendar-common/skin/link-image-top.svg);
+  margin-top: 0.6em;
+  margin-bottom: -0.6em;
 }
 
 #link-image-top[keep="true"] {
-    stroke-opacity: 1;
+  stroke-opacity: 1;
 }
 
 #link-image-bottom {
-    list-style-image: url(chrome://calendar-common/skin/link-image-bottom.svg);
-    margin-top: -0.6em;
-    margin-bottom: 0.6em;
+  list-style-image: url(chrome://calendar-common/skin/link-image-bottom.svg);
+  margin-top: -0.6em;
+  margin-bottom: 0.6em;
 }
 
 /*--------------------------------------------------------------------
@@ -239,11 +313,11 @@ label.label {
  *-------------------------------------------------------------------*/
 
 .cal-statusbar-1 {
-    -moz-box-orient: vertical;
-    min-width: 0;
-    list-style-image: url("chrome://calendar-common/skin/statusbar-priority.svg");
-    -moz-context-properties: fill;
-    fill: currentColor;
+  -moz-box-orient: vertical;
+  min-width: 0;
+  list-style-image: url("chrome://calendar-common/skin/statusbar-priority.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 /*--------------------------------------------------------------------
@@ -254,7 +328,7 @@ label.label {
 #status-priority,
 #status-status,
 #status-freebusy {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 /*--------------------------------------------------------------------
@@ -262,7 +336,7 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #image-priority-low {
-    -moz-image-region: rect(0 16px 16px 0);
+  -moz-image-region: rect(0 16px 16px 0);
 }
 
 /*--------------------------------------------------------------------
@@ -270,7 +344,7 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #image-priority-normal {
-    -moz-image-region: rect(0 32px 16px 16px);
+  -moz-image-region: rect(0 32px 16px 16px);
 }
 
 /*--------------------------------------------------------------------
@@ -278,63 +352,63 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #image-priority-high {
-    -moz-image-region: rect(0 48px 16px 32px);
+  -moz-image-region: rect(0 48px 16px 32px);
 }
 
 /*--------------------------------------------------------------------
  *   Recurrence dialog preview border
  *-------------------------------------------------------------------*/
 #preview-border {
-    border: none;
-    padding: 0px;
+  border: none;
+  padding: 0px;
 }
 
 /*--------------------------------------------------------------------
  *   freebusy
  *-------------------------------------------------------------------*/
 #freebusy-container {
-    overflow: hidden;
-    min-width: 100px;
+  overflow: hidden;
+  min-width: 100px;
 }
 
 #freebusy-grid {
-    min-width: 1px;
-    -moz-user-focus: normal;
-    overflow: hidden;
+  min-width: 1px;
+  -moz-user-focus: normal;
+  overflow: hidden;
 }
 
 #freebusy-grid > .dummy-row, #freebusy-grid .dummy-row-cell {
-    width: 100%;
+  width: 100%;
 }
 
 #calendar-summary-dialog {
-    min-width: 35em;
+  min-width: 35em;
 }
 
 #daypicker-weekday {
-    margin-top: 2px;
+  margin-top: 2px;
 }
 
 .daypicker-monthday {
-    margin-top: 2px;
+  margin-top: 2px;
 }
 
 .headline {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .headline[align=end],
 .headline[align=right]{
-    text-align: right;
+  text-align: right;
 }
 
 .default-spacer {
-    width: 1em;
-    height: 1em;
+  width: 1em;
+  height: 1em;
 }
 
 .default-indent {
-    margin-inline-start: 1.5em;
+  margin-inline-start: 1.5em;
 }
 
 /*--------------------------------------------------------------------
@@ -342,335 +416,336 @@ label.label {
  *-------------------------------------------------------------------*/
 
 #attendees-container {
-    min-width: 150px;
-    min-height: 150px;
+  min-width: 150px;
+  min-height: 150px;
 }
 
 .listbox-noborder {
-    -moz-appearance: none;
-    margin: 0px 0px;
-    border: 1px solid var(--eventBorderColor);
-    background-color: #fff;
+  -moz-appearance: none;
+  margin: 0px 0px;
+  border: 1px solid var(--eventBorderColor);
+  background-color: #fff;
 }
 
 #timebar {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 #timebar > .listbox-noborder {
-    border-bottom-style: none;
+  border-bottom-style: none;
 }
 
 #freebusy-grid > .listbox-noborder {
-    border-top-color: transparent;
+  border-top-color: transparent;
 }
 
 /* remove on Windows the double border with the splitter */
 @media (-moz-os-version: windows-win7),
        (-moz-os-version: windows-win8),
        (-moz-os-version: windows-win10) {
-    #attendees-list > .listbox-noborder {
-        border-inline-end-style: none;
-    }
-    #timebar > .listbox-noborder,
-    #freebusy-grid > .listbox-noborder {
-        border-inline-start-style: none;
-    }
+  #attendees-list > .listbox-noborder {
+    border-inline-end-style: none;
+  }
+  #timebar > .listbox-noborder,
+  #freebusy-grid > .listbox-noborder {
+    border-inline-start-style: none;
+  }
 }
 
 .selection-bar {
-    background-color: rgba(0, 128, 128, .2);
-    border: 1px solid #008080;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+  background-color: rgba(0, 128, 128, .2);
+  border: 1px solid #008080;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
 #freebusy-container {
-    overflow: hidden;
-    clip: rect(0px 0px 0px 0px);
-    min-width: 450px;
+  overflow: hidden;
+  clip: rect(0px 0px 0px 0px);
+  min-width: 450px;
 }
 
 .freebusy-listitem {
-    border-width: 0px;
+  border-width: 0px;
 }
 
 calendar-event-freebusy-day {
-    margin-inline-end: 2px;
-    border-inline-start: 1px solid var(--eventBorderColor);
-    border-inline-end: 1px solid var(--eventBorderColor);
-    border-bottom: 1px solid var(--eventBorderColor);
+  margin-inline-end: 2px;
+  border-inline-start: 1px solid var(--eventBorderColor);
+  border-inline-end: 1px solid var(--eventBorderColor);
+  border-bottom: 1px solid var(--eventBorderColor);
 }
 
 calendar-event-freebusy-day:first-child {
-    border-inline-start: 1px solid transparent;
+  border-inline-start: 1px solid transparent;
 }
 
 calendar-event-freebusy-day:last-child {
-    border-inline-end: 1px solid transparent;
+  border-inline-end: 1px solid transparent;
 }
 
 calendar-event-scroll-container > box {
-    overflow: hidden;
-    clip: rect(0px 0px 0px 0px);
+  overflow: hidden;
+  clip: rect(0px 0px 0px 0px);
 }
 
 /* negative margins to clear freebusy-day's border and margin */
 calendar-event-freebusy-day > box {
-    margin-inline: -1px;
+  margin-inline: -1px;
 }
 
 .freebusy-content {
-    overflow: hidden;
-    clip: rect(0px 0px 0px 0px);
+  overflow: hidden;
+  clip: rect(0px 0px 0px 0px);
 }
 
 /* margin-inline-end 2px is needed to take border-right from the grid elements into account */
 .freebusy-timebar-title {
-    margin-inline-end: 2px;
-    padding-inline-start: 2px;
+  margin-inline-end: 2px;
+  padding-inline-start: 2px;
 }
 
 .freebusy-timebar-hour {
-    margin-top: 2px;
-    margin-bottom: 3px;
-    border-inline-start: 1px solid transparent;
-    padding-inline: 2px;
+  margin-top: 2px;
+  margin-bottom: 3px;
+  border-inline-start: 1px solid transparent;
+  padding-inline: 2px;
 }
 
 .freebusy-timebar-hour.last-in-day {
-    border-inline-end: 1px solid transparent;
+  border-inline-end: 1px solid transparent;
 }
 
 .freebusy-timebar-hour[scheduled="true"] {
-    /* the 'sechuled'-attribute is used in the timebar to indicate
+  /* the 'sechuled'-attribute is used in the timebar to indicate
      which hours are affected of the currently schedued event.
      since we added the selection-bar this is no longer necessary
      but we keep the possibity to decorate those hours if it should
      become beneficial.
      text-decoration: underline;
-   */
+  */
 }
 
 .freebusy-grid {
-    border-inline-start: 1px solid var(--eventGridStartBorderColor);
-    padding-inline: 2px;
-    background-color: #E09EBD;
-    color: #E09EBD;
-    min-height: 16px;
+  border-inline-start: 1px solid var(--eventGridStartBorderColor);
+  padding-inline: 2px;
+  background-color: #E09EBD;
+  color: #E09EBD;
+  min-height: 16px;
 }
 
 .freebusy-grid[state="busy"] {
-    background-color: #153E7E;
-    color: #153E7E;
+  background-color: #153E7E;
+  color: #153E7E;
 }
 
 .freebusy-grid[state="busy_tentative"] {
-    background-color: #1589FF;
-    color: #1589FF;
+  background-color: #1589FF;
+  color: #1589FF;
 }
 
 .freebusy-grid[state="busy_unavailable"] {
-    background-color: #4E387E;
-    color: #4E387E;
+  background-color: #4E387E;
+  color: #4E387E;
 }
 
 .freebusy-grid[state="free"] {
-    background-color: #EBEBE4;
-    color: #EBEBE4;
+  background-color: #EBEBE4;
+  color: #EBEBE4;
 }
 
 .freebusy-grid:first-child {
-    border-inline-start: 1px solid transparent;
+  border-inline-start: 1px solid transparent;
 }
 
 .freebusy-grid.last-in-day {
-    border-inline-end: 1px solid var(--eventBorderColor);
-    margin-inline-end: 2px;
+  border-inline-end: 1px solid var(--eventBorderColor);
+  margin-inline-end: 2px;
 }
 
 #dialog-box {
-    padding-top: 8px;
-    padding-bottom: 10px;
-    padding-inline-start: 8px;
-    padding-inline-end: 10px;
+  padding-top: 8px;
+  padding-bottom: 10px;
+  padding-inline-start: 8px;
+  padding-inline-end: 10px;
 }
 
 /* --spacer-top-height and --spacer-bottom-height are defined at runtime */
 .attendee-spacer-top {
-    height: var(--spacer-top-height);
+  height: var(--spacer-top-height);
 }
 
 .attendee-spacer-bottom {
-    height: var(--spacer-bottom-height);
+  height: var(--spacer-bottom-height);
 }
 
 #addressingWidget {
-    -moz-user-focus: none;
+  -moz-user-focus: none;
 }
 
 #typecol-addressingWidget {
-    min-width: 9em;
-    border-right: 1px solid var(--eventWidgetBorderColor);
+  min-width: 9em;
+  border-right: 1px solid var(--eventWidgetBorderColor);
 }
 
 /* This applies to rows of the calendar-event-attendees-list and the freebusy-grid */
 .addressingWidgetItem,
 .dummy-row {
-    border: none !important;
-    background-color: inherit !important;
-    color: inherit !important;
+  border: none !important;
+  background-color: inherit !important;
+  color: inherit !important;
 
-    /* we set the minimal height to the height of the
+  /* we set the minimal height to the height of the
      largest icon [the usertype-icon in this case] to
      ensure that the rows of the freebusy-grid and
      the attendee-list always have the same height,
-     regardless of the font size. */
-    height: 17px;
+     regardless of the font size.
+  */
+  height: 17px;
 }
 
 .addressingWidgetCell {
-    border-bottom: 1px solid var(--eventWidgetBorderColor);
-    padding: 0px;
+  border-bottom: 1px solid var(--eventWidgetBorderColor);
+  padding: 0px;
 }
 
 .addressingWidgetCell:first-child {
-    border-top: none;
+  border-top: none;
 }
 
 .dummy-row-cell:first-child {
-    border-top: none;
+  border-top: none;
 }
 
 .zoom-in-icon {
-    margin: 3px 3px;
-    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
-    -moz-image-region: rect(0px 97px 14px 84px);
+  margin: 3px 3px;
+  list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
+  -moz-image-region: rect(0px 97px 14px 84px);
 }
 .zoom-in-icon[disabled="true"] {
-    -moz-image-region: rect(14px 97px 28px 84px);
+  -moz-image-region: rect(14px 97px 28px 84px);
 }
 
 .zoom-out-icon {
-    margin: 3px 3px;
-    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
-    -moz-image-region: rect(0px 110px 14px 97px);
+  margin: 3px 3px;
+  list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
+  -moz-image-region: rect(0px 110px 14px 97px);
 }
 .zoom-out-icon[disabled="true"] {
-    -moz-image-region: rect(14px 110px 28px 97px);
+  -moz-image-region: rect(14px 110px 28px 97px);
 }
 
 .left-icon {
-    margin: 3px 3px;
-    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
-    -moz-image-region: rect(0px 124px 14px 110px);
+  margin: 3px 3px;
+  list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
+  -moz-image-region: rect(0px 124px 14px 110px);
 }
 .left-icon[disabled="true"] {
-    -moz-image-region: rect(14px 124px 28px 110px);
+  -moz-image-region: rect(14px 124px 28px 110px);
 }
 
 .right-icon {
-    margin: 3px 3px;
-    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
-    -moz-image-region: rect(0px 138px 14px 124px);
+  margin: 3px 3px;
+  list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
+  -moz-image-region: rect(0px 138px 14px 124px);
 }
 .right-icon[disabled="true"] {
-    -moz-image-region: rect(14px 138px 28px 124px);
+  -moz-image-region: rect(14px 138px 28px 124px);
 }
 
 .left-icon .button-icon {
-    margin-inline-end: 3px;
+  margin-inline-end: 3px;
 }
 
 .right-icon .button-icon {
-    margin-inline-start: 3px;
+  margin-inline-start: 3px;
 }
 
 .legend {
-    display: flex;
-    width: 3em;
-    height: 1em;
-    border-top: 1px solid #A1A1A1;
-    border-right: 1px solid #C3C3C3;
-    border-bottom: 1px solid #DDDDDD;
-    border-left: 1px solid #C3C3C3;
+  display: flex;
+  width: 3em;
+  height: 1em;
+  border-top: 1px solid #A1A1A1;
+  border-right: 1px solid #C3C3C3;
+  border-bottom: 1px solid #DDDDDD;
+  border-left: 1px solid #C3C3C3;
 }
 
 .legend[status="FREE"] {
-    background-color: #EBEBE4;
-    color: #EBEBE4;
+  background-color: #EBEBE4;
+  color: #EBEBE4;
 }
 
 .legend[status="BUSY"] {
-    background-color: #153E7E;
-    color: #153E7E;
+  background-color: #153E7E;
+  color: #153E7E;
 }
 
 .legend[status="BUSY_TENTATIVE"] {
-    background-color: #1589FF;
-    color: #1589FF;
+  background-color: #1589FF;
+  color: #1589FF;
 }
 
 .legend[status="BUSY_UNAVAILABLE"] {
-    background-color: #4E387E;
-    color: #4E387E;
+  background-color: #4E387E;
+  color: #4E387E;
 }
 
 .legend[status="UNKNOWN"] {
-    background-color: #E09EBD;
-    color: #E09EBD;
+  background-color: #E09EBD;
+  color: #E09EBD;
 }
 
 #content-frame {
-    border-left: 1px solid ThreeDDarkShadow;
-    border-right: 1px solid ThreeDLightShadow;
-    min-width: 10px;
-    min-height: 10px;
-    height: 400px;
+  border-left: 1px solid ThreeDDarkShadow;
+  border-right: 1px solid ThreeDLightShadow;
+  min-width: 10px;
+  min-height: 10px;
+  height: 400px;
 }
 
 #attendees-list {
-    -moz-user-focus: normal;
-    overflow: hidden;
+  -moz-user-focus: normal;
+  overflow: hidden;
 }
 
 #attendees-list > richlistitem {
-    max-height: 17px;
-    min-height: 17px;
-    flex: 1;
-    display: flex;
+  max-height: 17px;
+  min-height: 17px;
+  flex: 1;
+  display: flex;
 }
 
 #attendees-list .addressingWidgetCell {
-    width: 27px;
-    text-align: center;
+  width: 27px;
+  text-align: center;
 }
 
 #attendees-list hbox:nth-child(3) {
-    flex: 1;
-    text-align: left;
+  flex: 1;
+  text-align: left;
 }
 
 #attendees-list hbox textbox {
-    width: 100%;
+  width: 100%;
 }
 
 .selection-bar-left {
-    width: 3px;
-    cursor: w-resize;
+  width: 3px;
+  cursor: w-resize;
 }
 
 .selection-bar-right {
-    width: 3px;
-    cursor: e-resize;
+  width: 3px;
+  cursor: e-resize;
 }
 
 .selection-bar-spacer {
-    cursor: grab;
+  cursor: grab;
 }
 
 .checkbox-no-label > .checkbox-label-box {
-    display: none;
+  display: none;
 }
 
 /*--------------------------------------------------------------------
@@ -678,50 +753,50 @@ calendar-event-freebusy-day > box {
  *-------------------------------------------------------------------*/
 
 #summary-toolbox {
-    margin-top: -8px;
-    margin-inline-start: -8px;
-    margin-inline-end: -10px;
-    margin-bottom: 10px;
+  margin-top: -8px;
+  margin-inline-start: -8px;
+  margin-inline-end: -10px;
+  margin-bottom: 10px;
 }
 
 #calendar-summary-dialog,
 #calendar-event-summary-dialog,
 #calendar-task-summary-dialog {
-    min-width: 35em;
+  min-width: 35em;
 }
 
 #calendar-summary-dialog #item-attachment-cell,
 #calendar-event-summary-dialog #item-attachment-cell,
 #calendar-task-summary-dialog #item-attachment-cell {
-    margin-left: 6px;
+  margin-left: 6px;
 }
 
 #calendar-summary-dialog .item-attachment-cell-label,
 #calendar-event-summary-dialog .item-attachment-cell-label,
 #calendar-task-summary-dialog .item-attachment-cell-label {
-    margin-left: 3px;
+  margin-left: 3px;
 }
 
 #calendar-summary-dialog #item-description-wrapper,
 #calendar-event-summary-dialog #item-description-wrapper,
 #calendar-task-summary-dialog #item-description-wrapper {
-    display: flex;
+  display: flex;
 }
 
 #calendar-summary-dialog #item-description,
 #calendar-event-summary-dialog #item-description,
 #calendar-task-summary-dialog #item-description {
-    width: 100%;
-    box-sizing: border-box;
-    min-height: 54px;
-    margin: 2px 4px 0;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 54px;
+  margin: 2px 4px 0;
 }
 
 #calendar-summary-dialog .selectable-label,
 #calendar-event-summary-dialog .selectable-label,
 #calendar-task-summary-dialog .selectable-label {
-    background-color: inherit;
-    color: inherit;
+  background-color: inherit;
+  color: inherit;
 }
 
 #calendar-summary-dialog #item-start-row .headline,
@@ -730,5 +805,5 @@ calendar-event-freebusy-day > box {
 #calendar-summary-dialog #item-end-row .headline,
 #calendar-event-summary-dialog #item-end-row .headline,
 #calendar-task-summary-dialog #item-end-row .headline {
-    font-weight: normal;
+  font-weight: normal;
 }

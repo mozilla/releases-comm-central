@@ -32,15 +32,16 @@ function setupModule(module) {
 // Lookup paths and path-snippets.
 // These 5 have to be used with itemEditLookup().
 var CATEGORY_LIST = `
-    id("event-grid-category-color-row")/id("event-grid-category-box")/id("item-categories")/
-    id("item-categories-popup")
+    id("event-grid")/id("event-grid-category-color-row")/id("event-grid-category-color-td")
+    /id("item-categories")/id("item-categories-popup")
 `;
 var REPEAT_DETAILS = `
-    id("event-grid-recurrence-row")/id("event-grid-recurrence-picker-box")/id("repeat-deck")/
-    id("repeat-details")/[0]
+    id("event-grid")/id("event-grid-recurrence-row")/id("event-grid-recurrence-td")/id("event-grid-recurrence-picker-box")/
+    id("repeat-deck")/id("repeat-details")/[0]
 `;
 var EVENT_TABPANELS = `
-    id("event-grid-tabbox")/id("event-grid-tabpanels")
+    id("event-grid-tab-vbox")/id("event-grid-tab-box-row")/id("event-grid-tabbox")/
+    id("event-grid-tabpanels")
 `;
 var DESCRIPTION_TEXTBOX = `
     ${EVENT_TABPANELS}/id("event-grid-tabpanel-description")/id("item-description")
@@ -51,8 +52,8 @@ var ATTENDEES_ROW = `
 `;
 // Only for Tasks.
 var PERCENT_COMPLETE_INPUT = `
-    id("event-grid-todo-status-row")/id("event-grid-todo-status-picker-box")/
-    id("percent-complete-textbox")
+    id("event-grid")/id("event-grid-todo-status-row")/id("event-grid-todo-status-td")/
+    id("event-grid-todo-status-picker-box")/id("percent-complete-textbox")
 `;
 
 // To be appended to the path for a date- or timepicker.
@@ -113,8 +114,7 @@ function helpersForEditUI(controller) {
       return new elementslib.Lookup(
         controller.window.document,
         selector(`
-                /id("calendar-${type}-dialog-inner")/id("event-grid")/id("event-grid-rows")/
-                ${path}
+                /id("calendar-${type}-dialog-inner")/${path}
             `)
       );
     },
@@ -125,38 +125,45 @@ function helpersForEditUI(controller) {
       switch (id) {
         case "STARTDATE":
           path = `
-                        id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/
+                        id("event-grid")/id("event-grid-startdate-row")/
+                        id("event-grid-startdate-td")/id("event-grid-startdate-picker-box")/
                         id("${startId}")/anon({"anonid":"datepicker"})/${DATE_INPUT}
                     `;
           break;
         case "ENDDATE":
           path = `
-                        id("event-grid-enddate-row")/[1]/id("event-grid-enddate-picker-box")/
+                        id("event-grid")/id("event-grid-enddate-row")/id("event-grid-enddate-td")/
+                        id("event-grid-enddate-vbox")/id("event-grid-enddate-picker-box")/
                         id("${endId}")/anon({"anonid":"datepicker"})/${DATE_INPUT}
                     `;
           break;
         case "STARTTIME":
           path = `
-                        id("event-grid-startdate-row")/id("event-grid-startdate-picker-box")/
+                        id("event-grid")/id("event-grid-startdate-row")/id("event-grid-startdate-td")/
+                        id("event-grid-startdate-picker-box")/
                         id("${startId}")/anon({"anonid":"timepicker"})/${TIME_INPUT}
                     `;
           break;
         case "ENDTIME":
           path = `
-                        id("event-grid-enddate-row")/[1]/id("event-grid-enddate-picker-box")/
+                        id("event-grid")/id("event-grid-enddate-row")/id("event-grid-enddate-td")/
+                        id("event-grid-enddate-vbox")/id("event-grid-enddate-picker-box")/
                         id("${endId}")/anon({"anonid":"timepicker"})/${TIME_INPUT}
                     `;
           break;
         case "UNTILDATE":
           path = `
-                        id("event-grid-recurrence-row")/id("event-grid-recurrence-picker-box")/
-                        id("repeat-deck")/id("repeat-untilDate")/id("repeat-until-datepicker")/
+                        id("event-grid")/id("event-grid-recurrence-row")/
+                        id("event-grid-recurrence-td")/
+                        id("event-grid-recurrence-picker-box")/id("repeat-deck")/
+                        id("repeat-untilDate")/id("repeat-until-datepicker")/
                         ${DATE_INPUT}
                     `;
           break;
         case "COMPLETEDDATE":
           path = `
-                        id("event-grid-todo-status-row")/
+                        id("event-grid")/id("event-grid-todo-status-row")/
+                        id("event-grid-todo-status-td")/
                         id("event-grid-todo-status-picker-box")/id("completed-date-picker")/
                         ${DATE_INPUT}
                     `;

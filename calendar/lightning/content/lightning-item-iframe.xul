@@ -132,99 +132,101 @@
     <!-- notificationbox will be added here lazily. -->
   </hbox>
 
-  <grid id="event-grid"
-        flex="1"
-        style="padding-top: 8px; padding-bottom: 10px; padding-inline-start: 8px; padding-inline-end: 10px;">
-    <columns id="event-grid-columns">
-        <column id="event-description-column"/>
-        <column id="event-controls-column" flex="1"/>
-    </columns>
-
-    <rows id="event-grid-rows">
-      <!-- Title -->
-      <row id="event-grid-title-row"
-           align="center">
+  <html:table id="event-grid">
+    <html:tr>
+      <html:th>
+        <label id="item-calendar-label"
+               value="&event.calendar.label;"
+               accesskey="&event.calendar.accesskey;"
+               control="item-calendar"
+               disable-on-readonly="true"/>
+        <label id="item-calendar-aux-label"
+               value="&event.calendar.label;"
+               accesskey="&event.calendar.accesskey;"
+               control="item-calendar"
+               disable-on-readonly="true"/>
+      </html:th>
+      <html:td>
+        <menulist id="item-calendar"
+                  disable-on-readonly="true"
+                  oncommand="updateCalendar();"/>
+      </html:td>
+    </html:tr>
+    <!-- Title -->
+    <html:tr id="event-grid-title-row">
+      <html:th>
         <label value="&event.title.textbox.label;"
                accesskey="&event.title.textbox.accesskey;"
                control="item-title"
                disable-on-readonly="true"/>
-        <textbox id="item-title"
-                 disable-on-readonly="true"
-                 flex="1"
-                 oninput="updateTitle()"/>
-      </row>
+      </html:th>
+      <html:td class="event-input-td">
+        <html:input id="item-title"
+                    disable-on-readonly="true"
+                    oninput="updateTitle()"/>
+      </html:td>
+    </html:tr>
 
-      <!-- Location -->
-      <row id="event-grid-location-row"
-         align="center">
+    <!-- Location -->
+    <html:tr id="event-grid-location-row">
+      <html:th>
         <label value="&event.location.label;"
                accesskey="&event.location.accesskey;"
                control="item-location"
                disable-on-readonly="true"/>
-        <textbox id="item-location"
-                 disable-on-readonly="true"/>
-      </row>
+      </html:th>
+      <html:td class="event-input-td">
+        <html:input id="item-location"
+                    disable-on-readonly="true"/>
+      </html:td>
+    </html:tr>
 
-      <!-- Category & Calendar -->
-      <row id="event-grid-category-color-row"
-           align="center">
+    <!-- Category & Calendar -->
+    <html:tr id="event-grid-category-color-row">
+      <html:th class="above-separator">
         <hbox id="event-grid-category-labels-box">
-          <label value="&event.categories.label;"
+          <label id="item-categories-label"
+                 value="&event.categories.label;"
                  accesskey="&event.categories.accesskey;"
                  control="item-categories"
-                 id="item-categories-label"
-                 disable-on-readonly="true"/>
-          <label value="&event.calendar.label;"
-                 accesskey="&event.calendar.accesskey;"
-                 id="item-calendar-aux-label"
-                 control="item-calendar"
                  disable-on-readonly="true"/>
         </hbox>
-        <hbox id="event-grid-category-box" align="center">
-          <menulist id="item-categories"
-                    type="panel-menulist"
-                    disable-on-readonly="true"
-                    flex="1">
-            <menupopup id="item-categories-popup"
-                       onpopuphiding="return categoryPopupHiding(event);">
-              <textbox id="item-categories-textbox"
-                       placeholder="&event.categories.textbox.label;"
-                       onblur="this.parentNode.removeAttribute(&quot;ignorekeys&quot;);"
-                       onfocus="this.parentNode.setAttribute(&quot;ignorekeys&quot;, &quot;true&quot;);"
-                       onkeypress="categoryTextboxKeypress(event);"/>
-              <menuseparator />
-            </menupopup>
-          </menulist>
-          <label value="&event.calendar.label;"
-                 accesskey="&event.calendar.accesskey;"
-                 control="item-calendar"
-                 id="item-calendar-label"
-                 disable-on-readonly="true"/>
-          <menulist id="item-calendar"
-                    disable-on-readonly="true"
-                    flex="1"
-                    oncommand="updateCalendar();"/>
-        </hbox>
-      </row>
+      </html:th>
+      <html:td id="event-grid-category-color-td" class="above-separator">
+        <menulist id="item-categories"
+                  type="panel-menulist"
+                  disable-on-readonly="true">
+          <menupopup id="item-categories-popup"
+                     onpopuphiding="return categoryPopupHiding(event);">
+            <html:input id="item-categories-textbox"
+                        placeholder="&event.categories.textbox.label;"
+                        onblur="this.parentNode.removeAttribute('ignorekeys');"
+                        onfocus="this.parentNode.setAttribute('ignorekeys', 'true');"
+                        onkeypress="categoryTextboxKeypress(event);"/>
+            <menuseparator />
+          </menupopup>
+        </menulist>
+      </html:td>
+    </html:tr>
 
-      <separator class="groove" id="event-grid-basic-separator"/>
-
-      <!-- All-Day -->
-      <row id="event-grid-allday-row"
-           align="center">
-        <spacer/>
+    <!-- All-Day -->
+    <html:tr id="event-grid-allday-row">
+      <html:th class="below-separator">
+      </html:th>
+      <html:td class="below-separator">
         <checkbox id="event-all-day"
-                  class="event-only"
-                  disable-on-readonly="true"
-                  label="&event.alldayevent.label;"
-                  accesskey="&event.alldayevent.accesskey;"
-                  oncommand="onUpdateAllDay();"/>
-      </row>
+                   class="event-only"
+                   disable-on-readonly="true"
+                   label="&event.alldayevent.label;"
+                   accesskey="&event.alldayevent.accesskey;"
+                   oncommand="onUpdateAllDay();"/>
+      </html:td>
+    </html:tr>
 
-      <!-- StartDate -->
-      <row id="event-grid-startdate-row">
-        <hbox id="event-grid-startdate-label-box"
-              align="center">
+    <!-- StartDate -->
+    <html:tr id="event-grid-startdate-row">
+      <html:th id="event-grid-startdate-th">
+        <hbox id="event-grid-startdate-label-box" align="center">
           <label value="&event.from.label;"
                  accesskey="&event.from.accesskey;"
                  control="event-starttime"
@@ -236,6 +238,8 @@
                  class="todo-only"
                  disable-on-readonly="true"/>
         </hbox>
+      </html:th>
+      <html:td id="event-grid-startdate-td">
         <hbox id="event-grid-startdate-picker-box">
           <datetimepicker id="event-starttime"
                           class="event-only"
@@ -251,7 +255,9 @@
                           onchange="dateTimeControls2State(true);"/>
           <vbox>
             <hbox>
-              <image id="link-image-top" class="keepduration-link-image" keep="true"/>
+              <image id="link-image-top"
+                     class="keepduration-link-image"
+                     keep="true"/>
             </hbox>
             <spacer flex="1"/>
             <toolbarbutton id="keepduration-button"
@@ -267,15 +273,16 @@
                    collapsed="true"
                    crop="end"
                    disable-on-readonly="true"
-                   flex="1"
                    hyperlink="true"
                    onclick="showTimezonePopup(event, gStartTime.getInTimezone(gStartTimezone), editStartTimezone)"/>
           </hbox>
         </hbox>
-      </row>
+      </html:td>
+    </html:tr>
 
-      <!-- EndDate -->
-      <row id="event-grid-enddate-row">
+    <!-- EndDate -->
+    <html:tr id="event-grid-enddate-row">
+      <html:th>
         <hbox id="event-grid-enddate-label-box"
               align="center">
           <label value="&event.to.label;"
@@ -289,7 +296,9 @@
                  class="todo-only"
                  disable-on-readonly="true"/>
         </hbox>
-        <vbox>
+      </html:th>
+      <html:td id="event-grid-enddate-td">
+        <vbox id="event-grid-enddate-vbox">
           <hbox id="event-grid-enddate-picker-box">
             <datetimepicker id="event-endtime"
                             class="event-only"
@@ -304,7 +313,8 @@
                             disable-on-readonly="true"
                             onchange="dateTimeControls2State(false);"/>
             <vbox pack="end">
-              <image id="link-image-bottom" class="keepduration-link-image"/>
+              <image id="link-image-bottom"
+                     class="keepduration-link-image"/>
             </vbox>
             <hbox align="center">
               <label id="timezone-endtime"
@@ -318,16 +328,18 @@
             </hbox>
           </hbox>
         </vbox>
-      </row>
+      </html:td>
+    </html:tr>
 
-      <row id="event-grid-todo-status-row"
-           class="todo-only"
-           align="center">
+    <html:tr id="event-grid-todo-status-row" class="todo-only">
+      <html:th>
         <label id="todo-status-label"
                value="&task.status.label;"
                accesskey="&task.status.accesskey;"
                control="todo-status"
                disable-on-readonly="true"/>
+      </html:th>
+      <html:td id="event-grid-todo-status-td">
         <hbox id="event-grid-todo-status-picker-box"
               align="center">
           <menulist id="todo-status"
@@ -352,32 +364,36 @@
                         value="CANCELLED"/>
             </menupopup>
           </menulist>
-            <datepicker id="completed-date-picker"
-                        class="todo-only"
-                        disable-on-readonly="true"
-                        disabled="true"
-                        value=""/>
-            <html:input id="percent-complete-textbox" type="number" class="size3"
-                        min="0" max="100"
-                        disable-on-readonly="true"
-                        oninput="updateToDoStatus('percent-changed')"
-                        onselect="updateToDoStatus('percent-changed')"/>
-            <label id="percent-complete-label"
-                   class="todo-only"
-                   disable-on-readonly="true"
-                   value="&newtodo.percentcomplete.label;"/>
+          <datepicker id="completed-date-picker"
+                      class="todo-only"
+                      disable-on-readonly="true"
+                      disabled="true"
+                      value=""/>
+          <html:input id="percent-complete-textbox"
+                      type="number"
+                      class="size3 input-inline"
+                      min="0"
+                      max="100"
+                      disable-on-readonly="true"
+                      oninput="updateToDoStatus('percent-changed')"
+                      onselect="updateToDoStatus('percent-changed')"/>
+          <label id="percent-complete-label"
+                 class="todo-only"
+                 disable-on-readonly="true"
+                 value="&newtodo.percentcomplete.label;"/>
         </hbox>
-      </row>
+      </html:td>
+    </html:tr>
 
-      <separator id="event-grid-recurrence-separator" class="groove"/>
-
-      <!-- Recurrence -->
-      <row id="event-grid-recurrence-row"
-           align="center">
+    <!-- Recurrence -->
+    <html:tr id="event-grid-recurrence-row">
+      <html:th class="above-separator">
         <label value="&event.repeat.label;"
                accesskey="&event.repeat.accesskey;"
                control="item-repeat"
                disable-on-readonly="true"/>
+      </html:th>
+      <html:td id="event-grid-recurrence-td" class="above-separator">
         <hbox id="event-grid-recurrence-picker-box"
               align="center"
               flex="1">
@@ -413,41 +429,45 @@
                         value="custom"/>
             </menupopup>
           </menulist>
-          <deck id="repeat-deck" selectedIndex="-1">
-            <hbox id="repeat-untilDate" align="center">
-                <label value="&event.until.label;"
-                       accesskey="&event.until.accesskey;"
-                       control="repeat-until-datepicker"
-                       disable-on-readonly="true"/>
-                <datepicker id="repeat-until-datepicker" flex="1"
-                            type="forever"
-                            disable-on-readonly="true"
-                            onchange="if (onLoad.hasLoaded) { checkUntilDate(); }"
-                            value=""/>
+          <deck id="repeat-deck"
+                selectedIndex="-1">
+            <hbox id="repeat-untilDate"
+                  align="center">
+              <label value="&event.until.label;"
+                     accesskey="&event.until.accesskey;"
+                     control="repeat-until-datepicker"
+                     disable-on-readonly="true"/>
+              <datepicker id="repeat-until-datepicker"
+                          flex="1"
+                          type="forever"
+                          disable-on-readonly="true"
+                          onchange="if (onLoad.hasLoaded) { checkUntilDate(); }"
+                          value=""/>
             </hbox>
-            <vbox id="repeat-details" flex="1">
-                <label id="repeat-details-label"
-                       class="text-link"
-                       crop="right"
-                       disable-on-readonly="true"
-                       hyperlink="true"
-                       flex="1"
-                       onclick="if (onLoad.hasLoaded) { updateRepeat(); }"/>
+            <vbox id="repeat-details"
+                  flex="1">
+              <label id="repeat-details-label"
+                     class="text-link"
+                     crop="right"
+                     disable-on-readonly="true"
+                     hyperlink="true"
+                     flex="1"
+                     onclick="if (onLoad.hasLoaded) { updateRepeat(); }"/>
             </vbox>
           </deck>
         </hbox>
-      </row>
+      </html:td>
+    </html:tr>
 
-      <separator id="event-grid-alarm-separator"
-                 class="groove"/>
-
-      <!-- Reminder (Alarm) -->
-      <row id="event-grid-alarm-row"
-           align="center">
+    <!-- Reminder (Alarm) -->
+    <html:tr id="event-grid-alarm-row">
+      <html:th class="above-separator below-separator">
         <label value="&event.reminder.label;"
                accesskey="&event.reminder.accesskey;"
                control="item-alarm"
                disable-on-readonly="true"/>
+      </html:th>
+      <html:td class="above-separator below-separator">
         <hbox id="event-grid-alarm-picker-box"
               align="center">
           <menulist id="item-alarm"
@@ -549,12 +569,27 @@
                    onclick="updateReminder()"/>
           </hbox>
         </hbox>
-      </row>
+      </html:td>
+    </html:tr>
 
-      <separator id="event-grid-tabbox-separator"
-                 class="groove"/>
+    <html:tr id="event-grid-link-row" hidden="hidden">
+      <html:th class="above-separator below-separator">
+        <label value="&event.url.label;"
+               control="url-link"/>
+      </html:th>
+      <html:td class="above-separator below-separator">
+        <label id="url-link"
+               class="text-link"
+               onclick="launchBrowser(this.getAttribute('href'), event)"
+               oncommand="launchBrowser(this.getAttribute('href'), event)"
+               crop="end"/>
+      </html:td>
+    </html:tr>
+  </html:table>
 
-      <!-- Multi purpose tab box -->
+  <vbox id="event-grid-tab-vbox" flex="1" class="below-separator">
+    <!-- Multi purpose tab box -->
+    <hbox id="event-grid-tab-box-row" flex="1">
       <tabbox id="event-grid-tabbox"
               selectedIndex="0"
               flex="1">
@@ -564,7 +599,7 @@
                accesskey="&event.description.accesskey;"/>
           <tab id="event-grid-tab-attachments"
                label="&event.attachments.label;"
-                accesskey="&event.attachments.accesskey;"/>
+               accesskey="&event.attachments.accesskey;"/>
           <tab id="event-grid-tab-attendees"
                label="&event.attendees.label;"
                accesskey="&event.attendees.accesskey;"
@@ -636,19 +671,8 @@
                     pack="start"/>
         </hbox>
       </tabbox>
-
-      <separator id="event-grid-link-separator" class="groove" hidden="true"/>
-      <row id="event-grid-link-row" align="center" hidden="true">
-        <label value="&event.url.label;" control="url-link"/>
-        <label id="url-link"
-               class="text-link"
-               onclick="launchBrowser(this.getAttribute('href'), event)"
-               oncommand="launchBrowser(this.getAttribute('href'), event)"
-               crop="end"/>
-      </row>
-    </rows>
-  </grid>
-
+    </hbox>
+  </vbox>
 
   <popupset id="event-dialog-popupset">
     <menupopup id="attendee-popup">

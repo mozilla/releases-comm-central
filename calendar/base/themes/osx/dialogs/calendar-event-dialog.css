@@ -7,19 +7,24 @@
  *-------------------------------------------------------------------*/
 
 #keepduration-button {
-    padding: 3px 6px;
+  padding: 3px 6px;
 }
 
 #timezone-endtime {
-    margin-inline-start: 15px;
+  margin-inline-start: 15px;
 }
 
 hbox > #link-image-top {
-    margin-top: 1.2em;
-    margin-bottom: -1.2em;
+  margin-top: 1.2em;
+  margin-bottom: -1.2em;
 }
 
 vbox > #link-image-bottom {
-    margin-top: -1.2em;
-    margin-bottom: 1.2em;
+  margin-top: -1.2em;
+  margin-bottom: 1.2em;
+}
+
+.event-input-td {
+  padding-right: 8px !important;
+  padding-left: 3px !important;
 }

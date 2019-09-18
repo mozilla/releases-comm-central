@@ -427,6 +427,9 @@ function onLoad() {
 
   // Set initial values for datepickers in New Tasks dialog
   if (cal.item.isToDo(item)) {
+    document.getElementById("event-grid-startdate-th").classList.add("below-separator-task");
+    document.getElementById("event-grid-startdate-td").classList.add("below-separator-task");
+
     let initialDatesValue = cal.dtz.dateTimeToJsDate(args.initialStartDateValue);
     if (!gNewItemUI) {
       setElementValue("completed-date-picker", initialDatesValue);
@@ -444,8 +447,7 @@ function onLoad() {
   gMainWindow.setCursor("auto");
 
   if (!gNewItemUI) {
-    document.getElementById("item-title").focus();
-    document.getElementById("item-title").select();
+    document.getElementById("item-calendar").focus();
   }
 
   // This causes the app to ask if the window should be closed when the
@@ -963,8 +965,9 @@ function updateCategoryMenulist() {
 
   // Hide the categories listbox and label in case categories are not
   // supported
-  setBooleanAttribute("item-categories", "hidden", maxCount === 0);
-  setBooleanAttribute("item-categories-label", "hidden", maxCount === 0);
+  document
+    .getElementById("event-grid-category-color-row")
+    .toggleAttribute("hidden", maxCount === 0);
   setBooleanAttribute("item-calendar-label", "hidden", maxCount === 0);
   setBooleanAttribute("item-calendar-aux-label", "hidden", maxCount !== 0);
 
@@ -3783,12 +3786,7 @@ function showOrHideItemURL(aShow, aUrl) {
  */
 function updateItemURL(aShow, aUrl) {
   // Hide or show the link
-  setElementValue("event-grid-link-row", !aShow && "true", "hidden");
-  // The separator is not there in the summary dialog
-  let separator = document.getElementById("event-grid-link-separator");
-  if (separator) {
-    setElementValue("event-grid-link-separator", !aShow && "true", "hidden");
-  }
+  document.getElementById("event-grid-link-row").toggleAttribute("hidden", !aShow);
 
   // Set the url for the link
   if (aShow && aUrl.length) {

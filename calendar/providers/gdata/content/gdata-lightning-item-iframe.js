@@ -21,10 +21,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
     sendMessage({ command: "gdataIsTask", isGoogleTask: isGoogleTask });
 
-    let hideForTaskIds = [
-      "event-grid-location-row",
-
-      "event-grid-startdate-row",
+    let xulHideForTaskIds = [
       "timezone-endtime",
       "link-image-bottom",
 
@@ -37,19 +34,24 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
       "percent-complete-textbox",
       "percent-complete-label",
-
-      "event-grid-recurrence-row",
-      "event-grid-recurrence-separator",
-
-      "event-grid-alarm-row",
-      "event-grid-alarm-separator",
     ];
 
-    for (let id of hideForTaskIds) {
+    for (let id of xulHideForTaskIds) {
       let node = document.getElementById(id);
       if (node) {
         node.hidden = isGoogleTask;
       }
+    }
+
+    let hideForTaskIds = [
+      "event-grid-location-row",
+      "event-grid-startdate-row",
+      "event-grid-recurrence-row",
+      "event-grid-alarm-row",
+    ];
+
+    for (let id of hideForTaskIds) {
+      document.getElementById(id).toggleAttribute("hidden", isGoogleTask);
     }
 
     let duedate = document.getElementById("todo-duedate");
@@ -93,14 +95,15 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       : "none";
 
     // Remove categories for Google Tasks
-    let categoriesLabel = document.getElementById("event-grid-category-color-row").firstChild;
-    let calendarLabel = document.getElementById("item-categories").nextSibling;
+    let categoriesLabel = document.getElementById("item-categories-label");
+    let calendarLabel = document.getElementById("item-calendar-label");
     if (!categoriesLabel.origLabel) {
       categoriesLabel.origLabel = categoriesLabel.value;
     }
 
-    setBooleanAttribute("item-categories", "hidden", isGoogleTask);
-    setBooleanAttribute(calendarLabel, "hidden", isGoogleTask);
+    document
+      .getElementById("event-grid-category-color-row")
+      .toggleAttribute("hidden", isGoogleTask);
 
     if (isGoogleTask) {
       categoriesLabel.value = calendarLabel.value;
