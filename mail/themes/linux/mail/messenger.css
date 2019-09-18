@@ -156,11 +156,11 @@ toolbar[brighttext] {
     visibility: visible;
   }
 
-  :root[tabsintitlebar][sizemode="normal"] > #titlebar {
-    -moz-appearance: -moz-window-titlebar;
-  }
-  :root[tabsintitlebar][sizemode="maximized"] > #titlebar {
+  :root[tabsintitlebar] > #titlebar {
     -moz-appearance: -moz-window-titlebar-maximized;
+  }
+  :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) > #titlebar {
+    -moz-appearance: -moz-window-titlebar;
   }
 
   /* Add extra space to titlebar for dragging */
