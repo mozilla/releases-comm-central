@@ -527,12 +527,12 @@ function addAttendees(dialog, innerFrame, attendeesString) {
         // As starting point is always the last entered Attendee, we have
         // to advance to not overwrite it.
         attDialog.waitFor(
-          () => attDialog.window.document.activeElement.getAttribute("class") == "textbox-input"
+          () => attDialog.window.document.activeElement.getAttribute("class") == "input-inline"
         );
         attDialog.keypress(input, "VK_TAB", {});
         attDialog.waitFor(
           () =>
-            attDialog.window.document.activeElement.getAttribute("class") == "textbox-input" &&
+            attDialog.window.document.activeElement.getAttribute("class") == "input-inline" &&
             attDialog.window.document.activeElement.getAttribute("value") == null
         );
         attDialog.type(input, attendee);

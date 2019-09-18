@@ -88,7 +88,9 @@ function checkToAddresses(replyWinController, expectedFields) {
   let obtainedFields = [];
   for (let i = 0; i < addressingWidgetItems.length; i++) {
     let addrTypePopup = addressingWidgetItems[i].querySelector("menupopup");
-    let addrTextbox = addressingWidgetItems[i].querySelector("textbox");
+    let addrTextbox = addressingWidgetItems[i].querySelector(
+      `input[is="autocomplete-input"]`
+    );
 
     let selectedIndex = addrTypePopup.parentNode.selectedIndex;
     let typeMenuitems = addrTypePopup.childNodes;
