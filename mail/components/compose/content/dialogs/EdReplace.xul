@@ -6,6 +6,8 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorReplace.dtd">
 
@@ -24,32 +26,32 @@
   <hbox>
     <vbox>
       <spacer class="spacer"/>
-      <grid align="start">
-        <columns><column/><column/></columns>
-        <rows>
-          <row align="center">
-            <label value="&findField.label;" accesskey="&findField.accesskey;" control="dialog.findInput"/>
-            <textbox id="dialog.findInput" oninput="doEnabling();"/>
-          </row>
-          <row align="center">
-            <label value="&replaceField.label;" accesskey="&replaceField.accesskey;" control="dialog.replaceInput"/>
-            <textbox id="dialog.replaceInput" oninput="doEnabling();"/>
-          </row>
-          <row align="start">
-            <spacer/>
-            <vbox align="start">
-              <spacer class="bigspacer"/>
-              <checkbox id="dialog.caseSensitive" label="&caseSensitiveCheckbox.label;"
-                  accesskey="&caseSensitiveCheckbox.accesskey;"/>
-              <checkbox id="dialog.wrap" label="&wrapCheckbox.label;"
-                  accesskey="&wrapCheckbox.accesskey;"/>
-              <checkbox id="dialog.searchBackwards" label="&backwardsCheckbox.label;"
-                  accesskey="&backwardsCheckbox.accesskey;"/>
-            </vbox>
-          </row>
-        </rows>
-      </grid>
+      <html:div class="grid-two-column">
+        <html:div class="flex-items-center">
+          <label value="&findField.label;" accesskey="&findField.accesskey;" control="dialog.findInput"/>
+        </html:div>
+        <html:div>
+          <html:input id="dialog.findInput" class="input-inline" oninput="doEnabling();"/>
+        </html:div>
+        <html:div class="flex-items-center">
+          <label value="&replaceField.label;" accesskey="&replaceField.accesskey;" control="dialog.replaceInput"/>
+        </html:div>
+        <html:div>
+          <html:input id="dialog.replaceInput" class="input-inline" oninput="doEnabling();"/>
+        </html:div>
+        <html:div class="grid-item-col2">
+          <vbox align="start">
+            <checkbox id="dialog.caseSensitive" label="&caseSensitiveCheckbox.label;"
+                      accesskey="&caseSensitiveCheckbox.accesskey;"/>
+            <checkbox id="dialog.wrap" label="&wrapCheckbox.label;"
+                      accesskey="&wrapCheckbox.accesskey;"/>
+            <checkbox id="dialog.searchBackwards" label="&backwardsCheckbox.label;"
+                      accesskey="&backwardsCheckbox.accesskey;"/>
+          </vbox>
+        </html:div>
+      </html:div>
     </vbox>
+    <spacer class="spacer"/>
     <vbox>
       <button id="findNext" label="&findNextButton.label;" accesskey="&findNextButton.accesskey;"
           oncommand="onFindNext();" default="true"/>
