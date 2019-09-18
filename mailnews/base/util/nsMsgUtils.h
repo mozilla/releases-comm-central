@@ -352,7 +352,7 @@ NS_MSG_BASE nsresult ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed,
 #define MsgCompressWhitespace(str) (str).CompressWhitespace()
 #define MsgReplaceSubstring(str, what, replacement) \
   (str).ReplaceSubstring(what, replacement)
-#define MsgIsUTF8(str) IsUTF8(str)
+#define MsgIsUTF8(str) mozilla::IsUtf8(str)
 #define MsgNewInterfaceRequestorAggregation(aFirst, aSecond, aResult) \
   NS_NewInterfaceRequestorAggregation(aFirst, aSecond, aResult)
 #define MsgNewNotificationCallbacksAggregation(aCallbacks, aLoadGroup, \

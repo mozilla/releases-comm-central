@@ -108,7 +108,7 @@ nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
     }
   }
 
-  if (IsUTF8(mozilla::MakeSpan(aBuf, aLength))) {
+  if (mozilla::IsUtf8(mozilla::MakeSpan(aBuf, aLength))) {
     aCharset.AssignLiteral("UTF-8");
     return NS_OK;
   }

@@ -342,7 +342,7 @@ nsLDAPMessage::GetValues(const char *aAttr, nsTArray<nsString> &aValues) {
   uint32_t i;
   for (i = 0; i < numVals; i++) {
     nsDependentCString sValue(values[i]);
-    if (IsUTF8(sValue))
+    if (mozilla::IsUtf8(sValue))
       aValues.AppendElement(NS_ConvertUTF8toUTF16(sValue));
     else
       aValues.AppendElement(NS_ConvertASCIItoUTF16(sValue));
