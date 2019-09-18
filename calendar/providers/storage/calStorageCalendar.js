@@ -1652,6 +1652,11 @@ calStorageCalendar.prototype = {
     // build up recurring event and todo cache with its offline flags,
     // because we need that on every query: for recurring items, we need to
     // query database-wide.. yuck
+    this.mRecEventCache.clear();
+    this.mRecEventCacheOfflineFlags.clear();
+    this.mRecTodoCache.clear();
+    this.mRecTodoCacheOfflineFlags.clear();
+
     let events = [];
     let itemsMap = new Map();
     this.prepareStatement(this.mSelectEventsWithRecurrence);
@@ -1660,6 +1665,7 @@ calStorageCalendar.prototype = {
     });
     for (let row of events) {
       let item = await this.getEventFromRow(row, false);
+      this.mItemCache.delete(item.id);
       this.mRecEventCache.set(item.id, item);
       this.mRecEventCacheOfflineFlags.set(item.id, row.getResultByName("offline_journal") || null);
       itemsMap.set(item.id, item);
@@ -1672,6 +1678,7 @@ calStorageCalendar.prototype = {
     });
     for (let row of todos) {
       let item = await this.getTodoFromRow(row, false);
+      this.mItemCache.delete(item.id);
       this.mRecTodoCache.set(item.id, item);
       this.mRecTodoCacheOfflineFlags.set(item.id, row.getResultByName("offline_journal") || null);
       itemsMap.set(item.id, item);
