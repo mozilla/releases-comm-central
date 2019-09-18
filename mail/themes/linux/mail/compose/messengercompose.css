@@ -195,14 +195,13 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   margin-top: 1px;
 }
 
-html|input.textbox-addressingWidget,
+.textbox-addressingWidget,
 .dummy-row-cell:last-child {
   padding: 3px 2px !important;
   padding-inline-start: 5px !important;
   border: solid 1px transparent !important;
   border-bottom-color: var(--toolbarbutton-hover-bordercolor) !important;
   transition: border .2s, background-color .2s;
-  background-color: transparent;
  }
 
 .addressingWidgetCell:nth-child(2),
@@ -210,8 +209,8 @@ html|input.textbox-addressingWidget,
   border-bottom-color: transparent;
 }
 
-html|input.textbox-addressingWidget:focus,
-html|input.textbox-addressingWidget:hover {
+.textbox-addressingWidget:focus,
+.textbox-addressingWidget:hover {
   background-color: -moz-field;
   border-color: var(--toolbarbutton-hover-bordercolor) !important;
 }

@@ -258,7 +258,7 @@ toolbar[nowindowdrag="true"] {
   color: inherit !important;
 }
 
-html|input.textbox-addressingWidget,
+.textbox-addressingWidget,
 .dummy-row-cell:last-child {
   border: 1px solid transparent !important;
   border-bottom-color: #C6C6C6 !important;
@@ -270,11 +270,10 @@ html|input.textbox-addressingWidget,
   padding: 1px 3px !important;
   padding-inline-start: 6px !important;
   transition: border .2s, background-color .2s;
-  background-color: transparent;
 }
 
-html|input.textbox-addressingWidget:focus,
-html|input.textbox-addressingWidget:hover {
+.textbox-addressingWidget:focus,
+.textbox-addressingWidget:hover {
   background-color: white;
   background-image: none;
   border-color: #C6C6C6 !important;

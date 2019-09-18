@@ -132,26 +132,21 @@
   border-color: var(--lwt-toolbar-field-border-color) !important;
 }
 
-.textbox-addressingWidget > .autocomplete-result-popupset {
-  -moz-appearance: none;
+:root[lwt-popup-brighttext] panel[type="autocomplete-richlistbox"]:-moz-lwtheme {
   margin-top: -1px;
+  padding: 2px 0;
   background: var(--autocomplete-popup-background);
   color: var(--autocomplete-popup-color);
-}
-
-.textbox-addressingWidget panel[type="autocomplete-richlistbox"] {
-  padding: 2px 0;
-  color: inherit;
-  background-color: inherit;
   border-color: var(--autocomplete-popup-border-color);
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-.textbox-addressingWidget .autocomplete-richlistbox {
+:root[lwt-popup-brighttext] .autocomplete-richlistbox {
   color: inherit;
   background-color: inherit;
 }
 
-.textbox-addressingWidget .autocomplete-richlistitem[selected] {
+:root[lwt-popup-brighttext] .autocomplete-richlistitem[selected] {
   background: #0a84ff;
   color: #fff;
 }
