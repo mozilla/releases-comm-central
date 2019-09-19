@@ -13,6 +13,7 @@ calendar-minimonth {
   --mmDayColor: #2e4e73;
   --mmDayBorderColor: #fff;
   --mmDayOtherColor: #b2b2b2;
+  --mmDayWeekColor: #b2b2b2;
   --mmDayOtherBackground: #f0f0f0;
   --mmDayOtherBorderColor: #f0f0f0;
   --mmDayTodayColor: #2e4e73;
@@ -32,22 +33,20 @@ calendar-minimonth {
   --mmHighlightBackground: var(--sidebar-highlight-background-color, Highlight);
   --mmHighlightBorderColor: var(--sidebar-highlight-background-color, Highlight);
   --mmBoxBackground: var(--sidebar-background-color);
-  --mmBoxBorderColor: rgba(0, 0, 0, 0.3);
+  --mmBoxBorderColor: var(--sidebar-background-color);
   --mmDayTodayColor: var(--sidebar-highlight-text-color, HighlightText);
   --mmDayTodayBackground: var(--sidebar-highlight-background-color, Highlight);
   --mmDayTodayBorderColor: var(--sidebar-highlight-text-color, HighlightText);
   --mmDayColor: var(--sidebar-text-color);
-  --mmDayBorderColor: rgba(0, 0, 0, 0.3);
+  --mmDayBorderColor: var(--sidebar-background-color);
   --mmDayOtherColor: var(--sidebar-text-color);
   --mmDayOtherBackground: rgba(0, 0, 0, 0.1);
-  --mmDayOtherBorderColor: rgba(0, 0, 0, 0.3);
+  --mmDayOtherBorderColor: Transparent;
 }
 
 :root[lwt-tree-brighttext] calendar-minimonth {
   --mmBoxBorderColor: rgba(255, 255, 255, 0.5);
-  --mmDayBorderColor: rgba(255, 255, 255, 0.5);
   --mmDayOtherBackground: rgba(255, 255, 255, 0.2);
-  --mmDayOtherBorderColor: rgba(255, 255, 255, 0.5);
   --mmDayTodayColor: var(--sidebar-highlight-text-color, #fff);
   --mmDayTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
   --mmDayTodayBorderColor: #d9c585;
@@ -56,6 +55,7 @@ calendar-minimonth {
   --mmDaySelectedBorderColor: #d9c585;
   --mmDaySelectedTodayBackground: var(--sidebar-highlight-background-color, #5358a4);
   --mmDaySelectedTodayBorderColor: var(--sidebar-highlight-text-color, #9fa3d9);
+  --mmDayWeekColor: #888;
 }
 
 :root[systemcolors] calendar-minimonth {
@@ -66,6 +66,7 @@ calendar-minimonth {
   --mmDayColor: WindowText;
   --mmDayBorderColor: Window;
   --mmDayOtherColor: GrayText;
+  --mmDayWeekColor: GrayText;
   --mmDayOtherBackground: ButtonFace;
   --mmDayOtherBorderColor: Transparent;
   --mmDayTodayColor: -moz-DialogText;
@@ -182,7 +183,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 }
 
 .minimonth-week {
-  color: var(--mmDayOtherColor);
+  color: var(--mmDayWeekColor);
   text-align: center;
   border: 1px solid var(--mmDayBorderColor);
   background-color: var(--mmMainBackground);

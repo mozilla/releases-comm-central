@@ -57,6 +57,7 @@
     --viewMonthDayBoxWeekLabel: var(--sidebar-text-color);
     --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
     --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
+    --viewTimeBoxColor: var(--sidebar-text-color);
 }
 
 :root[lwt-tree-brighttext] {
