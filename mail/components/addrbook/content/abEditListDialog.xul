@@ -58,10 +58,11 @@
 
     <richlistbox id="addressingWidget" style="height: 15em;" onclick="awClickEmptySpace(event.target, true)">
       <richlistitem class="addressingWidgetItem" allowevents="true">
-        <hbox class="addressingWidgetCell input-container" flex="1">
+        <hbox class="addressingWidgetCell input-container" flex="1" role="combobox">
           <image onclick="this.nextElementSibling.select();" class="person-icon"/>
           <html:input is="autocomplete-input" id="addressCol1#1"
                       class="plain textbox-addressingWidget uri-element"
+                      aria-labelledby="addressCol1#1"
                       autocompletesearch="addrbook ldap"
                       autocompletesearchparam="{}"
                       timeout="300"

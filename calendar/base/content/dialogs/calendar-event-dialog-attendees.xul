@@ -82,7 +82,7 @@
           <hbox class="addressingWidgetCell" width="16">
             <image class="usertype-icon"/>
           </hbox>
-          <hbox class="addressingWidgetCell" flex="1">
+          <hbox class="addressingWidgetCell" flex="1" role="combobox">
             <html:input is="autocomplete-input" id="attendeesInput"
                         class="plain textbox-addressingWidget uri-element"
                         autocompletesearch="addrbook ldap"

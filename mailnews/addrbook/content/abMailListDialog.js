@@ -427,7 +427,7 @@ function awAppendNewRow(setFocus) {
       awSetFocusTo(input);
     }
   }
-  return input ? input : null;
+  return input;
 }
 
 // functions for accessing the elements in the addressing widget

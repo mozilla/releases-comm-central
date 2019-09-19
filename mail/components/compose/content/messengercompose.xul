@@ -2035,7 +2035,7 @@
                   </menupopup>
                 </menulist>
               </hbox>
-              <hbox class="addressingWidgetCell input-container" flex="1">
+              <hbox class="addressingWidgetCell input-container" flex="1" role="combobox">
                 <html:input is="autocomplete-input" id="addressCol2#1"
                             class="plain textbox-addressingWidget uri-element"
                             aria-labelledby="addressCol1#1"
