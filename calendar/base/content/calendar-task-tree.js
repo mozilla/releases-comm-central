@@ -112,91 +112,91 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-                <treecols>
-                  <treecol is="treecol-image" id="calendar-task-tree-col-completed"
-                           class="calendar-task-tree-col-completed"
-                           minwidth="19"
-                           fixed="true"
-                           cycler="true"
-                           sortKey="completedDate"
-                           itemproperty="completed"
-                           label="&calendar.unifinder.tree.done.label;"
-                           tooltiptext="&calendar.unifinder.tree.done.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="2"/>
-                  <treecol is="treecol-image" id="calendar-task-tree-col-priority"
-                           class="calendar-task-tree-col-priority"
-                           minwidth="17"
-                           fixed="true"
-                           itemproperty="priority"
-                           label="&calendar.unifinder.tree.priority.label;"
-                           tooltiptext="&calendar.unifinder.tree.priority.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="4"/>
-                  <treecol class="calendar-task-tree-col-title"
-                           itemproperty="title"
-                           flex="1"
-                           label="&calendar.unifinder.tree.title.label;"
-                           tooltiptext="&calendar.unifinder.tree.title.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="6"/>
-                  <treecol class="calendar-task-tree-col-entrydate"
-                           itemproperty="entryDate"
-                           flex="1"
-                           label="&calendar.unifinder.tree.startdate.label;"
-                           tooltiptext="&calendar.unifinder.tree.startdate.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="8"/>
-                  <treecol class="calendar-task-tree-col-duedate"
-                           itemproperty="dueDate"
-                           flex="1"
-                           label="&calendar.unifinder.tree.duedate.label;"
-                           tooltiptext="&calendar.unifinder.tree.duedate.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="10"/>
-                  <treecol class="calendar-task-tree-col-duration"
-                           itemproperty="duration"
-                           sortKey="dueDate"
-                           flex="1"
-                           label="&calendar.unifinder.tree.duration.label;"
-                           tooltiptext="&calendar.unifinder.tree.duration.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="12"/>
-                  <treecol class="calendar-task-tree-col-completeddate"
-                           itemproperty="completedDate"
-                           flex="1"
-                           label="&calendar.unifinder.tree.completeddate.label;"
-                           tooltiptext="&calendar.unifinder.tree.completeddate.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="14"/>
-                  <treecol class="calendar-task-tree-col-percentcomplete"
-                           itemproperty="percentComplete"
-                           flex="1"
-                           minwidth="40"
-                           label="&calendar.unifinder.tree.percentcomplete.label;"
-                           tooltiptext="&calendar.unifinder.tree.percentcomplete.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="16"/>
-                  <treecol class="calendar-task-tree-col-categories"
-                           itemproperty="categories"
-                           flex="1"
-                           label="&calendar.unifinder.tree.categories.label;"
-                           tooltiptext="&calendar.unifinder.tree.categories.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="18"/>
-                  <treecol class="calendar-task-tree-col-location"
-                           itemproperty="location"
-                           flex="1"
-                           label="&calendar.unifinder.tree.location.label;"
-                           tooltiptext="&calendar.unifinder.tree.location.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="20"/>
-                  <treecol class="calendar-task-tree-col-status"
-                           itemproperty="status"
-                           flex="1"
-                           label="&calendar.unifinder.tree.status.label;"
-                           tooltiptext="&calendar.unifinder.tree.status.tooltip2;"/>
-                  <splitter class="tree-splitter" ordinal="22"/>
-                  <treecol class="calendar-task-tree-col-calendar"
-                           itemproperty="calendar"
-                           flex="1"
-                           label="&calendar.unifinder.tree.calendarname.label;"
-                           tooltiptext="&calendar.unifinder.tree.calendarname.tooltip2;"/>
-                </treecols>
-                <treechildren class="calendar-task-treechildren"
-                              tooltip="taskTreeTooltip"
-                              ondblclick="mTreeView.onDoubleClick(event)"/>
-                `,
+          <treecols>
+            <treecol is="treecol-image" id="calendar-task-tree-col-completed"
+                     class="calendar-task-tree-col-completed"
+                     minwidth="19"
+                     fixed="true"
+                     cycler="true"
+                     sortKey="completedDate"
+                     itemproperty="completed"
+                     label="&calendar.unifinder.tree.done.label;"
+                     tooltiptext="&calendar.unifinder.tree.done.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="2"/>
+            <treecol is="treecol-image" id="calendar-task-tree-col-priority"
+                     class="calendar-task-tree-col-priority"
+                     minwidth="17"
+                     fixed="true"
+                     itemproperty="priority"
+                     label="&calendar.unifinder.tree.priority.label;"
+                     tooltiptext="&calendar.unifinder.tree.priority.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="4"/>
+            <treecol class="calendar-task-tree-col-title"
+                     itemproperty="title"
+                     flex="1"
+                     label="&calendar.unifinder.tree.title.label;"
+                     tooltiptext="&calendar.unifinder.tree.title.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="6"/>
+            <treecol class="calendar-task-tree-col-entrydate"
+                     itemproperty="entryDate"
+                     flex="1"
+                     label="&calendar.unifinder.tree.startdate.label;"
+                     tooltiptext="&calendar.unifinder.tree.startdate.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="8"/>
+            <treecol class="calendar-task-tree-col-duedate"
+                     itemproperty="dueDate"
+                     flex="1"
+                     label="&calendar.unifinder.tree.duedate.label;"
+                     tooltiptext="&calendar.unifinder.tree.duedate.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="10"/>
+            <treecol class="calendar-task-tree-col-duration"
+                     itemproperty="duration"
+                     sortKey="dueDate"
+                     flex="1"
+                     label="&calendar.unifinder.tree.duration.label;"
+                     tooltiptext="&calendar.unifinder.tree.duration.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="12"/>
+            <treecol class="calendar-task-tree-col-completeddate"
+                     itemproperty="completedDate"
+                     flex="1"
+                     label="&calendar.unifinder.tree.completeddate.label;"
+                     tooltiptext="&calendar.unifinder.tree.completeddate.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="14"/>
+            <treecol class="calendar-task-tree-col-percentcomplete"
+                     itemproperty="percentComplete"
+                     flex="1"
+                     minwidth="40"
+                     label="&calendar.unifinder.tree.percentcomplete.label;"
+                     tooltiptext="&calendar.unifinder.tree.percentcomplete.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="16"/>
+            <treecol class="calendar-task-tree-col-categories"
+                     itemproperty="categories"
+                     flex="1"
+                     label="&calendar.unifinder.tree.categories.label;"
+                     tooltiptext="&calendar.unifinder.tree.categories.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="18"/>
+            <treecol class="calendar-task-tree-col-location"
+                     itemproperty="location"
+                     flex="1"
+                     label="&calendar.unifinder.tree.location.label;"
+                     tooltiptext="&calendar.unifinder.tree.location.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="20"/>
+            <treecol class="calendar-task-tree-col-status"
+                     itemproperty="status"
+                     flex="1"
+                     label="&calendar.unifinder.tree.status.label;"
+                     tooltiptext="&calendar.unifinder.tree.status.tooltip2;"/>
+            <splitter class="tree-splitter" ordinal="22"/>
+            <treecol class="calendar-task-tree-col-calendar"
+                     itemproperty="calendar"
+                     flex="1"
+                     label="&calendar.unifinder.tree.calendarname.label;"
+                     tooltiptext="&calendar.unifinder.tree.calendarname.tooltip2;"/>
+          </treecols>
+          <treechildren class="calendar-task-treechildren"
+                        tooltip="taskTreeTooltip"
+                        ondblclick="mTreeView.onDoubleClick(event)"/>
+          `,
           ["chrome://calendar/locale/global.dtd", "chrome://calendar/locale/calendar.dtd"]
         )
       );

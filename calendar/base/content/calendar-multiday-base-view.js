@@ -234,33 +234,33 @@
       // The orient of the calendar-time-bar should be the opposite of the parent.
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <box class="mainbox multiday-view-main-box"
-                     flex="1">
-                  <box class="labelbox multiday-view-label-box">
-                    <box class="labeltimespacer multiday-view-label-time-spacer"/>
-                    <box class="labeldaybox multiday-view-label-day-box"
-                         flex="1"
-                         equalsize="always"/>
-                    <box class="labelscrollbarspacer multiday-labelscrollbarspacer"/>
-                  </box>
-                  <box class="headerbox multiday-view-header-box">
-                    <box class="headertimespacer multiday-view-header-time-spacer"/>
-                    <box class="headerdaybox multiday-view-header-day-box"
-                         flex="1"
-                         equalsize="always"/>
-                    <box class="headerscrollbarspacer multiday-headerscrollbarspacer"/>
-                  </box>
-                  <scrollbox class="scrollbox"
-                             flex="1"
-                             onoverflow="adjustScrollBarSpacers();"
-                             onunderflow="adjustScrollBarSpacers();">
-                    <calendar-time-bar class="timebar"/>
-                    <box class="daybox multiday-view-day-box"
-                         flex="1"
-                         equalsize="always"/>
-                  </scrollbox>
-                </box>
-            `)
+          <box class="mainbox multiday-view-main-box"
+               flex="1">
+            <box class="labelbox multiday-view-label-box">
+              <box class="labeltimespacer multiday-view-label-time-spacer"/>
+              <box class="labeldaybox multiday-view-label-day-box"
+                   flex="1"
+                   equalsize="always"/>
+              <box class="labelscrollbarspacer multiday-labelscrollbarspacer"/>
+            </box>
+            <box class="headerbox multiday-view-header-box">
+              <box class="headertimespacer multiday-view-header-time-spacer"/>
+              <box class="headerdaybox multiday-view-header-day-box"
+                   flex="1"
+                   equalsize="always"/>
+              <box class="headerscrollbarspacer multiday-headerscrollbarspacer"/>
+            </box>
+            <scrollbox class="scrollbox"
+                       flex="1"
+                       onoverflow="adjustScrollBarSpacers();"
+                       onunderflow="adjustScrollBarSpacers();">
+              <calendar-time-bar class="timebar"/>
+              <box class="daybox multiday-view-day-box"
+                   flex="1"
+                   equalsize="always"/>
+            </scrollbox>
+          </box>
+        `)
       );
 
       this.initializeAttributeInheritance();

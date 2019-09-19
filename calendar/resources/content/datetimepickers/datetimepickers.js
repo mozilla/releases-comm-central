@@ -228,161 +228,161 @@
       super();
 
       this.content = MozXULElement.parseXULToFragment(`
-                <vbox class="time-picker-grids">
-                  <vbox class="time-picker-hour-grid" format12hours="false">
-                    <hbox flex="1" class="timepicker-topRow-hour-class">
-                      <timepicker-hour class="time-picker-hour-box-class" value="0" label="0"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="1" label="1"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="2" label="2"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="3" label="3"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="4" label="4"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="5" label="5"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="6" label="6"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="7" label="7"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="8" label="8"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="9" label="9"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="10" label="10"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="11" label="11"></timepicker-hour>
-                      <hbox class="timepicker-amLabelBox-class amLabelBox" hidden="true">
-                        <label></label>
-                      </hbox>
-                    </hbox>
-                    <hbox flex="1" class="timepicker-bottomRow-hour-class">
-                      <timepicker-hour class="time-picker-hour-box-class" value="12" label="12"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="13" label="13"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="14" label="14"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="15" label="15"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="16" label="16"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="17" label="17"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="18" label="18"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="19" label="19"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="20" label="20"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="21" label="21"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="22" label="22"></timepicker-hour>
-                      <timepicker-hour class="time-picker-hour-box-class" value="23" label="23"></timepicker-hour>
-                      <hbox class="pmLabelBox timepicker-pmLabelBox-class" hidden="true">
-                        <label></label>
-                      </hbox>
-                    </hbox>
-                  </vbox>
-                  <vbox class="time-picker-five-minute-grid-box">
-                    <vbox class="time-picker-five-minute-grid">
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-five-minute-class" value="0" label=":00" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="5" label=":05" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="10" label=":10" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="15" label=":15" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="20" label=":20" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="25" label=":25" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-five-minute-class" value="30" label=":30" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="35" label=":35" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="40" label=":40" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="45" label=":45" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="50" label=":50" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-five-minute-class" value="55" label=":55" flex="1"></timepicker-minute>
-                      </hbox>
-                    </vbox>
-                    <hbox class="time-picker-minutes-bottom">
-                      <spacer flex="1"></spacer>
-                      <label class="time-picker-more-control-label" value="»" onclick="clickMore()"></label>
-                    </hbox>
-                  </vbox>
-                  <vbox class="time-picker-one-minute-grid-box" flex="1" hidden="true">
-                    <vbox class="time-picker-one-minute-grid" flex="1">
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="0" label=":00" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="1" label=":01" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="2" label=":02" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="3" label=":03" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="4" label=":04" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="5" label=":05" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="6" label=":06" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="7" label=":07" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="8" label=":08" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="9" label=":09" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="10" label=":10" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="11" label=":11" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="12" label=":12" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="13" label=":13" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="14" label=":14" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="15" label=":15" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="16" label=":16" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="17" label=":17" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="18" label=":18" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="19" label=":19" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="20" label=":20" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="21" label=":21" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="22" label=":22" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="23" label=":23" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="24" label=":24" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="25" label=":25" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="26" label=":26" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="27" label=":27" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="28" label=":28" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="29" label=":29" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="30" label=":30" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="31" label=":31" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="32" label=":32" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="33" label=":33" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="34" label=":34" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="35" label=":35" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="36" label=":36" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="37" label=":37" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="38" label=":38" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="39" label=":39" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="40" label=":40" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="41" label=":41" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="42" label=":42" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="43" label=":43" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="44" label=":44" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="45" label=":45" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="46" label=":46" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="47" label=":47" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="48" label=":48" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="49" label=":49" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="50" label=":50" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="51" label=":51" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="52" label=":52" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="53" label=":53" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="54" label=":54" flex="1"></timepicker-minute>
-                      </hbox>
-                      <hbox flex="1">
-                        <timepicker-minute class="time-picker-one-minute-class" value="55" label=":55" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="56" label=":56" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="57" label=":57" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="58" label=":58" flex="1"></timepicker-minute>
-                        <timepicker-minute class="time-picker-one-minute-class" value="59" label=":59" flex="1"></timepicker-minute>
-                      </hbox>
-                    </vbox>
-                    <hbox class="time-picker-minutes-bottom">
-                      <spacer flex="1"></spacer>
-                      <label class="time-picker-more-control-label" value="«" onclick="clickLess()"></label>
-                    </hbox>
-                  </vbox>
-                </vbox>
-                `);
+        <vbox class="time-picker-grids">
+          <vbox class="time-picker-hour-grid" format12hours="false">
+            <hbox flex="1" class="timepicker-topRow-hour-class">
+              <timepicker-hour class="time-picker-hour-box-class" value="0" label="0"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="1" label="1"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="2" label="2"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="3" label="3"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="4" label="4"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="5" label="5"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="6" label="6"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="7" label="7"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="8" label="8"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="9" label="9"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="10" label="10"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="11" label="11"></timepicker-hour>
+              <hbox class="timepicker-amLabelBox-class amLabelBox" hidden="true">
+                <label></label>
+              </hbox>
+            </hbox>
+            <hbox flex="1" class="timepicker-bottomRow-hour-class">
+              <timepicker-hour class="time-picker-hour-box-class" value="12" label="12"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="13" label="13"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="14" label="14"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="15" label="15"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="16" label="16"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="17" label="17"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="18" label="18"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="19" label="19"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="20" label="20"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="21" label="21"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="22" label="22"></timepicker-hour>
+              <timepicker-hour class="time-picker-hour-box-class" value="23" label="23"></timepicker-hour>
+              <hbox class="pmLabelBox timepicker-pmLabelBox-class" hidden="true">
+                <label></label>
+              </hbox>
+            </hbox>
+          </vbox>
+          <vbox class="time-picker-five-minute-grid-box">
+            <vbox class="time-picker-five-minute-grid">
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-five-minute-class" value="0" label=":00" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="5" label=":05" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="10" label=":10" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="15" label=":15" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="20" label=":20" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="25" label=":25" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-five-minute-class" value="30" label=":30" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="35" label=":35" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="40" label=":40" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="45" label=":45" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="50" label=":50" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-five-minute-class" value="55" label=":55" flex="1"></timepicker-minute>
+              </hbox>
+            </vbox>
+            <hbox class="time-picker-minutes-bottom">
+              <spacer flex="1"></spacer>
+              <label class="time-picker-more-control-label" value="»" onclick="clickMore()"></label>
+            </hbox>
+          </vbox>
+          <vbox class="time-picker-one-minute-grid-box" flex="1" hidden="true">
+            <vbox class="time-picker-one-minute-grid" flex="1">
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="0" label=":00" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="1" label=":01" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="2" label=":02" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="3" label=":03" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="4" label=":04" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="5" label=":05" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="6" label=":06" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="7" label=":07" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="8" label=":08" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="9" label=":09" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="10" label=":10" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="11" label=":11" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="12" label=":12" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="13" label=":13" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="14" label=":14" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="15" label=":15" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="16" label=":16" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="17" label=":17" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="18" label=":18" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="19" label=":19" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="20" label=":20" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="21" label=":21" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="22" label=":22" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="23" label=":23" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="24" label=":24" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="25" label=":25" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="26" label=":26" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="27" label=":27" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="28" label=":28" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="29" label=":29" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="30" label=":30" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="31" label=":31" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="32" label=":32" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="33" label=":33" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="34" label=":34" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="35" label=":35" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="36" label=":36" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="37" label=":37" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="38" label=":38" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="39" label=":39" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="40" label=":40" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="41" label=":41" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="42" label=":42" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="43" label=":43" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="44" label=":44" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="45" label=":45" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="46" label=":46" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="47" label=":47" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="48" label=":48" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="49" label=":49" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="50" label=":50" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="51" label=":51" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="52" label=":52" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="53" label=":53" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="54" label=":54" flex="1"></timepicker-minute>
+              </hbox>
+              <hbox flex="1">
+                <timepicker-minute class="time-picker-one-minute-class" value="55" label=":55" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="56" label=":56" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="57" label=":57" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="58" label=":58" flex="1"></timepicker-minute>
+                <timepicker-minute class="time-picker-one-minute-class" value="59" label=":59" flex="1"></timepicker-minute>
+              </hbox>
+            </vbox>
+            <hbox class="time-picker-minutes-bottom">
+              <spacer flex="1"></spacer>
+              <label class="time-picker-more-control-label" value="«" onclick="clickLess()"></label>
+            </hbox>
+          </vbox>
+        </vbox>
+      `);
     }
 
     connectedCallback() {
@@ -795,12 +795,12 @@
       // hide these nodes from the accessibility tree.
       let frag = document.importNode(
         MozXULElement.parseXULToFragment(`
-                <menulist is="menulist-editable" class="datepicker-menulist" editable="true" sizetopopup="false">
-                    <menupopup ignorekeys="true" popupanchor="bottomright" popupalign="topright">
-                        <calendar-minimonth tabindex="0"/>
-                    </menupopup>
-                </menulist>
-            `),
+          <menulist is="menulist-editable" class="datepicker-menulist" editable="true" sizetopopup="false">
+            <menupopup ignorekeys="true" popupanchor="bottomright" popupalign="topright">
+              <calendar-minimonth tabindex="0"/>
+            </menupopup>
+          </menulist>
+        `),
         true
       );
 
@@ -960,12 +960,12 @@
       // hide these nodes from the accessibility tree.
       let frag = document.importNode(
         MozXULElement.parseXULToFragment(`
-                <menulist is="menulist-editable" class="timepicker-menulist" editable="true" sizetopopup="false">
-                    <menupopup popupanchor="bottomright" popupalign="topright">
-                        <timepicker-grids/>
-                    </menupopup>
-                </menulist>
-            `),
+          <menulist is="menulist-editable" class="timepicker-menulist" editable="true" sizetopopup="false">
+            <menupopup popupanchor="bottomright" popupalign="topright">
+              <timepicker-grids/>
+            </menupopup>
+          </menulist>
+        `),
         true
       );
 

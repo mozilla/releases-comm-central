@@ -25,11 +25,11 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <hbox flex="1" align="center">
-                    <checkbox class="calendar-subscriptions-richlistitem-checkbox"></checkbox>
-                    <label class="subscription-name" flex="1" crop="end"></label>
-                </hbox>
-            `)
+          <hbox flex="1" align="center">
+            <checkbox class="calendar-subscriptions-richlistitem-checkbox"></checkbox>
+            <label class="subscription-name" flex="1" crop="end"></label>
+          </hbox>
+        `)
       );
 
       this.mCalendar = null;

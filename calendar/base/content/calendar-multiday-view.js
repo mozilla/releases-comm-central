@@ -272,64 +272,64 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <box class="calendar-event-box"
-                     flex="1">
-                    <box class="calendar-color-box"
-                         flex="1">
-                        <box class="calendar-event-selection"
-                             orient="horizontal"
-                             flex="1">
-                            <stack class="calendar-event-box-container"
-                                   flex="1">
-                                <hbox class="calendar-event-details"
-                                      align="start">
-                                    <image class="calendar-item-image">
-                                    </image>
-                                    <vbox flex="1">
-                                        <label class="calendar-event-details-core event-name-label"
-                                               crop="end">
-                                        </label>
-                                        <textbox class="plain calendar-event-details-core calendar-event-name-textbox title-desc"
-                                                 hidden="true"
-                                                 wrap="true">
-                                        </textbox>
-                                        <label class="calendar-event-details-core location-desc"
-                                               crop="end">
-                                        </label>
-                                    </vbox>
-                                    <hbox class="alarm-icons-box"
-                                          align="top">
-                                    </hbox>
-                                    <image class="item-classification-box">
-                                    </image>
-                                </hbox>
-                                <stack mousethrough="always"
-                                       class="calendar-category-box-stack">
-                                    <hbox class="calendar-category-box category-color-box calendar-event-selection"
-                                          flex="1"
-                                          pack="end">
-                                        <image class="calendar-category-box-gradient">
-                                        </image>
-                                    </hbox>
-                                </stack>
-                                <box class="calendar-event-gripbar-container">
-                                    <calendar-event-gripbar class="calendar-event-box-grippy-top"
-                                                            mousethrough="never"
-                                                            whichside="start">
-                                    </calendar-event-gripbar>
-                                    <spacer mousethrough="always"
-                                            flex="1">
-                                    </spacer>
-                                    <calendar-event-gripbar class="calendar-event-box-grippy-bottom"
-                                                            mousethrough="never"
-                                                            whichside="end">
-                                    </calendar-event-gripbar>
-                                </box>
-                            </stack>
-                        </box>
-                    </box>
-                </box>
-            `)
+          <box class="calendar-event-box"
+               flex="1">
+            <box class="calendar-color-box"
+                 flex="1">
+              <box class="calendar-event-selection"
+                   orient="horizontal"
+                   flex="1">
+                <stack class="calendar-event-box-container"
+                       flex="1">
+                  <hbox class="calendar-event-details"
+                        align="start">
+                    <image class="calendar-item-image">
+                    </image>
+                    <vbox flex="1">
+                      <label class="calendar-event-details-core event-name-label"
+                             crop="end">
+                      </label>
+                      <textbox class="plain calendar-event-details-core calendar-event-name-textbox title-desc"
+                               hidden="true"
+                               wrap="true">
+                      </textbox>
+                      <label class="calendar-event-details-core location-desc"
+                             crop="end">
+                      </label>
+                    </vbox>
+                    <hbox class="alarm-icons-box"
+                          align="top">
+                    </hbox>
+                    <image class="item-classification-box">
+                    </image>
+                  </hbox>
+                  <stack mousethrough="always"
+                         class="calendar-category-box-stack">
+                    <hbox class="calendar-category-box category-color-box calendar-event-selection"
+                          flex="1"
+                          pack="end">
+                      <image class="calendar-category-box-gradient">
+                      </image>
+                    </hbox>
+                  </stack>
+                  <box class="calendar-event-gripbar-container">
+                    <calendar-event-gripbar class="calendar-event-box-grippy-top"
+                                            mousethrough="never"
+                                            whichside="start">
+                    </calendar-event-gripbar>
+                    <spacer mousethrough="always"
+                            flex="1">
+                    </spacer>
+                    <calendar-event-gripbar class="calendar-event-box-grippy-bottom"
+                                            mousethrough="never"
+                                            whichside="end">
+                    </calendar-event-gripbar>
+                  </box>
+                </stack>
+              </box>
+            </box>
+          </box>
+        `)
       );
 
       this.setAttribute("mousethrough", "never");

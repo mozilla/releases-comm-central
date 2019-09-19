@@ -75,37 +75,37 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-                <menuitem class="percent-0-menuitem"
-                          type="checkbox"
-                          label="&progress.level.0;"
-                          accesskey="&progress.level.0.accesskey;"
-                          observes="calendar_percentComplete-0_command"
-                          command="calendar_percentComplete-0_command"/>
-                <menuitem class="percent-25-menuitem"
-                          type="checkbox"
-                          label="&progress.level.25;"
-                          accesskey="&progress.level.25.accesskey;"
-                          observes="calendar_percentComplete-25_command"
-                          command="calendar_percentComplete-25_command"/>
-                <menuitem class="percent-50-menuitem"
-                          type="checkbox"
-                          label="&progress.level.50;"
-                          accesskey="&progress.level.50.accesskey;"
-                          observes="calendar_percentComplete-50_command"
-                          command="calendar_percentComplete-50_command"/>
-                <menuitem class="percent-75-menuitem"
-                          type="checkbox"
-                          label="&progress.level.75;"
-                          accesskey="&progress.level.75.accesskey;"
-                          observes="calendar_percentComplete-75_command"
-                          command="calendar_percentComplete-75_command"/>
-                <menuitem class="percent-100-menuitem"
-                          type="checkbox"
-                          label="&progress.level.100;"
-                          accesskey="&progress.level.100.accesskey;"
-                          observes="calendar_percentComplete-100_command"
-                          command="calendar_percentComplete-100_command"/>
-                `,
+          <menuitem class="percent-0-menuitem"
+                    type="checkbox"
+                    label="&progress.level.0;"
+                    accesskey="&progress.level.0.accesskey;"
+                    observes="calendar_percentComplete-0_command"
+                    command="calendar_percentComplete-0_command"/>
+          <menuitem class="percent-25-menuitem"
+                    type="checkbox"
+                    label="&progress.level.25;"
+                    accesskey="&progress.level.25.accesskey;"
+                    observes="calendar_percentComplete-25_command"
+                    command="calendar_percentComplete-25_command"/>
+          <menuitem class="percent-50-menuitem"
+                    type="checkbox"
+                    label="&progress.level.50;"
+                    accesskey="&progress.level.50.accesskey;"
+                    observes="calendar_percentComplete-50_command"
+                    command="calendar_percentComplete-50_command"/>
+          <menuitem class="percent-75-menuitem"
+                    type="checkbox"
+                    label="&progress.level.75;"
+                    accesskey="&progress.level.75.accesskey;"
+                    observes="calendar_percentComplete-75_command"
+                    command="calendar_percentComplete-75_command"/>
+          <menuitem class="percent-100-menuitem"
+                    type="checkbox"
+                    label="&progress.level.100;"
+                    accesskey="&progress.level.100.accesskey;"
+                    observes="calendar_percentComplete-100_command"
+                    command="calendar_percentComplete-100_command"/>
+          `,
           ["chrome://calendar/locale/calendar.dtd"]
         )
       );
@@ -139,31 +139,31 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-                <menuitem class="priority-0-menuitem"
-                          type="checkbox"
-                          label="&priority.level.none;"
-                          accesskey="&priority.level.none.accesskey;"
-                          command="calendar_priority-0_command"
-                          observes="calendar_priority-0_command"/>
-                <menuitem class="priority-9-menuitem"
-                          type="checkbox"
-                          label="&priority.level.low;"
-                          accesskey="&priority.level.low.accesskey;"
-                          command="calendar_priority-9_command"
-                          observes="calendar_priority-9_command"/>
-                <menuitem class="priority-5-menuitem"
-                          type="checkbox"
-                          label="&priority.level.normal;"
-                          accesskey="&priority.level.normal.accesskey;"
-                          command="calendar_priority-5_command"
-                          observes="calendar_priority-5_command"/>
-                <menuitem class="priority-1-menuitem"
-                          type="checkbox"
-                          label="&priority.level.high;"
-                          accesskey="&priority.level.high.accesskey;"
-                          command="calendar_priority-1_command"
-                          observes="calendar_priority-1_command"/>
-                `,
+          <menuitem class="priority-0-menuitem"
+                    type="checkbox"
+                    label="&priority.level.none;"
+                    accesskey="&priority.level.none.accesskey;"
+                    command="calendar_priority-0_command"
+                    observes="calendar_priority-0_command"/>
+          <menuitem class="priority-9-menuitem"
+                    type="checkbox"
+                    label="&priority.level.low;"
+                    accesskey="&priority.level.low.accesskey;"
+                    command="calendar_priority-9_command"
+                    observes="calendar_priority-9_command"/>
+          <menuitem class="priority-5-menuitem"
+                    type="checkbox"
+                    label="&priority.level.normal;"
+                    accesskey="&priority.level.normal.accesskey;"
+                    command="calendar_priority-5_command"
+                    observes="calendar_priority-5_command"/>
+          <menuitem class="priority-1-menuitem"
+                    type="checkbox"
+                    label="&priority.level.high;"
+                    accesskey="&priority.level.high.accesskey;"
+                    command="calendar_priority-1_command"
+                    observes="calendar_priority-1_command"/>
+          `,
           ["chrome://calendar/locale/calendar.dtd"]
         )
       );
@@ -197,39 +197,39 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-                <vbox class="panel-subview-body">
-                    <toolbarbutton class="percent-0-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&progress.level.0;"
-                                   accesskey="&progress.level.0.accesskey;"
-                                   observes="calendar_percentComplete-0_command"
-                                   command="calendar_percentComplete-0_command"/>
-                    <toolbarbutton class="percent-25-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&progress.level.25;"
-                                   accesskey="&progress.level.25.accesskey;"
-                                   observes="calendar_percentComplete-25_command"
-                                   command="calendar_percentComplete-25_command"/>
-                    <toolbarbutton class="percent-50-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&progress.level.50;"
-                                   accesskey="&progress.level.50.accesskey;"
-                                   observes="calendar_percentComplete-50_command"
-                                   command="calendar_percentComplete-50_command"/>
-                    <toolbarbutton class="percent-75-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&progress.level.75;"
-                                   accesskey="&progress.level.75.accesskey;"
-                                   observes="calendar_percentComplete-75_command"
-                                   command="calendar_percentComplete-75_command"/>
-                    <toolbarbutton class="percent-100-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&progress.level.100;"
-                                   accesskey="&progress.level.100.accesskey;"
-                                   observes="calendar_percentComplete-100_command"
-                                   command="calendar_percentComplete-100_command"/>
-                </vbox>
-                `,
+          <vbox class="panel-subview-body">
+            <toolbarbutton class="percent-0-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&progress.level.0;"
+                           accesskey="&progress.level.0.accesskey;"
+                           observes="calendar_percentComplete-0_command"
+                           command="calendar_percentComplete-0_command"/>
+            <toolbarbutton class="percent-25-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&progress.level.25;"
+                           accesskey="&progress.level.25.accesskey;"
+                           observes="calendar_percentComplete-25_command"
+                           command="calendar_percentComplete-25_command"/>
+            <toolbarbutton class="percent-50-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&progress.level.50;"
+                           accesskey="&progress.level.50.accesskey;"
+                           observes="calendar_percentComplete-50_command"
+                           command="calendar_percentComplete-50_command"/>
+            <toolbarbutton class="percent-75-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&progress.level.75;"
+                           accesskey="&progress.level.75.accesskey;"
+                           observes="calendar_percentComplete-75_command"
+                           command="calendar_percentComplete-75_command"/>
+            <toolbarbutton class="percent-100-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&progress.level.100;"
+                           accesskey="&progress.level.100.accesskey;"
+                           observes="calendar_percentComplete-100_command"
+                           command="calendar_percentComplete-100_command"/>
+          </vbox>
+          `,
           ["chrome://calendar/locale/calendar.dtd"]
         )
       );
@@ -265,33 +265,33 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-                <vbox class="panel-subview-body">
-                    <toolbarbutton class="priority-0-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&priority.level.none;"
-                                   accesskey="&priority.level.none.accesskey;"
-                                   command="calendar_priority-0_command"
-                                   observes="calendar_priority-0_command"/>
-                    <toolbarbutton class="priority-9-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&priority.level.low;"
-                                   accesskey="&priority.level.low.accesskey;"
-                                   command="calendar_priority-9_command"
-                                   observes="calendar_priority-9_command"/>
-                    <toolbarbutton class="priority-5-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&priority.level.normal;"
-                                   accesskey="&priority.level.normal.accesskey;"
-                                   command="calendar_priority-5_command"
-                                   observes="calendar_priority-5_command"/>
-                    <toolbarbutton class="priority-1-menuitem subviewbutton subviewbutton-iconic"
-                                   type="checkbox"
-                                   label="&priority.level.high;"
-                                   accesskey="&priority.level.high.accesskey;"
-                                   command="calendar_priority-1_command"
-                                   observes="calendar_priority-1_command"/>
-                </vbox>
-                `,
+          <vbox class="panel-subview-body">
+            <toolbarbutton class="priority-0-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&priority.level.none;"
+                           accesskey="&priority.level.none.accesskey;"
+                           command="calendar_priority-0_command"
+                           observes="calendar_priority-0_command"/>
+            <toolbarbutton class="priority-9-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&priority.level.low;"
+                           accesskey="&priority.level.low.accesskey;"
+                           command="calendar_priority-9_command"
+                           observes="calendar_priority-9_command"/>
+            <toolbarbutton class="priority-5-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&priority.level.normal;"
+                           accesskey="&priority.level.normal.accesskey;"
+                           command="calendar_priority-5_command"
+                           observes="calendar_priority-5_command"/>
+            <toolbarbutton class="priority-1-menuitem subviewbutton subviewbutton-iconic"
+                           type="checkbox"
+                           label="&priority.level.high;"
+                           accesskey="&priority.level.high.accesskey;"
+                           command="calendar_priority-1_command"
+                           observes="calendar_priority-1_command"/>
+          </vbox>
+          `,
           ["chrome://calendar/locale/calendar.dtd"]
         )
       );

@@ -2236,15 +2236,15 @@
         // Otherwise it won't scroll properly.
         this.appendChild(
           MozXULElement.parseXULToFragment(`
-                <scrollbox width="0" orient="horizontal" flex="1">
-                    <box class="selection-bar">
-                        <box class="selection-bar-left"></box>
-                        <spacer class="selection-bar-spacer" flex="1"></spacer>
-                        <box class="selection-bar-right"></box>
-                    </box>
-                    <box class="selection-padding"/>
-                </scrollbox>
-            `)
+            <scrollbox width="0" orient="horizontal" flex="1">
+              <box class="selection-bar">
+                <box class="selection-bar-left"></box>
+                <spacer class="selection-bar-spacer" flex="1"></spacer>
+                <box class="selection-bar-right"></box>
+              </box>
+              <box class="selection-padding"/>
+            </scrollbox>
+          `)
         );
       }
 

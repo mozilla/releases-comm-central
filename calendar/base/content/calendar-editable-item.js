@@ -130,55 +130,55 @@
       }
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <vbox flex="1">
-                    <hbox>
-                        <box class="calendar-color-box"
-                             flex="1">
-                            <box class="calendar-event-selection"
-                                 orient="horizontal"
-                                 flex="1">
-                                <stack class="calendar-event-box-container"
-                                       flex="1">
-                                    <hbox class="calendar-event-details">
-                                        <vbox align="left"
-                                              flex="1">
-                                            <label class="event-name-label"
-                                                   crop="end"
-                                                   style="margin: 0;">
-                                            </label>
-                                            <textbox class="calendar-event-details-core title-desc"
-                                                     hidden="true"
-                                                     style="background: transparent !important;"
-                                                     wrap="true">
-                                            </textbox>
-                                            <label crop="end"
-                                                   class="calendar-event-details-core location-desc">
-                                            </label>
-                                            <spacer flex="1">
-                                            </spacer>
-                                        </vbox>
-                                        <stack>
-                                            <hbox class="calendar-category-box category-color-box calendar-event-selection"
-                                                  flex="1" pack="end">
-                                                <image class="calendar-category-box-gradient">
-                                                </image>
-                                            </hbox>
-                                            <hbox align="center">
-                                                <hbox class="alarm-icons-box"
-                                                      align="center">
-                                                </hbox>
-                                                    <image class="item-classification-box"
-                                                           pack="end">
-                                                </image>
-                                            </hbox>
-                                        </stack>
-                                    </hbox>
-                                </stack>
-                            </box>
-                        </box>
+          <vbox flex="1">
+            <hbox>
+              <box class="calendar-color-box"
+                   flex="1">
+                <box class="calendar-event-selection"
+                     orient="horizontal"
+                     flex="1">
+                  <stack class="calendar-event-box-container"
+                         flex="1">
+                    <hbox class="calendar-event-details">
+                      <vbox align="left"
+                            flex="1">
+                        <label class="event-name-label"
+                               crop="end"
+                               style="margin: 0;">
+                        </label>
+                        <textbox class="calendar-event-details-core title-desc"
+                                 hidden="true"
+                                 style="background: transparent !important;"
+                                 wrap="true">
+                        </textbox>
+                        <label crop="end"
+                               class="calendar-event-details-core location-desc">
+                        </label>
+                        <spacer flex="1">
+                        </spacer>
+                      </vbox>
+                      <stack>
+                        <hbox class="calendar-category-box category-color-box calendar-event-selection"
+                              flex="1" pack="end">
+                            <image class="calendar-category-box-gradient">
+                            </image>
+                        </hbox>
+                        <hbox align="center">
+                          <hbox class="alarm-icons-box"
+                                align="center">
+                          </hbox>
+                          <image class="item-classification-box"
+                                 pack="end">
+                          </image>
+                        </hbox>
+                      </stack>
                     </hbox>
-                </vbox>
-          `)
+                  </stack>
+                </box>
+              </box>
+            </hbox>
+          </vbox>
+        `)
       );
 
       // We have two event listeners for dragstart. This event listener is for the bubbling phase

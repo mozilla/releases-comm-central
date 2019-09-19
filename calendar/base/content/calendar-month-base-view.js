@@ -26,46 +26,47 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       super.connectedCallback();
 
       const row = `
-                <row class="calendar-month-view-grid-row" flex="1">
-                  <calendar-month-day-box/>
-                  <calendar-month-day-box/>
-                  <calendar-month-day-box/>
-                  <calendar-month-day-box/>
-                  <calendar-month-day-box/>
-                  <calendar-month-day-box/>
-                  <calendar-month-day-box/>
-                </row>`;
+        <row class="calendar-month-view-grid-row" flex="1">
+          <calendar-month-day-box/>
+          <calendar-month-day-box/>
+          <calendar-month-day-box/>
+          <calendar-month-day-box/>
+          <calendar-month-day-box/>
+          <calendar-month-day-box/>
+          <calendar-month-day-box/>
+        </row>
+        `;
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <vbox class="mainbox"
-                      flex="1">
-                  <hbox class="labeldaybox labeldaybox-container"
-                        equalsize="always"/>
-                  <grid class="monthgrid"
-                        flex="1">
-                    <columns class="monthgridcolumns"
-                             equalsize="always">
-                      <column class="calendar-month-view-grid-column" flex="1"/>
-                      <column class="calendar-month-view-grid-column" flex="1"/>
-                      <column class="calendar-month-view-grid-column" flex="1"/>
-                      <column class="calendar-month-view-grid-column" flex="1"/>
-                      <column class="calendar-month-view-grid-column" flex="1"/>
-                      <column class="calendar-month-view-grid-column" flex="1"/>
-                      <column class="calendar-month-view-grid-column" flex="1"/>
-                    </columns>
-                    <rows class="monthgridrows"
-                          equalsize="always">
-                      ${row}
-                      ${row}
-                      ${row}
-                      ${row}
-                      ${row}
-                      ${row}
-                    </rows>
-                  </grid>
-                </vbox>
-            `)
+          <vbox class="mainbox"
+                flex="1">
+            <hbox class="labeldaybox labeldaybox-container"
+                  equalsize="always"/>
+            <grid class="monthgrid"
+                  flex="1">
+              <columns class="monthgridcolumns"
+                       equalsize="always">
+                <column class="calendar-month-view-grid-column" flex="1"/>
+                <column class="calendar-month-view-grid-column" flex="1"/>
+                <column class="calendar-month-view-grid-column" flex="1"/>
+                <column class="calendar-month-view-grid-column" flex="1"/>
+                <column class="calendar-month-view-grid-column" flex="1"/>
+                <column class="calendar-month-view-grid-column" flex="1"/>
+                <column class="calendar-month-view-grid-column" flex="1"/>
+              </columns>
+              <rows class="monthgridrows"
+                    equalsize="always">
+                ${row}
+                ${row}
+                ${row}
+                ${row}
+                ${row}
+                ${row}
+              </rows>
+            </grid>
+          </vbox>
+        `)
       );
 
       this.addEventListener("wheel", event => {

@@ -29,21 +29,24 @@
       }
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <stack flex="1" class="multiday-column-box-stack">
-                    <box flex="1" class="multiday-column-bg-box"/>
-                    <box class="multiday-column-top-box" flex="1" equalsize="always" mousethrough="always"/>
-                    <box class="timeIndicator" mousethrough="always" hidden="true"/>
-                    <box flex="1" class="fgdragcontainer">
-                        <box class="fgdragspacer">
-                            <spacer flex="1"/>
-                            <label class="fgdragbox-label fgdragbox-startlabel"/>
-                        </box>
-                        <box class="fgdragbox"/>
-                        <label class="fgdragbox-label fgdragbox-endlabel"/>
-                    </box>
-                </stack>
-                <calendar-event-box hidden="true"/>
-            `)
+          <stack class="multiday-column-box-stack" flex="1">
+            <box class="multiday-column-bg-box" flex="1"/>
+            <box class="multiday-column-top-box"
+                 flex="1"
+                 equalsize="always"
+                 mousethrough="always"/>
+            <box class="timeIndicator" mousethrough="always" hidden="true"/>
+            <box class="fgdragcontainer" flex="1">
+              <box class="fgdragspacer">
+                <spacer flex="1"/>
+                <label class="fgdragbox-label fgdragbox-startlabel"/>
+              </box>
+              <box class="fgdragbox"/>
+              <label class="fgdragbox-label fgdragbox-endlabel"/>
+            </box>
+          </stack>
+          <calendar-event-box hidden="true"/>
+        `)
       );
 
       this.addEventListener("dblclick", event => {

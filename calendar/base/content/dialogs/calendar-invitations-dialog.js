@@ -40,33 +40,33 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-        <hbox align="start" flex="1">
+          <hbox align="start" flex="1">
             <image class="calendar-invitations-richlistitem-icon"/>
             <vbox flex="1">
-                <label class="calendar-invitations-richlistitem-title" crop="end"/>
-                <label class="calendar-invitations-richlistitem-date" crop="end"/>
-                <label class="calendar-invitations-richlistitem-recurrence" crop="end"/>
-                <label class="calendar-invitations-richlistitem-location" crop="end"/>
-                <label class="calendar-invitations-richlistitem-organizer" crop="end"/>
-                <label class="calendar-invitations-richlistitem-attendee" crop="end"/>
-                <label class="calendar-invitations-richlistitem-spacer" value="" hidden="true"/>
+              <label class="calendar-invitations-richlistitem-title" crop="end"/>
+              <label class="calendar-invitations-richlistitem-date" crop="end"/>
+              <label class="calendar-invitations-richlistitem-recurrence" crop="end"/>
+              <label class="calendar-invitations-richlistitem-location" crop="end"/>
+              <label class="calendar-invitations-richlistitem-organizer" crop="end"/>
+              <label class="calendar-invitations-richlistitem-attendee" crop="end"/>
+              <label class="calendar-invitations-richlistitem-spacer" value="" hidden="true"/>
             </vbox>
             <vbox>
-                <button group="${this.getAttribute("itemId")}"
-                        type="radio"
-                        class="calendar-invitations-richlistitem-accept-button
-                        calendar-invitations-richlistitem-button"
-                        label="&calendar.invitations.list.accept.button.label;"
-                        oncommand="accept();"/>
-                <button group="${this.getAttribute("itemId")}"
-                        type="radio"
-                        class="calendar-invitations-richlistitem-decline-button
-                        calendar-invitations-richlistitem-button"
-                        label="&calendar.invitations.list.decline.button.label;"
-                        oncommand="decline();"/>
+              <button group="${this.getAttribute("itemId")}"
+                      type="radio"
+                      class="calendar-invitations-richlistitem-accept-button
+                      calendar-invitations-richlistitem-button"
+                      label="&calendar.invitations.list.accept.button.label;"
+                      oncommand="accept();"/>
+              <button group="${this.getAttribute("itemId")}"
+                      type="radio"
+                      class="calendar-invitations-richlistitem-decline-button
+                      calendar-invitations-richlistitem-button"
+                      label="&calendar.invitations.list.decline.button.label;"
+                      oncommand="decline();"/>
             </vbox>
-        </hbox>
-        `,
+          </hbox>
+          `,
           ["chrome://calendar/locale/calendar-invitations-dialog.dtd"]
         )
       );

@@ -23,40 +23,40 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-                <vbox pack="start">
-                  <image class="alarm-calendar-image"/>
-                </vbox>
-                <vbox flex="1">
-                  <label class="alarm-title-label" crop="end"/>
-                  <vbox class="additional-information-box">
-                    <label class="alarm-date-label"/>
-                    <hbox>
-                      <label class="alarm-location-label"/>
-                      <description class="alarm-location-description"
-                                   crop="end"
-                                   flex="1"/>
-                    </hbox>
-                    <hbox pack="start">
-                      <label class="text-link alarm-details-label"
-                             value="&calendar.alarm.details.label;"
-                             onclick="showDetails(event)"
-                             onkeypress="showDetails(event)"/>
-                    </hbox>
-                  </vbox>
-                </vbox>
-                <spacer flex="1"/>
-                <label class="alarm-relative-date-label"/>
-                <vbox class="alarm-action-buttons" pack="center">
-                  <button class="alarm-snooze-button"
-                          type="menu"
-                          label="&calendar.alarm.snoozefor.label;">
-                    <menupopup is="calendar-snooze-popup" ignorekeys="true"/>
-                  </button>
-                  <button class="alarm-dismiss-button"
-                          label="&calendar.alarm.dismiss.label;"
-                          oncommand="dismissAlarm()"/>
-                </vbox>
-                `,
+          <vbox pack="start">
+            <image class="alarm-calendar-image"/>
+          </vbox>
+          <vbox flex="1">
+            <label class="alarm-title-label" crop="end"/>
+            <vbox class="additional-information-box">
+              <label class="alarm-date-label"/>
+              <hbox>
+                <label class="alarm-location-label"/>
+                <description class="alarm-location-description"
+                             crop="end"
+                             flex="1"/>
+              </hbox>
+              <hbox pack="start">
+                <label class="text-link alarm-details-label"
+                       value="&calendar.alarm.details.label;"
+                       onclick="showDetails(event)"
+                       onkeypress="showDetails(event)"/>
+              </hbox>
+            </vbox>
+          </vbox>
+          <spacer flex="1"/>
+          <label class="alarm-relative-date-label"/>
+          <vbox class="alarm-action-buttons" pack="center">
+            <button class="alarm-snooze-button"
+                    type="menu"
+                    label="&calendar.alarm.snoozefor.label;">
+              <menupopup is="calendar-snooze-popup" ignorekeys="true"/>
+            </button>
+            <button class="alarm-dismiss-button"
+                    label="&calendar.alarm.dismiss.label;"
+                    oncommand="dismissAlarm()"/>
+          </vbox>
+          `,
           ["chrome://calendar/locale/global.dtd", "chrome://calendar/locale/calendar.dtd"]
         )
       );
@@ -229,51 +229,51 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-                <menuitem label="&calendar.alarm.snooze.5minutes.label;"
-                          value="5"
-                          oncommand="snoozeItem(event)"/>
-                <menuitem label="&calendar.alarm.snooze.10minutes.label;"
-                          value="10"
-                          oncommand="snoozeItem(event)"/>
-                <menuitem label="&calendar.alarm.snooze.15minutes.label;"
-                          value="15"
-                          oncommand="snoozeItem(event)"/>
-                <menuitem label="&calendar.alarm.snooze.30minutes.label;"
-                          value="30"
-                          oncommand="snoozeItem(event)"/>
-                <menuitem label="&calendar.alarm.snooze.45minutes.label;"
-                          value="45"
-                          oncommand="snoozeItem(event)"/>
-                <menuitem label="&calendar.alarm.snooze.1hour.label;"
-                          value="60"
-                          oncommand="snoozeItem(event)"/>
-                <menuitem label="&calendar.alarm.snooze.2hours.label;"
-                          value="120"
-                          oncommand="snoozeItem(event)"/>
-                <menuitem label="&calendar.alarm.snooze.1day.label;"
-                          value="1440"
-                          oncommand="snoozeItem(event)"/>
-                <menuseparator/>
-                <hbox class="snooze-options-box">
-                  <html:input type="number" class="size3 snooze-value-textbox"
-                              oninput="updateUIText()"
-                              onselect="updateUIText()"/>
-                  <menulist class="snooze-unit-menulist" allowevents="true">
-                    <menupopup class="snooze-unit-menupopup menulist-menupopup"
-                               position="after_start"
-                               ignorekeys="true">
-                      <menuitem closemenu="single" class="unit-menuitem" value="1"></menuitem>
-                      <menuitem closemenu="single" class="unit-menuitem" value="60"></menuitem>
-                      <menuitem closemenu="single" class="unit-menuitem" value="1440"></menuitem>
-                    </menupopup>
-                  </menulist>
-                  <toolbarbutton class="snooze-popup-button snooze-popup-ok-button"
-                                 oncommand="snoozeOk()"/>
-                  <toolbarbutton class="snooze-popup-button snooze-popup-cancel-button"
-                                 aria-label="&calendar.alarm.snooze.cancel;"
-                                 oncommand="snoozeCancel()"/>
-                </hbox>
-                `,
+          <menuitem label="&calendar.alarm.snooze.5minutes.label;"
+                    value="5"
+                    oncommand="snoozeItem(event)"/>
+          <menuitem label="&calendar.alarm.snooze.10minutes.label;"
+                    value="10"
+                    oncommand="snoozeItem(event)"/>
+          <menuitem label="&calendar.alarm.snooze.15minutes.label;"
+                    value="15"
+                    oncommand="snoozeItem(event)"/>
+          <menuitem label="&calendar.alarm.snooze.30minutes.label;"
+                    value="30"
+                    oncommand="snoozeItem(event)"/>
+          <menuitem label="&calendar.alarm.snooze.45minutes.label;"
+                    value="45"
+                    oncommand="snoozeItem(event)"/>
+          <menuitem label="&calendar.alarm.snooze.1hour.label;"
+                    value="60"
+                    oncommand="snoozeItem(event)"/>
+          <menuitem label="&calendar.alarm.snooze.2hours.label;"
+                    value="120"
+                    oncommand="snoozeItem(event)"/>
+          <menuitem label="&calendar.alarm.snooze.1day.label;"
+                    value="1440"
+                    oncommand="snoozeItem(event)"/>
+          <menuseparator/>
+          <hbox class="snooze-options-box">
+            <html:input type="number" class="size3 snooze-value-textbox"
+                        oninput="updateUIText()"
+                        onselect="updateUIText()"/>
+            <menulist class="snooze-unit-menulist" allowevents="true">
+              <menupopup class="snooze-unit-menupopup menulist-menupopup"
+                         position="after_start"
+                         ignorekeys="true">
+                <menuitem closemenu="single" class="unit-menuitem" value="1"></menuitem>
+                <menuitem closemenu="single" class="unit-menuitem" value="60"></menuitem>
+                <menuitem closemenu="single" class="unit-menuitem" value="1440"></menuitem>
+              </menupopup>
+            </menulist>
+            <toolbarbutton class="snooze-popup-button snooze-popup-ok-button"
+                           oncommand="snoozeOk()"/>
+            <toolbarbutton class="snooze-popup-button snooze-popup-cancel-button"
+                           aria-label="&calendar.alarm.snooze.cancel;"
+                           oncommand="snoozeCancel()"/>
+          </hbox>
+          `,
           ["chrome://calendar/locale/global.dtd", "chrome://calendar/locale/calendar.dtd"]
         )
       );

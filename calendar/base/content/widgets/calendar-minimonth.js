@@ -50,85 +50,85 @@
       }
 
       const minimonthHeader = `
-                <hbox class="minimonth-header minimonth-month-box">
-                  <toolbarbutton class="months-back-button minimonth-nav-btns"
-                                 dir="-1"
-                                 oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
-                                 tooltiptext="&onemonthbackward.tooltip;"></toolbarbutton>
-                  <deck class="monthheader minimonth-month-name"
-                        tabindex="-1">
-                    <text value="&month.1.name;"></text>
-                    <text value="&month.2.name;"></text>
-                    <text value="&month.3.name;"></text>
-                    <text value="&month.4.name;"></text>
-                    <text value="&month.5.name;"></text>
-                    <text value="&month.6.name;"></text>
-                    <text value="&month.7.name;"></text>
-                    <text value="&month.8.name;"></text>
-                    <text value="&month.9.name;"></text>
-                    <text value="&month.10.name;"></text>
-                    <text value="&month.11.name;"></text>
-                    <text value="&month.12.name;"></text>
-                  </deck>
-                  <toolbarbutton class="months-forward-button minimonth-nav-btns"
-                                 dir="1"
-                                 oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
-                                 tooltiptext="&onemonthforward.tooltip;"></toolbarbutton>
-                  <toolbarbutton class="years-back-button minimonth-nav-btns"
-                                 dir="-1"
-                                 oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
-                                 tooltiptext="&oneyearbackward.tooltip;"></toolbarbutton>
-                  <text class="yearcell minimonth-year-name"
-                        tabindex="-1"></text>
-                  <toolbarbutton class="years-forward-button minimonth-nav-btns"
-                                 dir="1"
-                                 oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
-                                 tooltiptext="&oneyearforward.tooltip;"></toolbarbutton>
-                  <spacer flex="1"></spacer>
-                  <toolbarbutton class="today-button minimonth-nav-btns"
-                                 dir="0"
-                                 oncommand="this.kMinimonth.value = new Date();"
-                                 tooltiptext="&showToday.tooltip;"></toolbarbutton>
-                </hbox>
-            `;
+        <hbox class="minimonth-header minimonth-month-box">
+          <toolbarbutton class="months-back-button minimonth-nav-btns"
+                         dir="-1"
+                         oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&onemonthbackward.tooltip;"></toolbarbutton>
+          <deck class="monthheader minimonth-month-name"
+                tabindex="-1">
+            <text value="&month.1.name;"></text>
+            <text value="&month.2.name;"></text>
+            <text value="&month.3.name;"></text>
+            <text value="&month.4.name;"></text>
+            <text value="&month.5.name;"></text>
+            <text value="&month.6.name;"></text>
+            <text value="&month.7.name;"></text>
+            <text value="&month.8.name;"></text>
+            <text value="&month.9.name;"></text>
+            <text value="&month.10.name;"></text>
+            <text value="&month.11.name;"></text>
+            <text value="&month.12.name;"></text>
+          </deck>
+          <toolbarbutton class="months-forward-button minimonth-nav-btns"
+                         dir="1"
+                         oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&onemonthforward.tooltip;"></toolbarbutton>
+          <toolbarbutton class="years-back-button minimonth-nav-btns"
+                         dir="-1"
+                         oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&oneyearbackward.tooltip;"></toolbarbutton>
+          <text class="yearcell minimonth-year-name"
+                tabindex="-1"></text>
+          <toolbarbutton class="years-forward-button minimonth-nav-btns"
+                         dir="1"
+                         oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
+                         tooltiptext="&oneyearforward.tooltip;"></toolbarbutton>
+          <spacer flex="1"></spacer>
+          <toolbarbutton class="today-button minimonth-nav-btns"
+                         dir="0"
+                         oncommand="this.kMinimonth.value = new Date();"
+                         tooltiptext="&showToday.tooltip;"></toolbarbutton>
+        </hbox>
+      `;
 
       const minimonthWeekRow = `
-                <html:tr class="minimonth-row-body">
-                  <html:th class="minimonth-week" scope="row"></html:th>
-                  <html:td class="minimonth-day" tabindex="-1"></html:td>
-                  <html:td class="minimonth-day" tabindex="-1"></html:td>
-                  <html:td class="minimonth-day" tabindex="-1"></html:td>
-                  <html:td class="minimonth-day" tabindex="-1"></html:td>
-                  <html:td class="minimonth-day" tabindex="-1"></html:td>
-                  <html:td class="minimonth-day" tabindex="-1"></html:td>
-                  <html:td class="minimonth-day" tabindex="-1"></html:td>
-                </html:tr>
-            `;
+        <html:tr class="minimonth-row-body">
+          <html:th class="minimonth-week" scope="row"></html:th>
+          <html:td class="minimonth-day" tabindex="-1"></html:td>
+          <html:td class="minimonth-day" tabindex="-1"></html:td>
+          <html:td class="minimonth-day" tabindex="-1"></html:td>
+          <html:td class="minimonth-day" tabindex="-1"></html:td>
+          <html:td class="minimonth-day" tabindex="-1"></html:td>
+          <html:td class="minimonth-day" tabindex="-1"></html:td>
+          <html:td class="minimonth-day" tabindex="-1"></html:td>
+        </html:tr>
+      `;
 
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-                ${minimonthHeader}
-                <html:div class="minimonth-readonly-header minimonth-month-box"></html:div>
-                <html:table class="minimonth-calendar minimonth-cal-box">
-                  <html:tr class="minimonth-row-head">
-                    <html:th class="minimonth-row-header-week" scope="col"></html:th>
-                    <html:th class="minimonth-row-header" scope="col"></html:th>
-                    <html:th class="minimonth-row-header" scope="col"></html:th>
-                    <html:th class="minimonth-row-header" scope="col"></html:th>
-                    <html:th class="minimonth-row-header" scope="col"></html:th>
-                    <html:th class="minimonth-row-header" scope="col"></html:th>
-                    <html:th class="minimonth-row-header" scope="col"></html:th>
-                    <html:th class="minimonth-row-header" scope="col"></html:th>
-                  </html:tr>
-                  ${minimonthWeekRow}
-                  ${minimonthWeekRow}
-                  ${minimonthWeekRow}
-                  ${minimonthWeekRow}
-                  ${minimonthWeekRow}
-                  ${minimonthWeekRow}
-                </html:table>
-            `,
+          ${minimonthHeader}
+          <html:div class="minimonth-readonly-header minimonth-month-box"></html:div>
+          <html:table class="minimonth-calendar minimonth-cal-box">
+            <html:tr class="minimonth-row-head">
+              <html:th class="minimonth-row-header-week" scope="col"></html:th>
+              <html:th class="minimonth-row-header" scope="col"></html:th>
+              <html:th class="minimonth-row-header" scope="col"></html:th>
+              <html:th class="minimonth-row-header" scope="col"></html:th>
+              <html:th class="minimonth-row-header" scope="col"></html:th>
+              <html:th class="minimonth-row-header" scope="col"></html:th>
+              <html:th class="minimonth-row-header" scope="col"></html:th>
+              <html:th class="minimonth-row-header" scope="col"></html:th>
+            </html:tr>
+            ${minimonthWeekRow}
+            ${minimonthWeekRow}
+            ${minimonthWeekRow}
+            ${minimonthWeekRow}
+            ${minimonthWeekRow}
+            ${minimonthWeekRow}
+          </html:table>
+          `,
           ["chrome://calendar/locale/global.dtd", "chrome://global/locale/global.dtd"]
         )
       );

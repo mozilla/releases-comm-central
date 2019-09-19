@@ -283,57 +283,57 @@
       }
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <vbox flex="1">
-                    <hbox>
-                        <box class="calendar-color-box"
-                             flex="1">
-                            <box class="calendar-event-selection"
-                                 orient="horizontal"
-                                 flex="1">
-                                <stack class="calendar-event-box-container"
-                                       flex="1">
-                                    <hbox class="calendar-event-details">
-                                        <vbox pack="center">
-                                            <image class="calendar-item-image"></image>
-                                        </vbox>
-                                        <label class="calendar-month-day-box-item-label"></label>
-                                        <vbox class="event-name-label-container"
-                                              align="left" flex="1">
-                                            <label class="event-name-label"
-                                                   crop="end"
-                                                   flex="1"
-                                                   style="margin: 0;">
-                                            </label>
-                                            <textbox class="plain calendar-event-name-textbox title-desc"
-                                                     crop="end"
-                                                     hidden="true"
-                                                     wrap="true">
-                                            </textbox>
-                                            <spacer flex="1"></spacer>
-                                        </vbox>
-                                        <stack class="category-box-stack">
-                                            <hbox class="calendar-category-box category-color-box calendar-event-selection"
-                                                  flex="1"
-                                                  pack="end">
-                                                <image class="calendar-category-box-gradient"></image>
-                                            </hbox>
-                                            <hbox align="center">
-                                                <hbox class="alarm-icons-box"
-                                                      pack="end"
-                                                      align="top">
-                                                </hbox>
-                                                <image class="item-classification-box"
-                                                       pack="end">
-                                                </image>
-                                            </hbox>
-                                        </stack>
-                                    </hbox>
-                                </stack>
-                            </box>
-                        </box>
+          <vbox flex="1">
+            <hbox>
+              <box class="calendar-color-box"
+                   flex="1">
+                <box class="calendar-event-selection"
+                     orient="horizontal"
+                     flex="1">
+                  <stack class="calendar-event-box-container"
+                         flex="1">
+                    <hbox class="calendar-event-details">
+                      <vbox pack="center">
+                          <image class="calendar-item-image"></image>
+                      </vbox>
+                      <label class="calendar-month-day-box-item-label"></label>
+                      <vbox class="event-name-label-container"
+                            align="left" flex="1">
+                        <label class="event-name-label"
+                               crop="end"
+                               flex="1"
+                               style="margin: 0;">
+                        </label>
+                        <textbox class="plain calendar-event-name-textbox title-desc"
+                                 crop="end"
+                                 hidden="true"
+                                 wrap="true">
+                        </textbox>
+                        <spacer flex="1"></spacer>
+                      </vbox>
+                      <stack class="category-box-stack">
+                        <hbox class="calendar-category-box category-color-box calendar-event-selection"
+                              flex="1"
+                              pack="end">
+                          <image class="calendar-category-box-gradient"></image>
+                        </hbox>
+                        <hbox align="center">
+                          <hbox class="alarm-icons-box"
+                                pack="end"
+                                align="top">
+                          </hbox>
+                          <image class="item-classification-box"
+                                 pack="end">
+                          </image>
+                        </hbox>
+                      </stack>
                     </hbox>
-                </vbox>
-            `)
+                  </stack>
+                </box>
+              </box>
+            </hbox>
+          </vbox>
+        `)
       );
 
       // We have two event listeners for dragstart. This event listener is for the bubbling phase

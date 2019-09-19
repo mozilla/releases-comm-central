@@ -119,16 +119,16 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <hbox class="agenda-allday-container-box" flex="1">
-                    <vbox pack="center" flex="1">
-                        <label class="agenda-event-start" crop="end" hidden="true"></label>
-                        <hbox flex="1" align="start">
-                            <image class="agenda-multiDayEvent-image"></image>
-                            <calendar-month-day-box-item flex="1" flat="true"></calendar-month-day-box-item>
-                        </hbox>
-                    </vbox>
-                </hbox>
-            `)
+          <hbox class="agenda-allday-container-box" flex="1">
+            <vbox pack="center" flex="1">
+              <label class="agenda-event-start" crop="end" hidden="true"></label>
+              <hbox flex="1" align="start">
+                <image class="agenda-multiDayEvent-image"></image>
+                <calendar-month-day-box-item flex="1" flat="true"></calendar-month-day-box-item>
+              </hbox>
+            </vbox>
+          </hbox>
+        `)
       );
       this.mAllDayItem = null;
       this.mOccurrence = null;
@@ -247,22 +247,22 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-                <hbox class="agenda-container-box" flex="1">
-                    <hbox>
-                        <vbox>
-                            <image class="agenda-calendar-image"></image>
-                            <spacer flex="1"></spacer>
-                        </vbox>
-                    </hbox>
-                    <vbox flex="1" class="agenda-description">
-                        <hbox align="start">
-                            <image class="agenda-multiDayEvent-image"></image>
-                            <label class="agenda-event-start" crop="end" flex="1"></label>
-                        </hbox>
-                        <label class="agenda-event-title" crop="end"></label>
-                    </vbox>
-                </hbox>
-            `)
+          <hbox class="agenda-container-box" flex="1">
+            <hbox>
+              <vbox>
+                <image class="agenda-calendar-image"></image>
+                <spacer flex="1"></spacer>
+              </vbox>
+            </hbox>
+            <vbox flex="1" class="agenda-description">
+              <hbox align="start">
+                <image class="agenda-multiDayEvent-image"></image>
+                <label class="agenda-event-start" crop="end" flex="1"></label>
+              </hbox>
+              <label class="agenda-event-title" crop="end"></label>
+            </vbox>
+          </hbox>
+        `)
       );
       this.mOccurrence = null;
       this.initializeAttributeInheritance();
