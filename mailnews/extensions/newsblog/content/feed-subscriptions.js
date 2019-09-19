@@ -1109,7 +1109,9 @@ var FeedSubscriptions = {
       recommendedUnitsVal.value = "";
     }
 
-    recommendedUnits.hidden = recommendedUnitsVal.value == "";
+    let hideRec = recommendedUnitsVal.value == "";
+    recommendedUnits.hidden = hideRec;
+    recommendedUnitsVal.hidden = hideRec;
 
     // Autotag items.
     let autotagEnable = document.getElementById("autotagEnable");
@@ -1469,8 +1471,7 @@ var FeedSubscriptions = {
 
     let locationValue = document.getElementById("locationValue");
     let updateEnabled = document.getElementById("updateEnabled");
-    let updateValue = document.getElementById("updateValue");
-    let biffUnits = document.getElementById("biffUnits");
+
     let quickMode = document.getElementById("quickMode");
     let autotagEnable = document.getElementById("autotagEnable");
     let autotagUsePrefix = document.getElementById("autotagUsePrefix");
@@ -1484,8 +1485,13 @@ var FeedSubscriptions = {
 
     // Enabled by default.
     updateEnabled.disabled = quickMode.disabled = autotagEnable.disabled = false;
-    updateValue.disabled = !updateEnabled.checked;
-    biffUnits.disabled = !updateEnabled.checked;
+
+    updateEnabled.parentNode
+      .querySelectorAll("input,radio,label")
+      .forEach(item => {
+        item.disabled = !updateEnabled.checked;
+      });
+
     autotagUsePrefix.disabled = !autotagEnable.checked;
     autotagPrefix.disabled =
       autotagUsePrefix.disabled || !autotagUsePrefix.checked;
@@ -1505,8 +1511,12 @@ var FeedSubscriptions = {
         disable && !FeedUtils.getFeedUrlsInFolder(item.folder);
       // All other options disabled unless intent is to add a feed.
       updateEnabled.disabled = disable;
-      updateValue.disabled = disable;
-      biffUnits.disabled = disable;
+      updateEnabled.parentNode
+        .querySelectorAll("input,radio,label")
+        .forEach(item => {
+          item.disabled = disable;
+        });
+
       autotagEnable.disabled = disable;
 
       addFeedButton.disabled =

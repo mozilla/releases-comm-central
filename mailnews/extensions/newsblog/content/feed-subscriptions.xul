@@ -148,9 +148,7 @@
           <html:input id="updateValue" type="number" class="size3" min="1"
                       aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"
                       oninput="FeedSubscriptions.setPrefs(this);"
-                      onchange="FeedSubscriptions.setPrefs(this);">
-              <observes element="updateEnabled" attribute="disabled"/>
-          </html:input>
+                      onchange="FeedSubscriptions.setPrefs(this);"/>
           <radiogroup id="biffUnits"
                       orient="horizontal"
                       oncommand="FeedSubscriptions.setPrefs(this);">
@@ -163,16 +161,11 @@
             <label id="recommendedUnits"
                    value="&recommendedUnits.label;"
                    hidden="true"
-                   control="updateMinutes">
-              <observes element="updateValue" attribute="disabled"/>
-            </label>
+                   control="updateMinutes"/>
             <label id="recommendedUnitsVal"
                    value=""
                    hidden="true"
-                   control="updateMinutes">
-              <observes element="updateValue" attribute="disabled"/>
-              <observes element="recommendedUnits" attribute="hidden"/>
-            </label>
+                   control="updateMinutes"/>
           </hbox>
         </hbox>
         <checkbox id="quickMode"
