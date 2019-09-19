@@ -1652,6 +1652,8 @@ calStorageCalendar.prototype = {
     // build up recurring event and todo cache with its offline flags,
     // because we need that on every query: for recurring items, we need to
     // query database-wide.. yuck
+    this.mItemCache.clear();
+
     let events = [];
     let itemsMap = new Map();
     this.prepareStatement(this.mSelectEventsWithRecurrence);
