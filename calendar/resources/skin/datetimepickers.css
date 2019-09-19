@@ -60,7 +60,7 @@ timepicker > menulist {
 
 /* Box that occupies whole window */
 
-vbox[anonid="time-picker-grids"] {
+.time-picker-grids {
   background-color : #ffffff;
   font-size        : 8pt;
   margin           : 1px 1px 2px 1px;
@@ -68,7 +68,7 @@ vbox[anonid="time-picker-grids"] {
 
 /* Grid for hours */
 
-grid[anonid="time-picker-hour-grid"] {
+.time-picker-hour-grid {
   background-color : -moz-Dialog;
   color            : -moz-DialogText;
   border-top       : 1px solid ThreeDShadow;
