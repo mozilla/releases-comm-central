@@ -203,6 +203,12 @@ this.messages = class extends ExtensionAPI {
             });
           });
 
+          if (queryInfo.unread !== null) {
+            collectionArray = collectionArray.filter(
+              msg => msg.isRead == !queryInfo.unread
+            );
+          }
+
           return messageListTracker.startList(
             collectionArray,
             context.extension

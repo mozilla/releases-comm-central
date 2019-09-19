@@ -32,6 +32,7 @@ add_task(async function setup() {
 
   let messages = [...subFolders.test1.messages];
   // NB: Here, the messages are zero-indexed. In the test they're one-indexed.
+  messages[0].markRead(true);
   messages[1].markFlagged(true);
   messages[6].markFlagged(true);
 
@@ -137,6 +138,10 @@ add_task(async function() {
       await subtest({ toDate: date2 }, 7, 8, 9);
       await subtest({ fromDate: date1, toDate: date2 });
       await subtest({ fromDate: date2, toDate: date1 }, 4, 5, 6);
+
+      // Unread query. Only message 1 has been read.
+      await subtest({ unread: false }, 1);
+      await subtest({ unread: true }, 2, 3, 4, 5, 6, 7, 8, 9);
 
       // Flagged query. Messages 2 and 7 are flagged.
       await subtest({ flagged: true }, 2, 7);

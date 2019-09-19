@@ -115,6 +115,11 @@
                 "optional": true,
                 "description": "Returns only messages with one or more recipients matching any configured identity."
               },
+              "unread": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Returns only unread (or read if false) messages."
+              },
               "flagged": {
                 "type": "boolean",
                 "optional": true,
