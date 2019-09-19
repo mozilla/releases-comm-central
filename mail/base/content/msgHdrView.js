@@ -691,22 +691,21 @@ var messageHeaderSink = {
         } else {
           last.size = size;
         }
-      } else if (size == -1) {
-        // libmime returns -1 if it never managed to figure out the size. We
-        // want fetch() to check again for internal attachments in this case,
-        // otherwise we accept libmime's value and set |sizeResolved|.
-        // A fetch() for a resolved size can still be requested if
-        // |ALWAYSFETCHSIZE| is true.
-        last.size = -1;
       } else {
+        // For internal or file (detached) attachments, save the size.
         last.size = size;
-        last.sizeResolved = true;
+        // For external file attachments, we won't have a valid size.
+        if (!last.isFileAttachment && size > -1) {
+          last.sizeResolved = true;
+        }
       }
     } else if (field == "X-Mozilla-PartDownloaded" && value == "0") {
       // We haven't downloaded the attachment, so any size we get from
       // libmime is almost certainly inaccurate. Just get rid of it. (Note:
       // this relies on the fact that PartDownloaded comes after PartSize from
       // the MIME emitter.)
+      // Note: for imap parts_on_demand, a small size consisting of the part
+      // headers would have been returned above.
       last.size = -1;
       last.sizeResolved = false;
     }
@@ -1916,16 +1915,13 @@ function AttachmentInfo(contentType, url, name, uri, isExternalAttachment) {
   this.uri = uri;
   this.isExternalAttachment = isExternalAttachment;
   // A |size| value of -1 means we don't have a valid size. Check again if
-  // |sizeResolved| is false or ALWAYSFETCHSIZE is true. For internal attachments
-  // and link attachments with a reported size, libmime streams values to
-  // addAttachmentField() which updates this object. For external file
-  // attachments and unresolved -1 size internal attachments, |size| is updated
+  // |sizeResolved| is false. For internal attachments and link attachments
+  // with a reported size, libmime streams values to addAttachmentField()
+  // which updates this object. For external file attachments, |size| is updated
   // in the isEmpty() function when the list is built. Deleted attachments
   // are resolved to -1.
   this.size = -1;
   this.sizeResolved = this.isDeleted;
-  // Fetch the size for internal attachments even though libmime gave a size.
-  this.ALWAYSFETCHSIZE = false;
 
   // Remove [?&]part= from remote urls, after getting the partID.
   // Remote urls, unlike non external mail part urls, may also contain query
@@ -2078,39 +2074,27 @@ AttachmentInfo.prototype = {
       return true;
     }
 
+    const isFetchable = url => {
+      let uri = makeURI(url);
+      return !(uri.username || uri.userPass);
+    };
+
     // We have a resolved size.
-    if (this.sizeResolved && !this.ALWAYSFETCHSIZE) {
-      if (this.size > 0) {
-        return false;
-      }
-      return true;
+    if (this.sizeResolved) {
+      return this.size < 1;
     }
 
-    let url = this.url;
+    if (!isFetchable(this.url)) {
+      return false;
+    }
+
     let empty = true;
-    let size = 0;
-    let options = { method: "HEAD" };
+    let size = -1;
+    let options = { method: "GET" };
 
-    // NOTE: For internal mailbox, imap, news urls the response body must get
-    // the content length with getReader().read() but we don't need to do this
-    // here as libmime streams it already in addAttachmentField(). For imap or
-    // news urls with credentials (username, userPass), we must remove them
-    // as Request fails such urls with a MSG_URL_HAS_CREDENTIALS error.
-    if (url.startsWith("imap://") || url.startsWith("news://")) {
-      url = makeURI(url)
-        .mutate()
-        .setUsername("")
-        .setUserPass("")
-        .finalize().spec;
-    }
+    let request = new Request(this.url, options);
 
-    let request = new Request(url, options);
-
-    if (
-      this.isExternalAttachment ||
-      !this.sizeResolved ||
-      this.ALWAYSFETCHSIZE
-    ) {
+    if (this.isExternalAttachment) {
       updateAttachmentsDisplay(this, true);
     }
 
@@ -2142,15 +2126,18 @@ AttachmentInfo.prototype = {
       })
       .then(async response => {
         if (this.isExternalAttachment) {
-          size = response ? response.headers.get("content-length") : 0;
-        } else if (!this.sizeResolved || this.ALWAYSFETCHSIZE) {
+          size = response ? response.headers.get("content-length") : -1;
+        } else {
           // Check the attachment again if addAttachmentField() sets a
           // libmime -1 return value for size in this object.
-          let data = await response.body.getReader().read();
-          size = data.value.length;
-        } else {
-          // Accept the libmime streamed size for internal attachments.
-          size = this.size;
+          // Note: just test for a non zero size, don't need to drain the
+          // stream. We only get here if the url is fetchable.
+          // The size for internal attachments is not calculated here but
+          // will come from libmime.
+          let reader = response.body.getReader();
+          let { value: chunk } = await reader.read();
+          reader.cancel();
+          size = chunk && chunk.value ? chunk.value.length : -1;
         }
 
         if (size > 0) {
@@ -2158,21 +2145,19 @@ AttachmentInfo.prototype = {
         }
       })
       .catch(error => {
-        console.warn("AttachmentInfo.isEmpty: error - " + error.message);
+        console.warn(
+          `AttachmentInfo.isEmpty: ${error.message} url - ${this.url}`
+        );
       });
 
-    if (
-      this.isExternalAttachment ||
-      !this.sizeResolved ||
-      this.ALWAYSFETCHSIZE
-    ) {
+    this.sizeResolved = true;
+
+    if (this.isExternalAttachment) {
       // For link attachments, we may have had a published value or -1
       // indicating unknown value. We now know the real size, so set it and
       // update the ui. For detached file attachments, get the size here
-      // instead of the old xpcom way. Finally, also update libmime unknown
-      // internal attachment size.
-      this.size = empty ? -1 : size;
-      this.sizeResolved = true;
+      // instead of the old xpcom way.
+      this.size = size;
       updateAttachmentsDisplay(this, false);
     }
 
@@ -2549,13 +2534,9 @@ async function displayAttachmentsForExpandedView() {
       item.setAttribute("tooltiptext", attachment.name);
       item.addEventListener("command", attachmentItemCommand);
 
-      // Get a detached file's size or an internal attachment size that is not
-      // yet resolved, or if |ALWAYSFETCHSIZE| is true. For link attachments,
-      // the user must always initiate the fetch for privacy reasons.
-      if (
-        !attachment.isLinkAttachment &&
-        (!attachment.sizeResolved || attachment.ALWAYSFETCHSIZE)
-      ) {
+      // Get a detached file's size. For link attachments, the user must always
+      // initiate the fetch for privacy reasons.
+      if (attachment.isFileAttachment) {
         await attachment.isEmpty();
       }
     }
@@ -2734,7 +2715,7 @@ function updateSaveAllAttachmentsButton() {
  * @param {Boolean} isFetching
  */
 function updateAttachmentsDisplay(attachmentInfo, isFetching) {
-  if (attachmentInfo.isExternalAttachment || attachmentInfo.ALWAYSFETCHSIZE) {
+  if (attachmentInfo.isExternalAttachment) {
     let attachmentList = document.getElementById("attachmentList");
     let attachmentIcon = document.getElementById("attachmentIcon");
     let attachmentName = document.getElementById("attachmentName");
