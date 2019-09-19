@@ -7,10 +7,6 @@ var { StringBundle } = ChromeUtils.import(
 );
 
 var { FacetDriver } = ChromeUtils.import("resource:///modules/gloda/facet.js");
-// needed by search.xml to use us
-var { GlodaMsgSearcher } = ChromeUtils.import(
-  "resource:///modules/gloda/msg_search.js"
-);
 
 var glodaFacetTabType = {
   name: "glodaFacet",

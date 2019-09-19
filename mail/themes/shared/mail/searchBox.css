@@ -30,8 +30,7 @@
 }
 
 /* special treatment because these boxes are on themable toolbars */
-#searchInput:-moz-lwtheme,
-#IMSearchInput:-moz-lwtheme,
+.gloda-search:-moz-lwtheme,
 #peopleSearchInput:-moz-lwtheme,
 .themeableSearchBox:-moz-lwtheme,
 .remote-gloda-search:-moz-lwtheme {
@@ -39,24 +38,21 @@
   color: var(--lwt-toolbar-field-color, black);
 }
 
-#searchInput:not([focused="true"]):-moz-lwtheme,
-#IMSearchInput:not([focused="true"]):-moz-lwtheme,
+.gloda-search:not(:focus):-moz-lwtheme,
 #peopleSearchInput:not([focused="true"]):-moz-lwtheme,
 .themeableSearchBox:not([focused="true"]):-moz-lwtheme,
 .remote-gloda-search:not([focused="true"]):-moz-lwtheme {
   border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
 }
 
-#searchInput:-moz-lwtheme:hover,
-#IMSearchInput:-moz-lwtheme:hover,
+.gloda-search:-moz-lwtheme:hover,
 #peopleSearchInput:-moz-lwtheme:hover,
 .themeableSearchBox:-moz-lwtheme:not([disabled]):hover,
 .remote-gloda-search:-moz-lwtheme:hover {
   background-color: var(--lwt-toolbar-field-background-color, white);
 }
 
-#searchInput:-moz-lwtheme[focused="true"],
-#IMSearchInput:-moz-lwtheme[focused="true"],
+.gloda-search:-moz-lwtheme:focus,
 #peopleSearchInput:-moz-lwtheme[focused="true"],
 .themeableSearchBox:-moz-lwtheme[focused="true"],
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
@@ -65,8 +61,7 @@
   border-color: var(--toolbar-field-focus-border-color);
 }
 
-:root[lwt-selection] #searchInput .textbox-input:-moz-lwtheme::selection,
-:root[lwt-selection] #IMSearchInput .textbox-input:-moz-lwtheme::selection,
+:root[lwt-selection] .gloda-search::selection,
 :root[lwt-selection] #peopleSearchInput .textbox-input:-moz-lwtheme::selection,
 :root[lwt-selection] .themeableSearchBox .textbox-input:-moz-lwtheme::selection,
 :root[lwt-selection] .remote-gloda-search .textbox-input:-moz-lwtheme::selection {

@@ -38,10 +38,6 @@ richlistitem[is="chat-imconv"] {
   overflow: hidden;
 }
 
-#IMSearchInput {
-  -moz-binding: url("chrome://messenger/content/search.xml#glodaSearch");
-}
-
 #statusTypeIcon:not([disabled]) {
   cursor: pointer;
 }

@@ -69,7 +69,7 @@ messenger.jar:
     content/messenger/converterDialog.css           (content/converterDialog.css)
     content/messenger/notification.css              (content/notification.css)
 *   content/messenger/messenger.css                 (content/messenger.css)
-    content/messenger/search.xml                    (content/search.xml)
+    content/messenger/gloda-autocomplete-input.js   (content/gloda-autocomplete-input.js)
     content/messenger/tabmail.js                    (content/tabmail.js)
     content/messenger/tabmail-tabs.js               (content/tabmail-tabs.js)
     content/messenger/tabbrowser-tab.js             (content/tabbrowser-tab.js)

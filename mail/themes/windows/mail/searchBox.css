@@ -13,7 +13,7 @@
  * inconsistency with the quick filter bar unless it gets a change like this
  * too.
  */
-#searchInput {
+.gloda-search {
   font-style: normal !important;
 }
 
@@ -21,9 +21,7 @@
   padding-top: 1px;
 }
 
-.remote-gloda-search,
-#searchInput,
-#IMSearchInput {
+.gloda-search {
   background-image: url(chrome://messenger/skin/icons/search-glass.svg);
   background-position: calc( 100% - 4px);
   background-repeat: no-repeat;
@@ -31,11 +29,10 @@
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 0.54;
+  -moz-box-flex: 1;
 }
 
-.remote-gloda-search:-moz-locale-dir(rtl),
-#searchInput:-moz-locale-dir(rtl),
-#IMSearchInput:-moz-locale-dir(rtl) {
+.gloda-search:-moz-locale-dir(rtl) {
   background-position: 4px;
 }
 
@@ -67,8 +64,7 @@
 }
 
 /* Add margins to show the hover box-shadow */
-#searchInput,
-#IMSearchInput,
+.gloda-search,
 #peopleSearchInput {
   margin-top: 3px;
   margin-bottom: 3px;
@@ -80,8 +76,7 @@
 }
 
 /* special treatment because these boxes are on themable toolbars */
-#searchInput,
-#IMSearchInput,
+.gloda-search,
 #peopleSearchInput,
 .remote-gloda-search {
   min-height: 26px;

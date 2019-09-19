@@ -119,14 +119,14 @@ function test_escape_does_not_reach_us_from_gloda_search() {
   let glodaSearchWidget = mc.e("searchInput");
   try {
     // uncollapse and focus the gloda search widget
-    glodaSearchWidget.collapsed = false;
+    glodaSearchWidget.removeAttribute("hidden");
     glodaSearchWidget.focus();
 
     mc.keypress(null, "VK_ESCAPE", {});
 
     assert_quick_filter_bar_visible(true);
   } finally {
-    glodaSearchWidget.collapsed = true;
+    glodaSearchWidget.setAttribute("hidden", "hidden");
   }
 }
 

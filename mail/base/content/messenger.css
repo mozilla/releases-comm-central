@@ -42,14 +42,6 @@ search-value {
   display: -moz-deck;
 }
 
-#searchInput {
-  -moz-binding: url("chrome://messenger/content/search.xml#glodaSearch");
-}
-
-.remote-gloda-search {
-  -moz-binding: url("chrome://messenger/content/search.xml#glodaSearch") !important;
-}
-
 .remote-gloda-search-container {
   min-width: 10em;
 }

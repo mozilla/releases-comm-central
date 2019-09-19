@@ -598,9 +598,6 @@
                          things that want to be above/below the thread pane, regardless
                          of where the message reader ("messagepane") gets off to. -->
                     <vbox id="threadContentArea" flex="1" persist="width">
-                    <!-- Gloda search facets UI for use when dealing with a gloda-backed
-                         search view, implemented by glodaFacets XBL in search.xml. -->
-                    <box id="glodaSearchFacets"/>
 #include threadTree.inc.xul
                     </vbox>
                   </hbox>
@@ -714,19 +711,19 @@
             <spacer flex="1" />
             <spacer flex="1" />
             <hbox flex="1" class="remote-gloda-search-container">
-              <textbox class="remote-gloda-search searchBox"
-                       flex="1"
-                       type="glodacomplete"
-                       searchbutton="true"
-                       autocompletesearch="gloda"
-                       autocompletepopup="PopupGlodaAutocomplete"
-                       autocompletesearchparam="global"
-                       timeout="200"
-                       maxlength="192"
-                       placeholder=""
-                       emptytextbase="&search.label.base1;"
-                       keyLabelNonMac="&search.keyLabel.nonmac;"
-                       keyLabelMac="&search.keyLabel.mac;"/>
+              <html:input is="gloda-autocomplete-input"
+                          type="text"
+                          class="remote-gloda-search searchBox gloda-search"
+                          searchbutton="true"
+                          autocompletesearch="gloda"
+                          autocompletepopup="PopupGlodaAutocomplete"
+                          autocompletesearchparam="global"
+                          timeout="200"
+                          maxlength="192"
+                          placeholder=""
+                          emptytextbase="&search.label.base1;"
+                          keyLabelNonMac="&search.keyLabel.nonmac;"
+                          keyLabelMac="&search.keyLabel.mac;"/>
             </hbox>
           </hbox>
         </vbox>

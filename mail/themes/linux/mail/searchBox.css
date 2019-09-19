@@ -8,9 +8,7 @@
   padding-top: 1px;
 }
 
-.remote-gloda-search,
-#searchInput,
-#IMSearchInput {
+.gloda-search {
   background-image: url(chrome://messenger/skin/icons/search-glass.svg);
   background-position: calc( 100% - 4px);
   background-repeat: no-repeat;
@@ -18,11 +16,10 @@
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 0.54;
+  -moz-box-flex: 1;
 }
 
-.remote-gloda-search:-moz-locale-dir(rtl),
-#searchInput:-moz-locale-dir(rtl),
-#IMSearchInput:-moz-locale-dir(rtl) {
+.gloda-search:-moz-locale-dir(rtl) {
   background-position: 4px;
 }
 

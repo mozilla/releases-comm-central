@@ -1032,15 +1032,6 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon)
   color: #000;
 }
 
-#searchInput #sidebar {
-  -moz-appearance: textfield !important;
-  margin: 3px;
-}
-
-#searchInput > .textbox-input-box #sidebar {
-  background-image: none !important;
-}
-
 #titlebar {
   display: none;
 }

@@ -33,8 +33,7 @@
   box-shadow: var(--focus-ring-box-shadow);
 }
 
-#searchInput,
-#IMSearchInput,
+.gloda-search,
 #peopleSearchInput {
   margin-top: 2px;
   margin-bottom: 3px;
