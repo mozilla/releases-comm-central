@@ -58,6 +58,7 @@ function setupModule(module) {
 }
 
 // Test that closing an event dialog with no changes does not prompt for save.
+testEventDialogModificationPrompt.__force_skip__ = true;
 function testEventDialogModificationPrompt() {
   goToDate(controller, 2009, 1, 1);
 
