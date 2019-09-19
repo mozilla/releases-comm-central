@@ -681,28 +681,22 @@ static int MimeMessage_write_headers_html(MimeObject *obj) {
     return status;
   }
 
-  if (!msg->crypto_stamped_p) {
-    /* If we're not writing a xlation stamp, and this is the outermost
-    message, then now is the time to run the post_header_html_fn.
-    (Otherwise, it will be run when the xlation-stamp is finally
-    closed off, in MimeXlateed_emit_buffered_child() or
-    MimeMultipartSigned_emit_child().)
-       */
-    if (obj->options && obj->options->state &&
-        obj->options->generate_post_header_html_fn &&
-        !obj->options->state->post_header_html_run_p) {
-      char *html = 0;
-      PR_ASSERT(obj->options->state->first_data_written_p);
-      html = obj->options->generate_post_header_html_fn(
-          NULL, obj->options->html_closure, msg->hdrs);
-      obj->options->state->post_header_html_run_p = true;
-      if (html) {
-        status = MimeObject_write(obj, html, strlen(html), false);
-        PR_Free(html);
-        if (status < 0) {
-          mimeEmitterEndHeader(obj->options, obj);
-          return status;
-        }
+  // If this is the outermost message, then now is the time to run the
+  // post_header_html_fn.
+  if (obj->options && obj->options->state &&
+      obj->options->generate_post_header_html_fn &&
+      !obj->options->state->post_header_html_run_p) {
+    char *html = 0;
+    PR_ASSERT(obj->options->state->first_data_written_p);
+    html = obj->options->generate_post_header_html_fn(
+        NULL, obj->options->html_closure, msg->hdrs);
+    obj->options->state->post_header_html_run_p = true;
+    if (html) {
+      status = MimeObject_write(obj, html, strlen(html), false);
+      PR_Free(html);
+      if (status < 0) {
+        mimeEmitterEndHeader(obj->options, obj);
+        return status;
       }
     }
   }

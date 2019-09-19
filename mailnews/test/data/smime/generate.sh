@@ -16,7 +16,9 @@ cd tests
 HOST=localhost DOMSUF=localdomain ./all.sh
 
 cd ../../..
-cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/* .
+cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.eml .
+cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.p12 .
+cp -v nssbuild/tests_results/security/localhost.1/sharedb/smime/tb/*.pem .
 
 EXPIRATION_INFO_FILE="`pwd`/expiration.txt"
 ALICE_DIR="`pwd`/nssbuild/tests_results/security/localhost.1/sharedb/alicedir"

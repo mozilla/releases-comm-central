@@ -116,7 +116,6 @@ nsMsgAttachmentHandler::nsMsgAttachmentHandler()
       m_bogus_attachment(false),
       m_done(false),
       m_already_encoded_p(false),
-      m_decrypted_p(false),
       mDeleteFile(false),
       mMHTMLPart(false),
       mPartUserOmissionOverride(false),

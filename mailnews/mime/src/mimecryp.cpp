@@ -353,20 +353,7 @@ static int MimeEncrypted_emit_buffered_child(MimeObject *obj) {
   if (enc->crypto_closure && obj->options &&
       obj->options->headers != MimeHeadersCitation &&
       obj->options->write_html_p && obj->options->output_fn)
-  // && !mime_crypto_object_p(enc->hdrs, true, obj->options)) // XXX fix later
-  // XXX //
   {
-    char *html;
-#if 0  // XXX Fix this later XXX //
-    char *html = (((MimeEncryptedClass *) obj->clazz)->crypto_generate_html
-          (enc->crypto_closure));
-    if (!html) return -1; /* MK_OUT_OF_MEMORY? */
-
-    status = MimeObject_write(obj, html, strlen(html), false);
-    PR_FREEIF(html);
-    if (status < 0) return status;
-#endif
-
     /* Now that we have written out the crypto stamp, the outermost header
      block is well and truly closed.  If this is in fact the outermost
      message, then run the post_header_html_fn now.
@@ -379,7 +366,7 @@ static int MimeEncrypted_emit_buffered_child(MimeObject *obj) {
       for (p = obj; p->parent; p = p->parent) outer_headers = p->headers;
       NS_ASSERTION(obj->options->state->first_data_written_p,
                    "1.2 <mscott@netscape.com> 01 Nov 2001 17:59");
-      html = obj->options->generate_post_header_html_fn(
+      char *html = obj->options->generate_post_header_html_fn(
           NULL, obj->options->html_closure, outer_headers);
       obj->options->state->post_header_html_run_p = true;
       if (html) {

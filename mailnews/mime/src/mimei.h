@@ -323,13 +323,6 @@ extern void mime_get_crypto_state(MimeObject *obj, bool *signed_p,
                                   bool *encrypted_p, bool *signed_ok,
                                   bool *encrypted_ok);
 
-/* Whether the given object has written out the HTML version of its headers
-   in such a way that it will have a "crypto stamp" next to the headers.  If
-   this is true, then the child must write out its HTML slightly differently
-   to take this into account...
- */
-extern bool mime_crypto_stamped_p(MimeObject *obj);
-
 /* How the crypto code tells the MimeMessage object what the crypto stamp
    on it says. */
 extern void mime_set_crypto_stamp(MimeObject *obj, bool signed_p,
@@ -345,7 +338,6 @@ class MimeParseStateObject {
     first_part_written_p = false;
     post_header_html_run_p = false;
     first_data_written_p = false;
-    decrypted_p = false;
     strippingPart = false;
   }
   MimeObject *root; /* The outermost parser object. */
@@ -370,10 +362,6 @@ class MimeParseStateObject {
   bool first_data_written_p; /* State used for Mozilla lazy-stream-
                   creation evilness. */
 
-  bool decrypted_p; /* If options->dexlate_p is true, then this
-                        will be set to indicate whether any
-                        dexlateion did in fact occur.
-                      */
   nsTArray<nsCString>
       partsToStrip; /* if we're stripping parts, what parts to strip */
   nsTArray<nsCString> detachToFiles; /* if we're detaching parts, where each

@@ -202,3 +202,13 @@ static bool MimeExternalObject_displayable_inline_p(MimeObjectClass *clazz,
                                                     MimeHeaders *hdrs) {
   return false;
 }
+
+#undef MIME_SUPERCLASS
+#define MIME_SUPERCLASS mimeExternalObjectClass
+MimeDefClass(MimeSuppressedCrypto, MimeSuppressedCryptoClass,
+             mimeSuppressedCryptoClass, &MIME_SUPERCLASS);
+
+static int MimeSuppressedCryptoClassInitialize(MimeSuppressedCryptoClass *clazz) {
+  MimeExternalObjectClass *lclass = (MimeExternalObjectClass *)clazz;
+  return MimeExternalObjectClassInitialize(lclass);
+}

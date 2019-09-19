@@ -14,6 +14,7 @@
 #include "msgCore.h"
 #include "nsMimeStringResources.h"
 #include "mimemoz2.h"
+#include "mimeeobj.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
 #include "mozilla/Attributes.h"
 
@@ -31,6 +32,8 @@ static int MimeMultipartSigned_parse_eof(MimeObject *, bool);
 static void MimeMultipartSigned_finalize(MimeObject *);
 
 static int MimeMultipartSigned_emit_child(MimeObject *obj);
+
+extern "C" MimeSuppressedCryptoClass mimeSuppressedCryptoClass;
 
 static int MimeMultipartSignedClassInitialize(MimeMultipartSignedClass *clazz) {
   MimeObjectClass *oclass = (MimeObjectClass *)clazz;
@@ -528,6 +531,11 @@ static int MimeMultipartSigned_emit_child(MimeObject *obj) {
   int status = 0;
   MimeObject *body;
 
+  if (!sig->crypto_closure) {
+    // We might have decided to skip processing this part.
+    return 0;
+  }
+
   NS_ASSERTION(sig->crypto_closure, "no crypto closure");
 
   /* Emit some HTML saying whether the signature was cool.
@@ -536,15 +544,11 @@ static int MimeMultipartSigned_emit_child(MimeObject *obj) {
   if (obj->options && obj->options->headers != MimeHeadersCitation &&
       obj->options->write_html_p && obj->options->output_fn &&
       obj->options->headers != MimeHeadersCitation && sig->crypto_closure) {
+    // Calling crypto_generate_html may trigger wanted side effects,
+    // but we're no longer using its results.
     char *html = (((MimeMultipartSignedClass *)obj->clazz)
                       ->crypto_generate_html(sig->crypto_closure));
-#if 0  // XXX For the moment, no HTML output. Fix this XXX //
-    if (!html) return -1; /* MIME_OUT_OF_MEMORY? */
-
-    status = MimeObject_write(obj, html, strlen(html), false);
-    PR_Free(html);
-    if (status < 0) return status;
-#endif
+    PR_FREEIF(html);
 
     /* Now that we have written out the crypto stamp, the outermost header
      block is well and truly closed.  If this is in fact the outermost
@@ -647,6 +651,11 @@ static int MimeMultipartSigned_emit_child(MimeObject *obj) {
   body = cont->children[0];
   NS_ASSERTION(body, "missing body");
   if (!body) return -1;
+
+  if (mime_typep(body, (MimeObjectClass *)&mimeSuppressedCryptoClass)) {
+    ((MimeMultipartSignedClass *)obj->clazz)
+      ->crypto_notify_suppressed_child(sig->crypto_closure);
+  }
 
 #ifdef MIME_DRAFTS
   if (body->options->decompose_file_p) {

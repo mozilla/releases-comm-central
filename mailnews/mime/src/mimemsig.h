@@ -105,6 +105,8 @@ struct MimeMultipartSignedClass {
 
   char *(*crypto_generate_html)(void *crypto_closure);
 
+  void (*crypto_notify_suppressed_child)(void *crypto_closure);
+
   void (*crypto_free)(void *crypto_closure);
 };
 

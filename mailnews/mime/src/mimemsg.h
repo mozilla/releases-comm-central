@@ -25,12 +25,7 @@ struct MimeMessage {
   MimeContainer container; /* superclass variables */
   MimeHeaders *hdrs;       /* headers of this message */
   bool newline_p;          /* whether the last line ended in a newline */
-  bool crypto_stamped_p;   /* whether the header of this message has been
-                  emitted expecting its child to emit HTML
-                  which says that it is xlated. */
 
-  bool crypto_msg_signed_p; /* What the emitted xlation-stamp *says*. */
-  bool crypto_msg_encrypted_p;
   bool grabSubject;   /* Should we try to grab the subject of this message */
   int32_t bodyLength; /* Used for determining if the body has been truncated */
   int32_t sizeSoFar;  /* The total size of the MIME message, once parsing is

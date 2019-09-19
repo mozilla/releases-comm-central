@@ -38,6 +38,7 @@ static int MimeMultCMS_sig_eof(void *, bool);
 static int MimeMultCMS_sig_init(void *, MimeObject *, MimeHeaders *);
 static char *MimeMultCMS_generate(void *);
 static void MimeMultCMS_free(void *);
+static void MimeMultCMS_suppressed_child(void *crypto_closure);
 
 extern int SEC_ERROR_CERT_ADDR_MISMATCH;
 
@@ -55,6 +56,7 @@ static int MimeMultipartSignedCMSClassInitialize(
   sclass->crypto_signature_hash = MimeMultCMS_sig_hash;
   sclass->crypto_signature_eof = MimeMultCMS_sig_eof;
   sclass->crypto_generate_html = MimeMultCMS_generate;
+  sclass->crypto_notify_suppressed_child = MimeMultCMS_suppressed_child;
   sclass->crypto_free = MimeMultCMS_free;
 
   PR_ASSERT(!oclass->class_initialized);
@@ -75,8 +77,6 @@ typedef struct MimeMultCMSdata {
   unsigned char *item_data;
   uint32_t item_len;
   MimeObject *self;
-  bool parent_is_encrypted_p;
-  bool parent_holds_stamp_p;
   nsCOMPtr<nsIMsgSMIMEHeaderSink> smimeHeaderSink;
   nsCString url;
 
@@ -85,9 +85,7 @@ typedef struct MimeMultCMSdata {
         sender_addr(nullptr),
         decoding_failed(false),
         item_data(nullptr),
-        self(nullptr),
-        parent_is_encrypted_p(false),
-        parent_holds_stamp_p(false) {}
+        self(nullptr) {}
 
   ~MimeMultCMSdata() {
     PR_FREEIF(sender_addr);
@@ -104,7 +102,7 @@ typedef struct MimeMultCMSdata {
 
 /* #### MimeEncryptedCMS and MimeMultipartSignedCMS have a sleazy,
         incestuous, dysfunctional relationship. */
-extern bool MimeEncryptedCMS_encrypted_p(MimeObject *obj);
+extern bool MimeAnyParentCMSSigned(MimeObject *obj);
 extern void MimeCMSGetFromSender(MimeObject *obj, nsCString &from_addr,
                                  nsCString &from_name, nsCString &sender_addr,
                                  nsCString &sender_name);
@@ -127,76 +125,10 @@ static void *MimeMultCMS_init(MimeObject *obj) {
   int16_t hash_type;
   nsresult rv;
 
-  ct = MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);
-  if (!ct) return 0; /* #### bogus message?  out of memory? */
-  micalg = MimeHeaders_get_parameter(ct, PARAM_MICALG, NULL, NULL);
-  PR_Free(ct);
-  ct = 0;
-  if (!micalg) return 0; /* #### bogus message?  out of memory? */
-
-  if (!PL_strcasecmp(micalg, PARAM_MICALG_MD5) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_MD5_2))
-    hash_type = nsICryptoHash::MD5;
-  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5))
-    hash_type = nsICryptoHash::SHA1;
-  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA256) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_2) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_3))
-    hash_type = nsICryptoHash::SHA256;
-  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA384) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA384_2) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA384_3))
-    hash_type = nsICryptoHash::SHA384;
-  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA512) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA512_2) ||
-           !PL_strcasecmp(micalg, PARAM_MICALG_SHA512_3))
-    hash_type = nsICryptoHash::SHA512;
-  else
-    hash_type = -1;
-
-  PR_Free(micalg);
-  micalg = 0;
-
-  if (hash_type == -1) return 0; /* #### bogus message? */
-
   data = new MimeMultCMSdata;
   if (!data) return 0;
 
   data->self = obj;
-  data->hash_type = hash_type;
-
-  data->data_hash_context =
-      do_CreateInstance("@mozilla.org/security/hash;1", &rv);
-  if (NS_FAILED(rv)) {
-    delete data;
-    return 0;
-  }
-
-  rv = data->data_hash_context->Init(data->hash_type);
-  if (NS_FAILED(rv)) {
-    delete data;
-    return 0;
-  }
-
-  PR_SetError(0, 0);
-
-  data->parent_holds_stamp_p =
-      (obj->parent && mime_crypto_stamped_p(obj->parent));
-
-  data->parent_is_encrypted_p =
-      (obj->parent && MimeEncryptedCMS_encrypted_p(obj->parent));
-
-  /* If the parent of this object is a crypto-blob, then it's the grandparent
-   who would have written out the headers and prepared for a stamp...
-   (This s##t s$%#s.)
-   */
-  if (data->parent_is_encrypted_p && !data->parent_holds_stamp_p &&
-      obj->parent && obj->parent->parent)
-    data->parent_holds_stamp_p = mime_crypto_stamped_p(obj->parent->parent);
 
   mime_stream_data *msd =
       (mime_stream_data *)(data->self->options->stream_closure);
@@ -240,6 +172,89 @@ static void *MimeMultCMS_init(MimeObject *obj) {
       }
     }  // if channel
   }    // if msd
+
+  if (obj->parent && MimeAnyParentCMSSigned(obj)) {
+    // Parent is signed. We know this part is a signature, too, because
+    // multipart doesn't allow encryption.
+    // We don't support "inner sign" with outer sign, because the
+    // inner encrypted part could have been produced by an attacker who
+    // stripped away a part containing the signature (S/MIME doesn't
+    // have integrity protection).
+    // Also we don't want to support sign-then-sign, that's misleading,
+    // which part would be shown as having a signature?
+    // TODO: should we show all contents, without any signature info?
+
+    if (data->smimeHeaderSink) {
+      data->smimeHeaderSink->SignedStatus(
+          MIMEGetRelativeCryptoNestLevel(data->self),
+          nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url);
+    }
+    delete data;
+    PR_SetError(-1, 0);
+    return 0;
+  }
+
+  ct = MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);
+  if (!ct) {
+    delete data;
+    return 0; /* #### bogus message?  out of memory? */
+  }
+  micalg = MimeHeaders_get_parameter(ct, PARAM_MICALG, NULL, NULL);
+  PR_Free(ct);
+  ct = 0;
+  if (!micalg) {
+    delete data;
+    return 0; /* #### bogus message?  out of memory? */
+  }
+
+  if (!PL_strcasecmp(micalg, PARAM_MICALG_MD5) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_MD5_2))
+    hash_type = nsICryptoHash::MD5;
+  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5))
+    hash_type = nsICryptoHash::SHA1;
+  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA256) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_2) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_3))
+    hash_type = nsICryptoHash::SHA256;
+  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA384) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA384_2) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA384_3))
+    hash_type = nsICryptoHash::SHA384;
+  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA512) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA512_2) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA512_3))
+    hash_type = nsICryptoHash::SHA512;
+  else
+    hash_type = -1;
+
+  PR_Free(micalg);
+  micalg = 0;
+
+  if (hash_type == -1) {
+    delete data;
+    return 0; /* #### bogus message? */
+  }
+
+  data->hash_type = hash_type;
+
+  data->data_hash_context =
+      do_CreateInstance("@mozilla.org/security/hash;1", &rv);
+  if (NS_FAILED(rv)) {
+    delete data;
+    return 0;
+  }
+
+  rv = data->data_hash_context->Init(data->hash_type);
+  if (NS_FAILED(rv)) {
+    delete data;
+    return 0;
+  }
+
+  PR_SetError(0, 0);
 
   return data;
 }
@@ -361,6 +376,17 @@ static void MimeMultCMS_free(void *crypto_closure) {
   if (!data) return;
 
   delete data;
+}
+
+static void MimeMultCMS_suppressed_child(void *crypto_closure) {
+  // I'm a multipart/signed. If one of my cryptographic child elements
+  // was suppressed, then I want my signature to be shown as invalid.
+  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
+  if (data && data->smimeHeaderSink) {
+    data->smimeHeaderSink->SignedStatus(
+        MIMEGetRelativeCryptoNestLevel(data->self),
+        nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url);
+  }
 }
 
 static char *MimeMultCMS_generate(void *crypto_closure) {

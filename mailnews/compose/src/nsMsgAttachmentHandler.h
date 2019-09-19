@@ -143,16 +143,6 @@ class nsMsgAttachmentHandler : public nsIMsgAttachmentHandler {
   bool m_already_encoded_p;  // If we attach a document that is already
                              // encoded, we just pass it through.
 
-  bool m_decrypted_p; /* S/MIME -- when attaching a message that was
-                         encrypted, it's necessary to decrypt it first
-                         (since nobody but the original recipient can
-                         read it -- if you forward it to someone in the
-                         raw, it will be useless to them.)  This flag
-                         indicates whether decryption occurred, so that
-                         libmsg can issue appropriate warnings about
-                         doing a cleartext forward of a message that was
-                         originally encrypted. */
-
   bool mDeleteFile;  // If this is true, Delete the file...its
                      // NOT the original file!
 

@@ -13,3 +13,5 @@ Alternatively, join the #nss IRC channel and ask a member of the NSS
 team to execute the NSS test suite, and give you a copy of the contents
 of this directory:
   tests_results/security/localhost.1/sharedb/smime/tb/
+
+(You only need the files having extensions .eml or .p12 or .pem .)
