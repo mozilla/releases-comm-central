@@ -167,39 +167,31 @@ function createCommandPanel(aCommandPanelList) {
   for (var label in aCommandPanelList) {
     var commands = aCommandPanelList[label];
 
-    // Create a <rows> element with some LaTeX commands.
-    var rows = document.createXULElement("rows");
+    // Create the <table> element with the <tr>.
+    var table = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "table"
+    );
 
     var i = 0,
       row;
     for (var command of commands) {
       if (i % columnCount == 0) {
         // Create a new row.
-        row = document.createXULElement("row");
-        rows.appendChild(row);
+        row = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
+        table.appendChild(row);
       }
 
       // Create a new button to insert the symbol.
       var button = document.createXULElement("toolbarbutton");
+      var td = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
       button.setAttribute("class", "tabbable");
       button.appendChild(TeXZilla.toMathML(command));
-      row.appendChild(button);
+      td.append(button);
+      row.appendChild(td);
 
       i++;
     }
-
-    // Create a <columns> element with the desired number of columns.
-    var columns = document.createXULElement("columns");
-    for (i = 0; i < columnCount; i++) {
-      var column = document.createXULElement("column");
-      column.setAttribute("flex", "1");
-      columns.appendChild(column);
-    }
-
-    // Create the <grid> element with the <rows> and <columns> children.
-    var grid = document.createXULElement("grid");
-    grid.appendChild(columns);
-    grid.appendChild(rows);
 
     // Create a new <tab> element.
     var tab = document.createXULElement("tab");
@@ -207,7 +199,7 @@ function createCommandPanel(aCommandPanelList) {
     gDialog.tabbox.tabs.appendChild(tab);
 
     // Append the new tab panel.
-    gDialog.tabbox.tabpanels.appendChild(grid);
+    gDialog.tabbox.tabpanels.appendChild(table);
   }
 }
 
@@ -216,16 +208,19 @@ function createSymbolPanels(aSymbolPanelList) {
     tabLabelLength = 3;
 
   for (var symbols of aSymbolPanelList) {
-    // Create a <rows> element with the symbols of the i-th panel.
-    var rows = document.createXULElement("rows");
+    // Create the <table> element with the <tr>.
+    var table = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "table"
+    );
     var i = 0,
       tabLabel = "",
       row;
     for (var symbol of symbols) {
       if (i % columnCount == 0) {
         // Create a new row.
-        row = document.createXULElement("row");
-        rows.appendChild(row);
+        row = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
+        table.appendChild(row);
       }
 
       // Build the tab label from the first symbols of this tab.
@@ -235,25 +230,14 @@ function createSymbolPanels(aSymbolPanelList) {
 
       // Create a new button to insert the symbol.
       var button = document.createXULElement("toolbarbutton");
+      var td = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
       button.setAttribute("label", symbol);
       button.setAttribute("class", "tabbable");
-      row.appendChild(button);
+      td.append(button);
+      row.appendChild(td);
 
       i++;
     }
-
-    // Create a <columns> element with the desired number of columns.
-    var columns = document.createXULElement("columns");
-    for (i = 0; i < columnCount; i++) {
-      var column = document.createXULElement("column");
-      column.setAttribute("flex", "1");
-      columns.appendChild(column);
-    }
-
-    // Create the <grid> element with the <rows> and <columns> children.
-    var grid = document.createXULElement("grid");
-    grid.appendChild(columns);
-    grid.appendChild(rows);
 
     // Create a new <tab> element with the label determined above.
     var tab = document.createXULElement("tab");
@@ -261,7 +245,7 @@ function createSymbolPanels(aSymbolPanelList) {
     gDialog.tabbox.tabs.appendChild(tab);
 
     // Append the new tab panel.
-    gDialog.tabbox.tabpanels.appendChild(grid);
+    gDialog.tabbox.tabpanels.appendChild(table);
   }
 }
 
