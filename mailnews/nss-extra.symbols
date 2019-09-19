@@ -1,7 +1,4 @@
 CERT_GetCertNicknames
-NSSBase64Decoder_Create_Util
-NSSBase64Decoder_Destroy_Util
-NSSBase64Decoder_Update_Util
 NSSBase64Encoder_Create_Util
 NSSBase64Encoder_Destroy_Util
 NSSBase64Encoder_Update_Util
