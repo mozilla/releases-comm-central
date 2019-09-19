@@ -418,38 +418,10 @@ var MailMigrator = {
   },
 
   /**
-   * Migrate address books away from Mork. In time this will do actual
-   * migration, but for now, just set the default pref back to what it was.
-   */
-  _migrateAddressBooks() {
-    let pab = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    pab.append("abook.mab");
-    if (pab.exists()) {
-      let defaultBranch = Services.prefs.getDefaultBranch("");
-      defaultBranch.setIntPref("ldap_2.servers.pab.dirType", 2);
-      defaultBranch.setStringPref("ldap_2.servers.pab.filename", "abook.mab");
-      defaultBranch.setIntPref("ldap_2.servers.history.dirType", 2);
-      defaultBranch.setStringPref(
-        "ldap_2.servers.history.filename",
-        "history.mab"
-      );
-      defaultBranch.setStringPref(
-        "mail.collect_addressbook",
-        "moz-abmdbdirectory://history.mab"
-      );
-      defaultBranch.setStringPref(
-        "mail.server.default.whiteListAbURI",
-        "moz-abmdbdirectory://abook.mab"
-      );
-    }
-  },
-
-  /**
    * Perform any migration work that needs to occur once the user profile has
    * been loaded.
    */
   migrateAtProfileStartup() {
-    this._migrateAddressBooks();
     this._migrateUI();
   },
 };

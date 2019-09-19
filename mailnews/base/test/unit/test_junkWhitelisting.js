@@ -39,10 +39,11 @@ var Files = ["../../../data/bugmail1", "../../../data/bugmail3"];
 var hdrs = [];
 
 function run_test() {
-  loadABFile(
-    "../../../addrbook/test/unit/data/cardForEmail",
-    kPABData.fileName
-  );
+  // Test setup - copy the data file into place
+  var testAB = do_get_file("../../../addrbook/test/unit/data/cardForEmail.mab");
+
+  // Copy the file to the profile directory for a PAB (this is the personal address book)
+  testAB.copyTo(do_get_profile(), kPABData.fileName);
 
   do_test_pending();
 

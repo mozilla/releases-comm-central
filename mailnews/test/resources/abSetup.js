@@ -19,10 +19,10 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Personal Address Book configuration items.
 var kPABData = {
-  URI: "jsaddrbook://abook.sqlite",
-  fileName: "abook.sqlite",
+  URI: "moz-abmdbdirectory://abook.mab",
+  fileName: "abook.mab",
   dirName: "Personal Address Book",
-  dirType: 101,
+  dirType: 2,
   dirPrefID: "ldap_2.servers.pab",
   readOnly: false,
   position: 1,
@@ -30,10 +30,10 @@ var kPABData = {
 
 // Collected Address Book configuration items.
 var kCABData = {
-  URI: "jsaddrbook://history.sqlite",
-  fileName: "history.sqlite",
+  URI: "moz-abmdbdirectory://history.mab",
+  fileName: "history.mab",
   dirName: "Collected Addresses",
-  dirType: 101,
+  dirType: 2,
   dirPrefID: "ldap_2.servers.history",
   readOnly: false,
   position: 2,
@@ -48,41 +48,3 @@ Services.prefs.deleteBranch("ldap_2.servers.osx.");
 // This currently applies to all address books of local type.
 var kNormalPropertiesURI =
   "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul";
-
-/**
- * Installs a pre-prepared address book file into the profile directory.
- * This version is for JS/SQLite address books, if you create a new type,
- * replace this function to test them.
- *
- * @param {String} source  Path to the source data, without extension
- * @param {String} dest    Final file name in the profile, with extension
- */
-function loadABFile(source, dest) {
-  let sourceFile = do_get_file(`${source}.sql`);
-  let destFile = do_get_profile();
-  destFile.append(dest);
-
-  info(`Creating ${destFile.path} from ${sourceFile.path}`);
-
-  let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
-    Ci.nsIFileInputStream
-  );
-  let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(
-    Ci.nsIConverterInputStream
-  );
-  fstream.init(sourceFile, -1, 0, 0);
-  cstream.init(fstream, "UTF-8", 0, 0);
-
-  let data = "";
-  let read = 0;
-  do {
-    let str = {};
-    read = cstream.readString(0xffffffff, str);
-    data += str.value;
-  } while (read != 0);
-  cstream.close();
-
-  let conn = Services.storage.openDatabase(destFile);
-  conn.executeSimpleSQL(data);
-  conn.close();
-}

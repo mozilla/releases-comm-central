@@ -17,16 +17,14 @@ interface nsIMutableArray;
 %{C++
 #define kAllDirectoryRoot          "moz-abdirectory://"
 
-#define kPersonalAddressbook       "abook.sqlite"
-#define kPersonalAddressbookUri    "jsaddrbook://abook.sqlite"
-#define kCollectedAddressbook      "history.sqlite"
-#define kCollectedAddressbookUri   "jsaddrbook://history.sqlite"
+#define kPersonalAddressbook       "abook.mab"
+#define kPersonalAddressbookUri    "moz-abmdbdirectory://abook.mab"
+#define kCollectedAddressbook      "history.mab"
+#define kCollectedAddressbookUri   "moz-abmdbdirectory://history.mab"
 
 #define kABFileName_PreviousSuffix ".na2" /* final v2 address book format */
 #define kABFileName_PreviousSuffixLen 4
 #define kABFileName_CurrentSuffix  ".mab" /* v3 address book extension */
-
-#define kMDBAddressBook            "abook.mab"
 
 #define kJSDirectoryRoot           "jsaddrbook://"
 #define kJSAddressBook             "abook.sqlite"

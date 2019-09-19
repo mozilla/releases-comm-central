@@ -27,8 +27,7 @@ class nsAbAddressCollector : public nsIAbAddressCollector, public nsIObserver {
 
  private:
   virtual ~nsAbAddressCollector();
-  already_AddRefed<nsIAbCard> GetCardForAddress(const char *aProperty,
-                                                const nsACString &aEmailAddress,
+  already_AddRefed<nsIAbCard> GetCardForAddress(const nsACString &aEmailAddress,
                                                 nsIAbDirectory **aDirectory);
   void AutoCollectScreenName(nsIAbCard *aCard, const nsACString &aEmail);
   bool SetNamesForCard(nsIAbCard *aSenderCard, const nsACString &aFullName);

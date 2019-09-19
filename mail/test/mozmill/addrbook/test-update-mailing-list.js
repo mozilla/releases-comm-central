@@ -30,7 +30,7 @@ function test_contact_in_mailing_list_updated() {
   const kNewAddress = "after@example.com";
 
   // Create some address book to work with...
-  let ab = create_address_book("Some Address Book");
+  let ab = create_mork_address_book("Some Address Book");
   // And a contact...
   let contact = create_contact(kOldAddress, "Some Contact", true);
   // And our mailing list.
@@ -38,8 +38,10 @@ function test_contact_in_mailing_list_updated() {
 
   // Add the mailing list to the address book, and then the card to the
   // address book, and finally, the card to the mailing list.
+  ml.addressLists.appendElement(contact);
   ml = ab.addMailList(ml);
-  contact = ml.addCard(contact);
+
+  contact = ml.addressLists.queryElementAt(0, Ci.nsIAbCard);
 
   // Open the address book, select our contact...
   let abw = open_address_book_window(mc);

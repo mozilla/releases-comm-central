@@ -13,7 +13,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 
-#define kPersonalAddressbookUri "jsaddrbook://abook.sqlite"
+#define kPersonalAddressbookUri "moz-abmdbdirectory://abook.mab"
 
 nsProfileMigratorBase::nsProfileMigratorBase() {
   mObserverService = do_GetService("@mozilla.org/observer-service;1");

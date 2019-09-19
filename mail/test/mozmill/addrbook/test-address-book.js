@@ -48,10 +48,10 @@ function setupModule(module) {
   // out of order to properly test the alphabetical
   // ordering of the address books.
   ldapBook = create_ldap_address_book("LDAP Book");
-  addrBook3 = create_address_book("AB 3");
-  addrBook1 = create_address_book("AB 1");
-  addrBook4 = create_address_book("AB 4");
-  addrBook2 = create_address_book("AB 2");
+  addrBook3 = create_mork_address_book("AB 3");
+  addrBook1 = create_mork_address_book("AB 1");
+  addrBook4 = create_mork_address_book("AB 4");
+  addrBook2 = create_mork_address_book("AB 2");
 
   mListA = create_mailing_list("ML A");
   addrBook1.addMailList(mListA);

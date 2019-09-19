@@ -105,12 +105,7 @@ AddrBookDirectory.prototype = {
       if (!this.dirPrefId) {
         throw Cr.NS_ERROR_UNEXPECTED;
       }
-      // Make sure we always have a file. If a file is not created, the
-      // filename may be accidentally reused.
-      let file = FileUtils.getFile("ProfD", [filename]);
-      if (!file.exists()) {
-        file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
-      }
+      this.UID;
     }
   },
 };
@@ -130,43 +125,11 @@ var closeObserver = {
 Services.obs.addObserver(closeObserver, "addrbook-reload");
 Services.obs.addObserver(closeObserver, "quit-application");
 
-/**
- * Opens an SQLite connection to `file`, caches the connection, and upgrades
- * the database schema if necessary.
- */
-function openConnectionTo(file) {
-  let connection = connections.get(file.path);
-  if (!connection) {
-    connection = Services.storage.openDatabase(file);
-    if (connection.schemaVersion == 0) {
-      connection.executeSimpleSQL("PRAGMA journal_mode=WAL");
-      connection.executeSimpleSQL(
-        "CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER)"
-      );
-      connection.executeSimpleSQL(
-        "CREATE TABLE properties (card TEXT, name TEXT, value TEXT)"
-      );
-      connection.executeSimpleSQL(
-        "CREATE TABLE lists (uid TEXT PRIMARY KEY, localId INTEGER, name TEXT, nickName TEXT, description TEXT)"
-      );
-      connection.executeSimpleSQL(
-        "CREATE TABLE list_cards (list TEXT, card TEXT, PRIMARY KEY(list, card))"
-      );
-      connection.schemaVersion = 1;
-    }
-    connections.set(file.path, connection);
-  }
-  return connection;
-}
-
-/**
- * Closes the SQLite connection to `file` and removes it from the cache.
- */
-function closeConnectionTo(file) {
-  let connection = connections.get(file.path);
+function closeConnectionTo(path) {
+  let connection = connections.get(path);
   if (connection) {
     connection.close();
-    connections.delete(file.path);
+    connections.delete(path);
   }
 }
 
@@ -187,7 +150,27 @@ var bookPrototype = {
   },
   get _dbConnection() {
     let file = FileUtils.getFile("ProfD", [this.fileName]);
-    let connection = openConnectionTo(file);
+    let connection = connections.get(file.path);
+    if (!connection) {
+      connection = Services.storage.openDatabase(file);
+      if (connection.schemaVersion == 0) {
+        connection.executeSimpleSQL("PRAGMA journal_mode=WAL");
+        connection.executeSimpleSQL(
+          "CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER)"
+        );
+        connection.executeSimpleSQL(
+          "CREATE TABLE properties (card TEXT, name TEXT, value TEXT)"
+        );
+        connection.executeSimpleSQL(
+          "CREATE TABLE lists (uid TEXT PRIMARY KEY, localId INTEGER, name TEXT, nickName TEXT, description TEXT)"
+        );
+        connection.executeSimpleSQL(
+          "CREATE TABLE list_cards (list TEXT, card TEXT, PRIMARY KEY(list, card))"
+        );
+        connection.schemaVersion = 1;
+      }
+      connections.set(file.path, connection);
+    }
 
     delete this._dbConnection;
     Object.defineProperty(this, "_dbConnection", {
@@ -231,32 +214,30 @@ var bookPrototype = {
 
   _getNextCardId() {
     if (this._nextCardId === null) {
-      let value = 0;
+      let value = 1;
       let selectStatement = this._dbConnection.createStatement(
         "SELECT MAX(localId) AS localId FROM cards"
       );
       if (selectStatement.executeStep()) {
-        value = selectStatement.row.localId;
+        value = selectStatement.row.localId + 1;
       }
       this._nextCardId = value;
       selectStatement.finalize();
     }
-    this._nextCardId++;
     return this._nextCardId.toString();
   },
   _getNextListId() {
     if (this._nextListId === null) {
-      let value = 0;
+      let value = 1;
       let selectStatement = this._dbConnection.createStatement(
         "SELECT MAX(localId) AS localId FROM lists"
       );
       if (selectStatement.executeStep()) {
-        value = selectStatement.row.localId;
+        value = selectStatement.row.localId + 1;
       }
       this._nextListId = value;
       selectStatement.finalize();
     }
-    this._nextListId++;
     return this._nextListId.toString();
   },
   _getCard({ uid, localId = null }) {
@@ -340,12 +321,11 @@ var bookPrototype = {
     let selectStatement = this._dbConnection.createStatement(sql);
     selectStatement.params.name = property;
     selectStatement.params.value = value;
-    let result = null;
     if (selectStatement.executeStep()) {
-      result = this._getCard({ uid: selectStatement.row.card });
+      return this._getCard({ uid: selectStatement.row.card });
     }
     selectStatement.finalize();
-    return result;
+    return null;
   },
   getCardsFromProperty(property, value, caseSensitive) {
     let sql = caseSensitive
@@ -368,11 +348,11 @@ var bookPrototype = {
     return "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul";
   },
   get dirName() {
-    return this.getLocalizedStringValue("description", "");
+    return this._prefBranch.getStringPref("description", "");
   },
   set dirName(value) {
     let oldValue = this.dirName;
-    this.setLocalizedStringValue("description", value);
+    this._prefBranch.setStringPref("description", value);
     MailServices.ab.notifyItemPropertyChanged(this, "DirName", oldValue, value);
   },
   get dirType() {
@@ -593,7 +573,7 @@ var bookPrototype = {
     return this._lists.has(dir.UID);
   },
   hasMailListWithName(name) {
-    for (let list of this._lists.values()) {
+    for (let list of this._lists) {
       if (list.name == name) {
         return true;
       }
@@ -632,25 +612,31 @@ var bookPrototype = {
     let deleteCardStatement = this._dbConnection.createStatement(
       "DELETE FROM cards WHERE uid = :uid"
     );
+    let selectListCardStatement = this._dbConnection.createStatement(
+      "SELECT list FROM list_cards WHERE card = :card"
+    );
     for (let card of cards.enumerate(Ci.nsIAbCard)) {
       deleteCardStatement.params.uid = card.UID;
       deleteCardStatement.execute();
       deleteCardStatement.reset();
+      MailServices.ab.notifyDirectoryItemDeleted(this, card);
+
+      selectListCardStatement.params.card = card.UID;
+      while (selectListCardStatement.executeStep()) {
+        let list = new AddrBookMailingList(
+          selectListCardStatement.row.list,
+          this
+        );
+        list.asDirectory.deleteCards(toXPCOMArray([card], Ci.nsIMutableArray));
+      }
     }
+
     this._dbConnection.executeSimpleSQL(
       "DELETE FROM properties WHERE card NOT IN (SELECT DISTINCT uid FROM cards)"
     );
-    for (let card of cards.enumerate(Ci.nsIAbCard)) {
-      MailServices.ab.notifyDirectoryItemDeleted(this, card);
-    }
-
-    // We could just delete all non-existent cards from list_cards, but a
-    // notification should be fired for each one. Let the list handle that.
-    for (let list of this.childNodes) {
-      list.deleteCards(cards);
-    }
 
     deleteCardStatement.finalize();
+    selectListCardStatement.finalize();
   },
   dropCard(card, needToCopyCard) {
     let newCard = new AddrBookCard();
@@ -728,7 +714,7 @@ var bookPrototype = {
       return defaultValue;
     }
     return this._prefBranch.getComplexValue(name, Ci.nsIPrefLocalizedString)
-      .data;
+      .value;
   },
   setIntValue(name, value) {
     this._prefBranch.setIntPref(name, value);
@@ -740,14 +726,6 @@ var bookPrototype = {
     this._prefBranch.setStringPref(name, value);
   },
   setLocalizedStringValue(name, value) {
-    let valueLocal = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
-      Ci.nsIPrefLocalizedString
-    );
-    valueLocal.data = value;
-    this._prefBranch.setComplexValue(
-      name,
-      Ci.nsIPrefLocalizedString,
-      valueLocal
-    );
+    this._prefBranch.setComplexValue(name, Ci.nsIPrefLocalizedString, value);
   },
 };

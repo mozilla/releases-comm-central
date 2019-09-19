@@ -39,14 +39,8 @@ const kMaxYear = 9999;
 const kMinYear = 1;
 var kAllDirectoryRoot = "moz-abdirectory://";
 var kLdapUrlPrefix = "moz-abldapdirectory://";
-var stillUsingMabFiles =
-  Services.prefs.getIntPref("ldap_2.servers.pab.dirType") == 2;
-var kPersonalAddressbookURI = stillUsingMabFiles
-  ? "moz-abmdbdirectory://abook.mab"
-  : "jsaddrbook://abook.sqlite";
-var kCollectedAddressbookURI = stillUsingMabFiles
-  ? "moz-abmdbdirectory://history.mab"
-  : "jsaddrbook://history.sqlite";
+var kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
+var kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
 // The default, generic contact image is displayed via CSS when the photoURI is
 // blank.
 var defaultPhotoURI = "";
@@ -867,14 +861,14 @@ function GetDirectoryFromURI(uri) {
 function GetParentDirectoryFromMailingListURI(abURI) {
   var abURIArr = abURI.split("/");
   /*
-   turn turn "jsaddrbook://abook.sqlite/MailList6"
-   into ["jsaddrbook:","","abook.sqlite","MailList6"]
-   then, turn ["jsaddrbook:","","abook.sqlite","MailList6"]
-   into "jsaddrbook://abook.sqlite"
+   turn turn "moz-abmdbdirectory://abook.mab/MailList6"
+   into ["moz-abmdbdirectory:","","abook.mab","MailList6"]
+   then, turn ["moz-abmdbdirectory:","","abook.mab","MailList6"]
+   into "moz-abmdbdirectory://abook.mab"
   */
   if (
     abURIArr.length == 4 &&
-    ["jsaddrbook:", "moz-abmdbdirectory:"].includes(abURIArr[0]) &&
+    abURIArr[0] == "moz-abmdbdirectory:" &&
     abURIArr[3] != ""
   ) {
     return abURIArr[0] + "/" + abURIArr[1] + "/" + abURIArr[2];

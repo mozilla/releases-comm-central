@@ -409,8 +409,8 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType) {
   statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
   /*
-    turn "jsaddrbook://abook.sqlite" into
-    "addbook://jsaddrbook/abook.sqlite?action=print"
+    turn "moz-abmdbdirectory://abook.mab" into
+    "addbook://moz-abmdbdirectory/abook.mab?action=print"
    */
 
   var abURIArr = uri.split("://");

@@ -877,7 +877,7 @@
           this.internalOperator != Ci.nsMsgSearchOp.IsInAB
         ) {
           const abs = children[4].querySelector(
-            `[value="moz-abmdbdirectory://abook.mab"], [value="jsaddrbook://abook.sqlite"]`
+            `[value="moz-abmdbdirectory://abook.mab"]`
           );
           if (abs) {
             children[4].selectedItem = abs;

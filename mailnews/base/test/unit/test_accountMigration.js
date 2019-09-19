@@ -30,7 +30,10 @@ function run_test() {
     "account1,account2"
   );
 
-  loadABFile("data/remoteContent", kPABData.fileName);
+  let testAB = do_get_file("data/remoteContent.mab");
+
+  // Copy the file to the profile directory for a PAB.
+  testAB.copyTo(do_get_profile(), kPABData.fileName);
 
   let uriAllowed = Services.io.newURI(
     "chrome://messenger/content/email=yes@test.invalid"

@@ -24,13 +24,8 @@ ChromeUtils.defineModuleGetter(
 function AddrBookCard() {
   this._directoryId = "";
   this._localId = "";
-  this._properties = new Map([
-    ["PreferMailFormat", Ci.nsIAbPreferMailFormat.unknown],
-    ["PopularityIndex", 0],
-    ["LastModifiedDate", 0],
-  ]);
+  this._properties = new Map();
 }
-
 AddrBookCard.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAbCard]),
   classID: Components.ID("{1143991d-31cd-4ea6-9c97-c587d990d724}"),
@@ -146,7 +141,7 @@ AddrBookCard.prototype = {
     return false;
   },
   get mailListURI() {
-    return "";
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
   getProperty(name, defaultValue) {
@@ -156,37 +151,16 @@ AddrBookCard.prototype = {
     return defaultValue;
   },
   getPropertyAsAString(name) {
-    if (!this._properties.has(name)) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
-    }
     return this.getProperty(name);
   },
   getPropertyAsAUTF8String(name) {
-    if (!this._properties.has(name)) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
-    }
-    return this.getProperty(name);
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   getPropertyAsUint32(name) {
-    let value = this.getProperty(name);
-    if (isNaN(parseInt(value, 10))) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
-    }
-    return value;
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   getPropertyAsBool(name) {
-    let value = this.getProperty(name);
-    switch (value) {
-      case false:
-      case 0:
-      case "0":
-        return false;
-      case true:
-      case 1:
-      case "1":
-        return true;
-    }
-    throw Cr.NS_ERROR_NOT_AVAILABLE;
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   setProperty(name, value) {
     this._properties.set(name, value);
@@ -195,13 +169,13 @@ AddrBookCard.prototype = {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   setPropertyAsAUTF8String(name, value) {
-    this.setProperty(name, value);
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   setPropertyAsUint32(name, value) {
-    this.setProperty(name, value);
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   setPropertyAsBool(name, value) {
-    this.setProperty(name, value ? 1 : 0);
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
   deleteProperty(name) {
     this._properties.delete(name);

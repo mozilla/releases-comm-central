@@ -123,6 +123,10 @@ function run_test() {
   }
 
   var expectedABs = [kPABData.URI, kCABData.URI];
+  if (kPABData.dirType == 101) {
+    expectedABs.push("moz-abmdbdirectory://abook.mab");
+    expectedABs.push("moz-abmdbdirectory://history.mab");
+  }
 
   // Test - Check initial directories
 

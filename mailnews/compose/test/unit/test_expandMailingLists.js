@@ -44,7 +44,11 @@ function checkPopulate(aTo, aCheckTo) {
 }
 
 function run_test() {
-  loadABFile("data/listexpansion", kPABData.fileName);
+  // Test setup - copy the data files into place
+  let testAB = do_get_file("./data/listexpansion.mab");
+
+  // Copy the file to the profile directory for a PAB
+  testAB.copyTo(do_get_profile(), kPABData.fileName);
 
   // XXX Getting all directories ensures we create all ABs because mailing
   // lists need help initialising themselves

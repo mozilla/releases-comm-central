@@ -39,8 +39,7 @@ nsAbAddressCollector::~nsAbAddressCollector() {
  * returns an already addrefed pointer to the card if the card is found.
  */
 already_AddRefed<nsIAbCard> nsAbAddressCollector::GetCardForAddress(
-    const char *aProperty, const nsACString &aEmailAddress,
-    nsIAbDirectory **aDirectory) {
+    const nsACString &aEmailAddress, nsIAbDirectory **aDirectory) {
   nsresult rv;
   nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, nullptr);
@@ -62,8 +61,8 @@ already_AddRefed<nsIAbCard> nsAbAddressCollector::GetCardForAddress(
 
     // Some implementations may return NS_ERROR_NOT_IMPLEMENTED here,
     // so just catch the value and continue.
-    if (NS_FAILED(directory->GetCardFromProperty(
-            aProperty, aEmailAddress, false, getter_AddRefs(result)))) {
+    if (NS_FAILED(directory->CardForEmailAddress(aEmailAddress,
+                                                 getter_AddRefs(result)))) {
       continue;
     }
 
@@ -112,19 +111,10 @@ nsAbAddressCollector::CollectSingleAddress(const nsACString &aEmail,
   nsresult rv;
 
   nsCOMPtr<nsIAbDirectory> originDirectory;
-  nsCOMPtr<nsIAbCard> card;
-  if (!aSkipCheckExisting) {
-    card = GetCardForAddress(kPriEmailProperty, aEmail,
-                             getter_AddRefs(originDirectory));
-
-    // If a card has aEmail, but it's the secondary address, we don't want to
-    // update any properties, so just return.
-    if (!card) {
-      card = GetCardForAddress(k2ndEmailProperty, aEmail,
-                               getter_AddRefs(originDirectory));
-      if (card) return NS_OK;
-    }
-  }
+  nsCOMPtr<nsIAbCard> card =
+      (!aSkipCheckExisting)
+          ? GetCardForAddress(aEmail, getter_AddRefs(originDirectory))
+          : nullptr;
 
   if (!card && (aCreateCard || aSkipCheckExisting)) {
     card = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);

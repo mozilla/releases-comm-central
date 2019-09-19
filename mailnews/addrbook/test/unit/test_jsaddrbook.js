@@ -5,7 +5,7 @@
 "use strict";
 
 var DIR_TYPE = kPABData.dirType;
-var FILE_NAME = DIR_TYPE == 101 ? "abook-1.sqlite" : "abook-1.mab";
+var FILE_NAME = DIR_TYPE == 101 ? "abook-2.sqlite" : "abook-1.mab";
 var SCHEME = DIR_TYPE == 101 ? "jsaddrbook" : "moz-abmdbdirectory";
 
 var { MailServices } = ChromeUtils.import(
@@ -88,23 +88,8 @@ var observer = {
 };
 
 add_task(async function setUp() {
-  let profileDir = do_get_profile();
+  do_get_profile();
   observer.setUp();
-
-  let dirs = [...MailServices.ab.directories];
-  equal(dirs.length, 2);
-  equal(dirs[0].fileName, kPABData.fileName);
-  equal(dirs[1].fileName, kCABData.fileName);
-
-  // Check the PAB file was created.
-  let pabFile = profileDir.clone();
-  pabFile.append(kPABData.fileName);
-  ok(pabFile.exists());
-
-  // Check the CAB file was created.
-  let cabFile = profileDir.clone();
-  cabFile.append(kCABData.fileName);
-  ok(cabFile.exists());
 });
 
 add_task(async function createAddressBook() {
@@ -147,12 +132,7 @@ add_task(async function createAddressBook() {
     FILE_NAME
   );
   equal(Services.prefs.getStringPref("ldap_2.servers.newbook.uid"), book.UID);
-  equal([...MailServices.ab.directories].length, 3);
-
-  // Check the file was created.
-  let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
-  dbFile.append(FILE_NAME);
-  ok(dbFile.exists());
+  equal([...MailServices.ab.directories].length, DIR_TYPE == 101 ? 5 : 3);
 });
 
 add_task(async function editAddressBook() {
@@ -368,7 +348,7 @@ add_task(async function deleteAddressBook() {
   let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   dbFile.append(FILE_NAME);
   ok(!dbFile.exists());
-  equal([...MailServices.ab.directories].length, 2);
+  equal([...MailServices.ab.directories].length, DIR_TYPE == 101 ? 4 : 2);
   if (DIR_TYPE == 101) {
     throws(
       () => MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`),

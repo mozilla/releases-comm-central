@@ -262,7 +262,7 @@ nsresult DIR_AddNewAddressBook(const nsAString &dirName,
     if (!fileName.IsEmpty())
       server->fileName = ToNewCString(fileName);
     else if (dirType == PABDirectory)
-      DIR_SetFileName(&server->fileName, kMDBAddressBook);
+      DIR_SetFileName(&server->fileName, kPersonalAddressbook);
     else if (dirType == LDAPDirectory)
       DIR_SetFileName(&server->fileName, kMainLdapAddressBook);
     else if (dirType == JSDirectory)
@@ -587,8 +587,8 @@ nsresult DIR_DeleteServerFromList(DIR_Server *server) {
     // "abook.mab" as the file name for LDAP directories, which would cause a
     // crash on delete of LDAP directories.  this is just extra protection.
     if (server->fileName && server->dirType != JSDirectory &&
-        strcmp(server->fileName, "abook.mab") &&
-        strcmp(server->fileName, "history.mab")) {
+        strcmp(server->fileName, kPersonalAddressbook) &&
+        strcmp(server->fileName, kCollectedAddressbook)) {
       nsCOMPtr<nsIAddrDatabase> database;
 
       rv = dbPath->AppendNative(nsDependentCString(server->fileName));
@@ -912,7 +912,7 @@ void DIR_SetServerFileName(DIR_Server *server) {
       server->prefName = dir_CreateServerPrefName(server);
 
     /* set default personal address book file name*/
-    if ((server->position == 1) && (server->dirType == JSDirectory))
+    if ((server->position == 1) && (server->dirType == PABDirectory))
       server->fileName = strdup(kPersonalAddressbook);
     else {
       /* now use the pref name as the file name since we know the pref name
@@ -937,15 +937,12 @@ void DIR_SetServerFileName(DIR_Server *server) {
     if (!server->fileName || !*server->fileName) /* when all else has failed,
                                                     generate a default name */
     {
-      if (server->dirType == PABDirectory) {
-        DIR_SetFileName(&(server->fileName), kMDBAddressBook);
-      } else if (server->dirType == LDAPDirectory) {
+      if (server->dirType == LDAPDirectory)
         DIR_SetFileName(
             &(server->fileName),
             kMainLdapAddressBook); /* generates file name with an ldap prefix */
-      } else {
+      else
         DIR_SetFileName(&(server->fileName), kPersonalAddressbook);
-      }
     }
   }
 }

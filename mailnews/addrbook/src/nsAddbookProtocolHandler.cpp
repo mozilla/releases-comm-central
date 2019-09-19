@@ -180,21 +180,21 @@ nsresult nsAddbookProtocolHandler::GeneratePrintOutput(
   NS_ENSURE_SUCCESS(rv, rv);
 
   /* turn
-   "//jsaddrbook/abook.sqlite?action=print"
-   into "jsaddrbook://abook.sqlite"
+   "//moz-abmdbdirectory/abook.mab?action=print"
+   into "moz-abmdbdirectory://abook.mab"
   */
 
   /* step 1:
-   turn "//jsaddrbook/abook.sqlite?action=print"
-   into "jsaddrbook/abook.sqlite?action=print"
+   turn "//moz-abmdbdirectory/abook.mab?action=print"
+   into "moz-abmdbdirectory/abook.mab?action=print"
    */
   if (uri[0] != '/' && uri[1] != '/') return NS_ERROR_UNEXPECTED;
 
   uri.Cut(0, 2);
 
   /* step 2:
-   turn "jsaddrbook/abook.sqlite?action=print"
-   into "jsaddrbook/abook.sqlite"
+   turn "moz-abmdbdirectory/abook.mab?action=print"
+   into "moz-abmdbdirectory/abook.mab"
    */
   int32_t pos = uri.Find("?action=print");
   if (pos == -1) return NS_ERROR_UNEXPECTED;
@@ -202,8 +202,8 @@ nsresult nsAddbookProtocolHandler::GeneratePrintOutput(
   uri.SetLength(pos);
 
   /* step 2:
-   turn "jsaddrbook/abook.sqlite"
-   into "jsaddrbook://abook.sqlite"
+   turn "moz-abmdbdirectory/abook.mab"
+   into "moz-abmdbdirectory://abook.mab"
    */
   pos = uri.FindChar('/');
   if (pos == -1) return NS_ERROR_UNEXPECTED;

@@ -135,7 +135,9 @@ function test_send_enabled_manual_address() {
 
   // - a mailinglist in addressbook
   // Button is enabled without checking whether it contains valid addresses.
-  let defaultAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  let defaultAB = MailServices.ab.getDirectory(
+    "moz-abmdbdirectory://abook.mab"
+  );
   let ml = create_mailing_list("emptyList");
   defaultAB.addMailList(ml);
 
@@ -235,7 +237,9 @@ function test_send_enabled_prefilled_address_from_identity() {
  */
 function test_send_enabled_address_contacts_sidebar() {
   // Create some contact address book card in the Personal addressbook.
-  let defaultAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  let defaultAB = MailServices.ab.getDirectory(
+    "moz-abmdbdirectory://abook.mab"
+  );
   let contact = create_contact("test@example.com", "Sammy Jenkis", true);
   load_contacts_into_address_book(defaultAB, [contact]);
 

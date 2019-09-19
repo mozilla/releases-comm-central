@@ -16,19 +16,8 @@ var { MailServices } = ChromeUtils.import(
 );
 var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 
-const DIRTYPE_JS = 101;
-
 // Tree Sort helper methods.
-var AB_ORDER = [
-  "aab",
-  "pab",
-  "mork",
-  "js",
-  "ldap",
-  "mapi+other",
-  "anyab",
-  "cab",
-];
+var AB_ORDER = ["aab", "pab", "mork", "ldap", "mapi+other", "anyab", "cab"];
 
 function getDirectoryValue(aDir, aKey) {
   if (aKey == "ab_type") {
@@ -43,9 +32,6 @@ function getDirectoryValue(aDir, aKey) {
     }
     if (aDir._directory instanceof Ci.nsIAbMDBDirectory) {
       return "mork";
-    }
-    if (aDir._directory.dirType == DIRTYPE_JS) {
-      return "js";
     }
     if (aDir._directory instanceof Ci.nsIAbLDAPDirectory) {
       return "ldap";

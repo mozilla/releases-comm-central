@@ -1,4 +1,3 @@
--- Address book data for use in various tests.
 PRAGMA user_version = 1;
 
 CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER);
