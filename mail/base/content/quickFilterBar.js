@@ -82,13 +82,29 @@ var QuickFilterBarMuxer = {
    * quickFilter toggle should be enabled, and set it appropriately.
    */
   _updateToggle(aTabInfo) {
-    if (!this.isCommandEnabled("cmd_toggleQuickFilterBar", aTabInfo)) {
-      document
-        .getElementById("view_toolbars_popup_quickFilterBar")
-        .setAttribute("checked", false);
+    let enabled = this.isCommandEnabled("cmd_toggleQuickFilterBar", aTabInfo);
+    if (!enabled) {
+      this._setupToggleChecks(false);
     }
+    document.getElementById("quick-filter-bar").hidden = !enabled;
 
     this._updateCommands();
+  },
+
+  /**
+   * Sets quickfilter related UI items (menuitems and toolbarbuttons)
+   * to appropriate checked state.
+   * @param {boolean} checked - True when the the UI items should be checked.
+   */
+  _setupToggleChecks(checked) {
+    document
+      .querySelectorAll(
+        `menuitem[type="checkbox"][command="cmd_toggleQuickFilterBar"],
+         toolbarbutton[type="checkbox"][command="cmd_toggleQuickFilterBar"]`
+      )
+      .forEach(item => {
+        item.setAttribute("checked", checked);
+      });
   },
 
   /**
@@ -280,9 +296,7 @@ var QuickFilterBarMuxer = {
     this.reflectFiltererResults(aFilterer, aFolderDisplay);
 
     document.getElementById("quick-filter-bar").collapsed = !aFilterer.visible;
-    document
-      .getElementById("view_toolbars_popup_quickFilterBar")
-      .setAttribute("checked", aFilterer.visible);
+    this._setupToggleChecks(aFilterer.visible);
   },
 
   /**

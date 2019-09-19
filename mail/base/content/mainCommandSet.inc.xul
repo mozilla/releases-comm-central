@@ -12,7 +12,6 @@
               commandupdater="true"
               events="create-menu-file"
               oncommandupdate="goUpdateMailMenuItems(this)">
-
       <command id="cmd_newFolder" oncommand="goDoCommand('cmd_newFolder')" disabled="true"/>
       <command id="cmd_newVirtualFolder" oncommand="goDoCommand('cmd_newVirtualFolder')" disabled="true"/>
       <command id="cmd_getNewMessages" oncommand="goDoCommand('cmd_getNewMessages')" disabled="true"/>
@@ -41,7 +40,6 @@
               commandupdater="true"
               events="create-menu-view"
               oncommandupdate="goUpdateMailMenuItems(this)">
-
      <command id="cmd_showQuickFilterBar"
               oncommand="goDoCommand('cmd_showQuickFilterBar');"/>
      <command id="cmd_toggleQuickFilterBar"

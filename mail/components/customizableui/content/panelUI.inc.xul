@@ -435,10 +435,7 @@
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&quickFilterBar.toggleBarVisibility.appmenu.label;"
-                       command="cmd_toggleQuickFilterBar">
-          <observes element="view_toolbars_popup_quickFilterBar"
-                    attribute="checked"/>
-        </toolbarbutton>
+                       command="cmd_toggleQuickFilterBar"/>
         <toolbarbutton id="appmenu_showStatusbar"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"

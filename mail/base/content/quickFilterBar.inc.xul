@@ -3,9 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
     <vbox id="quick-filter-bar">
-      <observes element="cmd_toggleQuickFilterBar"
-                attribute="disabled"
-                />
       <hbox id="quick-filter-bar-main-bar" align="center"
             onoverflow="QuickFilterBarMuxer.onOverflow();"
             >

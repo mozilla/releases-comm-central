@@ -287,10 +287,7 @@
                    class="toolbarbutton-1"
                    type="checkbox"
                    label="&quickFilterBar.qfbShowFilterBar.label;"
-                   command="cmd_toggleQuickFilterBar">
-      <observes element="view_toolbars_popup_quickFilterBar"
-                attribute="checked"/>
-    </toolbarbutton>
+                   command="cmd_toggleQuickFilterBar"/>
 #endif
     <toolbarbutton id="button-address"
                    class="toolbarbutton-1"
