@@ -726,10 +726,6 @@ calendar-event-freebusy-day > box {
   text-align: left;
 }
 
-#attendees-list hbox textbox {
-  width: 100%;
-}
-
 .selection-bar-left {
   width: 3px;
   cursor: w-resize;

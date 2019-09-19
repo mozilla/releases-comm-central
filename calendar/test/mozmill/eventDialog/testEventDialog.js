@@ -55,7 +55,6 @@ function setupModule(module) {
   createCalendar(controller, CALENDARNAME);
 }
 
-testEventDialog.__force_skip__ = true;
 function testEventDialog() {
   let dateFormatter = cal.getDateFormatter();
   let now = new Date();
