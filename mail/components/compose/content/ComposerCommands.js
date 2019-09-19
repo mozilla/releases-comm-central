@@ -324,16 +324,13 @@ function goUpdateCommandState(command) {
         dump("no update for command: " + command + "\n");
     }
   } catch (e) {
-    dump(
-      "An error occurred updating the " + command + " command: \n" + e + "\n"
-    );
+    Cu.reportError(e);
   }
 }
 /* eslint-enable complexity */
 
 function goUpdateComposerMenuItems(commandset) {
   // dump("Updating commands for " + commandset.id + "\n");
-
   for (var i = 0; i < commandset.childNodes.length; i++) {
     var commandNode = commandset.childNodes[i];
     var commandID = commandNode.id;
@@ -365,23 +362,46 @@ function goDoCommandParams(command, params) {
       ResetStructToolbar();
     }
   } catch (e) {
-    dump("An error occurred executing the " + command + " command\n");
+    Cu.reportError(e);
   }
 }
 
-function pokeStyleUI(uiID, aDesiredState) {
-  try {
-    var commandNode = top.document.getElementById(uiID);
-    if (!commandNode) {
-      return;
+/**
+ * Update the UI to reflect setting a given state for a command.
+ *
+ * @param {string} uiID - The id of the command.
+ * @param {boolean} desiredState - State to set for the command.
+ */
+function pokeStyleUI(uiID, desiredState) {
+  let commandNode = top.document.getElementById(uiID);
+  let uiState = "true" == commandNode.getAttribute("state");
+  if (desiredState != uiState) {
+    commandNode.setAttribute("state", desiredState ? "true" : "false");
+    switch (uiID) {
+      case "cmd_bold": {
+        onButtonUpdate(document.getElementById("boldButton"), "cmd_bold");
+        break;
+      }
+      case "cmd_italic": {
+        onButtonUpdate(document.getElementById("italicButton"), "cmd_italic");
+        break;
+      }
+      case "cmd_underline": {
+        onButtonUpdate(
+          document.getElementById("underlineButton"),
+          "cmd_underline"
+        );
+        break;
+      }
+      case "cmd_ul": {
+        onButtonUpdate(document.getElementById("ulButton"), "cmd_ul");
+        break;
+      }
+      case "cmd_ol": {
+        onButtonUpdate(document.getElementById("olButton"), "cmd_ol");
+        break;
+      }
     }
-
-    var uiState = "true" == commandNode.getAttribute("state");
-    if (aDesiredState != uiState) {
-      commandNode.setAttribute("state", aDesiredState ? "true" : "false");
-    }
-  } catch (e) {
-    dump("poking UI for " + uiID + " failed: " + e + "\n");
   }
 }
 
@@ -406,35 +426,56 @@ function stringToTypedArray(buffer) {
   return typedarray;
 }
 
+/**
+ * Update the UI to reflect setting a given state for a command. This is used
+ * when the command state has a string value.
+ *
+ * @param {string} uiID - The id of the command.
+ * @param {nsICommandParams} cmdParams - Command parameters object.
+ */
 function pokeMultiStateUI(uiID, cmdParams) {
-  try {
-    var commandNode = document.getElementById(uiID);
-    if (!commandNode) {
-      return;
-    }
-
-    var isMixed = cmdParams.getBooleanValue("state_mixed");
-    var desiredAttrib;
-    if (isMixed) {
-      desiredAttrib = "mixed";
+  let isMixed = cmdParams.getBooleanValue("state_mixed");
+  let desiredAttrib;
+  if (isMixed) {
+    desiredAttrib = "mixed";
+  } else {
+    let valuetype = cmdParams.getValueType("state_attribute");
+    if (valuetype == Ci.nsICommandParams.eStringType) {
+      desiredAttrib = cmdParams.getCStringValue("state_attribute");
+      // Decode UTF-8, for example for font names in Japanese.
+      desiredAttrib = new TextDecoder("UTF-8").decode(
+        stringToTypedArray(desiredAttrib)
+      );
     } else {
-      var valuetype = cmdParams.getValueType("state_attribute");
-      if (valuetype == Ci.nsICommandParams.eStringType) {
-        desiredAttrib = cmdParams.getCStringValue("state_attribute");
-        // Decode UTF-8, for example for font names in Japanese.
-        desiredAttrib = new TextDecoder("UTF-8").decode(
-          stringToTypedArray(desiredAttrib)
-        );
-      } else {
-        desiredAttrib = cmdParams.getStringValue("state_attribute");
+      desiredAttrib = cmdParams.getStringValue("state_attribute");
+    }
+  }
+
+  let commandNode = document.getElementById(uiID);
+  let uiState = commandNode.getAttribute("state");
+  if (desiredAttrib != uiState) {
+    commandNode.setAttribute("state", desiredAttrib);
+    switch (uiID) {
+      case "cmd_paragraphState": {
+        let menulist = document.getElementById("ParagraphSelect");
+        onParagraphFormatChange(menulist, "cmd_paragraphState");
+        break;
+      }
+      case "cmd_fontFace": {
+        let menulist = document.getElementById("FontFaceSelect");
+        onFontFaceChange(menulist, "cmd_fontFace");
+        break;
+      }
+      case "cmd_fontColor": {
+        onFontColorChange();
+        break;
+      }
+      case "cmd_backgroundColor": {
+        onBackgroundColorChange();
+        break;
       }
     }
-
-    var uiState = commandNode.getAttribute("state");
-    if (desiredAttrib != uiState) {
-      commandNode.setAttribute("state", desiredAttrib);
-    }
-  } catch (e) {}
+  }
 }
 
 function doStatefulCommand(commandID, newState) {

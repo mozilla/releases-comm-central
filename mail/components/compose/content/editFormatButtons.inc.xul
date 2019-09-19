@@ -4,42 +4,38 @@
 
         <!-- Formatting toolbar items. "value" are HTML tagnames, don't translate -->
         <toolbaritem id="paragraph-select-container"
-                     class="formatting-button"
-                     tooltiptext="&ParagraphSelect.tooltip;"
-                     observes="cmd_renderedHTMLEnabler">
+                     class="formatting-button">
           <menulist id="ParagraphSelect"
                     class="toolbar-focustarget"
                     oncommand="doStatefulCommand('cmd_paragraphState', event.target.value)"
-                    crop="right">
-            <observes element="paragraph-select-container" attribute="disabled"/>
-            <observes element="cmd_paragraphState" attribute="state" onbroadcast="onParagraphFormatChange(this.parentNode, 'cmd_paragraphState')"/>
+                    crop="right"
+                    tooltiptext="&ParagraphSelect.tooltip;"
+                    observes="cmd_renderedHTMLEnabler">
             <menupopup id="ParagraphPopup">
               <menuitem id="toolbarmenu_bodyText" label="&bodyTextCmd.label;" value=""/>
               <menuitem id="toolbarmenu_paragraph" label="&paragraphParagraphCmd.label;" value="p"/>
               <menuitem id="toolbarmenu_h1" label="&heading1Cmd.label;" value="h1"/>
-              <menuitem id="toolbarmenu_h2"  label="&heading2Cmd.label;" value="h2"/>
+              <menuitem id="toolbarmenu_h2" label="&heading2Cmd.label;" value="h2"/>
               <menuitem id="toolbarmenu_h3" label="&heading3Cmd.label;" value="h3"/>
               <menuitem id="toolbarmenu_h4" label="&heading4Cmd.label;" value="h4"/>
               <menuitem id="toolbarmenu_h5" label="&heading5Cmd.label;" value="h5"/>
               <menuitem id="toolbarmenu_h6" label="&heading6Cmd.label;" value="h6"/>
               <menuitem id="toolbarmenu_address" label="&paragraphAddressCmd.label;" value="address"/>
-              <menuitem id="toolbarmenu_pre" label="&paragraphPreformatCmd.label;"  value="pre"/>
+              <menuitem id="toolbarmenu_pre" label="&paragraphPreformatCmd.label;" value="pre"/>
             </menupopup>
           </menulist>
         </toolbaritem>
 
         <!-- "value" are HTML tagnames, don't translate -->
         <toolbaritem id="font-face-select-container"
-                     class="formatting-button"
-                     tooltiptext="&FontFaceSelect.tooltip;"
-                     observes="cmd_renderedHTMLEnabler">
+                     class="formatting-button">
           <menulist id="FontFaceSelect"
                     class="toolbar-focustarget"
                     oncommand="doStatefulCommand('cmd_fontFace', event.target.value)"
                     crop="center"
-                    sizetopopup="pref">
-            <observes element="font-face-select-container" attribute="disabled"/>
-            <observes element="cmd_fontFace" attribute="state" onbroadcast="onFontFaceChange(this.parentNode, 'cmd_fontFace')"/>
+                    sizetopopup="pref"
+                    tooltiptext="&FontFaceSelect.tooltip;"
+                    observes="cmd_renderedHTMLEnabler">
             <menupopup id="FontFacePopup">
               <menuitem id="toolbarmenu_fontVarWidth" label="&fontVarWidth.label;" value=""/>
               <menuitem id="toolbarmenu_fontFixedWidth" label="&fontFixedWidth.label;" value="tt"/>
@@ -67,20 +63,16 @@
                      class="formatting-button"
                      disableoncustomize="true">
           <stack id="ColorButtons" align="center">
-            <observes element="cmd_fontColor"       attribute="state" onbroadcast="onFontColorChange()"/>
-            <observes element="cmd_backgroundColor" attribute="state" onbroadcast="onBackgroundColorChange()"/>
             <box class="color-button" id="BackgroundColorButton"
                  onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('', event); }"
                  tooltiptext="&BackgroundColorButton.tooltip;"
-                 oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */">
-              <observes element="cmd_backgroundColor" attribute="disabled"/>
-            </box>
+                 observes="cmd_backgroundColor"
+                 oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */"/>
             <box class="color-button" id="TextColorButton"
                  onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('Text', event); }"
                  tooltiptext="&TextColorButton.tooltip;"
-                 oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */">
-              <observes element="cmd_fontColor" attribute="disabled"/>
-            </box>
+                 observes="cmd_fontColor"
+                 oncommand="/* See MsgComposeCommands.js::updateAllItems for why this attribute is needed here. */"/>
           </stack>
         </toolbaritem>
 
@@ -137,27 +129,21 @@
                        tooltiptext="&boldToolbarCmd.tooltip;"
                        type="checkbox"
                        autoCheck="false"
-                       observes="cmd_bold">
-          <observes element="cmd_bold" type="checkbox" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_bold')"/>
-        </toolbarbutton>
+                       observes="cmd_bold"/>
 
         <toolbarbutton id="italicButton"
                        class="formatting-button"
                        tooltiptext="&italicToolbarCmd.tooltip;"
                        type="checkbox"
                        autoCheck="false"
-                       observes="cmd_italic">
-          <observes element="cmd_italic" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_italic')"/>
-        </toolbarbutton>
+                       observes="cmd_italic"/>
 
         <toolbarbutton id="underlineButton"
                        class="formatting-button"
                        tooltiptext="&underlineToolbarCmd.tooltip;"
                        type="checkbox"
                        autoCheck="false"
-                       observes="cmd_underline">
-          <observes element="cmd_underline" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_underline')"/>
-        </toolbarbutton>
+                       observes="cmd_underline"/>
 
         <toolbarseparator class="toolbarseparator-standard"/>
 
@@ -167,9 +153,7 @@
                        type="radio"
                        group="lists"
                        autoCheck="false"
-                       observes="cmd_ul">
-            <observes element="cmd_ul" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_ul')"/>
-        </toolbarbutton>
+                       observes="cmd_ul"/>
 
         <toolbarbutton id="olButton"
                        class="formatting-button"
@@ -177,9 +161,7 @@
                        type="radio"
                        group="lists"
                        autoCheck="false"
-                       observes="cmd_ol">
-            <observes element="cmd_ol" attribute="state" onbroadcast="onButtonUpdate(this.parentNode, 'cmd_ol')"/>
-        </toolbarbutton>
+                       observes="cmd_ol"/>
 
         <toolbarbutton id="outdentButton"
                        class="formatting-button"
