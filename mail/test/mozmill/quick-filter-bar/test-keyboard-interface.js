@@ -115,7 +115,6 @@ function test_escape_rules() {
  * press escape in there.  Because gloda is disabled by default, we need to
  * viciously uncollapse it ourselves and then cleanup afterwards...
  */
-test_escape_does_not_reach_us_from_gloda_search.__force_skip__ = true;
 function test_escape_does_not_reach_us_from_gloda_search() {
   let glodaSearchWidget = mc.e("searchInput");
   try {
