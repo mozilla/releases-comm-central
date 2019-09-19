@@ -654,7 +654,7 @@ static int MimeMultipartSigned_emit_child(MimeObject *obj) {
 
   if (mime_typep(body, (MimeObjectClass *)&mimeSuppressedCryptoClass)) {
     ((MimeMultipartSignedClass *)obj->clazz)
-      ->crypto_notify_suppressed_child(sig->crypto_closure);
+        ->crypto_notify_suppressed_child(sig->crypto_closure);
   }
 
 #ifdef MIME_DRAFTS

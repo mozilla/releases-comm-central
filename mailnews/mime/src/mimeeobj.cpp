@@ -208,7 +208,8 @@ static bool MimeExternalObject_displayable_inline_p(MimeObjectClass *clazz,
 MimeDefClass(MimeSuppressedCrypto, MimeSuppressedCryptoClass,
              mimeSuppressedCryptoClass, &MIME_SUPERCLASS);
 
-static int MimeSuppressedCryptoClassInitialize(MimeSuppressedCryptoClass *clazz) {
+static int MimeSuppressedCryptoClassInitialize(
+    MimeSuppressedCryptoClass *clazz) {
   MimeExternalObjectClass *lclass = (MimeExternalObjectClass *)clazz;
   return MimeExternalObjectClassInitialize(lclass);
 }

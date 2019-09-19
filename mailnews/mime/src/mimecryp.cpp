@@ -352,8 +352,7 @@ static int MimeEncrypted_emit_buffered_child(MimeObject *obj) {
    */
   if (enc->crypto_closure && obj->options &&
       obj->options->headers != MimeHeadersCitation &&
-      obj->options->write_html_p && obj->options->output_fn)
-  {
+      obj->options->write_html_p && obj->options->output_fn) {
     /* Now that we have written out the crypto stamp, the outermost header
      block is well and truly closed.  If this is in fact the outermost
      message, then run the post_header_html_fn now.

@@ -153,8 +153,7 @@ bool MimeEncOrMP_CMS_signed_p(MimeObject *obj) {
   return false;
 }
 
-bool MimeAnyParentCMSEncrypted(MimeObject *obj)
-{
+bool MimeAnyParentCMSEncrypted(MimeObject *obj) {
   MimeObject *o2 = obj;
   while (o2 && o2->parent) {
     if (MimeEncryptedCMS_encrypted_p(o2->parent)) {
@@ -165,8 +164,7 @@ bool MimeAnyParentCMSEncrypted(MimeObject *obj)
   return false;
 }
 
-bool MimeAnyParentCMSSigned(MimeObject *obj)
-{
+bool MimeAnyParentCMSSigned(MimeObject *obj) {
   MimeObject *o2 = obj;
   while (o2 && o2->parent) {
     if (MimeEncOrMP_CMS_signed_p(o2->parent)) {
@@ -539,7 +537,7 @@ static int MimeCMS_write(const char *buf, int32_t buf_size, void *closure) {
   nsresult rv;
 
   if (!data || !data->output_fn || !data->decoder_context) return -1;
-  
+
   if (!data->decoding_failed && !data->skip_content) {
     PR_SetError(0, 0);
     rv = data->decoder_context->Update(buf, buf_size);
@@ -648,11 +646,13 @@ static int MimeCMS_eof(void *crypto_closure, bool abort_p) {
     // with a bad status.
     if (data->any_parent_is_signed_p) {
       data->smimeHeaderSink->SignedStatus(aRelativeNestLevel,
-        nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url);
+                                          nsICMSMessageErrors::GENERAL_ERROR,
+                                          nullptr, data->url);
     }
     if (data->any_parent_is_encrypted_p) {
-      data->smimeHeaderSink->EncryptionStatus(aRelativeNestLevel,
-        nsICMSMessageErrors::GENERAL_ERROR, nullptr, data->url);
+      data->smimeHeaderSink->EncryptionStatus(
+          aRelativeNestLevel, nsICMSMessageErrors::GENERAL_ERROR, nullptr,
+          data->url);
     }
     return 0;
   }
