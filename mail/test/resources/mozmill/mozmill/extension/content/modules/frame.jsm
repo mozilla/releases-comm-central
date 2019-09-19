@@ -143,8 +143,8 @@ var loadFile = function(path, collector) {
       fails: [
         {
           exception: {
-            message: e.message,
-            filename: e.filename,
+            message: e.message || e.toString(),
+            fileName: e.filename || e.fileName,
             lineNumber: e.lineNumber,
           },
         },
