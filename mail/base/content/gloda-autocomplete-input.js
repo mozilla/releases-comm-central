@@ -145,11 +145,9 @@ customElements.whenDefined("autocomplete-input").then(() => {
                 theQuery = theQuery.involves(row.item);
               }
               theQuery.orderBy("-date");
-              document
-                .getElementById("tabmail")
-                .openTab("glodaFacet", {
-                  query: theQuery,
-                });
+              document.getElementById("tabmail").openTab("glodaFacet", {
+                query: theQuery,
+              });
             }
           }
         },

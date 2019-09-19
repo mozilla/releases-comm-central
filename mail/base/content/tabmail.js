@@ -14,6 +14,9 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
+  const { GlodaMsgSearcher } = ChromeUtils.import(
+    "resource:///modules/gloda/msg_search.js"
+  );
 
   /**
    * The MozTabmailAlltabsMenuPopup widget is used as a menupopup to list all the
