@@ -120,7 +120,7 @@ function testTaskView() {
         id("calendar-task-details")/id("other-actions-box")/
         id("task-actions-toolbox")/id("task-actions-toolbar")/
         id("task-actions-priority")/id("task-actions-priority-menupopup")/
-        {"class":"popup-internal-box"}/{"class":"priority-1-menuitem"}`
+        {"class":"priority-1-menuitem"}`
     )
   );
   sleep();

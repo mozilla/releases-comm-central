@@ -72,8 +72,7 @@
       // this.hasConnected is set to true in super.connectedCallback
       super.connectedCallback();
 
-      const scrollbox = this.querySelector(".popup-internal-box");
-      scrollbox.appendChild(
+      this.appendChild(
         MozXULElement.parseXULToFragment(
           `
                 <menuitem class="percent-0-menuitem"
@@ -113,7 +112,7 @@
 
       this.addEventListener(
         "popupshowing",
-        updateMenuItemsState.bind(null, scrollbox, "percentComplete"),
+        updateMenuItemsState.bind(null, this, "percentComplete"),
         true
       );
     }
@@ -137,8 +136,7 @@
       // this.hasConnected is set to true in super.connectedCallback
       super.connectedCallback();
 
-      const scrollbox = this.querySelector(".popup-internal-box");
-      scrollbox.appendChild(
+      this.appendChild(
         MozXULElement.parseXULToFragment(
           `
                 <menuitem class="priority-0-menuitem"
@@ -172,7 +170,7 @@
 
       this.addEventListener(
         "popupshowing",
-        updateMenuItemsState.bind(null, scrollbox, "priority"),
+        updateMenuItemsState.bind(null, this, "priority"),
         true
       );
     }
