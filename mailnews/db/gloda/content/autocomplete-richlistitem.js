@@ -238,23 +238,29 @@
       }
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-        <image class="ac-type-picture"></image>
-        <vbox>
-          <hbox>
-            <hbox class="ac-title" flex="1" onunderflow="_doUnderflow('_name');">
-              <description class="ac-normal-text ac-comment"></description>
+          <image class="ac-type-picture"></image>
+          <vbox>
+            <hbox>
+              <hbox class="ac-title"
+                    flex="1"
+                    onunderflow="_doUnderflow('_name');">
+                <description class="ac-normal-text ac-comment"></description>
+              </hbox>
+              <label class="ac-ellipsis-after ac-comment"
+                     hidden="true"></label>
             </hbox>
-            <label class="ac-ellipsis-after ac-comment" hidden="true"></label>
-          </hbox>
-          <hbox>
-            <hbox class="ac-url" flex="1" onunderflow="_doUnderflow('_identity');">
-              <description class="ac-normal-text ac-url-text"></description>
+            <hbox>
+              <hbox class="ac-url"
+                    flex="1"
+                    onunderflow="_doUnderflow('_identity');">
+                <description class="ac-normal-text ac-url-text"></description>
+              </hbox>
+              <label class="ac-ellipsis-after ac-url-text"
+                     hidden="true"></label>
+              <image class="ac-type-icon"></image>
             </hbox>
-            <label class="ac-ellipsis-after ac-url-text" hidden="true"></label>
-            <image class="ac-type-icon"></image>
-          </hbox>
-        </vbox>
-      `)
+          </vbox>
+        `)
       );
 
       let ellipsis = "\u2026";
@@ -497,25 +503,32 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-        <hbox class="gloda-single-identity">
-          <image class="picture"></image>
-          <vbox>
-            <hbox>
-              <hbox class="ac-title" flex="1" onunderflow="_doUnderflow('_name');">
-                <description class="ac-normal-text ac-comment"></description>
+          <hbox class="gloda-single-identity">
+            <image class="picture"></image>
+            <vbox>
+              <hbox>
+                <hbox class="ac-title"
+                      flex="1"
+                      onunderflow="_doUnderflow('_name');">
+                  <description class="ac-normal-text ac-comment"></description>
+                </hbox>
+                <label class="ac-ellipsis-after ac-comment"
+                       hidden="true"></label>
               </hbox>
-              <label class="ac-ellipsis-after ac-comment" hidden="true"></label>
-            </hbox>
-            <hbox>
-              <hbox class="ac-url" flex="1" onunderflow="_doUnderflow('_identity');">
-                <description class="ac-normal-text ac-url-text" inherits="selected"></description>
+              <hbox>
+                <hbox class="ac-url"
+                      flex="1"
+                      onunderflow="_doUnderflow('_identity');">
+                  <description class="ac-normal-text ac-url-text"
+                               inherits="selected"></description>
+                </hbox>
+                <label class="ac-ellipsis-after ac-url-text"
+                       hidden="true"></label>
+                <image class="ac-type-icon"></image>
               </hbox>
-              <label class="ac-ellipsis-after ac-url-text" hidden="true"></label>
-              <image class="ac-type-icon"></image>
-            </hbox>
-          </vbox>
-        </hbox>
-      `)
+            </vbox>
+          </hbox>
+        `)
       );
 
       let ellipsis = "\u2026";

@@ -144,26 +144,26 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-        <hbox flex="1">
-          <vbox pack="center" class="eventIconBox">
-            <image></image>
-          </vbox>
-          <vbox pack="start" flex="1">
-            <hbox align="center" flex="1">
-              <label crop="center" flex="1" class="displayText"></label>
-              <label class="dateTime"></label>
-            </hbox>
-            <hbox align="center" flex="1">
-              <label crop="end" flex="1" class="statusText"></label>
-              <button class="undo mini-button"
-                tooltiptext="&cmd.undo.label;" cmd="cmd_undo"
-                ondblclick="event.stopPropagation();"
-                oncommand="activity.undoHandler.undo(activity);">
-              </button>
-            </hbox>
-          </vbox>
-        </hbox>
-      `,
+          <hbox flex="1">
+            <vbox pack="center" class="eventIconBox">
+              <image></image>
+            </vbox>
+            <vbox pack="start" flex="1">
+              <hbox align="center" flex="1">
+                <label crop="center" flex="1" class="displayText"></label>
+                <label class="dateTime"></label>
+              </hbox>
+              <hbox align="center" flex="1">
+                <label crop="end" flex="1" class="statusText"></label>
+                <button class="undo mini-button"
+                        tooltiptext="&cmd.undo.label;" cmd="cmd_undo"
+                        ondblclick="event.stopPropagation();"
+                        oncommand="activity.undoHandler.undo(activity);">
+                </button>
+              </hbox>
+            </vbox>
+          </hbox>
+          `,
           ["chrome://messenger/locale/activity.dtd"]
         )
       );
@@ -237,17 +237,19 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-        <vbox flex="1">
-          <hbox>
-            <vbox pack="start">
-              <label crop="left" class="contextDisplayText"></label>
+          <vbox flex="1">
+            <hbox>
+              <vbox pack="start">
+                <label crop="left" class="contextDisplayText"></label>
+              </vbox>
+            </hbox>
+            <vbox pack="center">
+              <richlistbox class="activitygroupbox activityview"
+                           seltype="multiple"
+                           flex="1"></richlistbox>
             </vbox>
-          </hbox>
-          <vbox pack="center">
-            <richlistbox class="activitygroupbox activityview" seltype="multiple" flex="1"></richlistbox>
           </vbox>
-        </vbox>
-      `)
+        `)
       );
 
       this.contextType = "";
@@ -314,38 +316,49 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-        <hbox flex="1" class="activityContentBox">
-          <vbox pack="center" class="processIconBox">
-            <image></image>
-          </vbox>
-          <vbox flex="1">
-            <label crop="center" flex="2" class="displayText"></label>
-            <hbox>
-              <vbox flex="1">
-                <html:progress value="0" max="100" flex="1" class="progressmeter"></html:progress>
-              </vbox>
-              <button class="resume mini-button" tooltiptext="&cmd.resume.label;"
-                cmd="cmd_resume" ondblclick="event.stopPropagation();"
-                oncommand="activity.pauseHandler.resume(activity);">
-              </button>
-              <button class="pause mini-button" tooltiptext="&cmd.pause.label;"
-                cmd="cmd_pause" ondblclick="event.stopPropagation();"
-                oncommand="activity.pauseHandler.pause(activity);">
-              </button>
-              <button class="retry mini-button" tooltiptext="&cmd.retry.label;"
-                cmd="cmd_retry" ondblclick="event.stopPropagation();"
-                oncommand="activity.retryHandler.retry(activity);">
-              </button>
-              <button class="cancel mini-button" tooltiptext="&cmd.cancel.label;"
-                cmd="cmd_cancel" ondblclick="event.stopPropagation();"
-                oncommand="activity.cancelHandler.cancel(activity);">
-              </button>
-            </hbox>
-            <label flex="1" crop="right" class="statusText"></label>
-            <spacer flex="1"></spacer>
-          </vbox>
-        </hbox>
-    `,
+          <hbox flex="1" class="activityContentBox">
+            <vbox pack="center" class="processIconBox">
+              <image></image>
+            </vbox>
+            <vbox flex="1">
+              <label crop="center" flex="2" class="displayText"></label>
+              <hbox>
+                <vbox flex="1">
+                  <html:progress value="0"
+                                 max="100"
+                                 flex="1"
+                                 class="progressmeter"></html:progress>
+                </vbox>
+                <button class="resume mini-button"
+                        tooltiptext="&cmd.resume.label;"
+                        cmd="cmd_resume"
+                        ondblclick="event.stopPropagation();"
+                        oncommand="activity.pauseHandler.resume(activity);">
+                </button>
+                <button class="pause mini-button"
+                        tooltiptext="&cmd.pause.label;"
+                        cmd="cmd_pause"
+                        ondblclick="event.stopPropagation();"
+                        oncommand="activity.pauseHandler.pause(activity);">
+                </button>
+                <button class="retry mini-button"
+                        tooltiptext="&cmd.retry.label;"
+                        cmd="cmd_retry"
+                        ondblclick="event.stopPropagation();"
+                        oncommand="activity.retryHandler.retry(activity);">
+                </button>
+                <button class="cancel mini-button"
+                        tooltiptext="&cmd.cancel.label;"
+                        cmd="cmd_cancel"
+                        ondblclick="event.stopPropagation();"
+                        oncommand="activity.cancelHandler.cancel(activity);">
+                </button>
+              </hbox>
+              <label flex="1" crop="right" class="statusText"></label>
+              <spacer flex="1"></spacer>
+            </vbox>
+          </hbox>
+          `,
           ["chrome://messenger/locale/activity.dtd"]
         )
       );
@@ -576,25 +589,27 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-        <hbox flex="1">
-          <vbox pack="center" class="warningIconBox">
-            <image></image>
-          </vbox>
-          <vbox pack="start" flex="1">
-            <hbox align="center" flex="1">
-              <label crop="center" flex="1" class="displayText"></label>
-              <label class="dateTime"></label>
-              <button class="recover mini-button" tooltiptext="&cmd.recover.label"
-                cmd="cmd_recover" ondblclick="event.stopPropagation();"
-                oncommand="activity.recoveryHandler.recover(activity);">
-              </button>
-            </hbox>
-            <hbox align="center" flex="1">
-              <label crop="end" flex="1" class="statusText"></label>
-            </hbox>
-          </vbox>
-        </hbox>
-      `,
+          <hbox flex="1">
+            <vbox pack="center" class="warningIconBox">
+              <image></image>
+            </vbox>
+            <vbox pack="start" flex="1">
+              <hbox align="center" flex="1">
+                <label crop="center" flex="1" class="displayText"></label>
+                <label class="dateTime"></label>
+                <button class="recover mini-button"
+                        tooltiptext="&cmd.recover.label"
+                        cmd="cmd_recover"
+                        ondblclick="event.stopPropagation();"
+                        oncommand="activity.recoveryHandler.recover(activity);">
+                </button>
+              </hbox>
+              <hbox align="center" flex="1">
+                <label crop="end" flex="1" class="statusText"></label>
+              </hbox>
+            </vbox>
+          </hbox>
+          `,
           ["chrome://messenger/locale/activity.dtd"]
         )
       );

@@ -56,16 +56,16 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-      <menulist class="ruleactionitem" flex="1">
-        <menupopup>
-          <menuitem value="6" label="&highestPriorityCmd.label;"></menuitem>
-          <menuitem value="5" label="&highPriorityCmd.label;"></menuitem>
-          <menuitem value="4" label="&normalPriorityCmd.label;"></menuitem>
-          <menuitem value="3" label="&lowPriorityCmd.label;"></menuitem>
-          <menuitem value="2" label="&lowestPriorityCmd.label;"></menuitem>
-        </menupopup>
-      </menulist>
-      `,
+          <menulist class="ruleactionitem" flex="1">
+            <menupopup>
+              <menuitem value="6" label="&highestPriorityCmd.label;"></menuitem>
+              <menuitem value="5" label="&highPriorityCmd.label;"></menuitem>
+              <menuitem value="4" label="&normalPriorityCmd.label;"></menuitem>
+              <menuitem value="3" label="&lowPriorityCmd.label;"></menuitem>
+              <menuitem value="2" label="&lowestPriorityCmd.label;"></menuitem>
+            </menupopup>
+          </menulist>
+          `,
           ["chrome://messenger/locale/FilterEditor.dtd"]
         )
       );
@@ -79,13 +79,13 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-      <menulist class="ruleactionitem" flex="1">
-        <menupopup>
-          <menuitem value="100" label="&junk.label;"/>
-          <menuitem value="0" label="&notJunk.label;"/>
-        </menupopup>
-      </menulist>
-      `,
+          <menulist class="ruleactionitem" flex="1">
+            <menupopup>
+              <menuitem value="100" label="&junk.label;"/>
+              <menuitem value="0" label="&notJunk.label;"/>
+            </menupopup>
+          </menulist>
+          `,
           ["chrome://messenger/locale/FilterEditor.dtd"]
         )
       );
@@ -135,19 +135,19 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-      <menulist class="ruleactionitem
-                folderMenuItem"
-                flex="1"
-                displayformat="verbose">
-        <menupopup is="folder-menupopup"
-                   mode="filing"
-                   class="menulist-menupopup"
-                   showRecent="true"
-                   recentLabel="&recentFolders.label;"
-                   showFileHereLabel="true">
-        </menupopup>
-      </menulist>
-      `,
+          <menulist class="ruleactionitem
+                    folderMenuItem"
+                    flex="1"
+                    displayformat="verbose">
+            <menupopup is="folder-menupopup"
+                       mode="filing"
+                       class="menulist-menupopup"
+                       showRecent="true"
+                       recentLabel="&recentFolders.label;"
+                       showFileHereLabel="true">
+            </menupopup>
+          </menulist>
+          `,
           ["chrome://messenger/locale/messenger.dtd"]
         )
       );
@@ -704,52 +704,110 @@
       if (!this.hasChildNodes()) {
         this.appendChild(
           MozXULElement.parseXULToFragment(`
-        <html:input flex="1" class="input-inline search-value-textbox" inherits="disabled"/>
-        <menulist flex="1" class="search-value-menulist" inherits="disabled">
-          <menupopup class="search-value-popup">
-            <menuitem value="6" stringTag="priorityHighest" class="search-value-menuitem"></menuitem>
-            <menuitem value="5" stringTag="priorityHigh" class="search-value-menuitem"></menuitem>
-            <menuitem value="4" stringTag="priorityNormal" class="search-value-menuitem"></menuitem>
-            <menuitem value="3" stringTag="priorityLow" class="search-value-menuitem"></menuitem>
-            <menuitem value="2" stringTag="priorityLowest" class="search-value-menuitem"></menuitem>
-          </menupopup>
-        </menulist>
-        <menulist flex="1" class="search-value-menulist" inherits="disabled">
-          <menupopup class="search-value-popup">
-            <menuitem value="2" stringTag="replied" class="search-value-menuitem"></menuitem>
-            <menuitem value="1" stringTag="read" class="search-value-menuitem"></menuitem>
-            <menuitem value="65536" stringTag="new" class="search-value-menuitem"></menuitem>
-            <menuitem value="4096" stringTag="forwarded" class="search-value-menuitem"></menuitem>
-            <menuitem value="4" stringTag="flagged" class="search-value-menuitem"></menuitem>
-          </menupopup>
-        </menulist>
-        <html:input flex="1" class="input-inline search-value-textbox" inherits="disabled"/>
-        <menulist is="menulist-addrbooks" flex="1" class="search-value-menulist" inherits="disabled" localonly="true"/>
-        <menulist flex="1" class="search-value-menulist" inherits="disabled">
-          <menupopup class="search-value-popup"></menupopup>
-        </menulist>
-        <menulist flex="1" class="search-value-menulist" inherits="disabled">
-          <menupopup class="search-value-popup">
-            <menuitem value="2" stringTag="junk" class="search-value-menuitem"></menuitem>
-          </menupopup>
-        </menulist>
-        <menulist flex="1" class="search-value-menulist" inherits="disabled">
-          <menupopup class="search-value-popup">
-            <menuitem value="0" stringTag="hasAttachments" class="search-value-menuitem"></menuitem>
-          </menupopup>
-        </menulist>
-        <menulist flex="1" class="search-value-menulist" inherits="disabled">
-          <menupopup class="search-value-popup">
-            <menuitem value="plugin" stringTag="junkScoreOriginPlugin" class="search-value-menuitem"></menuitem>
-            <menuitem value="user" stringTag="junkScoreOriginUser" class="search-value-menuitem"></menuitem>
-            <menuitem value="filter" stringTag="junkScoreOriginFilter" class="search-value-menuitem"></menuitem>
-            <menuitem value="whitelist" stringTag="junkScoreOriginWhitelist" class="search-value-menuitem"></menuitem>
-            <menuitem value="imapflag" stringTag="junkScoreOriginImapFlag" class="search-value-menuitem"></menuitem>
-          </menupopup>
-        </menulist>
-        <html:input type="number" class="input-inline search-value-textbox" inherits="disabled"/>
-        <hbox flex="1" class="search-value-custom" inherits="disabled"></hbox>
-      `)
+            <html:input flex="1"
+                        class="input-inline search-value-textbox"
+                        inherits="disabled"/>
+            <menulist flex="1"
+                      class="search-value-menulist"
+                      inherits="disabled">
+              <menupopup class="search-value-popup">
+                <menuitem value="6"
+                          stringTag="priorityHighest"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="5"
+                          stringTag="priorityHigh"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="4"
+                          stringTag="priorityNormal"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="3"
+                          stringTag="priorityLow"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="2"
+                          stringTag="priorityLowest"
+                          class="search-value-menuitem"></menuitem>
+              </menupopup>
+            </menulist>
+            <menulist flex="1"
+                      class="search-value-menulist"
+                      inherits="disabled">
+              <menupopup class="search-value-popup">
+                <menuitem value="2"
+                          stringTag="replied"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="1"
+                          stringTag="read"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="65536"
+                          stringTag="new"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="4096"
+                          stringTag="forwarded"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="4"
+                          stringTag="flagged"
+                          class="search-value-menuitem"></menuitem>
+              </menupopup>
+            </menulist>
+            <html:input flex="1"
+                        class="input-inline search-value-textbox"
+                        inherits="disabled"/>
+            <menulist is="menulist-addrbooks"
+                      flex="1"
+                      class="search-value-menulist"
+                      inherits="disabled"
+                      localonly="true"/>
+            <menulist flex="1"
+                      class="search-value-menulist"
+                      inherits="disabled">
+              <menupopup class="search-value-popup"></menupopup>
+            </menulist>
+            <menulist flex="1"
+                      class="search-value-menulist"
+                      inherits="disabled">
+              <menupopup class="search-value-popup">
+                <menuitem value="2"
+                          stringTag="junk"
+                          class="search-value-menuitem"></menuitem>
+              </menupopup>
+            </menulist>
+            <menulist flex="1"
+                      class="search-value-menulist"
+                      inherits="disabled">
+              <menupopup class="search-value-popup">
+                <menuitem value="0"
+                          stringTag="hasAttachments"
+                          class="search-value-menuitem"></menuitem>
+              </menupopup>
+            </menulist>
+            <menulist flex="1"
+                      class="search-value-menulist"
+                      inherits="disabled">
+              <menupopup class="search-value-popup">
+                <menuitem value="plugin"
+                          stringTag="junkScoreOriginPlugin"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="user"
+                          stringTag="junkScoreOriginUser"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="filter"
+                          stringTag="junkScoreOriginFilter"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="whitelist"
+                          stringTag="junkScoreOriginWhitelist"
+                          class="search-value-menuitem"></menuitem>
+                <menuitem value="imapflag"
+                          stringTag="junkScoreOriginImapFlag"
+                          class="search-value-menuitem"></menuitem>
+              </menupopup>
+            </menulist>
+            <html:input type="number"
+                        class="input-inline search-value-textbox"
+                        inherits="disabled"/>
+            <hbox flex="1"
+                  class="search-value-custom"
+                  inherits="disabled"></hbox>
+          `)
         );
 
         // Initialize the priority picker.
@@ -1436,38 +1494,68 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-      <menulist is="ruleactiontype-menulist" flex="&filterActionTypeFlexValue;">
-        <menupopup>
-          <menuitem label="&moveMessage.label;" value="movemessage" enablefornews="false"></menuitem>
-          <menuitem label="&copyMessage.label;" value="copymessage"></menuitem>
-          <menuseparator enablefornews="false"></menuseparator>
-          <menuitem label="&forwardTo.label;" value="forwardmessage" enablefornews="false"></menuitem>
-          <menuitem label="&replyWithTemplate.label;" value="replytomessage" enablefornews="false"></menuitem>
-          <menuseparator></menuseparator>
-          <menuitem label="&markMessageRead.label;" value="markasread"></menuitem>
-          <menuitem label="&markMessageUnread.label;" value="markasunread"></menuitem>
-          <menuitem label="&markMessageStarred.label;" value="markasflagged"></menuitem>
-          <menuitem label="&setPriority.label;" value="setpriorityto"></menuitem>
-          <menuitem label="&addTag.label;" value="addtagtomessage"></menuitem>
-          <menuitem label="&setJunkScore.label;" value="setjunkscore" enablefornews="false"></menuitem>
-          <menuseparator enableforpop3="true"></menuseparator>
-          <menuitem label="&deleteMessage.label;" value="deletemessage"></menuitem>
-          <menuitem label="&deleteFromPOP.label;" value="deletefrompopserver" enableforpop3="true"></menuitem>
-          <menuitem label="&fetchFromPOP.label;" value="fetchfrompopserver" enableforpop3="true"></menuitem>
-          <menuseparator></menuseparator>
-          <menuitem label="&ignoreThread.label;" value="ignorethread"></menuitem>
-          <menuitem label="&ignoreSubthread.label;" value="ignoresubthread"></menuitem>
-          <menuitem label="&watchThread.label;" value="watchthread"></menuitem>
-          <menuseparator></menuseparator>
-          <menuitem label="&stopExecution.label;" value="stopexecution"></menuitem>
-        </menupopup>
-      </menulist>
-      <ruleactiontarget-wrapper class="ruleactiontarget" flex="&filterActionTargetFlexValue;"></ruleactiontarget-wrapper>
-      <hbox>
-        <button class="small-button" label="+" tooltiptext="&addAction.tooltip;" oncommand="this.parentNode.parentNode.addRow();"></button>
-        <button class="small-button remove-small-button" label="−" tooltiptext="&removeAction.tooltip;" oncommand="this.parentNode.parentNode.removeRow();"></button>
-      </hbox>
-    `,
+          <menulist is="ruleactiontype-menulist" flex="&filterActionTypeFlexValue;">
+            <menupopup>
+              <menuitem label="&moveMessage.label;"
+                        value="movemessage"
+                        enablefornews="false"></menuitem>
+              <menuitem label="&copyMessage.label;"
+                        value="copymessage"></menuitem>
+              <menuseparator enablefornews="false"></menuseparator>
+              <menuitem label="&forwardTo.label;"
+                        value="forwardmessage"
+                        enablefornews="false"></menuitem>
+              <menuitem label="&replyWithTemplate.label;"
+                        value="replytomessage"
+                        enablefornews="false"></menuitem>
+              <menuseparator></menuseparator>
+              <menuitem label="&markMessageRead.label;"
+                        value="markasread"></menuitem>
+              <menuitem label="&markMessageUnread.label;"
+                        value="markasunread"></menuitem>
+              <menuitem label="&markMessageStarred.label;"
+                        value="markasflagged"></menuitem>
+              <menuitem label="&setPriority.label;"
+                        value="setpriorityto"></menuitem>
+              <menuitem label="&addTag.label;"
+                        value="addtagtomessage"></menuitem>
+              <menuitem label="&setJunkScore.label;"
+                        value="setjunkscore"
+                        enablefornews="false"></menuitem>
+              <menuseparator enableforpop3="true"></menuseparator>
+              <menuitem label="&deleteMessage.label;"
+                        value="deletemessage"></menuitem>
+              <menuitem label="&deleteFromPOP.label;"
+                        value="deletefrompopserver"
+                        enableforpop3="true"></menuitem>
+              <menuitem label="&fetchFromPOP.label;"
+                        value="fetchfrompopserver"
+                        enableforpop3="true"></menuitem>
+              <menuseparator></menuseparator>
+              <menuitem label="&ignoreThread.label;"
+                        value="ignorethread"></menuitem>
+              <menuitem label="&ignoreSubthread.label;"
+                        value="ignoresubthread"></menuitem>
+              <menuitem label="&watchThread.label;"
+                        value="watchthread"></menuitem>
+              <menuseparator></menuseparator>
+              <menuitem label="&stopExecution.label;"
+                        value="stopexecution"></menuitem>
+            </menupopup>
+          </menulist>
+          <ruleactiontarget-wrapper class="ruleactiontarget"
+                                    flex="&filterActionTargetFlexValue;"></ruleactiontarget-wrapper>
+          <hbox>
+            <button class="small-button"
+                    label="+"
+                    tooltiptext="&addAction.tooltip;"
+                    oncommand="this.parentNode.parentNode.addRow();"></button>
+            <button class="small-button remove-small-button"
+                    label="−"
+                    tooltiptext="&removeAction.tooltip;"
+                    oncommand="this.parentNode.parentNode.removeRow();"></button>
+          </hbox>
+          `,
           [
             "chrome://messenger/locale/messenger.dtd",
             "chrome://messenger/locale/FilterEditor.dtd",

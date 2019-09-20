@@ -58,47 +58,59 @@
 
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-      <linkset>
-        <html:link rel="localization" href="messenger/otr/chat.ftl"/>
-      </linkset>
+          <linkset>
+            <html:link rel="localization" href="messenger/otr/chat.ftl"/>
+          </linkset>
 
-      <hbox class="displayUserAccount" flex="1">
-        <stack class="statusImageStack">
-          <box class="userIconHolder">
-            <image class="userIcon" mousethrough="always"></image>
-          </box>
-          <image class="statusTypeIcon"></image>
-        </stack>
-        <stack class="displayNameAndstatusMessageStack" mousethrough="always" flex="1">
-          <hbox align="center" flex="1">
-            <description class="displayName" flex="1" crop="end">
-            </description>
-            <image class="prplIcon"></image>
+          <hbox class="displayUserAccount" flex="1">
+            <stack class="statusImageStack">
+              <box class="userIconHolder">
+                <image class="userIcon" mousethrough="always"></image>
+              </box>
+              <image class="statusTypeIcon"></image>
+            </stack>
+            <stack class="displayNameAndstatusMessageStack"
+                   mousethrough="always"
+                   flex="1">
+              <hbox align="center" flex="1">
+                <description class="displayName" flex="1" crop="end">
+                </description>
+                <image class="prplIcon"></image>
+              </hbox>
+              <description class="statusMessage"
+                           mousethrough="never"
+                           crop="end"
+                           flex="100000"/>
+              <html:input class="statusMessageInput input-inline"
+                          hidden="hidden"/>
+            </stack>
           </hbox>
-          <description class="statusMessage" mousethrough="never" crop="end" flex="100000"/>
-          <html:input class="statusMessageInput input-inline" hidden="hidden"/>
-        </stack>
-      </hbox>
-      <hbox class="otr-container" align="left" valign="middle" hidden="true">
-        <label class="otr-label" crop="end" data-l10n-id="state-label" flex="1"/>
-        <toolbarbutton id="otrButton"
-                       mode="dialog"
-                       class="otr-button toolbarbutton-1"
-                       type="menu"
-                       label="Insecure"
-                       data-l10n-id="start-tooltip">
-          <menupopup class="otr-menu-popup">
-            <menuitem class="otr-start" data-l10n-id="start-label"
-                      oncommand='this.closest("chat-conversation-info").onOtrStartClicked();'/>
-            <menuitem class="otr-end" data-l10n-id="end-label"
-                      oncommand='this.closest("chat-conversation-info").onOtrEndClicked();'/>
-            <menuitem class="otr-auth" data-l10n-id="auth-label"
-                      oncommand='this.closest("chat-conversation-info").onOtrAuthClicked();'/>
-          </menupopup>
-        </toolbarbutton>
-      </hbox>
-      <hbox id="otr-notification-box"></hbox>
-    `)
+          <hbox class="otr-container"
+                align="left"
+                valign="middle"
+                hidden="true">
+            <label class="otr-label"
+                   crop="end"
+                   data-l10n-id="state-label"
+                   flex="1"/>
+            <toolbarbutton id="otrButton"
+                           mode="dialog"
+                           class="otr-button toolbarbutton-1"
+                           type="menu"
+                           label="Insecure"
+                           data-l10n-id="start-tooltip">
+              <menupopup class="otr-menu-popup">
+                <menuitem class="otr-start" data-l10n-id="start-label"
+                          oncommand='this.closest("chat-conversation-info").onOtrStartClicked();'/>
+                <menuitem class="otr-end" data-l10n-id="end-label"
+                          oncommand='this.closest("chat-conversation-info").onOtrEndClicked();'/>
+                <menuitem class="otr-auth" data-l10n-id="auth-label"
+                          oncommand='this.closest("chat-conversation-info").onOtrAuthClicked();'/>
+              </menupopup>
+            </toolbarbutton>
+          </hbox>
+          <hbox id="otr-notification-box"></hbox>
+        `)
       );
 
       this.topic.addEventListener("click", this.startEditTopic.bind(this));

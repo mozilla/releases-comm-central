@@ -31,16 +31,16 @@
       this.setAttribute("is", "toolbarbutton-badge-button");
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-        <stack>
-          <hbox>
-            <image class="toolbarbutton-icon"></image>
-          </hbox>
-          <box class="badgeButton-badge">
-            <label class="badgeButton-badgeLabel"></label>
-          </box>
-        </stack>
-        <label class="toolbarbutton-text" crop="right" flex="1"></label>
-      `)
+          <stack>
+            <hbox>
+              <image class="toolbarbutton-icon"></image>
+            </hbox>
+            <box class="badgeButton-badge">
+              <label class="badgeButton-badgeLabel"></label>
+            </box>
+          </stack>
+          <label class="toolbarbutton-text" crop="right" flex="1"></label>
+        `)
       );
 
       this._badgeCount = 0;

@@ -498,8 +498,11 @@
       if (!this.querySelector("treecolpicker[is=thread-pane-treecolpicker]")) {
         this.appendChild(
           MozXULElement.parseXULToFragment(`
-        <treecolpicker is="thread-pane-treecolpicker" class="treecol-image" fixed="true"></treecolpicker>
-      `)
+            <treecolpicker is="thread-pane-treecolpicker"
+                           class="treecol-image"
+                           fixed="true">
+            </treecolpicker>
+          `)
         );
       }
       // Exceptionally apply super late, so we get the other goodness from there
@@ -528,17 +531,26 @@
       popup.appendChild(
         MozXULElement.parseXULToFragment(
           `
-      <menu class="applyTo-menu" label="&columnPicker.applyTo.label;">
-        <menupopup>
-          <menu class="applyToFolder-menu" label="&columnPicker.applyToFolder.label;">
-            <menupopup is="folder-menupopup" class="applyToFolder" showFileHereLabel="true" position="start_before"></menupopup>
+          <menu class="applyTo-menu" label="&columnPicker.applyTo.label;">
+            <menupopup>
+              <menu class="applyToFolder-menu"
+                    label="&columnPicker.applyToFolder.label;">
+                <menupopup is="folder-menupopup"
+                           class="applyToFolder"
+                           showFileHereLabel="true"
+                           position="start_before"></menupopup>
+              </menu>
+              <menu class="applyToFolderAndChildren-menu"
+                    label="&columnPicker.applyToFolderAndChildren.label;">
+                <menupopup is="folder-menupopup"
+                           class="applyToFolderAndChildren"
+                           showFileHereLabel="true"
+                           showAccountsFileHere="true"
+                           position="start_before"></menupopup>
+              </menu>
+            </menupopup>
           </menu>
-          <menu class="applyToFolderAndChildren-menu" label="&columnPicker.applyToFolderAndChildren.label;">
-            <menupopup is="folder-menupopup" class="applyToFolderAndChildren" showFileHereLabel="true" showAccountsFileHere="true" position="start_before"></menupopup>
-          </menu>
-        </menupopup>
-      </menu>
-    `,
+          `,
           ["chrome://messenger/locale/messenger.dtd"]
         )
       );
@@ -738,14 +750,20 @@
         // hide these nodes from the accessibility tree.
         return document.importNode(
           MozXULElement.parseXULToFragment(`
-        <textbox class="menulist-input" allowevents="true" flex="1"/>
-        <hbox class="menulist-label-box" flex="1" role="none">
-          <image class="menulist-icon" role="none"/>
-          <label class="menulist-label" crop="right" flex="1" role="none"/>
-          <label class="menulist-highlightable-label" crop="right" flex="1" role="none"/>
-        </hbox>
-        <dropmarker class="menulist-dropmarker" type="menu" role="none"/>
-      `),
+            <textbox class="menulist-input" allowevents="true" flex="1"/>
+            <hbox class="menulist-label-box" flex="1" role="none">
+              <image class="menulist-icon" role="none"/>
+              <label class="menulist-label"
+                     crop="right"
+                     flex="1"
+                     role="none"/>
+              <label class="menulist-highlightable-label"
+                     crop="right"
+                     flex="1"
+                     role="none"/>
+            </hbox>
+            <dropmarker class="menulist-dropmarker" type="menu" role="none"/>
+          `),
           true
         );
       }

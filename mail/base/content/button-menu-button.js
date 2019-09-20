@@ -29,10 +29,10 @@
     static get menubuttonFragment() {
       let frag = document.importNode(
         MozXULElement.parseXULToFragment(`
-        <hbox class="box-inherit button-box" align="center" pack="center" flex="1">
-          <button class="box-inherit button-menubutton-button" allowevents="true" flex="1"></button>
-          <dropmarker class="button-menubutton-dropmarker"></dropmarker>
-        </hbox>`),
+          <hbox class="box-inherit button-box" align="center" pack="center" flex="1">
+            <button class="box-inherit button-menubutton-button" allowevents="true" flex="1"></button>
+            <dropmarker class="button-menubutton-dropmarker"></dropmarker>
+          </hbox>`),
         true
       );
       Object.defineProperty(this, "menubuttonFragment", { value: frag });

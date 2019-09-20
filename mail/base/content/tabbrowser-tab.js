@@ -38,22 +38,23 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-        <stack class="tab-stack" flex="1" closetabtext="&closeTab.label;">
-          <vbox class="tab-background">
-            <hbox class="tab-line"></hbox>
-          </vbox>
-          <hbox class="tab-content" align="center">
-            <image class="tab-throbber" role="presentation"></image>
-            <image class="tab-icon-image" role="presentation"></image>
-            <hbox class="tab-label-container"
-                  onoverflow="this.setAttribute('textoverflow', 'true');"
-                  onunderflow="this.removeAttribute('textoverflow');" flex="1">
-              <label class="tab-text tab-label" role="presentation"></label>
+          <stack class="tab-stack" flex="1" closetabtext="&closeTab.label;">
+            <vbox class="tab-background">
+              <hbox class="tab-line"></hbox>
+            </vbox>
+            <hbox class="tab-content" align="center">
+              <image class="tab-throbber" role="presentation"></image>
+              <image class="tab-icon-image" role="presentation"></image>
+              <hbox class="tab-label-container"
+                    onoverflow="this.setAttribute('textoverflow', 'true');"
+                    onunderflow="this.removeAttribute('textoverflow');"
+                    flex="1">
+                <label class="tab-text tab-label" role="presentation"></label>
+              </hbox>
+              <image class="tab-close-button close-icon"/>
             </hbox>
-            <image class="tab-close-button close-icon"/>
-          </hbox>
-        </stack>
-      `,
+          </stack>
+          `,
           ["chrome://messenger/locale/tabmail.dtd"]
         )
       );

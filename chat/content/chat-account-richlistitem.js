@@ -54,38 +54,41 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-        <vbox flex="1">
-          <hbox flex="1" align="top">
-            <vbox>
-              <stack>
-                <image class="accountIcon"></image>
-                <image class="accountStateIcon"></image>
-              </stack>
+          <vbox flex="1">
+            <hbox flex="1" align="top">
+              <vbox>
+                <stack>
+                  <image class="accountIcon"></image>
+                  <image class="accountStateIcon"></image>
+                </stack>
+                <spacer flex="1"></spacer>
+              </vbox>
+              <vbox flex="1" align="start">
+                <label crop="end" class="accountName"></label>
+                <label class="connecting" crop="end" value="&account.connecting;"></label>
+                <label class="connected" crop="end"></label>
+                <label class="disconnecting" crop="end" value="&account.disconnecting;"></label>
+                <label class="disconnected" crop="end" value="&account.disconnected;"></label>
+                <description class="error error-description"></description>
+                <description class="error error-reconnect"></description>
+                <label class="addException text-link" onclick="gAccountManager.addException()"
+                       data-l10n-id="certmgr-add-exception"></label>
+                <spacer flex="1"></spacer>
+              </vbox>
+              <checkbox label="&account.autoSignOn.label;"
+                        dir="reverse"
+                        class="autoSignOn"
+                        accesskey="&account.autoSignOn.accesskey;"
+                        oncommand="gAccountManager.autologin()"></checkbox>
+            </hbox>
+            <hbox flex="1" class="account-buttons">
+              <button class="disconnectButton" command="cmd_disconnect"></button>
+              <button class="connectButton" command="cmd_connect"></button>
               <spacer flex="1"></spacer>
-            </vbox>
-            <vbox flex="1" align="start">
-              <label crop="end" class="accountName"></label>
-              <label class="connecting" crop="end" value="&account.connecting;"></label>
-              <label class="connected" crop="end"></label>
-              <label class="disconnecting" crop="end" value="&account.disconnecting;"></label>
-              <label class="disconnected" crop="end" value="&account.disconnected;"></label>
-              <description class="error error-description"></description>
-              <description class="error error-reconnect"></description>
-              <label class="addException text-link" onclick="gAccountManager.addException()"
-                data-l10n-id="certmgr-add-exception"></label>
-              <spacer flex="1"></spacer>
-            </vbox>
-            <checkbox label="&account.autoSignOn.label;" dir="reverse" class="autoSignOn"
-              accesskey="&account.autoSignOn.accesskey;" oncommand="gAccountManager.autologin()"></checkbox>
-          </hbox>
-          <hbox flex="1" class="account-buttons">
-            <button class="disconnectButton" command="cmd_disconnect"></button>
-            <button class="connectButton" command="cmd_connect"></button>
-            <spacer flex="1"></spacer>
-            <button command="cmd_edit"></button>
-          </hbox>
-        </vbox>
-    `,
+              <button command="cmd_edit"></button>
+            </hbox>
+          </vbox>
+          `,
           ["chrome://chat/locale/accounts.dtd"]
         )
       );

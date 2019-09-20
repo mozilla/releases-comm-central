@@ -61,25 +61,29 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-        <vbox class="box-line"></vbox>
-        <button class="closeConversationButton close-icon"
-                tooltiptext="&closeConversationButton.tooltip;"></button>
-        <stack class="prplBuddyIcon" mousethrough="always">
-          <image class="protoIcon"></image>
-          <image class="statusIcon"></image>
-        </stack>
-        <hbox flex="1" class="conv-hbox" mousethrough="always">
-          <label crop="end" flex="1" mousethrough="always"
-                 class="convDisplayName blistDisplayName">
-          </label>
-          <label class="convUnreadCount" crop="end" mousethrough="never"></label>
-          <box class="convUnreadTargetedCount">
-            <label class="convUnreadTargetedCountLabel"
-                   crop="end" mousethrough="never"></label>
-          </box>
-          <spacer flex="1000000"></spacer>
-        </hbox>
-      `,
+          <vbox class="box-line"></vbox>
+          <button class="closeConversationButton close-icon"
+                  tooltiptext="&closeConversationButton.tooltip;"></button>
+          <stack class="prplBuddyIcon" mousethrough="always">
+            <image class="protoIcon"></image>
+            <image class="statusIcon"></image>
+          </stack>
+          <hbox flex="1" class="conv-hbox" mousethrough="always">
+            <label crop="end"
+                   flex="1"
+                   mousethrough="always"
+                   class="convDisplayName blistDisplayName">
+            </label>
+            <label class="convUnreadCount"
+                   crop="end"
+                   mousethrough="never"></label>
+            <box class="convUnreadTargetedCount">
+              <label class="convUnreadTargetedCountLabel"
+                     crop="end" mousethrough="never"></label>
+            </box>
+            <spacer flex="1000000"></spacer>
+          </hbox>
+          `,
           ["chrome://messenger/locale/chat.dtd"]
         )
       );

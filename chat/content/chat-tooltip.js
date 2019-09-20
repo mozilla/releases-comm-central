@@ -190,38 +190,38 @@
       this.textContent = "";
       this.appendChild(
         MozXULElement.parseXULToFragment(`
-        <vbox class="largeTooltip">
-          <hbox align="start" crop="end" flex="1">
-            <vbox flex="1">
-              <stack>
-                <!-- The box around the user icon is a workaround for bug 955673. -->
-                <box class="userIconHolder">
-                  <image class="userIcon"></image>
-                </box>
-                <image class="statusTypeIcon status"></image>
-              </stack>
-              <spacer flex="1"></spacer>
-            </vbox>
-            <stack class="displayNameMessageBox" flex="1">
+          <vbox class="largeTooltip">
+            <hbox align="start" crop="end" flex="1">
               <vbox flex="1">
-                <hbox align="start" flex="1">
-                  <description class="tooltipDisplayName" flex="1" crop="end"></description>
-                  <image class="tooltipProtoIcon status"></image>
-                </hbox>
+                <stack>
+                  <!-- The box around the user icon is a workaround for bug 955673. -->
+                  <box class="userIconHolder">
+                    <image class="userIcon"></image>
+                  </box>
+                  <image class="statusTypeIcon status"></image>
+                </stack>
                 <spacer flex="1"></spacer>
               </vbox>
-              <description class="tooltipMessage"></description>
-            </stack>
-          </hbox>
-          <grid>
-            <columns>
-              <column></column>
-              <column flex="1"></column>
-            </columns>
-            <rows class="tooltipRows"></rows>
-          </grid>
-        </vbox>
-      `)
+              <stack class="displayNameMessageBox" flex="1">
+                <vbox flex="1">
+                  <hbox align="start" flex="1">
+                    <description class="tooltipDisplayName" flex="1" crop="end"></description>
+                    <image class="tooltipProtoIcon status"></image>
+                  </hbox>
+                  <spacer flex="1"></spacer>
+                </vbox>
+                <description class="tooltipMessage"></description>
+              </stack>
+            </hbox>
+            <grid>
+              <columns>
+                <column></column>
+                <column flex="1"></column>
+              </columns>
+              <rows class="tooltipRows"></rows>
+            </grid>
+          </vbox>
+        `)
       );
       this.initializeAttributeInheritance();
     }

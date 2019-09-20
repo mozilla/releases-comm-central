@@ -94,22 +94,27 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(
           `
-        <vbox class="box-line"></vbox>
-        <stack class="prplBuddyIcon" mousethrough="always">
-          <image class="protoIcon"></image>
-          <image class="statusIcon"></image>
-        </stack>
-        <hbox flex="1" class="contact-hbox" mousethrough="always">
-          <label crop="end" flex="1" mousethrough="always"
-            class="contactDisplayName blistDisplayName">
-          </label>
-          <label crop="end" flex="100000" mousethrough="always"
-            class="contactStatusText">
-          </label>
-          <button class="startChatBubble" tooltiptext="&openConversationButton.tooltip;">
-          </button>
-        </hbox>
-      `,
+          <vbox class="box-line"></vbox>
+          <stack class="prplBuddyIcon" mousethrough="always">
+            <image class="protoIcon"></image>
+            <image class="statusIcon"></image>
+          </stack>
+          <hbox flex="1" class="contact-hbox" mousethrough="always">
+            <label crop="end"
+                   flex="1"
+                   mousethrough="always"
+                   class="contactDisplayName blistDisplayName">
+            </label>
+            <label crop="end"
+                   flex="100000"
+                   mousethrough="always"
+                   class="contactStatusText">
+            </label>
+            <button class="startChatBubble"
+                    tooltiptext="&openConversationButton.tooltip;">
+            </button>
+          </hbox>
+          `,
           ["chrome://messenger/locale/chat.dtd"]
         )
       );
