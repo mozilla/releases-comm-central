@@ -9,7 +9,6 @@ calendar.jar:
     content/agenda-listbox-utils.js                             (content/agenda-listbox-utils.js)
     content/agenda-listbox.js                                   (content/agenda-listbox.js)
     content/calendar-base-view.js                               (content/calendar-base-view.js)
-    content/calendar-bindings.css                               (content/calendar-bindings.css)
     content/calendar-chrome-startup.js                          (content/calendar-chrome-startup.js)
     content/calendar-clipboard.js                               (content/calendar-clipboard.js)
     content/calendar-common-sets.js                             (content/calendar-common-sets.js)
