@@ -215,6 +215,11 @@ function OnLoadNewMailList() {
   }
 
   NotifyLoadListeners(directory);
+
+  let input = document.getElementById("addressCol1#1");
+  input.popup.addEventListener("click", () => {
+    awReturnHit(input);
+  });
 }
 
 function EditListOKButton(event) {
@@ -305,6 +310,12 @@ function OnLoadEditList() {
   // see awAppendNewRow which copies first row and clears it
   setTimeout(AppendLastRow, 0);
   NotifyLoadListeners(gEditList);
+
+  document.querySelectorAll(`input[is="autocomplete-input"]`).forEach(input => {
+    input.popup.addEventListener("click", () => {
+      awReturnHit(input);
+    });
+  });
 }
 
 function AppendLastRow() {
@@ -337,6 +348,9 @@ function SetInputValue(inputValue, parentNode, templateNode) {
   if (input) {
     input.value = inputValue;
     input.setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
+    input.popup.addEventListener("click", () => {
+      awReturnHit(input);
+    });
   }
 }
 
@@ -421,6 +435,9 @@ function awAppendNewRow(setFocus) {
     if (input) {
       input.value = "";
       input.setAttribute("id", "addressCol1#" + top.MAX_RECIPIENTS);
+      input.popup.addEventListener("click", () => {
+        awReturnHit(input);
+      });
     }
     // Focus the new input widget.
     if (setFocus && input) {

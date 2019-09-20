@@ -625,7 +625,7 @@
       roleStatusIcon.removeAttribute("disabled");
 
       if (this.mIsReadOnly || this.mIsInvitation) {
-        input.setAttribute("disabled", "true");
+        input.setAttribute("disabled", "disabled");
         userTypeIcon.setAttribute("disabled", "true");
         roleStatusIcon.setAttribute("disabled", "true");
       }
@@ -633,7 +633,7 @@
       // Disable the input-field [name <email>] if this attendee
       // appears to be the organizer.
       if (disableIfOrganizer && attendee && attendee.isOrganizer) {
-        input.setAttribute("disabled", "true");
+        input.setAttribute("disabled", "disabled");
       }
 
       this.mMaxAttendees++;
@@ -664,6 +664,10 @@
       }
       input.attendee = attendee;
       input.setAttribute("dirty", "true");
+
+      input.popup.addEventListener("click", () => {
+        this.returnHit(input);
+      });
 
       if (attendee) {
         // Set up userType.
@@ -727,9 +731,11 @@
 
         this.mMaxAttendees++;
 
-        input.value = null;
-        input.removeAttribute("value");
+        input.value = "";
         input.attendee = newAttendee;
+        input.popup.addEventListener("click", () => {
+          this.returnHit(input);
+        });
 
         // Set role and participation status.
         roleStatusIcon.setAttribute("class", "role-icon");
@@ -739,17 +745,6 @@
         // Set tooltip for rolenames and usertype icon.
         this.updateTooltip(roleStatusIcon);
         this.updateTooltip(userTypeIcon);
-
-        // We always clone the first row. The problem is that the first row could be focused.
-        // When we clone that row, we end up with a cloned XUL textbox that has a focused
-        // attribute set. Therefore we think we're focused and don't properly refocus.
-        // The best solution to this would be to clone a template row that didn't really have
-        // any presentation, rather than using the real visible first row of the listbox.
-        // For now we'll just put in a hack that ensures the focused attribute is never copied
-        // when the node is cloned.
-        if (input.getAttribute("focused") != "") {
-          input.removeAttribute("focused");
-        }
 
         // focus on new input widget
         if (setFocus) {

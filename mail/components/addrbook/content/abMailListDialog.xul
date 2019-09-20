@@ -85,8 +85,7 @@
                       completeselectedindex="true"
                       minresultsforpopup="3"
                       onkeypress="awAbRecipientKeyPress(event, this);"
-                      onkeydown="awRecipientKeyDown(event, this);"
-                      onclick="onRecipientClicked(event, this);"/>
+                      onkeydown="awRecipientKeyDown(event, this);"/>
         </hbox>
       </richlistitem>
     </richlistbox>

@@ -264,6 +264,9 @@ function awSetInputAndPopupId(inputElem, popupElem, rowNumber) {
   popupElem.id = "addressCol1#" + rowNumber;
   inputElem.id = "addressCol2#" + rowNumber;
   inputElem.setAttribute("aria-labelledby", popupElem.id);
+  inputElem.popup.addEventListener("click", () => {
+    awReturnHit(inputElem);
+  });
 }
 
 /**
@@ -882,24 +885,6 @@ function awSetAutoComplete(rowNumber) {
 
 function awRecipientOnFocus(inputElement) {
   inputElement.select();
-}
-
-function onRecipientClicked(event, inputElement) {
-  // If the clicked element has a "panel" somewhere in its ancestors, it was
-  // inside the auto-complete results popup and we want to advance to next row.
-  let targetNode = event.originalTarget;
-  while (targetNode) {
-    if (targetNode.id.startsWith("addressCol")) {
-      // We're not on the auto-complete popup, so return to avoid
-      // climbing up the hierarchy.
-      return;
-    }
-    if (targetNode.localName == "panel") {
-      awReturnHit(inputElement);
-      return;
-    }
-    targetNode = targetNode.parentNode;
-  }
 }
 
 /**
