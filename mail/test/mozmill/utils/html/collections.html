@@ -11,8 +11,9 @@
       var gCustomIterator = {
         _array: [6, 7, 8, 9],
         [ITERATOR_SYMBOL]: function* testIterator() {
-          for (var i = 0; i < this._array.length; ++i)
-            {yield this._array[i];}
+          for (var i = 0; i < this._array.length; ++i) {
+            yield this._array[i];
+          }
         },
       };
     </script>
