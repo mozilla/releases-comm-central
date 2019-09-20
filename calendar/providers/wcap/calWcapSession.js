@@ -839,9 +839,11 @@ calWcapSession.prototype = {
     return this.m_sessionUri;
   },
   set uri(thatUri) {
-    this.m_uri = thatUri.clone();
-    this.m_sessionUri = thatUri.clone();
-    this.m_sessionUri.userPass = "";
+    this.m_uri = thatUri;
+    this.m_sessionUri = thatUri
+      .mutate()
+      .setUserPass("")
+      .finalize();
   },
 
   get userId() {
