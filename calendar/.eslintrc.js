@@ -3,10 +3,6 @@
 module.exports = {
   extends: ["../../toolkit/.eslintrc.js"],
   rules: {
-    // Enforce one true brace style (opening brace on the same line)
-    // Allow single line (for now) because of the vast number of changes needed
-    "brace-style": [2, "1tbs", { allowSingleLine: true }],
-
     // Enforce newline at the end of file, with no multiple empty lines.
     "eol-last": 2,
 

@@ -48,6 +48,15 @@ module.exports = {
     "semi-spacing": ["error", { before: false, after: true }],
     "space-in-parens": ["error", "never"],
     curly: ["error", "all"],
+
+    // Use brace-style because Prettier covers most brace issues but not this:
+    //
+    //     }
+    //     // a comment
+    //     else {
+    //
+    // Allow single line for inline JS in XUL files.
+    "brace-style": ["error", "1tbs", { allowSingleLine: true }],
   },
 
   // To avoid bad interactions of the html plugin with the xml preprocessor in
