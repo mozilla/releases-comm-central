@@ -244,7 +244,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
         this.getPopup(window, popupURL);
       popup.viewNode.openPopup(button, "bottomcenter topleft", 0, 0);
     } else {
-      this.emit("click");
+      this.emit("click", window);
     }
   }
 
@@ -340,7 +340,9 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
         node.classList.remove(LEGACY_CLASS);
       }
 
-      node.setAttribute("style", style);
+      for (let [name, value] of style) {
+        node.style.setProperty(name, value);
+      }
     };
     if (sync) {
       callback();
@@ -391,20 +393,26 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
       return IconDetails.escapeUrl(icon);
     };
 
+    let style = [];
     let getStyle = (name, size) => {
-      return `
-        --webextension-${name}: url("${getIcon(size, "default")}");
-        --webextension-${name}-light: url("${getIcon(size, "light")}");
-        --webextension-${name}-dark: url("${getIcon(size, "dark")}");
-      `;
+      style.push([
+        `--webextension-${name}`,
+        `url("${getIcon(size, "default")}")`,
+      ]);
+      style.push([
+        `--webextension-${name}-light`,
+        `url("${getIcon(size, "light")}")`,
+      ]);
+      style.push([
+        `--webextension-${name}-dark`,
+        `url("${getIcon(size, "dark")}")`,
+      ]);
     };
 
-    let style = `
-      ${getStyle("menupanel-image", 32)}
-      ${getStyle("menupanel-image-2x", 64)}
-      ${getStyle("toolbar-image", baseSize)}
-      ${getStyle("toolbar-image-2x", baseSize * 2)}
-    `;
+    getStyle("menupanel-image", 32);
+    getStyle("menupanel-image-2x", 64);
+    getStyle("toolbar-image", baseSize);
+    getStyle("toolbar-image-2x", baseSize * 2);
 
     let realIcon = getIcon(size, "default");
 
@@ -540,8 +548,8 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
           name: `${this.manifestName}.onClicked`,
           inputHandling: true,
           register: fire => {
-            let listener = (event, browser) => {
-              context.withPendingBrowser(browser, () => fire.sync());
+            let listener = event => {
+              fire.sync();
             };
             action.on("click", listener);
             return () => {

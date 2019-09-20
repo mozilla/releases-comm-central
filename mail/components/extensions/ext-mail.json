@@ -121,6 +121,15 @@
       ["messageDisplay"]
     ]
   },
+  "messageDisplayAction": {
+    "url": "chrome://messenger/content/parent/ext-messageDisplayAction.js",
+    "schema": "chrome://messenger/content/schemas/messageDisplayAction.json",
+    "scopes": ["addon_parent"],
+    "manifest": ["message_display_action"],
+    "paths": [
+      ["messageDisplayAction"]
+    ]
+  },
   "messages": {
     "url": "chrome://messenger/content/parent/ext-messages.js",
     "schema": "chrome://messenger/content/schemas/messages.json",
