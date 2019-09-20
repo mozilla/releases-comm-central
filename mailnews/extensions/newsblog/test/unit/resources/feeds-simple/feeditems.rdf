@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<RDF:RDF xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:fz="urn:forumzilla:"
+         xmlns:NC="http://home.netscape.com/NC-rdf#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=32978"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784488792"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=32944"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784488971"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=33011"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784488610"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=33020"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784488551"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16464"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784520041"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=32951"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784488909"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=32963"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784488851"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16431"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784520152"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16477"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784519983"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=32939"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784489030"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16453"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784520096"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16418"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784520209"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16507"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784519869"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16490"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784519926"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16378"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784520323"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=32927"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784489089"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=33001"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784488670"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16393"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784520265"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fcivilservice.blog.gov.uk%2f%3fp=16514"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784519812"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://civilservice.blog.gov.uk/feed/"/>
+  </RDF:Description>
+  <RDF:Description RDF:about="urn:feeditem:https:%2f%2fgds.blog.gov.uk%2f%3fp=32988"
+                   fz:stored="true"
+                   fz:last-seen-timestamp="1568784488731"
+                   fz:valid="true">
+    <fz:feed RDF:resource="https://gds.blog.gov.uk/feed/"/>
+  </RDF:Description>
+</RDF:RDF>

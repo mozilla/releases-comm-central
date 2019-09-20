@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<RDF:RDF xmlns:NS1="http://purl.org/rss/1.0/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:fz="urn:forumzilla:"
+         xmlns:NC="http://home.netscape.com/NC-rdf#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description RDF:about="urn:forumzilla:root">
+    <fz:feeds RDF:resource="rdf:#$cvA6q"/>
+  </RDF:Description>
+  <RDF:Seq RDF:about="rdf:#$cvA6q">
+  </RDF:Seq>
+</RDF:RDF>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<RDF:RDF xmlns:NS1="http://purl.org/rss/1.0/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:fz="urn:forumzilla:"
+         xmlns:NC="http://home.netscape.com/NC-rdf#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description RDF:about="urn:forumzilla:root">
+    <fz:feeds RDF:resource="rdf:#$cvA6q"/>
+  </RDF:Description>
+  <fz:feed RDF:about="https://example.com/feed/"
+                   fz:quickMode="false"
+                   dc:title="A feed with no dc:identifier, and thus no url. Should be ditched.">
+  </fz:feed>
+  <RDF:Seq RDF:about="rdf:#$cvA6q">
+    <RDF:li RDF:resource="https://example.com/feed/"/>
+  </RDF:Seq>
+</RDF:RDF>
