@@ -97,6 +97,10 @@
   background-color: -moz-field;
 }
 
+:root[lwt-tree] #today-minimonth-box {
+  background-color: var(--sidebar-background-color);
+}
+
 #weekdayNameContainer {
   font-family: Trebuchet MS, Lucida Grande, Arial, Helvetica;
   padding-top: 4px;
