@@ -104,7 +104,8 @@ SubDialog.prototype = {
 
     Services.prefs.setBoolPref("browser.preferences.instantApply", true);
     let features =
-      (aFeatures ? aFeatures + "," : "") + "resizable,dialog=no,centerscreen";
+      (aFeatures ? aFeatures + "," : "") +
+      "resizable,dialog=no,centerscreen,chrome=no";
     let dialog = window.openDialog(
       aURL,
       `dialogFrame-${this._id}`,
