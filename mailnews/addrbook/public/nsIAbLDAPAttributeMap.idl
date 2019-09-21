@@ -57,8 +57,7 @@ interface nsIAbLDAPAttributeMap : nsISupports
    *
    * @exception   NS_ERROR_FAILURE if there is no entry for this property
    */
-  void getAttributes(in ACString aProperty, out unsigned long aCount,
-                     [retval, array, size_is(aCount)] out string aAttrs);
+  Array<ACString> getAttributes(in ACString aProperty);
 
   /**
    * Get the first (canonical) LDAP attribute associated with a given property
@@ -119,8 +118,7 @@ interface nsIAbLDAPAttributeMap : nsISupports
    *
    * @exception NS_ERROR_FAILURE  there are no attributes in this property map
    */
-  void getAllCardProperties(out unsigned long aCount,
-                            [retval, array, size_is(aCount)] out string aProps);
+  Array<ACString> getAllCardProperties();
 
   /**
    * Check that no LDAP attributes are listed in more than one property.

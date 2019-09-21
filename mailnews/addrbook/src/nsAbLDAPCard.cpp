@@ -66,7 +66,6 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
 
     if (!m_objectClass.Contains(oclass)) {
       m_objectClass.AppendElement(oclass);
-      printf("LDAP : adding objectClass %s\n", oclass.get());
     }
   }
 
@@ -96,14 +95,13 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
   modArray->AppendElement(mod);
 
   // Add card properties
-  CharPtrArrayGuard props;
-  rv = aAttributeMap->GetAllCardProperties(props.GetSizeAddr(),
-                                           props.GetArrayAddr());
+  nsTArray<nsCString> props;
+  rv = aAttributeMap->GetAllCardProperties(props);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString attr;
   nsCString propvalue;
-  for (uint32_t i = 0; i < props.GetSize(); ++i) {
+  for (const nsCString &prop : props) {
     // Skip some attributes that don't map to LDAP.
     //
     // BirthYear : by default this is mapped to 'birthyear',
@@ -114,12 +112,12 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
     //
     // PreferMailFormat : by default this is mapped to 'mozillaUseHtmlMail',
     // which is a boolean, not plaintext/html/unknown
-    if (!strcmp(props[i], kBirthYearProperty) ||
-        !strcmp(props[i], kLastModifiedDateProperty) ||
-        !strcmp(props[i], kPreferMailFormatProperty))
+    if (prop.EqualsLiteral(kBirthYearProperty) ||
+        prop.EqualsLiteral(kLastModifiedDateProperty) ||
+        prop.EqualsLiteral(kPreferMailFormatProperty))
       continue;
 
-    rv = aAttributeMap->GetFirstAttribute(nsDependentCString(props[i]), attr);
+    rv = aAttributeMap->GetFirstAttribute(prop, attr);
     NS_ENSURE_SUCCESS(rv, rv);
     ToLowerCase(attr);
 
@@ -132,7 +130,7 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
 
     size_t index = m_attributes.IndexOf(attr);
 
-    rv = GetPropertyAsAUTF8String(props[i], propvalue);
+    rv = GetPropertyAsAUTF8String(prop.get(), propvalue);
 
     if (NS_SUCCEEDED(rv) && !propvalue.IsEmpty()) {
       // If the new value is not empty, add/update it
@@ -146,8 +144,6 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
       rv = mod->SetUpModificationOneValue(aType, attr, value);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      printf("LDAP : setting attribute %s (%s) to '%s'\n", attr.get(), props[i],
-             propvalue.get());
       modArray->AppendElement(mod);
       if (index != m_attributes.NoIndex) m_attributes.AppendElement(attr);
 
@@ -162,7 +158,6 @@ NS_IMETHODIMP nsAbLDAPCard::GetLDAPMessageInfo(
       rv = mod->SetUpModification(aType, attr, novalues);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      printf("LDAP : removing attribute %s (%s)\n", attr.get(), props[i]);
       modArray->AppendElement(mod);
       m_attributes.RemoveElementAt(index);
     }

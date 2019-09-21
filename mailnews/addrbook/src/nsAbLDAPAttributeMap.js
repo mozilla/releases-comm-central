@@ -31,15 +31,12 @@ nsAbLDAPAttributeMap.prototype = {
     return this.mPropertyMap[aProperty].join(",");
   },
 
-  getAttributes(aProperty, aCount, aAttrs) {
+  getAttributes(aProperty) {
     // fail if no entry for this
     if (!(aProperty in this.mPropertyMap)) {
       throw Cr.NS_ERROR_FAILURE;
     }
-
-    aAttrs = this.mPropertyMap[aProperty];
-    aCount = aAttrs.length;
-    return aAttrs;
+    return this.mPropertyMap[aProperty];
   },
 
   getFirstAttribute(aProperty) {
@@ -102,13 +99,11 @@ nsAbLDAPAttributeMap.prototype = {
     return attrs.join(",");
   },
 
-  getAllCardProperties(aCount) {
+  getAllCardProperties() {
     var props = [];
     for (var prop in this.mPropertyMap) {
       props.push(prop);
     }
-
-    aCount.value = props.length;
     return props;
   },
 
