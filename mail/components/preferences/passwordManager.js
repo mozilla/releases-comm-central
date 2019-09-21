@@ -136,6 +136,7 @@ function setFilter(aFilterString) {
 }
 
 let signonsTreeView = {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
   _filterSet: [],
   _lastSelectedRanges: [],
   selection: null,
