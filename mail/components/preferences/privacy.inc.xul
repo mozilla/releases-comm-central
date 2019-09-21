@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
   <prefpane id="panePrivacy" label="&panePrivacySecurity.title;">
-    <script src="chrome://messenger/content/preferences/security.js"/>
     <script src="chrome://messenger/content/preferences/privacy.js"/>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
