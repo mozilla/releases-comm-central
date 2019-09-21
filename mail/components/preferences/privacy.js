@@ -294,7 +294,7 @@ var gPrivacyPane = {
       Ci.nsIPKCS11ModuleDB
     );
     if (secmodDB.isFIPSEnabled) {
-      let bundle = document.getElementById("bundleMasterPwPreferences");
+      let bundle = document.getElementById("bundlePreferences");
       Services.prompt.alert(
         window,
         bundle.getString("pw_change_failed_title"),

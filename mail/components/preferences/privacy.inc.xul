@@ -5,7 +5,6 @@
     <script src="chrome://messenger/content/preferences/privacy.js"/>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
-    <stringbundle id="bundleMasterPwPreferences" src="chrome://mozapps/locale/preferences/preferences.properties"/>
 
     <hbox id="privacyCategory"
           class="subcategory"
