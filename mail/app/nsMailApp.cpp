@@ -24,7 +24,6 @@
 #include "nsIFile.h"
 
 #ifdef XP_WIN
-#  include "LauncherProcessWin.h"
 #  include "mozilla/WindowsDllBlocklist.h"
 
 #  define XRE_WANT_ENVIRON
