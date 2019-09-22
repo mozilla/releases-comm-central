@@ -677,6 +677,10 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(
     if (Body.Find("<html>") == kNotFound) aCompFields->SetForcePlainText(true);
 
     rv = aCompFields->SetBody(Body);
+  } else {
+    // No body: Assume that we can do plaintext. This will trigger the default
+    // compose format in ShowComposerWindow().
+    aCompFields->SetForcePlainText(true);
   }
 
 #ifdef RAJIV_DEBUG
@@ -759,6 +763,10 @@ nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
     if (Body.Find("<html>") == kNotFound) aCompFields->SetForcePlainText(true);
 
     rv = aCompFields->SetBody(Body);
+  } else {
+    // No body: Assume that we can do plaintext. This will trigger the default
+    // compose format in ShowComposerWindow().
+    aCompFields->SetForcePlainText(true);
   }
   return rv;
 }
