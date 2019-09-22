@@ -509,18 +509,4 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
       { msgWindow, okCallback, extraData }
     );
   }
-
-  /*
-  // TODO: Enable this block of code once the dialog above is made modal.
-  // If we started with no servers at all and "smtp servers" list selected,
-  // refresh display somehow. Bug 58506.
-  // TODO Better fix: select newly created account (in all cases)
-  let existingAccountManager =
-      Services.wm.getMostRecentWindow("mailnews:accountmanager");
-  // in AccountManager, not menu
-  if (existingAccountManager && typeof(getCurrentAccount) == "function" &&
-      !getCurrentAccount()) {
-    selectServer(null, null);
-  }
-  */
 }

@@ -1684,8 +1684,10 @@ var gAccountTree = {
   unload() {
     MailServices.accounts.removeIncomingServerListener(this);
   },
-  onServerLoaded(aServer) {
-    this._build();
+  onServerLoaded(server) {
+    // We assume the newly appeared server was created by the user so we select
+    // it in the tree.
+    this._build(server);
   },
   onServerUnloaded(aServer) {
     this._build();
@@ -1710,7 +1712,7 @@ var gAccountTree = {
     return this._dataStore.getValue(document.documentURI, aAccountKey, "open");
   },
 
-  _build() {
+  _build(newServer) {
     var bundle = document.getElementById("bundle_prefs");
     function getString(aString) {
       return bundle.getString(aString);
@@ -1886,5 +1888,10 @@ var gAccountTree = {
       "properties",
       "folderNameCol isServer-true serverType-smtp"
     );
+
+    // If a new server was created, select the server after rebuild of the tree.
+    if (newServer) {
+      setTimeout(selectServer, 0, newServer);
+    }
   },
 };
