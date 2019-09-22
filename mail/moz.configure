@@ -81,6 +81,10 @@ with only_when(target_is_linux & compile_environment):
     set_config('MOZ_NO_PIE_COMPAT',
                depends_if('MOZ_NO_PIE_COMPAT')(lambda _: True))
 
+set_config('MOZ_TELEMETRY_EXTRA_HISTOGRAM_FILES', ['/comm/mail/components/telemetry/Histograms.json'])
+set_config('MOZ_TELEMETRY_EXTRA_SCALAR_FILES', ['/comm/mail/components/telemetry/Scalars.yaml'])
+set_config('MOZ_TELEMETRY_EXTRA_EVENT_FILES', ['/comm/mail/components/telemetry/Events.yaml'])
+
 include('../build/moz.configure/gecko_source.configure')
 
 include('../mailnews/moz.configure')
