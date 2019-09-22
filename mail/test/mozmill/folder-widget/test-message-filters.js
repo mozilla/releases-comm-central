@@ -129,7 +129,7 @@ function test_customize_toolbar_doesnt_double_get_mail_menu() {
   check_getAllNewMsgMenu();
 }
 test_customize_toolbar_doesnt_double_get_mail_menu.EXCLUDED_PLATFORMS = [
-  "darwin",
+  "winnt", "darwin",
 ];
 
 /* A helper function that opens up the new filter dialog (assuming that the
