@@ -491,6 +491,10 @@ static const char *nameFields[] = {VCFamilyNameProp,      VCGivenNameProp,
                                    VCAdditionalNamesProp, VCNamePrefixesProp,
                                    VCNameSuffixesProp,    NULL};
 
+// VCFullNameProp needs to be a field so VCQuotedPrintableProp can be stored
+// with it.
+static const char *fnFields[] = {VCFullNameProp, NULL};
+
 static const char *orgFields[] = {VCOrgNameProp,  VCOrgUnitProp,
                                   VCOrgUnit2Prop, VCOrgUnit3Prop,
                                   VCOrgUnit4Prop, NULL};
@@ -574,7 +578,7 @@ static struct PreDefProp propNames[] = {
   {VCExtAddressProp, 0, 0, 0},
   {VCFamilyNameProp, 0, 0, 0},
   {VCFaxProp, 0, 0, 0},
-  {VCFullNameProp, 0, 0, 0},
+  {VCFullNameProp, 0, fnFields, 0},
   {VCGeoLocationProp, 0, 0, 0},
   {VCGeoProp, 0, 0, 0},
   {VCGIFProp, 0, 0, 0},

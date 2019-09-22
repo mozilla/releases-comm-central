@@ -548,7 +548,10 @@ nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString &aResult) {
 
   (void)GetDisplayName(str);
   if (!str.IsEmpty()) {
-    myAddPropValue(vObj, VCFullNameProp, str.get(), &vCardHasData);
+    // Full name is a field with the same name.
+    t = isAPropertyOf(vObj, VCFullNameProp);
+    if (!t) t = addProp(vObj, VCFullNameProp);
+    myAddPropValue(t, VCFullNameProp, str.get(), &vCardHasData);
   }
 
   (void)GetLastName(str);

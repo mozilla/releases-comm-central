@@ -273,8 +273,9 @@ static int OutputBasicVcard(MimeObject *aMimeObj, VObject *aVcard,
       do_GetService(MSGVCARDSERVICE_CONTRACT_ID);
   if (!vCardService) return -1;
 
-  /* get the name and email */
+  // Get the name and email, the full name is stored as a field.
   prop = vCardService->IsAPropertyOf(aVcard, VCFullNameProp);
+  if (prop) prop = vCardService->IsAPropertyOf(prop, VCFullNameProp);
   if (prop) {
     if (VALUE_TYPE(prop)) {
       if (VALUE_TYPE(prop) != VCVT_RAW)
