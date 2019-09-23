@@ -42,7 +42,7 @@ void SetACookieMail(nsICookieService *aCookieService, const char *aSpec1,
 
   nsresult rv = aCookieService->SetCookieStringFromHttp(
       uri1, uri2, nullptr, nsDependentCString(aCookieString),
-      nsDependentCString(aServerTime), nullptr);
+      aServerTime ? nsDependentCString(aServerTime) : VoidCString(), nullptr);
   EXPECT_TRUE(NS_SUCCEEDED(rv));
 }
 
@@ -105,7 +105,7 @@ void InitPrefsMail(nsIPrefBranch *aPrefBranch) {
   aPrefBranch->SetIntPref(kCookiesMaxPerHost, 50);
 }
 
-TEST(TestMailCookie, DISABLED_TestMailCookieMain)
+TEST(TestMailCookie, TestMailCookieMain)
 {
   nsresult rv0;
 
