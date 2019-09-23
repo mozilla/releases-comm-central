@@ -155,7 +155,8 @@
     <!-- Title -->
     <html:tr id="event-grid-title-row">
       <html:th>
-        <label value="&event.title.textbox.label;"
+        <label id="item-title-label"
+               value="&event.title.textbox.label;"
                accesskey="&event.title.textbox.accesskey;"
                control="item-title"
                disable-on-readonly="true"/>
@@ -163,21 +164,24 @@
       <html:td class="event-input-td">
         <html:input id="item-title"
                     disable-on-readonly="true"
-                    oninput="updateTitle()"/>
+                    oninput="updateTitle()"
+                    aria-labelledby="item-title-label"/>
       </html:td>
     </html:tr>
 
     <!-- Location -->
     <html:tr id="event-grid-location-row">
       <html:th>
-        <label value="&event.location.label;"
+        <label id="item-location-label"
+               value="&event.location.label;"
                accesskey="&event.location.accesskey;"
                control="item-location"
                disable-on-readonly="true"/>
       </html:th>
       <html:td class="event-input-td">
         <html:input id="item-location"
-                    disable-on-readonly="true"/>
+                    disable-on-readonly="true"
+                    aria-labelledby="item-location-label"/>
       </html:td>
     </html:tr>
 
