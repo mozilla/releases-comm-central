@@ -6,6 +6,7 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css" ?>
 
 <!DOCTYPE dialog [
 <!ENTITY % edTableProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorTableProperties.dtd">
@@ -43,60 +44,87 @@
           <hbox class="groupbox-title">
             <label class="header">&size.label;</label>
           </hbox>
-          <grid>
-            <columns><column/><column/><column/><column/><column/></columns>
-              <rows>
-                <row align="center">
-                  <label value="&tableRows.label;" accesskey="&tableRows.accessKey;" control="TableRowsInput"/>
-                  <textbox class="narrow" id="TableRowsInput" oninput="forceInteger(this.id);"/>
-                  <spring class="bigspacer"/>
+          <hbox>
+            <vbox>
+              <hbox>
+                <vbox>
+                  <hbox align="center" flex="1">
+                    <label value="&tableRows.label;" accesskey="&tableRows.accessKey;" control="TableRowsInput"/>
+                  </hbox>
+                  <hbox align="center" flex="1">
+                    <label value="&tableColumns.label;" accesskey="&tableColumns.accessKey;" control="TableColumnsInput"/>
+                  </hbox>
+                </vbox>
+                <vbox>
+                  <textbox id="TableRowsInput" oninput="forceInteger(this.id);" style="width:3em;"/>
+                  <textbox id="TableColumnsInput" oninput="forceInteger(this.id);" style="width:3em;"/>
+                </vbox>
+              </hbox>
+            </vbox>
+            <vbox>
+              <html:div class="grid-three-column">
+                <html:div class="flex-items-center">
                   <label value="&tableHeight.label;" accesskey="&tableHeight.accessKey;"
                          id="TableHeightLabel" control="TableHeightInput"/>
-                  <textbox class="narrow" id="TableHeightInput" oninput="forceInteger(this.id);"/>
+                </html:div>
+                <html:div>
+                  <textbox id="TableHeightInput" oninput="forceInteger(this.id);" style="width:3em;"/>
+                </html:div>
+                <html:div class="flex-items-center">
                   <menulist id="TableHeightUnits"/>
-                </row>
-              <row align="center">
-                <label value="&tableColumns.label;" accesskey="&tableColumns.accessKey;" control="TableColumnsInput"/>
-                <textbox class="narrow" id="TableColumnsInput" oninput="forceInteger(this.id);"/>
-                <spring class="bigspacer"/>
-                <label value="&tableWidth.label;" accesskey="&tableWidth.accessKey;" control="TableWidthInput"/>
-                <textbox class="narrow" id="TableWidthInput" oninput="forceInteger(this.id);"/>
-                <menulist id="TableWidthUnits"/>
-              </row>
-            </rows>
-            <!-- KEEP GRID LAYOUT here since we will be adding back support for table HEIGHT via CSS -->
-          </grid>
+                </html:div>
+                <html:div class="flex-items-center">
+                  <label value="&tableWidth.label;" accesskey="&tableWidth.accessKey;" control="TableWidthInput"/>
+                </html:div>
+                <html:div>
+                  <textbox id="TableWidthInput" oninput="forceInteger(this.id);" style="width:3em;"/>
+                </html:div>
+                <html:div class="flex-items-center">
+                  <menulist id="TableWidthUnits"/>
+                </html:div>
+              </html:div>
+            </vbox>
+          </hbox>
         </groupbox>
         <groupbox>
           <hbox class="groupbox-title">
             <label class="header">&tableBorderSpacing.label;</label>
           </hbox>
-        <grid>
-          <columns><column/><column/><column/></columns>
-          <rows>
-            <row align="center">
-              <label control="BorderWidthInput"
-                     value="&tableBorderWidth.label;"
-                     accesskey="&tableBorderWidth.accessKey;"/>
+          <hbox>
+            <vbox>
+              <hbox flex="1" align="center">
+                <label control="BorderWidthInput"
+                       value="&tableBorderWidth.label;"
+                       accesskey="&tableBorderWidth.accessKey;"/>
+              </hbox>
+              <hbox flex="1" align="center">
+                <label control="SpacingInput"
+                       value="&tableSpacing.label;"
+                       accesskey="&tableSpacing.accessKey;"/>
+              </hbox>
+              <hbox flex="1" align="center">
+                <label control="PaddingInput"
+                       value="&tablePadding.label;"
+                       accesskey="&tablePadding.accessKey;"/>
+              </hbox>
+            </vbox>
+            <vbox>
               <textbox class="narrow" id="BorderWidthInput" oninput="forceInteger(this.id);"/>
-              <label align="left" value="&pixels.label;"/>
-            </row>
-            <row align="center">
-              <label control="SpacingInput"
-                     value="&tableSpacing.label;"
-                     accesskey="&tableSpacing.accessKey;"/>
               <textbox class="narrow" id="SpacingInput" oninput="forceInteger(this.id);"/>
-              <label value="&tablePxBetwCells.label;"/>
-            </row>
-            <row align="center">
-              <label control="PaddingInput"
-                     value="&tablePadding.label;"
-                     accesskey="&tablePadding.accessKey;"/>
               <textbox class="narrow" id="PaddingInput" oninput="forceInteger(this.id);"/>
-              <label value="&tablePxBetwBrdrCellContent.label;"/>
-            </row>
-          </rows>
-        </grid>
+            </vbox>
+            <vbox>
+              <hbox flex="1" align="center">
+                <label align="left" value="&pixels.label;"/>
+              </hbox>
+              <hbox flex="1" align="center">
+                <label value="&tablePxBetwCells.label;"/>
+              </hbox>
+              <hbox flex="1" align="center">
+                <label value="&tablePxBetwBrdrCellContent.label;"/>
+              </hbox>
+            </vbox>
+          </hbox>
         </groupbox>
         <!-- Table Alignment and Caption -->
         <hbox flex="1" align="center">
@@ -191,56 +219,63 @@
             <hbox class="groupbox-title">
               <label class="header">&size.label;</label>
             </hbox>
-            <grid>
-              <columns><column/><column/><column flex="1"/></columns>
-              <rows>
-                <row align="center">
+            <hbox>
+              <vbox>
+                <hbox flex="1" align="center">
                   <checkbox id="CellHeightCheckbox" label="&tableHeight.label;" accesskey="&tableHeight.accessKey;"/>
-                  <textbox class="narrow" id="CellHeightInput"
-                           oninput="ChangeIntTextbox(this.id, 'CellHeightCheckbox');"/>
-                  <menulist id="CellHeightUnits" oncommand="SetCheckbox('CellHeightCheckbox');"/>
-                </row>
-                <row align="center">
+                </hbox>
+                <hbox flex="1" align="center">
                   <checkbox id="CellWidthCheckbox" label="&tableWidth.label;" accesskey="&tableWidth.accessKey;"/>
-                  <textbox class="narrow" id="CellWidthInput"
-                           oninput="ChangeIntTextbox(this.id, 'CellWidthCheckbox');"/>
+                </hbox>
+              </vbox>
+              <vbox flex="1">
+                <textbox class="narrow" id="CellHeightInput"
+                         oninput="ChangeIntTextbox(this.id, 'CellHeightCheckbox');"/>
+                <textbox class="narrow" id="CellWidthInput"
+                         oninput="ChangeIntTextbox(this.id, 'CellWidthCheckbox');"/>
+              </vbox>
+              <vbox>
+                <hbox flex="1" align="center">
+                  <menulist id="CellHeightUnits" oncommand="SetCheckbox('CellHeightCheckbox');"/>
+                </hbox>
+                <hbox flex="1" align="center">
                   <menulist id="CellWidthUnits" oncommand="SetCheckbox('CellWidthCheckbox');"/>
-                </row>
-              </rows>
-            </grid>
-            <spacer class="bigspacer"/>
+                </hbox>
+              </vbox>
+            </hbox>
           </groupbox>
           <!-- Alignment -->
           <groupbox>
             <hbox class="groupbox-title">
               <label class="header">&cellContentAlignment.label;</label>
             </hbox>
-            <grid>
-              <columns><column/><column flex="1"/><column/></columns>
-              <rows>
-                <row align="center">
+            <hbox>
+              <vbox>
+                <hbox align="center" flex="1">
                   <checkbox id="CellVAlignCheckbox" label="&cellVertical.label;" accesskey="&cellVertical.accessKey;"/>
-                  <menulist id="CellVAlignList" oncommand="SetCheckbox('CellVAlignCheckbox');">
-                    <menupopup>
-                      <menuitem label="&cellAlignTop.label;"    value="top"/>
-                      <menuitem label="&cellAlignMiddle.label;" value="middle"/>
-                      <menuitem label="&cellAlignBottom.label;" value="bottom"/>
-                    </menupopup>
-                  </menulist>
-                </row>
-                <row align="center">
+                </hbox>
+                <hbox align="center" flex="1">
                   <checkbox id="CellHAlignCheckbox" label="&cellHorizontal.label;" accesskey="&cellHorizontal.accessKey;"/>
-                  <menulist id="CellHAlignList"  oncommand="SelectCellHAlign()">
-                    <menupopup>
-                      <menuitem label="&AlignLeft.label;"        value="left"/>
-                      <menuitem label="&AlignCenter.label;"      value="center"/>
-                      <menuitem label="&AlignRight.label;"       value="right"/>
-                      <menuitem label="&cellAlignJustify.label;" value="justify"/>
-                    </menupopup>
-                  </menulist>
-                </row>
-              </rows>
-            </grid>
+                </hbox>
+              </vbox>
+              <vbox flex="1">
+                <menulist id="CellVAlignList" oncommand="SetCheckbox('CellVAlignCheckbox');">
+                  <menupopup>
+                    <menuitem label="&cellAlignTop.label;" value="top"/>
+                    <menuitem label="&cellAlignMiddle.label;" value="middle"/>
+                    <menuitem label="&cellAlignBottom.label;" value="bottom"/>
+                  </menupopup>
+                </menulist>
+                <menulist id="CellHAlignList" oncommand="SelectCellHAlign()">
+                  <menupopup>
+                    <menuitem label="&AlignLeft.label;" value="left"/>
+                    <menuitem label="&AlignCenter.label;" value="center"/>
+                    <menuitem label="&AlignRight.label;" value="right"/>
+                    <menuitem label="&cellAlignJustify.label;" value="justify"/>
+                  </menupopup>
+                </menulist>
+              </vbox>
+            </hbox>
           </groupbox>
         </hbox>
         <spacer class="spacer"/>
