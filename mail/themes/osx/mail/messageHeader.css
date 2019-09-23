@@ -363,6 +363,5 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
 /* ::::: collapsed view styles ::::: */
 
 #header-view-toolbox {
-  float: right;
   padding-top: 3px;
 }

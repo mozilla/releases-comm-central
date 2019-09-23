@@ -143,6 +143,7 @@ img[overflowing][shrinktofit] {
 /* Old style feeds, pre Tb3.0 */
 #_mailrssiframe {
   position: fixed;
+  display: block;
   top: 0;
   left: 0;
   width: 100%;

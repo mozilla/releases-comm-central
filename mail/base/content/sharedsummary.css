@@ -41,6 +41,7 @@ body {
 
 #heading_wrapper {
   position: fixed;
+  display: block;
   top: 0;
   width: -moz-available;
   color: var(--head-text-color);

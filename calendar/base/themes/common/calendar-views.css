@@ -440,6 +440,7 @@ calendar-header-container[weekend="true"][selected="true"],
 .timeIndicator-timeBar {
     background-color: red;
     position: absolute;
+    display: block;
     border-radius: 2px;
 }
 

@@ -54,6 +54,7 @@ body {
 
 .popup-menu {
   position: absolute;
+  display: block;
   z-index: 100;
   overflow: hidden;
   border: 1px solid var(--popupBorder);
@@ -404,6 +405,7 @@ html[dir="rtl"] .bar-count {
 
 .bar-count {
   position: absolute;
+  display: block;
   right: 3px;
   margin-inline-end: 1.5em;
   line-height: 1.6em;

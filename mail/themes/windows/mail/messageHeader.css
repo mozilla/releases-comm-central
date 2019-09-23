@@ -197,10 +197,6 @@ mail-headerfield.headerValue:focus {
   list-style-image: url("chrome://messenger/skin/icons/arrow-dn-grey.png");
 }
 
-#header-view-toolbox {
-  float: right;
-}
-
 #attachmentView,
 #attachmentList {
   border-top: 1px solid #a9b7c9; /* The same color as the splitters */

@@ -200,6 +200,7 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]:not([customizing="true
 
 statuspanel {
   position: fixed;
+  display: block;
   margin-top: -3em;
   left: 0;
   z-index: 20;
