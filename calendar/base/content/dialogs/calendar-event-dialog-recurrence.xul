@@ -81,7 +81,7 @@
                        selected="true"/>
                 <html:input id="daily-days" type="number" class="size3"
                             min="1" max="32767" value="1"
-                            onkeyup="updateRecurrenceControls();"
+                            oninput="updateRecurrenceControls();"
                             disable-on-readonly="true"
                             disable-on-occurrence="true"/>
                 <label id="daily-group-every-units-label"
@@ -106,7 +106,7 @@
                      control="weekly-weeks"/>
               <html:input id="weekly-weeks" type="number" class="size3"
                           min="1" max="32767" value="1"
-                          onkeyup="updateRecurrenceControls();"
+                          oninput="updateRecurrenceControls();"
                           disable-on-readonly="true"
                           disable-on-occurrence="true"/>
               <label id="weekly-period-units-label"
@@ -147,7 +147,7 @@
                      control="monthly-interval"/>
               <html:input id="monthly-interval" type="number" class="size3"
                           min="1" max="32767" value="1"
-                          onkeyup="updateRecurrenceControls();"
+                          oninput="updateRecurrenceControls();"
                           disable-on-readonly="true"
                           disable-on-occurrence="true"/>
               <label id="monthly-period-units-label"
@@ -293,7 +293,7 @@
                      control="yearly-interval"/>
               <html:input id="yearly-interval" type="number" class="size3"
                           min="1" max="32767" value="1"
-                          onkeyup="updateRecurrenceControls();"
+                          oninput="updateRecurrenceControls();"
                           disable-on-readonly="true"
                           disable-on-occurrence="true"/>
               <label id="yearly-period-units-label" value="&repeat.units.years.both;"/>
@@ -311,7 +311,7 @@
                        align="center">
                     <html:input id="yearly-days" type="number" class="size3"
                                 min="1" value="1"
-                                onkeyup="updateRecurrenceControls();"
+                                oninput="updateRecurrenceControls();"
                                 disable-on-readonly="true"
                                 disable-on-occurrence="true"/>
                     <label id="yearly-period-of-month-label"
@@ -511,7 +511,7 @@
                  disable-on-occurrence="true"/>
           <html:input id="repeat-ntimes-count" type="number" class="size3"
                       min="1" max="32767" value="5"
-                      onkeyup="updateRecurrenceControls();"
+                      oninput="updateRecurrenceControls();"
                       disable-on-readonly="true"
                       disable-on-occurrence="true"/>
           <label id="repeat-appointments-label"
