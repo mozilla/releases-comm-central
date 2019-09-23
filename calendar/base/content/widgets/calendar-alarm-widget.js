@@ -14,7 +14,7 @@
    * allows the alarm to be snoozed, dismissed, etc.
    * @extends MozElements.MozRichlistitem
    */
-  class MozCalendarAlarmWidget extends MozElements.MozRichlistitem {
+  class MozCalendarAlarmWidgetRichlistitem extends MozElements.MozRichlistitem {
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasConnected) {
         return;
@@ -62,6 +62,7 @@
       );
       this.mItem = null;
       this.mAlarm = null;
+      this.setAttribute("is", "calendar-alarm-widget-richlistitem");
     }
 
     set item(val) {
@@ -213,7 +214,9 @@
     }
   }
 
-  customElements.define("calendar-alarm-widget", MozCalendarAlarmWidget);
+  customElements.define("calendar-alarm-widget-richlistitem", MozCalendarAlarmWidgetRichlistitem, {
+    extends: "richlistitem",
+  });
 
   /**
    * A popup panel for selecting how long to snooze alarms/reminders.
@@ -315,8 +318,7 @@
       // (so call dispatchEvent on that). For snoozing all alarms the event.target is not
       // relevant but the snooze all popup is not inside a calendar-alarm-widget (so call
       // dispatchEvent on 'this').
-      const eventTarget =
-        this.id == "alarm-snooze-all-popup" ? this : this.closest("calendar-alarm-widget");
+      const eventTarget = this.id == "alarm-snooze-all-popup" ? this : this.closest("richlistitem");
       eventTarget.dispatchEvent(snoozeEvent);
     }
 
