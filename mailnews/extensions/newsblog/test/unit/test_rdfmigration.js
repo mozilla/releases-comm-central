@@ -58,6 +58,6 @@ add_task(async function test_rdfmigration() {
     "feeds-bad",
   ];
   for (let d of testDataDirs) {
-    await migrationTest(do_get_file(OS.Path.join("resources", d)).path);
+    await migrationTest(do_get_file("resources/" + d).path);
   }
 });
