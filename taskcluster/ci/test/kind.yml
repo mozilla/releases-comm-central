@@ -38,7 +38,6 @@ job-defaults:
             - comm/mailnews
             - comm/mozharness
             - comm/other-licenses
-            - comm/rdf
             - comm/taskcluster
             - comm/testing
             - comm/.gecko_rev.yml

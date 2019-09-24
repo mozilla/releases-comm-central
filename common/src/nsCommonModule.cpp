@@ -90,7 +90,6 @@ extern const mozilla::Module kMailNewsImportModule;
 #ifdef MOZ_MAPI_SUPPORT
 extern const mozilla::Module kMAPIModule;
 #endif
-extern const mozilla::Module kRDFModule;
 #ifdef MOZ_SUITE
 extern const mozilla::Module kSuiteModule;
 #endif
@@ -114,7 +113,6 @@ class ModulesInit {
 #ifdef MOZ_MAPI_SUPPORT
     XRE_AddStaticComponent(&kMAPIModule);
 #endif
-    XRE_AddStaticComponent(&kRDFModule);
 #ifdef MOZ_SUITE
     XRE_AddStaticComponent(&kSuiteModule);
 #endif

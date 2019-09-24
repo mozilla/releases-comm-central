@@ -12,6 +12,5 @@ if CONFIG['MOZ_LDAP_XPCOM']:
 DIRS += [
     '/%s/mailnews' % CONFIG['commreltopsrcdir'],
     '/%s/db' % CONFIG['commreltopsrcdir'],
-    '/%s/rdf' % CONFIG['commreltopsrcdir'],
 ]
 

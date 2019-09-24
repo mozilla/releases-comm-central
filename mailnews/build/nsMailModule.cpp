@@ -49,7 +49,6 @@
 // mailnews base includes
 ////////////////////////////////////////////////////////////////////////////////
 #include "nsMsgBaseCID.h"
-#include "rdf.h"
 #include "nsMessengerBootstrap.h"
 #include "nsMessenger.h"
 #include "nsIContentViewer.h"

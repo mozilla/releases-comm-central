@@ -5,7 +5,6 @@
 
 EXPORTS += [
     'nsMailDirServiceDefs.h',
-    'nsMsgRDFUtils.h',
 ]
 
 SOURCES += [
@@ -34,7 +33,6 @@ SOURCES += [
     'nsMsgProgress.cpp',
     'nsMsgPurgeService.cpp',
     'nsMsgQuickSearchDBView.cpp',
-    'nsMsgRDFUtils.cpp',
     'nsMsgSearchDBView.cpp',
     'nsMsgSpecialViews.cpp',
     'nsMsgStatusFeedback.cpp',
