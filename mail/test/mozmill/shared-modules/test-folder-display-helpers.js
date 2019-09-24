@@ -221,6 +221,7 @@ function setupModule() {
   load_via_src_path("resources/messageModifier.js", testHelperModule);
   load_via_src_path("resources/messageInjection.js", testHelperModule);
   load_via_src_path("resources/viewWrapperTestUtils.js", testHelperModule);
+  load_via_src_path("resources/smimeUtils.jsm", testHelperModule);
 
   // provide super helpful folder event info (when logHelper cares)
   load_via_src_path("resources/folderEventLogHelper.js", testHelperModule);
@@ -270,6 +271,18 @@ function setupModule() {
   try {
     mc.folderTreeView.toggleOpenState(1);
   } catch (ex) {}
+}
+
+function smimeUtils_ensureNSS() {
+  testHelperModule.SmimeUtils.ensureNSS();
+}
+
+function smimeUtils_loadPEMCertificate(file, certType, loadKey = false) {
+  testHelperModule.SmimeUtils.loadPEMCertificate(file, certType, loadKey);
+}
+
+function smimeUtils_loadCertificateAndKey(file) {
+  testHelperModule.SmimeUtils.loadCertificateAndKey(file);
 }
 
 /**
