@@ -338,6 +338,18 @@ function OnUnloadMsgHeaderPane() {
   );
 }
 
+function OnResizeExpandedHeaderView() {
+  if (document.getElementById("expandedHeaderView")) {
+    document
+      .getElementById("expandedHeaderView")
+      .setAttribute(
+        "height",
+        document.getElementById("expandedHeadersTopBox").clientHeight +
+          document.getElementById("expandedHeaders2").clientHeight
+      );
+  }
+}
+
 var MsgHdrViewObserver = {
   observe(subject, topic, prefName) {
     // verify that we're changing the mail pane config pref
@@ -897,7 +909,7 @@ function OnTagsChange() {
       }
 
       // we may need to collapse or show the tag header row...
-      headerEntry.enclosingRow.collapsed = !headerEntry.valid;
+      headerEntry.enclosingRow.toggleAttribute("hidden", !headerEntry.valid);
       // ... and ensure that all headers remain correctly aligned
       syncGridColumnWidths();
     }
@@ -928,7 +940,7 @@ function ClearHeaderView(aHeaderTable) {
 function hideHeaderView(aHeaderTable) {
   for (let name in aHeaderTable) {
     let headerEntry = aHeaderTable[name];
-    headerEntry.enclosingRow.collapsed = true;
+    headerEntry.enclosingRow.setAttribute("hidden", "hidden");
   }
 }
 
@@ -940,12 +952,7 @@ function hideHeaderView(aHeaderTable) {
 function showHeaderView(aHeaderTable) {
   for (let name in aHeaderTable) {
     let headerEntry = aHeaderTable[name];
-    if (headerEntry.valid) {
-      headerEntry.enclosingRow.collapsed = false;
-    } else {
-      // if the entry is invalid, always make sure it's collapsed
-      headerEntry.enclosingRow.collapsed = true;
-    }
+    headerEntry.enclosingRow.toggleAttribute("hidden", !headerEntry.valid);
   }
 }
 
@@ -1030,19 +1037,21 @@ function updateExpandedView() {
  * model's inability to float elements.
  */
 function syncGridColumnWidths() {
-  let nameColumn = document.getElementById("expandedHeadersNameColumn");
-  let nameColumn2 = document.getElementById("expandedHeaders2NameColumn");
+  let fromTH = document.getElementById("expandedfromTableHeader");
+  let subjectTH = document.getElementById("expandedsubjectTableHeader");
 
   // Reset the minimum widths to 0 so that clientWidth will return the
   // preferred intrinsic width of each column.
-  nameColumn.minWidth = nameColumn2.minWidth = 0;
+  fromTH.style.minWidth = subjectTH.style.minWidth = "0px";
 
   // Set minWidth on the smaller of the two columns to be the width of the
   // larger of the two.
-  if (nameColumn.clientWidth > nameColumn2.clientWidth) {
-    nameColumn2.minWidth = nameColumn.clientWidth;
-  } else if (nameColumn.clientWidth < nameColumn2.clientWidth) {
-    nameColumn.minWidth = nameColumn2.clientWidth;
+  if (fromTH.clientWidth > subjectTH.clientWidth) {
+    subjectTH.style.minWidth = fromTH.clientWidth + "px";
+    fromTH.style.minWidth = subjectTH.style.minWidth;
+  } else if (fromTH.clientWidth < subjectTH.clientWidth) {
+    fromTH.style.minWidth = subjectTH.clientWidth + "px";
+    subjectTH.style.minWidth = fromTH.style.minWidth;
   }
 }
 
@@ -1073,9 +1082,9 @@ function HeaderView(headerName, label) {
   let newRowNode = document.getElementById(rowId);
   if (!newRowNode) {
     // Create new collapsed row.
-    newRowNode = document.createXULElement("row");
+    newRowNode = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
     newRowNode.setAttribute("id", rowId);
-    newRowNode.collapsed = true;
+    newRowNode.setAttribute("hidden", "hidden");
 
     // Create and append the label which contains the header name.
     let newLabelNode = document.createXULElement("label");
@@ -1083,17 +1092,27 @@ function HeaderView(headerName, label) {
     newLabelNode.setAttribute("value", label);
     newLabelNode.setAttribute("class", "headerName");
     newLabelNode.setAttribute("control", idName);
-    newRowNode.appendChild(newLabelNode);
+    let newTHNode = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "th"
+    );
+    newTHNode.appendChild(newLabelNode);
+    newRowNode.appendChild(newTHNode);
 
     // Create and append the new header value.
     newHeaderNode = document.createXULElement("mail-headerfield");
     newHeaderNode.setAttribute("id", idName);
     newHeaderNode.setAttribute("flex", "1");
+    let newTDNode = document.createElementNS(
+      "http://www.w3.org/1999/xhtml",
+      "td"
+    );
+    newTDNode.appendChild(newHeaderNode);
 
-    newRowNode.appendChild(newHeaderNode);
+    newRowNode.appendChild(newTDNode);
 
     // This new element needs to be inserted into the view...
-    let topViewNode = document.getElementById("expandedHeader2Rows");
+    let topViewNode = document.getElementById("expandedHeaders2");
     topViewNode.appendChild(newRowNode);
     this.isNewHeader = true;
   } else {

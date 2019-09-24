@@ -76,6 +76,7 @@
         defaultTabTitle="&defaultTabTitle.label;"
         onload="OnLoadMessenger()"
         onunload="OnUnloadMessenger()"
+        onresize="OnResizeExpandedHeaderView()"
         screenX="10" screenY="10"
         persist="width height screenX screenY sizemode"
         toggletoolbar="true"

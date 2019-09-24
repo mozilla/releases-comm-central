@@ -15,7 +15,7 @@
                                    model. This lets us float the message header toolbar to the right
                                    so we don't waste space when the From field and the toolbar could
                                    fit alongside each other. -->
-                              <hbox id="expandedHeadersTopBox" flex="1">
+                              <hbox id="expandedHeadersTopBox">
 
                                 <vbox id="header-view-toolbox" class="inline-toolbox">
                                   <hbox id="header-view-toolbar" class="toolbar">
@@ -221,143 +221,193 @@
                                      unclear reasons, the .clientWidth of a column is wider than the
                                      .clientWidth of its largest contained child by an unspecified
                                      amount. -->
-                                <grid id="expandedHeaders">
-
-                                  <columns id="expandedHeadersColumns">
-                                    <column id="expandedHeadersNameColumn"/>
-                                    <column id="expandedHeadersValueColumn" flex="1"/>
-                                  </columns>
-
-                                  <rows id="expandedHeaderRows">
-                                    <row id="expandedfromRow">
+                                <html:table id="expandedHeaders">
+                                  <html:tr id="expandedfromRow">
+                                    <html:th id="expandedfromTableHeader">
                                       <label id="expandedfromLabel" class="headerName"
                                              value="&fromField4.label;"
                                              valueFrom="&fromField4.label;" valueAuthor="&author.label;"
                                              control="expandedfromBox"/>
-                                      <mail-multi-emailheaderfield id="expandedfromBox" flex="1"/>
-                                    </row>
-                                  </rows>
-                                </grid>
+                                    </html:th>
+                                    <html:td>
+                                      <mail-multi-emailheaderfield id="expandedfromBox"/>
+                                    </html:td>
+                                  </html:tr>
+                                </html:table>
                               </hbox>
 
                               <hbox id="expandedHeadersBottomBox">
 
                                 <!-- The grid that contains all headers except the first one,
                                       including any headers created dynamically from JavaScript -->
-                                <grid id="expandedHeaders2" flex="1">
-
-                                  <columns id="expandedHeaders2Columns">
-                                    <column id="expandedHeaders2NameColumn"/>
-                                    <column id="expandedHeaders2ValueColumn" flex="1"/>
-                                  </columns>
-
-                                  <rows id="expandedHeader2Rows">
-
+                                <html:table id="expandedHeaders2">
                                     <!-- Commonly used rows are pre-specified in the XUL to avoid the
                                          performance hit of creating them dynamically. -->
-                                    <row id="expandedsubjectRow">
+                                  <html:tr id="expandedsubjectRow">
+                                    <html:th id="expandedsubjectTableHeader">
                                       <label id="expandedsubjectLabel" class="headerName"
                                              value="&subjectField4.label;"
                                              control="expandedsubjectBox"/>
-                                      <mail-headerfield id="expandedsubjectBox" flex="1"
+                                    </html:th>
+                                    <html:td>
+                                      <mail-headerfield id="expandedsubjectBox"
                                                         headerName="subject"/>
-                                    </row>
-                                    <row id="expandedorganizationRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedorganizationRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandedorganizationLabel" class="headerName"
                                              value="&organizationField4.label;"
                                              control="expandedorganizationBox"/>
+                                    </html:th>
+                                    <html:td>
                                       <mail-headerfield id="expandedorganizationBox"/>
-                                    </row>
-                                    <row id="expandedsenderRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedsenderRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandedsenderLabel" class="headerName"
                                              value="&senderField4.label;" control="expandedsenderBox"/>
+                                    </html:th>
+                                    <html:td>
                                       <mail-emailheaderfield id="expandedsenderBox"/>
-                                    </row>
-                                    <row id="expandedreply-toRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedreply-toRow">
+                                    <html:th>
                                       <label id="expandedreply-toLabel" class="headerName"
                                              value="&replyToField4.label;"
                                              control="expandedreply-toBox"/>
+                                    </html:th>
+                                    <html:td>
                                       <mail-multi-emailheaderfield id="expandedreply-toBox"/>
-                                    </row>
-                                    <row id="expandedtoRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedtoRow">
+                                    <html:th>
                                       <label id="expandedtoLabel" class="headerName"
                                              value="&toField4.label;" control="expandedtoBox"/>
-                                      <mail-multi-emailheaderfield id="expandedtoBox" flex="1"/>
-                                    </row>
-                                    <row id="expandedccRow" collapsed="true">
+                                    </html:th>
+                                    <html:td>
+                                      <mail-multi-emailheaderfield id="expandedtoBox"/>
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedccRow">
+                                    <html:th>
                                       <label id="expandedccLabel" class="headerName"
                                              value="&ccField4.label;" control="expandedccBox"/>
-                                      <mail-multi-emailheaderfield id="expandedccBox" flex="1"/>
-                                    </row>
-                                    <row id="expandedbccRow" collapsed="true">
+                                    </html:th>
+                                    <html:td>
+                                      <mail-multi-emailheaderfield id="expandedccBox"/>
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedbccRow">
+                                    <html:th>
                                       <label id="expandedbccLabel" class="headerName"
                                              value="&bccField4.label;" control="expandedbccBox"/>
+                                    </html:th>
+                                    <html:td>
                                       <mail-multi-emailheaderfield id="expandedbccBox"/>
-                                    </row>
-                                    <row id="expandednewsgroupsRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandednewsgroupsRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandednewsgroupsLabel" class="headerName"
                                              value="&newsgroupsField4.label;"
                                              control="expandednewsgroupsBox"/>
-                                      <mail-newsgroups-headerfield id="expandednewsgroupsBox" flex="1"/>
-                                    </row>
-                                    <row id="expandedfollowup-toRow" collapsed="true">
+                                    </html:th>
+                                    <html:td>
+                                      <mail-newsgroups-headerfield id="expandednewsgroupsBox"/>
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedfollowup-toRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandedfollowup-toLabel" class="headerName"
                                              value="&followupToField4.label;"
                                              control="expandedfollowup-toBox"/>
-                                      <mail-newsgroups-headerfield id="expandedfollowup-toBox" flex="1"/>
-                                    </row>
-                                    <row id="expandeddateRow" collapsed="true">
+                                    </html:th>
+                                    <html:td>
+                                      <mail-newsgroups-headerfield id="expandedfollowup-toBox"/>
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandeddateRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandeddateLabel" class="headerName"
                                              value="&dateField4.label;" control="expandeddateBox"/>
-                                      <mail-headerfield id="expandeddateBox" flex="1"/>
-                                    </row>
-                                    <row id="expandedmessage-idRow" collapsed="true">
+                                    </html:th>
+                                    <html:td>
+                                      <mail-headerfield id="expandeddateBox"/>
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedmessage-idRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandedmessage-idLabel" class="headerName"
                                              value="&messageIdField4.label;"
                                              control="expandedmessage-idBox"/>
+                                    </html:th>
+                                    <html:td>
                                       <mail-messageids-headerfield id="expandedmessage-idBox"/>
-                                    </row>
-                                    <row id="expandedin-reply-toRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedin-reply-toRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandedin-reply-toLabel" class="headerName"
                                              value="&inReplyToField4.label;"
                                              control="expandedin-reply-toBox"/>
+                                    </html:th>
+                                    <html:td>
                                       <mail-messageids-headerfield id="expandedin-reply-toBox"/>
-                                    </row>
-                                    <row id="expandedreferencesRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedreferencesRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandedreferencesLabel" class="headerName"
                                              value="&referencesField4.label;"
                                              control="expandedreferencesBox"/>
-                                      <mail-messageids-headerfield id="expandedreferencesBox"
-                                                                   flex="1"/>
-                                    </row>
-                                    <row id="expandedtagsRow" collapsed="true">
+                                    </html:th>
+                                    <html:td>
+                                      <mail-messageids-headerfield id="expandedreferencesBox"/>
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedtagsRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandedtagsLabel" class="headerName"
                                              value="&tagsHdr4.label;" control="expandedtagsBox"/>
+                                    </html:th>
+                                    <html:td>
                                       <mail-tagfield id="expandedtagsBox"/>
-                                    </row>
-                                    <row id="expandedcontent-baseRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandedcontent-baseRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandedcontent-baseLabel" class="headerName"
                                              value="&originalWebsite4.label;"
                                              control="expandedcontent-baseBox"/>
+                                    </html:th>
+                                    <html:td>
                                       <mail-urlfield id="expandedcontent-baseBox"/>
-                                    </row>
-                                    <row id="expandeduser-agentRow" collapsed="true">
+                                    </html:td>
+                                  </html:tr>
+                                  <html:tr id="expandeduser-agentRow" hidden="hidden">
+                                    <html:th>
                                       <label id="expandeduser-agentLabel" class="headerName"
                                              value="&userAgentField4.label;"
                                              control="expandeduser-agentBox"/>
-                                      <mail-headerfield id="expandeduser-agentBox" flex="1"/>
-                                    </row>
-                                  </rows>
-                                </grid>
+                                    </html:th>
+                                    <html:td>
+                                      <mail-headerfield id="expandeduser-agentBox"/>
+                                    </html:td>
+                                  </html:tr>
+                                </html:table>
 
                                 <!-- perhaps this should be a customizable toolbar too -->
                                 <vbox id="otherActionsBox" align="end">
                                   <hbox id="dateValueBox" align="top" flex="1">  <!--For extensions-->
                                     <hbox id="smimeBox" insertbefore="dateLabel" collapsed="true">
                                       <image id="signedHdrIcon"
-                                            onclick="showMessageReadSecurityInfo();" collapsed="true"/>
+                                             onclick="showMessageReadSecurityInfo();" collapsed="true"/>
                                       <image id="encryptedHdrIcon"
-                                            onclick="showMessageReadSecurityInfo();" collapsed="true"/>
+                                             onclick="showMessageReadSecurityInfo();" collapsed="true"/>
                                     </hbox>
                                     <label id="dateLabel" class="dateLabel" flex="1" role="textbox"
                                            aria-readonly="true"/>

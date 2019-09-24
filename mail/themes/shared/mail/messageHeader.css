@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 :root[lwt-default-theme-in-dark-mode] #headers-box,
 :root[lwt-default-theme-in-dark-mode] #msgHeaderView {
@@ -44,12 +45,6 @@
 }
 
 /* ::::: msg header toolbars ::::: */
-
-#expandedHeaderRows > row,
-#expandedHeader2Rows > row {
-  /* Ensure that the header names and values are aligned with each other. */
-  -moz-box-align: baseline;
-}
 
 #expandedHeadersTopBox {
   /* Use the HTML layout model to allow the message header toolbar to float to
@@ -110,7 +105,44 @@
 }
 
 #otherActionsBox {
+  white-space: nowrap;
   margin-inline-start: 8px;
+}
+
+html|table#expandedHeaders {
+  display: inline-grid;
+  vertical-align: baseline;
+}
+
+html|table#expandedHeaders,
+html|table#expandedHeaders2 {
+  border-spacing: 0;
+}
+
+#expandedHeadersBottomBox {
+  display: flex;
+}
+
+#expandedHeadersTopBox html|th,
+#expandedHeadersBottomBox html|th {
+  font-weight: normal !important;
+  vertical-align: top;
+  text-align: right;
+  padding-top: 2px !important;
+}
+
+#expandedHeadersTopBox html|td,
+#expandedHeadersBottomBox html|td,
+mail-multi-emailheaderfield {
+  width: 100%;
+}
+
+#expandedHeadersTopBox html|th,
+#expandedHeadersBottomBox html|th,
+#expandedHeadersTopBox html|td,
+#expandedHeadersBottomBox html|td {
+  margin: 0;
+  padding: 0;
 }
 
 .headerValueBox {

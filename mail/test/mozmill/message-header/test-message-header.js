@@ -130,8 +130,8 @@ function test_add_tag_with_really_long_label() {
 
   assert_selected_and_displayed(mc, curMessage);
 
-  let topColumn = mc.eid("expandedHeadersNameColumn").node;
-  let bottomColumn = mc.eid("expandedHeaders2NameColumn").node;
+  let topColumn = mc.eid("expandedfromTableHeader").node;
+  let bottomColumn = mc.eid("expandedsubjectTableHeader").node;
 
   if (topColumn.clientWidth != bottomColumn.clientWidth) {
     throw new Error(
@@ -168,8 +168,7 @@ function test_add_tag_with_really_long_label() {
   }
 
   // Add the first tag, and make sure that the label are the same length.
-  mc.keypress(mc.eid("expandedHeadersNameColumn"), "1", {});
-
+  mc.keypress(mc.eid("expandedfromTableHeader"), "1", {});
   if (topColumn.clientWidth != bottomColumn.clientWidth) {
     tagsLabel.value = oldTagsValue;
     throw new Error(
@@ -192,8 +191,8 @@ function test_add_tag_with_really_long_label() {
   // Remove the tag and put it back so that the a11y label gets regenerated
   // with the normal value rather than "taaaaaaaags"
   tagsLabel.value = oldTagsValue;
-  mc.keypress(mc.eid("expandedHeadersNameColumn"), "1", {});
-  mc.keypress(mc.eid("expandedHeadersNameColumn"), "1", {});
+  mc.keypress(mc.eid("expandedfromTableHeader"), "1", {});
+  mc.keypress(mc.eid("expandedfromTableHeader"), "1", {});
 }
 
 /**
@@ -449,8 +448,7 @@ function test_more_button_with_many_recipients() {
 
   // Click the "more" button.
   let moreIndicator = mc.window.document.getElementById("expandedccBox").more;
-  moreIndicator = new elementslib.Elem(moreIndicator);
-  mc.click(moreIndicator);
+  moreIndicator.click();
 
   // Check the new mode of the header.
   if (headerBox.node.getAttribute("show_header_mode") != "all") {
@@ -761,7 +759,7 @@ function test_that_msg_without_date_clears_previous_headers() {
   // However, since the previously displayed message _did_ have such a header,
   // certain bugs in the display of this header could cause the collapse
   // never to have happened.
-  if (!mc.e("expandednewsgroupsRow").collapsed) {
+  if (!mc.e("expandednewsgroupsRow").hasAttribute("hidden")) {
     throw new Error(
       "Expected <row> element for Newsgroups header to be " +
         "collapsed, but it wasn't\n!"

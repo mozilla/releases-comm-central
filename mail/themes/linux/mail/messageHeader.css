@@ -195,7 +195,6 @@
   text-align: right;
   background-color: transparent;
   padding: 0px;
-  margin-top: 0;
   margin-inline-end: 3px;
 }
 
@@ -203,7 +202,7 @@
   min-width: 50px;
   white-space: normal;
   color: WindowText;
-  line-height: 1.5em;
+  line-height: 1.4em;
   -moz-appearance: none !important;
   padding: .1em 0px !important;
   margin: 0px !important;

@@ -1214,12 +1214,12 @@
 
       // Re-render the node, this time with all the addresses.
       this._fillAddressesNode(true);
-      // Compute height of 'expandedHeaderView' from 'expandedHeadersBox'.
       document
         .getElementById("expandedHeaderView")
         .setAttribute(
           "height",
-          document.getElementById("expandedHeadersBox").clientHeight
+          document.getElementById("expandedHeadersTopBox").clientHeight +
+            document.getElementById("expandedHeaders2").clientHeight
         );
       // This attribute will be reinit in the 'UpdateExpandedMessageHeaders()' method.
     }
