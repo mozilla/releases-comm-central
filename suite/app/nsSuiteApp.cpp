@@ -23,6 +23,7 @@
 #include "nsIFile.h"
 
 #ifdef XP_WIN
+#include "mozilla/WindowsDllBlocklist.h"
 #define XRE_WANT_ENVIRON
 #define strcasecmp _stricmp
 #ifdef MOZ_SANDBOX
@@ -35,7 +36,6 @@
 
 #include "mozilla/Sprintf.h"
 #include "mozilla/StartupTimeline.h"
-#include "mozilla/WindowsDllBlocklist.h"
 
 #ifdef LIBFUZZER
 #include "FuzzerDefs.h"
