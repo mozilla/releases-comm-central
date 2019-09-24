@@ -8,7 +8,7 @@
 
 @import url("chrome://messenger/skin/");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
 
 /* ::::: Card Edit dialog ::::: */
 
@@ -34,12 +34,12 @@
   width: 8ch;
 }
 
-.stateZipSpacer {
-  width: 6ch;
+.ZipWidth {
+  max-width: 14ch !important;
 }
 
-.ZipWidth {
-  width: 14ch;
+.DepartmentWidth {
+  max-width: 20ch !important;
 }
 
 /* ::::: List dialogs ::::: */
@@ -86,6 +86,10 @@
 
 #photo {
   list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
+}
+
+#GenericPhotoList {
+  margin-inline-start: 27px;
 }
 
 #GenericPhotoList[value="default"] {

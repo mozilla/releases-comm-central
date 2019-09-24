@@ -467,27 +467,27 @@ function InitEditCard() {
   // Fix broken element IDs caused by translation mistakes. NameField1's ID should be either
   // "FirstName" or "LastName", and if it isn't, make it so.
   let nameField1Container = document.getElementById("NameField1Container");
-  let nameField1 = nameField1Container.querySelector("textbox");
+  let nameField1 = nameField1Container.querySelector(".input-inline");
   if (nameField1.id != "FirstName" && nameField1.id != "LastName") {
     nameField1Container
       .querySelector("label")
       .setAttribute("control", "FirstName");
     nameField1.id = "FirstName";
     nameField1Container
-      .querySelector("textbox ~ label")
+      .querySelector(".input-inline ~ label")
       .setAttribute("control", "PhoneticFirstName");
-    nameField1Container.querySelector("textbox ~ textbox").id =
+    nameField1Container.querySelector(".input-inline ~ .input-inline").id =
       "PhoneticFirstName";
 
     let nameField2Container = document.getElementById("NameField2Container");
     nameField2Container
       .querySelector("label")
       .setAttribute("control", "LastName");
-    nameField2Container.querySelector("textbox").id = "LastName";
+    nameField2Container.querySelector(".input-inline").id = "LastName";
     nameField2Container
-      .querySelector("textbox ~ label")
+      .querySelector(".input-inline ~ label")
       .setAttribute("control", "PhoneticLastName");
-    nameField2Container.querySelector("textbox ~ textbox").id =
+    nameField2Container.querySelector(".input-inline ~ .input-inline").id =
       "PhoneticLastName";
   }
 
@@ -1031,7 +1031,7 @@ function purgeOldPhotos(aSaved = true) {
 
 /**
  * Opens a file picker with image filters to look for a contact photo.
- * If the user selects a file and clicks OK then the PhotoURI textbox is set
+ * If the user selects a file and clicks OK then the PhotoURI input is set
  * with a file URI pointing to that file and updatePhoto is called.
  *
  * @param aEvent {Event} The event object if used as an event handler.

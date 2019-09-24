@@ -40,6 +40,11 @@ html|input.input-inline-color {
 .input-container {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
+}
+
+.input-container.items-stretch {
+  align-items: stretch;
 }
 
 .input-container html|input:not([type="number"]),
