@@ -14,7 +14,7 @@
 // nsLocalMailFolderResourceCID
 //
 #define NS_LOCALMAILFOLDERRESOURCE_CONTRACTID \
-  NS_RDF_RESOURCE_FACTORY_CONTRACTID_PREFIX "mailbox"
+  NS_FOLDER_FACTORY_CONTRACTID_PREFIX "mailbox"
 #define NS_LOCALMAILFOLDERRESOURCE_CID               \
   { /* e490d22c-cd67-11d2-8cca-0060b0fc14a3 */       \
     0xe490d22c, 0xcd67, 0x11d2, {                    \

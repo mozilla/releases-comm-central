@@ -1233,7 +1233,7 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
 #endif
     // Imap Entries
     {NS_IMAPINCOMINGSERVER_CONTRACTID, &kNS_IMAPINCOMINGSERVER_CID},
-    {NS_RDF_RESOURCE_FACTORY_CONTRACTID_PREFIX "imap", &kNS_IMAPRESOURCE_CID},
+    {NS_FOLDER_FACTORY_CONTRACTID_PREFIX "imap", &kNS_IMAPRESOURCE_CID},
     {"@mozilla.org/messenger/messageservice;1?type=imap-message",
      &kNS_IMAPSERVICE_CID},
     {"@mozilla.org/messenger/messageservice;1?type=imap", &kNS_IMAPSERVICE_CID},

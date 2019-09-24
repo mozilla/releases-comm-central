@@ -532,4 +532,8 @@
 #define MOZ_NEWMAILNOTIFICATIONSERVICE_CONTRACTID \
   "@mozilla.org/newMailNotificationService;1"
 
+#define NS_FOLDER_FACTORY_CONTRACTID "@mozilla.org/mail/folder-factory;1"
+#define NS_FOLDER_FACTORY_CONTRACTID_PREFIX \
+  NS_FOLDER_FACTORY_CONTRACTID "?name="
+
 #endif  // nsMessageBaseCID_h__

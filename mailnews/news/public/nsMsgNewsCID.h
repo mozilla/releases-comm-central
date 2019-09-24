@@ -14,7 +14,7 @@
 //
 // nsMsgNewsFolder
 #define NS_NEWSFOLDERRESOURCE_CONTRACTID \
-  NS_RDF_RESOURCE_FACTORY_CONTRACTID_PREFIX "news"
+  NS_FOLDER_FACTORY_CONTRACTID_PREFIX "news"
 #define NS_NEWSFOLDERRESOURCE_CID                    \
   { /* 4ace448a-f6d4-11d2-880d-004005263078 */       \
     0x4ace448a, 0xf6d4, 0x11d2, {                    \

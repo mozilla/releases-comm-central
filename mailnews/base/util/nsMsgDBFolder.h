@@ -9,7 +9,6 @@
 #include "mozilla/Attributes.h"
 #include "msgCore.h"
 #include "nsIMsgFolder.h"
-#include "nsRDFResource.h"
 #include "nsIDBFolderInfo.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgIncomingServer.h"

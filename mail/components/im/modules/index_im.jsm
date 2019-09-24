@@ -60,7 +60,7 @@ var ScriptableInputStream = CC(
 var kIndexingDelay = 5000; // in milliseconds
 
 XPCOMUtils.defineLazyGetter(this, "MailFolder", () =>
-  Cc["@mozilla.org/rdf/resource-factory;1?name=mailbox"].createInstance(
+  Cc["@mozilla.org/mail/folder-factory;1?name=mailbox"].createInstance(
     Ci.nsIMsgFolder
   )
 );

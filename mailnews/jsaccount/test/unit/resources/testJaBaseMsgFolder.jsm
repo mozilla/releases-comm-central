@@ -26,7 +26,7 @@ const JaBaseMsgFolderProperties = {
     Ci.msgIOverride,
   ],
   delegateInterfaces: [Ci.nsIMsgFolder],
-  contractID: "@mozilla.org/rdf/resource-factory;1?name=testja",
+  contractID: "@mozilla.org/mail/folder-factory;1?name=testja",
   classID: Components.ID("{8508ddeb-3eab-4877-a420-297518f62371}"),
 };
 
