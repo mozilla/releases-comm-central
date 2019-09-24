@@ -46,12 +46,22 @@
   opacity: 0.7;
 }
 
-.tooltipRows label {
-  margin-left: 0 !important;
+.tooltipTable {
+  border-spacing: 0;
 }
 
-.tooltipSeparator {
-  margin-left: 3px;
+.tooltipTable th {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tooltipTable th,
+.tooltipTable td {
+  line-height: 1.5em;
+}
+
+.chatTooltipSeparator {
+  border-bottom: 1px solid #A3A3A3;
 }
 
 .statusTypeIcon:not([status]) {

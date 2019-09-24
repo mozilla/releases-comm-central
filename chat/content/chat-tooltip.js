@@ -213,13 +213,8 @@
                 <description class="tooltipMessage"></description>
               </stack>
             </hbox>
-            <grid>
-              <columns>
-                <column></column>
-                <column flex="1"></column>
-              </columns>
-              <rows class="tooltipRows"></rows>
-            </grid>
+            <html:table class="tooltipTable">
+            </html:table>
           </vbox>
         `)
       );
@@ -253,11 +248,11 @@
       return this._buddy;
     }
 
-    get rows() {
-      if (!("_rows" in this)) {
-        this._rows = this.querySelector(".tooltipRows");
+    get table() {
+      if (!("_table" in this)) {
+        this._table = this.querySelector(".tooltipTable");
       }
-      return this._rows;
+      return this._table;
     }
 
     setBuddyIcon(aSrc) {
@@ -276,40 +271,42 @@
     }
 
     reset() {
-      while (this.rows.hasChildNodes()) {
-        this.rows.lastChild.remove();
+      while (this.table.hasChildNodes()) {
+        this.table.lastChild.remove();
       }
     }
 
     addRow(aLabel, aValue) {
       let description;
-      let row = [...this.rows.querySelectorAll("row")].find(row => {
-        return row.querySelector("label").getAttribute("value") == aLabel;
+      let row = [...this.table.querySelectorAll("tr")].find(row => {
+        return row.querySelector("th").textContent == aLabel;
       });
       if (!row) {
         // Create a new row for this label.
-        row = document.createXULElement("row");
-        let label = document.createXULElement("label");
-        label.className = "header";
-        label.setAttribute("value", aLabel);
-        row.appendChild(label);
-        description = document.createXULElement("description");
+        row = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
+        let th = document.createElementNS("http://www.w3.org/1999/xhtml", "th");
+        th.textContent = aLabel;
+        th.setAttribute("valign", "top");
+        row.appendChild(th);
+        description = document.createElementNS(
+          "http://www.w3.org/1999/xhtml",
+          "td"
+        );
         row.appendChild(description);
-        row.setAttribute("align", "baseline");
-        this.rows.appendChild(row);
+        this.table.appendChild(row);
       } else {
         // Row with this label already exists - just update.
-        description = row.querySelector("description");
+        description = row.querySelector("td");
       }
       description.textContent = aValue;
     }
 
     addSeparator() {
-      let row = document.createXULElement("row");
-      let separator = document.createXULElement("separator");
-      separator.className = "thin";
-      row.appendChild(separator);
-      this.rows.appendChild(row);
+      if (this.table.hasChildNodes()) {
+        let lastElement = this.table.lastChild;
+        lastElement.querySelector("th").classList.add("chatTooltipSeparator");
+        lastElement.querySelector("td").classList.add("chatTooltipSeparator");
+      }
     }
 
     requestBuddyInfo(aAccount, aObservedName) {
