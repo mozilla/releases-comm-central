@@ -340,7 +340,8 @@ def monkeypatched_15_run_tests(self, tests, sleeptime=0):
     # transfer persisted data
     frame.persisted = self.persisted
 
-    frame.registerModule("testing-common", TESTING_MODULES_DIR)
+    frame.registerModule("testing-common",
+        os.path.normpath(TESTING_MODULES_DIR))
 
     if len(tests) == 1 and not os.path.isdir(tests[0]):
         # tests[0] isn't necessarily an abspath'd path, so do that now
