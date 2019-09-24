@@ -40,7 +40,6 @@ TEST_HARNESS_FILES.mozmill.resources += mailnews_files([
     'test/resources/messageGenerator.js',
     'test/resources/messageInjection.js',
     'test/resources/messageModifier.js',
-    'test/resources/smimeUtils.jsm',
 ])
 
 DIRS += [

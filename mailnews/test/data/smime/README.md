@@ -15,9 +15,3 @@ of this directory:
   tests_results/security/localhost.1/sharedb/smime/tb/
 
 (You only need the files having extensions .eml or .p12 or .pem .)
-
-The generate.sh script will automatically call local-gen.sh script,
-which generates additional test data, based on the updated NSS data.
-
-You may call local-gen.sh independently, if necessary, e.g. when adding
-new local tests.
