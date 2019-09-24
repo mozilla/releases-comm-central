@@ -626,7 +626,8 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
         },
 
         openPopup() {
-          throw new Error("Not implemented");
+          let window = action.global.windowTracker.topWindow;
+          action.triggerAction(window);
         },
       },
     };

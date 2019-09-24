@@ -25,6 +25,8 @@ this.composeAction = class extends ToolbarButtonAPI {
     if (format) {
       this.paint = this.paintFormatToolbar;
     }
+
+    this.global = global;
   }
 
   paintFormatToolbar(window) {

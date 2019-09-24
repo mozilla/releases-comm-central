@@ -55,6 +55,7 @@ this.browserAction = class extends ToolbarButtonAPI {
     this.windowURLs = ["chrome://messenger/content/messenger.xul"];
     this.toolboxId = "mail-toolbox";
     this.toolbarId = "mail-bar3";
+    this.global = global;
   }
 };
 
