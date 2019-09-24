@@ -58,6 +58,7 @@ class BasePopup {
       this.browserLoadedDeferred = { resolve, reject };
     });
     this.browserReady = this.createBrowser(viewNode, popupURL);
+    this.previousFocusedNode = this.window.document.activeElement;
 
     BasePopup.instances.get(this.window).set(extension, this);
   }
@@ -70,6 +71,11 @@ class BasePopup {
     this.extension.forgetOnClose(this);
 
     this.window.removeEventListener("unload", this);
+
+    if (this.previousFocusedNode) {
+      this.previousFocusedNode.focus();
+      this.previousFocusedNode = null;
+    }
 
     this.destroyed = true;
     this.browserLoadedDeferred.reject(new Error("Popup destroyed"));
