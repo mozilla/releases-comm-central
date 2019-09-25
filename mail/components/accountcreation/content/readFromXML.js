@@ -183,6 +183,16 @@ function readFromXML(clientConfigXML) {
         }
       }
 
+      try {
+        if ("useGlobalPreferredServer" in iX) {
+          iO.useGlobalPreferredServer = sanitize.boolean(
+            iX.useGlobalPreferredServer
+          );
+        }
+      } catch (e) {
+        logException(e);
+      }
+
       // processed successfully, now add to result object
       if (!d.incoming.hostname) {
         // first valid

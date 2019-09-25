@@ -96,7 +96,11 @@ function createAccountInBackend(config) {
     "No SMTP server: inconsistent flags"
   );
 
-  if (config.outgoing.addThisServer && !outServer) {
+  if (
+    config.outgoing.addThisServer &&
+    !outServer &&
+    !config.incoming.useGlobalPreferredServer
+  ) {
     outServer = MailServices.smtp.createServer();
     outServer.hostname = config.outgoing.hostname;
     outServer.port = config.outgoing.port;
@@ -183,10 +187,15 @@ function createAccountInBackend(config) {
 
   identity.valid = true;
 
-  if (config.outgoing.existingServerKey) {
-    identity.smtpServerKey = config.outgoing.existingServerKey;
-  } else if (!config.outgoing.useGlobalPreferredServer) {
-    identity.smtpServerKey = outServer.key;
+  if (
+    !config.outgoing.useGlobalPreferredServer &&
+    !config.incoming.useGlobalPreferredServer
+  ) {
+    if (config.outgoing.existingServerKey) {
+      identity.smtpServerKey = config.outgoing.existingServerKey;
+    } else {
+      identity.smtpServerKey = outServer.key;
+    }
   }
 
   // account and hook up

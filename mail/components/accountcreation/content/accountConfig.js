@@ -112,6 +112,8 @@ AccountConfig.prototype = {
       // When user hits delete, delete from local store and from server
       deleteOnServerWhenLocalDelete: true,
       downloadOnBiff: true,
+      // Override `addThisServer` for a specific incoming server
+      useGlobalPreferredServer: false,
 
       // for Microsoft Exchange servers. Optional.
       owaURL: null,
@@ -293,7 +295,10 @@ AccountConfig.prototype = {
     }
 
     let result = "Incoming: " + configToString(this.incoming) + "\nOutgoing: ";
-    if (this.outgoing.useGlobalPreferredServer) {
+    if (
+      this.outgoing.useGlobalPreferredServer ||
+      this.incoming.useGlobalPreferredServer
+    ) {
       result += "Use global server";
     } else if (this.outgoing.existingServerKey) {
       result += "Use existing server " + this.outgoing.existingServerKey;
