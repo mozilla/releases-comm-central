@@ -4,38 +4,26 @@
 
 "use strict";
 
-var MODULE_NAME = "attachment-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["mock-object-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "create_body_part",
+  "create_deleted_attachment",
+  "create_detached_attachment",
+  "create_enclosure_attachment",
+  "gMockFilePicker",
+  "gMockFilePickReg",
+  "select_attachments",
+];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+var { MockObjectReplacer } = ChromeUtils.import(
+  "resource://testing-common/mozmill/MockObjectHelpers.jsm"
 );
 
-var gMockFilePickReg;
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-function setupModule(module) {
-  let moh = collector.getModule("mock-object-helpers");
-
-  gMockFilePickReg = new moh.MockObjectReplacer(
-    "@mozilla.org/filepicker;1",
-    MockFilePickerConstructor
-  );
-}
-
-function installInto(module) {
-  setupModule(module);
-
-  // Now copy helper functions
-  module.create_body_part = create_body_part;
-  module.create_detached_attachment = create_detached_attachment;
-  module.create_deleted_attachment = create_deleted_attachment;
-  module.create_enclosure_attachment = create_enclosure_attachment;
-  module.gMockFilePickReg = gMockFilePickReg;
-  module.gMockFilePicker = gMockFilePicker;
-  module.select_attachments = select_attachments;
-}
+var gMockFilePickReg = new MockObjectReplacer(
+  "@mozilla.org/filepicker;1",
+  MockFilePickerConstructor
+);
 
 function MockFilePickerConstructor() {
   return gMockFilePicker;

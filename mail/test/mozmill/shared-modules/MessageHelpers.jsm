@@ -8,7 +8,7 @@
 
 "use strict";
 
-var MODULE_NAME = "message-helpers";
+this.EXPORTED_SYMBOLS = ["to_mime_message"];
 
 var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
@@ -16,10 +16,6 @@ var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/mimemsg.js"
 );
-
-function installInto(module) {
-  module.to_mime_message = to_mime_message;
-}
 
 /**
  * Given a message header, converts it to a MimeMessage. If aCallback throws,
@@ -33,7 +29,6 @@ function to_mime_message(
   aAllowDownload,
   aOptions
 ) {
-  new frame.Runner(collector);
   let called = false;
   let currentTest = frame.events.currentTest;
   MsgHdrToMimeMessage(

@@ -6,15 +6,16 @@
 
 var MODULE_NAME = "newmailaccount-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "keyboard-helpers",
-  "dom-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "dom-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
+var { input_value } = ChromeUtils.import(
+  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
@@ -23,12 +24,11 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var mc, fdh, kbh, dh;
+var mc, fdh, dh;
 
 function setupModule(module) {
   fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  kbh = collector.getModule("keyboard-helpers");
   dh = collector.getModule("dom-helpers");
   mc = fdh.mc;
 }
@@ -176,7 +176,7 @@ function type_in_search_name(aController, aName) {
   aController.keypress(null, "a", { accelKey: true });
   aController.keypress(null, "VK_BACK_SPACE", {});
 
-  kbh.input_value(aController, aName);
+  input_value(aController, aName);
 }
 
 /* A listener for the Error Console, which allows us to ensure that certain

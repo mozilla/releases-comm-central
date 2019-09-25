@@ -9,16 +9,15 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-return-receipt";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "notificationbox-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+
+var { assert_notification_displayed } = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
 
 var folder;
 
@@ -28,7 +27,6 @@ var kNotificationValue = "mdnRequested";
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
   collector.getModule("window-helpers").installInto(module);
-  collector.getModule("notificationbox-helpers").installInto(module);
 
   folder = create_folder("ReturnReceiptTest");
 

@@ -8,11 +8,8 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-attachment-helpers.js */
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-observer-helpers.js */
-/* import-globals-from ../shared-modules/test-prompt-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-attachment-events";
@@ -21,12 +18,16 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
   "window-helpers",
-  "attachment-helpers",
-  "observer-helpers",
-  "prompt-helpers",
 ];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+
+var { select_attachments } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
+var { gMockPromptService } = ChromeUtils.import(
+  "resource://testing-common/mozmill/PromptHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { fixIterator } = ChromeUtils.import(

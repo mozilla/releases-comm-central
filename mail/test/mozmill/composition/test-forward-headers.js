@@ -11,7 +11,6 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-message-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-forward-headers";
@@ -20,8 +19,11 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
   "window-helpers",
-  "message-helpers",
 ];
+
+var { to_mime_message } = ChromeUtils.import(
+  "resource://testing-common/mozmill/MessageHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -36,8 +38,6 @@ function setupModule(module) {
   composeHelper.installInto(module);
   let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  let mh = collector.getModule("message-helpers");
-  mh.installInto(module);
 
   folder = create_folder("Test");
   let thread1 = create_thread(10);

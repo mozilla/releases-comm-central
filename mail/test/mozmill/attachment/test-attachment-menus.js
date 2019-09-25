@@ -4,17 +4,12 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-attachment-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-attachment-menus";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "attachment-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var folder;
 var messenger;
@@ -26,6 +21,15 @@ var elib = ChromeUtils.import(
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 var controller = ChromeUtils.import(
   "chrome://mozmill/content/modules/controller.jsm"
+);
+
+var {
+  create_body_part,
+  create_deleted_attachment,
+  create_detached_attachment,
+  create_enclosure_attachment,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
 
 var textAttachment =
@@ -179,8 +183,6 @@ function setupModule(module) {
   fdh.installInto(module);
   let wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  let ah = collector.getModule("attachment-helpers");
-  ah.installInto(module);
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 

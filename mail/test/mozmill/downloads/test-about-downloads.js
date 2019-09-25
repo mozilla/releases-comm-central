@@ -8,27 +8,28 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-attachment-helpers.js */
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-dom-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-prompt-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-about-downloads";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [
-  "attachment-helpers",
   "content-tab-helpers",
   "dom-helpers",
   "folder-display-helpers",
-  "prompt-helpers",
   "window-helpers",
 ];
 
 var elementslib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
+var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
+
 var downloads = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
 
 var downloadsTab;

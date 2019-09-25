@@ -6,22 +6,20 @@
 
 var MODULE_NAME = "subscribe-window-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "window-helpers",
-  "folder-display-helpers",
-  "keyboard-helpers",
-];
+var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers"];
+
+var { input_value, delete_all_existing } = ChromeUtils.import(
+  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
 
 var folderDisplayHelper;
 var mc;
 var windowHelper;
-var kh;
 
 function setupModule() {
   folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
   windowHelper = collector.getModule("window-helpers");
-  kh = collector.getModule("keyboard-helpers");
 }
 
 function installInto(module) {
@@ -61,8 +59,8 @@ function open_subscribe_window_from_context_menu(aFolder, aFunction) {
  */
 function enter_text_in_search_box(swc, text) {
   let textbox = swc.eid("namefield");
-  kh.delete_all_existing(swc, textbox);
-  kh.input_value(swc, text, textbox);
+  delete_all_existing(swc, textbox);
+  input_value(swc, text, textbox);
 }
 
 /**

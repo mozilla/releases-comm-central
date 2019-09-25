@@ -6,8 +6,6 @@
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
-/* import-globals-from ../shared-modules/test-prompt-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-mail-account-setup-wizard";
@@ -16,17 +14,22 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "window-helpers",
   "account-manager-helpers",
-  "keyboard-helpers",
-  "prompt-helpers",
 ];
+
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+
+var { input_value, delete_all_existing } = ChromeUtils.import(
+  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
+var { gMockPromptService } = ChromeUtils.import(
+  "resource://testing-common/mozmill/PromptHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
-);
-
-var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
 var user = {

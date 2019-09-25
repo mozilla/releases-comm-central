@@ -10,7 +10,6 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-image-insertion-dialog";
@@ -19,14 +18,17 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
   "window-helpers",
-  "keyboard-helpers",
 ];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
-var fdh, ch, wh, kh;
+var { input_value } = ChromeUtils.import(
+  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
+
+var fdh, ch, wh;
 
 function setupModule(module) {
   fdh = collector.getModule("folder-display-helpers");
@@ -35,8 +37,6 @@ function setupModule(module) {
   ch.installInto(module);
   wh = collector.getModule("window-helpers");
   wh.installInto(module);
-  kh = collector.getModule("keyboard-helpers");
-  kh.installInto(module);
 }
 
 function test_image_insertion_dialog_persist() {

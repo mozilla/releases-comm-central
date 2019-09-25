@@ -11,7 +11,6 @@
 /* import-globals-from ../shared-modules/test-address-book-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-nntp-helpers.js */
-/* import-globals-from ../shared-modules/test-prompt-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-message-filters";
@@ -21,12 +20,16 @@ var MODULE_REQUIRES = [
   "window-helpers",
   "nntp-helpers",
   "address-book-helpers",
-  "prompt-helpers",
 ];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
+var { gMockPromptService } = ChromeUtils.import(
+  "resource://testing-common/mozmill/PromptHelpers.jsm"
+);
+
 var folderA;
 
 function setupModule(module) {

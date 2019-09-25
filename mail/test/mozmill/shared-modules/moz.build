@@ -9,3 +9,12 @@
 TEST_HARNESS_FILES.mozmill.stage['shared-modules'] += [
     'test*.js',
 ]
+
+TESTING_JS_MODULES.mozmill += [
+    'AttachmentHelpers.jsm',
+    'KeyboardHelpers.jsm',
+    'MessageHelpers.jsm',
+    'MockObjectHelpers.jsm',
+    'NotificationBoxHelpers.jsm',
+    'PromptHelpers.jsm',
+]

@@ -4,9 +4,15 @@
 
 "use strict";
 
-var MODULE_NAME = "prompt-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["mock-object-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "gMockPromptService",
+  "gMockAuthPromptReg",
+  "gMockAuthPrompt",
+];
+
+var { MockObjectReplacer } = ChromeUtils.import(
+  "resource://testing-common/mozmill/MockObjectHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
@@ -17,24 +23,10 @@ var kMockPromptServiceName = "Mock Prompt Service";
 var kPromptServiceContractID = "@mozilla.org/embedcomp/prompt-service;1";
 var kPromptServiceName = "Prompt Service";
 
-var gMockAuthPromptReg;
-
-function setupModule() {
-  let moh = collector.getModule("mock-object-helpers");
-  gMockAuthPromptReg = new moh.MockObjectReplacer(
-    "@mozilla.org/prompter;1",
-    MockAuthPromptFactoryConstructor
-  );
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.gMockPromptService = gMockPromptService;
-  module.gMockAuthPromptReg = gMockAuthPromptReg;
-  module.gMockAuthPrompt = gMockAuthPrompt;
-}
+var gMockAuthPromptReg = new MockObjectReplacer(
+  "@mozilla.org/prompter;1",
+  MockAuthPromptFactoryConstructor
+);
 
 function MockAuthPromptFactoryConstructor() {
   return gMockAuthPromptFactory;

@@ -7,7 +7,6 @@
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-compose-mailto";
@@ -16,9 +15,12 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
   "window-helpers",
-  "keyboard-helpers",
   "content-tab-helpers",
 ];
+
+var { input_value } = ChromeUtils.import(
+  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
 
 var folder = null;
 var composeHelper = null;
@@ -35,8 +37,6 @@ var url = collector.addHttpResource("../content-policy/html", "content");
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let kh = collector.getModule("keyboard-helpers");
-  kh.installInto(module);
   composeHelper = collector.getModule("compose-helpers");
   composeHelper.installInto(module);
   windowHelper = collector.getModule("window-helpers");

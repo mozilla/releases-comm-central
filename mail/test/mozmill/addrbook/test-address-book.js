@@ -11,7 +11,6 @@
 /* import-globals-from ../shared-modules/test-address-book-helpers.js */
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-prompt-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-address-book";
@@ -21,8 +20,11 @@ var MODULE_REQUIRES = [
   "address-book-helpers",
   "compose-helpers",
   "window-helpers",
-  "prompt-helpers",
 ];
+
+var { gMockPromptService } = ChromeUtils.import(
+  "resource://testing-common/mozmill/PromptHelpers.jsm"
+);
 
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"

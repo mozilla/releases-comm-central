@@ -22,8 +22,6 @@
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
-/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-general-content-policy";
@@ -33,14 +31,23 @@ var MODULE_REQUIRES = [
   "window-helpers",
   "compose-helpers",
   "content-tab-helpers",
-  "keyboard-helpers",
-  "notificationbox-helpers",
 ];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+
+var { input_value } = ChromeUtils.import(
+  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
+var {
+  get_notification_button,
+  wait_for_notification_to_show,
+  wait_for_notification_to_stop,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(

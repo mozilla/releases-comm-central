@@ -12,7 +12,6 @@
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 /* import-globals-from ../shared-modules/test-newmailaccount-helpers.js */
-/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
 /* import-globals-from ../shared-modules/test-dom-helpers.js */
 
 var MODULE_NAME = "test-newmailaccount";
@@ -22,13 +21,13 @@ var MODULE_REQUIRES = [
   "content-tab-helpers",
   "window-helpers",
   "newmailaccount-helpers",
-  "keyboard-helpers",
   "dom-helpers",
 ];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

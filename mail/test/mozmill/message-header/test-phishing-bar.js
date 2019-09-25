@@ -9,18 +9,22 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-phishing-bar";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "notificationbox-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+
+var {
+  assert_notification_displayed,
+  get_notification_button,
+  wait_for_notification_to_show,
+  wait_for_notification_to_stop,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
 
 var folder;
 

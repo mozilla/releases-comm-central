@@ -4,14 +4,11 @@
 
 "use strict";
 
-var MODULE_NAME = "keyboard-helpers";
-
-function installInto(module) {
-  // Now copy helper functions
-  module.input_value = input_value;
-  module.delete_existing = delete_existing;
-  module.delete_all_existing = delete_all_existing;
-}
+this.EXPORTED_SYMBOLS = [
+  "input_value",
+  "delete_existing",
+  "delete_all_existing",
+];
 
 /**
  * Emulates manual input

@@ -11,7 +11,6 @@
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
-/* import-globals-from ../shared-modules/test-attachment-helpers.js */
 
 var MODULE_NAME = "test-cloudfile-attachment-item";
 var RELATIVE_ROOT = "../shared-modules";
@@ -19,8 +18,15 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
   "cloudfile-helpers",
-  "attachment-helpers",
 ];
+
+var {
+  gMockFilePicker,
+  gMockFilePickReg,
+  select_attachments,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
 
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 

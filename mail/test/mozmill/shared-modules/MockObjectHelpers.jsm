@@ -4,7 +4,7 @@
 
 "use strict";
 
-var MODULE_NAME = "mock-object-helpers";
+this.EXPORTED_SYMBOLS = ["MockObjectReplacer", "MockObjectRegisterer"];
 
 var Cm = Components.manager;
 
@@ -17,11 +17,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/uuid-generator;1",
   "nsIUUIDGenerator"
 );
-
-function installInto(module) {
-  module.MockObjectReplacer = MockObjectReplacer;
-  module.MockObjectRegisterer = MockObjectRegisterer;
-}
 
 function MockObjectRegisterer(aContractID, aCID, aComponent) {
   this._contractID = aContractID;

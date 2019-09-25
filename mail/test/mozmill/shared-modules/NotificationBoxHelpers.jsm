@@ -4,16 +4,14 @@
 
 "use strict";
 
-var MODULE_NAME = "notificationbox-helpers";
-
-function installInto(module) {
-  module.check_notification_displayed = check_notification_displayed;
-  module.assert_notification_displayed = assert_notification_displayed;
-  module.close_notification = close_notification;
-  module.wait_for_notification_to_stop = wait_for_notification_to_stop;
-  module.wait_for_notification_to_show = wait_for_notification_to_show;
-  module.get_notification_button = get_notification_button;
-}
+this.EXPORTED_SYMBOLS = [
+  "check_notification_displayed",
+  "assert_notification_displayed",
+  "close_notification",
+  "wait_for_notification_to_stop",
+  "wait_for_notification_to_show",
+  "get_notification_button",
+];
 
 /**
  * A helper function for determining whether or not a notification with

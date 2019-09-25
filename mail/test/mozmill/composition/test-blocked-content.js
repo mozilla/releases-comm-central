@@ -10,7 +10,6 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-blocked-content";
@@ -19,10 +18,14 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "window-helpers",
   "compose-helpers",
-  "notificationbox-helpers",
 ];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+
+var { wait_for_notification_to_show } = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

@@ -6,16 +6,17 @@
 
 var MODULE_NAME = "content-tab-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "mock-object-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+
+var { MockObjectReplacer } = ChromeUtils.import(
+  "resource://testing-common/mozmill/MockObjectHelpers.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var NORMAL_TIMEOUT = 6000;
@@ -39,8 +40,7 @@ function setupModule() {
   mark_failure = folderDisplayHelper.mark_failure;
 
   wh = collector.getModule("window-helpers");
-  let moh = collector.getModule("mock-object-helpers");
-  gMockExtProtSvcReg = new moh.MockObjectReplacer(
+  gMockExtProtSvcReg = new MockObjectReplacer(
     EXT_PROTOCOL_SVC_CID,
     MockExtProtConstructor
   );

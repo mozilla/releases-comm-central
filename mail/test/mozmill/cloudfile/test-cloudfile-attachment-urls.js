@@ -11,7 +11,6 @@
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
-/* import-globals-from ../shared-modules/test-attachment-helpers.js */
 /* import-globals-from ../shared-modules/test-dom-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
@@ -21,10 +20,17 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
   "cloudfile-helpers",
-  "attachment-helpers",
   "dom-helpers",
   "window-helpers",
 ];
+
+var {
+  gMockFilePicker,
+  gMockFilePickReg,
+  select_attachments,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(

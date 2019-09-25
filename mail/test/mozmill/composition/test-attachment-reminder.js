@@ -10,8 +10,6 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
-/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-attachment-reminder";
@@ -20,9 +18,20 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
   "window-helpers",
-  "notificationbox-helpers",
-  "keyboard-helpers",
 ];
+
+var { delete_all_existing } = ChromeUtils.import(
+  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
+var {
+  assert_notification_displayed,
+  check_notification_displayed,
+  get_notification_button,
+  wait_for_notification_to_show,
+  wait_for_notification_to_stop,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(

@@ -11,7 +11,6 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-notificationbox-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-draft-identity";
@@ -20,8 +19,14 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "window-helpers",
   "compose-helpers",
-  "notificationbox-helpers",
 ];
+
+var {
+  assert_notification_displayed,
+  wait_for_notification_to_show,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

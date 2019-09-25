@@ -6,7 +6,6 @@
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-keyboard-helpers.js */
 /* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-ab-whitelist";
@@ -15,7 +14,6 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "window-helpers",
   "account-manager-helpers",
-  "keyboard-helpers",
 ];
 
 var mozmill = ChromeUtils.import(
