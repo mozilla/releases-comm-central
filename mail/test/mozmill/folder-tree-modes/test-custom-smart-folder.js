@@ -11,11 +11,10 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-custom-smart-folder";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 // spaces in the name are intentional
 var smartParentNameA = "My Smart Folder A";

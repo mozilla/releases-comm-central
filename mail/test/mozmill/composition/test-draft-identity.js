@@ -11,15 +11,10 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-draft-identity";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "compose-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
 
 var {
   assert_notification_displayed,

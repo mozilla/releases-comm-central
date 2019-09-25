@@ -4,7 +4,29 @@
 
 "use strict";
 
-var MODULE_NAME = "window-helpers";
+this.EXPORTED_SYMBOLS = [
+  // These are used by test-folder-display-helpers.js and shouldn't really be
+  // exported, but it's convenient right now.
+  "captureWindowStatesForErrorReporting",
+  "getWindowTypeForXulWindow",
+  "hereIsMarkAction",
+
+  "plan_for_new_window",
+  "wait_for_new_window",
+  "plan_for_modal_dialog",
+  "wait_for_modal_dialog",
+  "plan_for_window_close",
+  "wait_for_window_close",
+  "close_window",
+  "wait_for_existing_window",
+  "wait_for_window_focused",
+  "wait_for_browser_load",
+  "wait_for_frame_load",
+  "plan_for_observable_event",
+  "wait_for_observable_event",
+  "resize_to",
+  "augment_controller",
+];
 
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
@@ -56,8 +78,6 @@ var WINDOW_CLOSE_CHECK_INTERVAL_MS = 100;
  */
 var WINDOW_FOCUS_TIMEOUT_MS = 10000;
 
-var hiddenWindow = Services.appShell.hiddenDOMWindow;
-
 // Have a dummy mark_action function in case test-folder-display-helpers does
 // not provide us with one.
 var mark_action = function dummy_mark_action() {};
@@ -75,28 +95,6 @@ function hereIsMarkAction(
   mark_action = mark_action_impl;
   mark_failure = mark_failure_impl;
   normalize_for_json = normalize_for_json_impl;
-}
-
-function installInto(module) {
-  module.plan_for_new_window = plan_for_new_window;
-  module.wait_for_new_window = wait_for_new_window;
-  module.plan_for_modal_dialog = plan_for_modal_dialog;
-  module.wait_for_modal_dialog = wait_for_modal_dialog;
-  module.plan_for_window_close = plan_for_window_close;
-  module.wait_for_window_close = wait_for_window_close;
-  module.close_window = close_window;
-  module.wait_for_existing_window = wait_for_existing_window;
-  module.wait_for_window_focused = wait_for_window_focused;
-
-  module.wait_for_browser_load = wait_for_browser_load;
-  module.wait_for_frame_load = wait_for_frame_load;
-
-  module.plan_for_observable_event = plan_for_observable_event;
-  module.wait_for_observable_event = wait_for_observable_event;
-
-  module.resize_to = resize_to;
-
-  module.augment_controller = augment_controller;
 }
 
 function getWindowTypeOrId(aWindowElem) {
@@ -353,7 +351,7 @@ var WindowWatcher = {
       function startTest() {
         self.planForWindowClose(troller.window);
         try {
-          let runner = new frame.Runner(collector);
+          let runner = new frame.Runner();
           runner.wrapper(self.subTestFunc, troller);
         } finally {
           self.subTestFunc = null;
@@ -1711,8 +1709,6 @@ function _augment_helper(aController, aAugmentDef) {
   }
 }
 
-var INPUT_PEEK_EVENTS = ["click", "keypress"];
-
 var UNIQUE_WINDOW_ID_ATTR = "__winHelper_uniqueId";
 
 /**
@@ -2140,14 +2136,6 @@ function screenshotToDataURL(aWindow) {
   */
 
   return canvas.toDataURL("image/png", "");
-}
-
-/**
- * Render the contents of a window to a base64-encoded string.
- */
-function screenshotToBase64(aWindow) {
-  let dataUrl = screenshotToDataURL(aWindow);
-  return dataUrl.substring(dataUrl.indexOf("base64,") + 7);
 }
 
 /**

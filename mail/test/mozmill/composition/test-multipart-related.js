@@ -10,26 +10,28 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-multipart-related";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "compose-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
 
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+
+var {
+  plan_for_modal_dialog,
+  wait_for_modal_dialog,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
-);
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 var gDrafts;
 

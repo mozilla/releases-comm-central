@@ -6,8 +6,11 @@ var MODULE_NAME = "testCategoryColors";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "content-tab-helpers"];
 
+var { wait_for_frame_load } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var helpersForController, openLightningPrefs, closeLightningPrefs;
-var wait_for_frame_load;
 var content_tab_e, content_tab_eid;
 
 var prefTab = null;
@@ -18,8 +21,6 @@ function setupModule(module) {
     "calendar-utils"
   ));
   collector.getModule("calendar-utils").setupModule(controller);
-
-  ({ wait_for_frame_load } = collector.getModule("window-helpers"));
 
   ({ content_tab_e, content_tab_eid } = collector.getModule("content-tab-helpers"));
   collector.getModule("content-tab-helpers").setupModule();

@@ -6,27 +6,26 @@
 
 var MODULE_NAME = "compose-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "dom-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "dom-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var windowHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var kTextNodeType = 3;
 
 var folderDisplayHelper;
 var mc;
-var windowHelper, domHelper;
+var domHelper;
 
 function setupModule() {
   folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
-  windowHelper = collector.getModule("window-helpers");
   domHelper = collector.getModule("dom-helpers");
 }
 

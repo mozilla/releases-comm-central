@@ -9,11 +9,10 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-right-click-middle-click-messages";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
@@ -29,8 +28,6 @@ var NUM_MESSAGES_IN_THREAD = 6;
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 
   folder = create_folder("RightClickMiddleClickA");
   threadedFolder = create_folder("RightClickMiddleClickB");

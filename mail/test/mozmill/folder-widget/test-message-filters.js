@@ -11,13 +11,11 @@
 /* import-globals-from ../shared-modules/test-address-book-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-nntp-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-message-filters";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [
   "folder-display-helpers",
-  "window-helpers",
   "nntp-helpers",
   "address-book-helpers",
 ];
@@ -25,6 +23,18 @@ var MODULE_REQUIRES = [
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
+var {
+  close_window,
+  plan_for_modal_dialog,
+  plan_for_new_window,
+  plan_for_window_close,
+  wait_for_existing_window,
+  wait_for_modal_dialog,
+  wait_for_new_window,
+  wait_for_window_focused,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"

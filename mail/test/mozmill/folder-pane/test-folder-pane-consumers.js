@@ -10,15 +10,14 @@
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-nntp-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-folder-pane";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "nntp-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "nntp-helpers"];
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

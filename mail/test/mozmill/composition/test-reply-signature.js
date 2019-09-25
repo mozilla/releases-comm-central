@@ -10,15 +10,10 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-reply-signature";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "window-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

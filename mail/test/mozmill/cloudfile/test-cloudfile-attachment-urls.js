@@ -12,7 +12,6 @@
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
 /* import-globals-from ../shared-modules/test-dom-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-cloudfile-attachment-urls";
 var RELATIVE_ROOT = "../shared-modules";
@@ -21,7 +20,6 @@ var MODULE_REQUIRES = [
   "compose-helpers",
   "cloudfile-helpers",
   "dom-helpers",
-  "window-helpers",
 ];
 
 var {
@@ -30,6 +28,9 @@ var {
   select_attachments,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
+var { close_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

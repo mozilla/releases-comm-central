@@ -11,7 +11,6 @@
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-dom-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-about-downloads";
 var RELATIVE_ROOT = "../shared-modules";
@@ -19,11 +18,14 @@ var MODULE_REQUIRES = [
   "content-tab-helpers",
   "dom-helpers",
   "folder-display-helpers",
-  "window-helpers",
 ];
 
 var elementslib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
+);
+
+var { wait_for_browser_load } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(

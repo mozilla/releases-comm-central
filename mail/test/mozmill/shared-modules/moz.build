@@ -17,4 +17,5 @@ TESTING_JS_MODULES.mozmill += [
     'MockObjectHelpers.jsm',
     'NotificationBoxHelpers.jsm',
     'PromptHelpers.jsm',
+    'WindowHelpers.jsm',
 ]

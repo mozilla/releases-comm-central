@@ -4,7 +4,11 @@
 
 var MODULE_NAME = "testWeeklyNRecurrenceRotated";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -17,7 +21,6 @@ var invokeEventDialog,
   createCalendar,
   menulistSelect;
 var REC_DLG_ACCEPT, REC_DLG_DAYS;
-var plan_for_modal_dialog, wait_for_modal_dialog;
 
 const HOUR = 8;
 
@@ -45,8 +48,6 @@ function setupModule(module) {
 
   ({ REC_DLG_ACCEPT, REC_DLG_DAYS } = collector.getModule("item-editing-helpers"));
   collector.getModule("item-editing-helpers").setupModule(module);
-
-  ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
 
   createCalendar(controller, CALENDARNAME);
   // Rotate view.

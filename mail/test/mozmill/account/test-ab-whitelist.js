@@ -6,15 +6,10 @@
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-ab-whitelist";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "account-manager-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "account-manager-helpers"];
 
 var mozmill = ChromeUtils.import(
   "chrome://mozmill/content/modules/mozmill.jsm"
@@ -32,8 +27,6 @@ var gKeyString = null;
 var gAccount = null;
 
 function setupModule(module) {
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
   let amh = collector.getModule("account-manager-helpers");

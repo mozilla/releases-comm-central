@@ -7,7 +7,6 @@
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-about-support";
 var RELATIVE_ROOT = "../shared-modules";
@@ -15,8 +14,11 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "content-tab-helpers",
   "compose-helpers",
-  "window-helpers",
 ];
+
+var { plan_for_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // eslint-disable-next-line mozilla/reject-importGlobalProperties

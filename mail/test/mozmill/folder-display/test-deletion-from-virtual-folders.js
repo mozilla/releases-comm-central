@@ -9,11 +9,17 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-deletion-from-virtual-folders";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
+
+var {
+  plan_for_modal_dialog,
+  plan_for_window_close,
+  wait_for_modal_dialog,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var baseFolder, folder, lastMessageFolder;
 
@@ -29,8 +35,6 @@ var msgc;
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 
   baseFolder = create_folder("DeletionFromVirtualFoldersA");
   // For setTagged, we want exactly as many messages as we plan to delete, so

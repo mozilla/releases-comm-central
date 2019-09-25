@@ -4,7 +4,11 @@
 
 var MODULE_NAME = "calendar-utils";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers", "pref-window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers", "pref-window-helpers"];
+
+var { close_window, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
@@ -70,14 +74,9 @@ var ALARM_ICON_PATH = `
     anon({"class":"alarm-icons-box"})/anon({"class":"reminder-icon"})
 `;
 
-var plan_for_modal_dialog, wait_for_modal_dialog, close_window;
 var open_pref_tab, close_pref_tab;
 
 function setupModule(controller) {
-  ({ plan_for_modal_dialog, wait_for_modal_dialog, close_window } = collector.getModule(
-    "window-helpers"
-  ));
-
   // This setup is needed for pref-win-helpers. For some reason, the automatic
   // loading of modules in shared modules does not setup the module correctly.
   collector.getModule("folder-display-helpers").setupModule();

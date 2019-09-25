@@ -4,14 +4,17 @@
 
 var MODULE_NAME = "testLocalICS";
 var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var TIMEOUT_MODAL_DIALOG, CANVAS_BOX, EVENT_BOX;
 var helpersForController, invokeEventDialog, deleteCalendars, handleNewCalendarWizard;
 var setData;
-var plan_for_modal_dialog, wait_for_modal_dialog;
 
 const HOUR = 8;
 var calendarName, calendarTitle, calendarFile;
@@ -33,8 +36,6 @@ function setupModule(module) {
 
   ({ setData } = collector.getModule("item-editing-helpers"));
   collector.getModule("item-editing-helpers").setupModule(module);
-
-  ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
 
   // Unique name needed as deleting a calendar only unsubscribes from it and
   // if same file were used on next testrun then previously created event

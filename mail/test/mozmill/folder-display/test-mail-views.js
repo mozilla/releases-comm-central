@@ -5,27 +5,29 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-mail-views";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var baseFolder, savedFolder;
-var setUntagged, setTagged;
-
-var { MailViewConstants } = ChromeUtils.import(
-  "resource:///modules/MailViewManager.jsm"
-);
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
+var { MailViewConstants } = ChromeUtils.import(
+  "resource:///modules/MailViewManager.jsm"
+);
+
+var baseFolder, savedFolder;
+var setUntagged, setTagged;
+
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 
   // Create a folder with some messages that have no tags and some that are
   //  tagged Important ($label1).

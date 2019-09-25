@@ -6,15 +6,10 @@
 
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-install-xpi";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "window-helpers",
-  "folder-display-helpers",
-  "content-tab-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
 
 var controller = ChromeUtils.import(
   "chrome://mozmill/content/modules/controller.jsm"
@@ -35,8 +30,6 @@ var gDocument;
 var gNewTab;
 
 function setupModule(module) {
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
   let cth = collector.getModule("content-tab-helpers");

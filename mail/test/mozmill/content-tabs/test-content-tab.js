@@ -7,7 +7,6 @@
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-dom-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-content-tab";
 var RELATIVE_ROOT = "../shared-modules";
@@ -15,7 +14,6 @@ var MODULE_REQUIRES = [
   "folder-display-helpers",
   "content-tab-helpers",
   "dom-helpers",
-  "window-helpers",
 ];
 
 var controller = ChromeUtils.import(
@@ -27,6 +25,11 @@ var mozmill = ChromeUtils.import(
 var elementslib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back

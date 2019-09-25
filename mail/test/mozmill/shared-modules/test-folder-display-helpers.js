@@ -6,7 +6,6 @@
 
 var MODULE_NAME = "folder-display-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers"];
 
 var EventUtils = ChromeUtils.import(
   "chrome://mozmill/content/stdlib/EventUtils.jsm"
@@ -17,6 +16,11 @@ var controller = ChromeUtils.import(
 var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+
+// the windowHelper module
+var windowHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
@@ -96,9 +100,6 @@ var inboxFolder = null;
 // logHelper exports
 var mark_action;
 var mark_failure;
-
-// the windowHelper module
-var windowHelper;
 
 // Default size of the main Thunderbird window in which the tests will run.
 var gDefaultWindowWidth = 1024;
@@ -247,7 +248,6 @@ function setupModule() {
 
   // use window-helper's augment_controller method to get our extra good stuff
   //  we need.
-  windowHelper = collector.getModule("window-helpers");
   mc = windowHelper.wait_for_existing_window("mail:3pane");
   windowHelper.augment_controller(mc);
 
@@ -2639,7 +2639,7 @@ function _verify_summarized_message_set(aSummarizedKeys, aSelectedMessages) {
  */
 function assert_messages_summarized(aController, aSelectedMessages) {
   // - Compensate for selection stabilization code.
-  // Although test-window-helpers sets the stabilization interval to 0, we
+  // Although WindowHelpers sets the stabilization interval to 0, we
   //  still need to make sure we have drained the event queue so that it has
   //  actually gotten a chance to run.
   controller.sleep(0);

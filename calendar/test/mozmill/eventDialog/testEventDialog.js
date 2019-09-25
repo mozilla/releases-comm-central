@@ -4,7 +4,11 @@
 
 var MODULE_NAME = "testEventDialog";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -14,7 +18,6 @@ var invokeEventDialog, checkAlarmIcon, viewBack, closeAllEventDialogs, deleteCal
 var createCalendar;
 var EVENT_TABPANELS, ATTENDEES_ROW;
 var helpersForEditUI, setData;
-var plan_for_modal_dialog, wait_for_modal_dialog;
 
 const EVENTTITLE = "Event";
 const EVENTLOCATION = "Location";
@@ -25,7 +28,6 @@ var firstDay;
 
 function setupModule(module) {
   controller = mozmill.getMail3PaneController();
-  ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
   ({
     TIMEOUT_MODAL_DIALOG,
     CALENDARNAME,

@@ -11,21 +11,23 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-forwarded-eml-actions";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "compose-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
+
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+
+var {
+  close_window,
+  plan_for_new_window,
+  wait_for_new_window,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
-);
-var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
 var folder;
@@ -36,7 +38,6 @@ var msgbodyB = "hi, i think you may know of an email client to recommend?";
 
 var setupModule = function(module) {
   collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
   collector.getModule("compose-helpers").installInto(module);
 
   folder = create_folder("FwdedEmlTest");

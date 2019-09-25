@@ -12,15 +12,10 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-reply-addresses";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "compose-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
 
 var folder;
 var i = 0;
@@ -37,7 +32,6 @@ var { MailServices } = ChromeUtils.import(
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
   collector.getModule("compose-helpers").installInto(module);
 
   // Now set up an account with some identities.

@@ -9,13 +9,17 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-eml-subject";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+
+var { close_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var { StringBundle } = ChromeUtils.import(
   "resource:///modules/StringBundle.js"
 );
@@ -26,8 +30,6 @@ var { AppConstants } = ChromeUtils.import(
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 };
 
 function check_eml_window_title(subject, eml) {

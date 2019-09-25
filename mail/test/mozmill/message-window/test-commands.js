@@ -5,11 +5,10 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-commands";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -19,13 +18,15 @@ var elib = ChromeUtils.import(
 );
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var { close_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var folder1, folder2;
 
 var setupModule = function(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 
   folder1 = create_folder("CopyFromFolder");
   folder2 = create_folder("CopyToFolder");

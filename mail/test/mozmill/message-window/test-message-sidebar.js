@@ -4,21 +4,16 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-window-helpers.js */
+/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 
 var MODULE_NAME = "test-message-sidebar";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
-var windowHelper;
-var mc;
-
-function setupModule(module) {
-  windowHelper = collector.getModule("window-helpers");
-  mc = windowHelper.wait_for_existing_window("mail:3pane");
-  windowHelper.installInto(module);
-  windowHelper.augment_controller(mc);
-}
+var setupModule = function(module) {
+  let fdh = collector.getModule("folder-display-helpers");
+  fdh.installInto(module);
+};
 
 function test_messagepane_extension_points_exist() {
   mc.assertNode(mc.eid("messagepanewrapper"));

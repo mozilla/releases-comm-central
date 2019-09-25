@@ -10,7 +10,6 @@
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 /* import-globals-from ../shared-modules/test-newmailaccount-helpers.js */
 /* import-globals-from ../shared-modules/test-dom-helpers.js */
 
@@ -19,7 +18,6 @@ var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [
   "folder-display-helpers",
   "content-tab-helpers",
-  "window-helpers",
   "newmailaccount-helpers",
   "dom-helpers",
 ];
@@ -27,6 +25,17 @@ var MODULE_REQUIRES = [
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
+var {
+  close_window,
+  plan_for_modal_dialog,
+  plan_for_new_window,
+  plan_for_window_close,
+  wait_for_browser_load,
+  wait_for_modal_dialog,
+  wait_for_new_window,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(

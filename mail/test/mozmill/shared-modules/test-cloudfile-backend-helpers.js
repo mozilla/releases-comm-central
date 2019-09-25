@@ -6,7 +6,10 @@
 
 var MODULE_NAME = "cloudfile-backend-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers"];
+
+var wh = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
@@ -19,10 +22,7 @@ var kGetFileURL = "cloudfile:getFileURL";
 var kDeleteFile = "cloudfile:deleteFile";
 var kLogout = "cloudfile:logout";
 
-var wh;
-
 function installInto(module) {
-  setupModule(module);
   module.kUserAuthRequested = kUserAuthRequested;
   module.kUserDataRequested = kUserDataRequested;
   module.kUploadFile = kUploadFile;
@@ -32,10 +32,6 @@ function installInto(module) {
   module.SimpleRequestObserverManager = SimpleRequestObserverManager;
   module.SimpleRequestObserver = SimpleRequestObserver;
   module.assert_can_cancel_uploads = assert_can_cancel_uploads;
-}
-
-function setupModule(module) {
-  wh = collector.getModule("window-helpers");
 }
 
 function SimpleRequestObserverManager() {

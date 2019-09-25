@@ -4,7 +4,7 @@
 
 var MODULE_NAME = "testEventDialogSize";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils"];
 
 var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
 var CALENDARNAME;

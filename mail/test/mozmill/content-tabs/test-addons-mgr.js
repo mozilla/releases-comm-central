@@ -6,19 +6,20 @@
 
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-addons-mgr";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "content-tab-helpers",
-  "window-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
+var {
+  plan_for_modal_dialog,
+  wait_for_modal_dialog,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 function setupModule(module) {
   for (let lib of MODULE_REQUIRES) {

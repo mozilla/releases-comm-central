@@ -10,15 +10,10 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-attachment-reminder";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "window-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
 
 var { delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
@@ -32,6 +27,15 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
+var {
+  close_window,
+  plan_for_modal_dialog,
+  plan_for_new_window,
+  plan_for_window_close,
+  wait_for_modal_dialog,
+  wait_for_window_close,
+  wait_for_window_focused,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(

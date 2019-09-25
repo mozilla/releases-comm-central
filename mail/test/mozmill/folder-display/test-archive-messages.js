@@ -5,11 +5,10 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-archive-messages";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var folder;
 
@@ -21,8 +20,6 @@ var NUM_MESSAGES_IN_THREAD = 6;
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 
   folder = create_folder("ThreadedMessages");
   let thread = create_thread(NUM_MESSAGES_IN_THREAD);

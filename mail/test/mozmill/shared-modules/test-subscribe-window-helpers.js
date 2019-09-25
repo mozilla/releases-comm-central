@@ -6,20 +6,21 @@
 
 var MODULE_NAME = "subscribe-window-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["window-helpers", "folder-display-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
+var windowHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var folderDisplayHelper;
 var mc;
-var windowHelper;
 
 function setupModule() {
   folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
-  windowHelper = collector.getModule("window-helpers");
 }
 
 function installInto(module) {

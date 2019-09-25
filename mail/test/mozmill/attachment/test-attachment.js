@@ -10,15 +10,10 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-attachment";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "window-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
@@ -26,6 +21,15 @@ var elib = ChromeUtils.import(
 var EventUtils = ChromeUtils.import(
   "chrome://mozmill/content/stdlib/EventUtils.jsm"
 );
+
+var {
+  close_window,
+  plan_for_modal_dialog,
+  plan_for_new_window,
+  wait_for_modal_dialog,
+  wait_for_new_window,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;

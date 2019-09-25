@@ -4,13 +4,16 @@
 
 var MODULE_NAME = "item-editing-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils"];
+
+var { augment_controller, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG;
 var helpersForController, menulistSelect;
-var plan_for_modal_dialog, wait_for_modal_dialog, augment_controller;
 var mark_failure;
 
 function setupModule(module) {
@@ -22,10 +25,6 @@ function setupModule(module) {
     menulistSelect,
   } = collector.getModule("calendar-utils"));
   Object.assign(module, helpersForController(controller));
-
-  ({ plan_for_modal_dialog, wait_for_modal_dialog, augment_controller } = collector.getModule(
-    "window-helpers"
-  ));
 
   ({ mark_failure } = collector.getModule("folder-display-helpers"));
 }

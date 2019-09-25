@@ -4,12 +4,11 @@
 
 var MODULE_NAME = "testEventDialogModificationPrompt";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "calendar-utils",
-  "item-editing-helpers",
-  "window-helpers",
-  "folder-display-helpers",
-];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "folder-display-helpers"];
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -17,7 +16,6 @@ var CALENDARNAME, EVENT_BOX, CANVAS_BOX, EVENTPATH;
 var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
 var goToDate;
 var setData;
-var plan_for_modal_dialog, wait_for_modal_dialog;
 var mark_failure;
 
 const TIMEOUT_COMMON_DIALOG = 3000;
@@ -49,8 +47,6 @@ function setupModule(module) {
 
   ({ setData } = collector.getModule("item-editing-helpers"));
   collector.getModule("item-editing-helpers").setupModule(module);
-
-  ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
 
   ({ mark_failure } = collector.getModule("folder-display-helpers"));
 

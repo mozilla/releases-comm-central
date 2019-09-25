@@ -6,19 +6,22 @@
 
 var MODULE_NAME = "account-manager-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
-var wh, fdh, mc;
+var wh = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
+var fdh, mc;
 
 function setupModule() {
   fdh = collector.getModule("folder-display-helpers");
   mc = fdh.mc;
-  wh = collector.getModule("window-helpers");
 }
 
 function installInto(module) {

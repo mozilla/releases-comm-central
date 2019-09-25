@@ -6,20 +6,23 @@
 
 var MODULE_NAME = "customization-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var wh = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var USE_SHEET_PREF = "toolbar.customization.usesheet";
 
-var wh, fdh;
+var fdh;
 
 function setupModule() {
   fdh = collector.getModule("folder-display-helpers");
-  wh = collector.getModule("window-helpers");
 }
 
 function installInto(module) {

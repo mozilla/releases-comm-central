@@ -11,15 +11,10 @@
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-toggle-bar";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "quick-filter-bar-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "quick-filter-bar-helpers"];
 
 var folder;
 var setUnstarred, setStarred;
@@ -27,8 +22,6 @@ var setUnstarred, setStarred;
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
   let qfb = collector.getModule("quick-filter-bar-helpers");
   qfb.installInto(module);
 

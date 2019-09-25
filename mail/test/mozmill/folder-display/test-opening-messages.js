@@ -19,11 +19,14 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-opening-messages";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
+
+var { plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 // One folder's enough
 var folder = null;
@@ -34,8 +37,6 @@ var NUM_MESSAGES_TO_OPEN = 5;
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 
   folder = create_folder("OpeningMessagesA");
   make_new_sets_in_folder(folder, [{ count: 10 }]);

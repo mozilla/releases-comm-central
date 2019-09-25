@@ -11,23 +11,25 @@
 /* import-globals-from ../shared-modules/test-address-book-helpers.js */
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-send-button";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
-  "window-helpers",
   "address-book-helpers",
 ];
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
+);
+
+var { wait_for_frame_load } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
 );
 
 var account = null;
@@ -35,7 +37,6 @@ var account = null;
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
   collector.getModule("compose-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
   collector.getModule("address-book-helpers").installInto(module);
 
   // Ensure we're in the tinderbox account as that has the right identities set

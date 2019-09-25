@@ -6,7 +6,11 @@
 
 var MODULE_NAME = "address-book-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
+
+var windowHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -22,12 +26,10 @@ var abController;
 
 var folderDisplayHelper;
 var mc;
-var windowHelper;
 
 function setupModule() {
   folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
-  windowHelper = collector.getModule("window-helpers");
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
   collectedAddresses = MailServices.ab.getDirectory(

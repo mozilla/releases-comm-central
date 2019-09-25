@@ -10,6 +10,10 @@ var MODULE_NAME = "testAlarmDefaultValue";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = ["calendar-utils", "content-tab-helpers"];
 
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -18,7 +22,6 @@ const DEFVALUE = 43;
 
 var helpersForController, invokeEventDialog, openLightningPrefs, closeLightningPrefs;
 var menulistSelect;
-var plan_for_modal_dialog, wait_for_modal_dialog;
 var content_tab_e, content_tab_eid;
 
 var prefTab = null;
@@ -33,8 +36,6 @@ function setupModule(module) {
     menulistSelect,
   } = collector.getModule("calendar-utils"));
   collector.getModule("calendar-utils").setupModule(controller);
-
-  ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
 
   ({ content_tab_e, content_tab_eid } = collector.getModule("content-tab-helpers"));
   collector.getModule("content-tab-helpers").setupModule();

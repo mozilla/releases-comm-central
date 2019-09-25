@@ -5,11 +5,10 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-instrument-setup";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
@@ -18,6 +17,11 @@ var elib = ChromeUtils.import(
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
+var {
+  plan_for_window_close,
+  wait_for_existing_window,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

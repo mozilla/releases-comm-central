@@ -11,14 +11,12 @@
 /* import-globals-from ../shared-modules/test-customization-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-mouse-event-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-tabmail-customize";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [
   "folder-display-helpers",
   "mouse-event-helpers",
-  "window-helpers",
   "customization-helpers",
 ];
 
@@ -29,8 +27,6 @@ function setupModule(module) {
   fdh.installInto(module);
   let meh = collector.getModule("mouse-event-helpers");
   meh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
   let cu = collector.getModule("customization-helpers");
   cu.installInto(module);
   gCDHelper = new CustomizeDialogHelper(

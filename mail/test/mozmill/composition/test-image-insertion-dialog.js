@@ -10,15 +10,10 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-image-insertion-dialog";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "window-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
@@ -27,16 +22,17 @@ var elib = ChromeUtils.import(
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
+var wh = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
-var fdh, ch, wh;
+var fdh, ch;
 
 function setupModule(module) {
   fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
   ch = collector.getModule("compose-helpers");
   ch.installInto(module);
-  wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 }
 
 function test_image_insertion_dialog_persist() {
@@ -61,7 +57,7 @@ function test_image_insertion_dialog_persist() {
   });
   cwc.click(cwc.eid("insertImage"));
   wh.wait_for_modal_dialog();
-  wait_for_window_close();
+  wh.wait_for_window_close();
 
   // Check that the radio option persists
   wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
@@ -75,7 +71,7 @@ function test_image_insertion_dialog_persist() {
   });
   cwc.click(cwc.eid("insertImage"));
   wh.wait_for_modal_dialog();
-  wait_for_window_close();
+  wh.wait_for_window_close();
 
   // Check that the radio option still persists (be really sure)
   wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
@@ -88,7 +84,7 @@ function test_image_insertion_dialog_persist() {
   });
   cwc.click(cwc.eid("insertImage"));
   wh.wait_for_modal_dialog();
-  wait_for_window_close();
+  wh.wait_for_window_close();
 
   // Get the inserted image, double-click it, make sure we switch to "no alt
   // text", despite the persisted value being "use alt text"
@@ -102,7 +98,7 @@ function test_image_insertion_dialog_persist() {
   });
   cwc.doubleClick(new elib.Elem(img));
   wh.wait_for_modal_dialog();
-  wait_for_window_close();
+  wh.wait_for_window_close();
   // It's not clear why we have to wait here to avoid test failures,
   // see bug 1246094.
   cwc.sleep(500);
@@ -124,7 +120,7 @@ function test_image_insertion_dialog_persist() {
   });
   cwc.doubleClick(new elib.Elem(img));
   wh.wait_for_modal_dialog();
-  wait_for_window_close();
+  wh.wait_for_window_close();
   // It's not clear why we have to wait here to avoid test failures,
   // see bug 1246094.
   cwc.sleep(500);
@@ -141,7 +137,7 @@ function test_image_insertion_dialog_persist() {
   });
   cwc.doubleClick(new elib.Elem(img));
   wh.wait_for_modal_dialog();
-  wait_for_window_close();
+  wh.wait_for_window_close();
 
   close_compose_window(cwc);
 }

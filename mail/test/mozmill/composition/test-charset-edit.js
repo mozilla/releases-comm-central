@@ -11,15 +11,10 @@
 
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-charset-edit";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "window-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
@@ -29,6 +24,9 @@ var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 var { wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
+var { plan_for_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

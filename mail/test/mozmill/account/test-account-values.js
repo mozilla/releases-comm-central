@@ -11,15 +11,10 @@
 
 /* import-globals-from ../shared-modules/test-account-manager-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-account-values";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "account-manager-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "account-manager-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
@@ -27,6 +22,9 @@ var elib = ChromeUtils.import(
 
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var gPopAccount, gOriginalAccountCount;

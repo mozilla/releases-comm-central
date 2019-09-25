@@ -12,13 +12,11 @@
 /* import-globals-from ../shared-modules/test-address-book-helpers.js */
 /* import-globals-from ../shared-modules/test-dom-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-message-header";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [
   "folder-display-helpers",
-  "window-helpers",
   "address-book-helpers",
   "dom-helpers",
 ];
@@ -26,6 +24,11 @@ var MODULE_REQUIRES = [
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+
+var { resize_to } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

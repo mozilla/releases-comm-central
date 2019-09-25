@@ -4,7 +4,11 @@
 
 var MODULE_NAME = "testWeeklyUntilRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -12,7 +16,6 @@ var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENTPATH, EVENT_BOX, CANVA
 var helpersForController, handleOccurrencePrompt, switchToView, goToDate, invokeEventDialog;
 var viewForward, closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
 var REC_DLG_DAYS, REC_DLG_ACCEPT, REC_DLG_UNTIL_INPUT;
-var plan_for_modal_dialog, wait_for_modal_dialog;
 
 const ENDDATE = new Date(2009, 0, 26); // Last Monday in month.
 const HOUR = 8;
@@ -44,8 +47,6 @@ function setupModule(module) {
     "item-editing-helpers"
   ));
   collector.getModule("item-editing-helpers").setupModule(module);
-
-  ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
 
   createCalendar(controller, CALENDARNAME);
 }

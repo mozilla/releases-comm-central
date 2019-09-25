@@ -7,24 +7,26 @@
 /* import-globals-from ../shared-modules/test-compose-helpers.js */
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-compose-mailto";
 var RELATIVE_ROOT = "../shared-modules";
 var MODULE_REQUIRES = [
   "folder-display-helpers",
   "compose-helpers",
-  "window-helpers",
   "content-tab-helpers",
 ];
 
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
+var {
+  plan_for_modal_dialog,
+  wait_for_modal_dialog,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var folder = null;
 var composeHelper = null;
-var windowHelper = null;
 var gMsgNo = 0;
 var gComposeWin;
 var gNewTab;
@@ -39,8 +41,6 @@ function setupModule(module) {
   fdh.installInto(module);
   composeHelper = collector.getModule("compose-helpers");
   composeHelper.installInto(module);
-  windowHelper = collector.getModule("window-helpers");
-  windowHelper.installInto(module);
   let cth = collector.getModule("content-tab-helpers");
   cth.installInto(module);
 }
@@ -61,7 +61,7 @@ function test_checkInsertImage() {
   gComposeWin.e("content-frame").focus();
 
   // Now open the image window
-  windowHelper.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
+  plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
     // Insert the url of the image.
     let srcloc = mwc.window.document.getElementById("srcInput");
     srcloc.focus();
@@ -77,7 +77,7 @@ function test_checkInsertImage() {
   });
   gComposeWin.click(gComposeWin.eid("insertImage"));
 
-  windowHelper.wait_for_modal_dialog();
+  wait_for_modal_dialog();
   wait_for_window_close();
 
   //  gComposeWin.sleep(500);

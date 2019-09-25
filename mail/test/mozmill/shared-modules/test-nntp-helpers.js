@@ -6,7 +6,7 @@
 
 var MODULE_NAME = "nntp-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULES_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULES_REQUIRES = ["folder-display-helpers"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -34,14 +34,12 @@ var groups = [
 
 var folderDisplayHelper;
 var mc;
-var windowHelper;
 
 var testHelperModule;
 
 function setupModule() {
   folderDisplayHelper = collector.getModule("folder-display-helpers");
   mc = folderDisplayHelper.mc;
-  windowHelper = collector.getModule("window-helpers");
   testHelperModule = {
     Cc,
     Ci,

@@ -12,15 +12,10 @@
 
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-cookies";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "window-helpers",
-  "content-tab-helpers",
-  "folder-display-helpers",
-];
+var MODULE_REQUIRES = ["content-tab-helpers", "folder-display-helpers"];
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
@@ -29,8 +24,6 @@ var url = collector.addHttpResource("../cookies/html", "cookies");
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
   let cth = collector.getModule("content-tab-helpers");
   cth.installInto(module);
 }

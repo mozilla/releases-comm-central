@@ -11,7 +11,6 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-invalid-db-folder-load";
 var RELATIVE_ROOT = "../shared-modules";

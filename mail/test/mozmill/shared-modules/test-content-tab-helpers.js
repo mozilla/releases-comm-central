@@ -6,7 +6,7 @@
 
 var MODULE_NAME = "content-tab-helpers";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
@@ -15,6 +15,9 @@ var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 var { MockObjectReplacer } = ChromeUtils.import(
   "resource://testing-common/mozmill/MockObjectHelpers.jsm"
+);
+var wh = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -26,7 +29,6 @@ var EXT_PROTOCOL_SVC_CID = "@mozilla.org/uriloader/external-protocol-service;1";
 
 var folderDisplayHelper;
 var mc;
-var wh;
 
 var _originalBlocklistURL = null;
 
@@ -39,7 +41,6 @@ function setupModule() {
   mc = folderDisplayHelper.mc;
   mark_failure = folderDisplayHelper.mark_failure;
 
-  wh = collector.getModule("window-helpers");
   gMockExtProtSvcReg = new MockObjectReplacer(
     EXT_PROTOCOL_SVC_CID,
     MockExtProtConstructor

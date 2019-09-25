@@ -4,26 +4,28 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
-);
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 /*
  * Test rearanging tabs via drag'n'drop.
  */
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-mouse-event-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-tabmail-dragndrop";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "mouse-event-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "mouse-event-helpers"];
+
+var elib = ChromeUtils.import(
+  "chrome://mozmill/content/modules/elementslib.jsm"
+);
+
+var {
+  close_window,
+  plan_for_new_window,
+  wait_for_new_window,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;
 var msgHdrsInFolder = [];
@@ -34,8 +36,6 @@ var NUM_MESSAGES_IN_FOLDER = 15;
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
   let meh = collector.getModule("mouse-event-helpers");
   meh.installInto(module);
 

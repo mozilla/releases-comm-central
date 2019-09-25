@@ -13,15 +13,14 @@
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
 /* import-globals-from ../shared-modules/test-search-window-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-displaying-messages-in-folder-tabs";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "window-helpers",
-  "search-window-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "search-window-helpers"];
+
+var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var folderA;
 var folderB;
@@ -48,8 +47,6 @@ var indexes = _generateIndexes();
 function setupModule(module) {
   let fdh = collector.getModule("folder-display-helpers");
   fdh.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
   let sh = collector.getModule("search-window-helpers");
   sh.installInto(module);
 

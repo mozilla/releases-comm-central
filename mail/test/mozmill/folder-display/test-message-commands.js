@@ -12,15 +12,14 @@
 
 /* import-globals-from ../shared-modules/test-content-tab-helpers.js */
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-message-commands";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "content-tab-helpers",
-  "window-helpers",
-];
+var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -37,8 +36,6 @@ var setupModule = function(module) {
   fdh.installInto(module);
   let cth = collector.getModule("content-tab-helpers");
   cth.installInto(module);
-  let wh = collector.getModule("window-helpers");
-  wh.installInto(module);
 
   unreadFolder = create_folder("UnreadFolder");
   shiftDeleteFolder = create_folder("ShiftDeleteFolder");

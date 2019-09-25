@@ -4,7 +4,7 @@
 
 var MODULE_NAME = "testTimezones";
 var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
 
 var CANVAS_BOX, DAY_VIEW;
 var helpersForController, invokeEventDialog, switchToView, goToDate;

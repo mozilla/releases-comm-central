@@ -4,7 +4,11 @@
 
 var MODULE_NAME = "testWeeklyWithExceptionRecurrence";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
+
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var TIMEOUT_MODAL_DIALOG, CALENDARNAME, EVENT_BOX, CANVAS_BOX;
 var DAY_VIEW, WEEK_VIEW, EVENTPATH;
@@ -13,7 +17,6 @@ var invokeEventDialog, viewForward, closeAllEventDialogs, deleteCalendars, creat
 var menulistSelect;
 var REPEAT_DETAILS, REC_DLG_ACCEPT, REC_DLG_DAYS;
 var helpersForEditUI, setData;
-var plan_for_modal_dialog, wait_for_modal_dialog;
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -52,8 +55,6 @@ function setupModule(module) {
     setData,
   } = collector.getModule("item-editing-helpers"));
   collector.getModule("item-editing-helpers").setupModule(module);
-
-  ({ plan_for_modal_dialog, wait_for_modal_dialog } = collector.getModule("window-helpers"));
 
   createCalendar(controller, CALENDARNAME);
 }

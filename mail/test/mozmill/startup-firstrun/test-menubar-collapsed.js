@@ -10,15 +10,17 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-main-menu-collapsed";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
+
+var { close_window, wait_for_existing_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
 }
 
 function test_main_menu_collapsed() {

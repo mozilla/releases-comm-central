@@ -10,15 +10,22 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-session-store";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var controller = ChromeUtils.import(
   "chrome://mozmill/content/modules/controller.jsm"
 );
+
+var {
+  close_window,
+  plan_for_new_window,
+  plan_for_window_close,
+  wait_for_new_window,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");

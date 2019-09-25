@@ -12,19 +12,21 @@
 "use strict";
 
 /* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
 
 var MODULE_NAME = "test-bug594646";
 var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "window-helpers"];
+var MODULE_REQUIRES = ["folder-display-helpers"];
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+
+var { close_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var gReferenceTextContent;
 
 function setupModule(module) {
   collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("window-helpers").installInto(module);
   gReferenceTextContent = extract_eml_body_textcontent(
     "./bug594646_reference.eml"
   );
