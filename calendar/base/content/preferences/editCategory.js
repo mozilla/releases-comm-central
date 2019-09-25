@@ -71,12 +71,12 @@ function toggleColor() {
   let categoryColor = document.getElementById("categoryColor");
 
   if (useColor) {
-    categoryColor.setAttribute("type", "color");
+    categoryColor.removeAttribute("disabled");
     if (toggleColor.lastColor) {
       categoryColor.value = toggleColor.lastColor;
     }
   } else {
-    categoryColor.setAttribute("type", "button");
+    categoryColor.setAttribute("disabled", "disabled");
     toggleColor.lastColor = categoryColor.value;
     categoryColor.value = "";
   }
@@ -88,7 +88,7 @@ function toggleColor() {
  */
 function clickColor() {
   let categoryColor = document.getElementById("categoryColor");
-  if (categoryColor.getAttribute("type") == "button") {
+  if (categoryColor.hasAttribute("disabled")) {
     colorPickerChanged();
     toggleColor();
     categoryColor.click();

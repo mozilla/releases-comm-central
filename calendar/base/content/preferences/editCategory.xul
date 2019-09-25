@@ -17,15 +17,20 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         buttons="accept,cancel"
         onload="editCategoryLoad();">
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://calendar/content/preferences/editCategory.js"/>
 
   <vbox id="dialog-box">
-    <label value="&pref.categories.name.label;"
+    <label id="categoryNameLabel"
+           value="&pref.categories.name.label;"
            control="categoryName"/>
-    <textbox id="categoryName"
-             flex="1"
-             onchange="categoryNameChanged()"
-             oninput="delay(500, categoryNameChanged)"/>
+    <html:input id="categoryName"
+                type="text"
+                onchange="categoryNameChanged()"
+                oninput="delay(500, categoryNameChanged)"
+                aria-labelledby="categoryNameLabel"/>
     <hbox id="colorSelectRow">
       <checkbox id="useColor"
                 label="&pref.categories.usecolor.label;"
@@ -34,7 +39,8 @@
                   type="color"
                   style="width: 64px; height: 23px"
                   onclick="clickColor()"
-                  onchange="colorPickerChanged()"/>
+                  onchange="colorPickerChanged()"
+                  aria-labelledby="useColor"/>
     </hbox>
   </vbox>
 </dialog>

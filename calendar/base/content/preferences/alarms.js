@@ -156,7 +156,8 @@ var gAlarmsPane = {
     }
 
     for (let item of ["alarmSoundFileField", "calendar.prefs.alarm.sound.browse"]) {
-      document.getElementById(item).disabled = alarmsSoundType.value != 1;
+      document.getElementById(item).disabled =
+        alarmsSoundType.value != 1 || !alarmsPlaySoundPref.value;
     }
   },
 };

@@ -33,14 +33,14 @@
                            accesskey="&pref.calendar.alarms.sound.useCustom.accessKey;"/>
                 </hbox>
             </radiogroup>
-            <hbox align="center">
-                <textbox id="alarmSoundFileField"
-                         type="filefield"
-                         class="indent"
-                         readonly="true"
-                         flex="1"
-                         preference="calendar.alarms.soundURL"
-                         preference-editable="true"/>
+            <hbox align="center" class="input-container">
+                <html:input id="alarmSoundFileField"
+                            type="text"
+                            class="input-filefield indent"
+                            readonly="readonly"
+                            preference="calendar.alarms.soundURL"
+                            preference-editable="true"
+                            aria-labelledby="alarmSoundCustom"/>
                 <button id="calendar.prefs.alarm.sound.browse"
                         label="&pref.calendar.alarms.sound.browse.label;"
                         accesskey="&pref.calendar.alarms.sound.browse.accessKey;"
