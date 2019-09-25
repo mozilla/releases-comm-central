@@ -9,18 +9,25 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-message-reloads";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_message_pane_hidden,
+  assert_message_pane_visible,
+  assert_selected_and_displayed,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  open_folder_in_new_tab,
+  select_click_row,
+  switch_tab,
+  toggle_message_pane,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("MessageReloads");
   make_new_sets_in_folder(folder, [{ count: 1 }]);
 }
@@ -36,7 +43,7 @@ function test_message_reloads_work_with_message_pane_toggles() {
   toggle_message_pane();
   assert_message_pane_visible();
   // Open a new tab with the same message
-  open_folder_in_new_tab(folder);
+  let tab = open_folder_in_new_tab(folder);
   // Toggle the message pane off
   assert_message_pane_visible();
   toggle_message_pane();
@@ -45,4 +52,6 @@ function test_message_reloads_work_with_message_pane_toggles() {
   switch_tab(0);
   assert_message_pane_visible();
   assert_selected_and_displayed(0);
+
+  close_tab(tab);
 }

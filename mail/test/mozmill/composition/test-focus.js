@@ -8,18 +8,14 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-focus";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
-function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-}
+var {
+  add_attachments,
+  close_compose_window,
+  open_compose_new_mail,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { assert_equals, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 /**
  * Check that it's possible to cycle through the compose window's important

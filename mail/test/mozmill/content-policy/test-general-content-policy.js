@@ -19,23 +19,37 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-general-content-policy";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "content-tab-helpers",
-];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var {
+  close_compose_window,
+  open_compose_with_forward,
+  open_compose_with_reply,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { open_content_tab_with_url } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var {
+  assert_equals,
+  assert_nothing_selected,
+  assert_selected_and_displayed,
+  assert_true,
+  be_in_folder,
+  close_message_window,
+  create_folder,
+  mc,
+  open_message_from_file,
+  open_selected_message,
+  plan_for_message_display,
+  select_click_row,
+  set_open_message_behavior,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -124,10 +138,6 @@ var msgBodyStart =
 var msgBodyEnd = "</body>\n</html>\n";
 
 function setupModule(module) {
-  for (let dep of MODULE_REQUIRES) {
-    collector.getModule(dep).installInto(module);
-  }
-
   folder = create_folder("generalContentPolicy");
 }
 

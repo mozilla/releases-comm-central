@@ -4,18 +4,33 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var {
+  assert_content_tab_element_hidden,
+  assert_content_tab_element_visible,
+  assert_content_tab_text_absent,
+  assert_content_tab_text_present,
+  content_tab_e,
+  content_tab_eid,
+  get_content_tab_element_display,
+  get_element_by_text,
+  open_content_tab_with_click,
+  wait_for_content_tab_element_display,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
 
-var MODULE_NAME = "test-about-support";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "content-tab-helpers",
-  "compose-helpers",
-];
-
+var {
+  assert_equals,
+  assert_true,
+  close_tab,
+  mark_failure,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -27,10 +42,6 @@ Cu.importGlobalProperties(["DOMParser"]);
 var warningText = new Map();
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   // The wording of the warning message when private data is being exported
   // from the about:support page.
   let bundle = Services.strings.createBundle(

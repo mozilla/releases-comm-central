@@ -10,18 +10,43 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-message-commands";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
-
+var { wait_for_content_tab_load } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var {
+  add_sets_to_folders,
+  archive_selected_messages,
+  assert_equals,
+  assert_false,
+  assert_not_equals,
+  assert_selected_and_displayed,
+  assert_true,
+  be_in_folder,
+  close_popup,
+  collapse_all_threads,
+  create_folder,
+  create_thread,
+  make_display_threaded,
+  make_display_unthreaded,
+  make_new_sets_in_folder,
+  mc,
+  press_delete,
+  right_click_on_row,
+  select_click_row,
+  select_control_click_row,
+  select_shift_click_row,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var unreadFolder, shiftDeleteFolder, threadDeleteFolder;
@@ -32,11 +57,6 @@ var acctMgr;
 var tagArray;
 
 var setupModule = function(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let cth = collector.getModule("content-tab-helpers");
-  cth.installInto(module);
-
   unreadFolder = create_folder("UnreadFolder");
   shiftDeleteFolder = create_folder("ShiftDeleteFolder");
   threadDeleteFolder = create_folder("ThreadDeleteFolder");
@@ -602,6 +622,8 @@ function test_tag_keys_disabled_in_content_tab() {
   check_tag_in_message(curMessage, tagArray[0], false);
   mc.keypress(null, "1", {});
   check_tag_in_message(curMessage, tagArray[0], false);
+
+  mc.tabmail.closeTab(tab);
 }
 
 function teardownModule() {

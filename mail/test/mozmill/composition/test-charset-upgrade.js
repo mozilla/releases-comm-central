@@ -9,13 +9,22 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-charset-upgrade";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
+var {
+  get_msg_source,
+  open_compose_new_mail,
+  setup_msg_contents,
+  type_in_composer,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  assert_equals,
+  assert_true,
+  be_in_folder,
+  get_special_folder,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -29,9 +38,6 @@ var gDrafts;
 var gOutbox;
 
 function setupModule(module) {
-  for (let req of MODULE_REQUIRES) {
-    collector.getModule(req).installInto(module);
-  }
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
   gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
 

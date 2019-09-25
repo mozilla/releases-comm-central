@@ -2,16 +2,62 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "calendar-utils";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "pref-window-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "SHORT_SLEEP",
+  "MID_SLEEP",
+  "TIMEOUT_MODAL_DIALOG",
+  "CALENDARNAME",
+  "CALENDAR_PANEL",
+  "VIEWDECK",
+  "DAY_VIEW",
+  "WEEK_VIEW",
+  "DAYBOX",
+  "LABELDAYBOX",
+  "MULTIWEEK_VIEW",
+  "MONTH_VIEW",
+  "TASK_VIEW",
+  "MINIMONTH",
+  "TODAY_BUTTON",
+  "CALENDARLIST",
+  "TODAY_PANE",
+  "AGENDA_LISTBOX",
+  "EVENTPATH",
+  "ALARM_ICON_PATH",
+  "EVENT_BOX",
+  "CANVAS_BOX",
+  "ALLDAY",
+  "helpersForController",
+  "handleOccurrencePrompt",
+  "switchToView",
+  "goToDate",
+  "invokeEventDialog",
+  "getEventBoxPath",
+  "getEventDetails",
+  "checkAlarmIcon",
+  "viewForward",
+  "viewBack",
+  "closeAllEventDialogs",
+  "deleteCalendars",
+  "createCalendar",
+  "handleNewCalendarWizard",
+  "findEventsInNode",
+  "openLightningPrefs",
+  "closeLightningPrefs",
+  "menulistSelect",
+];
 
+var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+var mozmill = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+
+var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
+  "resource://testing-common/mozmill/PrefTabHelpers.jsm"
+);
 var { close_window, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
 var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;
@@ -74,71 +120,17 @@ var ALARM_ICON_PATH = `
     anon({"class":"alarm-icons-box"})/anon({"class":"reminder-icon"})
 `;
 
-var open_pref_tab, close_pref_tab;
-
-function setupModule(controller) {
-  // This setup is needed for pref-win-helpers. For some reason, the automatic
-  // loading of modules in shared modules does not setup the module correctly.
-  collector.getModule("folder-display-helpers").setupModule();
-
-  ({ open_pref_tab, close_pref_tab } = collector.getModule("pref-window-helpers"));
-  collector.getModule("pref-window-helpers").setupModule();
-
+function setupModule() {
   // For our tests, we assume that Sunday is start of week.
   Services.prefs.setIntPref("calendar.week.start", 0);
 
   // We are in calendarTests, so we make sure, calendar-tab with day-view is displayed.
+  let controller = mozmill.getMail3PaneController();
   let { eid } = helpersForController(controller);
   controller.click(eid("calendar-tab-button"));
   switchToView(controller, "day");
 }
-
-function installInto(module) {
-  // Copy constants into module.
-  module.SHORT_SLEEP = SHORT_SLEEP;
-  module.MID_SLEEP = MID_SLEEP;
-  module.TIMEOUT_MODAL_DIALOG = TIMEOUT_MODAL_DIALOG;
-  module.CALENDARNAME = CALENDARNAME;
-  module.CALENDAR_PANEL = CALENDAR_PANEL;
-  module.VIEWDECK = VIEWDECK;
-  module.DAY_VIEW = DAY_VIEW;
-  module.WEEK_VIEW = WEEK_VIEW;
-  module.DAYBOX = DAYBOX;
-  module.LABELDAYBOX = LABELDAYBOX;
-  module.MULTIWEEK_VIEW = MULTIWEEK_VIEW;
-  module.MONTH_VIEW = MONTH_VIEW;
-  module.TASK_VIEW = TASK_VIEW;
-  module.MINIMONTH = MINIMONTH;
-  module.TODAY_BUTTON = TODAY_BUTTON;
-  module.CALENDARLIST = CALENDARLIST;
-  module.TODAY_PANE = TODAY_PANE;
-  module.AGENDA_LISTBOX = AGENDA_LISTBOX;
-  module.EVENTPATH = EVENTPATH;
-  module.ALARM_ICON_PATH = ALARM_ICON_PATH;
-  module.EVENT_BOX = EVENT_BOX;
-  module.CANVAS_BOX = CANVAS_BOX;
-  module.ALLDAY = ALLDAY;
-
-  // Now copy helper functions.
-  module.helpersForController = helpersForController;
-  module.handleOccurrencePrompt = handleOccurrencePrompt;
-  module.switchToView = switchToView;
-  module.goToDate = goToDate;
-  module.invokeEventDialog = invokeEventDialog;
-  module.getEventBoxPath = getEventBoxPath;
-  module.getEventDetails = getEventDetails;
-  module.checkAlarmIcon = checkAlarmIcon;
-  module.viewForward = viewForward;
-  module.viewBack = viewBack;
-  module.closeAllEventDialogs = closeAllEventDialogs;
-  module.deleteCalendars = deleteCalendars;
-  module.createCalendar = createCalendar;
-  module.handleNewCalendarWizard = handleNewCalendarWizard;
-  module.findEventsInNode = findEventsInNode;
-  module.openLightningPrefs = openLightningPrefs;
-  module.closeLightningPrefs = closeLightningPrefs;
-  module.menulistSelect = menulistSelect;
-}
+setupModule();
 
 function helpersForController(controller) {
   function selector(sel) {

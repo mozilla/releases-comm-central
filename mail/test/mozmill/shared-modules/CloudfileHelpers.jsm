@@ -4,17 +4,21 @@
 
 "use strict";
 
-var MODULE_NAME = "cloudfile-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "gMockCloudfileManager",
+  "MockCloudfileAccount",
+  "getFile",
+  "collectFiles",
+];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var fdh = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-
-var kMockContractIDPrefix = "@mozilla.org/mail/mockCloudFile;1?id=";
 
 var kDefaults = {
   type: "default",
@@ -29,21 +33,6 @@ var kDefaults = {
   uploadExceedsFileLimit: cloudFileAccounts.constants.uploadExceedsFileLimit,
   uploadCancelled: cloudFileAccounts.constants.uploadCancelled,
 };
-
-var fdh;
-
-function setupModule(module) {
-  fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-}
-
-function installInto(module) {
-  setupModule(module);
-  module.gMockCloudfileManager = gMockCloudfileManager;
-  module.MockCloudfileAccount = MockCloudfileAccount;
-  module.getFile = getFile;
-  module.collectFiles = collectFiles;
-}
 
 function getFile(aFilename, aRoot) {
   let path = os.getFileForPath(aRoot);

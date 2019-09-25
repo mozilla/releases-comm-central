@@ -8,14 +8,20 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-phishing-bar";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var {
+  add_message_to_folder,
+  be_in_folder,
+  create_folder,
+  create_message,
+  mc,
+  open_message_from_file,
+  select_click_row,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   assert_notification_displayed,
   get_notification_button,
@@ -37,10 +43,6 @@ var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
 
 function setupModule(module) {
-  for (let dep of MODULE_REQUIRES) {
-    collector.getModule(dep).installInto(module);
-  }
-
   folder = create_folder("PhishingBarA");
   add_message_to_folder(
     folder,

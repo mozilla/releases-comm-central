@@ -8,18 +8,31 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-attachment";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var {
+  add_attachments,
+  close_compose_window,
+  delete_attachment,
+  open_compose_new_mail,
+  open_compose_with_forward,
+  open_compose_with_forward_as_attachments,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  add_message_to_folder,
+  assert_equals,
+  be_in_folder,
+  create_folder,
+  create_message,
+  select_click_row,
+
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -27,6 +40,7 @@ var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var messenger;
 var folder;
@@ -48,10 +62,6 @@ var b64Attachment =
 var b64Size = 188;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   folder = create_folder("ComposeAttachmentA");
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);

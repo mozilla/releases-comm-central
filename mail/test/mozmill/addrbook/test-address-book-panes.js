@@ -8,22 +8,16 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-address-book-panes";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["address-book-helpers", "folder-display-helpers"];
+var {
+  close_address_book_window,
+  open_address_book_window,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
 
 var abController;
 
 function setupModule(module) {
-  // We need this to get mc which is needed in open_address_book_window.
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let abh = collector.getModule("address-book-helpers");
-  abh.installInto(module);
-
   // Open the address book main window
   abController = open_address_book_window();
 }
@@ -36,6 +30,8 @@ function teardownModule(module) {
 
   assert_directory_pane_visibility(true);
   assert_contact_pane_visibility(true);
+
+  close_address_book_window(abController);
 }
 
 /**

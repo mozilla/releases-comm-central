@@ -8,26 +8,48 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
-/* import-globals-from ../shared-modules/test-dom-helpers.js */
-
-var MODULE_NAME = "test-cloudfile-attachment-urls";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "cloudfile-helpers",
-  "dom-helpers",
-];
-
 var {
   gMockFilePicker,
   gMockFilePickReg,
   select_attachments,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
+var {
+  collectFiles,
+  gMockCloudfileManager,
+  MockCloudfileAccount,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+);
+var {
+  add_cloud_attachments,
+  assert_previous_text,
+  get_compose_body,
+  open_compose_new_mail,
+  open_compose_with_forward,
+  open_compose_with_reply,
+  type_in_composer,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  assert_next_nodes,
+  assert_previous_nodes,
+  wait_for_element,
+} = ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
+var {
+  add_message_to_folder,
+  assert_equals,
+  assert_not_equals,
+  assert_selected_and_displayed,
+  assert_true,
+  be_in_folder,
+  create_message,
+  FAKE_SERVER_HOSTNAME,
+  get_special_folder,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
@@ -55,10 +77,6 @@ var kLines = ["This is a line of text", "and here's another!"];
 var gInbox, gOldHtmlPref, gOldSigPref;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   // For replies and forwards, we'll work off a message in the Inbox folder
   // of the fake "tinderbox" account.
   let server = MailServices.accounts.FindServer(

@@ -4,24 +4,24 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-dom-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-attachment-in-plain-msg";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "dom-helpers"];
-
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var { wait_for_element_visible } = ChromeUtils.import(
+  "resource://testing-common/mozmill/DOMHelpers.jsm"
+);
+var {
+  assert_equals,
+  assert_false,
+  assert_true,
+  open_message_from_file,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-}
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Bug 1358565

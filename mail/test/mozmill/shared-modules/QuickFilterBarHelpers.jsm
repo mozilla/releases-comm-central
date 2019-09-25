@@ -4,18 +4,7 @@
 
 "use strict";
 
-var MODULE_NAME = "quick-filter-bar-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
-var fdh, mc;
-
-function setupModule() {
-  fdh = collector.getModule("folder-display-helpers");
-  mc = fdh.mc;
-}
-
-var EXPORT = [
+this.EXPORTED_SYMBOLS = [
   "assert_quick_filter_button_enabled",
   "assert_quick_filter_bar_visible",
   "toggle_quick_filter_bar",
@@ -33,28 +22,13 @@ var EXPORT = [
   "clear_constraints",
 ];
 
-var backstage = this;
-
-function installInto(module) {
-  setupModule();
-  for (let name of EXPORT) {
-    module[name] = backstage[name];
-  }
-  // disable the deferred search processing!
-  mc.window.QuickFilterBarMuxer.deferredUpdateSearch =
-    mc.window.QuickFilterBarMuxer.updateSearch;
-
-  module.__teardownTest__ = _afterEveryTest;
-  _afterEveryTest.__name__ = "teardownTest";
-}
-
-function _afterEveryTest() {
-  clear_constraints();
-  // make it visible if it's not
-  if (mc.e("quick-filter-bar").collapsed) {
-    toggle_quick_filter_bar();
-  }
-}
+var fdh = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var mc = fdh.mc;
+// disable the deferred search processing!
+mc.window.QuickFilterBarMuxer.deferredUpdateSearch =
+  mc.window.QuickFilterBarMuxer.updateSearch;
 
 /**
  * Maps names to bar DOM ids to simplify checking.

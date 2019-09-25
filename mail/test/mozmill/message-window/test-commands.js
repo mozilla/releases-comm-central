@@ -4,12 +4,6 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-commands";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -18,6 +12,18 @@ var elib = ChromeUtils.import(
 );
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var {
+  assert_equals,
+  be_in_folder,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  open_message_from_file,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -25,9 +31,6 @@ var { close_window } = ChromeUtils.import(
 var folder1, folder2;
 
 var setupModule = function(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder1 = create_folder("CopyFromFolder");
   folder2 = create_folder("CopyToFolder");
   make_new_sets_in_folder(folder1, [{ count: 1 }]);

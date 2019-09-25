@@ -8,26 +8,19 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-vcard-actions";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers"];
-
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var { get_cards_in_all_address_books_for_email } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var { assert_equals, open_message_from_file } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   close_window,
   plan_for_modal_dialog,
   wait_for_modal_dialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-
-function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-}
 
 /**
  * Bug 1374779

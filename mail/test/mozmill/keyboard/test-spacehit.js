@@ -9,11 +9,18 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-spacehit";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_equals,
+  assert_not_equals,
+  be_in_folder,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  select_click_row,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 // Get original preference value
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -21,7 +28,6 @@ var prefName = "mail.advance_on_spacebar";
 var prefValue = Services.prefs.getBoolPref(prefName);
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
   // Create four unread messages in a sample folder
   let folder = create_folder("Sample");
   make_new_sets_in_folder(folder, [{ count: 4 }]);

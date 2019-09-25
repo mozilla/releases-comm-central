@@ -4,9 +4,17 @@
 
 "use strict";
 
-var MODULE_NAME = "nntp-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULES_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "setupNNTPDaemon",
+  "NNTP_PORT",
+  "setupLocalServer",
+  "startupNNTPServer",
+  "shutdownNNTPServer",
+];
+
+var folderDisplayHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -32,14 +40,9 @@ var groups = [
   ["test.filter", true],
 ];
 
-var folderDisplayHelper;
-var mc;
-
 var testHelperModule;
 
 function setupModule() {
-  folderDisplayHelper = collector.getModule("folder-display-helpers");
-  mc = folderDisplayHelper.mc;
   testHelperModule = {
     Cc,
     Ci,
@@ -59,17 +62,7 @@ function setupModule() {
     testHelperModule
   );
 }
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.setupNNTPDaemon = setupNNTPDaemon;
-  module.NNTP_PORT = NNTP_PORT;
-  module.setupLocalServer = setupLocalServer;
-  module.startupNNTPServer = startupNNTPServer;
-  module.shutdownNNTPServer = shutdownNNTPServer;
-}
+setupModule();
 
 // Sets up the NNTP daemon object for use in fake server
 function setupNNTPDaemon() {

@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testLastDayOfMonthRecurrenceRotated";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
-
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -34,13 +30,14 @@ function setupModule(module) {
     goToDate,
     handleOccurrencePrompt,
     menulistSelect,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
   Object.assign(module, helpersForController(controller));
 
-  ({ REC_DLG_ACCEPT } = collector.getModule("item-editing-helpers"));
-  collector.getModule("item-editing-helpers").setupModule(module);
+  ({ REC_DLG_ACCEPT } = ChromeUtils.import(
+    "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  ));
 
+  switchToView(controller, "day");
   createCalendar(controller, CALENDARNAME);
   // Rotate view.
   switchToView(controller, "day");

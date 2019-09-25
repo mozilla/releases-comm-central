@@ -14,22 +14,28 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var {
+  close_compose_window,
+  open_compose_new_mail,
+  setup_msg_contents,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  assert_equals,
+  be_in_folder,
+  FAKE_SERVER_HOSTNAME,
+  get_special_folder,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
-var MODULE_NAME = "test-signature-updating";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var cwc = null; // compose window controller
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
   let server = MailServices.accounts.FindServer(

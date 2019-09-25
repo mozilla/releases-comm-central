@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testTodayPane";
-var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
-
 var CALENDARNAME, CANVAS_BOX, DAY_VIEW, LABELDAYBOX, TODAY_BUTTON, TODAY_PANE, AGENDA_LISTBOX;
 var helpersForController, invokeEventDialog, viewForward, createCalendar;
 var deleteCalendars;
@@ -28,13 +24,10 @@ function setupModule(module) {
     viewForward,
     createCalendar,
     deleteCalendars,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
   Object.assign(module, helpersForController(controller));
 
-  ({ setData } = collector.getModule("item-editing-helpers"));
-  collector.getModule("item-editing-helpers").setupModule(module);
-
+  ({ setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm"));
   createCalendar(controller, CALENDARNAME);
 }
 

@@ -8,13 +8,24 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-attachment-reminder";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
+var {
+  add_attachments,
+  close_compose_window,
+  open_compose_new_mail,
+  setup_msg_contents,
+  wait_for_compose_window,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  assert_equals,
+  assert_true,
+  be_in_folder,
+  get_special_folder,
+  mc,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -49,10 +60,6 @@ var gDrafts;
 var gOutbox;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
   gOutbox = get_special_folder(Ci.nsMsgFolderFlags.Queue);
 

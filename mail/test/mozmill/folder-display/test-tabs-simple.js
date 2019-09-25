@@ -13,18 +13,33 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-tabs-simple";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_folder_tree_focused,
+  assert_message_pane_focused,
+  assert_messages_in_view,
+  assert_nothing_selected,
+  assert_selected_and_displayed,
+  assert_thread_tree_focused,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  focus_folder_tree,
+  focus_message_pane,
+  focus_thread_tree,
+  make_new_sets_in_folder,
+  mc,
+  open_folder_in_new_tab,
+  open_selected_message_in_new_tab,
+  select_click_row,
+  switch_tab,
+  wait_for_blank_content_pane,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folderA, folderB, setA, setB;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folderA = create_folder("TabsSimpleA");
   folderB = create_folder("TabsSimpleB");
 

@@ -8,32 +8,22 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-image-insertion-dialog";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var { assert_true } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
 var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-
-var fdh, ch;
-
-function setupModule(module) {
-  fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  ch = collector.getModule("compose-helpers");
-  ch.installInto(module);
-}
 
 function test_image_insertion_dialog_persist() {
   let cwc = open_compose_new_mail();
@@ -85,6 +75,7 @@ function test_image_insertion_dialog_persist() {
   cwc.click(cwc.eid("insertImage"));
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
+  cwc.sleep(500);
 
   // Get the inserted image, double-click it, make sure we switch to "no alt
   // text", despite the persisted value being "use alt text"

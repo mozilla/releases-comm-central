@@ -10,15 +10,33 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var {
+  archive_selected_messages,
+  assert_folder_child_in_view,
+  assert_folder_collapsed,
+  assert_folder_expanded,
+  assert_folder_selected_and_displayed,
+  be_in_folder,
+  collapse_folder,
+  delete_message_set,
+  expand_folder,
+  FAKE_SERVER_HOSTNAME,
+  get_smart_folder_named,
+  get_special_folder,
+  inboxFolder,
+  make_new_sets_in_folder,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
-
-var MODULE_NAME = "test-smart-folders";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var rootFolder;
 var inboxSubfolder;
@@ -30,9 +48,6 @@ var smartInboxFolder;
 var inboxSet;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   rootFolder = inboxFolder.server.rootFolder;
 
   // Create a folder as a subfolder of the inbox

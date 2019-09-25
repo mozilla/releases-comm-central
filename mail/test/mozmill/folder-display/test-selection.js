@@ -4,20 +4,40 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-selection";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_nothing_selected,
+  assert_selected_and_displayed,
+  assert_visible,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  delete_via_popup,
+  enter_folder,
+  make_display_grouped,
+  make_display_threaded,
+  make_display_unthreaded,
+  make_new_sets_in_folder,
+  make_new_sets_in_folders,
+  mc,
+  open_folder_in_new_tab,
+  press_delete,
+  right_click_on_row,
+  select_click_row,
+  select_column_click_row,
+  select_control_click_row,
+  select_none,
+  select_shift_click_row,
+  switch_tab,
+  wait_for_blank_content_pane,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 // let us have 2 folders
 var folder = null,
   folder2 = null;
 
 var setupModule = function(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("SelectionA");
   folder2 = create_folder("SelectionB");
   make_new_sets_in_folders([folder, folder2], [{ count: 50 }]);

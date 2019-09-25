@@ -4,10 +4,15 @@
 
 "use strict";
 
-var MODULE_NAME = "subscribe-window-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "open_subscribe_window_from_context_menu",
+  "enter_text_in_search_box",
+  "check_newsgroup_displayed",
+];
 
+var folderDisplayHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -15,22 +20,7 @@ var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var folderDisplayHelper;
-var mc;
-
-function setupModule() {
-  folderDisplayHelper = collector.getModule("folder-display-helpers");
-  mc = folderDisplayHelper.mc;
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.open_subscribe_window_from_context_menu = open_subscribe_window_from_context_menu;
-  module.enter_text_in_search_box = enter_text_in_search_box;
-  module.check_newsgroup_displayed = check_newsgroup_displayed;
-}
+var mc = folderDisplayHelper.mc;
 
 /**
  * Open a subscribe dialog from the context menu.
@@ -65,16 +55,6 @@ function enter_text_in_search_box(swc, text) {
 }
 
 /**
- * Check that the search view is currently displayed.
- *
- * @param swc A controller for the subscribe window.
- * @returns {Boolean} Result of the check.
- */
-function check_searchview(swc) {
-  return swc.eid("subscribedeck").selectedIndex == 1;
-}
-
-/**
  * Check whether the given newsgroup is in the searchview.
  *
  * @param swc A controller for the subscribe window
@@ -91,13 +71,4 @@ function check_newsgroup_displayed(swc, name) {
     }
   }
   return false;
-}
-
-/**
- * Close a search window by calling window.close() on the controller.
- *
- * @param swc A controller for the subscribe window
- */
-function close_subscribe_window(swc) {
-  windowHelper.close_window(swc);
 }

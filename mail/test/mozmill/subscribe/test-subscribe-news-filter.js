@@ -6,23 +6,22 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-nntp-helpers.js */
-/* import-globals-from ../shared-modules/test-subscribe-window-helpers.js */
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
-var MODULE_NAME = "test-subscribe-news-filter";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "nntp-helpers",
-  "subscribe-window-helpers",
-];
-
-function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("nntp-helpers").installInto(module);
-  collector.getModule("subscribe-window-helpers").installInto(module);
-}
+var {
+  NNTP_PORT,
+  setupLocalServer,
+  setupNNTPDaemon,
+  shutdownNNTPServer,
+  startupNNTPServer,
+} = ChromeUtils.import("resource://testing-common/mozmill/NNTPHelpers.jsm");
+var {
+  check_newsgroup_displayed,
+  enter_text_in_search_box,
+  open_subscribe_window_from_context_menu,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/SubscribeWindowHelpers.jsm"
+);
 
 /**
  * Checks that the filter in the subscribe window works correctly

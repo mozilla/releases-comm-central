@@ -9,17 +9,35 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
+var {
+  assert_messages_in_view,
+  assert_messages_not_in_view,
+  be_in_folder,
+  create_folder,
+  delete_message_set,
+  make_new_sets_in_folder,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_quick_filter_bar_visible,
+  assert_results_label_count,
+  assert_text_constraints_checked,
+  clear_constraints,
+  set_filter_text,
+  toggle_boolean_constraints,
+  toggle_quick_filter_bar,
+  toggle_tag_constraints,
+  toggle_tag_mode,
+  toggle_text_constraints,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
+);
 
-var MODULE_NAME = "test-filter-logic";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "quick-filter-bar-helpers"];
-
-function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("quick-filter-bar-helpers").installInto(module);
-}
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 function test_filter_unread() {
   let folder = create_folder("QuickFilterBarFilterUnread");
@@ -401,4 +419,12 @@ function test_results_label() {
 
   delete_message_set(setImmortal);
   assert_results_label_count(0);
+}
+
+function teardownTest() {
+  clear_constraints();
+  // make it visible if it's not
+  if (mc.e("quick-filter-bar").collapsed) {
+    toggle_quick_filter_bar();
+  }
 }

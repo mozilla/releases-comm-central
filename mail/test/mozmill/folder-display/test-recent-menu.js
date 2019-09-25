@@ -10,11 +10,20 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-recent-menu";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  archive_selected_messages,
+  assert_equals,
+  be_in_folder,
+  create_folder,
+  get_special_folder,
+  make_new_sets_in_folder,
+  mc,
+  press_delete,
+  right_click_on_row,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -28,10 +37,6 @@ var folder1, folder2;
 var gInitRecentMenuCount;
 
 var setupModule = function(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   // Ensure that there are no updated folders to ensure the recent folder
   // is empty.
   let allFolders = MailServices.accounts.allFolders;

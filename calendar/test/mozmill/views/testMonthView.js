@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testMonthView";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
-
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var CALENDARNAME, CANVAS_BOX, MONTH_VIEW, EVENTPATH;
@@ -33,13 +29,12 @@ function setupModule(module) {
     deleteCalendars,
     goToDate,
     lookupEventBox,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
   Object.assign(module, helpersForController(controller));
 
-  ({ helpersForEditUI, setData } = collector.getModule("item-editing-helpers"));
-  collector.getModule("item-editing-helpers").setupModule(module);
-
+  ({ helpersForEditUI, setData } = ChromeUtils.import(
+    "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  ));
   createCalendar(controller, CALENDARNAME);
 }
 

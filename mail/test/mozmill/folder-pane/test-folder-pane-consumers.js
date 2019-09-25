@@ -8,13 +8,12 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-nntp-helpers.js */
-
-var MODULE_NAME = "test-folder-pane";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "nntp-helpers"];
-
+var { assert_true, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { NNTP_PORT, setupLocalServer } = ChromeUtils.import(
+  "resource://testing-common/mozmill/NNTPHelpers.jsm"
+);
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -26,10 +25,6 @@ var { MailServices } = ChromeUtils.import(
 var nntpAccount;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   let server = setupLocalServer(NNTP_PORT);
   nntpAccount = MailServices.accounts.FindAccountForServer(server);
 }

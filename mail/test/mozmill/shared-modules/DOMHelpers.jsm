@@ -4,46 +4,24 @@
 
 "use strict";
 
-var MODULE_NAME = "dom-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "assert_element_visible",
+  "element_visible_recursive",
+  "assert_element_not_visible",
+  "wait_for_element",
+  "assert_next_nodes",
+  "assert_previous_nodes",
+  "wait_for_element_enabled",
+  "check_element_visible",
+  "wait_for_element_visible",
+  "wait_for_element_invisible",
+  "collapse_panes",
+];
 
-var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
+var folderDisplayHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-
-var NORMAL_TIMEOUT = 6000;
-var FAST_TIMEOUT = 1000;
-var FAST_INTERVAL = 100;
-
-var folderDisplayHelper;
-var mc;
-
-// logHelper (and therefore folderDisplayHelper) exports
-var mark_failure;
-
-function setupModule() {
-  folderDisplayHelper = collector.getModule("folder-display-helpers");
-  mc = folderDisplayHelper.mc;
-  mark_failure = folderDisplayHelper.mark_failure;
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.assert_element_visible = assert_element_visible;
-  module.element_visible_recursive = element_visible_recursive;
-  module.assert_element_not_visible = assert_element_not_visible;
-  module.wait_for_element = wait_for_element;
-  module.assert_next_nodes = assert_next_nodes;
-  module.assert_previous_nodes = assert_previous_nodes;
-  module.wait_for_element_enabled = wait_for_element_enabled;
-  module.check_element_visible = check_element_visible;
-  module.wait_for_element_visible = wait_for_element_visible;
-  module.wait_for_element_invisible = wait_for_element_invisible;
-  module.collapse_panes = collapse_panes;
-}
+var mc = folderDisplayHelper.mc;
 
 /**
  * This function takes either a string or an elementlibs.Elem, and returns

@@ -8,16 +8,19 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-view-source";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var {
+  assert_true,
+  be_in_folder,
+  create_folder,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   close_window,
   plan_for_new_window,
@@ -29,10 +32,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var folder = null;
 
 function setupModule(module) {
-  for (let dep of MODULE_REQUIRES) {
-    collector.getModule(dep).installInto(module);
-  }
-
   folder = create_folder("viewsource");
 }
 

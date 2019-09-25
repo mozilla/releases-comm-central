@@ -4,30 +4,21 @@
 
 "use strict";
 
-var MODULE_NAME = "mouse-event-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "drag_n_drop_element",
+  "synthesize_drag_start",
+  "synthesize_drag_over",
+  "synthesize_drag_end",
+  "synthesize_drop",
+];
 
 var EventUtils = ChromeUtils.import(
   "chrome://mozmill/content/stdlib/EventUtils.jsm"
 );
 
-var fdh;
-
-function setupModule() {
-  fdh = collector.getModule("folder-display-helpers");
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.drag_n_drop_element = drag_n_drop_element;
-  module.synthesize_drag_start = synthesize_drag_start;
-  module.synthesize_drag_over = synthesize_drag_over;
-  module.synthesize_drag_end = synthesize_drag_end;
-  module.synthesize_drop = synthesize_drop;
-}
+var fdh = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 /**
  * Execute a drag and drop session.

@@ -4,11 +4,11 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
-var MODULE_NAME = "test-chat-tab-restore";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var { assert_tab_mode_name, mark_action, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 /**
  * Create a new chat tab, making that tab the current tab. We block until the
@@ -58,10 +58,6 @@ function wait_for_chat_tab_to_open(aController) {
   mark_action("imh", "/wait_for_chat_tab_to_open", []);
 }
 
-function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-}
-
 /*
  * This tests that the chat tab is restored properly after tabs are
  * serialized. As for folder tabs, we can't test a restart (can we ?), so we
@@ -88,4 +84,6 @@ function test_chat_tab_restore() {
   for (let i in tabTypes) {
     assert_tab_mode_name(mc.tabmail.tabInfo[i], tabTypes[i]);
   }
+
+  closeTabs();
 }

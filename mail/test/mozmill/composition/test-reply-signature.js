@@ -8,12 +8,22 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-reply-signature";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
+var {
+  close_compose_window,
+  get_compose_body,
+  open_compose_with_reply,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  add_message_to_folder,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_folder,
+  create_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -21,10 +31,6 @@ var sig = "roses are red";
 var folder;
 
 function setupModule(module) {
-  for (let req of MODULE_REQUIRES) {
-    collector.getModule(req).installInto(module);
-  }
-
   folder = create_folder("SigStripTest");
 
   let msg = create_message({

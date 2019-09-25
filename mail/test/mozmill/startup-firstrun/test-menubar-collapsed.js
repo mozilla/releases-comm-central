@@ -9,19 +9,14 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-main-menu-collapsed";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var { assert_equals, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { close_window, wait_for_existing_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-}
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function test_main_menu_collapsed() {
   // Due to random oranges on slower machines, we need to ensure that startup

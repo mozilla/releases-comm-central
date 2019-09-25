@@ -12,12 +12,25 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-deletion-with-multiple-displays";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var {
+  assert_selected_and_displayed,
+  assert_tab_titled_from,
+  be_in_folder,
+  close_message_window,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  open_selected_message_in_new_tab,
+  open_selected_message_in_new_window,
+  press_delete,
+  select_click_row,
+  select_control_click_row,
+  select_shift_click_row,
+  switch_tab,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -32,9 +45,6 @@ var folder,
   multipleDeletionFolder4;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("DeletionA");
   lastMessageFolder = create_folder("DeletionB");
   oneBeforeFolder = create_folder("DeletionC");

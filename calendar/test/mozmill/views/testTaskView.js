@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testTaskView";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
-
 var CALENDARNAME, CALENDARLIST, TASK_VIEW;
 var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
 var setData;
@@ -26,13 +22,10 @@ function setupModule(module) {
     createCalendar,
     closeAllEventDialogs,
     deleteCalendars,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
   Object.assign(module, helpersForController(controller));
 
-  ({ setData } = collector.getModule("item-editing-helpers"));
-  collector.getModule("item-editing-helpers").setupModule(module);
-
+  ({ setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm"));
   CALENDARID = createCalendar(controller, CALENDARNAME);
 }
 
@@ -153,6 +146,9 @@ function testTaskView() {
   // Delete task and verify.
   controller.click(eid("calendar-delete-task-button"));
   controller.waitFor(() => taskTreeNode.mTaskArray.length == 0, "Task did not delete");
+
+  let tabmail = controller.window.document.getElementById("tabmail");
+  tabmail.closeTab(tabmail.currentTabInfo);
 }
 
 function teardownModule(module) {

@@ -9,20 +9,19 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-search-window-helpers.js */
-
-var MODULE_NAME = "test-multiple-search-windows";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "search-window-helpers"];
+var { be_in_folder, create_folder, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_search_window_folder_displayed,
+  close_search_window,
+  open_search_window,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/SearchWindowHelpers.jsm"
+);
 
 var folderA, folderB;
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let swh = collector.getModule("search-window-helpers");
-  swh.installInto(module);
-
   folderA = create_folder("MultipleSearchWindowsA");
   folderB = create_folder("MultipleSearchWindowsB");
 }

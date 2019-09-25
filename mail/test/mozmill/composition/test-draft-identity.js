@@ -9,13 +9,19 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-draft-identity";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
+var { close_compose_window, open_compose_from_draft } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var {
+  assert_equals,
+  be_in_folder,
+  get_special_folder,
+  mc,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   assert_notification_displayed,
   wait_for_notification_to_show,
@@ -41,10 +47,6 @@ var gIdentities = [
 ];
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   // Now set up an account with some identities.
   let acctMgr = MailServices.accounts;
   gAccount = acctMgr.createAccount();
@@ -230,7 +232,7 @@ function test_draft_identity_selection() {
   }
 
   for (let test of tests) {
-    dump("Running draft identity test" + tests.indexOf(test));
+    dump("Running draft identity test" + tests.indexOf(test) + "\n");
     be_in_folder(gDrafts);
     select_click_row(test.draftIndex);
 

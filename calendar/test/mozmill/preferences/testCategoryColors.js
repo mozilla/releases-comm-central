@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testCategoryColors";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "content-tab-helpers"];
-
 var { wait_for_frame_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -17,13 +13,13 @@ var prefTab = null;
 
 function setupModule(module) {
   controller = mozmill.getMail3PaneController();
-  ({ helpersForController, openLightningPrefs, closeLightningPrefs } = collector.getModule(
-    "calendar-utils"
+  ({ helpersForController, openLightningPrefs, closeLightningPrefs } = ChromeUtils.import(
+    "resource://testing-common/mozmill/CalendarUtils.jsm"
   ));
-  collector.getModule("calendar-utils").setupModule(controller);
 
-  ({ content_tab_e, content_tab_eid } = collector.getModule("content-tab-helpers"));
-  collector.getModule("content-tab-helpers").setupModule();
+  ({ content_tab_e, content_tab_eid } = ChromeUtils.import(
+    "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+  ));
 }
 
 function testCategoryColors() {

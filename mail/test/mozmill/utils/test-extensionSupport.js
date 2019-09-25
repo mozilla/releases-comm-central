@@ -6,29 +6,22 @@
  * Tests ExtensionSupport.jsm functions.
  */
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-extensionSupport";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "address-book-helpers",
-];
+var {
+  close_address_book_window,
+  open_address_book_window,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var { assert_equals, assert_false, assert_true } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { ExtensionSupport } = ChromeUtils.import(
   "resource:///modules/ExtensionSupport.jsm"
 );
-
-function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-}
-
-function teardownModule(module) {}
 
 /**
  * Bug 1450288

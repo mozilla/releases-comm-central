@@ -4,12 +4,15 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-notifications";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var {
+  assert_false,
+  assert_true,
+  be_in_folder,
+  create_folder,
+  make_new_sets_in_folder,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   plan_for_new_window,
   plan_for_window_close,
@@ -110,9 +113,6 @@ var gMockAlertsServiceFactory = {
 };
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   // Register the mock alerts service
   Components.manager
     .QueryInterface(Ci.nsIComponentRegistrar)

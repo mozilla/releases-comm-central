@@ -9,24 +9,19 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var { get_compose_body, open_compose_new_mail } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var { assert_equals } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
-var MODULE_NAME = "test-signature-init";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["compose-helpers", "folder-display-helpers"];
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kHtmlPref = "mail.identity.default.compose_html";
 var kReplyOnTopPref = "mail.identity.default.reply_on_top";
 var kReplyOnTop = 1;
 var kSigBottomPref = "mail.identity.default.sig_bottom";
-
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("compose-helpers").installInto(module);
-}
 
 /**
  * Regression test for bug 762413 - tests that when we're set to reply above,

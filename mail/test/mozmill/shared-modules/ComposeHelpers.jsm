@@ -4,58 +4,46 @@
 
 "use strict";
 
-var MODULE_NAME = "compose-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "dom-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "open_compose_new_mail",
+  "open_compose_with_reply",
+  "open_compose_with_reply_to_all",
+  "open_compose_with_reply_to_list",
+  "open_compose_with_forward",
+  "open_compose_with_forward_as_attachments",
+  "open_compose_with_edit_as_new",
+  "open_compose_with_element_click",
+  "open_compose_from_draft",
+  "close_compose_window",
+  "wait_for_compose_window",
+  "setup_msg_contents",
+  "clear_recipient",
+  "toggle_recipient_type",
+  "create_msg_attachment",
+  "add_attachments",
+  "add_cloud_attachments",
+  "delete_attachment",
+  "get_compose_body",
+  "type_in_composer",
+  "assert_previous_text",
+  "get_msg_source",
+];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var folderDisplayHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var kTextNodeType = 3;
 
-var folderDisplayHelper;
-var mc;
-var domHelper;
-
-function setupModule() {
-  folderDisplayHelper = collector.getModule("folder-display-helpers");
-  mc = folderDisplayHelper.mc;
-  domHelper = collector.getModule("dom-helpers");
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.open_compose_new_mail = open_compose_new_mail;
-  module.open_compose_with_reply = open_compose_with_reply;
-  module.open_compose_with_reply_to_all = open_compose_with_reply_to_all;
-  module.open_compose_with_reply_to_list = open_compose_with_reply_to_list;
-  module.open_compose_with_forward = open_compose_with_forward;
-  module.open_compose_with_forward_as_attachments = open_compose_with_forward_as_attachments;
-  module.open_compose_with_edit_as_new = open_compose_with_edit_as_new;
-  module.open_compose_with_element_click = open_compose_with_element_click;
-  module.open_compose_from_draft = open_compose_from_draft;
-  module.close_compose_window = close_compose_window;
-  module.wait_for_compose_window = wait_for_compose_window;
-  module.setup_msg_contents = setup_msg_contents;
-  module.clear_recipient = clear_recipient;
-  module.toggle_recipient_type = toggle_recipient_type;
-  module.create_msg_attachment = create_msg_attachment;
-  module.add_attachments = add_attachments;
-  module.add_cloud_attachments = add_cloud_attachments;
-  module.delete_attachment = delete_attachment;
-  module.get_compose_body = get_compose_body;
-  module.type_in_composer = type_in_composer;
-  module.assert_previous_text = assert_previous_text;
-  module.get_msg_source = get_msg_source;
-}
+var mc = folderDisplayHelper.mc;
 
 /**
  * Opens the compose window by starting a new message

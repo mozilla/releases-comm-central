@@ -4,15 +4,41 @@
 
 "use strict";
 
-var MODULE_NAME = "content-tab-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "open_content_tab_with_url",
+  "open_content_tab_with_click",
+  "plan_for_content_tab_load",
+  "wait_for_content_tab_load",
+  "assert_content_tab_has_url",
+  "assert_content_tab_has_favicon",
+  "content_tab_e",
+  "content_tab_eid",
+  "get_content_tab_element_display",
+  "assert_content_tab_element_hidden",
+  "assert_content_tab_element_visible",
+  "wait_for_content_tab_element_display_value",
+  "wait_for_content_tab_element_display",
+  "get_element_by_text",
+  "assert_content_tab_text_present",
+  "assert_content_tab_text_absent",
+  "NotificationWatcher",
+  "get_notification_bar_for_tab",
+  "get_test_plugin",
+  "updateBlocklist",
+  "setAndUpdateBlocklist",
+  "resetBlocklist",
+  "gMockExtProtSvcReg",
+  "gMockExtProtSvc",
+];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var folderDisplayHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { MockObjectReplacer } = ChromeUtils.import(
   "resource://testing-common/mozmill/MockObjectHelpers.jsm"
 );
@@ -22,60 +48,19 @@ var wh = ChromeUtils.import(
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var NORMAL_TIMEOUT = 6000;
 var FAST_TIMEOUT = 1000;
 var FAST_INTERVAL = 100;
 var EXT_PROTOCOL_SVC_CID = "@mozilla.org/uriloader/external-protocol-service;1";
 
-var folderDisplayHelper;
-var mc;
+var mc = folderDisplayHelper.mc;
+var mark_failure = folderDisplayHelper.mark_failure;
 
 var _originalBlocklistURL = null;
 
-// logHelper (and therefore folderDisplayHelper) exports
-var mark_failure;
-var gMockExtProtSvcReg;
-
-function setupModule() {
-  folderDisplayHelper = collector.getModule("folder-display-helpers");
-  mc = folderDisplayHelper.mc;
-  mark_failure = folderDisplayHelper.mark_failure;
-
-  gMockExtProtSvcReg = new MockObjectReplacer(
-    EXT_PROTOCOL_SVC_CID,
-    MockExtProtConstructor
-  );
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.open_content_tab_with_url = open_content_tab_with_url;
-  module.open_content_tab_with_click = open_content_tab_with_click;
-  module.plan_for_content_tab_load = plan_for_content_tab_load;
-  module.wait_for_content_tab_load = wait_for_content_tab_load;
-  module.assert_content_tab_has_url = assert_content_tab_has_url;
-  module.assert_content_tab_has_favicon = assert_content_tab_has_favicon;
-  module.content_tab_e = content_tab_e;
-  module.content_tab_eid = content_tab_eid;
-  module.get_content_tab_element_display = get_content_tab_element_display;
-  module.assert_content_tab_element_hidden = assert_content_tab_element_hidden;
-  module.assert_content_tab_element_visible = assert_content_tab_element_visible;
-  module.wait_for_content_tab_element_display_value = wait_for_content_tab_element_display_value;
-  module.wait_for_content_tab_element_display = wait_for_content_tab_element_display;
-  module.get_element_by_text = get_element_by_text;
-  module.assert_content_tab_text_present = assert_content_tab_text_present;
-  module.assert_content_tab_text_absent = assert_content_tab_text_absent;
-  module.NotificationWatcher = NotificationWatcher;
-  module.get_notification_bar_for_tab = get_notification_bar_for_tab;
-  module.get_test_plugin = get_test_plugin;
-  module.updateBlocklist = updateBlocklist;
-  module.setAndUpdateBlocklist = setAndUpdateBlocklist;
-  module.resetBlocklist = resetBlocklist;
-  module.gMockExtProtSvcReg = gMockExtProtSvcReg;
-  module.gMockExtProtSvc = gMockExtProtSvc;
-}
+var gMockExtProtSvcReg = new MockObjectReplacer(
+  EXT_PROTOCOL_SVC_CID,
+  MockExtProtConstructor
+);
 
 /**
  * gMockExtProtocolSvc allows us to capture (most if not all) attempts to

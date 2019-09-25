@@ -4,17 +4,17 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-toolbar-buttons";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_equals,
+  assert_false,
+  assert_not_equals,
+  assert_true,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-
-function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-}
 
 /* This test checks that the toolbar buttons of the chat toolbar are
  * correctly disabled/enabled, and that the placeholder displayed in
@@ -141,4 +141,8 @@ function test_toolbar_and_placeholder() {
     "openIMAccountManagerButton",
     "the correct placeholder button is visible"
   );
+
+  while (mc.tabmail.tabInfo.length > 1) {
+    mc.tabmail.closeTab(1);
+  }
 }

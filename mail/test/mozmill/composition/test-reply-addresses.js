@@ -10,12 +10,23 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-reply-addresses";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
+var {
+  close_compose_window,
+  open_compose_with_reply,
+  open_compose_with_reply_to_all,
+  open_compose_with_reply_to_list,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  add_message_to_folder,
+  assert_equals,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder;
 var i = 0;
@@ -31,9 +42,6 @@ var { MailServices } = ChromeUtils.import(
 );
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("compose-helpers").installInto(module);
-
   // Now set up an account with some identities.
   let acctMgr = MailServices.accounts;
   let account = acctMgr.createAccount();

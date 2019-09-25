@@ -4,12 +4,6 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-attachment-size";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
 var folder;
 var messenger;
 var epsilon;
@@ -25,6 +19,19 @@ var {
   create_detached_attachment,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
+var {
+  add_message_to_folder,
+  be_in_folder,
+  create_folder,
+  create_message,
+  mc,
+  msgGen,
+  select_click_row,
+  SyntheticPartLeaf,
+  SyntheticPartMultiMixed,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
 var textAttachment =
@@ -169,10 +176,6 @@ var messages = [
 ];
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow

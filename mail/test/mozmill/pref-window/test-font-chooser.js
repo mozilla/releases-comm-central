@@ -12,18 +12,15 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
-
-var MODULE_NAME = "test-font-chooser";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "pref-window-helpers",
-  "content-tab-helpers",
-];
-
+var { content_tab_e, content_tab_eid } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var { mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
+  "resource://testing-common/mozmill/PrefTabHelpers.jsm"
+);
 var { wait_for_frame_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -49,10 +46,6 @@ var gRealFontLists = {};
 const kFontTypes = ["serif", "sans-serif", "monospace"];
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   let finished = false;
   buildFontList().then(() => (finished = true), Cu.reportError);
   mc.waitFor(

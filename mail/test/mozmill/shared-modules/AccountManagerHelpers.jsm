@@ -4,37 +4,28 @@
 
 "use strict";
 
-var MODULE_NAME = "account-manager-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "open_advanced_settings",
+  "open_advanced_settings_from_account_wizard",
+  "open_mail_account_setup_wizard",
+  "click_account_tree_row",
+  "get_account_tree_row",
+  "remove_account",
+];
 
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var fdh = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var fdh, mc;
-
-function setupModule() {
-  fdh = collector.getModule("folder-display-helpers");
-  mc = fdh.mc;
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.open_advanced_settings = open_advanced_settings;
-  module.open_advanced_settings_from_account_wizard = open_advanced_settings_from_account_wizard;
-  module.open_mail_account_setup_wizard = open_mail_account_setup_wizard;
-  module.click_account_tree_row = click_account_tree_row;
-  module.get_account_tree_row = get_account_tree_row;
-  module.remove_account = remove_account;
-}
+var mc = fdh.mc;
 
 /**
  * Opens the Account Manager.

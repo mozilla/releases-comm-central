@@ -10,23 +10,16 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-cookies";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["content-tab-helpers", "folder-display-helpers"];
+var { open_content_tab_with_url } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var { mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
 var url = collector.addHttpResource("../cookies/html", "cookies");
-
-function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let cth = collector.getModule("content-tab-helpers");
-  cth.installInto(module);
-}
 
 /**
  * Test deleting junk messages with no messages marked as junk.

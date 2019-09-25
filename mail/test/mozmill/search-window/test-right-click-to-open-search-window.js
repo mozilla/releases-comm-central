@@ -4,20 +4,27 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-search-window-helpers.js */
-
-var MODULE_NAME = "test-right-click-to-open-search-window";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "search-window-helpers"];
+var {
+  assert_folders_selected_and_displayed,
+  assert_no_folders_selected,
+  create_folder,
+  enter_folder,
+  select_click_folder,
+  select_no_folders,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_search_window_folder_displayed,
+  close_search_window,
+  open_search_window,
+  open_search_window_from_context_menu,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/SearchWindowHelpers.jsm"
+);
 
 var folderA, folderB;
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let swh = collector.getModule("search-window-helpers");
-  swh.installInto(module);
-
   folderA = create_folder("RightClickToOpenSearchWindowA");
   folderB = create_folder("RightClickToOpenSearchWindowB");
 }

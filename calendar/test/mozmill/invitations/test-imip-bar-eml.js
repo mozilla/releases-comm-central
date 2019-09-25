@@ -6,21 +6,12 @@
  * Test that the IMIP bar behaves properly for eml files.
  */
 
-/* import-globals-from ../../../../mail/test/mozmill/shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "testInvitations";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var { open_message_from_file } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { close_window } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-
-function setupModule(module) {
-  for (let dep of MODULE_REQUIRES) {
-    collector.getModule(dep).installInto(module);
-  }
-}
 
 /**
  * Test that when opening a message containing an event, the IMIP bar shows.

@@ -8,18 +8,19 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-attachment-events";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
 var { select_attachments } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
+var { assert_equals, assert_true, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  add_attachments,
+  close_compose_window,
+  open_compose_new_mail,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
@@ -36,10 +37,6 @@ var kAttachmentRenamed = "attachment-renamed";
 var gPath;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   gPath = os.getFileForPath(__file__);
 }
 

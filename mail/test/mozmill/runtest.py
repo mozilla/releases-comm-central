@@ -71,6 +71,7 @@ def rmtree_onerror(func, path, exc_info):
 
 class ThunderTestProfile(mozprofile.ThunderbirdProfile):
     preferences = {
+        'calendar.icaljs': False,
         # say yes to debug output via dump
         'browser.dom.window.dump.enabled': True,
         # say no to slow script warnings

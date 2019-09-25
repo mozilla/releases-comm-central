@@ -11,18 +11,34 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-dom-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
-
-var MODULE_NAME = "test-display-issues";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "quick-filter-bar-helpers",
-  "dom-helpers",
-];
-
+var { collapse_panes } = ChromeUtils.import(
+  "resource://testing-common/mozmill/DOMHelpers.jsm"
+);
+var {
+  assert_default_window_size,
+  assert_pane_layout,
+  assert_true,
+  be_in_folder,
+  create_folder,
+  gDefaultWindowHeight,
+  gDefaultWindowWidth,
+  kClassicMailLayout,
+  kVerticalMailLayout,
+  mark_action,
+  mc,
+  open_folder_in_new_window,
+  restore_default_window_size,
+  set_pane_layout,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_quick_filter_bar_visible,
+  clear_constraints,
+  toggle_quick_filter_bar,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
+);
 var { close_window, resize_to } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -37,15 +53,11 @@ var gShrunkenWindowWidth = 600;
 var gTodayPane;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   folder = create_folder("QuickFilterBarDisplayIssues");
   be_in_folder(folder);
 
   // Let's check window dimensions so we can enlarge from them.
-  assert_default_window_size();
+  restore_default_window_size();
   assert_true(
     gEnlargedWindowWidth > gDefaultWindowWidth,
     "Main window too large for the test logic"
@@ -168,6 +180,14 @@ function test_buttons_collapse_and_expand_on_spawn_in_vertical_mode() {
   close_window(mc2);
 
   set_pane_layout(kClassicMailLayout);
+}
+
+function teardownTest() {
+  clear_constraints();
+  // make it visible if it's not
+  if (mc.e("quick-filter-bar").collapsed) {
+    toggle_quick_filter_bar();
+  }
 }
 
 function teardownModule() {

@@ -9,19 +9,31 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-charset-edit";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var {
+  close_compose_window,
+  open_compose_with_reply,
+  wait_for_compose_window,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  add_message_to_folder,
+  assert_equals,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_message,
+  get_special_folder,
+  mc,
+  press_delete,
+  select_click_row,
+  SyntheticPartLeaf,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
@@ -38,10 +50,6 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var gDrafts;
 
 function setupModule(module) {
-  for (let req of MODULE_REQUIRES) {
-    collector.getModule(req).installInto(module);
-  }
-
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,

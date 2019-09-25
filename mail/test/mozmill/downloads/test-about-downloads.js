@@ -8,31 +8,37 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-dom-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-about-downloads";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "content-tab-helpers",
-  "dom-helpers",
-  "folder-display-helpers",
-];
-
 var elementslib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
-);
-
-var { wait_for_browser_load } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
+var { content_tab_e, content_tab_eid } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var {
+  assert_equals,
+  assert_false,
+  assert_not_equals,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  select_click_row,
+  switch_tab,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { wait_for_browser_load } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var downloads = ChromeUtils.import("resource://gre/modules/Downloads.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var downloadsTab;
 
@@ -121,9 +127,6 @@ function prepare_downloads_view() {
 }
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
   gMockFilePickReg.register();
 
   prepare_messages();

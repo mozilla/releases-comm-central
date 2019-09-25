@@ -8,18 +8,35 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-deletion-from-virtual-folders";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var {
+  assert_messages_in_view,
+  assert_selected_and_displayed,
+  assert_tab_titled_from,
+  be_in_folder,
+  create_folder,
+  get_smart_folder_named,
+  inboxFolder,
+  make_new_sets_in_folder,
+  mc,
+  open_selected_message_in_new_tab,
+  open_selected_message_in_new_window,
+  press_delete,
+  select_click_row,
+  switch_tab,
+  wait_for_all_messages_to_load,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   plan_for_modal_dialog,
   plan_for_window_close,
   wait_for_modal_dialog,
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+
+var { MailViewConstants } = ChromeUtils.import(
+  "resource:///modules/MailViewManager.jsm"
+);
 
 var baseFolder, folder, lastMessageFolder;
 
@@ -33,9 +50,6 @@ var setNormal;
 var msgc;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   baseFolder = create_folder("DeletionFromVirtualFoldersA");
   // For setTagged, we want exactly as many messages as we plan to delete, so
   // that we can test that the message window and tabs close when they run out

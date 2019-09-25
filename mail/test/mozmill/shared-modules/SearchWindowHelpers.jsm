@@ -4,31 +4,21 @@
 
 "use strict";
 
-var MODULE_NAME = "search-window-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "open_search_window",
+  "open_search_window_from_context_menu",
+  "close_search_window",
+  "assert_search_window_folder_displayed",
+];
 
+var folderDisplayHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var folderDisplayHelper;
-var mc;
-
-function setupModule() {
-  folderDisplayHelper = collector.getModule("folder-display-helpers");
-  mc = folderDisplayHelper.mc;
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.open_search_window = open_search_window;
-  module.open_search_window_from_context_menu = open_search_window_from_context_menu;
-  module.close_search_window = close_search_window;
-  module.assert_search_window_folder_displayed = assert_search_window_folder_displayed;
-}
+var mc = folderDisplayHelper.mc;
 
 /**
  * Open a search window using the accel-shift-f shortcut.

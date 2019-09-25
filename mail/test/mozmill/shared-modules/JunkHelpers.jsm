@@ -4,34 +4,21 @@
 
 "use strict";
 
-var MODULE_NAME = "junk-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "mark_selected_messages_as_junk",
+  "delete_mail_marked_as_junk",
+];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
-var folderDisplayHelper;
-var mc;
-
-// logHelper (and therefore folderDisplayHelper) exports
-var mark_failure;
-
-function setupModule() {
-  folderDisplayHelper = collector.getModule("folder-display-helpers");
-  mc = folderDisplayHelper.mc;
-  mark_failure = folderDisplayHelper.mark_failure;
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.mark_selected_messages_as_junk = mark_selected_messages_as_junk;
-  module.delete_mail_marked_as_junk = delete_mail_marked_as_junk;
-}
+var folderDisplayHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var mc = folderDisplayHelper.mc;
+var mark_failure = folderDisplayHelper.mark_failure;
 
 /**
  * Mark the selected messages as junk. This is done by pressing the J key.

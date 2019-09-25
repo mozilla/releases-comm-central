@@ -8,15 +8,23 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-blocked-content";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var {
+  get_msg_source,
+  open_compose_new_mail,
+  setup_msg_contents,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  assert_false,
+  assert_true,
+  be_in_folder,
+  get_special_folder,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
@@ -36,9 +44,6 @@ var kBoxId = "compose-notification-bottom";
 var kNotificationId = "blockedContent";
 
 function setupModule(module) {
-  for (let req of MODULE_REQUIRES) {
-    collector.getModule(req).installInto(module);
-  }
   gOutboxFolder = get_special_folder(Ci.nsMsgFolderFlags.Queue);
 }
 

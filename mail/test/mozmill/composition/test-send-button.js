@@ -8,22 +8,36 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-send-button";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "address-book-helpers",
-];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var {
+  create_contact,
+  create_mailing_list,
+  load_contacts_into_address_book,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var {
+  assert_equals,
+  assert_false,
+  assert_true,
+  be_in_folder,
+  click_tree_row,
+  FAKE_SERVER_HOSTNAME,
+  get_special_folder,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  clear_recipient,
+  close_compose_window,
+  open_compose_new_mail,
+  setup_msg_contents,
+  toggle_recipient_type,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { wait_for_frame_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -31,14 +45,13 @@ var { wait_for_frame_load } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var account = null;
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("compose-helpers").installInto(module);
-  collector.getModule("address-book-helpers").installInto(module);
-
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
   let server = MailServices.accounts.FindServer(

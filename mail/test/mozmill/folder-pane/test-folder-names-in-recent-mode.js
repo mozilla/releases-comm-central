@@ -8,19 +8,24 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var {
+  assert_folder_at_index_as,
+  assert_folder_mode,
+  assert_folder_tree_view_row_count,
+  make_new_sets_in_folder,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
-var MODULE_NAME = "test-folder-names-in-recent-mode";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-
   assert_folder_mode("all");
   assert_folder_tree_view_row_count(7);
 }

@@ -6,14 +6,15 @@
  * Tests iteratorUtils with items pulled from content into chrome.
  */
 
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-iteratorUtils";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
+var { open_content_tab_with_url } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var { assert_equals, close_tab } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var iteratorUtils = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var kWhatsNewPref = "mailnews.start_page.override_url";
 
@@ -22,9 +23,6 @@ var gCollectionsUrl = gUrl + "collections.html";
 var gOriginalWhatsNew, gTab;
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("content-tab-helpers").installInto(module);
-
   gOriginalWhatsNew = Services.prefs.getCharPref(kWhatsNewPref);
   Services.prefs.setCharPref(kWhatsNewPref, gCollectionsUrl);
 }

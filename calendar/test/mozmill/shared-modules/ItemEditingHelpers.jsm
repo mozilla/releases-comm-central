@@ -2,32 +2,43 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "item-editing-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
+this.EXPORTED_SYMBOLS = [
+  "CATEGORY_LIST",
+  "REPEAT_DETAILS",
+  "EVENT_TABPANELS",
+  "DESCRIPTION_TEXTBOX",
+  "ATTENDEES_ROW",
+  "PERCENT_COMPLETE_INPUT",
+  "DATE_INPUT",
+  "TIME_INPUT",
+  "REC_DLG_ACCEPT",
+  "REC_DLG_DAYS",
+  "REC_DLG_UNTIL_INPUT",
+  "helpersForEditUI",
+  "setData",
+  "setReminderMenulist",
+  "setCategories",
+  "handleAddingAttachment",
+  "setTimezone",
+];
 
+var elementslib = ChromeUtils.import("chrome://mozmill/content/modules/elementslib.jsm");
+
+var {
+  helpersForController,
+  menulistSelect,
+  SHORT_SLEEP,
+  TIMEOUT_MODAL_DIALOG,
+} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+var { mark_failure } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { augment_controller, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
-var SHORT_SLEEP, TIMEOUT_MODAL_DIALOG;
-var helpersForController, menulistSelect;
-var mark_failure;
-
-function setupModule(module) {
-  controller = mozmill.getMail3PaneController();
-  ({
-    SHORT_SLEEP,
-    TIMEOUT_MODAL_DIALOG,
-    helpersForController,
-    menulistSelect,
-  } = collector.getModule("calendar-utils"));
-  Object.assign(module, helpersForController(controller));
-
-  ({ mark_failure } = collector.getModule("folder-display-helpers"));
-}
 // Lookup paths and path-snippets.
 // These 5 have to be used with itemEditLookup().
 var CATEGORY_LIST = `
@@ -77,28 +88,6 @@ var REC_DLG_UNTIL_INPUT = `
     id("recurrence-duration")/id("recurrence-range-until-box")/id("repeat-until-date")/
     anon({"class":"datepicker-menulist"})/{"class":"menulist-input"}
 `;
-
-function installInto(module) {
-  // Copy constants into module.
-  module.CATEGORY_LIST = CATEGORY_LIST;
-  module.REPEAT_DETAILS = REPEAT_DETAILS;
-  module.EVENT_TABPANELS = EVENT_TABPANELS;
-  module.DESCRIPTION_TEXTBOX = DESCRIPTION_TEXTBOX;
-  module.ATTENDEES_ROW = ATTENDEES_ROW;
-  module.PERCENT_COMPLETE_INPUT = PERCENT_COMPLETE_INPUT;
-  module.DATE_INPUT = DATE_INPUT;
-  module.TIME_INPUT = TIME_INPUT;
-  module.REC_DLG_ACCEPT = REC_DLG_ACCEPT;
-  module.REC_DLG_DAYS = REC_DLG_DAYS;
-  module.REC_DLG_UNTIL_INPUT = REC_DLG_UNTIL_INPUT;
-  // Now copy helper functions.
-  module.helpersForEditUI = helpersForEditUI;
-  module.setData = setData;
-  module.setReminderMenulist = setReminderMenulist;
-  module.setCategories = setCategories;
-  module.handleAddingAttachment = handleAddingAttachment;
-  module.setTimezone = setTimezone;
-}
 
 function helpersForEditUI(controller) {
   function selector(sel) {

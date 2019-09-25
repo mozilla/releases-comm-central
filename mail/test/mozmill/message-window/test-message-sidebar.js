@@ -4,16 +4,9 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-message-sidebar";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
-var setupModule = function(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-};
+var { mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 function test_messagepane_extension_points_exist() {
   mc.assertNode(mc.eid("messagepanewrapper"));

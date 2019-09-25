@@ -8,19 +8,25 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var {
+  click_account_tree_row,
+  get_account_tree_row,
+  open_advanced_settings,
+  remove_account,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+);
+var { assert_equals, assert_false, assert_true } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
-var MODULE_NAME = "test-account-tree";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "account-manager-helpers"];
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gPopAccount, gOriginalAccountCount;
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("account-manager-helpers").installInto(module);
-
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 

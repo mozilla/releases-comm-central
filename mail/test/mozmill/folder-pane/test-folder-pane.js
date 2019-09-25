@@ -10,20 +10,24 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-folder-pane";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  FAKE_SERVER_HOSTNAME,
+  assert_folder_mode,
+  assert_folder_tree_view_row_count,
+  be_in_folder,
+  collapse_folder,
+  create_folder,
+  enter_folder,
+  expand_folder,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-
-function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-}
 
 /**
  * Assert the Folder Pane is in All Folder mode by default.  Check that the

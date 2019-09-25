@@ -9,18 +9,29 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-folder-toolbar";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  add_to_toolbar,
+  assert_equals,
+  assert_folder_selected_and_displayed,
+  assert_nothing_selected,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  open_folder_in_new_tab,
+  open_selected_message_in_new_tab,
+  remove_from_toolbar,
+  select_click_row,
+  switch_tab,
+  wait_for_blank_content_pane,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folderA, folderB;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folderA = create_folder("FolderToolbarA");
   // we need one message to select and open
   folderB = create_folder("FolderToolbarB");

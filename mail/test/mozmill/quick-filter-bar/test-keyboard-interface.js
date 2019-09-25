@@ -11,21 +11,30 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
-
-var MODULE_NAME = "test-keyboard-interface";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "quick-filter-bar-helpers"];
+var {
+  be_in_folder,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_constraints_expressed,
+  assert_filter_text,
+  assert_quick_filter_bar_visible,
+  clear_constraints,
+  set_filter_text,
+  toggle_boolean_constraints,
+  toggle_quick_filter_bar,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
+);
 
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let qfb = collector.getModule("quick-filter-bar-helpers");
-  qfb.installInto(module);
-
   folder = create_folder("QuickFilterBarKeyboardInterface");
   // we need a message so we can select it so we can find in message
   make_new_sets_in_folder(folder, [{ count: 1 }]);
@@ -170,4 +179,12 @@ function test_control_shift_k_shows_quick_filter_bar() {
   // filter bar.
   mc.keypress(null, "VK_ESCAPE", {});
   assert_quick_filter_bar_visible(false);
+}
+
+function teardownTest() {
+  clear_constraints();
+  // make it visible if it's not
+  if (mc.e("quick-filter-bar").collapsed) {
+    toggle_quick_filter_bar();
+  }
 }

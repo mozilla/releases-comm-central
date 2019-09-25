@@ -4,24 +4,27 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-junk-helpers.js */
-
-var MODULE_NAME = "test-junk-commands";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "junk-helpers"];
-
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+
+var {
+  be_in_folder,
+  create_folder,
+  make_new_sets_in_folder,
+  select_click_row,
+  select_none,
+  select_shift_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  delete_mail_marked_as_junk,
+  mark_selected_messages_as_junk,
+} = ChromeUtils.import("resource://testing-common/mozmill/JunkHelpers.jsm");
 
 // One folder's enough
 var folder = null;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let jh = collector.getModule("junk-helpers");
-  jh.installInto(module);
-
   folder = create_folder("JunkCommandsA");
   make_new_sets_in_folder(folder, [{ count: 30 }]);
 }

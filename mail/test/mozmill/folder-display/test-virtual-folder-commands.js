@@ -8,20 +8,24 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-virtual-folder-commands";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_true,
+  be_in_folder,
+  expand_all_threads,
+  make_display_threaded,
+  make_folder_with_sets,
+  make_virtual_folder,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var msgsPerThread = 5;
 var singleVirtFolder;
 var multiVirtFolder;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   let [folderOne] = make_folder_with_sets([{ msgsPerThread }]);
   let [folderTwo] = make_folder_with_sets([{ msgsPerThread }]);
 

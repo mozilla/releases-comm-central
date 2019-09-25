@@ -8,13 +8,6 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-attachment";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
@@ -22,6 +15,33 @@ var EventUtils = ChromeUtils.import(
   "chrome://mozmill/content/stdlib/EventUtils.jsm"
 );
 
+var { close_compose_window, open_compose_with_forward } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var {
+  add_message_to_folder,
+  assert_attachment_list_focused,
+  assert_equals,
+  assert_message_pane_focused,
+  assert_selected_and_displayed,
+  assert_true,
+  be_in_folder,
+  close_popup,
+  create_folder,
+  create_message,
+  mc,
+  msgGen,
+  plan_to_wait_for_folder_events,
+  select_click_row,
+  select_none,
+  SyntheticPartLeaf,
+  SyntheticPartMultiMixed,
+  wait_for_folder_events,
+  wait_for_message_display_completion,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   close_window,
   plan_for_modal_dialog,
@@ -47,10 +67,6 @@ var textAttachment =
 var binaryAttachment = textAttachment;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   folder = create_folder("AttachmentA");
 
   var attachedMessage = msgGen.makeMessage({

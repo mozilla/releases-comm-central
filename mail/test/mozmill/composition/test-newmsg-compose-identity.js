@@ -9,13 +9,21 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-newmsg-compose-identity";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
+var {
+  close_compose_window,
+  open_compose_new_mail,
+  wait_for_compose_window,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  assert_equals,
+  be_in_folder,
+  get_special_folder,
+  mc,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -23,6 +31,7 @@ var { plan_for_new_window } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gInbox;
 var gDrafts;
@@ -41,10 +50,6 @@ var identity3Label = "Label Z";
 var identityKey4;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   // Now set up an account with some identities.
   let acctMgr = MailServices.accounts;
   account = acctMgr.createAccount();

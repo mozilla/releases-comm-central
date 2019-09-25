@@ -9,17 +9,41 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-search-window-helpers.js */
-
-var MODULE_NAME = "test-search-window";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "search-window-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var {
+  assert_messages_in_view,
+  assert_number_of_tabs_open,
+  assert_selected_and_displayed,
+  assert_tab_mode_name,
+  assert_tab_titled_from,
+  be_in_folder,
+  close_message_window,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  open_selected_message,
+  open_selected_messages,
+  plan_for_message_display,
+  reset_open_message_behavior,
+  select_click_row,
+  select_shift_click_row,
+  set_open_message_behavior,
+  switch_tab,
+  wait_for_all_messages_to_load,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_search_window_folder_displayed,
+  open_search_window,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/SearchWindowHelpers.jsm"
+);
 var {
   plan_for_modal_dialog,
   plan_for_new_window,
@@ -28,13 +52,6 @@ var {
   wait_for_new_window,
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-
-function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let sh = collector.getModule("search-window-helpers");
-  sh.installInto(module);
-}
 
 var folder, setFoo, setBar, setFooBar;
 

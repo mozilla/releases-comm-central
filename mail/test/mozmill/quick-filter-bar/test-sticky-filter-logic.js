@@ -9,19 +9,29 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
-
-var MODULE_NAME = "test-sticky-filter-logic";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "quick-filter-bar-helpers"];
-
-function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let qfb = collector.getModule("quick-filter-bar-helpers");
-  qfb.installInto(module);
-}
+var {
+  assert_messages_in_view,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  open_folder_in_new_tab,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_constraints_expressed,
+  assert_filter_text,
+  assert_tag_constraints_visible,
+  clear_constraints,
+  set_filter_text,
+  toggle_boolean_constraints,
+  toggle_quick_filter_bar,
+  toggle_tag_constraints,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
+);
 
 /**
  * Persist the current settings through folder change and inherit into a new tab.
@@ -130,4 +140,12 @@ function test_sticky_text() {
 
   be_in_folder(folderTwo);
   assert_filter_text("foo");
+}
+
+function teardownTest() {
+  clear_constraints();
+  // make it visible if it's not
+  if (mc.e("quick-filter-bar").collapsed) {
+    toggle_quick_filter_bar();
+  }
 }

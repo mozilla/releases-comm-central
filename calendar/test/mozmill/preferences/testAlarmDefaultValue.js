@@ -6,10 +6,6 @@
  * Test default alarm settings for events and tasks
  */
 
-var MODULE_NAME = "testAlarmDefaultValue";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "content-tab-helpers"];
-
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -34,11 +30,11 @@ function setupModule(module) {
     openLightningPrefs,
     closeLightningPrefs,
     menulistSelect,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
 
-  ({ content_tab_e, content_tab_eid } = collector.getModule("content-tab-helpers"));
-  collector.getModule("content-tab-helpers").setupModule();
+  ({ content_tab_e, content_tab_eid } = ChromeUtils.import(
+    "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+  ));
 }
 
 function testDefaultAlarms() {

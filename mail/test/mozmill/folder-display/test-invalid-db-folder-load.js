@@ -10,19 +10,22 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-invalid-db-folder-load";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_messages_in_view,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder;
 var setA;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("InvalidMSF");
   [setA] = make_new_sets_in_folder(folder, [{ count: 3 }]);
 }

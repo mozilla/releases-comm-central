@@ -8,18 +8,27 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-watch-ignore-thread";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  add_sets_to_folders,
+  assert_not_shown,
+  assert_selected_and_displayed,
+  assert_visible,
+  be_in_folder,
+  create_folder,
+  create_thread,
+  expand_all_threads,
+  inboxFolder,
+  make_display_threaded,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder;
 var thread1, thread2, thread3;
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-
   folder = create_folder("WatchIgnoreThreadTest");
   thread1 = create_thread(3);
   thread2 = create_thread(4);

@@ -9,20 +9,18 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-pref-window-helpers.js */
-
-var MODULE_NAME = "test-cloudfile-manager";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "pref-window-helpers",
-  "content-tab-helpers",
-  "cloudfile-helpers",
-];
-
+var { gMockCloudfileManager } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+);
+var { content_tab_e, gMockExtProtSvc, gMockExtProtSvcReg } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var { assert_equals, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
+  "resource://testing-common/mozmill/PrefTabHelpers.jsm"
+);
 var { wait_for_frame_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -34,10 +32,6 @@ var kRootURL = collector.addHttpResource("../cloudfile/html", "");
 var kSettingsWithLink = kRootURL + "settings-with-link.xhtml";
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   gMockCloudfileManager.register(kTestAccountType, {
     managementURL: kSettingsWithLink,
   });

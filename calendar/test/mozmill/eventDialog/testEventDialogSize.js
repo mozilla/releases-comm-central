@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testEventDialogSize";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
-
 var helpersForController, invokeEventDialog, createCalendar, closeAllEventDialogs, deleteCalendars;
 var CALENDARNAME;
 
@@ -23,8 +19,7 @@ function setupModule(module) {
     closeAllEventDialogs,
     deleteCalendars,
     CALENDARNAME,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
   Object.assign(module, helpersForController(controller));
 
   createCalendar(controller, CALENDARNAME);

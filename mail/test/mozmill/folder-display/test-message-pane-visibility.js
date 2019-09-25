@@ -9,18 +9,26 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-message-pane-visibility";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_message_pane_hidden,
+  assert_message_pane_visible,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  open_folder_in_new_tab,
+  open_selected_message_in_new_tab,
+  select_click_row,
+  switch_tab,
+  toggle_message_pane,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("MessagePaneVisibility");
   make_new_sets_in_folder(folder, [{ count: 3 }]);
 }

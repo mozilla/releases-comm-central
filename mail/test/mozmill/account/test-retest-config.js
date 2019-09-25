@@ -4,17 +4,16 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-retest-config";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "account-manager-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var { open_mail_account_setup_wizard } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+);
+var { assert_true, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -31,9 +30,6 @@ var user = {
 };
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
   Services.prefs.setCharPref("mail.wizard.logging.dump", "All");
 
   let url = collector.addHttpResource("../account/xml", "accountconfig");

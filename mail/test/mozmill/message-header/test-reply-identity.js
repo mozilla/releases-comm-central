@@ -8,12 +8,23 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var { close_compose_window, open_compose_with_reply } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var {
+  add_message_to_folder,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
-var MODULE_NAME = "test-reply-identity";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var testFolder = null;
 
@@ -21,10 +32,6 @@ var identity1Email = "carl@example.com";
 var identity2Email = "lenny@springfield.invalid";
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   addIdentitiesAndFolder();
   // Msg #0
   add_message_to_folder(

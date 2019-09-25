@@ -9,18 +9,34 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-right-click-middle-click-folders";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_folder_displayed,
+  assert_folder_selected,
+  assert_folder_selected_and_displayed,
+  assert_folders_selected_and_displayed,
+  assert_no_folders_selected,
+  assert_selected_tab,
+  be_in_folder,
+  close_popup,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  middle_click_on_folder,
+  reset_context_menu_background_tabs,
+  right_click_on_folder,
+  select_click_folder,
+  select_no_folders,
+  select_shift_click_folder,
+  set_context_menu_background_tabs,
+  switch_tab,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folderA, folderB, folderC;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folderA = create_folder("RightClickMiddleClickFoldersA");
   folderB = create_folder("RightClickMiddleClickFoldersB");
   folderC = create_folder("RightClickMiddleClickFoldersC");

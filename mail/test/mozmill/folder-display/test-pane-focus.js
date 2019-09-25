@@ -8,18 +8,30 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var {
+  add_sets_to_folders,
+  assert_equals,
+  be_in_folder,
+  close_tab,
+  collapse_all_threads,
+  create_folder,
+  create_thread,
+  make_display_threaded,
+  mc,
+  open_selected_message_in_new_tab,
+  press_delete,
+  select_click_row,
+  select_none,
+  switch_tab,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
-var MODULE_NAME = "test-pane-focus";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("PaneFocus");
   let msg1 = create_thread(1);
   let thread = create_thread(3);

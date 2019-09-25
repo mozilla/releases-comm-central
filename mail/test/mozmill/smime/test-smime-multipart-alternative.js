@@ -10,32 +10,38 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-window-helpers.js */
+var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
-var MODULE_NAME = "test-smime-multipart-alternative";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "window-helpers",
-];
+var {
+  close_compose_window,
+  get_msg_source,
+  open_compose_with_reply,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  assert_false,
+  be_in_folder,
+  get_special_folder,
+  open_message_from_file,
+  press_delete,
+  select_click_row,
+  smimeUtils_ensureNSS,
+  smimeUtils_loadCertificateAndKey,
+  smimeUtils_loadPEMCertificate,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { close_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-
 var gDrafts;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", true);

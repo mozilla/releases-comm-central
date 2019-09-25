@@ -9,12 +9,20 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-display-names";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers"];
+var { ensure_card_exists, ensure_no_card_exists } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var {
+  add_message_to_folder,
+  assert_true,
+  be_in_folder,
+  create_folder,
+  create_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -32,11 +40,6 @@ var headertoFieldMe;
 var collectedAddresses;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let abh = collector.getModule("address-book-helpers");
-  abh.installInto(module);
-
   localAccount = MailServices.accounts.FindAccountForServer(
     MailServices.accounts.localFoldersServer
   );

@@ -8,12 +8,17 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-return-receipt";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var {
+  add_message_to_folder,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_folder,
+  create_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { assert_notification_displayed } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
@@ -24,8 +29,6 @@ var kBoxId = "mail-notification-top";
 var kNotificationValue = "mdnRequested";
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-
   folder = create_folder("ReturnReceiptTest");
 
   // Create a message that requests a return receipt.

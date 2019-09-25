@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testLocalICS";
-var RELATIVE_ROOT = "./shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
-
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -30,13 +26,10 @@ function setupModule(module) {
     invokeEventDialog,
     deleteCalendars,
     handleNewCalendarWizard,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
   Object.assign(module, helpersForController(controller));
 
-  ({ setData } = collector.getModule("item-editing-helpers"));
-  collector.getModule("item-editing-helpers").setupModule(module);
-
+  ({ setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm"));
   // Unique name needed as deleting a calendar only unsubscribes from it and
   // if same file were used on next testrun then previously created event
   // would show up.

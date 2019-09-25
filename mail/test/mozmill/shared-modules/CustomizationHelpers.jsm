@@ -4,33 +4,22 @@
 
 "use strict";
 
-var MODULE_NAME = "customization-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = ["CustomizeDialogHelper"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var fdh = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var USE_SHEET_PREF = "toolbar.customization.usesheet";
-
-var fdh;
-
-function setupModule() {
-  fdh = collector.getModule("folder-display-helpers");
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.CustomizeDialogHelper = CustomizeDialogHelper;
-}
 
 /**
  * Initialize the help for a customization dialog

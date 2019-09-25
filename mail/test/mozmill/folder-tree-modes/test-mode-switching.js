@@ -10,14 +10,21 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-mode-switching";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_equals,
+  assert_folder_not_visible,
+  assert_folder_visible,
+  assert_true,
+  inboxFolder,
+  make_new_sets_in_folder,
+  mc,
+  select_no_folders,
+  toggle_main_menu,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var rootFolder;
-var inboxFolder;
 var unreadFolder;
 var favoriteFolder;
 var toggle_menu;
@@ -32,10 +39,6 @@ var appmenu_mainView;
 var menu_state;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   rootFolder = inboxFolder.server.rootFolder;
 
   // Create one folder with unread messages and one favorite folder.

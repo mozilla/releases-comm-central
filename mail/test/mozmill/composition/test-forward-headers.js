@@ -9,13 +9,27 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-forward-headers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
+var {
+  assert_previous_text,
+  get_compose_body,
+  open_compose_with_forward,
+  open_compose_with_forward_as_attachments,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  add_sets_to_folders,
+  assert_equals,
+  assert_true,
+  be_in_folder,
+  create_folder,
+  create_thread,
+  get_special_folder,
+  mc,
+  press_delete,
+  select_click_row,
+  select_shift_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { to_mime_message } = ChromeUtils.import(
   "resource://testing-common/mozmill/MessageHelpers.jsm"
 );
@@ -33,11 +47,6 @@ var folder;
 var gDrafts;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let composeHelper = collector.getModule("compose-helpers");
-  composeHelper.installInto(module);
-
   folder = create_folder("Test");
   let thread1 = create_thread(10);
   add_sets_to_folders([folder], [thread1]);

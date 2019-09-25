@@ -9,18 +9,28 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var composeHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var { open_content_tab_with_url } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
 
-var MODULE_NAME = "test-plugins-policy";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "content-tab-helpers",
-];
-
+var {
+  assert_nothing_selected,
+  assert_selected_and_displayed,
+  be_in_folder,
+  close_message_window,
+  create_folder,
+  mc,
+  open_selected_message,
+  select_click_row,
+  select_none,
+  set_open_message_behavior,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -28,7 +38,6 @@ var { plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder = null;
-var composeHelper = null;
 var gMsgNo = 0;
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
@@ -48,13 +57,6 @@ var msgBody =
   "</body>\n</html>\n";
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  composeHelper = collector.getModule("compose-helpers");
-  composeHelper.installInto(module);
-  let cth = collector.getModule("content-tab-helpers");
-  cth.installInto(module);
-
   folder = create_folder("pluginPolicy");
 }
 

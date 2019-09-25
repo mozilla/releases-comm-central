@@ -9,22 +9,43 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-dom-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-message-header";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "address-book-helpers",
-  "dom-helpers",
-];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var {
+  create_address_book,
+  create_mailing_list,
+  ensure_no_card_exists,
+  get_cards_in_all_address_books_for_email,
+  get_mailing_list_from_address_book,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+
+var {
+  add_message_to_folder,
+  assert_equals,
+  assert_not_equals,
+  assert_selected_and_displayed,
+  assert_true,
+  be_in_folder,
+  close_popup,
+  create_folder,
+  create_message,
+  gDefaultWindowHeight,
+  mc,
+  msgGen,
+  restore_default_window_size,
+  select_click_row,
+  wait_for_message_display_completion,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { collapse_panes, element_visible_recursive } = ChromeUtils.import(
+  "resource://testing-common/mozmill/DOMHelpers.jsm"
+);
 var { resize_to } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -43,10 +64,6 @@ var gInterestingMessage;
 const getElement = (elem, query) => new elib.Elem(elem.querySelector(query));
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   folder = create_folder("MessageWindowA");
   folderMore = create_folder("MesageHeaderMoreButton");
 

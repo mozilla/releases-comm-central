@@ -9,20 +9,24 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-exposed-in-content-tabs";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "content-tab-helpers",
-];
+var composeHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var { open_content_tab_with_url } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var {
+  assert_nothing_selected,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_folder,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder = null;
-var composeHelper = null;
 var gMsgNo = 0;
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
@@ -44,13 +48,6 @@ var msgBody =
   "</body>\n</html>\n";
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  composeHelper = collector.getModule("compose-helpers");
-  composeHelper.installInto(module);
-  let cth = collector.getModule("content-tab-helpers");
-  cth.installInto(module);
-
   folder = create_folder("exposedInContent");
 }
 

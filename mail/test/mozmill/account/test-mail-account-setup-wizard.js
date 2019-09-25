@@ -4,17 +4,19 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-mail-account-setup-wizard";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "account-manager-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var {
+  open_advanced_settings_from_account_wizard,
+  open_mail_account_setup_wizard,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+);
+var { assert_equals, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -34,12 +36,6 @@ var user = {
   incomingHost: "testin.example.com",
   outgoingHost: "testout.example.com",
 };
-
-function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-}
 
 // Remove an account in the Account Manager, but not via the UI.
 function remove_account_internal(amc, aAccount, aOutgoing) {

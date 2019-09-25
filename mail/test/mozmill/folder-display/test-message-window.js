@@ -9,12 +9,21 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-message-window";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var {
+  add_sets_to_folders,
+  assert_selected_and_displayed,
+  assert_true,
+  be_in_folder,
+  create_folder,
+  create_thread,
+  open_selected_message_in_new_window,
+  plan_for_message_display,
+  press_delete,
+  select_click_row,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   plan_for_modal_dialog,
   plan_for_window_close,
@@ -26,9 +35,6 @@ var folderA, folderB;
 var curMessage;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folderA = create_folder("MessageWindowA");
   folderB = create_folder("MessageWindowB");
   // create three messages in the folder to display

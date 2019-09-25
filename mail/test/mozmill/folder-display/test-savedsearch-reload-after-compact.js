@@ -9,16 +9,18 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-savedsearch-reload-after-compact";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
-function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-}
+var {
+  be_in_folder,
+  create_folder,
+  create_virtual_folder,
+  inboxFolder,
+  make_new_sets_in_folder,
+  mc,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 /**
  * Add some messages to a folder, delete the first one, and create a saved

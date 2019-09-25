@@ -10,11 +10,16 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-unread-folders";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_folder_visible,
+  be_in_folder,
+  delete_message_set,
+  inboxFolder,
+  make_new_sets_in_folder,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var rootFolder;
 var inboxSubfolder;
@@ -23,9 +28,6 @@ var trashSubfolder;
 var inboxSet;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   rootFolder = inboxFolder.server.rootFolder;
 
   // Create a folder as a subfolder of the inbox
@@ -87,4 +89,5 @@ function teardownModule() {
   inboxFolder.propagateDelete(inboxSubfolder, true, null);
   delete_message_set(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true, null);
+  mc.folderTreeView.mode = "all";
 }

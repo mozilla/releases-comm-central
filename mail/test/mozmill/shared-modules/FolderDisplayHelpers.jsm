@@ -4,8 +4,157 @@
 
 "use strict";
 
-var MODULE_NAME = "folder-display-helpers";
-var RELATIVE_ROOT = "../shared-modules";
+this.EXPORTED_SYMBOLS = [
+  "add_message_to_folder",
+  "add_sets_to_folders",
+  "add_to_toolbar",
+  "archive_messages",
+  "archive_selected_messages",
+  "assert_attachment_list_focused",
+  "assert_collapsed",
+  "assert_default_window_size",
+  "assert_displayed",
+  "assert_equals",
+  "assert_expanded",
+  "assert_false",
+  "assert_folder_at_index_as",
+  "assert_folder_child_in_view",
+  "assert_folder_collapsed",
+  "assert_folder_displayed",
+  "assert_folder_expanded",
+  "assert_folder_mode",
+  "assert_folder_not_visible",
+  "assert_folder_selected",
+  "assert_folder_selected_and_displayed",
+  "assert_folder_tree_focused",
+  "assert_folder_tree_view_row_count",
+  "assert_folder_visible",
+  "assert_folders_selected",
+  "assert_folders_selected_and_displayed",
+  "assert_mail_view",
+  "assert_message_not_in_view",
+  "assert_message_pane_focused",
+  "assert_message_pane_hidden",
+  "assert_message_pane_visible",
+  "assert_messages_in_view",
+  "assert_messages_not_in_view",
+  "assert_messages_summarized",
+  "assert_multimessage_pane_focused",
+  "assert_no_folders_selected",
+  "assert_not_equals",
+  "assert_not_selected_tab",
+  "assert_not_showing_unread_only",
+  "assert_not_shown",
+  "assert_nothing_selected",
+  "assert_number_of_tabs_open",
+  "assert_pane_layout",
+  "assert_row_visible",
+  "assert_selected",
+  "assert_selected_and_displayed",
+  "assert_selected_tab",
+  "assert_showing_unread_only",
+  "assert_summary_contains_N_elts",
+  "assert_tab_has_title",
+  "assert_tab_mode_name",
+  "assert_tab_titled_from",
+  "assert_thread_tree_focused",
+  "assert_true",
+  "assert_visible",
+  "be_in_folder",
+  "click_tree_row",
+  "close_message_window",
+  "close_popup",
+  "close_tab",
+  "collapse_all_threads",
+  "collapse_folder",
+  "create_encrypted_smime_message",
+  "create_folder",
+  "create_message",
+  "create_thread",
+  "create_virtual_folder",
+  "delete_message_set",
+  "delete_via_popup",
+  "display_message_in_folder_tab",
+  "empty_folder",
+  "enter_folder",
+  "expand_all_threads",
+  "expand_folder",
+  "FAKE_SERVER_HOSTNAME",
+  "focus_folder_tree",
+  "focus_message_pane",
+  "focus_multimessage_pane",
+  "focus_thread_tree",
+  "gDefaultWindowHeight",
+  "gDefaultWindowWidth",
+  "get_smart_folder_named",
+  "get_special_folder",
+  "inboxFolder",
+  "kClassicMailLayout",
+  "kVerticalMailLayout",
+  "kWideMailLayout",
+  "load_via_src_path",
+  "make_display_grouped",
+  "make_display_threaded",
+  "make_display_unthreaded",
+  "make_folder_with_sets",
+  "make_new_sets_in_folder",
+  "make_new_sets_in_folders",
+  "make_virtual_folder",
+  "mark_action",
+  "mc",
+  "middle_click_on_folder",
+  "middle_click_on_row",
+  "msgGen",
+  "open_folder_in_new_tab",
+  "open_folder_in_new_window",
+  "open_message_from_file",
+  "open_selected_message",
+  "open_selected_message_in_new_tab",
+  "open_selected_message_in_new_window",
+  "open_selected_messages",
+  "plan_for_message_display",
+  "plan_to_wait_for_folder_events",
+  "press_delete",
+  "press_enter",
+  "remove_from_toolbar",
+  "reset_close_message_on_delete",
+  "reset_context_menu_background_tabs",
+  "reset_open_message_behavior",
+  "restore_default_window_size",
+  "right_click_on_folder",
+  "right_click_on_row",
+  "select_click_folder",
+  "select_click_row",
+  "select_column_click_row",
+  "select_control_click_row",
+  "select_no_folders",
+  "select_none",
+  "select_shift_click_folder",
+  "select_shift_click_row",
+  "set_close_message_on_delete",
+  "set_context_menu_background_tabs",
+  "set_mail_view",
+  "set_mc",
+  "set_open_message_behavior",
+  "set_pane_layout",
+  "set_show_unread_only",
+  "smimeUtils_ensureNSS",
+  "smimeUtils_loadCertificateAndKey",
+  "smimeUtils_loadPEMCertificate",
+  "switch_tab",
+  "SyntheticPartLeaf",
+  "SyntheticPartMultiMixed",
+  "SyntheticPartMultiRelated",
+  "throw_and_dump_view_state",
+  "toggle_main_menu",
+  "toggle_message_pane",
+  "toggle_thread_row",
+  "wait_for_all_messages_to_load",
+  "wait_for_blank_content_pane",
+  "wait_for_folder_events",
+  "wait_for_message_display_completion",
+  "wait_for_popup_to_open",
+];
 
 var EventUtils = ChromeUtils.import(
   "chrome://mozmill/content/stdlib/EventUtils.jsm"
@@ -30,62 +179,21 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { MailViewManager, MailViewConstants } = ChromeUtils.import(
-  "resource:///modules/MailViewManager.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var FILE_LOAD_PATHS = [
-  "../",
-  "../../",
-  "../../../../mailnews/test/",
-  "../../../../mail/base/test/unit/",
-];
+var FILE_LOAD_PATHS = ["../../mozmill/"];
 
 /**
  * Server hostname as set in runtest.py
  */
 var FAKE_SERVER_HOSTNAME = "tinderbox123";
 
-/**
- * List of keys not to export via installInto; values do not matter, we just
- *  use true.
- */
-var DO_NOT_EXPORT = {
-  // magic globals
-  MODULE_NAME: true,
-  DO_NOT_EXPORT: true,
-  installInto: true,
-  // imported modules
-  controller: true,
-  frame: true,
-  os: true,
-  // useful constants (we do export MailViewConstants)
-  nsMsgViewIndex_None: true,
-  MailConsts: true,
-  // utility functions
-  MailUtils: true,
-  MailViewManager: true,
-  // internal setup functions
-  setupModule: true,
-  setupAccountStuff: true,
-  // we export this separately
-  teardownImporter: true,
-  // internal setup flags
-  initialized: false,
-  // other libraries we use
-  testHelperModule: true,
-  windowHelper: true,
-};
-
-var EXPORT_VIA_GETTER_SETTER = {
-  // These should be getters and setters instead of direct property accesses so
-  // that setting them reflects across scopes.
-  mc: true,
-};
-
 /** The controller for the main 3-pane window. */
 var mc;
+function set_mc(value) {
+  mc = value;
+}
+
 /** the index of the current 'other' tab */
 var otherTab;
 
@@ -272,6 +380,7 @@ function setupModule() {
     mc.folderTreeView.toggleOpenState(1);
   } catch (ex) {}
 }
+setupModule();
 
 function smimeUtils_ensureNSS() {
   testHelperModule.SmimeUtils.ensureNSS();
@@ -285,133 +394,8 @@ function smimeUtils_loadCertificateAndKey(file) {
   testHelperModule.SmimeUtils.loadCertificateAndKey(file);
 }
 
-/**
- * Install this module into the provided module.
- */
-function installInto(module) {
-  setupModule();
-
-  // Force the window to be a nice size we all can love.
-  // Note that we can't resize a window larger than the display it lives on!
-  // (I think the inner window is actually limited to the display size, so since
-  // resizeTo operates on outerWidth/outerHeight, their limit is actually
-  // screen size + window border size.)
-  if (
-    mc.window.outerWidth != gDefaultWindowWidth ||
-    mc.window.outerHeight != gDefaultWindowHeight
-  ) {
-    restore_default_window_size();
-  }
-
-  // now copy everything into the module they provided to us...
-  let us = collector.getModule("folder-display-helpers");
-  let self = this;
-  for (let key in us) {
-    let value = us[key];
-    if (key in EXPORT_VIA_GETTER_SETTER) {
-      // The value of |key| changes between iterations, so it's important to
-      // capture the right key in a local variable.
-      let thisKey = key;
-      module.__defineGetter__(thisKey, () => self[thisKey]);
-      module.__defineSetter__(thisKey, function(aNewValue) {
-        self[thisKey] = aNewValue;
-      });
-    } else if (!(key in DO_NOT_EXPORT) && key[0] != "_") {
-      module[key] = value;
-    }
-  }
-
-  // Export the teardown helper
-  let customTeardown = null;
-  // Mozmill uses __teardownModule__ to store what it thinks is the
-  // teardownModule function. Unfortunately, all this is figured out when the
-  // file is loaded, and we're evaluated much too late for that, so overwrite
-  // it.
-  if ("__teardownModule__" in module) {
-    customTeardown = module.__teardownModule__;
-  }
-  module.__teardownModule__ = teardownImporter(customTeardown);
-}
-
 function setupAccountStuff() {
   inboxFolder = testHelperModule.configure_message_injection({ mode: "local" });
-}
-
-/**
- * This returns a function that cleans up state in case any tests have failed,
- * so that the chain of failures isn't propagated to the rest of the suite. We
- * attempt to guarantee that after the teardown is executed:
- * - exactly one 3-pane window is open, and its controller is assigned to |mc|
- * - there are no other windows open
- * - the 3-pane window has exactly one tab open -- the main 3-pane tab
- * - the folder mode is set to All Folders
- *
- * @param [customTeardown] A custom teardown function, if it's already been
- *     defined in a particular module. This will always be executed before any
- *     cleanup we perform.
- */
-function teardownImporter(customTeardown) {
-  let teardownModule = function teardownModule() {
-    if (customTeardown) {
-      customTeardown();
-    }
-
-    // - If there are no 3-pane windows open, open one.
-    let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-    if (!mail3PaneWindow) {
-      windowHelper.plan_for_new_window("mail:3pane");
-      Services.ww.openWindow(
-        null,
-        "chrome://messenger/content/",
-        "",
-        "all,chrome,dialog=no,status,toolbar",
-        null
-      );
-      mc = windowHelper.wait_for_new_window("mail:3pane");
-    } else if (!mc || mc.window.closed) {
-      // - We might have a window open, but not be assigned to mc -- so if
-      //   mc.window.closed is true, look for a window to assign to mc.
-      mc = windowHelper.wait_for_existing_window("mail:3pane");
-    }
-
-    // Run through all open windows, closing any that aren't assigned to mc.
-    let enumerator = Services.wm.getEnumerator(null);
-    while (enumerator.hasMoreElements()) {
-      let win = enumerator.getNext();
-      if (win != mc.window) {
-        mark_action("fdh", "teardown", [
-          "cleanup closing non-mc window",
-          win.toString(),
-          "window type",
-          windowHelper.getWindowTypeForXulWindow(win),
-        ]);
-        win.close();
-      }
-    }
-
-    // At this point we should have exactly one window open.
-    // - Close all tabs other than the first one.
-    mc.tabmail.closeOtherTabs(mc.tabmail.tabInfo[0]);
-
-    // - Set the mode to All Folders.
-    if (mc.folderTreeView.mode != "all") {
-      mark_action("fdh", "teardown", [
-        "resetting folderTreeView mode",
-        mc.folderTreeView.mode,
-      ]);
-      mc.folderTreeView.mode = "all";
-    }
-
-    // - Make sure the message pane is visible.
-    if (mc.window.IsMessagePaneCollapsed()) {
-      mark_action("fdh", "teardown", ["toggling message pane on again"]);
-      mc.window.MsgToggleMessagePane();
-    }
-  };
-  // Another internal mozmill thing, again figured out too early for it to have
-  // a chance.
-  teardownModule.__name__ = "teardownModule";
-  return teardownModule;
 }
 
 /*
@@ -3464,10 +3448,18 @@ var SyntheticPartMultiRelated;
  * @return An object that serves as the global scope for the loaded file.
  */
 function load_via_src_path(aPath, aModule) {
-  let thisFilePath = os.getFileForPath(__file__);
+  let thisFileURL = Cc["@mozilla.org/network/protocol;1?name=resource"]
+    .getService(Ci.nsIResProtocolHandler)
+    .resolveURI(
+      Services.io.newURI(
+        "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+      )
+    );
+  let thisFile = Services.io.newURI(thisFileURL).QueryInterface(Ci.nsIFileURL)
+    .file;
 
   for (let i = 0; i < FILE_LOAD_PATHS.length; ++i) {
-    let srcPath = os.abspath(FILE_LOAD_PATHS[i], thisFilePath);
+    let srcPath = os.abspath(FILE_LOAD_PATHS[i], thisFile);
     let fullPath = os.abspath(aPath, os.getFileForPath(srcPath));
 
     let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);

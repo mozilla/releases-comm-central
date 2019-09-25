@@ -9,12 +9,20 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-display-name";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers"];
+var { ensure_card_exists } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var {
+  add_message_to_folder,
+  assert_equals,
+  be_in_folder,
+  create_folder,
+  create_message,
+  mc,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder;
 
@@ -188,10 +196,6 @@ var contacts = [
 ];
 
 function setupModule(module) {
-  for (let req of MODULE_REQUIRES) {
-    collector.getModule(req).installInto(module);
-  }
-
   folder = create_folder("DisplayNameA");
 
   for (let message of messages) {

@@ -8,14 +8,45 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-right-click-middle-click-messages";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
+);
+
+var {
+  add_sets_to_folders,
+  assert_displayed,
+  assert_message_not_in_view,
+  assert_message_pane_focused,
+  assert_messages_not_in_view,
+  assert_nothing_selected,
+  assert_selected,
+  assert_selected_and_displayed,
+  assert_selected_tab,
+  assert_thread_tree_focused,
+  be_in_folder,
+  close_popup,
+  close_tab,
+  collapse_all_threads,
+  create_folder,
+  create_thread,
+  delete_via_popup,
+  expand_all_threads,
+  focus_thread_tree,
+  make_display_threaded,
+  make_new_sets_in_folder,
+  mc,
+  middle_click_on_row,
+  reset_context_menu_background_tabs,
+  right_click_on_row,
+  select_click_row,
+  select_none,
+  select_shift_click_row,
+  set_context_menu_background_tabs,
+  switch_tab,
+  wait_for_message_display_completion,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
 var folder, threadedFolder;
@@ -26,9 +57,6 @@ var folder, threadedFolder;
 var NUM_MESSAGES_IN_THREAD = 6;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("RightClickMiddleClickA");
   threadedFolder = create_folder("RightClickMiddleClickB");
   // we want exactly as many messages as we plan to delete, so that we can test

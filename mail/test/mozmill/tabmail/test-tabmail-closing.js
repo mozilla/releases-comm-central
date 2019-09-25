@@ -8,19 +8,28 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-tabmail-closing";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_equals,
+  assert_selected_tab,
+  be_in_folder,
+  collapse_all_threads,
+  create_folder,
+  make_display_threaded,
+  make_new_sets_in_folder,
+  mc,
+  open_selected_message_in_new_tab,
+  open_selected_messages,
+  select_click_row,
+  switch_tab,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var gFolder;
 
 var MSGS_PER_THREAD = 3;
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-
   gFolder = create_folder("test-tabmail-closing folder");
   make_new_sets_in_folder(gFolder, [{ msgsPerThread: MSGS_PER_THREAD }]);
 }

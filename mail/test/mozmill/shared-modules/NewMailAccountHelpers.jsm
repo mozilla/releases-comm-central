@@ -4,14 +4,28 @@
 
 "use strict";
 
-var MODULE_NAME = "newmailaccount-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "dom-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "wait_for_provider_list_loaded",
+  "wait_for_search_ready",
+  "open_provisioner_window",
+  "wait_for_the_wizard_to_be_closed",
+  "assert_links_shown",
+  "assert_links_not_shown",
+  "wait_for_search_results",
+  "gConsoleListener",
+  "wait_to_be_offline",
+  "remove_email_account",
+  "type_in_search_name",
+];
 
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var dh = ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
+var fdh = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -24,30 +38,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var mc, fdh, dh;
-
-function setupModule(module) {
-  fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  dh = collector.getModule("dom-helpers");
-  mc = fdh.mc;
-}
-
-function installInto(module) {
-  setupModule(module);
-
-  module.wait_for_provider_list_loaded = wait_for_provider_list_loaded;
-  module.wait_for_search_ready = wait_for_search_ready;
-  module.open_provisioner_window = open_provisioner_window;
-  module.wait_for_the_wizard_to_be_closed = wait_for_the_wizard_to_be_closed;
-  module.assert_links_shown = assert_links_shown;
-  module.assert_links_not_shown = assert_links_not_shown;
-  module.wait_for_search_results = wait_for_search_results;
-  module.gConsoleListener = gConsoleListener;
-  module.wait_to_be_offline = wait_to_be_offline;
-  module.remove_email_account = remove_email_account;
-  module.type_in_search_name = type_in_search_name;
-}
+var mc = fdh.mc;
 
 /* Wait until the list of providers is loaded and displayed.
  */

@@ -11,11 +11,23 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var {
+  assert_equals,
+  assert_nothing_selected,
+  assert_selected_and_displayed,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  mc,
+  open_selected_message_in_new_tab,
+  select_click_row,
+  select_none,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
-var MODULE_NAME = "test-js-content-policy";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder = null;
 
@@ -24,10 +36,6 @@ var folder = null;
 var url = collector.addHttpResource("../content-policy/html", "content");
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   folder = create_folder("jsContentPolicy");
   Services.prefs.setBoolPref("javascript.enabled", true);
 }

@@ -4,13 +4,6 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-ab-whitelist";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "account-manager-helpers"];
-
 var mozmill = ChromeUtils.import(
   "chrome://mozmill/content/modules/mozmill.jsm"
 );
@@ -21,17 +14,33 @@ var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var {
+  click_account_tree_row,
+  get_account_tree_row,
+  open_advanced_settings,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+);
+var {
+  assert_equals,
+  assert_false,
+  assert_true,
+  FAKE_SERVER_HOSTNAME,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var gOldWhiteList = null;
 var gKeyString = null;
 
 var gAccount = null;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let amh = collector.getModule("account-manager-helpers");
-  amh.installInto(module);
-
   let server = MailServices.accounts.FindServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,

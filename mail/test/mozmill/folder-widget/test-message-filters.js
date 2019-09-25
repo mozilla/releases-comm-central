@@ -8,22 +8,29 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-nntp-helpers.js */
-
-var MODULE_NAME = "test-message-filters";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "nntp-helpers",
-  "address-book-helpers",
-];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var { create_ldap_address_book } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var {
+  assert_equals,
+  assert_false,
+  assert_not_equals,
+  assert_true,
+  be_in_folder,
+  close_popup,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } = ChromeUtils.import(
+  "resource://testing-common/mozmill/NNTPHelpers.jsm"
+);
 var {
   close_window,
   plan_for_modal_dialog,
@@ -40,13 +47,11 @@ var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var folderA;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   setupNNTPDaemon();
 
   folderA = create_folder("FolderToolbarA");

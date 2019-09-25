@@ -8,24 +8,53 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-newmailaccount-helpers.js */
-/* import-globals-from ../shared-modules/test-dom-helpers.js */
-
-var MODULE_NAME = "test-newmailaccount";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "content-tab-helpers",
-  "newmailaccount-helpers",
-  "dom-helpers",
-];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+var { HttpServer } = ChromeUtils.import(
+  "chrome://mozmill/content/stdlib/httpd.jsm"
+);
 
+var {
+  gMockExtProtSvc,
+  gMockExtProtSvcReg,
+  open_content_tab_with_click,
+  plan_for_content_tab_load,
+  wait_for_content_tab_load,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var {
+  assert_element_visible,
+  wait_for_element_enabled,
+  wait_for_element_invisible,
+  wait_for_element_visible,
+} = ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
+var {
+  assert_equals,
+  assert_false,
+  assert_not_equals,
+  assert_selected_tab,
+  assert_true,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_links_not_shown,
+  assert_links_shown,
+  gConsoleListener,
+  open_provisioner_window,
+  remove_email_account,
+  type_in_search_name,
+  wait_for_provider_list_loaded,
+  wait_for_search_ready,
+  wait_for_search_results,
+  wait_for_the_wizard_to_be_closed,
+  wait_to_be_offline,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/NewMailAccountHelpers.jsm"
+);
 var {
   close_window,
   plan_for_modal_dialog,
@@ -40,9 +69,6 @@ var {
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
-);
-var { HttpServer } = ChromeUtils.import(
-  "chrome://mozmill/content/stdlib/httpd.jsm"
 );
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
@@ -70,10 +96,6 @@ var gOldAcceptLangs = Services.locale.requestedLocales;
 var gNumAccounts;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   // Make sure we enable the Account Provisioner.
   Services.prefs.setBoolPref(kProvisionerEnabledPref, true);
   // Restrict the user's language to just en-US

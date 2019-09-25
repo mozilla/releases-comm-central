@@ -4,11 +4,25 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-archive-messages";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  add_sets_to_folders,
+  archive_messages,
+  assert_message_not_in_view,
+  assert_nothing_selected,
+  assert_selected,
+  assert_selected_and_displayed,
+  be_in_folder,
+  create_folder,
+  create_thread,
+  make_display_threaded,
+  mc,
+  select_click_row,
+  select_none,
+  select_shift_click_row,
+  toggle_thread_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder;
 
@@ -18,9 +32,6 @@ var folder;
 var NUM_MESSAGES_IN_THREAD = 6;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("ThreadedMessages");
   let thread = create_thread(NUM_MESSAGES_IN_THREAD);
   add_sets_to_folders([folder], [thread]);

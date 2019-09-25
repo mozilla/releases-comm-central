@@ -19,22 +19,50 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var { ensure_card_exists, ensure_no_card_exists } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var {
+  add_sets_to_folders,
+  assert_collapsed,
+  assert_expanded,
+  assert_messages_summarized,
+  assert_nothing_selected,
+  assert_selected,
+  assert_selected_and_displayed,
+  assert_summary_contains_N_elts,
+  be_in_folder,
+  close_tab,
+  collapse_all_threads,
+  create_folder,
+  create_thread,
+  create_virtual_folder,
+  make_display_threaded,
+  make_new_sets_in_folders,
+  mc,
+  open_folder_in_new_tab,
+  open_selected_message_in_new_tab,
+  plan_to_wait_for_folder_events,
+  select_click_row,
+  select_control_click_row,
+  select_none,
+  select_shift_click_row,
+  switch_tab,
+  toggle_thread_row,
+  wait_for_blank_content_pane,
+  wait_for_folder_events,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
-var MODULE_NAME = "test-summarization";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "address-book-helpers"];
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var folder;
 var thread1, thread2, msg1, msg2;
 
 var setupModule = function(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let abh = collector.getModule("address-book-helpers");
-  abh.installInto(module);
-
   folder = create_folder("SummarizationA");
   thread1 = create_thread(10);
   msg1 = create_thread(1);

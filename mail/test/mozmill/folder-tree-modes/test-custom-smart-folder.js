@@ -10,11 +10,23 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-custom-smart-folder";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_folder_collapsed,
+  assert_folder_displayed,
+  assert_folder_expanded,
+  assert_folder_mode,
+  assert_folder_not_visible,
+  assert_folder_selected_and_displayed,
+  assert_folder_visible,
+  collapse_folder,
+  expand_folder,
+  get_smart_folder_named,
+  inboxFolder,
+  make_new_sets_in_folder,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 // spaces in the name are intentional
 var smartParentNameA = "My Smart Folder A";
@@ -32,9 +44,6 @@ var nsMsgFolderFlags = Ci.nsMsgFolderFlags;
  * smart folder type
  */
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   rootFolder = inboxFolder.server.rootFolder;
 
   // register a new smart folder type

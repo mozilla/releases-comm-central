@@ -2111,10 +2111,10 @@ function screenshotToDataURL(aWindow) {
   /*
   // - find all the sub-windows and render them
 
-  // function isVisible(aElem) has been moved to test-dom-helpers.js and
+  // function isVisible(aElem) has been moved to DOMHelpers.jsm and
   // renamed into element_visible_recursive(). If you resurrect the following
   // function subrenderCandidates, then make sure that you import
-  // test-dom-helpers.js.
+  // DOMHelpers.jsm.
 
   function subrenderCandidates(aElements) {
     for (let i = 0; i < aElements.length; i++) {

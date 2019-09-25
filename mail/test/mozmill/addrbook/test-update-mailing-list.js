@@ -9,21 +9,27 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-update-mailing-list";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["address-book-helpers", "folder-display-helpers"];
+var {
+  accept_contact_changes,
+  close_address_book_window,
+  create_address_book,
+  create_contact,
+  create_mailing_list,
+  delete_address_book,
+  edit_selected_contact,
+  open_address_book_window,
+  select_address_book,
+  select_contacts,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var { assert_equals, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-
-function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-  collector.getModule("address-book-helpers").installInto(module);
-}
 
 function test_contact_in_mailing_list_updated() {
   const kOldAddress = "before@example.com";
@@ -69,4 +75,6 @@ function test_contact_in_mailing_list_updated() {
 
   // Destroy the address book that we created.
   delete_address_book(ab);
+
+  close_address_book_window(abw);
 }

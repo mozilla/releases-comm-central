@@ -4,13 +4,6 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-install-xpi";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
-
 var controller = ChromeUtils.import(
   "chrome://mozmill/content/modules/controller.jsm"
 );
@@ -20,6 +13,14 @@ var elib = ChromeUtils.import(
 var mozmill = ChromeUtils.import(
   "chrome://mozmill/content/modules/mozmill.jsm"
 );
+
+var { content_tab_eid, open_content_tab_with_url } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var { mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
@@ -30,11 +31,6 @@ var gDocument;
 var gNewTab;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let cth = collector.getModule("content-tab-helpers");
-  cth.installInto(module);
-
   gDocument = mc.window.document;
   gNewTab = open_content_tab_with_url(
     url + "installxpi.html",

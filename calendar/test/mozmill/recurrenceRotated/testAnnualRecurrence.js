@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testAnnualRecurrenceRotated";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils"];
-
 var CALENDARNAME, EVENTPATH, CANVAS_BOX, ALLDAY;
 var helpersForController, handleOccurrencePrompt, switchToView, goToDate;
 var invokeEventDialog, closeAllEventDialogs, deleteCalendars, createCalendar, menulistSelect;
@@ -29,10 +25,10 @@ function setupModule(module) {
     deleteCalendars,
     createCalendar,
     menulistSelect,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
   Object.assign(module, helpersForController(controller));
 
+  switchToView(controller, "day");
   createCalendar(controller, CALENDARNAME);
   // Rotate view.
   controller.mainMenu.click("#ltnViewRotated");

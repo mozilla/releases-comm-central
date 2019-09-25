@@ -9,16 +9,34 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-session-store";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
 var controller = ChromeUtils.import(
   "chrome://mozmill/content/modules/controller.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+);
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var {
+  assert_equals,
+  assert_false,
+  assert_message_pane_hidden,
+  assert_message_pane_visible,
+  assert_not_equals,
+  assert_pane_layout,
+  assert_true,
+  be_in_folder,
+  create_folder,
+  kClassicMailLayout,
+  kVerticalMailLayout,
+  make_new_sets_in_folder,
+  mc,
+  set_mc,
+  set_pane_layout,
+  toggle_message_pane,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   close_window,
   plan_for_new_window,
@@ -97,10 +115,6 @@ function openAddressBook() {
 /* :::::::: The Tests ::::::::::::::: */
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   folderA = create_folder("SessionStoreA");
   make_new_sets_in_folder(folderA, [{ count: 3 }]);
 
@@ -200,6 +214,7 @@ function test_restore_single_3pane_persistence() {
   controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
+  set_mc(mc);
   be_in_folder(folderA);
   assert_message_pane_hidden();
   // restore message pane.
@@ -267,6 +282,7 @@ function test_message_pane_height_persistence() {
   controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
+  set_mc(mc);
   be_in_folder(folderA);
   assert_message_pane_visible();
 
@@ -292,6 +308,7 @@ function test_message_pane_height_persistence() {
   controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
+  set_mc(mc);
   be_in_folder(folderA);
   assert_message_pane_visible();
 
@@ -373,6 +390,7 @@ function test_message_pane_width_persistence() {
   controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
+  set_mc(mc);
   be_in_folder(folderA);
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
@@ -412,6 +430,7 @@ function test_message_pane_width_persistence() {
   controller.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
+  set_mc(mc);
   be_in_folder(folderA);
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);

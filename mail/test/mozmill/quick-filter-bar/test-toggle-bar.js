@@ -9,22 +9,30 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-quick-filter-bar-helpers.js */
-
-var MODULE_NAME = "test-toggle-bar";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "quick-filter-bar-helpers"];
+var {
+  assert_messages_in_view,
+  be_in_folder,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  assert_constraints_expressed,
+  assert_quick_filter_bar_visible,
+  assert_quick_filter_button_enabled,
+  clear_constraints,
+  toggle_boolean_constraints,
+  toggle_quick_filter_bar,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
+);
 
 var folder;
 var setUnstarred, setStarred;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let qfb = collector.getModule("quick-filter-bar-helpers");
-  qfb.installInto(module);
-
   folder = create_folder("QuickFilterBarToggleBar");
   [setUnstarred, setStarred] = make_new_sets_in_folder(folder, [
     { count: 1 },
@@ -84,4 +92,12 @@ function test_constraints_disappear_when_collapsed() {
 
   // there better be no constraints left!
   assert_constraints_expressed({});
+}
+
+function teardownTest() {
+  clear_constraints();
+  // make it visible if it's not
+  if (mc.e("quick-filter-bar").collapsed) {
+    toggle_quick_filter_bar();
+  }
 }

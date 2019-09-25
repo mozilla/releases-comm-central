@@ -2,14 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var MODULE_NAME = "testDayView";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["calendar-utils", "item-editing-helpers"];
-
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var CALENDARNAME, CANVAS_BOX, EVENT_BOX, DAY_VIEW, LABELDAYBOX, EVENTPATH;
-var helpersForController, invokeEventDialog, getEventDetails, createCalendar;
+var helpersForController, switchToView, invokeEventDialog, getEventDetails, createCalendar;
 var closeAllEventDialogs, deleteCalendars, goToDate, lookupEventBox;
 var helpersForEditUI, setData;
 
@@ -27,6 +23,7 @@ function setupModule(module) {
     LABELDAYBOX,
     EVENTPATH,
     helpersForController,
+    switchToView,
     invokeEventDialog,
     getEventDetails,
     createCalendar,
@@ -34,12 +31,12 @@ function setupModule(module) {
     deleteCalendars,
     goToDate,
     lookupEventBox,
-  } = collector.getModule("calendar-utils"));
-  collector.getModule("calendar-utils").setupModule(controller);
+  } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm"));
   Object.assign(module, helpersForController(controller));
 
-  ({ helpersForEditUI, setData } = collector.getModule("item-editing-helpers"));
-  collector.getModule("item-editing-helpers").setupModule(module);
+  ({ helpersForEditUI, setData } = ChromeUtils.import(
+    "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+  ));
 
   createCalendar(controller, CALENDARNAME);
 }
@@ -47,6 +44,7 @@ function setupModule(module) {
 function testDayView() {
   let dateFormatter = cal.getDateFormatter();
 
+  switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
   // Verify date in view.

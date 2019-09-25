@@ -4,19 +4,26 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-account-port-setting";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "account-manager-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var {
+  click_account_tree_row,
+  get_account_tree_row,
+  open_advanced_settings,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+);
+var { FAKE_SERVER_HOSTNAME, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
+);
+
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
 );
 
 var PORT_NUMBERS_TO_TEST = [
@@ -70,12 +77,6 @@ function subtest_check_set_port_number(amc, aDontSet) {
 
 function subtest_check_port_number(amc) {
   subtest_check_set_port_number(amc, true);
-}
-
-function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
 }
 
 function test_account_port_setting() {

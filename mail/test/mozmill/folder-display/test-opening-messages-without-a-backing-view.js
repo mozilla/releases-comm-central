@@ -10,17 +10,38 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-opening-messages-without-a-backing-view";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var {
+  add_to_toolbar,
+  assert_message_pane_focused,
+  assert_messages_not_in_view,
+  assert_number_of_tabs_open,
+  assert_selected_and_displayed,
+  assert_tab_mode_name,
+  assert_tab_titled_from,
+  be_in_folder,
+  close_message_window,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  plan_for_message_display,
+  remove_from_toolbar,
+  reset_open_message_behavior,
+  set_mail_view,
+  set_open_message_behavior,
+  switch_tab,
+  wait_for_message_display_completion,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { MailViewConstants } = ChromeUtils.import(
+  "resource:///modules/MailViewManager.jsm"
+);
 
 // One folder's enough
 var folder = null;
@@ -32,9 +53,6 @@ var msgHdrsInFolder = null;
 var NUM_MESSAGES_TO_OPEN = 5;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("OpeningMessagesNoBackingViewA");
   make_new_sets_in_folder(folder, [{ count: 10 }]);
   // We don't obey mail view persistence unless the view picker is there

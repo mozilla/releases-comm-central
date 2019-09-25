@@ -4,32 +4,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Helpers to deal with the preferences window.
+ * Helpers to deal with the preferences tab.
  */
 
 "use strict";
 
-var MODULE_NAME = "pref-window-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "content-tab-helpers"];
+this.EXPORTED_SYMBOLS = ["close_pref_tab", "open_pref_tab"];
 
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
-var fdh;
-var cth;
-
-function setupModule() {
-  fdh = collector.getModule("folder-display-helpers");
-  cth = collector.getModule("content-tab-helpers");
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.open_pref_tab = open_pref_tab;
-  module.close_pref_tab = close_pref_tab;
-}
+var fdh = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var cth = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
 
 /**
  * Open the preferences tab with the given pane displayed. The pane needs to

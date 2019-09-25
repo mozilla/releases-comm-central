@@ -9,13 +9,28 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
-var MODULE_NAME = "test-drafts";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
+var {
+  close_compose_window,
+  get_compose_body,
+  get_msg_source,
+  open_compose_new_mail,
+  setup_msg_contents,
+  wait_for_compose_window,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var {
+  assert_equals,
+  assert_true,
+  be_in_folder,
+  get_special_folder,
+  make_new_sets_in_folder,
+  mc,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
@@ -32,10 +47,6 @@ var kBoxId = "mail-notification-top";
 var draftsFolder;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 

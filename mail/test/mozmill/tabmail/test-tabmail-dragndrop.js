@@ -8,17 +8,42 @@
  * Test rearanging tabs via drag'n'drop.
  */
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-mouse-event-helpers.js */
-
-var MODULE_NAME = "test-tabmail-dragndrop";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "mouse-event-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+);
 
+var {
+  assert_equals,
+  assert_folder_selected_and_displayed,
+  assert_number_of_tabs_open,
+  assert_row_visible,
+  assert_selected_and_displayed,
+  assert_true,
+  be_in_folder,
+  close_popup,
+  create_folder,
+  display_message_in_folder_tab,
+  make_new_sets_in_folder,
+  mc,
+  open_selected_message_in_new_tab,
+  select_click_row,
+  switch_tab,
+  wait_for_message_display_completion,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var {
+  drag_n_drop_element,
+  synthesize_drag_end,
+  synthesize_drag_start,
+  synthesize_drag_over,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/MouseEventHelpers.jsm"
+);
 var {
   close_window,
   plan_for_new_window,
@@ -34,11 +59,6 @@ var msgHdrsInFolder = [];
 var NUM_MESSAGES_IN_FOLDER = 15;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let meh = collector.getModule("mouse-event-helpers");
-  meh.installInto(module);
-
   folder = create_folder("MessageFolder");
   make_new_sets_in_folder(folder, [{ count: NUM_MESSAGES_IN_FOLDER }]);
 }

@@ -4,13 +4,6 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-account-manager-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-archive-options";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "account-manager-helpers"];
-
 var mozmill = ChromeUtils.import(
   "chrome://mozmill/content/modules/mozmill.jsm"
 );
@@ -20,7 +13,18 @@ var controller = ChromeUtils.import(
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var {
+  click_account_tree_row,
+  get_account_tree_row,
+  open_advanced_settings,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+);
+var { assert_equals, assert_false, assert_true, mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   plan_for_modal_dialog,
   plan_for_window_close,
@@ -28,14 +32,13 @@ var {
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 var defaultIdentity;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let amh = collector.getModule("account-manager-helpers");
-  amh.installInto(module);
-
   defaultIdentity = MailServices.accounts.defaultAccount.defaultIdentity;
 }
 

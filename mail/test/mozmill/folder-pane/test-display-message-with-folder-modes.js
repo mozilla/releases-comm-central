@@ -14,11 +14,28 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-display-message-with-folder-modes";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+var {
+  assert_folder_child_in_view,
+  assert_folder_collapsed,
+  assert_folder_expanded,
+  assert_folder_mode,
+  assert_folder_not_visible,
+  assert_folder_selected_and_displayed,
+  assert_folder_tree_view_row_count,
+  assert_folder_visible,
+  assert_message_not_in_view,
+  assert_selected_and_displayed,
+  be_in_folder,
+  collapse_folder,
+  display_message_in_folder_tab,
+  get_smart_folder_named,
+  inboxFolder,
+  make_new_sets_in_folder,
+  mc,
+  select_none,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var folder;
 var dummyFolder;
@@ -28,8 +45,6 @@ var smartInboxFolder;
 var msgHdr;
 
 function setupModule(module) {
-  collector.getModule("folder-display-helpers").installInto(module);
-
   assert_folder_mode("all");
   assert_folder_tree_view_row_count(7);
 

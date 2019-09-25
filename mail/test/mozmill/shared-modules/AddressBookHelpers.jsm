@@ -4,10 +4,36 @@
 
 "use strict";
 
-var MODULE_NAME = "address-book-helpers";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
+this.EXPORTED_SYMBOLS = [
+  "ensure_card_exists",
+  "ensure_no_card_exists",
+  "open_address_book_window",
+  "close_address_book_window",
+  "create_address_book",
+  "create_ldap_address_book",
+  "create_contact",
+  "create_mailing_list",
+  "get_mailing_list_from_address_book",
+  "load_contacts_into_address_book",
+  "load_contacts_into_mailing_list",
+  "get_cards_in_all_address_books_for_email",
+  "get_address_book_tree_view_index",
+  "set_address_books_collapsed",
+  "set_address_books_expanded",
+  "is_address_book_collapsed",
+  "is_address_book_collapsible",
+  "get_name_of_address_book_element_at",
+  "select_address_book",
+  "get_contact_ab_view_index",
+  "select_contacts",
+  "edit_selected_contact",
+  "accept_contact_changes",
+  "delete_address_book",
+];
 
+var folderDisplayHelper = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -24,48 +50,13 @@ var collectedAddresses;
 
 var abController;
 
-var folderDisplayHelper;
-var mc;
+var mc = folderDisplayHelper.mc;
 
-function setupModule() {
-  folderDisplayHelper = collector.getModule("folder-display-helpers");
-  mc = folderDisplayHelper.mc;
-  // Ensure all the directories are initialised.
-  MailServices.ab.directories;
-  collectedAddresses = MailServices.ab.getDirectory(
-    "jsaddrbook://history.sqlite"
-  );
-}
-
-function installInto(module) {
-  setupModule();
-
-  // Now copy helper functions
-  module.ensure_card_exists = ensure_card_exists;
-  module.ensure_no_card_exists = ensure_no_card_exists;
-  module.open_address_book_window = open_address_book_window;
-  module.close_address_book_window = close_address_book_window;
-  module.create_address_book = create_address_book;
-  module.create_ldap_address_book = create_ldap_address_book;
-  module.create_contact = create_contact;
-  module.create_mailing_list = create_mailing_list;
-  module.get_mailing_list_from_address_book = get_mailing_list_from_address_book;
-  module.load_contacts_into_address_book = load_contacts_into_address_book;
-  module.load_contacts_into_mailing_list = load_contacts_into_mailing_list;
-  module.get_cards_in_all_address_books_for_email = get_cards_in_all_address_books_for_email;
-  module.get_address_book_tree_view_index = get_address_book_tree_view_index;
-  module.set_address_books_collapsed = set_address_books_collapsed;
-  module.set_address_books_expanded = set_address_books_expanded;
-  module.is_address_book_collapsed = is_address_book_collapsed;
-  module.is_address_book_collapsible = is_address_book_collapsible;
-  module.get_name_of_address_book_element_at = get_name_of_address_book_element_at;
-  module.select_address_book = select_address_book;
-  module.get_contact_ab_view_index = get_contact_ab_view_index;
-  module.select_contacts = select_contacts;
-  module.edit_selected_contact = edit_selected_contact;
-  module.accept_contact_changes = accept_contact_changes;
-  module.delete_address_book = delete_address_book;
-}
+// Ensure all the directories are initialised.
+MailServices.ab.directories;
+collectedAddresses = MailServices.ab.getDirectory(
+  "jsaddrbook://history.sqlite"
+);
 
 /**
  * Make sure that there is a card for this email address
@@ -134,7 +125,7 @@ function open_address_book_window(aController) {
   aController.keypress(null, "b", { shiftKey: true, accelKey: true });
 
   // XXX this should probably be changed to making callers pass in which address
-  // book they want to work with, just like test-compose-helpers.
+  // book they want to work with, just like ComposeHelpers.
   abController = windowHelper.wait_for_new_window("mail:addressbook");
   windowHelper.augment_controller(abController);
   return abController;

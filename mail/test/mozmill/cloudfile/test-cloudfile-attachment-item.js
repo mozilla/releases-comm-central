@@ -8,24 +8,28 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-cloudfile-helpers.js */
-
-var MODULE_NAME = "test-cloudfile-attachment-item";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "compose-helpers",
-  "cloudfile-helpers",
-];
-
 var {
   gMockFilePicker,
   gMockFilePickReg,
   select_attachments,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
+var {
+  collectFiles,
+  getFile,
+  gMockCloudfileManager,
+  MockCloudfileAccount,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+);
+var {
+  add_cloud_attachments,
+  close_compose_window,
+  open_compose_new_mail,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { assert_false, close_popup } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
@@ -35,10 +39,6 @@ var { cloudFileAccounts } = ChromeUtils.import(
 );
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   gMockFilePickReg.register();
   gMockCloudfileManager.register();
 }

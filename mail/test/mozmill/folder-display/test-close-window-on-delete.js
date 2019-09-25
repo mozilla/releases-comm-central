@@ -8,12 +8,23 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-close-window-on-delete";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
+var {
+  assert_number_of_tabs_open,
+  be_in_folder,
+  close_tab,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  open_selected_message_in_new_tab,
+  open_selected_message_in_new_window,
+  press_delete,
+  reset_close_message_on_delete,
+  select_click_row,
+  set_close_message_on_delete,
+  switch_tab,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   close_window,
   plan_for_window_close,
@@ -23,9 +34,6 @@ var {
 var folder;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   folder = create_folder("CloseWindowOnDeleteA");
 
   make_new_sets_in_folder(folder, [{ count: 10 }]);

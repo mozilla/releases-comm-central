@@ -8,27 +8,26 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-customization-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-/* import-globals-from ../shared-modules/test-mouse-event-helpers.js */
+var { CustomizeDialogHelper } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CustomizationHelpers.jsm"
+);
+var {
+  assert_equals,
+  assert_not_equals,
+  mc,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { drag_n_drop_element } = ChromeUtils.import(
+  "resource://testing-common/mozmill/MouseEventHelpers.jsm"
+);
 
-var MODULE_NAME = "test-tabmail-customize";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "mouse-event-helpers",
-  "customization-helpers",
-];
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gCDHelper;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let meh = collector.getModule("mouse-event-helpers");
-  meh.installInto(module);
-  let cu = collector.getModule("customization-helpers");
-  cu.installInto(module);
   gCDHelper = new CustomizeDialogHelper(
     "mail-toolbar-menubar2",
     "CustomizeMailToolbar",

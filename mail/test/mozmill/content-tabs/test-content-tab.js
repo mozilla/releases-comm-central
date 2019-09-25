@@ -4,28 +4,40 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-content-tab-helpers.js */
-/* import-globals-from ../shared-modules/test-dom-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-content-tab";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "content-tab-helpers",
-  "dom-helpers",
-];
-
 var controller = ChromeUtils.import(
   "chrome://mozmill/content/modules/controller.jsm"
-);
-var mozmill = ChromeUtils.import(
-  "chrome://mozmill/content/modules/mozmill.jsm"
 );
 var elementslib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+);
+var mozmill = ChromeUtils.import(
+  "chrome://mozmill/content/modules/mozmill.jsm"
+);
 
+var {
+  assert_content_tab_has_favicon,
+  open_content_tab_with_url,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+var { assert_element_visible, assert_element_not_visible } = ChromeUtils.import(
+  "resource://testing-common/mozmill/DOMHelpers.jsm"
+);
+
+var {
+  assert_equals,
+  assert_not_equals,
+  assert_tab_has_title,
+  assert_true,
+  close_popup,
+  mc,
+  wait_for_popup_to_open,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -38,12 +50,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // root directory.
 var url = collector.addHttpResource("../content-tabs/html", "");
 var whatsUrl = url + "whatsnew.html";
-
-function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-}
 
 function test_content_tab_open() {
   let tab = open_content_tab_with_url(whatsUrl);
@@ -210,3 +216,9 @@ function test_content_tab_onbeforeunload() {
 // - test find bar
 // - window.close within tab
 // - zoom?
+
+function teardownModule() {
+  while (mc.tabmail.tabInfo.length > 1) {
+    mc.tabmail.closeTab(1);
+  }
+}

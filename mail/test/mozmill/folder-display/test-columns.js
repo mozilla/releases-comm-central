@@ -10,16 +10,24 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-columns";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 
+var {
+  be_in_folder,
+  close_tab,
+  create_folder,
+  create_virtual_folder,
+  enter_folder,
+  inboxFolder,
+  mc,
+  open_folder_in_new_tab,
+  switch_tab,
+  wait_for_all_messages_to_load,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   plan_for_modal_dialog,
   plan_for_observable_event,
@@ -27,6 +35,7 @@ var {
   wait_for_observable_event,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // needed to zero inter-folder processing delay
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
@@ -48,9 +57,6 @@ var VIRTUAL_DEFAULTS;
 var GLODA_DEFAULTS;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-
   useCorrespondent = Services.prefs.getBoolPref(
     "mail.threadpane.use_correspondents"
   );
@@ -659,4 +665,10 @@ function test_reset_columns_gloda_collection() {
   mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
   assert_visible_columns(glodaColumns);
+}
+
+function teardownModule() {
+  while (mc.tabmail.tabInfo.length > 1) {
+    mc.tabmail.closeTab(1);
+  }
 }

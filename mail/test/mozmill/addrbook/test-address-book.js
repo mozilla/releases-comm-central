@@ -8,18 +8,35 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-address-book";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "address-book-helpers",
-  "compose-helpers",
-];
-
+var {
+  close_address_book_window,
+  create_address_book,
+  create_contact,
+  create_ldap_address_book,
+  create_mailing_list,
+  get_name_of_address_book_element_at,
+  is_address_book_collapsed,
+  load_contacts_into_address_book,
+  load_contacts_into_mailing_list,
+  open_address_book_window,
+  select_address_book,
+  select_contacts,
+  set_address_books_collapsed,
+  set_address_books_expanded,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var { wait_for_compose_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var {
+  assert_equals,
+  assert_false,
+  assert_not_equals,
+  assert_true,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
@@ -40,10 +57,6 @@ var addrBook1, addrBook2, addrBook3, addrBook4, ldapBook;
 var mListA, mListB, mListC, mListD, mListE;
 
 function setupModule(module) {
-  for (let lib of MODULE_REQUIRES) {
-    collector.getModule(lib).installInto(module);
-  }
-
   // Open the address book main window
   abController = open_address_book_window();
 
@@ -77,6 +90,10 @@ function setupModule(module) {
     1000,
     10
   );
+}
+
+function teardownModule(module) {
+  close_address_book_window(abController);
 }
 
 /* Test that the address book manager automatically sorts

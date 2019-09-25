@@ -8,19 +8,25 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-multipart-related";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = ["folder-display-helpers", "compose-helpers"];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
 );
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
 
+var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var {
+  assert_equals,
+  be_in_folder,
+  get_special_folder,
+  mc,
+  press_delete,
+  select_click_row,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 var {
   plan_for_modal_dialog,
   wait_for_modal_dialog,
@@ -36,9 +42,6 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var gDrafts;
 
 function setupModule(module) {
-  for (let req of MODULE_REQUIRES) {
-    collector.getModule(req).installInto(module);
-  }
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 }
 

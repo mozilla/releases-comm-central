@@ -7,33 +7,33 @@
 
 "use strict";
 
-/* import-globals-from ../shared-modules/test-address-book-helpers.js */
-/* import-globals-from ../shared-modules/test-compose-helpers.js */
-/* import-globals-from ../shared-modules/test-folder-display-helpers.js */
-
-var MODULE_NAME = "test-autohide-menubar";
-var RELATIVE_ROOT = "../shared-modules";
-var MODULE_REQUIRES = [
-  "folder-display-helpers",
-  "address-book-helpers",
-  "compose-helpers",
-];
-
 var elib = ChromeUtils.import(
   "chrome://mozmill/content/modules/elementslib.jsm"
+);
+
+var { open_address_book_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+);
+var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
+var {
+  be_in_folder,
+  close_message_window,
+  create_folder,
+  make_new_sets_in_folder,
+  mc,
+  open_selected_message_in_new_window,
+  select_click_row,
+  toggle_main_menu,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
 var menuFolder;
 var menuState;
 
 function setupModule(module) {
-  let fdh = collector.getModule("folder-display-helpers");
-  fdh.installInto(module);
-  let abh = collector.getModule("address-book-helpers");
-  abh.installInto(module);
-  let ch = collector.getModule("compose-helpers");
-  ch.installInto(module);
-
   menuFolder = create_folder("menuFolder");
   make_new_sets_in_folder(menuFolder, [{ count: 1 }]);
 
