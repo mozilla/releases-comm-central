@@ -28,8 +28,7 @@ var gCustomSearchTermSubject = {
   getAvailable(scope, op) {
     return true;
   },
-  getAvailableOperators(scope, length) {
-    length.value = 1;
+  getAvailableOperators(scope) {
     return [Ci.nsMsgSearchOp.Contains];
   },
   match(aMsgHdr, aSearchValue, aSearchOp) {

@@ -624,7 +624,7 @@
           this.searchAttribute
         );
         if (customTerm) {
-          return customTerm.getAvailableOperators(this.searchScope, length);
+          return customTerm.getAvailableOperators(this.searchScope);
         }
         return [Ci.nsMsgSearchOp.Contains];
       }

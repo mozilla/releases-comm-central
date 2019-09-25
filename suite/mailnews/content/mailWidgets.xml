@@ -1095,7 +1095,7 @@
             {
               let customTerm = this.filterService.getCustomTerm(this.searchAttribute);
               if (customTerm)
-                return customTerm.getAvailableOperators(this.searchScope, length);
+                return customTerm.getAvailableOperators(this.searchScope);
               return [Ci.nsMsgSearchOp.Contains];
             }
             return this.validityTable.getAvailableOperators(this.searchAttribute,length);

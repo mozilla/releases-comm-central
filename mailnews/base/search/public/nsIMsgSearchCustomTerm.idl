@@ -54,14 +54,10 @@ interface nsIMsgSearchCustomTerm : nsISupports
    * List the valid operators for this term.
    *
    * @param scope          search scope (nsMsgSearchScope)
-   * @param length         object to hold array length
    *
    * @return               array of operators
    */
-  void getAvailableOperators(in nsMsgSearchScopeValue scope,
-                             out unsigned long length,
-                             [retval, array, size_is(length)]
-                             out nsMsgSearchOpValue operators);
+  Array<nsMsgSearchOpValue> getAvailableOperators(in nsMsgSearchScopeValue scope);
 
   /**
    * Apply the custom search term to a message

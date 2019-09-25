@@ -45,8 +45,7 @@ var customTerm = {
       scope == Ci.nsMsgSearchScope.offlineMail && op == Ci.nsMsgSearchOp.Is
     );
   },
-  getAvailableOperators(scope, length) {
-    length.value = 1;
+  getAvailableOperators(scope) {
     return [Ci.nsMsgSearchOp.Is];
   },
   match(msgHdr, searchValue, searchOp) {
