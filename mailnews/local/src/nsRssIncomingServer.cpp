@@ -65,13 +65,11 @@ nsresult nsRssIncomingServer::FillInDataSourcePath(
 }
 
 // nsIRSSIncomingServer methods
-NS_IMETHODIMP nsRssIncomingServer::GetSubscriptionsPath(
-    nsIFile **aLocation) {
+NS_IMETHODIMP nsRssIncomingServer::GetSubscriptionsPath(nsIFile **aLocation) {
   return FillInDataSourcePath(NS_LITERAL_STRING("feeds.json"), aLocation);
 }
 
-NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsPath(
-    nsIFile **aLocation) {
+NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsPath(nsIFile **aLocation) {
   return FillInDataSourcePath(NS_LITERAL_STRING("feeditems.json"), aLocation);
 }
 
