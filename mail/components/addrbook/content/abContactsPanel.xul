@@ -7,18 +7,18 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/abContactsPanel.css" type="text/css"?>
 
-<!DOCTYPE page [
+<!DOCTYPE window [
 <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd" >
 %abResultsPaneDTD;
 <!ENTITY % abContactsPanelDTD SYSTEM "chrome://messenger/locale/addressbook/abContactsPanel.dtd" >
 %abContactsPanelDTD;
 ]>
 
-<page id="abContactsPanel"
-      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      onload="AbPanelLoad();"
-      onunload="AbPanelUnload();"
-      selectedaddresses="true">
+<window id="abContactsPanel"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="AbPanelLoad();"
+        onunload="AbPanelUnload();"
+        selectedaddresses="true">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
@@ -172,4 +172,4 @@
 
     <separator class="thin"/>
   </vbox>
-</page>
+</window>

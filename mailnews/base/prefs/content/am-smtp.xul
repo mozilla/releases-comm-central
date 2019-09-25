@@ -6,11 +6,11 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE page SYSTEM "chrome://messenger/locale/am-advanced.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-advanced.dtd">
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      title="&smtpServer.label;"
-      onload="gSmtpServerListWindow.onLoad();">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        title="&smtpServer.label;"
+        onload="gSmtpServerListWindow.onLoad();">
   <script src="chrome://messenger/content/amUtils.js"/>
   <script src="chrome://messenger/content/am-smtp.js"/>
 
@@ -98,4 +98,4 @@
     </hbox>
     <separator flex="1"/>
   </vbox>
-</page>
+</window>

@@ -7,11 +7,11 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
-<!DOCTYPE page SYSTEM "chrome://messenger/locale/am-copies.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-copies.dtd">
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      title="&copyAndFolderTitle.label;"
-      onload="parent.onPanelLoaded('am-copies.xul');">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        title="&copyAndFolderTitle.label;"
+        onload="parent.onPanelLoaded('am-copies.xul');">
 
   <vbox flex="1" style="overflow: auto;">
     <script src="chrome://messenger/content/am-copies.js"/>
@@ -23,4 +23,4 @@
     </hbox>
 #include am-copies.inc.xul
   </vbox>
-</page>
+</window>

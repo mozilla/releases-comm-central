@@ -7,11 +7,11 @@
 <?xml-stylesheet href="chrome://messenger/content/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE page SYSTEM "chrome://messenger/locale/am-addressing.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-addressing.dtd">
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      title="&addressing.label;"
-      onload="onLoad();">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        title="&addressing.label;"
+        onload="onLoad();">
 
 
   <vbox flex="1" style="overflow: auto;">
@@ -24,4 +24,4 @@
     </hbox>
 #include am-addressing.inc.xul
   </vbox>
-</page>
+</window>

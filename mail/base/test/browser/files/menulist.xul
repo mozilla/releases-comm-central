@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/menulist.css"?>
 
-<page align="start" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+<window align="start" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
   <script src="chrome://messenger/content/customElements.js"/>
 
   <button id="before" label="I'm just a button" onclick="alert('I\'m a button!')"/>
@@ -29,4 +29,4 @@
   </menulist>
 
   <button id="after" label="I'm just a button"/>
-</page>
+</window>

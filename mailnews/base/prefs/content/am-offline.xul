@@ -5,10 +5,10 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE page SYSTEM "chrome://messenger/locale/am-offline.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-offline.dtd">
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      onload="parent.onPanelLoaded('am-offline.xul');">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="parent.onPanelLoaded('am-offline.xul');">
 
   <vbox flex="1" style="overflow: auto;">
     <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
@@ -158,4 +158,4 @@
     </vbox>
     </groupbox>
   </vbox>
-</page>
+</window>

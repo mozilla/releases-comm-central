@@ -5,7 +5,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountCentral.css" type="text/css"?>
 
-<!DOCTYPE page [
+<!DOCTYPE window [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
    %brandDTD;
   <!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd">
@@ -14,8 +14,8 @@
    %acctCentralDTD;
 ]>
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      onload="OnInit();">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="OnInit();">
 
   <stringbundle id="bundle_brand"
                 src="chrome://branding/locale/brand.properties"/>
@@ -233,4 +233,4 @@
     </vbox>
     <vbox flex="3"/>
   </hbox>
-</page>
+</window>

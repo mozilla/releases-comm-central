@@ -6,7 +6,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
 
-<!DOCTYPE page [
+<!DOCTYPE window [
 <!ENTITY %         newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
 %newsblogDTD;
 <!ENTITY %             feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd" >
@@ -17,10 +17,10 @@
 %accountServerTopDTD;
 ]>
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      class="color-dialog"
-      title="&accountTitle.label;"
-      onload="parent.onPanelLoaded('am-newsblog.xul');">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        class="color-dialog"
+        title="&accountTitle.label;"
+        onload="parent.onPanelLoaded('am-newsblog.xul');">
 
   <script src="chrome://messenger/content/AccountManager.js"/>
   <script src="chrome://messenger-newsblog/content/am-newsblog.js"/>
@@ -148,4 +148,4 @@
 
     </groupbox>
   </vbox>
-</page>
+</window>

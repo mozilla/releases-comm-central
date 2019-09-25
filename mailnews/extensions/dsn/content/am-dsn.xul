@@ -8,10 +8,10 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE page SYSTEM "chrome://messenger/locale/am-dsn.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-dsn.dtd">
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      onload="parent.onPanelLoaded('am-dsn.xul');">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="parent.onPanelLoaded('am-dsn.xul');">
 
   <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-dsn.properties"/>
   <script src="chrome://messenger/content/AccountManager.js"/>
@@ -56,4 +56,4 @@
                 prefstring="mail.identity.%identitykey%.dsn_always_request_on"/>
     </vbox>
   </groupbox>
-</page>
+</window>

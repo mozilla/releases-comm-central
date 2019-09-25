@@ -8,16 +8,16 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/am-server.css" type="text/css"?>
 
-<!DOCTYPE page [
+<!DOCTYPE window [
 <!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
 %trashDTD;
 ]>
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      title="&serverSettings.label;"
-      onload="parent.onPanelLoaded('am-server.xul');">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&serverSettings.label;"
+        onload="parent.onPanelLoaded('am-server.xul');">
 
   <vbox flex="1" style="overflow: auto;">
     <script src="chrome://messenger/content/am-server.js"/>
@@ -458,4 +458,4 @@
                 prefstring="mail.server.%serverkey%.charset"/>
     </hbox>
   </vbox>
-</page>
+</window>

@@ -5,9 +5,9 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE page SYSTEM "chrome://messenger/locale/am-smime.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-smime.dtd">
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         class="color-dialog"
         onload="parent.onPanelLoaded('am-smime.xul');">
 
@@ -22,4 +22,4 @@
 #include am-smime.inc.xul
   </vbox>
 
-</page>
+</window>

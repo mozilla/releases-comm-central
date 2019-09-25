@@ -6951,23 +6951,24 @@ function GetMsgAttachmentElement() {
 /**
  * Get an element by ID in the current sidebar browser document.
  *
- * @param aId {string}     the ID of the element to get
- * @param aPageId {string} the ID of a <page> in the sidebar <browser>;
- *                         only return the element if the page exists.
- *                         Assuming unique page ids and that there there can
- *                         only ever be one <page> in a <browser>'s src.xul
- *                         (documentation is pretty poor), that means that the
- *                         element will only be returned if it is found in the
- *                         same src.xul as the page (as opposed to any src.xul /
- *                         page currently displayed in the sidebar browser).
+ * @param aId {string}       the ID of the element to get
+ * @param aWindowId {string} the ID of a <window> in the sidebar <browser>;
+ *                           only return the element if the window exists.
+ *                           Assuming unique window ids and that there there can
+ *                           only ever be one <window> in a <browser>'s src.xul
+ *                           (documentation is pretty poor), that means that the
+ *                           element will only be returned if it is found in the
+ *                           same src.xul as the window (as opposed to any
+ *                           src.xul / window currently displayed in the sidebar
+ *                           browser).
  */
-function sidebarDocumentGetElementById(aId, aPageId) {
+function sidebarDocumentGetElementById(aId, aWindowId) {
   let sidebarDocument = document.getElementById("sidebar").contentDocument;
-  if (aPageId) {
-    if (sidebarDocument.getElementById(aPageId)) {
+  if (aWindowId) {
+    if (sidebarDocument.getElementById(aWindowId)) {
       return sidebarDocument.getElementById(aId);
     }
-    // aPageId not found
+    // aWindowId not found
     return null;
   }
   return sidebarDocument.getElementById(aId);
@@ -7146,7 +7147,7 @@ function toggleAddressPicker(aFocus = true) {
     if (sidebarUrl == "") {
       // sidebarUrl not yet set, load contacts side bar and focus the search
       // input if applicable: We pass "?focus" as a URL querystring, then via
-      // onload event of <page id="abContactsPanel">, in AbPanelLoad() of
+      // onload event of <window id="abContactsPanel">, in AbPanelLoad() of
       // abContactsPanel.js, we do the focusing first thing to avoid timing
       // issues when trying to focus from here while contacts side bar is still
       // loading.

@@ -13,12 +13,12 @@
   %brandDTD;
 ]>
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      id="account"
-      title="&accountWindow.title;"
-      buttons="accept,cancel"
-      onload="parent.onPanelLoaded('am-im.xul');">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        id="account"
+        title="&accountWindow.title;"
+        buttons="accept,cancel"
+        onload="parent.onPanelLoaded('am-im.xul');">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -156,4 +156,4 @@
       </tabbox>
     </groupbox>
   </vbox>
-</page>
+</window>

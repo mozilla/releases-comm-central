@@ -6,14 +6,14 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE page [
+<!DOCTYPE window [
 <!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd" >%accountNoIdentDTD;
 <!ENTITY % accountServerTopDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">%accountServerTopDTD;
 ]>
 
-<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-      title="&accountTitle.label;"
-      onload="parent.onPanelLoaded('am-serverwithnoidentities.xul');">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        title="&accountTitle.label;"
+        onload="parent.onPanelLoaded('am-serverwithnoidentities.xul');">
 
   <script src="chrome://messenger/content/am-serverwithnoidentities.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
@@ -78,4 +78,4 @@
               accesskey="&browseFolder.accesskey;" oncommand="BrowseForLocalFolders()"/>
     </hbox>
   </groupbox>
-</page>
+</window>
