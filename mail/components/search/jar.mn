@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-    search-extensions/                        (../../../../browser/components/search/extensions/**)
+    search-extensions/                        (extensions/**)
 #ifdef XP_MACOSX
     content/messenger/SpotlightIntegration.js (content/SpotlightIntegration.js)
 #endif
