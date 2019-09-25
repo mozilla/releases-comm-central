@@ -34,7 +34,7 @@ function run_test() {
   for (var index = 0; index < kValidScopes.length; ++index) {
     let scope = kValidScopes[index];
     let table = gValidityManager.getTable(scope);
-    let attributes = table.getAvailableAttributes({});
+    let attributes = table.getAvailableAttributes();
     let attribute;
     while ((attribute = attributes.pop()) && attribute) {
       let property = gValidityManager.getAttributeProperty(attribute);

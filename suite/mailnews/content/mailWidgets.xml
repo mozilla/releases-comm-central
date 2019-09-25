@@ -1002,8 +1002,7 @@
       <property name="valueIds" readonly="true">
         <getter>
           <![CDATA[
-            var length = new Object;
-            let result = this.validityTable.getAvailableAttributes(length);
+            let result = this.validityTable.getAvailableAttributes();
             // add any available custom search terms
             let customEnum = this.filterService.getCustomTerms();
             while (customEnum && customEnum.hasMoreElements())
@@ -1089,7 +1088,6 @@
       <property name="valueIds" readonly="true">
         <getter>
           <![CDATA[
-            var length = new Object;
             let isCustom = isNaN(this.searchAttribute);
             if (isCustom)
             {
@@ -1098,7 +1096,7 @@
                 return customTerm.getAvailableOperators(this.searchScope);
               return [Ci.nsMsgSearchOp.Contains];
             }
-            return this.validityTable.getAvailableOperators(this.searchAttribute,length);
+            return this.validityTable.getAvailableOperators(this.searchAttribute);
           ]]>
         </getter>
       </property>

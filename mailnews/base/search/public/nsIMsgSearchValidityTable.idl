@@ -28,14 +28,8 @@ interface nsIMsgSearchValidityTable : nsISupports {
 
     readonly attribute long numAvailAttribs;
 
-    void getAvailableAttributes(out unsigned long length,
-                                [retval, array, size_is(length)]
-                                out nsMsgSearchAttribValue attrs);
-
-    void getAvailableOperators(in nsMsgSearchAttribValue attrib,
-                               out unsigned long length,
-                               [retval, array, size_is(length)]
-                               out nsMsgSearchOpValue operators);
+    Array<nsMsgSearchAttribValue> getAvailableAttributes();
+    Array<nsMsgSearchOpValue> getAvailableOperators(in nsMsgSearchAttribValue attrib);
 
   void setDefaultAttrib(in nsMsgSearchAttribValue defaultAttrib);
 };

@@ -545,7 +545,7 @@
     }
 
     get valueIds() {
-      let result = this.validityTable.getAvailableAttributes({});
+      let result = this.validityTable.getAvailableAttributes();
       // add any available custom search terms
       for (let customTerm of MailServices.filters.getCustomTerms()) {
         customTerm = customTerm.QueryInterface(Ci.nsIMsgSearchCustomTerm);
@@ -616,7 +616,6 @@
     }
 
     get valueIds() {
-      const length = {};
       let isCustom = isNaN(this.searchAttribute);
       if (isCustom) {
         let customTerm = MailServices.filters.getCustomTerm(
@@ -627,10 +626,7 @@
         }
         return [Ci.nsMsgSearchOp.Contains];
       }
-      return this.validityTable.getAvailableOperators(
-        this.searchAttribute,
-        length
-      );
+      return this.validityTable.getAvailableOperators(this.searchAttribute);
     }
 
     get valueStrings() {

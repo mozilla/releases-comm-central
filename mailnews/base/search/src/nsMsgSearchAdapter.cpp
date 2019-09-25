@@ -768,48 +768,23 @@ nsresult nsMsgSearchValidityTable::ValidateTerms(nsIArray *searchTerms) {
 }
 
 nsresult nsMsgSearchValidityTable::GetAvailableAttributes(
-    uint32_t *length, nsMsgSearchAttribValue **aResult) {
-  NS_ENSURE_ARG_POINTER(length);
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  // count first
-  uint32_t totalAttributes = 0;
+    nsTArray<nsMsgSearchAttribValue> &aResult) {
+  aResult.Clear();
   int32_t i, j;
   for (i = 0; i < nsMsgSearchAttrib::kNumMsgSearchAttributes; i++) {
     for (j = 0; j < nsMsgSearchOp::kNumMsgSearchOperators; j++) {
       if (m_table[i][j].bitAvailable) {
-        totalAttributes++;
+        aResult.AppendElement(static_cast<nsMsgSearchAttribValue>(i));
         break;
       }
     }
   }
-
-  nsMsgSearchAttribValue *array = (nsMsgSearchAttribValue *)moz_xmalloc(
-      sizeof(nsMsgSearchAttribValue) * totalAttributes);
-  NS_ENSURE_TRUE(array, NS_ERROR_OUT_OF_MEMORY);
-
-  uint32_t numStored = 0;
-  for (i = 0; i < nsMsgSearchAttrib::kNumMsgSearchAttributes; i++) {
-    for (j = 0; j < nsMsgSearchOp::kNumMsgSearchOperators; j++) {
-      if (m_table[i][j].bitAvailable) {
-        array[numStored++] = i;
-        break;
-      }
-    }
-  }
-
-  NS_ASSERTION(totalAttributes == numStored, "Search Attributes not lining up");
-  *length = totalAttributes;
-  *aResult = array;
-
   return NS_OK;
 }
 
 nsresult nsMsgSearchValidityTable::GetAvailableOperators(
-    nsMsgSearchAttribValue aAttribute, uint32_t *aLength,
-    nsMsgSearchOpValue **aResult) {
-  NS_ENSURE_ARG_POINTER(aLength);
-  NS_ENSURE_ARG_POINTER(aResult);
+    nsMsgSearchAttribValue aAttribute, nsTArray<nsMsgSearchOpValue> &aResult) {
+  aResult.Clear();
 
   nsMsgSearchAttribValue attr;
   if (aAttribute == nsMsgSearchAttrib::Default)
@@ -818,24 +793,12 @@ nsresult nsMsgSearchValidityTable::GetAvailableOperators(
     attr = std::min(aAttribute,
                     (nsMsgSearchAttribValue)nsMsgSearchAttrib::OtherHeader);
 
-  uint32_t totalOperators = 0;
   int32_t i;
   for (i = 0; i < nsMsgSearchOp::kNumMsgSearchOperators; i++) {
-    if (m_table[attr][i].bitAvailable) totalOperators++;
+    if (m_table[attr][i].bitAvailable) {
+      aResult.AppendElement(static_cast<nsMsgSearchOpValue>(i));
+    }
   }
-
-  nsMsgSearchOpValue *array = (nsMsgSearchOpValue *)moz_xmalloc(
-      sizeof(nsMsgSearchOpValue) * totalOperators);
-  NS_ENSURE_TRUE(array, NS_ERROR_OUT_OF_MEMORY);
-
-  uint32_t numStored = 0;
-  for (i = 0; i < nsMsgSearchOp::kNumMsgSearchOperators; i++) {
-    if (m_table[attr][i].bitAvailable) array[numStored++] = i;
-  }
-
-  NS_ASSERTION(totalOperators == numStored, "Search Operators not lining up");
-  *aLength = totalOperators;
-  *aResult = array;
   return NS_OK;
 }
 
