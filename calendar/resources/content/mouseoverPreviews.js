@@ -138,7 +138,7 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
     } else {
       vbox.setAttribute("flex", "1");
     }
-    boxInitializeHeaderGrid(vbox);
+    boxInitializeHeaderTable(vbox);
 
     let hasHeader = false;
 
@@ -242,7 +242,7 @@ function getPreviewForEvent(aEvent, aIsTooltip = true) {
   } else {
     vbox.setAttribute("flex", "1");
   }
-  boxInitializeHeaderGrid(vbox);
+  boxInitializeHeaderTable(vbox);
 
   if (event) {
     if (event.title) {
@@ -321,7 +321,7 @@ function boxAppendBody(box, textString, aIsTooltip) {
 
 /**
  * PRIVATE: Use dateFormatter to format date and time,
- * and to header grid append a row containing localized Label: date.
+ * and to header table append a row containing localized Label: date.
  *
  * @param {Node}         box            The node to add the date label to
  * @param {String}       labelProperty  The label
@@ -335,9 +335,9 @@ function boxAppendLabeledDateTime(box, labelProperty, date) {
 
 /**
  * PRIVATE: Use dateFormatter to format date and time interval,
- * and to header grid append a row containing localized Label: interval.
+ * and to header table append a row containing localized Label: interval.
  *
- * @param box               contains header grid.
+ * @param box               contains header table.
  * @param labelProperty     name of property for localized field label.
  * @param item              the event or task
  */
@@ -347,74 +347,60 @@ function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
 }
 
 /**
- * PRIVATE: create empty 2-column grid for header fields, and append it to box.
+ * PRIVATE: create empty 2-column table for header fields, and append it to box.
  *
- * @param  {Node}  box  The node to create a column grid for
+ * @param  {Node}  box  The node to create a column table for
  */
-function boxInitializeHeaderGrid(box) {
-  let grid = document.createXULElement("grid");
-  grid.setAttribute("class", "tooltipHeaderGrid");
-  let rows;
-  {
-    let columns = document.createXULElement("columns");
-    {
-      let labelColumn = document.createXULElement("column");
-      labelColumn.setAttribute("class", "tooltipLabelColumn");
-      columns.appendChild(labelColumn);
-      let valueColumn = document.createXULElement("column");
-      valueColumn.setAttribute("class", "tooltipValueColumn");
-      columns.appendChild(valueColumn);
-    }
-    grid.appendChild(columns);
-    rows = document.createXULElement("rows");
-    grid.appendChild(rows);
-  }
-  box.appendChild(grid);
+function boxInitializeHeaderTable(box) {
+  let table = document.createElementNS("http://www.w3.org/1999/xhtml", "table");
+  table.setAttribute("class", "tooltipHeaderTable");
+  box.appendChild(table);
 }
 
 /**
- * PRIVATE: To headers grid, append a row containing Label: value, where label
+ * PRIVATE: To headers table, append a row containing Label: value, where label
  * is localized text for labelProperty.
  *
- * @param box               box containing headers grid
+ * @param box               box containing headers table
  * @param labelProperty     name of property for localized name of header
  * @param textString        value of header field.
  */
 function boxAppendLabeledText(box, labelProperty, textString) {
   let labelText = cal.l10n.getCalString(labelProperty);
-  let rows = box.getElementsByTagNameNS(box.namespaceURI, "rows")[0];
-  let row = document.createXULElement("row");
+  let table = box.querySelector("table");
+  let row = document.createElementNS("http://www.w3.org/1999/xhtml", "tr");
 
   row.appendChild(createTooltipHeaderLabel(labelText));
   row.appendChild(createTooltipHeaderDescription(textString));
 
-  rows.appendChild(row);
+  table.appendChild(row);
 }
 
 /**
- * PRIVATE: Creates an element for field label (for header grid)
+ * PRIVATE: Creates an element for field label (for header table)
  *
  * @param   {String} text  The text to display in the node
  * @returns {Node}         The node
  */
 function createTooltipHeaderLabel(text) {
-  let label = document.createXULElement("label");
-  label.setAttribute("class", "tooltipHeaderLabel");
-  label.appendChild(document.createTextNode(text));
-  return label;
+  let labelCell = document.createElementNS("http://www.w3.org/1999/xhtml", "th");
+  labelCell.setAttribute("class", "tooltipHeaderLabel");
+  labelCell.textContent = text;
+  labelCell.setAttribute("align", "right");
+  return labelCell;
 }
 
 /**
- * PRIVATE: Creates an element for field value (for header grid)
+ * PRIVATE: Creates an element for field value (for header table)
  *
  * @param   {String} text  The text to display in the node
  * @returns {Node}         The node
  */
 function createTooltipHeaderDescription(text) {
-  let label = document.createXULElement("description");
-  label.setAttribute("class", "tooltipHeaderDescription");
-  label.appendChild(document.createTextNode(text));
-  return label;
+  let descriptionCell = document.createElementNS("http://www.w3.org/1999/xhtml", "td");
+  descriptionCell.setAttribute("class", "tooltipHeaderDescription");
+  descriptionCell.textContent = text;
+  return descriptionCell;
 }
 
 /**

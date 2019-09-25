@@ -855,19 +855,8 @@ calendar-event-box[gripBars="both"]:not([readonly="true"]):hover .calendar-event
     max-width: 35em; /* tooltipBox max-width minus space for label */
 }
 
-.tooltipHeaderLabel {
-    font-weight: bold;
-    text-align: right;
-    margin-top: 0;
-    margin-bottom: 0;
-    margin-inline-start: 0;
-    margin-inline-end: 1em; /* 1em space before value */
-}
-
-.tooltipHeaderDescription {
-    font-weight: normal;
-    text-align: left;
-    margin: 0pt;
+.tooltipHeaderTable {
+    border-spacing: 0;
 }
 
 .tooltipBodySeparator {
