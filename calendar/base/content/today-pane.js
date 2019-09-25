@@ -418,7 +418,13 @@ var TodayPane = {
       cal.getWeekInfoService().getWeekTitle(this.start);
 
     if (!aDontUpdateMinimonth) {
-      document.getElementById("today-minimonth").value = cal.dtz.dateTimeToJsDate(this.start);
+      try {
+        // The minimonth code sometimes throws an exception as a result of this call. Bug 1560547.
+        // As there's no known plausible explanation, just catch the exception and carry on.
+        document.getElementById("today-minimonth").value = cal.dtz.dateTimeToJsDate(this.start);
+      } catch (ex) {
+        Cu.reportError(ex);
+      }
     }
     this.updatePeriod();
     this.setDay.alreadySettingDay = false;
