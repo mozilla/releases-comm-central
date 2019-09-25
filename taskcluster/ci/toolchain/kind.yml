@@ -13,12 +13,11 @@ jobs:
     - linux64-cbindgen
     - linux64-cctools-port
     - linux64-clang
-    - linux64-clang-3.9
     - linux64-clang-7
+    - linux64-clang-9
     - linux64-clang-macosx-cross
     - linux64-clang-mingw-x64
     - linux64-gcc
-    - linux64-gcc-4.9
     - linux64-hfsplus
     - linux64-libdmg
     - linux64-llvm-dsymutil
