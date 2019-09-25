@@ -103,18 +103,24 @@ nsMsgTraitService.prototype = {
     return _traits[aId].antiId;
   },
 
-  getEnabledIndices(aCount, aProIndices, aAntiIndices) {
+  getEnabledProIndices() {
     let proIndices = [];
-    let antiIndices = [];
     for (let id in _traits) {
       if (_traits[id].enabled) {
         proIndices.push(_traits[id].index);
+      }
+    }
+    return proIndices;
+  },
+
+  getEnabledAntiIndices() {
+    let antiIndices = [];
+    for (let id in _traits) {
+      if (_traits[id].enabled) {
         antiIndices.push(_traits[_traits[id].antiId].index);
       }
     }
-    aCount.value = proIndices.length;
-    aProIndices.value = proIndices;
-    aAntiIndices.value = antiIndices;
+    return antiIndices;
   },
 
   addAlias(aTraitIndex, aTraitAliasIndex) {

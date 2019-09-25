@@ -129,17 +129,26 @@ interface nsIMsgTraitService : nsISupports
   ACString getAntiId(in ACString id);
 
   /**
-   * get an array of traits to be analyzed by the bayesian code. This is
-   * a pair of traits: a "pro" trait of messages that match the trait (and is
-   * set enabled) and an "anti" trait of messages that do not match the trait.
+   * Get an array of "pro" traits to be analyzed by the bayesian code. This is
+   * a "pro" trait of messages that match the trait.
+   * Only enabled traits are returned.
+   * This should return the same number of indices as the corresponding call to
+   * getEnabledAntiIndices().
    *
-   * @param count        length of proIndices and antiIndices arrays
-   * @param proIndices   trait internal index for "pro" trait to analyze
-   * @param antiIndices  trait internal index for corresponding "anti" traits
+   * @return array of trait internal indices for "pro" trait to analyze
    */
-  void getEnabledIndices(out unsigned long count,
-                         [array, size_is(count)] out unsigned long proIndices,
-                         [array, size_is(count)] out unsigned long antiIndices);
+  Array<unsigned long> getEnabledProIndices();
+
+  /**
+   * Get an array of "anti" traits to be analyzed by the bayesian code. This is
+   * a "anti" trait of messages that do not match the trait.
+   * Only enabled traits are returned.
+   * This should return the same number of indices as the corresponding call to
+   * getEnabledProIndices().
+   *
+   * @return array of trait internal indices for "anti" trait to analyze
+   */
+  Array<unsigned long> getEnabledAntiIndices();
 
   /**
    * Add a trait as an alias of another trait. An alias is a trait whose

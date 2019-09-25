@@ -2090,16 +2090,16 @@ nsresult nsMsgDBFolder::SpamFilterClassifyMessage(
       do_GetService("@mozilla.org/msg-trait-service;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count;
-  uint32_t *proIndices;
-  uint32_t *antiIndices;
-  rv = traitService->GetEnabledIndices(&count, &proIndices, &antiIndices);
+  nsTArray<uint32_t> proIndices;
+  rv = traitService->GetEnabledProIndices(proIndices);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<uint32_t> antiIndices;
+  rv = traitService->GetEnabledAntiIndices(antiIndices);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = aJunkMailPlugin->ClassifyTraitsInMessage(
-      aURI, count, proIndices, antiIndices, this, aMsgWindow, this);
-  free(proIndices);
-  free(antiIndices);
+      aURI, proIndices.Length(), proIndices.Elements(), antiIndices.Elements(),
+      this, aMsgWindow, this);
   return rv;
 }
 
@@ -2114,17 +2114,16 @@ nsresult nsMsgDBFolder::SpamFilterClassifyMessages(
       do_GetService("@mozilla.org/msg-trait-service;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count;
-  uint32_t *proIndices;
-  uint32_t *antiIndices;
-  rv = traitService->GetEnabledIndices(&count, &proIndices, &antiIndices);
+  nsTArray<uint32_t> proIndices;
+  rv = traitService->GetEnabledProIndices(proIndices);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<uint32_t> antiIndices;
+  rv = traitService->GetEnabledAntiIndices(antiIndices);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = aJunkMailPlugin->ClassifyTraitsInMessages(aURICount, aURIArray, count,
-                                                 proIndices, antiIndices, this,
-                                                 aMsgWindow, this);
-  free(proIndices);
-  free(antiIndices);
+  rv = aJunkMailPlugin->ClassifyTraitsInMessages(
+      aURICount, aURIArray, proIndices.Length(), proIndices.Elements(),
+      antiIndices.Elements(), this, aMsgWindow, this);
   return rv;
 }
 
@@ -2386,12 +2385,12 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun) {
       do_GetService("@mozilla.org/msg-trait-service;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count = 0, *proIndices, *antiIndices;
-  rv = traitService->GetEnabledIndices(&count, &proIndices, &antiIndices);
+  nsTArray<uint32_t> proIndices;
+  rv = traitService->GetEnabledProIndices(proIndices);
   bool filterForOther = false;
   // We just skip this on failure, since it is rarely used.
   if (NS_SUCCEEDED(rv)) {
-    for (uint32_t i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < proIndices.Length(); ++i) {
       // The trait service determines which traits are globally enabled or
       // disabled. If a trait is enabled, it can still be made inactive
       // on a particular folder using an inherited property. To do that,
@@ -2415,8 +2414,6 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun) {
         break;
       }
     }
-    free(proIndices);
-    free(antiIndices);
   }
 
   // clang-format off

@@ -57,13 +57,12 @@ function run_test() {
   Assert.ok(ts.getEnabled(proId));
   ts.setAntiId(proId, antiId);
   Assert.equal(antiId, ts.getAntiId(proId));
-  var proArray = {};
-  var antiArray = {};
-  ts.getEnabledIndices({}, proArray, antiArray);
-  Assert.equal(proArray.value.length, 2);
-  Assert.equal(antiArray.value.length, 2);
-  Assert.equal(proArray.value[1], proIndex);
-  Assert.equal(antiArray.value[1], antiIndex);
+  let proArray = ts.getEnabledProIndices();
+  let antiArray = ts.getEnabledAntiIndices();
+  Assert.equal(proArray.length, 2);
+  Assert.equal(antiArray.length, 2);
+  Assert.equal(proArray[1], proIndex);
+  Assert.equal(antiArray[1], antiIndex);
 
   // check of aliases
   // add three random aliases
