@@ -17,7 +17,6 @@
 #include "nsISupportsPrimitives.h"
 
 #include "nsAppDirectoryServiceDefs.h"
-#include "nsIRDFService.h"
 #include "nsIStringBundle.h"
 #include "nsCRT.h"
 

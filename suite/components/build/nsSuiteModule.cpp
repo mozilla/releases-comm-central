@@ -7,7 +7,6 @@
 #include "nsSuiteDirectoryProvider.h"
 #include "nsThunderbirdProfileMigrator.h"
 #include "nsNetCID.h"
-#include "nsRDFCID.h"
 #include "nsFeedSniffer.h"
 
 #if defined(XP_WIN)
