@@ -14,7 +14,7 @@ jobs:
     - linux64-cctools-port
     - linux64-clang
     - linux64-clang-7
-    - linux64-clang-9
+    - linux64-clang-8
     - linux64-clang-macosx-cross
     - linux64-clang-mingw-x64
     - linux64-gcc
