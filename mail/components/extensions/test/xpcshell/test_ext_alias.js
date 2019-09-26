@@ -116,7 +116,6 @@ add_task(async function test_alias() {
     "http://example.com/dummy"
   );
   await extension.awaitFinish("ext_alias");
-  ExtensionTestUtils.failOnSchemaWarnings(true);
 
   await contentPage.close();
   await extension.unload();
