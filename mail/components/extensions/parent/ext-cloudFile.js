@@ -19,10 +19,13 @@ async function promiseFileRead(nsifile) {
 
   return new Promise((resolve, reject) => {
     let reader = new FileReader();
-    reader.addEventListener("loadend", () => {
-      resolve(reader.result);
+    reader.addEventListener("loadend", event => {
+      if (event.target.error) {
+        reject(event.target.error);
+      } else {
+        resolve(event.target.result);
+      }
     });
-    reader.addEventListener("onerror", reject);
 
     reader.readAsArrayBuffer(blob);
   });
@@ -36,6 +39,7 @@ class CloudFileAccount {
     this.lastError = "";
     this.settingsURL = this.extension.manifest.cloud_file.settings_url;
     this.managementURL = this.extension.manifest.cloud_file.management_url;
+    this.dataFormat = this.extension.manifest.cloud_file.data_format;
     this.quota = {
       uploadSizeLimit: -1,
       spaceRemaining: -1,
@@ -101,12 +105,21 @@ class CloudFileAccount {
     let results;
 
     try {
-      let buffer = await promiseFileRead(file);
-      results = await this.extension.emit("uploadFile", this, {
-        id,
-        name: file.leafName,
-        data: buffer,
-      });
+      if (this.dataFormat == "File") {
+        let blob = await File.createFromNsIFile(file);
+        results = await this.extension.emit("uploadFile", this, {
+          id,
+          name: file.leafName,
+          data: blob,
+        });
+      } else {
+        let buffer = await promiseFileRead(file);
+        results = await this.extension.emit("uploadFile", this, {
+          id,
+          name: file.leafName,
+          data: buffer,
+        });
+      }
     } catch (ex) {
       this._uploads.delete(id);
       if (ex.result == 0x80530014) {

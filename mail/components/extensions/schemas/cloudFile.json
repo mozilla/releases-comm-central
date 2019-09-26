@@ -40,6 +40,13 @@
                 "format": "relativeUrl",
                 "preprocess": "localize",
                 "description": "A page for configuring accounts, to be displayed in the preferences UI."
+              },
+              "data_format": {
+                "type": "string",
+                "optional": true,
+                "default": "ArrayBuffer",
+                "description": "Determines the format of the ``data`` argument in ``onFileUpload``.",
+                "enum": ["ArrayBuffer", "File"]
               }
             },
             "optional": true
@@ -210,10 +217,20 @@
             "description": "Filename of the file to be transferred"
           },
           "data": {
-            "type": "object",
-            "isInstanceOf": "ArrayBuffer",
-            "additionalProperties": true,
-            "description": "Contents of the file to be transferred"
+            "choices": [
+              {
+                "type": "object",
+                "isInstanceOf": "ArrayBuffer",
+                "additionalProperties": true,
+                "description": "Contents of the file to be transferred"
+              },
+              {
+                "type": "object",
+                "isInstanceOf": "File",
+                "additionalProperties": true,
+                "description": "Contents of the file to be transferred"
+              }
+            ]
           }
         }
       }

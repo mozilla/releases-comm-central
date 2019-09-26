@@ -146,6 +146,7 @@ add_task(async () => {
           browser.cloudFile.onFileUpload.removeListener(fileListener);
           browser.test.assertEq(account.id, createdAccount.id);
           browser.test.assertEq(name, "cloudFile1.txt");
+          browser.test.assertTrue(data instanceof ArrayBuffer);
           browser.test.assertEq(
             new TextDecoder("utf-8").decode(data),
             "you got the moves!\n"
@@ -282,6 +283,60 @@ add_task(async () => {
 
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
   Assert.equal(cloudFileAccounts.accounts.length, 0);
+
+  ExtensionTestUtils.failOnSchemaWarnings(true);
+});
+
+add_task(async () => {
+  async function background() {
+    await new Promise(resolve => {
+      function fileListener(account, { id, name, data }) {
+        browser.cloudFile.onFileUpload.removeListener(fileListener);
+        browser.test.assertEq(name, "cloudFile1.txt");
+        browser.test.assertTrue(data instanceof File);
+        let reader = new FileReader();
+        reader.addEventListener("loadend", () => {
+          browser.test.assertEq(reader.result, "you got the moves!\n");
+          setTimeout(() => resolve(id));
+        });
+        reader.readAsText(data);
+        return { url: "https://example.com/" + name };
+      }
+
+      browser.cloudFile.onFileUpload.addListener(fileListener);
+      browser.test.sendMessage("uploadFile");
+    });
+
+    browser.test.notifyPass("cloudFile");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background,
+    manifest: {
+      cloud_file: {
+        name: "xpcshell",
+        settings_url: "/content/settings.html",
+        management_url: "/content/management.html",
+        data_format: "File",
+      },
+      applications: { gecko: { id: "cloudfile@xpcshell" } },
+    },
+  });
+
+  // Deprecated property "settings_url". See bug 1581496 for removal.
+  ExtensionTestUtils.failOnSchemaWarnings(false);
+
+  await extension.startup();
+
+  await extension.awaitMessage("uploadFile");
+  let id = "ext-cloudfile@xpcshell";
+  let account = cloudFileAccounts.createAccount(id);
+  await account.uploadFile(do_get_file("data/cloudFile1.txt"));
+
+  await extension.awaitFinish("cloudFile");
+  cloudFileAccounts.removeAccount(account);
+
+  await extension.unload();
 
   ExtensionTestUtils.failOnSchemaWarnings(true);
 });
