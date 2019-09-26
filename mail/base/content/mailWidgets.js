@@ -750,7 +750,7 @@
         // hide these nodes from the accessibility tree.
         return document.importNode(
           MozXULElement.parseXULToFragment(`
-            <html:input type="text" class="menulist-input" allowevents="true"/>
+            <html:input type="text" class="menulist-input textbox-input" allowevents="true"/>
             <hbox class="menulist-label-box" flex="1" role="none">
               <image class="menulist-icon" role="none"/>
               <label class="menulist-label"

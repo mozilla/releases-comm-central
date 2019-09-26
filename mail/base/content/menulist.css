@@ -14,12 +14,12 @@ menulist > html|input {
   margin: 0;
 }
 
-menulist html|input {
-  -moz-appearance: none !important;
-  background: transparent !important;
+menulist html|*.textbox-input {
+  -moz-appearance: none;
+  background: transparent;
   -moz-box-flex: 1;
-  margin: 0 !important;
-  border: none !important;
-  padding: 0 !important;
+  margin: 0;
+  border: none;
+  padding: 0;
   font: inherit;
 }
