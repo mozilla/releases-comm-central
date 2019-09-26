@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "MailNewsTypes2.idl"  // for nsMsgKey
 
 interface nsIURI;
 interface nsIImapUrl;
@@ -44,7 +45,8 @@ interface nsIImapProtocol : nsISupports {
    */
   void Initialize(in nsIImapHostSessionList aHostSessionList, in nsIImapIncomingServer aServer);
 
-  void NotifyBodysToDownload(out unsigned long keys, in unsigned long count);
+  void NotifyBodysToDownload(in Array<nsMsgKey> keys);
+
   // methods to get data from the imap parser flag state.
   void GetFlagsForUID(in unsigned long uid, out boolean foundIt, out unsigned short flags, out string customFlags);
   void GetSupportedUserFlags(out unsigned short flags);

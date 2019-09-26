@@ -448,8 +448,7 @@ class nsImapProtocol : public nsIImapProtocol,
                      nsIMAPeFetchFields fields);
   void FolderMsgDumpLoop(uint32_t *msgUids, uint32_t msgCount,
                          nsIMAPeFetchFields fields);
-  void WaitForPotentialListOfBodysToFetch(uint32_t **msgIdList,
-                                          uint32_t &msgCount);
+  void WaitForPotentialListOfBodysToFetch(nsTArray<nsMsgKey> &msgIdList);
   void HeaderFetchCompleted();
   void UploadMessageFromFile(nsIFile *file, const char *mailboxName,
                              PRTime date, imapMessageFlagsType flags,
@@ -462,8 +461,7 @@ class nsImapProtocol : public nsIImapProtocol,
 
   // body fetching listing data
   bool m_fetchBodyListIsNew;
-  uint32_t m_fetchBodyCount;
-  uint32_t *m_fetchBodyIdList;
+  nsTArray<nsMsgKey> m_fetchBodyIdList;
 
   // initialization function given a new url and transport layer
   nsresult SetupWithUrl(nsIURI *aURL, nsISupports *aConsumer);

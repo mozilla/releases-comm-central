@@ -474,7 +474,6 @@ nsImapProtocol::nsImapProtocol()
   m_connectionStatus = NS_OK;
   m_safeToCloseConnection = false;
   m_hostSessionList = nullptr;
-  m_fetchBodyIdList = nullptr;
   m_isGmailServer = false;
   m_fetchingWholeMessage = false;
 
@@ -653,8 +652,6 @@ nsImapProtocol::Initialize(nsIImapHostSessionList *aHostSessionList,
 }
 
 nsImapProtocol::~nsImapProtocol() {
-  PR_Free(m_fetchBodyIdList);
-
   PR_Free(m_dataOutputBuf);
 
   // **** We must be out of the thread main loop function
@@ -2436,14 +2433,12 @@ void nsImapProtocol::ProcessSelectedStateURL() {
       } else if (moreHeadersToDownload &&
                  m_imapMailFolderSink)  // we need to fetch older headers
       {
-        nsMsgKey *msgIdList = nullptr;
-        uint32_t msgCount = 0;
+        nsTArray<nsMsgKey> msgIdList;
         bool more;
         m_imapMailFolderSink->GetMsgHdrsToDownload(
-            &more, &m_progressExpectedNumber, &msgCount, &msgIdList);
-        if (msgIdList) {
-          FolderHeaderDump(msgIdList, msgCount);
-          free(msgIdList);
+            &more, &m_progressExpectedNumber, msgIdList);
+        if (msgIdList.Length() > 0) {
+          FolderHeaderDump(msgIdList.Elements(), msgIdList.Length());
           m_runningUrl->SetMoreHeadersToDownload(more);
           // We're going to be re-running this url.
           if (more) m_runningUrl->SetRerunningUrl(true);
@@ -4198,8 +4193,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
 
   bool entered_waitForBodyIdsMonitor = false;
 
-  uint32_t *msgIdList = nullptr;
-  uint32_t msgCount = 0;
+  nsTArray<nsMsgKey> msgIdList;
 
   RefPtr<nsImapMailboxSpec> new_spec =
       GetServerStateParser().CreateCurrentMailboxSpec();
@@ -4215,7 +4209,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
       bool more;
       m_imapMailFolderSink->UpdateImapMailboxInfo(this, new_spec);
       m_imapMailFolderSink->GetMsgHdrsToDownload(
-          &more, &m_progressExpectedNumber, &msgCount, &msgIdList);
+          &more, &m_progressExpectedNumber, msgIdList);
       // Assert that either it's empty string OR it must be header string.
       MOZ_ASSERT((m_stringIndex == IMAP_EMPTY_STRING_INDEX) ||
                  (m_stringIndex == IMAP_HEADERS_STRING_INDEX));
@@ -4229,10 +4223,9 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
   if (GetServerStateParser().LastCommandSuccessful()) {
     if (entered_waitForBodyIdsMonitor) m_waitForBodyIdsMonitor.Exit();
 
-    if (msgIdList && !DeathSignalReceived() &&
+    if (msgIdList.Length() > 0 && !DeathSignalReceived() &&
         GetServerStateParser().LastCommandSuccessful()) {
-      FolderHeaderDump(msgIdList, msgCount);
-      free(msgIdList);
+      FolderHeaderDump(msgIdList.Elements(), msgIdList.Length());
     }
     HeaderFetchCompleted();
     // this might be bogus, how are we going to do pane notification and stuff
@@ -4243,8 +4236,9 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
 
   // wait for a list of bodies to fetch.
   if (GetServerStateParser().LastCommandSuccessful()) {
-    WaitForPotentialListOfBodysToFetch(&msgIdList, msgCount);
-    if (msgCount && GetServerStateParser().LastCommandSuccessful()) {
+    nsTArray<nsMsgKey> msgIds;
+    WaitForPotentialListOfBodysToFetch(msgIds);
+    if (msgIds.Length() > 0 && GetServerStateParser().LastCommandSuccessful()) {
       // Tell the url that it should store the msg fetch results offline,
       // while we're dumping the messages, and then restore the setting.
       bool wasStoringOffline;
@@ -4254,8 +4248,8 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
       MOZ_ASSERT((m_stringIndex == IMAP_EMPTY_STRING_INDEX) ||
                  (m_stringIndex == IMAP_MESSAGES_STRING_INDEX));
       m_progressCurrentNumber[m_stringIndex] = 0;
-      m_progressExpectedNumber = msgCount;
-      FolderMsgDump(msgIdList, msgCount, kEveryThingRFC822Peek);
+      m_progressExpectedNumber = msgIds.Length();
+      FolderMsgDump(msgIds.Elements(), msgIds.Length(), kEveryThingRFC822Peek);
       m_runningUrl->SetStoreResultsOffline(wasStoringOffline);
     }
   }
@@ -4287,8 +4281,8 @@ void nsImapProtocol::FolderMsgDump(uint32_t *msgUids, uint32_t msgCount,
   SetProgressString(IMAP_EMPTY_STRING_INDEX);
 }
 
-void nsImapProtocol::WaitForPotentialListOfBodysToFetch(uint32_t **msgIdList,
-                                                        uint32_t &msgCount) {
+void nsImapProtocol::WaitForPotentialListOfBodysToFetch(
+    nsTArray<nsMsgKey> &msgIdList) {
   PRIntervalTime sleepTime = kImapSleepTime;
 
   ReentrantMonitorAutoEnter fetchListMon(m_fetchBodyListMonitor);
@@ -4296,20 +4290,15 @@ void nsImapProtocol::WaitForPotentialListOfBodysToFetch(uint32_t **msgIdList,
     fetchListMon.Wait(sleepTime);
   m_fetchBodyListIsNew = false;
 
-  *msgIdList = m_fetchBodyIdList;
-  msgCount = m_fetchBodyCount;
+  msgIdList = m_fetchBodyIdList;
 }
 
 // libmsg uses this to notify a running imap url about message bodies it should
 // download. why not just have libmsg explicitly download the message bodies?
-NS_IMETHODIMP nsImapProtocol::NotifyBodysToDownload(uint32_t *keys,
-                                                    uint32_t keyCount) {
+NS_IMETHODIMP nsImapProtocol::NotifyBodysToDownload(
+    const nsTArray<nsMsgKey> &keys) {
   ReentrantMonitorAutoEnter fetchListMon(m_fetchBodyListMonitor);
-  PR_FREEIF(m_fetchBodyIdList);
-  m_fetchBodyIdList = (uint32_t *)PR_MALLOC(keyCount * sizeof(uint32_t));
-  if (m_fetchBodyIdList)
-    memcpy(m_fetchBodyIdList, keys, keyCount * sizeof(uint32_t));
-  m_fetchBodyCount = keyCount;
+  m_fetchBodyIdList = keys;
   m_fetchBodyListIsNew = true;
   fetchListMon.Notify();
   return NS_OK;

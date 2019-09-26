@@ -4036,19 +4036,15 @@ void nsImapMailFolder::FindKeysToAdd(const nsTArray<nsMsgKey> &existingKeys,
   }
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(bool *aMoreToDownload,
-                                                     int32_t *aTotalCount,
-                                                     uint32_t *aLength,
-                                                     nsMsgKey **aKeys) {
+NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(
+    bool *aMoreToDownload, int32_t *aTotalCount, nsTArray<nsMsgKey> &aKeys) {
   NS_ENSURE_ARG_POINTER(aMoreToDownload);
   NS_ENSURE_ARG_POINTER(aTotalCount);
-  NS_ENSURE_ARG_POINTER(aLength);
-  NS_ENSURE_ARG_POINTER(aKeys);
+  aKeys.Clear();
 
   *aMoreToDownload = false;
   *aTotalCount = m_totalKeysToFetch;
   if (m_keysToFetch.IsEmpty()) {
-    *aLength = 0;
     return NS_OK;
   }
 
@@ -4076,20 +4072,18 @@ NS_IMETHODIMP nsImapMailFolder::GetMsgHdrsToDownload(bool *aMoreToDownload,
     *aMoreToDownload = true;
     startIndex = m_keysToFetch.Length() - hdrChunkSize;
   }
-  *aKeys = (nsMsgKey *)moz_xmemdup(&m_keysToFetch[startIndex],
-                                   numKeysToFetch * sizeof(nsMsgKey));
-  NS_ENSURE_TRUE(*aKeys, NS_ERROR_OUT_OF_MEMORY);
+  aKeys.AppendElements(&m_keysToFetch[startIndex], numKeysToFetch);
   // Remove these for the incremental header download case, so that
   // we know we don't have to download them again.
   m_keysToFetch.RemoveElementsAt(startIndex, numKeysToFetch);
-  *aLength = numKeysToFetch;
 
   return NS_OK;
 }
 
 void nsImapMailFolder::PrepareToAddHeadersToMailDB(nsIImapProtocol *aProtocol) {
   // now, tell it we don't need any bodies.
-  aProtocol->NotifyBodysToDownload(nullptr, 0);
+  nsTArray<nsMsgKey> noBodies;
+  aProtocol->NotifyBodysToDownload(noBodies);
 }
 
 void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol *aProtocol,
@@ -5460,8 +5454,7 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol *aProtocol) {
       if (!keysToDownload.IsEmpty() &&
           (m_downloadingFolderForOfflineUse || autoDownloadNewHeaders)) {
         notifiedBodies = true;
-        aProtocol->NotifyBodysToDownload(keysToDownload.Elements(),
-                                         keysToDownload.Length());
+        aProtocol->NotifyBodysToDownload(keysToDownload);
       } else {
         // create auto-sync state object lazily
         InitAutoSyncState();
@@ -5474,8 +5467,10 @@ nsImapMailFolder::HeaderFetchCompleted(nsIImapProtocol *aProtocol) {
         m_autoSyncStateObj->OnNewHeaderFetchCompleted(keysToDownload);
       }
     }
-    if (!notifiedBodies)
-      aProtocol->NotifyBodysToDownload(nullptr, 0 /*keysToFetch.Length() */);
+    if (!notifiedBodies) {
+      nsTArray<nsMsgKey> noBodies;
+      aProtocol->NotifyBodysToDownload(noBodies);
+    }
 
     nsCOMPtr<nsIURI> runningUri;
     aProtocol->GetRunningUrl(getter_AddRefs(runningUri));
