@@ -859,7 +859,7 @@ async function ImportAddress(module, success, error) {
           );
           filePicker.appendFilter(
             addressbookBundle.getString("SupportedABFiles"),
-            ".csv; *.ldi; *.ldif; *.tab; *.txt"
+            "*.csv; *.ldi; *.ldif; *.tab; *.txt"
           );
           filePicker.appendFilters(filePicker.filterAll);
           // Use "Supported Address Book Files" as default file filter.
