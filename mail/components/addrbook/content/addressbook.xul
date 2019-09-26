@@ -667,12 +667,12 @@
                    title="&searchItem.title;"
                    align="center" flex="1"
                    class="chromeclass-toolbar-additional">
-        <textbox is="search-textbox" id="peopleSearchInput"
-                 class="searchBox"
-                 flex="1"
-                 timeout="800"
-                 placeholder="&SearchNameOrEmail.label;"
-                 oncommand="onEnterInSearchBar();"/>
+        <search-textbox id="peopleSearchInput"
+                        class="searchBox"
+                        flex="1"
+                        timeout="800"
+                        placeholder="&SearchNameOrEmail.label;"
+                        oncommand="onEnterInSearchBar();"/>
       </toolbaritem>
   </toolbarpalette>
   <!-- toolbar -->

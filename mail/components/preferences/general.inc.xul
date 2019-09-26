@@ -343,11 +343,11 @@
 
     <groupbox data-category="paneGeneral">
       <hbox>
-        <textbox is="search-textbox" id="filter"
-                 flex="1"
-                 placeholder="&filter.placeholder;"
-                 aria-controls="handlersView"
-                 oncommand="gGeneralPane._rebuildView();"/>
+        <search-textbox id="filter"
+                        flex="1"
+                        placeholder="&filter.placeholder;"
+                        aria-controls="handlersView"
+                        oncommand="gGeneralPane._rebuildView();"/>
       </hbox>
 
       <separator class="thin"/>

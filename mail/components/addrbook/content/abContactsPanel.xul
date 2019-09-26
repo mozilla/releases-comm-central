@@ -123,12 +123,12 @@
       <label value="&searchContacts.label;"
              accesskey="&searchContacts.accesskey;"
              control="peopleSearchInput"/>
-      <textbox is="search-textbox" id="peopleSearchInput"
-               class="searchBox"
-               flex="1"
-               timeout="800"
-               placeholder="&SearchNameOrEmail.label;"
-               oncommand="onEnterInSearchBar();"/>
+      <search-textbox id="peopleSearchInput"
+                      class="searchBox"
+                      flex="1"
+                      timeout="800"
+                      placeholder="&SearchNameOrEmail.label;"
+                      oncommand="onEnterInSearchBar();"/>
     </vbox>
 
     <separator class="thin"/>

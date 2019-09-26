@@ -49,11 +49,11 @@
                      expandFolders="false"
                      oncommand="onServerClick(event.target._folder);"/>
         </menulist>
-        <textbox is="search-textbox" id="namefield"
-                 flex="1"
-                 timeout="300"
-                 aria-controls="subscribeTree"
-                 oncommand="Search();"/>
+        <search-textbox id="namefield"
+                        flex="1"
+                        timeout="300"
+                        aria-controls="subscribeTree"
+                        oncommand="Search();"/>
       </vbox>
     </hbox>
     <spacer/>

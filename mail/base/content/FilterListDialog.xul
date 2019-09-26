@@ -50,12 +50,12 @@
                  showAccountsFileHere="true"
                  oncommand="setFilterFolder(event.target._folder);"/>
     </menulist>
-    <textbox is="search-textbox" id="searchBox"
-             class="searchBox"
-             flex="1"
-             oncommand="rebuildFilterList();"
-             emptytext="&searchBox.emptyText;"
-             isempty="true"/>
+    <search-textbox id="searchBox"
+                    class="searchBox"
+                    flex="1"
+                    oncommand="rebuildFilterList();"
+                    emptytext="&searchBox.emptyText;"
+                    isempty="true"/>
   </hbox>
   <separator class="thin"/>
   <hbox id="filterListGrid" flex="1">

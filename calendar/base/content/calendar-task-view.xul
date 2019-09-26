@@ -44,14 +44,14 @@
           </hbox>
         </box>
         <box align="center" flex="1">
-          <textbox is="search-textbox" id="task-text-filter-field"
-                   class="themeableSearchBox"
-                   flex="1"
-                   placeholder=""
-                   emptytextbase="&calendar.task.text-filter.textbox.emptytext.base1;"
-                   keyLabelNonMac="&calendar.task.text-filter.textbox.emptytext.keylabel.nonmac;"
-                   keyLabelMac="&calendar.task.text-filter.textbox.emptytext.keylabel.mac;"
-                   oncommand="taskViewUpdate();"/>
+          <search-textbox id="task-text-filter-field"
+                          class="themeableSearchBox"
+                          flex="1"
+                          placeholder=""
+                          emptytextbase="&calendar.task.text-filter.textbox.emptytext.base1;"
+                          keyLabelNonMac="&calendar.task.text-filter.textbox.emptytext.keylabel.nonmac;"
+                          keyLabelMac="&calendar.task.text-filter.textbox.emptytext.keylabel.mac;"
+                          oncommand="taskViewUpdate();"/>
         </box>
       </hbox>
       <vbox flex="1">

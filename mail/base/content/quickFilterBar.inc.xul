@@ -53,18 +53,17 @@
                somefmtstring="&quickFilterBar.resultsLabel.some.formatString;"
                noresultsstring="&quickFilterBar.resultsLabel.none;"
                />
-        <textbox is="search-textbox" id="qfb-qs-textbox"
-                 flex="3"
-                 class="searchBox"
-                 placeholder=""
-                 emptytextbase="&quickFilterBar.textbox.emptyText.base1;"
-                 keyLabelNonMac="&quickFilterBar.textbox.emptyText.keyLabel2.nonmac;"
-                 keyLabelMac="&quickFilterBar.textbox.emptyText.keyLabel2.mac;"
-                 timeout="500"
-                 maxlength="192"
-                 width="320"
-                 minwidth="280">
-        </textbox>
+        <search-textbox id="qfb-qs-textbox"
+                        flex="3"
+                        class="searchBox"
+                        placeholder=""
+                        emptytextbase="&quickFilterBar.textbox.emptyText.base1;"
+                        keyLabelNonMac="&quickFilterBar.textbox.emptyText.keyLabel2.nonmac;"
+                        keyLabelMac="&quickFilterBar.textbox.emptyText.keyLabel2.mac;"
+                        timeout="500"
+                        maxlength="192"
+                        width="320"
+                        minwidth="280"/>
       </hbox>
       <hbox id="quick-filter-bar-expando">
         <arrowscrollbox id="quick-filter-bar-tab-bar"
