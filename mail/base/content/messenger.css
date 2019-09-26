@@ -75,7 +75,7 @@ search-value {
 }
 
 #LW-background-box:-moz-lwtheme {
-  display: -moz-box;
+  display: block;
   height: 60px;
   position: fixed;
   pointer-events: none;
