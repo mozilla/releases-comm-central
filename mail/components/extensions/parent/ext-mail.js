@@ -25,7 +25,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionPageChild: "resource://gre/modules/ExtensionPageChild.jsm",
   ExtensionProcessScript: "resource://gre/modules/ExtensionProcessScript.jsm",
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
-  ProxyScriptContext: "resource://gre/modules/ProxyScriptContext.jsm",
   Schemas: "resource://gre/modules/Schemas.jsm",
 });
 
@@ -37,7 +36,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   let loadContentScript = ExtensionProcessScript.loadContentScript;
   let initExtensionContext = ExtensionContent.initExtensionContext;
   let initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
-  let loadProxyScriptContext = ProxyScriptContext.prototype.load;
 
   // This patches constructor of ContentScriptContextChild adding the object to the sandbox
   ExtensionProcessScript.loadContentScript = function(contentScript, window) {
@@ -78,12 +76,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
     });
 
     return retval;
-  };
-
-  // This patches proxy scripts using browser.proxy.register()
-  ProxyScriptContext.prototype.load = function() {
-    Schemas.exportLazyGetter(this.sandbox, "messenger", () => this.browserObj);
-    return loadProxyScriptContext.apply(this, arguments);
   };
 })();
 

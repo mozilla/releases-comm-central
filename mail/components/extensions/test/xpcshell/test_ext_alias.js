@@ -25,21 +25,10 @@ server.registerPathHandler("/dummy", (request, response) => {
 add_task(async function test_alias() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let pending = new Set(["contentscript", "proxyscript", "webscript"]);
+      let pending = new Set(["contentscript", "webscript"]);
 
       browser.runtime.onMessage.addListener(message => {
-        if (message == "error-no-messenger") {
-          browser.test.fail("Proxy script has messenger object");
-        } else if (message == "error-missing-onmessage") {
-          browser.test.fail("Proxy script can listen to messages");
-        } else if (message == "error-missing-sendmessage") {
-          browser.test.fail("Proxy script can send messages");
-        } else if (message == "proxyscript") {
-          pending.delete(message);
-          browser.test.succeed(
-            "Proxy script can access everything it needs to"
-          );
-        } else if (message == "contentscript") {
+        if (message == "contentscript") {
           pending.delete(message);
           browser.test.succeed("Content script has completed");
         } else if (message == "webscript") {
@@ -67,8 +56,6 @@ add_task(async function test_alias() {
         messenger.runtime.getManifest().applications.gecko.id, // eslint-disable-line no-undef
         "Background script can access the manifest"
       );
-
-      await browser.proxy.register("proxy.js");
     },
     manifest: {
       content_scripts: [
@@ -79,7 +66,6 @@ add_task(async function test_alias() {
       ],
 
       applications: { gecko: { id: "alias@xpcshell" } },
-      permissions: ["proxy"],
       web_accessible_resources: ["web.html", "web.js"],
     },
     files: {
@@ -98,17 +84,6 @@ add_task(async function test_alias() {
         document.body.appendChild(frame);
 
         browser.runtime.sendMessage("contentscript");
-      `,
-      "proxy.js": `
-        if (typeof messenger == "undefined") {
-          browser.runtime.sendMessage("error-no-messenger");
-        } else if (typeof messenger.runtime.onMessage != "object") {
-          browser.runtime.sendMessage("error-missing-onmessage");
-        } else if (typeof messenger.runtime.sendMessage != "function") {
-          browser.runtime.sendMessage("error-missing-sendmessage");
-        } else {
-          browser.runtime.sendMessage("proxyscript");
-        }
       `,
       "web.html": `
         <!DOCTYPE html>
@@ -135,9 +110,6 @@ add_task(async function test_alias() {
     },
   });
 
-  // Deprecated proxy functions and events. This test will fail once
-  // bug 1545811 is fixed, and the proxy parts should be removed then.
-  ExtensionTestUtils.failOnSchemaWarnings(false);
   await extension.startup();
 
   const contentPage = await ExtensionTestUtils.loadContentPage(
