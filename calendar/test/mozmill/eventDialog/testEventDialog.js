@@ -163,6 +163,19 @@ function testEventDialog() {
   });
 
   // Catch and dismiss alarm.
+  //
+  // NOTE: dismissing the alarms here can cause an "error has occurred" dialog to appear:
+  //   An error occurred when when writing to the calendar Mozmill!
+  //   Error code: MODIFICATION_FAILED
+  //   If you're seeing this message after snoozing or dismissing a reminder and this is for a
+  //   calendar you do not want to add or edit events for, you can mark this calendar as read-only
+  //   to avoid such experience in future. To do so, get to the calendar properties by
+  //   right-clicking on this calendar in the list in the calendar or task view.
+  // And in the console:
+  //   console.warn: Lightning: There has been an error reading data for calendar: Mozmill.
+  //   However, this error is believed to be minor, so the program will attempt to continue.
+  //   Error code: 0x80004005. Description: generation too old for for modifyItem
+  // These errors do not appear to have any real impact on the rest of the test.
   plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
     let { eid: alarmid } = helpersForController(alarm);
     alarm.waitThenClick(alarmid("alarm-dismiss-all-button"));
