@@ -36,7 +36,7 @@ function testTaskView() {
   let treeChildren = `${TASK_VIEW}/[1]/id("calendar-task-tree")/{"class":"calendar-task-treechildren"}`;
   let taskTree = TASK_VIEW + '[1]/id("calendar-task-tree")';
   let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("taskTreeTooltip")';
-  let toolTipGrid = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/';
+  let toolTipTable = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderTable"}/';
 
   // Open task view.
   controller.click(eid("task-tab-button"));
@@ -124,11 +124,11 @@ function testTaskView() {
   let toolTipNode = lookup(toolTip).getNode();
   toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
 
-  let toolTipName = lookup(toolTipGrid + "[1]/[0]/[1]");
-  let toolTipCalendar = lookup(toolTipGrid + "[1]/[1]/[1]");
-  let toolTipPriority = lookup(toolTipGrid + "[1]/[2]/[1]");
-  let toolTipStatus = lookup(toolTipGrid + "[1]/[3]/[1]");
-  let toolTipComplete = lookup(toolTipGrid + "[1]/[4]/[1]");
+  let toolTipName = lookup(toolTipTable + "[0]/[1]");
+  let toolTipCalendar = lookup(toolTipTable + "[1]/[1]");
+  let toolTipPriority = lookup(toolTipTable + "[2]/[1]");
+  let toolTipStatus = lookup(toolTipTable + "[3]/[1]");
+  let toolTipComplete = lookup(toolTipTable + "[4]/[1]");
 
   controller.assertJSProperty(toolTipName, "textContent", TITLE);
   controller.assertJSProperty(toolTipCalendar, "textContent", CALENDARNAME);

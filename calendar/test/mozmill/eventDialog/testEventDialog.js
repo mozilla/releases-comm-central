@@ -225,12 +225,12 @@ function checkTooltip(row, col, startTime, endTime) {
   toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item.getNode() });
 
   // Check title.
-  let toolTipGrid = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderGrid"}/';
-  let eventName = lookup(`${toolTipGrid}/[1]/[0]/[1]`);
+  let toolTipTable = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderTable"}/';
+  let eventName = lookup(`${toolTipTable}/[0]/[1]`);
   controller.assert(() => eventName.getNode().textContent == EVENTTITLE);
 
   // Check date and time.
-  let dateTime = lookup(`${toolTipGrid}/[1]/[2]/[1]`);
+  let dateTime = lookup(`${toolTipTable}/[2]/[1]`);
 
   let currDate = firstDay.clone();
   currDate.addDuration(cal.createDuration(`P${7 * (row - 1) + (col - 1)}D`));
