@@ -90,11 +90,6 @@ tabpanels {
   --toolbarbutton-icon-fill-opacity: .4;
 }
 
-.tabs-alltabs-box-animate {
-  background-color: Highlight;
-  opacity: 0;
-}
-
 /**
  * All Tabs Menupopup
  */

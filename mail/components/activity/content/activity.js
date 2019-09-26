@@ -160,10 +160,7 @@ var activityObject = {
           break;
         }
       } else {
-        // string to identify the activity item through actID attribute
-        // in querySelector.
-        let actIDValueStr = "[actID='" + aID + "']";
-        let actElement = item.querySelector(actIDValueStr);
+        let actElement = item.querySelector(`[actID="${aID}"]`);
         if (actElement) {
           let groupView = document.querySelector(".activitygroupbox");
           actElement.detachFromActivity();
@@ -239,20 +236,10 @@ var activityObject = {
       if (!item.isGroup) {
         item.detachFromActivity();
       } else {
-        let actElement = document.getAnonymousElementByAttribute(
-          item,
-          "actID",
-          "*"
-        );
-        while (actElement) {
-          actElement.detachFromActivity();
-          actElement.remove();
-          actElement = document.getAnonymousElementByAttribute(
-            item,
-            "actID",
-            "*"
-          );
-        }
+        item.querySelectorAll("[actID]").forEach(elem => {
+          elem.detachFromActivity();
+          elem.remove();
+        });
       }
     }
 

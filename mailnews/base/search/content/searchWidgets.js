@@ -105,15 +105,14 @@
 
       this.appendChild(menulist);
 
-      document
-        .getAnonymousElementByAttribute(
-          this.closest(".ruleaction"),
-          "is",
-          "ruleactiontype-menulist"
-        )
-        .getTemplates(true, menulist);
-
-      updateParentNode(this.closest(".ruleaction"));
+      let ruleaction = this.closest(".ruleaction");
+      let raMenulist = ruleaction.querySelector(
+        '[is="ruleactiontype-menulist"]'
+      );
+      for (let { label, value } of raMenulist.findTemplates()) {
+        menulist.appendItem(label, value);
+      }
+      updateParentNode(ruleaction);
     }
   }
 
@@ -1310,7 +1309,7 @@
         }
 
         // Disable "Reply with Template" if there are no templates.
-        if (!this.getTemplates(false)) {
+        if (this.findTemplates().length == 0) {
           elements = menupopup.getElementsByAttribute(
             "value",
             "replytomessage"
@@ -1392,15 +1391,10 @@
 
       /**
        * Check if there exist any templates in this account.
-       *
-       * @param populateTemplateList  If true, create menuitems representing
-       *                              the found templates.
-       * @param templateMenuList      The menulist element to create items in.
-       *
-       * @return {boolean}           True if at least one template was found,
-       *                              otherwise false.
+       * @return {Object[]} - An array of template headers: each has a label and
+       *                      a value.
        */
-      getTemplates(populateTemplateList, templateMenuList) {
+      findTemplates() {
         let identitiesRaw = MailServices.accounts.getIdentitiesForServer(
           gFilterList.folder.server
         );
@@ -1416,7 +1410,7 @@
           }
         }
 
-        let templateFound = false;
+        let templates = [];
         let foldersScanned = [];
 
         for (let identity of identities) {
@@ -1438,24 +1432,17 @@
           while (enumerator.hasMoreElements()) {
             let header = enumerator.getNext();
             if (header instanceof Ci.nsIMsgDBHdr) {
-              templateFound = true;
-              if (!populateTemplateList) {
-                return true;
-              }
-              let msgTemplateUri =
+              let uri =
                 msgFolder.URI +
                 "?messageId=" +
                 header.messageId +
                 "&subject=" +
                 header.mime2DecodedSubject;
-              templateMenuList.appendItem(
-                header.mime2DecodedSubject,
-                msgTemplateUri
-              );
+              templates.push({ label: header.mime2DecodedSubject, value: uri });
             }
           }
         }
-        return templateFound;
+        return templates;
       }
     }
 
@@ -1714,10 +1701,6 @@
           }
           break;
         default:
-          // Some custom actions have no action value node.
-          if (!document.getAnonymousNodes(actionTarget)) {
-            return true;
-          }
           // Locate the correct custom action, and check validity.
           for (let i = 0; i < gCustomActions.length; i++) {
             if (gCustomActions[i].id == filterActionString) {

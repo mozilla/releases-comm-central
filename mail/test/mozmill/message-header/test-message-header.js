@@ -241,9 +241,9 @@ let headersToTest = [
   {
     headerName: "Content-Base",
     headerValueElement(mc) {
-      return mc.a("expandedcontent-baseBox", {
-        class: "headerValue text-link headerValueUrl",
-      });
+      return mc.window.document.querySelector(
+        "#expandedcontent-baseBox > .headerValue.text-link.headerValueUrl"
+      );
     },
     expectedName(mc, headerValueElement) {
       return (
@@ -257,10 +257,8 @@ let headersToTest = [
   {
     headerName: "From",
     headerValueElement(mc) {
-      return mc.window.document.getAnonymousElementByAttribute(
-        mc.e("expandedfromBox", { tagName: "mail-emailaddress" }),
-        "class",
-        "emailDisplayButton"
+      return mc.window.document.querySelector(
+        "#expandedfromBox > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
@@ -275,10 +273,8 @@ let headersToTest = [
   {
     headerName: "To",
     headerValueElement(mc) {
-      return mc.window.document.getAnonymousElementByAttribute(
-        mc.e("expandedtoBox", { tagName: "mail-emailaddress" }),
-        "class",
-        "emailDisplayButton"
+      return mc.window.document.querySelector(
+        "#expandedtoBox > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
@@ -293,10 +289,8 @@ let headersToTest = [
   {
     headerName: "Cc",
     headerValueElement(mc) {
-      return mc.window.document.getAnonymousElementByAttribute(
-        mc.e("expandedccBox", { tagName: "mail-emailaddress" }),
-        "class",
-        "emailDisplayButton"
+      return mc.window.document.querySelector(
+        "#expandedccBox > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
@@ -311,10 +305,8 @@ let headersToTest = [
   {
     headerName: "Bcc",
     headerValueElement(mc) {
-      return mc.window.document.getAnonymousElementByAttribute(
-        mc.e("expandedbccBox", { tagName: "mail-emailaddress" }),
-        "class",
-        "emailDisplayButton"
+      return mc.window.document.querySelector(
+        "#expandedbccBox > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
@@ -329,10 +321,8 @@ let headersToTest = [
   {
     headerName: "Reply-To",
     headerValueElement(mc) {
-      return mc.window.document.getAnonymousElementByAttribute(
-        mc.e("expandedreply-toBox", { tagName: "mail-emailaddress" }),
-        "class",
-        "emailDisplayButton"
+      return mc.window.document.querySelector(
+        "#expandedreply-toBox > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
@@ -347,10 +337,8 @@ let headersToTest = [
   {
     headerName: "Newsgroups",
     headerValueElement(mc) {
-      return mc.window.document.getAnonymousElementByAttribute(
-        mc.a("expandednewsgroupsBox", { tagName: "mail-newsgroup" }),
-        "class",
-        "newsgrouplabel"
+      return mc.window.document.querySelector(
+        "#expandednewsgroupsBox > mail-newsgroup.newsgrouplabel"
       );
     },
     expectedName(mc, headerValueElement) {
@@ -365,7 +353,9 @@ let headersToTest = [
   {
     headerName: "Tags",
     headerValueElement(mc) {
-      return mc.a("expandedtagsBox", { class: "tagvalue blc-FF0000" });
+      return mc.window.document.querySelector(
+        "#expandedtagsBox > .tagvalue.blc-FF0000"
+      );
     },
     expectedName(mc, headerValueElement) {
       return (

@@ -182,13 +182,6 @@ tabmail > tabbox > tabpanels {
   margin: 0;
 }
 
-.tabs-alltabs-box-animate {
-  margin: 1px 0px 0px;
-  width: 25px;
-  background-color: #669CFF;
-  opacity: 0.0;
-}
-
 /**
  * All Tabs Menupopup
  */

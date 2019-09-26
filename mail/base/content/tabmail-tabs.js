@@ -551,11 +551,6 @@
       );
       this.mAllTabsPopup = this.mAllTabsButton.menu;
 
-      // this.mAllTabsBoxAnimate = document.getAnonymousElementByAttribute(this,
-      //  "anonid",
-      //  "alltabs-box-animate");
-      // TODO ^^^ alltabs-box-animate seems to be dead code. remove all refs?
-
       this.mDownBoxAnimate = this.arrowScrollbox._scrollButtonDownBoxAnimate;
 
       this._animateTimer = null;

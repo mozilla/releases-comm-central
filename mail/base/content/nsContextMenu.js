@@ -586,18 +586,15 @@ nsContextMenu.prototype = {
     gSpellChecker.clearDictionaryListFromMenu();
     gSpellChecker.uninit();
 
-    const xulNS =
-      "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-    if (aNode.namespaceURI == xulNS) {
+    if (
+      aNode.namespaceURI ==
+      "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    ) {
       if (aNode.localName == "treecol") {
         // The column header was clicked, show the column picker.
         let treecols = aNode.parentNode;
         let treeColPicker = treecols.querySelector("treecolpicker");
-        let popup = document.getAnonymousElementByAttribute(
-          treeColPicker,
-          "anonid",
-          "popup"
-        );
+        let popup = treeColPicker.querySelector(`menupopup[anonid="popup"]`);
         treeColPicker.buildPopup(popup);
         popup.openPopup(aNode, "before_start", 0, 0, true);
         this.shouldDisplay = false;

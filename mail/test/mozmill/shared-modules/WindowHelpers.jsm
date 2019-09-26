@@ -983,68 +983,6 @@ var AugmentEverybodyWith = {
     },
 
     /**
-     * Find an element in the anonymous subtree of an element in the document
-     *  identified by its id.  You would use this to dig into XBL bindings that
-     *  are not doing what you want.  For example, jerks that don't focus right.
-     *
-     * Examples:
-     *  // by class of the node
-     *  a("searchVal0", {class: "search-value-textbox"});
-     *  // when the thing is vaguely deck-like
-     *  a("searchVal0", {crazyDeck: 0});
-     *  // when you want the first descendent with the given tagName
-     *  a("threadTree", {tagName: "treechildren"})
-     *
-     * @param aId The element id or the actual element.
-     *
-     * @return the anonymous element determined by the query found in the
-     *  anonymous sub-tree of the element with the given id.
-     */
-    a: function _get_anon_element_by_id_and_query(aId, aQuery) {
-      let realElem =
-        typeof aId == "string" ? this.window.document.getElementById(aId) : aId;
-      if (aQuery.class) {
-        return this.window.document.getAnonymousElementByAttribute(
-          realElem,
-          "class",
-          aQuery.class
-        );
-      } else if (aQuery.crazyDeck != null) {
-        let anonNodes = this.window.document.getAnonymousNodes(realElem);
-        let index;
-        if (realElem.hasAttribute("selectedIndex")) {
-          index = parseInt(realElem.getAttribute("selectedIndex"));
-        } else {
-          index = aQuery.crazyDeck;
-        }
-        let elem = anonNodes[index];
-        return elem;
-      } else if (aQuery.tagName) {
-        let anonNodes = this.window.document.getAnonymousNodes(realElem);
-        for (let iNode = 0; iNode < anonNodes.length; iNode++) {
-          let node = anonNodes[iNode];
-          let named = node.querySelector(aQuery.tagName);
-          if (named) {
-            return named;
-          }
-        }
-      } else {
-        let msg = "Query constraint not implemented, query contained:";
-        for (let [key, val] of Object.entries(aQuery)) {
-          msg += " '" + key + "': " + val;
-        }
-        throw new Error(msg);
-      }
-      return null;
-    },
-    /**
-     * Wraps a call to a() in an elib.Elem.
-     */
-    aid: function _get_anon_elementid(aId, aQuery) {
-      return new elib.Elem(this.a(aId, aQuery));
-    },
-
-    /**
      * Debug helper that defers a click until the next event loop spin in order
      *  to create situations that are hard to test in isolation.  In order to
      *  fashion reliable failures, we currently use a 1-second delay to make
