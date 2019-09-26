@@ -54,11 +54,11 @@
       </hbox>
     </vbox>
     <vbox>
-      <textbox id="editContactName" class="editContactTextbox"
-                    onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
-      <textbox id="editContactEmail" readonly="true"
-               class="editContactTextbox"
-               onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
+      <html:input id="editContactName" class="editContactTextbox" type="text"
+                  onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
+      <html:input id="editContactEmail" readonly="readonly"
+                  class="editContactTextbox" type="email"
+                  onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
       <menulist is="menulist-addrbooks" id="editContactAddressBookList"
                 flex="1" />
       <description id="contactMoveDisabledText" collapsed="true">

@@ -67,7 +67,7 @@
   height: 5px;
 }
 
-.editContactTextbox {
+html|input.editContactTextbox {
   -moz-appearance: none;
   cursor: text;
   margin: 2px 6px;
@@ -75,14 +75,15 @@
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.3);
   padding: 3px 8px;
+  width: 35ch;
 }
 
-.editContactTextbox[focused="true"] {
+html|input.editContactTextbox:focus {
   border-color: -moz-mac-focusring;
   box-shadow: var(--focus-ring-box-shadow);
 }
 
-.editContactTextbox[readonly="true"] {
+html|input.editContactTextbox[readonly] {
   border-color: transparent;
   background-color: inherit;
   box-shadow: none;

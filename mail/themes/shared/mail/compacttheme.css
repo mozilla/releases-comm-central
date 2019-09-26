@@ -51,7 +51,7 @@
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
 }
-.editContactTextbox:not([readonly="true"]):not([focused="true"]) {
+.editContactTextbox:not([readonly]):not(:focus) {
   border-color: var(--panel-separator-color);
 }
 

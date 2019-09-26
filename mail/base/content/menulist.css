@@ -5,16 +5,16 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-menulist[is="menulist-editable"]:not([editable="true"]) .menulist-input,
+menulist[is="menulist-editable"]:not([editable="true"]) html|input.menulist-input,
 menulist[is="menulist-editable"][editable="true"] .menulist-label-box {
   display: none;
 }
 
-menulist > textbox {
+menulist > html|input {
   margin: 0;
 }
 
-menulist html|*.textbox-input {
+menulist html|input {
   -moz-appearance: none !important;
   background: transparent !important;
   -moz-box-flex: 1;

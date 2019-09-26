@@ -132,7 +132,7 @@ var editContactInlineUI = {
       nameElement.removeAttribute("readonly");
       nameElement.class = "editContactTextbox";
     } else {
-      nameElement.readOnly = true;
+      nameElement.setAttribute("readonly", "readonly");
       nameElement.class = "plain";
     }
 

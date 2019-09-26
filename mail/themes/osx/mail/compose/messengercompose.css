@@ -128,7 +128,7 @@ toolbar[nowindowdrag="true"] {
   border-color: #C6C6C6;
 }
 
-#msgIdentity > .menulist-input {
+#msgIdentity > html|input.menulist-input {
   color: inherit;
   padding-inline-start: 3px;
 }

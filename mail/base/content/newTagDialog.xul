@@ -5,6 +5,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/newTagDialog.dtd">
 
@@ -17,10 +18,19 @@
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   </stringbundleset>
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/newTagDialog.js"/>
-  <label value="&name.label;" accesskey="&name.accesskey;" control="name"/>
-  <hbox>
-    <textbox id="name" oninput="doEnabling();" flex="1"/>
+  <label id="nameLabel"
+         value="&name.label;"
+         accesskey="&name.accesskey;"
+         control="name"/>
+  <hbox class="input-container">
+    <html:input id="name"
+                type="text"
+                oninput="doEnabling();"
+                class="input-inline"
+                aria-labelledby="nameLabel"/>
     <html:input type="color" id="tagColorPicker"/>
   </hbox>
   <separator/>

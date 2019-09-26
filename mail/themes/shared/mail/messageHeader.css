@@ -16,12 +16,12 @@
   color: inherit;
 }
 
-:root[lwt-default-theme-in-dark-mode] .editContactTextbox {
+:root[lwt-default-theme-in-dark-mode] html|input.editContactTextbox {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
 }
 :root[lwt-default-theme-in-dark-mode]
-  .editContactTextbox:not([readonly="true"]):not([focused="true"]) {
+  html|input.editContactTextbox:not([readonly]):not(:focus) {
   border-color: var(--panel-separator-color);
 }
 

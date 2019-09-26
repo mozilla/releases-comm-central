@@ -47,7 +47,7 @@ html|input.input-inline-color {
   align-items: stretch;
 }
 
-.input-container html|input:not([type="number"]),
+.input-container html|input:not([type="number"]):not([type="color"]),
 .input-container .label-inline {
   flex: 1;
 }

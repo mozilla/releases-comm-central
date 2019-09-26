@@ -573,7 +573,7 @@ toolbar:not(:-moz-lwtheme) {
   text-shadow: none;
 }
 
-#msgIdentity > .menulist-input {
+#msgIdentity > html|input.menulist-input {
   background-color: inherit;
   color: inherit;
   margin: 2px 0;

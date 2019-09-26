@@ -4,11 +4,13 @@
 
 @import url("chrome://messenger/content/menulist.css");
 
+@namespace html url("http://www.w3.org/1999/xhtml");
+
 menulist[is="menulist-editable"][editable="true"] {
   padding: 0;
 }
 
-.menulist-input {
+html|input.menulist-input {
   -moz-appearance: none;
   border-style: none;
   margin-top: -2px;

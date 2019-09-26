@@ -344,7 +344,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   padding-inline-end: initial;
 }
 
-#msgIdentity > .menulist-input {
+#msgIdentity > html|input.menulist-input {
   -moz-appearance: none;
   padding-top: 1px;
   padding-bottom: 2px;

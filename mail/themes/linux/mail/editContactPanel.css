@@ -50,7 +50,7 @@
   width: 20em;
 }
 
-.editContactTextbox {
+html|input.editContactTextbox {
   -moz-appearance: none;
   cursor: text;
   margin: 1px 4px;
@@ -58,13 +58,14 @@
   border-radius: 3px;
   border: 1px solid ThreeDShadow;
   padding: 3px 6px;
+  width: 35ch;
 }
 
-.editContactTextbox[focused="true"] {
+html|input.editContactTextbox:focus {
   border-color: Highlight;
 }
 
-.editContactTextbox[readonly="true"] {
+html|input.editContactTextbox[readonly] {
   border-color: transparent;
   background-color: inherit;
   color: inherit;

@@ -57,14 +57,14 @@ add_task(async () => {
   is(testDocument.activeElement, menulists[2]);
 
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
-  is(testDocument.activeElement.closest("textbox"), menulists[2]._inputField);
+  is(testDocument.activeElement.closest("input"), menulists[2]._inputField);
 
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: false }, testWindow);
   is(testDocument.activeElement, testDocument.querySelector("button#after"));
 
   // Now go back again.
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
-  is(testDocument.activeElement.closest("textbox"), menulists[2]._inputField);
+  is(testDocument.activeElement.closest("input"), menulists[2]._inputField);
 
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, testWindow);
   is(testDocument.activeElement, menulists[2]);
@@ -115,7 +115,7 @@ add_task(async () => {
     );
   });
   ok(!menulists[2].hasAttribute("open"));
-  is(testDocument.activeElement.closest("textbox"), menulists[2]._inputField);
+  is(testDocument.activeElement.closest("input"), menulists[2]._inputField);
   is(menulists[2]._inputField.value, "foo");
   is(menulists[2].value, "foo");
   is(menulists[2].getAttribute("value"), "foo");
@@ -140,7 +140,7 @@ add_task(async () => {
     );
   });
   ok(!menulists[2].hasAttribute("open"));
-  is(testDocument.activeElement.closest("textbox"), menulists[2]._inputField);
+  is(testDocument.activeElement.closest("input"), menulists[2]._inputField);
   is(menulists[2]._inputField.value, "bar");
   is(menulists[2].value, "bar");
   is(menulists[2].getAttribute("value"), "bar");
@@ -183,7 +183,7 @@ add_task(async () => {
     );
   });
   ok(!menulists[2].hasAttribute("open"));
-  is(testDocument.activeElement.closest("textbox"), menulists[2]._inputField);
+  is(testDocument.activeElement.closest("input"), menulists[2]._inputField);
   is(menulists[2]._inputField.value, "foo");
   is(menulists[2].value, "foo");
   is(menulists[2].getAttribute("value"), "foo");
