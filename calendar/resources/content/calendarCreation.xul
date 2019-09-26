@@ -58,8 +58,11 @@
           </radiogroup>
         </row>
         <row id="calendar-username-row" align="center">
-          <label value="&locationpage.username.label;" control="calendar-username"/>
-          <textbox id="calendar-username"/>
+          <label id="calendar-username-label"
+                 value="&locationpage.username.label;"
+                 control="calendar-username"/>
+          <html:input id="calendar-username" type="text" class="input-inline"
+                      aria-labelledby="calendar-username-label"/>
         </row>
         <row id="calendar-location-row" align="center">
           <label id="calendar-uri-label" value="&calendarproperties.location.label;" control="calendar-uri"/>
@@ -79,17 +82,6 @@
               flex="1">
           <!-- notificationbox will be added here lazily. -->
         </hbox>
-        <!--
-        <description>&locationpage.login.description;</description>
-        <row align="center">
-          <label value="&locationpage.username.label;" control="calendar-username"/>
-          <textbox id="calendar-username"/>
-        </row>
-        <row align="center">
-          <label value="&locationpage.password.label;" control="calendar-password"/>
-          <textbox id="calendar-password"/>
-        </row>
-        -->
       </rows>
     </grid>
   </wizardpage>
@@ -107,9 +99,13 @@
       </columns>
       <rows id="customize-rows">
         <row id="customize-name-row" align="center">
-          <label value="&calendarproperties.name.label;" control="calendar-name"/>
-          <textbox id="calendar-name"
-                   required="true" oninput="checkRequired();"/>
+          <label id="calendar-name-label" value="&calendarproperties.name.label;" control="calendar-name"/>
+          <html:input id="calendar-name"
+                      type="text"
+                      required="required"
+                      class="input-inline"
+                      aria-labelledby="calendar-name-label"
+                      oninput="checkRequired();"/>
         </row>
         <row id="customize-color-row" align="center">
           <label value="&calendarproperties.color.label;" control="calendar-color"/>

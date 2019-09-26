@@ -147,7 +147,7 @@ function checkRequired() {
   let canAdvance = true;
   let curPage = document.getElementById("calendar-wizard").currentPage;
   if (curPage) {
-    let eList = curPage.getElementsByAttribute("required", "true");
+    let eList = curPage.getElementsByAttribute("required", "required");
     for (let i = 0; i < eList.length && canAdvance; ++i) {
       canAdvance = eList[i].value != "";
     }
