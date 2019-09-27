@@ -68,10 +68,10 @@ var PERCENT_COMPLETE_INPUT = `
 
 // To be appended to the path for a date- or timepicker.
 var DATE_INPUT = `
-    anon({"class":"datepicker-menulist"})/anon({"class":"menulist-input"})
+    {"class":"datepicker-menulist"}/{"class":"menulist-input"}
 `;
 var TIME_INPUT = `
-    anon({"class":"timepicker-menulist"})/anon({"class":"menulist-input"})
+    {"class":"timepicker-menulist"}/{"class":"menulist-input"}
 `;
 
 // The following can be used as is.
