@@ -17,8 +17,7 @@ jobs:
       when:
           by-project:
               # Match buildbot starts for now
-              # Disabled due to bug 1584461.
-              comm-central: []
+              comm-central: [{hour: 10, minute: 0}]
               # No default
 
     - name: nightly-linux
