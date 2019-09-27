@@ -475,7 +475,7 @@ class Overlays {
       );
     }
 
-    let xhr = new XMLHttpRequest();
+    let xhr = new this.window.XMLHttpRequest();
     xhr.overrideMimeType("application/xml");
     xhr.open("GET", srcUrl, false);
 
