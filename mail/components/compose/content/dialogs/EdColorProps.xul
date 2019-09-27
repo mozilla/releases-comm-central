@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % edColorPropertiesDTD SYSTEM "chrome://messenger/locale/messengercompose/EditorColorProperties.dtd">
@@ -16,9 +17,12 @@
 ]>
 
 <dialog title="&windowTitle.label;"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-    onload="Startup()">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup()">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
   <script src="chrome://messenger/content/messengercompose/EdColorProps.js"/>
@@ -107,8 +111,11 @@
   <tooltip id="shortenedDataURI">
     <label value="&backgroundImage.shortenedDataURI;"/>
   </tooltip>
-  <textbox id="BackgroundImageInput" class="uri-element" oninput="ChangeBackgroundImage()"
-           tooltiptext="&backgroundImage.tooltip;" flex="1"/>
+  <html:input id="BackgroundImageInput"
+              type="text"
+              class="uri-element input-inline"
+              onchange="ChangeBackgroundImage()"
+              aria-label="&backgroundImage.tooltip;"/>
   <hbox align="center">
     <checkbox id="MakeRelativeCheckbox"
               for="BackgroundImageInput"

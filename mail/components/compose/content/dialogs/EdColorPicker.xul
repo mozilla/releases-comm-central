@@ -9,9 +9,9 @@
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EdColorPicker.dtd">
 
 <dialog title="&windowTitle.label;"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    xmlns:html="http://www.w3.org/1999/xhtml"
-    onload="Startup()">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup()">
 
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
@@ -44,12 +44,13 @@
     <label value="&chooseColor2.label;" accesskey="&chooseColor2.accessKey;" control="ColorInput"/>
     <label value="&setColorExample.label;"/>
     <hbox align="center" flex="1=">
-      <textbox id="ColorInput" style="width: 8em" oninput="SetColorSwatch(); SetDefaultToOk();"/>
+      <html:input id="ColorInput" type="text" style="width: 8em"
+                  oninput="SetColorSwatch(); SetDefaultToOk();"/>
       <spacer flex="1"/>
       <spacer id="ColorPickerSwatch"/>
       <spacer flex="1"/>
       <button id="DefaultColorButton" label="&default.label;" accesskey="&default.accessKey;"
-        style="margin-right:0px;" oncommand="RemoveColor()"/>
+              style="margin-right:0px;" oncommand="RemoveColor()"/>
     </hbox>
   </vbox>
   <separator class="groove"/>

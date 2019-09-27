@@ -6,14 +6,18 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EdConvertToTable.dtd">
 
 <dialog title="&windowTitle.label;"
-   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-   onload = "Startup()"
-   style="min-width:20em">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup()"
+        style="min-width:20em">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
@@ -34,10 +38,11 @@
     </hbox>
     <hbox align="center">
       <radio id="other" label="&otherRadio.label;" oncommand="SelectCharacter('2');"/>
-      <textbox class="narrow" id="SepCharacterInput" oninput="InputSepCharacter()"/>
+      <html:input id="SepCharacterInput" type="text" aria-labelledby="other"
+                  class="narrow input-inline" oninput="InputSepCharacter()"/>
     </hbox>
   </radiogroup>
   <spacer class="spacer"/>
   <checkbox id="DeleteSepCharacter" label="&deleteCharCheck.label;" persist="checked"/>
-  <separator class="groove"/>
+  <spacer class="spacer"/>
 </dialog>
