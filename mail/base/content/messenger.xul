@@ -112,7 +112,7 @@
 <script src="chrome://messenger/content/selectionsummaries.js"/>
 <script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
 <script src="chrome://messenger/content/specialTabs.js"/>
-<!-- accountProvisionerTab.js relies on code from specialTabs.js, and so much be loaded after it. -->
+<!-- accountProvisionerTab.js relies on code from specialTabs.js, so it must be loaded after it. -->
 <script src="chrome://messenger/content/newmailaccount/accountProvisionerTab.js"/>
 <script src="chrome://messenger/content/glodaFacetTab.js"/>
 <script src="chrome://gloda/content/overlay.js"/>
