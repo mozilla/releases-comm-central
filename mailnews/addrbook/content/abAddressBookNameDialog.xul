@@ -4,10 +4,12 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 36em;"
         onload="abNameOnLoad();">
 
@@ -16,10 +18,14 @@
                   src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   </stringbundleset>
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/addressbook/abAddressBookNameDialog.js"/>
 
-  <hbox align="center">
-    <label control="name" value="&name.label;" accesskey="&name.accesskey;"/>
-    <textbox id="name" oninput="abNameDoOkEnabling();" flex="1"/>
+  <hbox align="center" class="input-container">
+    <label id="nameLabel" control="name" value="&name.label;"
+           accesskey="&name.accesskey;"/>
+    <html:input id="name" type="text" class="input-inline"
+                aria-labelledby="nameLabel" oninput="abNameDoOkEnabling();"/>
   </hbox>
 </dialog>
