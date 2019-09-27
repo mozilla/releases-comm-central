@@ -186,7 +186,10 @@ function FieldImportOKButton() {
 
   for (let i = 0; i < max; i++) {
     let fIndex = gListbox.getItemAtIndex(i).getAttribute("field-index");
-    let on = gListbox.getItemAtIndex(i).querySelector("checkbox").getAttribute("checked");
+    let on = gListbox
+      .getItemAtIndex(i)
+      .querySelector("checkbox")
+      .getAttribute("checked");
     top.fieldMap.SetFieldMap(i, fIndex);
     top.fieldMap.SetFieldActive(i, on == "true");
   }
