@@ -47,15 +47,15 @@ var EXPORTED_SYMBOLS = [
 ];
 
 var EventUtils = ChromeUtils.import(
-  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+  "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
-var events = ChromeUtils.import("chrome://mozmill/content/modules/events.jsm");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var events = ChromeUtils.import("resource://testing-common/mozmill/events.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var elementslib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
+  "resource://testing-common/mozmill/elementslib.jsm"
 );
-var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
+var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 
 // The window map which is used to store information e.g. loaded state of each
 // open chrome and content window.
@@ -347,7 +347,7 @@ var MozMillController = function(window) {
   this.window = window;
 
   this.mozmillModule = ChromeUtils.import(
-    "chrome://mozmill/content/modules/mozmill.jsm"
+    "resource://testing-common/mozmill/mozmill.jsm"
   );
 
   utils.waitFor(

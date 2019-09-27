@@ -3,10 +3,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ['mozmill']
-
 BROWSER_CHROME_MANIFESTS += [
     'browser/browser.ini',
+    'browser/eventDialog/browser.ini',
+    'browser/invitations/browser.ini',
+    'browser/preferences/browser.ini',
+    'browser/recurrence/browser.ini',
+    'browser/recurrenceRotated/browser.ini',
+    'browser/views/browser.ini',
+]
+
+TESTING_JS_MODULES.mozmill += [
+    'modules/CalendarUtils.jsm',
+    'modules/ItemEditingHelpers.jsm',
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

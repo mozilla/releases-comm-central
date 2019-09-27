@@ -388,9 +388,6 @@ module.exports = {
     // Require dot notation when accessing properties
     "dot-notation": 2,
 
-    // Disallow named function expressions
-    "func-names": [2, "never"],
-
     // Enforce placing object properties on separate lines
     "object-property-newline": [2, { allowMultiplePropertiesPerLine: true }],
 

@@ -46,3 +46,21 @@ TEST_HARNESS_FILES.mozmill.resources += mailnews_files([
 DIRS += [
     'shared-modules',
 ]
+
+TESTING_JS_MODULES.mozmill += [
+    '../resources/mozmill/mozmill/extension/content/modules/controller.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/elementslib.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/events.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/frame.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/init.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/jum.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/mozmill.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/utils.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/arrays.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/dom.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/EventUtils.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/httpd.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/os.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/securable-module.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/strings.jsm',
+]

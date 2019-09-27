@@ -52,8 +52,10 @@ var EXPORTED_SYMBOLS = [
   "_byAnonAttrib",
 ];
 
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
-var strings = ChromeUtils.import("chrome://mozmill/content/stdlib/strings.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
+var strings = ChromeUtils.import(
+  "resource://testing-common/mozmill/strings.jsm"
+);
 
 var countQuotes = function(str) {
   var count = 0;

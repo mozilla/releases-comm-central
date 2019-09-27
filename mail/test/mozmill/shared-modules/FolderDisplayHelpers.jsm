@@ -157,14 +157,14 @@ this.EXPORTED_SYMBOLS = [
 ];
 
 var EventUtils = ChromeUtils.import(
-  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+  "resource://testing-common/mozmill/EventUtils.jsm"
 );
 var controller = ChromeUtils.import(
-  "chrome://mozmill/content/modules/controller.jsm"
+  "resource://testing-common/mozmill/controller.jsm"
 );
-var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
+var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 // the windowHelper module
 var windowHelper = ChromeUtils.import(

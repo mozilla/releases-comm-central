@@ -32,9 +32,9 @@ this.EXPORTED_SYMBOLS = [
 ];
 
 var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
+  "resource://testing-common/mozmill/elementslib.jsm"
 );
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var folderDisplayHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"

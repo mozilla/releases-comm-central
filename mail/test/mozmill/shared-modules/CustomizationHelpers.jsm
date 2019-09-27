@@ -7,7 +7,7 @@
 this.EXPORTED_SYMBOLS = ["CustomizeDialogHelper"];
 
 var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
+  "resource://testing-common/mozmill/elementslib.jsm"
 );
 
 var fdh = ChromeUtils.import(

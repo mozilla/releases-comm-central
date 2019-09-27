@@ -13,6 +13,20 @@ function install() {}
 function uninstall() {}
 
 function startup(data, reason) {
+  let env = Cc["@mozilla.org/process/environment;1"].getService(
+    Ci.nsIEnvironment
+  );
+  let protocolHandler = Services.io
+    .getProtocolHandler("resource")
+    .QueryInterface(Ci.nsIResProtocolHandler);
+
+  let modulesFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  modulesFile.initWithPath(env.get("TESTING_MODULES_DIR"));
+  protocolHandler.setSubstitution(
+    "testing-common",
+    Services.io.newFileURI(modulesFile)
+  );
+
   loadDefaultPrefs();
 
   ExtensionSupport.registerWindowListener(data.id, {

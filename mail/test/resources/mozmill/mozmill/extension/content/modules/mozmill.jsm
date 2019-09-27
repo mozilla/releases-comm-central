@@ -66,17 +66,18 @@ var EXPORTED_SYMBOLS = [
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+ChromeUtils.import("resource://testing-common/mozmill/init.jsm");
 var controller = ChromeUtils.import(
-  "chrome://mozmill/content/modules/controller.jsm"
+  "resource://testing-common/mozmill/controller.jsm"
 );
-var events = ChromeUtils.import("chrome://mozmill/content/modules/events.jsm");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var events = ChromeUtils.import("resource://testing-common/mozmill/events.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var elementslib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
+  "resource://testing-common/mozmill/elementslib.jsm"
 );
-var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
+var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
+var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
 
 var platform = os.getPlatform();
 

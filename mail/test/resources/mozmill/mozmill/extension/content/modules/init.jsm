@@ -42,12 +42,12 @@ var EXPORTED_SYMBOLS = ["mozmill"];
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const controller = ChromeUtils.import(
-  "chrome://mozmill/content/modules/controller.jsm"
+  "resource://testing-common/mozmill/controller.jsm"
 );
 const mozmill = ChromeUtils.import(
-  "chrome://mozmill/content/modules/mozmill.jsm"
+  "resource://testing-common/mozmill/mozmill.jsm"
 );
-const utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+const utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 // Observer when a new top-level window is ready
 var windowReadyObserver = {

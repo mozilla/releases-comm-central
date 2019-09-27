@@ -11,7 +11,7 @@
 
 this.EXPORTED_SYMBOLS = ["close_pref_tab", "open_pref_tab"];
 
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var fdh = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"

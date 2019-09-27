@@ -51,7 +51,7 @@ var EXPORTED_SYMBOLS = [
   "pass",
 ];
 
-var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
+var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 
 var ifJSONable = function(v) {
   if (typeof v == "function") {

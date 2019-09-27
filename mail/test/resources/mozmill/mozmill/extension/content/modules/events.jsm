@@ -47,12 +47,12 @@ var EXPORTED_SYMBOLS = [
 ];
 
 var EventUtils = ChromeUtils.import(
-  "chrome://mozmill/content/stdlib/EventUtils.jsm"
+  "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-// var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.jsm");
+// var logging = ChromeUtils.import("resource://testing-common/mozmill/logging.jsm");
 
 // var eventsLogger = logging.getLogger('eventsLogger');
 

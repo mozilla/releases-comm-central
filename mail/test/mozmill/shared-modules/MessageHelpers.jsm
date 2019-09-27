@@ -10,8 +10,8 @@
 
 this.EXPORTED_SYMBOLS = ["to_mime_message"];
 
-var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/mimemsg.js"

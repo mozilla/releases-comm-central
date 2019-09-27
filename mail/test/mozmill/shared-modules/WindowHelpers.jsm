@@ -35,13 +35,13 @@ var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var controller = ChromeUtils.import(
-  "chrome://mozmill/content/modules/controller.jsm"
+  "resource://testing-common/mozmill/controller.jsm"
 );
 var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
+  "resource://testing-common/mozmill/elementslib.jsm"
 );
-var frame = ChromeUtils.import("chrome://mozmill/content/modules/frame.jsm");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 /**
  * Timeout to use when waiting for the first window ever to load.  This is
@@ -168,10 +168,7 @@ function getWindowTypeForXulWindow(aXULWindow, aBusyOk) {
 function getUniqueIdForXulWindow(aXULWindow) {
   // html case
   if (aXULWindow.document && aXULWindow.document.documentElement) {
-    if (!(UNIQUE_WINDOW_ID_ATTR in aXULWindow.document.defaultView)) {
-      return "no attr html";
-    }
-    return aXULWindow.document.defaultView[UNIQUE_WINDOW_ID_ATTR];
+    return "no attr html";
   }
 
   // XUL case
@@ -195,10 +192,6 @@ function getUniqueIdForXulWindow(aXULWindow) {
   }
 
   // finally, we can now have a windowtype!
-  let win = outerDoc.defaultView;
-  if (UNIQUE_WINDOW_ID_ATTR in win) {
-    return win[UNIQUE_WINDOW_ID_ATTR];
-  }
   return "no attr xul";
 }
 
@@ -1412,99 +1405,6 @@ var PerWindowTypeAugmentations = {
       //  handle that.
       aController.window.MessageDisplayWidget.prototype.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS = 0;
     },
-
-    /**
-     * Used to wrap methods on a class prototype in order to generate
-     *  mark_action data about the call.
-     */
-    debugTrace: [
-      // wrap 3pane unload function to notice when it explodes
-      {
-        method: "OnUnloadMessenger",
-        onGlobal: true,
-        reportAs: "OnUnloadMessenger",
-      },
-      // goDoCommand command gobbling notification
-      {
-        method: "goDoCommand",
-        onGlobal: true,
-        doBefore(command) {
-          let controller = this.top.document.commandDispatcher.getControllerForCommand(
-            command
-          );
-          if (controller && !controller.isCommandEnabled(command)) {
-            mark_action("winhelp", "goDoCommand", [
-              "about to ignore command because it's disabled:",
-              command,
-            ]);
-          }
-        },
-      },
-      // DefaultController command gobbling notification
-      {
-        method: "doCommand",
-        onObject: "DefaultController",
-        doBefore(command) {
-          if (!this.isCommandEnabled(command)) {
-            mark_action("winhelp", "DC_doCommand", [
-              "about to ignore command because it's disabled:",
-              command,
-            ]);
-          }
-        },
-      },
-      // FolderDisplayWidget command invocations
-      {
-        method: "doCommand",
-        onConstructor: "FolderDisplayWidget",
-        reportAs: "FDW_doCommand",
-      },
-      {
-        method: "doCommandWithFolder",
-        onConstructor: "FolderDisplayWidget",
-        reportAs: "FDW_doCommandWithFolder",
-      },
-      // MessageDisplayWidget annotation
-      {
-        method: "onLoadStarted",
-        onConstructor: "MessageDisplayWidget",
-        doBefore() {
-          mark_action("winhelp", "MD_onLoadStarted", [
-            "singleMessageDisplay?",
-            this.singleMessageDisplay,
-          ]);
-        },
-      },
-      {
-        method: "onLoadCompleted",
-        onConstructor: "MessageDisplayWidget",
-        doBefore() {
-          mark_action("winhelp", "MD_onLoadCompleted", [
-            "singleMessageDisplay?",
-            this.singleMessageDisplay,
-          ]);
-        },
-      },
-      // Message summarization annotations
-      {
-        method: "summarizeThread",
-        onGlobal: true,
-        reportAs: "summarizeThread",
-        showArgs: false,
-      },
-      {
-        method: "summarizeMultipleSelection",
-        onGlobal: true,
-        reportAs: "summarizeMultipleSelection",
-        showArgs: false,
-      },
-      {
-        method: "summarizeFolder",
-        onGlobal: true,
-        reportAs: "summarizeFolder",
-        showArgs: false,
-      },
-    ],
   },
 
   /**
@@ -1588,66 +1488,10 @@ function _augment_helper(aController, aAugmentDef) {
     }
   }
 
-  if (aAugmentDef.debugTrace) {
-    let win = aController.window;
-    for (let traceDef of aAugmentDef.debugTrace) {
-      let baseObj, useThis;
-      // - Get the object that actually has the method to wrap
-      if (traceDef.hasOwnProperty("onGlobal")) {
-        baseObj = win;
-        useThis = false;
-      } else if (traceDef.hasOwnProperty("onConstructor")) {
-        baseObj = win[traceDef.onConstructor].prototype;
-        useThis = true;
-      } else if (traceDef.hasOwnProperty("onObject")) {
-        baseObj = win[traceDef.onObject];
-        useThis = false;
-      } else {
-        // ignore/bail if unsupported type
-        continue;
-      }
-
-      // - compute/set the wrapped attr, bailing if it's already there
-      let wrappedName = "__traceWrapped_" + traceDef.method;
-      // bail if we/someone have already wrapped it.
-      if (baseObj.hasOwnProperty(wrappedName)) {
-        continue;
-      }
-      let origFunc = baseObj[traceDef.method];
-      let reportAs = traceDef.reportAs; // latch
-      let showArgs = "showArgs" in traceDef ? traceDef.showArgs : true;
-      baseObj[wrappedName] = origFunc;
-
-      // - create the trace func based on the definition and apply
-      let traceFunc;
-      if (traceDef.hasOwnProperty("doBefore")) {
-        let beforeFunc = traceDef.doBefore;
-        traceFunc = function(...aArgs) {
-          beforeFunc.apply(useThis ? this : baseObj, aArgs);
-          return origFunc.apply(this, aArgs);
-        };
-      } else {
-        traceFunc = function(...aArgs) {
-          mark_action("winhelp", reportAs, showArgs ? aArgs : []);
-          try {
-            return origFunc.apply(this, aArgs);
-          } catch (ex) {
-            mark_failure(["exception in", reportAs, "ex:", ex]);
-            // re-throw it; someone might care!
-            throw ex;
-          }
-        };
-      }
-      baseObj[traceDef.method] = traceFunc;
-    }
-  }
-
   if (aAugmentDef.onAugment) {
     aAugmentDef.onAugment(aController);
   }
 }
-
-var UNIQUE_WINDOW_ID_ATTR = "__winHelper_uniqueId";
 
 /**
  * Given something you would find on event.target (should be a DOM node /
@@ -1746,14 +1590,7 @@ function getWindowDescribeyFromEvent(event) {
   var win = "ownerGlobal" in target ? target.ownerGlobal : target;
   var owningWin = win.docShell.rootTreeItem.domWindow;
   var docElem = owningWin.document.documentElement;
-  return (
-    (getWindowTypeOrId(docElem) || "mysterious") +
-    " (" +
-    (UNIQUE_WINDOW_ID_ATTR in owningWin
-      ? owningWin[UNIQUE_WINDOW_ID_ATTR]
-      : "n/a") +
-    ")"
-  );
+  return (getWindowTypeOrId(docElem) || "mysterious") + " (n/a)";
 }
 
 function __peek_activate_handler(event) {
@@ -1917,8 +1754,6 @@ function __popup_hidden(event) {
   return true;
 }
 
-var gNextOneUpUniqueID = 0;
-
 /**
  * controller.js in mozmill actually has its own extension mechanism,
  *  controllerAdditions.  Unfortunately, it does not make its stuff public at
@@ -1941,8 +1776,6 @@ function augment_controller(aController, aWindowType) {
   //  context for what is actually going on.
   try {
     let doc = aController.window.document;
-
-    aController.window[UNIQUE_WINDOW_ID_ATTR] = gNextOneUpUniqueID++;
 
     // - window activation / deactivation
     aController.window.addEventListener(

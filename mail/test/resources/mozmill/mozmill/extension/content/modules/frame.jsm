@@ -52,13 +52,13 @@ var EXPORTED_SYMBOLS = [
 ];
 
 var { HttpServer } = ChromeUtils.import(
-  "chrome://mozmill/content/stdlib/httpd.jsm"
+  "resource://testing-common/mozmill/httpd.jsm"
 );
 
-var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
-var utils = ChromeUtils.import("chrome://mozmill/content/modules/utils.jsm");
+var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var securableModule = ChromeUtils.import(
-  "chrome://mozmill/content/stdlib/securable-module.jsm"
+  "resource://testing-common/mozmill/securable-module.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -85,12 +85,12 @@ var modules = undefined;
 var loadTestResources = function() {
   if (mozmill == undefined) {
     mozmill = ChromeUtils.import(
-      "chrome://mozmill/content/modules/mozmill.jsm"
+      "resource://testing-common/mozmill/mozmill.jsm"
     );
   }
   if (elementslib == undefined) {
     elementslib = ChromeUtils.import(
-      "chrome://mozmill/content/modules/elementslib.jsm"
+      "resource://testing-common/mozmill/elementslib.jsm"
     );
   }
 };
@@ -379,7 +379,7 @@ function Collector() {
   this.testing = [];
   this.httpd_started = false;
   this.http_port = 43336;
-  // var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.jsm");
+  // var logging = ChromeUtils.import("resource://testing-common/mozmill/logging.jsm");
   // this.logger = new logging.Logger('Collector');
 }
 
@@ -553,9 +553,9 @@ function Runner(collector, invokedFromIDE) {
   this.collector = collector;
   this.invokedFromIDE = invokedFromIDE;
   events.fireEvent("startRunner", true);
-  // var logging = ChromeUtils.import("chrome://mozmill/content/stdlib/logging.jsm");
+  // var logging = ChromeUtils.import("resource://testing-common/mozmill/logging.jsm");
   // this.logger = new logging.Logger('Runner');
-  var m = ChromeUtils.import("chrome://mozmill/content/modules/mozmill.jsm");
+  var m = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
   this.platform = m.platform;
 }
 Runner.prototype.runTestDirectory = function(directory) {

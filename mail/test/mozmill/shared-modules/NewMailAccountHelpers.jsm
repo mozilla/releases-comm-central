@@ -19,7 +19,7 @@ this.EXPORTED_SYMBOLS = [
 ];
 
 var elib = ChromeUtils.import(
-  "chrome://mozmill/content/modules/elementslib.jsm"
+  "resource://testing-common/mozmill/elementslib.jsm"
 );
 
 var dh = ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");

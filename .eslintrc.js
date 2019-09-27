@@ -108,6 +108,10 @@ module.exports = {
     {
       ...browserTestConfig,
       files: browserTestPaths.map(path => `${path}**`),
+      rules: {
+        "func-names": "off",
+        "mozilla/import-headjs-globals": "error",
+      },
     },
   ],
 };

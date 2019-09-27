@@ -36,9 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var mozmillInit = ChromeUtils.import(
-  "chrome://mozmill/content/modules/init.jsm"
-);
+ChromeUtils.import("resource://testing-common/mozmill/init.jsm");
 
 var MozMill = {
   onLoad() {

@@ -67,7 +67,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 extension_path = os.path.join(basedir, 'extension')
 
-mozmillModuleJs = "ChromeUtils.import('chrome://mozmill/content/modules/mozmill.jsm')"
+mozmillModuleJs = "ChromeUtils.import('resource://testing-common/mozmill/mozmill.jsm')"
 
 try:
     import pkg_resources
@@ -269,7 +269,7 @@ class MozMill(object):
         self.tests.extend(tests)
 
         frame = jsbridge.JSObject(self.bridge,
-                                  "ChromeUtils.import('chrome://mozmill/content/modules/frame.jsm')")
+                                  "ChromeUtils.import('resource://testing-common/mozmill/frame.jsm')")
         sleep(sleeptime)
 
         # transfer persisted data
@@ -573,7 +573,7 @@ class MozMillRestart(MozMill):
         self.create_network()
         self.appinfo = self.get_appinfo(self.bridge)
         frame = jsbridge.JSObject(self.bridge,
-                                  "ChromeUtils.import('chrome://mozmill/content/modules/frame.jsm')")
+                                  "ChromeUtils.import('resource://testing-common/mozmill/frame.jsm')")
         return frame
 
     def run_dir(self, test_dir, sleeptime=0):
