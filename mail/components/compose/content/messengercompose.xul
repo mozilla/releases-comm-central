@@ -2069,7 +2069,8 @@
                           disableonsend="true"
                           spellcheck="true"
                           oninput="gContentChanged = true; SetComposeWindowTitle();"
-                          onkeypress="subjectKeyPress(event);"/>
+                          onkeypress="subjectKeyPress(event);"
+                          aria-labelledby="subjectLabel"/>
             </hbox>
           </hbox>
         </vbox>
