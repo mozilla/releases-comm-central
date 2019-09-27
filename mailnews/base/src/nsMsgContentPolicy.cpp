@@ -110,8 +110,11 @@ bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
 
   // check with permission manager
   uint32_t permission = 0;
-  rv = mPermissionManager->TestPermission(mailURI, NS_LITERAL_CSTRING("image"),
-                                          &permission);
+  mozilla::OriginAttributes attrs;
+  RefPtr<mozilla::BasePrincipal> principal =
+      mozilla::BasePrincipal::CreateContentPrincipal(mailURI, attrs);
+  rv = mPermissionManager->TestPermissionFromPrincipal(
+      principal, NS_LITERAL_CSTRING("image"), &permission);
   NS_ENSURE_SUCCESS(rv, false);
 
   // Only return true if the permission manager has an explicit allow
@@ -356,8 +359,11 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
   }
 
   uint32_t permission;
-  mPermissionManager->TestPermission(aContentLocation,
-                                     NS_LITERAL_CSTRING("image"), &permission);
+  mozilla::OriginAttributes attrs;
+  RefPtr<mozilla::BasePrincipal> principal =
+      mozilla::BasePrincipal::CreateContentPrincipal(aContentLocation, attrs);
+  mPermissionManager->TestPermissionFromPrincipal(
+      principal, NS_LITERAL_CSTRING("image"), &permission);
   switch (permission) {
     case nsIPermissionManager::UNKNOWN_ACTION: {
       // No exception was found for this location.
@@ -717,8 +723,12 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
 
         // Test whitelist.
         uint32_t permission;
-        mPermissionManager->TestPermission(
-            aContentLocation, NS_LITERAL_CSTRING("image"), &permission);
+        mozilla::OriginAttributes attrs;
+        RefPtr<mozilla::BasePrincipal> principal =
+            mozilla::BasePrincipal::CreateContentPrincipal(aContentLocation,
+                                                           attrs);
+        mPermissionManager->TestPermissionFromPrincipal(
+            principal, NS_LITERAL_CSTRING("image"), &permission);
         if (permission == nsIPermissionManager::ALLOW_ACTION)
           *aDecision = nsIContentPolicy::ACCEPT;
       }
