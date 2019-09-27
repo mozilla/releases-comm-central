@@ -94,7 +94,7 @@
   }
 
   @media (-moz-windows-compositor) {
-    #messengerWindow {
+    #messengerWindow[windowtype="mail:3pane"] {
       background: transparent !important;
     }
   }
