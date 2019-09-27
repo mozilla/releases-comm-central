@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -26,6 +27,8 @@
   <stringbundle id="bundle_addressbook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   <stringbundle id="bundle_vcardImportMsgs" src="chrome://messenger/locale/vCardImportMsgs.properties"/>
   <stringbundle id="bundle_feeds" src="chrome://messenger-newsblog/locale/newsblog.properties"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/importDialog.js"/>
   <script src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
 
@@ -96,11 +99,12 @@
         <hbox flex="1">
           <description flex="1" control="moduleList" id="description" class="box-padded"/>
         </hbox>
-        <hbox id="acctName-box" flex="1" style="visibility: hidden;">
+        <hbox id="acctName-box" flex="1" class="input-container" style="visibility: hidden;">
           <label control="acctName" class="box-padded"
                  accesskey="&acctName.accesskey;"
                  value="&acctName.label;"/>
-          <textbox id="acctName"/>
+          <html:input id="acctName" type="text" class="input-inline"
+                      aria-labelledby="acctName"/>
         </hbox>
       </vbox>
     </vbox>
