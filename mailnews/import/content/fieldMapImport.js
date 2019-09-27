@@ -93,7 +93,6 @@ function CreateField(name, index, on) {
   var checkboxCell = document.createXULElement("hbox");
   checkboxCell.setAttribute("style", "width: var(--column1width)");
   let checkbox = document.createXULElement("checkbox");
-  checkbox.addEventListener("click", cellClicked);
   if (on) {
     checkbox.setAttribute("checked", "true");
   }
@@ -116,13 +115,6 @@ function CreateField(name, index, on) {
 function AddFieldToList(name, index, on) {
   var item = CreateField(name, index, on);
   gListbox.appendChild(item);
-}
-
-function cellClicked(event) {
-  if (event.button == 0) {
-    var on = gListbox.selectedItem.firstChild.getAttribute("checked");
-    gListbox.selectedItem.firstChild.setAttribute("checked", on != "true");
-  }
 }
 
 // The "Move Up/Move Down" buttons should move the items in the left column
@@ -194,7 +186,7 @@ function FieldImportOKButton() {
 
   for (let i = 0; i < max; i++) {
     let fIndex = gListbox.getItemAtIndex(i).getAttribute("field-index");
-    let on = gListbox.getItemAtIndex(i).firstChild.getAttribute("checked");
+    let on = gListbox.getItemAtIndex(i).querySelector("checkbox").getAttribute("checked");
     top.fieldMap.SetFieldMap(i, fIndex);
     top.fieldMap.SetFieldActive(i, on == "true");
   }
