@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css" ?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css" ?>
 
 <!DOCTYPE dialog [
 <!ENTITY % edTableProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorTableProperties.dtd">
@@ -25,6 +26,8 @@
     buttonaccesskeyextra1="&applyButton.accesskey;">
 
   <!-- Methods common to all editor dialogs -->
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
   <script src="chrome://messenger/content/messengercompose/EdTableProps.js"/>
@@ -49,35 +52,42 @@
               <hbox>
                 <vbox>
                   <hbox align="center" flex="1">
-                    <label value="&tableRows.label;" accesskey="&tableRows.accessKey;" control="TableRowsInput"/>
+                    <label id="TableRowsLabel" value="&tableRows.label;" accesskey="&tableRows.accessKey;"
+                           control="TableRowsInput"/>
                   </hbox>
                   <hbox align="center" flex="1">
-                    <label value="&tableColumns.label;" accesskey="&tableColumns.accessKey;" control="TableColumnsInput"/>
+                    <label id="TableColumnsLabel" value="&tableColumns.label;" accesskey="&tableColumns.accessKey;"
+                           control="TableColumnsInput"/>
                   </hbox>
                 </vbox>
                 <vbox>
-                  <textbox id="TableRowsInput" oninput="forceInteger(this.id);" style="width:3em;"/>
-                  <textbox id="TableColumnsInput" oninput="forceInteger(this.id);" style="width:3em;"/>
+                  <html:input id="TableRowsInput" type="number" class="narrow input-inline"
+                              aria-labelledby="TableRowsLabel"/>
+                  <html:input id="TableColumnsInput" type="number" class="narrow input-inline"
+                              aria-labelledby="TableColumnsLabel"/>
                 </vbox>
               </hbox>
             </vbox>
             <vbox>
               <html:div class="grid-three-column">
                 <html:div class="flex-items-center">
-                  <label value="&tableHeight.label;" accesskey="&tableHeight.accessKey;"
-                         id="TableHeightLabel" control="TableHeightInput"/>
+                  <label id="TableHeightLabel" value="&tableHeight.label;"
+                         accesskey="&tableHeight.accessKey;" control="TableHeightInput"/>
                 </html:div>
                 <html:div>
-                  <textbox id="TableHeightInput" oninput="forceInteger(this.id);" style="width:3em;"/>
+                  <html:input id="TableHeightInput" type="number" class="narrow input-inline"
+                              aria-labelledby="TableHeightLabel"/>
                 </html:div>
                 <html:div class="flex-items-center">
                   <menulist id="TableHeightUnits"/>
                 </html:div>
                 <html:div class="flex-items-center">
-                  <label value="&tableWidth.label;" accesskey="&tableWidth.accessKey;" control="TableWidthInput"/>
+                  <label id="TableWidthLabel" value="&tableWidth.label;"
+                         accesskey="&tableWidth.accessKey;" control="TableWidthInput"/>
                 </html:div>
                 <html:div>
-                  <textbox id="TableWidthInput" oninput="forceInteger(this.id);" style="width:3em;"/>
+                  <html:input id="TableWidthInput" type="number" class="narrow input-inline"
+                              aria-labelledby="TableWidthLabel"/>
                 </html:div>
                 <html:div class="flex-items-center">
                   <menulist id="TableWidthUnits"/>
@@ -93,25 +103,31 @@
           <hbox>
             <vbox>
               <hbox flex="1" align="center">
-                <label control="BorderWidthInput"
+                <label id="BorderWidthLabel"
+                       control="BorderWidthInput"
                        value="&tableBorderWidth.label;"
                        accesskey="&tableBorderWidth.accessKey;"/>
               </hbox>
               <hbox flex="1" align="center">
-                <label control="SpacingInput"
+                <label id="SpacingLabel"
+                       control="SpacingInput"
                        value="&tableSpacing.label;"
                        accesskey="&tableSpacing.accessKey;"/>
               </hbox>
               <hbox flex="1" align="center">
-                <label control="PaddingInput"
+                <label id="PaddingLabel"
+                       control="PaddingInput"
                        value="&tablePadding.label;"
                        accesskey="&tablePadding.accessKey;"/>
               </hbox>
             </vbox>
             <vbox>
-              <textbox class="narrow" id="BorderWidthInput" oninput="forceInteger(this.id);"/>
-              <textbox class="narrow" id="SpacingInput" oninput="forceInteger(this.id);"/>
-              <textbox class="narrow" id="PaddingInput" oninput="forceInteger(this.id);"/>
+              <html:input id="BorderWidthInput" type="number" class="narrow input-inline"
+                          aria-labelledby="BorderWidthLabel"/>
+              <html:input id="SpacingInput" type="number" class="narrow input-inline"
+                          aria-labelledby="SpacingLabel"/>
+              <html:input id="PaddingInput" type="number" class="narrow input-inline"
+                          aria-labelledby="PaddingLabel"/>
             </vbox>
             <vbox>
               <hbox flex="1" align="center">
@@ -229,10 +245,12 @@
                 </hbox>
               </vbox>
               <vbox flex="1">
-                <textbox class="narrow" id="CellHeightInput"
-                         oninput="ChangeIntTextbox(this.id, 'CellHeightCheckbox');"/>
-                <textbox class="narrow" id="CellWidthInput"
-                         oninput="ChangeIntTextbox(this.id, 'CellWidthCheckbox');"/>
+                <html:input id="CellHeightInput" type="number" class="narrow input-inline"
+                            onchange="ChangeIntTextbox('CellHeightCheckbox');"
+                            aria-labelledby="CellHeightCheckbox"/>
+                <html:input id="CellWidthInput" type="number" class="narrow input-inline"
+                            onchange="ChangeIntTextbox('CellWidthCheckbox');"
+                            aria-labelledby="CellWidthCheckbox"/>
               </vbox>
               <vbox>
                 <hbox flex="1" align="center">

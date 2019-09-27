@@ -1107,10 +1107,7 @@ function SetCheckbox(checkboxID) {
   gCellDataChanged = true;
 }
 
-function ChangeIntTextbox(textboxID, checkboxID) {
-  // Filter input for just integers
-  forceInteger(textboxID);
-
+function ChangeIntTextbox(checkboxID) {
   // Set associated checkbox
   SetCheckbox(checkboxID);
 }
