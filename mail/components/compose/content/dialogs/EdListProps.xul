@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % edListProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorListProperties.dtd">
@@ -17,6 +18,8 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
     onload="Startup()">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
@@ -50,10 +53,11 @@
       <menupopup/>
     </menulist>
     <spacer class="spacer"/>
-    <hbox>
+    <hbox align="center">
       <label id="StartingNumberLabel" control="StartingNumber"
              value="&startingNumber.label;" accesskey="&startingNumber.accessKey;"/>
-      <textbox class="narrow" id="StartingNumber"/>
+      <html:input id="StartingNumber" type="number" class="narrow input-inline"
+                  aria-labelledby="StartingNumberLabel"/>
       <spacer/>
     </hbox>
   </groupbox>
