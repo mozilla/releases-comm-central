@@ -250,7 +250,7 @@
 
 #compose-toolbox:-moz-lwtheme::after {
   content: "";
-  display: -moz-box;
+  display: block;
   position: absolute;
   pointer-events: none;
   top: -1px;
