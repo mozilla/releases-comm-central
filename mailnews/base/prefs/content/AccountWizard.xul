@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountWizard.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE wizard [
 <!ENTITY % AccountWizardDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
@@ -19,10 +20,14 @@
         onload="onAccountWizardLoad();"
 #endif
         style="&accountWizard.size;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
   <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/accountUtils.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
   <script src="chrome://messenger/content/AccountWizard.js"/>
@@ -70,15 +75,16 @@
       <separator/>
       <description flex="1">&fullnameDesc.label; &fullnameExample.label;</description>
       <separator class="thin"/>
-      <hbox align="center">
-        <label class="awIdentityLabel" value="&fullnameLabel.label;"
+      <hbox align="center" class="input-container">
+        <label id="fullnameLabel" class="awIdentityLabel" value="&fullnameLabel.label;"
                accesskey="&fullnameLabel.accesskey;" control="fullName"/>
-        <textbox id="fullName"
-                 mailtype="identity"
-                 wsm_persist="true"
-                 name="fullName"
-                 flex="1"
-                 oninput="identityPageValidate();"/>
+        <html:input id="fullName"
+                    type="text"
+                    wsm_persist="true"
+                    name="fullName"
+                    class="input-inline"
+                    aria-labelledby="fullnameLabel"
+                    oninput="identityPageValidate();"/>
       </hbox>
       <separator/>
       <vbox>
@@ -91,14 +97,14 @@
                  value="&emailLabel.label;"
                  accesskey="&emailLabel.accesskey;"
                  control="email"/>
-          <hbox class="uri-element" align="center" flex="1">
-            <textbox id="email"
-                     wsm_persist="true"
-                     mailtype="identity"
-                     name="email"
-                     flex="1"
-                     oninput="identityPageValidate();"
-                     class="uri-element"/>
+          <hbox class="uri-element input-container" align="center" flex="1">
+            <html:input id="email"
+                        type="email"
+                        wsm_persist="true"
+                        name="email"
+                        aria-labelledby="emailFieldLabel"
+                        oninput="identityPageValidate();"
+                        class="uri-element input-inline"/>
             <label id="postEmailText"/>
           </hbox>
         </hbox>
@@ -136,16 +142,17 @@
 
         <vbox id="incomingServerbox">
           <description>&incomingServer.description;</description>
-          <hbox align="center" class="serverDataBox">
-            <label class="label, serverLabel"
+          <hbox align="center" class="serverDataBox input-container">
+            <label id="incomingServerLabel" class="label serverLabel"
                    value="&incomingServer.label;"
                    accesskey="&incomingServer.accesskey;"
                    control="incomingServer"/>
-            <textbox id="incomingServer"
-                     wsm_persist="true"
-                     flex="1"
-                     class="uri-element"
-                     oninput="incomingPageValidate();"/>
+            <html:input id="incomingServer"
+                        type="text"
+                        wsm_persist="true"
+                        class="uri-element input-inline"
+                        aria-labelledby="incomingServerLabel"
+                        oninput="incomingPageValidate();"/>
           </hbox>
           <hbox id="leaveMsgsOnSrvrBox" class="indent">
             <checkbox id="leaveMessagesOnServer"
@@ -159,16 +166,18 @@
         </vbox>
         <description>&incomingUsername.description;</description>
         <separator class="thin"/>
-        <hbox align="center">
-          <label class="label"
+        <hbox align="center" class="input-container">
+          <label id="usernameLabel" class="label"
                  value="&incomingUsername.label;"
                  style="width: 8em;"
                  accesskey="&incomingUsername.accesskey;"
                  control="username"/>
-          <textbox id="username"
-                   wsm_persist="true"
-                   flex="1"
-                   oninput="incomingPageValidate();"/>
+          <html:input id="username"
+                      type="text"
+                      class="input-inline"
+                      wsm_persist="true"
+                      aria-labelledby="usernameLabel"
+                      oninput="incomingPageValidate();"/>
         </hbox>
         <vbox id="deferStorageBox">
             <separator class="groove"/>
@@ -194,16 +203,17 @@
     <vbox flex="1">
       <vbox id="noSmtp">
         <description>&outgoingServer.description;</description>
-        <hbox align="center" class="serverDataBox">
-          <label class="label, serverLabel"
+        <hbox align="center" class="serverDataBox input-container">
+          <label id="smtphostnameLabel" class="label serverLabel"
                  value="&outgoingServer.label;"
                  accesskey="&outgoingServer.accesskey;"
                  control="smtphostname"/>
-          <textbox id="smtphostname"
-                   wsm_persist="true"
-                   flex="1"
-                   class="uri-element"
-                   oninput="outgoingPageValidate();"/>
+          <html:input id="smtphostname"
+                      type="text"
+                      wsm_persist="true"
+                      class="uri-element input-inline"
+                      aria-labelledby="smtphostnameLabel"
+                      oninput="outgoingPageValidate();"/>
         </hbox>
       </vbox>
 
@@ -217,13 +227,17 @@
       <vbox id="loginSet1">
         <description>&outgoingUsername.description;</description>
         <separator class="thin"/>
-        <hbox align="center">
-          <label class="label"
+        <hbox align="center" class="input-container">
+          <label id="smtpusernameLabel" class="label"
                  value="&outgoingUsername.label;"
                  style="width: 8em;"
                  accesskey="&outgoingUsername.accesskey;"
                  control="smtpusername"/>
-          <textbox id="smtpusername" wsm_persist="true" flex="1"/>
+          <html:input id="smtpusername"
+                      type="text"
+                      class="input-inline"
+                      aria-labelledby="smtpusernameLabel"
+                      wsm_persist="true"/>
         </hbox>
       </vbox>
 
@@ -246,13 +260,17 @@
     <vbox flex="1">
       <description>&newsServerNameDesc.label;</description>
       <separator class="thin"/>
-      <hbox align="center">
-        <label control="newsServer" value="&newsServerLabel.label;" accesskey="&newsServerLabel.accesskey;" style="width: 8em;"/>
-        <textbox id="newsServer"
-                 wsm_persist="true"
-                 flex="1"
-                 class="uri-element"
-                 oninput="incomingPageValidate();"/>
+      <hbox align="center" class="input-container">
+        <label id="newsServerLabel" control="newsServer"
+               value="&newsServerLabel.label;"
+               accesskey="&newsServerLabel.accesskey;"
+               style="width: 8em;"/>
+        <html:input id="newsServer"
+                    type="text"
+                    wsm_persist="true"
+                    class="uri-element input-inline"
+                    aria-labelledby="newsServerLabel"
+                    oninput="incomingPageValidate();"/>
       </hbox>
     </vbox>
   </wizardpage>
@@ -264,10 +282,19 @@
     <vbox flex="1">
       <description>&accnameDesc.label;</description>
       <separator class="thin"/>
-      <hbox align="center">
-        <label class="label" value="&accnameLabel.label;" style="width: 8em;"
-               accesskey="&accnameLabel.accesskey;" control="prettyName"/>
-        <textbox id="prettyName" size="40" wsm_persist="true" flex="1" oninput="acctNamePageValidate();"/>
+      <hbox align="center" class="input-container">
+        <label id="prettyNameLabel" class="label"
+               value="&accnameLabel.label;"
+               style="width: 8em;"
+               accesskey="&accnameLabel.accesskey;"
+               control="prettyName"/>
+        <html:input id="prettyName"
+                    type="text"
+                    size="40"
+                    wsm_persist="true"
+                    class="input-inline"
+                    aria-labelledby="prettyNameLabel"
+                    oninput="acctNamePageValidate();"/>
       </hbox>
     </vbox>
   </wizardpage>
