@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/smtpEditOverlay.dtd">
 
 <dialog title="&smtpEditTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="onLoad();">
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
@@ -19,19 +19,25 @@
                 src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundle_messenger"
                 src="chrome://messenger/locale/messenger.properties"/>
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/SmtpServerEdit.js"/>
+
   <vbox id="smtpServerEditor">
     <groupbox>
       <label class="header">&settings.caption;</label>
       <hbox flex="1">
         <vbox>
           <hbox flex="1" align="center">
-            <label value="&serverDescription.label;"
+            <label id="smtp.description.label"
+                   value="&serverDescription.label;"
                    accesskey="&serverDescription.accesskey;"
                    control="smtp.description"/>
           </hbox>
           <hbox flex="1" align="center">
-            <label value="&serverName.label;"
+            <label id="smtp.hostname.label"
+                   value="&serverName.label;"
                    accesskey="&serverName.accesskey;"
                    control="smtp.hostname"/>
           </hbox>
@@ -42,15 +48,18 @@
           </hbox>
         </vbox>
         <vbox flex="1">
-          <textbox id="smtp.description"
-                   flex="1"
-                   preftype="string"
-                   prefstring="mail.smtpserver.%serverkey%.description"/>
-          <textbox id="smtp.hostname"
-                   flex="1"
-                   preftype="string"
-                   class="uri-element"
-                   prefstring="mail.smtpserver.%serverkey%.hostname"/>
+          <html:input id="smtp.description"
+                      type="text"
+                      preftype="string"
+                      class="input-inline"
+                      prefstring="mail.smtpserver.%serverkey%.description"
+                      aria-labelledby="smtp.description.label"/>
+          <html:input id="smtp.hostname"
+                      type="text"
+                      preftype="string"
+                      class="uri-element input-inline"
+                      prefstring="mail.smtpserver.%serverkey%.hostname"
+                      aria-labelledby="smtp.hostname.label"/>
           <hbox align="center">
               <html:input id="smtp.port" type="number" class="size5" min="0" max="65535"
                           preftype="int"
@@ -113,9 +122,12 @@
               <menuitem id="authMethod-any" value="9"/>
             </menupopup>
           </menulist>
-          <textbox id="smtp.username" flex="1"
-                   preftype="string"
-                   prefstring="mail.smtpserver.%serverkey%.username"/>
+          <html:input id="smtp.username"
+                      type="text"
+                      class="input-inline"
+                      preftype="string"
+                      prefstring="mail.smtpserver.%serverkey%.username"
+                      aria-labelledby="smtp.username.label"/>
         </vbox>
       </hbox>
     </groupbox>
