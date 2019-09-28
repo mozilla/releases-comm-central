@@ -169,6 +169,7 @@ treechildren::-moz-tree-cell-text(broken) {
 #identity-icon {
   width: 64px;
   height: 64px;
+  max-height: 64px;
   list-style-image: url("chrome://navigator/skin/icons/identity.png");
   -moz-image-region: rect(0px, 64px, 64px, 0px);
 }

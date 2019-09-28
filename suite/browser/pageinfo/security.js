@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+XPCOMUtils.defineLazyModuleGetter(this, "PluralForm",
+                                  "resource://gre/modules/PluralForm.jsm");
+
 var security = {
   init: function(uri, windowInfo) {
     this.uri = uri;
@@ -10,7 +13,7 @@ var security = {
   },
 
   // Display the server certificate (static)
-  viewCert : function () {
+  viewCert : function() {
     var cert = security._cert;
     viewCertHelper(window, cert);
   },
@@ -27,13 +30,16 @@ var security = {
     if (!ui)
       return null;
 
-    var isBroken = ui &&
+    var isBroken =
       (ui.state & Ci.nsIWebProgressListener.STATE_IS_BROKEN);
-    var isInsecure = ui &&
+    var isMixed =
+      (ui.state & (Ci.nsIWebProgressListener.STATE_LOADED_MIXED_ACTIVE_CONTENT |
+                   Ci.nsIWebProgressListener.STATE_LOADED_MIXED_DISPLAY_CONTENT));
+    var isInsecure =
       (ui.state & Ci.nsIWebProgressListener.STATE_IS_INSECURE);
-    var isEV = ui &&
+    var isEV =
       (ui.state & Ci.nsIWebProgressListener.STATE_IDENTITY_EV_TOPLEVEL);
-    var status = ui ? ui.QueryInterface(Ci.nsISSLStatusProvider).SSLStatus : null;
+    var status = ui.QueryInterface(Ci.nsISSLStatusProvider).SSLStatus;
 
     if (!isInsecure && status) {
       status.QueryInterface(Ci.nsISSLStatus);
@@ -45,16 +51,54 @@ var security = {
         cAName : issuerName,
         encryptionAlgorithm : undefined,
         encryptionStrength : undefined,
+        version: undefined,
         isBroken : isBroken,
+        isMixed : isMixed,
         isEV : isEV,
-        cert : cert
+        cert : cert,
+        certificateTransparency : undefined,
       };
 
+      var version;
       try {
         retval.encryptionAlgorithm = status.cipherName;
         retval.encryptionStrength = status.secretKeyLength;
+        version = status.protocolVersion;
       }
       catch (e) {
+      }
+
+      switch (version) {
+        case Ci.nsISSLStatus.SSL_VERSION_3:
+          retval.version = "SSL 3";
+          break;
+        case Ci.nsISSLStatus.TLS_VERSION_1:
+          retval.version = "TLS 1.0";
+          break;
+        case Ci.nsISSLStatus.TLS_VERSION_1_1:
+          retval.version = "TLS 1.1";
+          break;
+        case Ci.nsISSLStatus.TLS_VERSION_1_2:
+          retval.version = "TLS 1.2";
+          break;
+        case Ci.nsISSLStatus.TLS_VERSION_1_3:
+          retval.version = "TLS 1.3";
+          break;
+      }
+
+      // Select the status text to display for Certificate Transparency.
+      // Since we do not yet enforce the CT Policy on secure connections,
+      // we must not complain on policy discompliance (it might be viewed
+      // as a security issue by the user).
+      switch (status.certificateTransparencyStatus) {
+        case Ci.nsISSLStatus.CERTIFICATE_TRANSPARENCY_NOT_APPLICABLE:
+        case Ci.nsISSLStatus.CERTIFICATE_TRANSPARENCY_POLICY_NOT_ENOUGH_SCTS:
+        case Ci.nsISSLStatus.CERTIFICATE_TRANSPARENCY_POLICY_NOT_DIVERSE_SCTS:
+          retval.certificateTransparency = null;
+          break;
+        case Ci.nsISSLStatus.CERTIFICATE_TRANSPARENCY_POLICY_COMPLIANT:
+          retval.certificateTransparency = "Compliant";
+          break;
       }
 
       return retval;
@@ -64,15 +108,18 @@ var security = {
       cAName : "",
       encryptionAlgorithm : "",
       encryptionStrength : 0,
+      version: "",
       isBroken : isBroken,
+      isMixed : isMixed,
       isEV : isEV,
-      cert : null
+      cert : null,
+      certificateTransparency : null,
     };
   },
 
   // Find the secureBrowserUI object (if present)
   _getSecurityUI : function() {
-    if ("gBrowser" in window.opener)
+    if (window.opener.gBrowser)
       return window.opener.gBrowser.securityUI;
     return null;
   },
@@ -108,16 +155,28 @@ function securityOnLoad(uri, windowInfo) {
   security.init(uri, windowInfo);
 
   var info = security._getSecurityInfo();
-  if (!info)
+  if (!info || uri.scheme === "about") {
+    document.getElementById("securityTab").hidden = true;
+    document.getElementById("securityBox").hidden = true;
     return;
+  }
+
+  document.getElementById("securityTab").hidden = false;
+  document.getElementById("securityBox").hidden = false;
 
   const pageInfoBundle = document.getElementById("pageinfobundle");
 
   /* Set Identity section text */
   setText("security-identity-domain-value", info.hostName);
 
-  var owner, verifier, generalPageIdentityString, identityClass;
+  var owner;
+  var verifier;
+  var generalPageIdentityString;
+  var identityClass;
+  var validity;
   if (info.cert && !info.isBroken) {
+    validity = info.cert.validity.notAfterLocalDay;
+
     // Try to pull out meaningful values.  Technically these fields are optional
     // so we'll employ fallbacks where appropriate.  The EV spec states that Org
     // fields must be specified for subject and issuer so that case is simpler.
@@ -128,20 +187,18 @@ function securityOnLoad(uri, windowInfo) {
         pageInfoBundle.getFormattedString("generalSiteIdentity",
                                           [owner, verifier]);
       identityClass = "verifiedIdentity";
-    }
-    else {
-      // Technically, a non-EV cert might specify an owner in the O field or not,
-      // depending on the CA's issuing policies.  However we don't have any programmatic
-      // way to tell those apart, and no policy way to establish which organization
-      // vetting standards are good enough (that's what EV is for) so we default to
-      // treating these certs as domain-validated only.
+    } else {
+      // Technically, a non-EV cert might specify an owner in the O field or
+      // not, depending on the CA's issuing policies.  However we don't have any
+      // programmatic way to tell those apart, and no policy way to establish
+      // which organization vetting standards are good enough (that's what EV is
+      // for) so we default to treating these certs as domain-validated only.
       owner = pageInfoBundle.getString("securityNoOwner");
       verifier = info.cAName || info.cert.issuerCommonName || info.cert.issuerName;
       generalPageIdentityString = owner;
       identityClass = "verifiedDomain";
     }
-  }
-  else {
+  } else {
     // We don't have valid identity credentials.
     owner = pageInfoBundle.getString("securityNoOwner");
     verifier = pageInfoBundle.getString("notSet");
@@ -153,6 +210,11 @@ function securityOnLoad(uri, windowInfo) {
   setText("security-identity-verifier-value", verifier);
   setText("general-security-identity", generalPageIdentityString);
   document.getElementById("identity-icon").className = identityClass;
+  if (validity) {
+    setText("security-identity-validity-value", validity);
+  } else {
+    document.getElementById("security-identity-validity-row").hidden = true;
+  }
 
   /* Manage the View Cert button*/
   if (info.cert)
@@ -171,47 +233,61 @@ function securityOnLoad(uri, windowInfo) {
   document.getElementById("security-view-password").disabled = !hasPasswords;
 
   var visitCount = previousVisitCount(info.hostName);
-  if(visitCount > 1) {
-    setText("security-privacy-history-value",
-            pageInfoBundle.getFormattedString("securityNVisits", [visitCount.toLocaleString()]));
-  }
-  else if (visitCount == 1) {
-    setText("security-privacy-history-value",
-            pageInfoBundle.getString("securityOneVisit"));
-  }
-  else {
-    setText("security-privacy-history-value", noStr);
-  }
+  let visitCountStr = visitCount > 0
+    ? PluralForm.get(visitCount, pageInfoBundle.getString("securityVisitsNumber"))
+        .replace("#1", visitCount.toLocaleString())
+    : pageInfoBundle.getString("securityNoVisits");
+  setText("security-privacy-history-value", visitCountStr);
 
   /* Set the Technical Detail section messages */
+  const pkiBundle = document.getElementById("pkiBundle");
   var hdr;
   var msg1;
   var msg2;
 
   if (info.isBroken) {
-    hdr = pageInfoBundle.getString("securityMixedContent");
-    msg1 = pageInfoBundle.getString("securityMixed1");
-    msg2 = pageInfoBundle.getString("securityNone2");
-  }
-  else if (info.encryptionStrength) {
-    hdr = pageInfoBundle.getFormattedString("securityEncryptionWithBits",
-                         [info.encryptionAlgorithm, info.encryptionStrength]);
-    msg1 = pageInfoBundle.getString("securityEncryption1");
-    msg2 = pageInfoBundle.getString("securityEncryption2");
+    if (info.isMixed) {
+      hdr = pkiBundle.getString("pageInfo_MixedContent");
+      msg1 = pkiBundle.getString("pageInfo_MixedContent2");
+    } else {
+      hdr = pkiBundle.getFormattedString("pageInfo_BrokenEncryption",
+                                         [info.encryptionAlgorithm,
+                                          info.encryptionStrength + "",
+                                          info.version]);
+      msg1 = pkiBundle.getString("pageInfo_WeakCipher");
+    }
+    msg2 = pkiBundle.getString("pageInfo_Privacy_None2");
+  } else if (info.encryptionStrength > 0) {
+    hdr = pkiBundle.getFormattedString("pageInfo_EncryptionWithBitsAndProtocol",
+                                       [info.encryptionAlgorithm,
+                                        info.encryptionStrength + "",
+                                        info.version]);
+    msg1 = pkiBundle.getString("pageInfo_Privacy_Encrypted1");
+    msg2 = pkiBundle.getString("pageInfo_Privacy_Encrypted2");
     security._cert = info.cert;
-  }
-  else {
-    hdr = pageInfoBundle.getString("securityNoEncryption");
-    if (info.hostName)
-      msg1 = pageInfoBundle.getFormattedString("securityNone1", [info.hostName]);
-    else
-      msg1 = pageInfoBundle.getString("securityNone3");
-    msg2 = pageInfoBundle.getString("securityNone2");
+  } else {
+    hdr = pkiBundle.getString("pageInfo_NoEncryption");
+    if (info.hostName != null) {
+      msg1 = pkiBundle.getFormattedString("pageInfo_Privacy_None1", [info.hostName]);
+    } else {
+      msg1 = pkiBundle.getString("pageInfo_Privacy_None4");
+    }
+    msg2 = pkiBundle.getString("pageInfo_Privacy_None2");
   }
   setText("security-technical-shortform", hdr);
   setText("security-technical-longform1", msg1);
   setText("security-technical-longform2", msg2);
   setText("general-security-privacy", hdr);
+
+  const ctStatus =
+    document.getElementById("security-technical-certificate-transparency");
+  if (info.certificateTransparency) {
+    ctStatus.hidden = false;
+    ctStatus.value = pkiBundle.getString(
+      "pageInfo_CertificateTransparency_" + info.certificateTransparency);
+  } else {
+    ctStatus.hidden = true;
+  }
 }
 
 function setText(id, value)
@@ -238,16 +314,7 @@ function viewCertHelper(parent, cert)
  * Return true iff we have cookies for uri.
  */
 function hostHasCookies(aUri) {
-  var hostName;
-  try {
-    hostName = aUri.asciiHost;
-  }
-  catch (e) {
-  }
-  if (!hostName)
-    return false;
-
-  return Services.cookies.countCookiesFromHost(hostName) > 0;
+  return Services.cookies.countCookiesFromHost(aUri.asciiHost) > 0;
 }
 
 /**
