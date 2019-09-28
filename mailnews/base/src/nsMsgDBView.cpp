@@ -4007,7 +4007,7 @@ nsresult nsMsgDBView::DecodeColumnSort(nsString &columnSortString) {
 //  messages are in Date order.
 
 void nsMsgDBView::PushSort(const MsgViewSortColumnInfo &newSort) {
-  // Handle byNone (bug 901948) ala a mail/base/modules/dbViewerWrapper.js
+  // Handle byNone (bug 901948) ala a mail/base/modules/DBViewerWrapper.jsm
   // where we don't push the secondary sort type if it's ::byNone;
   // (and secondary sort type is NOT the same as the first sort type
   // there). This code should behave the same way.
@@ -4016,10 +4016,9 @@ void nsMsgDBView::PushSort(const MsgViewSortColumnInfo &newSort) {
   // but if we are it's safe to ignore it.
   if (newSort.mSortType == nsMsgViewSortType::byNone) return;
 
-  // Date and ID are unique keys, so if we are sorting by them we don't
-  // need to keep any secondary sort keys
-  if (newSort.mSortType == nsMsgViewSortType::byDate ||
-      newSort.mSortType == nsMsgViewSortType::byId)
+  // byId is a unique key (misnamed as Order Received). If we are sorting byId,
+  // we don't need to keep any secondary sort keys.
+  if (newSort.mSortType == nsMsgViewSortType::byId)
     m_sortColumns.Clear();
 
   m_sortColumns.RemoveElement(newSort);
