@@ -6,6 +6,7 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorSpellCheck.dtd">
 
 <!-- dialog containing a control requiring initial setup -->
@@ -14,6 +15,8 @@
     persist="screenX screenY"
     onload="Startup()">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
   <script src="chrome://communicator/content/utilityOverlay.js"/>
@@ -40,7 +43,12 @@
         <label id="ReplaceWordLabel" value="&wordEditField.label;"
                control="ReplaceWordInput"
                accesskey="&wordEditField.accessKey;"/>
-        <textbox id="ReplaceWordInput" oninput="ChangeReplaceWord()" flex="1"/>
+        <hbox flex="1" class="input-container">
+          <html:input id="ReplaceWordInput" type="text"
+                      class="input-inline"
+                      onchange="ChangeReplaceWord()"
+                      aria-labelledby="ReplaceWordLabel"/>
+        </hbox>
         <button id="CheckWord" oncommand="CheckWord()" label="&checkwordButton.label;"
                 accesskey="&checkwordButton.accessKey;"/>
       </row>
