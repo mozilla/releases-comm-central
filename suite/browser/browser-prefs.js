@@ -823,6 +823,8 @@ pref("security.warn_mixed_display_content", true);
 pref("security.mixed_content.block_active_content", true);
 // Turn on the CSP 1.0 parser for Content Security Policy headers
 pref("security.csp.speccompliant", true);
+// 1 = allow MITM for certificate pinning checks.
+pref("security.cert_pinning.enforcement_level", 1);
 
 pref("geo.wifi.uri", "https://www.googleapis.com/geolocation/v1/geolocate?key=%GOOGLE_LOCATION_SERVICE_API_KEY%");
 
