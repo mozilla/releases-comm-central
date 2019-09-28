@@ -250,7 +250,6 @@ separator.dot {
 }
 
 .input-field {
-  padding: 2px 2px 3px;
   margin: 2px 4px;
   flex-grow: 1;
   width: 4rem;

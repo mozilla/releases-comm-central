@@ -8,6 +8,10 @@ menulist[is="menulist-editable"][editable="true"] {
   margin: 4px 2px;
 }
 
+menulist[is="menulist-editable"][editable="true"]:focus-within {
+  box-shadow: var(--focus-ring-box-shadow);
+}
+
 menulist[is="menulist-editable"][editable="true"] > menupopup,
 menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem,
 menulist[is="menulist-editable"][editable="true"] > menupopup > menucaption {

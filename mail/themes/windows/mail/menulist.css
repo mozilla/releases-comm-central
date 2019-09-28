@@ -33,3 +33,9 @@ menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
     margin-inline-start: 0;
   }
 }
+
+menulist[is="menulist-editable"][editable="true"] html|*.menulist-input {
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+  padding-inline-end: 3px;
+}

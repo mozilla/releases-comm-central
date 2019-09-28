@@ -292,8 +292,3 @@ menulist[disabled="true"],
 menulist[is="menulist-editable"][editable="true"][disabled="true"] {
   opacity: 0.5;
 }
-
-menulist[is="menulist-editable"][editable="true"][disabled="true"]
-  .menulist-dropmarker {
-  display: none !important;
-}

@@ -3,12 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/content/menulist.css");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+menulist html|*.textbox-input {
+  padding: 2px 2px 3px;
+}
 
 menulist[is="menulist-editable"][editable="true"] {
-  -moz-appearance: none;
+  -moz-appearance: textfield;
+}
+
+menulist[is="menulist-editable"][editable="true"]:not([disabled]) {
+  margin-inline-end: 2.4em;
 }
 
 menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
   display: -moz-box;
   min-width: 2em;
+  margin-top: -2px;
+  margin-bottom: -2px;
+  margin-inline-end: -2.4em;
+}
+
+menulist[is="menulist-editable"][editable="true"] html|*.menulist-input {
+  margin-inline-end: 6px;
 }
