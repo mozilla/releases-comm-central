@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals openAddonsTab, openCalendarTab, openTasksTab, selectFolderTab,
+/* globals openAddonsTab, openCalendarTab, openChatTab, openTasksTab, selectFolderTab,
   openPreferencesTab */
 
 async function clickTodayPaneButton() {
@@ -34,6 +34,10 @@ add_task(async () => {
   if (BrowserTestUtils.is_visible(todayPane)) {
     await clickTodayPaneButton();
   }
+  await openChatTab();
+  if (BrowserTestUtils.is_visible(todayPane)) {
+    await clickTodayPaneButton();
+  }
 
   await selectFolderTab();
   ok(BrowserTestUtils.is_visible(todayPane), "today pane is visible in folder tab");
@@ -41,6 +45,8 @@ add_task(async () => {
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in calendar tab");
   await openTasksTab();
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in tasks tab");
+  await openChatTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in chat tab");
   await openPreferencesTab();
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in preferences tab");
   await openAddonsTab();
@@ -60,6 +66,8 @@ add_task(async () => {
   ok(BrowserTestUtils.is_visible(todayPane), "today pane is visible in calendar tab");
   await openTasksTab();
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in tasks tab");
+  await openChatTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in chat tab");
   await openPreferencesTab();
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in preferences tab");
   await openAddonsTab();
@@ -79,6 +87,29 @@ add_task(async () => {
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in calendar tab");
   await openTasksTab();
   ok(BrowserTestUtils.is_visible(todayPane), "today pane is visible in tasks tab");
+  await openChatTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in chat tab");
+  await openPreferencesTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in preferences tab");
+  await openAddonsTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in addons tab");
+
+  // Show today pane in chat tab, but not in other tabs.
+  // Hide it in tasks tab.
+  await openTasksTab();
+  await clickTodayPaneButton();
+  // Show it in chat tab.
+  await openChatTab();
+  await clickTodayPaneButton();
+
+  await selectFolderTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in folder tab");
+  await openCalendarTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in calendar tab");
+  await openTasksTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in tasks tab");
+  await openChatTab();
+  ok(BrowserTestUtils.is_visible(todayPane), "today pane is visible in chat tab");
   await openPreferencesTab();
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in preferences tab");
   await openAddonsTab();
@@ -92,6 +123,8 @@ add_task(async () => {
   ok(BrowserTestUtils.is_visible(button), "today pane button is visible in calendar tab");
   await openTasksTab();
   ok(BrowserTestUtils.is_visible(button), "today pane button is visible in tasks tab");
+  await openChatTab();
+  ok(BrowserTestUtils.is_visible(button), "today pane button is visible in chat tab");
   await openPreferencesTab();
   is(BrowserTestUtils.is_visible(button), false, "today pane button is hidden in preferences tab");
   await openAddonsTab();

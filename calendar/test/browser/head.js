@@ -3,8 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported openCalendarTab, setCalendarView, closeCalendarTab, openTasksTab,
- * closeTasksTab, selectFolderTab, openPreferencesTab, closePreferencesTab,
- * openAddonsTab, closeAddonsTab
+ * closeTasksTab, selectFolderTab, openChatTab, closeChatTab, openPreferencesTab,
+ * closePreferencesTab, openAddonsTab, closeAddonsTab
  */
 
 /* import-globals-from ../../base/content/calendar-views-utils.js */
@@ -97,6 +97,35 @@ async function selectFolderTab() {
   await new Promise(resolve => setTimeout(resolve));
 }
 
+async function openChatTab() {
+  let tabmail = document.getElementById("tabmail");
+  let chatMode = tabmail.tabModes.chat;
+
+  if (chatMode.tabs.length == 1) {
+    tabmail.selectedTab = chatMode.tabs[0];
+  } else {
+    window.showChatTab();
+  }
+
+  is(chatMode.tabs.length, 1, "chat tab is open");
+  is(tabmail.selectedTab, chatMode.tabs[0], "chat tab is selected");
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
+async function closeChatTab() {
+  let tabmail = document.getElementById("tabmail");
+  let chatMode = tabmail.tabModes.chat;
+
+  if (chatMode.tabs.length == 1) {
+    tabmail.closeTab(chatMode.tabs[0]);
+  }
+
+  is(chatMode.tabs.length, 0, "chat tab is not open");
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
 async function openPreferencesTab() {
   const tabmail = document.getElementById("tabmail");
   const prefsMode = tabmail.tabModes.preferencesTab;
@@ -158,6 +187,7 @@ async function closeAddonsTab() {
 registerCleanupFunction(async () => {
   await closeCalendarTab();
   await closeTasksTab();
+  await closeChatTab();
   await closePreferencesTab();
   await closeAddonsTab();
 });

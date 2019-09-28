@@ -31,15 +31,15 @@
   <script src="chrome://calendar/content/calendar-task-tree-utils.js"/>
 
   <calendar-modevbox id="today-pane-panel"
-                     mode="mail,calendar,task"
-                     modewidths="200,200,200"
-                     modesplitterstates="open,open,open"
+                     mode="mail,calendar,task,chat"
+                     modewidths="200,200,200,200"
+                     modesplitterstates="open,open,open,open"
                      refcontrol="calendar_toggle_todaypane_command"
                      persist="modewidths">
     <sidebarheader align="center">
       <label id="today-pane-header"/>
       <spacer flex="1"/>
-      <calendar-modebox mode="mail,calendar">
+      <calendar-modebox mode="mail,calendar,chat">
         <toolbarbutton id="today-pane-cycler-prev"
                        dir="prev"
                        class="today-pane-cycler"
@@ -58,26 +58,26 @@
     <vbox flex="1">
       <calendar-modevbox id="agenda-panel"
                          flex="1"
-                         mode="mail,calendar,task"
+                         mode="mail,calendar,task,chat"
                          collapsedinmodes="calendar"
                          persist="collapsed height collapsedinmodes">
         <calendar-modebox id="today-none-box"
-                          mode="mail,calendar,task"
-                          collapsedinmodes="mail,calendar,task"
+                          mode="mail,calendar,task,chat"
+                          collapsedinmodes="mail,calendar,task,chat"
                           refcontrol="ltnTodayPaneDisplayNone"
                           persist="collapsedinmodes"/>
         <calendar-modebox id="today-minimonth-box"
                           pack="center"
                           class="today-subpane"
-                          mode="mail,calendar,task"
-                          collapsedinmodes="mail,calendar,task"
+                          mode="mail,calendar,task,chat"
+                          collapsedinmodes="mail,calendar,task,chat"
                           refcontrol="ltnTodayPaneDisplayMinimonth"
                           persist="collapsedinmodes">
           <calendar-minimonth id="today-minimonth"
                               onchange="TodayPane.setDaywithjsDate(this.value);"/>
         </calendar-modebox>
         <calendar-modebox id="mini-day-box"
-                          mode="mail,calendar,task"
+                          mode="mail,calendar,task,chat"
                           class="today-subpane"
                           refcontrol="ltnTodayPaneDisplayMiniday"
                           collapsedinmodes=""
@@ -375,8 +375,8 @@
       <splitter id="today-pane-splitter" persist="hidden"/>
       <calendar-modevbox id="todo-tab-panel"
                          flex="1"
-                         mode="mail,calendar"
-                         collapsedinmodes="mail,task"
+                         mode="mail,calendar,chat"
+                         collapsedinmodes="mail,task,chat"
                          persist="height collapsedinmodes"
                          ondragstart="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
                          ondragover="nsDragAndDrop.dragOver(event, calendarTaskButtonDNDObserver);"

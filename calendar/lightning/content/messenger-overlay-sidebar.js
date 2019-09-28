@@ -59,6 +59,9 @@ var calendarTabMonitor = {
       case "tasks":
         calSwitchToTaskMode();
         break;
+      case "chat":
+        calSwitchToMode("chat");
+        break;
       case "preferencesTab":
       case "contentTab":
         calSwitchToMode("special");
@@ -617,6 +620,7 @@ function openInvitationsDialog() {
  *  - 'mail'
  *  - 'calendar'
  *  - 'task'
+ *  - 'chat'
  *  - 'special' - For special tabs like preferences, add-ons manager, about:xyz, etc.
  * @global
  */
@@ -649,13 +653,13 @@ function changeMode(mode = "mail") {
 }
 
 /**
- * For switching to modes like "mail" or "special". (For switching to "calendar"
+ * For switching to modes like "mail", "chat", or "special". (For switching to "calendar"
  * and "task" modes use calSwitchToCalendarMode and calSwitchToTaskMode.)
  *
  * @param {string} mode  The mode to switch to.
  */
 function calSwitchToMode(mode) {
-  if (mode != "mail" && mode != "special") {
+  if (!["mail", "chat", "special"].includes(mode)) {
     cal.WARN("Attempted to switch to unknown mode: " + mode);
     return;
   }

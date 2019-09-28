@@ -356,7 +356,7 @@
     <!-- end event/task in tab statusbarpanels -->
     <calendar-modebox id="calendar-show-todaypane-panel"
                       class="statusbarpanel"
-                      mode="mail,calendar,task"
+                      mode="mail,calendar,task,chat"
                       collapsedinmodes="special"
                       pack="center">
       <toolbarbutton id="calendar-status-todaypane-button"
