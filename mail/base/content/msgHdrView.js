@@ -2154,9 +2154,9 @@ AttachmentInfo.prototype = {
           // The size for internal attachments is not calculated here but
           // will come from libmime.
           let reader = response.body.getReader();
-          let { value: chunk } = await reader.read();
+          let result = await reader.read();
           reader.cancel();
-          size = chunk && chunk.value ? chunk.value.length : -1;
+          size = result && result.value ? result.value.length : -1;
         }
 
         if (size > 0) {
