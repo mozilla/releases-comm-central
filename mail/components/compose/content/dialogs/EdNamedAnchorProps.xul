@@ -6,6 +6,7 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % edNamedAnchorProperties SYSTEM "chrome://messenger/locale/messengercompose/EdNamedAnchorProperties.dtd">
@@ -18,6 +19,8 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
     onload="Startup()">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
@@ -25,11 +28,14 @@
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <label control="nameInput"
+  <label id="nameLabel"
+         control="nameInput"
          value="&anchorNameEditField.label;"
          accesskey="&anchorNameEditField.accessKey;"/>
-  <textbox class="MinWidth20em" id="nameInput" oninput="ChangeName()"
-             tooltiptext="&nameInput.tooltip;"/>
+  <html:input id="nameInput" type="text" class="MinWidth20em input-inline"
+              onchange="ChangeName()"
+              title="&nameInput.tooltip;"
+              aria-labelledby="nameLabel"/>
   <spacer class="spacer"/>
   <vbox id="AdvancedEdit">
     <hbox flex="1" style="margin-top: 0.2em" align="center">
