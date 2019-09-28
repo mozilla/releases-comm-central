@@ -3538,7 +3538,11 @@ function onRemoteContentOptionsShowing(aEvent) {
  */
 function allowRemoteContentForURI(aUriSpec, aReload = true) {
   let uri = Services.io.newURI(aUriSpec);
-  Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+  Services.perms.addFromPrincipal(
+    Services.scriptSecurityManager.createContentPrincipal(uri, {}),
+    "image",
+    Services.perms.ALLOW_ACTION
+  );
   if (aReload) {
     ReloadMessage();
   }

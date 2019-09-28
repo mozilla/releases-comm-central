@@ -274,13 +274,22 @@ var MailMigrator = {
             while (statement.executeStep()) {
               let origin = statement.getUTF8String(0);
               let permission = statement.getInt32(1);
-              Services.perms.remove(Services.io.newURI(origin), "image");
+              Services.perms.removeFromPrincipal(
+                Services.scriptSecurityManager.createContentPrincipal(
+                  Services.io.newURI(origin),
+                  {}
+                ),
+                "image"
+              );
               origin = origin.replace(
                 "chrome://messenger/content/?",
                 "chrome://messenger/content/"
               );
-              Services.perms.add(
-                Services.io.newURI(origin),
+              Services.perms.addFromPrincipal(
+                Services.scriptSecurityManager.createContentPrincipal(
+                  Services.io.newURI(origin),
+                  {}
+                ),
                 "image",
                 permission
               );

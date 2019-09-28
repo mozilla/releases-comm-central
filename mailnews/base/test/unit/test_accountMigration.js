@@ -14,6 +14,14 @@ var { migrateMailnews } = ChromeUtils.import(
 /* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
+function testPermission(aURI) {
+  let principal = Services.scriptSecurityManager.createContentPrincipal(
+    aURI,
+    {}
+  );
+  return Services.perms.testPermissionFromPrincipal(principal, "image");
+}
+
 function run_test() {
   // Set up some basic accounts with limited prefs - enough to satisfy the
   // migrator.
@@ -44,18 +52,9 @@ function run_test() {
 
   // Check that this email that according to the ab data has (had!)
   // remote content premissions, has no premissions pre migration.
-  Assert.equal(
-    Services.perms.testPermission(uriAllowed, "image"),
-    Services.perms.UNKNOWN_ACTION
-  );
-  Assert.equal(
-    Services.perms.testPermission(uriAllowed2, "image"),
-    Services.perms.UNKNOWN_ACTION
-  );
-  Assert.equal(
-    Services.perms.testPermission(uriDisallowed, "image"),
-    Services.perms.UNKNOWN_ACTION
-  );
+  Assert.equal(testPermission(uriAllowed), Services.perms.UNKNOWN_ACTION);
+  Assert.equal(testPermission(uriAllowed2), Services.perms.UNKNOWN_ACTION);
+  Assert.equal(testPermission(uriDisallowed), Services.perms.UNKNOWN_ACTION);
 
   // Set default charsets to an encoding no longer supported: VISCII.
   let charset = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
@@ -111,18 +110,9 @@ function run_test() {
   // Migration should now have added permissions for the address that had them
   // and not for the one that didn't have them.
   Assert.ok(Services.prefs.getIntPref("mail.ab_remote_content.migrated") > 0);
-  Assert.equal(
-    Services.perms.testPermission(uriAllowed, "image"),
-    Services.perms.ALLOW_ACTION
-  );
-  Assert.equal(
-    Services.perms.testPermission(uriAllowed2, "image"),
-    Services.perms.ALLOW_ACTION
-  );
-  Assert.equal(
-    Services.perms.testPermission(uriDisallowed, "image"),
-    Services.perms.UNKNOWN_ACTION
-  );
+  Assert.equal(testPermission(uriAllowed), Services.perms.ALLOW_ACTION);
+  Assert.equal(testPermission(uriAllowed2), Services.perms.ALLOW_ACTION);
+  Assert.equal(testPermission(uriDisallowed), Services.perms.UNKNOWN_ACTION);
 
   // Migration should have cleared the charset user pref values.
   Assert.ok(Services.prefs.getIntPref("mail.default_charsets.migrated") > 0);

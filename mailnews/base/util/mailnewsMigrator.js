@@ -167,7 +167,11 @@ function MigrateABRemoteContentSettings() {
       let uri = Services.io.newURI(
         "chrome://messenger/content/email=" + aEmail
       );
-      Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
+      Services.perms.addFromPrincipal(
+        Services.scriptSecurityManager.createContentPrincipal(uri, {}),
+        "image",
+        Services.perms.ALLOW_ACTION
+      );
     };
 
     let addrbook = enumerator.getNext().QueryInterface(Ci.nsIAbDirectory);

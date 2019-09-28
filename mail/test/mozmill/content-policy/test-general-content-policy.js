@@ -36,7 +36,6 @@ var {
   assert_equals,
   assert_nothing_selected,
   assert_selected_and_displayed,
-  assert_true,
   be_in_folder,
   close_message_window,
   create_folder,
@@ -139,6 +138,31 @@ var msgBodyEnd = "</body>\n</html>\n";
 
 function setupModule(module) {
   folder = create_folder("generalContentPolicy");
+}
+
+// We can't call it test since that it would be run as subtest.
+function checkPermission(aURI) {
+  let principal = Services.scriptSecurityManager.createContentPrincipal(
+    aURI,
+    {}
+  );
+  return Services.perms.testPermissionFromPrincipal(principal, "image");
+}
+
+function addPermission(aURI, aAllowDeny) {
+  let principal = Services.scriptSecurityManager.createContentPrincipal(
+    aURI,
+    {}
+  );
+  return Services.perms.addFromPrincipal(principal, "image", aAllowDeny);
+}
+
+function removePermission(aURI) {
+  let principal = Services.scriptSecurityManager.createContentPrincipal(
+    aURI,
+    {}
+  );
+  return Services.perms.removeFromPrincipal(principal, "image");
 }
 
 function addToFolder(aSubject, aBody, aFolder) {
@@ -425,10 +449,8 @@ function checkAllowForSenderWithPerms(test) {
   let uri = Services.io.newURI(
     "chrome://messenger/content/email=" + authorEmailAddress
   );
-  Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
-  assert_true(
-    Services.perms.testPermission(uri, "image") == Services.perms.ALLOW_ACTION
-  );
+  addPermission(uri, Services.perms.ALLOW_ACTION);
+  assert_equals(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
   // select the newly created message
   let msgHdr = select_click_row(gMsgNo);
@@ -450,10 +472,8 @@ function checkAllowForSenderWithPerms(test) {
   }
 
   // Clean up after ourselves, and make sure that worked as expected.
-  Services.perms.remove(uri, "image");
-  assert_true(
-    Services.perms.testPermission(uri, "image") == Services.perms.UNKNOWN_ACTION
-  );
+  removePermission(uri);
+  assert_equals(checkPermission(uri), Services.perms.UNKNOWN_ACTION);
 
   ++gMsgNo;
 }
@@ -481,10 +501,8 @@ function checkAllowForHostsWithPerms(test) {
   }
 
   let uri = Services.io.newURI(src);
-  Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
-  assert_true(
-    Services.perms.testPermission(uri, "image") == Services.perms.ALLOW_ACTION
-  );
+  addPermission(uri, Services.perms.ALLOW_ACTION);
+  assert_equals(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
   // Click back one msg, then the original again, which should now allow loading.
   select_click_row(gMsgNo - 1);
@@ -507,10 +525,8 @@ function checkAllowForHostsWithPerms(test) {
   }
 
   // Clean up after ourselves, and make sure that worked as expected.
-  Services.perms.remove(uri, "image");
-  assert_true(
-    Services.perms.testPermission(uri, "image") == Services.perms.UNKNOWN_ACTION
-  );
+  removePermission(uri);
+  assert_equals(checkPermission(uri), Services.perms.UNKNOWN_ACTION);
 
   ++gMsgNo;
 }
@@ -539,11 +555,8 @@ function test_generalContentPolicy() {
         let src = mc.window.content.document.getElementById("testelement").src;
 
         let uri = Services.io.newURI(src);
-        Services.perms.add(uri, "image", Services.perms.ALLOW_ACTION);
-        assert_equals(
-          Services.perms.testPermission(uri, "image"),
-          Services.perms.ALLOW_ACTION
-        );
+        addPermission(uri, Services.perms.ALLOW_ACTION);
+        assert_equals(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
         // Check allowed in reply window
         checkComposeWindow(TESTS[i], true, true);
@@ -552,11 +565,8 @@ function test_generalContentPolicy() {
         checkComposeWindow(TESTS[i], false, true);
 
         // Clean up after ourselves, and make sure that worked as expected.
-        Services.perms.remove(uri, "image");
-        assert_equals(
-          Services.perms.testPermission(uri, "image"),
-          Services.perms.UNKNOWN_ACTION
-        );
+        removePermission(uri);
+        assert_equals(checkPermission(uri), Services.perms.UNKNOWN_ACTION);
       }
 
       // Check denied in standalone message window
