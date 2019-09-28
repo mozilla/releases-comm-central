@@ -20,6 +20,7 @@
   <xhtml:link rel="shortcut icon"
               href="chrome://messenger/skin/downloads/download.svg"/>
   <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/downloads/aboutDownloads.js"/>
 
   <commandset id="msgDownloadCommands"

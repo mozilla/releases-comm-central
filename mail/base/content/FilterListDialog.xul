@@ -22,6 +22,8 @@
   persist="width height screenX screenY"
   title="&window.title;">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/button-menu-button.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/FilterListDialog.js"/>
@@ -54,7 +56,7 @@
                     class="searchBox"
                     flex="1"
                     oncommand="rebuildFilterList();"
-                    emptytext="&searchBox.emptyText;"
+                    placeholder="&searchBox.emptyText;"
                     isempty="true"/>
   </hbox>
   <separator class="thin"/>
