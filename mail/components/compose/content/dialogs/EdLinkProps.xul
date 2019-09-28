@@ -6,6 +6,7 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % linkPropertiesDTD SYSTEM "chrome://messenger/locale/messengercompose/EditorLinkProperties.dtd">
@@ -20,6 +21,8 @@
    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
    onload = "Startup()">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
   <script src="chrome://messenger/content/messengercompose/EdLinkProps.js"/>
@@ -34,7 +37,8 @@
       </hbox>
       <vbox>
         <label id="linkTextMessage" control="linkTextInput"/>
-        <textbox id="linkTextInput"/>
+        <html:input id="linkTextInput" type="text" class="input-inline"
+                    aria-labelledby="linkTextMessage"/>
       </vbox>
     </groupbox>
 
@@ -43,11 +47,13 @@
         <label class="header">&LinkURLBox.label;</label>
       </hbox>
       <vbox id="LinkLocationBox">
-        <label control="hrefInput"
+        <label id="hrefLabel"
+               control="hrefInput"
                accesskey="&LinkURLEditField2.accessKey;"
                width="1">&LinkURLEditField2.label;</label>
-        <textbox id="hrefInput" type="text"
-                 class="uri-element padded" oninput="ChangeLinkLocation();"/>
+        <html:input id="hrefInput" type="text"
+                    class="input-inline uri-element padded" onchange="ChangeLinkLocation();"
+                    aria-labelledby="hrefLabel"/>
         <hbox align="center">
           <checkbox id="MakeRelativeLink"
                     for="hrefInput"
