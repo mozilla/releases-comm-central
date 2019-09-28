@@ -91,6 +91,10 @@ DEFINES['HTML_FILE_ICO'] = '"%s/%s/icons/windows/html-file.ico"' % (
 
 DEFINES['APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
 
+JS_PREFERENCE_PP_FILES += [
+    'profile/suite-prefs.js',
+]
+
 FINAL_TARGET_FILES += ['blocklist.xml']
 FINAL_TARGET_FILES.defaults += ['permissions']
 

@@ -306,7 +306,7 @@
 
 ; [Default Preferences]
 ; All the browser/general pref files must be part of base to prevent migration bugs
-@RESPATH@/@PREF_DIR@/browser-prefs.js
+@RESPATH@/@PREF_DIR@/suite-prefs.js
 @RESPATH@/@PREF_DIR@/composer.js
 @RESPATH@/greprefs.js
 @RESPATH@/defaults/autoconfig/prefcalls.js
