@@ -9,15 +9,18 @@
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EdAdvancedEdit.dtd">
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-    id="advancedEditDlg"
-    style="width: 40em;"
-    title="&WindowTitle.label;"
-    onload="Startup()">
+        id="advancedEditDlg"
+        style="width: 40em;"
+        title="&WindowTitle.label;"
+        onload="Startup()">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
@@ -51,10 +54,10 @@
       <!-- ============================================================== -->
       <vbox>
         <tree id="HTMLATree" class="AttributesTree" flex="1"
-          hidecolumnpicker="true" seltype="single"
-          onselect="onSelectHTMLTreeItem();"
-          onclick="onSelectHTMLTreeItem();"
-          ondblclick="editHTMLAttributeValue(event.target);">
+              hidecolumnpicker="true" seltype="single"
+              onselect="onSelectHTMLTreeItem();"
+              onclick="onSelectHTMLTreeItem();"
+              ondblclick="editHTMLAttributeValue(event.target);">
           <treecols>
             <treecol id="HTMLAttrCol" flex="35" label="&tree.attributeHeader.label;"/>
             <splitter class="tree-splitter"/>
@@ -78,11 +81,14 @@
                       oncommand="onInputHTMLAttributeName();"/>
           </vbox>
           <vbox flex="1">
-            <label control="AddHTMLAttributeValueInput" value="&AttValue.label;"/>
+            <label id="AddHTMLAttributeValueLabel" control="AddHTMLAttributeValueInput"
+                   value="&AttValue.label;"/>
             <deck id="AddHTMLAttributeValueDeck" selectedIndex="0">
-              <hbox flex="1">
-                <textbox id="AddHTMLAttributeValueTextbox" flex="1"
-                         oninput="onInputHTMLAttributeValue();"/>
+              <hbox flex="1" class="input-container">
+                <html:input id="AddHTMLAttributeValueTextbox" type="text"
+                            class="input-inline"
+                            onchange="onInputHTMLAttributeValue();"
+                            aria-labelledby="AddHTMLAttributeValueLabel"/>
               </hbox>
               <hbox flex="1">
                 <menulist is="menulist-editable" id="AddHTMLAttributeValueMenulist"
@@ -100,10 +106,10 @@
       <!-- ============================================================== -->
       <vbox>
         <tree id="CSSATree" class="AttributesTree" flex="1"
-          hidecolumnpicker="true" seltype="single"
-          onselect="onSelectCSSTreeItem();"
-          onclick="onSelectCSSTreeItem();"
-          ondblclick="editCSSAttributeValue(event.target);">
+              hidecolumnpicker="true" seltype="single"
+              onselect="onSelectCSSTreeItem();"
+              onclick="onSelectCSSTreeItem();"
+              ondblclick="editCSSAttributeValue(event.target);">
           <treecols>
             <treecol id="CSSPropCol" flex="35" label="&tree.propertyHeader.label;"/>
             <splitter class="tree-splitter"/>
@@ -118,14 +124,18 @@
         </hbox>
         <hbox>
           <vbox flex="1">
-            <label value="&PropertyName.label;"/>
-            <textbox id="AddCSSAttributeNameInput" flex="1"
-                     oninput="onInputCSSAttributeName();"/>
+            <label id="AddCSSAttributeNameLabel" value="&PropertyName.label;"/>
+            <html:input id="AddCSSAttributeNameInput" type="text"
+                        class="input-inline"
+                        onchange="onInputCSSAttributeName();"
+                        aria-labelledby="AddCSSAttributeNameLabel"/>
           </vbox>
           <vbox flex="1">
-            <label value="&AttValue.label;"/>
-            <textbox id="AddCSSAttributeValueInput" flex="1"
-                     oninput="onChangeCSSAttribute();"/>
+            <label id="AddCSSAttributeValueLabel" value="&AttValue.label;"/>
+            <html:input id="AddCSSAttributeValueInput" type="text"
+                        class="input-inline"
+                        onchange="onChangeCSSAttribute();"
+                        aria-labelledby="AddCSSAttributeValueLabel"/>
           </vbox>
         </hbox>
       </vbox>
@@ -134,10 +144,10 @@
       <!-- ============================================================== -->
       <vbox>
         <tree id="JSEATree" class="AttributesTree" flex="1"
-          hidecolumnpicker="true" seltype="single"
-          onselect="onSelectJSETreeItem();"
-          onclick="onSelectJSETreeItem();"
-          ondblclick="editJSEAttributeValue(event.target);">
+              hidecolumnpicker="true" seltype="single"
+              onselect="onSelectJSETreeItem();"
+              onclick="onSelectJSETreeItem();"
+              ondblclick="editJSEAttributeValue(event.target);">
           <treecols>
             <treecol id="AttrCol" flex="35" label="&tree.attributeHeader.label;"/>
             <splitter class="tree-splitter"/>
@@ -157,9 +167,11 @@
                       oncommand="onSelectJSEAttribute();"/>
           </vbox>
           <vbox flex="1">
-            <label value="&AttValue.label;"/>
-            <textbox id="AddJSEAttributeValueInput"
-                     oninput="onInputJSEAttributeValue();"/>
+            <label id="AddJSEAttributeValueLabel" value="&AttValue.label;"/>
+            <html:input id="AddJSEAttributeValueInput" type="text"
+                        class="input-inline"
+                        onchange="onInputJSEAttributeValue();"
+                        aria-labelledby="AddJSEAttributeValueLabel"/>
           </vbox>
         </hbox>
       </vbox>
