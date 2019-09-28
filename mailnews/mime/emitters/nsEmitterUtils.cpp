@@ -25,20 +25,17 @@ extern "C" bool EmitThisHeaderForPrefSetting(int32_t dispType,
   }
 
   if (nsMimeHeaderDisplayTypes::NormalHeaders == dispType) {
-    if ((!strcmp(header, HEADER_DATE)) || (!strcmp(header, HEADER_TO)) ||
-        (!strcmp(header, HEADER_SUBJECT)) || (!strcmp(header, HEADER_SENDER)) ||
-        (!strcmp(header, HEADER_RESENT_TO)) ||
-        (!strcmp(header, HEADER_RESENT_SENDER)) ||
-        (!strcmp(header, HEADER_RESENT_FROM)) ||
-        (!strcmp(header, HEADER_RESENT_CC)) ||
-        (!strcmp(header, HEADER_REPLY_TO)) ||
-        (!strcmp(header, HEADER_REFERENCES)) ||
-        (!strcmp(header, HEADER_NEWSGROUPS)) ||
-        (!strcmp(header, HEADER_MESSAGE_ID)) ||
-        (!strcmp(header, HEADER_FROM)) ||
-        (!strcmp(header, HEADER_FOLLOWUP_TO)) || (!strcmp(header, HEADER_CC)) ||
-        (!strcmp(header, HEADER_ORGANIZATION)) ||
-        (!strcmp(header, HEADER_REPLY_TO)) || (!strcmp(header, HEADER_BCC)))
+    if (!strcmp(header, HEADER_DATE) || !strcmp(header, HEADER_TO) ||
+        !strcmp(header, HEADER_SUBJECT) || !strcmp(header, HEADER_SENDER) ||
+        !strcmp(header, HEADER_RESENT_TO) ||
+        !strcmp(header, HEADER_RESENT_SENDER) ||
+        !strcmp(header, HEADER_RESENT_FROM) ||
+        !strcmp(header, HEADER_RESENT_CC) || !strcmp(header, HEADER_REPLY_TO) ||
+        !strcmp(header, HEADER_REFERENCES) ||
+        !strcmp(header, HEADER_NEWSGROUPS) ||
+        !strcmp(header, HEADER_MESSAGE_ID) || !strcmp(header, HEADER_FROM) ||
+        !strcmp(header, HEADER_FOLLOWUP_TO) || !strcmp(header, HEADER_CC) ||
+        !strcmp(header, HEADER_ORGANIZATION) || !strcmp(header, HEADER_BCC))
       return true;
     else
       return false;

@@ -543,7 +543,7 @@ static int MimeMultipartSigned_emit_child(MimeObject *obj) {
    */
   if (obj->options && obj->options->headers != MimeHeadersCitation &&
       obj->options->write_html_p && obj->options->output_fn &&
-      obj->options->headers != MimeHeadersCitation && sig->crypto_closure) {
+      sig->crypto_closure) {
     // Calling crypto_generate_html may trigger wanted side effects,
     // but we're no longer using its results.
     char *html = (((MimeMultipartSignedClass *)obj->clazz)
