@@ -618,10 +618,6 @@
          nc:link="developer_tools.xhtml#devtools"/>
      </rdf:li>
      <rdf:li>
-       <rdf:Description ID="WebIDE"
-         nc:name="WebIDE"
-         nc:link="developer_tools.xhtml#webide"/>
-     </rdf:li>
      <rdf:li>
        <rdf:Description ID="device_manager"
          nc:name="Device Manager"

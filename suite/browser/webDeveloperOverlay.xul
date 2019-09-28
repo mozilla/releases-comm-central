@@ -30,10 +30,6 @@
               type="checkbox" autocheck="false"
               label="&devToolbarMenu.label;"
               accesskey="&devToolbarMenu.accesskey;"/>
-    <menuitem id="menu_webide"
-              observes="devtoolsMenuBroadcaster_webide"
-              label="&webide.label;"
-              accesskey="&webide.accesskey;"/>
     <menuitem id="menu_browserToolbox"
               observes="devtoolsMenuBroadcaster_BrowserToolbox"
               label="&browserToolboxMenu.label;"
@@ -80,7 +76,6 @@
     <command id="Tools:DevToolbox" oncommand="gDevToolsBrowser.toggleToolboxCommand(gBrowser);"/>
     <command id="Tools:DevToolbar" oncommand="DeveloperToolbar.toggle();" disabled="true" hidden="true"/>
     <command id="Tools:DevToolbarFocus" oncommand="DeveloperToolbar.focusToggle();" disabled="true"/>
-    <command id="Tools:WebIDE" oncommand="gDevToolsBrowser.openWebIDE();" disabled="true" hidden="true"/>
     <command id="Tools:BrowserToolbox" oncommand="BrowserToolboxProcess.init();" disabled="true" hidden="true"/>
     <command id="Tools:BrowserContentToolbox" oncommand="gDevToolsBrowser.openContentProcessToolbox();" disabled="true" hidden="true"/>
     <command id="Tools:BrowserConsole" oncommand="HUDService.openBrowserConsoleOrFocus();"/>
@@ -99,8 +94,6 @@
          command="Tools:BrowserToolbox"/>
     <key id="key_devToolbar" keycode="&devToolbar.keycode;" modifiers="shift" keytext="&devToolbar.keytext;"
          command="Tools:DevToolbarFocus"/>
-    <key id="key_webide" keycode="&webide.keycode;" modifiers="shift" keytext="&webide.keytext;"
-         command="Tools:WebIDE"/>
     <key id="key_devToolboxMenuItem" keytext="&devToolboxMenuItem.keytext;" key="&devToolboxMenuItem.keytext;" modifiers="accel,shift"
          command="Tools:DevToolbox"/>
     <key id="key_scratchpad" keycode="&scratchpad.keycode;" modifiers="shift" keytext="&scratchpad.keytext;"
@@ -116,9 +109,6 @@
     <broadcaster id="devtoolsMenuBroadcaster_DevToolbar"
                  command="Tools:DevToolbar"
                  key="key_devToolbar"/>
-    <broadcaster id="devtoolsMenuBroadcaster_webide"
-                 command="Tools:WebIDE"
-                 key="key_webide"/>
     <broadcaster id="devtoolsMenuBroadcaster_BrowserToolbox"
                  key="key_browserToolbox"
                  command="Tools:BrowserToolbox"/>

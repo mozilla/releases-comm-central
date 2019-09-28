@@ -180,18 +180,6 @@ var gWebDeveloper = {
     if (devToolbarEnabled && Services.prefs.getBoolPref("devtools.toolbar.visible"))
       win.DeveloperToolbar.show(false).catch(console.error);
 
-    // Enable WebIDE?
-    var webIDEEnabled = Services.prefs.getBoolPref("devtools.webide.enabled");
-    toggleCmd("Tools:WebIDE", webIDEEnabled);
-
-    /* XXXRatty: NOT WORKING YET
-    if (webIDEEnabled) {
-      gDevToolsBrowser.installWebIDEWidget();
-    } else {
-      gDevToolsBrowser.uninstallWebIDEWidget();
-    }
-    */
-
     // Enable Browser Toolbox?
     var chromeEnabled = Services.prefs.getBoolPref("devtools.chrome.enabled");
     var devtoolsRemoteEnabled = Services.prefs.getBoolPref("devtools.debugger.remote-enabled");

@@ -227,10 +227,6 @@
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
 
-; [Webide Files]
-@RESPATH@/chrome/webide@JAREXT@
-@RESPATH@/chrome/webide.manifest
-
 ; [DevTools Startup Files]
 @RESPATH@/chrome/devtools-startup@JAREXT@
 @RESPATH@/chrome/devtools-startup.manifest
