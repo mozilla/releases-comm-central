@@ -192,7 +192,7 @@ icalcomponent* icalmime_parse(char* (*get_string)(char *s, size_t size,
 	return 0;
     }
 
-    memset(parts,0,sizeof(parts));
+    memset(parts,0,sizeof(NUM_PARTS*sizeof(struct sspm_part)));
 
     sspm_parse_mime(parts, 
 		    NUM_PARTS, /* Max parts */
@@ -382,7 +382,7 @@ int icalmime_test(char* (*get_string)(char *s, size_t size, void *d),
 	return 0;
     }
 
-    memset(parts,0,sizeof(parts));
+    memset(parts,0,sizeof(NUM_PARTS*sizeof(struct sspm_part)));
 
     sspm_parse_mime(parts, 
 		    NUM_PARTS, /* Max parts */
