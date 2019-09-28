@@ -73,24 +73,24 @@
             <label id="connectionSecurityLabel" value="&connectionSecurity.label;"
                    control="useSecureConnectionValue"/>
           </vbox>
-          <vbox>
+          <vbox flex="1">
             <hbox flex="1">
-              <textbox id="descriptionValue" readonly="true" class="plain"/>
+              <textbox id="descriptionValue" readonly="true" class="plain" flex="1"/>
             </hbox>
             <hbox flex="1">
-              <textbox id="nameValue" readonly="true" class="plain"/>
+              <textbox id="nameValue" readonly="true" class="plain" flex="1"/>
             </hbox>
             <hbox flex="1">
-              <textbox id="portValue" readonly="true" class="plain"/>
+              <textbox id="portValue" readonly="true" class="plain" flex="1"/>
             </hbox>
             <hbox flex="1">
-              <textbox id="userNameValue" readonly="true" class="plain"/>
+              <textbox id="userNameValue" readonly="true" class="plain" flex="1"/>
             </hbox>
             <hbox flex="1">
-              <textbox id="authMethodValue" readonly="true" class="plain"/>
+              <textbox id="authMethodValue" readonly="true" class="plain" flex="1"/>
             </hbox>
             <hbox flex="1">
-              <textbox id="useSecureConnectionValue" readonly="true" class="plain"/>
+              <textbox id="useSecureConnectionValue" readonly="true" class="plain" flex="1"/>
             </hbox>
           </vbox>
         </hbox>
