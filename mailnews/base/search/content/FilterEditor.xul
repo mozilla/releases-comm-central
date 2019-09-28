@@ -3,10 +3,10 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/textbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog [
   <!ENTITY % filterEditorDTD SYSTEM "chrome://messenger/locale/FilterEditor.dtd">
@@ -16,13 +16,14 @@
 ]>
 
 <dialog id="FilterEditor"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-  title="&window.title;"
-  style="&filterEditorDialog.dimensions;"
-  windowtype="mailnews:filtereditor"
-  persist="width height screenX screenY"
-  buttons="accept,cancel"
-  onload="filterEditorOnLoad();">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        title="&window.title;"
+        style="&filterEditorDialog.dimensions;"
+        windowtype="mailnews:filtereditor"
+        persist="width height screenX screenY"
+        buttons="accept,cancel"
+        onload="filterEditorOnLoad();">
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
@@ -30,6 +31,8 @@
     <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
   </stringbundleset>
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/mailWindowOverlay.js"/>
   <script src="chrome://messenger/content/mailCommands.js"/>
@@ -44,10 +47,16 @@
   </commandset>
 
   <vbox>
-    <hbox align="center">
-      <label value="&filterName.label;" accesskey="&filterName.accesskey;" control="filterName"/>
-      <textbox flex="1" id="filterName"/>
-      <spacer flex="1"/>
+    <hbox align="center" class="input-container">
+      <label id="filterNameLabel"
+             value="&filterName.label;"
+             accesskey="&filterName.accesskey;"
+             control="filterName"/>
+      <html:input id="filterName"
+                  type="text"
+                  class="input-inline"
+                  aria-labelledby="filterNameLabel"/>
+      <spacer class="spacer-inline"/>
     </hbox>
   </vbox>
 

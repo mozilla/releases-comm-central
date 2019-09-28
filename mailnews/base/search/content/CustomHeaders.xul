@@ -7,10 +7,12 @@
 #else
 <?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 #endif
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/CustomHeaders.dtd">
 <dialog id="customHeadersDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="onLoad();"
         style="width: 30em; height: 25em;"
         persist="width height screenX screenY"
@@ -22,16 +24,25 @@
   <stringbundle id="bundle_custom" src="chrome://messenger/locale/custom.properties"/>
   </stringbundleset>
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/CustomHeaders.js"/>
 
   <hbox flex="1">
     <vbox flex="1">
-      <label accesskey="&newMsgHeader.accesskey;" control="headerInput" value="&newMsgHeader.label;"/>
-      <textbox id="headerInput" onfocus="this.select();" oninput="onTextInput();"/>
+      <label id="headerInputLabel"
+             accesskey="&newMsgHeader.accesskey;"
+             control="headerInput"
+             value="&newMsgHeader.label;"/>
+      <html:input id="headerInput"
+                  type="text"
+                  aria-labelledby="headerInputLabel"
+                  class="input-inline"
+                  oninput="onTextInput();"/>
       <richlistbox id="headerList"
-                       class="theme-listbox"
-                       flex="1"
-                       onselect="updateRemoveButton();" />
+                   class="theme-listbox"
+                   flex="1"
+                   onselect="updateRemoveButton();" />
     </vbox>
     <vbox>
       <label value=""/>

@@ -43,7 +43,7 @@
            accesskey="&filtersForPrefix.accesskey;" control="serverMenu"/>
 
     <menulist id="serverMenu"
-              class="folderMenuItem">
+              class="folderMenuItem" flex="1">
       <menupopup is="folder-menupopup" id="serverMenuPopup"
                  mode="filters"
                  class="menulist-menupopup"

@@ -118,12 +118,14 @@
 
   class MozRuleactiontargetForwardto extends MozXULElement {
     connectedCallback() {
-      const textbox = document.createXULElement("textbox");
+      const input = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "input"
+      );
+      input.classList.add("ruleactionitem", "input-inline");
 
-      textbox.classList.add("ruleactionitem");
-      textbox.setAttribute("flex", "1");
-
-      this.appendChild(textbox);
+      this.classList.add("input-container");
+      this.appendChild(input);
 
       updateParentNode(this.closest(".ruleaction"));
     }
