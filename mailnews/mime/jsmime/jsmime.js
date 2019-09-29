@@ -2654,9 +2654,13 @@
         contentType.mediatype == "text"
       ) {
         // If the charset is nonempty, initialize the decoder
+        this._decoder = null;
         if (this._charset !== "") {
-          this._decoder = new MimeTextDecoder(this._charset);
-        } else {
+          try {
+            this._decoder = new MimeTextDecoder(this._charset);
+          } catch (e) {}
+        }
+        if (!this._decoder) {
           // There's no charset we can use for decoding, so pass through as an
           // identity encoder or otherwise this._coerceData will complain.
           this._decoder = {
