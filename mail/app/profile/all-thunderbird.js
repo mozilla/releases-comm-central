@@ -966,6 +966,8 @@ pref("devtools.netmonitor.enabled", true);
 // Enable Network Search
 pref("devtools.netmonitor.features.search", false);
 
+pref("devtools.netmonitor.features.requestBlocking", false);
+
 // Enable the Application panel
 pref("devtools.application.enabled", false);
 
