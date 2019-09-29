@@ -687,8 +687,12 @@
           headerValue = utf8Decoder.decode(typedarray);
         } catch (e) {
           // Failed, try the fallback
-          let decoder = new MimeTextDecoder(fallbackCharset, { fatal: false });
-          headerValue = decoder.decode(typedarray);
+          try {
+            let decoder = new MimeTextDecoder(fallbackCharset, {
+              fatal: false,
+            });
+            headerValue = decoder.decode(typedarray);
+          } catch (ex) {}
         }
       }
       return headerValue;
