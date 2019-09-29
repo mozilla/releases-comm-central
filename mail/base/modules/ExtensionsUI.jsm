@@ -619,10 +619,7 @@ var gXPInstallObserver = {
           let args;
 
           // Temporarily replace the usual warning message with this more-likely one.
-          if (install.error == AddonManager.ERROR_CORRUPT_FILE) {
-            error += "Legacy";
-            args = [brandShortName, Services.appinfo.version];
-          } else if (install.error != 0) {
+          if (install.error < 0) {
             error += install.error;
             args = [brandShortName, install.name];
           } else if (
