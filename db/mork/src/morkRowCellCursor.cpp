@@ -157,36 +157,6 @@ morkRowCellCursor::GetRow(nsIMdbEnv* mev, nsIMdbRow** acqRow) {
 }
 // } ----- end attribute methods -----
 
-// { ----- begin cell creation methods -----
-NS_IMETHODIMP
-morkRowCellCursor::MakeCell(  // get cell at current pos in the row
-    nsIMdbEnv* mev,           // context
-    mdb_column* outColumn,    // column for this particular cell
-    mdb_pos* outPos,          // position of cell in row sequence
-    nsIMdbCell** acqCell) {
-  nsresult outErr = NS_OK;
-  nsIMdbCell* outCell = 0;
-  mdb_pos pos = 0;
-  mdb_column col = 0;
-  morkRow* row = 0;
-  morkEnv* ev = morkEnv::FromMdbEnv(mev);
-  if (ev) {
-    pos = mCursor_Pos;
-    morkCell* cell = row->CellAt(ev, pos);
-    if (cell) {
-      col = cell->GetColumn();
-      outCell = row->AcquireCellHandle(ev, cell, col, pos);
-    }
-    outErr = ev->AsErr();
-  }
-  if (acqCell) *acqCell = outCell;
-  if (outPos) *outPos = pos;
-  if (outColumn) *outColumn = col;
-
-  return outErr;
-}
-// } ----- end cell creation methods -----
-
 // { ----- begin cell seeking methods -----
 NS_IMETHODIMP
 morkRowCellCursor::SeekCell(  // same as SetRow() followed by MakeCell()

@@ -2345,14 +2345,6 @@ class nsIMdbRowCellCursor : public nsISupports {  // cell collection iterator
   NS_IMETHOD GetRow(nsIMdbEnv* ev, nsIMdbRow** acqRow) = 0;
   // } ----- end attribute methods -----
 
-  // { ----- begin cell creation methods -----
-  NS_IMETHOD MakeCell(            // get cell at current pos in the row
-      nsIMdbEnv* ev,              // context
-      mdb_column* outColumn,      // column for this particular cell
-      mdb_pos* outPos,            // position of cell in row sequence
-      nsIMdbCell** acqCell) = 0;  // the cell at inPos
-  // } ----- end cell creation methods -----
-
   // { ----- begin cell seeking methods -----
   NS_IMETHOD SeekCell(            // same as SetRow() followed by MakeCell()
       nsIMdbEnv* ev,              // context
