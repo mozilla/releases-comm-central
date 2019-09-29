@@ -818,7 +818,7 @@ BOOL CMapiApi::IterateStores(CMapiFolderList &stores) {
 
   if (!m_lpSession) {
     MAPI_TRACE0("IterateStores called before session is open\n");
-    m_lastError = -1;
+    m_lastError = E_UNEXPECTED;
     return FALSE;
   }
 
@@ -1051,7 +1051,7 @@ void CMapiApi::AddMessageStore(CMsgStore *pStore) {
 CMsgStore *CMapiApi::FindMessageStore(ULONG cbEid, LPENTRYID lpEid) {
   if (!m_lpSession) {
     MAPI_TRACE0("FindMessageStore called before session is open\n");
-    m_lastError = -1;
+    m_lastError = E_UNEXPECTED;
     return NULL;
   }
 
@@ -1748,7 +1748,7 @@ BOOL CMapiFolderContents::SetUpIter(void) {
   }
 
   if (ulObjType != MAPI_FOLDER) {
-    m_lastError = -1;
+    m_lastError = E_UNEXPECTED;
     MAPI_TRACE0("CMapiFolderContents - bad object type, not a folder.\n");
     return FALSE;
   }
