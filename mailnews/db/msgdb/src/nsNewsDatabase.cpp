@@ -215,8 +215,6 @@ nsresult nsNewsDatabase::SyncWithReadSet() {
 
   bool hasMore = false, readInNewsrc, isReadInDB, changed = false;
   int32_t numMessages = 0, numUnreadMessages = 0;
-  nsMsgKey messageKey;
-  nsCOMPtr<nsIMsgThread> threadHdr;
 
   // Scan all messages in DB
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
@@ -230,6 +228,7 @@ nsresult nsNewsDatabase::SyncWithReadSet() {
     rv = nsMsgDatabase::IsHeaderRead(header, &isReadInDB);
     NS_ENSURE_SUCCESS(rv, rv);
 
+    nsMsgKey messageKey;
     header->GetMessageKey(&messageKey);
     IsRead(messageKey, &readInNewsrc);
 
@@ -244,17 +243,23 @@ nsresult nsNewsDatabase::SyncWithReadSet() {
   }
 
   // Update FolderInfo Counters
-  int32_t oldMessages, oldUnreadMessages;
-  rv = m_dbFolderInfo->GetNumMessages(&oldMessages);
-  if (NS_SUCCEEDED(rv) && oldMessages != numMessages) {
-    changed = true;
-    m_dbFolderInfo->ChangeNumMessages(numMessages - oldMessages);
-  }
-  rv = m_dbFolderInfo->GetNumUnreadMessages(&oldUnreadMessages);
-  if (NS_SUCCEEDED(rv) && oldUnreadMessages != numUnreadMessages) {
-    changed = true;
-    m_dbFolderInfo->ChangeNumUnreadMessages(numUnreadMessages -
-                                            oldUnreadMessages);
+  if (m_dbFolderInfo) {
+    do {
+      int32_t oldMessages, oldUnreadMessages;
+      rv = m_dbFolderInfo->GetNumMessages(&oldMessages);
+      if (NS_FAILED(rv)) break;
+      if (oldMessages != numMessages) {
+        changed = true;
+        m_dbFolderInfo->ChangeNumMessages(numMessages - oldMessages);
+      }
+      rv = m_dbFolderInfo->GetNumUnreadMessages(&oldUnreadMessages);
+      if (NS_FAILED(rv)) break;
+      if (oldUnreadMessages != numUnreadMessages) {
+        changed = true;
+        m_dbFolderInfo->ChangeNumUnreadMessages(numUnreadMessages -
+                                                oldUnreadMessages);
+      }
+    } while (false);
   }
 
   if (changed) Commit(nsMsgDBCommitType::kLargeCommit);
