@@ -19,7 +19,7 @@
 <h2>@MOZ_APP_DISPLAYNAME@ @THUNDERBIRD_VERSION_DISPLAY@ - @MOZ_BUILDID@</h2>
 <table>
   <tbody>
-  #ifdef MOZ_COMM_SOURCE_URL
+#ifdef MOZ_COMM_SOURCE_URL
   <tr>
     <th>
       @MOZ_APP_DISPLAYNAME@ source
@@ -30,8 +30,8 @@
       <a href="@MOZ_COMM_SOURCE_URL@">@MOZ_COMM_SOURCE_URL@</a>
     </td>
   </tr>
-  #endif
-  #ifdef MOZ_GECKO_SOURCE_URL
+#endif
+#ifdef MOZ_GECKO_SOURCE_URL
   <tr>
     <th>
       Platform source
@@ -42,7 +42,7 @@
       <a href="@MOZ_GECKO_SOURCE_URL@">@MOZ_GECKO_SOURCE_URL@</a>
     </td>
   </tr>
-  #endif
+#endif
   </tbody>
 </table>
 
