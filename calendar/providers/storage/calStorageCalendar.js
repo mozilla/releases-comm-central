@@ -1664,11 +1664,12 @@ calStorageCalendar.prototype = {
       events.push(row);
     });
     for (let row of events) {
+      let item_id = row.getResultByName("id");
+      this.mItemCache.delete(item_id);
       let item = await this.getEventFromRow(row, false);
-      this.mItemCache.delete(item.id);
-      this.mRecEventCache.set(item.id, item);
-      this.mRecEventCacheOfflineFlags.set(item.id, row.getResultByName("offline_journal") || null);
-      itemsMap.set(item.id, item);
+      this.mRecEventCache.set(item_id, item);
+      this.mRecEventCacheOfflineFlags.set(item_id, row.getResultByName("offline_journal") || null);
+      itemsMap.set(item_id, item);
     }
 
     let todos = [];
@@ -1677,11 +1678,12 @@ calStorageCalendar.prototype = {
       todos.push(row);
     });
     for (let row of todos) {
+      let item_id = row.getResultByName("id");
+      this.mItemCache.delete(item_id);
       let item = await this.getTodoFromRow(row, false);
-      this.mItemCache.delete(item.id);
-      this.mRecTodoCache.set(item.id, item);
-      this.mRecTodoCacheOfflineFlags.set(item.id, row.getResultByName("offline_journal") || null);
-      itemsMap.set(item.id, item);
+      this.mRecTodoCache.set(item_id, item);
+      this.mRecTodoCacheOfflineFlags.set(item_id, row.getResultByName("offline_journal") || null);
+      itemsMap.set(item_id, item);
     }
 
     this.prepareStatement(this.mSelectAllAttendees);
