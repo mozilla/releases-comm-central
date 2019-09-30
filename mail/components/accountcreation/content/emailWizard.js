@@ -128,7 +128,7 @@ function setText(id, value) {
   var element = e(id);
   assert(element, "setText() on non-existant element ID");
 
-  if (element.localName == "textbox" || element.localName == "label") {
+  if (element.localName == "input" || element.localName == "label") {
     element.value = value;
   } else if (
     element.localName == "description" ||
