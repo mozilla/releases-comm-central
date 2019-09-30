@@ -50,6 +50,23 @@ var calendarTabMonitor = {
       saveMenu.label = window.calItemSaveControls.saveMenu.label;
       saveandcloseMenu.label = window.calItemSaveControls.saveandcloseMenu.label;
     }
+
+    // Change the mode (gCurrentMode) to match the new tab.
+    switch (aNewTab.mode.name) {
+      case "calendar":
+        calSwitchToCalendarMode();
+        break;
+      case "tasks":
+        calSwitchToTaskMode();
+        break;
+      case "preferencesTab":
+      case "contentTab":
+        calSwitchToMode("special");
+        break;
+      default:
+        calSwitchToMode("mail");
+        break;
+    }
   },
 };
 
@@ -62,31 +79,15 @@ var calendarTabType = {
       maxTabs: 1,
       openTab: function(aTab, aArgs) {
         gLastShownCalendarView = getLastCalendarView();
-
         aTab.title = aArgs.title;
-        if (!("background" in aArgs) || !aArgs.background) {
-          // Only do calendar mode switching if the tab is opened in
-          // foreground.
-          ltnSwitch2Calendar();
-        }
       },
-
-      showTab: function(aTab) {
-        ltnSwitch2Calendar();
-      },
-      closeTab: function(aTab) {
-        if (gCurrentMode == "calendar") {
-          // Only revert menu hacks if closing the active tab, otherwise we
-          // would switch to mail mode even if in task mode and closing the
-          // calendar tab.
-          ltnSwitch2Mail();
-        }
-      },
+      showTab: function(tab) {},
+      closeTab: function(tab) {},
 
       persistTab: function(aTab) {
         let tabmail = document.getElementById("tabmail");
         return {
-          // Since we do strange tab switching logic in ltnSwitch2Calendar,
+          // Since we do strange tab switching logic in calSwitchToCalendarMode,
           // we should store the current tab state ourselves.
           background: aTab != tabmail.currentTabInfo,
         };
@@ -112,26 +113,14 @@ var calendarTabType = {
       maxTabs: 1,
       openTab: function(aTab, aArgs) {
         aTab.title = aArgs.title;
-        if (!("background" in aArgs) || !aArgs.background) {
-          ltnSwitch2Task();
-        }
       },
-      showTab: function(aTab) {
-        ltnSwitch2Task();
-      },
-      closeTab: function(aTab) {
-        if (gCurrentMode == "task") {
-          // Only revert menu hacks if closing the active tab, otherwise we
-          // would switch to mail mode even if in calendar mode and closing the
-          // tasks tab.
-          ltnSwitch2Mail();
-        }
-      },
+      showTab: function(tab) {},
+      closeTab: function(tab) {},
 
       persistTab: function(aTab) {
         let tabmail = document.getElementById("tabmail");
         return {
-          // Since we do strange tab switching logic in ltnSwitch2Task,
+          // Since we do strange tab switching logic in calSwitchToTaskMode,
           // we should store the current tab state ourselves.
           background: aTab != tabmail.currentTabInfo,
         };
@@ -153,15 +142,7 @@ var calendarTabType = {
     },
   },
 
-  /**
-   * Because calendar does some direct menu manipulation, we need to
-   * change to the mail mode to clean up after those hacks.
-   *
-   * @param {Object} aTab  A tab info object
-   */
-  saveTabState: function(aTab) {
-    ltnSwitch2Mail();
-  },
+  saveTabState: function(tab) {},
 };
 
 /**
@@ -511,7 +492,7 @@ function switchCalendarView(aType, aShow) {
 
   if (aShow && gCurrentMode != "calendar") {
     // This function in turn calls switchToView(), so return afterwards.
-    ltnSwitch2Calendar();
+    calSwitchToCalendarMode();
     return;
   }
 
@@ -520,16 +501,16 @@ function switchCalendarView(aType, aShow) {
 
 /**
  * This function has the sole responsibility to switch back to
- * mail mode (by calling ltnSwitch2Mail()) if we are getting
+ * mail mode (by calling calSwitchToMode("mail")) if we are getting
  * notifications from other panels (besides the calendar views)
  * but find out that we're not in mail mode. This situation can
  * for example happen if we're in calendar mode but the 'new mail'
  * slider gets clicked and wants to display the appropriate mail.
  * All necessary logic for switching between the different modes
- * should live inside of the corresponding functions:
- * - ltnSwitch2Mail()
- * - ltnSwitch2Calendar()
- * - ltnSwitch2Task()
+ * should live inside of the corresponding functions like:
+ * - calSwitchToCalendarMode()
+ * - calSwitchToTaskMode()
+ * - calSwitchToMode()
  */
 function LtnObserveDisplayDeckChange(event) {
   let deck = event.target;
@@ -546,10 +527,12 @@ function LtnObserveDisplayDeckChange(event) {
   // notification has been fired but we're still in calendar or task mode.
   // Specifically, switch back if we're *not* in mail mode but the notification
   // did *not* come from either the "calendar-view-box" or the "calendar-task-box".
-  if (gCurrentMode != "mail") {
-    if (id != "calendar-view-box" && id != "calendar-task-box") {
-      ltnSwitch2Mail();
-    }
+  if (
+    (gCurrentMode == "calendar" || gCurrentMode == "task") &&
+    id != "calendar-view-box" &&
+    id != "calendar-task-box"
+  ) {
+    calSwitchToMode("mail");
   }
 }
 
@@ -634,13 +617,14 @@ function openInvitationsDialog() {
  *  - 'mail'
  *  - 'calendar'
  *  - 'task'
+ *  - 'special' - For special tabs like preferences, add-ons manager, about:xyz, etc.
  * @global
  */
 var gCurrentMode = "mail";
 
 /**
  * Changes the mode (gCurrentMode) and adapts the UI to the new mode.
- * @param {string} [mode="mail"] - the new mode: one of 'mail', 'calendar' or 'task'
+ * @param {string} [mode="mail"] - the new mode: 'mail', 'calendar', 'task', etc.
  */
 function changeMode(mode = "mail") {
   gCurrentMode = mode; // eslint-disable-line no-global-assign
@@ -665,13 +649,23 @@ function changeMode(mode = "mail") {
 }
 
 /**
- * Switches to the mail mode.
+ * For switching to modes like "mail" or "special". (For switching to "calendar"
+ * and "task" modes use calSwitchToCalendarMode and calSwitchToTaskMode.)
+ *
+ * @param {string} mode  The mode to switch to.
  */
-function ltnSwitch2Mail() {
-  if (gCurrentMode != "mail") {
-    changeMode("mail");
+function calSwitchToMode(mode) {
+  if (mode != "mail" && mode != "special") {
+    cal.WARN("Attempted to switch to unknown mode: " + mode);
+    return;
+  }
+  if (gCurrentMode != mode) {
+    const previousMode = gCurrentMode;
+    changeMode(mode);
 
-    document.commandDispatcher.updateCommands("calendar_commands");
+    if (previousMode == "calendar" || previousMode == "task") {
+      document.commandDispatcher.updateCommands("calendar_commands");
+    }
     window.setCursor("auto");
   }
 }
@@ -679,7 +673,7 @@ function ltnSwitch2Mail() {
 /**
  * Switches to the calendar mode.
  */
-function ltnSwitch2Calendar() {
+function calSwitchToCalendarMode() {
   if (gCurrentMode != "calendar") {
     changeMode("calendar");
 
@@ -705,7 +699,7 @@ function ltnSwitch2Calendar() {
 /**
  * Switches to the task mode.
  */
-function ltnSwitch2Task() {
+function calSwitchToTaskMode() {
   if (gCurrentMode != "task") {
     changeMode("task");
 

@@ -3,10 +3,13 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* exported openCalendarTab, setCalendarView, closeCalendarTab, openTasksTab,
- * closeTasksTab, selectFolderTab
+ * closeTasksTab, selectFolderTab, openPreferencesTab, closePreferencesTab,
+ * openAddonsTab, closeAddonsTab
  */
 
 /* import-globals-from ../../base/content/calendar-views-utils.js */
+
+/* globals openOptionsDialog, openAddonsMgr */
 
 async function openCalendarTab() {
   let tabmail = document.getElementById("tabmail");
@@ -94,7 +97,67 @@ async function selectFolderTab() {
   await new Promise(resolve => setTimeout(resolve));
 }
 
+async function openPreferencesTab() {
+  const tabmail = document.getElementById("tabmail");
+  const prefsMode = tabmail.tabModes.preferencesTab;
+
+  if (prefsMode.tabs.length == 1) {
+    tabmail.selectedTab = prefsMode.tabs[0];
+  } else {
+    openOptionsDialog();
+  }
+
+  is(prefsMode.tabs.length, 1, "preferences tab is open");
+  is(tabmail.selectedTab, prefsMode.tabs[0], "preferences tab is selected");
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
+async function closePreferencesTab() {
+  let tabmail = document.getElementById("tabmail");
+  let prefsMode = tabmail.tabModes.preferencesTab;
+
+  if (prefsMode.tabs.length == 1) {
+    tabmail.closeTab(prefsMode.tabs[0]);
+  }
+
+  is(prefsMode.tabs.length, 0, "preferences tab is not open");
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
+async function openAddonsTab() {
+  const tabmail = document.getElementById("tabmail");
+  const contentMode = tabmail.tabModes.contentTab;
+
+  if (contentMode.tabs.length == 1) {
+    tabmail.selectedTab = contentMode.tabs[0];
+  } else {
+    openAddonsMgr("addons://list/extension");
+  }
+
+  is(contentMode.tabs.length, 1, "addons tab is open");
+  is(tabmail.selectedTab, contentMode.tabs[0], "addons tab is selected");
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
+async function closeAddonsTab() {
+  let tabmail = document.getElementById("tabmail");
+  let contentMode = tabmail.tabModes.contentTab;
+
+  if (contentMode.tabs.length == 1) {
+    tabmail.closeTab(contentMode.tabs[0]);
+  }
+
+  is(contentMode.tabs.length, 0, "addons tab is not open");
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
 registerCleanupFunction(async () => {
   await closeCalendarTab();
   await closeTasksTab();
+  await closePreferencesTab();
+  await closeAddonsTab();
 });

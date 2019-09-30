@@ -354,16 +354,18 @@
              hidden="true"/>
     </hbox>
     <!-- end event/task in tab statusbarpanels -->
-    <hbox id="calendar-show-todaypane-panel"
-          class="statusbarpanel"
-          pack="center">
+    <calendar-modebox id="calendar-show-todaypane-panel"
+                      class="statusbarpanel"
+                      mode="mail,calendar,task"
+                      collapsedinmodes="special"
+                      pack="center">
       <toolbarbutton id="calendar-status-todaypane-button"
                      type="checkbox"
                      label="&todaypane.statusButton.label;"
                      tooltiptext="&calendar.todaypane.button.tooltip;"
                      observes="calendar_toggle_todaypane_command"
                      command="calendar_toggle_todaypane_command"/>
-    </hbox>
+    </calendar-modebox>
     <hbox id="calendar-invitations-panel"
           class="statusbarpanel"
           insertbefore="unreadMessageCount,totalMessageCount"

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals openCalendarTab, openTasksTab, selectFolderTab */
+/* globals openAddonsTab, openCalendarTab, openTasksTab, selectFolderTab,
+  openPreferencesTab */
 
 async function clickTodayPaneButton() {
   const button = document.getElementById("calendar-status-todaypane-button");
@@ -15,6 +16,8 @@ async function clickTodayPaneButton() {
 }
 
 // Test that today pane is visible/collapsed correctly for various tab types.
+// In all cases today pane should not be visible in preferences or addons tab.
+// Test that the today pane button is visible/hidden for various tab types.
 add_task(async () => {
   const todayPane = document.getElementById("today-pane-panel");
 
@@ -38,6 +41,10 @@ add_task(async () => {
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in calendar tab");
   await openTasksTab();
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in tasks tab");
+  await openPreferencesTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in preferences tab");
+  await openAddonsTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in addons tab");
 
   // Show today pane in calendar tab, but not in other tabs.
   // Hide it in folder tab.
@@ -53,6 +60,10 @@ add_task(async () => {
   ok(BrowserTestUtils.is_visible(todayPane), "today pane is visible in calendar tab");
   await openTasksTab();
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in tasks tab");
+  await openPreferencesTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in preferences tab");
+  await openAddonsTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in addons tab");
 
   // Show today pane in tasks tab, but not in other tabs.
   // Hide it in calendar tab.
@@ -68,4 +79,21 @@ add_task(async () => {
   is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in calendar tab");
   await openTasksTab();
   ok(BrowserTestUtils.is_visible(todayPane), "today pane is visible in tasks tab");
+  await openPreferencesTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in preferences tab");
+  await openAddonsTab();
+  is(BrowserTestUtils.is_visible(todayPane), false, "today pane is collapsed in addons tab");
+
+  // Check the visibility of the today pane button.
+  const button = document.getElementById("calendar-status-todaypane-button");
+  await selectFolderTab();
+  ok(BrowserTestUtils.is_visible(button), "today pane button is visible in folder tab");
+  await openCalendarTab();
+  ok(BrowserTestUtils.is_visible(button), "today pane button is visible in calendar tab");
+  await openTasksTab();
+  ok(BrowserTestUtils.is_visible(button), "today pane button is visible in tasks tab");
+  await openPreferencesTab();
+  is(BrowserTestUtils.is_visible(button), false, "today pane button is hidden in preferences tab");
+  await openAddonsTab();
+  is(BrowserTestUtils.is_visible(button), false, "today pane button is hidden in addons tab");
 });
