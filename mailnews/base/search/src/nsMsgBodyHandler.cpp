@@ -448,16 +448,13 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line) {
 void nsMsgBodyHandler::Base64Decode(nsCString &pBufInOut) {
   char *decodedBody =
       PL_Base64Decode(pBufInOut.get(), pBufInOut.Length(), nullptr);
-  if (decodedBody) pBufInOut.Adopt(decodedBody);
-
-  int32_t offset = pBufInOut.FindChar('\n');
-  while (offset != -1) {
-    pBufInOut.Replace(offset, 1, ' ');
-    offset = pBufInOut.FindChar('\n', offset);
-  }
-  offset = pBufInOut.FindChar('\r');
-  while (offset != -1) {
-    pBufInOut.Replace(offset, 1, ' ');
-    offset = pBufInOut.FindChar('\r', offset);
+  if (decodedBody) {
+    // Replace CR LF with spaces.
+    char *q = decodedBody;
+    while (*q) {
+      if (*q == '\n' || *q == '\r') *q = ' ';
+      q++;
+    }
+    pBufInOut.Adopt(decodedBody);
   }
 }
