@@ -6,6 +6,7 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % edHLineProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorHLineProperties.dtd">
@@ -18,6 +19,8 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
     onload="Startup()">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
@@ -30,30 +33,38 @@
     <hbox class="groupbox-title">
       <label class="header">&dimensionsBox.label;</label>
     </hbox>
-    <hbox>
-      <vbox>
-        <hbox align="center" flex="1">
-          <label control="width"
+    <html:table>
+      <html:tr>
+        <html:th>
+          <label id="widthLabel"
+                 control="width"
                  value="&widthEditField.label;"
                  accesskey="&widthEditField.accessKey;"/>
-        </hbox>
-        <hbox align="center" flex="1">
-          <label control="height"
+        </html:th>
+        <html:td>
+          <html:input id="width" type="number" class="narrow input-inline"
+                      aria-labelledby="widthLabel"/>
+        </html:td>
+        <html:td>
+          <menulist id="pixelOrPercentMenulist"/>
+        </html:td>
+      </html:tr>
+      <html:tr>
+        <html:th>
+          <label id="heightLabel"
+                 control="height"
                  value="&heightEditField.label;"
                  accesskey="&heightEditField.accessKey;"/>
-        </hbox>
-      </vbox>
-      <vbox>
-        <textbox class="narrow" id="width" flex="1" oninput="forceInteger('width')"/>
-        <textbox class="narrow" id="height" flex="1" oninput="forceInteger('height')"/>
-      </vbox>
-      <vbox>
-        <menulist id="pixelOrPercentMenulist"/>
-        <hbox align="center" flex="1">
+        </html:th>
+        <html:td>
+          <html:input id="height" type="number" class="narrow input-inline"
+                      aria-labelledby="heightLabel"/>
+        </html:td>
+        <html:td>
           <label value="&pixelsPopup.value;"/>
-        </hbox>
-      </vbox>
-    </hbox>
+        </html:td>
+      </html:tr>
+    </html:table>
     <checkbox id="3dShading" label="&threeDShading.label;" accesskey="&threeDShading.accessKey;"/>
   </groupbox>
   <groupbox>
