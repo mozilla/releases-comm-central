@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported openCalendarTab, setCalendarView, closeCalendarTab, openTasksTab, closeTasksTab */
+/* exported openCalendarTab, setCalendarView, closeCalendarTab, openTasksTab,
+ * closeTasksTab, selectFolderTab
+ */
+
 /* import-globals-from ../../base/content/calendar-views-utils.js */
 
 async function openCalendarTab() {
@@ -72,6 +75,21 @@ async function closeTasksTab() {
   }
 
   is(tasksMode.tabs.length, 0, "tasks tab is not open");
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
+/**
+ * Currently there's always a folder tab open, hence "select" not "open".
+ */
+async function selectFolderTab() {
+  const tabmail = document.getElementById("tabmail");
+  const folderMode = tabmail.tabModes.folder;
+
+  tabmail.selectedTab = folderMode.tabs[0];
+
+  is(folderMode.tabs.length > 0, true, "at least one folder tab is open");
+  is(tabmail.selectedTab, folderMode.tabs[0], "a folder tab is selected");
 
   await new Promise(resolve => setTimeout(resolve));
 }
