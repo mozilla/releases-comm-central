@@ -56,7 +56,7 @@ def main(args=None):
     args = args or sys.argv[1:]
 
     # Print the python version
-    print 'Python: %s' % sys.version
+    print('Python: %s' % sys.version)
 
     # The data is kept in the same directory as the script
     source = os.path.abspath(os.path.dirname(__file__))
@@ -65,7 +65,7 @@ def main(args=None):
     if len(args) == 1:
         destination = os.path.abspath(args[0])
     else:
-        print "Usage: %s destination" % sys.argv[0]
+        print("Usage: %s destination" % sys.argv[0])
         sys.exit(1)
 
     topsrcdir = buildconfig.substs['top_srcdir']
@@ -97,7 +97,7 @@ def main(args=None):
         [os.path.abspath(package) for package in packages],
         env=env)
     if returncode:
-        print 'Failure to install packages'
+        print('Failure to install packages')
         sys.exit(returncode)
 
 
