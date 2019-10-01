@@ -9,7 +9,6 @@
 const { SitePermissions } = ChromeUtils.import("resource:///modules/SitePermissions.jsm");
 const { BrowserUtils } = ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm"");
 
-var gPermURI;
 var gPermPrincipal;
 
 // Array of permissionIDs sorted alphabetically by label.
@@ -40,9 +39,12 @@ function initPermission()
 
 function onLoadPermission(uri, principal)
 {
-  if (!SitePermissions.isSupportedURI(uri))
+  var permTab = document.getElementById("permTab");
+  if (!SitePermissions.isSupportedPrincipal(principal)) {
+    permTab.hidden = true;
     return;
-  gPermURI = uri;
+  }
+
   gPermPrincipal = principal;
   if (gPermPrincipal && !gPermPrincipal.isSystemPrincipal) {
     var hostText = document.getElementById("hostText");
@@ -51,6 +53,7 @@ function onLoadPermission(uri, principal)
   }
   for (var i of gPermissions)
     initRow(i);
+  permTab.hidden = false;
 }
 
 function onUnloadPermission()
@@ -74,7 +77,7 @@ function initRow(aPartId)
     return;
   }
   checkbox.removeAttribute("disabled");
-  var {state} = SitePermissions.get(gPermURI, aPartId);
+  var {state} = SitePermissions.getForPrincipal(gPermPrincipal, aPartId);
   let defaultState = SitePermissions.getDefault(aPartId);
 
   // Since cookies preferences have many different possible configuration states
@@ -178,7 +181,7 @@ function onCheckboxClick(aPartId)
   var command  = document.getElementById("cmd_" + aPartId + "Toggle");
   var checkbox = document.getElementById(aPartId + "Def");
   if (checkbox.checked) {
-    SitePermissions.remove(gPermURI, aPartId);
+    SitePermissions.removeFromPrincipal(gPermPrincipal, aPartId);
     command.setAttribute("disabled", "true");
   }
   else {
@@ -192,7 +195,7 @@ function onRadioClick(aPartId)
   var radioGroup = document.getElementById(aPartId + "RadioGroup");
   var id = radioGroup.selectedItem ? radioGroup.selectedItem.id : "#1";
   var permission = parseInt(id.split("#")[1]);
-  SitePermissions.set(gPermURI, aPartId, permission);
+  SitePermissions.setForPrincipal(gPermPrincipal, aPartId, permission);
 }
 
 function setRadioState(aPartId, aValue)
