@@ -143,7 +143,7 @@
       this.querySelector(".years-forward-button").kMinimonth = kMinimonth;
       this.querySelector(".today-button").kMinimonth = kMinimonth;
 
-      this.mDaymap = null;
+      this.mDayMap = null;
       this.mValue = null;
       this.mEditorDate = null;
       this.mExtraDate = null;
@@ -580,14 +580,22 @@
       let monthChanged = this.mEditorDate && this.mEditorDate.valueOf() != aDate.valueOf();
       this.mEditorDate = aDate; // Only place mEditorDate is set.
 
-      if (this.mToday) {
-        this.mToday.removeAttribute("today");
-        this.mToday = null;
-      }
-
       if (this.mSelected) {
         this.mSelected.removeAttribute("selected");
         this.mSelected = null;
+      }
+
+      if (!monthChanged && this.mDayMap) {
+        let ymd =
+          this.value.getFullYear() + "-" + this.value.getMonth() + "-" + this.value.getDate();
+        this.mSelected = this.mDayMap[ymd];
+        this.mSelected.setAttribute("selected", "true");
+        return;
+      }
+
+      if (this.mToday) {
+        this.mToday.removeAttribute("today");
+        this.mToday = null;
       }
 
       if (this.mExtra) {
@@ -679,9 +687,7 @@
           day.textContent = date.getDate();
           date.setDate(date.getDate() + 1);
 
-          if (monthChanged) {
-            this.resetAttributesForDate(day.date);
-          }
+          this.resetAttributesForDate(day.date);
         }
       }
 
@@ -689,9 +695,7 @@
         this.setFocusedDate(this.mValue || this.mExtraDate);
       }
 
-      if (monthChanged) {
-        this.fireEvent("monthchange");
-      }
+      this.fireEvent("monthchange");
 
       if (this.getAttribute("freebusy") == "true") {
         this.getItems();
