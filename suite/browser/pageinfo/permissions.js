@@ -77,6 +77,13 @@ function initRow(aPartId)
   var {state} = SitePermissions.get(gPermURI, aPartId);
   let defaultState = SitePermissions.getDefault(aPartId);
 
+  // When flash permission state is "Hide", we show it as "Always Ask"
+  // in page info.
+  if (aPartId.startsWith("plugin") && state == SitePermissions.PROMPT_HIDE) {
+    defaultState == SitePermissions.UNKNOWN ? state = defaultState :
+                                              state = SitePermissions.PROMPT;
+  }
+
   if (state != defaultState) {
     checkbox.checked = false;
     command.removeAttribute("disabled");
