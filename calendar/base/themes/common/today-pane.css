@@ -266,6 +266,11 @@
   border-top-color: var(--sidebar-border-color);
   background-color: var(--sidebar-background-color);
   color: var(--sidebar-text-color);
+  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
+}
+
+:root[lwt-tree-brighttext] #agenda-listbox {
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
 richlistitem[is="agenda-header-richlist-item"] {
