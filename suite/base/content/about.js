@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 window.onload = function () {
   // get release notes URL and vendor URL from prefs
@@ -19,7 +20,7 @@ window.onload = function () {
   }
 
   // append the version of the XUL application (!= XULRunner platform version)
-  var versionNum = Services.appinfo.version;
+  var versionNum = AppConstants.MOZ_APP_VERSION_DISPLAY;
   var version = document.getElementById("version");
   version.appendChild(document.createTextNode(versionNum));
 
