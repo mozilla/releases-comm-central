@@ -18,6 +18,11 @@ var gCalendarConsole = new ConsoleAPI({
   maxLogLevel: Services.prefs.getBoolPref("calendar.debug.log", false) ? "all" : "warn",
 });
 
+// Cache services to avoid calling getService over and over again. The cache is
+// a separate object to avoid polluting `cal`, and is defined here since a call
+// to `_service` will require it to already exist.
+var gServiceCache = {};
+
 this.EXPORTED_SYMBOLS = ["cal"];
 var cal = {
   // These functions exist to reduce boilerplate code for creating instances
@@ -50,20 +55,17 @@ var cal = {
     "item"
   ),
 
-  getCalendarManager: _service("@mozilla.org/calendar/manager;1", Ci.calICalendarManager),
-  getIcsService: _service("@mozilla.org/calendar/ics-service;1", Ci.calIICSService),
-  getTimezoneService: _service("@mozilla.org/calendar/timezone-service;1", Ci.calITimezoneService),
+  getCalendarManager: _service("@mozilla.org/calendar/manager;1", "calICalendarManager"),
+  getIcsService: _service("@mozilla.org/calendar/ics-service;1", "calIICSService"),
+  getTimezoneService: _service("@mozilla.org/calendar/timezone-service;1", "calITimezoneService"),
   getCalendarSearchService: _service(
     "@mozilla.org/calendar/calendarsearch-service;1",
-    Ci.calICalendarSearchProvider
+    "calICalendarSearchProvider"
   ),
-  getFreeBusyService: _service("@mozilla.org/calendar/freebusy-service;1", Ci.calIFreeBusyService),
-  getWeekInfoService: _service("@mozilla.org/calendar/weekinfo-service;1", Ci.calIWeekInfoService),
-  getDateFormatter: _service(
-    "@mozilla.org/calendar/datetime-formatter;1",
-    Ci.calIDateTimeFormatter
-  ),
-  getDragService: _service("@mozilla.org/widget/dragservice;1", Ci.nsIDragService),
+  getFreeBusyService: _service("@mozilla.org/calendar/freebusy-service;1", "calIFreeBusyService"),
+  getWeekInfoService: _service("@mozilla.org/calendar/weekinfo-service;1", "calIWeekInfoService"),
+  getDateFormatter: _service("@mozilla.org/calendar/datetime-formatter;1", "calIDateTimeFormatter"),
+  getDragService: _service("@mozilla.org/widget/dragservice;1", "nsIDragService"),
 
   /**
    * The calendar console instance
@@ -553,8 +555,10 @@ XPCOMUtils.defineLazyModuleGetter(
  * @return {function}   A function that returns the given service
  */
 function _service(cid, iid) {
+  let name = `_${iid}`;
+  XPCOMUtils.defineLazyServiceGetter(gServiceCache, name, cid, iid);
   return function() {
-    return Cc[cid].getService(iid);
+    return gServiceCache[name];
   };
 }
 
