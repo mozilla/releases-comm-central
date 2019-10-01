@@ -84,19 +84,6 @@ pageInfoTreeView.prototype = {
     this.data = [];
   },
 
-  handleCopy: function(row)
-  {
-    return (row < 0 || this.copycol < 0) ? "" : (this.data[row][this.copycol] || "");
-  },
-
-  performActionOnRow: function(action, row)
-  {
-    if (action == "copy") {
-      var data = this.handleCopy(row)
-      this.tree.treeBody.parentNode.setAttribute("copybuffer", data);
-    }
-  },
-
   cycleHeader: function cycleHeader(col)
   {
     this.doSort(col, col.index);
@@ -139,7 +126,10 @@ pageInfoTreeView.prototype = {
   getLevel: function(index) { return 0; },
   getImageSrc: function(row, column) { },
   getProgressMode: function(row, column) { },
-  getCellValue: function(row, column) { },
+  getCellValue: function(row, column) {
+    let col = (column != null) ? column : this.copycol;
+    return (row < 0 || col < 0) ? "" : (this.data[row][col] || "");
+  },
   toggleOpenState: function(index) { },
   selectionChanged: function() { },
   cycleCell: function(row, column) { },
@@ -1109,9 +1099,7 @@ function getSelectedItems(linksMode)
     selection.getRangeAt(i, min, max);
 
     for (var row = min.value; row <= max.value; row++) {
-      view.performActionOnRow("copy", row);
-
-      tmp = elem.getAttribute("copybuffer");
+      tmp = view.getCellValue(row, null);
       if (tmp)
       {
         try {
@@ -1122,7 +1110,6 @@ function getSelectedItems(linksMode)
         catch (e) {
         }
       }
-      elem.removeAttribute("copybuffer");
     }
   }
 
