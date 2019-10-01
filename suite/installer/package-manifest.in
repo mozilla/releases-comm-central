@@ -562,8 +562,8 @@ man/*
 #ifdef MOZ_CALENDAR
 [calendar]
 #ifdef NIGHTLY_BUILD
-@RESPATH@/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/
+@RESPATH@/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}.xpi
 #else
-@RESPATH@/distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/
+@RESPATH@/distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}.xpi
 #endif
 #endif

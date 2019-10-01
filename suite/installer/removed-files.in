@@ -217,6 +217,16 @@ extensions/p@m/mozABConduit.dll
 @DIR_MACOS@extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/components/components.list
 @DIR_MACOS@extensions/{f13b157f-b174-47e7-a34d-4815ddfdfeb8}/components/components.list
 @DIR_MACOS@extensions/inspector@mozilla.org/components/components.list
+
+# Remove unpacked lightning extension.
+# Depending on the previous installed version it might reside in one of two
+# different places.
+@DIR_RESOURCES@extensions/
+@DIR_RESOURCES@extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/*
+@DIR_RESOURCES@distribution/
+@DIR_RESOURCES@distribution/extensions/
+@DIR_RESOURCES@distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/*
+
 #ifdef UNIX_BUT_NOT_MAC
 gfxpsshar@DLL_SUFFIX@
 #endif
