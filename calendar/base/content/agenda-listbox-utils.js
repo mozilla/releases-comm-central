@@ -873,16 +873,19 @@ agendaListbox.calendarObserver.QueryInterface = cal.generateQI([
 ]);
 
 // calIObserver:
-agendaListbox.calendarObserver.onStartBatch = function() {};
+agendaListbox.calendarObserver.onStartBatch = function() {
+  this.needsRefresh = true;
+};
 
 agendaListbox.calendarObserver.onEndBatch = function() {};
 
 agendaListbox.calendarObserver.onLoad = function() {
+  this.needsRefresh = false;
   this.agendaListbox.refreshCalendarQuery();
 };
 
 agendaListbox.calendarObserver.onAddItem = function(item) {
-  if (!cal.item.isEvent(item)) {
+  if (this.needsRefresh || !cal.item.isEvent(item)) {
     return;
   }
   // get all sub items if it is a recurring item
