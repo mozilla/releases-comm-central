@@ -77,6 +77,27 @@ function initRow(aPartId)
   var {state} = SitePermissions.get(gPermURI, aPartId);
   let defaultState = SitePermissions.getDefault(aPartId);
 
+  // Since cookies preferences have many different possible configuration states
+  // we don't consider any permission except "no permission" to be default.
+  if (aPartId == "cookie") {
+    state = Services.perms.testPermissionFromPrincipal(gPermPrincipal, "cookie");
+
+    if (state == SitePermissions.UNKNOWN) {
+      checkbox.checked = true;
+      command.setAttribute("disabled", "true");
+      // Don't select any item in the radio group, as we can't
+      // confidently say that all cookies on the site will be allowed.
+      let radioGroup = document.getElementById("cookieRadioGroup");
+      radioGroup.selectedItem = null;
+    } else {
+      checkbox.checked = false;
+      command.removeAttribute("disabled");
+    }
+
+    setRadioState(aPartId, state);
+    return;
+  }
+
   // When flash permission state is "Hide", we show it as "Always Ask"
   // in page info.
   if (aPartId.startsWith("plugin") && state == SitePermissions.PROMPT_HIDE) {
@@ -159,8 +180,6 @@ function onCheckboxClick(aPartId)
   if (checkbox.checked) {
     SitePermissions.remove(gPermURI, aPartId);
     command.setAttribute("disabled", "true");
-    var perm = SitePermissions.getDefault(aPartId);
-    setRadioState(aPartId, perm);
   }
   else {
     onRadioClick(aPartId);
@@ -171,7 +190,7 @@ function onCheckboxClick(aPartId)
 function onRadioClick(aPartId)
 {
   var radioGroup = document.getElementById(aPartId + "RadioGroup");
-  var id = radioGroup.selectedItem.id;
+  var id = radioGroup.selectedItem ? radioGroup.selectedItem.id : "#1";
   var permission = parseInt(id.split("#")[1]);
   SitePermissions.set(gPermURI, aPartId, permission);
 }
