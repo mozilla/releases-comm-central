@@ -821,13 +821,15 @@ function Startup()
                  .QueryInterface(Ci.nsILoadContext);
   if (lc.usePrivateBrowsing) {
     gPrivate = window;
-    document.documentElement.removeAttribute("windowtype");
-    var titlemodifier = document.documentElement.getAttribute("titlemodifier");
+    let docElement = document.documentElement;
+    var titlemodifier = docElement.getAttribute("titlemodifier");
     if (titlemodifier)
       titlemodifier += " ";
-    titlemodifier += document.documentElement.getAttribute("titleprivate");
-    document.documentElement.setAttribute("titlemodifier", titlemodifier);
+    titlemodifier += docElement.getAttribute("titleprivate");
+    docElement.setAttribute("titlemodifier", titlemodifier);
     document.title = titlemodifier;
+    docElement.setAttribute("privatebrowsingmode",
+      PrivateBrowsingUtils.permanentPrivateBrowsing ? "permanent" : "temporary");
   }
 
   // initialize observers and listeners
