@@ -201,7 +201,8 @@ nsContextMenu.prototype = {
     this.showItem("context-sendlink", this.onSaveableLink);
 
     // Save image depends on having loaded its content, video and audio don't.
-    showSave = this.onLoadedImage || this.onStandaloneImage || this.onCanvas;
+    showSave = (this.onLoadedImage && this.onCompletedImage) ||
+               this.onStandaloneImage || this.onCanvas;
     if (showSave)
       goSetMenuValue("context-saveimage",
                      this.autoDownload ? "valueSave" : "valueSaveAs");
