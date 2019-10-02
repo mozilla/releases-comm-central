@@ -1276,7 +1276,7 @@
           this.moveByOffset(0, !event.ctrlKey, event.shiftKey);
           event.preventDefault();
         } else if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
-          if (this.currentItem) {
+          if (this.currentItem && !event.ctrlKey && !event.shiftKey) {
             this.addItemToSelection(this.currentItem);
             let evt = document.createEvent("XULCommandEvent");
             evt.initCommandEvent(
