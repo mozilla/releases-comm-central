@@ -4,16 +4,17 @@
 
       <vbox id="imageLocation">
         <spacer class="spacer"/>
-        <label control = "srcInput"
-          value = "&locationEditField.label;"
-          accesskey="&locationEditField.accessKey;"
-          tooltiptext="&locationEditField.tooltip;"
-          />
+        <label id="srcLabel"
+               control="srcInput"
+               value="&locationEditField.label;"
+               accesskey="&locationEditField.accessKey;"
+               tooltiptext="&locationEditField.tooltip;"/>
         <tooltip id="shortenedDataURI">
           <label value="&locationEditField.shortenedDataURI;"/>
         </tooltip>
-        <textbox id="srcInput" oninput="ChangeImageSrc();" tabindex="1" class="uri-element"
-                 tooltiptext="&locationEditField.tooltip;"/>
+        <html:input id="srcInput" type="text" onchange="ChangeImageSrc();" tabindex="1"
+                    class="uri-element input-inline" title="&locationEditField.tooltip;"
+                    aria-labelledby="srcLabel"/>
         <hbox id="MakeRelativeHbox">
           <checkbox id="MakeRelativeCheckbox"
                     tabindex="2"
@@ -38,7 +39,8 @@
           <hbox>
             <vbox>
               <hbox align="center" flex="1">
-                <label style="margin-left: 26px"
+                <label id="titleLabel"
+                       style="margin-left:26px"
                        control="titleInput"
                        accesskey="&title.accessKey;"
                        value="&title.label;"
@@ -54,25 +56,27 @@
                        tabindex="5"/>
               </hbox>
             </vbox>
-            <vbox>
-              <textbox id="titleInput"
-                       flex="1"
-                       class="MinWidth20em"
-                       tooltiptext="&title.tooltip;"
-                       tabindex="4"/>
-              <textbox id="altTextInput"
-                       flex="1"
-                       class="MinWidth20em"
-                       tooltiptext="&altTextEditField.tooltip;"
-                       oninput="SetAltTextDisabled(false);"
-                       tabindex="6"/>
+            <vbox flex="1">
+              <html:input id="titleInput"
+                          type="text"
+                          class="MinWidth20em input-inline"
+                          title="&title.tooltip;"
+                          tabindex="4"
+                          aria-labelledby="titleLabel"/>
+              <html:input id="altTextInput"
+                          type="text"
+                          class="MinWidth20em input-inline"
+                          title="&altTextEditField.tooltip;"
+                          onchange="SetAltTextDisabled(false);"
+                          tabindex="6"
+                          aria-labelledby="altTextRadio"/>
             </vbox>
           </hbox>
           <radio id="noAltTextRadio" value="usealt-no"
                  label="&noAltText.label;"
-                 accesskey = "&noAltText.accessKey;"
+                 accesskey="&noAltText.accessKey;"
                  persist="selected"
-                 oncommand = "SetAltTextDisabled(true);"/>
+                 oncommand="SetAltTextDisabled(true);"/>
         </radiogroup>
       </vbox>
 
@@ -106,34 +110,44 @@
         </hbox>
         <spacer class="spacer"/>
         <hbox class="indent">
-          <vbox>
-            <hbox flex="1" align="center">
-              <label id="widthLabel"
-                     control="widthInput"
-                     accesskey="&widthEditField.accessKey;"
-                     value="&widthEditField.label;"/>
-            </hbox>
-            <hbox flex="1" align="center">
-              <label id="heightLabel"
-                     control="heightInput"
-                     accesskey="&heightEditField.accessKey;"
-                     value="&heightEditField.label;"/>
-            </hbox>
-          </vbox>
-          <vbox>
-            <textbox id="widthInput"
-                     class="narrow"
-                     oninput="constrainProportions(this.id, 'heightInput')"/>
-            <textbox id="heightInput"
-                     class="narrow"
-                     oninput="constrainProportions(this.id, 'widthInput')"/>
-          </vbox>
-          <vbox flex="1">
-            <menulist id="widthUnitsMenulist"
-                      oncommand="doDimensionEnabling();" />
-            <menulist id="heightUnitsMenulist"
-                      oncommand="doDimensionEnabling();" />
-          </vbox>
+          <html:table>
+            <html:tr>
+              <html:th>
+                <label id="widthLabel"
+                       control="widthInput"
+                       accesskey="&widthEditField.accessKey;"
+                       value="&widthEditField.label;"/>
+              </html:th>
+              <html:td>
+                <html:input id="widthInput" type="number" min="0"
+                            class="narrow input-inline"
+                            onchange="constrainProportions(this.id,'heightInput')"
+                            aria-labelledby="widthLabel"/>
+              </html:td>
+              <html:td>
+                <menulist id="widthUnitsMenulist"
+                          oncommand="doDimensionEnabling();"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+                <label id="heightLabel"
+                       control="heightInput"
+                       accesskey="&heightEditField.accessKey;"
+                       value="&heightEditField.label;"/>
+              </html:th>
+              <html:td>
+                <html:input id="heightInput" type="number" min="0"
+                            class="narrow input-inline"
+                            onchange="constrainProportions(this.id,'widthInput')"
+                            aria-labelledby="heightLabel"/>
+              </html:td>
+              <html:td>
+                <menulist id="heightUnitsMenulist"
+                          oncommand="doDimensionEnabling();"/>
+              </html:td>
+            </html:tr>
+          </html:table>
         </hbox>
         <spacer flex="1"/>
       </vbox>
@@ -143,56 +157,59 @@
           <hbox class="groupbox-title">
             <label id="spacingLabel" class="header">&spacingBox.label;</label>
           </hbox>
-          <hbox>
-            <vbox>
-              <hbox flex="1" align="center">
+          <html:table>
+            <html:tr>
+              <html:th>
                 <label id="leftrightLabel"
                        class="align-right"
                        control="imageleftrightInput"
                        accesskey="&leftRightEditField.accessKey;"
                        value="&leftRightEditField.label;"/>
-              </hbox>
-              <hbox flex="1" align="center">
+              </html:th>
+              <html:td>
+                <html:input id="imageleftrightInput" type="number" min="0"
+                            class="narrow input-inline"
+                            aria-labelledby="leftrightLabel"/>
+              </html:td>
+              <html:td id="leftrighttypeLabel">
+                &pixelsPopup.value;
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
                 <label id="topbottomLabel"
                        class="align-right"
                        control="imagetopbottomInput"
                        accesskey="&topBottomEditField.accessKey;"
                        value="&topBottomEditField.label;"/>
-              </hbox>
-              <hbox flex="1" align="center">
+              </html:th>
+              <html:td>
+                <html:input id="imagetopbottomInput" type="number" min="0"
+                            class="narrow input-inline"
+                            aria-labelledby="topbottomLabel"/>
+              </html:td>
+              <html:td id="topbottomtypeLabel">
+                &pixelsPopup.value;
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
                 <label id="borderLabel"
                        class="align-right"
                        control="border"
                        accesskey="&borderEditField.accessKey;"
                        value="&borderEditField.label;"/>
-              </hbox>
-            </vbox>
-            <vbox>
-              <textbox id="imageleftrightInput"
-                       class="narrow"
-                       oninput="forceInteger(this.id)"/>
-              <textbox id="imagetopbottomInput"
-                       class="narrow"
-                       oninput="forceInteger(this.id)"/>
-              <textbox id="border"
-                       class="narrow"
-                       oninput="forceInteger(this.id)"/>
-            </vbox>
-            <vbox>
-              <hbox flex="1" align="center">
-                <label id="leftrighttypeLabel"
-                       value="&pixelsPopup.value;" />
-              </hbox>
-              <hbox flex="1" align="center">
-                <label id="topbottomtypeLabel"
-                       value="&pixelsPopup.value;" />
-              </hbox>
-              <hbox flex="1" align="center">
-                <label id="bordertypeLabel"
-                       value="&pixelsPopup.value;" />
-              </hbox>
-            </vbox>
-          </hbox>
+              </html:th>
+              <html:td>
+                <html:input id="border" type="number" min="0"
+                            class="narrow input-inline"
+                            aria-labelledby="borderLabel"/>
+              </html:td>
+              <html:td id="bordertypeLabel">
+                &pixelsPopup.value;
+              </html:td>
+            </html:tr>
+          </html:table>
         </groupbox>
 
         <vbox>
