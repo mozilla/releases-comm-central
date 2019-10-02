@@ -114,7 +114,7 @@
                 </hbox>
               </vbox>
             </hbox>
-            <hbox>
+            <hbox id ="calendar-task-details-box">
               <html:table id="calendar-task-details-grid">
                 <html:tr id="calendar-task-details-title-row"
                          hidden="hidden">

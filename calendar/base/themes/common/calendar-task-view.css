@@ -72,6 +72,10 @@
     border-color: var(--sidebar-border-color, rgba(249,249,250,.2));
 }
 
+#calendar-task-details-box {
+    display: block;
+}
+
 #calendar-task-details-description-wrapper {
     display: flex;
 }
@@ -91,18 +95,11 @@
 
 .item-date-row > td > input[is="calendar-item-date-input"] {
     width: 100%;
-    background-color: ButtonFace;
-}
-
-#calendar-task-details-container:-moz-window-inactive input[is="calendar-item-date-input"] {
-    background-color: -moz-mac-chrome-inactive;
-}
-
-.item-date-row > td > input[is="calendar-item-date-input"] > .selectable-label {
-    margin-top: 1px !important;
-    margin-bottom: 2px !important;
-    margin-inline-end: 5px !important;
-    background-color: inherit;
+    background-color: transparent;
+    color: inherit;
+    border-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 #calendar-task-details-grid > .item-date-row > .headline {
