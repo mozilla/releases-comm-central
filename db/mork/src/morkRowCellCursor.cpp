@@ -159,7 +159,7 @@ morkRowCellCursor::GetRow(nsIMdbEnv* mev, nsIMdbRow** acqRow) {
 
 // { ----- begin cell seeking methods -----
 NS_IMETHODIMP
-morkRowCellCursor::SeekCell(  // same as SetRow() followed by MakeCell()
+morkRowCellCursor::SeekCell(
     nsIMdbEnv* mev,           // context
     mdb_pos inPos,            // position of cell in row sequence
     mdb_column* outColumn,    // column for this particular cell
