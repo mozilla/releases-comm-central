@@ -548,4 +548,61 @@ var mailTestUtils = {
     }
     return -1;
   },
+
+  /**
+   * Click on a particular cell in a tree. `window` is not defined here in this
+   * file, so we can't provide it as a default argument. Similarly, we pass in
+   * `EventUtils` as an argument because importing it here does not work
+   * because `window` is not defined.
+   *
+   * @param {Object} EventUtils - The EventUtils object.
+   * @param {Window} win - The window the tree is in.
+   * @param {Element} tree - The tree element.
+   * @param {number} row - The tree row to click on.
+   * @param {number} column - The tree column to click on.
+   * @param {Object} event - The mouse event to synthesize, e.g. `{ clickCount: 2 }`.
+   */
+  treeClick(EventUtils, win, tree, row, column, event) {
+    let coords = tree.getCoordsForCellItem(row, tree.columns[column], "cell");
+    let treeChildren = tree.lastElementChild;
+    EventUtils.synthesizeMouse(
+      treeChildren,
+      coords.x + coords.width / 2,
+      coords.y + coords.height / 2,
+      event,
+      win
+    );
+  },
+
+  /**
+   * For waiting until an element exists in a given document. Pass in the
+   * `MutationObserver` as an argument because importing it here does not work
+   * because `window` is not defined here.
+   *
+   * @param {Object} MutationObserver - The MutationObserver object.
+   * @param {Document} doc - Document that contains the elements.
+   * @param {string} observedNodeId - Id of the element to observe.
+   * @param {string} awaitedNodeId - Id of the element that will soon exist.
+   * @return {Promise.<undefined>} - A promise fulfilled when the element exists.
+   */
+  awaitElementExistence(MutationObserver, doc, observedNodeId, awaitedNodeId) {
+    return new Promise(resolve => {
+      let outerObserver = new MutationObserver((mutationsList, observer) => {
+        for (let mutation of mutationsList) {
+          if (mutation.type == "childList" && mutation.addedNodes.length) {
+            let element = doc.getElementById(awaitedNodeId);
+
+            if (element) {
+              observer.disconnect();
+              resolve();
+              return;
+            }
+          }
+        }
+      });
+
+      let nodeToObserve = doc.getElementById(observedNodeId);
+      outerObserver.observe(nodeToObserve, { childList: true });
+    });
+  },
 };

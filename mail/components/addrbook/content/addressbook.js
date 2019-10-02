@@ -530,10 +530,17 @@ function SetStatusText(total) {
         ).replace("#1", total);
       }
     } else {
-      statusText = gAddressBookBundle.getFormattedString("totalContactStatus", [
-        getSelectedDirectory().dirName,
-        total,
-      ]);
+      let selectedDirectory = getSelectedDirectory();
+      // The result of getSelectedDirectory may be null, like when there's a
+      // mailing list just being created in a brand new address book.
+      if (selectedDirectory) {
+        statusText = gAddressBookBundle.getFormattedString(
+          "totalContactStatus",
+          [selectedDirectory.dirName, total]
+        );
+      } else {
+        statusText = "";
+      }
     }
 
     gStatusText.setAttribute("value", statusText);

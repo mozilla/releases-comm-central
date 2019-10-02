@@ -4,17 +4,11 @@
 
 let gAccount, gFolders;
 
-function treeClick(tree, row, column, event) {
-  let coords = tree.getCoordsForCellItem(row, tree.columns[column], "cell");
-  let treeChildren = tree.lastElementChild;
-  EventUtils.synthesizeMouse(
-    treeChildren,
-    coords.x + coords.width / 2,
-    coords.y + coords.height / 2,
-    event,
-    window
-  );
-}
+const { mailTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/mailTestUtils.js"
+);
+
+const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);
 
 async function checkEvent(extension, menuIds, contexts) {
   let [event, tab] = await extension.awaitMessage("onShown");

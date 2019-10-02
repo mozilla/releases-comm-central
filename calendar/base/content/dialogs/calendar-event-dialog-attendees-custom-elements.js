@@ -9,6 +9,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+  const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
   /**
    * MozCalendarEventFreebusyTimebar is a widget showing the time slot labels - dates and a number of
@@ -764,43 +765,7 @@
      */
     _resolveListByName(value) {
       let entries = MailServices.headerParser.makeFromDisplayAddress(value);
-      return entries.length ? this._findListInAddrBooks(entries[0].name) : null;
-    }
-
-    /**
-     * Finds list in the address books.
-     *
-     * @param {String} entryName        Value against which dirName is checked
-     * @returns {Object}                Found list or null
-     */
-    _findListInAddrBooks(entryname) {
-      let allAddressBooks = MailServices.ab.directories;
-
-      while (allAddressBooks.hasMoreElements()) {
-        let abDir = null;
-        try {
-          abDir = allAddressBooks.getNext().QueryInterface(Ci.nsIAbDirectory);
-        } catch (ex) {
-          cal.WARN("[eventDialog] Error Encountered" + ex);
-        }
-
-        if (abDir != null && abDir.supportsMailingLists) {
-          let dirs = abDir.childNodes;
-          while (dirs.hasMoreElements()) {
-            let dir = null;
-            try {
-              dir = dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
-            } catch (ex) {
-              cal.WARN("[eventDialog] Error Encountered" + ex);
-            }
-
-            if (dir && dir.isMailList && dir.dirName == entryname) {
-              return dir;
-            }
-          }
-        }
-      }
-      return null;
+      return entries.length ? MailUtils.findListInAddressBooks(entries[0].name) : null;
     }
 
     /**

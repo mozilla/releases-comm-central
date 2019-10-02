@@ -7,3 +7,7 @@ XPCSHELL_TESTS_MANIFESTS += [
     'unit/xpcshell-jsaddrbook.ini',
     'unit/xpcshell-mdbaddrbook.ini',
 ]
+
+BROWSER_CHROME_MANIFESTS += [
+    'browser/browser.ini',
+]

@@ -533,4 +533,30 @@ var MailUtils = {
     }
     return null;
   },
+
+  /**
+   * Finds a mailing list anywhere in the address books.
+   *
+   * @param {string} entryName - Value against which dirName is checked.
+   * @returns {nsIAbDirectory|null} - Found list or null.
+   */
+  findListInAddressBooks(entryName) {
+    let allAddressBooks = MailServices.ab.directories;
+
+    while (allAddressBooks.hasMoreElements()) {
+      let abDir = allAddressBooks.getNext().QueryInterface(Ci.nsIAbDirectory);
+
+      if (abDir.supportsMailingLists) {
+        let dirs = abDir.childNodes;
+
+        while (dirs.hasMoreElements()) {
+          let dir = dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
+          if (dir.isMailList && dir.dirName == entryName) {
+            return dir;
+          }
+        }
+      }
+    }
+    return null;
+  },
 };
