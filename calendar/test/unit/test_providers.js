@@ -222,7 +222,18 @@ add_task(async function testIcalData() {
           if (aCount) {
             count += aCount;
             for (let i = 0; i < aCount; i++) {
-              compareItemsSpecific(aItems[i].parentItem, aItem);
+              // Don't check creationDate as it changed when we added the item to the database.
+              compareItemsSpecific(aItems[i].parentItem, aItem, [
+                "start",
+                "end",
+                "duration",
+                "title",
+                "priority",
+                "privacy",
+                "status",
+                "alarmLastAck",
+                "recurrenceStartDate",
+              ]);
             }
           }
         },
@@ -261,7 +272,18 @@ add_task(async function testIcalData() {
             });
           } else if (aOperationType == Ci.calIOperationListener.GET) {
             equal(count, 1);
-            compareItemsSpecific(returnedItem, aItem);
+            // Don't check creationDate as it changed when we added the item to the database.
+            compareItemsSpecific(returnedItem, aItem, [
+              "start",
+              "end",
+              "duration",
+              "title",
+              "priority",
+              "privacy",
+              "status",
+              "alarmLastAck",
+              "recurrenceStartDate",
+            ]);
           }
           this.promises.pop()();
         },
