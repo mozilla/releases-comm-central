@@ -6,38 +6,12 @@
       "webExtensionId": "google@search.mozilla.org",
       "webExtensionVersion": "1.0",
       "searchUrlGetParams": {
-        "client": "firefox-b-d",
         "q": "{searchTerms}"
       },
-      "telemetryId": "google-b-d",
+      "telemetryId": "google",
       "appliesTo": [{
         "included": { "everywhere": true },
-        "default": "yes"
-      }, {
-        "included": {
-          "regions": ["ru", "tr", "by", "kz"],
-          "locales": {
-            "matches": ["ru", "tr", "be", "kk"],
-            "startsWith": ["en"]
-          },
-          "telemetryId": "google"
-        },
-        "default": "no"
-      }, {
-        "included": {
-          "regions": ["cn"],
-          "locales": {
-            "matches": ["zh-CN"]
-          }
-        },
-        "default": "no"
-      }, {
-        "included": { "regions": ["us"] },
-        "searchUrlGetParams": {
-          "client": "firefox-b-1-d",
-          "q": "{searchTerms}"
-        },
-        "telemetryId": "google-b-1-d"
+        "default": "yes-if-no-other"
       }],
       "aliases": ["@google"]
     },
@@ -46,35 +20,8 @@
       "webExtensionId": "bing@search.mozilla.org",
       "webExtensionVersion": "1.0",
       "searchUrlGetParams": {
-        "q": "{searchTerms}",
-        "pc": "MOZI"
+        "q": "{searchTerms}"
       },
-      "extraParams": [{
-        "name": "form",
-        "condition": "purpose",
-        "purpose": "searchbar",
-        "value": "MOZSBR"
-      }, {
-        "name": "form",
-        "condition": "purpose",
-        "purpose": "keyword",
-        "value": "MOZLBR"
-      }, {
-        "name": "form",
-        "condition": "purpose",
-        "purpose": "contextmenu",
-        "value": "MOZCON"
-      }, {
-        "name": "form",
-        "condition": "purpose",
-        "purpose": "homepage",
-        "value": "MOZSPG"
-      }, {
-        "name": "form",
-        "condition": "purpose",
-        "purpose": "newtab",
-        "value": "MOZTSB"
-      }],
       "appliesTo": [{
         "included": {
           "locales": {
@@ -104,12 +51,10 @@
       "telemetryId": "baidu",
       "searchUrlGetParams": {
         "wd": "{searchTerms}",
-        "tn": "monline_7_dg",
         "ie": "utf-8"
       },
       "suggestUrlGetParams": {
         "wd": "{searchTerms}",
-        "tn": "monline_7_dg",
         "ie": "utf-8",
         "action": "opensearch"
       },
@@ -134,7 +79,6 @@
         "field-keywords": "{searchTerms}",
         "ie": "{inputEncoding}",
         "mode": "blended",
-        "tag": "mozilla-20",
         "sourceid": "Mozilla-search"
       },
       "appliesTo": [{
@@ -205,7 +149,6 @@
           "field-keywords": "{searchTerms}",
           "ie": "{inputEncoding}",
           "mode": "blended",
-          "tag": "firefox-fr-21",
           "sourceid":"Mozilla-search"
         }
       }, {
@@ -228,7 +171,6 @@
           "field-keywords": "{searchTerms}",
           "ie": "{inputEncoding}",
           "mode": "blended",
-          "tag": "firefox-uk-21",
           "sourceid":"Mozilla-search"
         },
         "engineName": "Amazon.co.uk"
@@ -266,7 +208,6 @@
           "field-keywords": "{searchTerms}",
           "ie": "{inputEncoding}",
           "mode": "blended",
-          "tag": "firefox-fr-21",
           "sourceid":"Mozilla-search"
         }
       }, {
@@ -291,7 +232,6 @@
           "field-keywords": "{searchTerms}",
           "ie": "{inputEncoding}",
           "mode": "blended",
-          "tag": "mozillajapan-fx-22",
           "sourceid":"Mozilla-search"
         }
       }, {
@@ -303,7 +243,6 @@
           "field-keywords": "{searchTerms}",
           "ie": "{inputEncoding}",
           "mode": "blended",
-          "tag": "firefoxit-21",
           "sourceid":"Mozilla-search"
         }
       }, {
@@ -315,7 +254,6 @@
           "field-keywords": "{searchTerms}",
           "ie": "{inputEncoding}",
           "mode": "blended",
-          "tag": "firefox-de-21",
           "sourceid":"Mozilla-search"
         }
       }, {
@@ -333,7 +271,6 @@
           "field-keywords": "{searchTerms}",
           "ie": "{inputEncoding}",
           "mode": "blended",
-          "tag": "firefox-uk-21",
           "sourceid":"Mozilla-search"
         },
         "engineName": "Amazon.co.uk"
@@ -379,32 +316,6 @@
       "webExtensionId": "ddg@search.mozilla.org",
       "webExtensionVersion": "1.0",
       "telemetryId": "ddg",
-      "extraParams": [{
-        "name": "t",
-        "condition": "purpose",
-        "purpose": "searchbar",
-        "value": "ffsb"
-      }, {
-        "name": "t",
-        "condition": "purpose",
-        "purpose": "keyword",
-        "value": "ffab"
-      }, {
-        "name": "t",
-        "condition": "purpose",
-        "purpose": "contextmenu",
-        "value": "ffcm"
-      }, {
-        "name": "t",
-        "condition": "purpose",
-        "purpose": "homepage",
-        "value": "ffhp"
-      }, {
-        "name": "t",
-        "condition": "purpose",
-        "purpose": "newtab",
-        "value": "ffnt"
-      }],
       "appliesTo": [{
         "included": { "everywhere": true }
       }],
@@ -414,32 +325,6 @@
       "engineName": "Yandex",
       "webExtensionId": "yandex@search.mozilla.org",
       "webExtensionVersion": "1.0",
-      "extraParams": [{
-        "name": "clid",
-        "condition": "purpose",
-        "purpose": "searchbar",
-        "value": "2186618"
-      }, {
-        "name": "clid",
-        "condition": "purpose",
-        "purpose": "keyword",
-        "value": "2186621"
-      }, {
-        "name": "clid",
-        "condition": "purpose",
-        "purpose": "contextmenu",
-        "value": "2186623"
-      }, {
-        "name": "clid",
-        "condition": "purpose",
-        "purpose": "homepage",
-        "value": "2186617"
-      }, {
-        "name": "clid",
-        "condition": "purpose",
-        "purpose": "newtab",
-        "value": "2186620"
-      }],
       "appliesTo": [{
         "default": "yes",
         "included": {
