@@ -3,8 +3,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd" >%accountNoIdentDTD;
@@ -15,6 +15,8 @@
         title="&accountTitle.label;"
         onload="parent.onPanelLoaded('am-serverwithnoidentities.xul');">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/am-serverwithnoidentities.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
 
@@ -31,12 +33,17 @@
          id="server.storeContractID"/>
 
   <description class="secDesc">&accountSettingsDesc.label;</description>
-  <hbox align="center">
-    <label value="&accountName.label;" control="server.prettyName"
-           accesskey="&accountName.accesskey;"/>
-    <textbox wsm_persist="true" size="30" id="server.prettyName"
-             onblur="parent.setAccountLabel(gAccount.key, null, this.value);"
-             prefstring="mail.server.%serverkey%.name"/>
+  <hbox align="center" class="input-container">
+    <label id="server.prettyName.label" value="&accountName.label;"
+           control="server.prettyName" accesskey="&accountName.accesskey;"/>
+    <html:input id="server.prettyName"
+                type="text"
+                wsm_persist="true"
+                size="30"
+                class="input-inline"
+                onblur="parent.setAccountLabel(gAccount.key, null, this.value);"
+                prefstring="mail.server.%serverkey%.name"
+                aria-labelledby="server.prettyName.label"/>
   </hbox>
 
   <separator class="thin"/>
@@ -70,12 +77,21 @@
 
     <separator class="thin"/>
 
-    <label value="&localPath.label;" control="server.localPath"/>
-    <hbox align="center">
-      <textbox readonly="true" wsm_persist="true" flex="1" id="server.localPath" datatype="nsIFile"
-               prefstring="mail.server.%serverkey%.directory" class="uri-element"/>
-      <button id="browseForLocalFolder" label="&browseFolder.label;" filepickertitle="&localFolderPicker.label;"
-              accesskey="&browseFolder.accesskey;" oncommand="BrowseForLocalFolders()"/>
+    <label id="server.localPath.label" value="&localPath.label;"
+           control="server.localPath"/>
+    <hbox align="center" class="input-container">
+      <html:input id="server.localPath"
+                  type="text"
+                  readonly="readonly"
+                  wsm_persist="true"
+                  datatype="nsIFile"
+                  prefstring="mail.server.%serverkey%.directory"
+                  class="uri-element input-inline"
+                  aria-labelledby="server.localPath.label"/>
+      <button id="browseForLocalFolder" label="&browseFolder.label;"
+              filepickertitle="&localFolderPicker.label;"
+              accesskey="&browseFolder.accesskey;"
+              oncommand="BrowseForLocalFolders()"/>
     </hbox>
   </groupbox>
 </window>

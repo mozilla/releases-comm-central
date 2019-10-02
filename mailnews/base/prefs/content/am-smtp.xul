@@ -3,14 +3,17 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/am-advanced.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&smtpServer.label;"
         onload="gSmtpServerListWindow.onLoad();">
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
   <script src="chrome://messenger/content/am-smtp.js"/>
 
@@ -74,23 +77,47 @@
                    control="useSecureConnectionValue"/>
           </vbox>
           <vbox flex="1">
-            <hbox flex="1">
-              <textbox id="descriptionValue" readonly="true" class="plain" flex="1"/>
+            <hbox flex="1" class="input-container">
+              <html:input id="descriptionValue"
+                          type="text"
+                          readonly="readonly"
+                          class="plain"
+                          aria-labelledby="descriptionLabel"/>
             </hbox>
-            <hbox flex="1">
-              <textbox id="nameValue" readonly="true" class="plain" flex="1"/>
+            <hbox flex="1" class="input-container">
+              <html:input id="nameValue"
+                          type="text"
+                          readonly="readonly"
+                          class="plain"
+                          aria-labelledby="nameLabel"/>
             </hbox>
-            <hbox flex="1">
-              <textbox id="portValue" readonly="true" class="plain" flex="1"/>
+            <hbox flex="1" class="input-container">
+              <html:input id="portValue"
+                          type="text"
+                          readonly="readonly"
+                          class="plain"
+                          aria-labelledby="portLabel"/>
             </hbox>
-            <hbox flex="1">
-              <textbox id="userNameValue" readonly="true" class="plain" flex="1"/>
+            <hbox flex="1" class="input-container">
+              <html:input id="userNameValue"
+                          type="text"
+                          readonly="readonly"
+                          class="plain"
+                          aria-labelledby="userNameLabel"/>
             </hbox>
-            <hbox flex="1">
-              <textbox id="authMethodValue" readonly="true" class="plain" flex="1"/>
+            <hbox flex="1" class="input-container">
+              <html:input id="authMethodValue"
+                          type="text"
+                          readonly="readonly"
+                          class="plain"
+                          aria-labelledby="authMethodLabel"/>
             </hbox>
-            <hbox flex="1">
-              <textbox id="useSecureConnectionValue" readonly="true" class="plain" flex="1"/>
+            <hbox flex="1" class="input-container">
+              <html:input id="useSecureConnectionValue"
+                          type="text"
+                          readonly="readonly"
+                          class="plain"
+                          aria-labelledby="connectionSecurityLabel"/>
             </hbox>
           </vbox>
         </hbox>

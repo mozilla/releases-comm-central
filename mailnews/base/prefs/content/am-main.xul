@@ -3,8 +3,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/am-main.dtd" >
 
@@ -28,11 +28,16 @@
     </hbox>
 
     <hbox align="center">
-      <label value="&accountName.label;" control="server.prettyName"
-             accesskey="&accountName.accesskey;"/>
-      <textbox wsm_persist="true" size="30" id="server.prettyName"
-               onblur="parent.setAccountLabel(gAccount.key, null, this.value);"
-               prefstring="mail.server.%serverkey%.name"/>
+      <label id="server.prettyName.label" value="&accountName.label;"
+             control="server.prettyName" accesskey="&accountName.accesskey;"/>
+      <html:input id="server.prettyName"
+                  type="text"
+                  wsm_persist="true"
+                  size="30"
+                  class="input-inline"
+                  onblur="parent.setAccountLabel(gAccount.key, null, this.value);"
+                  prefstring="mail.server.%serverkey%.name"
+                  aria-labelledby="server.prettyName.label"/>
     </hbox>
 
     <separator class="thin"/>
@@ -41,53 +46,69 @@
       <label class="header">&identityTitle.label;</label>
       <description>&identityDesc.label;</description>
       <separator class="thin"/>
-      <html:table>
+      <html:table class="identity-table">
         <html:tr>
+          <html:th>
+            <label id="identity.fullName.label.label" value="&name.label;"
+                   control="identity.fullName" accesskey="&name.accesskey;"/>
+          </html:th>
           <html:td>
-            <label value="&name.label;" control="identity.fullName"
-                   accesskey="&name.accesskey;"/>
-          </html:td>
-          <html:td style="width:100%;">
-            <textbox id="identity.fullName" wsm_persist="true" size="30" style="width:100%;"
-                     prefstring="mail.identity.%identitykey%.fullName"/>
+            <html:input id="identity.fullName"
+                        type="text"
+                        class="input-inline"
+                        aria-labelledby="identity.fullName.label"
+                        wsm_persist="true" size="30"
+                        prefstring="mail.identity.%identitykey%.fullName"/>
           </html:td>
         </html:tr>
         <html:tr>
+          <html:th>
+            <label id="identity.email.label" value="&email.label;"
+                   control="identity.email" accesskey="&email.accesskey;"/>
+          </html:th>
           <html:td>
-            <label value="&email.label;" control="identity.email"
-                   accesskey="&email.accesskey;"/>
-          </html:td>
-          <html:td style="width:100%;">
-            <textbox id="identity.email" wsm_persist="true" style="width:100%;"
-                     prefstring="mail.identity.%identitykey%.useremail" class="uri-element"/>
+            <html:input id="identity.email"
+                        type="email"
+                        wsm_persist="true"
+                        prefstring="mail.identity.%identitykey%.useremail"
+                        class="uri-element input-inline"
+                        aria-labelledby="identity.email.label"/>
           </html:td>
         </html:tr>
         <html:tr>
+          <html:th>
+            <label id="identity.replyTo.label" value="&replyTo.label;"
+                   control="identity.replyTo" accesskey="&replyTo.accesskey;"/>
+          </html:th>
           <html:td>
-            <label value="&replyTo.label;" control="identity.replyTo"
-                   accesskey="&replyTo.accesskey;"/>
-          </html:td>
-          <html:td style="width:100%;">
-            <textbox id="identity.replyTo" wsm_persist="true" style="width:100%;"
-                     prefstring="mail.identity.%identitykey%.reply_to" class="uri-element"
-                     placeholder="&replyTo.placeholder;"/>
+            <html:input id="identity.replyTo"
+                        type="text"
+                        wsm_persist="true"
+                        prefstring="mail.identity.%identitykey%.reply_to"
+                        class="uri-element input-inline"
+                        placeholder="&replyTo.placeholder;"
+                        aria-labelledby="identity.replyTo.label"/>
           </html:td>
         </html:tr>
         <html:tr>
+          <html:th>
+            <label id="identity.organization.label" value="&organization.label;"
+                   control="identity.organization" accesskey="&organization.accesskey;"/>
+          </html:th>
           <html:td>
-            <label value="&organization.label;" control="identity.organization"
-                   accesskey="&organization.accesskey;"/>
-          </html:td>
-          <html:td style="width:100%;">
-            <textbox id="identity.organization" wsm_persist="true" style="width:100%;"
-                     prefstring="mail.identity.%identitykey%.organization"/>
+            <html:input id="identity.organization"
+                        type="text"
+                        wsm_persist="true"
+                        prefstring="mail.identity.%identitykey%.organization"
+                        class="input-inline"
+                        aria-labelledby="identity.organization.label"/>
           </html:td>
         </html:tr>
         <html:tr>
-          <html:td>
+          <html:th>
             <label value="&signatureText.label;" control="identity.htmlSigText"
                    accesskey="&signatureText.accesskey;"/>
-          </html:td>
+          </html:th>
           <html:td style="width:100%;">
             <hbox align="center">
               <checkbox id="identity.htmlSigFormat" wsm_persist="true" label="&signatureHtml.label;"
@@ -104,17 +125,25 @@
       </hbox>
 
       <hbox align="center">
-        <checkbox wsm_persist="true" id="identity.attachSignature" label="&signatureFile.label;" flex="1"
+        <checkbox id="identity.attachSignature"
+                  wsm_persist="true"
+                  label="&signatureFile.label;"
+                  flex="1"
                   accesskey="&signatureFile.accesskey;"
                   oncommand="setupSignatureItems();"
                   prefattribute="value"
                   prefstring="mail.identity.%identitykey%.attach_signature"/>
       </hbox>
 
-      <hbox align="center" class="indent">
-        <textbox wsm_persist="true" id="identity.signature" datatype="nsIFile" flex="1" name="identity.signature"
-                 aria-labelledby="identity.attachSignature"
-                 prefstring="mail.identity.%identitykey%.sig_file" class="uri-element"/>
+      <hbox align="center" class="indent input-container">
+        <html:input id="identity.signature"
+                    type="text"
+                    datatype="nsIFile"
+                    wsm_persist="true"
+                    name="identity.signature"
+                    aria-labelledby="identity.attachSignature"
+                    prefstring="mail.identity.%identitykey%.sig_file"
+                    class="uri-element input-inline"/>
         <button class="push" name="browse" label="&choose.label;"
                 accesskey="&choose.accesskey;"
                 oncommand="selectFile()"

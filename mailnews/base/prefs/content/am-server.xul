@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/am-server.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
@@ -20,6 +21,8 @@
         onload="parent.onPanelLoaded('am-server.xul');">
 
   <vbox flex="1" style="overflow: auto;">
+    <script src="chrome://global/content/globalOverlay.js"/>
+    <script src="chrome://global/content/editMenuOverlay.js"/>
     <script src="chrome://messenger/content/am-server.js"/>
     <script src="chrome://messenger/content/am-prefs.js"/>
     <script src="chrome://messenger/content/amUtils.js"/>
@@ -51,21 +54,22 @@
         <xul:label value="&serverName.label;" accesskey="&serverName.accesskey;"
                    control="server.realHostName"/>
       </div>
-      <div style="grid-row: 2;">
+      <div class="input-container" style="grid-row: 2;">
         <xul:label id="fixedServerName" collapsed="true" use="server.realHostName"/>
-        <xul:textbox id="server.realHostName"
-                     wsm_persist="true"
-                     size="20"
-                     flex="1"
-                     prefstring="mail.server.%serverkey%.realhostname"
-                     class="uri-element textbox-flex"/>
+        <html:input id="server.realHostName"
+                    type="text"
+                    wsm_persist="true"
+                    size="20"
+                    prefstring="mail.server.%serverkey%.realhostname"
+                    class="uri-element input-flex input-inline"
+                    aria-labelledby="fixedServerName"/>
       </div>
-      <div hidefor="movemail" style="grid-row: 2;">
+      <div class="input-container" hidefor="movemail" style="grid-row: 2;">
         <xul:label value="&port.label;"
                    accesskey="&port.accesskey;" control="server.port"/>
         <xul:label id="fixedServerPort"
                    collapsed="true" use="server.port"/>
-        <html:input id="server.port" type="number" class="size3"
+        <html:input id="server.port" type="number" class="size3 input-inline"
                     min="1" max="65535"
                     wsm_persist="true"
                     preftype="int"
@@ -78,14 +82,15 @@
                    accesskey="&userName.accesskey;"
                    control="server.realUsername"/>
       </div>
-      <div hidefor="nntp" style="grid-row: 3;">
+      <div class="input-container" hidefor="nntp" style="grid-row: 3;">
         <xul:label id="fixedUserName" collapsed="true" use="server.realUsername"/>
-        <xul:textbox id="server.realUsername"
-                     wsm_persist="true"
-                     size="20"
-                     flex="1"
-                     class="textbox-flex"
-                     prefstring="mail.server.%serverkey%.realusername"/>
+        <html:input id="server.realUsername"
+                    type="text"
+                    wsm_persist="true"
+                    size="20"
+                    class="input-flex input-inline"
+                    prefstring="mail.server.%serverkey%.realusername"
+                    aria-labelledby="fixedUserName"/>
       </div>
     </div>
 
@@ -343,22 +348,6 @@
               accesskey="&alwaysAuthenticate.accesskey;"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.always_authenticate"/>
-
-  <!-- take out for now - bug 45079
-      <hbox flex="1" hidefor="pop3,imap,movemail">
-        <groupbox>
-           <label class="header">&abbreviate.label;</label>
-
-           <radiogroup wsm_persist="true" id="nntp.abbreviate">
-             <radio value="true"
-                    label="&abbreviateOn.label;"/>
-             <radio value="false"
-                    label="&abbreviateOff.label;"/>
-           </radiogroup>
-        </groupbox>
-      </hbox>
-  -->
-
     </groupbox>
 
     <groupbox>
@@ -407,15 +396,17 @@
       </hbox>
 
       <vbox hidefor="imap,pop3,movemail">
-        <label value="&newsrcFilePath.label;" control="nntp.newsrcFilePath"/>
-        <hbox align="center">
-          <textbox readonly="true"
-                   wsm_persist="true"
-                   flex="1"
-                   id="nntp.newsrcFilePath"
-                   datatype="nsIFile"
-                   prefstring="mail.server.%serverkey%.newsrc.file"
-                   class="uri-element"/>
+        <label id="nntp.newsrcFilePath.label" value="&newsrcFilePath.label;"
+               control="nntp.newsrcFilePath"/>
+        <hbox align="center" class="input-container">
+          <html:input id="nntp.newsrcFilePath"
+                      type="text"
+                      readonly="readonly"
+                      wsm_persist="true"
+                      datatype="nsIFile"
+                      prefstring="mail.server.%serverkey%.newsrc.file"
+                      class="uri-element input-inline"
+                      aria-labelledby="nntp.newsrcFilePath.label"/>
           <button id="browseForNewsrc"
                   label="&browseNewsrc.label;"
                   filepickertitle="&newsrcPicker.label;"
@@ -427,15 +418,17 @@
       <separator class="thin"/>
 
       <vbox>
-      <label value="&localPath.label;" control="server.localPath"/>
-        <hbox align="center">
-          <textbox readonly="true"
-                   wsm_persist="true"
-                   flex="1"
-                   id="server.localPath"
-                   datatype="nsIFile"
-                   prefstring="mail.server.%serverkey%.directory"
-                   class="uri-element"/>
+      <label id="server.localPath.label" value="&localPath.label;"
+             control="server.localPath"/>
+        <hbox align="center" class="input-container">
+          <html:input id="server.localPath"
+                      type="text"
+                      readonly="readonly"
+                      wsm_persist="true"
+                      datatype="nsIFile"
+                      prefstring="mail.server.%serverkey%.directory"
+                      class="uri-element input-inline"
+                      aria-labelledby="server.localPath.label"/>
           <button id="browseForLocalFolder"
                   label="&browseFolder.label;"
                   filepickertitle="&localFolderPicker.label;"

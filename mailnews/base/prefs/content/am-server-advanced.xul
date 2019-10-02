@@ -7,15 +7,18 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/am-server-advanced.dtd">
 
-<dialog
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&serverAdvanced.label;"
         buttons="accept,cancel"
         onload="onLoad();">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/am-server-advanced.js"/>
   <script src="chrome://messenger/content/folder-menupopup.js"/>
   <stringbundle id="bundle_prefs"
@@ -27,11 +30,16 @@
 
     <!-- IMAP Panel -->
     <vbox id="imapPanel">
-      <hbox align="center">
-        <label value="&serverDirectory.label;"
+      <hbox align="center" class="input-container">
+        <label id="serverDirectoryLabel"
+               value="&serverDirectory.label;"
                accesskey="&serverDirectory.accesskey;"
                control="serverDirectory"/>
-        <textbox amsa_persist="true" id="serverDirectory"/>
+        <html:input id="serverDirectory"
+                    type="text"
+                    class="input-inline"
+                    aria-labelledby="serverDirectoryLabel"
+                    amsa_persist="true"/>
       </hbox>
 
       <checkbox id="usingSubscription" amsa_persist="true"
@@ -44,12 +52,14 @@
 
       <separator class="groove"/>
       <hbox align="center">
-        <label control="maximumConnectionsNumber"
+        <label id="maximumConnectionsNumberLabel"
+               control="maximumConnectionsNumber"
                value="&maximumConnectionsNumber.label;"
                accesskey="&maximumConnectionsNumber.accesskey;"/>
         <html:input id="maximumConnectionsNumber" type="number" class="size3"
                     min="1" max="1000"
-                    amsa_persist="true"/>
+                    amsa_persist="true"
+                    aria-labelledby="maximumConnectionsNumberLabel"/>
       </hbox>
 
       <separator class="groove"/>
@@ -57,22 +67,38 @@
       <hbox class="indent">
         <vbox>
           <hbox flex="1" align="center">
-            <label control="personalNamespace" value="&personalNamespace.label;"
+            <label id="personalNamespaceLabel"
+                   control="personalNamespace" value="&personalNamespace.label;"
                    accesskey="&personalNamespace.accesskey;"/>
           </hbox>
           <hbox flex="1" align="center">
-            <label control="publicNamespace" value="&publicNamespace.label;"
+            <label id="publicNamespaceLabel"
+                   control="publicNamespace" value="&publicNamespace.label;"
                    accesskey="&publicNamespace.accesskey;"/>
           </hbox>
           <hbox flex="1" align="center">
-            <label control="otherUsersNamespace" value="&otherUsersNamespace.label;"
+            <label id="otherUsersNamespaceLabel"
+                   control="otherUsersNamespace"
+                   value="&otherUsersNamespace.label;"
                    accesskey="&otherUsersNamespace.accesskey;"/>
           </hbox>
         </vbox>
         <vbox>
-          <textbox id="personalNamespace" amsa_persist="true"/>
-          <textbox id="publicNamespace" amsa_persist="true"/>
-          <textbox id="otherUsersNamespace" amsa_persist="true"/>
+          <html:input id="personalNamespace"
+                      type="text"
+                      class="input-inline"
+                      aria-labelledby="personalNamespaceLabel"
+                      amsa_persist="true"/>
+          <html:input id="publicNamespace"
+                      type="text"
+                      class="input-inline"
+                      aria-labelledby="publicNamespaceLabel"
+                      amsa_persist="true"/>
+          <html:input id="otherUsersNamespace"
+                      type="text"
+                      class="input-inline"
+                      aria-labelledby="otherUsersNamespaceLabel"
+                      amsa_persist="true"/>
         </vbox>
       </hbox>
       <hbox class="indent">

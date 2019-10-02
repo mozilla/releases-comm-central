@@ -413,7 +413,7 @@ function setupSignatureItems() {
   var checked = attachSignature.checked;
 
   if (checked) {
-    htmlSigText.setAttribute("disabled", "true");
+    htmlSigText.setAttribute("disabled", "disabled");
     htmlSigFormat.setAttribute("disabled", "true");
   } else {
     htmlSigText.removeAttribute("disabled");
@@ -423,7 +423,7 @@ function setupSignatureItems() {
   if (checked && !getAccountValueIsLocked(signature)) {
     signature.removeAttribute("disabled");
   } else {
-    signature.setAttribute("disabled", "true");
+    signature.setAttribute("disabled", "disabled");
   }
 
   if (checked && !getAccountValueIsLocked(browse)) {

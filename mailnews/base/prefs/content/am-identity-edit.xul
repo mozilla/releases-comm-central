@@ -6,6 +6,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % identityEditDTD SYSTEM "chrome://messenger/locale/am-identity-edit.dtd" >
@@ -61,49 +62,71 @@
       <vbox flex="1" name="settings">
         <groupbox>
           <label class="header">&publicData.label;</label>
-          <html:table>
+          <html:table class="identity-table">
             <html:tr>
-              <html:td>
-                <label value="&name.label;" control="identity.fullName"
+              <html:th>
+                <label id="identity.fullName.label"
+                       value="&name.label;"
+                       control="identity.fullName"
                        accesskey="&name.accesskey;"/>
-              </html:td>
-              <html:td style="width:100%;">
-                <textbox id="identity.fullName" size="30" style="width:100%;"/>
+              </html:th>
+              <html:td>
+                <html:input id="identity.fullName"
+                            type="text"
+                            class="input-inline"
+                            aria-labelledby="identity.fullName.label"
+                            size="30"/>
               </html:td>
             </html:tr>
             <html:tr>
-              <html:td>
-                <label value="&email.label;" control="identity.email"
+              <html:th>
+                <label id="identity.email.label"
+                       value="&email.label;"
+                       control="identity.email"
                        accesskey="&email.accesskey;"/>
-              </html:td>
-              <html:td style="width:100%;">
-                <textbox id="identity.email" class="uri-element" style="width:100%;"/>
+              </html:th>
+              <html:td>
+                <html:input id="identity.email"
+                            type="email"
+                            class="uri-element input-inline"
+                            aria-labelledby="identity.email.label"/>
+
               </html:td>
             </html:tr>
             <html:tr>
+              <html:th>
+                <label id="identity.replyTo.label"
+                       value="&replyTo.label;"
+                       accesskey="&replyTo.accesskey;"
+                       control="identity.replyTo"/>
+              </html:th>
               <html:td>
-                <label value="&replyTo.label;" control="identity.replyTo"
-                       accesskey="&replyTo.accesskey;"/>
-              </html:td>
-              <html:td style="width:100%;">
-                <textbox id="identity.replyTo" class="uri-element" placeholder="&replyTo.placeholder;"
-                         style="width:100%;"/>
+                <html:input id="identity.replyTo"
+                            type="text"
+                            class="uri-element input-inline"
+                            placeholder="&replyTo.placeholder;"
+                            aria-labelledby="identity.replyTo.label"/>
               </html:td>
             </html:tr>
             <html:tr>
-              <html:td>
-                <label value="&organization.label;" control="identity.organization"
+              <html:th>
+                <label id="identity.organization.label"
+                       value="&organization.label;"
+                       control="identity.organization"
                        accesskey="&organization.accesskey;"/>
-              </html:td>
-              <html:td style="width:100%;">
-                <textbox id="identity.organization" style="width:100%;"/>
+              </html:th>
+              <html:td>
+                <html:input id="identity.organization"
+                            type="text"
+                            class="input-inline"
+                            aria-labelledby="identity.organization.label"/>
               </html:td>
             </html:tr>
             <html:tr>
-              <html:td>
+              <html:th>
                 <label value="&signatureText.label;" control="identity.htmlSigText"
                        accesskey="&signatureText.accesskey;"/>
-              </html:td>
+              </html:th>
               <html:td style="width:100%;">
                 <checkbox id="identity.htmlSigFormat" label="&signatureHtml.label;"
                           accesskey="&signatureHtml.accesskey;" style="width:100%;"/>
@@ -113,7 +136,7 @@
 
           <separator class="thin"/>
 
-          <hbox class="indent" flex="1" style="display: flex;align-items: stretch;">
+          <hbox class="indent input-container" flex="1">
             <html:textarea id="identity.htmlSigText" style="flex-grow: 1;" rows="4" class="signatureBox"/>
           </hbox>
 
@@ -123,11 +146,13 @@
                       oncommand="setupSignatureItems();"/>
           </hbox>
 
-          <hbox align="center" class="indent">
-            <textbox id="identity.signature" datatype="nsIFile"
-                     flex="1" name="identity.signature"
-                     aria-labelledby="identity.attachSignature"
-                     class="uri-element"/>
+          <hbox align="center" class="indent input-container">
+            <html:input id="identity.signature"
+                        type="text"
+                        datatype="nsIFile"
+                        name="identity.signature"
+                        aria-labelledby="identity.attachSignature"
+                        class="uri-element input-inline"/>
             <button id="identity.sigbrowsebutton" class="push"
                     label="&choose.label;" accesskey="&choose.accesskey;"
                     oncommand="selectFile()"/>
@@ -166,11 +191,14 @@
 
           <separator class="thin"/>
 
-          <hbox align="center">
-            <label value="&identityAlias.label;"
+          <hbox align="center" class="input-container">
+            <label id="identity.input.label" value="&identityAlias.label;"
                    accesskey="&identityAlias.accesskey;"
                    control="identity.label"/>
-            <textbox id="identity.label" flex="1"/>
+            <html:input id="identity.label"
+                        type="text"
+                        class="input-inline"
+                        aria-labelledby="identity.input.label"/>
           </hbox>
         </groupbox>
 

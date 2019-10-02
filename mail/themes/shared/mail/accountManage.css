@@ -85,6 +85,19 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   font-weight: bold;
 }
 
+.identity-table th {
+  font-weight: normal;
+  text-align: left;
+}
+
+.identity-table td {
+  padding-inline-end: 10px;
+}
+
+.identity-table td input {
+  width: 100%;
+}
+
 input[type="number"] {
   margin-inline-start: 4px;
 }

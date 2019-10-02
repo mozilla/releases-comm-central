@@ -1545,10 +1545,7 @@ function getFormElementValue(formElement) {
       }
       return formElement.checked;
     }
-    if (
-      type == "textbox" &&
-      formElement.getAttribute("datatype") == "nsIFile"
-    ) {
+    if (type == "input" && formElement.getAttribute("datatype") == "nsIFile") {
       if (formElement.value) {
         let localfile = Cc["@mozilla.org/file/local;1"].createInstance(
           Ci.nsIFile
@@ -1559,7 +1556,7 @@ function getFormElementValue(formElement) {
       }
       return null;
     }
-    if (type == "textbox" || "value" in formElement) {
+    if (type == "input" || "value" in formElement) {
       return formElement.value.trim();
     }
     return null;
@@ -1593,7 +1590,7 @@ function setFormElementValue(formElement, value) {
       formElement.value = value;
     }
   } else if (
-    type == "textbox" &&
+    type == "input" &&
     formElement.getAttribute("datatype") == "nsIFile"
   ) {
     // handle nsIFile
@@ -1607,7 +1604,7 @@ function setFormElementValue(formElement, value) {
     } else {
       formElement.value = "";
     }
-  } else if (type == "textbox") {
+  } else if (type == "input") {
     if (value == null) {
       formElement.value = null;
     } else {

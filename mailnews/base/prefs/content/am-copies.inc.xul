@@ -113,14 +113,18 @@
           </hbox>
         </vbox>
         <vbox flex="1">
-          <textbox id="identity.doCcList" wsm_persist="true" flex="1"
-                   aria-labelledby="identity.doCc"
-                   prefstring="mail.identity.%identitykey%.doCcList" class="uri-element"
-                   placeholder="&ccAddressList.placeholder;"/>
-          <textbox id="identity.doBccList" wsm_persist="true" flex="1"
-                   aria-labelledby="identity.doBcc"
-                   prefstring="mail.identity.%identitykey%.doBccList" class="uri-element"
-                   placeholder="&bccAddressList.placeholder;"/>
+          <html:input id="identity.doCcList" wsm_persist="true"
+                      type="text"
+                      aria-labelledby="identity.doCc"
+                      prefstring="mail.identity.%identitykey%.doCcList"
+                      class="uri-element input-inline"
+                      placeholder="&ccAddressList.placeholder;"/>
+          <html:input id="identity.doBccList" wsm_persist="true"
+                      type="text"
+                      aria-labelledby="identity.doBcc"
+                      prefstring="mail.identity.%identitykey%.doBccList"
+                      class="uri-element input-inline"
+                      placeholder="&bccAddressList.placeholder;"/>
         </vbox>
       </hbox>
 
