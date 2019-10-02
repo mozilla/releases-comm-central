@@ -58,7 +58,7 @@
     <hbox id="reminder-relative-box" align="top" flex="1">
       <radio id="reminder-relative-radio"
              value="relative"
-             aria-labeledby="reminder-length reminder-unit reminder-relation reminder-origin"/>
+             aria-labelledby="reminder-length reminder-unit reminder-relation-origin"/>
       <vbox id="reminder-relative-box" flex="1">
         <hbox id="reminder-relative-length-unit-relation" flex="1">
           <html:input id="reminder-length" type="number" min="0"
