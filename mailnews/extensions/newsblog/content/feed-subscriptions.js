@@ -1147,7 +1147,7 @@ var FeedSubscriptions = {
 
     selectFolder.setAttribute("hidden", !aIsFeed);
     selectFolder._folder = aFolder;
-    selectFolderValue.setAttribute("hidden", aIsFeed);
+    selectFolderValue.toggleAttribute("hidden", aIsFeed);
     selectFolderValue.setAttribute("showfilepath", false);
 
     if (aIsFeed) {

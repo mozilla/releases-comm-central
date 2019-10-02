@@ -28,8 +28,14 @@ function BrowseForLocalFolders() {
   );
 
   var currentFolder = Cc["@mozilla.org/file/local;1"].createInstance(nsIFile);
-  currentFolder.initWithPath(currentFolderTextBox.value);
-  fp.displayDirectory = currentFolder;
+  try {
+    currentFolder.initWithPath(currentFolderTextBox.value);
+    fp.displayDirectory = currentFolder;
+  } catch (e) {
+    Cu.reportError(
+      `Failed to set folder path from value=${currentFolderTextBox.value}\n`
+    );
+  }
 
   fp.open(rv => {
     if (rv != nsIFilePicker.returnOK || !fp.file) {

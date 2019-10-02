@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/am-smime.dtd">
 
@@ -11,10 +12,12 @@
         class="color-dialog"
         onload="parent.onPanelLoaded('am-smime.xul');">
 
-  <vbox flex="1" style="overflow: auto;">
-    <script src="chrome://messenger/content/AccountManager.js"/>
-    <script src="chrome://messenger/content/am-smime.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://messenger/content/AccountManager.js"/>
+  <script src="chrome://messenger/content/am-smime.js"/>
 
+  <vbox flex="1" style="overflow: auto;">
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&securityTitle.label;"/>
     </hbox>

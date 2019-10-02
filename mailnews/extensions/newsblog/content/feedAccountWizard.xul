@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountWizard.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE wizard [
   <!ENTITY %  accountDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
@@ -19,6 +20,8 @@
         onload="FeedAccountWizard.onLoad();"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger-newsblog/content/feedAccountWizard.js"/>
 
   <!-- Account setup page : User gets a choice to enter a name for the account -->
@@ -29,15 +32,15 @@
     <vbox flex="1">
       <description>&accnameDesc.label;</description>
       <separator class="thin"/>
-      <hbox align="center">
-        <label class="label"
+      <hbox align="center" class="input-container">
+        <label id="prettyNameLabel" class="label"
                value="&accnameLabel.label;"
                accesskey="&accnameLabel.accesskey;"
                control="prettyName"/>
-        <textbox id="prettyName"
-                 flex="1"
-                 value="&feeds.accountName;"
-                 oninput="FeedAccountWizard.accountSetupPageValidate();"/>
+        <html:input id="prettyName" type="text" class="input-inline"
+                    value="&feeds.accountName;"
+                    aria-labelledby="prettyNameLabel"
+                    oninput="FeedAccountWizard.accountSetupPageValidate();"/>
       </hbox>
     </vbox>
   </wizardpage>

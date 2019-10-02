@@ -16,13 +16,18 @@
       <groupbox id="signing.titlebox">
         <label class="header">&signingGroupTitle.label;</label>
 
-        <label value="&signingCert.message;" control="identity.signing_cert_name"
+        <label id="identity.signing_cert_nameLabel"
+               value="&signingCert.message;" control="identity.signing_cert_name"
                prefstring="mail.identity.%identitykey%.encryptionpolicy"/>
 
-        <hbox align="center">
-          <textbox id="identity.signing_cert_name" wsm_persist="true" flex="1"
-                   prefstring="mail.identity.%identitykey%.signing_cert_name"
-                   readonly="true" disabled="true"/>
+        <hbox align="center" class="input-container">
+          <html:input id="identity.signing_cert_name" type="text"
+                      class="input-inline"
+                      readonly="readonly"
+                      disabled="disabled"
+                      aria-labelledby="identity.signing_cert_nameLabel"
+                      wsm_persist="true"
+                      prefstring="mail.identity.%identitykey%.signing_cert_name"/>
 
           <button id="signingCertSelectButton"
                   label="&digitalSign.certificate.button;"
@@ -48,10 +53,13 @@
         <label value="&encryptionCert.message;"
                control="identity.encryption_cert_name"/>
 
-        <hbox align="center">
-          <textbox id="identity.encryption_cert_name" wsm_persist="true" flex="1"
-                   prefstring="mail.identity.%identitykey%.encryption_cert_name"
-                   readonly="true" disabled="true"/>
+        <hbox align="center" class="input-container">
+          <html:input id="identity.encryption_cert_name" type="text"
+                      class="input-inline"
+                      readonly="readonly"
+                      disabled="disabled"
+                      wsm_persist="true"
+                      prefstring="mail.identity.%identitykey%.encryption_cert_name"/>
 
           <button id="encryptionCertSelectButton"
                   label="&encryption.certificate.button;"

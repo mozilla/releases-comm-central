@@ -9,6 +9,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE window [
   <!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
@@ -29,6 +30,8 @@
         onkeypress="FeedSubscriptions.onKeyPress(event);"
         onmousedown="FeedSubscriptions.onMouseDown(event);">
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/specialTabs.js"/>
   <script src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
   <script src="chrome://messenger/content/folder-menupopup.js"/>
@@ -101,16 +104,17 @@
             </hbox>
           </vbox>
           <vbox flex="1">
-            <textbox id="nameValue"
-                     oninput="FeedSubscriptions.setPrefs(this);"/>
-            <hbox>
-              <textbox id="locationValue"
-                       flex="1"
-                       class="uri-element"
-                       placeholder="&feedLocation2.placeholder;"
-                       oninput="FeedSubscriptions.setPrefs(this);"
-                       onfocus="FeedSubscriptions.onFocusChange();"
-                       onblur="FeedSubscriptions.onFocusChange();"/>
+            <html:input id="nameValue" type="text" class="input-inline"
+                        aria-labelledby="nameLabel"
+                        onchange="FeedSubscriptions.setPrefs(this);"/>
+            <hbox class="input-container">
+              <html:input id="locationValue" type="url"
+                          class="uri-element input-inline"
+                          aria-labelledby="locationLabel"
+                          placeholder="&feedLocation2.placeholder;"
+                          onchange="FeedSubscriptions.setPrefs(this);"
+                          onfocus="FeedSubscriptions.onFocusChange();"
+                          onblur="FeedSubscriptions.onFocusChange();"/>
               <hbox align="center">
                 <label is="text-link" id="locationValidate"
                        collapsed="true"
@@ -119,7 +123,7 @@
                        onclick="FeedSubscriptions.checkValidation(event);"/>
               </hbox>
             </hbox>
-            <hbox>
+            <hbox class="input-container">
               <menulist id="selectFolder"
                         flex="1"
                         class="folderMenuItem"
@@ -131,11 +135,11 @@
                            showAccountsFileHere="true"
                            oncommand="FeedSubscriptions.setNewFolder(event);"/>
               </menulist>
-              <textbox id="selectFolderValue"
-                       flex="1"
-                       readonly="true"
-                       onkeypress="FeedSubscriptions.onClickSelectFolderValue(event);"
-                       onclick="FeedSubscriptions.onClickSelectFolderValue(event);"/>
+              <html:input id="selectFolderValue" class="input-inline"
+                          readonly="readonly"
+                          aria-labelledby="feedFolderLabel"
+                          onkeypress="FeedSubscriptions.onClickSelectFolderValue(event);"
+                          onclick="FeedSubscriptions.onClickSelectFolderValue(event);"/>
             </hbox>
           </vbox>
         </hbox>
@@ -176,15 +180,15 @@
                   accesskey="&autotagEnable.accesskey;"
                   label="&autotagEnable.label;"
                   oncommand="FeedSubscriptions.setPrefs(this);"/>
-        <hbox>
+        <hbox class="input-container">
             <checkbox id="autotagUsePrefix"
                       class="indent"
                       accesskey="&autotagUsePrefix.accesskey;"
                       label="&autotagUsePrefix.label;"
                       oncommand="FeedSubscriptions.setPrefs(this);"/>
-            <textbox id="autotagPrefix"
-                     placeholder="&autoTagPrefix.placeholder;"
-                     oninput="FeedSubscriptions.setPrefs(this);"/>
+            <html:input id="autotagPrefix" type="text" class="input-inline"
+                        placeholder="&autoTagPrefix.placeholder;"
+                        onchange="FeedSubscriptions.setPrefs(this);"/>
         </hbox>
         <separator class="thin"/>
       </vbox>
