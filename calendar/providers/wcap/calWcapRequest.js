@@ -269,7 +269,7 @@ calWcapNetworkRequest.prototype = {
     switch (httpChannel.responseStatus / 100) {
       case 2 /* 2xx codes */:
         // Everything worked out, we are done
-        this.execRespFunc(aStatus, aResult);
+        this.execRespFunc(aStatus, result);
         break;
       default: {
         // Something else went wrong
