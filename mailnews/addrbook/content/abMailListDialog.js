@@ -18,7 +18,7 @@ var inputElementType = "";
 
 var gListCard;
 var gEditList;
-var oldListName = "";
+var gOldListName = "";
 var gLoadListeners = [];
 var gSaveListeners = [];
 
@@ -45,22 +45,26 @@ function mailingListExists(listname) {
   return false;
 }
 
-function GetListValue(mailList, doAdd) {
-  var listname = document.getElementById("ListName").value.trim();
+/**
+ * Get the new inputs from the create/edit mailing list dialog and use them to
+ * update the mailing list that was passed in as an argument.
+ *
+ * @param {XPCWrappedNative_NoHelper} mailList - The mailing list object to
+ *   update. When creating a new list it will be newly created and empty.
+ * @param {boolean} isNewList - Whether we are populating a new list.
+ * @return {boolean} - Whether the operation succeeded or not.
+ */
+function updateMailList(mailList, isNewList) {
+  let listname = document.getElementById("ListName").value.trim();
 
   if (listname.length == 0) {
-    var alertText = gAddressBookBundle.getString("emptyListName");
-    alert(alertText);
+    alert(gAddressBookBundle.getString("emptyListName"));
     return false;
   }
 
-  var canonicalNewListName = listname.toLowerCase();
-  var canonicalOldListName = oldListName.toLowerCase();
-  if (doAdd) {
-    if (mailingListExists(canonicalNewListName)) {
-      return false;
-    }
-  } else if (canonicalOldListName != canonicalNewListName) {
+  let canonicalNewListName = listname.toLowerCase();
+  let canonicalOldListName = gOldListName.toLowerCase();
+  if (isNewList || canonicalOldListName != canonicalNewListName) {
     if (mailingListExists(canonicalNewListName)) {
       return false;
     }
@@ -71,66 +75,46 @@ function GetListValue(mailList, doAdd) {
   mailList.listNickName = document.getElementById("ListNickName").value;
   mailList.description = document.getElementById("ListDescription").value;
 
-  var oldTotal = mailList.addressLists.length;
-  var i = 1;
-  var pos = 0;
-  var inputField, fieldValue, cardproperty;
-  while ((inputField = awGetInputElement(i))) {
-    fieldValue = inputField.value;
+  // Gather email address inputs into a single string (comma-separated).
+  let addresses = Array.from(
+    document.querySelectorAll(".textbox-addressingWidget"),
+    element => element.value
+  )
+    .filter(value => value.trim())
+    .join();
 
-    if (doAdd || pos >= oldTotal) {
-      cardproperty = Cc[
-        "@mozilla.org/addressbook/cardproperty;1"
-      ].createInstance();
-    } else {
-      cardproperty = mailList.addressLists.queryElementAt(pos, Ci.nsIAbCard);
-    }
+  // Convert the addresses string into address objects.
+  let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
+    addresses
+  );
 
-    if (fieldValue == "") {
-      if (!doAdd && cardproperty) {
-        try {
-          mailList.addressLists.removeElementAt(pos);
-          --oldTotal;
-        } catch (ex) {
-          // Ignore attempting to remove an item
-          // at a position greater than the number
-          // of elements in the addressLists attribute
-        }
+  // Update the list by updating existing entries/cards or adding new ones.
+  let oldAddressCount = isNewList ? 0 : mailList.addressLists.length;
+  let addressCounter = 0;
+
+  for (let { email, name } of addressObjects) {
+    let addNewCard = addressCounter >= oldAddressCount;
+
+    let card = addNewCard
+      ? Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance()
+      : mailList.addressLists.queryElementAt(addressCounter, Ci.nsIAbCard);
+
+    card = card && card.QueryInterface(Ci.nsIAbCard);
+
+    if (card) {
+      card.primaryEmail = email;
+      card.displayName = name || email;
+
+      if (addNewCard) {
+        mailList.addressLists.appendElement(card);
       }
-    } else if (cardproperty) {
-      cardproperty = cardproperty.QueryInterface(Ci.nsIAbCard);
-      if (cardproperty) {
-        let addrObjects = MailServices.headerParser.makeFromDisplayAddress(
-          fieldValue,
-          {}
-        );
-        for (let j = 0; j < addrObjects.length; j++) {
-          if (j > 0) {
-            cardproperty = Cc[
-              "@mozilla.org/addressbook/cardproperty;1"
-            ].createInstance();
-            cardproperty = cardproperty.QueryInterface(Ci.nsIAbCard);
-          }
-          cardproperty.primaryEmail = addrObjects[j].email;
-          cardproperty.displayName =
-            addrObjects[j].name || addrObjects[j].email;
-
-          if (doAdd || pos >= oldTotal) {
-            mailList.addressLists.appendElement(cardproperty);
-          }
-        }
-        pos++;
-      }
+      addressCounter += 1;
     }
-    i++;
   }
 
-  --i;
-
-  if (!doAdd && i < oldTotal) {
-    for (var j = i; j < oldTotal; j++) {
-      mailList.addressLists.removeElementAt(j);
-    }
+  // Remove any remaining unneeded entries.
+  while (mailList.addressLists.length > addressCounter) {
+    mailList.addressLists.removeElementAt(addressCounter);
   }
   return true;
 }
@@ -154,7 +138,7 @@ function MailListOKButton(event) {
     ].createInstance();
     mailList = mailList.QueryInterface(Ci.nsIAbDirectory);
 
-    if (GetListValue(mailList, true)) {
+    if (updateMailList(mailList, true)) {
       var parentDirectory = GetDirectoryFromURI(uri);
       mailList = parentDirectory.addMailList(mailList);
       NotifySaveListeners(mailList);
@@ -224,7 +208,7 @@ function OnLoadNewMailList() {
 
 function EditListOKButton(event) {
   // edit mailing list in database
-  if (GetListValue(gEditList, false)) {
+  if (updateMailList(gEditList, false)) {
     if (gListCard) {
       // modify the list card (for the results pane) from the mailing list
       gListCard.displayName = gEditList.dirName;
@@ -239,7 +223,6 @@ function EditListOKButton(event) {
     window.arguments[0].refresh = true;
     return; // close the window
   }
-
   event.preventDefault();
 }
 
@@ -254,11 +237,11 @@ function OnLoadEditList() {
   document.getElementById("ListName").value = gEditList.dirName;
   document.getElementById("ListNickName").value = gEditList.listNickName;
   document.getElementById("ListDescription").value = gEditList.description;
-  oldListName = gEditList.dirName;
+  gOldListName = gEditList.dirName;
 
   document.title = gAddressBookBundle.getFormattedString(
     "mailingListTitleEdit",
-    [oldListName]
+    [gOldListName]
   );
 
   if (gEditList.addressLists) {
