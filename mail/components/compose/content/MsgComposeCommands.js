@@ -4200,27 +4200,18 @@ function OutputFormatMenuSelect(target) {
 function addRecipientsToIgnoreList(aAddressesToAdd) {
   if (gSpellChecker.enabled) {
     // break the list of potentially many recipients back into individual names
-    var emailAddresses = {};
-    var names = {};
-    var fullNames = {};
-    MailServices.headerParser.parseHeadersWithArray(
-      aAddressesToAdd,
-      emailAddresses,
-      names,
-      fullNames
+    let addresses = MailServices.headerParser.parseEncodedHeader(
+      aAddressesToAdd
     );
-    if (!names) {
-      return;
-    }
     let tokenizedNames = [];
 
     // Each name could consist of multiple word delimited by either commas or spaces, i.e. Green Lantern
     // or Lantern,Green. Tokenize on comma first, then tokenize again on spaces.
-    for (let name in names.value) {
-      if (!names.value[name]) {
+    for (let addr of addresses) {
+      if (!addr.name) {
         continue;
       }
-      let splitNames = names.value[name].split(",");
+      let splitNames = addr.name.split(",");
       for (let i = 0; i < splitNames.length; i++) {
         // now tokenize off of white space
         let splitNamesFromWhiteSpaceArray = splitNames[i].split(" ");

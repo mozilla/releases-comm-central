@@ -437,14 +437,8 @@ function checkAllowForSenderWithPerms(test) {
     folder
   );
 
-  let addresses = {};
-  MailServices.headerParser.parseHeadersWithArray(
-    msgDbHdr.author,
-    addresses,
-    {},
-    {}
-  );
-  let authorEmailAddress = addresses.value[0];
+  let addresses = MailServices.headerParser.parseEncodedHeader(msgDbHdr.author);
+  let authorEmailAddress = addresses[0].email;
 
   let uri = Services.io.newURI(
     "chrome://messenger/content/email=" + authorEmailAddress

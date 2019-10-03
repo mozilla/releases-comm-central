@@ -1633,13 +1633,9 @@ function IsReplyAllEnabled() {
     addresses,
     ""
   );
-  let emailAddresses = {};
-  let numAddresses = MailServices.headerParser.parseHeadersWithArray(
-    uniqueAddresses,
-    emailAddresses,
-    {},
-    {}
-  );
+  let numAddresses = MailServices.headerParser.parseEncodedHeader(
+    uniqueAddresses
+  ).length;
 
   // I don't want to count my address in the number of addresses to reply
   // to, since I won't be emailing myself.
@@ -3464,17 +3460,14 @@ function LoadMsgWithRemoteContent() {
 function onRemoteContentOptionsShowing(aEvent) {
   let origins = aEvent.target.value ? aEvent.target.value.split(" ") : [];
 
-  let addresses = {};
-  MailServices.headerParser.parseHeadersWithArray(
-    gMessageDisplay.displayedMessage.author,
-    addresses,
-    {},
-    {}
+  let addresses = MailServices.headerParser.parseEncodedHeader(
+    gMessageDisplay.displayedMessage.author
   );
-  let adrCount = addresses.value[0] ? 1 : 0;
+  addresses = addresses.slice(0, 1);
   // If there is an author's email, put it also in the menu.
+  let adrCount = addresses.length;
   if (adrCount > 0) {
-    let authorEmailAddress = addresses.value[0];
+    let authorEmailAddress = addresses[0].email;
     let authorEmailAddressURI = Services.io.newURI(
       "chrome://messenger/content/email=" + authorEmailAddress
     );

@@ -508,18 +508,10 @@ function DropListAddress(target, address) {
 
   // Break apart the MIME-ready header address into individual addressees to
   // add to the dialog.
-  let addresses = {},
-    names = {},
-    fullNames = {};
-  MailServices.headerParser.parseHeadersWithArray(
-    address,
-    addresses,
-    names,
-    fullNames
-  );
-  for (let full of fullNames.value) {
+  let addresses = MailServices.headerParser.parseEncodedHeader(address);
+  for (let addr of addresses) {
     let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-    lastInput.value = full;
+    lastInput.value = addr.toString();
     awAppendNewRow(true);
   }
 }

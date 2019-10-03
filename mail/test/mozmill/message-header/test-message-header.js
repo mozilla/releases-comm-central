@@ -1093,28 +1093,15 @@ function test_toolbar_collapse_and_expand() {
  */
 function subtest_more_button_tooltip(aMsg) {
   // check for more indicator number of the more widget
-  let addresses = {};
-  let fullNames = {};
-  let names = {};
-  let numAddrsCC = MailServices.headerParser.parseHeadersWithArray(
-    aMsg.ccList,
-    addresses,
-    names,
-    fullNames
-  );
-  let numAddrsTo = MailServices.headerParser.parseHeadersWithArray(
-    aMsg.recipients,
-    addresses,
-    names,
-    fullNames
-  );
+  let ccAddrs = MailServices.headerParser.parseEncodedHeader(aMsg.ccList);
+  let toAddrs = MailServices.headerParser.parseEncodedHeader(aMsg.recipients);
 
   let shownToAddrNum = get_number_of_addresses_in_header("expandedtoBox");
   let shownCCAddrNum = get_number_of_addresses_in_header("expandedccBox");
 
   // first check the number of addresses in the more widget
-  let hiddenCCAddrsNum = numAddrsCC - shownCCAddrNum;
-  let hiddenToAddrsNum = numAddrsTo - shownToAddrNum;
+  let hiddenCCAddrsNum = ccAddrs.length - shownCCAddrNum;
+  let hiddenToAddrsNum = toAddrs.length - shownToAddrNum;
 
   let moreNumberTo = get_number_of_more_button("expandedtoBox");
   assert_not_equals(NaN, moreNumberTo);
@@ -1192,15 +1179,7 @@ function subtest_addresses_in_tooltip_text(
   aHiddenAddrsNum
 ) {
   // check for more indicator number of the more widget
-  let addresses = {};
-  let fullNames = {};
-  let names = {};
-  let numAddresses = MailServices.headerParser.parseHeadersWithArray(
-    aRecipients,
-    addresses,
-    names,
-    fullNames
-  );
+  let addresses = MailServices.headerParser.parseEncodedHeader(aRecipients);
 
   let headerBoxElement = mc.e(aHeaderBox);
   let moreIndicator = headerBoxElement.more;
@@ -1210,10 +1189,13 @@ function subtest_addresses_in_tooltip_text(
 
   for (
     let i = aShownAddrsNum;
-    i < numAddresses && i < maxTooltipAddrsNum + aShownAddrsNum;
+    i < addresses.length && i < maxTooltipAddrsNum + aShownAddrsNum;
     i++
   ) {
-    assert_true(tooltipText.includes(fullNames.value[i]), fullNames.value[i]);
+    assert_true(
+      tooltipText.includes(addresses[i].toString()),
+      addresses[i].toString()
+    );
     addrsNumInTooltip += 1;
   }
 
@@ -1226,7 +1208,8 @@ function subtest_addresses_in_tooltip_text(
     let words = mc.window.document
       .getElementById("bundle_messenger")
       .getString("headerMoreAddrsTooltip");
-    let remainingAddresses = numAddresses - aShownAddrsNum - maxTooltipAddrsNum;
+    let remainingAddresses =
+      addresses.length - aShownAddrsNum - maxTooltipAddrsNum;
     let moreForm = mc.window.PluralForm.get(remainingAddresses, words).replace(
       "#1",
       remainingAddresses

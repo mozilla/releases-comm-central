@@ -75,6 +75,14 @@ function run_test() {
       [{ name: "null=?UTF-8?B?AA==?=byte", email: "nullbyte@example.com" }],
       [{ name: "nullbyte", email: "nullbyte@example.com" }],
     ],
+    ["", [], []],
+    [" \r\n\t", [], []],
+    [
+      // This used to cause memory read overruns.
+      '" "@a a;b',
+      [{ name: "", email: '" "@a a' }, { name: "b", email: "" }],
+      [{ name: "", email: "@a a" }, { name: "b", email: "" }],
+    ],
   ];
 
   for (let check of checks) {

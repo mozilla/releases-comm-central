@@ -443,30 +443,6 @@ MimeAddressParser.prototype = {
     return this.makeMailboxObject("", aDisplayName);
   },
 
-  // What follows is the deprecated API that will be removed shortly.
-
-  parseHeadersWithArray(aHeader, aAddrs, aNames, aFullNames) {
-    let addrs = [],
-      names = [],
-      fullNames = [];
-    let allAddresses = this.parseEncodedHeader(aHeader, undefined, false);
-
-    // Don't index the dummy empty address.
-    if (aHeader.trim() == "") {
-      allAddresses = [];
-    }
-    for (let address of allAddresses) {
-      addrs.push(address.email);
-      names.push(address.name || null);
-      fullNames.push(address.toString());
-    }
-
-    aAddrs.value = addrs;
-    aNames.value = names;
-    aFullNames.value = fullNames;
-    return allAddresses.length;
-  },
-
   extractHeaderAddressMailboxes(aLine) {
     return this.parseDecodedHeader(aLine)
       .map(addr => addr.email)

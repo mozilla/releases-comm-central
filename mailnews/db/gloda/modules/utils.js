@@ -49,20 +49,12 @@ var GlodaUtils = {
    * This method is a convenience wrapper around nsIMsgHeaderParser.
    */
   parseMailAddresses(aMailAddresses) {
-    let addresses = {},
-      names = {},
-      fullAddresses = {};
-    this._headerParser.parseHeadersWithArray(
-      aMailAddresses,
-      addresses,
-      names,
-      fullAddresses
-    );
+    let addresses = this._headerParser.parseEncodedHeader(aMailAddresses);
     return {
-      names: names.value,
-      addresses: addresses.value,
-      fullAddresses: fullAddresses.value,
-      count: names.value.length,
+      names: addresses.map(a => a.name || null),
+      addresses: addresses.map(a => a.email),
+      fullAddresses: addresses.map(a => a.toString()),
+      count: addresses.length,
     };
   },
 

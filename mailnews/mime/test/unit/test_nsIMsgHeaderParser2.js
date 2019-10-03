@@ -61,17 +61,6 @@ function run_test() {
     ], // Address Name
   ];
 
-  // this used to cause memory read overruns
-  let addresses = {},
-    names = {},
-    fullAddresses = {};
-  MailServices.headerParser.parseHeadersWithArray(
-    '" "@a a;b',
-    addresses,
-    names,
-    fullAddresses
-  );
-
   // Test - empty strings
 
   Assert.equal(MailServices.headerParser.extractHeaderAddressMailboxes(""), "");

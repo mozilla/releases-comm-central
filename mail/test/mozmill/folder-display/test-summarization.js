@@ -346,17 +346,10 @@ function test_summary_when_multiple_identities() {
 }
 
 function extract_first_address(thread) {
-  let addresses = {};
-  let fullNames = {};
-  let names = {};
-  MailServices.headerParser.parseHeadersWithArray(
-    thread1.getMsgHdr(0).mime2DecodedAuthor,
-    addresses,
-    names,
-    fullNames
+  let addresses = MailServices.headerParser.parseEncodedHeader(
+    thread1.getMsgHdr(0).mime2DecodedAuthor
   );
-
-  return { email: addresses.value[0], name: names.value[0] };
+  return addresses[0];
 }
 
 function check_address_name(name) {
