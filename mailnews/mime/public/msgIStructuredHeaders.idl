@@ -76,9 +76,8 @@ interface msgIStructuredHeaders : nsISupports {
    *                        groups in the header, preserving the original header
    *                        structure.
    */
-  void getAddressingHeader(in string aHeaderName,
-    [optional] in boolean aPreserveGroups, [optional] out unsigned long count,
-    [array, size_is(count), retval] out msgIAddressObject addresses);
+  Array<msgIAddressObject> getAddressingHeader(in string aHeaderName,
+    [optional] in boolean aPreserveGroups);
 
   /**
    * Retrieve a raw version of the header value as would be represented in MIME.
@@ -109,28 +108,6 @@ interface msgIStructuredHeaders : nsISupports {
    * fine-grained customization of the results.
    */
    AUTF8String buildMimeText();
-
-%{C++
-  /**
-   * A special variant of getAddressingHeader that is specialized better for C++
-   * users of this API.
-   */
-  nsresult GetAddressingHeader(const char *aPropertyName,
-                               nsCOMArray<msgIAddressObject> &addrs,
-                               bool aPreserveGroups = false)
-  {
-    msgIAddressObject **addrPtr;
-    uint32_t length;
-    nsresult rv = GetAddressingHeader(aPropertyName, aPreserveGroups, &length,
-      &addrPtr);
-    NS_ENSURE_SUCCESS(rv, rv);
-    // addrs.Adopt(addrPtr, length);
-    addrs.Clear();
-    addrs.AppendElements(addrPtr, length);
-    free(addrPtr);
-    return NS_OK;
-  }
-%}
 
 };
 
@@ -178,11 +155,11 @@ interface msgIWritableStructuredHeaders : msgIStructuredHeaders {
    * Set the value of the header as if it were an addressing header, such as the
    * From or To headers.
    *
-   * @param aHeaderName     The name of the header to store.
+   * @param aHeaderName     The name of the header to set.
+   * @param aAddresses      The addresses to store.
    */
   void setAddressingHeader(in string aHeaderName,
-    [array, size_is(aCount)] in msgIAddressObject aAddresses,
-    in unsigned long aCount);
+    in Array<msgIAddressObject> aAddresses);
 
   /**
    * Store the value of the header using a raw version as would be represented
@@ -196,17 +173,4 @@ interface msgIWritableStructuredHeaders : msgIStructuredHeaders {
   void setRawHeader(in string aHeaderName, in ACString aValue,
                     in string aCharset);
 
-%{C++
-  /**
-   * A special variant of setAddressingHeader that is specialized better for C++
-   * users of this API.
-   */
-  nsresult SetAddressingHeader(const char *aPropertyName,
-                               const nsCOMArray<msgIAddressObject> &addrs)
-  {
-    return SetAddressingHeader(aPropertyName,
-      const_cast<nsCOMArray<msgIAddressObject>&>(addrs).Elements(),
-      addrs.Length());
-  }
-%}
 };

@@ -196,8 +196,8 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
   MOZ_ASSERT(fields, "null fields");
   NS_ENSURE_ARG_POINTER(fields);
 
-  nsCOMArray<msgIAddressObject> from;
-  fields->GetAddressingHeader("From", from, true);
+  nsTArray<RefPtr<msgIAddressObject>> from;
+  fields->GetAddressingHeader("From", true, from);
 
   // Copy all headers from the original compose field.
   rv = finalHeaders->AddAllHeaders(fields);
@@ -334,10 +334,10 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
     hasDisclosedRecipient = true;
   }
 
-  nsCOMArray<msgIAddressObject> recipients;
-  finalHeaders->GetAddressingHeader("To", recipients);
+  nsTArray<RefPtr<msgIAddressObject>> recipients;
+  finalHeaders->GetAddressingHeader("To", false, recipients);
   hasDisclosedRecipient |= !recipients.IsEmpty();
-  finalHeaders->GetAddressingHeader("Cc", recipients);
+  finalHeaders->GetAddressingHeader("Cc", false, recipients);
   hasDisclosedRecipient |= !recipients.IsEmpty();
 
   // If we don't have disclosed recipient (only Bcc), address the message to

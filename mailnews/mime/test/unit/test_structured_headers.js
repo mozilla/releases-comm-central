@@ -42,11 +42,9 @@ add_task(async function check_addressing() {
     headers.getRawHeader("To"),
     "=?UTF-8?B?w5M=?= <test@foo.invalid>"
   );
-  headers.setAddressingHeader(
-    "To",
-    [{ name: "Comma, Name", email: "test@foo.invalid" }],
-    1
-  );
+  headers.setAddressingHeader("To", [
+    { name: "Comma, Name", email: "test@foo.invalid" },
+  ]);
   Assert.equal(headers.getRawHeader("To"), '"Comma, Name" <test@foo.invalid>');
 });
 

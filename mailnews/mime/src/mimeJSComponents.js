@@ -91,14 +91,14 @@ MimeStructuredHeaders.prototype = {
     throw Cr.NS_ERROR_ILLEGAL_VALUE;
   },
 
-  getAddressingHeader(aHeaderName, aPreserveGroups, count) {
+  getAddressingHeader(aHeaderName, aPreserveGroups) {
     let addrs = this.getHeader(aHeaderName);
     if (addrs === undefined) {
       addrs = [];
     } else if (!Array.isArray(addrs)) {
       throw Cr.NS_ERROR_ILLEGAL_VALUE;
     }
-    return fixArray(addrs, aPreserveGroups, count);
+    return fixArray(addrs, aPreserveGroups);
   },
 
   getRawHeader(aHeaderName) {
@@ -204,7 +204,7 @@ MimeWritableStructuredHeaders.prototype = {
     this.setHeader(aHeaderName, aValue);
   },
 
-  setAddressingHeader(aHeaderName, aAddresses, aCount) {
+  setAddressingHeader(aHeaderName, aAddresses) {
     this.setHeader(aHeaderName, fixXpconnectAddresses(aAddresses));
   },
 
