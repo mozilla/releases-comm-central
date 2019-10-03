@@ -3,6 +3,14 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
+  // Temporarily disable `Once` StaticPrefs check for this test so that we
+  // can change layers.acceleration.disabled without debug builds failing.
+  await SpecialPowers.pushPrefEnv({
+    set: [["preferences.force-disable.check.once.policy", true]],
+  });
+});
+
+add_task(async () => {
   await testCheckboxes(
     "paneGeneral",
     "generalCategory",

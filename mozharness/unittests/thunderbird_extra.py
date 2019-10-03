@@ -27,6 +27,7 @@ config = {
     },
     "all_mochitest_suites": {
         "browser-chrome-thunderbird": ["--flavor=browser",
-                                       "--subsuite=thunderbird"],
+                                       "--subsuite=thunderbird",
+                                       "--leak-threshold=10485760"],
     },
 }

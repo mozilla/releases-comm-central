@@ -40,6 +40,7 @@ linux64/debug:
     test-sets:
         - gtest-tests
         - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
 
@@ -57,6 +58,7 @@ linux32/debug:
     test-sets:
         - gtest-tests
         - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
 
@@ -86,6 +88,7 @@ windows7-32/debug:
     test-sets:
         - gtest-tests
         - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
 
@@ -113,6 +116,7 @@ windows10-64/debug:
     test-sets:
         - gtest-tests
         - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
 
@@ -123,6 +127,7 @@ macosx1014-64/debug:
     test-sets:
         - gtest-tests
         - marionette-tests
+        - mochitest-tests
         - mozmill-tests
         - xpcshell-tests
 
