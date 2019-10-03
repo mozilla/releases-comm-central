@@ -41,7 +41,7 @@ desc = """UI Automation tool for Mozilla applications."""
 summ = """A tool for full UI automation of Mozilla applications."""
 
 PACKAGE_NAME = "mozmill_thunderbird"
-PACKAGE_VERSION = "1.7"
+PACKAGE_VERSION = "1.7.1"
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,

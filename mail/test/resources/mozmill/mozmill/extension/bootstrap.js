@@ -20,11 +20,16 @@ function startup(data, reason) {
     .getProtocolHandler("resource")
     .QueryInterface(Ci.nsIResProtocolHandler);
 
-  let modulesFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-  modulesFile.initWithPath(env.get("TESTING_MODULES_DIR"));
+  let modulesPath = env.get("TESTING_MODULES_DIR");
+  if (Services.appinfo.OS == "WINNT") {
+    modulesPath = modulesPath.replace(/\//g, "\\");
+  }
+
+  let modulesDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  modulesDir.initWithPath(modulesPath);
   protocolHandler.setSubstitution(
     "testing-common",
-    Services.io.newFileURI(modulesFile)
+    Services.io.newFileURI(modulesDir)
   );
 
   loadDefaultPrefs();
