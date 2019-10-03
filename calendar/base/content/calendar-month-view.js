@@ -311,12 +311,7 @@
                         </textbox>
                         <spacer flex="1"></spacer>
                       </vbox>
-                      <stack class="category-box-stack">
-                        <hbox class="calendar-category-box category-color-box calendar-event-selection"
-                              flex="1"
-                              pack="end">
-                          <image class="calendar-category-box-gradient"></image>
-                        </hbox>
+                      <hbox class="category-container-box">
                         <hbox align="center">
                           <hbox class="alarm-icons-box"
                                 pack="end"
@@ -326,7 +321,12 @@
                                  pack="end">
                           </image>
                         </hbox>
-                      </stack>
+                        <hbox class="calendar-category-box category-color-box calendar-event-selection"
+                              flex="1"
+                              pack="end">
+                          <image class="calendar-category-box-gradient"></image>
+                        </hbox>
+                      </hbox>
                     </hbox>
                   </stack>
                 </box>

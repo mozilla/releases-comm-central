@@ -116,7 +116,7 @@ var EVENTPATH = `
 `;
 // Used after "${EVENTPATH}/${getEventDetails([view])}/".
 var ALARM_ICON_PATH = `
-    anon({"class":"category-box-stack"})/anon({"align":"center"})/
+    anon({"class":"category-container-box"})/anon({"align":"center"})/
     anon({"class":"alarm-icons-box"})/anon({"class":"reminder-icon"})
 `;
 

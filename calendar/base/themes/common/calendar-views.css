@@ -148,8 +148,12 @@
 }
 
 .calendar-category-box[categories] + hbox,
-.multiday-view-main-box .calendar-event-box-container[categories] > .calendar-event-details {
+.multiday-view-day-box .calendar-event-box-container[categories] > .calendar-event-details {
     margin-inline-end: 8px;
+}
+
+.multiday-view-day-box .calendar-event-box-container > .calendar-event-details > .alarm-icons-box {
+  padding-top: 3px;
 }
 
 .calendar-category-box-gradient {
