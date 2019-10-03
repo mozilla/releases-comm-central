@@ -251,8 +251,8 @@
  * Tab Scrollbox Arrow Buttons
  */
 
-.tabmail-arrowscrollbox > .scrollbutton-up,
-.tabmail-arrowscrollbox > .scrollbutton-down {
+.tabmail-arrowscrollbox::part(scrollbutton-up),
+.tabmail-arrowscrollbox::part(scrollbutton-down) {
   color: inherit;
   list-style-image: url("chrome://messenger/skin/icons/arrow-left.svg") !important;
   -moz-context-properties: fill, fill-opacity;
@@ -260,14 +260,14 @@
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-.tabmail-arrowscrollbox > .scrollbutton-up:-moz-locale-dir(rtl),
-.tabmail-arrowscrollbox > .scrollbutton-down:-moz-locale-dir(ltr) {
+.tabmail-arrowscrollbox:-moz-locale-dir(rtl)::part(scrollbutton-up),
+.tabmail-arrowscrollbox:-moz-locale-dir(ltr)::part(scrollbutton-down) {
   transform: scaleX(-1);
 }
 
 /* Tab Overflow */
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator:not([collapsed]),
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator:not([collapsed]) {
+.tabmail-arrowscrollbox:not([scrolledtostart])::part(arrowscrollbox-overflow-start-indicator),
+.tabmail-arrowscrollbox:not([scrolledtoend])::part(arrowscrollbox-overflow-end-indicator) {
   width: 18px;
   background-image: url("chrome://messenger/skin/icons/overflow-indicator.png");
   background-size: 17px 100%;
@@ -283,28 +283,28 @@
   z-index: 3; /* the selected tab's z-index + 1 */
 }
 
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator:-moz-locale-dir(rtl),
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator:-moz-locale-dir(ltr) {
+.tabmail-arrowscrollbox:-moz-locale-dir(rtl)::part(arrowscrollbox-overflow-start-indicator),
+.tabmail-arrowscrollbox:-moz-locale-dir(ltr)::part(arrowscrollbox-overflow-end-indicator) {
   transform: scaleX(-1);
 }
 
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator:not([collapsed]) {
+.tabmail-arrowscrollbox:not([scrolledtostart])::part(arrowscrollbox-overflow-start-indicator) {
   margin-inline-start: -1px;
   margin-inline-end: -17px;
 }
 
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator:not([collapsed]) {
+.tabmail-arrowscrollbox:not([scrolledtoend])::part(arrowscrollbox-overflow-end-indicator) {
   margin-inline-start: -17px;
   margin-inline-end: -1px;
 }
 
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator[collapsed],
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator[collapsed] {
+.tabmail-arrowscrollbox[scrolledtostart]::part(arrowscrollbox-overflow-start-indicator),
+.tabmail-arrowscrollbox[scrolledtoend]::part(arrowscrollbox-overflow-end-indicator) {
   opacity: 0;
 }
 
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-start-indicator,
-.tabmail-arrowscrollbox > .arrowscrollbox-overflow-end-indicator {
+.tabmail-arrowscrollbox::part(arrowscrollbox-overflow-start-indicator),
+.tabmail-arrowscrollbox::part(arrowscrollbox-overflow-end-indicator) {
   transition: opacity 150ms ease;
 }
 

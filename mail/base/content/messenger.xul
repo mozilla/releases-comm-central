@@ -417,6 +417,7 @@
         <arrowscrollbox class="tabmail-arrowscrollbox"
                         orient="horizontal"
                         flex="1"
+                        clicktoscroll="true"
                         style="min-width: 1px;">
           <tab is="tabmail-tab" selected="true" validate="never" type="folder"
                maxwidth="250" width="0" minwidth="100" flex="100"

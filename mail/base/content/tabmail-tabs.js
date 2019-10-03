@@ -186,19 +186,18 @@
 
         let ltr = window.getComputedStyle(this).direction == "ltr";
         let ind = this._tabDropIndicator;
+        let arrowScrollbox = this.arrowScrollbox;
 
         // Let's scroll
-        if (this.hasAttribute("overflow")) {
-          let target = event.originalTarget.getAttribute("anonid");
-
-          let pixelsToScroll = 0;
-
-          if (target == "scrollbutton-up") {
-            pixelsToScroll = this.arrowScrollbox.scrollIncrement;
-          }
-
-          if (target == "scrollbutton-down") {
-            pixelsToScroll = this.arrowScrollbox.scrollIncrement * -1;
+        let pixelsToScroll = 0;
+        if (arrowScrollbox.getAttribute("overflow") == "true") {
+          switch (event.originalTarget) {
+            case arrowScrollbox._scrollButtonDown:
+              pixelsToScroll = arrowScrollbox.scrollIncrement * -1;
+              break;
+            case arrowScrollbox._scrollButtonUp:
+              pixelsToScroll = arrowScrollbox.scrollIncrement;
+              break;
           }
 
           if (ltr) {
@@ -208,7 +207,7 @@
           if (pixelsToScroll) {
             // Hide Indicator while Scrolling
             ind.setAttribute("hidden", "true");
-            this.arrowScrollbox.scrollByPixels(pixelsToScroll);
+            arrowScrollbox.scrollByPixels(pixelsToScroll);
             return;
           }
         }
@@ -551,7 +550,7 @@
       );
       this.mAllTabsPopup = this.mAllTabsButton.menu;
 
-      this.mDownBoxAnimate = this.arrowScrollbox._scrollButtonDownBoxAnimate;
+      this.mDownBoxAnimate = this.arrowScrollbox;
 
       this._animateTimer = null;
 
@@ -645,8 +644,8 @@
       // they would also get called for the all-tabs popup scrollbox.
       // Also, we can't rely on event.target because these are all
       // anonymous nodes.
-      this.arrowScrollbox.addEventListener("overflow", this);
-      this.arrowScrollbox.addEventListener("underflow", this);
+      this.arrowScrollbox.shadowRoot.addEventListener("overflow", this);
+      this.arrowScrollbox.shadowRoot.addEventListener("underflow", this);
 
       this.addEventListener("select", event => {
         this._handleTabSelect();
@@ -775,30 +774,28 @@
           this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
 
           // filter overflow events which were dispatched on nested scrollboxes
-          if (aEvent.target != this.arrowScrollbox) {
+          // and ignore vertical events.
+          if (
+            aEvent.target != this.arrowScrollbox.scrollbox ||
+            aEvent.detail == 0
+          ) {
             return;
           }
 
-          // Ignore vertical events.
-          if (aEvent.detail == 0) {
-            return;
-          }
-
-          this.arrowScrollbox.removeAttribute("notoverflowing");
+          this.arrowScrollbox.setAttribute("overflow", "true");
           alltabsButton.removeAttribute("hidden");
           break;
         case "underflow":
           // filter underflow events which were dispatched on nested scrollboxes
-          if (aEvent.target != this.arrowScrollbox) {
+          // and ignore vertical events.
+          if (
+            aEvent.target != this.arrowScrollbox.scrollbox ||
+            aEvent.detail == 0
+          ) {
             return;
           }
 
-          // Ignore vertical events.
-          if (aEvent.detail == 0) {
-            return;
-          }
-
-          this.arrowScrollbox.setAttribute("notoverflowing", "true");
+          this.arrowScrollbox.removeAttribute("overflow");
           alltabsButton.setAttribute("hidden", "true");
           break;
         case "resize":
@@ -932,8 +929,8 @@
         this._animateTimer = null;
       }
 
-      this.arrowScrollbox.removeEventListener("overflow", this);
-      this.arrowScrollbox.removeEventListener("underflow", this);
+      this.arrowScrollbox.shadowRoot.removeEventListener("overflow", this);
+      this.arrowScrollbox.shadowRoot.removeEventListener("underflow", this);
     }
   }
 

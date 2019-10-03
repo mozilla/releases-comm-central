@@ -108,10 +108,9 @@
    * around the issue.
    */
   #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .tabmail-arrowscrollbox > .scrollbutton-up:not(:-moz-lwtheme),
+  .tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-up),
   #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .tabmail-arrowscrollbox > .scrollbutton-down-stack >
-  .scrollbutton-down:not(:-moz-lwtheme) {
+  .tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-down) {
     border-bottom: 1px solid transparent;
   }
 

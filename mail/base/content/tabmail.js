@@ -121,7 +121,7 @@
     _updateTabsVisibilityStatus() {
       let tabStrip = this.tabmail.tabContainer.arrowScrollbox;
       // We don't want menu item decoration unless there is overflow.
-      if (tabStrip.getAttribute("notoverflowing") == "true") {
+      if (tabStrip.getAttribute("overlfow") != "true") {
         return;
       }
 
