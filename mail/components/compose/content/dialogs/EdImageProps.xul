@@ -5,7 +5,6 @@
 
 <?xml-stylesheet href="chrome://editor/skin/editor.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % edImageProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorImageProperties.dtd">
@@ -22,8 +21,6 @@
         onload="Startup()"
         buttons="accept,cancel">
 
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
   <script src="chrome://messenger/content/messengercompose/EdImageProps.js"/>
@@ -44,13 +41,11 @@
       <vbox>
         <spacer class="spacer"/>
         <vbox id="LinkLocationBox">
-          <label id="hrefLabel"
-                 control="hrefInput"
+          <label control="hrefInput"
                  accesskey="&LinkURLEditField2.accessKey;"
                  width="1">&LinkURLEditField2.label;</label>
-          <html:input id="hrefInput" type="text"
-                      class="uri-element padded input-inline" onchange="ChangeLinkLocation();"
-                      aria-labelledby="hrefLabel"/>
+          <textbox id="hrefInput" type="text"
+                   class="uri-element padded" oninput="ChangeLinkLocation();"/>
           <hbox align="center">
             <checkbox id="MakeRelativeLink"
                       for="hrefInput"
