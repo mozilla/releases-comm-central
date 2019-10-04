@@ -490,16 +490,14 @@ function awTestRowSequence() {
       let inputID = item
         .querySelector(`input[is="autocomplete-input"]`)
         .id.split("#")[1];
-      let popupID = item.querySelector("menulist").id.split("#")[1];
-      if (inputID != i || popupID != i) {
+      let menulist = item.querySelector("menulist");
+      // In some places like the mailing list dialog there is no menulist,
+      // and so no popupID that needs to be kept in sequence.
+      let popupID = menulist && menulist.id.split("#")[1];
+      if (inputID != i || (popupID && popupID != i)) {
         dump(
-          "#ERROR: sequence broken at row " +
-            i +
-            ", inputID=" +
-            inputID +
-            ", popupID=" +
-            popupID +
-            "\n"
+          `#ERROR: sequence broken at row ${i}, ` +
+            `inputID=${inputID}, popupID=${popupID}\n`
         );
         return false;
       }
@@ -508,11 +506,8 @@ function awTestRowSequence() {
     }
   } else {
     dump(
-      "#ERROR: listitems.length(" +
-        listitems.length +
-        ") < top.MAX_RECIPIENTS(" +
-        top.MAX_RECIPIENTS +
-        ")\n"
+      `#ERROR: listitems.length(${listitems.length}) < ` +
+        `top.MAX_RECIPIENTS(${top.MAX_RECIPIENTS})\n`
     );
   }
 
