@@ -41,25 +41,36 @@ AddrBookCard.prototype = {
     return MailServices.ab.generateUUID(this._directoryId, this._localId);
   },
   generateName(generateFormat, bundle) {
+    let result = "";
     let format;
     switch (generateFormat) {
       case Ci.nsIAbItem.GENERATE_DISPLAY_NAME:
-        return this.displayName;
+        result = this.displayName;
+        break;
       case Ci.nsIAbItem.GENERATE_LAST_FIRST_ORDER:
         format = bundle
           ? bundle.GetStringFromName("lastFirstFormat")
           : "%S, %S";
-        return format
+        result = format
           .replace("%S", this.lastName)
           .replace("%S", this.firstName);
+        break;
       case Ci.nsIAbItem.GENERATE_FIRST_LAST_ORDER:
         format = bundle ? bundle.GetStringFromName("firstLastFormat") : "%S %S";
-        return format
+        result = format
           .replace("%S", this.firstName)
           .replace("%S", this.lastName);
+        break;
     }
 
-    return "";
+    if (result == "") {
+      result = this.getProperty("Company", "");
+    }
+    if (result == "") {
+      result = this.primaryEmail.split("@", 1)[0];
+    }
+
+    return result;
   },
 
   /* nsIAbCard */
