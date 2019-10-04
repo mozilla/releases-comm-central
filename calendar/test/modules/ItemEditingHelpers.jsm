@@ -476,6 +476,7 @@ function setCategories(dialog, iframe, categories) {
   }
   categoryList.getNode().hidePopup();
   dialog.click(iframeid("item-title"));
+  dialog.sleep();
 }
 
 /**
