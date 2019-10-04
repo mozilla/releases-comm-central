@@ -4,29 +4,10 @@
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-var {
-  XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
-  l10nHelper,
-  initLogModule,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var {
-  GenericAccountPrototype,
-  GenericAccountBuddyPrototype,
-  GenericConvIMPrototype,
-  GenericConvChatPrototype,
-  GenericConvChatBuddyPrototype,
-  GenericConversationPrototype,
-  GenericMessagePrototype,
-  GenericProtocolPrototype,
-  Message,
-  TooltipInfo,
-} = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var { XPCOMUtils, nsSimpleEnumerator, ClassInfo } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+var { Message } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 var gLastUIConvId = 0;
 var gLastPrplConvId = 0;

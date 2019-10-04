@@ -10,23 +10,19 @@ var {
   XPCOMUtils,
   setTimeout,
   clearTimeout,
-  executeSoon,
   nsSimpleEnumerator,
-  EmptyEnumerator,
   ClassInfo,
   l10nHelper,
   initLogModule,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {
   GenericAccountPrototype,
-  GenericAccountBuddyPrototype,
   GenericConvIMPrototype,
   GenericConvChatPrototype,
   GenericConvChatBuddyPrototype,
   GenericConversationPrototype,
   GenericMessagePrototype,
   GenericProtocolPrototype,
-  Message,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 var { twttr } = ChromeUtils.import("resource:///modules/twitter-text.jsm");

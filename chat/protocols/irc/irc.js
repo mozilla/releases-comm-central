@@ -13,13 +13,9 @@ var {
   nsSimpleEnumerator,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {
-  _,
-  ctcpFormatToText,
-  ctcpFormatToHTML,
-  conversationErrorMessage,
-  kListRefreshInterval,
-} = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var { _, ctcpFormatToHTML, kListRefreshInterval } = ChromeUtils.import(
+  "resource:///modules/ircUtils.jsm"
+);
 var { ircHandlers } = ChromeUtils.import("resource:///modules/ircHandlers.jsm");
 var {
   GenericAccountPrototype,
@@ -28,9 +24,7 @@ var {
   GenericConvChatPrototype,
   GenericConvChatBuddyPrototype,
   GenericConversationPrototype,
-  GenericMessagePrototype,
   GenericProtocolPrototype,
-  Message,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 var { NormalizedMap } = ChromeUtils.import(

@@ -6,13 +6,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var {
-  smileImMarkup,
-  smileTextNode,
-  smileString,
-  getSmileRealURI,
-  getSmileyList,
-} = ChromeUtils.import("resource:///modules/imSmileys.jsm");
+var { getSmileRealURI } = ChromeUtils.import(
+  "resource:///modules/imSmileys.jsm"
+);
 
 var kSmileRegexp = /^smile:\/\//;
 

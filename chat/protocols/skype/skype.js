@@ -3,34 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { httpRequest } = ChromeUtils.import("resource://gre/modules/Http.jsm");
-var {
-  copyBytes,
-  ArrayBufferToBytes,
-  BytesToArrayBuffer,
-  StringToBytes,
-  StringToArrayBuffer,
-  ArrayBufferToString,
-  ArrayBufferToHexString,
-} = ChromeUtils.import("resource:///modules/ArrayBufferUtils.jsm");
+var { StringToArrayBuffer } = ChromeUtils.import(
+  "resource:///modules/ArrayBufferUtils.jsm"
+);
 var { bigInt } = ChromeUtils.import("resource:///modules/BigInteger.jsm");
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
-  EmptyEnumerator,
   XPCOMUtils,
+  setTimeout,
   clearTimeout,
   l10nHelper,
   nsSimpleEnumerator,
+  EmptyEnumerator,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {
   GenericAccountPrototype,
   GenericAccountBuddyPrototype,
   GenericConvIMPrototype,
-  GenericConvChatPrototype,
-  GenericConvChatBuddyPrototype,
-  GenericConversationPrototype,
-  GenericMessagePrototype,
   GenericProtocolPrototype,
-  Message,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 

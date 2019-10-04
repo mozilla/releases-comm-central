@@ -2,23 +2,20 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XMPPAccountPrototype } = ChromeUtils.import(
+  "resource:///modules/xmpp.jsm"
+);
+var { XMPPSession } = ChromeUtils.import(
+  "resource:///modules/xmpp-session.jsm"
+);
 
 var dns = {};
 Services.scriptloader.loadSubScript("resource:///modules/DNS.jsm", dns);
 
-var xmpp = {};
-Services.scriptloader.loadSubScript("resource:///components/xmpp.js", xmpp);
-
-var xmppSession = {};
-Services.scriptloader.loadSubScript(
-  "resource:///modules/xmpp-session.jsm",
-  xmppSession
-);
-
 function FakeXMPPSession() {}
 FakeXMPPSession.prototype = {
-  __proto__: xmppSession.XMPPSession.prototype,
-  _account: { __proto__: xmpp.XMPPAccount.prototype },
+  __proto__: XMPPSession.prototype,
+  _account: { __proto__: XMPPAccountPrototype },
   _host: null,
   _port: 0,
   connect(
@@ -89,7 +86,7 @@ var TEST_DATA = [
   // Tests XMPP is not supported if the result is one record with target ".".
   {
     input: [new dns.SRVRecord(5, 30, ".", 5222)],
-    output: xmppSession.XMPPSession.prototype.SRV_ERROR_XMPP_NOT_SUPPORTED,
+    output: XMPPSession.prototype.SRV_ERROR_XMPP_NOT_SUPPORTED,
     isConnectNextRecord: false,
   },
   {
@@ -101,7 +98,7 @@ var TEST_DATA = [
   // Tests error happened during SRV lookup.
   {
     input: -1,
-    output: xmppSession.XMPPSession.prototype.SRV_ERROR_LOOKUP_FAILED,
+    output: XMPPSession.prototype.SRV_ERROR_LOOKUP_FAILED,
     isConnectNextRecord: false,
   },
 ];

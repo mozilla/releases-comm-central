@@ -3,17 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {
-  XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
-  l10nHelper,
-  initLogModule,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/commands.properties")

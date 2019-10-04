@@ -2,28 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  nsSimpleEnumerator,
-  EmptyEnumerator,
-  ClassInfo,
-  l10nHelper,
-  initLogModule,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, setTimeout } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 var {
   GenericAccountPrototype,
-  GenericAccountBuddyPrototype,
   GenericConvIMPrototype,
-  GenericConvChatPrototype,
-  GenericConvChatBuddyPrototype,
-  GenericConversationPrototype,
-  GenericMessagePrototype,
   GenericProtocolPrototype,
-  Message,
-  TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 function Conversation(aAccount) {

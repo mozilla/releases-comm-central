@@ -2,9 +2,9 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-var xmpp = {};
-Services.scriptloader.loadSubScript("resource:///components/xmpp.js", xmpp);
+var { XMPPAccountPrototype } = ChromeUtils.import(
+  "resource:///modules/xmpp.jsm"
+);
 
 var TEST_DATA = {
   "abdelrhman@instantbird": {
@@ -64,7 +64,7 @@ var TEST_DATA = {
 
 function testParseJID() {
   for (let currentJID in TEST_DATA) {
-    let jid = xmpp.XMPPAccount.prototype._parseJID(currentJID);
+    let jid = XMPPAccountPrototype._parseJID(currentJID);
     equal(jid.node, TEST_DATA[currentJID].node);
     equal(jid.domain, TEST_DATA[currentJID].domain);
     equal(jid.resource, TEST_DATA[currentJID].resource);
@@ -77,7 +77,7 @@ function testParseJID() {
 function testNormalize() {
   for (let currentJID in TEST_DATA) {
     equal(
-      xmpp.XMPPAccount.prototype.normalize(currentJID),
+      XMPPAccountPrototype.normalize(currentJID),
       TEST_DATA[currentJID].normalized
     );
   }
@@ -88,7 +88,7 @@ function testNormalize() {
 function testNormalizeFullJid() {
   for (let currentJID in TEST_DATA) {
     equal(
-      xmpp.XMPPAccount.prototype.normalizeFullJid(currentJID),
+      XMPPAccountPrototype.normalizeFullJid(currentJID),
       TEST_DATA[currentJID].jid
     );
   }

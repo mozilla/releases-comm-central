@@ -2,18 +2,13 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-var xmppXml = {};
-Services.scriptloader.loadSubScript(
-  "resource:///modules/xmpp-xml.jsm",
-  xmppXml
-);
+var { Stanza } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
 var TEST_DATA = [
   {
     input: {
       name: "message",
-      namespace: xmppXml.NS.client,
+      namespace: Stanza.NS.client,
       attributes: {
         jid: "user@domain",
         type: null,
@@ -28,7 +23,7 @@ var TEST_DATA = [
   {
     input: {
       name: "message",
-      namespace: xmppXml.NS.client,
+      namespace: Stanza.NS.client,
       attributes: {
         jid: "user@domain",
         type: undefined,
@@ -79,7 +74,7 @@ var TEST_DATA = [
 function testXMLNode() {
   for (let current of TEST_DATA) {
     try {
-      let result = xmppXml.Stanza.node(
+      let result = Stanza.node(
         current.input.name,
         current.input.namespace,
         current.input.attributes,
