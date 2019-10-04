@@ -40,3 +40,7 @@ mozilla
 \.project$
 \.cproject$
 \.settings/
+
+# Ignore the files and directory that JetBrains IDEs create.
+\.idea/
+\.iml$
