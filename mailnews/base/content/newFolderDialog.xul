@@ -7,23 +7,32 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % newFolderDTD SYSTEM "chrome://messenger/locale/newFolderDialog.dtd">%newFolderDTD;
 ]>
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&newFolderDialog.title;"
         onload="onLoad();"
         buttonlabelaccept="&accept.label;"
         buttonaccesskeyaccept="&accept.accesskey;">
 
   <stringbundleset id="stringbundleset"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/newFolderDialog.js"/>
   <script src="chrome://messenger/content/folder-menupopup.js"/>
 
-    <label value="&name.label;" accesskey="&name.accesskey;" control="name"/>
-    <textbox id="name" oninput="doEnabling();"/>
+    <label id="nameLabel" value="&name.label;" accesskey="&name.accesskey;"
+           control="name"/>
+    <html:input id="name"
+                type="text"
+                class="input-inline"
+                aria-labelledby="nameLabel"
+                oninput="doEnabling();"/>
 
     <separator/>
 

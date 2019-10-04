@@ -5,19 +5,21 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/folderProps.dtd">
 
-<dialog
-  id="folderPropertiesDialog"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:html="http://www.w3.org/1999/xhtml"
-  title="&folderProps.windowtitle.label;"
-  buttons="accept,cancel"
-  onload="folderPropsOnLoad();" style="width: 56ch;">
+<dialog id="folderPropertiesDialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        title="&folderProps.windowtitle.label;"
+        buttons="accept,cancel"
+        onload="folderPropsOnLoad();"
+        style="width: 56ch;">
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/retention.js"/>
   <script src="chrome://messenger/content/folderProps.js"/>
   <script src="chrome://messenger/content/menulist-charsetpicker.js"/>
@@ -33,15 +35,24 @@
   <tabpanels id="folderPropTabPanels">
 
     <vbox id="GeneralPanel">
-      <hbox id="nameBox" align="center">
-        <label value="&folderProps.name.label;" control="name"
+      <hbox id="nameBox" align="center" class="input-container">
+        <label id="nameLabel" value="&folderProps.name.label;" control="name"
                accesskey="&folderProps.name.accesskey;"/>
-        <textbox id="name" readonly="true" oninput="doEnabling();" flex="1"/>
+        <html:input id="name"
+                    type="text"
+                    readonly="readonly"
+                    oninput="doEnabling();"
+                    class="input-inline"
+                    aria-labelledby="nameLabel"/>
       </hbox>
-      <hbox align="center">
-        <label value="&folderProps.location.label;" control="location"
-               accesskey="&folderProps.location.accesskey;"/>
-        <textbox id="location" readonly="true" flex="1"  class="uri-element"/>
+      <hbox align="center" class="input-container">
+        <label id="locationLabel" value="&folderProps.location.label;"
+               control="location" accesskey="&folderProps.location.accesskey;"/>
+        <html:input id="location"
+                    type="text"
+                    readonly="readonly"
+                    class="uri-element input-inline"
+                    aria-labelledby="locationLabel"/>
       </hbox>
       <vbox>
         <spacer height="2"/>
@@ -174,7 +185,8 @@
       <hbox id="folderQuotaData" hidden="true">
         <vbox>
           <hbox align="end" flex="1">
-            <label value="&folderQuotaRoot.label;" control="quotaRoot"/>
+            <label id="quotaRootLabel" value="&folderQuotaRoot.label;"
+                   control="quotaRoot"/>
           </hbox>
           <hbox align="end" flex="1">
             <label value="&folderQuotaUsage.label;"/>
@@ -184,7 +196,11 @@
           </hbox>
         </vbox>
         <vbox>
-          <textbox id="quotaRoot" readonly="true"/>
+          <html:input id="quotaRoot"
+                      type="text"
+                      readonly="readonly"
+                      class="input-inline"
+                      aria-labelledby="quotaRootLabel"/>
           <description id="quotaUsedFree"/>
           <hbox align="center">
             <html:progress id="quotaPercentageBar" value="0" max="100"/>

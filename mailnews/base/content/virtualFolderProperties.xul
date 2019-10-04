@@ -8,6 +8,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog [
   <!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
@@ -16,7 +17,8 @@
   %searchTermDTD;
 ]>
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         id="virtualFolderPropertiesDialog"
         title="&virtualFolderProperties.title;"
         onload="onLoad();"
@@ -34,6 +36,8 @@
     <stringbundle id="bundle_folder"    src="chrome://messenger/locale/folderWidgets.properties"/>
   </stringbundleset>
 
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/mailCommands.js"/>
   <script src="chrome://messenger/content/commandglue.js"/>
@@ -45,7 +49,8 @@
   <hbox>
     <vbox>
       <hbox flex="1" align="center">
-        <label value="&name.label;" accesskey="&name.accesskey;" control="name"/>
+        <label id="nameLabel" value="&name.label;" accesskey="&name.accesskey;"
+               control="name"/>
       </hbox>
       <hbox id="chooseFolderLocationLabel" flex="1" align="center">
         <label value="&description.label;" accesskey="&description.accesskey;"
@@ -56,8 +61,16 @@
       </hbox>
     </vbox>
     <vbox flex="1">
-      <textbox id="name" hidden="true" oninput="doEnabling();"/>
-      <textbox id="existingName" readonly="true" hidden="true" tabindex="0"/>
+      <html:input id="name"
+                  hidden="true"
+                  class="input-inline"
+                  aria-labelledby="nameLabel"
+                  oninput="doEnabling();"/>
+      <html:input id="existingName"
+                  readonly="readonly"
+                  hidden="hidden"
+                  class="input-inline"
+                  tabindex="0"/>
       <menulist id="msgNewFolderPicker" class="folderMenuItem" align="center"
                 displayformat="verbose">
         <menupopup is="folder-menupopup" id="msgNewFolderPopup" class="menulist-menupopup"

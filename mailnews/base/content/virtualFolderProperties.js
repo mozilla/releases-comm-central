@@ -93,7 +93,7 @@ function onLoad() {
     }
 
     let folderNameField = document.getElementById("name");
-    folderNameField.hidden = false;
+    folderNameField.removeAttribute("hidden");
     folderNameField.focus();
     if (windowArgs.newFolderName) {
       folderNameField.value = windowArgs.newFolderName;
@@ -149,7 +149,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   document.getElementById("msgNewFolderPicker").collapsed = true;
   document.getElementById("chooseFolderLocationLabel").collapsed = true;
   let folderNameField = document.getElementById("existingName");
-  folderNameField.hidden = false;
+  folderNameField.removeAttribute("hidden");
 
   gSearchFolderURIs = virtualFolderWrapper.searchFolderURIs;
   updateFoldersCount();
