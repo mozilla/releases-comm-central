@@ -175,6 +175,8 @@ tree.list {
 
 #MisspelledWord {
   font-weight: bold;
+  max-width: 16em;
+  text-overflow: ellipsis;
 }
 
 #ReplaceWordInput {
@@ -318,4 +320,16 @@ groupbox > .groupbox-title > .header {
 html|table html|th {
   font-weight: normal;
   text-align: start;
+}
+
+*|*.display-flex {
+  display: flex;
+}
+
+*|*.flex-1 {
+  flex: 1;
+}
+
+#SuggestedList {
+  flex-direction: column;
 }

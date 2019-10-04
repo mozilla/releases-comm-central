@@ -176,6 +176,8 @@ tree.list {
 
 #MisspelledWord {
   font-weight: bold;
+  max-width: 16em;
+  text-overflow: ellipsis;
 }
 
 #ReplaceWordInput {
@@ -184,7 +186,7 @@ tree.list {
 }
 
 .spell-check {
-  min-width: 8em;
+  min-width: 8.5em;
 }
 
 /* ::::: color picker ::::: */
@@ -310,4 +312,20 @@ groupbox {
 html|table html|th {
   font-weight: normal;
   text-align: start;
+}
+
+.display-flex {
+  display: flex;
+}
+
+*|*.display-flex {
+  display: flex;
+}
+
+*|*.flex-1 {
+  flex: 1;
+}
+
+#SuggestedList {
+  flex-direction: column;
 }

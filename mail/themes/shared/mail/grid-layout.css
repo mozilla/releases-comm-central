@@ -12,10 +12,19 @@
   grid-template-columns: auto auto auto;
 }
 
-.grid-two-column textbox,
+.grid-three-column-auto-x-auto {
+  display: inline-grid;
+  grid-template-columns: auto 1fr auto;
+}
+
+.grid-two-column-x-auto {
+  display: inline-grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: 1fr auto auto;
+}
+
 .grid-two-column menulist,
 .grid-two-column textarea,
-.grid-three-column textbox,
 .grid-three-column menulist,
 .grid-three-column textarea {
   width: 100%;
