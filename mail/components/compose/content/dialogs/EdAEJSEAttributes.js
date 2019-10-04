@@ -142,7 +142,7 @@ function onInputJSEAttributeValue() {
 
 function editJSEAttributeValue(targetCell) {
   if (IsNotTreeHeader(targetCell)) {
-    gDialog.AddJSEAttributeValueInput.inputField.select();
+    gDialog.AddJSEAttributeValueInput.select();
   }
 }
 

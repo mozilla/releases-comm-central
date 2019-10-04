@@ -2023,7 +2023,7 @@ var CustomizableUIInternal = {
         }
       }
       let tagName = target.localName;
-      inInput = tagName == "input" || tagName == "textbox";
+      inInput = tagName == "input";
       inItem = tagName == "toolbaritem" || tagName == "toolbarbutton";
       let isMenuItem = tagName == "menuitem";
       inMenu = inMenu || isMenuItem;

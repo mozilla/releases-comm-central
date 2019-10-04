@@ -389,7 +389,7 @@ var gConnectionsDialog = {
     return [
       ...controlGroup.querySelectorAll(":scope > radio"),
       ...controlGroup.querySelectorAll("label"),
-      ...controlGroup.querySelectorAll("textbox"),
+      ...controlGroup.querySelectorAll("input"),
       ...controlGroup.querySelectorAll("checkbox"),
       ...document.querySelectorAll("#networkProxySOCKSVersion > radio"),
       ...document.querySelectorAll("#ConnectionsDialogPane > checkbox"),

@@ -89,7 +89,7 @@ function onInputCSSAttributeName() {
 
 function editCSSAttributeValue(targetCell) {
   if (IsNotTreeHeader(targetCell)) {
-    gDialog.AddCSSAttributeValueInput.inputField.select();
+    gDialog.AddCSSAttributeValueInput.select();
   }
 }
 

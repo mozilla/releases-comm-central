@@ -112,6 +112,15 @@ menuitem[appHandlerIcon="save"] {
   width: 16px;
 }
 
+.cloudfileAccount > label {
+  flex: 1;
+}
+
+.cloudfileAccount > input {
+  min-width: 10ch !important;
+  width: 10ch;
+}
+
 .cloudfileAccount:not([selected]) > label {
   pointer-events: none;
 }

@@ -63,6 +63,7 @@ var joinChat = {
       }
       label.setAttribute("value", text);
       label.setAttribute("control", "field-" + field.identifier);
+      label.setAttribute("id", "field-" + field.identifier + "-label");
       div1.appendChild(label);
       joinChatGrid.appendChild(div1);
 
@@ -70,27 +71,37 @@ var joinChat = {
         "http://www.w3.org/1999/xhtml",
         "div"
       );
-      let textbox = document.createXULElement("textbox");
-      textbox.setAttribute("id", "field-" + field.identifier);
+      let input = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "input"
+      );
+      input.classList.add("input-inline");
+      input.setAttribute("id", "field-" + field.identifier);
+      input.setAttribute(
+        "aria-labelledby",
+        "field-" + field.identifier + "-label"
+      );
       let val = defaultValues.getValue(field.identifier);
       if (val) {
-        textbox.setAttribute("value", val);
+        input.setAttribute("value", val);
       }
       if (field.type == Ci.prplIChatRoomField.TYPE_PASSWORD) {
-        textbox.setAttribute("type", "password");
+        input.setAttribute("type", "password");
       } else if (field.type == Ci.prplIChatRoomField.TYPE_INT) {
-        textbox.setAttribute("type", "number");
-        textbox.setAttribute("min", field.min);
-        textbox.setAttribute("max", field.max);
+        input.setAttribute("type", "number");
+        input.setAttribute("min", field.min);
+        input.setAttribute("max", field.max);
+      } else {
+        input.setAttribute("type", "text");
       }
-      div2.appendChild(textbox);
+      div2.appendChild(input);
       joinChatGrid.appendChild(div2);
 
       let div3 = document.querySelector(".optional-col").cloneNode(true);
       div3.classList.toggle("required", field.required);
       joinChatGrid.appendChild(div3);
 
-      joinChat._fields.push({ field, textbox });
+      joinChat._fields.push({ field, input });
     }
 
     window.sizeToContent();
@@ -99,9 +110,9 @@ var joinChat = {
   join() {
     let values = joinChat._values;
     for (let field of joinChat._fields) {
-      let val = field.textbox.value.trim();
+      let val = field.input.value.trim();
       if (!val && field.field.required) {
-        field.textbox.focus();
+        field.input.focus();
         // FIXME: why isn't the return false enough?
         throw new Error("Some required fields are empty!");
         // return false;

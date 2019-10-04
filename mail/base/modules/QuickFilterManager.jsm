@@ -1154,7 +1154,7 @@ var MessageTextFilter = {
         let panel = aDocument.getElementById("qfb-text-search-upsell");
         if (
           (Services.focus.activeWindow != aDocument.defaultView ||
-            aDocument.commandDispatcher.focusedElement != aNode.inputField) &&
+            aDocument.commandDispatcher.focusedElement != aNode) &&
           panel.state == "open"
         ) {
           panel.hidePopup();
@@ -1216,7 +1216,7 @@ var MessageTextFilter = {
 
       if (
         panel.state == "closed" &&
-        aDocument.commandDispatcher.focusedElement == aNode.inputField
+        aDocument.commandDispatcher.focusedElement == aNode
       ) {
         let filterBar = aDocument.getElementById("quick-filter-bar");
         // panel.sizeTo(filterBar.clientWidth - 20, filterBar.clientHeight - 20);

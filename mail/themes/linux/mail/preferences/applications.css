@@ -40,9 +40,9 @@
   margin-bottom: initial;
 }
 
-.cloudfileAccount > textbox {
-  color: -moz-fieldtext !important;
-  min-height: unset;
-  margin: 0;
-  padding-inline-start: 4px;
+.cloudfileAccount > input {
+  min-height: unset !important;
+  margin: 0 !important;
+  padding-inline-start: 4px !important;
+  padding: 2px 3px 3px !important;
 }

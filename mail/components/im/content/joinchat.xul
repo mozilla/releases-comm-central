@@ -6,6 +6,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/chat/chat.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/joinChat.dtd">
 
@@ -18,7 +19,11 @@
         onload="joinChat.onload()"
         autojoinLabel="&autojoin.label;"
         autojoinAccesskey="&autojoin.accesskey;">
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/chat/joinchat.js"/>
+
   <div xmlns="http://www.w3.org/1999/xhtml" id="joinChatGrid">
     <div>
       <xul:label value="&account.label;" control="accountlist"/>

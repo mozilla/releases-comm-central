@@ -36,7 +36,7 @@ var globalElement;
 
 /* Validate contents of an input field
  *
- *  inputWidget    The 'textbox' XUL element for text input of the attribute's value
+ *  inputWidget    The 'input' element for the the attribute's value
  *  listWidget     The 'menulist' XUL element for choosing "pixel" or "percent"
  *                  May be null when no pixel/percent is used.
  *  minVal         minimum allowed for input widget's value
@@ -186,18 +186,9 @@ function SetTextboxFocusById(id) {
   SetTextboxFocus(document.getElementById(id));
 }
 
-function SetTextboxFocus(textbox) {
-  if (textbox) {
-    // XXX Using the setTimeout is hacky workaround for bug 103197
-    // Must create a new function to keep "textbox" in scope
-    setTimeout(
-      function(textbox) {
-        textbox.focus();
-        textbox.select();
-      },
-      0,
-      textbox
-    );
+function SetTextboxFocus(input) {
+  if (input) {
+    input.focus();
   }
 }
 

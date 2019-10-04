@@ -174,12 +174,12 @@ add_task(async () => {
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
   is(
-    prefsDocument.activeElement.closest("textbox"),
-    accountListItem.querySelector("textbox")
+    prefsDocument.activeElement.closest("input"),
+    accountListItem.querySelector("input")
   );
   ok(accountListItem.querySelector("label").hidden);
-  ok(!accountListItem.querySelector("textbox").hidden);
-  is(accountListItem.querySelector("textbox").value, "Mochitest Account");
+  ok(!accountListItem.querySelector("input").hidden);
+  is(accountListItem.querySelector("input").value, "Mochitest Account");
   EventUtils.synthesizeKey("VK_RIGHT", undefined, prefsWindow);
   EventUtils.synthesizeKey("!", undefined, prefsWindow);
   EventUtils.synthesizeKey("VK_RETURN", undefined, prefsWindow);
@@ -189,7 +189,7 @@ add_task(async () => {
   is(prefsDocument.activeElement, accountList);
   ok(!accountListItem.querySelector("label").hidden);
   is(accountListItem.querySelector("label").value, "Mochitest Account!");
-  ok(accountListItem.querySelector("textbox").hidden);
+  ok(accountListItem.querySelector("input").hidden);
   is(
     Services.prefs.getCharPref(
       `mail.cloud_files.accounts.${accountKey}.displayName`
@@ -208,8 +208,8 @@ add_task(async () => {
   await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
 
   is(
-    prefsDocument.activeElement.closest("textbox"),
-    accountListItem.querySelector("textbox")
+    prefsDocument.activeElement.closest("input"),
+    accountListItem.querySelector("input")
   );
   EventUtils.synthesizeKey("O", undefined, prefsWindow);
   EventUtils.synthesizeKey("o", undefined, prefsWindow);
@@ -222,7 +222,7 @@ add_task(async () => {
   is(prefsDocument.activeElement, accountList);
   ok(!accountListItem.querySelector("label").hidden);
   is(accountListItem.querySelector("label").value, "Mochitest Account!");
-  ok(accountListItem.querySelector("textbox").hidden);
+  ok(accountListItem.querySelector("input").hidden);
   is(
     Services.prefs.getCharPref(
       `mail.cloud_files.accounts.${accountKey}.displayName`

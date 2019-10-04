@@ -92,11 +92,10 @@ var gChatPane = {
 
   updateMessageDisabledState() {
     let textbox = document.getElementById("defaultIdleAwayMessage");
-    if (Preferences.get("messenger.status.awayWhenIdle").value) {
-      textbox.removeAttribute("disabled");
-    } else {
-      textbox.setAttribute("disabled", "true");
-    }
+    textbox.toggleAttribute(
+      "disabled",
+      !Preferences.get("messenger.status.awayWhenIdle").value
+    );
   },
 
   convertURLToLocalFile(aFileURL) {
