@@ -292,7 +292,7 @@
                      flex="1">
                   <stack class="calendar-event-box-container"
                          flex="1">
-                    <hbox class="calendar-event-details" align="center">
+                    <hbox class="calendar-event-details">
                       <vbox pack="center">
                           <image class="calendar-item-image"></image>
                       </vbox>
