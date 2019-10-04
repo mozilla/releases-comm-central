@@ -139,18 +139,16 @@
                      flex="1">
                   <stack class="calendar-event-box-container"
                          flex="1">
-                    <hbox class="calendar-event-details">
+                    <hbox class="calendar-event-details" align="center">
                       <vbox align="left"
                             flex="1">
                         <label class="event-name-label"
                                crop="end"
                                style="margin: 0;">
                         </label>
-                        <textbox class="calendar-event-details-core title-desc"
-                                 hidden="true"
-                                 style="background: transparent !important;"
-                                 wrap="true">
-                        </textbox>
+                        <html:input class="calendar-event-details-core title-desc"
+                                    hidden="hidden"
+                                    style="background: transparent !important;"/>
                         <label crop="end"
                                class="calendar-event-details-core location-desc">
                         </label>
@@ -400,7 +398,7 @@
 
       this.eventNameTextbox.value = this.mOriginalTextLabel;
       this.eventNameTextbox.removeAttribute("hidden");
-      this.eventNameTextbox.select();
+      this.eventNameTextbox.focus();
     }
 
     select(event) {
@@ -442,7 +440,7 @@
         return;
       }
 
-      this.eventNameTextbox.setAttribute("hidden", "true");
+      this.eventNameTextbox.setAttribute("hidden", "hidden");
       this.eventNameLabel.removeAttribute("hidden");
     }
   }

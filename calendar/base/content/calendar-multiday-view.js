@@ -289,10 +289,8 @@
                       <label class="calendar-event-details-core event-name-label"
                              crop="end">
                       </label>
-                      <textbox class="plain calendar-event-details-core calendar-event-name-textbox title-desc"
-                               hidden="true"
-                               wrap="true">
-                      </textbox>
+                      <html:input class="plain calendar-event-details-core calendar-event-name-textbox title-desc"
+                                  hidden="hidden"/>
                       <label class="calendar-event-details-core location-desc"
                              crop="end">
                       </label>

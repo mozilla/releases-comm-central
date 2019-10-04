@@ -1102,12 +1102,12 @@
     }
 
     /**
-     * Returns textbox node in first row
+     * Returns input node in first row
      *
-     * @returns {Object}        textbox node
+     * @returns {Object}        input node
      */
     getInputFromListitem(listItem) {
-      return listItem.getElementsByTagName("textbox")[0];
+      return listItem.getElementsByTagName("input")[0];
     }
 
     /**

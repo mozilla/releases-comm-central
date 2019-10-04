@@ -9,6 +9,7 @@
 html|input.textbox-addressingWidget {
     width: 100%;
     background-color: transparent !important;
+    flex: 1;
 }
 
 #item-attendees-box {

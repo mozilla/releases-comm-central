@@ -1117,7 +1117,7 @@ function onAttendeesInputKeyPress(event, element) {
 }
 
 function onAttendeesInputBlur(element) {
-  if (element.localName == "textbox") {
+  if (element.localName == "input") {
     element.closest("calendar-event-attendees-list").returnHit(element, true);
   }
 }

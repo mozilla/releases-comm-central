@@ -717,6 +717,7 @@ calendar-event-freebusy-day > box {
 }
 
 #attendees-list .addressingWidgetCell {
+  display: flex;
   width: 27px;
   text-align: center;
 }

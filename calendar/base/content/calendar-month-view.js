@@ -292,7 +292,7 @@
                      flex="1">
                   <stack class="calendar-event-box-container"
                          flex="1">
-                    <hbox class="calendar-event-details">
+                    <hbox class="calendar-event-details" align="center">
                       <vbox pack="center">
                           <image class="calendar-item-image"></image>
                       </vbox>
@@ -304,11 +304,8 @@
                                flex="1"
                                style="margin: 0;">
                         </label>
-                        <textbox class="plain calendar-event-name-textbox title-desc"
-                                 crop="end"
-                                 hidden="true"
-                                 wrap="true">
-                        </textbox>
+                        <html:input class="plain calendar-event-name-textbox title-desc"
+                                    hidden="hidden"/>
                         <spacer flex="1"></spacer>
                       </vbox>
                       <hbox class="category-container-box">
