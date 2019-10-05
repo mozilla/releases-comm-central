@@ -983,8 +983,8 @@ nsImapUrl::GetMsgFile(nsIFile **aFile) {
 // this method is called from the UI thread..
 NS_IMETHODIMP nsImapUrl::GetMockChannel(nsIImapMockChannel **aChannel) {
   NS_ENSURE_ARG_POINTER(aChannel);
-  NS_WARNING_ASSERTION(NS_IsMainThread(),
-                       "should only access mock channel on ui thread");
+  MOZ_DIAGNOSTIC_ASSERT(NS_IsMainThread(),
+                        "should only access mock channel on ui thread");
   *aChannel = nullptr;
   nsCOMPtr<nsIImapMockChannel> channel(do_QueryReferent(m_channelWeakPtr));
   channel.forget(aChannel);
@@ -992,8 +992,8 @@ NS_IMETHODIMP nsImapUrl::GetMockChannel(nsIImapMockChannel **aChannel) {
 }
 
 NS_IMETHODIMP nsImapUrl::SetMockChannel(nsIImapMockChannel *aChannel) {
-  NS_WARNING_ASSERTION(NS_IsMainThread(),
-                       "should only access mock channel on ui thread");
+  MOZ_DIAGNOSTIC_ASSERT(NS_IsMainThread(),
+                        "should only access mock channel on ui thread");
   m_channelWeakPtr = do_GetWeakReference(aChannel);
   return NS_OK;
 }
