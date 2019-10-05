@@ -1,0 +1,50 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+kind-dependencies:
+    - build
+    - nightly-l10n
+
+transforms:
+    - comm_taskgraph:add_l10n_dependencies
+    - taskgraph.transforms.job:transforms
+    - taskgraph.transforms.task:transforms
+
+jobs:
+    calendar-l10n:
+        treeherder:
+            kind: build
+            platform: linux64-shippable/opt
+            symbol: cal-l10n
+            tier: 1
+        worker-type: b-linux
+        worker:
+            docker-image: {"in-tree": "debian7-amd64-build"}
+            max-run-time: 600
+            artifacts:
+                - type: file
+                  name: public/build/lightning.xpi
+                  path: /builds/worker/artifacts/lightning.xpi
+            env:
+                UPLOAD_DIR: /builds/worker/artifacts
+        description: Lightning all-locales repack
+        run-on-projects: []
+        run:
+            using: run-task
+            comm-checkout: true
+            command: >
+                cd /builds/worker/checkouts/gecko/comm &&
+                ./calendar/lightning/repack/all-locale-repack.sh
+        locales-file: comm/mail/locales/l10n-changesets.json
+        locales-per-chunk: 5
+        dependencies:
+            build: build-linux64-shippable/opt
+            toolchain-linux64-libdmg: toolchain-linux64-libdmg
+        fetches:
+            build:
+                - lightning.xpi
+            toolchain-linux64-libdmg:
+                - dmg.tar.xz
