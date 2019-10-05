@@ -200,3 +200,8 @@
     -moz-image-region: rect(0 32px 32px 0);
   }
 }
+
+.menulist-menupopup[is="folder-menupopup"] {
+  list-style-image: none;
+  -moz-image-region: unset;
+}

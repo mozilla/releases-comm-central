@@ -110,3 +110,8 @@ menulist.folderMenuItem > .menulist-label-box > .menulist-icon {
   width: 16px;
   height: 16px;
 }
+
+.menulist-menupopup[is="folder-menupopup"] {
+  list-style-image: none;
+  -moz-image-region: unset;
+}
