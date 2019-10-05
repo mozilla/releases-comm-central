@@ -564,7 +564,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
     wizard.type(
       wizardlookup(`
             /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/id("calendar-location-row")/
-            id("calendar-uri")
+            id("calendar-uri-td")/{"class":"input-container"}/id("calendar-uri")
         `),
       data.network.location
     );
