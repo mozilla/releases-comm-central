@@ -20,9 +20,5 @@ def test(mod, path, entity = None):
     if not re.match(r"from.today", entity):
       return "report"
 
-  # Provider for Google Calendar AMO strings do not have to be translated
-  if path == "chrome/calendar/providers/gdata/amo.properties":
-    return "report"
-
   # Everything else should be taken into account
   return True

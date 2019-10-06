@@ -82,9 +82,3 @@ locales = [
     path = "{l}calendar/chrome/calendar/calendar-extract.properties"
     key = "re:.*from\\.today.*"
     action = "warning"
-
-# Provider for Google Calendar AMO strings do not have to be translated
-[[filters]]
-    path = "{l}calendar/chrome/calendar/providers/gdata/amo.properties"
-    key = "re:."
-    action = "warning"

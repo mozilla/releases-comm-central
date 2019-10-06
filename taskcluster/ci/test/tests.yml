@@ -49,8 +49,6 @@ xpcshell:
                 windows.*: true
                 default: false
     fetches:
-        build:
-            - gdata-provider.xpi
         toolchain:
             by-test-platform:
                 linux.*:

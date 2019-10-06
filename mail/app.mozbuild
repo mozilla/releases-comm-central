@@ -21,10 +21,7 @@ DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
 
 
 if CONFIG['MOZ_CALENDAR']:
-    DIRS += [
-        '/%s/calendar/lightning' % CONFIG['commreltopsrcdir'],
-        '/%s/calendar/providers/gdata' % CONFIG['commreltopsrcdir'],
-    ]
+    DIRS += ['/%s/calendar/lightning' % CONFIG['commreltopsrcdir']]
 
 DIRS += [
     '/%s/chat' % CONFIG['commreltopsrcdir'],

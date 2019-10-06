@@ -376,8 +376,6 @@ var calprovider = {
 
   /**
    * Base prototype to be used implementing a provider.
-   *
-   * @see e.g. providers/gdata
    */
   BaseClass: class {
     /**
