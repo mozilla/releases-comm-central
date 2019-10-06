@@ -73,7 +73,6 @@ messenger.jar:
     content/messenger/newFolderDialog.js                                       (base/content/newFolderDialog.js)
 *   content/messenger/msgAccountCentral.xul                                    (base/content/msgAccountCentral.xul)
     content/messenger/msgAccountCentral.js                                     (base/content/msgAccountCentral.js)
-    content/messenger/msgFolderPickerOverlay.js                                (base/content/msgFolderPickerOverlay.js)
     content/messenger/renameFolderDialog.xul                                   (base/content/renameFolderDialog.xul)
     content/messenger/renameFolderDialog.js                                    (base/content/renameFolderDialog.js)
     content/messenger/retention.js                                             (base/content/retention.js)
