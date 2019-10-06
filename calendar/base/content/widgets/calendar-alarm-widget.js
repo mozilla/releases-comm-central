@@ -100,18 +100,18 @@
 
       // Dates
       if (cal.item.isEvent(this.mItem)) {
-        dateLabel.textContent = formatter.formatItemInterval(this.mItem);
+        dateLabel.value = formatter.formatItemInterval(this.mItem);
       } else if (cal.item.isToDo(this.mItem)) {
         let startDate = this.mItem.entryDate || this.mItem.dueDate;
         if (startDate) {
           // A task with a start or due date, show with label.
           startDate = startDate.getInTimezone(cal.dtz.defaultTimezone);
-          dateLabel.textContent = cal.l10n.getCalString("alarmStarts", [
+          dateLabel.value = cal.l10n.getCalString("alarmStarts", [
             formatter.formatDateTime(startDate),
           ]);
         } else {
           // If the task has no start date, then format the alarm date.
-          dateLabel.textContent = formatter.formatDateTime(this.mAlarm.alarmDate);
+          dateLabel.value = formatter.formatDateTime(this.mAlarm.alarmDate);
         }
       } else {
         throw Cr.NS_ERROR_ILLEGAL_VALUE;
@@ -121,12 +121,11 @@
       this.updateRelativeDateLabel();
 
       // Title, Location
-      titleLabel.textContent = this.mItem.title || "";
-      locationDescription.textContent = this.mItem.getProperty("LOCATION") || "";
-      locationDescription.hidden = locationDescription.textContent.length < 1;
+      titleLabel.value = this.mItem.title || "";
+      locationDescription.value = this.mItem.getProperty("LOCATION") || "";
+      locationDescription.hidden = locationDescription.value.length < 1;
 
-      this.querySelector(".alarm-location-label").hidden =
-        locationDescription.textContent.length < 1;
+      this.querySelector(".alarm-location-label").hidden = locationDescription.value.length < 1;
 
       // Hide snooze button if read-only.
       let snoozeButton = this.querySelector(".alarm-snooze-button");
@@ -191,7 +190,7 @@
         relativeDateString = [formatter.formatDateTime(this.mAlarm.alarmDate)];
       }
 
-      relativeDateLabel.textContent = relativeDateString;
+      relativeDateLabel.value = relativeDateString;
     }
 
     /**
