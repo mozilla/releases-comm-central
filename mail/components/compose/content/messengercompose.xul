@@ -85,7 +85,6 @@
 
 <!-- move needed functions into a single js file -->
 <script src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
-<script src="chrome://global/content/globalOverlay.js"/>
 <script src="chrome://global/content/contentAreaUtils.js"/>
 <script src="chrome://messenger/content/viewZoomOverlay.js"/>
 #ifdef XP_MACOSX
