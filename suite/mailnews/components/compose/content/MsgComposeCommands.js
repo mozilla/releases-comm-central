@@ -1603,7 +1603,7 @@ function GenericSendMessage( msgType )
       Recipients2CompFields(msgCompFields);
       var address = GetMsgIdentityElement().value;
       address = MailServices.headerParser.makeFromDisplayAddress(address);
-      msgCompFields.from = MailServices.headerParser.makeMimeHeader(address, 1);
+      msgCompFields.from = MailServices.headerParser.makeMimeHeader([address[0]]);
       var subject = GetMsgSubjectElement().value;
       msgCompFields.subject = subject;
       Attachments2CompFields(msgCompFields);

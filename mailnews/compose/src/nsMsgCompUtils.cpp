@@ -371,7 +371,8 @@ nsresult mime_generate_headers(nsIMsgCompFields *fields,
               nsCOMPtr<nsIMsgHeaderParser> headerParser(
                   mozilla::services::GetHeaderParser());
               nsCOMPtr<msgIAddressObject> group;
-              headerParser->MakeGroupObject(undisclosedRecipients, nullptr, 0,
+              nsTArray<RefPtr<msgIAddressObject>> noRecipients;
+              headerParser->MakeGroupObject(undisclosedRecipients, noRecipients,
                                             getter_AddRefs(group));
               recipients.AppendElement(group);
               finalHeaders->SetAddressingHeader("To", recipients);

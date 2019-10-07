@@ -465,7 +465,7 @@ function SendMailTo(fullAddress, aEvent)
 
   var headerParser = MailServices.headerParser;
   var addresses = headerParser.makeFromDisplayAddress(fullAddress);
-  fields.to = headerParser.makeMimeHeader(addresses, 1);
+  fields.to = headerParser.makeMimeHeader([addresses[0]]);
   params.type = Ci.nsIMsgCompType.New;
 
   // If aEvent is passed, check if Shift key was pressed for composition in

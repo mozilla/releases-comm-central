@@ -118,7 +118,7 @@ function Recipients2CompFields(msgCompFields)
             try {
               let headerParser = MailServices.headerParser;
               recipient =
-                headerParser.makeFromDisplayAddress(fieldValue, {}).map(fullValue =>
+                headerParser.makeFromDisplayAddress(fieldValue).map(fullValue =>
                   headerParser.makeMimeAddress(fullValue.name, fullValue.email))
               .join(", ");
             } catch (ex) {recipient = fieldValue;}

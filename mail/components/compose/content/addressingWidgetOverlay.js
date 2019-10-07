@@ -133,7 +133,7 @@ function Recipients2CompFields(msgCompFields) {
           try {
             let headerParser = MailServices.headerParser;
             recipient = headerParser
-              .makeFromDisplayAddress(fieldValue, {})
+              .makeFromDisplayAddress(fieldValue)
               .map(fullValue =>
                 headerParser.makeMimeAddress(fullValue.name, fullValue.email)
               )

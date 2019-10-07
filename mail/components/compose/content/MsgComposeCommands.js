@@ -3534,10 +3534,7 @@ function GenericSendMessage(msgType) {
   let addresses = MailServices.headerParser.makeFromDisplayAddress(
     GetMsgIdentityElement().value
   );
-  msgCompFields.from = MailServices.headerParser.makeMimeHeader(
-    addresses,
-    addresses.length
-  );
+  msgCompFields.from = MailServices.headerParser.makeMimeHeader(addresses);
   var subject = GetMsgSubjectElement().value;
   msgCompFields.subject = subject;
   Attachments2CompFields(msgCompFields);

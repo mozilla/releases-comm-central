@@ -282,16 +282,16 @@ MimeAddressParser.prototype = {
   classID: Components.ID("96bd8769-2d0e-4440-963d-22b97fb3ba77"),
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderParser]),
 
-  parseEncodedHeader(aHeader, aCharset, aPreserveGroups, count) {
+  parseEncodedHeader(aHeader, aCharset, aPreserveGroups) {
     aHeader = aHeader || "";
     let value = MimeParser.parseHeaderField(
       aHeader,
       MimeParser.HEADER_ADDRESS | MimeParser.HEADER_OPTION_ALL_I18N,
       aCharset
     );
-    return fixArray(value, aPreserveGroups, count);
+    return fixArray(value, aPreserveGroups);
   },
-  parseEncodedHeaderW(aHeader, count) {
+  parseEncodedHeaderW(aHeader) {
     aHeader = aHeader || "";
     let value = MimeParser.parseHeaderField(
       aHeader,
@@ -300,15 +300,15 @@ MimeAddressParser.prototype = {
         MimeParser.HEADER_OPTION_DECODE_2047,
       undefined
     );
-    return fixArray(value, false, count);
+    return fixArray(value, false);
   },
-  parseDecodedHeader(aHeader, aPreserveGroups, count) {
+  parseDecodedHeader(aHeader, aPreserveGroups) {
     aHeader = aHeader || "";
     let value = MimeParser.parseHeaderField(aHeader, MimeParser.HEADER_ADDRESS);
-    return fixArray(value, aPreserveGroups, count);
+    return fixArray(value, aPreserveGroups);
   },
 
-  makeMimeHeader(addresses, length) {
+  makeMimeHeader(addresses) {
     addresses = fixXpconnectAddresses(addresses);
     // Don't output any necessary continuations, so make line length as large as
     // possible first.
@@ -387,7 +387,7 @@ MimeAddressParser.prototype = {
     return object;
   },
 
-  makeFromDisplayAddress(aDisplay, count) {
+  makeFromDisplayAddress(aDisplay) {
     if (aDisplay.includes(";") && !/:.*;/.test(aDisplay)) {
       // Using semicolons as mailbox separators in against the standard, but
       // used in the wild by some clients.
@@ -423,9 +423,6 @@ MimeAddressParser.prototype = {
       if (addr) {
         output.push(this._makeSingleAddress(addr));
       }
-    }
-    if (count) {
-      count.value = output.length;
     }
     return output;
   },

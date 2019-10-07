@@ -1723,11 +1723,10 @@ function SendMailToNode(addressNode, aEvent) {
   fields.newsgroups = addressNode.getAttribute("newsgroup");
   if (addressNode.hasAttribute("fullAddress")) {
     let addresses = MailServices.headerParser.makeFromDisplayAddress(
-      addressNode.getAttribute("fullAddress"),
-      {}
+      addressNode.getAttribute("fullAddress")
     );
     if (addresses.length > 0) {
-      fields.to = MailServices.headerParser.makeMimeHeader(addresses, 1);
+      fields.to = MailServices.headerParser.makeMimeHeader([addresses[0]]);
     }
   }
 

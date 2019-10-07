@@ -89,12 +89,9 @@ interface nsIMsgHeaderParser : nsISupports {
    *                        of mailbox objects, containing no group objects.
    * @return                An array corresponding to the header description.
    */
-  void parseEncodedHeader(in ACString aEncodedHeader,
+  Array<msgIAddressObject> parseEncodedHeader(in ACString aEncodedHeader,
                           [optional] in string aHeaderCharset,
-                          [optional] in bool aPreserveGroups,
-                          [optional] out unsigned long length,
-                          [retval, array, size_is(length)]
-                          out msgIAddressObject addresses);
+                          [optional] in bool aPreserveGroups);
 
   /**
    * Parse an address-based header that has not yet been 2047-decoded and does not
@@ -103,10 +100,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * @param aEncodedHeader  The RFC 2047-encoded header to parse.
    * @return                An array corresponding to the header description.
    */
-  void parseEncodedHeaderW(in AString aEncodedHeader,
-                           [optional] out unsigned long length,
-                           [retval, array, size_is(length)]
-                           out msgIAddressObject addresses);
+  Array<msgIAddressObject> parseEncodedHeaderW(in AString aEncodedHeader);
 
 /**
    * Parse an address-based header that has been 2047-decoded.
@@ -120,11 +114,8 @@ interface nsIMsgHeaderParser : nsISupports {
    *                        of mailbox objects, containing no group objects.
    * @return                An array corresponding to the header description.
    */
-  void parseDecodedHeader(in AString aDecodedHeader,
-                          [optional] in bool aPreserveGroups,
-                          [optional] out unsigned long length,
-                          [retval, array, size_is(length)]
-                          out msgIAddressObject addresses);
+   Array<msgIAddressObject> parseDecodedHeader(in AString aDecodedHeader,
+                          [optional] in bool aPreserveGroups);
 
   /**
    * Given an array of addresses, make a MIME header suitable for emission.
@@ -135,12 +126,9 @@ interface nsIMsgHeaderParser : nsISupports {
    * to maximum line length formats.
    *
    * @param aAddresses An array corresponding to the header description.
-   * @param aLength    The length of said array of addresses.
    * @return           A string that is suitable for writing in a MIME message.
    */
-  AString makeMimeHeader([array, size_is(aLength)]
-                         in msgIAddressObject aAddresses,
-                         in unsigned long aLength);
+  AString makeMimeHeader(in Array<msgIAddressObject> aAddresses);
 
   /**
    * Return the first address in the list in a format suitable for display.
@@ -178,8 +166,7 @@ interface nsIMsgHeaderParser : nsISupports {
 
   /// Return a structured group object having the given name and members.
   msgIAddressObject makeGroupObject(in AString aName,
-    [array, size_is(aLength)] in msgIAddressObject aMembers,
-    in unsigned long aLength);
+                                    in Array<msgIAddressObject> aMembers);
 
   /**
    * Return an array of structured mailbox objects for the given display name
@@ -191,9 +178,7 @@ interface nsIMsgHeaderParser : nsISupports {
    * while the string "webmaster@nowhere.invalid, child@nowhere.invalid" would
    * produce two address objects.
    */
-  void makeFromDisplayAddress(in AString aDisplayAddresses,
-                              [optional] out unsigned long count,
-                              [retval, array, size_is(count)] out msgIAddressObject addresses);
+  Array<msgIAddressObject> makeFromDisplayAddress(in AString aDisplayAddresses);
 
   /**
    * Given a string which contains a list of Header addresses, returns a

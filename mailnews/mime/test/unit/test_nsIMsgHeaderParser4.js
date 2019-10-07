@@ -113,10 +113,8 @@ function run_test() {
   // Test -  strings
 
   for (let i = 0; i < checks.length; ++i) {
-    dump("Test " + i + "\n");
     let addrs = MailServices.headerParser.makeFromDisplayAddress(
-      checks[i].displayString,
-      {}
+      checks[i].displayString
     );
     let checkaddrs = checks[i].addresses;
     Assert.equal(addrs.length, checkaddrs.length);
