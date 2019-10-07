@@ -45,7 +45,7 @@ function Startup()
 function InitTagList()
 {
   // Read the tags from preferences via the tag service.
-  var tagArray = gTagService.getAllTags({});
+  var tagArray = gTagService.getAllTags();
   for (var i = 0; i < tagArray.length; ++i)
   {
     var t = tagArray[i];

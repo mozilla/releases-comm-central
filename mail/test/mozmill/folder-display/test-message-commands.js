@@ -75,7 +75,7 @@ var setupModule = function(module) {
     { count: 20, age_incr: { weeks: 5 } },
   ]);
 
-  tagArray = MailServices.tags.getAllTags({});
+  tagArray = MailServices.tags.getAllTags();
 };
 
 /**

@@ -843,7 +843,7 @@ function SetTagHeader() {
   }
 
   // get the list of known tags
-  var tagArray = MailServices.tags.getAllTags({});
+  var tagArray = MailServices.tags.getAllTags();
   var tagKeys = {};
   for (var tagInfo of tagArray) {
     if (tagInfo.tag) {

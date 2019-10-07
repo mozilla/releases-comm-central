@@ -4018,8 +4018,7 @@ void nsMsgDBView::PushSort(const MsgViewSortColumnInfo &newSort) {
 
   // byId is a unique key (misnamed as Order Received). If we are sorting byId,
   // we don't need to keep any secondary sort keys.
-  if (newSort.mSortType == nsMsgViewSortType::byId)
-    m_sortColumns.Clear();
+  if (newSort.mSortType == nsMsgViewSortType::byId) m_sortColumns.Clear();
 
   m_sortColumns.RemoveElement(newSort);
   m_sortColumns.InsertElementAt(0, newSort);

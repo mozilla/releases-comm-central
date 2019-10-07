@@ -1158,7 +1158,7 @@ function RemoveAllMessageTags() {
   }
 
   var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  let tagArray = MailServices.tags.getAllTags({});
+  let tagArray = MailServices.tags.getAllTags();
 
   var allKeys = "";
   for (var j = 0; j < tagArray.length; ++j) {
@@ -1206,7 +1206,7 @@ function ToggleMessageTagKey(keyNumber) {
     return;
   }
 
-  let tagArray = MailServices.tags.getAllTags({});
+  let tagArray = MailServices.tags.getAllTags();
   if (keyNumber > tagArray.length) {
     return;
   }
@@ -1315,7 +1315,7 @@ function SetMessageTagLabel(menuitem, index, name) {
  * @param {string} [classes]        Classes to set on the menu items.
  */
 function InitMessageTags(parent, elementName = "menuitem", classes) {
-  const tagArray = MailServices.tags.getAllTags({});
+  const tagArray = MailServices.tags.getAllTags();
   const elementNameUpperCase = elementName.toUpperCase();
 
   // Remove any existing non-static items (clear tags list before rebuilding it).

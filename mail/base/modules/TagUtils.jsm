@@ -18,7 +18,7 @@ var TagUtils = {
 
 function loadTagsIntoCSS(aDocument) {
   let tagSheet = findTagColorSheet(aDocument);
-  let tagArray = MailServices.tags.getAllTags({});
+  let tagArray = MailServices.tags.getAllTags();
   for (let tag of tagArray) {
     // tag.key is the internal key, like "$label1" for "Important".
     // For user defined keys with non-ASCII characters, key is

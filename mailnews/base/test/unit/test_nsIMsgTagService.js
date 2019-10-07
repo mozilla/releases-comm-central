@@ -25,7 +25,7 @@ function run_test() {
   MailServices.tags.addTagForKey(tag1, tag1, null, null);
 
   // delete any existing tags
-  let tagArray = MailServices.tags.getAllTags({});
+  let tagArray = MailServices.tags.getAllTags();
   for (var i = 0; i < tagArray.length; i++) {
     MailServices.tags.deleteKey(tagArray[i].key);
   }
@@ -68,13 +68,46 @@ function run_test() {
     // are we confused by key at start of tag?
     Assert.ok(!MailServices.tags.isValidKey(i + "lotsatags"));
   }
+
+  // Test sort ordering for getAllTags() without ordinal.
+  for (let tag of MailServices.tags.getAllTags()) {
+    MailServices.tags.deleteKey(tag.key);
+  }
+  MailServices.tags.addTag("grapefruit", null, null);
+  MailServices.tags.addTag("orange", null, null);
+  MailServices.tags.addTag("lime", null, null);
+  MailServices.tags.addTag("lemon", null, null);
+
+  // Should be sorted by tag name.
+  let tagNames = MailServices.tags.getAllTags().map(t => t.tag);
+  Assert.deepEqual(
+    tagNames,
+    ["grapefruit", "lemon", "lime", "orange"],
+    "Sort without ordinals"
+  );
+
+  // Test sort ordering for getAllTags() with (some) ordinals.
+  for (let tag of MailServices.tags.getAllTags()) {
+    MailServices.tags.deleteKey(tag.key);
+  }
+  MailServices.tags.addTag("grapefruit", null, "3");
+  MailServices.tags.addTag("orange", null, "1");
+  MailServices.tags.addTag("lime", null, null);
+  MailServices.tags.addTag("lemon", null, "2");
+
+  // Should be sorted by ordinal, then tag name.
+  tagNames = MailServices.tags.getAllTags().map(t => t.tag);
+  Assert.deepEqual(
+    tagNames,
+    ["orange", "lemon", "grapefruit", "lime"],
+    "Sort with ordinals"
+  );
 }
 
 /*
-  function printTags()
-  {
-    let tags = MailServices.tags.getAllTags({});
-    for (var i = 0; i < tags.length; i++)
-      print("# " + i + " key [" + tags[i].key + "] tag [" + tags[i].tag + "]");
+function printTags() {
+  for (let tag of MailServices.tags.getAllTags()) {
+    print(`# key [${tag.key}] tag [${tag.tag}] ordinal [${tag.ordinal}]`);
   }
- */
+}
+*/

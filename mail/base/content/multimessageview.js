@@ -373,7 +373,7 @@ MultiMessageSummary.prototype = {
    */
   _getTagsForMsg(aMsgHdr) {
     let keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
-    let allTags = MailServices.tags.getAllTags({});
+    let allTags = MailServices.tags.getAllTags();
 
     return allTags.filter(function(tag) {
       return keywords.has(tag.key);

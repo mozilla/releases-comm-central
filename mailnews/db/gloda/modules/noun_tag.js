@@ -37,7 +37,7 @@ var TagNoun = {
 
   _updateTagMap() {
     this._tagMap = {};
-    let tagArray = (this._tagList = this._msgTagService.getAllTags({}));
+    let tagArray = (this._tagList = this._msgTagService.getAllTags());
     for (let iTag = 0; iTag < tagArray.length; iTag++) {
       let tag = tagArray[iTag];
       this._tagMap[tag.key] = tag;

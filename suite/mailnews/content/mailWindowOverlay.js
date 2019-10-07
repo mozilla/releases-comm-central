@@ -488,7 +488,7 @@ function RemoveAllMessageTags()
                    .createInstance(Ci.nsIMutableArray);
   var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
                      .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags({});
+  var tagArray = tagService.getAllTags();
 
   var allKeys = "";
   for (let j = 0; j < tagArray.length; ++j)
@@ -583,7 +583,7 @@ function ToggleMessageTagKey(index)
 
   var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
                      .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags({});
+  var tagArray = tagService.getAllTags();
   for (var i = 0; i < tagArray.length; ++i)
   {
     var key = tagArray[i].key;
@@ -665,7 +665,7 @@ function InitMessageTags(menuPopup)
 {
   var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
                      .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags({});
+  var tagArray = tagService.getAllTags();
   var tagCount = tagArray.length;
 
   // remove any existing non-static entries...

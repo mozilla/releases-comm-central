@@ -807,7 +807,7 @@ var TagFacetingFilter = {
 
     // only propagate things that are actually tags though!
     let outKeyMap = { tags: {} };
-    let tags = MailServices.tags.getAllTags({});
+    let tags = MailServices.tags.getAllTags();
     let tagCount = tags.length;
     for (let iTag = 0; iTag < tagCount; iTag++) {
       let tag = tags[iTag];
@@ -924,7 +924,7 @@ var TagFacetingFilter = {
     let addCount = 0;
 
     // -- create an element for each tag
-    let tags = MailServices.tags.getAllTags({});
+    let tags = MailServices.tags.getAllTags();
     let tagCount = tags.length;
     for (let iTag = 0; iTag < tagCount; iTag++) {
       let tag = tags[iTag];

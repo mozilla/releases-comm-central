@@ -1161,7 +1161,7 @@ var gGeneralPane = {
   },
 
   buildTagList() {
-    let tagArray = MailServices.tags.getAllTags({});
+    let tagArray = MailServices.tags.getAllTags();
     for (let i = 0; i < tagArray.length; ++i) {
       let taginfo = tagArray[i];
       this.appendTagItem(taginfo.tag, taginfo.key, taginfo.color);

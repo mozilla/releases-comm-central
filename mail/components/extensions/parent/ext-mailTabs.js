@@ -327,7 +327,7 @@ this.mailTabs = class extends ExtensionAPI {
               mode: "OR",
               tags: {},
             };
-            for (let tag of MailServices.tags.getAllTags({})) {
+            for (let tag of MailServices.tags.getAllTags()) {
               filterer.filterValues.tags[tag.key] = null;
             }
             if (typeof state.tags == "object") {

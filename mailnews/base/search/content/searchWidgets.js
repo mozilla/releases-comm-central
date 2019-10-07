@@ -38,7 +38,7 @@
       menulist.setAttribute("flex", "1");
       menulist.appendChild(menuPopup);
 
-      for (let taginfo of MailServices.tags.getAllTags({})) {
+      for (let taginfo of MailServices.tags.getAllTags()) {
         const newMenuItem = document.createXULElement("menuitem");
         newMenuItem.setAttribute("label", taginfo.tag);
         newMenuItem.setAttribute("value", taginfo.key);
@@ -1180,7 +1180,7 @@
       let menulist = this.childNodes[5];
       // Force initialization of the menulist custom element first.
       customElements.upgrade(menulist);
-      let tagArray = MailServices.tags.getAllTags({});
+      let tagArray = MailServices.tags.getAllTags();
       for (let i = 0; i < tagArray.length; i++) {
         const taginfo = tagArray[i];
         const newMenuItem = menulist.appendItem(taginfo.tag, taginfo.key);

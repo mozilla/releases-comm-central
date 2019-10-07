@@ -698,7 +698,7 @@ function SetTagHeader()
   // get the list of known tags
   var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
                    .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags({});
+  var tagArray = tagService.getAllTags();
   var tagKeys = {};
   for (var tagInfo of tagArray)
     if (tagInfo.tag)

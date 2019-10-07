@@ -265,7 +265,7 @@ function RefreshTagsPopup(parent, elementName = "menuitem", classes) {
       ? gFolderDisplay.view.mailViewData
       : "";
 
-  const tagArray = MailServices.tags.getAllTags({});
+  const tagArray = MailServices.tags.getAllTags();
 
   tagArray.forEach(tagInfo => {
     const item = document.createXULElement(elementName);

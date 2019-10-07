@@ -56,8 +56,7 @@ interface nsIMsgTagService : nsISupports {
   // delete a tag from the list of known tags (but not from any messages)
   void deleteKey(in ACString key);
   // get all known tags
-  void getAllTags(out unsigned long count,
-                  [retval, array, size_is(count)] out nsIMsgTag tagArray);
+  Array<nsIMsgTag> getAllTags();
   /*
    * Determines if the token in aKey corresponds to a current valid tag
    *

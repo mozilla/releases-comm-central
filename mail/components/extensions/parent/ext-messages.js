@@ -308,7 +308,7 @@ this.messages = class extends ExtensionAPI {
         },
         async listTags() {
           return MailServices.tags
-            .getAllTags({})
+            .getAllTags()
             .map(({ key, tag, color, ordinal }) => {
               return {
                 key,

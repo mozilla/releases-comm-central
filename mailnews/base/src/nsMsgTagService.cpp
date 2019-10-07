@@ -23,33 +23,35 @@
 #define TAG_PREF_SUFFIX_TAG ".tag"
 #define TAG_PREF_SUFFIX_COLOR ".color"
 #define TAG_PREF_SUFFIX_ORDINAL ".ordinal"
-#define TAG_CMP_LESSER -1
-#define TAG_CMP_EQUAL 0
-#define TAG_CMP_GREATER 1
 
 static bool gMigratingKeys = false;
 
-static int CompareMsgTags(const void *aTagPref1, const void *aTagPref2) {
-  // Sort nsMsgTag objects by ascending order, using their ordinal or key.
-  // The "smallest" value will be first in the sorted array,
-  // thus being the most important element.
-  nsMsgTag *element1 = *(nsMsgTag **)aTagPref1;
-  nsMsgTag *element2 = *(nsMsgTag **)aTagPref2;
+// Comparator to set sort order in GetAllTags().
+struct CompareMsgTags {
+ private:
+  int cmp(RefPtr<nsIMsgTag> element1, RefPtr<nsIMsgTag> element2) const {
+    // Sort nsMsgTag objects by ascending order, using their ordinal or key.
+    // The "smallest" value will be first in the sorted array,
+    // thus being the most important element.
 
-  // if we have only one element, it wins
-  if (!element1 && !element2) return TAG_CMP_EQUAL;
-  if (!element2) return TAG_CMP_LESSER;
-  if (!element1) return TAG_CMP_GREATER;
+    // Only use the key if the ordinal is not defined or empty.
+    nsAutoCString value1, value2;
+    element1->GetOrdinal(value1);
+    if (value1.IsEmpty()) element1->GetKey(value1);
+    element2->GetOrdinal(value2);
+    if (value2.IsEmpty()) element2->GetKey(value2);
 
-  // only use the key if the ordinal is not defined or empty
-  nsAutoCString value1, value2;
-  element1->GetOrdinal(value1);
-  if (value1.IsEmpty()) element1->GetKey(value1);
-  element2->GetOrdinal(value2);
-  if (value2.IsEmpty()) element2->GetKey(value2);
+    return strcmp(value1.get(), value2.get());
+  }
 
-  return strcmp(value1.get(), value2.get());
-}
+ public:
+  bool Equals(RefPtr<nsIMsgTag> element1, RefPtr<nsIMsgTag> element2) const {
+    return cmp(element1, element2) == 0;
+  }
+  bool LessThan(RefPtr<nsIMsgTag> element1, RefPtr<nsIMsgTag> element2) const {
+    return cmp(element1, element2) < 0;
+  }
+};
 
 //
 //  nsMsgTag
@@ -325,16 +327,10 @@ NS_IMETHODIMP nsMsgTagService::DeleteKey(const nsACString &key) {
   return RefreshKeyCache();
 }
 
-/* void getAllTags (out unsigned long count, [array, size_is (count), retval]
- * out nsIMsgTag tagArray); */
-NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount,
-                                          nsIMsgTag ***aTagArray) {
-  NS_ENSURE_ARG_POINTER(aCount);
-  NS_ENSURE_ARG_POINTER(aTagArray);
-
-  // preset harmless default values
-  *aCount = 0;
-  *aTagArray = nullptr;
+/* Array<nsIMsgTag> getAllTags(); */
+NS_IMETHODIMP nsMsgTagService::GetAllTags(
+    nsTArray<RefPtr<nsIMsgTag>> &aTagArray) {
+  aTagArray.Clear();
 
   // get the actual tag definitions
   nsresult rv;
@@ -344,16 +340,6 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount,
   // sort them by key for ease of processing
   prefList.Sort();
 
-  // build an array of nsIMsgTag elements from the orderered list
-  // it's at max the same size as the preflist, but usually only about half
-  nsIMsgTag **tagArray =
-      (nsIMsgTag **)moz_xmalloc(sizeof(nsIMsgTag *) * prefList.Length());
-
-  if (!tagArray) {
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
-  uint32_t currentTagIndex = 0;
-  nsMsgTag *newMsgTag;
   nsString tag;
   nsCString lastKey, color, ordinal;
   for (auto &pref : mozilla::Reversed(prefList)) {
@@ -373,12 +359,7 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount,
             rv = GetOrdinalForKey(key, ordinal);
             if (NS_FAILED(rv)) ordinal.Truncate();
             // store the tag info in our array
-            newMsgTag = new nsMsgTag(key, tag, color, ordinal);
-            if (!newMsgTag) {
-              NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(currentTagIndex, tagArray);
-              return NS_ERROR_OUT_OF_MEMORY;
-            }
-            NS_ADDREF(tagArray[currentTagIndex++] = newMsgTag);
+            aTagArray.AppendElement(new nsMsgTag(key, tag, color, ordinal));
           }
         }
         lastKey = key;
@@ -387,13 +368,7 @@ NS_IMETHODIMP nsMsgTagService::GetAllTags(uint32_t *aCount,
   }
 
   // sort the non-null entries by ordinal
-  qsort(tagArray, currentTagIndex, sizeof(nsMsgTag *), CompareMsgTags);
-
-  // All done, now return the values (the idl's size_is(count) parameter
-  // ensures that the array is cut accordingly).
-  *aCount = currentTagIndex;
-  *aTagArray = tagArray;
-
+  aTagArray.Sort(CompareMsgTags());
   return NS_OK;
 }
 
@@ -427,13 +402,11 @@ nsresult nsMsgTagService::MigrateLabelsToTags() {
   else if (prefVersion == 1) {
     gMigratingKeys = true;
     // need to convert the keys to lower case
-    nsIMsgTag **tagArray;
-    uint32_t numTags;
-    GetAllTags(&numTags, &tagArray);
-    for (uint32_t tagIndex = 0; tagIndex < numTags; tagIndex++) {
+    nsTArray<RefPtr<nsIMsgTag>> tagArray;
+    GetAllTags(tagArray);
+    for (auto &tag : tagArray) {
       nsAutoCString key, color, ordinal;
       nsAutoString tagStr;
-      nsIMsgTag *tag = tagArray[tagIndex];
       tag->GetKey(key);
       tag->GetTag(tagStr);
       tag->GetOrdinal(ordinal);
@@ -442,7 +415,6 @@ nsresult nsMsgTagService::MigrateLabelsToTags() {
       ToLowerCase(key);
       AddTagForKey(key, tagStr, color, ordinal);
     }
-    NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(numTags, tagArray);
     gMigratingKeys = false;
   } else {
     nsCOMPtr<nsIPrefBranch> prefRoot(do_GetService(NS_PREFSERVICE_CONTRACTID));
@@ -482,25 +454,20 @@ NS_IMETHODIMP nsMsgTagService::IsValidKey(const nsACString &aKey,
 
 // refresh the local tag key array m_keys from preferences
 nsresult nsMsgTagService::RefreshKeyCache() {
-  nsIMsgTag **tagArray;
-  uint32_t numTags;
-  nsresult rv = GetAllTags(&numTags, &tagArray);
+  nsTArray<RefPtr<nsIMsgTag>> tagArray;
+  nsresult rv = GetAllTags(tagArray);
   NS_ENSURE_SUCCESS(rv, rv);
   m_keys.Clear();
 
+  uint32_t numTags = tagArray.Length();
+  m_keys.SetCapacity(numTags);
   for (uint32_t tagIndex = 0; tagIndex < numTags; tagIndex++) {
-    nsIMsgTag *tag = tagArray[tagIndex];
-    if (!tag) {
-      rv = NS_ERROR_FAILURE;
-      break;
-    }
     nsAutoCString key;
-    tag->GetKey(key);
+    tagArray[tagIndex]->GetKey(key);
     if (!m_keys.InsertElementAt(tagIndex, key)) {
       rv = NS_ERROR_FAILURE;
       break;
     }
   }
-  NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(numTags, tagArray);
   return rv;
 }
