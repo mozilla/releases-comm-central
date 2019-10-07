@@ -11,6 +11,11 @@
 
 var EXPORTED_SYMBOLS = ["MailMigrator"];
 
+ChromeUtils.defineModuleGetter(
+  this,
+  "AddrBookDirectory",
+  "resource:///modules/AddrBookDirectory.jsm"
+);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -675,29 +680,131 @@ var MailMigrator = {
   },
 
   /**
-   * Migrate address books away from Mork. In time this will do actual
-   * migration, but for now, just set the default pref back to what it was.
+   * Migrate address books from Mork to JS/SQLite. This must happen before
+   * address book start-up and without causing it.
+   *
+   * All Mork address books found in the prefs are converted to JS/SQLite
+   * address books and the prefs updated. Migrated Mork files in the profile
+   * are renamed with the extension ".mab.bak" to avoid confusion.
    */
   _migrateAddressBooks() {
-    let pab = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    pab.append("abook.mab");
-    if (pab.exists()) {
-      let defaultBranch = Services.prefs.getDefaultBranch("");
-      defaultBranch.setIntPref("ldap_2.servers.pab.dirType", 2);
-      defaultBranch.setStringPref("ldap_2.servers.pab.filename", "abook.mab");
-      defaultBranch.setIntPref("ldap_2.servers.history.dirType", 2);
-      defaultBranch.setStringPref(
-        "ldap_2.servers.history.filename",
-        "history.mab"
-      );
-      defaultBranch.setStringPref(
-        "mail.collect_addressbook",
-        "moz-abmdbdirectory://history.mab"
-      );
-      defaultBranch.setStringPref(
-        "mail.server.default.whiteListAbURI",
-        "moz-abmdbdirectory://abook.mab"
-      );
+    function migrateBook(fileName, notFoundThrows = true) {
+      let oldFile = profileDir.clone();
+      oldFile.append(`${fileName}.mab`);
+      if (!oldFile.exists()) {
+        if (notFoundThrows) {
+          throw Cr.NS_ERROR_NOT_AVAILABLE;
+        }
+        return;
+      }
+
+      console.log(`Creating new ${fileName}.sqlite`);
+      let newBook = new AddrBookDirectory();
+      newBook.init(`jsaddrbook://${fileName}.sqlite`);
+
+      let database = Cc[
+        "@mozilla.org/addressbook/carddatabase;1"
+      ].createInstance(Ci.nsIAddrDatabase);
+      database.dbPath = oldFile;
+      database.openMDB(oldFile, false);
+
+      let directory = Cc[
+        "@mozilla.org/addressbook/directory;1?type=moz-abmdbdirectory"
+      ].createInstance(Ci.nsIAbMDBDirectory);
+
+      let cardMap = new Map();
+      for (let card of database.enumerateCards(directory)) {
+        if (!card.isMailList) {
+          newBook.addCard(card);
+          cardMap.set(card.localId, card);
+        }
+      }
+
+      for (let card of database.enumerateCards(directory)) {
+        if (card.isMailList) {
+          let mailList = Cc[
+            "@mozilla.org/addressbook/directoryproperty;1"
+          ].createInstance(Ci.nsIAbDirectory);
+          mailList.isMailList = true;
+          mailList.dirName = card.displayName;
+          mailList.listNickName = card.getProperty("NickName", "");
+          mailList.description = card.getProperty("Notes", "");
+          mailList = newBook.addMailList(mailList);
+
+          directory.dbRowID = card.localId;
+          for (let listCard of database.enumerateListAddresses(directory)) {
+            mailList.addCard(
+              cardMap.get(listCard.QueryInterface(Ci.nsIAbCard).localId)
+            );
+          }
+        }
+      }
+
+      database.closeMDB(false);
+      database.forceClosed();
+
+      console.log(`Renaming ${fileName}.mab to ${fileName}.mab.bak`);
+      oldFile.renameTo(profileDir, `${fileName}.mab.bak`);
+    }
+
+    let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    for (let name of Services.prefs.getChildList("ldap_2.servers.")) {
+      try {
+        if (
+          !name.endsWith(".dirType") ||
+          Services.prefs.getIntPref(name) != 2
+        ) {
+          continue;
+        }
+
+        let prefName = name.substring(0, name.length - 8);
+        let fileName = Services.prefs.getStringPref(`${prefName}.filename`);
+        fileName = fileName.replace(/\.mab$/, "");
+
+        Services.prefs.setIntPref(`${prefName}.dirType`, 101);
+        Services.prefs.setStringPref(
+          `${prefName}.filename`,
+          `${fileName}.sqlite`
+        );
+        if (Services.prefs.prefHasUserValue(`${prefName}.uri`)) {
+          Services.prefs.setStringPref(
+            `${prefName}.uri`,
+            `jsaddrbook://${fileName}.sqlite`
+          );
+        }
+        migrateBook(fileName);
+      } catch (ex) {
+        Cu.reportError(ex);
+      }
+    }
+
+    try {
+      migrateBook("abook", false);
+    } catch (ex) {
+      Cu.reportError(ex);
+    }
+    try {
+      migrateBook("history", false);
+    } catch (ex) {
+      Cu.reportError(ex);
+    }
+
+    for (let prefName of [
+      "mail.collect_addressbook",
+      "mail.server.default.whiteListAbURI",
+    ]) {
+      try {
+        if (Services.prefs.prefHasUserValue(prefName)) {
+          let uri = Services.prefs.getStringPref(prefName);
+          uri = uri.replace(
+            /^moz-abmdbdirectory:\/\/(.*).mab$/,
+            "jsaddrbook://$1.sqlite"
+          );
+          Services.prefs.setStringPref(prefName, uri);
+        }
+      } catch (ex) {
+        Cu.reportError(ex);
+      }
     }
   },
 

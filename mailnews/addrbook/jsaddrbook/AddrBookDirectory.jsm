@@ -667,6 +667,19 @@ var bookPrototype = {
     insertStatement.finalize();
 
     for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
+      if (
+        [
+          "DbRowID",
+          "LowercasePrimaryEmail",
+          "LowercaseSecondEmail",
+          "RecordKey",
+          "UID",
+        ].includes(name)
+      ) {
+        // These properties are either stored elsewhere (DbRowID, UID), or no
+        // longer needed. Don't store them.
+        continue;
+      }
       newCard.setProperty(name, value);
     }
     this._saveCardProperties(newCard);
