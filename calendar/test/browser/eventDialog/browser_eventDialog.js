@@ -24,7 +24,7 @@ var {
 var { ATTENDEES_ROW, EVENT_TABPANELS, helpersForEditUI, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
-var { close_window, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -153,22 +153,11 @@ add_task(function testEventDialog() {
   });
 
   // Catch and dismiss alarm.
-  //
-  // NOTE: dismissing the alarms here can cause an "error has occurred" dialog to appear:
-  //   An error occurred when when writing to the calendar Mozmill!
-  //   Error code: MODIFICATION_FAILED
-  //   If you're seeing this message after snoozing or dismissing a reminder and this is for a
-  //   calendar you do not want to add or edit events for, you can mark this calendar as read-only
-  //   to avoid such experience in future. To do so, get to the calendar properties by
-  //   right-clicking on this calendar in the list in the calendar or task view.
-  // And in the console:
-  //   console.warn: Lightning: There has been an error reading data for calendar: Mozmill.
-  //   However, this error is believed to be minor, so the program will attempt to continue.
-  //   Error code: 0x80004005. Description: generation too old for for modifyItem
-  // These errors do not appear to have any real impact on the rest of the test.
   plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
     let { eid: alarmid } = helpersForController(alarm);
     alarm.waitThenClick(alarmid("alarm-dismiss-all-button"));
+    // The dialog will close itself if we wait long enough.
+    alarm.sleep(500);
   });
   wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
@@ -253,9 +242,4 @@ function checkTooltip(row, col, startTime, endTime) {
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(controller, CALENDARNAME);
   closeAllEventDialogs();
-
-  // TODO: fix this error message.
-  for (let win of mozmill.utils.getWindows("Calendar:ErrorPrompt")) {
-    close_window(win);
-  }
 });

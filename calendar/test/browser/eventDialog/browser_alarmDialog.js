@@ -19,7 +19,7 @@ var {
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
-var { close_window, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -50,6 +50,8 @@ add_task(function testAlarmDialog() {
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
       let { eid: alarmid } = helpersForController(alarm);
       alarm.waitThenClick(alarmid("alarm-dismiss-all-button"));
+      // The dialog will close itself if we wait long enough.
+      alarm.sleep(500);
     });
 
     event.click(eventid("button-saveandclose"));
@@ -72,6 +74,8 @@ add_task(function testAlarmDialog() {
 
       alarm.waitThenClick(snoozeAllButton);
       menuitems[5].click();
+      // The dialog will close itself if we wait long enough.
+      alarm.sleep(500);
     });
 
     event.click(eventid("button-saveandclose"));
@@ -84,9 +88,4 @@ add_task(function testAlarmDialog() {
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(controller, CALENDARNAME);
   closeAllEventDialogs();
-
-  // TODO: fix this error message.
-  for (let win of mozmill.utils.getWindows("Calendar:ErrorPrompt")) {
-    close_window(win);
-  }
 });
