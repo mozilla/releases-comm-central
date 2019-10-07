@@ -64,11 +64,11 @@ scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
 
     worker-types:
-        'scriptworker-k8s/gecko-3-signing':
+        'linux-depsigning':
+            - 'project:comm:thunderbird:releng:signing:cert:dep-signing'
+        'linux-signing':
             - 'project:comm:thunderbird:releng:signing:cert:nightly-signing'
             - 'project:comm:thunderbird:releng:signing:cert:release-signing'
-        'scriptworker-k8s/gecko-t-signing':
-            - 'project:comm:thunderbird:releng:signing:cert:dep-signing'
         'scriptworker-prov-v1/tb-beetmover-dev':
             - 'project:comm:thunderbird:releng:beetmover:bucket:dep'
         'scriptworker-prov-v1/tb-beetmover-v1':
