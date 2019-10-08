@@ -63,7 +63,7 @@ var TodayPane = {
    */
   observe: function() {
     if (this.start !== null) {
-      this.setDay(this.start);
+      this.setDay(this.start.getInTimezone(cal.dtz.defaultTimezone));
     }
   },
 
