@@ -47,6 +47,9 @@ FacebookAccount.prototype = {
     );
     this.reportDisconnected();
   },
+
+  // Nothing to do.
+  unInit() {},
 };
 
 function FacebookProtocol() {}

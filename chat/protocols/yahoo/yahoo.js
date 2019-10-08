@@ -48,6 +48,9 @@ YahooAccount.prototype = {
     );
     this.reportDisconnected();
   },
+
+  // Nothing to do.
+  unInit() {},
 };
 
 function YahooProtocol() {}
