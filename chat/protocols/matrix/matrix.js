@@ -103,12 +103,8 @@ function MatrixAccount(aProtocol, aImAccount) {
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
   observe(aSubject, aTopic, aData) {},
-  remove() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-  },
-  unInit() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-  },
+  remove() {},
+  unInit() {},
   connect() {
     this.reportConnecting();
     let baseURL = this.getString("server") + ":" + this.getInt("port");
