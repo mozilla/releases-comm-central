@@ -11,18 +11,16 @@
 
 #include "nsISupports.idl"
 
-
 [scriptable, uuid(624f0280-173f-11d3-a206-00a0cc26da63)]
 interface nsIImportModule : nsISupports
 {
-  readonly attribute wstring   name;
-  readonly attribute wstring   description;
-  readonly attribute string   supports;
-  readonly attribute boolean  supportsUpgrade;
+  readonly attribute wstring name;
+  readonly attribute wstring description;
+  readonly attribute string supports;
+  readonly attribute boolean supportsUpgrade;
 
   nsISupports GetImportInterface( in string importType);
 };
-
 
 %{ C++
 #define NS_IMPORT_MAIL_STR      "mail"

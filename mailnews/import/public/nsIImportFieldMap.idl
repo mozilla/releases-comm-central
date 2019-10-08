@@ -31,44 +31,44 @@ interface nsIImportFieldMap : nsISupports
   */
   attribute boolean skipFirstRecord;
 
-  readonly attribute long  numMozFields;
-  readonly attribute long  mapSize;
+  readonly attribute long numMozFields;
+  readonly attribute long mapSize;
 
-  wstring GetFieldDescription( in long index);
+  wstring GetFieldDescription(in long index);
 
   /*
     Set the size of the field map, all unpopulated entries
     will default to -1
   */
-  void  SetFieldMapSize( in long size);
+  void SetFieldMapSize(in long size);
 
   /*
     Initialize the field map to a given size with default values
   */
-  void  DefaultFieldMap( in long size);
+  void DefaultFieldMap(in long size);
 
   /*
     Return the field number that this index maps to, -1 for no field
   */
-  long  GetFieldMap( in long index);
+  long GetFieldMap(in long index);
 
   /*
     Set the field that this index maps to, -1 for no field
   */
-  void  SetFieldMap( in long index, in long fieldNum);
+  void SetFieldMap(in long index, in long fieldNum);
 
   /*
     Return if this field is "active" in the map.
   */
-  boolean  GetFieldActive( in long index);
+  boolean GetFieldActive(in long index);
 
   /*
     Set the active state of this field
   */
-  void  SetFieldActive( in long index, in boolean active);
+  void SetFieldActive(in long index, in boolean active);
 
   /*
     Set the value of the given field in the database row
   */
-  void  SetFieldValue( in nsIAddrDatabase database, in nsIMdbRow row, in long fieldNum, in wstring value);
+  void SetFieldValue(in nsIAddrDatabase database, in nsIMdbRow row, in long fieldNum, in wstring value);
 };

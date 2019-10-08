@@ -19,17 +19,15 @@ interface nsIFile;
 interface nsIImportMailboxDescriptor : nsISupports
 {
   attribute unsigned long identifier;
-  attribute unsigned long  depth;
-  attribute unsigned long  size;
+  attribute unsigned long depth;
+  attribute unsigned long size;
 
-  wstring  GetDisplayName();
-  void  SetDisplayName( [const] in wstring name);
+  wstring GetDisplayName();
+  void SetDisplayName([const] in wstring name);
 
   attribute boolean import;
   readonly attribute nsIFile file;
 };
-
-
 
 %{ C++
 

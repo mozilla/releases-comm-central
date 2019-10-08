@@ -14,12 +14,12 @@ interface nsIFile;
 [scriptable, uuid(f2680ccf-d110-4b5b-954d-e072d4a16129)]
 interface nsIImportFilters : nsISupports
 {
-  boolean  AutoLocate( out wstring aDescription, out nsIFile aLocation);
+  boolean AutoLocate(out wstring aDescription, out nsIFile aLocation);
 
-  void     SetLocation( in nsIFile aLocation);
+  void SetLocation(in nsIFile aLocation);
 
   /*
     Import filters and put any problems in the error out parameter.
   */
-  boolean  Import( out wstring aError);
+  boolean Import(out wstring aError);
 };

@@ -24,20 +24,20 @@ interface nsIArray;
 [scriptable, uuid(d0ed4c50-5997-49c9-8a6a-045f0680ed29)]
 interface nsIImportService : nsISupports
 {
-    void DiscoverModules();
+  void DiscoverModules();
 
-  long GetModuleCount( in string filter);
-  void GetModuleInfo( in string filter, in long index, out wstring name, out wstring description);
-  wstring GetModuleName( in string filter, in long index);
-  wstring GetModuleDescription( in string filter, in long index);
-  nsIImportModule  GetModule( in string filter, in long index);
-  nsIImportModule GetModuleWithCID( in nsCIDRef cid);
+  long GetModuleCount(in string filter);
+  void GetModuleInfo(in string filter, in long index, out wstring name, out wstring description);
+  wstring GetModuleName(in string filter, in long index);
+  wstring GetModuleDescription(in string filter, in long index);
+  nsIImportModule  GetModule(in string filter, in long index);
+  nsIImportModule GetModuleWithCID(in nsCIDRef cid);
 
-  nsIImportFieldMap      CreateNewFieldMap();
-  nsIImportMailboxDescriptor  CreateNewMailboxDescriptor();
-  nsIImportABDescriptor    CreateNewABDescriptor();
-  nsIImportGeneric      CreateNewGenericMail();
-  nsIImportGeneric      CreateNewGenericAddressBooks();
+  nsIImportFieldMap CreateNewFieldMap();
+  nsIImportMailboxDescriptor CreateNewMailboxDescriptor();
+  nsIImportABDescriptor CreateNewABDescriptor();
+  nsIImportGeneric CreateNewGenericMail();
+  nsIImportGeneric CreateNewGenericAddressBooks();
   void CreateRFC822Message(in nsIMsgIdentity aIdentity,
                            in nsIMsgCompFields aMsgFields,
                            in string aBodytype,

@@ -18,9 +18,9 @@ interface nsIFile;
 [scriptable, uuid(1c0e3012-bc4d-4fb2-be6a-0335c7bab9ac)]
 interface nsIImportSettings : nsISupports
 {
-  boolean    AutoLocate( out wstring description, out nsIFile location);
+  boolean AutoLocate(out wstring description, out nsIFile location);
 
-  void    SetLocation( in nsIFile location);
+  void SetLocation(in nsIFile location);
 
   /*
     Create all of the accounts, identities, and servers.  Return an
@@ -29,11 +29,5 @@ interface nsIImportSettings : nsISupports
     account for local mail was created and a new account specifically for
     the imported mail should be created.
   */
-  boolean    Import( out nsIMsgAccount localMailAccount);
+  boolean Import(out nsIMsgAccount localMailAccount);
 };
-
-
-
-%{ C++
-
-%}

@@ -32,16 +32,15 @@
 
 #include "nsISupports.idl"
 
-interface   nsIFile;
-interface   nsIArray;
-interface  nsIImportABDescriptor;
-interface  nsIAddrDatabase;
-interface  nsIImportFieldMap;
+interface nsIFile;
+interface nsIArray;
+interface nsIImportABDescriptor;
+interface nsIAddrDatabase;
+interface nsIImportFieldMap;
 
 [scriptable, uuid(6bba48be-331c-41e3-bc9f-c2ea3754d977)]
 interface nsIImportAddressBooks : nsISupports
 {
-
   /*
     Does this interface supports 1 or 1..n address books.  You only
     get to choose 1 location so for formats where 1..n address books
@@ -59,13 +58,13 @@ interface nsIImportAddressBooks : nsISupports
     If false, GetDefaultLocation will be called.
   */
 
-  boolean GetAutoFind( out wstring description);
+  boolean GetAutoFind(out wstring description);
 
   /*
     Returns true if the address book needs the user to specify a field map
     for address books imported from this format.
   */
-  boolean GetNeedsFieldMap( in nsIFile location);
+  boolean GetNeedsFieldMap(in nsIFile location);
 
   /*
     If found and userVerify BOTH return false, then it is assumed that this
@@ -73,9 +72,9 @@ interface nsIImportAddressBooks : nsISupports
     If userVerify is true, the user will have an opportunity to specify
     a different location to import address book from.
   */
-  void   GetDefaultLocation( out nsIFile location,
-                out boolean  found,
-                out boolean  userVerify);
+  void GetDefaultLocation(out nsIFile location,
+                          out boolean found,
+                          out boolean userVerify);
   /*
     Returns an nsIArray which contains an nsIImportABDescriptor for each
     address book.  The array is not sorted before display to the user.
@@ -128,7 +127,7 @@ interface nsIImportAddressBooks : nsISupports
     Set the location for reading sample data, this should be the same
     as what is passed later to FindAddressBooks
   */
-  void  SetSampleLocation( in nsIFile location);
+  void SetSampleLocation(in nsIFile location);
 
   /*
    * Return a string of sample data for a record, each field
@@ -145,9 +144,3 @@ interface nsIImportAddressBooks : nsISupports
   wstring GetSampleData(in long recordNumber, out boolean recordExists);
 
 };
-
-
-
-%{ C++
-
-%}

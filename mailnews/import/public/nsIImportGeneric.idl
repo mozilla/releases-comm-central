@@ -28,9 +28,9 @@ interface nsIImportGeneric : nsISupports
       "addressDestination" - uri of destination address book or null if
                 new address books will be created.
     */
-  nsISupports  GetData( in string dataId);
+  nsISupports GetData(in string dataId);
 
-  void    SetData( in string dataId, in nsISupports pData);
+  void SetData(in string dataId, in nsISupports pData);
 
     /*
       "isInstalled" - if true then mail can be automatically located.
@@ -44,7 +44,7 @@ interface nsIImportGeneric : nsISupports
       "supportsMultiple" - 1 or 1..n address books are imported by this format?
 
     */
-  long    GetStatus( in string statusKind);
+  long GetStatus(in string statusKind);
 
   /*
     When you are ready to import call this.  If it returns TRUE then
@@ -53,7 +53,7 @@ interface nsIImportGeneric : nsISupports
     If this returns FALSE then BeginImport will begin and finish the import
     before it returns.
   */
-  boolean    WantsProgress();
+  boolean WantsProgress();
 
   /* Use these for the actual import */
     /* Begin import is expected to start a new thread UNLESS WantsProgress returned
@@ -69,21 +69,15 @@ interface nsIImportGeneric : nsISupports
       continue.  If this returns FALSE then no other methods should be called
       and the error log should be shown to the user.
     */
-  boolean    ContinueImport();
+  boolean ContinueImport();
     /*
       Returns the percentage done.  When this returns 100 then the import is done.
       (only valid if WantsProgress returned true)
     */
-  long    GetProgress();
+  long GetProgress();
     /*
       Cancel an import in progress.  Again, this is only valid if WantsProgress
       returned true.
     */
-  void    CancelImport();
+  void CancelImport();
 };
-
-
-
-%{ C++
-
-%}
