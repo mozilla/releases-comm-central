@@ -16,44 +16,46 @@ function Startup() {
   const msgCompSendFormat = Ci.nsIMsgCompSendFormat;
   const msgCompConvertible = Ci.nsIMsgCompConvertible;
 
-  var bundle = document.getElementById("askSendFormatStringBundle");
+  // Select the node that need to be udpated.
+  let mailSendFormatExplanation = document.getElementById(
+    "mailSendFormatExplanation"
+  );
+  let icon = document.getElementById("convertDefault");
+
+  let bundle = document.getElementById("askSendFormatStringBundle");
+  let convertibleAltering = bundle.getString("convertibleAltering");
+  let convertibleNo = bundle.getString("convertibleNo");
+  let convertibleYes = bundle.getString("convertibleYes");
 
   // If the user hits the close box, we will abort.
   gParam.abort = true;
 
-  // Set the question label
-  var mailSendFormatExplanation = document.getElementById(
-    "mailSendFormatExplanation"
-  );
-  var icon = document.getElementById("convertDefault");
-
   switch (gParam.convertible) {
     case msgCompConvertible.Altering:
-      mailSendFormatExplanation.textContent = bundle.getString(
-        "convertibleAltering"
-      );
+      mailSendFormatExplanation.textContent = convertibleAltering;
       icon.className = "question-icon";
       break;
     case msgCompConvertible.No:
-      mailSendFormatExplanation.textContent = bundle.getString("convertibleNo");
+      mailSendFormatExplanation.textContent = convertibleNo;
       icon.className = "alert-icon";
       break;
     default:
       // msgCompConvertible.Yes
-      mailSendFormatExplanation.textContent = bundle.getString(
-        "convertibleYes"
-      );
-      // XXX change this to use class message-icon once bug 512173 is fixed
-      icon.className = "question-icon";
+      mailSendFormatExplanation.textContent = convertibleYes;
+      icon.className = "message-icon";
       break;
   }
 
   // Set the default radio array value and recommendation.
-  var group = document.getElementById("mailDefaultHTMLAction");
+  let group = document.getElementById("mailDefaultHTMLAction");
   if (gParam.action != msgCompSendFormat.AskUser) {
     group.value = gParam.action;
     group.selectedItem.label += " " + bundle.getString("recommended");
   }
+
+  setTimeout(() => {
+    window.sizeToContent();
+  }, 80);
 }
 
 function Send() {

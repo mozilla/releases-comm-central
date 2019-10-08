@@ -9,20 +9,20 @@
 
 <dialog id="askSendFormat"
         title="&windowTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         buttonpack="center"
         onload="Startup();"
         buttonlabelaccept="&send.label;"
         buttonaccesskeyaccept="&send.accesskey;"
-        style="width: 75ch;">
+        style="width: 75ch; height: 20em;">
 
   <script src="chrome://messenger/content/messengercompose/askSendFormat.js"/>
 
   <stringbundle id="askSendFormatStringBundle"
                 src="chrome://messenger/locale/messengercompose/askSendFormat.properties"/>
 
-    <separator class="thin"/>
-    <hbox>
+    <hbox flex="1">
       <separator orient="vertical"/>
       <vbox id="askImageBox">
         <image id="convertDefault"/>
