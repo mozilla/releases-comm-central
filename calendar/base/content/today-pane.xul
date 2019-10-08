@@ -170,7 +170,7 @@
             <menupopup id="agenda-menupopup" onpopupshowing="return agendaListbox.setupContextMenu(event.target)">
               <menuitem label="&calendar.context.modifyorviewitem.label;"
                        accesskey="&calendar.context.modifyorviewitem.accesskey;"
-                       observes="agenda_edit_event_command"/>
+                       command="agenda_edit_event_command"/>
               <menu id="agenda-context-menu-convert-menu"
                    label="&calendar.context.convertmenu.label;"
                    accesskey="&calendar.context.convertmenu.accesskey.calendar;">
@@ -190,7 +190,7 @@
               <menuitem label="&calendar.context.deleteevent.label;"
                        accesskey="&calendar.context.deleteevent.accesskey;"
                        key="calendar-delete-item-key"
-                       observes="agenda_delete_event_command"/>
+                       command="agenda_delete_event_command"/>
               <menu id="calendar-today-pane-menu-attendance-menu"
                     label="&calendar.context.attendance.menu.label;"
                     accesskey="&calendar.context.attendance.menu.accesskey;"

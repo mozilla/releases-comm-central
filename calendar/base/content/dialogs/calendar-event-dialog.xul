@@ -416,8 +416,7 @@
                     label="&event.menu.view.showlink.label;"
                     accesskey="&event.menu.view.showlink.accesskey;"
                     type="checkbox"
-                    command="cmd_toggle_link"
-                    observes="cmd_toggle_link"/>
+                    command="cmd_toggle_link"/>
         </menupopup>
       </menu>
 

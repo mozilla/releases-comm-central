@@ -484,16 +484,7 @@ function calendarListSetupContextMenu(event) {
 
   document.getElementById("list-calendars-context-menu").contextCalendar = calendar;
 
-  // Only enable calendar search if there's actually the chance of finding something:
-  let hasProviders = cal.getCalendarSearchService().getProviders({}).length < 1 && "true";
-  setElementValue("list-calendars-context-find", hasProviders, "collapsed");
-
   if (calendar) {
-    document.getElementById("list-calendars-context-edit").removeAttribute("disabled");
-    document.getElementById("list-calendars-context-publish").removeAttribute("disabled");
-
-    document.getElementById("list-calendars-context-togglevisible").removeAttribute("disabled");
-    setElementValue("list-calendars-context-togglevisible", false, "collapsed");
     let stringName = composite.getCalendarById(calendar.id) ? "hideCalendar" : "showCalendar";
     setElementValue(
       "list-calendars-context-togglevisible",
@@ -504,32 +495,24 @@ function calendarListSetupContextMenu(event) {
       .getElementById("list-calendars-context-togglevisible")
       .getAttribute(composite.getCalendarById(calendar.id) ? "accesskeyhide" : "accesskeyshow");
     setElementValue("list-calendars-context-togglevisible", accessKey, "accesskey");
-
-    document.getElementById("list-calendars-context-showonly").removeAttribute("disabled");
-    setElementValue("list-calendars-context-showonly", false, "collapsed");
     setElementValue(
       "list-calendars-context-showonly",
       cal.l10n.getCalString("showOnlyCalendar", [calendar.name]),
       "label"
     );
-
     setupDeleteMenuitem("list-calendars-context-delete", calendar);
-    // Only enable the delete calendars item if there is more than one
-    // calendar. We don't want to have the last calendar deleted.
-    let calendars = cal.getCalendarManager().getCalendars({});
-    setElementValue("list-calendars-context-delete", calendars.length < 2 && "true", "disabled");
+    for (let elem of event.target.querySelectorAll(".needs-calendar")) {
+      elem.removeAttribute("collapsed");
+    }
   } else {
-    document.getElementById("list-calendars-context-edit").setAttribute("disabled", "true");
-    document.getElementById("list-calendars-context-publish").setAttribute("disabled", "true");
-    document.getElementById("list-calendars-context-delete").setAttribute("disabled", "true");
-    document
-      .getElementById("list-calendars-context-togglevisible")
-      .setAttribute("disabled", "true");
-    setElementValue("list-calendars-context-togglevisible", true, "collapsed");
-    document.getElementById("list-calendars-context-showonly").setAttribute("disabled", "true");
-    setElementValue("list-calendars-context-showonly", true, "collapsed");
-    setupDeleteMenuitem("list-calendars-context-delete", null);
+    for (let elem of event.target.querySelectorAll(".needs-calendar")) {
+      elem.setAttribute("collapsed", "true");
+    }
   }
+
+  // Only enable calendar search if there's actually the chance of finding something:
+  let hasProviders = cal.getCalendarSearchService().getProviders({}).length < 1 && "true";
+  setElementValue("list-calendars-context-find", hasProviders, "collapsed");
 }
 
 /**
@@ -555,7 +538,6 @@ function setupDeleteMenuitem(aDeleteId, aCalendar) {
   let deleteItem = document.getElementById(aDeleteId);
   setElementValue(deleteItem, deleteItem.getAttribute("label" + type), "label");
   setElementValue(deleteItem, deleteItem.getAttribute("accesskey" + type), "accesskey");
-  setElementValue(deleteItem, modes.size == 0 && "true", "disabled");
 }
 
 /**

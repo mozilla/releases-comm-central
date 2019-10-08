@@ -34,7 +34,7 @@
           <toolbarbutton id="calendar-add-task-button"
                          label="&calendar.newtask.button.label;"
                          tooltiptext="&calendar.newtask.button.tooltip;"
-                         observes="calendar_new_todo_command"/>
+                         command="calendar_new_todo_command"/>
           <hbox align="center" flex="1" class="input-container">
             <html:input id="view-task-edit-field"
                         class="task-edit-field themeableSearchBox"
@@ -75,7 +75,6 @@
                                  label="&calendar.unifinder.tree.categories.label;"
                                  tooltiptext="&calendar.task.category.button.tooltip;"
                                  command="calendar_task_category_command"
-                                 observes="calendar_task_category_command"
                                  class="toolbarbutton-1 msgHeaderView-button">
                     <menupopup id="task-actions-category-popup"
                                onpopupshowing="taskDetailsView.loadCategories(event);"
@@ -93,7 +92,6 @@
                                  label="&calendar.context.markcompleted.label;"
                                  tooltiptext="&calendar.task.complete.button.tooltip;"
                                  command="calendar_toggle_completed_command"
-                                 observes="calendar_toggle_completed_command"
                                  class="toolbarbutton-1 msgHeaderView-button">
                     <menupopup is="calendar-task-progress-menupopup" id="task-actions-markcompleted-menupopup"/>
                   </toolbarbutton>
@@ -102,7 +100,6 @@
                                  label="&calendar.context.priority.label;"
                                  tooltiptext="&calendar.task.priority.button.tooltip;"
                                  command="calendar_general-priority_command"
-                                 observes="calendar_general-priority_command"
                                  class="toolbarbutton-1 msgHeaderView-button">
                     <menupopup is="calendar-task-priority-menupopup" id="task-actions-priority-menupopup"/>
                   </toolbarbutton>
@@ -110,7 +107,7 @@
                                  class="toolbarbutton-1 msgHeaderView-button"
                                  label="&calendar.taskview.delete.label;"
                                  tooltiptext="&calendar.context.deletetask.label;"
-                                 observes="calendar_delete_todo_command"/>
+                                 command="calendar_delete_todo_command"/>
                 </hbox>
               </vbox>
             </hbox>

@@ -82,7 +82,9 @@
   <window id="messengerWindow">
     <!-- Be sure to keep these sets, since they will be overlaid by
          calendar/base/content/calendar-common-sets.xul -->
-    <commandset id="calendar_commands">
+    <commandset id="calendar_commands" commandupdater="true"
+              events="calendar_commands"
+              oncommandupdate="calendarController.updateCommands()">
       <command id="agenda_delete_event_command" oncommand="agendaListbox.deleteSelectedItem(false);"/>
       <command id="agenda_edit_event_command" oncommand="agendaListbox.editSelectedItem(event);"/>
       <command id="switch2calendar"
@@ -110,7 +112,7 @@
       <key id="openLightningKey"
            key="&lightning.keys.event.showCalendar.key;"
            modifiers="accel, shift"
-           observes="new_calendar_tab"/>
+           command="new_calendar_tab"/>
       <key id="openTasksKey"
            key="&lightning.keys.event.showTasks.key;"
            modifiers="accel, shift"
@@ -124,10 +126,12 @@
       <menupopup id="list-calendars-context-menu"
                  onpopupshowing="return calendarListSetupContextMenu(event);">
         <menuitem id="list-calendars-context-togglevisible"
+                  class="needs-calendar"
                   accesskeyshow="&calendar.context.showcalendar.accesskey;"
                   accesskeyhide="&calendar.context.hidecalendar.accesskey;"
                   oncommand="toggleCalendarVisible(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
         <menuitem id="list-calendars-context-showonly"
+                  class="needs-calendar"
                   accesskey="&calendar.context.showonly.accesskey;"
                   oncommand="showOnlyCalendar(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
         <menuitem id="list-calendars-context-showall"
@@ -138,38 +142,44 @@
         <menuitem id="list-calendars-context-new"
                   label="&calendar.context.newserver.label;"
                   accesskey="&calendar.context.newserver.accesskey;"
-                  observes="calendar_new_calendar_command"/>
+                  command="calendar_new_calendar_command"/>
         <menuitem id="list-calendars-context-find"
                   label="&calendar.context.findcalendar.label;"
                   accesskey="&calendar.context.findcalendar.accesskey;"
                   oncommand="openCalendarSubscriptionsDialog();"/>
         <menuitem id="list-calendars-context-delete"
+                  class="needs-calendar"
                   labeldelete="&calendar.context.deleteserver2.label;"
                   labelremove="&calendar.context.removeserver.label;"
                   labelunsubscribe="&calendar.context.unsubscribeserver.label;"
                   accesskeydelete="&calendar.context.deleteserver2.accesskey;"
                   accesskeyremove="&calendar.context.removeserver.accesskey;"
                   accesskeyunsubscribe="&calendar.context.unsubscribeserver.accesskey;"
-                  observes="calendar_delete_calendar_command"/>
+                  command="calendar_delete_calendar_command"/>
         <menuseparator id="list-calendars-context-itemops-menuseparator"/>
         <menuitem id="list-calendars-context-export"
+                  class="needs-calendar"
                   label="&calendar.context.export.label;"
                   accesskey="&calendar.context.export.accesskey;"
                   oncommand="exportEntireCalendar(document.getElementById('list-calendars-context-menu').contextCalendar);"/>
         <menuitem id="list-calendars-context-publish"
+                  class="needs-calendar"
                   label="&calendar.context.publish.label;"
                   accesskey="&calendar.context.publish.accesskey;"
-                  observes="calendar_publish_selected_calendar_command"/>
-        <menuseparator id="list-calendars-context-export-menuseparator"/>
+                  command="calendar_publish_selected_calendar_command"/>
+        <menuseparator id="list-calendars-context-export-menuseparator"
+                  class="needs-calendar"/>
         <menuitem id="list-calendars-context-reload"
                   label="&calendar.context.synccalendars.label;"
                   accesskey="&calendar.context.synccalendars.accesskey;"
-                  observes="calendar_reload_remote_calendars"/>
-        <menuseparator id="list-calendars-context-reload-menuseparator"/>
+                  command="calendar_reload_remote_calendars"/>
+        <menuseparator id="list-calendars-context-reload-menuseparator"
+                       class="needs-calendar"/>
         <menuitem id="list-calendars-context-edit"
+                  class="needs-calendar"
                   label="&calendar.context.properties.label;"
                   accesskey="&calendar.context.properties.accesskey;"
-                  observes="calendar_edit_calendar_command"/>
+                  command="calendar_edit_calendar_command"/>
       </menupopup>
       <tooltip id="calendar-list-tooltip"
                onpopupshowing="return calendarListTooltipShowing(event)"/>
@@ -363,7 +373,6 @@
                      type="checkbox"
                      label="&todaypane.statusButton.label;"
                      tooltiptext="&calendar.todaypane.button.tooltip;"
-                     observes="calendar_toggle_todaypane_command"
                      command="calendar_toggle_todaypane_command"/>
     </calendar-modebox>
     <hbox id="calendar-invitations-panel"

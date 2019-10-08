@@ -98,28 +98,31 @@
 // Use the available modifiers for each platform.
 // Can't use the OPTION key on OSX, so we will use SHIFT+OPTION on the Mac.
     <key id="calendar-day-view-key" key="1"
-         observes="calendar_day-view_command"
+         command="calendar_day-view_command"
          modifiers-linux="accel"
          modifiers-macosx="shift alt"
          modifiers-win="alt"/>
     <key id="calendar-week-view-key" key="2"
-         observes="calendar_week-view_command"
+         command="calendar_week-view_command"
          modifiers-linux="accel"
          modifiers-macosx="shift alt"
          modifiers-win="alt"/>
     <key id="calendar-multiweek-view-key" key="3"
-         observes="calendar_multiweek-view_command"
+         command="calendar_multiweek-view_command"
          modifiers-linux="accel"
          modifiers-macosx="shift alt"
          modifiers-win="alt"/>
     <key id="calendar-month-view-key" key="4"
-         observes="calendar_month-view_command"
+         command="calendar_month-view_command"
          modifiers-linux="accel"
          modifiers-macosx="shift alt"
          modifiers-win="alt"/>
-    <key id="calendar-go-to-today-key" keycode="VK_END" observes="calendar_go_to_today_command" modifiers="alt"/>
-    <key id="calendar-delete-item-key" keycode="VK_DELETE" observes="calendar_delete_event_command"/>
-    <key id="calendar-delete-todo-key" keycode="VK_DELETE" observes="calendar_delete_todo_command"/>
+    <key id="calendar-go-to-today-key" keycode="VK_END"
+         command="calendar_go_to_today_command" modifiers="alt"/>
+    <key id="calendar-delete-item-key" keycode="VK_DELETE"
+         command="calendar_delete_event_command"/>
+    <key id="calendar-delete-todo-key" keycode="VK_DELETE"
+         command="calendar_delete_todo_command"/>
   </keyset>
 
   <popupset id="calendar-popupset">
@@ -140,35 +143,32 @@
       <menuitem id="calendar-item-context-menu-modify-menuitem"
                 label="&calendar.context.modifyorviewitem.label;"
                 accesskey="&calendar.context.modifyorviewitem.accesskey;"
-                observes="calendar_modify_event_command"/>
+                command="calendar_modify_event_command"/>
       <menuitem id="calendar-item-context-menu-newevent-menutitem"
                 label="&calendar.context.newevent.label;"
                 accesskey="&calendar.context.newevent.accesskey;"
                 key="calendar-new-event-key"
-                observes="calendar_new_event_context_command"/>
+                command="calendar_new_event_context_command"/>
       <menuitem id="calendar-item-context-menu-newtodo-menuitem"
                 label="&calendar.context.newtodo.label;"
                 accesskey="&calendar.context.newtodo.accesskey;"
                 key="calendar-new-todo-key"
-                observes="calendar_new_todo_context_command"/>
+                command="calendar_new_todo_context_command"/>
       <menuseparator id="calendar-item-context-menuseparator-adddeletemodify"/>
       <menuitem id="calendar-item-context-menu-cut-menuitem"
                 label="&calendar.context.cutevent.label;"
                 accesskey="&calendar.context.cutevent.accesskey;"
                 key="key_cut"
-                observes="cmd_cut"
                 command="cmd_cut"/>
       <menuitem id="calendar-item-context-menu-copy-menuitem"
                 label="&calendar.context.copyevent.label;"
                 accesskey="&calendar.context.copyevent.accesskey;"
                 key="key_copy"
-                observes="cmd_copy"
                 command="cmd_copy"/>
       <menuitem id="calendar-item-context-menu-paste-menuitem"
                 label="&calendar.context.pasteevent.label;"
                 accesskey="&calendar.context.pasteevent.accesskey;"
                 key="key_paste"
-                observes="cmd_paste"
                 command="cmd_paste"/>
       <menuseparator id="calendar-item-context-separator-cutcopypaste"/>
       <menu id="calendar-item-context-menu-convert-menu"
@@ -196,7 +196,7 @@
            and depends on whether the item is a task or an event -->
       <menuitem id="calendar-item-context-menu-delete-menuitem"
                 key="calendar-delete-item-key"
-                observes="calendar_delete_event_command"/>
+                command="calendar_delete_event_command"/>
       <menu id="calendar-item-context-menu-attendance-menu"
             label="&calendar.context.attendance.menu.label;"
             accesskey="&calendar.context.attendance.menu.accesskey;"
@@ -365,19 +365,19 @@
     <menupopup id="calendar-view-context-menu">
       <menuitem id="calendar-view-context-menu-newevent"
                 label="&calendar.context.newevent.label;"
-                observes="calendar_new_event_context_command"
+                command="calendar_new_event_context_command"
                 accesskey="&calendar.context.newevent.accesskey;"
                 key="calendar-new-event-key"/>
       <menuitem id="calendar-view-context-menu-newtodo"
                 label="&calendar.context.newtodo.label;"
-                observes="calendar_new_todo_context_command"
+                command="calendar_new_todo_context_command"
                 accesskey="&calendar.context.newtodo.accesskey;"
                 key="calendar-new-todo-key"/>
       <!-- These labels are set dynamically, based on the current view -->
       <menuitem id="calendar-view-context-menu-previous"
                 label=""
                 accesskey=""
-                observes="calendar_view_prev_command"
+                command="calendar_view_prev_command"
                 label-day="&calendar.prevday.label;"
                 label-week="&calendar.prevweek.label;"
                 label-multiweek="&calendar.prevweek.label;"
@@ -388,7 +388,7 @@
                 accesskey-month="&calendar.prevmonth.accesskey;"/>
       <menuitem id="calendar-view-context-menu-next"
                 label=""
-                observes="calendar_view_next_command"
+                command="calendar_view_next_command"
                 label-day="&calendar.nextday.label;"
                 label-week="&calendar.nextweek.label;"
                 label-multiweek="&calendar.nextweek.label;"
@@ -414,7 +414,6 @@
                 label="&calendar.context.pasteevent.label;"
                 accesskey="&calendar.context.pasteevent.accesskey;"
                 key="key_paste"
-                observes="cmd_paste"
                 command="cmd_paste"/>
     </menupopup>
 
@@ -425,43 +424,36 @@
       <menuitem id="task-context-menu-modify"
                 label="&calendar.context.modifyorviewtask.label;"
                 accesskey="&calendar.context.modifyorviewtask.accesskey;"
-                command="calendar_modify_todo_command"
-                observes="calendar_modify_todo_command"/>
+                command="calendar_modify_todo_command"/>
       <menuitem id="task-context-menu-modify-todaypane"
                 label="&calendar.context.modifyorviewtask.label;"
                 accesskey="&calendar.context.modifyorviewtask.accesskey;"
-                command="calendar_modify_todo_todaypane_command"
-                observes="calendar_modify_todo_todaypane_command"/>
+                command="calendar_modify_todo_todaypane_command"/>
       <menuitem id="task-context-menu-new"
                 label="&calendar.context.newtodo.label;"
                 accesskey="&calendar.context.newtodo.accesskey;"
                 key="calendar-new-todo-key"
-                command="calendar_new_todo_command"
-                observes="calendar_new_todo_command"/>
+                command="calendar_new_todo_command"/>
       <menuitem id="task-context-menu-new-todaypane"
                 label="&calendar.context.newtodo.label;"
                 accesskey="&calendar.context.newtodo.accesskey;"
                 key="calendar-new-todo-key"
-                command="calendar_new_todo_todaypane_command"
-                observes="calendar_new_todo_todaypane_command"/>
+                command="calendar_new_todo_todaypane_command"/>
       <menuseparator id="task-context-menuseparator-cutcopypaste"/>
       <menuitem id="task-context-menu-cut-menuitem"
                 label="&calendar.context.cutevent.label;"
                 accesskey="&calendar.context.cutevent.accesskey;"
                 key="key_cut"
-                observes="cmd_cut"
                 command="cmd_cut"/>
       <menuitem id="task-context-menu-copy-menuitem"
                 label="&calendar.context.copyevent.label;"
                 accesskey="&calendar.context.copyevent.accesskey;"
                 key="key_copy"
-                observes="cmd_copy"
                 command="cmd_copy"/>
       <menuitem id="task-context-menu-paste-menuitem"
                 label="&calendar.context.pasteevent.label;"
                 accesskey="&calendar.context.pasteevent.accesskey;"
                 key="key_paste"
-                observes="cmd_paste"
                 command="cmd_paste"/>
       <menuseparator id="calendar-menuseparator-beforemarkcompleted"/>
       <menuitem id="calendar-context-markcompleted"
@@ -469,40 +461,36 @@
                 autocheck="false"
                 label="&calendar.context.markcompleted.label;"
                 accesskey="&calendar.context.markcompleted.accesskey;"
-                observes="calendar_toggle_completed_command"
                 command="calendar_toggle_completed_command"/>
       <menu id="task-context-menu-progress"
             label="&calendar.context.progress.label;"
             accesskey="&calendar.context.progress.accesskey;"
-            command="calendar_general-progress_command"
-            observes="calendar_general-progress_command">
+            command="calendar_general-progress_command">
         <menupopup is="calendar-task-progress-menupopup"/>
       </menu>
       <menu id="task-context-menu-priority"
             label="&calendar.context.priority.label;"
             accesskey="&calendar.context.priority.accesskey;"
-            command="calendar_general-priority_command"
-            observes="calendar_general-priority_command">
+            command="calendar_general-priority_command">
         <menupopup is="calendar-task-priority-menupopup"/>
       </menu>
       <menu id="task-context-menu-postpone"
             label="&calendar.context.postpone.label;"
             accesskey="&calendar.context.postpone.accesskey;"
-            command="calendar_general-postpone_command"
-            observes="calendar_general-postpone_command">
+            command="calendar_general-postpone_command">
         <menupopup id="task-context-postpone-menupopup">
           <menuitem id="task-context-postpone-1hour"
                     label="&calendar.context.postpone.1hour.label;"
                     accesskey="&calendar.context.postpone.1hour.accesskey;"
-                    observes="calendar_postpone-1hour_command"/>
+                    command="calendar_postpone-1hour_command"/>
           <menuitem id="task-context-postpone-1day"
                     label="&calendar.context.postpone.1day.label;"
                     accesskey="&calendar.context.postpone.1day.accesskey;"
-                    observes="calendar_postpone-1day_command"/>
+                    command="calendar_postpone-1day_command"/>
           <menuitem id="task-context-postpone-1week"
                     label="&calendar.context.postpone.1week.label;"
                     accesskey="&calendar.context.postpone.1week.accesskey;"
-                    observes="calendar_postpone-1week_command"/>
+                    command="calendar_postpone-1week_command"/>
         </menupopup>
       </menu>
       <menu id="calendar-context-calendar-menu"
@@ -530,8 +518,7 @@
       <menuitem id="task-context-menu-delete"
                 label="&calendar.context.deletetask.label;"
                 accesskey="&calendar.context.deletetask.accesskey;"
-                command="calendar_delete_todo_command"
-                observes="calendar_delete_todo_command"/>
+                command="calendar_delete_todo_command"/>
       <menu id="task-context-menu-attendance-menu"
             label="&calendar.context.attendance.menu.label;"
             accesskey="&calendar.context.attendance.menu.accesskey;"

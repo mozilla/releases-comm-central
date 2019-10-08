@@ -34,14 +34,12 @@
               label="&event.menu.item.save.label;"
               accesskey="&event.menu.item.save.tab.accesskey;"
               key="save-key"
-              command="cmd_save"
-              observes="cmd_save"/>
+              command="cmd_save"/>
     <menuitem id="ltnSaveAndClose"
               insertafter="ltnSave"
               label="&event.menu.item.saveandclose.label;"
               accesskey="&event.menu.item.saveandclose.tab.accesskey;"
-              command="cmd_accept"
-              observes="cmd_accept"/>
+              command="cmd_accept"/>
   </menupopup>
   <menuitem id="openMessageFileMenuitem" hidden="true"/>
 
@@ -51,21 +49,18 @@
               insertbefore="menu_newFolder"
               accesskey="&lightning.menupopup.new.event.accesskey;"
               key="calendar-new-event-key"
-              command="calendar_new_event_command"
-              observes="calendar_new_event_command"/>
+              command="calendar_new_event_command"/>
     <menuitem id="ltnNewTask"
               label="&lightning.menupopup.new.task.label;"
               insertbefore="menu_newFolder"
               accesskey="&lightning.menupopup.new.task.accesskey;"
               key="calendar-new-todo-key"
-              command="calendar_new_todo_command"
-              observes="calendar_new_todo_command"/>
+              command="calendar_new_todo_command"/>
     <menuseparator id="afterltnNewTask"
                    insertbefore="menu_newFolder"
                    observes="menu_newFolder"/>
     <menuitem id="ltnNewCalendar" label="&lightning.menupopup.new.calendar.label;"
                command="calendar_new_calendar_command"
-               observes="calendar_new_calendar_command"
                accesskey="&lightning.menupopup.new.calendar.accesskey;"
                insertafter="newAccountMenuItem"/>
   </menupopup>
@@ -75,8 +70,7 @@
               insertafter="menu_properties"
               label="&calendar.properties.label;"
               accesskey="&calendar.properties.accesskey;"
-              command="calendar_edit_calendar_command"
-              observes="calendar_edit_calendar_command"/>
+              command="calendar_edit_calendar_command"/>
   </menupopup>
 
   <menupopup id="menu_View_Popup">
@@ -187,23 +181,22 @@
                       id="ltnWorkdaysOnlyMenuitem"
                       label="&calendar.onlyworkday.checkbox.label;"
                       accesskey="&calendar.onlyworkday.checkbox.accesskey;"
-                      observes="calendar_toggle_workdays_only_command"/>
+                      command="calendar_toggle_workdays_only_command"/>
             <menuitem type="checkbox"
                       id="ltnTasksInViewMenuitem"
                       label="&calendar.displaytodos.checkbox.label;"
                       accesskey="&calendar.displaytodos.checkbox.accesskey;"
-                      observes="calendar_toggle_tasks_in_view_command"/>
+                      command="calendar_toggle_tasks_in_view_command"/>
             <menuitem type="checkbox"
                       id="ltnShowCompletedInViewMenuItem"
                       label="&calendar.completedtasks.checkbox.label;"
                       accesskey="&calendar.completedtasks.checkbox.accesskey;"
-                      observes="calendar_toggle_show_completed_in_view_command"/>
+                      command="calendar_toggle_show_completed_in_view_command"/>
             <menuitem type="checkbox"
                       id="ltnViewRotated"
                       label="&calendar.orientation.label;"
                       accesskey="&calendar.orientation.accesskey;"
-                      command="calendar_toggle_orientation_command"
-                      observes="calendar_toggle_orientation_command"/>
+                      command="calendar_toggle_orientation_command"/>
           </menupopup>
         </menu>
       </menupopup>
@@ -285,7 +278,7 @@
               insertafter="goNextSeparator"
               label="&goTodayCmd.label;"
               accesskey="&goTodayCmd.accesskey;"
-              observes="calendar_go_to_today_command"
+              command="calendar_go_to_today_command"
               key="calendar-go-to-today-key"/>
   </menupopup>
 
@@ -304,7 +297,7 @@
               accesskey-week="&lightning.toolbar.week.accesskey;"
               accesskey-multiweek="&lightning.toolbar.week.accesskey;"
               accesskey-month="&lightning.toolbar.month.accesskey;"
-              observes="calendar_view_next_command"/>
+              command="calendar_view_next_command"/>
   </menupopup>
 
   <menupopup id="menu_GoPreviousPopup">
@@ -322,7 +315,7 @@
               accesskey-week="&lightning.toolbar.week.accesskey;"
               accesskey-multiweek="&lightning.toolbar.week.accesskey;"
               accesskey-month="&lightning.toolbar.month.accesskey;"
-              observes="calendar_view_prev_command"/>
+              command="calendar_view_prev_command"/>
   </menupopup>
 
   <menubar id="mail-menubar">
@@ -335,14 +328,12 @@
                   label="&event.new.event;"
                   accesskey="&event.new.event.accesskey;"
                   key="calendar-new-event-key"
-                  command="calendar_new_event_command"
-                  observes="calendar_new_event_command"/>
+                  command="calendar_new_event_command"/>
         <menuitem id="ltnNewTask2"
                   label="&event.new.task;"
                   accesskey="&event.new.task.accesskey;"
                   key="calendar-new-todo-key"
-                  command="calendar_new_todo_command"
-                  observes="calendar_new_todo_command"/>
+                  command="calendar_new_todo_command"/>
         <menuseparator id="before-Calendar-Mode-Section"/>
         <menuitem id="ltnMenuSwitchToCalendar"
                   type="checkbox"
@@ -366,18 +357,15 @@
         <menuitem id="ltnExportCalendar"
                   label="&calendar.export.label;"
                   accesskey="&calendar.export.accesskey;"
-                  command="calendar_export_command"
-                  observes="calendar_export_command"/>
+                  command="calendar_export_command"/>
         <menuitem id="ltnImportCalendar"
                   label="&calendar.import.label;"
                   accesskey="&calendar.import.accesskey;"
-                  command="calendar_import_command"
-                  observes="calendar_import_command"/>
+                  command="calendar_import_command"/>
         <menuitem id="ltnPublishCalendar"
                   label="&calendar.publish.label;"
                   accesskey="&calendar.publish.accesskey;"
-                  command="calendar_publish_calendar_command"
-                  observes="calendar_publish_calendar_command"/>
+                  command="calendar_publish_calendar_command"/>
         <menuitem id="ltnDeleteSelectedCalendar"
                   labeldelete="&calendar.deletecalendar.label;"
                   labelremove="&calendar.removecalendar.label;"
@@ -385,46 +373,42 @@
                   accesskeydelete="&calendar.deletecalendar.accesskey;"
                   accesskeyremove="&calendar.removecalendar.accesskey;"
                   accesskeyunsubscribe="&calendar.unsubscribecalendar.accesskey;"
-                  command="calendar_delete_calendar_command"
-                  observes="calendar_delete_calendar_command"/>
+                  command="calendar_delete_calendar_command"/>
         <menuseparator id="ltnBeforeTaskActions"/>
         <menuitem id="ltnTaskActionsMarkCompletedMenuitem"
                   type="checkbox"
                   label="&calendar.context.markcompleted.label;"
                   accesskey="&calendar.context.markcompleted.accesskey;"
-                  command="calendar_toggle_completed_command"
-                  observes="calendar_toggle_completed_command"/>
+                  command="calendar_toggle_completed_command"/>
         <menu id="ltnTaskActionsPriorityMenuitem"
               label="&calendar.context.priority.label;"
               accesskey="&calendar.context.priority.accesskey;"
-              command="calendar_general-priority_command"
-              observes="calendar_general-priority_command">
+              command="calendar_general-priority_command">
           <menupopup is="calendar-task-priority-menupopup"/>
         </menu>
         <menu id="ltnTaskActionsProgressMenuitem"
               label="&calendar.context.progress.label;"
               accesskey="&calendar.context.progress.accesskey;"
-              command="calendar_general-progress_command"
-              observes="calendar_general-progress_command">
+              command="calendar_general-progress_command">
           <menupopup is="calendar-task-progress-menupopup"/>
         </menu>
         <menu id="ltnTaskActionsPostponeMenuitem"
               label="&calendar.context.postpone.label;"
               accesskey="&calendar.context.postpone.accesskey;"
-              observes="calendar_general-postpone_command">
+              command="calendar_general-postpone_command">
           <menupopup id="ltnTaskActionsPostponeMenuPopup">
             <menuitem id="ltnTaskActionsPostponeMenu-1hour"
                       label="&calendar.context.postpone.1hour.label;"
                       accesskey="&calendar.context.postpone.1hour.accesskey;"
-                      observes="calendar_postpone-1hour_command"/>
+                      command="calendar_postpone-1hour_command"/>
             <menuitem id="ltnTaskActionsPostponeMenu-1day"
                       label="&calendar.context.postpone.1day.label;"
                       accesskey="&calendar.context.postpone.1day.accesskey;"
-                      observes="calendar_postpone-1day_command"/>
+                      command="calendar_postpone-1day_command"/>
             <menuitem id="ltnTaskActionsPostponeMenu-1week"
                       label="&calendar.context.postpone.1week.label;"
                       accesskey="&calendar.context.postpone.1week.accesskey;"
-                      observes="calendar_postpone-1week_command"/>
+                      command="calendar_postpone-1week_command"/>
           </menupopup>
         </menu>
         <menuseparator id="ltnBeforeUnifinderSection" />
@@ -433,7 +417,6 @@
                   checked="true"
                   label="&showUnifinderCmd.label;"
                   accesskey="&showUnifinderCmd.accesskey;"
-                  observes="calendar_show_unifinder_command"
                   command="calendar_show_unifinder_command"/>
       </menupopup>
     </menu>
@@ -497,14 +480,12 @@
                    class="subviewbutton subviewbutton-iconic"
                    label="&lightning.menupopup.new.event.label;"
                    insertbefore="appmenu_newFolder"
-                   command="calendar_new_event_command"
-                   observes="calendar_new_event_command"/>
+                   command="calendar_new_event_command"/>
     <toolbarbutton id="appmenu_ltnNewTask"
                    class="subviewbutton subviewbutton-iconic"
                    label="&lightning.menupopup.new.task.label;"
                    insertbefore="appmenu_newFolder"
-                   command="calendar_new_todo_command"
-                   observes="calendar_new_todo_command"/>
+                   command="calendar_new_todo_command"/>
     <toolbarseparator id="appmenu_afterltnNewTask"
                       insertbefore="appmenu_newFolder"
                       observes="appmenu_newFolder"/>
@@ -512,7 +493,6 @@
                    class="subviewbutton subviewbutton-iconic"
                    label="&lightning.menupopup.new.calendar.label;"
                    command="calendar_new_calendar_command"
-                   observes="calendar_new_calendar_command"
                    insertafter="appmenu_newAccountMenuItem"/>
   </vbox>
 
@@ -560,7 +540,7 @@
                    class="subviewbutton subviewbutton-iconic"
                    insertafter="appmenu_goNextSeparator"
                    label="&goTodayCmd.label;"
-                   observes="calendar_go_to_today_command"/>
+                   command="calendar_go_to_today_command"/>
   </vbox>
 
   <!-- Go / Next -->
@@ -576,7 +556,7 @@
                    label-week="&lightning.toolbar.week.label;"
                    label-multiweek="&lightning.toolbar.week.label;"
                    label-month="&lightning.toolbar.month.label;"
-                   observes="calendar_view_next_command"/>
+                   command="calendar_view_next_command"/>
   </vbox>
 
   <!-- Go / Previous -->
@@ -592,7 +572,7 @@
                    label-week="&lightning.toolbar.week.label;"
                    label-multiweek="&lightning.toolbar.week.label;"
                    label-month="&lightning.toolbar.month.label;"
-                   observes="calendar_view_prev_command"/>
+                   command="calendar_view_prev_command"/>
   </vbox>
 
   <!-- Calendar submenus added to the appmenu -->
@@ -622,18 +602,15 @@
         <toolbarbutton id="appmenu_ltnExportCalendar"
                        class="subviewbutton subviewbutton-iconic"
                        label="&calendar.export.label;"
-                       command="calendar_export_command"
-                       observes="calendar_export_command"/>
+                       command="calendar_export_command"/>
         <toolbarbutton id="appmenu_ltnImportCalendar"
                        class="subviewbutton subviewbutton-iconic"
                        label="&calendar.import.label;"
-                       command="calendar_import_command"
-                       observes="calendar_import_command"/>
+                       command="calendar_import_command"/>
         <toolbarbutton id="appmenu_ltnPublishCalendar"
                        class="subviewbutton subviewbutton-iconic"
                        label="&calendar.publish.label;"
-                       command="calendar_publish_calendar_command"
-                       observes="calendar_publish_calendar_command"/>
+                       command="calendar_publish_calendar_command"/>
         <toolbarbutton id="appmenu_ltnDeleteSelectedCalendar"
                        class="subviewbutton subviewbutton-iconic"
                        labeldelete="&calendar.deletecalendar.label;"
@@ -642,15 +619,13 @@
                        accesskeydelete="&calendar.deletecalendar.accesskey;"
                        accesskeyremove="&calendar.removecalendar.accesskey;"
                        accesskeyunsubscribe="&calendar.unsubscribecalendar.accesskey;"
-                       command="calendar_delete_calendar_command"
-                       observes="calendar_delete_calendar_command"/>
+                       command="calendar_delete_calendar_command"/>
         <toolbarseparator id="ltnBeforeTaskActions"/>
         <toolbarbutton id="appmenu_ltnTaskActionsMarkCompletedMenuitem"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&calendar.context.markcompleted.label;"
-                       command="calendar_toggle_completed_command"
-                       observes="calendar_toggle_completed_command"/>
+                       command="calendar_toggle_completed_command"/>
         <toolbarbutton id="appmenu_ltnTaskActionsPriorityMenuitem"
                        class="subviewbutton subviewbutton-nav"
                        label="&calendar.context.priority.label;"
@@ -673,15 +648,13 @@
                        type="checkbox"
                        checked="true"
                        label="&showUnifinderCmd.label;"
-                       observes="calendar_show_unifinder_command"
                        command="calendar_show_unifinder_command"/>
         <toolbarseparator id="appmenu_ltnBeforeCalendarProperties" />
         <toolbarbutton id="appmenu_ltnCalendarProperties"
                        class="subviewbutton subviewbutton-iconic"
                        insertafter="menu_properties"
                        label="&calendar.properties.label;"
-                       command="calendar_edit_calendar_command"
-                       observes="calendar_edit_calendar_command"/>
+                       command="calendar_edit_calendar_command"/>
       </vbox>
     </panelview>
 
@@ -700,15 +673,15 @@
         <toolbarbutton id="ltnTaskActionsPostponeMenu-1hour"
                        class="subviewbutton subviewbutton-iconic"
                        label="&calendar.context.postpone.1hour.label;"
-                       observes="calendar_postpone-1hour_command"/>
+                       command="calendar_postpone-1hour_command"/>
         <toolbarbutton id="appmenu_ltnTaskActionsPostponeMenu-1day"
                        class="subviewbutton subviewbutton-iconic"
                        label="&calendar.context.postpone.1day.label;"
-                       observes="calendar_postpone-1day_command"/>
+                       command="calendar_postpone-1day_command"/>
         <toolbarbutton id="appmenu_ltnTaskActionsPostponeMenu-1week"
                        class="subviewbutton subviewbutton-iconic"
                        label="&calendar.context.postpone.1week.label;"
-                       observes="calendar_postpone-1week_command"/>
+                       command="calendar_postpone-1week_command"/>
       </vbox>
     </panelview>
 
@@ -841,23 +814,22 @@
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&calendar.onlyworkday.checkbox.label;"
-                       observes="calendar_toggle_workdays_only_command"/>
+                       command="calendar_toggle_workdays_only_command"/>
         <toolbarbutton id="appmenu_ltnTasksInViewMenuitem"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&calendar.displaytodos.checkbox.label;"
-                       observes="calendar_toggle_tasks_in_view_command"/>
+                       command="calendar_toggle_tasks_in_view_command"/>
         <toolbarbutton id="appmenu_ltnShowCompletedInViewMenuItem"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&calendar.completedtasks.checkbox.label;"
-                       observes="calendar_toggle_show_completed_in_view_command"/>
+                       command="calendar_toggle_show_completed_in_view_command"/>
         <toolbarbutton id="appmenu_ltnViewRotated"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&calendar.orientation.label;"
-                       command="calendar_toggle_orientation_command"
-                       observes="calendar_toggle_orientation_command"/>
+                       command="calendar_toggle_orientation_command"/>
       </vbox>
     </panelview>
 
