@@ -520,7 +520,3 @@ html|input[type="number"].size4 {
 html|input[type="number"].size5 {
   width: calc(5ch + 44px);
 }
-
-html|input[type="number"]::-moz-number-spin-box {
-  height: initial;
-}

@@ -5,6 +5,10 @@
 @import url("chrome://messenger/skin/shared/input-fields.css");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+html|input.input-inline {
+  padding-inline-start: 4px;
+}
+
 html|input.input-filefield {
   padding: 2px 4px;
   background: center left 2px / 16px no-repeat -moz-field;

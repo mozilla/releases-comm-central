@@ -24,6 +24,10 @@ menulist.actionsMenu > .menulist-dropmarker {
   margin-bottom: 11px;
 }
 
+html|input[type="number"]::-moz-number-spin-box {
+  margin-inline-end: 0;
+}
+
 html|input[type="number"]::-moz-number-spin-up {
   min-height: 10px;
 }

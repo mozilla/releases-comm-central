@@ -170,7 +170,7 @@
                   oncommand="onCheckItem('server.biffMinutes', [this.id]);"
                   prefattribute="value"
                   prefstring="mail.server.%serverkey%.check_new_mail"/>
-        <html:input id="server.biffMinutes" type="number" class="size3" min="1"
+        <html:input id="server.biffMinutes" type="number" class="size3 input-inline" min="1"
                     wsm_persist="true"
                     aria-labelledby="server.doBiff server.biffMinutes biffEnd"
                     preftype="int"
@@ -217,7 +217,7 @@
                   accesskey="&deleteByAgeFromServer.accesskey;"
                   prefattribute="value"
                   prefstring="mail.server.%serverkey%.delete_by_age_from_server"/>
-        <html:input id="pop3.numDaysToLeaveOnServer" type="number" class="size3" min="1"
+        <html:input id="pop3.numDaysToLeaveOnServer" type="number" class="size3 input-inline" min="1"
                     wsm_persist="true"
                     aria-labelledby="pop3.deleteByAgeFromServer pop3.numDaysToLeaveOnServer daysEnd"
                     preftype="int"
@@ -338,7 +338,7 @@
                 oncommand="onCheckItem('nntp.maxArticles', [this.id]);"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.notify.on"/>
-      <html:input id="nntp.maxArticles" type="number" class="size4" min="1"
+      <html:input id="nntp.maxArticles" type="number" class="size4 input-inline" min="1"
                   wsm_persist="true"
                   aria-labelledby="nntp.notifyOn nntp.maxArticles maxMessagesEnd"
                   preftype="int"

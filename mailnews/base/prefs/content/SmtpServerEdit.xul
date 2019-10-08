@@ -61,7 +61,8 @@
                       prefstring="mail.smtpserver.%serverkey%.hostname"
                       aria-labelledby="smtp.hostname.label"/>
           <hbox align="center">
-              <html:input id="smtp.port" type="number" class="size5" min="0" max="65535"
+              <html:input id="smtp.port" type="number" class="size5 input-inline"
+                          min="0" max="65535"
                           preftype="int"
                           prefstring="mail.smtpserver.%serverkey%.port"/>
               <label value="&serverPortDefault.label;"/>

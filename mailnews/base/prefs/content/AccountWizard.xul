@@ -133,7 +133,7 @@
             <label id="serverPortLabel" control="serverPort"
                    accesskey="&portNum.accesskey;"
                    value="&portNum.label;"/>
-            <html:input id="serverPort" type="number" class="size3" max="65535"/>
+            <html:input id="serverPort" type="number" class="size3 input-inline" max="65535"/>
             <label id="defaultPortLabel" value="&defaultPortLabel.label;"/>
             <label id="defaultPortValue" value="&defaultPortValue.label;"/>
           </hbox>
