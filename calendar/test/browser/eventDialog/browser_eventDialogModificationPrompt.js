@@ -20,28 +20,34 @@ var {
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
-var { mark_failure } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 var controller = mozmill.getMail3PaneController();
 var { eid, lookupEventBox } = helpersForController(controller);
 
-const TIMEOUT_COMMON_DIALOG = 3000;
-var savePromptAppeared = false;
-var failPoints = {
-  first: "no change",
-  second: "change all and back",
-  third: ["1st pass", "2nd pass", "3rd pass", "4th pass", "5th pass"],
-};
-
 var { date1, date2, date3, data, newlines } = setupData();
+
+// If the "do you want to save the event?" prompt appears, this test failed.
+// Listen for all windows opening, and if one is the save prompt, fail.
+var windowObserver = {
+  async observe(win, topic) {
+    if (topic == "domwindowopened") {
+      await BrowserTestUtils.waitForEvent(win, "load");
+      // Make sure this is a prompt window.
+      if (win.location.href == "chrome://global/content/commonDialog.xul") {
+        let doc = win.document;
+        // Adding attachments also shows a prompt, but we can tell which one
+        // this is by checking whether the textbox is visible.
+        if (doc.querySelector("#loginContainer").hasAttribute("hidden")) {
+          Assert.ok(false, "Unexpected save prompt appeared");
+          doc.documentElement.getButton("cancel").click();
+        }
+      }
+    }
+  },
+};
+Services.ww.registerNotification(windowObserver);
 
 // Test that closing an event dialog with no changes does not prompt for save.
 add_task(function testEventDialogModificationPrompt() {
@@ -67,20 +73,15 @@ add_task(function testEventDialogModificationPrompt() {
     event.click(eventid("button-saveandclose"));
   });
 
+  // Open, but change nothing.
   invokeEventDialog(controller, eventbox, (event, iframe) => {
-    // Open, but change nothing.
-    plan_for_modal_dialog("commonDialog", handleSavePrompt);
-
     // Escape the event window, there should be no prompt to save event.
     event.keypress(null, "VK_ESCAPE", {});
-    try {
-      wait_for_modal_dialog("commonDialog", TIMEOUT_COMMON_DIALOG);
-    } catch (e) {
-      failPoints.first = "";
-    }
+    // Wait to see if the prompt appears.
+    controller.sleep(2000);
   });
 
-  // open
+  // Open, change all values then revert the changes.
   invokeEventDialog(controller, eventbox, (event, iframe) => {
     // Change all values.
     setData(event, iframe, data[1]);
@@ -88,15 +89,10 @@ add_task(function testEventDialogModificationPrompt() {
     // Edit all values back to original.
     setData(event, iframe, data[0]);
 
-    plan_for_modal_dialog("commonDialog", handleSavePrompt);
-
     // Escape the event window, there should be no prompt to save event.
     event.keypress(null, "VK_ESCAPE", {});
-    try {
-      wait_for_modal_dialog("commonDialog", TIMEOUT_COMMON_DIALOG);
-    } catch (e) {
-      failPoints.second = "";
-    }
+    // Wait to see if the prompt appears.
+    controller.sleep(2000);
   });
 
   // Delete event.
@@ -116,13 +112,9 @@ add_task(function testEventDialogModificationPrompt() {
     // Open and close.
     invokeEventDialog(controller, eventbox, (event, iframe) => {
       setData(event, iframe, newlines[i]);
-      plan_for_modal_dialog("commonDialog", handleSavePrompt);
       event.keypress(null, "VK_ESCAPE", {});
-      try {
-        wait_for_modal_dialog("commonDialog", TIMEOUT_COMMON_DIALOG);
-      } catch (e) {
-        failPoints.third[i] = "";
-      }
+      // Wait to see if the prompt appears.
+      controller.sleep(2000);
     });
 
     // Delete it.
@@ -137,31 +129,9 @@ add_task(function testEventDialogModificationPrompt() {
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(controller, CALENDARNAME);
-  if (savePromptAppeared) {
-    mark_failure([
-      "Save Prompt unexpectedly appeared on: ",
-      failPoints.first,
-      failPoints.second,
-      failPoints.third,
-    ]);
-  }
   closeAllEventDialogs();
+  Services.ww.unregisterNotification(windowObserver);
 });
-
-function handleSavePrompt(dialogController) {
-  let { lookup: cdlglookup } = helpersForController(dialogController);
-  // Unexpected prompt, thus the test has already failed.
-  // Can't trigger a failure though, because the following click wouldn't
-  // be executed. So remembering it.
-  savePromptAppeared = true;
-
-  // application close is blocked without it
-  controller.waitThenClick(
-    cdlglookup(`
-        /id("commonDialog")/shadow/{"class":"dialog-button-box"}/{"dlgtype":"extra1"}
-    `)
-  );
-}
 
 function setupData() {
   return {
