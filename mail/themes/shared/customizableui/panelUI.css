@@ -183,7 +183,7 @@ panelview {
   visibility: hidden;
 }
 
-#confirmation-hint > .panel-arrowcontainer > .panel-arrowcontent {
+#confirmation-hint::part(arrowcontent) {
   font-weight: 400;
   font-size: 1.1rem;
   -moz-box-align: center;
@@ -296,7 +296,7 @@ panelview:not([mainview]) .toolbarbutton-text,
   min-width: calc(var(--menu-panel-width) + 32px);
 }
 
-.cui-widget-panel.cui-widget-panelWithFooter > .panel-arrowcontainer > .panel-arrowcontent {
+.cui-widget-panel.cui-widget-panelWithFooter::part(arrowcontent) {
   padding-bottom: 0;
 }
 

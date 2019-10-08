@@ -311,19 +311,19 @@ toolbarpaletteitem[place=toolbar] > toolbarspring {
   margin-bottom: 10px;
 }
 
-#customization-uidensity-menu > .panel-arrowcontainer > .panel-arrowcontent,
-#customization-lwtheme-menu > .panel-arrowcontainer > .panel-arrowcontent {
+#customization-uidensity-menu::part(arrowcontent),
+#customization-lwtheme-menu::part(arrowcontent) {
   -moz-box-orient: vertical;
   font: menu;
 }
 
-#customization-lwtheme-menu > .panel-arrowcontainer > .panel-arrowcontent {
+#customization-lwtheme-menu::part(arrowcontent) {
   /* Make the panel padding uniform across all platforms due to the
      styling of the section headers and footer. */
   padding: 10px;
 }
 
-#customization-uidensity-menu > .panel-arrowcontainer > .panel-arrowcontent {
+#customization-uidensity-menu::part(arrowcontent) {
   padding: 5px 10px;
 }
 
@@ -461,7 +461,7 @@ toolbarpaletteitem[place=toolbar] > toolbarspring {
   max-width: 29em;
 }
 
-#customization-panelWrapper > .panel-arrowbox {
+#customization-panelWrapper::part(arrowbox) {
   position: relative;
   height: 10px;
   margin-bottom: -1px;
@@ -475,7 +475,7 @@ toolbarpaletteitem[place=toolbar] > toolbarspring {
   fill-opacity: 0.4;
 }
 
-#customization-panelWrapper > .panel-arrowbox > .panel-arrow[side="top"] {
+#customization-panelWrapper[side=top]::part(arrow) {
 %ifdef XP_MACOSX
   /* The OS X image is 2px narrower than the windows/linux one.
    * Add padding to compensate: */
@@ -560,7 +560,7 @@ toolbarpaletteitem[place=toolbar] > toolbarspring {
   opacity: 0;
 }
 
-#downloads-button-autohide-panel > .panel-arrowcontainer > .panel-arrowcontent {
+#downloads-button-autohide-panel::part(arrowcontent) {
   padding: 5px 12px;
 }
 

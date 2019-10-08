@@ -411,7 +411,7 @@
 
 /* :::: Reorder Attachments Panel :::: */
 
-#reorderAttachmentsPanel > .panel-arrowcontainer > .panel-arrowcontent {
+#reorderAttachmentsPanel::part(arrowcontent) {
   --arrowpanel-padding: 4px;
 }
 
