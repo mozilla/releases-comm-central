@@ -28,9 +28,7 @@ function caldavInitForceEmailScheduling() {
     }
     caldavUpdateForceEmailSchedulingControl();
   } else {
-    document
-      .getElementById("calendar-force-email-scheduling-row")
-      .setAttribute("collapsed", "true");
+    document.getElementById("calendar-force-email-scheduling-row").toggleAttribute("hidden", true);
   }
 }
 

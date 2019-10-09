@@ -22,11 +22,13 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
  */
 function ltnInitMailIdentitiesRow() {
   if (!gCalendar) {
-    document.getElementById("calendar-email-identity-row").setAttribute("collapsed", "true");
+    document.getElementById("calendar-email-identity-row").toggleAttribute("hidden", true);
   }
 
   let imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
-  setElementValue("calendar-email-identity-row", imipIdentityDisabled && "true", "collapsed");
+  document
+    .getElementById("calendar-email-identity-row")
+    .toggleAttribute("hidden", imipIdentityDisabled);
 
   if (imipIdentityDisabled) {
     // If the imip identity is disabled, we don't have to set up the

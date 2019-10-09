@@ -6,87 +6,118 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar-common/skin/calendar-properties-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/notification.css" type="text/css"?>
 
 <!DOCTYPE dialog
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
     <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" > %dtd3;
+    <!ENTITY % dtd4 SYSTEM "chrome://lightning/locale/lightning.dtd" > %dtd4;
 ]>
 
-<dialog
-    id="calendar-properties-dialog-2"
-    windowtype="Calendar:PropertiesDialog"
-    title="&calendar.server.dialog.title.edit;"
-    buttons="accept,cancel,extra1"
-    buttonlabelextra1="&calendarproperties.unsubscribe.label;"
-    buttonaccesskeyextra1="&calendarproperties.unsubscribe.accesskey;"
-    onload="onLoad()"
-    persist="screenX screenY"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    xmlns:html="http://www.w3.org/1999/xhtml"
-    width="500">
+<dialog id="calendar-properties-dialog-2"
+        windowtype="Calendar:PropertiesDialog"
+        title="&calendar.server.dialog.title.edit;"
+        buttons="accept,cancel,extra1"
+        buttonlabelextra1="&calendarproperties.unsubscribe.label;"
+        buttonaccesskeyextra1="&calendarproperties.unsubscribe.accesskey;"
+        onload="onLoad()"
+        persist="screenX screenY"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        width="500">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://calendar/content/calendar-properties-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://lightning/content/lightning-utils.js"/>
+  <script src="chrome://lightning/content/lightning-calendar-properties.js"/>
+  <script src="chrome://lightning/content/caldav-lightning-utils.js"/>
+  <script src="chrome://lightning/content/caldav-lightning-calendar-properties.js"/>
 
   <description id="force-disabled-description" hidden="true">&calendarproperties.forceDisabled.label;</description>
 
+  <vbox id="no-identity-notification" class="notification-inline">
+    <!-- notificationbox will be added here lazily. -->
+  </vbox>
   <checkbox id="calendar-enabled-checkbox"
             label="&calendarproperties.enabled.label;"
             oncommand="setupEnabledCheckbox()"/>
-
-  <grid id="calendar-properties-grid">
-    <columns>
-      <column/>
-      <column flex="1"/>
-    </columns>
-    <rows id="calendar-properties-rows">
-      <row id="calendar-name-row" align="center">
-        <label value="&calendar.server.dialog.name.label;"
+  <html:table id="calendar-properties-table">
+    <html:tr id="calendar-name-row">
+      <html:th>
+        <label id="calendar-name-label"
+               value="&calendar.server.dialog.name.label;"
                disable-with-calendar="true"
                control="calendar-name"/>
-        <html:input id="calendar-name"
-                    class="input-inline"
-                    disable-with-calendar="true"/>
-      </row>
-      <row id="calendar-color-row"
-           align="center">
-        <label value="&calendarproperties.color.label;"
+      </html:th>
+      <html:td>
+        <hbox flex="1" class="input-container">
+          <html:input id="calendar-name"
+                      type="text"
+                      class="input-inline"
+                      disable-with-calendar="true"
+                      aria-labelledby="calendar-name-label"/>
+        </hbox>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-color-row">
+      <html:th>
+        <label id="calendar-color-label"
+               value="&calendarproperties.color.label;"
                disable-with-calendar="true"
                control="calendar-color"/>
-          <hbox align="center">
-            <html:input id="calendar-color"
-                        type="color"
-                        class="input-inline-color"
-                        disable-with-calendar="true"/>
-          </hbox>
-      </row>
-      <row id="calendar-username-row"
-           align="center">
-        <label value="&locationpage.username.label;"
+      </html:th>
+      <html:td>
+        <html:input id="calendar-color"
+                    type="color"
+                    class="input-inline-color"
+                    disable-with-calendar="true"
+                    aria-labelledby="calendar-color-label"/>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-username-row">
+      <html:th>
+        <label id="calendar-username-label"
+               value="&locationpage.username.label;"
                disable-with-calendar="true"
                control="calendar-username"/>
+      </html:th>
+      <html:td>
         <html:input id="calendar-username"
+                    type="text"
                     class="input-inline"
-                    disable-with-calendar="true"/>
-      </row>
-      <row id="calendar-uri-row" align="center">
-        <label value="&calendarproperties.location.label;"
+                    disable-with-calendar="true"
+                    aria-labelledby="calendar-username-label"/>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-uri-row">
+      <html:th>
+        <label id="calendar-uri-label"
+               value="&calendarproperties.location.label;"
                disable-with-calendar="true"
                control="calendar-uri"/>
-        <!-- XXX Make location field readonly until Bug 315307 is fixed -->
-        <html:input id="calendar-uri"
-                    class="input-inline"
-                    readonly="readonly"
-                    disable-with-calendar="true"/>
-      </row>
-      <row id="calendar-refreshInterval-row" align="center">
+      </html:th>
+      <html:td>
+        <hbox flex="1" class="input-container">
+          <html:input id="calendar-uri"
+                      type="url"
+                      class="input-inline"
+                      readonly="readonly"
+                      disable-with-calendar="true"
+                      aria-labelledby="calendar-uri-label"/>
+        </hbox>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-refreshInterval-row">
+      <html:th>
         <label value="&calendarproperties.refreshInterval.label;"
                disable-with-calendar="true"
                control="calendar-refreshInterval-textbox"/>
+      </html:th>
+      <html:td>
         <menulist id="calendar-refreshInterval-menulist"
                   disable-with-calendar="true"
                   label="&calendarproperties.refreshInterval.label;">
@@ -98,29 +129,54 @@
                       label="&calendarproperties.refreshInterval.manual.label;"/>
           </menupopup>
         </menulist>
-      </row>
-      <row id="calendar-readOnly-row"
-           align="center">
-        <spacer/>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-readOnly-row">
+      <html:th></html:th>
+      <html:td>
         <checkbox id="read-only"
                   label="&calendarproperties.readonly.label;"
                   disable-with-calendar="true"/>
-      </row>
-      <row id="calendar-suppressAlarms-row"
-           align="center">
-        <spacer/>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-suppressAlarms-row">
+      <html:th></html:th>
+      <html:td>
         <checkbox id="fire-alarms"
                   label="&calendarproperties.firealarms.label;"
                   disable-with-calendar="true"/>
-      </row>
-      <row id="calendar-cache-row"
-           align="center">
-        <spacer/>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-cache-row">
+      <html:th></html:th>
+      <html:td>
         <checkbox id="cache"
                   label="&calendarproperties.cache3.label;"
                   disable-with-calendar="true"/>
-      </row>
-      <spacer/>
-    </rows>
-  </grid>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-email-identity-row">
+      <html:th>
+        <label value="&lightning.calendarproperties.email.label;"
+               control="email-identity-menulist"
+               disable-with-calendar="true"/>
+      </html:th>
+      <html:td>
+        <menulist id="email-identity-menulist"
+                  disable-with-calendar="true"
+                  oncommand="onChangeIdentity(event)">
+          <menupopup id="email-identity-menupopup"/>
+        </menulist>
+      </html:td>
+    </html:tr>
+    <html:tr id="calendar-force-email-scheduling-row">
+      <html:th></html:th>
+      <html:td>
+        <checkbox id="force-email-scheduling"
+                  label="&lightning.calendarproperties.forceEmailScheduling.label;"
+                  disable-with-calendar="true"
+                  tooltiptext="&lightning.calendarproperties.forceEmailScheduling.tooltiptext2;"/>
+      </html:td>
+    </html:tr>
+  </html:table>
 </dialog>

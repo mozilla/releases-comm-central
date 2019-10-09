@@ -30,9 +30,9 @@ function onLoad() {
 
   if (gCalendar.getProperty("capabilities.username.supported") === true) {
     document.getElementById("calendar-username").value = gCalendar.getProperty("username");
-    document.getElementById("calendar-username-row").hidden = false;
+    document.getElementById("calendar-username-row").toggleAttribute("hidden", false);
   } else {
-    document.getElementById("calendar-username-row").hidden = true;
+    document.getElementById("calendar-username-row").toggleAttribute("hidden", true);
   }
 
   // Set up refresh interval
@@ -54,7 +54,10 @@ function onLoad() {
   let suppressAlarms = gCalendar.getProperty("suppressAlarms");
   document.getElementById("fire-alarms").checked = !suppressAlarms;
 
-  suppressAlarmsRow.hidden = gCalendar.getProperty("capabilities.alarms.popup.supported") === false;
+  suppressAlarmsRow.toggleAttribute(
+    "hidden",
+    gCalendar.getProperty("capabilities.alarms.popup.supported") === false
+  );
 
   // Set up the disabled checkbox
   let calendarDisabled = false;
@@ -156,7 +159,9 @@ function initRefreshInterval() {
     return menuitem;
   }
 
-  setBooleanAttribute("calendar-refreshInterval-row", "hidden", !gCalendar.canRefresh);
+  document
+    .getElementById("calendar-refreshInterval-row")
+    .toggleAttribute("hidden", !gCalendar.canRefresh);
 
   if (gCalendar.canRefresh) {
     let refreshInterval = gCalendar.getProperty("refreshInterval");
