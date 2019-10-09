@@ -2712,7 +2712,7 @@ nsNNTPProtocol::Notify(nsITimer *timer) {
 }
 
 void nsNNTPProtocol::TimerCallback() {
-  MOZ_LOG(NNTP, LogLevel::Info, ("nsNNTPProtocol::TimerCallback\n"));
+  MOZ_LOG(NNTP, LogLevel::Info, ("nsNNTPProtocol::TimerCallback"));
   m_nextState = NNTP_READ_LIST;
 
   // process whatever is already in the buffer at least once.

@@ -369,7 +369,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request,
   // we should look at something better, but don't remove this line before
   // talking to me (mscott) and mailnews QA....
 
-  MOZ_LOG(MAILBOX, LogLevel::Info, ("Mailbox Done\n"));
+  MOZ_LOG(MAILBOX, LogLevel::Info, ("Mailbox Done"));
 
   // when on stop binding is called, we as the protocol are done...let's close
   // down the connection releasing all of our interfaces. It's important to

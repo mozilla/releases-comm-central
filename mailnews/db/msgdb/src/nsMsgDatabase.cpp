@@ -856,11 +856,11 @@ void nsMsgDBService::AddToCache(nsMsgDatabase *pMessageDB) {
  */
 void nsMsgDBService::DumpCache() {
   nsMsgDatabase *db = nullptr;
-  MOZ_LOG(DBLog, LogLevel::Info, ("%zu open DBs\n", m_dbCache.Length()));
+  MOZ_LOG(DBLog, LogLevel::Info, ("%zu open DBs", m_dbCache.Length()));
   for (uint32_t i = 0; i < m_dbCache.Length(); i++) {
     db = m_dbCache.ElementAt(i);
     MOZ_LOG(DBLog, LogLevel::Info,
-            ("%s - %" PRIu32 " hdrs in use\n",
+            ("%s - %" PRIu32 " hdrs in use",
              db->m_dbFile->HumanReadablePath().get(),
              db->m_headersInUse ? db->m_headersInUse->EntryCount() : 0));
   }
@@ -1019,7 +1019,7 @@ nsMsgDatabase::~nsMsgDatabase() {
   }
 
   MOZ_LOG(DBLog, LogLevel::Info,
-          ("closing database    %s\n", m_dbFile->HumanReadablePath().get()));
+          ("closing database    %s", m_dbFile->HumanReadablePath().get()));
 
   nsCOMPtr<nsIMsgDBService> serv(do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
   if (serv) static_cast<nsMsgDBService *>(serv.get())->RemoveFromCache(this);
@@ -1073,7 +1073,7 @@ nsresult nsMsgDatabase::OpenInternal(nsMsgDBService *aDBService,
                                      nsIFile *summaryFile, bool aCreate,
                                      bool aLeaveInvalidDB, bool sync) {
   MOZ_LOG(DBLog, LogLevel::Info,
-          ("nsMsgDatabase::Open(%s, %s, %p, %s)\n",
+          ("nsMsgDatabase::Open(%s, %s, %p, %s)",
            summaryFile->HumanReadablePath().get(), aCreate ? "TRUE" : "FALSE",
            this, aLeaveInvalidDB ? "TRUE" : "FALSE"));
 
@@ -4010,8 +4010,7 @@ nsIMsgThread *nsMsgDatabase::GetThreadForSubject(nsCString &subject) {
           nsCString curSubject;
           pThread->GetSubject(curSubject);
           if (subject.Equals(curSubject)) {
-            NS_ERROR(
-                "thread with subject exists, but FindRow didn't find it\n");
+            NS_ERROR("thread with subject exists, but FindRow didn't find it");
             break;
           }
         } else

@@ -247,7 +247,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CreateFolder(nsIMsgFolder *aParent,
       aParent->UpdateSummaryTotals(true);
     } else {
       MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-              ("CreateFolder - failed creating db for new folder\n"));
+              ("CreateFolder - failed creating db for new folder"));
       path->Remove(true);  // recursive
       rv = NS_MSG_CANT_CREATE_FOLDER;
     }
@@ -594,7 +594,7 @@ nsMsgMaildirStore::GetNewMsgOutputStream(nsIMsgFolder *aFolder,
   newFile->Exists(&exists);
   if (!exists) {
     MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-            ("GetNewMsgOutputStream - tmp subfolder does not exist!!\n"));
+            ("GetNewMsgOutputStream - tmp subfolder does not exist!!"));
     rv = newFile->Create(nsIFile::DIRECTORY_TYPE, 0755);
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -662,7 +662,7 @@ nsMsgMaildirStore::FinishNewMessage(nsIOutputStream *aOutputStream,
   nsAutoCString tmpName;
   aNewHdr->GetStringProperty("storeToken", getter_Copies(tmpName));
   if (tmpName.IsEmpty()) {
-    NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!\n");
+    NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!");
     return NS_ERROR_FAILURE;
   }
 
@@ -777,7 +777,7 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aHdr,
   nsAutoCString fileName;
   aHdr->GetStringProperty("storeToken", getter_Copies(fileName));
   if (fileName.IsEmpty()) {
-    NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!\n");
+    NS_ERROR("FinishNewMessage - no storeToken in msg hdr!!");
     return NS_ERROR_FAILURE;
   }
 
@@ -912,7 +912,7 @@ nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
 
   if (aMsgToken.IsEmpty()) {
     MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-            ("GetMsgInputStream - empty storeToken!!\n"));
+            ("GetMsgInputStream - empty storeToken!!"));
     return NS_ERROR_FAILURE;
   }
 
@@ -924,7 +924,7 @@ nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
   path->Exists(&exists);
   if (!exists) {
     MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-            ("GetMsgInputStream - oops! cur subfolder does not exist!\n"));
+            ("GetMsgInputStream - oops! cur subfolder does not exist!"));
     rv = path->Create(nsIFile::DIRECTORY_TYPE, 0755);
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -951,7 +951,7 @@ NS_IMETHODIMP nsMsgMaildirStore::DeleteMessages(nsIArray *aHdrArray) {
 
     if (fileName.IsEmpty()) {
       MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-              ("DeleteMessages - empty storeToken!!\n"));
+              ("DeleteMessages - empty storeToken!!"));
       // Perhaps an offline store has not downloaded this particular message.
       continue;
     }
@@ -964,7 +964,7 @@ NS_IMETHODIMP nsMsgMaildirStore::DeleteMessages(nsIArray *aHdrArray) {
     path->Exists(&exists);
     if (!exists) {
       MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-              ("DeleteMessages - file does not exist !!\n"));
+              ("DeleteMessages - file does not exist !!"));
       // Perhaps an offline store has not downloaded this particular message.
       continue;
     }
@@ -1052,7 +1052,7 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
   for (uint32_t i = 0; i < messageCount; i++) {
     nsCOMPtr<nsIMsgDBHdr> srcHdr = do_QueryElementAt(aHdrArray, i, &rv);
     if (NS_FAILED(rv)) {
-      MOZ_LOG(MailDirLog, mozilla::LogLevel::Info, ("srcHdr null\n"));
+      MOZ_LOG(MailDirLog, mozilla::LogLevel::Info, ("srcHdr null"));
       continue;
     }
     nsMsgKey srcKey;
@@ -1062,7 +1062,7 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
     srcHdr->GetStringProperty("storeToken", getter_Copies(fileName));
     if (fileName.IsEmpty()) {
       MOZ_LOG(MailDirLog, mozilla::LogLevel::Info,
-              ("GetMsgInputStream - empty storeToken!!\n"));
+              ("GetMsgInputStream - empty storeToken!!"));
       return NS_ERROR_FAILURE;
     }
 
