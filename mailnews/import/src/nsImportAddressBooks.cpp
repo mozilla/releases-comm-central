@@ -1,117 +1,22 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "prprf.h"
+#include "nsImportAddressBooks.h"
+
 #include "plstr.h"
-#include "nsCOMPtr.h"
-#include "nsMsgUtils.h"
 #include "nsIImportService.h"
-#include "nsIImportAddressBooks.h"
-#include "nsIImportGeneric.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIImportABDescriptor.h"
-#include "nsIImportFieldMap.h"
-#include "nsString.h"
-#include "nsIFile.h"
-#include "nsIAddrDatabase.h"
 #include "nsIAbManager.h"
-#include "nsIAbLDIFService.h"
 #include "nsAbBaseCID.h"
-#include "nsIStringBundle.h"
 #include "nsImportStringBundle.h"
 #include "nsTextFormatter.h"
-#include "nsServiceManagerUtils.h"
 #include "msgCore.h"
 #include "ImportDebug.h"
 #include "nsIAbMDBDirectory.h"
-#include "nsComponentManagerUtils.h"
-#include "nsIArray.h"
-#include "nsCOMArray.h"
 #include "nsArrayUtils.h"
-
-static void ImportAddressThread(void *stuff);
-
-class AddressThreadData;
-
-class nsImportGenericAddressBooks : public nsIImportGeneric {
- public:
-  nsImportGenericAddressBooks();
-
-  NS_DECL_THREADSAFE_ISUPPORTS
-
-  /* nsISupports GetData (in string dataId); */
-  NS_IMETHOD GetData(const char *dataId, nsISupports **_retval) override;
-
-  NS_IMETHOD SetData(const char *dataId, nsISupports *pData) override;
-
-  NS_IMETHOD GetStatus(const char *statusKind, int32_t *_retval) override;
-
-  NS_IMETHOD WantsProgress(bool *_retval) override;
-
-  NS_IMETHOD BeginImport(nsISupportsString *successLog,
-                         nsISupportsString *errorLog, bool *_retval) override;
-
-  NS_IMETHOD ContinueImport(bool *_retval) override;
-
-  NS_IMETHOD GetProgress(int32_t *_retval) override;
-
-  NS_IMETHOD CancelImport(void) override;
-
- private:
-  virtual ~nsImportGenericAddressBooks();
-  void GetDefaultLocation(void);
-  void GetDefaultBooks(void);
-  void GetDefaultFieldMap(void);
-
- public:
-  static void SetLogs(nsString &success, nsString &error,
-                      nsISupportsString *pSuccess, nsISupportsString *pError);
-  static void ReportError(const char16_t *pName, nsString *pStream,
-                          nsIStringBundle *aBundle);
-
- private:
-  nsCOMPtr<nsIImportAddressBooks> m_pInterface;
-  nsCOMPtr<nsIArray> m_Books;
-  nsCOMArray<nsIAddrDatabase> m_DBs;
-  nsCOMPtr<nsIFile> m_pLocation;
-  nsCOMPtr<nsIImportFieldMap> m_pFieldMap;
-  bool m_autoFind;
-  char16_t *m_description;
-  bool m_gotLocation;
-  bool m_found;
-  bool m_userVerify;
-  nsCOMPtr<nsISupportsString> m_pSuccessLog;
-  nsCOMPtr<nsISupportsString> m_pErrorLog;
-  uint32_t m_totalSize;
-  bool m_doImport;
-  AddressThreadData *m_pThreadData;
-  nsCString m_pDestinationUri;
-  nsCOMPtr<nsIStringBundle> m_stringBundle;
-};
-
-class AddressThreadData {
- public:
-  bool driverAlive;
-  bool threadAlive;
-  bool abort;
-  bool fatalError;
-  uint32_t currentTotal;
-  uint32_t currentSize;
-  nsCOMPtr<nsIArray> books;
-  nsCOMArray<nsIAddrDatabase> *dBs;
-  nsCOMPtr<nsIAbLDIFService> ldifService;
-  nsCOMPtr<nsIImportAddressBooks> addressImport;
-  nsCOMPtr<nsIImportFieldMap> fieldMap;
-  nsCOMPtr<nsISupportsString> successLog;
-  nsCOMPtr<nsISupportsString> errorLog;
-  nsCString pDestinationUri;
-  nsCOMPtr<nsIStringBundle> stringBundle;
-
-  AddressThreadData();
-  ~AddressThreadData();
-};
 
 nsresult NS_NewGenericAddressBooks(nsIImportGeneric **aImportGeneric) {
   NS_ASSERTION(aImportGeneric != nullptr, "null ptr");

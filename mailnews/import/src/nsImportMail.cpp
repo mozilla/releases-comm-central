@@ -1,133 +1,23 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
- */
+#include "nsImportMail.h"
 
-#include "prthread.h"
-#include "prprf.h"
-#include "nscore.h"
-#include "nsCOMPtr.h"
-#include "nsIArray.h"
 #include "nsArrayUtils.h"
-
-#include "nsIImportMail.h"
-#include "nsIImportGeneric.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIImportMailboxDescriptor.h"
-
-#include "nsString.h"
-#include "nsUnicharUtils.h"
-
-#include "nsMsgUtils.h"
 #include "nsIMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
-#include "nsIMsgFolder.h"
 #include "nsImportStringBundle.h"
-#include "nsIStringBundle.h"
 #include "nsTextFormatter.h"
-#include "nsServiceManagerUtils.h"
-#include "nsComponentManagerUtils.h"
 #include "ImportDebug.h"
 #include "plstr.h"
-#include "MailNewsTypes.h"
 #include "nsThreadUtils.h"
 #include "mozilla/Services.h"
-
-#define IMPORT_MSGS_URL "chrome://messenger/locale/importMsgs.properties"
-
-////////////////////////////////////////////////////////////////////////
-
-static void ImportMailThread(void *stuff);
-
-class ImportThreadData;
-
-class nsImportGenericMail : public nsIImportGeneric {
- public:
-  nsImportGenericMail();
-
-  NS_DECL_THREADSAFE_ISUPPORTS
-
-  /* nsISupports GetData (in string dataId); */
-  NS_IMETHOD GetData(const char *dataId, nsISupports **_retval) override;
-
-  NS_IMETHOD SetData(const char *dataId, nsISupports *pData) override;
-
-  NS_IMETHOD GetStatus(const char *statusKind, int32_t *_retval) override;
-
-  NS_IMETHOD WantsProgress(bool *_retval) override;
-
-  NS_IMETHODIMP BeginImport(nsISupportsString *successLog,
-                            nsISupportsString *errorLog,
-                            bool *_retval) override;
-
-  NS_IMETHOD ContinueImport(bool *_retval) override;
-
-  NS_IMETHOD GetProgress(int32_t *_retval) override;
-
-  NS_IMETHOD CancelImport(void) override;
-
- private:
-  virtual ~nsImportGenericMail();
-  bool CreateFolder(nsIMsgFolder **ppFolder);
-  void GetDefaultMailboxes(void);
-  void GetDefaultLocation(void);
-  void GetDefaultDestination(void);
-  void GetMailboxName(uint32_t index, nsISupportsString *pStr);
-
- public:
-  static void SetLogs(nsString &success, nsString &error,
-                      nsISupportsString *pSuccess, nsISupportsString *pError);
-  static void ReportError(int32_t id, const char16_t *pName, nsString *pStream,
-                          nsIStringBundle *aBundle);
-
- private:
-  nsString m_pName;  // module name that created this interface
-  nsCOMPtr<nsIMsgFolder> m_pDestFolder;
-  bool m_deleteDestFolder;
-  bool m_createdFolder;
-  nsCOMPtr<nsIFile> m_pSrcLocation;
-  bool m_gotLocation;
-  bool m_found;
-  bool m_userVerify;
-  nsCOMPtr<nsIImportMail> m_pInterface;
-  nsCOMPtr<nsIArray> m_pMailboxes;
-  nsCOMPtr<nsISupportsString> m_pSuccessLog;
-  nsCOMPtr<nsISupportsString> m_pErrorLog;
-  uint32_t m_totalSize;
-  bool m_doImport;
-  ImportThreadData *m_pThreadData;
-  bool m_performingMigration;
-  nsCOMPtr<nsIStringBundle> m_stringBundle;
-};
-
-class ImportThreadData {
- public:
-  bool driverAlive;
-  bool threadAlive;
-  bool abort;
-  bool fatalError;
-  uint32_t currentTotal;
-  uint32_t currentSize;
-  nsCOMPtr<nsIMsgFolder> destRoot;
-  bool ownsDestRoot;
-  nsCOMPtr<nsIArray> boxes;
-  nsCOMPtr<nsIImportMail> mailImport;
-  nsCOMPtr<nsISupportsString> successLog;
-  nsCOMPtr<nsISupportsString> errorLog;
-  uint32_t currentMailbox;
-  bool performingMigration;
-  nsCOMPtr<nsIStringBundle> stringBundle;
-
-  ImportThreadData();
-  ~ImportThreadData();
-  void DriverDelete();
-  void ThreadDelete();
-  void DriverAbort();
-};
+#include "msgCore.h"
 
 // forward decl for proxy methods
 nsresult ProxyGetSubFolders(nsIMsgFolder *aFolder);
