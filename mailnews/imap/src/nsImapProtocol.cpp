@@ -1245,8 +1245,9 @@ nsImapProtocol::TellThreadToDie(bool aIsSafeToClose) {
 
 void nsImapProtocol::TellThreadToDie() {
   nsresult rv = NS_OK;
-  MOZ_DIAGNOSTIC_ASSERT(!NS_IsMainThread(),
-                        "TellThreadToDie() should not be called from UI thread");
+  MOZ_DIAGNOSTIC_ASSERT(
+      !NS_IsMainThread(),
+      "TellThreadToDie() should not be called from UI thread");
 
   // prevent re-entering this method because it may lock the UI.
   if (m_inThreadShouldDie) return;
