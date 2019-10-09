@@ -1,4 +1,6 @@
-function run_test() {
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+
+add_task(async function() {
   do_get_profile();
   MailServices.ab.directories;
   let book = MailServices.ab.getDirectory(kPABData.URI);
@@ -67,6 +69,8 @@ function run_test() {
 
   // Reload the address book manager.
   Services.obs.notifyObservers(null, "addrbook-reload");
+  // Wait for files to close.
+  await new Promise(resolve => setTimeout(resolve, 2000));
 
   MailServices.ab.directories;
   book = MailServices.ab.getDirectory(kPABData.URI);
@@ -95,4 +99,4 @@ function run_test() {
   ok(listEnum.hasMoreElements());
   equal(contact3.UID, listEnum.getNext().QueryInterface(Ci.nsIAbCard).UID);
   ok(!listEnum.hasMoreElements());
-}
+});

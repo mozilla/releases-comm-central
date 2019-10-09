@@ -14,14 +14,14 @@ const { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
 
-function run_test() {
+add_task(async function() {
   // Copy address book to be migrated into the profile.
 
   copyABFile("../../../data/abLists1.mab", "abook.mab");
 
   // Do the migration.
 
-  MailMigrator._migrateAddressBooks();
+  await MailMigrator._migrateAddressBooks();
 
   // Check new files have been created, and old ones renamed.
 
@@ -108,4 +108,4 @@ function run_test() {
 
   let historyLists = [...historyBook.addressLists.enumerate()];
   equal(historyLists.length, 0);
-}
+});

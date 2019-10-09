@@ -687,8 +687,8 @@ var MailMigrator = {
    * address books and the prefs updated. Migrated Mork files in the profile
    * are renamed with the extension ".mab.bak" to avoid confusion.
    */
-  _migrateAddressBooks() {
-    function migrateBook(fileName, notFoundThrows = true) {
+  async _migrateAddressBooks() {
+    async function migrateBook(fileName, notFoundThrows = true) {
       let oldFile = profileDir.clone();
       oldFile.append(`${fileName}.mab`);
       if (!oldFile.exists()) {
@@ -715,10 +715,10 @@ var MailMigrator = {
       let cardMap = new Map();
       for (let card of database.enumerateCards(directory)) {
         if (!card.isMailList) {
-          newBook.addCard(card);
           cardMap.set(card.localId, card);
         }
       }
+      await newBook._bulkAddCards(cardMap.values());
 
       for (let card of database.enumerateCards(directory)) {
         if (card.isMailList) {
@@ -772,19 +772,19 @@ var MailMigrator = {
             `jsaddrbook://${fileName}.sqlite`
           );
         }
-        migrateBook(fileName);
+        await migrateBook(fileName);
       } catch (ex) {
         Cu.reportError(ex);
       }
     }
 
     try {
-      migrateBook("abook", false);
+      await migrateBook("abook", false);
     } catch (ex) {
       Cu.reportError(ex);
     }
     try {
-      migrateBook("history", false);
+      await migrateBook("history", false);
     } catch (ex) {
       Cu.reportError(ex);
     }
@@ -812,8 +812,8 @@ var MailMigrator = {
    * Perform any migration work that needs to occur once the user profile has
    * been loaded.
    */
-  migrateAtProfileStartup() {
-    this._migrateAddressBooks();
+  async migrateAtProfileStartup() {
+    await this._migrateAddressBooks();
     this._migrateUI();
     this._migrateRSS();
   },

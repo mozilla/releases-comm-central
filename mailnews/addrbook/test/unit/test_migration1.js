@@ -8,7 +8,7 @@
  * This test profile has only the two default address books to migrate, and
  * neither have any mailing lists.
  */
-function run_test() {
+add_task(async function() {
   // Copy address books to be migrated into the profile.
 
   copyABFile("data/cardForEmail.mab", "abook.mab");
@@ -16,7 +16,7 @@ function run_test() {
 
   // Do the migration.
 
-  MailMigrator._migrateAddressBooks();
+  await MailMigrator._migrateAddressBooks();
 
   // Check new files have been created, and old ones renamed.
 
@@ -81,4 +81,4 @@ function run_test() {
 
   let historyLists = [...historyBook.addressLists.enumerate()];
   equal(historyLists.length, 0);
-}
+});

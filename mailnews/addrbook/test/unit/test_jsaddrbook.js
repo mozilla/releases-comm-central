@@ -12,6 +12,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 var book, contact, list, listCard;
 var observer = {
@@ -360,6 +361,9 @@ add_task(async function deleteContact() {
 
 add_task(async function deleteAddressBook() {
   MailServices.ab.deleteAddressBook(book.URI);
+  // Wait for files to close.
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
   observer.checkEvents(["onItemRemoved", undefined, book]);
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.dirType"));
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.description"));

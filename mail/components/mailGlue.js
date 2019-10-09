@@ -193,11 +193,11 @@ MailGlue.prototype = {
     this._sanitizer.sanitize(aParentWindow);
   },
 
-  _onProfileStartup() {
+  async _onProfileStartup() {
     TBDistCustomizer.applyPrefDefaults();
 
     // handle any migration work that has to happen at profile startup
-    MailMigrator.migrateAtProfileStartup();
+    await MailMigrator.migrateAtProfileStartup();
 
     // check if we're in safe mode
     if (Services.appinfo.inSafeMode) {

@@ -122,7 +122,7 @@ var connections = new Map();
 var closeObserver = {
   observe() {
     for (let connection of connections.values()) {
-      connection.close();
+      connection.asyncClose();
     }
     connections.clear();
   },
@@ -138,21 +138,31 @@ function openConnectionTo(file) {
   let connection = connections.get(file.path);
   if (!connection) {
     connection = Services.storage.openDatabase(file);
-    if (connection.schemaVersion == 0) {
-      connection.executeSimpleSQL("PRAGMA journal_mode=WAL");
-      connection.executeSimpleSQL(
-        "CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER)"
-      );
-      connection.executeSimpleSQL(
-        "CREATE TABLE properties (card TEXT, name TEXT, value TEXT)"
-      );
-      connection.executeSimpleSQL(
-        "CREATE TABLE lists (uid TEXT PRIMARY KEY, localId INTEGER, name TEXT, nickName TEXT, description TEXT)"
-      );
-      connection.executeSimpleSQL(
-        "CREATE TABLE list_cards (list TEXT, card TEXT, PRIMARY KEY(list, card))"
-      );
-      connection.schemaVersion = 1;
+    switch (connection.schemaVersion) {
+      case 0:
+        connection.executeSimpleSQL("PRAGMA journal_mode=WAL");
+        connection.executeSimpleSQL(
+          "CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER)"
+        );
+        connection.executeSimpleSQL(
+          "CREATE TABLE properties (card TEXT, name TEXT, value TEXT)"
+        );
+        connection.executeSimpleSQL(
+          "CREATE TABLE lists (uid TEXT PRIMARY KEY, localId INTEGER, name TEXT, nickName TEXT, description TEXT)"
+        );
+        connection.executeSimpleSQL(
+          "CREATE TABLE list_cards (list TEXT, card TEXT, PRIMARY KEY(list, card))"
+        );
+      // Falls through.
+      case 1:
+        connection.executeSimpleSQL(
+          "CREATE INDEX properties_card ON properties(card)"
+        );
+        connection.executeSimpleSQL(
+          "CREATE INDEX properties_name ON properties(name)"
+        );
+        connection.schemaVersion = 2;
+        break;
     }
     connections.set(file.path, connection);
   }
@@ -165,9 +175,16 @@ function openConnectionTo(file) {
 function closeConnectionTo(file) {
   let connection = connections.get(file.path);
   if (connection) {
-    connection.close();
-    connections.delete(file.path);
+    return new Promise(resolve => {
+      connection.asyncClose({
+        complete() {
+          resolve();
+        },
+      });
+      connections.delete(file.path);
+    });
   }
+  return Promise.resolve();
 }
 
 /**
@@ -314,6 +331,69 @@ var bookPrototype = {
     replaceStatement.params.description = list._description;
     replaceStatement.execute();
     replaceStatement.finalize();
+  },
+  async _bulkAddCards(cards) {
+    let cardStatement = this._dbConnection.createStatement(
+      "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)"
+    );
+    let propertiesStatement = this._dbConnection.createStatement(
+      "INSERT INTO properties VALUES (:card, :name, :value)"
+    );
+    let cardArray = cardStatement.newBindingParamsArray();
+    let propertiesArray = propertiesStatement.newBindingParamsArray();
+    for (let card of cards) {
+      let uid = card.UID || newUID();
+      let cardParams = cardArray.newBindingParams();
+      cardParams.bindByName("uid", uid);
+      cardParams.bindByName("localId", this._getNextCardId());
+      cardArray.addParams(cardParams);
+
+      for (let { name, value } of fixIterator(
+        card.properties,
+        Ci.nsIProperty
+      )) {
+        if (
+          [
+            "DbRowID",
+            "LowercasePrimaryEmail",
+            "LowercaseSecondEmail",
+            "RecordKey",
+            "UID",
+          ].includes(name)
+        ) {
+          continue;
+        }
+        let propertiesParams = propertiesArray.newBindingParams();
+        propertiesParams.bindByName("card", uid);
+        propertiesParams.bindByName("name", name);
+        propertiesParams.bindByName("value", value);
+        propertiesArray.addParams(propertiesParams);
+      }
+    }
+    cardStatement.bindParameters(cardArray);
+    await new Promise(resolve => {
+      cardStatement.executeAsync({
+        handleError(error) {
+          Cu.reportError(error);
+        },
+        handleCompletion() {
+          resolve();
+        },
+      });
+    });
+    cardStatement.finalize();
+    propertiesStatement.bindParameters(propertiesArray);
+    await new Promise(resolve => {
+      propertiesStatement.executeAsync({
+        handleError(error) {
+          Cu.reportError(error);
+        },
+        handleCompletion() {
+          resolve();
+        },
+      });
+    });
+    propertiesStatement.finalize();
   },
 
   /* nsIAbCollection */
@@ -655,8 +735,8 @@ var bookPrototype = {
   dropCard(card, needToCopyCard) {
     let newCard = new AddrBookCard();
     newCard.directoryId = this.uuid;
-    newCard.localId = this._getNextCardId().toString();
-    newCard._uid = needToCopyCard || !card.UID ? newUID() : card.UID;
+    newCard.localId = this._getNextCardId();
+    newCard._uid = needToCopyCard || card.UID || newUID();
 
     let insertStatement = this._dbConnection.createStatement(
       "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)"

@@ -58,10 +58,10 @@ AddrBookFactory.prototype = {
       },
     };
   },
-  deleteDirectory(directory) {
+  async deleteDirectory(directory) {
     let file = FileUtils.getFile("ProfD", [directory.fileName]);
     if (file.exists()) {
-      closeConnectionTo(file);
+      await closeConnectionTo(file);
       file.remove(false);
     }
   },
