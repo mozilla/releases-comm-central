@@ -589,7 +589,9 @@
         let ymd =
           this.value.getFullYear() + "-" + this.value.getMonth() + "-" + this.value.getDate();
         this.mSelected = this.mDayMap[ymd];
-        this.mSelected.setAttribute("selected", "true");
+        if (this.mSelected) {
+          this.mSelected.setAttribute("selected", "true");
+        }
         return;
       }
 
