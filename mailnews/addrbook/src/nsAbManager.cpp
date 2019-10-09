@@ -755,8 +755,7 @@ nsresult nsAbManager::ExportDirectoryToDelimitedText(nsIAbDirectory *aDirectory,
                   match = newValue.Find(oldSubstr, offset);
                   if (match == -1) break;
 
-                  newValue.Replace(offset + match, oldSubstr.Length(),
-                                   newSubstr);
+                  newValue.Replace(match, oldSubstr.Length(), newSubstr);
                   offset += (match + newSubstr.Length());
                 }
               }
