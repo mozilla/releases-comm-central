@@ -376,7 +376,7 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
   } else {
     path += `
             /{"class":"mainbox"}/{"class":"monthgrid"}/
-            {"class":"monthgridrows"}/[${row - 1}]/[${column - 1}]
+            [${row - 1}]/[${column - 1}]/[0]
         `;
 
     if (option == CANVAS_BOX) {

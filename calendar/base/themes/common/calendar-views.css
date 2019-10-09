@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace html url("http://www.w3.org/1999/xhtml");
+
 :root {
     --viewColor: #000;
     --viewBackground: #fff;
@@ -643,6 +645,34 @@ calendar-multiweek-view {
     padding: 0px 2px 2px;
 }
 
+calendar-month-view .mainbox,
+calendar-multiweek-view .mainbox {
+    display: flex;
+    flex-direction: column;
+}
+
+calendar-month-view tr[hidden],
+calendar-multiweek-view tr[hidden],
+calendar-month-view td[hidden],
+calendar-multiweek-view td[hidden] {
+    display: none;
+}
+
+.monthgrid {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.monthgrid tr,
+.monthgrid td {
+    margin: 0;
+    padding: 0;
+}
+
 .calendar-month-view-grid-column {
     min-width: 1px;
     width: 1px;
@@ -652,12 +682,20 @@ calendar-multiweek-view {
     min-height: 1px;
     height: 1px;
     border-right: 1px solid var(--viewBorderColor);
+    display: flex;
+    flex: 1;
+}
+
+.calendar-month-view-grid-row td {
+    flex: 1;
+    display: flex;
 }
 
 calendar-month-day-box {
     border:none !important;
     border-left: 1px solid var(--viewBorderColor) !important;
     border-bottom: 1px solid var(--viewBorderColor) !important;
+    flex: 1;
 }
 
 .calendar-month-day-box-items-box {

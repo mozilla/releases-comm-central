@@ -26,15 +26,29 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       super.connectedCallback();
 
       const row = `
-        <row class="calendar-month-view-grid-row" flex="1">
-          <calendar-month-day-box/>
-          <calendar-month-day-box/>
-          <calendar-month-day-box/>
-          <calendar-month-day-box/>
-          <calendar-month-day-box/>
-          <calendar-month-day-box/>
-          <calendar-month-day-box/>
-        </row>
+        <html:tr class="calendar-month-view-grid-row">
+          <html:td>
+            <calendar-month-day-box/>
+          </html:td>
+          <html:td>
+            <calendar-month-day-box/>
+          </html:td>
+          <html:td>
+            <calendar-month-day-box/>
+          </html:td>
+          <html:td>
+            <calendar-month-day-box/>
+          </html:td>
+          <html:td>
+            <calendar-month-day-box/>
+          </html:td>
+          <html:td>
+            <calendar-month-day-box/>
+          </html:td>
+          <html:td>
+            <calendar-month-day-box/>
+          </html:td>
+        </html:tr>
         `;
 
       this.appendChild(
@@ -43,28 +57,14 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
                 flex="1">
             <hbox class="labeldaybox labeldaybox-container"
                   equalsize="always"/>
-            <grid class="monthgrid"
-                  flex="1">
-              <columns class="monthgridcolumns"
-                       equalsize="always">
-                <column class="calendar-month-view-grid-column" flex="1"/>
-                <column class="calendar-month-view-grid-column" flex="1"/>
-                <column class="calendar-month-view-grid-column" flex="1"/>
-                <column class="calendar-month-view-grid-column" flex="1"/>
-                <column class="calendar-month-view-grid-column" flex="1"/>
-                <column class="calendar-month-view-grid-column" flex="1"/>
-                <column class="calendar-month-view-grid-column" flex="1"/>
-              </columns>
-              <rows class="monthgridrows"
-                    equalsize="always">
-                ${row}
-                ${row}
-                ${row}
-                ${row}
-                ${row}
-                ${row}
-              </rows>
-            </grid>
+            <html:table class="monthgrid">
+              ${row}
+              ${row}
+              ${row}
+              ${row}
+              ${row}
+              ${row}
+            </html:table>
           </vbox>
         `)
       );
@@ -212,10 +212,6 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
     get monthgrid() {
       return this.querySelector(".monthgrid");
-    }
-
-    get monthgridrows() {
-      return this.querySelector(".monthgridrows");
     }
 
     // calICalendarView Methods
@@ -437,7 +433,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       // week labels, taking into account whether days-off are displayed or not.
       let weekLabelColumnPos = -1;
 
-      const rows = this.monthgridrows.childNodes;
+      const rows = this.monthgrid.children;
 
       // Iterate through each monthgridrow and set up the day-boxes that
       // are its child nodes.  Remember, childNodes is not a normal array,
@@ -447,14 +443,12 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
         const row = rows[i];
         // If we've already assigned all of the day-boxes that we need, just
         // collapse the rest of the rows, otherwise expand them if needed.
+        row.toggleAttribute("hidden", finished);
         if (finished) {
-          row.setAttribute("collapsed", true);
           continue;
-        } else {
-          row.removeAttribute("collapsed");
         }
         for (let j = 0; j < row.childNodes.length; j++) {
-          const daybox = row.childNodes[j];
+          const daybox = row.childNodes[j].firstChild;
           const date = dateList[dateBoxes.length];
 
           // Remove the attribute "relation" for all the column headers.
@@ -578,11 +572,11 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
      * Hide the week numbers.
      */
     hideWeekNumbers() {
-      const rows = this.monthgridrows.childNodes;
+      const rows = this.monthgrid.children;
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         for (let j = 0; j < row.childNodes.length; j++) {
-          const daybox = row.childNodes[j];
+          const daybox = row.childNodes[j].firstChild;
           const weekLabel = daybox.querySelector("[data-label='week']");
           weekLabel.hidden = true;
         }
@@ -593,15 +587,17 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
      * Hide the days off.
      */
     hideDaysOff() {
-      const columns = this.querySelector(".monthgridcolumns").childNodes;
       const headerkids = this.querySelector(".labeldaybox").childNodes;
+      const rows = this.monthgrid.children;
 
-      for (let i = 0; i < columns.length; i++) {
-        const dayForColumn = (i + this.mWeekStartOffset) % 7;
+      const lastColNum = rows[0].children.length - 1;
+      for (let colNum = 0; colNum <= lastColNum; colNum++) {
+        const dayForColumn = (colNum + this.mWeekStartOffset) % 7;
         const dayOff = this.mDaysOffArray.includes(dayForColumn);
-
-        columns[i].collapsed = dayOff && !this.mDisplayDaysOff;
-        headerkids[i].collapsed = dayOff && !this.mDisplayDaysOff;
+        headerkids[colNum].hidden = dayOff && !this.mDisplayDaysOff;
+        for (let row of rows) {
+          row.children[colNum].toggleAttribute("hidden", dayOff && !this.mDisplayDaysOff);
+        }
       }
     }
 

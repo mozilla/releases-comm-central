@@ -101,8 +101,10 @@
     set selected(val) {
       if (val) {
         this.setAttribute("selected", "true");
+        this.parentNode.setAttribute("selected", "true");
       } else {
         this.removeAttribute("selected");
+        this.parentNode.removeAttribute("selected");
       }
       return val;
     }

@@ -40,8 +40,7 @@ add_task(function testMonthView() {
 
   // Verify date.
   let day = lookup(`
-        ${MONTH_VIEW}/{"class":"mainbox"}/{"class":"monthgrid"}/
-        {"class":"monthgridrows"}/[0]/{"selected":"true"}
+        ${MONTH_VIEW}/{"class":"mainbox"}/{"class":"monthgrid"}/[0]/{"selected":"true"}/[0]
     `);
   controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
 

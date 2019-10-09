@@ -40,8 +40,7 @@ add_task(function setupModule(module) {
 
   // Verify date.
   let day = lookup(`
-        ${MULTIWEEK_VIEW}/{"class":"mainbox"}/{"class":"monthgrid"}/
-        {"class":"monthgridrows"}/[0]/{"selected":"true"}
+        ${MULTIWEEK_VIEW}/{"class":"mainbox"}/{"class":"monthgrid"}/[0]/{"selected":"true"}/[0]
     `);
   controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
 
