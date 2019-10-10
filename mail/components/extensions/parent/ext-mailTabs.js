@@ -51,19 +51,24 @@ function convertMailTab(tab, context) {
   };
 
   let nativeTab = tab.nativeTab;
-  let { folderDisplay } = nativeTab;
-  if (folderDisplay.view.displayedFolder) {
+  let { folderDisplay, mode } = nativeTab;
+  if (mode.name == "folder" && folderDisplay.view.displayedFolder) {
     let { folderPaneVisible, messagePaneVisible } = nativeTab.mode.persistTab(
       nativeTab
     );
+    mailTabObject.folderPaneVisible = folderPaneVisible;
+    mailTabObject.messagePaneVisible = messagePaneVisible;
+  } else if (mode.name == "glodaList") {
+    mailTabObject.folderPaneVisible = false;
+    mailTabObject.messagePaneVisible = true;
+  }
+  if (mode.name == "glodaList" || folderDisplay.view.displayedFolder) {
     mailTabObject.sortType = SORT_TYPE_MAP.get(
       folderDisplay.view.primarySortType
     );
     mailTabObject.sortOrder = SORT_ORDER_MAP.get(
       folderDisplay.view.primarySortOrder
     );
-    mailTabObject.folderPaneVisible = folderPaneVisible;
-    mailTabObject.messagePaneVisible = messagePaneVisible;
   }
   if (context.extension.hasPermission("accountsRead")) {
     mailTabObject.displayedFolder = convertFolder(
@@ -186,6 +191,7 @@ this.mailTabs = class extends ExtensionAPI {
 
         async update(tabId, args) {
           let tab = getTabOrActive(tabId);
+          let { nativeTab } = tab;
           let window = tab.window;
 
           let {
@@ -203,8 +209,7 @@ this.mailTabs = class extends ExtensionAPI {
               displayedFolder.path
             );
             if (tab.active) {
-              let treeView = Cu.getGlobalForObject(tab.nativeTab)
-                .gFolderTreeView;
+              let treeView = Cu.getGlobalForObject(nativeTab).gFolderTreeView;
               let folder = MailServices.folderLookup.getFolderForURL(uri);
               if (folder) {
                 treeView.selectFolder(folder);
@@ -215,7 +220,7 @@ this.mailTabs = class extends ExtensionAPI {
                 );
               }
             } else {
-              tab.nativeTab.folderDisplay.showFolderUri(uri);
+              nativeTab.folderDisplay.showFolderUri(uri);
             }
           }
 
@@ -227,7 +232,7 @@ this.mailTabs = class extends ExtensionAPI {
               sortOrder &&
               sortOrder in Ci.nsMsgViewSortOrder
             ) {
-              tab.nativeTab.folderDisplay.view.sort(
+              nativeTab.folderDisplay.view.sort(
                 Ci.nsMsgViewSortType[sortType],
                 Ci.nsMsgViewSortOrder[sortOrder]
               );
@@ -242,7 +247,10 @@ this.mailTabs = class extends ExtensionAPI {
             );
           }
 
-          if (typeof folderPaneVisible == "boolean") {
+          if (
+            typeof folderPaneVisible == "boolean" &&
+            nativeTab.mode.name == "folder"
+          ) {
             if (tab.active) {
               let document = window.document;
               let folderPaneSplitter = document.getElementById(
@@ -253,20 +261,23 @@ this.mailTabs = class extends ExtensionAPI {
                 folderPaneVisible ? "open" : "collapsed"
               );
             } else {
-              tab.nativeTab.folderDisplay.folderPaneVisible = folderPaneVisible;
+              nativeTab.folderDisplay.folderPaneVisible = folderPaneVisible;
             }
           }
 
-          if (typeof messagePaneVisible == "boolean") {
+          if (
+            typeof messagePaneVisible == "boolean" &&
+            nativeTab.mode.name == "folder"
+          ) {
             if (tab.active) {
               if (messagePaneVisible == window.IsMessagePaneCollapsed()) {
                 window.MsgToggleMessagePane();
               }
             } else {
-              tab.nativeTab.messageDisplay._visible = messagePaneVisible;
+              nativeTab.messageDisplay._visible = messagePaneVisible;
               if (!messagePaneVisible) {
                 // Prevent the messagePane from showing if a message is selected.
-                tab.nativeTab.folderDisplay._aboutToSelectMessage = true;
+                nativeTab.folderDisplay._aboutToSelectMessage = true;
               }
             }
           }

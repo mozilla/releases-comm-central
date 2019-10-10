@@ -798,7 +798,7 @@ class TabmailTab extends Tab {
 
   /** Returns true if this tab is a 3-pane tab. */
   get mailTab() {
-    return this.nativeTab.mode.type == "folder";
+    return ["folder", "glodaList"].includes(this.nativeTab.mode.name);
   }
 
   /** Returns the tab index. */

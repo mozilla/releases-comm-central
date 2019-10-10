@@ -35,7 +35,9 @@ this.messageDisplay = class extends ExtensionAPI {
           if (tab instanceof TabmailTab) {
             if (
               tab.active &&
-              ["folder", "message"].includes(tab.nativeTab.mode.name)
+              ["folder", "glodaList", "message"].includes(
+                tab.nativeTab.mode.name
+              )
             ) {
               displayedMessage = tab.nativeTab.messageDisplay.displayedMessage;
             }

@@ -490,3 +490,64 @@ add_task(async function test_background_tab() {
   tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
   window.gFolderTreeView.selectFolder(rootFolder);
 });
+
+add_task(async function test_glodaList_tab() {
+  async function background() {
+    let mailTabs = await browser.mailTabs.query({});
+    browser.test.assertEq(2, mailTabs.length);
+
+    let [tab] = await browser.mailTabs.query({ active: true });
+    browser.test.assertTrue(!tab.folderPaneVisible);
+    browser.test.assertTrue(tab.messagePaneVisible);
+
+    // This should have no effect, and it certainly shouldn't throw.
+    await browser.mailTabs.update({
+      folderPaneVisible: true,
+      messagePaneVisible: false,
+    });
+
+    await new Promise(resolve => {
+      browser.test.onMessage.addListener(function listener(...args) {
+        browser.test.onMessage.removeListener(listener);
+        resolve(args);
+      });
+      browser.test.sendMessage("checkRealLayout", {
+        folderPaneVisible: false,
+        messagePaneVisible: true,
+      });
+    });
+
+    [tab] = await browser.mailTabs.query({ active: true });
+    browser.test.assertEq(2, mailTabs.length);
+    browser.test.assertTrue(!tab.folderPaneVisible);
+    browser.test.assertTrue(tab.messagePaneVisible);
+
+    browser.test.notifyPass("mailTabs");
+  }
+
+  let tabmail = document.getElementById("tabmail");
+  tabmail.openTab("glodaList", { collection: { items: [] } });
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background,
+    manifest: { permissions: ["accountsRead", "messagesRead"] },
+  });
+
+  extension.onMessage("checkRealLayout", expected => {
+    is(
+      document.getElementById("messagepaneboxwrapper").collapsed,
+      !expected.messagePaneVisible
+    );
+    is(
+      document.getElementById("folderPaneBox").collapsed,
+      !expected.folderPaneVisible
+    );
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
+});
