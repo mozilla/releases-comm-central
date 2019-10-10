@@ -102,6 +102,9 @@ Account.prototype = {
       required: true,
     },
   },
+
+  // Nothing to do.
+  unInit() {},
 };
 
 function jsTestProtocol() {}
