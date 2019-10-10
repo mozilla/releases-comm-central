@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1570053270833">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1570540061375">
   <emItems>
     <emItem blockID="i334" id="{0F827075-B026-42F3-885D-98981EE7B1AE}">
       <prefs/>
@@ -3334,6 +3334,22 @@
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
+    <emItem blockID="19f599bd-2226-49e2-90fd-685fd106fc3d" id="sparalarm@chip.de">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="bd51d01b-20bf-4682-a588-c03e988eb746" id="/^((web@MapsNewTab)|(ext@WhatsMySpeed)|(ext@MyEmailCenter)|(ext@TemplateHelper)|(ext@FreeLiveRadio)|(ext@FreeFormsNow)|(web@ConverterNewTab)|(web@EmailAccountNewTab)|(spweb@EmailNewTab)|(web@PackagesNewTab)|(web@ManualsNewTab)|(web@ClassifiedsNewTab)|(web@FormsNewTab)|(web@AncestryNewTab)|(web@RecipesNewTab)|(web@TVNewTab)|(web@WeatherNewTab)|(web@translationsNewTab)|(web@SportsNewTab)|(web@CouponsNewTab)|(web@FlightsNewTab)|(test@InstaFormsFinder)|(web@NewsNewTab)|(web@SpeedTestNewTab)|(web@TransitNewTab)|(web@BibleNewTab)|(web@RadioNewTab)|(web@TemplateNewTab)|(web@PhotoEditorNewTab)|(web@AudioConverterNewTab)|(web@GamesNewTab)|(web@VideoConverterNewTab)|(test@TheWeatherChecker)|(web@InterestsNewTab)|(test@SearchHub)|(web@CalendarNewTab)|(web@TaxesNewTab)|(web@BankNewTab)|(web@CrimeReportNewTab)|(web@CryptoNewTab)|(web@eBooksNewTab)|(web@FinanceNewTab)|(web@FitnessNewTab)|(web@JobsNewTab)|(web@MoviesNewTab)|(web@NotepadNewTab)|(web@OfficeNewTab)|(web@PCTextingNewTab)|(web@PhotoNewTab)|(web@ScrapbookNewTab)|(web@UtilityNewTab)|(test@FlightTrackerUpdate)|(test@FreeForms)|(test@UniversalConverter)|(test@MyEmailCenter)|(test@TemplateHelper)|(test@FreeLiveRadio)|(test@FreeFormsNow)|(ext@FormsHub)|(webext@WhatsMySpeed)|(webext@WatchTelevision)|(webext@EmailExpressTab)|(webext@MyConverterTab)|(webext@TemplateCreatorTab)|(webext@LocalForecastTab)|(webext@EZDirectionsandMapsTab)|(webext@MapsNDirectionsTab)|(webext@MyEmailCenter)|(webext@TemplateHelper)|(webext@FreeLiveRadio)|(webext@FreeFormsNow)|(webext@InstaFormsFinder)|(webext@TheWeatherChecker)|(webext@FlightTrackerUpdate)|(webext@FreeForms)|(webext@UniversalConverter)|(webext@FormsHub)|(webext@SearchHub)|(ds@DirectSearchPro)|(webext@AppDiscoveryTools)|(webext@LiveRadioProTab)|(webext@TheWeatherPilotTab)|(webext@ExpressPackageFinderTab)|(webext@LoginAssistantTab)|(webext@SelectSearch)|(addon@SelectSearch)|(webext@ExpressSpeedChecker)|(webext@BreakingNewsPlus)|(webext@WorldEventsToday)|(addon@WorldEventsToday)|(webext@OnlineTVAccess)|(webext@FindingFormsPro)|(webext@EasyClassifieds)|(webext@SpeedCheckerPlus)|(webext@GetFreeCoupons)|(addon@MyEmailChecker)|(app@FlightTrackerUpdate)|(app@WatchTelevision)|(app@WhatsMySpeed)|(app@MyEmailCenter)|(app@TemplateCreatorTab)|(app@FreeLiveRadio)|(app@FreeFormsNow)|(app@InstaFormsFinder)|(app@SearchHub)|(app@TheWeatherChecker)|(app@FormsHub)|(webtab@Maps)|(app@FreeForms)|(app@UniversalConverter)|(app@EmailExpressTab)|(app@MyConverterTab)|(app@TemplateHelper)|(app@LocalForecastTab)|(app@EZDirectionsandMapsTab)|(app@MapsNDirectionsTab)|(app@AppDiscoveryTools)|(app@LiveRadioProTab)|(app@TheWeatherPilotTab)|(app@ExpressPackageFinderTab)|(app@WorldEventsToday)|(app@OnlineTVAccess)|(app@SpeedCheckerPlus)|(app@EasyClassifieds)|(app@GetFreeCoupons)|(app@FindingFormsPro)|(app@TemplatesHereTab)|(webtab@Packages)|(webtab@Forms)|(webtab@Email)|(webtab@Radio)|(app@MyEmailChecker)|(webtab@TV)|(webtab@Classifieds)|(webtab@Ancestry)|(webtab@Weather)|(webtab@Manuals)|(webtab@SpeedTest)|(app@MyDailyCalendar)|(webtab@Transit)|(webtab@Converter)|(webtab@Coupons)|(webtab@Recipes)|(webtab@News)|(webtab@Sports)|(webtab@translations)|(webtab@Template)|(webtab@AudioConverter)|(webtab@Flights)|(webtab@Photo)|(webtab@Bible)|(webtab@PhotoEditor)|(app@MyVideoConverter)|(webtab@Games)|(app@MyLoginHelper)|(app@QuickEmailAccess)|(app@MyRecipeFinder)|(app@MyFlightFinder)|(webtab@Fitness)|(webtab@VideoConverter)|(webtab@Taxes)|(webtab@Bank)|(webtab@Calendar)|(webtab@CrimeReport)|(webtab@Crypto)|(webtab@eBooks)|(webtab@Finance)|(webtab@Interests)|(webtab@Jobs)|(webtab@Notepad)|(webtab@Movies)|(webtab@Office)|(webtab@PCTexting)|(webtab@Scrapbook)|(webtab@Utility))$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="3ece7523-cdec-46cf-ac20-9e939a4d4802" id="/^((oigfsj9434lavvv@oigfsj9434lavvv\.com)|(mity82900jf2@mity82900jf2\.com))$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="ab0b6868-6077-4d47-bd58-1df3f572c04d" id="{2e106fa4-ee23-4b4a-9ed0-f93edee539b5}">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
   </emItems>
   <pluginItems>
     <pluginItem blockID="p1054">
@@ -3349,12 +3365,12 @@
     <pluginItem blockID="49b843cc-a8fc-4ede-be0c-a0da56d0214f" os="Linux">
       <match name="filename" exp="libflashplayer\.so"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
-      <versionRange maxVersion="32.0.0.223" minVersion="0" severity="0" vulnerabilitystatus="1"/>
+      <versionRange maxVersion="32.0.0.238" minVersion="0" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
     <pluginItem blockID="832dc9ff-3314-4df2-abcf-7bd65a645371">
       <match name="filename" exp="(NPSWF32.*\.dll)|(NPSWF64.*\.dll)|(Flash\ Player\.plugin)"/>
       <infoURL>https://get.adobe.com/flashplayer/</infoURL>
-      <versionRange maxVersion="32.0.0.223" minVersion="0" severity="0" vulnerabilitystatus="1"/>
+      <versionRange maxVersion="32.0.0.238" minVersion="0" severity="0" vulnerabilitystatus="1"/>
     </pluginItem>
   </pluginItems>
   <gfxItems>
@@ -6682,6 +6698,165 @@
     </certItem>
     <certItem issuerName="MCwxCzAJBgNVBAYTAktaMR0wGwYDVQQDExRRYXpuZXQgVHJ1c3QgTmV0d29yaw==">
       <serialNumber>PZV/yh+MD8hpLAGZTrVSMQNbnfE=</serialNumber>
+    </certItem>
+    <certItem issuerName="MDwxHjAcBgNVBAMMFUF0b3MgVHJ1c3RlZFJvb3QgMjAxMTENMAsGA1UECgwEQXRvczELMAkGA1UEBhMCREU=">
+      <serialNumber>b+PF5BvGM1c=</serialNumber>
+    </certItem>
+    <certItem issuerName="MDwxHjAcBgNVBAMMFUF0b3MgVHJ1c3RlZFJvb3QgMjAxMTENMAsGA1UECgwEQXRvczELMAkGA1UEBhMCREU=">
+      <serialNumber>esKlE8WJEhw=</serialNumber>
+    </certItem>
+    <certItem issuerName="ME4xCzAJBgNVBAYTAk5PMR0wGwYDVQQKDBRCdXlwYXNzIEFTLTk4MzE2MzMyNzEgMB4GA1UEAwwXQnV5cGFzcyBDbGFzcyAzIFJvb3QgQ0E=">
+      <serialNumber>Gg==</serialNumber>
+    </certItem>
+    <certItem issuerName="ME4xCzAJBgNVBAYTAk5PMR0wGwYDVQQKDBRCdXlwYXNzIEFTLTk4MzE2MzMyNzEgMB4GA1UEAwwXQnV5cGFzcyBDbGFzcyAyIFJvb3QgQ0E=">
+      <serialNumber>Gg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MDQxCzAJBgNVBAYTAkZSMRIwEAYDVQQKDAlEaGlteW90aXMxETAPBgNVBAMMCENlcnRpZ25h">
+      <serialNumber>Hg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MDQxCzAJBgNVBAYTAkZSMRIwEAYDVQQKDAlEaGlteW90aXMxETAPBgNVBAMMCENlcnRpZ25h">
+      <serialNumber>Gw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MDQxCzAJBgNVBAYTAkZSMRIwEAYDVQQKDAlEaGlteW90aXMxETAPBgNVBAMMCENlcnRpZ25h">
+      <serialNumber>HQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MDQxCzAJBgNVBAYTAkZSMRIwEAYDVQQKDAlEaGlteW90aXMxETAPBgNVBAMMCENlcnRpZ25h">
+      <serialNumber>Hw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>ByfDrA==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGUxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAiBgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBHMg==">
+      <serialNumber>BiVxMmicX7C3qkZW3rCNuQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGUxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAiBgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBHMg==">
+      <serialNumber>A8Ir2pM+N2ukJUbcpQ9bGA==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGUxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAiBgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBHMg==">
+      <serialNumber>Cx0MvOeigXRY2Z4Uxr0Ypw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGUxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAiBgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBHMg==">
+      <serialNumber>BC05mGqcJqxN4m1fywzqdQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>ByfNeQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MF8xCzAJBgNVBAYTAk1LMRcwFQYDVQQKEw5LSUJTIEFEIFNrb3BqZTEfMB0GA1UECxMWVmVyaVNpZ24gVHJ1c3QgTmV0d29yazEWMBQGA1UEAxMNS0lCUyBWZXJiYSBDQQ==">
+      <serialNumber>fafwGJHMSPO0K7nm6dSxiA==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>BwSvmwHgIISTeM4uX8FUyg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGYMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNR2VvVHJ1c3QgSW5jLjE5MDcGA1UECxMwKGMpIDIwMDcgR2VvVHJ1c3QgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5MTYwNAYDVQQDEy1HZW9UcnVzdCBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0gRzI=">
+      <serialNumber>D4IrRtQ6ByW09Im/6D1i3Q==</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGYMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNR2VvVHJ1c3QgSW5jLjE5MDcGA1UECxMwKGMpIDIwMDggR2VvVHJ1c3QgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5MTYwNAYDVQQDEy1HZW9UcnVzdCBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0gRzM=">
+      <serialNumber>Bl3KfQ+qIpjDCrBhKUDefQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1HZW9UcnVzdCBJbmMuMRswGQYDVQQDExJHZW9UcnVzdCBHbG9iYWwgQ0E=">
+      <serialNumber>Ajp1</serialNumber>
+    </certItem>
+    <certItem issuerName="MGcxCzAJBgNVBAYTAktSMRMwEQYDVQQKEwpLRUNBLCBJbmMuMR8wHQYDVQQLExZTeW1hbnRlYyBUcnVzdCBOZXR3b3JrMSIwIAYDVQQDExlDcm9zc0NlcnQgQ2xhc3MgMiBDQSAtIEcz">
+      <serialNumber>H4L5/FnWXnXdXs/8x+BDpw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MDsxGDAWBgNVBAoTD0N5YmVydHJ1c3QsIEluYzEfMB0GA1UEAxMWQ3liZXJ0cnVzdCBHbG9iYWwgUm9vdA==">
+      <serialNumber>BAAAAAABSOXEhcs=</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>Byekbg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MHMxCzAJBgNVBAYTAk1LMRcwFQYDVQQKEw5LSUJTIEFEIFNrb3BqZTEfMB0GA1UECxMWU3ltYW50ZWMgVHJ1c3QgTmV0d29yazEqMCgGA1UEAxMhS2lic1RydXN0IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>XtiXZFzoWEohcuXO3Qakfg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MF8xCzAJBgNVBAYTAk1LMRcwFQYDVQQKEw5LSUJTIEFEIFNrb3BqZTEfMB0GA1UECxMWVmVyaVNpZ24gVHJ1c3QgTmV0d29yazEWMBQGA1UEAxMNS0lCUyBWZXJiYSBDQQ==">
+      <serialNumber>GWX2i+qVAVmIAm9D6fgusw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAk5MMREwDwYDVQQKEwhLUE4gQi5WLjEfMB0GA1UECxMWU3ltYW50ZWMgVHJ1c3QgTmV0d29yazEXMBUGA1UEAxMOS1BOIENsYXNzIDIgQ0E=">
+      <serialNumber>BzFJVBKUYLx5d6jqaoqnQA==</serialNumber>
+    </certItem>
+    <certItem issuerName="MIHKMQswCQYDVQQGEwJVUzEXMBUGA1UEChMOVmVyaVNpZ24sIEluYy4xHzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxOjA4BgNVBAsTMShjKSAxOTk5IFZlcmlTaWduLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkxRTBDBgNVBAMTPFZlcmlTaWduIENsYXNzIDEgUHVibGljIFByaW1hcnkgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgLSBHMw==">
+      <serialNumber>APx4jVLURBZ4JDuYgssVtA==</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGUMQswCQYDVQQGEwJVUzEdMBsGA1UEChMUU3ltYW50ZWMgQ29ycG9yYXRpb24xHzAdBgNVBAsTFlN5bWFudGVjIFRydXN0IE5ldHdvcmsxRTBDBgNVBAMTPFN5bWFudGVjIENsYXNzIDIgUHVibGljIFByaW1hcnkgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgLSBHNg==">
+      <serialNumber>ZGOlNeh1j5diJSijGSk5yw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MHMxCzAJBgNVBAYTAklUMRwwGgYDVQQKExNUcnVzdCBJdGFsaWEgUy5wLkEuMR8wHQYDVQQLExZTeW1hbnRlYyBUcnVzdCBOZXR3b3JrMSUwIwYDVQQDExxUcnVzdCBJdGFsaWEgQ2xhc3MgMiBDQSAtIEcz">
+      <serialNumber>WuRlPlB5dcPHk+Ni2m98uQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MHQxCzAJBgNVBAYTAkdCMScwJQYDVQQKEx5Ccml0aXNoIFRlbGVjb21tdW5pY2F0aW9ucyBwbGMxHzAdBgNVBAsTFlN5bWFudGVjIFRydXN0IE5ldHdvcmsxGzAZBgNVBAMTEkJUIENsYXNzIDIgQ0EgLSBHMw==">
+      <serialNumber>SAOpMdpJPNmCofX5swZ5oQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFwxCzAJBgNVBAYTAlVTMRkwFwYDVQQKDBBWZXJpem9uIEJ1c2luZXNzMREwDwYDVQQLDAhPbW5pUm9vdDEfMB0GA1UEAwwWVmVyaXpvbiBHbG9iYWwgUm9vdCBDQQ==">
+      <serialNumber>BkQ=</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>Byekbw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>ByfDrQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>ByfFng==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>ByeYsg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>ByfDtQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFoxCzAJBgNVBAYTAklFMRIwEAYDVQQKEwlCYWx0aW1vcmUxEzARBgNVBAsTCkN5YmVyVHJ1c3QxIjAgBgNVBAMTGUJhbHRpbW9yZSBDeWJlclRydXN0IFJvb3Q=">
+      <serialNumber>Byc3Cw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFwxCzAJBgNVBAYTAk5MMR4wHAYDVQQKDBVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xLTArBgNVBAMMJFN0YWF0IGRlciBOZWRlcmxhbmRlbiBCdXJnZXIgQ0EgLSBHMw==">
+      <serialNumber>cguCxFXg1BY=</serialNumber>
+    </certItem>
+    <certItem issuerName="MGkxCzAJBgNVBAYTAk5MMR4wHAYDVQQKDBVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xOjA4BgNVBAMMMVN0YWF0IGRlciBOZWRlcmxhbmRlbiBPcmdhbmlzYXRpZSBQZXJzb29uIENBIC0gRzM=">
+      <serialNumber>MpyrUqgKLj8=</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGnMQswCQYDVQQGEwJIVTERMA8GA1UEBwwIQnVkYXBlc3QxFTATBgNVBAoMDE5ldExvY2sgS2Z0LjE3MDUGA1UECwwuVGFuw7pzw610dsOhbnlraWFkw7NrIChDZXJ0aWZpY2F0aW9uIFNlcnZpY2VzKTE1MDMGA1UEAwwsTmV0TG9jayBBcmFueSAoQ2xhc3MgR29sZCkgRsWRdGFuw7pzw610dsOhbnk=">
+      <serialNumber>SUEs5ABI</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGnMQswCQYDVQQGEwJIVTERMA8GA1UEBwwIQnVkYXBlc3QxFTATBgNVBAoMDE5ldExvY2sgS2Z0LjE3MDUGA1UECwwuVGFuw7pzw610dsOhbnlraWFkw7NrIChDZXJ0aWZpY2F0aW9uIFNlcnZpY2VzKTE1MDMGA1UEAwwsTmV0TG9jayBBcmFueSAoQ2xhc3MgR29sZCkgRsWRdGFuw7pzw610dsOhbnk=">
+      <serialNumber>SUEs5ABG</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGnMQswCQYDVQQGEwJIVTERMA8GA1UEBwwIQnVkYXBlc3QxFTATBgNVBAoMDE5ldExvY2sgS2Z0LjE3MDUGA1UECwwuVGFuw7pzw610dsOhbnlraWFkw7NrIChDZXJ0aWZpY2F0aW9uIFNlcnZpY2VzKTE1MDMGA1UEAwwsTmV0TG9jayBBcmFueSAoQ2xhc3MgR29sZCkgRsWRdGFuw7pzw610dsOhbnk=">
+      <serialNumber>SUEs5ABThOepKci5Vzg=</serialNumber>
+    </certItem>
+    <certItem issuerName="MEUxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9WYWRpcyBSb290IENBIDI=">
+      <serialNumber>TRRJlNTx8n7cQvNehM76B+mI/gI=</serialNumber>
+    </certItem>
+    <certItem issuerName="MHAxCzAJBgNVBAYTAk5MMRcwFQYDVQRhDA5OVFJOTC0zMDIzNzQ1OTEgMB4GA1UECgwXUXVvVmFkaXMgVHJ1c3RsaW5rIEIuVi4xJjAkBgNVBAMMHVF1b1ZhZGlzIFF1YWxpZmllZCBXZWIgSUNBIEcx">
+      <serialNumber>DKKQ8bcYDwn4Pows6KhzW6JxMYw=</serialNumber>
+    </certItem>
+    <certItem issuerName="MEUxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9WYWRpcyBSb290IENBIDI=">
+      <serialNumber>duIdILCWeCm7g2bzVNjyc3z3hUM=</serialNumber>
+    </certItem>
+    <certItem issuerName="MGExCzAJBgNVBAYTAkpQMSUwIwYDVQQKExxTRUNPTSBUcnVzdCBTeXN0ZW1zIENPLixMVEQuMSswKQYDVQQDEyJTZWN1cml0eSBDb21tdW5pY2F0aW9uIEVDQyBSb290Q0Ex">
+      <serialNumber>AQAAOct/vFej</serialNumber>
+    </certItem>
+    <certItem issuerName="MF0xCzAJBgNVBAYTAkpQMSUwIwYDVQQKExxTRUNPTSBUcnVzdCBTeXN0ZW1zIENPLixMVEQuMScwJQYDVQQLEx5TZWN1cml0eSBDb21tdW5pY2F0aW9uIFJvb3RDQTI=">
+      <serialNumber>IrmxWpuP9VVz</serialNumber>
+    </certItem>
+    <certItem issuerName="MEkxCzAJBgNVBAYTAkNIMRUwEwYDVQQKEwxTd2lzc1NpZ24gQUcxIzAhBgNVBAMTGlN3aXNzU2lnbiBQbGF0aW51bSBDQSAtIEcy">
+      <serialNumber>JD4RO0Oolos=</serialNumber>
+    </certItem>
+    <certItem issuerName="MEkxCzAJBgNVBAYTAkNIMRUwEwYDVQQKEwxTd2lzc1NpZ24gQUcxIzAhBgNVBAMTGlN3aXNzU2lnbiBQbGF0aW51bSBDQSAtIEcy">
+      <serialNumber>AJHE7Dx8fWBV</serialNumber>
+    </certItem>
+    <certItem issuerName="MEUxCzAJBgNVBAYTAkNIMRUwEwYDVQQKEwxTd2lzc1NpZ24gQUcxHzAdBgNVBAMTFlN3aXNzU2lnbiBHb2xkIENBIC0gRzI=">
+      <serialNumber>ALNpo1yEOMIuR5TLwIEiPg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEUxCzAJBgNVBAYTAkNIMRUwEwYDVQQKEwxTd2lzc1NpZ24gQUcxHzAdBgNVBAMTFlN3aXNzU2lnbiBHb2xkIENBIC0gRzI=">
+      <serialNumber>MsKCw6ASAH4=</serialNumber>
+    </certItem>
+    <certItem issuerName="MEUxCzAJBgNVBAYTAkNIMRUwEwYDVQQKEwxTd2lzc1NpZ24gQUcxHzAdBgNVBAMTFlN3aXNzU2lnbiBHb2xkIENBIC0gRzI=">
+      <serialNumber>APeSt8SBjARY</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGCMQswCQYDVQQGEwJERTErMCkGA1UECgwiVC1TeXN0ZW1zIEVudGVycHJpc2UgU2VydmljZXMgR21iSDEfMB0GA1UECwwWVC1TeXN0ZW1zIFRydXN0IENlbnRlcjElMCMGA1UEAwwcVC1UZWxlU2VjIEdsb2JhbFJvb3QgQ2xhc3MgMg==">
+      <serialNumber>JxLAYQXlXzf2wpMVxAUkPw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGCMQswCQYDVQQGEwJERTErMCkGA1UECgwiVC1TeXN0ZW1zIEVudGVycHJpc2UgU2VydmljZXMgR21iSDEfMB0GA1UECwwWVC1TeXN0ZW1zIFRydXN0IENlbnRlcjElMCMGA1UEAwwcVC1UZWxlU2VjIEdsb2JhbFJvb3QgQ2xhc3MgMw==">
+      <serialNumber>H0ZpvlsmQE2QLTqXSDrK4g==</serialNumber>
     </certItem>
   </certItems>
 </blocklist>
