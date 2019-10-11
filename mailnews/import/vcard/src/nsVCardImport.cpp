@@ -6,7 +6,6 @@
   VCard import addressbook interfaces
 */
 #include "nscore.h"
-#include "nsIAddrDatabase.h"
 #include "nsIFile.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIImportAddressBooks.h"
@@ -60,7 +59,7 @@ class ImportVCardAddressImpl : public nsIImportAddressBooks {
   }
 
   NS_IMETHOD ImportAddressBook(nsIImportABDescriptor *source,
-                               nsIAddrDatabase *destination,
+                               nsIAbDirectory *destination,
                                nsIImportFieldMap *fieldMap,
                                nsISupports *aSupportService,
                                char16_t **errorLog, char16_t **successLog,
@@ -301,7 +300,7 @@ void ImportVCardAddressImpl::SetLogs(nsString &success, nsString &error,
 }
 
 NS_IMETHODIMP ImportVCardAddressImpl::ImportAddressBook(
-    nsIImportABDescriptor *pSource, nsIAddrDatabase *pDestination,
+    nsIImportABDescriptor *pSource, nsIAbDirectory *pDestination,
     nsIImportFieldMap *fieldMap, nsISupports *aSupportService,
     char16_t **pErrorLog, char16_t **pSuccessLog, bool *fatalError) {
   NS_ENSURE_ARG_POINTER(pSource);

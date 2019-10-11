@@ -9,7 +9,7 @@
 
 #include "nsIAbCard.h"
 #include "nsIAbManager.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAbDirectory.h"
 #include "nsIFile.h"
 #include "nsIInputStream.h"
 #include "nsILineInputStream.h"
@@ -23,7 +23,8 @@ nsVCardAddress::nsVCardAddress() {}
 nsVCardAddress::~nsVCardAddress() {}
 
 nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
-                                         nsIFile *pSrc, nsIAddrDatabase *pDb,
+                                         nsIFile *pSrc,
+                                         nsIAbDirectory *pDirectory,
                                          nsString &errors,
                                          uint32_t *pProgress) {
   // Open the source file for reading, read each line and process it!
@@ -64,7 +65,8 @@ nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
           ab->EscapedVCardToAbCard(record.get(), getter_AddRefs(cardFromVCard));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = pDb->CreateNewCardAndAddToDB(cardFromVCard, false, nullptr);
+      nsIAbCard *outCard;
+      rv = pDirectory->AddCard(cardFromVCard, &outCard);
       NS_ENSURE_SUCCESS(rv, rv);
 
       if (NS_FAILED(rv)) {
@@ -87,7 +89,7 @@ nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
     return NS_ERROR_FAILURE;
   }
 
-  return pDb->Commit(nsAddrDBCommitType::kLargeCommit);
+  return NS_OK;
 }
 
 nsresult nsVCardAddress::ReadRecord(nsILineInputStream *aLineStream,

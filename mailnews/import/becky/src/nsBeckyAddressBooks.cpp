@@ -252,7 +252,7 @@ nsBeckyAddressBooks::InitFieldMap(nsIImportFieldMap *aFieldMap) {
 
 NS_IMETHODIMP
 nsBeckyAddressBooks::ImportAddressBook(
-    nsIImportABDescriptor *aSource, nsIAddrDatabase *aDestination,
+    nsIImportABDescriptor *aSource, nsIAbDirectory *aDestination,
     nsIImportFieldMap *aFieldMap, nsISupports *aSupportService,
     char16_t **aErrorLog, char16_t **aSuccessLog, bool *aFatalError) {
   NS_ENSURE_ARG_POINTER(aSource);

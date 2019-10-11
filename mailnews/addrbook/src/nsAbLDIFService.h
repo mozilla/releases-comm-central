@@ -8,8 +8,6 @@
 #include "nsIAbLDIFService.h"
 #include "nsCOMPtr.h"
 
-class nsIMdbRow;
-
 class nsAbLDIFService : public nsIAbLDIFService {
  public:
   NS_DECL_ISUPPORTS
@@ -23,9 +21,9 @@ class nsAbLDIFService : public nsIAbLDIFService {
                           int *vlen) const;
   char *str_getline(char **next) const;
   nsresult GetLdifStringRecord(char *buf, int32_t len, int32_t &stopPos);
-  void AddLdifRowToDatabase(nsIAddrDatabase *aDatabase, bool aIsList);
-  void AddLdifColToDatabase(nsIAddrDatabase *aDatabase, nsIMdbRow *newRow,
-                            char *typeSlot, char *valueSlot, bool bIsList);
+  void AddLdifRowToDatabase(nsIAbDirectory *aDirectory, bool aIsList);
+  void AddLdifColToDatabase(nsIAbDirectory *aDirectory, nsIAbCard *newCard,
+                            nsCString colType, nsCString column, bool bIsList);
   void ClearLdifRecordBuffer();
   void SplitCRLFAddressField(nsCString &inputAddress, nsCString &outputLine1,
                              nsCString &outputLine2) const;

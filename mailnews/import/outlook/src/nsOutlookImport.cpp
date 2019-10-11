@@ -20,7 +20,7 @@
 #include "nsIImportFieldMap.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAbDirectory.h"
 #include "nsOutlookSettings.h"
 #include "nsTextFormatter.h"
 #include "nsOutlookStringBundle.h"
@@ -108,7 +108,7 @@ class ImportOutlookAddressImpl : public nsIImportAddressBooks {
   }
 
   NS_IMETHOD ImportAddressBook(nsIImportABDescriptor *source,
-                               nsIAddrDatabase *destination,
+                               nsIAbDirectory *destination,
                                nsIImportFieldMap *fieldMap,
                                nsISupports *aSupportService,
                                char16_t **errorLog, char16_t **successLog,
@@ -449,7 +449,7 @@ NS_IMETHODIMP ImportOutlookAddressImpl::FindAddressBooks(nsIFile *location,
 }
 
 NS_IMETHODIMP ImportOutlookAddressImpl::ImportAddressBook(
-    nsIImportABDescriptor *source, nsIAddrDatabase *destination,
+    nsIImportABDescriptor *source, nsIAbDirectory *destination,
     nsIImportFieldMap *fieldMap, nsISupports *aSupportService,
     char16_t **pErrorLog, char16_t **pSuccessLog, bool *fatalError) {
   m_msgCount = 0;
@@ -490,7 +490,7 @@ NS_IMETHODIMP ImportOutlookAddressImpl::ImportAddressBook(
 
   ImportOutlookMailImpl::SetLogs(success, error, pErrorLog, pSuccessLog);
   IMPORT_LOG0("*** Returning from outlook address import\n");
-  return destination->Commit(nsAddrDBCommitType::kLargeCommit);
+  return NS_OK;
 }
 
 NS_IMETHODIMP ImportOutlookAddressImpl::GetImportProgress(uint32_t *_retval) {

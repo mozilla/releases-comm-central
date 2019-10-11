@@ -35,7 +35,7 @@
 interface nsIFile;
 interface nsIArray;
 interface nsIImportABDescriptor;
-interface nsIAddrDatabase;
+interface nsIAbDirectory;
 interface nsIImportFieldMap;
 
 [scriptable, uuid(6bba48be-331c-41e3-bc9f-c2ea3754d977)]
@@ -108,7 +108,7 @@ interface nsIImportAddressBooks : nsISupports
    * @param aFatalError     True if there was a fatal error doing the import.
    */
   void ImportAddressBook(in nsIImportABDescriptor aSource,
-                         in nsIAddrDatabase aDestination,
+                         in nsIAbDirectory aDestination,
                          in nsIImportFieldMap aFieldMap,
                          in nsISupports aSupportService,
                          out wstring aErrorLog,

@@ -18,7 +18,6 @@
 #include "nsIImportAddressBooks.h"
 #include "nsIImportABDescriptor.h"
 #include "nsIImportFieldMap.h"
-#include "nsIAddrDatabase.h"
 #include "nsIAbLDIFService.h"
 #include "nsAbBaseCID.h"
 #include "nsTextFormatter.h"
@@ -68,7 +67,7 @@ class ImportAddressImpl final : public nsIImportAddressBooks {
   NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap) override;
 
   NS_IMETHOD ImportAddressBook(nsIImportABDescriptor *source,
-                               nsIAddrDatabase *destination,
+                               nsIAbDirectory *destination,
                                nsIImportFieldMap *fieldMap,
                                nsISupports *aSupportService,
                                char16_t **errorLog, char16_t **successLog,
@@ -333,7 +332,7 @@ void ImportAddressImpl::SetLogs(nsString &success, nsString &error,
 
 NS_IMETHODIMP
 ImportAddressImpl::ImportAddressBook(nsIImportABDescriptor *pSource,
-                                     nsIAddrDatabase *pDestination,
+                                     nsIAbDirectory *pDestination,
                                      nsIImportFieldMap *fieldMap,
                                      nsISupports *aSupportService,
                                      char16_t **pErrorLog,

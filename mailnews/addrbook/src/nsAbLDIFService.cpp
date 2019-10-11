@@ -2,7 +2,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-#include "nsIAddrDatabase.h"
+#include "nsAbBaseCID.h"
+#include "nsIAbDirectory.h"
+#include "nsIAbCard.h"
 #include "nsString.h"
 #include "nsAbLDIFService.h"
 #include "nsIFile.h"
@@ -52,12 +54,12 @@ static unsigned char b642nib[0x80] = {
     0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30,
     0x31, 0x32, 0x33, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb,
+NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAbDirectory *aDirectory,
                                               nsIFile *aSrc,
                                               bool aStoreLocAsHome,
                                               uint32_t *aProgress) {
   NS_ENSURE_ARG_POINTER(aSrc);
-  NS_ENSURE_ARG_POINTER(aDb);
+  NS_ENSURE_ARG_POINTER(aDirectory);
 
   mStoreLocAsHome = aStoreLocAsHome;
 
@@ -84,7 +86,7 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb,
 
       while (NS_SUCCEEDED(GetLdifStringRecord(buf, len, startPos))) {
         if (mLdifLine.Find("groupOfNames") == -1)
-          AddLdifRowToDatabase(aDb, false);
+          AddLdifRowToDatabase(aDirectory, false);
         else {
           // keep file position for mailing list
           listPosArray.AppendElement(savedStartPos);
@@ -99,7 +101,7 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb,
   }
   // last row
   if (!mLdifLine.IsEmpty() && mLdifLine.Find("groupOfNames") == -1)
-    AddLdifRowToDatabase(aDb, false);
+    AddLdifRowToDatabase(aDirectory, false);
 
   // mail Lists
   int32_t i, pos;
@@ -125,7 +127,7 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb,
 
         while (NS_SUCCEEDED(GetLdifStringRecord(listBuf, len, startPos))) {
           if (mLdifLine.Find("groupOfNames") != -1) {
-            AddLdifRowToDatabase(aDb, true);
+            AddLdifRowToDatabase(aDirectory, true);
             if (NS_SUCCEEDED(
                     seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, 0)))
               break;
@@ -139,8 +141,7 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAddrDatabase *aDb,
   rv = inputStream->Close();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Finally commit everything to the database and return.
-  return aDb->Commit(nsAddrDBCommitType::kLargeCommit);
+  return rv;
 }
 
 /*
@@ -311,8 +312,12 @@ nsresult nsAbLDIFService::GetLdifStringRecord(char *buf, int32_t len,
   return NS_ERROR_FAILURE;
 }
 
-void nsAbLDIFService::AddLdifRowToDatabase(nsIAddrDatabase *aDatabase,
+void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory *aDirectory,
                                            bool bIsList) {
+  if (!aDirectory) {
+    return;
+  }
+
   // If no data to process then reset CR/LF counters and return.
   if (mLdifLine.IsEmpty()) {
     mLFCount = 0;
@@ -320,16 +325,8 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAddrDatabase *aDatabase,
     return;
   }
 
-  nsCOMPtr<nsIMdbRow> newRow;
-  if (aDatabase) {
-    if (bIsList)
-      aDatabase->GetNewListRow(getter_AddRefs(newRow));
-    else
-      aDatabase->GetNewRow(getter_AddRefs(newRow));
-
-    if (!newRow) return;
-  } else
-    return;
+  nsCOMPtr<nsIAbCard> newCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID);
+  nsTArray<nsCString> members;
 
   char *cursor = ToNewCString(mLdifLine);
   char *saveCursor = cursor; /* keep for deleting */
@@ -339,125 +336,154 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAddrDatabase *aDatabase,
   int length = 0;  // the length  of an ldif attribute
   while ((line = str_getline(&cursor)) != nullptr) {
     if (NS_SUCCEEDED(str_parse_line(line, &typeSlot, &valueSlot, &length))) {
-      AddLdifColToDatabase(aDatabase, newRow, typeSlot, valueSlot, bIsList);
+      nsAutoCString colType(typeSlot);
+      nsAutoCString column(valueSlot);
+
+      // 4.x exports attributes like "givenname",
+      // mozilla does "givenName" to be compliant with RFC 2798
+      ToLowerCase(colType);
+
+      if (colType.EqualsLiteral("member") ||
+          colType.EqualsLiteral("uniquemember")) {
+        members.AppendElement(column);
+      } else {
+        AddLdifColToDatabase(aDirectory, newCard, colType, column, bIsList);
+      }
     } else
       continue;  // parse error: continue with next loop iteration
   }
   free(saveCursor);
-  aDatabase->AddCardRowToDB(newRow);
 
-  if (bIsList) aDatabase->AddListDirNode(newRow);
+  if (bIsList) {
+    nsCOMPtr<nsIAbDirectory> newList =
+        do_CreateInstance(NS_ABDIRPROPERTY_CONTRACTID);
+    newList->SetIsMailList(true);
+
+    nsAutoString temp;
+    newCard->GetDisplayName(temp);
+    newList->SetDirName(temp);
+    temp.Truncate();
+    newCard->GetPropertyAsAString(kNicknameProperty, temp);
+    newList->SetListNickName(temp);
+    temp.Truncate();
+    newCard->GetPropertyAsAString(kNotesProperty, temp);
+    newList->SetDescription(temp);
+
+    nsIAbDirectory *outList;
+    aDirectory->AddMailList(newList, &outList);
+
+    int32_t count = members.Length();
+    for (int32_t i = 0; i < count; ++i) {
+      nsAutoCString email;
+      int32_t emailPos = members[i].Find("mail=");
+      emailPos += strlen("mail=");
+      email = Substring(members[i], emailPos);
+
+      nsCOMPtr<nsIAbCard> emailCard;
+      aDirectory->CardForEmailAddress(email, getter_AddRefs(emailCard));
+      if (emailCard) {
+        nsIAbCard *outCard;
+        outList->AddCard(emailCard, &outCard);
+      }
+    }
+  } else {
+    nsIAbCard *outCard;
+    aDirectory->AddCard(newCard, &outCard);
+  }
 
   // Clear buffer for next record
   ClearLdifRecordBuffer();
 }
 
-void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
-                                           nsIMdbRow *newRow, char *typeSlot,
-                                           char *valueSlot, bool bIsList) {
-  nsAutoCString colType(typeSlot);
-  nsAutoCString column(valueSlot);
+void nsAbLDIFService::AddLdifColToDatabase(nsIAbDirectory *aDirectory,
+                                           nsIAbCard *newCard,
+                                           nsCString colType, nsCString column,
+                                           bool bIsList) {
+  nsString value = NS_ConvertUTF8toUTF16(column);
 
-  // 4.x exports attributes like "givenname",
-  // mozilla does "givenName" to be compliant with RFC 2798
-  ToLowerCase(colType);
-
-  mdb_u1 firstByte = (mdb_u1)(colType.get())[0];
+  char firstByte = colType.get()[0];
   switch (firstByte) {
     case 'b':
       if (colType.EqualsLiteral("birthyear"))
-        aDatabase->AddBirthYear(newRow, column.get());
+        newCard->SetPropertyAsAString(kBirthYearProperty, value);
       else if (colType.EqualsLiteral("birthmonth"))
-        aDatabase->AddBirthMonth(newRow, column.get());
+        newCard->SetPropertyAsAString(kBirthMonthProperty, value);
       else if (colType.EqualsLiteral("birthday"))
-        aDatabase->AddBirthDay(newRow, column.get());
+        newCard->SetPropertyAsAString(kBirthDayProperty, value);
       break;  // 'b'
 
     case 'c':
       if (colType.EqualsLiteral("cn") || colType.EqualsLiteral("commonname")) {
-        if (bIsList)
-          aDatabase->AddListName(newRow, column.get());
-        else
-          aDatabase->AddDisplayName(newRow, column.get());
+        newCard->SetDisplayName(value);
       } else if (colType.EqualsLiteral("c") ||
                  colType.EqualsLiteral("countryname")) {
         if (mStoreLocAsHome)
-          aDatabase->AddHomeCountry(newRow, column.get());
+          newCard->SetPropertyAsAString(kHomeCountryProperty, value);
         else
-          aDatabase->AddWorkCountry(newRow, column.get());
+          newCard->SetPropertyAsAString(kWorkCountryProperty, value);
       }
 
       else if (colType.EqualsLiteral("cellphone"))
-        aDatabase->AddCellularNumber(newRow, column.get());
+        newCard->SetPropertyAsAString(kCellularProperty, value);
 
       else if (colType.EqualsLiteral("carphone"))
-        aDatabase->AddCellularNumber(newRow, column.get());
+        newCard->SetPropertyAsAString(kCellularProperty, value);
 
       else if (colType.EqualsLiteral("custom1"))
-        aDatabase->AddCustom1(newRow, column.get());
+        newCard->SetPropertyAsAString(kCustom1Property, value);
 
       else if (colType.EqualsLiteral("custom2"))
-        aDatabase->AddCustom2(newRow, column.get());
+        newCard->SetPropertyAsAString(kCustom2Property, value);
 
       else if (colType.EqualsLiteral("custom3"))
-        aDatabase->AddCustom3(newRow, column.get());
+        newCard->SetPropertyAsAString(kCustom3Property, value);
 
       else if (colType.EqualsLiteral("custom4"))
-        aDatabase->AddCustom4(newRow, column.get());
+        newCard->SetPropertyAsAString(kCustom4Property, value);
 
       else if (colType.EqualsLiteral("company"))
-        aDatabase->AddCompany(newRow, column.get());
+        newCard->SetPropertyAsAString(kCompanyProperty, value);
       break;  // 'c'
 
     case 'd':
-      if (colType.EqualsLiteral("description")) {
-        if (bIsList)
-          aDatabase->AddListDescription(newRow, column.get());
-        else
-          aDatabase->AddNotes(newRow, column.get());
-      }
+      if (colType.EqualsLiteral("description"))
+        newCard->SetPropertyAsAString(kNotesProperty, value);
 
       else if (colType.EqualsLiteral("department"))
-        aDatabase->AddDepartment(newRow, column.get());
+        newCard->SetPropertyAsAString(kDepartmentProperty, value);
 
-      else if (colType.EqualsLiteral("displayname")) {
-        if (bIsList)
-          aDatabase->AddListName(newRow, column.get());
-        else
-          aDatabase->AddDisplayName(newRow, column.get());
-      }
+      else if (colType.EqualsLiteral("displayname"))
+        newCard->SetDisplayName(value);
       break;  // 'd'
 
     case 'f':
 
       if (colType.EqualsLiteral("fax") ||
           colType.EqualsLiteral("facsimiletelephonenumber"))
-        aDatabase->AddFaxNumber(newRow, column.get());
+        newCard->SetPropertyAsAString(kFaxProperty, value);
       break;  // 'f'
 
     case 'g':
-      if (colType.EqualsLiteral("givenname"))
-        aDatabase->AddFirstName(newRow, column.get());
-
+      if (colType.EqualsLiteral("givenname")) newCard->SetFirstName(value);
       break;  // 'g'
 
     case 'h':
       if (colType.EqualsLiteral("homephone"))
-        aDatabase->AddHomePhone(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomePhoneProperty, value);
 
       else if (colType.EqualsLiteral("homestreet"))
-        aDatabase->AddHomeAddress(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeAddressProperty, value);
 
       else if (colType.EqualsLiteral("homeurl"))
-        aDatabase->AddWebPage2(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeWebPageProperty, value);
       break;  // 'h'
 
     case 'l':
       if (colType.EqualsLiteral("l") || colType.EqualsLiteral("locality")) {
         if (mStoreLocAsHome)
-          aDatabase->AddHomeCity(newRow, column.get());
+          newCard->SetPropertyAsAString(kHomeCityProperty, value);
         else
-          aDatabase->AddWorkCity(newRow, column.get());
+          newCard->SetPropertyAsAString(kWorkCityProperty, value);
       }
       // labeledURI contains a URI and, optionally, a label
       // This will remove the label and place the URI as the work URL
@@ -465,94 +491,89 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
         int32_t index = column.FindChar(' ');
         if (index != -1) column.SetLength(index);
 
-        aDatabase->AddWebPage1(newRow, column.get());
+        newCard->SetPropertyAsAString(kWorkWebPageProperty,
+                                      NS_ConvertUTF8toUTF16(column));
       }
 
       break;  // 'l'
 
     case 'm':
       if (colType.EqualsLiteral("mail"))
-        aDatabase->AddPrimaryEmail(newRow, column.get());
-
-      else if (colType.EqualsLiteral("member") && bIsList)
-        aDatabase->AddLdifListMember(newRow, column.get());
+        newCard->SetPrimaryEmail(value);
 
       else if (colType.EqualsLiteral("mobile"))
-        aDatabase->AddCellularNumber(newRow, column.get());
+        newCard->SetPropertyAsAString(kCellularProperty, value);
 
       else if (colType.EqualsLiteral("mozilla_aimscreenname"))
-        aDatabase->AddAimScreenName(newRow, column.get());
+        newCard->SetPropertyAsAString(kAIMProperty, value);
 
       else if (colType.EqualsLiteral("mozillacustom1"))
-        aDatabase->AddCustom1(newRow, column.get());
+        newCard->SetPropertyAsAString(kCustom1Property, value);
 
       else if (colType.EqualsLiteral("mozillacustom2"))
-        aDatabase->AddCustom2(newRow, column.get());
+        newCard->SetPropertyAsAString(kCustom2Property, value);
 
       else if (colType.EqualsLiteral("mozillacustom3"))
-        aDatabase->AddCustom3(newRow, column.get());
+        newCard->SetPropertyAsAString(kCustom3Property, value);
 
       else if (colType.EqualsLiteral("mozillacustom4"))
-        aDatabase->AddCustom4(newRow, column.get());
+        newCard->SetPropertyAsAString(kCustom4Property, value);
 
       else if (colType.EqualsLiteral("mozillahomecountryname"))
-        aDatabase->AddHomeCountry(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeCountryProperty, value);
 
       else if (colType.EqualsLiteral("mozillahomelocalityname"))
-        aDatabase->AddHomeCity(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeCityProperty, value);
 
       else if (colType.EqualsLiteral("mozillahomestate"))
-        aDatabase->AddHomeState(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeStateProperty, value);
 
       else if (colType.EqualsLiteral("mozillahomestreet"))
-        aDatabase->AddHomeAddress(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeAddressProperty, value);
 
       else if (colType.EqualsLiteral("mozillahomestreet2"))
-        aDatabase->AddHomeAddress2(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeAddress2Property, value);
 
       else if (colType.EqualsLiteral("mozillahomepostalcode"))
-        aDatabase->AddHomeZipCode(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeZipCodeProperty, value);
 
       else if (colType.EqualsLiteral("mozillahomeurl"))
-        aDatabase->AddWebPage2(newRow, column.get());
+        newCard->SetPropertyAsAString(kHomeWebPageProperty, value);
 
-      else if (colType.EqualsLiteral("mozillanickname")) {
-        if (bIsList)
-          aDatabase->AddListNickName(newRow, column.get());
-        else
-          aDatabase->AddNickName(newRow, column.get());
-      }
+      else if (colType.EqualsLiteral("mozillanickname"))
+        newCard->SetPropertyAsAString(kNicknameProperty, value);
 
       else if (colType.EqualsLiteral("mozillasecondemail"))
-        aDatabase->Add2ndEmail(newRow, column.get());
+        newCard->SetPropertyAsAString(k2ndEmailProperty, value);
 
       else if (colType.EqualsLiteral("mozillausehtmlmail")) {
         ToLowerCase(column);
         if (-1 != column.Find("true"))
-          aDatabase->AddPreferMailFormat(newRow, nsIAbPreferMailFormat::html);
+          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
+                                       nsIAbPreferMailFormat::html);
         else if (-1 != column.Find("false"))
-          aDatabase->AddPreferMailFormat(newRow,
-                                         nsIAbPreferMailFormat::plaintext);
+          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
+                                       nsIAbPreferMailFormat::plaintext);
         else
-          aDatabase->AddPreferMailFormat(newRow,
-                                         nsIAbPreferMailFormat::unknown);
+          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
+                                       nsIAbPreferMailFormat::unknown);
       }
 
       else if (colType.EqualsLiteral("mozillaworkstreet2"))
-        aDatabase->AddWorkAddress2(newRow, column.get());
+        newCard->SetPropertyAsAString(kWorkAddress2Property, value);
 
       else if (colType.EqualsLiteral("mozillaworkurl"))
-        aDatabase->AddWebPage1(newRow, column.get());
+        newCard->SetPropertyAsAString(kWorkWebPageProperty, value);
 
       break;  // 'm'
 
     case 'n':
       if (colType.EqualsLiteral("notes"))
-        aDatabase->AddNotes(newRow, column.get());
+        newCard->SetPropertyAsAString(kNotesProperty, value);
 
       else if (colType.EqualsLiteral("nscpaimscreenname") ||
                colType.EqualsLiteral("nsaimid"))
-        aDatabase->AddAimScreenName(newRow, column.get());
+        newCard->SetPropertyAsAString(kAIMProperty, value);
 
       break;  // 'n'
 
@@ -561,106 +582,103 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
         break;
 
       else if (colType.EqualsLiteral("ou") || colType.EqualsLiteral("orgunit"))
-        aDatabase->AddDepartment(newRow, column.get());
+        newCard->SetPropertyAsAString(kDepartmentProperty, value);
 
       else if (colType.EqualsLiteral("o"))  // organization
-        aDatabase->AddCompany(newRow, column.get());
+        newCard->SetPropertyAsAString(kCompanyProperty, value);
 
       break;  // 'o'
 
     case 'p':
       if (colType.EqualsLiteral("postalcode")) {
         if (mStoreLocAsHome)
-          aDatabase->AddHomeZipCode(newRow, column.get());
+          newCard->SetPropertyAsAString(kHomeZipCodeProperty, value);
         else
-          aDatabase->AddWorkZipCode(newRow, column.get());
+          newCard->SetPropertyAsAString(kWorkZipCodeProperty, value);
       }
 
       else if (colType.EqualsLiteral("postofficebox")) {
         nsAutoCString workAddr1, workAddr2;
         SplitCRLFAddressField(column, workAddr1, workAddr2);
-        aDatabase->AddWorkAddress(newRow, workAddr1.get());
-        aDatabase->AddWorkAddress2(newRow, workAddr2.get());
+        newCard->SetPropertyAsAString(kWorkAddressProperty,
+                                      NS_ConvertUTF8toUTF16(workAddr1));
+        newCard->SetPropertyAsAString(kWorkAddress2Property,
+                                      NS_ConvertUTF8toUTF16(workAddr2));
       } else if (colType.EqualsLiteral("pager") ||
                  colType.EqualsLiteral("pagerphone"))
-        aDatabase->AddPagerNumber(newRow, column.get());
+        newCard->SetPropertyAsAString(kPagerProperty, value);
 
       break;  // 'p'
 
     case 'r':
       if (colType.EqualsLiteral("region")) {
-        aDatabase->AddWorkState(newRow, column.get());
+        newCard->SetPropertyAsAString(kWorkStateProperty, value);
       }
 
       break;  // 'r'
 
     case 's':
       if (colType.EqualsLiteral("sn") || colType.EqualsLiteral("surname"))
-        aDatabase->AddLastName(newRow, column.get());
+        newCard->SetPropertyAsAString(kLastNameProperty, value);
 
       else if (colType.EqualsLiteral("street"))
-        aDatabase->AddWorkAddress(newRow, column.get());
+        newCard->SetPropertyAsAString(kWorkAddressProperty, value);
 
       else if (colType.EqualsLiteral("streetaddress")) {
         nsAutoCString addr1, addr2;
         SplitCRLFAddressField(column, addr1, addr2);
         if (mStoreLocAsHome) {
-          aDatabase->AddHomeAddress(newRow, addr1.get());
-          aDatabase->AddHomeAddress2(newRow, addr2.get());
+          newCard->SetPropertyAsAString(kHomeAddressProperty,
+                                        NS_ConvertUTF8toUTF16(addr1));
+          newCard->SetPropertyAsAString(kHomeAddress2Property,
+                                        NS_ConvertUTF8toUTF16(addr2));
         } else {
-          aDatabase->AddWorkAddress(newRow, addr1.get());
-          aDatabase->AddWorkAddress2(newRow, addr2.get());
+          newCard->SetPropertyAsAString(kWorkAddressProperty,
+                                        NS_ConvertUTF8toUTF16(addr1));
+          newCard->SetPropertyAsAString(kWorkAddress2Property,
+                                        NS_ConvertUTF8toUTF16(addr2));
         }
       } else if (colType.EqualsLiteral("st")) {
         if (mStoreLocAsHome)
-          aDatabase->AddHomeState(newRow, column.get());
+          newCard->SetPropertyAsAString(kHomeStateProperty, value);
         else
-          aDatabase->AddWorkState(newRow, column.get());
+          newCard->SetPropertyAsAString(kWorkStateProperty, value);
       }
 
       break;  // 's'
 
     case 't':
       if (colType.EqualsLiteral("title"))
-        aDatabase->AddJobTitle(newRow, column.get());
+        newCard->SetPropertyAsAString(kJobTitleProperty, value);
 
       else if (colType.EqualsLiteral("telephonenumber")) {
-        aDatabase->AddWorkPhone(newRow, column.get());
+        newCard->SetPropertyAsAString(kWorkPhoneProperty, value);
       }
 
       break;  // 't'
 
-    case 'u':
-
-      if (colType.EqualsLiteral("uniquemember") && bIsList)
-        aDatabase->AddLdifListMember(newRow, column.get());
-
-      break;  // 'u'
-
     case 'w':
       if (colType.EqualsLiteral("workurl"))
-        aDatabase->AddWebPage1(newRow, column.get());
+        newCard->SetPropertyAsAString(kWorkWebPageProperty, value);
 
       break;  // 'w'
 
     case 'x':
       if (colType.EqualsLiteral("xmozillanickname")) {
-        if (bIsList)
-          aDatabase->AddListNickName(newRow, column.get());
-        else
-          aDatabase->AddNickName(newRow, column.get());
+        newCard->SetPropertyAsAString(kNicknameProperty, value);
       }
 
       else if (colType.EqualsLiteral("xmozillausehtmlmail")) {
         ToLowerCase(column);
         if (-1 != column.Find("true"))
-          aDatabase->AddPreferMailFormat(newRow, nsIAbPreferMailFormat::html);
+          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
+                                       nsIAbPreferMailFormat::html);
         else if (-1 != column.Find("false"))
-          aDatabase->AddPreferMailFormat(newRow,
-                                         nsIAbPreferMailFormat::plaintext);
+          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
+                                       nsIAbPreferMailFormat::plaintext);
         else
-          aDatabase->AddPreferMailFormat(newRow,
-                                         nsIAbPreferMailFormat::unknown);
+          newCard->SetPropertyAsUint32(kPreferMailFormatProperty,
+                                       nsIAbPreferMailFormat::unknown);
       }
 
       break;  // 'x'
@@ -669,9 +687,9 @@ void nsAbLDIFService::AddLdifColToDatabase(nsIAddrDatabase *aDatabase,
       if (colType.EqualsLiteral("zip"))  // alias for postalcode
       {
         if (mStoreLocAsHome)
-          aDatabase->AddHomeZipCode(newRow, column.get());
+          newCard->SetPropertyAsAString(kHomeZipCodeProperty, value);
         else
-          aDatabase->AddWorkZipCode(newRow, column.get());
+          newCard->SetPropertyAsAString(kWorkZipCodeProperty, value);
       }
 
       break;  // 'z'

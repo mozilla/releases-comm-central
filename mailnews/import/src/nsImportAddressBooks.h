@@ -9,7 +9,7 @@
 #include "nsIImportFieldMap.h"
 #include "nsString.h"
 #include "nsIFile.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAbDirectory.h"
 #include "nsIAbLDIFService.h"
 #include "nsIStringBundle.h"
 #include "nsIArray.h"
@@ -41,7 +41,7 @@ class nsImportGenericAddressBooks : public nsIImportGeneric {
  private:
   nsCOMPtr<nsIImportAddressBooks> m_pInterface;
   nsCOMPtr<nsIArray> m_Books;
-  nsCOMArray<nsIAddrDatabase> m_DBs;
+  nsCOMArray<nsIAbDirectory> m_DBs;
   nsCOMPtr<nsIFile> m_pLocation;
   nsCOMPtr<nsIImportFieldMap> m_pFieldMap;
   bool m_autoFind;
@@ -67,7 +67,7 @@ class AddressThreadData {
   uint32_t currentTotal;
   uint32_t currentSize;
   nsCOMPtr<nsIArray> books;
-  nsCOMArray<nsIAddrDatabase> *dBs;
+  nsCOMArray<nsIAbDirectory> *dBs;
   nsCOMPtr<nsIAbLDIFService> ldifService;
   nsCOMPtr<nsIImportAddressBooks> addressImport;
   nsCOMPtr<nsIImportFieldMap> fieldMap;

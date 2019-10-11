@@ -7,7 +7,7 @@
 
 #include "ImportDebug.h"
 
-class nsIAddrDatabase;
+class nsIAbDirectory;
 class nsIFile;
 class nsILineInputStream;
 
@@ -17,7 +17,7 @@ class nsVCardAddress {
   virtual ~nsVCardAddress();
 
   nsresult ImportAddresses(bool *pAbort, const char16_t *pName, nsIFile *pSrc,
-                           nsIAddrDatabase *pDb, nsString &errors,
+                           nsIAbDirectory *pDirectory, nsString &errors,
                            uint32_t *pProgress);
 
  private:

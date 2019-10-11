@@ -5,7 +5,7 @@
 #include "nsISupports.idl"
 
 interface nsIFile;
-interface nsIAddrDatabase;
+interface nsIAbDirectory;
 
 [scriptable, uuid(7afaa95f-0b1c-4d8a-a65f-bb5073ed6d39)]
 interface nsIAbLDIFService : nsISupports {
@@ -24,7 +24,7 @@ interface nsIAbLDIFService : nsISupports {
   /**
    * Imports a file into the specified address book.
    *
-   * @param       aDb             The address book to import addresses into.
+   * @param       aDirectory      The address book to import addresses into.
    *
    * @param       aSrc            The file to import addresses from.
    *
@@ -36,5 +36,8 @@ interface nsIAbLDIFService : nsISupports {
    *                              current position of reading from the file.
    *
    */
-  void importLDIFFile(in nsIAddrDatabase aDb, in nsIFile aSrc, in boolean aStoreLocAsHome, inout unsigned long aProgress);
+  void importLDIFFile(in nsIAbDirectory aDirectory,
+                      in nsIFile aSrc,
+                      in boolean aStoreLocAsHome,
+                      inout unsigned long aProgress);
 };

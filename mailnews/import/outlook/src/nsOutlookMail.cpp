@@ -495,7 +495,7 @@ BOOL nsOutlookMail::WriteData(nsIOutputStream *pDest, const char *pData,
 
 nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal,
                                         const char16_t *pName, uint32_t id,
-                                        nsIAddrDatabase *pDb,
+                                        nsIAbDirectory *pDirectory,
                                         nsString &errors) {
   if (id >= (uint32_t)(m_addressList.GetSize())) {
     IMPORT_LOG0("*** Bad address identifier, unable to import\n");
@@ -583,14 +583,13 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal,
           pVal = m_mapi.GetMapiProperty(lpMsg, PR_SUBJECT);
           if (pVal) m_mapi.GetStringFromProp(pVal, subject);
 
-          nsIMdbRow *newRow = nullptr;
-          pDb->GetNewRow(&newRow);
-          // FIXME: Check with Candice about releasing the newRow if it
-          // isn't added to the database.  Candice's code in nsAddressBook
-          // never releases it but that doesn't seem right to me!
-          if (newRow) {
-            if (BuildCard(subject.get(), pDb, newRow, lpMsg, pFieldMap)) {
-              pDb->AddCardRowToDB(newRow);
+          nsCOMPtr<nsIAbCard> newCard =
+              do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+          if (newCard) {
+            if (BuildCard(subject.get(), pDirectory, newCard, lpMsg,
+                          pFieldMap)) {
+              nsIAbCard *outCard;
+              pDirectory->AddCard(newCard, &outCard);
             }
           }
         } else if (type.EqualsLiteral("IPM.DistList")) {
@@ -598,7 +597,7 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal,
           subject.Truncate();
           pVal = m_mapi.GetMapiProperty(lpMsg, PR_SUBJECT);
           if (pVal) m_mapi.GetStringFromProp(pVal, subject);
-          CreateList(subject.get(), pDb, lpMsg, pFieldMap);
+          CreateList(subject, pDirectory, lpMsg, pFieldMap);
         }
       }
 
@@ -606,25 +605,23 @@ nsresult nsOutlookMail::ImportAddresses(uint32_t *pCount, uint32_t *pTotal,
     }
   }
 
-  rv = pDb->Commit(nsAddrDBCommitType::kLargeCommit);
   return rv;
 }
-nsresult nsOutlookMail::CreateList(const char16_t *pName, nsIAddrDatabase *pDb,
+nsresult nsOutlookMail::CreateList(const nsString &pName,
+                                   nsIAbDirectory *pDirectory,
                                    LPMAPIPROP pUserList,
                                    nsIImportFieldMap *pFieldMap) {
   // If no name provided then we're done.
-  if (!pName || !(*pName)) return NS_OK;
+  if (pName.IsEmpty()) return NS_OK;
 
   nsresult rv = NS_ERROR_FAILURE;
   // Make sure we have db to work with.
-  if (!pDb) return rv;
+  if (!pDirectory) return rv;
 
-  nsCOMPtr<nsIMdbRow> newListRow;
-  rv = pDb->GetNewListRow(getter_AddRefs(newListRow));
+  nsCOMPtr<nsIAbDirectory> newList =
+      do_CreateInstance(NS_ABDIRPROPERTY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsAutoCString column;
-  LossyCopyUTF16toASCII(nsDependentString(pName), column);
-  rv = pDb->AddListName(newListRow, column.get());
+  rv = newList->SetDirName(pName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   HRESULT hr;
@@ -662,7 +659,7 @@ nsresult nsOutlookMail::CreateList(const char16_t *pName, nsIAddrDatabase *pDb,
     cbEid = sa->lpbin[idx].cb;
 
     if (!m_mapi.OpenEntry(cbEid, lpEid, (LPUNKNOWN *)&lpMsg)) {
-      IMPORT_LOG1("*** Error opening messages in mailbox: %S\n", pName);
+      IMPORT_LOG1("*** Error opening messages in mailbox: %S\n", pName.get());
       m_mapi.MAPIFreeBuffer(value);
       return NS_ERROR_FAILURE;
     }
@@ -671,38 +668,19 @@ nsresult nsOutlookMail::CreateList(const char16_t *pName, nsIAddrDatabase *pDb,
     pVal = m_mapi.GetMapiProperty(lpMsg, PR_SUBJECT);
     if (pVal) m_mapi.GetStringFromProp(pVal, subject);
 
-    nsCOMPtr<nsIMdbRow> newRow;
-    nsCOMPtr<nsIMdbRow> oldRow;
-    pDb->GetNewRow(getter_AddRefs(newRow));
-    if (newRow) {
-      if (BuildCard(subject.get(), pDb, newRow, lpMsg, pFieldMap)) {
-        nsCOMPtr<nsIAbCard> userCard;
-        nsCOMPtr<nsIAbCard> newCard;
-        userCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-        pDb->InitCardFromRow(userCard, newRow);
-
-        // add card to db
-        pDb->FindRowByCard(userCard, getter_AddRefs(oldRow));
-        if (oldRow)
-          newRow = oldRow;
-        else
-          pDb->AddCardRowToDB(newRow);
-
-        // add card list
-        pDb->AddListCardColumnsToRow(userCard, newListRow, idx + 1,
-                                     getter_AddRefs(newCard), true, nullptr,
-                                     nullptr);
+    nsCOMPtr<nsIAbCard> newCard =
+        do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+    if (newCard) {
+      if (BuildCard(subject.get(), pDirectory, newCard, lpMsg, pFieldMap)) {
+        nsIAbCard *outCard;
+        newList->AddCard(newCard, &outCard);
       }
     }
   }
   m_mapi.MAPIFreeBuffer(value);
 
-  rv = pDb->AddCardRowToDB(newListRow);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = pDb->SetListAddressTotal(newListRow, (uint32_t)total);
-  rv = pDb->AddListDirNode(newListRow);
+  nsIAbDirectory *outList;
+  rv = pDirectory->AddMailList(newList, &outList);
   return rv;
 }
 
@@ -727,8 +705,8 @@ void nsOutlookMail::SplitString(nsString &val1, nsString &val2) {
   }
 }
 
-bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb,
-                              nsIMdbRow *newRow, LPMAPIPROP pUser,
+bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAbDirectory *pDirectory,
+                              nsIAbCard *newCard, LPMAPIPROP pUser,
                               nsIImportFieldMap *pFieldMap) {
   nsString lastName;
   nsString firstName;
@@ -809,22 +787,22 @@ bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb,
   // We now have the required fields
   // write them out followed by any optional fields!
   if (!displayName.IsEmpty()) {
-    pDb->AddDisplayName(newRow, NS_ConvertUTF16toUTF8(displayName).get());
+    newCard->SetDisplayName(displayName);
   }
   if (!firstName.IsEmpty()) {
-    pDb->AddFirstName(newRow, NS_ConvertUTF16toUTF8(firstName).get());
+    newCard->SetFirstName(firstName);
   }
   if (!lastName.IsEmpty()) {
-    pDb->AddLastName(newRow, NS_ConvertUTF16toUTF8(lastName).get());
+    newCard->SetLastName(lastName);
   }
   if (!nickName.IsEmpty()) {
-    pDb->AddNickName(newRow, NS_ConvertUTF16toUTF8(nickName).get());
+    newCard->SetPropertyAsAString(kNicknameProperty, nickName);
   }
   if (!eMail.IsEmpty()) {
-    pDb->AddPrimaryEmail(newRow, NS_ConvertUTF16toUTF8(eMail).get());
+    newCard->SetPrimaryEmail(eMail);
   }
   if (!secondEMail.IsEmpty()) {
-    pDb->Add2ndEmail(newRow, NS_ConvertUTF16toUTF8(secondEMail).get());
+    newCard->SetPropertyAsAString(k2ndEmailProperty, secondEMail);
   }
 
   // Do all of the extra fields!
@@ -841,20 +819,20 @@ bool nsOutlookMail::BuildCard(const char16_t *pName, nsIAddrDatabase *pDb,
         if (!value.IsEmpty()) {
           if (gMapiFields[i].multiLine == kNoMultiLine) {
             SanitizeValue(value);
-            pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField,
-                                     value.get());
+            pFieldMap->SetFieldValue(pDirectory, newCard,
+                                     gMapiFields[i].mozField, value);
           } else if (gMapiFields[i].multiLine == kIsMultiLine) {
-            pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField,
-                                     value.get());
+            pFieldMap->SetFieldValue(pDirectory, newCard,
+                                     gMapiFields[i].mozField, value);
           } else {
             line2.Truncate();
             SplitString(value, line2);
             if (!value.IsEmpty())
-              pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].mozField,
-                                       value.get());
+              pFieldMap->SetFieldValue(pDirectory, newCard,
+                                       gMapiFields[i].mozField, value);
             if (!line2.IsEmpty())
-              pFieldMap->SetFieldValue(pDb, newRow, gMapiFields[i].multiLine,
-                                       line2.get());
+              pFieldMap->SetFieldValue(pDirectory, newCard,
+                                       gMapiFields[i].multiLine, line2);
           }
         }
       }

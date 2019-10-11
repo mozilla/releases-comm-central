@@ -15,11 +15,8 @@
 
 #include "nsISupports.idl"
 
-interface nsIAddrDatabase;
-[ptr] native nsIMdbRow (nsIMdbRow);
-%{C++
-class nsIMdbRow;
-%}
+interface nsIAbCard;
+interface nsIAbDirectory;
 
 [scriptable, uuid(deee9264-1fe3-47b1-b745-47b22de454e2)]
 interface nsIImportFieldMap : nsISupports
@@ -70,5 +67,5 @@ interface nsIImportFieldMap : nsISupports
   /*
     Set the value of the given field in the database row
   */
-  void SetFieldValue(in nsIAddrDatabase database, in nsIMdbRow row, in long fieldNum, in wstring value);
+  void SetFieldValue(in nsIAbDirectory database, in nsIAbCard row, in long fieldNum, in AString value);
 };

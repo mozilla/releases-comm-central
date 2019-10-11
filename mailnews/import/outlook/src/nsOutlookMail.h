@@ -12,10 +12,9 @@
 #include "nsIFile.h"
 #include "MapiApi.h"
 #include "MapiMessage.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAbDirectory.h"
 #include "nsThreadUtils.h"
 
-class nsIAddrDatabase;
 class nsIImportFieldMap;
 
 class nsOutlookMail {
@@ -30,7 +29,7 @@ class nsOutlookMail {
                          int32_t *pMsgCount);
   nsresult ImportAddresses(uint32_t *pCount, uint32_t *pTotal,
                            const char16_t *pName, uint32_t id,
-                           nsIAddrDatabase *pDb, nsString &errors);
+                           nsIAbDirectory *pDirectory, nsString &errors);
   void OpenMessageStore(CMapiFolder *pNextFolder);
   static BOOL WriteData(nsIOutputStream *pDest, const char *pData, int32_t len);
 
@@ -39,9 +38,10 @@ class nsOutlookMail {
   void MakeAddressBookNameUnique(nsString &name, nsString &list);
   void SanitizeValue(nsString &val);
   void SplitString(nsString &val1, nsString &val2);
-  bool BuildCard(const char16_t *pName, nsIAddrDatabase *pDb, nsIMdbRow *newRow,
-                 LPMAPIPROP pUser, nsIImportFieldMap *pFieldMap);
-  nsresult CreateList(const char16_t *pName, nsIAddrDatabase *pDb,
+  bool BuildCard(const char16_t *pName, nsIAbDirectory *pDirectory,
+                 nsIAbCard *newCard, LPMAPIPROP pUser,
+                 nsIImportFieldMap *pFieldMap);
+  nsresult CreateList(const nsString &pName, nsIAbDirectory *pDirectory,
                       LPMAPIPROP pUserList, nsIImportFieldMap *pFieldMap);
 
  private:

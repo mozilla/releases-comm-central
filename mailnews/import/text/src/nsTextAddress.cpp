@@ -4,15 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsAbBaseCID.h"
 #include "nsTextAddress.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAbDirectory.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIFile.h"
 #include "nsIInputStream.h"
 #include "nsNetUtil.h"
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"
-#include "mdb.h"
 #include "nsIConverterInputStream.h"
 #include "nsIUnicharLineInputStream.h"
 #include "nsMsgUtils.h"
@@ -51,11 +51,12 @@ nsresult nsTextAddress::GetUnicharLineStreamForFile(
 }
 
 nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
-                                        nsIFile *pSrc, nsIAddrDatabase *pDb,
+                                        nsIFile *pSrc,
+                                        nsIAbDirectory *pDirectory,
                                         nsIImportFieldMap *fieldMap,
                                         nsString &errors, uint32_t *pProgress) {
   // Open the source file for reading, read each line and process it!
-  m_database = pDb;
+  m_directory = pDirectory;
   m_fieldMap = fieldMap;
 
   nsCOMPtr<nsIInputStream> inputStream;
@@ -128,7 +129,7 @@ nsresult nsTextAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
     return NS_ERROR_FAILURE;
   }
 
-  return pDb->Commit(nsAddrDBCommitType::kLargeCommit);
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 nsresult nsTextAddress::ReadRecord(nsIUnicharLineInputStream *aLineStream,
@@ -390,7 +391,7 @@ nsresult nsTextAddress::ProcessLine(const nsAString &aLine, nsString &errors) {
 
   // Wait until we get our first non-empty field, then create a new row,
   // fill in the data, then add the row to the database.
-  nsCOMPtr<nsIMdbRow> newRow;
+  nsCOMPtr<nsIAbCard> newCard;
   nsAutoString fieldVal;
   int32_t fieldNum;
   int32_t numFields = 0;
@@ -403,25 +404,24 @@ nsresult nsTextAddress::ProcessLine(const nsAString &aLine, nsString &errors) {
     if (NS_SUCCEEDED(rv) && active) {
       if (GetField(aLine, i, fieldVal, m_delim)) {
         if (!fieldVal.IsEmpty()) {
-          if (!newRow) {
-            rv = m_database->GetNewRow(getter_AddRefs(newRow));
-            if (NS_FAILED(rv)) {
-              IMPORT_LOG0("*** Error getting new address database row\n");
-            }
+          if (!newCard) {
+            newCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
           }
-          if (newRow) {
-            rv = m_fieldMap->SetFieldValue(m_database, newRow, fieldNum,
-                                           fieldVal.get());
+          if (newCard) {
+            rv = m_fieldMap->SetFieldValue(m_directory, newCard, fieldNum,
+                                           fieldVal);
           }
         }
-      } else
+      } else {
         break;
+      }
     } else if (active) {
       IMPORT_LOG1("*** Error getting field map for index %ld\n", (long)i);
     }
   }
 
-  if (NS_SUCCEEDED(rv) && newRow) rv = m_database->AddCardRowToDB(newRow);
+  nsIAbCard *outCard;
+  rv = m_directory->AddCard(newCard, &outCard);
 
   return rv;
 }

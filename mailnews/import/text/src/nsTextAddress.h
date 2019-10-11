@@ -12,7 +12,7 @@
 #include "nsIImportFieldMap.h"
 #include "nsIImportService.h"
 
-class nsIAddrDatabase;
+class nsIAbDirectory;
 class nsIFile;
 class nsIInputStream;
 class nsIUnicharLineInputStream;
@@ -27,8 +27,9 @@ class nsTextAddress {
   virtual ~nsTextAddress();
 
   nsresult ImportAddresses(bool *pAbort, const char16_t *pName, nsIFile *pSrc,
-                           nsIAddrDatabase *pDb, nsIImportFieldMap *fieldMap,
-                           nsString &errors, uint32_t *pProgress);
+                           nsIAbDirectory *pDirectory,
+                           nsIImportFieldMap *fieldMap, nsString &errors,
+                           uint32_t *pProgress);
 
   nsresult DetermineDelim(nsIFile *pSrc);
   char16_t GetDelim(void) { return m_delim; }
@@ -51,7 +52,7 @@ class nsTextAddress {
   char16_t m_delim;
   int32_t m_LFCount;
   int32_t m_CRCount;
-  nsCOMPtr<nsIAddrDatabase> m_database;
+  nsCOMPtr<nsIAbDirectory> m_directory;
   nsCOMPtr<nsIImportFieldMap> m_fieldMap;
   nsCOMPtr<nsIImportService> m_pService;
 };

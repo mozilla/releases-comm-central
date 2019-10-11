@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nscore.h"
+#include "nsIAbCard.h"
 #include "nsIStringBundle.h"
 #include "nsImportFieldMap.h"
 #include "nsImportStringBundle.h"
@@ -160,14 +161,9 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldActive(int32_t index, bool active) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database,
-                                              nsIMdbRow *row, int32_t fieldNum,
-                                              const char16_t *value) {
-  NS_ASSERTION(database != nullptr, "null ptr");
-  NS_ASSERTION(row != nullptr, "null ptr");
-  NS_ASSERTION(value != nullptr, "null ptr");
-  if (!database || !row || !value) return NS_ERROR_NULL_POINTER;
-
+NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAbDirectory *database,
+                                              nsIAbCard *row, int32_t fieldNum,
+                                              const nsAString &value) {
   // Allow the special value for a null field
   if (fieldNum == -1) return NS_OK;
 
@@ -176,128 +172,123 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAddrDatabase *database,
   // UGGG!!!!! lot's of typing here!
   nsresult rv;
 
-  nsString str(value);
-  char *pVal = ToNewUTF8String(str);
-
   switch (fieldNum) {
     case 0:
-      rv = database->AddFirstName(row, pVal);
+      rv = row->SetFirstName(value);
       break;
     case 1:
-      rv = database->AddLastName(row, pVal);
+      rv = row->SetLastName(value);
       break;
     case 2:
-      rv = database->AddDisplayName(row, pVal);
+      rv = row->SetDisplayName(value);
       break;
     case 3:
-      rv = database->AddNickName(row, pVal);
+      rv = row->SetPropertyAsAString(kNicknameProperty, value);
       break;
     case 4:
-      rv = database->AddPrimaryEmail(row, pVal);
+      rv = row->SetPrimaryEmail(value);
       break;
     case 5:
-      rv = database->Add2ndEmail(row, pVal);
+      rv = row->SetPropertyAsAString(k2ndEmailProperty, value);
       break;
     case 6:
-      rv = database->AddWorkPhone(row, pVal);
+      rv = row->SetPropertyAsAString(kWorkPhoneProperty, value);
       break;
     case 7:
-      rv = database->AddHomePhone(row, pVal);
+      rv = row->SetPropertyAsAString(kHomePhoneProperty, value);
       break;
     case 8:
-      rv = database->AddFaxNumber(row, pVal);
+      rv = row->SetPropertyAsAString(kFaxProperty, value);
       break;
     case 9:
-      rv = database->AddPagerNumber(row, pVal);
+      rv = row->SetPropertyAsAString(kPagerProperty, value);
       break;
     case 10:
-      rv = database->AddCellularNumber(row, pVal);
+      rv = row->SetPropertyAsAString(kCellularProperty, value);
       break;
     case 11:
-      rv = database->AddHomeAddress(row, pVal);
+      rv = row->SetPropertyAsAString(kHomeAddressProperty, value);
       break;
     case 12:
-      rv = database->AddHomeAddress2(row, pVal);
+      rv = row->SetPropertyAsAString(kHomeAddress2Property, value);
       break;
     case 13:
-      rv = database->AddHomeCity(row, pVal);
+      rv = row->SetPropertyAsAString(kHomeCityProperty, value);
       break;
     case 14:
-      rv = database->AddHomeState(row, pVal);
+      rv = row->SetPropertyAsAString(kHomeStateProperty, value);
       break;
     case 15:
-      rv = database->AddHomeZipCode(row, pVal);
+      rv = row->SetPropertyAsAString(kHomeZipCodeProperty, value);
       break;
     case 16:
-      rv = database->AddHomeCountry(row, pVal);
+      rv = row->SetPropertyAsAString(kHomeCountryProperty, value);
       break;
     case 17:
-      rv = database->AddWorkAddress(row, pVal);
+      rv = row->SetPropertyAsAString(kWorkAddressProperty, value);
       break;
     case 18:
-      rv = database->AddWorkAddress2(row, pVal);
+      rv = row->SetPropertyAsAString(kWorkAddress2Property, value);
       break;
     case 19:
-      rv = database->AddWorkCity(row, pVal);
+      rv = row->SetPropertyAsAString(kWorkCityProperty, value);
       break;
     case 20:
-      rv = database->AddWorkState(row, pVal);
+      rv = row->SetPropertyAsAString(kWorkStateProperty, value);
       break;
     case 21:
-      rv = database->AddWorkZipCode(row, pVal);
+      rv = row->SetPropertyAsAString(kWorkZipCodeProperty, value);
       break;
     case 22:
-      rv = database->AddWorkCountry(row, pVal);
+      rv = row->SetPropertyAsAString(kWorkCountryProperty, value);
       break;
     case 23:
-      rv = database->AddJobTitle(row, pVal);
+      rv = row->SetPropertyAsAString(kJobTitleProperty, value);
       break;
     case 24:
-      rv = database->AddDepartment(row, pVal);
+      rv = row->SetPropertyAsAString(kDepartmentProperty, value);
       break;
     case 25:
-      rv = database->AddCompany(row, pVal);
+      rv = row->SetPropertyAsAString(kCompanyProperty, value);
       break;
     case 26:
-      rv = database->AddWebPage1(row, pVal);
+      rv = row->SetPropertyAsAString(kWorkWebPageProperty, value);
       break;
     case 27:
-      rv = database->AddWebPage2(row, pVal);
+      rv = row->SetPropertyAsAString(kHomeWebPageProperty, value);
       break;
     case 28:
-      rv = database->AddBirthYear(row, pVal);
+      rv = row->SetPropertyAsAString(kBirthYearProperty, value);
       break;
     case 29:
-      rv = database->AddBirthMonth(row, pVal);
+      rv = row->SetPropertyAsAString(kBirthMonthProperty, value);
       break;
     case 30:
-      rv = database->AddBirthDay(row, pVal);
+      rv = row->SetPropertyAsAString(kBirthDayProperty, value);
       break;
     case 31:
-      rv = database->AddCustom1(row, pVal);
+      rv = row->SetPropertyAsAString(kCustom1Property, value);
       break;
     case 32:
-      rv = database->AddCustom2(row, pVal);
+      rv = row->SetPropertyAsAString(kCustom2Property, value);
       break;
     case 33:
-      rv = database->AddCustom3(row, pVal);
+      rv = row->SetPropertyAsAString(kCustom3Property, value);
       break;
     case 34:
-      rv = database->AddCustom4(row, pVal);
+      rv = row->SetPropertyAsAString(kCustom4Property, value);
       break;
     case 35:
-      rv = database->AddNotes(row, pVal);
+      rv = row->SetPropertyAsAString(kNotesProperty, value);
       break;
     case 36:
-      rv = database->AddAimScreenName(row, pVal);
+      rv = row->SetPropertyAsAString(kAIMProperty, value);
       break;
     default:
       /* Get the field description, and add it as an anonymous attr? */
       /* OR WHAT???? */
       { rv = NS_ERROR_FAILURE; }
   }
-
-  free(pVal);
 
   return rv;
 }
