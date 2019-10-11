@@ -60,7 +60,9 @@ var calendarTabMonitor = {
         calSwitchToTaskMode();
         break;
       case "chat":
-        calSwitchToMode("chat");
+      case "calendarEvent":
+      case "calendarTask":
+        calSwitchToMode(aNewTab.mode.name);
         break;
       case "preferencesTab":
       case "contentTab":
@@ -282,6 +284,15 @@ var calendarItemTabType = {
       gItemTabIds.splice(index, 1);
     }
     aTab.itemTabConfig = null;
+
+    // If this is the last item tab that is closing, then delete
+    // window.calItemSaveControls, so mochitests won't complain.
+    let tabmail = document.getElementById("tabmail");
+    let calendarItemTabCount =
+      tabmail.tabModes.calendarEvent.tabs.length + tabmail.tabModes.calendarTask.tabs.length;
+    if (calendarItemTabCount == 1) {
+      delete window.calItemSaveControls;
+    }
   },
   /**
    * Called when quitting the application (and/or closing the window).
@@ -621,6 +632,8 @@ function openInvitationsDialog() {
  *  - 'calendar'
  *  - 'task'
  *  - 'chat'
+ *  - 'calendarEvent'
+ *  - 'calendarTask'
  *  - 'special' - For special tabs like preferences, add-ons manager, about:xyz, etc.
  * @global
  */
@@ -653,13 +666,13 @@ function changeMode(mode = "mail") {
 }
 
 /**
- * For switching to modes like "mail", "chat", or "special". (For switching to "calendar"
- * and "task" modes use calSwitchToCalendarMode and calSwitchToTaskMode.)
+ * For switching to modes like "mail", "chat", "calendarEvent", "calendarTask", or "special".
+ * (For "calendar" and "task" modes use calSwitchToCalendarMode and calSwitchToTaskMode.)
  *
  * @param {string} mode  The mode to switch to.
  */
 function calSwitchToMode(mode) {
-  if (!["mail", "chat", "special"].includes(mode)) {
+  if (!["mail", "chat", "calendarEvent", "calendarTask", "special"].includes(mode)) {
     cal.WARN("Attempted to switch to unknown mode: " + mode);
     return;
   }

@@ -1708,15 +1708,15 @@
               oncommand="TodayPane.onCommandTodaySplitter();">
     </splitter>
     <calendar-modevbox id="today-pane-panel"
-                       mode="mail,calendar,task,chat"
-                       modewidths="200,200,200,200"
-                       modesplitterstates="open,open,open,open"
+                       mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                       modewidths="200,200,200,200,200,200"
+                       modesplitterstates="open,open,open,open,open,open"
                        refcontrol="calendar_toggle_todaypane_command"
                        persist="modewidths">
       <box class="sidebar-header" align="center">
         <label id="today-pane-header"/>
         <spacer flex="1"/>
-        <calendar-modebox mode="mail,calendar,chat">
+        <calendar-modebox mode="mail,calendar,chat,calendarEvent,calendarTask">
           <toolbarbutton id="today-pane-cycler-prev"
                          dir="prev"
                          class="today-pane-cycler"
@@ -1735,26 +1735,26 @@
       <vbox flex="1">
         <calendar-modevbox id="agenda-panel"
                            flex="1"
-                           mode="mail,calendar,task,chat"
+                           mode="mail,calendar,task,chat,calendarEvent,calendarTask"
                            collapsedinmodes="calendar"
                            persist="collapsed height collapsedinmodes">
           <calendar-modebox id="today-none-box"
-                            mode="mail,calendar,task,chat"
-                            collapsedinmodes="mail,calendar,task,chat"
+                            mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                            collapsedinmodes="mail,calendar,task,chat,calendarEvent,calendarTask"
                             refcontrol="ltnTodayPaneDisplayNone"
                             persist="collapsedinmodes"/>
           <calendar-modebox id="today-minimonth-box"
                             pack="center"
                             class="today-subpane"
-                            mode="mail,calendar,task,chat"
-                            collapsedinmodes="mail,calendar,task,chat"
+                            mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                            collapsedinmodes="mail,calendar,task,chat,calendarEvent,calendarTask"
                             refcontrol="ltnTodayPaneDisplayMinimonth"
                             persist="collapsedinmodes">
             <calendar-minimonth id="today-minimonth"
                                 onchange="TodayPane.setDaywithjsDate(this.value);"/>
           </calendar-modebox>
           <calendar-modebox id="mini-day-box"
-                            mode="mail,calendar,task,chat"
+                            mode="mail,calendar,task,chat,calendarEvent,calendarTask"
                             class="today-subpane"
                             refcontrol="ltnTodayPaneDisplayMiniday"
                             collapsedinmodes=""
@@ -2052,8 +2052,8 @@
         <splitter id="today-pane-splitter" persist="hidden"/>
         <calendar-modevbox id="todo-tab-panel"
                            flex="1"
-                           mode="mail,calendar,chat"
-                           collapsedinmodes="mail,task,chat"
+                           mode="mail,calendar,chat,calendarEvent,calendarTask"
+                           collapsedinmodes="mail,task,chat,calendarEvent,calendarTask"
                            persist="height collapsedinmodes"
                            ondragstart="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
                            ondragover="nsDragAndDrop.dragOver(event, calendarTaskButtonDNDObserver);"
@@ -2161,7 +2161,7 @@
     <!-- end event/task in tab statusbarpanels -->
     <calendar-modebox id="calendar-show-todaypane-panel"
                       class="statusbarpanel"
-                      mode="mail,calendar,task,chat"
+                      mode="mail,calendar,task,chat,calendarEvent,calendarTask"
                       collapsedinmodes="special"
                       pack="center">
       <toolbarbutton id="calendar-status-todaypane-button"

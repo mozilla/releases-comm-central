@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported openCalendarTab, setCalendarView, closeCalendarTab, openTasksTab,
- * closeTasksTab, selectFolderTab, openChatTab, closeChatTab, openPreferencesTab,
- * closePreferencesTab, openAddonsTab, closeAddonsTab
- */
+/* exported closeAddonsTab, closeCalendarTab, closeChatTab, closePreferencesTab, closeTasksTab,
+   openAddonsTab, openCalendarTab, openChatTab, openNewCalendarEventTab, openNewCalendarTaskTab,
+   openPreferencesTab, openTasksTab, selectCalendarEventTab, selectCalendarTaskTab,
+   selectFolderTab, setCalendarView */
 
 /* import-globals-from ../../base/content/calendar-views-utils.js */
 
@@ -126,6 +126,88 @@ async function closeChatTab() {
   await new Promise(resolve => setTimeout(resolve));
 }
 
+/**
+ * Opens a new calendar event or task tab.
+ *
+ * @param {string} tabMode - Mode of the new tab, either `calendarEvent` or `calendarTask`.
+ * @return {string} - The id of the new tab's panel element.
+ */
+async function _openNewCalendarItemTab(tabMode) {
+  let tabmail = document.getElementById("tabmail");
+  let itemTabs = tabmail.tabModes[tabMode].tabs;
+  let previousTabCount = itemTabs.length;
+
+  Services.prefs.setBoolPref("calendar.item.editInTab", true);
+  openCalendarTab();
+  let buttonId = tabMode == "calendarTask" ? "calendar-newtask-button" : "calendar-newevent-button";
+
+  let newItemButton = document.getElementById(buttonId);
+  EventUtils.synthesizeMouseAtCenter(newItemButton, { clickCount: 1 });
+
+  let newTab = itemTabs[itemTabs.length - 1];
+
+  is(itemTabs.length, previousTabCount + 1, `new ${tabMode} tab is open`);
+  is(tabmail.selectedTab, newTab, `new ${tabMode} tab is selected`);
+
+  await new Promise(resolve => setTimeout(resolve));
+  return newTab.panel.id;
+}
+
+let openNewCalendarEventTab = _openNewCalendarItemTab.bind(null, "calendarEvent");
+let openNewCalendarTaskTab = _openNewCalendarItemTab.bind(null, "calendarTask");
+
+/**
+ * Selects an existing (open) calendar event or task tab.
+ *
+ * @param {string} tabMode - The tab mode, either `calendarEvent` or `calendarTask`.
+ * @param {string} panelId - The id of the tab's panel element.
+ */
+async function _selectCalendarItemTab(tabMode, panelId) {
+  let tabmail = document.getElementById("tabmail");
+  let itemTabs = tabmail.tabModes[tabMode].tabs;
+  let tabToSelect = itemTabs.find(tab => tab.panel.id == panelId);
+
+  ok(tabToSelect, `${tabMode} tab is open`);
+
+  tabmail.selectedTab = tabToSelect;
+
+  is(tabmail.selectedTab, tabToSelect, `${tabMode} tab is selected`);
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
+let selectCalendarEventTab = _selectCalendarItemTab.bind(null, "calendarEvent");
+let selectCalendarTaskTab = _selectCalendarItemTab.bind(null, "calendarTask");
+
+/**
+ * Closes a calendar event or task tab.
+ *
+ * @param {string} tabMode - The tab mode, either `calendarEvent` or `calendarTask`.
+ * @param {string} panelId - The id of the panel of the tab to close.
+ */
+async function _closeCalendarItemTab(tabMode, panelId) {
+  let tabmail = document.getElementById("tabmail");
+  let itemTabs = tabmail.tabModes[tabMode].tabs;
+  let previousTabCount = itemTabs.length;
+  let itemTab = itemTabs.find(tab => tab.panel.id == panelId);
+
+  if (itemTab) {
+    // Tab does not immediately close, so wait for it.
+    let tabClosedPromise = new Promise(resolve => {
+      itemTab.tabNode.addEventListener("TabClose", resolve, { once: true });
+    });
+    tabmail.closeTab(itemTab);
+    await tabClosedPromise;
+  }
+
+  is(itemTabs.length, previousTabCount - 1, `${tabMode} tab was closed`);
+
+  await new Promise(resolve => setTimeout(resolve));
+}
+
+let closeCalendarEventTab = _closeCalendarItemTab.bind(null, "calendarEvent");
+let closeCalendarTaskTab = _closeCalendarItemTab.bind(null, "calendarTask");
+
 async function openPreferencesTab() {
   const tabmail = document.getElementById("tabmail");
   const prefsMode = tabmail.tabModes.preferencesTab;
@@ -190,4 +272,16 @@ registerCleanupFunction(async () => {
   await closeChatTab();
   await closePreferencesTab();
   await closeAddonsTab();
+
+  // Close any event or task tabs that are open.
+  let tabmail = document.getElementById("tabmail");
+  let eventTabPanelIds = tabmail.tabModes.calendarEvent.tabs.map(tab => tab.panel.id);
+  let taskTabPanelIds = tabmail.tabModes.calendarTask.tabs.map(tab => tab.panel.id);
+  for (let id of eventTabPanelIds) {
+    await closeCalendarEventTab(id);
+  }
+  for (let id of taskTabPanelIds) {
+    await closeCalendarTaskTab(id);
+  }
+  Services.prefs.setBoolPref("calendar.item.editInTab", false);
 });
