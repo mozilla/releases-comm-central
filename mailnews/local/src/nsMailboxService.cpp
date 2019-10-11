@@ -27,6 +27,7 @@
 #include "nsIMsgHdr.h"
 #include "nsIFileURL.h"
 #include "mozilla/RefPtr.h"
+using namespace mozilla;
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 
@@ -219,7 +220,7 @@ nsresult nsMailboxService::FetchMessage(
       loadState->SetLoadType(LOAD_LINK);
     loadState->SetFirstParty(false);
     loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-    rv = docShell->LoadURI(loadState);
+    rv = docShell->LoadURI(loadState, false);
   } else
     rv = RunMailboxUrl(url, aDisplayConsumer);
 
@@ -335,7 +336,7 @@ NS_IMETHODIMP nsMailboxService::OpenAttachment(
     loadState->SetLoadType(LOAD_LINK);
     loadState->SetFirstParty(false);
     loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-    return docShell->LoadURI(loadState);
+    return docShell->LoadURI(loadState, false);
   }
   return RunMailboxUrl(URL, aDisplayConsumer);
 }

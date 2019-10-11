@@ -28,6 +28,7 @@
 #include "mozilla/Services.h"
 #include "nsProxyRelease.h"
 #include "mozilla/Encoding.h"
+using namespace mozilla;
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "nsIObjectInputStream.h"
@@ -824,7 +825,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell *docShell,
   loadState->SetLoadType(MAKE_LOAD_TYPE(LOAD_NORMAL, aLoadFlags));
   loadState->SetFirstParty(false);
   loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-  return docShell->LoadURI(loadState);
+  return docShell->LoadURI(loadState, false);
 }
 
 #define SAVE_BUF_SIZE FILE_IO_BUFFER_SIZE

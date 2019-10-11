@@ -43,6 +43,7 @@
 #include "nsIInputStream.h"
 #include "nsIURIMutator.h"
 #include "nsTArray.h"
+using namespace mozilla;
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "mozilla/LoadInfo.h"
@@ -305,7 +306,7 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI *aUrl,
     if (mOpenAttachmentOperation) loadState->SetLoadType(LOAD_LINK);
     loadState->SetFirstParty(false);
     loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-    rv = docShell->LoadURI(loadState);
+    rv = docShell->LoadURI(loadState, false);
   } else {
     nsCOMPtr<nsIStreamListener> aStreamListener(
         do_QueryInterface(aDisplayConsumer, &rv));
@@ -435,7 +436,7 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(
       loadState->SetLoadType(LOAD_LINK);
       loadState->SetFirstParty(false);
       loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-      return docShell->LoadURI(loadState);
+      return docShell->LoadURI(loadState, false);
     } else {
       return RunNewsUrl(url, aMsgWindow, aDisplayConsumer);
     }

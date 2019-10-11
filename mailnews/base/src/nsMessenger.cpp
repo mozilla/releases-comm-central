@@ -46,6 +46,7 @@
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
 #include "nsContentUtils.h"
+using namespace mozilla;
 #include "nsDocShellLoadState.h"
 
 // mail
@@ -552,7 +553,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy *aWin, const nsACString &aURL) {
   loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
   loadState->SetFirstParty(true);
   loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-  return mDocShell->LoadURI(loadState);
+  return mDocShell->LoadURI(loadState, false);
 }
 
 NS_IMETHODIMP nsMessenger::SaveAttachmentToFile(nsIFile *aFile,

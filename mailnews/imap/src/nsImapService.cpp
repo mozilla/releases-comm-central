@@ -61,6 +61,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgPluggableStore.h"
 #include "../../base/src/MailnewsLoadContextInfo.h"
+using namespace mozilla;
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "mozilla/LoadInfo.h"
@@ -607,7 +608,7 @@ nsresult nsImapService::FetchMimePart(
         loadState->SetLoadType(LOAD_LINK);
       loadState->SetFirstParty(false);
       loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-      rv = docShell->LoadURI(loadState);
+      rv = docShell->LoadURI(loadState, false);
     } else {
       nsCOMPtr<nsIStreamListener> aStreamListener =
           do_QueryInterface(aDisplayConsumer, &rv);
@@ -1008,7 +1009,7 @@ nsresult nsImapService::GetMessageFromUrl(
     loadState->SetLoadFlags(nsIWebNavigation::LOAD_FLAGS_NONE);
     loadState->SetFirstParty(false);
     loadState->SetTriggeringPrincipal(nsContentUtils::GetSystemPrincipal());
-    rv = docShell->LoadURI(loadState);
+    rv = docShell->LoadURI(loadState, false);
   } else {
     nsCOMPtr<nsIStreamListener> streamListener =
         do_QueryInterface(aDisplayConsumer, &rv);
