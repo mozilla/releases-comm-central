@@ -75,10 +75,8 @@ function initCustomizePage() {
   checkRequired();
 
   let suppressAlarmsRow = document.getElementById("customize-suppressAlarms-row");
-  suppressAlarmsRow.toggleAttribute(
-    "hidden",
-    gCalendar && gCalendar.getProperty("capabilities.alarms.popup.supported") === false
-  );
+  suppressAlarmsRow.hidden =
+    gCalendar && gCalendar.getProperty("capabilities.alarms.popup.supported") === false;
   document.getElementById("calendar-color").value = "#A8C2E1";
 }
 
@@ -124,12 +122,9 @@ function onSelectProvider(type) {
     // keep tempCal undefined if the calendar can not be created
   }
 
-  document
-    .getElementById("calendar-username-row")
-    .toggleAttribute(
-      "hidden",
-      !(tempCal && tempCal.getProperty("capabilities.username.supported") === true)
-    );
+  document.getElementById("calendar-username-row").hidden = !(
+    tempCal && tempCal.getProperty("capabilities.username.supported") === true
+  );
 
   if (tempCal && tempCal.getProperty("cache.always")) {
     cache.oldValue = cache.checked;
