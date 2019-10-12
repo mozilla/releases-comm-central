@@ -95,7 +95,7 @@ static nsresult nsLDAPInitialize() {
 
   if (rv != LDAP_SUCCESS) {
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
-            ("nsLDAPInitialize(): pr_ldap_install_routines() failed: %s\n",
+            ("nsLDAPInitialize(): pr_ldap_install_routines() failed: %s",
              ldap_err2string(rv)));
     return NS_ERROR_FAILURE;
   }
@@ -106,8 +106,7 @@ static nsresult nsLDAPInitialize() {
   rv = prldap_set_session_option(0, 0, PRLDAP_OPT_IO_MAX_TIMEOUT, 10000);
   if (rv != LDAP_SUCCESS) {
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
-            ("nsLDAPInitialize(): error setting PRLDAP_OPT_IO_MAX_TIMEOUT:"
-             " %s\n",
+            ("nsLDAPInitialize(): error setting PRLDAP_OPT_IO_MAX_TIMEOUT: %s",
              ldap_err2string(rv)));
     return NS_ERROR_FAILURE;
   }

@@ -1330,7 +1330,7 @@ static void DIR_SaveServerPreferences(nsTArray<DIR_Server *> *wholeList) {
     nsCOMPtr<nsIPrefBranch> pPref(
         do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
     if (NS_FAILED(rv)) {
-      NS_WARNING("DIR_SaveServerPreferences: Failed to get the pref service\n");
+      NS_WARNING("DIR_SaveServerPreferences: Failed to get the pref service");
       return;
     }
 

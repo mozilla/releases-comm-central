@@ -622,7 +622,7 @@ void nsSeamonkeyProfileMigrator::ReadBranch(const char* branchName,
       default:
         NS_WARNING(
             "Invalid Pref Type in "
-            "nsNetscapeProfileMigratorBase::ReadBranch\n");
+            "nsNetscapeProfileMigratorBase::ReadBranch");
         break;
     }
 
@@ -656,7 +656,7 @@ void nsSeamonkeyProfileMigrator::WriteBranch(const char* branchName,
       default:
         NS_WARNING(
             "Invalid Pref Type in "
-            "nsNetscapeProfileMigratorBase::WriteBranch\n");
+            "nsNetscapeProfileMigratorBase::WriteBranch");
         break;
     }
     free(pref->prefName);

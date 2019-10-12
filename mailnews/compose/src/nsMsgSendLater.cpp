@@ -428,7 +428,7 @@ SendOperationListener::SetMessageKey(nsMsgKey aKey) {
 
 NS_IMETHODIMP
 SendOperationListener::GetMessageId(nsACString &messageId) {
-  MOZ_ASSERT_UNREACHABLE("SendOperationListener::GetMessageId()\n");
+  MOZ_ASSERT_UNREACHABLE("SendOperationListener::GetMessageId()");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -691,7 +691,7 @@ nsresult nsMsgSendLater::InternalSendMessages(bool aUserInitiated,
 
   // Protect against being called whilst we're already sending.
   if (mSendingMessages) {
-    NS_ERROR("nsMsgSendLater is already sending messages\n");
+    NS_ERROR("nsMsgSendLater is already sending messages");
     return NS_ERROR_FAILURE;
   }
 

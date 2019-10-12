@@ -164,7 +164,7 @@ nsresult nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage *aMessage) {
     if (NS_FAILED(rv)) {
       NS_WARNING(
           "nsLDAPSyncQuery:OnLDAPSearchEntry(): "
-          "aMessage->GetValues() failed\n");
+          "aMessage->GetValues() failed");
       FinishLDAPQuery();
       break;
     }
