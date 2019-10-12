@@ -62,6 +62,18 @@ function updateMailList(mailList, isNewList) {
     return false;
   }
 
+  if (listname.match("  ")) {
+    alert(gAddressBookBundle.getString("badListNameSpaces"));
+    return false;
+  }
+
+  for (let char of ',;"<>') {
+    if (listname.includes(char)) {
+      alert(gAddressBookBundle.getString("badListNameCharacters"));
+      return false;
+    }
+  }
+
   let canonicalNewListName = listname.toLowerCase();
   let canonicalOldListName = gOldListName.toLowerCase();
   if (isNewList || canonicalOldListName != canonicalNewListName) {
