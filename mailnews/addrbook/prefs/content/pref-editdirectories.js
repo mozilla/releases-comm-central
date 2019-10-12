@@ -141,7 +141,7 @@ function editDirectory() {
     let abURI = abList.value;
     let ab = MailServices.ab.getDirectory(abURI);
 
-    window.openDialog(
+    window.docShell.rootTreeItem.domWindow.openDialog(
       ab.propertiesChromeURI,
       "editDirectory",
       "chrome,modal=yes,resizable=no",
