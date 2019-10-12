@@ -12,6 +12,7 @@ var {
   assert_folder_at_index_as,
   assert_folder_mode,
   assert_folder_tree_view_row_count,
+  be_in_folder,
   make_new_sets_in_folder,
   mc,
 } = ChromeUtils.import(
@@ -64,11 +65,15 @@ function test_folder_names_in_recent_view_mode() {
   let fDup3 = inbox2.getChildNamed("duplicatedName");
   assert_folder_tree_view_row_count(10);
 
-  // Create some messages in the folders to make them modified.
+  // Create some messages in the folders to make them recently used.
   make_new_sets_in_folder(fUnique, [{ count: 1 }]);
+  be_in_folder(fUnique);
   make_new_sets_in_folder(fDup1, [{ count: 1 }]);
+  be_in_folder(fDup1);
   make_new_sets_in_folder(fDup2, [{ count: 2 }]);
+  be_in_folder(fDup2);
   make_new_sets_in_folder(fDup3, [{ count: 3 }]);
+  be_in_folder(fDup3);
 
   mc.window.gFolderTreeView.mode = "recent_compact";
 
