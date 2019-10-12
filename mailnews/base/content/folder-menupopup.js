@@ -25,6 +25,9 @@
     "resource:///modules/MailServices.jsm"
   );
   const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
   const { StringBundle } = ChromeUtils.import(
     "resource:///modules/StringBundle.js"
   );
@@ -217,9 +220,6 @@
             return folder.hasSubFolders || folder.canFileMessages;
           },
         };
-
-        // The maximum number of entries in the "Recent" menu.
-        this._MAXRECENT = 15;
 
         // Is this list containing only servers (accounts) and no real folders?
         this._serversOnly = true;
@@ -574,10 +574,10 @@
 
         switch (specialType) {
           case "recent":
-            // Find 15 (_MAXRECENT) of most recently modified ones.
+            // Find the most recently modified ones.
             specialFolders = getMostRecentFolders(
               specialFolders,
-              this._MAXRECENT,
+              Services.prefs.getIntPref("mail.folder_widget.max_recent"),
               "MRMTime"
             );
             break;
@@ -589,7 +589,7 @@
         }
 
         // Cache the pretty names so that they do not need to be fetched
-        // _MAXRECENT^2 times later.
+        // with quadratic complexity when sorting by name.
         let specialFoldersMap = specialFolders.map(folder => {
           return {
             folder,

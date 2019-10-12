@@ -1974,12 +1974,10 @@ var gFolderTreeView = {
       __proto__: IFolderTreeMode,
 
       generateMap(ftv) {
-        const MAXRECENT = 15;
-
-        // Get 15 (MAXRECENT) most recently accessed folders.
+        // Get the most recently accessed folders.
         let recentFolders = getMostRecentFolders(
           ftv._enumerateFolders,
-          MAXRECENT,
+          Services.prefs.getIntPref("mail.folder_widget.max_recent"),
           "MRUTime",
           null
         );

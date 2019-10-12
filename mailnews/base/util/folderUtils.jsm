@@ -188,6 +188,7 @@ function allAccountsSorted(aExcludeIMAccounts) {
  */
 function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
   let recentFolders = [];
+  const monthOld = Math.floor((Date.now() - 31 * 24 * 60 * 60 * 1000) / 1000);
 
   /**
    * This sub-function will add a folder to the recentFolders array if it
@@ -203,7 +204,7 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
     try {
       time = Number(aFolder.getStringProperty(aTimeProperty)) || 0;
     } catch (e) {}
-    if (time <= oldestTime) {
+    if (time <= oldestTime || time < monthOld) {
       return;
     }
 

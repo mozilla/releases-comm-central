@@ -155,6 +155,7 @@ pref("mail.quoted_graphical",               true); // use HTML-style quoting for
 pref("mail.quoteasblock",                   true); // use HTML-style quoting for quoting plain text
 pref("mail.strictly_mime",                  false);
 pref("mail.strictly_mime_headers",          true);
+pref("mail.folder_widget.max_recent",       25); // The maximum number of entries in the "Recent" menu of the folder picker.
 // 0/1 (name param is encoded in a legacy way), 2(RFC 2231 only)
 // 0 the name param is never separated to multiple lines.
 pref("mail.strictly_mime.parm_folding",     1);
