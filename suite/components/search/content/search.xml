@@ -78,15 +78,16 @@
         if (this.usePrivateBrowsing)
           this._textbox.searchParam += "|private";
 
-        this.searchService.init(this);
         Services.obs.addObserver(this, "browser-search-engine-modified");
-        this._addedObserver = true;
+        this._initialized = true;
+
+        this.searchService.init(this);
       ]]></constructor>
 
       <destructor><![CDATA[
-        if (this._addedObserver) {
+        if (this._initialized) {
+          this._initialized = false;
           Services.obs.removeObserver(this, "browser-search-engine-modified");
-          this._addedObserver = false;
         }
 
         // Make sure to break the cycle from _textbox to us. Otherwise we leak
@@ -117,7 +118,7 @@
               .QueryInterface(Ci.nsILoadContext)
               .usePrivateBrowsing
       </field>
-      <field name="_addedObserver">false</field>
+      <field name="_initialized">false</field>
       <field name="_engines">null</field>
       <field name="_needToBuildPopup">true</field>
       <field name="FormHistory" readonly="true"><![CDATA[
@@ -174,6 +175,8 @@
       <method name="onInitComplete">
         <parameter name="aStatus"/>
         <body><![CDATA[
+          if (!this._initialized)
+            return;
           if (Components.isSuccessCode(aStatus)) {
             // Refresh the display (updating icon, etc)
             this.updateDisplay();
