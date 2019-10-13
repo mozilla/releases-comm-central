@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Error url MUST be formatted like this:
-//   about:certerror?e=error&u=url&d=desc
+// The following parameters are parsed from the error URL:
+//   e - the error code
+//   s - custom CSS class to allow alternate styling/favicons
+//   d - error description
 
 // Note that this file uses document.documentURI to get
 // the URL (with the format from above). This is because
@@ -20,35 +22,25 @@ document.getElementById("technicalContentHeading")
 document.getElementById("expertContentHeading")
         .addEventListener("click", function() { toggle("expertContent"); });
 
+let gSearchParams;
+
 initPage();
 
-function getCSSClass()
-{
-  var url = document.documentURI;
-  var matches = url.match(/s\=([^&]+)\&/);
-  // s is optional, if no match just return nothing
-  if (!matches || matches.length < 2)
-    return "";
-
-  // parenthetical match is the second entry
-  return decodeURIComponent(matches[1]);
+function getErrorCode() {
+  return gSearchParams.get("e");
 }
 
-function getDescription()
-{
-  var url = document.documentURI;
-  var desc = url.search(/d\=/);
-
-  // desc == -1 if not found; if so, return an empty string
-  // instead of what would turn out to be portions of the URI
-  if (desc == -1)
-    return "";
-
-  return decodeURIComponent(url.slice(desc + 2));
+function getCSSClass() {
+  return gSearchParams.get("s");
 }
 
-function initPage()
-{
+function getDescription() {
+  return gSearchParams.get("d");
+}
+
+function initPage() {
+  gSearchParams = new URLSearchParams(document.documentURI.split("?")[1]);
+
   var intro = document.getElementById("introContentP1");
   var node = document.evaluate('//text()[string()="#1"]', intro, null,
                                XPathResult.ANY_UNORDERED_NODE_TYPE,
