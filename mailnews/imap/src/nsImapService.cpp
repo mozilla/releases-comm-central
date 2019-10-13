@@ -61,7 +61,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgPluggableStore.h"
 #include "../../base/src/MailnewsLoadContextInfo.h"
-using namespace mozilla;
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "mozilla/LoadInfo.h"

@@ -46,7 +46,6 @@
 #include "nsIDocShellTreeItem.h"
 #include "nsIWebNavigation.h"
 #include "nsContentUtils.h"
-using namespace mozilla;
 #include "nsDocShellLoadState.h"
 
 // mail

@@ -43,7 +43,6 @@
 #include "nsIInputStream.h"
 #include "nsIURIMutator.h"
 #include "nsTArray.h"
-using namespace mozilla;
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "mozilla/LoadInfo.h"

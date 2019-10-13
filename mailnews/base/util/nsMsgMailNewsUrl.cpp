@@ -28,7 +28,6 @@
 #include "mozilla/Services.h"
 #include "nsProxyRelease.h"
 #include "mozilla/Encoding.h"
-using namespace mozilla;
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "nsIObjectInputStream.h"

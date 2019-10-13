@@ -27,7 +27,6 @@
 #include "nsIMsgHdr.h"
 #include "nsIFileURL.h"
 #include "mozilla/RefPtr.h"
-using namespace mozilla;
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 
