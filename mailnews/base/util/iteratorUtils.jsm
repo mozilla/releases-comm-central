@@ -18,7 +18,7 @@ var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
  * Currently, we support the following objects:
  *   Anything you can for (let x of aObj) on
  *                (e.g. toArray(fixIterator(enum))[4],
- *                 also a NodeList from element.childNodes)
+ *                 also a NodeList from element.children)
  *
  * @param aObj        The object to convert
  */

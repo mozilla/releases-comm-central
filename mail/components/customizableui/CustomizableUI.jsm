@@ -1021,7 +1021,7 @@ var CustomizableUIInternal = {
         let limit = currentNode.previousElementSibling;
         let node = container.lastElementChild;
         while (node && node != limit) {
-          let previousSibling = node.previousElementSibling;
+          let previousElementSibling = node.previousElementSibling;
           // Nodes opt-in to removability. If they're removable, and we haven't
           // seen them in the placements array, then we toss them into the palette
           // if one exists. If no palette exists, we just remove the node. If the
@@ -1058,7 +1058,7 @@ var CustomizableUIInternal = {
               gDirty = true;
             }
           }
-          node = previousSibling;
+          node = previousElementSibling;
         }
       }
 
@@ -4441,8 +4441,8 @@ var CustomizableUI = {
     // to avoid reflowing each time we remove something.
     parent.removeChild(aSubview);
 
-    while (aSubview.firstChild) {
-      aSubview.firstChild.remove();
+    while (aSubview.firstElementChild) {
+      aSubview.firstElementChild.remove();
     }
 
     parent.appendChild(aSubview);

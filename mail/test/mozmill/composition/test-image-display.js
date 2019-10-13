@@ -108,7 +108,7 @@ function test_cid_image_load() {
   check_image_size(msgc, image, "mailbox://");
 
   // Copy the message to a folder.
-  let documentChild = messageDoc.firstChild;
+  let documentChild = messageDoc.firstElementChild;
   msgc.rightClick(new elib.Elem(documentChild));
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },

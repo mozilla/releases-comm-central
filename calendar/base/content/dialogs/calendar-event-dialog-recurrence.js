@@ -87,7 +87,7 @@ const RecurrencePreview = {
     let hboxIterator = hbox;
     while (hboxIterator) {
       numRows++;
-      hboxIterator = hboxIterator.nextSibling;
+      hboxIterator = hboxIterator.nextElementSibling;
     }
 
     // Adjust rows
@@ -97,22 +97,22 @@ const RecurrencePreview = {
       numRows++;
     }
     while (numRows > numVertical) {
-      vbox.firstChild.remove();
+      vbox.firstElementChild.remove();
       numRows--;
     }
 
     // Walk all rows and adjust column elements
     hbox = this.node.querySelector("hbox");
     while (hbox) {
-      let firstChild = hbox.firstChild;
-      while (hbox.childNodes.length - 1 < numHorizontal) {
-        let newNode = firstChild.cloneNode(true);
-        firstChild.parentNode.insertBefore(newNode, firstChild);
+      let firstElementChild = hbox.firstElementChild;
+      while (hbox.children.length - 1 < numHorizontal) {
+        let newNode = firstElementChild.cloneNode(true);
+        firstElementChild.parentNode.insertBefore(newNode, firstElementChild);
       }
-      while (hbox.childNodes.length - 1 > numHorizontal) {
-        hbox.firstChild.remove();
+      while (hbox.children.length - 1 > numHorizontal) {
+        hbox.firstElementChild.remove();
       }
-      hbox = hbox.nextSibling;
+      hbox = hbox.nextElementSibling;
     }
 
     this.updateContent();
@@ -125,13 +125,13 @@ const RecurrencePreview = {
     let date = cal.dtz.dateTimeToJsDate(this.dateTime);
     let hbox = this.node.querySelector("hbox");
     while (hbox) {
-      let numChilds = hbox.childNodes.length - 1;
+      let numChilds = hbox.children.length - 1;
       for (let i = 0; i < numChilds; i++) {
-        let minimonth = hbox.childNodes[i];
+        let minimonth = hbox.children[i];
         minimonth.showMonth(date);
         date.setMonth(date.getMonth() + 1);
       }
-      hbox = hbox.nextSibling;
+      hbox = hbox.nextElementSibling;
     }
   },
   /**
@@ -156,11 +156,11 @@ const RecurrencePreview = {
     while (hbox) {
       // now iterate all the child nodes of this row
       // in order to visit each minimonth in turn.
-      let numChilds = hbox.childNodes.length - 1;
+      let numChilds = hbox.children.length - 1;
       for (let i = 0; i < numChilds; i++) {
         // we now have one of the minimonth controls while 'start'
         // and 'end' are set to the interval this minimonth shows.
-        minimonth = hbox.childNodes[i];
+        minimonth = hbox.children[i];
         minimonth.showMonth(cal.dtz.dateTimeToJsDate(start));
         if (recurrenceInfo) {
           // retrieve an array of dates that represents all occurrences
@@ -213,7 +213,7 @@ const RecurrencePreview = {
         start.month++;
         end.month++;
       }
-      hbox = hbox.nextSibling;
+      hbox = hbox.nextElementSibling;
     }
   },
 };
@@ -229,9 +229,9 @@ const DaypickerWeekday = {
     this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start", 0);
 
     let mainbox = document.getElementById("daypicker-weekday");
-    let numChilds = mainbox.childNodes.length;
+    let numChilds = mainbox.children.length;
     for (let i = 0; i < numChilds; i++) {
-      let child = mainbox.childNodes[i];
+      let child = mainbox.children[i];
       let dow = i + this.weekStartOffset;
       if (dow >= 7) {
         dow -= 7;
@@ -246,10 +246,10 @@ const DaypickerWeekday = {
    */
   get days() {
     let mainbox = document.getElementById("daypicker-weekday");
-    let numChilds = mainbox.childNodes.length;
+    let numChilds = mainbox.children.length;
     let days = [];
     for (let i = 0; i < numChilds; i++) {
-      let child = mainbox.childNodes[i];
+      let child = mainbox.children[i];
       if (child.getAttribute("checked") == "true") {
         let index = i + this.weekStartOffset;
         if (index >= 7) {
@@ -268,7 +268,7 @@ const DaypickerWeekday = {
    */
   set days(val) {
     let mainbox = document.getElementById("daypicker-weekday");
-    for (let child of mainbox.childNodes) {
+    for (let child of mainbox.children) {
       child.removeAttribute("checked");
     }
     for (let i in val) {
@@ -276,7 +276,7 @@ const DaypickerWeekday = {
       if (index < 0) {
         index += 7;
       }
-      mainbox.childNodes[index].setAttribute("checked", "true");
+      mainbox.children[index].setAttribute("checked", "true");
     }
     return val;
   },
@@ -292,8 +292,8 @@ const DaypickerMonthday = {
   init() {
     let mainbox = document.querySelector(".daypicker-monthday-mainbox");
     let child = null;
-    for (let row of mainbox.childNodes) {
-      for (child of row.childNodes) {
+    for (let row of mainbox.children) {
+      for (child of row.children) {
         child.calendar = mainbox;
       }
     }
@@ -309,8 +309,8 @@ const DaypickerMonthday = {
   set days(val) {
     let mainbox = document.querySelector(".daypicker-monthday-mainbox");
     let days = [];
-    for (let row of mainbox.childNodes) {
-      for (let child of row.childNodes) {
+    for (let row of mainbox.children) {
+      for (let child of row.children) {
         child.removeAttribute("checked");
         days.push(child);
       }
@@ -328,8 +328,8 @@ const DaypickerMonthday = {
   get days() {
     let mainbox = document.querySelector(".daypicker-monthday-mainbox");
     let days = [];
-    for (let row of mainbox.childNodes) {
-      for (let child of row.childNodes) {
+    for (let row of mainbox.children) {
+      for (let child of row.children) {
         if (child.getAttribute("checked") == "true") {
           days.push(Number(child.label) ? Number(child.label) : -1);
         }
@@ -342,8 +342,8 @@ const DaypickerMonthday = {
    */
   disable() {
     let mainbox = document.querySelector(".daypicker-monthday-mainbox");
-    for (let row of mainbox.childNodes) {
-      for (let child of row.childNodes) {
+    for (let row of mainbox.children) {
+      for (let child of row.children) {
         child.setAttribute("disabled", "true");
       }
     }
@@ -353,8 +353,8 @@ const DaypickerMonthday = {
    */
   enable() {
     let mainbox = document.querySelector(".daypicker-monthday-mainbox");
-    for (let row of mainbox.childNodes) {
-      for (let child of row.childNodes) {
+    for (let row of mainbox.children) {
+      for (let child of row.children) {
         child.removeAttribute("disabled");
       }
     }

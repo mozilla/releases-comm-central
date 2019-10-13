@@ -896,7 +896,7 @@ function RemoveContainer(element) {
 }
 
 function FillLinkMenulist(linkMenulist, headingsArray) {
-  var menupopup = linkMenulist.firstChild;
+  var menupopup = linkMenulist.firstElementChild;
   var editor = GetCurrentEditor();
   try {
     var treeWalker = editor.document.createTreeWalker(

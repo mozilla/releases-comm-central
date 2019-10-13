@@ -36,7 +36,7 @@ var gAppManagerDialog = {
       // Ensure the XBL binding is created eagerly.
       // eslint-disable-next-line no-undef
       list.appendChild(MozXULElement.parseXULToFragment("<richlistitem/>"));
-      let item = list.lastChild;
+      let item = list.lastElementChild;
       item.app = app;
 
       let image = document.createXULElement("image");

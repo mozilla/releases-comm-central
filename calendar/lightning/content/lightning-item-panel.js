@@ -543,7 +543,7 @@ function updatePrivacy(aArg) {
     let menupopup = document.getElementById("event-privacy-menupopup");
     if (menupopup) {
       // Only update the toolbar if the button is actually there
-      for (let node of menupopup.childNodes) {
+      for (let node of menupopup.children) {
         let currentProvider = node.getAttribute("provider");
         if (node.hasAttribute("privacy")) {
           let currentPrivacyValue = node.getAttribute("privacy");
@@ -573,7 +573,7 @@ function updatePrivacy(aArg) {
     // Update privacy capabilities (menu) but only if we are not in a tab.
     if (!gTabmail) {
       menupopup = document.getElementById("options-privacy-menupopup");
-      for (let node of menupopup.childNodes) {
+      for (let node of menupopup.children) {
         let currentProvider = node.getAttribute("provider");
         if (node.hasAttribute("privacy")) {
           let currentPrivacyValue = node.getAttribute("privacy");
@@ -603,7 +603,7 @@ function updatePrivacy(aArg) {
     // Update privacy capabilities (statusbar)
     let privacyPanel = document.getElementById("status-privacy");
     let hasAnyPrivacyValue = false;
-    for (let node of privacyPanel.childNodes) {
+    for (let node of privacyPanel.children) {
       let currentProvider = node.getAttribute("provider");
       if (node.hasAttribute("privacy")) {
         let currentPrivacyValue = node.getAttribute("privacy");
@@ -697,7 +697,7 @@ function updatePriority(aArg) {
     } else {
       priorityPanel.removeAttribute("collapsed");
       let foundPriority = false;
-      for (let node of priorityPanel.childNodes) {
+      for (let node of priorityPanel.children) {
         if (foundPriority) {
           node.setAttribute("collapsed", "true");
         } else {
@@ -966,7 +966,7 @@ function dialogToolboxCustomizeDone(aToolboxChanged) {
   // Re-enable menu items (disabled during toolbar customization).
   let menubarId = gTabmail ? "mail-menubar" : "event-menubar";
   let menubar = document.getElementById(menubarId);
-  for (let menuitem of menubar.childNodes) {
+  for (let menuitem of menubar.children) {
     menuitem.removeAttribute("disabled");
   }
 
@@ -995,7 +995,7 @@ function onCommandCustomize() {
   // Disable menu items during toolbar customization.
   let menubarId = gTabmail ? "mail-menubar" : "event-menubar";
   let menubar = document.getElementById(menubarId);
-  for (let menuitem of menubar.childNodes) {
+  for (let menuitem of menubar.children) {
     menuitem.setAttribute("disabled", true);
   }
 
@@ -1030,7 +1030,7 @@ function loadCloudProviders(aItemObjects) {
    * @param {Node} aParentNode  A menupopup containing menu items
    */
   function deleteAlreadyExisting(aParentNode) {
-    for (let node of aParentNode.childNodes) {
+    for (let node of aParentNode.children) {
       if (node.cloudProviderAccountKey) {
         aParentNode.removeChild(node);
       }

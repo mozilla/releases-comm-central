@@ -242,14 +242,14 @@ function loadCalendarManager() {
     }
 
     if (event.target == calendarList) {
-      calendarList.lastChild.setAttribute("drop-on", "bottom");
+      calendarList.lastElementChild.setAttribute("drop-on", "bottom");
       return;
     }
 
     let item = event.target.closest("richlistitem");
     if (item) {
       // If we're dragging/dropping in bottom half of attachmentitem,
-      // adjust target to target.nextSibling (to show dropmarker above that).
+      // adjust target to target.nextElementSibling (to show dropmarker above that).
       if ((event.screenY - item.screenY) / item.getBoundingClientRect().height >= 0.5) {
         item = item.nextElementSibling;
       }

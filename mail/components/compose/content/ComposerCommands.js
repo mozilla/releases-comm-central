@@ -331,8 +331,8 @@ function goUpdateCommandState(command) {
 
 function goUpdateComposerMenuItems(commandset) {
   // dump("Updating commands for " + commandset.id + "\n");
-  for (var i = 0; i < commandset.childNodes.length; i++) {
-    var commandNode = commandset.childNodes[i];
+  for (var i = 0; i < commandset.children.length; i++) {
+    var commandNode = commandset.children[i];
     var commandID = commandNode.id;
     if (commandID) {
       goUpdateCommand(commandID); // enable or disable

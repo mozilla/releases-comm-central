@@ -121,7 +121,7 @@
         }
       }
       let last = end == 0 ? this : this.contacts[end - 1];
-      this.parentNode.insertBefore(contactElt, last.nextSibling);
+      this.parentNode.insertBefore(contactElt, last.nextElementSibling);
       contactElt.build(contact);
       contactElt.group = this;
       this.contacts.splice(end, 0, contactElt);

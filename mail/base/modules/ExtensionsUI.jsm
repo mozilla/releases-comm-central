@@ -167,8 +167,8 @@ var gXPInstallObserver = {
           let addonList = document.getElementById(
             "addon-install-confirmation-content"
           );
-          while (addonList.firstChild) {
-            addonList.firstChild.remove();
+          while (addonList.lastChild) {
+            addonList.lastChild.remove();
           }
 
           for (let install of installInfo.installs) {
@@ -254,8 +254,8 @@ var gXPInstallObserver = {
           listIntroEl.hidden = strings.msgs.length == 0;
 
           let list = doc.getElementById("addon-webext-perm-list");
-          while (list.firstChild) {
-            list.firstChild.remove();
+          while (list.lastChild) {
+            list.lastChild.remove();
           }
 
           for (let msg of strings.msgs) {
@@ -861,8 +861,8 @@ var gXPInstallObserver = {
 
     let list = document.getElementById("addon-installed-list");
     list.hidden = false;
-    while (list.firstChild) {
-      list.firstChild.remove();
+    while (list.lastChild) {
+      list.lastChild.remove();
     }
     let textEl = document.getElementById("addon-installed-restart-text");
     textEl.textContent = addonsBundle.getFormattedString(

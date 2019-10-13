@@ -80,7 +80,7 @@ function subtest_save_mail_view(savc) {
     index = parseInt(elem.getAttribute("selectedIndex"));
   }
 
-  elem = elem.childNodes[index];
+  elem = elem.children[index];
 
   // - make sure the constraint is right
   savc.assertValue(new elib.Elem(elem), "$label1");

@@ -95,7 +95,7 @@ function test_redirects_toolbarbutton_drops() {
     // Now let's check to make sure that this button is now the first
     // item in the tab bar toolbar.
     assert_equals(
-      toolbar.firstChild.id,
+      toolbar.firstElementChild.id,
       aButtonId,
       "Button was not added as first child!"
     );
@@ -120,7 +120,7 @@ function test_redirects_toolbarbutton_drops() {
       // Now let's check to make sure that this button is now the first
       // item in the tab bar toolbar.
       assert_equals(
-        toolbar.firstChild.id,
+        toolbar.firstElementChild.id,
         "wrapper-" + aButtonId,
         "Button was not added as first child!"
       );

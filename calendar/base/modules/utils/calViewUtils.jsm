@@ -47,9 +47,9 @@ var calview = {
    * @param aAttribute    The value of the attribute
    */
   removeChildElementsByAttribute: function(aParentNode, aAttribute, aValue) {
-    let childNode = aParentNode.lastChild;
+    let childNode = aParentNode.lastElementChild;
     while (childNode) {
-      let prevChildNode = childNode.previousSibling;
+      let prevChildNode = childNode.previousElementSibling;
       if (!aAttribute || aAttribute === undefined) {
         childNode.remove();
       } else if (!aValue || aValue === undefined) {

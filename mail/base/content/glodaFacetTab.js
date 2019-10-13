@@ -26,7 +26,9 @@ var glodaFacetTabType = {
     aTab.browser = null;
 
     // First clone the page and set up the basics.
-    let clone = document.getElementById("glodaTab").firstChild.cloneNode(true);
+    let clone = document
+      .getElementById("glodaTab")
+      .firstElementChild.cloneNode(true);
 
     aTab.panel.setAttribute("id", "glodaTab" + this.lastTabId);
     aTab.panel.appendChild(clone);

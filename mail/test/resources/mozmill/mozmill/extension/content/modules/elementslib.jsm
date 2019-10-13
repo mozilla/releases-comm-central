@@ -326,7 +326,7 @@ var _returnResult = function(results) {
 };
 var _forChildren = function(element, name, value) {
   var results = [];
-  var nodes = Array.from(element.childNodes).filter(e => e);
+  var nodes = Array.from(element.children).filter(e => e);
   for (var i in nodes) {
     var n = nodes[i];
     if (n[name] == value) {
@@ -357,7 +357,7 @@ var _byName = function(_document, parent, value) {
 var _byAttrib = function(parent, attributes) {
   var results = [];
 
-  var nodes = parent.childNodes;
+  var nodes = parent.children;
   for (var i in nodes) {
     var n = nodes[i];
     var requirementPass = 0;
@@ -416,15 +416,13 @@ var _byAnonAttrib = function(_document, parent, attributes) {
   resultsForNodes(nodes);
   if (results.length == 0) {
     resultsForNodes(
-      Array.from(parent.childNodes).filter(
-        n => n != undefined && n.getAttribute
-      )
+      Array.from(parent.children).filter(n => n != undefined && n.getAttribute)
     );
   }
   return _returnResult(results);
 };
 var _byIndex = function(_document, parent, i) {
-  return parent.childNodes[i];
+  return parent.children[i];
 };
 var _anonByName = function(_document, parent, value) {
   return _returnResult(_forAnonChildren(_document, parent, "tagName", value));

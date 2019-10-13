@@ -905,7 +905,7 @@
     _getEndDate(aMainDate) {
       let date = this._getStartDate(aMainDate);
       let calbox = this.querySelector(".minimonth-calendar");
-      let days = (calbox.childNodes.length - 1) * 7;
+      let days = (calbox.children.length - 1) * 7;
       date.setDate(date.getDate() + days - 1);
       return date;
     }

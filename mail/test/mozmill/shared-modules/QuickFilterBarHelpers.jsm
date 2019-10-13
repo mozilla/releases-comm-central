@@ -131,7 +131,7 @@ function assert_tag_constraints_visible(...aArgs) {
     throw new Error("The tag bar should not be collapsed!");
   }
 
-  let kids = mc.e("quick-filter-bar-tab-bar").childNodes;
+  let kids = mc.e("quick-filter-bar-tab-bar").children;
   let tagLength = kids.length - 1; // -1 for the qfb-boolean-mode widget
   // this is bad error reporting in here for now.
   if (tagLength != aArgs.length) {
@@ -169,7 +169,7 @@ function assert_tag_constraints_checked(...aArgs) {
     expected[nodeId] = true;
   }
 
-  let kids = mc.e("quick-filter-bar-tab-bar").childNodes;
+  let kids = mc.e("quick-filter-bar-tab-bar").children;
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
     if (node.checked != node.id in expected) {
@@ -207,7 +207,7 @@ function assert_text_constraints_checked(...aArgs) {
     expected[nodeId] = true;
   }
 
-  let kids = mc.e("quick-filter-bar-filter-text-bar").childNodes;
+  let kids = mc.e("quick-filter-bar-filter-text-bar").children;
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
     if (node.tagName == "label") {

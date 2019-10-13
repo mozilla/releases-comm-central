@@ -33,7 +33,7 @@ function BuildJSEAttributeNameList() {
         gDialog.AddJSEAttributeNameList.appendItem(attNames[i], attNames[i]);
       }
 
-      popup = gDialog.AddJSEAttributeNameList.firstChild;
+      popup = gDialog.AddJSEAttributeNameList.firstElementChild;
       if (popup) {
         sep = document.createXULElement("menuseparator");
         if (sep) {
@@ -47,7 +47,7 @@ function BuildJSEAttributeNameList() {
   for (i = 0; i < gCoreJSEvents.length; i++) {
     if (gCoreJSEvents[i] == "-") {
       if (!popup) {
-        popup = gDialog.AddJSEAttributeNameList.firstChild;
+        popup = gDialog.AddJSEAttributeNameList.firstElementChild;
       }
 
       sep = document.createXULElement("menuseparator");
@@ -160,8 +160,8 @@ function UpdateJSEAttributes() {
   }
 
   // Add events
-  for (i = 0; i < JSEAList.childNodes.length; i++) {
-    var item = JSEAList.childNodes[i];
+  for (i = 0; i < JSEAList.children.length; i++) {
+    var item = JSEAList.children[i];
 
     // set the event handler
     doSetAttribute(GetTreeItemAttributeStr(item), GetTreeItemValueStr(item));

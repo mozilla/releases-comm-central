@@ -1098,12 +1098,12 @@ nsContextMenu.prototype = {
   shouldShowSeparator(aSeparatorID) {
     var separator = document.getElementById(aSeparatorID);
     if (separator) {
-      var sibling = separator.previousSibling;
+      var sibling = separator.previousElementSibling;
       while (sibling && sibling.localName != "menuseparator") {
         if (sibling.getAttribute("hidden") != "true") {
           return true;
         }
-        sibling = sibling.previousSibling;
+        sibling = sibling.previousElementSibling;
       }
     }
     return false;
@@ -1115,7 +1115,7 @@ nsContextMenu.prototype = {
    * @param aPopup  The menu to check.
    */
   checkLastSeparator(aPopup) {
-    let sibling = aPopup.lastChild;
+    let sibling = aPopup.lastElementChild;
     while (sibling) {
       if (sibling.getAttribute("hidden") != "true") {
         if (sibling.localName == "menuseparator") {
@@ -1126,7 +1126,7 @@ nsContextMenu.prototype = {
         }
         return;
       }
-      sibling = sibling.previousSibling;
+      sibling = sibling.previousElementSibling;
     }
   },
 

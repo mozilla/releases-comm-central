@@ -55,12 +55,12 @@ var activityObject = {
     if (element.isGroup || element.isProcess) {
       this._activitiesView.insertBefore(
         element,
-        this._activitiesView.firstChild
+        this._activitiesView.firstElementChild
       );
     } else {
-      let next = this._activitiesView.firstChild;
+      let next = this._activitiesView.firstElementChild;
       while (next && (next.isWarning || next.isProcess || next.isGroup)) {
-        next = next.nextSibling;
+        next = next.nextElementSibling;
       }
       if (next) {
         this._activitiesView.insertBefore(element, next);
@@ -74,9 +74,9 @@ var activityObject = {
         element
       );
     }
-    while (this._activitiesView.childNodes.length > ACTIVITY_LIMIT) {
+    while (this._activitiesView.children.length > ACTIVITY_LIMIT) {
       this.removeActivityElement(
-        this._activitiesView.lastChild.getAttribute("actID")
+        this._activitiesView.lastElementChild.getAttribute("actID")
       );
     }
   },
@@ -144,7 +144,7 @@ var activityObject = {
   removeActivityElement(aID) {
     // Note: document.getAnonymousNodes(_activitiesView); didn't work
     this._activityLogger.info("removing Activity ID: " + aID);
-    let activities = this._activitiesView.childNodes;
+    let activities = this._activitiesView.children;
     for (let i = 0; i < activities.length; i++) {
       let item = activities[i];
       if (!item) {
@@ -230,7 +230,7 @@ var activityObject = {
     // everything.
     activityManager.cleanUp();
 
-    let activities = this._activitiesView.childNodes;
+    let activities = this._activitiesView.children;
     for (let i = activities.length - 1; i >= 0; i--) {
       let item = activities[i];
       if (!item.isGroup) {

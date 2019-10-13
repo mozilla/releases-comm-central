@@ -637,7 +637,7 @@
           insert.parentNode.insertBefore(marker, insert);
           marker = doc.createElement("div");
           marker.id = "next-messages-end";
-          insert.parentNode.insertBefore(marker, insert.nextSibling);
+          insert.parentNode.insertBefore(marker, insert.nextElementSibling);
         }
       } else {
         let html = getHTMLForMessage(aMsg, this.theme, next, aContext);
@@ -693,9 +693,9 @@
           ruler.nextMsgHtml
         );
         for (
-          let root = documentFragment.firstChild;
+          let root = documentFragment.firstElementChild;
           root;
-          root = root.nextSibling
+          root = root.nextElementSibling
         ) {
           root._originalMsg = ruler._originalMsg;
         }

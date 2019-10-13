@@ -107,7 +107,7 @@ function SetDivText(id, text) {
       var textNode = document.createTextNode(text);
       div.appendChild(textNode);
     } else if (div.childNodes.length == 1) {
-      div.childNodes[0].nodeValue = text;
+      div.firstChild.nodeValue = text;
     }
   }
 }

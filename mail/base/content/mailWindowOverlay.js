@@ -153,8 +153,8 @@ function menu_new_init() {
 }
 
 function goUpdateMailMenuItems(commandset) {
-  for (var i = 0; i < commandset.childNodes.length; i++) {
-    var commandID = commandset.childNodes[i].getAttribute("id");
+  for (var i = 0; i < commandset.children.length; i++) {
+    var commandID = commandset.children[i].getAttribute("id");
     if (commandID) {
       goUpdateCommand(commandID);
     }
@@ -401,7 +401,7 @@ function InitViewLayoutStyleMenu(event, appmenu) {
     ? event.target.querySelector(".panel-subview-body")
     : event.target;
 
-  let layoutStyleMenuitem = parent.childNodes[paneConfig];
+  let layoutStyleMenuitem = parent.children[paneConfig];
   if (layoutStyleMenuitem) {
     layoutStyleMenuitem.setAttribute("checked", "true");
   }
@@ -739,7 +739,7 @@ function InitMessageMenu() {
   let index = FeedMessageHandler.onOpenPref;
   document
     .getElementById("menu_openFeedMessage")
-    .childNodes[index].setAttribute("checked", true);
+    .children[index].setAttribute("checked", true);
 
   let openRssMenu = document.getElementById("openFeedMessage");
   openRssMenu.hidden = !isFeed;
@@ -816,9 +816,9 @@ function InitAppMessageMenu() {
     .getElementById("appMenu-messageOpenFeedView")
     .querySelector(".panel-subview-body");
 
-  openFeedView.childNodes.forEach(node => node.removeAttribute("checked"));
+  openFeedView.children.forEach(node => node.removeAttribute("checked"));
   let index = FeedMessageHandler.onOpenPref;
-  openFeedView.childNodes[index].setAttribute("checked", true);
+  openFeedView.children[index].setAttribute("checked", true);
 
   let openRssMenu = document.getElementById("appmenu_openFeedMessage");
   openRssMenu.hidden = !isFeed;
@@ -1321,7 +1321,9 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   // Remove any existing non-static items (clear tags list before rebuilding it).
   // There is a separator element above the dynamically added tag elements, so
   // remove dynamically added elements below the separator.
-  while (parent.lastChild.tagName.toUpperCase() == elementNameUpperCase) {
+  while (
+    parent.lastElementChild.tagName.toUpperCase() == elementNameUpperCase
+  ) {
     parent.lastChild.remove();
   }
 
@@ -1329,7 +1331,11 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   const tagRemoveLabel = document
     .getElementById("bundle_messenger")
     .getString("mailnews.tags.remove");
-  SetMessageTagLabel(parent.lastChild.previousSibling, 0, tagRemoveLabel);
+  SetMessageTagLabel(
+    parent.lastElementChild.previousElementSibling,
+    0,
+    tagRemoveLabel
+  );
 
   // Rebuild the list.
   const msgHdr = gFolderDisplay.selectedMessage;
@@ -3293,7 +3299,7 @@ var gMessageNotificationBar = {
         aCanOverride ? buttons : []
       );
 
-      let button = notification.spacer.nextSibling;
+      let button = notification.spacer.nextElementSibling;
       button.classList.add("button-menu-list");
     }
   },
@@ -3334,7 +3340,7 @@ var gMessageNotificationBar = {
         buttons
       );
 
-      let button = notification.spacer.nextSibling;
+      let button = notification.spacer.nextElementSibling;
       button.classList.add("button-menu-list");
     }
   },
@@ -3481,10 +3487,10 @@ function onRemoteContentOptionsShowing(aEvent) {
   let messengerBundle = document.getElementById("bundle_messenger");
 
   // Out with the old...
-  let childNodes = aEvent.target.childNodes;
-  for (let i = childNodes.length - 1; i >= 0; i--) {
-    if (childNodes[i].getAttribute("class") == "allow-remote-uri") {
-      childNodes[i].remove();
+  let children = aEvent.target.children;
+  for (let i = children.length - 1; i >= 0; i--) {
+    if (children[i].getAttribute("class") == "allow-remote-uri") {
+      children[i].remove();
     }
   }
 

@@ -36,10 +36,11 @@ function imContextMenu(aXulMenu) {
 // Prototype for nsContextMenu "class."
 imContextMenu.prototype = {
   cleanup() {
-    let elt = document.getElementById("context-sep-messageactions").nextSibling;
+    let elt = document.getElementById("context-sep-messageactions")
+      .nextElementSibling;
     // remove the action menuitems added last time we opened the popup
     while (elt && elt.localName != "menuseparator") {
-      let tmp = elt.nextSibling;
+      let tmp = elt.nextElementSibling;
       elt.remove();
       elt = tmp;
     }

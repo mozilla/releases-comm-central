@@ -641,7 +641,7 @@ function fillFolderPaneContextMenu(aEvent) {
   // handle our separators
   function hideIfAppropriate(aID) {
     var separator = document.getElementById(aID);
-    var sibling = separator.previousSibling;
+    var sibling = separator.previousElementSibling;
     while (sibling) {
       if (sibling.getAttribute("hidden") != "true") {
         ShowMenuItem(
@@ -651,7 +651,7 @@ function fillFolderPaneContextMenu(aEvent) {
         );
         return;
       }
-      sibling = sibling.previousSibling;
+      sibling = sibling.previousElementSibling;
     }
     ShowMenuItem(aID, false);
   }
@@ -681,7 +681,7 @@ function SetMenuItemLabel(id, label) {
 
 // helper function used by shouldShowSeparator
 function hasAVisibleNextSibling(aNode) {
-  var sibling = aNode.nextSibling;
+  var sibling = aNode.nextElementSibling;
   while (sibling) {
     if (
       sibling.getAttribute("hidden") != "true" &&
@@ -689,7 +689,7 @@ function hasAVisibleNextSibling(aNode) {
     ) {
       return true;
     }
-    sibling = sibling.nextSibling;
+    sibling = sibling.nextElementSibling;
   }
   return false;
 }

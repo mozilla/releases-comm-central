@@ -130,8 +130,8 @@ function cleanUpText(aElem, aHidePrivateData) {
       (classList.contains(CLASS_DATA_UIONLY) || classList.contains("no-copy"))
     ) {
       // Advance to the next node before removing the current node, since
-      // node.nextSibling is null after remove()
-      let nextNode = node.nextSibling;
+      // node.nextElementSibling is null after remove()
+      let nextNode = node.nextElementSibling;
       node.remove();
       node = nextNode;
       continue;
@@ -279,7 +279,7 @@ function getCrashesText(aIndent) {
     let tds = recentCrashesSubmitted.item(i).querySelectorAll("td");
     crashesData +=
       aIndent.repeat(2) +
-      tds.item(0).firstChild.href +
+      tds.item(0).firstElementChild.href +
       " (" +
       tds.item(1).textContent +
       ")\n";

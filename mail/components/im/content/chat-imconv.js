@@ -250,7 +250,7 @@
       let newSelectedItem;
       let list = this.parentNode;
       if (list.selectedItem == this) {
-        newSelectedItem = this.previousSibling;
+        newSelectedItem = this.previousElementSibling;
       }
 
       if (this.log) {

@@ -74,9 +74,9 @@ function onLoad() {
 function findTimezone(timezone) {
   let tzid = timezone.tzid;
   let menulist = document.getElementById("timezone-menulist");
-  let numChilds = menulist.childNodes[0].childNodes.length;
+  let numChilds = menulist.children[0].children.length;
   for (let i = 0; i < numChilds; i++) {
-    let menuitem = menulist.childNodes[0].childNodes[i];
+    let menuitem = menulist.children[0].children[i];
     if (menuitem.getAttribute("value") == tzid) {
       return i;
     }

@@ -841,7 +841,7 @@
                         <button is="button-menu-button" id="cvHomeMapIt"
                                 label="&mapItButton.label;"
                                 type="menu-button"
-                                oncommand="openLinkWithUrl(this.firstChild.mapURL);"
+                                oncommand="openLinkWithUrl(this.firstElementChild.mapURL);"
                                 tooltiptext="&mapIt.tooltip;">
                           <menupopup is="map-list"/>
                         </button>
@@ -910,7 +910,7 @@
                         <button is="button-menu-button" id="cvWorkMapIt"
                                 label="&mapItButton.label;"
                                 type="menu-button"
-                                oncommand="openLinkWithUrl(this.firstChild.mapURL);"
+                                oncommand="openLinkWithUrl(this.firstElementChild.mapURL);"
                                 tooltiptext="&mapIt.tooltip;">
                           <menupopup is="map-list"/>
                         </button>

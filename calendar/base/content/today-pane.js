@@ -360,10 +360,10 @@ var TodayPane = {
    */
   setShortWeekdays: function() {
     let weekdisplaydeck = document.getElementById("weekdayNameContainer");
-    let childNodes = weekdisplaydeck.childNodes;
+    let children = weekdisplaydeck.children;
 
-    for (let i = 0; i < childNodes.length; i++) {
-      childNodes[i].setAttribute("value", cal.l10n.getDateFmtString(`day.${i + 1}.Mmm`));
+    for (let i = 0; i < children.length; i++) {
+      children[i].setAttribute("value", cal.l10n.getDateFmtString(`day.${i + 1}.Mmm`));
     }
   },
 

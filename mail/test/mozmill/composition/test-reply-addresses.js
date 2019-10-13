@@ -95,7 +95,7 @@ function checkToAddresses(replyWinController, expectedFields) {
     );
 
     let selectedIndex = addrTypePopup.parentNode.selectedIndex;
-    let typeMenuitems = addrTypePopup.childNodes;
+    let typeMenuitems = addrTypePopup.children;
     let addrType =
       selectedIndex != -1
         ? typeMenuitems[selectedIndex].value

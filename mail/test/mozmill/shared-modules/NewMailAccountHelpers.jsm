@@ -121,7 +121,7 @@ function assert_links_not_shown(aController, aLinks) {
  */
 function wait_for_search_results(w) {
   w.waitFor(
-    () => w.e("results").childNodes.length > 0,
+    () => w.e("results").children.length > 0,
     "Timed out waiting for search results to arrive."
   );
 }

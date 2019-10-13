@@ -461,10 +461,11 @@ var stateListener = {
       // 2) <div/pre class="moz-signature">
       // Note that <br><div/pre class="moz-signature"> doesn't happen in
       // paragraph mode.
-      let firstChild = mailBody.firstChild;
+      let firstElementChild = mailBody.firstElementChild;
       if (
-        (firstChild.nodeName != "BR" || firstChild.nextSibling) &&
-        !isSignature(firstChild)
+        (firstElementChild.nodeName != "BR" ||
+          firstElementChild.nextElementSibling) &&
+        !isSignature(firstElementChild)
       ) {
         insertParagraph = false;
       }
@@ -501,7 +502,7 @@ var stateListener = {
       let selection = editor.selection;
 
       // Make sure the selection isn't inside the signature.
-      if (isSignature(mailBody.firstChild)) {
+      if (isSignature(mailBody.firstElementChild)) {
         selection.collapse(mailBody, 0);
       }
 
@@ -1600,7 +1601,10 @@ function addAttachCloudMenuItems(aParentMenu) {
   }
 
   for (let account of cloudFileAccounts.configuredAccounts) {
-    if (aParentMenu.lastChild && aParentMenu.lastChild.cloudFileUpload) {
+    if (
+      aParentMenu.lastElementChild &&
+      aParentMenu.lastElementChild.cloudFileUpload
+    ) {
       aParentMenu.appendChild(document.createXULElement("menuseparator"));
     }
 
@@ -1641,8 +1645,8 @@ function addAttachCloudMenuItems(aParentMenu) {
 function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
   let attachment = document.getElementById("attachmentBucket").selectedItem;
   let afterNode = document.getElementById(aAfterNodeId);
-  while (afterNode.nextSibling) {
-    afterNode.nextSibling.remove();
+  while (afterNode.nextElementSibling) {
+    afterNode.nextElementSibling.remove();
   }
 
   if (!attachment.sendViaCloud) {
@@ -2819,8 +2823,14 @@ function ComposeStartup(aParams) {
     let lastButton = findbar.getElement("find-entire-word");
     let tSeparator = document.createXULElement("toolbarseparator");
     tSeparator.setAttribute("id", "findbar-beforeReplaceSeparator");
-    lastButton.parentNode.insertBefore(replaceButton, lastButton.nextSibling);
-    lastButton.parentNode.insertBefore(tSeparator, lastButton.nextSibling);
+    lastButton.parentNode.insertBefore(
+      replaceButton,
+      lastButton.nextElementSibling
+    );
+    lastButton.parentNode.insertBefore(
+      tSeparator,
+      lastButton.nextElementSibling
+    );
   }
 
   var params = null; // New way to pass parameters to the compose window as a nsIMsgComposeParameters object
@@ -4463,10 +4473,10 @@ function updateLanguageInStatusBar() {
   }
 
   let language = document.documentElement.getAttribute("lang");
-  let item = languageMenuList.firstChild;
+  let item = languageMenuList.firstElementChild;
 
   // No status display, if there is only one or no spelling dictionary available.
-  if (item == languageMenuList.lastChild) {
+  if (item == languageMenuList.lastElementChild) {
     spellCheckStatusPanel.collapsed = true;
     languageStatusButton.label = "";
     return;
@@ -4478,7 +4488,7 @@ function updateLanguageInStatusBar() {
       languageStatusButton.label = item.getAttribute("label");
       break;
     }
-    item = item.nextSibling;
+    item = item.nextElementSibling;
   }
 }
 
@@ -5491,24 +5501,26 @@ function moveSelectedAttachments(aDirection) {
       for (let item of selItems) {
         // Handle adjacent selected items en block, via blockItems array.
         blockItems.push(item); // Add current selItem to blockItems.
-        let nextItem = item.nextSibling;
+        let nextItem = item.nextElementSibling;
         if (!nextItem || !nextItem.selected) {
           // If current selItem is the last blockItem, check out its adjacent
           // item in the intended direction to see if there's room for moving.
           // Note that the block might contain one or more items.
-          let checkItem = upwards ? blockItems[0].previousSibling : nextItem;
+          let checkItem = upwards
+            ? blockItems[0].previousElementSibling
+            : nextItem;
           // If block-adjacent checkItem exists (and is not selected because
           // then it would be part of the block), we can move the block to the
           // right position.
           if (checkItem) {
             targetItem = upwards
               ? // Upwards: Insert block items before checkItem,
-                // i.e. before previousSibling of block.
+                // i.e. before previousElementSibling of block.
                 checkItem
               : // Downwards: Insert block items *after* checkItem,
-                // i.e. *before* nextSibling.nextSibling of block,
+                // i.e. *before* nextElementSibling.nextElementSibling of block,
                 // which works according to spec even if that's null.
-                checkItem.nextSibling;
+                checkItem.nextElementSibling;
             // Move current blockItems.
             for (let blockItem of blockItems) {
               bucket.insertBefore(blockItem, targetItem);
@@ -5535,10 +5547,12 @@ function moveSelectedAttachments(aDirection) {
       ) {
         visibleIndex = bucket.itemCount - 1;
       } else if (upwards) {
-        visibleIndex = bucket.getIndexOfItem(selItems[0].previousSibling);
+        visibleIndex = bucket.getIndexOfItem(
+          selItems[0].previousElementSibling
+        );
       } else {
         visibleIndex = bucket.getIndexOfItem(
-          selItems[selItems.length - 1].nextSibling
+          selItems[selItems.length - 1].nextElementSibling
         );
       }
       break;
@@ -5569,7 +5583,7 @@ function moveSelectedAttachments(aDirection) {
             ? // Upwards: Insert before first list item.
               listEdgeItem
             : // Downwards: Insert after last list item, i.e.
-              // *before* non-existing listEdgeItem.nextSibling,
+              // *before* non-existing listEdgeItem.nextElementSibling,
               // which is null. It works because it's a feature.
               null;
           bucket.insertBefore(selEdgeItem, targetItem);
@@ -5592,7 +5606,9 @@ function moveSelectedAttachments(aDirection) {
           }
         } else {
           // If there's no targetItem yet, find the inner edge of the target block.
-          let nextItem = upwards ? item.nextSibling : item.previousSibling;
+          let nextItem = upwards
+            ? item.nextElementSibling
+            : item.previousElementSibling;
           if (!nextItem.selected) {
             // If nextItem is not selected, current selItem is the inner edge of
             // the initial anchor target block, so we can set targetItem.
@@ -5631,17 +5647,17 @@ function moveSelectedAttachments(aDirection) {
 
         // Find the end of the selected block to find our targetItem.
         for (let item of selItems) {
-          let nextItem = item.nextSibling;
+          let nextItem = item.nextElementSibling;
           if (!nextItem || !nextItem.selected) {
             // If there's no nextItem (block at list bottom), or nextItem is
             // not selected, we've reached the end of the block.
-            // Set the block's nextSibling as targetItem and exit loop.
-            // Works by definition even if nextSibling aka nextItem is null.
+            // Set the block's nextElementSibling as targetItem and exit loop.
+            // Works by definition even if nextElementSibling aka nextItem is null.
             targetItem = nextItem;
             break;
           }
           // else if (nextItem && nextItem.selected), nextItem is still part of
-          // the block, so proceed with checking its nextSibling.
+          // the block, so proceed with checking its nextElementSibling.
         } // next selItem
       } else {
         // Sort all attachments.
@@ -5661,7 +5677,7 @@ function moveSelectedAttachments(aDirection) {
         );
       }
 
-      // Insert sortItems in new order before the nextSibling of the block.
+      // Insert sortItems in new order before the nextElementSibling of the block.
       for (let item of sortItems) {
         bucket.insertBefore(item, targetItem);
       }
@@ -6482,9 +6498,9 @@ var envelopeDragObserver = {
           target.getBoundingClientRect().height <
         0.5
       ) {
-        target = bucket.firstChild;
+        target = bucket.firstElementChild;
       } else {
-        target = bucket.lastChild;
+        target = bucket.lastElementChild;
       }
       // We'll check below if this is a valid target.
     } else if (target.id == "attachmentBucketCount") {
@@ -6496,7 +6512,7 @@ var envelopeDragObserver = {
           target.getBoundingClientRect().height >=
         0.5
       ) {
-        target = bucket.firstChild;
+        target = bucket.firstElementChild;
         // We'll check below if this is a valid target.
       } else {
         // Top half of attachment list header: sorry, can't drop here.
@@ -6507,15 +6523,15 @@ var envelopeDragObserver = {
     // Target is an attachmentitem.
     if (target.matches("richlistitem.attachmentItem")) {
       // If we're dragging/dropping in bottom half of attachmentitem,
-      // adjust target to target.nextSibling (to show dropmarker above that).
+      // adjust target to target.nextElementSibling (to show dropmarker above that).
       if (
         (aEvent.screenY - target.screenY) /
           target.getBoundingClientRect().height >=
         0.5
       ) {
-        target = target.nextSibling;
+        target = target.nextElementSibling;
 
-        // If there's no target.nextSibling, we're dragging/dropping
+        // If there's no target.nextElementSibling, we're dragging/dropping
         // to the bottom of the list.
         if (!target) {
           // We can't move a bottom block selection to the bottom.
@@ -6529,7 +6545,7 @@ var envelopeDragObserver = {
       }
       // Check if the adjusted target attachmentitem is a valid target.
       let isBlock = attachmentsSelectionIsBlock();
-      let prevItem = target.previousSibling;
+      let prevItem = target.previousElementSibling;
       // If target is first list item, there's no previous sibling;
       // treat like unselected previous sibling.
       let prevSelected = prevItem ? prevItem.selected : false;
@@ -6559,7 +6575,7 @@ var envelopeDragObserver = {
     }
 
     if (targetItem == "afterLastItem") {
-      targetItem = bucket.lastChild;
+      targetItem = bucket.lastElementChild;
       targetItem.setAttribute("dropOn", "bottom");
     } else {
       targetItem.setAttribute("dropOn", "top");
@@ -6610,7 +6626,7 @@ var envelopeDragObserver = {
             // Original target is first item of first selected block.
             if (blockItems.includes(target)) {
               // Item is in first block: do nothing, find the end of the block.
-              let nextItem = item.nextSibling;
+              let nextItem = item.nextElementSibling;
               if (!nextItem || !nextItem.selected) {
                 // We've reached the end of the first block.
                 blockItems.length = 0;
@@ -6630,7 +6646,7 @@ var envelopeDragObserver = {
             } else if (blockItems.includes(target)) {
               // target is included in any selected block except first:
               // do nothing for that block, find its end.
-              let nextItem = item.nextSibling;
+              let nextItem = item.nextElementSibling;
               if (!nextItem || !nextItem.selected) {
                 // end of block containing target
                 blockItems.length = 0;
@@ -7744,8 +7760,8 @@ function getBrowser() {
 }
 
 function goUpdateMailMenuItems(commandset) {
-  for (let i = 0; i < commandset.childNodes.length; i++) {
-    let commandID = commandset.childNodes[i].getAttribute("id");
+  for (let i = 0; i < commandset.children.length; i++) {
+    let commandID = commandset.children[i].getAttribute("id");
     if (commandID) {
       goUpdateCommand(commandID);
     }
@@ -7843,7 +7859,9 @@ var gComposeNotificationBar = {
       label.appendChild(
         document.createElementNS("http://www.w3.org/1999/xhtml", "b")
       );
-      label.lastChild.appendChild(document.createTextNode(aIdentityName));
+      label.lastElementChild.appendChild(
+        document.createTextNode(aIdentityName)
+      );
       label.appendChild(document.createTextNode(text[1]));
       gNotification.notificationbox.appendNotification(
         label,
@@ -7872,9 +7890,8 @@ function onBlockedContentOptionsShowing(aEvent) {
   let urls = aEvent.target.value ? aEvent.target.value.split(" ") : [];
 
   // Out with the old...
-  let childNodes = aEvent.target.childNodes;
-  for (let i = childNodes.length - 1; i >= 0; i--) {
-    childNodes[i].remove();
+  while (aEvent.target.lastChild) {
+    aEvent.target.lastChild.remove();
   }
 
   // ... and in with the new.

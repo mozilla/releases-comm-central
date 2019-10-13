@@ -2974,8 +2974,8 @@ function FillAttachmentListPopup(aEvent, aPopup) {
 // Public method used to clear the file attachment menu
 function ClearAttachmentMenu(popup) {
   if (popup) {
-    while (popup.firstChild.localName == "menu") {
-      popup.firstChild.remove();
+    while (popup.firstElementChild.localName == "menu") {
+      popup.firstElementChild.remove();
     }
   }
 }
@@ -3008,7 +3008,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
 
   // find the separator
   var indexOfSeparator = 0;
-  while (popup.childNodes[indexOfSeparator].localName != "menuseparator") {
+  while (popup.children[indexOfSeparator].localName != "menuseparator") {
     indexOfSeparator++;
   }
   // We increment the attachmentIndex here since we only use it for the
@@ -3037,7 +3037,7 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   // Due to Bug #314228, we must append our menupopup to the new attachment
   // menu item before we inserting the attachment menu into the popup. If we
   // don't, our attachment menu items will not show up.
-  item = popup.insertBefore(item, popup.childNodes[indexOfSeparator]);
+  item = popup.insertBefore(item, popup.children[indexOfSeparator]);
 
   if (attachment.isExternalAttachment) {
     if (!attachment.hasFile) {

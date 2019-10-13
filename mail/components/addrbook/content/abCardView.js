@@ -273,7 +273,7 @@ function DisplayCardViewPane(realCard) {
   visible =
     cvSetNode(data.cvHomeCountry, card.getProperty("HomeCountry")) || visible;
 
-  let mapURLList = data.cvHomeMapIt.firstChild;
+  let mapURLList = data.cvHomeMapIt.firstElementChild;
   if (visible) {
     mapURLList.initMapAddressFromCard(card, "Home");
   }
@@ -456,7 +456,7 @@ function DisplayCardViewPane(realCard) {
     cvSetNode(data.cvWorkCountry, card.getProperty("WorkCountry")) ||
     addressVisible;
 
-  mapURLList = data.cvWorkMapIt.firstChild;
+  mapURLList = data.cvWorkMapIt.firstElementChild;
   if (addressVisible) {
     mapURLList.initMapAddressFromCard(card, "Work");
   }

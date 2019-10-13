@@ -54,7 +54,7 @@ function Startup() {
       imageElement
     );
     if (anchorElement) {
-      if (anchorElement.childNodes.length > 1) {
+      if (anchorElement.children.length > 1) {
         // If there are other children, then we want to break
         //  this image away by inserting a new link around it,
         //  so make a new node and copy existing attributes
@@ -134,16 +134,7 @@ function Startup() {
       selectedText = GetSelectionAsText();
       if (!selectedText) {
         // No text, look for first image in the selection
-        var children = anchorElement.childNodes;
-        if (children) {
-          for (var i = 0; i < children.length; i++) {
-            var nodeName = children.item(i).nodeName.toLowerCase();
-            if (nodeName == "img") {
-              imageElement = children.item(i);
-              break;
-            }
-          }
-        }
+        imageElement = anchorElement.querySelector("img");
       }
     }
     // Set "caption" for link source and the source text or image URL

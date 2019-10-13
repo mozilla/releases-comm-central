@@ -177,7 +177,7 @@ function removeChildren(aElement) {
     aElement = document.getElementById(aElement);
   }
 
-  while (aElement.firstChild) {
+  while (aElement.lastChild) {
     aElement.lastChild.remove();
   }
 }
@@ -307,8 +307,8 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
  *                            'aFilterValue' set.
  */
 function setAttributeToChildren(aParent, aAttribute, aValue, aFilterAttribute, aFilterValue) {
-  for (let i = 0; i < aParent.childNodes.length; i++) {
-    let element = aParent.childNodes[i];
+  for (let i = 0; i < aParent.children.length; i++) {
+    let element = aParent.children[i];
     if (aFilterAttribute == null) {
       setElementValue(element, aValue, aAttribute);
     } else if (element.hasAttribute(aFilterAttribute)) {
@@ -406,7 +406,7 @@ function menuListSelectItem(menuListId, value) {
  * @return              The child index of the node that matches, or -1.
  */
 function menuListIndexOf(menuList, value) {
-  let items = menuList.menupopup.childNodes;
+  let items = menuList.menupopup.children;
   let index = -1;
   for (let i = 0; i < items.length; i++) {
     let element = items[i];

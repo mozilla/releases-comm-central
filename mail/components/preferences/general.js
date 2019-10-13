@@ -236,7 +236,10 @@ var gGeneralPane = {
       let item = document.createXULElement("menuitem");
       item.setAttribute("label", "");
       item.setAttribute("value", "");
-      menulist.menupopup.insertBefore(item, menulist.menupopup.firstChild);
+      menulist.menupopup.insertBefore(
+        item,
+        menulist.menupopup.firstElementChild
+      );
       menulist.selectedIndex = 0;
     }
 
@@ -905,7 +908,9 @@ var gGeneralPane = {
       }
     }
 
-    let defaultValue = element.firstChild.firstChild.getAttribute("value");
+    let defaultValue = element.firstElementChild.firstElementChild.getAttribute(
+      "value"
+    );
     let languagePref = Preferences.get("font.language.group");
     let defaultType = this._readDefaultFontTypeForLanguage(languagePref.value);
     let listPref = Preferences.get(
@@ -2066,7 +2071,7 @@ var gGeneralPane = {
       if (handlerApp) {
         let typeItem = this._list.selectedItem;
         let actionsMenu = typeItem.querySelector(".actionsMenu");
-        let menuItems = actionsMenu.menupopup.childNodes;
+        let menuItems = actionsMenu.menupopup.children;
         for (let i = 0; i < menuItems.length; i++) {
           let menuItem = menuItems[i];
           if (menuItem.handlerApp && menuItem.handlerApp.equals(handlerApp)) {
@@ -2334,7 +2339,7 @@ class HandlerListItem {
 
   connectAndAppendToList(list) {
     list.appendChild(document.importNode(gHandlerListItemFragment, true));
-    this.node = list.lastChild;
+    this.node = list.lastElementChild;
     gNodeToObjectMap.set(this.node, this);
 
     this.node

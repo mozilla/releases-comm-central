@@ -2487,11 +2487,9 @@ function deleteAllAttachments() {
   }
 
   if (canRemove) {
-    let child;
-    while (documentLink.hasChildNodes()) {
-      child = documentLink.lastChild;
-      child.attachment = null;
-      child.remove();
+    while (documentLink.lastChild) {
+      documentLink.lastChild.attachment = null;
+      documentLink.lastChild.remove();
     }
     gAttachMap = {};
   }
@@ -2716,9 +2714,9 @@ function updateCalendar() {
       document.getElementById("item-repeat").setAttribute("disabled", "true");
       document.getElementById("repeat-until-datepicker").setAttribute("disabled", "true");
       let repeatDetails = document.getElementById("repeat-details");
-      let numChilds = repeatDetails.childNodes.length;
+      let numChilds = repeatDetails.children.length;
       for (let i = 0; i < numChilds; i++) {
-        let node = repeatDetails.childNodes[i];
+        let node = repeatDetails.children[i];
         node.setAttribute("disabled", "true");
         node.removeAttribute("class");
         node.removeAttribute("onclick");
@@ -3464,8 +3462,8 @@ function showTimezonePopup(event, dateTime, editFunc) {
   timezoneDefaultItem.label = defaultTimezone.displayName;
 
   // Clear out any old recent timezones
-  while (timezoneDefaultItem.nextSibling != timezoneSeparator) {
-    timezoneDefaultItem.nextSibling.remove();
+  while (timezoneDefaultItem.nextElementSibling != timezoneSeparator) {
+    timezoneDefaultItem.nextElementSibling.remove();
   }
 
   // Fill in the new recent timezones
@@ -3473,7 +3471,7 @@ function showTimezonePopup(event, dateTime, editFunc) {
     let menuItem = document.createXULElement("menuitem");
     menuItem.setAttribute("value", timezone.tzid);
     menuItem.setAttribute("label", timezone.displayName);
-    timezonePopup.insertBefore(menuItem, timezoneDefaultItem.nextSibling);
+    timezonePopup.insertBefore(menuItem, timezoneDefaultItem.nextElementSibling);
   }
 
   // Show the popup
@@ -3923,17 +3921,17 @@ function updateRepeatDetails() {
     // Now display the string...
     let lines = detailsString.split("\n");
     repeatDetails.removeAttribute("collapsed");
-    while (repeatDetails.childNodes.length > lines.length) {
+    while (repeatDetails.children.length > lines.length) {
       repeatDetails.lastChild.remove();
     }
-    let numChilds = repeatDetails.childNodes.length;
+    let numChilds = repeatDetails.children.length;
     for (let i = 0; i < lines.length; i++) {
       if (i >= numChilds) {
-        let newNode = repeatDetails.childNodes[0].cloneNode(true);
+        let newNode = repeatDetails.children[0].cloneNode(true);
         repeatDetails.appendChild(newNode);
       }
-      repeatDetails.childNodes[i].value = lines[i];
-      repeatDetails.childNodes[i].setAttribute("tooltiptext", detailsString);
+      repeatDetails.children[i].value = lines[i];
+      repeatDetails.children[i].setAttribute("tooltiptext", detailsString);
     }
   } else {
     let repeatDetails = document.getElementById("repeat-details");
@@ -3978,7 +3976,7 @@ function setAttendeeContext(aEvent) {
     // we just need the option to open the attendee dialog in this case
     let popup = document.getElementById("attendee-popup");
     let invite = document.getElementById("attendee-popup-invite-menuitem");
-    for (let node of popup.childNodes) {
+    for (let node of popup.children) {
       if (node == invite) {
         node.removeAttribute("hidden");
       } else {
@@ -4196,13 +4194,13 @@ function displayCounterProposal() {
       let value = formatCounterValue(proposal);
       if (label && value) {
         // setup label node
-        let propLabel = propLabels.firstChild.cloneNode(false);
+        let propLabel = propLabels.firstElementChild.cloneNode(false);
         propLabel.id = propLabel.id + "-" + idCounter;
         propLabel.control = propLabel.control + "-" + idCounter;
         propLabel.removeAttribute("collapsed");
         propLabel.value = label;
         // setup value node
-        let propValue = propValues.firstChild.cloneNode(false);
+        let propValue = propValues.firstElementChild.cloneNode(false);
         propValue.id = propLabel.control;
         propValue.removeAttribute("collapsed");
         propValue.value = value;

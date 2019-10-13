@@ -125,14 +125,14 @@ function moveItem(up) {
     ? gListbox.getPreviousItem(selectedItem, 1)
     : gListbox.getNextItem(selectedItem, 1);
 
-  var tmpLabel = swapPartner.lastChild.getAttribute("value");
-  swapPartner.lastChild.setAttribute(
+  var tmpLabel = swapPartner.lastElementChild.getAttribute("value");
+  swapPartner.lastElementChild.setAttribute(
     "value",
-    selectedItem.lastChild.getAttribute("value")
+    selectedItem.lastElementChild.getAttribute("value")
   );
-  selectedItem.lastChild.setAttribute("value", tmpLabel);
+  selectedItem.lastElementChild.setAttribute("value", tmpLabel);
 
-  var newItemPosition = up ? selectedItem.nextSibling : selectedItem;
+  var newItemPosition = up ? selectedItem.nextElementSibling : selectedItem;
   gListbox.insertBefore(swapPartner, newItemPosition);
   gListbox.ensureElementIsVisible(selectedItem);
   disableMoveButtons();
@@ -149,7 +149,10 @@ function ShowSampleData(data) {
   for (var i = 0; i < gListbox.getRowCount(); i++) {
     gListbox
       .getItemAtIndex(i)
-      .lastChild.setAttribute("value", i < fields.length ? fields[i] : "");
+      .lastElementChild.setAttribute(
+        "value",
+        i < fields.length ? fields[i] : ""
+      );
   }
 }
 

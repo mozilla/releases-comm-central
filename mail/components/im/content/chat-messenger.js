@@ -422,8 +422,8 @@ var chatHandler = {
       gChatTab.tabNode.selected &&
       (!selectedItem ||
         (selectedItem == convs &&
-          convs.nextSibling.localName != "richlistitem" &&
-          convs.nextSibling.getAttribute("is") != "chat-imconv"));
+          convs.nextElementSibling.localName != "richlistitem" &&
+          convs.nextElementSibling.getAttribute("is") != "chat-imconv"));
     let elt = convs.addContact(aConv, "imconv");
     if (shouldSelect) {
       list.selectedItem = elt;
@@ -1161,7 +1161,7 @@ var chatHandler = {
 
     let firstConv;
     let convs = document.getElementById("conversationsGroup");
-    let conv = convs.nextSibling;
+    let conv = convs.nextElementSibling;
     while (conv.id != "searchResultConv") {
       if (!firstConv) {
         firstConv = conv;
@@ -1171,7 +1171,7 @@ var chatHandler = {
         list.selectedItem = conv;
         return;
       }
-      conv = conv.nextSibling;
+      conv = conv.nextElementSibling;
     }
 
     // No unread messages, select the first conversation, but only if

@@ -832,7 +832,7 @@ var specialTabs = {
       // First clone the page and set up the basics.
       let clone = document
         .getElementById("contentTab")
-        .firstChild.cloneNode(true);
+        .firstElementChild.cloneNode(true);
 
       if ("opener" in aArgs && aArgs.opener) {
         clone.querySelector("browser").presetOpenerWindow(aArgs.opener);
@@ -847,9 +847,9 @@ var specialTabs = {
       clone.setAttribute("id", "contentTab" + this.lastBrowserId);
       clone.setAttribute("collapsed", false);
 
-      let toolbox = clone.firstChild;
+      let toolbox = clone.firstElementChild;
       toolbox.setAttribute("id", "contentTabToolbox" + this.lastBrowserId);
-      toolbox.firstChild.setAttribute(
+      toolbox.firstElementChild.setAttribute(
         "id",
         "contentTabToolbar" + this.lastBrowserId
       );
@@ -1387,14 +1387,14 @@ var specialTabs = {
       // First clone the page and set up the basics.
       let clone = document
         .getElementById("chromeTab")
-        .firstChild.cloneNode(true);
+        .firstElementChild.cloneNode(true);
 
       clone.setAttribute("id", "chromeTab" + this.lastBrowserId);
       clone.setAttribute("collapsed", false);
 
-      let toolbox = clone.firstChild;
+      let toolbox = clone.firstElementChild;
       toolbox.setAttribute("id", "chromeTabToolbox" + this.lastBrowserId);
-      toolbox.firstChild.setAttribute(
+      toolbox.firstElementChild.setAttribute(
         "id",
         "chromeTabToolbar" + this.lastBrowserId
       );

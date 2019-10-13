@@ -1020,7 +1020,7 @@ function onFreebusyTimebarInit() {
   template.endDate = timebar.mEndDate;
   template.date = date;
   let parent = template.parentNode;
-  if (parent.childNodes.length <= 1) {
+  if (parent.children.length <= 1) {
     let count = timebar.mNumDays - 1;
     if (count > 0) {
       for (let i = 0; i < count; i++) {

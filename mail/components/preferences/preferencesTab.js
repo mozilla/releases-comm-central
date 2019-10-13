@@ -76,7 +76,7 @@ var preferencesTabType = {
     // First clone the page and set up the basics.
     let clone = document
       .getElementById("preferencesTab")
-      .firstChild.cloneNode(true);
+      .firstElementChild.cloneNode(true);
 
     clone.setAttribute("id", "preferencesTab" + this.lastBrowserId);
     clone.setAttribute("collapsed", false);

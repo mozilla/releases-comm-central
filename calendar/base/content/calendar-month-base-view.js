@@ -399,9 +399,9 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
      */
     relayout() {
       // Adjust headers based on the starting day of the week, if necessary.
-      if (this.labeldaybox.firstChild.weekDay != this.weekStartOffset) {
-        for (let i = 0; i < this.labeldaybox.childNodes.length; i++) {
-          this.labeldaybox.childNodes[i].weekDay = (i + this.weekStartOffset) % 7;
+      if (this.labeldaybox.firstElementChild.weekDay != this.weekStartOffset) {
+        for (let i = 0; i < this.labeldaybox.children.length; i++) {
+          this.labeldaybox.children[i].weekDay = (i + this.weekStartOffset) % 7;
         }
       }
 
@@ -436,7 +436,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       const rows = this.monthgrid.children;
 
       // Iterate through each monthgridrow and set up the day-boxes that
-      // are its child nodes.  Remember, childNodes is not a normal array,
+      // are its child nodes.  Remember, children is not a normal array,
       // so don't use the in operator if you don't want extra properties
       // coming out.
       for (let i = 0; i < rows.length; i++) {
@@ -447,15 +447,15 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
         if (finished) {
           continue;
         }
-        for (let j = 0; j < row.childNodes.length; j++) {
-          const daybox = row.childNodes[j].firstChild;
+        for (let j = 0; j < row.children.length; j++) {
+          const daybox = row.children[j].firstElementChild;
           const date = dateList[dateBoxes.length];
 
           // Remove the attribute "relation" for all the column headers.
           // Consider only the first row index otherwise it will be
           // removed again afterwards the correct setting.
           if (i == 0) {
-            this.labeldaybox.childNodes[j].removeAttribute("relation");
+            this.labeldaybox.children[j].removeAttribute("relation");
           }
 
           daybox.setAttribute("context", this.getAttribute("context"));
@@ -486,7 +486,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
               break;
             case 0:
               daybox.setAttribute("relation", "today");
-              this.labeldaybox.childNodes[j].setAttribute("relation", "today");
+              this.labeldaybox.children[j].setAttribute("relation", "today");
               break;
             case 1:
               daybox.setAttribute("relation", "future");
@@ -575,8 +575,8 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       const rows = this.monthgrid.children;
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        for (let j = 0; j < row.childNodes.length; j++) {
-          const daybox = row.childNodes[j].firstChild;
+        for (let j = 0; j < row.children.length; j++) {
+          const daybox = row.children[j].firstElementChild;
           const weekLabel = daybox.querySelector("[data-label='week']");
           weekLabel.hidden = true;
         }
@@ -587,7 +587,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
      * Hide the days off.
      */
     hideDaysOff() {
-      const headerkids = this.querySelector(".labeldaybox").childNodes;
+      const headerkids = this.querySelector(".labeldaybox").children;
       const rows = this.monthgrid.children;
 
       const lastColNum = rows[0].children.length - 1;

@@ -138,15 +138,15 @@ function test_fixIterator() {
  */
 function test_toArray_NodeList() {
   let xml = parse_xml_file("nodelist_test.xml");
-  let rootNode = xml.firstChild;
+  let rootNode = xml.firstElementChild;
   // Sanity check -- rootNode should have tag "rootnode"
   Assert.equal(rootNode.tagName, "rootnode");
-  // childNodes is a NodeList
-  let childNodes = rootNode.childNodes;
+  // children is a NodeList
+  let children = rootNode.children;
   // Make sure we have at least one child node
-  Assert.ok(childNodes.length > 0);
-  let childArray = iteratorUtils.toArray(childNodes);
-  Assert.equal(childNodes.length, childArray.length);
+  Assert.ok(children.length > 0);
+  let childArray = iteratorUtils.toArray(children);
+  Assert.equal(children.length, childArray.length);
   for (let [i, node] of childArray.entries()) {
     Assert.equal(node, childArray[i]);
   }

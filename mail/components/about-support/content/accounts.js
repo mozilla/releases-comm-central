@@ -196,9 +196,9 @@ function createElement(tagName, textContent, opt_attributes, opt_copyData) {
   return elem;
 }
 
-function appendChildren(parentElem, childNodes) {
-  for (let i = 0; i < childNodes.length; i++) {
-    parentElem.appendChild(childNodes[i]);
+function appendChildren(parentElem, children) {
+  for (let i = 0; i < children.length; i++) {
+    parentElem.appendChild(children[i]);
   }
 }
 

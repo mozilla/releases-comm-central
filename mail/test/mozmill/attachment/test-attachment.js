@@ -535,7 +535,7 @@ function test_delete_attachment_key() {
   // Expand the attachment list.
   mc.click(mc.eid("attachmentToggle"));
 
-  let firstAttachment = new elib.Elem(mc.e("attachmentList").firstChild);
+  let firstAttachment = new elib.Elem(mc.e("attachmentList").firstElementChild);
   mc.click(firstAttachment, 5, 5);
 
   // Try deleting with the delete key
@@ -647,7 +647,7 @@ function test_delete_from_toolbar() {
   // Expand the attachment list.
   mc.click(mc.eid("attachmentToggle"));
 
-  let firstAttachment = new elib.Elem(mc.e("attachmentList").firstChild);
+  let firstAttachment = new elib.Elem(mc.e("attachmentList").firstElementChild);
   mc.click(firstAttachment, 5, 5);
 
   // Make sure clicking the "Delete" toolbar button with an attachment focused

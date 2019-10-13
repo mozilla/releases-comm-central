@@ -49,7 +49,7 @@ var DownloadsView = {
       return b.startTime - a.startTime;
     };
 
-    let at = this.listElement.firstChild;
+    let at = this.listElement.firstElementChild;
     while (at && compare(aItem.download, at.download) > 0) {
       at = at.nextElementSibling;
     }

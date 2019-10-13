@@ -92,7 +92,7 @@ function searchOnLoad() {
     SelectDirectory(window.arguments[0].directory);
   } else {
     SelectDirectory(
-      document.getElementById("abPopup-menupopup").firstChild.value
+      document.getElementById("abPopup-menupopup").firstElementChild.value
     );
   }
 

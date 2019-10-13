@@ -70,7 +70,7 @@
       this.addEventListener("popuphiding", event => {
         // Clear out the menu popup and remove the listeners.
         while (this.hasChildNodes()) {
-          let menuItem = this.lastChild;
+          let menuItem = this.lastElementChild;
           menuItem.removeEventListener("command", this);
           menuItem.tab.removeEventListener("TabClose", this);
           menuItem.tab.mCorrespondingMenuitem = null;
@@ -127,16 +127,16 @@
 
       let tabStripBox = tabStrip.getBoundingClientRect();
 
-      for (let i = 0; i < this.childNodes.length; i++) {
-        let currentTabBox = this.childNodes[i].tab.getBoundingClientRect();
+      for (let i = 0; i < this.children.length; i++) {
+        let currentTabBox = this.children[i].tab.getBoundingClientRect();
 
         if (
           currentTabBox.left >= tabStripBox.left &&
           currentTabBox.right <= tabStripBox.right
         ) {
-          this.childNodes[i].setAttribute("tabIsVisible", "true");
+          this.children[i].setAttribute("tabIsVisible", "true");
         } else {
-          this.childNodes[i].removeAttribute("tabIsVisible");
+          this.children[i].removeAttribute("tabIsVisible");
         }
       }
     }
@@ -692,7 +692,7 @@
       event.target.setAttribute(
         "label",
         tab.mOverCloseButton
-          ? tab.firstChild.getAttribute("closetabtext")
+          ? tab.firstElementChild.getAttribute("closetabtext")
           : tab.getAttribute("label")
       );
     }

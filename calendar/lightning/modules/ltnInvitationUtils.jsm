@@ -302,9 +302,12 @@ ltn.invitation = {
      */
     function _content2Child(aToNode, aType, aText = "", aClear = true) {
       let nodeDoc = aToNode.ownerDocument;
-      if (aClear && aToNode.hasChildNodes()) {
-        aToNode.firstChild.remove();
+      if (aClear) {
+        while (aToNode.lastChild) {
+          aToNode.lastChild.remove();
+        }
       }
+
       let n = nodeDoc.createElement(aType.toLowerCase() == "newline" ? "br" : "span");
       switch (aType) {
         case "added":

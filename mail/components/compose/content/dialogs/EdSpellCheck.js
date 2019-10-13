@@ -139,8 +139,8 @@ function InitLanguageMenu(aCurLang) {
 
   // Remove any languages from the list.
   var languageMenuPopup = gDialog.LanguageMenulist.menupopup;
-  while (languageMenuPopup.firstChild.localName != "menuseparator") {
-    languageMenuPopup.firstChild.remove();
+  while (languageMenuPopup.firstElementChild.localName != "menuseparator") {
+    languageMenuPopup.firstElementChild.remove();
   }
 
   var defaultItem = null;

@@ -54,7 +54,7 @@ async function populateFingers(context, theirs, trust) {
 
   let opts = document.getElementById("verifiedOption");
   let verified = trust ? "yes" : "no";
-  for (let item of opts.menupopup.childNodes) {
+  for (let item of opts.menupopup.children) {
     if (verified === item.value) {
       opts.selectedItem = item;
       break;

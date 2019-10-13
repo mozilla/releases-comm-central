@@ -73,7 +73,7 @@ var gViewsPane = {
    * @param aStartValue       The value selected for view start.
    */
   updateViewEndMenu: function(aStartValue) {
-    let endMenuKids = document.getElementById("dayendhourpopup").childNodes;
+    let endMenuKids = document.getElementById("dayendhourpopup").children;
     for (let i = 0; i < endMenuKids.length; i++) {
       if (Number(endMenuKids[i].value) <= Number(aStartValue)) {
         endMenuKids[i].setAttribute("hidden", true);
@@ -90,7 +90,7 @@ var gViewsPane = {
    * @param aEndValue         The value selected for view end.
    */
   updateViewStartMenu: function(aEndValue) {
-    let startMenuKids = document.getElementById("daystarthourpopup").childNodes;
+    let startMenuKids = document.getElementById("daystarthourpopup").children;
     for (let i = 0; i < startMenuKids.length; i++) {
       if (Number(startMenuKids[i].value) >= Number(aEndValue)) {
         startMenuKids[i].setAttribute("hidden", true);

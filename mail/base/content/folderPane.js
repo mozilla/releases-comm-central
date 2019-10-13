@@ -516,7 +516,7 @@ var gFolderTreeView = {
     }
 
     let modeSelector = document.getElementById("folderpane-mode-selector")
-      .firstChild;
+      .firstElementChild;
     // Can't use modeSelector.removeAllItems() here as it would remove the menupopup too, with its attributes.
     while (modeSelector.menupopup.hasChildNodes()) {
       modeSelector.menupopup.lastChild.remove();
@@ -564,7 +564,7 @@ var gFolderTreeView = {
       if (!modeSelector.querySelector('[value="' + aMode + '"]')) {
         this._initFolderModeSelector();
       }
-      modeSelector.firstChild.value = aMode;
+      modeSelector.firstElementChild.value = aMode;
     }
   },
 
@@ -2363,8 +2363,8 @@ var gFolderTreeView = {
         );
       } else {
         // otherwise, go after the last child
-        let lastChild = aParent._children[newChildNum - 1];
-        let lastChildIndex = this.getIndexOfFolder(lastChild._folder);
+        let lastElementChild = aParent._children[newChildNum - 1];
+        let lastChildIndex = this.getIndexOfFolder(lastElementChild._folder);
         newChildIndex = Number(lastChildIndex) + 1;
         while (
           newChildIndex < this.rowCount &&

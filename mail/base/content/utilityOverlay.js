@@ -73,7 +73,7 @@ function goUpdateFindTypeMenuItems() {
 // Gather all descendent text under given document node.
 function gatherTextUnder(root) {
   var text = "";
-  var node = root.firstChild;
+  var node = root.firstElementChild;
   var depth = 1;
   while (node && depth > 0) {
     // See if this node is text.
@@ -91,18 +91,18 @@ function gatherTextUnder(root) {
     // First, see if this node has children.
     if (node.hasChildNodes()) {
       // Go to first child.
-      node = node.firstChild;
+      node = node.firstElementChild;
       depth++;
-    } else if (node.nextSibling) {
+    } else if (node.nextElementSibling) {
       // No children, try next sibling.
-      node = node.nextSibling;
+      node = node.nextElementSibling;
     } else {
       // Last resort is a sibling of an ancestor.
       while (node && depth > 0) {
         node = node.parentNode;
         depth--;
-        if (node.nextSibling) {
-          node = node.nextSibling;
+        if (node.nextElementSibling) {
+          node = node.nextElementSibling;
           break;
         }
       }

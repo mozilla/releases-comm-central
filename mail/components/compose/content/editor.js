@@ -106,16 +106,16 @@ function ShowHideToolbarSeparators(toolbar) {
   if (!toolbar) {
     return;
   }
-  var childNodes = toolbar.childNodes;
+  var children = toolbar.children;
   var separator = null;
   var hideSeparator = true;
-  for (var i = 0; childNodes[i].localName != "spacer"; i++) {
-    if (childNodes[i].localName == "toolbarseparator") {
+  for (var i = 0; children[i].localName != "spacer"; i++) {
+    if (children[i].localName == "toolbarseparator") {
       if (separator) {
         separator.hidden = true;
       }
-      separator = childNodes[i];
-    } else if (!childNodes[i].hidden) {
+      separator = children[i];
+    } else if (!children[i].hidden) {
       if (separator) {
         separator.hidden = hideSeparator;
       }
@@ -712,7 +712,7 @@ function onParagraphFormatChange(paraMenuList, commandID) {
     paraMenuList.setAttribute("label", GetString("Mixed"));
   } else {
     var menuPopup = document.getElementById("ParagraphPopup");
-    var menuItems = menuPopup.childNodes;
+    var menuItems = menuPopup.children;
     for (var i = 0; i < menuItems.length; i++) {
       var menuItem = menuItems.item(i);
       if ("value" in menuItem && menuItem.value == state) {
@@ -761,7 +761,7 @@ function onFontFaceChange(fontFaceMenuList, commandID) {
   }
 
   let menuPopup = fontFaceMenuList.menupopup;
-  let menuItems = menuPopup.childNodes;
+  let menuItems = menuPopup.children;
 
   const genericFamilies = [
     "serif",
@@ -856,7 +856,7 @@ function onFontFaceChange(fontFaceMenuList, commandID) {
         // We insert after the separator following the default fonts,
         // so right at the beginning of the used fonts section.
         let copyItem = foundFont.cloneNode(true);
-        menuPopup.insertBefore(copyItem, defaultFontsSep.nextSibling);
+        menuPopup.insertBefore(copyItem, defaultFontsSep.nextElementSibling);
         usedFontsSep.hidden = false;
         foundFont = copyItem;
         foundFont.setAttribute("used", "true");
@@ -901,7 +901,7 @@ function onFontFaceChange(fontFaceMenuList, commandID) {
       if (!foundFont.hasAttribute("used")) {
         foundFont.setAttribute("used", "true");
         usedFontsSep.hidden = false;
-        menuPopup.insertBefore(foundFont, defaultFontsSep.nextSibling);
+        menuPopup.insertBefore(foundFont, defaultFontsSep.nextElementSibling);
       }
     }
   } else {
@@ -926,7 +926,7 @@ function ClearUsedFonts() {
   );
   for (let userFontSep of userFontSeps) {
     while (true) {
-      let nextNode = userFontSep.nextSibling;
+      let nextNode = userFontSep.nextElementSibling;
       if (nextNode.tagName != "menuseparator") {
         nextNode.remove();
       } else if (nextNode.classList.contains("fontFaceMenuAfterUsedFonts")) {
@@ -1004,7 +1004,7 @@ function initFontFaceMenu(menuPopup) {
   initLocalFontFaceMenu(menuPopup);
 
   if (menuPopup) {
-    var children = menuPopup.childNodes;
+    var children = menuPopup.children;
     if (!children) {
       return;
     }
@@ -1106,7 +1106,7 @@ function initLocalFontFaceMenu(menuPopup) {
   // Don't use radios for menulists.
   let useRadioMenuitems = menuPopup.parentNode.localName == "menu";
   menuPopup.setAttribute("useRadios", useRadioMenuitems);
-  if (menuPopup.childNodes.length == kFixedFontFaceMenuItems) {
+  if (menuPopup.children.length == kFixedFontFaceMenuItems) {
     if (gLocalFonts.length == 0) {
       menuPopup.querySelector(".fontFaceMenuAfterDefaultFonts").hidden = true;
     }
@@ -1222,7 +1222,7 @@ function getFontSizeIndex() {
 
 function initFontSizeMenu(menuPopup, fullMenu) {
   if (menuPopup) {
-    var children = menuPopup.childNodes;
+    var children = menuPopup.children;
     if (!children) {
       return;
     }
@@ -1243,7 +1243,7 @@ function initFontSizeMenu(menuPopup, fullMenu) {
 
     // Some configurations might not have the "small/big" indicator as
     // last item. If there is no indicator, we are done.
-    if (!menuPopup.lastChild.id.includes("smallBigInfo")) {
+    if (!menuPopup.lastElementChild.id.includes("smallBigInfo")) {
       return;
     }
 
@@ -1265,11 +1265,11 @@ function initFontSizeMenu(menuPopup, fullMenu) {
     }
 
     if (htmlInfo) {
-      menuPopup.lastChild.hidden = false;
-      menuPopup.lastChild.setAttribute("label", "HTML: " + htmlInfo);
-      menuPopup.lastChild.setAttribute("checked", true);
+      menuPopup.lastElementChild.hidden = false;
+      menuPopup.lastElementChild.setAttribute("label", "HTML: " + htmlInfo);
+      menuPopup.lastElementChild.setAttribute("checked", true);
     } else {
-      menuPopup.lastChild.hidden = true;
+      menuPopup.lastElementChild.hidden = true;
     }
   }
 }
@@ -2436,9 +2436,7 @@ function EditorSetDefaultPrefsAndDoctype() {
   let headelement = domdoc.querySelector("head");
   if (!headelement) {
     headelement = domdoc.createElement("head");
-    if (headelement) {
-      domdoc.insertAfter(headelement, domdoc.firstChild);
-    }
+    domdoc.insertAfter(headelement, domdoc.firstChild);
   }
 
   /* only set default prefs for new documents */
@@ -2602,8 +2600,8 @@ function EditorSetSelectionFromOffsets(selRanges) {
 
 // --------------------------------------------------------------------
 function initFontStyleMenu(menuPopup) {
-  for (var i = 0; i < menuPopup.childNodes.length; i++) {
-    var menuItem = menuPopup.childNodes[i];
+  for (var i = 0; i < menuPopup.children.length; i++) {
+    var menuItem = menuPopup.children[i];
     var theStyle = menuItem.getAttribute("state");
     if (theStyle) {
       menuItem.setAttribute("checked", theStyle);
@@ -2834,8 +2832,8 @@ function goUpdateTableMenuItems(commandset) {
   }
 
   // Loop through command nodes
-  for (var i = 0; i < commandset.childNodes.length; i++) {
-    var commandID = commandset.childNodes[i].getAttribute("id");
+  for (var i = 0; i < commandset.children.length; i++) {
+    var commandID = commandset.children[i].getAttribute("id");
     if (commandID) {
       if (
         commandID == "cmd_InsertTable" ||
@@ -3240,7 +3238,7 @@ function UpdateStructToolbar() {
     button.setAttribute("context", "structToolbarContext");
     button.className = "struct-button";
 
-    toolbar.insertBefore(button, toolbar.firstChild);
+    toolbar.insertBefore(button, toolbar.firstElementChild);
 
     button.addEventListener("command", newCommandListener(element));
 
@@ -3308,8 +3306,8 @@ function GetSelectionContainer() {
         range.startOffset == range.startContainer.length &&
         range.endContainer.nodeType == Node.TEXT_NODE &&
         range.endOffset == range.endContainer.length &&
-        range.endContainer.nextSibling == null &&
-        range.startContainer.nextSibling == range.endContainer.parentNode
+        range.endContainer.nextElementSibling == null &&
+        range.startContainer.nextElementSibling == range.endContainer.parentNode
       ) {
         result.node = range.endContainer.parentNode;
       }

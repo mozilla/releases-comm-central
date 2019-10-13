@@ -212,14 +212,14 @@
     set selected(val) {
       this.mSelected = val;
       if (this.bgbox && this.bgbox.hasChildNodes()) {
-        let child = this.bgbox.firstChild;
+        let child = this.bgbox.firstElementChild;
         while (child) {
           if (val) {
             child.setAttribute("selected", "true");
           } else {
             child.removeAttribute("selected");
           }
-          child = child.nextSibling;
+          child = child.nextElementSibling;
         }
       }
       return val;
@@ -1119,13 +1119,13 @@
       let lastCol = this; // eslint-disable-line consistent-this
       let firstIndex = offset == null ? this.mDragState.offset : offset;
       let lastIndex = firstIndex;
-      while (firstCol.previousSibling && firstIndex > 0) {
-        firstCol = firstCol.previousSibling;
+      while (firstCol.previousElementSibling && firstIndex > 0) {
+        firstCol = firstCol.previousElementSibling;
         firstIndex--;
       }
       let lastShadow = shadows == null ? this.mDragState.shadows : shadows;
-      while (lastCol.nextSibling && lastIndex < lastShadow - 1) {
-        lastCol = lastCol.nextSibling;
+      while (lastCol.nextElementSibling && lastIndex < lastShadow - 1) {
+        lastCol = lastCol.nextElementSibling;
         lastIndex++;
       }
 
@@ -1151,17 +1151,17 @@
       // next/previous day. This happens when current offset is different
       // from offset stored in mDragState.
       if (aCurrentOffset != null) {
-        if (this.mDragState.offset > aCurrentOffset && firstCol.previousSibling) {
-          firstCol.previousSibling.fgboxes.dragbox.removeAttribute("dragging");
-          firstCol.previousSibling.fgboxes.box.removeAttribute("dragging");
+        if (this.mDragState.offset > aCurrentOffset && firstCol.previousElementSibling) {
+          firstCol.previousElementSibling.fgboxes.dragbox.removeAttribute("dragging");
+          firstCol.previousElementSibling.fgboxes.box.removeAttribute("dragging");
         }
         let currentOffsetEndSide = aCurrentShadows - 1 - aCurrentOffset;
         if (
           this.mDragState.shadows - 1 - this.mDragState.offset > currentOffsetEndSide &&
-          lastCol.nextSibling
+          lastCol.nextElementSibling
         ) {
-          lastCol.nextSibling.fgboxes.dragbox.removeAttribute("dragging");
-          lastCol.nextSibling.fgboxes.box.removeAttribute("dragging");
+          lastCol.nextElementSibling.fgboxes.dragbox.removeAttribute("dragging");
+          lastCol.nextElementSibling.fgboxes.box.removeAttribute("dragging");
         }
       }
 
@@ -1184,7 +1184,7 @@
           column.fgboxes.dragspacer.setAttribute(aSizeattr, 0);
           column.fgboxes.dragbox.setAttribute(aSizeattr, this.mEndMin * column.mPixPerMin);
         }
-        column = column.nextSibling;
+        column = column.nextElementSibling;
       }
     }
 
@@ -1201,7 +1201,7 @@
         while (column && index < col.mDragState.shadows) {
           column.fgboxes.dragbox.removeAttribute("dragging");
           column.fgboxes.box.removeAttribute("dragging");
-          column = column.nextSibling;
+          column = column.nextElementSibling;
           index++;
         }
 
@@ -1287,7 +1287,7 @@
         for (
           let column = firstCol, i = firstIndex;
           column && i < col.mDragState.shadows;
-          column = column.nextSibling, i++
+          column = column.nextElementSibling, i++
         ) {
           column.fgboxes.dragbox.removeAttribute("dragging");
           column.fgboxes.box.removeAttribute("dragging");
@@ -1349,7 +1349,7 @@
         for (
           let column = firstCol, i = firstIndex;
           column && i < col.mDragState.shadows;
-          column = column.nextSibling, i++
+          column = column.nextElementSibling, i++
         ) {
           column.fgboxes.dragbox.removeAttribute("dragging");
           column.fgboxes.box.removeAttribute("dragging");
@@ -1478,7 +1478,7 @@
       while (column && index < dragState.shadows) {
         column.fgboxes.dragbox.removeAttribute("dragging");
         column.fgboxes.box.removeAttribute("dragging");
-        column = column.nextSibling;
+        column = column.nextElementSibling;
         index++;
       }
 

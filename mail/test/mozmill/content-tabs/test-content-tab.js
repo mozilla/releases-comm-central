@@ -147,7 +147,7 @@ function test_content_tab_context_menu() {
     w
   );
   wait_for_popup_to_open(mailContext);
-  assert_equals(mailContext.firstChild.label, "Click me!");
+  assert_equals(mailContext.firstElementChild.label, "Click me!");
   assert_element_visible("page-menu-separator");
   close_popup(mc, new elementslib.Elem(mailContext));
 
@@ -160,7 +160,7 @@ function test_content_tab_context_menu() {
     w
   );
   wait_for_popup_to_open(mailContext);
-  assert_not_equals(mailContext.firstChild.label, "Click me!");
+  assert_not_equals(mailContext.firstElementChild.label, "Click me!");
   assert_element_not_visible("page-menu-separator");
   close_popup(mc, new elementslib.Elem(mailContext));
 }

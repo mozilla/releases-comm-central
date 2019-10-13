@@ -242,7 +242,7 @@ function matchCustomReminderToMenuitem(reminder) {
       minutes: 60,
     };
 
-    for (let menuitem of reminderPopup.childNodes) {
+    for (let menuitem of reminderPopup.children) {
       if (
         menuitem.localName == "menuitem" &&
         menuitem.hasAttribute("length") &&
@@ -582,7 +582,7 @@ function setupAttendees() {
       let rowCount = attBox.getElementsByClassName("item-attendees-row").length;
       let reqAtt = rowCount == maxRows ? inLastRow : inRow;
       // we add as many attendee cells as required
-      while (row.childNodes.length < reqAtt) {
+      while (row.children.length < reqAtt) {
         let newCell = clonedCell.cloneNode(true);
         let cell = row.appendChild(newCell);
         let icon = cell.getElementsByTagName("img")[0];
@@ -638,7 +638,7 @@ function setupAttendees() {
       }
       // we fill the row with placeholders if required
       if (attBox.getElementsByClassName("item-attendees-row").length > 1 && inRow > 1) {
-        while (row.childNodes.length < inRow) {
+        while (row.children.length < inRow) {
           let newSpacer = clonedSpacer.cloneNode(true);
           newSpacer.removeAttribute("hidden");
           row.appendChild(newSpacer);

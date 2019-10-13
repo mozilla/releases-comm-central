@@ -121,8 +121,8 @@
             event.dataTransfer
           );
 
-          if (this.mToolbar.firstChild) {
-            this.mToolbar.firstChild.dispatchEvent(evt);
+          if (this.mToolbar.firstElementChild) {
+            this.mToolbar.firstElementChild.dispatchEvent(evt);
           } else {
             this.mToolbar.dispatchEvent(evt);
           }
@@ -306,8 +306,8 @@
             event.dataTransfer
           );
 
-          if (this.mToolbar.firstChild) {
-            this.mToolbar.firstChild.dispatchEvent(evt);
+          if (this.mToolbar.firstElementChild) {
+            this.mToolbar.firstElementChild.dispatchEvent(evt);
           } else {
             this.mToolbar.dispatchEvent(evt);
           }
@@ -631,8 +631,8 @@
         this.mCollapseToolbar.collapsed = true;
       }
 
-      this.arrowScrollbox.firstChild.minWidth = this.mTabMinWidth;
-      this.arrowScrollbox.firstChild.maxWidth = this.mTabMaxWidth;
+      this.arrowScrollbox.firstElementChild.minWidth = this.mTabMinWidth;
+      this.arrowScrollbox.firstElementChild.maxWidth = this.mTabMaxWidth;
       this._updateCloseButtons();
 
       Services.prefs.addObserver("mail.tabs.", this._prefObserver);
@@ -744,7 +744,7 @@
           this.setAttribute("closebuttons", "activetab");
           break;
         case 1:
-          let width = this.arrowScrollbox.firstChild.getBoundingClientRect()
+          let width = this.arrowScrollbox.firstElementChild.getBoundingClientRect()
             .width;
           // 0 width is an invalid value and indicates
           // an item without display, so ignore.

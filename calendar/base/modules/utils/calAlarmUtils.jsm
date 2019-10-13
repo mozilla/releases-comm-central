@@ -143,7 +143,7 @@ var calalarms = {
 
     // Fill up the icon box with the alarm icons, show max one icon per
     // alarm type.
-    let countIconChildren = aElement.childNodes.length;
+    let countIconChildren = aElement.children.length;
     let actionMap = {};
     let i, offset;
     for (i = 0, offset = 0; i < aReminders.length; i++) {
@@ -160,13 +160,13 @@ var calalarms = {
         aElement.appendChild(setupActionImage(null, reminder));
       } else {
         // There is already a node there, change its properties
-        setupActionImage(aElement.childNodes[i - offset], reminder);
+        setupActionImage(aElement.children[i - offset], reminder);
       }
     }
 
     // Remove unused image nodes
     for (i -= offset; i < countIconChildren; i++) {
-      aElement.childNodes[i].remove();
+      aElement.children[i].remove();
     }
   },
 };

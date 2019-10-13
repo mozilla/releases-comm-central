@@ -109,7 +109,7 @@ function test_enter_some_stuff() {
     index = parseInt(searchVal0.getAttribute("selectedIndex"));
   }
 
-  searchVal0 = searchVal0.childNodes[index];
+  searchVal0 = searchVal0.children[index];
   searchVal0.value = "foo";
 
   // - add another subject box
@@ -124,7 +124,7 @@ function test_enter_some_stuff() {
     index = parseInt(searchVal1.getAttribute("selectedIndex"));
   }
 
-  searchVal1 = searchVal1.childNodes[index];
+  searchVal1 = searchVal1.children[index];
   searchVal1.value = "bar";
 }
 
@@ -288,7 +288,7 @@ function subtest_save_search(savc) {
     index = parseInt(searchVal0.getAttribute("selectedIndex"));
   }
 
-  searchVal0 = new elib.Elem(searchVal0.childNodes[index]);
+  searchVal0 = new elib.Elem(searchVal0.children[index]);
 
   savc.assertNode(searchVal0);
   savc.assertValue(searchVal0, "foo");
@@ -300,7 +300,7 @@ function subtest_save_search(savc) {
     index = parseInt(searchVal1.getAttribute("selectedIndex"));
   }
 
-  searchVal1 = new elib.Elem(searchVal1.childNodes[index]);
+  searchVal1 = new elib.Elem(searchVal1.children[index]);
 
   savc.assertNode(searchVal1);
   savc.assertValue(searchVal1, "bar");

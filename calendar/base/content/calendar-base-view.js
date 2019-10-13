@@ -727,7 +727,7 @@
      * @param {boolean} forceShortName  Whether to force the use of a short name.
      */
     adjustWeekdayLength(forceShortName) {
-      const labelDayBoxKids = this.labeldaybox.childNodes;
+      const labelDayBoxKids = this.labeldaybox.children;
       let useShortNames = false;
 
       if (!labelDayBoxKids || !labelDayBoxKids[0] || forceShortName === true) {
@@ -757,7 +757,7 @@
       if (this.mLongWeekdayTotalPixels <= 0) {
         let maxDayWidth = 0;
 
-        for (const label of this.labeldaybox.childNodes) {
+        for (const label of this.labeldaybox.children) {
           if (label.localName == "calendar-day-label") {
             label.shortWeekNames = false;
             const curPixelLength = label.getLongWeekdayPixels();
@@ -765,7 +765,7 @@
           }
         }
         if (maxDayWidth > 0) {
-          this.mLongWeekdayTotalPixels = maxDayWidth * this.labeldaybox.childNodes.length + 10;
+          this.mLongWeekdayTotalPixels = maxDayWidth * this.labeldaybox.children.length + 10;
         }
       }
       return this.mLongWeekdayTotalPixels;

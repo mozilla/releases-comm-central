@@ -356,7 +356,7 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
     // call destroy here to avoid a nasty leak.
     document.getElementById("messagepane").destroy();
     document.getElementById("FindToolbar").destroy();
-    let footerBox = desiredParent.lastChild;
+    let footerBox = desiredParent.lastElementChild;
     if (footerBox && footerBox.id == "messenger-notification-footer") {
       desiredParent.insertBefore(messagePaneSplitter, footerBox);
       desiredParent.insertBefore(messagePaneBoxWrapper, footerBox);

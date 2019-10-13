@@ -171,7 +171,7 @@ var calendarItemTabType = {
     // Create a clone to use for this tab. Remove the cloned toolbox
     // and move the original toolbox into its place. There is only
     // one toolbox/toolbar so its settings are the same for all item tabs.
-    let original = document.getElementById("lightningItemPanel").firstChild;
+    let original = document.getElementById("lightningItemPanel").firstElementChild;
     let clone = original.cloneNode(true);
 
     clone.querySelector("toolbox").remove();
@@ -238,7 +238,7 @@ var calendarItemTabType = {
       item.setAttribute("collapsed", true);
     }
     // move toolbox to the place where it can be accessed later
-    let to = document.getElementById("lightningItemPanel").firstChild;
+    let to = document.getElementById("lightningItemPanel").firstElementChild;
     moveEventToolbox(to);
   },
   /**
@@ -248,7 +248,7 @@ var calendarItemTabType = {
    */
   showTab: function(aTab) {
     // move toolbox into place then load state
-    moveEventToolbox(aTab.panel.firstChild);
+    moveEventToolbox(aTab.panel.firstElementChild);
     Object.assign(gConfig, aTab.itemTabConfig);
     updateItemTabState(gConfig);
 

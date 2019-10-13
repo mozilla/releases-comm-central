@@ -208,7 +208,7 @@ var taskDetailsView = {
     let maxCount = item.calendar.getProperty("capabilities.categories.maxCount");
 
     while (categoryPopup.childElementCount > 2) {
-      categoryPopup.lastElementChild.remove();
+      categoryPopup.lastChild.remove();
     }
     if (maxCount == 1) {
       let menuitem = document.createXULElement("menuitem");

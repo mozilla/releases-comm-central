@@ -96,8 +96,8 @@ function editCSSAttributeValue(targetCell) {
 function UpdateCSSAttributes() {
   var CSSAList = document.getElementById("CSSAList");
   var styleString = "";
-  for (var i = 0; i < CSSAList.childNodes.length; i++) {
-    var item = CSSAList.childNodes[i];
+  for (var i = 0; i < CSSAList.children.length; i++) {
+    var item = CSSAList.children[i];
     var name = GetTreeItemAttributeStr(item);
     var value = GetTreeItemValueStr(item);
     // this code allows users to be sloppy in typing in values, and enter
@@ -109,7 +109,7 @@ function UpdateCSSAttributes() {
     if (value.includes(";")) {
       value = value.substring(0, value.lastIndexOf(";"));
     }
-    if (i == CSSAList.childNodes.length - 1) {
+    if (i == CSSAList.children.length - 1) {
       // Last property.
       styleString += name + ": " + value + ";";
     } else {

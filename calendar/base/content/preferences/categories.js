@@ -78,7 +78,7 @@ var gCategoriesPane = {
     listbox.clearSelection();
     this.updateButtons();
 
-    while (listbox.lastChild) {
+    while (listbox.lastElementChild) {
       listbox.lastChild.remove();
     }
 
@@ -158,12 +158,13 @@ var gCategoriesPane = {
     }
 
     // Remove category entry from listbox and gCategoryList.
-    let newSelection = list.selectedItem.nextSibling || list.selectedItem.previousSibling;
+    let newSelection =
+      list.selectedItem.nextElementSibling || list.selectedItem.previousElementSibling;
     let selectedItems = Array.from(list.selectedItems);
     for (let i = list.selectedCount - 1; i >= 0; i--) {
       let item = selectedItems[i];
       if (item == newSelection) {
-        newSelection = newSelection.nextSibling || newSelection.previousSibling;
+        newSelection = newSelection.nextElementSibling || newSelection.previousElementSibling;
       }
       gCategoryList.splice(list.getIndexOfItem(item), 1);
       item.remove();

@@ -683,7 +683,7 @@ ViewSourceChrome.prototype = {
     }
 
     let parentNode = this.browser.parentNode;
-    let nextSibling = this.browser.nextSibling;
+    let nextElementSibling = this.browser.nextElementSibling;
 
     // Removing and re-adding the browser from and to the DOM strips its XBL
     // properties. Save and restore sameProcessAsFrameLoader. Note that when we
@@ -703,9 +703,9 @@ ViewSourceChrome.prototype = {
 
     this.browser.sameProcessAsFrameLoader = sameProcessAsFrameLoader;
 
-    // If nextSibling was null, this will put the browser at
+    // If nextElementSibling was null, this will put the browser at
     // the end of the list.
-    parentNode.insertBefore(this.browser, nextSibling);
+    parentNode.insertBefore(this.browser, nextElementSibling);
 
     if (shouldBeRemote) {
       // We're going to send a message down to the remote browser

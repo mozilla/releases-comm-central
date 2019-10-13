@@ -1287,12 +1287,12 @@
         }
       }
       if (image) {
-        aItem.firstChild.setAttribute(
+        aItem.firstElementChild.setAttribute(
           "src",
           "chrome://messenger/skin/" + image + ".png"
         );
       } else {
-        aItem.firstChild.removeAttribute("src");
+        aItem.firstElementChild.removeAttribute("src");
       }
     }
 
@@ -1394,7 +1394,7 @@
           nick <
           nicklist
             .getItemAtIndex(middle)
-            .firstChild.nextSibling.getAttribute("value")
+            .firstElementChild.nextElementSibling.getAttribute("value")
             .toLowerCase()
         ) {
           end = middle;

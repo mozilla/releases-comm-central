@@ -237,11 +237,7 @@ var caldata = {
     let accessor = itemAccessor || caldata.binaryInsertNodeDefaultAccessor;
 
     // Get the index of the node before which the inserNode will be inserted
-    let newIndex = caldata.binarySearch(
-      Array.from(parentNode.childNodes, accessor),
-      aItem,
-      comptor
-    );
+    let newIndex = caldata.binarySearch(Array.from(parentNode.children, accessor), aItem, comptor);
 
     if (newIndex < 0) {
       parentNode.appendChild(insertNode);
@@ -249,13 +245,13 @@ var caldata = {
     } else if (
       !discardDuplicates ||
       comptor(
-        accessor(parentNode.childNodes[Math.min(newIndex, parentNode.childNodes.length - 1)]),
+        accessor(parentNode.children[Math.min(newIndex, parentNode.children.length - 1)]),
         aItem
       ) >= 0
     ) {
       // Only add the node if duplicates should not be discarded, or if
       // they should and the childNode[newIndex] == node.
-      let node = parentNode.childNodes[newIndex];
+      let node = parentNode.children[newIndex];
       parentNode.insertBefore(insertNode, node);
     }
     return newIndex;

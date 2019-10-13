@@ -45,7 +45,7 @@
 
       let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
       let parent = template.parentNode;
-      while (parent.childNodes.length > 1) {
+      while (parent.children.length > 1) {
         parent.lastChild.remove();
       }
 
@@ -79,7 +79,7 @@
       let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
 
       let parent = template.parentNode;
-      while (parent.childNodes.length > 1) {
+      while (parent.children.length > 1) {
         parent.lastChild.remove();
       }
 
@@ -105,7 +105,9 @@
      */
     get contentWidth() {
       let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
-      return template.nextSibling.getBoundingClientRect().x - template.getBoundingClientRect().x;
+      return (
+        template.nextElementSibling.getBoundingClientRect().x - template.getBoundingClientRect().x
+      );
     }
 
     /**
@@ -170,9 +172,9 @@
       let container = this.getElementsByTagName("calendar-event-scroll-container")[0];
       let date = this.mStartDate.clone();
       date.day += val;
-      let numChilds = container.content.childNodes.length;
+      let numChilds = container.content.children.length;
       for (let i = 0; i < numChilds; i++) {
-        let child = container.content.childNodes[i];
+        let child = container.content.children[i];
         child.date = date;
         date.day++;
       }
@@ -205,7 +207,7 @@
       let date = this.mStartDate.clone();
       let template = this.getElementsByTagName("calendar-event-freebusy-day")[0];
       let parent = template.parentNode;
-      for (let child of parent.childNodes) {
+      for (let child of parent.children) {
         child.startDate = this.mStartDate;
         child.endDate = this.mEndDate;
         child.date = date;
@@ -706,7 +708,7 @@
         newNode = listitem1.cloneNode(true);
 
         if (insertAfter) {
-          this.insertBefore(newNode, insertAfter.nextSibling);
+          this.insertBefore(newNode, insertAfter.nextElementSibling);
         } else if (nextDummy) {
           this.replaceChild(newNode, nextDummy);
         } else {
@@ -783,11 +785,11 @@
         }
 
         if (abDir != null && abDir.supportsMailingLists) {
-          let childNodes = abDir.childNodes;
-          while (childNodes.hasMoreElements()) {
+          let dirs = abDir.childNodes;
+          while (dirs.hasMoreElements()) {
             let dir = null;
             try {
-              dir = childNodes.getNext().QueryInterface(Ci.nsIAbDirectory);
+              dir = dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
             } catch (ex) {
               cal.WARN("[eventDialog] Error Encountered" + ex);
             }
@@ -910,10 +912,10 @@
             // row before the last row.
             let currentIndex = this.mMaxAttendees - 2;
             let template = this.querySelector(".addressingWidgetItem");
-            let currentNode = template.parentNode.childNodes[currentIndex];
+            let currentNode = template.parentNode.children[currentIndex];
             this._fillListItemWithEntry(currentNode, entries[0], currentIndex);
             entries.shift();
-            let nextNode = template.parentNode.childNodes[currentIndex + 1];
+            let nextNode = template.parentNode.children[currentIndex + 1];
             currentIndex++;
             for (let entry of entries) {
               currentNode = template.cloneNode(true);
@@ -923,7 +925,7 @@
             }
             this.mMaxAttendees += entries.length;
             for (let i = currentIndex; i < this.mMaxAttendees; i++) {
-              let row = template.parentNode.childNodes[i];
+              let row = template.parentNode.children[i];
               let textboxInput = row.querySelector(".textbox-addressingWidget");
               textboxInput.setAttribute("dirty", "true");
             }
@@ -1042,7 +1044,7 @@
       let listboxHeight = this.getBoundingClientRect().height;
 
       // Remove rows to remove scrollbar.
-      let kids = this.childNodes;
+      let kids = this.children;
       for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
         if (kids[i].hasAttribute("_isDummyRow")) {
           this.mContentHeight -= this.mRowHeight;
@@ -1083,7 +1085,7 @@
      * @return {?Node}       Next row from the top down
      */
     getNextDummyRow() {
-      let kids = this.childNodes;
+      let kids = this.children;
       for (let i = 0; i < kids.length; ++i) {
         if (kids[i].hasAttribute("_isDummyRow")) {
           return kids[i];
@@ -1124,7 +1126,7 @@
           if (element.localName == "richlistitem") {
             ++row;
           }
-          element = element.previousSibling;
+          element = element.previousElementSibling;
         }
       }
       return row;
@@ -1515,8 +1517,8 @@
     get contentWidth() {
       // Difference between the x coordinate of first and second child of hours node
       const diffX =
-        this.hoursNode.childNodes[1].getBoundingClientRect().x -
-        this.hoursNode.childNodes[0].getBoundingClientRect().x;
+        this.hoursNode.children[1].getBoundingClientRect().x -
+        this.hoursNode.children[0].getBoundingClientRect().x;
       return diffX * this.numHours;
     }
 
@@ -1565,7 +1567,7 @@
       let date = cal.dtz.jsDateToDateTime(new Date());
       date.hour = this.startHour;
       date.minute = 0;
-      if (this.hoursNode.childNodes.length <= 0) {
+      if (this.hoursNode.children.length <= 0) {
         let template = document.createXULElement("text");
         template.className = "freebusy-grid";
         // TODO: hardcoded value
@@ -1708,8 +1710,8 @@
      * Maps entries to the attributes of xul elements.
      */
     showState() {
-      for (let i = 0; i < this.hoursNode.childNodes.length; i++) {
-        let hour = this.hoursNode.childNodes[i];
+      for (let i = 0; i < this.hoursNode.children.length; i++) {
+        let hour = this.hoursNode.children[i];
         switch (this.state[i + this.offset]) {
           case Ci.calIFreeBusyInterval.FREE:
             hour.setAttribute("state", "free");
@@ -1960,7 +1962,7 @@
       let step_in_minutes = Math.floor((60 * this.zoomFactor) / 100);
       let hours = this.box;
       date.hour = this.startHour;
-      if (hours.childNodes.length <= 0) {
+      if (hours.children.length <= 0) {
         let template = document.createXULElement("text");
         template.className = "freebusy-timebar-hour";
         let count = Math.ceil(((this.endHour - this.startHour) * 60) / step_in_minutes);
@@ -2057,7 +2059,7 @@
       const frag = document.createDocumentFragment();
 
       while (this.hasChildNodes()) {
-        frag.appendChild(this.firstChild);
+        frag.appendChild(this.firstElementChild);
       }
 
       return frag;
@@ -3091,7 +3093,7 @@
      * @returns {?Element}       Next dummy row or null if there isn't any
      */
     getNextDummyRow() {
-      for (let kid of this.childNodes) {
+      for (let kid of this.children) {
         if (kid.hasAttribute("_isDummyRow")) {
           return kid;
         }
@@ -3132,7 +3134,7 @@
       let listboxHeight = this.getBoundingClientRect().height;
 
       // Remove rows to remove scrollbar
-      let kids = this.childNodes;
+      let kids = this.children;
       for (let i = kids.length - 1; this.mContentHeight > listboxHeight && i >= 0; --i) {
         if (kids[i].hasAttribute("_isDummyRow")) {
           this.mContentHeight -= this.mRowHeight;

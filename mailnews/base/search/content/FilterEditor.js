@@ -649,9 +649,9 @@ function showActionsOrder() {
   let actionStrings = [];
   for (let i = 0; i < gFilterActionList.itemCount; i++) {
     let ruleAction = gFilterActionList.getItemAtIndex(i);
-    let actionTarget = ruleAction.childNodes[1];
+    let actionTarget = ruleAction.children[1];
     let actionItem = actionTarget.ruleactiontargetElement;
-    let actionItemLabel = actionItem && actionItem.childNodes[0].label;
+    let actionItemLabel = actionItem && actionItem.children[0].label;
 
     let actionString = {
       label: ruleAction.mRuleActionType.label,
@@ -661,7 +661,7 @@ function showActionsOrder() {
       if (actionItemLabel) {
         actionString.argument = actionItemLabel;
       } else {
-        actionString.argument = actionItem.childNodes[0].value;
+        actionString.argument = actionItem.children[0].value;
       }
     }
     actionStrings.push(actionString);
@@ -707,7 +707,7 @@ function AssignMeaningfulName() {
     // Assign a name based on the first search term.
     let searchValue = termRoot.searchvalue;
     let selIndex = searchValue.getAttribute("selectedIndex");
-    let children = searchValue.childNodes;
+    let children = searchValue.children;
     let activeItem = children[selIndex];
     let attribs = Ci.nsMsgSearchAttrib;
 

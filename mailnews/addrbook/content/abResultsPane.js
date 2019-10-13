@@ -368,12 +368,12 @@ function UpdateSortIndicators(colID, sortDirection) {
 
   // remove the sort indicator from all the columns
   // except the one we are sorted by
-  var currCol = gAbResultsTree.firstChild.firstChild;
+  var currCol = gAbResultsTree.firstElementChild.firstElementChild;
   while (currCol) {
     if (currCol != sortedColumn && currCol.localName == "treecol") {
       currCol.removeAttribute("sortDirection");
     }
-    currCol = currCol.nextSibling;
+    currCol = currCol.nextElementSibling;
   }
 }
 

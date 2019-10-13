@@ -174,7 +174,7 @@ function plistToJSON(aElt) {
 
     case "dict":
       let res = {};
-      let nodes = aElt.childNodes;
+      let nodes = aElt.children;
       for (let i = 0; i < nodes.length; ++i) {
         if (nodes[i].nodeName == "key") {
           let key = nodes[i].textContent;
@@ -189,7 +189,7 @@ function plistToJSON(aElt) {
 
     case "array":
       let array = [];
-      nodes = aElt.childNodes;
+      nodes = aElt.children;
       for (let i = 0; i < nodes.length; ++i) {
         if (Element.isInstance(nodes[i])) {
           array.push(plistToJSON(nodes[i]));
@@ -225,9 +225,9 @@ function getInfoPlistContent(aBaseURI) {
     if (doc.documentElement.localName != "plist") {
       throw new Error("Invalid Info.plist file");
     }
-    let node = doc.documentElement.firstChild;
+    let node = doc.documentElement.firstElementChild;
     while (node && !Element.isInstance(node)) {
-      node = node.nextSibling;
+      node = node.nextElementSibling;
     }
     if (!node || node.localName != "dict") {
       throw new Error("Empty or invalid Info.plist file");
@@ -626,13 +626,13 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
   range.selectNode(parent);
   // eslint-disable-next-line no-unsanitized/method
   let documentFragment = range.createContextualFragment(aHTML);
-  let result = documentFragment.firstChild;
+  let result = documentFragment.firstElementChild;
 
   // store the prplIMessage object in each of the "root" node that
   // will be inserted into the document, so that selection code can
   // retrieve the message by just looking at the parent node until it
   // finds something.
-  for (let root = result; root; root = root.nextSibling) {
+  for (let root = result; root; root = root.nextElementSibling) {
     root._originalMsg = aMsg;
   }
 
@@ -644,7 +644,7 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
       result.namespaceURI == "http://www.w3.org/1999/xhtml"
     )
   ) {
-    result = result.nextSibling;
+    result = result.nextElementSibling;
   }
   if (insert) {
     parent.replaceChild(documentFragment, insert);
@@ -943,17 +943,14 @@ SelectedMessage.prototype = {
       return;
     }
     let startPoint = this._range.comparePoint(spanNode, 0);
-    let endPoint = this._range.comparePoint(
-      spanNode,
-      spanNode.childNodes.length
-    );
+    let endPoint = this._range.comparePoint(spanNode, spanNode.children.length);
     if (startPoint <= 0 && endPoint >= 0) {
       let range = this._range.cloneRange();
       if (startPoint >= 0) {
         range.setStart(spanNode, 0);
       }
       if (endPoint <= 0) {
-        range.setEnd(spanNode, spanNode.childNodes.length);
+        range.setEnd(spanNode, spanNode.children.length);
       }
       this._selectedText = serializeRange(range);
 
@@ -980,7 +977,7 @@ SelectedMessage.prototype = {
       if (endPoint == 1) {
         let range = spanNode.ownerDocument.createRange();
         range.setStart(this._range.endContainer, this._range.endOffset);
-        range.setEnd(spanNode, spanNode.childNodes.length);
+        range.setEnd(spanNode, spanNode.children.length);
         this._cutEnd = !/^(\r?\n)?$/.test(serializeRange(range));
       } else {
         this._cutEnd = false;
@@ -1115,8 +1112,8 @@ function getMessagesForRange(aRange) {
       aNode.nodeType == aNode.ELEMENT_NODE &&
       aNode.namespaceURI == "http://www.w3.org/1999/xhtml"
     ) {
-      for (let i = 0; i < aNode.childNodes.length; ++i) {
-        if (processSubtree(aNode.childNodes[i])) {
+      for (let i = 0; i < aNode.children.length; ++i) {
+        if (processSubtree(aNode.children[i])) {
           return true;
         }
       }
@@ -1148,11 +1145,11 @@ function getMessagesForRange(aRange) {
     if (currentNode == endNode) {
       end = aRange.endOffset;
     } else {
-      end = currentNode.childNodes.length;
+      end = currentNode.children.length;
     }
 
     for (let i = start; i < end; ++i) {
-      let node = currentNode.childNodes[i];
+      let node = currentNode.children[i];
 
       // don't do anything until we find the startNode
       found = found || node == startNode;

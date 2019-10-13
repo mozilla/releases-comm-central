@@ -191,8 +191,8 @@ function UpdateExistingAttribute(attName, attValue, treeChildrenId) {
   attName = TrimString(attName).toLowerCase();
   attValue = TrimString(attValue);
 
-  for (i = 0; i < treeChildren.childNodes.length; i++) {
-    var item = treeChildren.childNodes[i];
+  for (i = 0; i < treeChildren.children.length; i++) {
+    var item = treeChildren.children[i];
     name = GetTreeItemAttributeStr(item);
     if (name.toLowerCase() == attName) {
       // Set the text in the "value' column treecell
@@ -226,8 +226,8 @@ function GetAndSelectExistingAttributeValue(attName, treeChildrenId) {
   var name;
   var i;
 
-  for (i = 0; i < treeChildren.childNodes.length; i++) {
-    var item = treeChildren.childNodes[i];
+  for (i = 0; i < treeChildren.children.length; i++) {
+    var item = treeChildren.children[i];
     name = GetTreeItemAttributeStr(item);
     if (name.toLowerCase() == attName.toLowerCase()) {
       // Select item in the tree
@@ -261,7 +261,9 @@ function GetAndSelectExistingAttributeValue(attName, treeChildrenId) {
 */
 function GetTreeItemAttributeStr(treeItem) {
   if (treeItem) {
-    return TrimString(treeItem.firstChild.firstChild.getAttribute("label"));
+    return TrimString(
+      treeItem.firstElementChild.firstElementChild.getAttribute("label")
+    );
   }
 
   return "";
@@ -269,7 +271,9 @@ function GetTreeItemAttributeStr(treeItem) {
 
 function GetTreeItemValueStr(treeItem) {
   if (treeItem) {
-    return TrimString(treeItem.firstChild.lastChild.getAttribute("label"));
+    return TrimString(
+      treeItem.firstElementChild.lastElementChild.getAttribute("label")
+    );
   }
 
   return "";
@@ -277,7 +281,7 @@ function GetTreeItemValueStr(treeItem) {
 
 function SetTreeItemValueStr(treeItem, value) {
   if (treeItem && GetTreeItemValueStr(treeItem) != value) {
-    treeItem.firstChild.lastChild.setAttribute("label", value);
+    treeItem.firstElementChild.lastElementChild.setAttribute("label", value);
   }
 }
 

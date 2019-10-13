@@ -439,17 +439,17 @@ function updateRepeatDetails() {
   // Now display the string...
   let lines = detailsString.split("\n");
   repeatDetails.removeAttribute("collapsed");
-  while (repeatDetails.childNodes.length > lines.length) {
+  while (repeatDetails.children.length > lines.length) {
     repeatDetails.lastChild.remove();
   }
-  let numChilds = repeatDetails.childNodes.length;
+  let numChilds = repeatDetails.children.length;
   for (let i = 0; i < lines.length; i++) {
     if (i >= numChilds) {
-      let newNode = repeatDetails.firstChild.cloneNode(true);
+      let newNode = repeatDetails.firstElementChild.cloneNode(true);
       repeatDetails.appendChild(newNode);
     }
-    repeatDetails.childNodes[i].value = lines[i];
-    repeatDetails.childNodes[i].setAttribute("tooltiptext", detailsString);
+    repeatDetails.children[i].value = lines[i];
+    repeatDetails.children[i].setAttribute("tooltiptext", detailsString);
   }
 }
 

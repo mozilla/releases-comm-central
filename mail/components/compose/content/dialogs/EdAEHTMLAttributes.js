@@ -131,7 +131,9 @@ function onSelectHTMLTreeItem() {
       gDialog.AddHTMLAttributeNameInput.value
     ).toLowerCase();
     var selectedItem = getSelectedItem(tree);
-    var selectedName = selectedItem.firstChild.firstChild.getAttribute("label");
+    var selectedName = selectedItem.firstElementChild.firstElementChild.getAttribute(
+      "label"
+    );
 
     if (inputName == selectedName) {
       // Already editing selected name - just update the value input
@@ -334,8 +336,8 @@ function UpdateHTMLAttributes() {
   }
 
   // Set added or changed attributes
-  for (i = 0; i < HTMLAList.childNodes.length; i++) {
-    var item = HTMLAList.childNodes[i];
+  for (i = 0; i < HTMLAList.children.length; i++) {
+    var item = HTMLAList.children[i];
     doSetAttribute(GetTreeItemAttributeStr(item), GetTreeItemValueStr(item));
   }
 }

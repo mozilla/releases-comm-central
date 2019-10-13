@@ -195,7 +195,7 @@ function checkNewText(target) {
   if (target.tagName == "DIV" && target.classList.contains("bubble")) {
     setColors(target);
 
-    var prev = target.previousSibling;
+    var prev = target.previousElementSibling;
     var shouldSetUnreadRuler = prev && prev.id && prev.id == "unread-ruler";
     var shouldSetSessionRuler = prev && prev.className && prev.className == "sessionstart-ruler";
     // We need an extra pixel of margin at the top to make the margins appear

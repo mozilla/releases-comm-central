@@ -90,7 +90,7 @@
         this.mDayStartHour = dayStartHour;
 
         const topbox = this.querySelector(".topbox");
-        if (topbox.childNodes.length) {
+        if (topbox.children.length) {
           // This only needs to be re-done if the initial relayout has already
           // happened.  (If it hasn't happened, this will be done when it does happen.)
           const start = this.mStartMin / 60;
@@ -98,9 +98,9 @@
 
           for (let hour = start; hour < end; hour++) {
             if (hour < this.mDayStartHour || hour >= this.mDayEndHour) {
-              topbox.childNodes[hour].setAttribute("off-time", "true");
+              topbox.children[hour].setAttribute("off-time", "true");
             } else {
-              topbox.childNodes[hour].removeAttribute("off-time");
+              topbox.children[hour].removeAttribute("off-time");
             }
           }
         }
@@ -455,7 +455,7 @@
     // End calICalendarView Properties
 
     get daysInView() {
-      return this.labeldaybox.childNodes && this.labeldaybox.childNodes.length;
+      return this.labeldaybox.children && this.labeldaybox.children.length;
     }
 
     set selectedDateTime(dateTime) {
@@ -1156,9 +1156,9 @@
       // Get today's date.
       const today = this.today();
       let counter = 0;
-      const dayboxkids = daybox.childNodes;
-      const headerboxkids = headerdaybox.childNodes;
-      const labelboxkids = this.labeldaybox.childNodes;
+      const dayboxkids = daybox.children;
+      const headerboxkids = headerdaybox.children;
+      const labelboxkids = this.labeldaybox.children;
       let updateTimeIndicator = false;
 
       for (const date of computedDateList) {
@@ -1236,7 +1236,7 @@
             // setting an attribute we can use in CSS. For more
             // information about this hack, see bug 455045.
             if (
-              dayHeaderBox == headerdaybox.childNodes[headerdaybox.childNodes.length - 1] &&
+              dayHeaderBox == headerdaybox.children[headerdaybox.children.length - 1] &&
               this.numVisibleDates > 1
             ) {
               headerDayBox.setAttribute("todaylastinview", "true");
@@ -1261,8 +1261,8 @@
 
       // Remove any extra columns that may have been hanging around.
       function removeExtraKids(elem) {
-        while (counter < elem.childNodes.length) {
-          elem.childNodes[counter].remove();
+        while (counter < elem.children.length) {
+          elem.children[counter].remove();
         }
       }
       removeExtraKids(daybox);
@@ -1340,14 +1340,14 @@
      * @param {calIDateTime} date    A date.
      */
     selectColumnHeader(date) {
-      let child = this.labeldaybox.firstChild;
+      let child = this.labeldaybox.firstElementChild;
       while (child) {
         if (child.date.compare(date) == 0) {
           child.setAttribute("selected", "true");
         } else {
           child.removeAttribute("selected");
         }
-        child = child.nextSibling;
+        child = child.nextElementSibling;
       }
     }
 

@@ -95,7 +95,7 @@ var gMenuBuilder = {
     );
   },
 
-  createAndInsertTopLevelElements(root, contextData, nextSibling) {
+  createAndInsertTopLevelElements(root, contextData, nextElementSibling) {
     let rootElements;
     if (contextData.onBrowserAction || contextData.onPageAction) {
       if (contextData.extension.id !== root.extension.id) {
@@ -109,8 +109,8 @@ var gMenuBuilder = {
       );
 
       // Action menu items are prepended to the menu, followed by a separator.
-      nextSibling = nextSibling || this.xulMenu.firstElementChild;
-      if (rootElements.length && !this.itemsToCleanUp.has(nextSibling)) {
+      nextElementSibling = nextElementSibling || this.xulMenu.firstElementChild;
+      if (rootElements.length && !this.itemsToCleanUp.has(nextElementSibling)) {
         rootElements.push(
           this.xulMenu.ownerDocument.createXULElement("menuseparator")
         );
@@ -129,13 +129,13 @@ var gMenuBuilder = {
           false
         );
         // The extension menu should be rendered at the top, but after the navigation buttons.
-        nextSibling =
-          nextSibling ||
+        nextElementSibling =
+          nextElementSibling ||
           this.xulMenu.querySelector(":scope > #context-sep-navigation + *");
         if (
           rootElements.length &&
           showDefaults &&
-          !this.itemsToCleanUp.has(nextSibling)
+          !this.itemsToCleanUp.has(nextElementSibling)
         ) {
           rootElements.push(
             this.xulMenu.ownerDocument.createXULElement("menuseparator")
@@ -166,8 +166,8 @@ var gMenuBuilder = {
       return;
     }
 
-    if (nextSibling) {
-      nextSibling.before(...rootElements);
+    if (nextElementSibling) {
+      nextElementSibling.before(...rootElements);
     } else {
       this.xulMenu.append(...rootElements);
     }
@@ -508,10 +508,10 @@ var gMenuBuilder = {
     // Find the group of existing top-level items (usually 0 or 1 items)
     // and remember its position for when the new items are inserted.
     let elementIdPrefix = `${makeWidgetId(extension.id)}-menuitem-`;
-    let nextSibling = null;
+    let nextElementSibling = null;
     for (let item of this.itemsToCleanUp) {
       if (item.id && item.id.startsWith(elementIdPrefix)) {
-        nextSibling = item.nextSibling;
+        nextElementSibling = item.nextElementSibling;
         item.remove();
         this.itemsToCleanUp.delete(item);
       }
@@ -519,7 +519,11 @@ var gMenuBuilder = {
 
     let root = gRootItems.get(extension);
     if (root) {
-      this.createAndInsertTopLevelElements(root, contextData, nextSibling);
+      this.createAndInsertTopLevelElements(
+        root,
+        contextData,
+        nextElementSibling
+      );
     }
     this.removeSeparatorIfNoTopLevelItems();
   },

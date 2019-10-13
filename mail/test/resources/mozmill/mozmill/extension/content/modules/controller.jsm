@@ -285,7 +285,7 @@ Menu.prototype = {
    *        Top menu node whose elements have to be populated
    */
   _buildMenu(menu) {
-    var items = menu ? menu.childNodes : [];
+    var items = menu ? menu.children : [];
 
     Array.from(items).forEach(function(item) {
       // When we have a menu node, fake a click onto it to populate
@@ -307,7 +307,7 @@ Menu.prototype = {
  * Deprecated - Has to be removed with Mozmill 2.0
  */
 var MenuTree = function(aWindow, aMenu) {
-  var items = aMenu ? aMenu.childNodes : null;
+  var items = aMenu ? aMenu.children : null;
   if (!items) {
     return;
   }
@@ -1479,8 +1479,8 @@ function preferencesAdditions(controller) {
     "selector"
   );
   controller.tabs = {};
-  for (var i = 0; i < mainTabs.childNodes.length; i++) {
-    var node = mainTabs.childNodes[i];
+  for (var i = 0; i < mainTabs.children.length; i++) {
+    var node = mainTabs.children[i];
     var obj = { button: node };
     controller.tabs[i] = obj;
     var label = node.attributes.item("label").value.replace("pane", "");

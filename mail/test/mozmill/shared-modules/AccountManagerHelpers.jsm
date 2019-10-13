@@ -113,9 +113,9 @@ function get_account_tree_row(aAccountKey, aPaneId, aController) {
   let rowIndex = 0;
   let accountTreeNode = aController.e("account-tree-children");
 
-  for (let i = 0; i < accountTreeNode.childNodes.length; i++) {
-    if ("_account" in accountTreeNode.childNodes[i]) {
-      let accountHead = accountTreeNode.childNodes[i];
+  for (let i = 0; i < accountTreeNode.children.length; i++) {
+    if ("_account" in accountTreeNode.children[i]) {
+      let accountHead = accountTreeNode.children[i];
       if (aAccountKey == accountHead._account.key) {
         // If this is the wanted account, find the wanted settings pane.
         let accountBlock = accountHead.querySelectorAll("[PageTag]");

@@ -62,7 +62,7 @@ function test_copy_eml_message() {
   let file = os.getFileForPath(os.abspath("./evil.eml", thisFilePath));
   let msgc = open_message_from_file(file);
 
-  let documentChild = msgc.e("messagepane").contentDocument.firstChild;
+  let documentChild = msgc.e("messagepane").contentDocument.firstElementChild;
   msgc.rightClick(new elib.Elem(documentChild));
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },

@@ -126,7 +126,7 @@ var MigrationWizard = {
 
     // Figure out what source apps are are available to import from:
     var group = document.getElementById("importSourceGroup");
-    for (let childNode of group.childNodes) {
+    for (let childNode of group.children) {
       let suffix = childNode.id;
       if (suffix != "nothing") {
         var contractID = kProfileMigratorContractIDPrefix + suffix;
@@ -141,7 +141,7 @@ var MigrationWizard = {
     }
 
     var firstNonDisabled = null;
-    for (let childNode of group.childNodes) {
+    for (let childNode of group.children) {
       if (!childNode.hidden && !childNode.disabled) {
         firstNonDisabled = childNode;
         break;
@@ -225,7 +225,7 @@ var MigrationWizard = {
 
     profiles.selectedItem = this._selectedProfile
       ? document.getElementById(this._selectedProfile)
-      : profiles.firstChild;
+      : profiles.firstElementChild;
   },
 
   onSelectProfilePageRewound() {
@@ -276,8 +276,8 @@ var MigrationWizard = {
   onImportItemsPageAdvanced() {
     var dataSources = document.getElementById("dataSources");
     this._itemsFlags = 0;
-    for (var i = 0; i < dataSources.childNodes.length; ++i) {
-      var checkbox = dataSources.childNodes[i];
+    for (var i = 0; i < dataSources.children.length; ++i) {
+      var checkbox = dataSources.children[i];
       if (checkbox.localName == "checkbox" && checkbox.checked) {
         this._itemsFlags |= parseInt(checkbox.id);
       }

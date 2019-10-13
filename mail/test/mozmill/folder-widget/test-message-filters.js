@@ -168,13 +168,13 @@ function create_simple_filter() {
     let filterName = fec.e("filterName");
     filterName.value = "A Simple Filter";
     let searchAttr = fec.e("searchAttr0");
-    let attrList = searchAttr.childNodes[0];
+    let attrList = searchAttr.children[0];
     attrList.value = Ci.nsMsgSearchAttrib.To;
     let searchOp = fec.e("searchOp0");
-    let opList = searchOp.childNodes[0];
+    let opList = searchOp.children[0];
     opList.value = Ci.nsMsgSearchOp.Is;
     let searchValList = fec.e("searchVal0");
-    let searchVal = searchValList.childNodes[0];
+    let searchVal = searchValList.children[0];
     searchVal.setAttribute("value", "test@foo.invalid");
 
     let filterActions = fec.e("filterActionList");
@@ -212,16 +212,16 @@ function test_address_books_appear_in_message_filter_dropdown() {
   // has opened
   function filterEditorOpened(fec) {
     let searchAttr = fec.e("searchAttr0");
-    let attrList = searchAttr.childNodes[0];
+    let attrList = searchAttr.children[0];
     attrList.value = Ci.nsMsgSearchAttrib.To;
     let searchOp = fec.e("searchOp0");
-    let opList = searchOp.childNodes[0];
+    let opList = searchOp.children[0];
     opList.value = Ci.nsMsgSearchOp.IsInAB;
     let searchValue = fec.e("searchVal0");
 
     // The magic number "4" is because the address book list is the
     // 4th child node of the search-value widget.
-    let abList = searchValue.childNodes[4];
+    let abList = searchValue.children[4];
 
     // We should have 2 address books here - one for the Personal Address
     // Book, and one for Collected Addresses.  The LDAP address book should

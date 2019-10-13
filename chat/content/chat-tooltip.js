@@ -303,7 +303,7 @@
 
     addSeparator() {
       if (this.table.hasChildNodes()) {
-        let lastElement = this.table.lastChild;
+        let lastElement = this.table.lastElementChild;
         lastElement.querySelector("th").classList.add("chatTooltipSeparator");
         lastElement.querySelector("td").classList.add("chatTooltipSeparator");
       }

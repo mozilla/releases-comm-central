@@ -23,7 +23,7 @@ function setText(id, value) {
     return;
   }
   if (element.hasChildNodes()) {
-    element.firstChild.remove();
+    element.firstElementChild.remove();
   }
   var textNode = document.createTextNode(value);
   element.appendChild(textNode);

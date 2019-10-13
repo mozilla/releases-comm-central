@@ -334,7 +334,7 @@ function toggleFilter(aFilterItem, aSetForEvent) {
 
   // Now update the checkbox
   if (aSetForEvent === undefined) {
-    aFilterItem.firstChild.nextSibling.checked = filter.enabled;
+    aFilterItem.firstElementChild.nextElementSibling.checked = filter.enabled;
   }
   // For accessibility set the checked state on listitem
   aFilterItem.setAttribute("aria-checked", filter.enabled);
@@ -807,8 +807,8 @@ function rebuildFilterList() {
       // If there is a free existing listitem, reuse it.
       // Use .itemChildren[] instead of .getItemAtIndex() as it is much faster.
       listitem = gFilterListbox.itemChildren[listitemIndex];
-      nameCell = listitem.firstChild;
-      enabledCell = nameCell.nextSibling;
+      nameCell = listitem.firstElementChild;
+      enabledCell = nameCell.nextElementSibling;
     } else {
       // If there are not enough listitems in the list, create a new one.
       listitem = document.createXULElement("richlistitem");

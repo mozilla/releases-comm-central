@@ -239,9 +239,13 @@ function onAccept(event) {
       // true means delete selection when inserting
       gActiveEditor.insertElementAtSelection(gTableElement, true);
 
-      if (deletePlaceholder && gTableElement && gTableElement.nextSibling) {
+      if (
+        deletePlaceholder &&
+        gTableElement &&
+        gTableElement.nextElementSibling
+      ) {
         // Delete the placeholder <br>
-        gActiveEditor.deleteNode(gTableElement.nextSibling);
+        gActiveEditor.deleteNode(gTableElement.nextElementSibling);
       }
     } catch (e) {}
 

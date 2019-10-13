@@ -202,19 +202,19 @@ add_task(async function test_addReminderImages() {
 
   function checkReminder(node, actions, msg) {
     let actionset = new Set(actions);
-    equal(box.childNodes.length, actions.length);
-    for (let i = 0, len = box.childNodes.length; i < len; i++) {
-      let actionvalue = box.childNodes[i].getAttribute("value");
-      equal(box.childNodes[i].localName, "image", msg + " (is image)");
+    equal(box.children.length, actions.length);
+    for (let i = 0, len = box.children.length; i < len; i++) {
+      let actionvalue = box.children[i].getAttribute("value");
+      equal(box.children[i].localName, "image", msg + " (is image)");
       ok(actionset.has(actionvalue), msg + " (has action)");
-      equal(box.childNodes[i].getAttribute("class"), "reminder-icon", msg + " (has class)");
+      equal(box.children[i].getAttribute("class"), "reminder-icon", msg + " (has class)");
       actionset.delete(actionvalue);
     }
   }
 
   let xul_ns = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
   let doc = cal.xml.parseString("<window xmlns='" + xul_ns + "'><box/></window>");
-  let box = doc.documentElement.firstChild;
+  let box = doc.documentElement.firstElementChild;
 
   let actions = ["DISPLAY"];
   let reminders = createReminders(actions);

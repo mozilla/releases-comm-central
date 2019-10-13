@@ -203,15 +203,15 @@ function test_save_attachment_files_in_list() {
       downloadsView.count
   );
 
-  assert_equals(length, list.childNodes.length);
-  assert_equals(downloadsView.count, list.childNodes.length);
+  assert_equals(length, list.children.length);
+  assert_equals(downloadsView.count, list.children.length);
 
   let actualNames = [];
-  let child = list.firstChild;
+  let child = list.firstElementChild;
   dump(child.querySelector(".fileName").getAttribute("value"));
   while (child) {
     actualNames.push(child.querySelector(".fileName").getAttribute("value"));
-    child = child.nextSibling;
+    child = child.nextElementSibling;
   }
   actualNames.sort();
 
@@ -228,7 +228,7 @@ function test_remove_file() {
   test_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
-  let firstElement = list.firstChild;
+  let firstElement = list.firstElementChild;
   let removingFileName = firstElement
     .querySelector(".fileName")
     .getAttribute("value");
@@ -247,13 +247,13 @@ function test_remove_file() {
     "Timeout waiting for removing a saved attachment file."
   );
 
-  let child = list.firstChild;
+  let child = list.firstElementChild;
   while (child) {
     assert_not_equals(
       removingFileName,
       child.querySelector(".fileName").getAttribute("value")
     );
-    child = child.nextSibling;
+    child = child.nextElementSibling;
   }
 }
 
@@ -264,8 +264,8 @@ function test_remove_multiple_files() {
   test_save_attachment_files_in_list();
 
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
-  let firstElement = list.firstChild.nextSibling;
-  let secondElement = firstElement.nextSibling;
+  let firstElement = list.firstElementChild.nextElementSibling;
+  let secondElement = firstElement.nextElementSibling;
   let removingFileNames = [];
 
   removingFileNames.push(
@@ -290,7 +290,7 @@ function test_remove_multiple_files() {
     "Timeout waiting for removing two saved attachment files."
   );
 
-  let child = list.firstChild;
+  let child = list.firstElementChild;
   while (child) {
     for (let name of removingFileNames) {
       assert_not_equals(
@@ -298,7 +298,7 @@ function test_remove_multiple_files() {
         child.querySelector(".fileName").getAttribute("value")
       );
     }
-    child = child.nextSibling;
+    child = child.nextElementSibling;
   }
 }
 

@@ -54,9 +54,9 @@ var gMigrateWizard = {
 
     // Get all the checked migrators into an array
     let listbox = document.getElementById("datasource-list");
-    for (let i = listbox.childNodes.length - 1; i >= 0; i--) {
-      if (listbox.childNodes[i].getAttribute("checked")) {
-        migrators.push(listbox.childNodes[i].migrator);
+    for (let i = listbox.children.length - 1; i >= 0; i--) {
+      if (listbox.children[i].getAttribute("checked")) {
+        migrators.push(listbox.children[i].migrator);
       }
     }
 

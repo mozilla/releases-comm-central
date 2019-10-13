@@ -58,8 +58,8 @@ function setText(id, value) {
     return;
   }
 
-  if (element.hasChildNodes()) {
-    element.firstChild.remove();
+  while (element.lastChild) {
+    element.lastChild.remove();
   }
   let textNode = document.createTextNode(value);
   element.appendChild(textNode);

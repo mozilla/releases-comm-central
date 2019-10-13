@@ -674,16 +674,16 @@
      * @param {String} pmLabel     pmLabelBox value
      */
     changeTo12HoursFormat(amLabel, pmLabel) {
-      if (!this.firstChild) {
+      if (!this.firstElementChild) {
         this.appendChild(document.importNode(this.content, true));
       }
 
       let amLabelBox = this.querySelector(".amLabelBox");
       amLabelBox.removeAttribute("hidden");
-      amLabelBox.firstChild.setAttribute("value", amLabel);
+      amLabelBox.firstElementChild.setAttribute("value", amLabel);
       let pmLabelBox = this.querySelector(".pmLabelBox");
       pmLabelBox.removeAttribute("hidden");
-      pmLabelBox.firstChild.setAttribute("value", pmLabel);
+      pmLabelBox.firstElementChild.setAttribute("value", pmLabel);
       this.querySelector(".time-picker-hour-box-class[value='0']").setAttribute("label", "12");
       for (let i = 13; i < 24; i++) {
         this.querySelector(`.time-picker-hour-box-class[value="${i}"]`).setAttribute(

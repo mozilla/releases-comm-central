@@ -169,7 +169,7 @@
 
       // Start with the parent's width and subtract off its children.
       let tooltip = [];
-      let children = aParentBox.childNodes;
+      let children = aParentBox.children;
       let widthDiff = aParentBox.getBoundingClientRect().width;
 
       for (let i = 0; i < children.length; i++) {

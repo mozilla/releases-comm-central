@@ -230,19 +230,19 @@
     }
 
     _toggleWrap() {
-      for (let i = 0; i < this.headerValue.childNodes.length; i += 2) {
+      for (let i = 0; i < this.headerValue.children.length; i += 2) {
         if (!this.showFullMessageIds) {
           this.toggleIcon.classList.add("open");
-          this.headerValue.childNodes[i].setAttribute(
+          this.headerValue.children[i].setAttribute(
             "label",
             this.mMessageIds[i / 2]
           );
-          this.headerValue.childNodes[i].removeAttribute("tooltiptext");
+          this.headerValue.children[i].removeAttribute("tooltiptext");
           this.headerValue.removeAttribute("singleline");
         } else {
           this.toggleIcon.classList.remove("open");
-          this.headerValue.childNodes[i].setAttribute("label", i / 2 + 1);
-          this.headerValue.childNodes[i].setAttribute(
+          this.headerValue.children[i].setAttribute("label", i / 2 + 1);
+          this.headerValue.children[i].setAttribute(
             "tooltiptext",
             this.mMessageIds[i / 2]
           );
@@ -254,18 +254,18 @@
 
     fillMessageIdNodes() {
       while (
-        this.headerValue.childNodes.length >
+        this.headerValue.children.length >
         this.mMessageIds.length * 2 - 1
       ) {
-        this.headerValue.lastChild.remove();
+        this.headerValue.lastElementChild.remove();
       }
 
       this.toggleIcon.hidden = this.mMessageIds.length <= 1;
 
       for (let i = 0; i < this.mMessageIds.length; i++) {
-        if (i * 2 <= this.headerValue.childNodes.length - 1) {
+        if (i * 2 <= this.headerValue.children.length - 1) {
           this._updateMessageIdNode(
-            this.headerValue.childNodes[i * 2],
+            this.headerValue.children[i * 2],
             i + 1,
             this.mMessageIds[i],
             this.mMessageIds.length
@@ -970,7 +970,7 @@
     _fillAddressesNode(all) {
       // try to leverage any cached nodes before creating new ones
       // XXX look for possible perf win using heuristic for the 2nd param instead of hardcoding 1.
-      let cached = this.emailAddresses.childNodes.length;
+      let cached = this.emailAddresses.children.length;
 
       // XXXdmose one or more of the ancestor nodes could be collapsed, so this hack just undoes that
       // for all ancestors.  We should do better.  Observed causes include the message header pane
@@ -998,18 +998,18 @@
         // First, add a comma as long as this isn't the first address.
         if (i > 0) {
           if (cached-- > 0) {
-            this.emailAddresses.childNodes[i * 2 - 1].hidden = false;
+            this.emailAddresses.children[i * 2 - 1].hidden = false;
           } else {
             this.appendComma();
             if (this.commaNodeWidth == 0) {
-              this.commaNodeWidth = this.emailAddresses.lastChild.clientWidth;
+              this.commaNodeWidth = this.emailAddresses.lastElementChild.clientWidth;
             }
           }
         }
 
         // Now add an email address.
         if (cached-- > 0) {
-          newAddressNode = this.emailAddresses.childNodes[i * 2];
+          newAddressNode = this.emailAddresses.children[i * 2];
           newAddressNode.hidden = false;
         } else {
           newAddressNode = document.createXULElement("mail-emailaddress");
@@ -1048,7 +1048,7 @@
               (i + 1 == this.addresses.length && overLineWidth > 30) ||
               newLineWidth - overLineWidth < 30)
           ) {
-            this.emailAddresses.lastChild.hidden = true;
+            this.emailAddresses.lastElementChild.hidden = true;
             i--;
           }
         }
@@ -1061,9 +1061,9 @@
       }
 
       // Hide any extra nodes but keep them around for later.
-      cached = this.emailAddresses.childNodes.length;
+      cached = this.emailAddresses.children.length;
       for (let j = Math.max(i * 2 - 1, 0); j < cached; j++) {
-        this.emailAddresses.childNodes[j].hidden = true;
+        this.emailAddresses.children[j].hidden = true;
       }
 
       // If we're not required to show all addresses, and there are still addresses remaining, add an
@@ -1071,8 +1071,8 @@
       if (!all) {
         let remainingAddresses = this.addresses.length - i;
         if (remainingAddresses > 0) {
-          if (this.emailAddresses.childNodes.length % 2 == 0) {
-            this.emailAddresses.lastChild.hidden = false;
+          if (this.emailAddresses.children.length % 2 == 0) {
+            this.emailAddresses.lastElementChild.hidden = false;
           } else {
             this.appendComma();
           }
@@ -1178,11 +1178,11 @@
     updateExtraAddressProcessing(param1, param2, param3) {
       customElements.upgrade(this);
       if (UpdateExtraAddressProcessing) {
-        const childNodes = this.emailAddresses.childNodes;
+        const children = this.emailAddresses.children;
         for (let i = 0; i < this.addresses.length; i++) {
           UpdateExtraAddressProcessing(
             this.addresses[i],
-            childNodes[i * 2],
+            children[i * 2],
             param1,
             param2,
             param3

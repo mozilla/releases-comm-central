@@ -130,7 +130,8 @@ function subtest_check_default_account_highlight(amc) {
 
   let accountTree = amc.e("accounttree");
   assert_equals(accountRow, accountTree.view.selection.currentIndex);
-  let cell = accountTree.view.getItemAtIndex(accountRow).firstChild.firstChild;
+  let cell = accountTree.view.getItemAtIndex(accountRow).firstElementChild
+    .firstElementChild;
   assert_equals(cell.tagName, "treecell");
 
   // We can't read the computed style of the tree cell directly, so at least see
@@ -173,9 +174,9 @@ function subtest_check_selection_after_account_deletion(amc) {
   let accountList = [];
   let accountTreeNode = amc.e("account-tree-children");
   // Build the list of accounts in the account tree (order is important).
-  for (let i = 0; i < accountTreeNode.childNodes.length; i++) {
-    if ("_account" in accountTreeNode.childNodes[i]) {
-      let curAccount = accountTreeNode.childNodes[i]._account;
+  for (let i = 0; i < accountTreeNode.children.length; i++) {
+    if ("_account" in accountTreeNode.children[i]) {
+      let curAccount = accountTreeNode.children[i]._account;
       if (!accountList.includes(curAccount)) {
         accountList.push(curAccount);
       }

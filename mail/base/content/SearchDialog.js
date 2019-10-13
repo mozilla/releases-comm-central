@@ -547,8 +547,8 @@ function GetScopeForFolder(folder) {
 }
 
 function goUpdateSearchItems(commandset) {
-  for (var i = 0; i < commandset.childNodes.length; i++) {
-    var commandID = commandset.childNodes[i].getAttribute("id");
+  for (var i = 0; i < commandset.children.length; i++) {
+    var commandID = commandset.children[i].getAttribute("id");
     if (commandID) {
       goUpdateCommand(commandID);
     }

@@ -32,12 +32,12 @@
 
       if (!toolbox.palette) {
         // Look to see if there is a toolbarpalette.
-        let node = toolbox.firstChild;
+        let node = toolbox.firstElementChild;
         while (node) {
           if (node.localName == "toolbarpalette") {
             break;
           }
-          node = node.nextSibling;
+          node = node.nextElementSibling;
         }
 
         if (!node) {
@@ -107,7 +107,7 @@
 
       // Build a cache of items in the toolbarpalette.
       let palette = this.toolbox ? this.toolbox.palette : null;
-      let paletteChildren = palette ? palette.childNodes : [];
+      let paletteChildren = palette ? palette.children : [];
 
       let paletteItems = {};
 
@@ -116,7 +116,7 @@
       }
 
       let ids = val == "__empty" ? [] : val.split(",");
-      let children = this.childNodes;
+      let children = this.children;
       let nodeidx = 0;
       let added = {};
 
@@ -180,14 +180,14 @@
      * @return {string}  Comma-separated list of IDs or "__empty".
      */
     get currentSet() {
-      let node = this.firstChild;
+      let node = this.firstElementChild;
       let currentSet = [];
       while (node) {
         let id = this._idFromNode(node);
         if (id) {
           currentSet.push(id);
         }
-        node = node.nextSibling;
+        node = node.nextElementSibling;
       }
 
       return currentSet.join(",") || "__empty";
@@ -251,12 +251,12 @@
 
       if (toolbox.palette) {
         // Attempt to locate an item with a matching ID within the palette.
-        let paletteItem = toolbox.palette.firstChild;
+        let paletteItem = toolbox.palette.firstElementChild;
         while (paletteItem) {
           if (paletteItem.id == id) {
             return paletteItem;
           }
-          paletteItem = paletteItem.nextSibling;
+          paletteItem = paletteItem.nextElementSibling;
         }
       }
       return null;

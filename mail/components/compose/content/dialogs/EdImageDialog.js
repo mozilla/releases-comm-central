@@ -312,7 +312,7 @@ function LoadPreviewImage() {
   }
 
   if (gDialog.ImageHolder.hasChildNodes()) {
-    gDialog.ImageHolder.firstChild.remove();
+    gDialog.ImageHolder.firstElementChild.remove();
   }
 
   gDialog.PreviewImage = document.createElementNS(

@@ -383,19 +383,12 @@ function setData(dialog, iframe, data) {
     if (data.attachment.remove != undefined) {
       dialog.click(iframeid("event-grid-tab-attachments"));
       let attachmentBox = iframeid("attachment-link");
-      let attachments = attachmentBox.getNode().childNodes;
-      if (attachments) {
-        let attToDelete;
-        attachments.forEach(currentValue => {
-          if (currentValue.tooltipText.includes(data.attachment.remove)) {
-            attToDelete = currentValue;
-          }
-          if (attToDelete) {
-            dialog.click(new elementslib.Elem(attToDelete));
-            dialog.keypress(attachmentBox, "VK_DELETE", {});
-            attToDelete = undefined;
-          }
-        });
+      let attachments = attachmentBox.getNode().children;
+      for (let attachment of attachments) {
+        if (attachment.tooltipText.includes(data.attachment.remove)) {
+          dialog.click(new elementslib.Elem(attachment));
+          dialog.keypress(attachmentBox, "VK_DELETE", {});
+        }
       }
     }
   }
@@ -461,7 +454,7 @@ function setCategories(dialog, iframe, categories) {
     mark_failure(["more categories than supported by current calendar"]);
   } else {
     // Iterate over categories and check if needed.
-    let listItems = categoryList.getNode().childNodes;
+    let listItems = categoryList.getNode().children;
     for (let item of listItems) {
       let set = false;
       if (categories.includes(item.label)) {

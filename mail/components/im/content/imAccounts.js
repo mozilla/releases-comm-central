@@ -727,7 +727,7 @@ var gAMDragAndDrop = {
     // We are dragging over the account manager, consider it is the same as
     // the last element.
     if (accountElement == gAccountManager.accountList) {
-      accountElement = gAccountManager.accountList.lastChild;
+      accountElement = gAccountManager.accountList.lastElementChild;
     }
 
     // Auto scroll the account list if we are dragging at the top/bottom
@@ -750,7 +750,7 @@ var gAMDragAndDrop = {
         accountElement.clientHeight / 2
     ) {
       // we don't want the previous item to show its default bottom-border
-      let previousItem = accountElement.previousSibling;
+      let previousItem = accountElement.previousElementSibling;
       if (previousItem) {
         previousItem.style.borderBottom = "none";
       }
@@ -776,14 +776,14 @@ var gAMDragAndDrop = {
 
     this._accountElement.removeAttribute("dragover");
     // reset the border of the previous element
-    let previousItem = this._accountElement.previousSibling;
+    let previousItem = this._accountElement.previousElementSibling;
     if (previousItem) {
       if (
         aIsEnd &&
         !previousItem.style.borderBottom &&
-        previousItem.previousSibling
+        previousItem.previousElementSibling
       ) {
-        previousItem = previousItem.previousSibling;
+        previousItem = previousItem.previousElementSibling;
       }
       previousItem.style.borderBottom = "";
     }
@@ -796,7 +796,7 @@ var gAMDragAndDrop = {
   canDrop(aEvent, aSession) {
     let accountElement = aEvent.explicitOriginalTarget;
     if (accountElement == gAccountManager.accountList) {
-      accountElement = gAccountManager.accountList.lastChild;
+      accountElement = gAccountManager.accountList.lastElementChild;
     }
     return accountElement != gAccountManager.accountList.selectedItem;
   },
@@ -818,7 +818,7 @@ var gAMDragAndDrop = {
   onDrop(aEvent, aTransferData, aSession) {
     let accountElement = aEvent.explicitOriginalTarget;
     if (accountElement == gAccountManager.accountList) {
-      accountElement = gAccountManager.accountList.lastChild;
+      accountElement = gAccountManager.accountList.lastElementChild;
     }
 
     if (!aSession.canDrop) {

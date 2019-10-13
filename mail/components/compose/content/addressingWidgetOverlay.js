@@ -85,8 +85,8 @@ function awGetSelectItemIndex(itemData) {
   if (selectElementIndexTable == null) {
     selectElementIndexTable = {};
     var selectElem = document.getElementById("addressCol1#1");
-    for (var i = 0; i < selectElem.menupopup.childNodes.length; i++) {
-      var aData = selectElem.menupopup.childNodes[i].getAttribute("value");
+    for (var i = 0; i < selectElem.menupopup.children.length; i++) {
+      var aData = selectElem.menupopup.children[i].getAttribute("value");
       selectElementIndexTable[aData] = i;
     }
   }
@@ -293,7 +293,7 @@ function awSetInputAndPopupValue(
   inputElem.value = inputValue.trimLeft();
 
   popupElem.selectedItem =
-    popupElem.menupopup.childNodes[awGetSelectItemIndex(popupValue)];
+    popupElem.menupopup.children[awGetSelectItemIndex(popupValue)];
   // TODO: can there be a row without ID yet?
   if (rowNumber >= 0) {
     awSetInputAndPopupId(inputElem, popupElem, rowNumber);

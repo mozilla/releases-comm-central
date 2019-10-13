@@ -126,7 +126,7 @@ function insertLaTeXCommand(aButton) {
   }
 
   // Otherwise, it's a LaTeX command with at least one argument...
-  var latex = TeXZilla.getTeXSource(aButton.firstChild);
+  var latex = TeXZilla.getTeXSource(aButton.firstElementChild);
   var selectionStart = gDialog.input.selectionStart;
   var selectionEnd = gDialog.input.selectionEnd;
 
@@ -250,12 +250,15 @@ function createSymbolPanels(aSymbolPanelList) {
 }
 
 function onAccept(event) {
-  if (gDialog.output.firstChild) {
+  if (gDialog.output.firstElementChild) {
     var editor = GetCurrentEditor();
     editor.beginTransaction();
 
     try {
-      var newMath = editor.document.importNode(gDialog.output.firstChild, true);
+      var newMath = editor.document.importNode(
+        gDialog.output.firstElementChild,
+        true
+      );
       if (gDialog.oldMath) {
         // Replace the old <math> element with the new one.
         editor.selectElement(gDialog.oldMath);
@@ -276,8 +279,8 @@ function onAccept(event) {
 
 function updateMath() {
   // Remove the preview, if any.
-  if (gDialog.output.firstChild) {
-    gDialog.output.firstChild.remove();
+  if (gDialog.output.firstElementChild) {
+    gDialog.output.firstElementChild.remove();
   }
 
   // Try to convert the LaTeX source into MathML using TeXZilla.
@@ -294,12 +297,13 @@ function updateMath() {
     gDialog.output.style.opacity = gDialog.input.value ? 1 : 0.5;
   } catch (e) {}
   // Disable the accept button if parsing fails or when the placeholder is used.
-  gDialog.accept.disabled = !gDialog.input.value || !gDialog.output.firstChild;
+  gDialog.accept.disabled =
+    !gDialog.input.value || !gDialog.output.firstElementChild;
 }
 
 function updateMode() {
-  if (gDialog.output.firstChild) {
-    gDialog.output.firstChild.setAttribute(
+  if (gDialog.output.firstElementChild) {
+    gDialog.output.firstElementChild.setAttribute(
       "display",
       gDialog.mode.selectedIndex ? "block" : "inline"
     );
@@ -307,8 +311,8 @@ function updateMode() {
 }
 
 function updateDirection() {
-  if (gDialog.output.firstChild) {
-    gDialog.output.firstChild.setAttribute(
+  if (gDialog.output.firstElementChild) {
+    gDialog.output.firstElementChild.setAttribute(
       "dir",
       gDialog.direction.selectedIndex ? "rtl" : "ltr"
     );

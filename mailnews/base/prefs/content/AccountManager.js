@@ -165,14 +165,14 @@ function selectServer(server, selectPageId) {
   let childrenNode = document.getElementById("account-tree-children");
 
   // Default to showing the first account.
-  let accountNode = childrenNode.firstChild;
+  let accountNode = childrenNode.firstElementChild;
 
   // Find the tree-node for the account we want to select
   if (server) {
-    for (let i = 0; i < childrenNode.childNodes.length; i++) {
-      let account = childrenNode.childNodes[i]._account;
+    for (let i = 0; i < childrenNode.children.length; i++) {
+      let account = childrenNode.children[i]._account;
       if (account && server == account.incomingServer) {
-        accountNode = childrenNode.childNodes[i];
+        accountNode = childrenNode.children[i];
         // Make sure all the panes of the account to be selected are shown.
         accountNode.setAttribute("open", "true");
         break;
@@ -199,7 +199,7 @@ function selectServer(server, selectPageId) {
   accountTree.view.selection.select(index);
   accountTree.ensureRowIsVisible(index);
 
-  let lastItem = accountNode.lastChild.lastChild;
+  let lastItem = accountNode.lastElementChild.lastElementChild;
   if (lastItem.localName == "treeitem") {
     index = accountTree.view.getIndexOfItem(lastItem);
   }
@@ -798,18 +798,25 @@ function markDefaultServer(newDefault, oldDefault) {
   }
 
   let accountTree = document.getElementById("account-tree-children");
-  for (let accountNode of accountTree.childNodes) {
+  for (let accountNode of accountTree.children) {
     if (newDefault && newDefault == accountNode._account) {
-      let props = accountNode.firstChild.firstChild.getAttribute("properties");
-      accountNode.firstChild.firstChild.setAttribute(
+      let props = accountNode.firstElementChild.firstElementChild.getAttribute(
+        "properties"
+      );
+      accountNode.firstElementChild.firstElementChild.setAttribute(
         "properties",
         props + " isDefaultServer-true"
       );
     }
     if (oldDefault && oldDefault == accountNode._account) {
-      let props = accountNode.firstChild.firstChild.getAttribute("properties");
+      let props = accountNode.firstElementChild.firstElementChild.getAttribute(
+        "properties"
+      );
       props = props.replace(/isDefaultServer-true/, "");
-      accountNode.firstChild.firstChild.setAttribute("properties", props);
+      accountNode.firstElementChild.firstElementChild.setAttribute(
+        "properties",
+        props
+      );
     }
   }
 }
@@ -828,12 +835,12 @@ function setAccountLabel(aAccountKey, aAccountNode, aLabel) {
     // is already on another tree item (account) than the one we want to change.
     // So find the proper node using the account key.
     let accountTree = document.getElementById("account-tree-children");
-    for (let accountNode of accountTree.childNodes) {
+    for (let accountNode of accountTree.children) {
       if (
         "_account" in accountNode &&
         accountNode._account.key == aAccountKey
       ) {
-        aAccountNode = accountNode.firstChild.firstChild;
+        aAccountNode = accountNode.firstElementChild.firstElementChild;
         break;
       }
     }
@@ -875,9 +882,9 @@ function onRemoveAccount(event) {
   let serverList = [];
   let accountTreeNode = document.getElementById("account-tree-children");
   // build the list of servers in the account tree (order is important)
-  for (let i = 0; i < accountTreeNode.childNodes.length; i++) {
-    if ("_account" in accountTreeNode.childNodes[i]) {
-      let curServer = accountTreeNode.childNodes[i]._account.incomingServer;
+  for (let i = 0; i < accountTreeNode.children.length; i++) {
+    if ("_account" in accountTreeNode.children[i]) {
+      let curServer = accountTreeNode.children[i]._account.incomingServer;
       if (!serverList.includes(curServer)) {
         serverList.push(curServer);
       }
@@ -1099,7 +1106,7 @@ function initAccountActionsButtons(menupopup) {
     document.getElementById("accountActionsDropdownRemove")
   );
 
-  updateBlockedItems(menupopup.childNodes, true);
+  updateBlockedItems(menupopup.children, true);
 }
 
 /**

@@ -80,7 +80,7 @@ function onDismissAllAlarms() {
   let widgets = [];
 
   // Make a copy of the child nodes as they get modified live
-  for (let node of alarmRichlist.childNodes) {
+  for (let node of alarmRichlist.children) {
     // Check if the node is a valid alarm and is still part of DOM
     if (
       node.parentNode &&
@@ -144,7 +144,7 @@ function setupWindow() {
 function finishWindow() {
   let alarmRichlist = document.getElementById("alarm-richlist");
 
-  if (alarmRichlist.childNodes.length > 0) {
+  if (alarmRichlist.children.length > 0) {
     // If there are still items, the window wasn't closed using dismiss
     // all/snooze all. This can happen when the closer is clicked or escape
     // is pressed. Snooze all remaining items using the default snooze
@@ -175,7 +175,7 @@ function onFocusWindow() {
  */
 function updateRelativeDates() {
   let alarmRichlist = document.getElementById("alarm-richlist");
-  for (let node of alarmRichlist.childNodes) {
+  for (let node of alarmRichlist.children) {
     if (node.item && node.alarm) {
       node.updateRelativeDateLabel();
     }
@@ -198,7 +198,7 @@ function snoozeAllItems(aDurationMinutes) {
   let parentItems = {};
 
   // Make a copy of the child nodes as they get modified live
-  for (let node of alarmRichlist.childNodes) {
+  for (let node of alarmRichlist.children) {
     // Check if the node is a valid alarm and is still part of DOM
     if (
       node.parentNode &&
@@ -215,7 +215,7 @@ function snoozeAllItems(aDurationMinutes) {
   }
   // we need to close the widget here explicitly because the dialog will stay
   // opened if there a still not snoozable alarms
-  document.getElementById("alarm-snooze-all-button").firstChild.hidePopup();
+  document.getElementById("alarm-snooze-all-button").firstElementChild.hidePopup();
 }
 
 /**
@@ -266,7 +266,7 @@ function aboveSnoozeLimit(aDuration) {
  */
 function setupTitle() {
   let alarmRichlist = document.getElementById("alarm-richlist");
-  let reminders = alarmRichlist.childNodes.length;
+  let reminders = alarmRichlist.children.length;
 
   let title = PluralForm.get(reminders, cal.l10n.getCalString("alarmWindowTitle.label"));
   document.title = title.replace("#1", reminders);
@@ -340,7 +340,7 @@ function addWidgetFor(aItem, aAlarm) {
 function removeWidgetFor(aItem, aAlarm) {
   let hashId = aItem.hashId;
   let alarmRichlist = document.getElementById("alarm-richlist");
-  let nodes = alarmRichlist.childNodes;
+  let nodes = alarmRichlist.children;
   let notfound = true;
   for (let i = nodes.length - 1; notfound && i >= 0; --i) {
     let widget = nodes[i];
@@ -352,7 +352,7 @@ function removeWidgetFor(aItem, aAlarm) {
     ) {
       if (widget.selected) {
         // Advance selection if needed
-        widget.control.selectedItem = widget.previousSibling || widget.nextSibling;
+        widget.control.selectedItem = widget.previousElementSibling || widget.nextElementSibling;
       }
 
       widget.removeEventListener("snooze", onSnoozeAlarm);
@@ -379,7 +379,7 @@ function removeWidgetFor(aItem, aAlarm) {
 function doReadOnlyChecks() {
   let countRO = 0;
   let alarmRichlist = document.getElementById("alarm-richlist");
-  for (let node of alarmRichlist.childNodes) {
+  for (let node of alarmRichlist.children) {
     if (!cal.acl.isCalendarWritable(node.item.calendar) || !cal.acl.userCanModifyItem(node.item)) {
       countRO++;
     }
@@ -387,7 +387,7 @@ function doReadOnlyChecks() {
 
   // we disable the button if there are only alarms for not-writable items
   let snoozeAllButton = document.getElementById("alarm-snooze-all-button");
-  snoozeAllButton.disabled = countRO && countRO == alarmRichlist.childNodes.length;
+  snoozeAllButton.disabled = countRO && countRO == alarmRichlist.children.length;
   if (snoozeAllButton.disabled) {
     let tooltip = cal.l10n.getString("calendar-alarms", "reminderDisabledSnoozeButtonTooltip");
     snoozeAllButton.setAttribute("tooltiptext", tooltip);

@@ -48,8 +48,12 @@ var gSendOptionsDialog = {
     var num_domains = 0;
     var pref_string = "";
 
-    for (let item = listbox.firstChild; item != null; item = item.nextSibling) {
-      var domainid = item.firstChild.getAttribute("value");
+    for (
+      let item = listbox.firstElementChild;
+      item != null;
+      item = item.nextElementSibling
+    ) {
+      var domainid = item.firstElementChild.getAttribute("value");
       if (domainid.length > 1) {
         num_domains++;
 

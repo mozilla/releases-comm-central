@@ -139,12 +139,12 @@ agendaListbox.onCheckboxChange = function(event) {
   if (lopen) {
     agendaListbox.refreshCalendarQuery(period.start, period.end);
   } else {
-    listItem = listItem.nextSibling;
+    listItem = listItem.nextElementSibling;
     let leaveloop;
     do {
       leaveloop = listItem == null;
       if (!leaveloop) {
-        let nextItemSibling = listItem.nextSibling;
+        let nextItemSibling = listItem.nextElementSibling;
         leaveloop = !agendaListbox.isEventListItem(listItem);
         if (!leaveloop) {
           listItem.remove();
@@ -322,11 +322,11 @@ agendaListbox.addItem = function(aItem) {
     let visible = complistItem.getCheckbox().checked;
     if (aItem.startDate.isDate && period.duration == 1 && aItem.duration.days == 1) {
       if (this.getListItems(aItem, period).length == 0) {
-        this.addItemBefore(aItem, period.listItem.nextSibling, period, visible);
+        this.addItemBefore(aItem, period.listItem.nextElementSibling, period, visible);
       }
     } else {
       do {
-        complistItem = complistItem.nextSibling;
+        complistItem = complistItem.nextElementSibling;
         if (this.isEventListItem(complistItem)) {
           let compitem = complistItem.occurrence;
           if (this.isSameEvent(aItem, compitem)) {
@@ -463,7 +463,7 @@ agendaListbox.getListItems = function(aItem, aPeriod) {
       let complistItem = period.listItem;
       let leaveloop;
       do {
-        complistItem = complistItem.nextSibling;
+        complistItem = complistItem.nextElementSibling;
         leaveloop = !this.isEventListItem(complistItem);
         if (!leaveloop) {
           if (this.isSameEvent(aItem, complistItem.occurrence)) {
@@ -510,8 +510,8 @@ agendaListbox.deleteItem = function(aItem, aMoveSelection) {
  * @param aCalendar         The item to compare.
  */
 agendaListbox.deleteItemsFromCalendar = function(aCalendar) {
-  let childNodes = Array.from(this.agendaListboxControl.childNodes);
-  for (let childNode of childNodes) {
+  let children = Array.from(this.agendaListboxControl.children);
+  for (let childNode of children) {
     if (childNode && childNode.occurrence && childNode.occurrence.calendar.id == aCalendar.id) {
       childNode.remove();
     }
@@ -591,7 +591,7 @@ agendaListbox.createNewEvent = function(aEvent) {
 agendaListbox.setupContextMenu = function(popup) {
   let listItem = this.agendaListboxControl.selectedItem;
   let enabled = this.isEventListItem(listItem);
-  let menuitems = popup.childNodes;
+  let menuitems = popup.children;
   for (let i = 0; i < menuitems.length; i++) {
     setBooleanAttribute(menuitems[i], "disabled", !enabled);
   }
@@ -769,7 +769,7 @@ agendaListbox.showsToday = function(aStartDate) {
  * which case the selection moves up.
  */
 agendaListbox.moveSelection = function() {
-  if (this.isEventListItem(this.agendaListboxControl.selectedItem.nextSibling)) {
+  if (this.isEventListItem(this.agendaListboxControl.selectedItem.nextElementSibling)) {
     this.agendaListboxControl.moveByOffset(-1);
   } else {
     this.agendaListboxControl.moveByOffset(1);
@@ -812,18 +812,18 @@ agendaListbox.isEventListItem = function(aListItem) {
  * Removes all Event items, keeping the period items intact.
  */
 agendaListbox.removeListItems = function() {
-  let listItem = this.agendaListboxControl.lastChild;
+  let listItem = this.agendaListboxControl.lastElementChild;
   if (listItem) {
     let leaveloop = false;
     do {
       let newlistItem = null;
       if (listItem) {
-        newlistItem = listItem.previousSibling;
+        newlistItem = listItem.previousElementSibling;
       } else {
         leaveloop = true;
       }
       if (this.isEventListItem(listItem)) {
-        if (listItem == this.agendaListboxControl.firstChild) {
+        if (listItem == this.agendaListboxControl.firstElementChild) {
           leaveloop = true;
         } else {
           listItem.remove();
@@ -840,7 +840,7 @@ agendaListbox.removeListItems = function() {
  * @return The XUL node if successful, otherwise null.
  */
 agendaListbox.getListItemByHashId = function(ahashId) {
-  let listItem = this.agendaListboxControl.firstChild;
+  let listItem = this.agendaListboxControl.firstElementChild;
   let leaveloop = false;
   do {
     if (this.isEventListItem(listItem)) {
@@ -848,7 +848,7 @@ agendaListbox.getListItemByHashId = function(ahashId) {
         return listItem;
       }
     }
-    listItem = listItem.nextSibling;
+    listItem = listItem.nextElementSibling;
     leaveloop = listItem == null;
   } while (!leaveloop);
   return null;
@@ -950,9 +950,9 @@ agendaListbox.calendarObserver.onPropertyChanged = function(aCalendar, aName, aV
       break;
     case "color":
       for (
-        let node = agendaListbox.agendaListboxControl.firstChild;
+        let node = agendaListbox.agendaListboxControl.firstElementChild;
         node;
-        node = node.nextSibling
+        node = node.nextElementSibling
       ) {
         // Change color on all nodes that don't do so themselves, which
         // is currently only he agenda-richlist-item
@@ -1009,7 +1009,7 @@ function setCurrentEvent() {
   }
 
   let msScheduleTime = -1;
-  let complistItem = agendaListbox.tomorrow.listItem.previousSibling;
+  let complistItem = agendaListbox.tomorrow.listItem.previousElementSibling;
   let removelist = [];
   let anow = cal.dtz.now();
   let msuntillend = 0;
@@ -1043,7 +1043,7 @@ function setCurrentEvent() {
       }
     }
     if (!leaveloop) {
-      complistItem = complistItem.previousSibling;
+      complistItem = complistItem.previousElementSibling;
     }
   } while (!leaveloop);
 

@@ -82,7 +82,7 @@ function subtest_check_whitelist_init_and_save(amc) {
   // Now we'll check both address books
   for (let i = 0; i < list.getRowCount(); i++) {
     let abNode = list.getItemAtIndex(i);
-    amc.click(new elib.Elem(abNode.firstChild));
+    amc.click(new elib.Elem(abNode.firstElementChild));
   }
 
   // And close the dialog
@@ -105,14 +105,14 @@ function subtest_check_whitelist_load_and_clear(amc) {
     let abNode = list.getItemAtIndex(i);
     assert_equals(
       "true",
-      abNode.firstChild.getAttribute("checked"),
+      abNode.firstElementChild.getAttribute("checked"),
       "Should have been checked"
     );
     // Also ensure that the address book URI was properly saved in the
     // prefs
     assert_true(whiteListURIs.includes(abNode.getAttribute("value")));
     // Now un-check that address book
-    amc.click(new elib.Elem(abNode.firstChild));
+    amc.click(new elib.Elem(abNode.firstElementChild));
   }
 
   // And close the dialog
@@ -143,7 +143,7 @@ function subtest_check_whitelist_load_cleared(amc) {
     let abNode = list.getItemAtIndex(i);
     assert_equals(
       "false",
-      abNode.firstChild.getAttribute("checked"),
+      abNode.firstElementChild.getAttribute("checked"),
       "Should not have been checked"
     );
     // Also ensure that the address book URI was properly cleared in the

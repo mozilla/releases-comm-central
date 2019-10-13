@@ -396,7 +396,7 @@ class Overlays {
         if (targetchild && targetchild.parentNode == parent) {
           parent.insertBefore(
             node,
-            after ? targetchild.nextSibling : targetchild
+            after ? targetchild.nextElementSibling : targetchild
           );
           wasInserted = true;
           break;
@@ -407,8 +407,8 @@ class Overlays {
     if (!wasInserted) {
       // position is 1-based
       let position = parseInt(node.getAttribute("position"), 10);
-      if (position > 0 && position - 1 <= parent.childNodes.length) {
-        parent.insertBefore(node, parent.childNodes[position - 1]);
+      if (position > 0 && position - 1 <= parent.children.length) {
+        parent.insertBefore(node, parent.children[position - 1]);
         wasInserted = true;
       }
     }

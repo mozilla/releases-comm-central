@@ -240,7 +240,7 @@ function updateSearchTermsListbox(matchAllValue) {
 function updateRemoveRowButton() {
   var firstListItem = gSearchTermList.getItemAtIndex(0);
   if (firstListItem) {
-    firstListItem.lastChild.lastChild.setAttribute(
+    firstListItem.lastElementChild.lastElementChild.setAttribute(
       "disabled",
       gTotalSearchTerms == 1
     );
@@ -456,7 +456,7 @@ function initializeTermFromIndex(index) {
  *                   all of them are put into the same listcell.
  */
 function constructRow(aChildren) {
-  let cols = gSearchTermList.firstChild.childNodes; // treecol elements
+  let cols = gSearchTermList.firstElementChild.children; // treecol elements
   let listitem = document.createXULElement("richlistitem");
   listitem.setAttribute("allowevents", "true");
   for (let i = 0; i < aChildren.length; i++) {

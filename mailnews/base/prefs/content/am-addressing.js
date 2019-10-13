@@ -41,11 +41,11 @@ function quoteEnabling() {
   var placebox = document.getElementById("placeBox");
 
   if (document.getElementById("identity.replyOnTop").value == "1") {
-    placebox.firstChild.removeAttribute("disabled");
-    placebox.lastChild.removeAttribute("disabled");
+    placebox.firstElementChild.removeAttribute("disabled");
+    placebox.lastElementChild.removeAttribute("disabled");
   } else {
-    placebox.firstChild.setAttribute("disabled", "true");
-    placebox.lastChild.setAttribute("disabled", "true");
+    placebox.firstElementChild.setAttribute("disabled", "true");
+    placebox.lastElementChild.setAttribute("disabled", "true");
   }
 }
 

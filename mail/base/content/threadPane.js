@@ -389,7 +389,7 @@ function MsgSortDescending() {
 //  FolderDisplayWidget ends up using if it refactors column management out.
 function UpdateSortIndicators(sortType, sortOrder) {
   // Remove the sort indicator from all the columns
-  var treeColumns = document.getElementById("threadCols").childNodes;
+  var treeColumns = document.getElementById("threadCols").children;
   for (var i = 0; i < treeColumns.length; i++) {
     treeColumns[i].removeAttribute("sortDirection");
   }

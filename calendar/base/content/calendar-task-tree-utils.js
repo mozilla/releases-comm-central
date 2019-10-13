@@ -39,7 +39,7 @@ function addCalendarNames(aEvent) {
       "contextChangeTaskCalendar(event);"
     );
     if (tasks.every(task => task.calendar == tasks[0].calendar) && selIndex > -1) {
-      calendarMenuPopup.childNodes[selIndex].setAttribute("checked", "true");
+      calendarMenuPopup.children[selIndex].setAttribute("checked", "true");
     }
   }
 }

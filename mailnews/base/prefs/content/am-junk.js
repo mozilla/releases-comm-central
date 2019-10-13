@@ -190,7 +190,7 @@ function onAdaptiveJunkToggle() {
   for (let i = 0; i < wList.getRowCount(); i++) {
     let item = wList.getItemAtIndex(i);
     item.setAttribute("disabled", wListDisabled);
-    item.firstChild.setAttribute("disabled", wListDisabled);
+    item.firstElementChild.setAttribute("disabled", wListDisabled);
   }
 }
 
@@ -244,7 +244,7 @@ function onSaveWhiteList() {
     // as they may not return the right value or may even not exist.
     // Always get the attributes only.
     var wlNode = wList.getItemAtIndex(i);
-    if (wlNode.firstChild.getAttribute("checked") == "true") {
+    if (wlNode.firstElementChild.getAttribute("checked") == "true") {
       let abURI = wlNode.getAttribute("value");
       wlArray.push(abURI);
     }

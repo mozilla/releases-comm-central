@@ -2944,7 +2944,7 @@ pv.Image.prototype.updateInstance = function(s) {
       f = v.$stroke = document.createElementNS(pv.ns.svg, "rect");
       f.setAttribute("fill", "none");
       f.setAttribute("pointer-events", "all");
-      v.parentNode.insertBefore(f, v.nextSibling);
+      v.parentNode.insertBefore(f, v.nextElementSibling);
     }
     position(f);
     var stroke = pv.color(s.strokeStyle);
@@ -3474,8 +3474,8 @@ pv.Panel.prototype.createCanvas = function(w, h) {
    */
   function lastElement() {
     var node = document.body;
-    while (node.lastChild && node.lastChild.tagName) {
-      node = node.lastChild;
+    while (node.lastElementChild && node.lastElementChild.tagName) {
+      node = node.lastElementChild;
     }
     return (node == document.body) ? node : node.parentNode;
   }
@@ -3566,8 +3566,9 @@ pv.Panel.prototype.buildImplied = function(s) {
       if (!d.$panel || d.$panel != this) {
         d.$panel = this;
         delete d.$canvas;
-        while (d.lastChild)
-          d.removeChild(d.lastChild);
+        while (d.lastChild) {
+          d.lastChild.remove();
+        }
       }
 
       /* Construct the canvas if not already present. */
@@ -3686,7 +3687,7 @@ pv.Panel.prototype.updateInstance = function(s) {
   if (s.fillStyle || s.strokeStyle) {
     if (!r) {
       r = v.$rect = document.createElementNS(pv.ns.svg, "rect");
-      v.insertBefore(r, v.firstChild);
+      v.insertBefore(r, v.firstElementChild);
     }
 
     /* If width and height are exactly zero, the rect is not stroked! */

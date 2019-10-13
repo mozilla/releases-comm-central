@@ -203,7 +203,7 @@ function switchToView(viewType) {
   let currentSelection = [];
 
   // Set up the view commands
-  let views = viewDeck.childNodes;
+  let views = viewDeck.children;
   for (let i = 0; i < views.length; i++) {
     let view = views[i];
     let commandId = "calendar_" + view.id + "_command";
@@ -429,7 +429,7 @@ function toggleOrientation() {
   cmd.setAttribute("checked", newValue);
 
   let deck = getViewDeck();
-  for (let view of deck.childNodes) {
+  for (let view of deck.children) {
     view.rotated = newValue == "true";
   }
 
@@ -448,7 +448,7 @@ function toggleWorkdaysOnly() {
   cmd.setAttribute("checked", newValue);
 
   let deck = getViewDeck();
-  for (let view of deck.childNodes) {
+  for (let view of deck.children) {
     view.workdaysOnly = newValue == "true";
   }
 
@@ -465,7 +465,7 @@ function toggleTasksInView() {
   cmd.setAttribute("checked", newValue);
 
   let deck = getViewDeck();
-  for (let view of deck.childNodes) {
+  for (let view of deck.children) {
     view.tasksInView = newValue == "true";
   }
 
@@ -482,7 +482,7 @@ function toggleShowCompletedInView() {
   cmd.setAttribute("checked", newValue);
 
   let deck = getViewDeck();
-  for (let view of deck.childNodes) {
+  for (let view of deck.children) {
     view.showCompleted = newValue == "true";
   }
 
@@ -514,7 +514,7 @@ function getLastCalendarView() {
       "view-deck",
       "selectedIndex"
     );
-    let viewNode = deck.childNodes[selectedIndex];
+    let viewNode = deck.children[selectedIndex];
     return viewNode.id.replace(/-view/, "");
   }
 

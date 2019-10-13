@@ -1414,7 +1414,7 @@ EmailConfigWizard.prototype = {
       let menulist = e("outgoing_hostname");
       // We can't use menulist.value = config.outgoing.existingServerKey
       // because would overwrite the text field, so have to do it manually:
-      let menuitems = menulist.menupopup.childNodes;
+      let menuitems = menulist.menupopup.children;
       for (let menuitem of menuitems) {
         if (menuitem.serverKey == config.outgoing.existingServerKey) {
           menulist.selectedItem = menuitem;

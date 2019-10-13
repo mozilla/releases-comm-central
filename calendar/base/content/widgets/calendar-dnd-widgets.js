@@ -87,10 +87,10 @@
         let dropshadow = document.createXULElement("box");
         dropshadow.setAttribute("class", "dropshadow");
         if (boxItems) {
-          boxItems.insertBefore(dropshadow, boxItems.firstChild);
+          boxItems.insertBefore(dropshadow, boxItems.firstElementChild);
           this.calendarView.mDropShadows.push(boxItems);
         } else {
-          box.insertBefore(dropshadow, box.firstChild);
+          box.insertBefore(dropshadow, box.firstElementChild);
           this.calendarView.mDropShadows.push(box);
         }
         shadowStartDate.day += 1;

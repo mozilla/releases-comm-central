@@ -216,8 +216,8 @@ function overlayRepositionDialog() {
 function CustomizeMailToolbar(toolboxId, customizePopupId) {
   // Disable the toolbar context menu items
   var menubar = document.getElementById("mail-menubar");
-  for (var i = 0; i < menubar.childNodes.length; ++i) {
-    menubar.childNodes[i].setAttribute("disabled", true);
+  for (var i = 0; i < menubar.children.length; ++i) {
+    menubar.children[i].setAttribute("disabled", true);
   }
 
   var customizePopup = document.getElementById(customizePopupId);
@@ -300,8 +300,8 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
 
   // Re-enable parts of the UI we disabled during the dialog
   var menubar = document.getElementById("mail-menubar");
-  for (var i = 0; i < menubar.childNodes.length; ++i) {
-    menubar.childNodes[i].setAttribute("disabled", false);
+  for (var i = 0; i < menubar.children.length; ++i) {
+    menubar.children[i].setAttribute("disabled", false);
   }
 
   // make sure the mail views search box is initialized
@@ -352,8 +352,8 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
       if ("_teardown" in popup) {
         popup._teardown();
       } else {
-        for (let i = popup.childNodes.length - 1; i >= 0; i--) {
-          let child = popup.childNodes[i];
+        for (let i = popup.children.length - 1; i >= 0; i--) {
+          let child = popup.children[i];
           if (child.getAttribute("generated") != "true") {
             continue;
           }
@@ -394,8 +394,8 @@ function onViewToolbarsPopupShowing(
     event.target.querySelector(".panel-subview-body") || event.target;
 
   // Remove all collapsible nodes from the menu.
-  for (let i = popup.childNodes.length - 1; i >= 0; --i) {
-    const deadItem = popup.childNodes[i];
+  for (let i = popup.children.length - 1; i >= 0; --i) {
+    const deadItem = popup.children[i];
 
     if (deadItem.hasAttribute("iscollapsible")) {
       deadItem.remove();
@@ -403,7 +403,7 @@ function onViewToolbarsPopupShowing(
   }
 
   // We insert menuitems before the first child if no insert point is given.
-  const firstMenuItem = insertPoint || popup.firstChild;
+  const firstMenuItem = insertPoint || popup.firstElementChild;
 
   for (const toolboxId of toolboxIds) {
     const toolbox = document.getElementById(toolboxId);

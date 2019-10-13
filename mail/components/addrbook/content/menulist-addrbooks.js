@@ -60,11 +60,11 @@ if (!customElements.get("menulist")) {
               // Are we removing the selected directory?
               if (
                 this.selectedItem ==
-                this.menupopup.removeChild(this.menupopup.childNodes[index])
+                this.menupopup.removeChild(this.menupopup.children[index])
               ) {
                 // If so, try to select the first directory, if available.
                 if (this.menupopup.hasChildNodes()) {
-                  this.menupopup.firstChild.doCommand();
+                  this.menupopup.firstElementChild.doCommand();
                 } else {
                   this.selectedItem = null;
                 }

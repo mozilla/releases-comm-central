@@ -698,8 +698,8 @@ const PanelUI = {
     const viewBody = event.target.querySelector(".panel-subview-body");
 
     // First clear out the old attachment items. They are above the separator.
-    while (viewBody.firstChild.localName == "toolbarbutton") {
-      viewBody.firstChild.remove();
+    while (viewBody.firstElementChild.localName == "toolbarbutton") {
+      viewBody.firstElementChild.remove();
     }
 
     for (const [attachmentIndex, attachment] of currentAttachments.entries()) {
@@ -741,9 +741,7 @@ const PanelUI = {
 
     // Find the separator index.
     let separatorIndex = 0;
-    while (
-      viewBody.childNodes[separatorIndex].localName != "toolbarseparator"
-    ) {
+    while (viewBody.children[separatorIndex].localName != "toolbarseparator") {
       separatorIndex += 1;
     }
 
@@ -777,7 +775,7 @@ const PanelUI = {
       item.setAttribute("disabled", "true");
     }
 
-    viewBody.insertBefore(item, viewBody.childNodes[separatorIndex]);
+    viewBody.insertBefore(item, viewBody.children[separatorIndex]);
   },
 
   /**
@@ -800,8 +798,8 @@ const PanelUI = {
     const viewBody = attachmentView.querySelector(".panel-subview-body");
 
     // Clear out old view items.
-    while (viewBody.firstChild) {
-      viewBody.firstChild.remove();
+    while (viewBody.firstElementChild) {
+      viewBody.firstElementChild.remove();
     }
 
     // Create the "open" item.
@@ -941,8 +939,8 @@ const PanelUI = {
     const showDetectors = panelView.getAttribute("detectors") != "false";
 
     // Clear the view before recreating it.
-    while (parent.firstChild) {
-      parent.firstChild.remove();
+    while (parent.firstElementChild) {
+      parent.firstElementChild.remove();
     }
 
     if (showDetectors) {
@@ -1003,8 +1001,8 @@ const PanelUI = {
     const doc = parent.ownerDocument;
 
     // Clear the view before recreating it.
-    while (parent.firstChild) {
-      parent.firstChild.remove();
+    while (parent.firstElementChild) {
+      parent.firstElementChild.remove();
     }
 
     // Populate the view with toolbarbuttons.
