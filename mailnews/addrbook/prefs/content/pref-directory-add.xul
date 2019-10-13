@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/pref-directory-add.dtd">
 
@@ -37,51 +38,64 @@
           <vbox>
              <div xmlns="http://www.w3.org/1999/xhtml" class="grid-three-column">
                 <div class="flex-items-center">
-                  <xul:label value="&directoryName.label;" accesskey="&directoryName.accesskey;"
+                  <xul:label id="descriptionLabel" value="&directoryName.label;"
+                             accesskey="&directoryName.accesskey;"
                              control="description"/>
                 </div>
                 <div>
-                  <xul:textbox id="description"/>
+                  <input id="description" type="text" class="input-inline"
+                         aria-labelledby="descriptionLabel"/>
                 </div>
                 <div></div>
                 <div class="flex-items-center">
-                  <xul:label value="&directoryHostname.label;" accesskey="&directoryHostname.accesskey;"
+                  <xul:label id="hostnameLabel"
+                             value="&directoryHostname.label;"
+                             accesskey="&directoryHostname.accesskey;"
                              control="hostname"/>
                 </div>
                 <div>
-                  <xul:textbox id="hostname" disableiflocked="true" class="uri-element"/>
+                  <input id="hostname" type="text"
+                         class="uri-element input-inline"
+                         aria-labelledby="descriptionLabel"
+                         disableiflocked="true"/>
                 </div>
                 <div></div>
                 <div class="flex-items-center">
-                  <xul:label value="&directoryBaseDN.label;"
+                  <xul:label id="basednLabel"
+                             value="&directoryBaseDN.label;"
                              accesskey="&directoryBaseDN.accesskey;"
                              control="basedn"/>
                 </div>
                 <div>
-                  <xul:textbox id="basedn" disableiflocked="true" class="uri-element"/>
+                  <input id="basedn" type="text"
+                         class="uri-element input-inline"
+                         aria-labelledby="basednLabel"
+                         disableiflocked="true"/>
                 </div>
                 <div class="flex-items-center flex-content-center">
                   <xul:button label="&findButton.label;"
                               accesskey="&findButton.accesskey;" disabled="true"/>
                 </div>
                 <div class="flex-items-center">
-                  <xul:label value="&portNumber.label;"
+                  <xul:label id="portLabel" value="&portNumber.label;"
                              accesskey="&portNumber.accesskey;"
                              control="port"/>
                 </div>
                 <div>
-                    <input id="port" type="number" class="size5"
-                           min="1" max="65535"
-                           disableiflocked="true"/>
+                  <input id="port" type="number" class="size5 input-inline"
+                         min="1" max="65535"
+                         aria-labelledby="portLabel"
+                         disableiflocked="true"/>
                 </div>
                 <div></div>
                 <div class="flex-items-center">
-                  <xul:label value="&directoryLogin.label;"
+                  <xul:label id="loginLabel" value="&directoryLogin.label;"
                              accesskey="&directoryLogin.accesskey;"
                              control="login"/>
                 </div>
                 <div>
-                  <xul:textbox id="login" class="uri-element"/>
+                  <input id="login" type="text" class="uri-element input-inline"
+                         aria-labelledby="loginLabel"/>
                 </div>
                 <div></div>
              </div>
@@ -105,12 +119,14 @@
           <vbox>
             <div xmlns="http://www.w3.org/1999/xhtml" class="grid-two-column">
               <div class="flex-items-center">
-                <xul:label value="&return.label;" accesskey="&return.accesskey;"
+                <xul:label id="returnMaxLabel" value="&return.label;"
+                           accesskey="&return.accesskey;"
                            control="results"/>
               </div>
-              <div>
-                <input id="results" type="number" class="size5"
-                       min="1" max="2147483647" value="100"/>
+              <div class="flex-items-center">
+                <input id="results" type="number" class="size5 input-inline"
+                       min="1" max="2147483647" value="100"
+                       aria-labelledby="returnMaxLabel"/>
                 <xul:label value="&results.label;"/>
               </div>
               <div class="flex-items-center">
