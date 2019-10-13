@@ -115,6 +115,7 @@ nsContextMenu.prototype = {
       event: aEvent,
       popupNode: popupNode,
       browser: this.browser,
+      principal: doc.nodePrincipal,
       addonInfo: addonInfo,
       documentURIObject: doc.documentURIObject,
       docLocation: doc.location.href,
@@ -652,6 +653,7 @@ nsContextMenu.prototype = {
                               .getInterface(Ci.nsIWebNavigation)
                               .QueryInterface(Ci.nsIDocShell)
                               .chromeEventHandler;
+    this.principal = this.target.ownerDocument.nodePrincipal;
 
     this.autoDownload = Services.prefs.getBoolPref("browser.download.useDownloadDir");
 
@@ -974,24 +976,41 @@ nsContextMenu.prototype = {
 
   // Open linked-to URL in a new tab.
   openLinkInTab: function(aEvent) {
-    // Determine linked-to URL.
-    return openNewTabWith(this.linkURL, this.link, null, aEvent);
+    var doc = this.target.ownerDocument;
+    urlSecurityCheck(this.linkURL, doc.nodePrincipal);
+    openLinkIn(this.linkURL,
+               aEvent && aEvent.shiftKey ? "tabshifted" : "tab",
+               { charset: doc.characterSet,
+                 referrerURI: doc.documentURIObject });
   },
 
   // Open linked-to URL in a new window.
   openLinkInWindow: function() {
-    return openNewWindowWith(this.linkURL, this.link);
+    var doc = this.target.ownerDocument;
+    urlSecurityCheck(this.linkURL, doc.nodePrincipal);
+    openLinkIn(this.linkURL, "window",
+               { charset: doc.characterSet,
+                 referrerURI: doc.documentURIObject });
   },
 
   // Open linked-to URL in a private window.
   openLinkInPrivateWindow: function() {
-    return openNewPrivateWith(this.linkURL, this.link);
+    var doc = this.target.ownerDocument;
+    urlSecurityCheck(this.linkURL, doc.nodePrincipal);
+    openLinkIn(this.linkURL, "window",
+               { charset: doc.characterSet,
+                 referrerURI: doc.documentURIObject,
+                 private: true });
   },
 
   // Open frame in a new tab.
   openFrameInTab: function(aEvent) {
-    return openNewTabWith(this.target.ownerDocument.location.href,
-                          this.target.ownerDocument, null, aEvent);
+    var doc = this.target.ownerDocument;
+    var frameURL = doc.location.href;
+    var referrer = doc.referrer;
+    openLinkIn(frameURL, aEvent && aEvent.shiftKey ? "tabshifted" : "tab",
+               { charset: doc.characterSet,
+                 referrerURI: referrer ? makeURI(referrer) : null });
   },
 
   // Reload clicked-in frame.
@@ -1001,8 +1020,12 @@ nsContextMenu.prototype = {
 
   // Open clicked-in frame in its own window.
   openFrame: function() {
-    return openNewWindowWith(this.target.ownerDocument.location.href,
-                             this.target.ownerDocument);
+    var doc = this.target.ownerDocument;
+    var frameURL = doc.location.href;
+    var referrer = doc.referrer;
+    openLinkIn(frameURL, "window",
+               { charset: doc.characterSet,
+                 referrerURI: referrer ? makeURI(referrer) : null });
   },
 
   printFrame: function() {
