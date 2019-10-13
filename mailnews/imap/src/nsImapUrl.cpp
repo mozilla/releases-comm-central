@@ -57,6 +57,7 @@ nsImapUrl::nsImapUrl() : mLock("nsImapUrl.mLock") {
   m_flags = 0;
   m_extraStatus = ImapStatusNone;
   m_onlineSubDirSeparator = '/';
+  m_imapAction = 0;
 
   // ** jt - the following are not ref counted
   m_copyState = nullptr;

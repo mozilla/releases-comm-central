@@ -2501,6 +2501,17 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
 
   bool externalLinkUrl;
   imapUrl->GetExternalLinkUrl(&externalLinkUrl);
+
+  // Only external imap links with no action are supported. Ignore links that
+  // attempt to cause an effect such as fetching a mime part. This avoids
+  // spurious prompts to subscribe to folders due to "imap://...Fetch..." links
+  // residing in legacy emails residing in an imap mailbox.
+  if (externalLinkUrl) {
+    nsImapAction imapAction;
+    imapUrl->GetImapAction(&imapAction);
+    if (imapAction != 0) externalLinkUrl = false;
+  }
+
   if (externalLinkUrl) {
     // everything after here is to handle clicking on an external link. We only
     // want to do this if we didn't run the url through the various
