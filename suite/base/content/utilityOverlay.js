@@ -968,11 +968,21 @@ function makeURLAbsolute(aBase, aUrl, aCharset)
                             Services.io.newURI(aBase, aCharset)).spec;
 }
 
-function openAsExternal(aURL)
-{
-  var loadType = Services.prefs.getIntPref("browser.link.open_external");
+function openAsExternal(aURL) {
+  var where;
+  switch (Services.prefs.getIntPref("browser.link.open_external")) {
+    case kNewWindow :
+      where = "window";
+      break;
+    case kNewTab :
+      where = "tab";
+      break;
+    case kExistingWindow :
+    default :
+      where = "current";
+  }
   var loadInBackground = Services.prefs.getBoolPref("browser.tabs.loadDivertedInBackground");
-  openNewTabWindowOrExistingWith(loadType, aURL, null, loadInBackground);
+  openNewTabWindowOrExistingWith(aURL, where, null, loadInBackground);
 }
 
 /**
@@ -982,130 +992,76 @@ function openAsExternal(aURL)
  *
  * @param aURL
  *        The URL to open (as a string).
- * @param aNode
- *        The node from which the URL came, or null. This is used to set
+ * @param aDocument
+ *        The document from which the URL came, or null. This is used to set
  *        the referrer header and to do a security check of whether the
- *        node is allowed to reference the URL. If null, there will be no
+ *        document is allowed to reference the URL. If null, there will be no
  *        referrer header and no security check.
  * @param aPostData
  *        Form POST data, or null.
  * @param aEvent
  *        The triggering event (for the purpose of determining whether to open
  *        in the background), or null.
- *        Legacy callers may use a boolean (aReverseBackgroundPref) here to
- *        reverse the background behaviour.
  * @param aAllowThirdPartyFixup
  *        If true, then we allow the URL text to be sent to third party
  *        services (e.g., Google's I Feel Lucky) for interpretation. This
  *        parameter may be undefined in which case it is treated as false.
  * @param [optional] aReferrer
- *        If aNode is null, then this will be used as the referrer.
+ *        If aDocument is null, then this will be used as the referrer.
  *        There will be no security check.
  */
-function openNewPrivateWith(aURL, aNode, aPostData, aAllowThirdPartyFixup,
-                            aReferrer)
-{
-  return openNewTabWindowOrExistingWith(kNewPrivate, aURL, aNode, false,
+function openNewPrivateWith(aURL, aDocument, aPostData, aAllowThirdPartyFixup,
+                            aReferrer) {
+  return openNewTabWindowOrExistingWith(aURL, "private", aDocument, null,
                                         aPostData, aAllowThirdPartyFixup,
                                         aReferrer);
 }
 
-function openNewWindowWith(aURL, aNode, aPostData, aAllowThirdPartyFixup,
-                           aReferrer)
-{
-  return openNewTabWindowOrExistingWith(kNewWindow, aURL, aNode, false,
+function openNewWindowWith(aURL, aDocument, aPostData, aAllowThirdPartyFixup,
+                           aReferrer) {
+  return openNewTabWindowOrExistingWith(aURL, "window", aDocument, null,
                                         aPostData, aAllowThirdPartyFixup,
                                         aReferrer);
 }
 
-function openNewTabWith(aURL, aNode, aPostData, aEvent,
-                        aAllowThirdPartyFixup, aReferrer)
-{
-  var loadInBackground = Services.prefs.getBoolPref("browser.tabs.loadInBackground");
-  if (arguments.length == 3 && typeof aPostData == "boolean")
-  {
-    // Handle legacy boolean parameter.
-    if (aPostData)
-    {
-      loadInBackground = !loadInBackground;
-    }
-    aPostData = null;
-  }
-  else if (aEvent && aEvent.shiftKey)
-  {
-    loadInBackground = !loadInBackground;
-  }
-  return openNewTabWindowOrExistingWith(kNewTab, aURL, aNode, loadInBackground,
+function openNewTabWith(aURL, aDocument, aPostData, aEvent,
+                        aAllowThirdPartyFixup, aReferrer) {
+  let where = aEvent && aEvent.shiftKey ? "tabshifted" : "tab";
+  return openNewTabWindowOrExistingWith(aURL, where, aDocument, null,
                                         aPostData, aAllowThirdPartyFixup,
                                         aReferrer);
 }
 
-function openNewTabWindowOrExistingWith(aType, aURL, aNode, aLoadInBackground,
-                                        aPostData, aAllowThirdPartyFixup,
-                                        aReferrer)
-{
+function openNewTabWindowOrExistingWith(aURL, aWhere, aDocument,
+                                        aLoadInBackground, aPostData,
+                                        aAllowThirdPartyFixup, aReferrer) {
   // Make sure we are allowed to open this url
-  if (aNode)
-    urlSecurityCheck(aURL, aNode.nodePrincipal,
-                     Ci.nsIScriptSecurityManager.STANDARD);
-
-  // get referrer, if as external should be null
-  var referrerURI = aReferrer;
-  if (aNode instanceof Document)
-    referrerURI = aNode.documentURIObject;
-  else if (aNode instanceof Element &&
-           !/(?:^|\s)noreferrer(?:\s|$)/i.test(aNode.getAttribute("rel")))
-    referrerURI = aNode.ownerDocument.documentURIObject;
-
-  var browserWin;
-  // if we're not opening a new window, try and find existing window
-  if (aType != kNewWindow && aType != kNewPrivate)
-    browserWin = getTopWin();
+  if (aDocument)
+    urlSecurityCheck(aURL, aDocument.nodePrincipal);
 
   // Where appropriate we want to pass the charset of the
   // current document over to a new tab / window.
   var originCharset = null;
-  if (aType != kExistingWindow) {
-    var wintype = document.documentElement.getAttribute('windowtype');
-    if (wintype == "navigator:browser")
+  if (aWhere != "current") {
+    originCharset = aDocument && aDocument.characterSet;
+    if (!originCharset &&
+        document.documentElement.getAttribute("windowtype") == "navigator:browser")
       originCharset = window.content.document.characterSet;
   }
 
-  // We want to open in a new window or no existing window can be found.
-  if (!browserWin) {
-    var features = "private,chrome,all,dialog=no";
-    if (aType != kNewPrivate)
-      features = "non-" + features;
-    var charsetArg = null;
-    if (originCharset)
-      charsetArg = "charset=" + originCharset;
-    return window.openDialog(getBrowserURL(), "_blank", features,
-                             aURL, charsetArg, referrerURI, aPostData,
-                             aAllowThirdPartyFixup);
+  var isPrivate = false;
+  if (aWhere == "private") {
+    aWhere = "window";
+    isPrivate = true;
   }
-
-  // Get the existing browser object
-  var browser = browserWin.getBrowser();
-
-  // Open link in an existing window.
-  if (aType == kExistingWindow) {
-    browserWin.loadURI(aURL, referrerURI, aPostData, aAllowThirdPartyFixup);
-    browserWin.content.focus();
-    return browserWin;
-  }
-
-  // open link in new tab
-  var tab = browser.loadOneTab(aURL, {
-              referrerURI: referrerURI,
-              charset: originCharset,
-              postData: aPostData,
-              inBackground: aLoadInBackground,
-              allowThirdPartyFixup: aAllowThirdPartyFixup,
-              relatedToCurrent: !!aNode
-            });
-  if (!aLoadInBackground)
-    browserWin.content.focus();
-  return tab;
+  var referrerURI = aDocument ? aDocument.documentURIObject : aReferrer;
+  return openLinkIn(aURL, aWhere,
+                    { charset: originCharset,
+                      postData: aPostData,
+                      inBackground: aLoadInBackground,
+                      allowThirdPartyFixup: aAllowThirdPartyFixup,
+                      referrerURI: referrerURI,
+                      private: isPrivate });
 }
 
 /**
