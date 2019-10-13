@@ -2093,22 +2093,13 @@ function BrowserCloseWindow()
 // function loadURI(uri, referrer, postData, allowThirdPartyFixup, referrerPolicy,
 //                  userContextId, originPrincipal, forceAboutBlankViewerInCurrent,
 //                  triggeringPrincipal)
-function loadURI(uri, referrer, postData, allowThirdPartyFixup)
-{
+function loadURI(uri, referrer, postData, allowThirdPartyFixup) {
   try {
-    var flags = nsIWebNavigation.LOAD_FLAGS_NONE;
-    if (allowThirdPartyFixup) {
-      flags = nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP |
-              nsIWebNavigation.LOAD_FLAGS_FIXUP_SCHEME_TYPOS;
-    }
-    if (!flags && typeof postData == "number") {
-      // Deal with legacy code that passes load flags in the third argument.
-      flags = postData;
-      postData = null;
-    }
-    gBrowser.loadURIWithFlags(uri, flags, referrer, null, postData);
-  } catch (e) {
-  }
+    openLinkIn(uri, "current",
+               { referrerURI: referrer,
+                 postData: postData,
+                 allowThirdPartyFixup: allowThirdPartyFixup });
+  } catch (e) {}
 }
 
 function loadOneOrMoreURIs(aURIString, aTriggeringPrincipal) {
