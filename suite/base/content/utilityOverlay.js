@@ -1504,6 +1504,11 @@ function openUILinkIn(url, where, aAllowThirdPartyFixup, aPostData, aReferrerURI
     };
   }
 
+  if (where == "private") {
+    where = "window";
+    params.private = true;
+  }
+
   params.fromChrome = true;
 
   return openLinkIn(url, where, params);
@@ -1514,28 +1519,24 @@ function openLinkIn(url, where, params)
   if (!where || !url)
     return null;
 
+  var aFromChrome           = params.fromChrome;
   var aAllowThirdPartyFixup = params.allowThirdPartyFixup;
   var aPostData             = params.postData;
+  var aCharset              = params.charset;
   var aReferrerURI          = params.referrerURI;
-  var aRelatedToCurrent     = params.relatedToCurrent;
-  var aInitiatingDoc = params.initiatingDoc ? params.initiatingDoc : document;
-  var aIsPrivate            = params.private;
-
   var aReferrerPolicy       = ("referrerPolicy" in params ?
         params.referrerPolicy : Ci.nsIHttpChannel.REFERRER_POLICY_UNSET);
+  var aRelatedToCurrent     = params.relatedToCurrent;
+  var aInBackground         = params.inBackground;
+  var aDisallowInheritPrincipal = params.disallowInheritPrincipal;
+  var aInitiatingDoc = params.initiatingDoc ? params.initiatingDoc : document;
+  var aIsPrivate            = params.private;
   var aUserContextId        = params.userContextId;
   var aPrincipal            = params.originPrincipal;
   var aTriggeringPrincipal  = params.triggeringPrincipal;
 
   if (where == "save") {
     saveURL(url, null, null, true, true, aReferrerURI, aInitiatingDoc);
-    return null;
-  }
-
-  // TODO fix this properly with pricipals and referrers intact
-  if (where == "private") {
-    window.openDialog(getBrowserURL(), "_blank", "private,chrome,all,dialog=no",
-                      url, null, null, aPostData, aAllowThirdPartyFixup);
     return null;
   }
 
@@ -1580,6 +1581,13 @@ function openLinkIn(url, where, params)
                createInstance(Ci.nsISupportsString);
     wuri.data = url;
 
+    let charset = null;
+    if (aCharset) {
+      charset = Cc["@mozilla.org/supports-string;1"]
+                  .createInstance(Ci.nsISupportsString);
+      charset.data = "charset=" + aCharset;
+    }
+
     var allowThirdPartyFixupSupports = Cc["@mozilla.org/supports-PRBool;1"].
                                        createInstance(Ci.nsISupportsPRBool);
     allowThirdPartyFixupSupports.data = aAllowThirdPartyFixup;
@@ -1600,6 +1608,7 @@ function openLinkIn(url, where, params)
     userContextIdSupports.data = aUserContextId;
 
     sa.appendElement(wuri);
+    sa.appendElement(charset);
     sa.appendElement(referrerURISupports);
     sa.appendElement(aPostData);
     sa.appendElement(allowThirdPartyFixupSupports);
@@ -1613,8 +1622,12 @@ function openLinkIn(url, where, params)
     return;
   }
 
-  var loadInBackground =
-    Services.prefs.getBoolPref("browser.tabs.loadInBackground");
+  let loadInBackground = aInBackground;
+  if (loadInBackground == null) {
+    loadInBackground =
+      aFromChrome ? false :
+                    Services.prefs.getBoolPref("browser.tabs.loadInBackground");
+  }
 
   // reuse the browser if its current tab is empty
   if (isBrowserEmpty(w.getBrowser()))
@@ -1628,7 +1641,9 @@ function openLinkIn(url, where, params)
       flags |= Ci.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP;
       flags |= Ci.nsIWebNavigation.LOAD_FLAGS_FIXUP_SCHEME_TYPOS;
     }
-
+    if (aDisallowInheritPrincipal) {
+      flags |= Ci.nsIWebNavigation.LOAD_FLAGS_DISALLOW_INHERIT_OWNER;
+    }
     w.getBrowser().loadURIWithFlags(url, {
       triggeringPrincipal: aTriggeringPrincipal,
       flags,
@@ -1652,6 +1667,7 @@ function openLinkIn(url, where, params)
     var tab = browser.addTab(url, {
                 referrerURI: aReferrerURI,
                 referrerPolicy: aReferrerPolicy,
+                charset: aCharset,
                 postData: aPostData,
                 allowThirdPartyFixup: aAllowThirdPartyFixup,
                 relatedToCurrent: aRelatedToCurrent,
