@@ -253,6 +253,10 @@ label.label {
   border-bottom: 1px solid #A3A3A3;
 }
 
+#completed-date-picker {
+  margin-inline-start: 4px;
+}
+
 /*--------------------------------------------------------------------
  *   Event dialog tabbox section
  *-------------------------------------------------------------------*/

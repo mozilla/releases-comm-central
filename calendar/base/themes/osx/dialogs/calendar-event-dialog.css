@@ -23,3 +23,7 @@ vbox > #link-image-bottom {
   margin-top: -1.2em;
   margin-bottom: 1.2em;
 }
+
+#percent-complete-textbox {
+  padding: 2px;
+}

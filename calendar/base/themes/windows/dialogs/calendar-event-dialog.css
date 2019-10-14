@@ -13,3 +13,7 @@
 #timezone-endtime {
   margin-inline-start: 16px;
 }
+
+#percent-complete-textbox {
+  padding: 2px;
+}
