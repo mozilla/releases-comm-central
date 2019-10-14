@@ -31,7 +31,6 @@ lightning.jar:
     content/imip-bar.js                                    (content/imip-bar.js)
     content/imip-bar-overlay.xul                           (content/imip-bar-overlay.xul)
     content/lightning-calendar-creation.js                 (content/lightning-calendar-creation.js)
-    content/lightning-calendar-creation.xul                (content/lightning-calendar-creation.xul)
     content/lightning-calendar-properties.js               (content/lightning-calendar-properties.js)
     content/lightning-invitation.xhtml                     (content/lightning-invitation.xhtml)
     content/lightning-item-toolbar.xul                     (content/lightning-item-toolbar.xul)
@@ -56,7 +55,6 @@ lightning.jar:
     content/suite-overlay-sidebar.xul                      (content/suite-overlay-sidebar.xul)
 #endif
     content/caldav-lightning-calendar-creation.js          (../providers/caldav/content/caldav-lightning-calendar-creation.js)
-    content/caldav-lightning-calendar-creation.xul         (../providers/caldav/content/caldav-lightning-calendar-creation.xul)
     content/caldav-lightning-calendar-properties.js        (../providers/caldav/content/caldav-lightning-calendar-properties.js)
     content/caldav-lightning-utils.js                      (../providers/caldav/content/caldav-lightning-utils.js)
 

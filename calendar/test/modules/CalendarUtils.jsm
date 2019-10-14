@@ -548,7 +548,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
       data.network.format = "ics";
     }
     let formatOption = wizardlookup(`
-            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/[0]/
+            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[0]/[1]/
             id("calendar-format")/{"value":"${data.network.format}"}
         `);
     wizard.waitForElement(formatOption);
@@ -563,8 +563,8 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
     }
     wizard.type(
       wizardlookup(`
-            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[1]/id("calendar-location-row")/
-            id("calendar-uri")
+            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/id("calendar-location-row")/
+            id("calendar-uri-td")/{"class":"input-container"}/id("calendar-uri")
         `),
       data.network.location
     );

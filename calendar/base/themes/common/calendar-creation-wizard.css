@@ -2,7 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#customize-rows > row {
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+td {
+  width: 100%;
+}
+
+th {
+  font-weight: normal;
+  text-align: start;
+}
+
+#customize-table td,
+#customize-table th {
   min-height: 26px;
 }
 
