@@ -1250,10 +1250,15 @@ function folderURIToPath(uri) {
  * @return {String}
  */
 function folderPathToURI(accountId, path) {
-  let rootURI = MailServices.accounts.getAccount(accountId).incomingServer
-    .rootFolder.URI;
+  let server = MailServices.accounts.getAccount(accountId).incomingServer;
+  let rootURI = server.rootFolder.URI;
   if (path == "/") {
     return rootURI;
+  }
+  // The .URI property of an IMAP folder doesn't have %-encoded characters.
+  // If encoded here, the folder lookup service won't find the folder.
+  if (server.type == "imap") {
+    return rootURI + path;
   }
   return (
     rootURI +
