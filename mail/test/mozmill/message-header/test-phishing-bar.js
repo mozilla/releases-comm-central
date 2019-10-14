@@ -195,7 +195,7 @@ function test_ignore_phishing_warning_from_eml_attachment() {
  * get a warning when clicking the link.
  * We'll have http://130.128.4.1 vs. http://130.128.4.1/
  */
-function test_no_phishing_warning_for_ip_sameish_text() {
+function disabled_test_no_phishing_warning_for_ip_sameish_text() {
   be_in_folder(folder);
   select_click_row(2); // Mail with Public IP address.
   click_link_if_available();
@@ -207,7 +207,7 @@ function test_no_phishing_warning_for_ip_sameish_text() {
  * has a different subdomain (e.g. http://subdomain.google.com/ vs
  * http://google.com/), we don't get a warning if the link is pressed.
  */
-function test_no_phishing_warning_for_subdomain() {
+function disabled_test_no_phishing_warning_for_subdomain() {
   be_in_folder(folder);
   select_click_row(3);
   click_link_if_available();
@@ -222,7 +222,7 @@ function test_no_phishing_warning_for_subdomain() {
  * Test that when clicking a link where the text and/or href
  * has no TLD, we still warn as appropriate.
  */
-function test_phishing_warning_for_local_domain() {
+function disabled_test_phishing_warning_for_local_domain() {
   be_in_folder(folder);
   select_click_row(5);
 
