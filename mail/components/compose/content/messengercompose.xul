@@ -2062,14 +2062,16 @@
               <label id="subjectLabel" value="&subject.label;" accesskey="&subject.accesskey;" control="msgSubject"/>
             </hbox>
             <hbox flex="1" align="center" class="input-container">
-              <html:input id="msgSubject"
-                          type="text"
-                          class="input-inline"
-                          disableonsend="true"
-                          spellcheck="true"
-                          oninput="gContentChanged = true; SetComposeWindowTitle();"
-                          onkeypress="subjectKeyPress(event);"
-                          aria-labelledby="subjectLabel"/>
+              <moz-input-box spellcheck="true" style="flex: 1;">
+                <html:input id="msgSubject"
+                            type="text"
+                            class="input-inline textbox-input"
+                            disableonsend="true"
+                            oninput="gContentChanged = true; SetComposeWindowTitle();"
+                            onkeypress="subjectKeyPress(event);"
+                            aria-labelledby="subjectLabel"
+                            style="-moz-box-flex: 1;"/>
+                </moz-input-box>
             </hbox>
           </hbox>
         </vbox>
