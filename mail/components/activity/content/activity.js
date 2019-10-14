@@ -106,7 +106,7 @@ var activityObject = {
         // create a group if it's not already created.
         if (!group) {
           group = document.createXULElement("richlistitem", {
-            is: "activity-group",
+            is: "activity-group-richlistitem",
           });
           this._activityLogger.info("created group element");
           // Set the context type and object of the newly created group
@@ -265,7 +265,10 @@ var activityObject = {
         }
         break;
       case event.DOM_VK_LEFT:
-        if (event.target.tagName == "activity-group") {
+        if (
+          event.target.tagName == "richlistitem" &&
+          event.target.getAttribute("is") === "activity-group-richlistitem"
+        ) {
           var parent = event.target.parentNode;
           if (parent.tagName == "richlistbox") {
             event.target.processes.clearSelection();

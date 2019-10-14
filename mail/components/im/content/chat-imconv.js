@@ -19,13 +19,13 @@
   );
 
   /**
-   * The MozChatConv widget displays opened conversation information from the
+   * The MozChatConvRichlistitem widget displays opened conversation information from the
    * contacts: i.e name and icon. It gets displayed under conversation expansion
    * twisty in the contactlist richlistbox.
    *
    * @extends {MozElements.MozRichlistitem}
    */
-  class MozChatConv extends MozElements.MozRichlistitem {
+  class MozChatConvRichlistitem extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {
       return {
         ".box-line": "selected",
@@ -42,7 +42,7 @@
         return;
       }
 
-      this.setAttribute("is", "chat-imconv");
+      this.setAttribute("is", "chat-imconv-richlistitem");
 
       this.addEventListener(
         "mousedown",
@@ -305,11 +305,11 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozChatConv, [
+  MozXULElement.implementCustomInterface(MozChatConvRichlistitem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("chat-imconv", MozChatConv, {
+  customElements.define("chat-imconv-richlistitem", MozChatConvRichlistitem, {
     extends: "richlistitem",
   });
 }

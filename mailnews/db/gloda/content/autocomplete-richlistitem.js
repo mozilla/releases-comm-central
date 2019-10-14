@@ -209,19 +209,13 @@
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define(
-    "glodacomplete-base-richlistitem",
-    MozGlodacompleteBaseRichlistitem,
-    { extends: "richlistitem" }
-  );
-
   /**
-   * The MozGlodaContactChunk widget displays an autocomplete item with
+   * The MozGlodaContactChunkRichlistitem widget displays an autocomplete item with
    * contact chunk: e.g. image, name and description of the contact.
    *
    * @extends MozGlodacompleteBaseRichlistitem
    */
-  class MozGlodaContactChunk extends MozGlodacompleteBaseRichlistitem {
+  class MozGlodaContactChunkRichlistitem extends MozGlodacompleteBaseRichlistitem {
     static get inheritedAttributes() {
       return {
         "description.ac-comment": "selected",
@@ -236,6 +230,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      this.setAttribute("is", "gloda-contact-chunk-richlistitem");
       this.appendChild(
         MozXULElement.parseXULToFragment(`
           <image class="ac-type-picture"></image>
@@ -332,22 +327,27 @@
     }
   }
 
-  customElements.define("gloda-contact-chunk", MozGlodaContactChunk, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "gloda-contact-chunk-richlistitem",
+    MozGlodaContactChunkRichlistitem,
+    {
+      extends: "richlistitem",
+    }
+  );
 
   /**
-   * The MozGlodaFulltextAll widget displays an autocomplete full text of
+   * The MozGlodaFulltextAllRichlistitem widget displays an autocomplete full text of
    * all the items: e.g. full text explanation of the item.
    *
    * @extends MozGlodacompleteBaseRichlistitem
    */
-  class MozGlodaFulltextAll extends MozGlodacompleteBaseRichlistitem {
+  class MozGlodaFulltextAllRichlistitem extends MozGlodacompleteBaseRichlistitem {
     connectedCallback() {
       super.connectedCallback();
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      this.setAttribute("is", "gloda-fulltext-all-richlistitem");
       this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation");
       let label = gGlodaCompleteStrings.get(
@@ -365,26 +365,31 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozGlodaFulltextAll, [
+  MozXULElement.implementCustomInterface(MozGlodaFulltextAllRichlistitem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("gloda-fulltext-all", MozGlodaFulltextAll, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "gloda-fulltext-all-richlistitem",
+    MozGlodaFulltextAllRichlistitem,
+    {
+      extends: "richlistitem",
+    }
+  );
 
   /**
-   * The MozGlodaFulltextAll widget displays an autocomplete full text
+   * The MozGlodaFulltextAllRichlistitem widget displays an autocomplete full text
    * of single item: e.g. full text explanation of the item.
    *
    * @extends MozGlodacompleteBaseRichlistitem
    */
-  class MozGlodaFulltextSingle extends MozGlodacompleteBaseRichlistitem {
+  class MozGlodaFulltextSingleRichlistitem extends MozGlodacompleteBaseRichlistitem {
     connectedCallback() {
       super.connectedCallback();
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      this.setAttribute("is", "gloda-fulltext-single-richlistitem");
       this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation", "gloda-fulltext-single");
       this._parameters = document.createXULElement("description");
@@ -406,26 +411,31 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozGlodaFulltextSingle, [
+  MozXULElement.implementCustomInterface(MozGlodaFulltextSingleRichlistitem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("gloda-fulltext-single", MozGlodaFulltextSingle, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "gloda-fulltext-single-richlistitem",
+    MozGlodaFulltextSingleRichlistitem,
+    {
+      extends: "richlistitem",
+    }
+  );
 
   /**
-   * The MozGlodaMulti widget displays an autocomplete description of multiple
+   * The MozGlodaMultiRichlistitem widget displays an autocomplete description of multiple
    * type items: e.g. explanation of the items.
    *
    * @extends MozGlodacompleteBaseRichlistitem
    */
-  class MozGlodaMulti extends MozGlodacompleteBaseRichlistitem {
+  class MozGlodaMultiRichlistitem extends MozGlodacompleteBaseRichlistitem {
     connectedCallback() {
       super.connectedCallback();
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      this.setAttribute("is", "gloda-multi-richlistitem");
       this._explanation = document.createXULElement("description");
       this._identityHolder = document.createXULElement("hbox");
       this._identityHolder.setAttribute("flex", "1");
@@ -443,7 +453,10 @@
       let node = document.createXULElement("richlistitem");
 
       node.obj = aObj;
-      node.setAttribute("type", "gloda-" + this.row.nounDef.name + "-chunk");
+      node.setAttribute(
+        "type",
+        "gloda-" + this.row.nounDef.name + "-chunk-richlistitem"
+      );
 
       this._identityHolder.appendChild(node);
     }
@@ -471,21 +484,21 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozGlodaMulti, [
+  MozXULElement.implementCustomInterface(MozGlodaMultiRichlistitem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("gloda-multi", MozGlodaMulti, {
+  customElements.define("gloda-multi-richlistitem", MozGlodaMultiRichlistitem, {
     extends: "richlistitem",
   });
 
   /**
-   * The MozGlodaSingleIdentity widget displays an autocomplete item with
+   * The MozGlodaSingleIdentityRichlistitem widget displays an autocomplete item with
    * single identity: e.g. image, name and description of the item.
    *
    * @extends MozGlodacompleteBaseRichlistitem
    */
-  class MozGlodaSingleIdentity extends MozGlodacompleteBaseRichlistitem {
+  class MozGlodaSingleIdentityRichlistitem extends MozGlodacompleteBaseRichlistitem {
     static get inheritedAttributes() {
       return {
         "description.ac-comment": "selected",
@@ -501,6 +514,7 @@
         return;
       }
 
+      this.setAttribute("is", "gloda-single-identity-richlistitem");
       this.appendChild(
         MozXULElement.parseXULToFragment(`
           <hbox class="gloda-single-identity">
@@ -598,26 +612,31 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozGlodaSingleIdentity, [
+  MozXULElement.implementCustomInterface(MozGlodaSingleIdentityRichlistitem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("gloda-single-identity", MozGlodaSingleIdentity, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "gloda-single-identity-richlistitem",
+    MozGlodaSingleIdentityRichlistitem,
+    {
+      extends: "richlistitem",
+    }
+  );
 
   /**
-   * The MozGlodaSingleTag widget displays an autocomplete item with
+   * The MozGlodaSingleTagRichlistitem widget displays an autocomplete item with
    * single tag: e.g. explanation of the item.
    *
    * @extends MozGlodacompleteBaseRichlistitem
    */
-  class MozGlodaSingleTag extends MozGlodacompleteBaseRichlistitem {
+  class MozGlodaSingleTagRichlistitem extends MozGlodacompleteBaseRichlistitem {
     connectedCallback() {
       super.connectedCallback();
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      this.setAttribute("is", "gloda-single-tag-richlistitem");
       this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation", "gloda-single");
       this.appendChild(this._explanation);
@@ -635,11 +654,15 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozGlodaSingleTag, [
+  MozXULElement.implementCustomInterface(MozGlodaSingleTagRichlistitem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("gloda-single-tag", MozGlodaSingleTag, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "gloda-single-tag-richlistitem",
+    MozGlodaSingleTagRichlistitem,
+    {
+      extends: "richlistitem",
+    }
+  );
 }

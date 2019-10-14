@@ -38,6 +38,7 @@
         return;
       }
 
+      this.setAttribute("is", "chat-account-richlistitem");
       this.addEventListener("dblclick", event => {
         if (event.button == 0) {
           // If we double clicked on a widget that has already done

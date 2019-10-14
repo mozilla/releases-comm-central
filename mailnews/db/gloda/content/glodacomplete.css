@@ -45,8 +45,11 @@ span.ac-emphasize-text {
   margin-inline-start: 1em;
 }
 
-/* Match type gloda-single-tag, gloda-single-identity, gloda-fulltext-single,
-   gloda-fulltext-all, gloda-contact-chunk and gloda-multi */
+/**
+ * Match type gloda-single-tag-richlistitem, gloda-single-identity-richlistitem,
+ * gloda-fulltext-single-richlistitem, gloda-fulltext-all, gloda-contact-chunk-richlistitem
+ * and gloda-multi.
+ */
 .autocomplete-richlistitem[type^="gloda"] {
   overflow: -moz-hidden-unscrollable;
 }

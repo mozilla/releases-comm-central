@@ -36,6 +36,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       }
 
       this.setAttribute("is", "calendar-invitations-richlistitem");
+      this.classList.add("calendar-invitations-richlistitem");
 
       this.appendChild(
         MozXULElement.parseXULToFragment(
@@ -232,7 +233,6 @@ function onLoad() {
         let newNode = document.createXULElement("richlistitem", {
           is: "calendar-invitations-richlistitem",
         });
-        newNode.classList.add("calendar-invitations-richlistitem");
         richListBox.appendChild(newNode);
         newNode.calendarItem = item;
       }

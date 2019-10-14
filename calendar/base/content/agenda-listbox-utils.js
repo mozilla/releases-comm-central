@@ -88,11 +88,11 @@ agendaListbox.uninit = function() {
 
 /**
  * Adds a period item to the listbox. This is a section of the today pane like
- * "Today", "Tomorrow", and is usually a <agenda-header-richlist-item> tag. A
+ * "Today", "Tomorrow", and is usually a <agenda-header-richlistitem> tag. A
  * copy of the template node is made and added to the agenda listbox.
  *
  * @param aPeriod       The period item to add.
- * @param aItemId       The id of an <agenda-header-richlist-item> to add to.
+ * @param aItemId       The id of an <agenda-header-richlistitem> to add to.
  */
 agendaListbox.addPeriodListItem = function(aPeriod, aItemId) {
   aPeriod.listItem = document.getElementById(aItemId);
@@ -282,9 +282,9 @@ agendaListbox.getEnd = function() {
 agendaListbox.addItemBefore = function(aNewItem, aAgendaItem, aPeriod, visible) {
   let newelement = null;
   if (aNewItem.startDate.isDate) {
-    newelement = document.createXULElement("richlistitem", { is: "agenda-allday-richlist-item" });
+    newelement = document.createXULElement("richlistitem", { is: "agenda-allday-richlistitem" });
   } else {
-    newelement = document.createXULElement("richlistitem", { is: "agenda-richlist-item" });
+    newelement = document.createXULElement("richlistitem", { is: "agenda-richlistitem" });
   }
   // set the item at the richlistItem. When the duration of the period
   // is bigger than 1 (day) the starttime of the item has to include
@@ -803,7 +803,7 @@ agendaListbox.isEventListItem = function(aListItem) {
   let isListItem = aListItem != null;
   if (isListItem) {
     let localName = aListItem.getAttribute("is");
-    isListItem = localName == "agenda-richlist-item" || localName == "agenda-allday-richlist-item";
+    isListItem = localName == "agenda-richlistitem" || localName == "agenda-allday-richlistitem";
   }
   return isListItem;
 };
@@ -955,8 +955,8 @@ agendaListbox.calendarObserver.onPropertyChanged = function(aCalendar, aName, aV
         node = node.nextElementSibling
       ) {
         // Change color on all nodes that don't do so themselves, which
-        // is currently only he agenda-richlist-item
-        if (node.localName != "agenda-richlist-item") {
+        // is currently only he agenda-richlistitem
+        if (node.localName != "agenda-richlistitem") {
           continue;
         }
         node.refreshColor();

@@ -31,9 +31,14 @@
  * Images for buttons in the interface
  */
 
-activity-process button {
+richlistitem[is="activity-process-richlistitem"] button {
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
 }
+
+richlistitem[is="activity-process-richlistitem"]:not([selected="true"]) button {
+  -moz-user-focus: none;
+}
+
 .cancel {
   -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
@@ -81,7 +86,7 @@ activity-process button {
   display: inline;
 }
 
-activity-process button {
+richlistitem[is="activity-process-richlistitem"] button {
   -moz-appearance: none;
   min-height: 16px;
   min-width: 16px;
@@ -91,7 +96,7 @@ activity-process button {
   margin: 0 1px;
 }
 
-activity-event button {
+richlistitem[is="activity-event-richlistitem"] button {
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
 }
 .undo {
@@ -104,7 +109,7 @@ activity-event button {
   -moz-image-region: rect(32px, 48px, 48px, 32px);
 }
 
-activity-event button {
+richlistitem[is="activity-event-richlistitem"] button {
   -moz-appearance: none;
   min-height: 16px;
   min-width: 16px;
@@ -114,7 +119,7 @@ activity-event button {
   margin: 0 1px;
 }
 
-activity-warning button {
+richlistitem[is="activity-warning-richlistitem"] button {
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
 }
 .recover {
@@ -127,7 +132,7 @@ activity-warning button {
   -moz-image-region: rect(32px, 48px, 48px, 32px);
 }
 
-activity-warning button {
+richlistitem[is="activity-warning-richlistitem"] button {
   -moz-appearance: none;
   min-height: 16px;
   min-width: 16px;
@@ -137,13 +142,13 @@ activity-warning button {
   margin: 0 1px;
 }
 
-.activitygroupbox activity-event,
-.activitygroupbox activity-warning,
-.activitygroupbox activity-process {
+.activitygroupbox richlistitem[is="activity-event-richlistitem"],
+.activitygroupbox richlistitem[is="activity-warning-richlistitem"],
+.activitygroupbox richlistitem[is="activity-process-richlistitem"] {
   padding-inline-start: 3px;
 }
 
-activity-group button {
+richlistitem[is="activity-group-richlistitem"] button {
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
 }
 .retry {
@@ -156,7 +161,7 @@ activity-group button {
   -moz-image-region: rect(32px, 48px, 48px, 32px);
 }
 
-activity-group button {
+richlistitem[is="activity-group-richlistitem"] button {
   -moz-appearance: none;
   min-height: 16px;
   min-width: 16px;
@@ -168,24 +173,24 @@ activity-group button {
 
 /* Specialized Activity Bindings */
 
-activity-process {
+richlistitem[is="activity-process-richlistitem"] {
   padding: 3px 8px;
   min-height: 40px !important;
 }
 
-activity-process .statusText {
+richlistitem[is="activity-process-richlistitem"] .statusText {
   font-size: smaller;
   color: #555;
 }
 
-activity-event .dateTime,
-activity-event .statusText {
+richlistitem[is="activity-event-richlistitem"] .dateTime,
+richlistitem[is="activity-event-richlistitem"] .statusText {
   font-size: smaller;
   color: #555;
 }
 
-activity-warning .dateTime,
-activity-warning .statusText {
+richlistitem[is="activity-warning-richlistitem"] .dateTime,
+richlistitem[is="activity-warning-richlistitem"] .statusText {
   font-size: smaller;
   color: #555;
 }
@@ -267,7 +272,7 @@ image.compactMail {
 }
 
 richlistbox:focus .activityitem[selected="true"],
-richlistbox:focus activity-group[selected="true"] {
+richlistbox:focus activity-richlistitem[is="activity-group-richlistitem"][selected="true"] {
   background-color: Highlight;
   color: HighlightText;
 }

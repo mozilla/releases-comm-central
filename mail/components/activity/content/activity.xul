@@ -12,7 +12,6 @@
 #endif
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/activityBinding.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/activity/activity.css"?>
 
 <!DOCTYPE window [

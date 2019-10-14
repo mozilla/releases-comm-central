@@ -98,14 +98,14 @@
 
       if (
         localName == "richlistitem" &&
-        elt.getAttribute("is") == "chat-group"
+        elt.getAttribute("is") == "chat-group-richlistitem"
       ) {
         return false;
       }
 
       if (
         localName == "richlistitem" &&
-        elt.getAttribute("is") == "chat-imconv" &&
+        elt.getAttribute("is") == "chat-imconv-richlistitem" &&
         elt.conv
       ) {
         return this.updateTooltipFromConversation(elt.conv);
@@ -113,7 +113,7 @@
 
       if (
         localName == "richlistitem" &&
-        elt.getAttribute("is") == "chat-contact"
+        elt.getAttribute("is") == "chat-contact-richlistitem"
       ) {
         return this.updateTooltipFromBuddy(
           elt.contact.preferredBuddy.preferredAccountBuddy

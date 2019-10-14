@@ -95,10 +95,10 @@ function buddyListContextMenu(aXulMenu) {
   let localName = this.target.localName;
   this.onContact =
     localName == "richlistitem" &&
-    this.target.getAttribute("is") == "chat-contact";
+    this.target.getAttribute("is") == "chat-contact-richlistitem";
   this.onConv =
     localName == "richlistitem" &&
-    this.target.getAttribute("is") == "chat-imconv";
+    this.target.getAttribute("is") == "chat-imconv-richlistitem";
   this.shouldDisplay = this.onContact || this.onConv;
 
   let hide = !this.onContact;
@@ -296,7 +296,7 @@ var chatTabType = {
     gChatTab = aTab;
     chatHandler._onTabActivated();
     // The next call may change the selected conversation, but that
-    // will be handled by the selected mutation observer of the chat-imconv.
+    // will be handled by the selected mutation observer of the chat-imconv-richlistitem.
     chatHandler._updateSelectedConversation();
     chatHandler._updateFocus();
   },
@@ -423,7 +423,7 @@ var chatHandler = {
       (!selectedItem ||
         (selectedItem == convs &&
           convs.nextElementSibling.localName != "richlistitem" &&
-          convs.nextElementSibling.getAttribute("is") != "chat-imconv"));
+          convs.nextSibling.getAttribute("is") != "chat-imconv-richlistitem"));
     let elt = convs.addContact(aConv, "imconv");
     if (shouldSelect) {
       list.selectedItem = elt;
@@ -520,7 +520,7 @@ var chatHandler = {
       if (
         selectedItem &&
         selectedItem.localName == "richlistitem" &&
-        selectedItem.getAttribute("is") == "chat-imconv" &&
+        selectedItem.getAttribute("is") == "chat-imconv-richlistitem" &&
         !selectedItem.hidden
       ) {
         title += " - " + selectedItem.getAttribute("displayname");
@@ -746,7 +746,7 @@ var chatHandler = {
     }
     if (
       item.localName == "richlistitem" &&
-      item.getAttribute("is") == "chat-imconv"
+      item.getAttribute("is") == "chat-imconv-richlistitem"
     ) {
       document.getElementById("conversationsDeck").selectedPanel =
         item.convView;
@@ -754,7 +754,7 @@ var chatHandler = {
       item.convView.focus();
     } else if (
       item.localName == "richlistitem" &&
-      item.getAttribute("is") == "chat-contact"
+      item.getAttribute("is") == "chat-contact-richlistitem"
     ) {
       item.openConversation();
     }
@@ -808,7 +808,7 @@ var chatHandler = {
     let item = document.getElementById("contactlistbox").selectedItem;
     if (
       item.localName == "richlistitem" &&
-      item.getAttribute("is") == "chat-imconv" &&
+      item.getAttribute("is") == "chat-imconv-richlistitem" &&
       item.convView
     ) {
       item.convView.focus();
@@ -821,7 +821,7 @@ var chatHandler = {
       !item ||
       item.hidden ||
       (item.localName == "richlistitem" &&
-        item.getAttribute("is") == "chat-group")
+        item.getAttribute("is") == "chat-group-richlistitem")
     ) {
       this._hideContextPane(true);
       document.getElementById(
@@ -868,7 +868,7 @@ var chatHandler = {
       });
     } else if (
       item.localName == "richlistitem" &&
-      item.getAttribute("is") == "chat-imconv"
+      item.getAttribute("is") == "chat-imconv-richlistitem"
     ) {
       let convDeck = document.getElementById("conversationsDeck");
       if (!item.convView) {
@@ -941,7 +941,7 @@ var chatHandler = {
       this.observedContact = null;
     } else if (
       item.localName == "richlistitem" &&
-      item.getAttribute("is") == "chat-contact"
+      item.getAttribute("is") == "chat-contact-richlistitem"
     ) {
       if (gOtrEnabled) {
         OTRUI.hideOTRButton();
@@ -953,7 +953,7 @@ var chatHandler = {
         this.observedContact.id == contact.id
       ) {
         return; // onselect has just been fired again because a status
-        // change caused the chat-contact to move.
+        // change caused the chat-contact-richlistitem to move.
         // Return early to avoid flickering and changing the selected log.
       }
 
@@ -1152,7 +1152,7 @@ var chatHandler = {
     if (
       selectedItem &&
       selectedItem.localName == "richlistitem" &&
-      selectedItem.getAttribute("is") == "chat-imconv" &&
+      selectedItem.getAttribute("is") == "chat-imconv-richlistitem" &&
       selectedItem.directedUnreadCount
     ) {
       selectedItem.update();
@@ -1180,7 +1180,7 @@ var chatHandler = {
       if (
         !selectedItem ||
         (selectedItem.localName == "richlistitem" &&
-          selectedItem.getAttribute("is") == "chat-group")
+          selectedItem.getAttribute("is") == "chat-group-richlistitem")
       ) {
         list.selectedItem = firstConv;
       }
@@ -1216,7 +1216,7 @@ var chatHandler = {
     if (
       !selectedItem ||
       (selectedItem.localName != "richlistitem" &&
-        selectedItem.getAttribute("is") != "chat-imconv")
+        selectedItem.getAttribute("is") != "chat-imconv-richlistitem")
     ) {
       return null;
     }
@@ -1479,7 +1479,7 @@ var chatHandler = {
     let current;
     if (
       aList.selectedItem.localName == "richlistitem" &&
-      aList.selectedItem.getAttribute("is") == "chat-imconv"
+      aList.selectedItem.getAttribute("is") == "chat-imconv-richlistitem"
     ) {
       current = aList.selectedIndex - aList.getIndexOfItem(conversations[0]);
     }
@@ -1566,7 +1566,7 @@ var chatHandler = {
         let item = listbox.selectedItem;
         if (
           item.localName == "richlistitem" &&
-          item.getAttribute("is") == "chat-imconv" &&
+          item.getAttribute("is") == "chat-imconv-richlistitem" &&
           item.convView
         ) {
           item.convView.focus();

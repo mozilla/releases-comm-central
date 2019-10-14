@@ -273,7 +273,7 @@
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-richlistitem[is="agenda-header-richlist-item"] {
+richlistitem[is="agenda-header-richlistitem"] {
   -moz-user-focus: normal;
   display: block;
 }
@@ -282,7 +282,7 @@ richlistitem[is="agenda-richlist-item"] {
   -moz-user-focus: normal;
 }
 
-richlistitem[is="agenda-allday-richlist-item"] {
+richlistitem[is="agenda-allday-richlistitem"] {
   -moz-user-focus: normal;
 }
 

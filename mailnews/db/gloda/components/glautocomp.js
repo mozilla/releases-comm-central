@@ -5,9 +5,9 @@
 /**
  * glautocomp.js decides which autocomplete item type to
  * use when one enters text in global search box. There are
- * following types of autocomplete item: gloda-contact-chunk,
- * gloda-fulltext-all, gloda-fulltext-single,gloda-multi,
- * gloda-single-identity, gloda-single-tag.
+ * following types of autocomplete item: gloda-contact-chunk-richlistitem,
+ * gloda-fulltext-all-richlistitem, gloda-fulltext-single-richlistitem, gloda-multi-richlistitem,
+ * gloda-single-identity-richlistitem, gloda-single-tag-richlistitem.
  */
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -23,7 +23,7 @@ var FreeTagNoun = null;
 function ResultRowFullText(aItem, words, typeForStyle) {
   this.item = aItem;
   this.words = words;
-  this.typeForStyle = "gloda-fulltext-" + typeForStyle;
+  this.typeForStyle = "gloda-fulltext-" + typeForStyle + "-richlistitem";
 }
 ResultRowFullText.prototype = {
   multi: false,
@@ -36,7 +36,7 @@ function ResultRowSingle(aItem, aCriteriaType, aCriteria, aExplicitNounID) {
   this.criteriaType = aCriteriaType;
   this.criteria = aCriteria;
   this.item = aItem;
-  this.typeForStyle = "gloda-single-" + this.nounDef.name;
+  this.typeForStyle = "gloda-single-" + this.nounDef.name + "-richlistitem";
 }
 ResultRowSingle.prototype = {
   multi: false,
@@ -54,7 +54,7 @@ function ResultRowMulti(aNounID, aCriteriaType, aCriteria, aQuery) {
 }
 ResultRowMulti.prototype = {
   multi: true,
-  typeForStyle: "gloda-multi",
+  typeForStyle: "gloda-multi-richlistitem",
   fullText: false,
   onItemsAdded(aItems) {
     if (this.renderer) {

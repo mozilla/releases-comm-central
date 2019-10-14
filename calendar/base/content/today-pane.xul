@@ -354,18 +354,18 @@
                 </menupopup>
               </menu>
             </menupopup>
-            <richlistitem is="agenda-header-richlist-item" id="today-header"
-                          class="agenda-header-richlist-item"
+            <richlistitem is="agenda-header-richlistitem" id="today-header"
+                          class="agenda-header-richlistitem"
                           title="&calendar.today.button.label;"
                           checked="true"
                           persist="checked"/>
-            <richlistitem is="agenda-header-richlist-item" id="tomorrow-header"
-                          class="agenda-header-richlist-item"
+            <richlistitem is="agenda-header-richlistitem" id="tomorrow-header"
+                          class="agenda-header-richlistitem"
                           title="&calendar.tomorrow.button.label;"
                           checked="false"
                           persist="checked"/>
-            <richlistitem is="agenda-header-richlist-item" id="nextweek-header"
-                          class="agenda-header-richlist-item"
+            <richlistitem is="agenda-header-richlistitem" id="nextweek-header"
+                          class="agenda-header-richlistitem"
                           title="&calendar.upcoming.button.label;"
                           checked="false"
                           persist="checked"/>

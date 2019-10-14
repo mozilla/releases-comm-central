@@ -4,11 +4,11 @@
 
 @namespace html url(http://www.w3.org/1999/xhtml);
 
-richlistitem[is="chat-group"] {
+richlistitem[is="chat-group-richlistitem"] {
   -moz-box-align: center;
 }
 
-richlistitem[is="chat-contact"] {
+richlistitem[is="chat-contact-richlistitem"] {
   -moz-box-align: center;
 }
 
@@ -21,11 +21,11 @@ richlistitem[is="chat-contact"] {
   display: none;
 }
 
-richlistitem[is="chat-contact"][cansend]:hover .startChatBubble {
+richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
   display: -moz-box;
 }
 
-richlistitem[is="chat-imconv"] {
+richlistitem[is="chat-imconv-richlistitem"] {
   -moz-box-align: center;
 }
 

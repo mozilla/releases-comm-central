@@ -58,7 +58,7 @@ nsActivity.prototype = {
 
 function nsActivityProcess() {
   nsActivity.call(this);
-  this.bindingName = "activity-process";
+  this.bindingName = "activity-process-richlistitem";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
 }
 
@@ -244,7 +244,7 @@ nsActivityProcess.prototype = {
 
 function nsActivityEvent() {
   nsActivity.call(this);
-  this.bindingName = "activity-event";
+  this.bindingName = "activity-event-richlistitem";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
 }
 
@@ -289,7 +289,7 @@ nsActivityEvent.prototype = {
 
 function nsActivityWarning() {
   nsActivity.call(this);
-  this.bindingName = "activity-warning";
+  this.bindingName = "activity-warning-richlistitem";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
 }
 

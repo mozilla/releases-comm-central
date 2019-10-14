@@ -97,13 +97,13 @@
                 <richlistbox id="contactlistbox"
                              context="buddyListContextMenu"
                              tooltip="imTooltip" flex="1">
-                  <richlistitem is="chat-group" id="conversationsGroup"
+                  <richlistitem is="chat-group-richlistitem" id="conversationsGroup"
                                 name="&conversationsHeader.label;"/>
-                  <richlistitem is="chat-imconv" id="searchResultConv"
+                  <richlistitem is="chat-imconv-richlistitem" id="searchResultConv"
                                 displayname="&searchResultConversation.label;" hidden="true"/>
-                  <richlistitem is="chat-group" id="onlinecontactsGroup"
+                  <richlistitem is="chat-group-richlistitem" id="onlinecontactsGroup"
                                 name="&onlineContactsHeader.label;"/>
-                  <richlistitem is="chat-group" id="offlinecontactsGroup"
+                  <richlistitem is="chat-group-richlistitem" id="offlinecontactsGroup"
                                 name="&offlineContactsHeader.label;"
                                 class="closed"/>
                 </richlistbox>

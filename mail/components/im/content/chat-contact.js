@@ -13,13 +13,13 @@
   );
 
   /**
-   * The MozChatContact widget displays contact information about user under
+   * The MozChatContactRichlistitem widget displays contact information about user under
    * chat-groups, online contacts and offline contacts: i.e. icon and username.
    * On double clicking the element, it gets moved into the conversations.
    *
    * @extends {MozElements.MozRichlistitem}
    */
-  class MozChatContact extends MozElements.MozRichlistitem {
+  class MozChatContactRichlistitem extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {
       return {
         ".box-line": "selected",
@@ -34,7 +34,7 @@
         return;
       }
 
-      this.setAttribute("is", "chat-contact");
+      this.setAttribute("is", "chat-contact-richlistitem");
 
       this.addEventListener("blur", event => {
         if (!this.hasAttribute("aliasing")) {
@@ -241,11 +241,15 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozChatContact, [
+  MozXULElement.implementCustomInterface(MozChatContactRichlistitem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("chat-contact", MozChatContact, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "chat-contact-richlistitem",
+    MozChatContactRichlistitem,
+    {
+      extends: "richlistitem",
+    }
+  );
 }

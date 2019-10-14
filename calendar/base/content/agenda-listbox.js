@@ -23,6 +23,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      this.setAttribute("is", "agenda-header-richlistitem");
       this.kCheckbox = document.createXULElement("checkbox");
       this.kCheckbox.classList.add("agenda-checkbox", "treenode-checkbox");
       this.appendChild(this.kCheckbox);
@@ -63,14 +64,14 @@
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("agenda-header-richlist-item", MozAgendaHeaderRichlistItem, {
+  customElements.define("agenda-header-richlistitem", MozAgendaHeaderRichlistItem, {
     extends: "richlistitem",
   });
 
   /**
    * The MozAgendaAlldayRichlistItem widget displays the information about
    * all day event: i.e. event start time, icon and calendar-month-day-box-item.
-   * It is typically shown under the the agenda-header-richlist-item dropdown.
+   * It is typically shown under the the agenda-header-richlistitem dropdown.
    *
    * @extends {MozElements.MozRichlistitem}
    */
@@ -85,7 +86,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
-      this.setAttribute("is", "agenda-allday-richlist-item");
+      this.setAttribute("is", "agenda-allday-richlistitem");
       this.addEventListener("click", event => {
         if (event.detail == 1) {
           agendaListbox.onSelect(this);
@@ -192,14 +193,14 @@
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("agenda-allday-richlist-item", MozAgendaAlldayRichlistItem, {
+  customElements.define("agenda-allday-richlistitem", MozAgendaAlldayRichlistItem, {
     extends: "richlistitem",
   });
 
   /**
    * The MozAgendaRichlistItem widget displays the information about
    * event: i.e. event start time, icon and name. It is shown under
-   * agenda-header-richlist-item dropdown as a richlistitem.
+   * agenda-header-richlistitem dropdown as a richlistitem.
    *
    * @extends {MozElements.MozRichlistitem}
    */
@@ -216,7 +217,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
-      this.setAttribute("is", "agenda-richlist-item");
+      this.setAttribute("is", "agenda-richlistitem");
       this.addEventListener(
         "click",
         event => {
@@ -351,5 +352,5 @@
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("agenda-richlist-item", MozAgendaRichlistItem, { extends: "richlistitem" });
+  customElements.define("agenda-richlistitem", MozAgendaRichlistItem, { extends: "richlistitem" });
 }

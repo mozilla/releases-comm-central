@@ -18,14 +18,14 @@
     "resource:///modules/templateUtils.js"
   );
   /**
-   * The MozActivityBase widget is the base class for all the
+   * The MozActivityBaseRichlistItem widget is the base class for all the
    * activity item. It initializes activity details: i.e. id, status,
    * icon, name, progress, date etc. for the activity widgets.
    *
    * @abstract
    * @extends {MozElements.MozRichlistitem}
    */
-  class MozActivityBase extends MozElements.MozRichlistitem {
+  class MozActivityBaseRichlistItem extends MozElements.MozRichlistitem {
     connectedCallback() {
       if (this.delayConnectedCallback()) {
         return;
@@ -101,13 +101,9 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozActivityBase, [
+  MozXULElement.implementCustomInterface(MozActivityBaseRichlistItem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
-
-  customElements.define("activity-base", MozActivityBase, {
-    extends: "richlistitem",
-  });
 
   /**
    * The MozActivityEvent widget displays information about events (like
@@ -116,7 +112,7 @@
    *
    * @extends MozActivityBase
    */
-  class MozActivityEvent extends MozActivityBase {
+  class MozActivityEventRichlistItem extends MozActivityBaseRichlistItem {
     static get inheritedAttributes() {
       return {
         ".eventIconBox > image": "class=iconclass",
@@ -131,6 +127,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      this.setAttribute("is", "activity-event-richlistitem");
 
       this.activityListener = {
         onHandlerChanged: activity => {
@@ -213,19 +210,23 @@
     }
   }
 
-  customElements.define("activity-event", MozActivityEvent, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "activity-event-richlistitem",
+    MozActivityEventRichlistItem,
+    {
+      extends: "richlistitem",
+    }
+  );
 
   /**
-   * The MozActivityGroup widget displays information about the activities of
+   * The MozActivityGroupRichlistItem widget displays information about the activities of
    * the group: e.g. name of the group, list of the activities with their name,
    * progress and icon. It is shown in Activity Manager window. It gets removed
    * when there is no activities from the group.
    *
    * @extends {MozElements.MozRichlistitem}
    */
-  class MozActivityGroup extends MozElements.MozRichlistitem {
+  class MozActivityGroupRichlistItem extends MozElements.MozRichlistitem {
     static get inheritedAttributes() {
       return {
         ".contextDisplayText":
@@ -252,6 +253,7 @@
         `)
       );
 
+      this.setAttribute("is", "activity-group-richlistitem");
       this.contextType = "";
 
       this.contextObj = null;
@@ -282,22 +284,26 @@
     }
   }
 
-  MozXULElement.implementCustomInterface(MozActivityGroup, [
+  MozXULElement.implementCustomInterface(MozActivityGroupRichlistItem, [
     Ci.nsIDOMXULSelectControlItemElement,
   ]);
 
-  customElements.define("activity-group", MozActivityGroup, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "activity-group-richlistitem",
+    MozActivityGroupRichlistItem,
+    {
+      extends: "richlistitem",
+    }
+  );
 
   /**
-   * The MozActivityProcess widget displays information about the internal
+   * The MozActivityProcessRichlistItem widget displays information about the internal
    * process : e.g image, progress, name, date and description.
    * It is typically used in Activity Manager window.
    *
-   * @extends MozActivityBase
+   * @extends MozActivityBaseRichlistItem
    */
-  class MozActivityProcess extends MozActivityBase {
+  class MozActivityProcessRichlistItem extends MozActivityBaseRichlistItem {
     static get inheritedAttributes() {
       return {
         ".processIconBox > image": "class=iconclass",
@@ -312,6 +318,8 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+
+      this.setAttribute("is", "activity-process-richlistitem");
 
       this.appendChild(
         MozXULElement.parseXULToFragment(
@@ -550,18 +558,22 @@
     }
   }
 
-  customElements.define("activity-process", MozActivityProcess, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "activity-process-richlistitem",
+    MozActivityProcessRichlistItem,
+    {
+      extends: "richlistitem",
+    }
+  );
 
   /**
-   * The MozActivityWarning widget displays information about
+   * The MozActivityWarningRichlistItem widget displays information about
    * warnings : e.g image, name, date and description.
    * It is typically used in Activity Manager window.
    *
-   * @extends MozActivityBase
+   * @extends MozActivityBaseRichlistItem
    */
-  class MozActivityWarning extends MozActivityBase {
+  class MozActivityWarningRichlistItem extends MozActivityBaseRichlistItem {
     static get inheritedAttributes() {
       return {
         ".displayText": "value=displayText,tooltiptext=displayTextTip",
@@ -575,6 +587,7 @@
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+      this.setAttribute("is", "activity-warning-richlistitem");
 
       this.activityListener = {
         onHandlerChanged: activity => {
@@ -658,7 +671,11 @@
     }
   }
 
-  customElements.define("activity-warning", MozActivityWarning, {
-    extends: "richlistitem",
-  });
+  customElements.define(
+    "activity-warning-richlistitem",
+    MozActivityWarningRichlistItem,
+    {
+      extends: "richlistitem",
+    }
+  );
 }
