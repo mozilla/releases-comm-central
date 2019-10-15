@@ -427,9 +427,6 @@ function onLoad() {
 
   // Set initial values for datepickers in New Tasks dialog
   if (cal.item.isToDo(item)) {
-    document.getElementById("event-grid-startdate-th").classList.add("below-separator-task");
-    document.getElementById("event-grid-startdate-td").classList.add("below-separator-task");
-
     let initialDatesValue = cal.dtz.dateTimeToJsDate(args.initialStartDateValue);
     if (!gNewItemUI) {
       setElementValue("completed-date-picker", initialDatesValue);

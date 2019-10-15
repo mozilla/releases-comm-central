@@ -163,17 +163,12 @@ label.label {
   height: 100%;
 }
 
-#event-grid menulist {
-  margin-bottom: 1px;
-}
-
 #event-grid > tr > th {
   text-align: left;
   font-weight: normal;
 }
 
-#event-grid > tr > td,
-.full-width {
+#event-grid > tr > td {
   width: 100%;
 }
 
@@ -184,16 +179,54 @@ label.label {
 }
 
 .event-input-td > input {
-  width: 100%;
+  flex: 1;
 }
 
+#item-calendar,
+#item-categories {
+  flex: 1;
+}
+
+#event-grid-item-calendar-td,
+#event-grid-category-color-td,
 .event-input-td {
-  padding-top: 3px !important;
-  padding-bottom: 3px !important;
+  display: flex;
 }
 
-#event-grid > tr > th,
-#event-grid > tr > td {
+#event-grid > tr > td > menulist,
+#event-grid checkbox,
+#event-grid td,
+#event-grid th,
+#event-grid deck {
+  margin: 0;
+  padding: 0;
+  margin-inline-end: 0;
+  margin-inline-start: 0;
+}
+
+#item-location,
+#item-title {
+  margin: 0;
+  margin-inline-end: 0;
+  margin-inline-start: 0;
+  padding-inline-start: 4px;
+}
+
+#todo-status,
+#item-repeat,
+#item-alarm {
+  margin: 0;
+}
+
+#event-grid td,
+#event-grid th {
+  padding: 4px 0px;
+}
+
+#event-grid-startdate-row td,
+#event-grid-startdate-row th,
+#event-grid-enddate-row td,
+#event-grid-enddate-row th {
   padding: 0;
 }
 
@@ -206,27 +239,18 @@ label.label {
   width: 100%;
 }
 
+.datepicker-menulist {
+  margin-left: 0 !important;
+}
+
 #event-grid-tab-vbox {
   padding-bottom: 10px;
   padding-inline-start: 8px;
   padding-inline-end: 10px;
 }
 
-:root {
-  --separator-padding: 6px;
-}
-
 .above-separator {
-  padding-bottom: var(--separator-padding) !important;
   border-bottom: 1px solid #A3A3A3;
-}
-
-.below-separator {
-  padding-top: calc(var(--separator-padding) - 2px) !important;
-}
-
-.below-separator-task {
-  padding-top: calc(var(--separator-padding) - 5px) !important;
 }
 
 /*--------------------------------------------------------------------

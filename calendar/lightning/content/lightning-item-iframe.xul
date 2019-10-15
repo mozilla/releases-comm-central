@@ -146,7 +146,7 @@
                control="item-calendar"
                disable-on-readonly="true"/>
       </html:th>
-      <html:td>
+      <html:td id="event-grid-item-calendar-td">
         <menulist id="item-calendar"
                   disable-on-readonly="true"
                   oncommand="updateCalendar();"/>
@@ -215,9 +215,9 @@
 
     <!-- All-Day -->
     <html:tr id="event-grid-allday-row">
-      <html:th class="below-separator">
+      <html:th>
       </html:th>
-      <html:td class="below-separator">
+      <html:td>
         <checkbox id="event-all-day"
                    class="event-only"
                    disable-on-readonly="true"
@@ -465,13 +465,13 @@
 
     <!-- Reminder (Alarm) -->
     <html:tr id="event-grid-alarm-row">
-      <html:th class="above-separator below-separator">
+      <html:th class="above-separator">
         <label value="&event.reminder.label;"
                accesskey="&event.reminder.accesskey;"
                control="item-alarm"
                disable-on-readonly="true"/>
       </html:th>
-      <html:td class="above-separator below-separator">
+      <html:td class="above-separator">
         <hbox id="event-grid-alarm-picker-box"
               align="center">
           <menulist id="item-alarm"
@@ -577,11 +577,11 @@
     </html:tr>
 
     <html:tr id="event-grid-link-row" hidden="hidden">
-      <html:th class="above-separator below-separator">
+      <html:th class="above-separator">
         <label value="&event.url.label;"
                control="url-link"/>
       </html:th>
-      <html:td class="above-separator below-separator">
+      <html:td class="above-separator">
         <label id="url-link"
                class="text-link"
                onclick="launchBrowser(this.getAttribute('href'), event)"
@@ -591,7 +591,7 @@
     </html:tr>
   </html:table>
 
-  <vbox id="event-grid-tab-vbox" flex="1" class="below-separator">
+  <vbox id="event-grid-tab-vbox" flex="1">
     <!-- Multi purpose tab box -->
     <hbox id="event-grid-tab-box-row" flex="1">
       <tabbox id="event-grid-tabbox"
