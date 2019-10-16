@@ -13,7 +13,7 @@ linux64/opt:
     worker-type: b-linux
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
-        max-run-time: 36000
+        max-run-time: 7200
     run:
         using: mozharness
         comm-checkout: true
@@ -52,7 +52,7 @@ linux64-shippable/opt:
     worker-type: b-linux
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
-        max-run-time: 36000
+        max-run-time: 7200
     run:
         using: mozharness
         comm-checkout: true
@@ -85,7 +85,7 @@ linux64/debug:
     worker-type: b-linux
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
-        max-run-time: 36000
+        max-run-time: 7200
     run:
         using: mozharness
         comm-checkout: true
@@ -120,7 +120,7 @@ linux/opt:
     worker-type: b-linux
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
-        max-run-time: 36000
+        max-run-time: 7200
     run:
         using: mozharness
         comm-checkout: true
@@ -159,7 +159,7 @@ linux-shippable/opt:
     worker-type: b-linux
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
-        max-run-time: 36000
+        max-run-time: 7200
     run:
         using: mozharness
         comm-checkout: true
@@ -192,7 +192,7 @@ linux/debug:
     worker-type: b-linux
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
-        max-run-time: 36000
+        max-run-time: 7200
     run:
         using: mozharness
         comm-checkout: true

@@ -13,7 +13,7 @@ macosx64/debug:
         tier: 1
     worker-type: b-linux
     worker:
-        max-run-time: 36000
+        max-run-time: 7200
         env:
             # We just use the browser manifest, since we don't need anything different
             TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
@@ -55,7 +55,7 @@ macosx64/opt:
         tier: 1
     worker-type: b-linux
     worker:
-        max-run-time: 36000
+        max-run-time: 7200
         env:
             # We just use the browser manifest, since we don't need anything different
             TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
@@ -101,7 +101,7 @@ macosx64-shippable/opt:
         tier: 1
     worker-type: b-linux
     worker:
-        max-run-time: 36000
+        max-run-time: 7200
         env:
             # We just use the browser manifest, since we don't need anything different
             TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
