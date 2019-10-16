@@ -287,6 +287,12 @@ add_task(async function createMailingList() {
   equal(Array.from(list.addressLists.enumerate()).length, 0);
   equal(Array.from(list.childNodes).length, 0);
   equal(Array.from(list.childCards).length, 0);
+
+  // Check nsIAbCard properties.
+  equal(listCard.firstName, "");
+  equal(listCard.lastName, "new list");
+  equal(listCard.primaryEmail, "");
+  equal(listCard.displayName, "new list");
 });
 
 add_task(async function editMailingList() {

@@ -12,6 +12,9 @@ var { MailServices } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { fixIterator, toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 top.MAX_RECIPIENTS = 1;
 var inputElementType = "";
@@ -49,8 +52,8 @@ function mailingListExists(listname) {
  * Get the new inputs from the create/edit mailing list dialog and use them to
  * update the mailing list that was passed in as an argument.
  *
- * @param {XPCWrappedNative_NoHelper} mailList - The mailing list object to
- *   update. When creating a new list it will be newly created and empty.
+ * @param {nsIAbDirectory} mailList - The mailing list object to update. When
+ *   creating a new list it will be newly created and empty.
  * @param {boolean} isNewList - Whether we are populating a new list.
  * @return {boolean} - Whether the operation succeeded or not.
  */
@@ -87,6 +90,18 @@ function updateMailList(mailList, isNewList) {
   mailList.listNickName = document.getElementById("ListNickName").value;
   mailList.description = document.getElementById("ListDescription").value;
 
+  return true;
+}
+
+/**
+ * Updates the members of the mailing list.
+ *
+ * @param {nsIAbDirectory} mailList - The mailing list object to
+ *   update. When creating a new list it will be newly created and empty.
+ * @param {nsIAbDirectory} parentDirectory - The address book containing the
+ *   mailing list.
+ */
+function updateMailListMembers(mailList, parentDirectory) {
   // Gather email address inputs into a single string (comma-separated).
   let addresses = Array.from(
     document.querySelectorAll(".textbox-addressingWidget"),
@@ -99,36 +114,35 @@ function updateMailList(mailList, isNewList) {
   let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
     addresses
   );
+  let existingCards = [...fixIterator(mailList.addressLists, Ci.nsIAbCard)];
 
-  // Update the list by updating existing entries/cards or adding new ones.
-  let oldAddressCount = isNewList ? 0 : mailList.addressLists.length;
-  let addressCounter = 0;
+  // Work out which addresses need to be added...
+  let existingCardAddresses = existingCards.map(card => card.primaryEmail);
+  let addressObjectsToAdd = addressObjects.filter(
+    aObj => !existingCardAddresses.includes(aObj.email)
+  );
 
-  for (let { email, name } of addressObjects) {
-    let addNewCard = addressCounter >= oldAddressCount;
+  // ... and which need to be removed.
+  let addressObjectAddresses = addressObjects.map(aObj => aObj.email);
+  let cardsToRemove = existingCards.filter(
+    card => !addressObjectAddresses.includes(card.primaryEmail)
+  );
 
-    let card = addNewCard
-      ? Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance()
-      : mailList.addressLists.queryElementAt(addressCounter, Ci.nsIAbCard);
-
-    card = card && card.QueryInterface(Ci.nsIAbCard);
-
-    if (card) {
+  for (let { email, name } of addressObjectsToAdd) {
+    let card = parentDirectory.cardForEmailAddress(email);
+    if (!card) {
+      card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+        Ci.nsIAbCard
+      );
       card.primaryEmail = email;
       card.displayName = name || email;
-
-      if (addNewCard) {
-        mailList.addressLists.appendElement(card);
-      }
-      addressCounter += 1;
     }
+    mailList.addCard(card);
   }
 
-  // Remove any remaining unneeded entries.
-  while (mailList.addressLists.length > addressCounter) {
-    mailList.addressLists.removeElementAt(addressCounter);
+  if (cardsToRemove.length > 0) {
+    mailList.deleteCards(toXPCOMArray(cardsToRemove, Ci.nsIMutableArray));
   }
-  return true;
 }
 
 function MailListOKButton(event) {
@@ -153,6 +167,7 @@ function MailListOKButton(event) {
     if (updateMailList(mailList, true)) {
       var parentDirectory = GetDirectoryFromURI(uri);
       mailList = parentDirectory.addMailList(mailList);
+      updateMailListMembers(mailList, parentDirectory);
       NotifySaveListeners(mailList);
     } else {
       event.preventDefault();
@@ -221,6 +236,9 @@ function OnLoadNewMailList() {
 function EditListOKButton(event) {
   // edit mailing list in database
   if (updateMailList(gEditList, false)) {
+    let parentURI = GetParentDirectoryFromMailingListURI(gEditList.URI);
+    let parentDirectory = GetDirectoryFromURI(parentURI);
+    updateMailListMembers(gEditList, parentDirectory);
     if (gListCard) {
       // modify the list card (for the results pane) from the mailing list
       gListCard.displayName = gEditList.dirName;

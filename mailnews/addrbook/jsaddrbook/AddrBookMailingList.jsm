@@ -222,11 +222,20 @@ AddrBookMailingList.prototype = {
       get localId() {
         return self._localId;
       },
+      get firstName() {
+        return "";
+      },
+      get lastName() {
+        return self._name;
+      },
       get displayName() {
         return self._name;
       },
       set displayName(value) {
         self._name = value;
+      },
+      get primaryEmail() {
+        return "";
       },
 
       generateName(generateFormat) {
