@@ -583,8 +583,8 @@ function GetCardValues(cardproperty, doc) {
   // set the year in the datepicker to the stored year
   birthYear.value = year;
 
-  var month = cardproperty.getProperty("BirthMonth", null);
-  var day = cardproperty.getProperty("BirthDay", null);
+  var month = parseInt(cardproperty.getProperty("BirthMonth", null), 10);
+  var day = parseInt(cardproperty.getProperty("BirthDay", null), 10);
   var birthMonth = doc.getElementById("BirthMonth");
   var birthDay = doc.getElementById("BirthDay");
   birthDay.value = -1;
