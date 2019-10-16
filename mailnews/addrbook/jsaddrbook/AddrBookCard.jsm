@@ -168,7 +168,7 @@ AddrBookCard.prototype = {
   },
   getPropertyAsAString(name) {
     if (!this._properties.has(name)) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      return "";
     }
     return this.getProperty(name);
   },
@@ -236,7 +236,22 @@ AddrBookCard.prototype = {
     return `${this.firstName} ${this.lastName}`;
   },
   generateChatName() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    for (let name of [
+      "_GoogleTalk",
+      "_AimScreenName",
+      "_Yahoo",
+      "_Skype",
+      "_QQ",
+      "_MSN",
+      "_ICQ",
+      "_JabberId",
+      "_IRC",
+    ]) {
+      if (this._properties.has(name)) {
+        return this._properties.get(name);
+      }
+    }
+    return "";
   },
   copy(srcCard) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
