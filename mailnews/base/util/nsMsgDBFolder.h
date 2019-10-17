@@ -190,7 +190,8 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   void ClearProcessingFlags();
 
   nsresult NotifyHdrsNotBeingClassified();
-
+  nsresult BuildFolderSortKey(nsIMsgFolder *aFolder, uint32_t *aLength,
+                              uint8_t **aKey);
   /**
    * Produce an array of messages ordered like the input keys.
    */

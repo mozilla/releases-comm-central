@@ -4934,38 +4934,37 @@ NS_IMETHODIMP nsMsgDBFolder::GetSortOrder(int32_t *order) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetSortKey(uint32_t *aLength, uint8_t **aKey) {
+// Helper function for CompareSortKeys().
+// Builds a collation key for a given folder based on "{sortOrder}{name}"
+nsresult nsMsgDBFolder::BuildFolderSortKey(nsIMsgFolder *aFolder,
+                                           uint32_t *aLength, uint8_t **aKey) {
   NS_ENSURE_ARG(aKey);
   int32_t order;
-  nsresult rv = GetSortOrder(&order);
+  nsresult rv = aFolder->GetSortOrder(&order);
   NS_ENSURE_SUCCESS(rv, rv);
   nsAutoString orderString;
   orderString.AppendInt(order);
   nsString folderName;
-  rv = GetName(folderName);
+  rv = aFolder->GetName(folderName);
   NS_ENSURE_SUCCESS(rv, rv);
   orderString.Append(folderName);
-  return CreateCollationKey(orderString, aKey, aLength);
-}
-
-nsresult nsMsgDBFolder::CreateCollationKey(const nsString &aSource,
-                                           uint8_t **aKey, uint32_t *aLength) {
   NS_ENSURE_TRUE(gCollationKeyGenerator, NS_ERROR_NULL_POINTER);
   return gCollationKeyGenerator->AllocateRawSortKey(
-      nsICollation::kCollationCaseInSensitive, aSource, aKey, aLength);
+      nsICollation::kCollationCaseInSensitive, orderString, aKey, aLength);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CompareSortKeys(nsIMsgFolder *aFolder,
                                              int32_t *sortOrder) {
+  // nsICollation interface will likely change to use nsTArray<> at some point.
+  // So this can be simplified then (see Bug 1509981).
   uint8_t *sortKey1 = nullptr;
   uint8_t *sortKey2 = nullptr;
   uint32_t sortKey1Length;
   uint32_t sortKey2Length;
-  nsresult rv = GetSortKey(&sortKey1Length, &sortKey1);
+  nsresult rv = BuildFolderSortKey(this, &sortKey1Length, &sortKey1);
   NS_ENSURE_SUCCESS(rv, rv);
-  aFolder->GetSortKey(&sortKey2Length, &sortKey2);
+  rv = BuildFolderSortKey(aFolder, &sortKey2Length, &sortKey2);
   NS_ENSURE_SUCCESS(rv, rv);
-
   rv = gCollationKeyGenerator->CompareRawSortKey(
       sortKey1, sortKey1Length, sortKey2, sortKey2Length, sortOrder);
   PR_Free(sortKey1);

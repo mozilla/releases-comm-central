@@ -605,13 +605,10 @@ interface nsIMsgFolder : nsISupports {
   void throwAlertMsg(in string msgName, in nsIMsgWindow msgWindow);
   AString getStringWithFolderNameFromBundle(in string msgName);
   void notifyCompactCompleted();
-  long compareSortKeys(in nsIMsgFolder msgFolder);
   /**
-   * Returns a sort key that can be used to sort a list of folders.
-   *
-   * Prefer nsIMsgFolder::compareSortKeys over this function.
+   * Calculate ordering of this folder against another.
    */
-  void getSortKey(out unsigned long length, [array, size_is(length), retval] out octet key);
+  long compareSortKeys(in nsIMsgFolder msgFolder);
 
   attribute nsIMsgRetentionSettings retentionSettings;
   attribute nsIMsgDownloadSettings downloadSettings;
