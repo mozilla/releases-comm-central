@@ -33,6 +33,7 @@ module.exports = {
 
   rules: {
     "func-names": ["error", "never"],
+    "mozilla/prefer-boolean-length-check": "off",
     "no-multi-spaces": [
       "error",
       {
