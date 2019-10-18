@@ -304,7 +304,6 @@ function test_toggling_modes() {
   subtest_switch_to_smart_folders(true);
   subtest_switch_to_all_folders(true);
 }
-test_toggling_modes.EXCLUDED_PLATFORMS = ["linux"];
 
 function teardownModule() {
   tree.mode = "all";
