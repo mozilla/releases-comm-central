@@ -972,7 +972,6 @@ function test_attachment_reordering() {
 
   close_compose_window(cwc);
 }
-test_attachment_reordering.EXCLUDED_PLATFORMS = ["linux"]; // See bug 1440951.
 
 // XXX: Test attached emails dragged onto composer and files pulled from other
 // emails (this probably requires better drag-and-drop support from Mozmill)
