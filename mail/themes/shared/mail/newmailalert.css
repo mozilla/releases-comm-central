@@ -89,3 +89,8 @@ folder-summary {
 .folderSummaryMessage:hover:active > .folderSummary-message-row {
   color: -moz-activehyperlinktext;
 }
+
+#closeButton {
+  justify-self: end;
+  align-self: start;
+}

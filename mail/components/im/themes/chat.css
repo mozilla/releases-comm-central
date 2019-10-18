@@ -260,10 +260,6 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   list-style-image: url('chrome://chat/skin/prpl-generic/icon.png');
 }
 
-.closeConversationButton {
-  -moz-stack-sizing: ignore;
-}
-
 .startChatBubble > .button-box,
 .closeConversationButton > .button-box {
   padding: 0;
@@ -564,6 +560,8 @@ richlistitem[state="disconnected"] .accountStateIcon {
 %endif
 
 .conv-counter {
+  justify-self: end;
+  align-self: end;
   color: #000;
   background-color: rgba(246, 246, 246, 0.7);
   border-inline-start: 1px solid rgb(200, 200, 200);

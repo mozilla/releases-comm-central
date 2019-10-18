@@ -233,9 +233,6 @@
 
       this.charCounter = document.createXULElement("description");
       this.charCounter.classList.add("conv-counter");
-      this.charCounter.setAttribute("right", "0");
-      this.charCounter.setAttribute("bottom", "0");
-
       this.convBottom.appendChild(this.inputBox);
       this.convBottom.appendChild(this.charCounter);
 

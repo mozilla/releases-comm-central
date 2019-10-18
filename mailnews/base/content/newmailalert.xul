@@ -30,6 +30,6 @@
       </vbox>
     </hbox>
 
-    <toolbarbutton id="closeButton" class="close-icon" top="0" right="0" onclick="closeAlert();"/>
+    <toolbarbutton id="closeButton" class="close-icon" onclick="closeAlert();"/>
   </stack>
 </window>
