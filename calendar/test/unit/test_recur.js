@@ -23,8 +23,12 @@ function really_run_test() {
 }
 
 function test_rules() {
-  function check_recur(event, expected, ignoreNextOccCheck) {
+  function check_recur(event, expected, endDate, ignoreNextOccCheck) {
     dump("Checking '" + event.getProperty("DESCRIPTION") + "'\n");
+
+    // Immutability is required for testing the recurrenceEndDate property.
+    event.makeImmutable();
+
     // Get recurrence dates
     let start = createDate(1990, 0, 1);
     let end = createDate(2020, 0, 1);
@@ -90,6 +94,11 @@ function test_rules() {
       }
     }
 
+    if (typeof endDate == "string") {
+      endDate = cal.createDateTime(endDate).nativeTime;
+    }
+    equal(event.recurrenceInfo.recurrenceEndDate, endDate);
+
     //  Make sure recurrenceInfo.clone works correctly
     test_clone(event);
   }
@@ -110,7 +119,8 @@ function test_rules() {
       "20020410T114500",
       "20020416T114500",
       "20020417T114500",
-    ]
+    ],
+    "20020417T124500"
   );
 
   check_recur(
@@ -128,7 +138,8 @@ function test_rules() {
       "20020425T114500",
       "20020502T114500",
       "20020509T114500",
-    ]
+    ],
+    "20020509T124500"
   );
 
   // Bug 469840 -  Recurring Sundays incorrect
@@ -146,7 +157,8 @@ function test_rules() {
       "20081231T133000",
       "20090103T133000",
       "20090104T133000",
-    ]
+    ],
+    "20090104T143000"
   );
 
   check_recur(
@@ -163,7 +175,8 @@ function test_rules() {
       "20081231T133000",
       "20090103T133000",
       "20090111T133000",
-    ]
+    ],
+    "20090111T143000"
   );
 
   // bug 353797: occurrences for repeating all day events should stay "all-day"
@@ -174,7 +187,8 @@ function test_rules() {
         "DTSTART;VALUE=DATE:20020404\n" +
         "DTEND;VALUE=DATE:20020405\n"
     ),
-    ["20020404", "20020411", "20020418"]
+    ["20020404", "20020411", "20020418"],
+    "20020419"
   );
 
   /* Test disabled, because BYWEEKNO is known to be broken
@@ -191,7 +205,7 @@ function test_rules() {
       "DESCRIPTION:Every 11th & 31st of every Month\n" +
         "RRULE:FREQ=MONTHLY;COUNT=6;BYMONTHDAY=11,31\n" +
         "DTSTART:20130731T160000\n" +
-        "DTEND:20130731T170000)\n"
+        "DTEND:20130731T170000\n"
     ),
     [
       "20130731T160000",
@@ -200,7 +214,8 @@ function test_rules() {
       "20130911T160000",
       "20131011T160000",
       "20131031T160000",
-    ]
+    ],
+    "20131031T170000"
   );
 
   // bug 899770: Monthly Recurrences with BYDAY and BYMONTHDAY with more than 2 dates are not working
@@ -209,7 +224,7 @@ function test_rules() {
       "DESCRIPTION:Every WE & SA the 6th, 20th & 31st\n" +
         "RRULE:FREQ=MONTHLY;COUNT=6;BYDAY=WE,SA;BYMONTHDAY=6,20,31\n" +
         "DTSTART:20130706T160000\n" +
-        "DTEND:20130706T170000)\n"
+        "DTEND:20130706T170000\n"
     ),
     [
       "20130706T160000",
@@ -218,7 +233,8 @@ function test_rules() {
       "20130831T160000",
       "20131106T160000",
       "20131120T160000",
-    ]
+    ],
+    "20131120T170000"
   );
 
   check_recur(
@@ -228,7 +244,8 @@ function test_rules() {
         "DTSTART:20020402T114500Z\n" +
         "EXDATE:20020403T114500Z\n"
     ),
-    ["20020402T114500Z", "20020404T114500Z"]
+    ["20020402T114500Z", "20020404T114500Z"],
+    "20020404T114500"
   );
 
   // test for issue 734245
@@ -239,7 +256,8 @@ function test_rules() {
         "DTSTART:20020402T114500Z\n" +
         "EXDATE;VALUE=DATE:20020403\n"
     ),
-    ["20020402T114500Z", "20020404T114500Z"]
+    ["20020402T114500Z", "20020404T114500Z"],
+    "20020404T114500"
   );
 
   check_recur(
@@ -249,7 +267,8 @@ function test_rules() {
         "DTSTART:20020402T114500Z\n" +
         "EXDATE:20020402T114500Z\n"
     ),
-    []
+    [],
+    -0x7ffffffffffffdff
   );
 
   check_recur(
@@ -268,6 +287,7 @@ function test_rules() {
         "END:VEVENT\nEND:VCALENDAR\n"
     ),
     ["20020402T114500Z", "20020403T114500Z"],
+    "20020403T114500",
     true
   ); // ignore next occ check, bug 455490
 
@@ -287,6 +307,7 @@ function test_rules() {
         "END:VEVENT\nEND:VCALENDAR\n"
     ),
     ["20020402T114500Z", "20020403T114500Z"],
+    "20020403T114500",
     true /* ignore next occ check, bug 455490 */
   );
 
@@ -306,6 +327,7 @@ function test_rules() {
       "20111215T220000Z",
       "20111216T220000Z",
     ],
+    "20111216T230000",
     false
   );
 
@@ -320,6 +342,7 @@ function test_rules() {
         "END:VEVENT\nEND:VCALENDAR\n"
     ),
     ["20111212T220000Z", "20111213T220000Z", "20111215T220000Z", "20111216T220000Z"],
+    "20111216T230000",
     false
   );
 
@@ -341,6 +364,7 @@ function test_rules() {
       "20180228T220000Z",
       "20190228T220000Z",
     ],
+    "20190228T230000",
     false
   );
 
@@ -362,6 +386,7 @@ function test_rules() {
       "20180430T220000Z",
       "20190430T220000Z",
     ],
+    "20190430T230000",
     false
   );
 
@@ -397,6 +422,7 @@ function test_rules() {
       "20140326T150000Z",
       "20140328T150000Z",
     ],
+    "20140328T160000",
     false
   );
 
@@ -416,6 +442,7 @@ function test_rules() {
         "END:VEVENT\nEND:VCALENDAR\n"
     ),
     expectedDates,
+    "20140131T160000",
     false
   );
 
@@ -440,6 +467,7 @@ function test_rules() {
       "20150121T080000Z",
       "20150123T080000Z",
     ],
+    "20150123T090000",
     false
   );
 
@@ -464,6 +492,7 @@ function test_rules() {
       "20160430T080000Z",
       "20160730T080000Z",
     ],
+    "20160730T090000",
     false
   );
 
@@ -488,6 +517,7 @@ function test_rules() {
       "20171229T080000Z",
       "20180629T080000Z",
     ],
+    "20180629T090000",
     false
   );
 
@@ -512,6 +542,7 @@ function test_rules() {
       "20150701T080000Z",
       "20150713T080000Z",
     ],
+    "20150713T090000",
     false
   );
 
@@ -533,6 +564,7 @@ function test_rules() {
       "20150323T080000Z",
       "20150327T080000Z",
     ],
+    "20150327T090000",
     false
   );
 
@@ -554,6 +586,7 @@ function test_rules() {
       "20150417T080000Z",
       "20150427T080000Z",
     ],
+    "20150427T090000",
     false
   );
 
@@ -575,6 +608,7 @@ function test_rules() {
       "20150425T080000Z",
       "20150427T080000Z",
     ],
+    "20150427T090000",
     false
   );
 
@@ -601,6 +635,7 @@ function test_rules() {
       "20150417T080000Z",
       "20150419T080000Z",
     ],
+    "20150419T090000",
     false
   );
 
@@ -616,6 +651,7 @@ function test_rules() {
         "END:VEVENT\nEND:VCALENDAR\n"
     ),
     ["20160404T080000Z", "20160504T080000Z", "20160604T080000Z", "20160704T080000Z"],
+    "20160704T090000",
     false
   );
 
@@ -638,6 +674,7 @@ function test_rules() {
       "20160831T150000Z",
       "20161031T150000Z",
     ],
+    "20161031T160000",
     false
   );
 
@@ -660,6 +697,7 @@ function test_rules() {
       "20170831T150000Z",
       "20171031T150000Z",
     ],
+    "20171031T160000",
     false
   );
 
@@ -674,7 +712,11 @@ function test_rules() {
   occ1.QueryInterface(Ci.calIEvent);
   occ1.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
   item.recurrenceInfo.modifyException(occ1, true);
-  check_recur(item, ["20020403T114500Z", "20020403T120000Z", "20020404T114500Z"]);
+  check_recur(
+    item,
+    ["20020403T114500Z", "20020403T120000Z", "20020404T114500Z"],
+    "20020404T114500"
+  );
 
   item = makeEvent(
     "DESCRIPTION:occurrence on day 1 moved between the occurrences " +
@@ -687,7 +729,11 @@ function test_rules() {
   occ1.QueryInterface(Ci.calIEvent);
   occ1.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
   item.recurrenceInfo.modifyException(occ1, true);
-  check_recur(item, ["20020403T120000Z", "20020404T114500Z"]);
+  check_recur(
+    item,
+    ["20020403T120000Z", "20020404T114500Z"],
+    "20020404T114500"
+  );
 
   item = makeEvent(
     "DESCRIPTION:all occurrences have exceptions\n" +
@@ -702,7 +748,11 @@ function test_rules() {
   occ2.QueryInterface(Ci.calIEvent);
   occ2.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
   item.recurrenceInfo.modifyException(occ2, true);
-  check_recur(item, ["20020402T120000Z", "20020403T120000Z"]);
+  check_recur(
+    item,
+    ["20020402T120000Z", "20020403T120000Z"],
+    "20020403T114500"
+  );
 
   item = makeEvent(
     "DESCRIPTION:rdate and exception before the recurrence start date\n" +
@@ -714,7 +764,11 @@ function test_rules() {
   occ1.QueryInterface(Ci.calIEvent);
   occ1.startDate = createDate(2002, 2, 30, true, 11, 45, 0);
   item.recurrenceInfo.modifyException(occ1, true);
-  check_recur(item, ["20020330T114500Z", "20020401T114500Z", "20020403T114500Z"]);
+  check_recur(
+    item,
+    ["20020330T114500Z", "20020401T114500Z", "20020403T114500Z"],
+    "20020403T114500"
+  );
 
   item = makeEvent(
     "DESCRIPTION:bug 734245, an EXDATE of type DATE shall also match a DTSTART of type DATE-TIME\n" +
@@ -722,8 +776,11 @@ function test_rules() {
       "DTSTART:20020401T114500Z\n" +
       "EXDATE;VALUE=DATE:20020402\n"
   );
-
-  check_recur(item, ["20020401T114500Z", "20020403T114500Z"]);
+  check_recur(
+    item,
+    ["20020401T114500Z", "20020403T114500Z"],
+    "20020403T114500"
+  );
 
   item = makeEvent(
     "DESCRIPTION:EXDATE with a timezone\n" +
@@ -731,8 +788,11 @@ function test_rules() {
       "DTSTART;TZID=Europe/Berlin:20020401T114500\n" +
       "EXDATE;TZID=Europe/Berlin:20020402T114500\n"
   );
-
-  check_recur(item, ["20020401T114500", "20020403T114500"]);
+  check_recur(
+    item,
+    ["20020401T114500", "20020403T114500"],
+    "20020403T094500"
+  );
 }
 
 function test_limit() {

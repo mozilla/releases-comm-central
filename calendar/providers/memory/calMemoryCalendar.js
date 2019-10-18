@@ -436,6 +436,10 @@ calMemoryCalendar.prototype = {
 
     aRangeStart = cal.dtz.ensureDateTime(aRangeStart);
     aRangeEnd = cal.dtz.ensureDateTime(aRangeEnd);
+    let startTime = -0x7ffffffffffffdff;
+    if (aRangeStart) {
+      startTime = aRangeStart.nativeTime;
+    }
 
     let requestedFlag = 0;
     if ((aItemFilter & calICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0) {
@@ -483,6 +487,10 @@ calMemoryCalendar.prototype = {
         }
 
         if (itemReturnOccurrences && item.recurrenceInfo) {
+          if (item.recurrenceInfo.recurrenceEndDate < startTime) {
+            return cal.iterate.forEach.CONTINUE;
+          }
+
           let startDate = aRangeStart;
           if (!aRangeStart && cal.item.isToDo(item)) {
             startDate = item.entryDate;

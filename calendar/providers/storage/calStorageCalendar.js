@@ -665,6 +665,10 @@ calStorageCalendar.prototype = {
     // helper function to handle converting a row to an item,
     // expanding occurrences, and queue the items for the listener
     function handleResultItem(item, theIID, optionalFilterFunc) {
+      if (item.recurrenceInfo && item.recurrenceInfo.recurrenceEndDate < startTime) {
+        return 0;
+      }
+
       let expandedItems = [];
       if (item.recurrenceInfo && asOccurrences) {
         // If the item is recurring, get all occurrences that fall in
