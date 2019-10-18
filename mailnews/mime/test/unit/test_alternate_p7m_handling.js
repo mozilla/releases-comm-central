@@ -56,12 +56,8 @@ function* worker(params) {
 /* ===== Driver ===== */
 
 var tests = [
-  parameterizeTest(worker, [
-    { messages, all_external: false, count: 1 },
-  ]),
-  parameterizeTest(worker, [
-    { messages, all_external: true, count: 1 },
-  ]),
+  parameterizeTest(worker, [{ messages, all_external: false, count: 1 }]),
+  parameterizeTest(worker, [{ messages, all_external: true, count: 1 }]),
 ];
 
 var gInbox;
