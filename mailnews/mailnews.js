@@ -163,7 +163,6 @@ pref("mail.label_ascii_only_mail_as_us_ascii", false);
 pref("mail.file_attach_binary",             false);
 pref("mail.show_headers",                   1); // some
 pref("mailnews.p7m_external", false);          // S/MIME parts are not external (but inline decrypted).
-pref("mailnews.p7m_subparts_external", true);  // S/MIME child parts are external. Protect against efail.
 pref("mail.pane_config.dynamic",            0);
 pref("mail.addr_book.mapit_url.format", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.1.name", "chrome://messenger-region/locale/region.properties");

@@ -40,10 +40,6 @@ function* worker(params) {
   let msgHdr = synSet.getMsgHdr(0);
 
   Services.prefs.setBoolPref("mailnews.p7m_external", params.all_external);
-  Services.prefs.setBoolPref(
-    "mailnews.p7m_subparts_external",
-    params.subparts_external
-  );
 
   MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
     try {
@@ -61,18 +57,10 @@ function* worker(params) {
 
 var tests = [
   parameterizeTest(worker, [
-    { messages, all_external: false, subparts_external: false, count: 0 },
-  ]),
-  // We are only testing with a p7m attachment, so whether all parts or just subparts are
-  // made external yields the same result: one attachment which is not inlined.
-  parameterizeTest(worker, [
-    { messages, all_external: true, subparts_external: false, count: 1 },
+    { messages, all_external: false, count: 1 },
   ]),
   parameterizeTest(worker, [
-    { messages, all_external: false, subparts_external: true, count: 1 },
-  ]),
-  parameterizeTest(worker, [
-    { messages, all_external: true, subparts_external: true, count: 1 },
+    { messages, all_external: true, count: 1 },
   ]),
 ];
 

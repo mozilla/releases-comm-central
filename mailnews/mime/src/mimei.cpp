@@ -666,8 +666,7 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
     else if (!PL_strcasecmp(content_type, APPLICATION_XPKCS7_MIME) ||
              !PL_strcasecmp(content_type, APPLICATION_PKCS7_MIME)) {
 
-      if (Preferences::GetBool("mailnews.p7m_subparts_external", true) &&
-          opts->is_child) {
+      if (opts->is_child) {
         // We do not allow encrypted parts except as top level.
         // Allowing them would leak the plain text in case the part is
         // cleverly hidden and the decrypted content gets included in
