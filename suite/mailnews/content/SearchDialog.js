@@ -18,7 +18,6 @@ var gFolderDatasource;
 var gFolderPicker;
 var gStatusBar = null;
 var gStatusFeedback = new nsMsgStatusFeedback();
-var gTimelineEnabled = false;
 var gMessengerBundle = null;
 var RDF;
 var gSearchBundle;

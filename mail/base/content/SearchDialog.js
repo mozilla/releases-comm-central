@@ -28,7 +28,6 @@ var gMessageDisplay;
 
 var gFolderPicker;
 var gStatusFeedback;
-var gTimelineEnabled = false;
 var gSearchBundle;
 
 // Datasource search listener -- made global as it has to be registered

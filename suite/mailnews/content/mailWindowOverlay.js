@@ -37,22 +37,6 @@ var gCopyService = Cc["@mozilla.org/messenger/messagecopyservice;1"]
                      .getService(Ci.nsIMsgCopyService);
 var gMarkViewedMessageAsReadTimer = null; // if the user has configured the app to mark a message as read if it is viewed for more than n seconds
 
-var gTimelineService = null;
-var gTimelineEnabled = ("@mozilla.org;timeline-service;1" in Cc);
-if (gTimelineEnabled) {
-  try {
-    gTimelineEnabled = Services.prefs.getBoolPref("mailnews.timeline_is_enabled");
-    if (gTimelineEnabled) {
-      gTimelineService =
-        Cc["@mozilla.org;timeline-service;1"].getService(Ci.nsITimelineService);
-    }
-  }
-  catch (ex)
-  {
-    gTimelineEnabled = false;
-  }
-}
-
 var gDisallow_classes_no_html = 1; /* the user preference,
      if HTML is not allowed. I assume, that the user could have set this to a
      value > 1 in his prefs.js or user.js, but that the value will not
