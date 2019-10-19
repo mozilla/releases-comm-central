@@ -23,8 +23,6 @@
 #include "nsNSSHelper.h"
 #include "plbase64.h"
 
-extern mozilla::LazyLogModule gPIPNSSLog;
-
 using namespace mozilla;
 using namespace mozilla::psm;
 

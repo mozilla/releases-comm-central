@@ -31,7 +31,7 @@ using namespace mozilla;
 using namespace mozilla::psm;
 using namespace mozilla::pkix;
 
-extern mozilla::LazyLogModule gPIPNSSLog;
+static mozilla::LazyLogModule gCMSLog("CMS");
 
 NS_IMPL_ISUPPORTS(nsCMSMessage, nsICMSMessage)
 
@@ -74,7 +74,7 @@ NSSCMSSignerInfo *nsCMSMessage::GetTopLevelSignerInfo() {
 }
 
 NS_IMETHODIMP nsCMSMessage::GetSignerEmailAddress(char **aEmail) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::GetSignerEmailAddress"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::GetSignerEmailAddress"));
   NS_ENSURE_ARG(aEmail);
 
   NSSCMSSignerInfo *si = GetTopLevelSignerInfo();
@@ -85,7 +85,7 @@ NS_IMETHODIMP nsCMSMessage::GetSignerEmailAddress(char **aEmail) {
 }
 
 NS_IMETHODIMP nsCMSMessage::GetSignerCommonName(char **aName) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::GetSignerCommonName"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::GetSignerCommonName"));
   NS_ENSURE_ARG(aName);
 
   NSSCMSSignerInfo *si = GetTopLevelSignerInfo();
@@ -96,7 +96,7 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCommonName(char **aName) {
 }
 
 NS_IMETHODIMP nsCMSMessage::ContentIsEncrypted(bool *isEncrypted) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::ContentIsEncrypted"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::ContentIsEncrypted"));
   NS_ENSURE_ARG(isEncrypted);
 
   if (!m_cmsMsg) return NS_ERROR_FAILURE;
@@ -107,7 +107,7 @@ NS_IMETHODIMP nsCMSMessage::ContentIsEncrypted(bool *isEncrypted) {
 }
 
 NS_IMETHODIMP nsCMSMessage::ContentIsSigned(bool *isSigned) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::ContentIsSigned"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::ContentIsSigned"));
   NS_ENSURE_ARG(isSigned);
 
   if (!m_cmsMsg) return NS_ERROR_FAILURE;
@@ -123,7 +123,7 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCert(nsIX509Cert **scert) {
 
   nsCOMPtr<nsIX509Cert> cert;
   if (si->cert) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::GetSignerCert got signer cert"));
 
     nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
@@ -133,7 +133,7 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCert(nsIX509Cert **scert) {
     nsresult rv = certdb->ConstructX509(certDER, getter_AddRefs(cert));
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::GetSignerCert no signer cert, do we have a cert "
              "list? %s",
              (si->certList ? "yes" : "no")));
@@ -162,7 +162,7 @@ nsCMSMessage::VerifyDetachedSignature(unsigned char *aDigestData,
 nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
                                              uint32_t aDigestDataLen,
                                              int16_t aDigestType) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+  MOZ_LOG(gCMSLog, LogLevel::Debug,
           ("nsCMSMessage::CommonVerifySignature, content level count %d",
            NSS_CMSMessage_ContentLevelCount(m_cmsMsg)));
   NSSCMSContentInfo *cinfo = nullptr;
@@ -173,7 +173,7 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
   nsresult rv = NS_ERROR_FAILURE;
 
   if (!NSS_CMSMessage_IsSigned(m_cmsMsg)) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - not signed"));
     return NS_ERROR_CMS_VERIFY_NOT_SIGNED;
   }
@@ -190,7 +190,7 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
       case SEC_OID_PKCS7_ENCRYPTED_DATA:
       case SEC_OID_PKCS7_DIGESTED_DATA:
       default: {
-        MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+        MOZ_LOG(gCMSLog, LogLevel::Debug,
                 ("nsCMSMessage::CommonVerifySignature - unexpected "
                  "ContentTypeTag"));
         rv = NS_ERROR_CMS_VERIFY_NO_CONTENT_INFO;
@@ -200,7 +200,7 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
   }
 
   if (!sigd) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - no content info"));
     rv = NS_ERROR_CMS_VERIFY_NO_CONTENT_INFO;
     goto loser;
@@ -232,7 +232,7 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
     }
 
     if (NSS_CMSSignedData_SetDigestValue(sigd, oidTag, &digest)) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - bad digest"));
       rv = NS_ERROR_CMS_VERIFY_BAD_DIGEST;
       goto loser;
@@ -244,7 +244,7 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
   if (NSS_CMSSignedData_ImportCerts(sigd, CERT_GetDefaultCertDB(),
                                     certUsageEmailRecipient,
                                     true) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - can not import certs"));
   }
 
@@ -267,7 +267,7 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
         // Only local checks can run on the main thread.
         CertVerifier::FLAG_LOCAL_ONLY);
     if (result != mozilla::pkix::Success) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - signing cert not trusted "
                "now"));
       rv = NS_ERROR_CMS_VERIFY_UNTRUSTED;
@@ -284,45 +284,45 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
   if (NSS_CMSSignedData_VerifySignerInfo(sigd, 0, CERT_GetDefaultCertDB(),
                                          certUsageEmailSigner) != SECSuccess) {
     MOZ_LOG(
-        gPIPNSSLog, LogLevel::Debug,
+        gCMSLog, LogLevel::Debug,
         ("nsCMSMessage::CommonVerifySignature - unable to verify signature"));
 
     if (NSSCMSVS_SigningCertNotFound == si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - signing cert not found"));
       rv = NS_ERROR_CMS_VERIFY_NOCERT;
     } else if (NSSCMSVS_SigningCertNotTrusted == si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - signing cert not trusted "
                "at signing time"));
       rv = NS_ERROR_CMS_VERIFY_UNTRUSTED;
     } else if (NSSCMSVS_Unverified == si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - can not verify"));
       rv = NS_ERROR_CMS_VERIFY_ERROR_UNVERIFIED;
     } else if (NSSCMSVS_ProcessingError == si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - processing error"));
       rv = NS_ERROR_CMS_VERIFY_ERROR_PROCESSING;
     } else if (NSSCMSVS_BadSignature == si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - bad signature"));
       rv = NS_ERROR_CMS_VERIFY_BAD_SIGNATURE;
     } else if (NSSCMSVS_DigestMismatch == si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - digest mismatch"));
       rv = NS_ERROR_CMS_VERIFY_DIGEST_MISMATCH;
     } else if (NSSCMSVS_SignatureAlgorithmUnknown == si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - algo unknown"));
       rv = NS_ERROR_CMS_VERIFY_UNKNOWN_ALGO;
     } else if (NSSCMSVS_SignatureAlgorithmUnsupported ==
                si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - algo not supported"));
       rv = NS_ERROR_CMS_VERIFY_UNSUPPORTED_ALGO;
     } else if (NSSCMSVS_MalformedSignature == si->verificationStatus) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CommonVerifySignature - malformed signature"));
       rv = NS_ERROR_CMS_VERIFY_MALFORMED_SIGNATURE;
     }
@@ -333,7 +333,7 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
   // Save the profile. Note that save import failure is not a signature
   // verification failure. //
   if (NSS_SMIMESignerInfo_SaveSMIMEProfile(si) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CommonVerifySignature - unable to save smime "
              "profile"));
   }
@@ -476,7 +476,7 @@ class nsZeroTerminatedCertArray {
 };
 
 NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateEncrypted"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::CreateEncrypted"));
   NSSCMSContentInfo *cinfo;
   NSSCMSEnvelopedData *envd;
   NSSCMSRecipientInfo *recipientInfo;
@@ -507,7 +507,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
   // Find a bulk key algorithm //
   if (NSS_SMIMEUtil_FindBulkAlgForRecipients(
           recipientCerts.getRawArray(), &bulkAlgTag, &keySize) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateEncrypted - can't find bulk alg for "
              "recipients"));
     rv = NS_ERROR_CMS_ENCRYPT_NO_BULK_ALG;
@@ -516,7 +516,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
 
   m_cmsMsg = NSS_CMSMessage_Create(nullptr);
   if (!m_cmsMsg) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateEncrypted - can't create new cms message"));
     rv = NS_ERROR_OUT_OF_MEMORY;
     goto loser;
@@ -524,7 +524,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
 
   if ((envd = NSS_CMSEnvelopedData_Create(m_cmsMsg, bulkAlgTag, keySize)) ==
       nullptr) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateEncrypted - can't create enveloped data"));
     goto loser;
   }
@@ -532,7 +532,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
   cinfo = NSS_CMSMessage_GetContentInfo(m_cmsMsg);
   if (NSS_CMSContentInfo_SetContent_EnvelopedData(m_cmsMsg, cinfo, envd) !=
       SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateEncrypted - can't create content enveloped "
              "data"));
     goto loser;
@@ -541,7 +541,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
   cinfo = NSS_CMSEnvelopedData_GetContentInfo(envd);
   if (NSS_CMSContentInfo_SetContent_Data(m_cmsMsg, cinfo, nullptr, false) !=
       SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateEncrypted - can't set content data"));
     goto loser;
   }
@@ -551,12 +551,12 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
     UniqueCERTCertificate rc(recipientCerts.get(i));
     if ((recipientInfo = NSS_CMSRecipientInfo_Create(m_cmsMsg, rc.get())) ==
         nullptr) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CreateEncrypted - can't create recipient info"));
       goto loser;
     }
     if (NSS_CMSEnvelopedData_AddRecipient(envd, recipientInfo) != SECSuccess) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CreateEncrypted - can't add recipient info"));
       goto loser;
     }
@@ -589,7 +589,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
                            unsigned char *aDigestData, uint32_t aDigestDataLen,
                            int16_t aDigestType) {
   NS_ENSURE_ARG(aSigningCert);
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned"));
   NSSCMSContentInfo *cinfo;
   NSSCMSSignedData *sigd;
   NSSCMSSignerInfo *signerinfo;
@@ -621,7 +621,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
   m_cmsMsg =
       NSS_CMSMessage_Create(nullptr); /* create a message on its own pool */
   if (!m_cmsMsg) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't create new message"));
     rv = NS_ERROR_OUT_OF_MEMORY;
     goto loser;
@@ -631,14 +631,14 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
    * build chain of objects: message->signedData->data
    */
   if ((sigd = NSS_CMSSignedData_Create(m_cmsMsg)) == nullptr) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't create signed data"));
     goto loser;
   }
   cinfo = NSS_CMSMessage_GetContentInfo(m_cmsMsg);
   if (NSS_CMSContentInfo_SetContent_SignedData(m_cmsMsg, cinfo, sigd) !=
       SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't set content signed data"));
     goto loser;
   }
@@ -648,7 +648,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
   /* we're always passing data in and detaching optionally */
   if (NSS_CMSContentInfo_SetContent_Data(m_cmsMsg, cinfo, nullptr, true) !=
       SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't set content data"));
     goto loser;
   }
@@ -658,7 +658,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
    */
   signerinfo = NSS_CMSSignerInfo_Create(m_cmsMsg, scert.get(), digestType);
   if (!signerinfo) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't create signer info"));
     goto loser;
   }
@@ -666,19 +666,19 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
   /* we want the cert chain included for this one */
   if (NSS_CMSSignerInfo_IncludeCerts(signerinfo, NSSCMSCM_CertChain,
                                      certUsageEmailSigner) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't include signer cert chain"));
     goto loser;
   }
 
   if (NSS_CMSSignerInfo_AddSigningTime(signerinfo, PR_Now()) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't add signing time"));
     goto loser;
   }
 
   if (NSS_CMSSignerInfo_AddSMIMECaps(signerinfo) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't add smime caps"));
     goto loser;
   }
@@ -686,7 +686,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
   if (ecert) {
     if (NSS_CMSSignerInfo_AddSMIMEEncKeyPrefs(
             signerinfo, ecert.get(), CERT_GetDefaultCertDB()) != SECSuccess) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CreateSigned - can't add smime enc key prefs"));
       goto loser;
     }
@@ -694,7 +694,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
     if (NSS_CMSSignerInfo_AddMSSMIMEEncKeyPrefs(
             signerinfo, ecert.get(), CERT_GetDefaultCertDB()) != SECSuccess) {
       MOZ_LOG(
-          gPIPNSSLog, LogLevel::Debug,
+          gCMSLog, LogLevel::Debug,
           ("nsCMSMessage::CreateSigned - can't add MS smime enc key prefs"));
       goto loser;
     }
@@ -705,7 +705,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
 
     if (addEncryptionCert &&
         NSS_CMSSignedData_AddCertificate(sigd, ecert.get()) != SECSuccess) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CreateSigned - can't add own encryption "
                "certificate"));
       goto loser;
@@ -713,7 +713,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
   }
 
   if (NSS_CMSSignedData_AddSignerInfo(sigd, signerinfo) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSMessage::CreateSigned - can't add signer info"));
     goto loser;
   }
@@ -727,7 +727,7 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
 
     if (NSS_CMSSignedData_SetDigestValue(sigd, digestType, &digest) !=
         SECSuccess) {
-      MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+      MOZ_LOG(gCMSLog, LogLevel::Debug,
               ("nsCMSMessage::CreateSigned - can't set digest value"));
       goto loser;
     }
@@ -764,12 +764,12 @@ void nsCMSDecoder::destructorSafeDestroyNSSReference() {
 
 /* void start (in NSSCMSContentCallback cb, in voidPtr arg); */
 NS_IMETHODIMP nsCMSDecoder::Start(NSSCMSContentCallback cb, void *arg) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSDecoder::Start"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSDecoder::Start"));
   m_ctx = new PipUIContext();
 
   m_dcx = NSS_CMSDecoder_Start(0, cb, arg, 0, m_ctx, 0, 0);
   if (!m_dcx) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSDecoder::Start - can't start decoder"));
     return NS_ERROR_FAILURE;
   }
@@ -778,14 +778,13 @@ NS_IMETHODIMP nsCMSDecoder::Start(NSSCMSContentCallback cb, void *arg) {
 
 /* void update (in string bug, in long len); */
 NS_IMETHODIMP nsCMSDecoder::Update(const char *buf, int32_t len) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSDecoder::Update"));
   NSS_CMSDecoder_Update(m_dcx, (char *)buf, len);
   return NS_OK;
 }
 
 /* void finish (); */
 NS_IMETHODIMP nsCMSDecoder::Finish(nsICMSMessage **aCMSMsg) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSDecoder::Finish"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSDecoder::Finish"));
   NSSCMSMessage *cmsMsg;
   cmsMsg = NSS_CMSDecoder_Finish(m_dcx);
   m_dcx = nullptr;
@@ -820,14 +819,14 @@ void nsCMSEncoder::destructorSafeDestroyNSSReference() {
 /* void start (); */
 NS_IMETHODIMP nsCMSEncoder::Start(nsICMSMessage *aMsg, NSSCMSContentCallback cb,
                                   void *arg) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSEncoder::Start"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSEncoder::Start"));
   nsCMSMessage *cmsMsg = static_cast<nsCMSMessage *>(aMsg);
   m_ctx = new PipUIContext();
 
   m_ecx = NSS_CMSEncoder_Start(cmsMsg->getCMS(), cb, arg, 0, 0, 0, m_ctx, 0, 0,
                                0, 0);
   if (!m_ecx) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSEncoder::Start - can't start encoder"));
     return NS_ERROR_FAILURE;
   }
@@ -836,9 +835,9 @@ NS_IMETHODIMP nsCMSEncoder::Start(nsICMSMessage *aMsg, NSSCMSContentCallback cb,
 
 /* void update (in string aBuf, in long aLen); */
 NS_IMETHODIMP nsCMSEncoder::Update(const char *aBuf, int32_t aLen) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSEncoder::Update"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSEncoder::Update"));
   if (!m_ecx || NSS_CMSEncoder_Update(m_ecx, aBuf, aLen) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSEncoder::Update - can't update encoder"));
     return NS_ERROR_FAILURE;
   }
@@ -848,9 +847,9 @@ NS_IMETHODIMP nsCMSEncoder::Update(const char *aBuf, int32_t aLen) {
 /* void finish (); */
 NS_IMETHODIMP nsCMSEncoder::Finish() {
   nsresult rv = NS_OK;
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSEncoder::Finish"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSEncoder::Finish"));
   if (!m_ecx || NSS_CMSEncoder_Finish(m_ecx) != SECSuccess) {
-    MOZ_LOG(gPIPNSSLog, LogLevel::Debug,
+    MOZ_LOG(gCMSLog, LogLevel::Debug,
             ("nsCMSEncoder::Finish - can't finish encoder"));
     rv = NS_ERROR_FAILURE;
   }
@@ -860,6 +859,6 @@ NS_IMETHODIMP nsCMSEncoder::Finish() {
 
 /* void encode (in nsICMSMessage aMsg); */
 NS_IMETHODIMP nsCMSEncoder::Encode(nsICMSMessage *aMsg) {
-  MOZ_LOG(gPIPNSSLog, LogLevel::Debug, ("nsCMSEncoder::Encode"));
+  MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSEncoder::Encode"));
   return NS_ERROR_NOT_IMPLEMENTED;
 }

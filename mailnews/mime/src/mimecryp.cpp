@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#ifdef MOZ_LOGGING
+#  include "mozilla/Logging.h"
+#endif
 #include "mimecryp.h"
 #include "mimemoz2.h"
 #include "nsMimeTypes.h"
@@ -13,6 +16,10 @@
 #include "prlog.h"
 #include "mimemult.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
+
+using namespace mozilla;
+
+static mozilla::LazyLogModule gMimeCryptLog("MIMECRYPT");
 
 #define MIME_SUPERCLASS mimeContainerClass
 MimeDefClass(MimeEncrypted, MimeEncryptedClass, mimeEncryptedClass,
@@ -333,6 +340,15 @@ static int MimeEncrypted_add_child(MimeObject *parent, MimeObject *child) {
   return ((MimeContainerClass *)&MIME_SUPERCLASS)->add_child(parent, child);
 }
 
+#ifdef MOZ_LOGGING
+static int DebugOut(const char *buf, int32_t size, void *closure) {
+  MOZ_LOG(gMimeCryptLog, LogLevel::Debug,
+          ("MimeEncrypted_emit_buffered_child: (partial) decrypted body\n%.*s",
+           size, buf));
+  return 0;
+}
+#endif
+
 static int MimeEncrypted_emit_buffered_child(MimeObject *obj) {
   MimeEncrypted *enc = (MimeEncrypted *)obj;
   int status = 0;
@@ -341,6 +357,18 @@ static int MimeEncrypted_emit_buffered_child(MimeObject *obj) {
 
   NS_ASSERTION(enc->crypto_closure,
                "1.2 <mscott@netscape.com> 01 Nov 2001 17:59");
+
+#ifdef MOZ_LOGGING
+  if (enc->hdrs && enc->hdrs->all_headers) {
+    MOZ_LOG(gMimeCryptLog, LogLevel::Debug,
+            ("MimeEncrypted_emit_buffered_child: decrypted headers:\n%.*s",
+             enc->hdrs->all_headers_fp, enc->hdrs->all_headers));
+  }
+
+  if (enc->part_buffer) {
+    MimePartBufferRead(enc->part_buffer, DebugOut, 0);
+  }
+#endif
 
   /* Emit some HTML saying whether the signature was cool.
    But don't emit anything if in FO_QUOTE_MESSAGE mode.
