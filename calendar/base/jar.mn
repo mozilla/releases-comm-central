@@ -12,7 +12,6 @@ calendar.jar:
     content/calendar-chrome-startup.js                          (content/calendar-chrome-startup.js)
     content/calendar-clipboard.js                               (content/calendar-clipboard.js)
     content/calendar-common-sets.js                             (content/calendar-common-sets.js)
-    content/calendar-common-sets.xul                            (content/calendar-common-sets.xul)
     content/calendar-day-label.js                               (content/calendar-day-label.js)
     content/calendar-daypicker.js                               (content/calendar-daypicker.js)
     content/calendar-dnd-listener.js                            (content/calendar-dnd-listener.js)
