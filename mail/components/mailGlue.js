@@ -141,6 +141,10 @@ MailGlue.prototype = {
         this._dispose();
         break;
       case "final-ui-startup":
+        let fs = Cc["@mozilla.org/msgFolder/msgFolderService;1"].getService(
+          Ci.nsIMsgFolderService
+        );
+        fs.initializeFolderStrings();
         this._onProfileStartup();
         break;
       case "mail-startup-done":

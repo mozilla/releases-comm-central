@@ -71,11 +71,21 @@ class nsIMsgFolderCacheElement;
 class nsICollation;
 class nsMsgKeySetU;
 
+class nsMsgFolderService final : public nsIMsgFolderService {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIMSGFOLDERSERVICE
+
+  nsMsgFolderService(){};
+
+ protected:
+  ~nsMsgFolderService(){};
+};
+
 /*
  * nsMsgDBFolder
  * class derived from nsMsgFolder for those folders that use an nsIMsgDatabase
  */
-
 class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
                                   public nsIMsgFolder,
                                   public nsIDBChangeListener,
@@ -83,6 +93,8 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
                                   public nsIJunkMailClassificationListener,
                                   public nsIMsgTraitClassificationListener {
  public:
+  friend class nsMsgFolderService;
+
   nsMsgDBFolder(void);
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMSGFOLDER
@@ -286,6 +298,7 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedBrandShortName;
 
   static NS_MSG_BASE_STATIC_MEMBER_(nsICollation *) gCollationKeyGenerator;
+  static NS_MSG_BASE_STATIC_MEMBER_(bool) gInitializeStringsDone;
 
   // store of keys that have a processing flag set
   struct {

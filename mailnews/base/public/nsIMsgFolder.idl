@@ -30,6 +30,15 @@ typedef long nsMsgBiffState;
 // enumerated type for determining if a message has been replied to, forwarded, etc.
 typedef long nsMsgDispositionState;
 
+/*
+ * The contract ID for this component is @mozilla.org/msgFolder/msgFolderService;1.
+ */
+[scriptable, uuid(5639c204-48ac-4115-897f-3b16821fe118)]
+interface nsIMsgFolderService : nsISupports
+{
+  void initializeFolderStrings();
+};
+
 [scriptable, uuid(5d253ba2-42aa-43a7-b584-0059855ababf)]
 interface nsIMsgFolder : nsISupports {
 
@@ -57,6 +66,8 @@ interface nsIMsgFolder : nsISupports {
 
   void startFolderLoading();
   void endFolderLoading();
+
+  void folderNamesReady(out boolean aReady);
 
   /* get new headers for db */
   void updateFolder(in nsIMsgWindow aWindow);

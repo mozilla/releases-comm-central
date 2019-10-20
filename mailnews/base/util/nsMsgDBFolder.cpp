@@ -70,6 +70,7 @@
 #include "nsIURIMutator.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
+#include "nsIXULAppInfo.h"
 
 using namespace mozilla;
 
@@ -87,6 +88,21 @@ static PRTime gtimeOfLastPurgeCheck;  // variable to know when to check for
 
 const char *kUseServerRetentionProp = "useServerRetention";
 
+NS_IMPL_ISUPPORTS(nsMsgFolderService, nsIMsgFolderService)
+
+// This method serves the only purpose to re-initialize the
+// folder name strings when UI intialization is done.
+// XXX TODO: This can be removed when the localization system gets
+// initialized in M-C code before, for example, the permission manager
+// triggers folder creation during imap: URI creation.
+// In fact, the entire class together with nsMsgDBFolder::FolderNamesReady()
+// can be removed.
+NS_IMETHODIMP nsMsgFolderService::InitializeFolderStrings() {
+  nsMsgDBFolder::initializeStrings();
+  nsMsgDBFolder::gInitializeStringsDone = true;
+  return NS_OK;
+}
+
 nsICollation *nsMsgDBFolder::gCollationKeyGenerator = nullptr;
 
 nsString nsMsgDBFolder::kLocalizedInboxName;
@@ -101,6 +117,7 @@ nsString nsMsgDBFolder::kLocalizedArchivesName;
 nsString nsMsgDBFolder::kLocalizedBrandShortName;
 
 nsrefcnt nsMsgDBFolder::mInstanceCount = 0;
+bool nsMsgDBFolder::gInitializeStringsDone = false;
 
 // We define strings for folder properties and events.
 // Properties:
@@ -164,6 +181,23 @@ nsMsgDBFolder::nsMsgDBFolder(void)
       mIsServer(false) {
   if (mInstanceCount++ <= 0) {
     initializeStrings();
+
+    do {
+      nsresult rv;
+      // We need to check whether we're running under xpcshell,
+      // in that case, we always assume that the strings are good.
+      // XXX TODO: This hack can be removed when the localization system gets
+      // initialized in M-C code before, for example, the permission manager
+      // triggers folder creation during imap: URI creation.
+      nsCOMPtr<nsIXULAppInfo> appinfo =
+          do_GetService("@mozilla.org/xre/app-info;1", &rv);
+      if (NS_FAILED(rv)) break;
+      nsAutoCString appName;
+      rv = appinfo->GetName(appName);
+      if (NS_FAILED(rv)) break;
+      if (appName.Equals("xpcshell")) gInitializeStringsDone = true;
+    } while (false);
+
     createCollationKeyGenerator();
     gtimeOfLastPurgeCheck = 0;
   }
@@ -187,6 +221,11 @@ nsMsgDBFolder::~nsMsgDBFolder(void) {
   }
   // shutdown but don't shutdown children.
   Shutdown(false);
+}
+
+NS_IMETHODIMP nsMsgDBFolder::FolderNamesReady(bool *aReady) {
+  *aReady = gInitializeStringsDone;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::Shutdown(bool shutdownChildren) {

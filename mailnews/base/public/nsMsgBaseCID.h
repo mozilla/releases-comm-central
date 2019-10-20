@@ -430,6 +430,18 @@
   }
 
 //
+// nsMsgFolderService
+//
+#define NS_MSGFOLDERSERVICE_CONTRACTID \
+  "@mozilla.org/msgFolder/msgFolderService;1"
+#define NS_MSGFOLDERSERVICE_CID                      \
+  {                                                  \
+    0x0c8ec907, 0x49c7, 0x49bc, {                    \
+      0x8b, 0xdf, 0xb1, 0x6e, 0x29, 0xbd, 0x6c, 0x47 \
+    }                                                \
+  }
+
+//
 // nsMsgNotificationService
 //
 #define NS_MSGNOTIFICATIONSERVICE_CONTRACTID \

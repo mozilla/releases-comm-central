@@ -2414,7 +2414,14 @@ nsresult nsImapService::NewURI(const nsACString &aSpec,
   // now try to get the folder in question...
   nsCOMPtr<nsIMsgFolder> rootFolder;
   server->GetRootFolder(getter_AddRefs(rootFolder));
-  if (rootFolder && !folderName.IsEmpty()) {
+  bool ready;
+  if (rootFolder && !folderName.IsEmpty() &&
+      // Skip folder processing if folder names aren't ready yet.
+      // They may not be available during early initialization.
+      // XXX TODO: This hack can be removed when the localization system gets
+      // initialized in M-C code before, for example, the permission manager
+      // which creates all sorts of URIs incl. imap: URIs.
+      NS_SUCCEEDED(rootFolder->FolderNamesReady(&ready)) && ready) {
     nsCOMPtr<nsIMsgFolder> folder;
     nsCOMPtr<nsIMsgImapMailFolder> imapRoot = do_QueryInterface(rootFolder);
     nsCOMPtr<nsIMsgImapMailFolder> subFolder;
