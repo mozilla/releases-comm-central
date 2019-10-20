@@ -127,11 +127,11 @@ function AcceptDialog()
   // the user is quitting the old profile, so make it look like a quit.
   var cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
                      .createInstance(Ci.nsISupportsPRBool);
-  Cc["@mozilla.org/observer-service;1"]
-    .getService(Ci.nsIObserverService)
-    .notifyObservers(cancelQuit, "quit-application-requested");
-  if (cancelQuit.data)
+  Services.obs.notifyObservers(cancelQuit, "quit-application-requested");
+
+  if (cancelQuit.data) {
     return false;
+  }
 
   try {
     var env = Cc["@mozilla.org/process/environment;1"]

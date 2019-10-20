@@ -24,9 +24,11 @@
     NOTIFY_OBSERVERS(MIGRATION_ITEMAFTERMIGRATE, index.get()); \
   }
 
-#define NC_URI(property) \
-  NS_LITERAL_CSTRING("http://home.netscape.com/NC-rdf#"#property)
+#define MAKEPREFTRANSFORM(pref, newpref, getmethod, setmethod) \
+  { pref, newpref, F(Get##getmethod), F(Set##setmethod), false, { -1 } }
 
+#define MAKESAMETYPEPREFTRANSFORM(pref, method) \
+  { pref, 0, F(Get##method), F(Set##method), false, { -1 } }
 
 #include "nsString.h"
 #include "nscore.h"
@@ -35,14 +37,6 @@
 class nsIPrefBranch;
 class nsIProfileStartup;
 class nsIFile;
-
-void SetUnicharPref(const char* aPref, const nsAString& aValue,
-                    nsIPrefBranch* aPrefs);
-
-// Proxy utilities shared by the Opera and IE migrators
-void ParseOverrideServers(const nsAString& aServers, nsIPrefBranch* aBranch);
-void SetProxyPref(const nsAString& aHostPort, const char* aPref,
-                  const char* aPortPref, nsIPrefBranch* aPrefs);
 
 struct MigrationData {
   const char* fileName;
@@ -62,11 +56,5 @@ void GetMigrateDataFromArray(MigrationData* aDataArray,
 // this is already cloned, modify it to your heart's content
 void GetProfilePath(nsIProfileStartup* aStartup,
                     nsIFile** aProfileDir);
-
-// In-place import from aBookmarksFile into a folder in the user's bookmarks
-// with the name "From (STR:aImportSourceNameKey)" (aImportSourceNameKey
-// is a key into migration.properties with the pretty name of the application.
-nsresult ImportBookmarksHTML(nsIFile* aBookmarksFile,
-                             const char16_t* aImportSourceNameKey);
 
 #endif

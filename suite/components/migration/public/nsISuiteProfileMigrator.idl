@@ -49,7 +49,6 @@ interface nsISuiteProfileMigrator : nsISupports
    */
   unsigned short getMigrateData(in wstring aProfile, in boolean aDoingStartup);
 
-
   /**
    * A bit field containing profile items that this migrator may be able
    * to import for any source profile of its type.

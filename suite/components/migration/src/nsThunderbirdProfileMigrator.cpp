@@ -35,7 +35,7 @@
 #define FILE_NAME_MAILVIEWS       "mailViews.dat"
 
 NS_IMPL_ISUPPORTS(nsThunderbirdProfileMigrator, nsISuiteProfileMigrator,
-                   nsITimerCallback)
+                  nsITimerCallback)
 
 nsThunderbirdProfileMigrator::nsThunderbirdProfileMigrator()
 {
@@ -70,10 +70,8 @@ nsThunderbirdProfileMigrator::Migrate(uint16_t aItems,
   NOTIFY_OBSERVERS(MIGRATION_STARTED, nullptr);
 
   COPY_DATA(CopyPreferences,  aReplace, nsISuiteProfileMigrator::SETTINGS);
-  COPY_DATA(CopyCookies,      aReplace, nsISuiteProfileMigrator::COOKIES);
   COPY_DATA(CopyHistory,      aReplace, nsISuiteProfileMigrator::HISTORY);
   COPY_DATA(CopyPasswords,    aReplace, nsISuiteProfileMigrator::PASSWORDS);
-  COPY_DATA(CopyOtherData,    aReplace, nsISuiteProfileMigrator::OTHERDATA);
 
   // fake notifications for things we've already imported as part of
   // CopyPreferences
@@ -92,10 +90,9 @@ nsThunderbirdProfileMigrator::Migrate(uint16_t aItems,
 
   if (aReplace &&
       (aItems & nsISuiteProfileMigrator::SETTINGS ||
-       aItems & nsISuiteProfileMigrator::COOKIES ||
        aItems & nsISuiteProfileMigrator::PASSWORDS ||
        !aItems)) {
-    // Permissions (Images, Cookies, Popups)
+    // Permissions (Images)
     if (NS_SUCCEEDED(rv))
       rv = CopyFile(FILE_NAME_SITEPERM_NEW, FILE_NAME_SITEPERM_NEW);
     if (NS_SUCCEEDED(rv))
@@ -137,20 +134,11 @@ nsThunderbirdProfileMigrator::GetMigrateData(const char16_t* aProfile,
                            { FILE_NAME_USER_PREFS,
                              nsISuiteProfileMigrator::SETTINGS,
                              true },
-                           { FILE_NAME_COOKIES,
-                             nsISuiteProfileMigrator::COOKIES,
-                             false },
                            { FILE_NAME_HISTORY,
                              nsISuiteProfileMigrator::HISTORY,
                              true },
                            { FILE_NAME_SIGNONS,
                              nsISuiteProfileMigrator::PASSWORDS,
-                             true },
-                           { FILE_NAME_DOWNLOADS,
-                             nsISuiteProfileMigrator::OTHERDATA,
-                             true },
-                           { FILE_NAME_MIMETYPES,
-                             nsISuiteProfileMigrator::OTHERDATA,
                              true },
                            { FILE_NAME_JUNKTRAINING,
                              nsISuiteProfileMigrator::JUNKTRAINING,
@@ -168,9 +156,7 @@ nsThunderbirdProfileMigrator::GetSupportedItems(uint16_t *aSupportedItems)
   NS_ENSURE_ARG_POINTER(aSupportedItems);
 
   *aSupportedItems = nsISuiteProfileMigrator::SETTINGS |
-    nsISuiteProfileMigrator::COOKIES |
     nsISuiteProfileMigrator::HISTORY |
-    nsISuiteProfileMigrator::OTHERDATA |
     nsISuiteProfileMigrator::JUNKTRAINING |
     nsISuiteProfileMigrator::PASSWORDS |
     nsISuiteProfileMigrator::ACCOUNT_SETTINGS |
@@ -409,14 +395,6 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKEPREFTRANSFORM("network.image.imageBehavior", 0, Int,             Image),
   MAKESAMETYPEPREFTRANSFORM("permissions.default.image",               Int),
 
-  MAKESAMETYPEPREFTRANSFORM("network.cookie.alwaysAcceptSessionCookies",Bool),
-  MAKEPREFTRANSFORM("network.cookie.cookieBehavior", 0, Int,           Cookie),
-
-  MAKESAMETYPEPREFTRANSFORM("network.cookie.lifetime.behavior",        Int),
-  MAKESAMETYPEPREFTRANSFORM("network.cookie.lifetime.days",            Int),
-  MAKESAMETYPEPREFTRANSFORM("network.cookie.lifetime.enabled",         Bool),
-  MAKESAMETYPEPREFTRANSFORM("network.cookie.lifetimePolicy",           Int),
-  MAKESAMETYPEPREFTRANSFORM("network.cookie.warnAboutCookies",         Bool),
   MAKESAMETYPEPREFTRANSFORM("network.proxy.autoconfig_url",            String),
   MAKESAMETYPEPREFTRANSFORM("network.proxy.ftp",                       String),
   MAKESAMETYPEPREFTRANSFORM("network.proxy.ftp_port",                  Int),
@@ -580,9 +558,6 @@ nsThunderbirdProfileMigrator::CopyPreferences(bool aReplace)
     rv = CopyFile(FILE_NAME_PERSONALDICTIONARY, FILE_NAME_PERSONALDICTIONARY);
   if (NS_SUCCEEDED(rv))
     rv = CopyFile(FILE_NAME_MAILVIEWS, FILE_NAME_MAILVIEWS);
-
-  if (NS_SUCCEEDED(rv))
-    rv = CopyUserSheet(FILE_NAME_USERCONTENT);
 
   return rv;
 }

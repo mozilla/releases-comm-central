@@ -3,8 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef netscapeprofilemigratorbase___h___
-#define netscapeprofilemigratorbase___h___
+#ifndef nsSuiteProfileMigratorBase___h___
+#define nsSuiteProfileMigratorBase___h___
 
 #include "nsIFile.h"
 #include "nsIMutableArray.h"
@@ -12,6 +12,7 @@
 #include "nsITimer.h"
 #include "nsIObserverService.h"
 #include "nsISuiteProfileMigrator.h"
+#include "nsSuiteMigrationCID.h"
 
 class nsIPrefBranch;
 class nsIPrefService;
@@ -23,17 +24,11 @@ struct fileTransactionEntry {
                     // getting copied
 };
 
-#define FILE_NAME_BOOKMARKS       "bookmarks.html"
-#define FILE_NAME_COOKIES         "cookies.txt"
-#define FILE_NAME_COOKIES_SQLITE  "cookies.sqlite"
 #define FILE_NAME_PREFS           "prefs.js"
 #define FILE_NAME_JUNKTRAINING    "training.dat"
 #define FILE_NAME_VIRTUALFOLDERS  "virtualFolders.dat"
-#define FILE_NAME_USERCONTENT     "userContent.css"
-#define DIR_NAME_SEARCH           "searchplugins"
-#define FILE_NAME_DOWNLOADS       "downloads.rdf"
 
-#define F(a) nsNetscapeProfileMigratorBase::a
+#define F(a) nsSuiteProfileMigratorBase::a
 
 #define MAKEPREFTRANSFORM(pref, newpref, getmethod, setmethod) \
   { pref, newpref, F(Get##getmethod), F(Set##setmethod), false, { -1 } }
@@ -41,14 +36,14 @@ struct fileTransactionEntry {
 #define MAKESAMETYPEPREFTRANSFORM(pref, method) \
   { pref, 0, F(Get##method), F(Set##method), false, { -1 } }
 
-class nsNetscapeProfileMigratorBase : public nsISuiteProfileMigrator,
-                                      public nsITimerCallback
+class nsSuiteProfileMigratorBase : public nsISuiteProfileMigrator,
+                                   public nsITimerCallback
 {
 public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSITIMERCALLBACK
 
-  nsNetscapeProfileMigratorBase();
+  nsSuiteProfileMigratorBase();
 
   struct PrefTransform;
   typedef nsresult(*prefConverter)(PrefTransform*, nsIPrefBranch*);
@@ -95,7 +90,7 @@ public:
   static nsresult SetCookie(PrefTransform* aTransform, nsIPrefBranch* aBranch);
 
 protected:
-  virtual ~nsNetscapeProfileMigratorBase() {}
+  virtual ~nsSuiteProfileMigratorBase() {}
   // This function is designed to be overriden by derived classes so that
   // the required profile data for the specific application can be obtained.
   virtual nsresult FillProfileDataFromRegistry() = 0;
@@ -114,18 +109,6 @@ protected:
                   PBStructArray &aPrefs);
   void WriteBranch(const char * branchName, nsIPrefService* aPrefService,
                    PBStructArray &aPrefs);
-
-  // Generic Import Functions
-  nsresult CopyCookies(bool aReplace);
-  nsresult CopyUserSheet(const char* aFileName);
-
-  // Browser Import Functions
-  nsresult CopyBookmarks(bool aReplace);
-  nsresult CopyOtherData(bool aReplace);
-  nsresult ImportNetscapeBookmarks(const char* aBookmarksFileName,
-                                   const char* aImportSourceNameKey);
-  bool GetSourceHasHomePageURL();
-  nsresult CopyHomePageData(bool aReplace);
 
   // Mail Import Functions
   nsresult CopyAddressBookDirectories(PBStructArray &aLdapServers,

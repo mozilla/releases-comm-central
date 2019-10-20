@@ -4,8 +4,5 @@
 
 comm.jar:
 % override chrome://mozapps/content/profile/profileSelection.xul chrome://communicator/content/profile/profileSelection.xul
-  content/communicator/migration/migration.xul                     (content/migration.xul)
-  content/communicator/migration/migration.js                      (content/migration.js)
   content/communicator/profile/profileSelection.js                 (content/profileSelection.js)
   content/communicator/profile/profileSelection.xul                (content/profileSelection.xul)
-

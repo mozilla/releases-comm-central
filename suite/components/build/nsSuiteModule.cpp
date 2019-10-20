@@ -6,6 +6,7 @@
 #include "mozilla/ModuleUtils.h"
 #include "nsSuiteDirectoryProvider.h"
 #include "nsThunderbirdProfileMigrator.h"
+#include "nsSuiteMigrationCID.h"
 #include "nsNetCID.h"
 #include "nsFeedSniffer.h"
 
@@ -16,8 +17,6 @@
 #elif defined(MOZ_WIDGET_GTK)
 #include "nsGNOMEShellService.h"
 #endif
-
-#define NS_SUITEPROFILEMIGRATOR_CONTRACTID_PREFIX "@mozilla.org/profile/migrator;1?app=suite&type="
 
 using namespace mozilla;
 /////////////////////////////////////////////////////////////////////////////

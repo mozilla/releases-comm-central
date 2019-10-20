@@ -5,14 +5,12 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const nsISuiteProfileMigrator = Ci.nsISuiteProfileMigrator;
-const nsIProfileStartup       = Ci.nsIProfileStartup;
-const nsISupportsString       = Ci.nsISupportsString;
-const NS_PROFILE_MIGRATOR_CONTRACTID = "@mozilla.org/profile/migrator;1?app=suite&type=";
+const NS_PROFILE_MIGRATOR_CONTRACTID =
+  "@mozilla.org/profile/migrator;1?app=suite&type=";
 
 var MigrationWizard = {
   _source: "",                  // Source Profile Migrator ContractID suffix
-  _itemsFlags: nsISuiteProfileMigrator.ALL, // Selected Import Data Sources
+  _itemsFlags: Ci.nsISuiteProfileMigrator.ALL, // Selected Import Data Sources
   _selectedProfile: null,       // Selected Profile name to import from
   _wiz: null,                   // Shortcut to the wizard
   _migrator: null,              // The actual profile migrator.
@@ -22,13 +20,11 @@ var MigrationWizard = {
   _newHomePage: null,           // Are we setting a new home page - what to?
 
   init: function() {
-    var os = Cc["@mozilla.org/observer-service;1"]
-               .getService(Ci.nsIObserverService);
-    os.addObserver(this, "Migration:Started");
-    os.addObserver(this, "Migration:ItemBeforeMigrate");
-    os.addObserver(this, "Migration:ItemAfterMigrate");
-    os.addObserver(this, "Migration:Ended");
-    os.addObserver(this, "Migration:Progress");
+    Services.obs.addObserver(this, "Migration:Started");
+    Services.obs.addObserver(this, "Migration:ItemBeforeMigrate");
+    Services.obs.addObserver(this, "Migration:ItemAfterMigrate");
+    Services.obs.addObserver(this, "Migration:Ended");
+    Services.obs.addObserver(this, "Migration:Progress");
 
     this._wiz = document.documentElement;
     this._wiz.canRewind = false;
@@ -36,17 +32,18 @@ var MigrationWizard = {
     if ("arguments" in window) {
       if ("arguments" in window && window.arguments[0] == "bookmarks") {
         this._singleItem = true;
-        this._itemsFlags = nsISuiteProfileMigrator.BOOKMARKS;
+        this._itemsFlags = Ci.nsISuiteProfileMigrator.BOOKMARKS;
         document.getElementById("fromFile").hidden = false;
         document.getElementById("importBookmarks").hidden = false;
         document.getElementById("importAll").hidden = true;
       }
       else if (window.arguments.length > 1) {
         this._source = window.arguments[0];
-        this._migrator = window.arguments[1] instanceof nsISuiteProfileMigrator ?
-                         window.arguments[1] : null;
+        this._migrator =
+          window.arguments[1] instanceof Ci.nsISuiteProfileMigrator ?
+            window.arguments[1] : null;
         this._autoMigrate = window.arguments[2]
-                                  .QueryInterface(nsIProfileStartup);
+                                  .QueryInterface(Ci.nsIProfileStartup);
         // Show the "nothing" option in the automigrate case to provide an
         // easily identifiable way to avoid migration and create a new profile.
         document.getElementById("nothing").hidden = false;
@@ -57,13 +54,11 @@ var MigrationWizard = {
   },
 
   uninit: function() {
-    var os = Cc["@mozilla.org/observer-service;1"]
-               .getService(Ci.nsIObserverService);
-    os.removeObserver(this, "Migration:Started");
-    os.removeObserver(this, "Migration:ItemBeforeMigrate");
-    os.removeObserver(this, "Migration:ItemAfterMigrate");
-    os.removeObserver(this, "Migration:Ended");
-    os.removeObserver(this, "Migration:Progress", false);
+    Services.obs.removeObserver(this, "Migration:Started");
+    Services.obs.removeObserver(this, "Migration:ItemBeforeMigrate");
+    Services.obs.removeObserver(this, "Migration:ItemAfterMigrate");
+    Services.obs.removeObserver(this, "Migration:Ended");
+    Services.obs.removeObserver(this, "Migration:Progress");
   },
 
   // 1 - Import Source
@@ -78,7 +73,7 @@ var MigrationWizard = {
         var migrator = null;
         if (contractID in Cc) {
           migrator = Cc[contractID]
-                       .createInstance(nsISuiteProfileMigrator);
+                       .createInstance(Ci.nsISuiteProfileMigrator);
         } else {
           dump("*** invalid contractID =" + contractID + "\n");
           // This is an invalid contract id, therefore hide this element
@@ -132,7 +127,7 @@ var MigrationWizard = {
       // Create the migrator for the selected source.
       var contractID = NS_PROFILE_MIGRATOR_CONTRACTID + newSource;
       this._migrator = Cc[contractID]
-                         .createInstance(nsISuiteProfileMigrator);
+                         .createInstance(Ci.nsISuiteProfileMigrator);
 
       this._selectedProfile = null;
     }
@@ -152,7 +147,7 @@ var MigrationWizard = {
       var sourceProfiles = this._migrator.sourceProfiles;
       if (sourceProfiles && sourceProfiles.length == 1) {
         this._selectedProfile = sourceProfiles
-            .queryElementAt(0, nsISupportsString).data;
+            .queryElementAt(0, Ci.nsISupportsString).data;
       }
       else
         this._selectedProfile = "";
@@ -170,7 +165,7 @@ var MigrationWizard = {
     var count = sourceProfiles.length;
     for (var i = 0; i < count; ++i) {
       var item = document.createElement("radio");
-      item.id = sourceProfiles.queryElementAt(i, nsISupportsString).data;
+      item.id = sourceProfiles.queryElementAt(i, Ci.nsISupportsString).data;
       item.setAttribute("label", item.id);
       profiles.appendChild(item);
     }
@@ -277,7 +272,7 @@ var MigrationWizard = {
     var availableItems = this._migrator.getMigrateData(this._selectedProfile,
                                                        this._autoMigrate);
 
-    if (source && (availableItems & nsISuiteProfileMigrator.HOMEPAGEDATA)) {
+    if (source && (availableItems & Ci.nsISuiteProfileMigrator.HOMEPAGEDATA)) {
       var appName = document.getElementById("bundle").getString(source);
       var oldHomePageLabel = bundle.getFormattedString("homePageImport",
                                                        [appName]);
@@ -316,7 +311,7 @@ var MigrationWizard = {
       this._itemsFlags = this._migrator.getMigrateData(this._selectedProfile,
                                                        this._autoMigrate);
       if (!this._newHomePage)
-        this._itemsFlags &= ~nsISuiteProfileMigrator.HOMEPAGEDATA;
+        this._itemsFlags &= ~Ci.nsISuiteProfileMigrator.HOMEPAGEDATA;
     }
 
     this._listItems("migratingItems");
@@ -336,7 +331,7 @@ var MigrationWizard = {
 
     var bundle = document.getElementById("bundle");
     var itemID;
-    for (var x = 1; x < nsISuiteProfileMigrator.ALL;
+    for (var x = 1; x < Ci.nsISuiteProfileMigrator.ALL;
          x = x << 1) {
       if (x & this._itemsFlags) {
         var label = document.createElement("label");
