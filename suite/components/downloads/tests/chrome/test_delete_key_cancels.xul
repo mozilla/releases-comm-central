@@ -163,8 +163,6 @@ function test()
   if (win)
     win.close();
 
-  var os = Cc["@mozilla.org/observer-service;1"]
-             .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   var testObs = {
@@ -184,11 +182,11 @@ function test()
       addDownload();
       // we need to focus the download as well
       doc.getElementById("downloadTree").view.selection.select(0);
-      os.removeObserver(testObs, DLMGR_UI_DONE);
+      Services.obs.removeObserver(testObs, DLMGR_UI_DONE);
   }
 
   // Register with the observer service
-  os.addObserver(testObs, DLMGR_UI_DONE);
+  Services.obs.addObserver(testObs, DLMGR_UI_DONE);
 
   // Show the Download Manager UI
   Cc["@mozilla.org/download-manager-ui;1"]

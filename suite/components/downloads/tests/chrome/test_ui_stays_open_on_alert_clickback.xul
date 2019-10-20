@@ -71,8 +71,6 @@ function test()
   var win = Services.wm.getMostRecentWindow("Download:Manager");
   if (win) win.close();
 
-  var os = Cc["@mozilla.org/observer-service;1"]
-             .getService(Ci.nsIObserverService);
   const DLMGR_UI_DONE = "download-manager-ui-done";
 
   var testObs = {
@@ -92,13 +90,13 @@ function test()
 
       win.close();
       setClose(false);
-      os.removeObserver(testObs, DLMGR_UI_DONE);
+      Services.obs.removeObserver(testObs, DLMGR_UI_DONE);
       SimpleTest.finish();
     }
   };
 
   // Register with the observer service
-  os.addObserver(testObs, DLMGR_UI_DONE);
+  Services.obs.addObserver(testObs, DLMGR_UI_DONE);
 
   // Simulate an alert click with pref set to true
   setClose(true);

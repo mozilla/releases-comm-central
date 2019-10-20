@@ -3101,9 +3101,7 @@
           t.setAttribute("onerror", "this.parentNode.parentNode.parentNode.parentNode.addToMissedIconCache(this.getAttribute('image')); this.removeAttribute('image');");
           this.referenceTab = t;
 
-          var os = Cc["@mozilla.org/observer-service;1"]
-                     .getService(Ci.nsIObserverService);
-          os.addObserver(this, "browser:purge-session-history");
+          Services.obs.addObserver(this, "browser:purge-session-history");
           Services.prefs.addObserver("browser.tabs.max_tabs_undo", this);
 
           var onclick = this.getAttribute("oncontentclick");
@@ -3127,9 +3125,7 @@
             // eventListeners are removed from the browsers in display order of the browsers
             this.browsers[i].removeEventListener("DOMTitleChanged", this.onTitleChanged, true);
           }
-          var os = Cc["@mozilla.org/observer-service;1"]
-                     .getService(Ci.nsIObserverService);
-          os.removeObserver(this, "browser:purge-session-history");
+          Services.obs.removeObserver(this, "browser:purge-session-history");
           Services.prefs.removeObserver("browser.tabs.max_tabs_undo", this);
           this.savedBrowsers.forEach(function(aTabData) {
             delete aTabData.browserData;

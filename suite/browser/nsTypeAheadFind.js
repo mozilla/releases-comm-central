@@ -81,9 +81,7 @@ typeAheadFind.prototype = {
       // We need to add our event listeners to all windows.
       Services.ww.registerNotification(this);
       // We also need to listen for find again commands
-      Cc["@mozilla.org/observer-service;1"]
-        .getService(Ci.nsIObserverService)
-        .addObserver(this, "nsWebBrowserFind_FindAgain", true);
+      Services.obs.addObserver(this, "nsWebBrowserFind_FindAgain", true);
     }
     if (aTopic == "domwindowopened") {
       // Add our listeners. They get automatically removed on window teardown.

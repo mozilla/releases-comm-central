@@ -22,9 +22,6 @@ var bs = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].
          getService(Ci.nsINavBookmarksService);
 
 // Get other services.
-var os = Cc["@mozilla.org/observer-service;1"].
-         getService(Ci.nsIObserverService);
-
 const PREF_IMPORT_BOOKMARKS_HTML = "browser.places.importBookmarksHTML";
 const PREF_RESTORE_DEFAULT_BOOKMARKS = "browser.bookmarks.restore_default_bookmarks";
 const PREF_SMART_BOOKMARKS_VERSION = "browser.places.smartBookmarksVersion";
@@ -234,10 +231,10 @@ function next_test() {
   remove_all_bookmarks();
   // nsSuiteGlue stops observing topics after first notification,
   // so we add back the observer to test additional runs.
-  os.addObserver(bg.QueryInterface(Ci.nsIObserver),
-                 PlacesUtils.TOPIC_INIT_COMPLETE);
-  os.addObserver(bg.QueryInterface(Ci.nsIObserver),
-                 PlacesUtils.TOPIC_DATABASE_LOCKED);
+  Services.obs.addObserver(bg.QueryInterface(Ci.nsIObserver),
+                           PlacesUtils.TOPIC_INIT_COMPLETE);
+  Services.obs.addObserver(bg.QueryInterface(Ci.nsIObserver),
+                           PlacesUtils.TOPIC_DATABASE_LOCKED);
   // Execute next test.
   let test = tests.shift();
   print("\nTEST " + (++testIndex) + ": " + test.description);

@@ -41,13 +41,6 @@
         ]]>
       </field>
 
-      <field name="_prefs" readonly="true">
-        <![CDATA[
-          Cc["@mozilla.org/preferences-service;1"]
-            .getService(Ci.nsIPrefBranch);
-        ]]>
-      </field>
-
       <field name="_urlFormatter" readonly="true">
         <![CDATA[
           Cc["@mozilla.org/toolkit/URLFormatterService;1"]
@@ -152,12 +145,12 @@
             }
 
             if (aState & nsIWebProgressListener.STATE_LOADED_MIXED_ACTIVE_CONTENT &&
-                this._prefs.getBoolPref("security.warn_mixed_active_content")) {
+                Services.prefs.getBoolPref("security.warn_mixed_active_content")) {
               pref = "security.warn_mixed_active_content";
               message = "MixedActiveContentMessage";
               priority = this.PRIORITY_CRITICAL_LOW;
             } else if (aState & nsIWebProgressListener.STATE_BLOCKED_MIXED_ACTIVE_CONTENT &&
-                this._prefs.getBoolPref("security.warn_mixed_active_content")) {
+                Services.prefs.getBoolPref("security.warn_mixed_active_content")) {
               pref = "security.warn_mixed_active_content";
               message = "BlockedActiveContentMessage";
               priority = this.PRIORITY_INFO_LOW;
@@ -175,13 +168,13 @@
                               nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE)
               }];
             } else if (aState & nsIWebProgressListener.STATE_LOADED_TRACKING_CONTENT &&
-                this._prefs.getBoolPref("privacy.warn_tracking_content")) {
+                Services.prefs.getBoolPref("privacy.warn_tracking_content")) {
               pref = "privacy.warn_tracking_content";
               message = "TrackingContentMessage";
               priority = this.PRIORITY_WARNING_LOW;
               pane = "security_pane";
             } else if (aState & nsIWebProgressListener.STATE_BLOCKED_TRACKING_CONTENT &&
-                this._prefs.getBoolPref("privacy.warn_tracking_content")) {
+                Services.prefs.getBoolPref("privacy.warn_tracking_content")) {
               pref = "privacy.warn_tracking_content";
               message = "BlockedTrackingContentMessage";
               priority = this.PRIORITY_INFO_LOW;
@@ -207,12 +200,12 @@
                 }];
               }
             } else if (aState & nsIWebProgressListener.STATE_LOADED_MIXED_DISPLAY_CONTENT &&
-                this._prefs.getBoolPref("security.warn_mixed_display_content")) {
+                Services.prefs.getBoolPref("security.warn_mixed_display_content")) {
               pref = "security.warn_mixed_display_content";
               message = "MixedDisplayContentMessage";
               priority = this.PRIORITY_WARNING_LOW;
             } else if (aState & nsIWebProgressListener.STATE_BLOCKED_MIXED_DISPLAY_CONTENT &&
-                this._prefs.getBoolPref("security.warn_mixed_display_content")) {
+                Services.prefs.getBoolPref("security.warn_mixed_display_content")) {
               pref = "security.warn_mixed_display_content";
               message = "BlockedDisplayContentMessage";
               priority = this.PRIORITY_INFO_LOW;
@@ -227,7 +220,7 @@
 
             this.lastMessage = message;
 
-            if (!this._prefs.getBoolPref(pref))
+            if (!Services.prefs.getBoolPref(pref))
               return true;
 
             if ("goPreferences" in window) {
@@ -271,7 +264,7 @@
         <parameter name="aSameURI" />
         <body>
           <![CDATA[
-            if (this._prefs.getBoolPref("accessibility.blockautorefresh")) {
+            if (Services.prefs.getBoolPref("accessibility.blockautorefresh")) {
               let brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
               let refreshButtonText =
                 this._stringBundle.GetStringFromName("refreshBlocked.goButton");
@@ -339,7 +332,7 @@
               return;
 
             // pref disabled:
-            if (!this._prefs.getBoolPref("security.warn_submit_insecure"))
+            if (!Services.prefs.getBoolPref("security.warn_submit_insecure"))
               return;
 
             // HTTPS uninteresting:
@@ -373,7 +366,7 @@
               this._stringBundle.GetStringFromName("PostToInsecureFromInsecureShowAgain"),
               warn) != 0;
             if (!aCancel.value)
-              this._prefs.setBoolPref("security.warn_submit_insecure", warn.value);
+              Services.prefs.setBoolPref("security.warn_submit_insecure", warn.value);
           ]]>
         </body>
       </method>
@@ -465,7 +458,7 @@
 
               case "nsPref:changed":
                 if (aData == "privacy.popups.showBrowserMessage") {
-                  if (this._prefs.getBoolPref(aData))
+                  if (Services.prefs.getBoolPref(aData))
                     return;
 
                   var popupNotification = this.getNotificationWithValue("popup-blocked");
@@ -474,7 +467,7 @@
                 }
 
                 if (aData == "plugins.hide_infobar_for_outdated_plugin") {
-                  if (!this._prefs.getBoolPref(aData))
+                  if (!Services.prefs.getBoolPref(aData))
                     return;
 
                   var outdatedNotification = this.getNotificationWithValue("outdated-plugins");
@@ -483,7 +476,7 @@
                 }
 
                 if (aData == "plugins.hide_infobar_for_carbon_failure_plugin") {
-                  if (!this._prefs.getBoolPref(aData))
+                  if (!Services.prefs.getBoolPref(aData))
                     return;
 
                   var carbonfailureNotification = this.getNotificationWithValue("carbon-failure-plugins");
@@ -492,7 +485,7 @@
                 }
 
                 if (aData == "plugins.hide_infobar_for_missing_plugin") {
-                  if (!this._prefs.getBoolPref(aData))
+                  if (!Services.prefs.getBoolPref(aData))
                     return;
 
                   var missingNotification = this.getNotificationWithValue("missing-plugins");
@@ -510,7 +503,7 @@
 
                 if (aData == "dom.disable_open_during_load") {
                   // remove notifications when popup blocking has been turned off
-                  if (this._prefs.getBoolPref(aData) || !this.popupCount)
+                  if (Services.prefs.getBoolPref(aData) || !this.popupCount)
                     return;
 
                   var popupNotification = this.getNotificationWithValue("popup-blocked");
@@ -605,7 +598,7 @@
             overlay.classList.toggle("visible",
                                      !this.isTooSmall(aPlugin, overlay));
 
-            if (this._prefs.getBoolPref(aPref || "plugins.hide_infobar_for_missing_plugin"))
+            if (Services.prefs.getBoolPref(aPref || "plugins.hide_infobar_for_missing_plugin"))
               return;
 
             var notification;
@@ -749,7 +742,7 @@
             var nsIBrowserDOMWindow = Ci.nsIBrowserDOMWindow;
 
             var browserWin;
-            var whereToOpen = this._prefs.getIntPref("browser.link.open_external");
+            var whereToOpen = Services.prefs.getIntPref("browser.link.open_external");
 
             if (whereToOpen != nsIBrowserDOMWindow.OPEN_NEWWINDOW) {
               browserWin = Services.wm.getMostRecentWindow("navigator:browser");
@@ -758,7 +751,7 @@
             if (!browserWin) {
               var browserURL = "chrome://navigator/content/navigator.xul";
               try {
-                browserURL = this._prefs.getCharPref("browser.chromeURL");
+                browserURL = Services.prefs.getCharPref("browser.chromeURL");
               } catch (ex) {}
 
               window.openDialog(browserURL, "_blank", "chrome,all,dialog=no", url);
@@ -1029,15 +1022,15 @@
         <body>
           <![CDATA[
             const kCustomSound = 1;
-            var playSound = this._prefs.getBoolPref("privacy.popups.sound_enabled");
+            var playSound = Services.prefs.getBoolPref("privacy.popups.sound_enabled");
 
             if (playSound) {
               var sound = Cc["@mozilla.org/sound;1"]
                             .createInstance(Ci.nsISound);
 
-              var soundType = this._prefs.getIntPref("privacy.popups.sound_type");
+              var soundType = Services.prefs.getIntPref("privacy.popups.sound_type");
               if (soundType == kCustomSound) {
-                var soundUrlSpec = this._prefs.getCharPref("privacy.popups.sound_url");
+                var soundUrlSpec = Services.prefs.getCharPref("privacy.popups.sound_url");
                 var fileHandler = Cc["@mozilla.org/network/protocol;1?name=file"]
                                     .getService(Ci.nsIFileProtocolHandler);
                 var file = fileHandler.getFileFromURLSpec(soundUrlSpec);
@@ -1172,7 +1165,7 @@
               if (uri.asciiHost == host)
                 usage += cacheService.getActiveCache(aGroup).usage;
             });
-            var warnQuota = this._prefs.getIntPref("offline-apps.quota.warn");
+            var warnQuota = Services.prefs.getIntPref("offline-apps.quota.warn");
             if (usage < warnQuota * 1024)
               return;
 
@@ -1698,11 +1691,11 @@
         <parameter name="installInfo"/>
         <body>
           <![CDATA[
-            var messageString, buttons;
-            var prefBranch = this._prefs; // used by editPrefs callback
+            var messageString;
+            var buttons;
 
             var notificationName = "addon-install-disabled";
-            if (prefBranch.prefIsLocked("xpinstall.enabled")) {
+            if (Services.prefs.prefIsLocked("xpinstall.enabled")) {
               messageString = this._stringBundle.GetStringFromName("xpinstallDisabledMessageLocked");
               buttons = [];
             } else {
@@ -1712,7 +1705,7 @@
                 accessKey: this._stringBundle.GetStringFromName("xpinstallDisabledButton.accesskey"),
                 popup: null,
                 callback: function editPrefs() {
-                  prefBranch.setBoolPref("xpinstall.enabled", true);
+                  Services.prefs.setBoolPref("xpinstall.enabled", true);
                   return false;
                 }
               }];
@@ -1890,25 +1883,23 @@
           var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
           ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 
-          var os = Cc["@mozilla.org/observer-service;1"]
-                     .getService(Ci.nsIObserverService);
-          os.addObserver(this, "indexedDB-permissions-prompt");
-          os.addObserver(this, "indexedDB-quota-prompt");
-          os.addObserver(this, "indexedDB-quota-cancel");
-          os.addObserver(this, "addon-install-blocked");
-          os.addObserver(this, "addon-install-complete");
-          os.addObserver(this, "addon-install-disabled");
-          os.addObserver(this, "addon-install-failed");
-          os.addObserver(this, "addon-install-started");
-          os.addObserver(this, "offline-cache-update-completed");
-          os.addObserver(this, "perm-changed");
-          os.addObserver(this, "formsubmit");
+          Services.obs.addObserver(this, "indexedDB-permissions-prompt");
+          Services.obs.addObserver(this, "indexedDB-quota-prompt");
+          Services.obs.addObserver(this, "indexedDB-quota-cancel");
+          Services.obs.addObserver(this, "addon-install-blocked");
+          Services.obs.addObserver(this, "addon-install-complete");
+          Services.obs.addObserver(this, "addon-install-disabled");
+          Services.obs.addObserver(this, "addon-install-failed");
+          Services.obs.addObserver(this, "addon-install-started");
+          Services.obs.addObserver(this, "offline-cache-update-completed");
+          Services.obs.addObserver(this, "perm-changed");
+          Services.obs.addObserver(this, "formsubmit");
 
-          this._prefs.addObserver("plugins.hide_infobar_for_outdated_plugin", this);
-          this._prefs.addObserver("plugins.hide_infobar_for_carbon_failure_plugin", this);
-          this._prefs.addObserver("plugins.hide_infobar_for_missing_plugin", this);
-          this._prefs.addObserver("privacy.popups.showBrowserMessage", this);
-          this._prefs.addObserver("dom.disable_open_during_load", this);
+          Services.prefs.addObserver("plugins.hide_infobar_for_outdated_plugin", this);
+          Services.prefs.addObserver("plugins.hide_infobar_for_carbon_failure_plugin", this);
+          Services.prefs.addObserver("plugins.hide_infobar_for_missing_plugin", this);
+          Services.prefs.addObserver("privacy.popups.showBrowserMessage", this);
+          Services.prefs.addObserver("dom.disable_open_during_load", this);
 
           this.addProgressListener();
 
@@ -1940,56 +1931,54 @@
             }
 
             this._activeBrowser = null;
-            var os = Cc["@mozilla.org/observer-service;1"]
-                                .getService(Ci.nsIObserverService);
             try {
-              os.removeObserver(this, "indexedDB-permissions-prompt");
+              Services.obs.removeObserver(this, "indexedDB-permissions-prompt");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "indexedDB-quota-prompt");
+              Services.obs.removeObserver(this, "indexedDB-quota-prompt");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "indexedDB-quota-cancel");
+              Services.obs.removeObserver(this, "indexedDB-quota-cancel");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "addon-install-blocked");
+              Services.obs.removeObserver(this, "addon-install-blocked");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "addon-install-complete");
+              Services.obs.removeObserver(this, "addon-install-complete");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "addon-install-disabled");
+              Services.obs.removeObserver(this, "addon-install-disabled");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "addon-install-failed");
+              Services.obs.removeObserver(this, "addon-install-failed");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "addon-install-started");
+              Services.obs.removeObserver(this, "addon-install-started");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "offline-cache-update-completed");
+              Services.obs.removeObserver(this, "offline-cache-update-completed");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "perm-changed");
+              Services.obs.removeObserver(this, "perm-changed");
             } catch (ex) {}
             try {
-              os.removeObserver(this, "formsubmit");
+              Services.obs.removeObserver(this, "formsubmit");
             } catch (ex) {}
 
             try {
-              this._prefs.removeObserver("plugins.hide_infobar_for_outdated_plugin", this);
+              Services.prefs.removeObserver("plugins.hide_infobar_for_outdated_plugin", this);
             } catch (ex) {}
             try {
-              this._prefs.removeObserver("plugins.hide_infobar_for_carbon_failure_plugin", this);
+              Services.prefs.removeObserver("plugins.hide_infobar_for_carbon_failure_plugin", this);
             } catch (ex) {}
             try {
-              this._prefs.removeObserver("plugins.hide_infobar_for_missing_plugin", this);
+              Services.prefs.removeObserver("plugins.hide_infobar_for_missing_plugin", this);
             } catch (ex) {}
             try {
-              this._prefs.removeObserver("privacy.popups.showBrowserMessage", this);
+              Services.prefs.removeObserver("privacy.popups.showBrowserMessage", this);
             } catch (ex) {}
             try {
-              this._prefs.removeObserver("dom.disable_open_during_load", this);
+              Services.prefs.removeObserver("dom.disable_open_during_load", this);
             } catch (ex) {}
           ]]>
         </body>
@@ -2026,7 +2015,7 @@
 
           var tmp = {};
           ChromeUtils.import("resource://gre/modules/PluralForm.jsm", tmp);
-          if (this._prefs.getBoolPref("privacy.popups.showBrowserMessage"))
+          if (Services.prefs.getBoolPref("privacy.popups.showBrowserMessage"))
           {
             var brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
             var message = this._stringBundle.GetStringFromName("popupWarning.message");
@@ -2198,10 +2187,10 @@
                   if (event.button != 0 || !event.isTrusted)
                     return;
                   this.submitReport(pluginDumpID, browserDumpID, plugin);
-                  this._prefs.setBoolPref("dom.ipc.plugins.reportCrashURL", optInCB.checked);
+                  Services.prefs.setBoolPref("dom.ipc.plugins.reportCrashURL", optInCB.checked);
                 }.bind(this));
                 let optInCB = this.getPluginUI(plugin, "submitURLOptIn");
-                optInCB.checked = this._prefs.getBoolPref("dom.ipc.plugins.reportCrashURL");
+                optInCB.checked = Services.prefs.getBoolPref("dom.ipc.plugins.reportCrashURL");
             }
 
             // If we're showing the link to manually trigger report submission, we'll
@@ -2297,9 +2286,8 @@
             // Notify all windows that an application quit has been requested.
             var cancelQuit = Cc["@mozilla.org/supports-PRBool;1"]
                                .createInstance(Ci.nsISupportsPRBool);
-            var os = Cc["@mozilla.org/observer-service;1"]
-                       .getService(Ci.nsIObserverService);
-            os.notifyObservers(cancelQuit, "quit-application-requested");
+            Services.obs.notifyObservers(cancelQuit,
+                                         "quit-application-requested");
 
             // Something aborted the quit process.
             if (cancelQuit.data)
@@ -2339,11 +2327,11 @@
 
       <handler event="MozApplicationManifest" phase="capturing">
         <![CDATA[
-          if (!this._prefs.getBoolPref("browser.offline-apps.notify"))
+          if (!Services.prefs.getBoolPref("browser.offline-apps.notify"))
             return;
 
           try {
-            if (this._prefs.getBoolPref("offline-apps.allow_by_default"))
+            if (Services.prefs.getBoolPref("offline-apps.allow_by_default"))
               return;
           } catch (e) {
           }
@@ -2807,9 +2795,8 @@
           <![CDATA[
             var messageString;
             var action = null;
-            var prefBranch = this._prefs; // used by editPrefs callback
 
-            if (prefBranch.prefIsLocked("xpinstall.enabled"))
+            if (Services.prefs.prefIsLocked("xpinstall.enabled"))
               messageString = this._stringBundle.GetStringFromName("xpinstallDisabledMessageLocked");
             else {
               messageString = this._stringBundle.GetStringFromName("xpinstallDisabledMessage");
@@ -2817,7 +2804,7 @@
                 label: this._stringBundle.GetStringFromName("xpinstallDisabledButton"),
                 accessKey: this._stringBundle.GetStringFromName("xpinstallDisabledButton.accesskey"),
                 callback: function editPrefs() {
-                  prefBranch.setBoolPref("xpinstall.enabled", true);
+                  Services.prefs.setBoolPref("xpinstall.enabled", true);
                 }
               };
             }

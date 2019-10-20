@@ -460,10 +460,7 @@ function nsPlacesAutoComplete()
   this._loadPrefs(true);
 
   // register observers
-  this._os = Cc["@mozilla.org/observer-service;1"].
-              getService(Ci.nsIObserverService);
-  this._os.addObserver(this, kTopicShutdown);
-
+  Services.obs.addObserver(this, kTopicShutdown);
 }
 
 nsPlacesAutoComplete.prototype = {
@@ -655,7 +652,7 @@ nsPlacesAutoComplete.prototype = {
   observe: function PAC_observe(aSubject, aTopic, aData)
   {
     if (aTopic == kTopicShutdown) {
-      this._os.removeObserver(this, kTopicShutdown);
+      Services.obs.removeObserver(this, kTopicShutdown);
 
       // Remove our preference observer.
       this._prefs.removeObserver("", this);

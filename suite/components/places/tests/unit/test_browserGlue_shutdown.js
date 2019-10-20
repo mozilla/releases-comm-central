@@ -17,9 +17,6 @@ var bg = Cc["@mozilla.org/suite/suiteglue;1"].
 var bs = PlacesUtils.bookmarks;
 
 // Get other services.
-var ps = Services.prefs;
-var os = Services.obs;
-
 const PREF_AUTO_EXPORT_HTML = "browser.bookmarks.autoExportHTML";
 
 var tests = [];
@@ -33,7 +30,7 @@ tests.push({
     do_check_true(bs.getIdForItemAt(bs.toolbarFolder, 0) > 0);
 
     // Set preferences.
-    ps.setBoolPref(PREF_AUTO_EXPORT_HTML, true);
+    Services.prefs.setBoolPref(PREF_AUTO_EXPORT_HTML);
 
     // Force nsSuiteGlue::_shutdownPlaces().
     bg.QueryInterface(Ci.nsIObserver).observe(null,
@@ -46,9 +43,9 @@ tests.push({
     check_JSON_backup();
 
     // Check preferences have not been reverted.
-    do_check_true(ps.getBoolPref(PREF_AUTO_EXPORT_HTML));
+    do_check_true(Services.prefs.getBoolPref(PREF_AUTO_EXPORT_HTML));
     // Reset preferences.
-    ps.setBoolPref(PREF_AUTO_EXPORT_HTML, false);
+    Services.prefs.setBoolPref(PREF_AUTO_EXPORT_HTML, false);
 
     next_test();
   }
@@ -63,7 +60,7 @@ tests.push({
     do_check_true(bs.getIdForItemAt(bs.toolbarFolder, 0) > 0);
 
     // Set preferences.
-    ps.setBoolPref(PREF_AUTO_EXPORT_HTML, true);
+    Services.prefs.setBoolPref(PREF_AUTO_EXPORT_HTML, true);
 
     // Create a bookmarks.html in the profile.
     let profileBookmarksHTMLFile = create_bookmarks_html("bookmarks.glue.html");
@@ -83,9 +80,9 @@ tests.push({
     do_check_neq(profileBookmarksHTMLFile.fileSize, fileSize);
 
     // Check preferences have not been reverted.
-    do_check_true(ps.getBoolPref(PREF_AUTO_EXPORT_HTML));
+    do_check_true(Services.prefs.getBoolPref(PREF_AUTO_EXPORT_HTML));
     // Reset preferences.
-    ps.setBoolPref(PREF_AUTO_EXPORT_HTML, false);
+    Services.prefs.setBoolPref(PREF_AUTO_EXPORT_HTML, false);
 
     next_test();
   }
