@@ -156,8 +156,8 @@ nsStatusBarBiffManager::OnItemRemoved(nsIMsgFolder *parentItem,
 NS_IMETHODIMP
 nsStatusBarBiffManager::OnItemPropertyChanged(nsIMsgFolder *item,
                                               const nsACString &property,
-                                              const char *oldValue,
-                                              const char *newValue) {
+                                              const nsACString &oldValue,
+                                              const nsACString &newValue) {
   return NS_OK;
 }
 
@@ -202,10 +202,9 @@ nsStatusBarBiffManager::OnItemBoolPropertyChanged(nsIMsgFolder *item,
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemUnicharPropertyChanged(nsIMsgFolder *item,
-                                                     const nsACString &property,
-                                                     const char16_t *oldValue,
-                                                     const char16_t *newValue) {
+nsStatusBarBiffManager::OnItemUnicharPropertyChanged(
+    nsIMsgFolder *item, const nsACString &property, const nsAString &oldValue,
+    const nsAString &newValue) {
   return NS_OK;
 }
 

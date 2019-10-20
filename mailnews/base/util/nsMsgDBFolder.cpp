@@ -4561,25 +4561,23 @@ nsMsgDBFolder::NotifyPropertyChanged(const nsACString &aProperty,
                                      const nsACString &aOldValue,
                                      const nsACString &aNewValue) {
   NOTIFY_LISTENERS(OnItemPropertyChanged,
-                   (this, aProperty, nsCString(aOldValue).get(),
-                    nsCString(aNewValue).get()));
+                   (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
   nsresult rv;
   nsCOMPtr<nsIFolderListener> folderListenerManager =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderListenerManager->OnItemPropertyChanged(
-      this, aProperty, nsCString(aOldValue).get(), nsCString(aNewValue).get());
+  return folderListenerManager->OnItemPropertyChanged(this, aProperty,
+                                                      aOldValue, aNewValue);
 }
 
 NS_IMETHODIMP
 nsMsgDBFolder::NotifyUnicharPropertyChanged(const nsACString &aProperty,
                                             const nsAString &aOldValue,
                                             const nsAString &aNewValue) {
-  NOTIFY_LISTENERS(
-      OnItemUnicharPropertyChanged,
-      (this, aProperty, nsString(aOldValue).get(), nsString(aNewValue).get()));
+  NOTIFY_LISTENERS(OnItemUnicharPropertyChanged,
+                   (this, aProperty, aOldValue, aNewValue));
 
   // Notify listeners who listen to every folder
   nsresult rv;
@@ -4587,7 +4585,7 @@ nsMsgDBFolder::NotifyUnicharPropertyChanged(const nsACString &aProperty,
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   return folderListenerManager->OnItemUnicharPropertyChanged(
-      this, aProperty, nsString(aOldValue).get(), nsString(aNewValue).get());
+      this, aProperty, aOldValue, aNewValue);
 }
 
 NS_IMETHODIMP

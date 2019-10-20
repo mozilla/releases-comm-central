@@ -119,15 +119,16 @@ nsresult nsMessengerUnixIntegration::Init() {
 NS_IMETHODIMP
 nsMessengerUnixIntegration::OnItemPropertyChanged(nsIMsgFolder *,
                                                   const nsACString &,
-                                                  char const *, char const *) {
+                                                  const nsACString &,
+                                                  const nsACString &) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMessengerUnixIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *,
                                                          const nsACString &,
-                                                         const char16_t *,
-                                                         const char16_t *) {
+                                                         const nsAString &,
+                                                         const nsAString &) {
   return NS_OK;
 }
 

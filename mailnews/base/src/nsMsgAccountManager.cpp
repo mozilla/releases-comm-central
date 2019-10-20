@@ -3187,8 +3187,8 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemRemoved(nsIMsgFolder *parentItem,
 }
 
 NS_IMETHODIMP nsMsgAccountManager::OnItemPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, const char *oldValue,
-    const char *newValue) {
+    nsIMsgFolder *item, const nsACString &property, const nsACString &oldValue,
+    const nsACString &newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -3291,8 +3291,8 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemBoolPropertyChanged(
 }
 
 NS_IMETHODIMP nsMsgAccountManager::OnItemUnicharPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, const char16_t *oldValue,
-    const char16_t *newValue) {
+    nsIMsgFolder *item, const nsACString &property, const nsAString &oldValue,
+    const nsAString &newValue) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

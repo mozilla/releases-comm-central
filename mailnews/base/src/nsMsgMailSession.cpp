@@ -84,8 +84,8 @@ NS_IMETHODIMP nsMsgMailSession::RemoveFolderListener(
 NS_IMETHODIMP
 nsMsgMailSession::OnItemPropertyChanged(nsIMsgFolder *aItem,
                                         const nsACString &aProperty,
-                                        const char *aOldValue,
-                                        const char *aNewValue) {
+                                        const nsACString &aOldValue,
+                                        const nsACString &aNewValue) {
   NOTIFY_FOLDER_LISTENERS(propertyChanged, OnItemPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;
@@ -94,8 +94,8 @@ nsMsgMailSession::OnItemPropertyChanged(nsIMsgFolder *aItem,
 NS_IMETHODIMP
 nsMsgMailSession::OnItemUnicharPropertyChanged(nsIMsgFolder *aItem,
                                                const nsACString &aProperty,
-                                               const char16_t *aOldValue,
-                                               const char16_t *aNewValue) {
+                                               const nsAString &aOldValue,
+                                               const nsAString &aNewValue) {
   NOTIFY_FOLDER_LISTENERS(unicharPropertyChanged, OnItemUnicharPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;

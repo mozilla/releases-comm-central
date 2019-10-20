@@ -1336,8 +1336,8 @@ nsMsgSendLater::OnItemRemoved(nsIMsgFolder *aParentItem, nsISupports *aItem) {
 NS_IMETHODIMP
 nsMsgSendLater::OnItemPropertyChanged(nsIMsgFolder *aItem,
                                       const nsACString &aProperty,
-                                      const char *aOldValue,
-                                      const char *aNewValue) {
+                                      const nsACString &aOldValue,
+                                      const nsACString &aNewValue) {
   return NS_OK;
 }
 
@@ -1358,8 +1358,8 @@ nsMsgSendLater::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
 NS_IMETHODIMP
 nsMsgSendLater::OnItemUnicharPropertyChanged(nsIMsgFolder *aItem,
                                              const nsACString &aProperty,
-                                             const char16_t *aOldValue,
-                                             const char16_t *aNewValue) {
+                                             const nsAString &aOldValue,
+                                             const nsAString &aNewValue) {
   return NS_OK;
 }
 

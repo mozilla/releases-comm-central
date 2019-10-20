@@ -23,8 +23,8 @@ interface nsIFolderListener : nsISupports {
   const folderListenerNotifyFlagValue propertyChanged = 0x4;
   void OnItemPropertyChanged(in nsIMsgFolder aItem,
                              in ACString aProperty,
-                             in string aOldValue,
-                             in string aNewValue);
+                             in AUTF8String aOldValue,
+                             in AUTF8String aNewValue);
 
   const folderListenerNotifyFlagValue intPropertyChanged = 0x8;
   // While this property handles long long (64bit wide) values,
@@ -43,8 +43,8 @@ interface nsIFolderListener : nsISupports {
   const folderListenerNotifyFlagValue unicharPropertyChanged = 0x20;
   void OnItemUnicharPropertyChanged(in nsIMsgFolder aItem,
                                     in ACString aProperty,
-                                    in wstring aOldValue,
-                                    in wstring aNewValue);
+                                    in AString aOldValue,
+                                    in AString aNewValue);
 
   const folderListenerNotifyFlagValue propertyFlagChanged = 0x40;
   void OnItemPropertyFlagChanged(in nsIMsgDBHdr aItem,
