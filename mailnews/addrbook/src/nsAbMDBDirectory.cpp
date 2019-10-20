@@ -188,15 +188,16 @@ nsresult nsAbMDBDirectory::NotifyItemChanged(nsISupports *item) {
       do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = abManager->NotifyItemPropertyChanged(item, nullptr, nullptr, nullptr);
+  rv = abManager->NotifyItemPropertyChanged(item, nullptr, EmptyString(),
+                                            EmptyString());
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
 
 nsresult nsAbMDBDirectory::NotifyPropertyChanged(nsIAbDirectory *list,
                                                  const char *property,
-                                                 const char16_t *oldValue,
-                                                 const char16_t *newValue) {
+                                                 const nsAString &oldValue,
+                                                 const nsAString &newValue) {
   nsresult rv;
   nsCOMPtr<nsISupports> supports = do_QueryInterface(list, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -826,7 +827,7 @@ NS_IMETHODIMP nsAbMDBDirectory::OnListEntryChange(uint32_t abCode,
       rv = list->GetDirName(listName);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = NotifyPropertyChanged(list, "DirName", nullptr, listName.get());
+      rv = NotifyPropertyChanged(list, "DirName", EmptyString(), listName);
       NS_ENSURE_SUCCESS(rv, rv);
     }
   }

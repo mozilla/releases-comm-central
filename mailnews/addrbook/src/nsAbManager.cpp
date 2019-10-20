@@ -378,8 +378,8 @@ NS_IMETHODIMP nsAbManager::RemoveAddressBookListener(nsIAbListener *aListener) {
   PR_END_MACRO
 
 NS_IMETHODIMP nsAbManager::NotifyItemPropertyChanged(
-    nsISupports *aItem, const char *aProperty, const char16_t *aOldValue,
-    const char16_t *aNewValue) {
+    nsISupports *aItem, const char *aProperty, const nsAString &aOldValue,
+    const nsAString &aNewValue) {
   NOTIFY_AB_LISTENERS(itemChanged, OnItemPropertyChanged,
                       (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;

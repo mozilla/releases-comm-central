@@ -72,7 +72,7 @@ interface nsIAbListener : nsISupports {
    * Called when an address book item is changed. Note the current
    * implementation means that property is either the literal string "DirName"
    * or null, with oldValue and newValue being specified if the property is
-   * "DirName" otherwise they are null.
+   * "DirName" otherwise they are empty.
    *
    * @param       item            The item being updated (a directory or a
    *                              card).
@@ -80,11 +80,11 @@ interface nsIAbListener : nsISupports {
    * @param       property        The property of the item being changed.
    *
    * @param       oldValue        The old value of the item property being
-   *                              changed if it is known, null otherwise.
+   *                              changed if it is known, empty otherwise.
    *
    * @param       newValue        The new value of the item property being
    *                              changed.
    *
    */
-  void onItemPropertyChanged(in nsISupports item, in string property, in wstring oldValue, in wstring newValue);
+  void onItemPropertyChanged(in nsISupports item, in string property, in AString oldValue, in AString newValue);
 };

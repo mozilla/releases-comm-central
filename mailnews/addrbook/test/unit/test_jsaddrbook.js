@@ -79,6 +79,8 @@ var observer = {
         } catch (ex) {
           if (expectedEvent[i] instanceof Ci.nsIAbDirectory) {
             equal(actualEvent[i].UID, expectedEvent[i].UID);
+          } else if (expectedEvent[i] === null) {
+            ok(!actualEvent[i]);
           } else if (expectedEvent[i] !== undefined) {
             equal(actualEvent[i], expectedEvent[i]);
           }

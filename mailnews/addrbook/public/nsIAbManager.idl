@@ -107,8 +107,8 @@ interface nsIAbManager : nsISupports
    */
   void notifyItemPropertyChanged(in nsISupports aItem,
                                  in string aProperty,
-                                 in wstring aOldValue,
-                                 in wstring aNewValue);
+                                 in AString aOldValue,
+                                 in AString aNewValue);
 
   /**
    * Call to notify the registered listeners when a directory item is added.

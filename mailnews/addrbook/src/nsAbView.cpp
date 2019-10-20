@@ -976,8 +976,8 @@ int32_t nsAbView::FindIndexForCard(nsIAbCard *card) {
 
 NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item,
                                               const char *property,
-                                              const char16_t *oldValue,
-                                              const char16_t *newValue) {
+                                              const nsAString &oldValue,
+                                              const nsAString &newValue) {
   nsresult rv;
 
   nsCOMPtr<nsIAbCard> card = do_QueryInterface(item);

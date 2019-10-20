@@ -88,8 +88,8 @@ class nsAbMDBDirectory
  protected:
   virtual ~nsAbMDBDirectory();
   nsresult NotifyPropertyChanged(nsIAbDirectory *list, const char *property,
-                                 const char16_t *oldValue,
-                                 const char16_t *newValue);
+                                 const nsAString &oldValue,
+                                 const nsAString &newValue);
   nsresult NotifyItemAdded(nsISupports *item);
   nsresult NotifyItemDeleted(nsISupports *item);
   nsresult NotifyItemChanged(nsISupports *item);

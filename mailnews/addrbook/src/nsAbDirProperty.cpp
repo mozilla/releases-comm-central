@@ -125,8 +125,7 @@ NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString &aDirName) {
   if (NS_SUCCEEDED(rv))
     // We inherit from nsIAbDirectory, so this static cast should be safe.
     abManager->NotifyItemPropertyChanged(static_cast<nsIAbDirectory *>(this),
-                                         "DirName", oldDirName.get(),
-                                         nsString(aDirName).get());
+                                         "DirName", oldDirName, aDirName);
 
   return NS_OK;
 }

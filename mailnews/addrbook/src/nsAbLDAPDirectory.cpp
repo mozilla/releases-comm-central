@@ -235,10 +235,12 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl) {
     NS_ENSURE_SUCCESS(rv, rv);
 
     // We inherit from nsIAbDirectory, so this static cast should be safe.
-    abManager->NotifyItemPropertyChanged(static_cast<nsIAbDirectory *>(this),
-                                         "IsSecure",
-                                         (newIsNotSecure ? u"true" : u"false"),
-                                         (newIsNotSecure ? u"false" : u"true"));
+    NS_NAMED_LITERAL_STRING(trueString, "true");
+    NS_NAMED_LITERAL_STRING(falseString, "false");
+    abManager->NotifyItemPropertyChanged(
+        static_cast<nsIAbDirectory *>(this), "IsSecure",
+        (newIsNotSecure ? trueString : falseString),
+        (newIsNotSecure ? falseString : trueString));
   }
 
   return NS_OK;

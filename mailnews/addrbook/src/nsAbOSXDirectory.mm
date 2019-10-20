@@ -672,7 +672,7 @@ nsresult nsAbOSXDirectory::Update() {
     AssignToString(stringValue, m_ListDirName);
     nsCOMPtr<nsISupports> supports = do_QueryInterface(static_cast<nsIAbDirectory *>(this), &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    abManager->NotifyItemPropertyChanged(supports, "DirName", oldValue.get(), m_ListDirName.get());
+    abManager->NotifyItemPropertyChanged(supports, "DirName", oldValue, m_ListDirName);
   }
 
   if (groups) {
