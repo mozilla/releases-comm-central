@@ -1523,7 +1523,7 @@ function ComposeUnload()
 function ComposeSetCharacterSet(aEvent)
 {
   if (gMsgCompose)
-    SetDocumentCharacterSet(aEvent.target.getAttribute("charset");
+    SetDocumentCharacterSet(aEvent.target.getAttribute("charset"));
   else
     dump("Compose has not been created!\n");
 }
