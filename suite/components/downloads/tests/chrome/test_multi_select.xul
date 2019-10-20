@@ -37,9 +37,7 @@ function test()
 
   try {
     for (let site of ["ed.agadak.net", "mozilla.org", "mozilla.com", "mozilla.net"]) {
-      let file = Cc["@mozilla.org/file/directory_service;1"]
-                  .getService(Ci.nsIProperties)
-                  .get("TmpD", Ci.nsIFile);
+      let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
       file.append(site);
       let fileSpec = Services.io.newFileURI(file).spec;
 

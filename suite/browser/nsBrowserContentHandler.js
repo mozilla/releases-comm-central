@@ -354,9 +354,7 @@ var nsBrowserContentHandler = {
     // urls launched after the initial launch will be lost.
     try {
       // This will throw when a profile has not been selected.
-      var fl = Cc["@mozilla.org/file/directory_service;1"]
-                 .getService(Ci.nsIProperties);
-      fl.get("ProfD", Ci.nsIFile);
+      Services.dirsvc.get("ProfD", Ci.nsIFile);
     } catch (e) {
       cmdLine.preventDefault = true;
       throw Cr.NS_ERROR_ABORT;

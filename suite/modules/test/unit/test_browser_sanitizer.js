@@ -104,9 +104,7 @@ var sanTests = {
     desc: "Location bar history",
     setup: function() {
       // Create urlbarhistory file first otherwise tests will fail.
-      var file = Cc["@mozilla.org/file/directory_service;1"]
-                   .getService(Ci.nsIProperties)
-                   .get("ProfD", Ci.nsIFile);
+      var file = Services.dirsvc.get("ProfD", Ci.nsIFile);
       file.append("urlbarhistory.sqlite");
       if (!file.exists()) {
         var connection = Cc["@mozilla.org/storage/service;1"]
@@ -202,9 +200,7 @@ var sanTests = {
     desc: "Download",
     setup: function() {
       var uri = Services.io.newURI("http://sanitizer.test/");
-      var file = Cc["@mozilla.org/file/directory_service;1"]
-                   .getService(Ci.nsIProperties)
-                   .get("TmpD", Ci.nsIFile);
+      var file = Services.dirsvc.get("TmpD", Ci.nsIFile);
       file.append("sanitizer.file");
       file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0666", 8));
       var dest = Services.io.newFileURI(file);

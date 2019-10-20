@@ -5,14 +5,10 @@
 function test() {
   /** Test for Bug 346337 **/
 
-  var file = Cc["@mozilla.org/file/directory_service;1"]
-               .getService(Ci.nsIProperties)
-               .get("TmpD", Ci.nsIFile);
+  var file = Services.dirsvc.get("TmpD", Ci.nsIFile);
   file.append("346337_test1.file");
   let filePath1 = file.path;
-  file = Cc["@mozilla.org/file/directory_service;1"]
-             .getService(Ci.nsIProperties)
-             .get("TmpD", Ci.nsIFile);
+  file = Services.dirsvc.get("TmpD", Ci.nsIFile);
   file.append("346337_test2.file");
   let filePath2 = file.path;
 

@@ -16,11 +16,7 @@ function clearAllPrefs() {
 
   // Remove the pref-overrides dir, if it exists.
   try {
-    var fileLocator = Cc["@mozilla.org/file/directory_service;1"]
-                        .getService(Ci.nsIProperties);
-    const NS_APP_PREFS_OVERRIDE_DIR = "PrefDOverride";
-    var prefOverridesDir = fileLocator.get(NS_APP_PREFS_OVERRIDE_DIR,
-                                           Ci.nsIFile);
+    var prefOverridesDir = Services.dirsvc.get("PrefDOverride", Ci.nsIFile);
     prefOverridesDir.remove(true);
   } catch (ex) {
     Cu.reportError(ex);

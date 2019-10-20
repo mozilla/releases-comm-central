@@ -211,9 +211,7 @@ var Sanitizer = {
         } catch(ex) {}
 
         // Clear URLbar history (see also pref-history.js)
-        var file = Cc["@mozilla.org/file/directory_service;1"]
-                     .getService(Ci.nsIProperties)
-                     .get("ProfD", Ci.nsIFile);
+        var file = Services.dirsvc.get("ProfD", Ci.nsIFile);
         file.append("urlbarhistory.sqlite");
         if (file.exists())
           file.remove(false);
@@ -224,9 +222,7 @@ var Sanitizer = {
             Services.prefs.prefHasUserValue("general.open_location.last_url"))
           return true;
 
-        var file = Cc["@mozilla.org/file/directory_service;1"]
-                     .getService(Ci.nsIProperties)
-                     .get("ProfD", Ci.nsIFile);
+        var file = Services.dirsvc.get("ProfD", Ci.nsIFile);
         file.append("urlbarhistory.sqlite");
         return file.exists();
       }

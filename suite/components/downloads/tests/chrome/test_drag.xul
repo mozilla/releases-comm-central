@@ -71,12 +71,8 @@ var missingFileElid;
 var realFileElid;
 const kFiller = "notApplicable";
 const kFillerURL = "https://bugzilla.mozilla.org/show_bug.cgi?id=462172"
-var realFile = Cc["@mozilla.org/file/directory_service;1"]
-                 .getService(Ci.nsIProperties)
-                 .get("CurWorkD", Ci.nsIFile);
-var missingFile = Cc["@mozilla.org/file/directory_service;1"]
-                    .getService(Ci.nsIProperties)
-                    .get("CurWorkD", Ci.nsIFile);
+var realFile = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
+var missingFile = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
 
 realFile.append(kFiller);
 realFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);

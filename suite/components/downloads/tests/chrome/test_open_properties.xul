@@ -59,9 +59,7 @@
   <![CDATA[
 
 const nsIDownloadManager = Ci.nsIDownloadManager;
-var dmFile = Cc["@mozilla.org/file/directory_service;1"]
-               .getService(Ci.nsIProperties)
-               .get("TmpD", Ci.nsIFile);
+var dmFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
 dmFile.append("dm-ui-test.file");
 dmFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
 var gTestPath = Services.io.newFileURI(dmFile).spec;

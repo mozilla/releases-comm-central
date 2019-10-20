@@ -2460,9 +2460,7 @@ var gStorage = {
     // Load DOM storage entries, unfortunately need to go to the DB. :(
     // Bug 343163 would make this easier and clean.
     let domstorelist = [];
-    let file = Cc["@mozilla.org/file/directory_service;1"]
-                 .getService(Ci.nsIProperties)
-                 .get("ProfD", Ci.nsIFile);
+    let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
     file.append("webappsstore.sqlite");
     if (file.exists()) {
       var connection = Cc["@mozilla.org/storage/service;1"]
@@ -2530,9 +2528,7 @@ var gStorage = {
 
     // Load indexedDB entries, unfortunately need to read directory for now. :(
     // Bug 630858 would make this easier and clean.
-    let dir = Cc["@mozilla.org/file/directory_service;1"]
-                .getService(Ci.nsIProperties)
-                .get("ProfD", Ci.nsIFile);
+    let dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
     dir.append("indexedDB");
     if (dir.exists() && dir.isDirectory()) {
       // Enumerate subdir entries, names are like "http+++davidflanagan.com" or

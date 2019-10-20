@@ -92,10 +92,8 @@ function AcceptDialog()
   var selected = profileTree.view.getItemAtIndex(profileTree.currentIndex);
 
   if (!gDialogParams.objects) {
-    var dirServ = Cc['@mozilla.org/file/directory_service;1']
-                    .getService(Ci.nsIProperties);
-    var profD = dirServ.get("ProfD", Ci.nsIFile);
-    var profLD = dirServ.get("ProfLD", Ci.nsIFile);
+    var profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    var profLD = Services.dirsvc.get("ProfLD", Ci.nsIFile);
 
     if (selected.profile.rootDir.equals(profD) &&
         selected.profile.localDir.equals(profLD))

@@ -188,9 +188,7 @@ function test()
                            nsIWBP.PERSIST_FLAGS_BYPASS_CACHE |
                            nsIWBP.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
 
-    var dirSvc = Cc["@mozilla.org/file/directory_service;1"]
-                   .getService(Ci.nsIProperties);
-    var destFile = dirSvc.get("ProfD", Ci.nsIFile);
+    var destFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
     // The "paused" part of this filename will be searched for later.
     destFile.append("download.paused");
     if (destFile.exists())
@@ -211,9 +209,7 @@ function test()
   dm.DBConnection.executeSimpleSQL("DELETE FROM moz_downloads");
 
   // Make a file name for the downloads
-  var file = Cc["@mozilla.org/file/directory_service;1"]
-               .getService(Ci.nsIProperties)
-               .get("TmpD", Ci.nsIFile);
+  var file = Services.dirsvc.get("TmpD", Ci.nsIFile);
   file.append("cleanUp");
   var filePath = Services.io.newFileURI(file).spec;
 

@@ -133,9 +133,7 @@ function test()
                            nsIWBP.PERSIST_FLAGS_BYPASS_CACHE |
                            nsIWBP.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
 
-    var dirSvc = Cc["@mozilla.org/file/directory_service;1"]
-                   .getService(Ci.nsIProperties);
-    var destFile = dirSvc.get("ProfD", Ci.nsIFile);
+    var destFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
     destFile.append("download.result");
     if (destFile.exists())
       destFile.remove(false);
