@@ -832,12 +832,13 @@ function check_for_missing_panels() {
     if (!currTab.is_excluded()) {
       if (currHeader.hasAttribute("prereq") && currHeader.getAttribute("prereq") != "") {
         var prereq_file = currHeader.getAttribute("prereq");
-        var ios = Services.io;
-        var channel = ios.newChannel2(prereq_file, null, null, null,
-                                      Services.scriptSecurityManager.getSystemPrincipal(),
-                                      null,
-                                      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                      Ci.nsIContentPolicy.TYPE_OTHER);
+        var channel =
+          Services.io.newChannelFromURI(Services.io.newURI(prereq_file),
+                                        null,
+                                        Services.scriptSecurityManager.getSystemPrincipal(),
+                                        null,
+                                        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                        Ci.nsIContentPolicy.TYPE_OTHER);
         try {
           channel.open();
         }

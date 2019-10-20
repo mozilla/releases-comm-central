@@ -41,9 +41,7 @@ function test()
                   .getService(Ci.nsIProperties)
                   .get("TmpD", Ci.nsIFile);
       file.append(site);
-      let fileSpec = Cc["@mozilla.org/network/io-service;1"]
-                  .getService(Ci.nsIIOService)
-                  .newFileURI(file).spec;
+      let fileSpec = Services.io.newFileURI(file).spec;
 
       stmt.bindByIndex(0, "http://" + site + "/file");
       stmt.bindByIndex(1, dm.DOWNLOAD_FINISHED);

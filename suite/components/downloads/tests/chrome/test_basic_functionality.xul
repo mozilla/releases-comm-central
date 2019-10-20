@@ -56,14 +56,12 @@
   <script type="application/javascript">
   <![CDATA[
 
-var ios = Cc["@mozilla.org/network/io-service;1"]
-            .getService(Ci.nsIIOService);
 var dmFile = Cc["@mozilla.org/file/directory_service;1"]
                .getService(Ci.nsIProperties)
                .get("TmpD", Ci.nsIFile);
 dmFile.append("dm-ui-test.file");
 dmFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
-var gTestPath = ios.newFileURI(dmFile).spec;
+var gTestPath = Services.io.newFileURI(dmFile).spec;
 
 // Downloads are sorted by endTime, so make sure the end times are distinct
 const DownloadData = [
@@ -168,8 +166,6 @@ function test_properDownloadData(aWin)
   var colSource = dlTree.columns.getNamedColumn("Source");
   var stateString;
   var statusBar = doc.getElementById("statusbar-display");
-  var ioSvc = Cc["@mozilla.org/network/io-service;1"]
-                .getService(Ci.nsIIOService);
 
   for (var i = 0; i < view.rowCount; i++) {
     view.selection.select(i);
@@ -203,11 +199,11 @@ function test_properDownloadData(aWin)
     is(view.getCellText(i, colState), stateString,
        "Download states match up");
 
-    var filePath = ioSvc.newURI(DownloadData[i].target)
-                        .QueryInterface(Ci.nsIFileURL)
-                        .file.clone()
-                        .QueryInterface(Ci.nsIFile)
-                        .path;
+    var filePath = Services.io.newURI(DownloadData[i].target)
+                              .QueryInterface(Ci.nsIFileURL)
+                              .file.clone()
+                              .QueryInterface(Ci.nsIFile)
+                              .path;
     is(statusBar.label, filePath,
        "Download targets match up");
     is(view.getCellText(i, colSource), DownloadData[i].source,

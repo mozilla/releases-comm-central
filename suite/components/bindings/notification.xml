@@ -445,10 +445,11 @@
                   break;
 
                 try {
-                  var ioService = Cc["@mozilla.org/network/io-service;1"]
-                                    .getService(Ci.nsIIOService);
-                  var manifestURI = ioService.newURI(manifest, doc.characterSet, doc.documentURIObject);
-                  var cacheUpdate = aSubject.QueryInterface(Ci.nsIOfflineCacheUpdate);
+                  var manifestURI = Services.io.newURI(manifest,
+                                                       doc.characterSet,
+                                                       doc.documentURIObject);
+                  var cacheUpdate = 
+                    aSubject.QueryInterface(Ci.nsIOfflineCacheUpdate);
                   if (manifestURI.equals(cacheUpdate.manifestURI))
                     this.checkUsage(manifestURI);
                 } catch (e) {
@@ -556,9 +557,9 @@
                 pluginsPage = pluginElement.getAttribute("pluginspage");
                 if (pluginsPage) {
                   var doc = pluginElement.ownerDocument;
-                  var ioService = Cc["@mozilla.org/network/io-service;1"]
-                                    .getService(Ci.nsIIOService);
-                  pluginsPage = ioService.newURI(pluginsPage, doc.characterSet, doc.documentURIObject).spec;
+                  pluginsPage = Services.io.newURI(pluginsPage,
+                                                   doc.characterSet,
+                                                   doc.documentURIObject).spec;
                 }
               }
 
@@ -1099,8 +1100,6 @@
                 accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
                 callback: function() {
                   pm.add(documentURI, "offline-app", nsIPermissionManager.ALLOW_ACTION);
-                  var ioService = Cc["@mozilla.org/network/io-service;1"]
-                                    .getService(Ci.nsIIOService);
                   var updateService = Cc["@mozilla.org/offlinecacheupdate-service;1"]
                                         .getService(Ci.nsIOfflineCacheUpdateService);
                   notification.documents.forEach(function(aDocument) {
@@ -1111,8 +1110,13 @@
                       return;
 
                     try {
-                      var manifestURI = ioService.newURI(manifest, aDocument.characterSet, aDocument.documentURIObject);
-                      updateService.scheduleUpdate(manifestURI, aDocument.documentURIObject, window);
+                      var manifestURI =
+                        Services.io.newURI(manifest,
+                                           aDocument.characterSet,
+                                           aDocument.documentURIObject);
+                      updateService.scheduleUpdate(manifestURI,
+                                                   aDocument.documentURIObject,
+                                                   window);
                     } catch (e) {
                     }
                   });
@@ -1156,12 +1160,10 @@
             var host = aURI.asciiHost;
             var usage = 0;
 
-            var ioService = Cc["@mozilla.org/network/io-service;1"]
-                              .getService(Ci.nsIIOService);
             var cacheService = Cc["@mozilla.org/network/application-cache-service;1"]
                                  .getService(Ci.nsIApplicationCacheService);
             cacheService.getGroups().forEach(function(aGroup) {
-              var uri = ioService.newURI(aGroup);
+              var uri = Services.io.newURI(aGroup);
               if (uri.asciiHost == host)
                 usage += cacheService.getActiveCache(aGroup).usage;
             });
@@ -1991,9 +1993,7 @@
           if (/^about:neterror\?e=netOffline/.test(event.target.documentURI))
             event.target.addEventListener("click", function tryAgain(event) {
               if (event.target.id == "errorTryAgain")
-                Cc["@mozilla.org/network/io-service;1"]
-                  .getService(Ci.nsIIOService)
-                  .offline = false;
+                Services.io.offline = false;
             }, true);
         ]]>
       </handler>

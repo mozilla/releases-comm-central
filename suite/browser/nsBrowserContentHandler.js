@@ -19,7 +19,6 @@ const nsIFactory              = Ci.nsIFactory;
 const nsIFileURL              = Ci.nsIFileURL;
 const nsIHttpProtocolHandler  = Ci.nsIHttpProtocolHandler;
 const nsINetUtil              = Ci.nsINetUtil;
-const nsIIOService            = Ci.nsIIOService;
 const nsIPrefService          = Ci.nsIPrefService;
 const nsIPrefBranch           = Ci.nsIPrefBranch;
 const nsIPrefLocalizedString  = Ci.nsIPrefLocalizedString;
@@ -50,9 +49,7 @@ function resolveURIInternal(aCmdLine, aArgument)
   try {
     var file = aCmdLine.resolveFile(aArgument);
     if (file.exists()) {
-      var ioService = Cc["@mozilla.org/network/io-service;1"]
-                        .getService(nsIIOService);
-      return ioService.newFileURI(file);
+      return Services.io.newFileURI(file);
     }
   } catch (e) {
   }

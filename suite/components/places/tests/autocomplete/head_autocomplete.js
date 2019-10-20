@@ -146,8 +146,6 @@ var bmsvc = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].
             getService(Ci.nsINavBookmarksService);
 var tagsvc = Cc["@mozilla.org/browser/tagging-service;1"].
              getService(Ci.nsITaggingService);
-var iosvc = Cc["@mozilla.org/network/io-service;1"].
-            getService(Ci.nsIIOService);
 var prefs = Cc["@mozilla.org/preferences-service;1"].
             getService(Ci.nsIPrefBranch);
 

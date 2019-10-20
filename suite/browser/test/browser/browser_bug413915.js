@@ -2,9 +2,7 @@ XPCOMUtils.defineLazyModuleGetter(this, "Feeds",
                                   "resource:///modules/Feeds.jsm");
 
 function test() {
-  var ioserv = Cc["@mozilla.org/network/io-service;1"]
-                 .getService(Ci.nsIIOService);
-  var exampleUri = ioserv.newURI("http://example.com/");
+  var exampleUri = Services.io.newURI("http://example.com/");
   var secman = Cc["@mozilla.org/scriptsecuritymanager;1"]
                  .getService(Ci.nsIScriptSecurityManager);
   var principal = secman.createCodebasePrincipal(exampleUri, {});

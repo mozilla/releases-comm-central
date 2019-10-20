@@ -53,9 +53,7 @@ var sanTests = {
     desc: "Cookie",
     setup: function() {
       Services.prefs.setIntPref("network.cookie.cookieBehavior", 0);
-      var ios = Cc["@mozilla.org/network/io-service;1"]
-                  .getService(Ci.nsIIOService);
-      this.uri = ios.newURI("http://sanitizer.test/");
+      this.uri = Services.io.newURI("http://sanitizer.test/");
       this.cs = Cc["@mozilla.org/cookieService;1"]
                   .getService(Ci.nsICookieService);
       this.cs.setCookieString(this.uri, null, "Sanitizer!", null);
@@ -72,9 +70,7 @@ var sanTests = {
   history: {
     desc: "History",
     async setup() {
-      var ios = Cc["@mozilla.org/network/io-service;1"]
-                  .getService(Ci.nsIIOService);
-      var uri = ios.newURI("http://sanitizer.test/");
+      var uri = Services.io.newURI("http://sanitizer.test/");
       await promiseAddVisits({
         uri: uri,
         title: "Sanitizer!"
@@ -205,15 +201,13 @@ var sanTests = {
   downloads: {
     desc: "Download",
     setup: function() {
-      var ios = Cc["@mozilla.org/network/io-service;1"]
-                  .getService(Ci.nsIIOService);
-      var uri = ios.newURI("http://sanitizer.test/");
+      var uri = Services.io.newURI("http://sanitizer.test/");
       var file = Cc["@mozilla.org/file/directory_service;1"]
                    .getService(Ci.nsIProperties)
                    .get("TmpD", Ci.nsIFile);
       file.append("sanitizer.file");
       file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0666", 8));
-      var dest = ios.newFileURI(file);
+      var dest = Services.io.newFileURI(file);
 
       this.dm = Cc["@mozilla.org/download-manager;1"]
                   .getService(Ci.nsIDownloadManager);

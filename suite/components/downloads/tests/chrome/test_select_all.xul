@@ -70,9 +70,7 @@ function test()
                .getService(Ci.nsIProperties)
                .get("TmpD", Ci.nsIFile);
   file.append("selectAll");
-  var filePath = Cc["@mozilla.org/network/io-service;1"]
-                   .getService(Ci.nsIIOService)
-                   .newFileURI(file).spec;
+  var filePath = Services.io.newFileURI(file).spec;
 
   var stmt = db.createStatement(
     "INSERT INTO moz_downloads (target, source, state) " +

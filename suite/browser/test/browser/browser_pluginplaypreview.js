@@ -98,12 +98,15 @@ function registerPlayPreview(mimeType, targetUrl) {
       aRequest.cancel(Cr.NS_BINDING_ABORTED);
 
       // Create a new channel that is viewer loaded as a resource.
-      var ioService = Services.io;
-      var channel = ios.newChannel2(targetUrl, null, null, null,
-                                    Services.scriptSecurityManager.getSystemPrincipal(),
-                                    null,
-                                    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                    Ci.nsIContentPolicy.TYPE_OTHER);
+      var channel =
+        Services.io.newChannelFromURI(Services.io.newURI(targetUrl),
+                                      null,
+                                      Services.scriptSecurityManager
+                                              .getSystemPrincipal(),
+                                      null,
+                                      Ci.nsILoadInfo
+                                        .SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                      Ci.nsIContentPolicy.TYPE_OTHER);
       channel.asyncOpen2(this.listener);
     },
 

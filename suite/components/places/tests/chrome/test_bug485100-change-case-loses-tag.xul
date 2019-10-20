@@ -43,10 +43,8 @@
                getService(Ci.nsINavBookmarksService);
       var ts = Cc["@mozilla.org/browser/tagging-service;1"].
                getService(Ci.nsITaggingService);
-      var ios = Cc["@mozilla.org/network/io-service;1"].
-                getService(Ci.nsIIOService);
       function uri(spec) {
-        return ios.newURI(spec);
+        return Services.io.newURI(spec);
       }
 
       var testURI = uri("http://www.mozilla.org/");

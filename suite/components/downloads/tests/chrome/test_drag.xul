@@ -78,16 +78,13 @@ var missingFile = Cc["@mozilla.org/file/directory_service;1"]
                     .getService(Ci.nsIProperties)
                     .get("CurWorkD", Ci.nsIFile);
 
-var ios = Cc["@mozilla.org/network/io-service;1"]
-            .getService(Ci.nsIIOService);
-
 realFile.append(kFiller);
 realFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
-var realFilePath = ios.newFileURI(realFile).spec;
+var realFilePath = Services.io.newFileURI(realFile).spec;
 
 missingFile.append(kFiller);
 missingFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
-var missingFilePath = ios.newFileURI(missingFile).spec;
+var missingFilePath = Services.io.newFileURI(missingFile).spec;
 missingFile.remove(false);
 
 // Dummy data for our files.
