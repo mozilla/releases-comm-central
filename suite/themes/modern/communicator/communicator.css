@@ -123,7 +123,6 @@ toolbar[iconsize="small"] > #print-button[disabled="true"] {
 }
 
 .messageImage[value="blocked-plugins"],
-.messageImage[value="carbon-failure-plugins"],
 .messageImage[value="disabled-plugins"],
 .messageImage[value="missing-plugins"],
 .messageImage[value="outdated-plugins"],
