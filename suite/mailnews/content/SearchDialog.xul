@@ -51,6 +51,8 @@
           src="chrome://messenger/content/folderDisplay.js"/>
   <script type="application/javascript"
           src="chrome://global/content/contentAreaUtils.js"/>
+  <script type="application/javascript"
+          src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
 
   <commands id="commands">
     <commandset id="mailSearchItems"
