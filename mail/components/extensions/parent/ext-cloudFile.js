@@ -37,7 +37,6 @@ class CloudFileAccount {
     this.extension = extension;
     this._configured = false;
     this.lastError = "";
-    this.settingsURL = this.extension.manifest.cloud_file.settings_url;
     this.managementURL = this.extension.manifest.cloud_file.management_url;
     this.dataFormat = this.extension.manifest.cloud_file.data_format;
     this.quota = {
@@ -203,7 +202,6 @@ function convertCloudFileAccount(nativeAccount) {
     spaceRemaining: nativeAccount.remainingFileSpace,
     spaceUsed: nativeAccount.fileSpaceUsed,
     managementUrl: nativeAccount.managementURL,
-    settingsUrl: nativeAccount.settingsURL,
   };
 }
 
@@ -372,9 +370,6 @@ this.cloudFile = class extends ExtensionAPI {
           }
           if (updateProperties.managementUrl !== null) {
             account.managementURL = updateProperties.managementUrl;
-          }
-          if (updateProperties.settingsUrl !== null) {
-            account.settingsURL = updateProperties.settingsUrl;
           }
 
           return convertCloudFileAccount(account);

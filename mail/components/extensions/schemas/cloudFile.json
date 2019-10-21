@@ -27,14 +27,6 @@
                 "deprecated": true,
                 "description": "This property was never used."
               },
-              "settings_url": {
-                "type": "string",
-                "format": "relativeUrl",
-                "preprocess": "localize",
-                "optional": true,
-                "deprecated": true,
-                "description": "A page for configuring accounts, this is obsolete after Thunderbird 60."
-              },
               "management_url": {
                 "type": "string",
                 "format": "relativeUrl",
@@ -192,13 +184,6 @@
             "type": "string",
             "format": "relativeUrl",
             "description": "A page for configuring accounts, to be displayed in the preferences UI."
-          },
-          "settingsUrl": {
-            "type": "string",
-            "format": "relativeUrl",
-            "optional": true,
-            "deprecated": true,
-            "description": "A page for configuring accounts, this is obsolete after Thunderbird 60."
           }
         }
       },
@@ -302,13 +287,6 @@
                 "format": "relativeUrl",
                 "optional": true,
                 "description": "A page for configuring accounts, to be displayed in the preferences UI."
-              },
-              "settingsUrl": {
-                "type": "string",
-                "format": "relativeUrl",
-                "optional": true,
-                "deprecated": true,
-                "description": "A page for configuring accounts, this is obsolete after Thunderbird 60."
               }
             }
           }

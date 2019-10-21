@@ -24,7 +24,6 @@ var kDefaults = {
   type: "default",
   iconURL: "chrome://messenger/content/extension.svg",
   accountKey: null,
-  settingsURL: "",
   managementURL: "",
   authErr: cloudFileAccounts.constants.authErr,
   offlineErr: cloudFileAccounts.constants.offlineErr,

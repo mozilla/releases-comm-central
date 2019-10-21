@@ -47,7 +47,6 @@ add_task(async () => {
       browser.test.assertEq(a.spaceRemaining, b.spaceRemaining);
       browser.test.assertEq(a.spaceUsed, b.spaceUsed);
       browser.test.assertEq(a.managementUrl, b.managementUrl);
-      browser.test.assertEq(a.settingsUrl, b.settingsUrl);
     }
 
     async function test_account_creation_removal() {
@@ -62,7 +61,6 @@ add_task(async () => {
         spaceRemaining: -1,
         spaceUsed: -1,
         managementUrl: browser.runtime.getURL("/content/management.html"),
-        settingsUrl: browser.runtime.getURL("/content/settings.html"),
       });
 
       // Other account creation
@@ -111,7 +109,6 @@ add_task(async () => {
         spaceRemaining: 456,
         spaceUsed: 789,
         managementUrl: "/account.html",
-        settingsUrl: "/accountsettings.html",
       };
 
       let changedAccount = await browser.cloudFile.updateAccount(
@@ -128,7 +125,6 @@ add_task(async () => {
         spaceRemaining: 456,
         spaceUsed: 789,
         managementUrl: browser.runtime.getURL("/account.html"),
-        settingsUrl: browser.runtime.getURL("/accountsettings.html"),
       };
 
       assertAccountsMatch(changedAccount, expected);
@@ -220,7 +216,6 @@ add_task(async () => {
     manifest: {
       cloud_file: {
         name: "xpcshell",
-        settings_url: "/content/settings.html",
         management_url: "/content/management.html",
       },
       applications: { gecko: { id: "cloudfile@xpcshell" } },
@@ -270,9 +265,6 @@ add_task(async () => {
     account.deleteFile(uploads.cloudFile1.id);
   });
 
-  // Deprecated property "settings_url". See bug 1581496 for removal.
-  ExtensionTestUtils.failOnSchemaWarnings(false);
-
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
   await extension.startup();
   Assert.ok(cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
@@ -283,8 +275,6 @@ add_task(async () => {
 
   Assert.ok(!cloudFileAccounts.getProviderForType("ext-cloudfile@xpcshell"));
   Assert.equal(cloudFileAccounts.accounts.length, 0);
-
-  ExtensionTestUtils.failOnSchemaWarnings(true);
 });
 
 add_task(async () => {
@@ -315,16 +305,12 @@ add_task(async () => {
     manifest: {
       cloud_file: {
         name: "xpcshell",
-        settings_url: "/content/settings.html",
         management_url: "/content/management.html",
         data_format: "File",
       },
       applications: { gecko: { id: "cloudfile@xpcshell" } },
     },
   });
-
-  // Deprecated property "settings_url". See bug 1581496 for removal.
-  ExtensionTestUtils.failOnSchemaWarnings(false);
 
   await extension.startup();
 
@@ -337,6 +323,4 @@ add_task(async () => {
   cloudFileAccounts.removeAccount(account);
 
   await extension.unload();
-
-  ExtensionTestUtils.failOnSchemaWarnings(true);
 });
