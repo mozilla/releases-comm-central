@@ -30,6 +30,6 @@ interface nsIAbDirFactory : nsISupports
      * Delete a top level address book directory
      *
      */
-    void deleteDirectory (in nsIAbDirectory directory);
+    void deleteDirectory(in nsIAbDirectory directory);
 };
 

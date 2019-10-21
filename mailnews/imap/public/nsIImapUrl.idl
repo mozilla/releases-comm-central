@@ -56,7 +56,7 @@ interface nsIImapUrl : nsISupports
   string createServerDestinationFolderPathString();
 
   string addOnlineDirectoryIfNecessary(in string onlineMailboxName);
-  void createSearchCriteriaString (out string aResult);
+  void createSearchCriteriaString(out string aResult);
   readonly attribute ACString listOfMessageIds;
 
   boolean messageIdsAreUids();

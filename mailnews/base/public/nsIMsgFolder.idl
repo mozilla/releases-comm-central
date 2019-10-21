@@ -177,7 +177,7 @@ interface nsIMsgFolder : nsISupports {
    */
   void closeAndBackupFolderDB(in ACString newName);
 
-  void Delete ();
+  void Delete();
 
   void deleteSubFolders(in nsIArray folders, in nsIMsgWindow msgWindow);
   void propagateDelete(in nsIMsgFolder folder, in boolean deleteStorage,
@@ -455,9 +455,9 @@ interface nsIMsgFolder : nsISupports {
                        in nsIMsgWindow msgWindow,
                        in nsIMsgCopyServiceListener listener);
 
-  void acquireSemaphore (in nsISupports semHolder);
-  void releaseSemaphore (in nsISupports semHolder);
-  boolean testSemaphore (in nsISupports semHolder);
+  void acquireSemaphore(in nsISupports semHolder);
+  void releaseSemaphore(in nsISupports semHolder);
+  boolean testSemaphore(in nsISupports semHolder);
   readonly attribute boolean locked;
 
   void getNewMessages(in nsIMsgWindow aWindow, in nsIUrlListener aListener);
@@ -481,7 +481,7 @@ interface nsIMsgFolder : nsISupports {
    * @param deep if true, descends into all subfolders and gets a grand total
    */
 
-   long getNumNewMessages (in boolean deep);
+   long getNumNewMessages(in boolean deep);
 
    void setNumNewMessages(in long numNewMessages);
 

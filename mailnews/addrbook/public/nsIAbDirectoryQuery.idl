@@ -160,5 +160,5 @@ interface nsIAbDirectoryQuery : nsISupports
      *        the doQuery methods
      *
      */
-    void stopQuery (in long contextID);
+    void stopQuery(in long contextID);
 };

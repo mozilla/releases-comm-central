@@ -24,12 +24,12 @@ interface nsIAddrDBListener : nsISupports {
    *                            listeners of a database need not be notified about
    *                            card entry changes.
    */
-  void onCardEntryChange (in unsigned long aAbCode,
-                          in nsIAbCard aCard,
-                          in nsIAbDirectory aParent);
+  void onCardEntryChange(in unsigned long aAbCode,
+                         in nsIAbCard aCard,
+                         in nsIAbDirectory aParent);
 
-  void onListEntryChange (in unsigned long abCode,
-                          in nsIAbDirectory list);
+  void onListEntryChange(in unsigned long abCode,
+                         in nsIAbDirectory list);
   void onAnnouncerGoingAway();
 
 };

@@ -42,12 +42,12 @@ interface nsIAbDirectorySearch : nsISupports
      * defined in the directory uri.
      *
      */
-    void startSearch ();
+    void startSearch();
 
     /**
      * Stops a search on the directory.
      *
      */
-    void stopSearch ();
+    void stopSearch();
 };
 

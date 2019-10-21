@@ -69,9 +69,9 @@ interface nsIMsgSearchSession :  nsISupports {
    * @param aListener listener
    * @param aNotifyFlags which notifications to send. Defaults to all
    */
-  void registerListener (in nsIMsgSearchNotify aListener,
-                         [optional] in long aNotifyFlags);
-  void unregisterListener (in nsIMsgSearchNotify listener);
+  void registerListener(in nsIMsgSearchNotify aListener,
+                        [optional] in long aNotifyFlags);
+  void unregisterListener(in nsIMsgSearchNotify listener);
 
   readonly attribute unsigned long numSearchTerms;
 

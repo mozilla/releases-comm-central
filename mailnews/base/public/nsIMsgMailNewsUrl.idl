@@ -45,8 +45,8 @@ interface nsIMsgMailNewsUrl : nsIURL {
   // on url. As a url listener, the app will be informed when the url begins to run
   // and when the url is finished.
   ////////////////////////////////////////////////////////////////////////////////
-  void RegisterListener (in nsIUrlListener aUrlListener);
-  void UnRegisterListener (in nsIUrlListener aUrlListener);
+  void RegisterListener(in nsIUrlListener aUrlListener);
+  void UnRegisterListener(in nsIUrlListener aUrlListener);
 
   readonly attribute nsIURI baseURI;
 
