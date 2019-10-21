@@ -310,21 +310,18 @@ this.mailTabs = class extends ExtensionAPI {
           filterer.clear();
 
           // Map of QuickFilter state names to possible WebExtensions state names.
-          // WebExtensions names are comma-separated in increasing order of precedence.
           let stateMap = {
             unread: "unread",
-            starred: "starred,flagged",
+            starred: "flagged",
             addrBook: "contact",
             attachment: "attachment",
           };
 
           filterer.visible = state.show !== false;
-          for (let [key, names] of Object.entries(stateMap)) {
+          for (let [key, name] of Object.entries(stateMap)) {
             let value = null;
-            for (let name of names.split(",")) {
-              if (state[name] !== null) {
-                value = state[name];
-              }
+            if (state[name] !== null) {
+              value = state[name];
             }
             if (value === null) {
               delete filterer.filterValues[key];
@@ -353,7 +350,7 @@ this.mailTabs = class extends ExtensionAPI {
             filterer.filterValues.text = {
               states: {
                 recipients: state.text.recipients || false,
-                sender: state.text.author || state.text.sender || false,
+                sender: state.text.author || false,
                 subject: state.text.subject || false,
                 body: state.text.body || false,
               },

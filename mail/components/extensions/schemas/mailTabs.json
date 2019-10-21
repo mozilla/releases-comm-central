@@ -38,12 +38,6 @@
             "description": "Shows messages where <var>text</var> matches the recipients.",
             "optional": true
           },
-          "sender": {
-            "type": "boolean",
-            "description": "Use <var>author</var> instead.",
-            "optional": true,
-            "deprecated": true
-          },
           "author": {
             "type": "boolean",
             "description": "Shows messages where <var>text</var> matches the author.",
@@ -222,12 +216,6 @@
                 "type": "boolean",
                 "description": "Shows only unread messages.",
                 "optional": true
-              },
-              "starred": {
-                "type": "boolean",
-                "description": "Use <var>flagged</var> instead.",
-                "optional": true,
-                "deprecated": true
               },
               "flagged": {
                 "type": "boolean",

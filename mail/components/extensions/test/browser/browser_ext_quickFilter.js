@@ -31,14 +31,7 @@ add_task(async () => {
     browser.mailTabs.setQuickFilter({ unread: true });
     await awaitMessage("checkVisible", 1, 3, 5, 7, 9);
 
-    browser.mailTabs.setQuickFilter({ starred: true });
-    await awaitMessage("checkVisible", 1, 6);
-
     browser.mailTabs.setQuickFilter({ flagged: true });
-    await awaitMessage("checkVisible", 1, 6);
-
-    // The starred property was renamed flagged. Flagged should take precedence.
-    browser.mailTabs.setQuickFilter({ starred: false, flagged: true });
     await awaitMessage("checkVisible", 1, 6);
 
     browser.mailTabs.setQuickFilter({ flagged: true, unread: true });
@@ -139,13 +132,9 @@ add_task(async () => {
   card.setProperty("PrimaryEmail", author[2]);
   MailServices.ab.directories.getNext().addCard(card);
 
-  // Deprecated "starred" property. See bug 1581498 for removal.
-  ExtensionTestUtils.failOnSchemaWarnings(false);
-
   await extension.startup();
   await extension.awaitFinish("quickFilter");
   await extension.unload();
 
   window.gFolderTreeView.selectFolder(rootFolder);
-  ExtensionTestUtils.failOnSchemaWarnings(true);
 });
