@@ -9,10 +9,6 @@
  * address books.
  */
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
-
 add_task(async function() {
   // Copy address book to be migrated into the profile.
 

@@ -1,0 +1,27 @@
+// <!-- <mdb:mork:z v="1.4"/> -->
+< <(a=c)> // (f=iso-8859-1)
+  (B8=Notes)(B9=LastModifiedDate)(BA=RecordKey)(BB=AddrCharSet)
+  (BC=LastRecordKey)(BD=ns:addrbk:db:table:kind:pab)(BE=ListName)
+  (BF=ListNickName)(C0=ListDescription)(C1=ListTotalAddresses)
+  (C2=LowercaseListName)(C3=ns:addrbk:db:table:kind:deleted)
+  (80=ns:addrbk:db:row:scope:card:all)
+  (81=ns:addrbk:db:row:scope:list:all)
+  (82=ns:addrbk:db:row:scope:data:all)(83=UID)(84=FirstName)(85=LastName)
+  (86=PhoneticFirstName)(87=PhoneticLastName)(88=DisplayName)
+  (89=NickName)(8A=PrimaryEmail)(8B=LowercasePrimaryEmail)
+  (8C=SecondEmail)(8D=LowercaseSecondEmail)(8E=PreferMailFormat)
+  (8F=PopularityIndex)(90=WorkPhone)(91=HomePhone)(92=FaxNumber)
+  (93=PagerNumber)(94=CellularNumber)(95=WorkPhoneType)(96=HomePhoneType)
+  (97=FaxNumberType)(98=PagerNumberType)(99=CellularNumberType)
+  (9A=HomeAddress)(9B=HomeAddress2)(9C=HomeCity)(9D=HomeState)
+  (9E=HomeZipCode)(9F=HomeCountry)(A0=WorkAddress)(A1=WorkAddress2)
+  (A2=WorkCity)(A3=WorkState)(A4=WorkZipCode)(A5=WorkCountry)
+  (A6=JobTitle)(A7=Department)(A8=Company)(A9=_AimScreenName)
+  (AA=AnniversaryYear)(AB=AnniversaryMonth)(AC=AnniversaryDay)
+  (AD=SpouseName)(AE=FamilyName)(AF=WebPage1)(B0=WebPage2)(B1=BirthYear)
+  (B2=BirthMonth)(B3=BirthDay)(B4=Custom1)(B5=Custom2)(B6=Custom3)
+  (B7=Custom4)>
+
+<(80=0)>
+{1:^80 {(k^BD:c)(s=9)} 
+  [1:^82(^BC=0)]}

@@ -718,24 +718,27 @@ var MailMigrator = {
           cardMap.set(card.localId, card);
         }
       }
-      await newBook._bulkAddCards(cardMap.values());
+      if (cardMap.size > 0) {
+        await newBook._bulkAddCards(cardMap.values());
 
-      for (let card of database.enumerateCards(directory)) {
-        if (card.isMailList) {
-          let mailList = Cc[
-            "@mozilla.org/addressbook/directoryproperty;1"
-          ].createInstance(Ci.nsIAbDirectory);
-          mailList.isMailList = true;
-          mailList.dirName = card.displayName;
-          mailList.listNickName = card.getProperty("NickName", "");
-          mailList.description = card.getProperty("Notes", "");
-          mailList = newBook.addMailList(mailList);
+        for (let card of database.enumerateCards(directory)) {
+          if (card.isMailList) {
+            let mailList = Cc[
+              "@mozilla.org/addressbook/directoryproperty;1"
+            ].createInstance(Ci.nsIAbDirectory);
+            mailList.isMailList = true;
+            mailList.dirName = card.displayName;
+            mailList.listNickName = card.getProperty("NickName", "");
+            mailList.description = card.getProperty("Notes", "");
+            mailList = newBook.addMailList(mailList);
 
-          directory.dbRowID = card.localId;
-          for (let listCard of database.enumerateListAddresses(directory)) {
-            mailList.addCard(
-              cardMap.get(listCard.QueryInterface(Ci.nsIAbCard).localId)
-            );
+            directory.dbRowID = card.localId;
+            for (let listCard of database.enumerateListAddresses(directory)) {
+              listCard.QueryInterface(Ci.nsIAbCard);
+              if (cardMap.has(listCard.localId)) {
+                mailList.addCard(cardMap.get(listCard.localId));
+              }
+            }
           }
         }
       }
@@ -743,8 +746,11 @@ var MailMigrator = {
       database.closeMDB(false);
       database.forceClosed();
 
-      console.log(`Renaming ${fileName}.mab to ${fileName}.mab.bak`);
-      oldFile.renameTo(profileDir, `${fileName}.mab.bak`);
+      let backupFile = profileDir.clone();
+      backupFile.append(`${fileName}.mab.bak`);
+      backupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+      console.log(`Renaming ${fileName}.mab to ${backupFile.leafName}`);
+      oldFile.renameTo(profileDir, backupFile.leafName);
     }
 
     let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
