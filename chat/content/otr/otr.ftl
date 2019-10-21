@@ -15,7 +15,7 @@ msgevent-connection_ended = { $name } has already closed their encrypted connect
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-msgevent-setup_error = An error occured while setting up a private conversation with { $name }.
+msgevent-setup_error = An error occurred while setting up a private conversation with { $name }.
 
 # Do not translate 'OTR' (name of an encryption protocol)
 msgevent-msg_reflected = You are receiving your own OTR messages. You are either trying to talk to yourself, or someone is reflecting your messages back at you.

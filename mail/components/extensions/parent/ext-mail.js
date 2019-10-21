@@ -59,7 +59,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
     return initExtensionContext.apply(ExtensionContent, arguments);
   };
 
-  // This patches priviledged pages such as the background script
+  // This patches privileged pages such as the background script
   ExtensionPageChild.initExtensionContext = function(extension, window) {
     let retval = initPageChildExtensionContext.apply(
       ExtensionPageChild,

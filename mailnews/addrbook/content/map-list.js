@@ -43,7 +43,7 @@
 
     /**
      * Initializes the necessary address data from an addressbook card.
-     * @param {nsIAbCard} card   - the card to get the addess data from
+     * @param {nsIAbCard} card   - the card to get the address data from
      * @param {string} addPrefix - card property prefix: "Home" or "Work",
      *                             to make the map use either HomeAddress
      *                             or WorkAddress

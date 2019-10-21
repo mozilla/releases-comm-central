@@ -16,7 +16,7 @@ function Startup() {
   const msgCompSendFormat = Ci.nsIMsgCompSendFormat;
   const msgCompConvertible = Ci.nsIMsgCompConvertible;
 
-  // Select the node that need to be udpated.
+  // Select the node that needs to be updated.
   let mailSendFormatExplanation = document.getElementById(
     "mailSendFormatExplanation"
   );

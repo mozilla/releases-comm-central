@@ -208,7 +208,7 @@ let smimeHeaderSink = {
  *             Because of the sequential processing caused by nested
  *             messages, additional calls to signedStatus() might
  *             override an earlier decision.
- *             (An earlier bad status report cannot be overriden by a
+ *             (An earlier bad status report cannot be overridden by a
  *              later report of a good status.)
  * - extra: If set to a number > 0, we expect that nested processing of
  *          MIME parts will trigger the given number of additional

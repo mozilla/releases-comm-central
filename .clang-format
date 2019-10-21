@@ -34,7 +34,7 @@ StatementMacros: [MARKUPMAP, ASSERT_TRUE, ASSERT_FALSE, TEST, CHECK]
 # coding style
 
 # Note that for the time being, we differ from the mozilla-central settings
-# and use derivative pointer alignment since right aligment is prevalent in
+# and use derivative pointer alignment since right alignment is prevalent in
 # comm-central. Exceptions with left alignment are, amongst others:
 # db/ (Mork), mailnews/intl and mailnews/jsaccount.
 # We will decide later whether to make the pointer style consistent or not.

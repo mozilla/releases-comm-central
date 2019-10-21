@@ -247,7 +247,7 @@
 
   /**
    * MozCalendarEventAttendeesList is a widget allowing adding and removing of attendees of an event.
-   * It shows if attendee if required or optional, the attendee status, type and adddress.
+   * It shows if attendee if required or optional, the attendee status, type and address.
    * It is typically found in the Invite Attendees dialog.
    *
    * @extends {MozElements.RichListBox}
@@ -590,7 +590,7 @@
     }
 
     /**
-     * This trigger the continous update chain, which effectively calls this.onModify() on
+     * This trigger the continuous update chain, which effectively calls this.onModify() on
      * predefined time intervals [each second].
      */
     init() {
@@ -1095,7 +1095,7 @@
     }
 
     /**
-     * Returns richlistitem at row numer `row`.
+     * Returns richlistitem at row number `row`.
      *
      * @returns {Element}       richlistitem
      */
@@ -1189,7 +1189,7 @@
     }
 
     /**
-     * Sets foucs on the input element in the row `row`.
+     * Sets focus on the input element in the row `row`.
      *
      * @param {Element|Number} row      Row number or row
      */
@@ -3018,8 +3018,8 @@
       }
 
       // In case the new starttime happens to be scheduled on a different day, we also need to
-      // update the complete freebusy informations and appropriate underlying arrays holding the
-      // informaion.
+      // update the complete freebusy information and appropriate underlying arrays holding the
+      // information.
       if (this.mStartDate.day != startTime.day) {
         for (let i = 1; i <= this.mMaxFreeBusy; i++) {
           let fbelem = this.getFreeBusyElement(i);

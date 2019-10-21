@@ -535,7 +535,7 @@ function addAllowDenyPermissions(permissionName, allowList, blockList) {
  *
  * @param {string} actionName
  *        A given name which will be used to track if this callback has run.
- * @param {Functon} callback
+ * @param {Function} callback
  *        The callback to run only once.
  */
 // eslint-disable-next-line no-unused-vars

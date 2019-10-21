@@ -416,7 +416,7 @@
         // B) "Mark, Nonspacing" (Mn)
         // C) "Other, Control" (Cc)
         // D) "Other, Format" (Cf)
-        // Unfortuantely, no support for the needed regexp Unicode property escapes
+        // Unfortunately, no support for the needed regexp Unicode property escapes
         // in our engine. So we need to hand-roll it. Used the regexpu tool for
         // that: https://mothereff.in/regexpu.
         // This should be updated regularly, to take into account new additions

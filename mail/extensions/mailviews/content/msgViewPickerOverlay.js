@@ -207,7 +207,7 @@ function RefreshViewPopup(viewPopup) {
  * Refresh the contents of the custom views popup menu/panel.
  * Used for example for appmenu/View/Messages/CustomViews panel.
  *
- * @param {Element} parent        Parent element that will recieve the menu items.
+ * @param {Element} parent        Parent element that will receive the menu items.
  * @param {string} [elementName]  Type of menu items to create (e.g. "menuitem", "toolbarbutton").
  * @param {string} [classes]      Classes to set on the menu items.
  */
@@ -249,7 +249,7 @@ function RefreshCustomViewsPopup(parent, elementName = "menuitem", classes) {
  * Refresh the contents of the tags popup menu/panel. For example, used for
  * appmenu/View/Messages/Tags.
  *
- * @param {Element} parent        Parent element that will recieve the menu items.
+ * @param {Element} parent        Parent element that will receive the menu items.
  * @param {string} [elementName]  Type of menu items to create (e.g. "menuitem", "toolbarbutton").
  * @param {string} [classes]      Classes to set on the menu items.
  */

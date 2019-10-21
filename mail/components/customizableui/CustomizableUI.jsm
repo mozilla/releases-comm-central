@@ -2134,7 +2134,7 @@ var CustomizableUIInternal = {
     let widgets = new Set();
 
     // It's possible that some widgets have been defined programmatically and
-    // have not been overlayed into the palette. We can find those inside
+    // have not been overlaid into the palette. We can find those inside
     // gPalette.
     for (let [id, widget] of gPalette) {
       if (!widget.currentArea) {
@@ -4422,7 +4422,7 @@ var CustomizableUI = {
           subviewItem.setAttribute(attr, attrVal);
         }
       }
-      // We do this after so the .subviewbutton class doesn't get overriden.
+      // We do this after so the .subviewbutton class doesn't get overridden.
       if (menuChild.localName == "menuitem") {
         subviewItem.classList.add("subviewbutton");
       }

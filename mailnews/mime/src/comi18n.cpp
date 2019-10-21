@@ -66,7 +66,7 @@ nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
   Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
 
   if (!detectorName.IsEmpty()) {
-    // We recognize one of the two magic strings for Russian and Ukranian.
+    // We recognize one of the two magic strings for Russian and Ukrainian.
     if (detectorName.EqualsLiteral("ruprob")) {
       detector = new nsRUProbDetector();
     } else if (detectorName.EqualsLiteral("ukprob")) {

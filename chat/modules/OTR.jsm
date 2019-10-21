@@ -625,7 +625,7 @@ var OTR = {
       return;
     }
     // Use the default msg to format the version.
-    // We don't supprt v1 of the protocol so this should be fine.
+    // We don't support v1 of the protocol so this should be fine.
     let queryMsg = /^\?OTR.*?\?/.exec(query.readString())[0] + "\n";
     // Avoid sending any numbers in the query message, because receiving
     // software could misinterpret it as a protocol version.

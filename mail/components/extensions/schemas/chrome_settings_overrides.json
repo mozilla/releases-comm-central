@@ -143,7 +143,7 @@
                         "pref": {
                           "type": "string",
                           "optional": true,
-                          "description": "The preference to retreive the value from."
+                          "description": "The preference to retrieve the value from."
                         },
                         "purpose": {
                           "type": "string",
@@ -159,7 +159,7 @@
                         }
                       }
                     },
-                    "description": "A list of optional search url parameters. This allows the additon of search url parameters based on how the search is performed in Thunderbird."
+                    "description": "A list of optional search url parameters. This allows the addition of search url parameters based on how the search is performed in Thunderbird."
                   }
                 }
               }

@@ -91,7 +91,7 @@ const char *kUseServerRetentionProp = "useServerRetention";
 NS_IMPL_ISUPPORTS(nsMsgFolderService, nsIMsgFolderService)
 
 // This method serves the only purpose to re-initialize the
-// folder name strings when UI intialization is done.
+// folder name strings when UI initialization is done.
 // XXX TODO: This can be removed when the localization system gets
 // initialized in M-C code before, for example, the permission manager
 // triggers folder creation during imap: URI creation.

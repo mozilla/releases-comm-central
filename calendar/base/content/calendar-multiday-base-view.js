@@ -970,7 +970,7 @@
           minute = lowMinute + (displayDuration - this.mVisibleMinutes) / 2;
         } else if (this.mSelectedItems.length == 1) {
           // If the displayDuration doesn't fit into the visible minutes, but
-          // ony one event is selected, then go ahead and center the event start.
+          // only one event is selected, then go ahead and center the event start.
 
           minute = Math.max(0, lowMinute - this.mVisibleMinutes / 2);
         }

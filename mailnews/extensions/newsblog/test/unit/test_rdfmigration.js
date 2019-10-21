@@ -24,7 +24,7 @@ async function migrationTest(testDataDir) {
   );
   // Note, we don't create any folders to hold downloaded feed items,
   // that's OK here, because we're only migrating the config files, not
-  // downloading feeds. The migration doesn't check destFolder existance.
+  // downloading feeds. The migration doesn't check destFolder existence.
   let rootDir = rootFolder.filePath.path;
 
   // Install legacy feeds.rdf/feeditems.rdf

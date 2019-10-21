@@ -1803,7 +1803,7 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile *aFile,
                                               nsACString &aCharset) {
   // We do the detection in this order:
   // Check BOM.
-  // If no BOM, run localized detection (Russian, Ukranian or Japanese).
+  // If no BOM, run localized detection (Russian, Ukrainian or Japanese).
   // We need to run this first, since ISO-2022-JP is 7bit ASCII and would be
   // detected as UTF-8. If ISO-2022-JP not detected, check for UTF-8. If no
   // UTF-8, but detector detected something, use that, otherwise return an
@@ -1841,7 +1841,7 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile *aFile,
   nsAutoCString detectorName;
   Preferences::GetLocalizedCString("intl.charset.detector", detectorName);
   if (!detectorName.IsEmpty()) {
-    // We recognize one of the two magic strings for Russian and Ukranian.
+    // We recognize one of the two magic strings for Russian and Ukrainian.
     if (detectorName.EqualsLiteral("ruprob")) {
       detector = new nsRUProbDetector();
     } else if (detectorName.EqualsLiteral("ukprob")) {

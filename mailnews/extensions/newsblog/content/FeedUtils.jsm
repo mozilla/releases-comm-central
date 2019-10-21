@@ -1427,7 +1427,7 @@ var FeedUtils = {
     }
     this[aServer.serverURI].FeedsDS = ds;
     if (!exists) {
-      // No feeds.json, so we need to initalise.
+      // No feeds.json, so we need to initialise.
       ds.data = [];
     }
     return ds;

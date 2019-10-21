@@ -10,7 +10,7 @@
 # `s3_bucket_paths`       -- prefix to be used per product to correctly access our S3 buckets
 # `default_locales`       -- list of locales to be used when composing upstream artifacts or the list of
 #                      destinations. If given an empty locale, it uses these locales instead.
-# `tasktype_map`          -- mapping between task reference and task type, particularly usefule when
+# `tasktype_map`          -- mapping between task reference and task type, particularly useful when
 #                      composing the upstreamArtifacts for scriptworker.
 # `platform_names`        -- various platform mappings used in reckoning artifacts or other paths
 # `default`               -- a default entry, which the mappings extend and override in such a way that

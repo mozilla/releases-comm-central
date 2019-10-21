@@ -36,7 +36,7 @@
         if (event.button != 0) {
           return;
         }
-        // parent event-column has event listner for click so
+        // parent event-column has event listener for click so
         // stopPropagation() is called.
         event.stopPropagation();
       });

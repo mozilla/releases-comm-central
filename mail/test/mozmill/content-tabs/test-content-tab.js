@@ -166,7 +166,7 @@ function test_content_tab_context_menu() {
 }
 
 /*
- // We don't have an UI to test openin content tabs twice anymore.
+ // We don't have an UI to test opening content tabs twice anymore.
 function test_content_tab_open_same() {
   let preCount = mc.tabmail.tabContainer.allTabs.length;
 

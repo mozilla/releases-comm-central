@@ -46,7 +46,7 @@
  *
  *    Before scrolling into view, a view may become visible but be placed in a
  *    special off-screen area of the document where layout and measurements can
- *    take place asyncronously.
+ *    take place asynchronously.
  *
  *    When navigating forward, an open view may become invisible but stay open
  *    after sliding out of view. The last known size of these views is still

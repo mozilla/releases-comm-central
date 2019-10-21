@@ -2671,7 +2671,7 @@ void nsImapServerResponseParser::ResetCapabilityFlag() {}
  */
 
 // Processes a message body, header or message part fetch response. Typically
-// the full message, header or part are proccessed in one call (effectively, one
+// the full message, header or part are processed in one call (effectively, one
 // chunk), and parameter `chunk` is false and `origin` (offset into the
 // response) is 0. But under some conditions and larger messages, multiple calls
 // will occur to process the message in multiple chunks and parameter `chunk`

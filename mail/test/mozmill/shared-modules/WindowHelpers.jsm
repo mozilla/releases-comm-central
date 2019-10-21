@@ -1142,7 +1142,7 @@ var AugmentEverybodyWith = {
 
     /**
      * Click through the appmenu. Callers are expected to open the initial
-     * appmenu panelview (e.g. by clicking the appmenu buttton). We wait for it
+     * appmenu panelview (e.g. by clicking the appmenu button). We wait for it
      * to open if it is not open yet. Then we use a recursive style approach
      * with a sequence of event listeners handling "ViewShown" events. The
      * `navTargets` parameter specifies items to click to navigate through the

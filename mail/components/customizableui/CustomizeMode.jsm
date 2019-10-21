@@ -138,7 +138,7 @@ function CustomizeMode(aWindow) {
       container.lastChild
     );
   }
-  // There are two palettes - there's the palette that can be overlayed with
+  // There are two palettes - there's the palette that can be overlaid with
   // toolbar items in browser.xhtml. This is invisible, and never seen by the
   // user. Then there's the visible palette, which gets populated and displayed
   // to the user when in customizing mode.
@@ -1364,7 +1364,7 @@ CustomizeMode.prototype = {
     Services.prefs.setIntPref(gUIDensity.uiDensityPref, mode);
 
     // If the user is choosing a different UI density mode while
-    // the mode is overriden to Touch, remove the override.
+    // the mode is overridden to Touch, remove the override.
     if (currentDensity.overridden) {
       Services.prefs.setBoolPref(gUIDensity.autoTouchModePref, false);
     }

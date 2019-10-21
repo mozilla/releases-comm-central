@@ -28,7 +28,7 @@
     <key>com.apple.security.cs.disable-library-validation</key><true/>
 
     <!-- Allow dyld environment variables. Needed because Thunderbird uses
-         dyld variables to load libaries from within the .app bundle. -->
+         dyld variables to load libraries from within the .app bundle. -->
     <key>com.apple.security.cs.allow-dyld-environment-variables</key><true/>
 
     <!-- Allow debuggers to attach to running executables -->
