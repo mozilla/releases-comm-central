@@ -97,115 +97,8 @@ var gFontSizeNames = [
 
 var nsIFilePicker = Ci.nsIFilePicker;
 
-var kEditorToolbarPrefs = "editor.toolbars.showbutton.";
 var kUseCssPref = "editor.use_css";
 var kCRInParagraphsPref = "editor.CR_creates_new_p";
-
-function ShowHideToolbarSeparators(toolbar) {
-  // Make sure the toolbar actually exists.
-  if (!toolbar) {
-    return;
-  }
-  var children = toolbar.children;
-  var separator = null;
-  var hideSeparator = true;
-  for (var i = 0; children[i].localName != "spacer"; i++) {
-    if (children[i].localName == "toolbarseparator") {
-      if (separator) {
-        separator.hidden = true;
-      }
-      separator = children[i];
-    } else if (!children[i].hidden) {
-      if (separator) {
-        separator.hidden = hideSeparator;
-      }
-      separator = null;
-      hideSeparator = false;
-    }
-  }
-}
-
-function ShowHideToolbarButtons() {
-  let array = Services.prefs.getChildList(kEditorToolbarPrefs);
-  for (let i in array) {
-    let prefName = array[i];
-    let id = prefName.substr(kEditorToolbarPrefs.length);
-    let button =
-      document.getElementById(id + "Button") ||
-      document.getElementById(id + "-button");
-    if (button) {
-      button.hidden = !Services.prefs.getBoolPref(prefName);
-    }
-  }
-  ShowHideToolbarSeparators(document.getElementById("EditToolbar"));
-  ShowHideToolbarSeparators(document.getElementById("FormatToolbar"));
-}
-
-function nsPrefListener(prefName) {
-  this.startup(prefName);
-}
-
-// implements nsIObserver
-nsPrefListener.prototype = {
-  domain: "",
-  startup(prefName) {
-    this.domain = prefName;
-    try {
-      Services.prefs.addObserver(this.domain, this);
-    } catch (ex) {
-      dump("Failed to observe prefs: " + ex + "\n");
-    }
-  },
-  shutdown() {
-    try {
-      Services.prefs.removeObserver(this.domain, this);
-    } catch (ex) {
-      dump("Failed to remove pref observers: " + ex + "\n");
-    }
-  },
-  observe(subject, topic, prefName) {
-    if (!IsHTMLEditor()) {
-      return;
-    }
-    // verify that we're changing a button pref
-    if (topic != "nsPref:changed") {
-      return;
-    }
-
-    let editor = GetCurrentEditor();
-    if (prefName == kUseCssPref) {
-      let cmd = document.getElementById("cmd_highlight");
-      if (cmd) {
-        let useCSS = Services.prefs.getBoolPref(prefName);
-
-        if (useCSS && editor) {
-          let mixedObj = {};
-          let state = editor.getHighlightColorState(mixedObj);
-          cmd.setAttribute("state", state);
-          cmd.collapsed = false;
-        } else {
-          cmd.setAttribute("state", "transparent");
-          cmd.collapsed = true;
-        }
-
-        if (editor) {
-          editor.isCSSEnabled = useCSS;
-        }
-      }
-    } else if (prefName.startsWith(kEditorToolbarPrefs)) {
-      let id = prefName.substr(kEditorToolbarPrefs.length) + "Button";
-      let button = document.getElementById(id);
-      if (button) {
-        button.hidden = !Services.prefs.getBoolPref(prefName);
-        ShowHideToolbarSeparators(button.parentNode);
-      }
-    } else if (editor && prefName == kCRInParagraphsPref) {
-      editor.returnInParagraphCreatesNewParagraph = Services.prefs.getBoolPref(
-        prefName
-      );
-    }
-  },
-};
 
 const gSourceTextListener = {
   NotifyDocumentCreated() {},
@@ -317,92 +210,6 @@ var gEditorDocumentObserver = {
           // editingSession
           editor.removeOverrideStyleSheet(kContentEditableStyleSheet);
         } catch (e) {}
-
-        // Things for just the Web Composer application
-        if (IsWebComposer()) {
-          InlineSpellCheckerUI.init(editor);
-          document
-            .getElementById("menu_inlineSpellCheck")
-            .setAttribute("disabled", !InlineSpellCheckerUI.canSpellCheck);
-
-          editor.returnInParagraphCreatesNewParagraph = Services.prefs.getBoolPref(
-            kCRInParagraphsPref
-          );
-
-          // Set focus to content window if not a mail composer
-          // Race conditions prevent us from setting focus here
-          //   when loading a url into blank window
-          setTimeout(SetFocusOnStartup, 0);
-
-          // Call EditorSetDefaultPrefsAndDoctype first so it gets the default author before initing toolbars
-          editor.enableUndo(false);
-          EditorSetDefaultPrefsAndDoctype();
-          editor.resetModificationCount();
-          editor.enableUndo(true);
-
-          // We may load a text document into an html editor,
-          //   so be sure editortype is set correctly
-          // XXX We really should use the "real" plaintext editor for this!
-          if (editor.contentsMIMEType == "text/plain") {
-            try {
-              GetCurrentEditorElement().editortype = "text";
-            } catch (e) {
-              dump(e) + "\n";
-            }
-
-            // Hide or disable UI not used for plaintext editing
-            HideItem("FormatToolbar");
-            HideItem("EditModeToolbar");
-            HideItem("formatMenu");
-            HideItem("tableMenu");
-            HideItem("menu_validate");
-            HideItem("sep_validate");
-            HideItem("previewButton");
-            HideItem("imageButton");
-            HideItem("linkButton");
-            HideItem("namedAnchorButton");
-            HideItem("hlineButton");
-            HideItem("tableButton");
-
-            HideItem("fileExportToText");
-            HideItem("previewInBrowser");
-
-            /* XXX When paste actually converts formatted rich text to pretty formatted plain text
-       and pasteNoFormatting is fixed to paste the text without formatting (what paste
-       currently does), then this item shouldn't be hidden: */
-            HideItem("menu_pasteNoFormatting");
-
-            HideItem("cmd_viewFormatToolbar");
-            HideItem("cmd_viewEditModeToolbar");
-
-            HideItem("viewSep1");
-            HideItem("viewNormalMode");
-            HideItem("viewAllTagsMode");
-            HideItem("viewSourceMode");
-            HideItem("viewPreviewMode");
-
-            HideItem("structSpacer");
-
-            // Hide everything in "Insert" except for "Symbols"
-            let menuPopupChildren = document.querySelectorAll(
-              '[id="insertMenuPopup"] > :not(#insertChars)'
-            );
-            for (let i = 0; i < menuPopupChildren.length; i++) {
-              menuPopupChildren.item(i).hidden = true;
-            }
-          }
-
-          // Set window title
-          UpdateWindowTitle();
-
-          // We must wait until document is created to get proper Url
-          // (Windows may load with local file paths)
-          SetSaveAndPublishUI(GetDocumentUrl());
-
-          // Start in "Normal" edit mode
-          SetDisplayMode(kDisplayModeNormal);
-        }
-
         // Add mouse click watcher if right type of editor
         if (IsHTMLEditor()) {
           // Force color widgets to update
@@ -547,22 +354,6 @@ function SafeSetAttribute(nodeID, attributeName, attributeValue) {
   }
 }
 
-function DocumentHasBeenSaved() {
-  var fileurl = "";
-  try {
-    fileurl = GetDocumentUrl();
-  } catch (e) {
-    return false;
-  }
-
-  if (!fileurl || IsUrlAboutBlank(fileurl)) {
-    return false;
-  }
-
-  // We have a file URL already
-  return true;
-}
-
 async function CheckAndSaveDocument(command, allowDontSave) {
   var document;
   try {
@@ -584,22 +375,10 @@ async function CheckAndSaveDocument(command, allowDontSave) {
   // and therefore need to be visible (to prevent user confusion)
   top.document.commandDispatcher.focusedWindow.focus();
 
-  var scheme = GetScheme(GetDocumentUrl());
-  var doPublish = scheme && scheme != "file";
-
   var strID;
   switch (command) {
     case "cmd_close":
       strID = "BeforeClosing";
-      break;
-    case "cmd_preview":
-      strID = "BeforePreview";
-      break;
-    case "cmd_editSendPage":
-      strID = "SendPageReason";
-      break;
-    case "cmd_validate":
-      strID = "BeforeValidate";
       break;
   }
 
@@ -607,8 +386,8 @@ async function CheckAndSaveDocument(command, allowDontSave) {
 
   var title = document.title || GetString("untitledDefaultFilename");
 
-  var dialogTitle = GetString(doPublish ? "PublishPage" : "SaveDocument");
-  var dialogMsg = GetString(doPublish ? "PublishPrompt" : "SaveFilePrompt");
+  var dialogTitle = GetString("SaveDocument");
+  var dialogMsg = GetString("SaveFilePrompt");
   dialogMsg = dialogMsg
     .replace(/%title%/, title)
     .replace(/%reason%/, reasonToSave);
@@ -619,21 +398,13 @@ async function CheckAndSaveDocument(command, allowDontSave) {
   let button1Title = null;
   let button3Title = null;
 
-  if (doPublish) {
-    promptFlags +=
-      Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0;
-    button1Title = GetString("Publish");
-    button3Title = GetString("DontPublish");
-  } else {
-    promptFlags +=
-      Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0;
-  }
+  promptFlags +=
+    Services.prompt.BUTTON_TITLE_SAVE * Services.prompt.BUTTON_POS_0;
 
   // If allowing "Don't..." button, add that
   if (allowDontSave) {
-    promptFlags += doPublish
-      ? Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2
-      : Services.prompt.BUTTON_TITLE_DONT_SAVE * Services.prompt.BUTTON_POS_2;
+    promptFlags +=
+      Services.prompt.BUTTON_TITLE_DONT_SAVE * Services.prompt.BUTTON_POS_2;
   }
 
   result = Services.prompt.confirmEx(
@@ -649,17 +420,6 @@ async function CheckAndSaveDocument(command, allowDontSave) {
   );
 
   if (result == 0) {
-    // Save, but first finish HTML source mode
-    SetEditMode(gPreviousNonSourceDisplayMode);
-    if (doPublish) {
-      // We save the command the user wanted to do in a global
-      // and return as if user canceled because publishing is asynchronous
-      // This command will be fired when publishing finishes
-      gCommandAfterPublishing = command;
-      goDoCommand("cmd_publish");
-      return false;
-    }
-
     // Save to local disk
     return SaveDocument(false, false, editor.contentsMIMEType);
   }
@@ -671,24 +431,6 @@ async function CheckAndSaveDocument(command, allowDontSave) {
 
   // Default or result == 1 (Cancel)
   return false;
-}
-
-// --------------------------- View menu ---------------------------
-
-function EditorSetCharacterSet(aEvent) {
-  try {
-    var editor = GetCurrentEditor();
-    if (aEvent.target.hasAttribute("charset")) {
-      editor.documentCharacterSet = aEvent.target.getAttribute("charset");
-    }
-    var docUrl = GetDocumentUrl();
-    if (!IsUrlAboutBlank(docUrl)) {
-      // reloading the document will reverse any changes to the META charset,
-      // we need to put them back in, which is achieved by a dedicated listener
-      editor.addDocumentStateListener(DocumentReloadListener);
-      EditorLoadUrl(docUrl);
-    }
-  } catch (e) {}
 }
 
 // --------------------------- Text style ---------------------------
@@ -915,57 +657,6 @@ function onFontFaceChange(fontFaceMenuList, commandID) {
     menuPopup.insertBefore(foundFont, usedFontsSep);
   }
   fontFaceMenuList.selectedItem = foundFont;
-}
-
-/**
- * Clears the used fonts list from all the font face menulists.
- */
-function ClearUsedFonts() {
-  let userFontSeps = document.querySelectorAll(
-    "menuseparator.fontFaceMenuAfterDefaultFonts"
-  );
-  for (let userFontSep of userFontSeps) {
-    while (true) {
-      let nextNode = userFontSep.nextElementSibling;
-      if (nextNode.tagName != "menuseparator") {
-        nextNode.remove();
-      } else if (nextNode.classList.contains("fontFaceMenuAfterUsedFonts")) {
-        nextNode.hidden = true;
-        break;
-      }
-    }
-  }
-}
-
-function EditorSelectFontSize() {
-  var select = document.getElementById("FontSizeSelect");
-  if (select) {
-    if (select.selectedIndex == -1) {
-      return;
-    }
-
-    EditorSetFontSize(gFontSizeNames[select.selectedIndex]);
-  }
-}
-
-function onFontSizeChange(fontSizeMenulist, commandID) {
-  // If we don't match anything, set to "0 (normal)"
-  var newIndex = 2;
-  var size = fontSizeMenulist.getAttribute("size");
-  if (size == "mixed") {
-    // No single type selected
-    newIndex = -1;
-  } else {
-    for (var i = 0; i < gFontSizeNames.length; i++) {
-      if (gFontSizeNames[i] == size) {
-        newIndex = i;
-        break;
-      }
-    }
-  }
-  if (fontSizeMenulist.selectedIndex != newIndex) {
-    fontSizeMenulist.selectedIndex = newIndex;
-  }
 }
 
 function EditorSetFontSize(size) {
@@ -1274,10 +965,6 @@ function initFontSizeMenu(menuPopup, fullMenu) {
   }
 }
 
-function onHighlightColorChange() {
-  ChangeButtonColor("cmd_highlight", "HighlightColorButton", "transparent");
-}
-
 function onFontColorChange() {
   ChangeButtonColor("cmd_fontColor", "TextColorButton", gDefaultTextColor);
 }
@@ -1425,13 +1112,6 @@ function GetBackgroundElementWithColor() {
     }
   }
   return element;
-}
-
-function SetSmiley(smileyText) {
-  try {
-    GetCurrentEditor().insertText(smileyText);
-    gContentWindow.focus();
-  } catch (e) {}
 }
 
 /* eslint-disable complexity */
@@ -1710,24 +1390,6 @@ function EditorDblClick(event) {
   }
 }
 
-function EditorClick(event) {
-  // For Web Composer: In Show All Tags Mode,
-  // single click selects entire element,
-  //  except for body and table elements
-  if (gEditorDisplayMode == kDisplayModeAllTags) {
-    try {
-      // We check event.explicitOriginalTarget here because .target will never
-      // be a textnode (bug 193689)
-      var element = event.explicitOriginalTarget;
-      var name = element.localName;
-      if (!["body", "caption", "table", "td", "th", "tr"].includes(name)) {
-        GetCurrentEditor().selectElement(event.explicitOriginalTarget);
-        event.preventDefault();
-      }
-    } catch (e) {}
-  }
-}
-
 /* TODO: We need an oncreate hook to do enabling/disabling for the
         Format menu. There should be code like this for the
         object-specific "Properties" item
@@ -1798,289 +1460,6 @@ function GetObjectForProperties() {
     node = node.parentNode;
   }
   return null;
-}
-
-function SetEditMode(mode) {
-  if (!IsHTMLEditor()) {
-    return;
-  }
-
-  var bodyElement = GetBodyElement();
-  if (!bodyElement) {
-    dump("SetEditMode: We don't have a body node!\n");
-    return;
-  }
-
-  // must have editor if here!
-  var editor = GetCurrentEditor();
-  var inlineSpellCheckItem = document.getElementById("menu_inlineSpellCheck");
-
-  // Switch the UI mode before inserting contents
-  //   so user can't type in source window while new window is being filled
-  var previousMode = gEditorDisplayMode;
-  if (!SetDisplayMode(mode)) {
-    return;
-  }
-
-  if (mode == kDisplayModeSource) {
-    // Display the DOCTYPE as a non-editable string above edit area
-    var domdoc;
-    try {
-      domdoc = editor.document;
-    } catch (e) {
-      dump(e + "\n");
-    }
-    if (domdoc) {
-      var doctypeNode = document.getElementById("doctype-text");
-      var dt = domdoc.doctype;
-      if (doctypeNode) {
-        if (dt) {
-          doctypeNode.collapsed = false;
-          var doctypeText = "<!DOCTYPE " + domdoc.doctype.name;
-          if (dt.publicId) {
-            doctypeText += ' PUBLIC "' + domdoc.doctype.publicId;
-          }
-          if (dt.systemId) {
-            doctypeText += ' "' + dt.systemId;
-          }
-          doctypeText += '">';
-          doctypeNode.setAttribute("value", doctypeText);
-        } else {
-          doctypeNode.collapsed = true;
-        }
-      }
-    }
-    // Get the entire document's source string
-
-    var flags =
-      editor.documentCharacterSet == "ISO-8859-1"
-        ? kOutputEncodeLatin1Entities
-        : kOutputEncodeBasicEntities;
-    try {
-      let encodeEntity = Services.prefs.getCharPref("editor.encode_entity");
-      switch (encodeEntity) {
-        case "basic":
-          flags = kOutputEncodeBasicEntities;
-          break;
-        case "latin1":
-          flags = kOutputEncodeLatin1Entities;
-          break;
-        case "html":
-          flags = kOutputEncodeHTMLEntities;
-          break;
-        case "none":
-          flags = 0;
-          break;
-      }
-    } catch (e) {}
-
-    if (Services.prefs.getBoolPref("editor.prettyprint")) {
-      flags |= kOutputFormatted;
-    }
-
-    flags |= kOutputLFLineBreak;
-    var source = editor.outputToString(editor.contentsMIMEType, flags);
-    var start = source.search(/<html/i);
-    if (start == -1) {
-      start = 0;
-    }
-    gSourceTextEditor.insertText(source.slice(start));
-    gSourceTextEditor.resetModificationCount();
-    gSourceTextEditor.addDocumentStateListener(gSourceTextListener);
-    gSourceTextEditor.enableUndo(true);
-    gSourceContentWindow.commandManager.addCommandObserver(
-      gSourceTextObserver,
-      "cmd_undo"
-    );
-    gSourceContentWindow.contentWindow.focus();
-    goDoCommand("cmd_moveTop");
-  } else if (previousMode == kDisplayModeSource) {
-    // Only rebuild document if a change was made in source window
-    if (IsHTMLSourceChanged()) {
-      // Disable spell checking when rebuilding source
-      InlineSpellCheckerUI.enabled = false;
-      inlineSpellCheckItem.removeAttribute("checked");
-
-      // Reduce the undo count so we don't use too much memory
-      //   during multiple uses of source window
-      //   (reinserting entire doc caches all nodes)
-      try {
-        editor.transactionManager.maxTransactionCount = 1;
-      } catch (e) {}
-
-      editor.beginTransaction();
-      try {
-        // We are coming from edit source mode,
-        //   so transfer that back into the document
-        source = gSourceTextEditor
-          .outputToString(kTextMimeType, kOutputLFLineBreak)
-          .trim();
-        if (editor.contentsMIMEType != kXHTMLMimeType) {
-          editor.rebuildDocumentFromSource(source);
-        } else {
-          /* eslint-disable-next-line no-unsanitized/method */
-          var fragment = editor.document
-            .createRange()
-            .createContextualFragment(source);
-          editor.enableUndo(false);
-          GetBodyElement().remove();
-          editor.document.replaceChild(
-            fragment.firstChild,
-            editor.document.documentElement
-          );
-          editor.enableUndo(true);
-        }
-
-        // Get the text for the <title> from the newly-parsed document
-        // (must do this for proper conversion of "escaped" characters)
-        let titleNode = editor.document.querySelector("title");
-        SetDocumentTitle(titleNode ? titleNode.textContent : "");
-      } catch (ex) {
-        dump(ex);
-      }
-      editor.endTransaction();
-
-      // Restore unlimited undo count
-      try {
-        editor.transactionManager.maxTransactionCount = -1;
-      } catch (e) {}
-    }
-
-    // Clear out the string buffers
-    gSourceContentWindow.commandManager.removeCommandObserver(
-      gSourceTextObserver,
-      "cmd_undo"
-    );
-    gSourceTextEditor.removeDocumentStateListener(gSourceTextListener);
-    gSourceTextEditor.enableUndo(false);
-    gSourceTextEditor.selectAll();
-    gSourceTextEditor.deleteSelection(
-      gSourceTextEditor.eNone,
-      gSourceTextEditor.eStrip
-    );
-    gSourceTextEditor.resetModificationCount();
-
-    gContentWindow.focus();
-    // goDoCommand("cmd_moveTop");
-  }
-
-  switch (mode) {
-    case kDisplayModePreview:
-      // Disable spell checking when previewing
-      InlineSpellCheckerUI.enabled = false;
-      inlineSpellCheckItem.removeAttribute("checked");
-    // fall through
-    case kDisplayModeSource:
-      inlineSpellCheckItem.setAttribute("disabled", "true");
-      break;
-    default:
-      inlineSpellCheckItem.setAttribute(
-        "disabled",
-        !InlineSpellCheckerUI.canSpellCheck
-      );
-      break;
-  }
-}
-
-function CancelHTMLSource() {
-  // Don't convert source text back into the DOM document
-  gSourceTextEditor.resetModificationCount();
-  SetDisplayMode(gPreviousNonSourceDisplayMode);
-}
-
-function SetDisplayMode(mode) {
-  if (!IsHTMLEditor()) {
-    return false;
-  }
-
-  // Already in requested mode:
-  //  return false to indicate we didn't switch
-  if (mode == gEditorDisplayMode) {
-    return false;
-  }
-
-  var previousMode = gEditorDisplayMode;
-  gEditorDisplayMode = mode;
-
-  ResetStructToolbar();
-  if (mode == kDisplayModeSource) {
-    // Switch to the sourceWindow (second in the deck)
-    gContentWindowDeck.selectedIndex = 1;
-
-    // Hide the formatting toolbar if not already hidden
-    gFormatToolbarHidden = gFormatToolbar.hidden;
-    gFormatToolbar.hidden = true;
-    gViewFormatToolbar.hidden = true;
-
-    gSourceContentWindow.contentWindow.focus();
-  } else {
-    // Save the last non-source mode so we can cancel source editing easily
-    gPreviousNonSourceDisplayMode = mode;
-
-    // Load/unload appropriate override style sheet
-    try {
-      var editor = GetCurrentEditor();
-      editor.QueryInterface(nsIEditorStyleSheets);
-      editor instanceof Ci.nsIHTMLObjectResizer;
-
-      switch (mode) {
-        case kDisplayModePreview:
-          // Disable all extra "edit mode" style sheets
-          editor.enableStyleSheet(kNormalStyleSheet, false);
-          editor.enableStyleSheet(kAllTagsStyleSheet, false);
-          editor.objectResizingEnabled = true;
-          break;
-
-        case kDisplayModeNormal:
-          editor.addOverrideStyleSheet(kNormalStyleSheet);
-          // Disable ShowAllTags mode
-          editor.enableStyleSheet(kAllTagsStyleSheet, false);
-          editor.objectResizingEnabled = true;
-          break;
-
-        case kDisplayModeAllTags:
-          editor.addOverrideStyleSheet(kNormalStyleSheet);
-          editor.addOverrideStyleSheet(kAllTagsStyleSheet);
-          // don't allow resizing in AllTags mode because the visible tags
-          // change the computed size of images and tables...
-          if (editor.resizedObject) {
-            editor.hideResizers();
-          }
-          editor.objectResizingEnabled = false;
-          break;
-      }
-    } catch (e) {}
-
-    // Switch to the normal editor (first in the deck)
-    gContentWindowDeck.selectedIndex = 0;
-
-    // Restore menus and toolbars
-    gFormatToolbar.hidden = gFormatToolbarHidden;
-    gViewFormatToolbar.hidden = false;
-
-    gContentWindow.focus();
-  }
-
-  // update commands to disable or re-enable stuff
-  window.updateCommands("mode_switch");
-
-  // Set the selected tab at bottom of window:
-  // (Note: Setting "selectedIndex = mode" won't redraw tabs when menu is used.)
-  document.getElementById(
-    "EditModeTabs"
-  ).selectedItem = document.getElementById(kDisplayModeTabIDS[mode]);
-
-  // Uncheck previous menuitem and set new check since toolbar may have been used
-  if (previousMode >= 0) {
-    document
-      .getElementById(kDisplayModeMenuIDs[previousMode])
-      .setAttribute("checked", "false");
-  }
-  document
-    .getElementById(kDisplayModeMenuIDs[mode])
-    .setAttribute("checked", "true");
-
-  return true;
 }
 
 function UpdateWindowTitle() {
@@ -2555,49 +1934,6 @@ function GetBodyElement() {
   return null;
 }
 
-// --------------------------- Logging stuff ---------------------------
-
-function EditorGetNodeFromOffsets(offsets) {
-  var node = null;
-  try {
-    node = GetCurrentEditor().document;
-
-    for (var i = 0; i < offsets.length; i++) {
-      node = node.childNodes[offsets[i]];
-    }
-  } catch (e) {}
-  return node;
-}
-
-function EditorSetSelectionFromOffsets(selRanges) {
-  try {
-    var editor = GetCurrentEditor();
-    var selection = editor.selection;
-    selection.removeAllRanges();
-
-    var rangeArr, start, end, node, offset;
-    for (var i = 0; i < selRanges.length; i++) {
-      rangeArr = selRanges[i];
-      start = rangeArr[0];
-      end = rangeArr[1];
-
-      var range = editor.document.createRange();
-
-      node = EditorGetNodeFromOffsets(start[0]);
-      offset = start[1];
-
-      range.setStart(node, offset);
-
-      node = EditorGetNodeFromOffsets(end[0]);
-      offset = end[1];
-
-      range.setEnd(node, offset);
-
-      selection.addRange(range);
-    }
-  } catch (e) {}
-}
-
 // --------------------------------------------------------------------
 function initFontStyleMenu(menuPopup) {
   for (var i = 0; i < menuPopup.children.length; i++) {
@@ -2614,34 +1950,6 @@ function onButtonUpdate(button, commmandID) {
   var commandNode = document.getElementById(commmandID);
   var state = commandNode.getAttribute("state");
   button.checked = state == "true";
-}
-
-// --------------------------------------------------------------------
-function onStateButtonUpdate(button, commmandID, onState) {
-  var commandNode = document.getElementById(commmandID);
-  var state = commandNode.getAttribute("state");
-
-  button.checked = state == onState;
-}
-
-// --------------------------- Status calls ---------------------------
-function getColorAndSetColorWell(ColorPickerID, ColorWellID) {
-  var colorWell;
-  if (ColorWellID) {
-    colorWell = document.getElementById(ColorWellID);
-  }
-
-  var colorPicker = document.getElementById(ColorPickerID);
-  if (colorPicker) {
-    // Extract color from colorPicker and assign to colorWell.
-    var color = colorPicker.getAttribute("color");
-
-    if (colorWell && color) {
-      // Use setAttribute so colorwell can be a XUL element, such as button
-      colorWell.setAttribute("style", "background-color: " + color);
-    }
-  }
-  return color;
 }
 
 // -----------------------------------------------------------------------------------
@@ -2845,7 +2153,6 @@ function goUpdateTableMenuItems(commandset) {
         goUpdateCommand(commandID);
       } else if (
         commandID == "cmd_DeleteTable" ||
-        commandID == "cmd_NormalizeTable" ||
         commandID == "cmd_editTable" ||
         commandID == "cmd_TableOrCellColor" ||
         commandID == "cmd_SelectTable"
@@ -3160,237 +2467,6 @@ function SwitchInsertCharToAnotherEditorOrClose() {
     // Didn't find another editor - close the dialog
     window.InsertCharWindow.close();
   }
-}
-
-function ResetStructToolbar() {
-  gLastFocusNode = null;
-  UpdateStructToolbar();
-}
-
-function newCommandListener(element) {
-  return function() {
-    return SelectFocusNodeAncestor(element);
-  };
-}
-
-function newContextmenuListener(button, element) {
-  /* globals InitStructBarContextMenu */ // SeaMonkey only.
-  return function() {
-    return InitStructBarContextMenu(button, element);
-  };
-}
-
-function UpdateStructToolbar() {
-  var editor = GetCurrentEditor();
-  if (!editor) {
-    return;
-  }
-
-  var mixed = GetSelectionContainer();
-  if (!mixed) {
-    return;
-  }
-  var element = mixed.node;
-  var oneElementSelected = mixed.oneElementSelected;
-
-  if (!element) {
-    return;
-  }
-
-  if (
-    element == gLastFocusNode &&
-    oneElementSelected == gLastFocusNodeWasSelected
-  ) {
-    return;
-  }
-
-  gLastFocusNode = element;
-  gLastFocusNodeWasSelected = mixed.oneElementSelected;
-
-  var toolbar = document.getElementById("structToolbar");
-  if (!toolbar) {
-    return;
-  }
-  // We need to leave the <label> to flex the buttons to the left.
-  for (let node of toolbar.querySelectorAll("toolbarbutton")) {
-    node.remove();
-  }
-
-  toolbar.removeAttribute("label");
-
-  if (IsInHTMLSourceMode()) {
-    // we have destroyed the contents of the status bar and are
-    // about to recreate it ; but we don't want to do that in
-    // Source mode
-    return;
-  }
-
-  var tag, button;
-  var bodyElement = GetBodyElement();
-  var isFocusNode = true;
-  var tmp;
-  do {
-    tag = element.nodeName.toLowerCase();
-
-    button = document.createXULElement("toolbarbutton");
-    button.setAttribute("label", "<" + tag + ">");
-    button.setAttribute("value", tag);
-    button.setAttribute("context", "structToolbarContext");
-    button.className = "struct-button";
-
-    toolbar.insertBefore(button, toolbar.firstElementChild);
-
-    button.addEventListener("command", newCommandListener(element));
-
-    button.addEventListener(
-      "contextmenu",
-      newContextmenuListener(button, element)
-    );
-
-    if (isFocusNode && oneElementSelected) {
-      button.setAttribute("checked", "true");
-      isFocusNode = false;
-    }
-
-    tmp = element;
-    element = element.parentNode;
-  } while (tmp != bodyElement);
-}
-
-function SelectFocusNodeAncestor(element) {
-  var editor = GetCurrentEditor();
-  if (editor) {
-    if (element == GetBodyElement()) {
-      editor.selectAll();
-    } else {
-      editor.selectElement(element);
-    }
-  }
-  ResetStructToolbar();
-}
-
-function GetSelectionContainer() {
-  var editor = GetCurrentEditor();
-  if (!editor) {
-    return null;
-  }
-
-  var selection;
-  try {
-    selection = editor.selection;
-    if (!selection) {
-      return null;
-    }
-  } catch (e) {
-    return null;
-  }
-
-  var result = { oneElementSelected: false };
-
-  if (selection.isCollapsed) {
-    result.node = selection.focusNode;
-  } else {
-    var rangeCount = selection.rangeCount;
-    if (rangeCount == 1) {
-      result.node = editor.getSelectedElement("");
-      var range = selection.getRangeAt(0);
-
-      // check for a weird case : when we select a piece of text inside
-      // a text node and apply an inline style to it, the selection starts
-      // at the end of the text node preceding the style and ends after the
-      // last char of the style. Assume the style element is selected for
-      // user's pleasure
-      if (
-        !result.node &&
-        range.startContainer.nodeType == Node.TEXT_NODE &&
-        range.startOffset == range.startContainer.length &&
-        range.endContainer.nodeType == Node.TEXT_NODE &&
-        range.endOffset == range.endContainer.length &&
-        range.endContainer.nextElementSibling == null &&
-        range.startContainer.nextElementSibling == range.endContainer.parentNode
-      ) {
-        result.node = range.endContainer.parentNode;
-      }
-
-      if (!result.node) {
-        // let's rely on the common ancestor of the selection
-        result.node = range.commonAncestorContainer;
-      } else {
-        result.oneElementSelected = true;
-      }
-    } else {
-      // assume table cells !
-      var i,
-        container = null;
-      for (i = 0; i < rangeCount; i++) {
-        range = selection.getRangeAt(i);
-        if (!container) {
-          container = range.startContainer;
-        } else if (container != range.startContainer) {
-          // all table cells don't belong to same row so let's
-          // select the parent of all rows
-          result.node = container.parentNode;
-          break;
-        }
-        result.node = container;
-      }
-    }
-  }
-
-  // make sure we have an element here
-  while (result.node.nodeType != Node.ELEMENT_NODE) {
-    result.node = result.node.parentNode;
-  }
-
-  // and make sure the element is not a special editor node like
-  // the <br> we insert in blank lines
-  // and don't select anonymous content !!! (fix for bug 190279)
-  while (
-    result.node.hasAttribute("_moz_editor_bogus_node") ||
-    editor.isAnonymousElement(result.node)
-  ) {
-    result.node = result.node.parentNode;
-  }
-
-  return result;
-}
-
-function FillInHTMLTooltipEditor(tooltip) {
-  const XLinkNS = "http://www.w3.org/1999/xlink";
-  var tooltipText = null;
-  var node;
-  if (IsInPreviewMode()) {
-    for (node = document.tooltipNode; node; node = node.parentNode) {
-      if (node.nodeType == Node.ELEMENT_NODE) {
-        tooltipText = node.getAttributeNS(XLinkNS, "title");
-        if (tooltipText && /\S/.test(tooltipText)) {
-          tooltip.setAttribute("label", tooltipText);
-          return true;
-        }
-        tooltipText = node.getAttribute("title");
-        if (tooltipText && /\S/.test(tooltipText)) {
-          tooltip.setAttribute("label", tooltipText);
-          return true;
-        }
-      }
-    }
-  } else {
-    for (node = document.tooltipNode; node; node = node.parentNode) {
-      if (
-        ChromeUtils.getClassName(node) === "HTMLImageElement" ||
-        ChromeUtils.getClassName(node) === "HTMLInputElement"
-      ) {
-        tooltipText = node.getAttribute("src");
-      } else if (ChromeUtils.getClassName(node) === "HTMLAnchorElement") {
-        tooltipText = node.getAttribute("href") || node.getAttribute("name");
-      }
-      if (tooltipText) {
-        tooltip.setAttribute("label", tooltipText);
-        return true;
-      }
-    }
-  }
-  return false;
 }
 
 function UpdateTOC() {

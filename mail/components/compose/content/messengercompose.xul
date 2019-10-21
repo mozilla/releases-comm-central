@@ -139,7 +139,6 @@
     <command id="cmd_image" oncommand="goDoCommand('cmd_image')"/>
     <command id="cmd_hline" oncommand="goDoCommand('cmd_hline')"/>
     <command id="cmd_table" oncommand="goDoCommand('cmd_table')"/>
-    <command id="cmd_isindex" oncommand="goDoCommand('cmd_isindex')"/>
     <command id="cmd_objectProperties" oncommand="goDoCommand('cmd_objectProperties')"/>
     <command id="cmd_insertChars" oncommand="goDoCommand('cmd_insertChars')" label="&insertCharsCmd.label;"/>
     <command id="cmd_insertHTMLWithDialog" oncommand="goDoCommand('cmd_insertHTMLWithDialog')" label="&insertHTMLCmd.label;"/>
@@ -147,9 +146,6 @@
 
     <command id="cmd_insertBreak" oncommand="goDoCommand('cmd_insertBreak')"/>
     <command id="cmd_insertBreakAll" oncommand="goDoCommand('cmd_insertBreakAll')"/>
-
-    <!-- only used in context popup menu -->
-    <command id="cmd_editLink" oncommand="goDoCommand('cmd_editLink')"/>
 
     <!-- dummy command used just to disable things in non-HTML modes -->
     <command id="cmd_renderedHTMLEnabler"/>
@@ -162,7 +158,6 @@
           oncommandupdate="goUpdateComposerMenuItems(this)">
     <command id="cmd_pasteNoFormatting" oncommand="goDoCommand('cmd_pasteNoFormatting')"
              label="&pasteNoFormatting.label;" accesskey="&pasteNoFormatting.accesskey;"/>
-    <command id="cmd_preferences" oncommand="goDoCommand('cmd_preferences')"/>
     <command id="cmd_findReplace" oncommand="goDoCommand('cmd_findReplace')"/>
     <command id="cmd_find" oncommand="goDoCommand('cmd_find')"/>
     <command id="cmd_findNext" oncommand="goDoCommand('cmd_findNext');"/>
@@ -211,14 +206,7 @@
     <command id="cmd_backgroundColor" state="" disabled="false"/>
     <command id="cmd_highlight" state="transparent" oncommand="EditorSelectColor('Highlight', event);"/>
 
-    <command id="cmd_fontSize" oncommand="goDoCommand('cmd_fontSize')"/>
     <command id="cmd_align" state=""/>
-
-    <command id="cmd_absPos" state="" oncommand="goDoCommand('cmd_absPos')"/>
-    <command id="cmd_increaseZIndex" state="" oncommand="goDoCommand('cmd_increaseZIndex')"/>
-    <command id="cmd_decreaseZIndex" state="" oncommand="goDoCommand('cmd_decreaseZIndex')"/>
-
-    <command id="cmd_advancedProperties" oncommand="goDoCommand('cmd_advancedProperties')"/>
 
     <command id="cmd_increaseFontStep" oncommand="goDoCommand('cmd_increaseFontStep')"/>
     <command id="cmd_decreaseFontStep" oncommand="goDoCommand('cmd_decreaseFontStep')"/>
@@ -250,7 +238,6 @@
     <command id="cmd_DeleteColumn" oncommand="goDoCommand('cmd_DeleteColumn')"/>
     <command id="cmd_DeleteCell" oncommand="goDoCommand('cmd_DeleteCell')"/>
     <command id="cmd_DeleteCellContents" oncommand="goDoCommand('cmd_DeleteCellContents')"/>
-    <command id="cmd_NormalizeTable" oncommand="goDoCommand('cmd_NormalizeTable')"/>
     <command id="cmd_JoinTableCells" oncommand="goDoCommand('cmd_JoinTableCells')"/>
     <command id="cmd_SplitTableCell" oncommand="goDoCommand('cmd_SplitTableCell')"/>
     <command id="cmd_ConvertToTable" oncommand="goDoCommand('cmd_ConvertToTable')"/>
