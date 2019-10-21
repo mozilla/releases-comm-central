@@ -18,7 +18,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
 /* exported injectCalendarCommandController, removeCalendarCommandController,
- *          setupContextItemType, minimonthPick, getSelectedItems,
+ *          setupContextItemType, getSelectedItems,
  *          deleteSelectedItems, calendarUpdateNewItemsCommand
  */
 
@@ -853,26 +853,6 @@ function setupContextItemType(aEvent, aItems) {
   setupAttendanceMenu(menu, aItems);
 
   return true;
-}
-
-/**
- * Shows the given date in the current view, if in calendar mode.
- *
- * XXX This function is misplaced, should go to calendar-views-utils.js or a minimonth
- * specific js file.
- *
- * @param aNewDate      The new date as a JSDate.
- */
-function minimonthPick(aNewDate) {
-  if (gCurrentMode == "calendar" || gCurrentMode == "task") {
-    let cdt = cal.dtz.jsDateToDateTime(aNewDate, currentView().timezone);
-    cdt.isDate = true;
-    currentView().goToDay(cdt);
-
-    // update date filter for task tree
-    let tree = document.getElementById("calendar-task-tree");
-    tree.updateFilter();
-  }
 }
 
 /**

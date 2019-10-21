@@ -8,7 +8,7 @@
  *          tasksToMail, tasksToEvents, toggleCompleted,
  */
 
-/* import-globals-from calendar-common-sets.js */
+/* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-dnd-listener.js */
 
 /* globals gTabmail editToDoStatus editConfigState postponeTask */

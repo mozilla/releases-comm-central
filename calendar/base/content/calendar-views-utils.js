@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported switchToView, getSelectedDay, scheduleMidnightUpdate,
+/* exported switchToView, getSelectedDay, scheduleMidnightUpdate, minimonthPick,
  *          observeViewDaySelect, toggleOrientation,
  *          toggleWorkdaysOnly, toggleTasksInView, toggleShowCompletedInView,
  *          goToDate, getLastCalendarView, deleteSelectedEvents,
@@ -408,6 +408,23 @@ function observeViewDaySelect(event) {
 
   getMinimonth().selectDate(jsDate, jsMainDate);
   currentView().focus();
+}
+
+/**
+ * Shows the given date in the current view, if in calendar mode.
+ *
+ * @param aNewDate      The new date as a JSDate.
+ */
+function minimonthPick(aNewDate) {
+  if (gCurrentMode == "calendar" || gCurrentMode == "task") {
+    let cdt = cal.dtz.jsDateToDateTime(aNewDate, currentView().timezone);
+    cdt.isDate = true;
+    currentView().goToDay(cdt);
+
+    // update date filter for task tree
+    let tree = document.getElementById("calendar-task-tree");
+    tree.updateFilter();
+  }
 }
 
 /**

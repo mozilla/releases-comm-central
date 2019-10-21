@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../lightning/content/messenger-overlay-sidebar.js */
-/* import-globals-from calendar-common-sets.js */
+/* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-views-utils.js */
@@ -31,7 +31,7 @@ async function commonInitCalendar() {
   // Make sure we update ourselves if the program stays open over midnight
   scheduleMidnightUpdate(refreshUIBits);
 
-  // Set up the command controller from calendar-common-sets.js
+  // Set up the command controller from calendar-command-controller.js
   injectCalendarCommandController();
 
   // Set up calendar appmenu buttons.

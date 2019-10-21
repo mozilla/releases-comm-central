@@ -78,7 +78,7 @@
   <!-- NEEDED FOR EVENT/TASK IN A TAB -->
   <script src="chrome://lightning/content/lightning-item-panel.js"/>
 
-  <script src="chrome://calendar/content/calendar-common-sets.js"/>
+  <script src="chrome://calendar/content/calendar-command-controller.js"/>
 
   <window id="messengerWindow">
     <commandset id="calendar_commands"
