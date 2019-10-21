@@ -9,6 +9,14 @@
 (() => {
   var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+  // If toolkit customElements weren't already loaded, do it now.
+  if (!window.MozXULElement) {
+    Services.scriptloader.loadSubScript(
+      "chrome://global/content/customElements.js",
+      window
+    );
+  }
+
   const isDummyDocument =
     document.documentURI == "chrome://extensions/content/dummy.xul";
   if (!isDummyDocument) {

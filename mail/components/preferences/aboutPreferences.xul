@@ -138,7 +138,6 @@
     </vbox>
   </stack>
 
-  <script src="chrome://messenger/content/customElements.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://communicator/content/contentAreaClick.js"/>
   <script src="chrome://messenger/content/preferences/preferences.js"/>

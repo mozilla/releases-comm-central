@@ -45,7 +45,6 @@
   <script src="chrome://calendar/content/calendar-item-editing.js"/>
   <script src="chrome://calendar/content/calApplicationUtils.js"/>
   <script src="chrome://calendar/content/calendar-item-bindings.js"/>
-  <script src="chrome://messenger/content/customElements.js"/>
 
   <toolbox id="summary-toolbox"
            class="mail-toolbox"

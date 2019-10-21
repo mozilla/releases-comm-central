@@ -80,6 +80,7 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "mail-startup-done");
     Services.obs.addObserver(this, "handle-xul-text-link");
     Services.obs.addObserver(this, "chrome-document-global-created");
+    Services.obs.addObserver(this, "document-element-inserted");
 
     // Inject scripts into some devtools windows.
     function _setupBrowserConsole(domWindow) {
@@ -127,6 +128,7 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "mail-startup-done");
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "chrome-document-global-created");
+    Services.obs.removeObserver(this, "document-element-inserted");
 
     ExtensionSupport.unregisterWindowListener("Thunderbird-internal-Toolbox");
     ExtensionSupport.unregisterWindowListener(
@@ -169,25 +171,24 @@ MailGlue.prototype = {
           },
           { once: true }
         );
-
-        // Set up our custom elements.
-        aSubject.addEventListener(
-          "DOMWindowCreated",
-          () => {
-            let doc = aSubject.document;
-            if (
-              doc.nodePrincipal.isSystemPrincipal &&
-              (doc.contentType == "application/vnd.mozilla.xul+xml" ||
-                doc.contentType == "application/xhtml+xml")
-            ) {
-              Services.scriptloader.loadSubScript(
-                "chrome://messenger/content/customElements.js",
-                doc.ownerGlobal
-              );
-            }
-          },
-          { once: true }
-        );
+        break;
+      case "document-element-inserted":
+        let doc = aSubject;
+        if (
+          doc.nodePrincipal.isSystemPrincipal &&
+          (doc.contentType == "application/vnd.mozilla.xul+xml" ||
+            doc.contentType == "application/xhtml+xml" ||
+            doc.contentType == "text/html") &&
+          // People shouldn't be using our built-in custom elements in
+          // system-principal about:blank anyway, and trying to support that
+          // causes responsiveness regressions.  So let's not support it.
+          doc.URL != "about:blank"
+        ) {
+          Services.scriptloader.loadSubScript(
+            "chrome://messenger/content/customElements.js",
+            doc.ownerGlobal
+          );
+        }
         break;
     }
   },

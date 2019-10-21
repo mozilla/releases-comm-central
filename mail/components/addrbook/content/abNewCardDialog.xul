@@ -27,7 +27,6 @@
 
   <script src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script src="chrome://messenger/content/addressbook/abCard.js"/>
-  <script src="chrome://messenger/content/customElements.js"/>
   <script><![CDATA[
     document.addEventListener("dialogaccept", NewCardOKButton);
     document.addEventListener("dialogcancel", NewCardCancelButton);

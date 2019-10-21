@@ -35,7 +35,6 @@
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
   <script src="chrome://messenger/content/searchWidgets.js"/>
-  <script src="chrome://messenger/content/customElements.js"/>
   <script src="chrome://messenger/content/mailWindow.js"/>
   <script src="chrome://messenger/content/folderDisplay.js"/>
   <script src="chrome://messenger/content/messageDisplay.js"/>

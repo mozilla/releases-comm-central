@@ -44,7 +44,6 @@
   <script src="chrome://messenger/content/virtualFolderProperties.js"/>
   <script src="chrome://messenger/content/searchTerm.js"/>
   <script src="chrome://messenger/content/dateFormat.js"/>
-  <script src="chrome://messenger/content/customElements.js"/>
 
   <hbox>
     <vbox>

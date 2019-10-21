@@ -33,7 +33,6 @@
   <script src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script src="chrome://messenger/content/addressbook/abResultsPane.js"/>
   <script src="chrome://messenger/content/addressbook/abContactsPanel.js"/>
-  <script src="chrome://messenger/content/customElements.js"/>
 
   <commandset id="CommandUpdate_AddressBook"
               commandupdater="true"

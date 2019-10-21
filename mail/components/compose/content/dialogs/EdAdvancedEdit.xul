@@ -33,8 +33,6 @@
   <!-- global dialog functions -->
   <script src="chrome://messenger/content/messengercompose/EdAdvancedEdit.js"/>
 
-  <script src="chrome://messenger/content/customElements.js"/>
-
   <hbox>
     <label value="&currentattributesfor.label;"/>
     <label class="header" id="tagLabel"/>

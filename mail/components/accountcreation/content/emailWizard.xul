@@ -49,8 +49,7 @@
   <script src="chrome://messenger/content/accountcreation/exchangeAutoDiscover.js"/>
   <script src="chrome://messenger/content/accountcreation/createInBackend.js"/>
   <script src="chrome://messenger/content/accountcreation/MyBadCertHandler.js"/>
-  <script src="chrome://messenger/content/accountUtils.js" />
-  <script src="chrome://messenger/content/customElements.js"/>
+  <script src="chrome://messenger/content/accountUtils.js"/>
 
   <keyset id="mailKeys">
     <key keycode="VK_ESCAPE" oncommand="window.close();"/>

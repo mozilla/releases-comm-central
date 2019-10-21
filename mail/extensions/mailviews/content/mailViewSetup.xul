@@ -34,7 +34,6 @@
   <script src="chrome://messenger/content/searchTerm.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/dateFormat.js"/>
-  <script src="chrome://messenger/content/customElements.js"/>
 
   <vbox flex="1">
     <separator class="thin"/>
@@ -43,7 +42,7 @@
         <label value="&mailViewHeading.label;"
                accesskey="&mailViewHeading.accesskey;"
                control="name"/>
-        <html:input id="name"
+        <html:input id="name" type="text"
                     class="input-inline"
                     tabindex="0"
                     oninput="doEnabling();"/>
