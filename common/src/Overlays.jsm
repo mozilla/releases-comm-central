@@ -213,7 +213,12 @@ class Overlays {
           let attrValue = xulStore.getValue(this.location, id, attrName);
           if (attrName == "selectedIndex" && element.localName == "deck") {
             this._decksToResolve.set(element, attrValue);
-          } else {
+          } else if (
+            element != this.document.documentElement ||
+            !["height", "screenX", "screenY", "sizemode", "width"].includes(
+              attrName
+            )
+          ) {
             element.setAttribute(attrName, attrValue);
           }
         }
