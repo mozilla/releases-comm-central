@@ -103,21 +103,27 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
 # matrix module.
 EXTRA_JS_MODULES.matrix += [
     'another-json/another-json.js',
+    'bluebird/bluebird.js',
     'events/events.js',
-    'punycode/punycode.js',
 ]
 
-EXTRA_JS_MODULES.matrix.querystring += [
-    'querystring/decode.js',
-    'querystring/encode.js',
-    'querystring/index.js',
+EXTRA_JS_MODULES.matrix.base_x += [
+    'base-x/index.js',
 ]
 
 EXTRA_JS_MODULES.matrix.browser_request += [
     'browser-request/index.js',
 ]
 
-EXTRA_JS_MODULES.matrix.q += [
-    'q/q.js',
-    'q/queue.js',
+EXTRA_JS_MODULES.matrix.bs58 += [
+    'bs58/index.js',
+]
+
+EXTRA_JS_MODULES.matrix.content_type += [
+    'content-type/index.js',
+]
+
+EXTRA_JS_MODULES.matrix.unhomoglyph += [
+    'unhomoglyph/data.json',
+    'unhomoglyph/index.js',
 ]

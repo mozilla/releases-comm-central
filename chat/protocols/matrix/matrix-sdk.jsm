@@ -102,19 +102,16 @@ let loader = Loader({
 
     // Simple (one-file) dependencies.
     "another-json": matrixPath + "another-json.js",
-    events: matrixPath + "events.js",
-    punycode: matrixPath + "punycode.js",
-
-    // Browser Request.
+    "base-x": matrixPath + "base_x/index.js",
+    bluebird: matrixPath + "bluebird.js",
     "browser-request": matrixPath + "browser_request/index.js",
+    bs58: matrixPath + "bs58/index.js",
+    "content-type": matrixPath + "content_type/index.js",
+    events: matrixPath + "events.js",
 
-    // q
-    q: matrixPath + "q/q.js",
-
-    // querystring
-    decode: matrixPath + "querystring/decode.js",
-    encode: matrixPath + "querystring/encode.js",
-    querystring: matrixPath + "querystring/index.js",
+    // unhomoglyph
+    unhomoglyph: matrixPath + "unhomoglyph/index.js",
+    "data.json": matrixPath + "unhomoglyph/data.json",
 
     // Packages that are not included, but an alternate implementation is given.
     loglevel: matrixPath + "loglevel.js",
