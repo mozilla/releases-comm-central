@@ -5,11 +5,10 @@ In addition, the following npm dependencies are included:
 
 * another-json/: https://www.npmjs.com/package/another-json/
 * browser-request/: https://www.npmjs.com/package/browser-request
-* browserify/: https://www.npmjs.com/package/browserify
-  * browserify/events.js: https://www.npmjs.com/package/events
-  * browserify/punycode.js: https://github.com/bestiejs/punycode.js
-  * browserify/querystring/: https://www.npmjs.com/package/querystring-es3
-  * browserify/url/: https://www.npmjs.com/package/url
+* events: https://www.npmjs.com/package/events
+* punycode: https://github.com/bestiejs/punycode.js
+* querystring: https://www.npmjs.com/package/querystring-es3
+* url: https://www.npmjs.com/package/url
 * q/: https://www.npmjs.com/package/q
 
 There is not any automated way to update the libraries. Files have been obtained

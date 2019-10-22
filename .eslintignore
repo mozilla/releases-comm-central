@@ -29,7 +29,7 @@ suite/**
 chat/chat-prefs.js
 # third-party code
 chat/modules/BigInteger.jsm
-chat/protocols/matrix/matrix-sdk/**
+chat/protocols/matrix/lib/**
 chat/protocols/twitter/twitter-text.jsm
 # preprocessed files
 chat/content/imtooltip.xml

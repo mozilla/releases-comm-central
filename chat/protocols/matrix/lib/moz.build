@@ -1,0 +1,89 @@
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# The Matrix SDK.
+EXTRA_JS_MODULES.matrix.matrix_sdk += [
+    'matrix-sdk/base-apis.js',
+    'matrix-sdk/client.js',
+    'matrix-sdk/content-repo.js',
+    'matrix-sdk/filter-component.js',
+    'matrix-sdk/filter.js',
+    'matrix-sdk/http-api.js',
+    'matrix-sdk/interactive-auth.js',
+    'matrix-sdk/matrix.js',
+    'matrix-sdk/pushprocessor.js',
+    'matrix-sdk/realtime-callbacks.js',
+    'matrix-sdk/scheduler.js',
+    'matrix-sdk/sync.js',
+    'matrix-sdk/timeline-window.js',
+    'matrix-sdk/utils.js',
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
+    'matrix-sdk/crypto/deviceinfo.js',
+    'matrix-sdk/crypto/index.js',
+    'matrix-sdk/crypto/OlmDevice.js',
+    'matrix-sdk/crypto/olmlib.js',
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.algorithms += [
+    'matrix-sdk/crypto/algorithms/base.js',
+    'matrix-sdk/crypto/algorithms/index.js',
+    'matrix-sdk/crypto/algorithms/megolm.js',
+    'matrix-sdk/crypto/algorithms/olm.js',
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
+    'matrix-sdk/models/event-context.js',
+    'matrix-sdk/models/event-timeline-set.js',
+    'matrix-sdk/models/event-timeline.js',
+    'matrix-sdk/models/event.js',
+    'matrix-sdk/models/room-member.js',
+    'matrix-sdk/models/room-state.js',
+    'matrix-sdk/models/room-summary.js',
+    'matrix-sdk/models/room.js',
+    'matrix-sdk/models/search-result.js',
+    'matrix-sdk/models/user.js',
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.store += [
+    'matrix-sdk/store/memory.js',
+    'matrix-sdk/store/stub.js',
+    'matrix-sdk/store/webstorage.js',
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.store.session += [
+    'matrix-sdk/store/session/webstorage.js',
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
+    'matrix-sdk/webrtc/call.js',
+]
+
+# Dependencies of the Matrix SDK.
+
+# Single file dependencies (with good names) are just added to the top-level
+# matrix module.
+EXTRA_JS_MODULES.matrix += [
+    'another-json/another-json.js',
+    'events/events.js',
+    'punycode/punycode.js',
+    'url/url.js',
+]
+
+EXTRA_JS_MODULES.matrix.querystring += [
+    'querystring/decode.js',
+    'querystring/encode.js',
+    'querystring/index.js',
+]
+
+EXTRA_JS_MODULES.matrix.browser_request += [
+    'browser-request/index.js',
+]
+
+EXTRA_JS_MODULES.matrix.q += [
+    'q/q.js',
+    'q/queue.js',
+]
