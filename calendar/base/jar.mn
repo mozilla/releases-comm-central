@@ -88,7 +88,6 @@ calendar.jar:
     content/preferences/general.js                              (content/preferences/general.js)
     content/preferences/views.js                                (content/preferences/views.js)
     content/today-pane.js                                       (content/today-pane.js)
-    content/today-pane.xul                                      (content/today-pane.xul)
     content/widgets/calendar-alarm-widget.js                    (content/widgets/calendar-alarm-widget.js)
     content/widgets/calendar-dnd-widgets.js                     (content/widgets/calendar-dnd-widgets.js)
     content/widgets/calendar-minimonth.js                       (content/widgets/calendar-minimonth.js)
