@@ -19,9 +19,7 @@ limitations under the License.
  * @module models/event-timeline
  */
 
-var RoomState = require("./room-state");
-var utils = require("../utils");
-var MatrixEvent = require("./event").MatrixEvent;
+const RoomState = require("./room-state");
 
 /**
  * Construct a new EventTimeline
@@ -57,7 +55,7 @@ function EventTimeline(eventTimelineSet) {
     this._nextTimeline = null;
 
     // this is used by client.js
-    this._paginationRequests = {'b': null, 'f': null};
+    this._paginationRequests = { 'b': null, 'f': null };
 
     this._name = this._roomId + ":" + new Date().toISOString();
 }
@@ -83,27 +81,80 @@ EventTimeline.FORWARDS = "f";
  * state with.
  * @throws {Error} if an attempt is made to call this after addEvent is called.
  */
-EventTimeline.prototype.initialiseState = function(stateEvents) {
+EventTimeline.prototype.initialiseState = function (stateEvents) {
     if (this._events.length > 0) {
         throw new Error("Cannot initialise state after events are added");
     }
 
-    // we deep-copy the events here, in case they get changed later - we don't
-    // want changes to the start state leaking through to the end state.
-    var oldStateEvents = utils.map(
-        utils.deepCopy(
-            stateEvents.map(function(mxEvent) { return mxEvent.event; })
-        ), function(ev) { return new MatrixEvent(ev); });
+    // We previously deep copied events here and used different copies in
+    // the oldState and state events: this decision seems to date back
+    // quite a way and was apparently made to fix a bug where modifications
+    // made to the start state leaked through to the end state.
+    // This really shouldn't be possible though: the events themselves should
+    // not change. Duplicating the events uses a lot of extra memory,
+    // so we now no longer do it. To assert that they really do never change,
+    // freeze them! Note that we can't do this for events in general:
+    // although it looks like the only things preventing us are the
+    // 'status' flag, forwardLooking (which is only set once when adding to the
+    // timeline) and possibly the sender (which seems like it should never be
+    // reset but in practice causes a lot of the tests to break).
+    for (const e of stateEvents) {
+        Object.freeze(e);
+    }
 
-    this._startState.setStateEvents(oldStateEvents);
+    this._startState.setStateEvents(stateEvents);
     this._endState.setStateEvents(stateEvents);
+};
+
+/**
+ * Forks the (live) timeline, taking ownership of the existing directional state of this timeline.
+ * All attached listeners will keep receiving state updates from the new live timeline state.
+ * The end state of this timeline gets replaced with an independent copy of the current RoomState,
+ * and will need a new pagination token if it ever needs to paginate forwards.
+
+ * @param {string} direction   EventTimeline.BACKWARDS to get the state at the
+ *   start of the timeline; EventTimeline.FORWARDS to get the state at the end
+ *   of the timeline.
+ *
+ * @return {EventTimeline} the new timeline
+ */
+EventTimeline.prototype.forkLive = function (direction) {
+    const forkState = this.getState(direction);
+    const timeline = new EventTimeline(this._eventTimelineSet);
+    timeline._startState = forkState.clone();
+    // Now clobber the end state of the new live timeline with that from the
+    // previous live timeline. It will be identical except that we'll keep
+    // using the same RoomMember objects for the 'live' set of members with any
+    // listeners still attached
+    timeline._endState = forkState;
+    // Firstly, we just stole the current timeline's end state, so it needs a new one.
+    // Make an immutable copy of the state so back pagination will get the correct sentinels.
+    this._endState = forkState.clone();
+    return timeline;
+};
+
+/**
+ * Creates an independent timeline, inheriting the directional state from this timeline.
+ *
+ * @param {string} direction   EventTimeline.BACKWARDS to get the state at the
+ *   start of the timeline; EventTimeline.FORWARDS to get the state at the end
+ *   of the timeline.
+ *
+ * @return {EventTimeline} the new timeline
+ */
+EventTimeline.prototype.fork = function (direction) {
+    const forkState = this.getState(direction);
+    const timeline = new EventTimeline(this._eventTimelineSet);
+    timeline._startState = forkState.clone();
+    timeline._endState = forkState.clone();
+    return timeline;
 };
 
 /**
  * Get the ID of the room for this timeline
  * @return {string} room ID
  */
-EventTimeline.prototype.getRoomId = function() {
+EventTimeline.prototype.getRoomId = function () {
     return this._roomId;
 };
 
@@ -111,7 +162,7 @@ EventTimeline.prototype.getRoomId = function() {
  * Get the filter for this timeline's timelineSet (if any)
  * @return {Filter} filter
  */
-EventTimeline.prototype.getFilter = function() {
+EventTimeline.prototype.getFilter = function () {
     return this._eventTimelineSet.getFilter();
 };
 
@@ -119,7 +170,7 @@ EventTimeline.prototype.getFilter = function() {
  * Get the timelineSet for this timeline
  * @return {EventTimelineSet} timelineSet
  */
-EventTimeline.prototype.getTimelineSet = function() {
+EventTimeline.prototype.getTimelineSet = function () {
     return this._eventTimelineSet;
 };
 
@@ -134,7 +185,7 @@ EventTimeline.prototype.getTimelineSet = function() {
  *
  * @return {number}
  */
-EventTimeline.prototype.getBaseIndex = function() {
+EventTimeline.prototype.getBaseIndex = function () {
     return this._baseIndex;
 };
 
@@ -143,7 +194,7 @@ EventTimeline.prototype.getBaseIndex = function() {
  *
  * @return {MatrixEvent[]} An array of MatrixEvents
  */
-EventTimeline.prototype.getEvents = function() {
+EventTimeline.prototype.getEvents = function () {
     return this._events;
 };
 
@@ -156,7 +207,7 @@ EventTimeline.prototype.getEvents = function() {
  *
  * @return {RoomState} state at the start/end of the timeline
  */
-EventTimeline.prototype.getState = function(direction) {
+EventTimeline.prototype.getState = function (direction) {
     if (direction == EventTimeline.BACKWARDS) {
         return this._startState;
     } else if (direction == EventTimeline.FORWARDS) {
@@ -175,7 +226,7 @@ EventTimeline.prototype.getState = function(direction) {
  *
  * @return {?string} pagination token
  */
-EventTimeline.prototype.getPaginationToken = function(direction) {
+EventTimeline.prototype.getPaginationToken = function (direction) {
     return this.getState(direction).paginationToken;
 };
 
@@ -188,7 +239,7 @@ EventTimeline.prototype.getPaginationToken = function(direction) {
  *   token for going backwards in time; EventTimeline.FORWARDS to set the
  *   pagination token for going forwards in time.
  */
-EventTimeline.prototype.setPaginationToken = function(token, direction) {
+EventTimeline.prototype.setPaginationToken = function (token, direction) {
     this.getState(direction).paginationToken = token;
 };
 
@@ -201,7 +252,7 @@ EventTimeline.prototype.setPaginationToken = function(token, direction) {
  * @return {?EventTimeline} previous or following timeline, if they have been
  * joined up.
  */
-EventTimeline.prototype.getNeighbouringTimeline = function(direction) {
+EventTimeline.prototype.getNeighbouringTimeline = function (direction) {
     if (direction == EventTimeline.BACKWARDS) {
         return this._prevTimeline;
     } else if (direction == EventTimeline.FORWARDS) {
@@ -222,10 +273,9 @@ EventTimeline.prototype.getNeighbouringTimeline = function(direction) {
  * @throws {Error} if an attempt is made to set the neighbouring timeline when
  * it is already set.
  */
-EventTimeline.prototype.setNeighbouringTimeline = function(neighbour, direction) {
+EventTimeline.prototype.setNeighbouringTimeline = function (neighbour, direction) {
     if (this.getNeighbouringTimeline(direction)) {
-        throw new Error("timeline already has a neighbouring timeline - " +
-                        "cannot reset neighbour");
+        throw new Error("timeline already has a neighbouring timeline - " + "cannot reset neighbour (direction: " + direction + ")");
     }
 
     if (direction == EventTimeline.BACKWARDS) {
@@ -246,14 +296,12 @@ EventTimeline.prototype.setNeighbouringTimeline = function(neighbour, direction)
  * @param {MatrixEvent} event   new event
  * @param {boolean}  atStart     true to insert new event at the start
  */
-EventTimeline.prototype.addEvent = function(event, atStart) {
-    var stateContext = atStart ? this._startState : this._endState;
+EventTimeline.prototype.addEvent = function (event, atStart) {
+    const stateContext = atStart ? this._startState : this._endState;
 
     // only call setEventMetadata on the unfiltered timelineSets
-    var timelineSet = this.getTimelineSet();
-    if (timelineSet.room &&
-        timelineSet.room.getUnfilteredTimelineSet() === timelineSet)
-    {
+    const timelineSet = this.getTimelineSet();
+    if (timelineSet.room && timelineSet.room.getUnfilteredTimelineSet() === timelineSet) {
         EventTimeline.setEventMetadata(event, stateContext, atStart);
 
         // modify state
@@ -269,13 +317,13 @@ EventTimeline.prototype.addEvent = function(event, atStart) {
             // back in time, else we'll set the .sender value for BEFORE the given
             // member event, whereas we want to set the .sender value for the ACTUAL
             // member event itself.
-            if (!event.sender || (event.getType() === "m.room.member" && !atStart)) {
+            if (!event.sender || event.getType() === "m.room.member" && !atStart) {
                 EventTimeline.setEventMetadata(event, stateContext, atStart);
             }
         }
     }
 
-    var insertIndex;
+    let insertIndex;
 
     if (atStart) {
         insertIndex = 0;
@@ -296,15 +344,11 @@ EventTimeline.prototype.addEvent = function(event, atStart) {
  * @param {RoomState} stateContext  the room state to be queried
  * @param {bool} toStartOfTimeline  if true the event's forwardLooking flag is set false
  */
-EventTimeline.setEventMetadata = function(event, stateContext, toStartOfTimeline) {
+EventTimeline.setEventMetadata = function (event, stateContext, toStartOfTimeline) {
     // set sender and target properties
-    event.sender = stateContext.getSentinelMember(
-        event.getSender()
-    );
+    event.sender = stateContext.getSentinelMember(event.getSender());
     if (event.getType() === "m.room.member") {
-        event.target = stateContext.getSentinelMember(
-            event.getStateKey()
-        );
+        event.target = stateContext.getSentinelMember(event.getStateKey());
     }
     if (event.isState()) {
         // room state has no concept of 'old' or 'current', but we want the
@@ -323,9 +367,9 @@ EventTimeline.setEventMetadata = function(event, stateContext, toStartOfTimeline
  * @param {string} eventId  ID of event to be removed
  * @return {?MatrixEvent} removed event, or null if not found
  */
-EventTimeline.prototype.removeEvent = function(eventId) {
-    for (var i = this._events.length - 1; i >= 0; i--) {
-        var ev = this._events[i];
+EventTimeline.prototype.removeEvent = function (eventId) {
+    for (let i = this._events.length - 1; i >= 0; i--) {
+        const ev = this._events[i];
         if (ev.getId() == eventId) {
             this._events.splice(i, 1);
             if (i < this._baseIndex) {
@@ -342,10 +386,9 @@ EventTimeline.prototype.removeEvent = function(eventId) {
  *
  * @return {string} name for this timeline
  */
-EventTimeline.prototype.toString = function() {
+EventTimeline.prototype.toString = function () {
     return this._name;
 };
-
 
 /**
  * The EventTimeline class

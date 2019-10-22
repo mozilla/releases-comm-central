@@ -17,8 +17,9 @@ limitations under the License.
 /**
  * @module models/user
  */
- var EventEmitter = require("events").EventEmitter;
- var utils = require("../utils");
+
+const EventEmitter = require("events").EventEmitter;
+const utils = require("../utils");
 
 /**
  * Construct a new User. A User must have an ID and can optionally have extra
@@ -39,6 +40,9 @@ limitations under the License.
  *                when a user was last active.
  * @prop {Boolean} currentlyActive Whether we should consider lastActiveAgo to be
  *               an approximation and that the user should be seen as active 'now'
+ * @prop {string} _unstable_statusMessage The status message for the user, if known. This is
+ *                different from the presenceStatusMsg in that this is not tied to
+ *                the user's presence, and should be represented differently.
  * @prop {Object} events The events describing this user.
  * @prop {MatrixEvent} events.presence The m.presence event for this user.
  */
@@ -46,6 +50,7 @@ function User(userId) {
     this.userId = userId;
     this.presence = "offline";
     this.presenceStatusMsg = null;
+    this._unstable_statusMessage = "";
     this.displayName = userId;
     this.rawDisplayName = userId;
     this.avatarUrl = null;
@@ -69,30 +74,24 @@ utils.inherits(User, EventEmitter);
  * @fires module:client~MatrixClient#event:"User.displayName"
  * @fires module:client~MatrixClient#event:"User.avatarUrl"
  */
-User.prototype.setPresenceEvent = function(event) {
+User.prototype.setPresenceEvent = function (event) {
     if (event.getType() !== "m.presence") {
         return;
     }
-    var firstFire = this.events.presence === null;
+    const firstFire = this.events.presence === null;
     this.events.presence = event;
 
-    var eventsToFire = [];
+    const eventsToFire = [];
     if (event.getContent().presence !== this.presence || firstFire) {
         eventsToFire.push("User.presence");
     }
-    if (event.getContent().avatar_url &&
-        event.getContent().avatar_url !== this.avatarUrl)
-    {
+    if (event.getContent().avatar_url && event.getContent().avatar_url !== this.avatarUrl) {
         eventsToFire.push("User.avatarUrl");
     }
-    if (event.getContent().displayname &&
-        event.getContent().displayname !== this.displayName)
-    {
+    if (event.getContent().displayname && event.getContent().displayname !== this.displayName) {
         eventsToFire.push("User.displayName");
     }
-    if (event.getContent().currently_active !== undefined &&
-        event.getContent().currently_active !== this.currentlyActive)
-    {
+    if (event.getContent().currently_active !== undefined && event.getContent().currently_active !== this.currentlyActive) {
         eventsToFire.push("User.currentlyActive");
     }
 
@@ -100,7 +99,7 @@ User.prototype.setPresenceEvent = function(event) {
     eventsToFire.push("User.lastPresenceTs");
 
     if (event.getContent().status_msg) {
-      this.presenceStatusMsg = event.getContent().status_msg;
+        this.presenceStatusMsg = event.getContent().status_msg;
     }
     if (event.getContent().displayname) {
         this.displayName = event.getContent().displayname;
@@ -114,7 +113,7 @@ User.prototype.setPresenceEvent = function(event) {
 
     this._updateModifiedTime();
 
-    for (var i = 0; i < eventsToFire.length; i++) {
+    for (let i = 0; i < eventsToFire.length; i++) {
         this.emit(eventsToFire[i], event, this);
     }
 };
@@ -124,32 +123,30 @@ User.prototype.setPresenceEvent = function(event) {
  * as there is no underlying MatrixEvent to emit with.
  * @param {string} name The new display name.
  */
-User.prototype.setDisplayName = function(name) {
-    var oldName = this.displayName;
+User.prototype.setDisplayName = function (name) {
+    const oldName = this.displayName;
     this.displayName = name;
     if (name !== oldName) {
         this._updateModifiedTime();
     }
 };
 
-
 /**
  * Manually set this user's non-disambiguated display name. No event is emitted
  * in response to this as there is no underlying MatrixEvent to emit with.
  * @param {string} name The new display name.
  */
-User.prototype.setRawDisplayName = function(name) {
+User.prototype.setRawDisplayName = function (name) {
     this.rawDisplayName = name;
 };
-
 
 /**
  * Manually set this user's avatar URL. No event is emitted in response to this
  * as there is no underlying MatrixEvent to emit with.
  * @param {string} url The new avatar URL.
  */
-User.prototype.setAvatarUrl = function(url) {
-    var oldUrl = this.avatarUrl;
+User.prototype.setAvatarUrl = function (url) {
+    const oldUrl = this.avatarUrl;
     this.avatarUrl = url;
     if (url !== oldUrl) {
         this._updateModifiedTime();
@@ -159,7 +156,7 @@ User.prototype.setAvatarUrl = function(url) {
 /**
  * Update the last modified time to the current time.
  */
-User.prototype._updateModifiedTime = function() {
+User.prototype._updateModifiedTime = function () {
     this._modified = Date.now();
 };
 
@@ -169,7 +166,7 @@ User.prototype._updateModifiedTime = function() {
  * property on this object. It is updated <i>before</i> firing events.
  * @return {number} The timestamp
  */
-User.prototype.getLastModifiedTime = function() {
+User.prototype.getLastModifiedTime = function () {
     return this._modified;
 };
 
@@ -178,8 +175,19 @@ User.prototype.getLastModifiedTime = function() {
  * It is *NOT* accurate if this.currentlyActive is true.
  * @return {number} The timestamp
  */
-User.prototype.getLastActiveTs = function() {
+User.prototype.getLastActiveTs = function () {
     return this.lastPresenceTs - this.lastActiveAgo;
+};
+
+/**
+ * Manually set the user's status message.
+ * @param {MatrixEvent} event The <code>im.vector.user_status</code> event.
+ * @fires module:client~MatrixClient#event:"User._unstable_statusMessage"
+ */
+User.prototype._unstable_updateStatusMessage = function (event) {
+    if (!event.getContent()) this._unstable_statusMessage = "";else this._unstable_statusMessage = event.getContent()["status"];
+    this._updateModifiedTime();
+    this.emit("User._unstable_statusMessage", this);
 };
 
 /**

@@ -19,8 +19,8 @@ limitations under the License.
  * @module models/search-result
  */
 
-var EventContext = require("./event-context");
-var utils = require("../utils");
+const EventContext = require("./event-context");
+const utils = require("../utils");
 
 /**
  * Construct a new SearchResult
@@ -32,8 +32,8 @@ var utils = require("../utils");
  * @constructor
  */
 function SearchResult(rank, eventContext) {
-    this.rank = rank;
-    this.context = eventContext;
+  this.rank = rank;
+  this.context = eventContext;
 }
 
 /**
@@ -44,21 +44,20 @@ function SearchResult(rank, eventContext) {
  * @return {SearchResult}
  */
 
-SearchResult.fromJson = function(jsonObj, eventMapper) {
-    var jsonContext = jsonObj.context || {};
-    var events_before = jsonContext.events_before || [];
-    var events_after = jsonContext.events_after || [];
+SearchResult.fromJson = function (jsonObj, eventMapper) {
+  const jsonContext = jsonObj.context || {};
+  const events_before = jsonContext.events_before || [];
+  const events_after = jsonContext.events_after || [];
 
-    var context = new EventContext(eventMapper(jsonObj.result));
+  const context = new EventContext(eventMapper(jsonObj.result));
 
-    context.setPaginateToken(jsonContext.start, true);
-    context.addEvents(utils.map(events_before, eventMapper), true);
-    context.addEvents(utils.map(events_after, eventMapper), false);
-    context.setPaginateToken(jsonContext.end, false);
+  context.setPaginateToken(jsonContext.start, true);
+  context.addEvents(utils.map(events_before, eventMapper), true);
+  context.addEvents(utils.map(events_after, eventMapper), false);
+  context.setPaginateToken(jsonContext.end, false);
 
-    return new SearchResult(jsonObj.rank, context);
+  return new SearchResult(jsonObj.rank, context);
 };
-
 
 /**
  * The SearchResult class

@@ -17,25 +17,34 @@ limitations under the License.
 
 /** @module timeline-window */
 
-var q = require("q");
-var EventTimeline = require("./models/event-timeline");
+var _bluebird = require("bluebird");
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
+var _logger = require("../src/logger");
+
+var _logger2 = _interopRequireDefault(_logger);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const EventTimeline = require("./models/event-timeline");
 
 /**
  * @private
  */
-var DEBUG = false;
+const DEBUG = false;
 
 /**
  * @private
  */
-var debuglog = DEBUG ? console.log.bind(console) : function() {};
+const debuglog = DEBUG ? _logger2.default.log.bind(_logger2.default) : function () {};
 
 /**
  * the number of times we ask the server for more events before giving up
  *
  * @private
  */
-var DEFAULT_PAGINATE_LOOP_LIMIT = 5;
+const DEFAULT_PAGINATE_LOOP_LIMIT = 5;
 
 /**
  * Construct a TimelineWindow.
@@ -91,16 +100,35 @@ function TimelineWindow(client, timelineSet, opts) {
  *
  * @return {module:client.Promise}
  */
-TimelineWindow.prototype.load = function(initialEventId, initialWindowSize) {
-    var self = this;
+TimelineWindow.prototype.load = function (initialEventId, initialWindowSize) {
+    const self = this;
     initialWindowSize = initialWindowSize || 20;
 
-    // given an EventTimeline, and an event index within it, initialise our
+    // given an EventTimeline, find the event we were looking for, and initialise our
     // fields so that the event in question is in the middle of the window.
-    var initFields = function(timeline, eventIndex) {
-        var endIndex = Math.min(timeline.getEvents().length,
-                                eventIndex + Math.ceil(initialWindowSize / 2));
-        var startIndex = Math.max(0, endIndex - initialWindowSize);
+    const initFields = function (timeline) {
+        let eventIndex;
+
+        const events = timeline.getEvents();
+
+        if (!initialEventId) {
+            // we were looking for the live timeline: initialise to the end
+            eventIndex = events.length;
+        } else {
+            for (let i = 0; i < events.length; i++) {
+                if (events[i].getId() == initialEventId) {
+                    eventIndex = i;
+                    break;
+                }
+            }
+
+            if (eventIndex === undefined) {
+                throw new Error("getEventTimeline result didn't include requested event");
+            }
+        }
+
+        const endIndex = Math.min(events.length, eventIndex + Math.ceil(initialWindowSize / 2));
+        const startIndex = Math.max(0, endIndex - initialWindowSize);
         self._start = new TimelineIndex(timeline, startIndex - timeline.getBaseIndex());
         self._end = new TimelineIndex(timeline, endIndex - timeline.getBaseIndex());
         self._eventCount = endIndex - startIndex;
@@ -110,25 +138,19 @@ TimelineWindow.prototype.load = function(initialEventId, initialWindowSize) {
     // we already have the data we need, which is important to keep room-switching
     // feeling snappy.
     //
-    // TODO: ideally we'd spot getEventTimeline returning a resolved promise and
-    // skip straight to the find-event loop.
     if (initialEventId) {
-        return this._client.getEventTimeline(this._timelineSet, initialEventId)
-            .then(function(tl) {
-                // make sure that our window includes the event
-                for (var i = 0; i < tl.getEvents().length; i++) {
-                    if (tl.getEvents()[i].getId() == initialEventId) {
-                        initFields(tl, i);
-                        return;
-                    }
-                }
-                throw new Error("getEventTimeline result didn't include requested event");
-            });
+        const prom = this._client.getEventTimeline(this._timelineSet, initialEventId);
+
+        if (prom.isFulfilled()) {
+            initFields(prom.value());
+            return _bluebird2.default.resolve();
+        } else {
+            return prom.then(initFields);
+        }
     } else {
-        // start with the most recent events
-        var tl = this._timelineSet.getLiveTimeline();
-        initFields(tl, tl.getEvents().length);
-        return q();
+        const tl = this._timelineSet.getLiveTimeline();
+        initFields(tl);
+        return _bluebird2.default.resolve();
     }
 };
 
@@ -145,8 +167,8 @@ TimelineWindow.prototype.load = function(initialEventId, initialWindowSize) {
  *
  * @return {boolean} true if we can paginate in the given direction
  */
-TimelineWindow.prototype.canPaginate = function(direction) {
-    var tl;
+TimelineWindow.prototype.canPaginate = function (direction) {
+    let tl;
     if (direction == EventTimeline.BACKWARDS) {
         tl = this._start;
     } else if (direction == EventTimeline.FORWARDS) {
@@ -161,13 +183,16 @@ TimelineWindow.prototype.canPaginate = function(direction) {
     }
 
     if (direction == EventTimeline.BACKWARDS) {
-        if (tl.index > tl.minIndex()) { return true; }
+        if (tl.index > tl.minIndex()) {
+            return true;
+        }
     } else {
-        if (tl.index < tl.maxIndex()) { return true; }
+        if (tl.index < tl.maxIndex()) {
+            return true;
+        }
     }
 
-    return Boolean(tl.timeline.getNeighbouringTimeline(direction) ||
-                   tl.timeline.getPaginationToken(direction));
+    return Boolean(tl.timeline.getNeighbouringTimeline(direction) || tl.timeline.getPaginationToken(direction));
 };
 
 /**
@@ -192,8 +217,7 @@ TimelineWindow.prototype.canPaginate = function(direction) {
  * @return {module:client.Promise} Resolves to a boolean which is true if more events
  *    were successfully retrieved.
  */
-TimelineWindow.prototype.paginate = function(direction, size, makeRequest,
-                                             requestLimit) {
+TimelineWindow.prototype.paginate = function (direction, size, makeRequest, requestLimit) {
     // Either wind back the message cap (if there are enough events in the
     // timeline to do so), or fire off a pagination request.
 
@@ -205,7 +229,7 @@ TimelineWindow.prototype.paginate = function(direction, size, makeRequest,
         requestLimit = DEFAULT_PAGINATE_LOOP_LIMIT;
     }
 
-    var tl;
+    let tl;
     if (direction == EventTimeline.BACKWARDS) {
         tl = this._start;
     } else if (direction == EventTimeline.FORWARDS) {
@@ -216,7 +240,7 @@ TimelineWindow.prototype.paginate = function(direction, size, makeRequest,
 
     if (!tl) {
         debuglog("TimelineWindow: no timeline yet");
-        return q(false);
+        return _bluebird2.default.resolve(false);
     }
 
     if (tl.pendingPaginate) {
@@ -224,43 +248,41 @@ TimelineWindow.prototype.paginate = function(direction, size, makeRequest,
     }
 
     // try moving the cap
-    var count = (direction == EventTimeline.BACKWARDS) ?
-        tl.retreat(size) : tl.advance(size);
+    const count = direction == EventTimeline.BACKWARDS ? tl.retreat(size) : tl.advance(size);
 
     if (count) {
         this._eventCount += count;
-        debuglog("TimelineWindow: increased cap by " + count +
-                 " (now " + this._eventCount + ")");
+        debuglog("TimelineWindow: increased cap by " + count + " (now " + this._eventCount + ")");
         // remove some events from the other end, if necessary
-        var excess = this._eventCount - this._windowLimit;
+        const excess = this._eventCount - this._windowLimit;
         if (excess > 0) {
             this.unpaginate(excess, direction != EventTimeline.BACKWARDS);
         }
-        return q(true);
+        return _bluebird2.default.resolve(true);
     }
 
     if (!makeRequest || requestLimit === 0) {
         // todo: should we return something different to indicate that there
         // might be more events out there, but we haven't found them yet?
-        return q(false);
+        return _bluebird2.default.resolve(false);
     }
 
     // try making a pagination request
-    var token = tl.timeline.getPaginationToken(direction);
+    const token = tl.timeline.getPaginationToken(direction);
     if (!token) {
         debuglog("TimelineWindow: no token");
-        return q(false);
+        return _bluebird2.default.resolve(false);
     }
 
     debuglog("TimelineWindow: starting request");
-    var self = this;
+    const self = this;
 
-    var prom = this._client.paginateEventTimeline(tl.timeline, {
+    const prom = this._client.paginateEventTimeline(tl.timeline, {
         backwards: direction == EventTimeline.BACKWARDS,
         limit: size
-    }).finally(function() {
+    }).finally(function () {
         tl.pendingPaginate = null;
-    }).then(function(r) {
+    }).then(function (r) {
         debuglog("TimelineWindow: request completed with result " + r);
         if (!r) {
             // end of timeline
@@ -285,7 +307,6 @@ TimelineWindow.prototype.paginate = function(direction, size, makeRequest,
     return prom;
 };
 
-
 /**
  * Remove `delta` events from the start or end of the timeline.
  *
@@ -293,50 +314,45 @@ TimelineWindow.prototype.paginate = function(direction, size, makeRequest,
  * @param {boolean} startOfTimeline if events should be removed from the start
  *     of the timeline.
  */
-TimelineWindow.prototype.unpaginate = function(delta, startOfTimeline) {
-    var tl = startOfTimeline ? this._start : this._end;
+TimelineWindow.prototype.unpaginate = function (delta, startOfTimeline) {
+    const tl = startOfTimeline ? this._start : this._end;
 
     // sanity-check the delta
     if (delta > this._eventCount || delta < 0) {
-        throw new Error("Attemting to unpaginate " + delta + " events, but " +
-                        "only have " + this._eventCount + " in the timeline");
+        throw new Error("Attemting to unpaginate " + delta + " events, but " + "only have " + this._eventCount + " in the timeline");
     }
 
     while (delta > 0) {
-        var count = startOfTimeline ? tl.advance(delta) : tl.retreat(delta);
+        const count = startOfTimeline ? tl.advance(delta) : tl.retreat(delta);
         if (count <= 0) {
             // sadness. This shouldn't be possible.
-            throw new Error(
-                "Unable to unpaginate any further, but still have " +
-                    this._eventCount + " events");
+            throw new Error("Unable to unpaginate any further, but still have " + this._eventCount + " events");
         }
 
         delta -= count;
         this._eventCount -= count;
-        debuglog("TimelineWindow.unpaginate: dropped " + count +
-                 " (now " + this._eventCount + ")");
+        debuglog("TimelineWindow.unpaginate: dropped " + count + " (now " + this._eventCount + ")");
     }
 };
-
 
 /**
  * Get a list of the events currently in the window
  *
  * @return {MatrixEvent[]} the events in the window
  */
-TimelineWindow.prototype.getEvents = function() {
+TimelineWindow.prototype.getEvents = function () {
     if (!this._start) {
         // not yet loaded
         return [];
     }
 
-    var result = [];
+    const result = [];
 
     // iterate through each timeline between this._start and this._end
     // (inclusive).
-    var timeline = this._start.timeline;
+    let timeline = this._start.timeline;
     while (true) {
-        var events = timeline.getEvents();
+        const events = timeline.getEvents();
 
         // For the first timeline in the chain, we want to start at
         // this._start.index. For the last timeline in the chain, we want to
@@ -346,7 +362,8 @@ TimelineWindow.prototype.getEvents = function() {
         // (Note that both this._start.index and this._end.index are relative
         // to their respective timelines' BaseIndex).
         //
-        var startIndex = 0, endIndex = events.length;
+        let startIndex = 0,
+            endIndex = events.length;
         if (timeline === this._start.timeline) {
             startIndex = this._start.index + timeline.getBaseIndex();
         }
@@ -354,7 +371,7 @@ TimelineWindow.prototype.getEvents = function() {
             endIndex = this._end.index + timeline.getBaseIndex();
         }
 
-        for (var i = startIndex; i < endIndex; i++) {
+        for (let i = startIndex; i < endIndex; i++) {
             result.push(events[i]);
         }
 
@@ -368,7 +385,6 @@ TimelineWindow.prototype.getEvents = function() {
 
     return result;
 };
-
 
 /**
  * a thing which contains a timeline reference, and an index into it.
@@ -389,7 +405,7 @@ function TimelineIndex(timeline, index) {
  * @return {number} the minimum possible value for the index in the current
  *    timeline
  */
-TimelineIndex.prototype.minIndex = function() {
+TimelineIndex.prototype.minIndex = function () {
     return this.timeline.getBaseIndex() * -1;
 };
 
@@ -398,7 +414,7 @@ TimelineIndex.prototype.minIndex = function() {
  *    timeline (exclusive - ie, it actually returns one more than the index
  *    of the last element).
  */
-TimelineIndex.prototype.maxIndex = function() {
+TimelineIndex.prototype.maxIndex = function () {
     return this.timeline.getEvents().length - this.timeline.getBaseIndex();
 };
 
@@ -408,14 +424,14 @@ TimelineIndex.prototype.maxIndex = function() {
  * @param {number} delta  number of events to advance by
  * @return {number} number of events successfully advanced by
  */
-TimelineIndex.prototype.advance = function(delta) {
+TimelineIndex.prototype.advance = function (delta) {
     if (!delta) {
         return 0;
     }
 
     // first try moving the index in the current timeline. See if there is room
     // to do so.
-    var cappedDelta;
+    let cappedDelta;
     if (delta < 0) {
         // we want to wind the index backwards.
         //
@@ -443,8 +459,7 @@ TimelineIndex.prototype.advance = function(delta) {
     // the index is already at the start/end of the current timeline.
     //
     // next see if there is a neighbouring timeline to switch to.
-    var neighbour = this.timeline.getNeighbouringTimeline(
-        delta < 0 ? EventTimeline.BACKWARDS : EventTimeline.FORWARDS);
+    const neighbour = this.timeline.getNeighbouringTimeline(delta < 0 ? EventTimeline.BACKWARDS : EventTimeline.FORWARDS);
     if (neighbour) {
         this.timeline = neighbour;
         if (delta < 0) {
@@ -468,7 +483,7 @@ TimelineIndex.prototype.advance = function(delta) {
  * @param {number} delta  number of events to retreat by
  * @return {number} number of events successfully retreated by
  */
-TimelineIndex.prototype.retreat = function(delta) {
+TimelineIndex.prototype.retreat = function (delta) {
     return this.advance(delta * -1) * -1;
 };
 

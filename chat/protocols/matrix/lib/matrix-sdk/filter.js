@@ -18,7 +18,7 @@ limitations under the License.
  * @module filter
  */
 
-var FilterComponent = require("./filter-component");
+const FilterComponent = require("./filter-component");
 
 /**
  * @param {Object} obj
@@ -26,9 +26,9 @@ var FilterComponent = require("./filter-component");
  * @param {*} val
  */
 function setProp(obj, keyNesting, val) {
-    var nestedKeys = keyNesting.split(".");
-    var currentObj = obj;
-    for (var i = 0; i < (nestedKeys.length - 1); i++) {
+    const nestedKeys = keyNesting.split(".");
+    let currentObj = obj;
+    for (let i = 0; i < nestedKeys.length - 1; i++) {
         if (!currentObj[nestedKeys[i]]) {
             currentObj[nestedKeys[i]] = {};
         }
@@ -51,11 +51,21 @@ function Filter(userId, filterId) {
     this.definition = {};
 }
 
+Filter.LAZY_LOADING_MESSAGES_FILTER = {
+    lazy_load_members: true
+};
+
+Filter.LAZY_LOADING_SYNC_FILTER = {
+    room: {
+        state: Filter.LAZY_LOADING_MESSAGES_FILTER
+    }
+};
+
 /**
  * Get the ID of this filter on your homeserver (if known)
  * @return {?Number} The filter ID
  */
-Filter.prototype.getFilterId = function() {
+Filter.prototype.getFilterId = function () {
     return this.filterId;
 };
 
@@ -63,7 +73,7 @@ Filter.prototype.getFilterId = function() {
  * Get the JSON body of the filter.
  * @return {Object} The filter definition
  */
-Filter.prototype.getDefinition = function() {
+Filter.prototype.getDefinition = function () {
     return this.definition;
 };
 
@@ -71,7 +81,7 @@ Filter.prototype.getDefinition = function() {
  * Set the JSON body of the filter
  * @param {Object} definition The filter definition
  */
-Filter.prototype.setDefinition = function(definition) {
+Filter.prototype.setDefinition = function (definition) {
     this.definition = definition;
 
     // This is all ported from synapse's FilterCollection()
@@ -106,10 +116,10 @@ Filter.prototype.setDefinition = function(definition) {
     //   "event_fields": ["type", "content", "sender"]
     // }
 
-    var room_filter_json = definition.room;
+    const room_filter_json = definition.room;
 
     // consider the top level rooms/not_rooms filter
-    var room_filter_fields = {};
+    const room_filter_fields = {};
     if (room_filter_json) {
         if (room_filter_json.rooms) {
             room_filter_fields.rooms = room_filter_json.rooms;
@@ -122,9 +132,7 @@ Filter.prototype.setDefinition = function(definition) {
     }
 
     this._room_filter = new FilterComponent(room_filter_fields);
-    this._room_timeline_filter = new FilterComponent(
-        room_filter_json ? (room_filter_json.timeline || {}) : {}
-    );
+    this._room_timeline_filter = new FilterComponent(room_filter_json ? room_filter_json.timeline || {} : {});
 
     // don't bother porting this from synapse yet:
     // this._room_state_filter =
@@ -143,7 +151,7 @@ Filter.prototype.setDefinition = function(definition) {
  * Get the room.timeline filter component of the filter
  * @return {FilterComponent} room timeline filter component
  */
-Filter.prototype.getRoomTimelineFilterComponent = function() {
+Filter.prototype.getRoomTimelineFilterComponent = function () {
     return this._room_timeline_filter;
 };
 
@@ -153,7 +161,7 @@ Filter.prototype.getRoomTimelineFilterComponent = function() {
  * @param {MatrixEvent[]} events  the list of events being filtered
  * @return {MatrixEvent[]} the list of events which match the filter
  */
-Filter.prototype.filterRoomTimeline = function(events) {
+Filter.prototype.filterRoomTimeline = function (events) {
     return this._room_timeline_filter.filter(this._room_filter.filter(events));
 };
 
@@ -161,7 +169,7 @@ Filter.prototype.filterRoomTimeline = function(events) {
  * Set the max number of events to return for each room's timeline.
  * @param {Number} limit The max number of events to return for each room.
  */
-Filter.prototype.setTimelineLimit = function(limit) {
+Filter.prototype.setTimelineLimit = function (limit) {
     setProp(this.definition, "room.timeline.limit", limit);
 };
 
@@ -170,7 +178,7 @@ Filter.prototype.setTimelineLimit = function(limit) {
  * @param {boolean} includeLeave True to make rooms the user has left appear
  * in responses.
  */
-Filter.prototype.setIncludeLeaveRooms = function(includeLeave) {
+Filter.prototype.setIncludeLeaveRooms = function (includeLeave) {
     setProp(this.definition, "room.include_leave", includeLeave);
 };
 
@@ -182,8 +190,8 @@ Filter.prototype.setIncludeLeaveRooms = function(includeLeave) {
  * @param {Object} jsonObj
  * @return {Filter}
  */
-Filter.fromJson = function(userId, filterId, jsonObj) {
-    var filter = new Filter(userId, filterId);
+Filter.fromJson = function (userId, filterId, jsonObj) {
+    const filter = new Filter(userId, filterId);
     filter.setDefinition(jsonObj);
     return filter;
 };

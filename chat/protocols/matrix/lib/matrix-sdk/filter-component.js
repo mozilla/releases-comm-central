@@ -25,12 +25,12 @@ limitations under the License.
  * @param {String} filter_value  The filter pattern to be compared
  * @return {bool} true if the actual_value matches the filter_value
  */
+
 function _matches_wildcard(actual_value, filter_value) {
     if (filter_value.endsWith("*")) {
-        var type_prefix = filter_value.slice(0, -1);
+        const type_prefix = filter_value.slice(0, -1);
         return actual_value.substr(0, type_prefix.length) === type_prefix;
-    }
-    else {
+    } else {
         return actual_value === filter_value;
     }
 }
@@ -44,7 +44,7 @@ function _matches_wildcard(actual_value, filter_value) {
  * 'Filters' are referred to as 'FilterCollections'.
  *
  * @constructor
- * @param {Object} the definition of this filter JSON, e.g. { 'contains_url': true }
+ * @param {Object} filter_json the definition of this filter JSON, e.g. { 'contains_url': true }
  */
 function FilterComponent(filter_json) {
     this.filter_json = filter_json;
@@ -66,13 +66,8 @@ function FilterComponent(filter_json) {
  * @param {MatrixEvent} event event to be checked against the filter
  * @return {bool} true if the event matches the filter
  */
-FilterComponent.prototype.check = function(event) {
-    return this._checkFields(
-        event.getRoomId(),
-        event.getSender(),
-        event.getType(),
-        event.getContent() ? event.getContent().url !== undefined : false
-    );
+FilterComponent.prototype.check = function (event) {
+    return this._checkFields(event.getRoomId(), event.getSender(), event.getType(), event.getContent() ? event.getContent().url !== undefined : false);
 };
 
 /**
@@ -83,33 +78,38 @@ FilterComponent.prototype.check = function(event) {
  * @param {String} contains_url  whether the event contains a content.url field
  * @return {bool} true if the event fields match the filter
  */
-FilterComponent.prototype._checkFields =
-    function(room_id, sender, event_type, contains_url)
-{
-    var literal_keys = {
-        "rooms": function(v) { return room_id === v; },
-        "senders": function(v) { return sender === v; },
-        "types": function(v) { return _matches_wildcard(event_type, v); },
+FilterComponent.prototype._checkFields = function (room_id, sender, event_type, contains_url) {
+    const literal_keys = {
+        "rooms": function (v) {
+            return room_id === v;
+        },
+        "senders": function (v) {
+            return sender === v;
+        },
+        "types": function (v) {
+            return _matches_wildcard(event_type, v);
+        }
     };
 
-    var self = this;
-    Object.keys(literal_keys).forEach(function(name) {
-        var match_func = literal_keys[name];
-        var not_name = "not_" + name;
-        var disallowed_values = self[not_name];
-        if (disallowed_values.map(match_func)) {
+    const self = this;
+    for (let n = 0; n < Object.keys(literal_keys).length; n++) {
+        const name = Object.keys(literal_keys)[n];
+        const match_func = literal_keys[name];
+        const not_name = "not_" + name;
+        const disallowed_values = self[not_name];
+        if (disallowed_values.filter(match_func).length > 0) {
             return false;
         }
 
-        var allowed_values = self[name];
+        const allowed_values = self[name];
         if (allowed_values) {
             if (!allowed_values.map(match_func)) {
                 return false;
             }
         }
-    });
+    }
 
-    var contains_url_filter = this.filter_json.contains_url;
+    const contains_url_filter = this.filter_json.contains_url;
     if (contains_url_filter !== undefined) {
         if (contains_url_filter !== contains_url) {
             return false;
@@ -124,7 +124,7 @@ FilterComponent.prototype._checkFields =
  * @param {MatrixEvent[]} events  Events to be checked againt the filter component
  * @return {MatrixEvent[]} events which matched the filter component
  */
-FilterComponent.prototype.filter = function(events) {
+FilterComponent.prototype.filter = function (events) {
     return events.filter(this.check, this);
 };
 
@@ -133,7 +133,7 @@ FilterComponent.prototype.filter = function(events) {
  * 10 if none is otherwise specified.  Cargo-culted from Synapse.
  * @return {Number} the limit for this filter component.
  */
-FilterComponent.prototype.limit = function() {
+FilterComponent.prototype.limit = function () {
     return this.filter_json.limit !== undefined ? this.filter_json.limit : 10;
 };
 

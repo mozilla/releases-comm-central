@@ -15,7 +15,6 @@ limitations under the License.
 */
 "use strict";
 
-
 /**
  * @module crypto/deviceinfo
  */
@@ -34,22 +33,28 @@ limitations under the License.
   *      &lt;key type&gt;:&lt;id&gt; -> &lt;base64-encoded key&gt;>
   *
   * @property {module:crypto/deviceinfo.DeviceVerification} verified
-  *     whether the device has been verified by the user
+  *     whether the device has been verified/blocked by the user
+  *
+  * @property {boolean} known
+  *     whether the user knows of this device's existence (useful when warning
+  *     the user that a user has added new devices)
   *
   * @property {Object} unsigned  additional data from the homeserver
   *
   * @param {string} deviceId id of the device
   */
+
 function DeviceInfo(deviceId) {
     // you can't change the deviceId
     Object.defineProperty(this, 'deviceId', {
         enumerable: true,
-        value: deviceId,
+        value: deviceId
     });
 
     this.algorithms = [];
     this.keys = {};
     this.verified = DeviceVerification.UNVERIFIED;
+    this.known = false;
     this.unsigned = {};
 }
 
@@ -61,9 +66,9 @@ function DeviceInfo(deviceId) {
  *
  * @return {module:crypto~DeviceInfo} new DeviceInfo
  */
-DeviceInfo.fromStorage = function(obj, deviceId) {
-    var res = new DeviceInfo(deviceId);
-    for (var prop in obj) {
+DeviceInfo.fromStorage = function (obj, deviceId) {
+    const res = new DeviceInfo(deviceId);
+    for (const prop in obj) {
         if (obj.hasOwnProperty(prop)) {
             res[prop] = obj[prop];
         }
@@ -76,12 +81,13 @@ DeviceInfo.fromStorage = function(obj, deviceId) {
  *
  * @return {object} deviceinfo with non-serialised members removed
  */
-DeviceInfo.prototype.toStorage = function() {
+DeviceInfo.prototype.toStorage = function () {
     return {
         algorithms: this.algorithms,
         keys: this.keys,
         verified: this.verified,
-        unsigned: this.unsigned,
+        known: this.known,
+        unsigned: this.unsigned
     };
 };
 
@@ -90,7 +96,7 @@ DeviceInfo.prototype.toStorage = function() {
  *
  * @return {string} base64-encoded fingerprint of this device
  */
-DeviceInfo.prototype.getFingerprint = function() {
+DeviceInfo.prototype.getFingerprint = function () {
     return this.keys["ed25519:" + this.deviceId];
 };
 
@@ -99,7 +105,7 @@ DeviceInfo.prototype.getFingerprint = function() {
  *
  * @return {string} base64-encoded identity key of this device
  */
-DeviceInfo.prototype.getIdentityKey = function() {
+DeviceInfo.prototype.getIdentityKey = function () {
     return this.keys["curve25519:" + this.deviceId];
 };
 
@@ -108,7 +114,7 @@ DeviceInfo.prototype.getIdentityKey = function() {
  *
  * @return {string?} displayname
  */
-DeviceInfo.prototype.getDisplayName = function() {
+DeviceInfo.prototype.getDisplayName = function () {
     return this.unsigned.device_display_name || null;
 };
 
@@ -117,7 +123,7 @@ DeviceInfo.prototype.getDisplayName = function() {
  *
  * @return {Boolean} true if blocked
  */
-DeviceInfo.prototype.isBlocked = function() {
+DeviceInfo.prototype.isBlocked = function () {
     return this.verified == DeviceVerification.BLOCKED;
 };
 
@@ -126,8 +132,26 @@ DeviceInfo.prototype.isBlocked = function() {
  *
  * @return {Boolean} true if verified
  */
-DeviceInfo.prototype.isVerified = function() {
+DeviceInfo.prototype.isVerified = function () {
     return this.verified == DeviceVerification.VERIFIED;
+};
+
+/**
+ * Returns true if this device is unverified
+ *
+ * @return {Boolean} true if unverified
+ */
+DeviceInfo.prototype.isUnverified = function () {
+    return this.verified == DeviceVerification.UNVERIFIED;
+};
+
+/**
+ * Returns true if the user knows about this device's existence
+ *
+ * @return {Boolean} true if known
+ */
+DeviceInfo.prototype.isKnown = function () {
+    return this.known == true;
 };
 
 /**
@@ -136,10 +160,10 @@ DeviceInfo.prototype.isVerified = function() {
 DeviceInfo.DeviceVerification = {
     VERIFIED: 1,
     UNVERIFIED: 0,
-    BLOCKED: -1,
+    BLOCKED: -1
 };
 
-var DeviceVerification = DeviceInfo.DeviceVerification;
+const DeviceVerification = DeviceInfo.DeviceVerification;
 
 /** */
 module.exports = DeviceInfo;

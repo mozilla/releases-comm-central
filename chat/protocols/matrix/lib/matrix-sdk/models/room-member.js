@@ -17,10 +17,11 @@ limitations under the License.
 /**
  * @module models/room-member
  */
-var EventEmitter = require("events").EventEmitter;
-var ContentRepo = require("../content-repo");
 
-var utils = require("../utils");
+const EventEmitter = require("events").EventEmitter;
+const ContentRepo = require("../content-repo");
+
+const utils = require("../utils");
 
 /**
  * Construct a new room member.
@@ -33,7 +34,10 @@ var utils = require("../utils");
  * @prop {string} roomId The room ID for this member.
  * @prop {string} userId The user ID of this member.
  * @prop {boolean} typing True if the room member is currently typing.
- * @prop {string} name The human-readable name for this room member.
+ * @prop {string} name The human-readable name for this room member. This will be
+ * disambiguated with a suffix of " (@user_id:matrix.org)" if another member shares the
+ * same displayname.
+ * @prop {string} rawDisplayName The ambiguous displayname of this room member.
  * @prop {Number} powerLevel The power level for this room member.
  * @prop {Number} powerLevelNorm The normalised power level (0-100) for this
  * room member.
@@ -47,6 +51,7 @@ function RoomMember(roomId, userId) {
     this.userId = userId;
     this.typing = false;
     this.name = userId;
+    this.rawDisplayName = userId;
     this.powerLevel = 0;
     this.powerLevelNorm = 0;
     this.user = null;
@@ -54,9 +59,26 @@ function RoomMember(roomId, userId) {
     this.events = {
         member: null
     };
+    this._isOutOfBand = false;
     this._updateModifiedTime();
 }
 utils.inherits(RoomMember, EventEmitter);
+
+/**
+ * Mark the member as coming from a channel that is not sync
+ */
+RoomMember.prototype.markOutOfBand = function () {
+    this._isOutOfBand = true;
+};
+
+/**
+ * @return {bool} does the member come from a channel that is not sync?
+ * This is used to store the member seperately
+ * from the sync state so it available across browser sessions.
+ */
+RoomMember.prototype.isOutOfBand = function () {
+    return this._isOutOfBand;
+};
 
 /**
  * Update this room member's membership event. May fire "RoomMember.name" if
@@ -67,17 +89,22 @@ utils.inherits(RoomMember, EventEmitter);
  * @fires module:client~MatrixClient#event:"RoomMember.name"
  * @fires module:client~MatrixClient#event:"RoomMember.membership"
  */
-RoomMember.prototype.setMembershipEvent = function(event, roomState) {
+RoomMember.prototype.setMembershipEvent = function (event, roomState) {
     if (event.getType() !== "m.room.member") {
         return;
     }
+
+    this._isOutOfBand = false;
+
     this.events.member = event;
 
-    var oldMembership = this.membership;
+    const oldMembership = this.membership;
     this.membership = event.getDirectionalContent().membership;
 
-    var oldName = this.name;
-    this.name = calculateDisplayName(this, event, roomState);
+    const oldName = this.name;
+    this.name = calculateDisplayName(this.userId, event.getDirectionalContent().displayname, roomState);
+
+    this.rawDisplayName = event.getDirectionalContent().displayname || this.userId;
     if (oldMembership !== this.membership) {
         this._updateModifiedTime();
         this.emit("RoomMember.membership", event, this, oldMembership);
@@ -95,27 +122,30 @@ RoomMember.prototype.setMembershipEvent = function(event, roomState) {
  * event
  * @fires module:client~MatrixClient#event:"RoomMember.powerLevel"
  */
-RoomMember.prototype.setPowerLevelEvent = function(powerLevelEvent) {
+RoomMember.prototype.setPowerLevelEvent = function (powerLevelEvent) {
     if (powerLevelEvent.getType() !== "m.room.power_levels") {
         return;
     }
-    var maxLevel = powerLevelEvent.getContent().users_default || 0;
-    utils.forEach(utils.values(powerLevelEvent.getContent().users), function(lvl) {
+
+    const evContent = powerLevelEvent.getDirectionalContent();
+
+    let maxLevel = evContent.users_default || 0;
+    utils.forEach(utils.values(evContent.users), function (lvl) {
         maxLevel = Math.max(maxLevel, lvl);
     });
-    var oldPowerLevel = this.powerLevel;
-    var oldPowerLevelNorm = this.powerLevelNorm;
+    const oldPowerLevel = this.powerLevel;
+    const oldPowerLevelNorm = this.powerLevelNorm;
 
-    if (powerLevelEvent.getContent().users[this.userId] !== undefined) {
-        this.powerLevel = powerLevelEvent.getContent().users[this.userId];
-    } else if (powerLevelEvent.getContent().users_default !== undefined) {
-        this.powerLevel = powerLevelEvent.getContent().users_default;
+    if (evContent.users && evContent.users[this.userId] !== undefined) {
+        this.powerLevel = evContent.users[this.userId];
+    } else if (evContent.users_default !== undefined) {
+        this.powerLevel = evContent.users_default;
     } else {
         this.powerLevel = 0;
     }
     this.powerLevelNorm = 0;
     if (maxLevel > 0) {
-        this.powerLevelNorm = (this.powerLevel * 100) / maxLevel;
+        this.powerLevelNorm = this.powerLevel * 100 / maxLevel;
     }
 
     // emit for changes in powerLevelNorm as well (since the app will need to
@@ -132,13 +162,13 @@ RoomMember.prototype.setPowerLevelEvent = function(powerLevelEvent) {
  * @param {MatrixEvent} event The typing event
  * @fires module:client~MatrixClient#event:"RoomMember.typing"
  */
-RoomMember.prototype.setTypingEvent = function(event) {
+RoomMember.prototype.setTypingEvent = function (event) {
     if (event.getType() !== "m.typing") {
         return;
     }
-    var oldTyping = this.typing;
+    const oldTyping = this.typing;
     this.typing = false;
-    var typingList = event.getContent().user_ids;
+    const typingList = event.getContent().user_ids;
     if (!utils.isArray(typingList)) {
         // malformed event :/ bail early. TODO: whine?
         return;
@@ -155,7 +185,7 @@ RoomMember.prototype.setTypingEvent = function(event) {
 /**
  * Update the last modified time to the current time.
  */
-RoomMember.prototype._updateModifiedTime = function() {
+RoomMember.prototype._updateModifiedTime = function () {
     this._modified = Date.now();
 };
 
@@ -165,8 +195,43 @@ RoomMember.prototype._updateModifiedTime = function() {
  * It is updated <i>before</i> firing events.
  * @return {number} The timestamp
  */
-RoomMember.prototype.getLastModifiedTime = function() {
+RoomMember.prototype.getLastModifiedTime = function () {
     return this._modified;
+};
+
+RoomMember.prototype.isKicked = function () {
+    return this.membership === "leave" && this.events.member.getSender() !== this.events.member.getStateKey();
+};
+
+/**
+ * If this member was invited with the is_direct flag set, return
+ * the user that invited this member
+ * @return {string} user id of the inviter
+ */
+RoomMember.prototype.getDMInviter = function () {
+    // when not available because that room state hasn't been loaded in,
+    // we don't really know, but more likely to not be a direct chat
+    if (this.events.member) {
+        // TODO: persist the is_direct flag on the member as more member events
+        //       come in caused by displayName changes.
+
+        // the is_direct flag is set on the invite member event.
+        // This is copied on the prev_content section of the join member event
+        // when the invite is accepted.
+
+        const memberEvent = this.events.member;
+        let memberContent = memberEvent.getContent();
+        let inviteSender = memberEvent.getSender();
+
+        if (memberContent.membership === "join") {
+            memberContent = memberEvent.getPrevContent();
+            inviteSender = memberEvent.getUnsigned().prev_sender;
+        }
+
+        if (memberContent.membership === "invite" && memberContent.is_direct) {
+            return inviteSender;
+        }
+    }
 };
 
 /**
@@ -179,7 +244,7 @@ RoomMember.prototype.getLastModifiedTime = function() {
  * "crop" or "scale".
  * @param {Boolean} allowDefault (optional) Passing false causes this method to
  * return null if the user has no avatar image. Otherwise, a default image URL
- * will be returned. Default: true.
+ * will be returned. Default: true. (Deprecated)
  * @param {Boolean} allowDirectLinks (optional) If true, the avatar URL will be
  * returned even if it is a direct hyperlink rather than a matrix content URL.
  * If false, any non-matrix content URLs will be ignored. Setting this option to
@@ -187,32 +252,45 @@ RoomMember.prototype.getLastModifiedTime = function() {
  * to anyone who they share a room with.
  * @return {?string} the avatar URL or null.
  */
-RoomMember.prototype.getAvatarUrl =
-        function(baseUrl, width, height, resizeMethod, allowDefault, allowDirectLinks) {
-    if (allowDefault === undefined) { allowDefault = true; }
-    if (!this.events.member && !allowDefault) {
+RoomMember.prototype.getAvatarUrl = function (baseUrl, width, height, resizeMethod, allowDefault, allowDirectLinks) {
+    if (allowDefault === undefined) {
+        allowDefault = true;
+    }
+
+    const rawUrl = this.getMxcAvatarUrl();
+
+    if (!rawUrl && !allowDefault) {
         return null;
     }
-    var rawUrl = this.events.member ? this.events.member.getContent().avatar_url : null;
-    var httpUrl = ContentRepo.getHttpUriForMxc(
-        baseUrl, rawUrl, width, height, resizeMethod, allowDirectLinks
-    );
+    const httpUrl = ContentRepo.getHttpUriForMxc(baseUrl, rawUrl, width, height, resizeMethod, allowDirectLinks);
     if (httpUrl) {
         return httpUrl;
+    } else if (allowDefault) {
+        return ContentRepo.getIdenticonUri(baseUrl, this.userId, width, height);
     }
-    else if (allowDefault) {
-        return ContentRepo.getIdenticonUri(
-            baseUrl, this.userId, width, height
-        );
+    return null;
+};
+/**
+ * get the mxc avatar url, either from a state event, or from a lazily loaded member
+ * @return {string} the mxc avatar url
+ */
+RoomMember.prototype.getMxcAvatarUrl = function () {
+    if (this.events.member) {
+        return this.events.member.getDirectionalContent().avatar_url;
+    } else if (this.user) {
+        return this.user.avatarUrl;
     }
     return null;
 };
 
-function calculateDisplayName(member, event, roomState) {
-    var displayName = event.getDirectionalContent().displayname;
-    var selfUserId = member.userId;
+function calculateDisplayName(selfUserId, displayName, roomState) {
+    if (!displayName || displayName === selfUserId) {
+        return selfUserId;
+    }
 
-    if (!displayName) {
+    // First check if the displayname is something we consider truthy
+    // after stripping it of zero width characters and padding spaces
+    if (!utils.removeHiddenChars(displayName)) {
         return selfUserId;
     }
 
@@ -220,11 +298,18 @@ function calculateDisplayName(member, event, roomState) {
         return displayName;
     }
 
-    var userIds = roomState.getUserIdsWithDisplayName(displayName);
-    var otherUsers = userIds.filter(function(u) {
-        return u !== selfUserId;
-    });
-    if (otherUsers.length > 0) {
+    // Next check if the name contains something that look like a mxid
+    // If it does, it may be someone trying to impersonate someone else
+    // Show full mxid in this case
+    // Also show mxid if there are other people with the same or similar
+    // displayname, after hidden character removal.
+    let disambiguate = /@.+:.+/.test(displayName);
+    if (!disambiguate) {
+        const userIds = roomState.getUserIdsWithDisplayName(displayName);
+        disambiguate = userIds.some(u => u !== selfUserId);
+    }
+
+    if (disambiguate) {
         return displayName + " (" + selfUserId + ")";
     }
     return displayName;

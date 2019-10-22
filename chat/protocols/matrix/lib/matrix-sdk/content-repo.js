@@ -1,3 +1,5 @@
+"use strict";
+
 /*
 Copyright 2015, 2016 OpenMarket Ltd
 
@@ -16,7 +18,7 @@ limitations under the License.
 /**
  * @module content-repo
  */
-var utils = require("./utils");
+const utils = require("./utils");
 
 /** Content Repo utility functions */
 module.exports = {
@@ -34,8 +36,7 @@ module.exports = {
      * for such URLs.
      * @return {string} The complete URL to the content.
      */
-    getHttpUriForMxc: function(baseUrl, mxc, width, height,
-                               resizeMethod, allowDirectLinks) {
+    getHttpUriForMxc: function (baseUrl, mxc, width, height, resizeMethod, allowDirectLinks) {
         if (typeof mxc !== "string" || !mxc) {
             return '';
         }
@@ -46,15 +47,15 @@ module.exports = {
                 return '';
             }
         }
-        var serverAndMediaId = mxc.slice(6); // strips mxc://
-        var prefix = "/_matrix/media/v1/download/";
-        var params = {};
+        let serverAndMediaId = mxc.slice(6); // strips mxc://
+        let prefix = "/_matrix/media/r0/download/";
+        const params = {};
 
         if (width) {
-            params.width = width;
+            params.width = Math.round(width);
         }
         if (height) {
-            params.height = height;
+            params.height = Math.round(height);
         }
         if (resizeMethod) {
             params.method = resizeMethod;
@@ -62,18 +63,16 @@ module.exports = {
         if (utils.keys(params).length > 0) {
             // these are thumbnailing params so they probably want the
             // thumbnailing API...
-            prefix = "/_matrix/media/v1/thumbnail/";
+            prefix = "/_matrix/media/r0/thumbnail/";
         }
 
-        var fragmentOffset = serverAndMediaId.indexOf("#"),
-            fragment = "";
+        const fragmentOffset = serverAndMediaId.indexOf("#");
+        let fragment = "";
         if (fragmentOffset >= 0) {
             fragment = serverAndMediaId.substr(fragmentOffset);
             serverAndMediaId = serverAndMediaId.substr(0, fragmentOffset);
         }
-        return baseUrl + prefix + serverAndMediaId +
-            (utils.keys(params).length === 0 ? "" :
-            ("?" + utils.encodeParams(params))) + fragment;
+        return baseUrl + prefix + serverAndMediaId + (utils.keys(params).length === 0 ? "" : "?" + utils.encodeParams(params)) + fragment;
     },
 
     /**
@@ -83,23 +82,26 @@ module.exports = {
      * @param {Number} width The desired width of the image in pixels. Default: 96.
      * @param {Number} height The desired height of the image in pixels. Default: 96.
      * @return {string} The complete URL to the identicon.
+     * @deprecated This is no longer in the specification.
      */
-    getIdenticonUri: function(baseUrl, identiconString, width, height) {
+    getIdenticonUri: function (baseUrl, identiconString, width, height) {
         if (!identiconString) {
             return null;
         }
-        if (!width) { width = 96; }
-        if (!height) { height = 96; }
-        var params = {
+        if (!width) {
+            width = 96;
+        }
+        if (!height) {
+            height = 96;
+        }
+        const params = {
             width: width,
             height: height
         };
 
-        var path = utils.encodeUri("/_matrix/media/v1/identicon/$ident", {
+        const path = utils.encodeUri("/_matrix/media/unstable/identicon/$ident", {
             $ident: identiconString
         });
-        return baseUrl + path +
-            (utils.keys(params).length === 0 ? "" :
-                ("?" + utils.encodeParams(params)));
+        return baseUrl + path + (utils.keys(params).length === 0 ? "" : "?" + utils.encodeParams(params));
     }
 };

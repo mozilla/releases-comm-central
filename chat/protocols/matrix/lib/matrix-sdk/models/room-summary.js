@@ -31,9 +31,10 @@ limitations under the License.
  * @param {string[]} info.aliases The list of aliases for this room.
  * @param {Number} info.timestamp The timestamp for this room.
  */
+
 function RoomSummary(roomId, info) {
-    this.roomId = roomId;
-    this.info = info;
+  this.roomId = roomId;
+  this.info = info;
 }
 
 /**

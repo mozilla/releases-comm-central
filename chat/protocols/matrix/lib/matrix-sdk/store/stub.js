@@ -1,5 +1,7 @@
 /*
 Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2017 Vector Creations Ltd
+Copyright 2018 New Vector Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,6 +16,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 "use strict";
+
+var _bluebird = require("bluebird");
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
  * This is an internal module.
  * @module store/stub
@@ -24,167 +33,257 @@ limitations under the License.
  * @constructor
  */
 function StubStore() {
-    this.fromToken = null;
+  this.fromToken = null;
 }
 
 StubStore.prototype = {
 
-    /**
-     * Get the sync token.
-     * @return {string}
-     */
-    getSyncToken: function() {
-        return this.fromToken;
-    },
+  /** @return {Promise<bool>} whether or not the database was newly created in this session. */
+  isNewlyCreated: function () {
+    return _bluebird2.default.resolve(true);
+  },
 
-    /**
-     * Set the sync token.
-     * @param {string} token
-     */
-    setSyncToken: function(token) {
-        this.fromToken = token;
-    },
+  /**
+   * Get the sync token.
+   * @return {string}
+   */
+  getSyncToken: function () {
+    return this.fromToken;
+  },
 
-    /**
-     * No-op.
-     * @param {Room} room
-     */
-    storeRoom: function(room) {
-    },
+  /**
+   * Set the sync token.
+   * @param {string} token
+   */
+  setSyncToken: function (token) {
+    this.fromToken = token;
+  },
 
-    /**
-     * No-op.
-     * @param {string} roomId
-     * @return {null}
-     */
-    getRoom: function(roomId) {
-        return null;
-    },
+  /**
+   * No-op.
+   * @param {Group} group
+   */
+  storeGroup: function (group) {},
 
-    /**
-     * No-op.
-     * @return {Array} An empty array.
-     */
-    getRooms: function() {
-        return [];
-    },
+  /**
+   * No-op.
+   * @param {string} groupId
+   * @return {null}
+   */
+  getGroup: function (groupId) {
+    return null;
+  },
 
-    /**
-     * Permanently delete a room.
-     * @param {string} roomId
-     */
-    removeRoom: function(roomId) {
-        return;
-    },
+  /**
+   * No-op.
+   * @return {Array} An empty array.
+   */
+  getGroups: function () {
+    return [];
+  },
 
-    /**
-     * No-op.
-     * @return {Array} An empty array.
-     */
-    getRoomSummaries: function() {
-        return [];
-    },
+  /**
+   * No-op.
+   * @param {Room} room
+   */
+  storeRoom: function (room) {},
 
-    /**
-     * No-op.
-     * @param {User} user
-     */
-    storeUser: function(user) {
-    },
+  /**
+   * No-op.
+   * @param {string} roomId
+   * @return {null}
+   */
+  getRoom: function (roomId) {
+    return null;
+  },
 
-    /**
-     * No-op.
-     * @param {string} userId
-     * @return {null}
-     */
-    getUser: function(userId) {
-        return null;
-    },
+  /**
+   * No-op.
+   * @return {Array} An empty array.
+   */
+  getRooms: function () {
+    return [];
+  },
 
-    /**
-     * No-op.
-     * @return {User[]}
-     */
-    getUsers: function() {
-        return [];
-    },
+  /**
+   * Permanently delete a room.
+   * @param {string} roomId
+   */
+  removeRoom: function (roomId) {
+    return;
+  },
 
-    /**
-     * No-op.
-     * @param {Room} room
-     * @param {integer} limit
-     * @return {Array}
-     */
-    scrollback: function(room, limit) {
-        return [];
-    },
+  /**
+   * No-op.
+   * @return {Array} An empty array.
+   */
+  getRoomSummaries: function () {
+    return [];
+  },
 
-    /**
-     * Store events for a room.
-     * @param {Room} room The room to store events for.
-     * @param {Array<MatrixEvent>} events The events to store.
-     * @param {string} token The token associated with these events.
-     * @param {boolean} toStart True if these are paginated results.
-     */
-    storeEvents: function(room, events, token, toStart) {
-    },
+  /**
+   * No-op.
+   * @param {User} user
+   */
+  storeUser: function (user) {},
 
-    /**
-     * Store a filter.
-     * @param {Filter} filter
-     */
-    storeFilter: function(filter) {
-    },
+  /**
+   * No-op.
+   * @param {string} userId
+   * @return {null}
+   */
+  getUser: function (userId) {
+    return null;
+  },
 
-    /**
-     * Retrieve a filter.
-     * @param {string} userId
-     * @param {string} filterId
-     * @return {?Filter} A filter or null.
-     */
-    getFilter: function(userId, filterId) {
-        return null;
-    },
+  /**
+   * No-op.
+   * @return {User[]}
+   */
+  getUsers: function () {
+    return [];
+  },
 
-    /**
-     * Retrieve a filter ID with the given name.
-     * @param {string} filterName The filter name.
-     * @return {?string} The filter ID or null.
-     */
-    getFilterIdByName: function(filterName) {
-        return null;
-    },
+  /**
+   * No-op.
+   * @param {Room} room
+   * @param {integer} limit
+   * @return {Array}
+   */
+  scrollback: function (room, limit) {
+    return [];
+  },
 
-    /**
-     * Set a filter name to ID mapping.
-     * @param {string} filterName
-     * @param {string} filterId
-     */
-    setFilterIdByName: function(filterName, filterId) {
+  /**
+   * Store events for a room.
+   * @param {Room} room The room to store events for.
+   * @param {Array<MatrixEvent>} events The events to store.
+   * @param {string} token The token associated with these events.
+   * @param {boolean} toStart True if these are paginated results.
+   */
+  storeEvents: function (room, events, token, toStart) {},
 
-    },
+  /**
+   * Store a filter.
+   * @param {Filter} filter
+   */
+  storeFilter: function (filter) {},
 
-    /**
-     * Store user-scoped account data events
-     * @param {Array<MatrixEvent>} events The events to store.
-     */
-    storeAccountDataEvents: function(events) {
+  /**
+   * Retrieve a filter.
+   * @param {string} userId
+   * @param {string} filterId
+   * @return {?Filter} A filter or null.
+   */
+  getFilter: function (userId, filterId) {
+    return null;
+  },
 
-    },
+  /**
+   * Retrieve a filter ID with the given name.
+   * @param {string} filterName The filter name.
+   * @return {?string} The filter ID or null.
+   */
+  getFilterIdByName: function (filterName) {
+    return null;
+  },
 
-    /**
-     * Get account data event by event type
-     * @param {string} eventType The event type being queried
-     */
-    getAccountData: function(eventType) {
+  /**
+   * Set a filter name to ID mapping.
+   * @param {string} filterName
+   * @param {string} filterId
+   */
+  setFilterIdByName: function (filterName, filterId) {},
 
-    },
+  /**
+   * Store user-scoped account data events
+   * @param {Array<MatrixEvent>} events The events to store.
+   */
+  storeAccountDataEvents: function (events) {},
 
-    // TODO
-    //setMaxHistoryPerRoom: function(maxHistory) {},
+  /**
+   * Get account data event by event type
+   * @param {string} eventType The event type being queried
+   */
+  getAccountData: function (eventType) {},
 
-    // TODO
-    //reapOldMessages: function() {},
+  /**
+   * setSyncData does nothing as there is no backing data store.
+   *
+   * @param {Object} syncData The sync data
+   * @return {Promise} An immediately resolved promise.
+   */
+  setSyncData: function (syncData) {
+    return _bluebird2.default.resolve();
+  },
+
+  /**
+   * We never want to save becase we have nothing to save to.
+   *
+   * @return {boolean} If the store wants to save
+   */
+  wantsSave: function () {
+    return false;
+  },
+
+  /**
+   * Save does nothing as there is no backing data store.
+   */
+  save: function () {},
+
+  /**
+   * Startup does nothing.
+   * @return {Promise} An immediately resolved promise.
+   */
+  startup: function () {
+    return _bluebird2.default.resolve();
+  },
+
+  /**
+   * @return {Promise} Resolves with a sync response to restore the
+   * client state to where it was at the last save, or null if there
+   * is no saved sync data.
+   */
+  getSavedSync: function () {
+    return _bluebird2.default.resolve(null);
+  },
+
+  /**
+   * @return {Promise} If there is a saved sync, the nextBatch token
+   * for this sync, otherwise null.
+   */
+  getSavedSyncToken: function () {
+    return _bluebird2.default.resolve(null);
+  },
+
+  /**
+   * Delete all data from this store. Does nothing since this store
+   * doesn't store anything.
+   * @return {Promise} An immediately resolved promise.
+   */
+  deleteAllData: function () {
+    return _bluebird2.default.resolve();
+  },
+
+  getOutOfBandMembers: function () {
+    return _bluebird2.default.resolve(null);
+  },
+
+  setOutOfBandMembers: function () {
+    return _bluebird2.default.resolve();
+  },
+
+  clearOutOfBandMembers: function () {
+    return _bluebird2.default.resolve();
+  },
+
+  getClientOptions: function () {
+    return _bluebird2.default.resolve();
+  },
+
+  storeClientOptions: function () {
+    return _bluebird2.default.resolve();
+  }
 };
 
 /** Stub Store class. */

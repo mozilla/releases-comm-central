@@ -1,5 +1,6 @@
 /*
 Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,18 +20,21 @@ limitations under the License.
  * @module utils
  */
 
+const unhomoglyph = require('unhomoglyph');
+
 /**
  * Encode a dictionary of query parameters.
  * @param {Object} params A dict of key/values to encode e.g.
  * {"foo": "bar", "baz": "taz"}
  * @return {string} The encoded string e.g. foo=bar&baz=taz
  */
-module.exports.encodeParams = function(params) {
-    var qs = "";
-    for (var key in params) {
-        if (!params.hasOwnProperty(key)) { continue; }
-        qs += "&" + encodeURIComponent(key) + "=" +
-                encodeURIComponent(params[key]);
+module.exports.encodeParams = function (params) {
+    let qs = "";
+    for (const key in params) {
+        if (!params.hasOwnProperty(key)) {
+            continue;
+        }
+        qs += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
     }
     return qs.substring(1);
 };
@@ -43,12 +47,12 @@ module.exports.encodeParams = function(params) {
  * variables with. E.g. { "$bar": "baz" }.
  * @return {string} The result of replacing all template variables e.g. '/foo/baz'.
  */
-module.exports.encodeUri = function(pathTemplate, variables) {
-    for (var key in variables) {
-        if (!variables.hasOwnProperty(key)) { continue; }
-        pathTemplate = pathTemplate.replace(
-            key, encodeURIComponent(variables[key])
-        );
+module.exports.encodeUri = function (pathTemplate, variables) {
+    for (const key in variables) {
+        if (!variables.hasOwnProperty(key)) {
+            continue;
+        }
+        pathTemplate = pathTemplate.replace(key, encodeURIComponent(variables[key]));
     }
     return pathTemplate;
 };
@@ -60,9 +64,9 @@ module.exports.encodeUri = function(pathTemplate, variables) {
  * the array with the signature <code>fn(element){...}</code>
  * @return {Array} A new array with the results of the function.
  */
-module.exports.map = function(array, fn) {
-    var results = new Array(array.length);
-    for (var i = 0; i < array.length; i++) {
+module.exports.map = function (array, fn) {
+    const results = new Array(array.length);
+    for (let i = 0; i < array.length; i++) {
         results[i] = fn(array[i]);
     }
     return results;
@@ -76,9 +80,9 @@ module.exports.map = function(array, fn) {
  * looks like <code>fn(element, index, array){...}</code>.
  * @return {Array} A new array with the results of the function.
  */
-module.exports.filter = function(array, fn) {
-    var results = [];
-    for (var i = 0; i < array.length; i++) {
+module.exports.filter = function (array, fn) {
+    const results = [];
+    for (let i = 0; i < array.length; i++) {
         if (fn(array[i], i, array)) {
             results.push(array[i]);
         }
@@ -91,10 +95,12 @@ module.exports.filter = function(array, fn) {
  * @param {Object} obj The object to get the keys for.
  * @return {string[]} The keys of the object.
  */
-module.exports.keys = function(obj) {
-    var keys = [];
-    for (var key in obj) {
-        if (!obj.hasOwnProperty(key)) { continue; }
+module.exports.keys = function (obj) {
+    const keys = [];
+    for (const key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+            continue;
+        }
         keys.push(key);
     }
     return keys;
@@ -105,10 +111,12 @@ module.exports.keys = function(obj) {
  * @param {Object} obj The object to get the values for.
  * @return {Array<*>} The values of the object.
  */
-module.exports.values = function(obj) {
-    var values = [];
-    for (var key in obj) {
-        if (!obj.hasOwnProperty(key)) { continue; }
+module.exports.values = function (obj) {
+    const values = [];
+    for (const key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+            continue;
+        }
         values.push(obj[key]);
     }
     return values;
@@ -120,8 +128,8 @@ module.exports.values = function(obj) {
  * @param {Function} fn The function to invoke for each element. Has the
  * function signature <code>fn(element, index)</code>.
  */
-module.exports.forEach = function(array, fn) {
-    for (var i = 0; i < array.length; i++) {
+module.exports.forEach = function (array, fn) {
+    for (let i = 0; i < array.length; i++) {
         fn(array[i], i);
     }
 };
@@ -137,16 +145,15 @@ module.exports.forEach = function(array, fn) {
  * @return {*} The first value in the array which returns <code>true</code> for
  * the given function.
  */
-module.exports.findElement = function(array, fn, reverse) {
-    var i;
+module.exports.findElement = function (array, fn, reverse) {
+    let i;
     if (reverse) {
         for (i = array.length - 1; i >= 0; i--) {
             if (fn(array[i], i, array)) {
                 return array[i];
             }
         }
-    }
-    else {
+    } else {
         for (i = 0; i < array.length; i++) {
             if (fn(array[i], i, array)) {
                 return array[i];
@@ -165,9 +172,9 @@ module.exports.findElement = function(array, fn, reverse) {
  * @param {boolean} reverse True to search in reverse order.
  * @return {boolean} True if an element was removed.
  */
-module.exports.removeElement = function(array, fn, reverse) {
-    var i;
-    var removed;
+module.exports.removeElement = function (array, fn, reverse) {
+    let i;
+    let removed;
     if (reverse) {
         for (i = array.length - 1; i >= 0; i--) {
             if (fn(array[i], i, array)) {
@@ -176,8 +183,7 @@ module.exports.removeElement = function(array, fn, reverse) {
                 return removed;
             }
         }
-    }
-    else {
+    } else {
         for (i = 0; i < array.length; i++) {
             if (fn(array[i], i, array)) {
                 removed = array[i];
@@ -194,7 +200,7 @@ module.exports.removeElement = function(array, fn, reverse) {
  * @param {*} value The thing to check.
  * @return {boolean} True if it is a function.
  */
-module.exports.isFunction = function(value) {
+module.exports.isFunction = function (value) {
     return Object.prototype.toString.call(value) == "[object Function]";
 };
 
@@ -203,9 +209,8 @@ module.exports.isFunction = function(value) {
  * @param {*} value The thing to check.
  * @return {boolean} True if it is an array.
  */
-module.exports.isArray = function(value) {
-    return Array.isArray ? Array.isArray(value) :
-        Boolean(value && value.constructor === Array);
+module.exports.isArray = function (value) {
+    return Array.isArray ? Array.isArray(value) : Boolean(value && value.constructor === Array);
 };
 
 /**
@@ -214,8 +219,8 @@ module.exports.isArray = function(value) {
  * @param {string[]} keys The list of keys that 'obj' must have.
  * @throws If the object is missing keys.
  */
-module.exports.checkObjectHasKeys = function(obj, keys) {
-    for (var i = 0; i < keys.length; i++) {
+module.exports.checkObjectHasKeys = function (obj, keys) {
+    for (let i = 0; i < keys.length; i++) {
         if (!obj.hasOwnProperty(keys[i])) {
             throw new Error("Missing required key: " + keys[i]);
         }
@@ -228,9 +233,11 @@ module.exports.checkObjectHasKeys = function(obj, keys) {
  * @param {string[]} allowedKeys The list of allowed key names.
  * @throws If there are extra keys.
  */
-module.exports.checkObjectHasNoAdditionalKeys = function(obj, allowedKeys) {
-    for (var key in obj) {
-        if (!obj.hasOwnProperty(key)) { continue; }
+module.exports.checkObjectHasNoAdditionalKeys = function (obj, allowedKeys) {
+    for (const key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+            continue;
+        }
         if (allowedKeys.indexOf(key) === -1) {
             throw new Error("Unknown key: " + key);
         }
@@ -243,7 +250,7 @@ module.exports.checkObjectHasNoAdditionalKeys = function(obj, allowedKeys) {
  * @param {Object} obj The object to deep copy.
  * @return {Object} A copy of the object without any references to the original.
  */
-module.exports.deepCopy = function(obj) {
+module.exports.deepCopy = function (obj) {
     return JSON.parse(JSON.stringify(obj));
 };
 
@@ -255,7 +262,7 @@ module.exports.deepCopy = function(obj) {
  *
  * @return {boolean} true if the two objects are equal
  */
-var deepCompare = module.exports.deepCompare = function(x, y) {
+const deepCompare = module.exports.deepCompare = function (x, y) {
     // Inspired by
     // http://stackoverflow.com/questions/1068834/object-comparison-in-javascript#1144249
 
@@ -271,7 +278,7 @@ var deepCompare = module.exports.deepCompare = function(x, y) {
 
     // special-case NaN (since NaN !== NaN)
     if (typeof x === 'number' && isNaN(x) && isNaN(y)) {
-         return true;
+        return true;
     }
 
     // special-case null (since typeof null == 'object', but null.constructor
@@ -301,7 +308,7 @@ var deepCompare = module.exports.deepCompare = function(x, y) {
             return false;
         }
 
-        for (var i = 0; i < x.length; i++) {
+        for (let i = 0; i < x.length; i++) {
             if (!deepCompare(x[i], y[i])) {
                 return false;
             }
@@ -312,7 +319,7 @@ var deepCompare = module.exports.deepCompare = function(x, y) {
         /* jshint -W089 */
 
         // check that all of y's direct keys are in x
-        var p;
+        let p;
         for (p in y) {
             if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
                 return false;
@@ -321,6 +328,7 @@ var deepCompare = module.exports.deepCompare = function(x, y) {
 
         // finally, compare each of x's keys with y
         for (p in y) {
+            // eslint-disable-line guard-for-in
             if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
                 return false;
             }
@@ -346,61 +354,57 @@ var deepCompare = module.exports.deepCompare = function(x, y) {
  *
  * @return {Object} target
  */
-module.exports.extend = function() {
-    var target = arguments[0] || {};
-    // disable jshint "The body of a for in should be wrapped in an if
-    // statement"
-    /* jshint -W089 */
-    for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-        for (var propName in source) {
+module.exports.extend = function () {
+    const target = arguments[0] || {};
+    for (let i = 1; i < arguments.length; i++) {
+        const source = arguments[i];
+        for (const propName in source) {
+            // eslint-disable-line guard-for-in
             target[propName] = source[propName];
         }
     }
-    /* jshint +W089 */
     return target;
 };
 
 /**
  * Run polyfills to add Array.map and Array.filter if they are missing.
  */
-module.exports.runPolyfills = function() {
+module.exports.runPolyfills = function () {
     //                Array.prototype.filter
     // ========================================================
     // SOURCE:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
     if (!Array.prototype.filter) {
-      Array.prototype.filter = function(fun/*, thisArg*/) {
-
-        if (this === void 0 || this === null) {
-          throw new TypeError();
-        }
-
-        var t = Object(this);
-        var len = t.length >>> 0;
-        if (typeof fun !== 'function') {
-          throw new TypeError();
-        }
-
-        var res = [];
-        var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-        for (var i = 0; i < len; i++) {
-          if (i in t) {
-            var val = t[i];
-
-            // NOTE: Technically this should Object.defineProperty at
-            //       the next index, as push can be affected by
-            //       properties on Object.prototype and Array.prototype.
-            //       But that method's new, and collisions should be
-            //       rare, so use the more-compatible alternative.
-            if (fun.call(thisArg, val, i, t)) {
-              res.push(val);
+        Array.prototype.filter = function (fun /*, thisArg*/) {
+            if (this === void 0 || this === null) {
+                throw new TypeError();
             }
-          }
-        }
 
-        return res;
-      };
+            const t = Object(this);
+            const len = t.length >>> 0;
+            if (typeof fun !== 'function') {
+                throw new TypeError();
+            }
+
+            const res = [];
+            const thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+            for (let i = 0; i < len; i++) {
+                if (i in t) {
+                    const val = t[i];
+
+                    // NOTE: Technically this should Object.defineProperty at
+                    //       the next index, as push can be affected by
+                    //       properties on Object.prototype and Array.prototype.
+                    //       But that method's new, and collisions should be
+                    //       rare, so use the more-compatible alternative.
+                    if (fun.call(thisArg, val, i, t)) {
+                        res.push(val);
+                    }
+                }
+            }
+
+            return res;
+        };
     }
 
     //                Array.prototype.map
@@ -410,159 +414,151 @@ module.exports.runPolyfills = function() {
     // Production steps of ECMA-262, Edition 5, 15.4.4.19
     // Reference: http://es5.github.io/#x15.4.4.19
     if (!Array.prototype.map) {
+        Array.prototype.map = function (callback, thisArg) {
+            let T, k;
 
-      Array.prototype.map = function(callback, thisArg) {
+            if (this === null || this === undefined) {
+                throw new TypeError(' this is null or not defined');
+            }
 
-        var T, A, k;
+            // 1. Let O be the result of calling ToObject passing the |this|
+            //    value as the argument.
+            const O = Object(this);
 
-        if (this === null || this === undefined) {
-          throw new TypeError(' this is null or not defined');
-        }
+            // 2. Let lenValue be the result of calling the Get internal
+            //    method of O with the argument "length".
+            // 3. Let len be ToUint32(lenValue).
+            const len = O.length >>> 0;
 
-        // 1. Let O be the result of calling ToObject passing the |this|
-        //    value as the argument.
-        var O = Object(this);
+            // 4. If IsCallable(callback) is false, throw a TypeError exception.
+            // See: http://es5.github.com/#x9.11
+            if (typeof callback !== 'function') {
+                throw new TypeError(callback + ' is not a function');
+            }
 
-        // 2. Let lenValue be the result of calling the Get internal
-        //    method of O with the argument "length".
-        // 3. Let len be ToUint32(lenValue).
-        var len = O.length >>> 0;
+            // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+            if (arguments.length > 1) {
+                T = thisArg;
+            }
 
-        // 4. If IsCallable(callback) is false, throw a TypeError exception.
-        // See: http://es5.github.com/#x9.11
-        if (typeof callback !== 'function') {
-          throw new TypeError(callback + ' is not a function');
-        }
+            // 6. Let A be a new array created as if by the expression new Array(len)
+            //    where Array is the standard built-in constructor with that name and
+            //    len is the value of len.
+            const A = new Array(len);
 
-        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-        if (arguments.length > 1) {
-          T = thisArg;
-        }
+            // 7. Let k be 0
+            k = 0;
 
-        // 6. Let A be a new array created as if by the expression new Array(len)
-        //    where Array is the standard built-in constructor with that name and
-        //    len is the value of len.
-        A = new Array(len);
+            // 8. Repeat, while k < len
+            while (k < len) {
+                var kValue, mappedValue;
 
-        // 7. Let k be 0
-        k = 0;
+                // a. Let Pk be ToString(k).
+                //   This is implicit for LHS operands of the in operator
+                // b. Let kPresent be the result of calling the HasProperty internal
+                //    method of O with argument Pk.
+                //   This step can be combined with c
+                // c. If kPresent is true, then
+                if (k in O) {
+                    // i. Let kValue be the result of calling the Get internal
+                    //    method of O with argument Pk.
+                    kValue = O[k];
 
-        // 8. Repeat, while k < len
-        while (k < len) {
+                    // ii. Let mappedValue be the result of calling the Call internal
+                    //     method of callback with T as the this value and argument
+                    //     list containing kValue, k, and O.
+                    mappedValue = callback.call(T, kValue, k, O);
 
-          var kValue, mappedValue;
+                    // iii. Call the DefineOwnProperty internal method of A with arguments
+                    // Pk, Property Descriptor
+                    // { Value: mappedValue,
+                    //   Writable: true,
+                    //   Enumerable: true,
+                    //   Configurable: true },
+                    // and false.
 
-          // a. Let Pk be ToString(k).
-          //   This is implicit for LHS operands of the in operator
-          // b. Let kPresent be the result of calling the HasProperty internal
-          //    method of O with argument Pk.
-          //   This step can be combined with c
-          // c. If kPresent is true, then
-          if (k in O) {
+                    // In browsers that support Object.defineProperty, use the following:
+                    // Object.defineProperty(A, k, {
+                    //   value: mappedValue,
+                    //   writable: true,
+                    //   enumerable: true,
+                    //   configurable: true
+                    // });
 
-            // i. Let kValue be the result of calling the Get internal
-            //    method of O with argument Pk.
-            kValue = O[k];
+                    // For best browser support, use the following:
+                    A[k] = mappedValue;
+                }
+                // d. Increase k by 1.
+                k++;
+            }
 
-            // ii. Let mappedValue be the result of calling the Call internal
-            //     method of callback with T as the this value and argument
-            //     list containing kValue, k, and O.
-            mappedValue = callback.call(T, kValue, k, O);
-
-            // iii. Call the DefineOwnProperty internal method of A with arguments
-            // Pk, Property Descriptor
-            // { Value: mappedValue,
-            //   Writable: true,
-            //   Enumerable: true,
-            //   Configurable: true },
-            // and false.
-
-            // In browsers that support Object.defineProperty, use the following:
-            // Object.defineProperty(A, k, {
-            //   value: mappedValue,
-            //   writable: true,
-            //   enumerable: true,
-            //   configurable: true
-            // });
-
-            // For best browser support, use the following:
-            A[k] = mappedValue;
-          }
-          // d. Increase k by 1.
-          k++;
-        }
-
-        // 9. return A
-        return A;
-      };
+            // 9. return A
+            return A;
+        };
     }
 
     //                Array.prototype.forEach
     // ========================================================
     // SOURCE:
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
     // Production steps of ECMA-262, Edition 5, 15.4.4.18
     // Reference: http://es5.github.io/#x15.4.4.18
     if (!Array.prototype.forEach) {
+        Array.prototype.forEach = function (callback, thisArg) {
+            let T, k;
 
-      Array.prototype.forEach = function(callback, thisArg) {
+            if (this === null || this === undefined) {
+                throw new TypeError(' this is null or not defined');
+            }
 
-        var T, k;
+            // 1. Let O be the result of calling ToObject passing the |this| value as the
+            // argument.
+            const O = Object(this);
 
-        if (this === null || this === undefined) {
-          throw new TypeError(' this is null or not defined');
-        }
+            // 2. Let lenValue be the result of calling the Get internal method of O with the
+            // argument "length".
+            // 3. Let len be ToUint32(lenValue).
+            const len = O.length >>> 0;
 
-        // 1. Let O be the result of calling ToObject passing the |this| value as the
-        // argument.
-        var O = Object(this);
+            // 4. If IsCallable(callback) is false, throw a TypeError exception.
+            // See: http://es5.github.com/#x9.11
+            if (typeof callback !== "function") {
+                throw new TypeError(callback + ' is not a function');
+            }
 
-        // 2. Let lenValue be the result of calling the Get internal method of O with the
-        // argument "length".
-        // 3. Let len be ToUint32(lenValue).
-        var len = O.length >>> 0;
+            // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
+            if (arguments.length > 1) {
+                T = thisArg;
+            }
 
-        // 4. If IsCallable(callback) is false, throw a TypeError exception.
-        // See: http://es5.github.com/#x9.11
-        if (typeof callback !== "function") {
-          throw new TypeError(callback + ' is not a function');
-        }
+            // 6. Let k be 0
+            k = 0;
 
-        // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
-        if (arguments.length > 1) {
-          T = thisArg;
-        }
+            // 7. Repeat, while k < len
+            while (k < len) {
+                var kValue;
 
-        // 6. Let k be 0
-        k = 0;
+                // a. Let Pk be ToString(k).
+                //   This is implicit for LHS operands of the in operator
+                // b. Let kPresent be the result of calling the HasProperty internal
+                //    method of O with
+                //    argument Pk.
+                //   This step can be combined with c
+                // c. If kPresent is true, then
+                if (k in O) {
+                    // i. Let kValue be the result of calling the Get internal method of O with
+                    // argument Pk
+                    kValue = O[k];
 
-        // 7. Repeat, while k < len
-        while (k < len) {
-
-          var kValue;
-
-          // a. Let Pk be ToString(k).
-          //   This is implicit for LHS operands of the in operator
-          // b. Let kPresent be the result of calling the HasProperty internal
-          //    method of O with
-          //    argument Pk.
-          //   This step can be combined with c
-          // c. If kPresent is true, then
-          if (k in O) {
-
-            // i. Let kValue be the result of calling the Get internal method of O with
-            // argument Pk
-            kValue = O[k];
-
-            // ii. Call the Call internal method of callback with T as the this value and
-            // argument list containing kValue, k, and O.
-            callback.call(T, kValue, k, O);
-          }
-          // d. Increase k by 1.
-          k++;
-        }
-        // 8. return undefined
-      };
+                    // ii. Call the Call internal method of callback with T as the this value and
+                    // argument list containing kValue, k, and O.
+                    callback.call(T, kValue, k, O);
+                }
+                // d. Increase k by 1.
+                k++;
+            }
+            // 8. return undefined
+        };
     }
 };
 
@@ -574,53 +570,53 @@ module.exports.runPolyfills = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-module.exports.inherits = function(ctor, superCtor) {
+module.exports.inherits = function (ctor, superCtor) {
     // Add Object.create polyfill for IE8
     // Source:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript
     // /Reference/Global_Objects/Object/create#Polyfill
     if (typeof Object.create != 'function') {
-      // Production steps of ECMA-262, Edition 5, 15.2.3.5
-      // Reference: http://es5.github.io/#x15.2.3.5
-      Object.create = (function() {
-        // To save on memory, use a shared constructor
-        function Temp() {}
+        // Production steps of ECMA-262, Edition 5, 15.2.3.5
+        // Reference: http://es5.github.io/#x15.2.3.5
+        Object.create = function () {
+            // To save on memory, use a shared constructor
+            function Temp() {}
 
-        // make a safe reference to Object.prototype.hasOwnProperty
-        var hasOwn = Object.prototype.hasOwnProperty;
+            // make a safe reference to Object.prototype.hasOwnProperty
+            const hasOwn = Object.prototype.hasOwnProperty;
 
-        return function(O) {
-          // 1. If Type(O) is not Object or Null throw a TypeError exception.
-          if (typeof O != 'object') {
-            throw new TypeError('Object prototype may only be an Object or null');
-          }
+            return function (O) {
+                // 1. If Type(O) is not Object or Null throw a TypeError exception.
+                if (typeof O != 'object') {
+                    throw new TypeError('Object prototype may only be an Object or null');
+                }
 
-          // 2. Let obj be the result of creating a new object as if by the
-          //    expression new Object() where Object is the standard built-in
-          //    constructor with that name
-          // 3. Set the [[Prototype]] internal property of obj to O.
-          Temp.prototype = O;
-          var obj = new Temp();
-          Temp.prototype = null; // Let's not keep a stray reference to O...
+                // 2. Let obj be the result of creating a new object as if by the
+                //    expression new Object() where Object is the standard built-in
+                //    constructor with that name
+                // 3. Set the [[Prototype]] internal property of obj to O.
+                Temp.prototype = O;
+                const obj = new Temp();
+                Temp.prototype = null; // Let's not keep a stray reference to O...
 
-          // 4. If the argument Properties is present and not undefined, add
-          //    own properties to obj as if by calling the standard built-in
-          //    function Object.defineProperties with arguments obj and
-          //    Properties.
-          if (arguments.length > 1) {
-            // Object.defineProperties does ToObject on its first argument.
-            var Properties = Object(arguments[1]);
-            for (var prop in Properties) {
-              if (hasOwn.call(Properties, prop)) {
-                obj[prop] = Properties[prop];
-              }
-            }
-          }
+                // 4. If the argument Properties is present and not undefined, add
+                //    own properties to obj as if by calling the standard built-in
+                //    function Object.defineProperties with arguments obj and
+                //    Properties.
+                if (arguments.length > 1) {
+                    // Object.defineProperties does ToObject on its first argument.
+                    const Properties = Object(arguments[1]);
+                    for (const prop in Properties) {
+                        if (hasOwn.call(Properties, prop)) {
+                            obj[prop] = Properties[prop];
+                        }
+                    }
+                }
 
-          // 5. Return obj
-          return obj;
-        };
-      })();
+                // 5. Return obj
+                return obj;
+            };
+        }();
     }
     // END polyfill
 
@@ -656,4 +652,57 @@ module.exports.inherits = function(ctor, superCtor) {
             configurable: true
         }
     });
+};
+
+/**
+ * Returns whether the given value is a finite number without type-coercion
+ *
+ * @param {*} value the value to test
+ * @return {boolean} whether or not value is a finite number without type-coercion
+ */
+module.exports.isNumber = function (value) {
+    return typeof value === 'number' && isFinite(value);
+};
+
+/**
+ * Removes zero width chars, diacritics and whitespace from the string
+ * Also applies an unhomoglyph on the string, to prevent similar looking chars
+ * @param {string} str the string to remove hidden characters from
+ * @return {string} a string with the hidden characters removed
+ */
+module.exports.removeHiddenChars = function (str) {
+    return unhomoglyph(str.normalize('NFD').replace(removeHiddenCharsRegex, ''));
+};
+const removeHiddenCharsRegex = /[\u200B-\u200D\u0300-\u036f\uFEFF\s]/g;
+
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+module.exports.escapeRegExp = escapeRegExp;
+
+module.exports.globToRegexp = function (glob, extended) {
+    extended = typeof extended === 'boolean' ? extended : true;
+    // From
+    // https://github.com/matrix-org/synapse/blob/abbee6b29be80a77e05730707602f3bbfc3f38cb/synapse/push/__init__.py#L132
+    // Because micromatch is about 130KB with dependencies,
+    // and minimatch is not much better.
+    let pat = escapeRegExp(glob);
+    pat = pat.replace(/\\\*/g, '.*');
+    pat = pat.replace(/\?/g, '.');
+    if (extended) {
+        pat = pat.replace(/\\\[(!|)(.*)\\]/g, function (match, p1, p2, offset, string) {
+            const first = p1 && '^' || '';
+            const second = p2.replace(/\\-/, '-');
+            return '[' + first + second + ']';
+        });
+    }
+    return pat;
+};
+
+module.exports.ensureNoTrailingSlash = function (url) {
+    if (url && url.endsWith("/")) {
+        return url.substr(0, url.length - 1);
+    } else {
+        return url;
+    }
 };

@@ -1,5 +1,20 @@
+'use strict';
+
+var _logger = require('../logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+var _indexeddbCryptoStore = require('./store/indexeddb-crypto-store');
+
+var _indexeddbCryptoStore2 = _interopRequireDefault(_indexeddbCryptoStore);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// The maximum size of an event is 65K, and we base64 the content, so this is a
+// reasonable approximation to the biggest plaintext we can encrypt.
 /*
 Copyright 2016 OpenMarket Ltd
+Copyright 2017, 2019 New Vector Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,49 +28,62 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-"use strict";
+
+const MAX_PLAINTEXT_LENGTH = 65536 * 3 / 4;
+
+function checkPayloadLength(payloadString) {
+    if (payloadString === undefined) {
+        throw new Error("payloadString undefined");
+    }
+
+    if (payloadString.length > MAX_PLAINTEXT_LENGTH) {
+        // might as well fail early here rather than letting the olm library throw
+        // a cryptic memory allocation error.
+        //
+        // Note that even if we manage to do the encryption, the message send may fail,
+        // because by the time we've wrapped the ciphertext in the event object, it may
+        // exceed 65K. But at least we won't just fail with "abort()" in that case.
+        throw new Error("Message too long (" + payloadString.length + " bytes). " + "The maximum for an encrypted message is " + MAX_PLAINTEXT_LENGTH + " bytes.");
+    }
+}
 
 /**
- * olm.js wrapper
+ * The type of object we use for importing and exporting megolm session data.
  *
- * @module crypto/OlmDevice
+ * @typedef {Object} module:crypto/OlmDevice.MegolmSessionData
+ * @property {String} sender_key  Sender's Curve25519 device key
+ * @property {String[]} forwarding_curve25519_key_chain Devices which forwarded
+ *     this session to us (normally empty).
+ * @property {Object<string, string>} sender_claimed_keys Other keys the sender claims.
+ * @property {String} room_id     Room this session is used in
+ * @property {String} session_id  Unique id for the session
+ * @property {String} session_key Base64'ed key data
  */
-
-var Olm = require("olm");
-var utils = require("../utils");
 
 /**
  * Manages the olm cryptography functions. Each OlmDevice has a single
  * OlmAccount and a number of OlmSessions.
  *
- * Accounts and sessions are kept pickled in a sessionStore.
+ * Accounts and sessions are kept pickled in the cryptoStore.
  *
  * @constructor
  * @alias module:crypto/OlmDevice
  *
- * @param {Object} sessionStore A store to be used for data in end-to-end
- *    crypto
+ * @param {Object} cryptoStore A store for crypto data
  *
  * @property {string} deviceCurve25519Key   Curve25519 key for the account
  * @property {string} deviceEd25519Key      Ed25519 key for the account
  */
-function OlmDevice(sessionStore) {
-    this._sessionStore = sessionStore;
+function OlmDevice(cryptoStore) {
+    this._cryptoStore = cryptoStore;
     this._pickleKey = "DEFAULT_KEY";
 
-    var e2eKeys;
-    var account = new Olm.Account();
-    try {
-        _initialise_account(this._sessionStore, this._pickleKey, account);
-        e2eKeys = JSON.parse(account.identity_keys());
-    } finally {
-        account.free();
-    }
+    // don't know these until we load the account from storage in init()
+    this.deviceCurve25519Key = null;
+    this.deviceEd25519Key = null;
+    this._maxOneTimeKeys = null;
 
-    this.deviceCurve25519Key = e2eKeys.curve25519;
-    this.deviceEd25519Key = e2eKeys.ed25519;
-
-    // we don't bother stashing outboundgroupsessions in the sessionstore -
+    // we don't bother stashing outboundgroupsessions in the cryptoStore -
     // instead we keep them here.
     this._outboundGroupSessionStore = {};
 
@@ -63,103 +91,163 @@ function OlmDevice(sessionStore) {
     // This partially mitigates a replay attack where a MITM resends a group
     // message into the room.
     //
-    // TODO: If we ever remove an event from memory we will also need to remove
-    // it from this map. Otherwise if we download the event from the server we
-    // will think that it is a duplicate.
+    // When we decrypt a message and the message index matches a previously
+    // decrypted message, one possible cause of that is that we are decrypting
+    // the same event, and may not indicate an actual replay attack.  For
+    // example, this could happen if we receive events, forget about them, and
+    // then re-fetch them when we backfill.  So we store the event ID and
+    // timestamp corresponding to each message index when we first decrypt it,
+    // and compare these against the event ID and timestamp every time we use
+    // that same index.  If they match, then we're probably decrypting the same
+    // event and we don't consider it a replay attack.
     //
     // Keys are strings of form "<senderKey>|<session_id>|<message_index>"
-    // Values are true.
+    // Values are objects of the form "{id: <event id>, timestamp: <ts>}"
     this._inboundGroupSessionMessageIndexes = {};
+
+    // Keep track of sessions that we're starting, so that we don't start
+    // multiple sessions for the same device at the same time.
+    this._sessionsInProgress = {};
 }
 
-function _initialise_account(sessionStore, pickleKey, account) {
-    var e2eAccount = sessionStore.getEndToEndAccount();
-    if (e2eAccount !== null) {
-        account.unpickle(pickleKey, e2eAccount);
-        return;
+/**
+ * Initialise the OlmAccount. This must be called before any other operations
+ * on the OlmDevice.
+ *
+ * Attempts to load the OlmAccount from the crypto store, or creates one if none is
+ * found.
+ *
+ * Reads the device keys from the OlmAccount object.
+ */
+OlmDevice.prototype.init = async function () {
+    let e2eKeys;
+    const account = new global.Olm.Account();
+    try {
+        await _initialiseAccount(this._cryptoStore, this._pickleKey, account);
+        e2eKeys = JSON.parse(account.identity_keys());
+
+        this._maxOneTimeKeys = account.max_number_of_one_time_keys();
+    } finally {
+        account.free();
     }
 
-    account.create();
-    var pickled = account.pickle(pickleKey);
-    sessionStore.storeEndToEndAccount(pickled);
+    this.deviceCurve25519Key = e2eKeys.curve25519;
+    this.deviceEd25519Key = e2eKeys.ed25519;
+};
+
+async function _initialiseAccount(cryptoStore, pickleKey, account) {
+    await cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_ACCOUNT], txn => {
+        cryptoStore.getAccount(txn, pickledAccount => {
+            if (pickledAccount !== null) {
+                account.unpickle(pickleKey, pickledAccount);
+            } else {
+                account.create();
+                pickledAccount = account.pickle(pickleKey);
+                cryptoStore.storeAccount(txn, pickledAccount);
+            }
+        });
+    });
 }
 
 /**
  * @return {array} The version of Olm.
  */
-OlmDevice.getOlmVersion = function() {
-    return Olm.get_library_version();
+OlmDevice.getOlmVersion = function () {
+    return global.Olm.get_library_version();
 };
 
-
 /**
- * extract our OlmAccount from the session store and call the given function
+ * extract our OlmAccount from the crypto store and call the given function
+ * with the account object
+ * The `account` object is useable only within the callback passed to this
+ * function and will be freed as soon the callback returns. It is *not*
+ * useable for the rest of the lifetime of the transaction.
+ * This function requires a live transaction object from cryptoStore.doTxn()
+ * and therefore may only be called in a doTxn() callback.
  *
+ * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
  * @param {function} func
- * @return {object} result of func
  * @private
  */
-OlmDevice.prototype._getAccount = function(func) {
-    var account = new Olm.Account();
-    try {
-        var pickledAccount = this._sessionStore.getEndToEndAccount();
-        account.unpickle(this._pickleKey, pickledAccount);
-        return func(account);
-    } finally {
-        account.free();
-    }
+OlmDevice.prototype._getAccount = function (txn, func) {
+    this._cryptoStore.getAccount(txn, pickledAccount => {
+        const account = new global.Olm.Account();
+        try {
+            account.unpickle(this._pickleKey, pickledAccount);
+            func(account);
+        } finally {
+            account.free();
+        }
+    });
 };
 
-
-/**
- * store our OlmAccount in the session store
+/*
+ * Saves an account to the crypto store.
+ * This function requires a live transaction object from cryptoStore.doTxn()
+ * and therefore may only be called in a doTxn() callback.
  *
- * @param {OlmAccount} account
+ * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
+ * @param {object} Olm.Account object
  * @private
  */
-OlmDevice.prototype._saveAccount = function(account) {
-    var pickledAccount = account.pickle(this._pickleKey);
-    this._sessionStore.storeEndToEndAccount(pickledAccount);
+OlmDevice.prototype._storeAccount = function (txn, account) {
+    this._cryptoStore.storeAccount(txn, account.pickle(this._pickleKey));
 };
-
 
 /**
  * extract an OlmSession from the session store and call the given function
+ * The session is useable only within the callback passed to this
+ * function and will be freed as soon the callback returns. It is *not*
+ * useable for the rest of the lifetime of the transaction.
  *
  * @param {string} deviceKey
  * @param {string} sessionId
+ * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
  * @param {function} func
- * @return {object} result of func
  * @private
  */
-OlmDevice.prototype._getSession = function(deviceKey, sessionId, func) {
-    var sessions = this._sessionStore.getEndToEndSessions(deviceKey);
-    var pickledSession = sessions[sessionId];
+OlmDevice.prototype._getSession = function (deviceKey, sessionId, txn, func) {
+    this._cryptoStore.getEndToEndSession(deviceKey, sessionId, txn, sessionInfo => {
+        this._unpickleSession(sessionInfo, func);
+    });
+};
 
-    var session = new Olm.Session();
+/**
+ * Creates a session object from a session pickle and executes the given
+ * function with it. The session object is destroyed once the function
+ * returns.
+ *
+ * @param {object} sessionInfo
+ * @param {function} func
+ * @private
+ */
+OlmDevice.prototype._unpickleSession = function (sessionInfo, func) {
+    const session = new global.Olm.Session();
     try {
-        session.unpickle(this._pickleKey, pickledSession);
-        return func(session);
+        session.unpickle(this._pickleKey, sessionInfo.session);
+        const unpickledSessInfo = Object.assign({}, sessionInfo, { session });
+
+        func(unpickledSessInfo);
     } finally {
         session.free();
     }
 };
 
-
 /**
  * store our OlmSession in the session store
  *
  * @param {string} deviceKey
- * @param {OlmSession} session
+ * @param {object} sessionInfo {session: OlmSession, lastReceivedMessageTs: int}
+ * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
  * @private
  */
-OlmDevice.prototype._saveSession = function(deviceKey, session) {
-    var pickledSession = session.pickle(this._pickleKey);
-    this._sessionStore.storeEndToEndSession(
-        deviceKey, session.session_id(), pickledSession
-    );
+OlmDevice.prototype._saveSession = function (deviceKey, sessionInfo, txn) {
+    const sessionId = sessionInfo.session.session_id();
+    const pickledSessionInfo = Object.assign(sessionInfo, {
+        session: sessionInfo.session.pickle(this._pickleKey)
+    });
+    this._cryptoStore.storeEndToEndSession(deviceKey, sessionId, pickledSessionInfo, txn);
 };
-
 
 /**
  * get an OlmUtility and call the given function
@@ -168,8 +256,8 @@ OlmDevice.prototype._saveSession = function(deviceKey, session) {
  * @return {object} result of func
  * @private
  */
-OlmDevice.prototype._getUtility = function(func) {
-    var utility = new Olm.Utility();
+OlmDevice.prototype._getUtility = function (func) {
+    const utility = new global.Olm.Utility();
     try {
         return func(utility);
     } finally {
@@ -177,17 +265,20 @@ OlmDevice.prototype._getUtility = function(func) {
     }
 };
 
-
 /**
  * Signs a message with the ed25519 key for this account.
  *
  * @param {string} message  message to be signed
- * @return {string} base64-encoded signature
+ * @return {Promise<string>} base64-encoded signature
  */
-OlmDevice.prototype.sign = function(message) {
-    return this._getAccount(function(account) {
-        return account.sign(message);
+OlmDevice.prototype.sign = async function (message) {
+    let result;
+    await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore2.default.STORE_ACCOUNT], txn => {
+        this._getAccount(txn, account => {
+            result = account.sign(message);
+        });
     });
+    return result;
 };
 
 /**
@@ -197,32 +288,35 @@ OlmDevice.prototype.sign = function(message) {
  * <tt>curve25519</tt>, which is itself an object mapping key id to Curve25519
  * key.
  */
-OlmDevice.prototype.getOneTimeKeys = function() {
-    return this._getAccount(function(account) {
-        return JSON.parse(account.one_time_keys());
+OlmDevice.prototype.getOneTimeKeys = async function () {
+    let result;
+    await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore2.default.STORE_ACCOUNT], txn => {
+        this._getAccount(txn, account => {
+            result = JSON.parse(account.one_time_keys());
+        });
     });
-};
 
+    return result;
+};
 
 /**
  * Get the maximum number of one-time keys we can store.
  *
  * @return {number} number of keys
  */
-OlmDevice.prototype.maxNumberOfOneTimeKeys = function() {
-    return this._getAccount(function(account) {
-        return account.max_number_of_one_time_keys();
-    });
+OlmDevice.prototype.maxNumberOfOneTimeKeys = function () {
+    return this._maxOneTimeKeys;
 };
 
 /**
  * Marks all of the one-time keys as published.
  */
-OlmDevice.prototype.markKeysAsPublished = function() {
-    var self = this;
-    this._getAccount(function(account) {
-        account.mark_keys_as_published();
-        self._saveAccount(account);
+OlmDevice.prototype.markKeysAsPublished = async function () {
+    await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_ACCOUNT], txn => {
+        this._getAccount(txn, account => {
+            account.mark_keys_as_published();
+            this._storeAccount(txn, account);
+        });
     });
 };
 
@@ -230,46 +324,56 @@ OlmDevice.prototype.markKeysAsPublished = function() {
  * Generate some new one-time keys
  *
  * @param {number} numKeys number of keys to generate
+ * @return {Promise} Resolved once the account is saved back having generated the keys
  */
-OlmDevice.prototype.generateOneTimeKeys = function(numKeys) {
-    var self = this;
-    this._getAccount(function(account) {
-        account.generate_one_time_keys(numKeys);
-        self._saveAccount(account);
+OlmDevice.prototype.generateOneTimeKeys = function (numKeys) {
+    return this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_ACCOUNT], txn => {
+        this._getAccount(txn, account => {
+            account.generate_one_time_keys(numKeys);
+            this._storeAccount(txn, account);
+        });
     });
 };
 
 /**
  * Generate a new outbound session
  *
- * The new session will be stored in the sessionStore.
+ * The new session will be stored in the cryptoStore.
  *
  * @param {string} theirIdentityKey remote user's Curve25519 identity key
  * @param {string} theirOneTimeKey  remote user's one-time Curve25519 key
  * @return {string} sessionId for the outbound session.
  */
-OlmDevice.prototype.createOutboundSession = function(
-    theirIdentityKey, theirOneTimeKey
-) {
-    var self = this;
-    return this._getAccount(function(account) {
-        var session = new Olm.Session();
-        try {
-            session.create_outbound(account, theirIdentityKey, theirOneTimeKey);
-            self._saveSession(theirIdentityKey, session);
-            return session.session_id();
-        } finally {
-            session.free();
-        }
+OlmDevice.prototype.createOutboundSession = async function (theirIdentityKey, theirOneTimeKey) {
+    let newSessionId;
+    await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_ACCOUNT, _indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
+        this._getAccount(txn, account => {
+            const session = new global.Olm.Session();
+            try {
+                session.create_outbound(account, theirIdentityKey, theirOneTimeKey);
+                newSessionId = session.session_id();
+                this._storeAccount(txn, account);
+                const sessionInfo = {
+                    session,
+                    // Pretend we've received a message at this point, otherwise
+                    // if we try to send a message to the device, it won't use
+                    // this session
+                    lastReceivedMessageTs: Date.now()
+                };
+                this._saveSession(theirIdentityKey, sessionInfo, txn);
+            } finally {
+                session.free();
+            }
+        });
     });
+    return newSessionId;
 };
-
 
 /**
  * Generate a new inbound session, given an incoming message
  *
  * @param {string} theirDeviceIdentityKey remote user's Curve25519 identity key
- * @param {number} message_type  message_type field from the received message (must be 0)
+ * @param {number} messageType  messageType field from the received message (must be 0)
  * @param {string} ciphertext base64-encoded body from the received message
  *
  * @return {{payload: string, session_id: string}} decrypted payload, and
@@ -278,48 +382,68 @@ OlmDevice.prototype.createOutboundSession = function(
  * @raises {Error} if the received message was not valid (for instance, it
  *     didn't use a valid one-time key).
  */
-OlmDevice.prototype.createInboundSession = function(
-    theirDeviceIdentityKey, message_type, ciphertext
-) {
-    if (message_type !== 0) {
-        throw new Error("Need message_type == 0 to create inbound session");
+OlmDevice.prototype.createInboundSession = async function (theirDeviceIdentityKey, messageType, ciphertext) {
+    if (messageType !== 0) {
+        throw new Error("Need messageType == 0 to create inbound session");
     }
 
-    var self = this;
-    return this._getAccount(function(account) {
-        var session = new Olm.Session();
-        try {
-            session.create_inbound_from(account, theirDeviceIdentityKey, ciphertext);
-            account.remove_one_time_keys(session);
-            self._saveAccount(account);
+    let result;
+    await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_ACCOUNT, _indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
+        this._getAccount(txn, account => {
+            const session = new global.Olm.Session();
+            try {
+                session.create_inbound_from(account, theirDeviceIdentityKey, ciphertext);
+                account.remove_one_time_keys(session);
+                this._storeAccount(txn, account);
 
-            var payloadString = session.decrypt(message_type, ciphertext);
+                const payloadString = session.decrypt(messageType, ciphertext);
 
-            self._saveSession(theirDeviceIdentityKey, session);
+                const sessionInfo = {
+                    session,
+                    // this counts as a received message: set last received message time
+                    // to now
+                    lastReceivedMessageTs: Date.now()
+                };
+                this._saveSession(theirDeviceIdentityKey, sessionInfo, txn);
 
-            return {
-                payload: payloadString,
-                session_id: session.session_id(),
-            };
-        } finally {
-            session.free();
-        }
+                result = {
+                    payload: payloadString,
+                    session_id: session.session_id()
+                };
+            } finally {
+                session.free();
+            }
+        });
     });
-};
 
+    return result;
+};
 
 /**
  * Get a list of known session IDs for the given device
  *
  * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
  *     remote device
- * @return {string[]}  a list of known session ids for the device
+ * @return {Promise<string[]>}  a list of known session ids for the device
  */
-OlmDevice.prototype.getSessionIdsForDevice = function(theirDeviceIdentityKey) {
-    var sessions = this._sessionStore.getEndToEndSessions(
-        theirDeviceIdentityKey
-    );
-    return utils.keys(sessions);
+OlmDevice.prototype.getSessionIdsForDevice = async function (theirDeviceIdentityKey) {
+    if (this._sessionsInProgress[theirDeviceIdentityKey]) {
+        _logger2.default.log("waiting for session to be created");
+        try {
+            await this._sessionsInProgress[theirDeviceIdentityKey];
+        } catch (e) {
+            // if the session failed to be created, just fall through and
+            // return an empty result
+        }
+    }
+    let sessionIds;
+    await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
+        this._cryptoStore.getEndToEndSessions(theirDeviceIdentityKey, txn, sessions => {
+            sessionIds = Object.keys(sessions);
+        });
+    });
+
+    return sessionIds;
 };
 
 /**
@@ -327,16 +451,30 @@ OlmDevice.prototype.getSessionIdsForDevice = function(theirDeviceIdentityKey) {
  *
  * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
  *     remote device
- * @return {string?}  session id, or null if no established session
+ * @param {boolean} nowait Don't wait for an in-progress session to complete.
+ *     This should only be set to true of the calling function is the function
+ *     that marked the session as being in-progress.
+ * @return {Promise<?string>}  session id, or null if no established session
  */
-OlmDevice.prototype.getSessionIdForDevice = function(theirDeviceIdentityKey) {
-    var sessionIds = this.getSessionIdsForDevice(theirDeviceIdentityKey);
-    if (sessionIds.length === 0) {
+OlmDevice.prototype.getSessionIdForDevice = async function (theirDeviceIdentityKey, nowait) {
+    const sessionInfos = await this.getSessionInfoForDevice(theirDeviceIdentityKey, nowait);
+
+    if (sessionInfos.length === 0) {
         return null;
     }
-    // Use the session with the lowest ID.
-    sessionIds.sort();
-    return sessionIds[0];
+    // Use the session that has most recently received a message
+    let idxOfBest = 0;
+    for (let i = 1; i < sessionInfos.length; i++) {
+        const thisSessInfo = sessionInfos[i];
+        const thisLastReceived = thisSessInfo.lastReceivedMessageTs === undefined ? 0 : thisSessInfo.lastReceivedMessageTs;
+
+        const bestSessInfo = sessionInfos[idxOfBest];
+        const bestLastReceived = bestSessInfo.lastReceivedMessageTs === undefined ? 0 : bestSessInfo.lastReceivedMessageTs;
+        if (thisLastReceived > bestLastReceived || thisLastReceived === bestLastReceived && thisSessInfo.sessionId < bestSessInfo.sessionId) {
+            idxOfBest = i;
+        }
+    }
+    return sessionInfos[idxOfBest].sessionId;
 };
 
 /**
@@ -348,26 +486,38 @@ OlmDevice.prototype.getSessionIdForDevice = function(theirDeviceIdentityKey) {
  * message and is therefore past the pre-key stage), and 'sessionId'.
  *
  * @param {string} deviceIdentityKey Curve25519 identity key for the device
+ * @param {boolean} nowait Don't wait for an in-progress session to complete.
+ *     This should only be set to true of the calling function is the function
+ *     that marked the session as being in-progress.
  * @return {Array.<{sessionId: string, hasReceivedMessage: Boolean}>}
  */
-OlmDevice.prototype.getSessionInfoForDevice = function(deviceIdentityKey) {
-    var sessionIds = this.getSessionIdsForDevice(deviceIdentityKey);
-    sessionIds.sort();
-
-    var info = [];
-
-    function getSessionInfo(session) {
-        return {
-            hasReceivedMessage: session.has_received_message()
-        };
+OlmDevice.prototype.getSessionInfoForDevice = async function (deviceIdentityKey, nowait) {
+    if (this._sessionsInProgress[deviceIdentityKey] && !nowait) {
+        _logger2.default.log("waiting for session to be created");
+        try {
+            await this._sessionsInProgress[deviceIdentityKey];
+        } catch (e) {
+            // if the session failed to be created, then just fall through and
+            // return an empty result
+        }
     }
+    const info = [];
 
-    for (var i = 0; i < sessionIds.length; i++) {
-        var sessionId = sessionIds[i];
-        var res = this._getSession(deviceIdentityKey, sessionId, getSessionInfo);
-        res.sessionId = sessionId;
-        info.push(res);
-    }
+    await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
+        this._cryptoStore.getEndToEndSessions(deviceIdentityKey, txn, sessions => {
+            const sessionIds = Object.keys(sessions).sort();
+            for (const sessionId of sessionIds) {
+                this._unpickleSession(sessions[sessionId], sessInfo => {
+                    info.push({
+                        lastReceivedMessageTs: sessInfo.lastReceivedMessageTs,
+                        hasReceivedMessage: sessInfo.session.has_received_message(),
+                        sessionId: sessionId
+                    });
+                });
+            }
+        });
+    });
+
     return info;
 };
 
@@ -379,22 +529,19 @@ OlmDevice.prototype.getSessionInfoForDevice = function(deviceIdentityKey) {
  * @param {string} sessionId  the id of the active session
  * @param {string} payloadString  payload to be encrypted and sent
  *
- * @return {string} ciphertext
+ * @return {Promise<string>} ciphertext
  */
-OlmDevice.prototype.encryptMessage = function(
-    theirDeviceIdentityKey, sessionId, payloadString
-) {
-    var self = this;
+OlmDevice.prototype.encryptMessage = async function (theirDeviceIdentityKey, sessionId, payloadString) {
+    checkPayloadLength(payloadString);
 
-    if (payloadString === undefined) {
-        throw new Error("payloadString undefined");
-    }
-
-    return this._getSession(theirDeviceIdentityKey, sessionId, function(session) {
-        var res = session.encrypt(payloadString);
-        self._saveSession(theirDeviceIdentityKey, session);
-        return res;
+    let res;
+    await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
+        this._getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
+            res = sessionInfo.session.encrypt(payloadString);
+            this._saveSession(theirDeviceIdentityKey, sessionInfo, txn);
+        });
     });
+    return res;
 };
 
 /**
@@ -403,22 +550,21 @@ OlmDevice.prototype.encryptMessage = function(
  * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
  *     remote device
  * @param {string} sessionId  the id of the active session
- * @param {number} message_type  message_type field from the received message
+ * @param {number} messageType  messageType field from the received message
  * @param {string} ciphertext base64-encoded body from the received message
  *
- * @return {string} decrypted payload.
+ * @return {Promise<string>} decrypted payload.
  */
-OlmDevice.prototype.decryptMessage = function(
-    theirDeviceIdentityKey, sessionId, message_type, ciphertext
-) {
-    var self = this;
-
-    return this._getSession(theirDeviceIdentityKey, sessionId, function(session) {
-        var payloadString = session.decrypt(message_type, ciphertext);
-        self._saveSession(theirDeviceIdentityKey, session);
-
-        return payloadString;
+OlmDevice.prototype.decryptMessage = async function (theirDeviceIdentityKey, sessionId, messageType, ciphertext) {
+    let payloadString;
+    await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
+        this._getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
+            payloadString = sessionInfo.session.decrypt(messageType, ciphertext);
+            sessionInfo.lastReceivedMessageTs = Date.now();
+            this._saveSession(theirDeviceIdentityKey, sessionInfo, txn);
+        });
     });
+    return payloadString;
 };
 
 /**
@@ -427,25 +573,25 @@ OlmDevice.prototype.decryptMessage = function(
  * @param {string} theirDeviceIdentityKey Curve25519 identity key for the
  *     remote device
  * @param {string} sessionId  the id of the active session
- * @param {number} message_type  message_type field from the received message
+ * @param {number} messageType  messageType field from the received message
  * @param {string} ciphertext base64-encoded body from the received message
  *
- * @return {boolean} true if the received message is a prekey message which matches
+ * @return {Promise<boolean>} true if the received message is a prekey message which matches
  *    the given session.
  */
-OlmDevice.prototype.matchesSession = function(
-    theirDeviceIdentityKey, sessionId, message_type, ciphertext
-) {
-    if (message_type !== 0) {
+OlmDevice.prototype.matchesSession = async function (theirDeviceIdentityKey, sessionId, messageType, ciphertext) {
+    if (messageType !== 0) {
         return false;
     }
 
-    return this._getSession(theirDeviceIdentityKey, sessionId, function(session) {
-        return session.matches_inbound(ciphertext);
+    let matches;
+    await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
+        this._getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
+            matches = sessionInfo.session.matches_inbound(ciphertext);
+        });
     });
+    return matches;
 };
-
-
 
 // Outbound group session
 // ======================
@@ -456,11 +602,10 @@ OlmDevice.prototype.matchesSession = function(
  * @param {Olm.OutboundGroupSession} session
  * @private
  */
-OlmDevice.prototype._saveOutboundGroupSession = function(session) {
-    var pickledSession = session.pickle(this._pickleKey);
+OlmDevice.prototype._saveOutboundGroupSession = function (session) {
+    const pickledSession = session.pickle(this._pickleKey);
     this._outboundGroupSessionStore[session.session_id()] = pickledSession;
 };
-
 
 /**
  * extract an OutboundGroupSession from _outboundGroupSessionStore and call the
@@ -471,13 +616,13 @@ OlmDevice.prototype._saveOutboundGroupSession = function(session) {
  * @return {object} result of func
  * @private
  */
-OlmDevice.prototype._getOutboundGroupSession = function(sessionId, func) {
-    var pickled = this._outboundGroupSessionStore[sessionId];
-    if (pickled === null) {
+OlmDevice.prototype._getOutboundGroupSession = function (sessionId, func) {
+    const pickled = this._outboundGroupSessionStore[sessionId];
+    if (pickled === undefined) {
         throw new Error("Unknown outbound group session " + sessionId);
     }
 
-    var session = new Olm.OutboundGroupSession();
+    const session = new global.Olm.OutboundGroupSession();
     try {
         session.unpickle(this._pickleKey, pickled);
         return func(session);
@@ -486,14 +631,13 @@ OlmDevice.prototype._getOutboundGroupSession = function(sessionId, func) {
     }
 };
 
-
 /**
  * Generate a new outbound group session
  *
  * @return {string} sessionId for the outbound session.
  */
-OlmDevice.prototype.createOutboundGroupSession = function() {
-    var session = new Olm.OutboundGroupSession();
+OlmDevice.prototype.createOutboundGroupSession = function () {
+    const session = new global.Olm.OutboundGroupSession();
     try {
         session.create();
         this._saveOutboundGroupSession(session);
@@ -503,7 +647,6 @@ OlmDevice.prototype.createOutboundGroupSession = function() {
     }
 };
 
-
 /**
  * Encrypt an outgoing message with an outbound group session
  *
@@ -512,11 +655,13 @@ OlmDevice.prototype.createOutboundGroupSession = function() {
  *
  * @return {string} ciphertext
  */
-OlmDevice.prototype.encryptGroupMessage = function(sessionId, payloadString) {
-    var self = this;
+OlmDevice.prototype.encryptGroupMessage = function (sessionId, payloadString) {
+    const self = this;
 
-    return this._getOutboundGroupSession(sessionId, function(session) {
-        var res = session.encrypt(payloadString);
+    checkPayloadLength(payloadString);
+
+    return this._getOutboundGroupSession(sessionId, function (session) {
+        const res = session.encrypt(payloadString);
         self._saveOutboundGroupSession(session);
         return res;
     });
@@ -530,88 +675,77 @@ OlmDevice.prototype.encryptGroupMessage = function(sessionId, payloadString) {
  * @return {{chain_index: number, key: string}} current chain index, and
  *     base64-encoded secret key.
  */
-OlmDevice.prototype.getOutboundGroupSessionKey = function(sessionId) {
-    return this._getOutboundGroupSession(sessionId, function(session) {
+OlmDevice.prototype.getOutboundGroupSessionKey = function (sessionId) {
+    return this._getOutboundGroupSession(sessionId, function (session) {
         return {
             chain_index: session.message_index(),
-            key: session.session_key(),
+            key: session.session_key()
         };
     });
 };
-
 
 // Inbound group session
 // =====================
 
 /**
- * store an InboundGroupSession in the session store
+ * data stored in the session store about an inbound group session
  *
- * @param {string} roomId
- * @param {string} senderCurve25519Key
- * @param {string} sessionId
- * @param {Olm.InboundGroupSession} session
- * @param {object} keysClaimed Other keys the sender claims.
- * @private
+ * @typedef {Object} InboundGroupSessionData
+ * @property {string} room_Id
+ * @property {string} session   pickled Olm.InboundGroupSession
+ * @property {Object<string, string>} keysClaimed
+ * @property {Array<string>} forwardingCurve25519KeyChain  Devices involved in forwarding
+ *     this session to us (normally empty).
  */
-OlmDevice.prototype._saveInboundGroupSession = function(
-    roomId, senderCurve25519Key, sessionId, session, keysClaimed
-) {
-    var r = {
-        room_id: roomId,
-        session: session.pickle(this._pickleKey),
-        keysClaimed: keysClaimed,
-    };
-
-    this._sessionStore.storeEndToEndInboundGroupSession(
-        senderCurve25519Key, sessionId, JSON.stringify(r)
-    );
-};
 
 /**
- * extract an InboundGroupSession from the session store and call the given function
+ * Unpickle a session from a sessionData object and invoke the given function.
+ * The session is valid only until func returns.
  *
- * @param {string} roomId
- * @param {string} senderKey
- * @param {string} sessionId
- * @param {function(Olm.InboundGroupSession, Object<string, string>): T} func
- *   function to call. Second argument is the map of keys claimed by the session.
- *
- * @return {null} the sessionId is unknown
- *
- * @return {T} result of func
- *
- * @private
- * @template {T}
+ * @param {Object} sessionData Object describing the session.
+ * @param {function(Olm.InboundGroupSession)} func Invoked with the unpickled session
+ * @return {*} result of func
  */
-OlmDevice.prototype._getInboundGroupSession = function(
-    roomId, senderKey, sessionId, func
-) {
-    var r = this._sessionStore.getEndToEndInboundGroupSession(
-        senderKey, sessionId
-    );
-
-    if (r === null) {
-        return null;
-    }
-
-    r = JSON.parse(r);
-
-    // check that the room id matches the original one for the session. This stops
-    // the HS pretending a message was targeting a different room.
-    if (roomId !== r.room_id) {
-        throw new Error(
-            "Mismatched room_id for inbound group session (expected " + r.room_id +
-                ", was " + roomId + ")"
-        );
-    }
-
-    var session = new Olm.InboundGroupSession();
+OlmDevice.prototype._unpickleInboundGroupSession = function (sessionData, func) {
+    const session = new global.Olm.InboundGroupSession();
     try {
-        session.unpickle(this._pickleKey, r.session);
-        return func(session, r.keysClaimed || {});
+        session.unpickle(this._pickleKey, sessionData.session);
+        return func(session);
     } finally {
         session.free();
     }
+};
+
+/**
+ * extract an InboundGroupSession from the crypto store and call the given function
+ *
+ * @param {string} roomId The room ID to extract the session for, or null to fetch
+ *     sessions for any room.
+ * @param {string} senderKey
+ * @param {string} sessionId
+ * @param {*} txn Opaque transaction object from cryptoStore.doTxn()
+ * @param {function(Olm.InboundGroupSession, InboundGroupSessionData)} func
+ *   function to call.
+ *
+ * @private
+ */
+OlmDevice.prototype._getInboundGroupSession = function (roomId, senderKey, sessionId, txn, func) {
+    this._cryptoStore.getEndToEndInboundGroupSession(senderKey, sessionId, txn, sessionData => {
+        if (sessionData === null) {
+            func(null);
+            return;
+        }
+
+        // if we were given a room ID, check that the it matches the original one for the session. This stops
+        // the HS pretending a message was targeting a different room.
+        if (roomId !== null && roomId !== sessionData.room_id) {
+            throw new Error("Mismatched room_id for inbound group session (expected " + sessionData.room_id + ", was " + roomId + ")");
+        }
+
+        this._unpickleInboundGroupSession(sessionData, session => {
+            func(session, sessionData);
+        });
+    });
 };
 
 /**
@@ -619,46 +753,53 @@ OlmDevice.prototype._getInboundGroupSession = function(
  *
  * @param {string} roomId     room in which this session will be used
  * @param {string} senderKey  base64-encoded curve25519 key of the sender
+ * @param {Array<string>} forwardingCurve25519KeyChain  Devices involved in forwarding
+ *     this session to us.
  * @param {string} sessionId  session identifier
  * @param {string} sessionKey base64-encoded secret key
  * @param {Object<string, string>} keysClaimed Other keys the sender claims.
+ * @param {boolean} exportFormat true if the megolm keys are in export format
+ *    (ie, they lack an ed25519 signature)
  */
-OlmDevice.prototype.addInboundGroupSession = function(
-    roomId, senderKey, sessionId, sessionKey, keysClaimed
-) {
-    var self = this;
+OlmDevice.prototype.addInboundGroupSession = async function (roomId, senderKey, forwardingCurve25519KeyChain, sessionId, sessionKey, keysClaimed, exportFormat) {
+    await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_INBOUND_GROUP_SESSIONS], txn => {
+        /* if we already have this session, consider updating it */
+        this._getInboundGroupSession(roomId, senderKey, sessionId, txn, (existingSession, existingSessionData) => {
+            // new session.
+            const session = new global.Olm.InboundGroupSession();
+            try {
+                if (exportFormat) {
+                    session.import_session(sessionKey);
+                } else {
+                    session.create(sessionKey);
+                }
+                if (sessionId != session.session_id()) {
+                    throw new Error("Mismatched group session ID from senderKey: " + senderKey);
+                }
 
-    /* if we already have this session, consider updating it */
-    function updateSession(session) {
-        console.log("Update for megolm session " + senderKey + "/" + sessionId);
-        // for now we just ignore updates. TODO: implement something here
+                if (existingSession) {
+                    _logger2.default.log("Update for megolm session " + senderKey + "/" + sessionId);
+                    if (existingSession.first_known_index() <= session.first_known_index()) {
+                        // existing session has lower index (i.e. can
+                        // decrypt more), so keep it
+                        _logger2.default.log("Keeping existing session");
+                        return;
+                    }
+                }
 
-        return true;
-    }
+                const sessionData = {
+                    room_id: roomId,
+                    session: session.pickle(this._pickleKey),
+                    keysClaimed: keysClaimed,
+                    forwardingCurve25519KeyChain: forwardingCurve25519KeyChain
+                };
 
-    var r = this._getInboundGroupSession(
-        roomId, senderKey, sessionId, updateSession
-    );
-
-    if (r !== null) {
-        return;
-    }
-
-    // new session.
-    var session = new Olm.InboundGroupSession();
-    try {
-        session.create(sessionKey);
-        if (sessionId != session.session_id()) {
-            throw new Error(
-                "Mismatched group session ID from senderKey: " + senderKey
-            );
-        }
-        self._saveInboundGroupSession(
-            roomId, senderKey, sessionId, session, keysClaimed
-        );
-    } finally {
-        session.free();
-    }
+                this._cryptoStore.storeEndToEndInboundGroupSession(senderKey, sessionId, sessionData, txn);
+            } finally {
+                session.free();
+            }
+        });
+    });
 };
 
 /**
@@ -668,55 +809,164 @@ OlmDevice.prototype.addInboundGroupSession = function(
  * @param {string} senderKey base64-encoded curve25519 key of the sender
  * @param {string} sessionId session identifier
  * @param {string} body      base64-encoded body of the encrypted message
+ * @param {string} eventId   ID of the event being decrypted
+ * @param {Number} timestamp timestamp of the event being decrypted
  *
  * @return {null} the sessionId is unknown
  *
- * @return {{result: string, keysProved: Object<string, string>, keysClaimed:
- *    Object<string, string>}} result
+ * @return {Promise<{result: string, senderKey: string,
+ *    forwardingCurve25519KeyChain: Array<string>,
+ *    keysClaimed: Object<string, string>}>}
  */
-OlmDevice.prototype.decryptGroupMessage = function(
-    roomId, senderKey, sessionId, body
-) {
-    var self = this;
+OlmDevice.prototype.decryptGroupMessage = async function (roomId, senderKey, sessionId, body, eventId, timestamp) {
+    let result;
 
-    function decrypt(session, keysClaimed) {
-        var res = session.decrypt(body);
-
-        var plaintext = res.plaintext;
-        if (plaintext === undefined) {
-            // Compatibility for older olm versions.
-            plaintext = res;
-        } else {
-            // Check if we have seen this message index before to detect replay attacks.
-            var messageIndexKey = senderKey + "|" + sessionId + "|" + res.message_index;
-            if (messageIndexKey in self._inboundGroupSessionMessageIndexes) {
-                throw new Error(
-                    "Duplicate message index, possible replay attack: " +
-                    messageIndexKey
-                );
+    await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_INBOUND_GROUP_SESSIONS], txn => {
+        this._getInboundGroupSession(roomId, senderKey, sessionId, txn, (session, sessionData) => {
+            if (session === null) {
+                result = null;
+                return;
             }
-            self._inboundGroupSessionMessageIndexes[messageIndexKey] = true;
-        }
+            const res = session.decrypt(body);
 
-        // the sender must have had the senderKey to persuade us to save the
-        // session.
-        var keysProved = {curve25519: senderKey};
+            let plaintext = res.plaintext;
+            if (plaintext === undefined) {
+                // Compatibility for older olm versions.
+                plaintext = res;
+            } else {
+                // Check if we have seen this message index before to detect replay attacks.
+                // If the event ID and timestamp are specified, and the match the event ID
+                // and timestamp from the last time we used this message index, then we
+                // don't consider it a replay attack.
+                const messageIndexKey = senderKey + "|" + sessionId + "|" + res.message_index;
+                if (messageIndexKey in this._inboundGroupSessionMessageIndexes) {
+                    const msgInfo = this._inboundGroupSessionMessageIndexes[messageIndexKey];
+                    if (msgInfo.id !== eventId || msgInfo.timestamp !== timestamp) {
+                        throw new Error("Duplicate message index, possible replay attack: " + messageIndexKey);
+                    }
+                }
+                this._inboundGroupSessionMessageIndexes[messageIndexKey] = {
+                    id: eventId,
+                    timestamp: timestamp
+                };
+            }
 
-        self._saveInboundGroupSession(
-            roomId, senderKey, sessionId, session, keysClaimed
-        );
-        return {
-            result: plaintext,
-            keysClaimed: keysClaimed,
-            keysProved: keysProved,
-        };
-    }
+            sessionData.session = session.pickle(this._pickleKey);
+            this._cryptoStore.storeEndToEndInboundGroupSession(senderKey, sessionId, sessionData, txn);
+            result = {
+                result: plaintext,
+                keysClaimed: sessionData.keysClaimed || {},
+                senderKey: senderKey,
+                forwardingCurve25519KeyChain: sessionData.forwardingCurve25519KeyChain || []
+            };
+        });
+    });
 
-    return this._getInboundGroupSession(
-        roomId, senderKey, sessionId, decrypt
-    );
+    return result;
 };
 
+/**
+ * Determine if we have the keys for a given megolm session
+ *
+ * @param {string} roomId    room in which the message was received
+ * @param {string} senderKey base64-encoded curve25519 key of the sender
+ * @param {sring} sessionId session identifier
+ *
+ * @returns {Promise<boolean>} true if we have the keys to this session
+ */
+OlmDevice.prototype.hasInboundSessionKeys = async function (roomId, senderKey, sessionId) {
+    let result;
+    await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore2.default.STORE_INBOUND_GROUP_SESSIONS], txn => {
+        this._cryptoStore.getEndToEndInboundGroupSession(senderKey, sessionId, txn, sessionData => {
+            if (sessionData === null) {
+                result = false;
+                return;
+            }
+
+            if (roomId !== sessionData.room_id) {
+                _logger2.default.warn(`requested keys for inbound group session ${senderKey}|` + `${sessionId}, with incorrect room_id ` + `(expected ${sessionData.room_id}, ` + `was ${roomId})`);
+                result = false;
+            } else {
+                result = true;
+            }
+        });
+    });
+
+    return result;
+};
+
+/**
+ * Extract the keys to a given megolm session, for sharing
+ *
+ * @param {string} roomId    room in which the message was received
+ * @param {string} senderKey base64-encoded curve25519 key of the sender
+ * @param {string} sessionId session identifier
+ * @param {integer} chainIndex The chain index at which to export the session.
+ *     If omitted, export at the first index we know about.
+ *
+ * @returns {Promise<{chain_index: number, key: string,
+ *        forwarding_curve25519_key_chain: Array<string>,
+ *        sender_claimed_ed25519_key: string
+ *    }>}
+ *    details of the session key. The key is a base64-encoded megolm key in
+ *    export format.
+ *
+ * @throws Error If the given chain index could not be obtained from the known
+ *     index (ie. the given chain index is before the first we have).
+ */
+OlmDevice.prototype.getInboundGroupSessionKey = async function (roomId, senderKey, sessionId, chainIndex) {
+    let result;
+    await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore2.default.STORE_INBOUND_GROUP_SESSIONS], txn => {
+        this._getInboundGroupSession(roomId, senderKey, sessionId, txn, (session, sessionData) => {
+            if (session === null) {
+                result = null;
+                return;
+            }
+
+            if (chainIndex === undefined) {
+                chainIndex = session.first_known_index();
+            }
+
+            const exportedSession = session.export_session(chainIndex);
+
+            const claimedKeys = sessionData.keysClaimed || {};
+            const senderEd25519Key = claimedKeys.ed25519 || null;
+
+            result = {
+                "chain_index": chainIndex,
+                "key": exportedSession,
+                "forwarding_curve25519_key_chain": sessionData.forwardingCurve25519KeyChain || [],
+                "sender_claimed_ed25519_key": senderEd25519Key
+            };
+        });
+    });
+
+    return result;
+};
+
+/**
+ * Export an inbound group session
+ *
+ * @param {string} senderKey base64-encoded curve25519 key of the sender
+ * @param {string} sessionId session identifier
+ * @param {string} sessionData The session object from the store
+ * @return {module:crypto/OlmDevice.MegolmSessionData} exported session data
+ */
+OlmDevice.prototype.exportInboundGroupSession = function (senderKey, sessionId, sessionData) {
+    return this._unpickleInboundGroupSession(sessionData, session => {
+        const messageIndex = session.first_known_index();
+
+        return {
+            "sender_key": senderKey,
+            "sender_claimed_keys": sessionData.keysClaimed,
+            "room_id": sessionData.room_id,
+            "session_id": sessionId,
+            "session_key": session.export_session(messageIndex),
+            "forwarding_curve25519_key_chain": session.forwardingCurve25519KeyChain || [],
+            "first_known_index": session.first_known_index()
+        };
+    });
+};
 
 // Utilities
 // =========
@@ -732,10 +982,8 @@ OlmDevice.prototype.decryptGroupMessage = function(
  * too small then the message will be "OLM.INVALID_BASE64". If the signature
  * was invalid then the message will be "OLM.BAD_MESSAGE_MAC".
  */
-OlmDevice.prototype.verifySignature = function(
-    key, message, signature
-) {
-    this._getUtility(function(util) {
+OlmDevice.prototype.verifySignature = function (key, message, signature) {
+    this._getUtility(function (util) {
         util.ed25519_verify(key, message, signature);
     });
 };

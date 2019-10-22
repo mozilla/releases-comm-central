@@ -1,5 +1,7 @@
 /*
 Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2018, 2019 New Vector Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,22 +19,42 @@ limitations under the License.
 /**
  * @module models/room
  */
-var EventEmitter = require("events").EventEmitter;
 
-var EventStatus = require("./event").EventStatus;
-var RoomSummary = require("./room-summary");
-var MatrixEvent = require("./event").MatrixEvent;
-var utils = require("../utils");
-var ContentRepo = require("../content-repo");
-var EventTimeline = require("./event-timeline");
-var EventTimelineSet = require("./event-timeline-set");
+var _logger = require("../../src/logger");
 
+var _logger2 = _interopRequireDefault(_logger);
+
+var _ReEmitter = require("../ReEmitter");
+
+var _ReEmitter2 = _interopRequireDefault(_ReEmitter);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const EventEmitter = require("events").EventEmitter;
+
+const EventStatus = require("./event").EventStatus;
+const RoomSummary = require("./room-summary");
+const RoomMember = require("./room-member");
+const MatrixEvent = require("./event").MatrixEvent;
+const utils = require("../utils");
+const ContentRepo = require("../content-repo");
+const EventTimeline = require("./event-timeline");
+const EventTimelineSet = require("./event-timeline-set");
+
+// These constants are used as sane defaults when the homeserver doesn't support
+// the m.room_versions capability. In practice, KNOWN_SAFE_ROOM_VERSION should be
+// the same as the common default room version whereas SAFE_ROOM_VERSIONS are the
+// room versions which are considered okay for people to run without being asked
+// to upgrade (ie: "stable"). Eventually, we should remove these when all homeservers
+// return an m.room_versions capability.
+const KNOWN_SAFE_ROOM_VERSION = '4';
+const SAFE_ROOM_VERSIONS = ['1', '2', '3', '4'];
 
 function synthesizeReceipt(userId, event, receiptType) {
     // console.log("synthesizing receipt for "+event.getId());
     // This is really ugly because JS has no way to express an object literal
     // where the name of a key comes from an expression
-    var fakeReceipt = {
+    const fakeReceipt = {
         content: {},
         type: "m.receipt",
         room_id: event.getRoomId()
@@ -44,7 +66,6 @@ function synthesizeReceipt(userId, event, receiptType) {
     };
     return new MatrixEvent(fakeReceipt);
 }
-
 
 /**
  * Construct a new Room.
@@ -67,6 +88,8 @@ function synthesizeReceipt(userId, event, receiptType) {
  * @constructor
  * @alias module:models/room
  * @param {string} roomId Required. The ID of this room.
+ * @param {MatrixClient} client Required. The client, used to lazy load members.
+ * @param {string} myUserId Required. The ID of the syncing user.
  * @param {Object=} opts Configuration options
  * @param {*} opts.storageToken Optional. The token which a data store can use
  * to remember the state of the room. What this means is dependent on the store
@@ -78,9 +101,12 @@ function synthesizeReceipt(userId, event, receiptType) {
  * "<b>detached</b>", pending messages will appear in a separate list,
  * accessbile via {@link module:models/room#getPendingEvents}. Default:
  * "chronological".
- *
  * @param {boolean} [opts.timelineSupport = false] Set to true to enable improved
  * timeline support.
+ * @param {boolean} [opts.unstableClientRelationAggregation = false]
+ * Optional. Set to true to enable client-side aggregation of event relations
+ * via `EventTimelineSet#getRelationsForEvent`.
+ * This feature is currently unstable and the API may change without notice.
  *
  * @prop {string} roomId The ID of this room.
  * @prop {string} name The human-readable display name for this room.
@@ -93,25 +119,25 @@ function synthesizeReceipt(userId, event, receiptType) {
  * event type and the values are the events.
  * @prop {RoomState} oldState The state of the room at the time of the oldest
  * event in the live timeline. Present for backwards compatibility -
- * prefer getLiveTimeline().getState(true).
+ * prefer getLiveTimeline().getState(EventTimeline.BACKWARDS).
  * @prop {RoomState} currentState The state of the room at the time of the
  * newest event in the timeline. Present for backwards compatibility -
- * prefer getLiveTimeline().getState(false).
+ * prefer getLiveTimeline().getState(EventTimeline.FORWARDS).
  * @prop {RoomSummary} summary The room summary.
  * @prop {*} storageToken A token which a data store can use to remember
  * the state of the room.
  */
-function Room(roomId, opts) {
+function Room(roomId, client, myUserId, opts) {
     opts = opts || {};
     opts.pendingEventOrdering = opts.pendingEventOrdering || "chronological";
 
+    this.reEmitter = new _ReEmitter2.default(this);
+
     if (["chronological", "detached"].indexOf(opts.pendingEventOrdering) === -1) {
-        throw new Error(
-            "opts.pendingEventOrdering MUST be either 'chronological' or " +
-            "'detached'. Got: '" + opts.pendingEventOrdering + "'"
-        );
+        throw new Error("opts.pendingEventOrdering MUST be either 'chronological' or " + "'detached'. Got: '" + opts.pendingEventOrdering + "'");
     }
 
+    this.myUserId = myUserId;
     this.roomId = roomId;
     this.name = roomId;
     this.tags = {
@@ -152,8 +178,7 @@ function Room(roomId, opts) {
     // all our per-room timeline sets. the first one is the unfiltered ones;
     // the subsequent ones are the filtered ones in no particular order.
     this._timelineSets = [new EventTimelineSet(this, opts)];
-    reEmit(this, this.getUnfilteredTimelineSet(),
-           ["Room.timeline", "Room.timelineReset"]);
+    this.reEmitter.reEmit(this.getUnfilteredTimelineSet(), ["Room.timeline", "Room.timelineReset"]);
 
     this._fixUpLegacyTimelineFields();
 
@@ -165,8 +190,150 @@ function Room(roomId, opts) {
     if (this._opts.pendingEventOrdering == "detached") {
         this._pendingEventList = [];
     }
+
+    // read by megolm; boolean value - null indicates "use global value"
+    this._blacklistUnverifiedDevices = null;
+    this._selfMembership = null;
+    this._summaryHeroes = null;
+    // awaited by getEncryptionTargetMembers while room members are loading
+
+    this._client = client;
+    if (!this._opts.lazyLoadMembers) {
+        this._membersPromise = Promise.resolve();
+    } else {
+        this._membersPromise = null;
+    }
 }
+
 utils.inherits(Room, EventEmitter);
+
+/**
+ * Gets the version of the room
+ * @returns {string} The version of the room, or null if it could not be determined
+ */
+Room.prototype.getVersion = function () {
+    const createEvent = this.currentState.getStateEvents("m.room.create", "");
+    if (!createEvent) {
+        _logger2.default.warn("Room " + this.room_id + " does not have an m.room.create event");
+        return '1';
+    }
+    const ver = createEvent.getContent()['room_version'];
+    if (ver === undefined) return '1';
+    return ver;
+};
+
+/**
+ * Determines whether this room needs to be upgraded to a new version
+ * @returns {string?} What version the room should be upgraded to, or null if
+ *     the room does not require upgrading at this time.
+ * @deprecated Use #getRecommendedVersion() instead
+ */
+Room.prototype.shouldUpgradeToVersion = function () {
+    // TODO: Remove this function.
+    // This makes assumptions about which versions are safe, and can easily
+    // be wrong. Instead, people are encouraged to use getRecommendedVersion
+    // which determines a safer value. This function doesn't use that function
+    // because this is not async-capable, and to avoid breaking the contract
+    // we're deprecating this.
+
+    if (!SAFE_ROOM_VERSIONS.includes(this.getVersion())) {
+        return KNOWN_SAFE_ROOM_VERSION;
+    }
+
+    return null;
+};
+
+/**
+ * Determines the recommended room version for the room. This returns an
+ * object with 3 properties: <code>version</code> as the new version the
+ * room should be upgraded to (may be the same as the current version);
+ * <code>needsUpgrade</code> to indicate if the room actually can be
+ * upgraded (ie: does the current version not match?); and <code>urgent</code>
+ * to indicate if the new version patches a vulnerability in a previous
+ * version.
+ * @returns {Promise<{version: string, needsUpgrade: bool, urgent: bool}>}
+ * Resolves to the version the room should be upgraded to.
+ */
+Room.prototype.getRecommendedVersion = async function () {
+    const capabilities = await this._client.getCapabilities();
+    let versionCap = capabilities["m.room_versions"];
+    if (!versionCap) {
+        versionCap = {
+            default: KNOWN_SAFE_ROOM_VERSION,
+            available: {}
+        };
+        for (const safeVer of SAFE_ROOM_VERSIONS) {
+            versionCap.available[safeVer] = "stable";
+        }
+    }
+
+    let result = this._checkVersionAgainstCapability(versionCap);
+    if (result.urgent && result.needsUpgrade) {
+        // Something doesn't feel right: we shouldn't need to update
+        // because the version we're on should be in the protocol's
+        // namespace. This usually means that the server was updated
+        // before the client was, making us think the newest possible
+        // room version is not stable. As a solution, we'll refresh
+        // the capability we're using to determine this.
+        _logger2.default.warn("Refreshing room version capability because the server looks " + "to be supporting a newer room version we don't know about.");
+
+        const caps = await this._client.getCapabilities(true);
+        versionCap = caps["m.room_versions"];
+        if (!versionCap) {
+            _logger2.default.warn("No room version capability - assuming upgrade required.");
+            return result;
+        } else {
+            result = this._checkVersionAgainstCapability(versionCap);
+        }
+    }
+
+    return result;
+};
+
+Room.prototype._checkVersionAgainstCapability = function (versionCap) {
+    const currentVersion = this.getVersion();
+    _logger2.default.log(`[${this.roomId}] Current version: ${currentVersion}`);
+    _logger2.default.log(`[${this.roomId}] Version capability: `, versionCap);
+
+    const result = {
+        version: currentVersion,
+        needsUpgrade: false,
+        urgent: false
+    };
+
+    // If the room is on the default version then nothing needs to change
+    if (currentVersion === versionCap.default) return result;
+
+    const stableVersions = Object.keys(versionCap.available).filter(v => versionCap.available[v] === 'stable');
+
+    // Check if the room is on an unstable version. We determine urgency based
+    // off the version being in the Matrix spec namespace or not (if the version
+    // is in the current namespace and unstable, the room is probably vulnerable).
+    if (!stableVersions.includes(currentVersion)) {
+        result.version = versionCap.default;
+        result.needsUpgrade = true;
+        result.urgent = !!this.getVersion().match(/^[0-9]+[0-9.]*$/g);
+        if (result.urgent) {
+            _logger2.default.warn(`URGENT upgrade required on ${this.roomId}`);
+        } else {
+            _logger2.default.warn(`Non-urgent upgrade required on ${this.roomId}`);
+        }
+        return result;
+    }
+
+    // The room is on a stable, but non-default, version by this point.
+    // No upgrade needed.
+    return result;
+};
+
+/**
+ * Determines whether the given user is permitted to perform a room upgrade
+ * @param {String} userId The ID of the user to test against
+ * @returns {bool} True if the given user is permitted to upgrade the room
+ */
+Room.prototype.userMayUpgradeRoom = function (userId) {
+    return this.currentState.maySendStateEvent("m.room.tombstone", userId);
+};
 
 /**
  * Get the list of pending sent events for this room
@@ -176,14 +343,27 @@ utils.inherits(Room, EventEmitter);
  *
  * @throws If <code>opts.pendingEventOrdering</code> was not 'detached'
  */
-Room.prototype.getPendingEvents = function() {
+Room.prototype.getPendingEvents = function () {
     if (this._opts.pendingEventOrdering !== "detached") {
-        throw new Error(
-            "Cannot call getPendingEventList with pendingEventOrdering == " +
-                this._opts.pendingEventOrdering);
+        throw new Error("Cannot call getPendingEvents with pendingEventOrdering == " + this._opts.pendingEventOrdering);
     }
 
     return this._pendingEventList;
+};
+
+/**
+ * Check whether the pending event list contains a given event by ID.
+ *
+ * @param {string} eventId The event ID to check for.
+ * @return {boolean}
+ * @throws If <code>opts.pendingEventOrdering</code> was not 'detached'
+ */
+Room.prototype.hasPendingEvent = function (eventId) {
+    if (this._opts.pendingEventOrdering !== "detached") {
+        throw new Error("Cannot call hasPendingEvent with pendingEventOrdering == " + this._opts.pendingEventOrdering);
+    }
+
+    return this._pendingEventList.some(event => event.getId() === eventId);
 };
 
 /**
@@ -191,10 +371,224 @@ Room.prototype.getPendingEvents = function() {
  *
  * @return {module:models/event-timeline~EventTimeline} live timeline
  */
-Room.prototype.getLiveTimeline = function() {
+Room.prototype.getLiveTimeline = function () {
     return this.getUnfilteredTimelineSet().getLiveTimeline();
 };
 
+/**
+ * @param {string} myUserId the user id for the logged in member
+ * @return {string} the membership type (join | leave | invite) for the logged in user
+ */
+Room.prototype.getMyMembership = function () {
+    return this._selfMembership;
+};
+
+/**
+ * If this room is a DM we're invited to,
+ * try to find out who invited us
+ * @return {string} user id of the inviter
+ */
+Room.prototype.getDMInviter = function () {
+    if (this.myUserId) {
+        const me = this.getMember(this.myUserId);
+        if (me) {
+            return me.getDMInviter();
+        }
+    }
+    if (this._selfMembership === "invite") {
+        // fall back to summary information
+        const memberCount = this.getInvitedAndJoinedMemberCount();
+        if (memberCount == 2 && this._summaryHeroes.length) {
+            return this._summaryHeroes[0];
+        }
+    }
+};
+
+/**
+ * Assuming this room is a DM room, tries to guess with which user.
+ * @return {string} user id of the other member (could be syncing user)
+ */
+Room.prototype.guessDMUserId = function () {
+    const me = this.getMember(this.myUserId);
+    if (me) {
+        const inviterId = me.getDMInviter();
+        if (inviterId) {
+            return inviterId;
+        }
+    }
+    // remember, we're assuming this room is a DM,
+    // so returning the first member we find should be fine
+    const hasHeroes = Array.isArray(this._summaryHeroes) && this._summaryHeroes.length;
+    if (hasHeroes) {
+        return this._summaryHeroes[0];
+    }
+    const members = this.currentState.getMembers();
+    const anyMember = members.find(m => m.userId !== this.myUserId);
+    if (anyMember) {
+        return anyMember.userId;
+    }
+    // it really seems like I'm the only user in the room
+    // so I probably created a room with just me in it
+    // and marked it as a DM. Ok then
+    return this.myUserId;
+};
+
+Room.prototype.getAvatarFallbackMember = function () {
+    const memberCount = this.getInvitedAndJoinedMemberCount();
+    if (memberCount > 2) {
+        return;
+    }
+    const hasHeroes = Array.isArray(this._summaryHeroes) && this._summaryHeroes.length;
+    if (hasHeroes) {
+        const availableMember = this._summaryHeroes.map(userId => {
+            return this.getMember(userId);
+        }).find(member => !!member);
+        if (availableMember) {
+            return availableMember;
+        }
+    }
+    const members = this.currentState.getMembers();
+    // could be different than memberCount
+    // as this includes left members
+    if (members.length <= 2) {
+        const availableMember = members.find(m => {
+            return m.userId !== this.myUserId;
+        });
+        if (availableMember) {
+            return availableMember;
+        }
+    }
+    // if all else fails, try falling back to a user,
+    // and create a one-off member for it
+    if (hasHeroes) {
+        const availableUser = this._summaryHeroes.map(userId => {
+            return this._client.getUser(userId);
+        }).find(user => !!user);
+        if (availableUser) {
+            const member = new RoomMember(this.roomId, availableUser.userId);
+            member.user = availableUser;
+            return member;
+        }
+    }
+};
+
+/**
+ * Sets the membership this room was received as during sync
+ * @param {string} membership join | leave | invite
+ */
+Room.prototype.updateMyMembership = function (membership) {
+    const prevMembership = this._selfMembership;
+    this._selfMembership = membership;
+    if (prevMembership !== membership) {
+        if (membership === "leave") {
+            this._cleanupAfterLeaving();
+        }
+        this.emit("Room.myMembership", this, membership, prevMembership);
+    }
+};
+
+Room.prototype._loadMembersFromServer = async function () {
+    const lastSyncToken = this._client.store.getSyncToken();
+    const queryString = utils.encodeParams({
+        not_membership: "leave",
+        at: lastSyncToken
+    });
+    const path = utils.encodeUri("/rooms/$roomId/members?" + queryString, { $roomId: this.roomId });
+    const http = this._client._http;
+    const response = await http.authedRequest(undefined, "GET", path);
+    return response.chunk;
+};
+
+Room.prototype._loadMembers = async function () {
+    // were the members loaded from the server?
+    let fromServer = false;
+    let rawMembersEvents = await this._client.store.getOutOfBandMembers(this.roomId);
+    if (rawMembersEvents === null) {
+        fromServer = true;
+        rawMembersEvents = await this._loadMembersFromServer();
+        _logger2.default.log(`LL: got ${rawMembersEvents.length} ` + `members from server for room ${this.roomId}`);
+    }
+    const memberEvents = rawMembersEvents.map(this._client.getEventMapper());
+    return { memberEvents, fromServer };
+};
+
+/**
+ * Preloads the member list in case lazy loading
+ * of memberships is in use. Can be called multiple times,
+ * it will only preload once.
+ * @return {Promise} when preloading is done and
+ * accessing the members on the room will take
+ * all members in the room into account
+ */
+Room.prototype.loadMembersIfNeeded = function () {
+    if (this._membersPromise) {
+        return this._membersPromise;
+    }
+
+    // mark the state so that incoming messages while
+    // the request is in flight get marked as superseding
+    // the OOB members
+    this.currentState.markOutOfBandMembersStarted();
+
+    const inMemoryUpdate = this._loadMembers().then(result => {
+        this.currentState.setOutOfBandMembers(result.memberEvents);
+        // now the members are loaded, start to track the e2e devices if needed
+        if (this._client.isCryptoEnabled() && this._client.isRoomEncrypted(this.roomId)) {
+            this._client._crypto.trackRoomDevices(this.roomId);
+        }
+        return result.fromServer;
+    }).catch(err => {
+        // allow retries on fail
+        this._membersPromise = null;
+        this.currentState.markOutOfBandMembersFailed();
+        throw err;
+    });
+    // update members in storage, but don't wait for it
+    inMemoryUpdate.then(fromServer => {
+        if (fromServer) {
+            const oobMembers = this.currentState.getMembers().filter(m => m.isOutOfBand()).map(m => m.events.member.event);
+            _logger2.default.log(`LL: telling store to write ${oobMembers.length}` + ` members for room ${this.roomId}`);
+            const store = this._client.store;
+            return store.setOutOfBandMembers(this.roomId, oobMembers)
+            // swallow any IDB error as we don't want to fail
+            // because of this
+            .catch(err => {
+                _logger2.default.log("LL: storing OOB room members failed, oh well", err);
+            });
+        }
+    }).catch(err => {
+        // as this is not awaited anywhere,
+        // at least show the error in the console
+        _logger2.default.error(err);
+    });
+
+    this._membersPromise = inMemoryUpdate;
+
+    return this._membersPromise;
+};
+
+/**
+ * Removes the lazily loaded members from storage if needed
+ */
+Room.prototype.clearLoadedMembersIfNeeded = async function () {
+    if (this._opts.lazyLoadMembers && this._membersPromise) {
+        await this.loadMembersIfNeeded();
+        await this._client.store.clearOutOfBandMembers(this.roomId);
+        this.currentState.clearOutOfBandMembers();
+        this._membersPromise = null;
+    }
+};
+
+/**
+ * called when sync receives this room in the leave section
+ * to do cleanup after leaving a room. Possibly called multiple times.
+ */
+Room.prototype._cleanupAfterLeaving = function () {
+    this.clearLoadedMembersIfNeeded().catch(err => {
+        _logger2.default.error(`error after clearing loaded members from ` + `room ${this.roomId} after leaving`);
+        _logger2.default.log(err);
+    });
+};
 
 /**
  * Reset the live timeline of all timelineSets, and start new ones.
@@ -202,10 +596,14 @@ Room.prototype.getLiveTimeline = function() {
  * <p>This is used when /sync returns a 'limited' timeline.
  *
  * @param {string=} backPaginationToken   token for back-paginating the new timeline
+ * @param {string=} forwardPaginationToken token for forward-paginating the old live timeline,
+ * if absent or null, all timelines are reset, removing old ones (including the previous live
+ * timeline which would otherwise be unable to paginate forwards without this token).
+ * Removing just the old live timeline whilst preserving previous ones is not supported.
  */
-Room.prototype.resetLiveTimeline = function(backPaginationToken) {
-    for (var i = 0; i < this._timelineSets.length; i++) {
-        this._timelineSets[i].resetLiveTimeline(backPaginationToken);
+Room.prototype.resetLiveTimeline = function (backPaginationToken, forwardPaginationToken) {
+    for (let i = 0; i < this._timelineSets.length; i++) {
+        this._timelineSets[i].resetLiveTimeline(backPaginationToken, forwardPaginationToken);
     }
 
     this._fixUpLegacyTimelineFields();
@@ -216,23 +614,44 @@ Room.prototype.resetLiveTimeline = function(backPaginationToken) {
  *
  * @private
  */
-Room.prototype._fixUpLegacyTimelineFields = function() {
+Room.prototype._fixUpLegacyTimelineFields = function () {
     // maintain this.timeline as a reference to the live timeline,
     // and this.oldState and this.currentState as references to the
     // state at the start and end of that timeline. These are more
     // for backwards-compatibility than anything else.
     this.timeline = this.getLiveTimeline().getEvents();
-    this.oldState = this.getLiveTimeline()
-                        .getState(EventTimeline.BACKWARDS);
-    this.currentState = this.getLiveTimeline()
-                            .getState(EventTimeline.FORWARDS);
+    this.oldState = this.getLiveTimeline().getState(EventTimeline.BACKWARDS);
+    this.currentState = this.getLiveTimeline().getState(EventTimeline.FORWARDS);
+};
+
+/**
+ * Returns whether there are any devices in the room that are unverified
+ *
+ * Note: Callers should first check if crypto is enabled on this device. If it is
+ * disabled, then we aren't tracking room devices at all, so we can't answer this, and an
+ * error will be thrown.
+ *
+ * @return {bool} the result
+ */
+Room.prototype.hasUnverifiedDevices = async function () {
+    if (!this._client.isRoomEncrypted(this.roomId)) {
+        return false;
+    }
+    const e2eMembers = await this.getEncryptionTargetMembers();
+    for (const member of e2eMembers) {
+        const devices = await this._client.getStoredDevicesForUser(member.userId);
+        if (devices.some(device => device.isUnverified())) {
+            return true;
+        }
+    }
+    return false;
 };
 
 /**
  * Return the timeline sets for this room.
  * @return {EventTimelineSet[]} array of timeline sets for this room
  */
-Room.prototype.getTimelineSets = function() {
+Room.prototype.getTimelineSets = function () {
     return this._timelineSets;
 };
 
@@ -240,7 +659,7 @@ Room.prototype.getTimelineSets = function() {
  * Helper to return the main unfiltered timeline set for this room
  * @return {EventTimelineSet} room's unfiltered timeline set
  */
-Room.prototype.getUnfilteredTimelineSet = function() {
+Room.prototype.getUnfilteredTimelineSet = function () {
     return this._timelineSets[0];
 };
 
@@ -251,7 +670,7 @@ Room.prototype.getUnfilteredTimelineSet = function() {
  * @return {?module:models/event-timeline~EventTimeline} timeline containing
  * the given event, or null if unknown
  */
-Room.prototype.getTimelineForEvent = function(eventId) {
+Room.prototype.getTimelineForEvent = function (eventId) {
     return this.getUnfilteredTimelineSet().getTimelineForEvent(eventId);
 };
 
@@ -260,7 +679,7 @@ Room.prototype.getTimelineForEvent = function(eventId) {
  *
  * @return {module:models/event-timeline~EventTimeline} newly-created timeline
  */
-Room.prototype.addTimeline = function() {
+Room.prototype.addTimeline = function () {
     return this.getUnfilteredTimelineSet().addTimeline();
 };
 
@@ -270,7 +689,7 @@ Room.prototype.addTimeline = function() {
  * @param {string} eventId  event ID to look for
  * @return {?module:models/event.MatrixEvent} the given event, or undefined if unknown
  */
-Room.prototype.findEventById = function(eventId) {
+Room.prototype.findEventById = function (eventId) {
     return this.getUnfilteredTimelineSet().findEventById(eventId);
 };
 
@@ -280,7 +699,7 @@ Room.prototype.findEventById = function(eventId) {
  * @return {Number} The notification count, or undefined if there is no count
  *                  for this type.
  */
-Room.prototype.getUnreadNotificationCount = function(type) {
+Room.prototype.getUnreadNotificationCount = function (type) {
     type = type || 'total';
     return this._notificationCounts[type];
 };
@@ -290,8 +709,46 @@ Room.prototype.getUnreadNotificationCount = function(type) {
  * @param {String} type The type of notification count to set.
  * @param {Number} count The new count
  */
-Room.prototype.setUnreadNotificationCount = function(type, count) {
+Room.prototype.setUnreadNotificationCount = function (type, count) {
     this._notificationCounts[type] = count;
+};
+
+Room.prototype.setSummary = function (summary) {
+    const heroes = summary["m.heroes"];
+    const joinedCount = summary["m.joined_member_count"];
+    const invitedCount = summary["m.invited_member_count"];
+    if (Number.isInteger(joinedCount)) {
+        this.currentState.setJoinedMemberCount(joinedCount);
+    }
+    if (Number.isInteger(invitedCount)) {
+        this.currentState.setInvitedMemberCount(invitedCount);
+    }
+    if (Array.isArray(heroes)) {
+        // be cautious about trusting server values,
+        // and make sure heroes doesn't contain our own id
+        // just to be sure
+        this._summaryHeroes = heroes.filter(userId => {
+            return userId !== this.myUserId;
+        });
+    }
+};
+
+/**
+ * Whether to send encrypted messages to devices within this room.
+ * @param {Boolean} value true to blacklist unverified devices, null
+ * to use the global value for this room.
+ */
+Room.prototype.setBlacklistUnverifiedDevices = function (value) {
+    this._blacklistUnverifiedDevices = value;
+};
+
+/**
+ * Whether to send encrypted messages to devices within this room.
+ * @return {Boolean} true if blacklisting unverified devices, null
+ * if the global value should be used for this room.
+ */
+Room.prototype.getBlacklistUnverifiedDevices = function () {
+    return this._blacklistUnverifiedDevices;
 };
 
 /**
@@ -303,27 +760,23 @@ Room.prototype.setUnreadNotificationCount = function(type, count) {
  * @param {string} resizeMethod The thumbnail resize method to use, either
  * "crop" or "scale".
  * @param {boolean} allowDefault True to allow an identicon for this room if an
- * avatar URL wasn't explicitly set. Default: true.
+ * avatar URL wasn't explicitly set. Default: true. (Deprecated)
  * @return {?string} the avatar URL or null.
  */
-Room.prototype.getAvatarUrl = function(baseUrl, width, height, resizeMethod,
-                                       allowDefault) {
-    var roomAvatarEvent = this.currentState.getStateEvents("m.room.avatar", "");
-    if (allowDefault === undefined) { allowDefault = true; }
+Room.prototype.getAvatarUrl = function (baseUrl, width, height, resizeMethod, allowDefault) {
+    const roomAvatarEvent = this.currentState.getStateEvents("m.room.avatar", "");
+    if (allowDefault === undefined) {
+        allowDefault = true;
+    }
     if (!roomAvatarEvent && !allowDefault) {
         return null;
     }
 
-    var mainUrl = roomAvatarEvent ? roomAvatarEvent.getContent().url : null;
+    const mainUrl = roomAvatarEvent ? roomAvatarEvent.getContent().url : null;
     if (mainUrl) {
-        return ContentRepo.getHttpUriForMxc(
-            baseUrl, mainUrl, width, height, resizeMethod
-        );
-    }
-    else if (allowDefault) {
-        return ContentRepo.getIdenticonUri(
-            baseUrl, this.roomId, width, height
-        );
+        return ContentRepo.getHttpUriForMxc(baseUrl, mainUrl, width, height, resizeMethod);
+    } else if (allowDefault) {
+        return ContentRepo.getIdenticonUri(baseUrl, this.roomId, width, height);
     }
 
     return null;
@@ -335,21 +788,19 @@ Room.prototype.getAvatarUrl = function(baseUrl, width, height, resizeMethod,
  * still point to this room.
  * @return {array} The room's alias as an array of strings
  */
-Room.prototype.getAliases = function() {
-    var alias_strings = [];
+Room.prototype.getAliases = function () {
+    const aliasStrings = [];
 
-    var alias_events = this.currentState.getStateEvents("m.room.aliases");
-    if (alias_events) {
-        for (var i = 0; i < alias_events.length; ++i) {
-            var alias_event = alias_events[i];
-            if (utils.isArray(alias_event.getContent().aliases)) {
-                Array.prototype.push.apply(
-                    alias_strings, alias_event.getContent().aliases
-                );
+    const aliasEvents = this.currentState.getStateEvents("m.room.aliases");
+    if (aliasEvents) {
+        for (let i = 0; i < aliasEvents.length; ++i) {
+            const aliasEvent = aliasEvents[i];
+            if (utils.isArray(aliasEvent.getContent().aliases)) {
+                Array.prototype.push.apply(aliasStrings, aliasEvent.getContent().aliases);
             }
         }
     }
-    return alias_strings;
+    return aliasStrings;
 };
 
 /**
@@ -358,8 +809,8 @@ Room.prototype.getAliases = function() {
  * still point to this room.
  * @return {?string} The room's canonical alias, or null if there is none
  */
-Room.prototype.getCanonicalAlias = function() {
-    var canonicalAlias = this.currentState.getStateEvents("m.room.canonical_alias", "");
+Room.prototype.getCanonicalAlias = function () {
+    const canonicalAlias = this.currentState.getStateEvents("m.room.canonical_alias", "");
     if (canonicalAlias) {
         return canonicalAlias.getContent().alias;
     }
@@ -385,12 +836,8 @@ Room.prototype.getCanonicalAlias = function() {
  * @fires module:client~MatrixClient#event:"Room.timeline"
  *
  */
-Room.prototype.addEventsToTimeline = function(events, toStartOfTimeline,
-                                              timeline, paginationToken) {
-    timeline.getTimelineSet().addEventsToTimeline(
-        events, toStartOfTimeline,
-        timeline, paginationToken
-    );
+Room.prototype.addEventsToTimeline = function (events, toStartOfTimeline, timeline, paginationToken) {
+    timeline.getTimelineSet().addEventsToTimeline(events, toStartOfTimeline, timeline, paginationToken);
 };
 
 /**
@@ -398,71 +845,116 @@ Room.prototype.addEventsToTimeline = function(events, toStartOfTimeline,
  * @param {string} userId The user ID of the member.
  * @return {RoomMember} The member or <code>null</code>.
  */
- Room.prototype.getMember = function(userId) {
-    var member = this.currentState.members[userId];
-    if (!member) {
-        return null;
-    }
-    return member;
- };
+Room.prototype.getMember = function (userId) {
+    return this.currentState.getMember(userId);
+};
 
 /**
  * Get a list of members whose membership state is "join".
  * @return {RoomMember[]} A list of currently joined members.
  */
- Room.prototype.getJoinedMembers = function() {
+Room.prototype.getJoinedMembers = function () {
     return this.getMembersWithMembership("join");
- };
+};
+
+/**
+ * Returns the number of joined members in this room
+ * This method caches the result.
+ * This is a wrapper around the method of the same name in roomState, returning
+ * its result for the room's current state.
+ * @return {integer} The number of members in this room whose membership is 'join'
+ */
+Room.prototype.getJoinedMemberCount = function () {
+    return this.currentState.getJoinedMemberCount();
+};
+
+/**
+ * Returns the number of invited members in this room
+ * @return {integer} The number of members in this room whose membership is 'invite'
+ */
+Room.prototype.getInvitedMemberCount = function () {
+    return this.currentState.getInvitedMemberCount();
+};
+
+/**
+ * Returns the number of invited + joined members in this room
+ * @return {integer} The number of members in this room whose membership is 'invite' or 'join'
+ */
+Room.prototype.getInvitedAndJoinedMemberCount = function () {
+    return this.getInvitedMemberCount() + this.getJoinedMemberCount();
+};
 
 /**
  * Get a list of members with given membership state.
  * @param {string} membership The membership state.
  * @return {RoomMember[]} A list of members with the given membership state.
  */
- Room.prototype.getMembersWithMembership = function(membership) {
-    return utils.filter(this.currentState.getMembers(), function(m) {
+Room.prototype.getMembersWithMembership = function (membership) {
+    return utils.filter(this.currentState.getMembers(), function (m) {
         return m.membership === membership;
     });
- };
+};
 
- /**
-  * Get the default room name (i.e. what a given user would see if the
-  * room had no m.room.name)
-  * @param {string} userId The userId from whose perspective we want
-  * to calculate the default name
-  * @return {string} The default room name
-  */
- Room.prototype.getDefaultRoomName = function(userId) {
-    return calculateRoomName(this, userId, true);
- };
-
-
- /**
- * Check if the given user_id has the given membership state.
- * @param {string} userId The user ID to check.
- * @param {string} membership The membership e.g. <code>'join'</code>
- * @return {boolean} True if this user_id has the given membership state.
+/**
+ * Get a list of members we should be encrypting for in this room
+ * @return {Promise<RoomMember[]>} A list of members who
+ * we should encrypt messages for in this room.
  */
- Room.prototype.hasMembershipState = function(userId, membership) {
-    var member = this.getMember(userId);
+Room.prototype.getEncryptionTargetMembers = async function () {
+    await this.loadMembersIfNeeded();
+    let members = this.getMembersWithMembership("join");
+    if (this.shouldEncryptForInvitedMembers()) {
+        members = members.concat(this.getMembersWithMembership("invite"));
+    }
+    return members;
+};
+
+/**
+ * Determine whether we should encrypt messages for invited users in this room
+ * @return {boolean} if we should encrypt messages for invited users
+ */
+Room.prototype.shouldEncryptForInvitedMembers = function () {
+    const ev = this.currentState.getStateEvents("m.room.history_visibility", "");
+    return ev && ev.getContent() && ev.getContent().history_visibility !== "joined";
+};
+
+/**
+ * Get the default room name (i.e. what a given user would see if the
+ * room had no m.room.name)
+ * @param {string} userId The userId from whose perspective we want
+ * to calculate the default name
+ * @return {string} The default room name
+ */
+Room.prototype.getDefaultRoomName = function (userId) {
+    return calculateRoomName(this, userId, true);
+};
+
+/**
+* Check if the given user_id has the given membership state.
+* @param {string} userId The user ID to check.
+* @param {string} membership The membership e.g. <code>'join'</code>
+* @return {boolean} True if this user_id has the given membership state.
+*/
+Room.prototype.hasMembershipState = function (userId, membership) {
+    const member = this.getMember(userId);
     if (!member) {
         return false;
     }
     return member.membership === membership;
- };
+};
 
 /**
  * Add a timelineSet for this room with the given filter
  * @param {Filter} filter  The filter to be applied to this timelineSet
  * @return {EventTimelineSet}  The timelineSet
  */
-Room.prototype.getOrCreateFilteredTimelineSet = function(filter) {
+Room.prototype.getOrCreateFilteredTimelineSet = function (filter) {
     if (this._filteredTimelineSets[filter.filterId]) {
         return this._filteredTimelineSets[filter.filterId];
     }
-    var opts = Object.assign({ filter: filter }, this._opts);
-    var timelineSet = new EventTimelineSet(this, opts);
-    reEmit(this, timelineSet, ["Room.timeline", "Room.timelineReset"]);
+    const opts = Object.assign({ filter: filter }, this._opts);
+    const timelineSet = new EventTimelineSet(this, opts);
+    this.reEmitter.reEmit(timelineSet, ["Room.timeline", "Room.timelineReset"]);
     this._filteredTimelineSets[filter.filterId] = timelineSet;
     this._timelineSets.push(timelineSet);
 
@@ -473,22 +965,19 @@ Room.prototype.getOrCreateFilteredTimelineSet = function(filter) {
     // may have grown huge and so take a long time to filter.
     // see https://github.com/vector-im/vector-web/issues/2109
 
-    var unfilteredLiveTimeline = this.getLiveTimeline();
+    const unfilteredLiveTimeline = this.getLiveTimeline();
 
-    unfilteredLiveTimeline.getEvents().forEach(function(event) {
+    unfilteredLiveTimeline.getEvents().forEach(function (event) {
         timelineSet.addLiveEvent(event);
     });
 
     // find the earliest unfiltered timeline
-    var timeline = unfilteredLiveTimeline;
+    let timeline = unfilteredLiveTimeline;
     while (timeline.getNeighbouringTimeline(EventTimeline.BACKWARDS)) {
         timeline = timeline.getNeighbouringTimeline(EventTimeline.BACKWARDS);
     }
 
-    timelineSet.getLiveTimeline().setPaginationToken(
-        timeline.getPaginationToken(EventTimeline.BACKWARDS),
-        EventTimeline.BACKWARDS
-    );
+    timelineSet.getLiveTimeline().setPaginationToken(timeline.getPaginationToken(EventTimeline.BACKWARDS), EventTimeline.BACKWARDS);
 
     // alternatively, we could try to do something like this to try and re-paginate
     // in the filtered events from nothing, but Mark says it's an abuse of the API
@@ -506,10 +995,10 @@ Room.prototype.getOrCreateFilteredTimelineSet = function(filter) {
  *
  * @param {Filter} filter  the filter whose timelineSet is to be forgotten
  */
-Room.prototype.removeFilteredTimelineSet = function(filter) {
-    var timelineSet = this._filteredTimelineSets[filter.filterId];
+Room.prototype.removeFilteredTimelineSet = function (filter) {
+    const timelineSet = this._filteredTimelineSets[filter.filterId];
     delete this._filteredTimelineSets[filter.filterId];
-    var i = this._timelineSets.indexOf(timelineSet);
+    const i = this._timelineSets.indexOf(timelineSet);
     if (i > -1) {
         this._timelineSets.splice(i, 1);
     }
@@ -524,15 +1013,23 @@ Room.prototype.removeFilteredTimelineSet = function(filter) {
  * @fires module:client~MatrixClient#event:"Room.timeline"
  * @private
  */
-Room.prototype._addLiveEvent = function(event, duplicateStrategy) {
-    var i;
-    if (event.getType() === "m.room.redaction") {
-        var redactId = event.event.redacts;
+Room.prototype._addLiveEvent = function (event, duplicateStrategy) {
+    if (event.isRedaction()) {
+        const redactId = event.event.redacts;
 
         // if we know about this event, redact its contents now.
-        var redactedEvent = this.getUnfilteredTimelineSet().findEventById(redactId);
+        const redactedEvent = this.getUnfilteredTimelineSet().findEventById(redactId);
         if (redactedEvent) {
             redactedEvent.makeRedacted(event);
+
+            // If this is in the current state, replace it with the redacted version
+            if (redactedEvent.getStateKey()) {
+                const currentStateEvent = this.currentState.getStateEvents(redactedEvent.getType(), redactedEvent.getStateKey());
+                if (currentStateEvent.getId() === redactedEvent.getId()) {
+                    this.currentState.setStateEvents([redactedEvent]);
+                }
+            }
+
             this.emit("Room.redaction", event, this);
 
             // TODO: we stash user displaynames (among other things) in
@@ -550,7 +1047,7 @@ Room.prototype._addLiveEvent = function(event, duplicateStrategy) {
     }
 
     if (event.getUnsigned().transaction_id) {
-        var existingEvent = this._txnToEvent[event.getUnsigned().transaction_id];
+        const existingEvent = this._txnToEvent[event.getUnsigned().transaction_id];
         if (existingEvent) {
             // remote echo of an event we sent earlier
             this._handleRemoteEcho(event, existingEvent);
@@ -559,17 +1056,16 @@ Room.prototype._addLiveEvent = function(event, duplicateStrategy) {
     }
 
     // add to our timeline sets
-    for (i = 0; i < this._timelineSets.length; i++) {
+    for (let i = 0; i < this._timelineSets.length; i++) {
         this._timelineSets[i].addLiveEvent(event, duplicateStrategy);
     }
 
     // synthesize and inject implicit read receipts
     // Done after adding the event because otherwise the app would get a read receipt
     // pointing to an event that wasn't yet in the timeline
-    if (event.sender) {
-        this.addReceipt(synthesizeReceipt(
-            event.sender.userId, event, "m.read"
-        ), true);
+    // Don't synthesize RR for m.room.redaction as this causes the RR to go missing.
+    if (event.sender && event.getType() !== "m.room.redaction") {
+        this.addReceipt(synthesizeReceipt(event.sender.userId, event, "m.read"), true);
 
         // Any live events from a user could be taken as implicit
         // presence information: evidence that they are currently active.
@@ -579,7 +1075,6 @@ Room.prototype._addLiveEvent = function(event, duplicateStrategy) {
         // reset the lastActiveAgo and lastPresenceTs from the RoomState's user.
     }
 };
-
 
 /**
  * Add a pending outgoing event to this room.
@@ -598,47 +1093,85 @@ Room.prototype._addLiveEvent = function(event, duplicateStrategy) {
  * @throws if the event doesn't have status SENDING, or we aren't given a
  * unique transaction id.
  */
-Room.prototype.addPendingEvent = function(event, txnId) {
+Room.prototype.addPendingEvent = function (event, txnId) {
     if (event.status !== EventStatus.SENDING) {
-        throw new Error("addPendingEvent called on an event with status " +
-                        event.status);
+        throw new Error("addPendingEvent called on an event with status " + event.status);
     }
 
     if (this._txnToEvent[txnId]) {
-        throw new Error("addPendingEvent called on an event with known txnId " +
-                        txnId);
+        throw new Error("addPendingEvent called on an event with known txnId " + txnId);
     }
 
     // call setEventMetadata to set up event.sender etc
     // as event is shared over all timelineSets, we set up its metadata based
     // on the unfiltered timelineSet.
-    EventTimeline.setEventMetadata(
-        event,
-        this.getLiveTimeline().getState(EventTimeline.FORWARDS),
-        false
-    );
+    EventTimeline.setEventMetadata(event, this.getLiveTimeline().getState(EventTimeline.FORWARDS), false);
 
     this._txnToEvent[txnId] = event;
 
     if (this._opts.pendingEventOrdering == "detached") {
+        if (this._pendingEventList.some(e => e.status === EventStatus.NOT_SENT)) {
+            _logger2.default.warn("Setting event as NOT_SENT due to messages in the same state");
+            event.setStatus(EventStatus.NOT_SENT);
+        }
         this._pendingEventList.push(event);
-    } else {
-        for (var i = 0; i < this._timelineSets.length; i++) {
-            var timelineSet = this._timelineSets[i];
-            if (timelineSet.getFilter()) {
-                if (this._filter.filterRoomTimeline([event]).length) {
-                    timelineSet.addEventToTimeline(event,
-                        timelineSet.getLiveTimeline(), false);
-                }
+
+        if (event.isRelation()) {
+            // For pending events, add them to the relations collection immediately.
+            // (The alternate case below already covers this as part of adding to
+            // the timeline set.)
+            this._aggregateNonLiveRelation(event);
+        }
+
+        if (event.isRedaction()) {
+            const redactId = event.event.redacts;
+            let redactedEvent = this._pendingEventList && this._pendingEventList.find(e => e.getId() === redactId);
+            if (!redactedEvent) {
+                redactedEvent = this.getUnfilteredTimelineSet().findEventById(redactId);
             }
-            else {
-                timelineSet.addEventToTimeline(event,
-                    timelineSet.getLiveTimeline(), false);
+            if (redactedEvent) {
+                redactedEvent.markLocallyRedacted(event);
+                this.emit("Room.redaction", event, this);
+            }
+        }
+    } else {
+        for (let i = 0; i < this._timelineSets.length; i++) {
+            const timelineSet = this._timelineSets[i];
+            if (timelineSet.getFilter()) {
+                if (timelineSet.getFilter().filterRoomTimeline([event]).length) {
+                    timelineSet.addEventToTimeline(event, timelineSet.getLiveTimeline(), false);
+                }
+            } else {
+                timelineSet.addEventToTimeline(event, timelineSet.getLiveTimeline(), false);
             }
         }
     }
 
     this.emit("Room.localEchoUpdated", event, this, null, null);
+};
+/**
+ * Used to aggregate the local echo for a relation, and also
+ * for re-applying a relation after it's redaction has been cancelled,
+ * as the local echo for the redaction of the relation would have
+ * un-aggregated the relation. Note that this is different from regular messages,
+ * which are just kept detached for their local echo.
+ *
+ * Also note that live events are aggregated in the live EventTimelineSet.
+ * @param {module:models/event.MatrixEvent} event the relation event that needs to be aggregated.
+ */
+Room.prototype._aggregateNonLiveRelation = function (event) {
+    // TODO: We should consider whether this means it would be a better
+    // design to lift the relations handling up to the room instead.
+    for (let i = 0; i < this._timelineSets.length; i++) {
+        const timelineSet = this._timelineSets[i];
+        if (timelineSet.getFilter()) {
+            if (timelineSet.getFilter().filterRoomTimeline([event]).length) {
+                timelineSet.aggregateRelations(event);
+            }
+        } else {
+            timelineSet.aggregateRelations(event);
+        }
+    }
 };
 
 /**
@@ -655,68 +1188,50 @@ Room.prototype.addPendingEvent = function(event, txnId) {
  * @fires module:client~MatrixClient#event:"Room.localEchoUpdated"
  * @private
  */
-Room.prototype._handleRemoteEcho = function(remoteEvent, localEvent) {
-    var oldEventId = localEvent.getId();
-    var newEventId = remoteEvent.getId();
-    var oldStatus = localEvent.status;
+Room.prototype._handleRemoteEcho = function (remoteEvent, localEvent) {
+    const oldEventId = localEvent.getId();
+    const newEventId = remoteEvent.getId();
+    const oldStatus = localEvent.status;
 
     // no longer pending
-    delete this._txnToEvent[remoteEvent.transaction_id];
+    delete this._txnToEvent[remoteEvent.getUnsigned().transaction_id];
 
     // if it's in the pending list, remove it
     if (this._pendingEventList) {
-        utils.removeElement(
-            this._pendingEventList,
-            function(ev) { return ev.getId() == oldEventId; },
-            false
-        );
+        utils.removeElement(this._pendingEventList, function (ev) {
+            return ev.getId() == oldEventId;
+        }, false);
     }
 
     // replace the event source (this will preserve the plaintext payload if
     // any, which is good, because we don't want to try decoding it again).
-    localEvent.event = remoteEvent.event;
+    localEvent.handleRemoteEcho(remoteEvent.event);
 
-    // successfully sent.
-    localEvent.status = null;
-
-    for (var i = 0; i < this._timelineSets.length; i++) {
-        var timelineSet = this._timelineSets[i];
+    for (let i = 0; i < this._timelineSets.length; i++) {
+        const timelineSet = this._timelineSets[i];
 
         // if it's already in the timeline, update the timeline map. If it's not, add it.
         timelineSet.handleRemoteEcho(localEvent, oldEventId, newEventId);
     }
 
-    this.emit("Room.localEchoUpdated", localEvent, this,
-              oldEventId, oldStatus);
+    this.emit("Room.localEchoUpdated", localEvent, this, oldEventId, oldStatus);
 };
 
 /* a map from current event status to a list of allowed next statuses
  */
-var ALLOWED_TRANSITIONS = {};
+const ALLOWED_TRANSITIONS = {};
 
-ALLOWED_TRANSITIONS[EventStatus.ENCRYPTING] = [
-    EventStatus.SENDING,
-    EventStatus.NOT_SENT,
-];
+ALLOWED_TRANSITIONS[EventStatus.ENCRYPTING] = [EventStatus.SENDING, EventStatus.NOT_SENT];
 
-ALLOWED_TRANSITIONS[EventStatus.SENDING] = [
-    EventStatus.ENCRYPTING,
-    EventStatus.QUEUED,
-    EventStatus.NOT_SENT,
-    EventStatus.SENT,
-];
+ALLOWED_TRANSITIONS[EventStatus.SENDING] = [EventStatus.ENCRYPTING, EventStatus.QUEUED, EventStatus.NOT_SENT, EventStatus.SENT];
 
-ALLOWED_TRANSITIONS[EventStatus.QUEUED] =
-    [EventStatus.SENDING, EventStatus.CANCELLED];
+ALLOWED_TRANSITIONS[EventStatus.QUEUED] = [EventStatus.SENDING, EventStatus.CANCELLED];
 
-ALLOWED_TRANSITIONS[EventStatus.SENT] =
-    [];
+ALLOWED_TRANSITIONS[EventStatus.SENT] = [];
 
-ALLOWED_TRANSITIONS[EventStatus.NOT_SENT] =
-    [EventStatus.SENDING, EventStatus.QUEUED, EventStatus.CANCELLED];
+ALLOWED_TRANSITIONS[EventStatus.NOT_SENT] = [EventStatus.SENDING, EventStatus.QUEUED, EventStatus.CANCELLED];
 
-ALLOWED_TRANSITIONS[EventStatus.CANCELLED] =
-    [];
+ALLOWED_TRANSITIONS[EventStatus.CANCELLED] = [];
 
 /**
  * Update the status / event id on a pending event, to reflect its transmission
@@ -730,16 +1245,17 @@ ALLOWED_TRANSITIONS[EventStatus.CANCELLED] =
  *    newStatus == EventStatus.SENT.
  * @fires module:client~MatrixClient#event:"Room.localEchoUpdated"
  */
-Room.prototype.updatePendingEvent = function(event, newStatus, newEventId) {
+Room.prototype.updatePendingEvent = function (event, newStatus, newEventId) {
+    _logger2.default.log(`setting pendingEvent status to ${newStatus} in ${event.getRoomId()}`);
+
     // if the message was sent, we expect an event id
     if (newStatus == EventStatus.SENT && !newEventId) {
-        throw new Error("updatePendingEvent called with status=SENT, " +
-                        "but no new event id");
+        throw new Error("updatePendingEvent called with status=SENT, " + "but no new event id");
     }
 
     // SENT races against /sync, so we have to special-case it.
     if (newStatus == EventStatus.SENT) {
-        var timeline = this.getUnfilteredTimelineSet().eventIdToTimeline(newEventId);
+        const timeline = this.getUnfilteredTimelineSet().eventIdToTimeline(newEventId);
         if (timeline) {
             // we've already received the event via the event stream.
             // nothing more to do here.
@@ -747,48 +1263,63 @@ Room.prototype.updatePendingEvent = function(event, newStatus, newEventId) {
         }
     }
 
-    var oldStatus = event.status;
-    var oldEventId = event.getId();
+    const oldStatus = event.status;
+    const oldEventId = event.getId();
 
     if (!oldStatus) {
-        throw new Error("updatePendingEventStatus called on an event which is " +
-                        "not a local echo.");
+        throw new Error("updatePendingEventStatus called on an event which is " + "not a local echo.");
     }
 
-    var allowed = ALLOWED_TRANSITIONS[oldStatus];
+    const allowed = ALLOWED_TRANSITIONS[oldStatus];
     if (!allowed || allowed.indexOf(newStatus) < 0) {
-        throw new Error("Invalid EventStatus transition " + oldStatus + "->" +
-                        newStatus);
+        throw new Error("Invalid EventStatus transition " + oldStatus + "->" + newStatus);
     }
 
-    event.status = newStatus;
+    event.setStatus(newStatus);
 
     if (newStatus == EventStatus.SENT) {
         // update the event id
-        event.event.event_id = newEventId;
+        event.replaceLocalEventId(newEventId);
 
         // if the event was already in the timeline (which will be the case if
         // opts.pendingEventOrdering==chronological), we need to update the
         // timeline map.
-        for (var i = 0; i < this._timelineSets.length; i++) {
+        for (let i = 0; i < this._timelineSets.length; i++) {
             this._timelineSets[i].replaceEventId(oldEventId, newEventId);
         }
-    }
-    else if (newStatus == EventStatus.CANCELLED) {
+    } else if (newStatus == EventStatus.CANCELLED) {
         // remove it from the pending event list, or the timeline.
         if (this._pendingEventList) {
-            utils.removeElement(
-                this._pendingEventList,
-                function(ev) { return ev.getId() == oldEventId; },
-                false
-            );
+            const idx = this._pendingEventList.findIndex(ev => ev.getId() === oldEventId);
+            if (idx !== -1) {
+                const [removedEvent] = this._pendingEventList.splice(idx, 1);
+                if (removedEvent.isRedaction()) {
+                    this._revertRedactionLocalEcho(removedEvent);
+                }
+            }
         }
         this.removeEvent(oldEventId);
     }
 
-    this.emit("Room.localEchoUpdated", event, this, event.getId(), oldStatus);
+    this.emit("Room.localEchoUpdated", event, this, oldEventId, oldStatus);
 };
 
+Room.prototype._revertRedactionLocalEcho = function (redactionEvent) {
+    const redactId = redactionEvent.event.redacts;
+    if (!redactId) {
+        return;
+    }
+    const redactedEvent = this.getUnfilteredTimelineSet().findEventById(redactId);
+    if (redactedEvent) {
+        redactedEvent.unmarkLocallyRedacted();
+        // re-render after undoing redaction
+        this.emit("Room.redactionCancelled", redactionEvent, this);
+        // reapply relation now redaction failed
+        if (redactedEvent.isRelation()) {
+            this._aggregateNonLiveRelation(redactedEvent);
+        }
+    }
+};
 
 /**
  * Add some events to this room. This can include state events, message
@@ -806,53 +1337,51 @@ Room.prototype.updatePendingEvent = function(event, newStatus, newEventId) {
  *
  * @throws If <code>duplicateStrategy</code> is not falsey, 'replace' or 'ignore'.
  */
-Room.prototype.addLiveEvents = function(events, duplicateStrategy) {
-    var i;
+Room.prototype.addLiveEvents = function (events, duplicateStrategy) {
+    let i;
     if (duplicateStrategy && ["replace", "ignore"].indexOf(duplicateStrategy) === -1) {
         throw new Error("duplicateStrategy MUST be either 'replace' or 'ignore'");
     }
 
     // sanity check that the live timeline is still live
     for (i = 0; i < this._timelineSets.length; i++) {
-        var liveTimeline = this._timelineSets[i].getLiveTimeline();
+        const liveTimeline = this._timelineSets[i].getLiveTimeline();
         if (liveTimeline.getPaginationToken(EventTimeline.FORWARDS)) {
-            throw new Error(
-                "live timeline " + i + " is no longer live - it has a pagination token " +
-                "(" + liveTimeline.getPaginationToken(EventTimeline.FORWARDS) + ")"
-            );
+            throw new Error("live timeline " + i + " is no longer live - it has a pagination token " + "(" + liveTimeline.getPaginationToken(EventTimeline.FORWARDS) + ")");
         }
         if (liveTimeline.getNeighbouringTimeline(EventTimeline.FORWARDS)) {
-            throw new Error(
-                "live timeline " + i + " is no longer live - " +
-                "it has a neighbouring timeline"
-            );
+            throw new Error("live timeline " + i + " is no longer live - " + "it has a neighbouring timeline");
         }
     }
 
     for (i = 0; i < events.length; i++) {
-        if (events[i].getType() === "m.typing") {
-            this.currentState.setTypingEvent(events[i]);
-        }
-        else if (events[i].getType() === "m.receipt") {
-            this.addReceipt(events[i]);
-        }
-        // N.B. account_data is added directly by /sync to avoid
-        // having to maintain an event.isAccountData() here
-        else {
-            // TODO: We should have a filter to say "only add state event
-            // types X Y Z to the timeline".
-            this._addLiveEvent(events[i], duplicateStrategy);
-        }
+        // TODO: We should have a filter to say "only add state event
+        // types X Y Z to the timeline".
+        this._addLiveEvent(events[i], duplicateStrategy);
+    }
+};
+
+/**
+ * Adds/handles ephemeral events such as typing notifications and read receipts.
+ * @param {MatrixEvent[]} events A list of events to process
+ */
+Room.prototype.addEphemeralEvents = function (events) {
+    for (const event of events) {
+        if (event.getType() === 'm.typing') {
+            this.currentState.setTypingEvent(event);
+        } else if (event.getType() === 'm.receipt') {
+            this.addReceipt(event);
+        } // else ignore - life is too short for us to care about these events
     }
 };
 
 /**
  * Removes events from this room.
- * @param {String[]} event_ids A list of event_ids to remove.
+ * @param {String[]} eventIds A list of eventIds to remove.
  */
-Room.prototype.removeEvents = function(event_ids) {
-    for (var i = 0; i < event_ids.length; ++i) {
-        this.removeEvent(event_ids[i]);
+Room.prototype.removeEvents = function (eventIds) {
+    for (let i = 0; i < eventIds.length; ++i) {
+        this.removeEvent(eventIds[i]);
     }
 };
 
@@ -863,38 +1392,35 @@ Room.prototype.removeEvents = function(event_ids) {
  *
  * @return {bool} true if the event was removed from any of the room's timeline sets
  */
-Room.prototype.removeEvent = function(eventId) {
-    var removedAny = false;
-    for (var i = 0; i < this._timelineSets.length; i++) {
-        var removed = this._timelineSets[i].removeEvent(eventId);
+Room.prototype.removeEvent = function (eventId) {
+    let removedAny = false;
+    for (let i = 0; i < this._timelineSets.length; i++) {
+        const removed = this._timelineSets[i].removeEvent(eventId);
         if (removed) {
+            if (removed.isRedaction()) {
+                this._revertRedactionLocalEcho(removed);
+            }
             removedAny = true;
         }
     }
     return removedAny;
 };
 
-
 /**
  * Recalculate various aspects of the room, including the room name and
  * room summary. Call this any time the room's current state is modified.
  * May fire "Room.name" if the room name is updated.
- * @param {string} userId The client's user ID.
  * @fires module:client~MatrixClient#event:"Room.name"
  */
-Room.prototype.recalculate = function(userId) {
+Room.prototype.recalculate = function () {
     // set fake stripped state events if this is an invite room so logic remains
     // consistent elsewhere.
-    var self = this;
-    var membershipEvent = this.currentState.getStateEvents(
-        "m.room.member", userId
-    );
+    const self = this;
+    const membershipEvent = this.currentState.getStateEvents("m.room.member", this.myUserId);
     if (membershipEvent && membershipEvent.getContent().membership === "invite") {
-        var strippedStateEvents = membershipEvent.event.invite_room_state || [];
-        utils.forEach(strippedStateEvents, function(strippedEvent) {
-            var existingEvent = self.currentState.getStateEvents(
-                strippedEvent.type, strippedEvent.state_key
-            );
+        const strippedStateEvents = membershipEvent.event.invite_room_state || [];
+        utils.forEach(strippedStateEvents, function (strippedEvent) {
+            const existingEvent = self.currentState.getStateEvents(strippedEvent.type, strippedEvent.state_key);
             if (!existingEvent) {
                 // set the fake stripped event instead
                 self.currentState.setStateEvents([new MatrixEvent({
@@ -903,16 +1429,14 @@ Room.prototype.recalculate = function(userId) {
                     content: strippedEvent.content,
                     event_id: "$fake" + Date.now(),
                     room_id: self.roomId,
-                    user_id: userId // technically a lie
+                    user_id: self.myUserId // technically a lie
                 })]);
             }
         });
     }
 
-
-
-    var oldName = this.name;
-    this.name = calculateRoomName(this, userId);
+    const oldName = this.name;
+    this.name = calculateRoomName(this, this.myUserId);
     this.summary = new RoomSummary(this.roomId, {
         title: this.name
     });
@@ -922,16 +1446,15 @@ Room.prototype.recalculate = function(userId) {
     }
 };
 
-
 /**
  * Get a list of user IDs who have <b>read up to</b> the given event.
  * @param {MatrixEvent} event the event to get read receipts for.
  * @return {String[]} A list of user IDs.
  */
-Room.prototype.getUsersReadUpTo = function(event) {
-    return this.getReceiptsForEvent(event).filter(function(receipt) {
+Room.prototype.getUsersReadUpTo = function (event) {
+    return this.getReceiptsForEvent(event).filter(function (receipt) {
         return receipt.type === "m.read";
-    }).map(function(receipt) {
+    }).map(function (receipt) {
         return receipt.userId;
     });
 };
@@ -945,20 +1468,49 @@ Room.prototype.getUsersReadUpTo = function(event) {
  *                                    by the JS SDK.
  * @return {String} ID of the latest event that the given user has read, or null.
  */
-Room.prototype.getEventReadUpTo = function(userId, ignoreSynthesized) {
-    var receipts = this._receipts;
+Room.prototype.getEventReadUpTo = function (userId, ignoreSynthesized) {
+    let receipts = this._receipts;
     if (ignoreSynthesized) {
         receipts = this._realReceipts;
     }
 
-    if (
-        receipts["m.read"] === undefined ||
-        receipts["m.read"][userId] === undefined
-    ) {
+    if (receipts["m.read"] === undefined || receipts["m.read"][userId] === undefined) {
         return null;
     }
 
     return receipts["m.read"][userId].eventId;
+};
+
+/**
+ * Determines if the given user has read a particular event ID with the known
+ * history of the room. This is not a definitive check as it relies only on
+ * what is available to the room at the time of execution.
+ * @param {String} userId The user ID to check the read state of.
+ * @param {String} eventId The event ID to check if the user read.
+ * @returns {Boolean} True if the user has read the event, false otherwise.
+ */
+Room.prototype.hasUserReadEvent = function (userId, eventId) {
+    const readUpToId = this.getEventReadUpTo(userId, false);
+    if (readUpToId === eventId) return true;
+
+    if (this.timeline.length && this.timeline[this.timeline.length - 1].getSender() && this.timeline[this.timeline.length - 1].getSender() === userId) {
+        // It doesn't matter where the event is in the timeline, the user has read
+        // it because they've sent the latest event.
+        return true;
+    }
+
+    for (let i = this.timeline.length - 1; i >= 0; --i) {
+        const ev = this.timeline[i];
+
+        // If we encounter the target event first, the user hasn't read it
+        // however if we encounter the readUpToId first then the user has read
+        // it. These rules apply because we're iterating bottom-up.
+        if (ev.getId() === eventId) return false;
+        if (ev.getId() === readUpToId) return true;
+    }
+
+    // We don't know if the user has read it, so assume not.
+    return false;
 };
 
 /**
@@ -967,7 +1519,7 @@ Room.prototype.getEventReadUpTo = function(userId, ignoreSynthesized) {
  * @return {Object[]} A list of receipts with a userId, type and data keys or
  * an empty list.
  */
-Room.prototype.getReceiptsForEvent = function(event) {
+Room.prototype.getReceiptsForEvent = function (event) {
     return this._receiptCacheByEventId[event.getId()] || [];
 };
 
@@ -976,7 +1528,7 @@ Room.prototype.getReceiptsForEvent = function(event) {
  * @param {MatrixEvent} event The m.receipt event.
  * @param {Boolean} fake True if this event is implicit
  */
-Room.prototype.addReceipt = function(event, fake) {
+Room.prototype.addReceipt = function (event, fake) {
     // event content looks like:
     // content: {
     //   $event_id: {
@@ -987,7 +1539,9 @@ Room.prototype.addReceipt = function(event, fake) {
     //     }
     //   }
     // }
-    if (fake === undefined) { fake = false; }
+    if (fake === undefined) {
+        fake = false;
+    }
     if (!fake) {
         this._addReceiptsToStructure(event, this._realReceipts);
         // we don't bother caching real receipts by event ID
@@ -1006,19 +1560,18 @@ Room.prototype.addReceipt = function(event, fake) {
  * @param {MatrixEvent} event The m.receipt event.
  * @param {Object} receipts The object to add receipts to
  */
-Room.prototype._addReceiptsToStructure = function(event, receipts) {
-    var self = this;
-    utils.keys(event.getContent()).forEach(function(eventId) {
-        utils.keys(event.getContent()[eventId]).forEach(function(receiptType) {
-            utils.keys(event.getContent()[eventId][receiptType]).forEach(
-            function(userId) {
-                var receipt = event.getContent()[eventId][receiptType][userId];
+Room.prototype._addReceiptsToStructure = function (event, receipts) {
+    const self = this;
+    utils.keys(event.getContent()).forEach(function (eventId) {
+        utils.keys(event.getContent()[eventId]).forEach(function (receiptType) {
+            utils.keys(event.getContent()[eventId][receiptType]).forEach(function (userId) {
+                const receipt = event.getContent()[eventId][receiptType][userId];
 
                 if (!receipts[receiptType]) {
                     receipts[receiptType] = {};
                 }
 
-                var existingReceipt = receipts[receiptType][userId];
+                const existingReceipt = receipts[receiptType][userId];
 
                 if (!existingReceipt) {
                     receipts[receiptType][userId] = {};
@@ -1027,8 +1580,7 @@ Room.prototype._addReceiptsToStructure = function(event, receipts) {
                     // than the one we already have. (This is managed
                     // server-side, but because we synthesize RRs locally we
                     // have to do it here too.)
-                    var ordering = self.getUnfilteredTimelineSet().compareEventOrdering(
-                        existingReceipt.eventId, eventId);
+                    const ordering = self.getUnfilteredTimelineSet().compareEventOrdering(existingReceipt.eventId, eventId);
                     if (ordering !== null && ordering >= 0) {
                         return;
                     }
@@ -1048,11 +1600,11 @@ Room.prototype._addReceiptsToStructure = function(event, receipts) {
  * @param {Object} receipts A map of receipts
  * @return {Object} Map of receipts by event ID
  */
-Room.prototype._buildReceiptCache = function(receipts) {
-    var receiptCacheByEventId = {};
-    utils.keys(receipts).forEach(function(receiptType) {
-        utils.keys(receipts[receiptType]).forEach(function(userId) {
-            var receipt = receipts[receiptType][userId];
+Room.prototype._buildReceiptCache = function (receipts) {
+    const receiptCacheByEventId = {};
+    utils.keys(receipts).forEach(function (receiptType) {
+        utils.keys(receipts[receiptType]).forEach(function (userId) {
+            const receipt = receipts[receiptType][userId];
             if (!receiptCacheByEventId[receipt.eventId]) {
                 receiptCacheByEventId[receipt.eventId] = [];
             }
@@ -1066,7 +1618,6 @@ Room.prototype._buildReceiptCache = function(receipts) {
     return receiptCacheByEventId;
 };
 
-
 /**
  * Add a temporary local-echo receipt to the room to reflect in the
  * client the fact that we've sent one.
@@ -1074,7 +1625,7 @@ Room.prototype._buildReceiptCache = function(receipts) {
  * @param {MatrixEvent} e The event that is to be acknowledged
  * @param {string} receiptType The type of receipt
  */
-Room.prototype._addLocalEchoReceipt = function(userId, e, receiptType) {
+Room.prototype._addLocalEchoReceipt = function (userId, e, receiptType) {
     this.addReceipt(synthesizeReceipt(userId, e, receiptType), true);
 };
 
@@ -1082,7 +1633,7 @@ Room.prototype._addLocalEchoReceipt = function(userId, e, receiptType) {
  * Update the room-tag event for the room.  The previous one is overwritten.
  * @param {MatrixEvent} event the m.tag event
  */
-Room.prototype.addTags = function(event) {
+Room.prototype.addTags = function (event) {
     // event content looks like:
     // content: {
     //    tags: {
@@ -1092,7 +1643,7 @@ Room.prototype.addTags = function(event) {
     // }
 
     // XXX: do we need to deep copy here?
-    this.tags = event.getContent().tags;
+    this.tags = event.getContent().tags || {};
 
     // XXX: we could do a deep-comparison to see if the tags have really
     // changed - but do we want to bother?
@@ -1103,9 +1654,9 @@ Room.prototype.addTags = function(event) {
  * Update the account_data events for this room, overwriting events of the same type.
  * @param {Array<MatrixEvent>} events an array of account_data events to add
  */
-Room.prototype.addAccountData = function(events) {
-    for (var i = 0; i < events.length; i++) {
-        var event = events[i];
+Room.prototype.addAccountData = function (events) {
+    for (let i = 0; i < events.length; i++) {
+        const event = events[i];
         if (event.getType() === "m.tag") {
             this.addTags(event);
         }
@@ -1119,8 +1670,17 @@ Room.prototype.addAccountData = function(events) {
  * @param {string} type the type of account_data event to be accessed
  * @return {?MatrixEvent} the account_data event in question
  */
-Room.prototype.getAccountData = function(type) {
+Room.prototype.getAccountData = function (type) {
     return this.accountData[type];
+};
+
+/**
+ * Returns wheter the syncing user has permission to send a message in the room
+ * @return {boolean} true if the user should be permitted to send
+ *                   message events into the room.
+ */
+Room.prototype.maySendMessage = function () {
+    return this.getMyMembership() === 'join' && this.currentState.maySendEvent('m.room.message', this.myUserId);
 };
 
 /**
@@ -1137,16 +1697,16 @@ function calculateRoomName(room, userId, ignoreRoomNameEvent) {
     if (!ignoreRoomNameEvent) {
         // check for an alias, if any. for now, assume first alias is the
         // official one.
-        var mRoomName = room.currentState.getStateEvents("m.room.name", "");
+        const mRoomName = room.currentState.getStateEvents("m.room.name", "");
         if (mRoomName && mRoomName.getContent() && mRoomName.getContent().name) {
             return mRoomName.getContent().name;
         }
     }
 
-    var alias = room.getCanonicalAlias();
+    let alias = room.getCanonicalAlias();
 
     if (!alias) {
-        var aliases = room.getAliases();
+        const aliases = room.getAliases();
 
         if (aliases.length) {
             alias = aliases[0];
@@ -1156,105 +1716,80 @@ function calculateRoomName(room, userId, ignoreRoomNameEvent) {
         return alias;
     }
 
+    const joinedMemberCount = room.currentState.getJoinedMemberCount();
+    const invitedMemberCount = room.currentState.getInvitedMemberCount();
+    // -1 because these numbers include the syncing user
+    const inviteJoinCount = joinedMemberCount + invitedMemberCount - 1;
+
     // get members that are NOT ourselves and are actually in the room.
-    var otherMembers = utils.filter(room.currentState.getMembers(), function(m) {
-        return (m.userId !== userId && m.membership !== "leave");
-    });
-    var allMembers = utils.filter(room.currentState.getMembers(), function(m) {
-        return (m.membership !== "leave");
-    });
-    var myMemberEventArray = utils.filter(room.currentState.getMembers(), function(m) {
-        return (m.userId == userId);
-    });
-    var myMemberEvent = (
-        (myMemberEventArray.length && myMemberEventArray[0].events) ?
-            myMemberEventArray[0].events.member.event : undefined
-    );
-
-    // TODO: Localisation
-    if (myMemberEvent && myMemberEvent.content.membership == "invite") {
-        if (room.currentState.getMember(myMemberEvent.sender)) {
-            // extract who invited us to the room
-            return "Invite from " + room.currentState.getMember(
-                myMemberEvent.sender
-            ).name;
-        } else if (allMembers[0].events.member) {
-            // use the sender field from the invite event, although this only
-            // gets us the mxid
-            return "Invite from " + myMemberEvent.sender;
-        } else {
-            return "Room Invite";
-        }
+    let otherNames = null;
+    if (room._summaryHeroes) {
+        // if we have a summary, the member state events
+        // should be in the room state
+        otherNames = room._summaryHeroes.map(userId => {
+            const member = room.getMember(userId);
+            return member ? member.name : userId;
+        });
+    } else {
+        let otherMembers = room.currentState.getMembers().filter(m => {
+            return m.userId !== userId && (m.membership === "invite" || m.membership === "join");
+        });
+        // make sure members have stable order
+        otherMembers.sort((a, b) => a.userId.localeCompare(b.userId));
+        // only 5 first members, immitate _summaryHeroes
+        otherMembers = otherMembers.slice(0, 5);
+        otherNames = otherMembers.map(m => m.name);
     }
 
+    if (inviteJoinCount) {
+        return memberNamesToRoomName(otherNames, inviteJoinCount);
+    }
 
-    if (otherMembers.length === 0) {
-        if (allMembers.length === 1) {
-            // self-chat, peeked room with 1 participant,
-            // or inbound invite, or outbound 3PID invite.
-            if (allMembers[0].userId === userId) {
-                var thirdPartyInvites =
-                    room.currentState.getStateEvents("m.room.third_party_invite");
-                if (thirdPartyInvites && thirdPartyInvites.length > 0) {
-                    var name = "Inviting " +
-                               thirdPartyInvites[0].getContent().display_name;
-                    if (thirdPartyInvites.length > 1) {
-                        if (thirdPartyInvites.length == 2) {
-                            name += " and " +
-                                    thirdPartyInvites[1].getContent().display_name;
-                        }
-                        else {
-                            name += " and " +
-                                    thirdPartyInvites.length + " others";
-                        }
-                    }
-                    return name;
-                }
-                else {
-                    return "Empty room";
-                }
-            }
-            else {
-                return allMembers[0].name;
-            }
-        }
-        else {
-            // there really isn't anyone in this room...
-            return "Empty room";
+    const myMembership = room.getMyMembership();
+    // if I have created a room and invited people throuh
+    // 3rd party invites
+    if (myMembership == 'join') {
+        const thirdPartyInvites = room.currentState.getStateEvents("m.room.third_party_invite");
+
+        if (thirdPartyInvites && thirdPartyInvites.length) {
+            const thirdPartyNames = thirdPartyInvites.map(i => {
+                return i.getContent().display_name;
+            });
+
+            return `Inviting ${memberNamesToRoomName(thirdPartyNames)}`;
         }
     }
-    else if (otherMembers.length === 1) {
-        return otherMembers[0].name;
+    // let's try to figure out who was here before
+    let leftNames = otherNames;
+    // if we didn't have heroes, try finding them in the room state
+    if (!leftNames.length) {
+        leftNames = room.currentState.getMembers().filter(m => {
+            return m.userId !== userId && m.membership !== "invite" && m.membership !== "join";
+        }).map(m => m.name);
     }
-    else if (otherMembers.length === 2) {
-        return (
-            otherMembers[0].name + " and " + otherMembers[1].name
-        );
-    }
-    else {
-        return (
-            otherMembers[0].name + " and " + (otherMembers.length - 1) + " others"
-        );
+    if (leftNames.length) {
+        return `Empty room (was ${memberNamesToRoomName(leftNames)})`;
+    } else {
+        return "Empty room";
     }
 }
 
-// FIXME: copypasted from sync.js
-function reEmit(reEmitEntity, emittableEntity, eventNames) {
-    utils.forEach(eventNames, function(eventName) {
-        // setup a listener on the entity (the Room, User, etc) for this event
-        emittableEntity.on(eventName, function() {
-            // take the args from the listener and reuse them, adding the
-            // event name to the arg list so it works with .emit()
-            // Transformation Example:
-            // listener on "foo" => function(a,b) { ... }
-            // Re-emit on "thing" => thing.emit("foo", a, b)
-            var newArgs = [eventName];
-            for (var i = 0; i < arguments.length; i++) {
-                newArgs.push(arguments[i]);
-            }
-            reEmitEntity.emit.apply(reEmitEntity, newArgs);
-        });
-    });
+function memberNamesToRoomName(names, count = names.length + 1) {
+    const countWithoutMe = count - 1;
+    if (!names.length) {
+        return "Empty room";
+    } else if (names.length === 1 && countWithoutMe <= 1) {
+        return names[0];
+    } else if (names.length === 2 && countWithoutMe <= 2) {
+        return `${names[0]} and ${names[1]}`;
+    } else {
+        const plural = countWithoutMe > 1;
+        if (plural) {
+            return `${names[0]} and ${countWithoutMe} others`;
+        } else {
+            return `${names[0]} and 1 other`;
+        }
+    }
 }
 
 /**
@@ -1269,8 +1804,19 @@ module.exports = Room;
  * event).
  *
  * @event module:client~MatrixClient#"Room.redaction"
- * @param {MatrixEvent} event The matrix event which was redacted
+ * @param {MatrixEvent} event The matrix redaction event
  * @param {Room} room The room containing the redacted event
+ */
+
+/**
+ * Fires when an event that was previously redacted isn't anymore.
+ * This happens when the redaction couldn't be sent and
+ * was subsequently cancelled by the user. Redactions have a local echo
+ * which is undone in this scenario.
+ *
+ * @event module:client~MatrixClient#"Room.redactionCancelled"
+ * @param {MatrixEvent} event The matrix redaction event that was cancelled.
+ * @param {Room} room The room containing the unredacted event
  */
 
 /**

@@ -1,5 +1,7 @@
 /*
 Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2017 New Vector Ltd
+Copyright 2018 New Vector Ltd
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,10 +21,17 @@ limitations under the License.
  * @module store/session/webstorage
  */
 
-var utils = require("../../utils");
+var _logger = require("../../logger");
 
-var DEBUG = false;  // set true to enable console logging.
-var E2E_PREFIX = "session.e2e.";
+var _logger2 = _interopRequireDefault(_logger);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const utils = require("../../utils");
+
+
+const DEBUG = false; // set true to enable console logging.
+const E2E_PREFIX = "session.e2e.";
 
 /**
  * Construct a web storage session store, capable of storing account keys,
@@ -35,79 +44,65 @@ var E2E_PREFIX = "session.e2e.";
  */
 function WebStorageSessionStore(webStore) {
     this.store = webStore;
-    if (!utils.isFunction(webStore.getItem) ||
-        !utils.isFunction(webStore.setItem) ||
-        !utils.isFunction(webStore.removeItem)) {
-        throw new Error(
-            "Supplied webStore does not meet the WebStorage API interface"
-        );
+    if (!utils.isFunction(webStore.getItem) || !utils.isFunction(webStore.setItem) || !utils.isFunction(webStore.removeItem) || !utils.isFunction(webStore.key) || typeof webStore.length !== 'number') {
+        throw new Error("Supplied webStore does not meet the WebStorage API interface");
     }
 }
 
 WebStorageSessionStore.prototype = {
-
     /**
-     * Store the end to end account for the logged-in user.
-     * @param {string} account Base64 encoded account.
+     * Remove the stored end to end account for the logged-in user.
      */
-    storeEndToEndAccount: function(account) {
-        this.store.setItem(KEY_END_TO_END_ACCOUNT, account);
+    removeEndToEndAccount: function () {
+        this.store.removeItem(KEY_END_TO_END_ACCOUNT);
     },
 
     /**
      * Load the end to end account for the logged-in user.
+     * Note that the end-to-end account is now stored in the
+     * crypto store rather than here: this remains here so
+     * old sessions can be migrated out of the session store.
      * @return {?string} Base64 encoded account.
      */
-    getEndToEndAccount: function() {
+    getEndToEndAccount: function () {
         return this.store.getItem(KEY_END_TO_END_ACCOUNT);
     },
 
     /**
-     * Store a flag indicating that we have announced the new device.
+     * Retrieves the known devices for all users.
+     * @return {object} A map from user ID to map of device ID to keys for the device.
      */
-    setDeviceAnnounced: function() {
-        this.store.setItem(KEY_END_TO_END_ANNOUNCED, "true");
+    getAllEndToEndDevices: function () {
+        const prefix = keyEndToEndDevicesForUser('');
+        const devices = {};
+        for (let i = 0; i < this.store.length; ++i) {
+            const key = this.store.key(i);
+            const userId = key.substr(prefix.length);
+            if (key.startsWith(prefix)) devices[userId] = getJsonItem(this.store, key);
+        }
+        return devices;
+    },
+
+    getEndToEndDeviceTrackingStatus: function () {
+        return getJsonItem(this.store, KEY_END_TO_END_DEVICE_LIST_TRACKING_STATUS);
     },
 
     /**
-     * Check if the "device announced" flag is set
+     * Get the sync token corresponding to the device list.
      *
-     * @return {boolean} true if the "device announced" flag has been set.
+     * @return {String?} token
      */
-    getDeviceAnnounced: function() {
-        return this.store.getItem(KEY_END_TO_END_ANNOUNCED) == "true";
+    getEndToEndDeviceSyncToken: function () {
+        return getJsonItem(this.store, KEY_END_TO_END_DEVICE_SYNC_TOKEN);
     },
 
     /**
-     * Stores the known devices for a user.
-     * @param {string} userId The user's ID.
-     * @param {object} devices A map from device ID to keys for the device.
+     * Removes all end to end device data from the store
      */
-    storeEndToEndDevicesForUser: function(userId, devices) {
-        setJsonItem(this.store, keyEndToEndDevicesForUser(userId), devices);
-    },
-
-    /**
-     * Retrieves the known devices for a user.
-     * @param {string} userId The user's ID.
-     * @return {object} A map from device ID to keys for the device.
-     */
-    getEndToEndDevicesForUser: function(userId)  {
-        return getJsonItem(this.store, keyEndToEndDevicesForUser(userId));
-    },
-
-    /**
-     * Store a session between the logged-in user and another device
-     * @param {string} deviceKey The public key of the other device.
-     * @param {string} sessionId The ID for this end-to-end session.
-     * @param {string} session Base64 encoded end-to-end session.
-     */
-    storeEndToEndSession: function(deviceKey, sessionId, session) {
-        var sessions = this.getEndToEndSessions(deviceKey) || {};
-        sessions[sessionId] = session;
-        setJsonItem(
-            this.store, keyEndToEndSessions(deviceKey), sessions
-        );
+    removeEndToEndDeviceData: function () {
+        removeByPrefix(this.store, keyEndToEndDevicesForUser(''));
+        removeByPrefix(this.store, KEY_END_TO_END_DEVICE_LIST_TRACKING_STATUS);
+        removeByPrefix(this.store, KEY_END_TO_END_DEVICE_SYNC_TOKEN);
     },
 
     /**
@@ -116,41 +111,101 @@ WebStorageSessionStore.prototype = {
      * @param {string} deviceKey The public key of the other device.
      * @return {object} A map from sessionId to Base64 end-to-end session.
      */
-    getEndToEndSessions: function(deviceKey) {
+    getEndToEndSessions: function (deviceKey) {
         return getJsonItem(this.store, keyEndToEndSessions(deviceKey));
     },
 
-    getEndToEndInboundGroupSession: function(senderKey, sessionId) {
-        var key = keyEndToEndInboundGroupSession(senderKey, sessionId);
+    /**
+     * Retrieve all end-to-end sessions between the logged-in user and other
+     * devices.
+     * @return {object} A map of {deviceKey -> {sessionId -> session pickle}}
+     */
+    getAllEndToEndSessions: function () {
+        const deviceKeys = getKeysWithPrefix(this.store, keyEndToEndSessions(''));
+        const results = {};
+        for (const k of deviceKeys) {
+            const unprefixedKey = k.substr(keyEndToEndSessions('').length);
+            results[unprefixedKey] = getJsonItem(this.store, k);
+        }
+        return results;
+    },
+
+    /**
+     * Remove all end-to-end sessions from the store
+     * This is used after migrating sessions awat from the sessions store.
+     */
+    removeAllEndToEndSessions: function () {
+        removeByPrefix(this.store, keyEndToEndSessions(''));
+    },
+
+    /**
+     * Retrieve a list of all known inbound group sessions
+     *
+     * @return {{senderKey: string, sessionId: string}}
+     */
+    getAllEndToEndInboundGroupSessionKeys: function () {
+        const prefix = E2E_PREFIX + 'inboundgroupsessions/';
+        const result = [];
+        for (let i = 0; i < this.store.length; i++) {
+            const key = this.store.key(i);
+            if (!key.startsWith(prefix)) {
+                continue;
+            }
+            // we can't use split, as the components we are trying to split out
+            // might themselves contain '/' characters. We rely on the
+            // senderKey being a (32-byte) curve25519 key, base64-encoded
+            // (hence 43 characters long).
+
+            result.push({
+                senderKey: key.substr(prefix.length, 43),
+                sessionId: key.substr(prefix.length + 44)
+            });
+        }
+        return result;
+    },
+
+    getEndToEndInboundGroupSession: function (senderKey, sessionId) {
+        const key = keyEndToEndInboundGroupSession(senderKey, sessionId);
         return this.store.getItem(key);
     },
 
-    storeEndToEndInboundGroupSession: function(senderKey, sessionId, pickledSession) {
-        var key = keyEndToEndInboundGroupSession(senderKey, sessionId);
-        return this.store.setItem(key, pickledSession);
+    removeAllEndToEndInboundGroupSessions: function () {
+        removeByPrefix(this.store, E2E_PREFIX + 'inboundgroupsessions/');
     },
 
     /**
-     * Store the end-to-end state for a room.
-     * @param {string} roomId The room's ID.
-     * @param {object} roomInfo The end-to-end info for the room.
+     * Get the end-to-end state for all rooms
+     * @return {object} roomId -> object with the end-to-end info for the room.
      */
-    storeEndToEndRoom: function(roomId, roomInfo) {
-        setJsonItem(this.store, keyEndToEndRoom(roomId), roomInfo);
+    getAllEndToEndRooms: function () {
+        const roomKeys = getKeysWithPrefix(this.store, keyEndToEndRoom(''));
+        const results = {};
+        for (const k of roomKeys) {
+            const unprefixedKey = k.substr(keyEndToEndRoom('').length);
+            results[unprefixedKey] = getJsonItem(this.store, k);
+        }
+        return results;
     },
 
-    /**
-     * Get the end-to-end state for a room
-     * @param {string} roomId The room's ID.
-     * @return {object} The end-to-end info for the room.
-     */
-    getEndToEndRoom: function(roomId) {
-        return getJsonItem(this.store, keyEndToEndRoom(roomId));
+    removeAllEndToEndRooms: function () {
+        removeByPrefix(this.store, keyEndToEndRoom(''));
+    },
+
+    setLocalTrustedBackupPubKey: function (pubkey) {
+        this.store.setItem(KEY_END_TO_END_TRUSTED_BACKUP_PUBKEY, pubkey);
+    },
+
+    // XXX: This store is deprecated really, but added this as a temporary
+    // thing until cross-signing lands.
+    getLocalTrustedBackupPubKey: function () {
+        return this.store.getItem(KEY_END_TO_END_TRUSTED_BACKUP_PUBKEY);
     }
 };
 
-var KEY_END_TO_END_ACCOUNT = E2E_PREFIX + "account";
-var KEY_END_TO_END_ANNOUNCED = E2E_PREFIX + "announced";
+const KEY_END_TO_END_ACCOUNT = E2E_PREFIX + "account";
+const KEY_END_TO_END_DEVICE_SYNC_TOKEN = E2E_PREFIX + "device_sync_token";
+const KEY_END_TO_END_DEVICE_LIST_TRACKING_STATUS = E2E_PREFIX + "device_tracking";
+const KEY_END_TO_END_TRUSTED_BACKUP_PUBKEY = E2E_PREFIX + "trusted_backup_pubkey";
 
 function keyEndToEndDevicesForUser(userId) {
     return E2E_PREFIX + "devices/" + userId;
@@ -170,22 +225,39 @@ function keyEndToEndRoom(roomId) {
 
 function getJsonItem(store, key) {
     try {
+        // if the key is absent, store.getItem() returns null, and
+        // JSON.parse(null) === null, so this returns null.
         return JSON.parse(store.getItem(key));
-    }
-    catch (e) {
+    } catch (e) {
         debuglog("Failed to get key %s: %s", key, e);
         debuglog(e.stack);
     }
     return null;
 }
 
-function setJsonItem(store, key, val) {
-    store.setItem(key, JSON.stringify(val));
+function getKeysWithPrefix(store, prefix) {
+    const results = [];
+    for (let i = 0; i < store.length; ++i) {
+        const key = store.key(i);
+        if (key.startsWith(prefix)) results.push(key);
+    }
+    return results;
+}
+
+function removeByPrefix(store, prefix) {
+    const toRemove = [];
+    for (let i = 0; i < store.length; ++i) {
+        const key = store.key(i);
+        if (key.startsWith(prefix)) toRemove.push(key);
+    }
+    for (const key of toRemove) {
+        store.removeItem(key);
+    }
 }
 
 function debuglog() {
     if (DEBUG) {
-        console.log.apply(console, arguments);
+        _logger2.default.log(...arguments);
     }
 }
 

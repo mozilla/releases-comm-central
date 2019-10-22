@@ -19,10 +19,21 @@ limitations under the License.
  * of requests.
  * @module scheduler
  */
-var utils = require("./utils");
-var q = require("q");
 
-var DEBUG = false;  // set true to enable console logging.
+var _bluebird = require("bluebird");
+
+var _bluebird2 = _interopRequireDefault(_bluebird);
+
+var _logger = require("../src/logger");
+
+var _logger2 = _interopRequireDefault(_logger);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const utils = require("./utils");
+
+
+const DEBUG = false; // set true to enable console logging.
 
 /**
  * Construct a scheduler for Matrix. Requires
@@ -59,12 +70,12 @@ function MatrixScheduler(retryAlgorithm, queueAlgorithm) {
  * this array <i>will</i> modify the underlying event in the queue.
  * @see MatrixScheduler.removeEventFromQueue To remove an event from the queue.
  */
-MatrixScheduler.prototype.getQueueForEvent = function(event) {
-    var name = this.queueAlgorithm(event);
+MatrixScheduler.prototype.getQueueForEvent = function (event) {
+    const name = this.queueAlgorithm(event);
     if (!name || !this._queues[name]) {
         return null;
     }
-    return utils.map(this._queues[name], function(obj) {
+    return utils.map(this._queues[name], function (obj) {
         return obj.event;
     });
 };
@@ -75,21 +86,22 @@ MatrixScheduler.prototype.getQueueForEvent = function(event) {
  * @param {MatrixEvent} event The event to remove.
  * @return {boolean} True if this event was removed.
  */
-MatrixScheduler.prototype.removeEventFromQueue = function(event) {
-    var name = this.queueAlgorithm(event);
+MatrixScheduler.prototype.removeEventFromQueue = function (event) {
+    const name = this.queueAlgorithm(event);
     if (!name || !this._queues[name]) {
         return false;
     }
-    var removed = false;
-    utils.removeElement(this._queues[name], function(element) {
+    let removed = false;
+    utils.removeElement(this._queues[name], function (element) {
         if (element.event.getId() === event.getId()) {
+            // XXX we should probably reject the promise?
+            // https://github.com/matrix-org/matrix-js-sdk/issues/496
             removed = true;
             return true;
         }
     });
     return removed;
 };
-
 
 /**
  * Set the process function. Required for events in the queue to be processed.
@@ -98,7 +110,7 @@ MatrixScheduler.prototype.removeEventFromQueue = function(event) {
  * @param {module:scheduler~processFn} fn The function that can process events
  * in the queue.
  */
-MatrixScheduler.prototype.setProcessFunction = function(fn) {
+MatrixScheduler.prototype.setProcessFunction = function (fn) {
     this._procFn = fn;
     _startProcessingQueues(this);
 };
@@ -109,8 +121,8 @@ MatrixScheduler.prototype.setProcessFunction = function(fn) {
  * @return {?Promise} A promise if the event was queued, which will be
  * resolved or rejected in due time, else null.
  */
-MatrixScheduler.prototype.queueEvent = function(event) {
-    var queueName = this.queueAlgorithm(event);
+MatrixScheduler.prototype.queueEvent = function (event) {
+    const queueName = this.queueAlgorithm(event);
     if (!queueName) {
         return null;
     }
@@ -118,16 +130,13 @@ MatrixScheduler.prototype.queueEvent = function(event) {
     if (!this._queues[queueName]) {
         this._queues[queueName] = [];
     }
-    var defer = q.defer();
+    const defer = _bluebird2.default.defer();
     this._queues[queueName].push({
         event: event,
         defer: defer,
         attempts: 0
     });
-    debuglog(
-        "Queue algorithm dumped event %s into queue '%s'",
-        event.getId(), queueName
-    );
+    debuglog("Queue algorithm dumped event %s into queue '%s'", event.getId(), queueName);
     _startProcessingQueues(this);
     return defer.promise;
 };
@@ -143,7 +152,7 @@ MatrixScheduler.prototype.queueEvent = function(event) {
  * @return {Number}
  * @see module:scheduler~retryAlgorithm
  */
-MatrixScheduler.RETRY_BACKOFF_RATELIMIT = function(event, attempts, err) {
+MatrixScheduler.RETRY_BACKOFF_RATELIMIT = function (event, attempts, err) {
     if (err.httpStatus === 400 || err.httpStatus === 403 || err.httpStatus === 401) {
         // client error; no amount of retrying with save you now.
         return -1;
@@ -155,7 +164,7 @@ MatrixScheduler.RETRY_BACKOFF_RATELIMIT = function(event, attempts, err) {
     }
 
     if (err.name === "M_LIMIT_EXCEEDED") {
-        var waitTime = err.data.retry_after_ms;
+        const waitTime = err.data.retry_after_ms;
         if (waitTime) {
             return waitTime;
         }
@@ -163,7 +172,7 @@ MatrixScheduler.RETRY_BACKOFF_RATELIMIT = function(event, attempts, err) {
     if (attempts > 4) {
         return -1; // give up
     }
-    return (1000 * Math.pow(2, attempts));
+    return 1000 * Math.pow(2, attempts);
 };
 
 /**
@@ -173,8 +182,9 @@ MatrixScheduler.RETRY_BACKOFF_RATELIMIT = function(event, attempts, err) {
  * @return {string}
  * @see module:scheduler~queueAlgorithm
  */
-MatrixScheduler.QUEUE_MESSAGES = function(event) {
-    if (event.getType() === "m.room.message") {
+MatrixScheduler.QUEUE_MESSAGES = function (event) {
+    // enqueue messages or events that associate with another event (redactions and relations)
+    if (event.getType() === "m.room.message" || event.hasAssocation()) {
         // put these events in the 'message' queue.
         return "message";
     }
@@ -187,10 +197,9 @@ function _startProcessingQueues(scheduler) {
         return;
     }
     // for each inactive queue with events in them
-    utils.forEach(utils.filter(utils.keys(scheduler._queues), function(queueName) {
-        return scheduler._activeQueues.indexOf(queueName) === -1 &&
-                scheduler._queues[queueName].length > 0;
-    }), function(queueName) {
+    utils.forEach(utils.filter(utils.keys(scheduler._queues), function (queueName) {
+        return scheduler._activeQueues.indexOf(queueName) === -1 && scheduler._queues[queueName].length > 0;
+    }), function (queueName) {
         // mark the queue as active
         scheduler._activeQueues.push(queueName);
         // begin processing the head of the queue
@@ -201,49 +210,48 @@ function _startProcessingQueues(scheduler) {
 
 function _processQueue(scheduler, queueName) {
     // get head of queue
-    var obj = _peekNextEvent(scheduler, queueName);
+    const obj = _peekNextEvent(scheduler, queueName);
     if (!obj) {
         // queue is empty. Mark as inactive and stop recursing.
-        var index = scheduler._activeQueues.indexOf(queueName);
+        const index = scheduler._activeQueues.indexOf(queueName);
         if (index >= 0) {
             scheduler._activeQueues.splice(index, 1);
         }
         debuglog("Stopping queue '%s' as it is now empty", queueName);
         return;
     }
-    debuglog(
-        "Queue '%s' has %s pending events",
-        queueName, scheduler._queues[queueName].length
-    );
+    debuglog("Queue '%s' has %s pending events", queueName, scheduler._queues[queueName].length);
     // fire the process function and if it resolves, resolve the deferred. Else
     // invoke the retry algorithm.
-    scheduler._procFn(obj.event).done(function(res) {
+
+    // First wait for a resolved promise, so the resolve handlers for
+    // the deferred of the previously sent event can run.
+    // This way enqueued relations/redactions to enqueued events can receive
+    // the remove id of their target before being sent.
+    _bluebird2.default.resolve().then(() => {
+        return scheduler._procFn(obj.event);
+    }).then(function (res) {
         // remove this from the queue
         _removeNextEvent(scheduler, queueName);
         debuglog("Queue '%s' sent event %s", queueName, obj.event.getId());
         obj.defer.resolve(res);
         // keep processing
         _processQueue(scheduler, queueName);
-    }, function(err) {
+    }, function (err) {
         obj.attempts += 1;
         // ask the retry algorithm when/if we should try again
-        var waitTimeMs = scheduler.retryAlgorithm(obj.event, obj.attempts, err);
-        debuglog(
-            "retry(%s) err=%s event_id=%s waitTime=%s",
-            obj.attempts, err, obj.event.getId(), waitTimeMs
-        );
-        if (waitTimeMs === -1) {  // give up (you quitter!)
-            debuglog(
-                "Queue '%s' giving up on event %s", queueName, obj.event.getId()
-            );
+        const waitTimeMs = scheduler.retryAlgorithm(obj.event, obj.attempts, err);
+        debuglog("retry(%s) err=%s event_id=%s waitTime=%s", obj.attempts, err, obj.event.getId(), waitTimeMs);
+        if (waitTimeMs === -1) {
+            // give up (you quitter!)
+            debuglog("Queue '%s' giving up on event %s", queueName, obj.event.getId());
             // remove this from the queue
             _removeNextEvent(scheduler, queueName);
             obj.defer.reject(err);
             // process next event
             _processQueue(scheduler, queueName);
-        }
-        else {
-            setTimeout(function() {
+        } else {
+            setTimeout(function () {
                 _processQueue(scheduler, queueName);
             }, waitTimeMs);
         }
@@ -251,7 +259,7 @@ function _processQueue(scheduler, queueName) {
 }
 
 function _peekNextEvent(scheduler, queueName) {
-    var queue = scheduler._queues[queueName];
+    const queue = scheduler._queues[queueName];
     if (!utils.isArray(queue)) {
         return null;
     }
@@ -259,7 +267,7 @@ function _peekNextEvent(scheduler, queueName) {
 }
 
 function _removeNextEvent(scheduler, queueName) {
-    var queue = scheduler._queues[queueName];
+    const queue = scheduler._queues[queueName];
     if (!utils.isArray(queue)) {
         return null;
     }
@@ -268,7 +276,7 @@ function _removeNextEvent(scheduler, queueName) {
 
 function debuglog() {
     if (DEBUG) {
-        console.log.apply(console, arguments);
+        _logger2.default.log(...arguments);
     }
 }
 
@@ -302,12 +310,12 @@ function debuglog() {
  * the event is not put into a queue and will be sent concurrently.
  */
 
- /**
- * The function to invoke to process (send) events in the queue.
- * @callback processFn
- * @param {MatrixEvent} event The event to send.
- * @return {Promise} Resolved/rejected depending on the outcome of the request.
- */
+/**
+* The function to invoke to process (send) events in the queue.
+* @callback processFn
+* @param {MatrixEvent} event The event to send.
+* @return {Promise} Resolved/rejected depending on the outcome of the request.
+*/
 
 /**
  * The MatrixScheduler class.
