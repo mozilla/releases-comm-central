@@ -71,6 +71,18 @@
         ]
       },
       {
+        "name": "getRaw",
+        "type": "function",
+        "description": "Returns the unmodified source of a message.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "type": "integer"
+          }
+        ]
+      },
+      {
         "name": "query",
         "type": "function",
         "description": "Gets all messages that have the specified properties, or all messages if no properties are specified.",

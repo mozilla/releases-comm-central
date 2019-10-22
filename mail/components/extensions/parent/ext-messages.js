@@ -27,6 +27,13 @@ ChromeUtils.defineModuleGetter(
   "toXPCOMArray",
   "resource:///modules/iteratorUtils.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "NetUtil",
+  "resource://gre/modules/NetUtil.jsm"
+);
+
+Cu.importGlobalProperties(["fetch"]);
 
 var { DefaultMap } = ExtensionUtils;
 
@@ -48,7 +55,7 @@ function convertMessagePart(part) {
       partObject[key] = part[key];
     }
   }
-  if (Array.isArray(part.parts) && part.parts.length > 0) {
+  if ("parts" in part && Array.isArray(part.parts) && part.parts.length > 0) {
     partObject.parts = part.parts.map(convertMessagePart);
   }
   return partObject;
@@ -152,6 +159,44 @@ this.messages = class extends ExtensionAPI {
               resolve(convertMessagePart(mimeMsg));
             });
           });
+        },
+        async getRaw(messageId) {
+          let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+            Ci.nsIMessenger
+          );
+          let msgHdr = messageTracker.getMessage(messageId);
+          let msgUri = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
+          let service = messenger.messageServiceFromURI(msgUri);
+
+          let streamListener = Cc[
+            "@mozilla.org/network/sync-stream-listener;1"
+          ].createInstance(Ci.nsISyncStreamListener);
+          await new Promise((resolve, reject) => {
+            service.streamMessage(
+              msgUri,
+              streamListener,
+              null,
+              {
+                OnStartRunningUrl() {},
+                OnStopRunningUrl(url, exitCode) {
+                  if (exitCode !== 0) {
+                    Cu.reportError(exitCode);
+                    reject();
+                    return;
+                  }
+                  resolve();
+                },
+              },
+              false,
+              ""
+            );
+          }).catch(() => {
+            throw new ExtensionError(`Error reading message ${messageId}`);
+          });
+          return NetUtil.readInputStreamToString(
+            streamListener.inputStream,
+            streamListener.available()
+          );
         },
         async query(queryInfo) {
           let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
