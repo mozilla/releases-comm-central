@@ -1,12 +1,11 @@
-  /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
-   */
-  /* This Source Code Form is subject to the terms of the Mozilla Public
-   * License, v. 2.0. If a copy of the MPL was not distributed with this
-   * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-  /*
-   *  Message envelope properties
-   */
+/*
+ *  Message envelope properties
+ */
 
 case PR_ACKNOWLEDGEMENT_MODE:
   s = "PR_ACKNOWLEDGEMENT_MODE";
@@ -1462,10 +1461,9 @@ case PR_CONTROL_ID:
 case PR_INITIAL_DETAILS_PANE:
   s = "PR_INITIAL_DETAILS_PANE";
   break;
-  /*
-   * Secure property id range
-   */
-
+/*
+ * Secure property id range
+ */
 case PROP_ID_SECURE_MIN:
   s = "PROP_ID_SECURE_MIN";
   break;
