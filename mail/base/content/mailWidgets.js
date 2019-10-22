@@ -1473,7 +1473,7 @@
         return 0;
       }
 
-      // We didn't go far enough! Keep going until we find an item atleast partially on-screen.
+      // We didn't go far enough! Keep going until we find an item at least partially on-screen.
       for (let i = estimatedIndex; i < this._childNodes.length; i++) {
         let childBoxObj = this._childNodes[i].getBoundingClientRect();
         if (childBoxObj.screenY + childBoxObj.height > box.screenY > 0) {

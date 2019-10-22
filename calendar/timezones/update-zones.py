@@ -160,7 +160,7 @@ class TimezoneUpdater(object):
             component = kept_components[i]
             last = i == len(kept_components) - 1
             # In this block of code, we attempt to match what vzic does when
-            # creating "Outlook-compatible" timezone files. This is to minimise
+            # creating "Outlook-compatible" timezone files. This is to minimize
             # changes in our zones.json file. And to be more Outlook-compatible.
             if int(component["DTSTART"][0:8]) < HISTORY_CUTOFF:
                 if not last and "valid_rdates" in component and len(component["valid_rdates"]) > 0:
@@ -199,7 +199,7 @@ class TimezoneUpdater(object):
                 component["DTSTART"] = start_date + start_time
 
         # Sort the components back into the order they appeared in the original file.
-        # This is to minimise changes in our zones.json file.
+        # This is to minimize changes in our zones.json file.
         kept_components.sort(key=lambda b: b["line"])
 
         zone_name = filename[:-4]

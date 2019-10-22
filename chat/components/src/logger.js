@@ -485,7 +485,7 @@ function getDateFromFilename(aFilename) {
   let r = aFilename.match(kRegExp);
   if (!r) {
     Cu.reportError(
-      "Found log file with name not maching YYYY-MM-DD.HHmmSS+ZZzz.format: " +
+      "Found log file with name not matching YYYY-MM-DD.HHmmSS+ZZzz.format: " +
         aFilename
     );
     return [];

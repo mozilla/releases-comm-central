@@ -1021,7 +1021,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
 
           nsAutoCString value;
           rv = filterAction->GetStrValue(value);
-          BREAK_ACTION_IF_FAILURE(rv, "Cound not get custom action value");
+          BREAK_ACTION_IF_FAILURE(rv, "Could not get custom action value");
           bool isAsync = false;
           customAction->GetIsAsync(&isAsync);
           rv = customAction->Apply(m_searchHitHdrs, value, this, filterType,
