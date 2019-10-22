@@ -12,6 +12,7 @@ this.EXPORTED_SYMBOLS = [
   "ClassInfo",
   "l10nHelper",
   "initLogModule",
+  "scriptError",
 ];
 
 const { XPCOMUtils } = ChromeUtils.import(

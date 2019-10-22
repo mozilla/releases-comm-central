@@ -9,6 +9,9 @@ const {
   setInterval,
   setTimeout,
 } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
+const { scriptError } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 
 const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/base-loader.js"
@@ -46,7 +49,8 @@ let loader = Loader({
     "../../utils": matrixPath + "matrix_sdk/utils.js",
 
     // crypto
-    "crypto/backup_password": matrixPath + "matrix_sdk/crypto/backup_password.js",
+    "crypto/backup_password":
+      matrixPath + "matrix_sdk/crypto/backup_password.js",
     deviceinfo: matrixPath + "matrix_sdk/crypto/deviceinfo.js",
     "../deviceinfo": matrixPath + "matrix_sdk/crypto/deviceinfo.js",
     DeviceList: matrixPath + "matrix_sdk/crypto/DeviceList.js",
@@ -57,7 +61,8 @@ let loader = Loader({
     "crypto/olmlib": matrixPath + "matrix_sdk/crypto/olmlib.js",
     OlmDevice: matrixPath + "matrix_sdk/crypto/OlmDevice.js",
     "crypto/recoverykey": matrixPath + "matrix_sdk/crypto/recoverykey.js",
-    OutgoingRoomKeyRequestManager: matrixPath + "matrix_sdk/crypto/OutgoingRoomKeyRequestManager.js",
+    OutgoingRoomKeyRequestManager:
+      matrixPath + "matrix_sdk/crypto/OutgoingRoomKeyRequestManager.js",
     "crypto/RoomList": matrixPath + "matrix_sdk/crypto/RoomList.js",
 
     // crypto/algorithms
@@ -67,18 +72,25 @@ let loader = Loader({
     olm: matrixPath + "matrix_sdk/crypto/algorithms/olm.js",
 
     // crypto/store
-    "store/indexeddb-crypto-store": matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store.js",
-    "crypto/store/indexeddb-crypto-store": matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store.js",
-    "crypto/store/indexeddb-crypto-store-backend": matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store-backend.js",
-    "crypto/store/localStorage-crypto-store": matrixPath + "matrix_sdk/crypto/store/localStorage-crypto-store.js",
-    "crypto/store/memory-crypto-store": matrixPath + "matrix_sdk/crypto/store/memory-crypto-store.js",
+    "store/indexeddb-crypto-store":
+      matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store.js",
+    "crypto/store/indexeddb-crypto-store":
+      matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store.js",
+    "crypto/store/indexeddb-crypto-store-backend":
+      matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store-backend.js",
+    "crypto/store/localStorage-crypto-store":
+      matrixPath + "matrix_sdk/crypto/store/localStorage-crypto-store.js",
+    "crypto/store/memory-crypto-store":
+      matrixPath + "matrix_sdk/crypto/store/memory-crypto-store.js",
 
     // crypto/verification
     Base: matrixPath + "matrix_sdk/crypto/verification/Base.js",
     Error: matrixPath + "matrix_sdk/crypto/verification/Error.js",
     "verification/Base": matrixPath + "matrix_sdk/crypto/verification/Base.js",
-    "verification/Error": matrixPath + "matrix_sdk/crypto/verification/Error.js",
-    "verification/QRCode": matrixPath + "matrix_sdk/crypto/verification/QRCode.js",
+    "verification/Error":
+      matrixPath + "matrix_sdk/crypto/verification/Error.js",
+    "verification/QRCode":
+      matrixPath + "matrix_sdk/crypto/verification/QRCode.js",
     "verification/SAS": matrixPath + "matrix_sdk/crypto/verification/SAS.js",
 
     // models
@@ -92,7 +104,6 @@ let loader = Loader({
     "another-json": matrixPath + "another-json.js",
     events: matrixPath + "events.js",
     punycode: matrixPath + "punycode.js",
-    url: matrixPath + "url.js",
 
     // Browser Request.
     "browser-request": matrixPath + "browser_request/index.js",
@@ -104,6 +115,11 @@ let loader = Loader({
     decode: matrixPath + "querystring/decode.js",
     encode: matrixPath + "querystring/encode.js",
     querystring: matrixPath + "querystring/index.js",
+
+    // Packages that are not included, but an alternate implementation is given.
+    loglevel: matrixPath + "loglevel.js",
+    "safe-buffer": matrixPath + "safe-buffer.js",
+    url: matrixPath + "url.js",
   },
   globals: {
     global: {
@@ -117,6 +133,10 @@ let loader = Loader({
     setTimeout,
     clearTimeout,
     location: { href: "" }, // workaround for browser-request's is_crossDomain
+
+    // Necessary for interacting with the logging framework.
+    scriptError,
+    imIDebugMessage: Ci.imIDebugMessage,
   },
 });
 

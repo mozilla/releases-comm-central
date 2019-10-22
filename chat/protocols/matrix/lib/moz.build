@@ -105,7 +105,6 @@ EXTRA_JS_MODULES.matrix += [
     'another-json/another-json.js',
     'events/events.js',
     'punycode/punycode.js',
-    'url/url.js',
 ]
 
 EXTRA_JS_MODULES.matrix.querystring += [

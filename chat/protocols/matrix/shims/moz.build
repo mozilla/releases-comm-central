@@ -3,22 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# XPCSHELL_TESTS_MANIFESTS += []
+# Shimmed dependencies of the matrix-js-sdk that we can provide through direct
+# implementation instead of through npm package.s
 
-DIRS += [
-    'lib',
-    'shims',
-]
-
-EXTRA_COMPONENTS += [
-    'matrix.js',
-    'matrix.manifest',
-]
-
-EXTRA_JS_MODULES += [
-    'matrix-sdk.jsm',
-]
-
-JAR_MANIFESTS += [
-    'jar.mn',
+EXTRA_JS_MODULES.matrix += [
+    'loglevel.js',
+    'safe-buffer.js',
+    'url.js',
 ]
