@@ -24,7 +24,6 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/newFolderDialog.js"/>
-  <script src="chrome://messenger/content/folder-menupopup.js"/>
 
     <label id="nameLabel" value="&name.label;" accesskey="&name.accesskey;"
            control="name"/>

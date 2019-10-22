@@ -15,7 +15,6 @@
         onload="onAlertLoad()">
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  <script src="chrome://messenger/content/foldersummary.js"/>
   <script src="chrome://messenger/content/newmailalert.js"/>
 
   <stack id="alertContainer" mousethrough="always">

@@ -25,7 +25,6 @@
     <script src="chrome://messenger/content/am-junk.js"/>
     <script src="chrome://messenger/content/am-prefs.js"/>
     <script src="chrome://messenger/content/amUtils.js"/>
-    <script src="chrome://messenger/content/folder-menupopup.js"/>
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
     <hbox class="dialogheader">

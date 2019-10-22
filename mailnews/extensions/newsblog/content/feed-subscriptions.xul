@@ -34,7 +34,6 @@
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/specialTabs.js"/>
   <script src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
-  <script src="chrome://messenger/content/folder-menupopup.js"/>
 
   <linkset>
     <html:link rel="localization" href="security/certificates/certManager.ftl"/>

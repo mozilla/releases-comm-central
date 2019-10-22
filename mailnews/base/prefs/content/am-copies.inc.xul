@@ -3,7 +3,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
   <vbox flex="1" id="copiesAndFolders">
-    <script src="chrome://messenger/content/folder-menupopup.js"/>
     <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
     </stringbundleset>

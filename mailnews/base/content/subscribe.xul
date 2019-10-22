@@ -25,7 +25,6 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/mailWindow.js"/>
   <script src="chrome://messenger/content/subscribe.js"/>
-  <script src="chrome://messenger/content/folder-menupopup.js"/>
 
   <vbox flex="1" style="width: 40em; height: 25em;">
     <hbox>

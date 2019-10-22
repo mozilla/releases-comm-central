@@ -20,7 +20,6 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/am-server-advanced.js"/>
-  <script src="chrome://messenger/content/folder-menupopup.js"/>
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
 
