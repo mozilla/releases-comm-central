@@ -12,7 +12,7 @@ var _logger = require('../../logger');
 
 var _logger2 = _interopRequireDefault(_logger);
 
-var _memoryCryptoStore = require('./memory-crypto-store.js');
+var _memoryCryptoStore = require('./memory-crypto-store');
 
 var _memoryCryptoStore2 = _interopRequireDefault(_memoryCryptoStore);
 

@@ -108,65 +108,55 @@ MatrixAccount.prototype = {
   connect() {
     this.reportConnecting();
     let baseURL = this.getString("server") + ":" + this.getInt("port");
-    let account = this;
-    // We call MatrixSDK.createClient twice because loginWithPassword does not
-    // properly set access token.
-    // See https://github.com/matrix-org/matrix-js-sdk/issues/130
-    MatrixSDK.createClient(baseURL)
+
+    this._client = MatrixSDK.createClient(baseURL);
+
+    // Send the login request to the server.
+    // See https://matrix-org.github.io/matrix-js-sdk/2.4.1/module-client-MatrixClient.html#loginWithPassword
+    this._client
       .loginWithPassword(this.name, this.imAccount.password)
-      .then(function(data) {
+      .then(data => {
         // TODO: Check data.errcode to pass more accurate value as the first
         // parameter of reportDisconnecting.
         if (data.error) {
           throw new Error(data.error);
         }
-        account._client = MatrixSDK.createClient({
-          baseUrl: baseURL,
-          accessToken: data.access_token,
-          userId: data.user_id,
-        });
-        account.startClient();
+        this.startClient();
       })
-      .catch(function(error) {
-        account.reportDisconnecting(
+      .catch(error => {
+        this.reportDisconnecting(
           Ci.prplIAccount.ERROR_OTHER_ERROR,
           error.message
         );
-        account._client = null;
-        account.reportDisconnected();
-      })
-      .done();
+        this._client = null;
+        this.reportDisconnected();
+      });
   },
   /*
    * Hook up the Matrix Client to callbacks to handle various events.
    *
-   * These are documented at:
-   * https://matrix-org.github.io/matrix-js-sdk/0.7.0/module-client.html#~event:MatrixClient%2522Call.incoming%2522
+   * The possible events are documented starting at:
+   * https://matrix-org.github.io/matrix-js-sdk/2.4.1/module-client.html#~event:MatrixClient%22accountData%22
    */
   startClient() {
-    let account = this;
-    this._client.on("sync", function(state, prevState, data) {
+    this._client.on("sync", (state, prevState, data) => {
       switch (state) {
         case "PREPARED":
-          account.reportConnected();
+          this.reportConnected();
           break;
         case "STOPPED":
           // XXX Report disconnecting here?
-          account._client.logout().done(function() {
-            account.reportDisconnected();
-            account._client = null;
+          this._client.logout().then(() => {
+            this.reportDisconnected();
+            this._client = null;
           });
           break;
         // TODO: Handle other states (RECONNECTING, ERROR, SYNCING).
       }
     });
-    this._client.on("RoomMember.membership", function(
-      event,
-      member,
-      oldMembership
-    ) {
-      if (member.roomId in account._roomList) {
-        var room = account._roomList[member.roomId];
+    this._client.on("RoomMember.membership", (event, member, oldMembership) => {
+      if (member.roomId in this._roomList) {
+        var room = this._roomList[member.roomId];
         if (member.membership === "join") {
           room.addParticipant(member);
         } else {
@@ -174,19 +164,19 @@ MatrixAccount.prototype = {
         }
       }
     });
-    this._client.on("Room.timeline", function(event, room, toStartOfTimeline) {
+    this._client.on("Room.timeline", (event, room, toStartOfTimeline) => {
       // TODO: Better handle messages!
       if (toStartOfTimeline) {
         return;
       }
-      if (room.roomId in account._roomList) {
+      if (room.roomId in this._roomList) {
         let body;
         if (event.getType() === "m.room.message") {
           body = event.getContent().body;
         } else {
           body = JSON.stringify(event.getContent());
         }
-        account._roomList[room.roomId].writeMessage(event.getSender(), body, {
+        this._roomList[room.roomId].writeMessage(event.getSender(), body, {
           incoming: true,
         });
       }
@@ -250,25 +240,23 @@ MatrixAccount.prototype = {
     // TODO: Use getRoom to find existing conversation?
     let conv = new MatrixConversation(this, roomIdOrAlias, this.userId);
     conv.joining = true;
-    let account = this;
     this._client
       .joinRoom(roomIdOrAlias)
-      .then(function(room) {
+      .then(room => {
         conv._roomId = room.roomId;
-        account._roomList[room.roomId] = conv;
+        this._roomList[room.roomId] = conv;
         conv.initListOfParticipants();
         conv.joining = false;
       })
-      .catch(function(error) {
+      .catch(error => {
         // TODO: Handle errors?
         // XXX We probably want to display an error in the open conversation
         //     window and leave it as unjoined.
-        account.ERROR(error);
+        this.ERROR(error);
         conv.close();
 
         // TODO Perhaps we should call createRoom if the room doesn't exist.
-      })
-      .done();
+      });
     return conv;
   },
   createConversation(aName) {

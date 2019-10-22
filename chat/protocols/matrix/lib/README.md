@@ -36,6 +36,8 @@ in chat/protocols/matrix/matrix-sdk.jsm.
 7. Add the files back to Mercurial: `hg add chat/protocols/matrix/lib/matrix-sdk`
 7. Modify `moz.build` to add/remove/rename modified files.
 8. Modify `matrix-js-sdk` to add/remove/rename modified files.
+9. Modify `crypto/store/localStorage-crypto-store.js` so that the import
+   `memory-crypto-store` does not have a `.js` on the end.
 
 ### Custom `.babelrc`
 
@@ -66,9 +68,14 @@ unfortunately each one has slightly different conventions.
 
 ### Updating single file dependencies
 
-another-json, base-x, browser-request, bs58, content-type, and events all have a
-single file named for the package or named index.js. This should get copied to
-the proper sub-directory.
+another-json, base-x, bs58, content-type, and events all have a single file
+named for the package or named index.js. This should get copied to the proper
+sub-directory.
+
+### Updating browser-request
+
+Follow the directions for updating single file dependencies, then modify the
+index.js file so that the `is_crossDomain` always returns `false`.
 
 ### Updating bluebird
 

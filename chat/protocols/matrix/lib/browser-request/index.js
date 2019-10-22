@@ -418,6 +418,8 @@ function formatted(obj, method) {
 
 // Return whether a URL is a cross-domain request.
 function is_crossDomain(url) {
+  // Always return false, we never issue a cross-domain request.
+  return false;
   var rurl = /^([\w\+\.\-]+:)(?:\/\/([^\/?#:]*)(?::(\d+))?)?/
 
   // jQuery #8138, IE may throw an exception when accessing
