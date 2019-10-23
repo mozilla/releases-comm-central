@@ -38,6 +38,7 @@ var { augment_controller, plan_for_modal_dialog, wait_for_modal_dialog } = Chrom
 );
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 
 // Lookup paths and path-snippets.
 // These 5 have to be used with itemEditLookup().
@@ -244,7 +245,11 @@ function setData(dialog, iframe, data) {
 
   // all-day
   if (data.allday != undefined && isEvent) {
-    dialog.check(iframeid("event-all-day"), data.allday);
+    let checkbox = iframeid("event-all-day");
+    if (checkbox.getNode().checked != data.allday) {
+      dialog.click(checkbox);
+    }
+    Assert.equal(checkbox.getNode().checked, data.allday);
   }
 
   // timezonedisplay
