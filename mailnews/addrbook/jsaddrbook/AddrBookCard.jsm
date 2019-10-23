@@ -228,9 +228,9 @@ AddrBookCard.prototype = {
   },
   translateTo(type) {
     // Get nsAbCardProperty to do the work, the code is in C++ anyway.
-    let cardCopy = Cc[
-      "@mozilla.org/addressbook/cardproperty;1"
-    ].createInstance(Ci.nsIAbCard);
+    let cardCopy = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+      Ci.nsIAbCard
+    );
     cardCopy.copy(this);
     return cardCopy.translateTo(type);
   },
