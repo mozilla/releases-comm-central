@@ -5,7 +5,7 @@
 function getStoredLastSelected() {
   return Services.xulStore.getValue(
     "about:preferences",
-    "paneDeck",
+    "MailPreferences",
     "lastSelected"
   );
 }

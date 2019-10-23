@@ -3,7 +3,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
-/* import-globals-from subdialogs.js */
+
+Preferences.forceEnableInstantApply();
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
@@ -25,14 +26,6 @@ ChromeUtils.defineModuleGetter(
   "AddonManager",
   "resource://gre/modules/AddonManager.jsm"
 );
-
-document.addEventListener("DOMContentLoaded", init_all, { once: true });
-
-function init_all() {
-  Preferences.forceEnableInstantApply();
-
-  gSubDialog.init();
-}
 
 (function() {
   for (let pane of prefPanes) {
@@ -74,9 +67,7 @@ function init_all() {
   }
 
   window.addEventListener("DOMContentLoaded", function() {
-    let lastSelected = document
-      .getElementById("paneDeck")
-      .getAttribute("lastSelected");
+    let lastSelected = document.documentElement.getAttribute("lastSelected");
     if (lastSelected && document.getElementById(lastSelected)) {
       showPane(lastSelected);
     } else {
@@ -130,11 +121,8 @@ function showPane(paneID) {
   pane.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
   document.getElementById("preferencesContainer").scrollTo(0, 0);
 
-  document.getElementById("paneDeck").setAttribute("lastSelected", paneID);
-  Services.xulStore.persist(
-    document.getElementById("paneDeck"),
-    "lastSelected"
-  );
+  document.documentElement.setAttribute("lastSelected", paneID);
+  Services.xulStore.persist(document.documentElement, "lastSelected");
 }
 
 /**

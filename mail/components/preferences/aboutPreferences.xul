@@ -12,7 +12,7 @@
 <?xml-stylesheet href="chrome://global/skin/in-content/common.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE preftab [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % preferencesDTD SYSTEM "chrome://messenger/locale/preferences/preferences.dtd">
@@ -53,12 +53,12 @@
 #endif
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        id="MailPreferences"
-        role="document"
-        windowtype="Mail:Preferences"
-        csp="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: https: data:; style-src chrome: data: 'unsafe-inline'; object-src 'none'"
+<preftab id="MailPreferences" flex="1"
+         windowtype="Mail:Preferences"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:xhtml="http://www.w3.org/1999/xhtml"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         onload="gSubDialog.init();"
 #ifdef XP_WIN
          title="&prefWindow.titleWin;">
 #endif
@@ -142,4 +142,4 @@
   <script src="chrome://communicator/content/contentAreaClick.js"/>
   <script src="chrome://messenger/content/preferences/preferences.js"/>
   <script src="chrome://messenger/content/preferences/subdialogs.js"/>
-</window>
+</preftab>
