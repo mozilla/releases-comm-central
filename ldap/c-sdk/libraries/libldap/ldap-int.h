@@ -49,7 +49,9 @@
 
 #ifdef _WINDOWS
 #  define FD_SETSIZE 256 /* number of connections we support */
-#  define WIN32_LEAN_AND_MEAN
+#  if !defined(WIN32_LEAN_AND_MEAN)
+#    define WIN32_LEAN_AND_MEAN
+#  endif
 #  include <windows.h>
 #elif defined(macintosh)
 #  include "ldap-macos.h"

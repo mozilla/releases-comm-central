@@ -73,7 +73,9 @@ extern "C" {
 #    include <sys/time.h>
 #  endif
 #  if defined(_WINDOWS)
-#    define WIN32_LEAN_AND_MEAN
+#    if !defined(WIN32_LEAN_AND_MEAN)
+#      define WIN32_LEAN_AND_MEAN
+#    endif
 #    include <windows.h>
 #    include <basetsd.h>
 #    define ssize_t SSIZE_T
