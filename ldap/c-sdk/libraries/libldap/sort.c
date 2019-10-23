@@ -243,8 +243,7 @@ int LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain,
   last = e;
 
   et_cmp_fn = (LDAP_CHARCMP_CALLBACK *)cmp;
-  qsort((void *)et, (size_t)count, (size_t)sizeof(struct entrything),
-           et_cmp);
+  qsort((void *)et, (size_t)count, (size_t)sizeof(struct entrything), et_cmp);
 
   ep = chain;
   for (i = 0; i < count; i++) {
