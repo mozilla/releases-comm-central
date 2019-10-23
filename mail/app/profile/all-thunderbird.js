@@ -783,11 +783,17 @@ pref("security.webauth.u2f", true);
 // Use OS date and time settings by default.
 pref("intl.regional_prefs.use_os_locales", true);
 
-// Multi-lingual preferences
-pref("intl.multilingual.enabled", false);
+// Multi-lingual preferences.
+// Let the user select a different language for the UI.
+pref("intl.multilingual.enabled", true);
 
-// We don't support yet language pack download from ATN
+// ATN only serves language packs for release.
+// There is no release-only define, so we also enable it for beta.
+#if defined(RELEASE_OR_BETA)
+pref("intl.multilingual.downloadEnabled", true);
+#else
 pref("intl.multilingual.downloadEnabled", false);
+#endif
 
 // Dark in-content pages
 pref("browser.in-content.dark-mode", true);
