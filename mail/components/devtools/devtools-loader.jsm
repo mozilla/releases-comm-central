@@ -4,15 +4,10 @@
 
 "use strict";
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
-
 function DevToolsStartup() {}
 
 DevToolsStartup.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler]),
-  classID: Components.ID("{089694e9-106a-4704-abf7-62a88545e194}"),
 
   helpInfo: "",
   handle(cmdLine) {
@@ -83,4 +78,4 @@ DevToolsStartup.prototype = {
   },
 };
 
-this.NSGetFactory = XPCOMUtils.generateNSGetFactory([DevToolsStartup]);
+var EXPORTED_SYMBOLS = ["DevToolsStartup"];

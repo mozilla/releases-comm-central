@@ -174,8 +174,6 @@
 
 @RESPATH@/isp/*
 
-@RESPATH@/components/aboutRedirector.js
-@RESPATH@/components/activityComponents.manifest
 @RESPATH@/components/EnterprisePolicies.js
 @RESPATH@/components/EnterprisePolicies.manifest
 @RESPATH@/components/EnterprisePoliciesContent.js
@@ -187,9 +185,6 @@
 @RESPATH@/components/msgMime.manifest
 @RESPATH@/components/msgAsyncPrompter.js
 @RESPATH@/components/msgBase.manifest
-@RESPATH@/components/nsActivity.js
-@RESPATH@/components/nsActivityManager.js
-@RESPATH@/components/nsActivityManagerUI.js
 @RESPATH@/components/nsAddrbook.manifest
 @RESPATH@/components/nsMailNewsCommandLineHandler.js
 @RESPATH@/components/nsNewsAutoCompleteSearch.js
@@ -237,12 +232,6 @@
 @BINPATH@/MapiProxy.dll
 @BINPATH@/mozMapi32.dll
 #endif
-@RESPATH@/components/mailComponents.manifest
-@RESPATH@/components/mailContentHandler.js
-@RESPATH@/components/mailGlue.js
-@RESPATH@/components/nsMailDefaultHandler.js
-@RESPATH@/components/nsSetDefaultMail.js
-@RESPATH@/components/shell.manifest
 @RESPATH@/components/offlineStartup.js
 @RESPATH@/components/offlineStartup.manifest
 
@@ -293,9 +282,6 @@
 
 ; Thunderbird specific
 @RESPATH@/@PREF_DIR@/all-im.js
-@RESPATH@/components/im.manifest
-@RESPATH@/components/imIncomingServer.js
-@RESPATH@/components/imProtocolInfo.js
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Chrome Files
@@ -312,9 +298,6 @@
 @RESPATH@/chrome/devtools@JAREXT@
 @RESPATH@/chrome/devtools.manifest
 @RESPATH@/@PREF_DIR@/debugger.js
-
-@RESPATH@/components/devtools-loader.js
-@RESPATH@/components/devtools-loader.manifest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default Profile Settings

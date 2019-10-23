@@ -1,5 +1,1 @@
 content jsbridge chrome/content/
-
-component {2872d428-14f6-11de-ac86-001f5bd9235c} components/cmdarg.js
-contract @mozilla.org/commandlinehandler/general-startup;1?type=jsbridge {2872d428-14f6-11de-ac86-001f5bd9235c}
-category command-line-handler jsbridge @mozilla.org/commandlinehandler/general-startup;1?type=jsbridge

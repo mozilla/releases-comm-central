@@ -3,11 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["MessengerContentHandler"];
+
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -147,7 +146,9 @@ function openURI(uri) {
   loader.openURI(channel, true, listener);
 }
 
-var nsMailDefaultHandler = {
+function MailDefaultHandler() {}
+
+MailDefaultHandler.prototype = {
   QueryInterface: ChromeUtils.generateQI([
     Ci.nsICommandLineHandler,
     Ci.nsICommandLineValidator,
@@ -526,18 +527,15 @@ var nsMailDefaultHandler = {
   },
 };
 
-function mailDefaultCommandLineHandler() {}
+function MessengerContentHandler() {
+  if (!gMessengerContentHandler) {
+    gMessengerContentHandler = this;
+  }
+  return gMessengerContentHandler;
+}
 
-mailDefaultCommandLineHandler.prototype = {
-  classDescription: "Mail default commandline handler",
-  classID: Components.ID("{44346520-c5d2-44e5-a1ec-034e04d7fac4}"),
-  contractID: "@mozilla.org/mail/clh;1",
-
+MessengerContentHandler.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIModule]),
-
-  _xpcom_factory: nsMailDefaultHandler,
 };
 
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([
-  mailDefaultCommandLineHandler,
-]);
+var gMessengerContentHandler = new MailDefaultHandler();

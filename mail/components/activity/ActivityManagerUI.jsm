@@ -2,19 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["ActivityManagerUI"];
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
 
 const ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xul";
-const PREF_FLASH_COUNT = "messenger.activity.manager.flashCount";
 
-function nsActivityManagerUI() {}
+function ActivityManagerUI() {}
 
-nsActivityManagerUI.prototype = {
-  classID: Components.ID("5fa5974e-09cb-40cc-9696-643f8a8d9a06"),
-
+ActivityManagerUI.prototype = {
   show(aWindowContext, aID) {
     // First we see if it is already visible
     let window = this.recentWindow;
@@ -51,6 +47,3 @@ nsActivityManagerUI.prototype = {
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityManagerUI]),
 };
-
-var components = [nsActivityManagerUI];
-var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

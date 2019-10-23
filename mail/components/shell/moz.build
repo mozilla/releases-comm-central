@@ -32,12 +32,15 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
         'nsGNOMEShellService.cpp',
     ]
 
-EXTRA_COMPONENTS += [
-    'nsSetDefaultMail.js',
-    'shell.manifest',
-]
-
 if SOURCES:
     FINAL_LIBRARY = 'mailcomps'
 
 CXXFLAGS += CONFIG['TK_CFLAGS']
+
+EXTRA_JS_MODULES += [
+    'SetDefaultMail.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
+]

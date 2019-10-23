@@ -1,15 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var EXPORTED_SYMBOLS = ["AboutRedirector"];
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
 
 function AboutRedirector() {}
 AboutRedirector.prototype = {
-  classDescription: "Mail about: Redirector",
-  classID: Components.ID("{8cc51368-6aa0-43e8-b762-bde9b9fd828c}"),
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAboutModule]),
 
   // Each entry in the map has the key as the part after the "about:" and the
@@ -85,5 +83,3 @@ AboutRedirector.prototype = {
     return channel;
   },
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([AboutRedirector]);

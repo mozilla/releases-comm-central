@@ -5,6 +5,8 @@
 
 "use strict";
 
+var EXPORTED_SYMBOLS = ["MailGlue"];
+
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -31,13 +33,7 @@ var { RemoteSecuritySettings } = ChromeUtils.import(
   "resource://gre/modules/psm/RemoteSecuritySettings.jsm"
 );
 
-// lazy module getters
-
-XPCOMUtils.defineLazyGetter(this, "gBrandBundle", function() {
-  return Services.strings.createBundle(
-    "chrome://branding/locale/brand.properties"
-  );
-});
+// lazy module getter
 
 XPCOMUtils.defineLazyGetter(this, "gMailBundle", function() {
   return Services.strings.createBundle(
@@ -287,9 +283,5 @@ MailGlue.prototype = {
   },
 
   // for XPCOM
-  classID: Components.ID("{eb239c82-fac9-431e-98d7-11cacd0f71b8}"),
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.nsIMailGlue]),
 };
-
-var components = [MailGlue];
-var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

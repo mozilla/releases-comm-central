@@ -11,13 +11,6 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = 'activity'
 
-EXTRA_COMPONENTS += [
-    'activityComponents.manifest',
-    'nsActivity.js',
-    'nsActivityManager.js',
-    'nsActivityManagerUI.js',
-]
-
 EXTRA_JS_MODULES.activity += [
     'modules/activityModules.jsm',
     'modules/alertHook.jsm',
@@ -28,4 +21,14 @@ EXTRA_JS_MODULES.activity += [
     'modules/sendLater.jsm',
 ]
 
+EXTRA_JS_MODULES += [
+    'Activity.jsm',
+    'ActivityManager.jsm',
+    'ActivityManagerUI.jsm',
+]
+
 JAR_MANIFESTS += ['jar.mn']
+
+XPCOM_MANIFESTS += [
+    'components.conf',
+]

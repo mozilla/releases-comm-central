@@ -2,20 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+var EXPORTED_SYMBOLS = ["ActivityProcess", "ActivityEvent", "ActivityWarning"];
+
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-// Base class for nsActivityProcess and nsActivityEvent objects
+// Base class for ActivityProcess and ActivityEvent objects
 
-function nsActivity() {
+function Activity() {
   this._initLogging();
   this._listeners = [];
   this._subjects = [];
 }
 
-nsActivity.prototype = {
+Activity.prototype = {
   id: -1,
   bindingName: "",
   iconClass: "",
@@ -28,7 +27,7 @@ nsActivity.prototype = {
   contextObj: null,
 
   _initLogging() {
-    this.log = Log4Moz.getConfiguredLogger("nsActivity");
+    this.log = Log4Moz.getConfiguredLogger("Activity");
   },
 
   addListener(aListener) {
@@ -56,15 +55,14 @@ nsActivity.prototype = {
   },
 };
 
-function nsActivityProcess() {
-  nsActivity.call(this);
+function ActivityProcess() {
+  Activity.call(this);
   this.bindingName = "activity-process-richlistitem";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
 }
 
-nsActivityProcess.prototype = {
-  __proto__: nsActivity.prototype,
-  classID: Components.ID("B2C036A3-F7CE-401C-95EE-9C21505167FD"),
+ActivityProcess.prototype = {
+  __proto__: Activity.prototype,
 
   percentComplete: -1,
   lastStatusText: "",
@@ -242,15 +240,14 @@ nsActivityProcess.prototype = {
   ]),
 };
 
-function nsActivityEvent() {
-  nsActivity.call(this);
+function ActivityEvent() {
+  Activity.call(this);
   this.bindingName = "activity-event-richlistitem";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_STANDALONE;
 }
 
-nsActivityEvent.prototype = {
-  __proto__: nsActivity.prototype,
-  classID: Components.ID("87AAEB20-89D9-4B95-9542-3BF72405CAB2"),
+ActivityEvent.prototype = {
+  __proto__: Activity.prototype,
 
   statusText: "",
   startTime: 0,
@@ -287,15 +284,14 @@ nsActivityEvent.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityEvent, Ci.nsIActivity]),
 };
 
-function nsActivityWarning() {
-  nsActivity.call(this);
+function ActivityWarning() {
+  Activity.call(this);
   this.bindingName = "activity-warning-richlistitem";
   this.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
 }
 
-nsActivityWarning.prototype = {
-  __proto__: nsActivity.prototype,
-  classID: Components.ID("968BAC9E-798B-4952-B384-86B21B8CC71E"),
+ActivityWarning.prototype = {
+  __proto__: Activity.prototype,
 
   recoveryTipText: "",
   _time: 0,
@@ -331,6 +327,3 @@ nsActivityWarning.prototype = {
     Ci.nsIActivity,
   ]),
 };
-
-var components = [nsActivityProcess, nsActivityEvent, nsActivityWarning];
-var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

@@ -3,17 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+var EXPORTED_SYMBOLS = ["ActivityManager"];
+
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-function nsActivityManager() {}
+function ActivityManager() {}
 
-nsActivityManager.prototype = {
-  classID: Components.ID("8aa5972e-19cb-41cc-9696-645f8a8d1a06"),
-
-  log: Log4Moz.getConfiguredLogger("nsActivityManager"),
+ActivityManager.prototype = {
+  log: Log4Moz.getConfiguredLogger("ActivityManager"),
   _listeners: [],
   _processCount: 0,
   _db: null,
@@ -156,6 +153,3 @@ nsActivityManager.prototype = {
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityManager]),
 };
-
-var components = [nsActivityManager];
-var NSGetFactory = XPCOMUtils.generateNSGetFactory(components);

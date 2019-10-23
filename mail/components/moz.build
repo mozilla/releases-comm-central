@@ -36,15 +36,15 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = 'mailcompsbase'
 
-EXTRA_COMPONENTS += [
-    'aboutRedirector.js',
-    'mailComponents.manifest',
-    'mailContentHandler.js',
-    'mailGlue.js',
-    'nsMailDefaultHandler.js',
+EXTRA_JS_MODULES += [
+    'AboutRedirector.jsm',
+    'appIdleManager.js',
+    'MailContentHandler.jsm',
+    'MailGlue.jsm',
+    'MessengerContentHandler.jsm',
 ]
 
-EXTRA_JS_MODULES += [
-    'appIdleManager.js',
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
 

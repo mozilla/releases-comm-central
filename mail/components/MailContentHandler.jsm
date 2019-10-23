@@ -2,26 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+var EXPORTED_SYMBOLS = ["MailContentHandler"];
 
 // defined in nsIContentHandler.idl.
 var NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
 
-function mailContentHandler() {}
-mailContentHandler.prototype = {
-  classID: Components.ID("{1c73f03a-b817-4640-b984-18c3478a9ae3}"),
+function MailContentHandler() {
+  if (!gMailContentHandler) {
+    gMailContentHandler = this;
+  }
+  return gMailContentHandler;
+}
 
-  _xpcom_factory: {
-    createInstance(outer, iid) {
-      if (outer) {
-        throw Cr.NS_ERROR_NO_AGGREGATION;
-      }
-      return gMailContentHandler.QueryInterface(iid);
-    },
-  },
-
+MailContentHandler.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIContentHandler]),
 
   openInExternal(uri) {
@@ -72,6 +65,4 @@ mailContentHandler.prototype = {
     // No-op.
   },
 };
-var gMailContentHandler = new mailContentHandler();
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([mailContentHandler]);
+var gMailContentHandler = new MailContentHandler();

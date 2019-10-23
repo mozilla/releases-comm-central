@@ -2,14 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { EmptyEnumerator, XPCOMUtils } = ChromeUtils.import(
+var EXPORTED_SYMBOLS = ["IMIncomingServer"];
+
+var { EmptyEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
-function imIncomingServer() {}
+function IMIncomingServer() {}
 
-imIncomingServer.prototype = {
+IMIncomingServer.prototype = {
   get wrappedJSObject() {
     return this;
   },
@@ -346,10 +348,5 @@ imIncomingServer.prototype = {
     );
   },
 
-  classDescription: "IM Msg Incoming Server implementation",
-  classID: Components.ID("{9dd7f36b-5960-4f0a-8789-f5f516bd083d}"),
-  contractID: "@mozilla.org/messenger/server;1?type=im",
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgIncomingServer]),
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([imIncomingServer]);

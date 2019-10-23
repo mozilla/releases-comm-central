@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+var EXPORTED_SYMBOLS = ["IMProtocolInfo"];
 
-function imProtocolInfo() {}
+function IMProtocolInfo() {}
 
-imProtocolInfo.prototype = {
+IMProtocolInfo.prototype = {
   defaultLocalPath: null,
   get serverIID() {
     return null;
@@ -49,10 +47,5 @@ imProtocolInfo.prototype = {
     return false;
   },
 
-  classDescription: "IM Msg Protocol Info implementation",
-  classID: Components.ID("{13118758-dad2-418c-a03d-1acbfed0cd01}"),
-  contractID: "@mozilla.org/messenger/protocol/info;1?type=im",
   QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgProtocolInfo]),
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([imProtocolInfo]);

@@ -34,8 +34,6 @@ function setupServer(domWindow) {
     domWindow
   );
 
-  // The server used to be started via the command line (cmdarg.js) which
-  // doesn't work for a bootstrapped add-on, so let's do it here.
   let server = {};
   ChromeUtils.import("chrome://jsbridge/content/modules/server.js", server);
   console.log("=== JS Bridge: Starting server");

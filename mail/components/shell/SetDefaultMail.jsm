@@ -9,13 +9,11 @@
  * by making the current executable the "default mail app."
  */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+var EXPORTED_SYMBOLS = ["SetDefaultMail"];
 
-function nsSetDefaultMail() {}
+function SetDefaultMail() {}
 
-nsSetDefaultMail.prototype = {
+SetDefaultMail.prototype = {
   /* nsISupports */
   QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler]),
 
@@ -30,7 +28,4 @@ nsSetDefaultMail.prototype = {
   },
 
   helpInfo: "  -setDefaultMail    Set this app as the default mail client.\n",
-  classID: Components.ID("{ED117D0A-F6C2-47d8-8A71-0E15BABD2554}"),
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsSetDefaultMail]);

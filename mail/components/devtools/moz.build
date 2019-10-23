@@ -4,10 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
+    "devtools-loader.jsm",
     "tb-root-actor.js",
 ]
 
-EXTRA_COMPONENTS += [
-    "devtools-loader.js",
-    "devtools-loader.manifest",
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
