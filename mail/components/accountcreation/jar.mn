@@ -11,7 +11,6 @@ messenger.jar:
   content/messenger/accountcreation/fetchConfig.js        (content/fetchConfig.js)
   content/messenger/accountcreation/fetchhttp.js          (content/fetchhttp.js)
   content/messenger/accountcreation/guessConfig.js        (content/guessConfig.js)
-  content/messenger/accountcreation/MyBadCertHandler.js   (content/MyBadCertHandler.js)
   content/messenger/accountcreation/readFromXML.js        (content/readFromXML.js)
   content/messenger/accountcreation/sanitizeDatatypes.js  (content/sanitizeDatatypes.js)
   content/messenger/accountcreation/util.js               (content/util.js)

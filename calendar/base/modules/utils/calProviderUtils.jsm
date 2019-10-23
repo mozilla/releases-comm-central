@@ -159,11 +159,6 @@ var calprovider = {
         return this.calAuthPrompt;
       } else if (aIID.equals(Ci.nsIAuthPromptProvider) || aIID.equals(Ci.nsIPrompt)) {
         return Services.ww.getNewPrompter(null);
-      } else if (aIID.equals(Ci.nsIBadCertListener2)) {
-        if (!this.badCertHandler) {
-          this.badCertHandler = new cal.provider.BadCertHandler(this);
-        }
-        return this.badCertHandler;
       } else {
         Components.returnCode = e;
       }
@@ -171,15 +166,12 @@ var calprovider = {
     return null;
   },
 
+  // TODO: Add new error handling that uses this code. See bug 1547096.
   /**
    * Bad Certificate Handler for Network Requests. Shows the Network Exception
    * Dialog if a certificate Problem occurs.
    */
   BadCertHandler: class {
-    QueryInterface() {
-      return ChromeUtils.generateQI([Ci.nsIBadCertListener2]);
-    }
-
     constructor(thisProvider) {
       this.thisProvider = thisProvider;
       this.timer = null;

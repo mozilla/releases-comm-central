@@ -181,10 +181,6 @@ TracingListener.prototype = {
       "chrome://messenger/content/accountcreation/createInBackend.js",
       accountCreationFuncs
     );
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/MyBadCertHandler.js",
-      accountCreationFuncs
-    );
 
     let tabmail = document.getElementById("tabmail");
     let success = false;

@@ -11,7 +11,6 @@
 /* import-globals-from fetchConfig.js */
 /* import-globals-from fetchhttp.js */
 /* import-globals-from guessConfig.js */
-/* import-globals-from MyBadCertHandler.js */
 /* import-globals-from readFromXML.js */
 /* import-globals-from sanitizeDatatypes.js */
 /* import-globals-from util.js */

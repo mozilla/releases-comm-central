@@ -203,13 +203,6 @@ function verifyLogon(
   }
 }
 
-/**
- * The url listener also implements nsIBadCertListener2.  Its job is to prevent
- * "bad cert" security dialogs from being shown to the user.  Currently it puts
- * up the cert override dialog, though we'd like to give the user more detailed
- * information in the future.
- */
-
 function urlListener(
   config,
   server,
@@ -387,21 +380,7 @@ urlListener.prototype = {
     this.mErrorCallback(ex);
   },
 
-  // Suppress any certificate errors
-  notifyCertProblem(socketInfo, status, targetSite) {
-    this.mCertError = true;
-    this._log.error("cert error");
-    let self = this;
-    setTimeout(function() {
-      try {
-        self.informUserOfCertError(socketInfo, status, targetSite);
-      } catch (e) {
-        logException(e);
-      }
-    }, 0);
-    return true;
-  },
-
+  // TODO: Add new error handling that uses this code. See bug 1547096.
   informUserOfCertError(socketInfo, secInfo, targetSite) {
     var params = {
       exceptionAdded: false,
@@ -443,7 +422,6 @@ urlListener.prototype = {
 
   // nsISupports
   QueryInterface: ChromeUtils.generateQI([
-    "nsIBadCertListener2",
     "nsIInterfaceRequestor",
     "nsIUrlListener",
   ]),

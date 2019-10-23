@@ -210,8 +210,6 @@ function CreateMailWindowGlobals() {
   );
 
   accountManager = MailServices.accounts;
-
-  msgWindow.notificationCallbacks = new BadCertHandler();
 }
 
 function InitMsgWindow() {
@@ -676,33 +674,7 @@ function UpdateFullZoomMenu() {
   cmdItem.setAttribute("checked", !ZoomManager.useFullZoom);
 }
 
-/**
- * This class implements nsIBadCertListener2.  Its job is to prevent "bad cert"
- * security dialogs from being shown to the user.  Currently it puts up the
- * cert override dialog, though we'd like to give the user more detailed
- * information in the future.
- */
-function BadCertHandler() {}
-
-BadCertHandler.prototype = {
-  // Suppress any certificate errors
-  notifyCertProblem(socketInfo, status, targetSite) {
-    setTimeout(InformUserOfCertError, 0, socketInfo, status, targetSite);
-    return true;
-  },
-
-  // nsIInterfaceRequestor
-  getInterface(iid) {
-    return this.QueryInterface(iid);
-  },
-
-  // nsISupports
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIBadCertListener2",
-    "nsIInterfaceRequestor",
-  ]),
-};
-
+// TODO: Add new error handling that uses this code. See bug 1547096.
 function InformUserOfCertError(socketInfo, secInfo, targetSite) {
   let params = {
     exceptionAdded: false,

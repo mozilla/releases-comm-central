@@ -7,8 +7,7 @@
  * simple(r) use of sockets code.
  *
  * This implements nsIServerSocketListener, nsIStreamListener,
- * nsIRequestObserver, nsITransportEventSink, nsIBadCertListener2,
- * and nsIProtocolProxyCallback.
+ * nsIRequestObserver, nsITransportEventSink and nsIProtocolProxyCallback.
  *
  * This uses nsIRoutedSocketTransportService, nsIServerSocket, nsIThreadManager,
  * nsIBinaryInputStream, nsIScriptableInputStream, nsIInputStreamPump,
@@ -550,16 +549,6 @@ var Socket = {
   },
 
   /*
-   * nsIBadCertListener2
-   */
-  // Called when there's an error, return true to suppress the modal alert.
-  // Whatever this function returns, NSS will close the connection.
-  notifyCertProblem(aSocketInfo, aSecInfo, aTargetSite) {
-    this.secInfo = aSecInfo;
-    return true;
-  },
-
-  /*
    * nsITransportEventSink methods
    */
   onTransportStatus(aTransport, aStatus, aProgress, aProgressmax) {
@@ -626,8 +615,7 @@ var Socket = {
 
   // Open the incoming and outgoing streams, and init the nsISocketTransport.
   _openStreams() {
-    // Security notification callbacks (must support nsIBadCertListener2
-    // for SSL connections, and possibly other interfaces).
+    // TODO: is this still required after bug 1547096?
     this.transport.securityCallbacks = this;
 
     // Set the timeouts for the nsISocketTransport for both a connect event and
@@ -732,7 +720,6 @@ var Socket = {
     "nsIStreamListener",
     "nsIRequestObserver",
     "nsITransportEventSink",
-    "nsIBadCertListener2",
     "nsIProtocolProxyCallback",
   ]),
 

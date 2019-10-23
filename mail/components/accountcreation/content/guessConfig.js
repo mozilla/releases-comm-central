@@ -1002,9 +1002,8 @@ function protocolToString(type) {
 // ----------------------
 // SSL cert error handler
 
+// TODO: Add new error handling that uses this code. See bug 1547096.
 /**
- * Called by MyBadCertHandler.js, which called by PSM
- * to tell us about SSL certificate errors.
  * @param thisTry {HostTry}
  * @param logger {Log4Moz logger}
  */
@@ -1178,11 +1177,7 @@ function SocketUtil(
 
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT, timeout);
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_READ_WRITE, timeout);
-  try {
-    transport.securityCallbacks = new BadCertHandler(sslErrorHandler);
-  } catch (e) {
-    _error(e);
-  }
+
   var outstream = transport.openOutputStream(0, 0, 0);
   var stream = transport.openInputStream(0, 0, 0);
   var instream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
