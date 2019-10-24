@@ -114,17 +114,18 @@
       <label flex="1" control="folderStorage">&pop3DeferringDesc.label;</label>
       <hbox align="center">
         <radiogroup id="folderStorage"
+                    flex="1"
                     orient="horizontal"
                     amsa_persist="true"
                     onselect="updateInboxAccount(this.selectedIndex == 1);">
-          <vbox>
+          <vbox flex="1">
             <hbox>
               <radio id="deferToCurrentAccount"
                      value="currentAccount"
                      label="&accountInbox.label;"
                      accesskey="&accountInbox.accesskey;"/>
             </hbox>
-            <vbox>
+            <vbox flex="1">
               <hbox>
                 <radio id="deferToOtherAccount"
                        value="otherAccount"
@@ -133,6 +134,7 @@
                 </radio>
                 <menulist id="deferredServerFolderPicker"
                           class="folderMenuItem"
+                          flex="1"
                           aria-labelledby="deferToServer">
                   <menupopup is="folder-menupopup" id="deferredServerPopup"
                              expandFolders="false"
