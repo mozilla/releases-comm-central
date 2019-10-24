@@ -184,7 +184,7 @@ nsresult nsAbManager::GetRootDirectory(nsIAbDirectory **aResult) {
 
   if (!mCacheTopLevelAb) {
     nsCOMPtr<nsIAbDirectory> rootAddressBook(
-        do_GetService(NS_ABDIRECTORY_CONTRACTID, &rv));
+        do_CreateInstance(NS_ABDIRECTORY_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
     mCacheTopLevelAb = rootAddressBook;
   }

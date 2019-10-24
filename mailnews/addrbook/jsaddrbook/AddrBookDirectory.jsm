@@ -127,7 +127,6 @@ var closeObserver = {
     connections.clear();
   },
 };
-Services.obs.addObserver(closeObserver, "addrbook-reload");
 Services.obs.addObserver(closeObserver, "quit-application");
 
 /**

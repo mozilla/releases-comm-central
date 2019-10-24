@@ -680,8 +680,7 @@ var MailMigrator = {
   },
 
   /**
-   * Migrate address books from Mork to JS/SQLite. This must happen before
-   * address book start-up and without causing it.
+   * Migrate address books from Mork to JS/SQLite.
    *
    * All Mork address books found in the prefs are converted to JS/SQLite
    * address books and the prefs updated. Migrated Mork files in the profile
@@ -812,6 +811,8 @@ var MailMigrator = {
         Cu.reportError(ex);
       }
     }
+
+    Services.obs.notifyObservers(null, "addrbook-reload");
   },
 
   /**
