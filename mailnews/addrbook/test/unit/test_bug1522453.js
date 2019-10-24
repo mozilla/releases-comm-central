@@ -70,6 +70,7 @@ add_task(async function() {
   // Reload the address book manager.
   Services.obs.notifyObservers(null, "addrbook-reload");
   // Wait for files to close.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   MailServices.ab.directories;

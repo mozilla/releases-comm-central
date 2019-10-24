@@ -86,8 +86,8 @@ module.exports = {
       ...removeOverrides(xpcshellTestConfig),
       files: xpcshellTestPaths.map(path => `${path}**`),
       rules: {
+        ...xpcshellTestConfig.rules,
         "func-names": "off",
-        "mozilla/import-headjs-globals": "error",
       },
     },
     {
@@ -110,8 +110,8 @@ module.exports = {
       ...browserTestConfig,
       files: browserTestPaths.map(path => `${path}**`),
       rules: {
+        ...browserTestConfig.rules,
         "func-names": "off",
-        "mozilla/import-headjs-globals": "error",
       },
     },
   ],

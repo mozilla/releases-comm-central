@@ -370,6 +370,7 @@ add_task(async function deleteContact() {
 add_task(async function deleteAddressBook() {
   MailServices.ab.deleteAddressBook(book.URI);
   // Wait for files to close.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   observer.checkEvents(["onItemRemoved", undefined, book]);
