@@ -233,7 +233,9 @@ nsresult nsMsgDBView::GetPrefLocalizedString(const char *aPrefName,
 }
 
 nsresult nsMsgDBView::AppendKeywordProperties(const nsACString &keywords,
-                                              nsAString &properties) {
+                                              nsAString &properties,
+                                              bool *tagAdded) {
+  *tagAdded = false;
   // Get the top most keyword's CSS selector and append that as a property.
   nsresult rv;
   if (!mTagService) {
@@ -249,6 +251,7 @@ nsresult nsMsgDBView::AppendKeywordProperties(const nsACString &keywords,
   nsString selector;
   rv = mTagService->GetSelectorForKey(topKey, selector);
   if (NS_SUCCEEDED(rv)) {
+    *tagAdded = true;
     properties.Append(' ');
     properties.Append(selector);
   }
@@ -1215,11 +1218,14 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString &properties) {
 
   nsCString keywordProperty;
   FetchRowKeywords(index, msgHdr, keywordProperty);
-  if (keywordProperty.IsEmpty()) {
-    properties.AppendLiteral(" untagged");
-  } else {
-    AppendKeywordProperties(keywordProperty, properties);
+  bool tagAdded = false;
+  if (!keywordProperty.IsEmpty()) {
+    AppendKeywordProperties(keywordProperty, properties, &tagAdded);
+  }
+  if (tagAdded) {
     properties.AppendLiteral(" tagged");
+  } else {
+    properties.AppendLiteral(" untagged");
   }
 
   // Give the custom column handlers a chance to style the row.
@@ -1333,11 +1339,14 @@ nsMsgDBView::GetCellProperties(int32_t aRow, nsTreeColumn *col,
 
   nsCString keywords;
   FetchRowKeywords(aRow, msgHdr, keywords);
-  if (keywords.IsEmpty()) {
-    properties.AppendLiteral(" untagged");
-  } else {
-    AppendKeywordProperties(keywords, properties);
+  bool tagAdded = false;
+  if (!keywords.IsEmpty()) {
+    AppendKeywordProperties(keywords, properties, &tagAdded);
+  }
+  if (tagAdded) {
     properties.AppendLiteral(" tagged");
+  } else {
+    properties.AppendLiteral(" untagged");
   }
 
   // This is a double fetch of the keywords property since we also fetch

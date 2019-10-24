@@ -397,7 +397,7 @@ class nsMsgDBView : public nsIMsgDBView,
   char16_t *GetString(const char16_t *aStringName);
   nsresult GetPrefLocalizedString(const char *aPrefName, nsString &aResult);
   nsresult AppendKeywordProperties(const nsACString &keywords,
-                                   nsAString &properties);
+                                   nsAString &properties, bool *tagAdded);
   nsresult InitLabelStrings(void);
   nsresult CopyDBView(nsMsgDBView *aNewMsgDBView,
                       nsIMessenger *aMessengerInstance,
