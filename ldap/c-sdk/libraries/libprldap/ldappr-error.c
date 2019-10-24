@@ -36,24 +36,18 @@
  * ***** END LICENSE BLOCK ***** */
 
 /*
- * Utilities for manageing the relationship between NSPR errors and
+ * Utilities for managing the relationship between NSPR errors and
  * OS (errno-style) errors.
  *
  * The overall strategy used is to map NSPR errors into OS errors.
+ * Inside libprldap we set NSPR errors. Implicitly, via the various PR_
+ * calls and explicitly via PR_SetError().
+ * We provide prldap_get_errno() which libldap calls to retrieve our error
+ * codes, mapped to the errno values it expects (ENOENT, EAGAIN etc...)
  */
 
 #include "ldappr-int.h"
 
-void prldap_set_system_errno(int oserrno) {
-  PR_SetError(PR_GetError(), oserrno);
-}
-
-int prldap_get_system_errno(void) { return (PR_GetOSError()); }
-
-/*
- * Retrieve the NSPR error number, convert to a system error code, and return
- * the result.
- */
 struct prldap_errormap_entry {
   PRInt32 erm_nspr; /* NSPR error code */
   int erm_system;   /* corresponding system error code */
@@ -230,9 +224,10 @@ struct prldap_errormap_entry {
 
 /* XXX: need to verify that the -1 entries are correct (no mapping) */
 static struct prldap_errormap_entry prldap_errormap[] = {
+    {0, 0},
     {PR_OUT_OF_MEMORY_ERROR, ENOMEM},
     {PR_BAD_DESCRIPTOR_ERROR, EBADF},
-    {PR_WOULD_BLOCK_ERROR, EAGAIN},
+    {PR_WOULD_BLOCK_ERROR, EAGAIN}, /* Important for ldap async mode. */
     {PR_ACCESS_FAULT_ERROR, EFAULT},
     {PR_INVALID_METHOD_ERROR, EINVAL}, /* XXX: correct mapping ? */
     {PR_ILLEGAL_ACCESS_ERROR, EACCES}, /* XXX: correct mapping ? */
@@ -307,19 +302,41 @@ static struct prldap_errormap_entry prldap_errormap[] = {
     {PR_MAX_ERROR, -1},
 };
 
-int prldap_prerr2errno(void) {
-  int oserr, i;
-  PRInt32 nsprerr;
+/**
+ *  Set an appropriate NSPR error code for a given os errno.
+ *
+ *  @param oserrno - the system errno value
+ */
+void prldap_set_errno(int oserrno) {
+  /* NOTE: it's the code returned by PR_GetError() which we'll consider the
+   * 'canonical' error state. Other functions (eg in NSS) will set errors with
+   * no system code, ie PR_SetError(prerrcode, 0).
+   * We set the system error here because it'd seem rude not to, but it
+   * shouldn't be relied upon to check for error states.
+   */
+  PRErrorCode nsprerr = PR_UNKNOWN_ERROR;
+  for (int i = 0; prldap_errormap[i].erm_nspr != PR_MAX_ERROR; ++i) {
+    if (prldap_errormap[i].erm_system == oserrno) {
+      nsprerr = prldap_errormap[i].erm_nspr;
+      break;
+    }
+  }
+  PR_SetError(nsprerr, oserrno);
+}
 
-  nsprerr = PR_GetError();
-
-  oserr = -1; /* unknown */
-  for (i = 0; prldap_errormap[i].erm_nspr != PR_MAX_ERROR; ++i) {
+/**
+ *  Get the NSPR error code, converted to an appropriate os errno.
+ *
+ *  @returns an os errno value to approximate the current NSPR error code.
+ */
+int prldap_get_errno(void) {
+  PRErrorCode nsprerr = PR_GetError();
+  int oserr = -1; /* unknown */
+  for (int i = 0; prldap_errormap[i].erm_nspr != PR_MAX_ERROR; ++i) {
     if (prldap_errormap[i].erm_nspr == nsprerr) {
       oserr = prldap_errormap[i].erm_system;
       break;
     }
   }
-
-  return (oserr);
+  return oserr;
 }

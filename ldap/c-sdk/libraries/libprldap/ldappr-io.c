@@ -238,7 +238,8 @@ prldap_poll(LDAP_X_PollFD fds[], int nfds, int timeout,
   int i, j, rc;
 
   if (NULL == prsessp) {
-    prldap_set_system_errno(EINVAL);
+    // Make sure prldap_get_errno() returns an error.
+    PR_SetError(PR_INVALID_ARGUMENT_ERROR, EINVAL);
     return (-1);
   }
 
@@ -248,7 +249,6 @@ prldap_poll(LDAP_X_PollFD fds[], int nfds, int timeout,
         prsessp->prsess_pollds,
         (nfds + PRLDAP_POLL_ARRAY_GROWTH) * sizeof(PRPollDesc));
     if (NULL == pds) {
-      prldap_set_system_errno(prldap_prerr2errno());
       return (-1);
     }
     prsessp->prsess_pollds = pds;
@@ -317,7 +317,6 @@ static int prldap_try_one_address(struct lextiof_socket_private *prsockp,
     optdata.option = PR_SockOpt_Nonblocking;
     optdata.value.non_blocking = PR_TRUE;
     if (PR_SetSocketOption(prsockp->prsock_prfd, &optdata) != PR_SUCCESS) {
-      prldap_set_system_errno(prldap_prerr2errno());
       PR_Close(prsockp->prsock_prfd);
       return (-1);
     }
@@ -379,12 +378,12 @@ static int LDAP_CALLBACK prldap_connect(
   PRAddrInfo *infop = NULL;
 
   if (0 != (options & LDAP_X_EXTIOF_OPT_SECURE)) {
-    prldap_set_system_errno(EINVAL);
+    // Make sure prldap_get_errno() returns an error.
+    PR_SetError(PR_INVALID_ARGUMENT_ERROR, EINVAL);
     return (-1);
   }
 
   if (NULL == (prsockp = prldap_socket_arg_alloc(sessionarg))) {
-    prldap_set_system_errno(prldap_prerr2errno());
     return (-1);
   }
 
@@ -427,7 +426,6 @@ static int LDAP_CALLBACK prldap_connect(
   ldap_x_hostlist_statusfree(status);
 
   if (rc < 0) {
-    prldap_set_system_errno(prldap_prerr2errno());
     prldap_socket_arg_free(&prsockp);
   } else {
     *socketargp = prsockp;
@@ -443,7 +441,6 @@ prldap_close(int s, struct lextiof_socket_private *socketarg) {
   rc = 0;
   if (PR_Close(PRLDAP_GET_PRFD(socketarg)) != PR_SUCCESS) {
     rc = -1;
-    prldap_set_system_errno(prldap_prerr2errno());
   }
   prldap_socket_arg_free(&socketarg);
 

@@ -131,6 +131,5 @@ int prldap_install_dns_functions(LDAP *ld);
 /*
  * From ldapprerror.c:
  */
-void prldap_set_system_errno(int e);
-int prldap_get_system_errno(void);
-int prldap_prerr2errno(void);
+void prldap_set_errno(int e);
+int prldap_get_errno(void);

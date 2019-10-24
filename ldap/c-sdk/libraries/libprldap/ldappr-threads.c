@@ -159,8 +159,8 @@ int prldap_install_thread_functions(LDAP *ld, int shared) {
 
   /* set thread function pointers */
   memset(&tfns, '\0', sizeof(struct ldap_thread_fns));
-  tfns.ltf_get_errno = prldap_get_system_errno;
-  tfns.ltf_set_errno = prldap_set_system_errno;
+  tfns.ltf_get_errno = prldap_get_errno;
+  tfns.ltf_set_errno = prldap_set_errno;
   if (shared) {
     tfns.ltf_mutex_alloc = prldap_mutex_alloc;
     tfns.ltf_mutex_free = prldap_mutex_free;

@@ -60,7 +60,8 @@ LDAP *LDAP_CALL prldap_init(const char *defhost, int defport, int shared) {
 
   if ((ld = ldap_init(defhost, defport)) != NULL) {
     if (prldap_install_routines(ld, shared) != LDAP_SUCCESS) {
-      prldap_set_system_errno(EINVAL); /* XXXmcs: just a guess! */
+      // Make sure prldap_get_errno() returns an error.
+      PR_SetError(PR_UNKNOWN_ERROR, EINVAL);
       ldap_unbind(ld);
       ld = NULL;
     }
