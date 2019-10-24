@@ -57,18 +57,18 @@
                          tooltiptext="&onemonthbackward.tooltip;"></toolbarbutton>
           <deck class="monthheader minimonth-month-name"
                 tabindex="-1">
-            <text value="&month.1.name;"></text>
-            <text value="&month.2.name;"></text>
-            <text value="&month.3.name;"></text>
-            <text value="&month.4.name;"></text>
-            <text value="&month.5.name;"></text>
-            <text value="&month.6.name;"></text>
-            <text value="&month.7.name;"></text>
-            <text value="&month.8.name;"></text>
-            <text value="&month.9.name;"></text>
-            <text value="&month.10.name;"></text>
-            <text value="&month.11.name;"></text>
-            <text value="&month.12.name;"></text>
+            <html:div>&month.1.name;</html:div>
+            <html:div>&month.2.name;</html:div>
+            <html:div>&month.3.name;</html:div>
+            <html:div>&month.4.name;</html:div>
+            <html:div>&month.5.name;</html:div>
+            <html:div>&month.6.name;</html:div>
+            <html:div>&month.7.name;</html:div>
+            <html:div>&month.8.name;</html:div>
+            <html:div>&month.9.name;</html:div>
+            <html:div>&month.10.name;</html:div>
+            <html:div>&month.11.name;</html:div>
+            <html:div>&month.12.name;</html:div>
           </deck>
           <toolbarbutton class="months-forward-button minimonth-nav-btns"
                          dir="1"
@@ -78,8 +78,7 @@
                          dir="-1"
                          oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
                          tooltiptext="&oneyearbackward.tooltip;"></toolbarbutton>
-          <text class="yearcell minimonth-year-name"
-                tabindex="-1"></text>
+          <label class="yearcell minimonth-year-name" tabindex="-1"></label>
           <toolbarbutton class="years-forward-button minimonth-nav-btns"
                          dir="1"
                          oncommand="this.kMinimonth.advanceYear(parseInt(this.getAttribute('dir'), 10))"
