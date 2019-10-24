@@ -542,7 +542,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     -moz-box-align: center;
     -moz-box-pack: center;
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-    -moz-image-region: auto;
+    -moz-image-region: auto !important;
     -moz-context-properties: fill;
     fill: currentColor;
     margin-top: 0;

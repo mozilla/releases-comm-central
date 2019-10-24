@@ -344,12 +344,14 @@
                    observes="button_compact"/>
     <toolbaritem id="folder-location-container" insert-after="button-stop"
                  title="&folderLocationToolbarItem.title;"
-                 align="center"
+                 align="center" flex="2"
                  class="chromeclass-toolbar-additional">
       <menulist id="locationFolders"
+                flex="1"
                 class="folderMenuItem"
                 label="&folderLocationToolbarItem.title;"
                 context="folderPaneContext"
+                minwidth="125"
                 maxwidth="300"
                 crop="center">
         <menupopup is="folder-menupopup" id="folderLocationPopup"
