@@ -156,8 +156,7 @@
 
     <separator class="thin"/>
 
-    <hbox>
-      <spring flex="1"/>
+    <hbox pack="center">
       <vbox>
         <button id="toButton" label="&toButton.label;"
                 accesskey="&toButton.accesskey;" command="cmd_addrTo"/>
@@ -166,7 +165,6 @@
         <button id="bccButton" label="&bccButton.label;"
                 accesskey="&bccButton.accesskey;" command="cmd_addrBcc"/>
       </vbox>
-      <spring flex="1"/>
     </hbox>
 
     <separator class="thin"/>
