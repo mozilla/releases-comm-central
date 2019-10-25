@@ -97,7 +97,9 @@ agendaListbox.uninit = function() {
 agendaListbox.addPeriodListItem = function(aPeriod, aItemId) {
   aPeriod.listItem = document.getElementById(aItemId);
   aPeriod.listItem.hidden = false;
-  aPeriod.listItem.getCheckbox().checked = aPeriod.open;
+  let checkbox = aPeriod.listItem.getCheckbox();
+  checkbox.checked = aPeriod.open;
+  checkbox.addEventListener("CheckboxStateChange", this.onCheckboxChange, true);
 };
 
 /**
