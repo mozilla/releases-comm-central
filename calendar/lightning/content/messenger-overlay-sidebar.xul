@@ -24,6 +24,8 @@
 
 <?xml-stylesheet href="chrome://calendar/skin/today-pane.css" type="text/css"?>
 
+<?xml-stylesheet href="chrome://calendar/skin/calendar-unifinder.css" type="text/css"?>
+
 <?xml-stylesheet href="chrome://calendar/skin/calendar-task-tree.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/calendar-task-view.css" type="text/css"?>
 
@@ -94,7 +96,10 @@
   <script src="chrome://calendar/content/today-pane.js"/>
   <script src="chrome://calendar/content/agenda-listbox-utils.js"/>
 
-  <!-- NEEDED FOR TODAY PANE AND TASK VIEW -->
+  <!-- NEEDED FOR EVENTS VIEW (UNIFINDER) -->
+  <script src="chrome://calendar/content/calendar-unifinder.js"/>
+
+  <!-- NEEDED FOR TODAY PANE AND TASKS VIEW -->
   <script src="chrome://calendar/content/calFilter.js"/>
   <script src="chrome://calendar/content/calendar-task-tree-utils.js"/>
 
@@ -1123,8 +1128,133 @@
                   class="calendar-sidebar-splitter"/>
 
         <deck id="calendarDisplayDeck" flex="1">
-          <!-- vbox "calendar-view-box will be overlaid..." -->
-          <vbox id="calendar-view-box"/>
+          <!-- Events View ("Unifinder") -->
+          <vbox id="calendar-view-box">
+            <vbox id="bottom-events-box" insertbefore="calendar-nav-control" persist="height">
+              <hbox id="unifinder-searchBox" persist="collapsed">
+                <box align="center">
+                  <menulist id="event-filter-menulist" value="P7D" persist="value">
+                    <menupopup id="event-filter-menupopup" oncommand="refreshEventTree()">
+                      <menuitem id="event-filter-all"
+                                label="&calendar.events.filter.all.label;"
+                                value="all"/>
+                      <menuitem id="event-filter-today"
+                                label="&calendar.events.filter.today.label;"
+                                value="today"/>
+                      <menuitem id="event-filter-next7days"
+                                label="&calendar.events.filter.next7Days.label;"
+                                value="P7D"/>
+                      <menuitem id="event-filter-next14Days"
+                                label="&calendar.events.filter.next14Days.label;"
+                                value="P14D"/>
+                      <menuitem id="event-filter-next31Days"
+                                label="&calendar.events.filter.next31Days.label;"
+                                value="P31D"/>
+                      <menuitem id="event-filter-thisCalendarMonth"
+                                label="&calendar.events.filter.thisCalendarMonth.label;"
+                                value="thisCalendarMonth"/>
+                      <menuitem id="event-filter-future"
+                                label="&calendar.events.filter.future.label;"
+                                value="future"/>
+                      <menuitem id="event-filter-current"
+                                label="&calendar.events.filter.current.label;"
+                                value="current"/>
+                      <menuitem id="event-filter-currentview"
+                                label="&calendar.events.filter.currentview.label;"
+                                value="currentview"/>
+                    </menupopup>
+                  </menulist>
+                </box>
+                <box align="center" flex="1">
+                  <label control="unifinder-search-field" value="&calendar.search.options.searchfor;"/>
+                  <search-textbox id="unifinder-search-field"
+                                  class="themeableSearchBox"
+                                  oncommand="refreshEventTree();"
+                                  flex="1"/>
+                </box>
+                <toolbarbutton id="unifinder-closer"
+                               class="unifinder-closebutton close-icon"
+                               command="calendar_show_unifinder_command"
+                               tooltiptext="&calendar.unifinder.close.tooltip;"/>
+              </hbox>
+              <tree id="unifinder-search-results-tree" flex="1"
+                    onselect="unifinderSelect(event); calendarController.onSelectionChanged()"
+                    onkeypress="unifinderKeyPress(event)"
+                    _selectDelay="500"
+                    persist="sort-active sort-direction"
+                    enableColumnDrag="true">
+                <treecols id="unifinder-search-results-tree-cols">
+                  <treecol id="unifinder-search-results-tree-col-title"
+                           persist="hidden ordinal width"
+                           flex="1"
+                           itemproperty="title"
+                           label="&calendar.unifinder.tree.title.label;"
+                           tooltiptext="&calendar.unifinder.tree.title.tooltip2;"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol id="unifinder-search-results-tree-col-startdate"
+                           persist="hidden ordinal width"
+                           flex="1"
+                           itemproperty="startDate"
+                           label="&calendar.unifinder.tree.startdate.label;"
+                           tooltiptext="&calendar.unifinder.tree.startdate.tooltip2;"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol id="unifinder-search-results-tree-col-enddate"
+                           persist="hidden ordinal width"
+                           flex="1"
+                           itemproperty="endDate"
+                           label="&calendar.unifinder.tree.enddate.label;"
+                           tooltiptext="&calendar.unifinder.tree.enddate.tooltip2;"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol id="unifinder-search-results-tree-col-categories"
+                           persist="hidden ordinal width"
+                           flex="1"
+                           itemproperty="categories"
+                           label="&calendar.unifinder.tree.categories.label;"
+                           tooltiptext="&calendar.unifinder.tree.categories.tooltip2;"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol id="unifinder-search-results-tree-col-location"
+                           persist="hidden ordinal width"
+                           flex="1"
+                           hidden="true"
+                           itemproperty="location"
+                           label="&calendar.unifinder.tree.location.label;"
+                           tooltiptext="&calendar.unifinder.tree.location.tooltip2;"/>
+                  <splitter class="tree-splitter"/>
+                  <treecol id="unifinder-search-results-tree-col-status"
+                           persist="hidden ordinal width"
+                           flex="1"
+                           hidden="true"
+                           itemproperty="status"
+                           label="&calendar.unifinder.tree.status.label;"
+                           tooltiptext="&calendar.unifinder.tree.status.tooltip2;"/>
+                  <treecol id="unifinder-search-results-tree-col-calendarname"
+                           persist="hidden ordinal width"
+                           flex="1"
+                           hidden="true"
+                           itemproperty="calendar"
+                           label="&calendar.unifinder.tree.calendarname.label;"
+                           tooltiptext="&calendar.unifinder.tree.calendarname.tooltip2;"/>
+                </treecols>
+
+                <!-- on mousedown here happens before onclick above -->
+                <treechildren tooltip="eventTreeTooltip"
+                              context="calendar-item-context-menu"
+                              onkeypress="if (event.key == 'Enter') { unifinderEditCommand(); }"
+                              ondragenter="return false;"
+                              ondblclick="unifinderDoubleClick(event)"
+                              onfocus="focusFirstItemIfNoSelection();"/>
+              </tree>
+            </vbox>
+            <splitter id="calendar-view-splitter"
+                      insertbefore="calendar-nav-control"
+                      resizebefore="closest"
+                      resizeafter="farthest"
+                      persist="state"
+                      class="chromeclass-extrachrome sidebar-splitter calendar-splitter"
+                      orient="vertical"
+                      onmouseup="setTimeout(refreshEventTree, 10);"/>
+          </vbox>
+          <!-- Tasks View -->
           <vbox id="calendar-task-box" flex="1"
                 onselect="taskDetailsView.onSelect(event);">
             <hbox id="task-addition-box" align="center">
