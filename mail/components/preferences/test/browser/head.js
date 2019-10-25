@@ -40,6 +40,7 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
 
   registerCleanupOnce();
 
+  await new Promise(resolve => prefsWindow.setTimeout(resolve));
   return { prefsDocument, prefsWindow };
 }
 

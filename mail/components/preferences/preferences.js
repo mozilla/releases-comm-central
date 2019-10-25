@@ -59,7 +59,7 @@ ChromeUtils.defineModuleGetter(
 
     setTimeout(function() {
       pane.dispatchEvent(new CustomEvent("paneload"));
-    }, 1);
+    });
   }
 
   if (prefPanes.length == 1) {
@@ -157,16 +157,16 @@ function selectPrefPane(prefWindow, paneID, scrollPaneTo, otherArgs) {
  * @param subdialogID  ID of button to activate, opening a subdialog
  */
 function showTab(pane, scrollPaneTo, subdialogID) {
-  let scrollTarget = document.getElementById(scrollPaneTo);
-  if (scrollTarget.closest("groupbox")) {
-    scrollTarget = scrollTarget.closest("groupbox");
-  }
-  scrollTarget.scrollIntoView();
-  if (subdialogID) {
-    setTimeout(function() {
+  setTimeout(function() {
+    let scrollTarget = document.getElementById(scrollPaneTo);
+    if (scrollTarget.closest("groupbox")) {
+      scrollTarget = scrollTarget.closest("groupbox");
+    }
+    scrollTarget.scrollIntoView();
+    if (subdialogID) {
       document.getElementById(subdialogID).click();
-    });
-  }
+    }
+  });
 }
 
 /**
