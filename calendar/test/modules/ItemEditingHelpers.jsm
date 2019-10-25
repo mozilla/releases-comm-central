@@ -248,6 +248,7 @@ function setData(dialog, iframe, data) {
     let checkbox = iframeid("event-all-day");
     if (checkbox.getNode().checked != data.allday) {
       dialog.click(checkbox);
+      sleep();
     }
     Assert.equal(checkbox.getNode().checked, data.allday);
   }
@@ -332,9 +333,9 @@ function setData(dialog, iframe, data) {
   // privacy
   if (data.privacy != undefined) {
     dialog.click(eid("button-privacy"));
-    let menu = dialog.getMenu("#event-privacy-menupopup");
-    menu.click(`#event-privacy-${data.privacy}-menuitem`);
-    menu.close();
+    dialog.click(eid(`event-privacy-${data.privacy}-menuitem`));
+    dialog.click(eid("button-privacy"));
+    sleep();
   }
 
   // status
