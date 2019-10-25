@@ -33,7 +33,6 @@ calendar.jar:
     content/calendar-task-tree-view.js                          (content/calendar-task-tree-view.js)
     content/calendar-task-tree.js                               (content/calendar-task-tree.js)
     content/calendar-task-view.js                               (content/calendar-task-view.js)
-    content/calendar-task-view.xul                              (content/calendar-task-view.xul)
     content/calendar-ui-utils.js                                (content/calendar-ui-utils.js)
     content/calendar-unifinder.js                               (content/calendar-unifinder.js)
     content/calendar-unifinder.xul                              (content/calendar-unifinder.xul)
