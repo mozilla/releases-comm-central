@@ -87,7 +87,7 @@ var REC_DLG_DAYS = `
 var REC_DLG_UNTIL_INPUT = `
     /id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/
     id("recurrence-duration")/id("recurrence-range-until-box")/id("repeat-until-date")/
-    anon({"class":"datepicker-menulist"})/{"class":"menulist-input"}
+    {"class":"datepicker-menulist"}/{"class":"menulist-input"}
 `;
 
 function helpersForEditUI(controller) {
@@ -116,28 +116,28 @@ function helpersForEditUI(controller) {
           path = `
                         id("event-grid")/id("event-grid-startdate-row")/
                         id("event-grid-startdate-td")/id("event-grid-startdate-picker-box")/
-                        id("${startId}")/anon({"anonid":"datepicker"})/${DATE_INPUT}
+                        id("${startId}")/{"anonid":"datepicker"}/${DATE_INPUT}
                     `;
           break;
         case "ENDDATE":
           path = `
                         id("event-grid")/id("event-grid-enddate-row")/id("event-grid-enddate-td")/
                         id("event-grid-enddate-vbox")/id("event-grid-enddate-picker-box")/
-                        id("${endId}")/anon({"anonid":"datepicker"})/${DATE_INPUT}
+                        id("${endId}")/{"anonid":"datepicker"}/${DATE_INPUT}
                     `;
           break;
         case "STARTTIME":
           path = `
                         id("event-grid")/id("event-grid-startdate-row")/id("event-grid-startdate-td")/
                         id("event-grid-startdate-picker-box")/
-                        id("${startId}")/anon({"anonid":"timepicker"})/${TIME_INPUT}
+                        id("${startId}")/{"anonid":"timepicker"}/${TIME_INPUT}
                     `;
           break;
         case "ENDTIME":
           path = `
                         id("event-grid")/id("event-grid-enddate-row")/id("event-grid-enddate-td")/
                         id("event-grid-enddate-vbox")/id("event-grid-enddate-picker-box")/
-                        id("${endId}")/anon({"anonid":"timepicker"})/${TIME_INPUT}
+                        id("${endId}")/{"anonid":"timepicker"}/${TIME_INPUT}
                     `;
           break;
         case "UNTILDATE":

@@ -142,7 +142,6 @@ var activityObject = {
    * is removed from the activity manager's internal list.
    */
   removeActivityElement(aID) {
-    // Note: document.getAnonymousNodes(_activitiesView); didn't work
     this._activityLogger.info("removing Activity ID: " + aID);
     let activities = this._activitiesView.children;
     for (let i = 0; i < activities.length; i++) {

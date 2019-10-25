@@ -92,7 +92,7 @@ add_task(function testMonthView() {
     1,
     5,
     null,
-    `${EVENTPATH}/${getEventDetails("month")}/anon({"flex":"1"})/anon({"class":"event-name-label"})`
+    `${EVENTPATH}/${getEventDetails("month")}/{"flex":"1"}/{"class":"event-name-label"}`
   );
 
   controller.waitForElement(eventName);

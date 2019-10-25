@@ -101,8 +101,8 @@ add_task(function testWeeklyWithExceptionRecurrence() {
   viewForward(controller, 1);
   let tuesPath = `
         ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
-        {"class":"daybox"}/[0]/anon({"class":"multiday-column-box-stack"})/
-        anon({"class":"multiday-column-top-box"})/{"flex":"1"}/{"flex":"1"}/[eventIndex]
+        {"class":"daybox"}/[0]/{"class":"multiday-column-box-stack"}/
+        {"class":"multiday-column-top-box"}/{"flex":"1"}/{"flex":"1"}/[eventIndex]
     `;
 
   // Assert exactly two.
@@ -141,8 +141,8 @@ add_task(function testWeeklyWithExceptionRecurrence() {
 
   tuesPath = `
         ${WEEK_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
-        {"class":"daybox"}/[2]/anon({"class":"multiday-column-box-stack"})/
-        anon({"class":"multiday-column-top-box"})/{"flex":"1"}/{"flex":"1"}/[eventIndex]
+        {"class":"daybox"}/[2]/{"class":"multiday-column-box-stack"}/
+        {"class":"multiday-column-top-box"}/{"flex":"1"}/{"flex":"1"}/[eventIndex]
     `;
 
   // Assert exactly two.

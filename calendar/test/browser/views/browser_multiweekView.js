@@ -92,8 +92,7 @@ add_task(function setupModule(module) {
     1,
     5,
     null,
-    `${EVENTPATH}/${getEventDetails("multiweek")}/anon({"flex":"1"})/
-        anon({"class":"event-name-label"})`
+    `${EVENTPATH}/${getEventDetails("multiweek")}/{"flex":"1"}/{"class":"event-name-label"}`
   );
 
   controller.waitForElement(eventName);

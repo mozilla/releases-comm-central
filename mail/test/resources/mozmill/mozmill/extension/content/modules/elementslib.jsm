@@ -43,13 +43,10 @@ var EXPORTED_SYMBOLS = [
   "XPath",
   "Selector",
   "Name",
-  "Anon",
-  "AnonXPath",
   "Lookup",
   "_byID",
   "_byName",
   "_byAttrib",
-  "_byAnonAttrib",
 ];
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
@@ -335,19 +332,7 @@ var _forChildren = function(element, name, value) {
   }
   return results;
 };
-var _forAnonChildren = function(_document, element, name, value) {
-  var results = [];
-  var nodes = Array.from(_document.getAnonymousNodes(element) || []).filter(
-    e => e
-  );
-  for (var i in nodes) {
-    var n = nodes[i];
-    if (n[name] == value) {
-      results.push(n);
-    }
-  }
-  return results;
-};
+
 var _byID = function(_document, parent, value) {
   return _returnResult(_forChildren(parent, "id", value));
 };
@@ -381,57 +366,9 @@ var _byAttrib = function(parent, attributes) {
   }
   return _returnResult(results);
 };
-var _byAnonAttrib = function(_document, parent, attributes) {
-  var results = [];
 
-  if (Object.keys(attributes).length == 1) {
-    for (var i in attributes) {
-      var k = i;
-      var v = attributes[i];
-    }
-    var result = _document.getAnonymousElementByAttribute(parent, k, v);
-    if (result) {
-      return result;
-    }
-  }
-  var nodes = Array.from(_document.getAnonymousNodes(parent) || []).filter(
-    n => n.getAttribute
-  );
-  function resultsForNodes(nodes) {
-    for (var i in nodes) {
-      var n = nodes[i];
-      var requirementPass = 0;
-      var requirementLength = 0;
-      for (var a in attributes) {
-        requirementLength++;
-        if (n.getAttribute(a) == attributes[a]) {
-          requirementPass++;
-        }
-      }
-      if (requirementPass == requirementLength) {
-        results.push(n);
-      }
-    }
-  }
-  resultsForNodes(nodes);
-  if (results.length == 0) {
-    resultsForNodes(
-      Array.from(parent.children).filter(n => n != undefined && n.getAttribute)
-    );
-  }
-  return _returnResult(results);
-};
 var _byIndex = function(_document, parent, i) {
   return parent.children[i];
-};
-var _anonByName = function(_document, parent, value) {
-  return _returnResult(_forAnonChildren(_document, parent, "tagName", value));
-};
-var _anonByAttrib = function(_document, parent, value) {
-  return _byAnonAttrib(_document, parent, value);
-};
-var _anonByIndex = function(_document, parent, i) {
-  return _document.getAnonymousNodes(parent)[i];
 };
 
 Lookup.prototype.getInfo = function() {
@@ -453,11 +390,6 @@ Lookup.prototype.getNode = function() {
   expSplit.unshift(this._view.document);
   var _document = this._view.document;
   var nCases = { id: _byID, name: _byName, attrib: _byAttrib, index: _byIndex };
-  var aCases = {
-    name: _anonByName,
-    attrib: _anonByAttrib,
-    index: _anonByIndex,
-  };
   var reduceLookup = function(parent, exp) {
     // Handle custom elements shadow DOM
     if (exp == "shadow") {
@@ -470,11 +402,6 @@ Lookup.prototype.getNode = function() {
     // Handle ending index before any of the expression gets mangled
     if (exp.endsWith("]")) {
       var expIndex = JSON.parse(strings.vslice(exp, "[", "]"));
-    }
-    // Handle anon
-    if (exp.startsWith("anon")) {
-      exp = strings.vslice(exp, "(", ")");
-      cases = aCases;
     }
     if (exp.startsWith("[")) {
       let obj;
@@ -490,12 +417,7 @@ Lookup.prototype.getNode = function() {
       }
       var r = cases.index(_document, parent, obj);
       if (r == null) {
-        throw new Error(
-          'Expression "' +
-            exp +
-            '" returned null. Anonymous == ' +
-            (cases == aCases)
-        );
+        throw new Error('Expression "' + exp + '" returned null.');
       }
       return r;
     }
@@ -526,19 +448,10 @@ Lookup.prototype.getNode = function() {
           throw new Error(err + ". String to be parsed was || " + exp + " ||");
         }
 
-        if (cases == aCases) {
-          result = _anonByAttrib(_document, parent, obj);
-        } else {
-          result = _byAttrib(parent, obj);
-        }
+        result = _byAttrib(parent, obj);
       }
       if (!result) {
-        throw new Error(
-          'Expression "' +
-            exp +
-            '" returned null. Anonymous == ' +
-            (cases == aCases)
-        );
+        throw new Error('Expression "' + exp + '" returned null.');
       }
     }
 

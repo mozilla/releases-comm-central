@@ -91,8 +91,9 @@ add_task(function testWeekView() {
     null,
     5,
     null,
-    `${EVENTPATH}/${getEventDetails("week")}/anon({"flex":"1"})/
-        anon({"class":"calendar-event-details-core event-name-label"})`
+    `${EVENTPATH}/${getEventDetails(
+      "week"
+    )}/{"flex":"1"}/{"class":"calendar-event-details-core event-name-label"}`
   );
   controller.waitForElement(eventName);
   controller.waitFor(() => eventName.getNode().textContent == TITLE2);

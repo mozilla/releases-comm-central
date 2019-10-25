@@ -62,7 +62,7 @@ add_task(function testBasicFunctionality() {
   );
   controller.assertNode(
     lookup(`
-        ${DAY_VIEW}/${DAYBOX}/[0]/anon({"class":"multiday-column-box-stack"})/anon({"class":"multiday-column-bg-box"})/[9]
+        ${DAY_VIEW}/${DAYBOX}/[0]/{"class":"multiday-column-box-stack"}/{"class":"multiday-column-bg-box"}/[9]
     `)
   );
 

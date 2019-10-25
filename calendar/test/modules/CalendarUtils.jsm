@@ -116,8 +116,8 @@ var EVENTPATH = `
 `;
 // Used after "${EVENTPATH}/${getEventDetails([view])}/".
 var ALARM_ICON_PATH = `
-    anon({"class":"category-container-box"})/anon({"align":"center"})/
-    anon({"class":"alarm-icons-box"})/anon({"class":"reminder-icon"})
+    {"class":"category-container-box"}/{"align":"center"}/
+    {"class":"alarm-icons-box"}/{"class":"reminder-icon"}
 `;
 
 function setupModule() {
@@ -361,14 +361,14 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
   } else if (view == "day" || view == "week") {
     path += `
             /{"class":"mainbox"}/{"class":"scrollbox"}/{"class":"daybox"}/
-            [${column - 1}]/anon({"class":"multiday-column-box-stack"})
+            [${column - 1}]/{"class":"multiday-column-box-stack"}
         `;
 
     if (option == CANVAS_BOX) {
-      path += `/anon({"class":"multiday-column-bg-box"})/[${hour}]`;
+      path += `/{"class":"multiday-column-bg-box"}/[${hour}]`;
     } else {
       path += `
-                /anon({"class":"multiday-column-top-box"})/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}
+                /{"class":"multiday-column-top-box"}/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}
             `;
     }
 
@@ -398,14 +398,14 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
 function getEventDetails(view) {
   if (view == "day" || view == "week") {
     return `
-            anon({"flex":"1"})/anon({"class":"calendar-color-box"})/
-            {"class":"calendar-event-selection"}/anon({"class":"calendar-event-box-container"})/
+            {"flex":"1"}/{"class":"calendar-color-box"}/
+            {"class":"calendar-event-selection"}/{"class":"calendar-event-box-container"}/
             {"class":"calendar-event-details"}
         `;
   } else {
     return `
-            anon({"flex":"1"})/[0]/anon({"class":"calendar-color-box"})/
-            {"class":"calendar-event-selection"}/anon({"class":"calendar-event-box-container"})/
+            {"flex":"1"}/[0]/{"class":"calendar-color-box"}/
+            {"class":"calendar-event-selection"}/{"class":"calendar-event-box-container"}/
             {"class":"calendar-event-details"}
         `;
   }

@@ -88,8 +88,9 @@ add_task(function testDayView() {
     null,
     1,
     null,
-    `${EVENTPATH}/${getEventDetails("day")}/anon({"flex":"1"})/
-        anon({"class":"calendar-event-details-core event-name-label"})`
+    `${EVENTPATH}/${getEventDetails(
+      "day"
+    )}/{"flex":"1"}/{"class":"calendar-event-details-core event-name-label"}`
   );
   controller.waitForElement(eventName);
   controller.waitFor(() => eventName.getNode().textContent == TITLE2);

@@ -1472,25 +1472,6 @@ MozMillController.prototype.dragToElement = function(
   return dataTransfer.dropEffect;
 };
 
-function preferencesAdditions(controller) {
-  var mainTabs = controller.window.document.getAnonymousElementByAttribute(
-    controller.window.document.documentElement,
-    "anonid",
-    "selector"
-  );
-  controller.tabs = {};
-  for (var i = 0; i < mainTabs.children.length; i++) {
-    var node = mainTabs.children[i];
-    var obj = { button: node };
-    controller.tabs[i] = obj;
-    var label = node.attributes.item("label").value.replace("pane", "");
-    controller.tabs[label] = obj;
-  }
-  controller.prototype.__defineGetter__("activeTabButton", function() {
-    return mainTabs.getElementsByAttribute("selected", true)[0];
-  });
-}
-
 function Tabs(controller) {
   this.controller = controller;
 }
@@ -1569,7 +1550,6 @@ function browserAdditions(controller) {
 }
 
 var controllerAdditions = {
-  "Browser:Preferences": preferencesAdditions,
   "navigator:browser": browserAdditions,
 };
 
