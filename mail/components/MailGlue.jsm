@@ -73,6 +73,7 @@ MailGlue.prototype = {
   _init() {
     Services.obs.addObserver(this, "xpcom-shutdown");
     Services.obs.addObserver(this, "final-ui-startup");
+    Services.obs.addObserver(this, "intl:app-locales-changed");
     Services.obs.addObserver(this, "mail-startup-done");
     Services.obs.addObserver(this, "handle-xul-text-link");
     Services.obs.addObserver(this, "chrome-document-global-created");
@@ -121,6 +122,7 @@ MailGlue.prototype = {
   _dispose() {
     Services.obs.removeObserver(this, "xpcom-shutdown");
     Services.obs.removeObserver(this, "final-ui-startup");
+    Services.obs.removeObserver(this, "intl:app-locales-changed");
     Services.obs.removeObserver(this, "mail-startup-done");
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "chrome-document-global-created");
@@ -134,12 +136,19 @@ MailGlue.prototype = {
 
   // nsIObserver implementation
   observe(aSubject, aTopic, aData) {
+    let fs;
     switch (aTopic) {
       case "xpcom-shutdown":
         this._dispose();
         break;
+      case "intl:app-locales-changed":
+        fs = Cc["@mozilla.org/msgFolder/msgFolderService;1"].getService(
+          Ci.nsIMsgFolderService
+        );
+        fs.initializeFolderStrings();
+        break;
       case "final-ui-startup":
-        let fs = Cc["@mozilla.org/msgFolder/msgFolderService;1"].getService(
+        fs = Cc["@mozilla.org/msgFolder/msgFolderService;1"].getService(
           Ci.nsIMsgFolderService
         );
         fs.initializeFolderStrings();
