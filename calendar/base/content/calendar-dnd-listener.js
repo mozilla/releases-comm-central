@@ -586,7 +586,7 @@ function invokeEventDragSession(aItem, aXULBox) {
   mutArray.appendElement(transfer);
   aXULBox.sourceObject = aItem;
   try {
-    cal.getDragService().invokeDragSession(aXULBox, null, mutArray, action);
+    cal.getDragService().invokeDragSession(aXULBox, null, null, mutArray, action);
   } catch (e) {
     if (e.result != Cr.NS_ERROR_FAILURE) {
       // Pressing Escape on some platforms results in NS_ERROR_FAILURE
