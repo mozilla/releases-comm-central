@@ -201,7 +201,11 @@ function test_no_phishing_warning_for_ip_sameish_text() {
   click_link_if_available();
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
 }
-test_no_phishing_warning_for_ip_sameish_text.EXCLUDED_PLATFORMS = ["winnt"];
+// Bug 1588500
+test_no_phishing_warning_for_ip_sameish_text.EXCLUDED_PLATFORMS = [
+  "linux",
+  "winnt",
+];
 
 /**
  * Test that when viewing a message with a link whose base domain matches but
@@ -218,7 +222,8 @@ function test_no_phishing_warning_for_subdomain() {
   click_link_if_available();
   assert_notification_displayed(mc, kBoxId, kNotificationValue, false); // not shown
 }
-test_no_phishing_warning_for_subdomain.EXCLUDED_PLATFORMS = ["winnt"];
+// Bug 1588500
+test_no_phishing_warning_for_subdomain.EXCLUDED_PLATFORMS = ["linux", "winnt"];
 
 /**
  * Test that when clicking a link where the text and/or href
@@ -238,7 +243,8 @@ function test_phishing_warning_for_local_domain() {
 
   return dialogAppeared;
 }
-test_phishing_warning_for_local_domain.EXCLUDED_PLATFORMS = ["winnt"];
+// Bug 1588500
+test_phishing_warning_for_local_domain.EXCLUDED_PLATFORMS = ["linux", "winnt"];
 
 /**
  * Test that we warn about emails which contain <form>s with action attributes.
