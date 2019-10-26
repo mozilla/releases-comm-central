@@ -449,8 +449,10 @@ var ircBase = {
       this._isOnTimer = setTimeout(this.sendIsOn.bind(this), kInitialIsOnDelay);
 
       // If we didn't handle all the CAPs we added, something is wrong.
-      if (this._caps.size) {
-        this.ERROR("Connected without removing CAPs: " + [...this._caps]);
+      if (this._requestedCAPs.size) {
+        this.ERROR(
+          "Connected without removing CAPs: " + [...this._requestedCAPs]
+        );
       }
 
       // Done!

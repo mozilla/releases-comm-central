@@ -17,7 +17,9 @@ const { ircHandlers } = ChromeUtils.import(
 var ircSASL = {
   name: "SASL AUTHENTICATE",
   priority: ircHandlers.DEFAULT_PRIORITY,
-  isEnabled: () => true,
+  isEnabled() {
+    return this._activeCAPs.has("sasl");
+  },
 
   commands: {
     AUTHENTICATE(aMessage) {
@@ -110,10 +112,14 @@ var ircSASL = {
       // ERR_SASLABORTED
       // The client completed registration before SASL authentication completed,
       // or because we sent `AUTHENTICATE` with `*` as the parameter.
-      this.ERROR(
-        "Registration completed before SASL authentication completed."
-      );
-      this.removeCAP("sasl");
+      //
+      // Freenode sends 906 in addition to 904, ignore 906 in this case.
+      if (this._requestedCAPs.has("sasl")) {
+        this.ERROR(
+          "Registration completed before SASL authentication completed."
+        );
+        this.removeCAP("sasl");
+      }
       return true;
     },
 
@@ -143,14 +149,32 @@ var capSASL = {
 
   commands: {
     sasl(aMessage) {
-      if (aMessage.cap.subcommand == "LS" && this.imAccount.password) {
+      // Return early if we are already authenticated (can happen due to cap-notify)
+      if (this.isAuthenticated) {
+        return true;
+      }
+
+      if (
+        (aMessage.cap.subcommand === "LS" ||
+          aMessage.cap.subcommand === "NEW") &&
+        this.imAccount.password
+      ) {
+        if (aMessage.cap.value) {
+          const mechanisms = aMessage.cap.value.split(",");
+          // We only support the plain authentication mechanism for now, abort if it's not available.
+          if (!mechanisms.includes("PLAIN")) {
+            return true;
+          }
+        }
         // If it supports SASL, let the server know we're requiring SASL.
-        this.sendMessage("CAP", ["REQ", "sasl"]);
         this.addCAP("sasl");
+        this.sendMessage("CAP", ["REQ", "sasl"]);
       } else if (aMessage.cap.subcommand == "ACK") {
         // The server acknowledges our choice to use SASL, send the first
         // message.
         this.sendMessage("AUTHENTICATE", "PLAIN");
+      } else if (aMessage.cap.subcommand == "NAK") {
+        this.removeCAP("sasl");
       }
 
       return true;

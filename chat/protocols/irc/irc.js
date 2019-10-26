@@ -1001,7 +1001,10 @@ function ircAccount(aProtocol, aImAccount) {
   this.trackQueue = [];
   this.pendingIsOnQueue = [];
   this.whoisInformation = new NormalizedMap(this.normalizeNick.bind(this));
-  this._caps = new Set();
+  this._requestedCAPs = new Set();
+  this._availableCAPs = new Set();
+  this._activeCAPs = new Set();
+  this._queuedCAPs = [];
   this._commandBuffers = new Map();
   this._roomInfoCallbacks = new Set();
 }
@@ -1836,18 +1839,22 @@ ircAccount.prototype = {
   // If a cap is to be handled, it should be registered with addCAP, where aCAP
   // is a "unique" string defining what is being handled. When the cap is done
   // being handled removeCAP should be called with the same string.
-  _caps: new Set(),
+  _availableCAPs: new Set(),
+  _activeCAPs: new Set(),
+  _requestedCAPs: new Set(),
   _capTimeout: null,
+  _negotiatedCAPs: false,
+  _queuedCAPs: [],
   addCAP(aCAP) {
     if (this.connected) {
       this.ERROR("Trying to add CAP " + aCAP + " after connection.");
       return;
     }
 
-    this._caps.add(aCAP);
+    this._requestedCAPs.add(aCAP);
   },
   removeCAP(aDoneCAP) {
-    if (!this._caps.has(aDoneCAP)) {
+    if (!this._requestedCAPs.has(aDoneCAP)) {
       this.ERROR(
         "Trying to remove a CAP (" + aDoneCAP + ") which isn't added."
       );
@@ -1859,11 +1866,13 @@ ircAccount.prototype = {
     }
 
     // Remove any reference to the given capability.
-    this._caps.delete(aDoneCAP);
+    this._requestedCAPs.delete(aDoneCAP);
 
-    // If no more CAP messages are being handled, notify the server.
-    if (!this._caps.size) {
+    // However only notify the server the first time during cap negotiation, not
+    // when the server exposes a new cap.
+    if (!this._requestedCAPs.size && !this._negotiatedCAPs) {
       this.sendMessage("CAP", "END");
+      this._negotiatedCAPs = true;
     }
   },
 
@@ -2144,8 +2153,8 @@ ircAccount.prototype = {
 
   // Implement section 3.1 of RFC 2812
   _connectionRegistration() {
-    // Send the Client Capabilities list command.
-    this.sendMessage("CAP", "LS");
+    // Send the Client Capabilities list command version 3.2.
+    this.sendMessage("CAP", ["LS", "302"]);
 
     if (this.prefs.prefHasUserValue("serverPassword")) {
       this.sendMessage(
@@ -2193,7 +2202,10 @@ ircAccount.prototype = {
     this._socket.disconnect();
     delete this._socket;
 
-    this._caps.clear();
+    this._requestedCAPs.clear();
+    this._availableCAPs.clear();
+    this._activeCAPs.clear();
+    this._queuedCAPs.length = 0;
 
     clearTimeout(this._isOnTimer);
     delete this._isOnTimer;
@@ -2295,6 +2307,8 @@ function ircProtocol() {
   ircHandlers.registerCTCPHandler(tempScope.ctcpDCC);
   // Register default IRC Services handlers (IRC Services base).
   ircHandlers.registerServicesHandler(tempScope.servicesBase);
+  // Register default CAP handlers for base features (CAP basics).
+  ircHandlers.registerCAPHandler(tempScope.capNotify);
 
   // Register extra features.
   ircHandlers.registerISUPPORTHandler(tempScope.isupportNAMESX);

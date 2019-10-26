@@ -25,7 +25,12 @@ function handleServerTimeTag(aMsg) {
 var tagServerTime = {
   name: "server-time Tags",
   priority: ircHandlers.DEFAULT_PRIORITY,
-  isEnabled: () => true,
+  isEnabled() {
+    return (
+      this._activeCAPs.has("server-time") ||
+      this._activeCAPs.has("znc.in/server-time-iso")
+    );
+  },
 
   commands: {
     time: handleServerTimeTag,
@@ -40,14 +45,38 @@ var capServerTime = {
 
   commands: {
     "server-time": function(aMessage) {
-      if (aMessage.cap.subcommand == "LS") {
+      if (
+        aMessage.cap.subcommand === "LS" ||
+        aMessage.cap.subcommand === "NEW"
+      ) {
+        this.addCAP("server-time");
         this.sendMessage("CAP", ["REQ", "server-time"]);
+      } else if (
+        aMessage.cap.subcommand == "ACK" ||
+        aMessage.cap.subcommand === "NAK"
+      ) {
+        this.removeCAP("server-time");
+      } else {
+        return false;
       }
       return true;
     },
     "znc.in/server-time-iso": function(aMessage) {
-      if (aMessage.cap.subcommand == "LS") {
+      // Only request legacy server time CAP if the standard one is not available.
+      if (
+        (aMessage.cap.subcommand === "LS" ||
+          aMessage.cap.subcommand === "NEW") &&
+        !this._availableCAPs.has("server-time")
+      ) {
+        this.addCAP("znc.in/server-time-iso");
         this.sendMessage("CAP", ["REQ", "znc.in/server-time-iso"]);
+      } else if (
+        aMessage.cap.subcommand == "ACK" ||
+        aMessage.cap.subcommand === "NAK"
+      ) {
+        this.removeCAP("znc.in/server-time-iso");
+      } else {
+        return false;
       }
       return true;
     },

@@ -44,10 +44,16 @@ var capMultiPrefix = {
   commands: {
     "multi-prefix": function(aMessage) {
       // Request to use multi-prefix if it is supported.
-      if (aMessage.cap.subcommand == "LS") {
+      if (
+        aMessage.cap.subcommand === "LS" ||
+        aMessage.cap.subcommand === "NEW"
+      ) {
         this.addCAP("multi-prefix");
         this.sendMessage("CAP", ["REQ", "multi-prefix"]);
-      } else if (aMessage.cap.subcommand == "ACK") {
+      } else if (
+        aMessage.cap.subcommand == "ACK" ||
+        aMessage.cap.subcommand === "NAK"
+      ) {
         this.removeCAP("multi-prefix");
       } else {
         return false;
