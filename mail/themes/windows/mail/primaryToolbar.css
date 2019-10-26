@@ -649,6 +649,10 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     border-bottom: 1px solid #aabccf;
   }
 
+  #mail-toolbar-menubar2 > .titlebar-placeholder {
+    display: none;
+  }
+
   #tabs-toolbar:not(:-moz-lwtheme) {
     position: relative;
   }

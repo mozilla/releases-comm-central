@@ -420,10 +420,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       }
     }
   }
-
-  #mail-toolbar-menubar2 > .titlebar-placeholder {
-    display: none;
-  }
 }
 
 #folderpane_splitter,
