@@ -11,6 +11,8 @@
   --header-background-color: Highlight;
   --head-text-color: HighlightText;
   --info-text-color: GrayText;
+  background-color: var(--body-background-color);
+  color: var(--body-text-color);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,8 +37,6 @@ body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
-  background-color: var(--body-background-color);
-  color: var(--body-text-color);
 }
 
 #heading_wrapper {
