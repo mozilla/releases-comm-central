@@ -414,8 +414,13 @@ var accountWizard = {
     if ("selectedItem" in elt) {
       return elt.selectedItem.value;
     }
-    // Strangely for <input type="number"> "checked" is also set.
-    if (elt.getAttribute("type") != "number" && "checked" in elt) {
+    // Strangely various input types also have a "checked" property defined,
+    // so we check for the expected elements explicitly.
+    if (
+      ((elt.localName == "input" && elt.getAttribute("type") == "checkbox") ||
+        elt.localName == "checkbox") &&
+      "checked" in elt
+    ) {
       return elt.checked;
     }
     if ("value" in elt) {
