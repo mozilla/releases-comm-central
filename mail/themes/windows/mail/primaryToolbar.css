@@ -59,46 +59,20 @@
   }
 }
 
-/**
- * In the classic themes, the titlebar has a horizontal gradient, which is
- * problematic for reading the text of background tabs when they're in the
- * titlebar. We side-step this issue by layering our own background underneath
- * the tabs. Unfortunately, this requires a bunch of positioning in order to
- * get text and icons to not appear fuzzy.
- */
 @media (-moz-windows-classic) {
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #tabmail-tabs:not(:-moz-lwtheme) {
-    position: relative;
-    z-index: 2;
+  /**
+   * In the classic themes, the titlebar has a horizontal gradient, which is
+   * problematic for reading the text of background tabs when they're in the
+   * titlebar. We side-step this issue by layering our own background underneath
+   * the tabs.
+   */
+  :root[tabsintitlebar] #tabs-toolbar:not(:-moz-lwtheme) {
+    background-image: linear-gradient(transparent, ActiveCaption);
+    background-size: auto 200%;
   }
 
-  #messengerWindow[tabsintitlebar] #tabs-toolbar:not(:-moz-lwtheme) {
-    position: relative;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #tabs-toolbar:not(:-moz-lwtheme)::after {
-    /* Because we use placeholders for window controls etc. in the tabstrip,
-     * and position those with ordinal attributes, and because our layout code
-     * expects :before/:after nodes to come first/last in the frame list,
-     * we have to reorder this element to come last, hence the
-     * ordinal group value (see bug 853415). */
-    -moz-box-ordinal-group: 1001;
-    content: "";
-    display: -moz-box;
-    height: 0;
-    margin: 0 50px;
-    position: absolute;
-    pointer-events: none;
-    top: 100%;
-    width: -moz-available;
-  }
-
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  #tabmail-container:not(:-moz-lwtheme) {
-    position: relative;
-    z-index: 2;
+  :root[tabsintitlebar] #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive {
+    background-image: linear-gradient(transparent, InactiveCaption);
   }
 
   /**
@@ -107,23 +81,18 @@
    * border forces the scrollbox button borders to terminate a pixel early, working
    * around the issue.
    */
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-up),
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-down) {
+  :root[tabsintitlebar] .tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-up),
+  :root[tabsintitlebar] .tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-down) {
     border-bottom: 1px solid transparent;
   }
 
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .mail-toolbox:not(:-moz-lwtheme),
-  #messengerWindow[tabsintitlebar]:not([sizemode=fullscreen])
-  .contentTabToolbox:not(:-moz-lwtheme) {
+  :root[tabsintitlebar] .mail-toolbox:not(:-moz-lwtheme),
+  :root[tabsintitlebar] .contentTabToolbox:not(:-moz-lwtheme) {
     box-shadow: none;
   }
 
-  #messengerWindow[tabsintitlebar][sizemode="normal"]
-  #titlebar-content:-moz-lwtheme {
-    /* Render a window top border: */
+  /* Add a window top border for webextension themes */
+  :root[tabsintitlebar][sizemode="normal"] #titlebar-content:-moz-lwtheme {
     background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
                                       ThreeDLightShadow 1px, ThreeDHighlight 1px,
                                       ThreeDHighlight 2px, ActiveBorder 2px,
@@ -132,8 +101,7 @@
 
   /* End classic titlebar gradient */
 
-  #messengerWindow[tabsintitlebar]:not([inFullscreen])
-  :-moz-any(#tabs-toolbar, #mail-toolbar-menubar2)
+  :root[tabsintitlebar] :-moz-any(#tabs-toolbar, #mail-toolbar-menubar2)
   toolbarbutton:not(:-moz-lwtheme) {
     color: inherit;
   }
