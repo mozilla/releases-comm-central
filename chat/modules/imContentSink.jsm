@@ -239,8 +239,8 @@ function removeGlobalAllowedStyleRule(aStyle) {
 }
 
 function cleanupNode(aNode, aRules, aTextModifiers) {
-  for (let i = 0; i < aNode.children.length; ++i) {
-    let node = aNode.children[i];
+  for (let i = 0; i < aNode.childNodes.length; ++i) {
+    let node = aNode.childNodes[i];
     if (
       node.nodeType == node.ELEMENT_NODE &&
       node.namespaceURI == "http://www.w3.org/1999/xhtml"
@@ -255,7 +255,7 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
         } else {
           // this node is not allowed, replace it with its children
           while (node.hasChildNodes()) {
-            aNode.insertBefore(node.firstElementChild, node);
+            aNode.insertBefore(node.firstChild, node);
           }
         }
         aNode.removeChild(node);
