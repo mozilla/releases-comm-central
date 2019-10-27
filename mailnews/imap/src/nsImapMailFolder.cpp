@@ -958,7 +958,7 @@ NS_IMETHODIMP nsImapMailFolder::RemoveSubFolder(nsIMsgFolder *which) {
   NS_ENSURE_SUCCESS(rv, rv);
   folders->AppendElement(folderSupport);
   rv = nsMsgDBFolder::DeleteSubFolders(folders, nullptr);
-  which->Delete();
+  which->DeleteStorage();
   return rv;
 }
 
@@ -1397,7 +1397,7 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow *aMsgWindow,
     NS_ENSURE_SUCCESS(rv, rv);
     // Bulk-delete all the messages by deleting the msf file and storage.
     // This is a little kludgy.
-    rv = trashFolder->Delete();
+    rv = trashFolder->DeleteStorage();
     NS_ENSURE_SUCCESS(rv, rv);
     trashFolder->SetDBTransferInfo(transferInfo);
     trashFolder->SetSizeOnDisk(0);
@@ -1412,8 +1412,8 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow *aMsgWindow,
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::Delete() {
-  nsresult rv = nsMsgDBFolder::Delete();
+NS_IMETHODIMP nsImapMailFolder::DeleteStorage() {
+  nsresult rv = nsMsgDBFolder::DeleteStorage();
 
   // Should notify nsIMsgFolderListeners about the folder getting deleted?
   return rv;
@@ -7342,9 +7342,7 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder *srcFolder, bool isMoveFolder,
             srcFolder, false, msgWindow);  // The files have already been moved,
                                            // so delete storage false
         oldPathFile->Remove(false);        // berkeley mailbox
-        nsCOMPtr<nsIMsgDatabase>
-            srcDB;  // we need to force closed the source db
-        srcFolder->Delete();
+        srcFolder->DeleteStorage();
 
         nsCOMPtr<nsIFile> parentPathFile;
         rv = msgParent->GetFilePath(getter_AddRefs(parentPathFile));

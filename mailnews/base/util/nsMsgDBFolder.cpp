@@ -3340,7 +3340,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetShowDeletedMessages(bool *showDeletedMessages) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::Delete() {
+NS_IMETHODIMP nsMsgDBFolder::DeleteStorage() {
   ForceDBClosed();
 
   // Delete the .msf file.
@@ -3363,9 +3363,7 @@ NS_IMETHODIMP nsMsgDBFolder::Delete() {
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = msgStore->DeleteFolder(this);
-
-  return rv;
+  return msgStore->DeleteFolder(this);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::DeleteSubFolders(nsIArray *folders,
@@ -3419,10 +3417,11 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage,
   // and all its subfolders.
   // Regardless of deleteStorage, always unlinks them from the children lists
   // and frees memory for the subfolders but NOT for _this_
+  // and does not remove _this_ from the parent's list of children.
 
-  nsresult status = NS_OK;
+  nsresult rv = NS_OK;
+
   nsCOMPtr<nsIFile> dbPath;
-
   // first remove the deleted folder from the folder cache;
   nsresult result = GetFolderCacheKey(getter_AddRefs(dbPath));
 
@@ -3443,8 +3442,8 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage,
     nsIMsgFolder *child = mSubFolders[0];
 
     child->SetParent(nullptr);
-    status = child->RecursiveDelete(deleteStorage, msgWindow);  // recur
-    if (NS_SUCCEEDED(status))
+    rv = child->RecursiveDelete(deleteStorage, msgWindow);
+    if (NS_SUCCEEDED(rv))
       // unlink it from this child's list
       mSubFolders.RemoveObjectAt(0);
     else {
@@ -3457,16 +3456,16 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage,
   }
 
   // now delete the disk storage for _this_
-  if (deleteStorage && NS_SUCCEEDED(status)) {
+  if (deleteStorage && NS_SUCCEEDED(rv)) {
     // All delete commands use deleteStorage = true, and local moves use false.
     // IMAP moves use true, leaving this here in the hope that bug 439108
     // works out.
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
     if (notifier) notifier->NotifyFolderDeleted(this);
-    status = Delete();
+    rv = DeleteStorage();
   }
-  return status;
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CreateSubfolder(const nsAString &folderName,

@@ -129,8 +129,8 @@ function setupModule(module) {
 }
 
 function teardownModule(module) {
-  folderA.Delete();
-  folderB.Delete();
+  folderA.server.rootFolder.propagateDelete(folderA, true, null);
+  folderB.server.rootFolder.propagateDelete(folderB, true, null);
   Services.prefs.clearUserPref("calendar.integration.notify");
 }
 

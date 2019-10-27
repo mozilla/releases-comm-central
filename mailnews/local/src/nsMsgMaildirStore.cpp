@@ -520,8 +520,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(
       // The files have already been moved, so delete storage false
       msgParent->PropagateDelete(aSrcFolder, false, aMsgWindow);
       oldPath->Remove(true);
-      nsCOMPtr<nsIMsgDatabase> srcDB;  // we need to force closed the source db
-      aSrcFolder->Delete();
+      aSrcFolder->DeleteStorage();
 
       nsCOMPtr<nsIFile> parentPath;
       rv = msgParent->GetFilePath(getter_AddRefs(parentPath));
@@ -547,8 +546,7 @@ NS_IMETHODIMP nsMsgMaildirStore::CopyFolder(
       newMsgFolder->SetParent(nullptr);
       if (msgParent) {
         msgParent->PropagateDelete(newMsgFolder, false, aMsgWindow);
-        newMsgFolder->Delete();
-        newMsgFolder->ForceDBClosed();
+        newMsgFolder->DeleteStorage();
         AddDirectorySeparator(newPath);
         newPath->Remove(true);  // berkeley mailbox
       }

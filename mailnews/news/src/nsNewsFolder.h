@@ -38,7 +38,7 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   NS_IMETHOD CreateSubfolder(const nsAString &folderName,
                              nsIMsgWindow *msgWindow) override;
 
-  NS_IMETHOD Delete() override;
+  NS_IMETHOD DeleteStorage() override;
   NS_IMETHOD Rename(const nsAString &newName, nsIMsgWindow *msgWindow) override;
 
   NS_IMETHOD GetAbbreviatedName(nsAString &aAbbreviatedName) override;

@@ -231,7 +231,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
       nsIInputStream *aIStream, int32_t aLength,
       nsIOutputStream *outputStream) override;
   NS_IMETHOD CopyDataDone() override;
-  NS_IMETHOD Delete() override;
+  NS_IMETHOD DeleteStorage() override;
   NS_IMETHOD Rename(const nsAString &newName, nsIMsgWindow *msgWindow) override;
   NS_IMETHOD RenameSubFolders(nsIMsgWindow *msgWindow,
                               nsIMsgFolder *oldFolder) override;
