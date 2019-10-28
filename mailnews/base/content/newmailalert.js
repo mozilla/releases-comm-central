@@ -10,8 +10,7 @@ var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
 
-// Copied from nsILookAndFeel.h, see comments on eMetric_AlertNotificationOrigin
-var NS_ALERT_HORIZONTAL = 1;
+// Copied from nsILookAndFeel.h, see comments on eIntID_AlertNotificationOrigin.
 var NS_ALERT_LEFT = 2;
 var NS_ALERT_TOP = 4;
 
