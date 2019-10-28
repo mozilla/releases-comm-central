@@ -44,9 +44,6 @@ var { MessageArchiver } = ChromeUtils.import(
 var { BrowserToolboxProcess } = ChromeUtils.import(
   "resource://devtools/client/framework/ToolboxProcess.jsm"
 );
-var { ScratchpadManager } = ChromeUtils.import(
-  "resource://devtools/client/scratchpad/scratchpad-manager.jsm"
-);
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
