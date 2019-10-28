@@ -17,7 +17,7 @@ jobs:
       when:
           by-project:
               # Match buildbot starts for now
-              comm-central: [{hour: 10, minute: 0}]
+              comm-central: [{hour: 11, minute: 0}]
               # No default
 
     - name: nightly-linux
@@ -67,5 +67,5 @@ jobs:
           by-project:
               # No default branch
               comm-central:
-                  - {weekday: 'Monday', hour: 10, minute: 0}
-                  - {weekday: 'Thursday', hour: 10, minute: 0}
+                  - {weekday: 'Monday', hour: 11, minute: 0}
+                  - {weekday: 'Thursday', hour: 11, minute: 0}
