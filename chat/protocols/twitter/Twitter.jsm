@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["TwitterProtocol"];
+
 var { httpRequest, percentEncode } = ChromeUtils.import(
   "resource://gre/modules/Http.jsm"
 );
@@ -1572,7 +1574,4 @@ TwitterProtocol.prototype = {
   getAccount(aImAccount) {
     return new Account(this, aImAccount);
   },
-  classID: Components.ID("{31082ff6-1de8-422b-ab60-ca0ac0b2af13}"),
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([TwitterProtocol]);

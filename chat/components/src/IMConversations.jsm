@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["ConversationsService", "IMMessage", "UIConversation"];
+
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 var { XPCOMUtils, nsSimpleEnumerator, ClassInfo } = ChromeUtils.import(
@@ -26,10 +28,10 @@ OutgoingMessage.prototype = {
   action: false,
 };
 
-function imMessage(aPrplMessage) {
+function IMMessage(aPrplMessage) {
   this.prplMessage = aPrplMessage;
 }
-imMessage.prototype = {
+IMMessage.prototype = {
   __proto__: ClassInfo(["imIMessage", "prplIMessage"], "IM Message"),
   cancelled: false,
   color: "",
@@ -530,7 +532,7 @@ UIConversation.prototype = {
   },
   notifyObservers(aSubject, aTopic, aData) {
     if (aTopic == "new-text") {
-      aSubject = new imMessage(aSubject);
+      aSubject = new IMMessage(aSubject);
       this.notifyObservers(aSubject, "received-message");
       if (aSubject.cancelled) {
         return;
@@ -831,9 +833,4 @@ ConversationsService.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.imIConversationsService]),
-  classDescription: "Conversations",
-  classID: Components.ID("{b2397cd5-c76d-4618-8410-f344c7c6443a}"),
-  contractID: "@mozilla.org/chat/conversations-service;1",
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([ConversationsService]);

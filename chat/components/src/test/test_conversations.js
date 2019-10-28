@@ -5,11 +5,8 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { GenericConvIMPrototype, Message } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
-
-var imConversations = {};
-Services.scriptloader.loadSubScript(
-  "resource:///components/imConversations.js",
-  imConversations
+var { IMMessage, UIConversation } = ChromeUtils.import(
+  "resource:///modules/IMConversations.jsm"
 );
 
 // Fake prplConversation
@@ -51,7 +48,7 @@ var test_null_message = function() {
     _alias: "buddy",
     time: Date.now(),
   });
-  let iMsg = new imConversations.imMessage(pMsg);
+  let iMsg = new IMMessage(pMsg);
   equal(iMsg.message, originalMessage, "Expected the original message.");
   // Setting the message should prevent a fallback to the original.
   iMsg.message = "";
@@ -104,7 +101,7 @@ var test_message_transformation = function() {
     this.writeMessage("user", aMsg, { outgoing: true });
   };
 
-  let uiConv = new imConversations.UIConversation(conv);
+  let uiConv = new UIConversation(conv);
   let message = "Hello!";
   let receivedMsg = false,
     newTxt = false;
@@ -171,7 +168,7 @@ var test_cancel_send_message = function() {
   };
 
   let sending = false;
-  let uiConv = new imConversations.UIConversation(conv);
+  let uiConv = new UIConversation(conv);
   uiConv.addObserver({
     observe(aObject, aTopic, aMsg) {
       switch (aTopic) {
@@ -205,7 +202,7 @@ var test_cancel_display_message = function() {
   };
 
   let received = false;
-  let uiConv = new imConversations.UIConversation(conv);
+  let uiConv = new UIConversation(conv);
   uiConv.addObserver({
     observe(aObject, aTopic, aMsg) {
       switch (aTopic) {
@@ -251,7 +248,7 @@ var test_prpl_message_prep = function() {
   };
 
   let receivedMsg = false;
-  let uiConv = new imConversations.UIConversation(conv);
+  let uiConv = new UIConversation(conv);
   uiConv.addObserver({
     observe(aObject, aTopic, aMsg) {
       if (aTopic === "new-text") {
@@ -284,7 +281,7 @@ var test_split_message_before_sending = function() {
     return aMsg.message.split("\n");
   };
 
-  let uiConv = new imConversations.UIConversation(conv);
+  let uiConv = new UIConversation(conv);
   uiConv.sendMsg(msg);
 
   ok(prepared, "Message wasn't prepared for sending.");

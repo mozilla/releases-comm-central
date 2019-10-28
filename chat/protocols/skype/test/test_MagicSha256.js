@@ -2,8 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var skype = {};
-Services.scriptloader.loadSubScript("resource:///components/skype.js", skype);
+var { magicSha256 } = ChromeUtils.import("resource:///modules/Skype.jsm");
 
 var data = {
   "1416264993": "3a33ac47fe2ec1a33d569f4be5c69ddc",
@@ -19,7 +18,7 @@ function run_test() {
 
 function test_MagicSha256() {
   for (let input in data) {
-    equal(data[input], skype.magicSha256(input));
+    equal(data[input], magicSha256(input));
   }
 
   run_next_test();

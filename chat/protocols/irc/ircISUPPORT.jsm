@@ -19,7 +19,7 @@ const { ircHandlers } = ChromeUtils.import(
 );
 
 /*
- * Parses an ircMessage into an ISUPPORT message for each token of the form:
+ * Parses an IRCMessage into an ISUPPORT message for each token of the form:
  *   <parameter>=<value> or -<value>
  * The isupport field is added to the message and it has the following fields:
  *   parameter  What is being configured by this ISUPPORT token.

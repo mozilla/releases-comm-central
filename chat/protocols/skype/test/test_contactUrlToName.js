@@ -2,8 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var skype = {};
-Services.scriptloader.loadSubScript("resource:///components/skype.js", skype);
+var { contactUrlToName } = ChromeUtils.import("resource:///modules/Skype.jsm");
 
 var data = {
   "https://bay-client-s.gateway.messenger.live.com/v1/users/ME/contacts/8:clokep":
@@ -20,7 +19,7 @@ function run_test() {
 
 function test_contactUrlToName() {
   for (let input in data) {
-    equal(data[input], skype.contactUrlToName(input));
+    equal(data[input], contactUrlToName(input));
   }
 
   run_next_test();

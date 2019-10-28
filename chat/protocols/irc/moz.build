@@ -5,12 +5,8 @@
 
 XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
 
-EXTRA_COMPONENTS += [
-    'irc.js',
-    'irc.manifest',
-]
-
 EXTRA_JS_MODULES += [
+    'IRC.jsm',
     'ircBase.jsm',
     'ircCAP.jsm',
     'ircCommands.jsm',
@@ -28,3 +24,7 @@ EXTRA_JS_MODULES += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
+
+XPCOM_MANIFESTS += [
+    'components.conf',
+]

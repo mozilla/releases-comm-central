@@ -2,8 +2,9 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var irc = {};
-Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
+var { IRCAccount, IRCMessage } = ChromeUtils.import(
+  "resource:///modules/IRC.jsm"
+);
 
 var testData = [
   // First off, let's test the messages from RFC 2812.
@@ -131,9 +132,9 @@ function run_test() {
 function testRFC2812Messages() {
   for (let expectedStringMessage of testData) {
     // Pass in an empty default origin in order to check this below.
-    let message = irc.ircMessage(expectedStringMessage, "");
+    let message = IRCMessage(expectedStringMessage, "");
 
-    let stringMessage = irc.ircAccount.prototype.buildMessage(
+    let stringMessage = IRCAccount.prototype.buildMessage(
       message.command,
       message.params
     );
@@ -153,7 +154,7 @@ function testRFC2812Messages() {
   run_next_test();
 }
 
-// Unreal sends a couple of broken messages, see ircMessage in irc.js for a
+// Unreal sends a couple of broken messages, see IRCMessage in IRC.jsm for a
 // description of what's wrong.
 function testBrokenUnrealMessages() {
   let messages = {
@@ -194,7 +195,7 @@ function testBrokenUnrealMessages() {
   };
 
   for (let messageStr in messages) {
-    deepEqual(messages[messageStr], irc.ircMessage(messageStr, ""));
+    deepEqual(messages[messageStr], IRCMessage(messageStr, ""));
   }
 
   run_next_test();
@@ -229,7 +230,7 @@ function testNewLinesInMessages() {
   };
 
   for (let messageStr in messages) {
-    deepEqual(messages[messageStr], irc.ircMessage(messageStr));
+    deepEqual(messages[messageStr], IRCMessage(messageStr));
   }
 
   run_next_test();
@@ -254,7 +255,7 @@ function testLocalhost() {
   };
 
   for (let messageStr in messages) {
-    deepEqual(messages[messageStr], irc.ircMessage(messageStr));
+    deepEqual(messages[messageStr], IRCMessage(messageStr));
   }
 
   run_next_test();
@@ -325,7 +326,7 @@ function testTags() {
   };
 
   for (let messageStr in messages) {
-    deepEqual(messages[messageStr], irc.ircMessage(messageStr, ""));
+    deepEqual(messages[messageStr], IRCMessage(messageStr, ""));
   }
 
   run_next_test();

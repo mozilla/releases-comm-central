@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["IMCommands"];
+
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
@@ -11,8 +13,8 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/commands.properties")
 );
 
-function CommandsService() {}
-CommandsService.prototype = {
+function IMCommands() {}
+IMCommands.prototype = {
   initCommands() {
     this._commands = {};
     // The say command is directly implemented in the UI layer, but has a
@@ -284,9 +286,4 @@ CommandsService.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.imICommandsService]),
-  classDescription: "Commands",
-  classID: Components.ID("{7cb20c68-ccc8-4a79-b6f1-0b4771ed6c23}"),
-  contractID: "@mozilla.org/chat/commands-service;1",
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([CommandsService]);
