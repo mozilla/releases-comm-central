@@ -105,11 +105,15 @@ function ltnSaveMailIdentitySelection() {
  * (shared between calendar creation wizard and properties dialog)
  */
 function ltnNotifyOnIdentitySelection() {
+  let notificationBox = document.getElementById("no-identity-notification");
+  while (notificationBox.firstChild) {
+    notificationBox.firstChild.remove();
+  }
   let gNotification = {};
   XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
     return new MozElements.NotificationBox(element => {
       element.setAttribute("flex", "1");
-      document.getElementById("no-identity-notification").append(element);
+      notificationBox.append(element);
     });
   });
 
