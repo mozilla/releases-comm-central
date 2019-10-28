@@ -409,13 +409,6 @@ JSTreeSelection.prototype = {
   },
 
   /**
-   * Not even nsTreeSelection implements this.
-   */
-  invertSelection() {
-    throw new Error("Who really was going to use this?");
-  },
-
-  /**
    * Select all with no rows is a no-op, otherwise we select all and notify.
    */
   selectAll() {
