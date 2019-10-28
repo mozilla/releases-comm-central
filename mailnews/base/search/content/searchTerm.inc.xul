@@ -12,9 +12,9 @@
                    accesskey="&matchAllMsgs.accesskey;"/>
           </radiogroup>
 
-          <hbox flex="1">
+          <hbox flex="1" minheight="100">
             <hbox id="searchterms"/>
-            <richlistbox flex="1" id="searchTermList" minheight="35%">
+            <richlistbox flex="1" id="searchTermList">
               <treecols hidden="true">
                 <treecol flex="&searchTermListAttributesFlexValue;"/>
                 <treecol flex="&searchTermListOperatorsFlexValue;"/>
