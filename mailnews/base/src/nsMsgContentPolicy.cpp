@@ -818,12 +818,10 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     rv = docShell->SetAllowContentRetargetingOnChildren(false);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    uint32_t sandboxFlags;
-    rv = docShell->GetSandboxFlags(&sandboxFlags);
-    sandboxFlags |= SANDBOXED_FORMS;
-    NS_ENSURE_SUCCESS(rv, rv);
-    rv = docShell->SetSandboxFlags(sandboxFlags);
-    NS_ENSURE_SUCCESS(rv, rv);
+    RefPtr<mozilla::dom::BrowsingContext> browsingContext =
+        docShell->GetBrowsingContext();
+    browsingContext->SetSandboxFlags(browsingContext->GetSandboxFlags() |
+                                     SANDBOXED_FORMS);
   } else {
     // JavaScript is allowed on non-message URLs.
     rv = docShell->SetAllowJavascript(true);
