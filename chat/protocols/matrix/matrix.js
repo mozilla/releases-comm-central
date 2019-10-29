@@ -32,6 +32,20 @@ MatrixParticipant.prototype = {
   get alias() {
     return this._roomMember.name;
   },
+
+  // See https://matrix.org/docs/spec/client_server/r0.5.0#m-room-power-levels
+  get voiced() {
+    return this._roomMember.powerLevelNorm >= 10;
+  },
+  get halfOp() {
+    return this._roomMember.powerLevelNorm >= 25;
+  },
+  get op() {
+    return this._roomMember.powerLevelNorm >= 50;
+  },
+  get founder() {
+    return this._roomMember.powerLevelNorm == 100;
+  },
 };
 
 /*
@@ -181,6 +195,18 @@ MatrixAccount.prototype = {
         });
       }
     });
+    this._client.on("RoomMember.powerLevel", (event, member) => {
+      if (member.roomId in this._roomList) {
+        let conv = this._roomList[member.roomId];
+        let participant = conv._participants.get(member.userId);
+        // A participant might not exist (for example, this happens if the user
+        // has only been invited, but has not yet joined).
+        if (participant) {
+          participant._roomMember = member;
+          conv.notifyObservers(participant, "chat-buddy-update");
+        }
+      }
+    });
 
     // TODO Other events to handle:
     //  Room.accountData
@@ -189,7 +215,6 @@ MatrixAccount.prototype = {
     //  Room.tags
     //  Room
     //  RoomMember.name
-    //  RoomMember.powerLevel
     //  RoomMember.typing
     //  Session.logged_out
     //  User.avatarUrl
