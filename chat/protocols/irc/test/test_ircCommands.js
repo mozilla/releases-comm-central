@@ -3,9 +3,9 @@
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { commands } = ChromeUtils.import("resource:///modules/ircCommands.jsm");
-var { IRCAccount, IRCConversation } = ChromeUtils.import(
-  "resource:///modules/IRC.jsm"
-);
+
+var irc = {};
+Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
 // Ensure the commands have been initialized.
 Services.conversations.initConversations();
@@ -119,7 +119,7 @@ function testModeCommand() {
     },
   ];
 
-  let account = new IRCAccount(fakeProto, {
+  let account = new irc.ircAccount(fakeProto, {
     name: "defaultnick@instantbird.org",
   });
 
@@ -132,13 +132,13 @@ function testModeCommand() {
 
   // First test Channel Commands.
   for (let test of testChannelCommands) {
-    let conv = new IRCConversation(account, test.channel);
+    let conv = new irc.ircConversation(account, test.channel);
     account._expectedMessage = test.expectedMessage;
     command(test.msg, conv);
   }
 
   // Now test the User Commands.
-  let conv = new IRCConversation(account, "dummyConversation");
+  let conv = new irc.ircConversation(account, "dummyConversation");
   account._nickname = "test_nick";
   for (let test of testUserCommands) {
     account._expectedMessage = test.expectedMessage;
@@ -173,11 +173,11 @@ function testUserModeCommand() {
     },
   ];
 
-  let account = new IRCAccount(fakeProto, {
+  let account = new irc.ircAccount(fakeProto, {
     name: "test_nick@instantbird.org",
   });
   account._nickname = "test_nick";
-  let conv = new IRCConversation(account, "newconv");
+  let conv = new irc.ircConversation(account, "newconv");
 
   // check if the message being sent is same as expected message.
   account.sendRawMessage = aMessage => {

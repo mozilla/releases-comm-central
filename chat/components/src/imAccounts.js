@@ -1,9 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-var EXPORTED_SYMBOLS = ["AccountsService"];
-
 var {
   ClassInfo,
   EmptyEnumerator,
@@ -1297,4 +1294,9 @@ AccountsService.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.imIAccountsService]),
+  classDescription: "Accounts",
+  classID: Components.ID("{a94b5427-cd8d-40cf-b47e-b67671953e70}"),
+  contractID: "@mozilla.org/chat/accounts-service;1",
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([AccountsService]);

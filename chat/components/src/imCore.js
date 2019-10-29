@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["IMCore"];
-
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   XPCOMUtils,
@@ -275,8 +273,11 @@ UserStatus.prototype = {
   },
 };
 
-function IMCore() {}
-IMCore.prototype = {
+var gCoreService;
+function CoreService() {
+  gCoreService = this;
+}
+CoreService.prototype = {
   globalUserStatus: null,
 
   _initialized: false,
@@ -411,4 +412,9 @@ IMCore.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.imICoreService]),
+  classDescription: "Core",
+  classID: Components.ID("{073f5953-853c-4a38-bd81-255510c31c2e}"),
+  contractID: "@mozilla.org/chat/core-service;1",
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([CoreService]);

@@ -8,19 +8,10 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gLogger = {};
-var {
-  Logger,
-  encodeName,
-  convIsRealMUC,
-  getLogFolderPathForAccount,
-  getLogFilePathForConversation,
-  getNewLogFileName,
-  queueFileOperation,
-  fileOperations,
-  appendToFile,
-  getLogWriter,
-  closeLogWriter,
-} = ChromeUtils.import("resource:///modules/Logger.jsm");
+Services.scriptloader.loadSubScript(
+  "resource:///components/logger.js",
+  gLogger
+);
 
 var logDirPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
 
@@ -193,28 +184,31 @@ var test_queueFileOperation = async function() {
   let dummyRejectedOperation = () => Promise.reject("Rejected!");
   let dummyResolvedOperation = () => Promise.resolve("Resolved!");
 
-  // Immediately after calling queueFileOperation, "path1" should be mapped to p1.
+  let gFP = gLogger.gFilePromises;
+  let qFO = gLogger.queueFileOperation;
+
+  // Immediately after calling qFO, "path1" should be mapped to p1.
   // After yielding, the reference should be cleared from the map.
-  let p1 = queueFileOperation("path1", dummyResolvedOperation);
-  equal(fileOperations.get("path1"), p1);
+  let p1 = qFO("path1", dummyResolvedOperation);
+  equal(gFP.get("path1"), p1);
   await p1;
-  ok(!fileOperations.has("path1"));
+  ok(!gFP.has("path1"));
 
   // Repeat above test for a rejected promise.
-  let p2 = queueFileOperation("path2", dummyRejectedOperation);
-  equal(fileOperations.get("path2"), p2);
+  let p2 = qFO("path2", dummyRejectedOperation);
+  equal(gFP.get("path2"), p2);
   // This should throw since p2 rejected. Drop the error.
   await p2.then(() => do_throw(), () => {});
-  ok(!fileOperations.has("path2"));
+  ok(!gFP.has("path2"));
 
   let onPromiseComplete = (aPromise, aHandler) => {
     return aPromise.then(aHandler, aHandler);
   };
   let test_queueOrder = aOperation => {
-    let promise = queueFileOperation("queueOrderPath", aOperation);
+    let promise = qFO("queueOrderPath", aOperation);
     let firstOperationComplete = false;
     onPromiseComplete(promise, () => (firstOperationComplete = true));
-    return queueFileOperation("queueOrderPath", () => {
+    return qFO("queueOrderPath", () => {
       ok(firstOperationComplete);
     });
   };
@@ -224,12 +218,12 @@ var test_queueFileOperation = async function() {
 };
 
 var test_getLogFolderPathForAccount = async function() {
-  let path = getLogFolderPathForAccount(dummyAccount);
+  let path = gLogger.getLogFolderPathForAccount(dummyAccount);
   equal(
     OS.Path.join(
       logDirPath,
       dummyAccount.protocol.normalizedName,
-      encodeName(dummyAccount.normalizedName)
+      gLogger.encodeName(dummyAccount.normalizedName)
     ),
     path
   );
@@ -237,55 +231,55 @@ var test_getLogFolderPathForAccount = async function() {
 
 // Tests the global function getLogFilePathForConversation in logger.js.
 var test_getLogFilePathForConversation = async function() {
-  let path = getLogFilePathForConversation(dummyConv, "format");
+  let path = gLogger.getLogFilePathForConversation(dummyConv, "format");
   let expectedPath = OS.Path.join(
     logDirPath,
     dummyAccount.protocol.normalizedName,
-    encodeName(dummyAccount.normalizedName)
+    gLogger.encodeName(dummyAccount.normalizedName)
   );
   expectedPath = OS.Path.join(
     expectedPath,
-    encodeName(dummyConv.normalizedName)
+    gLogger.encodeName(dummyConv.normalizedName)
   );
   expectedPath = OS.Path.join(
     expectedPath,
-    getNewLogFileName("format", dummyConv.startDate / 1000)
+    gLogger.getNewLogFileName("format", dummyConv.startDate / 1000)
   );
   equal(path, expectedPath);
 };
 
 var test_getLogFilePathForMUC = async function() {
-  let path = getLogFilePathForConversation(dummyMUC, "format");
+  let path = gLogger.getLogFilePathForConversation(dummyMUC, "format");
   let expectedPath = OS.Path.join(
     logDirPath,
     dummyAccount.protocol.normalizedName,
-    encodeName(dummyAccount.normalizedName)
+    gLogger.encodeName(dummyAccount.normalizedName)
   );
   expectedPath = OS.Path.join(
     expectedPath,
-    encodeName(dummyMUC.normalizedName + ".chat")
+    gLogger.encodeName(dummyMUC.normalizedName + ".chat")
   );
   expectedPath = OS.Path.join(
     expectedPath,
-    getNewLogFileName("format", dummyMUC.startDate / 1000)
+    gLogger.getNewLogFileName("format", dummyMUC.startDate / 1000)
   );
   equal(path, expectedPath);
 };
 
 var test_getLogFilePathForTwitterConv = async function() {
-  let path = getLogFilePathForConversation(dummyTwitterConv, "format");
+  let path = gLogger.getLogFilePathForConversation(dummyTwitterConv, "format");
   let expectedPath = OS.Path.join(
     logDirPath,
     dummyTwitterAccount.protocol.normalizedName,
-    encodeName(dummyTwitterAccount.normalizedName)
+    gLogger.encodeName(dummyTwitterAccount.normalizedName)
   );
   expectedPath = OS.Path.join(
     expectedPath,
-    encodeName(dummyTwitterConv.normalizedName)
+    gLogger.encodeName(dummyTwitterConv.normalizedName)
   );
   expectedPath = OS.Path.join(
     expectedPath,
-    getNewLogFileName("format", dummyTwitterConv.startDate / 1000)
+    gLogger.getNewLogFileName("format", dummyTwitterConv.startDate / 1000)
   );
   equal(path, expectedPath);
 };
@@ -295,11 +289,11 @@ var test_appendToFile = async function() {
   let path = OS.Path.join(OS.Constants.Path.profileDir, "testFile.txt");
   let encoder = new TextEncoder();
   let encodedString = encoder.encode(kStringToWrite);
-  appendToFile(path, encodedString);
+  gLogger.appendToFile(path, encodedString);
   encodedString = encoder.encode(kStringToWrite);
-  appendToFile(path, encodedString);
+  gLogger.appendToFile(path, encodedString);
   let text = new TextDecoder().decode(
-    await queueFileOperation(path, () => OS.File.read(path))
+    await gLogger.queueFileOperation(path, () => OS.File.read(path))
   );
   // The read text should be equal to kStringToWrite repeated twice.
   equal(text, kStringToWrite + kStringToWrite);
@@ -308,22 +302,22 @@ var test_appendToFile = async function() {
 
 // Tests the getLogPathsForConversation API defined in the imILogger interface.
 var test_getLogPathsForConversation = async function() {
-  let logger = new Logger();
+  let logger = new gLogger.Logger();
   let paths = await logger.getLogPathsForConversation(dummyConv);
   // The path should be null since a LogWriter hasn't been created yet.
   equal(paths, null);
-  let logWriter = getLogWriter(dummyConv);
+  let logWriter = gLogger.getLogWriter(dummyConv);
   paths = await logger.getLogPathsForConversation(dummyConv);
   equal(paths.length, 1);
   equal(paths[0], logWriter.currentPath);
   ok(await OS.File.exists(paths[0]));
   // Ensure this doesn't interfere with future tests.
   await OS.File.remove(paths[0]);
-  closeLogWriter(dummyConv);
+  gLogger.closeLogWriter(dummyConv);
 };
 
 var test_logging = async function() {
-  let logger = new Logger();
+  let logger = new gLogger.Logger();
   let oneSec = 1000000; // Microseconds.
 
   // Creates a set of dummy messages for a conv (sets appropriate times).
@@ -361,7 +355,7 @@ var test_logging = async function() {
   let secondDayMsgs = getMsgsForConv(dummyConv2);
 
   let logMessagesForConv = async function(aConv, aMessages) {
-    let logWriter = getLogWriter(aConv);
+    let logWriter = gLogger.getLogWriter(aConv);
     for (let message of aMessages) {
       logWriter.logMessage(message);
     }
@@ -370,9 +364,9 @@ var test_logging = async function() {
     // will return an EmptyEnumerator. Logging the messages is queued on the
     // _initialized promise, so we need to await on that first.
     await logWriter._initialized;
-    await fileOperations.get(logWriter.currentPath);
+    await gLogger.gFilePromises.get(logWriter.currentPath);
     // Ensure two different files for the different dates.
-    closeLogWriter(aConv);
+    gLogger.closeLogWriter(aConv);
   };
   await logMessagesForConv(dummyConv, firstDayMsgs);
   await logMessagesForConv(dummyConv2, secondDayMsgs);
@@ -380,16 +374,16 @@ var test_logging = async function() {
   // Write a zero-length file and a file with incorrect JSON for each day
   // to ensure they are handled correctly.
   let logDir = OS.Path.dirname(
-    getLogFilePathForConversation(dummyConv, "json")
+    gLogger.getLogFilePathForConversation(dummyConv, "json")
   );
   let createBadFiles = async function(aConv) {
     let blankFile = OS.Path.join(
       logDir,
-      getNewLogFileName("json", (aConv.startDate + oneSec) / 1000)
+      gLogger.getNewLogFileName("json", (aConv.startDate + oneSec) / 1000)
     );
     let invalidJSONFile = OS.Path.join(
       logDir,
-      getNewLogFileName("json", (aConv.startDate + 2 * oneSec) / 1000)
+      gLogger.getNewLogFileName("json", (aConv.startDate + 2 * oneSec) / 1000)
     );
     let file = await OS.File.open(blankFile, { truncate: true });
     await file.close();
@@ -465,7 +459,9 @@ var test_logging = async function() {
       await OS.File.remove(aLog);
     },
   });
-  let logFolder = OS.Path.dirname(getLogFilePathForConversation(dummyConv));
+  let logFolder = OS.Path.dirname(
+    gLogger.getLogFilePathForConversation(dummyConv)
+  );
   // The folder should now be empty - this will throw if it isn't.
   await OS.File.removeEmptyDir(logFolder, { ignoreAbsent: false });
 };
@@ -474,7 +470,7 @@ var test_logFileSplitting = async function() {
   // Start clean, remove the log directory.
   let logFolderPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
   await OS.File.removeDir(logFolderPath, { ignoreAbsent: true });
-  let logWriter = getLogWriter(dummyConv);
+  let logWriter = gLogger.getLogWriter(dummyConv);
   let startTime = logWriter._startTime / 1000; // Message times are in seconds.
   let oldPath = logWriter.currentPath;
   let message = {
@@ -487,7 +483,7 @@ var test_logFileSplitting = async function() {
   let logMessage = async function(aMessage) {
     logWriter.logMessage(aMessage);
     await logWriter._initialized;
-    await fileOperations.get(logWriter.currentPath);
+    await gLogger.gFilePromises.get(logWriter.currentPath);
   };
 
   await logMessage(message);
@@ -572,13 +568,13 @@ var test_logFileSplitting = async function() {
 function run_test() {
   // Test encodeName().
   for (let i = 0; i < encodeName_input.length; ++i) {
-    equal(encodeName(encodeName_input[i]), encodeName_output[i]);
+    equal(gLogger.encodeName(encodeName_input[i]), encodeName_output[i]);
   }
 
   // Test convIsRealMUC().
-  ok(!convIsRealMUC(dummyConv));
-  ok(!convIsRealMUC(dummyTwitterConv));
-  ok(convIsRealMUC(dummyMUC));
+  ok(!gLogger.convIsRealMUC(dummyConv));
+  ok(!gLogger.convIsRealMUC(dummyTwitterConv));
+  ok(gLogger.convIsRealMUC(dummyMUC));
 
   add_task(test_getLogFolderPathForAccount);
 

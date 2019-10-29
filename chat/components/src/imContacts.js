@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["TagsService", "ContactsService"];
-
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { XPCOMUtils, executeSoon, ClassInfo, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
@@ -202,6 +200,9 @@ TagsService.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.imITagsService]),
+  classDescription: "Tags",
+  classID: Components.ID("{1fa92237-4303-4384-b8ac-4e65b50810a5}"),
+  contractID: "@mozilla.org/chat/tags-service;1",
 };
 
 // TODO move into the tagsService
@@ -1798,4 +1799,12 @@ ContactsService.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.imIContactsService]),
+  classDescription: "Contacts",
+  classID: Components.ID("{8c3725dd-ee26-489d-8135-736015af8c7f}"),
+  contractID: "@mozilla.org/chat/contacts-service;1",
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([
+  ContactsService,
+  TagsService,
+]);

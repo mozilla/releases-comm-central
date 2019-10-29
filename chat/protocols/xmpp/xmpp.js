@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["XMPPProtocol"];
-
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -101,4 +99,8 @@ XMPPProtocol.prototype = {
   get chatHasTopic() {
     return true;
   },
+
+  classID: Components.ID("{dde786d1-6f59-43d0-9bc8-b505a757fb30}"),
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([XMPPProtocol]);

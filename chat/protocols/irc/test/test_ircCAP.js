@@ -182,7 +182,7 @@ function run_test() {
  */
 function testCapMessages() {
   for (let data of testData) {
-    // Generate an IRCMessage to send into capMessage.
+    // Generate an ircMessage to send into capMessage.
     let i = 0;
     let message;
     let outputs;
@@ -190,7 +190,7 @@ function testCapMessages() {
       _queuedCAPs: [],
     };
 
-    // Generate an IRCMessage to send into capMessage.
+    // Generate an ircMessage to send into capMessage.
     while (typeof data[i][0] == "string") {
       message = {
         params: data[i],

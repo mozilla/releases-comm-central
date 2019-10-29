@@ -2,7 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { IRCMessage } = ChromeUtils.import("resource:///modules/IRC.jsm");
+var irc = {};
+Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 const { ircNonStandard } = ChromeUtils.import(
   "resource:///modules/ircNonStandard.jsm"
 );
@@ -56,7 +57,7 @@ function testSecureList() {
   const kSecureListMsg =
     ":fripp.mozilla.org NOTICE aleth-build :*** You cannot list within the first 60 seconds of connecting. Please try again later.";
 
-  let message = IRCMessage(kSecureListMsg, "");
+  let message = irc.ircMessage(kSecureListMsg, "");
   let account = new FakeAccount();
   account.connected = true;
   let result = NOTICE.call(account, message);
@@ -83,7 +84,7 @@ function testZncAuth() {
   ];
 
   for (let msg of kZncMsgs) {
-    let message = IRCMessage(msg, "");
+    let message = irc.ircMessage(msg, "");
     // No provided password.
     let account = new FakeAccount();
     let result = NOTICE.call(account, message);
@@ -142,7 +143,7 @@ function testUMich() {
 
   let account = new FakeAccount();
   for (let msg of kMsgs) {
-    let message = IRCMessage(msg, "");
+    let message = irc.ircMessage(msg, "");
     let result = NOTICE.call(account, message);
 
     // These initial notices are not handled (i.e. they'll be subject to
@@ -152,7 +153,7 @@ function testUMich() {
 
   // And finally the last one should be printed out, always. It contains the
   // directions of what to do next.
-  let message = IRCMessage(kFinalMsg, "");
+  let message = irc.ircMessage(kFinalMsg, "");
   let result = NOTICE.call(account, message);
   ok(result);
   equal(account.convs.length, 1);
@@ -171,7 +172,7 @@ function testAuthNick() {
   let account = new FakeAccount();
   account._nickname = "AUTH";
 
-  let message = IRCMessage(kMsg, "");
+  let message = irc.ircMessage(kMsg, "");
   let result = NOTICE.call(account, message);
 
   // Since it is ambiguous if it was an authentication message or a message
@@ -197,7 +198,7 @@ function testIgnoredNotices() {
   for (let msg of kMsgs) {
     let account = new FakeAccount();
 
-    let message = IRCMessage(msg, "");
+    let message = irc.ircMessage(msg, "");
     let result = NOTICE.call(account, message);
 
     // This message should *NOT* be shown.

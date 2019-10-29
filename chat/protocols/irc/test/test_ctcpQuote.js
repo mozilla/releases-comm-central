@@ -2,7 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { IRCAccount } = ChromeUtils.import("resource:///modules/IRC.jsm");
+var irc = {};
+Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
 var input = [
   undefined,
@@ -44,14 +45,14 @@ var expectedOutputParams = [
 
 var outputParams = [];
 
-IRCAccount.prototype.sendMessage = function(aCommand, aParams) {
+irc.ircAccount.prototype.sendMessage = function(aCommand, aParams) {
   equal("PRIVMSG", aCommand);
   outputParams.push(aParams[1]);
 };
 
 function run_test() {
   input.map(aStr =>
-    IRCAccount.prototype.sendCTCPMessage("", false, "ACTION", aStr)
+    irc.ircAccount.prototype.sendCTCPMessage("", false, "ACTION", aStr)
   );
 
   // Ensure both arrays have the same length.

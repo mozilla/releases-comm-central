@@ -1,0 +1,3 @@
+component {50ea817e-5d79-4657-91ae-aa0a52bdb98c} yahoo.js
+contract @mozilla.org/chat/yahoo;1 {50ea817e-5d79-4657-91ae-aa0a52bdb98c}
+category im-protocol-plugin prpl-yahoo @mozilla.org/chat/yahoo;1

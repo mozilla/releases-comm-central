@@ -1,0 +1,4 @@
+component {e9653ac6-a671-11e6-bf84-60a44c717042} matrix.js
+contract @mozilla.org/chat/matrix;1 {e9653ac6-a671-11e6-bf84-60a44c717042}
+category im-protocol-plugin prpl-matrix @mozilla.org/chat/matrix;1
+

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["JSTestProtocol"];
-
-var { setTimeout } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, setTimeout } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 var {
   GenericAccountPrototype,
   GenericConvIMPrototype,
@@ -107,8 +107,8 @@ Account.prototype = {
   unInit() {},
 };
 
-function JSTestProtocol() {}
-JSTestProtocol.prototype = {
+function jsTestProtocol() {}
+jsTestProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get name() {
     return "JS Test";
@@ -138,4 +138,7 @@ JSTestProtocol.prototype = {
   getAccount(aImAccount) {
     return new Account(this, aImAccount);
   },
+  classID: Components.ID("{a0774c5a-4aea-458b-9fbc-8d3cbf1a4630}"),
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([jsTestProtocol]);

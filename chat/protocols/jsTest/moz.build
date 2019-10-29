@@ -4,11 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 if CONFIG['MOZ_DEBUG']:
-    EXTRA_JS_MODULES += [
-        'JSTestProtocol.jsm',
-    ]
-
-    XPCOM_MANIFESTS += [
-        'components.conf',
+    EXTRA_COMPONENTS += [
+        'jsTestProtocol.js',
+        'jsTestProtocol.manifest',
     ]
 

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["OdnoklassnikiProtocol"];
-
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -77,4 +75,7 @@ OdnoklassnikiProtocol.prototype = {
   getAccount(aImAccount) {
     return new OdnoklassnikiAccount(this, aImAccount);
   },
+  classID: Components.ID("{29b09a83-81c1-2032-11e2-6d9bc4f8e969}"),
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([OdnoklassnikiProtocol]);

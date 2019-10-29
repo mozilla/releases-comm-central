@@ -10,15 +10,15 @@ DIRS += [
     'shims',
 ]
 
+EXTRA_COMPONENTS += [
+    'matrix.js',
+    'matrix.manifest',
+]
+
 EXTRA_JS_MODULES += [
     'matrix-sdk.jsm',
-    'Matrix.jsm',
 ]
 
 JAR_MANIFESTS += [
     'jar.mn',
-]
-
-XPCOM_MANIFESTS += [
-    'components.conf',
 ]

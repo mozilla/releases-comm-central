@@ -1,0 +1,3 @@
+component {8446c0f6-9f59-4710-844e-eaa6c1f49d35} skype.js
+contract @mozilla.org/chat/skype;1 {8446c0f6-9f59-4710-844e-eaa6c1f49d35}
+category im-protocol-plugin prpl-skype @mozilla.org/chat/skype;1

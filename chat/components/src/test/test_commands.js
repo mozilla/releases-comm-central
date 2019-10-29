@@ -5,7 +5,11 @@
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 // We don't load the command service via Services as we want to access
 // _findCommands in order to avoid having to intercept command execution.
-var { IMCommands } = ChromeUtils.import("resource:///modules/IMCommands.jsm");
+var imCommands = {};
+Services.scriptloader.loadSubScript(
+  "resource:///components/imCommands.js",
+  imCommands
+);
 
 var kPrplId = "green";
 var kPrplId2 = "red";
@@ -44,7 +48,7 @@ fakeCommand.prototype = {
 };
 
 function run_test() {
-  let cmdserv = new IMCommands();
+  let cmdserv = new imCommands.CommandsService();
   cmdserv.initCommands();
 
   // Some commands providing multiple possible completions.

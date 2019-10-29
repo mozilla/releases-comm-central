@@ -5,12 +5,9 @@
 
 XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
 
+EXTRA_COMPONENTS += [
+    'skype.js',
+    'skype.manifest',
+]
+
 JAR_MANIFESTS += ['jar.mn']
-
-EXTRA_JS_MODULES += [
-    'Skype.jsm',
-]
-
-XPCOM_MANIFESTS += [
-    'components.conf',
-]

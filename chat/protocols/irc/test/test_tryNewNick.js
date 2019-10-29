@@ -2,7 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { IRCAccount } = ChromeUtils.import("resource:///modules/IRC.jsm");
+var irc = {};
+Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
 var fakeProto = {
   id: "fake-proto",
@@ -30,7 +31,7 @@ function test_tryNewNick() {
     clo1kep09: "clo1kep10",
   };
 
-  let account = new IRCAccount(fakeProto, {
+  let account = new irc.ircAccount(fakeProto, {
     name: "clokep@instantbird.org",
   });
   account.LOG = function(aStr) {};
@@ -73,7 +74,7 @@ function test_maxLength() {
     ["a10000000", "a00000000"],
   ];
 
-  let account = new IRCAccount(fakeProto, {
+  let account = new irc.ircAccount(fakeProto, {
     name: "clokep@instantbird.org",
   });
   account.LOG = function(aStr) {};
@@ -106,7 +107,7 @@ function test_altNicks() {
     "clokep[": [" clokep ,\n clokep111,,,\tclokep[, clokep_", "clokep_"],
   };
 
-  let account = new IRCAccount(fakeProto, {
+  let account = new irc.ircAccount(fakeProto, {
     name: "clokep@instantbird.org",
   });
   account.LOG = function(aStr) {};

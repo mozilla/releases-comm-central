@@ -2,17 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = [
-  "IRCProtocol",
-  "IRCAccount",
-  "IRCConversation",
-  "IRCMessage",
-  "IRCChannel",
-  "clearTimeout",
-  "setTimeout",
-  "GenericIRCConversation",
-];
-
 var {
   ClassInfo,
   clearTimeout,
@@ -85,7 +74,7 @@ XPCOMUtils.defineLazyGetter(this, "_conv", () =>
  *              stripped from the end.
  *  aOrigin     The default origin to use for unprefixed messages.
  */
-function IRCMessage(aData, aOrigin) {
+function ircMessage(aData, aOrigin) {
   let message = { rawMessage: aData };
   let temp;
 
@@ -210,7 +199,7 @@ function TagMessage(aMessage, aTagName) {
   this.tagValue = aMessage.tags.get(aTagName);
 }
 
-// Properties / methods shared by both IRCChannel and IRCConversation.
+// Properties / methods shared by both ircChannel and ircConversation.
 var GenericIRCConversation = {
   _observedNicks: [],
   // This is set to true after a message is sent to notify the 401
@@ -241,7 +230,7 @@ var GenericIRCConversation = {
   /**
    * @param {string} aWho - Message author's username.
    * @param {string} aMessage - Message text.
-   * @param {Object} aObject - Other properties to set on the IMMessage.
+   * @param {Object} aObject - Other properties to set on the imMessage.
    */
   handleTags(aWho, aMessage, aObject) {
     let messageProps = aObject;
@@ -265,7 +254,7 @@ var GenericIRCConversation = {
 
       // Remove helper prop for tag handlers. We don't want to remove the other
       // ones, since they might have been changed and will override aWho and
-      // aMessage in the IMMessage constructor.
+      // aMessage in the imMessage constructor.
       delete messageProps.originalMessage;
     }
     // Remove the IRC tags, as those were passed in just for this step.
@@ -426,14 +415,14 @@ var GenericIRCConversation = {
   },
 };
 
-function IRCChannel(aAccount, aName, aNick) {
+function ircChannel(aAccount, aName, aNick) {
   this._init(aAccount, aName, aNick);
   this._participants = new NormalizedMap(this.normalizeNick.bind(this));
   this._modes = new Set();
   this._observedNicks = [];
   this.banMasks = [];
 }
-IRCChannel.prototype = {
+ircChannel.prototype = {
   __proto__: GenericConvChatPrototype,
   _modes: null,
   _receivedInitialMode: false,
@@ -692,7 +681,7 @@ IRCChannel.prototype = {
     GenericConvChatPrototype.writeMessage.call(this, aMsg, aWho, messageProps);
   },
 };
-Object.assign(IRCChannel.prototype, GenericIRCConversation);
+Object.assign(ircChannel.prototype, GenericIRCConversation);
 
 function ircParticipant(aName, aConv) {
   this._name = aName;
@@ -748,7 +737,7 @@ ircParticipant.prototype = {
   },
 };
 
-function IRCConversation(aAccount, aName) {
+function ircConversation(aAccount, aName) {
   let nick = aAccount.normalize(aName);
   if (aAccount.whoisInformation.has(nick)) {
     aName = aAccount.whoisInformation.get(nick).nick;
@@ -762,7 +751,7 @@ function IRCConversation(aAccount, aName) {
   this._waitingForNick = true;
   this.requestCurrentWhois(aName);
 }
-IRCConversation.prototype = {
+ircConversation.prototype = {
   __proto__: GenericConvIMPrototype,
   get buddy() {
     return this._account.buddies.get(this.name);
@@ -782,7 +771,7 @@ IRCConversation.prototype = {
     GenericConvIMPrototype.writeMessage.call(this, aMsg, aWho, messageProps);
   },
 };
-Object.assign(IRCConversation.prototype, GenericIRCConversation);
+Object.assign(ircConversation.prototype, GenericIRCConversation);
 
 function ircSocket(aAccount) {
   this._account = aAccount;
@@ -855,7 +844,7 @@ ircSocket.prototype = {
     );
 
     try {
-      let message = new IRCMessage(
+      let message = new ircMessage(
         dequotedMessage,
         this._account._currentServerName
       );
@@ -944,10 +933,10 @@ ircSocket.prototype = {
   },
 };
 
-function IRCAccountBuddy(aAccount, aBuddy, aTag, aUserName) {
+function ircAccountBuddy(aAccount, aBuddy, aTag, aUserName) {
   this._init(aAccount, aBuddy, aTag, aUserName);
 }
-IRCAccountBuddy.prototype = {
+ircAccountBuddy.prototype = {
   __proto__: GenericAccountBuddyPrototype,
 
   // Returns a list of imITooltipInfo objects to be displayed when the user
@@ -991,7 +980,7 @@ ircRoomInfo.prototype = {
   },
 };
 
-function IRCAccount(aProtocol, aImAccount) {
+function ircAccount(aProtocol, aImAccount) {
   this._init(aProtocol, aImAccount);
   this.buddies = new NormalizedMap(this.normalizeNick.bind(this));
   this.conversations = new NormalizedMap(this.normalize.bind(this));
@@ -1019,7 +1008,7 @@ function IRCAccount(aProtocol, aImAccount) {
   this._commandBuffers = new Map();
   this._roomInfoCallbacks = new Set();
 }
-IRCAccount.prototype = {
+ircAccount.prototype = {
   __proto__: GenericAccountPrototype,
   _socket: null,
   _MODE_WALLOPS: 1 << 2, // mode 'w'
@@ -1536,7 +1525,7 @@ IRCAccount.prototype = {
     this.trackQueue.splice(index, 1);
   },
   addBuddy(aTag, aName) {
-    let buddy = new IRCAccountBuddy(this, null, aTag, aName);
+    let buddy = new ircAccountBuddy(this, null, aTag, aName);
     this.buddies.set(buddy.normalizedName, buddy);
     this.trackBuddy(buddy.userName);
 
@@ -1549,7 +1538,7 @@ IRCAccount.prototype = {
   // Loads a buddy from the local storage. Called for each buddy locally stored
   // before connecting to the server.
   loadBuddy(aBuddy, aTag) {
-    let buddy = new IRCAccountBuddy(this, aBuddy, aTag);
+    let buddy = new ircAccountBuddy(this, aBuddy, aTag);
     this.buddies.set(buddy.normalizedName, buddy);
     this.trackBuddy(buddy.userName);
 
@@ -2008,7 +1997,7 @@ IRCAccount.prototype = {
       if (this.whoisInformation.has(aName)) {
         aName = this.whoisInformation.get(aName).nick;
       }
-      let convClass = this.isMUCName(aName) ? IRCChannel : IRCConversation;
+      let convClass = this.isMUCName(aName) ? ircChannel : ircConversation;
       this.conversations.set(aName, new convClass(this, aName, this._nickname));
     }
     return this.conversations.get(aName);
@@ -2283,7 +2272,7 @@ IRCAccount.prototype = {
   },
 };
 
-function IRCProtocol() {
+function ircProtocol() {
   // ircCommands.jsm exports one variable: commands. Import this directly into
   // the protocol object.
   ChromeUtils.import("resource:///modules/ircCommands.jsm", this);
@@ -2334,7 +2323,7 @@ function IRCProtocol() {
   ircHandlers.registerCAPHandler(tempScope.capServerTime);
   ircHandlers.registerTagHandler(tempScope.tagServerTime);
 }
-IRCProtocol.prototype = {
+ircProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get name() {
     return "IRC";
@@ -2420,6 +2409,9 @@ IRCProtocol.prototype = {
   },
 
   getAccount(aImAccount) {
-    return new IRCAccount(this, aImAccount);
+    return new ircAccount(this, aImAccount);
   },
+  classID: Components.ID("{607b2c0b-9504-483f-ad62-41de09238aec}"),
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([ircProtocol]);

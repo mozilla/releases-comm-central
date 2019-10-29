@@ -2,9 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { IRCAccount, GenericIRCConversation } = ChromeUtils.import(
-  "resource:///modules/IRC.jsm"
-);
+var irc = {};
+Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
 
 var messages = {
   // Exactly 51 characters.
@@ -20,9 +19,9 @@ var messages = {
   "Thismessagecan'tbecut.": ["Thismessagecan'", "tbecut."],
 };
 
-GenericIRCConversation.name = "target";
-GenericIRCConversation._account = {
-  __proto__: IRCAccount.prototype,
+irc.GenericIRCConversation.name = "target";
+irc.GenericIRCConversation._account = {
+  __proto__: irc.ircAccount.prototype,
   _nickname: "sender",
   prefix: "!user@host",
   maxMessageLength: 51, // For convenience.
@@ -31,7 +30,7 @@ GenericIRCConversation._account = {
 function run_test() {
   for (let message in messages) {
     let msg = { message };
-    let generatedMsgs = GenericIRCConversation.prepareForSending(msg);
+    let generatedMsgs = irc.GenericIRCConversation.prepareForSending(msg);
 
     // The expected messages as defined above.
     let expectedMsgs = messages[message];

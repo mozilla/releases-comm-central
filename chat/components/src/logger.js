@@ -2,19 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = [
-  "Logger",
-  "encodeName",
-  "convIsRealMUC",
-  "getLogFolderPathForAccount",
-  "getLogFilePathForConversation",
-  "getNewLogFileName",
-  "queueFileOperation",
-  "fileOperations",
-  "appendToFile",
-  "getLogWriter",
-  "closeLogWriter",
-];
+var CC = Components.Constructor;
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { EmptyEnumerator, l10nHelper, XPCOMUtils } = ChromeUtils.import(
@@ -43,7 +31,7 @@ var kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
  * This is so that a file can be read after a pending write operation completes
  * and vice versa (opening a file multiple times concurrently may fail on Windows).
  */
-var fileOperations = new Map();
+var gFilePromises = new Map();
 
 // Uses above map to queue operations on a file.
 function queueFileOperation(aPath, aOperation) {
@@ -51,16 +39,16 @@ function queueFileOperation(aPath, aOperation) {
   // This is safe since the promise is returned and consumers are expected to
   // handle any errors. If there's no promise existing for the given path already,
   // queue the operation on a dummy pre-resolved promise.
-  let promise = (fileOperations.get(aPath) || Promise.resolve()).then(
+  let promise = (gFilePromises.get(aPath) || Promise.resolve()).then(
     aOperation,
     aOperation
   );
-  fileOperations.set(aPath, promise);
+  gFilePromises.set(aPath, promise);
 
   let cleanup = () => {
     // If no further operations have been queued, remove the reference from the map.
-    if (fileOperations.get(aPath) === promise) {
-      fileOperations.delete(aPath);
+    if (gFilePromises.get(aPath) === promise) {
+      gFilePromises.delete(aPath);
     }
   };
   // Ensure we clear unused promises whether they resolved or rejected.
@@ -102,7 +90,7 @@ function appendToFile(aPath, aEncodedString, aCreate) {
 OS.File.profileBeforeChange.addBlocker(
   "Chat logger: writing all pending messages",
   async function() {
-    for (let promise of fileOperations.values()) {
+    for (let promise of gFilePromises.values()) {
       try {
         await promise;
       } catch (aError) {
@@ -905,7 +893,7 @@ Logger.prototype = {
     // Wait for any pending file operations to finish, then resolve to the paths
     // regardless of whether these operations succeeded.
     for (let path of paths) {
-      await fileOperations.get(path);
+      await gFilePromises.get(path);
     }
     return paths;
   },
@@ -1000,7 +988,7 @@ Logger.prototype = {
         pendingPromises.push(promiseOperation);
       }
     }
-    fileOperations.forEach(checkLogFiles);
+    gFilePromises.forEach(checkLogFiles);
     // After all operations finish, remove the whole log folder.
     return Promise.all(pendingPromises)
       .then(values => {
@@ -1141,4 +1129,9 @@ Logger.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.imILogger]),
+  classDescription: "Logger",
+  classID: Components.ID("{fb0dc220-2c7a-4216-9f19-6b8f3480eae9}"),
+  contractID: "@mozilla.org/chat/logger;1",
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([Logger]);

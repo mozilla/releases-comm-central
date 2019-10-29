@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["YahooProtocol"];
-
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -12,24 +10,23 @@ var { GenericAccountPrototype, GenericProtocolPrototype } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
-  l10nHelper("chrome://chat/locale/yahoo.properties")
+  l10nHelper("chrome://chat/locale/facebook.properties")
 );
 
-function YahooAccount(aProtoInstance, aImAccount) {
+function FacebookAccount(aProtoInstance, aImAccount) {
   this._init(aProtoInstance, aImAccount);
 }
-YahooAccount.prototype = {
+FacebookAccount.prototype = {
   __proto__: GenericAccountPrototype,
 
   connect() {
     this.WARN(
-      "The legacy versions of Yahoo Messenger was disabled on August " +
-        "5, 2016. It is currently not possible to connect to Yahoo " +
-        "Messenger. See bug 1316000"
+      "As Facebook deprecated its XMPP gateway, it is currently not " +
+        "possible to connect to Facebook Chat. See bug 1141674."
     );
     this.reportDisconnecting(
       Ci.prplIAccount.ERROR_OTHER_ERROR,
-      _("yahoo.disabled")
+      _("facebook.disabled")
     );
     this.reportDisconnected();
   },
@@ -38,19 +35,22 @@ YahooAccount.prototype = {
   unInit() {},
 };
 
-function YahooProtocol() {}
-YahooProtocol.prototype = {
+function FacebookProtocol() {}
+FacebookProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
-  get id() {
-    return "prpl-yahoo";
+  get normalizedName() {
+    return "facebook";
   },
   get name() {
-    return "Yahoo";
+    return _("facebook.chat.name");
   },
   get iconBaseURI() {
-    return "chrome://prpl-yahoo/skin/";
+    return "chrome://prpl-facebook/skin/";
   },
   getAccount(aImAccount) {
-    return new YahooAccount(this, aImAccount);
+    return new FacebookAccount(this, aImAccount);
   },
+  classID: Components.ID("{1d1d0bc5-610c-472f-b2cb-4b89857d80dc}"),
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([FacebookProtocol]);

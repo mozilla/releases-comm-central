@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["MatrixProtocol"];
-
 var { XPCOMUtils, nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -307,4 +305,8 @@ MatrixProtocol.prototype = {
   get chatHasTopic() {
     return true;
   },
+
+  classID: Components.ID("{e9653ac6-a671-11e6-bf84-60a44c717042}"),
 };
+
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([MatrixProtocol]);
