@@ -10,7 +10,7 @@ kind-dependencies:
     - nightly-l10n
 
 transforms:
-    - comm_taskgraph:add_l10n_dependencies
+    - comm_taskgraph.transforms.addon:transforms
     - taskgraph.transforms.job:transforms
     - taskgraph.transforms.task:transforms
 

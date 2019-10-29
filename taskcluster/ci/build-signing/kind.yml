@@ -9,8 +9,7 @@ transforms:
     - taskgraph.transforms.build_signing:transforms
     - taskgraph.transforms.signing:transforms
     - taskgraph.transforms.task:transforms
-    - comm_taskgraph:remove_widevine
-    - comm_taskgraph:no_sign_langpacks
+    - comm_taskgraph.transforms.signing:transforms
 
 kind-dependencies:
     - build

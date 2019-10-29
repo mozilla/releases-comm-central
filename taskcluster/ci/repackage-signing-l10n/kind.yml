@@ -8,7 +8,7 @@ transforms:
     - taskgraph.transforms.name_sanity:transforms
     - taskgraph.transforms.repackage_signing:transforms
     - taskgraph.transforms.task:transforms
-    - comm_taskgraph:remove_widevine
+    - comm_taskgraph.transforms.signing:transforms
 
 
 kind-dependencies:

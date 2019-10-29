@@ -11,7 +11,7 @@ transforms:
     - taskgraph.transforms.beetmover_repackage_l10n:transforms
     - taskgraph.transforms.beetmover_repackage:transforms
     - taskgraph.transforms.task:transforms
-    - comm_taskgraph:remove_widevine
+    - comm_taskgraph.transforms.signing:transforms
 
 kind-dependencies:
     - build
