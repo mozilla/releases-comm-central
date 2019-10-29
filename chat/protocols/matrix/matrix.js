@@ -23,13 +23,15 @@ ChromeUtils.defineModuleGetter(
 );
 
 function MatrixParticipant(aRoomMember) {
-  // FIXME: Should probably use aRoomMember.name, but it's not unique id?
-  this._name = aRoomMember.userId;
+  this._id = aRoomMember.userId;
   this._roomMember = aRoomMember;
 }
 MatrixParticipant.prototype = {
   __proto__: GenericConvChatBuddyPrototype,
   get alias() {
+    return this._roomMember.name;
+  },
+  get name() {
     return this._roomMember.name;
   },
 
@@ -195,18 +197,9 @@ MatrixAccount.prototype = {
         });
       }
     });
-    this._client.on("RoomMember.powerLevel", (event, member) => {
-      if (member.roomId in this._roomList) {
-        let conv = this._roomList[member.roomId];
-        let participant = conv._participants.get(member.userId);
-        // A participant might not exist (for example, this happens if the user
-        // has only been invited, but has not yet joined).
-        if (participant) {
-          participant._roomMember = member;
-          conv.notifyObservers(participant, "chat-buddy-update");
-        }
-      }
-    });
+    // Update the chat participant information.
+    this._client.on("RoomMember.name", this.updateRoomMember);
+    this._client.on("RoomMember.powerLevel", this.updateRoomMember);
 
     // TODO Other events to handle:
     //  Room.accountData
@@ -214,7 +207,6 @@ MatrixAccount.prototype = {
     //  Room.name
     //  Room.tags
     //  Room
-    //  RoomMember.name
     //  RoomMember.typing
     //  Session.logged_out
     //  User.avatarUrl
@@ -224,6 +216,20 @@ MatrixAccount.prototype = {
 
     this._client.startClient();
   },
+
+  updateRoomMember(event, member) {
+    if (member.roomId in this._roomList) {
+      let conv = this._roomList[member.roomId];
+      let participant = conv._participants.get(member.userId);
+      // A participant might not exist (for example, this happens if the user
+      // has only been invited, but has not yet joined).
+      if (participant) {
+        participant._roomMember = member;
+        conv.notifyObservers(participant, "chat-buddy-update");
+      }
+    }
+  },
+
   disconnect() {
     if (this._client) {
       this._client.stopClient();
