@@ -142,7 +142,7 @@ var gAccountManager = {
     }
 
     // The selected item is still selected
-    accountList.selectedItem.buttons.setFocus();
+    accountList.selectedItem.setFocus();
     accountList.ensureSelectedElementIsVisible();
 
     // We need to refresh the disabled menu items
@@ -443,12 +443,13 @@ var gAccountManager = {
     }
   },
   onContextMenuShowing() {
-    let targetElt = document.popupNode;
-    let isAccount = targetElt instanceof Ci.nsIDOMXULSelectControlItemElement;
+    let targetElt = document.popupNode.closest(
+      'richlistitem[is="chat-account-richlistitem"]'
+    );
     document.querySelectorAll(".im-context-account-item").forEach(e => {
-      e.hidden = !isAccount;
+      e.hidden = !targetElt;
     });
-    if (isAccount) {
+    if (targetElt) {
       let account = targetElt.account;
       let hiddenItems = {
         connect: !account.disconnected,
@@ -474,7 +475,7 @@ var gAccountManager = {
     setTimeout(
       function(aThis) {
         try {
-          aThis.accountList.selectedItem.buttons.setFocus();
+          aThis.accountList.selectedItem.setFocus();
         } catch (e) {
           /* Sometimes if the user goes too fast with VK_UP or VK_DOWN, the
            selectedItem doesn't have the expected binding attached */
@@ -656,7 +657,7 @@ var gAccountManager = {
 
     Services.accounts.processAutoLogin();
 
-    gAccountManager.accountList.selectedItem.buttons.setFocus();
+    gAccountManager.accountList.selectedItem.setFocus();
   },
   processCrashedAccountsLogin() {
     for (let acc in gAccountManager.getAccounts()) {
@@ -676,7 +677,7 @@ var gAccountManager = {
       notification.close();
     }
 
-    gAccountManager.accountList.selectedItem.buttons.setFocus();
+    gAccountManager.accountList.selectedItem.setFocus();
   },
   setOffline(aState) {
     this.isOffline = aState;

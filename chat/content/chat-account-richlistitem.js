@@ -341,6 +341,10 @@
     }
   }
 
+  MozXULElement.implementCustomInterface(MozChatAccountRichlistitem, [
+    Ci.nsIDOMXULSelectControlItemElement,
+  ]);
+
   customElements.define(
     "chat-account-richlistitem",
     MozChatAccountRichlistitem,
