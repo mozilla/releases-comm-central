@@ -59,7 +59,7 @@ span.date {
   color: rgba(0, 0, 0, 0.4);
   font-size: smaller;
   text-align: right;
-  float: right;
+  float: inline-end;
   display: block;
 }
 

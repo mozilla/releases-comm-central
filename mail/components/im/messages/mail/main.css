@@ -17,7 +17,7 @@
 
 .pseudo {
   font-weight: bold;
-  float: left;
+  float: inline-start;
   width: calc(15% - 3px);
   text-align: right;
   padding-bottom: 5px;
@@ -41,7 +41,7 @@
 .date {
   font-style: normal;
   font-weight: normal;
-  float: right;
+  float: inline-end;
   color: GrayText;
 }
 

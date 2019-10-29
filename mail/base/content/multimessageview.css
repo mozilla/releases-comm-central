@@ -90,7 +90,7 @@
 }
 
 .right {
-  float: right;
+  float: inline-end;
 }
 
 .count {

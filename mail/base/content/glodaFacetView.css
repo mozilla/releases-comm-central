@@ -552,17 +552,13 @@ html[dir="rtl"] .bar-link {
   margin-bottom: 0.5em;
 }
 .message-meta {
-  float: right;
+  float: inline-end;
   padding-inline-start: 2em;
   text-align: end;
   max-width: 20em;
   max-height: 10em;
   overflow: hidden;
   color: GrayText;
-}
-
-html[dir="rtl"] .message-meta {
-  float: left;
 }
 
 .message-attachments {
@@ -672,7 +668,7 @@ html[dir="rtl"] .message-attachment-icon {
 .show-more {
   display: none; /* $('.show-more').show() is run if there are results */
   -moz-appearance: button;
-  float: right;
+  float: inline-end;
   padding: 0.2em 1em;
   font-size: small;
   margin-top: 5px;
@@ -680,10 +676,6 @@ html[dir="rtl"] .message-attachment-icon {
   margin-bottom: 2em;
   cursor: pointer;
   align-self: flex-end;
-}
-
-html[dir="rtl"] .show-more {
-  float: left;
 }
 
 div.loading,

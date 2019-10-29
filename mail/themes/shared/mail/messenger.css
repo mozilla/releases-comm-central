@@ -462,7 +462,7 @@ toolbarpaletteitem toolbarbutton {
 
 .panelButton[prettykey]::after {
   content: attr(prettykey);
-  float: right;
+  float: inline-end;
   color: GrayText;
 }
 

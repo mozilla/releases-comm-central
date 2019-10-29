@@ -53,7 +53,7 @@
 }
 
 #header-view-toolbox {
-  float: right;
+  float: inline-end;
   display: block;
 }
 
@@ -332,8 +332,4 @@ mail-headerfield {
 mail-headerfield:focus {
   outline: 1px dotted;
   outline-offset: -1px;
-}
-
-#header-view-toolbox:-moz-locale-dir(rtl) {
-  float: left;
 }

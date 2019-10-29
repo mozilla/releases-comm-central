@@ -470,7 +470,7 @@ input[type="submit"].search {
 }
 
 #success-compose img, #success-addons img, #success-signature img {
-  float: left;
+  float: inline-start;
   margin-right: 10px;
 }
 
