@@ -286,11 +286,12 @@ EmailConfigWizard.prototype = {
    * Since the sizeToContent() method doesn't account for the height of
    * wrapped text, we're checking if the width and height of the "mastervbox"
    * is taller than the window width and height. This is necessary to account
-   * for l10n strings or the user manually resizing the window. Bug 1590503.
+   * for l10n strings or the user manually resizing the window.
    */
   resizeDialog() {
-    let contentHeight = document.getElementById("mastervbox").clientHeight;
-    let contentWidth = document.getElementById("mastervbox").clientWidth;
+    let mastervbox = document.getElementById("mastervbox");
+    let contentHeight = mastervbox.clientHeight;
+    let contentWidth = mastervbox.clientWidth;
 
     if (contentHeight > window.innerHeight) {
       window.innerHeight = contentHeight;
@@ -2005,12 +2006,12 @@ EmailConfigWizard.prototype = {
         // If we got no message, then something other than VerifyLogon failed.
         self.showErrorMsg(e.message || e.toString());
 
-        this.resizeDialog();
         // TODO use switchToMode(), see above
         // give user something to proceed after fixing
         _enable("create_button");
         // hidden in non-manual mode, so it's fine to enable
         _enable("half-manual-test_button");
+        self.resizeDialog();
       }
     );
   },
