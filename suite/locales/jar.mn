@@ -292,7 +292,6 @@
   locale/@AB_CD@/messenger/mime.properties                                  (%chrome/mailnews/mime.properties)
   locale/@AB_CD@/messenger/mimeheader.properties                            (%chrome/mailnews/mimeheader.properties)
   locale/@AB_CD@/messenger/msgAccountCentral.dtd                            (%chrome/mailnews/msgAccountCentral.dtd)
-  locale/@AB_CD@/messenger/msgFolderPickerOverlay.dtd                       (%chrome/mailnews/msgFolderPickerOverlay.dtd)
   locale/@AB_CD@/messenger/msgHdrViewOverlay.dtd                            (%chrome/mailnews/msgHdrViewOverlay.dtd)
   locale/@AB_CD@/messenger/msgHdrViewPopup.dtd                              (%chrome/mailnews/msgHdrViewPopup.dtd)
   locale/@AB_CD@/messenger/msgmdn.properties                                (%chrome/mailnews/msgmdn.properties)
