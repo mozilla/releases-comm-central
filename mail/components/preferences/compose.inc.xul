@@ -210,7 +210,7 @@
 
       <hbox align="center" pack="start">
         <label value="&showAsDefault.label;" accesskey="&showAsDefault.accesskey;"
-                control="defaultStartupDirList"/>
+               control="defaultStartupDirList"/>
         <menulist is="menulist-addrbooks" id="defaultStartupDirList"
                   oncommand="gComposePane.setDefaultStartupDir(this.value);"
                   none="&showAsDefaultLast.label;"

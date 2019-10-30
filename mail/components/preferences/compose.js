@@ -171,17 +171,7 @@ var gComposePane = {
       let startupURI = Services.prefs.getCharPref(
         "mail.addr_book.view.startupURI"
       );
-      let dirItem = dirList.querySelector(
-        `menupopup menuitem[value="${startupURI}"]`
-      );
-      // It may happen that the stored URI is not in the list.
-      // In that case select the "none" value and let the AB code clear out
-      // the invalid value, unless the user selects something here.
-      if (dirItem) {
-        dirList.selectedItem = dirItem;
-      } else {
-        dirList.value = "";
-      }
+      dirList.value = startupURI;
     } else {
       // Choose item meaning there is no default startup directory any more.
       dirList.value = "";
