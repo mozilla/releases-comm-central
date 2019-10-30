@@ -692,7 +692,7 @@ var MessageWindowController =
       case "cmd_saveAsFile":
         return true;
       case "cmd_saveAsTemplate":
-        var target = gMessageBrowser.contentPrincipal.URI.scheme;
+        var target = getMessageBrowser().contentPrincipal.URI.scheme;
         return target != "news";
       case "cmd_viewPageSource":
       case "cmd_reload":
