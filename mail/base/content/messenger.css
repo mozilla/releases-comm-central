@@ -240,3 +240,8 @@ iframe.devtools-highlighter-renderer {
   height: 100%;
   z-index: 2;
 }
+
+/* Show hidden toolbars in customize mode */
+toolbar[customizing="true"][collapsed="true"] {
+  visibility: visible;
+}
