@@ -30,6 +30,12 @@ XPCOMUtils.defineLazyGetter(this, "gMacTaskbarProgress", function() {
            .getService(Ci.nsITaskbarProgress);
 });
 
+XPCOMUtils.defineLazyGetter(this, "gGtkTaskbarProgress", function() {
+  return ("@mozilla.org/widget/taskbarprogress/gtk;1" in Cc) &&
+         Cc["@mozilla.org/widget/taskbarprogress/gtk;1"]
+           .getService(Ci.nsIGtkTaskbarProgress);
+});
+
 // DownloadsTaskbar
 
 /**
@@ -75,13 +81,11 @@ var DownloadsTaskbar = {
           this._taskbarProgress = null;
           gMacTaskbarProgress = null;
         }, "quit-application-granted");
-      } else if (gWinTaskbar) {
+      } else {
         // On Windows, the indicator is currently hidden because we have no
         // previous window, thus we should attach the indicator now.
+        // In gtk3, the window itself implements the progress interface.
         this.attachIndicator(aWindow);
-      } else {
-        // The taskbar indicator is not available on this platform.
-        return;
       }
     }
 
@@ -100,7 +104,7 @@ var DownloadsTaskbar = {
   },
 
   /**
-   * On Windows, attaches the taskbar indicator to the specified window.
+   * On Windows and linux attach the taskbar indicator to the specified window.
    */
   attachIndicator(aWindow) {
     // If there is already a taskbarProgress this usually means the download
@@ -109,13 +113,25 @@ var DownloadsTaskbar = {
       this._taskbarProgress.setProgressState(Ci.nsITaskbarProgress.STATE_NO_PROGRESS);
     }
 
-    // Activate the indicator on the specified window.
-    let docShell = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
-                          .getInterface(Ci.nsIWebNavigation)
-                          .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
-                          .QueryInterface(Ci.nsIInterfaceRequestor)
-                          .getInterface(Ci.nsIXULWindow).docShell;
-    this._taskbarProgress = gWinTaskbar.getTaskbarProgress(docShell);
+    if (gWinTaskbar) {
+      // Activate the indicator on the specified window.
+      let docShell = aWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                            .getInterface(Ci.nsIWebNavigation)
+                            .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
+                            .QueryInterface(Ci.nsIInterfaceRequestor)
+                            .getInterface(Ci.nsIXULWindow).docShell;
+      this._taskbarProgress = gWinTaskbar.getTaskbarProgress(docShell);
+    } else if (gGtkTaskbarProgress) {
+      // In gtk3, the window itself implements the progress interface.
+      if (!this._taskbarProgress) {
+        this._taskbarProgress = gGtkTaskbarProgress;
+      }
+
+      this._taskbarProgress.setPrimaryWindow(aWindow);
+    } else {
+      // macOS, not gtk3 or unsupported OS.
+      return;
+    }
 
     // If the DownloadSummary object has already been created, we should update
     // the state of the new indicator, otherwise it will be updated as soon as
@@ -131,8 +147,8 @@ var DownloadsTaskbar = {
         newActiveWindow = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
       }
       if (newActiveWindow) {
-        // Move the progress indicator to the other browser window.
-        this.attachIndicator(newActiveWindow, false);
+        // Move the progress indicator to the other window.
+        this.attachIndicator(newActiveWindow);
       } else {
         // The last window has been closed. We remove the reference to
         // the taskbar progress object.
@@ -143,7 +159,7 @@ var DownloadsTaskbar = {
 
   // DownloadSummary view
   onSummaryChanged() {
-    // If the last browser window has been closed, we have no indicator any more.
+    // If the last window has been closed, we have no indicator any more.
     if (!this._taskbarProgress) {
       return;
     }
