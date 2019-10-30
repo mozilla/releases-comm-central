@@ -3,43 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function _RDF(aType)
-  {
-    return "http://www.w3.org/1999/02/22-rdf-syntax-ns#" + aType;
-  }
-function NC_RDF(aType)
-  {
-    return "http://home.netscape.com/NC-rdf#" + aType;
-  }
-
-var RDFUtils = {
-  getResource: function(aString)
-    {
-      return this.rdf.GetResource(aString, true);
-    },
-
-  getTarget: function(aDS, aSourceID, aPropertyID)
-    {
-      var source = this.getResource(aSourceID);
-      var property = this.getResource(aPropertyID);
-      return aDS.GetTarget(source, property, true);
-    },
-
-  getValueFromResource: function(aResource)
-    {
-      aResource = aResource.QueryInterface(Ci.nsIRDFResource);
-      return aResource ? aResource.Value : null;
-    },
-  _rdf: null,
-  get rdf() {
-    if (!this._rdf) {
-      this._rdf = Cc["@mozilla.org/rdf/rdf-service;1"]
-                    .getService(Ci.nsIRDFService);
-    }
-    return this._rdf;
-  }
-}
-
 function htmlEscape(aString)
 {
   return aString.replace(/&/g, "&amp;")
