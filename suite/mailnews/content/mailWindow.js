@@ -30,9 +30,6 @@ var gAccountCentralLoaded = true;
 
 var gOfflineManager;
 
-// cache the last keywords
-var gLastKeywords = "";
-
 function OnMailWindowUnload()
 {
   RemoveMailOfflineObserver();
@@ -625,46 +622,6 @@ function GetSearchSession()
     return gSearchSession;
   else
     return null;
-}
-
-function SetKeywords(aKeywords)
-{
-  // we cache the last keywords.
-  // if there is no chagne, we do nothing.
-  // most of the time, this will be the case.
-  if (aKeywords == gLastKeywords)
-    return;
-
-  // these are the UI elements who care about keywords
-  var elements = document.getElementsByAttribute("keywordrelated","true");
-  var len = elements.length;
-  for (var i=0; i<len; i++) {
-    var element = elements[i];
-    var originalclass = element.getAttribute("originalclass");
-
-    // we use XBL for certain headers.
-    // if the element has keywordrelated="true"
-    // but no original class, it's an XBL widget
-    // so to get the real element, use getAnonymousElementByAttribute()
-    if (!originalclass) {
-      element = document.getAnonymousElementByAttribute(element, "keywordrelated", "true");
-      originalclass = element.getAttribute("originalclass");
-    }
-
-    if (aKeywords) {
-      if (element.getAttribute("appendoriginalclass") == "true") {
-        aKeywords += " " + originalclass;
-      }
-      element.setAttribute("class", aKeywords);
-    }
-    else {
-      // if no keywords, reset class to the original class
-      element.setAttribute("class", originalclass);
-    }
-  }
-
-  // cache the keywords
-  gLastKeywords = aKeywords;
 }
 
 function MailSetCharacterSet(aEvent)
