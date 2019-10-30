@@ -5,7 +5,7 @@
 comm.jar:
 % content help %content/communicator/helpviewer/
 *  content/communicator/helpviewer/help.xul                         (content/help.xul)
-*  content/communicator/helpviewer/contextHelp.js                   (content/contextHelp.js)
-*  content/communicator/helpviewer/help.js                          (content/help.js)
+   content/communicator/helpviewer/contextHelp.js                   (content/contextHelp.js)
+   content/communicator/helpviewer/help.js                          (content/help.js)
 *  content/communicator/helpviewer/helpContextOverlay.xul           (content/helpContextOverlay.xul)
 *  content/communicator/helpviewer/platformClasses.css              (content/platformClasses.css)

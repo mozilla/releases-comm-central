@@ -1,10 +1,14 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-# Global Variables
+var {AppConstants} = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
+// Global Variables
 var helpExternal;
 var helpBrowser;
 var helpSearchPanel;
@@ -17,24 +21,16 @@ var helpGlossaryPanel;
 var strBundle;
 var gTocDSList = "";
 
-# Namespaces
+// Namespaces
 const NC = "http://home.netscape.com/NC-rdf#";
 const MAX_LEVEL = 40; // maximum depth of recursion in search datasources.
 const MAX_HISTORY_MENU_ITEMS = 6;
 
-# ifdef logic ripped from toolkit/components/help/content/platformClasses.css
-#ifdef XP_WIN
-const platform = "win";
-#else
-#ifdef XP_MACOSX
-const platform = "mac";
-#else
-const platform = "unix";
-#endif
-#endif
+const platform = getCurrentPlatform();
 
-# Resources
-const RDF = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
+// Resources
+const RDF = Cc["@mozilla.org/rdf/rdf-service;1"]
+              .getService(Ci.nsIRDFService);
 const RDF_ROOT = RDF.GetResource("urn:root");
 const NC_PANELLIST = RDF.GetResource(NC + "panellist");
 const NC_PANELID = RDF.GetResource(NC + "panelid");
@@ -50,8 +46,8 @@ const NC_TITLE = RDF.GetResource(NC + "title");
 const NC_BASE = RDF.GetResource(NC + "base");
 const NC_DEFAULTTOPIC = RDF.GetResource(NC + "defaulttopic");
 
-var RDFContainer =
-      Cc["@mozilla.org/rdf/container;1"].createInstance(Ci.nsIRDFContainer);
+var RDFContainer = Cc["@mozilla.org/rdf/container;1"]
+                     .createInstance(Ci.nsIRDFContainer);
 const CONSOLE_SERVICE = Cc['@mozilla.org/consoleservice;1']
                           .getService(Ci.nsIConsoleService);
 
@@ -59,8 +55,8 @@ var RE;
 
 var helpFileURI;
 var helpFileDS;
-# Set from nc:base attribute on help rdf file. It may be used for prefix
-# reduction on all links within the current help set.
+// Set from nc:base attribute on help rdf file. It may be used for prefix
+// reduction on all links within the current help set.
 var helpBaseURI;
 
 /* defaultTopic is either set
@@ -74,10 +70,34 @@ var defaultTopic;
 
 const NSRESULT_RDF_SYNTAX_ERROR = 0x804e03f7;
 
-# This function is called by dialogs/windows that want to display
-# context-sensitive help
-# These dialogs/windows should include the script
-# chrome://help/content/contextHelp.js
+// Translate the current application platform to one the
+// help viewer understands.
+function getCurrentPlatform() {
+
+  // The supported platforms are defined in
+  // suite/locales/en-US/chrome/common/help/suitehelp.rdf.
+  // We can't just return the current platform 1:1 because
+  // this would need l10n changes for all languages.
+   if (AppConstants.platform == "win") {
+     return "win";
+   }
+
+   if (AppConstants.platform == "macosx") {
+     return "mac";
+   }
+
+   if (AppConstants.platform == "linux") {
+     return "unix";
+   }
+
+   // We never end up here in official builds.
+   return "---";
+}
+
+// This function is called by dialogs/windows that want to display
+// context-sensitive help
+// These dialogs/windows should include the script
+// chrome://help/content/contextHelp.js
 function displayTopic(topic) {
     // Get the page to open.
     var uri = getLink(topic);
@@ -90,7 +110,7 @@ function displayTopic(topic) {
       loadURI(uri);
 }
 
-# Initialize the Help window
+// Initialize the Help window
 function init() {
   // Cache panel references.
   helpSearchPanel = document.getElementById("help-search-panel");
@@ -228,10 +248,10 @@ function hideSearchSidebar(aEvent) {
   tableOfContents.removeAttribute("hidden");
 }
 
-# loadHelpRDF
-# Parse the provided help content pack RDF file, and use it to
-# populate the datasources attached to the trees in the viewer.
-# Filter out any information not applicable to the user's platform.
+// loadHelpRDF
+// Parse the provided help content pack RDF file, and use it to
+// populate the datasources attached to the trees in the viewer.
+// Filter out any information not applicable to the user's platform.
 function loadHelpRDF() {
   if (!helpFileDS) {
     try {
@@ -310,14 +330,14 @@ function loadHelpRDF() {
   }
 }
 
-# filterDatasourceByPlatform
-# Remove statements for other platforms from a datasource.
+// filterDatasourceByPlatform
+// Remove statements for other platforms from a datasource.
 function filterDatasourceByPlatform(aDatasource) {
   filterNodeByPlatform(aDatasource, RDF_ROOT, 0);
 }
 
-# filterNodeByPlatform
-# Remove statements for other platforms from the provided datasource.
+// filterNodeByPlatform
+// Remove statements for other platforms from the provided datasource.
 function filterNodeByPlatform(aDatasource, aCurrentResource, aCurrentLevel) {
   if (aCurrentLevel > MAX_LEVEL) {
      log("Datasources over " + MAX_LEVEL + " levels deep are unsupported.");
@@ -334,12 +354,13 @@ function filterNodeByPlatform(aDatasource, aCurrentResource, aCurrentLevel) {
   }
 }
 
-# filterSeqByPlatform
-# Go through the children of aNode, if any, removing statements applicable
-# only on other platforms.
+// filterSeqByPlatform
+// Go through the children of aNode, if any, removing statements applicable
+// only on other platforms.
 function filterSeqByPlatform(aDatasource, aNode, aCurrentLevel) {
   // get nc:subheading children into an enumerator
-  var RDFC = Cc["@mozilla.org/rdf/container;1"].createInstance(Ci.nsIRDFContainer);
+  var RDFC = Cc["@mozilla.org/rdf/container;1"]
+               .createInstance(Ci.nsIRDFContainer);
   RDFC.Init(aDatasource, aNode);
   var targets = RDFC.GetElements();
 
@@ -368,8 +389,8 @@ function filterSeqByPlatform(aDatasource, aNode, aCurrentLevel) {
   }
 }
 
-# Prepend helpBaseURI to list of space separated links if they don't start with
-# "chrome:"
+// Prepend helpBaseURI to list of space separated links if they don't start with
+// "chrome:"
 function normalizeLinks(helpBaseURI, links) {
   if (!helpBaseURI) {
     return links;
@@ -381,7 +402,7 @@ function normalizeLinks(helpBaseURI, links) {
   for (var i=0; i < ls.length; ++i) {
     if (ls[i] == "")
       continue;
-      
+
     if (ls[i].substr(0,7) != "chrome:" && ls[i].substr(0,4) != "rdf:")
       ls[i] = helpBaseURI + ls[i];
   }
@@ -411,8 +432,8 @@ function getLink(ID) {
     return null;
 }
 
-# Called by contextHelp.js to determine if this window is displaying the
-# requested help file.
+// Called by contextHelp.js to determine if this window is displaying the
+// requested help file.
 function getHelpFileURI() {
     return helpFileURI;
 }
@@ -627,8 +648,8 @@ function focusSearch() {
   searchBox.focus();
 }
 
-# doFind - Searches the help files for what is located in findText and outputs into
-#        the find search tree.
+// doFind - Searches the help files for what is located in findText and outputs into
+//        the find search tree.
 function doFind() {
     if (document.getElementById("help-search-sidebar").hidden)
       showSearchSidebar();
@@ -776,7 +797,7 @@ function getLiteralValue(literal, defaultValue) {
     return null;
 }
 
-# Write debug string to error console.
+//  Write debug string to error console.
 function log(aText) {
     CONSOLE_SERVICE.logStringMessage(aText);
 }
@@ -793,7 +814,7 @@ function getBoolPref (aPrefname, aDefault)
   }
 }
 
-# getXulWin - Returns the current Help window as a nsIXULWindow.
+// getXulWin - Returns the current Help window as a nsIXULWindow.
 function getXulWin()
 {
   window.QueryInterface(Ci.nsIInterfaceRequestor);
@@ -805,19 +826,19 @@ function getXulWin()
   return ifreq.getInterface(Ci.nsIXULWindow);
 }
 
-# toggleZLevel - Toggles whether or not the window will always appear on top. Because
-#   alwaysRaised is not supported on an OS other than Windows, this code will not
-#   appear in those builds.
-#
-#   element - The DOM node that persists the checked state.
-#ifdef XP_WIN
-#define HELP_ALWAYS_RAISED_TOGGLE
-#endif
-#ifdef HELP_ALWAYS_RAISED_TOGGLE
+// toggleZLevel - Toggles whether or not the window will always appear on top. Because
+//   alwaysRaised is not supported on an OS other than Windows, this code will not
+//   be used in those builds.
+//
+//    element - The DOM node that persists the checked state.
 function toggleZLevel(element)
 {
+  if (AppConstants.platform != "win") {
+    return;
+  }
+
   var xulwin = getXulWin();
-  
+
   // Now we can flip the zLevel, and set the attribute so that it persists correctly
   if (xulwin.zLevel > xulwin.normalZ) {
     xulwin.zLevel = xulwin.normalZ;
@@ -827,7 +848,6 @@ function toggleZLevel(element)
     element.setAttribute("checked", "true");
   }
 }
-#endif
 
 var helpContentListener = {
   onStartURIOpen: function(aURI) {
