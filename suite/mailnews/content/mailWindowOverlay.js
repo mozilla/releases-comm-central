@@ -151,7 +151,8 @@ function view_init()
 
   // Initialize the Show Feed Summary menu
   let viewFeedSummary = document.getElementById("viewFeedSummary");
-  viewFeedSummary.hidden = !isFeed;
+  viewFeedSummary.hidden = !isFeed ||
+    document.documentElement.getAttribute("windowtype") != "mail:3pane";
 
   let viewRssMenuItemIds = ["bodyFeedGlobalWebPage",
                             "bodyFeedGlobalSummary",
@@ -1610,6 +1611,9 @@ function MsgOpenSelectedMessages()
         FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenToggleInMessagePane) {
       let showSummary = FeedMessageHandler.shouldShowSummary(msgHdr, true);
       FeedMessageHandler.setContent(msgHdr, showSummary);
+      FeedMessageHandler.onSelectPref =
+        showSummary ? FeedMessageHandler.kSelectOverrideSummary :
+                      FeedMessageHandler.kSelectOverrideWebPage;
       return;
     }
     if (FeedMessageHandler.onOpenPref == FeedMessageHandler.kOpenLoadInBrowser) {
