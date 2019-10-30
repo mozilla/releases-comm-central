@@ -23,12 +23,6 @@ var gPrevFolderFlags;
 var gPrevSelectedFolder;
 var gMsgFolderSelected;
 
-function OpenURL(url)
-{
-  messenger.setWindow(window, msgWindow);
-  messenger.openURL(url);
-}
-
 function GetMsgFolderFromResource(folderResource)
 {
   if (!folderResource)
@@ -52,29 +46,6 @@ function GetServer(uri)
         dump("GetServer("+uri+") failed, ex="+ex+"\n");
     }
     return null;
-}
-
-function LoadMessageByUri(uri)
-{
-  //dump("XXX LoadMessageByUri " + uri + " vs " + gCurrentDisplayedMessage + "\n");
-  if(uri != gCurrentDisplayedMessage)
-  {
-        dump("fix this, get the nsIMsgDBHdr and the nsIMsgFolder from the uri...\n");
-/*
-    var resource = RDF.GetResource(uri);
-    var message = resource.QueryInterface(Ci.nsIMessage);
-    if (message)
-      setTitleFromFolder(message.msgFolder, message.mimef2DecodedSubject);
-
-    if (message.msgFolder.server.downloadOnBiff)
-      message.msgFolder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
-*/
-
-    gCurrentDisplayedMessage = uri;
-    gHaveLoadedMessage = true;
-    OpenURL(uri);
-  }
-
 }
 
 function setTitleFromFolder(msgfolder, subject)
