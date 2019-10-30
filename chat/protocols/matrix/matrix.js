@@ -81,14 +81,21 @@ MatrixConversation.prototype = {
       "chat-buddy-add"
     );
   },
-  initListOfParticipants() {
-    let conv = this;
+
+  /*
+   * Initialize the room after the response from the Matrix client.
+   */
+  initRoom(aRoom) {
+    // Store the ID of the room to look up information in the future.
+    this._roomId = aRoom.roomId;
+
+    // If there are any participants, create them.
     let participants = [];
-    this.room.getJoinedMembers().forEach(function(aRoomMember) {
-      if (!conv._participants.has(aRoomMember.userId)) {
+    aRoom.getJoinedMembers().forEach(aRoomMember => {
+      if (!this._participants.has(aRoomMember.userId)) {
         let participant = new MatrixParticipant(aRoomMember);
         participants.push(participant);
-        conv._participants.set(aRoomMember.userId, participant);
+        this._participants.set(aRoomMember.userId, participant);
       }
     });
     if (participants.length) {
@@ -175,28 +182,33 @@ MatrixAccount.prototype = {
         var room = this._roomList[member.roomId];
         if (member.membership === "join") {
           room.addParticipant(member);
-        } else {
+        } else if (member.membership === "leave") {
           room.removeParticipant(member.userId);
         }
+        // Other options include "invite".
       }
     });
-    this._client.on("Room.timeline", (event, room, toStartOfTimeline) => {
-      // TODO: Better handle messages!
-      if (toStartOfTimeline) {
-        return;
-      }
-      if (room.roomId in this._roomList) {
-        let body;
-        if (event.getType() === "m.room.message") {
-          body = event.getContent().body;
-        } else {
-          body = JSON.stringify(event.getContent());
+    this._client.on(
+      "Room.timeline",
+      (event, room, toStartOfTimeline, removed, data) => {
+        // TODO: Better handle messages!
+        if (toStartOfTimeline) {
+          return;
         }
-        this._roomList[room.roomId].writeMessage(event.getSender(), body, {
-          incoming: true,
-        });
+        if (room.roomId in this._roomList) {
+          let body;
+          if (event.getType() === "m.room.message") {
+            body = event.getContent().body;
+          } else {
+            // TODO Any event that is not understood gets the raw content added to the conversation.
+            body = JSON.stringify(event.getContent());
+          }
+          this._roomList[room.roomId].writeMessage(event.getSender(), body, {
+            incoming: true,
+          });
+        }
       }
-    });
+    );
     // Update the chat participant information.
     this._client.on("RoomMember.name", this.updateRoomMember);
     this._client.on("RoomMember.powerLevel", this.updateRoomMember);
@@ -215,6 +227,18 @@ MatrixAccount.prototype = {
     //  User.presence
 
     this._client.startClient();
+
+    // Get the list of joined rooms on the server and create those conversations.
+    this._client.getJoinedRooms().then(response => {
+      for (let roomId of response.joined_rooms) {
+        let conv = new MatrixConversation(this, roomId, this.userId);
+        this._roomList[roomId] = conv;
+        let room = this._client.getRoom(roomId);
+        if (room) {
+          conv.initRoom(room);
+        }
+      }
+    });
   },
 
   updateRoomMember(event, member) {
@@ -264,7 +288,7 @@ MatrixAccount.prototype = {
     if (!roomIdOrAlias.endsWith(":" + domain)) {
       roomIdOrAlias += ":" + domain;
     }
-    if (!roomIdOrAlias.match("^[!#]")) {
+    if (!roomIdOrAlias.match(/^[!#]/)) {
       roomIdOrAlias = "#" + roomIdOrAlias;
     }
 
@@ -274,17 +298,17 @@ MatrixAccount.prototype = {
     this._client
       .joinRoom(roomIdOrAlias)
       .then(room => {
-        conv._roomId = room.roomId;
         this._roomList[room.roomId] = conv;
-        conv.initListOfParticipants();
+        conv.initRoom(room);
         conv.joining = false;
       })
       .catch(error => {
         // TODO: Handle errors?
         // XXX We probably want to display an error in the open conversation
-        //     window and leave it as unjoined.
+        //     window.
         this.ERROR(error);
-        conv.close();
+        conv.joining = false;
+        conv.left = true;
 
         // TODO Perhaps we should call createRoom if the room doesn't exist.
       });
