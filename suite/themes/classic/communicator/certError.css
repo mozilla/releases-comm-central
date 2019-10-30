@@ -24,6 +24,10 @@ h2 {
   font-size: 130%;
 }
 
+span.hostname {
+  font-weight: bolder;
+}
+
 #errorPageContainer {
   position: relative;
   min-width: 13em;

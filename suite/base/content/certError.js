@@ -24,6 +24,9 @@ document.getElementById("expertContentHeading")
 
 let gSearchParams;
 
+// Set to true on init if the error code is nssBadCert.
+let gIsCertError;
+
 initPage();
 
 function getErrorCode() {
@@ -41,31 +44,71 @@ function getDescription() {
 function initPage() {
   gSearchParams = new URLSearchParams(document.documentURI.split("?")[1]);
 
-  var intro = document.getElementById("introContentP1");
-  var node = document.evaluate('//text()[string()="#1"]', intro, null,
-                               XPathResult.ANY_UNORDERED_NODE_TYPE,
-                               null).singleNodeValue;
-  if (node)
-    node.textContent = location.host;
+  let err = getErrorCode();
+  gIsCertError = (err == "nssBadCert");
 
-  switch (getCSSClass()) {
-  case "expertBadCert":
+  let pageTitle = document.getElementById("ept_" + err);
+  if (pageTitle) {
+    document.title = pageTitle.textContent;
+  }
+
+  // If it's an unknown error or there's no title or description defined,
+  // get the generic message.
+  let errTitle = document.getElementById("et_" + err);
+  let errDesc  = document.getElementById("ed_" + err);
+  if (!errTitle || !errDesc) {
+    errTitle = document.getElementById("et_generic");
+    errDesc  = document.getElementById("ed_generic");
+  }
+
+  let title = document.getElementById("errorTitleText");
+  if (title) {
+    title.innerHTML = errTitle.innerHTML;
+  }
+
+  let sd = document.getElementById("errorShortDescText");
+  if (sd) {
+    if (gIsCertError) {
+      sd.innerHTML = errDesc.innerHTML;
+    } else {
+      sd.textContent = getDescription();
+    }
+  }
+
+  let xd = document.getElementById("errorShortDescExtra");
+  if (xd) {
+    let errExtra = document.getElementById("ex_" + err);
+    if (gIsCertError && errExtra) {
+      xd.innerHTML = errExtra.innerHTML;
+    } else {
+      xd.remove();
+    }
+  }
+
+  // Remove undisplayed errors to avoid bug 39098.
+  let errContainer = document.getElementById("errorContainer");
+  errContainer.remove();
+
+  if (gIsCertError) {
+    for (let host of document.querySelectorAll(".hostname")) {
+      host.textContent = location.host;
+    }
+  }
+
+  let className = getCSSClass();
+  if (className == "expertBadCert") {
     toggle("technicalContent");
     toggle("expertContent");
-    // fall through
-
-  default:
-    document.getElementById("badStsCertExplanation").remove();
-    if (window == window.top)
-      break;
-    // else fall though
+  }
 
   // Disallow overrides if this is a Strict-Transport-Security
   // host and the cert is bad (STS Spec section 7.3);
   // or if the cert error is in a frame (bug 633691).
-  case "badStsCert":
-    document.getElementById("expertContent").remove();
-    break;
+  if (className == "badStsCert" || window != top) {
+    document.getElementById("expertContent").setAttribute("hidden", "true");
+  }
+  if (className == "badStsCert") {
+    document.getElementById("badStsCertExplanation").removeAttribute("hidden");
   }
 
   addDomainErrorLinks();

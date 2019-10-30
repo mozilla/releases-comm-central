@@ -22,7 +22,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>&certerror.pagetitle;</title>
+    <title>&loadError.label;</title>
     <link rel="stylesheet" href="chrome://communicator/content/certError.css" type="text/css" media="all" />
     <link rel="stylesheet" href="chrome://communicator/skin/certError.css" type="text/css" media="all" />
     <link rel="icon" type="image/png" id="favicon" href="chrome://global/skin/icons/warning-16.png"/>
@@ -30,26 +30,45 @@
 
   <body dir="&locale.dir;">
 
+    <!-- ERROR ITEM CONTAINER (removed during loading to avoid bug 39098) -->
+    <div id="errorContainer" style="display: none;">
+      <div id="errorPageTitlesContainer">
+        <span id="ept_nssBadCert">&certerror.pagetitle;</span>
+      </div>
+      <div id="errorTitlesContainer">
+        <h1 id="et_generic">&generic.title;</h1>
+        <h1 id="et_nssBadCert">&certerror.longpagetitle;</h1>
+      </div>
+      <div id="errorDescriptionsContainer">
+        <div id="ed_generic">&generic.longDesc;</div>
+        <div id="ed_nssBadCert">&certerror.introPara1a;</div>
+        <div id="ex_nssBadCert">&certerror.introPara2;</div>
+      </div>
+    </div>
+
     <!-- PAGE CONTAINER (for styling purposes only) -->
     <div id="errorPageContainer">
 
       <!-- Error Title -->
       <div id="errorTitle">
-        <h1 id="errorTitleText">&certerror.longpagetitle;</h1>
+        <h1 id="errorTitleText"/>
       </div>
 
       <!-- LONG CONTENT (the section most likely to require scrolling) -->
       <div id="errorLongContent">
-        <div id="introContent">
-          <p id="introContentP1">&certerror.introPara1;</p>
-          <p>&certerror.introPara2;</p>
+
+        <!-- Short Description -->
+        <div id="errorShortDesc">
+          <p id="errorShortDescText"/>
+          <p id="errorShortDescExtra"/>
         </div>
 
         <div id="whatShouldIDoContent">
           <h2>&certerror.whatShouldIDo.heading;</h2>
           <div id="whatShouldIDoContentText">
             <p>&certerror.whatShouldIDo.content;</p>
-            <p id="badStsCertExplanation">&certerror.whatShouldIDo.badStsCertExplanation;</p>
+            <p id="badStsCertExplanation"
+               hidden="true">&certerror.whatShouldIDo.badStsCertExplanation;</p>
             <span id="getMeOutOfHereButton"
                   class="button"
                   label="&certerror.getMeOutOfHere.label;"/>
