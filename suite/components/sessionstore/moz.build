@@ -16,7 +16,7 @@ EXTRA_COMPONENTS += [
     'nsSessionStartup.manifest',
 ]
 
-EXTRA_PP_COMPONENTS += [
+EXTRA_COMPONENTS += [
     'nsSessionStore.js',
 ]
 

@@ -77,20 +77,11 @@ const CAPABILITIES = [
 // These are tab events that we listen to.
 const TAB_EVENTS = ["TabOpen", "TabClose", "TabSelect", "TabShow", "TabHide"];
 
-#ifndef XP_WIN
-#define BROKEN_WM_Z_ORDER
-#endif
-
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 // debug.js adds NS_ASSERT. cf. bug 669196
 const {debug} = ChromeUtils.import("resource://gre/modules/debug.js");
-
-#ifdef MOZ_CRASH_REPORTER
-XPCOMUtils.defineLazyServiceGetter(this, "CrashReporter",
-  "@mozilla.org/xre/app-info;1", "nsICrashReporter");
-#endif
 
 XPCOMUtils.defineLazyServiceGetter(this, "SecMan",
   "@mozilla.org/scriptsecuritymanager;1", "nsIScriptSecurityManager");
@@ -98,6 +89,9 @@ XPCOMUtils.defineLazyServiceGetter(this, "gScreenManager",
   "@mozilla.org/gfx/screenmanager;1", "nsIScreenManager");
 XPCOMUtils.defineLazyServiceGetter(this, "uuidGenerator",
   "@mozilla.org/uuid-generator;1", "nsIUUIDGenerator");
+
+ChromeUtils.defineModuleGetter(this, "AppConstants",
+  "resource://gre/modules/AppConstants.jsm");
 ChromeUtils.defineModuleGetter(this, "Utils",
   "resource://gre/modules/sessionstore/Utils.jsm");
 
@@ -600,9 +594,7 @@ SessionStoreService.prototype = {
 
       if (closedWindowState) {
         let newWindowState;
-#ifndef XP_MACOSX
-        if (!this._doResumeSession()) {
-#endif
+        if (AppConstants.platform == "macosx" || !this._doResumeSession()) {
           // We want to split the window up into pinned tabs and unpinned tabs.
           // Pinned tabs should be restored. If there are any remaining tabs,
           // they should be added back to _closedWindows.
@@ -626,7 +618,6 @@ SessionStoreService.prototype = {
             delete normalTabsState.windows[0].__lastSessionWindowID;
             this._closedWindows[closedWindowIndex] = normalTabsState.windows[0];
           }
-#ifndef XP_MACOSX
         }
         else {
           // If we're just restoring the window, make sure it gets removed from
@@ -635,7 +626,7 @@ SessionStoreService.prototype = {
           newWindowState = closedWindowState;
           delete newWindowState.hidden;
         }
-#endif
+
         if (newWindowState) {
           // Ensure that the window state isn't hidden
           this._restoreCount = 1;
@@ -2166,13 +2157,13 @@ SessionStoreService.prototype = {
     // shallow copy this._closedWindows to preserve current state
     let lastClosedWindowsCopy = this._closedWindows.slice();
 
-#ifndef XP_MACOSX
     // If no non-popup browser window remains open, return the state of the last
     // closed window(s). We only want to do this when we're actually "ending"
     // the session.
     //XXXzpao We should do this for _restoreLastWindow == true, but that has
     //        its own check for popups. c.f. bug 597619
-    if (nonPopupCount == 0 && lastClosedWindowsCopy.length > 0 &&
+    if (AppConstants.platform != "macosx" && 
+        nonPopupCount == 0 && lastClosedWindowsCopy.length > 0 &&
         this._loadState == STATE_QUITTING) {
       // prepend the last non-popup browser window, so that if the user loads more tabs
       // at startup we don't accidentally add them to a popup window
@@ -2180,7 +2171,6 @@ SessionStoreService.prototype = {
         total.unshift(lastClosedWindowsCopy.shift())
       } while (total[0].isPopup)
     }
-#endif
 
     if (activeWindow) {
       this.activeWindowSSiCache = activeWindow.__SSi || "";
@@ -3430,26 +3420,31 @@ SessionStoreService.prototype = {
     if (!win.closed)
       return win;
 
-#ifdef BROKEN_WM_Z_ORDER
-    win = null;
-    var windowsEnum = Services.wm.getEnumerator("navigator:browser");
-    // this is oldest to newest, so this gets a bit ugly
-    while (windowsEnum.hasMoreElements()) {
-      let nextWin = windowsEnum.getNext();
-      if (!nextWin.closed)
-        win = nextWin;
+    let broken_wm_z_order =
+      AppConstants.platform != "macosx" && AppConstants.platform != "win";
+
+    if (broken_wm_z_order) {
+      win = null;
+      var windowsEnum = Services.wm.getEnumerator("navigator:browser");
+      // this is oldest to newest, so this gets a bit ugly
+      while (windowsEnum.hasMoreElements()) {
+        let nextWin = windowsEnum.getNext();
+        if (!nextWin.closed)
+          win = nextWin;
+      }
+      return win;
     }
-    return win;
-#else
+
     var windowsEnum =
       Services.wm.getZOrderDOMWindowEnumerator("navigator:browser", true);
+
     while (windowsEnum.hasMoreElements()) {
       win = windowsEnum.getNext();
       if (!win.closed)
         return win;
     }
+
     return null;
-#endif
   },
 
   /**
@@ -3608,7 +3603,12 @@ SessionStoreService.prototype = {
    * Annotate a breakpad crash report with the currently selected tab's URL.
    */
   _updateCrashReportURL: function sss_updateCrashReportURL(aWindow) {
-#ifdef MOZ_CRASH_REPORTER
+
+     // If the crash reporter isn't built, we bail out.
+    if (!AppConstants.MOZ_CRASHREPORTER) {
+      return;
+    }
+
     try {
       var currentURI = aWindow.getBrowser().currentURI.clone();
       // if the current URI contains a username/password, remove it
@@ -3617,14 +3617,15 @@ SessionStoreService.prototype = {
       }
       catch (ex) { } // ignore failures on about: URIs
 
-      CrashReporter.annotateCrashReport("URL", currentURI.spec);
+      Cc["@mozilla.org/xre/app-info;1"]
+        .getService(Ci.nsICrashReporter)
+        .annotateCrashReport("URL", currentURI.spec);
     }
     catch (ex) {
       // don't make noise when crashreporter is built but not enabled
       if (ex.result != Cr.NS_ERROR_NOT_INITIALIZED)
         debug(ex);
     }
-#endif
   },
 
   /**
@@ -3890,15 +3891,16 @@ SessionStoreService.prototype = {
     if (this._closedWindows.length <= maxWindowsUndo)
       return;
     let spliceTo = maxWindowsUndo;
-#ifndef XP_MACOSX
-    let normalWindowIndex = 0;
-    // try to find a non-popup window in this._closedWindows
-    while (normalWindowIndex < this._closedWindows.length &&
-           this._closedWindows[normalWindowIndex].isPopup)
-      normalWindowIndex++;
-    if (normalWindowIndex >= maxWindowsUndo)
-      spliceTo = normalWindowIndex + 1;
-#endif
+    if (AppConstants.platform != "macosx") {
+      let normalWindowIndex = 0;
+      // try to find a non-popup window in this._closedWindows
+      while (normalWindowIndex < this._closedWindows.length &&
+             this._closedWindows[normalWindowIndex].isPopup)
+        normalWindowIndex++;
+      if (normalWindowIndex >= maxWindowsUndo)
+        spliceTo = normalWindowIndex + 1;
+    }
+
     this._closedWindows.splice(spliceTo, this._closedWindows.length);
   },
 
