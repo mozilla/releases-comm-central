@@ -107,8 +107,9 @@ function setTitleFromFolder(msgfolder, subject)
       }
     }
 
-    if (!/Mac/.test(navigator.platform))
+    if (AppConstants.platform != "macosx") {
       title += " - " + gBrandBundle.getString("brandShortName");
+    }
 
     document.title = title;
 

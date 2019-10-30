@@ -83,14 +83,13 @@ const kActionManageApp = -1;
 // Utilities
 
 function getFileDisplayName(aFile) {
-  if ("nsILocalFileWin" in Ci &&
+  if (AppConstants.platform == "win" &&
       aFile instanceof Ci.nsILocalFileWin) {
     try {
       return aFile.getVersionInfoField("FileDescription");
     } catch (e) {}
-  }
-  else if ("nsILocalFileMac" in Ci &&
-           aFile instanceof Ci.nsILocalFileMac) {
+  } else if (AppConstants.platform == "macosx" &&
+             aFile instanceof Ci.nsILocalFileMac) {
     try {
       return aFile.bundleDisplayName;
     } catch (e) {}

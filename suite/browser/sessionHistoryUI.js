@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var {AppConstants} = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
 function toggleTabsFromOtherComputers()
   {
     // enable/disable the Tabs From Other Computers menu
@@ -135,7 +139,7 @@ function createHistoryMenuItem(aParent, aIndex, aEntry, aAnchor, aChecked)
     menuitem.setAttribute("checked", "true");
   }
 
-  if (!aChecked || /Mac/.test(navigator.platform))
+  if (!aChecked || AppConstants.platform == "macosx")
   {
     menuitem.className = "menuitem-iconic bookmark-item menuitem-with-favicon";
     PlacesUtils.favicons.getFaviconURLForPage(aEntry.URI,

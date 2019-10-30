@@ -684,8 +684,9 @@
                phase="capturing"
                action="return this.openSearch();"/>
 
-      <handler event="keypress" keycode="VK_F4" phase="capturing"><![CDATA[
-        return /Mac/.test(navigator.platform) || this.openSearch();
+      <handler event="keypress" keycode="VK_F4" phase="capturing">
+      <![CDATA[
+        return (AppConstants.platform == "macosx") || this.openSearch()
       ]]></handler>
     </handlers>
   </binding>

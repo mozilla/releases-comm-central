@@ -5,6 +5,10 @@
 // The contents of this file will be loaded into the scope of the object
 // <prefpane id="notifications_pane">!
 
+var {AppConstants} = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
 var gSoundUrlPref = null;
 
 function Startup()
@@ -23,15 +27,15 @@ function Startup()
 
   // animate dock icon option currently available for Mac OSX only
   var newMailNotificationBouncePref = document.getElementById("newMailNotificationBounceBox");
-  newMailNotificationBouncePref.hidden = !navigator.platform.startsWith("Mac");
+  newMailNotificationBouncePref.hidden = AppConstants.platform != "macosx";
 
   // show tray icon option currently available for Windows only
   var newMailNotificationTrayIconPref = document.getElementById("newMailNotificationTrayIconBox");
-  newMailNotificationTrayIconPref.hidden = !navigator.platform.startsWith("Win");
+  newMailNotificationTrayIconPref.hidden = AppConstants.platform != "win";
 
   // use system alert option currently available for Linux only
   var useSystemAlertPref = document.getElementById("useSystemAlertBox");
-  useSystemAlertPref.hidden = !navigator.platform.startsWith("Linux");
+  useSystemAlertPref.hidden = AppConstants.platform != "linux";
 
   EnableAlert(document.getElementById("mail.biff.show_alert").value, false);
   EnableTrayIcon(document.getElementById("mail.biff.show_tray_icon").value);
@@ -44,8 +48,7 @@ function Startup()
 function EnableAlert(aEnable, aFocus)
 {
   // switch off the balloon on Windows if the user wants regular alerts
-  if (aEnable && navigator.platform.startsWith("Win"))
-  {
+  if (aEnable && AppConstants.platform == "win") {
     let balloonAlert = document.getElementById("mail.biff.show_balloon");
     if (!balloonAlert.locked)
       balloonAlert.value = false;
@@ -66,8 +69,7 @@ function EnableTrayIcon(aEnable)
 function ClearAlert(aEnable)
 {
   // switch off the regular alerts if the user wants the balloon
-  if (aEnable && navigator.platform.startsWith("Win"))
-  {
+  if (aEnable && AppConstants.platform == "win") {
     let showAlert = document.getElementById("mail.biff.show_alert");
     if (!showAlert.locked)
       showAlert.value = false;

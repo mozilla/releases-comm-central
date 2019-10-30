@@ -49,8 +49,8 @@ var Sanitizer = {
     }
     if (this._prefs.getBoolPref("promptOnSanitize")) {
       // make this an app-modal window on Mac.
-      var win = "nsILocalFileMac" in Ci ? null
-                                                           : aParentWindow;
+      let win = AppConstants.platform == "macosx" ? null : aParentWindow;
+
       Services.ww.openWindow(win,
                              "chrome://communicator/content/sanitize.xul",
                              "Sanitize",

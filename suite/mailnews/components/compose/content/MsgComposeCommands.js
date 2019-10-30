@@ -1832,8 +1832,7 @@ function CheckValidEmailAddress(aTo, aCC, aBCC)
 function SendMessage()
 {
   let sendInBackground = Services.prefs.getBoolPref("mailnews.sendInBackground");
-  if (sendInBackground && !/Mac/.test(navigator.platform))
-  {
+  if (sendInBackground && AppConstants.platform != "macosx") {
     let enumerator = Services.wm.getEnumerator(null);
     let count = 0;
     while (enumerator.hasMoreElements() && count < 2)

@@ -80,7 +80,7 @@ function browserWindowsCount(expected, msg) {
 function test() {
   browserWindowsCount(1, "Only one browser window should be open initially");
 
-  if (navigator.platform.match(/Mac/)) {
+  if (AppConstants.platform == "macosx") {
     todo(false, "Test disabled on MacOSX. (Bug 520787)");
     return;
   }
@@ -426,7 +426,7 @@ function test() {
   // Execution starts here
 
   setupTestsuite();
-  if (navigator.platform.match(/Mac/)) {
+  if (AppConstants.platform == "macosx") {
     // Mac tests
     testMacNotifications(function () {
       testNotificationCount(function () {

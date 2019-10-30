@@ -4,7 +4,7 @@ function test() {
 
 /* This part tests accel keys, which are not implemented in Seamonkey yet.
  * Commenting out for now ...
- * var isLinux = navigator.platform.indexOf("Linux") == 0;
+ * var isLinux = AppConstants.platform == "linux";
  * for (let i = 9; i >= 1; i--) {
  *   EventUtils.synthesizeKey(i.toString(), { altKey: isLinux, accelKey: !isLinux });
  *

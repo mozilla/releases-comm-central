@@ -21,9 +21,9 @@ function test() {
         return el.isPopup;
       }).length;
       let numNormal = ss.getClosedWindowCount() - numPopups;
-      // #ifdef doesn't work in browser-chrome tests, so do a simple regex on platform
-      let oResults = navigator.platform.match(/Mac/) ? expectedResults.mac
-                                                     : expectedResults.other;
+
+      let oResults = AppConstants.platform == "macosx" ? expectedResults.mac
+                                                       : expectedResults.other;
       is(numPopups, oResults.popup,
          "There were " + oResults.popup + " popup windows to repoen");
       is(numNormal, oResults.normal,

@@ -4,6 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var {AppConstants} = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
 var gShell = Cc["@mozilla.org/suite/shell-service;1"]
                .getService(Ci.nsIShellService);
 
@@ -11,7 +15,7 @@ var gImage, gImageName, gPosition, gPicker, gDesktop;
 
 function onLoad()
 {
-  document.getElementById("itemsBox").hidden = /Mac/.test(navigator.platform);
+  document.getElementById("itemsBox").hidden = AppConstants.platform == "macosx";
   gImage = window.arguments[0];
   gImageName = window.arguments[1];
   gPosition = document.getElementById("position");

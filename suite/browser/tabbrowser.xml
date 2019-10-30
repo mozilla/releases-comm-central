@@ -160,7 +160,7 @@
           if (aEvent.altKey)
             return;
 
-          if (/Mac/.test(navigator.platform)) {
+          if (AppConstants.platform == "macosx") {
             if (!aEvent.metaKey)
               return;
 
@@ -175,8 +175,7 @@
                 aEvent.stopPropagation();
                 aEvent.preventDefault();
             }
-          }
-          else {
+          } else {
             if (aEvent.ctrlKey && !aEvent.shiftKey && !aEvent.metaKey &&
                 aEvent.keyCode == KeyEvent.DOM_VK_F4 &&
                 this.getStripVisibility()) {
@@ -3049,7 +3048,7 @@
       <constructor>
         <![CDATA[
           document.addEventListener("keypress", this._keyEventHandler);
-          this.arrowKeysShouldWrap = /Mac/.test(navigator.platform);
+          this.arrowKeysShouldWrap = AppConstants.platform == "macosx";
           // Bail out early if we are in tabmail. See Bug 521803.
           if (!this.mPanelContainer)
             return;

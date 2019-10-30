@@ -6,6 +6,9 @@
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var {AppConstants} = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 const FEEDWRITER_CID = Components.ID("{49bb6593-3aff-4eb3-a068-2712c28bd58e}");
 const FEEDWRITER_CONTRACTID = "@mozilla.org/browser/feeds/result-writer;1";
@@ -580,14 +583,13 @@ FeedWriter.prototype = {
    * @returns The display name of the application represented by the file.
    */
   _getFileDisplayName: function getFileDisplayName(file) {
-    if ("nsILocalFileWin" in Ci &&
+    if (AppConstants.platform == "win" &&
         file instanceof Ci.nsILocalFileWin) {
       try {
         return file.getVersionInfoField("FileDescription");
       } catch (e) {}
-    }
-    else if ("nsILocalFileMac" in Ci &&
-             file instanceof Ci.nsILocalFileMac) {
+    } else if (AppConstants.platform == "macosx" &&
+               file instanceof Ci.nsILocalFileMac) {
       try {
         return file.bundleDisplayName;
       } catch (e) {}
