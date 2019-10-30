@@ -77,7 +77,8 @@
 
 .hub-subtitle {
   font-size: large;
-  margin-bottom: 5px;
+  margin: 0 0 5px;
+  text-align: center;
 }
 
 .hub-description {

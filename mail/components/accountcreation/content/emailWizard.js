@@ -152,6 +152,7 @@ function removeChildNodes(el) {
 function EmailConfigWizard() {
   this._init();
 }
+
 EmailConfigWizard.prototype = {
   _init() {
     gEmailWizardLogger.info("Initializing setup wizard");
@@ -281,6 +282,26 @@ EmailConfigWizard.prototype = {
   },
 
   /**
+   * Resize the window based on the content height and width.
+   * Since the sizeToContent() method doesn't account for the height of
+   * wrapped text, we're checking if the width and height of the "mastervbox"
+   * is taller than the window width and height. This is necessary to account
+   * for l10n strings or the user manually resizing the window. Bug 1590503.
+   */
+  resizeDialog() {
+    let contentHeight = document.getElementById("mastervbox").clientHeight;
+    let contentWidth = document.getElementById("mastervbox").clientWidth;
+
+    if (contentHeight > window.innerHeight) {
+      window.innerHeight = contentHeight;
+    }
+
+    if (contentWidth > window.innerWidth) {
+      window.innerWidth = contentWidth;
+    }
+  },
+
+  /**
    * Changes the window configuration to the different modes we have.
    * Shows/hides various window parts and buttons.
    * @param modename {String-enum}
@@ -302,7 +323,6 @@ EmailConfigWizard.prototype = {
    */
   switchToMode(modename) {
     if (modename == this._currentModename) {
-      window.sizeToContent();
       return;
     }
     this._currentModename = modename;
@@ -405,7 +425,7 @@ EmailConfigWizard.prototype = {
         _hide("manual-edit_button");
       }
     }
-    window.sizeToContent();
+    this.resizeDialog();
 
     // In a new profile, the first request to live.thunderbird.net
     // is much slower because of one-time overheads.
@@ -719,7 +739,7 @@ EmailConfigWizard.prototype = {
             ? "guessed_settings_offline"
             : "found_settings_guess"
         );
-        window.sizeToContent();
+        this.resizeDialog();
       },
       function(e, config) {
         // guessconfig failed
@@ -816,7 +836,7 @@ EmailConfigWizard.prototype = {
       this._showStatusTitle("");
       _hide("stop_button");
       gEmailWizardLogger.warn("all spinner stop");
-      window.sizeToContent();
+      this.resizeDialog();
       return;
     }
 
@@ -825,7 +845,7 @@ EmailConfigWizard.prototype = {
     this._showStatusTitle(actionStrName);
     _hide("stop_button");
     gEmailWizardLogger.warn("all spinner stop " + actionStrName);
-    window.sizeToContent();
+    this.resizeDialog();
   },
 
   showErrorStatus(actionStrName) {
@@ -1021,7 +1041,7 @@ EmailConfigWizard.prototype = {
           _disable("create_button");
         }
 
-        window.sizeToContent();
+        this.resizeDialog();
       })();
       return;
     }
@@ -1029,7 +1049,7 @@ EmailConfigWizard.prototype = {
     _show("result_hostnames");
     _hide("result_exchange");
     _enable("create_button");
-    window.sizeToContent();
+    this.resizeDialog();
 
     var unknownString = gStringsBundle.getString("resultUnknown");
 
@@ -1985,7 +2005,7 @@ EmailConfigWizard.prototype = {
         // If we got no message, then something other than VerifyLogon failed.
         self.showErrorMsg(e.message || e.toString());
 
-        window.sizeToContent();
+        this.resizeDialog();
         // TODO use switchToMode(), see above
         // give user something to proceed after fixing
         _enable("create_button");
@@ -2225,7 +2245,7 @@ SecurityWarningDialog.prototype = {
       "warning dialog shown for unknown reason"
     );
 
-    window.sizeToContent();
+    this.resizeDialog();
   },
 
   toggleDetails(id) {
@@ -2239,7 +2259,7 @@ SecurityWarningDialog.prototype = {
       tech.removeAttribute("expanded");
     }
 
-    window.sizeToContent();
+    this.resizeDialog();
   },
 
   /**
@@ -2260,7 +2280,7 @@ SecurityWarningDialog.prototype = {
   onCancel() {
     _hide("warningbox");
     _show("mastervbox");
-    window.sizeToContent();
+    this.resizeDialog();
 
     this._cancelCallback();
   },
@@ -2287,7 +2307,7 @@ SecurityWarningDialog.prototype = {
 
     _show("mastervbox");
     _hide("warningbox");
-    window.sizeToContent();
+    this.resizeDialog();
 
     this._okCallback();
   },
