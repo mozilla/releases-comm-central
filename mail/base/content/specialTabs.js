@@ -854,6 +854,9 @@ var specialTabs = {
         "contentTabToolbar" + this.lastBrowserId
       );
 
+      if (aArgs.skipLoad) {
+        clone.querySelector("browser").setAttribute("nodefaultsrc", "true");
+      }
       aTab.panel.setAttribute("id", "contentTabWrapper" + this.lastBrowserId);
       aTab.panel.appendChild(clone);
       aTab.root = clone;
@@ -949,10 +952,12 @@ var specialTabs = {
       // Now start loading the content.
       aTab.title = this.loadingTabString;
 
-      let params = {
-        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-      };
-      aTab.browser.loadURI(aArgs.contentPage, params);
+      if (!aArgs.skipLoad) {
+        let params = {
+          triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+        };
+        aTab.browser.loadURI(aArgs.contentPage, params);
+      }
 
       this.lastBrowserId++;
     },

@@ -702,18 +702,28 @@ nsBrowserAccess.prototype = {
     aOpener,
     aWhere,
     aFlags,
-    aTriggeringPrincipal = null
+    aTriggeringPrincipal = null,
+    aCsp = null
   ) {
     return this.getContentWindowOrOpenURI(
       null,
       aOpener,
       aWhere,
       aFlags,
-      aTriggeringPrincipal
+      aTriggeringPrincipal,
+      aCsp,
+      true
     );
   },
 
-  openURI(aURI, aOpener, aWhere, aFlags, aTriggeringPrincipal = null) {
+  openURI(
+    aURI,
+    aOpener,
+    aWhere,
+    aFlags,
+    aTriggeringPrincipal = null,
+    aCsp = null
+  ) {
     if (!aURI) {
       Cu.reportError("openURI should only be called with a valid URI");
       throw Cr.NS_ERROR_FAILURE;
@@ -723,7 +733,9 @@ nsBrowserAccess.prototype = {
       aOpener,
       aWhere,
       aFlags,
-      aTriggeringPrincipal
+      aTriggeringPrincipal,
+      aCsp,
+      false
     );
   },
 
@@ -732,7 +744,9 @@ nsBrowserAccess.prototype = {
     aOpener,
     aWhere,
     aFlags,
-    aTriggeringPrincipal
+    aTriggeringPrincipal,
+    aCsp,
+    aSkipLoad
   ) {
     const nsIBrowserDOMWindow = Ci.nsIBrowserDOMWindow;
     let isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
@@ -784,6 +798,7 @@ nsBrowserAccess.prototype = {
       background: loadInBackground,
       opener: aOpener,
       clickHandler,
+      skipLoad: aSkipLoad,
     });
 
     let docShell = newTab.browser.docShell;
