@@ -38,7 +38,6 @@ calendar.jar:
     content/calendar-views-utils.js                             (content/calendar-views-utils.js)
     content/calendar-views.js                                   (content/calendar-views.js)
     content/calendar-editable-item.js                           (content/calendar-editable-item.js)
-    content/calendar-views.xul                                  (content/calendar-views.xul)
     content/calendar-alarm-dialog.js                            (content/dialogs/calendar-alarm-dialog.js)
     content/calendar-alarm-dialog.xul                           (content/dialogs/calendar-alarm-dialog.xul)
     content/calendar-conflicts-dialog.xul                       (content/dialogs/calendar-conflicts-dialog.xul)
