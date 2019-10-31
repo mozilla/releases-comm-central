@@ -88,6 +88,7 @@ macosx64-shippable/opt:
     description: "MacOS X x64 Cross-compile"
     attributes:
         shippable: true
+        nightly: true
         enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird
