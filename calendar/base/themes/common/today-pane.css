@@ -53,14 +53,14 @@
   color: -moz-DialogText;
 }
 
-#today-pane-panel > sidebarheader {
+#today-pane-panel > .sidebar-header {
   -moz-appearance: none;
   background-color: var(--toolbar-bgcolor, -moz-Dialog);
   background-image: var(--toolbar-bgimage, none);
   border-bottom: 1px solid var(--chrome-content-separator-color, ThreeDShadow);
 }
 
-#today-pane-panel:-moz-lwtheme > sidebarheader {
+#today-pane-panel:-moz-lwtheme > .sidebar-header {
   color: inherit;
 }
 

@@ -560,13 +560,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     border: 1px solid transparent;
   }
 
-  #folderPaneHeader {
-    -moz-appearance: none;
-    background-color: #f8f8f8;
-    border-top: 0px;
-    border-bottom: 1px solid #a9b1b8;
-  }
-
   :root:not([lwt-tree]) #folderTree {
     background-color: #fafafa;
   }

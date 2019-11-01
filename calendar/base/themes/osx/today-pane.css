@@ -4,11 +4,11 @@
 
 @import url(chrome://calendar-common/skin/today-pane.css);
 
-#today-pane-panel > sidebarheader {
+#today-pane-panel > .sidebar-header {
   height: 32px;
 }
 
-#today-pane-panel:-moz-lwtheme > sidebarheader {
+#today-pane-panel:-moz-lwtheme > .sidebar-header {
   text-shadow: none;
 }
 

@@ -37,10 +37,6 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   background-color: -moz-Dialog;
 }
 
-#folderPaneHeader {
-  border-bottom: 1px solid ThreeDShadow;
-}
-
 /* ::::: thread decoration ::::: */
 
 #correspondentCol {

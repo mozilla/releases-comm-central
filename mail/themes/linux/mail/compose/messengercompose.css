@@ -632,7 +632,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   background-color: Window;
 }
 
-#sidebar-box sidebarheader {
+#sidebar-box .sidebar-header {
   color: -moz-DialogText;
   text-shadow: none;
   background-color: -moz-Dialog;

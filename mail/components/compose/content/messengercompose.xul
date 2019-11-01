@@ -1957,13 +1957,13 @@
 
   <hbox flex="1" id="composeContentBox">
     <vbox id="sidebar-box" persist="sidebarVisible width" hidden="true">
-      <sidebarheader id="sidebarHeader" align="center">
+      <box id="sidebarHeader" class="sidebar-header" align="center">
         <label id="sidebar-title" value="&addressesSidebarTitle.label;"/>
         <spacer flex="1"/>
         <toolbarbutton id="sidebarCloseButton"
                        class="ab-closebutton close-icon"
                        oncommand="sidebarCloseButtonOnCommand();"/>
-      </sidebarheader>
+      </box>
       <browser id="sidebar" flex="1" src="" disablehistory="true"
                style="min-width: 150px; width: 200px; max-width: 400px;"/>
     </vbox>

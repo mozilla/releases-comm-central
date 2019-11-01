@@ -86,6 +86,12 @@ toolbar[brighttext] {
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #45a1ff);
 }
 
+.sidebar-header {
+  background-color: -moz-Dialog;
+  color: -moz-dialogText;
+  text-shadow: none;
+}
+
 #FindToolbar:-moz-lwtheme,
 .contentTabToolbox:-moz-lwtheme,
 #ab-toolbox > toolbar:-moz-lwtheme,

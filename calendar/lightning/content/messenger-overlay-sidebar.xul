@@ -1473,7 +1473,7 @@
                        modesplitterstates="open,open,open,open"
                        refcontrol="calendar_toggle_todaypane_command"
                        persist="modewidths">
-      <sidebarheader align="center">
+      <box class="sidebar-header" align="center">
         <label id="today-pane-header"/>
         <spacer flex="1"/>
         <calendar-modebox mode="mail,calendar,chat">
@@ -1491,7 +1491,7 @@
                        oncommand="document.getElementById('today-pane-panel').setVisible(false, true, true);
                                   TodayPane.updateDisplay();
                                   TodayPane.updateSplitterState();"/>
-      </sidebarheader>
+      </box>
       <vbox flex="1">
         <calendar-modevbox id="agenda-panel"
                            flex="1"

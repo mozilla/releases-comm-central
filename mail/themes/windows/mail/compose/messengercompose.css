@@ -531,7 +531,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 /* ::::: address book sidebar ::::: */
 
-#sidebar-box sidebarheader {
+#sidebar-box .sidebar-header {
   -moz-appearance: toolbox;
   color: -moz-DialogText;
   text-shadow: none;
@@ -745,13 +745,13 @@ toolbar:not(:-moz-lwtheme) {
 
 /* ::::: address book sidebar ::::: */
 
-#sidebar-box sidebarheader {
+#sidebar-box .sidebar-header {
   border-bottom: 1px solid ThreeDShadow;
   border-top: 1px solid ThreeDHighlight;
 }
 
 @media (-moz-windows-default-theme) {
-  #sidebar-box sidebarheader {
+  #sidebar-box .sidebar-header {
     -moz-appearance: none;
     background-color: #f8f8f8;
     border-top: 0;

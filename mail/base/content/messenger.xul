@@ -495,7 +495,6 @@
 
           <box id="messengerBox" orient="horizontal" flex="1" minheight="100" height="100" persist="height">
             <vbox id="folderPaneBox" minwidth="125" width="200" persist="width">
-              <sidebarheader id="folderPaneHeader" hidden="true" align="center"/>
               <vbox id="folderPane-toolbox">
                 <hbox id="folderPane-toolbar"
                       class="inline-toolbar toolbar"
@@ -568,9 +567,7 @@
                            width="50"
                            selectable="false"/>
                 </treecols>
-                <treechildren tooltip="folderpopup"
-                              onoverflow="document.getElementById('folderPaneHeader').setAttribute('overflowing', 'true');"
-                              onunderflow="document.getElementById('folderPaneHeader').setAttribute('overflowing', 'false');"/>
+                <treechildren tooltip="folderpopup"/>
               </tree>
             </vbox>
 

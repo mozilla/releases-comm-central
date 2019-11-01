@@ -300,7 +300,7 @@ toolbar[mode="full"] .toolbarbutton-1 {
   min-width: 55px;
 }
 
-sidebarheader .toolbarbutton-text:not([value]) {
+.sidebar-header .toolbarbutton-text:not([value]) {
   display: none;
 }
 
