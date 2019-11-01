@@ -835,6 +835,10 @@ bool nsMsgDBView::IsOutgoingMsg(nsIMsgDBHdr *aHdr) {
 // selection msg problems.
 nsresult nsMsgDBView::SaveAndClearSelection(nsMsgKey *aCurrentMsgKey,
                                             nsTArray<nsMsgKey> &aMsgKeyArray) {
+
+  // Always return a value in the first parameter.
+  if (aCurrentMsgKey) *aCurrentMsgKey = nsMsgKey_None;
+
   // We don't do anything on nested Save / Restore calls.
   m_saveRestoreSelectionDepth++;
   if (m_saveRestoreSelectionDepth != 1) return NS_OK;
