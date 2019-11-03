@@ -59,7 +59,8 @@ var extensionsNeedingRestart = new Set();
       .insertBefore(hbox, document.getElementById("categories"));
 
     // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
-    let textbox = document.getElementById("header-search");
+    let browser = document.getElementById("html-view-browser");
+    let textbox = browser.contentDocument.getElementById("search-addons");
     let placeholder = textbox.getAttribute("placeholder");
     placeholder = placeholder.replace(
       "addons.mozilla.org",
