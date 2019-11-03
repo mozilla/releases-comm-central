@@ -2212,7 +2212,8 @@ AttachmentInfo.prototype = {
 function CanDetachAttachments() {
   var canDetach =
     !gFolderDisplay.selectedMessageIsNews &&
-    (!gFolderDisplay.selectedMessageIsImap || MailOfflineMgr.isOnline());
+    (!gFolderDisplay.selectedMessageIsImap || MailOfflineMgr.isOnline()) &&
+    !gMessageDisplay.isDummy; // We can't detach from loaded eml files yet.
   if (canDetach && "content-type" in currentHeaderData) {
     canDetach = !ContentTypeIsSMIME(
       currentHeaderData["content-type"].headerValue
