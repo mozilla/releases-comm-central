@@ -14,6 +14,8 @@
   <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %eventDialogDTD;
   <!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd" > %globalDTD;
   <!ENTITY % calendarGlobalDTD SYSTEM "chrome://calendar/locale/global.dtd" > %calendarGlobalDTD;
+  <!ENTITY % mailOverlayDTD SYSTEM "chrome://messenger/locale/mailOverlay.dtd"> %mailOverlayDTD;
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" > %brandDTD;
 ]>
 
 <?xml-stylesheet href="chrome://lightning/skin/lightning.css" type="text/css"?>
@@ -34,7 +36,8 @@
 <?xml-stylesheet href="chrome://calendar-common/skin/widgets/minimonth.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/widgets/calendar-widgets.css" type="text/css"?>
 
-<?xul-overlay href="chrome://lightning/content/lightning-toolbar.xul"?>
+<?xml-stylesheet href="chrome://lightning/skin/lightning-toolbar.css" type="text/css"?>
+
 <?xul-overlay href="chrome://lightning/content/lightning-menus.xul"?>
 
 <overlay id="ltnSidebarOverlay"
@@ -283,6 +286,25 @@
       <tooltip id="itemTooltip"
               noautohide="true"/>
 
+      <!-- CALENDAR TOOLBAR CONTEXT MENU -->
+      <menupopup id="calendar-toolbar-context"
+                 onpopupshowing="onViewToolbarsPopupShowing(event, ['navigation-toolbox', 'calendar-toolbox']);">
+        <menuseparator id="customizeCalendarToolbarMenuSeparator"/>
+        <menuitem id="CustomizeCalendarToolbar"
+                  label="&calendar.menu.customize.label;"
+                  accesskey="&calendar.menu.customize.accesskey;"
+                  oncommand="CustomizeMailToolbar('calendar-toolbox', 'CustomizeCalendarToolbar')"/>
+      </menupopup>
+      <menupopup id="task-toolbar-context"
+                 onpopupshowing="onViewToolbarsPopupShowing(event, ['navigation-toolbox', 'task-toolbox']);">
+        <menuseparator id="customizeTaskToolbarMenuSeparator"/>
+        <menuitem id="CustomizeTaskToolbar"
+                  label="&calendar.menu.customize.label;"
+                  accesskey="&calendar.menu.customize.accesskey;"
+                  oncommand="CustomizeMailToolbar('task-toolbox', 'CustomizeTaskToolbar')"/>
+      </menupopup>
+
+      <!-- CALENDAR LIST CONTEXT MENU -->
       <menupopup id="list-calendars-context-menu"
                  onpopupshowing="return calendarListSetupContextMenu(event);">
         <menuitem id="list-calendars-context-togglevisible"
@@ -1061,15 +1083,133 @@
   <tabpanels id="tabpanelcontainer">
     <vbox id="calendarTabPanel">
       <!-- Unfortunately we use the same panel for task and calendar tabs, so
-           we need to differ which toolbar is being shown. The actual toolbar
-           content will be added via a further overlay -->
+           we need to show one toolbar or the other. -->
       <calendar-modevbox id="calendar-toolbox-container"
                          mode="calendar">
-        <toolbox id="calendar-toolbox"/>
+        <toolbox id="calendar-toolbox"
+                 class="mail-toolbox"
+                 mode="full"
+                 defaultmode="full"
+                 iconsize="small"
+                 defaulticonsize="small"
+                 labelalign="end"
+                 defaultlabelalign="end">
+          <toolbarpalette id="CalendarToolbarPalette">
+            <toolbarbutton id="calendar-synchronize-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.sync.label;"
+                           tooltiptext="&lightning.toolbar.sync.tooltip;"
+                           command="calendar_reload_remote_calendars"/>
+            <toolbarbutton id="calendar-newevent-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.newevent.label;"
+                           tooltiptext="&lightning.toolbar.newevent.tooltip;"
+                           command="calendar_new_event_command"/>
+            <toolbarbutton id="calendar-newtask-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.newtask.label;"
+                           tooltiptext="&lightning.toolbar.newtask.tooltip;"
+                           command="calendar_new_todo_command"/>
+            <toolbarbutton id="calendar-goto-today-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.gototoday.label;"
+                           tooltiptext="&lightning.toolbar.gototoday.tooltip;"
+                           command="calendar_go_to_today_command"/>
+            <toolbarbutton id="calendar-edit-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.edit.label;"
+                           tooltiptext="&lightning.toolbar.edit.tooltip;"
+                           command="calendar_modify_focused_item_command"/>
+            <toolbarbutton id="calendar-delete-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.delete.label;"
+                           tooltiptext="&lightning.toolbar.delete.tooltip;"
+                           command="calendar_delete_focused_item_command"/>
+            <toolbarbutton id="calendar-print-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.print.label;"
+                           tooltiptext="&lightning.toolbar.print.tooltip;"
+                           command="cmd_print"/>
+            <toolbarbutton id="calendar-unifinder-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&showUnifinderCmd.label;"
+                           tooltiptext="&showUnifinderCmd.tooltip;"
+                           command="calendar_show_unifinder_command"/>
+            <toolbarbutton id="calendar-appmenu-button"
+                           type="menu"
+                           class="toolbarbutton-1 button-appmenu"
+                           label="&lightning.toolbar.appmenuButton.label;"
+                           tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
+          </toolbarpalette>
+          <toolbar is="customizable-toolbar" id="calendar-toolbar2"
+                   class="inline-toolbar chromeclass-toolbar"
+                   toolbarname="&lightning.toolbar.calendar.name;"
+                   accesskey="&lightning.toolbar.calendar.name.accesskey;"
+                   fullscreentoolbar="true" mode="full"
+                   customizable="true"
+                   context="calendar-toolbar-context"
+                   iconsize="small"
+                   defaultset="calendar-synchronize-button,calendar-newevent-button,calendar-newtask-button,calendar-edit-button,calendar-delete-button,spring,calendar-appmenu-button"/>
+        </toolbox>
       </calendar-modevbox>
+
       <calendar-modevbox id="task-toolbox-container"
                          mode="task">
-        <toolbox id="task-toolbox"/>
+        <toolbox id="task-toolbox"
+                 class="mail-toolbox"
+                 mode="full"
+                 defaultmode="full"
+                 iconsize="small"
+                 defaulticonsize="small"
+                 labelalign="end"
+                 defaultlabelalign="end">
+          <toolbarpalette id="TaskToolbarPalette">
+            <toolbarbutton id="task-synchronize-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.sync.label;"
+                           tooltiptext="&lightning.toolbar.sync.tooltip;"
+                           command="calendar_reload_remote_calendars"/>
+            <toolbarbutton id="task-newevent-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.newevent.label;"
+                           tooltiptext="&lightning.toolbar.newevent.tooltip;"
+                           command="calendar_new_event_command"/>
+            <toolbarbutton id="task-newtask-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.newtask.label;"
+                           tooltiptext="&lightning.toolbar.newtask.tooltip;"
+                           command="calendar_new_todo_command"/>
+            <toolbarbutton id="task-edit-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.edit.label;"
+                           tooltiptext="&lightning.toolbar.edit.tooltip;"
+                           command="calendar_modify_focused_item_command"/>
+            <toolbarbutton id="task-delete-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.delete.label;"
+                           tooltiptext="&lightning.toolbar.delete.tooltip;"
+                           command="calendar_delete_focused_item_command"/>
+            <toolbarbutton id="task-print-button"
+                           class="toolbarbutton-1 calbar-toolbarbutton-1"
+                           label="&lightning.toolbar.print.label;"
+                           tooltiptext="&lightning.toolbar.print.tooltip;"
+                           command="cmd_print"/>
+            <toolbarbutton id="task-appmenu-button"
+                           type="menu"
+                           class="toolbarbutton-1 button-appmenu"
+                           label="&lightning.toolbar.appmenuButton.label;"
+                           tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
+          </toolbarpalette>
+          <toolbar is="customizable-toolbar" id="task-toolbar2"
+                   class="inline-toolbar chromeclass-toolbar"
+                   toolbarname="&lightning.toolbar.task.name;"
+                   accesskey="&lightning.toolbar.task.name.accesskey;"
+                   fullscreentoolbar="true" mode="full"
+                   customizable="true"
+                   context="task-toolbar-context"
+                   iconsize="small"
+                   defaultset="task-synchronize-button,task-newevent-button,task-newtask-button,task-edit-button,task-delete-button,spring,task-appmenu-button"/>
+        </toolbox>
       </calendar-modevbox>
       <hbox id="calendarContent" flex="1">
         <vbox id="ltnSidebar"
@@ -2042,4 +2182,38 @@
              onkeypress="if (event.key == 'Enter') { openInvitationsDialog(); }"/>
     </hbox>
   </hbox>
+
+  <!-- CALENDAR TOOLBAR BUTTONS FOR MAIL TOOLBAR -->
+  <toolbarpalette id="MailToolbarPalette">
+    <toolbarbutton id="lightning-button-calendar"
+                   class="toolbarbutton-1"
+                   label="&lightning.toolbar.calendar.label;"
+                   tooltiptext="&lightning.toolbar.calendar.tooltip;"
+                   command="new_calendar_tab"/>
+    <toolbarbutton id="lightning-button-tasks"
+                   class="toolbarbutton-1"
+                   label="&lightning.toolbar.task.label;"
+                   tooltiptext="&lightning.toolbar.task.tooltip;"
+                   command="new_task_tab"/>
+    <toolbarbutton is="toolbarbutton-menu-button" id="extractEventButton"
+                   type="menu-button"
+                   class="toolbarbutton-1"
+                   label="&calendar.extract.event.button;"
+                   tooltiptext="&calendar.extract.event.button.tooltip;"
+                   oncommand="calendarExtract.extractFromEmail(true);">
+      <menupopup id="extractEventLocaleList"
+                 oncommand="calendarExtract.extractWithLocale(event, true);"
+                 onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
+    </toolbarbutton>
+    <toolbarbutton is="toolbarbutton-menu-button" id="extractTaskButton"
+                   type="menu-button"
+                   class="toolbarbutton-1"
+                   label="&calendar.extract.task.button;"
+                   tooltiptext="&calendar.extract.task.button.tooltip;"
+                   oncommand="calendarExtract.extractFromEmail(false);">
+      <menupopup id="extractTaskLocaleList"
+                 oncommand="calendarExtract.extractWithLocale(event, false);"
+                 onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
+    </toolbarbutton>
+  </toolbarpalette>
 </overlay>
