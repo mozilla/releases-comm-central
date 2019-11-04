@@ -849,6 +849,7 @@ function calculateAge() {
     return;
   }
 
+  birthMonth--; // Date object months are 0-indexed.
   let today = new Date();
   let age = today.getFullYear() - birthYear;
   if (birthMonth > today.getMonth()) {
@@ -856,7 +857,9 @@ function calculateAge() {
   } else if (birthMonth == today.getMonth() && birthDay > today.getDate()) {
     age--;
   }
-  document.getElementById("Age").value = age;
+  if (age >= 0) {
+    document.getElementById("Age").value = age;
+  }
 }
 
 function calculateYear() {
@@ -869,6 +872,7 @@ function calculateYear() {
   let year = today.getFullYear() - age;
 
   let birthMonth = document.getElementById("BirthMonth").value;
+  birthMonth--; // Date object months are 0-indexed.
   let birthDay = document.getElementById("BirthDay").value;
   if (birthMonth > today.getMonth()) {
     year--;
