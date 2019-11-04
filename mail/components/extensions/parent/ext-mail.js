@@ -1410,7 +1410,9 @@ var messageTracker = {
       }
     }
 
+    let hash = JSON.stringify([value.folderURI, value.messageId]);
     this._messages.delete(id);
+    this._messageIds.delete(hash);
     return null;
   },
 };
