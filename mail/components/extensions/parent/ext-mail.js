@@ -1368,22 +1368,26 @@ function convertMessage(msgHdr, extension) {
 var messageTracker = {
   _nextId: 1,
   _messages: new Map(),
+  _messageIds: new Map(),
 
   /**
    * Finds a message in the map or adds it to the map.
    * @return {int} The identifier of the message
    */
   getId(msgHdr) {
-    for (let [key, value] of this._messages.entries()) {
-      if (
-        value.folderURI == msgHdr.folder.URI &&
-        value.messageId == msgHdr.messageId
-      ) {
-        return key;
-      }
+    // Using stringify avoids potential issues with unexpected characters.
+    // This hash could be anything as long as it is unique for each
+    // [folder, message] combination.
+    let hash = JSON.stringify([msgHdr.folder.URI, msgHdr.messageId]);
+    if (this._messageIds.has(hash)) {
+      return this._messageIds.get(hash);
     }
     let id = this._nextId++;
-    this.setId(msgHdr, id);
+    this._messages.set(id, {
+      folderURI: msgHdr.folder.URI,
+      messageId: msgHdr.messageId,
+    });
+    this._messageIds.set(hash, id);
     return id;
   },
 
@@ -1408,16 +1412,6 @@ var messageTracker = {
 
     this._messages.delete(id);
     return null;
-  },
-
-  /**
-   * Adds a message to the map.
-   */
-  setId(msgHdr, id) {
-    this._messages.set(id, {
-      folderURI: msgHdr.folder.URI,
-      messageId: msgHdr.messageId,
-    });
   },
 };
 
