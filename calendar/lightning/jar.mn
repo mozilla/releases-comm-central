@@ -35,7 +35,6 @@ lightning.jar:
     content/lightning-item-panel.js                        (content/lightning-item-panel.js)
     content/lightning-item-iframe.xul                      (content/lightning-item-iframe.xul)
     content/lightning-item-iframe.js                       (content/lightning-item-iframe.js)
-    content/lightning-menus.xul                            (content/lightning-menus.xul)
     content/lightning-migration.xul                        (content/lightning-migration.xul)
     content/lightning-utils.js                             (content/lightning-utils.js)
     content/messenger-overlay-accountCentral.xul           (content/messenger-overlay-accountCentral.xul)
