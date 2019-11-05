@@ -39,14 +39,8 @@ const kMaxYear = 9999;
 const kMinYear = 1;
 var kAllDirectoryRoot = "moz-abdirectory://";
 var kLdapUrlPrefix = "moz-abldapdirectory://";
-var stillUsingMabFiles =
-  Services.prefs.getIntPref("ldap_2.servers.pab.dirType") == 2;
-var kPersonalAddressbookURI = stillUsingMabFiles
-  ? "moz-abmdbdirectory://abook.mab"
-  : "jsaddrbook://abook.sqlite";
-var kCollectedAddressbookURI = stillUsingMabFiles
-  ? "moz-abmdbdirectory://history.mab"
-  : "jsaddrbook://history.sqlite";
+var kPersonalAddressbookURI = "jsaddrbook://abook.sqlite";
+var kCollectedAddressbookURI = "jsaddrbook://history.sqlite";
 // The default, generic contact image is displayed via CSS when the photoURI is
 // blank.
 var defaultPhotoURI = "";

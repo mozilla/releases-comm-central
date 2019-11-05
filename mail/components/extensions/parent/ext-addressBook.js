@@ -10,7 +10,7 @@ var { MailServices } = ChromeUtils.import(
 const AB_WINDOW_TYPE = "mail:addressbook";
 const AB_WINDOW_URI = "chrome://messenger/content/addressbook/addressbook.xul";
 
-const kPABDirectory = 2; // defined in nsDirPrefs.h
+const kJSDirectory = 101; // defined in nsDirPrefs.h
 
 // nsIAbCard.idl contains a list of properties that Thunderbird uses. Extensions are not
 // restricted to using only these properties, but the following properties cannot
@@ -463,14 +463,7 @@ this.addressBook = class extends ExtensionAPI {
           );
         },
         create({ name }) {
-          let dirName = MailServices.ab.newAddressBook(
-            name,
-            "",
-            Services.prefs.getIntPref(
-              "mail.addr_book.newDirType",
-              kPABDirectory
-            )
-          );
+          let dirName = MailServices.ab.newAddressBook(name, "", kJSDirectory);
           let directory = MailServices.ab.getDirectoryFromId(dirName);
           return directory.UID;
         },

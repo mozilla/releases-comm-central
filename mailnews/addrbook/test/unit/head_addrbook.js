@@ -12,7 +12,6 @@ Services.prefs.setIntPref("ldap_2.servers.history.dirType", 2);
 Services.prefs.setStringPref("ldap_2.servers.history.filename", "history.mab");
 Services.prefs.setIntPref("ldap_2.servers.pab.dirType", 2);
 Services.prefs.setStringPref("ldap_2.servers.pab.filename", "abook.mab");
-Services.prefs.setIntPref("mail.addr_book.newDirType", 2);
 Services.prefs.setStringPref(
   "mail.collect_addressbook",
   "moz-abmdbdirectory://history.mab"
