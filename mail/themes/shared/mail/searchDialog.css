@@ -1,0 +1,165 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/");
+@import url("chrome://messenger/skin/messageIcons.css");
+
+#searchTerms {
+  margin-top: 8px;
+}
+
+#booleanAndGroup,
+#searchTermBox,
+#searchTerms > vbox > hbox {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+#searchTermBox {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+#searchResults {
+  padding: 0 6px 6px;
+  text-shadow: none;
+}
+
+#searchResultListBox {
+  margin: 4px;
+  height: 100px;
+}
+
+.search-menulist[unavailable="true"] {
+  color: GrayText;
+}
+
+/* ::::: box sizes ::::: */
+
+#searchTermTree {
+  min-height: 50px;
+}
+
+#searchTermListBox {
+  height: 100px;
+}
+
+#searchTermList > richlistitem {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+/* ::::: thread decoration ::::: */
+
+treechildren::-moz-tree-cell-text(read) {
+  font-weight: normal;
+}
+
+treechildren::-moz-tree-cell-text(unread) {
+  font-weight: bold;
+}
+
+/* on a collapsed thread, if the top level message is read, but the thread has
+ * unread children, underline the text.  4.x mac did this, very slick
+ */
+treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
+  text-decoration: underline;
+}
+
+#gray_horizontal_splitter {
+  min-height: 4px;
+  background-color: -moz-Dialog;
+  border-top: 1px solid ThreeDHighlight;
+  border-bottom: 1px solid ThreeDShadow;
+}
+
+/* ::::: theme support ::::: */
+
+#searchTermBox:-moz-lwtheme,
+#searchResults:-moz-lwtheme {
+  background-color: -moz-Dialog;
+}
+
+:root[lwt-tree] #searchTermBox,
+:root[lwt-tree] #searchResults {
+  background-color: var(--lwt-accent-color);
+}
+
+:root[lwt-tree] #gray_horizontal_splitter {
+  background-color: var(--toolbar-bgcolor);
+  border-color: var(--sidebar-border-color);
+}
+
+:root[lwt-tree] #searchTermList {
+  -moz-appearance: none;
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
+  border: 1px solid var(--sidebar-border-color);
+  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
+}
+
+:root[lwt-tree-brighttext] #searchTermList {
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
+}
+
+:root[lwt-tree] #threadTree,
+:root[lwt-tree] #abResultsTree {
+  border: 1px solid var(--sidebar-border-color);
+}
+
+:root[lwt-tree] #searchTermList > richlistitem[selected="true"] {
+  background-color: hsla(0,0%,50%,.25);
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] #searchTermList:focus > richlistitem[selected="true"] {
+  background-color: var(--sidebar-highlight-background-color, hsla(0,0%,50%,.35));
+}
+
+:root[lwt-tree] #searchTermList button,
+:root[lwt-tree] #searchTermList menulist {
+  -moz-appearance: none;
+  background: var(--toolbarbutton-hover-background);
+  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  color: inherit;
+}
+
+:root[lwt-tree] #searchTermList button:hover,
+:root[lwt-tree] #searchTermList menulist:hover,
+:root[lwt-tree] #searchTermList menulist[open="true"] {
+  background: var(--toolbarbutton-active-background);
+  border: 1px solid var(--toolbarbutton-active-bordercolor);
+  color: inherit;
+}
+
+:root[lwt-tree] #searchTermList button:hover:active,
+:root[lwt-tree] #searchTermList menulist[open="true"] {
+  box-shadow: --toolbarbutton-active-boxshadow;
+}
+
+:root[lwt-tree] #searchTermList menulist > .menulist-label-box {
+  margin-right: 6px;
+  margin-left: 6px;
+}
+
+:root[lwt-tree] #searchTermList .search-value-textbox:-moz-lwtheme {
+  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
+  color: var(--lwt-toolbar-field-color, black);
+  border-style: solid;
+}
+
+:root[lwt-tree] #searchTermList .search-value-textbox:not(:focus):-moz-lwtheme {
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
+}
+
+:root[lwt-tree] #searchTermList .search-value-textbox:-moz-lwtheme:hover {
+  background-color: var(--lwt-toolbar-field-background-color, white);
+  box-shadow: 0 1px 3px rgba(255,255,255,.15);
+}
+
+:root[lwt-tree] #searchTermList .search-value-textbox:-moz-lwtheme:focus {
+  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
+  border-color: Highlight;
+}
