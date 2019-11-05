@@ -391,6 +391,9 @@ function loadCalendarManager() {
       compositeCalendar.removeCalendar(calendar);
       let item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
       item.remove();
+      if (compositeCalendar.defaultCalendar.id == calendar.id) {
+        compositeCalendar.defaultCalendar = compositeCalendar.getCalendars({})[0];
+      }
       saveSortOrder();
     },
     onCalendarDeleting(calendar) {},

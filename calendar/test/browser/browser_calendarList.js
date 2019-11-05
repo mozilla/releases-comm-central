@@ -328,5 +328,7 @@ add_task(async () => {
   is(calendarList.itemCount, 1);
   checkSortOrder(0);
 
+  is(composite.defaultCalendar.id, calendars[0].id);
+  is(calendarList.selectedItem, calendarList.itemChildren[0]);
   await closeCalendarTab();
 });
