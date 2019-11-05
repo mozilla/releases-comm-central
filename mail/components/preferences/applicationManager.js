@@ -23,20 +23,15 @@ var gAppManagerDialog = {
     ]);
     document.getElementById("appDescription").textContent = contentText;
 
-    var list = document.getElementById("appList");
-    var apps = this.handlerInfo.possibleApplicationHandlers.enumerate();
-    while (apps.hasMoreElements()) {
-      let app = apps.getNext();
+    let list = document.getElementById("appList");
+    let listFragment = document.createDocumentFragment();
+    for (let app of this.handlerInfo.possibleApplicationHandlers.enumerate()) {
       if (!gGeneralPane.isValidHandlerApp(app)) {
         continue;
       }
 
-      app.QueryInterface(Ci.nsIHandlerApp);
-
-      // Ensure the XBL binding is created eagerly.
-      // eslint-disable-next-line no-undef
-      list.appendChild(MozXULElement.parseXULToFragment("<richlistitem/>"));
-      let item = list.lastElementChild;
+      let item = document.createXULElement("richlistitem");
+      listFragment.append(item);
       item.app = app;
 
       let image = document.createXULElement("image");
@@ -47,7 +42,9 @@ var gAppManagerDialog = {
       label.setAttribute("value", app.name);
       item.appendChild(label);
     }
+    list.append(listFragment);
 
+    // Triggers onSelect which populates label.
     list.selectedIndex = 0;
   },
 
