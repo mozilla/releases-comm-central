@@ -18,6 +18,7 @@ job-defaults:
                     comm-(beta|esr60|esr68): "1"
                     default: ""
             USE_MOZILLA_CENTRAL: ""
+            DONTBUILD: "1"
 
 
 jobs:
