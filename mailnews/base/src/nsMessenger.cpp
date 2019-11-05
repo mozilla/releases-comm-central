@@ -254,7 +254,7 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin,
     }
 
     // we don't always have a message pane, like in the addressbook
-    // so if we don't have a docshell, use the one for the xul window.
+    // so if we don't have a docshell, use the one for the app window.
     // we do this so OpenURL() will work.
     if (!mDocShell) mDocShell = docShell;
   }  // if aWin

@@ -22,7 +22,7 @@
 #include "nsIDocShell.h"
 #include "nsPIDOMWindow.h"
 #include "mozilla/dom/Document.h"
-#include "nsIXULWindow.h"
+#include "nsIAppWindow.h"
 #include "nsIWindowMediator.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIDocShellTreeOwner.h"

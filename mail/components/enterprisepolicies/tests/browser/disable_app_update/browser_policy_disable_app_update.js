@@ -82,7 +82,7 @@ add_task(async function test_update_about_ui() {
 function waitForAboutDialog() {
   return new Promise(resolve => {
     var listener = {
-      onOpenWindow: aXULWindow => {
+      onOpenWindow: aAppWindow => {
         Services.wm.removeListener(listener);
 
         async function aboutDialogOnLoad() {
@@ -96,10 +96,10 @@ function waitForAboutDialog() {
           resolve(domwindow);
         }
 
-        var domwindow = aXULWindow.docShell.domWindow;
+        var domwindow = aAppWindow.docShell.domWindow;
         domwindow.addEventListener("load", aboutDialogOnLoad, true);
       },
-      onCloseWindow: aXULWindow => {},
+      onCloseWindow: aAppWindow => {},
     };
 
     Services.wm.addListener(listener);

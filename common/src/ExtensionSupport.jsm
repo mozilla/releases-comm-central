@@ -312,17 +312,17 @@ var ExtensionSupport = {
 
   _windowListener: {
     // nsIWindowMediatorListener functions
-    onOpenWindow(xulWindow) {
+    onOpenWindow(appWindow) {
       // A new window has opened.
-      let domWindow = xulWindow.docShell.domWindow;
+      let domWindow = appWindow.docShell.domWindow;
 
       // Here we pass no caller ID, so all registered callers get notified.
       ExtensionSupport._waitForLoad(domWindow);
     },
 
-    onCloseWindow(xulWindow) {
+    onCloseWindow(appWindow) {
       // One of the windows has closed.
-      let domWindow = xulWindow.docShell.domWindow;
+      let domWindow = appWindow.docShell.domWindow;
       openWindowList.delete(domWindow);
     },
   },

@@ -8,7 +8,7 @@
 #include "nsIMsgComposeService.h"
 #include "nsCOMPtr.h"
 #include "mozIDOMWindow.h"
-#include "nsIXULWindow.h"
+#include "nsIAppWindow.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
 #include "nsIWeakReference.h"

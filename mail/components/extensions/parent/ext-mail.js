@@ -951,7 +951,7 @@ class Window extends WindowBase {
 
   /** Checks if the window is considered always on top. */
   get alwaysOnTop() {
-    return this.xulWindow.zLevel >= Ci.nsIXULWindow.raisedZ;
+    return this.appWindow.zLevel >= Ci.nsIAppWindow.raisedZ;
   }
 
   /** Checks if the window was the last one focused. */

@@ -8,7 +8,7 @@ this.EXPORTED_SYMBOLS = [
   // These are used by test-folder-display-helpers.js and shouldn't really be
   // exported, but it's convenient right now.
   "captureWindowStatesForErrorReporting",
-  "getWindowTypeForXulWindow",
+  "getWindowTypeForAppWindow",
   "hereIsMarkAction",
 
   "plan_for_new_window",
@@ -109,22 +109,22 @@ function getWindowTypeOrId(aWindowElem) {
 }
 
 /**
- * Return the "windowtype" or "id" for the given xul window if it is available.
+ * Return the "windowtype" or "id" for the given app window if it is available.
  * If not, return null.
  */
-function getWindowTypeForXulWindow(aXULWindow, aBusyOk) {
+function getWindowTypeForAppWindow(aAppWindow, aBusyOk) {
   // Sometimes we are given HTML windows, for which the logic below will
   //  bail.  So we use a fast-path here that should work for HTML and should
   //  maybe also work with XUL.  I'm not going to go into it...
   if (
-    aXULWindow.document &&
-    aXULWindow.document.documentElement &&
-    aXULWindow.document.documentElement.hasAttribute("windowtype")
+    aAppWindow.document &&
+    aAppWindow.document.documentElement &&
+    aAppWindow.document.documentElement.hasAttribute("windowtype")
   ) {
-    return getWindowTypeOrId(aXULWindow.document.documentElement);
+    return getWindowTypeOrId(aAppWindow.document.documentElement);
   }
 
-  let docshell = aXULWindow.docShell;
+  let docshell = aAppWindow.docShell;
   // we need the docshell to exist...
   if (!docshell) {
     return null;
@@ -156,23 +156,23 @@ function getWindowTypeForXulWindow(aXULWindow, aBusyOk) {
   }
 
   // As a last resort, use the name given to the DOM window.
-  let domWindow = aXULWindow.docShell.domWindow;
+  let domWindow = aAppWindow.docShell.domWindow;
 
   return domWindow.name;
 }
 
 /**
- * Return the unique id we annotated onto this XUL window during
+ * Return the unique id we annotated onto this app window during
  *  augment_controller.
  */
-function getUniqueIdForXulWindow(aXULWindow) {
+function getUniqueIdForAppWindow(aAppWindow) {
   // html case
-  if (aXULWindow.document && aXULWindow.document.documentElement) {
+  if (aAppWindow.document && aAppWindow.document.documentElement) {
     return "no attr html";
   }
 
   // XUL case
-  let docshell = aXULWindow.docShell;
+  let docshell = aAppWindow.docShell;
   // we need the docshell to exist...
   if (!docshell) {
     return "no docshell";
@@ -217,8 +217,8 @@ var WindowWatcher = {
   /**
    * Track the windowtypes we are waiting on.  Keys are windowtypes.  When
    *  watching for new windows, values are initially null, and are set to an
-   *  nsIXULWindow when we actually find the window.  When watching for closing
-   *  windows, values are nsIXULWindows.  This symmetry lets us have windows
+   *  nsIAppWindow when we actually find the window.  When watching for closing
+   *  windows, values are nsIAppWindows.  This symmetry lets us have windows
    *  that appear and dis-appear do so without dangerously confusing us (as
    *  long as another one comes along...)
    */
@@ -239,17 +239,17 @@ var WindowWatcher = {
     aWindowType
   ) {
     this.waitingList.set(aWindowType, null);
-    // We need to iterate over all the XUL windows and consider them all.
+    // We need to iterate over all the app windows and consider them all.
     //  We can't pass the window type because the window might not have a
     //  window type yet.
     // because this iterates from old to new, this does the right thing in that
     //  side-effects of consider will pick the most recent window.
-    for (let xulWindow of fixIterator(
-      Services.wm.getXULWindowEnumerator(null),
-      Ci.nsIXULWindow
+    for (let appWindow of fixIterator(
+      Services.wm.getAppWindowEnumerator(null),
+      Ci.nsIAppWindow
     )) {
-      if (!this.consider(xulWindow)) {
-        this.monitoringList.push(xulWindow);
+      if (!this.consider(appWindow)) {
+        this.monitoringList.push(appWindow);
       }
     }
   },
@@ -279,8 +279,8 @@ var WindowWatcher = {
     );
 
     this.waitingForOpen = null;
-    let xulWindow = this.waitingList.get(aWindowType);
-    let domWindow = xulWindow.docShell.domWindow;
+    let appWindow = this.waitingList.get(aWindowType);
+    let domWindow = appWindow.docShell.domWindow;
     this.waitingList.delete(aWindowType);
     // spin the event loop to make sure any setTimeout 0 calls have gotten their
     //  time in the sun.
@@ -333,8 +333,8 @@ var WindowWatcher = {
   notify: function WindowWatcher_notify() {
     if (this.monitorizeOpen()) {
       // okay, the window is opened, and we should be in its event loop now.
-      let xulWindow = this.waitingList.get(this.waitingForOpen);
-      let domWindow = xulWindow.docShell.domWindow;
+      let appWindow = this.waitingList.get(this.waitingForOpen);
+      let domWindow = appWindow.docShell.domWindow;
       let troller = new controller.MozMillController(domWindow);
       augment_controller(troller, this.waitingForOpen);
 
@@ -427,9 +427,9 @@ var WindowWatcher = {
     this.waitingForClose = null;
   },
 
-  planForWindowClose: function WindowWatcher_planForWindowClose(aXULWindow) {
-    let windowType = getWindowTypeOrId(aXULWindow.document.documentElement);
-    this.waitingList.set(windowType, aXULWindow);
+  planForWindowClose: function WindowWatcher_planForWindowClose(aAppWindow) {
+    let windowType = getWindowTypeOrId(aAppWindow.document.documentElement);
+    this.waitingList.set(windowType, aAppWindow);
     this.waitingForClose = windowType;
   },
 
@@ -460,13 +460,13 @@ var WindowWatcher = {
    *  event driven with less polling (effort), but it is not to be.
    */
   onWindowTitleChange: function WindowWatcher_onWindowTitleChange(
-    aXULWindow,
+    aAppWindow,
     aNewTitle
   ) {
     mark_action("winhelp", "onWindowTitleChange", [
-      getWindowTypeForXulWindow(aXULWindow, true) +
+      getWindowTypeForAppWindow(aAppWindow, true) +
         " (" +
-        getUniqueIdForXulWindow(aXULWindow) +
+        getUniqueIdForAppWindow(aAppWindow) +
         ")",
       "changed title to",
       aNewTitle,
@@ -481,8 +481,8 @@ var WindowWatcher = {
    */
   monitorizeOpen() {
     for (let iWin = this.monitoringList.length - 1; iWin >= 0; iWin--) {
-      let xulWindow = this.monitoringList[iWin];
-      if (this.consider(xulWindow)) {
+      let appWindow = this.monitoringList[iWin];
+      if (this.consider(appWindow)) {
         this.monitoringList.splice(iWin, 1);
       }
     }
@@ -504,7 +504,7 @@ var WindowWatcher = {
   },
 
   /**
-   * A list of xul windows to monitor because they are loading and it's not yet
+   * A list of app windows to monitor because they are loading and it's not yet
    *  possible to tell whether they are something we are looking for.
    */
   monitoringList: [],
@@ -512,19 +512,19 @@ var WindowWatcher = {
    * Monitor the given window's loading process until we can determine whether
    *  it is what we are looking for.
    */
-  monitorWindowLoad(aXULWindow) {
-    this.monitoringList.push(aXULWindow);
+  monitorWindowLoad(aAppWindow) {
+    this.monitoringList.push(aAppWindow);
   },
 
   /**
-   * nsIWindowMediatorListener notification that a XUL window was opened.  We
+   * nsIWindowMediatorListener notification that a app window was opened.  We
    *  check out the window, and if we were not able to fully consider it, we
    *  add it to our monitoring list.
    */
-  onOpenWindow: function WindowWatcher_onOpenWindow(aXULWindow) {
+  onOpenWindow: function WindowWatcher_onOpenWindow(aAppWindow) {
     // note: we would love to add our window activation/deactivation listeners
     //  and poke our unique id, but there is no contentViewer at this point
-    //  and so there's no place to poke our unique id.  (aXULWindow does not
+    //  and so there's no place to poke our unique id.  (aAppWindow does not
     //  let us put expandos on; it's an XPCWrappedNative and explodes.)
     // There may be nuances about outer window/inner window that make it
     //  feasible, but I have forgotten any such nuances I once knew.
@@ -532,16 +532,16 @@ var WindowWatcher = {
     // It would be great to be able to indicate if the window is modal or not,
     //  but nothing is really jumping out at me to enable that...
     mark_action("winhelp", "onOpenWindow", [
-      getWindowTypeForXulWindow(aXULWindow, true) +
+      getWindowTypeForAppWindow(aAppWindow, true) +
         " (" +
-        getUniqueIdForXulWindow(aXULWindow) +
+        getUniqueIdForAppWindow(aAppWindow) +
         ")",
       "active?",
-      Services.focus.focusedWindow == aXULWindow,
+      Services.focus.focusedWindow == aAppWindow,
     ]);
 
-    if (!this.consider(aXULWindow)) {
-      this.monitorWindowLoad(aXULWindow);
+    if (!this.consider(aAppWindow)) {
+      this.monitorWindowLoad(aAppWindow);
     }
   },
 
@@ -553,15 +553,15 @@ var WindowWatcher = {
    *     relation to whether the window was one in our waitingList or not.
    *     Check the waitingList structure for that.
    */
-  consider(aXULWindow) {
-    let windowType = getWindowTypeForXulWindow(aXULWindow);
+  consider(aAppWindow) {
+    let windowType = getWindowTypeForAppWindow(aAppWindow);
     if (windowType == null) {
       return false;
     }
 
     // stash the window if we were watching for it
     if (this.waitingList.has(windowType)) {
-      this.waitingList.set(windowType, aXULWindow);
+      this.waitingList.set(windowType, aAppWindow);
     }
 
     return true;
@@ -571,13 +571,13 @@ var WindowWatcher = {
    * Closing windows have the advantage of having to already have been loaded,
    *  so things like their windowtype are immediately available.
    */
-  onCloseWindow: function WindowWatcher_onCloseWindow(aXULWindow) {
-    let domWindow = aXULWindow.docShell.domWindow;
+  onCloseWindow: function WindowWatcher_onCloseWindow(aAppWindow) {
+    let domWindow = aAppWindow.docShell.domWindow;
     let windowType = getWindowTypeOrId(domWindow.document.documentElement);
     mark_action("winhelp", "onCloseWindow", [
-      getWindowTypeForXulWindow(aXULWindow, true) +
+      getWindowTypeForAppWindow(aAppWindow, true) +
         " (" +
-        getUniqueIdForXulWindow(aXULWindow) +
+        getUniqueIdForAppWindow(aAppWindow) +
         ")",
     ]);
     if (this.waitingList.has(windowType)) {
@@ -691,7 +691,7 @@ function wait_for_modal_dialog(aWindowType, aTimeout) {
  */
 function plan_for_window_close(aController) {
   mark_action("fdh", "plan_for_window_close", [
-    getWindowTypeForXulWindow(aController.window, true),
+    getWindowTypeForAppWindow(aController.window, true),
   ]);
   WindowWatcher.ensureInited();
   WindowWatcher.planForWindowClose(aController.window);
@@ -1258,9 +1258,9 @@ var AugmentEverybodyWith = {
     describeFocus() {
       let arr = [
         "in window:",
-        getWindowTypeForXulWindow(this.window) +
+        getWindowTypeForAppWindow(this.window) +
           " (" +
-          getUniqueIdForXulWindow(this.window) +
+          getUniqueIdForAppWindow(this.window) +
           ")",
       ];
       let focusedWinOut = {},

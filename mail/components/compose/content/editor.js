@@ -1483,13 +1483,13 @@ function UpdateWindowTitle() {
     }
 
     // Set window title with " - Composer" or " - Text Editor" appended.
-    var xulWin = document.documentElement;
+    var appWin = document.documentElement;
 
     document.title =
       (title || filename || window.gUntitledString) +
       windowTitle +
-      xulWin.getAttribute("titlemenuseparator") +
-      xulWin.getAttribute("titlemodifier");
+      appWin.getAttribute("titlemenuseparator") +
+      appWin.getAttribute("titlemodifier");
   } catch (e) {
     dump(e);
   }

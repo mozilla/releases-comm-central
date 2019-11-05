@@ -190,7 +190,7 @@ function CreateMailWindowGlobals() {
     .getInterface(Ci.nsIWebNavigation)
     .QueryInterface(Ci.nsIDocShellTreeItem)
     .treeOwner.QueryInterface(Ci.nsIInterfaceRequestor)
-    .getInterface(Ci.nsIXULWindow).XULBrowserWindow = window.MsgStatusFeedback;
+    .getInterface(Ci.nsIAppWindow).XULBrowserWindow = window.MsgStatusFeedback;
 
   window.browserDOMWindow = new nsBrowserAccess();
 
