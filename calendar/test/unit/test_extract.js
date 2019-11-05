@@ -182,7 +182,7 @@ function test_overrides() {
 
   Services.prefs.setStringPref("calendar.patterns.override", JSON.stringify(overrides));
 
-  collected = extractor.extract(title, content, date, undefined);
+  extractor.extract(title, content, date, undefined);
   guessed = extractor.guessStart(false);
   endGuess = extractor.guessEnd(guessed, true);
 

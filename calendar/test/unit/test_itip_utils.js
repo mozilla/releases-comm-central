@@ -203,7 +203,7 @@ function test_getSequence() {
   ];
   for (let i = 1; i <= data.length; i++) {
     let test = data[i - 1];
-    testItems = getSeqStampTestItems(test);
+    let testItems = getSeqStampTestItems(test);
     equal(cal.itip.getSequence(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
 }
@@ -299,7 +299,7 @@ function test_compareSequence() {
   ];
   for (let i = 1; i <= data.length; i++) {
     let test = data[i - 1];
-    testItems = getSeqStampTestItems(test);
+    let testItems = getSeqStampTestItems(test);
     equal(cal.itip.compareSequence(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
 }
@@ -374,7 +374,7 @@ function test_compareStamp() {
   ];
   for (let i = 1; i <= data.length; i++) {
     let test = data[i - 1];
-    testItems = getSeqStampTestItems(test);
+    let testItems = getSeqStampTestItems(test);
     equal(cal.itip.compareStamp(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
 }
@@ -458,7 +458,7 @@ function test_compare() {
   ];
   for (let i = 1; i <= data.length; i++) {
     let test = data[i - 1];
-    testItems = getSeqStampTestItems(test);
+    let testItems = getSeqStampTestItems(test);
     equal(cal.itip.compare(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
 }

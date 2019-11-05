@@ -1,4 +1,3 @@
-/* exported mailTestUtils */
 var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/mailTestUtils.js"
 );

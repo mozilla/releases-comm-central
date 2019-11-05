@@ -1105,7 +1105,7 @@ function test_failures() {
 }
 
 function test_immutable() {
-  item = createTodoFromIcalString(
+  let item = createTodoFromIcalString(
     "BEGIN:VCALENDAR\r\n" +
       "BEGIN:VTODO\r\n" +
       "RRULE:FREQ=DAILY\r\n" +

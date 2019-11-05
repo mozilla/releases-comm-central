@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported do_calendar_startup, do_load_calmgr, do_load_timezoneservice, readJSONFile,
- *          ics_unfoldline, dedent, compareItemsSpecific, getStorageCal, getMemoryCal,
- *          createTodoFromIcalString, createEventFromIcalString, createDate, Cc, Ci, Cr, Cu
- */
-
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
@@ -310,7 +305,7 @@ function do_calendar_startup(callback) {
   } else {
     do_test_pending();
     Services.obs.addObserver(obs, "calendar-startup-done");
-    if (_profileInitialized) {
+    if (this._profileInitialized) {
       Services.obs.notifyObservers(null, "profile-after-change", "xpcshell-do-get-profile");
     } else {
       do_get_profile(true);

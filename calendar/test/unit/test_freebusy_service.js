@@ -21,7 +21,7 @@ function test_found() {
 
   let provider1 = {
     id: 1,
-    getFreeBusyIntervals: function() {
+    getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
       aListener.onResult(null, []);
     },
   };

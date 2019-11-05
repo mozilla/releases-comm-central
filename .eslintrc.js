@@ -91,11 +91,14 @@ module.exports = {
       },
     },
     {
-      // If it is an xpcshell head file, we turn off global unused variable checks, as it
+      // If it is a test head file, we turn off global unused variable checks, as it
       // would require searching the other test files to know if they are used or not.
       // This would be expensive and slow, and it isn't worth it for head files.
       // We could get developers to declare as exported, but that doesn't seem worth it.
-      files: xpcshellTestPaths.map(path => `${path}head*.js`),
+      files: [
+        ...browserTestPaths.map(path => `${path}head*.js`),
+        ...xpcshellTestPaths.map(path => `${path}head*.js`),
+      ],
       rules: {
         "no-unused-vars": [
           "error",

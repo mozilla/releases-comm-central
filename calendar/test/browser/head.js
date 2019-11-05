@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported closeAddonsTab, closeCalendarTab, closeChatTab, closePreferencesTab, closeTasksTab,
-   openAddonsTab, openCalendarTab, openChatTab, openNewCalendarEventTab, openNewCalendarTaskTab,
-   openPreferencesTab, openTasksTab, selectCalendarEventTab, selectCalendarTaskTab,
-   selectFolderTab, setCalendarView */
-
 /* import-globals-from ../../base/content/calendar-views-utils.js */
 
 /* globals openOptionsDialog, openAddonsMgr */
