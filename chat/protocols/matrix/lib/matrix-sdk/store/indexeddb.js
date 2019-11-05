@@ -26,7 +26,7 @@ var _user2 = _interopRequireDefault(_user);
 
 var _event = require("../models/event");
 
-var _logger = require("../../src/logger");
+var _logger = require("../logger");
 
 var _logger2 = _interopRequireDefault(_logger);
 

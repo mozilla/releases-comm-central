@@ -20,7 +20,7 @@ var _indexeddbHelpers = require("../indexeddb-helpers");
 
 var IndexedDBHelpers = _interopRequireWildcard(_indexeddbHelpers);
 
-var _logger = require("../../src/logger");
+var _logger = require("../logger");
 
 var _logger2 = _interopRequireDefault(_logger);
 

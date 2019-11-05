@@ -8,7 +8,7 @@ var _indexeddbLocalBackend = require('./indexeddb-local-backend.js');
 
 var _indexeddbLocalBackend2 = _interopRequireDefault(_indexeddbLocalBackend);
 
-var _logger = require('../../src/logger');
+var _logger = require('../logger');
 
 var _logger2 = _interopRequireDefault(_logger);
 

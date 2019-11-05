@@ -537,6 +537,8 @@ OlmDevice.prototype.encryptMessage = async function (theirDeviceIdentityKey, ses
     let res;
     await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
         this._getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
+            const sessionDesc = sessionInfo.session.describe();
+            console.log("Session ID " + sessionId + " to " + theirDeviceIdentityKey + ": " + sessionDesc);
             res = sessionInfo.session.encrypt(payloadString);
             this._saveSession(theirDeviceIdentityKey, sessionInfo, txn);
         });
@@ -559,6 +561,8 @@ OlmDevice.prototype.decryptMessage = async function (theirDeviceIdentityKey, ses
     let payloadString;
     await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore2.default.STORE_SESSIONS], txn => {
         this._getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
+            const sessionDesc = sessionInfo.session.describe();
+            console.log("Session ID " + sessionId + " to " + theirDeviceIdentityKey + ": " + sessionDesc);
             payloadString = sessionInfo.session.decrypt(messageType, ciphertext);
             sessionInfo.lastReceivedMessageTs = Date.now();
             this._saveSession(theirDeviceIdentityKey, sessionInfo, txn);

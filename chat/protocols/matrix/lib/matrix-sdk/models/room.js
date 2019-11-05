@@ -20,7 +20,7 @@ limitations under the License.
  * @module models/room
  */
 
-var _logger = require("../../src/logger");
+var _logger = require("../logger");
 
 var _logger2 = _interopRequireDefault(_logger);
 

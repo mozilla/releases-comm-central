@@ -24,7 +24,7 @@ var _bluebird = require('bluebird');
 
 var _bluebird2 = _interopRequireDefault(_bluebird);
 
-var _logger = require('../src/logger');
+var _logger = require('./logger');
 
 var _logger2 = _interopRequireDefault(_logger);
 

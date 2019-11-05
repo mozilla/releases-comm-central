@@ -60,40 +60,52 @@ class VerificationBase extends _events.EventEmitter {
      *
      * @param {string} transactionId the transaction ID to be used when sending events
      *
-     * @param {object} startEvent the m.key.verification.start event that
+     * @param {string} [roomId] the room to use for verification
+     *
+     * @param {object} [startEvent] the m.key.verification.start event that
      * initiated this verification, if any
      *
-     * @param {object} request the key verification request object related to
+     * @param {object} [request] the key verification request object related to
      * this verification, if any
-     *
-     * @param {object} parent parent verification for this verification, if any
      */
-    constructor(baseApis, userId, deviceId, transactionId, startEvent, request, parent) {
+    constructor(baseApis, userId, deviceId, transactionId, roomId, startEvent, request) {
         super();
         this._baseApis = baseApis;
         this.userId = userId;
         this.deviceId = deviceId;
         this.transactionId = transactionId;
-        this.startEvent = startEvent;
-        this.request = request;
+        if (typeof roomId === "string" || roomId instanceof String) {
+            this.roomId = roomId;
+            this.startEvent = startEvent;
+            this.request = request;
+        } else {
+            // if room ID was omitted, but start event and request were not
+            this.startEvent = roomId;
+            this.request = startEvent;
+        }
         this.cancelled = false;
-        this._parent = parent;
         this._done = false;
         this._promise = null;
         this._transactionTimeoutTimer = null;
 
         // At this point, the verification request was received so start the timeout timer.
         this._resetTimer();
+
+        if (this.roomId) {
+            this._send = this._sendMessage;
+        } else {
+            this._send = this._sendToDevice;
+        }
     }
 
     _resetTimer() {
-        console.log("Refreshing/starting the verification transaction timeout timer");
+        _logger2.default.info("Refreshing/starting the verification transaction timeout timer");
         if (this._transactionTimeoutTimer !== null) {
             clearTimeout(this._transactionTimeoutTimer);
         }
         this._transactionTimeoutTimer = setTimeout(() => {
             if (!this._done && !this.cancelled) {
-                console.log("Triggering verification timeout");
+                _logger2.default.info("Triggering verification timeout");
                 this.cancel(timeoutException);
             }
         }, 10 * 60 * 1000); // 10 minutes
@@ -106,6 +118,8 @@ class VerificationBase extends _events.EventEmitter {
         }
     }
 
+    /* send a message to the other participant, using to-device messages
+     */
     _sendToDevice(type, content) {
         if (this._done) {
             return Promise.reject(new Error("Verification is already done"));
@@ -114,6 +128,21 @@ class VerificationBase extends _events.EventEmitter {
         return this._baseApis.sendToDevice(type, {
             [this.userId]: { [this.deviceId]: content }
         });
+    }
+
+    /* send a message to the other participant, using in-roomm messages
+     */
+    _sendMessage(type, content) {
+        if (this._done) {
+            return Promise.reject(new Error("Verification is already done"));
+        }
+        // FIXME: if MSC1849 decides to use m.relationship instead of
+        // m.relates_to, we should follow suit here
+        content["m.relates_to"] = {
+            rel_type: "m.reference",
+            event_id: this.transactionId
+        };
+        return this._baseApis.sendEvent(this.roomId, type, content);
     }
 
     _waitForEvent(type) {
@@ -150,6 +179,10 @@ class VerificationBase extends _events.EventEmitter {
     done() {
         this._endTimer(); // always kill the activity timer
         if (!this._done) {
+            if (this.roomId) {
+                // verification in DM requires a done message
+                this._send("m.key.verification.done", {});
+            }
             this._resolve();
         }
     }
@@ -163,7 +196,7 @@ class VerificationBase extends _events.EventEmitter {
                 // cancelled by the other user)
                 if (e === timeoutException) {
                     const timeoutEvent = (0, _Error.newTimeoutError)();
-                    this._sendToDevice(timeoutEvent.getType(), timeoutEvent.getContent());
+                    this._send(timeoutEvent.getType(), timeoutEvent.getContent());
                 } else if (e instanceof _event.MatrixEvent) {
                     const sender = e.getSender();
                     if (sender !== this.userId) {
@@ -172,9 +205,9 @@ class VerificationBase extends _events.EventEmitter {
                             content.code = content.code || "m.unknown";
                             content.reason = content.reason || content.body || "Unknown reason";
                             content.transaction_id = this.transactionId;
-                            this._sendToDevice("m.key.verification.cancel", content);
+                            this._send("m.key.verification.cancel", content);
                         } else {
-                            this._sendToDevice("m.key.verification.cancel", {
+                            this._send("m.key.verification.cancel", {
                                 code: "m.unknown",
                                 reason: content.body || "Unknown reason",
                                 transaction_id: this.transactionId
@@ -182,7 +215,7 @@ class VerificationBase extends _events.EventEmitter {
                         }
                     }
                 } else {
-                    this._sendToDevice("m.key.verification.cancel", {
+                    this._send("m.key.verification.cancel", {
                         code: "m.unknown",
                         reason: e.toString(),
                         transaction_id: this.transactionId
@@ -215,11 +248,17 @@ class VerificationBase extends _events.EventEmitter {
             this._resolve = (...args) => {
                 this._done = true;
                 this._endTimer();
+                if (this.handler) {
+                    this._baseApis.off("event", this.handler);
+                }
                 resolve(...args);
             };
             this._reject = (...args) => {
                 this._done = true;
                 this._endTimer();
+                if (this.handler) {
+                    this._baseApis.off("event", this.handler);
+                }
                 reject(...args);
             };
         });

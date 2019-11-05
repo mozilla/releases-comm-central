@@ -20,7 +20,7 @@ limitations under the License.
  * @module webrtc/call
  */
 
-var _logger = require("../../src/logger");
+var _logger = require("../logger");
 
 var _logger2 = _interopRequireDefault(_logger);
 

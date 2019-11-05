@@ -31,7 +31,7 @@ var _utils = require('../utils.js');
 
 var _utils2 = _interopRequireDefault(_utils);
 
-var _logger = require('../../src/logger');
+var _logger = require('../logger');
 
 var _logger2 = _interopRequireDefault(_logger);
 

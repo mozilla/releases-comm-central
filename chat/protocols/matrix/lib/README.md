@@ -1,5 +1,5 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v2.4.1.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v2.4.3.
 
 The following npm dependencies are included:
 
@@ -27,17 +27,20 @@ in chat/protocols/matrix/matrix-sdk.jsm.
 
 ## Updating matrix-js-sdk
 
-1. Download the matrix-js-sdk repository from https://github.com/matrix-org/matrix-js-sdk/.
-2. Modify `.babelrc` (see below).
-3. Run yarn install
-4. Run babel (`./node_modules/.bin/babel -d lib src`)
-5. Remove the old SDK files `hg rm chat/protocols/matrix/lib/matrix-sdk`
-6. Copy `lib/` from the matrix-js-sdk to `chat/protocols/matrix/lib/matrix-sdk`
-7. Add the files back to Mercurial: `hg add chat/protocols/matrix/lib/matrix-sdk`
-7. Modify `moz.build` to add/remove/rename modified files.
-8. Modify `matrix-js-sdk` to add/remove/rename modified files.
-9. Modify `crypto/store/localStorage-crypto-store.js` so that the import
-   `memory-crypto-store` does not have a `.js` on the end.
+1.  Download the matrix-js-sdk repository from https://github.com/matrix-org/matrix-js-sdk/.
+2.  Modify `.babelrc` (see below).
+3.  Run yarn install
+4.  Run Babel in the matrix-js-sdk checkout:
+    `./node_modules/.bin/babel --source-maps false -d lib src`
+5.  The following commands assume you're in mozilla-central/comm and that the
+    matrix-js-sdk is checked out next to mozilla-central.
+6.  Remove the old SDK files `hg rm chat/protocols/matrix/lib/matrix-sdk`
+7.  Undo the removal of the license: `hg revert chat/protocols/matrix/lib/matrix-sdk/LICENSE`
+8.  Copy the Babel-ified JavaScript files from the matrix-js-sdk to vendored
+    location: `cp -r ../../matrix-js-sdk/lib/ chat/protocols/matrix/lib/matrix-sdk`
+9.  Add the files back to Mercurial: `hg add chat/protocols/matrix/lib/matrix-sdk`
+10. Modify `moz.build` to add/remove/rename modified files.
+11. Modify `matrix-sdk.jsm` to add/remove/rename modified files.
 
 ### Custom `.babelrc`
 

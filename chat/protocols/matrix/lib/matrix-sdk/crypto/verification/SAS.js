@@ -197,10 +197,11 @@ class SAS extends _Base2.default {
             hashes: HASHES_LIST,
             message_authentication_codes: MAC_LIST,
             // FIXME: allow app to specify what SAS methods can be used
-            short_authentication_string: SAS_LIST,
-            transaction_id: this.transactionId
+            short_authentication_string: SAS_LIST
         };
-        this._sendToDevice("m.key.verification.start", initialMessage);
+        // NOTE: this._send will modify initialMessage to include the
+        // transaction_id field, or the m.relationship/m.relates_to field
+        this._send("m.key.verification.start", initialMessage);
 
         let e = await this._waitForEvent("m.key.verification.accept");
         let content = e.getContent();
@@ -215,7 +216,7 @@ class SAS extends _Base2.default {
         const hashCommitment = content.commitment;
         const olmSAS = new global.Olm.SAS();
         try {
-            this._sendToDevice("m.key.verification.key", {
+            this._send("m.key.verification.key", {
                 key: olmSAS.get_pubkey()
             });
 
@@ -269,7 +270,7 @@ class SAS extends _Base2.default {
         const olmSAS = new global.Olm.SAS();
         try {
             const commitmentStr = olmSAS.get_pubkey() + _anotherJson2.default.stringify(content);
-            this._sendToDevice("m.key.verification.accept", {
+            this._send("m.key.verification.accept", {
                 key_agreement_protocol: keyAgreement,
                 hash: hashMethod,
                 message_authentication_code: macMethod,
@@ -282,7 +283,7 @@ class SAS extends _Base2.default {
             // FIXME: make sure event is properly formed
             content = e.getContent();
             olmSAS.set_their_key(content.key);
-            this._sendToDevice("m.key.verification.key", {
+            this._send("m.key.verification.key", {
                 key: olmSAS.get_pubkey()
             });
 
@@ -315,7 +316,7 @@ class SAS extends _Base2.default {
 
         mac[keyId] = olmSAS[macMethods[method]](this._baseApis.getDeviceEd25519Key(), baseInfo + keyId);
         const keys = olmSAS[macMethods[method]](keyId, baseInfo + "KEY_IDS");
-        this._sendToDevice("m.key.verification.mac", { mac, keys });
+        this._send("m.key.verification.mac", { mac, keys });
     }
 
     async _checkMAC(olmSAS, content, method) {
