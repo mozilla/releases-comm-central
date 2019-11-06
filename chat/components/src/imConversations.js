@@ -478,12 +478,6 @@ UIConversation.prototype = {
     // will be visible in the UI.
     let messages = this.target.prepareForSending(om);
 
-    // Protocols can return null if they don't need to make any changes.
-    // (nb. passing null with retval array results in an empty array)
-    if (!messages || !messages.length) {
-      messages = [om.message];
-    }
-
     for (let msg of messages) {
       // Add-ons (eg. OTR) have an opportunity to tweak or cancel the message
       // at this point.

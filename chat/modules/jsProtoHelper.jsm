@@ -660,7 +660,7 @@ var GenericConversationPrototype = {
     }
   },
 
-  prepareForSending: aOutgoingMessage => null,
+  prepareForSending: aOutgoingMessage => [aOutgoingMessage.message],
   prepareForDisplaying(aImMessage) {
     if (aImMessage.displayMessage !== aImMessage.message) {
       this.DEBUG(
