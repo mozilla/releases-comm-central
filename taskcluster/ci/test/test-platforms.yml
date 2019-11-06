@@ -44,6 +44,15 @@ linux64/debug:
         - mozmill-tests
         - xpcshell-tests
 
+linux32/opt:
+    build-platform: linux/opt
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - mozmill-tests
+        - xpcshell-tests
+
 linux32-shippable/opt:
     build-platform: linux-shippable/opt
     test-sets:
@@ -121,6 +130,15 @@ windows10-64/debug:
         - xpcshell-tests
 
 # MacOS X platforms (matching /macosx.*/)
+
+macosx1014-64/opt:
+    build-platform: macosx64/opt
+    test-sets:
+        - gtest-tests
+        - marionette-tests
+        - mochitest-tests
+        - mozmill-tests
+        - xpcshell-tests
 
 macosx1014-64/debug:
     build-platform: macosx64/debug
