@@ -50,7 +50,7 @@
   <wizardpage id="selectProfile" pageid="selectProfile" label="&selectProfile.title;"
               next="importItems">
     <label control="profiles">&selectProfile.label;</label>
-    <radiogroup id="profiles" align="left"/>
+    <radiogroup id="profiles" align="start"/>
   </wizardpage>
 
   <wizardpage id="importItems" pageid="importItems" label="&importItems.title;"
@@ -58,7 +58,7 @@
               oncommand="MigrationWizard.onImportItemCommand();">
     <description>&importItems.label;</description>
 
-    <vbox id="dataSources" style="overflow: auto; -moz-appearance: listbox" align="left" flex="1"/>
+    <vbox id="dataSources" style="overflow: auto; -moz-appearance: listbox" align="start" flex="1"/>
   </wizardpage>
 
   <wizardpage id="migrating" pageid="migrating" label="&migrating.title;"
@@ -66,7 +66,7 @@
 
     <description>&migrating.label;</description>
     <separator class="thin"/>
-    <vbox id="migratingItems" class="indent" style="overflow: auto;" flex="1" align="left"/>
+    <vbox id="migratingItems" class="indent" style="overflow: auto;" flex="1" align="start"/>
     <separator class="thin"/>
 
     <hbox>
@@ -79,7 +79,7 @@
     <description>&done.label;</description>
 
     <separator class="thin"/>
-    <vbox id="doneItems" class="indent" style="overflow: auto;" align="left"/>
+    <vbox id="doneItems" class="indent" style="overflow: auto;" align="start"/>
   </wizardpage>
 </wizard>
 

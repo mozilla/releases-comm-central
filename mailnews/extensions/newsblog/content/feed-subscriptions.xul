@@ -55,7 +55,7 @@
                 src="chrome://branding/locale/brand.properties"/>
 
   <vbox flex="1" id="contentPane">
-    <hbox align="right">
+    <hbox align="end">
       <label is="text-link" id="learnMore"
              crop="end"
              value="&learnMore.label;"

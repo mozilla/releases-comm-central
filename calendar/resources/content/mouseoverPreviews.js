@@ -386,7 +386,7 @@ function createTooltipHeaderLabel(text) {
   let labelCell = document.createElementNS("http://www.w3.org/1999/xhtml", "th");
   labelCell.setAttribute("class", "tooltipHeaderLabel");
   labelCell.textContent = text;
-  labelCell.setAttribute("align", "right");
+  labelCell.setAttribute("align", "end");
   return labelCell;
 }
 

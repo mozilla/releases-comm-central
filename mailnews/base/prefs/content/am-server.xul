@@ -247,7 +247,7 @@
                   prefstring="mail.server.%serverkey%.trash_folder_name"/>
 
     <hbox align="center" hidefor="pop3,nntp,movemail">
-      <label value="&deleteMessagePrefix.label;" align="left"
+      <label value="&deleteMessagePrefix.label;" align="start"
              control="imap.deleteModel"/>
     </hbox>
     <vbox>

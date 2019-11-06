@@ -300,7 +300,7 @@
                       </vbox>
                       <label class="calendar-month-day-box-item-label"></label>
                       <vbox class="event-name-label-container"
-                            align="left" flex="1">
+                            align="start" flex="1">
                         <label class="event-name-label"
                                crop="end"
                                flex="1"

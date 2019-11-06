@@ -140,7 +140,7 @@
                   <stack class="calendar-event-box-container"
                          flex="1">
                     <hbox class="calendar-event-details">
-                      <vbox align="left"
+                      <vbox align="start"
                             flex="1">
                         <label class="event-name-label"
                                crop="end"

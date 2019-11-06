@@ -19,7 +19,7 @@
         onload="mailViewOnLoad();"
         onunload="mailViewOnUnLoad();"
         buttons="accept,cancel"
-        buttonalign="right"
+        buttonalign="end"
         windowtype="mailnews:mailview"
         title="&mailViewSetupTitle.label;"
         style="width: 52em; height: 22em;"

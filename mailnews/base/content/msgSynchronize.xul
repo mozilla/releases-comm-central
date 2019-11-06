@@ -35,7 +35,7 @@
         <checkbox id="workOffline" label="&workOffline.label;" accesskey="&workOffline.accesskey;"/>
     </vbox>
     <separator class="thin"/>
-    <hbox align="right">
+    <hbox align="end">
         <button id="select" label="&selectButton.label;" accesskey="&selectButton.accesskey;"
                 oncommand="OnSelect();"/>
     </hbox>

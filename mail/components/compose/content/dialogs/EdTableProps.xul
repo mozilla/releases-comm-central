@@ -131,7 +131,7 @@
             </vbox>
             <vbox>
               <hbox flex="1" align="center">
-                <label align="left" value="&pixels.label;"/>
+                <label align="start" value="&pixels.label;"/>
               </hbox>
               <hbox flex="1" align="center">
                 <label value="&tablePxBetwCells.label;"/>
