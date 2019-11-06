@@ -1605,7 +1605,11 @@
           iconName = "message.eml";
         } else if (attachment.url) {
           let url = Services.io.newURI(attachment.url);
-          if (url instanceof Ci.nsIURL && url.fileName && !url.schemeIs("file")) {
+          if (
+            url instanceof Ci.nsIURL &&
+            url.fileName &&
+            !url.schemeIs("file")
+          ) {
             iconName = url.fileName;
           }
         }
