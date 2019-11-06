@@ -100,8 +100,7 @@ tabpanel > hbox > description {
 
 /* Web search menulist */
 #defaultWebSearch > .menulist-label-box > .menulist-icon[src] {
-  margin-inline-start: 5px;
-  margin-inline-end: 8px;
+  margin-inline: 5px 8px;
   width: 16px;
   height: 16px;
 }
@@ -122,10 +121,8 @@ radio[pane] {
   border-right-width: 0;
   border-left-width: 0;
   border-radius: 2px;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-inline-start: 34px;
-  margin-inline-end: 0;
+  margin-block: 0;
+  margin-inline: 34px 0;
   padding: 5px 10px;
   min-height: 40px;
   outline-offset: -1px;
@@ -209,8 +206,7 @@ radio[pane][selected] > .radio-check {
   }
 
   #preferencesContainer {
-    padding-inline-start: 15px;
-    padding-inline-end: 15px;
+    padding-inline: 15px;
   }
 }
 
@@ -305,8 +301,7 @@ tab:-moz-focusring > .tab-middle {
 /* Applications Pane Styles */
 
 #filter {
-  margin-inline-start: 0;
-  margin-inline-end: 0;
+  margin-inline: 0;
 }
 
 /* XXX This style is for bug 740213 and should be removed once that
@@ -334,8 +329,7 @@ html|input.indent {
 .update-throbber {
   width: 16px;
   min-height: 16px;
-  margin-inline-start: 6px;
-  margin-inline-end: 4px;
+  margin-inline: 6px 4px;
   list-style-image: url("chrome://global/skin/icons/loading.png");
 }
 
@@ -348,9 +342,7 @@ html|input.indent {
 .updateSettingCrossUserWarningContainer {
   background: var(--in-content-warning-container);
   border-radius: 5px;
-  padding-inline: 8px;
-  padding-block-start: 2px;
-  padding-block-end: 8px;
+  padding: 2px 8px 8px;
   margin-block-end: 17px;
 }
 
@@ -393,8 +385,7 @@ html|input.indent {
  */
 
 #fontsTitle {
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin-block: 4px;
 }
 
 #defaultFontType,
@@ -411,8 +402,7 @@ html|input.indent {
 groupbox label:not(.menu-accel):not(.menu-iconic-accel):not(.menu-text):not(.menu-iconic-text):not(.menulist-label):not(.indent):not(.learnMore):not(.tail-with-learn-more),
 groupbox description {
   /* !important needed to override toolkit !important rule */
-  margin-inline-start: 0 !important;
-  margin-inline-end: 0 !important;
+  margin-inline: 0 !important;
 }
 
 richlistbox {
@@ -444,8 +434,7 @@ richlistbox:focus > richlistitem[selected="true"] {
 }
 
 #defaultWebSearch {
-  margin-inline-start: 0;
-  margin-inline-end: 4px;
+  margin-inline: 0 4px;
 }
 
 #defaultFontSize,
@@ -458,8 +447,7 @@ richlistbox:focus > richlistitem[selected="true"] {
 }
 
 #defaultMessengerLanguage {
-  margin-inline-start: 0;
-  margin-inline-end: 4px;
+  margin-inline: 0 4px;
   min-width: 20em;
 }
 

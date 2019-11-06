@@ -11,10 +11,8 @@
  * Also make sure the labels are the same distance away from the icons.
  */
 .actionsMenu {
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-inline-start: -2px;
-  margin-inline-end: 0;
+  margin-block: 0;
+  margin-inline: -2px 0;
 }
 
 .actionsMenu .menulist-icon {
@@ -38,13 +36,12 @@
  */
 
 .cloudfileAccount > label {
-  margin-top: initial;
-  margin-bottom: initial;
+  margin-block: initial;
 }
 
 .cloudfileAccount > input {
   min-height: unset !important;
   margin: 0 !important;
-  padding-inline-start: 4px !important;
-  padding: 2px 3px 3px !important;
+  padding-block: 2px 3px !important;
+  padding-inline: 4px 3px !important;
 }

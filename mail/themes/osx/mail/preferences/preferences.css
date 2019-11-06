@@ -71,6 +71,5 @@ tab:-moz-focusring > .tab-middle > .tab-text {
 }
 
 #defaultWebSearchPopup > menuitem > .menu-iconic-left {
-  margin-inline-start: 5px;
-  margin-inline-end: 3px;
+  margin-inline: 5px 3px;
 }

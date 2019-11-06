@@ -34,13 +34,11 @@ menuitem[appHandlerIcon="save"] {
 }
 
 .typeIcon {
-  margin-inline-start: 10px;
-  margin-inline-end: 9px;
+  margin-inline: 10px 9px;
 }
 
 .actionIcon {
-  margin-inline-start: 12px;
-  margin-inline-end: 8px;
+  margin-inline: 12px 8px;
 }
 
 .actionsMenu {
@@ -48,8 +46,7 @@ menuitem[appHandlerIcon="save"] {
 }
 
 .actionsMenu > .menulist-label-box > .menulist-icon {
-  margin-inline-start: 5px;
-  margin-inline-end: 5px !important;
+  margin-inline: 5px !important;
 }
 
 .actionsMenu > menupopup > menuitem {

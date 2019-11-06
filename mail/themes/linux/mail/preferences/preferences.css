@@ -20,8 +20,7 @@ radio[pane] > .radio-label-box {
 }
 
 menulist.actionsMenu > .menulist-dropmarker {
-  margin-top: 11px;
-  margin-bottom: 11px;
+  margin-block: 11px;
 }
 
 html|input[type="number"]::-moz-number-spin-box {
@@ -49,6 +48,5 @@ html|input[type="number"]::-moz-number-spin-down {
 }
 
 #defaultWebSearchPopup > menuitem > .menu-iconic-left {
-  margin-inline-start: 5px !important;
-  margin-inline-end: 5px !important;
+  margin-inline: 5px !important;
 }

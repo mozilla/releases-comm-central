@@ -11,15 +11,12 @@
  * Also make sure the labels are the same distance away from the icons.
  */
 .actionsMenu {
-  margin-top: -1px;
-  margin-bottom: -1px;
-  margin-inline-start: -1px;
-  margin-inline-end: 0;
+  margin-block: -1px;
+  margin-inline: -1px 0;
 }
 
 .actionsMenu > menupopup > menuitem > .menu-iconic-left {
-  padding-inline-start: 0;
-  padding-inline-end: 4px !important;
+  padding-inline: 0 4px !important;
 }
 
 .actionsMenu > menupopup > menuitem {
@@ -36,13 +33,12 @@
 
 .cloudfileAccount > label {
   margin-inline-start: 1px;
-  margin-top: initial;
-  margin-bottom: initial;
+  margin-block: initial;
 }
 
 .cloudfileAccount > input {
   min-height: unset !important;
   margin: 0 !important;
-  padding-inline-start: 4px !important;
-  padding: 2px 3px 3px !important;
+  padding-block: 2px 3px !important;
+  padding-inline: 4px 3px !important;
 }
