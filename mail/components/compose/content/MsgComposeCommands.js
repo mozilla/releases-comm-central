@@ -1617,6 +1617,7 @@ function addAttachCloudMenuItems(aParentMenu) {
     );
     if (iconURL) {
       item.setAttribute("class", `${item.localName}-iconic`);
+      item.setAttribute("image", iconURL);
     }
     aParentMenu.appendChild(item);
 
@@ -1635,6 +1636,7 @@ function addAttachCloudMenuItems(aParentMenu) {
       fileItem.cloudFileAccount = account;
       fileItem.setAttribute("label", file.leafName);
       fileItem.setAttribute("class", "menuitem-iconic");
+      fileItem.setAttribute("image", "moz-icon://" + file.leafName);
       aParentMenu.appendChild(fileItem);
     }
   }
@@ -1669,6 +1671,7 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
       item.setAttribute("checked", "true");
     } else if (iconURL) {
       item.setAttribute("class", "menu-iconic");
+      item.setAttribute("image", iconURL);
     }
 
     aParentMenu.appendChild(item);
