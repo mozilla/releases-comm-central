@@ -108,6 +108,8 @@ tabProgressListener.prototype = {
 
       var location = aLocationURI ? aLocationURI.spec : "";
       if (aLocationURI && !aLocationURI.schemeIs("about")) {
+        this.mTab.backButton.disabled = !this.mBrowser.canGoBack;
+        this.mTab.forwardButton.disabled = !this.mBrowser.canGoForward;
         this.mTab.urlbar.textContent = location;
         this.mTab.root.removeAttribute("collapsed");
       } else {
@@ -864,8 +866,14 @@ var specialTabs = {
       // Start setting up the browser.
       aTab.browser = aTab.panel.querySelector("browser");
       aTab.toolbar = aTab.panel.querySelector(".contentTabToolbar");
-      aTab.security = aTab.panel.querySelector(".contentTabSecurity");
-      aTab.urlbar = aTab.panel.querySelector(".contentTabUrlbar");
+      aTab.backButton = aTab.toolbar.querySelector(".back-btn");
+      aTab.backButton.addEventListener("command", () => aTab.browser.goBack());
+      aTab.forwardButton = aTab.toolbar.querySelector(".forward-btn");
+      aTab.forwardButton.addEventListener("command", () =>
+        aTab.browser.goForward()
+      );
+      aTab.security = aTab.toolbar.querySelector(".contentTabSecurity");
+      aTab.urlbar = aTab.toolbar.querySelector(".contentTabUrlbar");
       aTab.urlbar.textContent = aArgs.contentPage;
 
       ExtensionParent.apiManager.emit(

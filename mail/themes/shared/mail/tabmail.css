@@ -400,3 +400,36 @@
 .contentTabUrlbar {
   margin: 0;
 }
+
+.nav-button {
+  -moz-appearance: none;
+  list-style-image: url(chrome://messenger/skin/icons/navigation.svg);
+  border: 1px solid transparent;
+  border-radius: 2px;
+  margin: 5px 2px;
+  margin-inline-start: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.nav-button[disabled="true"] {
+  color: inherit;
+}
+
+.nav-button[disabled="true"] > .toolbarbutton-icon {
+  opacity: 0.4;
+}
+
+.nav-button:not([disabled="true"]):hover {
+  background-color: #bebebe;
+  cursor: pointer;
+}
+
+.nav-button > .toolbarbutton-text {
+  display: none;
+}
+
+.back-btn:-moz-locale-dir(rtl),
+.forward-btn:-moz-locale-dir(ltr) {
+  transform: scaleX(-1);
+}
