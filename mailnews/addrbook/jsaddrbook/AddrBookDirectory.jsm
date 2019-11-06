@@ -66,6 +66,8 @@ AddrBookDirectory.prototype = {
   _query: null,
 
   init(uri) {
+    this._uri = uri;
+
     let index = uri.indexOf("?");
     if (index >= 0) {
       this._query = uri.substring(index + 1);
@@ -86,7 +88,6 @@ AddrBookDirectory.prototype = {
     }
 
     this.__proto__ = bookPrototype;
-    this._uri = uri;
 
     if (!this.dirPrefId) {
       let filename = uri.substring("jsaddrbook://".length);
