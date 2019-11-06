@@ -50,47 +50,47 @@
  */
 
 #ifndef _DISPTMPL_H
-#  define _DISPTMPL_H
+#define _DISPTMPL_H
 
-#  ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#  endif
+#endif
 
 /* calling conventions used by library */
-#  ifndef LDAP_CALL
-#    if defined(_WINDOWS) || defined(_WIN32)
-#      define LDAP_C __cdecl
-#      ifndef _WIN32
-#        define __stdcall _far _pascal
-#        define LDAP_CALLBACK _loadds
-#      else
-#        define LDAP_CALLBACK
-#      endif /* _WIN32 */
-#      define LDAP_PASCAL __stdcall
-#      define LDAP_CALL LDAP_PASCAL
-#    else /* _WINDOWS */
-#      define LDAP_C
+#ifndef LDAP_CALL
+#  if defined(_WINDOWS) || defined(_WIN32)
+#    define LDAP_C __cdecl
+#    ifndef _WIN32
+#      define __stdcall _far _pascal
+#      define LDAP_CALLBACK _loadds
+#    else
 #      define LDAP_CALLBACK
-#      define LDAP_PASCAL
-#      define LDAP_CALL
-#    endif /* _WINDOWS */
-#  endif   /* LDAP_CALL */
+#    endif /* _WIN32 */
+#    define LDAP_PASCAL __stdcall
+#    define LDAP_CALL LDAP_PASCAL
+#  else /* _WINDOWS */
+#    define LDAP_C
+#    define LDAP_CALLBACK
+#    define LDAP_PASCAL
+#    define LDAP_CALL
+#  endif /* _WINDOWS */
+#endif   /* LDAP_CALL */
 
-#  define LDAP_TEMPLATE_VERSION 1
+#define LDAP_TEMPLATE_VERSION 1
 
 /*
  * general types of items (confined to most significant byte)
  */
-#  define LDAP_SYN_TYPE_TEXT 0x01000000L
-#  define LDAP_SYN_TYPE_IMAGE 0x02000000L
-#  define LDAP_SYN_TYPE_BOOLEAN 0x04000000L
-#  define LDAP_SYN_TYPE_BUTTON 0x08000000L
-#  define LDAP_SYN_TYPE_ACTION 0x10000000L
+#define LDAP_SYN_TYPE_TEXT 0x01000000L
+#define LDAP_SYN_TYPE_IMAGE 0x02000000L
+#define LDAP_SYN_TYPE_BOOLEAN 0x04000000L
+#define LDAP_SYN_TYPE_BUTTON 0x08000000L
+#define LDAP_SYN_TYPE_ACTION 0x10000000L
 
 /*
  * syntax options (confined to second most significant byte)
  */
-#  define LDAP_SYN_OPT_DEFER 0x00010000L
+#define LDAP_SYN_OPT_DEFER 0x00010000L
 
 /*
  * display template item syntax ids (defined by common agreement)
@@ -99,29 +99,29 @@ extern "C" {
  * most-significant 8 bits, and some options are encoded in the next
  * 8 bits.  The lower 16 bits are reserved for the distinct types.
  */
-#  define LDAP_SYN_CASEIGNORESTR (1 | LDAP_SYN_TYPE_TEXT)
-#  define LDAP_SYN_MULTILINESTR (2 | LDAP_SYN_TYPE_TEXT)
-#  define LDAP_SYN_DN (3 | LDAP_SYN_TYPE_TEXT)
-#  define LDAP_SYN_BOOLEAN (4 | LDAP_SYN_TYPE_BOOLEAN)
-#  define LDAP_SYN_JPEGIMAGE (5 | LDAP_SYN_TYPE_IMAGE)
-#  define LDAP_SYN_JPEGBUTTON (6 | LDAP_SYN_TYPE_BUTTON | LDAP_SYN_OPT_DEFER)
-#  define LDAP_SYN_FAXIMAGE (7 | LDAP_SYN_TYPE_IMAGE)
-#  define LDAP_SYN_FAXBUTTON (8 | LDAP_SYN_TYPE_BUTTON | LDAP_SYN_OPT_DEFER)
-#  define LDAP_SYN_AUDIOBUTTON (9 | LDAP_SYN_TYPE_BUTTON | LDAP_SYN_OPT_DEFER)
-#  define LDAP_SYN_TIME (10 | LDAP_SYN_TYPE_TEXT)
-#  define LDAP_SYN_DATE (11 | LDAP_SYN_TYPE_TEXT)
-#  define LDAP_SYN_LABELEDURL (12 | LDAP_SYN_TYPE_TEXT)
-#  define LDAP_SYN_SEARCHACTION (13 | LDAP_SYN_TYPE_ACTION)
-#  define LDAP_SYN_LINKACTION (14 | LDAP_SYN_TYPE_ACTION)
-#  define LDAP_SYN_ADDDNACTION (15 | LDAP_SYN_TYPE_ACTION)
-#  define LDAP_SYN_VERIFYDNACTION (16 | LDAP_SYN_TYPE_ACTION)
-#  define LDAP_SYN_RFC822ADDR (17 | LDAP_SYN_TYPE_TEXT)
+#define LDAP_SYN_CASEIGNORESTR (1 | LDAP_SYN_TYPE_TEXT)
+#define LDAP_SYN_MULTILINESTR (2 | LDAP_SYN_TYPE_TEXT)
+#define LDAP_SYN_DN (3 | LDAP_SYN_TYPE_TEXT)
+#define LDAP_SYN_BOOLEAN (4 | LDAP_SYN_TYPE_BOOLEAN)
+#define LDAP_SYN_JPEGIMAGE (5 | LDAP_SYN_TYPE_IMAGE)
+#define LDAP_SYN_JPEGBUTTON (6 | LDAP_SYN_TYPE_BUTTON | LDAP_SYN_OPT_DEFER)
+#define LDAP_SYN_FAXIMAGE (7 | LDAP_SYN_TYPE_IMAGE)
+#define LDAP_SYN_FAXBUTTON (8 | LDAP_SYN_TYPE_BUTTON | LDAP_SYN_OPT_DEFER)
+#define LDAP_SYN_AUDIOBUTTON (9 | LDAP_SYN_TYPE_BUTTON | LDAP_SYN_OPT_DEFER)
+#define LDAP_SYN_TIME (10 | LDAP_SYN_TYPE_TEXT)
+#define LDAP_SYN_DATE (11 | LDAP_SYN_TYPE_TEXT)
+#define LDAP_SYN_LABELEDURL (12 | LDAP_SYN_TYPE_TEXT)
+#define LDAP_SYN_SEARCHACTION (13 | LDAP_SYN_TYPE_ACTION)
+#define LDAP_SYN_LINKACTION (14 | LDAP_SYN_TYPE_ACTION)
+#define LDAP_SYN_ADDDNACTION (15 | LDAP_SYN_TYPE_ACTION)
+#define LDAP_SYN_VERIFYDNACTION (16 | LDAP_SYN_TYPE_ACTION)
+#define LDAP_SYN_RFC822ADDR (17 | LDAP_SYN_TYPE_TEXT)
 
 /*
  * handy macros
  */
-#  define LDAP_GET_SYN_TYPE(syid) ((syid)&0xFF000000UL)
-#  define LDAP_GET_SYN_OPTIONS(syid) ((syid)&0x00FF0000UL)
+#define LDAP_GET_SYN_TYPE(syid) ((syid)&0xFF000000UL)
+#define LDAP_GET_SYN_OPTIONS(syid) ((syid)&0x00FF0000UL)
 
 /*
  * display options for output routines (used by entry2text and friends)
@@ -130,31 +130,31 @@ extern "C" {
  * use calculated label width (based on length of longest label in
  * template) instead of constant width
  */
-#  define LDAP_DISP_OPT_AUTOLABELWIDTH 0x00000001L
-#  define LDAP_DISP_OPT_HTMLBODYONLY 0x00000002L
+#define LDAP_DISP_OPT_AUTOLABELWIDTH 0x00000001L
+#define LDAP_DISP_OPT_HTMLBODYONLY 0x00000002L
 
 /*
  * perform search actions (applies to ldap_entry2text_search only)
  */
-#  define LDAP_DISP_OPT_DOSEARCHACTIONS 0x00000002L
+#define LDAP_DISP_OPT_DOSEARCHACTIONS 0x00000002L
 
 /*
  * include additional info. relevant to "non leaf" entries only
  * used by ldap_entry2html and ldap_entry2html_search to include "Browse"
  * and "Move Up" HREFs
  */
-#  define LDAP_DISP_OPT_NONLEAF 0x00000004L
+#define LDAP_DISP_OPT_NONLEAF 0x00000004L
 
 /*
  * display template item options (may not apply to all types)
  * if this bit is set in ti_options, it applies.
  */
-#  define LDAP_DITEM_OPT_READONLY 0x00000001L
-#  define LDAP_DITEM_OPT_SORTVALUES 0x00000002L
-#  define LDAP_DITEM_OPT_SINGLEVALUED 0x00000004L
-#  define LDAP_DITEM_OPT_HIDEIFEMPTY 0x00000008L
-#  define LDAP_DITEM_OPT_VALUEREQUIRED 0x00000010L
-#  define LDAP_DITEM_OPT_HIDEIFFALSE 0x00000020L /* booleans only */
+#define LDAP_DITEM_OPT_READONLY 0x00000001L
+#define LDAP_DITEM_OPT_SORTVALUES 0x00000002L
+#define LDAP_DITEM_OPT_SINGLEVALUED 0x00000004L
+#define LDAP_DITEM_OPT_HIDEIFEMPTY 0x00000008L
+#define LDAP_DITEM_OPT_VALUEREQUIRED 0x00000010L
+#define LDAP_DITEM_OPT_HIDEIFFALSE 0x00000020L /* booleans only */
 
 /*
  * display template item structure
@@ -170,15 +170,14 @@ struct ldap_tmplitem {
   void *ti_appdata;
 };
 
-#  define NULLTMPLITEM ((struct ldap_tmplitem *)0)
+#define NULLTMPLITEM ((struct ldap_tmplitem *)0)
 
-#  define LDAP_SET_TMPLITEM_APPDATA(ti, datap) \
-    (ti)->ti_appdata = (void *)(datap)
+#define LDAP_SET_TMPLITEM_APPDATA(ti, datap) (ti)->ti_appdata = (void *)(datap)
 
-#  define LDAP_GET_TMPLITEM_APPDATA(ti, type) (type)((ti)->ti_appdata)
+#define LDAP_GET_TMPLITEM_APPDATA(ti, type) (type)((ti)->ti_appdata)
 
-#  define LDAP_IS_TMPLITEM_OPTION_SET(ti, option) \
-    (((ti)->ti_options & option) != 0)
+#define LDAP_IS_TMPLITEM_OPTION_SET(ti, option) \
+  (((ti)->ti_options & option) != 0)
 
 /*
  * object class array structure
@@ -188,21 +187,21 @@ struct ldap_oclist {
   struct ldap_oclist *oc_next;
 };
 
-#  define NULLOCLIST ((struct ldap_oclist *)0)
+#define NULLOCLIST ((struct ldap_oclist *)0)
 
 /*
  * add defaults list
  */
 struct ldap_adddeflist {
   int ad_source;
-#  define LDAP_ADSRC_CONSTANTVALUE 1
-#  define LDAP_ADSRC_ADDERSDN 2
+#define LDAP_ADSRC_CONSTANTVALUE 1
+#define LDAP_ADSRC_ADDERSDN 2
   char *ad_attrname;
   char *ad_value;
   struct ldap_adddeflist *ad_next;
 };
 
-#  define NULLADLIST ((struct ldap_adddeflist *)0)
+#define NULLADLIST ((struct ldap_adddeflist *)0)
 
 /*
  * display template global options
@@ -211,17 +210,17 @@ struct ldap_adddeflist {
 /*
  * users should be allowed to try to add objects of these entries
  */
-#  define LDAP_DTMPL_OPT_ADDABLE 0x00000001L
+#define LDAP_DTMPL_OPT_ADDABLE 0x00000001L
 
 /*
  * users should be allowed to do "modify RDN" operation of these entries
  */
-#  define LDAP_DTMPL_OPT_ALLOWMODRDN 0x00000002L
+#define LDAP_DTMPL_OPT_ALLOWMODRDN 0x00000002L
 
 /*
  * this template is an alternate view, not a primary view
  */
-#  define LDAP_DTMPL_OPT_ALTVIEW 0x00000004L
+#define LDAP_DTMPL_OPT_ALTVIEW 0x00000004L
 
 /*
  * display template structure
@@ -241,25 +240,24 @@ struct ldap_disptmpl {
   struct ldap_disptmpl *dt_next;
 };
 
-#  define NULLDISPTMPL ((struct ldap_disptmpl *)0)
+#define NULLDISPTMPL ((struct ldap_disptmpl *)0)
 
-#  define LDAP_SET_DISPTMPL_APPDATA(dt, datap) \
-    (dt)->dt_appdata = (void *)(datap)
+#define LDAP_SET_DISPTMPL_APPDATA(dt, datap) (dt)->dt_appdata = (void *)(datap)
 
-#  define LDAP_GET_DISPTMPL_APPDATA(dt, type) (type)((dt)->dt_appdata)
+#define LDAP_GET_DISPTMPL_APPDATA(dt, type) (type)((dt)->dt_appdata)
 
-#  define LDAP_IS_DISPTMPL_OPTION_SET(dt, option) \
-    (((dt)->dt_options & option) != 0)
+#define LDAP_IS_DISPTMPL_OPTION_SET(dt, option) \
+  (((dt)->dt_options & option) != 0)
 
-#  define LDAP_TMPL_ERR_VERSION 1
-#  define LDAP_TMPL_ERR_MEM 2
-#  define LDAP_TMPL_ERR_SYNTAX 3
-#  define LDAP_TMPL_ERR_FILE 4
+#define LDAP_TMPL_ERR_VERSION 1
+#define LDAP_TMPL_ERR_MEM 2
+#define LDAP_TMPL_ERR_SYNTAX 3
+#define LDAP_TMPL_ERR_FILE 4
 
 /*
  * buffer size needed for entry2text and vals2text
  */
-#  define LDAP_DTMPL_BUFSIZ 8192
+#define LDAP_DTMPL_BUFSIZ 8192
 
 typedef int (*writeptype)(void *writeparm, char *p, int len);
 
@@ -359,7 +357,7 @@ LDAP_API(char *)
 LDAP_CALL
 ldap_tmplerr2string(int err);
 
-#  ifdef __cplusplus
+#ifdef __cplusplus
 }
-#  endif
+#endif
 #endif /* _DISPTMPL_H */

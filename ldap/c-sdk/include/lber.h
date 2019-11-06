@@ -36,13 +36,13 @@
  * ***** END LICENSE BLOCK ***** */
 /* lber.h - header file for ber_* functions */
 #ifndef _LBER_H
-#  define _LBER_H
+#define _LBER_H
 
-#  ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" {
-#  endif
+#endif
 
-#  include <stdlib.h> /* to pick up size_t typedef */
+#include <stdlib.h> /* to pick up size_t typedef */
 
 /*
  * Note that LBER_ERROR and LBER_DEFAULT are values that can never appear
@@ -50,45 +50,45 @@ extern "C" {
  * fact, any tag for which the following is true is invalid:
  *     (( tag & 0x00000080 ) != 0 ) && (( tag & 0xFFFFFF00 ) != 0 )
  */
-#  define LBER_ERROR ((ber_tag_t)-1)           /* 0xffffffffU */
-#  define LBER_DEFAULT ((ber_tag_t)-1)         /* 0xffffffffU */
-#  define LBER_END_OF_SEQORSET ((ber_tag_t)-2) /* 0xfffffffeU */
-#  define LBER_OVERFLOW ((ber_tag_t)-3)        /* 0xfffffffdU */
+#define LBER_ERROR ((ber_tag_t)-1)           /* 0xffffffffU */
+#define LBER_DEFAULT ((ber_tag_t)-1)         /* 0xffffffffU */
+#define LBER_END_OF_SEQORSET ((ber_tag_t)-2) /* 0xfffffffeU */
+#define LBER_OVERFLOW ((ber_tag_t)-3)        /* 0xfffffffdU */
 
 /* BER classes and mask */
-#  define LBER_CLASS_UNIVERSAL 0x00
-#  define LBER_CLASS_APPLICATION 0x40
-#  define LBER_CLASS_CONTEXT 0x80
-#  define LBER_CLASS_PRIVATE 0xc0
-#  define LBER_CLASS_MASK 0xc0
+#define LBER_CLASS_UNIVERSAL 0x00
+#define LBER_CLASS_APPLICATION 0x40
+#define LBER_CLASS_CONTEXT 0x80
+#define LBER_CLASS_PRIVATE 0xc0
+#define LBER_CLASS_MASK 0xc0
 
 /* BER encoding type and mask */
-#  define LBER_PRIMITIVE 0x00
-#  define LBER_CONSTRUCTED 0x20
-#  define LBER_ENCODING_MASK 0x20
+#define LBER_PRIMITIVE 0x00
+#define LBER_CONSTRUCTED 0x20
+#define LBER_ENCODING_MASK 0x20
 
-#  define LBER_BIG_TAG_MASK 0x1f
-#  define LBER_MORE_TAG_MASK 0x80
+#define LBER_BIG_TAG_MASK 0x1f
+#define LBER_MORE_TAG_MASK 0x80
 
 /* general BER types we know about */
-#  define LBER_BOOLEAN 0x01
-#  define LBER_INTEGER 0x02
-#  define LBER_BITSTRING 0x03
-#  define LBER_OCTETSTRING 0x04
-#  define LBER_NULL 0x05
-#  define LBER_ENUMERATED 0x0a
-#  define LBER_SEQUENCE 0x30
-#  define LBER_SET 0x31
+#define LBER_BOOLEAN 0x01
+#define LBER_INTEGER 0x02
+#define LBER_BITSTRING 0x03
+#define LBER_OCTETSTRING 0x04
+#define LBER_NULL 0x05
+#define LBER_ENUMERATED 0x0a
+#define LBER_SEQUENCE 0x30
+#define LBER_SET 0x31
 
 /* BerElement set/get options */
-#  define LBER_OPT_REMAINING_BYTES 0x01
-#  define LBER_OPT_TOTAL_BYTES 0x02
-#  define LBER_OPT_USE_DER 0x04
-#  define LBER_OPT_TRANSLATE_STRINGS 0x08
-#  define LBER_OPT_BYTES_TO_WRITE 0x10
-#  define LBER_OPT_MEMALLOC_FN_PTRS 0x20
-#  define LBER_OPT_DEBUG_LEVEL 0x40
-#  define LBER_OPT_BUFSIZE 0x80
+#define LBER_OPT_REMAINING_BYTES 0x01
+#define LBER_OPT_TOTAL_BYTES 0x02
+#define LBER_OPT_USE_DER 0x04
+#define LBER_OPT_TRANSLATE_STRINGS 0x08
+#define LBER_OPT_BYTES_TO_WRITE 0x10
+#define LBER_OPT_MEMALLOC_FN_PTRS 0x20
+#define LBER_OPT_DEBUG_LEVEL 0x40
+#define LBER_OPT_BUFSIZE 0x80
 
 /*
  * LBER_USE_DER is defined for compatibility with the C LDAP API RFC.
@@ -97,23 +97,23 @@ extern "C" {
  * ber_init_w_nullchar() only.  Callers of ber_set_option() or
  * ber_get_option() must use LBER_OPT_USE_DER instead.  Sorry!
  */
-#  define LBER_USE_DER 0x01
+#define LBER_USE_DER 0x01
 
 /* Sockbuf set/get options */
-#  define LBER_SOCKBUF_OPT_TO_FILE 0x001
-#  define LBER_SOCKBUF_OPT_TO_FILE_ONLY 0x002
-#  define LBER_SOCKBUF_OPT_MAX_INCOMING_SIZE 0x004
-#  define LBER_SOCKBUF_OPT_NO_READ_AHEAD 0x008
-#  define LBER_SOCKBUF_OPT_DESC 0x010
-#  define LBER_SOCKBUF_OPT_COPYDESC 0x020
-#  define LBER_SOCKBUF_OPT_READ_FN 0x040
-#  define LBER_SOCKBUF_OPT_WRITE_FN 0x080
-#  define LBER_SOCKBUF_OPT_EXT_IO_FNS 0x100
-#  define LBER_SOCKBUF_OPT_VALID_TAG 0x200
-#  define LBER_SOCKBUF_OPT_SOCK_ARG 0x400
+#define LBER_SOCKBUF_OPT_TO_FILE 0x001
+#define LBER_SOCKBUF_OPT_TO_FILE_ONLY 0x002
+#define LBER_SOCKBUF_OPT_MAX_INCOMING_SIZE 0x004
+#define LBER_SOCKBUF_OPT_NO_READ_AHEAD 0x008
+#define LBER_SOCKBUF_OPT_DESC 0x010
+#define LBER_SOCKBUF_OPT_COPYDESC 0x020
+#define LBER_SOCKBUF_OPT_READ_FN 0x040
+#define LBER_SOCKBUF_OPT_WRITE_FN 0x080
+#define LBER_SOCKBUF_OPT_EXT_IO_FNS 0x100
+#define LBER_SOCKBUF_OPT_VALID_TAG 0x200
+#define LBER_SOCKBUF_OPT_SOCK_ARG 0x400
 
-#  define LBER_OPT_ON ((void *)1)
-#  define LBER_OPT_OFF ((void *)0)
+#define LBER_OPT_ON ((void *)1)
+#define LBER_OPT_OFF ((void *)0)
 
 typedef unsigned int ber_len_t;  /* for BER len */
 typedef unsigned int ber_tag_t;  /* for BER tags */
@@ -130,48 +130,48 @@ typedef struct berelement BerElement;
 typedef struct sockbuf Sockbuf;
 typedef int (*BERTranslateProc)(char **bufp, ber_uint_t *buflenp,
                                 int free_input);
-#  ifndef macintosh
-#    if defined(_WINDOWS) || defined(_WIN32) || defined(_CONSOLE)
-#      include <winsock.h> /* for SOCKET */
+#ifndef macintosh
+#  if defined(_WINDOWS) || defined(_WIN32) || defined(_CONSOLE)
+#    include <winsock.h> /* for SOCKET */
 typedef SOCKET LBER_SOCKET;
-#    else
+#  else
 typedef long LBER_SOCKET;
-#    endif /* _WINDOWS */
-#  else    /* macintosh */
+#  endif /* _WINDOWS */
+#else    /* macintosh */
 typedef void *LBER_SOCKET;
-#  endif   /* macintosh */
+#endif   /* macintosh */
 
 /* calling conventions used by library */
-#  ifndef LDAP_CALL
-#    if defined(_WINDOWS) || defined(_WIN32)
-#      define LDAP_C __cdecl
-#      ifndef _WIN32
-#        define __stdcall _far _pascal
-#        define LDAP_CALLBACK _loadds
-#      else
-#        define LDAP_CALLBACK
-#      endif /* _WIN32 */
-#      define LDAP_PASCAL __stdcall
-#      define LDAP_CALL LDAP_PASCAL
-#    else /* _WINDOWS */
-#      define LDAP_C
+#ifndef LDAP_CALL
+#  if defined(_WINDOWS) || defined(_WIN32)
+#    define LDAP_C __cdecl
+#    ifndef _WIN32
+#      define __stdcall _far _pascal
+#      define LDAP_CALLBACK _loadds
+#    else
 #      define LDAP_CALLBACK
-#      define LDAP_PASCAL
-#      define LDAP_CALL
-#    endif /* _WINDOWS */
-#  endif   /* LDAP_CALL */
+#    endif /* _WIN32 */
+#    define LDAP_PASCAL __stdcall
+#    define LDAP_CALL LDAP_PASCAL
+#  else /* _WINDOWS */
+#    define LDAP_C
+#    define LDAP_CALLBACK
+#    define LDAP_PASCAL
+#    define LDAP_CALL
+#  endif /* _WINDOWS */
+#endif   /* LDAP_CALL */
 
 /*
  * function prototypes for lber library
  */
 
-#  ifndef LDAP_API
-#    if defined(_WINDOWS) || defined(_WIN32)
-#      define LDAP_API(rt) rt
-#    else /* _WINDOWS */
-#      define LDAP_API(rt) rt
-#    endif /* _WINDOWS */
-#  endif   /* LDAP_API */
+#ifndef LDAP_API
+#  if defined(_WINDOWS) || defined(_WIN32)
+#    define LDAP_API(rt) rt
+#  else /* _WINDOWS */
+#    define LDAP_API(rt) rt
+#  endif /* _WINDOWS */
+#endif   /* LDAP_API */
 
 struct lextiof_socket_private;  /* Defined by the extended I/O */
                                 /* callback functions */
@@ -214,7 +214,7 @@ struct lber_x_ext_io_fns {
   struct lextiof_socket_private *lbextiofn_socket_arg;
   LDAP_X_EXTIOF_WRITEV_CALLBACK *lbextiofn_writev;
 };
-#  define LBER_X_EXTIO_FNS_SIZE sizeof(struct lber_x_ext_io_fns)
+#define LBER_X_EXTIO_FNS_SIZE sizeof(struct lber_x_ext_io_fns)
 
 /*
  * liblber memory allocation callback functions.  These are global to all
@@ -334,7 +334,7 @@ LDAP_CALL ber_sockbuf_set_option(Sockbuf *sb, int option, void *value);
 LDAP_API(int)
 LDAP_CALL ber_sockbuf_get_option(Sockbuf *sb, int option, void *value);
 
-#  ifdef __cplusplus
+#ifdef __cplusplus
 }
-#  endif
+#endif
 #endif /* _LBER_H */
