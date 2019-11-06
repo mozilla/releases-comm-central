@@ -18,8 +18,6 @@ lightning.jar:
 % overlay chrome://messenger/content/preferences/preferences.xul chrome://lightning/content/messenger-overlay-preferences.xul
 % overlay about:preferences chrome://lightning/content/messenger-overlay-preferences.xul
 % overlay chrome://lightning/content/messenger-overlay-sidebar.xul chrome://lightning/content/suite-overlay-sidebar.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
-% overlay chrome://calendar/content/calendarCreation.xul chrome://lightning/content/lightning-calendar-creation.xul
-% overlay chrome://lightning/content/lightning-calendar-creation.xul chrome://lightning/content/caldav-lightning-calendar-creation.xul
 % override chrome://lightning-common/skin/accountCentral.css chrome://lightning-common/skin/suite-accountCentral.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % content lightning %content/
     content/html-item-editing/lightning-item-iframe.html   (content/html-item-editing/lightning-item-iframe.html)
