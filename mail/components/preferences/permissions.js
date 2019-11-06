@@ -449,13 +449,8 @@ var gPermissionManager = {
     this._tree = document.getElementById("permissionsTree");
     this._permissions = [];
 
-    // load permissions into a table
-    var enumerator = Services.perms.enumerator;
-    while (enumerator.hasMoreElements()) {
-      var nextPermission = enumerator
-        .getNext()
-        .QueryInterface(Ci.nsIPermission);
-      this._addPermissionToList(nextPermission);
+    for (let perm of Services.perms.all) {
+      this._addPermissionToList(perm);
     }
 
     this._view._rowCount = this._permissions.length;
