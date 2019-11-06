@@ -104,6 +104,8 @@ extern "C" int LDAP_CALLBACK nsLDAPSSLConnect(
                "nsLDAPSSLConnect(): called for non-secure connection");
   options &= ~LDAP_X_EXTIOF_OPT_SECURE;
 
+  NS_ASSERTION(options & LDAP_X_EXTIOF_OPT_NONBLOCKING,
+               "nsLDAPSSLConnect(): called for blocking connection");
   // Retrieve session info. so we can store a pointer to our session info.
   // in our socket info. later.
   //

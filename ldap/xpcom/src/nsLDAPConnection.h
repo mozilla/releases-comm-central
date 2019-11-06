@@ -63,13 +63,6 @@ class nsLDAPConnection : public nsILDAPConnection,
   //
   nsLDAPConnection();
 
- protected:
-  virtual ~nsLDAPConnection();
-  // invoke the callback associated with a given message, and possibly
-  // delete it from the connection queue
-  //
-  nsresult InvokeMessageCallback(LDAPMessage *aMsgHandle, nsILDAPMessage *aMsg,
-                                 int32_t aOperation, bool aRemoveOpFromConnQ);
   /**
    * Add an nsILDAPOperation to the list of operations pending on
    * this connection.  This is mainly intended for use by the
@@ -96,10 +89,31 @@ class nsLDAPConnection : public nsILDAPConnection,
    */
   nsresult RemovePendingOperation(uint32_t aOperationID);
 
-  void Close();                 // close the connection
-  LDAP *mConnectionHandle;      // the LDAP C SDK's connection object
-  nsCString mBindName;          // who to bind as
-  nsCOMPtr<nsIThread> mThread;  // thread which marshals results
+ protected:
+  virtual ~nsLDAPConnection();
+
+  /** invoke the callback associated with a given message, and possibly
+   * delete it from the connection queue.
+   */
+  nsresult InvokeMessageCallback(LDAPMessage *aMsgHandle, nsILDAPMessage *aMsg,
+                                 int32_t aOperation, bool aRemoveOpFromConnQ);
+
+  /**
+   * Dispatch an operation to the socket thread. This is intended for use by
+   * the nsLDAPOperation code.
+   */
+  nsresult StartOp(nsIRunnable *aOp);
+
+  void Close();             // close the connection
+  LDAP *mConnectionHandle;  // the LDAP C SDK's connection object
+  nsCString mBindName;      // who to bind as
+
+  // We'll be dispatching operations on the SocketTransportService. This is
+  // because there might be some SSL/TLS security handshaking happening
+  // under the hood (the handshaking is deferred until the first IO Send).
+  // The handshaking expects to be running on the STS thread (see Bug 1576364).
+  // It also saves us spinning up a new thread to handle LDAP IO.
+  nsCOMPtr<nsIEventTarget> mSTS;
 
   Mutex mPendingOperationsMutex;
   nsInterfaceHashtable<nsUint32HashKey, nsILDAPOperation> mPendingOperations;
