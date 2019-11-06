@@ -150,7 +150,7 @@
                    hidden="true"/>
           </hbox>
 
-          <hbox class="form-control" align="center">
+          <hbox class="form-control no-margin" align="center">
             <label accesskey="&email.accesskey;"
                   class="autoconfigLabel label-box"
                   value="&email.label;"
@@ -170,6 +170,14 @@
                   class="form-icon icon-warning"
                   tooltiptext="&email.error;"
                   hidden="true"/>
+          </hbox>
+
+          <hbox class="form-control" pack="end">
+            <button id="provisioner_button"
+                    label="&open-provisioner.label;"
+                    accesskey="&open-provisioner.accesskey;"
+                    class="btn-link"
+                    oncommand="gEmailConfigWizard.onSwitchToProvisioner();"/>
           </hbox>
 
           <hbox class="form-control" align="center">
@@ -465,19 +473,13 @@
                   label="&cancel.label;"
                   accesskey="&cancel.accesskey;"
                   oncommand="gEmailConfigWizard.onCancel();"/>
-          <button id="provisioner_button"
-                  label="&open-provisioner.label;"
-                  accesskey="&open-provisioner.accesskey;"
-                  class="btn-link"
-                  oncommand="gEmailConfigWizard.onSwitchToProvisioner();"/>
-        </hbox>
-
-        <hbox id="right_buttons_area" align="center" pack="end">
           <button id="manual-edit_button"
                   label="&manual-config.label;"
                   accesskey="&manual-config.accesskey;"
-                  hidden="true"
                   oncommand="gEmailConfigWizard.onManualEdit();"/>
+        </hbox>
+
+        <hbox id="right_buttons_area" align="center" pack="end">
           <button id="stop_button"
                   label="&stop.label;"
                   accesskey="&stop.accesskey;"

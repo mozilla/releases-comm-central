@@ -338,10 +338,11 @@ EmailConfigWizard.prototype = {
 
       _show("next_button");
       _disable("next_button"); // will be enabled by code
+      _show("manual-edit_button");
+      _disable("manual-edit_button");
       _hide("half-manual-test_button");
       _hide("create_button");
       _hide("stop_button");
-      _hide("manual-edit_button");
     } else if (modename == "find-config") {
       _show("status-area");
       _hide("result_area");
@@ -578,8 +579,12 @@ EmailConfigWizard.prototype = {
     if (this.validateEmailMinimally(this._email) && this._realname) {
       this._domain = this._email.split("@")[1].toLowerCase();
       _enable("next_button");
+      _enable("manual-edit_button");
+      _hide("provisioner_button");
     } else {
       _disable("next_button");
+      _disable("manual-edit_button");
+      _show("provisioner_button");
     }
   },
 
