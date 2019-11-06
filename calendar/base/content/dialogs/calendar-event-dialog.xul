@@ -23,8 +23,6 @@
     %eventDialogDTD;
 ]>
 
-<?xul-overlay href="chrome://lightning/content/lightning-item-toolbar.xul"?>
-
 <!-- Dialog id is changed during execution to allow different Window-icons
      on this dialog. document.loadOverlay() will not work on this one. -->
 <dialog title="&event.title.label;"
@@ -564,8 +562,10 @@
     </menubar>
     </toolbar>
 
-    <!-- toolbarpalette items are added with an overlay -->
-    <toolbarpalette id="event-toolbarpalette"/>
+    <toolbarpalette id="event-toolbarpalette">
+#include ../../../lightning/content/lightning-item-toolbar.inc.xul
+    </toolbarpalette>
+
     <!-- toolboxid is set here since we move the toolbar around in tabs -->
     <toolbar is="customizable-toolbar" id="event-toolbar"
              toolboxid="event-toolbox"

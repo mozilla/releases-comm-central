@@ -17,8 +17,6 @@
     %toolbarDTD;
 ]>
 
-<?xul-overlay href="chrome://lightning/content/lightning-item-toolbar.xul"?>
-
 <overlay id="ltnCalendarItemPanelContentOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
@@ -126,8 +124,8 @@
                  defaulticonsize="small"
                  labelalign="end"
                  defaultlabelalign="end">
-          <!-- more toolbarpalette items are added with an overlay -->
           <toolbarpalette id="event-toolbarpalette">
+#include lightning-item-toolbar.inc.xul
             <toolbarbutton id="calendar-item-appmenu-button"
                            type="menu"
                            class="toolbarbutton-1 button-appmenu"
