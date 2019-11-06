@@ -1617,7 +1617,6 @@ function addAttachCloudMenuItems(aParentMenu) {
     );
     if (iconURL) {
       item.setAttribute("class", `${item.localName}-iconic`);
-      item.setAttribute("image", iconURL);
     }
     aParentMenu.appendChild(item);
 
@@ -1636,7 +1635,6 @@ function addAttachCloudMenuItems(aParentMenu) {
       fileItem.cloudFileAccount = account;
       fileItem.setAttribute("label", file.leafName);
       fileItem.setAttribute("class", "menuitem-iconic");
-      fileItem.setAttribute("image", "moz-icon://" + file.leafName);
       aParentMenu.appendChild(fileItem);
     }
   }
@@ -1671,7 +1669,6 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
       item.setAttribute("checked", "true");
     } else if (iconURL) {
       item.setAttribute("class", "menu-iconic");
-      item.setAttribute("image", iconURL);
     }
 
     aParentMenu.appendChild(item);
@@ -1689,7 +1686,6 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
   let attachmentItem = bucket.findItemForAttachment(attachment);
   if (attachmentItem) {
     let itemIcon = attachmentItem.querySelector(".attachmentcell-icon");
-    attachmentItem.image = "chrome://global/skin/icons/loading.png";
     itemIcon.setAttribute("src", "chrome://global/skin/icons/loading.png");
     attachmentItem.setAttribute(
       "tooltiptext",
@@ -1731,12 +1727,10 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
       let iconURL = cloudFileAccount.iconURL;
       let itemIcon = attachmentItem.querySelector(".attachmentcell-icon");
       if (iconURL) {
-        attachmentItem.image = iconURL;
         itemIcon.setAttribute("src", iconURL);
       } else {
         // Should we use a generic "cloud" icon here? Or an overlay icon?
         // I think the provider should provide an icon, end of story.
-        attachmentItem.image = null;
         itemIcon.setAttribute("src", "");
       }
 
@@ -1829,7 +1823,6 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
 
     if (attachmentItem) {
       // Remove the loading throbber.
-      attachmentItem.image = null;
       attachmentItem.setAttribute("tooltiptext", attachmentItem.attachment.url);
       attachmentItem.uploading = false;
       attachmentItem.attachment.sendViaCloud = false;
@@ -1899,12 +1892,10 @@ function attachToCloudRepeat(upload, account) {
     };
     let iconURL = account.iconURL;
     if (iconURL) {
-      item.image = iconURL;
       itemIcon.setAttribute("src", iconURL);
     } else {
       // Should we use a generic "cloud" icon here? Or an overlay icon?
       // I think the provider should provide an icon, end of story.
-      item.image = null;
       itemIcon.setAttribute("src", "");
     }
     item.dispatchEvent(
@@ -2071,7 +2062,6 @@ function convertListItemsToRegularAttachment(aItems) {
 
     delete item.cloudFileAccount;
     delete item.originalUrl;
-    item.image = null;
 
     convertedAttachments.appendElement(item.attachment);
   }
@@ -4989,31 +4979,9 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
           attachment.cloudFileAccountKey
         );
         item.cloudFileAccount = account;
-        item.image = account.iconURL;
         item.originalUrl = attachment.url;
       } catch (ex) {
         dump(ex);
-      }
-
-      // For local file urls, we are better off using the full file url because
-      // moz-icon will actually resolve the file url and get the right icon from
-      // the file url. All other urls, we should try to extract the file name from
-      // them. This fixes issues where an icon wasn't showing up if you dragged a
-      // web url that had a query or reference string after the file name and for
-      // mailnews urls where the filename is hidden in the url as a &filename=
-      // part.
-    } else if (
-      /^mailbox-message:|^imap-message:|^news-message:/i.test(attachment.url)
-    ) {
-      // We're attaching a message. Pretend that is comes from a file,
-      // so we get the icon that matches .eml files.
-      item.image = "moz-icon://message.eml";
-    } else {
-      let url = Services.io.newURI(attachment.url);
-      if (url instanceof Ci.nsIURL && url.fileName && !url.schemeIs("file")) {
-        item.image = "moz-icon://" + url.fileName;
-      } else {
-        item.image = "moz-icon:" + attachment.url;
       }
     }
 

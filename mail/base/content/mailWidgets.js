@@ -1599,17 +1599,27 @@
         item.setAttribute("image16", base + "attachment-deleted.png");
         item.setAttribute("image32", base + "attachment-deleted-large.png");
       } else {
+        let iconName = attachment.name;
+        if (iconName.toLowerCase().endsWith(".eml")) {
+          // Discard message names derived from crazy subject headers.
+          iconName = "message.eml";
+        } else if (attachment.url) {
+          let url = Services.io.newURI(attachment.url);
+          if (url instanceof Ci.nsIURL && url.fileName && !url.schemeIs("file")) {
+            iconName = url.fileName;
+          }
+        }
         item.setAttribute(
           "image16",
           "moz-icon://" +
-            attachment.name +
+            iconName +
             "?size=16&contentType=" +
             attachment.contentType
         );
         item.setAttribute(
           "image32",
           "moz-icon://" +
-            attachment.name +
+            iconName +
             "?size=32&contentType=" +
             attachment.contentType
         );
