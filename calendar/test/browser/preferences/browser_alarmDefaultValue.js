@@ -32,7 +32,7 @@ var controller = mozmill.getMail3PaneController();
 
 var prefTab = null;
 
-add_task(function testDefaultAlarms() {
+add_task(async function testDefaultAlarms() {
   let localeUnitString = cal.l10n.getCalString("unitDays");
   let unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
   let alarmString = (...args) => cal.l10n.getString("calendar-alarms", ...args);
@@ -51,7 +51,7 @@ add_task(function testDefaultAlarms() {
   // Create New Event.
   controller.keypress(null, "i", { shiftKey: false, accelKey: true });
   // Set up the event dialog controller.
-  invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeEventDialog(controller, null, (event, iframe) => {
     let { xpath: eventpath, eid: eventid } = helpersForController(event);
 
     // Check if the "custom" item was selected.
@@ -69,7 +69,7 @@ add_task(function testDefaultAlarms() {
 
   // Create New Task.
   controller.keypress(null, "d", { shiftKey: false, accelKey: true });
-  invokeEventDialog(controller, null, (task, iframe) => {
+  await invokeEventDialog(controller, null, (task, iframe) => {
     let { xpath: taskpath, eid: taskid } = helpersForController(task);
 
     // Check if the "custom" item was selected.

@@ -301,7 +301,7 @@ function goToDate(controller, year, month, day) {
  * @param clickBox      The box to click on, or null if no box to click on.
  * @param body          The function to execute while the event dialog is open.
  */
-function invokeEventDialog(controller, clickBox, body) {
+async function invokeEventDialog(controller, clickBox, body) {
   if (clickBox) {
     controller.waitForElement(clickBox);
     controller.doubleClick(clickBox, 1, 1);
@@ -331,7 +331,7 @@ function invokeEventDialog(controller, clickBox, body) {
   // something for helpersForController.
   let mockIframeController = { window: iframe.contentWindow };
 
-  body(eventController, mockIframeController);
+  await body(eventController, mockIframeController);
 
   // Wait for close.
   controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);

@@ -3993,7 +3993,9 @@ function setAttendeeContext(aEvent) {
     let mailto = document.getElementById("attendee-popup-emailattendee-menuitem");
     let remove = document.getElementById("attendee-popup-removeattendee-menuitem");
     let secondSeparator = document.getElementById("attendee-popup-second-separator");
-    let attId = aEvent.target.parentNode.getAttribute("attendeeid");
+    let attId =
+      aEvent.target.getAttribute("attendeeid") ||
+      aEvent.target.parentNode.getAttribute("attendeeid");
     let attendee = window.attendees.find(aAtt => aAtt.id == attId);
     if (attendee) {
       mailto.removeAttribute("hidden");

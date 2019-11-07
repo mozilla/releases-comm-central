@@ -35,7 +35,7 @@ var { eid, lookupEventBox } = helpersForController(controller);
 
 const HOUR = 8;
 
-add_task(function testWeeklyNRecurrence() {
+add_task(async function testWeeklyNRecurrence() {
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 5);
@@ -46,7 +46,7 @@ add_task(function testWeeklyNRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);

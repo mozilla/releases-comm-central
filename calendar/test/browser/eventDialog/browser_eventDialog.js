@@ -40,7 +40,7 @@ const EVENTATTENDEE = "foo@bar.com";
 const EVENTURL = "http://mozilla.org/";
 var firstDay;
 
-add_task(function testEventDialog() {
+add_task(async function testEventDialog() {
   let dateFormatter = cal.getDateFormatter();
   let now = new Date();
 
@@ -78,7 +78,7 @@ add_task(function testEventDialog() {
   controller.click(lookupEventBox("month", CANVAS_BOX, 1, 1, null));
   controller.mainMenu.click("#ltnNewEvent");
 
-  invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeEventDialog(controller, null, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
     let { eid: iframeId } = helpersForController(iframe);
     let { iframeLookup, getDateTimePicker } = helpersForEditUI(iframe);
@@ -105,7 +105,7 @@ add_task(function testEventDialog() {
     untildate.addDuration(cal.createDuration("P20D"));
 
     // Fill in the rest of the values.
-    setData(event, iframe, {
+    await setData(event, iframe, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
       description: EVENTDESCRIPTION,

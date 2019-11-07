@@ -26,7 +26,7 @@ var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
 var controller = mozmill.getMail3PaneController();
 var { lookupEventBox } = helpersForController(controller);
 
-add_task(function testAlarmDialog() {
+add_task(async function testAlarmDialog() {
   let now = new Date();
 
   createCalendar(controller, CALENDARNAME);
@@ -38,10 +38,10 @@ add_task(function testAlarmDialog() {
   controller.mainMenu.click("#ltnNewEvent");
 
   // Create a new all-day event tomorrow.
-  invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeEventDialog(controller, null, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
-    setData(event, iframe, {
+    await setData(event, iframe, {
       allday: true,
       reminder: "1day",
     });
@@ -60,10 +60,10 @@ add_task(function testAlarmDialog() {
 
   // Change the reminder duration, this resets the alarm.
   let eventBox = lookupEventBox("day", ALLDAY, undefined, 1, undefined, EVENTPATH);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
-    setData(event, iframe, { reminder: "2days" });
+    await setData(event, iframe, { reminder: "2days" });
 
     // Prepare to snooze the alarm.
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {

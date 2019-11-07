@@ -26,14 +26,14 @@ var { lookupEventBox } = helpersForController(controller);
 
 const HOUR = 8;
 
-add_task(function testBiweeklyRecurrence() {
+add_task(async function testBiweeklyRecurrence() {
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 31);
 
   // Create biweekly event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "bi.weekly", event);

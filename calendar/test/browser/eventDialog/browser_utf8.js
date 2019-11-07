@@ -23,18 +23,18 @@ var { lookupEventBox } = helpersForController(controller);
 
 var UTF8STRING = " 💣 💥  ☣  ";
 
-add_task(function testUTF8() {
+add_task(async function testUTF8() {
   Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
   createCalendar(controller, UTF8STRING);
   switchToView(controller, "day");
 
   // Create new event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     // Fill in name, location, description.
-    setData(event, iframe, {
+    await setData(event, iframe, {
       title: UTF8STRING,
       location: UTF8STRING,
       description: UTF8STRING,
@@ -48,7 +48,7 @@ add_task(function testUTF8() {
   // open
   let eventPath = `/{"tooltip":"itemTooltip","calendar":"${UTF8STRING.toLowerCase()}"}`;
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, eventPath);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, (event, iframe) => {
     let { eid: iframeId } = helpersForController(iframe);
 
     // Check values.

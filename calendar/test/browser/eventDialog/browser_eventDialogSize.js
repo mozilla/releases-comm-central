@@ -24,10 +24,10 @@ add_task(function setupModule(module) {
   createCalendar(controller, CALENDARNAME);
 });
 
-add_task(function testEventDialog() {
+add_task(async function testEventDialog() {
   dump("#ltnNewEvent click\n");
   controller.mainMenu.click("#ltnNewEvent");
-  invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeEventDialog(controller, null, (event, iframe) => {
     checkLargeEnough(event, iframe);
 
     // Much larger than necessary.
@@ -42,7 +42,7 @@ add_task(function testEventDialog() {
 
   dump("#ltnNewEvent click\n");
   controller.mainMenu.click("#ltnNewEvent");
-  invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeEventDialog(controller, null, (event, iframe) => {
     checkWithinTolerance(event.window.outerWidth, 640, LARGE_TOLERANCE);
     checkWithinTolerance(event.window.outerHeight, 690, LARGE_TOLERANCE);
     checkLargeEnough(event, iframe);
@@ -59,7 +59,7 @@ add_task(function testEventDialog() {
 
   dump("#ltnNewEvent click\n");
   controller.mainMenu.click("#ltnNewEvent");
-  invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeEventDialog(controller, null, (event, iframe) => {
     checkLargeEnough(event, iframe);
 
     // Much larger than necessary.
@@ -75,10 +75,10 @@ add_task(function testEventDialog() {
   Assert.ok(true, "Test ran to completion");
 });
 
-add_task(function testTaskDialog() {
+add_task(async function testTaskDialog() {
   dump("#ltnNewTask click\n");
   controller.mainMenu.click("#ltnNewTask");
-  invokeEventDialog(controller, null, (task, iframe) => {
+  await invokeEventDialog(controller, null, (task, iframe) => {
     checkWithinTolerance(getPersistedValue("event", "width"), 640, LARGE_TOLERANCE);
     checkWithinTolerance(getPersistedValue("event", "height"), 690, LARGE_TOLERANCE);
 
@@ -96,7 +96,7 @@ add_task(function testTaskDialog() {
 
   dump("#ltnNewTask click\n");
   controller.mainMenu.click("#ltnNewTask");
-  invokeEventDialog(controller, null, (task, iframe) => {
+  await invokeEventDialog(controller, null, (task, iframe) => {
     checkWithinTolerance(task.window.outerWidth, 650, LARGE_TOLERANCE);
     checkWithinTolerance(task.window.outerHeight, 700, LARGE_TOLERANCE);
     checkLargeEnough(task, iframe);
@@ -113,7 +113,7 @@ add_task(function testTaskDialog() {
 
   dump("#ltnNewTask click\n");
   controller.mainMenu.click("#ltnNewTask");
-  invokeEventDialog(controller, null, (task, iframe) => {
+  await invokeEventDialog(controller, null, (task, iframe) => {
     checkLargeEnough(task, iframe);
 
     // Much larger than necessary.

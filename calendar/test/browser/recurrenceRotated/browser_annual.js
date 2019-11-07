@@ -26,7 +26,7 @@ var { eid, getEventBoxPath, lookup, lookupEventBox } = helpersForController(cont
 const STARTYEAR = 1950;
 const EPOCH = 1970;
 
-add_task(function testAnnualRecurrence() {
+add_task(async function testAnnualRecurrence() {
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
   goToDate(controller, STARTYEAR, 1, 1);
@@ -37,7 +37,7 @@ add_task(function testAnnualRecurrence() {
 
   // Create yearly recurring all-day event.
   let eventBox = lookupEventBox("day", ALLDAY, null, 1, null);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "yearly", event);

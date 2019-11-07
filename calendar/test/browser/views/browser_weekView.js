@@ -32,7 +32,7 @@ var TITLE1 = "Week View Event";
 var TITLE2 = "Week View Event Changed";
 var DESC = "Week View Event Description";
 
-add_task(function testWeekView() {
+add_task(async function testWeekView() {
   let dateFormatter = cal.getDateFormatter();
 
   createCalendar(controller, CALENDARNAME);
@@ -49,7 +49,7 @@ add_task(function testWeekView() {
   // Create event at 8 AM.
   // Thursday of 2009-01-01 is 4th with default settings.
   let eventBox = lookupEventBox("week", CANVAS_BOX, null, 5, 8);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
     let { getDateTimePicker } = helpersForEditUI(iframe);
 
@@ -64,7 +64,7 @@ add_task(function testWeekView() {
     event.assertValue(startDateInput, dateFormatter.formatDateShort(someDate));
 
     // Fill in title, description and calendar.
-    setData(event, iframe, {
+    await setData(event, iframe, {
       title: TITLE1,
       description: DESC,
       calendar: CALENDARNAME,
@@ -76,11 +76,11 @@ add_task(function testWeekView() {
 
   // If it was created successfully, it can be opened.
   eventBox = lookupEventBox("week", EVENT_BOX, null, 5, null, EVENTPATH);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     // Change title and save changes.
-    setData(event, iframe, { title: TITLE2 });
+    await setData(event, iframe, { title: TITLE2 });
     event.click(eventid("button-saveandclose"));
   });
 

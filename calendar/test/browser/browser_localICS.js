@@ -43,10 +43,10 @@ add_task(async function testLocalICS() {
 
   // Create new event.
   let box = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  invokeEventDialog(controller, box, (event, iframe) => {
+  await invokeEventDialog(controller, box, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
-    setData(event, iframe, { title: calendarName, calendar: calendarName });
+    await setData(event, iframe, { title: calendarName, calendar: calendarName });
 
     // save
     event.click(eventid("button-saveandclose"));

@@ -1,6 +1,9 @@
 // Export all available functions for Mozmill
 var EXPORTED_SYMBOLS = [
+  "sendChar",
+  "sendString",
   "synthesizeMouse",
+  "synthesizeMouseAtCenter",
   "synthesizeMouseScroll",
   "synthesizeKey",
   "synthesizeMouseExpectEvent",
@@ -35,6 +38,61 @@ function _parseModifiers(aEvent) {
   }
 
   return mval;
+}
+
+/**
+ * Send the char aChar to the focused element.  This method handles casing of
+ * chars (sends the right charcode, and sends a shift key for uppercase chars).
+ * No other modifiers are handled at this point.
+ *
+ * For now this method only works for ASCII characters and emulates the shift
+ * key state on US keyboard layout.
+ */
+function sendChar(aChar, aWindow) {
+  var hasShift;
+  // Emulate US keyboard layout for the shiftKey state.
+  switch (aChar) {
+    case "!":
+    case "@":
+    case "#":
+    case "$":
+    case "%":
+    case "^":
+    case "&":
+    case "*":
+    case "(":
+    case ")":
+    case "_":
+    case "+":
+    case "{":
+    case "}":
+    case ":":
+    case '"':
+    case "|":
+    case "<":
+    case ">":
+    case "?":
+      hasShift = true;
+      break;
+    default:
+      hasShift =
+        aChar.toLowerCase() != aChar.toUpperCase() &&
+        aChar == aChar.toUpperCase();
+      break;
+  }
+  synthesizeKey(aChar, { shiftKey: hasShift }, aWindow);
+}
+
+/**
+ * Send the string aStr to the focused element.
+ *
+ * For now this method only works for ASCII characters and emulates the shift
+ * key state on US keyboard layout.
+ */
+function sendString(aStr, aWindow) {
+  for (var i = 0; i < aStr.length; ++i) {
+    sendChar(aStr.charAt(i), aWindow);
+  }
 }
 
 /**
@@ -83,6 +141,28 @@ function synthesizeMouse(aTarget, aOffsetX, aOffsetY, aEvent, aWindow) {
       utils.sendMouseEvent("mouseup", left, top, button, clickCount, modifiers);
     }
   }
+}
+
+/**
+ * Call synthesizeMouse with coordinates at the center of aTarget.
+ *
+ * aEvent is an object which may contain the properties:
+ *   shiftKey, ctrlKey, altKey, metaKey, accessKey, clickCount, button, type
+ *
+ * If the type is specified, an mouse event of that type is fired. Otherwise,
+ * a mousedown followed by a mouse up is performed.
+ *
+ * aWindow is optional, and defaults to the current window object.
+ */
+function synthesizeMouseAtCenter(aTarget, aEvent, aWindow) {
+  var rect = aTarget.getBoundingClientRect();
+  return synthesizeMouse(
+    aTarget,
+    rect.width / 2,
+    rect.height / 2,
+    aEvent,
+    aWindow
+  );
 }
 
 /**

@@ -32,7 +32,7 @@ var { eid, lookupEventBox } = helpersForController(controller);
 
 const HOUR = 8;
 
-add_task(function testLastDayOfMonthRecurrence() {
+add_task(async function testLastDayOfMonthRecurrence() {
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
   goToDate(controller, 2008, 1, 31); // Start with a leap year.
@@ -44,7 +44,7 @@ add_task(function testLastDayOfMonthRecurrence() {
 
   // Create monthly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);

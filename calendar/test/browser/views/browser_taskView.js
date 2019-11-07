@@ -25,7 +25,7 @@ const PERCENTCOMPLETE = "50";
 
 // Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
 // checked.
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   let CALENDARID = createCalendar(controller, CALENDARNAME);
 
   // paths
@@ -61,14 +61,14 @@ add_task(function setupModule(module) {
   // Double-click on completion checkbox is ignored as opening action, so don't
   // click at immediate left where the checkbox is located.
   controller.doubleClick(lookup(treeChildren), 50, 0);
-  invokeEventDialog(controller, null, (task, iframe) => {
+  await invokeEventDialog(controller, null, async (task, iframe) => {
     let { eid: taskid } = helpersForController(task);
     let { eid: iframeId } = helpersForController(iframe);
 
     // Verify calendar.
     controller.assertValue(iframeId("item-calendar"), CALENDARNAME);
 
-    setData(task, iframe, {
+    await setData(task, iframe, {
       status: "needs-action",
       percent: PERCENTCOMPLETE,
       description: DESCRIPTION,

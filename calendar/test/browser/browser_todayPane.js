@@ -29,12 +29,12 @@ add_task(async function testTodayPane() {
   createCalendar(controller, CALENDARNAME);
   await setCalendarView("day");
 
-  let createEvent = (hour, name) => {
+  let createEvent = async (hour, name) => {
     let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, hour);
-    invokeEventDialog(controller, eventBox, (event, iframe) => {
+    await invokeEventDialog(controller, eventBox, async (event, iframe) => {
       let { eid: eventid } = helpersForController(event);
 
-      setData(event, iframe, { title: name });
+      await setData(event, iframe, { title: name });
       event.click(eventid("button-saveandclose"));
     });
   };
@@ -56,18 +56,18 @@ add_task(async function testTodayPane() {
     view.scrollToMinute(60 * startHour);
   }
 
-  createEvent(startHour, "Today's Event");
+  await createEvent(startHour, "Today's Event");
 
   // Reset view.
   view.scrollToMinute(60 * 8);
 
   // Go to tomorrow and add an event.
   viewForward(controller, 1);
-  createEvent(9, "Tomorrow's Event");
+  await createEvent(9, "Tomorrow's Event");
 
   // Go 5 days forward and add an event.
   viewForward(controller, 5);
-  createEvent(9, "Future Event");
+  await createEvent(9, "Future Event");
 
   // Go to mail tab.
   controller.click(

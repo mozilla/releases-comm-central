@@ -29,7 +29,7 @@ var { eid, lookupEventBox } = helpersForController(controller);
 var { date1, date2, date3, data, newlines } = setupData();
 
 // Test that closing an event dialog with no changes does not prompt for save.
-add_task(function testEventDialogModificationPrompt() {
+add_task(async function testEventDialogModificationPrompt() {
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
@@ -38,7 +38,7 @@ add_task(function testEventDialogModificationPrompt() {
   let eventbox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
 
   // Create new event.
-  invokeEventDialog(controller, createbox, (event, iframe) => {
+  await invokeEventDialog(controller, createbox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     let categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
@@ -46,14 +46,14 @@ add_task(function testEventDialogModificationPrompt() {
     data[1].categories.push(categories[1], categories[2]);
 
     // Enter first set of data.
-    setData(event, iframe, data[0]);
+    await setData(event, iframe, data[0]);
 
     // save
     event.click(eventid("button-saveandclose"));
   });
 
   // Open, but change nothing.
-  invokeEventDialog(controller, eventbox, (event, iframe) => {
+  await invokeEventDialog(controller, eventbox, (event, iframe) => {
     // Escape the event window, there should be no prompt to save event.
     event.keypress(null, "VK_ESCAPE", {});
     // Wait to see if the prompt appears.
@@ -61,12 +61,12 @@ add_task(function testEventDialogModificationPrompt() {
   });
 
   // Open, change all values then revert the changes.
-  invokeEventDialog(controller, eventbox, (event, iframe) => {
+  await invokeEventDialog(controller, eventbox, async (event, iframe) => {
     // Change all values.
-    setData(event, iframe, data[1]);
+    await setData(event, iframe, data[1]);
 
     // Edit all values back to original.
-    setData(event, iframe, data[0]);
+    await setData(event, iframe, data[0]);
 
     // Escape the event window, there should be no prompt to save event.
     event.keypress(null, "VK_ESCAPE", {});
@@ -81,16 +81,16 @@ add_task(function testEventDialogModificationPrompt() {
 
   for (let i = 0; i < newlines.length; i++) {
     // test set i
-    invokeEventDialog(controller, createbox, (event, iframe) => {
+    await invokeEventDialog(controller, createbox, async (event, iframe) => {
       let { eid: eventid } = helpersForController(event);
 
-      setData(event, iframe, newlines[i]);
+      await setData(event, iframe, newlines[i]);
       event.click(eventid("button-saveandclose"));
     });
 
     // Open and close.
-    invokeEventDialog(controller, eventbox, (event, iframe) => {
-      setData(event, iframe, newlines[i]);
+    await invokeEventDialog(controller, eventbox, async (event, iframe) => {
+      await setData(event, iframe, newlines[i]);
       event.keypress(null, "VK_ESCAPE", {});
       // Wait to see if the prompt appears.
       controller.sleep(2000);

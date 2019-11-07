@@ -16,29 +16,20 @@ this.EXPORTED_SYMBOLS = [
   "REC_DLG_UNTIL_INPUT",
   "helpersForEditUI",
   "setData",
-  "setReminderMenulist",
-  "setCategories",
-  "handleAddingAttachment",
-  "setTimezone",
 ];
 
 var elementslib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
-
-var {
-  helpersForController,
-  menulistSelect,
-  SHORT_SLEEP,
-  TIMEOUT_MODAL_DIALOG,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { mark_failure } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
 );
-var { augment_controller, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+
+var { helpersForController, menulistSelect } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 
 // Lookup paths and path-snippets.
 // These 5 have to be used with itemEditLookup().
@@ -89,6 +80,10 @@ var REC_DLG_UNTIL_INPUT = `
     id("recurrence-duration")/id("recurrence-range-until-box")/id("repeat-until-date")/
     {"class":"datepicker-menulist"}/{"class":"menulist-input"}
 `;
+
+function sleep(window) {
+  return new Promise(resolve => window.setTimeout(resolve));
+}
 
 function helpersForEditUI(controller) {
   function selector(sel) {
@@ -202,8 +197,14 @@ function helpersForEditUI(controller) {
  *                      attendees.add - eMail of attendees to add, comma separated.
  *                      attendees.remove - eMail of attendees to remove, comma separated.
  */
-function setData(dialog, iframe, data) {
-  let { eid, sleep, replaceText } = helpersForController(dialog);
+async function setData(dialog, iframe, data) {
+  function replaceText(input, text) {
+    synthesizeMouseAtCenter(input.getNode(), {}, iframe.window);
+    synthesizeKey("a", { accelKey: true }, iframe.window);
+    sendString(text, iframe.window);
+  }
+
+  let { eid } = helpersForController(dialog);
   let { eid: iframeid } = helpersForController(iframe);
   let { iframeLookup, getDateTimePicker } = helpersForEditUI(iframe);
 
@@ -219,38 +220,38 @@ function setData(dialog, iframe, data) {
 
   let dateFormatter = cal.getDateFormatter();
   // Wait for input elements' values to be populated.
-  sleep();
+  await sleep(iframe.window);
 
   // title
-  if (data.title != undefined) {
+  if (data.title !== undefined) {
     let titleInput = iframeid("item-title");
     replaceText(titleInput, data.title);
   }
 
   // location
-  if (data.location != undefined) {
+  if (data.location !== undefined) {
     let locationInput = iframeid("item-location");
     replaceText(locationInput, data.location);
   }
 
   // categories
-  if (data.categories != undefined) {
-    setCategories(dialog, iframe, data.categories);
+  if (data.categories !== undefined) {
+    await setCategories(iframe.window, data.categories);
+    await sleep(iframe.window);
   }
 
   // calendar
-  if (data.calendar != undefined) {
+  if (data.calendar !== undefined) {
     menulistSelect(iframeid("item-calendar"), data.calendar, dialog);
+    await sleep(iframe.window);
   }
 
   // all-day
-  if (data.allday != undefined && isEvent) {
+  if (data.allday !== undefined && isEvent) {
     let checkbox = iframeid("event-all-day");
     if (checkbox.getNode().checked != data.allday) {
-      dialog.click(checkbox);
-      sleep();
+      synthesizeMouseAtCenter(checkbox.getNode(), {}, iframe.window);
     }
-    Assert.equal(checkbox.getNode().checked, data.allday);
   }
 
   // timezonedisplay
@@ -263,11 +264,11 @@ function setData(dialog, iframe, data) {
 
   // timezone
   if (data.timezone !== undefined) {
-    setTimezone(dialog, data.timezone);
+    await setTimezone(dialog.window, iframe.window, data.timezone);
   }
 
   // startdate
-  if (data.startdate != undefined && data.startdate.constructor.name == "Date") {
+  if (data.startdate !== undefined && data.startdate.constructor.name == "Date") {
     let startdate = dateFormatter.formatDateShort(
       cal.dtz.jsDateToDateTime(data.startdate, cal.dtz.floating)
     );
@@ -279,16 +280,16 @@ function setData(dialog, iframe, data) {
   }
 
   // starttime
-  if (data.starttime != undefined && data.starttime.constructor.name == "Date") {
+  if (data.starttime !== undefined && data.starttime.constructor.name == "Date") {
     let starttime = dateFormatter.formatTime(
       cal.dtz.jsDateToDateTime(data.starttime, cal.dtz.floating)
     );
     replaceText(starttimeInput, starttime);
-    sleep();
+    await sleep(iframe.window);
   }
 
   // enddate
-  if (data.enddate != undefined && data.enddate.constructor.name == "Date") {
+  if (data.enddate !== undefined && data.enddate.constructor.name == "Date") {
     let enddate = dateFormatter.formatDateShort(
       cal.dtz.jsDateToDateTime(data.enddate, cal.dtz.floating)
     );
@@ -299,7 +300,7 @@ function setData(dialog, iframe, data) {
   }
 
   // endtime
-  if (data.endtime != undefined && data.endtime.constructor.name == "Date") {
+  if (data.endtime !== undefined && data.endtime.constructor.name == "Date") {
     let endtime = dateFormatter.formatTime(
       cal.dtz.jsDateToDateTime(data.endtime, cal.dtz.floating)
     );
@@ -307,10 +308,10 @@ function setData(dialog, iframe, data) {
   }
 
   // recurrence
-  if (data.repeat != undefined) {
+  if (data.repeat !== undefined) {
     menulistSelect(iframeid("item-repeat"), data.repeat, dialog);
   }
-  if (data.repeatuntil != undefined && data.repeatuntil.constructor.name == "Date") {
+  if (data.repeatuntil !== undefined && data.repeatuntil.constructor.name == "Date") {
     // Only fill in date, when the Datepicker is visible.
     if (iframeid("repeat-deck").getNode().selectedIndex == 0) {
       let untildate = dateFormatter.formatDateShort(
@@ -321,25 +322,25 @@ function setData(dialog, iframe, data) {
   }
 
   // reminder
-  if (data.reminder != undefined) {
-    setReminderMenulist(dialog, iframeid("item-alarm").getNode(), data.reminder);
+  if (data.reminder !== undefined) {
+    await setReminderMenulist(iframe.window, data.reminder);
   }
 
   // priority
-  if (data.priority != undefined) {
+  if (data.priority !== undefined) {
     dialog.mainMenu.click(`#options-priority-${data.priority}-label`);
   }
 
   // privacy
-  if (data.privacy != undefined) {
+  if (data.privacy !== undefined) {
     dialog.click(eid("button-privacy"));
     dialog.click(eid(`event-privacy-${data.privacy}-menuitem`));
     dialog.click(eid("button-privacy"));
-    sleep();
+    await sleep(iframe.window);
   }
 
   // status
-  if (data.status != undefined) {
+  if (data.status !== undefined) {
     if (isEvent) {
       dialog.mainMenu.click(`#options-status-${data.status}-menuitem`);
     } else {
@@ -350,7 +351,7 @@ function setData(dialog, iframe, data) {
   let currentStatus = iframeid("todo-status").getNode().value;
 
   // completed on
-  if (data.completed != undefined && data.completed.constructor.name == "Date" && !isEvent) {
+  if (data.completed !== undefined && data.completed.constructor.name == "Date" && !isEvent) {
     let completeddate = dateFormatter.formatDateShort(
       cal.dtz.jsDateToDateTime(data.completed, cal.dtz.floating)
     );
@@ -361,7 +362,7 @@ function setData(dialog, iframe, data) {
 
   // percent complete
   if (
-    data.percent != undefined &&
+    data.percent !== undefined &&
     (currentStatus == "NEEDS-ACTION" ||
       currentStatus == "IN-PROCESS" ||
       currentStatus == "COMPLETED")
@@ -370,23 +371,23 @@ function setData(dialog, iframe, data) {
   }
 
   // free/busy
-  if (data.freebusy != undefined) {
+  if (data.freebusy !== undefined) {
     dialog.mainMenu.click(`#options-freebusy-${data.freebusy}-menuitem`);
   }
 
   // description
-  if (data.description != undefined) {
+  if (data.description !== undefined) {
     dialog.click(iframeid("event-grid-tab-description"));
     let descField = iframeLookup(DESCRIPTION_TEXTBOX);
     replaceText(descField, data.description);
   }
 
   // attachment
-  if (data.attachment != undefined) {
-    if (data.attachment.add != undefined) {
-      handleAddingAttachment(dialog, data.attachment.add);
+  if (data.attachment !== undefined) {
+    if (data.attachment.add !== undefined) {
+      await handleAddingAttachment(dialog.window, data.attachment.add);
     }
-    if (data.attachment.remove != undefined) {
+    if (data.attachment.remove !== undefined) {
       dialog.click(iframeid("event-grid-tab-attachments"));
       let attachmentBox = iframeid("attachment-link");
       let attachments = attachmentBox.getNode().children;
@@ -400,7 +401,7 @@ function setData(dialog, iframe, data) {
   }
 
   // attendees
-  if (data.attendees != undefined) {
+  if (data.attendees !== undefined) {
     // Display attendees Tab.
     dialog.click(iframeid("event-grid-tab-attendees"));
     // Make sure no notifications are sent, since handling this dialog is
@@ -411,136 +412,127 @@ function setData(dialog, iframe, data) {
     }
 
     // add
-    if (data.attendees.add != undefined) {
-      addAttendees(dialog, iframe, data.attendees.add);
+    if (data.attendees.add !== undefined) {
+      await addAttendees(dialog.window, iframe.window, data.attendees.add);
     }
     // delete
-    if (data.attendees.remove != undefined) {
-      deleteAttendees(dialog, iframe, data.attendees.remove);
+    if (data.attendees.remove !== undefined) {
+      await deleteAttendees(iframe.window, data.attendees.remove);
     }
   }
 
-  sleep(SHORT_SLEEP);
+  await sleep(iframe.window);
 }
 
 /**
  * Select an item in the reminder menulist.
  * Custom reminders are not supported.
  *
- * @param controller      Mozmill controller of item-Iframe:
- * @param menulist        The reminder menulist node.
+ * @param iframeWindow    The event dialog iframe.
  * @param id              Identifying string of menuitem id.
  */
-function setReminderMenulist(controller, menulist, id) {
-  let { eid } = helpersForController(controller);
+async function setReminderMenulist(iframeWindow, id) {
+  let iframeDocument = iframeWindow.document;
+  let menulist = iframeDocument.getElementById("item-alarm");
+  let menuitem = iframeDocument.getElementById(`reminder-${id}-menuitem`);
 
-  let menuitem = eid(`reminder-${id}-menuitem`);
-  menulist.click();
-  controller.click(menuitem);
-  controller.waitFor(() => {
-    return menulist.selectedItem.id == `reminder-${id}-menuitem`;
-  });
+  synthesizeMouseAtCenter(menulist, {}, iframeWindow);
+  await BrowserTestUtils.waitForEvent(menulist, "popupshown");
+  synthesizeMouseAtCenter(menuitem, {}, iframeWindow);
+  await BrowserTestUtils.waitForEvent(menulist, "popuphidden");
+  await sleep(iframeWindow);
 }
 
 /**
  * Set the categories in the event-dialog menulist-panel.
  *
- * @param dialog      Mozmill controller of event-dialog.
- * @param iframe      Controller of the iframe of the dialog.
- * @param index       Array containing the categories as strings - leave empty to clear.
+ * @param iframeWindow    The event dialog iframe.
+ * @param categories      Array containing the categories as strings - leave empty to clear.
  */
-function setCategories(dialog, iframe, categories) {
-  let { eid: iframeid } = helpersForController(iframe);
-  let { iframeLookup } = helpersForEditUI(iframe);
-  let categoryMenulist = iframeid("item-categories");
-  let categoryList = iframeLookup(CATEGORY_LIST);
-  dialog.click(categoryMenulist);
-  dialog.waitFor(() => categoryMenulist.getNode().open);
-  if (categoryMenulist.itemCount > -1 && categoryMenulist.itemCount < categories.length) {
-    mark_failure(["more categories than supported by current calendar"]);
-  } else {
-    // Iterate over categories and check if needed.
-    let listItems = categoryList.getNode().children;
-    for (let item of listItems) {
-      let set = false;
-      if (categories.includes(item.label)) {
-        set = true;
-      }
-      if (set && !item.getAttribute("checked")) {
-        item.setAttribute("checked", true);
-      } else if (!set && item.getAttribute("checked")) {
-        item.removeAttribute("checked");
-      }
+async function setCategories(iframeWindow, categories) {
+  let iframeDocument = iframeWindow.document;
+  let menulist = iframeDocument.getElementById("item-categories");
+  let menupopup = iframeDocument.getElementById("item-categories-popup");
+
+  synthesizeMouseAtCenter(menulist, {}, iframeWindow);
+  await BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+
+  // Iterate over categories and check if needed.
+  for (let item of menupopup.children) {
+    if (categories.includes(item.label)) {
+      item.setAttribute("checked", "true");
+    } else {
+      item.removeAttribute("checked");
     }
   }
-  categoryList.getNode().hidePopup();
-  dialog.click(iframeid("item-title"));
-  dialog.sleep();
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
+  menupopup.hidePopup();
+  await hiddenPromise;
 }
 
 /**
  * Add an URL attachment.
  *
- * @param controller        Mozmill window controller
- * @param url               URL to be added
+ * @param dialogWindow    The event dialog.
+ * @param url             URL to be added
  */
-function handleAddingAttachment(controller, url) {
-  let { eid } = helpersForController(controller);
-  plan_for_modal_dialog("commonDialog", attachment => {
-    let { lookup: cdlglookup, eid: cdlgid } = helpersForController(attachment);
-    attachment.waitForElement(cdlgid("loginTextbox"));
-    cdlgid("loginTextbox").getNode().value = url;
-    attachment.click(
-      cdlglookup(`
-            /id("commonDialog")/shadow/{"class":"dialog-button-box"}/{"dlgtype":"accept"}
-        `)
+async function handleAddingAttachment(dialogWindow, url) {
+  let dialogDocument = dialogWindow.document;
+
+  synthesizeMouseAtCenter(dialogDocument.getElementById("button-url"), {}, dialogWindow);
+  await BrowserTestUtils.promiseAlertDialog(undefined, undefined, attachmentWindow => {
+    let attachmentDocument = attachmentWindow.document;
+
+    attachmentDocument.getElementById("loginTextbox").value = url;
+    synthesizeMouseAtCenter(
+      attachmentDocument.documentElement.getButton("accept"),
+      {},
+      attachmentWindow
     );
   });
-  controller.click(eid("button-url"));
-
-  wait_for_modal_dialog("commonDialog", TIMEOUT_MODAL_DIALOG);
+  await sleep(dialogWindow);
 }
 
 /**
  * Add attendees to the event.
  *
- * @param dialog            The controller of the Edit Dialog.
- * @param innerFrame        The controller of the item iframe.
+ * @param dialogWindow      The event dialog.
+ * @param iframeWindow      The event dialog iframe.
  * @param attendeesString   Comma separated list of eMail-Addresses to add.
  */
-function addAttendees(dialog, innerFrame, attendeesString) {
-  let { eid: dlgid } = helpersForController(dialog);
+async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
+  let dialogDocument = dialogWindow.document;
 
   let attendees = attendeesString.split(",");
   for (let attendee of attendees) {
-    let calAttendee = innerFrame.window.attendees.find(aAtt => aAtt.id == `mailto:${attendee}`);
+    let calAttendee = iframeWindow.attendees.find(aAtt => aAtt.id == `mailto:${attendee}`);
     // Only add if not already present.
     if (!calAttendee) {
-      plan_for_modal_dialog("Calendar:EventDialog:Attendees", attDialog => {
-        let { lookup: attlookup, eid: attid } = helpersForController(attDialog);
+      synthesizeMouseAtCenter(dialogDocument.getElementById("button-attendees"), {}, dialogWindow);
+      await BrowserTestUtils.promiseAlertDialog(
+        undefined,
+        "chrome://calendar/content/calendar-event-dialog-attendees.xul",
+        async attendeesWindow => {
+          await sleep(attendeesWindow);
+          let attendeesDocument = attendeesWindow.document;
 
-        let input = attid("attendees-list");
-        // As starting point is always the last entered Attendee, we have
-        // to advance to not overwrite it.
-        attDialog.waitFor(
-          () => attDialog.window.document.activeElement.getAttribute("is") == "autocomplete-input"
-        );
-        attDialog.keypress(input, "VK_TAB", {});
-        attDialog.waitFor(
-          () =>
-            attDialog.window.document.activeElement.getAttribute("is") == "autocomplete-input" &&
-            attDialog.window.document.activeElement.getAttribute("value") == null
-        );
-        attDialog.type(input, attendee);
-        attDialog.click(
-          attlookup(`
-                    /id("calendar-event-dialog-attendees-v2")/shadow/
-                    {"class":"dialog-button-box"}/{"dlgtype":"accept"}
-                `)
-        );
-      });
-      dialog.click(dlgid("button-attendees"));
-      wait_for_modal_dialog("Calendar:EventDialog:Attendees", TIMEOUT_MODAL_DIALOG);
+          // As starting point is always the last entered Attendee, we have
+          // to advance to not overwrite it.
+          await sleep(attendeesWindow);
+          Assert.equal(attendeesDocument.activeElement.getAttribute("is"), "autocomplete-input");
+          synthesizeKey("VK_TAB", {}, attendeesWindow);
+          Assert.equal(attendeesDocument.activeElement.getAttribute("is"), "autocomplete-input");
+          Assert.equal(attendeesDocument.activeElement.getAttribute("value"), null);
+          sendString(attendee, attendeesWindow);
+          synthesizeMouseAtCenter(
+            attendeesDocument.documentElement.getButton("accept"),
+            {},
+            attendeesWindow
+          );
+        }
+      );
+      await sleep(iframeWindow);
     }
   }
 }
@@ -548,64 +540,82 @@ function addAttendees(dialog, innerFrame, attendeesString) {
 /**
  * Delete attendees from the event.
  *
- * @param dialog            The controller of the Edit Dialog.
- * @param innerFrame        The controller of the item iframe.
+ * @param iframeWindow      The event dialog iframe.
  * @param attendeesString   Comma separated list of eMail-Addresses to delete.
  */
-function deleteAttendees(event, innerFrame, attendeesString) {
-  let { eid: iframeid } = helpersForController(innerFrame);
-  let { iframeLookup } = helpersForEditUI(innerFrame);
+async function deleteAttendees(iframeWindow, attendeesString) {
+  let iframeDocument = iframeWindow.document;
+  let menupopup = iframeDocument.getElementById("attendee-popup");
 
   // Now delete the attendees.
   let attendees = attendeesString.split(",");
   for (let attendee of attendees) {
-    let attendeeToDelete = iframeLookup(`${ATTENDEES_ROW}/{"attendeeid":"mailto:${attendee}"}`);
+    let attendeeToDelete = iframeDocument.querySelector(
+      `.item-attendees-row [attendeeid="mailto:${attendee}"]`
+    );
     if (attendeeToDelete) {
-      augment_controller(event);
-      event.rightClick(attendeeToDelete);
-      event.click_menus_in_sequence(iframeid("attendee-popup").getNode(), [
-        { id: "attendee-popup-removeattendee-menuitem" },
-      ]);
+      attendeeToDelete.focus();
+      synthesizeMouseAtCenter(attendeeToDelete, { type: "contextmenu" }, iframeWindow);
+      await BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+      synthesizeMouseAtCenter(
+        iframeDocument.getElementById("attendee-popup-removeattendee-menuitem"),
+        {},
+        iframeWindow
+      );
+      await BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
     }
-    event.waitForElementNotPresent(attendeeToDelete);
   }
+  await sleep(iframeWindow);
 }
 
 /**
  * Set the timezone for the item
  *
- * @param event           The controller of the Edit Dialog.
+ * @param dialogWindow    The event dialog.
+ * @param iframeWindow    The event dialog iframe.
  * @param timezone        String identifying the Timezone.
  */
-function setTimezone(event, timezone) {
-  let { eid: eventid } = helpersForController(event);
-  let eventCallback = function(zone, tzcontroller) {
-    let { lookup: tzlookup, xpath: tzpath } = helpersForController(tzcontroller);
+async function setTimezone(dialogWindow, iframeWindow, timezone) {
+  let dialogDocument = dialogWindow.document;
+  let iframeDocument = iframeWindow.document;
 
-    let item = tzpath(`
-            /*[name()='dialog']/*[name()='menulist'][1]/*[name()='menupopup'][1]/
-            *[@value='${zone}']
-        `);
-    tzcontroller.waitForElement(item);
-    tzcontroller.click(item);
-    tzcontroller.click(
-      tzlookup(`
-            /id("calendar-event-dialog-timezone")/shadow/
-            {"class":"dialog-button-box"}/{"dlgtype":"accept"}
-        `)
-    );
-  };
+  let menuitem = dialogDocument.getElementById("options-timezones-menuitem");
+  let label = iframeDocument.getElementById("timezone-starttime");
+  let menupopup = iframeDocument.getElementById("timezone-popup");
+  let customMenuitem = iframeDocument.getElementById("timezone-custom-menuitem");
 
-  if (eventid("timezone-starttime").getNode().collapsed) {
-    let menuitem = eventid("options-timezones-menuitem");
-    event.click(menuitem);
+  if (!BrowserTestUtils.is_visible(label)) {
+    menuitem.click();
+    await sleep(iframeWindow);
   }
 
-  plan_for_modal_dialog("Calendar:EventDialog:Timezone", eventCallback.bind(null, timezone));
-  event.waitForElement(eventid("timezone-starttime"));
-  event.click(eventid("timezone-starttime"));
-  event.click(eventid("timezone-starttime"));
-  event.waitForElement(eventid("timezone-custom-menuitem"));
-  event.click(eventid("timezone-custom-menuitem"));
-  wait_for_modal_dialog("Calendar:EventDialog:Timezone", TIMEOUT_MODAL_DIALOG);
+  Assert.ok(BrowserTestUtils.is_visible(label));
+  synthesizeMouseAtCenter(label, {}, iframeWindow);
+  await BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+  synthesizeMouseAtCenter(customMenuitem, {}, iframeWindow);
+
+  await BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://calendar/content/calendar-event-dialog-timezone.xul",
+    async timezoneWindow => {
+      let timezoneDocument = timezoneWindow.document;
+      let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
+      let timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
+
+      synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
+      await BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
+      timezoneMenuitem.scrollIntoView();
+      synthesizeMouseAtCenter(timezoneMenuitem, {}, timezoneWindow);
+      await BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
+      await sleep(timezoneWindow);
+
+      synthesizeMouseAtCenter(
+        timezoneDocument.documentElement.getButton("accept"),
+        {},
+        timezoneWindow
+      );
+    }
+  );
+
+  await new Promise(resolve => iframeWindow.setTimeout(resolve, 500));
 }

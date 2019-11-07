@@ -28,17 +28,17 @@ var { lookupEventBox } = helpersForController(controller);
 
 const HOUR = 8;
 
-add_task(function testDailyRecurrence() {
+add_task(async function testDailyRecurrence() {
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
   // Create daily event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
-    setData(event, iframe, { repeat: "daily", repeatuntil: new Date(2009, 2, 20) });
+    await setData(event, iframe, { repeat: "daily", repeatuntil: new Date(2009, 2, 20) });
     event.click(eventid("button-saveandclose"));
   });
 
@@ -117,7 +117,7 @@ add_task(function testDailyRecurrence() {
 
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
   handleOccurrencePrompt(controller, eventBox, "modify", true);
-  invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeEventDialog(controller, null, (event, iframe) => {
     let { eid: eventid, sleep: eventsleep } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "every.weekday", event);

@@ -31,7 +31,7 @@ const TITLE1 = "Multiweek View Event";
 const TITLE2 = "Multiweek View Event Changed";
 const DESC = "Multiweek View Event Description";
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   let dateFormatter = cal.getDateFormatter();
 
   createCalendar(controller, CALENDARNAME);
@@ -48,7 +48,7 @@ add_task(function setupModule(module) {
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
   let hour = new Date().getHours(); // Remember time at click.
   let eventBox = lookupEventBox("multiweek", CANVAS_BOX, 1, 5);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
     let { getDateTimePicker } = helpersForEditUI(iframe);
 
@@ -65,7 +65,7 @@ add_task(function setupModule(module) {
     event.assertValue(startDateInput, dateFormatter.formatDateShort(someDate));
 
     // Fill in title, description and calendar.
-    setData(event, iframe, {
+    await setData(event, iframe, {
       title: TITLE1,
       description: DESC,
       calendar: CALENDARNAME,
@@ -77,11 +77,11 @@ add_task(function setupModule(module) {
 
   // If it was created successfully, it can be opened.
   eventBox = lookupEventBox("multiweek", CANVAS_BOX, 1, 5, null, EVENTPATH);
-  invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     // Change title and save changes.
-    setData(event, iframe, { title: TITLE2 });
+    await setData(event, iframe, { title: TITLE2 });
     event.click(eventid("button-saveandclose"));
   });
 

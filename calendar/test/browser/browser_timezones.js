@@ -51,7 +51,7 @@ add_task(async function testTimezones1_SetGMT() {
   await setCalendarView("day");
 });
 
-add_task(function testTimezones2_CreateEvents() {
+add_task(async function testTimezones2_CreateEvents() {
   goToDate(controller, 2009, 1, 1);
 
   // Create weekly recurring events in all TIMEZONES.
@@ -59,12 +59,12 @@ add_task(function testTimezones2_CreateEvents() {
   let time = new Date();
   for (let i = 0; i < TIMEZONES.length; i++) {
     let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, i + 11);
-    invokeEventDialog(controller, eventBox, (event, iframe) => {
+    await invokeEventDialog(controller, eventBox, async (event, iframe) => {
       time.setHours(times[i][0]);
       time.setMinutes(times[i][1]);
 
       // Set event data.
-      setData(event, iframe, {
+      await setData(event, iframe, {
         title: TIMEZONES[i],
         repeat: "weekly",
         repeatuntil: new Date(2009, 11, 31),
@@ -254,11 +254,11 @@ function verify(dates, timezones, times) {
   let allowedDifference = 3;
 
   /* Event box' time can't be deduced from it's position in                    ----------------
-       xul element tree because for each event a box is laid over whole day and  |___spacer_____|
-       a spacer is added to push the event to it's correct location.             |__event_box___|
-       But timeline can be used to retrieve the position of a particular hour    |day continues |
-       on screen and it can be compared against the position of the event.       ----------------
-    */
+     xul element tree because for each event a box is laid over whole day and  |___spacer_____|
+     a spacer is added to push the event to it's correct location.             |__event_box___|
+     But timeline can be used to retrieve the position of a particular hour    |day continues |
+     on screen and it can be compared against the position of the event.       ----------------
+  */
 
   for (let [selectedYear, selectedMonth, selectedDay, selectedTime] of datetimes()) {
     goToDate(controller, selectedYear, selectedMonth, selectedDay);
