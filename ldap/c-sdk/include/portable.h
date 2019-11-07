@@ -161,9 +161,7 @@
  * dns functions
  */
 #if !defined(LDAP_ASYNC_IO)
-#  if !defined(_WINDOWS) && !defined(macintosh)
-#    define LDAP_ASYNC_IO
-#  endif /* _WINDOWS */
+#  define LDAP_ASYNC_IO
 #endif
 
 /*
