@@ -26,38 +26,6 @@ var extensionsNeedingRestart = new Set();
     );
     document.insertBefore(contentStylesheet, document.documentElement);
 
-    // Add navigation buttons for back and forward on the addons page.
-    let hbox = document.createXULElement("hbox");
-    hbox.setAttribute("id", "nav-header");
-    hbox.setAttribute("align", "center");
-    hbox.setAttribute("pack", "center");
-
-    let backButton = document.createXULElement("toolbarbutton");
-    backButton.setAttribute("id", "back-btn");
-    backButton.setAttribute("class", "nav-button");
-    backButton.setAttribute("command", "cmd_back");
-    backButton.setAttribute(
-      "tooltiptext",
-      mailExtBundle.GetStringFromName("cmdBackTooltip")
-    );
-    backButton.setAttribute("disabled", "true");
-
-    let forwardButton = document.createXULElement("toolbarbutton");
-    forwardButton.setAttribute("id", "forward-btn");
-    forwardButton.setAttribute("class", "nav-button");
-    forwardButton.setAttribute("command", "cmd_forward");
-    forwardButton.setAttribute(
-      "tooltiptext",
-      mailExtBundle.GetStringFromName("cmdForwardTooltip")
-    );
-    forwardButton.setAttribute("disabled", "true");
-    hbox.appendChild(backButton);
-    hbox.appendChild(forwardButton);
-
-    document
-      .getElementById("category-box")
-      .insertBefore(hbox, document.getElementById("categories"));
-
     // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
     let browser = document.getElementById("html-view-browser");
     let textbox = browser.contentDocument.getElementById("search-addons");
