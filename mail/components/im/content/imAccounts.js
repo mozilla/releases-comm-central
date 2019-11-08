@@ -142,7 +142,9 @@ var gAccountManager = {
     }
 
     // The selected item is still selected
-    accountList.selectedItem.setFocus();
+    if (accountList.selectedItem) {
+      accountList.selectedItem.setFocus();
+    }
     accountList.ensureSelectedElementIsVisible();
 
     // We need to refresh the disabled menu items
@@ -706,10 +708,11 @@ var gAMDragAndDrop = {
   },
 
   onDragStart(aEvent, aTransferData, aAction) {
-    let accountElement = aEvent.explicitOriginalTarget;
-    // This stops the dragging session.
-    if (!(accountElement instanceof Ci.nsIDOMXULSelectControlItemElement)) {
-      throw new Error("Element is not draggable!");
+    let accountElement = aEvent.target.closest(
+      'richlistitem[is="chat-account-richlistitem"]'
+    );
+    if (!accountElement) {
+      return;
     }
     if (gAccountManager.accountList.itemCount == 1) {
       throw new Error("Can't drag while there is only one account!");
@@ -724,7 +727,12 @@ var gAMDragAndDrop = {
   },
 
   onDragOver(aEvent, aFlavour, aSession) {
-    let accountElement = aEvent.explicitOriginalTarget;
+    let accountElement = aEvent.target.closest(
+      'richlistitem[is="chat-account-richlistitem"]'
+    );
+    if (!accountElement) {
+      return;
+    }
     // We are dragging over the account manager, consider it is the same as
     // the last element.
     if (accountElement == gAccountManager.accountList) {
@@ -774,7 +782,6 @@ var gAMDragAndDrop = {
     if (!this._accountElement) {
       return;
     }
-
     this._accountElement.removeAttribute("dragover");
     // reset the border of the previous element
     let previousItem = this._accountElement.previousElementSibling;
@@ -795,7 +802,9 @@ var gAMDragAndDrop = {
   },
 
   canDrop(aEvent, aSession) {
-    let accountElement = aEvent.explicitOriginalTarget;
+    let accountElement = aEvent.target.closest(
+      'richlistitem[is="chat-account-richlistitem"]'
+    );
     if (accountElement == gAccountManager.accountList) {
       accountElement = gAccountManager.accountList.lastElementChild;
     }
@@ -817,7 +826,12 @@ var gAMDragAndDrop = {
   },
 
   onDrop(aEvent, aTransferData, aSession) {
-    let accountElement = aEvent.explicitOriginalTarget;
+    let accountElement = aEvent.target.closest(
+      'richlistitem[is="chat-account-richlistitem"]'
+    );
+    if (!accountElement) {
+      return;
+    }
     if (accountElement == gAccountManager.accountList) {
       accountElement = gAccountManager.accountList.lastElementChild;
     }
