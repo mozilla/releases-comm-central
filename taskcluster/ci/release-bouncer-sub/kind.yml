@@ -12,8 +12,8 @@ job-defaults:
     description: release bouncer submission job
     worker-type:
         by-release-level:
-            production: scriptworker-prov-v1/tb-bouncer-v1
-            staging: scriptworker-prov-v1/tb-bouncer-dev
+            production: scriptworker-k8s/comm-3-bouncer
+            staging: scriptworker-k8s/comm-1-bouncer
     worker:
         implementation: bouncer-submission
     scopes:

@@ -69,14 +69,14 @@ scriptworker:
         'linux-signing':
             - 'project:comm:thunderbird:releng:signing:cert:nightly-signing'
             - 'project:comm:thunderbird:releng:signing:cert:release-signing'
-        'scriptworker-prov-v1/tb-beetmover-dev':
+        'scriptworker-k8s/comm-1-beetmover':
             - 'project:comm:thunderbird:releng:beetmover:bucket:dep'
-        'scriptworker-prov-v1/tb-beetmover-v1':
+        'scriptworker-k8s/comm-3-beetmover':
             - 'project:comm:thunderbird:releng:beetmover:bucket:nightly'
             - 'project:comm:thunderbird:releng:beetmover:bucket:release'
-        'scriptworker-prov-v1/tb-balrog-dev':
+        'scriptworker-k8s/comm-1-balrog':
             - 'project:comm:thunderbird:releng:balrog:server:dep'
-        'scriptworker-prov-v1/tb-balrog-v1':
+        'scriptworker-k8s/comm-3-balrog':
             - 'project:comm:thunderbird:releng:balrog:server:nightly'
             - 'project:comm:thunderbird:releng:balrog:server:beta'
             - 'project:comm:thunderbird:releng:balrog:server:release'
@@ -110,15 +110,15 @@ workers:
             os: linux
             worker-type: '{alias}'
         linux-depsigning:
-            provisioner: scriptworker-prov-v1
+            provisioner: scriptworker-k8s
             implementation: scriptworker-signing
             os: linux
-            worker-type: tb-depsigning
+            worker-type: comm-t-signing
         linux-signing:
-            provisioner: scriptworker-prov-v1
+            provisioner: scriptworker-k8s
             implementation: scriptworker-signing
             os: linux
-            worker-type: tb-signing-v1
+            worker-type: comm-3-signing
         mac-depsigning:
             provisioner: scriptworker-prov-v1
             implementation: scriptworker-iscript
