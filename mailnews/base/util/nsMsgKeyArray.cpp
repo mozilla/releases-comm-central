@@ -56,11 +56,7 @@ NS_IMETHODIMP nsMsgKeyArray::InsertElementSorted(nsMsgKey aKey) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgKeyArray::GetArray(uint32_t *aCount, nsMsgKey **aKeys) {
-  NS_ENSURE_ARG_POINTER(aCount);
-  NS_ENSURE_ARG_POINTER(aKeys);
-  *aCount = m_keys.Length();
-  *aKeys = (nsMsgKey *)moz_xmemdup(m_keys.Elements(),
-                                   m_keys.Length() * sizeof(nsMsgKey));
-  return (*aKeys) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+NS_IMETHODIMP nsMsgKeyArray::GetArray(nsTArray<nsMsgKey> &aKeys) {
+  aKeys = m_keys;
+  return NS_OK;
 }

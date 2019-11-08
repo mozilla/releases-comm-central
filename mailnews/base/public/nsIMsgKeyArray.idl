@@ -48,7 +48,6 @@ interface nsIMsgKeyArray : nsISupports {
    *
    * @returns array of the keys
    */
-  void getArray(out unsigned long aCount,
-           [array, size_is(aCount)] out nsMsgKey aKeys);
+  Array<nsMsgKey> getArray();
 };
 
