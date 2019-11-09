@@ -9,6 +9,11 @@ job-defaults:
         comm-checkout: true
         config-paths:
             - comm/mozharness
+        tooltool-downloads: internal
+        extra-config:
+            "tooltool_servers": ['http://taskcluster/tooltool.mozilla-releng.net/']
+            'tooltool_url': 'http://taskcluster/tooltool.mozilla-releng.net/'
+
 
 win32/opt:
     description: "Win32 Opt"
