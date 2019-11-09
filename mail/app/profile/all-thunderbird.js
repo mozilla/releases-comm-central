@@ -806,10 +806,6 @@ pref("devtools.selfxss.count", 5);
 // Disable extensionStorage storage actor by default
 pref("devtools.storage.extensionStorage.enabled", false);
 
-// Disable WebIDE and ConnectPage by default (Bug 1539451)
-pref("devtools.webide.enabled", false);
-pref("devtools.connectpage.enabled", false);
-
 // Toolbox preferences
 pref("devtools.toolbox.footer.height", 250);
 pref("devtools.toolbox.sidebar.width", 500);
@@ -822,23 +818,39 @@ pref("devtools.toolbox.splitconsoleEnabled", false);
 pref("devtools.toolbox.splitconsoleHeight", 100);
 pref("devtools.toolbox.tabsOrder", "");
 
-// The fission pref is enabling the "Omniscient Browser Toolbox", which will
+// The fission pref for enabling the "Omniscient Browser Toolbox", which will
 // make it possible to debug anything in Firefox (See Bug 1570639 for more
 // information).
 // ⚠ This is a work in progress. Expect weirdness when the pref is enabled. ⚠
 pref("devtools.browsertoolbox.fission", false);
+
+// The fission pref for enabling Fission frame debugging directly from the
+// regular web/content toolbox.
+// ⚠ This is a work in progress. Expect weirdness when the pref is enabled. ⚠
+pref("devtools.contenttoolbox.fission", false);
+
+// This pref is also related to fission, but not only. It allows the toolbox
+// to stay open even if the debugged tab switches to another process.
+// It can happen between two documents, one running in the parent process like
+// about:sessionrestore and another one running in the content process like
+// any web page. Or between two distinct domain when running with fission turned
+// on. See bug 1565263.
+// ⚠ This is a work in progress. Expect weirdness when the pref is flipped on ⚠
+pref("devtools.target-switching.enabled", false);
 
 // Toolbox Button preferences
 pref("devtools.command-button-pick.enabled", true);
 pref("devtools.command-button-frames.enabled", true);
 pref("devtools.command-button-splitconsole.enabled", true);
 pref("devtools.command-button-paintflashing.enabled", false);
-pref("devtools.command-button-scratchpad.enabled", false);
 pref("devtools.command-button-responsive.enabled", true);
 pref("devtools.command-button-screenshot.enabled", false);
 pref("devtools.command-button-rulers.enabled", false);
 pref("devtools.command-button-measure.enabled", false);
 pref("devtools.command-button-noautohide.enabled", false);
+#ifndef MOZILLA_OFFICIAL
+  pref("devtools.command-button-fission-prefs.enabled", true);
+#endif
 
 // Inspector preferences
 // Enable the Inspector
@@ -867,6 +879,8 @@ pref("devtools.inspector.new-rulesview.enabled", false);
 pref("devtools.inspector.compatibility.enabled", false);
 // Enable the new Box Model Highlighter with renderer in parent process
 pref("devtools.inspector.use-new-box-model-highlighter", false);
+// Enable color scheme simulation in the inspector.
+pref("devtools.inspector.color-scheme-simulation.enabled", false);
 
 // Grid highlighter preferences
 pref("devtools.gridinspector.gridOutlineMaxColumns", 50);
@@ -881,6 +895,10 @@ pref("devtools.gridinspector.maxHighlighters", 3);
 pref("devtools.layout.boxmodel.opened", true);
 // Whether or not the flexbox panel is opened in the layout view
 pref("devtools.layout.flexbox.opened", true);
+// Whether or not the flexbox container panel is opened in the layout view
+pref("devtools.layout.flex-container.opened", true);
+// Whether or not the flexbox item panel is opened in the layout view
+pref("devtools.layout.flex-item.opened", true);
 // Whether or not the grid inspector panel is opened in the layout view
 pref("devtools.layout.grid.opened", true);
 
@@ -903,7 +921,7 @@ pref("devtools.markup.collapseAttributeLength", 120);
 pref("devtools.markup.beautifyOnCopy", false);
 // Whether or not the DOM mutation breakpoints context menu are enabled in the
 // markup view.
-pref("devtools.markup.mutationBreakpoints.enabled", false);
+pref("devtools.markup.mutationBreakpoints.enabled", true);
 
 // DevTools default color unit
 pref("devtools.defaultColorUnit", "authored");
@@ -973,10 +991,18 @@ pref("devtools.serviceWorkers.testing.enabled", false);
 // Enable the Network Monitor
 pref("devtools.netmonitor.enabled", true);
 
-// Enable Network Search
-pref("devtools.netmonitor.features.search", false);
+// Enable Network Search in Nightly builds.
+#if defined(NIGHTLY_BUILD) || defined(MOZ_DEV_EDITION)
+  pref("devtools.netmonitor.features.search", true);
+#else
+  pref("devtools.netmonitor.features.search", false);
+#endif
 
-pref("devtools.netmonitor.features.requestBlocking", false);
+#if defined(NIGHTLY_BUILD) || defined(MOZ_DEV_EDITION)
+  pref("devtools.netmonitor.features.requestBlocking", true);
+#else
+  pref("devtools.netmonitor.features.requestBlocking", false);
+#endif
 
 // Enable the Application panel
 pref("devtools.application.enabled", false);
@@ -1014,29 +1040,12 @@ pref("devtools.netmonitor.har.forceExport", false);
 pref("devtools.netmonitor.har.pageLoadedTimeout", 1500);
 pref("devtools.netmonitor.har.enableAutoExportToFile", false);
 
-// Enable WebSocket monitoring in Nightly builds.
-#if defined(NIGHTLY_BUILD)
+// Enable WebSocket monitoring in Nightly and DevEdition/Beta builds.
+#if defined(NIGHTLY_BUILD) || defined(MOZ_DEV_EDITION)
   pref("devtools.netmonitor.features.webSockets", true);
 #else
   pref("devtools.netmonitor.features.webSockets", false);
 #endif
-
-// Scratchpad settings
-// - recentFileMax: The maximum number of recently-opened files
-//                  stored. Setting this preference to 0 will not
-//                  clear any recent files, but rather hide the
-//                  'Open Recent'-menu.
-// - lineNumbers: Whether to show line numbers or not.
-// - wrapText: Whether to wrap text or not.
-// - showTrailingSpace: Whether to highlight trailing space or not.
-// - editorFontSize: Editor font size configuration.
-// - enableAutocompletion: Whether to enable JavaScript autocompletion.
-pref("devtools.scratchpad.recentFilesMax", 10);
-pref("devtools.scratchpad.lineNumbers", true);
-pref("devtools.scratchpad.wrapText", false);
-pref("devtools.scratchpad.showTrailingSpace", false);
-pref("devtools.scratchpad.editorFontSize", 12);
-pref("devtools.scratchpad.enableAutocompletion", true);
 
 // Enable the Storage Inspector
 pref("devtools.storage.enabled", true);
@@ -1052,9 +1061,6 @@ pref("devtools.styleeditor.transitions", true);
 // Screenshot Option Settings.
 pref("devtools.screenshot.clipboard.enabled", false);
 pref("devtools.screenshot.audio.enabled", true);
-
-// Enable Scratchpad
-pref("devtools.scratchpad.enabled", false);
 
 // Make sure the DOM panel is hidden by default
 pref("devtools.dom.enabled", false);
@@ -1106,19 +1112,16 @@ pref("devtools.webconsole.timestampMessages", false);
   pref("devtools.webconsole.sidebarToggle", false);
 #endif
 
-// Enable editor mode in the console in Nightly builds.
-#if defined(NIGHTLY_BUILD)
-  pref("devtools.webconsole.features.editor", true);
-#else
-  pref("devtools.webconsole.features.editor", false);
-#endif
-
 // Saved editor mode state in the console.
 pref("devtools.webconsole.input.editor", false);
+pref("devtools.browserconsole.input.editor", false);
 
-// Editor width for webconsole and browserconsole
+// Editor width for webconsole and browserconsole.
 pref("devtools.webconsole.input.editorWidth", 0);
 pref("devtools.browserconsole.input.editorWidth", 0);
+
+// Display an onboarding UI for the Editor mode.
+pref("devtools.webconsole.input.editorOnboarding", true);
 
 // Disable the new performance recording panel by default
 pref("devtools.performance.new-panel-enabled", false);
@@ -1173,14 +1176,9 @@ pref("devtools.responsive.touchSimulation.enabled", false);
 pref("devtools.responsive.metaViewport.enabled", false);
 // The user agent of the viewport.
 pref("devtools.responsive.userAgent", "");
+// Whether or not the RDM UI is embedded in the browser.
+pref("devtools.responsive.browserUI.enabled", false);
 
-// Whether to show the settings onboarding tooltip only in release or beta
-// builds.
-#if defined(RELEASE_OR_BETA)
-  pref("devtools.responsive.show-setting-tooltip", true);
-#else
-  pref("devtools.responsive.show-setting-tooltip", false);
-#endif
 // Show the custom user agent input in Nightly builds.
 #if defined(NIGHTLY_BUILD)
   pref("devtools.responsive.showUserAgentInput", true);
@@ -1229,13 +1227,3 @@ pref("devtools.popup.disable_autohide", false);
 // tests that started failing when using type=content, but this ultimately
 // should be removed.
 pref("devtools.toolbox.content-frame", true);
-
-pref("devtools.webide.templatesURL", "https://code.cdn.mozilla.net/templates/list.json");
-pref("devtools.webide.autoinstallADBExtension", true);
-pref("devtools.webide.autoConnectRuntime", true);
-pref("devtools.webide.restoreLastProject", true);
-pref("devtools.webide.enableLocalRuntime", false);
-pref("devtools.webide.lastConnectedRuntime", "");
-pref("devtools.webide.lastSelectedProject", "");
-pref("devtools.webide.zoom", "1");
-pref("devtools.webide.busyTimeout", 10000);
