@@ -6,8 +6,14 @@
 
 %include ../../../components/im/themes/chat.css
 
+#chatPanel:-moz-lwtheme {
+  color: -moz-DialogText;
+  background-color: -moz-OddTreeRow;
+  text-shadow: none;
+}
+
 /* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
-:root:not([lwt-tree]) #chatPanel {
+:root:not(-moz-any([lwt-tree], :-moz-lwtheme)) #chatPanel {
   -moz-appearance: -moz-mac-source-list;
   -moz-font-smoothing-background-color: -moz-mac-source-list;
 }

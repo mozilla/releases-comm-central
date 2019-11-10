@@ -15,6 +15,10 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
+#messengerBox {
+  background-color: -moz-Dialog;
+}
+
 menu > #folderLocationPopup > menu > .menu-iconic-left,
 menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   padding-inline-start: 2px;

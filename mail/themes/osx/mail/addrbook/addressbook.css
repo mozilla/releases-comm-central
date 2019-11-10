@@ -32,6 +32,10 @@
   counter-reset: smallicons;
 }
 
+#abContent:-moz-lwtheme {
+  background-color: -moz-OddTreeRow;
+}
+
 /* ::::: directory pane icons ::::: */
 
 :root:not([lwt-tree]) #dirTree {

@@ -20,6 +20,10 @@
   counter-reset: smallicons;
 }
 
+#abContent {
+  background-color: -moz-Dialog;
+}
+
 /* ::::: directory pane adjustments ::::: */
 
 #dirTree:not(:-moz-lwtheme) {

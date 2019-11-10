@@ -13,6 +13,10 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
+#messengerBox {
+  background-color: -moz-Dialog;
+}
+
 #folderPane-toolbar {
   border-top-style: none;
   border-bottom: 1px solid ThreeDShadow;
