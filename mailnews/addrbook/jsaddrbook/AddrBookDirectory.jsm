@@ -218,7 +218,6 @@ AddrBookDirectoryInner.prototype = {
     let file = FileUtils.getFile("ProfD", [this.fileName]);
     let connection = openConnectionTo(file);
 
-    delete this._inner._dbConnection;
     Object.defineProperty(this._inner, "_dbConnection", {
       enumerable: true,
       value: connection,
@@ -227,12 +226,12 @@ AddrBookDirectoryInner.prototype = {
     return connection;
   },
   get _lists() {
+    let listCache = new Map();
     let selectStatement = this._dbConnection.createStatement(
       "SELECT uid, localId, name, nickName, description FROM lists"
     );
-    let results = new Map();
     while (selectStatement.executeStep()) {
-      results.set(selectStatement.row.uid, {
+      listCache.set(selectStatement.row.uid, {
         uid: selectStatement.row.uid,
         localId: selectStatement.row.localId,
         name: selectStatement.row.name,
@@ -241,21 +240,47 @@ AddrBookDirectoryInner.prototype = {
       });
     }
     selectStatement.finalize();
-    return results;
+
+    Object.defineProperty(this._inner, "_lists", {
+      enumerable: true,
+      value: listCache,
+      writable: false,
+    });
+    return listCache;
   },
   get _cards() {
+    let cardCache = new Map();
     let cardStatement = this._dbConnection.createStatement(
       "SELECT uid, localId FROM cards"
     );
-    let results = new Map();
     while (cardStatement.executeStep()) {
-      results.set(cardStatement.row.uid, {
+      cardCache.set(cardStatement.row.uid, {
         uid: cardStatement.row.uid,
         localId: cardStatement.row.localId,
+        properties: new Map(),
       });
     }
     cardStatement.finalize();
-    return results;
+    let propertiesStatement = this._dbConnection.createStatement(
+      "SELECT card, name, value FROM properties"
+    );
+    while (propertiesStatement.executeStep()) {
+      let card = cardCache.get(propertiesStatement.row.card);
+      if (card) {
+        card.properties.set(
+          propertiesStatement.row.name,
+          propertiesStatement.row.value
+        );
+      }
+    }
+    propertiesStatement.finalize();
+
+    Object.defineProperty(this._inner, "_cards", {
+      enumerable: true,
+      value: cardCache,
+      writable: false,
+    });
+    return cardCache;
   },
 
   _getNextCardId() {
@@ -297,6 +322,12 @@ AddrBookDirectoryInner.prototype = {
     return card.QueryInterface(Ci.nsIAbCard);
   },
   _loadCardProperties(uid) {
+    if (this._inner.hasOwnProperty("_cards")) {
+      let cachedCard = this._inner._cards.get(uid);
+      if (cachedCard) {
+        return new Map(cachedCard.properties);
+      }
+    }
     let properties = new Map();
     let propertyStatement = this._dbConnection.createStatement(
       "SELECT name, value FROM properties WHERE card = :card"
@@ -309,6 +340,12 @@ AddrBookDirectoryInner.prototype = {
     return properties;
   },
   _saveCardProperties(card) {
+    let cachedCard;
+    if (this._inner.hasOwnProperty("_cards")) {
+      cachedCard = this._inner._cards.get(card.UID);
+      cachedCard.properties.clear();
+    }
+
     this._dbConnection.beginTransaction();
     let deleteStatement = this._dbConnection.createStatement(
       "DELETE FROM properties WHERE card = :card"
@@ -325,6 +362,10 @@ AddrBookDirectoryInner.prototype = {
         insertStatement.params.value = value;
         insertStatement.execute();
         insertStatement.reset();
+
+        if (cachedCard) {
+          cachedCard.properties.set(name, value);
+        }
       }
     }
     this._dbConnection.commitTransaction();
@@ -332,6 +373,9 @@ AddrBookDirectoryInner.prototype = {
     insertStatement.finalize();
   },
   _saveList(list) {
+    // Ensure list cache exists.
+    this._lists;
+
     let replaceStatement = this._dbConnection.createStatement(
       "REPLACE INTO lists (uid, localId, name, nickName, description) " +
         "VALUES (:uid, :localId, :name, :nickName, :description)"
@@ -343,6 +387,14 @@ AddrBookDirectoryInner.prototype = {
     replaceStatement.params.description = list._description;
     replaceStatement.execute();
     replaceStatement.finalize();
+
+    this._lists.set(list._uid, {
+      uid: list._uid,
+      localId: list._localId,
+      name: list._name,
+      nickName: list._nickName,
+      description: list._description,
+    });
   },
   async _bulkAddCards(cards) {
     let cardStatement = this._dbConnection.createStatement(
@@ -355,10 +407,21 @@ AddrBookDirectoryInner.prototype = {
     let propertiesArray = propertiesStatement.newBindingParamsArray();
     for (let card of cards) {
       let uid = card.UID || newUID();
+      let localId = this._getNextCardId();
       let cardParams = cardArray.newBindingParams();
       cardParams.bindByName("uid", uid);
-      cardParams.bindByName("localId", this._getNextCardId());
+      cardParams.bindByName("localId", localId);
       cardArray.addParams(cardParams);
+
+      let cachedCard;
+      if (this._inner.hasOwnProperty("_cards")) {
+        cachedCard = {
+          uid,
+          localId,
+          properties: new Map(),
+        };
+        this._inner._cards.set(uid, cachedCard);
+      }
 
       for (let { name, value } of fixIterator(
         card.properties,
@@ -380,6 +443,10 @@ AddrBookDirectoryInner.prototype = {
         propertiesParams.bindByName("name", name);
         propertiesParams.bindByName("value", value);
         propertiesArray.addParams(propertiesParams);
+
+        if (cachedCard) {
+          cachedCard.properties.set(name, value);
+        }
       }
     }
     cardStatement.bindParameters(cardArray);
@@ -668,6 +735,10 @@ AddrBookDirectoryInner.prototype = {
     deleteListStatement.execute();
     deleteListStatement.finalize();
 
+    if (this._inner.hasOwnProperty("_lists")) {
+      this._inner._lists.delete(directory.UID);
+    }
+
     this._dbConnection.executeSimpleSQL(
       "DELETE FROM list_cards WHERE list NOT IN (SELECT DISTINCT uid FROM lists)"
     );
@@ -725,6 +796,10 @@ AddrBookDirectoryInner.prototype = {
       deleteCardStatement.params.uid = card.UID;
       deleteCardStatement.execute();
       deleteCardStatement.reset();
+
+      if (this._inner.hasOwnProperty("_cards")) {
+        this._inner._cards.delete(card.UID);
+      }
     }
     this._dbConnection.executeSimpleSQL(
       "DELETE FROM properties WHERE card NOT IN (SELECT DISTINCT uid FROM cards)"
@@ -754,6 +829,14 @@ AddrBookDirectoryInner.prototype = {
     insertStatement.params.localId = newCard.localId;
     insertStatement.execute();
     insertStatement.finalize();
+
+    if (this._inner.hasOwnProperty("_cards")) {
+      this._inner._cards.set(newCard._uid, {
+        uid: newCard._uid,
+        localId: newCard.localId,
+        properties: new Map(),
+      });
+    }
 
     for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
       if (
