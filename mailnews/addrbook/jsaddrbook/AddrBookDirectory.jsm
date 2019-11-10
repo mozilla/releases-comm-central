@@ -87,32 +87,12 @@ AddrBookDirectory.prototype = {
       throw Cr.NS_ERROR_UNEXPECTED;
     }
 
-    this.__proto__ = bookPrototype;
-
-    if (!this.dirPrefId) {
-      let filename = uri.substring("jsaddrbook://".length);
-      for (let child of Services.prefs.getChildList("ldap_2.servers.")) {
-        if (
-          child.endsWith(".filename") &&
-          Services.prefs.getStringPref(child) == filename
-        ) {
-          this.dirPrefId = child.substring(
-            0,
-            child.length - ".filename".length
-          );
-          break;
-        }
-      }
-      if (!this.dirPrefId) {
-        throw Cr.NS_ERROR_UNEXPECTED;
-      }
-      // Make sure we always have a file. If a file is not created, the
-      // filename may be accidentally reused.
-      let file = FileUtils.getFile("ProfD", [filename]);
-      if (!file.exists()) {
-        file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
-      }
+    let fileName = uri.substring("jsaddrbook://".length);
+    if (fileName.includes("/")) {
+      fileName = fileName.substring(0, fileName.indexOf("/"));
     }
+    this.__proto__ =
+      directories.get(fileName) || new AddrBookDirectoryInner(fileName);
   },
 };
 
@@ -182,10 +162,16 @@ function closeConnectionTo(file) {
         },
       });
       connections.delete(file.path);
+      directories.delete(file.leafName);
     });
   }
   return Promise.resolve();
 }
+
+// One AddrBookDirectoryInner exists for each address book, multiple
+// AddrBookDirectory objects (e.g. queries) can use it as their prototype.
+
+var directories = new Map();
 
 /**
  * Prototype for nsIAbDirectory objects that aren't mailing lists.
@@ -193,7 +179,33 @@ function closeConnectionTo(file) {
  * @implements {nsIAbCollection}
  * @implements {nsIAbDirectory}
  */
-var bookPrototype = {
+function AddrBookDirectoryInner(fileName) {
+  for (let child of Services.prefs.getChildList("ldap_2.servers.")) {
+    if (
+      child.endsWith(".filename") &&
+      Services.prefs.getStringPref(child) == fileName
+    ) {
+      this.dirPrefId = child.substring(0, child.length - ".filename".length);
+      break;
+    }
+  }
+  if (!this.dirPrefId) {
+    throw Cr.NS_ERROR_UNEXPECTED;
+  }
+
+  // Make sure we always have a file. If a file is not created, the
+  // filename may be accidentally reused.
+  let file = FileUtils.getFile("ProfD", [fileName]);
+  if (!file.exists()) {
+    file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+  }
+
+  directories.set(fileName, this);
+  this._inner = this;
+  this._fileName = fileName;
+}
+AddrBookDirectoryInner.prototype = {
+  _uid: null,
   _nextCardId: null,
   _nextListId: null,
   get _prefBranch() {
@@ -206,8 +218,8 @@ var bookPrototype = {
     let file = FileUtils.getFile("ProfD", [this.fileName]);
     let connection = openConnectionTo(file);
 
-    delete this._dbConnection;
-    Object.defineProperty(this, "_dbConnection", {
+    delete this._inner._dbConnection;
+    Object.defineProperty(this._inner, "_dbConnection", {
       enumerable: true,
       value: connection,
       writable: false,
@@ -247,7 +259,7 @@ var bookPrototype = {
   },
 
   _getNextCardId() {
-    if (this._nextCardId === null) {
+    if (this._inner._nextCardId === null) {
       let value = 0;
       let selectStatement = this._dbConnection.createStatement(
         "SELECT MAX(localId) AS localId FROM cards"
@@ -255,14 +267,14 @@ var bookPrototype = {
       if (selectStatement.executeStep()) {
         value = selectStatement.row.localId;
       }
-      this._nextCardId = value;
+      this._inner._nextCardId = value;
       selectStatement.finalize();
     }
-    this._nextCardId++;
-    return this._nextCardId.toString();
+    this._inner._nextCardId++;
+    return this._inner._nextCardId.toString();
   },
   _getNextListId() {
-    if (this._nextListId === null) {
+    if (this._inner._nextListId === null) {
       let value = 0;
       let selectStatement = this._dbConnection.createStatement(
         "SELECT MAX(localId) AS localId FROM lists"
@@ -270,11 +282,11 @@ var bookPrototype = {
       if (selectStatement.executeStep()) {
         value = selectStatement.row.localId;
       }
-      this._nextListId = value;
+      this._inner._nextListId = value;
       selectStatement.finalize();
     }
-    this._nextListId++;
-    return this._nextListId.toString();
+    this._inner._nextListId++;
+    return this._inner._nextListId.toString();
   },
   _getCard({ uid, localId = null }) {
     let card = new AddrBookCard();
@@ -459,21 +471,18 @@ var bookPrototype = {
     return 101;
   },
   get fileName() {
-    if (!this._fileName) {
-      this._fileName = this._prefBranch.getStringPref("filename", "");
-    }
     return this._fileName;
   },
   get UID() {
     if (!this._uid) {
       if (this._prefBranch.getPrefType("uid") == Services.prefs.PREF_STRING) {
-        this._uid = this._prefBranch.getStringPref("uid");
+        this._inner._uid = this._prefBranch.getStringPref("uid");
       } else {
-        this._uid = newUID();
-        this._prefBranch.setStringPref("uid", this._uid);
+        this._inner._uid = newUID();
+        this._prefBranch.setStringPref("uid", this._inner._uid);
       }
     }
-    return this._uid;
+    return this._inner._uid;
   },
   get URI() {
     return this._uri;
