@@ -47,6 +47,8 @@ menuitem[appHandlerIcon="save"] {
 
 .actionsMenu > .menulist-label-box > .menulist-icon {
   margin-inline: 5px !important;
+  height: 16px;
+  width: 16px;
 }
 
 .actionsMenu > menupopup > menuitem {
