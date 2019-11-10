@@ -16,8 +16,8 @@ jobs:
           - comm-central
       when:
           by-project:
-              # Match buildbot starts for now
-              comm-central: [{hour: 11, minute: 0}]
+              # Disabled due to Taskcluster migration: bug 1595153
+              comm-central: []
               # No default
 
     - name: nightly-linux
