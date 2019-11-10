@@ -98,7 +98,7 @@ workers:
             provisioner: 'comm-{level}'
             implementation: docker-worker
             os: linux
-            worker-type: '{alias}'
+            worker-type: 'b-linux'
         b-win2012:
             provisioner: 'comm-{level}'
             implementation: generic-worker
