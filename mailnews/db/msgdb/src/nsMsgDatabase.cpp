@@ -3260,17 +3260,15 @@ nsresult nsMsgDatabase::RowCellColumnToMime2DecodedString(
   return err;
 }
 
-nsresult nsMsgDatabase::RowCellColumnToAddressCollationKey(nsIMdbRow *row,
-                                                           mdb_token colToken,
-                                                           uint8_t **result,
-                                                           uint32_t *len) {
+nsresult nsMsgDatabase::RowCellColumnToAddressCollationKey(
+    nsIMdbRow *row, mdb_token colToken, nsTArray<uint8_t> &result) {
   nsString sender;
   nsresult rv = RowCellColumnToMime2DecodedString(row, colToken, sender);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString name;
   ExtractName(DecodedHeader(sender), name);
-  return CreateCollationKey(name, len, result);
+  return CreateCollationKey(name, result);
 }
 
 nsresult nsMsgDatabase::GetCollationKeyGenerator() {
@@ -3288,8 +3286,7 @@ nsresult nsMsgDatabase::GetCollationKeyGenerator() {
 
 nsresult nsMsgDatabase::RowCellColumnToCollationKey(nsIMdbRow *row,
                                                     mdb_token columnToken,
-                                                    uint8_t **result,
-                                                    uint32_t *len) {
+                                                    nsTArray<uint8_t> &result) {
   const char *nakedString = nullptr;
   nsresult err;
 
@@ -3306,35 +3303,34 @@ nsresult nsMsgDatabase::RowCellColumnToCollationKey(nsIMdbRow *row,
           nsDependentCString(nakedString), charSet.get(), false, true,
           decodedStr);
       if (NS_SUCCEEDED(err))
-        err =
-            CreateCollationKey(NS_ConvertUTF8toUTF16(decodedStr), len, result);
+        err = CreateCollationKey(NS_ConvertUTF8toUTF16(decodedStr), result);
     }
   }
   return err;
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::CompareCollationKeys(uint32_t len1, uint8_t *key1, uint32_t len2,
-                                    uint8_t *key2, int32_t *result) {
+nsMsgDatabase::CompareCollationKeys(const nsTArray<uint8_t> &key1,
+                                    const nsTArray<uint8_t> &key2,
+                                    int32_t *result) {
   nsresult rv = GetCollationKeyGenerator();
   NS_ENSURE_SUCCESS(rv, rv);
   if (!m_collationKeyGenerator) return NS_ERROR_FAILURE;
 
-  rv = m_collationKeyGenerator->CompareRawSortKey(key1, len1, key2, len2,
-                                                  result);
+  rv = m_collationKeyGenerator->CompareRawSortKey(key1, key2, result);
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::CreateCollationKey(const nsAString &sourceString, uint32_t *len,
-                                  uint8_t **result) {
+nsMsgDatabase::CreateCollationKey(const nsAString &sourceString,
+                                  nsTArray<uint8_t> &result) {
   nsresult err = GetCollationKeyGenerator();
   NS_ENSURE_SUCCESS(err, err);
   if (!m_collationKeyGenerator) return NS_ERROR_FAILURE;
 
   err = m_collationKeyGenerator->AllocateRawSortKey(
-      nsICollation::kCollationCaseInSensitive, sourceString, result, len);
+      nsICollation::kCollationCaseInSensitive, sourceString, result);
   NS_ENSURE_SUCCESS(err, err);
   return err;
 }

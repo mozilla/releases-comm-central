@@ -199,12 +199,12 @@ class nsMsgDatabase : public nsIMsgDatabase {
                                              mdb_token columnToken,
                                              nsAString &resultStr);
   nsresult RowCellColumnToCollationKey(nsIMdbRow *row, mdb_token columnToken,
-                                       uint8_t **result, uint32_t *len);
+                                       nsTArray<uint8_t> &result);
   nsresult RowCellColumnToConstCharPtr(nsIMdbRow *row, mdb_token columnToken,
                                        const char **ptr);
   nsresult RowCellColumnToAddressCollationKey(nsIMdbRow *row,
                                               mdb_token colToken,
-                                              uint8_t **result, uint32_t *len);
+                                              nsTArray<uint8_t> &result);
 
   nsresult GetEffectiveCharset(nsIMdbRow *row, nsACString &resultCharset);
 

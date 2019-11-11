@@ -4970,11 +4970,11 @@ NS_IMETHODIMP nsMsgDBFolder::GetSortOrder(int32_t *order) {
   return NS_OK;
 }
 
-// Helper function for CompareSortKeys().
+// static Helper function for CompareSortKeys().
 // Builds a collation key for a given folder based on "{sortOrder}{name}"
 nsresult nsMsgDBFolder::BuildFolderSortKey(nsIMsgFolder *aFolder,
-                                           uint32_t *aLength, uint8_t **aKey) {
-  NS_ENSURE_ARG(aKey);
+                                           nsTArray<uint8_t> &aKey) {
+  aKey.Clear();
   int32_t order;
   nsresult rv = aFolder->GetSortOrder(&order);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -4986,25 +4986,18 @@ nsresult nsMsgDBFolder::BuildFolderSortKey(nsIMsgFolder *aFolder,
   orderString.Append(folderName);
   NS_ENSURE_TRUE(gCollationKeyGenerator, NS_ERROR_NULL_POINTER);
   return gCollationKeyGenerator->AllocateRawSortKey(
-      nsICollation::kCollationCaseInSensitive, orderString, aKey, aLength);
+      nsICollation::kCollationCaseInSensitive, orderString, aKey);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CompareSortKeys(nsIMsgFolder *aFolder,
                                              int32_t *sortOrder) {
-  // nsICollation interface will likely change to use nsTArray<> at some point.
-  // So this can be simplified then (see Bug 1509981).
-  uint8_t *sortKey1 = nullptr;
-  uint8_t *sortKey2 = nullptr;
-  uint32_t sortKey1Length;
-  uint32_t sortKey2Length;
-  nsresult rv = BuildFolderSortKey(this, &sortKey1Length, &sortKey1);
+  nsTArray<uint8_t> sortKey1;
+  nsTArray<uint8_t> sortKey2;
+  nsresult rv = BuildFolderSortKey(this, sortKey1);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = BuildFolderSortKey(aFolder, &sortKey2Length, &sortKey2);
+  rv = BuildFolderSortKey(aFolder, sortKey2);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = gCollationKeyGenerator->CompareRawSortKey(
-      sortKey1, sortKey1Length, sortKey2, sortKey2Length, sortOrder);
-  PR_Free(sortKey1);
-  PR_Free(sortKey2);
+  rv = gCollationKeyGenerator->CompareRawSortKey(sortKey1, sortKey2, sortOrder);
   return rv;
 }
 

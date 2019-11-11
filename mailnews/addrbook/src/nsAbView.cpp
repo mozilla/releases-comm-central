@@ -94,11 +94,8 @@ nsresult nsAbView::RemoveCardAt(int32_t row) {
   nsresult rv;
 
   AbCard *abcard = mCards.ElementAt(row);
-  NS_IF_RELEASE(abcard->card);
   mCards.RemoveElementAt(row);
-  PR_FREEIF(abcard->primaryCollationKey);
-  PR_FREEIF(abcard->secondaryCollationKey);
-  PR_FREEIF(abcard);
+  delete abcard;
 
   // This needs to happen after we remove the card, as RowCountChanged() will
   // call GetRowCount()
@@ -290,12 +287,7 @@ nsresult nsAbView::EnumerateCards() {
       rv = cardsEnumerator->GetNext(getter_AddRefs(item));
       if (NS_SUCCEEDED(rv)) {
         nsCOMPtr<nsIAbCard> card = do_QueryInterface(item);
-        // Malloc these from an arena
-        AbCard *abcard = (AbCard *)PR_Calloc(1, sizeof(struct AbCard));
-        if (!abcard) return NS_ERROR_OUT_OF_MEMORY;
-
-        abcard->card = card;
-        NS_IF_ADDREF(abcard->card);
+        AbCard *abcard = new AbCard(card);
 
         // XXX todo
         // Would it be better to do an insertion sort, than append and sort?
@@ -574,26 +566,21 @@ static int inplaceSortCallback(const AbCard *card1, const AbCard *card2,
   if (closure->colID[0] == char16_t('P') &&
       closure->colID[1] == char16_t('r')) {
     sortValue = closure->abView->CompareCollationKeys(
-        card1->secondaryCollationKey, card1->secondaryCollationKeyLen,
-        card2->secondaryCollationKey, card2->secondaryCollationKeyLen);
+        card1->secondaryCollationKey, card2->secondaryCollationKey);
     if (sortValue)
       return sortValue * closure->factor;
     else
-      return closure->abView->CompareCollationKeys(
-                 card1->primaryCollationKey, card1->primaryCollationKeyLen,
-                 card2->primaryCollationKey, card2->primaryCollationKeyLen) *
+      return closure->abView->CompareCollationKeys(card1->primaryCollationKey,
+                                                   card2->primaryCollationKey) *
              (closure->factor);
   } else {
     sortValue = closure->abView->CompareCollationKeys(
-        card1->primaryCollationKey, card1->primaryCollationKeyLen,
-        card2->primaryCollationKey, card2->primaryCollationKeyLen);
+        card1->primaryCollationKey, card2->primaryCollationKey);
     if (sortValue)
       return sortValue * (closure->factor);
     else
       return closure->abView->CompareCollationKeys(
-                 card1->secondaryCollationKey, card1->secondaryCollationKeyLen,
-                 card2->secondaryCollationKey,
-                 card2->secondaryCollationKeyLen) *
+                 card1->secondaryCollationKey, card2->secondaryCollationKey) *
              (closure->factor);
   }
 }
@@ -714,15 +701,14 @@ NS_IMETHODIMP nsAbView::SortBy(const char16_t *colID, const char16_t *sortDir,
   return rv;
 }
 
-int32_t nsAbView::CompareCollationKeys(uint8_t *key1, uint32_t len1,
-                                       uint8_t *key2, uint32_t len2) {
+int32_t nsAbView::CompareCollationKeys(const nsTArray<uint8_t> &key1,
+                                       const nsTArray<uint8_t> &key2) {
   NS_ASSERTION(mCollationKeyGenerator, "no key generator");
   if (!mCollationKeyGenerator) return 0;
 
   int32_t result;
 
-  nsresult rv = mCollationKeyGenerator->CompareRawSortKey(key1, len1, key2,
-                                                          len2, &result);
+  nsresult rv = mCollationKeyGenerator->CompareRawSortKey(key1, key2, &result);
   NS_ASSERTION(NS_SUCCEEDED(rv), "key compare failed");
   if (NS_FAILED(rv)) result = 0;
   return result;
@@ -745,10 +731,9 @@ nsresult nsAbView::GenerateCollationKeysForCard(const nsAString &colID,
   rv = GetCardValue(abcard->card, colID, value);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  PR_FREEIF(abcard->primaryCollationKey);
   rv = mCollationKeyGenerator->AllocateRawSortKey(
       nsICollation::kCollationCaseInSensitive, value,
-      &(abcard->primaryCollationKey), &(abcard->primaryCollationKeyLen));
+      abcard->primaryCollationKey);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Hardcode email to be our secondary key. As we are doing this, just call
@@ -756,11 +741,9 @@ nsresult nsAbView::GenerateCollationKeysForCard(const nsAString &colID,
   // end up doing the same as then we can save a bit of time.
   rv = abcard->card->GetPrimaryEmail(value);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  PR_FREEIF(abcard->secondaryCollationKey);
   rv = mCollationKeyGenerator->AllocateRawSortKey(
       nsICollation::kCollationCaseInSensitive, value,
-      &(abcard->secondaryCollationKey), &(abcard->secondaryCollationKeyLen));
+      abcard->secondaryCollationKey);
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;
 }
@@ -815,13 +798,7 @@ NS_IMETHODIMP nsAbView::OnItemAdded(nsISupports *parentDir, nsISupports *item) {
       directory.get() == mDirectory.get()) {
     nsCOMPtr<nsIAbCard> addedCard = do_QueryInterface(item);
     if (addedCard) {
-      // Malloc these from an arena
-      AbCard *abcard = (AbCard *)PR_Calloc(1, sizeof(struct AbCard));
-      if (!abcard) return NS_ERROR_OUT_OF_MEMORY;
-
-      abcard->card = addedCard;
-      NS_IF_ADDREF(abcard->card);
-
+      AbCard *abcard = new AbCard(addedCard);
       rv = GenerateCollationKeysForCard(mSortColumn, abcard);
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -848,6 +825,8 @@ NS_IMETHODIMP nsAbView::Observe(nsISupports *aSubject, const char *aTopic,
   return NS_OK;
 }
 
+// Adds a card into our internal mCards array.
+// mCards takes ownership of abcard.
 nsresult nsAbView::AddCard(AbCard *abcard, bool selectCardAfterAdding,
                            int32_t *index) {
   nsresult rv = NS_OK;
@@ -987,13 +966,7 @@ NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item,
   if (index == -1) return NS_OK;
 
   AbCard *oldCard = mCards.ElementAt(index);
-
-  // Malloc these from an arena
-  AbCard *newCard = (AbCard *)PR_Calloc(1, sizeof(struct AbCard));
-  if (!newCard) return NS_ERROR_OUT_OF_MEMORY;
-
-  newCard->card = card;
-  NS_IF_ADDREF(newCard->card);
+  AbCard *newCard = new AbCard(card);
 
   rv = GenerateCollationKeysForCard(mSortColumn, newCard);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1005,19 +978,14 @@ NS_IMETHODIMP nsAbView::OnItemPropertyChanged(nsISupports *item,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  if (!CompareCollationKeys(
-          newCard->primaryCollationKey, newCard->primaryCollationKeyLen,
-          oldCard->primaryCollationKey, oldCard->primaryCollationKeyLen) &&
-      CompareCollationKeys(
-          newCard->secondaryCollationKey, newCard->secondaryCollationKeyLen,
-          oldCard->secondaryCollationKey, oldCard->secondaryCollationKeyLen)) {
+  if (!CompareCollationKeys(newCard->primaryCollationKey,
+                            oldCard->primaryCollationKey) &&
+      CompareCollationKeys(newCard->secondaryCollationKey,
+                           oldCard->secondaryCollationKey)) {
     // No need to remove and add, since the collation keys haven't changed.
     // Since they haven't changed, the card will sort to the same place.
     // We just need to clean up what we allocated.
-    NS_IF_RELEASE(newCard->card);
-    if (newCard->primaryCollationKey) free(newCard->primaryCollationKey);
-    if (newCard->secondaryCollationKey) free(newCard->secondaryCollationKey);
-    PR_FREEIF(newCard);
+    delete newCard;
 
     // Still need to invalidate, as the other columns may have changed.
     rv = InvalidateTree(index);

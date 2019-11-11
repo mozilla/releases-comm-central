@@ -66,21 +66,20 @@ class MsgViewSortColumnInfo {
 #define PREF_LABELS_DESCRIPTION "mailnews.labels.description."
 #define PREF_LABELS_COLOR "mailnews.labels.color."
 
+// Helper struct for sorting by numeric fields.
+// Associates a message with a key for ordering it in the view.
 struct IdUint32 {
   nsMsgKey id;
   uint32_t bits;
-  uint32_t dword;
+  uint32_t dword;  // The numeric key.
   nsIMsgFolder *folder;
 };
 
+// Extends IdUint32 for sorting by a collation key field (eg subject).
+// (Also used as IdUint32 a couple of places to simplify the code, where
+// the overhead of an unused nsTArray isn't a big deal).
 struct IdKey : public IdUint32 {
-  // Actually a variable length array, whose actual size is determined
-  // when the struct is allocated.
-  uint8_t key[1];
-};
-
-struct IdKeyPtr : public IdUint32 {
-  uint8_t *key;
+  nsTArray<uint8_t> key;
 };
 
 // This is an abstract implementation class.
@@ -103,9 +102,9 @@ class nsMsgDBView : public nsIMsgDBView,
                                       nsCOMArray<nsIMsgFolder> *folders,
                                       nsMsgViewSortOrderValue sortOrder,
                                       nsMsgViewSortTypeValue sortType);
-  int32_t SecondarySort(nsMsgKey key1, nsISupports *folder1, nsMsgKey key2,
-                        nsISupports *folder2,
-                        class viewSortInfo *comparisonContext);
+  int32_t SecondaryCompare(nsMsgKey key1, nsIMsgFolder *folder1, nsMsgKey key2,
+                           nsIMsgFolder *folder2,
+                           class viewSortInfo *comparisonContext);
 
  protected:
   virtual ~nsMsgDBView();
@@ -350,7 +349,7 @@ class nsMsgDBView : public nsIMsgDBView,
       nsMsgViewSortTypeValue sortType, uint16_t *pMaxLen,
       eFieldType *pFieldType, nsIMsgCustomColumnHandler *colHandler = nullptr);
   nsresult GetCollationKey(nsIMsgDBHdr *msgHdr, nsMsgViewSortTypeValue sortType,
-                           uint8_t **result, uint32_t *len,
+                           nsTArray<uint8_t> &result,
                            nsIMsgCustomColumnHandler *colHandler = nullptr);
   nsresult GetLongField(nsIMsgDBHdr *msgHdr, nsMsgViewSortTypeValue sortType,
                         uint32_t *result,
@@ -358,14 +357,12 @@ class nsMsgDBView : public nsIMsgDBView,
 
   static int FnSortIdKey(const void *pItem1, const void *pItem2,
                          void *privateData);
-  static int FnSortIdKeyPtr(const void *pItem1, const void *pItem2,
-                            void *privateData);
   static int FnSortIdUint32(const void *pItem1, const void *pItem2,
                             void *privateData);
 
   nsresult GetStatusSortValue(nsIMsgDBHdr *msgHdr, uint32_t *result);
-  nsresult GetLocationCollationKey(nsIMsgDBHdr *msgHdr, uint8_t **result,
-                                   uint32_t *len);
+  nsresult GetLocationCollationKey(nsIMsgDBHdr *msgHdr,
+                                   nsTArray<uint8_t> &result);
   void PushSort(const MsgViewSortColumnInfo &newSort);
   nsresult EncodeColumnSort(nsString &columnSortString);
   nsresult DecodeColumnSort(nsString &columnSortString);
@@ -510,7 +507,7 @@ class nsMsgDBView : public nsIMsgDBView,
   void EnsureCustomColumnsValid();
 
 #ifdef DEBUG_David_Bienvenu
-  void InitEntryInfoForIndex(nsMsgViewIndex i, IdKeyPtr &EntryInfo);
+  void InitEntryInfoForIndex(nsMsgViewIndex i, IdKey &EntryInfo);
   void ValidateSort();
 #endif
 

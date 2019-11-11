@@ -514,22 +514,21 @@ NS_IMETHODIMP nsMsgHdr::GetMime2DecodedRecipients(nsAString &resultRecipients) {
       GetMDBRow(), m_mdb->m_recipientsColumnToken, resultRecipients);
 }
 
-NS_IMETHODIMP nsMsgHdr::GetAuthorCollationKey(uint32_t *len,
-                                              uint8_t **resultAuthor) {
+NS_IMETHODIMP nsMsgHdr::GetAuthorCollationKey(nsTArray<uint8_t> &resultAuthor) {
   return m_mdb->RowCellColumnToAddressCollationKey(
-      GetMDBRow(), m_mdb->m_senderColumnToken, resultAuthor, len);
+      GetMDBRow(), m_mdb->m_senderColumnToken, resultAuthor);
 }
 
-NS_IMETHODIMP nsMsgHdr::GetSubjectCollationKey(uint32_t *len,
-                                               uint8_t **resultSubject) {
+NS_IMETHODIMP nsMsgHdr::GetSubjectCollationKey(
+    nsTArray<uint8_t> &resultSubject) {
   return m_mdb->RowCellColumnToCollationKey(
-      GetMDBRow(), m_mdb->m_subjectColumnToken, resultSubject, len);
+      GetMDBRow(), m_mdb->m_subjectColumnToken, resultSubject);
 }
 
-NS_IMETHODIMP nsMsgHdr::GetRecipientsCollationKey(uint32_t *len,
-                                                  uint8_t **resultRecipients) {
+NS_IMETHODIMP nsMsgHdr::GetRecipientsCollationKey(
+    nsTArray<uint8_t> &resultRecipients) {
   return m_mdb->RowCellColumnToCollationKey(
-      GetMDBRow(), m_mdb->m_recipientsColumnToken, resultRecipients, len);
+      GetMDBRow(), m_mdb->m_recipientsColumnToken, resultRecipients);
 }
 
 NS_IMETHODIMP nsMsgHdr::GetCharset(char **aCharset) {

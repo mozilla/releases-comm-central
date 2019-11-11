@@ -23,11 +23,10 @@
 #include "nsIStringBundle.h"
 
 typedef struct AbCard {
-  nsIAbCard *card;
-  uint32_t primaryCollationKeyLen;
-  uint32_t secondaryCollationKeyLen;
-  uint8_t *primaryCollationKey;
-  uint8_t *secondaryCollationKey;
+  explicit AbCard(nsIAbCard *c) : card(c) {}
+  nsCOMPtr<nsIAbCard> card;
+  nsTArray<uint8_t> primaryCollationKey;
+  nsTArray<uint8_t> secondaryCollationKey;
 } AbCard;
 
 class nsAbView : public nsIAbView,
@@ -43,8 +42,8 @@ class nsAbView : public nsIAbView,
   NS_DECL_NSIABLISTENER
   NS_DECL_NSIOBSERVER
 
-  int32_t CompareCollationKeys(uint8_t *key1, uint32_t len1, uint8_t *key2,
-                               uint32_t len2);
+  int32_t CompareCollationKeys(const nsTArray<uint8_t> &key1,
+                               const nsTArray<uint8_t> &key2);
 
  private:
   virtual ~nsAbView();
