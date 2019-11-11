@@ -594,7 +594,7 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 
 #security-button[level="high"] > .statusbarpanel-contentbox {
   list-style-image: url("chrome://communicator/skin/icons/lock-secure.png");
-  background-color: #E8DB99;
+  background-color: #B4CD32;
 }
 
 #security-button[level="broken"] > .statusbarpanel-contentbox {
