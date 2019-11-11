@@ -541,12 +541,12 @@ function openEventDialog(
     let features;
     // keyword "dependent" should not be used (cf bug 752206)
     if (Services.appinfo.OS == "WINNT") {
-      features = "chrome,titlebar,resizable";
+      features = "chrome,titlebar,toolbar,resizable";
     } else if (Services.appinfo.OS == "Darwin") {
-      features = "chrome,titlebar,resizable,minimizable=no";
+      features = "chrome,titlebar,toolbar,resizable,minimizable=no";
     } else {
       // All other targets, mostly Linux flavors using gnome.
-      features = "chrome,titlebar,resizable,minimizable=no,dialog=no";
+      features = "chrome,titlebar,toolbar,resizable,minimizable=no,dialog=no";
     }
     openDialog(url, "_blank", features, args);
   }
