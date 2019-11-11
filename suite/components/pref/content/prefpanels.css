@@ -13,3 +13,21 @@
 #offlineAppsList > listitem {
   -moz-binding: url("chrome://communicator/content/pref/prefpanels.xml#offlineapp");
 }
+
+/*
+ * Font dialog menulist fixes
+ */
+#defaultFontType,
+#serif,
+#sans-serif,
+#monospace {
+  min-width: 30ch;
+}
+
+/*
+ * Calendar Event/Tasks menulist fix
+ */
+
+#defaults-itemtype-menulist {
+  min-width: 20ch;
+}
