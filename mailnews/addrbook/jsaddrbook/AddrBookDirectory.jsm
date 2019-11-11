@@ -817,10 +817,14 @@ AddrBookDirectoryInner.prototype = {
     deleteCardStatement.finalize();
   },
   dropCard(card, needToCopyCard) {
+    if (!card.UID) {
+      throw new Error("Card must have a UID to be added to this directory.");
+    }
+
     let newCard = new AddrBookCard();
     newCard.directoryId = this.uuid;
     newCard.localId = this._getNextCardId();
-    newCard._uid = needToCopyCard || card.UID || newUID();
+    newCard._uid = needToCopyCard ? newUID() : card.UID;
 
     let insertStatement = this._dbConnection.createStatement(
       "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)"

@@ -228,9 +228,13 @@ var abDirTreeObserver = {
       .map(j => parseInt(j, 10));
 
     for (var j = 0; j < rows.length; j++) {
-      if (gAbView.getCardFromRow(rows[j]).isMailList) {
+      let card = gAbView.getCardFromRow(rows[j]);
+      if (!card.UID) {
+        Cu.reportError(new Error("Card must have a UID to be dropped here."));
+        return false;
+      }
+      if (card.isMailList) {
         draggingMailList = true;
-        break;
       }
     }
 
