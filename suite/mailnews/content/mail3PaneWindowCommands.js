@@ -538,33 +538,33 @@ var DefaultController =
         break;
       case "button_next":
       case "cmd_nextUnreadMsg":
-        MsgNextUnreadMessage();
+        GoNextMessage(nsMsgNavigationType.nextUnreadMessage, true);
         break;
       case "cmd_nextUnreadThread":
-        MsgNextUnreadThread();
+        GoNextMessage(nsMsgNavigationType.nextUnreadThread, true);
         break;
       case "cmd_nextMsg":
-        MsgNextMessage();
+        GoNextMessage(nsMsgNavigationType.nextMessage, false);
         break;
       case "cmd_nextFlaggedMsg":
-        MsgNextFlaggedMessage();
+        GoNextMessage(nsMsgNavigationType.nextFlagged, true);
         break;
       case "cmd_previousMsg":
-        MsgPreviousMessage();
+        GoNextMessage(nsMsgNavigationType.previousMessage, false);
         break;
       case "cmd_previousUnreadMsg":
-        MsgPreviousUnreadMessage();
+        GoNextMessage(nsMsgNavigationType.previousUnreadMessage, true);
         break;
       case "cmd_previousFlaggedMsg":
-        MsgPreviousFlaggedMessage();
+        GoNextMessage(nsMsgNavigationType.previousFlagged, true);
+        break;
+      case "button_goForward":
+      case "cmd_goForward":
+        GoNextMessage(nsMsgNavigationType.forward, true);
         break;
       case "button_goBack":
       case "cmd_goBack":
-        MsgGoBack();
-        break;
-       case "button_goForward":
-       case "cmd_goForward":
-        MsgGoForward();
+        GoNextMessage(nsMsgNavigationType.back, true);
         break;
       case "cmd_goStartPage":
         HideMessageHeaderPane();
@@ -658,7 +658,7 @@ var DefaultController =
         MsgJunk();
         return;
       case "cmd_stop":
-        MsgStop();
+        msgWindow.StopUrls();
         return;
       case "cmd_markAsFlagged":
         MsgMarkAsFlagged(null);
@@ -1001,51 +1001,6 @@ function SetFocusThreadPaneIfNotOnMessagePane()
   if((focusedElement != GetThreadTree()) &&
      (focusedElement != GetMessagePane()))
      SetFocusThreadPane();
-}
-
-// 3pane related commands.  Need to go in own file.  Putting here for the moment.
-function MsgNextMessage()
-{
-  GoNextMessage(nsMsgNavigationType.nextMessage, false);
-}
-
-function MsgNextUnreadMessage()
-{
-  GoNextMessage(nsMsgNavigationType.nextUnreadMessage, true);
-}
-function MsgNextFlaggedMessage()
-{
-  GoNextMessage(nsMsgNavigationType.nextFlagged, true);
-}
-
-function MsgNextUnreadThread()
-{
-  GoNextMessage(nsMsgNavigationType.nextUnreadThread, true);
-}
-
-function MsgPreviousMessage()
-{
-  GoNextMessage(nsMsgNavigationType.previousMessage, false);
-}
-
-function MsgPreviousUnreadMessage()
-{
-  GoNextMessage(nsMsgNavigationType.previousUnreadMessage, true);
-}
-
-function MsgPreviousFlaggedMessage()
-{
-  GoNextMessage(nsMsgNavigationType.previousFlagged, true);
-}
-
-function MsgGoBack()
-{
-  GoNextMessage(nsMsgNavigationType.back, true);
-}
-
-function MsgGoForward()
-{
-  GoNextMessage(nsMsgNavigationType.forward, true);
 }
 
 function SwitchPaneFocus(event)

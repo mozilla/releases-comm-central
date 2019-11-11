@@ -679,14 +679,8 @@ function CheckForMessageIdInFolder(folder, messageId)
     dump("Failed to find message-id in folder!");
   }
 
-  if (!gMailSession)
-  {
-    gMailSession = Cc["@mozilla.org/messenger/services/session;1"]
-                     .getService(Ci.nsIMsgMailSession);
-  }
-
   const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-  if (!gMailSession.IsFolderOpenInWindow(folder) &&
+  if (!MailServices.mailSession.IsFolderOpenInWindow(folder) &&
       !(folder.flags & (nsMsgFolderFlags.Trash | nsMsgFolderFlags.Inbox)))
   {
     folder.msgDatabase = null;

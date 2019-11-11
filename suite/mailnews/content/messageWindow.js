@@ -219,13 +219,10 @@ function OnLoadMessageWindow()
   // FIX ME - later we will be able to use onload from the overlay
   OnLoadMsgHeaderPane();
 
-  try {
-    var nsIFolderListener = Ci.nsIFolderListener;
-    var notifyFlags = nsIFolderListener.removed | nsIFolderListener.event | nsIFolderListener.intPropertyChanged;
-    mailSession.AddFolderListener(folderListener, notifyFlags);
-  } catch (ex) {
-    dump("Error adding to session: " +ex + "\n");
-  }
+  var nsIFolderListener = Ci.nsIFolderListener;
+  var notifyFlags = nsIFolderListener.removed | nsIFolderListener.event |
+                    nsIFolderListener.intPropertyChanged;
+  MailServices.mailSession.AddFolderListener(folderListener, notifyFlags);
 
   var originalView = null;
   var folder = null;

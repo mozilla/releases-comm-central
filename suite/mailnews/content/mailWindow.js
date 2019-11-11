@@ -15,8 +15,6 @@ var RDF;
 var msgComposeType;
 var msgComposeFormat;
 
-var mailSession;
-
 var gMessengerBundle;
 var gBrandBundle;
 
@@ -48,11 +46,9 @@ function OnMailWindowUnload()
     dbview.close();
   }
 
-  var mailSession = Cc["@mozilla.org/messenger/services/session;1"]
-                      .getService();
-  if (mailSession instanceof Ci.nsIMsgMailSession)
-    mailSession.RemoveFolderListener(folderListener);
-  mailSession.RemoveMsgWindow(msgWindow);
+  MailServices.mailSession.RemoveFolderListener(folderListener);
+
+  MailServices.mailSession.RemoveMsgWindow(msgWindow);
   messenger.setWindow(null, null);
 
   msgWindow.closeWindow();
@@ -186,8 +182,6 @@ function CreateMailWindowGlobals()
   msgComposeService = Cc['@mozilla.org/messengercompose;1']
                         .getService(Ci.nsIMsgComposeService);
 
-  mailSession = Cc["@mozilla.org/messenger/services/session;1"].getService(Ci.nsIMsgMailSession);
-
   accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
 
   RDF = Cc['@mozilla.org/rdf/rdf-service;1']
@@ -218,7 +212,7 @@ function InitMsgWindow()
   msgWindow.domWindow = window;
   msgWindow.statusFeedback = statusFeedback;
   msgWindow.msgHeaderSink = messageHeaderSink;
-  mailSession.AddMsgWindow(msgWindow);
+  MailServices.mailSession.AddMsgWindow(msgWindow);
 
   var messagepane = getMessageBrowser();
   messagepane.docShell.allowAuth = false;

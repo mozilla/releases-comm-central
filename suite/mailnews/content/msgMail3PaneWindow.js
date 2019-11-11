@@ -962,15 +962,10 @@ function loadStartFolder(initialUri)
 
 function AddToSession()
 {
-  try {
-    var mailSession = Cc["@mozilla.org/messenger/services/session;1"]
-                        .getService(Ci.nsIMsgMailSession);
-    var nsIFolderListener = Ci.nsIFolderListener;
-    var notifyFlags = nsIFolderListener.intPropertyChanged | nsIFolderListener.event;
-    mailSession.AddFolderListener(folderListener, notifyFlags);
-  } catch (ex) {
-    dump("Error adding to session\n");
-  }
+  var nsIFolderListener = Ci.nsIFolderListener;
+  var notifyFlags = nsIFolderListener.intPropertyChanged |
+                    nsIFolderListener.event;
+  MailServices.mailSession.AddFolderListener(folderListener, notifyFlags);
 }
 
 function InitPanes()
