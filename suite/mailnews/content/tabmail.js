@@ -552,15 +552,6 @@ function openContentTab(aUrl, aWhere, aHandlerRegExp)
   openUILinkIn(aUrl, aWhere);
 }
 
-function MsgCloseCurrentTab()
-{
-  var tabmail = GetTabMail();
-  if (tabmail.tabInfo.length > 1)
-    tabmail.removeCurrentTab();
-  else
-    CloseMailWindow();
-}
-
 function AllowOpenTabOnMiddleClick()
 {
   return Services.prefs.getBoolPref("browser.tabs.opentabfor.middleclick");

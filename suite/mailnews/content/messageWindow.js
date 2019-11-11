@@ -619,7 +619,6 @@ var MessageWindowController =
       case "cmd_print":
       case "cmd_printpreview":
       case "cmd_printSetup":
-      case "cmd_close":
       case "cmd_settingsOffline":
       case "cmd_createFilterFromPopup":
       case "cmd_createFilterFromMenu":
@@ -721,7 +720,6 @@ var MessageWindowController =
         return !Services.io.offline;
       case "cmd_settingsOffline":
         return IsAccountOfflineEnabled();
-      case "cmd_close":
       case "cmd_nextMsg":
       case "button_next":
       case "cmd_nextUnreadMsg":
@@ -769,9 +767,6 @@ var MessageWindowController =
 
     switch ( command )
     {
-      case "cmd_close":
-        CloseMailWindow();
-        break;
       case "cmd_getNewMessages":
         MsgGetMessage();
         break;

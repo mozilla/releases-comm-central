@@ -196,7 +196,6 @@ var DefaultController =
       case "cmd_emptyTrash":
       case "cmd_compactFolder":
       case "cmd_settingsOffline":
-      case "cmd_close":
       case "cmd_selectAll":
       case "cmd_selectThread":
       case "cmd_selectFlagged":
@@ -425,13 +424,15 @@ var DefaultController =
       case "cmd_getNextNMessages":
         return IsGetNextNMessagesEnabled();
       case "cmd_emptyTrash":
-        return IsEmptyTrashEnabled();
+      {
+        let folder = GetSelectedMsgFolders()[0];
+        return folder && folder.server.canEmptyTrashOnExit ?
+                         IsMailFolderSelected() : false;
+      }
       case "cmd_compactFolder":
         return IsCompactFolderEnabled();
       case "cmd_setFolderCharset":
         return IsFolderCharsetEnabled();
-      case "cmd_close":
-        return true;
       case "cmd_downloadFlagged":
         return !Services.io.offline;
       case "cmd_downloadSelected":
@@ -456,9 +457,6 @@ var DefaultController =
 
     switch (command)
     {
-      case "cmd_close":
-        MsgCloseCurrentTab();
-        break;
       case "button_getNewMessages":
       case "cmd_getNewMessages":
         MsgGetMessage();
@@ -740,6 +738,15 @@ var DefaultController =
     }
   }
 };
+
+function MsgCloseTabOrWindow()
+{
+  var tabmail = GetTabMail();
+  if (tabmail.tabInfo.length > 1)
+    tabmail.removeCurrentTab();
+  else
+    window.close();
+}
 
 function GetNumSelectedMessages()
 {

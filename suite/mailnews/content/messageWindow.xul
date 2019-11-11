@@ -66,6 +66,7 @@
     <commandset id="mailEditContextMenuItems"/>
     <commandset id="tasksCommands"/>
     <commandset id="commandKeys"/>
+    <command id="cmd_close" oncommand="window.close();"/>
   </commandset>
 
   <broadcasterset id="mailBroadcasters">

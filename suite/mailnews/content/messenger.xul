@@ -77,6 +77,7 @@
         events="focus"
         oncommandupdate="FocusRingUpdate_Mail()"/>
   <commandset id="tasksCommands"/>
+  <command id="cmd_close" oncommand="MsgCloseTabOrWindow();"/>
 </commandset>
 
 <broadcasterset id="mailBroadcasters">
