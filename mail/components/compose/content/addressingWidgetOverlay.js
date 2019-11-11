@@ -438,7 +438,7 @@ function awAddRecipientsArray(aRecipientType, aAddressArray) {
       awGetInputElement(top.MAX_RECIPIENTS),
       "",
       awGetPopupElement(top.MAX_RECIPIENTS),
-      "addr_to",
+      aRecipientType,
       top.MAX_RECIPIENTS,
       false
     );
