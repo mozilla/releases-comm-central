@@ -22,10 +22,6 @@ const {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/utils.js");
 ////////////////////////////////////////////////////////////////////////////////////
 
 var gViewAllHeaders = false;
-var gShowOrganization = false;
-var gShowUserAgent = false;
-var gShowReferences = false;
-var gShowMessageId = false;
 var gCollectIncoming = false;
 var gCollectOutgoing = false;
 var gCollectNewsgroup = false;
@@ -41,7 +37,6 @@ var gMessengerBundle;
 var gFileHandler;
 var gProfileDirURL;
 
-var gExtraExpandedHeaders;
 // Show the friendly display names for people I know, instead of the name + email address.
 var gShowCondensedEmailAddresses;
 
@@ -192,7 +187,7 @@ function initializeHeaderViewTables()
     gExpandedHeaderView[headerName] = new createHeaderEntry('expanded', gExpandedHeaderList[index]);
   }
 
-  var extraHeaders = gExtraExpandedHeaders.match(/[^ ]+/g);
+  var extraHeaders = Services.prefs.getCharPref("mailnews.headers.extraExpandedHeaders").match(/[^ ]+/g);
   if (extraHeaders) {
     for (let index = 0; index < extraHeaders.length; index++)
     {
@@ -201,19 +196,19 @@ function initializeHeaderViewTables()
     }
   }
 
-  if (gShowOrganization)
+  if (Services.prefs.getBoolPref("mailnews.headers.showOrganization"))
   {
     let organizationEntry = {name:"organization", outputFunction:updateHeaderValue};
     gExpandedHeaderView[organizationEntry.name] = new createHeaderEntry('expanded', organizationEntry);
   }
 
-  if (gShowUserAgent)
+  if (Services.prefs.getBoolPref("mailnews.headers.showUserAgent"))
   {
     let userAgentEntry = {name:"user-agent", outputFunction:updateHeaderValue};
     gExpandedHeaderView[userAgentEntry.name] = new createHeaderEntry('expanded', userAgentEntry);
   }
 
-  if (gShowMessageId)
+  if (Services.prefs.getBoolPref("mailnews.headers.showMessageId"))
   {
     let messageIdEntry = {name:"message-id", outputFunction:OutputMessageIds};
     gExpandedHeaderView[messageIdEntry.name] = new createHeaderEntry('expanded', messageIdEntry);
@@ -228,11 +223,6 @@ function OnLoadMsgHeaderPane()
   gCollectNewsgroup = Services.prefs.getBoolPref("mail.collect_email_address_newsgroup");
   gCollectOutgoing = Services.prefs.getBoolPref("mail.collect_email_address_outgoing");
   gShowCondensedEmailAddresses = Services.prefs.getBoolPref("mail.showCondensedAddresses");
-  gShowUserAgent = Services.prefs.getBoolPref("mailnews.headers.showUserAgent");
-  gShowOrganization = Services.prefs.getBoolPref("mailnews.headers.showOrganization");
-  gShowReferences = Services.prefs.getBoolPref("mailnews.headers.showReferences");
-  gShowMessageId = Services.prefs.getBoolPref("mailnews.headers.showMessageId");
-  gExtraExpandedHeaders = Services.prefs.getCharPref("mailnews.headers.extraExpandedHeaders");
 
   Services.prefs.addObserver("mail.showCondensedAddresses", MsgHdrViewObserver);
 
@@ -977,8 +967,9 @@ function UpdateMessageHeaders()
 
     if (headerEntry)
     {
+      let show = Services.prefs.getBoolPref("mailnews.headers.showReferences");
       if (headerName == "references" &&
-          !(gViewAllHeaders || gShowReferences ||
+          !(gViewAllHeaders || show ||
             (gDBView.msgFolder && gDBView.msgFolder.server.type == "nntp")))
       {
         // hide references header if view all headers mode isn't selected, the pref show references is
