@@ -194,11 +194,34 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
         );
         return;
       }
-      sucAbortable.current = fetchConfigFromDB(
+
+      // In addition to just the base domain, also check the full domain of the MX server
+      // to differentiate between Outlook.com/Hotmail and Office365 business domains.
+      let mxDomain;
+      try {
+        mxDomain = Services.eTLD.getNextSubDomain(mxHostname);
+      } catch (ex) {
+        // e.g. hostname doesn't have enough components
+        console.error(ex); // not fatal
+      }
+      let priority = new PriorityOrderAbortable(successCallback, errorCallback);
+      if (mxDomain && sld != mxDomain) {
+        let call = priority.addCall();
+        let fetch = fetchConfigFromDB(
+          mxDomain,
+          call.successCallback(),
+          call.errorCallback()
+        );
+        call.setAbortable(fetch);
+      }
+      let call = priority.addCall();
+      let fetch = fetchConfigFromDB(
         sld,
-        successCallback,
-        errorCallback
+        call.successCallback(),
+        call.errorCallback()
       );
+      call.setAbortable(fetch);
+      sucAbortable.current = priority;
     },
     errorCallback
   );
