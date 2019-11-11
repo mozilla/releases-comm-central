@@ -1483,6 +1483,7 @@ function openLinkIn(url, where, params)
   var aReferrerPolicy       = ("referrerPolicy" in params ?
         params.referrerPolicy : Ci.nsIHttpChannel.REFERRER_POLICY_UNSET);
   var aRelatedToCurrent     = params.relatedToCurrent;
+  var aAllowMixedContent    = params.allowMixedContent;
   var aInBackground         = params.inBackground;
   var aDisallowInheritPrincipal = params.disallowInheritPrincipal;
   var aInitiatingDoc = params.initiatingDoc ? params.initiatingDoc : document;
@@ -1627,6 +1628,7 @@ function openLinkIn(url, where, params)
                 postData: aPostData,
                 allowThirdPartyFixup: aAllowThirdPartyFixup,
                 relatedToCurrent: aRelatedToCurrent,
+                allowMixedContent: aAllowMixedContent,
                 userContextId: aUserContextId,
                 originPrincipal: aPrincipal,
                 triggeringPrincipal: aTriggeringPrincipal,

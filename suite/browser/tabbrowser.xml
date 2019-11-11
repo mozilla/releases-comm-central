@@ -1413,6 +1413,7 @@
                 postData: aPostData,
                 inBackground: aLoadInBackground,
                 allowThirdPartyFixup: aAllowThirdPartyFixup,
+                allowMixedContent: false,
                 userContextId: null,
                 opener: null,
               };
@@ -1534,6 +1535,7 @@
             var aReferrerPolicy;
             var aFromExternal;
             var aRelatedToCurrent;
+            var aAllowMixedContent;
             var aUserContextId;
             var aOpener;
             if (arguments.length == 2 &&
@@ -1550,6 +1552,7 @@
               aAllowThirdPartyFixup = params.allowThirdPartyFixup;
               aFromExternal         = params.fromExternal;
               aRelatedToCurrent     = params.relatedToCurrent;
+              aAllowMixedContent    = params.allowMixedContent;
               aUserContextId        = params.userContextId;
               aOpener               = params.opener;
             }
@@ -1628,13 +1631,14 @@
               // the document successfully loads
               b.userTypedValue = aURI;
 
-              let nsIWebNavigation = Ci.nsIWebNavigation;
-              let flags = nsIWebNavigation.LOAD_FLAGS_NONE;
+              let flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
               if (aAllowThirdPartyFixup)
-                flags = nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP |
-                        nsIWebNavigation.LOAD_FLAGS_FIXUP_SCHEME_TYPOS;
+                flags = Ci.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP |
+                        Ci.nsIWebNavigation.LOAD_FLAGS_FIXUP_SCHEME_TYPOS;
               if (aFromExternal)
-                flags |= nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL;
+                flags |= Ci.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL;
+              if (aAllowMixedContent)
+                flags |= Ci.nsIWebNavigation.LOAD_FLAGS_ALLOW_MIXED_CONTENT;
               try {
                 b.loadURIWithFlags(aURI, {
                   flags,
