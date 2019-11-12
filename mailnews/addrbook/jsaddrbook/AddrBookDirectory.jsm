@@ -770,7 +770,10 @@ var bookPrototype = {
     return newCard;
   },
   useForAutocomplete(identityKey) {
-    return Services.prefs.getBoolPref("mail.enable_autocomplete");
+    return (
+      Services.prefs.getBoolPref("mail.enable_autocomplete") &&
+      this.getBoolValue("enable_autocomplete", true)
+    );
   },
   addMailList(list) {
     if (!list.isMailList) {

@@ -59,11 +59,15 @@ function check_ab(abConfig) {
   Assert.equal(AB.useForAutocomplete(""), true);
 
   Services.prefs.setBoolPref("mail.enable_autocomplete", false);
-
   Assert.equal(AB.useForAutocomplete(""), false);
 
   Services.prefs.setBoolPref("mail.enable_autocomplete", true);
+  Assert.equal(AB.useForAutocomplete(""), true);
 
+  AB.setBoolValue("enable_autocomplete", false);
+  Assert.equal(AB.useForAutocomplete(""), false);
+
+  AB.setBoolValue("enable_autocomplete", true);
   Assert.equal(AB.useForAutocomplete(""), true);
 
   // Test - check getting default preferences
