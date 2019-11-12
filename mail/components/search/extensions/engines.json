@@ -6,23 +6,26 @@
         "id": "google@search.mozilla.org",
         "version": "1.0"
       },
-      "searchUrlGetParams": {
-        "q": "{searchTerms}"
+      "params": {
+        "searchUrlGetParams": {
+          "q": "{searchTerms}"
+        }
       },
       "telemetryId": "google",
       "appliesTo": [{
         "included": { "everywhere": true },
         "default": "yes-if-no-other"
-      }],
-      "aliases": ["@google"]
+      }]
     },
     {
       "webExtension": {
         "id": "bing@search.mozilla.org",
         "version": "1.0"
       },
-      "searchUrlGetParams": {
-        "q": "{searchTerms}"
+      "params": {
+        "searchUrlGetParams": {
+          "q": "{searchTerms}"
+        }
       },
       "appliesTo": [{
         "included": {
@@ -32,7 +35,7 @@
               "cak", "da", "de", "dsb", "el", "eo", "es-CL", "es-ES",
               "es-MX", "eu", "fa", "ff", "fi", "fr", "fy-NL", "gn",
               "gu-IN", "hi-IN", "hr", "hsb", "ia", "is", "it",
-              "ja-JP-mac", "ja", "ka", "kab", "km", "kn", "lij", "lo",
+              "ja-JP-macos", "ja", "ka", "kab", "km", "kn", "lij", "lo",
               "lt", "mai", "mk", "ml", "ms", "my", "nb-NO", "ne-NP", "nl",
               "nn-NO", "oc", "or", "pa-IN", "pt-BR", "rm", "ro", "son",
               "sq", "sr", "sv-SE", "th", "tl", "trs", "uk", "ur", "uz",
@@ -43,8 +46,7 @@
         }
       }, {
         "included": { "regions": ["default"] }
-      }],
-      "aliases": ["@bing"]
+      }]
     },
     {
       "webExtension": {
@@ -52,14 +54,18 @@
         "version": "1.0"
       },
       "telemetryId": "baidu",
-      "searchUrlGetParams": {
-        "wd": "{searchTerms}",
-        "ie": "utf-8"
-      },
-      "suggestUrlGetParams": {
-        "wd": "{searchTerms}",
-        "ie": "utf-8",
-        "action": "opensearch"
+      "params": {
+        "searchUrlGetParams": {
+          "wd": "{searchTerms}",
+          "tn": "monline_7_dg",
+          "ie": "utf-8"
+        },
+        "suggestUrlGetParams": {
+          "wd": "{searchTerms}",
+          "tn": "monline_7_dg",
+          "ie": "utf-8",
+          "action": "opensearch"
+        }
       },
       "appliesTo": [{
         "included": { "locales": { "matches": ["zh-CN"] } }
@@ -69,8 +75,7 @@
           "locales": { "matches": ["zh-CN"] }
         },
         "default": "yes"
-      }],
-      "aliases": ["@\u767E\u5EA6", "@baidu"]
+      }]
     },
     {
       "orderHint": 500,
@@ -79,11 +84,13 @@
         "version": "1.1"
       },
       "telemetryId": "amazondotcom",
-      "suggestUrlGetParams": {
-        "field-keywords": "{searchTerms}",
-        "ie": "{inputEncoding}",
-        "mode": "blended",
-        "sourceid": "Mozilla-search"
+      "params": {
+        "searchUrlGetParams": {
+          "field-keywords": "{searchTerms}",
+          "ie": "{inputEncoding}",
+          "mode": "blended",
+          "sourceid": "Mozilla-search"
+        }
       },
       "appliesTo": [{
         "included": { "regions": ["default"] }
@@ -152,11 +159,13 @@
           "locales": ["france"]
         },
         "telemetryId": "amazon-france",
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended",
-          "sourceid":"Mozilla-search"
+        "params": {
+          "searchUrlGetParams": {
+            "field-keywords": "{searchTerms}",
+            "ie": "{inputEncoding}",
+            "mode": "blended",
+            "sourceid":"Mozilla-search"
+          }
         }
       }, {
         "included": {
@@ -176,14 +185,15 @@
           "locales": ["en-GB"]
         },
         "telemetryId": "amazon-en-GB",
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended",
-          "sourceid":"Mozilla-search"
+        "params": {
+          "searchUrlGetParams": {
+            "field-keywords": "{searchTerms}",
+            "ie": "{inputEncoding}",
+            "mode": "blended",
+            "sourceid":"Mozilla-search"
+          }
         }
-      }],
-      "aliases": ["amazon"]
+      }]
     },
     {
       "orderHint": 500,
@@ -191,10 +201,12 @@
         "id": "amazon@search.mozilla.org",
         "version": "1.1"
       },
-      "searchUrlGetParams": {
-        "field-keywords": "{searchTerms}",
-        "ie": "{inputEncoding}",
-        "mode": "blended"
+      "params": {
+        "searchUrlGetParams": {
+          "field-keywords": "{searchTerms}",
+          "ie": "{inputEncoding}",
+          "mode": "blended"
+        }
       },
       "appliesTo": [{
         "included": {
@@ -215,11 +227,13 @@
           "locales": ["france"]
         },
         "telemetryId": "amazon-france",
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended",
-          "sourceid":"Mozilla-search"
+        "params": {
+          "searchUrlGetParams": {
+            "field-keywords": "{searchTerms}",
+            "ie": "{inputEncoding}",
+            "mode": "blended",
+            "sourceid":"Mozilla-search"
+          }
         }
       }, {
         "included": {
@@ -237,16 +251,18 @@
         },
         "telemetryId": "amazon-ca"
       }, {
-        "included": { "locales": { "matches": ["ja-JP-mac", "ja"] } },
+        "included": { "locales": { "matches": ["ja-JP-macos", "ja"] } },
         "webExtension": {
           "locales": ["jp"]
         },
         "telemetryId": "amazon-jp",
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended",
-          "sourceid":"Mozilla-search"
+        "params": {
+          "searchUrlGetParams": {
+            "field-keywords": "{searchTerms}",
+            "ie": "{inputEncoding}",
+            "mode": "blended",
+            "sourceid":"Mozilla-search"
+          }
         }
       }, {
         "included": { "locales": { "matches": ["it", "lij"] } },
@@ -254,11 +270,13 @@
           "locales": ["it"]
         },
         "telemetryId": "amazon-it",
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended",
-          "sourceid":"Mozilla-search"
+        "params": {
+          "searchUrlGetParams": {
+            "field-keywords": "{searchTerms}",
+            "ie": "{inputEncoding}",
+            "mode": "blended",
+            "sourceid":"Mozilla-search"
+          }
         }
       }, {
         "included": { "locales": { "matches": ["de", "dsb", "hsb"] } },
@@ -266,11 +284,13 @@
           "locales": ["de"]
         },
         "telemetryId": "amazon-de",
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended",
-          "sourceid":"Mozilla-search"
+        "params": {
+          "searchUrlGetParams": {
+            "field-keywords": "{searchTerms}",
+            "ie": "{inputEncoding}",
+            "mode": "blended",
+            "sourceid":"Mozilla-search"
+          }
         }
       }, {
         "included": {
@@ -285,11 +305,13 @@
           "locales": ["en-GB"]
         },
         "telemetryId": "amazon-en-GB",
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended",
-          "sourceid":"Mozilla-search"
+        "params": {
+          "searchUrlGetParams": {
+            "field-keywords": "{searchTerms}",
+            "ie": "{inputEncoding}",
+            "mode": "blended",
+            "sourceid":"Mozilla-search"
+          }
         }
       }, {
         "included": {
@@ -305,8 +327,7 @@
           "locales": ["au"]
         },
         "telemetryId": "amazon-au"
-      }],
-      "aliases": ["amazon"]
+      }]
     },
     {
       "orderHint": 500,
@@ -315,19 +336,20 @@
         "version": "1.0"
       },
       "telemetryId": "amazondotcn",
-      "suggestUrlGetParams": {
-        "keywords": "{searchTerms}",
-        "ix": "sunray",
-        "pageletid": "headsearch",
-        "searchType": "",
-        "Go.x": "0",
-        "Go.y": "0",
-        "bestSaleNum": "0"
+      "params": {
+        "searchUrlGetParams": {
+          "keywords": "{searchTerms}",
+          "ix": "sunray",
+          "pageletid": "headsearch",
+          "searchType": "",
+          "Go.x": "0",
+          "Go.y": "0",
+          "bestSaleNum": "0"
+        }
       },
       "appliesTo": [{
         "included": { "locales": { "matches": ["zh-CN"] } }
-      }],
-      "aliases": ["amazon"]
+      }]
     },
     {
       "orderHint": 500,
@@ -335,11 +357,7 @@
         "id": "ddg@search.mozilla.org",
         "version": "1.0"
       },
-      "telemetryId": "ddg",
-      "appliesTo": [{
-        "included": { "everywhere": true }
-      }],
-      "aliases": ["@duckduckgo", "@ddg"]
+      "telemetryId": "ddg"
     },
     {
       "webExtension": {
@@ -389,8 +407,7 @@
           "locales": ["tr"]
         },
         "telemetryId": "yandex-tr"
-      }],
-      "aliases": ["@\u044F\u043D\u0434\u0435\u043A\u0441", "@yandex"]
+      }]
     },
     {
       "webExtension": {
@@ -703,7 +720,7 @@
         "id": "oshiete-goo@search.mozilla.org",
         "version": "1.0"
       },
-      "appliesTo": [{ "included": { "locales": { "matches": ["ja-JP-mac", "jp"]}}}]
+      "appliesTo": [{ "included": { "locales": { "matches": ["ja-JP-macos", "jp"]}}}]
     },
     {
       "webExtension": {
@@ -787,7 +804,7 @@
         "id": "rakuten@search.mozilla.org",
         "version": "1.2"
       },
-      "appliesTo": [{ "included": { "locales": { "matches": ["ja-JP-mac", "jp"]}}}]
+      "appliesTo": [{ "included": { "locales": { "matches": ["ja-JP-macos", "jp"]}}}]
     },
     {
       "webExtension": {
@@ -837,7 +854,7 @@
           "sl", "tl", "tr", "ur", "uz", "wo"
         ]}}
       }, {
-        "included": { "locales": { "matches": ["ja-JP-mac", "ja"]}},
+        "included": { "locales": { "matches": ["ja-JP-macos", "ja"]}},
         "webExtension": {
           "locales": ["ja"]
         }
@@ -886,14 +903,14 @@
         "id": "yahoo-jp@search.mozilla.org",
         "version": "1.0"
       },
-      "appliesTo": [{ "included": { "locales": { "matches": ["ja-JP-mac", "ja"]}}}]
+      "appliesTo": [{ "included": { "locales": { "matches": ["ja-JP-macos", "ja"]}}}]
     },
     {
       "webExtension": {
         "id": "yahoo-jp-auctions@search.mozilla.org",
         "version": "1.2"
       },
-      "appliesTo": [{ "included": { "locales": { "matches": ["ja-JP-mac", "ja"]}}}]
+      "appliesTo": [{ "included": { "locales": { "matches": ["ja-JP-macos", "ja"]}}}]
     },
     {
       "webExtension": {
