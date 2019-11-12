@@ -57,16 +57,12 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
 elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     SOURCES += ['nsMessengerOSXIntegration.mm']
 
-EXTRA_COMPONENTS += [
-    'folderLookupService.js',
-    'msgAsyncPrompter.js',
-    'msgBase.manifest',
-    'msgOAuth2Module.js',
-    'newMailNotificationService.js',
-    'nsMailNewsCommandLineHandler.js',
-]
-
 EXTRA_JS_MODULES += [
+    'FolderLookupService.jsm',
+    'MailNewsCommandLineHandler.jsm',
+    'MailNotificationService.jsm',
+    'MsgAsyncPrompter.jsm',
+    'OAuth2Module.jsm',
     'virtualFolderWrapper.js',
 ]
 LOCAL_INCLUDES += [
@@ -77,3 +73,6 @@ include('/ipc/chromium/chromium-config.mozbuild')
 
 FINAL_LIBRARY = 'mail'
 
+XPCOM_MANIFESTS += [
+    'components.conf',
+]

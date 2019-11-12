@@ -46,11 +46,6 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
         'nsMsgAppleDouble.h',
     ]
 
-EXTRA_COMPONENTS += [
-    'nsSMTPProtocolHandler.js',
-    'nsSMTPProtocolHandler.manifest',
-]
-
 LOCAL_INCLUDES += [
   '/%s/dom/base' % CONFIG['mozreltopsrcdir'],
 ]
@@ -60,3 +55,11 @@ FINAL_LIBRARY = 'mail'
 # clang-cl rightly complains about switch on nsresult.
 if CONFIG['CC_TYPE'] == 'clang-cl':
     CXXFLAGS += ['-Wno-switch']
+
+EXTRA_JS_MODULES += [
+    'SMTPProtocolHandler.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
+]

@@ -14,7 +14,3 @@ contract @mozilla.org/mail/folder-factory;1?name=testja {8508ddeb-3eab-4877-a420
 # nsIMsgIncomingServer implementation
 component {0eec03cd-da67-4949-ab2d-5fa4bdc68135} testJaBaseIncomingServerComponent.js
 contract @mozilla.org/messenger/server;1?type=testja {0eec03cd-da67-4949-ab2d-5fa4bdc68135}
-
-# nsIMsgProtocolInfo implementation
-component {74b9b9c3-9594-41c4-b9f0-326e5daac2e0} testJaMsgProtocolInfoComponent.js
-contract @mozilla.org/messenger/protocol/info;1?type=testja {74b9b9c3-9594-41c4-b9f0-326e5daac2e0}

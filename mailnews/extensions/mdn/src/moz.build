@@ -7,9 +7,12 @@ SOURCES += [
     'nsMsgMdnGenerator.cpp',
 ]
 
-EXTRA_COMPONENTS += [
-    'mdn-service.js',
-    'mdn-service.manifest',
+EXTRA_JS_MODULES += [
+    'MDNService.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
 
 FINAL_LIBRARY = 'mail'

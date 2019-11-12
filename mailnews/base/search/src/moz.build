@@ -17,13 +17,13 @@ SOURCES += [
     'nsMsgSearchValue.cpp',
 ]
 
-EXTRA_COMPONENTS += [
-    'nsMsgTraitService.js',
-    'nsMsgTraitService.manifest',
+EXTRA_JS_MODULES += [
+    'MsgTraitService.jsm',
+    'PeriodicFilterManager.jsm',
 ]
 
-EXTRA_JS_MODULES += [
-    'PeriodicFilterManager.jsm',
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
 
 FINAL_LIBRARY = 'mail'

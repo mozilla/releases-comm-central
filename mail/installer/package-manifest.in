@@ -128,8 +128,6 @@
 [newsblog]
 @RESPATH@/chrome/newsblog@JAREXT@
 @RESPATH@/chrome/newsblog.manifest
-@RESPATH@/components/newsblog.js
-@RESPATH@/components/newsblog.manifest
 
 [mail]
 #ifndef XP_UNIX
@@ -177,18 +175,10 @@
 @RESPATH@/components/EnterprisePolicies.js
 @RESPATH@/components/EnterprisePolicies.manifest
 @RESPATH@/components/EnterprisePoliciesContent.js
-@RESPATH@/components/folderLookupService.js
 ; interfaces.manifest doesn't get packaged because it is dynamically
 ; re-created at packaging time when linking the xpts that will actually
 ; go into the package, so the test related interfaces aren't included.
-@RESPATH@/components/mimeJSComponents.js
 @RESPATH@/components/msgMime.manifest
-@RESPATH@/components/msgAsyncPrompter.js
-@RESPATH@/components/msgBase.manifest
-@RESPATH@/components/nsAddrbook.manifest
-@RESPATH@/components/nsMailNewsCommandLineHandler.js
-@RESPATH@/components/nsNewsAutoCompleteSearch.js
-@RESPATH@/components/nsNewsAutoCompleteSearch.manifest
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
 @RESPATH@/chrome/comm@JAREXT@
@@ -215,15 +205,6 @@
 ; Gloda
 @RESPATH@/chrome/gloda@JAREXT@
 @RESPATH@/chrome/gloda.manifest
-@RESPATH@/components/glautocomp.js
-@RESPATH@/components/gloda.manifest
-@RESPATH@/components/jsmimeemitter.js
-
-; OAuth2 for mail
-@RESPATH@/components/msgOAuth2Module.js
-
-; New message notification
-@RESPATH@/components/newMailNotificationService.js
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Mail Extensions (smime, etc.)
@@ -232,14 +213,6 @@
 @BINPATH@/MapiProxy.dll
 @BINPATH@/mozMapi32.dll
 #endif
-@RESPATH@/components/offlineStartup.js
-@RESPATH@/components/offlineStartup.manifest
-
-
-@RESPATH@/components/mdn-service.js
-@RESPATH@/components/mdn-service.manifest
-@RESPATH@/components/smime-service.js
-@RESPATH@/components/smime-service.manifest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; instant messaging
@@ -322,9 +295,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; LDAP components
-@RESPATH@/components/nsAbLDAPAttributeMap.js
 #ifdef MOZ_LDAP_XPCOM
-@RESPATH@/components/nsAbLDAPAutoCompleteSearch.js
 @RESPATH@/components/nsLDAPProtocolHandler.js
 @RESPATH@/components/ldapComponents.manifest
 @BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
@@ -332,28 +303,16 @@
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
 #endif
 
-; Protocol/Content handling
-@RESPATH@/components/nsSMTPProtocolHandler.js
-@RESPATH@/components/nsSMTPProtocolHandler.manifest
-
 ; misson control, autoconfig
 #ifdef MOZ_PREF_EXTENSIONS
 @RESPATH@/defaults/autoconfig/prefcalls.js
 #endif
-
-; Address Book autocomplete
-@RESPATH@/components/nsAbAutoCompleteMyDomain.js
-@RESPATH@/components/nsAbAutoCompleteSearch.js
 
 ; Windows Search integration
 ; the module is included as part of the "Modules" rule
 #ifdef XP_WIN
 @BINPATH@/WSEnable.exe
 #endif
-
-; Bayesian trait analysis
-@RESPATH@/components/nsMsgTraitService.js
-@RESPATH@/components/nsMsgTraitService.manifest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Base Package Files

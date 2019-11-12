@@ -74,20 +74,20 @@ if CONFIG['MOZ_LDAP_XPCOM']:
     # nsAbLDAPChangeLogQuery.cpp
     # nsAbLDAPChangeLogData.cpp
 
-    EXTRA_COMPONENTS += [
-        'nsAbLDAPAutoCompleteSearch.js',
+    EXTRA_JS_MODULES += [
+        'AbLDAPAutoCompleteSearch.jsm',
     ]
 
     DEFINES['MOZ_LDAP_XPCOM'] = True
 
-EXTRA_COMPONENTS += [
-    'nsAbAutoCompleteMyDomain.js',
-    'nsAbAutoCompleteSearch.js',
-    'nsAbLDAPAttributeMap.js',
-]
-
-EXTRA_PP_COMPONENTS += [
-    'nsAddrbook.manifest',
+EXTRA_JS_MODULES += [
+    'AbAutoCompleteMyDomain.jsm',
+    'AbAutoCompleteSearch.jsm',
+    'AbLDAPAttributeMap.jsm',
 ]
 
 FINAL_LIBRARY = 'mail'
+
+XPCOM_MANIFESTS += [
+    'components.conf',
+]

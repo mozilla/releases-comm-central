@@ -77,14 +77,18 @@ LOCAL_INCLUDES += [
 ]
 
 EXTRA_COMPONENTS += [
-    'mimeJSComponents.js',
     'msgMime.manifest',
 ]
 
 EXTRA_JS_MODULES += [
     'extraMimeParsers.jsm',
     'jsmime.jsm',
-    'mimeParser.jsm'
+    'MimeJSComponents.jsm',
+    'mimeParser.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
 
 FINAL_LIBRARY = 'mail'

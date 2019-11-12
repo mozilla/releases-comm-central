@@ -667,5 +667,3 @@ FiltersImportHelper.prototype = {
     }
   },
 };
-
-do_load_manifest("resources/TestMailImporter.manifest");

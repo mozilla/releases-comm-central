@@ -10,8 +10,14 @@ DIRS += [
 ]
 
 EXTRA_JS_MODULES.jsaccount += [
-    'modules/JaBaseUrl.jsm',
-    'modules/JSAccountUtils.jsm',
+  'modules/JaBaseUrl.jsm',
+  'modules/JSAccountUtils.jsm',
+  'test/unit/resources/TestJaMsgProtocolInfoComponent.jsm',
 ]
+
+XPCOM_MANIFESTS += [
+  'test/components.conf',
+]
+
 
 TEST_DIRS += ['test']

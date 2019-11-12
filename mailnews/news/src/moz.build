@@ -18,9 +18,12 @@ SOURCES += [
     'nsNntpUrl.cpp',
 ]
 
-EXTRA_COMPONENTS += [
-    'nsNewsAutoCompleteSearch.js',
-    'nsNewsAutoCompleteSearch.manifest',
+EXTRA_JS_MODULES += [
+    'NewsAutoCompleteSearch.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
 
 FINAL_LIBRARY = 'mail'
