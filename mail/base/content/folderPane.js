@@ -2939,7 +2939,12 @@ var gFolderTreeController = {
           offlineStore.remove(true);
         }
       }
-      gFolderDisplay.view.close();
+
+      // We may be rebuilding a folder that is not the displayed one.
+      let sameFolder = gFolderDisplay.displayedFolder == folder;
+      if (sameFolder) {
+        gFolderDisplay.view.close();
+      }
 
       // Send a notification that we are triggering a database rebuild.
       MailServices.mfn.notifyItemEvent(
@@ -2960,7 +2965,9 @@ var gFolderTreeController = {
         folder.ForceDBClosed();
       }
       folder.updateFolder(msgWindow);
-      gFolderDisplay.show(folder);
+      if (sameFolder) {
+        gFolderDisplay.show(folder);
+      }
     }
 
     window.openDialog(
