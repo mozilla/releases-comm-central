@@ -132,3 +132,7 @@ comm.jar:
    content/communicator/contentAreaClick.js         (content/contentAreaClick.js)
    content/communicator/labelsencodings.properties  (/@mozreltopsrcdir@/dom/encoding/labelsencodings.properties)
    content/communicator/utilityOverlay.js           (content/utilityOverlay.js)
+
+# This is needed for built_in_addons.json
+browser.jar:
+% content browser %content/

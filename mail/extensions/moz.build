@@ -12,5 +12,3 @@ if CONFIG['MOZ_OPENPGP']:
   DIRS += [
       'openpgp',
   ]
-
-JAR_MANIFESTS += ['jar.mn']
