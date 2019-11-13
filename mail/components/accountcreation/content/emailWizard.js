@@ -281,14 +281,16 @@ EmailConfigWizard.prototype = {
     window.sizeToContent();
 
     // In a new profile, the first request to live.thunderbird.net
-    // is much slower because of one-time overheads.
+    // is much slower because of one-time overheads like DNS and OCSP.
     // Let's create some dummy requests to prime the connections.
-    fetch(Services.prefs.getCharPref("mailnews.auto_config_url"), {
-      method: "OPTIONS",
-    });
-    fetch(Services.prefs.getCharPref("mailnews.auto_config.addons_url"), {
-      method: "OPTIONS",
-    });
+    let autoconfigURL = Services.prefs.getCharPref("mailnews.auto_config_url");
+    fetch(autoconfigURL, { method: "OPTIONS" });
+    let addonsURL = Services.prefs.getCharPref(
+      "mailnews.auto_config.addons_url"
+    );
+    if (new URL(autoconfigURL).origin != new URL(addonsURL).origin) {
+      fetch(addonsURL, { method: "OPTIONS" });
+    }
   },
 
   /**
