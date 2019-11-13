@@ -38,7 +38,9 @@ function readFromXML(clientConfigXML) {
     !("clientConfig" in clientConfigXML) ||
     !("emailProvider" in clientConfigXML.clientConfig)
   ) {
-    dump("client config xml = " + JSON.stringify(clientConfigXML) + "\n");
+    dump(
+      `client config xml = ${JSON.stringify(clientConfigXML).substr(0, 50)} \n`
+    );
     let stringBundle = getStringBundle(
       "chrome://messenger/locale/accountCreationModel.properties"
     );
