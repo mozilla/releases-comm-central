@@ -315,156 +315,187 @@
       <groupbox id="manual-edit_area"
                 class="hub-wrapper config-area"
                 hidden="true"
-                pack="center">
-        <vbox flex="1">
-          <hbox class="manual-row" align="baseline" equalsize="always">
-            <label flex="1"/>
-            <label class="column-title" value="&incomingColumn.label;" flex="1"/>
-            <label class="column-title" value="&outgoingColumn.label;" flex="1"/>
-          </hbox>
-          <hbox class="manual-row" align="baseline" equalsize="always">
-            <label value="&protocol.label;" flex="1"/>
-            <menulist id="incoming_protocol"
-                      oncommand="gEmailConfigWizard.onChangedProtocolIncoming();"
-                      sizetopopup="always"
-                      flex="1">
-              <menupopup>
-                <menuitem label="&imap.label;" value="1"/>
-                <menuitem label="&pop3.label;" value="2"/>
-              </menupopup>
-            </menulist>
-            <label id="outgoing_protocol"
-                   value="&smtp.label;"
-                   flex="1"/>
-          </hbox>
-          <hbox class="manual-row" align="baseline" equalsize="always">
-            <label value="&serverRow.label;" flex="1"/>
-            <hbox class="input-control" align="center" flex="1" equalsize="never">
-              <html:input id="incoming_hostname"
-                          type="text"
-                          oninput="gEmailConfigWizard.onInputHostname();"
-                          class="host uri-element input-field"/>
-            </hbox>
-            <menulist is="menulist-editable" id="outgoing_hostname"
-                      editable="true"
-                      sizetopopup="none"
-                      oninput="gEmailConfigWizard.onInputHostname();"
-                      oncommand="gEmailConfigWizard.onChangedOutgoingDropdown();"
-                      onpopupshowing="gEmailConfigWizard.onOpenOutgoingDropdown();"
-                      class="host uri-element"
-                      flex="1">
-              <menupopup id="outgoing_hostname_popup"/>
-            </menulist>
-          </hbox>
-          <hbox class="manual-row" align="baseline" equalsize="always">
-            <label value="&portRow.label;" flex="1"/>
-            <menulist is="menulist-editable" id="incoming_port"
-                      editable="true"
-                      oninput="gEmailConfigWizard.onChangedPortIncoming();"
-                      oncommand="gEmailConfigWizard.onChangedPortIncoming();"
-                      class="port"
-                      flex="1">
-              <menupopup/>
-            </menulist>
-            <menulist is="menulist-editable" id="outgoing_port"
-                      editable="true"
-                      oninput="gEmailConfigWizard.onChangedPortOutgoing();"
-                      oncommand="gEmailConfigWizard.onChangedPortOutgoing();"
-                      class="port"
-                      flex="1">
-              <menupopup/>
-            </menulist>
-          </hbox>
-          <hbox class="manual-row" align="baseline" equalsize="always">
-            <label value="&sslRow.label;" flex="1"/>
-            <menulist id="incoming_ssl"
-                      class="security"
-                      oncommand="gEmailConfigWizard.onChangedSSLIncoming();"
-                      sizetopopup="none"
-                      flex="1">
-              <menupopup>
-                <!-- values defined in nsMsgSocketType -->
-                <menuitem label="&autodetect.label;" value="0"/>
-                <menuitem label="&noEncryption.label;" value="1"/>
-                <menuitem label="&starttls.label;" value="3"/>
-                <menuitem label="&sslTls.label;" value="2"/>
-              </menupopup>
-            </menulist>
-            <menulist id="outgoing_ssl"
-                      class="security"
-                      oncommand="gEmailConfigWizard.onChangedSSLOutgoing();"
-                      sizetopopup="none"
-                      flex="1">
-              <menupopup>
-                <!-- @see incoming -->
-                <menuitem label="&autodetect.label;" value="0"/>
-                <menuitem label="&noEncryption.label;" value="1"/>
-                <menuitem label="&starttls.label;" value="3"/>
-                <menuitem label="&sslTls.label;" value="2"/>
-              </menupopup>
-            </menulist>
-          </hbox>
-          <hbox class="manual-row" align="baseline" equalsize="always">
-            <label value="&auth.label;:" flex="1"/>
-            <menulist id="incoming_authMethod"
-                      class="auth"
-                      oncommand="gEmailConfigWizard.onChangedInAuth();"
-                      sizetopopup="none"
-                      flex="1">
-              <menupopup>
-                <menuitem label="&autodetect.label;" value="0"/>
-                <!-- values defined in nsMsgAuthMethod -->
-                <!-- labels set from messenger.properties
-                    to avoid duplication -->
-                <menuitem id="in-authMethod-password-cleartext" value="3"/>
-                <menuitem id="in-authMethod-password-encrypted" value="4"/>
-                <menuitem id="in-authMethod-kerberos" value="5"/>
-                <menuitem id="in-authMethod-ntlm" value="6"/>
-                <menuitem id="in-authMethod-oauth2" value="10" hidden="true"/>
-              </menupopup>
-            </menulist>
-            <menulist id="outgoing_authMethod"
-                      class="auth"
-                      oncommand="gEmailConfigWizard.onChangedOutAuth(this.selectedItem);"
-                      sizetopopup="none"
-                      flex="1">
-              <menupopup>
-                <menuitem label="&autodetect.label;" value="0"/>
-                <!-- @see incoming -->
-                <menuitem id="out-authMethod-no" value="1"/>
-                <menuitem id="out-authMethod-password-cleartext" value="3"/>
-                <menuitem id="out-authMethod-password-encrypted" value="4"/>
-                <menuitem id="out-authMethod-kerberos" value="5"/>
-                <menuitem id="out-authMethod-ntlm" value="6"/>
-                <menuitem id="out-authMethod-oauth2" value="10" hidden="true"/>
-              </menupopup>
-            </menulist>
-          </hbox>
-          <hbox class="manual-row" align="baseline" equalsize="always">
-            <label value="&username.label;" flex="1"/>
-            <hbox class="input-control" align="center" flex="1" equalsize="never">
-              <html:input id="incoming_username"
-                          type="text"
-                          oninput="gEmailConfigWizard.onInputInUsername();"
-                          class="username input-field"/>
-            </hbox>
-            <hbox class="input-control" align="center" flex="1" equalsize="never">
-              <html:input id="outgoing_username"
-                          type="text"
-                          oninput="gEmailConfigWizard.onInputOutUsername();"
-                          class="username input-field"/>
-            </hbox>
-          </hbox>
+                pack="center"
+                orient="vertical">
 
-          <hbox flex="1" pack="end">
-            <button id="advanced-setup_button"
-                    class="btn-link"
-                    label="&advancedSetup.label;"
-                    accesskey="&advancedSetup.accesskey;"
-                    oncommand="gEmailConfigWizard.onAdvancedSetup();"/>
-          </hbox>
-        </vbox>
+        <html:table class="manual-config-table">
+          <html:tr>
+            <html:th class="config-label"></html:th>
+            <html:th class="column-title">&incomingColumn.label;</html:th>
+            <html:th class="column-title">&outgoingColumn.label;</html:th>
+          </html:tr>
 
+          <html:tr>
+            <html:th class="config-label">&protocol.label;</html:th>
+            <html:td>
+              <menulist id="incoming_protocol"
+                        oncommand="gEmailConfigWizard.onChangedProtocolIncoming();"
+                        sizetopopup="always">
+                <menupopup>
+                  <menuitem label="&imap.label;" value="1"/>
+                  <menuitem label="&pop3.label;" value="2"/>
+                </menupopup>
+              </menulist>
+            </html:td>
+            <html:td>
+              <label id="outgoing_protocol" value="&smtp.label;"/>
+            </html:td>
+          </html:tr>
+
+          <html:tr>
+            <html:th class="config-label">&serverRow.label;</html:th>
+            <html:td>
+              <hbox class="input-control" align="center" flex="1">
+                <html:input id="incoming_hostname"
+                            type="text"
+                            oninput="gEmailConfigWizard.onInputHostname();"
+                            class="host uri-element input-field"/>
+              </hbox>
+            </html:td>
+            <html:td>
+              <menulist is="menulist-editable" id="outgoing_hostname"
+                        editable="true"
+                        sizetopopup="none"
+                        oninput="gEmailConfigWizard.onInputHostname();"
+                        oncommand="gEmailConfigWizard.onChangedOutgoingDropdown();"
+                        onpopupshowing="gEmailConfigWizard.onOpenOutgoingDropdown();"
+                        class="host uri-element"
+                        flex="1">
+                <menupopup id="outgoing_hostname_popup"/>
+              </menulist>
+            </html:td>
+          </html:tr>
+
+          <html:tr>
+            <html:th class="config-label">&portRow.label;</html:th>
+            <html:td>
+              <menulist is="menulist-editable" id="incoming_port"
+                        editable="true"
+                        oninput="gEmailConfigWizard.onChangedPortIncoming();"
+                        oncommand="gEmailConfigWizard.onChangedPortIncoming();"
+                        class="port"
+                        flex="1">
+                <menupopup/>
+              </menulist>
+            </html:td>
+            <html:td>
+              <menulist is="menulist-editable" id="outgoing_port"
+                        editable="true"
+                        oninput="gEmailConfigWizard.onChangedPortOutgoing();"
+                        oncommand="gEmailConfigWizard.onChangedPortOutgoing();"
+                        class="port"
+                        flex="1">
+                <menupopup/>
+              </menulist>
+            </html:td>
+          </html:tr>
+
+          <html:tr>
+            <html:th class="config-label">&sslRow.label;</html:th>
+            <html:td>
+              <menulist id="incoming_ssl"
+                        class="security"
+                        oncommand="gEmailConfigWizard.onChangedSSLIncoming();"
+                        sizetopopup="none"
+                        flex="1">
+                <menupopup>
+                  <!-- values defined in nsMsgSocketType -->
+                  <menuitem label="&autodetect.label;" value="0"/>
+                  <menuitem label="&noEncryption.label;" value="1"/>
+                  <menuitem label="&starttls.label;" value="3"/>
+                  <menuitem label="&sslTls.label;" value="2"/>
+                </menupopup>
+              </menulist>
+            </html:td>
+            <html:td>
+              <menulist id="outgoing_ssl"
+                        class="security"
+                        oncommand="gEmailConfigWizard.onChangedSSLOutgoing();"
+                        sizetopopup="none"
+                        flex="1">
+                <menupopup>
+                  <!-- @see incoming -->
+                  <menuitem label="&autodetect.label;" value="0"/>
+                  <menuitem label="&noEncryption.label;" value="1"/>
+                  <menuitem label="&starttls.label;" value="3"/>
+                  <menuitem label="&sslTls.label;" value="2"/>
+                </menupopup>
+              </menulist>
+            </html:td>
+          </html:tr>
+
+          <html:tr>
+            <html:th class="config-label">&auth.label;:</html:th>
+            <html:td>
+              <menulist id="incoming_authMethod"
+                        class="auth"
+                        oncommand="gEmailConfigWizard.onChangedInAuth();"
+                        sizetopopup="none"
+                        flex="1">
+                <menupopup>
+                  <menuitem label="&autodetect.label;" value="0"/>
+                  <!-- values defined in nsMsgAuthMethod -->
+                  <!-- labels set from messenger.properties
+                      to avoid duplication -->
+                  <menuitem id="in-authMethod-password-cleartext" value="3"/>
+                  <menuitem id="in-authMethod-password-encrypted" value="4"/>
+                  <menuitem id="in-authMethod-kerberos" value="5"/>
+                  <menuitem id="in-authMethod-ntlm" value="6"/>
+                  <menuitem id="in-authMethod-oauth2" value="10" hidden="true"/>
+                </menupopup>
+              </menulist>
+            </html:td>
+            <html:td>
+              <menulist id="outgoing_authMethod"
+                        class="auth"
+                        oncommand="gEmailConfigWizard.onChangedOutAuth(this.selectedItem);"
+                        sizetopopup="none"
+                        flex="1">
+                <menupopup>
+                  <menuitem label="&autodetect.label;" value="0"/>
+                  <!-- @see incoming -->
+                  <menuitem id="out-authMethod-no" value="1"/>
+                  <menuitem id="out-authMethod-password-cleartext" value="3"/>
+                  <menuitem id="out-authMethod-password-encrypted" value="4"/>
+                  <menuitem id="out-authMethod-kerberos" value="5"/>
+                  <menuitem id="out-authMethod-ntlm" value="6"/>
+                  <menuitem id="out-authMethod-oauth2" value="10" hidden="true"/>
+                </menupopup>
+              </menulist>
+            </html:td>
+          </html:tr>
+
+          <html:tr>
+            <html:th class="config-label">&username.label;</html:th>
+            <html:td>
+              <hbox class="input-control" align="center" flex="1" equalsize="never">
+                <html:input id="incoming_username"
+                            type="text"
+                            oninput="gEmailConfigWizard.onInputInUsername();"
+                            class="username input-field"/>
+              </hbox>
+            </html:td>
+            <html:td>
+              <hbox class="input-control" align="center" flex="1" equalsize="never">
+                <html:input id="outgoing_username"
+                            type="text"
+                            oninput="gEmailConfigWizard.onInputOutUsername();"
+                            class="username input-field"/>
+              </hbox>
+            </html:td>
+          </html:tr>
+
+          <html:tr>
+            <html:td colspan="3" class="link-row">
+              <button id="advanced-setup_button"
+                      class="btn-link"
+                      label="&advancedSetup.label;"
+                      accesskey="&advancedSetup.accesskey;"
+                      oncommand="gEmailConfigWizard.onAdvancedSetup();"/>
+            </html:td>
+          </html:tr>
+
+        </html:table>
       </groupbox>
 
       <hbox class="hub-footer">

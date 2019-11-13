@@ -240,6 +240,7 @@ AccountConfig.prototype = {
           return "invalid";
       }
     }
+
     function authToString(authMethod) {
       switch (authMethod) {
         case 0:
@@ -266,16 +267,11 @@ AccountConfig.prototype = {
           return "invalid";
       }
     }
-    function usernameToString(username) {
-      if (!username) {
-        return "undefined";
-      }
-      let domain = username.split("@")[1];
-      return domain ? "(redacted)@" + domain : "(redacted)";
-    }
+
     function passwordToString(password) {
       return password ? "set" : "not set";
     }
+
     function configToString(config) {
       return (
         config.type +
@@ -288,7 +284,7 @@ AccountConfig.prototype = {
         ", auth: " +
         authToString(config.auth) +
         ", username: " +
-        usernameToString(config.username) +
+        (config.username || "(undefined)") +
         ", password: " +
         passwordToString(config.password)
       );

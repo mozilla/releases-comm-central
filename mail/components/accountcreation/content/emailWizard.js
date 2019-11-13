@@ -1325,8 +1325,8 @@ EmailConfigWizard.prototype = {
     if (!this._currentConfig) {
       this._currentConfig = new AccountConfig();
       this._currentConfig.incoming.type = "imap";
-      this._currentConfig.incoming.username = "%EMAILLOCALPART%";
-      this._currentConfig.outgoing.username = "%EMAILLOCALPART%";
+      this._currentConfig.incoming.username = "%EMAILADDRESS%";
+      this._currentConfig.outgoing.username = "%EMAILADDRESS%";
       this._currentConfig.incoming.hostname = ".%EMAILDOMAIN%";
       this._currentConfig.outgoing.hostname = ".%EMAILDOMAIN%";
     }

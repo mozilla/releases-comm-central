@@ -57,7 +57,7 @@
 .hub-container {
   background-color: var(--bg-color);
   color: var(--text-color);
-  width: 37em;
+  width: 44em;
   min-height: 45em;
   overflow: hidden;
 }
@@ -297,7 +297,38 @@ separator.dot {
   margin-top: 10px;
 }
 
+.manual-config-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.manual-config-table tr,
+.manual-config-table th,
+.manual-config-table td {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.manual-config-table th > label,
+.manual-config-table td > label,
+.manual-config-table td > menulist,
+.manual-config-table td > .input-control {
+  flex: 1;
+}
+
+.manual-config-table td > menulist,
+.manual-config-table td .input-field {
+  margin-inline-end: 2px;
+}
+
+.config-label {
+  max-width: 9em;
+  font-weight: normal;
+}
+
 .column-title {
+  justify-content: center;
   text-transform: uppercase;
   text-align: center;
   font-size: 10px;
@@ -306,4 +337,8 @@ separator.dot {
 
 .manual-row {
   margin-bottom: 5px;
+}
+
+.link-row {
+  justify-content: end;
 }
