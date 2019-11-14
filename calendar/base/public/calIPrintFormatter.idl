@@ -38,7 +38,6 @@ interface calIPrintFormatter : nsISupports
   void formatToHtml(in nsIOutputStream aStream,
                     in calIDateTime aStart,
                     in calIDateTime aEnd,
-                    in unsigned long aCount,
-                    [array, size_is(aCount)] in calIItemBase aItems,
+                    in Array<calIItemBase> aItems,
                     in AString aTitle);
 };

@@ -39,7 +39,7 @@ calItipEmailTransport.prototype = {
     return (this.mSenderAddress = aValue);
   },
 
-  sendItems: function(aCount, aRecipients, aItipItem) {
+  sendItems: function(aRecipients, aItipItem) {
     if (this.mHasXpcomMail) {
       cal.LOG("sendItems: Preparing to send an invitation email...");
       let items = this._prepareItems(aItipItem);

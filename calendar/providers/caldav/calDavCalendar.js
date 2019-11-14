@@ -2960,7 +2960,7 @@ calDavCalendar.prototype = {
     return (this.mSenderAddress = aString);
   },
 
-  sendItems: function(aCount, aRecipients, aItipItem) {
+  sendItems: function(aRecipients, aItipItem) {
     function doImipScheduling(aCalendar, aRecipientList) {
       let result = false;
       let imipTransport = cal.provider.getImipTransport(aCalendar);
@@ -2972,7 +2972,7 @@ calDavCalendar.prototype = {
             " for " +
             recipients.join()
         );
-        result = imipTransport.sendItems(aCount, aRecipientList, aItipItem);
+        result = imipTransport.sendItems(aRecipientList, aItipItem);
       } else {
         cal.ERROR(
           "No imip transport available for " +
@@ -3105,7 +3105,7 @@ calDavCalendar.prototype = {
               if (self.verboseLogging()) {
                 cal.LOG("CalDAV: sending email to " + remainingAttendees.length + " recipients");
               }
-              imipTransport.sendItems(remainingAttendees.length, remainingAttendees, aItipItem);
+              imipTransport.sendItems(remainingAttendees, aItipItem);
             } else {
               cal.LOG("CalDAV: no fallback to iTIP/iMIP transport for " + self.name);
             }

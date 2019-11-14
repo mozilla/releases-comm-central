@@ -20,7 +20,7 @@ calWeekPrinter.prototype = {
     return cal.l10n.getCalString("weekPrinterName");
   },
 
-  formatToHtml: function(aStream, aStart, aEnd, aCount, aItems, aTitle) {
+  formatToHtml: function(aStream, aStart, aEnd, aItems, aTitle) {
     let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calWeekPrinter.html");
     let defaultTimezone = cal.dtz.defaultTimezone;
 

@@ -20,7 +20,7 @@ calMonthPrinter.prototype = {
     return cal.l10n.getCalString("monthPrinterName");
   },
 
-  formatToHtml: function(aStream, aStart, aEnd, aCount, aItems, aTitle) {
+  formatToHtml: function(aStream, aStart, aEnd, aItems, aTitle) {
     let document = cal.xml.parseFile(
       "chrome://calendar-common/skin/printing/calMonthGridPrinter.html"
     );

@@ -222,7 +222,6 @@ function refreshHtml(finishFunc) {
         pipe.outputStream,
         settings.start,
         settings.end,
-        settings.eventList.length,
         settings.eventList,
         settings.title
       );

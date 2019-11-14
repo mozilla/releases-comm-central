@@ -1478,7 +1478,7 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     // XXX I don't know whether the below is used at all, since we don't use the itip processor
     itipItem.isSend = true;
 
-    return transport.sendItems(aSendToList.length, aSendToList, itipItem);
+    return transport.sendItems(aSendToList, itipItem);
   };
 
   // split up transport, if attendee undisclosure is requested
