@@ -1227,3 +1227,10 @@ pref("devtools.popup.disable_autohide", false);
 // tests that started failing when using type=content, but this ultimately
 // should be removed.
 pref("devtools.toolbox.content-frame", true);
+
+// Visibility switch preference for the WhatsNew panel.
+pref("devtools.whatsnew.enabled", true);
+
+// Temporary preference to fully disable the WhatsNew panel on any target.
+// Should be removed in https://bugzilla.mozilla.org/show_bug.cgi?id=1596037
+pref("devtools.whatsnew.feature-enabled", true);
