@@ -52,9 +52,7 @@ lightning.jar:
 % skin lightning classic/1.0 %skin/osx/ os=Darwin
 % skin lightning classic/1.0 %skin/windows/ os=WINNT
 % skin lightning-common classic/1.0 %skin/lightning-common/
-% style chrome://messenger/content/messageWindow.xul chrome://lightning/skin/lightning.css
 % style chrome://messenger/content/customizeToolbar.xul chrome://lightning/skin/lightning-toolbar.css
-% style chrome://calendar/content/calendar-event-dialog.xul chrome://communicator/skin/communicator.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % style chrome://messenger/content/customizeToolbar.xul chrome://lightning-common/skin/lightning.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % style chrome://messenger/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
     skin/lightning-common/accountCentral.css               (themes/common/accountCentral.css)

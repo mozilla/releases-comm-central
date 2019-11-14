@@ -99,8 +99,6 @@ calendar.jar:
 % skin calendar-common classic/1.0 %skin/common/
 % style chrome://messenger/content/customizeToolbar.xul chrome://calendar/skin/calendar-task-view.css
 % style chrome://messenger/content/customizeToolbar.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
-% style chrome://calendar/content/calendar-event-dialog.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
-% style chrome://calendar/content/calendar-event-dialog-attendees.xul chrome://calendar-common/skin/dialogs/calendar-event-dialog.css
     skin/common/calendar-alarms.css                             (themes/common/calendar-alarms.css)
     skin/common/calendar-attendees.css                          (themes/common/calendar-attendees.css)
     skin/common/calendar-creation-wizard.css                    (themes/common/calendar-creation-wizard.css)
