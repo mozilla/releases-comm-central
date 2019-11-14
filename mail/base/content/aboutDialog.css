@@ -15,7 +15,7 @@
   background-repeat: no-repeat;
   /* padding-top creates room for the wordmark */
   padding-top: 38px;
-  margin-top:20px;
+  margin-top: 20px;
 }
 
 #rightBox:-moz-locale-dir(rtl) {
@@ -35,17 +35,10 @@
   cursor: text;
 }
 
-#version:-moz-locale-dir(rtl) {
-  direction: ltr;
-  text-align: right;
-  margin-right: 0;
-}
-
 #distribution,
 #distributionId {
   display: none;
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-block: 0;
 }
 
 .text-blurb {
