@@ -14,10 +14,9 @@ var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
 var accountWizard = {
   onload() {
-    document.documentElement.addEventListener(
-      "wizardfinish",
-      this.createAccount.bind(this)
-    );
+    document
+      .querySelector("wizard")
+      .addEventListener("wizardfinish", this.createAccount.bind(this));
     let accountProtocolPage = document.getElementById("accountprotocol");
     accountProtocolPage.addEventListener(
       "pageadvanced",
@@ -103,7 +102,7 @@ var accountWizard = {
   },
 
   checkUsername() {
-    var wizard = document.getElementById("accountWizard");
+    var wizard = document.querySelector("wizard");
     var name = accountWizard.getUsername();
     var duplicateWarning = document.getElementById("duplicateAccount");
     if (!name) {
@@ -206,7 +205,7 @@ var accountWizard = {
   },
 
   hideUsernamePage() {
-    document.getElementById("accountWizard").canAdvance = true;
+    document.querySelector("wizard").canAdvance = true;
     var next = "account" + (this.proto.noPassword ? "advanced" : "password");
     document.getElementById("accountusername").next = next;
   },

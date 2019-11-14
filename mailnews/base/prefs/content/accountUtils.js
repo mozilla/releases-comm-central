@@ -227,7 +227,7 @@ function initAccountWizardTB(args) {
   } else if (type == "movemail") {
     selType = "movemail";
   }
-  let accountwizard = document.getElementById("AccountWizard");
+  let accountwizard = document.querySelector("wizard");
   let acctyperadio = document.getElementById("acctyperadio");
   let feedRadio = acctyperadio.querySelector("radio[value='Feeds']");
   if (feedRadio) {

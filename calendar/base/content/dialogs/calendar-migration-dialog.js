@@ -28,7 +28,7 @@ var gMigrateWizard = {
     // XXX Once we have branding for lightning, this hack can go away
     let props = Services.strings.createBundle("chrome://calendar/locale/migration.properties");
 
-    let wizard = document.getElementById("migration-wizard");
+    let wizard = document.querySelector("wizard");
     let desc = document.getElementById("wizard-desc");
     // Since we don't translate "Lightning"...
     wizard.title = props.formatStringFromName("migrationTitle", ["Lightning"]);
@@ -68,7 +68,7 @@ var gMigrateWizard = {
     // Don't let the user get away while we're migrating
     // XXX may want to wire this into the 'cancel' function once that's
     //    written
-    let wizard = document.getElementById("migration-wizard");
+    let wizard = document.querySelector("wizard");
     wizard.canAdvance = false;
     wizard.canRewind = false;
 
@@ -115,7 +115,7 @@ var gMigrateWizard = {
    * Makes sure the wizard "back" button can not be pressed.
    */
   setCanRewindFalse: function() {
-    document.getElementById("migration-wizard").canRewind = false;
+    document.querySelector("wizard").canRewind = false;
   },
 };
 

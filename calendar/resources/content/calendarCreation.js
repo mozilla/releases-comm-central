@@ -150,7 +150,7 @@ function onSelectProvider(type) {
  */
 function checkRequired() {
   let canAdvance = true;
-  let curPage = document.getElementById("calendar-wizard").currentPage;
+  let curPage = document.querySelector("wizard").currentPage;
   if (curPage) {
     let eList = curPage.getElementsByAttribute("required", "required");
     for (let i = 0; i < eList.length && canAdvance; ++i) {
@@ -169,7 +169,7 @@ function checkRequired() {
     } else {
       gNotification.notificationbox.removeAllNotifications();
     }
-    document.getElementById("calendar-wizard").canAdvance = canAdvance;
+    document.querySelector("wizard").canAdvance = canAdvance;
   }
 }
 
@@ -301,5 +301,5 @@ function parseUri(aUri) {
  * undo.
  */
 function setCanRewindFalse() {
-  document.getElementById("calendar-wizard").canRewind = false;
+  document.querySelector("wizard").canRewind = false;
 }

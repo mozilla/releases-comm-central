@@ -10,10 +10,9 @@ var FeedAccountWizard = {
   accountName: "",
 
   onLoad() {
-    document.documentElement.addEventListener(
-      "wizardfinish",
-      this.onFinish.bind(this)
-    );
+    document
+      .querySelector("wizard")
+      .addEventListener("wizardfinish", this.onFinish.bind(this));
     let accountSetupPage = document.getElementById("accountsetuppage");
     accountSetupPage.addEventListener(
       "pageshow",
@@ -29,7 +28,7 @@ var FeedAccountWizard = {
 
   accountSetupPageValidate() {
     this.accountName = document.getElementById("prettyName").value.trim();
-    document.documentElement.canAdvance = this.accountName;
+    document.querySelector("wizard").canAdvance = this.accountName;
   },
 
   donePageInit() {

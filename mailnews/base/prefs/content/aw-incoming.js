@@ -42,7 +42,7 @@ function incomingPageValidate() {
     }
   }
 
-  document.documentElement.canAdvance = canAdvance;
+  document.querySelector("wizard").canAdvance = canAdvance;
 }
 
 function incomingPageUnload() {
@@ -75,8 +75,9 @@ function incomingPageUnload() {
 
 function incomingPageInit() {
   gOnMailServersPage =
-    document.documentElement.currentPage.id == "incomingpage";
-  gOnNewsServerPage = document.documentElement.currentPage.id == "newsserver";
+    document.querySelector("wizard").currentPage.id == "incomingpage";
+  gOnNewsServerPage =
+    document.querySelector("wizard").currentPage.id == "newsserver";
   var pageData = parent.GetPageData();
   if (gOnNewsServerPage) {
     var newsServer = document.getElementById("newsServer");

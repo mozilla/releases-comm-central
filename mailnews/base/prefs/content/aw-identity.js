@@ -35,7 +35,7 @@ function identityPageValidate() {
     }
   }
 
-  document.documentElement.canAdvance = canAdvance;
+  document.querySelector("wizard").canAdvance = canAdvance;
 }
 
 function identityPageUnload() {

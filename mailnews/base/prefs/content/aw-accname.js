@@ -17,7 +17,7 @@ function acctNamePageValidate() {
     canAdvance = false;
   }
 
-  document.documentElement.canAdvance = canAdvance;
+  document.querySelector("wizard").canAdvance = canAdvance;
 }
 
 function acctNamePageUnload() {

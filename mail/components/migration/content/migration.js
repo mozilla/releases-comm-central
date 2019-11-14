@@ -19,14 +19,12 @@ var MigrationWizard = {
   _autoMigrate: null,
 
   init() {
-    document.documentElement.addEventListener(
-      "wizardback",
-      this.onBack.bind(this)
-    );
-    document.documentElement.addEventListener(
-      "wizardcancel",
-      this.onCancel.bind(this)
-    );
+    document
+      .querySelector("wizard")
+      .addEventListener("wizardback", this.onBack.bind(this));
+    document
+      .querySelector("wizard")
+      .addEventListener("wizardcancel", this.onCancel.bind(this));
 
     let importSourcePage = document.getElementById("importSource");
     importSourcePage.addEventListener(
@@ -77,7 +75,7 @@ var MigrationWizard = {
     Services.obs.addObserver(this, "Migration:Ended");
     Services.obs.addObserver(this, "Migration:Progress");
 
-    this._wiz = document.documentElement;
+    this._wiz = document.querySelector("wizard");
 
     if ("arguments" in window && !window.arguments[3]) {
       this._source = window.arguments[0];
@@ -167,7 +165,7 @@ var MigrationWizard = {
       .id;
 
     if (newSource == "nothing") {
-      document.documentElement.cancel();
+      document.querySelector("wizard").cancel();
       return;
     }
 
@@ -204,7 +202,7 @@ var MigrationWizard = {
     // Disabling this for now, since we ask about import sources in automigration
     // too and don't want to disable the back button
     // if (this._autoMigrate)
-    //   document.documentElement.getButton("back").disabled = true;
+    //   document.querySelector("wizard").getButton("back").disabled = true;
 
     var profiles = document.getElementById("profiles");
     while (profiles.hasChildNodes()) {

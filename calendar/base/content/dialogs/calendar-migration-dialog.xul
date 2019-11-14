@@ -6,15 +6,15 @@
 <!-- Style sheets -->
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
-<!DOCTYPE dialog
+<!DOCTYPE window
 [
-    <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-    %brandDTD;
-    <!ENTITY % migrationDtd SYSTEM "chrome://calendar/locale/migration.dtd">
-    %migrationDtd;
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+  %brandDTD;
+  <!ENTITY % migrationDtd SYSTEM "chrome://calendar/locale/migration.dtd">
+  %migrationDtd;
 ]>
 
-<wizard id="migration-wizard"
+<window id="migration-wizard"
         title="&migration.title;"
         windowtype="Calendar:MigrationWizard"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -22,25 +22,26 @@
         onload="gMigrateWizard.loadMigrators()"
         branded="true"
         persist="screenX screenY">
+  <script src="chrome://calendar/content/calendar-migration-dialog.js"/>
+  <script src="chrome://calendar/content/import-export.js"/>
 
-    <script src="chrome://calendar/content/calendar-migration-dialog.js"/>
-    <script src="chrome://calendar/content/import-export.js"/>
-
+  <wizard>
     <wizardpage id="wizardPage1"
                 pageid="initialPage"
                 next="progressPage"
                 label="&migration.welcome;">
-        <label id="wizard-desc" control="datasource-list">&migration.list.description;</label>
-        <vbox id="datasource-list" flex="1"/>
+      <label id="wizard-desc" control="datasource-list">&migration.list.description;</label>
+      <vbox id="datasource-list" flex="1"/>
     </wizardpage>
 
     <wizardpage id="wizardPage2"
                 pageid="progressPage"
                 label="&migration.importing;">
-        <label control="migrate-progressmeter">&migration.progress.description;</label>
-        <vbox flex="1">
-            <html:progress id="migrate-progressmeter" value="0" max="100"/>
-            <label value="" flex="1" id="progress-label"/>
-        </vbox>
+      <label control="migrate-progressmeter">&migration.progress.description;</label>
+      <vbox flex="1">
+        <html:progress id="migrate-progressmeter" value="0" max="100"/>
+        <label value="" flex="1" id="progress-label"/>
+      </vbox>
     </wizardpage>
-</wizard>
+  </wizard>
+</window>

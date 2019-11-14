@@ -9,20 +9,19 @@
 <?xml-stylesheet href="chrome://messenger/skin/imAccountWizard.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE wizard [
+<!DOCTYPE window [
   <!ENTITY % accountWizardDTD SYSTEM "chrome://messenger/locale/imAccountWizard.dtd">
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
   %accountWizardDTD;
   %brandDTD;
 ]>
 
-<wizard id="accountWizard"
+<window id="accountWizard"
         title="&windowTitle.label;"
         windowtype="Messenger:accountWizard"
         onload="accountWizard.onload();"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
-
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://chat/content/imAccountOptionsHelper.js"/>
@@ -30,80 +29,81 @@
 
   <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
 
-  <wizardpage id="accountprotocol" pageid="accountprotocol" next="accountusername"
-              label="&accountProtocolTitle.label;">
-    <description>&accountProtocolInfo.label;</description>
-    <separator/>
-    <label value="&accountProtocolField.label;" control="protolist"
-           id="protoLabel" hidden="true"/>
-    <richlistbox flex="1" id="protolist" class="theme-listbox"
-                 ondblclick="document.getElementById('accountWizard').advance();"/>
-    <hbox pack="end">
-      <label id="getMoreProtocols" class="text-link" value="&accountProtocolGetMore.label;"
-             onclick="if (event.button == 0) { accountWizard.openURL(this.getAttribute('getMoreURL')); }"/>
-    </hbox>
-  </wizardpage>
-
-  <wizardpage id="accountusername" pageid="accountusername" next="accountpassword"
-              label="&accountUsernameTitle.label;">
-    <description id="usernameInfo"/>
-    <separator/>
-    <vbox id="userNameBox"/>
-    <separator/>
-    <description id="duplicateAccount" hidden="true">&accountUsernameDuplicate.label;</description>
-  </wizardpage>
-
-  <wizardpage id="accountpassword" pageid="accountpassword" next="accountadvanced"
-              label="&accountPasswordTitle.label;">
-    <description>&accountPasswordInfo.label;</description>
-    <separator/>
-    <hbox id="passwordBox" align="baseline" class="input-container">
-      <label id="passwordLabel"
-             value="&accountPasswordField.label;"
-             class="label-inline"
-             control="password"/>
-      <html:input id="password" type="password" class="input-inline"/>
-    </hbox>
-    <separator/>
-    <description id="passwordManagerDescription">&accountPasswordManager.label;</description>
-  </wizardpage>
-
-  <wizardpage id="accountadvanced" pageid="accountadvanced" next="accountsummary"
-              label="&accountAdvancedTitle.label;">
-    <description>&accountAdvancedInfo.label;</description>
-    <separator class="thin"/>
-    <groupbox id="aliasGroupbox">
-      <hbox class="groupbox-title">
-        <label id="aliasGroupboxCaption" class="header">&accountAliasGroupbox.caption;</label>
+  <wizard>
+    <wizardpage id="accountprotocol" pageid="accountprotocol" next="accountusername"
+                label="&accountProtocolTitle.label;">
+      <description>&accountProtocolInfo.label;</description>
+      <separator/>
+      <label value="&accountProtocolField.label;" control="protolist"
+             id="protoLabel" hidden="true"/>
+      <richlistbox flex="1" id="protolist" class="theme-listbox"
+                   ondblclick="document.getElementById('accountWizard').advance();"/>
+      <hbox pack="end">
+        <label id="getMoreProtocols" class="text-link" value="&accountProtocolGetMore.label;"
+               onclick="if (event.button == 0) { accountWizard.openURL(this.getAttribute('getMoreURL')); }"/>
       </hbox>
-      <hbox id="aliasBox" align="baseline" class="input-container">
-        <label id="aliasLabel"
-               value="&accountAliasField.label;"
+    </wizardpage>
+
+    <wizardpage id="accountusername" pageid="accountusername" next="accountpassword"
+                label="&accountUsernameTitle.label;">
+      <description id="usernameInfo"/>
+      <separator/>
+      <vbox id="userNameBox"/>
+      <separator/>
+      <description id="duplicateAccount" hidden="true">&accountUsernameDuplicate.label;</description>
+    </wizardpage>
+
+    <wizardpage id="accountpassword" pageid="accountpassword" next="accountadvanced"
+                label="&accountPasswordTitle.label;">
+      <description>&accountPasswordInfo.label;</description>
+      <separator/>
+      <hbox id="passwordBox" align="baseline" class="input-container">
+        <label id="passwordLabel"
+               value="&accountPasswordField.label;"
                class="label-inline"
-               control="alias" />
-        <html:input id="alias" type="text" class="input-inline"/>
+               control="password"/>
+        <html:input id="password" type="password" class="input-inline"/>
       </hbox>
-      <description>&accountAliasInfo.label;</description>
-    </groupbox>
+      <separator/>
+      <description id="passwordManagerDescription">&accountPasswordManager.label;</description>
+    </wizardpage>
 
-    <checkbox id="newMailNotification"
-              label="&accountAdvanced.newMailNotification.label;" hidden="true"/>
+    <wizardpage id="accountadvanced" pageid="accountadvanced" next="accountsummary"
+                label="&accountAdvancedTitle.label;">
+      <description>&accountAdvancedInfo.label;</description>
+      <separator class="thin"/>
+      <groupbox id="aliasGroupbox">
+        <hbox class="groupbox-title">
+          <label id="aliasGroupboxCaption" class="header">&accountAliasGroupbox.caption;</label>
+        </hbox>
+        <hbox id="aliasBox" align="baseline" class="input-container">
+          <label id="aliasLabel"
+                 value="&accountAliasField.label;"
+                 class="label-inline"
+                 control="alias" />
+          <html:input id="alias" type="text" class="input-inline"/>
+        </hbox>
+        <description>&accountAliasInfo.label;</description>
+      </groupbox>
 
-    <groupbox id="protoSpecificGroupbox">
-      <hbox class="groupbox-title">
-        <label id="protoSpecificCaption" class="header"/>
-      </hbox>
-      <vbox id="protoSpecific" flex="1"/>
-    </groupbox>
-  </wizardpage>
+      <checkbox id="newMailNotification"
+                label="&accountAdvanced.newMailNotification.label;" hidden="true"/>
 
-  <wizardpage id="accountsummary" pageid="accountsummary"
-              label="&accountSummaryTitle.label;">
-    <description>&accountSummaryInfo.label;</description>
-    <separator/>
-    <vbox id="summaryRows"/>
-    <separator/>
-    <checkbox id="connectNow" label= "&accountSummary.connectNow.label;" checked="true"/>
-  </wizardpage>
+      <groupbox id="protoSpecificGroupbox">
+        <hbox class="groupbox-title">
+          <label id="protoSpecificCaption" class="header"/>
+        </hbox>
+        <vbox id="protoSpecific" flex="1"/>
+      </groupbox>
+    </wizardpage>
 
-</wizard>
+    <wizardpage id="accountsummary" pageid="accountsummary"
+                label="&accountSummaryTitle.label;">
+      <description>&accountSummaryInfo.label;</description>
+      <separator/>
+      <vbox id="summaryRows"/>
+      <separator/>
+      <checkbox id="connectNow" label= "&accountSummary.connectNow.label;" checked="true"/>
+    </wizardpage>
+  </wizard>
+</window>

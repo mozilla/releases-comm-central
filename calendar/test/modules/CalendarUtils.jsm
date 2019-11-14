@@ -529,7 +529,7 @@ function createCalendar(controller, name) {
  */
 function handleNewCalendarWizard(wizard, name, data = undefined) {
   let { lookup: wizardlookup, eid: wizardId } = helpersForController(wizard);
-  let dlgButton = btn => wizard.window.document.documentElement.getButton(btn);
+  let dlgButton = btn => wizard.window.document.querySelector("wizard").getButton(btn);
   if (data == undefined) {
     data = {};
   }
@@ -537,7 +537,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
   // Choose network calendar if any network data is set.
   if (data.network) {
     let remoteOption = wizardlookup(`
-            /id("calendar-wizard")/{"pageid":"initialPage"}/id("calendar-type")/{"value":"remote"}
+            /id("calendar-wizard-window")/id("calendar-wizard")/{"id":"initialPage"}/id("calendar-type")/{"value":"remote"}
         `);
     wizard.waitForElement(remoteOption);
     wizard.radio(remoteOption);
@@ -548,7 +548,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
       data.network.format = "ics";
     }
     let formatOption = wizardlookup(`
-            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/[0]/[1]/
+            /id("calendar-wizard-window")/id("calendar-wizard")/{"id":"locationPage"}/[1]/[0]/[1]/
             id("calendar-format")/{"value":"${data.network.format}"}
         `);
     wizard.waitForElement(formatOption);
@@ -563,7 +563,7 @@ function handleNewCalendarWizard(wizard, name, data = undefined) {
     }
     wizard.type(
       wizardlookup(`
-            /id("calendar-wizard")/{"pageid":"locationPage"}/[1]/id("calendar-location-row")/
+            /id("calendar-wizard-window")/id("calendar-wizard")/{"id":"locationPage"}/[1]/id("calendar-location-row")/
             id("calendar-uri-td")/{"class":"input-container"}/id("calendar-uri")
         `),
       data.network.location

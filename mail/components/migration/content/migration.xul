@@ -5,9 +5,9 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/migration/migration.dtd" >
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/migration/migration.dtd" >
 
-<wizard id="migrationWizard"
+<window id="migrationWizard"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&migrationWizard.title;"
@@ -21,65 +21,58 @@
 
   <stringbundle id="bundle" src="chrome://messenger/locale/migration/migration.properties"/>
 
-  <wizardpage id="importSource" pageid="importSource" next="selectProfile"
-              label="&importSource.title;">
-    <deck id="importSourceFound" selectedIndex="0">
-    <vbox>
+  <wizard>
+    <wizardpage id="importSource" pageid="importSource" next="selectProfile"
+                label="&importSource.title;">
+      <deck id="importSourceFound" selectedIndex="0">
+        <vbox>
 #ifdef XP_WIN
-    <label control="importSourceGroup">&importFromWin.label;</label>
+          <label control="importSourceGroup">&importFromWin.label;</label>
 #else
-    <label control="importSourceGroup">&importFromNonWin.label;</label>
+          <label control="importSourceGroup">&importFromNonWin.label;</label>
 #endif
-
-    <radiogroup id="importSourceGroup">
-
-      <radio id="seamonkey" label="&importFromSeamonkey3.label;"
-             accesskey="&importFromSeamonkey3.accesskey;"/>
-
+          <radiogroup id="importSourceGroup">
+            <radio id="seamonkey" label="&importFromSeamonkey3.label;"
+                   accesskey="&importFromSeamonkey3.accesskey;"/>
 #ifdef XP_WIN
-      <radio id="outlook"   label="&importFromOutlook.label;"   accesskey="&importFromOutlook.accesskey;"/>
+            <radio id="outlook"   label="&importFromOutlook.label;"   accesskey="&importFromOutlook.accesskey;"/>
 #endif
+            <radio id="nothing"   label="&importFromNothing.label;"   accesskey="&importFromNothing.accesskey;" hidden="true"/>
+          </radiogroup>
+        </vbox>
+        <label>&importSourceNotFound.label;</label>
+      </deck>
+    </wizardpage>
 
-      <radio id="nothing"   label="&importFromNothing.label;"   accesskey="&importFromNothing.accesskey;" hidden="true"/>
-    </radiogroup>
-    </vbox>
-    <label>&importSourceNotFound.label;</label>
-    </deck>
-  </wizardpage>
+    <wizardpage id="selectProfile" pageid="selectProfile" label="&selectProfile.title;"
+                next="importItems">
+      <label control="profiles">&selectProfile.label;</label>
+      <radiogroup id="profiles" align="start"/>
+    </wizardpage>
 
-  <wizardpage id="selectProfile" pageid="selectProfile" label="&selectProfile.title;"
-              next="importItems">
-    <label control="profiles">&selectProfile.label;</label>
-    <radiogroup id="profiles" align="start"/>
-  </wizardpage>
+    <wizardpage id="importItems" pageid="importItems" label="&importItems.title;"
+                next="migrating"
+                oncommand="MigrationWizard.onImportItemCommand();">
+      <description>&importItems.label;</description>
+      <vbox id="dataSources" style="overflow: auto; -moz-appearance: listbox" align="start" flex="1"/>
+    </wizardpage>
 
-  <wizardpage id="importItems" pageid="importItems" label="&importItems.title;"
-              next="migrating"
-              oncommand="MigrationWizard.onImportItemCommand();">
-    <description>&importItems.label;</description>
+    <wizardpage id="migrating" pageid="migrating" label="&migrating.title;"
+                next="done">
+      <description>&migrating.label;</description>
+      <separator class="thin"/>
+      <vbox id="migratingItems" class="indent" style="overflow: auto;" flex="1" align="start"/>
+      <separator class="thin"/>
+      <hbox>
+        <html:progress class="progressmeter-statusbar" id="progressBar" flex="1" value="0" max="100"/>
+      </hbox>
+    </wizardpage>
 
-    <vbox id="dataSources" style="overflow: auto; -moz-appearance: listbox" align="start" flex="1"/>
-  </wizardpage>
-
-  <wizardpage id="migrating" pageid="migrating" label="&migrating.title;"
-              next="done">
-
-    <description>&migrating.label;</description>
-    <separator class="thin"/>
-    <vbox id="migratingItems" class="indent" style="overflow: auto;" flex="1" align="start"/>
-    <separator class="thin"/>
-
-    <hbox>
-      <html:progress class="progressmeter-statusbar" id="progressBar" flex="1" value="0" max="100"/>
-    </hbox>
-
-  </wizardpage>
-
-  <wizardpage id="done" pageid="done" label="&done.title;">
-    <description>&done.label;</description>
-
-    <separator class="thin"/>
-    <vbox id="doneItems" class="indent" style="overflow: auto;" align="start"/>
-  </wizardpage>
-</wizard>
+    <wizardpage id="done" pageid="done" label="&done.title;">
+      <description>&done.label;</description>
+      <separator class="thin"/>
+      <vbox id="doneItems" class="indent" style="overflow: auto;" align="start"/>
+    </wizardpage>
+  </wizard>
+</window>
 

@@ -79,11 +79,13 @@ var gDefaultSpecialFolderPickerMode = "0";
 
 // event handlers
 function onAccountWizardLoad() {
-  document.documentElement.addEventListener("wizardcancel", onCancel);
-  document.documentElement.addEventListener("wizardfinish", FinishAccount);
+  document.querySelector("wizard").addEventListener("wizardcancel", onCancel);
+  document
+    .querySelector("wizard")
+    .addEventListener("wizardfinish", FinishAccount);
   let accounttypePage = document.getElementById("accounttype");
   accounttypePage.addEventListener("pageshow", () => {
-    document.documentElement.canAdvance = true;
+    document.querySelector("wizard").canAdvance = true;
   });
   accounttypePage.addEventListener("pageadvanced", acctTypePageUnload);
   let identityPage = document.getElementById("identitypage");
@@ -803,7 +805,7 @@ function checkForInvalidAccounts() {
 
     setupWizardPanels();
     // Set the page index to identity page.
-    document.documentElement.pageIndex = 1;
+    document.querySelector("wizard").pageIndex = 1;
   }
 }
 
