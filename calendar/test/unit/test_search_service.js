@@ -14,9 +14,9 @@ function run_test() {
 }
 
 function test_found() {
-  search.getProviders({}).forEach(search.removeProvider, search);
+  search.getProviders().forEach(search.removeProvider, search);
 
-  equal(search.getProviders({}).length, 0);
+  equal(search.getProviders().length, 0);
 
   let provider1 = {
     id: 1,
@@ -42,12 +42,12 @@ function test_found() {
   provider2.wrappedJSObject = provider2;
 
   search.addProvider(provider1);
-  equal(search.getProviders({}).length, 1);
+  equal(search.getProviders().length, 1);
   search.addProvider(provider2);
-  equal(search.getProviders({}).length, 2);
+  equal(search.getProviders().length, 2);
   search.removeProvider(provider1);
-  equal(search.getProviders({}).length, 1);
-  equal(search.getProviders({})[0].wrappedJSObject.id, 2);
+  equal(search.getProviders().length, 1);
+  equal(search.getProviders()[0].wrappedJSObject.id, 2);
 
   let listener = {
     called: false,
@@ -66,7 +66,7 @@ function test_found() {
 }
 
 function test_failure() {
-  search.getProviders({}).forEach(search.removeProvider, search);
+  search.getProviders().forEach(search.removeProvider, search);
 
   let provider = {
     searchForCalendars: function(aStr, aHint, aMax, aListener) {
@@ -90,7 +90,7 @@ function test_failure() {
 }
 
 function test_cancel() {
-  search.getProviders({}).forEach(search.removeProvider, search);
+  search.getProviders().forEach(search.removeProvider, search);
 
   let provider = {
     QueryInterface: cal.generateQI([Ci.calICalendarSearchProvider, Ci.calIOperation]),

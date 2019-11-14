@@ -287,7 +287,7 @@ function modifyTaskFromContext(aEvent, initialDate) {
  */
 function deleteToDoCommand(aEvent, aDoNotConfirm) {
   let tasks = getSelectedTasks(aEvent);
-  calendarViewController.deleteOccurrences(tasks.length, tasks, false, aDoNotConfirm);
+  calendarViewController.deleteOccurrences(tasks, false, aDoNotConfirm);
 }
 
 /**

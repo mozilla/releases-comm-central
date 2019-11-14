@@ -122,7 +122,7 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     if (aCutMode) {
       // check for MODIFICATION_PARENT
       let useParent = response == 3;
-      calendarViewController.deleteOccurrences(targetItems.length, targetItems, useParent, true);
+      calendarViewController.deleteOccurrences(targetItems, useParent, true);
     }
   }
 }

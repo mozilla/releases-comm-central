@@ -89,13 +89,7 @@ var calendarViewController = {
    * Deletes the given occurrences
    * @see calICalendarViewController
    */
-  deleteOccurrences: function(
-    count,
-    occurrencesArg,
-    useParentItems,
-    doNotConfirm,
-    extResponseArg = null
-  ) {
+  deleteOccurrences: function(occurrencesArg, useParentItems, doNotConfirm, extResponseArg = null) {
     startBatchTransaction();
     let recurringItems = {};
     let extResponse = extResponseArg || { responseMode: Ci.calIItipItem.USER };
@@ -544,7 +538,7 @@ function getLastCalendarView() {
  */
 function deleteSelectedEvents() {
   let selectedItems = currentView().getSelectedItems({});
-  calendarViewController.deleteOccurrences(selectedItems.length, selectedItems, false, false);
+  calendarViewController.deleteOccurrences(selectedItems, false, false);
   // clear selection
   currentView().setSelectedItems(0, [], true);
 }

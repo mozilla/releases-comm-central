@@ -83,8 +83,7 @@ calCalendarSearchService.prototype = {
   },
 
   // calICalendarSearchService:
-  getProviders: function(out_aCount) {
-    out_aCount.value = this.mProviders.size;
+  getProviders: function() {
     return [...this.mProviders];
   },
   addProvider: function(aProvider) {

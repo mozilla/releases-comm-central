@@ -514,7 +514,7 @@ function calendarListSetupContextMenu(event) {
   }
 
   // Only enable calendar search if there's actually the chance of finding something:
-  let hasProviders = cal.getCalendarSearchService().getProviders({}).length < 1 && "true";
+  let hasProviders = cal.getCalendarSearchService().getProviders().length < 1 && "true";
   setElementValue("list-calendars-context-find", hasProviders, "collapsed");
 }
 

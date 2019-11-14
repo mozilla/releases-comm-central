@@ -558,12 +558,7 @@ agendaListbox.deleteSelectedItem = function(aDoNotConfirm) {
   let listItem = this.agendaListboxControl.selectedItem;
   if (this.isEventListItem(listItem)) {
     let selectedItems = [listItem.occurrence];
-    calendarViewController.deleteOccurrences(
-      selectedItems.length,
-      selectedItems,
-      false,
-      aDoNotConfirm
-    );
+    calendarViewController.deleteOccurrences(selectedItems, false, aDoNotConfirm);
   }
 };
 
