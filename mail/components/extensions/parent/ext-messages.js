@@ -197,7 +197,9 @@ this.messages = class extends ExtensionAPI {
               onItemsRemoved(items, collection) {},
               onQueryCompleted(collection) {
                 resolve(
-                  collection.items.map(glodaMsg => glodaMsg.folderMessage)
+                  collection.items
+                    .map(glodaMsg => glodaMsg.folderMessage)
+                    .filter(Boolean)
                 );
               },
             });

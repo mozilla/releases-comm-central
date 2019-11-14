@@ -1500,8 +1500,13 @@ var messageListTracker = {
       100
     );
     let page = [];
-    for (let i = 0; i < messageCount && messageList.hasMoreElements(); i++) {
-      page.push(messageList.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+    let i = 0;
+    while (i < messageCount && messageList.hasMoreElements()) {
+      let next = messageList.getNext();
+      if (next) {
+        page.push(next.QueryInterface(Ci.nsIMsgDBHdr));
+        i++;
+      }
     }
     return page;
   },
