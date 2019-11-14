@@ -74,8 +74,7 @@ var locales = [localeEn, localeNl];
 var exportLineEnding = "\r\n";
 
 // Shared functions
-function getOutlookCsvFileTypes(aCount) {
-  aCount.value = 1;
+function getOutlookCsvFileTypes() {
   let wildmat = "*.csv";
   let label = cal.l10n.getCalString("filterOutlookCsv", [wildmat]);
   return [
@@ -116,7 +115,7 @@ calOutlookCSVImporter.prototype = {
    * Returns: an array of parsed calendarEvents.
    *   If the parse is cancelled, a zero length array is returned.
    */
-  importFromStream: function(aStream, aCount) {
+  importFromStream: function(aStream) {
     let scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
       Ci.nsIScriptableInputStream
     );
@@ -128,7 +127,6 @@ calOutlookCSVImporter.prototype = {
     let trimResults = trimEndQuotesRegExp.exec(str);
     let header = trimResults && trimResults[1].split(/","/);
     if (header == null) {
-      aCount.value = 0;
       return [];
     }
 
@@ -229,7 +227,6 @@ calOutlookCSVImporter.prototype = {
 
     if (args.titleIndex == 0 || args.startDateIndex == 0) {
       dump("Can't import. Life sucks\n");
-      aCount.value = 0;
       return [];
     }
 
@@ -251,7 +248,6 @@ calOutlookCSVImporter.prototype = {
     let eventFields = eventRegExp.exec(str);
 
     if (eventFields == null) {
-      aCount.value = 0;
       return [];
     }
 
@@ -399,7 +395,6 @@ calOutlookCSVImporter.prototype = {
     } while (eventRegExp.lastIndex != 0);
 
     // return results
-    aCount.value = eventArray.length;
     return eventArray;
   },
 
@@ -456,7 +451,7 @@ calOutlookCSVExporter.prototype = {
 
   getFileTypes: getOutlookCsvFileTypes,
 
-  exportToStream: function(aStream, aCount, aItems) {
+  exportToStream: function(aStream, aItems, aTitle) {
     // Helper functions
     function dateString(aDateTime) {
       return cal.dtz.dateTimeToJsDate(aDateTime).toLocaleString("en-US", localeEn.dateFormat);

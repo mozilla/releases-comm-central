@@ -545,7 +545,7 @@ var gDataMigrator = {
 
     try {
       inputStream.init(icsFile, MODE_RDONLY, parseInt("0444", 8), {});
-      items = icsImporter.importFromStream(inputStream, {});
+      items = icsImporter.importFromStream(inputStream);
     } catch (ex) {
       switch (ex.result) {
         case Ci.calIErrors.INVALID_TIMEZONE:

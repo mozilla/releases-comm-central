@@ -40,7 +40,7 @@ function loadEventsFromFile(aCalendar) {
         cal.WARN("Could not initialize importer: " + contractid + "\nError: " + e);
         continue;
       }
-      let types = importer.getFileTypes({});
+      let types = importer.getFileTypes();
       for (let type of types) {
         picker.appendFilter(type.description, type.extensionFilter);
         if (type.extensionFilter == "*." + picker.defaultExtension) {
@@ -74,7 +74,7 @@ function loadEventsFromFile(aCalendar) {
 
       try {
         inputStream.init(picker.file, MODE_RDONLY, parseInt("0444", 8), {});
-        items = importer.importFromStream(inputStream, {});
+        items = importer.importFromStream(inputStream);
       } catch (ex) {
         exception = ex;
         switch (ex.result) {
@@ -236,7 +236,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
       cal.WARN("Could not initialize exporter: " + contractid + "\nError: " + e);
       continue;
     }
-    let types = exporter.getFileTypes({});
+    let types = exporter.getFileTypes();
     for (let type of types) {
       picker.appendFilter(type.description, type.extensionFilter);
       if (type.extensionFilter == "*." + picker.defaultExtension) {
@@ -264,7 +264,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 
     let filePath = picker.file.path;
     if (!filePath.includes(".")) {
-      filePath += "." + exporter.getFileTypes({})[0].defaultExtension;
+      filePath += "." + exporter.getFileTypes()[0].defaultExtension;
     }
 
     const nsIFile = Ci.nsIFile;
@@ -287,7 +287,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 
       // XXX Do the right thing with unicode and stuff. Or, again, should the
       //     exporter handle that?
-      exporter.exportToStream(outputStream, calendarEventArray.length, calendarEventArray, null);
+      exporter.exportToStream(outputStream, calendarEventArray, null);
       outputStream.close();
     } catch (ex) {
       cal.showError(cal.l10n.getCalString("unableToWrite") + filePath, window);

@@ -23,6 +23,6 @@ calListFormatter.prototype = {
     let htmlexporter = Cc["@mozilla.org/calendar/export;1?type=htmllist"].createInstance(
       Ci.calIExporter
     );
-    htmlexporter.exportToStream(aStream, aCount, aItems, aTitle);
+    htmlexporter.exportToStream(aStream, aItems, aTitle);
   },
 };

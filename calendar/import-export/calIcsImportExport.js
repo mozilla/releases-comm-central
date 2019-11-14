@@ -9,8 +9,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
  */
 
 // Shared functions
-function getIcsFileTypes(aCount) {
-  aCount.value = 1;
+function getIcsFileTypes() {
   return [
     {
       QueryInterface: ChromeUtils.generateQI([Ci.calIFileType]),
@@ -32,10 +31,10 @@ calIcsImporter.prototype = {
 
   getFileTypes: getIcsFileTypes,
 
-  importFromStream: function(aStream, aCount) {
+  importFromStream: function(aStream) {
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseFromStream(aStream, null);
-    return parser.getItems(aCount);
+    return parser.getItems({});
   },
 };
 
@@ -50,7 +49,7 @@ calIcsExporter.prototype = {
 
   getFileTypes: getIcsFileTypes,
 
-  exportToStream: function(aStream, aCount, aItems) {
+  exportToStream: function(aStream, aItems, aTitle) {
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
