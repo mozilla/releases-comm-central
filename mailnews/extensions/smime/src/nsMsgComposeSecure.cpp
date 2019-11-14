@@ -1099,7 +1099,7 @@ NS_IMETHODIMP
 nsMsgComposeSecure::FindCertByEmailAddress(const nsACString &aEmailAddress,
                                            bool aRequireValidCert,
                                            nsIX509Cert **_retval) {
-  nsresult rv = BlockUntilLoadableRootsLoaded();
+  nsresult rv = BlockUntilLoadableCertsLoaded();
   if (NS_FAILED(rv)) {
     return rv;
   }
