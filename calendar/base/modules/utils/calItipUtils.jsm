@@ -326,7 +326,7 @@ var calitip = {
             data.label = cal.l10n.getLtnString("imipBarDisallowedCounterText");
           } else {
             let comparison;
-            for (let item of itipItem.getItemList({})) {
+            for (let item of itipItem.getItemList()) {
               let attendees = cal.itip.getAttendeesBySender(item.getAttendees({}), itipItem.sender);
               if (attendees.length == 1) {
                 comparison = calitip.compareSequence(item, foundItems[0]);
@@ -347,7 +347,7 @@ var calitip = {
           Ci.calIDeletedItems
         );
         let delTime = null;
-        let items = itipItem.getItemList({});
+        let items = itipItem.getItemList();
         if (items && items.length) {
           delTime = delmgr.getDeletedDate(items[0].id);
         }
@@ -378,7 +378,7 @@ var calitip = {
         case "REQUEST:NEEDS-ACTION":
         case "REQUEST": {
           let isRecurringMaster = false;
-          for (let item of itipItem.getItemList({})) {
+          for (let item of itipItem.getItemList()) {
             if (item.recurrenceInfo) {
               isRecurringMaster = true;
             }
@@ -387,7 +387,7 @@ var calitip = {
           if (actionFunc.method == "REQUEST:UPDATE") {
             if (isRecurringMaster) {
               data.label = cal.l10n.getLtnString("imipBarUpdateSeriesText");
-            } else if (itipItem.getItemList({}).length > 1) {
+            } else if (itipItem.getItemList().length > 1) {
               data.label = cal.l10n.getLtnString("imipBarUpdateMultipleText");
             } else {
               data.label = cal.l10n.getLtnString("imipBarUpdateText");
@@ -395,14 +395,14 @@ var calitip = {
           } else if (actionFunc.method == "REQUEST:NEEDS-ACTION") {
             if (isRecurringMaster) {
               data.label = cal.l10n.getLtnString("imipBarProcessedSeriesNeedsAction");
-            } else if (itipItem.getItemList({}).length > 1) {
+            } else if (itipItem.getItemList().length > 1) {
               data.label = cal.l10n.getLtnString("imipBarProcessedMultipleNeedsAction");
             } else {
               data.label = cal.l10n.getLtnString("imipBarProcessedNeedsAction");
             }
           }
 
-          if (itipItem.getItemList({}).length > 1 || isRecurringMaster) {
+          if (itipItem.getItemList().length > 1 || isRecurringMaster) {
             data.showItems.push("imipAcceptRecurrencesButton");
             if (separateButtons) {
               data.showItems.push("imipTentativeRecurrencesButton");
@@ -605,7 +605,7 @@ var calitip = {
       if (aItipItem.receivedMethod == "REQUEST") {
         // try to further limit down the list to those calendars that
         // are configured to a matching attendee;
-        let item = aItipItem.getItemList({})[0];
+        let item = aItipItem.getItemList()[0];
         let matchingCals = calendars.filter(
           calendar => calitip.getInvitedAttendee(item, calendar) != null
         );
@@ -655,7 +655,7 @@ var calitip = {
    */
   cleanupItipItem: function(itipItem) {
     if (itipItem) {
-      let itemList = itipItem.getItemList({});
+      let itemList = itipItem.getItemList();
       if (itemList.length > 0) {
         // Again, we can assume the id is the same over all items per spec
         ItipItemFinderFactory.cleanup(itemList[0].id);
@@ -696,7 +696,7 @@ var calitip = {
       case "REPLY": {
         // Per iTIP spec (new Draft 4), multiple items in an iTIP message MUST have
         // same ID, this simplifies our searching, we can just look for Item[0].id
-        let itemList = itipItem.getItemList({});
+        let itemList = itipItem.getItemList();
         if (!itipItem.targetCalendar) {
           optionsFunc(itipItem, Ci.calIErrors.CAL_IS_READONLY);
         } else if (itemList.length > 0) {
@@ -1713,7 +1713,7 @@ ItipItemFinder.prototype = {
         case "REPLY":
         case "COUNTER":
         case "DECLINECOUNTER":
-          for (let itipItemItem of this.mItipItem.getItemList({})) {
+          for (let itipItemItem of this.mItipItem.getItemList()) {
             for (let item of this.mFoundItems) {
               let rid = itipItemItem.recurrenceId; //  XXX todo support multiple
               if (rid) {
@@ -1909,7 +1909,7 @@ ItipItemFinder.prototype = {
           break;
         case "CANCEL": {
           let modifiedItems = {};
-          for (let itipItemItem of this.mItipItem.getItemList({})) {
+          for (let itipItemItem of this.mItipItem.getItemList()) {
             for (let item of this.mFoundItems) {
               let rid = itipItemItem.recurrenceId; //  XXX todo support multiple
               if (rid) {
@@ -1957,7 +1957,7 @@ ItipItemFinder.prototype = {
       // if an item was added or removed
       this._observeChanges(this.mItipItem.targetCalendar);
 
-      for (let itipItemItem of this.mItipItem.getItemList({})) {
+      for (let itipItemItem of this.mItipItem.getItemList()) {
         switch (method) {
           case "REQUEST":
           case "PUBLISH": {

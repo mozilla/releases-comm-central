@@ -288,7 +288,7 @@ var ltnImipBar = {
     }
 
     let msgOverlay = ltnImipBar.msgOverlay;
-    let diff = cal.itip.compare(ltnImipBar.itipItem.getItemList({})[0], ltnImipBar.foundItems[0]);
+    let diff = cal.itip.compare(ltnImipBar.itipItem.getItemList()[0], ltnImipBar.foundItems[0]);
     // displaying changes is only needed if that is enabled, an item already exists and there are
     // differences
     if (diff != 0 && Services.prefs.getBoolPref("calendar.itip.displayInvitationChanges", false)) {
@@ -356,7 +356,7 @@ var ltnImipBar = {
           onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
             if (Components.isSuccessCode(aStatus) && isDeclineCounter) {
               // TODO: move the DECLINECOUNTER stuff to actionFunc
-              aItipItem.getItemList({}).forEach(aItem => {
+              aItipItem.getItemList().forEach(aItem => {
                 // we can rely on the received itipItem to reply at this stage
                 // already, the checks have been done in cal.itip.processFoundItems
                 // when setting up the respective aActionFunc
@@ -428,7 +428,7 @@ var ltnImipBar = {
         if (aParticipantStatus == "X-RESCHEDULE") {
           // TODO most of the following should be moved to the actionFunc defined in
           // calItipUtils
-          let proposedItem = ltnImipBar.itipItem.getItemList({})[0];
+          let proposedItem = ltnImipBar.itipItem.getItemList()[0];
           let proposedRID = proposedItem.getProperty("RECURRENCE-ID");
           if (proposedRID) {
             // if this is a counterproposal for a specific occurrence, we use
@@ -491,7 +491,7 @@ var ltnImipBar = {
       let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
         Ci.calIDeletedItems
       );
-      let items = ltnImipBar.itipItem.getItemList({});
+      let items = ltnImipBar.itipItem.getItemList();
       if (items && items.length) {
         let delTime = delmgr.getDeletedDate(items[0].id);
         let dialogText = cal.l10n.getLtnString("confirmProcessInvitation");
@@ -504,7 +504,7 @@ var ltnImipBar = {
       if (aParticipantStatus == "X-SAVECOPY") {
         // we create and adopt copies of the respective events
         let saveitems = ltnImipBar.itipItem
-          .getItemList({})
+          .getItemList()
           .map(cal.itip.getPublishLikeItemCopy.bind(cal));
         if (saveitems.length > 0) {
           let methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };

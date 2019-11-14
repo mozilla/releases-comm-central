@@ -179,13 +179,12 @@ calItipItem.prototype = {
 
   /**
    * This returns both the array and the number of items. An easy way to
-   * call it is: let itemArray = itipItem.getItemList({ });
+   * call it is: let itemArray = itipItem.getItemList();
    */
-  getItemList: function(itemCountRef) {
+  getItemList: function() {
     if (!this.mIsInitialized) {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
     }
-    itemCountRef.value = this.mItemList.length;
     return this.mItemList;
   },
 

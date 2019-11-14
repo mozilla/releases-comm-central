@@ -55,7 +55,7 @@ calItipEmailTransport.prototype = {
   },
 
   _prepareItems: function(aItipItem) {
-    let item = aItipItem.getItemList({})[0];
+    let item = aItipItem.getItemList()[0];
 
     // Get ourselves some default text - when we handle organizer properly
     // We'll need a way to configure the Common Name attribute and we should
@@ -322,7 +322,7 @@ calItipEmailTransport.prototype = {
 
   _createTempImipFile: function(aToList, aSubject, aBody, aItipItem, aIdentity, aMessageId) {
     try {
-      let itemList = aItipItem.getItemList({});
+      let itemList = aItipItem.getItemList();
       let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
         Ci.calIIcsSerializer
       );

@@ -22,7 +22,7 @@ ltn.invitation = {
     let header;
 
     if (aItipItem) {
-      let item = aItipItem.getItemList({})[0];
+      let item = aItipItem.getItemList()[0];
       let summary = item.getProperty("SUMMARY") || "";
       let organizer = item.organizer;
       let organizerString = organizer ? organizer.commonName || organizer.toString() : "";

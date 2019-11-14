@@ -2991,7 +2991,7 @@ calDavCalendar.prototype = {
     if (this.hasAutoScheduling || this.hasScheduling) {
       // let's make sure we notify calendar users marked for client-side scheduling by email
       let recipients = [];
-      for (let item of aItipItem.getItemList({})) {
+      for (let item of aItipItem.getItemList()) {
         if (aItipItem.receivedMethod == "REPLY") {
           if (item.organizer.getProperty("SCHEDULE-AGENT") == "CLIENT") {
             recipients.push(item.organizer);
@@ -3019,7 +3019,7 @@ calDavCalendar.prototype = {
     // from here on this code for explicit caldav scheduling
     if (aItipItem.responseMethod == "REPLY") {
       // Get my participation status
-      let attendee = aItipItem.getItemList({})[0].getAttendeeById(this.calendarUserAddress);
+      let attendee = aItipItem.getItemList()[0].getAttendeeById(this.calendarUserAddress);
       if (!attendee) {
         return false;
       }
@@ -3027,7 +3027,7 @@ calDavCalendar.prototype = {
       aItipItem.setAttendeeStatus(attendee.id, attendee.participationStatus);
     }
 
-    for (let item of aItipItem.getItemList({})) {
+    for (let item of aItipItem.getItemList()) {
       let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
         Ci.calIIcsSerializer
       );

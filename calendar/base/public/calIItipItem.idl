@@ -102,8 +102,7 @@ interface calIItipItem : nsISupports
      * @returns An array of calIItemBase items that are inside this
      *          calIItipItem
      */
-    void getItemList(out unsigned long itemCount,
-                     [retval, array, size_is(itemCount)] out calIItemBase items);
+    Array<calIItemBase> getItemList();
 
     /**
      * Modifies the state of the given attendee in the item's ics
