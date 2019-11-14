@@ -70,14 +70,14 @@ var itemConversion = {
     }
 
     // Attendees
-    let attendees = aItem.getAttendees({});
+    let attendees = aItem.getAttendees();
     for (let attendee of attendees) {
       aTarget.addAttendee(attendee.clone());
     }
 
     // Categories
-    let categories = aItem.getCategories({});
-    aTarget.setCategories(categories.length, categories);
+    let categories = aItem.getCategories();
+    aTarget.setCategories(categories);
 
     // Organizer
     aTarget.organizer = aItem.organizer ? aItem.organizer.clone() : null;
@@ -111,7 +111,7 @@ var itemConversion = {
       item.dueDate = aEvent.endDate.clone();
 
       // Alarms
-      for (let alarm of aEvent.getAlarms({})) {
+      for (let alarm of aEvent.getAlarms()) {
         item.addAlarm(alarm.clone());
       }
       item.alarmLastAck = aEvent.alarmLastAck ? aEvent.alarmLastAck.clone() : null;
@@ -162,7 +162,7 @@ var itemConversion = {
     }
 
     // Alarms
-    for (let alarm of aTask.getAlarms({})) {
+    for (let alarm of aTask.getAlarms()) {
       item.addAlarm(alarm.clone());
     }
     item.alarmLastAck = aTask.alarmLastAck ? aTask.alarmLastAck.clone() : null;
@@ -408,7 +408,7 @@ calMailButtonDNDObserver.prototype = {
     if (aItems && aItems.length > 0) {
       let item = aItems[0];
       let identity = item.calendar.getProperty("imip.identity");
-      let parties = item.getAttendees({});
+      let parties = item.getAttendees();
       if (item.organizer) {
         parties.push(item.organizer);
       }

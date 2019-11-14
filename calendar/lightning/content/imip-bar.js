@@ -361,7 +361,7 @@ var ltnImipBar = {
                 // already, the checks have been done in cal.itip.processFoundItems
                 // when setting up the respective aActionFunc
                 let attendees = cal.itip.getAttendeesBySender(
-                  aItem.getAttendees({}),
+                  aItem.getAttendees(),
                   aItipItem.sender
                 );
                 let status = true;
@@ -437,7 +437,7 @@ var ltnImipBar = {
           }
           let parsedProposal = ltn.invitation.parseCounter(proposedItem, item);
           let potentialProposers = cal.itip.getAttendeesBySender(
-            proposedItem.getAttendees({}),
+            proposedItem.getAttendees(),
             ltnImipBar.itipItem.sender
           );
           let proposingAttendee = potentialProposers.length == 1 ? potentialProposers[0] : null;

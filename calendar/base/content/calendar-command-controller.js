@@ -510,7 +510,7 @@ var calendarController = {
           // If we are the organizer and there are attendees, then
           // this is likely also an invitation.
           let calOrgId = item.calendar.getProperty("organizerId");
-          if (item.organizer.id == calOrgId && item.getAttendees({}).length) {
+          if (item.organizer.id == calOrgId && item.getAttendees().length) {
             selected_events_invitation++;
           }
         }
@@ -651,7 +651,7 @@ var calendarController = {
         // If we are the organizer and there are attendees, then
         // this is likely also an invitation.
         let calOrgId = item.calendar.getProperty("organizerId");
-        if (item.organizer.id == calOrgId && item.getAttendees({}).length) {
+        if (item.organizer.id == calOrgId && item.getAttendees().length) {
           selected_tasks_invitation++;
         }
       }

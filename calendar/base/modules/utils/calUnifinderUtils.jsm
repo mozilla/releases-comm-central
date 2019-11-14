@@ -49,7 +49,7 @@ var calunifinder = {
         return aItem.percentComplete;
 
       case "categories":
-        return aItem.getCategories({}).join(", ");
+        return aItem.getCategories().join(", ");
 
       case "location":
         return aItem.getProperty("LOCATION") || "";

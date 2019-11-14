@@ -103,7 +103,7 @@ function test_fromICS() {
   ];
   let event = createEventFromIcalString(ics);
 
-  equal(event.getAttendees({}).length, expected.length, "Check test consistency");
+  equal(event.getAttendees().length, expected.length, "Check test consistency");
   for (let exp of expected) {
     let attendee = event.getAttendeeById(exp.id);
     equal(attendee.commonName, exp.cname, "Test for commonName matching of " + exp.id);

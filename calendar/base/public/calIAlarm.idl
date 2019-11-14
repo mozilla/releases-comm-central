@@ -118,8 +118,7 @@ interface calIAlarm : nsISupports
      void addAttendee(in calIAttendee aAttendee);
      void deleteAttendee(in calIAttendee aAttendee);
      void clearAttendees();
-     void getAttendees(out uint32_t count,
-                       [array,size_is(count),retval] out calIAttendee attendees);
+     Array<calIAttendee> getAttendees();
 
     /**
      * Manage Attachments for this alarm.
@@ -130,8 +129,7 @@ interface calIAlarm : nsISupports
      void addAttachment(in calIAttachment aAttachment);
      void deleteAttachment(in calIAttachment aAttachment);
      void clearAttachments();
-     void getAttachments(out uint32_t count,
-                         [array,size_is(count),retval] out calIAttachment attachments);
+     Array<calIAttachment> getAttachments();
 
     /**
      * The human readable representation of this alarm. Uses locale strings.

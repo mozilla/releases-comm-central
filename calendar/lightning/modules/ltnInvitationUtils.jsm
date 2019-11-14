@@ -37,7 +37,7 @@ ltn.invitation = {
         case "COUNTER":
         // falls through
         case "REPLY": {
-          let attendees = item.getAttendees({});
+          let attendees = item.getAttendees();
           let sender = cal.itip.getAttendeesBySender(attendees, aItipItem.sender);
           if (sender.length == 1) {
             if (aItipItem.responseMethod == "COUNTER") {
@@ -212,7 +212,7 @@ ltn.invitation = {
 
     // ATTACH - we only display URI but no BINARY type attachments here
     let links = [];
-    let attachments = aEvent.getAttachments({});
+    let attachments = aEvent.getAttachments();
     for (let attachment of attachments) {
       if (attachment.uri) {
         links.push(attachment.uri.spec);
@@ -221,7 +221,7 @@ ltn.invitation = {
     field("attachments", links.join("<br>"), true);
 
     // ATTENDEE and ORGANIZER fields
-    let attendees = aEvent.getAttendees({});
+    let attendees = aEvent.getAttendees();
     let attendeeTemplate = doc.getElementById("attendee-template");
     let attendeeTable = doc.getElementById("attendee-table");
     let organizerTable = doc.getElementById("organizer-table");

@@ -11,10 +11,8 @@ function run_test() {
 
 function test_values() {
   function findAttendeesInResults(event, expectedAttendees) {
-    let countObj = {};
     // Getting all attendees
-    let allAttendees = event.getAttendees(countObj);
-    equal(countObj.value, allAttendees.length);
+    let allAttendees = event.getAttendees();
 
     equal(allAttendees.length, expectedAttendees.length);
 
@@ -84,8 +82,8 @@ function test_values() {
 
   // Testing cloning
   let eventClone = event.clone();
-  let clonedatts = eventClone.getAttendees({});
-  let atts = event.getAttendees({});
+  let clonedatts = eventClone.getAttendees();
+  let atts = event.getAttendees();
   equal(atts.length, clonedatts.length);
 
   for (let i = 0; i < clonedatts.length; i++) {
@@ -288,7 +286,7 @@ function test_doubleParameters() {
 
   let event = createEventFromIcalString(ics);
   let organizer = [event.organizer];
-  let attendees = event.getAttendees({});
+  let attendees = event.getAttendees();
 
   testParameters(organizer, expectedOrganizer);
   testParameters(attendees, expectedAttendee);

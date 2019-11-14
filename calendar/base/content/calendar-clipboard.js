@@ -209,7 +209,7 @@ function pasteFromClipboard() {
 
       // we only will need to ask whether to send notifications, if there
       // are attendees at all
-      let withAttendees = items.filter(aItem => aItem.getAttendees({}).length > 0);
+      let withAttendees = items.filter(aItem => aItem.getAttendees().length > 0);
 
       let notify = Ci.calIItipItem.USER;
       let destCal = null;
@@ -295,7 +295,7 @@ function pasteFromClipboard() {
         }
 
         let extResp = { responseMode: Ci.calIItipItem.NONE };
-        if (item.getAttendees({}).length > 0) {
+        if (item.getAttendees().length > 0) {
           extResp.responseMode = notify;
         }
 

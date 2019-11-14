@@ -242,12 +242,12 @@ class CalendarTaskTreeView {
     }
 
     // Alarm status atom.
-    if (item.getAlarms({}).length) {
+    if (item.getAlarms().length) {
       properties.push("alarm");
     }
 
     // Task categories.
-    properties = properties.concat(item.getCategories({}).map(cal.view.formatStringForCSSRule));
+    properties = properties.concat(item.getCategories().map(cal.view.formatStringForCSSRule));
 
     return properties.join(" ");
   }
@@ -311,7 +311,7 @@ class CalendarTaskTreeView {
         return task.percentComplete > 0 ? task.percentComplete + "%" : "";
       case "categories":
         // TODO This is l10n-unfriendly.
-        return task.getCategories({}).join(", ");
+        return task.getCategories().join(", ");
       case "location":
         return task.getProperty("LOCATION");
       case "status":

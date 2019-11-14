@@ -95,22 +95,22 @@ function test_attachment() {
   b.rawData = "bruno";
 
   e.addAttachment(a);
-  equal(e.getAttachments({}).length, 1);
+  equal(e.getAttachments().length, 1);
 
   e.addAttachment(b);
-  equal(e.getAttachments({}).length, 2);
+  equal(e.getAttachments().length, 2);
 
   e.removeAttachment(a);
-  equal(e.getAttachments({}).length, 1);
+  equal(e.getAttachments().length, 1);
 
   e.removeAllAttachments();
-  equal(e.getAttachments({}).length, 0);
+  equal(e.getAttachments().length, 0);
 }
 
 function test_attendee() {
   let e = cal.createEvent();
   equal(e.getAttendeeById("unknown"), null);
-  equal(e.getAttendees({}).length, 0);
+  equal(e.getAttendees().length, 0);
 
   let a = cal.createAttendee();
   a.id = "mailto:horst";
@@ -119,11 +119,11 @@ function test_attendee() {
   b.id = "mailto:bruno";
 
   e.addAttendee(a);
-  equal(e.getAttendees({}).length, 1);
+  equal(e.getAttendees().length, 1);
   equal(e.getAttendeeById("mailto:horst"), a);
 
   e.addAttendee(b);
-  equal(e.getAttendees({}).length, 2);
+  equal(e.getAttendees().length, 2);
 
   let comp = e.icalComponent;
   let aprop = comp.getFirstProperty("ATTENDEE");
@@ -133,23 +133,23 @@ function test_attendee() {
   equal(comp.getNextProperty("ATTENDEE"), null);
 
   e.removeAttendee(a);
-  equal(e.getAttendees({}).length, 1);
+  equal(e.getAttendees().length, 1);
   equal(e.getAttendeeById("mailto:horst"), null);
 
   e.removeAllAttendees();
-  equal(e.getAttendees({}).length, 0);
+  equal(e.getAttendees().length, 0);
 }
 
 function test_categories() {
   let e = cal.createEvent();
 
-  equal(e.getCategories({}).length, 0);
+  equal(e.getCategories().length, 0);
 
   let cat = ["a", "b", "c"];
-  e.setCategories(3, cat);
+  e.setCategories(cat);
 
   cat[0] = "err";
-  equal(e.getCategories({}).join(","), "a,b,c");
+  equal(e.getCategories().join(","), "a,b,c");
 
   let comp = e.icalComponent;
   let getter = comp.getFirstProperty.bind(comp);
@@ -178,13 +178,13 @@ function test_alarm() {
 
   e.addAlarm(alarm2);
 
-  equal(e.getAlarms({}).length, 2);
+  equal(e.getAlarms().length, 2);
   e.deleteAlarm(alarm);
-  equal(e.getAlarms({}).length, 1);
-  equal(e.getAlarms({})[0], alarm2);
+  equal(e.getAlarms().length, 1);
+  equal(e.getAlarms()[0], alarm2);
 
   e.clearAlarms();
-  equal(e.getAlarms({}).length, 0);
+  equal(e.getAlarms().length, 0);
 }
 
 function test_immutable() {
@@ -208,7 +208,7 @@ function test_immutable() {
   event.setProperty("X-NAME", "X-VALUE");
   event.setPropertyParameter("X-NAME", "X-PARAM", "X-PARAMVAL");
 
-  event.setCategories(3, ["a", "b", "c"]);
+  event.setCategories(["a", "b", "c"]);
 
   equal(event.alarmLastAck.timezone.tzid, cal.dtz.UTC.tzid);
 
@@ -231,7 +231,7 @@ function test_immutable() {
     event.parentItem = null;
   }, /Can not modify immutable data container/);
   throws(() => {
-    event.setCategories(3, ["d", "e", "f"]);
+    event.setCategories(["d", "e", "f"]);
   }, /Can not modify immutable data container/);
 
   let event2 = event.clone();

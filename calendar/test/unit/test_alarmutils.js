@@ -17,7 +17,7 @@ add_task(async function test_setDefaultValues_events() {
   Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 60);
   item = cal.createEvent();
   cal.alarms.setDefaultValues(item);
-  alarm = item.getAlarms({})[0];
+  alarm = item.getAlarms()[0];
   ok(alarm);
   equal(alarm.related, alarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
@@ -28,7 +28,7 @@ add_task(async function test_setDefaultValues_events() {
   Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 20);
   item = cal.createEvent();
   cal.alarms.setDefaultValues(item);
-  alarm = item.getAlarms({})[0];
+  alarm = item.getAlarms()[0];
   ok(alarm);
   equal(alarm.related, alarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
@@ -37,7 +37,7 @@ add_task(async function test_setDefaultValues_events() {
   Services.prefs.setIntPref("calendar.alarms.onforevents", 0);
   item = cal.createEvent();
   cal.alarms.setDefaultValues(item);
-  equal(item.getAlarms({}).length, 0);
+  equal(item.getAlarms().length, 0);
 
   let mockCalendar = {
     getProperty: function() {
@@ -51,7 +51,7 @@ add_task(async function test_setDefaultValues_events() {
   item = cal.createEvent();
   item.calendar = mockCalendar;
   cal.alarms.setDefaultValues(item);
-  alarm = item.getAlarms({})[0];
+  alarm = item.getAlarms()[0];
   ok(alarm);
   equal(alarm.related, alarm.ALARM_RELATED_START);
   equal(alarm.action, "SHOUT");
@@ -76,7 +76,7 @@ add_task(async function test_setDefaultValues_tasks() {
   item = cal.createTodo();
   equal(item.entryDate, null);
   cal.alarms.setDefaultValues(item);
-  alarm = item.getAlarms({})[0];
+  alarm = item.getAlarms()[0];
   ok(alarm);
   equal(alarm.related, alarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
@@ -88,7 +88,7 @@ add_task(async function test_setDefaultValues_tasks() {
   Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 20);
   item = cal.createTodo();
   cal.alarms.setDefaultValues(item);
-  alarm = item.getAlarms({})[0];
+  alarm = item.getAlarms()[0];
   ok(alarm);
   equal(alarm.related, alarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
@@ -97,7 +97,7 @@ add_task(async function test_setDefaultValues_tasks() {
   Services.prefs.setIntPref("calendar.alarms.onfortodos", 0);
   item = cal.createTodo();
   cal.alarms.setDefaultValues(item);
-  equal(item.getAlarms({}).length, 0);
+  equal(item.getAlarms().length, 0);
 
   let mockCalendar = {
     getProperty: function() {
@@ -111,7 +111,7 @@ add_task(async function test_setDefaultValues_tasks() {
   item = cal.createTodo();
   item.calendar = mockCalendar;
   cal.alarms.setDefaultValues(item);
-  alarm = item.getAlarms({})[0];
+  alarm = item.getAlarms()[0];
   ok(alarm);
   equal(alarm.related, alarm.ALARM_RELATED_START);
   equal(alarm.action, "SHOUT");

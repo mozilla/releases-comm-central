@@ -63,7 +63,7 @@ function onLoad() {
     setDialogId(document.documentElement, "calendar-task-summary-dialog");
   }
 
-  window.attendees = item.getAttendees({});
+  window.attendees = item.getAttendees();
 
   let calendar = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
   window.readOnly = !(
@@ -75,7 +75,7 @@ function onLoad() {
     let attendee = calendar.getInvitedAttendee(item);
     if (attendee) {
       // if this is an unresponded invitation, preset our default alarm values:
-      if (!item.getAlarms({}).length && attendee.participationStatus == "NEEDS-ACTION") {
+      if (!item.getAlarms().length && attendee.participationStatus == "NEEDS-ACTION") {
         cal.alarms.setDefaultValues(item);
       }
 
@@ -123,7 +123,7 @@ function onLoad() {
     argCalendar.getProperty("capabilities.alarms.oninvitations.supported") !== false;
   if (!window.readOnly && supportsReminders) {
     document.getElementById("reminder-row").removeAttribute("hidden");
-    loadReminders(window.calendarItem.getAlarms({}));
+    loadReminders(window.calendarItem.getAlarms());
     updateReminder();
   }
 
@@ -137,7 +137,7 @@ function onLoad() {
     document.getElementById("item-location").value = location;
   }
 
-  let categories = item.getCategories({});
+  let categories = item.getCategories();
   if (categories.length > 0) {
     document.getElementById("category-row").removeAttribute("hidden");
     document.getElementById("item-category").value = categories.join(", "); // TODO l10n-unfriendly
@@ -208,7 +208,7 @@ function onLoad() {
 
   document.title = item.title;
 
-  let attachments = item.getAttachments({});
+  let attachments = item.getAttachments();
   if (attachments.length) {
     // we only want to display uri type attachments and no ones received inline with the
     // invitation message (having a CID: prefix results in about:blank) here
@@ -510,7 +510,7 @@ function openAttachment(aAttachmentId) {
   let args = window.arguments[0];
   let item = args.calendarEvent;
   let attachments = item
-    .getAttachments({})
+    .getAttachments()
     .filter(aAttachment => aAttachment.hashId == aAttachmentId);
   if (attachments.length && attachments[0].uri && attachments[0].uri.spec != "about:blank") {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]

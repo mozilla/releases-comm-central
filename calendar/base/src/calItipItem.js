@@ -109,7 +109,7 @@ calItipItem.prototype = {
         }
       }
       // never publish an organizer's RECEIVED params:
-      item.getAttendees({}).forEach(att => {
+      item.getAttendees().forEach(att => {
         att.deleteProperty("RECEIVED-SEQUENCE");
         att.deleteProperty("RECEIVED-DTSTAMP");
       });
@@ -121,7 +121,7 @@ calItipItem.prototype = {
         aCalUser.deleteProperty("SCHEDULE-FORCE-SEND");
         aCalUser.deleteProperty("SCHEDULE-STATUS");
       };
-      item.getAttendees({}).forEach(removeSchedulingParams);
+      item.getAttendees().forEach(removeSchedulingParams);
       // we're graceful here as some PUBLISHed events may violate RfC by having no organizer
       if (item.organizer) {
         removeSchedulingParams(item.organizer);

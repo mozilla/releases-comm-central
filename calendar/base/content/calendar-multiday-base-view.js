@@ -908,7 +908,7 @@
         let occs = [];
         if (item.recurrenceInfo) {
           // If selected a parent item, show occurrence(s) in view range.
-          occs = item.getOccurrencesBetween(this.startDate, this.queryEndDate, {}, 0);
+          occs = item.getOccurrencesBetween(this.startDate, this.queryEndDate);
         } else {
           occs = [item];
         }
@@ -1007,7 +1007,7 @@
     getItemOccurrencesInView(item) {
       if (item.recurrenceInfo && item.recurrenceStartDate) {
         // If a parent item is selected, show occurrence(s) in view range.
-        return item.getOccurrencesBetween(this.startDate, this.queryEndDate, {}, 0);
+        return item.getOccurrencesBetween(this.startDate, this.queryEndDate);
       } else if (item.recurrenceStartDate) {
         return [item];
       }

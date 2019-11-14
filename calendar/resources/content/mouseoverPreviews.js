@@ -271,7 +271,7 @@ function getPreviewForEvent(aEvent, aIsTooltip = true) {
       boxAppendLabeledText(vbox, "tooltipStatus", statusString);
     }
 
-    if (event.organizer && event.getAttendees({}).length > 0) {
+    if (event.organizer && event.getAttendees().length > 0) {
       let organizer = event.organizer;
       boxAppendLabeledText(vbox, "tooltipOrganizer", organizer);
     }

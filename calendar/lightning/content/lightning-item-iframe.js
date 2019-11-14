@@ -387,7 +387,7 @@ function onLoad() {
   // clone each existing attendee since we still suffer
   // from the 'lost x-properties'-bug.
   window.attendees = [];
-  let attendees = item.getAttendees({});
+  let attendees = item.getAttendees();
   if (attendees && attendees.length) {
     for (let attendee of attendees) {
       window.attendees.push(attendee.clone());
@@ -397,7 +397,7 @@ function onLoad() {
   window.organizer = null;
   if (item.organizer) {
     window.organizer = item.organizer.clone();
-  } else if (item.getAttendees({}).length > 0) {
+  } else if (item.getAttendees().length > 0) {
     // previous versions of calendar may have filled ORGANIZER correctly on overridden instances:
     let orgId = item.calendar.getProperty("organizerId");
     if (orgId) {
@@ -663,7 +663,7 @@ function loadDialog(aItem) {
   if (gNewItemUI) {
     // XXX more to do here with localization, see loadCategories.
     itemProps.initialCategoriesList = cal.l10n.sortArrayByLocaleCollator(cal.category.fromPrefs());
-    itemProps.initialCategories = aItem.getCategories({});
+    itemProps.initialCategories = aItem.getCategories();
 
     // just to demo capsules component
     itemProps.initialCategories = ["Some", "Demo", "Categories"];
@@ -676,7 +676,7 @@ function loadDialog(aItem) {
     loadCloudProviders();
   }
   let hasAttachments = capSupported("attachments");
-  let attachments = aItem.getAttachments({});
+  let attachments = aItem.getAttachments();
   if (gNewItemUI) {
     itemProps.initialAttachments = {};
   }
@@ -786,7 +786,7 @@ function loadDialog(aItem) {
 
   if (!gNewItemUI) {
     // load reminders details
-    loadReminders(aItem.getAlarms({}));
+    loadReminders(aItem.getAlarms());
 
     // Synchronize link-top-image with keep-duration-button status
     let keepAttribute =
@@ -909,7 +909,7 @@ function changeUndiscloseCheckboxStatus() {
  * @param aItem     The item to load into the category panel
  */
 function loadCategories(aItem) {
-  let itemCategories = aItem.getCategories({});
+  let itemCategories = aItem.getCategories();
   let categoryList = cal.category.fromPrefs();
   for (let cat of itemCategories) {
     if (!categoryList.includes(cat)) {
@@ -1076,7 +1076,7 @@ function saveCategories(aItem) {
     categoryPopup.querySelectorAll("menuitem.calendar-category[checked]"),
     cat => cat.getAttribute("label")
   );
-  aItem.setCategories(categoryList.length, categoryList);
+  aItem.setCategories(categoryList);
 }
 
 /**

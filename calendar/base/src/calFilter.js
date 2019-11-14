@@ -387,7 +387,7 @@ calFilter.prototype = {
       }
     }
 
-    return aItem.getCategories({}).some(cat => cat.toLowerCase().includes(searchText));
+    return aItem.getCategories().some(cat => cat.toLowerCase().includes(searchText));
   },
 
   /**
@@ -443,7 +443,7 @@ calFilter.prototype = {
       } else if (Array.isArray(props.category)) {
         cats = props.category;
       }
-      result = cats.some(cat => aItem.getCategories({}).includes(cat));
+      result = cats.some(cat => aItem.getCategories().includes(cat));
     }
 
     // test the status property. Only applies to tasks.
@@ -852,8 +852,7 @@ calFilter.prototype = {
     } else {
       occs = aItem.getOccurrencesBetween(
         this.mStartDate || cal.createDateTime(),
-        this.mEndDate || cal.dtz.now(),
-        {}
+        this.mEndDate || cal.dtz.now()
       );
       if (props.occurrences == props.FILTER_OCCURRENCES_PAST_AND_NEXT && !this.mEndDate) {
         // we have an unbound date range and the occurrence filter specifies

@@ -298,7 +298,7 @@
       let cssSafeId = cal.view.formatStringForCSSRule(item.calendar.id);
       this.style.setProperty("--item-backcolor", `var(--calendar-${cssSafeId}-backcolor)`);
       this.style.setProperty("--item-forecolor", `var(--calendar-${cssSafeId}-forecolor)`);
-      let categoriesArray = item.getCategories({});
+      let categoriesArray = item.getCategories();
       if (categoriesArray.length > 0) {
         let cssClassesArray = categoriesArray.map(cal.view.formatStringForCSSRule);
         this.setAttribute("categories", cssClassesArray.join(" "));
@@ -307,7 +307,7 @@
       }
 
       // Add alarm icons as needed.
-      let alarms = item.getAlarms({});
+      let alarms = item.getAlarms();
       if (alarms.length && Services.prefs.getBoolPref("calendar.alarms.indicator.show", true)) {
         let iconsBox = this.querySelector(".alarm-icons-box");
         cal.alarms.addReminderImages(iconsBox, alarms);

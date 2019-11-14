@@ -98,13 +98,13 @@ function test_email_alarm() {
   let attendee2 = cal.createAttendee();
   attendee2.id = "mailto:gustav";
 
-  equal(alarm.getAttendees({}).length, 0);
+  equal(alarm.getAttendees().length, 0);
   alarm.addAttendee(attendee1);
-  equal(alarm.getAttendees({}).length, 1);
+  equal(alarm.getAttendees().length, 1);
   alarm.addAttendee(attendee2);
-  equal(alarm.getAttendees({}).length, 2);
+  equal(alarm.getAttendees().length, 2);
   alarm.addAttendee(attendee1);
-  let addedAttendees = alarm.getAttendees({});
+  let addedAttendees = alarm.getAttendees();
   equal(addedAttendees.length, 2);
   equal(addedAttendees[0], attendee2);
   equal(addedAttendees[1], attendee1);
@@ -113,10 +113,10 @@ function test_email_alarm() {
   ok(!!alarm.icalComponent.serializeToICS().match(/mailto:gustav/));
 
   alarm.deleteAttendee(attendee1);
-  equal(alarm.getAttendees({}).length, 1);
+  equal(alarm.getAttendees().length, 1);
 
   alarm.clearAttendees();
-  equal(alarm.getAttendees({}).length, 0);
+  equal(alarm.getAttendees().length, 0);
 
   // Make sure attendees are correctly folded/imported
   alarm.icalString = dedent`
@@ -171,14 +171,14 @@ function test_audio_alarm() {
 
   // Adding an attachment should work
   alarm.addAttachment(sound);
-  let addedAttachments = alarm.getAttachments({});
+  let addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 1);
   equal(addedAttachments[0], sound);
   ok(alarm.icalString.includes("ATTACH:file:///sound.wav"));
 
   // Adding twice shouldn't change anything
   alarm.addAttachment(sound);
-  addedAttachments = alarm.getAttachments({});
+  addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 1);
   equal(addedAttachments[0], sound);
 
@@ -191,13 +191,13 @@ function test_audio_alarm() {
 
   // Deleting should work
   alarm.deleteAttachment(sound);
-  addedAttachments = alarm.getAttachments({});
+  addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 0);
 
   // As well as clearing
   alarm.addAttachment(sound);
   alarm.clearAttachments();
-  addedAttachments = alarm.getAttachments({});
+  addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 0);
 
   // AUDIO alarms should only be allowing one attachment, and folding any with the same value
@@ -237,19 +237,19 @@ function test_custom_alarm() {
   let attendee2 = cal.createAttendee();
   attendee2.id = "mailto:gustav";
 
-  equal(alarm.getAttendees({}).length, 0);
+  equal(alarm.getAttendees().length, 0);
   alarm.addAttendee(attendee1);
-  equal(alarm.getAttendees({}).length, 1);
+  equal(alarm.getAttendees().length, 1);
   alarm.addAttendee(attendee2);
-  equal(alarm.getAttendees({}).length, 2);
+  equal(alarm.getAttendees().length, 2);
   alarm.addAttendee(attendee1);
-  equal(alarm.getAttendees({}).length, 2);
+  equal(alarm.getAttendees().length, 2);
 
   alarm.deleteAttendee(attendee1);
-  equal(alarm.getAttendees({}).length, 1);
+  equal(alarm.getAttendees().length, 1);
 
   alarm.clearAttendees();
-  equal(alarm.getAttendees({}).length, 0);
+  equal(alarm.getAttendees().length, 0);
 
   // Test for attachments
   let attach1 = cal.createAttachment();
@@ -260,17 +260,17 @@ function test_custom_alarm() {
   alarm.addAttachment(attach1);
   alarm.addAttachment(attach2);
 
-  let addedAttachments = alarm.getAttachments({});
+  let addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 2);
   equal(addedAttachments[0], attach1);
   equal(addedAttachments[1], attach2);
 
   alarm.deleteAttachment(attach1);
-  addedAttachments = alarm.getAttachments({});
+  addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 1);
 
   alarm.clearAttachments();
-  addedAttachments = alarm.getAttachments({});
+  addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 0);
 }
 

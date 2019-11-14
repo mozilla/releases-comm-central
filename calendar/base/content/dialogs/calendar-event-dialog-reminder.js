@@ -85,7 +85,7 @@ function onLoad() {
 function loadReminders() {
   let args = window.arguments[0];
   let listbox = document.getElementById("reminder-listbox");
-  let reminders = args.reminders || args.item.getAlarms({});
+  let reminders = args.reminders || args.item.getAlarms();
 
   // This dialog should not be shown if the calendar doesn't support alarms at
   // all, so the case of maxCount = 0 breaking this logic doesn't apply.

@@ -54,7 +54,7 @@ var calprint = {
     itemNode.querySelector(".item-title").textContent = item.title;
 
     // Fill in category details
-    let categoriesArray = item.getCategories({});
+    let categoriesArray = item.getCategories();
     if (categoriesArray.length > 0) {
       let cssClassesArray = categoriesArray.map(cal.view.formatStringForCSSRule);
       let categoriesBox = itemNode.querySelector(".category-color-box");

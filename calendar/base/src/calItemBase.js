@@ -273,7 +273,7 @@ calItemBase.prototype = {
     cloned.mOrganizer = org;
 
     cloned.mAttendees = [];
-    for (let att of this.getAttendees({})) {
+    for (let att of this.getAttendees()) {
       cloned.mAttendees.push(att.clone());
     }
 
@@ -296,19 +296,19 @@ calItemBase.prototype = {
     }
 
     cloned.mAttachments = [];
-    for (let att of this.getAttachments({})) {
+    for (let att of this.getAttachments()) {
       cloned.mAttachments.push(att.clone());
     }
 
     cloned.mRelations = [];
-    for (let rel of this.getRelations({})) {
+    for (let rel of this.getRelations()) {
       cloned.mRelations.push(rel.clone());
     }
 
-    cloned.mCategories = this.getCategories({});
+    cloned.mCategories = this.getCategories();
 
     cloned.mAlarms = [];
-    for (let alarm of this.getAlarms({})) {
+    for (let alarm of this.getAlarms()) {
       // Clone alarms into new item, assume the alarms from the old item
       // are valid and don't need validation.
       cloned.mAlarms.push(alarm.clone());
@@ -483,22 +483,20 @@ calItemBase.prototype = {
 
   // void getAttendees(out PRUint32 count,
   //                   [array,size_is(count),retval] out calIAttendee attendees);
-  getAttendees: function(countObj) {
+  getAttendees: function() {
     if (!this.mAttendees && this.mIsProxy) {
-      this.mAttendees = this.mParentItem.getAttendees(countObj);
+      this.mAttendees = this.mParentItem.getAttendees();
     }
     if (this.mAttendees) {
-      countObj.value = this.mAttendees.length;
       return this.mAttendees.concat([]); // clone
     } else {
-      countObj.value = 0;
       return [];
     }
   },
 
   // calIAttendee getAttendeeById(in AUTF8String id);
   getAttendeeById: function(id) {
-    let attendees = this.getAttendees({});
+    let attendees = this.getAttendees();
     let lowerCaseId = id.toLowerCase();
     for (let attendee of attendees) {
       // This match must be case insensitive to deal with differing
@@ -515,7 +513,7 @@ calItemBase.prototype = {
     this.modify();
     let found = false,
       newAttendees = [];
-    let attendees = this.getAttendees({});
+    let attendees = this.getAttendees();
     let attIdLowerCase = attendee.id.toLowerCase();
 
     for (let i = 0; i < attendees.length; i++) {
@@ -574,22 +572,19 @@ calItemBase.prototype = {
         }
       }
       this.modify();
-      this.mAttendees = this.getAttendees({});
+      this.mAttendees = this.getAttendees();
       this.mAttendees.push(attendee);
     }
   },
 
-  // void getAttachments(out PRUint32 count,
-  //                     [array,size_is(count),retval] out calIAttachment attachments);
-  getAttachments: function(aCount) {
+  // Array<calIAttachment> getAttachments();
+  getAttachments: function() {
     if (!this.mAttachments && this.mIsProxy) {
-      this.mAttachments = this.mParentItem.getAttachments(aCount);
+      this.mAttachments = this.mParentItem.getAttachments();
     }
     if (this.mAttachments) {
-      aCount.value = this.mAttachments.length;
       return this.mAttachments.concat([]); // clone
     } else {
-      aCount.value = 0;
       return [];
     }
   },
@@ -609,7 +604,7 @@ calItemBase.prototype = {
   // void addAttachment(in calIAttachment attachment);
   addAttachment: function(attachment) {
     this.modify();
-    this.mAttachments = this.getAttachments({});
+    this.mAttachments = this.getAttachments();
     if (!this.mAttachments.some(x => x.hashId == attachment.hashId)) {
       this.mAttachments.push(attachment);
     }
@@ -621,17 +616,14 @@ calItemBase.prototype = {
     this.mAttachments = [];
   },
 
-  // void getRelations(out PRUint32 count,
-  //                   [array,size_is(count),retval] out calIRelation relations);
-  getRelations: function(aCount) {
+  // Array<calIRelation> getRelations();
+  getRelations: function() {
     if (!this.mRelations && this.mIsProxy) {
-      this.mRelations = this.mParentItem.getRelations(aCount);
+      this.mRelations = this.mParentItem.getRelations();
     }
     if (this.mRelations) {
-      aCount.value = this.mRelations.length;
       return this.mRelations.concat([]);
     } else {
-      aCount.value = 0;
       return [];
     }
   },
@@ -655,7 +647,7 @@ calItemBase.prototype = {
   // void addRelation(in calIRelation relation);
   addRelation: function(aRelation) {
     this.modify();
-    this.mRelations = this.getRelations({});
+    this.mRelations = this.getRelations();
     this.mRelations.push(aRelation);
     // XXX ensure that the relation isn't already there?
   },
@@ -695,24 +687,20 @@ calItemBase.prototype = {
     this.mOrganizer = organizer;
   },
 
-  // void getCategories(out PRUint32 aCount,
-  //                    [array, size_is(aCount), retval] out wstring aCategories);
-  getCategories: function(aCount) {
+  // Array<AString> getCategories();
+  getCategories: function() {
     if (!this.mCategories && this.mIsProxy) {
-      this.mCategories = this.mParentItem.getCategories(aCount);
+      this.mCategories = this.mParentItem.getCategories();
     }
     if (this.mCategories) {
-      aCount.value = this.mCategories.length;
       return this.mCategories.concat([]); // clone
     } else {
-      aCount.value = 0;
       return [];
     }
   },
 
-  // void setCategories(in PRUint32 aCount,
-  //                    [array, size_is(aCount)] in wstring aCategories);
-  setCategories: function(aCount, aCategories) {
+  // void setCategories(in Array<AString> aCategories);
+  setCategories: function(aCategories) {
     this.modify();
     this.mCategories = aCategories.concat([]);
   },
@@ -968,15 +956,15 @@ calItemBase.prototype = {
       icalcomp.addProperty(org.icalProperty);
     }
 
-    for (let attendee of this.getAttendees({})) {
+    for (let attendee of this.getAttendees()) {
       icalcomp.addProperty(attendee.icalProperty);
     }
 
-    for (let attachment of this.getAttachments({})) {
+    for (let attachment of this.getAttachments()) {
       icalcomp.addProperty(attachment.icalProperty);
     }
 
-    for (let relation of this.getRelations({})) {
+    for (let relation of this.getRelations()) {
       icalcomp.addProperty(relation.icalProperty);
     }
 
@@ -986,7 +974,7 @@ calItemBase.prototype = {
       }
     }
 
-    for (let cat of this.getCategories({})) {
+    for (let cat of this.getCategories()) {
       let catprop = icssvc.createIcalProperty("CATEGORIES");
       catprop.value = cat;
       icalcomp.addProperty(catprop);
@@ -1007,20 +995,14 @@ calItemBase.prototype = {
     }
   },
 
-  // void getAlarms(out PRUint32 count, [array, size_is(count), retval] out calIAlarm aAlarms);
-  getAlarms: function(aCount) {
-    if (typeof aCount != "object") {
-      throw Cr.NS_ERROR_XPC_NEED_OUT_OBJECT;
-    }
-
+  // Array<calIAlarm> getAlarms();
+  getAlarms: function() {
     if (!this.mAlarms && this.mIsProxy) {
-      this.mAlarms = this.mParentItem.getAlarms(aCount);
+      this.mAlarms = this.mParentItem.getAlarms();
     }
     if (this.mAlarms) {
-      aCount.value = this.mAlarms.length;
       return this.mAlarms.concat([]); // clone
     } else {
-      aCount.value = 0;
       return [];
     }
   },
@@ -1044,14 +1026,14 @@ calItemBase.prototype = {
     }
 
     this.modify();
-    this.mAlarms = this.getAlarms({});
+    this.mAlarms = this.getAlarms();
     this.mAlarms.push(aAlarm);
   },
 
   // void deleteAlarm(in calIAlarm aAlarm);
   deleteAlarm: function(aAlarm) {
     this.modify();
-    this.mAlarms = this.getAlarms({});
+    this.mAlarms = this.getAlarms();
     for (let i = 0; i < this.mAlarms.length; i++) {
       if (cal.data.compareObjects(this.mAlarms[i], aAlarm, Ci.calIAlarm)) {
         this.mAlarms.splice(i, 1);
@@ -1066,20 +1048,16 @@ calItemBase.prototype = {
     this.mAlarms = [];
   },
 
-  // void getOccurrencesBetween (in calIDateTime aStartDate, in calIDateTime aEndDate,
-  //                             out PRUint32 aCount,
-  //                             [array,size_is(aCount),retval] out calIItemBase aOccurrences);
-  getOccurrencesBetween: function(aStartDate, aEndDate, aCount) {
+  // Array<calIItemBase> getOccurrencesBetween(in calIDateTime aStartDate, in calIDateTime aEndDate);
+  getOccurrencesBetween: function(aStartDate, aEndDate) {
     if (this.recurrenceInfo) {
-      return this.recurrenceInfo.getOccurrences(aStartDate, aEndDate, 0, aCount);
+      return this.recurrenceInfo.getOccurrences(aStartDate, aEndDate, 0, {});
     }
 
     if (cal.item.checkIfInRange(this, aStartDate, aEndDate)) {
-      aCount.value = 1;
       return [this];
     }
 
-    aCount.value = 0;
     return [];
   },
 };

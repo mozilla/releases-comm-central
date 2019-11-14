@@ -1725,7 +1725,7 @@ calStorageCalendar.prototype = {
           break;
         case "CATEGORIES": {
           let cats = cal.category.stringToArray(row.getResultByName("value"));
-          item.setCategories(cats.length, cats);
+          item.setCategories(cats);
           break;
         }
         default:
@@ -1950,7 +1950,7 @@ calStorageCalendar.prototype = {
               break;
             case "CATEGORIES": {
               let cats = cal.category.stringToArray(row.getResultByName("value"));
-              item.setCategories(cats.length, cats);
+              item.setCategories(cats);
               break;
             }
             default:
@@ -2282,7 +2282,7 @@ calStorageCalendar.prototype = {
   },
 
   prepareAttendees: function(stmts, item, olditem) {
-    let attendees = item.getAttendees({});
+    let attendees = item.getAttendees();
     if (item.organizer) {
       attendees = attendees.concat([]);
       attendees.push(item.organizer);
@@ -2338,7 +2338,7 @@ calStorageCalendar.prototype = {
       this.prepareProperty(stmts, item, name, value);
     }
 
-    let cats = item.getCategories({});
+    let cats = item.getCategories();
     if (cats.length > 0) {
       ret = CAL_ITEM_FLAG.HAS_PROPERTIES;
       this.prepareProperty(stmts, item, "CATEGORIES", cal.category.arrayToString(cats));
@@ -2385,7 +2385,7 @@ calStorageCalendar.prototype = {
   },
 
   prepareAttachments: function(stmts, item, olditem) {
-    let attachments = item.getAttachments({});
+    let attachments = item.getAttachments();
     if (attachments && attachments.length > 0) {
       let array = this.prepareAsyncStatement(stmts, this.mInsertAttachment);
       for (let att of attachments) {
@@ -2402,7 +2402,7 @@ calStorageCalendar.prototype = {
   },
 
   prepareRelations: function(stmts, item, olditem) {
-    let relations = item.getRelations({});
+    let relations = item.getRelations();
     if (relations && relations.length > 0) {
       let array = this.prepareAsyncStatement(stmts, this.mInsertRelation);
       for (let rel of relations) {
@@ -2419,7 +2419,7 @@ calStorageCalendar.prototype = {
   },
 
   prepareAlarms: function(stmts, item, olditem) {
-    let alarms = item.getAlarms({});
+    let alarms = item.getAlarms();
     if (alarms.length < 1) {
       return 0;
     }

@@ -317,7 +317,7 @@
 
     setBusyDaysForItem(aItem, aState) {
       let items = aItem.recurrenceInfo
-        ? aItem.getOccurrencesBetween(this.firstDate, this.lastDate, {})
+        ? aItem.getOccurrencesBetween(this.firstDate, this.lastDate)
         : [aItem];
       items.forEach(item => this.setBusyDaysForOccurrence(item, aState));
     }

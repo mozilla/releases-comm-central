@@ -901,7 +901,7 @@ agendaListbox.calendarObserver.getOccurrencesBetween = function(aItem) {
   let start = this.agendaListbox.getStart();
   let end = this.agendaListbox.getEnd();
   if (start && end) {
-    occs = aItem.getOccurrencesBetween(start, end, {});
+    occs = aItem.getOccurrencesBetween(start, end);
   }
   return occs;
 };

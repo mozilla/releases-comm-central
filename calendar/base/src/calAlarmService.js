@@ -319,7 +319,7 @@ calAlarmService.prototype = {
 
     let showMissed = Services.prefs.getBoolPref("calendar.alarms.showmissed", true);
 
-    let alarms = aItem.getAlarms({});
+    let alarms = aItem.getAlarms();
     for (let alarm of alarms) {
       let alarmDate = cal.alarms.calculateAlarmDate(aItem, alarm);
 
@@ -401,7 +401,7 @@ calAlarmService.prototype = {
     // make sure already fired alarms are purged out of the alarm window:
     this.mObservers.notify("onRemoveAlarmsByItem", [aItem]);
     // Purge alarms specifically for this item (i.e exception)
-    for (let alarm of aItem.getAlarms({})) {
+    for (let alarm of aItem.getAlarms()) {
       this.removeTimer(aItem, alarm);
     }
   },

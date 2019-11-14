@@ -302,7 +302,7 @@ function saveReminder(item) {
   // We want to compare the old alarms with the new ones. If these are not
   // the same, then clear the snooze/dismiss times
   let oldAlarmMap = {};
-  for (let alarm of item.getAlarms({})) {
+  for (let alarm of item.getAlarms()) {
     oldAlarmMap[alarm.icalString] = true;
   }
 
@@ -338,7 +338,7 @@ function saveReminder(item) {
   }
 
   // Compare alarms to see if something changed.
-  for (let alarm of item.getAlarms({})) {
+  for (let alarm of item.getAlarms()) {
     let ics = alarm.icalString;
     if (ics in oldAlarmMap) {
       // The new alarm is also in the old set, remember this
@@ -709,7 +709,7 @@ function adaptScheduleAgent(aItem) {
       // for attendees, we change schedule-agent only in case of an
       // organizer triggered action
       if (organizerAction) {
-        aItem.getAttendees({}).forEach(aAttendee => {
+        aItem.getAttendees().forEach(aAttendee => {
           // overwriting must always happen consistently for all
           // attendees regarding SERVER or CLIENT but must not override
           // e.g. NONE, so we only overwrite if the param is set to
@@ -735,7 +735,7 @@ function adaptScheduleAgent(aItem) {
         aItem.organizer.deleteProperty("SCHEDULE-FORCE-SEND");
       }
     } else if (organizerAction) {
-      aItem.getAttendees({}).forEach(aAttendee => {
+      aItem.getAttendees().forEach(aAttendee => {
         if (aAttendee.getProperty("SCHEDULE-AGENT") == "CLIENT") {
           aAttendee.deleteProperty("SCHEDULE-AGENT");
         }

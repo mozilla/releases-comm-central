@@ -113,10 +113,9 @@ interface calIItemBase : nsISupports
   /**
    * Get all alarms assigned to this item
    *
-   * @param count       The number of alarms
    * @param aAlarms     The array of calIAlarms
    */
-  void getAlarms(out uint32_t count, [array, size_is(count), retval] out calIAlarm aAlarms);
+  Array<calIAlarm> getAlarms();
 
    /**
    * Add an alarm to the item
@@ -260,8 +259,7 @@ interface calIItemBase : nsISupports
 
   // The array returned here is not live; it will not reflect calls to
   // removeAttendee/addAttendee that follow the call to getAttendees.
-  void getAttendees(out uint32_t count,
-                    [array,size_is(count),retval] out calIAttendee attendees);
+  Array<calIAttendee> getAttendees();
 
   /**
    * getAttendeeById's matching is done in a case-insensitive manner to handle
@@ -276,8 +274,7 @@ interface calIItemBase : nsISupports
   //
   // Attachments
   //
-  void getAttachments(out uint32_t count,
-                      [array,size_is(count),retval] out calIAttachment attachments);
+  Array<calIAttachment> getAttachments();
   void addAttachment(in calIAttachment attachment);
   void removeAttachment(in calIAttachment attachment);
   void removeAllAttachments();
@@ -289,14 +286,12 @@ interface calIItemBase : nsISupports
   /**
    * Gets the array of categories this item belongs to.
    */
-  void getCategories(out uint32_t aCount,
-                     [array, size_is(aCount), retval] out wstring aCategories);
+  Array<AString> getCategories();
 
   /**
    * Sets the array of categories this item belongs to.
    */
-  void setCategories(in uint32_t aCount,
-                     [array, size_is(aCount)] in wstring aCategories);
+  void setCategories(in Array<AString> aCategories);
 
   //
   // Relations
@@ -306,8 +301,7 @@ interface calIItemBase : nsISupports
    * This gives back every relation where the item is neither the owner of the
    * relation nor the referred relation
    */
-  void getRelations(out uint32_t count,
-                    [array,size_is(count),retval] out calIRelation relations);
+  Array<calIRelation> getRelations();
 
   /**
    * Adds a relation to the item
@@ -331,9 +325,7 @@ interface calIItemBase : nsISupports
    * Return a list of occurrences of this item between the given dates.  The items
    * returned are the same type as this one, as proxies.
    */
-  void getOccurrencesBetween (in calIDateTime aStartDate, in calIDateTime aEndDate,
-                              out uint32_t aCount,
-                              [array,size_is(aCount),retval] out calIItemBase aOccurrences);
+  Array<calIItemBase> getOccurrencesBetween(in calIDateTime aStartDate, in calIDateTime aEndDate);
 
   /**
    * If this item is a proxy or overridden item, parentItem will point upwards

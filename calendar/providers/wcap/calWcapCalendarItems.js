@@ -144,7 +144,7 @@ calWcapCalendar.prototype.encodeRecurrenceParams = function(item, oldItem, exclu
 calWcapCalendar.prototype.getAlarmParams = function(item) {
   let params = null;
   // xxx TODO ALARMSUPPORT check if WCAP supports multiple alarms
-  let alarms = item.getAlarms({}).filter(x => x.action == "EMAIL");
+  let alarms = item.getAlarms().filter(x => x.action == "EMAIL");
   let alarm = alarms.length > 0 && alarms[0];
 
   if (alarm) {
@@ -210,7 +210,7 @@ calWcapCalendar.prototype.isInvitation = function(item) {
 };
 
 calWcapCalendar.prototype.getInvitedAttendee = function(item) {
-  let att = getAttendeeByCalId(item.getAttendees({}), this.calId);
+  let att = getAttendeeByCalId(item.getAttendees(), this.calId);
   if (!att) {
     // try to find mail address
     let prefMail = this.session.getUserPreferences("X-NSCP-WCAP-PREF-mail");
@@ -236,7 +236,7 @@ calWcapCalendar.prototype.canNotify = function(method, item) {
         getCalId(item.organizer) == calId
       );
     case "REPLY": // only if we we're invited from cs, and find matching X-S1CS-CALID:
-      return getAttendeeByCalId(item.getAttendees({}), calId) != null;
+      return getAttendeeByCalId(item.getAttendees(), calId) != null;
     default:
       return false;
   }
@@ -343,12 +343,12 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
   if (!bAddItem && this.isInvitation(item)) {
     // REPLY
     method = METHOD_REPLY;
-    let att = getAttendeeByCalId(item.getAttendees({}), calId);
+    let att = getAttendeeByCalId(item.getAttendees(), calId);
     if (att) {
       log("attendee: " + att.icalProperty.icalString, this);
       let oldAtt = null;
       if (oldItem) {
-        oldAtt = getAttendeeByCalId(oldItem.getAttendees({}), calId);
+        oldAtt = getAttendeeByCalId(oldItem.getAttendees(), calId);
       }
       if (!oldAtt || att.participationStatus != oldAtt.participationStatus) {
         // REPLY first for just this calendar:
@@ -393,7 +393,7 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
       dtend = item.dueDate;
 
       // cs bug: enforce DUE (set to DTSTART) if alarm is set
-      if (!dtend && item.getAlarms({}).length) {
+      if (!dtend && item.getAlarms().length) {
         dtend = dtstart;
       }
 
@@ -429,11 +429,11 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
       } // else outbound
     }
 
-    let attendees = item.getAttendees({});
+    let attendees = item.getAttendees();
     if (attendees.length > 0) {
       // xxx todo: why ever, X-S1CS-EMAIL is unsupported though documented for calprops... WTF.
       let attParam = encodeAttendees(attendees);
-      if (!oldItem || attParam != encodeAttendees(oldItem.getAttendees({}))) {
+      if (!oldItem || attParam != encodeAttendees(oldItem.getAttendees())) {
         params += "&attendees=" + attParam;
       }
 
@@ -443,7 +443,7 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
         method = METHOD_UPDATE;
         bNoSmtpNotify = true;
       }
-    } else if (oldItem && oldItem.getAttendees({}).length > 0) {
+    } else if (oldItem && oldItem.getAttendees().length > 0) {
       // else using just PUBLISH
       params += "&attendees="; // clear attendees
     }
@@ -465,9 +465,9 @@ calWcapCalendar.prototype.storeItem = function(bAddItem, item, oldItem, request)
       params += "&summary=" + encodeURIComponent(val);
     }
 
-    let categories = item.getCategories({});
+    let categories = item.getCategories();
     let catParam = encodeCategories(categories);
-    if (!oldItem || catParam != encodeCategories(oldItem.getCategories({}))) {
+    if (!oldItem || catParam != encodeCategories(oldItem.getCategories())) {
       params += "&categories=" + catParam;
     }
 
@@ -647,7 +647,7 @@ calWcapCalendar.prototype.tunnelXProps = function(destItem, srcItem) {
   }
   // tunnel alarm X-MOZ-SNOOZE only if alarm is still set:
   // TODO ALARMSUPPORT still needed when showing alarms as EMAIL for wcap?
-  let hasAlarms = destItem.getAlarms({}).length;
+  let hasAlarms = destItem.getAlarms().length;
   for (let [name, value] of srcItem.properties) {
     try {
       if (name.startsWith("X-MOZ-")) {

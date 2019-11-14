@@ -376,7 +376,7 @@ calOutlookCSVImporter.prototype = {
           txt = this.parseTextField(eventFields[args.categoriesIndex]);
           if (txt) {
             let categories = cal.category.stringToArray(txt);
-            event.setCategories(categories.length, categories);
+            event.setCategories(categories);
           }
         }
         if ("locationIndex" in args) {
@@ -498,14 +498,14 @@ calOutlookCSVExporter.prototype = {
       line.push(timeString(item.endDate));
       line.push(item.startDate.isDate ? localeEn.valueTrue : localeEn.valueFalse);
       let alarmDate;
-      let alarms = item.getAlarms({});
+      let alarms = item.getAlarms();
       if (alarms.length) {
         alarmDate = cal.alarms.calculateAlarmDate(item, alarms[0]);
       }
       line.push(alarmDate ? localeEn.valueTrue : localeEn.valueFalse);
       line.push(alarmDate ? dateString(alarmDate) : "");
       line.push(alarmDate ? timeString(alarmDate) : "");
-      line.push(txtString(cal.category.arrayToString(item.getCategories({})))); // xxx todo: what's the correct way to encode ',' in csv?, how are multi-values expressed?
+      line.push(txtString(cal.category.arrayToString(item.getCategories()))); // xxx todo: what's the correct way to encode ',' in csv?, how are multi-values expressed?
       line.push(txtString(item.getProperty("DESCRIPTION")));
       line.push(txtString(item.getProperty("LOCATION")));
       line.push(item.privacy == "PRIVATE" ? localeEn.valueTrue : localeEn.valueFalse);

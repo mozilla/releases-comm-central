@@ -31,9 +31,9 @@ add_task(async () => {
   );
 
   // There should be one alarm, one relation and one attachment
-  equal(item.getAlarms({}).length, 1);
-  equal(item.getRelations({}).length, 1);
-  equal(item.getAttachments({}).length, 1);
+  equal(item.getAlarms().length, 1);
+  equal(item.getRelations().length, 1);
+  equal(item.getAttachments().length, 1);
 
   // Change the occurrence to another day
   let occ = item.recurrenceInfo.getOccurrenceFor(cal.createDateTime("20090604T073000Z"));
@@ -42,9 +42,9 @@ add_task(async () => {
   item.recurrenceInfo.modifyException(occ, true);
 
   // There should still be one alarm, one relation and one attachment
-  equal(item.getAlarms({}).length, 1);
-  equal(item.getRelations({}).length, 1);
-  equal(item.getAttachments({}).length, 1);
+  equal(item.getAlarms().length, 1);
+  equal(item.getRelations().length, 1);
+  equal(item.getAttachments().length, 1);
 
   // Add the item to the storage calendar and retrieve it again
   await new Promise(resolve => {
@@ -63,7 +63,7 @@ add_task(async () => {
   });
 
   // There should still be one alarm, one relation and one attachment
-  equal(retrievedItem.getAlarms({}).length, 1);
-  equal(retrievedItem.getRelations({}).length, 1);
-  equal(retrievedItem.getAttachments({}).length, 1);
+  equal(retrievedItem.getAlarms().length, 1);
+  equal(retrievedItem.getRelations().length, 1);
+  equal(retrievedItem.getAttachments().length, 1);
 });

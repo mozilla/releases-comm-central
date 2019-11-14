@@ -251,14 +251,13 @@ calAlarm.prototype = {
     return alarmDate;
   },
 
-  getAttendees: function(aCount) {
+  getAttendees: function() {
     let attendees;
     if (this.action == "AUDIO" || this.action == "DISPLAY") {
       attendees = [];
     } else {
       attendees = this.mAttendees.concat([]);
     }
-    aCount.value = attendees.length;
     return attendees;
   },
 
@@ -289,7 +288,7 @@ calAlarm.prototype = {
     this.mAttendees = [];
   },
 
-  getAttachments: function(aCount) {
+  getAttachments: function() {
     let attachments;
     if (this.action == "AUDIO") {
       attachments = this.mAttachments.length ? [this.mAttachments[0]] : [];
@@ -298,7 +297,6 @@ calAlarm.prototype = {
     } else {
       attachments = this.mAttachments.concat([]);
     }
-    aCount.value = attachments.length;
     return attachments;
   },
 
@@ -396,10 +394,10 @@ calAlarm.prototype = {
 
     // Set up attendees (REQUIRED for EMAIL action)
     /* TODO should we be strict here?
-        if (this.action == "EMAIL" && !this.getAttendees({}).length) {
+        if (this.action == "EMAIL" && !this.getAttendees().length) {
             throw Cr.NS_ERROR_NOT_INITIALIZED;
         } */
-    for (let attendee of this.getAttendees({})) {
+    for (let attendee of this.getAttendees()) {
       comp.addProperty(attendee.icalProperty);
     }
 
@@ -408,7 +406,7 @@ calAlarm.prototype = {
             throw Cr.NS_ERROR_NOT_INITIALIZED;
         } */
 
-    for (let attachment of this.getAttachments({})) {
+    for (let attachment of this.getAttachments()) {
       comp.addProperty(attachment.icalProperty);
     }
 

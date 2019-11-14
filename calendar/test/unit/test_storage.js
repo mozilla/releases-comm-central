@@ -45,7 +45,7 @@ add_task(async () => {
         equal(item.startDate.compare(cal.createDateTime("20120101T010101Z")), 0);
 
         // Check attachment
-        let attaches = item.getAttachments({});
+        let attaches = item.getAttachments();
         let attach = attaches[0];
         equal(attaches.length, 1);
         equal(attach.uri.spec, "http://example.com/test.ics");
@@ -54,7 +54,7 @@ add_task(async () => {
         equal(attach.getParameter("FILENAME"), "test.ics");
 
         // Check attendee
-        let attendees = item.getAttendees({});
+        let attendees = item.getAttendees();
         let attendee = attendees[0];
         equal(attendees.length, 1);
         equal(attendee.id, "mailto:test@example.com");
@@ -67,7 +67,7 @@ add_task(async () => {
         equal(attendee.getProperty("X-THING"), "BAR");
 
         // Check relation
-        let relations = item.getRelations({});
+        let relations = item.getRelations();
         let rel = relations[0];
         equal(relations.length, 1);
         equal(rel.relType, "SIBLING");

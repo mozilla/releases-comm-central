@@ -123,7 +123,7 @@ var taskDetailsView = {
           }
         }
       }
-      let categories = item.getCategories({});
+      let categories = item.getCategories();
       if (
         !document
           .getElementById("calendar-task-details-category-row")
@@ -174,7 +174,7 @@ var taskDetailsView = {
       textbox.readOnly = true;
       let attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
       removeChildren(attachmentRows);
-      let attachments = item.getAttachments({});
+      let attachments = item.getAttachments();
       if (displayElement("calendar-task-details-attachment-row", attachments.length > 0)) {
         displayElement("calendar-task-details-attachment-rows", true);
         for (let attachment of attachments) {
@@ -196,7 +196,7 @@ var taskDetailsView = {
     let categoryPopup = document.getElementById("task-actions-category-popup");
     let item = document.getElementById("calendar-task-tree").currentTask;
 
-    let itemCategories = item.getCategories({});
+    let itemCategories = item.getCategories();
     let categoryList = cal.category.fromPrefs();
     for (let cat of itemCategories) {
       if (!categoryList.includes(cat)) {
@@ -237,7 +237,7 @@ var taskDetailsView = {
     let categoryPopup = document.getElementById("task-actions-category-popup");
     let item = document.getElementById("calendar-task-tree").currentTask;
 
-    let oldCategories = item.getCategories({});
+    let oldCategories = item.getCategories();
     let categories = Array.from(
       categoryPopup.querySelectorAll("menuitem.calendar-category[checked]"),
       menuitem => menuitem.value
@@ -249,7 +249,7 @@ var taskDetailsView = {
 
     if (!unchanged) {
       let newItem = item.clone();
-      newItem.setCategories(categories.length, categories);
+      newItem.setCategories(categories);
       doTransaction("modify", newItem, newItem.calendar, item, null);
       return false;
     }
@@ -337,7 +337,7 @@ var taskDetailsView = {
 
       let item = document.getElementById("calendar-task-tree").currentTask;
       let newItem = item.clone();
-      newItem.setCategories(categories.length, categories);
+      newItem.setCategories(categories);
       doTransaction("modify", newItem, newItem.calendar, item, null);
     }
 

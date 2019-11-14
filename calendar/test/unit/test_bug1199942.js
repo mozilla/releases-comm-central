@@ -56,7 +56,7 @@ function serializeEvent_test() {
     "urn:uuid:user5",
   ];
   let event = createEventFromIcalString(ics);
-  let attendees = event.getAttendees({});
+  let attendees = event.getAttendees();
 
   // check whether all attendees get returned with expected id
   for (let attendee of attendees) {

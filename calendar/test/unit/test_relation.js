@@ -43,9 +43,7 @@ function run_test() {
 }
 
 function checkRelations(event, expRel) {
-  let countObj = {};
-  let allRel = event.getRelations(countObj);
-  equal(countObj.value, allRel.length);
+  let allRel = event.getRelations();
   equal(allRel.length, expRel.length);
 
   // check if all expacted relations are found
@@ -60,7 +58,7 @@ function checkRelations(event, expRel) {
 }
 
 function modifyRelations(event, oldRel) {
-  let allRel = event.getRelations({});
+  let allRel = event.getRelations();
   let rel = allRel[0];
 
   // modify the properties
@@ -70,12 +68,12 @@ function modifyRelations(event, oldRel) {
 
   // remove one relation
   event.removeRelation(rel);
-  equal(event.getRelations({}).length, oldRel.length - 1);
+  equal(event.getRelations().length, oldRel.length - 1);
 
   // add one relation and remove all relations
   event.addRelation(oldRel[0]);
   event.removeAllRelations();
-  equal(event.getRelations({}), 0);
+  equal(event.getRelations(), 0);
 }
 
 function test_icalprop() {

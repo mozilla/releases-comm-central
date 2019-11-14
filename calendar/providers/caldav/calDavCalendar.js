@@ -2875,7 +2875,7 @@ calDavCalendar.prototype = {
       }
       let newItem = itemToUpdate.clone();
 
-      for (let attendee of aItem.getAttendees({})) {
+      for (let attendee of aItem.getAttendees()) {
         let att = newItem.getAttendeeById(attendee.id);
         if (att) {
           newItem.removeAttendee(att);
@@ -2997,7 +2997,7 @@ calDavCalendar.prototype = {
             recipients.push(item.organizer);
           }
         } else {
-          let atts = item.getAttendees({}).filter(att => {
+          let atts = item.getAttendees().filter(att => {
             return att.getProperty("SCHEDULE-AGENT") == "CLIENT";
           });
           for (let att of atts) {

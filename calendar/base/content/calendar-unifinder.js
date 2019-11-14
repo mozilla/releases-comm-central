@@ -148,7 +148,7 @@ var unifinderObserver = {
     let filter = unifinderTreeView.mFilter;
 
     if (filter.startDate && filter.endDate) {
-      items = aItem.getOccurrencesBetween(filter.startDate, filter.endDate, {});
+      items = aItem.getOccurrencesBetween(filter.startDate, filter.endDate);
     } else {
       items = [aItem];
     }
@@ -166,7 +166,7 @@ var unifinderObserver = {
     let items;
     let filter = unifinderTreeView.mFilter;
     if (filter.startDate && filter.endDate && aItem.parentItem == aItem) {
-      items = aItem.getOccurrencesBetween(filter.startDate, filter.endDate, {});
+      items = aItem.getOccurrencesBetween(filter.startDate, filter.endDate);
     } else {
       items = [aItem];
     }
@@ -722,12 +722,12 @@ var unifinderTreeView = {
     }
 
     // Alarm status atom
-    if (item.getAlarms({}).length) {
+    if (item.getAlarms().length) {
       properties.push("alarm");
     }
 
     // Task categories
-    properties = properties.concat(item.getCategories({}).map(cal.view.formatStringForCSSRule));
+    properties = properties.concat(item.getCategories().map(cal.view.formatStringForCSSRule));
 
     return properties.join(" ");
   },
@@ -798,7 +798,7 @@ var unifinderTreeView = {
         return formatUnifinderEventDateTime(eventEndDate);
       }
       case "categories": {
-        return calendarEvent.getCategories({}).join(", ");
+        return calendarEvent.getCategories().join(", ");
       }
       case "location": {
         return calendarEvent.getProperty("LOCATION");

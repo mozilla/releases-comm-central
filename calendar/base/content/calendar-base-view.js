@@ -53,11 +53,7 @@
         }
       }
 
-      const occs = item.getOccurrencesBetween(
-        this.calView.startDate,
-        this.calView.queryEndDate,
-        {}
-      );
+      const occs = item.getOccurrencesBetween(this.calView.startDate, this.calView.queryEndDate);
       for (const occ of occs) {
         if (cal.item.isToDo(occ)) {
           this.calView.doAddItem(occ.QueryInterface(Ci.calITodo));
@@ -72,11 +68,7 @@
         return;
       }
       if (!cal.item.isToDo(oldItem) || oldItem.entryDate || oldItem.dueDate) {
-        let occs = oldItem.getOccurrencesBetween(
-          this.calView.startDate,
-          this.calView.queryEndDate,
-          {}
-        );
+        let occs = oldItem.getOccurrencesBetween(this.calView.startDate, this.calView.queryEndDate);
         for (const occ of occs) {
           if (cal.item.isToDo(occ)) {
             this.calView.doDeleteItem(occ.QueryInterface(Ci.calITodo));
@@ -94,11 +86,7 @@
         }
       }
 
-      let occs = newItem.getOccurrencesBetween(
-        this.calView.startDate,
-        this.calView.queryEndDate,
-        {}
-      );
+      let occs = newItem.getOccurrencesBetween(this.calView.startDate, this.calView.queryEndDate);
       for (const occ of occs) {
         if (cal.item.isToDo(occ)) {
           this.calView.doAddItem(occ.QueryInterface(Ci.calITodo));
@@ -121,11 +109,7 @@
         }
       }
 
-      const occs = item.getOccurrencesBetween(
-        this.calView.startDate,
-        this.calView.queryEndDate,
-        {}
-      );
+      const occs = item.getOccurrencesBetween(this.calView.startDate, this.calView.queryEndDate);
       for (const occ of occs) {
         if (cal.item.isToDo(occ)) {
           this.calView.doDeleteItem(occ.QueryInterface(Ci.calITodo));

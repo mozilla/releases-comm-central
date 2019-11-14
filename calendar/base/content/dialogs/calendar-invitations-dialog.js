@@ -295,7 +295,7 @@ function fillJobQueue(queue) {
 
       // set default alarm on unresponded items that have not been declined:
       if (
-        !newCalendarItem.getAlarms({}).length &&
+        !newCalendarItem.getAlarms().length &&
         oldStatus == "NEEDS-ACTION" &&
         newStatus != "DECLINED"
       ) {

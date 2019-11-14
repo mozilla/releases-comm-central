@@ -327,7 +327,7 @@ var calitip = {
           } else {
             let comparison;
             for (let item of itipItem.getItemList()) {
-              let attendees = cal.itip.getAttendeesBySender(item.getAttendees({}), itipItem.sender);
+              let attendees = cal.itip.getAttendeesBySender(item.getAttendees(), itipItem.sender);
               if (attendees.length == 1) {
                 comparison = calitip.compareSequence(item, foundItems[0]);
                 if (comparison == 1) {
@@ -799,8 +799,8 @@ var calitip = {
           );
       }
     } else if (
-      (aOriginalItem && aOriginalItem.getAttendees({}).length) ||
-      aItem.getAttendees({}).length
+      (aOriginalItem && aOriginalItem.getAttendees().length) ||
+      aItem.getAttendees().length
     ) {
       // let's log something useful to notify addon developers or find any
       // missing pieces in the conversions if the current or original item
@@ -903,7 +903,7 @@ var calitip = {
     }
 
     // special handling for invitation with event status cancelled
-    if (aItem.getAttendees({}).length > 0 && aItem.getProperty("STATUS") == "CANCELLED") {
+    if (aItem.getAttendees().length > 0 && aItem.getProperty("STATUS") == "CANCELLED") {
       if (calitip.getSequence(aItem) > 0) {
         // make sure we send a cancellation and not an request
         aOpType = Ci.calIOperationListener.DELETE;
@@ -914,12 +914,12 @@ var calitip = {
     }
 
     if (aOpType == Ci.calIOperationListener.DELETE) {
-      sendMessage(aItem, "CANCEL", aItem.getAttendees({}), autoResponse);
+      sendMessage(aItem, "CANCEL", aItem.getAttendees(), autoResponse);
       return;
     } // else ADD, MODIFY:
 
-    let originalAtt = aOriginalItem ? aOriginalItem.getAttendees({}) : [];
-    let itemAtt = aItem.getAttendees({});
+    let originalAtt = aOriginalItem ? aOriginalItem.getAttendees() : [];
+    let itemAtt = aItem.getAttendees();
     let canceledAttendees = [];
     let addedAttendees = [];
 
@@ -967,7 +967,7 @@ var calitip = {
 
         // Fix up our attendees for invitations using some good defaults
         let recipients = [];
-        let reqItemAtt = requestItem.getAttendees({});
+        let reqItemAtt = requestItem.getAttendees();
         if (!isMinorUpdate) {
           requestItem.removeAllAttendees();
         }
@@ -1312,7 +1312,7 @@ function stripUserData(item_) {
   let lastModified = item.lastModifiedTime;
   item.clearAlarms();
   item.alarmLastAck = null;
-  item.setCategories(0, []);
+  item.setCategories([]);
   item.deleteProperty("RECEIVED-SEQUENCE");
   item.deleteProperty("RECEIVED-DTSTAMP");
   for (let [name] of item.properties) {
@@ -1321,7 +1321,7 @@ function stripUserData(item_) {
       item.deleteProperty(name);
     }
   }
-  item.getAttendees({}).forEach(att => {
+  item.getAttendees().forEach(att => {
     att.deleteProperty("RECEIVED-SEQUENCE");
     att.deleteProperty("RECEIVED-DTSTAMP");
   });
@@ -1333,7 +1333,7 @@ function stripUserData(item_) {
     aCalUser.deleteProperty("SCHEDULE-FORCE-SEND");
     aCalUser.deleteProperty("SCHEDULE-STATUS");
   };
-  item.getAttendees({}).forEach(removeSchedulingParams);
+  item.getAttendees().forEach(removeSchedulingParams);
   if (item.organizer) {
     removeSchedulingParams(item.organizer);
   }
@@ -1361,12 +1361,12 @@ function updateItem(item, itipItemItem) {
     // preserve user settings:
     newItem.generation = oldItem.generation;
     newItem.clearAlarms();
-    for (let alarm of oldItem.getAlarms({})) {
+    for (let alarm of oldItem.getAlarms()) {
       newItem.addAlarm(alarm);
     }
     newItem.alarmLastAck = oldItem.alarmLastAck;
-    let cats = oldItem.getCategories({});
-    newItem.setCategories(cats.length, cats);
+    let cats = oldItem.getCategories();
+    newItem.setCategories(cats);
   }
 
   let newItem = item.clone();
@@ -1732,7 +1732,7 @@ ItipItemFinder.prototype = {
               switch (method) {
                 case "REFRESH": {
                   // xxx todo test
-                  let attendees = itipItemItem.getAttendees({});
+                  let attendees = itipItemItem.getAttendees();
                   cal.ASSERT(attendees.length == 1, "invalid number of attendees in REFRESH!");
                   if (attendees.length > 0) {
                     let action = function(opListener, partStat, extResponse) {
@@ -1756,7 +1756,7 @@ ItipItemFinder.prototype = {
                 }
                 case "PUBLISH":
                   cal.ASSERT(
-                    itipItemItem.getAttendees({}).length == 0,
+                    itipItemItem.getAttendees().length == 0,
                     "invalid number of attendees in PUBLISH!"
                   );
                   if (
@@ -1847,7 +1847,7 @@ ItipItemFinder.prototype = {
                   break;
                 case "COUNTER":
                 case "REPLY": {
-                  let attendees = itipItemItem.getAttendees({});
+                  let attendees = itipItemItem.getAttendees();
                   if (method == "REPLY") {
                     cal.ASSERT(attendees.length == 1, "invalid number of attendees in REPLY!");
                   } else {
@@ -1987,7 +1987,7 @@ ItipItemFinder.prototype = {
                 }
               } else {
                 cal.ASSERT(
-                  itipItemItem.getAttendees({}).length == 0,
+                  itipItemItem.getAttendees().length == 0,
                   "invalid number of attendees in PUBLISH!"
                 );
                 cal.alarms.setDefaultValues(newItem);
