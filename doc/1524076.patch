@@ -1,0 +1,35 @@
+From 9a1b20ee28c9604ab4e93390ea5dfa32b7b8b5d2 Mon Sep 17 00:00:00 2001
+From: "Ellen (Yufei) Chen" <chenellen007@gmail.com>
+Date: Fri, 15 Nov 2019 08:08:49 -0500
+Subject: [PATCH] Bug 1524076 - Fixed pasted recipient email address
+ autocompletes to more popular primary email address
+
+---
+ mailnews/addrbook/src/nsAbAutoCompleteSearch.js | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/mailnews/addrbook/src/nsAbAutoCompleteSearch.js b/mailnews/addrbook/src/nsAbAutoCompleteSearch.js
+index 44ebd04136..fa9b6c9feb 100644
+--- a/mailnews/addrbook/src/nsAbAutoCompleteSearch.js
++++ b/mailnews/addrbook/src/nsAbAutoCompleteSearch.js
+@@ -154,8 +154,15 @@ nsAbAutoCompleteSearch.prototype = {
+   _getScore(aCard, aAddress, aSearchString) {
+     const BEST = 100;
+ 
+-    // We will firstly check if the search term provided by the user
+-    // is the nick name for the card or at least in the beginning of it.
++    // First check whether the search string matches the email for the card
++    const addressStartIdx = aAddress.indexOf("<") + 1;
++    const address = aAddress.substring(addressStartIdx, aAddress.length - 1);
++    if (address == aSearchString) {
++      return BEST + 1;
++    }
++
++    // Then check if the search term provided by the user is
++    // the nick name for the card or at least in the beginning of it.
+     let nick = aCard.getProperty("NickName", "").toLocaleLowerCase();
+     aSearchString = aSearchString.toLocaleLowerCase();
+     if (nick == aSearchString) {
+-- 
+2.21.0.windows.1
+
