@@ -127,10 +127,9 @@ NS_IMETHODIMP nsCMSMessage::GetSignerCert(nsIX509Cert **scert) {
             ("nsCMSMessage::GetSignerCert got signer cert"));
 
     nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
-    nsDependentCSubstring certDER(
-        reinterpret_cast<char *>(si->cert->derCert.data),
-        si->cert->derCert.len);
-    nsresult rv = certdb->ConstructX509(certDER, getter_AddRefs(cert));
+    nsTArray<uint8_t> certBytes;
+    certBytes.AppendElements(si->cert->derCert.data, si->cert->derCert.len);
+    nsresult rv = certdb->ConstructX509(certBytes, getter_AddRefs(cert));
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     MOZ_LOG(gCMSLog, LogLevel::Debug,
