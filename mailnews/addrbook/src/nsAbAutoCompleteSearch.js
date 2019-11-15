@@ -153,9 +153,15 @@ nsAbAutoCompleteSearch.prototype = {
    */
   _getScore(aCard, aAddress, aSearchString) {
     const BEST = 100;
+    // First check whether the search string matches the email for the card
+    const addressStartIdx = aAddress.indexOf("<") + 1;
+    const address = aAddress.substr(addressStartIdx, aAddress.length - 1);
+    if (address == aSearchString) {
+      return BEST + 1;
+    }
 
-    // We will firstly check if the search term provided by the user
-    // is the nick name for the card or at least in the beginning of it.
+    // Then check if the search term provided by the user is
+    // the nick name for the card or at least in the beginning of it.
     let nick = aCard.getProperty("NickName", "").toLocaleLowerCase();
     aSearchString = aSearchString.toLocaleLowerCase();
     if (nick == aSearchString) {
