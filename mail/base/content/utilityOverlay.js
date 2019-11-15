@@ -70,10 +70,14 @@ function goUpdateFindTypeMenuItems() {
   goUpdateCommand("cmd_findTypeLinks");
 }
 
-// Gather all descendent text under given document node.
+/**
+ * Gather all descendent text under given node.
+ * @param {Node} root - The root node to gather text from.
+ * @returns {string} The text data under the node.
+ */
 function gatherTextUnder(root) {
   var text = "";
-  var node = root.firstElementChild;
+  var node = root.firstChild;
   var depth = 1;
   while (node && depth > 0) {
     // See if this node is text.
@@ -88,21 +92,20 @@ function gatherTextUnder(root) {
       }
     }
     // Find next node to test.
-    // First, see if this node has children.
-    if (node.hasChildNodes()) {
-      // Go to first child.
-      node = node.firstElementChild;
+    if (node.firstChild) {
+      // If it has children, go to first child.
+      node = node.firstChild;
       depth++;
-    } else if (node.nextElementSibling) {
+    } else if (node.nextSibling) {
       // No children, try next sibling.
-      node = node.nextElementSibling;
+      node = node.nextSibling;
     } else {
       // Last resort is a sibling of an ancestor.
       while (node && depth > 0) {
         node = node.parentNode;
         depth--;
-        if (node.nextElementSibling) {
-          node = node.nextElementSibling;
+        if (node.nextSibling) {
+          node = node.nextSibling;
           break;
         }
       }
