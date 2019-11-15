@@ -1526,7 +1526,7 @@ var gGeneralPane = {
   },
 
   showUpdates() {
-    gSubDialog.open("chrome://mozapps/content/update/history.xul");
+    gSubDialog.open("chrome://mozapps/content/update/history.xhtml");
   },
 
   _loadAppHandlerData() {

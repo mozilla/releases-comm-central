@@ -302,7 +302,7 @@ var gPrivacyPane = {
       );
     } else {
       gSubDialog.open(
-        "chrome://mozapps/content/preferences/removemp.xul",
+        "chrome://mozapps/content/preferences/removemp.xhtml",
         null,
         null,
         this._initMasterPasswordUI.bind(this)
@@ -316,7 +316,7 @@ var gPrivacyPane = {
    */
   changeMasterPassword() {
     gSubDialog.open(
-      "chrome://mozapps/content/preferences/changemp.xul",
+      "chrome://mozapps/content/preferences/changemp.xhtml",
       null,
       null,
       this._initMasterPasswordUI.bind(this)
