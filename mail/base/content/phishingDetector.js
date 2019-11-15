@@ -298,7 +298,7 @@ var gPhishingDetector = {
       let warningButtons =
         Ci.nsIPromptService.STD_YES_NO_BUTTONS +
         Ci.nsIPromptService.BUTTON_POS_1_DEFAULT;
-      return Services.prompt.confirmEx(
+      let button = Services.prompt.confirmEx(
         window,
         titleMsg,
         dialogMsg,
@@ -309,6 +309,7 @@ var gPhishingDetector = {
         "",
         {}
       );
+      return button == 0 ? 2 : 1; // 2 == allow, 1 == block
     }
     return 2; // allow the link to load
   },
