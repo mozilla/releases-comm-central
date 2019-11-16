@@ -77,7 +77,6 @@
                 <spacer flex="1"></spacer>
               </vbox>
               <checkbox label="&account.autoSignOn.label;"
-                        dir="reverse"
                         class="autoSignOn"
                         accesskey="&account.autoSignOn.accesskey;"
                         oncommand="gAccountManager.autologin()"></checkbox>

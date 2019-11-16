@@ -41,15 +41,13 @@
   <hbox align="center" pack="end">
     <spacer flex="1"/>
     <label value="&event.freebusy.suggest.slot;"/>
-    <button label="&event.freebusy.button.previous.slot;"
-            dir="normal"
+    <button id="previous-slot"
+            label="&event.freebusy.button.previous.slot;"
             class="left-icon"
-            id="previous-slot"
             oncommand="onPreviousSlot();"/>
-    <button label="&event.freebusy.button.next.slot;"
-            dir="reverse"
+    <button id="next-slot"
+            label="&event.freebusy.button.next.slot;"
             class="right-icon"
-            id="next-slot"
             oncommand="onNextSlot();"/>
     <spacer style="width: 10em"/>
     <label value="&event.freebusy.zoom;" control="zoom-menulist"/>

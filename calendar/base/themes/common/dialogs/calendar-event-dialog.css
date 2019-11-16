@@ -676,6 +676,7 @@ calendar-event-freebusy-day > box {
   margin: 3px 3px;
   list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
   -moz-image-region: rect(0px 138px 14px 124px);
+  -moz-box-direction: reverse;
 }
 .right-icon[disabled="true"] {
   -moz-image-region: rect(14px 138px 28px 124px);
