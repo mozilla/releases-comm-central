@@ -174,7 +174,6 @@
 @RESPATH@/components/cryptoComponents.manifest
 @RESPATH@/components/FeedConverter.js
 @RESPATH@/components/FeedWriter.js
-@RESPATH@/components/folderLookupService.js
 @RESPATH@/components/jsconsole-clhandler.js
 @RESPATH@/components/jsconsole-clhandler.manifest
 @RESPATH@/components/nsAbout.js
@@ -399,9 +398,7 @@ bin/libfreebl_32int64_3.so
 #endif
 
 ; LDAP components need to be in the browser for AutoConfig
-@RESPATH@/components/nsAbLDAPAttributeMap.js
 #ifdef MOZ_LDAP_XPCOM
-@RESPATH@/components/nsAbLDAPAutoCompleteSearch.js
 @RESPATH@/components/nsLDAPProtocolHandler.js
 @RESPATH@/components/ldapComponents.manifest
 @BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
@@ -449,32 +446,9 @@ man/*
 
 [mail]
 ; MailNews components
-@RESPATH@/components/nsAddrbook.manifest
-@RESPATH@/components/msgBase.manifest
 
 ; MailNews JS components
-@RESPATH@/components/mdn-service.js
-@RESPATH@/components/mdn-service.manifest
-@RESPATH@/components/mimeJSComponents.js
-@RESPATH@/components/msgAsyncPrompter.js
 @RESPATH@/components/msgMime.manifest
-; OAuth2 for mail
-@RESPATH@/components/msgOAuth2Module.js
-@RESPATH@/components/newsblog.js
-@RESPATH@/components/newsblog.manifest
-@RESPATH@/components/nsAbAutoCompleteMyDomain.js
-@RESPATH@/components/nsAbAutoCompleteSearch.js
-@RESPATH@/components/nsMailNewsCommandLineHandler.js
-@RESPATH@/components/nsMsgTraitService.js
-@RESPATH@/components/nsMsgTraitService.manifest
-@RESPATH@/components/nsNewsAutoCompleteSearch.js
-@RESPATH@/components/nsNewsAutoCompleteSearch.manifest
-@RESPATH@/components/nsSMTPProtocolHandler.js
-@RESPATH@/components/nsSMTPProtocolHandler.manifest
-@RESPATH@/components/offlineStartup.js
-@RESPATH@/components/offlineStartup.manifest
-@RESPATH@/components/smime-service.js
-@RESPATH@/components/smime-service.manifest
 
 ; MailNews chrome
 @RESPATH@/chrome/messenger@JAREXT@
@@ -525,12 +499,6 @@ man/*
 ; Gloda
 @RESPATH@/chrome/gloda@JAREXT@
 @RESPATH@/chrome/gloda.manifest
-@RESPATH@/components/glautocomp.js
-@RESPATH@/components/jsmimeemitter.js
-@RESPATH@/components/gloda.manifest
-
-; New message notification
-@RESPATH@/components/newMailNotificationService.js
 
 ; Address Sanitizer
 #ifdef LLVM_SYMBOLIZER
