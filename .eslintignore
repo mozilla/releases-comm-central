@@ -79,6 +79,9 @@ mail/locales/en-US/all-l10n.js
 mail/components/compose/texzilla/**
 mail/components/compose/composer.js
 
+# openpgp exclusions, should get enabled, tracked in bug 1595319
+mail/extensions/openpgp/**
+
 # calendar/ exclusions
 
 # prefs files
