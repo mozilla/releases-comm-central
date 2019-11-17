@@ -1,0 +1,101 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/**
+ * Enigmail style for HTML pages, displayed in tabs
+ */
+
+
+
+
+body {
+  color: black;
+  padding: 0;
+  background-color: white;
+  border-style: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+h1 {
+  font-size: 2em;
+  color: #0077bb;
+}
+
+h2 {
+  font-size: 1.4em;
+  margin-top: 1.3em;
+}
+
+h3 {
+  font-size: 1.2em;
+  margin-top: 1.3em;
+}
+
+ul {
+  list-style-image: none;
+}
+
+a {
+  text-decoration: underline;
+}
+
+a:link {
+    color: blue;
+}
+
+a:visited {
+    color: #9900cc;
+}
+
+a:hover {
+  color: red;
+}
+
+.header-bar {
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 16.8px;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-left: 15px;
+  padding-right: 15px;
+  position: relative;
+  min-height: 80px;
+  background-color: #0077bb;
+}
+
+.header-icon {
+  box-sizing: border-box;
+  float: left;
+  font-size: 14px;
+  line-height: 16.8px;
+  margin-left: 0px;
+  margin-right: 10px;
+}
+
+.spacer {
+  padding-top: 40px;
+}
+
+.body {
+  max-width: 800px;
+}
+
+.logo-img {
+  max-height: 90px;
+}
+
+button {
+  font-size: 1.2em;
+  margin-top: 1.3em;
+}
+
+.hidden {
+  visibility: collapse;
+  max-height: 0px;
+}

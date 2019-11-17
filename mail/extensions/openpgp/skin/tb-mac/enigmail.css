@@ -1,0 +1,300 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/**
+ * Enigmail styles for Mac OS X
+ */
+
+@import url("chrome://openpgp/skin/enigmail-common.css"); /* common styles for all platforms */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+#button-enigmail-decrypt
+  {
+    list-style-image : url("chrome://openpgp/skin/decrypt-active-18.svg");
+  }
+
+#button-enigmail-decrypt[disabled]
+  {
+    list-style-image : url("chrome://openpgp/skin/decrypt-inactive-18.svg");
+  }
+
+
+/***************************************************
+ *  Icons for compose toolbar: encryption
+ ***************************************************/
+
+#button-enigmail-encrypt
+{
+  list-style-image : url("chrome://openpgp/skin/encrypt-inactive-18.svg");
+}
+
+/* hide label unless text-only mode is enabled */
+toolbar:not([mode="text"]) #button-enigmail-encrypt .toolbarbutton-text {
+  display: none;
+}
+
+#button-enigmail-encrypt[disabled] {
+  list-style-image : url("chrome://openpgp/skin/encrypt-disabled-18.svg");
+}
+
+#button-enigmail-encrypt[encrypted="activeNone"]
+{
+  list-style-image : url("chrome://openpgp/skin/encrypt-active-18.svg");
+}
+
+#button-enigmail-encrypt[encrypted="forceYes"]
+{
+  list-style-image : url("chrome://openpgp/skin/encrypt-active-18.svg");
+}
+
+#button-enigmail-encrypt[encrypted="forceNo"]
+{
+  list-style-image : url("chrome://openpgp/skin/encrypt-inactive-18.svg");
+}
+
+
+
+/***************************************************
+ *  Icons for compose toolbar: signing
+ ***************************************************/
+
+#button-enigmail-sign
+{
+  list-style-image : url("chrome://openpgp/skin/sign-inactive-18.svg");
+}
+
+/* hide label unless text-only mode is enabled */
+toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
+  display: none;
+}
+
+#button-enigmail-sign[disabled] {
+  list-style-image : url("chrome://openpgp/skin/sign-disabled-18.svg");
+}
+
+#button-enigmail-sign[signed="activeNone"]
+{
+  list-style-image : url("chrome://openpgp/skin/sign-active-18.svg");
+}
+
+#button-enigmail-sign[signed="forceYes"]
+{
+  list-style-image : url("chrome://openpgp/skin/sign-active-18.svg");
+}
+
+#button-enigmail-sign[signed="forceNo"]
+{
+  list-style-image : url("chrome://openpgp/skin/sign-inactive-18.svg");
+}
+
+
+/***************************************************
+ *  Icons for compose toolbar: attach own key
+ ***************************************************/
+
+#button-enigmail-attach
+{
+  list-style-image : url("chrome://openpgp/skin/attach-inactive-18.svg");
+}
+
+#button-enigmail-attach[disabled] {
+  list-style-image : url("chrome://openpgp/skin/attach-disabled-18.svg");
+}
+
+#button-enigmail-attach[addPubkey="true"]
+{
+  list-style-image : url("chrome://openpgp/skin/attach-active-18.svg");
+}
+
+
+/***************************************************
+ *  Icons for compose toolbar: Protect header
+ ***************************************************/
+
+#enigmail-toolbar-encryptHdr-button
+{
+  list-style-image : url("chrome://openpgp/skin/headerUnprotected-18.svg");
+}
+
+
+#enigmail-toolbar-encryptHdr-button[disabled] {
+  list-style-image : url("chrome://openpgp/skin/headerUnprotected-18.svg");
+}
+
+#enigmail-toolbar-encryptHdr-button[checked="true"]
+{
+  list-style-image : url("chrome://openpgp/skin/headerProtected-18.svg");
+}
+
+
+/***************************************************
+ *  Icons for messenger status bar
+ ***************************************************/
+
+#enigmail-status-bar #enigmail-signed-status {
+  list-style-image: none;
+  visibility: collapse;
+}
+
+#enigmail-status-bar[signed="ok"] #enigmail-signed-status {
+  list-style-image: url("chrome://openpgp/skin/enigSignOk.png");
+  visibility: visible;
+}
+
+#enigmail-status-bar[signed="notok"] #enigmail-signed-status {
+  list-style-image: url("chrome://openpgp/skin/enigSignNotOk.png");
+  visibility: visible;
+}
+
+#enigmail-status-bar[signed="unknown"] #enigmail-signed-status {
+  list-style-image: url("chrome://openpgp/skin/enigSignUnkown.png");
+  visibility: visible;
+}
+
+#enigmail-status-bar[signed="inactive"] #enigmail-signed-status {
+  list-style-image: url("chrome://openpgp/skin/enigSignInactive.png");
+  visibility: visible;
+}
+
+#enigmail-status-bar #enigmail-encrypted-status {
+  list-style-image: none;
+  visibility: collapse;
+}
+
+#enigmail-status-bar[encrypted="ok"] #enigmail-encrypted-status {
+  list-style-image: url("chrome://openpgp/skin/enigEncOk.png");
+  visibility: visible;
+}
+
+#enigmail-status-bar[encrypted="notok"] #enigmail-encrypted-status {
+  list-style-image: url("chrome://openpgp/skin/enigEncNotOk.png");
+  visibility: visible;
+}
+
+#enigmail-status-bar[encrypted="inactive"] #enigmail-encrypted-status {
+  list-style-image: url("chrome://openpgp/skin/enigEncInactive.png");
+  visibility: visible;
+}
+
+
+/***************************************************
+ *  Icons for compose status bar: signed states
+ ***************************************************/
+
+#enigmail-signing-status[disabled] {
+  visibility: collapse;
+}
+
+#enigmail-signing-status[signed="forceYes"] {
+  list-style-image: url("chrome://openpgp/skin/enigSignForceYes.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="forceNo"] {
+  list-style-image: url("chrome://openpgp/skin/enigSignForceNo.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="inactiveNone"] {
+  list-style-image: url("chrome://openpgp/skin/enigSignInactiveNone.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="inactivePlus"]  {
+  list-style-image: url("chrome://openpgp/skin/enigSignInactivePlus.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="inactiveMinus"]  {
+  list-style-image: url("chrome://openpgp/skin/enigSignInactiveMinus.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="inactiveConflict"] {
+  list-style-image: url("chrome://openpgp/skin/enigSignInactiveConflict.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="activeNone"]  {
+  list-style-image: url("chrome://openpgp/skin/enigSignActiveNone.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="activePlus"]  {
+  list-style-image: url("chrome://openpgp/skin/enigSignActivePlus.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="activeMinus"]  {
+  list-style-image: url("chrome://openpgp/skin/enigSignActiveMinus.png");
+  visibility: visible;
+}
+
+#enigmail-signing-status[signed="activeConflict"]  {
+  list-style-image: url("chrome://openpgp/skin/enigSignActiveConflict.png");
+  visibility: visible;
+}
+
+/***************************************************
+ *  Icons for compose status bar: encrypted states
+ ***************************************************/
+
+
+#enigmail-encryption-status[disabled] {
+  visibility: collapse;
+}
+
+#enigmail-encryption-status[encrypted="inactiveNone"] {
+  list-style-image: url("chrome://openpgp/skin/enigEncInactiveNone.png");
+  visibility: visible;
+}
+
+#enigmail-encryption-status[encrypted="forceYes"] {
+  list-style-image: url("chrome://openpgp/skin/enigEncForceYes.png");
+  visibility: visible;
+}
+
+ #enigmail-encryption-status[encrypted="forceNo"] {
+  list-style-image: url("chrome://openpgp/skin/enigEncForceNo.png");
+  visibility: visible;
+}
+
+#enigmail-encryption-status[encrypted="activeNone"]  {
+  list-style-image: url("chrome://openpgp/skin/enigEncActiveNone.png");
+  visibility: visible;
+}
+
+#enigmail-encryption-status[encrypted="activePlus"] {
+  list-style-image: url("chrome://openpgp/skin/enigEncActivePlus.png");
+  visibility: visible;
+}
+
+ #enigmail-encryption-status[encrypted="activeMinus"] {
+  list-style-image: url("chrome://openpgp/skin/enigEncActiveMinus.png");
+  visibility: visible;
+}
+
+#enigmail-encryption-status[encrypted="activeConflict"]  {
+  list-style-image: url("chrome://openpgp/skin/enigEncActiveConflict.png");
+  visibility: visible;
+}
+
+
+#enigmail-encryption-status[encrypted="inactivePlus"]  {
+  list-style-image: url("chrome://openpgp/skin/enigEncInactivePlus.png");
+  visibility: visible;
+}
+
+ #enigmail-encryption-status[encrypted="inactiveMinus"] {
+  list-style-image: url("chrome://openpgp/skin/enigEncInactiveMinus.png");
+  visibility: visible;
+}
+
+#enigmail-encryption-status[encrypted="inactiveConflict"] {
+  list-style-image: url("chrome://openpgp/skin/enigEncInactiveConflict.png");
+  visibility: visible;
+}
