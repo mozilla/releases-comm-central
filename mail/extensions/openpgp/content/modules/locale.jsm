@@ -48,13 +48,7 @@ var EnigmailLocale = {
   getString: function(aStr, subPhrases) {
     if (!gEnigStringBundle) {
       try {
-        /* HACK: The string bundle cache is cleared on addon shutdown, however it doesn't appear to do so reliably.
-          Errors can erratically happen on next load of the same file in certain instances. (at minimum, when strings are added/removed)
-          The apparently accepted solution to reliably load new versions is to always create bundles with a unique URL so as to bypass the cache.
-          This is accomplished by passing a random number in a parameter after a '?'. (this random ID is otherwise ignored)
-          The loaded string bundle is still cached on startup and should still be cleared out of the cache on addon shutdown.
-          This just bypasses the built-in cache for repeated loads of the same path so that a newly installed update loads cleanly. */
-        let bundlePath = "chrome://openpgp/locale/enigmail.properties?" + Math.random();
+        let bundlePath = "chrome://openpgp/content/strings/enigmail.properties";
         EnigmailLog.DEBUG("locale.jsm: loading stringBundle " + bundlePath + "\n");
         let strBundleService = Cc["@mozilla.org/intl/stringbundle;1"].getService(Ci.nsIStringBundleService);
         gEnigStringBundle = strBundleService.createBundle(bundlePath);
@@ -65,19 +59,22 @@ var EnigmailLocale = {
 
     if (gEnigStringBundle) {
       try {
+        let rv;
         if (subPhrases) {
           if (typeof (subPhrases) == "string") {
-            return gEnigStringBundle.formatStringFromName(aStr, [subPhrases], 1);
+            rv = gEnigStringBundle.formatStringFromName(aStr, [subPhrases], 1);
           }
           else {
-            return gEnigStringBundle.formatStringFromName(aStr, subPhrases, subPhrases.length);
+            rv = gEnigStringBundle.formatStringFromName(aStr, subPhrases, subPhrases.length);
           }
         }
         else {
-          return gEnigStringBundle.GetStringFromName(aStr);
+          rv = gEnigStringBundle.GetStringFromName(aStr);
         }
+        EnigmailLog.DEBUG("locale.jsm: successfully loaded " + aStr + "\n");
+        return rv;
       } catch (ex) {
-        EnigmailLog.ERROR("locale.jsm: Error in querying stringBundleService for string '" + aStr + "'\n");
+        EnigmailLog.ERROR("locale.jsm: Error in querying stringBundleService for string '" + aStr + "', " + ex + "\n");
       }
     }
     return aStr;

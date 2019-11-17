@@ -6,6 +6,9 @@ const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 const { RNPLibLoader } = ChromeUtils.import(
   "chrome://openpgp/content/modules/rnpLib.jsm"
 );
+const { EnigmailConstants } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+);
 
 // rnp module
 
@@ -75,6 +78,7 @@ var RNP = {
 
     let result = {};
     result.decryptedData = "";
+    result.statusFlags = 0;
 
     result.exitCode = RNPLib.rnp_decrypt(
       RNPLib.ffi,
@@ -104,6 +108,7 @@ var RNP = {
           ctypes.char.array(result_len.value).ptr
         ).contents;
 
+        result.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
         result.decryptedData = char_array.readString();
         console.log(result.decryptedData);
       }

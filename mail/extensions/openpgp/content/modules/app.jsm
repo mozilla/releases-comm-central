@@ -64,8 +64,8 @@ var EnigmailApp = {
     EnigmailApp._installLocation = location;
   },
 
-  initAddon: function(addon) {
-    EnigmailApp.setVersion(addon.version);
-    EnigmailApp.setInstallLocation(addon.installPath);
+  initAddon: function() {
+    EnigmailApp.setVersion(0);
+    EnigmailApp.setInstallLocation(0);
   }
 };

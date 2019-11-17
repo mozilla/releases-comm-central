@@ -36,7 +36,7 @@ const getEnigmailApp = EnigmailLazy.loader("enigmail/app.jsm", "EnigmailApp");
 const getEnigmailKeyRefreshService = EnigmailLazy.loader("enigmail/keyRefreshService.jsm", "EnigmailKeyRefreshService");
 const getEnigmailKeyServer = EnigmailLazy.loader("enigmail/keyserver.jsm", "EnigmailKeyServer");
 const getEnigmailWksMimeHandler = EnigmailLazy.loader("enigmail/wksMimeHandler.jsm", "EnigmailWksMimeHandler");
-const getEnigmailOverlays = EnigmailLazy.loader("enigmail/enigmailOverlays.jsm", "EnigmailOverlays");
+//const getEnigmailOverlays = EnigmailLazy.loader("enigmail/enigmailOverlays.jsm", "EnigmailOverlays");
 const getEnigmailSqlite = EnigmailLazy.loader("enigmail/sqliteDb.jsm", "EnigmailSqliteDb");
 const getEnigmailTimer = EnigmailLazy.loader("enigmail/timer.jsm", "EnigmailTimer");
 const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
@@ -86,10 +86,11 @@ var EnigmailCore = {
       try {
         let mimeEncrypt = getEnigmailMimeEncrypt();
         mimeEncrypt.startup(reason);
-        getEnigmailOverlays().startup();
+        //getEnigmailOverlays().startup();
         self.factories.push(new Factory(getEnigmailProtocolHandler()));
         self.factories.push(new Factory(mimeEncrypt.Handler));
       } catch (ex) {
+        Services.console.logStringMessage("core.jsm: startup.continueStartup: error " + ex.message + "\n" + ex.stack + "\n");
         logger.DEBUG("core.jsm: startup.continueStartup: error " + ex.message + "\n" + ex.stack + "\n");
       }
     }
@@ -98,6 +99,9 @@ var EnigmailCore = {
     getEnigmailWksMimeHandler().registerContentTypeHandler();
     getEnigmailFiltersWrapper().onStartup();
     continueStartup(1);
+
+    let myName = getEnigmailLocale().getString("Enigmail");
+    console.log("core.jsm: loaded string from properties " + myName);
   },
 
   shutdown: function(reason) {

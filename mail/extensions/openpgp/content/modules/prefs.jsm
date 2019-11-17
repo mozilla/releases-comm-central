@@ -62,10 +62,11 @@ function pref(key, val) {
 /**
  * Load default preferences for bootstrapped addon
  */
+/* no longer necessary
 function setDefaultPrefs() {
   EnigmailLog.DEBUG("prefs.jsm: setDefaultPrefs()\n");
 
-  Services.scriptloader.loadSubScript("chrome://openpgp/content/preferences/defaultPrefs.js", {}, "UTF-8");
+  Services.scriptloader.loadSubScript("chrome://openpgp/content/prefs/openpgp-prefs.js", {}, "UTF-8");
 
   let branch = p.defaultBranch;
   for (let key in gPrefs) {
@@ -88,13 +89,14 @@ function setDefaultPrefs() {
     }
   }
 }
+*/
 
 
 var EnigmailPrefs = {
   startup: function(reason) {
     try {
       initPrefService();
-      setDefaultPrefs();
+      //setDefaultPrefs();
     }
     catch (ex) {
       EnigmailLog.ERROR("prefs.jsm: Error while loading default prefs: " + ex.message + "\n");

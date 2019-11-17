@@ -15,8 +15,15 @@ var EnigmailLazy = {
     return function() {
       if (holder === null) {
         component = component.replace(/^enigmail\//, "");
-        const into = ChromeUtils.import("chrome://openpgp/content/modules/" + component);
-        holder = into[name];
+        let url;
+        try {
+          url = "chrome://openpgp/content/modules/" + component;
+          const into = ChromeUtils.import(url);
+          holder = into[name];
+        } catch (ex) {
+          console.log(ex);
+          console.log("lazy loading couldn't get " + url);
+        }
       }
       return holder;
     };

@@ -12,14 +12,21 @@ var EXPORTED_SYMBOLS = ["EnigmailCryptoAPI"];
 var gCurrentApi = null;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
-
 function EnigmailCryptoAPI() {
   if (!gCurrentApi) {
-    const {
-      getGnuPGAPI
-    } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/gnupg.js");
-
-    gCurrentApi = getGnuPGAPI();
+    const gOpenPGPEngine = Services.prefs.getIntPref("temp.openpgp.engine");
+    
+    if (gOpenPGPEngine == 1) {
+      const {
+        getRNPAPI
+      } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/rnp-cryptoAPI.js");
+      gCurrentApi = getRNPAPI();
+    } else if (gOpenPGPEngine == 2) {
+      const {
+        getGnuPGAPI
+      } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/gnupg.js");
+      gCurrentApi = getGnuPGAPI();
+    }
   }
 
   return gCurrentApi;

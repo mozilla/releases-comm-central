@@ -38,11 +38,13 @@ class CryptoAPI {
 
     let res = null;
     let p = promise.then(gotResult => {
-      console.log("CryptoAPI.sync() good result: " + gotResult);
+      console.log("CryptoAPI.sync() good result:");
+      console.log(gotResult);
       res = gotResult;
       inspector.exitNestedEventLoop();
     }).catch(gotResult => {
-      console.log("CryptoAPI.sync() failed result: " + gotResult);
+      console.log("CryptoAPI.sync() failed result:");
+      console.log(gotResult);
       res = gotResult;
       inspector.exitNestedEventLoop();
     });
