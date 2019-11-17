@@ -39,11 +39,6 @@ tabpanels {
   border-color: -moz-DialogText;
 }
 
-/* Tab DnD indicator */
-.tab-drop-indicator {
-  list-style-image: url(icons/dragIndicator.png);
-}
-
 /**
  * close buttons
  */

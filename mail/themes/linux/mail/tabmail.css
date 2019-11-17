@@ -54,11 +54,6 @@ tabpanels {
   border-color: -moz-DialogText;
 }
 
-/* Tab drag and drop */
-.tab-drop-indicator {
-  list-style-image: url(icons/dragIndicator.png);
-}
-
 /* Tabstrip close button */
 .tabs-closebutton {
   margin-top: 1px;

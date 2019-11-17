@@ -190,8 +190,6 @@ classic.jar:
   skin/classic/messenger/icons/notloading@2x.png                 (mail/icons/notloading@2x.png)
   skin/classic/messenger/icons/junk.png                          (mail/icons/junk.png)
   skin/classic/messenger/icons/phishing.png                      (mail/icons/phishing.png)
-  skin/classic/messenger/icons/dragIndicator.png                 (mail/icons/dragIndicator.png)
-  skin/classic/messenger/icons/dragIndicator@2x.png              (mail/icons/dragIndicator@2x.png)
   skin/classic/messenger/accountcentral/accountsettings.png      (mail/accountcentral/accountsettings.png)
   skin/classic/messenger/accountcentral/accountsettings@2x.png   (mail/accountcentral/accountsettings@2x.png)
   skin/classic/messenger/accountcentral/folder.png               (mail/accountcentral/folder.png)

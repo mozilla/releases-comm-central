@@ -39,7 +39,7 @@ arrowscrollbox > .tabmail-tab[selected="true"]:not(:only-child) > .tab-stack >
 }
 
 .tab-drop-indicator-box {
-  -moz-box-align: end;
+  -moz-box-align: center;
 }
 
 .tab-drop-indicator {

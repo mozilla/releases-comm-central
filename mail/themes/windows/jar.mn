@@ -142,7 +142,6 @@ classic.jar:
   skin/classic/messenger/icons/cancel.png                     (mail/icons/cancel.png)
   skin/classic/messenger/icons/mainwindow-dropdown-arrow.png  (mail/icons/mainwindow-dropdown-arrow.png)
   skin/classic/messenger/icons/mainwindow-dropdown-arrow-inverted.png (mail/icons/mainwindow-dropdown-arrow-inverted.png)
-  skin/classic/messenger/icons/dragIndicator.png                   (mail/icons/dragIndicator.png)
   skin/classic/messenger/window-controls/close.svg                 (mail/window-controls/close.svg)
   skin/classic/messenger/window-controls/close-highcontrast.svg    (mail/window-controls/close-highcontrast.svg)
   skin/classic/messenger/window-controls/close-themes.svg          (mail/window-controls/close-themes.svg)
