@@ -56,6 +56,23 @@ def mapi_support(arg):
 set_config('MOZ_MAPI_SUPPORT', mapi_support)
 set_define('MOZ_MAPI_SUPPORT', mapi_support)
 
+# =========================================================
+# = Experimental OpenPGP integration
+# =========================================================
+
+option('--enable-openpgp', default=False,
+       help='Enable building of the Experimental OpenPGP integration')
+
+
+@depends_if('--enable-openpgp')
+def openpgp(arg):
+    return True
+
+
+set_config('MOZ_OPENPGP', openpgp)
+set_define('MOZ_OPENPGP', openpgp)
+
+
 set_config('MOZ_MOVEMAIL', target_is_unix)
 set_define('HAVE_MOVEMAIL', target_is_unix)
 
