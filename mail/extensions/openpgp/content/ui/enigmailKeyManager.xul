@@ -1,0 +1,471 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://openpgp/skin/enigmail.css" type="text/css"?>
+
+<!--
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+
+
+<?xul-overlay href="chrome://global/content/globalOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
+
+<!DOCTYPE window [
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+   %brandDTD;
+  <!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
+  %enigMailDTD;
+  <!ENTITY % utilDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
+   %utilDTD;
+]>
+
+<window id="enigmailKeyManager"
+        title="&enigmail.keyMan.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="enigmailKeyManagerLoad();"
+        height="450"
+        width="700"
+        windowtype="enigmail:KeyManager"
+        persist="screenX screenY width height">
+
+  <script type="application/x-javascript" src="chrome://global/content/globalOverlay.js"/>
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyManager.js"/>
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/commonWorkflows.js" />
+
+  <commandset id="tasksCommands"/>
+
+  <command id="cmd_close" oncommand="window.close()"/>
+  <command id="cmd_quit"/>
+  <command id="cmd_enigmailDeleteKey" oncommand="enigmailDeleteKey()"/>
+
+  <keyset id="winKeys">
+    <key id="key_selectAll" key="&enigmail.keyMan.selectAll.key;"
+         oncommand="enigmailSelectAllKeys()" modifiers="accel"/>
+
+    <key id="key_keyDetails" key="&enigmail.keyMan.keyDetails.key;"
+         oncommand="enigmailKeyDetails()" modifiers="accel"
+         observes="bcOneKey"/>
+
+    <key id="key_refreshKey" key="&enigmail.keyMan.refreshKey.key;"
+         oncommand="enigmailReceiveKey()" modifiers="accel"
+         observes="bcNoKey"/>
+
+    <key id="key_enigDelete"
+         keycode="VK_DELETE"
+         command="cmd_enigmailDeleteKey"/>
+    <key id="key_close"/>
+    <key id="key_quit"/>
+  </keyset>
+
+  <broadcasterset>
+    <broadcaster id="bcNoKey" disabled="false"/>
+    <broadcaster id="bcSignKey" disabled="false"/>
+    <broadcaster id="bcSetTrust" disabled="false"/>
+    <broadcaster id="bcViewPhoto" disabled="false"/>
+    <broadcaster id="bcEditKey" disabled="false"/>
+    <broadcaster id="bcRevoke" disabled="false"/>
+    <broadcaster id="bcOneKey" disabled="false"/>
+    <broadcaster id="bcDeleteKey" disabled="false"/>
+    <broadcaster id="bcClipbrd" disabled="false"/>
+    <broadcaster id="bcEnableKey" disabled="false" label=""/>
+    <broadcaster id="bcUploadToWkd" disabled="false"/>
+  </broadcasterset>
+
+  <menubar id="main-menubar" grippyhidden="true">
+    <menu label="&enigmail.keyMan.fileMenu.label;"
+          id="menu_File"
+          accesskey="&enigmail.keyMan.fileMenu.accesskey;">
+      <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu()">
+
+        <menuitem label="&enigmail.keyMan.importFromFile.label;"
+          id="importFromFile"
+          accesskey="&enigmail.keyMan.importFromFile.accesskey;"
+          oncommand="EnigmailCommon_importKeysFromFile()"/>
+        <menuitem label="&enigmail.keyMan.exportToFile.label;"
+          id="exportKey"
+          observes="bcNoKey"
+          accesskey="&enigmail.keyMan.exportToFile.accesskey;"
+          oncommand="enigmailExportKeys()"/>
+
+        <menuitem label="&enigmail.keyMan.sendKeys.label;"
+          id="sendKey"
+          observes="bcNoKey"
+          accesskey="&enigmail.keyMan.sendKeys.accesskey;"
+          oncommand="enigCreateKeyMsg()"/>
+
+        <menuitem label="&enigmail.keyMan.createMail.label;"
+          id="createMail"
+          observes="bcNoKey"
+          accesskey="&enigmail.keyMan.createMail.accesskey;"
+          oncommand="createNewMail()"/>
+
+        <menuseparator/>
+
+        <menuitem label="&enigmail.keyMan.initiateAcBackup.label;"
+          id="initiateAcBackup"
+          accesskey="&enigmail.keyMan.initiateAcBackup.accesskey;"
+          oncommand="initiateAcKeyTransfer()"/>
+
+        <menuseparator/>
+
+        <menuitem label="&enigmail.adminSmartCard.label;"
+                id="cardData"
+                accesskey="&enigmail.adminSmartCard.accesskey;"
+                oncommand="EngmailCardDetails()"/>
+
+        <menuseparator/>
+
+        <menuitem label="&enigmail.keyMan.reload.label;"
+                id="refreshKeys"
+                accesskey="&enigmail.keyMan.reload.accesskey;"
+                oncommand="clearKeyCache();"/>
+
+        <menuseparator/>
+
+        <!-- add Close and Exit menu items -->
+        <menuitem id="menu_close"/>
+      </menupopup>
+    </menu>
+
+    <menu label="&enigmail.keyMan.editMenu.label;"
+          accesskey="&enigmail.keyMan.editMenu.accesskey;">
+      <menupopup onpopupshowing="enigmailKeyMenu()">
+
+        <menuitem label="&enigmail.keyMan.importFromClipbrd.label;"
+                  id="importFromClipbrd"
+                  observes="bcClipbrd"
+                  accesskey="&enigmail.keyMan.importFromClipbrd.accesskey;"
+                  oncommand="enigmailImportFromClipbrd()"/>
+        <menuitem label="&enigmail.keyMan.importFromUrl.label;"
+                  id="importFromUrl"
+                  accesskey="&enigmail.keyMan.importFromUrl.accesskey;"
+                  oncommand="enigmailImportKeysFromUrl()"/>
+        <menuitem label="&enigmail.keyMan.copyToClipbrd.label;"
+                  id="copyToClipbrd"
+                  observes="bcNoKey"
+                  accesskey="&enigmail.keyMan.copyToClipbrd.accesskey;"
+                  oncommand="enigmailCopyToClipbrd()"/>
+
+        <menuseparator/>
+
+        <menuitem label="&enigmail.keyMan.sign.label;"
+                  id="signKey"
+                  observes="bcSignKey"
+                  accesskey="&enigmail.keyMan.sign.accesskey;"
+                  oncommand="enigSignKey()"/>
+        <menuitem label="&enigmail.keyMan.setTrust.label;"
+                  id="setTrust"
+                  observes="bcSetTrust"
+                  accesskey="&enigmail.keyMan.setTrust.accesskey;"
+                  oncommand="enigEditKeyTrust()"/>
+
+        <menuseparator/>
+
+        <menuitem id="enableKey"
+          observes="bcEnableKey"
+          accesskey="&enigmail.keyMan.enableKey.accesskey;"
+          oncommand="enigmailEnableKey()"/>
+        <menuitem label="&enigmail.keyMan.revokeKey.label;"
+          id="revokeKey"
+          observes="bcRevoke"
+          accesskey="&enigmail.keyMan.revokeKey.accesskey;"
+          oncommand="enigmailRevokeKey()"/>
+
+        <menuitem label="&enigmail.keyMan.delKey.label;"
+          id="deleteKey"
+          key="key_enigDelete"
+          observes="bcNoKey"
+          accesskey="&enigmail.keyMan.delKey.accesskey;"
+          oncommand="enigmailDeleteKey()"/>
+
+        <menuseparator/>
+
+        <menuitem id="manageUid"
+                  label="&enigmail.keyMan.manageUid.label;"
+                  observes="bcEditKey"
+                  accesskey="&enigmail.keyMan.manageUid.accesskey;"
+                  oncommand="enigmailManageUids()"/>
+
+        <menuitem id="changeExpiry"
+                  label="&enigmail.keyMan.changeExpiry.label;"
+                  observes="bcEditKey"
+                  accesskey="&enigmail.keyMan.changeExpiry.accesskey;"
+                  oncommand="enigEditKeyExpiry()"/>
+
+        <menuitem id="changePwd"
+                  label="&enigmail.keyMan.changePwd.label;"
+                  observes="bcEditKey"
+                  accesskey="&enigmail.keyMan.changePwd.accesskey;"
+                  oncommand="enigmailChangePwd()"/>
+
+        <menuitem id="addPhoto"
+                  label="&enigmail.keyMan.addPhoto.label;"
+                  observes="bcRevoke"
+                  accesskey="&enigmail.keyMan.addPhoto.accesskey;"
+                  oncommand="enigmailAddPhoto()"/>
+
+        <menuitem id="addToRule"
+                  label="&enigmail.keyMan.addToPRRule.label;"
+                  observes="bcSignKey"
+                  oncommand="addToPRRule()"/>
+
+        <menuseparator/>
+
+        <menuitem id="selectAll"
+                  label="&enigmail.keyMan.selectAll.label;"
+                  accesskey="&enigmail.keyMan.selectAll.accesskey;"
+                  oncommand="enigmailSelectAllKeys()"
+                  key="key_selectAll"/>
+
+      </menupopup>
+    </menu>
+
+      <menu id="viewMenu"
+        label="&enigmail.keyMan.viewMenu.label;"
+        accesskey="&enigmail.keyMan.viewMenu.accesskey;">
+      <menupopup onpopupshowing="enigmailKeyMenu()"> <!-- view menu -->
+        <menuitem label="&enigmail.keyMan.viewPhoto.label;"
+                  id="viewPhoto"
+                  observes="bcViewPhoto"
+                  accesskey="&enigmail.keyMan.showPhoto.accesskey;"
+                  oncommand="enigShowPhoto()"/>
+        <menuitem label="&enigmail.keyMan.keyProps.label;"
+                  id="keyDetails"
+                  observes="bcOneKey"
+                  accesskey="&enigmail.keyMan.keyDetails.accesskey;"
+                  key="key_keyDetails"
+                  oncommand="enigmailKeyDetails()"/>
+        <menuseparator/>
+        <menuitem label="&enigmail.keyMan.showInvalidKeys.label;"
+                  id="showInvalidKeys"
+                  type="checkbox"
+                  checked="true"
+                  persist="checked"
+                  accesskey="&enigmail.keyMan.showInvalidKeys.accesskey;"
+                  oncommand="applyFilter()"/>
+        <menuitem label="&enigmail.keyMan.showUntrustedKeys.label;"
+                  id="showUntrustedKeys"
+                  type="checkbox"
+                  checked="true"
+                  persist="checked"
+                  accesskey="&enigmail.keyMan.showUntrustedKeys.accesskey;"
+                  oncommand="applyFilter()"/>
+        <menuitem label="&enigmail.keyMan.showOthersKeys.label;"
+                  id="showOthersKeys"
+                  type="checkbox"
+                  checked="true"
+                  persist="checked"
+                  accesskey="&enigmail.keyMan.showOthersKeys.accesskey;"
+                  oncommand="applyFilter()"/>
+
+      </menupopup>
+    </menu>
+
+    <menu id="keyserverMenu"
+          label="&enigmail.keyMan.keyserverMenu.label;"
+          accesskey="&enigmail.keyMan.keyserverMenu.accesskey;">
+      <menupopup onpopupshowing="enigmailKeyMenu()"> <!-- keyserverMenu menu -->
+
+        <menuitem label="&enigmail.keyMan.refreshSelKeys.label;"
+                  id="refreshKey"
+                  observes="bcNoKey"
+                  accesskey="&enigmail.keyMan.refreshSelKeys.accesskey;"
+                  key="key_refreshKey"
+                  oncommand="enigmailReceiveKey()"/>
+        <menuitem label="&enigmail.keyMan.importFromServer.label;"
+                  id="importFromServer"
+                  accesskey="&enigmail.keyMan.importFromServer.accesskey;"
+                  oncommand="enigmailSearchKey()"/>
+        <menuitem label="&enigmail.keyMan.uploadToServer.label;"
+                  id="uploadToServer"
+                  observes="bcNoKey"
+                  accesskey="&enigmail.keyMan.uploadToServer.accesskey;"
+                  oncommand="enigmailUploadKeys()"/>
+        <menuitem label="&enigmail.keyMan.uploadToWkd.label;"
+                  id="uploadToWkd"
+                  observes="bcUploadToWkd"
+                  oncommand="enigmailUploadToWkd()"/>
+        <menuseparator/>
+        <menuitem label="&enigmail.keyMan.refreshAllKeys.label;"
+                  id="refreshAllKeys"
+                  accesskey="&enigmail.keyMan.refreshAllKeys.accesskey;"
+                  oncommand="enigmailRefreshAllKeys()"/>
+        <menuitem label="&enigmail.keyMan.downloadContactKeys.label;"
+                  accesskey="&enigmail.keyMan.downloadContactKeys.accesskey;"
+                  id="downloadContactKeys"
+                  oncommand="enigmailDownloadContactKeys()"/>
+      </menupopup>
+    </menu>
+
+    <menu id="generateMenu"
+          label="&enigmail.keyMan.generateMenu.label;"
+          accesskey="&enigmail.keyMan.generateMenu.accesskey;">
+      <menupopup onpopupshowing="enigmailKeyMenu()"> <!-- generate menu -->
+        <menuitem label="&enigmail.keyMan.generate.label;"
+                  id="genKey"
+                  accesskey="&enigmail.keyMan.generate.accesskey;"
+                  oncommand="EnigKeygen();"/>
+        <menuitem label="&enigmail.keyMan.genRevoke.label;"
+                  id="revokationCertificate"
+                  observes="bcRevoke"
+                  accesskey="&enigmail.keyMan.genRevoke.accesskey;"
+                  oncommand="enigCreateRevokeCert()"/>
+      </menupopup>
+    </menu>
+
+  </menubar>
+
+  <popupset>
+    <menupopup id="ctxmenu"
+           onpopupshowing="enigmailKeyMenu();">
+      <menuitem label="&enigmail.keyMan.ctxCopyToClipbrd.label;"
+                id="ctxCopyToClipbrd"
+                oncommand="enigmailCopyToClipbrd()"/>
+      <menuitem label="&enigmail.keyMan.ctxExportToFile.label;"
+                id="ctxExport"
+                oncommand="enigmailExportKeys()"/>
+      <menuitem label="&enigmail.keyMan.sendKeys.label;"
+                id="ctxSendKey"
+                oncommand="enigCreateKeyMsg()"/>
+
+      <menuseparator/>
+
+      <menuitem label="&enigmail.keyMan.ctxUploadToServer.label;"
+                id="ctxUpload"
+                oncommand="enigmailUploadKeys()"/>
+      <menuitem label="&enigmail.keyMan.ctxRefreshKey.label;"
+                id="ctxRefreshKey"
+                oncommand="enigmailReceiveKey()"/>
+      <menuitem label="&enigmail.keyMan.uploadToWkd.label;"
+                id="ctxUploadToWkd"
+                observes="bcUploadToWkd"
+                oncommand="enigmailUploadToWkd()"/>
+
+      <menuseparator/>
+
+      <menuitem id="ctxSign" observes="bcSignKey" label="&enigmail.keyMan.sign.label;" oncommand="enigSignKey()"/>
+      <menuitem id="ctxTrust" observes="bcSetTrust" label="&enigmail.keyMan.setTrust.label;" oncommand="enigEditKeyTrust()"/>
+      <menuitem id="ctxAddToRule" observes="bcSignKey" label="&enigmail.keyMan.addToPRRule.label;" oncommand="addToPRRule()"/>
+
+      <menuseparator/>
+
+
+      <menuitem id="ctxEnableKey" observes="bcEnableKey" oncommand="enigmailEnableKey()"/>
+      <menuitem id="ctxRevokeKey" observes="bcRevoke" label="&enigmail.keyMan.revokeKey.label;" oncommand="enigmailRevokeKey()"/>
+      <menuitem id="ctxDeleteKey" label="&enigmail.keyMan.delKey.label;" oncommand="enigmailDeleteKey()"/>
+
+      <menuseparator/>
+
+      <menuitem id="ctxManageUid" observes="bcEditKey" label="&enigmail.keyMan.manageUid.label;" oncommand="enigmailManageUids()"/>
+      <menuitem id="ctxChangeExpiry" observes="bcEditKey" label="&enigmail.keyMan.changeExpiry.label;" oncommand="enigEditKeyExpiry()"/>
+      <menuitem id="ctxChangePwd" observes="bcEditKey" label="&enigmail.keyMan.changePwd.label;" oncommand="enigmailChangePwd()"/>
+      <menuitem id="ctxRevokationCert" observes="bcRevoke" label="&enigmail.keyMan.ctxGenRevoke.label;" oncommand="enigCreateRevokeCert()"/>
+      <menuitem id="ctxAddPhoto" observes="bcRevoke" label="&enigmail.keyMan.addPhoto.label;" oncommand="enigmailAddPhoto()"/>
+
+      <menuseparator observes="bcEditKey"/>
+
+      <menuitem id="ctxViewPhoto" observes="bcViewPhoto" label="&enigmail.keyMan.ctxViewPhoto.label;" oncommand="enigShowPhoto()"/>
+      <menuitem id="ctxDetails" observes="bcOneKey" label="&enigmail.keyMan.keyProps.label;"
+                oncommand="enigmailKeyDetails()"/>
+    </menupopup>
+  </popupset>
+
+  <hbox flex="0" align="center">
+    <textbox id="filterKey" size="35" placeholder="&enigmail.keyMan.filter.label;"/>
+    <separator orient="vertical"/>
+    <checkbox label="&enigmail.keyMan.showAllKeys.label;"
+          checked="true"
+          id="showAllKeys"
+          accesskey="&enigmail.keyMan.showAllKeys.accesskey;"
+          oncommand="enigmailToggleShowAll(this)"/>
+
+  </hbox>
+
+  <tooltip id="emptyTree" label="&enigmail.keyMan.emptyTree.tooltip;" noautohide="true"/>
+  <tooltip id="nothingFound" label="&enigmail.keyMan.nothingFound.tooltip;" noautohide="true"/>
+  <tooltip id="pleaseWait" label="&enigmail.keyMan.pleaseWait.tooltip;" noautohide="true"/>
+
+  <vbox flex="1" class="enigmailGroupbox">
+    <hbox flex="1">
+      <tree id="pgpKeyList" flex="1"
+        enableColumnDrag="true"
+        seltype="multiple"
+        persist="sortDirection sortResource"
+        sortDirection="ascending"
+        sortResource="enigUserNameCol"
+        hidecolumnpicker="false">
+
+        <treecols>
+          <treecol id="enigUserNameCol" primary="true"
+                  flex="1"
+                  class="sortDirectionIndicator"
+                  onclick="sortTree(this)"
+                  label="&enigmail.keyMan.userId.label;"
+                  style="width: 50px"
+                  persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="keyCol" style="width:90px"
+                   label="&enigmail.keyId.label;"
+                   flex="1"
+                   class="sortDirectionIndicator"
+                   onclick="sortTree(this)"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="typeCol" style="width:70px"
+                   label="&enigmail.keyMan.keyType.label;"
+                   flex="1"
+                   class="sortDirectionIndicator"
+                   onclick="sortTree(this)"
+                   hidden="true"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="validityCol" style="width:70px"
+                   label="&enigmail.keyMan.calcTrust.label;"
+                   flex="1"
+                   class="sortDirectionIndicator"
+                   onclick="sortTree(this)"
+                   hidden="true"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="trustCol" style="width:70px"
+                   label="&enigmail.keyMan.ownerTrust.label;"
+                   flex="1"
+                   class="sortDirectionIndicator"
+                   onclick="sortTree(this)"
+                   hidden="true"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="expCol" style="width:70px"
+                   label="&enigmail.keyExpiry.label;"
+                   flex="1"
+                   class="sortDirectionIndicator"
+                   onclick="sortTree(this)"
+                   hidden="true"
+                   persist="width ordinal hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="fprCol" style="width:70px"
+                   label="&enigmail.keyMan.fingerprint.label;"
+                   flex="1"
+                   class="sortDirectionIndicator"
+                   onclick="sortTree(this)"
+                   hidden="true"
+                   persist="width ordinal hidden"/>
+        </treecols>
+
+        <treechildren id="pgpKeyListChildren" properties=""
+                      context="ctxmenu"/>
+
+      </tree>
+    </hbox>
+  </vbox>
+
+  <hbox id="statusLine">
+    <label id="statusText" value=" "/>
+    <html:progress id="progressBar" style=":indeterminate; visibility:collapsed"/>
+  </hbox>
+</window>
