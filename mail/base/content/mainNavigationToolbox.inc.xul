@@ -1006,6 +1006,12 @@
         <menuitem id="menu_import" label="&importCmd.label;"
                   accesskey="&importCmd.accesskey;"
                   oncommand="toImport();"/>
+#ifdef MOZ_OPENPGP
+        <menuitem id="manageKeysOpenPGP"
+                  label="&manageKeysOpenPGPCmd.label;"
+                  accesskey="&manageKeysOpenPGPCmd.accesskey;"
+                  oncommand="BondOpenPGP.openKeyManager(window)"/>
+#endif
         <menu id="devtoolsMenu" label="&devtoolsMenu.label;" accesskey="&devtoolsMenu.accesskey;">
           <menupopup id="devtoolsPopup">
             <menuitem id="devtoolsToolbox"

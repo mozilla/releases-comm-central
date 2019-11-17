@@ -55,6 +55,10 @@
 %viewZoomOverlayDTD;
 <!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
 %msgReadSMIMEDTD;
+#ifdef MOZ_OPENPGP
+<!ENTITY % bondOpenPGPDTD SYSTEM "chrome://openpgp/content/strings/bond.dtd">
+%bondOpenPGPDTD;
+#endif
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
 <!-- for the chat context menu -->
@@ -133,6 +137,9 @@
 <script src="chrome://global/content/nsDragAndDrop.js"/>
 <script src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
 <script src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
+#ifdef MOZ_OPENPGP
+<script src="chrome://openpgp/content/bond.js"/>
+#endif
 <script src="chrome://messenger/content/chat/chat-messenger.js"/>
 <script src="chrome://messenger/content/chat/imStatusSelector.js"/>
 <script src="chrome://messenger/content/chat/imContextMenu.js"/>
