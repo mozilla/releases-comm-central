@@ -1,7 +1,6 @@
 /*.app/***
 /certutil
 /thunderbird-bin
-/gtest/***
 #if defined(MOZ_CRASHREPORTER)
 /minidump-analyzer
 #endif

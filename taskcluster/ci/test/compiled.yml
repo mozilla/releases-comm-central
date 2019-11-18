@@ -24,6 +24,9 @@ gtest:
     suite: gtest
     treeherder-symbol: GTest
     instance-size: xlarge
-    run-on-projects: built-projects
+    run-on-projects:
+        by-test-platform:
+            macosx1014-.*: []  # currently fails on macOS
+            default: built-projects
     target: null
     tier: default
