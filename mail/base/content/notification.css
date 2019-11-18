@@ -26,6 +26,10 @@ notification[value="draftMsgContent"] > hbox > .messageImage {
   list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
 }
 
+.notification-inline {
+  display: block;
+}
+
 .notification-inline notification {
   border-width: 1px;
   border-radius: 2px;
