@@ -101,7 +101,7 @@ function loadEventsFromFile(aCalendar) {
         return;
       }
 
-      let calendars = cal.getCalendarManager().getCalendars({});
+      let calendars = cal.getCalendarManager().getCalendars();
       calendars = calendars.filter(cal.acl.isCalendarWritable);
 
       if (calendars.length == 1) {
@@ -308,7 +308,7 @@ function exportEntireCalendar(aCalendar) {
     onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDetail) {
       saveEventsToFile(itemArray, aOpCalendar.name);
     },
-    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aItems) {
       for (let item of aItems) {
         itemArray.push(item);
       }
@@ -322,10 +322,9 @@ function exportEntireCalendar(aCalendar) {
   if (aCalendar) {
     getItemsFromCal(aCalendar);
   } else {
-    let count = {};
-    let calendars = cal.getCalendarManager().getCalendars(count);
+    let calendars = cal.getCalendarManager().getCalendars();
 
-    if (count.value == 1) {
+    if (calendars.length == 1) {
       // There's only one calendar, so it's silly to ask what calendar
       // the user wants to import into.
       getItemsFromCal(calendars[0]);

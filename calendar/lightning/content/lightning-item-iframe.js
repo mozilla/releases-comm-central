@@ -626,7 +626,7 @@ function loadDialog(aItem) {
   // add calendars to the calendar menulist
   if (gNewItemUI) {
     let calendarToUse = aItem.calendar || window.arguments[0].calendar;
-    let unfilteredList = sortCalendarArray(cal.getCalendarManager().getCalendars({}));
+    let unfilteredList = sortCalendarArray(cal.getCalendarManager().getCalendars());
 
     // filter out calendars that should not be included
     let calendarList = unfilteredList.filter(
@@ -3269,7 +3269,7 @@ function onCommandSave(aIsClosing) {
         window.counterProposal.onReschedule();
       }
     },
-    onGetResult: function() {},
+    onGetResult: function(calendarItem, status, itemType, detail, items) {},
   };
   let resp = document.getElementById("notify-attendees-checkbox").checked
     ? Ci.calIItipItem.AUTO

@@ -110,7 +110,7 @@ var calasync = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
       items: [],
       itemStatus: Cr.NS_OK,
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         this.itemStatus = aStatus;
         if (Components.isSuccessCode(aStatus)) {
           this.items = this.items.concat(aItems);

@@ -37,7 +37,7 @@ function promptDeleteCalendar(aCalendar) {
   const cICM = Ci.calICalendarManager;
 
   let calMgr = cal.getCalendarManager();
-  let calendars = calMgr.getCalendars({});
+  let calendars = calMgr.getCalendars();
   if (calendars.length <= 1) {
     // If this is the last calendar, don't delete it.
     return;
@@ -106,7 +106,7 @@ function loadCalendarManager() {
   compositeCalendar.addObserver(compositeObserver);
 
   // Create the home calendar if no calendar exists.
-  let calendars = cal.getCalendarManager().getCalendars({});
+  let calendars = cal.getCalendarManager().getCalendars();
   if (calendars.length) {
     // migration code to make sure calendars, which do not support caching have cache enabled
     // required to further clean up on top of bug 1182264
@@ -124,7 +124,7 @@ function loadCalendarManager() {
 
   let calendarManager = cal.getCalendarManager();
 
-  for (let calendar of sortCalendarArray(cal.getCalendarManager().getCalendars({}))) {
+  for (let calendar of sortCalendarArray(cal.getCalendarManager().getCalendars())) {
     addCalendarItem(calendar);
   }
 
@@ -392,7 +392,7 @@ function loadCalendarManager() {
       let item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
       item.remove();
       if (compositeCalendar.defaultCalendar.id == calendar.id) {
-        compositeCalendar.defaultCalendar = compositeCalendar.getCalendars({})[0];
+        compositeCalendar.defaultCalendar = compositeCalendar.getCalendars()[0];
       }
       saveSortOrder();
     },
@@ -579,7 +579,7 @@ function toggleCalendarVisible(aCalendar) {
  */
 function showAllCalendars() {
   let composite = cal.view.getCompositeCalendar(window);
-  let cals = cal.getCalendarManager().getCalendars({});
+  let cals = cal.getCalendarManager().getCalendars();
 
   composite.startBatch();
   for (let calendar of cals) {
@@ -597,7 +597,7 @@ function showAllCalendars() {
  */
 function showOnlyCalendar(aCalendar) {
   let composite = cal.view.getCompositeCalendar(window);
-  let cals = composite.getCalendars({}) || [];
+  let cals = composite.getCalendars() || [];
 
   composite.startBatch();
   for (let calendar of cals) {

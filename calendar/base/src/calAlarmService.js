@@ -231,7 +231,7 @@ calAlarmService.prototype = {
 
     cal.getCalendarManager().addObserver(this.calendarManagerObserver);
 
-    for (let calendar of cal.getCalendarManager().getCalendars({})) {
+    for (let calendar of cal.getCalendarManager().getCalendars()) {
       this.observeCalendar(calendar);
     }
 
@@ -261,7 +261,7 @@ calAlarmService.prototype = {
         end.hour += kHoursBetweenUpdates;
         this.alarmService.mRangeEnd = end.getInTimezone(cal.dtz.UTC);
 
-        this.alarmService.findAlarms(cal.getCalendarManager().getCalendars({}), start, until);
+        this.alarmService.findAlarms(cal.getCalendarManager().getCalendars(), start, until);
       },
     };
     timerCallback.notify();
@@ -288,7 +288,7 @@ calAlarmService.prototype = {
     calmgr.removeObserver(this.calendarManagerObserver);
 
     // Stop observing all calendars. This will also clear the timers.
-    for (let calendar of calmgr.getCalendars({})) {
+    for (let calendar of calmgr.getCalendars()) {
       this.unobserveCalendar(calendar);
     }
 
@@ -520,7 +520,7 @@ calAlarmService.prototype = {
           this.addRemovePromise.resolve();
         }
       },
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         let promise = this.addRemovePromise;
         this.batchCount++;
         this.results = true;

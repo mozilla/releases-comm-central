@@ -218,10 +218,10 @@ add_task(async function testIcalData() {
             resolve();
           }
         },
-        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-          if (aCount) {
-            count += aCount;
-            for (let i = 0; i < aCount; i++) {
+        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+          if (aItems.length) {
+            count += aItems.length;
+            for (let i = 0; i < aItems.length; i++) {
               // Don't check creationDate as it changed when we added the item to the database.
               compareItemsSpecific(aItems[i].parentItem, aItem, [
                 "start",
@@ -287,9 +287,9 @@ add_task(async function testIcalData() {
           }
           this.promises.pop()();
         },
-        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-          if (aCount) {
-            count += aCount;
+        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+          if (aItems.length) {
+            count += aItems.length;
             returnedItem = aItems[0];
           }
         },
@@ -314,7 +314,7 @@ add_task(async function testMetaData() {
     event1.id = "item1";
     await new Promise(resolve => {
       aCalendar.addItem(event1, {
-        onGetResult: function() {},
+        onGetResult: function(calendar, aStatus, aItemType, aDetail, aItems) {},
         onOperationComplete: resolve,
       });
     });
@@ -326,7 +326,7 @@ add_task(async function testMetaData() {
     event2.id = "item2";
     await new Promise(resolve => {
       aCalendar.addItem(event2, {
-        onGetResult: function() {},
+        onGetResult: function(calendar, aStatus, aItemType, aDetail, aItems) {},
         onOperationComplete: resolve,
       });
     });
@@ -348,7 +348,7 @@ add_task(async function testMetaData() {
 
     await new Promise(resolve => {
       aCalendar.deleteItem(event1, {
-        onGetResult: () => {},
+        onGetResult: (calendar, aStatus, aItemType, aDetail, aItems) => {},
         onOperationComplete: resolve,
       });
     });

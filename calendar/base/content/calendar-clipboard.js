@@ -32,7 +32,7 @@ function canPaste() {
   } else {
     let calendars = cal
       .getCalendarManager()
-      .getCalendars({})
+      .getCalendars()
       .filter(cal.acl.isCalendarWritable)
       .filter(cal.acl.userCanAddItemsToCalendar);
     if (!calendars.length) {
@@ -234,7 +234,7 @@ function pasteFromClipboard() {
 
         let calendars = cal
           .getCalendarManager()
-          .getCalendars({})
+          .getCalendars()
           .filter(cal.acl.isCalendarWritable)
           .filter(cal.acl.userCanAddItemsToCalendar)
           .filter(aCal => {

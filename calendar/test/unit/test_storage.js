@@ -38,7 +38,7 @@ add_task(async () => {
   await new Promise(resolve => {
     storage.getItem(addedItemId, {
       found: false,
-      onGetResult: function(calendar, status, type, detail, count, items) {
+      onGetResult: function(calendar, status, type, detail, items) {
         let item = items[0];
 
         // Check start date

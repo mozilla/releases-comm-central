@@ -421,7 +421,7 @@ function openEventDialog(
   // Set up some defaults
   mode = mode || "new";
   calendar = calendar || getSelectedCalendar();
-  let calendars = cal.getCalendarManager().getCalendars({});
+  let calendars = cal.getCalendarManager().getCalendars();
   calendars = calendars.filter(cal.acl.isCalendarWritable);
 
   let isItemSupported;

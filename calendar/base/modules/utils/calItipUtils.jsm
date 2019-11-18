@@ -203,7 +203,7 @@ var calitip = {
 
     let writableCalendars = cal
       .getCalendarManager()
-      .getCalendars({})
+      .getCalendars()
       .filter(isWritableCalendar);
     if (writableCalendars.length > 0) {
       let compCal = Cc["@mozilla.org/calendar/calendar;1?type=composite"].createInstance(
@@ -599,7 +599,7 @@ var calitip = {
     if (needsCalendar) {
       let calendars = cal
         .getCalendarManager()
-        .getCalendars({})
+        .getCalendars()
         .filter(calitip.isSchedulingCalendar);
 
       if (aItipItem.receivedMethod == "REQUEST") {
@@ -1538,7 +1538,7 @@ ItipOpListener.prototype = {
       this.mOpListener.onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail);
     }
   },
-  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {},
+  onGetResult: function(calendar, status, itemType, detail, items) {},
 };
 
 /** local to this module file
@@ -2029,7 +2029,7 @@ ItipItemFinder.prototype = {
     this.mOptionsFunc(this.mItipItem, rc, actionFunc, this.mFoundItems);
   },
 
-  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
     if (Components.isSuccessCode(aStatus)) {
       this.mFoundItems = this.mFoundItems.concat(aItems);
     }

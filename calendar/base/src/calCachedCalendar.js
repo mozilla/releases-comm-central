@@ -11,7 +11,7 @@ var cIOL = Ci.calIOperationListener;
 
 var gNoOpListener = {
   QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-  onGetResult: function(calendar, status, itemType, detail, count, items) {},
+  onGetResult: function(calendar, status, itemType, detail, items) {},
 
   onOperationComplete: function(calendar, status, opType, id, detail) {},
 };
@@ -229,7 +229,7 @@ calCachedCalendar.prototype = {
     self.offlineCachedItems = {};
     let getListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         for (let item of aItems) {
           self.offlineCachedItems[item.hashId] = item;
           self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_CREATED_RECORD;
@@ -253,7 +253,7 @@ calCachedCalendar.prototype = {
     let self = this;
     let getListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         for (let item of aItems) {
           self.offlineCachedItems[item.hashId] = item;
           self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
@@ -277,7 +277,7 @@ calCachedCalendar.prototype = {
     let self = this;
     let getListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         for (let item of aItems) {
           self.offlineCachedItems[item.hashId] = item;
           self.offlineCachedItemFlags[item.hashId] = cICL.OFFLINE_FLAG_DELETED_RECORD;
@@ -371,7 +371,7 @@ calCachedCalendar.prototype = {
       getsReceived: 0,
       opCompleted: false,
 
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         if (Components.isSuccessCode(aStatus)) {
           if (!this.hasRenewedCalendar) {
             // TODO instead of deleting the calendar and creating a new
@@ -579,7 +579,7 @@ calCachedCalendar.prototype = {
     }
 
     let opListener = {
-      onGetResult: function(calendar, status, itemType, detail, count, items) {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: function(calendar, status, opType, id, detail) {
         if (Components.isSuccessCode(status)) {
           if (aPlaybackType == cICL.OFFLINE_FLAG_DELETED_RECORD) {
@@ -633,7 +633,7 @@ calCachedCalendar.prototype = {
     }
 
     let getListener = {
-      onGetResult: function(calendar, status, itemType, detail, count, items) {
+      onGetResult: function(calendar, status, itemType, detail, items) {
         itemQueue = itemQueue.concat(items);
       },
       onOperationComplete: function(calendar, status, opType, id, detail) {
@@ -741,7 +741,7 @@ calCachedCalendar.prototype = {
     // has performed the modification, see below:
     let self = this;
     let cacheListener = {
-      onGetResult: function(calendar, status, itemType, detail, count, items) {
+      onGetResult: function(calendar, status, itemType, detail, items) {
         cal.ASSERT(false, "unexpected!");
       },
       onOperationComplete: function(calendar, status, opType, id, detail) {
@@ -775,7 +775,7 @@ calCachedCalendar.prototype = {
   adoptOfflineItem: function(item, listener) {
     let self = this;
     let opListener = {
-      onGetResult: function(calendar, status, itemType, detail, count, items) {
+      onGetResult: function(calendar, status, itemType, detail, items) {
         cal.ASSERT(false, "unexpected!");
       },
       onOperationComplete: function(calendar, status, opType, id, detail) {
@@ -796,7 +796,7 @@ calCachedCalendar.prototype = {
     // First of all, we should find out if the item to modify is
     // already an offline item or not.
     let flagListener = {
-      onGetResult: function() {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: function(calendar, status, opType, id, offline_flag) {
         if (
           offline_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
@@ -822,7 +822,7 @@ calCachedCalendar.prototype = {
      * Result is that we currently stick to firing onOperationComplete if the cached calendar
      * has performed the modification, see below: */
     let cacheListener = {
-      onGetResult: function() {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: function(calendar, status, opType, id, detail) {
         if (isUnavailableCode(status)) {
           // The item couldn't be modified at the (remote) location,
@@ -857,7 +857,7 @@ calCachedCalendar.prototype = {
   modifyOfflineItem: function(newItem, oldItem, listener) {
     let self = this;
     let opListener = {
-      onGetResult: function(calendar, status, itemType, detail, count, items) {
+      onGetResult: function(calendar, status, itemType, detail, items) {
         cal.ASSERT(false, "unexpected!");
       },
       onOperationComplete: function(calendar, status, opType, id, detail) {
@@ -883,7 +883,7 @@ calCachedCalendar.prototype = {
     // First of all, we should find out if the item to delete is
     // already an offline item or not.
     let flagListener = {
-      onGetResult: function() {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: function(calendar, status, opType, id, offline_flag) {
         if (
           offline_flag == cICL.OFFLINE_FLAG_CREATED_RECORD ||
@@ -909,7 +909,7 @@ calCachedCalendar.prototype = {
     // Result is that we currently stick to firing onOperationComplete if the cached calendar
     // has performed the modification, see below:
     let cacheListener = {
-      onGetResult: function() {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: function(calendar, status, opType, id, detail) {
         if (isUnavailableCode(status)) {
           // The item couldn't be deleted at the (remote) location,

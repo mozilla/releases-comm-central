@@ -152,7 +152,7 @@ function getPrintSettings(receiverFunc) {
       onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDateTime) {
         receiverFunc(settings);
       },
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         settings.eventList = settings.eventList.concat(aItems);
         if (!settings.printTasksWithNoDueDate) {
           let eventWithDueDate = [];

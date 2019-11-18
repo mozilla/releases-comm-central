@@ -566,7 +566,7 @@ calStorageCalendar.prototype = {
       return;
     }
 
-    aListener.onGetResult(this.superCalendar, Cr.NS_OK, item_iid, null, 1, [item]);
+    aListener.onGetResult(this.superCalendar, Cr.NS_OK, item_iid, null, [item]);
 
     this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
   },
@@ -657,14 +657,7 @@ calStorageCalendar.prototype = {
       }
 
       if (queuedItems.length != 0 && (!theItems || queuedItems.length > maxQueueSize)) {
-        aListener.onGetResult(
-          self.superCalendar,
-          Cr.NS_OK,
-          queuedItemsIID,
-          null,
-          queuedItems.length,
-          queuedItems
-        );
+        aListener.onGetResult(self.superCalendar, Cr.NS_OK, queuedItemsIID, null, queuedItems);
         queuedItems = [];
       }
     }
@@ -902,7 +895,7 @@ calStorageCalendar.prototype = {
     let self = this;
     let opListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function(calendar, status, itemType, detail, count, items) {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: async function(calendar, status, opType, id, oldOfflineJournalFlag) {
         let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
         if (
@@ -929,7 +922,7 @@ calStorageCalendar.prototype = {
     let self = this;
     let opListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function(calendar, status, itemType, detail, count, items) {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: async function(calendar, status, opType, id, oldOfflineJournalFlag) {
         if (oldOfflineJournalFlag) {
           // Delete item if flag is c

@@ -585,9 +585,9 @@ var gInvitationsOperationListener = {
     this.mCount = 0;
   },
 
-  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
     if (Components.isSuccessCode(aStatus)) {
-      this.mCount += aCount;
+      this.mCount += aItems.length;
     }
   },
 };

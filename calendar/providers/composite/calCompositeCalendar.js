@@ -134,7 +134,7 @@ calCompositeCalendar.prototype = {
     this.mActivePref = aPrefPrefix + "-in-composite";
     this.mDefaultPref = aPrefPrefix + "-default";
     let mgr = cal.getCalendarManager();
-    let cals = mgr.getCalendars({});
+    let cals = mgr.getCalendars();
 
     cals.forEach(function(calendar) {
       if (calendar.getProperty(this.mActivePref)) {
@@ -196,8 +196,7 @@ calCompositeCalendar.prototype = {
     return null;
   },
 
-  getCalendars: function(count) {
-    count.value = this.mCalendars.length;
+  getCalendars: function() {
     return this.mCalendars;
   },
 
@@ -484,7 +483,7 @@ calCompositeGetListenerHelper.prototype = {
       // proxy this to a onGetResult
       // XXX - do we want to give the real calendar? or this?
       // XXX - get rid of iid param
-      this.mRealListener.onGetResult(aCalendar, aStatus, Ci.nsISupports, aDetail, 0, []);
+      this.mRealListener.onGetResult(aCalendar, aStatus, Ci.nsISupports, aDetail, []);
     }
 
     this.mReceivedCompletes++;
@@ -499,7 +498,7 @@ calCompositeGetListenerHelper.prototype = {
     }
   },
 
-  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
     if (!this.mRealListener) {
       // has been cancelled, ignore any providers firing on this...
       return;
@@ -514,19 +513,21 @@ calCompositeGetListenerHelper.prototype = {
       return;
     }
 
+    let itemsCount = aItems.length;
+
     if (
       Components.isSuccessCode(aStatus) &&
       this.mMaxItems &&
-      this.mItemsReceived + aCount > this.mMaxItems
+      this.mItemsReceived + itemsCount > this.mMaxItems
     ) {
       // this will blow past the limit
-      aCount = this.mMaxItems - this.mItemsReceived;
-      aItems = aItems.slice(0, aCount);
+      itemsCount = this.mMaxItems - this.mItemsReceived;
+      aItems = aItems.slice(0, itemsCount);
     }
 
     // send GetResults to the real listener
-    this.mRealListener.onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems);
-    this.mItemsReceived += aCount;
+    this.mRealListener.onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems);
+    this.mItemsReceived += itemsCount;
   },
 };
 

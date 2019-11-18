@@ -18,7 +18,7 @@ function loadCalendars() {
   if (window.arguments[0].calendars) {
     calendars = window.arguments[0].calendars;
   } else {
-    calendars = calendarManager.getCalendars({});
+    calendars = calendarManager.getCalendars();
   }
   calendars = sortCalendarArray(calendars);
 

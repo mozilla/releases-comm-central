@@ -1144,7 +1144,6 @@ calWcapCalendar.prototype.getItem = function(id, listener) {
               NS_OK,
               calIItemBase,
               log("getItem(): success. id=" + id, this),
-              items.length,
               items
             );
           }
@@ -1271,7 +1270,6 @@ calWcapCalendar.prototype.getItems = function(
             NS_OK,
             calIItemBase,
             "getItems()",
-            entry.results.length,
             entry.results
           );
         }
@@ -1325,7 +1323,6 @@ calWcapCalendar.prototype.getItems = function(
                     NS_OK,
                     calIItemBase,
                     "getItems()/free-busy",
-                    items.length,
                     items
                   );
                 }.bind(this),
@@ -1403,14 +1400,7 @@ calWcapCalendar.prototype.getItems = function(
             }
           }
 
-          listener.onGetResult(
-            this.superCalendar,
-            NS_OK,
-            calIItemBase,
-            "getItems()",
-            items.length,
-            items
-          );
+          listener.onGetResult(this.superCalendar, NS_OK, calIItemBase, "getItems()", items);
         }
       },
       stringToIcal,
@@ -1452,7 +1442,7 @@ calWcapCalendar.prototype.replayChangesOn = function(listener) {
   try {
     let writeListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function() {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: function(aCalendar, status, opType, id, detail) {
         if (!Components.isSuccessCode(status)) {
           request.execRespFunc(status); // any error on writing breaks whole operation

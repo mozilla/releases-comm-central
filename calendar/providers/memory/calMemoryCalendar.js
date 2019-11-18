@@ -357,7 +357,7 @@ calMemoryCalendar.prototype = {
       return;
     }
 
-    aListener.onGetResult(this.superCalendar, Cr.NS_OK, iid, null, 1, [item]);
+    aListener.onGetResult(this.superCalendar, Cr.NS_OK, iid, null, [item]);
 
     this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, aId, null);
   },
@@ -515,14 +515,7 @@ calMemoryCalendar.prototype = {
         return cal.iterate.forEach.CONTINUE;
       },
       () => {
-        aListener.onGetResult(
-          this.superCalendar,
-          Cr.NS_OK,
-          typeIID,
-          null,
-          itemsFound.length,
-          itemsFound
-        );
+        aListener.onGetResult(this.superCalendar, Cr.NS_OK, typeIID, null, itemsFound);
         this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
       }
     );

@@ -366,8 +366,8 @@ calICSCalendar.prototype = {
           self.forceRefresh();
         }
       },
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
-        this.serializer.addItems(aItems, aCount);
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+        this.serializer.addItems(aItems, aItems.length);
       },
     };
     listener.serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
@@ -529,7 +529,7 @@ calICSCalendar.prototype = {
     }
     modListener.prototype = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function() {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
       onOperationComplete: function() {
         this.mAction.opCompleteArgs = arguments;
       },

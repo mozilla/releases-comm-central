@@ -125,7 +125,7 @@ InvitationsManager.prototype = {
     this.updateStartDate();
     this.deleteAllItems();
 
-    let cals = cal.getCalendarManager().getCalendars({});
+    let cals = cal.getCalendarManager().getCalendars();
 
     let opListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
@@ -149,7 +149,6 @@ InvitationsManager.prototype = {
                   Cr.NS_OK,
                   Ci.calIItemBase,
                   null,
-                  this.mInvitationsManager.mItemList.length,
                   this.mInvitationsManager.mItemList
                 );
               }
@@ -167,7 +166,7 @@ InvitationsManager.prototype = {
         }
       },
 
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         if (Components.isSuccessCode(aStatus)) {
           for (let item of aItems) {
             // we need to retrieve by occurrence to properly filter exceptions,
@@ -282,7 +281,7 @@ InvitationsManager.prototype = {
         }
       },
 
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {},
+      onGetResult: function(calendar, status, itemType, detail, items) {},
     };
 
     this.mJobsPending = 0;

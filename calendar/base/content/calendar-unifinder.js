@@ -917,7 +917,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
       setTimeout(refreshTreeInternalFunc, 0);
     },
 
-    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aItems) {
       refreshListener.mEventArray = refreshListener.mEventArray.concat(aItems);
     },
   };

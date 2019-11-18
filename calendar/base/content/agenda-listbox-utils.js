@@ -625,7 +625,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
       }
     },
 
-    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aItems) {
       if (this.cancelled || !Components.isSuccessCode(aStatus)) {
         return;
       }

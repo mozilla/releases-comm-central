@@ -487,7 +487,7 @@ function deleteCalendars(controller, name) {
   let win = eid("messengerWindow").getNode().ownerGlobal;
   let manager = win.cal.getCalendarManager();
 
-  for (let calendar of manager.getCalendars({})) {
+  for (let calendar of manager.getCalendars()) {
     if (calendar.name == name) {
       manager.removeCalendar(calendar);
     }

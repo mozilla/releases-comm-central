@@ -213,7 +213,7 @@ function sortCalendarArray(calendars) {
   let wantedOrderString = ret.map(calendar => calendar.id).join(" ");
   if (
     wantedOrderString != sortOrderString &&
-    cal.getCalendarManager().getCalendars({}).length == ret.length
+    cal.getCalendarManager().getCalendars().length == ret.length
   ) {
     Services.prefs.setStringPref("calendar.list.sortOrder", wantedOrderString);
   }
@@ -236,7 +236,7 @@ function sortCalendarArray(calendars) {
  */
 function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnCommand) {
   let calendarToUse = aCalendarToUse || aItem.calendar;
-  let calendars = sortCalendarArray(cal.getCalendarManager().getCalendars({}));
+  let calendars = sortCalendarArray(cal.getCalendarManager().getCalendars());
   let indexToSelect = 0;
   let index = -1;
   for (let i = 0; i < calendars.length; ++i) {

@@ -545,7 +545,7 @@ var calendarController = {
   get writable() {
     return cal
       .getCalendarManager()
-      .getCalendars({})
+      .getCalendars()
       .some(cal.acl.isCalendarWritable);
   },
 
@@ -587,7 +587,7 @@ var calendarController = {
    */
   get has_cached_calendars() {
     let calMgr = cal.getCalendarManager();
-    let calendars = calMgr.getCalendars({});
+    let calendars = calMgr.getCalendars();
     for (let calendar of calendars) {
       if (calendar.getProperty("cache.enabled") || calendar.getProperty("cache.always")) {
         return true;
@@ -609,7 +609,7 @@ var calendarController = {
   get all_local_calendars_readonly() {
     // We might want to speed this part up by keeping track of this in the
     // calendar manager.
-    let calendars = cal.getCalendarManager().getCalendars({});
+    let calendars = cal.getCalendarManager().getCalendars();
     let count = calendars.length;
     for (let calendar of calendars) {
       if (!cal.acl.isCalendarWritable(calendar)) {
@@ -891,7 +891,7 @@ function calendarUpdateNewItemsCommand() {
   CalendarNewTasksCommandEnabled = false;
   let calendars = cal
     .getCalendarManager()
-    .getCalendars({})
+    .getCalendars()
     .filter(cal.acl.isCalendarWritable)
     .filter(cal.acl.userCanAddItemsToCalendar);
   if (calendars.some(cal.item.isEventCalendar)) {

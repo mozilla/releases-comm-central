@@ -25,7 +25,7 @@ function openLocalCalendar() {
     }
 
     let calMgr = cal.getCalendarManager();
-    let calendars = calMgr.getCalendars({});
+    let calendars = calMgr.getCalendars();
     let calendar = calendars.find(x => x.uri.equals(picker.fileURL));
     if (!calendar) {
       calendar = calMgr.createCalendar("ics", picker.fileURL);

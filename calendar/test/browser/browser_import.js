@@ -20,7 +20,7 @@ add_task(async () => {
 
   await loadEventsFromFile();
 
-  let calendar = cal.getCalendarManager().getCalendars({})[0];
+  let calendar = cal.getCalendarManager().getCalendars()[0];
   let promiseCalendar = cal.async.promisifyCalendar(calendar);
   let result = await promiseCalendar.getItems(
     Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,

@@ -95,7 +95,7 @@ function onSearch() {
   }
 
   let registeredCals = {};
-  for (let calendar of cal.getCalendarManager().getCalendars({})) {
+  for (let calendar of cal.getCalendarManager().getCalendars()) {
     registeredCals[calendar.id] = true;
   }
 

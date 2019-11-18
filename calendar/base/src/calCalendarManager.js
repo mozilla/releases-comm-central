@@ -98,7 +98,7 @@ calCalendarManager.prototype = {
     switch (aTopic) {
       case "timer-callback": {
         // Refresh all the calendars that can be refreshed.
-        for (let calendar of this.getCalendars({})) {
+        for (let calendar of this.getCalendars()) {
           if (!calendar.getProperty("disabled") && calendar.canRefresh) {
             calendar.refresh();
           }
@@ -414,14 +414,13 @@ calCalendarManager.prototype = {
     }
   },
 
-  getCalendars: function(count) {
+  getCalendars: function() {
     this.assureCache();
     let calendars = [];
     for (let id in this.mCache) {
       let calendar = this.mCache[id];
       calendars.push(calendar);
     }
-    count.value = calendars.length;
     return calendars;
   },
 
@@ -874,7 +873,7 @@ var gCalendarManagerAddonListener = {
     const features = "chrome,titlebar,resizable,modal";
     let calMgr = cal.getCalendarManager();
     let affectedCalendars = calMgr
-      .getCalendars({})
+      .getCalendars()
       .filter(calendar => calendar.providerID == aAddon.id);
     if (!affectedCalendars.length) {
       // If no calendars are affected, then everything is fine.

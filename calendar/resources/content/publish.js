@@ -50,10 +50,9 @@ function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialo
  */
 function publishEntireCalendar(aCalendar) {
   if (!aCalendar) {
-    let count = {};
-    let calendars = cal.getCalendarManager().getCalendars(count);
+    let calendars = cal.getCalendarManager().getCalendars();
 
-    if (count.value == 1) {
+    if (calendars.length == 1) {
       // Do not ask user for calendar if only one calendar exists
       aCalendar = calendars[0];
     } else {
@@ -111,12 +110,12 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
     onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
       publishItemArray(itemArray, CalendarPublishObject.remotePath, aProgressDialog);
     },
-    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
       if (!Components.isSuccessCode(aStatus)) {
         return;
       }
-      if (aCount) {
-        for (let i = 0; i < aCount; ++i) {
+      if (aItems.length) {
+        for (let i = 0; i < aItems.length; ++i) {
           // Store a (short living) reference to the item.
           let itemCopy = aItems[i].clone();
           itemArray.push(itemCopy);

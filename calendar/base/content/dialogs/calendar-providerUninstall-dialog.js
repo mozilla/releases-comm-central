@@ -12,7 +12,7 @@ function onLoad() {
 
   let calendarList = document.getElementById("calendar-list");
 
-  for (let calendar of cal.getCalendarManager().getCalendars({})) {
+  for (let calendar of cal.getCalendarManager().getCalendars()) {
     if (calendar.providerID != extension.id) {
       continue;
     }

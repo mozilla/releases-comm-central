@@ -248,7 +248,7 @@ var gDataMigrator = {
       // For duplicate detection
       let calManager = cal.getCalendarManager();
       let uris = [];
-      for (let oldCal of calManager.getCalendars({})) {
+      for (let oldCal of calManager.getCalendars()) {
         uris.push(oldCal.uri);
       }
 

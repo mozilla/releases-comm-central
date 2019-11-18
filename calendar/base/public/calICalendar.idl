@@ -516,8 +516,7 @@ interface calICompositeCalendar : calICalendar
   calICalendar getCalendarById(in AUTF8String aId);
 
   /* return a list of all calendars currently registered */
-  void getCalendars(out uint32_t count,
-                    [array, size_is(count), retval] out calICalendar aCalendars);
+  Array<calICalendar> getCalendars();
 
   /**
    * In order for addItem() to be called on this object, it is first necessary
@@ -627,15 +626,13 @@ interface calIOperationListener : nsISupports
    * @param aDetail   not yet fully specified.  If aStatus is an error
    *                  result, this will probably be an extended error
    *                  string (eg one returned by a server).
-   * @param aCount    size of array returned, in items
    * @param aItems    array of immutable items
    *
    * Multiple onGetResults might be called
    */
-  void onGetResult (in calICalendar aCalendar,
-                    in nsresult aStatus,
-                    in nsIIDRef aItemType,
-                    in nsIVariant aDetail,
-                    in uint32_t aCount,
-                    [array, size_is(aCount), iid_is(aItemType)]  in nsQIResult aItems );
+  void onGetResult(in calICalendar aCalendar,
+                   in nsresult aStatus,
+                   in nsIIDRef aItemType,
+                   in nsIVariant aDetail,
+                   [iid_is(aItemType)] in Array<nsQIResult> aItems);
 };

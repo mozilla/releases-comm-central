@@ -885,7 +885,7 @@ calWcapSession.prototype = {
 
   getRegisteredCalendars: function(asAssocObj) {
     let registeredCalendars = asAssocObj ? {} : [];
-    let cals = cal.getCalendarManager().getCalendars({});
+    let cals = cal.getCalendarManager().getCalendars();
     for (let calendar of cals) {
       calendar = this.belongsTo(calendar);
       if (calendar) {

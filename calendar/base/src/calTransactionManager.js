@@ -118,9 +118,9 @@ calTransaction.prototype = {
     }
   },
 
-  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
     if (this.mListener) {
-      this.mListener.onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems);
+      this.mListener.onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems);
     }
   },
 

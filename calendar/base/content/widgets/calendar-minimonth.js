@@ -309,7 +309,7 @@
 
     onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {}
 
-    onGetResult(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+    onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
       if (Components.isSuccessCode(aStatus)) {
         aItems.forEach(item => this.setBusyDaysForOccurrence(item, true));
       }

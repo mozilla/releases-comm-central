@@ -221,11 +221,11 @@ function onLoad() {
         noInvitationsBox.removeAttribute("hidden");
       }
     },
-    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
       if (!Components.isSuccessCode(aStatus)) {
         return;
       }
-      document.title = invitationsText + " (" + aCount + ")";
+      document.title = invitationsText + " (" + aItems.length + ")";
       let updatingBox = document.getElementById("updating-box");
       updatingBox.setAttribute("hidden", "true");
       let richListBox = document.getElementById("invitations-listbox");

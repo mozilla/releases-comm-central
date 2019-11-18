@@ -266,7 +266,7 @@ calDavCalendar.prototype = {
     let refreshNeeded = false;
     let getMetaListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
         for (let item of aItems) {
           if (!(item.id in self.mItemInfoCache)) {
             let path = self.getItemLocationPath(item);
@@ -1392,7 +1392,7 @@ calDavCalendar.prototype = {
       let self = this;
       let opListener = {
         QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-        onGetResult: function(calendar, status, itemType, detail, count, items) {
+        onGetResult: function(calendar, status, itemType, detail, items) {
           cal.ASSERT(false, "unexpected!");
         },
         onOperationComplete: function(opCalendar, opStatus, opType, opId, opDetail) {
@@ -1536,7 +1536,7 @@ calDavCalendar.prototype = {
   },
 
   firstInRealm: function() {
-    let calendars = cal.getCalendarManager().getCalendars({});
+    let calendars = cal.getCalendarManager().getCalendars();
     for (let i = 0; i < calendars.length; i++) {
       if (calendars[i].type != "caldav" || calendars[i].getProperty("disabled")) {
         continue;
@@ -2868,7 +2868,7 @@ calDavCalendar.prototype = {
       aId,
       aDetail
     ) {};
-    getItemListener.onGetResult = function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {
+    getItemListener.onGetResult = function(aCalendar, aStatus, aItemType, aDetail, aItems) {
       let itemToUpdate = aItems[0];
       if (aItem.recurrenceId && itemToUpdate.recurrenceInfo) {
         itemToUpdate = itemToUpdate.recurrenceInfo.getOccurrenceFor(aItem.recurrenceId);

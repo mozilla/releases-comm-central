@@ -77,7 +77,7 @@ add_test(function test_registration() {
 
   // And be in the list of calendars
   equal(memory, calmgr.getCalendarById(memory.id));
-  ok(calmgr.getCalendars({}).some(x => x.id == memory.id));
+  ok(calmgr.getCalendars().some(x => x.id == memory.id));
 
   // Make it readonly and check if the observer caught it
   memory.setProperty("readOnly", true);
@@ -90,7 +90,7 @@ add_test(function test_registration() {
 
   // The calendar shouldn't be in the list of ids
   equal(calmgr.getCalendarById(memory.id), null);
-  ok(calmgr.getCalendars({}).every(x => x.id != memory.id));
+  ok(calmgr.getCalendars().every(x => x.id != memory.id));
 
   // And finally delete it
   calmgr.removeCalendar(memory, Ci.calICalendarManager.REMOVE_NO_UNREGISTER);

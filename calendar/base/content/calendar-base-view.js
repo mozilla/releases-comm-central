@@ -221,7 +221,7 @@
       }
     }
 
-    onGetResult(opCalendar, status, itemType, detail, count, items) {
+    onGetResult(opCalendar, status, itemType, detail, items) {
       if (this.cancelled || !Components.isSuccessCode(status)) {
         return;
       }

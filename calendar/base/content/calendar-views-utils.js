@@ -563,7 +563,7 @@ function selectAllEvents() {
     onOperationComplete: function(calendar, status, operationType, id, detail) {
       currentView().setSelectedItems(items.length, items, false);
     },
-    onGetResult: function(calendar, status, itemType, detail, count, itemsArg) {
+    onGetResult: function(calendar, status, itemType, detail, itemsArg) {
       for (let item of itemsArg) {
         items.push(item);
       }

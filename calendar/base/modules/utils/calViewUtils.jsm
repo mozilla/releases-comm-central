@@ -360,7 +360,7 @@ calview.colorTracker = {
   registerWindow(aWindow) {
     if (this.calendars === null) {
       let manager = cal.getCalendarManager();
-      this.calendars = new Set(manager.getCalendars({}));
+      this.calendars = new Set(manager.getCalendars());
       manager.addObserver(this);
       manager.addCalendarObserver(this);
       this.categoryBranch = Services.prefs.getBranch("calendar.category.color.");

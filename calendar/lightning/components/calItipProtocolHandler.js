@@ -99,7 +99,7 @@ ItipContentHandler.prototype = {
         ")\n"
     );
     let calMgr = cal.getCalendarManager();
-    let cals = calMgr.getCalendars({});
+    let cals = calMgr.getCalendars();
     cals[0].addItem(event, null);
   },
 };

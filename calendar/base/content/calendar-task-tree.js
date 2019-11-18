@@ -467,7 +467,7 @@
           this.tree.mTreeView.modifyItems(this.items, oldItems);
         },
 
-        onGetResult(opCalendar, status, itemType, detail, count, items) {
+        onGetResult(opCalendar, status, itemType, detail, items) {
           this.items = this.items.concat(items);
         },
 
@@ -518,7 +518,7 @@
 
       Services.prefs.getBranch("").addObserver("calendar.", this.mPrefObserver);
 
-      const cals = cal.view.getCompositeCalendar(window).getCalendars({}) || [];
+      const cals = cal.view.getCompositeCalendar(window).getCalendars() || [];
       const enabledCals = cals.filter(calendar => !calendar.getProperty("disabled"));
 
       enabledCals.forEach(calendar => this.refreshFromCalendar(calendar));

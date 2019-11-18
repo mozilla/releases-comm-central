@@ -66,8 +66,7 @@ interface calICalendarManager : nsISupports
   calICalendar getCalendarById(in AUTF8String aId);
 
   /* return a list of all calendars currently registered */
-  void getCalendars(out uint32_t count,
-                    [array, size_is(count), retval] out calICalendar aCalendars);
+  Array<calICalendar> getCalendars();
 
   /** Add an observer for the calendar manager, i.e when calendars are registered */
   void addObserver(in calICalendarManagerObserver aObserver);

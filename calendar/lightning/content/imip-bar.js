@@ -403,7 +403,7 @@ var ltnImipBar = {
               cal.showError(label);
             }
           },
-          onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aCount, aItems) {},
+          onGetResult: function(calendar, status, itemType, detail, items) {},
         };
 
         try {
