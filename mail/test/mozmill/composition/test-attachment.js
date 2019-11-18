@@ -309,13 +309,11 @@ function test_open_attachment() {
   add_attachments(cwc, url, size);
 
   // Now, open the attachment.
-  /* Disabled, see bug 1595747.
   let bucket = cwc.e("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   plan_for_modal_dialog("unknownContentType", subtest_open_attachment);
   cwc.doubleClick(new elib.Elem(node));
   wait_for_modal_dialog("unknownContentType");
-  */
 
   close_compose_window(cwc);
 }
