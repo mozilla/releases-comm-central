@@ -115,6 +115,7 @@
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/compacttheme.css              (../shared/mail/compacttheme.css)
   skin/classic/messenger/shared/creationDialog.css            (../shared/mail/creationDialog.css)
+  skin/classic/messenger/shared/EditorDialog.css              (../shared/mail/EditorDialog.css)
   skin/classic/messenger/shared/in-content/applications.css   (../shared/mail/incontentprefs/applications.css)
   skin/classic/messenger/shared/in-content/dialog.css         (../shared/mail/incontentprefs/dialog.css)
   skin/classic/messenger/shared/in-content/passwordmgr.css    (../shared/mail/incontentprefs/passwordmgr.css)
