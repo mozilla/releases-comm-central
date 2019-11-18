@@ -1,0 +1,9 @@
+From: test <test@example.com>
+Subject: test reply to ISO-8859-7 encoded message
+To: test2 <test2@example.com>
+Date: Sat, 27 Feb 2016 17:11:45 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-7
+Content-Transfer-Encoding: quoted-printable
+
+Here comes some Greek text: =CA=E1=EB=E7=F3=F0=DD=F1=E1

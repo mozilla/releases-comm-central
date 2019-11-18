@@ -1,0 +1,66 @@
+From: test <test@example.com>
+Subject: test multipart, alternative first, with image and image attachment
+To: test2 <test2@example.com>
+Date: Sat, 27 Feb 2016 17:11:45 +0100
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="------------mixed"
+
+This is a multi-part message in MIME format.
+--------------mixed
+Content-Type: multipart/alternative;
+ boundary="------------alternative"
+
+
+--------------alternative
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Plain Text
+
+--------------alternative
+Content-Type: multipart/related;
+ boundary="------------related"
+
+
+--------------related
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+  </head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    HTML Body<br>
+    <img src="cid:part1.DE278D8E.600E563A@jorgk.com" alt="">
+  </body>
+</html>
+
+--------------related
+Content-Type: image/png;
+ name="llpfblmjefjfhhce.png"
+Content-Transfer-Encoding: base64
+Content-ID: <part1.DE278D8E.600E563A@jorgk.com>
+Content-Disposition: inline;
+ filename="llpfblmjefjfhhce.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEUlEQVQImWOwCKjBihiGlgQA
+VT9BAeZezQ0AAAAASUVORK5CYII=
+--------------related--
+
+--------------alternative--
+
+--------------mixed
+Content-Type: image/png;
+ name="attach.png"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="attach.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAkAAAALCAIAAAAiOzBMAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAASdEVYdFNvZnR3YXJlAEdyZWVuc2hv
+dF5VCAUAAAAtSURBVChTY3Dx6wYiZ/9OTMTg7A+UIEsOXQiOaCkX0I6JiJBzDMCCcMsFdAIA
+xwttYrvggeAAAAAASUVORK5CYII=
+--------------mixed--

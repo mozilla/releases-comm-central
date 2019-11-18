@@ -72,7 +72,7 @@ function destroy_account(aKey) {
  * case-insensitive)
  */
 function test_load_accounts_and_properly_order() {
-  let prefTab = open_pref_tab("paneCompose");
+  let prefTab = open_pref_tab("paneCompose", "compositionAttachmentsCategory");
 
   let richList = content_tab_e(prefTab, "cloudFileView");
   assert_equals(4, richList.itemCount, "Should be displaying 4 accounts");
@@ -100,7 +100,7 @@ test_external_link.__force_skip__ = true;
 function test_external_link() {
   gMockExtProtSvcReg.register();
 
-  let prefTab = open_pref_tab("paneCompose");
+  let prefTab = open_pref_tab("paneCompose", "compositionAttachmentsCategory");
   content_tab_e(prefTab, "cloudFileView").selectedIndex = 0;
 
   let iframe = content_tab_e(prefTab, "cloudFileSettingsWrapper")

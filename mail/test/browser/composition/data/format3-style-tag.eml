@@ -1,0 +1,31 @@
+Message-ID: <33333.33333@example.invalid>
+Date: Sun, 17 Jun 2012 09:42:45 +0200
+MIME-Version: 1.0
+Subject: <style> element
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<html>
+<head>
+
+<style type="text/css">
+<!--
+body {
+font-size:11.0pt;
+font-family:"Calibri","sans-serif";
+}
+ul, ol, blockquote {
+margin: 0px 0px;
+}
+-->
+</style>
+
+</head><body>
+
+Type text here
+
+<div id="imageholder">
+
+</div>
+</body>
+</html>

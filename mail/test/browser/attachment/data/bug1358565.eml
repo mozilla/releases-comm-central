@@ -1,0 +1,62 @@
+Date: Thu, 22 Feb 2017 10:00:00 -0300
+From: <nobody@example.com>
+MIME-Version: 1.0
+To: <nobody2@example.com>
+Content-Type: multipart/alternative; boundary="------alternative"
+Subject: thunderbird bug
+
+
+--------alternative
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7bit
+
+text plain part.
+
+--------alternative
+Content-Type: multipart/related;
+	boundary="------related";
+	type="text/html"
+
+--------related
+Content-Type: text/html;
+	charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+<html><body>HTML part<br><img src="cid:bug.png"></body></html>
+--------related
+Content-Disposition: inline;
+	filename=bug.png
+Content-Transfer-Encoding: base64
+Content-Type: image/jpeg;
+	name="bug.png"
+Content-Id: <bug.png>
+
+iVBORw0KGgoAAAANSUhEUgAAAHYAAABNCAYAAABzGpB/AAAABGdBTUEAALGPC/xhBQAAAAFzUkdC
+AK7OHOkAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAS/SURBVHja7Zy/TexAEIdPJKQkhDQAJRBQAhk5
+GQWQ0QARBSBRAVRAAQRkpERIFEAJfvqeZOnOzHj/2l4fv5+00ruz18/M55kd787eppP2UhuZQGAl
+gZUEVhJYSWAFVib4o2BPTk66zWaz056fn2U5gZUEVhJYSWAFVmAFVpYTWElgJYGVBFZgBVZgZTmB
+lVYP9v39vbu9ve1OT0+7w8PDnT585loc57y/pM/Pz+7h4aG7urrqjo+Pd+xycXHR3dzcdK+vr93P
+z09bYL++vrrz8/Nf5401zs8FbN3T9fV1kSH4m4bX5P8pEbDOzs6ibQL0l5eXXUDGeR8fH9ODfXx8
+7A4ODpKg9o1+9/f3ewcWz8M7c2xCo2/vvYuABUruzW+3VLgtgyXsDsNtTiNELwLWMgQeSIjFyP05
+QLu8vPw15pYkZK2CxcvGoHLs7u6ue3p6+g+HRujlO6sf4/KsYIfhl39jWMbaMQHZC9t8H+rfOli8
+zAPKeBsSkGO8fTKw23COjo6ibno70aKPdcOxcFoEixd6IfX7+7tqKJ8M7DbgnMwWuJbnxnpta2C9
+EExGnPMKE4I7OdiSiQov8eI9d21gPW+NAeDp7e1tGbAkSaWyEqoYY7YG1npXJSEqlTdmTwo2ZVz1
+hHda114TWMKm9Tfwfamw8axg8bQaYnzOCfEtgbXCMB5cQyRds4KtEYZ7WUlUaJxtCaw1w8T7Z7U5
+3znBlhqx9PotgbWyVxKfVYKtuWy3drC1s2GBbQCslzjVlMAuABYDC6zACqzA7gFYa0FAYPcA7Jon
+KLzkabVZccxEfa4xaaEVoynA0r/W606N6dbSBycLLBURNcR1cqYrp7gnqxgvBuxUCwCrniu2Vndi
+pitzvSv1XmKuCUSrYqKGvIK4SVd3SsdZbz2WspuQvFWh2NKa2CEhBqznVaXh2AvDk4Mlm80VACwP
+iY0EHoicUtaxvzEGLBUSVt/c6omQt85SQZG7yuMVl6eAsVaFeDBSvdbz/pTwboXjkrHWq06cDWwO
+XA9qagTwrpNyP6G66Fiw3rppDlyvzGb2KsXeAKFXFI6PPSSpY5IXjmnsHRrzXI4NEzD6TFGl2Ff2
+hyoVOT4Mv4vXFW97HQbjeF8szmev3LR0bLRgDGFtF68TdvFo68GsUVcc2tZBDRMPAOu1wOFh5rNV
+28R33vg96cwTN5W7Z6cG1N7zQg9NqNGf69TaCeAVoKVu71h0704JXPrFvNqERIjPhdtDzZ1S9OCy
+LbLGhqxF54oxbCgkWvt7ct85Pc+1ZrHG2nBLSu1tlITblC2UnDvcQjkp2BTPwVgYwxrDgEnYrQnU
+Ajy28ZrvOT7lPViA+03PlneSNY/VSC0OVppGucuCAtuwStZ7BbZhMeZa4VtgVy4ru44tRhfYRuVN
+TsQWowtso7KmKFPWeQW2QXlrsSkLCgLbYAj2piVTfvJAYCuJbLV0MxavN95PFKTu4BPYyhMJTA0C
+IaUEldDrLdYPFwUEdiGw1nsnoEmGho3XmdB8Mh6cszteYCcGW7p8l/uTBwLbKFi8vKQYTmAriYyV
+8JqyVOf9JF9K9iuwM0OmCKFfrvNgc4zW/7Zi1QgiDHs6NMgEAisJrCSwksBK8foHNXX2LMmMFTgA
+AAAASUVORK5CYII=
+--------related--
+
+--------alternative--

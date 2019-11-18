@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <title>noscript test</title>
+  </head>
+  <body bgcolor="#FFFFFF">
+    <h1>remote-noscript.html</h1>
+    <p>This content is served over http!</p>
+    <noscript>
+      JavaScript is OFF!
+    </noscript>
+
+    <div id="scripted"> </scripted>
+    <script>
+     var jsIsTurnedOn = true; // variable to check in test
+     document.getElementById("scripted").innerHTML = "JavaScript is ON!";
+    </script>
+  </body>
+</html>

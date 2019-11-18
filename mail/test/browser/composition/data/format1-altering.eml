@@ -1,0 +1,21 @@
+Message-ID: <11111.11111@example.invalid>
+Date: Sun, 18 May 2014 22:31:12 +0200
+MIME-Version: 1.0
+To: test@test.invalid
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>title</title>
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <h1>heading</h1>
+    <hr>
+    <pre>
+    Pre line 1
+    Pre line 2
+    </pre>
+  </body>
+</html>

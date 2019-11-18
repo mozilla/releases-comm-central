@@ -1,0 +1,36 @@
+From: test <test@example.com>
+Subject: test multipart, rogue message, last part image
+To: test2 <test2@example.com>
+Date: Sat, 27 Feb 2016 17:11:45 +0100
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary=--FIRSTboundary
+
+----FIRSTboundary
+Content-Type: text/plain; charset=utf-8
+
+Plain Text
+
+----FIRSTboundary
+Content-Type: text/html; charset=utf-8
+
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    HTML Body<br>
+  </body>
+</html>
+
+----FIRSTboundary
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+	filename=blue.png
+Content-Type: image/png;
+
+iVBORw0KGgoAAAANSUhEUgAAAAYAAAALCAIAAADTMGvBAAAAEUlEQVQImWPgsi5DQwxDWggA
+lCEwN+YGfiYAAAAASUVORK5CYII=
+
+----FIRSTboundary--
+

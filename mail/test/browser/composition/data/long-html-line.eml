@@ -1,0 +1,16 @@
+From: "Long line writer" <email@longline.invalid>
+To: <user@example.com>
+Subject: Long HTML line
+Date: Wed, 10 Feb 2016 16:45:36 -0600
+MIME-Version: 1.0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html>
+<html>
+<body>
+
+We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. We like writing long lines. This is 998 long.
+
+ </body>

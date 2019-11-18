@@ -1,0 +1,12 @@
+To: test1@test.invalid
+From: test2@test.invalid
+Subject: test format flowed reply
+Date: Tue, 27 Sep 2016 13:00:40 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+
+first first first first first text text text text text text text text 
+text text text text text text text text text text text text text text 
+last last last last last last last last last last last last last last

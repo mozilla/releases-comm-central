@@ -27,10 +27,10 @@ var cth = ChromeUtils.import(
  * @param aPaneID The ID of the pref pane to display (see
  *     mail/components/preferences/aboutPreferences.xul for valid IDs.)
  */
-function open_pref_tab(aPaneID) {
+function open_pref_tab(aPaneID, aScrollTo) {
   let tab = cth.open_content_tab_with_click(
     function() {
-      fdh.mc.window.openOptionsDialog(aPaneID);
+      fdh.mc.window.openOptionsDialog(aPaneID, aScrollTo);
     },
     "about:preferences",
     fdh.mc,

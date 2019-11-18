@@ -11,6 +11,8 @@ this.EXPORTED_SYMBOLS = [
   "collectFiles",
 ];
 
+var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
+
 var fdh = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -18,7 +20,6 @@ var fdh = ChromeUtils.import(
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
 
 var kDefaults = {
   type: "default",

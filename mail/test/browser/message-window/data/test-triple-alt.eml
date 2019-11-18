@@ -1,0 +1,36 @@
+From: "Test tester" <test_mail@example.com>
+To: "Robert Recipient" <robert@example.com>
+Subject: Alternative with 3 parts
+Date: Wed, 26 Sep 2001 09:16:49 -0400
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="------------alternative"
+
+This is a multi-part message in MIME format.
+
+--------------alternative
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+Plain Text
+
+--------------alternative
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD></HEAD>
+<BODY>
+
+HTML Body<p>
+
+</BODY>
+</HTML>
+
+--------------alternative
+Content-Type: text; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+
+Unspecified text type (not text/plain)
+
+--------------alternative--

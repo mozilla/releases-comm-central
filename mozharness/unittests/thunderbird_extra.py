@@ -28,6 +28,6 @@ config = {
     "all_mochitest_suites": {
         "browser-chrome-thunderbird": ["--flavor=browser",
                                        "--subsuite=thunderbird",
-                                       "--leak-threshold=10485760"],
+                                       "--leak-threshold=125829120"],  # 120MB
     },
 }

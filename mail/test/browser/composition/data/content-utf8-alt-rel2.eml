@@ -1,0 +1,46 @@
+From: test <test@example.com>
+Subject: test multipart, alternative first
+To: test2 <test2@example.com>
+Date: Sat, 27 Feb 2016 17:11:45 +0100
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="------------alternative"
+
+This is a multi-part message in MIME format.
+--------------alternative
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+áóúäöüß
+
+--------------alternative
+Content-Type: multipart/related;
+ boundary="------------related"
+
+
+--------------related
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+áóúäöüß<br>
+<html>
+  <!-- This also needs to work when there is content before the html tag :-( -->
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <img src="cid:part1" alt=""><br>
+  </body>
+</html>
+
+--------------related
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-ID: <part1>
+
+iVBORw0KGgoAAAANSUhEUgAAAAYAAAALCAIAAADTMGvBAAAAEUlEQVQImWPgsi5DQwxDWggA
+lCEwN+YGfiYAAAAASUVORK5CYII=
+--------------related--
+
+--------------alternative--
+

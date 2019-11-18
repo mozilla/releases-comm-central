@@ -1,0 +1,32 @@
+From: test <test@example.com>
+Subject: test HTML related only
+To: test2 <test2@example.com>
+Date: Sat, 27 Feb 2016 17:11:45 +0100
+MIME-Version: 1.0
+Content-Type: multipart/related;
+ boundary="------------related"
+
+This is a multi-part message in MIME format.
+--------------related
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    áóúäöüß<br>
+    <img src="cid:part1" id="cidImage" width="10" height="10" alt="">
+    <img src="cid:part1" crossorigin="anonymous" id="cidImageOrigin" width="20" height="20" alt="">
+  </body>
+</html>
+
+--------------related
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-ID: <part1>
+
+iVBORw0KGgoAAAANSUhEUgAAAAYAAAALCAIAAADTMGvBAAAAEUlEQVQImWPgsi5DQwxDWggA
+lCEwN+YGfiYAAAAASUVORK5CYII=
+--------------related--

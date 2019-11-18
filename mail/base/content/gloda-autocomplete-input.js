@@ -222,6 +222,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
         this.textObserver,
         "autocomplete-did-enter-text"
       );
+      this.hasConnected = false;
     }
   }
 
