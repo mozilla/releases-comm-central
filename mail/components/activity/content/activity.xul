@@ -40,10 +40,7 @@
   <script src="chrome://global/content/nsDragAndDrop.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
 
-  <stringbundleset id="activitySet">
-    <stringbundle id="brandStrings"
-                  src="chrome://branding/locale/brand.properties"/>
-  </stringbundleset>
+  <stringbundle id="brandStrings" src="chrome://branding/locale/brand.properties"/>
 
   <!-- Use this commandset for command which do not depend on focus or
        selection -->

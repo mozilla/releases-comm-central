@@ -19,10 +19,8 @@
         title="&window.title;"
         buttons="accept,cancel,extra1,extra2">
 
-  <stringbundleset id="stringbundleset">
   <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
   <stringbundle id="bundle_custom" src="chrome://messenger/locale/custom.properties"/>
-  </stringbundleset>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>

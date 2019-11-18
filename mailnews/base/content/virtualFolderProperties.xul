@@ -30,11 +30,9 @@
         style="width: 50em; height: 28em;"
         windowtype="mailnews:virtualFolderProperties">
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_search"    src="chrome://messenger/locale/search.properties"/>
-    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-    <stringbundle id="bundle_folder"    src="chrome://messenger/locale/folderWidgets.properties"/>
-  </stringbundleset>
+  <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
+  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+  <stringbundle id="bundle_folder" src="chrome://messenger/locale/folderWidgets.properties"/>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>

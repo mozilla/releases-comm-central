@@ -44,10 +44,7 @@
   <script src="chrome://messenger/content/toolbarIconColor.js"/>
   <script src="chrome://messenger/content/customizable-toolbar.js"/>
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="languageBundle"
-                  src="chrome://global/locale/languageNames.properties"/>
-  </stringbundleset>
+  <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
 
   <!-- Command updater -->
   <commandset id="globalEditMenuItems"

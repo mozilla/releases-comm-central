@@ -4,10 +4,8 @@
 
     <vbox id="smimeEditing">
 
-      <stringbundleset>
-        <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-smime.properties"/>
-        <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-      </stringbundleset>
+      <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-smime.properties"/>
+      <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
       <label hidden="true" wsm_persist="true" id="identity.encryptionpolicy"/>
 

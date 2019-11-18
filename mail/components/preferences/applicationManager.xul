@@ -31,12 +31,8 @@
     <key id="delete" keycode="VK_DELETE" command="cmd_delete"/>
   </keyset>
 
-  <stringbundleset id="appManagerBundleset">
-    <stringbundle id="appManagerBundle"
-                  src="chrome://messenger/locale/preferences/applicationManager.properties"/>
-    <stringbundle id="bundlePreferences"
-                  src="chrome://messenger/locale/preferences/preferences.properties"/>
-  </stringbundleset>
+  <stringbundle id="appManagerBundle" src="chrome://messenger/locale/preferences/applicationManager.properties"/>
+  <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 
   <description id="appDescription"/>
   <separator class="thin"/>

@@ -64,16 +64,13 @@
 <script src="chrome://global/content/macWindowMenu.js"/>
 #endif
 
+<stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+<stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
+<stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
+<stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
+<stringbundle id="charsetBundle" src="chrome://communicator/content/labelsencodings.properties"/>
 
-<stringbundleset id="stringbundleset">
-  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-  <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
-  <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
-  <stringbundle id="charsetBundle" src="chrome://communicator/content/labelsencodings.properties"/>
-</stringbundleset>
-
-  <!-- keys are appended from the overlay -->
+<!-- keys are appended from the overlay -->
 <keyset id="mailKeys">
 #include mainKeySet.inc.xul
   <keyset id="tasksKeys">

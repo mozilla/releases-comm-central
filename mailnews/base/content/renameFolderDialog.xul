@@ -15,7 +15,6 @@
         buttonaccesskeyaccept="&accept.accesskey;"
         onload="onLoad();">
 
-  <stringbundleset id="stringbundleset"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/renameFolderDialog.js"/>

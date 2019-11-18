@@ -13,10 +13,7 @@
         style="width: 36em;"
         onload="abNameOnLoad();">
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_addressBook"
-                  src="chrome://messenger/locale/addressbook/addressBook.properties"/>
-  </stringbundleset>
+  <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>

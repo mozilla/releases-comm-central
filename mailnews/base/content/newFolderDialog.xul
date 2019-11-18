@@ -20,7 +20,6 @@
         buttonlabelaccept="&accept.label;"
         buttonaccesskeyaccept="&accept.accesskey;">
 
-  <stringbundleset id="stringbundleset"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/newFolderDialog.js"/>

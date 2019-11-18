@@ -25,9 +25,7 @@
         style="width: 52em; height: 22em;"
         persist="screenX screenY width height">
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
-  </stringbundleset>
+  <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/mailViewSetup.js"/>

@@ -16,10 +16,8 @@
         persist="width height screenX screenY sizemode"
         windowtype="mail:printEngine">
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  </stringbundleset>
+  <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
+  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
   <!-- Provide shortcut keys for toolkit's print preview; commands will be overridden by printUtils.js -->
   <key id="printKb" key="&printCmd.key;" command="cmd_print" modifiers="accel"/>

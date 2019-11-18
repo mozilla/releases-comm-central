@@ -32,11 +32,9 @@
     lightweightthemes="true"
     fullscreenbutton="true">
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
-    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-    <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-  </stringbundleset>
+  <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
+  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+  <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
 <script src="chrome://messenger/content/button-menu-button.js"/>
 <script src="chrome://messenger/content/jsTreeView.js"/>

@@ -14,10 +14,7 @@
     }
   </script>
 
-  <stringbundleset>
-    <stringbundle id="charsetBundle"
-                  src="chrome://communicator/content/labelsencodings.properties"/>
-  </stringbundleset>
+  <stringbundle id="charsetBundle" src="chrome://communicator/content/labelsencodings.properties"/>
 
   <menu id="charsetMenu"
         data-l10n-id="menu-view-charset">

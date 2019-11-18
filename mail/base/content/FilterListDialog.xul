@@ -27,10 +27,8 @@
   <script src="chrome://messenger/content/button-menu-button.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/FilterListDialog.js"/>
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
-    <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
-  </stringbundleset>
+  <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
+  <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
   <keyset>
     <key key="&closeCmd.key;" modifiers="accel" oncommand="if (onFilterClose()) { window.close(); }"/>

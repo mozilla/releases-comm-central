@@ -15,9 +15,7 @@
         icon="abcardWindow"
         onload="OnLoadEditCard()">
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
-  </stringbundleset>
+  <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
   <script src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script src="chrome://messenger/content/addressbook/abCard.js"/>

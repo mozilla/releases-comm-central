@@ -14,9 +14,7 @@
         title="&newTagDialog1.title;"
         onload="onLoad();">
 
-  <stringbundleset id="stringbundleset">
-    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  </stringbundleset>
+  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
