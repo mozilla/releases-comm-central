@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1573321790405">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1573804224556">
   <emItems>
     <emItem blockID="i334" id="{0F827075-B026-42F3-885D-98981EE7B1AE}">
       <prefs/>
@@ -3391,6 +3391,18 @@
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
     <emItem blockID="11fd123a-e67d-44ab-909f-b776ea2e8d0a" id="/^((\{3c8970fa-1340-45ad-82fe-81f3beccfbdc\})|(\{4ab99b95-4d05-438c-8a3e-adb1b3fe8d81\})|(\{7f87a05d-dba7-448e-9af2-ee0f4a294c01\})|(\{59a219a8-45cd-458d-9b3e-8d86c19dfc31\})|(\{79f4bfc7-b1da-4dc4-85cc-ecbcc5dd152e\})|(\{484dc5ad-4d6a-4ee4-91b7-b5b8166e6b3d\})|(\{2643d75f-9d64-47ef-9c23-78f0f055c7b8\})|(\{76399bf2-8354-4b11-bf43-6c863b195b1d\})|(\{110791c0-2883-4301-8214-90be7549df43\})|(\{a33e004d-2ac0-4d77-8e14-50780bc231a3\})|(\{aaaa5840-6b3b-49d8-92c2-9696798c4e2a\})|(\{bfc55377-7210-4e7a-828f-6fdb9df02847\})|(\{c6c78b9a-370d-49c5-b9c6-96d7e38861c5\})|(\{c115eb3a-4746-472b-8f1f-d8596c49b3b6\})|(\{deaa22e5-33ed-440f-a734-c3175e6228a7\})|(\{e34d5840-6b3b-49d8-92c2-9696798c4e2a\})|(aapbdbdomjkkjkaonfhkkikfgjllcleb@[cC]hrome-?[sS]tore-?[fF]oxified--?\d+)|(babelfox_client@rami)|(blndkmebkmenignoajhoemebccmmfjib@chrome-store-foxified-\d+)|(bridge-translate-app@chrome-store-foxified-\d+)|(dephbpajmknbniclommefdlnflkfnpgh@chrome-store-foxified-\d+)|(extension@newtab\.biz)|(generated-74o6bact7xu7y32fvfju4s@chrome-store-foxified-\d+)|(generated-axbwzwbksnnig1ug9v5dly@chrome-store-foxified-\d+)|(googletranslateelement@developer\.org)|(icdahkkjdchifpnbebileaelbcgipepe@chrome-store-foxified-\d+)|(ifgljfjnflaadalpmkkgdailepedeehd@chrome-store-foxified-\d+)|(knpgbkpddpcepnloiijojmgbdhihkjkl@chrome-store-foxified-\d+)|(translate-4@chrome-store-foxified-\d+))$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="53d8f35e-99ec-44fd-8082-3b713a5afcb3" id="extension@safeguard.ws">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="19c04aaf-c02d-4583-9978-c519245cd4fb" id="/^((\{c8476e06-0a50-41ec-a840-a2db436cf38c\})|(youtube\.downloader@firefox\.dev)|(youtubedownloader@firefox\.com)|(youtubehddownloader@firefox\.com)|(youtube\.d@firefox\.dev)|(advblock@blocker)|(YouTube@HD\.Downloader)|(adt-3\.0\.7@blocker)|(\{7131880e-d327-4802-b5ed-fee33c281abd\})|(\{5cb84843-504e-406e-8fb7-051c7fc3c9d3\})|(\{d8686bde-e666-4084-ae01-c75aa7a30f93\})|(\{96d35545-d94a-4ee1-bc43-d3055650587c\})|(ali-image-search@4\.0)|(\{e7634c48-0d36-448e-891e-b2036beebcd0\})|(\{442de29c-b710-45d4-b121-7b4be387c327\})|(lite-vpn-4\.1\.14@gmail\.com))$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="d39750c3-a305-4487-bc0f-21500c3597dd" id="/^((_1gMembers_@www\.inboxace\.com)|(_39Members_@www\.mapsgalaxy\.com)|(_5zMembers_@www\.couponxplorer\.com)|(_65Members_@download\.fromdoctopdf\.com)|(_flMembers_@free\.myformsfinder\.com))$/">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
@@ -6901,6 +6913,147 @@
     </certItem>
     <certItem issuerName="MIGCMQswCQYDVQQGEwJERTErMCkGA1UECgwiVC1TeXN0ZW1zIEVudGVycHJpc2UgU2VydmljZXMgR21iSDEfMB0GA1UECwwWVC1TeXN0ZW1zIFRydXN0IENlbnRlcjElMCMGA1UEAwwcVC1UZWxlU2VjIEdsb2JhbFJvb3QgQ2xhc3MgMw==">
       <serialNumber>H0ZpvlsmQE2QLTqXSDrK4g==</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGsMQswCQYDVQQGEwJFVTFDMEEGA1UEBxM6TWFkcmlkIChzZWUgY3VycmVudCBhZGRyZXNzIGF0IHd3dy5jYW1lcmZpcm1hLmNvbS9hZGRyZXNzKTESMBAGA1UEBRMJQTgyNzQzMjg3MRswGQYDVQQKExJBQyBDYW1lcmZpcm1hIFMuQS4xJzAlBgNVBAMTHkdsb2JhbCBDaGFtYmVyc2lnbiBSb290IC0gMjAwOA==">
+      <serialNumber>ALu77u40E1O5</serialNumber>
+    </certItem>
+    <certItem issuerName="MFExCzAJBgNVBAYTAkVTMUIwQAYDVQQDDDlBdXRvcmlkYWQgZGUgQ2VydGlmaWNhY2lvbiBGaXJtYXByb2Zlc2lvbmFsIENJRiBBNjI2MzQwNjg=">
+      <serialNumber>QITDXD5mXLU=</serialNumber>
+    </certItem>
+    <certItem issuerName="MGwxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xKzApBgNVBAMTIkRpZ2lDZXJ0IEhpZ2ggQXNzdXJhbmNlIEVWIFJvb3QgQ0E=">
+      <serialNumber>AixZSF45DYuCn2ghjGPEYw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGYMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNR2VvVHJ1c3QgSW5jLjE5MDcGA1UECxMwKGMpIDIwMDcgR2VvVHJ1c3QgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5MTYwNAYDVQQDEy1HZW9UcnVzdCBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0gRzI=">
+      <serialNumber>NWH2OKvBlcu/fP2nA9reyQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGExCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IEcy">
+      <serialNumber>Dn3kbM04dGYpYMWEN9lNFw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGExCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IEcy">
+      <serialNumber>DamhD9I49FBVW2Q22Z85pA==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGYxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJTAjBgNVBAMTHERpZ2lDZXJ0IFRyYW5zaXRpb24gUlNBIFJvb3Q=">
+      <serialNumber>CSBH6lLcNFtGyTwmGjUPtg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MIGYMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNR2VvVHJ1c3QgSW5jLjE5MDcGA1UECxMwKGMpIDIwMDggR2VvVHJ1c3QgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5MTYwNAYDVQQDEy1HZW9UcnVzdCBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0gRzM=">
+      <serialNumber>UoQqGaXHe6Tn5f/4MZM9bQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGExCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IEcz">
+      <serialNumber>C2vQOwiS6Py0zO9c8RQ+yw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGExCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IEcy">
+      <serialNumber>DSNHQZKDDI0wevn963sxJw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MFAxJDAiBgNVBAsTG0dsb2JhbFNpZ24gRUNDIFJvb3QgQ0EgLSBSNDETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UEAxMKR2xvYmFsU2lnbg==">
+      <serialNumber>AeOugCbbW0HiVsKjUQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEwxIDAeBgNVBAsTF0dsb2JhbFNpZ24gUm9vdCBDQSAtIFIyMRMwEQYDVQQKEwpHbG9iYWxTaWduMRMwEQYDVQQDEwpHbG9iYWxTaWdu">
+      <serialNumber>MBKb/YDRk9az4jTk</serialNumber>
+    </certItem>
+    <certItem issuerName="MEcxCzAJBgNVBAYTAlVTMSIwIAYDVQQKExlHb29nbGUgVHJ1c3QgU2VydmljZXMgTExDMRQwEgYDVQQDEwtHVFMgUm9vdCBSNA==">
+      <serialNumber>bkepzk9Gwj3iSerMOJRTcw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEcxCzAJBgNVBAYTAlVTMSIwIAYDVQQKExlHb29nbGUgVHJ1c3QgU2VydmljZXMgTExDMRQwEgYDVQQDEwtHVFMgUm9vdCBSMg==">
+      <serialNumber>bkepys5/hGUZLuczKycnww==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEcxCzAJBgNVBAYTAlVTMSIwIAYDVQQKExlHb29nbGUgVHJ1c3QgU2VydmljZXMgTExDMRQwEgYDVQQDEwtHVFMgUm9vdCBSMw==">
+      <serialNumber>bkepzLRaKceweNAboyESYQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEcxCzAJBgNVBAYTAlVTMSIwIAYDVQQKExlHb29nbGUgVHJ1c3QgU2VydmljZXMgTExDMRQwEgYDVQQDEwtHVFMgUm9vdCBSMQ==">
+      <serialNumber>bkepyaVT48LOHxRO132s5w==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEwxIDAeBgNVBAsTF0dsb2JhbFNpZ24gUm9vdCBDQSAtIFIyMRMwEQYDVQQKEwpHbG9iYWxTaWduMRMwEQYDVQQDEwpHbG9iYWxTaWdu">
+      <serialNumber>AeOpMBz8cgY4P5pTHQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGExCzAJBgNVBAYTAk5MMR4wHAYDVQQKDBVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xMjAwBgNVBAMMKVN0YWF0IGRlciBOZWRlcmxhbmRlbiBPcmdhbmlzYXRpZSBDQSAtIEcy">
+      <serialNumber>ATE3ew==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGExCzAJBgNVBAYTAk5MMR4wHAYDVQQKDBVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xMjAwBgNVBAMMKVN0YWF0IGRlciBOZWRlcmxhbmRlbiBPcmdhbmlzYXRpZSBDQSAtIEcy">
+      <serialNumber>ATE1Sw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MG4xCzAJBgNVBAYTAk5MMSAwHgYDVQQKDBdNaW5pc3RlcmllIHZhbiBEZWZlbnNpZTE9MDsGA1UEAww0TWluaXN0ZXJpZSB2YW4gRGVmZW5zaWUgQ2VydGlmaWNhdGllIEF1dG9yaXRlaXQgLSBHMg==">
+      <serialNumber>LhEjLBXVlzPRy33vUU/jBQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGwxCzAJBgNVBAYTAk5MMTAwLgYDVQQKDCdNaW5pc3RlcmllIHZhbiBJbmZyYXN0cnVjdHV1ciBlbiBNaWxpZXUxKzApBgNVBAMMIk1pbkllbk0gQXV0b25vbWUgQXBwYXJhdGVuIENBIC0gRzI=">
+      <serialNumber>Nfxxz8wMz36ZChR92NTKnw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGgxCzAJBgNVBAYTAk5MMR4wHAYDVQQKDBVTdGFhdCBkZXIgTmVkZXJsYW5kZW4xOTA3BgNVBAMMMFN0YWF0IGRlciBOZWRlcmxhbmRlbiBBdXRvbm9tZSBBcHBhcmF0ZW4gQ0EgLSBHMg==">
+      <serialNumber>ATE7Ew==</serialNumber>
+    </certItem>
+    <certItem issuerName="MGUxCzAJBgNVBAYTAk5MMTAwLgYDVQQKDCdNaW5pc3RlcmllIHZhbiBJbmZyYXN0cnVjdHV1ciBlbiBNaWxpZXUxJDAiBgNVBAMMG01pbkllbk0gT3JnYW5pc2F0aWUgQ0EgLSBHMg==">
+      <serialNumber>Dfp5FitCFjNH/o5ZOoSezg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MD8xJDAiBgNVBAoTG0RpZ2l0YWwgU2lnbmF0dXJlIFRydXN0IENvLjEXMBUGA1UEAxMORFNUIFJvb3QgQ0EgWDM=">
+      <serialNumber>Z4m9+d/aQi4hDVLz8EBcIg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MD8xJDAiBgNVBAoTG0RpZ2l0YWwgU2lnbmF0dXJlIFRydXN0IENvLjEXMBUGA1UEAxMORFNUIFJvb3QgQ0EgWDM=">
+      <serialNumber>Fl3SlbNRj/u5Z4ldjyMiig==</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>asr1yYUnTFAnuikoMAbW5MTxWps=</serialNumber>
+    </certItem>
+    <certItem issuerName="MEUxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9WYWRpcyBSb290IENBIDM=">
+      <serialNumber>Cik=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>Qh/Vnw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>Qh/VlQ==</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>aJ22x4QeS1sJqBhO8/15GTsRgkc=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>Qh/Vlg==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEUxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9WYWRpcyBSb290IENBIDM=">
+      <serialNumber>bj5n4ozUm/ABHHVnnBXHLTgE0d4=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>eXbhfvF+r14Z6p4bhGUShI+ougg=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>N1uK21hd0mVD7EMLhwBTDH4Q/Z4=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>IBhwLg4/l5vcFjA30Du20n1cSyI=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>abLRzPAuINzJXGKJT3+eX1/AV78=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>aigK80YjKDHJW0LCnSTEqCzDNeM=</serialNumber>
+    </certItem>
+    <certItem issuerName="MFQxCzAJBgNVBAYTAkJNMRkwFwYDVQQKDBBRdW9WYWRpcyBMaW1pdGVkMSowKAYDVQQDDCFRdW9WYWRpcyBFbnRlcnByaXNlIFRydXN0IENBIDMgRzM=">
+      <serialNumber>Ih46G2P4jpnblyKBdWivHMRTVG0=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>E4dQDEI92Bh+MVs2aGdlIW8rkDU=</serialNumber>
+    </certItem>
+    <certItem issuerName="MEgxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMR4wHAYDVQQDExVRdW9WYWRpcyBSb290IENBIDMgRzM=">
+      <serialNumber>HZxbikClihb+1PM2ck0SDEZ8/dI=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>SUd4pH2sURzNAxRtgemvs0SlWs4=</serialNumber>
+    </certItem>
+    <certItem issuerName="MFQxCzAJBgNVBAYTAkJNMRkwFwYDVQQKDBBRdW9WYWRpcyBMaW1pdGVkMSowKAYDVQQDDCFRdW9WYWRpcyBFbnRlcnByaXNlIFRydXN0IENBIDEgRzM=">
+      <serialNumber>FYi7Goq0FxNJiIxZbyHjnx4Yzj4=</serialNumber>
+    </certItem>
+    <certItem issuerName="MH8xCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMSUwIwYDVQQLExxSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MS4wLAYDVQQDEyVRdW9WYWRpcyBSb290IENlcnRpZmljYXRpb24gQXV0aG9yaXR5">
+      <serialNumber>Qh/Vsw==</serialNumber>
+    </certItem>
+    <certItem issuerName="MEUxCzAJBgNVBAYTAkJNMRkwFwYDVQQKExBRdW9WYWRpcyBMaW1pdGVkMRswGQYDVQQDExJRdW9WYWRpcyBSb290IENBIDM=">
+      <serialNumber>VlTXamae7rQY2vYswRlrObSA6Jk=</serialNumber>
+    </certItem>
+    <certItem issuerName="MFQxCzAJBgNVBAYTAkJNMRkwFwYDVQQKDBBRdW9WYWRpcyBMaW1pdGVkMSowKAYDVQQDDCFRdW9WYWRpcyBFbnRlcnByaXNlIFRydXN0IENBIDEgRzM=">
+      <serialNumber>QPYGU0PATLZx6cglDpDr1Y3YblU=</serialNumber>
+    </certItem>
+    <certItem issuerName="MFQxCzAJBgNVBAYTAkJNMRkwFwYDVQQKDBBRdW9WYWRpcyBMaW1pdGVkMSowKAYDVQQDDCFRdW9WYWRpcyBFbnRlcnByaXNlIFRydXN0IENBIDEgRzM=">
+      <serialNumber>ZIiz/9LGv7OdO/Ban8BUUAqNdyM=</serialNumber>
+    </certItem>
+    <certItem issuerName="MEQxCzAJBgNVBAYTAkZJMRowGAYDVQQKDBFUZWxpYSBGaW5sYW5kIE95ajEZMBcGA1UEAwwQVGVsaWEgUm9vdCBDQSB2Mg==">
+      <serialNumber>AW0FsQ3o0dDj9mBWCmqb</serialNumber>
     </certItem>
   </certItems>
 </blocklist>
