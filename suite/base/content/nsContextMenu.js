@@ -1071,7 +1071,13 @@ nsContextMenu.prototype = {
 
   // Open clicked-in frame in the same window
   showOnlyThisFrame: function() {
-    openTopWin( this.target.ownerDocument.location.href, this.target.ownerDocument.defaultView );
+    urlSecurityCheck(gContextMenuContentData.docLocation,
+                     this.principal,
+                     Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
+    let referrer = gContextMenuContentData.referrer;
+    openUILinkIn(gContextMenuContentData.docLocation, "current",
+                 { disallowInheritPrincipal: true,
+                   referrerURI: referrer ? makeURI(referrer) : null });
   },
 
   // View Partial Source
