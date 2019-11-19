@@ -381,7 +381,7 @@ function SaveAsFile(uris) {
       }
       filenames.push(name);
     }
-    messenger.saveMessages(uris.length, filenames, uris);
+    messenger.saveMessages(filenames, uris);
   }
 }
 

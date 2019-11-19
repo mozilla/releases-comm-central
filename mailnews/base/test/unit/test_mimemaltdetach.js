@@ -62,7 +62,6 @@ function* startDetach() {
 
   messenger.detachAttachmentsWOPrompts(
     do_get_profile(),
-    1,
     [attachment.contentType],
     [attachment.url],
     [attachment.name],

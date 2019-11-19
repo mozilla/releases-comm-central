@@ -72,15 +72,15 @@ interface nsIMessenger : nsISupports {
      * @param filenameArray the filenames to use
      * @param messageUriArray uris of the messages to save
      */
-    void saveMessages(in unsigned long count,
-                      [array, size_is(count)] in wstring filenameArray,
-                      [array, size_is(count)] in string messageUriArray);
+    void saveMessages(in Array<AString> filenameArray,
+                      in Array<ACString> messageUriArray);
 
     void openAttachment(in ACString contentTpe, in ACString url, in ACString displayName, in ACString messageUri, in boolean isExternalAttachment);
     void saveAttachment(in ACString contentTpe, in ACString url, in ACString displayName, in ACString messageUri, in boolean isExternalAttachment);
-    void saveAllAttachments(in unsigned long count, [array, size_is(count)] in string contentTypeArray,
-                            [array, size_is(count)] in string urlArray, [array, size_is(count)] in string displayNameArray,
-                            [array, size_is(count)] in string messageUriArray);
+    void saveAllAttachments(in Array<ACString> contentTypeArray,
+                            in Array<ACString> urlArray,
+                            in Array<ACString> displayNameArray,
+                            in Array<ACString> messageUriArray);
 
     void saveAttachmentToFile(in nsIFile aFile, in ACString aUrl, in ACString aMessageUri,
                               in ACString aContentType, in nsIUrlListener aListener);
@@ -100,17 +100,19 @@ interface nsIMessenger : nsISupports {
      * @param aListener         Listener to inform of start and stop of detach
      */
     void detachAttachmentsWOPrompts(in nsIFile aDestFolder,
-                                    in unsigned long aCount,
-                                    [array, size_is(aCount)] in string aContentTypeArray,
-                                    [array, size_is(aCount)] in string aUrlArray,
-                                    [array, size_is(aCount)] in string aDisplayNameArray,
-                                    [array, size_is(aCount)] in string aMessageUriArray,
+                                    in Array<ACString> aContentTypeArray,
+                                    in Array<ACString> aUrlArray,
+                                    in Array<ACString> aDisplayNameArray,
+                                    in Array<ACString> aMessageUriArray,
                                     in nsIUrlListener aListener);
 
-    void detachAttachment(in string contentTpe, in string url, in string displayName, in string messageUri, in boolean saveFirst, [optional] in boolean withoutWarning);
-    void detachAllAttachments(in unsigned long count, [array, size_is(count)] in string contentTypeArray,
-                             [array, size_is(count)] in string urlArray, [array, size_is(count)] in string displayNameArray,
-                             [array, size_is(count)] in string messageUriArray, in boolean saveFirst, [optional] in boolean withoutWarning);
+    void detachAttachment(in ACString contentTpe, in ACString url, in ACString displayName, in ACString messageUri, in boolean saveFirst, [optional] in boolean withoutWarning);
+    void detachAllAttachments(in Array<ACString> contentTypeArray,
+                              in Array<ACString> urlArray,
+                              in Array<ACString> displayNameArray,
+                              in Array<ACString> messageUriArray,
+                              in boolean saveFirst,
+                              [optional] in boolean withoutWarning);
     // saveAttachmentToFolder is used by the drag and drop code to drop an attachment to a destination folder
     // We need to return the actual file path (including the filename).
     nsIFile saveAttachmentToFolder(in ACString contentType, in ACString url, in ACString displayName, in ACString messageUri, in nsIFile aDestFolder);

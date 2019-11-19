@@ -3219,7 +3219,6 @@ function HandleMultipleAttachments(attachments, action) {
   switch (action) {
     case "save":
       messenger.saveAllAttachments(
-        attachmentContentTypeArray.length,
         attachmentContentTypeArray,
         attachmentUrlArray,
         attachmentDisplayNameArray,
@@ -3234,7 +3233,6 @@ function HandleMultipleAttachments(attachments, action) {
         attachments[0].detach(true);
       } else {
         messenger.detachAllAttachments(
-          attachmentContentTypeArray.length,
           attachmentContentTypeArray,
           attachmentUrlArray,
           attachmentDisplayNameArray,
@@ -3245,7 +3243,6 @@ function HandleMultipleAttachments(attachments, action) {
       return;
     case "delete":
       messenger.detachAllAttachments(
-        attachmentContentTypeArray.length,
         attachmentContentTypeArray,
         attachmentUrlArray,
         attachmentDisplayNameArray,

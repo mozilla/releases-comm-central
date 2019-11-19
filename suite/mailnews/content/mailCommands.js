@@ -350,7 +350,7 @@ function SaveAsFile(aUris)
   if (num == 1)
     messenger.saveAs(aUris[0], true, null, fileNames[0]);
   else
-    messenger.saveMessages(num, fileNames, aUris);
+    messenger.saveMessages(fileNames, aUris);
 }
 
 function saveAsUrlListener(aUri, aIdentity)

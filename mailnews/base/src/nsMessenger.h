@@ -40,27 +40,29 @@ class nsMessenger : public nsIMessenger,
                           const nsACString &contentType, void *closure,
                           nsIUrlListener *aListener);
   nsresult PromptIfFileExists(nsIFile *file);
-  nsresult DetachAttachments(uint32_t aCount, const char **aContentTypeArray,
-                             const char **aUrlArray,
-                             const char **aDisplayNameArray,
-                             const char **aMessageUriArray,
+  nsresult DetachAttachments(const nsTArray<nsCString> &aContentTypeArray,
+                             const nsTArray<nsCString> &aUrlArray,
+                             const nsTArray<nsCString> &aDisplayNameArray,
+                             const nsTArray<nsCString> &aMessageUriArray,
                              nsTArray<nsCString> *saveFileUris,
                              bool withoutWarning = false);
-  nsresult SaveAllAttachments(uint32_t count, const char **contentTypeArray,
-                              const char **urlArray,
-                              const char **displayNameArray,
-                              const char **messageUriArray, bool detaching);
-  nsresult SaveOneAttachment(const char *aContentType, const char *aURL,
-                             const char *aDisplayName, const char *aMessageUri,
-                             bool detaching);
+  nsresult SaveAllAttachments(const nsTArray<nsCString> &contentTypeArray,
+                              const nsTArray<nsCString> &urlArray,
+                              const nsTArray<nsCString> &displayNameArray,
+                              const nsTArray<nsCString> &messageUriArray,
+                              bool detaching);
+  nsresult SaveOneAttachment(const nsACString &aContentType,
+                             const nsACString &aURL,
+                             const nsACString &aDisplayName,
+                             const nsACString &aMessageUri, bool detaching);
 
  protected:
   virtual ~nsMessenger();
 
   void GetString(const nsString &aStringName, nsString &stringValue);
   nsresult InitStringBundle();
-  nsresult PromptIfDeleteAttachments(bool saveFirst, uint32_t count,
-                                     const char **displayNameArray);
+  nsresult PromptIfDeleteAttachments(
+      bool saveFirst, const nsTArray<nsCString> &displayNameArray);
 
  private:
   nsresult GetLastSaveDirectory(nsIFile **aLastSaveAsDir);

@@ -1797,23 +1797,20 @@ function HandleMultipleAttachments(commandPrefix, selectedAttachments)
    switch (commandPrefix)
    {
      case "saveAttachment":
-       messenger.saveAllAttachments(attachmentContentTypeArray.length,
-                                    attachmentContentTypeArray,
+       messenger.saveAllAttachments(attachmentContentTypeArray,
                                     attachmentUrlArray,
                                     attachmentDisplayNameArray,
                                     attachmentMessageUriArray);
        break;
      case "detachAttachment":
-       messenger.detachAllAttachments(attachmentContentTypeArray.length,
-                                      attachmentContentTypeArray,
+       messenger.detachAllAttachments(attachmentContentTypeArray,
                                       attachmentUrlArray,
                                       attachmentDisplayNameArray,
                                       attachmentMessageUriArray,
                                       true /* save */);
        break;
      case "deleteAttachment":
-       messenger.detachAllAttachments(attachmentContentTypeArray.length,
-                                      attachmentContentTypeArray,
+       messenger.detachAllAttachments(attachmentContentTypeArray,
                                       attachmentUrlArray,
                                       attachmentDisplayNameArray,
                                       attachmentMessageUriArray,
