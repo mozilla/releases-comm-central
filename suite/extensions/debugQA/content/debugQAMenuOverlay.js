@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { Services } =
+  ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 // "about:bloat" is available only when
 // (the application is) compiled with |--enable-logrefcnt|.
 if ("@mozilla.org/network/protocol/about;1?what=bloat" in Cc)
@@ -28,4 +31,13 @@ function onLoadBloat()
 
   document.getElementById("bloatSeparator").hidden = false;
   document.getElementById("bloatMenu").hidden = false;
+}
+
+// Open a debug QA link from the menu in the current tab.
+function openQAUrl(aUrl)
+{
+  openUILinkIn(aUrl, "current",
+               { triggeringPrincipal:
+                   Services.scriptSecurityManager.createNullPrincipal({}),
+               });
 }

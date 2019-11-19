@@ -20,65 +20,65 @@
             <menu label="Images and Media">
               <menupopup>
                 <menuitem label="GIF Images"
-                          oncommand="openTopWin('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_imagemap.html');"/>
+                          oncommand="openQAUrl('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_imagemap.html');"/>
                 <menuitem label="PNG Images"
-                          oncommand="openTopWin('http://www.libpng.org/pub/png/png-MagnoliaAlpha.html');"/>
+                          oncommand="openQAUrl('http://www.libpng.org/pub/png/png-MagnoliaAlpha.html');"/>
               </menupopup>
             </menu>
             <menu label="General Page Rendering">
               <menupopup>
                 <menuitem label="Larger page"
-                          oncommand="openTopWin('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_html_mix3.html');"/>
+                          oncommand="openQAUrl('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_html_mix3.html');"/>
                 <menuitem label="Smaller page"
-                          oncommand="openTopWin('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_link.html');"/>
+                          oncommand="openQAUrl('https://www-archive.mozilla.org/quality/browser/debugtc/bft_browser_link.html');"/>
               </menupopup>
             </menu>
             <menu label="Safe Browsing">
               <menupopup>
                 <menuitem label="How does built-in Phishing and Malware Protection work?"
-                          oncommand="openTopWin('https://support.mozilla.org/kb/how-does-phishing-and-malware-protection-work');"/>
+                          oncommand="openQAUrl('https://support.mozilla.org/kb/how-does-phishing-and-malware-protection-work');"/>
                 <menuitem label="Deceptive Site!"
-                          oncommand="openTopWin('https://itisatrap.org/firefox/its-a-trap.html');"/>
+                          oncommand="openQAUrl('https://itisatrap.org/firefox/its-a-trap.html');"/>
                 <menuitem label="Reported Attack Page!"
-                          oncommand="openTopWin('https://itisatrap.org/firefox/its-an-attack.html');"/>
+                          oncommand="openQAUrl('https://itisatrap.org/firefox/its-an-attack.html');"/>
                 <menuitem label="Reported Unwanted Software Page!"
-                          oncommand="openTopWin('https://itisatrap.org/firefox/unwanted.html');"/>
+                          oncommand="openQAUrl('https://itisatrap.org/firefox/unwanted.html');"/>
                 <menuitem label="Potentially Harmful Site!"
-                          oncommand="openTopWin('https://itisatrap.org/firefox/harmful.html');"/>
+                          oncommand="openQAUrl('https://itisatrap.org/firefox/harmful.html');"/>
               </menupopup>
             </menu>
             <menu label="Permissions">
               <menupopup>
                 <menuitem label="Popup Killing"
-                          oncommand="openTopWin('http://www.popuptest.com/');"/>
+                          oncommand="openQAUrl('http://www.popuptest.com/');"/>
               </menupopup>
             </menu>
             <menu label="Popular Sites">
               <menupopup>
               <menuitem label="SeaMonkey"
-                        oncommand="openTopWin('https://www.seamonkey-project.org');"/>
+                        oncommand="openQAUrl('https://www.seamonkey-project.org');"/>
               <menuitem label="Thunderbird"
-                        oncommand="openTopWin('https://www.thunderbird.net');"/>
+                        oncommand="openQAUrl('https://www.thunderbird.net');"/>
               <menuitem label="Youtube"
-                        oncommand="openTopWin('https://www.youtube.com');"/>
+                        oncommand="openQAUrl('https://www.youtube.com');"/>
               <menuitem label="Yahoo"
-                        oncommand="openTopWin('https://www.yahoo.com');"/>
+                        oncommand="openQAUrl('https://www.yahoo.com');"/>
               <menuitem label="The Register"
-                        oncommand="openTopWin('https://www.theregister.co.uk');"/>
+                        oncommand="openQAUrl('https://www.theregister.co.uk');"/>
               <menuitem label="reddit"
-                        oncommand="openTopWin('https://www.reddit.com');"/>
+                        oncommand="openQAUrl('https://www.reddit.com');"/>
               <menuitem label="Hotwired"
-                        oncommand="openTopWin('https://www.wired.com');"/>
+                        oncommand="openQAUrl('https://www.wired.com');"/>
               <menuitem label="CNN"
-                        oncommand="openTopWin('https://www.cnn.com');"/>
+                        oncommand="openQAUrl('https://www.cnn.com');"/>
               <menuitem label="USA Today"
-                        oncommand="openTopWin('https://www.usatoday.com');"/>
+                        oncommand="openQAUrl('https://www.usatoday.com');"/>
               <menuitem label="Disney"
-                        oncommand="openTopWin('https://www.disney.com');"/>
+                        oncommand="openQAUrl('https://www.disney.com');"/>
               <menuitem label="Microsoft"
-                        oncommand="openTopWin('https://www.microsoft.com');"/>
+                        oncommand="openQAUrl('https://www.microsoft.com');"/>
               <menuitem label="Warner Bros."
-                        oncommand="openTopWin('https://www.warnerbros.com');"/>
+                        oncommand="openQAUrl('https://www.warnerbros.com');"/>
               </menupopup>
             </menu>
           </menupopup>
@@ -87,39 +87,39 @@
         <menu label="Viewer Demos">
           <menupopup>
             <menuitem label="#0 Basic Styles"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test0.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test0.html');"/>
             <menuitem label="#1 CSS Styles"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test1.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test1.html');"/>
             <menuitem label="#2 Images"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test2.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test2.html');"/>
             <menuitem label="#3 Basic Tables"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test3.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test3.html');"/>
             <menuitem label="#4 Simple Tables"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test4.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test4.html');"/>
             <menuitem label="#5 More Styles"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test5.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test5.html');"/>
             <menuitem label="#6 Deeply Nested Tables"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test6.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test6.html');"/>
             <menuitem label="#7 Scaled Anim Image"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test7.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test7.html');"/>
             <menuitem label="#8 Form"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test8.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test8.html');"/>
             <menuitem label="#9 Frames"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test9.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test9.html');"/>
             <menuitem label="#10 Anim Images"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test10.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test10.html');"/>
             <menuitem label="#11 Fixed Positioning"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test11.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test11.html');"/>
             <menuitem label="#12 More Fixed Pos"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test12.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test12.html');"/>
             <menuitem label="#13 DHTML"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test13.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test13.html');"/>
             <menuitem label="#14 XML Sorting"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test14.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test14.html');"/>
             <menuitem label="#15 XML IRS"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test15.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test15.html');"/>
             <menuitem label="#16 Gfx Widgets"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/newlayout/samples/test16.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/newlayout/samples/test16.html');"/>
           </menupopup>
         </menu>
 
@@ -127,30 +127,30 @@
         <menu label="XBL Test Suite" hidden="true" disabled="true">
           <menupopup>
             <menuitem label="#0 Remote XBL"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/projects/xbl/test0/test.xul');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/projects/xbl/test0/test.xul');"/>
             <menuitem label="#1 Technicolor DIV"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/projects/xbl/test1/test.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/projects/xbl/test1/test.html');"/>
             <menuitem label="#2 Rollover Madness"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/projects/xbl/test2/test.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/projects/xbl/test2/test.html');"/>
             <menuitem label="#3 Popups in HTML"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/projects/xbl/test3/test.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/projects/xbl/test3/test.html');"/>
             <menuitem label="#4 Partition Magic"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/projects/xbl/test4/test.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/projects/xbl/test4/test.html');"/>
             <menuitem label="#5 Sticky Notes"
-                      oncommand="openTopWin('https://www-archive.mozilla.org/projects/xbl/test5/test.html');"/>
+                      oncommand="openQAUrl('https://www-archive.mozilla.org/projects/xbl/test5/test.html');"/>
           </menupopup>
         </menu>
 
         <menu label="Internal Pages">
           <menupopup>
             <menuitem label="Support Page"
-                      oncommand="openTopWin('about:support');"/>
+                      oncommand="goAbout('support');"/>
             <menuitem label="Networking Status"
-                      oncommand="openTopWin('about:networking');"/>
+                      oncommand="goAbout('networking');"/>
             <menuitem label="Performance Status"
-                      oncommand="openTopWin('about:performance');"/>
+                      oncommand="goAbout('performance');"/>
             <menuitem label="Memory Status"
-                      oncommand="openTopWin('about:memory');"/>
+                      oncommand="goAbout('memory');"/>
           </menupopup>
         </menu>
 
@@ -161,7 +161,7 @@
         <menuitem label="Flush Memory"
                   oncommand="Cc['@mozilla.org/xpcom/memory-service;1'].getService(Ci.nsIMemory).heapMinimize(true);"/>
         <menuitem label="Show Build Configuration"
-                  oncommand="openTopWin('about:buildconfig');"/>
+                  oncommand="goAbout('buildconfig');"/>
 
       </menupopup>
     </menu>
@@ -169,38 +169,38 @@
     <menu id="qaMenu" accesskey="Q" label="QA" insertbefore="menu_Help">
       <menupopup id="qaMenuPopup">
         <menuitem label="Getting Involved"
-                  oncommand="openTopWin('https://www.seamonkey-project.org/start/');"/>
+                  oncommand="openQAUrl('https://www.seamonkey-project.org/start/');"/>
         <menuitem label="SeaMonkey QA"
-                  oncommand="openTopWin('https://wiki.mozilla.org/SeaMonkey:QA');"/>
+                  oncommand="openQAUrl('https://wiki.mozilla.org/SeaMonkey:QA');"/>
 
         <menuseparator/>
 
         <menuitem label="Frequently Reported Bugs"
-                  oncommand="openTopWin('https://bugzilla.mozilla.org/duplicates.cgi');"/>
+                  oncommand="openQAUrl('https://bugzilla.mozilla.org/duplicates.cgi');"/>
         <menuitem label="Bug Writing Guidelines"
-                  oncommand="openTopWin('https://developer.mozilla.org/docs/Mozilla/QA/Bug_writing_guidelines');"/>
+                  oncommand="openQAUrl('https://developer.mozilla.org/docs/Mozilla/QA/Bug_writing_guidelines');"/>
         <menuitem label="File a Bug"
-                  oncommand="openTopWin('https://bugzilla.mozilla.org/enter_bug.cgi?format=guided#h=dupes|SeaMonkey');"/>
+                  oncommand="openQAUrl('https://bugzilla.mozilla.org/enter_bug.cgi?format=guided#h=dupes|SeaMonkey');"/>
 
         <menuseparator/>
 
         <menuitem label="Bugs Filed Today"
-                  oncommand="openTopWin('https://bugzilla.mozilla.org/buglist.cgi?product=Core&amp;product=MailNews+Core&amp;product=SeaMonkey&amp;chfieldfrom=0d&amp;chfieldto=Now&amp;chfield=%5BBug+creation%5D');"/>
+                  oncommand="openQAUrl('https://bugzilla.mozilla.org/buglist.cgi?product=Core&amp;product=MailNews+Core&amp;product=SeaMonkey&amp;chfieldfrom=0d&amp;chfieldto=Now&amp;chfield=%5BBug+creation%5D');"/>
         <menuitem label="Recent comm-central Checkins"
-                  oncommand="openTopWin('https://hg.mozilla.org/comm-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
+                  oncommand="openQAUrl('https://hg.mozilla.org/comm-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-central Checkins"
-                  oncommand="openTopWin('https://hg.mozilla.org/mozilla-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
+                  oncommand="openQAUrl('https://hg.mozilla.org/mozilla-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent comm-esr60 Checkins"
-                  oncommand="openTopWin('https://hg.mozilla.org/releases/comm-esr60/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr60/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-esr60 Checkins"
-                  oncommand="openTopWin('https://hg.mozilla.org/releases/mozilla-esr60/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr60/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
        <menuitem label="Tree Status"
-                  oncommand="openTopWin('https://treestatus.mozilla.org/');"/>
+                  oncommand="openQAUrl('https://treestatus.mozilla.org/');"/>
 
         <menuseparator/>
 
         <menuitem label="Latest Builds"
-                  oncommand="openTopWin('https://archive.mozilla.org/pub/seamonkey/nightly/latest-comm-central-trunk/');"/>
+                  oncommand="openQAUrl('https://archive.mozilla.org/pub/seamonkey/nightly/latest-comm-central-trunk/');"/>
       </menupopup>
     </menu>
   </menubar>
