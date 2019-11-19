@@ -366,6 +366,7 @@ pref("mailnews.ui.deleteMarksRead", true);
 // (This is intentionally on the high side; see bugs 746055 and 768015.)
 pref("image.mem.max_decoded_image_kb", 256000);
 
+pref("spellchecker.dictionary", "");
 pref("spellchecker.dictionaries.download.url", "https://addons.thunderbird.net/%LOCALE%/%APP%/dictionaries");
 
 // this will automatically enable inline spellchecking (if it is available) for
