@@ -47,10 +47,16 @@
                           oncommand="openQAUrl('https://itisatrap.org/firefox/harmful.html');"/>
               </menupopup>
             </menu>
-            <menu label="Permissions">
+            <menu label="Permissions/Security">
               <menupopup>
                 <menuitem label="Popup Killing"
                           oncommand="openQAUrl('http://www.popuptest.com/');"/>
+                <menuitem label="SSL Server Test"
+                          oncommand="openQAUrl('https://www.ssllabs.com/ssltest/');"/>
+                <menuitem label="SSL/TLS Client Capabilities"
+                          oncommand="openQAUrl('https://www.ssllabs.com/ssltest/viewMyClient.html');"/>
+                <menuitem label="SSL Client Testing"
+                          oncommand="openQAUrl('https://badssl.com/');"/>
               </menupopup>
             </menu>
             <menu label="Popular Sites">
@@ -195,7 +201,7 @@
         <menuitem label="Recent mozilla-esr60 Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr60/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
        <menuitem label="Tree Status"
-                  oncommand="openQAUrl('https://treestatus.mozilla.org/');"/>
+                  oncommand="openQAUrl('https://treestatus.mozilla-releng.net/static/ui/treestatus/');"/>
 
         <menuseparator/>
 
