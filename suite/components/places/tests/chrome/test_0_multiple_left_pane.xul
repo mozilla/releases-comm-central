@@ -13,7 +13,7 @@
                  type="text/css"?>
 
 <?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
-<?xml-stylesheet href="chrome://communicator/skin/places/places.css"?>
+<?xml-stylesheet href="chrome://communicator/skin/places/organizer.css"?>
 
 <?xul-overlay href="chrome://communicator/content/bookmarks/placesOverlay.xul"?>
 

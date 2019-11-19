@@ -10,7 +10,7 @@
 
 <?xml-stylesheet href="chrome://communicator/skin/bookmarks/editBookmarkOverlay.css"?>
 <?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
-<?xml-stylesheet href="chrome://communicator/skin/places/places.css"?>
+<?xml-stylesheet href="chrome://communicator/skin/places/organizer.css"?>
 
 <?xul-overlay href="chrome://communicator/content/bookmarks/placesOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/bookmarks/editBookmarkOverlay.xul"?>
