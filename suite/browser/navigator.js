@@ -690,6 +690,9 @@ nsBrowserAccess.prototype = {
                                     .getInterface(nsIWebNavigation)
                                     .currentURI : null;
     let referrerPolicy = Ci.nsIHttpChannel.REFERRER_POLICY_UNSET;
+    if (aOpener && aOpener.document) {
+      referrerPolicy = aOpener.document.referrerPolicy;
+    }
     var uri = aURI ? aURI.spec : "about:blank";
 
     switch (aWhere) {
@@ -976,20 +979,11 @@ function Startup()
 
       let userContextId = (window.arguments[6] != undefined ?
           window.arguments[6] : Ci.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID);
-
-      try {
-        openLinkIn(uriToLoad, "current",
-                   { referrerURI,
-                     referrerPolicy,
-                     postData: window.arguments[3] || null,
-                     allowThirdPartyFixup: window.arguments[4] || false,
-                     userContextId,
-                     // pass the origin principal (if any) and force its use to create
-                     // an initial about:blank viewer if present:
-                     originPrincipal: window.arguments[7],
-                     triggeringPrincipal: window.arguments[8],
-                   });
-      } catch (e) {}
+      loadURI(uriToLoad, referrerURI, window.arguments[3] || null,
+              window.arguments[4] || false, referrerPolicy, userContextId,
+              // pass the origin principal (if any) and force its use to create
+              // an initial about:blank viewer if present:
+              window.arguments[7], !!window.arguments[7], window.arguments[8]);
     } else {
       // Note: loadOneOrMoreURIs *must not* be called if window.arguments.length >= 3.
       // Such callers expect that window.arguments[0] is handled as a single URI.
@@ -2092,16 +2086,19 @@ function BrowserCloseWindow()
   window.close();
 }
 
-// TODO align the function parameters with Firefox
-// function loadURI(uri, referrer, postData, allowThirdPartyFixup, referrerPolicy,
-//                  userContextId, originPrincipal, forceAboutBlankViewerInCurrent,
-//                  triggeringPrincipal)
-function loadURI(uri, referrer, postData, allowThirdPartyFixup) {
+function loadURI(uri, referrer, postData, allowThirdPartyFixup, referrerPolicy,
+                 userContextId, originPrincipal,
+                 forceAboutBlankViewerInCurrent, triggeringPrincipal) {
   try {
     openLinkIn(uri, "current",
                { referrerURI: referrer,
+                 referrerPolicy: referrerPolicy,
                  postData: postData,
-                 allowThirdPartyFixup: allowThirdPartyFixup });
+                 allowThirdPartyFixup: allowThirdPartyFixup,
+                 userContextId: userContextId,
+                 originPrincipal,
+                 triggeringPrincipal,
+                 forceAboutBlankViewerInCurrent, });
   } catch (e) {}
 }
 

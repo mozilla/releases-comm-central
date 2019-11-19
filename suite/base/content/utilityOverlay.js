@@ -1009,32 +1009,35 @@ function openAsExternal(aURL) {
  * @param [optional] aReferrer
  *        If aDocument is null, then this will be used as the referrer.
  *        There will be no security check.
+ * @param [optional] aReferrerPolicy
+ *        Referrer policy - Ci.nsIHttpChannel.REFERRER_POLICY_*.
  */
 function openNewPrivateWith(aURL, aDocument, aPostData, aAllowThirdPartyFixup,
-                            aReferrer) {
+                            aReferrer, aReferrerPolicy) {
   return openNewTabWindowOrExistingWith(aURL, "private", aDocument, null,
                                         aPostData, aAllowThirdPartyFixup,
-                                        aReferrer);
+                                        aReferrer, aReferrerPolicy);
 }
 
 function openNewWindowWith(aURL, aDocument, aPostData, aAllowThirdPartyFixup,
-                           aReferrer) {
+                           aReferrer, aReferrerPolicy) {
   return openNewTabWindowOrExistingWith(aURL, "window", aDocument, null,
                                         aPostData, aAllowThirdPartyFixup,
-                                        aReferrer);
+                                        aReferrer, aReferrerPolicy);
 }
 
 function openNewTabWith(aURL, aDocument, aPostData, aEvent,
-                        aAllowThirdPartyFixup, aReferrer) {
+                        aAllowThirdPartyFixup, aReferrer, aReferrerPolicy) {
   let where = aEvent && aEvent.shiftKey ? "tabshifted" : "tab";
   return openNewTabWindowOrExistingWith(aURL, where, aDocument, null,
                                         aPostData, aAllowThirdPartyFixup,
-                                        aReferrer);
+                                        aReferrer, aReferrerPolicy);
 }
 
 function openNewTabWindowOrExistingWith(aURL, aWhere, aDocument,
                                         aLoadInBackground, aPostData,
-                                        aAllowThirdPartyFixup, aReferrer) {
+                                        aAllowThirdPartyFixup, aReferrer,
+                                        aReferrerPolicy) {
   // Make sure we are allowed to open this url
   if (aDocument)
     urlSecurityCheck(aURL, aDocument.nodePrincipal);
@@ -1061,7 +1064,8 @@ function openNewTabWindowOrExistingWith(aURL, aWhere, aDocument,
                       inBackground: aLoadInBackground,
                       allowThirdPartyFixup: aAllowThirdPartyFixup,
                       referrerURI: referrerURI,
-                      private: isPrivate });
+                      referrerPolicy: aReferrerPolicy,
+                      private: isPrivate, });
 }
 
 /**
@@ -1339,8 +1343,8 @@ function togglePaneSplitter(aSplitterId)
  * For API compatibility with Firefox the object version uses params.ignoreAlt
  * although for SeaMonkey it is effectively ignoreSave.
  */
-function openUILink(url, aEvent, aIgnoreButton, aIgnoreSave, aAllowThirdPartyFixup, aPostData, aReferrerURI)
-{
+function openUILink(url, aEvent, aIgnoreButton, aIgnoreSave,
+                    aAllowThirdPartyFixup, aPostData, aReferrerURI) {
   var params;
   if (aIgnoreButton && typeof aIgnoreButton == "object") {
     params = aIgnoreButton;
@@ -1355,7 +1359,8 @@ function openUILink(url, aEvent, aIgnoreButton, aIgnoreSave, aAllowThirdPartyFix
     params = {allowThirdPartyFixup: aAllowThirdPartyFixup,
               postData: aPostData,
               referrerURI: aReferrerURI,
-              initiatingDoc: aEvent ? aEvent.target.ownerDocument : document}
+              referrerPolicy: Ci.nsIHttpChannel.REFERRER_POLICY_UNSET,
+              initiatingDoc: aEvent ? aEvent.target.ownerDocument : document,}
   }
 
   var where = whereToOpenLink(aEvent, aIgnoreButton, aIgnoreSave);
@@ -1488,12 +1493,16 @@ function openLinkIn(url, where, params)
   var aDisallowInheritPrincipal = params.disallowInheritPrincipal;
   var aInitiatingDoc = params.initiatingDoc ? params.initiatingDoc : document;
   var aIsPrivate            = params.private;
+  var aNoReferrer           = params.noReferrer;
   var aUserContextId        = params.userContextId;
   var aPrincipal            = params.originPrincipal;
   var aTriggeringPrincipal  = params.triggeringPrincipal;
+  var aForceAboutBlankViewerInCurrent =
+        params.forceAboutBlankViewerInCurrent;
 
   if (where == "save") {
-    saveURL(url, null, null, true, true, aReferrerURI, aInitiatingDoc);
+    saveURL(url, null, null, true, true, aNoReferrer ? null : aReferrerURI,
+            aInitiatingDoc);
     return null;
   }
 
@@ -1525,9 +1534,11 @@ function openLinkIn(url, where, params)
 
   if (!w || where == "window") {
     let features = "chrome,dialog=no,all";
-
     if (aIsPrivate) {
       features += ",private";
+      // To prevent regular browsing data from leaking to private browsing
+      // sites, strip the referrer when opening a new private window.
+      aNoReferrer = true;
     }
 
     // This propagates to window.arguments.
@@ -1550,7 +1561,7 @@ function openLinkIn(url, where, params)
     allowThirdPartyFixupSupports.data = aAllowThirdPartyFixup;
 
     var referrerURISupports = null;
-    if (aReferrerURI) {
+    if (aReferrerURI && !aNoReferrer) {
       referrerURISupports = Cc["@mozilla.org/supports-string;1"].
                             createInstance(Ci.nsISupportsString);
       referrerURISupports.data = aReferrerURI.spec;
@@ -1601,10 +1612,15 @@ function openLinkIn(url, where, params)
     if (aDisallowInheritPrincipal) {
       flags |= Ci.nsIWebNavigation.LOAD_FLAGS_DISALLOW_INHERIT_OWNER;
     }
+
+    if (aForceAboutBlankViewerInCurrent) {
+      w.gBrowser.selectedBrowser.createAboutBlankContentViewer(aPrincipal);
+    }
+
     w.getBrowser().loadURIWithFlags(url, {
       triggeringPrincipal: aTriggeringPrincipal,
       flags,
-      referrerURI: aReferrerURI,
+      referrerURI: aNoReferrer ? null : aReferrerURI,
       referrerPolicy: aReferrerPolicy,
       postData: aPostData,
       userContextId: aUserContextId
@@ -1629,6 +1645,7 @@ function openLinkIn(url, where, params)
                 allowThirdPartyFixup: aAllowThirdPartyFixup,
                 relatedToCurrent: aRelatedToCurrent,
                 allowMixedContent: aAllowMixedContent,
+                noReferrer: aNoReferrer,
                 userContextId: aUserContextId,
                 originPrincipal: aPrincipal,
                 triggeringPrincipal: aTriggeringPrincipal,

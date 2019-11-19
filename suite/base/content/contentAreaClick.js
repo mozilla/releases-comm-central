@@ -126,10 +126,22 @@ function handleLinkClick(event, href, linkNode) {
   }
 
   urlSecurityCheck(href, doc.nodePrincipal);
-  openLinkIn(href, where, { referrerURI: referrerURI,
-                            charset: doc.characterSet,
-                            private: gPrivate ? true : false,
-                            allowMixedContent: persistAllowMixedContentInChildTab });
+  let params = {
+    charset: doc.characterSet,
+    private: gPrivate ? true : false,
+    allowMixedContent: persistAllowMixedContentInChildTab,
+    referrerURI: referrerURI,
+    noReferrer: BrowserUtils.linkHasNoReferrer(linkNode),
+    originPrincipal: doc.nodePrincipal,
+    triggeringPrincipal: doc.nodePrincipal,
+  };
+
+  // The new tab/window must use the same userContextId
+  if (doc.nodePrincipal.originAttributes.userContextId) {
+    params.userContextId = doc.nodePrincipal.originAttributes.userContextId;
+  }
+
+  openLinkIn(href, where, params);
   event.preventDefault();
   return true;
 }

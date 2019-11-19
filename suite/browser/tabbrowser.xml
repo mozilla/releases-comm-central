@@ -1536,7 +1536,9 @@
             var aFromExternal;
             var aRelatedToCurrent;
             var aAllowMixedContent;
+            var aNoReferrer;
             var aUserContextId;
+            var aOriginPrincipal;
             var aOpener;
             if (arguments.length == 2 &&
                 arguments[1] != null &&
@@ -1553,7 +1555,9 @@
               aFromExternal         = params.fromExternal;
               aRelatedToCurrent     = params.relatedToCurrent;
               aAllowMixedContent    = params.allowMixedContent;
+              aNoReferrer           = params.noReferrer;
               aUserContextId        = params.userContextId;
+              aOriginPrincipal      = params.originPrincipal;
               aOpener               = params.opener;
             }
 
@@ -1643,7 +1647,7 @@
                 b.loadURIWithFlags(aURI, {
                   flags,
                   triggeringPrincipal : aTriggeringPrincipal,
-                  referrerURI: aReferrerURI,
+                  referrerURI: aNoReferrer ? null : aReferrerURI,
                   charset: aCharset,
                   referrerPolicy: aReferrerPolicy,
                   postData: aPostData,
