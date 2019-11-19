@@ -54,7 +54,7 @@
       weekLabel.setAttribute("flex", "1");
       weekLabel.setAttribute("crop", "end");
       weekLabel.setAttribute("hidden", "true");
-      weekLabel.setAttribute("mousethrough", "always");
+      weekLabel.style.pointerEvents = "none";
       weekLabel.classList.add(
         "calendar-month-day-box-week-label",
         "calendar-month-day-box-date-label",
@@ -64,7 +64,7 @@
       let dayLabel = document.createXULElement("label");
       dayLabel.setAttribute("data-label", "day");
       dayLabel.setAttribute("flex", "1");
-      dayLabel.setAttribute("mousethrough", "always");
+      dayLabel.style.pointerEvents = "none";
       dayLabel.classList.add("calendar-month-day-box-date-label", "calendar-day-label");
 
       monthDayLabels.appendChild(weekLabel);
@@ -346,7 +346,7 @@
         true
       );
 
-      this.setAttribute("mousethrough", "never");
+      this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
       this.addEventNameTextboxListener();
       this.initializeAttributeInheritance();

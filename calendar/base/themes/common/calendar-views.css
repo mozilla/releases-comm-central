@@ -144,6 +144,7 @@
 }
 
 .calendar-category-box-stack {
+    pointer-events: none;
     display: flex;
     justify-content: end;
     margin-inline-end: 2px;
@@ -838,6 +839,7 @@ calendar-month-day-box calendar-month-day-box-item[allday="true"] .calendar-colo
 }
 
 calendar-event-gripbar {
+    pointer-events: auto;
     -moz-box-align: center;
     -moz-box-pack: center;
     min-height: 4px;
@@ -1172,6 +1174,11 @@ radio.calview:not([selected=true]):hover {
     min-width: 1px;
     min-height: 1px;
     overflow:hidden;
+}
+
+.multiday-column-top-box,
+.timeIndicator {
+  pointer-events: none;
 }
 
 .multiday-column-box-stack, .multiday-column-bg-box, .multiday-column-top-box, .calendar-empty-space-box,

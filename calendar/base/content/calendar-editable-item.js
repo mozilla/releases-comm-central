@@ -190,7 +190,7 @@
         true
       );
 
-      this.setAttribute("mousethrough", "never");
+      this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
       this.setAttribute("tabindex", "-1");
       this.addEventNameTextboxListener();

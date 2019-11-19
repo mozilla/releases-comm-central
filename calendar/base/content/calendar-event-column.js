@@ -33,9 +33,8 @@
             <box class="multiday-column-bg-box" flex="1"/>
             <box class="multiday-column-top-box"
                  flex="1"
-                 equalsize="always"
-                 mousethrough="always"/>
-            <box class="timeIndicator" mousethrough="always" hidden="true"/>
+                 equalsize="always"/>
+            <box class="timeIndicator" hidden="true"/>
             <box class="fgdragcontainer" flex="1">
               <box class="fgdragspacer">
                 <spacer flex="1"/>

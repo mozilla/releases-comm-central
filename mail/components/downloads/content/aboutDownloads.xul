@@ -67,8 +67,7 @@
                  context="msgDownloadsContextMenu"
                  oncontextmenu="DownloadsView.onDownloadContextMenu();"/>
     <description id="msgDownloadsListEmptyDescription"
-                 value="&aboutDownloads.empty;"
-                 mousethrough="always"/>
+                 value="&aboutDownloads.empty;"/>
   </stack>
 
 

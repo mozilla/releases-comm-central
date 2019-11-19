@@ -17,7 +17,7 @@
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <script src="chrome://messenger/content/newmailalert.js"/>
 
-  <stack id="alertContainer" mousethrough="always">
+  <stack id="alertContainer">
     <hbox id="alertBox">
       <hbox id ="alertImageBox" align="center" pack="center">
         <image id="alertImage"/>
@@ -26,7 +26,7 @@
       <vbox id="alertTextBox">
         <label id="alertTitle"/>
         <separator id="alertGroove" class="groove"/>
-        <folder-summary id="folderSummaryInfo" mousethrough="never"/>
+        <folder-summary id="folderSummaryInfo"/>
       </vbox>
     </hbox>
 

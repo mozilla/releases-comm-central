@@ -95,19 +95,17 @@
         MozXULElement.parseXULToFragment(
           `
           <vbox class="box-line"></vbox>
-          <stack class="prplBuddyIcon" mousethrough="always">
+          <stack class="prplBuddyIcon">
             <image class="protoIcon"></image>
             <image class="statusIcon"></image>
           </stack>
-          <hbox flex="1" class="contact-hbox" mousethrough="always">
+          <hbox flex="1" class="contact-hbox">
             <label crop="end"
                    flex="1"
-                   mousethrough="always"
                    class="contactDisplayName blistDisplayName">
             </label>
             <label crop="end"
                    flex="100000"
-                   mousethrough="always"
                    class="contactStatusText">
             </label>
             <button class="startChatBubble"

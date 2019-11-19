@@ -1770,7 +1770,7 @@
                            ondblclick="TodayPane.onDoubleClick(event);"
                            onmousedown="TodayPane.onMousedown(event);"/>
                   </hbox>
-                  <hbox flex="1" pack="center" align="center" mousethrough="always">
+                  <hbox id="dragCenter-image-container" flex="1" pack="center" align="center">
                     <image id="dragCenter-image" hidden="true"/>
                   </hbox>
                 </stack>

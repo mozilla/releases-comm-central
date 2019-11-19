@@ -143,6 +143,10 @@
   text-align: center;
 }
 
+#dragCenter-image-container {
+  pointer-events: none;
+}
+
 #dragCenter-image {
   list-style-image: url("chrome://calendar-common/skin/widgets/drag-center.svg");
 }

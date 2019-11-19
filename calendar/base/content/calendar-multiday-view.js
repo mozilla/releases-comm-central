@@ -301,8 +301,7 @@
                     <image class="item-classification-box">
                     </image>
                   </hbox>
-                  <stack mousethrough="always"
-                         class="calendar-category-box-stack">
+                  <stack class="calendar-category-box-stack">
                     <hbox class="calendar-category-box category-color-box calendar-event-selection"
                           flex="1"
                           pack="end">
@@ -312,14 +311,10 @@
                   </stack>
                   <box class="calendar-event-gripbar-container">
                     <calendar-event-gripbar class="calendar-event-box-grippy-top"
-                                            mousethrough="never"
                                             whichside="start">
                     </calendar-event-gripbar>
-                    <spacer mousethrough="always"
-                            flex="1">
-                    </spacer>
+                    <spacer flex="1"/>
                     <calendar-event-gripbar class="calendar-event-box-grippy-bottom"
-                                            mousethrough="never"
                                             whichside="end">
                     </calendar-event-gripbar>
                   </box>
@@ -330,7 +325,7 @@
         `)
       );
 
-      this.setAttribute("mousethrough", "never");
+      this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
 
       this.orient = this.getAttribute("orient");

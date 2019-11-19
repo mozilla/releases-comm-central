@@ -300,8 +300,7 @@
                    command="cmd_chat"
                    observes="cmd_chat"
                    tooltiptext="&chatButton.tooltip;"/>
-    <toolbaritem id="throbber-box" title="&throbberItem.title;" align="center" pack="center"
-                 mousethrough="always">
+    <toolbaritem id="throbber-box" title="&throbberItem.title;" align="center" pack="center">
       <image/>
     </toolbaritem>
     <toolbarbutton id="button-stop"
