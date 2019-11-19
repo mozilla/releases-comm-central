@@ -431,8 +431,3 @@ function Search(str)
   gSearchInput.value = str;  //on input does not get fired for some reason
   onEnterInSearchBar();
 }
-
-function saveViewAsVirtualFolder()
-{
-  openNewVirtualFolderDialogWithArgs(gSearchInput.value, gSearchSession.searchTerms);
-}
