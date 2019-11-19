@@ -445,12 +445,12 @@ this.legacy = class extends ExtensionAPI {
 
 function getAllWindows() {
   function getChildDocShells(parentDocShell) {
-    let docShellEnum = parentDocShell.getDocShellEnumerator(
+    let docShells = parentDocShell.getAllDocShellsInSubtree(
       Ci.nsIDocShellTreeItem.typeAll,
       Ci.nsIDocShell.ENUMERATE_FORWARDS
     );
 
-    for (let docShell of docShellEnum) {
+    for (let docShell of docShells) {
       docShell
         .QueryInterface(Ci.nsIInterfaceRequestor)
         .getInterface(Ci.nsIWebProgress);
