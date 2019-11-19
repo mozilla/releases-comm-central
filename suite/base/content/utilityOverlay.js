@@ -602,38 +602,6 @@ function isRestricted( url )
   }
 }
 
-function openTopWin( url, opener )
-{
-    /* note that this chrome url should probably change to not have
-       all of the navigator controls, but if we do this we need to have
-       the option for chrome controls because goClickThrobber() needs to
-       use this function with chrome controls */
-    /* also, do we want to
-       limit the number of help windows that can be spawned? */
-    if ((url == null) || (url == "")) return null;
-
-    // avoid loading "", since this loads a directory listing
-    if (url == "") {
-        url = "about:blank";
-    }
-
-    var topWindowOfType = getTopWin();
-    if ( topWindowOfType )
-    {
-        if (!opener || !isRestricted(url))
-            topWindowOfType.loadURI(url);
-        else if (topWindowOfType.content == opener.top)
-            opener.open(url, "_top");
-        else
-            topWindowOfType.getBrowser().loadURIWithFlags(url,
-                Ci.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL);
-
-        topWindowOfType.content.focus();
-        return topWindowOfType;
-    }
-    return window.openDialog( getBrowserURL(), "_blank", "chrome,all,dialog=no", url );
-}
-
 function goAbout(aProtocol)
 {
   var target;
