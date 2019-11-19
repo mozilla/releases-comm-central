@@ -53,6 +53,10 @@ body[dir="rtl"] #errorPageContainer {
   margin-inline-start: 80px;
 }
 
+#errorShortDescText.wrap {
+  white-space: pre-wrap;
+}
+
 #technicalContent > h2, #expertContent > h2 {
   cursor: pointer;
   padding-inline-start: 20px;

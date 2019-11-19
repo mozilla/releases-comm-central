@@ -39,3 +39,6 @@ you know there's a good reason why this website doesn't use trusted identificati
 <!ENTITY certerror.addException.label "Add Exception…">
 
 <!ENTITY certerror.technical.heading "Technical Details">
+
+<!ENTITY dnsNotFound.pageTitle "Server Not Found">
+<!ENTITY malformedURI.pageTitle "Invalid URL">

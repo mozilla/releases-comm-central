@@ -27,6 +27,9 @@ let gSearchParams;
 // Set to true on init if the error code is nssBadCert.
 let gIsCertError;
 
+// Set to true on init if a neterror.
+let gIsNetError;
+
 initPage();
 
 function getErrorCode() {
@@ -41,11 +44,39 @@ function getDescription() {
   return gSearchParams.get("d");
 }
 
+function retryThis(buttonEl) {
+  // Note: The application may wish to handle switching off "offline mode"
+  // before this event handler runs, but using a capturing event handler.
+
+  // Session history has the URL of the page that failed
+  // to load, not the one of the error page. So, just call
+  // reload(), which will also repost POST data correctly.
+  try {
+    location.reload();
+  } catch (e) {
+    // We probably tried to reload a URI that caused an exception to
+    // occur;  e.g. a nonexistent file.
+  }
+
+  buttonEl.disabled = true;
+}
+
 function initPage() {
   gSearchParams = new URLSearchParams(document.documentURI.split("?")[1]);
 
   let err = getErrorCode();
+  // List of neterror pages which have no error code and
+  // could have an illustration instead.
+  let illustratedErrors = [
+    "malformedURI", "dnsNotFound", "connectionFailure", "netInterrupt",
+    "netTimeout", "netReset", "netOffline",
+  ];
+  if (illustratedErrors.includes(err)) {
+    document.body.classList.add("illustrated", err);
+  }
+
   gIsCertError = (err == "nssBadCert");
+  gIsNetError = (document.documentURI.startsWith("about:neterror"));
 
   let pageTitle = document.getElementById("ept_" + err);
   if (pageTitle) {
@@ -70,8 +101,23 @@ function initPage() {
   if (sd) {
     if (gIsCertError) {
       sd.innerHTML = errDesc.innerHTML;
+    } else if (!err || err == "unknownProtocolFound") {
+      sd.remove();
     } else {
-      sd.textContent = getDescription();
+      let desc = getDescription();
+      if (!illustratedErrors.includes(err) && gIsNetError) {
+        let codeRe = /<a id="errorCode" title="([^"]+)">/;
+        let codeResult = codeRe.exec(desc);
+        if (codeResult) {
+          let msg = desc.slice(0, codeResult.index) + codeResult[1];
+          sd.textContent = msg;
+          sd.className = "wrap";
+        } else {
+          sd.textContent = desc;
+        }
+      } else {
+        sd.textContent = desc;
+      }
     }
   }
 
@@ -85,17 +131,41 @@ function initPage() {
     }
   }
 
+  let ld = document.getElementById("errorLongDesc");
+  if (ld && !gIsCertError) {
+    ld.innerHTML = errDesc.innerHTML;
+  }
+
   // Remove undisplayed errors to avoid bug 39098.
   let errContainer = document.getElementById("errorContainer");
   errContainer.remove();
 
-  if (gIsCertError) {
+  if (gIsCertError || err == "inadequateSecurityError") {
     for (let host of document.querySelectorAll(".hostname")) {
       host.textContent = location.host;
     }
   }
 
+  if (gIsCertError || err == "sslv3Used") {
+    document.body.classList.add("certerror");
+  }
+
+  if (gIsCertError || err == "remoteXUL" || err == "cspBlocked" ||
+      err == "inadequateSecurityError") {
+    // Remove the "Try again" button for certificate errors, remote XUL errors,
+    // CSP violations (Bug 553180) and HTTP/2 inadequate security,
+    // given that it is useless.
+    document.getElementById("netErrorButtonContainer").style.display = "none";
+  }
+
   let className = getCSSClass();
+  if (className && className != "expertBadCert") {
+    // Associate a CSS class with the root of the page, if one was passed in,
+    // to allow custom styling.
+    // Not "expertBadCert" though, don't want to deal with the favicon
+    document.documentElement.classList.add(className);
+  }
+
   if (className == "expertBadCert") {
     toggle("technicalContent");
     toggle("expertContent");
@@ -104,14 +174,29 @@ function initPage() {
   // Disallow overrides if this is a Strict-Transport-Security
   // host and the cert is bad (STS Spec section 7.3);
   // or if the cert error is in a frame (bug 633691).
-  if (className == "badStsCert" || window != top) {
-    document.getElementById("expertContent").setAttribute("hidden", "true");
+  if (className == "badStsCert" || window != top || !gIsCertError) {
+    let expertContent = document.getElementById("expertContent");
+    expertContent.remove();
   }
   if (className == "badStsCert") {
     document.getElementById("badStsCertExplanation").removeAttribute("hidden");
   }
 
-  addDomainErrorLinks();
+  // For neterrors set a suitable class.
+  if (gIsNetError) {
+    document.body.classList.add("neterror");
+  }
+
+  // For neterrors and null error codes do not show the What Should I Do and
+  // Technical Details sections.
+  if (gIsNetError || !err) {
+    let whatShould = document.getElementById("whatShouldIDoContent");
+    whatShould.remove();
+    let technicalContent = document.getElementById("technicalContent");
+    technicalContent.remove();
+  } else {
+    addDomainErrorLinks();
+  }
 }
 
 /* In the case of SSL error pages about domain mismatch, see if
@@ -142,8 +227,8 @@ function addDomainErrorLinks() {
   if (!domainResult)
     firstResult = codeResult;
   if (!firstResult) {
-      sd.textContent = desc;
-      return;
+    sd.textContent = desc;
+    return;
   }
 
   // Remove sd's existing children.
