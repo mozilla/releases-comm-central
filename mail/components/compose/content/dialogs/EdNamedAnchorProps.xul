@@ -33,7 +33,7 @@
          value="&anchorNameEditField.label;"
          accesskey="&anchorNameEditField.accessKey;"/>
   <html:input id="nameInput" type="text" class="MinWidth20em input-inline"
-              onchange="ChangeName()"
+              oninput="ChangeName()"
               title="&nameInput.tooltip;"
               aria-labelledby="nameLabel"/>
   <spacer class="spacer"/>
