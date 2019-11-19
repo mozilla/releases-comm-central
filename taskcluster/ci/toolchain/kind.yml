@@ -35,6 +35,7 @@ jobs:
     - win32-node
     - win64-cbindgen
     - win64-clang-cl
+    - win64-dump-syms
     - win64-nasm
     - win64-node
     - win64-rust

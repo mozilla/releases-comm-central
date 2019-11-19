@@ -10,6 +10,14 @@ job-defaults:
         config-paths:
             - comm/mozharness
         tooltool-downloads: internal
+    fetches:
+        toolchain:
+            - win64-cbindgen
+            - win64-clang-cl
+            - win64-dump-syms
+            - win64-nasm
+            - win64-node
+            - win64-rust
 
 win32/opt:
     description: "Win32 Opt"
@@ -39,11 +47,6 @@ win32/opt:
             stage_platform: win32
     fetches:
         toolchain:
-            - win64-cbindgen
-            - win64-clang-cl
-            - win64-nasm
-            - win64-node
-            - win64-rust
             - win64-sccache
 
 win32-shippable/opt:
@@ -79,13 +82,6 @@ win32-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win32
-    fetches:
-        toolchain:
-            - win64-cbindgen
-            - win64-clang-cl
-            - win64-nasm
-            - win64-node
-            - win64-rust
 
 win32/debug:
     description: "Win32 Debug"
@@ -115,11 +111,6 @@ win32/debug:
         mozconfig-variant: debug
     fetches:
         toolchain:
-            - win64-cbindgen
-            - win64-clang-cl
-            - win64-nasm
-            - win64-node
-            - win64-rust
             - win64-sccache
 
 win64/opt:
@@ -150,11 +141,6 @@ win64/opt:
             stage_platform: win64
     fetches:
         toolchain:
-            - win64-cbindgen
-            - win64-clang-cl
-            - win64-nasm
-            - win64-node
-            - win64-rust
             - win64-sccache
 
 win64-shippable/opt:
@@ -190,13 +176,6 @@ win64-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win64
-    fetches:
-        toolchain:
-            - win64-cbindgen
-            - win64-clang-cl
-            - win64-nasm
-            - win64-node
-            - win64-rust
 
 win64/debug:
     description: "Win64 Debug"
@@ -226,9 +205,4 @@ win64/debug:
         mozconfig-variant: debug
     fetches:
         toolchain:
-            - win64-cbindgen
-            - win64-clang-cl
-            - win64-nasm
-            - win64-node
-            - win64-rust
             - win64-sccache
