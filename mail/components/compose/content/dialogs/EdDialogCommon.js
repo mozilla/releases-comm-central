@@ -572,7 +572,6 @@ var NotAnInlineParent = [
 ];
 
 function FillLinkMenulist(linkMenulist, headingsArray) {
-  var menupopup = linkMenulist.firstElementChild;
   var editor = GetCurrentEditor();
   try {
     var treeWalker = editor.document.createTreeWalker(
@@ -646,6 +645,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
       // Save nodes in an array so we can create anchor node under it later
       headingsArray[anchor] = heading;
     }
+    let menuItems = [];
     if (anchorList.length) {
       // case insensitive sort
       anchorList.sort((a, b) => {
@@ -657,30 +657,40 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
         }
         return 0;
       });
-
       for (i = 0; i < anchorList.length; i++) {
-        createMenuItem(menupopup, anchorList[i].anchor);
+        menuItems.push(createMenuItem(anchorList[i].anchor));
       }
     } else {
       // Don't bother with named anchors in Mail.
       if (editor && editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask) {
-        menupopup.remove();
         linkMenulist.removeAttribute("enablehistory");
         return;
       }
-      var item = createMenuItem(
-        menupopup,
-        GetString("NoNamedAnchorsOrHeadings")
-      );
+      let item = createMenuItem(GetString("NoNamedAnchorsOrHeadings"));
       item.setAttribute("disabled", "true");
+      menuItems.push(item);
     }
+    window.addEventListener("contextmenu", event => {
+      if (document.getElementById("datalist-menuseparator")) {
+        return;
+      }
+      let menuseparator = document.createXULElement("menuseparator");
+      menuseparator.setAttribute("id", "datalist-menuseparator");
+      document.getElementById("textbox-contextmenu").appendChild(menuseparator);
+      for (let menuitem of menuItems) {
+        document.getElementById("textbox-contextmenu").appendChild(menuitem);
+      }
+    });
   } catch (e) {}
 }
 
-function createMenuItem(aMenuPopup, aLabel) {
+function createMenuItem(label) {
   var menuitem = document.createXULElement("menuitem");
-  menuitem.setAttribute("label", aLabel);
-  aMenuPopup.appendChild(menuitem);
+  menuitem.setAttribute("label", label);
+  menuitem.addEventListener("click", event => {
+    gDialog.hrefInput.value = label;
+    ChangeLinkLocation();
+  });
   return menuitem;
 }
 
