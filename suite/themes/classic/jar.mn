@@ -41,7 +41,7 @@ classic.jar:
   skin/classic/communicator/places/editBookmarkOverlay.css              (mac/communicator/places/editBookmarkOverlay.css)
   skin/classic/communicator/places/filters.svg                          (mac/communicator/places/filters.svg)
   skin/classic/communicator/places/livemark-folder.png                  (mac/communicator/places/livemark-folder.png)
-  skin/classic/communicator/places/places.css                           (mac/communicator/places/places.css)
+  skin/classic/communicator/places/organizer.css                        (mac/communicator/places/organizer.css)
   skin/classic/communicator/places/query.png                            (mac/communicator/places/query.png)
   skin/classic/communicator/places/tag.png                              (mac/communicator/places/tag.png)
   skin/classic/communicator/places/toolbarDropMarker.png                (mac/communicator/places/toolbarDropMarker.png)
