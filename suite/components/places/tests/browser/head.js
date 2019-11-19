@@ -15,7 +15,7 @@ registerCleanupFunction(function() {
 
 function openLibrary(callback) {
   var library = window.openDialog(
-    "chrome://communicator/content/bookmarks/bookmarksManager.xul",
+    "chrome://communicator/content/places/places.xul",
     "", "chrome,toolbar=yes,dialog=no,resizable");
   waitForFocus(function () {
     callback(library);

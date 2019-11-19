@@ -10,7 +10,7 @@
 
 <?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
 <?xml-stylesheet href="chrome://communicator/skin/places/organizer.css"?>
-<?xul-overlay href="chrome://communicator/content/bookmarks/placesOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="510634: Wrong icons on bookmarks sidebar"

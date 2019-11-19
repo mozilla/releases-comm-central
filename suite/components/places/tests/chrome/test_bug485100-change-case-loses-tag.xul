@@ -8,15 +8,15 @@
 <?xml-stylesheet href="chrome://mochikit/content/tests/SimpleTest/test.css"
                  type="text/css"?>
 
-<?xml-stylesheet href="chrome://communicator/skin/bookmarks/editBookmarkOverlay.css"?>
+<?xml-stylesheet href="chrome://communicator/skin/places/editBookmarkOverlay.css"?>
 <?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
 <?xml-stylesheet href="chrome://communicator/skin/places/organizer.css"?>
 
-<?xul-overlay href="chrome://communicator/content/bookmarks/placesOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/bookmarks/editBookmarkOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/places/editBookmarkOverlay.xul"?>
 
 <!DOCTYPE window [
-  <!ENTITY % editBookmarkOverlayDTD SYSTEM "chrome://browser/locale/bookmarks/editBookmarkOverlay.dtd">
+  <!ENTITY % editBookmarkOverlayDTD SYSTEM "chrome://communicator/locale/places/editBookmarkOverlay.dtd">
   %editBookmarkOverlayDTD;
 ]>
 
@@ -29,7 +29,7 @@
   <script type="application/javascript"
           src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
   <script type="application/javascript"
-          src="chrome://communicator/content/bookmarks/editBookmarkOverlay.js"/>
+          src="chrome://communicator/content/places/editBookmarkOverlay.js"/>
 
   <body xmlns="http://www.w3.org/1999/xhtml" />
 
