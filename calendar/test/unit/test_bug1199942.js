@@ -67,7 +67,7 @@ function serializeEvent_test() {
   let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
-  serializer.addItems([event], [event].length);
+  serializer.addItems([event]);
   let serialized = ics_unfoldline(serializer.serializeToString());
   for (let id of expectedIds) {
     ok(serialized.search(id) != -1);

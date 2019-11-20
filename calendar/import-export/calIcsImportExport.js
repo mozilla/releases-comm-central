@@ -53,7 +53,7 @@ calIcsExporter.prototype = {
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
-    serializer.addItems(aItems, aItems.length);
+    serializer.addItems(aItems);
     serializer.serializeToStream(aStream);
   },
 };

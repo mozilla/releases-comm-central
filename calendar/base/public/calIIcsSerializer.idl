@@ -25,11 +25,8 @@ interface calIIcsSerializer : nsISupports
    *
    * @param aItems
    *    The items to be added
-   * @param aCount
-   *    The number of items to add
    */
-  void addItems([array, size_is(aCount)] in calIItemBase aItems,
-                in unsigned long aCount);
+  void addItems(in Array<calIItemBase> aItems);
 
   /**
    * Add a property to the top-level properties to be added on serializing. Can

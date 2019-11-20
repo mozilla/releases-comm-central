@@ -326,7 +326,7 @@ calItipEmailTransport.prototype = {
       let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
         Ci.calIIcsSerializer
       );
-      serializer.addItems(itemList, itemList.length);
+      serializer.addItems(itemList);
       let methodProp = cal.getIcsService().createIcalProperty("METHOD");
       methodProp.value = aItipItem.responseMethod;
       serializer.addProperty(methodProp);

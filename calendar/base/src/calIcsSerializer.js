@@ -14,8 +14,8 @@ calIcsSerializer.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.calIIcsSerializer]),
   classID: Components.ID("{207a6682-8ff1-4203-9160-729ec28c8766}"),
 
-  addItems: function(aItems, aCount) {
-    if (aCount > 0) {
+  addItems: function(aItems) {
+    if (aItems.length > 0) {
       this.mItems = this.mItems.concat(aItems);
     }
   },

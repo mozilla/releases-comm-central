@@ -367,7 +367,7 @@ calICSCalendar.prototype = {
         }
       },
       onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
-        this.serializer.addItems(aItems, aItems.length);
+        this.serializer.addItems(aItems);
       },
     };
     listener.serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(

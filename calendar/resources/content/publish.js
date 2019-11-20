@@ -176,7 +176,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
   let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
-  serializer.addItems(aItemArray, aItemArray.length);
+  serializer.addItems(aItemArray);
   // Outlook requires METHOD:PUBLISH property:
   let methodProp = cal.getIcsService().createIcalProperty("METHOD");
   methodProp.value = "PUBLISH";

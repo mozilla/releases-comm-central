@@ -587,7 +587,7 @@ var calitem = {
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
-    serializer.addItems([aItem], 1);
+    serializer.addItems([aItem]);
     return serializer.serializeToString();
   },
 

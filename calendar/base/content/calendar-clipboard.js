@@ -96,7 +96,7 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
   let icsSerializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
-  icsSerializer.addItems(targetItems, targetItems.length);
+  icsSerializer.addItems(targetItems);
   let icsString = icsSerializer.serializeToString();
 
   let clipboard = Services.clipboard;

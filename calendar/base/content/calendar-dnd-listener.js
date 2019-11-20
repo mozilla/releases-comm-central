@@ -574,7 +574,7 @@ function invokeEventDragSession(aItem, aXULBox) {
   let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
-  serializer.addItems([aItem], 1);
+  serializer.addItems([aItem]);
 
   let supportsString = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
   supportsString.data = serializer.serializeToString();

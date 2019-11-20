@@ -168,7 +168,7 @@ function test_roundtrip() {
   parser.parseString(str);
 
   let items = parser.getItems({});
-  serializer.addItems(items, items.length);
+  serializer.addItems(items);
 
   parser.getProperties({}).forEach(serializer.addProperty, serializer);
   parser.getComponents({}).forEach(serializer.addComponent, serializer);

@@ -3031,7 +3031,7 @@ calDavCalendar.prototype = {
       let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
         Ci.calIIcsSerializer
       );
-      serializer.addItems([item], 1);
+      serializer.addItems([item]);
       let methodProp = cal.getIcsService().createIcalProperty("METHOD");
       methodProp.value = aItipItem.responseMethod;
       serializer.addProperty(methodProp);
@@ -3151,7 +3151,7 @@ calDavCalendar.prototype = {
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
-    serializer.addItems([aItem], 1);
+    serializer.addItems([aItem]);
     let serializedItem = serializer.serializeToString();
     if (this.verboseLogging()) {
       cal.LOG("CalDAV: send: " + serializedItem);
