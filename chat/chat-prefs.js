@@ -88,6 +88,8 @@ pref("chat.prpls.prpl-skype.disable", true);
 pref("chat.prpls.prpl-facebook.disable", true);
 // Disable experimental Matrix support.
 pref("chat.prpls.prpl-matrix.disable", true);
+// Disable Twitter until support for the updated API is complete. See bug 1445778.
+pref("chat.prpls.prpl-twitter.disable", true);
 // Disable Yahoo Messenger as legacy Yahoo was shut down.
 pref("chat.prpls.prpl-yahoo.disable", true);
 // Whether to disable SRV lookups that use the system DNS library.
