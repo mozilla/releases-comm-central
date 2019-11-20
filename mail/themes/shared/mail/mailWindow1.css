@@ -40,7 +40,7 @@ treechildren::-moz-tree-cell-text(unread) {
 }
 
 :root[lwt-tree-brighttext] treechildren::-moz-tree-cell-text(untagged, unread) {
-  color: #45a1ff !important;
+  color: #fff !important;
 }
 
 /* on a collapsed thread, if the top level message is read, but the thread has
