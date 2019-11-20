@@ -138,14 +138,6 @@
          command="cmd_fullZoomReset"   modifiers="accel"/>
   </keyset>
 
-  <!-- Tab/F6 Keys -->
-  <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
-  <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
-  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
-  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
-  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="shift"/>
-  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);"/>
-
   <!-- View Toggle Keys (F8) -->
   <key id="key_toggleMessagePane" keycode="VK_F8" oncommand="goDoCommand('cmd_toggleMessagePane');"/>
 

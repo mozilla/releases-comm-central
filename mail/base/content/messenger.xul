@@ -225,6 +225,13 @@
 </commandset>
 
 <keyset id="mailKeys">
+  <!-- Tab/F6 Keys -->
+  <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
+  <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
+  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
+  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
+  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="shift"/>
+  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);"/>
 #include mainKeySet.inc.xul
   <keyset id="tasksKeys">
 #ifdef XP_MACOSX
