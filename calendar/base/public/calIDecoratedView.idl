@@ -79,11 +79,8 @@ interface calIDecoratedView : nsISupports
   /**
    * See calICalendarView.idl for the description of these functions.
    */
-  void getSelectedItems(out unsigned long aCount,
-                        [array,size_is(aCount),retval] out calIItemBase aItems);
-  void setSelectedItems(in unsigned long aCount,
-                        [array,size_is(aCount)] in calIItemBase aItems,
-                        in boolean aSuppressEvent);
+  Array<calIItemBase> getSelectedItems();
+  void setSelectedItems(in Array<calIItemBase> aItems, [optional] in boolean aSuppressEvent);
 
   /**
    * The selectedDay in the embedded view.  Use the goToDay function to set a

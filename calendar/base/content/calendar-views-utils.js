@@ -247,7 +247,7 @@ function switchToView(viewType) {
 
   try {
     selectedDay = viewDeck.selectedPanel.selectedDay;
-    currentSelection = viewDeck.selectedPanel.getSelectedItems({});
+    currentSelection = viewDeck.selectedPanel.getSelectedItems();
   } catch (ex) {
     // This dies if no view has even been chosen this session, but that's
     // ok because we'll just use cal.dtz.now() below.
@@ -273,7 +273,7 @@ function switchToView(viewType) {
   }
 
   view.goToDay(selectedDay);
-  view.setSelectedItems(currentSelection.length, currentSelection);
+  view.setSelectedItems(currentSelection);
 
   view.onResize(view);
 }
@@ -537,17 +537,17 @@ function getLastCalendarView() {
  * Deletes items currently selected in the view and clears selection.
  */
 function deleteSelectedEvents() {
-  let selectedItems = currentView().getSelectedItems({});
+  let selectedItems = currentView().getSelectedItems();
   calendarViewController.deleteOccurrences(selectedItems, false, false);
   // clear selection
-  currentView().setSelectedItems(0, [], true);
+  currentView().setSelectedItems([], true);
 }
 
 /**
  * Edit the items currently selected in the view with the event dialog.
  */
 function editSelectedEvents() {
-  let selectedItems = currentView().getSelectedItems({});
+  let selectedItems = currentView().getSelectedItems();
   if (selectedItems && selectedItems.length >= 1) {
     modifyEventWithDialog(selectedItems[0], null, true);
   }
@@ -561,7 +561,7 @@ function selectAllEvents() {
   let listener = {
     QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
     onOperationComplete: function(calendar, status, operationType, id, detail) {
-      currentView().setSelectedItems(items.length, items, false);
+      currentView().setSelectedItems(items, false);
     },
     onGetResult: function(calendar, status, itemType, detail, itemsArg) {
       for (let item of itemsArg) {

@@ -216,7 +216,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
     // calICalendarView Methods
 
-    setSelectedItems(count, items, suppressEvent) {
+    setSelectedItems(items, suppressEvent) {
       if (this.mSelectedItems.length) {
         for (const item of this.mSelectedItems) {
           const oldboxes = this.findDayBoxesForItem(item);
@@ -304,9 +304,8 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       }
     }
 
-    getDateList(count) {
+    getDateList() {
       if (!this.mStartDate || !this.mEndDate) {
-        count.value = 0;
         return [];
       }
 
@@ -318,7 +317,6 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
         results.push(curDate.clone());
         curDate.day += 1;
       }
-      count.value = results.length;
       return results;
     }
 
@@ -427,7 +425,7 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
       // This gets set to true, telling us to collapse the rest of the rows.
       let finished = false;
-      const dateList = this.getDateList({});
+      const dateList = this.getDateList();
 
       // This allows finding the first column of dayboxes where to set the
       // week labels, taking into account whether days-off are displayed or not.

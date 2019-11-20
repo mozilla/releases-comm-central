@@ -824,7 +824,7 @@ var calitip = {
        * userAddresses. If they aren't equal, it means that
        * someone is accepting invitations on behalf of an other user. */
       if (aItem.calendar.aclEntry) {
-        let userAddresses = aItem.calendar.aclEntry.getUserAddresses({});
+        let userAddresses = aItem.calendar.aclEntry.getUserAddresses();
         if (
           userAddresses.length > 0 &&
           !cal.email.attendeeMatchesAddresses(invitedAttendee, userAddresses)

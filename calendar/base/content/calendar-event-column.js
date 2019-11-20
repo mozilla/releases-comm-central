@@ -65,7 +65,7 @@
         }
 
         if (event.button == 0 && !(event.ctrlKey || event.metaKey)) {
-          this.calendarView.setSelectedItems(0, []);
+          this.calendarView.setSelectedItems([]);
           this.focus();
         } else if (event.button == 2) {
           let newStart = this.getClickedDateTime(event);
@@ -1307,9 +1307,9 @@
         // targets will ask for selected items in order to pull the data from
         // the packets. that's why we need to make sure at least the currently
         // dragged event is contained in the set of selected items.
-        let selectedItems = this.getSelectedItems({});
+        let selectedItems = this.getSelectedItems();
         if (!selectedItems.some(aItem => aItem.hashId == item.hashId)) {
-          col.calendarView.setSelectedItems(1, [event.ctrlKey ? item.parentItem : item]);
+          col.calendarView.setSelectedItems([event.ctrlKey ? item.parentItem : item]);
         }
         invokeEventDragSession(dragState.dragOccurrence, col);
         return;

@@ -927,24 +927,22 @@
       cal.navigationBar.setDateRange(startDate, endDate);
     }
 
-    getSelectedItems(count) {
-      count.value = this.mSelectedItems.length;
+    getSelectedItems() {
       return this.mSelectedItems;
     }
 
-    setSelectedItems(count, items) {
+    setSelectedItems(items) {
       this.mSelectedItems = items.concat([]);
       return this.mSelectedItems;
     }
 
-    getDateList(count, dates) {
+    getDateList() {
       const start = this.startDate.clone();
       const dateList = [];
       while (start.compare(this.endDate) <= 0) {
         dateList.push(start);
         start.day++;
       }
-      count.value = dateList.length;
       return dateList;
     }
 

@@ -244,7 +244,7 @@
       }
 
       if (!(event.ctrlKey || event.metaKey)) {
-        this.calendarView.setSelectedItems(0, []);
+        this.calendarView.setSelectedItems([]);
       }
     }
 

@@ -724,7 +724,7 @@ var calprovider = {
       // We check if :
       // - the organizer of the event is NOT within the owner's identities of this calendar
       // - if the one of the owner's identities of this calendar is in the attendees
-      let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
+      let ownerIdentities = this.mACLEntry.getOwnerIdentities();
       for (let i = 0; i < ownerIdentities.length; i++) {
         let identity = "mailto:" + ownerIdentities[i].email.toLowerCase();
         if (org.id.toLowerCase() == identity) {
@@ -745,7 +745,7 @@ var calprovider = {
       let attendee = id ? aItem.getAttendeeById(id) : null;
 
       if (!attendee && this.mACLEntry && this.mACLEntry.hasAccessControl) {
-        let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
+        let ownerIdentities = this.mACLEntry.getOwnerIdentities();
         if (ownerIdentities.length > 0) {
           let identity;
           for (let i = 0; !attendee && i < ownerIdentities.length; i++) {

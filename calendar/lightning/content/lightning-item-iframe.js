@@ -3180,7 +3180,7 @@ function saveItem() {
   // If it's different, that is because someone is acting on behalf of
   // the organizer.
   if (item.organizer && item.calendar.aclEntry) {
-    let userAddresses = item.calendar.aclEntry.getUserAddresses({});
+    let userAddresses = item.calendar.aclEntry.getUserAddresses();
     if (
       userAddresses.length > 0 &&
       !cal.email.attendeeMatchesAddresses(item.organizer, userAddresses)

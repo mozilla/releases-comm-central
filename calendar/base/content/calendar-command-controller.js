@@ -389,7 +389,7 @@ var calendarController = {
         exportEntireCalendar();
         break;
       case "calendar_export_selection_command":
-        saveEventsToFile(currentView().getSelectedItems({}));
+        saveEventsToFile(currentView().getSelectedItems());
         break;
 
       case "calendar_publish_selected_calendar_command":
@@ -863,7 +863,7 @@ function getSelectedItems() {
     return getSelectedTasks();
   }
 
-  return currentView().getSelectedItems({});
+  return currentView().getSelectedItems();
 }
 
 /**

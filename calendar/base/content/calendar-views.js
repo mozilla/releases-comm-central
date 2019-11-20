@@ -239,7 +239,7 @@
     }
 
     moveView(number) {
-      const dates = this.getDateList({});
+      const dates = this.getDateList();
       this.displayDaysOff = !this.mWorkdaysOnly;
 
       if (number) {

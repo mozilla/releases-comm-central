@@ -131,7 +131,7 @@
     onClick(event) {
       if (event.button == 0) {
         if (!(event.ctrlKey || event.metaKey)) {
-          this.calendarView.setSelectedItems(0, []);
+          this.calendarView.setSelectedItems([]);
         }
       }
       if (event.button == 2) {
@@ -198,7 +198,7 @@
 
         let whichside = event.whichside;
         if (whichside) {
-          this.calendarView.setSelectedItems(1, [
+          this.calendarView.setSelectedItems([
             event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence,
           ]);
 
@@ -397,7 +397,7 @@
         this.editingTimer = null;
       }
 
-      this.calendarView.setSelectedItems(1, [this.mOccurrence]);
+      this.calendarView.setSelectedItems([this.mOccurrence]);
 
       this.mEditing = false;
 

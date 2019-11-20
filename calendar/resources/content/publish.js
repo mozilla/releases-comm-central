@@ -35,7 +35,7 @@ function publishCalendarData() {
  */
 function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialog) {
   publishItemArray(
-    currentView().getSelectedItems({}),
+    currentView().getSelectedItems(),
     CalendarPublishObject.remotePath,
     aProgressDialog
   );

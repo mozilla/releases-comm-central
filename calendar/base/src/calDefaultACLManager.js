@@ -55,30 +55,28 @@ calDefaultCalendarACLEntry.prototype = {
   userCanAddItems: true,
   userCanDeleteItems: true,
 
-  _getIdentities: function(aCount) {
+  _getIdentities: function() {
     let identities = [];
     cal.email.iterateIdentities(id => identities.push(id));
-    aCount.value = identities.length;
     return identities;
   },
 
-  getUserAddresses: function(aCount) {
-    let identities = this.getUserIdentities(aCount);
+  getUserAddresses: function() {
+    let identities = this.getUserIdentities();
     let addresses = identities.map(id => id.email);
     return addresses;
   },
 
-  getUserIdentities: function(aCount) {
+  getUserIdentities: function() {
     let identity = cal.provider.getEmailIdentityOfCalendar(this.mCalendar);
     if (identity) {
-      aCount.value = 1;
       return [identity];
     } else {
-      return this._getIdentities(aCount);
+      return this._getIdentities();
     }
   },
-  getOwnerIdentities: function(aCount) {
-    return this._getIdentities(aCount);
+  getOwnerIdentities: function() {
+    return this._getIdentities();
   },
 
   refresh: function() {},

@@ -352,7 +352,7 @@ function unifinderSelect(event) {
 
   // Set up the selected items in the view. Pass in true, so we don't end
   // up in a circular loop
-  currentView().setSelectedItems(selectedItems.length, selectedItems, true);
+  currentView().setSelectedItems(selectedItems, true);
   currentView().centerSelectedItems();
   calendarController.onSelectionChanged({ detail: selectedItems });
   document.getElementById("unifinder-search-results-tree").focus();
@@ -634,7 +634,7 @@ var unifinderTreeView = {
     this.doingSelection = true;
 
     // If no items were passed, get the selected items from the view.
-    aItemArray = aItemArray || currentView().getSelectedItems({});
+    aItemArray = aItemArray || currentView().getSelectedItems();
 
     calendarUpdateDeleteCommand(aItemArray);
 

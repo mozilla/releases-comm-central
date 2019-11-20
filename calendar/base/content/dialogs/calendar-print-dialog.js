@@ -35,7 +35,7 @@ function loadCalendarPrintDialog() {
   } else {
     document.getElementById("printCurrentViewRadio").setAttribute("disabled", true);
   }
-  if (!theView || !theView.getSelectedItems({}).length) {
+  if (!theView || !theView.getSelectedItems().length) {
     document.getElementById("selected").setAttribute("disabled", true);
   }
   document
@@ -101,7 +101,7 @@ function getPrintSettings(receiverFunc) {
       break;
     }
     case "selected": {
-      let selectedItems = theView.getSelectedItems({});
+      let selectedItems = theView.getSelectedItems();
       settings.eventList = selectedItems.filter(item => {
         if (cal.item.isEvent(item) && !settings.printEvents) {
           return false;

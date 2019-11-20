@@ -319,7 +319,7 @@ function reply(aResponseMode, aPartStat) {
   if (window.attendee) {
     let aclEntry = window.calendarItem.calendar.aclEntry;
     if (aclEntry) {
-      let userAddresses = aclEntry.getUserAddresses({});
+      let userAddresses = aclEntry.getUserAddresses();
       if (
         userAddresses.length > 0 &&
         !cal.email.attendeeMatchesAddresses(window.attendee, userAddresses)

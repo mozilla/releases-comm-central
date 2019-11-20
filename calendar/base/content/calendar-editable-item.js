@@ -416,7 +416,7 @@
       } else {
         items = [this.mOccurrence];
       }
-      this.calendarView.setSelectedItems(items.length, items);
+      this.calendarView.setSelectedItems(items);
     }
 
     stopEditing(saveChanges) {

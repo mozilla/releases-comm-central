@@ -364,7 +364,7 @@
 
       <!-- CALENDAR ITEM CONTEXT MENU -->
       <menupopup id="calendar-item-context-menu"
-                 onpopupshowing="return setupContextItemType(event, currentView().getSelectedItems({}));">
+                 onpopupshowing="return setupContextItemType(event, currentView().getSelectedItems());">
         <menuitem id="calendar-item-context-menu-modify-menuitem"
                   label="&calendar.context.modifyorviewitem.label;"
                   accesskey="&calendar.context.modifyorviewitem.accesskey;"
@@ -403,17 +403,17 @@
             <menuitem id="calendar-view-context-menu-convert-message-menuitem"
                       label="&calendar.context.convertmenu.message.label;"
                       accesskey="&calendar.context.convertmenu.message.accesskey;"
-                      oncommand="calendarMailButtonDNDObserver.onDropItems(currentView().getSelectedItems({}))"/>
+                      oncommand="calendarMailButtonDNDObserver.onDropItems(currentView().getSelectedItems())"/>
             <menuitem id="calendar-item-context-menu-convert-event-menuitem"
                       class="todo-only"
                       label="&calendar.context.convertmenu.event.label;"
                       accesskey="&calendar.context.convertmenu.event.accesskey;"
-                      oncommand="calendarCalendarButtonDNDObserver.onDropItems(currentView().getSelectedItems({}))"/>
+                      oncommand="calendarCalendarButtonDNDObserver.onDropItems(currentView().getSelectedItems())"/>
             <menuitem id="calendar-item-context-menu-convert-task-menuitem"
                       class="event-only"
                       label="&calendar.context.convertmenu.task.label;"
                       accesskey="&calendar.context.convertmenu.task.accesskey;"
-                      oncommand="calendarTaskButtonDNDObserver.onDropItems(currentView().getSelectedItems({}))"/>
+                      oncommand="calendarTaskButtonDNDObserver.onDropItems(currentView().getSelectedItems())"/>
           </menupopup>
         </menu>
         <menuseparator id="calendar-menuseparator-before-delete"/>
@@ -425,7 +425,7 @@
         <menu id="calendar-item-context-menu-attendance-menu"
               label="&calendar.context.attendance.menu.label;"
               accesskey="&calendar.context.attendance.menu.accesskey;"
-              oncommand="setContextPartstat(event.target, currentView().getSelectedItems({}))"
+              oncommand="setContextPartstat(event.target, currentView().getSelectedItems())"
               observes="calendar_attendance_command">
           <menupopup id="calendar-item-context-menu-attendance-menupopup">
             <label id="calendar-item-context-attendance-thisoccurrence-label"
@@ -1871,7 +1871,7 @@
                 <menu id="calendar-today-pane-menu-attendance-menu"
                       label="&calendar.context.attendance.menu.label;"
                       accesskey="&calendar.context.attendance.menu.accesskey;"
-                      oncommand="setContextPartstat(event.target, agendaListbox.getSelectedItems({}))"
+                      oncommand="setContextPartstat(event.target, agendaListbox.getSelectedItems())"
                       observes="calendar_attendance_command">
                   <menupopup id="agenda-context-menu-attendance-menupopup">
                     <label id="agenda-context-attendance-thisoccurrence-label"

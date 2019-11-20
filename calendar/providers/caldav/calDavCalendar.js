@@ -1371,7 +1371,7 @@ calDavCalendar.prototype = {
     }
 
     if (this.mACLEntry && this.mACLEntry.hasAccessControl) {
-      let ownerIdentities = this.mACLEntry.getOwnerIdentities({});
+      let ownerIdentities = this.mACLEntry.getOwnerIdentities();
       if (ownerIdentities.length > 0) {
         let identity = ownerIdentities[0];
         this.mACLProperties.organizerId = identity.email;

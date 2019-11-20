@@ -594,7 +594,7 @@ agendaListbox.setupContextMenu = function(popup) {
   }
 
   let menu = document.getElementById("calendar-today-pane-menu-attendance-menu");
-  setupAttendanceMenu(menu, agendaListbox.getSelectedItems({}));
+  setupAttendanceMenu(menu, agendaListbox.getSelectedItems());
 };
 
 /**

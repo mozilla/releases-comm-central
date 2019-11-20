@@ -155,17 +155,14 @@ interface calICalendarView : nsISupports
    * If a date range is set, it will expand out the date range by
    * day and return the full set.
    */
-  void getDateList(out unsigned long aCount, [array,size_is(aCount),retval] out calIDateTime aDates);
+  Array<calIDateTime> getDateList();
 
   /**
    * Get the items currently selected in this view.
    *
-   * @param aCount a variable to hold the number of items in this array
-   *
    * @return the array of items currently selected in this.
    */
-  void getSelectedItems(out unsigned long aCount,
-                        [array,size_is(aCount),retval] out calIItemBase aItems);
+  Array<calIItemBase> getSelectedItems();
 
    /**
     * Select an array of items in the view.  Items outside the view's current
@@ -175,9 +172,7 @@ interface calICalendarView : nsISupports
     * @param aItems an array of items to select
     * @param aSuppressEvent if true, the 'itemselect' event will not be fired.
     */
-  void setSelectedItems(in unsigned long aCount,
-                        [array,size_is(aCount)] in calIItemBase aItems,
-                        in boolean aSuppressEvent);
+  void setSelectedItems(in Array<calIItemBase> aItems, [optional] in boolean aSuppressEvent);
 
   /**
    * Make as many of the selected items as possible are visible in the view.

@@ -842,7 +842,7 @@
       }
     }
 
-    getDateList(count) {
+    getDateList() {
       const dates = [];
       if (this.mStartDate && this.mEndDate) {
         const date = this.mStartDate.clone();
@@ -856,11 +856,10 @@
         }
       }
 
-      count.value = dates.length;
       return dates;
     }
 
-    setSelectedItems(count, items, suppressEvent) {
+    setSelectedItems(items, suppressEvent) {
       if (this.mSelectedItems) {
         for (const item of this.mSelectedItems) {
           for (const occ of this.getItemOccurrencesInView(item)) {
@@ -1114,7 +1113,7 @@
 
       // Deselect the previously selected event upon switching views, otherwise those events
       // will stay selected forever, if other events are selected after changing the view.
-      this.setSelectedItems(0, [], true);
+      this.setSelectedItems([], true);
 
       const daybox = this.querySelector(".daybox");
       const headerdaybox = this.querySelector(".headerdaybox");
