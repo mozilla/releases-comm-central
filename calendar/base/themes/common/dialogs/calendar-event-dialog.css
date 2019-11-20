@@ -6,7 +6,7 @@
 
 dialog {
   --eventBorderColor: #8d8e90;
-  --eventWidgetBorderColor: #cacaff;
+  --eventWidgetBorderColor: #aaaabc;
   --eventGridStartBorderColor: #bdbec0;
 }
 
@@ -452,7 +452,8 @@ label.label {
   -moz-appearance: none;
   margin: 0px 0px;
   border: 1px solid var(--eventBorderColor);
-  background-color: #fff;
+  background-color: -moz-Field;
+  color: -moz-FieldText;
 }
 
 #timebar {

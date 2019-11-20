@@ -11,6 +11,10 @@ html|input.textbox-addressingWidget {
     background-color: transparent !important;
     flex: 1;
 }
+html|input.textbox-addressingWidget:disabled {
+    color: inherit;
+    opacity: 0.5;
+}
 
 #item-attendees-box {
     -moz-appearance: listbox;
