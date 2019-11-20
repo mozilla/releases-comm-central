@@ -36,7 +36,9 @@
                  accesskey="&numRowsEditField.accessKey;"/>
         </html:th>
         <html:td>
-          <html:input id="rowsInput" type="number" class="narrow" oninput="ChangeRowOrColumn(this.id)"/>
+          <html:input id="rowsInput" type="number"
+                      class="narrow input-number-mozbox"
+                      oninput="ChangeRowOrColumn(this.id)"/>
         </html:td>
       </html:tr>
       <html:tr>
@@ -46,7 +48,9 @@
                  accesskey="&numColumnsEditField.accessKey;"/>
         </html:th>
         <html:td>
-          <html:input id="columnsInput" type="number" class="narrow" oninput="ChangeRowOrColumn(this.id)"/>
+          <html:input id="columnsInput" type="number"
+                      class="narrow input-number-mozbox"
+                      oninput="ChangeRowOrColumn(this.id)"/>
         </html:td>
       </html:tr>
       <html:tr>
@@ -56,7 +60,9 @@
                  accesskey="&widthEditField.accessKey;"/>
         </html:th>
         <html:td>
-          <html:input id="widthInput" type="number" class="narrow" oninput="forceInteger(this.id)"/>
+          <html:input id="widthInput" type="number"
+                      class="narrow input-number-mozbox"
+                      oninput="forceInteger(this.id)"/>
         </html:td>
         <html:td>
           <menulist id="widthPixelOrPercentMenulist" class="menulist-narrow"/>
@@ -71,7 +77,9 @@
            value="&borderEditField.label;"
            accesskey="&borderEditField.accessKey;"
            tooltiptext="&borderEditField.tooltip;" />
-    <html:input id="borderInput" type="number" class="narrow" oninput="forceInteger(this.id)" />
+    <html:input id="borderInput" type="number"
+                class="narrow input-number-mozbox"
+                oninput="forceInteger(this.id)" />
     <label value="&pixels.label;"/>
   </hbox>
   <vbox id="AdvancedEdit">

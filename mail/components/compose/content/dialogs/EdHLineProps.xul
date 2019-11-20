@@ -42,7 +42,8 @@
                  accesskey="&widthEditField.accessKey;"/>
         </html:th>
         <html:td>
-          <html:input id="width" type="number" class="narrow input-inline"
+          <html:input id="width" type="number"
+                      class="narrow input-inline input-number-mozbox"
                       aria-labelledby="widthLabel"/>
         </html:td>
         <html:td>
@@ -57,7 +58,8 @@
                  accesskey="&heightEditField.accessKey;"/>
         </html:th>
         <html:td>
-          <html:input id="height" type="number" class="narrow input-inline"
+          <html:input id="height" type="number"
+                      class="narrow input-inline input-number-mozbox"
                       aria-labelledby="heightLabel"/>
         </html:td>
         <html:td>

@@ -61,9 +61,11 @@
                   </hbox>
                 </vbox>
                 <vbox>
-                  <html:input id="TableRowsInput" type="number" class="narrow input-inline"
+                  <html:input id="TableRowsInput" type="number"
+                              class="narrow input-inline input-number-mozbox"
                               aria-labelledby="TableRowsLabel"/>
-                  <html:input id="TableColumnsInput" type="number" class="narrow input-inline"
+                  <html:input id="TableColumnsInput" type="number"
+                              class="narrow input-inline input-number-mozbox"
                               aria-labelledby="TableColumnsLabel"/>
                 </vbox>
               </hbox>
@@ -75,7 +77,8 @@
                          accesskey="&tableHeight.accessKey;" control="TableHeightInput"/>
                 </html:div>
                 <html:div>
-                  <html:input id="TableHeightInput" type="number" class="narrow input-inline"
+                  <html:input id="TableHeightInput" type="number"
+                              class="narrow input-inline input-number-mozbox"
                               aria-labelledby="TableHeightLabel"/>
                 </html:div>
                 <html:div class="flex-items-center">
@@ -86,7 +89,8 @@
                          accesskey="&tableWidth.accessKey;" control="TableWidthInput"/>
                 </html:div>
                 <html:div>
-                  <html:input id="TableWidthInput" type="number" class="narrow input-inline"
+                  <html:input id="TableWidthInput" type="number"
+                              class="narrow input-inline input-number-mozbox"
                               aria-labelledby="TableWidthLabel"/>
                 </html:div>
                 <html:div class="flex-items-center">
@@ -122,11 +126,14 @@
               </hbox>
             </vbox>
             <vbox>
-              <html:input id="BorderWidthInput" type="number" class="narrow input-inline"
+              <html:input id="BorderWidthInput" type="number"
+                          class="narrow input-inline input-number-mozbox"
                           aria-labelledby="BorderWidthLabel"/>
-              <html:input id="SpacingInput" type="number" class="narrow input-inline"
+              <html:input id="SpacingInput" type="number"
+                          class="narrow input-inline input-number-mozbox"
                           aria-labelledby="SpacingLabel"/>
-              <html:input id="PaddingInput" type="number" class="narrow input-inline"
+              <html:input id="PaddingInput" type="number"
+                          class="narrow input-inline input-number-mozbox"
                           aria-labelledby="PaddingLabel"/>
             </vbox>
             <vbox>
@@ -245,10 +252,12 @@
                 </hbox>
               </vbox>
               <vbox flex="1">
-                <html:input id="CellHeightInput" type="number" class="narrow input-inline"
+                <html:input id="CellHeightInput" type="number"
+                            class="narrow input-inline input-number-mozbox"
                             onchange="ChangeIntTextbox('CellHeightCheckbox');"
                             aria-labelledby="CellHeightCheckbox"/>
-                <html:input id="CellWidthInput" type="number" class="narrow input-inline"
+                <html:input id="CellWidthInput" type="number"
+                            class="narrow input-inline input-number-mozbox"
                             onchange="ChangeIntTextbox('CellWidthCheckbox');"
                             aria-labelledby="CellWidthCheckbox"/>
               </vbox>

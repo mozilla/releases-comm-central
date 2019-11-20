@@ -374,7 +374,7 @@
                       value=""/>
           <html:input id="percent-complete-textbox"
                       type="number"
-                      class="size3 input-inline"
+                      class="size3 input-inline input-number-mozbox"
                       min="0"
                       max="100"
                       disable-on-readonly="true"

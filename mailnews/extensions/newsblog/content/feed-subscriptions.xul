@@ -148,7 +148,7 @@
                     label="&biffStart.label;"
                     accesskey="&biffStart.accesskey;"
                     oncommand="FeedSubscriptions.setPrefs(this);"/>
-          <html:input id="updateValue" type="number" class="size3" min="1"
+          <html:input id="updateValue" type="number" class="size3 input-number-mozbox" min="1"
                       aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"
                       oninput="FeedSubscriptions.setPrefs(this);"
                       onchange="FeedSubscriptions.setPrefs(this);"/>

@@ -67,7 +67,7 @@
             <label value="&pref.defaultsnoozelength.label;"
                    accesskey="&pref.defaultsnoozelength.accesskey;"
                    control="defaultsnoozelength"/>
-            <html:input id="defaultsnoozelength" type="number" class="size3"
+            <html:input id="defaultsnoozelength" type="number" class="size3 input-number-mozbox"
                         min="0"
                         preference="calendar.alarms.defaultsnoozelength"
                         onselect="updateUnitLabelPlural('defaultsnoozelength', 'defaultsnoozelengthunit', 'minutes')"
@@ -130,7 +130,7 @@
                         <hbox class="defaultTimeBox"
                               align="center"
                               flex="1">
-                            <html:input id="eventdefalarmlen" type="number" class="size3" min="0"
+                            <html:input id="eventdefalarmlen" type="number" class="size3 input-number-mozbox" min="0"
                                         preference="calendar.alarms.eventalarmlen"
                                         onselect="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"
                                         oninput="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"/>
@@ -161,7 +161,7 @@
                         <hbox class="defaultTimeBox"
                               align="center"
                               flex="1">
-                            <html:input id="tododefalarmlen" type="number" class="size3" min="0"
+                            <html:input id="tododefalarmlen" type="number" class="size3 input-number-mozbox" min="0"
                                         preference="calendar.alarms.todoalarmlen"
                                         onselect="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"
                                         oninput="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"/>

@@ -455,7 +455,7 @@
             <radio id="markAsReadAfterDelay" value="true"
                    label="&markAsReadDelay.label;"
                    accesskey="&markAsReadDelay.accesskey;"/>
-            <html:input id="markAsReadDelay" type="number" class="size3"
+            <html:input id="markAsReadDelay" type="number" class="size3 input-number-mozbox"
                         min="1" max="2147483"
                         preference="mailnews.mark_message_read.delay.interval"
                         aria-labelledby="markAsReadAfterDelay markAsReadDelay secondsLabel"/>
@@ -694,7 +694,7 @@
       <hbox align="center" class="indent">
         <label id="useCacheBefore" control="cacheSize"
                accesskey="&useCacheBefore.accesskey;" value="&useCacheBefore.label;"/>
-        <html:input id="cacheSize" type="number" class="size4" max="1024"
+        <html:input id="cacheSize" type="number" class="size4 input-number-mozbox" max="1024"
                     preference="browser.cache.disk.capacity"
                     aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
         <label id="useCacheAfter" flex="1">&useCacheAfter.label;</label>
@@ -706,7 +706,7 @@
                     aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"
                     preference="mail.prompt_purge_threshhold"
                     oncommand="gGeneralPane.updateCompactOptions(this.checked);"/>
-          <html:input id="offlineCompactFolderMin" type="number" class="size4"
+          <html:input id="offlineCompactFolderMin" type="number" class="size4 input-number-mozbox"
                       min="1" max="2048" value="200"
                       preference="mail.purge_threshhold_mb"
                       aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>

@@ -60,7 +60,8 @@
              aria-labelledby="reminder-length reminder-unit reminder-relation-origin"/>
       <vbox id="reminder-relative-box" flex="1">
         <hbox id="reminder-relative-length-unit-relation" flex="1">
-          <html:input id="reminder-length" type="number" min="0"
+          <html:input id="reminder-length" type="number"
+                      class="input-number-mozbox" min="0"
                       oninput="updateReminder(event)"/>
           <menulist id="reminder-unit" oncommand="updateReminder(event)" flex="1">
             <menupopup id="reminder-unit-menupopup">

@@ -56,7 +56,8 @@
     <hbox align="center">
       <label id="StartingNumberLabel" control="StartingNumber"
              value="&startingNumber.label;" accesskey="&startingNumber.accessKey;"/>
-      <html:input id="StartingNumber" type="number" class="narrow input-inline"
+      <html:input id="StartingNumber" type="number"
+                  class="narrow input-inline input-number-mozbox"
                   aria-labelledby="StartingNumberLabel"/>
       <spacer/>
     </hbox>

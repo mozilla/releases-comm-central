@@ -117,7 +117,8 @@
               <hbox flex="1" align="center">
                 <radio wsm_persist="true" id="keepNewMsg" accesskey="&retentionKeepRecent.accesskey;"
                         value="3" label="&retentionKeepRecent.label;" oncommand="onCheckKeepMsg();"/>
-                <html:input id="retention.keepNewMsgMin" type="number" class="size4" min="1" value="2000"
+                <html:input id="retention.keepNewMsgMin" type="number"
+                            class="size4 input-number-mozbox" min="1" value="2000"
                             wsm_persist="true"
                             aria-labelledby="keepNewMsg retention.keepNewMsgMin retention.keepNewMsgMinLabel"/>
                 <label value="&message.label;" control="retention.keepNewMsgMin" id="retention.keepNewMsgMinLabel"/>
@@ -125,7 +126,8 @@
               <hbox flex="1" align="center">
                 <radio wsm_persist="true" id="keepMsg" accesskey="&retentionDeleteMsg.accesskey;"
                         value="2" label="&retentionDeleteMsg.label;" oncommand="onCheckKeepMsg();"/>
-                <html:input id="retention.keepOldMsgMin" type="number" class="size4" min="1" value="30"
+                <html:input id="retention.keepOldMsgMin" type="number"
+                            class="size4 input-number-mozbox" min="1" value="30"
                             wsm_persist="true"
                             aria-labelledby="keepMsg retention.keepOldMsgMin retention.keepOldMsgMinLabel"/>
                 <label value="&daysOld.label;" control="retention.keepOldMsgMin" id="retention.keepOldMsgMinLabel"/>

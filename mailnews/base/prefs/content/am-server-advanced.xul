@@ -56,7 +56,7 @@
                value="&maximumConnectionsNumber.label;"
                accesskey="&maximumConnectionsNumber.accesskey;"/>
         <html:input id="maximumConnectionsNumber" type="number"
-                    class="size3 input-inline"
+                    class="size3 input-inline input-number-mozbox"
                     min="1" max="1000"
                     amsa_persist="true"
                     aria-labelledby="maximumConnectionsNumberLabel"/>
