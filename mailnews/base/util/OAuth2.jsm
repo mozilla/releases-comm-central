@@ -26,9 +26,6 @@ function OAuth2(aBaseURI, aScope, aAppKey, aAppSecret) {
   this.log = Log4Moz.getConfiguredLogger("TBOAuth");
 }
 
-OAuth2.CODE_AUTHORIZATION = "authorization_code";
-OAuth2.CODE_REFRESH = "refresh_token";
-
 OAuth2.prototype = {
   consumerKey: null,
   consumerSecret: null,
@@ -49,7 +46,7 @@ OAuth2.prototype = {
     if (!aRefresh && this.accessToken) {
       aSuccess();
     } else if (this.refreshToken) {
-      this.requestAccessToken(this.refreshToken, OAuth2.CODE_REFRESH);
+      this.requestAccessToken(this.refreshToken, true);
     } else {
       if (!aWithUI) {
         aFailure('{ "error": "auth_noui" }');
@@ -176,7 +173,7 @@ OAuth2.prototype = {
     this.log.info("OAuth2 authorization received: url=" + aURL);
     let params = new URLSearchParams(aURL.split("?", 2)[1]);
     if (params.has("code")) {
-      this.requestAccessToken(params.get("code"), OAuth2.CODE_AUTHORIZATION);
+      this.requestAccessToken(params.get("code"), false);
     } else {
       this.onAuthorizationFailed(null, aURL);
     }
@@ -186,18 +183,27 @@ OAuth2.prototype = {
     this.connectFailureCallback(aData);
   },
 
-  requestAccessToken(aCode, aType) {
+  /**
+   * Request a new access token, or refresh an existing one.
+   * @param {string} aCode - The token issued to the client.
+   * @param {boolean} aRefresh - Whether it's a refresh of a token or not.
+   */
+  requestAccessToken(aCode, aRefresh) {
+    // @see RFC 6749 section 4.1.3. Access Token Request
+    // @see RFC 6749 section 6. Refreshing an Access Token
+
     let params = [
       ["client_id", this.consumerKey],
       ["client_secret", this.consumerSecret],
-      ["grant_type", aType],
     ];
 
-    if (aType == OAuth2.CODE_AUTHORIZATION) {
+    if (aRefresh) {
+      params.push(["grant_type", "refresh_token"]);
+      params.push(["refresh_token", aCode]);
+    } else {
+      params.push(["grant_type", "authorization_code"]);
       params.push(["code", aCode]);
       params.push(["redirect_uri", this.completionURI]);
-    } else if (aType == OAuth2.CODE_REFRESH) {
-      params.push(["refresh_token", aCode]);
     }
 
     let options = {
