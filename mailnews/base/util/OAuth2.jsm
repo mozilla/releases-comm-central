@@ -3,7 +3,8 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Provides OAuth 2.0 authentication
+ * Provides OAuth 2.0 authentication.
+ * @see RFC 6749
  */
 var EXPORTED_SYMBOLS = ["OAuth2"];
 
@@ -41,7 +42,6 @@ OAuth2.CODE_AUTHORIZATION = "authorization_code";
 OAuth2.CODE_REFRESH = "refresh_token";
 
 OAuth2.prototype = {
-  responseType: "code",
   consumerKey: null,
   consumerSecret: null,
   completionURI: "http://localhost",
@@ -77,7 +77,7 @@ OAuth2.prototype = {
 
   requestAuthorization() {
     let params = [
-      ["response_type", this.responseType],
+      ["response_type", "code"],
       ["client_id", this.consumerKey],
       ["redirect_uri", this.completionURI],
     ];
@@ -186,10 +186,8 @@ OAuth2.prototype = {
   onAuthorizationReceived(aData) {
     this.log.info("authorization received" + aData);
     let results = parseURLData(aData);
-    if (this.responseType == "code" && results.code) {
+    if (results.code) {
       this.requestAccessToken(results.code, OAuth2.CODE_AUTHORIZATION);
-    } else if (this.responseType == "token") {
-      this.onAccessTokenReceived(JSON.stringify(results));
     } else {
       this.onAuthorizationFailed(null, aData);
     }
