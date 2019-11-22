@@ -10,17 +10,25 @@ const { mailTestUtils } = ChromeUtils.import(
 
 const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);
 
-async function checkEvent(extension, menuIds, contexts) {
-  let [event, tab] = await extension.awaitMessage("onShown");
-  is(event.menuIds.length, menuIds.length);
+async function checkShownEvent(extension, menuIds, contexts) {
+  let [info, tab] = await extension.awaitMessage("onShown");
+  is(info.menuIds.length, menuIds.length);
   for (let i = 0; i < menuIds.length; i++) {
-    is(event.menuIds[i], menuIds[i]);
+    is(info.menuIds[i], menuIds[i]);
   }
-  is(event.contexts.length, contexts.length);
+  is(info.contexts.length, contexts.length);
   for (let i = 0; i < contexts.length; i++) {
-    is(event.contexts[i], contexts[i]);
+    is(info.contexts[i], contexts[i]);
   }
-  return [event, tab];
+  return [info, tab];
+}
+
+async function checkClickedEvent(extension, properties) {
+  let [info, tab] = await extension.awaitMessage("onClicked");
+  for (let [name, value] of Object.entries(properties)) {
+    is(info[name], value);
+  }
+  return [info, tab];
 }
 
 function createExtension() {
@@ -51,6 +59,10 @@ function createExtension() {
       browser.menus.onShown.addListener((...args) => {
         browser.test.sendMessage("onShown", args);
       });
+
+      browser.menus.onClicked.addListener((...args) => {
+        browser.test.sendMessage("onClicked", args);
+      });
     },
     manifest: {
       applications: {
@@ -64,6 +76,8 @@ function createExtension() {
 }
 
 add_task(async function set_up() {
+  await Services.search.init();
+
   gAccount = createAccount();
   gFolders = [...gAccount.incomingServer.rootFolder.subFolders];
   createMessages(gFolders[0], 10);
@@ -82,15 +96,15 @@ add_task(async function test_folder_pane() {
   ok(menu.querySelector("#test1_mochi_test-menuitem-_folder_pane"));
   menu.hidePopup();
 
-  let [event] = await checkEvent(
+  let [info] = await checkShownEvent(
     extension,
     ["folder_pane"],
     ["folder_pane", "all"]
   );
-  is(event.selectedFolder.accountId, gAccount.key);
-  is(event.selectedFolder.path, "/Trash");
-  ok(!event.displayedFolder);
-  ok(!event.selectedMessages);
+  is(info.selectedFolder.accountId, gAccount.key);
+  is(info.selectedFolder.path, "/Trash");
+  ok(!info.displayedFolder);
+  ok(!info.selectedMessages);
 
   await extension.unload();
 });
@@ -108,15 +122,15 @@ add_task(async function test_thread_pane() {
   ok(menu.querySelector("#test1_mochi_test-menuitem-_message_list"));
   menu.hidePopup();
 
-  let [event] = await checkEvent(
+  let [info] = await checkShownEvent(
     extension,
     ["message_list"],
     ["message_list", "all"]
   );
-  is(event.displayedFolder.accountId, gAccount.key);
-  is(event.displayedFolder.path, "/Trash");
-  is(event.selectedMessages.cursor, null);
-  ok(!event.selectedFolder);
+  is(info.displayedFolder.accountId, gAccount.key);
+  is(info.displayedFolder.path, "/Trash");
+  is(info.selectedMessages.cursor, null);
+  ok(!info.selectedFolder);
 
   await extension.unload();
 });
@@ -133,10 +147,10 @@ add_task(async function test_tab() {
     ok(menu.querySelector("#test1_mochi_test-menuitem-_tab"));
     menu.hidePopup();
 
-    let [event, tab] = await checkEvent(extension, ["tab"], ["tab"]);
-    ok(!event.selectedFolder);
-    ok(!event.displayedFolder);
-    ok(!event.selectedMessages);
+    let [info, tab] = await checkShownEvent(extension, ["tab"], ["tab"]);
+    ok(!info.selectedFolder);
+    ok(!info.displayedFolder);
+    ok(!info.selectedMessages);
     is(tab.active, active);
     is(tab.index, index);
     is(tab.mailTab, mailTab);
@@ -161,4 +175,84 @@ add_task(async function test_tab() {
   await extension.unload();
 
   tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
+});
+
+add_task(async function test_selection() {
+  let extension = createExtension();
+  await extension.startup();
+
+  if (window.IsMessagePaneCollapsed()) {
+    window.MsgToggleMessagePane();
+  }
+
+  let oldPref = Services.prefs.getStringPref("mailnews.start_page.url");
+  Services.prefs.setStringPref(
+    "mailnews.start_page.url",
+    "http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html"
+  );
+
+  let tabmail = document.getElementById("tabmail");
+  let menu = document.getElementById("mailContext");
+
+  window.loadStartPage();
+  await BrowserTestUtils.waitForEvent(
+    tabmail.selectedBrowser,
+    "DOMContentLoaded"
+  );
+
+  let { contentDocument, contentWindow } = tabmail.selectedBrowser;
+
+  let text = contentDocument.querySelector("p");
+  EventUtils.synthesizeMouseAtCenter(text, {}, contentWindow);
+  contentWindow.getSelection().selectAllChildren(text);
+  EventUtils.synthesizeMouseAtCenter(
+    text,
+    { type: "contextmenu" },
+    contentWindow
+  );
+
+  await BrowserTestUtils.waitForEvent(menu, "popupshown");
+  ok(menu.querySelector("#test1_mochi_test-menuitem-_selection"));
+  await checkShownEvent(extension, ["selection"], ["selection", "all"]);
+
+  EventUtils.synthesizeMouseAtCenter(
+    menu.querySelector("#test1_mochi_test-menuitem-_selection"),
+    {}
+  );
+  await checkClickedEvent(extension, {
+    selectionText: "This is text.",
+  });
+
+  let link = contentDocument.querySelector("a");
+  EventUtils.synthesizeMouseAtCenter(
+    link,
+    { type: "contextmenu" },
+    contentWindow
+  );
+
+  await BrowserTestUtils.waitForEvent(menu, "popupshown");
+  ok(menu.querySelector("#test1_mochi_test-menuitem-_selection"));
+  await checkShownEvent(
+    extension,
+    ["link", "selection"],
+    ["link", "selection", "all"]
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    menu.querySelector(`menu[id^="test1_mochi_test-menuitem"]`),
+    {}
+  );
+  await BrowserTestUtils.waitForEvent(menu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    menu.querySelector("#test1_mochi_test-menuitem-_link"),
+    {}
+  );
+  await checkClickedEvent(extension, {
+    linkUrl: "http://mochi.test:8888/",
+    linkText: "This is a link with text.",
+    selectionText: "This is text.",
+  });
+
+  await extension.unload();
+  Services.prefs.setStringPref("mailnews.start_page.url", oldPref);
 });
