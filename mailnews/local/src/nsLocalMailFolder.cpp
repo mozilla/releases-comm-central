@@ -3289,7 +3289,7 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState *aState,
   aState->m_seekableStream = do_QueryInterface(aState->m_inputStream);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoPtr<nsLineBuffer<char> > lineBuffer(new nsLineBuffer<char>);
+  nsAutoPtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
   NS_ENSURE_TRUE(lineBuffer, NS_ERROR_OUT_OF_MEMORY);
 
   aState->m_uidl = nullptr;
@@ -3334,21 +3334,21 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState *aState,
  */
 NS_IMETHODIMP
 nsMsgLocalMailFolder::AddMessage(const char *aMessage, nsIMsgDBHdr **aHdr) {
-  const char *aMessages[] = {aMessage};
-  nsCOMPtr<nsIArray> hdrs;
-  nsresult rv = AddMessageBatch(1, aMessages, getter_AddRefs(hdrs));
+  NS_ENSURE_ARG_POINTER(aHdr);
+  AutoTArray<nsCString, 1> aMessages = {nsDependentCString(aMessage)};
+  nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+  nsresult rv = AddMessageBatch(aMessages, hdrs);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgDBHdr> hdr(do_QueryElementAt(hdrs, 0, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  hdr.forget(aHdr);
+  NS_ADDREF(*aHdr = hdrs[0]);
   return rv;
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
-                                      const char **aMessages,
-                                      nsIArray **aHdrArray) {
-  NS_ENSURE_ARG_POINTER(aHdrArray);
+nsMsgLocalMailFolder::AddMessageBatch(
+    const nsTArray<nsCString> &aMessages,
+    nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray) {
+  aHdrArray.ClearAndRetainStorage();
+  aHdrArray.SetCapacity(aMessages.Length());
 
   nsCOMPtr<nsIMsgIncomingServer> server;
   nsresult rv = GetServer(getter_AddRefs(server));
@@ -3373,10 +3373,8 @@ nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
   AcquireSemaphore(static_cast<nsIMsgLocalMailFolder *>(this));
 
   if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIMutableArray> hdrArray =
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    for (uint32_t i = 0; i < aMessageCount; i++) {
+    for (uint32_t i = 0; i < aMessages.Length(); i++) {
       RefPtr<nsParseNewMailState> newMailParser = new nsParseNewMailState;
       NS_ENSURE_TRUE(newMailParser, NS_ERROR_OUT_OF_MEMORY);
       if (!mGettingNewMessages) newMailParser->DisableFilters();
@@ -3397,18 +3395,18 @@ nsMsgLocalMailFolder::AddMessageBatch(uint32_t aMessageCount,
       rv = newMailParser->Init(rootFolder, this, msgWindow, newHdr,
                                outFileStream);
 
-      uint32_t bytesWritten, messageLen = strlen(aMessages[i]);
-      outFileStream->Write(aMessages[i], messageLen, &bytesWritten);
-      newMailParser->BufferInput(aMessages[i], messageLen);
+      uint32_t bytesWritten;
+      uint32_t messageLen = aMessages[i].Length();
+      outFileStream->Write(aMessages[i].get(), messageLen, &bytesWritten);
+      newMailParser->BufferInput(aMessages[i].get(), messageLen);
 
       FinishNewLocalMessage(outFileStream, newHdr, msgStore, newMailParser);
       outFileStream->Close();
       outFileStream = nullptr;
       newMailParser->OnStopRequest(nullptr, NS_OK);
       newMailParser->EndMsgDownload();
-      hdrArray->AppendElement(newHdr);
+      aHdrArray.AppendElement(newHdr);
     }
-    hdrArray.forget(aHdrArray);
   }
   ReleaseSemaphore(static_cast<nsIMsgLocalMailFolder *>(this));
   return rv;

@@ -51,7 +51,7 @@ function createMessages(folder, count) {
   let messages = new MessageGenerator().makeMessages({ count });
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  folder.addMessageBatch(messageStrings.length, messageStrings);
+  folder.addMessageBatch(messageStrings);
 }
 
 async function promiseAnimationFrame(win = window) {

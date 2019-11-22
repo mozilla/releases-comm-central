@@ -72,6 +72,6 @@ function createMessages(folder, count) {
   });
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  folder.addMessageBatch(messageStrings.length, messageStrings);
+  folder.addMessageBatch(messageStrings);
   folder.callFilterPlugins(null);
 }

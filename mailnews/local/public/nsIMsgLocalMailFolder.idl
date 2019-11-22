@@ -84,8 +84,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
    *                  bodies.
    * @return an array of nsIMsgDBHdr of the added messages
    */
-  nsIArray addMessageBatch(in uint32_t aMessageCount,
-                           [array, size_is(aMessageCount)] in string aMessages);
+  Array<nsIMsgDBHdr> addMessageBatch(in Array<ACString> aMessages);
 
   /**
    * Functions for updating the UI while running DownloadMessagesForOffline:

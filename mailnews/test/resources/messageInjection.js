@@ -760,7 +760,7 @@ function add_sets_to_folders(aMsgFolders, aMessageSets, aDoNotForceUpdate) {
       let messageStrings = folderBatch.messages.map(message =>
         message.synMsg.toMboxString()
       );
-      folder.addMessageBatch(messageStrings.length, messageStrings);
+      folder.addMessageBatch(messageStrings);
 
       for (let message of folderBatch.messages) {
         let synMsgState = message.synMsg.metaState;
