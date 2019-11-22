@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+<!--
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+
+<?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://openpgp/skin/enigmail.css" type="text/css"?>
+
+<!DOCTYPE window [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+%brandDTD;
+<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/locale/enigmail.dtd" >
+%enigMailDTD;
+]>
+
+<dialog id="enigmailKeyDetailsDlg"
+        title="&enigmail.keyDetails.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        buttons="accept"
+        minwidth="450px"
+        persist="width height"
+        buttonlabelaccept="&enigmail.cardDetails.closeWindow.label;"
+        onload="onLoad();">
+
+
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/keyDetailsDlg.js"/>
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyManager.js"/>
+
+  <broadcasterset>
+    <broadcaster id="ownKeyCommands" hidden="true"/>
+  </broadcasterset>
+
+  <hbox >
+    <vbox>
+      <grid>
+        <columns>
+          <column style="min-width:15%;" flex="1"/>
+          <column flex="1"/>
+        </columns>
+        <rows>
+          <row>
+            <label value="&enigmail.keyDetails.userId.label;" control="userId"/>
+            <textbox id="userId" class="plain" style="white-space: pre;"
+              readonly="true" value="?" multiline="false" size="60"/>
+          </row>
+          <row>
+            <label value="&enigmail.keyDetails.keyType.label;" control="keyType"/>
+            <textbox id="keyType" class="plain" style="white-space: pre;"
+              readonly="true" value="?" multiline="false" size="60"/>
+          </row>
+          <row>
+            <label value="&enigmail.keyDetails.fingerprint.label;" control="fingerprint"/>
+            <textbox id="fingerprint" class="plain" style="white-space: pre;"
+              readonly="true" value="?" multiline="false" size="60"/>
+          </row>
+        </rows>
+      </grid>
+      <vbox class="enigmailCaptionbox" id="alsoknown" flex="1">
+        <html:h1><html:span>&enigmail.keyDetails.alsoKnown.label;:</html:span></html:h1>
+        <richlistbox id="additionalUid" style="height: 4em;" flex="1"/>
+      </vbox>
+    </vbox>
+    <vbox flex="1" align="end">
+      <hbox flex="1" align="end">
+        <image src="" id="photoIdImg" style="display: block; height: auto; width: auto; max-width: 100px; max-height: 120px;"/>
+      </hbox>
+    </vbox>
+  </hbox>
+
+  <tabbox flex="1" style="margin:5px" id="mainTabs">
+    <tabs id="mainTabBox">
+      <tab id="basicTab"       label="&enigmail.basic.label;"/>
+      <tab id="signaturesTab"  label="&enigmail.keyDetails.signaturesTab;"/>
+      <tab id="structureTab"   label="&enigmail.keyDetails.structureTab;"/>
+    </tabs>
+
+    <tabpanels flex="1" id="mainTabPanel">
+       <!-- Basic Tab -->
+      <vbox id="basicPanel">
+        <html:table style="width: 100%;">
+          <html:colgroup>
+            <html:col/>
+            <html:col style="width: 100%;"/>
+            <html:col style="text-align: right;"/>
+          </html:colgroup>
+          <html:tr>
+            <html:td style="white-space: nowrap; padding: 0 15px 0 0;">
+              &enigmail.keyDetails.created.label;
+            </html:td>
+            <html:td id="keyCreated"/>
+          </html:tr>
+          <html:tr>
+            <html:td style="white-space: nowrap; padding: 0 15px 0 0;">
+              &enigmail.keyDetails.expiry.label;
+            </html:td>
+            <html:td id="keyExpiry"/>
+            <html:td>
+              <button observes="ownKeyCommands" label="&enigmail.keyDetails.change.label;" oncommand="changeExpirationDate()"/>
+            </html:td>
+          </html:tr>
+          <html:tr>
+            <html:td>
+              &enigmail.keyDetails.keyValidity.label;
+            </html:td>
+            <html:td id="keyValidity"/>
+            <html:td>
+              <button label="&enigmail.keyDetails.signKey.label;" oncommand="signKey()"/>
+            </html:td>
+          </html:tr>
+          <html:tr>
+            <html:td style="white-space: nowrap; padding: 0 15px 0 0;">
+              &enigmail.keyDetails.trustStatus.label;
+            </html:td>
+            <html:td id="ownerTrust"/>
+            <html:td>
+              <button id="setOwnerTrust" label="&enigmail.keyDetails.change.label;" oncommand="setOwnerTrust()"/>
+            </html:td>
+          </html:tr>
+        </html:table>
+      </vbox>
+
+      <!-- certifications tab -->
+      <vbox id="signaturesPanel">
+        <tree id="signatures_tree" flex="1"
+          hidecolumnpicker="true"
+          ondblclick="sigHandleDblClick(event)">
+
+          <treecols>
+            <treecol id="sig_uid_col" flex="1"
+                label="&enigmail.keyDetails.uidCertifiedCol;"
+                primary="true"/>
+            <splitter class="tree-splitter"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="sig_fingerprint_col"
+                     label="&enigmail.keyDetails.fingerprint.label;"
+                     persist="width"/>
+            <treecol id="sig_created_col"
+                     label="&enigmail.keyDetails.created.label;"
+                     persist="width"/>
+          </treecols>
+
+          <treechildren/>
+        </tree>
+      </vbox>
+
+      <!-- structure tab -->
+      <vbox id ="structurePanel">
+        <hbox flex="1">
+          <tree id="subkeyList" flex="1"
+            enableColumnDrag="true"
+            style="height:100px"
+            hidecolumnpicker="true">
+
+            <treecols>
+              <treecol id="keyTypeCol" primary="true"
+                  label="&enigmail.keyDetails.keyPart.label;"
+                  style="width:71px"
+                  persist="width"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="keyUsageCol"
+                       label="&enigmail.keyDetails.usage.label;"
+                       flex="1"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="keyIdCol" style="width:77px"
+                       label="&enigmail.keyDetails.ID.label;"
+                       persist="width"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="algoCol" style="width:60px"
+                       label="&enigmail.keyDetails.algorithm.label;"
+                       persist="width"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="sizeCol" style="width:37px"
+                       label="&enigmail.keyDetails.size.label;"
+                       persist="width"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="createdCol" style="width:70px"
+                       label="&enigmail.keyDetails.created.label;"
+                       persist="width"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="expiryCol" style="width:70px"
+                       label="&enigmail.keyDetails.expiry.label;"
+                       persist="width"/>
+            </treecols>
+
+            <treechildren id="keyListChildren"/>
+
+          </tree>
+        </hbox>
+      </vbox>
+    </tabpanels>
+  </tabbox>
+
+  <separator/>
+
+  <hbox flex="0" observes="ownKeyCommands">
+    <button id="actions" label="&enigmail.keyDetails.selAction.label;"
+            accesskey="&enigmail.keyDetails.selAction.accesskey;" type="menu">
+      <menupopup id="actionPopup">
+        <menuitem label="&enigmail.keyMan.manageUid.label;" oncommand="manageUids()"/>
+        <menuitem label="&enigmail.keyMan.addPhoto.label;" oncommand="keyDetailsAddPhoto()"/>
+        <menuitem label="&enigmail.keyMan.changePwd.label;" oncommand="changePassword()"/>
+        <menuitem label="&enigmail.keyMan.revokeKey.label;" oncommand="revokeKey()"/>
+        <menuitem label="&enigmail.keyMan.ctxGenRevoke.label;" oncommand="genRevocationCert()"/>
+      </menupopup>
+    </button>
+  </hbox>
+
+</dialog>

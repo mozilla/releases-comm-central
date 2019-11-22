@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!--
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+
+<?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://openpgp/skin/enigmail.css" type="text/css"?>
+
+<!DOCTYPE window [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+%brandDTD;
+<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/locale/enigmail.dtd" >
+%enigMailDTD;
+<!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
+%utilityDTD;
+]>
+
+<dialog id="enigmailMsgBox"
+        title=""
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="accept,help,cancel,extra1,extra2"
+        onload="onLoad();"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        buttonpack="center">
+
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailMsgBox.js"/>
+
+  <popupset>
+    <menupopup id="ctxmenu">
+      <menuitem label="&copyCmd.label;" oncommand="copyToClipbrd()"/>
+    </menupopup>
+  </popupset>
+
+  <hbox id="filler" style="min-width: 0%;">
+    <spacer style="width: 29em;"/>
+  </hbox>
+
+<grid>
+  <columns>
+    <column/>
+    <column flex="1"/>
+  </columns>
+
+  <rows>
+    <row>
+      <hbox id="iconContainer" align="start">
+        <image id="infoImage" class="spaced" collapsed="true"/>
+      </hbox>
+      <vbox id="infoContainer" pack="center">
+        <label id="macosDialogTitle" collapsed="true" class="enigmailDialogTitle"/>
+        <vbox id="msgContainer" style="max-width: 45em;">
+          <description id="msgtext" context="ctxmenu" noinitialfocus="true" class="enigmailDialogBody"/>
+        </vbox>
+      </vbox>
+    </row>
+    <row id="checkboxContainer" hidden="true">
+      <spacer/>
+      <checkbox id="theCheckBox" checked="false" oncommand="checkboxCb()"/>
+    </row>
+  </rows>
+</grid>
+</dialog>
