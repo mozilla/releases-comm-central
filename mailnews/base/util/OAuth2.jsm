@@ -12,18 +12,6 @@ const { httpRequest } = ChromeUtils.import("resource://gre/modules/Http.jsm");
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
 
-function parseURLData(aData) {
-  let result = {};
-  aData
-    .split(/[?#]/, 2)[1]
-    .split("&")
-    .forEach(function(aParam) {
-      let [key, value] = aParam.split("=");
-      result[key] = decodeURIComponent(value);
-    });
-  return result;
-}
-
 // Only allow one connecting window per endpoint.
 var gConnecting = {};
 
@@ -183,13 +171,14 @@ OAuth2.prototype = {
     delete this._browserRequest;
   },
 
-  onAuthorizationReceived(aData) {
-    this.log.info("authorization received" + aData);
-    let results = parseURLData(aData);
-    if (results.code) {
-      this.requestAccessToken(results.code, OAuth2.CODE_AUTHORIZATION);
+  // @see RFC 6749 section 4.1.2: Authorization Response
+  onAuthorizationReceived(aURL) {
+    this.log.info("OAuth2 authorization received: url=" + aURL);
+    let params = new URLSearchParams(aURL.split("?", 2)[1]);
+    if (params.has("code")) {
+      this.requestAccessToken(params.get("code"), OAuth2.CODE_AUTHORIZATION);
     } else {
-      this.onAuthorizationFailed(null, aData);
+      this.onAuthorizationFailed(null, aURL);
     }
   },
 
