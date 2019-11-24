@@ -370,14 +370,6 @@
   <keyset id="viewZoomKeys"/>
   <key id="key_reload"/>
 
-  <!-- Tab/F6 Keys -->
-  <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
-  <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
-  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
-  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
-  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="shift"/>
-  <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);"/>
-
   <!-- View Toggle Keys -->
   <key id="key_toggleFolderPane"
        oncommand="MsgToggleFolderPane(true);"
