@@ -402,8 +402,8 @@
 
                                 <!-- perhaps this should be a customizable toolbar too -->
                                 <vbox id="otherActionsBox" align="end">
-                                  <hbox id="dateValueBox" align="top" flex="1">  <!--For extensions-->
-                                    <hbox id="smimeBox" insertbefore="dateLabel" collapsed="true">
+                                  <hbox id="dateValueBox" align="top">
+                                    <hbox id="smimeBox" collapsed="true">
                                       <image id="signedHdrIcon"
                                              onclick="showMessageReadSecurityInfo();" collapsed="true"/>
                                       <image id="encryptedHdrIcon"
