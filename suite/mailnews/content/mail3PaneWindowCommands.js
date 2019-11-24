@@ -8,7 +8,8 @@
  * consisting of folder pane, thread pane and message pane.
  */
 
-ChromeUtils.import("resource:///modules/mailServices.js");
+const { MailServices } =
+  ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 // Controller object for folder pane
 var FolderPaneController =
