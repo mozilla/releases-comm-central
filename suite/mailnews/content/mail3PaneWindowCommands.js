@@ -21,6 +21,13 @@ var FolderPaneController =
       case "cmd_shiftDelete":
       case "button_delete":
       case "button_shiftDelete":
+        // Even if the folder pane has focus, don't do a folder delete if
+        // we have a selected message, but do a message delete instead.
+        // Return false here supportsCommand and let the command fall back
+        // to the DefaultController.
+        if (Services.prefs.getBoolPref("mailnews.ui.deleteAlwaysSelectedMessages") && (gFolderDisplay.selectedCount != 0))
+          return false;
+        // else fall through
       //case "cmd_selectAll": the folder pane currently only handles single selection
       case "cmd_cut":
       case "cmd_copy":
@@ -52,33 +59,18 @@ var FolderPaneController =
         let folders = GetSelectedMsgFolders();
 
         if (folders.length) {
-          var canDeleteThisFolder;
-        var specialFolder = null;
-        var isServer = null;
-        try {
           let folder = folders[0];
-          specialFolder = getSpecialFolderString(folder);
-          isServer = folder.isServer;
+          let canDeleteThisFolder = CanDeleteFolder(folder);
           if (folder.server.type == "nntp") {
              if ( command == "cmd_delete" ) {
                 goSetMenuValue(command, 'valueNewsgroup');
                 goSetAccessKey(command, 'valueNewsgroupAccessKey');
             }
           }
+          return canDeleteThisFolder && isCommandEnabled(command);
         }
-        catch (ex) {
-          //dump("specialFolder failure: " + ex + "\n");
-        }
-        if (specialFolder == "Inbox" || specialFolder == "Trash" || specialFolder == "Drafts" ||
-            specialFolder == "Sent" || specialFolder == "Templates" || specialFolder == "Outbox" ||
-            (specialFolder == "Junk" && !CanRenameDeleteJunkMail(GetSelectedFolderURI())) || isServer)
-          canDeleteThisFolder = false;
         else
-          canDeleteThisFolder = true;
-        return canDeleteThisFolder && isCommandEnabled(command);
-      }
-      else
-        return false;
+          return false;
 
       default:
         return false;
@@ -1077,5 +1069,21 @@ function CanRenameDeleteJunkMail(aFolderUri)
   {
       dump("Can't get all servers\n");
   }
+  return true;
+}
+
+/** Check if this is a folder the user is allowed to delete. */
+function CanDeleteFolder(folder) {
+  if (folder.isServer)
+    return false;
+
+  var specialFolder = getSpecialFolderString(folder);
+
+  if (specialFolder == "Inbox" || specialFolder == "Trash" ||
+      specialFolder == "Drafts" || specialFolder == "Sent" ||
+      specialFolder == "Templates" || specialFolder == "Outbox" ||
+      (specialFolder == "Junk" && !CanRenameDeleteJunkMail(folder.URI)))
+    return false;
+
   return true;
 }
