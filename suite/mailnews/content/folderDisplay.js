@@ -84,7 +84,32 @@ var gFolderDisplay =
   get displayedFolder()
   {
     return gMsgFolderSelected;
-  }
+  },
+
+   /**
+   * Determine which pane currently has focus (one of the folder pane, thread
+   * pane, or message pane). When changing focus to the message pane, be sure
+   * to focus the appropriate content window in addition to the messagepanebox
+   * (doing both is required in order to blur the previously-focused chrome
+   * element).
+   *
+   * @return the focused pane
+   */
+  get focusedPane() {
+    let panes = ["threadTree", "folderTree", "messagepanebox"].map(id =>
+        document.getElementById(id));
+
+    let currentNode = top.document.activeElement;
+
+    while (currentNode) {
+      if (panes.includes(currentNode)) {
+        return currentNode;
+      }
+
+      currentNode = currentNode.parentNode;
+    }
+    return null;
+  },
 
 }
 

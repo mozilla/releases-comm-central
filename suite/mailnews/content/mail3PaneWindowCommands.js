@@ -769,14 +769,12 @@ var gLastFocusedElement=null;
 
 function FocusRingUpdate_Mail()
 {
-  // WhichPaneHasFocus() uses on top.document.commandDispatcher.focusedElement
-  // to determine which pane has focus
-  // if the focusedElement is null, we're here on a blur.
+  // If the focusedElement is null, we're here on a blur.
   // nsFocusController::Blur() calls nsFocusController::SetFocusedElement(null),
   // which will update any commands listening for "focus".
   // we really only care about nsFocusController::Focus() happens,
   // which calls nsFocusController::SetFocusedElement(element)
-  var currentFocusedElement = WhichPaneHasFocus();
+  var currentFocusedElement = gFolderDisplay.focusedPane;
 
   if (currentFocusedElement != gLastFocusedElement) {
     if (currentFocusedElement)
@@ -793,28 +791,6 @@ function FocusRingUpdate_Mail()
     // and just update cmd_delete and button_delete?
     UpdateMailToolbar("focus");
   }
-}
-
-function WhichPaneHasFocus()
-{
-  var threadTree = GetThreadTree();
-  var folderTree = GetFolderTree();
-  var messagePane = GetMessagePane();
-
-  if (top.document.commandDispatcher.focusedWindow == GetMessagePaneFrame())
-    return messagePane;
-
-  var currentNode = top.document.commandDispatcher.focusedElement;
-  while (currentNode) {
-    if (currentNode === threadTree ||
-        currentNode === folderTree ||
-        currentNode === messagePane)
-      return currentNode;
-
-    currentNode = currentNode.parentNode;
-  }
-
-  return null;
 }
 
 function SetupCommandUpdateHandlers()
@@ -999,7 +975,7 @@ function MsgDeleteFolder()
 
 function SetFocusThreadPaneIfNotOnMessagePane()
 {
-  var focusedElement = WhichPaneHasFocus();
+  var focusedElement = gFolderDisplay.focusedPane;
 
   if((focusedElement != GetThreadTree()) &&
      (focusedElement != GetMessagePane()))
@@ -1016,7 +992,7 @@ function SwitchPaneFocus(event)
   // a three-pane -- the search pane is more of a toolbar.  So, shift among the
   // three main panes.
 
-  var focusedElement = WhichPaneHasFocus();
+  var focusedElement = gFolderDisplay.focusedPane;
   if (focusedElement == null)       // focus not on one of the main three panes?
     focusedElement = threadTree;    // treat as if on thread tree
 
