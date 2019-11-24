@@ -2505,25 +2505,30 @@ calStorageCalendar.prototype = {
     return value;
   },
 
-  getAllMetaData: function(out_count, out_ids, out_values) {
+  _getAllMetaDataResults: function(key) {
     let query = this.mSelectAllMetaData;
+    let results = [];
     try {
       this.prepareStatement(query);
-      let ids = [];
-      let values = [];
       while (query.executeStep()) {
-        ids.push(query.row.item_id);
-        values.push(query.row.value);
+        results.push(query.row[key]);
       }
-      out_count.value = ids.length;
-      out_ids.value = ids;
-      out_values.value = values;
     } catch (e) {
-      this.logError("Error getting all metadata!", e);
+      this.logError(`Error getting all metadata ${key == "item_id" ? "IDs" : "values"} ` + e);
     } finally {
       query.reset();
     }
+    return results;
   },
+
+  getAllMetaDataIds: function() {
+    return this._getAllMetaDataResults("item_id");
+  },
+
+  getAllMetaDataValues: function() {
+    return this._getAllMetaDataResults("value");
+  },
+
   /**
    * Internal logging function that should be called on any database error,
    * it will log as much info as possible about the database context and

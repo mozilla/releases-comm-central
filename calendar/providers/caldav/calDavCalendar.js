@@ -302,11 +302,8 @@ calDavCalendar.prototype = {
 
   fetchCachedMetaData: function() {
     cal.LOG("CalDAV: Retrieving server info from cache for " + this.name);
-    let cacheIds = {};
-    let cacheValues = {};
-    this.mOfflineStorage.getAllMetaData({}, cacheIds, cacheValues);
-    cacheIds = cacheIds.value;
-    cacheValues = cacheValues.value;
+    let cacheIds = this.mOfflineStorage.getAllMetaDataIds();
+    let cacheValues = this.mOfflineStorage.getAllMetaDataValues();
 
     for (let count = 0; count < cacheIds.length; count++) {
       let itemId = cacheIds[count];

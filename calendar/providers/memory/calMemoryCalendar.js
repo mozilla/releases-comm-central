@@ -601,10 +601,11 @@ calMemoryCalendar.prototype = {
   getMetaData: function(id) {
     return this.mMetaData.get(id);
   },
-  getAllMetaData: function(out_count, out_ids, out_values) {
-    out_ids.value = [...this.mMetaData.keys()];
-    out_values.value = [...this.mMetaData.values()];
-    out_count.value = out_ids.value.length;
+  getAllMetaDataIds: function() {
+    return [...this.mMetaData.keys()];
+  },
+  getAllMetaDataValues: function() {
+    return [...this.mMetaData.values()];
   },
 };
 

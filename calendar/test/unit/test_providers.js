@@ -336,15 +336,14 @@ add_task(async function testMetaData() {
     aCalendar.setMetaData("item2", "meta2");
     equal(aCalendar.getMetaData("item2"), "meta2");
 
-    let count = {};
-    let ids = {};
-    let values = {};
-    aCalendar.getAllMetaData(count, ids, values);
-    equal(count.value, 2);
-    ok(ids.value[0] == "item1" || ids.value[1] == "item1");
-    ok(ids.value[0] == "item2" || ids.value[1] == "item2");
-    ok(values.value[0] == "meta1" || values.value[1] == "meta1");
-    ok(values.value[0] == "meta2" || values.value[1] == "meta2");
+    let ids = aCalendar.getAllMetaDataIds();
+    let values = aCalendar.getAllMetaDataValues();
+    equal(values.length, 2);
+    equal(ids.length, 2);
+    ok(ids[0] == "item1" || ids[1] == "item1");
+    ok(ids[0] == "item2" || ids[1] == "item2");
+    ok(values[0] == "meta1" || values[1] == "meta1");
+    ok(values[0] == "meta2" || values[1] == "meta2");
 
     await new Promise(resolve => {
       aCalendar.deleteItem(event1, {
@@ -353,15 +352,19 @@ add_task(async function testMetaData() {
       });
     });
     equal(aCalendar.getMetaData("item1"), null);
-    aCalendar.getAllMetaData(count, ids, values);
-    equal(count.value, 1);
-    ok(ids.value[0] == "item2");
-    ok(values.value[0] == "meta2");
+    ids = aCalendar.getAllMetaDataIds();
+    values = aCalendar.getAllMetaDataValues();
+    equal(values.length, 1);
+    equal(ids.length, 1);
+    ok(ids[0] == "item2");
+    ok(values[0] == "meta2");
 
     aCalendar.deleteMetaData("item2");
     equal(aCalendar.getMetaData("item2"), null);
-    aCalendar.getAllMetaData(count, ids, values);
-    equal(count.value, 0);
+    values = aCalendar.getAllMetaDataValues();
+    ids = aCalendar.getAllMetaDataIds();
+    equal(values.length, 0);
+    equal(ids.length, 0);
 
     aCalendar.setMetaData("item2", "meta2");
     equal(aCalendar.getMetaData("item2"), "meta2");
@@ -371,9 +374,10 @@ add_task(async function testMetaData() {
         onDeleteCalendar: resolve,
       });
     });
-    equal(aCalendar.getMetaData("item2"), null);
-    aCalendar.getAllMetaData(count, ids, values);
-    equal(count.value, 0);
+    values = aCalendar.getAllMetaDataValues();
+    ids = aCalendar.getAllMetaDataIds();
+    equal(values.length, 0);
+    equal(ids.length, 0);
 
     aCalendar.deleteMetaData("unknown"); // check graceful return
   }
