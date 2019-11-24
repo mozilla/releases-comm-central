@@ -23,18 +23,6 @@ var gPrevFolderFlags;
 var gPrevSelectedFolder;
 var gMsgFolderSelected;
 
-function GetMsgFolderFromResource(folderResource)
-{
-  if (!folderResource)
-     return null;
-
-  var msgFolder = folderResource.QueryInterface(Ci.nsIMsgFolder);
-  if (msgFolder && (msgFolder.parent || msgFolder.isServer))
-    return msgFolder;
-  else
-    return null;
-}
-
 function GetServer(uri)
 {
     if (!uri) return null;
