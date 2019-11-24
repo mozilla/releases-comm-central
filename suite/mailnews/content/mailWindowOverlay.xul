@@ -182,9 +182,12 @@
   <command id="cmd_findNext"
            oncommand="goDoCommand('cmd_findNext');"
            disabled="true"/>
-  <command id="cmd_findPrev"  oncommand="goDoCommand('cmd_findPrev')"  disabled="true"/>
+  <command id="cmd_findPrev"
+           oncommand="goDoCommand('cmd_findPrev');"
+           disabled="true"/>
   <command id="cmd_findTypeText"/>
   <command id="cmd_findTypeLinks"/>
+  <command id="cmd_search" oncommand="goDoCommand('cmd_search');"/>
   <command id="cmd_stop" oncommand="MsgStop();"/>
 </commandset>
 
@@ -301,7 +304,6 @@
            valueMessageAccessKey="&filtersApplyToMessage.accesskey;"/>
   <command id="cmd_runJunkControls" oncommand="goDoCommand('cmd_runJunkControls');" disabled="true"/>
   <command id="cmd_deleteJunk" oncommand="goDoCommand('cmd_deleteJunk');" disabled="true"/>
-  <command id="cmd_search" oncommand="goDoCommand('cmd_search')"/>
 </commandset>
 
 <keyset id="mailKeys">

@@ -3,6 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Functionality for the main application window (aka the 3pane) usually
+ * consisting of folder pane, thread pane and message pane.
+ */
+
+ChromeUtils.import("resource:///modules/mailServices.js");
+
 // Controller object for folder pane
 var FolderPaneController =
 {
@@ -382,10 +389,10 @@ var DefaultController =
         break;
       case "button_search":
       case "cmd_search":
-        return IsCanSearchMessagesEnabled();
+        return MailServices.accounts.accounts.length > 0;
       case "cmd_selectAll":
       case "cmd_selectFlagged":
-        return gDBView != null;
+        return !!gDBView;
       // these are enabled on when we are in threaded mode
       case "cmd_selectThread":
         if (GetNumSelectedMessages() <= 0) return false;
@@ -892,17 +899,6 @@ function IsRenameFolderEnabled()
   let folders = GetSelectedMsgFolders();
   return folders.length == 1 && folders[0].canRename &&
          isCommandEnabled("cmd_renameFolder");
-}
-
-function IsCanSearchMessagesEnabled()
-{
-  var folderURI = GetSelectedFolderURI();
-  if (!folderURI)
-    return false;
-
-  var folder = GetMsgFolderFromUri(folderURI, false);
-  return folder.server.canSearchMessages &&
-         !(folder.flags & Ci.nsMsgFolderFlags.Virtual);
 }
 
 function IsFolderCharsetEnabled()
