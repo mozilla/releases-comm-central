@@ -132,7 +132,7 @@ calItipItem.prototype = {
     }
 
     this.mItemList = [];
-    for (let item of cal.iterate.items(parser.getItems({}))) {
+    for (let item of cal.iterate.items(parser.getItems())) {
       cleanItem(item);
       // only push non-faked master items or
       // the overridden instances of faked master items
@@ -151,7 +151,7 @@ calItipItem.prototype = {
     // method is (using user feedback, prefs, etc.) for the given
     // receivedMethod.  The RFC tells us to treat items without a METHOD
     // as if they were METHOD:REQUEST.
-    for (let prop of parser.getProperties({})) {
+    for (let prop of parser.getProperties()) {
       if (prop.propertyName == "METHOD") {
         this.mReceivedMethod = prop.value;
         this.mResponseMethod = prop.value;

@@ -32,12 +32,12 @@ function test_props_comps() {
   ].join("\r\n");
   parser.parseString(str);
 
-  let props = parser.getProperties({});
+  let props = parser.getProperties();
   equal(props.length, 1);
   equal(props[0].propertyName, "X-WR-CALNAME");
   equal(props[0].value, "CALNAME");
 
-  let comps = parser.getComponents({});
+  let comps = parser.getComponents();
   equal(comps.length, 1);
   equal(comps[0].componentType, "VJOURNAL");
   equal(comps[0].location, "BEFORE TIME");
@@ -60,8 +60,8 @@ function test_failures() {
   let str = ["BEGIN:VWORLD", "BEGIN:VEVENT", "UID:123", "END:VEVENT", "END:VWORLD"].join("\r\n");
   dump("Note: The following error message is expected:\n");
   parser.parseString(str);
-  equal(parser.getComponents({}).length, 0);
-  equal(parser.getItems({}).length, 0);
+  equal(parser.getComponents().length, 0);
+  equal(parser.getItems().length, 0);
 }
 
 function test_fake_parent() {
@@ -80,7 +80,7 @@ function test_fake_parent() {
 
   parser.parseString(str);
 
-  let items = parser.getItems({});
+  let items = parser.getItems();
   equal(items.length, 1);
   let item = items[0].QueryInterface(Ci.calIEvent);
 
@@ -97,7 +97,7 @@ function test_fake_parent() {
   let exc = excs[0].QueryInterface(Ci.calIEvent);
   equal(exc.startDate.icalString, "20120101T010102");
 
-  equal(parser.getParentlessItems({})[0], exc);
+  equal(parser.getParentlessItems()[0], exc);
 }
 
 function test_async() {
@@ -120,7 +120,7 @@ function test_async() {
   do_test_pending();
   parser.parseString(str, null, {
     onParsingComplete: function(rc, opparser) {
-      let items = parser.getItems({});
+      let items = parser.getItems();
       equal(items.length, 2);
       let item = items[0];
       ok(cal.item.isToDo(item));
@@ -167,11 +167,11 @@ function test_roundtrip() {
 
   parser.parseString(str);
 
-  let items = parser.getItems({});
+  let items = parser.getItems();
   serializer.addItems(items);
 
-  parser.getProperties({}).forEach(serializer.addProperty, serializer);
-  parser.getComponents({}).forEach(serializer.addComponent, serializer);
+  parser.getProperties().forEach(serializer.addProperty, serializer);
+  parser.getComponents().forEach(serializer.addComponent, serializer);
 
   equal(
     serializer
@@ -191,9 +191,9 @@ function test_roundtrip() {
 
   parser.parseFromStream(stream);
 
-  items = parser.getItems({});
-  let comps = parser.getComponents({});
-  let props = parser.getProperties({});
+  items = parser.getItems();
+  let comps = parser.getComponents();
+  let props = parser.getProperties();
   equal(items.length, 1);
   equal(comps.length, 1);
   equal(props.length, 1);
@@ -221,9 +221,9 @@ function test_roundtrip() {
   serializer.serializeToStream(pipe.outputStream);
   parser.parseFromStream(pipe.inputStream);
 
-  items = parser.getItems({});
-  comps = parser.getComponents({});
-  props = parser.getProperties({});
+  items = parser.getItems();
+  comps = parser.getComponents();
+  props = parser.getProperties();
   equal(items.length, 1);
   equal(comps.length, 1);
   equal(props.length, 1);

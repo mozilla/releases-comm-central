@@ -21,7 +21,7 @@ ltnMimeConverter.prototype = {
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(data);
     let event = null;
-    for (let item of parser.getItems({})) {
+    for (let item of parser.getItems()) {
       if (cal.item.isEvent(item)) {
         if (item.hasProperty("X-MOZ-FAKED-MASTER")) {
           // if it's a faked master, take any overridden item to get a real occurrence:

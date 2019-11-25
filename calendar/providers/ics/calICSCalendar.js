@@ -264,11 +264,11 @@ calICSCalendar.prototype = {
       // calIIcsParsingListener
       onParsingComplete: function(rc, parser_) {
         try {
-          for (let item of parser_.getItems({})) {
+          for (let item of parser_.getItems()) {
             self.mMemoryCalendar.adoptItem(item, null);
           }
-          self.unmappedComponents = parser_.getComponents({});
-          self.unmappedProperties = parser_.getProperties({});
+          self.unmappedComponents = parser_.getComponents();
+          self.unmappedProperties = parser_.getProperties();
           cal.LOG("[calICSCalendar] Parsing ICS succeeded for " + self.uri.spec);
         } catch (exc) {
           cal.LOG("[calICSCalendar] Parsing ICS failed for \nException: " + exc);

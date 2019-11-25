@@ -68,45 +68,23 @@ interface calIIcsParser : nsISupports
    * recurring series, the (unexpanded) parent item is returned only.
    * Please keep in mind that any parentless items (see below) are not contained
    * in the returned set of items.
-   *
-   * @param aCount
-   *    Will hold the number of items that were parsed
-   * @param aItems
-   *    The items
    */
-  void getItems(out uint32_t aCount,
-                [array,size_is(aCount),retval] out calIItemBase aItems);
+  Array<calIItemBase> getItems();
 
   /**
    * Get the parentless items that may have occurred, i.e. overridden items of a
    * recurring series (having a RECURRENCE-ID) missing their parent item in the
    * parsed content.
-   *
-   * @param aCount
-   *    Will hold the number of items that were parsed
-   * @param aItems
-   *    The items
    */
-  void getParentlessItems(out uint32_t aCount,
-                          [array,size_is(aCount),retval] out calIItemBase aItems);
+  Array<calIItemBase> getParentlessItems();
 
   /**
    * Get the top-level properties that were not interpreted as anything special
-   * @param aCount
-   *    Will hold the number of properties that were found
-   * @param aProperties
-   *    The properties
    */
-  void getProperties(out uint32_t aCount,
-                     [array,size_is(aCount),retval] out calIIcalProperty aProperties);
+  Array<calIIcalProperty> getProperties();
 
   /**
    * Get the top-level components that were not interpreted as anything special
-   * @param aCount
-   *    Will hold the number of components that were found
-   * @param aComponents
-   *    The components
    */
-  void getComponents(out uint32_t aCount,
-                     [array,size_is(aCount),retval] out calIIcalComponent aComponents);
+  Array<calIIcalComponent> getComponents();
 };

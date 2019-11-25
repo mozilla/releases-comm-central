@@ -166,23 +166,19 @@ calIcsParser.prototype = {
     this.parseString(stringData, aTzProvider, aAsyncParsing);
   },
 
-  getItems: function(aCount) {
-    aCount.value = this.mItems.length;
+  getItems: function() {
     return this.mItems.concat([]);
   },
 
-  getParentlessItems: function(aCount) {
-    aCount.value = this.mParentlessItems.length;
+  getParentlessItems: function() {
     return this.mParentlessItems.concat([]);
   },
 
-  getProperties: function(aCount) {
-    aCount.value = this.mProperties.length;
+  getProperties: function() {
     return this.mProperties.concat([]);
   },
 
-  getComponents: function(aCount) {
-    aCount.value = this.mComponents.length;
+  getComponents: function() {
     return this.mComponents.concat([]);
   },
 };

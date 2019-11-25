@@ -355,7 +355,7 @@ add_task(async function countOccurrences_test() {
     let ics = getIcs(test.input);
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(ics);
-    let items = parser.getItems({});
+    let items = parser.getItems();
 
     ok(items.length > 0, "parsing input succeeded (test #" + i + ")");
     for (let item of items) {

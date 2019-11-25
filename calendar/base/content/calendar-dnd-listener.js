@@ -243,7 +243,7 @@ calDNDBaseObserver.prototype = {
         }
         let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
         parser.parseString(data);
-        this.onDropItems(parser.getItems({}).concat(parser.getParentlessItems({})));
+        this.onDropItems(parser.getItems().concat(parser.getParentlessItems()));
         break;
       }
       case "text/unicode": {
@@ -297,7 +297,7 @@ calDNDBaseObserver.prototype = {
               ? new TextDecoder(encoding).decode(Uint8Array.from(aResult))
               : "";
             parser.parseString(result);
-            self.onDropItems(parser.getItems({}).concat(parser.getParentlessItems({})));
+            self.onDropItems(parser.getItems().concat(parser.getParentlessItems()));
           },
         };
 

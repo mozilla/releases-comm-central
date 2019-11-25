@@ -1115,8 +1115,8 @@ calDavCalendar.prototype = {
       return;
     }
     // with CalDAV there really should only be one item here
-    let items = parser.getItems({});
-    let propertiesList = parser.getProperties({});
+    let items = parser.getItems();
+    let propertiesList = parser.getProperties();
     let method;
     for (let prop of propertiesList) {
       if (prop.propertyName == "METHOD") {

@@ -167,7 +167,7 @@ function pasteFromClipboard() {
         // there will just be 0 items.
       }
 
-      let items = icsParser.getItems({});
+      let items = icsParser.getItems();
       if (items.length == 0) {
         return;
       }
