@@ -132,8 +132,8 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]:not([customizing="true
 /* Rules to help integrate WebExtension buttons */
 
 .webextension-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
 }
 
 @media not all and (min-resolution: 1.1dppx) {
