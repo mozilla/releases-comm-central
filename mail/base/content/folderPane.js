@@ -2506,7 +2506,7 @@ var gFolderTreeView = {
     this._addChildToView(parent, parentIndex, newChild);
   },
 
-  OnItemRemoved(aRDFParentItem, aItem) {
+  OnItemRemoved(aParentItem, aItem) {
     if (!(aItem instanceof Ci.nsIMsgFolder)) {
       return;
     }
@@ -2518,7 +2518,7 @@ var gFolderTreeView = {
       return;
     }
     // forget our parent's children; they'll get rebuilt
-    if (aRDFParentItem && this._rowMap[index]._parent) {
+    if (aParentItem && this._rowMap[index]._parent) {
       this._rowMap[index]._parent._children = null;
     }
     let kidCount = 1;
@@ -2533,6 +2533,10 @@ var gFolderTreeView = {
     this._rowMap.splice(index, kidCount);
     this._tree.rowCountChanged(index, -1 * kidCount);
     this._tree.invalidateRow(index);
+
+    if (aParentItem === null && MailServices.accounts.accounts.length === 0) {
+      gFolderDisplay.show();
+    }
   },
 
   OnItemPropertyChanged(aItem, aProperty, aOld, aNew) {},
