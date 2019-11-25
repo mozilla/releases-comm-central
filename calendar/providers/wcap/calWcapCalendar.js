@@ -302,14 +302,11 @@ calWcapCalendar.prototype = {
   },
 
   m_calProps: null,
-  getCalendarProperties: function(propName, out_count) {
+  getCalendarProperties: function(propName) {
     if (!this.m_calProps) {
       log("soft error: no calprops available, most possibly not logged in.", this);
     }
     let ret = filterXmlNodes(propName, this.m_calProps);
-    if (out_count) {
-      out_count.value = ret.length;
-    }
     return ret;
   },
 

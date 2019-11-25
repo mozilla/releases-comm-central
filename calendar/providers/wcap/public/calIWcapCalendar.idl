@@ -62,13 +62,9 @@ interface calIWcapCalendar : calICalendar
      * Gets calendar properties.
      *
      * @param propName property name (e.g. X-S1CS-CALPROPS-COMMON-NAME)
-     * @param count length of props array
-     * @param listener called with array of strings as result
      * @exception NS_ERROR_NOT_AVAILABLE if not logged in
      */
-    void getCalendarProperties(in string propName,
-                               out unsigned long count,
-                               [array, size_is(count), retval] out string props);
+    Array<AString> getCalendarProperties(in string propName);
 
     /* xxx todo: additional filters sensible for calICalendar, too?
                  claiming bits 24-30 for now.
