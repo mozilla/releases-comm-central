@@ -272,6 +272,16 @@ this.messages = class extends ExtensionAPI {
           if (newProperties.flagged !== null) {
             msgHdr.markFlagged(newProperties.flagged);
           }
+          if (newProperties.junk !== null) {
+            let messages = Cc["@mozilla.org/array;1"].createInstance(
+              Ci.nsIMutableArray
+            );
+            let score = newProperties.junk
+              ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
+              : Ci.nsIJunkMailPlugin.IS_HAM_SCORE;
+            messages.appendElement(msgHdr);
+            msgHdr.folder.setJunkScoreForMessages(messages, score);
+          }
           if (Array.isArray(newProperties.tags)) {
             newProperties.tags = newProperties.tags.filter(
               MailServices.tags.isValidKey

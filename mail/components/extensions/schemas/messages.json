@@ -176,6 +176,11 @@
                 "description": "Marks the message as read or unread.",
                 "optional": true
               },
+              "junk": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Marks the message as junk or not junk."
+              },
               "flagged": {
                 "type": "boolean",
                 "description": "Marks the message as flagged or unflagged.",
