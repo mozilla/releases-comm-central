@@ -2284,11 +2284,12 @@ nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
 
 NS_IMETHODIMP
 nsMsgDBFolder::OnMessageTraitsClassified(const char *aMsgURI,
-                                         uint32_t aTraitCount,
-                                         uint32_t *aTraits,
-                                         uint32_t *aPercents) {
+                                         const nsTArray<uint32_t> &aTraits,
+                                         const nsTArray<uint32_t> &aPercents) {
   if (!aMsgURI)    // This signifies end of batch
     return NS_OK;  // We are not handling batching
+
+  MOZ_ASSERT(aTraits.Length() == aPercents.Length());
 
   nsresult rv;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -2309,7 +2310,7 @@ nsMsgDBFolder::OnMessageTraitsClassified(const char *aMsgURI,
   traitService = do_GetService("@mozilla.org/msg-trait-service;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  for (uint32_t i = 0; i < aTraitCount; i++) {
+  for (uint32_t i = 0; i < aTraits.Length(); i++) {
     if (aTraits[i] == nsIJunkMailPlugin::JUNK_TRAIT)
       continue;  // junk is processed by the junk listener
     nsAutoCString traitId;

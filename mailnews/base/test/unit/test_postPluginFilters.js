@@ -131,7 +131,7 @@ function endTest() {
 
 var classifyListener = {
   // nsIMsgTraitClassificationListener implementation
-  onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
+  onMessageTraitsClassified(aMsgURI, aTraits, aPercents) {
     // print("Message URI is " + aMsgURI);
     if (!aMsgURI) {
       // Ignore end-of-batch signal.

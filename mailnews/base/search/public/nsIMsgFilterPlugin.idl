@@ -69,16 +69,14 @@ interface nsIMsgTraitClassificationListener : nsISupports
    * null aMsgURI (other parameters are don't care)
    *
    * @param aMsgURI      URI of the message that was classified
-   * @param aTraitCount  length of aTraits and aPercents arrays
    * @param aTraits      array of matched trait ids
    * @param aPercents    array of percent match (0 is unmatched, 100 is fully
    *                     matched) of the trait with the corresponding array
    *                     index in aTraits
    */
   void onMessageTraitsClassified(in string aMsgURI,
-    in unsigned long aTraitCount,
-    [array, size_is(aTraitCount)] in unsigned long aTraits,
-    [array, size_is(aTraitCount)] in unsigned long aPercents);
+    in Array<unsigned long> aTraits,
+    in Array<unsigned long> aPercents);
 };
 
 [scriptable, uuid(12667532-88D1-44a7-AD48-F73719BE5C92)]

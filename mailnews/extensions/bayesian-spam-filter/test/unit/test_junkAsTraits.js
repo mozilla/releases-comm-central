@@ -411,7 +411,7 @@ var junkListener = {
 
 var traitListener = {
   // nsIMsgTraitClassificationListener implementation
-  onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
+  onMessageTraitsClassified(aMsgURI, aTraits, aPercents) {
     if (!aMsgURI) {
       // Ignore end-of-batch signal.
       return;

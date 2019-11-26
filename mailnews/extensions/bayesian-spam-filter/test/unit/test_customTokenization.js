@@ -123,7 +123,7 @@ function run_test() {
 
 var listener = {
   // nsIMsgTraitClassificationListener implementation
-  onMessageTraitsClassified(aMsgURI, aTraitCount, aTraits, aPercents) {
+  onMessageTraitsClassified(aMsgURI, aTraits, aPercents) {
     startCommand();
   },
 

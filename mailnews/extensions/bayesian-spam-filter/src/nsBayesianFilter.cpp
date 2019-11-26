@@ -1255,8 +1255,12 @@ class MessageClassifier : public TokenAnalyzer {
       if (mJunkListener)
         mJunkListener->OnMessageClassified(nullptr,
                                            nsIJunkMailPlugin::UNCLASSIFIED, 0);
-      if (mTraitListener)
-        mTraitListener->OnMessageTraitsClassified(nullptr, 0, nullptr, nullptr);
+      if (mTraitListener) {
+        nsTArray<uint32_t> nullTraits;
+        nsTArray<uint32_t> nullPercents;
+        mTraitListener->OnMessageTraitsClassified(nullptr, nullTraits,
+                                                  nullPercents);
+      }
       mTokenListener =
           nullptr;  // this breaks the circular ref that keeps this object alive
                     // so we will be destroyed as a result.
@@ -1647,8 +1651,7 @@ void nsBayesianFilter::classifyMessage(
   }
 
   if (aTraitListener)
-    aTraitListener->OnMessageTraitsClassified(
-        messageURI, traits.Length(), traits.Elements(), percents.Elements());
+    aTraitListener->OnMessageTraitsClassified(messageURI, traits, percents);
 
   delete[] tokens;
   // reuse mAnalysisStore without clearing memory
@@ -1942,8 +1945,7 @@ void nsBayesianFilter::observeMessage(
     traits.AppendElements(newClassifications);
     for (uint32_t index = 0; index < newLength; index++)
       percents.AppendElement(100);  // This is 100 percent, or certainty
-    aTraitListener->OnMessageTraitsClassified(
-        messageURL, traits.Length(), traits.Elements(), percents.Elements());
+    aTraitListener->OnMessageTraitsClassified(messageURL, traits, percents);
   }
 
   if (mTrainingDataDirty && !trainingDataWasDirty && (mTimer != nullptr)) {
