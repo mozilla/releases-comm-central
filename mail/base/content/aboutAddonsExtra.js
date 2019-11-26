@@ -16,6 +16,17 @@ var mailExtBundle = Services.strings.createBundle(
 );
 var extensionsNeedingRestart = new Set();
 
+const THUNDERBIRD_THEME_PREVIEWS = new Map([
+  [
+    "thunderbird-compact-light@mozilla.org",
+    "chrome://mozapps/content/extensions/firefox-compact-light.svg",
+  ],
+  [
+    "thunderbird-compact-dark@mozilla.org",
+    "chrome://mozapps/content/extensions/firefox-compact-dark.svg",
+  ],
+]);
+
 /* This file runs in both the outer window, which controls the categories list, search bar, etc.,
  * and the inner window which is the list of add-ons or the detail view. */
 (async function() {
@@ -46,6 +57,14 @@ var extensionsNeedingRestart = new Set();
   window.browserBundle = Services.strings.createBundle(
     "chrome://messenger/locale/addons.properties"
   );
+
+  let _getScreenshotUrlForAddon = getScreenshotUrlForAddon;
+  getScreenshotUrlForAddon = function(addon) {
+    if (THUNDERBIRD_THEME_PREVIEWS.has(addon.id)) {
+      return THUNDERBIRD_THEME_PREVIEWS.get(addon.id);
+    }
+    return _getScreenshotUrlForAddon(addon);
+  }
 
   let _getAddonMessageInfo = getAddonMessageInfo;
   getAddonMessageInfo = async function(addon) {
