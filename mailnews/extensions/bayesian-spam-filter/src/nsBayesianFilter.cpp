@@ -1576,7 +1576,7 @@ void nsBayesianFilter::classifyMessage(
       // Prepare output arrays
       nsTArray<uint32_t> tokenPercents(usedTokenCount);
       nsTArray<uint32_t> runningPercents(usedTokenCount);
-      nsTArray<char16_t*> tokenStrings(usedTokenCount);
+      nsTArray<nsString> tokenStrings(usedTokenCount);
 
       double clueCount = 1.0;
       for (uint32_t tokenIndex = 0; tokenIndex < usedTokenCount; tokenIndex++) {
@@ -1596,15 +1596,12 @@ void nsBayesianFilter::classifyMessage(
         tokenPercents.AppendElement(
             static_cast<uint32_t>(ta.mProbability * 100. + .5));
         tokenStrings.AppendElement(
-            ToNewUnicode(NS_ConvertUTF8toUTF16(tokens[ta.mTokenIndex].mWord)));
+            NS_ConvertUTF8toUTF16(tokens[ta.mTokenIndex].mWord));
       }
 
-      aDetailListener->OnMessageTraitDetails(
-          messageURI, aProTraits[traitIndex], usedTokenCount,
-          (const char16_t**)tokenStrings.Elements(), tokenPercents.Elements(),
-          runningPercents.Elements());
-      for (uint32_t tokenIndex = 0; tokenIndex < usedTokenCount; tokenIndex++)
-        free(tokenStrings[tokenIndex]);
+      aDetailListener->OnMessageTraitDetails(messageURI, aProTraits[traitIndex],
+                                             tokenStrings, tokenPercents,
+                                             runningPercents);
     }
 
     uint32_t proPercent = static_cast<uint32_t>(prob * 100. + .5);

@@ -130,7 +130,6 @@ var listener = {
   onMessageTraitDetails(
     aMsgURI,
     aProTrait,
-    aTokenCount,
     aTokenString,
     aTokenPercents,
     aRunningPercents

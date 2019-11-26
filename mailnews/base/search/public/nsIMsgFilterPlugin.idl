@@ -92,19 +92,17 @@ interface nsIMsgTraitDetailListener : nsISupports
    *
    * @param aMsgURI         URI of the message that was classified
    * @param aProTrait       trait id of pro trait for the calculation
-   * @param tokenCount      length of arrays that follow
    * @param tokenStrings    the string for a particular token
    * @param tokenPercents   calculated probability that a message with that token
    *                        matches the trait
    * @param runningPercents calculated probability that the message matches the
    *                        trait, accounting for this token and all stronger tokens.
    */
-  void onMessageTraitDetails(in string aMsgUri,
-    in unsigned long aProTrait,
-    in unsigned long tokenCount,
-    [array, size_is(tokenCount)] in wstring tokenStrings,
-    [array, size_is(tokenCount)] in unsigned long tokenPercents,
-    [array, size_is(tokenCount)] in unsigned long runningPercents);
+    void onMessageTraitDetails(in string aMsgUri,
+                               in unsigned long aProTrait,
+                               in Array<AString> tokenStrings,
+                               in Array<unsigned long> tokenPercents,
+                               in Array<unsigned long> runningPercents);
 };
 
 [scriptable, uuid(8EA5BBCA-F735-4d43-8541-D203D8E2FF2F)]
