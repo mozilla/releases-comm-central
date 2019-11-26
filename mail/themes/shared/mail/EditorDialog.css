@@ -5,20 +5,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-/* The defaults are WAY to big! */
-groupbox {
-  margin: 1em 5px 2px;
-  padding-top: 2px;
-  padding-bottom: 4px;
-}
-
-groupbox > hbox > .header {
-  margin-top: -1em;
-  padding-right: 5px;
-  padding-left: 5px;
-  background-color: -moz-dialog;
-}
-
 .MinWidth5em {
   min-width: 5em;
 }
@@ -67,7 +53,7 @@ groupbox > hbox > .header {
   width: 20px;
   height: 12px;
   border: 1px inset #CCCCCC;
-  margin: 1px 0px;
+  margin: 1px 0;
 }
 
 .color-well[default="true"] {
@@ -76,13 +62,12 @@ groupbox > hbox > .header {
 }
 
 .color-button {
-  min-width : 0px;
+  min-width : 0;
   margin: 2px;
 }
 
 button.color-button .button-text {
-  margin-inline-start: 0;
-  margin-inline-end: 0;
+  margin-inline: 0;
 }
 
 .menu-list[focused="true"] {
@@ -100,10 +85,8 @@ button.color-button .button-text {
   border: 2px outset #CCCCCC;
   width: 25px;
   height: 20px;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-inline-start: 0px;
-  margin-inline-end: 3px;
+  margin-block: 0;
+  margin-inline: 0 3px;
 }
 
 #ColorPickerSwatch[default="true"] {
@@ -129,10 +112,10 @@ tree.list {
 
 #ColorPreview {
   border: 1px inset #CCCCCC;
-  margin-inline-start:    10px;
+  margin-inline-start: 10px;
   padding: 0 5px;
-  min-width:     100px;
-  min-height:     50px;
+  min-width: 100px;
+  min-height: 50px;
 }
 
 #alignTypeSelect {
@@ -212,9 +195,9 @@ tree.list {
 }
 
 .spacer {
-  width:  5px;
+  width: 5px;
   height: 5px;
-  min-width:  5px;
+  min-width: 5px;
   min-height: 5px;
 }
 
@@ -278,8 +261,8 @@ tree.list {
 }
 
 #preview-image-holder {
-  padding: 0px;
-  margin: 0px;
+  padding: 0;
+  margin: 0;
 }
 
 #tagLabel {
@@ -294,10 +277,8 @@ tree.list {
 #AddJSEAttributeNameList > menupopup > menuseparator,
 #AddHTMLAttributeNameInput > menupopup > menuseparator {
   -moz-appearance: none;
-  margin-top: 3px;
-  margin-bottom: 3px;
-  padding-top: 0;
-  padding-bottom: 0;
+  margin-block: 3px;
+  padding-block: 0;
   border-top-color: #d7d7d7;
 }
 
@@ -314,8 +295,7 @@ groupbox > .groupbox-title > .header {
   font-weight: normal;
   margin-top: -1em;
   margin-inline-start: 3px;
-  padding-right: 3px;
-  padding-left: 3px;
+  padding-inline: 3px;
   background-color: -moz-dialog;
 }
 
