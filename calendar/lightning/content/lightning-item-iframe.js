@@ -821,7 +821,7 @@ function loadDialog(aItem) {
       let undiscloseProp = aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED");
       undiscloseCheckbox.checked =
         undiscloseProp === null
-          ? false // default value as most common within organizations
+          ? Services.prefs.getBoolPref("calendar.itip.separateInvitationPerAttendee")
           : undiscloseProp == "TRUE";
       // disable checkbox, if notifyCheckbox is not checked
       undiscloseCheckbox.disabled = !notifyCheckbox.checked;

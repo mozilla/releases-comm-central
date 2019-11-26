@@ -61,6 +61,9 @@ pref("calendar.invitations.autorefresh.timeout", 3);
 // whether "notify" is checked by default when creating new events/todos with attendees
 pref("calendar.itip.notify", true);
 
+// whether "Separate invitation per attendee" is checked by default
+pref("calendar.itip.separateInvitationPerAttendee", false);
+
 // whether the organizer propagates replies of attendees to all attendees
 pref("calendar.itip.notify-replies", false);
 
