@@ -1191,9 +1191,10 @@ class MessageClassifier : public TokenAnalyzer {
                     nsIJunkMailClassificationListener* aJunkListener,
                     nsIMsgTraitClassificationListener* aTraitListener,
                     nsIMsgTraitDetailListener* aDetailListener,
-                    nsTArray<uint32_t>& aProTraits,
-                    nsTArray<uint32_t>& aAntiTraits, nsIMsgWindow* aMsgWindow,
-                    uint32_t aNumMessagesToClassify, const char** aMessageURIs)
+                    const nsTArray<uint32_t>& aProTraits,
+                    const nsTArray<uint32_t>& aAntiTraits,
+                    nsIMsgWindow* aMsgWindow,
+                    const nsTArray<nsCString>& aMessageURIs)
       : mFilter(aFilter),
         mJunkMailPlugin(aFilter),
         mJunkListener(aJunkListener),
@@ -1201,40 +1202,30 @@ class MessageClassifier : public TokenAnalyzer {
         mDetailListener(aDetailListener),
         mProTraits(aProTraits),
         mAntiTraits(aAntiTraits),
-        mMsgWindow(aMsgWindow) {
-    mCurMessageToClassify = 0;
-    mNumMessagesToClassify = aNumMessagesToClassify;
-    mMessageURIs = (char**)moz_xmalloc(sizeof(char*) * aNumMessagesToClassify);
-    for (uint32_t i = 0; i < aNumMessagesToClassify; i++)
-      mMessageURIs[i] = PL_strdup(aMessageURIs[i]);
+        mMsgWindow(aMsgWindow),
+        mMessageURIs(aMessageURIs),
+        mCurMessageToClassify(0) {
+    MOZ_ASSERT(aProTraits.Length() == aAntiTraits.Length());
   }
 
   // junk-only classifier
   MessageClassifier(nsBayesianFilter* aFilter,
                     nsIJunkMailClassificationListener* aJunkListener,
-                    nsIMsgWindow* aMsgWindow, uint32_t aNumMessagesToClassify,
-                    const char** aMessageURIs)
+                    nsIMsgWindow* aMsgWindow,
+                    const nsTArray<nsCString>& aMessageURIs)
       : mFilter(aFilter),
         mJunkMailPlugin(aFilter),
         mJunkListener(aJunkListener),
         mTraitListener(nullptr),
         mDetailListener(nullptr),
-        mMsgWindow(aMsgWindow) {
-    mCurMessageToClassify = 0;
-    mNumMessagesToClassify = aNumMessagesToClassify;
-    mMessageURIs = (char**)moz_xmalloc(sizeof(char*) * aNumMessagesToClassify);
-    for (uint32_t i = 0; i < aNumMessagesToClassify; i++)
-      mMessageURIs[i] = PL_strdup(aMessageURIs[i]);
+        mMsgWindow(aMsgWindow),
+        mMessageURIs(aMessageURIs),
+        mCurMessageToClassify(0) {
     mProTraits.AppendElement(kJunkTrait);
     mAntiTraits.AppendElement(kGoodTrait);
   }
 
-  virtual ~MessageClassifier() {
-    if (mMessageURIs) {
-      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(mNumMessagesToClassify,
-                                            mMessageURIs);
-    }
-  }
+  virtual ~MessageClassifier() {}
   virtual void analyzeTokens(Tokenizer& tokenizer) {
     mFilter->classifyMessage(tokenizer, mTokenSource.get(), mProTraits,
                              mAntiTraits, mJunkListener, mTraitListener,
@@ -1244,12 +1235,12 @@ class MessageClassifier : public TokenAnalyzer {
   }
 
   virtual void classifyNextMessage() {
-    if (++mCurMessageToClassify < mNumMessagesToClassify &&
-        mMessageURIs[mCurMessageToClassify]) {
+    if (++mCurMessageToClassify < mMessageURIs.Length()) {
       MOZ_LOG(BayesianFilterLogModule, LogLevel::Warning,
-              ("classifyNextMessage(%s)", mMessageURIs[mCurMessageToClassify]));
-      mFilter->tokenizeMessage(mMessageURIs[mCurMessageToClassify], mMsgWindow,
-                               this);
+              ("classifyNextMessage(%s)",
+               mMessageURIs[mCurMessageToClassify].get()));
+      mFilter->tokenizeMessage(mMessageURIs[mCurMessageToClassify].get(),
+                               mMsgWindow, this);
     } else {
       // call all listeners with null parameters to signify end of batch
       if (mJunkListener)
@@ -1276,9 +1267,8 @@ class MessageClassifier : public TokenAnalyzer {
   nsTArray<uint32_t> mProTraits;
   nsTArray<uint32_t> mAntiTraits;
   nsCOMPtr<nsIMsgWindow> mMsgWindow;
-  int32_t mNumMessagesToClassify;
-  int32_t mCurMessageToClassify;  // 0-based index
-  char** mMessageURIs;
+  nsTArray<nsCString> mMessageURIs;
+  uint32_t mCurMessageToClassify;  // 0-based index
 };
 
 nsresult nsBayesianFilter::tokenizeMessage(const char* aMessageURI,
@@ -1700,8 +1690,9 @@ NS_IMETHODIMP nsBayesianFilter::GetShouldDownloadAllHeaders(
 NS_IMETHODIMP nsBayesianFilter::ClassifyMessage(
     const char* aMessageURL, nsIMsgWindow* aMsgWindow,
     nsIJunkMailClassificationListener* aListener) {
+  AutoTArray<nsCString, 1> urls = {nsDependentCString(aMessageURL)};
   MessageClassifier* analyzer =
-      new MessageClassifier(this, aListener, aMsgWindow, 1, &aMessageURL);
+      new MessageClassifier(this, aListener, aMsgWindow, urls);
   NS_ENSURE_TRUE(analyzer, NS_ERROR_OUT_OF_MEMORY);
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
   NS_ENSURE_TRUE(tokenListener, NS_ERROR_OUT_OF_MEMORY);
@@ -1709,20 +1700,19 @@ NS_IMETHODIMP nsBayesianFilter::ClassifyMessage(
   return tokenizeMessage(aMessageURL, aMsgWindow, analyzer);
 }
 
-/* void classifyMessages (in unsigned long aCount, [array, size_is (aCount)] in
- * string aMsgURLs, in nsIJunkMailClassificationListener aListener); */
+/* void classifyMessages(in Array<ACString> aMsgURIs,
+ *                       in nsIMsgWindow aMsgWindow,
+ *                       in nsIJunkMailClassificationListener aListener); */
 NS_IMETHODIMP nsBayesianFilter::ClassifyMessages(
-    uint32_t aCount, const char** aMsgURLs, nsIMsgWindow* aMsgWindow,
+    const nsTArray<nsCString>& aMsgURLs, nsIMsgWindow* aMsgWindow,
     nsIJunkMailClassificationListener* aListener) {
-  NS_ENSURE_ARG_POINTER(aMsgURLs);
-
   TokenAnalyzer* analyzer =
-      new MessageClassifier(this, aListener, aMsgWindow, aCount, aMsgURLs);
+      new MessageClassifier(this, aListener, aMsgWindow, aMsgURLs);
   NS_ENSURE_TRUE(analyzer, NS_ERROR_OUT_OF_MEMORY);
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
   NS_ENSURE_TRUE(tokenListener, NS_ERROR_OUT_OF_MEMORY);
   analyzer->setTokenListener(tokenListener);
-  return tokenizeMessage(aMsgURLs[0], aMsgWindow, analyzer);
+  return tokenizeMessage(aMsgURLs[0].get(), aMsgWindow, analyzer);
 }
 
 nsresult nsBayesianFilter::setAnalysis(Token& token, uint32_t aTraitIndex,
@@ -1783,46 +1773,36 @@ uint32_t nsBayesianFilter::getAnalysisIndex(Token& token,
 }
 
 NS_IMETHODIMP nsBayesianFilter::ClassifyTraitsInMessage(
-    const char* aMsgURI, uint32_t aTraitCount, uint32_t* aProTraits,
-    uint32_t* aAntiTraits, nsIMsgTraitClassificationListener* aTraitListener,
-    nsIMsgWindow* aMsgWindow,
+    const nsACString& aMsgURI, const nsTArray<uint32_t>& aProTraits,
+    const nsTArray<uint32_t>& aAntiTraits,
+    nsIMsgTraitClassificationListener* aTraitListener, nsIMsgWindow* aMsgWindow,
     nsIJunkMailClassificationListener* aJunkListener) {
-  return ClassifyTraitsInMessages(1, &aMsgURI, aTraitCount, aProTraits,
-                                  aAntiTraits, aTraitListener, aMsgWindow,
-                                  aJunkListener);
+  AutoTArray<nsCString, 1> uris = {PromiseFlatCString(aMsgURI)};
+  return ClassifyTraitsInMessages(uris, aProTraits, aAntiTraits, aTraitListener,
+                                  aMsgWindow, aJunkListener);
 }
 
 NS_IMETHODIMP nsBayesianFilter::ClassifyTraitsInMessages(
-    uint32_t aCount, const char** aMsgURIs, uint32_t aTraitCount,
-    uint32_t* aProTraits, uint32_t* aAntiTraits,
+    const nsTArray<nsCString>& aMsgURIs, const nsTArray<uint32_t>& aProTraits,
+    const nsTArray<uint32_t>& aAntiTraits,
     nsIMsgTraitClassificationListener* aTraitListener, nsIMsgWindow* aMsgWindow,
     nsIJunkMailClassificationListener* aJunkListener) {
-  AutoTArray<uint32_t, kTraitAutoCapacity> proTraits;
-  AutoTArray<uint32_t, kTraitAutoCapacity> antiTraits;
-  if (aTraitCount > kTraitAutoCapacity) {
-    proTraits.SetCapacity(aTraitCount);
-    antiTraits.SetCapacity(aTraitCount);
-  }
-  proTraits.AppendElements(aProTraits, aTraitCount);
-  antiTraits.AppendElements(aAntiTraits, aTraitCount);
-
-  MessageClassifier* analyzer = new MessageClassifier(
-      this, aJunkListener, aTraitListener, nullptr, proTraits, antiTraits,
-      aMsgWindow, aCount, aMsgURIs);
-  NS_ENSURE_TRUE(analyzer, NS_ERROR_OUT_OF_MEMORY);
+  MOZ_ASSERT(aProTraits.Length() == aAntiTraits.Length());
+  MessageClassifier* analyzer =
+      new MessageClassifier(this, aJunkListener, aTraitListener, nullptr,
+                            aProTraits, aAntiTraits, aMsgWindow, aMsgURIs);
 
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
-  NS_ENSURE_TRUE(tokenListener, NS_ERROR_OUT_OF_MEMORY);
 
   analyzer->setTokenListener(tokenListener);
-  return tokenizeMessage(aMsgURIs[0], aMsgWindow, analyzer);
+  return tokenizeMessage(aMsgURIs[0].get(), aMsgWindow, analyzer);
 }
 
 class MessageObserver : public TokenAnalyzer {
  public:
   MessageObserver(nsBayesianFilter* filter,
-                  nsTArray<uint32_t>& aOldClassifications,
-                  nsTArray<uint32_t>& aNewClassifications,
+                  const nsTArray<uint32_t>& aOldClassifications,
+                  const nsTArray<uint32_t>& aNewClassifications,
                   nsIJunkMailClassificationListener* aJunkListener,
                   nsIMsgTraitClassificationListener* aTraitListener)
       : mFilter(filter),
@@ -1849,19 +1829,12 @@ class MessageObserver : public TokenAnalyzer {
 };
 
 NS_IMETHODIMP nsBayesianFilter::SetMsgTraitClassification(
-    const char* aMsgURI, uint32_t aOldCount, uint32_t* aOldTraits,
-    uint32_t aNewCount, uint32_t* aNewTraits,
+    const char* aMsgURI, const nsTArray<uint32_t>& aOldTraits,
+    const nsTArray<uint32_t>& aNewTraits,
     nsIMsgTraitClassificationListener* aTraitListener, nsIMsgWindow* aMsgWindow,
     nsIJunkMailClassificationListener* aJunkListener) {
-  AutoTArray<uint32_t, kTraitAutoCapacity> oldTraits;
-  AutoTArray<uint32_t, kTraitAutoCapacity> newTraits;
-  if (aOldCount > kTraitAutoCapacity) oldTraits.SetCapacity(aOldCount);
-  if (aNewCount > kTraitAutoCapacity) newTraits.SetCapacity(aNewCount);
-  oldTraits.AppendElements(aOldTraits, aOldCount);
-  newTraits.AppendElements(aNewTraits, aNewCount);
-
   MessageObserver* analyzer = new MessageObserver(
-      this, oldTraits, newTraits, aJunkListener, aTraitListener);
+      this, aOldTraits, aNewTraits, aJunkListener, aTraitListener);
   NS_ENSURE_TRUE(analyzer, NS_ERROR_OUT_OF_MEMORY);
 
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
@@ -1999,14 +1972,13 @@ NS_IMETHODIMP nsBayesianFilter::ResetTrainingData() {
 NS_IMETHODIMP nsBayesianFilter::DetailMessage(
     const char* aMsgURI, uint32_t aProTrait, uint32_t aAntiTrait,
     nsIMsgTraitDetailListener* aDetailListener, nsIMsgWindow* aMsgWindow) {
-  AutoTArray<uint32_t, 1> proTraits;
-  AutoTArray<uint32_t, 1> antiTraits;
-  proTraits.AppendElement(aProTrait);
-  antiTraits.AppendElement(aAntiTrait);
+  AutoTArray<uint32_t, 1> proTraits = {aProTrait};
+  AutoTArray<uint32_t, 1> antiTraits = {aAntiTrait};
+  AutoTArray<nsCString, 1> uris = {nsDependentCString(aMsgURI)};
 
   MessageClassifier* analyzer =
       new MessageClassifier(this, nullptr, nullptr, aDetailListener, proTraits,
-                            antiTraits, aMsgWindow, 1, &aMsgURI);
+                            antiTraits, aMsgWindow, uris);
   NS_ENSURE_TRUE(analyzer, NS_ERROR_OUT_OF_MEMORY);
 
   TokenStreamListener* tokenListener = new TokenStreamListener(analyzer);
@@ -2032,9 +2004,11 @@ NS_IMETHODIMP nsBayesianFilter::ClearTrait(uint32_t aTrait) {
 }
 
 NS_IMETHODIMP
-nsBayesianFilter::UpdateData(nsIFile* aFile, bool aIsAdd, uint32_t aRemapCount,
-                             uint32_t* aFromTraits, uint32_t* aToTraits) {
-  return mCorpus.UpdateData(aFile, aIsAdd, aRemapCount, aFromTraits, aToTraits);
+nsBayesianFilter::UpdateData(nsIFile* aFile, bool aIsAdd,
+                             const nsTArray<uint32_t>& aFromTraits,
+                             const nsTArray<uint32_t>& aToTraits) {
+  MOZ_ASSERT(aFromTraits.Length() == aToTraits.Length());
+  return mCorpus.UpdateData(aFile, aIsAdd, aFromTraits, aToTraits);
 }
 
 NS_IMETHODIMP
@@ -2377,7 +2351,8 @@ void CorpusStore::readTrainingData() {
   rv = mTraitFile->Exists(&exists);
   if (NS_FAILED(rv) || !exists) return;
 
-  rv = UpdateData(mTraitFile, true, 0, nullptr, nullptr);
+  nsTArray<uint32_t> empty;
+  rv = UpdateData(mTraitFile, true, empty, empty);
 
   if (NS_FAILED(rv)) {
     NS_WARNING("failed to read training data.");
@@ -2501,13 +2476,10 @@ void CorpusStore::setMessageCount(uint32_t aTraitId, uint32_t aCount) {
 }
 
 nsresult CorpusStore::UpdateData(nsIFile* aFile, bool aIsAdd,
-                                 uint32_t aRemapCount, uint32_t* aFromTraits,
-                                 uint32_t* aToTraits) {
+                                 const nsTArray<uint32_t>& aFromTraits,
+                                 const nsTArray<uint32_t>& aToTraits) {
   NS_ENSURE_ARG_POINTER(aFile);
-  if (aRemapCount) {
-    NS_ENSURE_ARG_POINTER(aFromTraits);
-    NS_ENSURE_ARG_POINTER(aToTraits);
-  }
+  MOZ_ASSERT(aFromTraits.Length() == aToTraits.Length());
 
   int64_t fileSize;
   nsresult rv = aFile->GetFileSize(&fileSize);
@@ -2532,7 +2504,7 @@ nsresult CorpusStore::UpdateData(nsIFile* aFile, bool aIsAdd,
 
       uint32_t localTrait = fileTrait;
       // remap the trait
-      for (uint32_t i = 0; i < aRemapCount; i++) {
+      for (uint32_t i = 0; i < aFromTraits.Length(); i++) {
         if (aFromTraits[i] == fileTrait) localTrait = aToTraits[i];
       }
 

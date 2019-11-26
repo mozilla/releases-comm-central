@@ -195,13 +195,11 @@ function startCommand() {
       proArray.push(gTest.traitId);
 
       MailServices.junk.setMsgTraitClassification(
-        getSpec(gTest.fileName), // in string aMsgURI
-        0,
-        null, // in nsIArray aOldTraits
-        proArray.length,
-        proArray, // in nsIArray aNewTraits
-        classifyListener
-      ); // [optional] in nsIMsgTraitClassificationListener aTraitListener
+        getSpec(gTest.fileName), // aMsgURI
+        [], // aOldTraits
+        proArray, // aNewTraits
+        classifyListener // aTraitListener
+      );
       // null,      // [optional] in nsIMsgWindow aMsgWindow
       // null,      // [optional] in nsIJunkMailClassificationListener aJunkListener
       break;

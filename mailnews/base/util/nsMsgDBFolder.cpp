@@ -2136,9 +2136,9 @@ nsresult nsMsgDBFolder::SpamFilterClassifyMessage(
   rv = traitService->GetEnabledAntiIndices(antiIndices);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = aJunkMailPlugin->ClassifyTraitsInMessage(
-      aURI, proIndices.Length(), proIndices.Elements(), antiIndices.Elements(),
-      this, aMsgWindow, this);
+  rv = aJunkMailPlugin->ClassifyTraitsInMessage(nsDependentCString(aURI),
+                                                proIndices, antiIndices, this,
+                                                aMsgWindow, this);
   return rv;
 }
 
@@ -2160,9 +2160,11 @@ nsresult nsMsgDBFolder::SpamFilterClassifyMessages(
   rv = traitService->GetEnabledAntiIndices(antiIndices);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsTArray<nsCString> tmpURIs(aURICount);
+  tmpURIs.AppendElements(aURIArray, aURICount);
+
   rv = aJunkMailPlugin->ClassifyTraitsInMessages(
-      aURICount, aURIArray, proIndices.Length(), proIndices.Elements(),
-      antiIndices.Elements(), this, aMsgWindow, this);
+      tmpURIs, proIndices, antiIndices, this, aMsgWindow, this);
   return rv;
 }
 

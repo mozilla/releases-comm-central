@@ -138,8 +138,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
     void classifyMessage(in string aMsgURI, in nsIMsgWindow aMsgWindow,
                          in nsIJunkMailClassificationListener aListener);
 
-    void classifyMessages(in unsigned long aCount,
-                          [array, size_is(aCount)] in string aMsgURIs,
+    void classifyMessages(in Array<ACString> aMsgURIs,
                           in nsIMsgWindow aMsgWindow,
                           in nsIJunkMailClassificationListener aListener);
 
@@ -148,7 +147,6 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * traits according to the current training set.
      *
      * @param aMsgURI          URI of the message to be evaluated
-     * @param aTraitCount      length of aProTraits, aAntiTraits arrays
      * @param aProTraits       array of trait ids for trained messages that
      *                         match the tested trait (for example,
      *                         JUNK_TRAIT if testing for junk)
@@ -161,10 +159,9 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      */
 
     void classifyTraitsInMessage(
-           in string aMsgURI,
-           in unsigned long aTraitCount,
-           [array, size_is(aTraitCount)] in unsigned long aProTraits,
-           [array, size_is(aTraitCount)] in unsigned long aAntiTraits,
+           in ACString aMsgURI,
+           in Array<unsigned long> aProTraits,
+           in Array<unsigned long> aAntiTraits,
            in nsIMsgTraitClassificationListener aTraitListener,
            [optional] in nsIMsgWindow aMsgWindow,
            [optional] in nsIJunkMailClassificationListener aJunkListener);
@@ -173,9 +170,7 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * Given an array of message URIs, evaluate their relative match to a
      * list of traits according to the current training set.
      *
-     * @param aCount           Number of messages to evaluate
      * @param aMsgURIs         array of URIs of the messages to be evaluated
-     * @param aTraitCount      length of aProTraits, aAntiTraits arrays
      * @param aProTraits       array of trait ids for trained messages that
      *                         match the tested trait (for example,
      *                         JUNK_TRAIT if testing for junk)
@@ -188,11 +183,9 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      */
 
     void classifyTraitsInMessages(
-           in unsigned long aCount,
-           [array, size_is(aCount)] in string aMsgURIs,
-           in unsigned long aTraitCount,
-           [array, size_is(aTraitCount)] in unsigned long aProTraits,
-           [array, size_is(aTraitCount)] in unsigned long aAntiTraits,
+           in Array<ACString> aMsgURIs,
+           in Array<unsigned long> aProTraits,
+           in Array<unsigned long> aAntiTraits,
            in nsIMsgTraitClassificationListener aTraitListener,
            [optional] in nsIMsgWindow aMsgWindow,
            [optional] in nsIJunkMailClassificationListener aJunkListener);
@@ -218,10 +211,8 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      * Should cause the training set to be updated appropriately.
      *
      * @param aMsgURI           URI of the message to be classified
-     * @param aOldCount         length of aOldTraits array
      * @param aOldTraits        array of trait IDs of the old
      *                          message classification(s), if any
-     * @param aNewCount         length of aNewTraits array
      * @param aNewTraits        array of trait IDs of the new
      *                          message classification(s), if any
      * @param aTraitListener    trait-oriented listener (may be null)
@@ -230,10 +221,8 @@ interface nsIJunkMailPlugin : nsIMsgFilterPlugin
      */
     void setMsgTraitClassification(
         in string aMsgURI,
-        in unsigned long aOldCount,
-        [array, size_is(aOldCount)] in unsigned long  aOldTraits,
-        in unsigned long aNewCount,
-        [array, size_is(aNewCount)] in unsigned long  aNewTraits,
+        in Array<unsigned long> aOldTraits,
+        in Array<unsigned long> aNewTraits,
         [optional] in nsIMsgTraitClassificationListener aTraitListener,
         [optional] in nsIMsgWindow aMsgWindow,
         [optional] in nsIJunkMailClassificationListener aJunkListener);
@@ -285,6 +274,11 @@ interface nsIMsgCorpus : nsISupports
 
   /**
    * Update corpus data from a file.
+   * Uses the parallel arrays aFromTraits and aToTraits. These arrays allow
+   * conversion of the trait id stored in the file (which may be originated
+   * externally) to the trait id used in the local corpus (which is defined
+   * locally using nsIMsgTraitService, and mapped by that interface to a
+   * globally unique trait id string).
    *
    * @param aFile       the file with the data, in the format:
    *
@@ -300,14 +294,6 @@ interface nsIMsgCorpus : nsISupports
    * @param aIsAdd      should the data be added, or removed? True if
    *                    adding, false if removing.
    *
-   * @param aRemapCount number of items in the parallel arrays aFromTraits,
-   *                    aToTraits. These arrays allow conversion of the
-   *                    trait id stored in the file (which may be originated
-   *                    externally) to the trait id used in the local corpus
-   *                    (which is defined locally using nsIMsgTraitService, and
-   *                    mapped by that interface to a globally unique trait
-   *                    id string).
-   *
    * @param aFromTraits array of trait ids used in aFile. If aFile contains
    *                    trait ids that are not in this array, they are not
    *                    remapped, but assumed to be local trait ids.
@@ -317,9 +303,8 @@ interface nsIMsgCorpus : nsISupports
    *                    be used in storing data from aFile into the local corpus.
    */
   void updateData(in nsIFile aFile, in boolean aIsAdd,
-                  [optional] in unsigned long aRemapCount,
-                  [optional, array, size_is(aRemapCount)] in unsigned long aFromTraits,
-                  [optional, array, size_is(aRemapCount)] in unsigned long aToTraits);
+                  [optional] in Array<unsigned long> aFromTraits,
+                  [optional] in Array<unsigned long> aToTraits);
 
   /**
    * Get the corpus count for a token as a string.

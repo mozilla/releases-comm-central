@@ -163,7 +163,6 @@ function startCommand() {
 
   MailServices.junk.classifyTraitsInMessage(
     getSpec(gTest.fileName), // in string aMsgURI
-    proArray.length, // length of traits arrays
     proArray, // in array aProTraits,
     antiArray, // in array aAntiTraits
     listener

@@ -255,12 +255,6 @@ class CorpusStore : public TokenHash {
    * @param aIsAdd      should the data be added, or removed? true if adding,
    *                    else removing.
    *
-   * @param aRemapCount number of items in the parallel arrays aFromTraits,
-   *                    aToTraits. These arrays allow conversion of the
-   *                    trait id stored in the file (which may be originated
-   *                    externally) to the trait id used in the local corpus
-   *                    (which is defined locally using nsIMsgTraitService).
-   *
    * @param aFromTraits array of trait ids used in aFile. If aFile contains
    *                    trait ids that are not in this array, they are not
    *                    remapped, but assumed to be local trait ids.
@@ -270,8 +264,9 @@ class CorpusStore : public TokenHash {
    *                    used in storing data from aFile into the local corpus.
    *
    */
-  nsresult UpdateData(nsIFile* aFile, bool aIsAdd, uint32_t aRemapCount,
-                      uint32_t* aFromTraits, uint32_t* aToTraits);
+  nsresult UpdateData(nsIFile* aFile, bool aIsAdd,
+                      const nsTArray<uint32_t>& aFromTraits,
+                      const nsTArray<uint32_t>& aToTraits);
 
   /**
    * remove all counts (message and tokens) for a trait id

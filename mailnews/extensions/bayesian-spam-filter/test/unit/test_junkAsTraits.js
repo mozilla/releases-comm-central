@@ -498,15 +498,13 @@ function startCommand() {
     case kTrainT:
       // train message using trait call
       MailServices.junk.setMsgTraitClassification(
-        getSpec(fileName), // in string aMsgURI
-        0, // length of aOldTraits array
-        null, // in array aOldTraits
-        gProArray.length, // length of array
-        junkPercent == kIsSpamScore ? gProArray : gAntiArray, // in array aNewTraits
-        tListener ? traitListener : null, // in nsIMsgTraitClassificationListener aTraitListener
-        null, // in nsIMsgWindow aMsgWindow
+        getSpec(fileName), // aMsgURI
+        [], // aOldTraits
+        junkPercent == kIsSpamScore ? gProArray : gAntiArray, // aNewTraits
+        tListener ? traitListener : null, // aTraitListener
+        null, // aMsgWindow
         jListener ? junkListener : null
-      ); // in nsIJunkMailClassificationListener aJunkListener
+      );
       break;
 
     case kClassJ:
@@ -522,7 +520,6 @@ function startCommand() {
       // classify message using trait call
       MailServices.junk.classifyTraitsInMessage(
         getSpec(fileName), // in string aMsgURI
-        gProArray.length, // length of traits arrays
         gProArray, // in array aProTraits,
         gAntiArray, // in array aAntiTraits
         tListener ? traitListener : null, // in nsIMsgTraitClassificationListener aTraitListener
@@ -546,10 +543,8 @@ function startCommand() {
       // forget message using trait call
       MailServices.junk.setMsgTraitClassification(
         getSpec(fileName), // in string aMsgURI
-        gProArray.length, // length of aOldTraits array (1 in this test)
         junkPercent == kIsSpamScore ? gProArray : gAntiArray, // in array aOldTraits
-        0, // length of aNewTraits array
-        null, // in array aNewTraits
+        [], // in array aNewTraits
         tListener ? traitListener : null, // in nsIMsgTraitClassificationListener aTraitListener
         null, // in nsIMsgWindow aMsgWindow
         jListener ? junkListener : null

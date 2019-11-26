@@ -170,11 +170,9 @@ function startCommand() {
       // train message
 
       MailServices.junk.setMsgTraitClassification(
-        getSpec(gTest.fileName), // in string aMsgURI
-        0,
-        null, // in nsIArray aOldTraits
-        kProArray.length,
-        kProArray, // in nsIArray aNewTraits
+        getSpec(gTest.fileName), // aMsgURI
+        [], // aOldTraits
+        kProArray, // aNewTraits
         listener
       ); // [optional] in nsIMsgTraitClassificationListener aTraitListener
       // null,      // [optional] in nsIMsgWindow aMsgWindow

@@ -71,7 +71,7 @@ var gTests = [
   function loadWithRemap() {
     let fileName = "msgCorpus.dat";
     let file = do_get_file("resources/" + fileName);
-    msgCorpus.updateData(file, true, 2, [1001, 1003], [1, 3]);
+    msgCorpus.updateData(file, true, [1001, 1003], [1, 3]);
 
     for (let i = 0; i < tokenData.length; i++) {
       let id = tokenData[i][0] - 1000;
