@@ -1364,13 +1364,9 @@ void nsBayesianFilter::classifyMessage(
   // anti message counts per trait index
   AutoTArray<uint32_t, kTraitAutoCapacity> numAntiMessages;
   // array of pro aliases per trait index
-  AutoTArray<uint32_t*, kTraitAutoCapacity> proAliasArrays;
-  // number of pro aliases per trait index
-  AutoTArray<uint32_t, kTraitAutoCapacity> proAliasesLengths;
+  AutoTArray<nsTArray<uint32_t>, kTraitAutoCapacity> proAliasArrays;
   // array of anti aliases per trait index
-  AutoTArray<uint32_t*, kTraitAutoCapacity> antiAliasArrays;
-  // number of anti aliases per trait index
-  AutoTArray<uint32_t, kTraitAutoCapacity> antiAliasesLengths;
+  AutoTArray<nsTArray<uint32_t>, kTraitAutoCapacity> antiAliasArrays;
   // construct the outgoing listener arrays
   AutoTArray<uint32_t, kTraitAutoCapacity> traits;
   AutoTArray<uint32_t, kTraitAutoCapacity> percents;
@@ -1379,8 +1375,6 @@ void nsBayesianFilter::classifyMessage(
     percents.SetCapacity(traitCount);
     numProMessages.SetCapacity(traitCount);
     numAntiMessages.SetCapacity(traitCount);
-    proAliasesLengths.SetCapacity(traitCount);
-    antiAliasesLengths.SetCapacity(traitCount);
     proAliasArrays.SetCapacity(traitCount);
     antiAliasArrays.SetCapacity(traitCount);
   }
@@ -1399,41 +1393,37 @@ void nsBayesianFilter::classifyMessage(
     nsresult rv;
 
     // pro trait
-    uint32_t proAliasesLength = 0;
-    uint32_t* proAliases = nullptr;
+    nsTArray<uint32_t> proAliases;
     uint32_t proTrait = aProTraits[traitIndex];
     if (traitService) {
-      rv = traitService->GetAliases(proTrait, &proAliasesLength, &proAliases);
+      rv = traitService->GetAliases(proTrait, proAliases);
       if (NS_FAILED(rv)) {
         NS_ERROR("trait service failed to get aliases");
         MOZ_LOG(BayesianFilterLogModule, LogLevel::Error,
                 ("trait service failed to get aliases"));
       }
     }
-    proAliasesLengths.AppendElement(proAliasesLength);
     proAliasArrays.AppendElement(proAliases);
     uint32_t proMessageCount = mCorpus.getMessageCount(proTrait);
-    for (uint32_t aliasIndex = 0; aliasIndex < proAliasesLength; aliasIndex++)
+    for (uint32_t aliasIndex = 0; aliasIndex < proAliases.Length(); aliasIndex++)
       proMessageCount += mCorpus.getMessageCount(proAliases[aliasIndex]);
     numProMessages.AppendElement(proMessageCount);
 
     // anti trait
-    uint32_t antiAliasesLength = 0;
-    uint32_t* antiAliases = nullptr;
+    nsTArray<uint32_t> antiAliases;
     uint32_t antiTrait = aAntiTraits[traitIndex];
     if (traitService) {
       rv =
-          traitService->GetAliases(antiTrait, &antiAliasesLength, &antiAliases);
+          traitService->GetAliases(antiTrait, antiAliases);
       if (NS_FAILED(rv)) {
         NS_ERROR("trait service failed to get aliases");
         MOZ_LOG(BayesianFilterLogModule, LogLevel::Error,
                 ("trait service failed to get aliases"));
       }
     }
-    antiAliasesLengths.AppendElement(antiAliasesLength);
     antiAliasArrays.AppendElement(antiAliases);
     uint32_t antiMessageCount = mCorpus.getMessageCount(antiTrait);
-    for (uint32_t aliasIndex = 0; aliasIndex < antiAliasesLength; aliasIndex++)
+    for (uint32_t aliasIndex = 0; aliasIndex < antiAliases.Length(); aliasIndex++)
       antiMessageCount += mCorpus.getMessageCount(antiAliases[aliasIndex]);
     numAntiMessages.AppendElement(antiMessageCount);
   }
@@ -1445,7 +1435,7 @@ void nsBayesianFilter::classifyMessage(
     for (uint32_t traitIndex = 0; traitIndex < traitCount; traitIndex++) {
       uint32_t iProCount = mCorpus.getTraitCount(t, aProTraits[traitIndex]);
       // add in any counts for aliases to proTrait
-      for (uint32_t aliasIndex = 0; aliasIndex < proAliasesLengths[traitIndex];
+      for (uint32_t aliasIndex = 0; aliasIndex < proAliasArrays[traitIndex].Length();
            aliasIndex++)
         iProCount +=
             mCorpus.getTraitCount(t, proAliasArrays[traitIndex][aliasIndex]);
@@ -1453,7 +1443,7 @@ void nsBayesianFilter::classifyMessage(
 
       uint32_t iAntiCount = mCorpus.getTraitCount(t, aAntiTraits[traitIndex]);
       // add in any counts for aliases to antiTrait
-      for (uint32_t aliasIndex = 0; aliasIndex < antiAliasesLengths[traitIndex];
+      for (uint32_t aliasIndex = 0; aliasIndex < antiAliasArrays[traitIndex].Length();
            aliasIndex++)
         iAntiCount +=
             mCorpus.getTraitCount(t, antiAliasArrays[traitIndex][aliasIndex]);
@@ -1631,10 +1621,6 @@ void nsBayesianFilter::classifyMessage(
       traits.AppendElement(aProTraits[traitIndex]);
       percents.AppendElement(proPercent);
     }
-
-    // free aliases arrays returned from XPCOM
-    if (proAliasesLengths[traitIndex]) free(proAliasArrays[traitIndex]);
-    if (antiAliasesLengths[traitIndex]) free(antiAliasArrays[traitIndex]);
   }
 
   if (aTraitListener)

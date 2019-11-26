@@ -135,7 +135,7 @@ interface nsIMsgTraitService : nsISupports
    * This should return the same number of indices as the corresponding call to
    * getEnabledAntiIndices().
    *
-   * @return array of trait internal indices for "pro" trait to analyze
+   * @return an array of trait internal indices for "pro" trait to analyze
    */
   Array<unsigned long> getEnabledProIndices();
 
@@ -146,7 +146,7 @@ interface nsIMsgTraitService : nsISupports
    * This should return the same number of indices as the corresponding call to
    * getEnabledProIndices().
    *
-   * @return array of trait internal indices for "anti" trait to analyze
+   * @return an array of trait internal indices for "anti" trait to analyze
    */
   Array<unsigned long> getEnabledAntiIndices();
 
@@ -174,10 +174,9 @@ interface nsIMsgTraitService : nsISupports
    * Get an array of trait aliases for a trait index, if any
    *
    * @param aTraitIndex  the internal identifier for the aliased trait
-   * @param aLength      length of array of aliases
-   * @param aAliases     array of internal identifiers for aliases
+   *
+   * @return an array of internal identifiers for aliases
    */
-  void getAliases(in unsigned long aTraitIndex, out unsigned long aLength,
-                  [retval, array, size_is(aLength)] out unsigned long aAliases);
+  Array<unsigned long> getAliases(in unsigned long aTraitIndex);
 
 };

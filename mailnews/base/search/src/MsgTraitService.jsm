@@ -149,7 +149,7 @@ MsgTraitService.prototype = {
     }
   },
 
-  getAliases(aTraitIndex, aLength) {
+  getAliases(aTraitIndex) {
     let aliasesString = traitsBranch.getCharPref("aliases." + aTraitIndex, "");
     let aliases;
     if (aliasesString.length) {
@@ -157,7 +157,6 @@ MsgTraitService.prototype = {
     } else {
       aliases = [];
     }
-    aLength.value = aliases.length;
     return aliases;
   },
 };

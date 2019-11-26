@@ -69,21 +69,21 @@ function run_test() {
   ts.addAlias(1, 501);
   ts.addAlias(1, 502);
   ts.addAlias(1, 601);
-  let aliases = ts.getAliases(1, {});
+  let aliases = ts.getAliases(1);
   Assert.equal(aliases[0], 501);
   Assert.equal(aliases[1], 502);
   Assert.equal(aliases[2], 601);
 
   // remove the middle one
   ts.removeAlias(1, 502);
-  aliases = ts.getAliases(1, {});
+  aliases = ts.getAliases(1);
   Assert.equal(aliases.length, 2);
   Assert.equal(aliases[0], 501);
   Assert.equal(aliases[1], 601);
 
   // try to add an existing value
   ts.addAlias(1, 501);
-  aliases = ts.getAliases(1, {});
+  aliases = ts.getAliases(1);
   Assert.equal(aliases.length, 2);
   Assert.equal(aliases[0], 501);
   Assert.equal(aliases[1], 601);
