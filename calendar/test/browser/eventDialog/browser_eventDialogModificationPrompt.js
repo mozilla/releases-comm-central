@@ -78,6 +78,11 @@ add_task(async function testEventDialogModificationPrompt() {
   controller.click(eventbox);
   controller.keypress(eid("day-view"), "VK_DELETE", {});
   controller.waitForElementNotPresent(eventbox);
+});
+
+add_task(async function testDescriptionWhitespace() {
+  let createbox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  let eventbox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
 
   for (let i = 0; i < newlines.length; i++) {
     // test set i
@@ -104,7 +109,7 @@ add_task(async function testEventDialogModificationPrompt() {
   }
 
   Assert.ok(true, "Test ran to completion");
-});
+}).skip();
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(controller, CALENDARNAME);
