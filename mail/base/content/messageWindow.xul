@@ -42,10 +42,6 @@
 %viewZoomOverlayDTD;
 <!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
 %msgReadSMIMEDTD;
-#ifdef MOZ_OPENPGP
-<!ENTITY % bondOpenPGPDTD SYSTEM "chrome://openpgp/content/strings/bond.dtd">
-%bondOpenPGPDTD;
-#endif
 <!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
 %quickFilterBarDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
@@ -103,11 +99,6 @@
   <script src="chrome://messenger/content/msgHdrView.js"/>
   <script src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
   <script src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
-#ifdef MOZ_OPENPGP
-  <script src="chrome://openpgp/content/bond.js"/>
-  <script src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"/>
-  <script src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"/>
-#endif
   <script src="chrome://messenger/content/mailCommands.js"/>
   <script src="chrome://messenger/content/junkCommands.js"/>
   <script src="chrome://messenger/content/mailWindowOverlay.js"/>

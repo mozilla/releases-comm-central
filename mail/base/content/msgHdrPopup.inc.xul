@@ -58,9 +58,6 @@
               accesskey="&detachedAttachmentFolder.show.accesskey;"
 #endif
               oncommand="HandleMultipleAttachments(this.parentNode.attachments, 'openFolder');"/>
-#ifdef MOZ_OPENPGP
-#include ../../extensions/openpgp/content/ui/attachmentItemContext.inc.xul
-#endif
   </menupopup>
 
   <menupopup id="attachmentListContext"

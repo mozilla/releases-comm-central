@@ -26,10 +26,6 @@ EXTRA_JS_MODULES += [
     'Windows8WindowFrameColor.jsm',
 ]
 
-EXTRA_PP_JS_MODULES += [
-    'MailConstants.jsm',
-]
-
 if CONFIG['MOZ_UPDATER']:
     EXTRA_JS_MODULES += [
         'AppUpdateUI.jsm',
