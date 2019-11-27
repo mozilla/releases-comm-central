@@ -51,6 +51,8 @@ var OpenPGPMasterpass = {
   },
 
   generatePassword: function() {
+    // TODO: Patrick suggested to replace with
+    //       EnigmailRNG.getRandomString(numChars)
     const random_bytes = new Uint8Array(32);
     crypto.getRandomValues(random_bytes);
     let result = "";

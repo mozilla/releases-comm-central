@@ -10,6 +10,9 @@ var abi = ctypes.default_abi;
 const EnigmailApp = ChromeUtils.import(
   "chrome://openpgp/content/modules/app.jsm"
 ).EnigmailApp;
+var OpenPGPMasterpass = ChromeUtils.import(
+  "chrome://openpgp/content/modules/masterpass.jsm"
+).OpenPGPMasterpass;
 
 // Open librnp. Determine the path to the chrome directory and look for it
 // there first. If not, fallback to searching the standard locations.
@@ -210,17 +213,24 @@ function enableRNPLibJS() {
       console.log(
         "in RNPLib.password_cb, context: " + pgp_context.readString()
       );
-      //console.log("max_len: " + buf_len);
-      //console.log(buf);
+      console.log("max_len: " + buf_len);
+      
+      let pass = OpenPGPMasterpass.retrieveOpenPGPPassword();
+      var passCTypes = ctypes.char.array()(pass); // UTF-8
+      let passLen = passCTypes.length;
 
-      /*
+      if (buf_len < passLen) {
+        return false;
+      }
+
       let char_array = ctypes.cast(buf, ctypes.char.array(buf_len).ptr)
         .contents;
-      */
-      //char_array[0] = 0;
-      //console.log(char_array.readString());
 
-      //buf[0] = 0;
+      let i;
+      for (i = 0; i < passLen; ++i) {
+        char_array[i] = passCTypes[i];
+      }
+      char_array[passLen] = 0;
       return true;
     },
 

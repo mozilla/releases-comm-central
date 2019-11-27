@@ -43,29 +43,6 @@
             checked="true" />
 </vbox>
 
-<checkbox id="noPassphrase"
-          label="&enigmail.keyNoPassphrase.label;"
-          oncommand="enigmailKeygenUpdate(false, false);" />
-
-<grid>
-  <columns>
-    <column />
-    <column flex="1"/>
-  </columns>
-
-  <rows>
-    <row id="passphraseRow">
-      <hbox id="passphraseBox" align="center">
-        <label control="passphrase" value="&enigmail.keyPassphrase.label;" />
-      </hbox>
-      <hbox align="center">
-        <html:input id="passphrase" type="password" />
-        <label control="passphraseRepeat" value="&enigmail.keyPassphraseRepeat.label;" />
-        <html:input id="passphraseRepeat" type="password" />
-      </hbox>
-    </row>
-  </rows>
-</grid>
 
 <tabbox flex="1">
   <tabs id="settingsTabBox">

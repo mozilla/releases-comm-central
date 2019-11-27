@@ -46,15 +46,6 @@ function enigmailKeygenLoad() {
   gUserIdentityListPopup = document.getElementById("userIdentityPopup");
   gUseForSigning = document.getElementById("useForSigning");
 
-  var noPassphrase = document.getElementById("noPassphrase");
-
-  /*
-  if (!EnigmailGpg.getGpgFeature("keygen-passphrase")) {
-    document.getElementById("passphraseRow").setAttribute("collapsed", "true");
-    noPassphrase.setAttribute("collapsed", "true");
-  }
-  */
-
   //if (EnigmailGpg.getGpgFeature("supports-ecc-keys"))
   let eccElem = document.getElementById("keyType_ecc");
   eccElem.removeAttribute("hidden");
@@ -68,14 +59,9 @@ function enigmailKeygenLoad() {
 
   // restore safe setting, which you ALWAYS explicitly have to overrule,
   // if you don't want them:
-  // - specify passphrase
   // - specify expiry date
-  noPassphrase.checked = false;
-  EnigSetPref("noPassphrase", noPassphrase.checked);
   var noExpiry = document.getElementById("noExpiry");
   noExpiry.checked = false;
-
-  enigmailKeygenUpdate(true, false);
 
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
@@ -111,25 +97,6 @@ function enigmailKeygenUnload() {
   enigmailKeygenCloseRequest();
 }
 
-
-function enigmailKeygenUpdate(getPrefs, setPrefs) {
-  EnigmailLog.DEBUG("enigmailKeygen.js: Update: " + getPrefs + ", " + setPrefs + "\n");
-
-  var noPassphrase = document.getElementById("noPassphrase");
-  var noPassphraseChecked = getPrefs ? EnigGetPref("noPassphrase") : noPassphrase.checked;
-
-  if (setPrefs) {
-    EnigSetPref("noPassphrase", noPassphraseChecked);
-  }
-
-  noPassphrase.checked = noPassphraseChecked;
-
-  var passphrase1 = document.getElementById("passphrase");
-  var passphrase2 = document.getElementById("passphraseRepeat");
-  passphrase1.disabled = noPassphraseChecked;
-  passphrase2.disabled = noPassphraseChecked;
-}
-
 function enigmailKeygenTerminate(exitCode) {
   EnigmailLog.DEBUG("enigmailKeygen.js: Terminate:\n");
 
@@ -151,8 +118,6 @@ function enigmailKeygenTerminate(exitCode) {
       curId.setBoolAttribute("enablePgp", true);
       curId.setIntAttribute("pgpKeyMode", 1);
       curId.setCharAttribute("pgpkeyId", "0x" + gGeneratedKey);
-
-      enigmailKeygenUpdate(false, true);
 
       EnigSavePrefs();
 
@@ -252,33 +217,6 @@ function enigmailKeygenCloseRequest() {
   }
 }
 
-function enigmailCheckPassphrase() {
-  var passphraseElement = document.getElementById("passphrase");
-  var passphrase2Element = document.getElementById("passphraseRepeat");
-
-  var passphrase = passphraseElement.value;
-
-  if (passphrase != passphrase2Element.value) {
-    EnigAlert(EnigGetString("passNoMatch"));
-    return null;
-  }
-
-  if (passphrase.search(/[^\x20-\x7E]/) >= 0) {
-    if (!EnigmailDialog.confirmDlg(window, EnigmailLocale.getString("keygen.passCharProblem"),
-        EnigmailLocale.getString("dlg.button.ignore"), EnigmailLocale.getString("dlg.button.cancel"))) {
-      return null;
-    }
-  }
-  if ((passphrase.search(/^\s/) === 0) || (passphrase.search(/\s$/) >= 0)) {
-    EnigAlert(EnigGetString("passSpaceProblem"));
-    return null;
-  }
-
-  return passphrase;
-}
-
-
-
 function enigmailKeygenStart() {
   EnigmailLog.DEBUG("enigmailKeygen.js: Start\n");
 
@@ -297,23 +235,6 @@ function enigmailKeygenStart() {
   if (!enigmailSvc) {
     EnigAlert(EnigGetString("accessError"));
     return;
-  }
-
-  var passphrase = "";
-  // gpg >= 2.1 queries passphrase using gpg-agent only
-  //if (EnigmailGpg.getGpgFeature("keygen-passphrase"))
-
-  var noPassphraseElement = document.getElementById("noPassphrase");
-  var passphraseElement = document.getElementById("passphrase");
-
-  if (!noPassphraseElement.checked) {
-    if (passphraseElement.value.trim() === "") {
-      EnigmailDialog.info(window, EnigGetString("passCheckBox"));
-      return;
-    }
-
-    passphrase = enigmailCheckPassphrase();
-    if (passphrase === null) return;
   }
 
   var noExpiry = document.getElementById("noExpiry");
@@ -358,7 +279,8 @@ function enigmailKeygenStart() {
 
   try {
     const cApi = EnigmailCryptoAPI();
-    let newId = cApi.sync(cApi.genKey(idString, keyType, keySize, expiryTime, passphrase));
+    let newId = cApi.sync(cApi.genKey(idString, keyType, keySize, expiryTime,
+                                      OpenPGPMasterpass.retrieveOpenPGPPassword()));
     console.log("created new key with id: " + newId);
   } catch(ex) {
     console.log(ex);

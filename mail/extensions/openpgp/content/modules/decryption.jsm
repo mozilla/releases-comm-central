@@ -230,6 +230,7 @@ var EnigmailDecryption = {
       EnigmailLog.DEBUG("decryption.jsm: decryptMessage: ignoring MDC error\n");
     }
     else if (result.statusFlags & EnigmailConstants.DECRYPTION_FAILED) {
+      EnigmailLog.DEBUG("decryption.jsm: decryptMessage: failed\n");
       plainText = "";
     }
 

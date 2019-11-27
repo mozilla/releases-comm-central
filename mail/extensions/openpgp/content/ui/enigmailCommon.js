@@ -47,6 +47,7 @@ var EnigmailGpgAgent = ChromeUtils.import("chrome://openpgp/content/modules/gpgA
 var EnigmailStreams = ChromeUtils.import("chrome://openpgp/content/modules/streams.jsm").EnigmailStreams;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
+var OpenPGPMasterpass = ChromeUtils.import("chrome://openpgp/content/modules/masterpass.jsm").OpenPGPMasterpass;
 var RNP = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm").RNP;
 
 

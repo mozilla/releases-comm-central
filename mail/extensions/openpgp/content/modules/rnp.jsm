@@ -347,6 +347,10 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
       }
     }
 
+    if (!(result.statusFlags & EnigmailConstants.DECRYPTION_OKAY)) {
+      result.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
+    }
+
     RNPLib.rnp_input_destroy(input_from_memory);
     RNPLib.rnp_output_destroy(output_to_memory);
 
