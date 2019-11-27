@@ -11,7 +11,7 @@
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/locale/enigmail.dtd" >
+<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
 %enigMailDTD;
 ]>
 
@@ -44,17 +44,17 @@
         <rows>
           <row>
             <label value="&enigmail.keyDetails.userId.label;" control="userId"/>
-            <textbox id="userId" class="plain" style="white-space: pre;"
+            <html:input id="userId" class="plain" style="white-space: pre;"
               readonly="true" value="?" multiline="false" size="60"/>
           </row>
           <row>
             <label value="&enigmail.keyDetails.keyType.label;" control="keyType"/>
-            <textbox id="keyType" class="plain" style="white-space: pre;"
+            <html:input id="keyType" class="plain" style="white-space: pre;"
               readonly="true" value="?" multiline="false" size="60"/>
           </row>
           <row>
             <label value="&enigmail.keyDetails.fingerprint.label;" control="fingerprint"/>
-            <textbox id="fingerprint" class="plain" style="white-space: pre;"
+            <html:input id="fingerprint" class="plain" style="white-space: pre;"
               readonly="true" value="?" multiline="false" size="60"/>
           </row>
         </rows>
@@ -153,7 +153,7 @@
           <tree id="subkeyList" flex="1"
             enableColumnDrag="true"
             style="height:100px"
-            hidecolumnpicker="true">
+            hidecolumnpicker="false">
 
             <treecols>
               <treecol id="keyTypeCol" primary="true"

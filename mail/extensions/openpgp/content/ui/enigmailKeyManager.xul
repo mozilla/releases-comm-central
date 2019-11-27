@@ -376,7 +376,7 @@
   </popupset>
 
   <hbox flex="0" align="center">
-    <textbox id="filterKey" size="35" placeholder="&enigmail.keyMan.filter.label;"/>
+    <html:input id="filterKey" size="35" placeholder="&enigmail.keyMan.filter.label;"/>
     <separator orient="vertical"/>
     <checkbox label="&enigmail.keyMan.showAllKeys.label;"
           checked="true"

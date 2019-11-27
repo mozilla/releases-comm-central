@@ -411,6 +411,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
     return res;
   }
 
+  async genKey(userId, keyType, keySize, expiryTime, passphrase) {
+    throw "GnuPG genKey() not implemented";
+    return null;
+  }
 }
 
 function getGnuPGAPI() {

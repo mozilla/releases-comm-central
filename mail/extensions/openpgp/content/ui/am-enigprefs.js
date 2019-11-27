@@ -8,7 +8,6 @@
 
 var EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
 var EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-var Overlays = ChromeUtils.import("chrome://openpgp/content/modules/overlays.jsm").Overlays;
 
 if (!Enigmail) var Enigmail = {};
 
@@ -16,9 +15,12 @@ var gPref = null;
 
 function onInit() {
   EnigmailLog.DEBUG("am-enigprefs.js: onInit()\n");
-  Enigmail.overlayInitialized = true;
 
-  if (Enigmail.overlayLoaded) performInit();
+  try {
+    performInit();
+  } catch (ex) {
+    EnigmailLog.ERROR("am-enigprefs.js: onInit: error: " + ex.message + "\n");
+  }
 }
 
 function performInit() {
@@ -37,38 +39,12 @@ function onAcceptEditor() {
 function onPreInit(account, accountValues) {
   EnigmailLog.DEBUG("am-enigprefs.js: onPreInit()\n");
 
-  Enigmail.overlayLoaded = false;
-  Enigmail.overlayInitialized = false;
-
   if (!EnigmailCore.getService()) {
     return;
   }
 
-  let foundEnigmail = document.getElementById("enigmail_enablePgp");
-
-  if (!foundEnigmail) {
-    // Enigmail Overlay not yet loaded
-    Overlays.loadOverlays("enigmail-am", window, ["chrome://openpgp/content/ui/enigmailEditIdentity.xul"]).then(
-      nLoaded => {
-        EnigmailLog.DEBUG("am-enigprefs.js: onPreInit: XUL loaded\n");
-
-        Enigmail.edit.identity = account.defaultIdentity;
-        Enigmail.edit.account = account;
-        Enigmail.overlayLoaded = true;
-
-        try {
-          if (Enigmail.overlayInitialized) performInit();
-        } catch (ex) {
-          EnigmailLog.ERROR("am-enigprefs.js: onPreInit: error: " + ex.message + "\n");
-        }
-      }
-    );
-  } else {
-    // Enigmail Overlay already loaded
-    Enigmail.edit.identity = account.defaultIdentity;
-    Enigmail.edit.account = account;
-    Enigmail.overlayLoaded = true;
-  }
+  Enigmail.edit.identity = account.defaultIdentity;
+  Enigmail.edit.account = account;
 }
 
 function onSave() {

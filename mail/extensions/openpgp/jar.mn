@@ -18,11 +18,6 @@ openpgp.jar:
   skin/tb-mac                                  (skin/tb-mac/*)
   skin/tb-win                                  (skin/tb-win/*)
   skin/tb-linux                                (skin/tb-linux/*)
-
-#  content/openpgp/strings/enigmail.dtd        (content/strings/enigmail.dtd)
-#  content/openpgp/strings/am-enigprefs.properties (content/strings/am-enigprefs.properties)
-
-#messenger.jar:
-#  content/messenger/am-enigprefs.xul (content/am-enigprefs.xul)
-
+  am-enigprefs.properties                      (content/strings/am-enigprefs.properties)
+  content/openpgp/am-enigprefs.xul             (content/am-enigprefs.xul)
 

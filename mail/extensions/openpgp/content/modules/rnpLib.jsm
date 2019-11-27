@@ -7,6 +7,9 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var systemOS = Services.appinfo.OS.toLowerCase();
 const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var abi = ctypes.default_abi;
+const EnigmailApp = ChromeUtils.import(
+  "chrome://openpgp/content/modules/app.jsm"
+).EnigmailApp;
 
 // Open librnp. Determine the path to the chrome directory and look for it
 // there first. If not, fallback to searching the standard locations.
@@ -78,6 +81,9 @@ const rnp_ffi_t = ctypes.void_t.ptr;
 const rnp_input_t = ctypes.void_t.ptr;
 const rnp_output_t = ctypes.void_t.ptr;
 const rnp_key_handle_t = ctypes.void_t.ptr;
+const rnp_uid_handle_t = ctypes.void_t.ptr;
+const rnp_identifier_iterator_t = ctypes.void_t.ptr;
+const rnp_op_generate_t = ctypes.void_t.ptr;
 
 const rnp_password_cb_t = ctypes.FunctionType(abi, ctypes.bool, [
   rnp_ffi_t,
@@ -100,7 +106,21 @@ function enableRNPLibJS() {
     path: librnpPath,
 
     ffi: null,
+    
+    getFilenames() {
+      let names = {};
 
+      let secFile = EnigmailApp.getProfileDirectory();
+      secFile.append("secring.gpg");
+      let pubFile = EnigmailApp.getProfileDirectory();
+      pubFile.append("pubring.gpg");
+      
+      names.secring = secFile.path;
+      names.pubring = pubFile.path;
+
+      return names;
+    },
+    
     init() {
       console.log("===> RNPLib.init()\n");
 
@@ -111,8 +131,8 @@ function enableRNPLibJS() {
 
       this.keep_password_cb_alive = rnp_password_cb_t(
         this.password_cb,
-        this,
-        false
+        this, // this value used while executing callback
+        false // callback return value if exception is thrown
       );
       this.rnp_ffi_set_pass_provider(
         this.ffi,
@@ -120,12 +140,10 @@ function enableRNPLibJS() {
         null
       );
 
-      let input_from_path = new rnp_input_t;
+      let filenames = this.getFilenames();
 
-      this.rnp_input_from_path(
-        input_from_path.address(),
-        "/home/user/.rnp/pubring.gpg"
-      );
+      let input_from_path = new rnp_input_t;
+      this.rnp_input_from_path(input_from_path.address(), filenames.pubring);
       this.rnp_load_keys(
         this.ffi,
         "GPG",
@@ -136,7 +154,7 @@ function enableRNPLibJS() {
 
       let in2 = new rnp_input_t;
 
-      this.rnp_input_from_path(in2.address(), "/home/user/.rnp/secring.gpg");
+      this.rnp_input_from_path(in2.address(), filenames.secring);
       this.rnp_load_keys(this.ffi, "GPG", in2, RNP_LOAD_SAVE_SECRET_KEYS);
       this.rnp_input_destroy(in2);
 
@@ -160,6 +178,30 @@ function enableRNPLibJS() {
       }
       */
       return true;
+    },
+    
+    saveKeys() {
+      let filenames = this.getFilenames();
+
+      let rv;
+      let output_to_path = new rnp_output_t;
+      rv = this.rnp_output_to_path(output_to_path.address(), filenames.pubring);
+      rv = this.rnp_save_keys(
+        this.ffi,
+        "GPG",
+        output_to_path,
+        RNP_LOAD_SAVE_PUBLIC_KEYS
+      );
+      this.rnp_output_destroy(output_to_path);
+
+      let out2 = new rnp_output_t;
+
+      rv = this.rnp_output_to_path(out2.address(), filenames.secring);
+      rv = this.rnp_save_keys(this.ffi, "GPG", out2, RNP_LOAD_SAVE_SECRET_KEYS);
+      this.rnp_output_destroy(out2);
+
+      output_to_path = null;
+      out2 = null;
     },
 
     keep_password_cb_alive: null,
@@ -241,6 +283,14 @@ function enableRNPLibJS() {
       ctypes.size_t
     ),
 
+    rnp_output_to_path: librnp.declare(
+      "rnp_output_to_path",
+      abi,
+      rnp_result_t,
+      rnp_output_t.ptr,
+      ctypes.char.ptr
+    ),
+
     rnp_decrypt: librnp.declare(
       "rnp_decrypt",
       abi,
@@ -271,7 +321,7 @@ function enableRNPLibJS() {
       "rnp_output_destroy",
       abi,
       rnp_result_t,
-      rnp_input_t
+      rnp_output_t
     ),
 
     rnp_load_keys: librnp.declare(
@@ -284,6 +334,16 @@ function enableRNPLibJS() {
       ctypes.uint32_t
     ),
 
+    rnp_save_keys: librnp.declare(
+      "rnp_save_keys",
+      abi,
+      rnp_result_t,
+      rnp_ffi_t,
+      ctypes.char.ptr,
+      rnp_output_t,
+      ctypes.uint32_t
+    ),
+
     rnp_ffi_set_pass_provider: librnp.declare(
       "rnp_ffi_set_pass_provider",
       abi,
@@ -292,18 +352,331 @@ function enableRNPLibJS() {
       rnp_password_cb_t,
       ctypes.void_t.ptr
     ),
+    
+    rnp_identifier_iterator_create: librnp.declare(
+      "rnp_identifier_iterator_create",
+      abi,
+      rnp_result_t,
+      rnp_ffi_t,
+      rnp_identifier_iterator_t.ptr,
+      ctypes.char.ptr
+    ),
 
-    rnp_password_cb_t,
+    rnp_identifier_iterator_next: librnp.declare(
+      "rnp_identifier_iterator_next",
+      abi,
+      rnp_result_t,
+      rnp_identifier_iterator_t,
+      ctypes.char.ptr.ptr
+    ),
+    
+    rnp_identifier_iterator_destroy: librnp.declare(
+      "rnp_identifier_iterator_destroy",
+      abi,
+      rnp_result_t,
+      rnp_identifier_iterator_t
+    ),
+    
+    rnp_locate_key: librnp.declare(
+      "rnp_locate_key",
+      abi,
+      rnp_result_t,
+      rnp_ffi_t,
+      ctypes.char.ptr,
+      ctypes.char.ptr,
+      rnp_key_handle_t.ptr
+    ),
+    
+    rnp_key_handle_destroy: librnp.declare(
+      "rnp_key_handle_destroy",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t
+    ),
+    
+    rnp_key_allows_usage: librnp.declare(
+      "rnp_key_allows_usage",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr,
+      ctypes.bool.ptr
+    ),
+    
+    rnp_key_is_sub: librnp.declare(
+      "rnp_key_is_sub",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.bool.ptr
+    ),
 
-    rnp_input_t,
+    rnp_key_is_primary: librnp.declare(
+      "rnp_key_is_primary",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.bool.ptr
+    ),
 
-    rnp_output_t,
+    rnp_key_have_secret: librnp.declare(
+      "rnp_key_have_secret",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.bool.ptr
+    ),
 
-    rnp_key_handle_t,
+    rnp_key_have_public: librnp.declare(
+      "rnp_key_have_public",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.bool.ptr
+    ),
+    
+    rnp_key_get_fprint: librnp.declare(
+      "rnp_key_get_fprint",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_key_get_keyid: librnp.declare(
+      "rnp_key_get_keyid",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+    
+    rnp_key_get_alg: librnp.declare(
+      "rnp_key_get_alg",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_key_get_grip: librnp.declare(
+      "rnp_key_get_grip",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_key_get_primary_grip: librnp.declare(
+      "rnp_key_get_primary_grip",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+    
+    rnp_key_is_revoked: librnp.declare(
+      "rnp_key_is_revoked",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.bool.ptr
+    ),
+
+   rnp_buffer_destroy: librnp.declare(
+      "rnp_buffer_destroy",
+      abi,
+      ctypes.void_t,
+      ctypes.void_t.ptr
+    ),
+    
+    rnp_key_get_subkey_count: librnp.declare(
+      "rnp_key_get_subkey_count",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.size_t.ptr
+    ),
+    
+    rnp_key_get_subkey_at: librnp.declare(
+      "rnp_key_get_subkey_at",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.size_t,
+      rnp_key_handle_t.ptr
+    ),
+    
+    rnp_key_get_creation: librnp.declare(
+      "rnp_key_get_creation",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.uint32_t.ptr
+    ),
+
+    rnp_key_get_expiration: librnp.declare(
+      "rnp_key_get_expiration",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.uint32_t.ptr
+    ),
+
+    rnp_key_get_bits: librnp.declare(
+      "rnp_key_get_bits",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.uint32_t.ptr
+    ),
+
+    rnp_key_get_uid_count: librnp.declare(
+      "rnp_key_get_uid_count",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.size_t.ptr
+    ),
+
+    rnp_key_get_uid_at: librnp.declare(
+      "rnp_key_get_uid_at",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.size_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_key_get_uid_handle_at: librnp.declare(
+      "rnp_key_get_uid_handle_at",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.size_t,
+      rnp_uid_handle_t.ptr
+    ),
+
+    rnp_uid_handle_destroy: librnp.declare(
+      "rnp_uid_handle_destroy",
+      abi,
+      rnp_result_t,
+      rnp_uid_handle_t
+    ),
+
+    rnp_uid_is_revoked: librnp.declare(
+      "rnp_uid_is_revoked",
+      abi,
+      rnp_result_t,
+      rnp_uid_handle_t,
+      ctypes.bool.ptr
+    ),
+
+    rnp_key_unlock: librnp.declare(
+      "rnp_key_unlock",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr
+    ),
+    
+    rnp_key_lock: librnp.declare(
+      "rnp_key_lock",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t
+    ),
+
+    rnp_op_generate_create: librnp.declare(
+      "rnp_op_generate_create",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t.ptr,
+      rnp_ffi_t,
+      ctypes.char.ptr
+    ),
+    
+    rnp_op_generate_subkey_create: librnp.declare(
+      "rnp_op_generate_subkey_create",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t.ptr,
+      rnp_ffi_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr
+    ),
+    
+    rnp_op_generate_set_bits: librnp.declare(
+      "rnp_op_generate_set_bits",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t,
+      ctypes.uint32_t
+    ),
+
+    rnp_op_generate_set_curve: librnp.declare(
+      "rnp_op_generate_set_curve",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t,
+      ctypes.char.ptr
+    ),
+
+    rnp_op_generate_set_protection_password: librnp.declare(
+      "rnp_op_generate_set_protection_password",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t,
+      ctypes.char.ptr
+    ),
+
+    rnp_op_generate_set_userid: librnp.declare(
+      "rnp_op_generate_set_userid",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t,
+      ctypes.char.ptr
+    ),
+
+    rnp_op_generate_set_expiration: librnp.declare(
+      "rnp_op_generate_set_expiration",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t,
+      ctypes.uint32_t
+    ),
+
+    rnp_op_generate_execute: librnp.declare(
+      "rnp_op_generate_execute",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t,
+    ),
+
+    rnp_op_generate_get_key: librnp.declare(
+      "rnp_op_generate_get_key",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t,
+      rnp_key_handle_t.ptr
+    ),
+
+    rnp_op_generate_destroy: librnp.declare(
+      "rnp_op_generate_destroy",
+      abi,
+      rnp_result_t,
+      rnp_op_generate_t,
+    ),
 
     rnp_result_t,
-
     rnp_ffi_t,
+    rnp_password_cb_t,
+    rnp_input_t,
+    rnp_output_t,
+    rnp_key_handle_t,
+    rnp_uid_handle_t,
+    rnp_identifier_iterator_t,
+    rnp_op_generate_t,
   };
 }
 

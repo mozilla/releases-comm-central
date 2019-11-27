@@ -71,7 +71,9 @@ class RNPCryptoAPI extends CryptoAPI {
    *
    * @return {Promise<Array of Object>}
    */
-  async getKeys(onlyKeys = null) {}
+  async getKeys(onlyKeys = null) {
+    return RNP.getKeys(onlyKeys);
+  }
 
   /**
    * Get groups defined in gpg.conf in the same structure as KeyObject
@@ -244,6 +246,12 @@ class RNPCryptoAPI extends CryptoAPI {
   async verifyMime(signed, options) {}
 
   async getKeyListFromKeyBlock(keyBlockStr) {}
+
+  async genKey(userId, keyType, keySize, expiryTime, passphrase) {
+    let id = RNP.genKey(userId, keyType, keySize, expiryTime, passphrase);
+    RNP.saveKeyRings();
+    return id;
+  }
 }
 
 function getRNPAPI() {

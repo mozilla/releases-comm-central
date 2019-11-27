@@ -45,6 +45,9 @@ var EnigmailEvents = ChromeUtils.import("chrome://openpgp/content/modules/events
 var EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm").EnigmailGpg;
 var EnigmailGpgAgent = ChromeUtils.import("chrome://openpgp/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
 var EnigmailStreams = ChromeUtils.import("chrome://openpgp/content/modules/streams.jsm").EnigmailStreams;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+
+var RNP = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm").RNP;
 
 
 // The compatible Enigmime version
@@ -401,7 +404,6 @@ function EngmailCardDetails() {
 
 function EnigKeygen() {
   EnigmailWindows.openKeyGen();
-
 }
 
 // retrieves a localized string from the enigmail.properties stringbundle

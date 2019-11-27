@@ -48,18 +48,18 @@ function enigmailKeygenLoad() {
 
   var noPassphrase = document.getElementById("noPassphrase");
 
+  /*
   if (!EnigmailGpg.getGpgFeature("keygen-passphrase")) {
     document.getElementById("passphraseRow").setAttribute("collapsed", "true");
     noPassphrase.setAttribute("collapsed", "true");
   }
+  */
 
-  if (EnigmailGpg.getGpgFeature("supports-ecc-keys")) {
-    let eccElem = document.getElementById("keyType_ecc");
-    eccElem.removeAttribute("hidden");
-    updateKeySizeSel(eccElem);
-    document.getElementById("keyType").selectedItem = eccElem;
-  }
-
+  //if (EnigmailGpg.getGpgFeature("supports-ecc-keys"))
+  let eccElem = document.getElementById("keyType_ecc");
+  eccElem.removeAttribute("hidden");
+  updateKeySizeSel(eccElem);
+  document.getElementById("keyType").selectedItem = eccElem;
 
   if (gUserIdentityListPopup) {
     fillIdentityListPopup();
@@ -160,8 +160,9 @@ function enigmailKeygenTerminate(exitCode) {
 
       if (EnigConfirm(EnigGetString("keygenComplete", curId.email) + "\n\n" + EnigGetString("revokeCertRecommended"), EnigGetString("keyMan.button.generateCert"))) {
         EnigCreateRevokeCert(gGeneratedKey, curId.email, closeAndReset);
-      } else
+      } else {
         closeAndReset();
+      }
     } else {
       if (EnigConfirm(EnigGetString("genCompleteNoSign") + "\n\n" + EnigGetString("revokeCertRecommended"), EnigGetString("keyMan.button.generateCert"))) {
         EnigCreateRevokeCert(gGeneratedKey, curId.email, closeAndReset);
@@ -173,8 +174,9 @@ function enigmailKeygenTerminate(exitCode) {
             // do nothing
           }
         );
-      } else
+      } else {
         closeAndReset();
+      }
     }
   } else {
     EnigAlert(EnigGetString("keyGenFailed"));
@@ -280,7 +282,6 @@ function enigmailCheckPassphrase() {
 function enigmailKeygenStart() {
   EnigmailLog.DEBUG("enigmailKeygen.js: Start\n");
 
-
   if (gKeygenRequest) {
     let req = gKeygenRequest.QueryInterface(Components.interfaces.nsIRequest);
     if (req.isPending()) {
@@ -298,24 +299,21 @@ function enigmailKeygenStart() {
     return;
   }
 
-  var passphrase;
+  var passphrase = "";
   // gpg >= 2.1 queries passphrase using gpg-agent only
-  if (EnigmailGpg.getGpgFeature("keygen-passphrase")) {
-    var noPassphraseElement = document.getElementById("noPassphrase");
-    var passphraseElement = document.getElementById("passphrase");
+  //if (EnigmailGpg.getGpgFeature("keygen-passphrase"))
 
-    if (!noPassphraseElement.checked) {
-      if (passphraseElement.value.trim() === "") {
-        EnigmailDialog.info(window, EnigGetString("passCheckBox"));
-        return;
-      }
+  var noPassphraseElement = document.getElementById("noPassphrase");
+  var passphraseElement = document.getElementById("passphrase");
 
-      passphrase = enigmailCheckPassphrase();
-      if (passphrase === null) return;
+  if (!noPassphraseElement.checked) {
+    if (passphraseElement.value.trim() === "") {
+      EnigmailDialog.info(window, EnigGetString("passCheckBox"));
+      return;
     }
 
-  } else {
-    passphrase = "";
+    passphrase = enigmailCheckPassphrase();
+    if (passphrase === null) return;
   }
 
   var noExpiry = document.getElementById("noExpiry");
@@ -358,6 +356,18 @@ function enigmailKeygenStart() {
     return;
   }
 
+  try {
+    const cApi = EnigmailCryptoAPI();
+    let newId = cApi.sync(cApi.genKey(idString, keyType, keySize, expiryTime, passphrase));
+    console.log("created new key with id: " + newId);
+  } catch(ex) {
+    console.log(ex);
+  } 
+
+  EnigmailWindows.keyManReloadKeys();
+  closeAndReset();
+
+  /*
   var proc = null;
 
   var listener = {
@@ -372,7 +382,7 @@ function enigmailKeygenStart() {
       var keyCreatedIndex = gAllData.indexOf("[GNUPG:] KEY_CREATED");
       if (keyCreatedIndex > 0) {
         gGeneratedKey = gAllData.substr(keyCreatedIndex);
-        gGeneratedKey = gGeneratedKey.replace(/(.*\[GNUPG:\] KEY_CREATED . )([a-fA-F0-9]+)([\n\r].*)*/, "$2");
+        gGeneratedKey = gGeneratedKey.replace(/(.*\[GNUPG:\] KEY_CREATED . )([a-fA-F0-9]+)([\n\r].*)* /{{{remove-space-between-*-and-/-to-unconfuse-syntax-highlighting-editor}}}, "$2");
         gAllData = gAllData.replace(/\[GNUPG:\] KEY_CREATED . [a-fA-F0-9]+[\n\r]/, "");
       }
       gAllData = gAllData.replace(/[\r\n]*\[GNUPG:\] GOOD_PASSPHRASE/g, "").replace(/([\r\n]*\[GNUPG:\] PROGRESS primegen )(.)( \d+ \d+)/g, "$2");
@@ -403,6 +413,7 @@ function enigmailKeygenStart() {
   }
 
   EnigmailLog.WRITE("enigmailKeygen.js: Start: gKeygenRequest = " + gKeygenRequest + "\n");
+  */
 }
 
 function abortKeyGeneration() {

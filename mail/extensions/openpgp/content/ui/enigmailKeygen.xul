@@ -10,7 +10,7 @@
 
 <?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
 
-<!DOCTYPE window SYSTEM "chrome://openpgp/locale/enigmail.dtd" >
+<!DOCTYPE window SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
 
 <window
      id="enigmailKeygen"
@@ -59,9 +59,9 @@
         <label control="passphrase" value="&enigmail.keyPassphrase.label;" />
       </hbox>
       <hbox align="center">
-        <textbox id="passphrase" type="password" />
+        <html:input id="passphrase" type="password" />
         <label control="passphraseRepeat" value="&enigmail.keyPassphraseRepeat.label;" />
-        <textbox id="passphraseRepeat" type="password" />
+        <html:input id="passphraseRepeat" type="password" />
       </hbox>
     </row>
   </rows>
@@ -80,7 +80,7 @@
         <label value="&enigmail.keyGen.expire.label;" control="expireInput"/>
       </hbox>
       <hbox align="center">
-        <textbox id="expireInput" size="5" maxlength="5" value="5"/>
+        <html:input id="expireInput" size="5" maxlength="5" value="5"/>
         <menulist id="timeScale" label="&enigmail.keyGen.years.label;" value="365">
           <menupopup id="timeScalePopup">
             <menuitem id="years" value="365" label="&enigmail.keyGen.years.label;" selected="true"/>

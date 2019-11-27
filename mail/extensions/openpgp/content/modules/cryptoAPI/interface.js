@@ -262,4 +262,25 @@ class CryptoAPI {
   async getKeyListFromKeyBlock(keyBlockStr) {
     return null;
   }
+
+  /**
+   * Create a new private key pair, including appropriate sub key pair,
+   * and store the new keys in the default keyrings.
+   *
+   * @param {String} userId     User ID string, with name and email.
+   * @param {String} keyType    "RSA" or "ECC".
+   *                            ECC uses EDDSA and ECDH/Curve25519.
+   * @param {Number} keySize    RSA key size. Ignored for ECC.
+   * @param {Number} expiryTime The number of days the key will remain valid
+   *                            (after the creation date).
+   *                            Set to zero for no expiration.
+   * @param {String} passphrase The passphrase to protect the new key.
+   *                            Set to null to use an empty passphrase.
+   *
+   * @return {Promise<String>} - The new KeyID
+   */
+
+  async genKey(userId, keyType, keySize, expiryTime, passphrase) {
+    return null;
+  }
 }
