@@ -39,6 +39,7 @@ const getEnigmailWksMimeHandler = EnigmailLazy.loader("enigmail/wksMimeHandler.j
 //const getEnigmailOverlays = EnigmailLazy.loader("enigmail/enigmailOverlays.jsm", "EnigmailOverlays");
 const getEnigmailSqlite = EnigmailLazy.loader("enigmail/sqliteDb.jsm", "EnigmailSqliteDb");
 const getEnigmailTimer = EnigmailLazy.loader("enigmail/timer.jsm", "EnigmailTimer");
+const getOpenPGPMasterpass = EnigmailLazy.loader("enigmail/masterpass.jsm", "OpenPGPMasterpass");
 const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 var EXPORTED_SYMBOLS = ["EnigmailCore"];
@@ -89,6 +90,7 @@ var EnigmailCore = {
         //getEnigmailOverlays().startup();
         self.factories.push(new Factory(getEnigmailProtocolHandler()));
         self.factories.push(new Factory(mimeEncrypt.Handler));
+        getOpenPGPMasterpass().ensureMasterPassword();
       } catch (ex) {
         Services.console.logStringMessage("core.jsm: startup.continueStartup: error " + ex.message + "\n" + ex.stack + "\n");
         logger.DEBUG("core.jsm: startup.continueStartup: error " + ex.message + "\n" + ex.stack + "\n");
