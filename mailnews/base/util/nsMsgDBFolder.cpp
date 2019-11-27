@@ -2121,53 +2121,6 @@ nsMsgDBFolder::GetInheritedStringProperty(const char *aPropertyName,
   return NS_OK;
 }
 
-nsresult nsMsgDBFolder::SpamFilterClassifyMessage(
-    const char *aURI, nsIMsgWindow *aMsgWindow,
-    nsIJunkMailPlugin *aJunkMailPlugin) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgTraitService> traitService(
-      do_GetService("@mozilla.org/msg-trait-service;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsTArray<uint32_t> proIndices;
-  rv = traitService->GetEnabledProIndices(proIndices);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsTArray<uint32_t> antiIndices;
-  rv = traitService->GetEnabledAntiIndices(antiIndices);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = aJunkMailPlugin->ClassifyTraitsInMessage(nsDependentCString(aURI),
-                                                proIndices, antiIndices, this,
-                                                aMsgWindow, this);
-  return rv;
-}
-
-nsresult nsMsgDBFolder::SpamFilterClassifyMessages(
-    const char **aURIArray, uint32_t aURICount, nsIMsgWindow *aMsgWindow,
-    nsIJunkMailPlugin *aJunkMailPlugin) {
-  MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-          ("Running Spam classification on %" PRIu32 " messages", aURICount));
-
-  nsresult rv;
-  nsCOMPtr<nsIMsgTraitService> traitService(
-      do_GetService("@mozilla.org/msg-trait-service;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsTArray<uint32_t> proIndices;
-  rv = traitService->GetEnabledProIndices(proIndices);
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsTArray<uint32_t> antiIndices;
-  rv = traitService->GetEnabledAntiIndices(antiIndices);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsTArray<nsCString> tmpURIs(aURICount);
-  tmpURIs.AppendElements(aURIArray, aURICount);
-
-  rv = aJunkMailPlugin->ClassifyTraitsInMessages(
-      tmpURIs, proIndices, antiIndices, this, aMsgWindow, this);
-  return rv;
-}
-
 NS_IMETHODIMP
 nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
                                    nsMsgJunkStatus aClassification,
@@ -2622,28 +2575,31 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun) {
 
     uint32_t numMessagesToClassify = classifyMsgKeys.Length();
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-            ("%" PRIu32 " messages to be classified", numMessagesToClassify));
-    char **messageURIs =
-        (char **)PR_MALLOC(sizeof(const char *) * numMessagesToClassify);
-    if (!messageURIs) return NS_ERROR_OUT_OF_MEMORY;
+            ("Running Spam classification on %" PRIu32 " messages",
+             numMessagesToClassify));
 
+    nsTArray<nsCString> messageURIs(numMessagesToClassify);
     for (uint32_t msgIndex = 0; msgIndex < numMessagesToClassify; ++msgIndex) {
       nsCString tmpStr;
       rv = GenerateMessageURI(classifyMsgKeys[msgIndex], tmpStr);
-      messageURIs[msgIndex] = ToNewCString(tmpStr);
-      if (NS_FAILED(rv))
+      if (NS_SUCCEEDED(rv)) {
+        messageURIs.AppendElement(tmpStr);
+      } else {
         NS_WARNING(
             "nsMsgDBFolder::CallFilterPlugins(): could not"
             " generate URI for message");
+      }
     }
     // filterMsgs
     *aFiltersRun = true;
-    rv = SpamFilterClassifyMessages((const char **)messageURIs,
-                                    numMessagesToClassify, aMsgWindow,
-                                    junkMailPlugin);
-    for (uint32_t freeIndex = 0; freeIndex < numMessagesToClassify; ++freeIndex)
-      PR_Free(messageURIs[freeIndex]);
-    PR_Free(messageURIs);
+
+    // Already got proIndices, but need antiIndices too.
+    nsTArray<uint32_t> antiIndices;
+    rv = traitService->GetEnabledAntiIndices(antiIndices);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = junkMailPlugin->ClassifyTraitsInMessages(
+        messageURIs, proIndices, antiIndices, this, aMsgWindow, this);
   } else if (filterPostPlugin) {
     // Nothing to classify, so need to end batch ourselves. We do this so that
     // post analysis filters will run consistently on a folder, even if

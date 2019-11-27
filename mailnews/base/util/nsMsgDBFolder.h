@@ -185,12 +185,6 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
       void);  // if there are new, non spam messages, do biff
   nsresult CloseDBIfFolderNotOpen();
 
-  virtual nsresult SpamFilterClassifyMessage(
-      const char *aURI, nsIMsgWindow *aMsgWindow,
-      nsIJunkMailPlugin *aJunkMailPlugin);
-  virtual nsresult SpamFilterClassifyMessages(
-      const char **aURIArray, uint32_t aURICount, nsIMsgWindow *aMsgWindow,
-      nsIJunkMailPlugin *aJunkMailPlugin);
   // Helper function for Move code to call to update the MRU and MRM time.
   void UpdateTimestamps(bool allowUndo);
   void SetMRUTime();
