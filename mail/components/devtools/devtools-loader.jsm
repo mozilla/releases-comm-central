@@ -22,7 +22,7 @@ DevToolsStartup.prototype = {
 
   handleDevToolsFlag(cmdLine) {
     const { BrowserToolboxProcess } = ChromeUtils.import(
-      "resource://devtools/client/framework/ToolboxProcess.jsm"
+      "resource://devtools/client/framework/browser-toolbox/Launcher.jsm"
     );
     BrowserToolboxProcess.init();
 

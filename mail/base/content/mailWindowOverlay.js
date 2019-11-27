@@ -42,7 +42,7 @@ var { MessageArchiver } = ChromeUtils.import(
 );
 
 var { BrowserToolboxProcess } = ChromeUtils.import(
-  "resource://devtools/client/framework/ToolboxProcess.jsm"
+  "resource://devtools/client/framework/browser-toolbox/Launcher.jsm"
 );
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
