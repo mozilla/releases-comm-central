@@ -143,7 +143,7 @@
 
   <deck flex="1" id="accountsDesk" ondblclick="gAccountManager.new();">
     <vbox flex="1" id="noAccountScreen" align="center" pack="center">
-      <hbox id="noAccountBox" align="top">
+      <hbox id="noAccountBox" align="start">
         <vbox id="noAccountInnerBox" flex="1">
           <label id="noAccountTitle" value="&accountManager.noAccount.title;"/>
           <description id="noAccountDesc">&accountManager.noAccount.description;</description>

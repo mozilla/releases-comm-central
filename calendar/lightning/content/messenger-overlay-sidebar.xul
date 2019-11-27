@@ -1677,14 +1677,14 @@
                   <html:textarea id="calendar-task-details-description"/>
                 </hbox>
                 <hbox id="calendar-task-details-attachment-row"
-                      align="top"
+                      align="start"
                       hidden="true">
                   <hbox pack="end">
                     <label value="&calendar.task-details.attachments.label;"
                            class="task-details-name"/>
                   </hbox>
                   <vbox id="calendar-task-details-attachment-rows"
-                        align="top"
+                        align="start"
                         flex="1"
                         style="overflow: auto;"
                         hidden="true">

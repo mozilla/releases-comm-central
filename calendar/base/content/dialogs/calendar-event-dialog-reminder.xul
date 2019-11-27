@@ -54,7 +54,7 @@
   </hbox>
   <radiogroup id="reminder-relation-radiogroup"
                 onselect="setupRadioEnabledState(); updateReminder(event)">
-    <hbox id="reminder-relative-box" align="top" flex="1">
+    <hbox id="reminder-relative-box" align="start" flex="1">
       <radio id="reminder-relative-radio"
              value="relative"
              aria-labelledby="reminder-length reminder-unit reminder-relation-origin"/>

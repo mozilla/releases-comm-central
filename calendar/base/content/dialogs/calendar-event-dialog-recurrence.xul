@@ -70,7 +70,7 @@
           <!-- Daily -->
           <box id="period-deck-daily-box"
                orient="vertical"
-               align="top">
+               align="start">
             <radiogroup id="daily-group">
               <box id="daily-period-every-box" orient="horizontal" align="center">
                 <radio id="daily-group-every-radio"
@@ -288,7 +288,7 @@
             <!-- Yearly -->
           <box id="period-deck-yearly-box"
                orient="vertical"
-               align="top">
+               align="start">
             <hbox id="yearly-period-every-box" align="center">
               <label id="yearly-period-every-label"
                      value="&event.recurrence.every.label;"

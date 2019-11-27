@@ -631,7 +631,7 @@
             <vbox flex="1">
               <hbox id="item-organizer-row"
                     collapsed="true"
-                    align="top"
+                    align="start"
                     class="item-attendees-row">
                 <label value="&read.only.organizer.label;"/>
                 <hbox class="item-organizer-cell">

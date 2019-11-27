@@ -402,7 +402,7 @@
 
                                 <!-- perhaps this should be a customizable toolbar too -->
                                 <vbox id="otherActionsBox" align="end">
-                                  <hbox id="dateValueBox" align="top">
+                                  <hbox id="dateValueBox" align="start">
                                     <hbox id="smimeBox" collapsed="true">
                                       <image id="signedHdrIcon"
                                              onclick="showMessageReadSecurityInfo();" collapsed="true"/>

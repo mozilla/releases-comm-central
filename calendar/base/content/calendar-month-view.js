@@ -314,7 +314,7 @@
                         <hbox align="center">
                           <hbox class="alarm-icons-box"
                                 pack="end"
-                                align="top">
+                                align="start">
                           </hbox>
                           <image class="item-classification-box"
                                  pack="end">

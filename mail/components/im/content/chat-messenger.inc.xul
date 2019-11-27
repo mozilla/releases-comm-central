@@ -114,7 +114,7 @@
                 <deck id="conversationsDeck" flex="1">
 
                   <vbox flex="1" id="noConvScreen" class="im-placeholder-screen" align="center" pack="center">
-                    <hbox id="noConvBox" class="im-placeholder-box" align="top">
+                    <hbox id="noConvBox" class="im-placeholder-box" align="start">
                       <vbox id="noConvInnerBox" class="im-placeholder-innerbox" flex="1">
                         <label id="noConvTitle" class="im-placeholder-title">&chat.noConv.title;</label>
                         <description id="noConvDesc"
@@ -147,7 +147,7 @@
                   <vbox id="logDisplay" flex="1">
                     <deck id="logDisplayDeck" flex="1">
                       <vbox flex="1" id="noPreviousConvScreen" class="im-placeholder-screen" align="center" pack="center">
-                        <hbox id="noPreviousConvBox" class="im-placeholder-box" align="top">
+                        <hbox id="noPreviousConvBox" class="im-placeholder-box" align="start">
                           <vbox id="noPreviousConvInnerBox" class="im-placeholder-innerbox" flex="1">
                             <description id="noPreviousConvDesc"
                                          class="im-placeholder-desc">&chat.noPreviousConv.description;</description>

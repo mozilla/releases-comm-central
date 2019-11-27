@@ -56,7 +56,7 @@
         MozXULElement.parseXULToFragment(
           `
           <vbox flex="1">
-            <hbox flex="1" align="top">
+            <hbox flex="1" align="start">
               <vbox>
                 <stack>
                   <image class="accountIcon"></image>

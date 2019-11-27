@@ -296,7 +296,7 @@
                       </label>
                     </vbox>
                     <hbox class="alarm-icons-box"
-                          align="top">
+                          align="start">
                     </hbox>
                     <image class="item-classification-box">
                     </image>
