@@ -64,7 +64,7 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
       return THUNDERBIRD_THEME_PREVIEWS.get(addon.id);
     }
     return _getScreenshotUrlForAddon(addon);
-  }
+  };
 
   let _getAddonMessageInfo = getAddonMessageInfo;
   getAddonMessageInfo = async function(addon) {
