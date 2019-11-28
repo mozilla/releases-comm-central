@@ -26,6 +26,8 @@
 #include "msgCore.h"
 #include "mozilla/dom/DOMParser.h"
 #include "mozilla/dom/Document.h"
+#include "mozilla/Preferences.h"
+#include "nsIParserUtils.h"
 #include "nsIDocumentEncoder.h"
 #include "mozilla/ErrorResult.h"
 #include "mimethtm.h"
@@ -96,8 +98,24 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject *obj, bool abort_p) {
   rv = encoder->EncodeToString(parsed);
   NS_ENSURE_SUCCESS(rv, -1);
 
+  bool stripConditionalCSS = mozilla::Preferences::GetBool(
+      "mail.html_sanitize.drop_conditional_css", true);
+
+  nsCString resultCStr;
+  if (stripConditionalCSS) {
+    nsString cssCondStripped;
+    nsCOMPtr<nsIParserUtils> parserUtils =
+        do_GetService(NS_PARSERUTILS_CONTRACTID);
+    parserUtils->Sanitize(parsed,
+                          nsIParserUtils::SanitizerRemoveOnlyConditionalCSS,
+                          cssCondStripped);
+    parsed.Truncate();
+    resultCStr = NS_ConvertUTF16toUTF8(cssCondStripped);
+  } else {
+    resultCStr = NS_ConvertUTF16toUTF8(parsed);
+  }
+
   // Write it out.
-  NS_ConvertUTF16toUTF8 resultCStr(parsed);
   MimeInlineTextHTML_insert_lang_div(obj, resultCStr);
   MimeInlineTextHTML_remove_plaintext_tag(obj, resultCStr);
   status =

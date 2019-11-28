@@ -77,6 +77,7 @@
 #include "nsContentUtils.h"
 #include "nsIFileURL.h"
 #include "nsTextNode.h"  // from dom/base
+#include "nsIParserUtils.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -587,6 +588,13 @@ static void remove_plaintext_tag(nsString &body) {
   }
 }
 
+static void remove_conditional_CSS(const nsAString &in, nsAString &out) {
+  nsCOMPtr<nsIParserUtils> parserUtils =
+      do_GetService(NS_PARSERUTILS_CONTRACTID);
+  parserUtils->Sanitize(in, nsIParserUtils::SanitizerRemoveOnlyConditionalCSS,
+                        out);
+}
+
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
                                           nsString &aSignature, bool aQuoted,
@@ -705,15 +713,23 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
         // <HTML><BODY><BR><BR> + forwarded header + header table.
         // Note: We only do this when we prepare the message to be forwarded,
         // a re-opened saved draft of a forwarded message does not repeat this.
-        nsString newBody(aBuf);
         nsString divTag;
         divTag.AssignLiteral("<div class=\"moz-forward-container\">");
-        newBody.Insert(divTag, sizeof(MIME_FORWARD_HTML_PREFIX) - 1 - 8);
-        remove_plaintext_tag(newBody);
+        aBuf.Insert(divTag, sizeof(MIME_FORWARD_HTML_PREFIX) - 1 - 8);
+      }
+      remove_plaintext_tag(aBuf);
+
+      bool stripConditionalCSS = mozilla::Preferences::GetBool(
+          "mail.html_sanitize.drop_conditional_css", true);
+
+      if (stripConditionalCSS) {
+        nsString newBody;
+        remove_conditional_CSS(aBuf, newBody);
         htmlEditor->RebuildDocumentFromSource(newBody);
       } else {
         htmlEditor->RebuildDocumentFromSource(aBuf);
       }
+
       mInsertingQuotedContent = false;
 
       // When forwarding a message as inline, or editing as new (which could
