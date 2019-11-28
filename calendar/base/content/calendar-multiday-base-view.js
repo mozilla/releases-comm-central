@@ -1411,12 +1411,11 @@
         finishDate.day++;
       }
 
-      if (!targetDate.isDate) {
-        // Set the time to 00:00 so that we get all the boxes.
-        targetDate.hour = 0;
-        targetDate.minute = 0;
-        targetDate.second = 0;
-      }
+      // Set the time to 00:00 so that we get all the boxes.
+      targetDate.isDate = false;
+      targetDate.hour = 0;
+      targetDate.minute = 0;
+      targetDate.second = 0;
 
       if (targetDate.compare(finishDate) == 0) {
         // We have also to handle zero length events in particular for

@@ -661,12 +661,11 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
         finishDate.day++;
       }
 
-      if (!targetDate.isDate) {
-        // Reset the time to 00:00, so that we really get all the boxes.
-        targetDate.hour = 0;
-        targetDate.minute = 0;
-        targetDate.second = 0;
-      }
+      // Reset the time to 00:00, so that we really get all the boxes.
+      targetDate.isDate = false;
+      targetDate.hour = 0;
+      targetDate.minute = 0;
+      targetDate.second = 0;
 
       if (targetDate.compare(finishDate) == 0) {
         // We have also to handle zero length events in particular for
