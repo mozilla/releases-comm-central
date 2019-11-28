@@ -210,6 +210,7 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
 
 /* this is for the comma in between email addresses */
 .emailSeparator {
+  margin: 0;
   margin-inline-start: -3px; /* squeeze it inside the bubble, by the star */
 }
 
@@ -219,7 +220,12 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
  * using a separate rule here.
  */
 .newsgroupSeparator {
+  margin: 0;
   margin-inline-start: -2px;
+}
+
+.messageIdSeparator {
+  margin: 0;
 }
 
 .emailStar {

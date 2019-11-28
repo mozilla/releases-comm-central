@@ -134,7 +134,7 @@
       for (let i = 0; i < this.mNewsgroups.length; i++) {
         const newNode = document.createXULElement("mail-newsgroup");
         if (i > 0) {
-          const textNode = document.createXULElement("text");
+          const textNode = document.createXULElement("label");
           textNode.setAttribute("value", ",");
           textNode.setAttribute("class", "newsgroupSeparator");
           this.appendChild(textNode);
@@ -274,7 +274,7 @@
           let newMessageIdNode = document.createXULElement("mail-messageid");
 
           if (i > 0) {
-            let textNode = document.createXULElement("text");
+            let textNode = document.createXULElement("label");
             textNode.setAttribute("value", ", ");
             textNode.setAttribute("class", "messageIdSeparator");
             this.headerValue.appendChild(textNode);
@@ -1115,7 +1115,7 @@
      */
     appendComma() {
       // Create and append a comma.
-      let commaNode = document.createXULElement("text");
+      let commaNode = document.createXULElement("label");
       commaNode.setAttribute("value", ",");
       commaNode.setAttribute("class", "emailSeparator");
       this.emailAddresses.appendChild(commaNode);
