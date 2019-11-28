@@ -1533,7 +1533,7 @@
       date.hour = this.startHour;
       date.minute = 0;
       if (this.hoursNode.children.length <= 0) {
-        let template = document.createXULElement("text");
+        let template = document.createXULElement("label");
         template.className = "freebusy-grid";
         // TODO: hardcoded value
         let num_days = Math.max(2, (4 * this.zoomFactor) / 100);
@@ -1768,7 +1768,7 @@
         const wrapper = document.createXULElement("box");
         wrapper.setAttribute("orient", "vertical");
 
-        this.text = document.createXULElement("text");
+        this.text = document.createXULElement("label");
         this.text.classList.add("freebusy-timebar-title");
         this.text.style.fontWeight = "bold";
 
@@ -1928,7 +1928,7 @@
       let hours = this.box;
       date.hour = this.startHour;
       if (hours.children.length <= 0) {
-        let template = document.createXULElement("text");
+        let template = document.createXULElement("label");
         template.className = "freebusy-timebar-hour";
         let count = Math.ceil(((this.endHour - this.startHour) * 60) / step_in_minutes);
         let remain = count;

@@ -530,13 +530,16 @@ calendar-event-freebusy-day > box {
 
 /* margin-inline-end 2px is needed to take border-right from the grid elements into account */
 .freebusy-timebar-title {
+  margin: 0;
   margin-inline-end: 2px;
+  padding: 0;
   padding-inline-start: 2px;
 }
 
 .freebusy-timebar-hour {
   margin-top: 2px;
   margin-bottom: 3px;
+  margin-inline: 0;
   border-inline-start: 1px solid transparent;
   padding-inline: 2px;
 }
@@ -556,6 +559,7 @@ calendar-event-freebusy-day > box {
 }
 
 .freebusy-grid {
+  margin: 0;
   border-inline-start: 1px solid var(--eventGridStartBorderColor);
   padding-inline: 2px;
   background-color: #E09EBD;
