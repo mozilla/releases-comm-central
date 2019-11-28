@@ -1657,7 +1657,7 @@
                        label="&devToolboxCmd.label;"
                        accesskey="&devToolboxCmd.accesskey;"
                        key="key_devtoolsToolbox"
-                       oncommand="BrowserToolboxProcess.init();"/>
+                       oncommand="BrowserToolboxLauncher.init();"/>
         <toolbarbutton id="appmenu_addonDebugging"
                        class="subviewbutton subviewbutton-iconic"
                        label="&debugAddonsCmd.label;"

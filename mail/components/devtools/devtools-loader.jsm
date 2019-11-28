@@ -21,10 +21,10 @@ DevToolsStartup.prototype = {
   },
 
   handleDevToolsFlag(cmdLine) {
-    const { BrowserToolboxProcess } = ChromeUtils.import(
+    const { BrowserToolboxLauncher } = ChromeUtils.import(
       "resource://devtools/client/framework/browser-toolbox/Launcher.jsm"
     );
-    BrowserToolboxProcess.init();
+    BrowserToolboxLauncher.init();
 
     if (cmdLine.state == Ci.nsICommandLine.STATE_REMOTE_AUTO) {
       cmdLine.preventDefault = true;

@@ -181,7 +181,7 @@
 #else
        modifiers="accel,shift"
 #endif
-       oncommand="BrowserToolboxProcess.init();"/>
+       oncommand="BrowserToolboxLauncher.init();"/>
   <key id="key_scratchpad"
        keycode="&scratchpadCmd.keycode;"
        keytext="&scratchpadCmd.keytext;"

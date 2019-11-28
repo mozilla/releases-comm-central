@@ -1018,7 +1018,7 @@
                       label="&devToolboxCmd.label;"
                       accesskey="&devToolboxCmd.accesskey;"
                       key="key_devtoolsToolbox"
-                      oncommand="BrowserToolboxProcess.init();"/>
+                      oncommand="BrowserToolboxLauncher.init();"/>
             <menuitem id="addonDebugging"
                       label="&debugAddonsCmd.label;"
                       accesskey="&debugAddonsCmd.accesskey;"
