@@ -84,9 +84,8 @@
         return false;
       }
 
-      let elt = document.tooltipNode;
       // No tooltip for elements that have already been removed.
-      if (!elt.parentNode) {
+      if (!document.tooltipNode.parentNode) {
         return false;
       }
 
@@ -95,42 +94,39 @@
       largeTooltip.hidden = false;
       this.removeAttribute("label");
 
-      let localName = elt.localName;
+      // We have a few cases that have special behavior. These are richlistitems
+      // and have tooltip="<myid>".
+      let item = document.tooltipNode.closest(
+        `[tooltip="${this.id}"] richlistitem`
+      );
 
-      if (
-        localName == "richlistitem" &&
-        elt.getAttribute("is") == "chat-group-richlistitem"
-      ) {
+      if (item && item.matches(`:scope[is="chat-group-richlistitem"]`)) {
         return false;
       }
 
-      if (
-        localName == "richlistitem" &&
-        elt.getAttribute("is") == "chat-imconv-richlistitem" &&
-        elt.conv
-      ) {
-        return this.updateTooltipFromConversation(elt.conv);
+      if (item && item.matches(`:scope[is="chat-imconv-richlistitem"]`)) {
+        return this.updateTooltipFromConversation(item.conv);
       }
 
-      if (
-        localName == "richlistitem" &&
-        elt.getAttribute("is") == "chat-contact-richlistitem"
-      ) {
+      if (item && item.matches(`:scope[is="chat-contact-richlistitem"]`)) {
         return this.updateTooltipFromBuddy(
-          elt.contact.preferredBuddy.preferredAccountBuddy
+          item.contact.preferredBuddy.preferredAccountBuddy
         );
       }
 
-      if (localName == "richlistitem") {
+      if (item) {
         let contactlistbox = document.getElementById("contactlistbox");
         let conv = contactlistbox.selectedItem.conv;
         return this.updateTooltipFromParticipant(
-          elt.chatBuddy.name,
+          item.chatBuddy.name,
           conv,
-          elt.chatBuddy
+          item.chatBuddy
         );
       }
 
+      // Tooltips are also used for the chat content, where we need to do
+      // some more general checks.
+      let elt = document.tooltipNode;
       let classList = elt.classList;
       if (
         classList.contains("ib-nick") ||
