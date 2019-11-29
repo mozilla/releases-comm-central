@@ -10,6 +10,9 @@
 
 var os = ChromeUtils.import("chrome://mozmill/content/stdlib/os.jsm");
 
+var { gMockExtProtSvcReg } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
 var {
   add_message_to_folder,
   be_in_folder,
@@ -43,6 +46,8 @@ var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
 
 function setupModule(module) {
+  gMockExtProtSvcReg.register();
+
   folder = create_folder("PhishingBarA");
   add_message_to_folder(
     folder,
@@ -100,6 +105,10 @@ function setupModule(module) {
       },
     })
   );
+}
+
+function teardownModule() {
+  gMockExtProtSvcReg.unregister();
 }
 
 /**
