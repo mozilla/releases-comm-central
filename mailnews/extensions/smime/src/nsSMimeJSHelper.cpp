@@ -25,20 +25,10 @@ nsSMimeJSHelper::nsSMimeJSHelper() {}
 nsSMimeJSHelper::~nsSMimeJSHelper() {}
 
 NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
-    nsIMsgCompFields *compFields, uint32_t *count, char16_t ***emailAddresses,
-    int32_t **certVerification, char16_t ***certIssuedInfos,
-    char16_t ***certExpiresInfos, nsIX509Cert ***certs, bool *canEncrypt) {
-  NS_ENSURE_ARG_POINTER(count);
-  *count = 0;
-
-  NS_ENSURE_ARG_POINTER(emailAddresses);
-  NS_ENSURE_ARG_POINTER(certVerification);
-  NS_ENSURE_ARG_POINTER(certIssuedInfos);
-  NS_ENSURE_ARG_POINTER(certExpiresInfos);
-  NS_ENSURE_ARG_POINTER(certs);
+    nsIMsgCompFields *compFields, nsTArray<nsString> &emailAddresses,
+    nsTArray<nsString> &certIssuedInfos, nsTArray<nsString> &certExpiresInfos,
+    nsTArray<RefPtr<nsIX509Cert>> &certs, bool *canEncrypt) {
   NS_ENSURE_ARG_POINTER(canEncrypt);
-
-  NS_ENSURE_ARG_POINTER(compFields);
 
   nsTArray<nsCString> mailboxes;
   nsresult rv = getMailboxList(compFields, mailboxes);
@@ -46,131 +36,61 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 
   uint32_t mailbox_count = mailboxes.Length();
 
+  emailAddresses.ClearAndRetainStorage();
+  certIssuedInfos.ClearAndRetainStorage();
+  certExpiresInfos.ClearAndRetainStorage();
+  certs.ClearAndRetainStorage();
+  emailAddresses.SetCapacity(mailbox_count);
+  certIssuedInfos.SetCapacity(mailbox_count);
+  certExpiresInfos.SetCapacity(mailbox_count);
+  certs.SetCapacity(mailbox_count);
+
   nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
 
-  *count = mailbox_count;
   *canEncrypt = false;
   rv = NS_OK;
+  bool found_blocker = false;
 
-  if (mailbox_count) {
-    nsCOMPtr<nsIMsgComposeSecure> composeSecure =
-        do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgComposeSecure> composeSecure =
+      do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    char16_t **outEA = static_cast<char16_t **>(
-        moz_xmalloc(mailbox_count * sizeof(char16_t *)));
-    int32_t *outCV =
-        static_cast<int32_t *>(moz_xmalloc(mailbox_count * sizeof(int32_t)));
-    char16_t **outCII = static_cast<char16_t **>(
-        moz_xmalloc(mailbox_count * sizeof(char16_t *)));
-    char16_t **outCEI = static_cast<char16_t **>(
-        moz_xmalloc(mailbox_count * sizeof(char16_t *)));
-    nsIX509Cert **outCerts = static_cast<nsIX509Cert **>(
-        moz_xmalloc(mailbox_count * sizeof(nsIX509Cert *)));
+  for (uint32_t i = 0; i < mailbox_count; ++i) {
+    const nsCString &email = mailboxes[i];
+    nsCOMPtr<nsIX509Cert> cert;
+    nsString certIssuedInfo;
+    nsString certExpiresInfo;
 
-    if (!outEA || !outCV || !outCII || !outCEI || !outCerts) {
-      free(outEA);
-      free(outCV);
-      free(outCII);
-      free(outCEI);
-      free(outCerts);
-      rv = NS_ERROR_OUT_OF_MEMORY;
+    nsCString email_lowercase;
+    ToLowerCase(email, email_lowercase);
+
+    if (NS_SUCCEEDED(composeSecure->FindCertByEmailAddress(
+            email_lowercase, false, getter_AddRefs(cert)))) {
+      nsCOMPtr<nsIX509CertValidity> validity;
+      rv = cert->GetValidity(getter_AddRefs(validity));
+      if (NS_SUCCEEDED(rv)) {
+        validity->GetNotBeforeLocalDay(certIssuedInfo);
+        validity->GetNotAfterLocalDay(certExpiresInfo);
+      }
     } else {
-      char16_t **iEA = outEA;
-      int32_t *iCV = outCV;
-      char16_t **iCII = outCII;
-      char16_t **iCEI = outCEI;
-      nsIX509Cert **iCert = outCerts;
-
-      bool found_blocker = false;
-      bool memory_failure = false;
-
-      for (uint32_t i = 0; i < mailbox_count;
-           ++i, ++iEA, ++iCV, ++iCII, ++iCEI, ++iCert) {
-        *iCert = nullptr;
-        *iCV = 0;
-        *iCII = nullptr;
-        *iCEI = nullptr;
-
-        if (memory_failure) {
-          *iEA = nullptr;
-          continue;
-        }
-
-        nsCString &email = mailboxes[i];
-        *iEA = ToNewUnicode(NS_ConvertUTF8toUTF16(email));
-        if (!*iEA) {
-          memory_failure = true;
-          continue;
-        }
-
-        nsCString email_lowercase;
-        ToLowerCase(email, email_lowercase);
-
-        nsCOMPtr<nsIX509Cert> cert;
-        if (NS_SUCCEEDED(composeSecure->FindCertByEmailAddress(
-                email_lowercase, false, getter_AddRefs(cert)))) {
-          cert.forget(iCert);
-
-          nsCOMPtr<nsIX509CertValidity> validity;
-          rv = (*iCert)->GetValidity(getter_AddRefs(validity));
-
-          if (NS_SUCCEEDED(rv)) {
-            nsString id, ed;
-
-            if (NS_SUCCEEDED(validity->GetNotBeforeLocalDay(id))) {
-              *iCII = ToNewUnicode(id);
-              if (!*iCII) {
-                memory_failure = true;
-                continue;
-              }
-            }
-
-            if (NS_SUCCEEDED(validity->GetNotAfterLocalDay(ed))) {
-              *iCEI = ToNewUnicode(ed);
-              if (!*iCEI) {
-                memory_failure = true;
-                continue;
-              }
-            }
-          }
-        } else {
-          found_blocker = true;
-        }
-      }
-
-      if (memory_failure) {
-        NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(mailbox_count, outEA);
-        NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(mailbox_count, outCII);
-        NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(mailbox_count, outCEI);
-        NS_FREE_XPCOM_ISUPPORTS_POINTER_ARRAY(mailbox_count, outCerts);
-        free(outCV);
-        rv = NS_ERROR_OUT_OF_MEMORY;
-      } else {
-        if (mailbox_count > 0 && !found_blocker) {
-          *canEncrypt = true;
-        }
-
-        *emailAddresses = outEA;
-        *certVerification = outCV;
-        *certIssuedInfos = outCII;
-        *certExpiresInfos = outCEI;
-        *certs = outCerts;
-      }
+      found_blocker = true;
     }
+    emailAddresses.AppendElement(NS_ConvertUTF8toUTF16(email));
+    certIssuedInfos.AppendElement(certIssuedInfo);
+    certExpiresInfos.AppendElement(certExpiresInfo);
+    certs.AppendElement(cert);
   }
-  return rv;
+  if (mailbox_count > 0 && !found_blocker) {
+    *canEncrypt = true;
+  }
+
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(nsIMsgCompFields *compFields,
-                                                  uint32_t *count,
-                                                  char16_t ***emailAddresses) {
-  NS_ENSURE_ARG_POINTER(count);
-  *count = 0;
-
-  NS_ENSURE_ARG_POINTER(emailAddresses);
-
+NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
+    nsIMsgCompFields *compFields, nsTArray<nsString> &emailAddresses) {
   NS_ENSURE_ARG_POINTER(compFields);
+  emailAddresses.ClearAndRetainStorage();
 
   nsTArray<nsCString> mailboxes;
   nsresult rv = getMailboxList(compFields, mailboxes);
@@ -179,78 +99,28 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(nsIMsgCompFields *compFields,
   uint32_t mailbox_count = mailboxes.Length();
 
   if (!mailbox_count) {
-    *count = 0;
-    *emailAddresses = nullptr;
     return NS_OK;
   }
+
+  emailAddresses.SetCapacity(mailbox_count);
 
   nsCOMPtr<nsIMsgComposeSecure> composeSecure =
       do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t missing_count = 0;
-  bool *haveCert = new bool[mailbox_count];
-  if (!haveCert) {
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
+  for (uint32_t i = 0; i < mailbox_count; ++i) {
+    nsCString email_lowercase;
+    ToLowerCase(mailboxes[i], email_lowercase);
 
-  rv = NS_OK;
-
-  if (mailbox_count) {
-    for (uint32_t i = 0; i < mailbox_count; ++i) {
-      haveCert[i] = false;
-
-      nsCString email_lowercase;
-      ToLowerCase(mailboxes[i], email_lowercase);
-
-      nsCOMPtr<nsIX509Cert> cert;
-      if (NS_SUCCEEDED(composeSecure->FindCertByEmailAddress(
-              email_lowercase, true, getter_AddRefs(cert))))
-        haveCert[i] = true;
-
-      if (!haveCert[i]) ++missing_count;
+    nsCOMPtr<nsIX509Cert> cert;
+    if (NS_FAILED(composeSecure->FindCertByEmailAddress(
+            email_lowercase, true, getter_AddRefs(cert)))) {
+      // No cert found for this address.
+      emailAddresses.AppendElement(NS_ConvertUTF8toUTF16(mailboxes[i]));
     }
   }
 
-  *count = missing_count;
-
-  if (missing_count) {
-    char16_t **outEA = static_cast<char16_t **>(
-        moz_xmalloc(missing_count * sizeof(char16_t *)));
-    if (!outEA) {
-      rv = NS_ERROR_OUT_OF_MEMORY;
-    } else {
-      char16_t **iEA = outEA;
-
-      bool memory_failure = false;
-
-      for (uint32_t i = 0; i < mailbox_count; ++i) {
-        if (!haveCert[i]) {
-          if (memory_failure) {
-            *iEA = nullptr;
-          } else {
-            *iEA = ToNewUnicode(NS_ConvertUTF8toUTF16(mailboxes[i]));
-            if (!*iEA) {
-              memory_failure = true;
-            }
-          }
-          ++iEA;
-        }
-      }
-
-      if (memory_failure) {
-        NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(missing_count, outEA);
-        rv = NS_ERROR_OUT_OF_MEMORY;
-      } else {
-        *emailAddresses = outEA;
-      }
-    }
-  } else {
-    *emailAddresses = nullptr;
-  }
-
-  delete[] haveCert;
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsSMimeJSHelper::getMailboxList(nsIMsgCompFields *compFields,

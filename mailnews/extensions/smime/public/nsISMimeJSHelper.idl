@@ -22,11 +22,7 @@ interface nsISMimeJSHelper : nsISupports
    *
    * @param compFields - Attributes of the composed message
    *
-   * @param count - The number of entries in returned arrays
-   *
    * @param emailAddresses - The list of all recipient email addresses
-   *
-   * @param certVerification - The verification/validity status of recipient certs
    *
    * @param certIssuedInfos - If a recipient cert was found, when has it been issued?
    *
@@ -43,12 +39,10 @@ interface nsISMimeJSHelper : nsISupports
    * @exception NS_ERROR_INVALID_ARG
    */
   void getRecipientCertsInfo(in nsIMsgCompFields compFields,
-                             out unsigned long count,
-                             [array, size_is(count)] out wstring emailAddresses,
-                             [array, size_is(count)] out long certVerification,
-                             [array, size_is(count)] out wstring certIssuedInfos,
-                             [array, size_is(count)] out wstring certExpiresInfos,
-                             [array, size_is(count)] out nsIX509Cert certs,
+                             out Array<AString> emailAddresses,
+                             out Array<AString> certIssuedInfos,
+                             out Array<AString> certExpiresInfos,
+                             out Array<nsIX509Cert> certs,
                              out boolean canEncrypt);
 
   /**
@@ -57,9 +51,7 @@ interface nsISMimeJSHelper : nsISupports
    *
    * @param compFields - Attributes of the composed message
    *
-   * @param count - The number of returned email addresses
-   *
-   * @param emailAddresses - The list of email addresses without valid certs
+   * @returns The list of email addresses without valid certs
    *
    * @exception NS_ERROR_FAILURE - unexptected failure
    *
@@ -67,7 +59,5 @@ interface nsISMimeJSHelper : nsISupports
    *
    * @exception NS_ERROR_INVALID_ARG
    */
-  void getNoCertAddresses(in nsIMsgCompFields compFields,
-                          out unsigned long count,
-                          [array, size_is(count)] out wstring emailAddresses);
+  Array<AString> getNoCertAddresses(in nsIMsgCompFields compFields);
 };

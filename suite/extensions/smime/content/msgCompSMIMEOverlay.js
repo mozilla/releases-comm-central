@@ -259,7 +259,6 @@ var SecurityController =
 
 function onComposerSendMessage()
 {
-  let missingCount = new Object();
   let emailAddresses = new Object();
 
   try
@@ -270,7 +269,6 @@ function onComposerSendMessage()
     Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
       .createInstance(Ci.nsISMimeJSHelper)
       .getNoCertAddresses(gMsgCompose.compFields,
-                                  missingCount,
                                   emailAddresses);
   }
   catch (e)
@@ -278,7 +276,7 @@ function onComposerSendMessage()
     return;
   }
 
-  if (missingCount.value > 0)
+  if (emailAddresses.length > 0)
   {
     // The rules here: If the current identity has a directoryServer set, then
     // use that, otherwise, try the global preference instead.

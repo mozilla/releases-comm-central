@@ -49,9 +49,7 @@ function onLoad() {
     try {
       helper.getRecipientCertsInfo(
         params.compFields,
-        gCount,
         gEmailAddresses,
-        {}, // certStatusSummaries - provide no useful info anymore
         gCertIssuedInfos,
         gCertExpiresInfos,
         gCerts,
