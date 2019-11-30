@@ -712,7 +712,7 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
     if (*aDecision == nsIContentPolicy::REJECT_REQUEST) {
       bool insertingQuotedContent = true;
       aMsgCompose->GetInsertingQuotedContent(&insertingQuotedContent);
-      nsCOMPtr<Element> element = do_QueryInterface(aRequestingContext);
+      nsCOMPtr<mozilla::dom::Element> element = do_QueryInterface(aRequestingContext);
       RefPtr<mozilla::dom::HTMLImageElement> image =
           mozilla::dom::HTMLImageElement::FromNodeOrNull(element);
       if (image) {

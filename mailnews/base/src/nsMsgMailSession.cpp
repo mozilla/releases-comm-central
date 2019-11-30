@@ -259,7 +259,7 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow) {
       mozilla::dom::Document *domDocument = topMostWindow->GetDoc();
       NS_ENSURE_TRUE(domDocument, NS_ERROR_FAILURE);
 
-      Element *domElement = domDocument->GetDocumentElement();
+      mozilla::dom::Element *domElement = domDocument->GetDocumentElement();
       NS_ENSURE_TRUE(domElement, NS_ERROR_FAILURE);
 
       domElement->GetAttribute(NS_LITERAL_STRING("windowtype"), windowType);
