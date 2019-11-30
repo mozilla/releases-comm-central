@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+
+<?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://openpgp/skin/enigmail.css" type="text/css"?>
+
+<!DOCTYPE window [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+%brandDTD;
+<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
+%enigMailDTD;
+]>
+
+<dialog id="enigmailKeyImportInfo"
+        title=""
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="accept,help,cancel,extra1,extra2"
+        onload="onLoad();"
+        flex="1"
+        minwidth="100"
+        maxwidth="750"
+        xmlns:html="http://www.w3.org/1999/xhtml">
+
+
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyImportInfo.js"/>
+
+  <vbox align="center" flex="1" style="overflow:auto" id="outerbox">
+    <hbox align="center" flex="1">
+      <description flex="1" id="keyInfo" class="plain" style="white-space: pre"/>
+    </hbox>
+  </vbox>
+
+</dialog>

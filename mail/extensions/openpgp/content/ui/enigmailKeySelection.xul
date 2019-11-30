@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<!--
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+
+<?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://openpgp/skin/enigmail.css" type="text/css"?>
+
+<!DOCTYPE window [
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+%brandDTD;
+<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
+%enigMailDTD;
+]>
+
+<dialog id="enigmailKeySelectionDlg"
+        title="&enigmail.userSelectionList.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="onLoad();"
+        buttons="accept,cancel,extra1"
+        buttonlabelaccept="&enigmail.send.label;"
+        buttonlabelextra1="&enigmail.perRecipientsOption.label;"
+        minheight="450">
+
+
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
+  <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeySelection.js"/>
+
+  <vbox class="enigmailCaptionbox" id="dialogHeadline" orient="vertical">
+     <html:h1 id="usersNotFoundCapt"><html:span>&enigmail.usersNotFound.label;</html:span></html:h1>
+     <vbox style="height: 5em; overflow: auto;">
+       <grid id="dialogMsgList" collapsed="true">
+         <columns>
+          <column/>
+          <column flex="1"/>
+        </columns>
+        <rows id="dialogMsgListRows"/>
+       </grid>
+     </vbox>
+     <description id="dialogHeaderDesc" width="700px" collapsed="true">...</description>
+  </vbox>
+
+  <!-- <separator/> -->
+
+  <vbox flex="1">
+    <vbox class="enigmailCaptionbox" width="700px" flex="1" id="dialogHeaderBox">
+      <html:h1 ><html:span id="dialogHeader" style="visibility: hidden;">...</html:span></html:h1>
+
+      <hbox flex="0" align="center">
+        <textbox id="filterKey" size="35" placeholder="&enigmail.keyMan.filter.label;"/>
+      </hbox>
+
+      <tree  id="enigmailUserIdSelection" flex="1"
+        hidecolumnpicker="false"
+        seltype="single"
+        style="height:300px"
+        onkeypress="userSelCallback(event)">
+        <!-- onclick="userSelCallback(event);" -->
+
+        <treecols>
+          <treecol id="selectionCol" style="width:19px"
+                   label="&enigmail.keySelection.label;"
+                   class="treecol-image"
+                   src="chrome://openpgp/content/ui/check1.png"
+                   ignoreincolumnpicker="true"
+                   persist="width"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="enigUserNameCol" primary="true"
+                   flex="1"
+                   ignoreincolumnpicker="true"
+                   label="&enigmail.keyUserId.label;"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="uidValidityCol" style="width:85px"
+                   label="&enigmail.uidValidity.label;"
+                   persist="width,hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="expCol" style="width:70px"
+                   label="&enigmail.keyExpiry.label;"
+                   persist="width,hidden"/>
+          <splitter class="tree-splitter"/>
+          <treecol id="keyCol" style="width:90px"
+                   label="&enigmail.keyId.label;"
+                   persist="width,hidden"/>
+        </treecols>
+
+        <treechildren id="enigmailUserIdSelectionChildren"
+              properties="sendUnencrypted"/>
+
+      </tree>
+    </vbox>
+
+    <checkbox id="enigmailUserSelSendEncrypted"
+              label="&enigmail.userSelSendEncrypted.label;"
+              accesskey="&enigmail.userSelSendEncrypted.accesskey;"
+              checked="true"
+              oncommand="switchSendEncryptedCallback();"/>
+    <checkbox id="enigmailUserSelSendSigned"
+              label="&enigmail.userSelSendSigned.label;"
+              accesskey="&enigmail.userSelSendSigned.accesskey;"
+              checked="true"
+              oncommand="switchSendSignedCallback();"/>
+
+    <checkbox id="displayNoLonger"
+              label="&enigmail.displayNoLonger.label;"
+              checked="false"
+              disabled="true"
+              collapsed="true"/>
+  </vbox>
+
+  <hbox>
+    <button class="dialog"
+            id="refreshKeys"
+            label="&enigmail.refreshKeys.label;"
+            accesskey="&enigmail.refreshKeys.accesskey;"
+            oncommand="refreshKeys();"/>
+
+    <button class="dialog"
+            halign="right"
+            id="importMissingKeys"
+            collapsed="true"
+            label="&enigmail.importMissingKeys.label;"
+            accesskey="&enigmail.importMissingKeys.accesskey;"
+            tooltip="&enigmail.importMissingKeys.tooltip;"
+            oncommand="searchMissingKeys();"/>
+  </hbox>
+</dialog>
