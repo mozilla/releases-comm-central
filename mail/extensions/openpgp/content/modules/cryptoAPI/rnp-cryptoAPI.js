@@ -118,6 +118,13 @@ class RNPCryptoAPI extends CryptoAPI {
    */
   async getPhotoFile(keyId, photoNumber) {}
 
+  async importKeyBlock(keyBlock) {
+    // TODO: get status results
+    let res = RNP.importKeyBlock(keyBlock);
+    RNP.saveKeyRings();
+    return res;
+  }
+
   /**
    * Import key(s) from a file
    *
@@ -243,15 +250,31 @@ class RNPCryptoAPI extends CryptoAPI {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  async verifyMime(signed, options) {}
+  async verifyMime(signed, options) {
+    console.log("rnp-cryptoAPI.js: verifyMime()");
+    EnigmailLog.DEBUG(`rnp-cryptoAPI.js: verifyMime()\n`);
 
-  async getKeyListFromKeyBlock(keyBlockStr) {}
+    options.noOutput = true;
+    options.verifyOnly = true;
+    options.uiFlags = EnigmailConstants.UI_PGP_MIME;
+
+    return this.decrypt(signed, options);
+  }
+
+  async getKeyListFromKeyBlock(keyBlockStr) {
+    return RNP.getKeyListFromKeyBlock(keyBlockStr);
+  }
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {
     let id = RNP.genKey(userId, keyType, keySize, expiryTime, passphrase);
     RNP.saveKeyRings();
     return id;
   }
+  
+  async deleteKey(keyFingerprint, deleteSecret) {
+    return RNP.deleteKey(keyId, deleteSecret);
+  }
+  
 }
 
 function getRNPAPI() {

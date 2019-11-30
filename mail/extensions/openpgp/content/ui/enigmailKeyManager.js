@@ -333,6 +333,13 @@ function enigmailDeleteKey() {
     }
   }
 
+  for (let j in keyList) {
+    RNP.deleteKey(gKeyList[keyList[j]].fpr, deleteSecret);
+  }
+  clearKeyCache();
+
+
+  /*
   let fprArr = [];
   for (let j in keyList) {
     fprArr.push("0x" + gKeyList[keyList[j]].fpr);
@@ -346,6 +353,7 @@ function enigmailDeleteKey() {
       }
       refreshKeys();
     });
+  */
 }
 
 

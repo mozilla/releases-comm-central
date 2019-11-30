@@ -77,10 +77,12 @@ var EnigmailKeyRing = {
     if (gKeyListObj.keySortList.length === 0) {
       loadKeyList(win, sortColumn, sortDirection);
       getWindows().keyManReloadKeys();
+      /* TODO: do we need something similar with TB's future trust behavior?
       if (!gKeyCheckDone) {
         gKeyCheckDone = true;
         runKeyUsabilityCheck();
       }
+      */
     }
     else {
       if (sortColumn) {
@@ -560,6 +562,15 @@ var EnigmailKeyRing = {
       }
     }
 
+    if (limitedUids.length > 0) {
+      throw "importKeyAsync with limitedUids: not implemented";
+    }
+
+    if (minimizeKey) {
+      throw "importKeyAsync with minimizeKey: not implemented";
+    }
+
+    /*
     let args = EnigmailGpg.getStandardArgs(false).concat(["--no-verbose", "--status-fd", "2"]);
     if (minimizeKey) {
       args = args.concat(["--import-options", "import-minimal"]);
@@ -578,12 +589,21 @@ var EnigmailKeyRing = {
     const res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, pgpBlock);
 
     const statusMsg = res.statusMsg;
+    */
+
+    const cApi = EnigmailCryptoAPI();
+    let result = cApi.sync(cApi.importKeyBlock(pgpBlock));
 
     if (!importedKeysObj) {
       importedKeysObj = {};
     }
     importedKeysObj.value = [];
 
+    let exitCode = 0;
+
+    EnigmailKeyRing.clearCache();
+
+    /*
     let exitCode = 1;
     if (statusMsg && (statusMsg.search(/^IMPORT_RES /m) > -1)) {
       let importRes = statusMsg.match(/^IMPORT_RES ([0-9]+) ([0-9]+) ([0-9]+) 0 ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+)/m);
@@ -617,6 +637,7 @@ var EnigmailKeyRing = {
         }
       }
     }
+    */
 
     return exitCode;
   },

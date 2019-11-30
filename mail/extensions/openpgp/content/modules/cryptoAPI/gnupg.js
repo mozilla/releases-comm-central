@@ -203,6 +203,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
     return file;
   }
 
+  async importKeyBlock(keyBlock) {
+    return null;
+  }
+
   /**
    * Import key(s) from a file
    *
@@ -413,6 +417,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {
     throw "GnuPG genKey() not implemented";
+    return null;
+  }
+
+  async deleteKey(keyFingerprint, deleteSecret) {
     return null;
   }
 }

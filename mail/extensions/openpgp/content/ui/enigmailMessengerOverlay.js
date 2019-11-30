@@ -109,24 +109,6 @@ Enigmail.msg = {
       }
     }
 
-    let t = document.getElementById("tabmail");
-
-    if (t) {
-      // TB >= 63
-      t.addEventListener("pageshow", function(e) {
-        if (e.type === "pageshow" && e.target.URL === "about:preferences") {
-          let Overlays = ChromeUtils.import("chrome://openpgp/content/modules/overlays.jsm", {}).Overlays;
-          Overlays.loadOverlays("Enigmail", e.target.defaultView, ["chrome://openpgp/content/ui/enigmailPrivacyOverlay.xul"]);
-        }
-      }, false);
-    }
-
-    let customizeToolbar = document.getElementById("customizeToolbarSheetIFrame");
-    customizeToolbar.addEventListener("pageshow", function(event) {
-      let Overlays = ChromeUtils.import("chrome://openpgp/content/modules/overlays.jsm", {}).Overlays;
-      Overlays.loadOverlays("Enigmail", event.target.defaultView, ["chrome://openpgp/content/ui/enigmailCustToolOverlay.xul"]);
-    }, false);
-
     Enigmail.msg.messagePane = document.getElementById("messagepane");
 
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: Startup\n");

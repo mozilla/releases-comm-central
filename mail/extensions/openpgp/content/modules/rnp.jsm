@@ -48,7 +48,7 @@ var RNP = {
     }
   },
 
-  addKeyAttributes(handle, keyObj, is_subkey) {
+  addKeyAttributes(handle, keyObj, is_subkey, forListing) {
     let have_secret = new ctypes.bool;
     let key_id = new ctypes.char.ptr;
     let fingerprint = new ctypes.char.ptr;
@@ -74,6 +74,9 @@ var RNP = {
       throw "rnp_key_get_keyid failed";
     }
     keyObj.keyId = key_id.readString();
+    if (forListing) {
+      keyObj.id = keyObj.keyId;
+    }
 
     if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
       throw "rnp_key_get_fprint failed";
@@ -134,13 +137,20 @@ var RNP = {
   },
   
   getKeys(onlyKeys = null) {
+    return this.getKeysFromFFI(RNPLib.ffi, false, onlyKeys);
+  },
+
+  /* Some consumers want a different listing of keys, and expect 
+   * slightly different attribute names...
+   * If forListing is true, we'll set those additional attributes. */
+  getKeysFromFFI(ffi, forListing, onlyKeys = null) {
     let keys = [];
     let rv;
 
     let iter = new RNPLib.rnp_identifier_iterator_t;
     let grip = new ctypes.char.ptr();
 
-    rv = RNPLib.rnp_identifier_iterator_create(RNPLib.ffi, iter.address(), "grip");
+    rv = RNPLib.rnp_identifier_iterator_create(ffi, iter.address(), "grip");
     if (rv) {
       return null;
     }
@@ -166,7 +176,7 @@ var RNP = {
         let sub_count = new ctypes.size_t;
         let uid_count = new ctypes.size_t;
 
-        if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
+        if (RNPLib.rnp_locate_key(ffi, "grip", grip, handle.address())) {
           throw "rnp_locate_key failed";
         }
         have_handle = true;
@@ -192,9 +202,12 @@ var RNP = {
 
         if (key_revoked.value) {
           keyObj.keyTrust = "r";
+          if (forListing) {
+            keyObj.revoke = true;
+          }
         }
 
-        this.addKeyAttributes(handle, keyObj, false);
+        this.addKeyAttributes(handle, keyObj, false, forListing);
 
         /* The remaining actions are done for primary keys, only. */
         if (is_subkey.value) {
@@ -227,6 +240,9 @@ console.log("rnp_key_get_uid_count: " + uid_count.value);
             
             if (!primary_uid_set) {
               keyObj.userId = uid_str.readString();
+              if (forListing) {
+                keyObj.name = keyObj.userId;
+              }
               primary_uid_set = true;
             }
 
@@ -256,7 +272,7 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
 
           let subKeyObj = {};
           subKeyObj.keyTrust = "/";
-          this.addKeyAttributes(sub_handle, subKeyObj, true);
+          this.addKeyAttributes(sub_handle, subKeyObj, true, forListing);
           keyObj.subKeys.push(subKeyObj);
 
           RNPLib.rnp_key_handle_destroy(sub_handle);
@@ -486,6 +502,88 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
   saveKeyRings() {
     RNPLib.saveKeys();
   },
+  
+  importToFFI(ffi, keyBlockStr) {
+    let input_from_memory = new RNPLib.rnp_input_t;
+
+    var tmp_array = ctypes.char.array()(keyBlockStr);
+    var key_array = ctypes.cast(
+      tmp_array,
+      ctypes.uint8_t.array(keyBlockStr.length)
+    );
+
+    RNPLib.rnp_input_from_memory(
+      input_from_memory.address(),
+      key_array,
+      keyBlockStr.length,
+      false
+    );
+
+    let jsonInfo = new ctypes.char.ptr();
+    
+    let rv = RNPLib.rnp_import_keys(ffi, input_from_memory,
+                                    RNPLib.RNP_LOAD_SAVE_PUBLIC_KEYS,
+                                    jsonInfo.address());
+
+    // TODO: parse jsonInfo and return a list of keys, 
+    // as seen in keyRing.importKeyAsync.
+    // (should prevent the incorrect popup "no keys imported".)
+
+    console.log("result key listing, rv: " + rv + ", result: " + jsonInfo.readString());
+
+    RNPLib.rnp_buffer_destroy(jsonInfo);
+    RNPLib.rnp_input_destroy(input_from_memory);
+    
+    return null;
+  },
+
+  getKeyListFromKeyBlock(keyBlockStr) {
+    // Create a separate, temporary RNP storage area (FFI),
+    // import the key block into it, then get the listing.
+
+    console.log("trying to get key listing for this data: " + keyBlockStr);
+
+    let tempFFI = new RNPLib.rnp_ffi_t;
+    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+      throw new Error("Couldn't initialize librnp.");
+    }
+    
+    this.importToFFI(tempFFI, keyBlockStr);
+
+    let keys = this.getKeysFromFFI(tempFFI, true);
+
+console.log("result key array:");
+console.log(keys);
+
+    RNPLib.rnp_ffi_destroy(tempFFI);
+    return keys;
+  },
+  
+  importKeyBlock(keyBlockStr) {
+    return this.importToFFI(RNPLib.ffi, keyBlockStr);
+  },
+
+  deleteKey(keyFingerprint, deleteSecret) {
+console.log("deleting key with fingerprint: " + keyFingerprint);
+
+    let handle = new RNPLib.rnp_key_handle_t;
+    if (RNPLib.rnp_locate_key(RNPLib.ffi, "fingerprint", keyFingerprint, handle.address())) {
+      throw "rnp_locate_key failed";
+    }
+
+    let flags = RNPLib.RNP_KEY_REMOVE_PUBLIC;
+    if (deleteSecret) {
+      flags |= RNPLib.RNP_KEY_REMOVE_SECRET;
+    }
+    
+    if (RNPLib.rnp_key_remove(handle, flags)) {
+      throw ("rnp_key_remove failed");
+    }
+
+    RNPLib.rnp_key_handle_destroy(handle);
+    this.saveKeyRings();
+  },
+
 };
 
 // exports

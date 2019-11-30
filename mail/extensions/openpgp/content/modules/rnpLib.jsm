@@ -97,9 +97,6 @@ const rnp_password_cb_t = ctypes.FunctionType(abi, ctypes.bool, [
   ctypes.size_t,
 ]).ptr;
 
-const RNP_LOAD_SAVE_PUBLIC_KEYS = 1;
-const RNP_LOAD_SAVE_SECRET_KEYS = 2;
-
 var RNPLib;
 
 function enableRNPLibJS() {
@@ -151,14 +148,14 @@ function enableRNPLibJS() {
         this.ffi,
         "GPG",
         input_from_path,
-        RNP_LOAD_SAVE_PUBLIC_KEYS
+        this.RNP_LOAD_SAVE_PUBLIC_KEYS
       );
       this.rnp_input_destroy(input_from_path);
 
       let in2 = new rnp_input_t;
 
       this.rnp_input_from_path(in2.address(), filenames.secring);
-      this.rnp_load_keys(this.ffi, "GPG", in2, RNP_LOAD_SAVE_SECRET_KEYS);
+      this.rnp_load_keys(this.ffi, "GPG", in2, this.RNP_LOAD_SAVE_SECRET_KEYS);
       this.rnp_input_destroy(in2);
 
       input_from_path = null;
@@ -193,14 +190,14 @@ function enableRNPLibJS() {
         this.ffi,
         "GPG",
         output_to_path,
-        RNP_LOAD_SAVE_PUBLIC_KEYS
+        this.RNP_LOAD_SAVE_PUBLIC_KEYS
       );
       this.rnp_output_destroy(output_to_path);
 
       let out2 = new rnp_output_t;
 
       rv = this.rnp_output_to_path(out2.address(), filenames.secring);
-      rv = this.rnp_save_keys(this.ffi, "GPG", out2, RNP_LOAD_SAVE_SECRET_KEYS);
+      rv = this.rnp_save_keys(this.ffi, "GPG", out2, this.RNP_LOAD_SAVE_SECRET_KEYS);
       this.rnp_output_destroy(out2);
 
       output_to_path = null;
@@ -677,6 +674,24 @@ function enableRNPLibJS() {
       rnp_result_t,
       rnp_op_generate_t,
     ),
+    
+    rnp_import_keys: librnp.declare(
+      "rnp_import_keys",
+      abi,
+      rnp_result_t,
+      rnp_ffi_t,
+      rnp_input_t,
+      ctypes.uint32_t,
+      ctypes.char.ptr.ptr
+    ),
+    
+    rnp_key_remove: librnp.declare(
+      "rnp_key_remove",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.uint32_t
+    ),
 
     rnp_result_t,
     rnp_ffi_t,
@@ -687,6 +702,15 @@ function enableRNPLibJS() {
     rnp_uid_handle_t,
     rnp_identifier_iterator_t,
     rnp_op_generate_t,
+    
+    RNP_LOAD_SAVE_PUBLIC_KEYS: 1,
+    
+    RNP_LOAD_SAVE_SECRET_KEYS: 2,
+    
+    RNP_KEY_REMOVE_PUBLIC: 1,
+    
+    RNP_KEY_REMOVE_SECRET: 2,
+
   };
 }
 

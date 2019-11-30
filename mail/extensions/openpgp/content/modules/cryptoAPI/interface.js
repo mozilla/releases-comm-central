@@ -136,6 +136,10 @@ class CryptoAPI {
     return null;
   }
 
+  async importKeyBlock(keyBlock) {
+    return null;
+  }
+
   /**
    * Export secret key(s) to a file
    *
@@ -281,6 +285,10 @@ class CryptoAPI {
    */
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {
+    return null;
+  }
+
+  async deleteKey(keyFingerprint, deleteSecret) {
     return null;
   }
 }

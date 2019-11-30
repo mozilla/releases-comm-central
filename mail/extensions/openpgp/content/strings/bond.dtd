@@ -1,2 +1,11 @@
 <!ENTITY manageKeysOpenPGPCmd.label "OpenPGP Key Management…">
 <!ENTITY manageKeysOpenPGPCmd.accesskey "o">
+
+<!ENTITY enigmail.ctxDecryptOpen.label              "Decrypt and Open">
+<!ENTITY enigmail.ctxDecryptSave.label              "Decrypt and Save As...">
+<!ENTITY enigmail.ctxImportKey.label                "Import OpenPGP Key">
+<!ENTITY enigmail.ctxVerifyAtt.label                "Verify signature">
+<!ENTITY enigmail.ctxDecryptOpen.accesskey          "D">
+<!ENTITY enigmail.ctxDecryptSave.accesskey          "C">
+<!ENTITY enigmail.ctxImportKey.accesskey            "I">
+<!ENTITY enigmail.ctxVerifyAtt.accesskey            "V">
