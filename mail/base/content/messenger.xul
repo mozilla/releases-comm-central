@@ -136,6 +136,8 @@
 <script src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
 #ifdef MOZ_OPENPGP
 <script src="chrome://openpgp/content/bond.js"/>
+<script src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"/>
+<script src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"/>
 #endif
 <script src="chrome://messenger/content/chat/chat-messenger.js"/>
 <script src="chrome://messenger/content/chat/imStatusSelector.js"/>

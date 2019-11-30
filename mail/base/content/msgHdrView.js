@@ -12,9 +12,13 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
 /* import-globals-from nsDragAndDrop.js */
+/* global Enigmail */
 
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
+);
+var { MailConstants } = ChromeUtils.import(
+  "resource:///modules/MailConstants.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { DisplayNameUtils } = ChromeUtils.import(
@@ -2298,6 +2302,10 @@ function onShowAttachmentItemContextMenu() {
   );
   openFolderMenu.hidden = !allSelectedFile;
   openFolderMenu.disabled = allSelectedDeleted;
+
+  if (MailConstants.MOZ_OPENPGP) {
+    Enigmail.hdrView.onShowAttachmentContextMenu();
+  }
 }
 
 /**
