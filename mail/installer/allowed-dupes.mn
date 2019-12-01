@@ -54,7 +54,6 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/ic
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/category.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/complete.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/delete.svg
-extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/edit.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/print.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/save.svg
 extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/security.svg
@@ -87,7 +86,6 @@ distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/s
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/category.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/complete.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/delete.svg
-distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/edit.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/print.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/save.svg
 distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/skin/common/icons/security.svg
