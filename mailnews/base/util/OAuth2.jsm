@@ -16,7 +16,21 @@ Cu.importGlobalProperties(["fetch"]);
 // Only allow one connecting window per endpoint.
 var gConnecting = {};
 
-function OAuth2(aBaseURI, aScope, aAppKey, aAppSecret) {
+/**
+ * Constructor for the OAuth2 object.
+ *
+ * @constructor
+ * @param {string} aBaseURI - The base URI for authentication and token
+ *   requests, oauth2/auth or oauth2/token will be added for the actual
+ *   requests.
+ * @param {?string} aScope - The scope as specified by RFC 6749 Section 3.3.
+ *   Will not be included in the requests if falsy.
+ * @param {string} aAppKey - The client_id as specified by RFC 6749 Section
+ *   2.3.1.
+ * @param {string} [aAppSecret=null] - The client_secret as specified in
+ *    RFC 6749 section 2.3.1. Will not be included in the requests if null.
+ */
+function OAuth2(aBaseURI, aScope, aAppKey, aAppSecret = null) {
   this.authURI = aBaseURI + "oauth2/auth";
   this.tokenURI = aBaseURI + "oauth2/token";
   this.consumerKey = aAppKey;
@@ -201,7 +215,12 @@ OAuth2.prototype = {
 
     let data = new URLSearchParams();
     data.append("client_id", this.consumerKey);
-    data.append("client_secret", this.consumerSecret);
+    if (this.consumerSecret !== null) {
+      // Section 2.3.1. of RFC 6749 states that empty secrets MAY be omitted
+      // by the client. This OAuth implementation delegates this decission to
+      // the caller: If the secret is null, it will be omitted.
+      data.append("client_secret", this.consumerSecret);
+    }
 
     if (aRefresh) {
       this.log.info(
