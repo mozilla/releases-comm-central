@@ -50,6 +50,7 @@ var okCallback = null;
 */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -426,6 +427,11 @@ function PageDataToAccountData(pageData, accountData) {
 function createAccount(accountData) {
   // Retrieve the server (data) from the account data.
   var server = accountData.incomingServer;
+
+  // Use createRssAccount for Feed accounts.
+  if (server.type == "rss") {
+    return FeedUtils.createRssAccount(server.prettyName);
+  }
 
   // for news, username is always null
   var username = server.type == "nntp" ? null : server.username;
