@@ -466,6 +466,7 @@
       switch (aData) {
         case "calendar.week.start":
         case "calendar.view-minimonth.showWeekNumber":
+          delete this.mDayMap; // Days have moved, force a refresh of the grid.
           this.refreshDisplay();
           break;
       }
