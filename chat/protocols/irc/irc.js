@@ -1842,7 +1842,6 @@ ircAccount.prototype = {
   _availableCAPs: new Set(),
   _activeCAPs: new Set(),
   _requestedCAPs: new Set(),
-  _capTimeout: null,
   _negotiatedCAPs: false,
   _queuedCAPs: [],
   addCAP(aCAP) {
@@ -2202,9 +2201,11 @@ ircAccount.prototype = {
     this._socket.disconnect();
     delete this._socket;
 
-    this._requestedCAPs.clear();
+    // Reset cap negotiation.
     this._availableCAPs.clear();
     this._activeCAPs.clear();
+    this._requestedCAPs.clear();
+    this._negotiatedCAPs = false;
     this._queuedCAPs.length = 0;
 
     clearTimeout(this._isOnTimer);
