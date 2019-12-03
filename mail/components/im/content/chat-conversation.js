@@ -63,8 +63,10 @@
 
           switch (topic) {
             case "new-text":
-              if (this.loaded) {
-                this.addMsg(subject);
+              if (this.loaded && this.addMsg(subject)) {
+                // This will mark the conv as read, but also update the conv title
+                // with the new unread count etc.
+                this.tab.update();
               }
               break;
 
@@ -343,6 +345,12 @@
       }
       messages.forEach(this.addMsg.bind(this));
       delete this._writingContextMessages;
+
+      if (this.tab && this.tab.selected && document.hasFocus()) {
+        // This will mark the conv as read, but also update the conv title
+        // with the new unread count etc.
+        this.tab.update();
+      }
     }
 
     displayStatusText() {
@@ -364,7 +372,7 @@
         // The conversation has already been destroyed,
         // probably because the window was closed.
         // Return without doing anything.
-        return;
+        return false;
       }
 
       // Ugly hack... :(
@@ -415,18 +423,12 @@
           // we had context messages.
           delete this._writingContextMessages;
         }
-        return;
+        return false;
       }
 
       if (isUnreadMessage && (!aMsg.conversation.isChat || aMsg.containsNick)) {
         this._lastPing = aMsg.who;
         this._lastPingTime = aMsg.time;
-      }
-
-      if (isTabFocused) {
-        // Porting note: This will mark the conv as read, but also update
-        // the conv title with the new unread count etc. as required for TB.
-        this.tab.update();
       }
 
       if (shouldSetUnreadFlag) {
@@ -435,6 +437,8 @@
         }
         this.tab.setAttribute("unread", "true");
       }
+
+      return isTabFocused;
     }
 
     sendMsg(aMsg) {
