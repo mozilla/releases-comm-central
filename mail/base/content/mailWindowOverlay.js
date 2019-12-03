@@ -1491,11 +1491,24 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
   ) {
     navDebug("history[" + i + "] = " + historyArray[i] + "\n");
     navDebug("history[" + i + "] = " + historyArray[i + 1] + "\n");
-    folder = MailUtils.getOrCreateFolder(historyArray[i + 1]);
+    folder = MailServices.folderLookup.getFolderForURL(historyArray[i + 1]);
+    if (!folder) {
+      // Where did the folder go?
+      continue;
+    }
     navDebug(
-      "folder URI = " + folder.URI + "pretty name " + folder.prettyName + "\n"
+      "folder URI = " + folder.URI + " pretty name " + folder.prettyName + "\n"
     );
+
     var menuText = "";
+    var msgHdr = messenger.msgHdrFromURI(historyArray[i]);
+    var msgSubject = msgHdr.mime2DecodedSubject;
+    var msgAuthor = msgHdr.mime2DecodedAuthor;
+
+    if (!msgAuthor && !msgSubject) {
+      // Avoid empty entries in the menu. The message was most likely (re)moved.
+      continue;
+    }
 
     // If the message was not being displayed via the current folder, prepend
     //  the folder name.  We do not need to check underlying folders for
@@ -1505,20 +1518,18 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
       menuText = folder.prettyName + " - ";
     }
 
-    var msgHdr = messenger.msgHdrFromURI(historyArray[i]);
-
     var subject = "";
     if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
       subject = "Re: ";
     }
-    if (msgHdr.mime2DecodedSubject) {
-      subject += msgHdr.mime2DecodedSubject;
+    if (msgSubject) {
+      subject += msgSubject;
     }
     if (subject) {
       menuText += subject + " - ";
     }
 
-    menuText += msgHdr.mime2DecodedAuthor;
+    menuText += msgAuthor;
     newMenuItem = document.createXULElement("menuitem");
     newMenuItem.setAttribute("label", menuText);
     relPos += isBackMenu ? -1 : 1;
