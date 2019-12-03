@@ -39,12 +39,12 @@
 
     <separator class="thin" hidefor="movemail,pop3,nntp,none"/>
 
-    <hbox hidefor="movemail,pop3,nntp,none" align="end">
+    <hbox hidefor="movemail,pop3,nntp,none" pack="end">
         <button label="&offlineImapAdvancedOffline.label;" accesskey="&offlineImapAdvancedOffline.accesskey;"
                 oncommand="onClickSelect()" id="selectImapFoldersButton" class="selectForOfflineUseButton"/>
     </hbox>
 
-    <hbox hidefor="movemail,pop3,imap,none" align="end">
+    <hbox hidefor="movemail,pop3,imap,none" pack="end">
         <button label="&offlineSelectNntp.label;" accesskey="&offlineSelectNntp.accesskey;"
                 oncommand="onClickSelect()" id="selectNewsgroupsButton" class="selectForOfflineUseButton"/>
     </hbox>
