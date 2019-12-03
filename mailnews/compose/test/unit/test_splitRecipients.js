@@ -148,18 +148,15 @@ function run_test() {
   // the basic argument/return combinations.
 
   for (var part = 0; part < splitRecipientsTests.length; ++part) {
-    var count = {};
     print("Test: " + splitRecipientsTests[part].recipients);
     var result = fields.splitRecipients(
       splitRecipientsTests[part].recipients,
-      splitRecipientsTests[part].emailAddressOnly,
-      count
+      splitRecipientsTests[part].emailAddressOnly
     );
 
-    Assert.equal(splitRecipientsTests[part].count, count.value);
     Assert.equal(splitRecipientsTests[part].count, result.length);
 
-    for (var item = 0; item < count.value; ++item) {
+    for (var item = 0; item < result.length; ++item) {
       Assert.equal(splitRecipientsTests[part].result[item], result[item]);
     }
   }

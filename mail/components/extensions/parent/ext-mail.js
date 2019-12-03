@@ -1350,11 +1350,10 @@ function convertMessage(msgHdr, extension) {
     author: msgHdr.mime2DecodedAuthor,
     recipients: composeFields.splitRecipients(
       msgHdr.mime2DecodedRecipients,
-      false,
-      {}
+      false
     ),
-    ccList: composeFields.splitRecipients(msgHdr.ccList, false, {}),
-    bccList: composeFields.splitRecipients(msgHdr.bccList, false, {}),
+    ccList: composeFields.splitRecipients(msgHdr.ccList, false),
+    bccList: composeFields.splitRecipients(msgHdr.bccList, false),
     subject: msgHdr.mime2DecodedSubject,
     read: msgHdr.isRead,
     flagged: msgHdr.isFlagged,

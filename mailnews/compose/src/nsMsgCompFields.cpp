@@ -519,27 +519,14 @@ NS_IMETHODIMP nsMsgCompFields::RemoveAttachments() {
 // This method is called during the creation of a new window.
 NS_IMETHODIMP
 nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
-                                 bool aEmailAddressOnly, uint32_t *aLength,
-                                 char16_t ***aResult) {
-  NS_ENSURE_ARG_POINTER(aLength);
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  *aLength = 0;
-  *aResult = nullptr;
-
+                                 bool aEmailAddressOnly,
+                                 nsTArray<nsString> &aResult) {
   nsCOMArray<msgIAddressObject> header(EncodedHeaderW(aRecipients));
-  nsTArray<nsString> results;
   if (aEmailAddressOnly)
-    ExtractEmails(header, results);
+    ExtractEmails(header, aResult);
   else
-    ExtractDisplayAddresses(header, results);
+    ExtractDisplayAddresses(header, aResult);
 
-  uint32_t count = results.Length();
-  char16_t **result = (char16_t **)moz_xmalloc(sizeof(char16_t *) * count);
-  for (uint32_t i = 0; i < count; ++i) result[i] = ToNewUnicode(results[i]);
-
-  *aResult = result;
-  *aLength = count;
   return NS_OK;
 }
 

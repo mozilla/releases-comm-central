@@ -2863,8 +2863,8 @@ function LoadIdentity(startup)
               awAddRecipients(msgCompFields, "addr_reply", newReplyTo);
           }
 
-          let toAddrs = new Set(msgCompFields.splitRecipients(msgCompFields.to, true, {}));
-          let ccAddrs = new Set(msgCompFields.splitRecipients(msgCompFields.cc, true, {}));
+          let toAddrs = new Set(msgCompFields.splitRecipients(msgCompFields.to, true));
+          let ccAddrs = new Set(msgCompFields.splitRecipients(msgCompFields.cc, true));
 
           if (newCc != prevCc)
           {
@@ -2873,7 +2873,7 @@ function LoadIdentity(startup)
               awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
             if (newCc) {
               // Ensure none of the Ccs are already in To.
-              let cc2 = msgCompFields.splitRecipients(newCc, true, {});
+              let cc2 = msgCompFields.splitRecipients(newCc, true);
               newCc = cc2.filter(x => !toAddrs.has(x)).join(", ");
               awAddRecipients(msgCompFields, "addr_cc", newCc);
             }
@@ -2886,7 +2886,7 @@ function LoadIdentity(startup)
               awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
             if (newBcc) {
               // Ensure none of the Bccs are already in To or Cc.
-              let bcc2 = msgCompFields.splitRecipients(newBcc, true, {});
+              let bcc2 = msgCompFields.splitRecipients(newBcc, true);
               let toCcAddrs = new Set([...toAddrs, ...ccAddrs]);
               newBcc = bcc2.filter(x => !toCcAddrs.has(x)).join(", ");
               awAddRecipients(msgCompFields, "addr_bcc", newBcc);

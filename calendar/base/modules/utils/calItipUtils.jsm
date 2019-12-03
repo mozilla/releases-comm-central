@@ -482,7 +482,7 @@ var calitip = {
     let compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
       Ci.nsIMsgCompFields
     );
-    let addresses = compFields.splitRecipients(author, true, {});
+    let addresses = compFields.splitRecipients(author, true);
     if (addresses.length != 1) {
       cal.LOG("No unique email address for lookup in message.\r\n" + cal.STACK(20));
     }
@@ -1264,7 +1264,7 @@ var calitip = {
     let compFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
       Ci.nsIMsgCompFields
     );
-    let addresses = compFields.splitRecipients(aEmailAddress, true, {});
+    let addresses = compFields.splitRecipients(aEmailAddress, true);
     if (addresses.length == 1) {
       let searchFor = cal.email.prependMailTo(addresses[0]);
       aAttendees.forEach(aAttendee => {

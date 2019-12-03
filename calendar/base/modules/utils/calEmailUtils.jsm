@@ -146,7 +146,7 @@ var calemail = {
       Ci.nsIMsgCompFields
     );
     // Resolve the list considering also configured common names
-    let members = compFields.splitRecipients(aRecipients, false, {});
+    let members = compFields.splitRecipients(aRecipients, false);
     let list = [];
     let prefix = "";
     for (let member of members) {

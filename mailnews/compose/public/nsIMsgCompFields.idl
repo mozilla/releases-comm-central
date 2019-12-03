@@ -77,12 +77,11 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
    * @param aRecipients       The recipients list to split.
    * @param aEmailAddressOnly Set to true to drop display names from the results
    *                          array.
-   * @param aLength           The length of the aResult array.
-   * @param aResult           An array of the recipients.
+   *
+   * @return An array of the recipients.
    */
-  void splitRecipients(in AString aRecipients, in boolean aEmailAddressOnly,
-                       out unsigned long aLength,
-                       [array, size_is(aLength), retval] out wstring aResult);
+  Array<AString> splitRecipients(in AString aRecipients,
+                                 in boolean aEmailAddressOnly);
 
   void ConvertBodyToPlainText();
 

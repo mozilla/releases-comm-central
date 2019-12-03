@@ -176,11 +176,11 @@ function CompFields2Recipients(msgCompFields)
     var msgFollowupTo = msgCompFields.followupTo;
     var havePrimaryRecipient = false;
     if(msgReplyTo)
-      awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgReplyTo, false, {}),
+      awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgReplyTo, false),
                                   "addr_reply", newListBoxNode, templateNode);
     if(msgTo)
     {
-      var rcp = msgCompFields.splitRecipients(msgTo, false, {});
+      var rcp = msgCompFields.splitRecipients(msgTo, false);
       if (rcp.length)
       {
         awSetInputAndPopupFromArray(rcp, "addr_to", newListBoxNode, templateNode);
@@ -188,10 +188,10 @@ function CompFields2Recipients(msgCompFields)
       }
     }
     if(msgCC)
-      awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgCC, false, {}),
+      awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgCC, false),
                                   "addr_cc", newListBoxNode, templateNode);
     if(msgBCC)
-      awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgBCC, false, {}),
+      awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgBCC, false),
                                   "addr_bcc", newListBoxNode, templateNode);
     if(msgNewsgroups)
     {
@@ -276,7 +276,7 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList)
   if (!msgCompFields)
     return;
 
-  var recipientArray = msgCompFields.splitRecipients(recipientsList, false, {});
+  var recipientArray = msgCompFields.splitRecipients(recipientsList, false);
 
   for (var index = 0; index < recipientArray.length; index++)
     for (var row = 1; row <= top.MAX_RECIPIENTS; row ++)
@@ -299,7 +299,7 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList)
   if (!msgCompFields)
     return;
 
-  var recipientArray = msgCompFields.splitRecipients(recipientsList, false, {});
+  var recipientArray = msgCompFields.splitRecipients(recipientsList, false);
 
   for (var index = 0; index < recipientArray.length; index++)
     awAddRecipient(recipientType, recipientArray[index]);

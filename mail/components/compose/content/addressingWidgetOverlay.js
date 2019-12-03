@@ -203,14 +203,14 @@ function CompFields2Recipients(msgCompFields) {
     let havePrimaryRecipient = false;
     if (msgReplyTo) {
       awSetInputAndPopupFromArray(
-        msgCompFields.splitRecipients(msgReplyTo, false, {}),
+        msgCompFields.splitRecipients(msgReplyTo, false),
         "addr_reply",
         listbox,
         templateNode
       );
     }
     if (msgTo) {
-      let rcp = msgCompFields.splitRecipients(msgTo, false, {});
+      let rcp = msgCompFields.splitRecipients(msgTo, false);
       if (rcp.length) {
         awSetInputAndPopupFromArray(rcp, "addr_to", listbox, templateNode);
         havePrimaryRecipient = true;
@@ -218,7 +218,7 @@ function CompFields2Recipients(msgCompFields) {
     }
     if (msgCC) {
       awSetInputAndPopupFromArray(
-        msgCompFields.splitRecipients(msgCC, false, {}),
+        msgCompFields.splitRecipients(msgCC, false),
         "addr_cc",
         listbox,
         templateNode
@@ -226,7 +226,7 @@ function CompFields2Recipients(msgCompFields) {
     }
     if (msgBCC) {
       awSetInputAndPopupFromArray(
-        msgCompFields.splitRecipients(msgBCC, false, {}),
+        msgCompFields.splitRecipients(msgBCC, false),
         "addr_bcc",
         listbox,
         templateNode
@@ -359,7 +359,7 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
     return;
   }
 
-  var recipientArray = msgCompFields.splitRecipients(recipientsList, false, {});
+  var recipientArray = msgCompFields.splitRecipients(recipientsList, false);
 
   for (var index = 0; index < recipientArray.length; index++) {
     for (var row = 1; row <= top.MAX_RECIPIENTS; row++) {
@@ -388,7 +388,7 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
     return;
   }
 
-  var recipientArray = msgCompFields.splitRecipients(recipientsList, false, {});
+  var recipientArray = msgCompFields.splitRecipients(recipientsList, false);
   awAddRecipientsArray(recipientType, recipientArray);
 }
 
