@@ -21,7 +21,7 @@ nsresult nsMsgLocalStoreUtils::AddDirectorySeparator(nsIFile *path) {
   return path->SetLeafName(leafName);
 }
 
-bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString &name) {
+bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString &name, nsIFile *path) {
   if (name.IsEmpty()) return true;
 
   char16_t firstChar = name.First();
@@ -53,6 +53,14 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString &name) {
       name.LowerCaseEqualsLiteral("feeditems.rdf") ||
       StringBeginsWith(name, NS_LITERAL_STRING("feeditems_error")))
     return true;
+
+  // Ignore hidden and other special system files.
+  bool specialFile = false;
+  path->IsHidden(&specialFile);
+  if (specialFile) return true;
+  specialFile = false;
+  path->IsSpecial(&specialFile);
+  if (specialFile) return true;
 
   // The .mozmsgs dir is for spotlight support
   return (StringEndsWith(name, NS_LITERAL_STRING(".mozmsgs")) ||

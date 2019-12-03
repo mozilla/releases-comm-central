@@ -383,31 +383,28 @@ nsresult nsImapMailFolder::AddSubfolderWithPath(nsAString &name,
 
 nsresult nsImapMailFolder::CreateSubFolders(nsIFile *path) {
   nsresult rv = NS_OK;
-  nsAutoString currentFolderNameStr;    // online name
-  nsAutoString currentFolderDBNameStr;  // possibly munged name
-  nsCOMPtr<nsIMsgFolder> child;
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDirectoryEnumerator> children;
-  rv = path->GetDirectoryEntries(getter_AddRefs(children));
-  bool more = false;
-  if (children) children->HasMoreElements(&more);
+  nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
+  rv = path->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  while (more) {
+  bool hasMore = false;
+  while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) &&
+         hasMore) {
     nsCOMPtr<nsIFile> currentFolderPath;
-    rv = children->GetNextFile(getter_AddRefs(currentFolderPath));
-    if (NS_FAILED(rv) || !currentFolderPath) break;
-    rv = children->HasMoreElements(&more);
-    if (NS_FAILED(rv)) return rv;
+    rv = directoryEnumerator->GetNextFile(getter_AddRefs(currentFolderPath));
+    if (NS_FAILED(rv) || !currentFolderPath) continue;
 
+    nsAutoString currentFolderNameStr;    // online name
+    nsAutoString currentFolderDBNameStr;  // possibly munged name
     currentFolderPath->GetLeafName(currentFolderNameStr);
     if (nsShouldIgnoreFile(currentFolderNameStr)) continue;
 
     // OK, here we need to get the online name from the folder cache if we can.
     // If we can, use that to create the sub-folder
-    nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
     nsCOMPtr<nsIFile> curFolder =
         do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -421,6 +418,7 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile *path) {
     nsAutoString utf7LeafName = currentFolderNameStr;
 
     if (curFolder) {
+      nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
       rv = GetFolderCacheElemFromFile(dbFile, getter_AddRefs(cacheElement));
       if (NS_SUCCEEDED(rv) && cacheElement) {
         nsCString onlineFullUtf7Name;
@@ -463,6 +461,7 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile *path) {
       msfFilePath->SetLeafName(currentFolderDBNameStr);
     }
     // use the utf7 name as the uri for the folder.
+    nsCOMPtr<nsIMsgFolder> child;
     AddSubfolderWithPath(utf7LeafName, msfFilePath, getter_AddRefs(child));
     if (child) {
       // use the unicode name as the "pretty" name. Set it so it won't be

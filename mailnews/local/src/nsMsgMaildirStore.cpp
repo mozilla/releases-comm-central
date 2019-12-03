@@ -94,7 +94,7 @@ nsresult nsMsgMaildirStore::AddSubFolders(nsIMsgFolder *parent, nsIFile *path,
       currentFile->IsDirectory(&isDirectory);
       // Make sure this really is a mail folder dir (i.e., a directory that
       // contains cur and tmp sub-dirs, and not a .sbd or .mozmsgs dir).
-      if (isDirectory && !nsShouldIgnoreFile(leafName))
+      if (isDirectory && !nsShouldIgnoreFile(leafName, currentFile))
         currentDirEntries.AppendObject(currentFile);
     }
   }

@@ -947,8 +947,10 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent,
   while (NS_SUCCEEDED(directoryEnumerator->HasMoreElements(&hasMore)) &&
          hasMore) {
     nsCOMPtr<nsIFile> currentFile;
-    directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
-    if (currentFile) currentDirEntries.AppendObject(currentFile);
+    rv = directoryEnumerator->GetNextFile(getter_AddRefs(currentFile));
+    if (NS_SUCCEEDED(rv) && currentFile) {
+      currentDirEntries.AppendObject(currentFile);
+    }
   }
 
   // add the folders
@@ -960,7 +962,7 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent,
     currentFile->GetLeafName(leafName);
     // here we should handle the case where the current file is a .sbd directory
     // w/o a matching folder file, or a directory w/o the name .sbd
-    if (nsShouldIgnoreFile(leafName)) continue;
+    if (nsShouldIgnoreFile(leafName, currentFile)) continue;
 
     nsCOMPtr<nsIMsgFolder> child;
     rv = parent->AddSubfolder(leafName, getter_AddRefs(child));
