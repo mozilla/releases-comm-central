@@ -51,7 +51,7 @@ var capMultiPrefix = {
         this.addCAP("multi-prefix");
         this.sendMessage("CAP", ["REQ", "multi-prefix"]);
       } else if (
-        aMessage.cap.subcommand == "ACK" ||
+        aMessage.cap.subcommand === "ACK" ||
         aMessage.cap.subcommand === "NAK"
       ) {
         this.removeCAP("multi-prefix");

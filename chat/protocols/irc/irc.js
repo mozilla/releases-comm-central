@@ -317,9 +317,12 @@ var GenericIRCConversation = {
       return;
     }
 
-    // Since the server doesn't send us a message back, just assume the
-    // message was received and immediately show it.
-    this.writeMessage(this._account._nickname, aMessage, { outgoing: true });
+    // By default the server doesn't send the message back, but this can be
+    // enabled with the echo-message capability. If this is not enabled, just
+    // assume the message was received and immediately show it.
+    if (!this._account._activeCAPs.has("echo-message")) {
+      this.writeMessage(this._account._nickname, aMessage, { outgoing: true });
+    }
 
     this._pendingMessage = true;
   },
@@ -2289,6 +2292,7 @@ function ircProtocol() {
   ChromeUtils.import("resource:///modules/ircServices.jsm", tempScope);
 
   // Extra features.
+  ChromeUtils.import("resource:///modules/ircEchoMessage.jsm", tempScope);
   ChromeUtils.import("resource:///modules/ircMultiPrefix.jsm", tempScope);
   ChromeUtils.import("resource:///modules/ircNonStandard.jsm", tempScope);
   ChromeUtils.import("resource:///modules/ircSASL.jsm", tempScope);
@@ -2312,6 +2316,7 @@ function ircProtocol() {
   ircHandlers.registerCAPHandler(tempScope.capNotify);
 
   // Register extra features.
+  ircHandlers.registerCAPHandler(tempScope.capEchoMessage);
   ircHandlers.registerISUPPORTHandler(tempScope.isupportNAMESX);
   ircHandlers.registerCAPHandler(tempScope.capMultiPrefix);
   ircHandlers.registerHandler(tempScope.ircNonStandard);

@@ -169,11 +169,11 @@ var capSASL = {
         // If it supports SASL, let the server know we're requiring SASL.
         this.addCAP("sasl");
         this.sendMessage("CAP", ["REQ", "sasl"]);
-      } else if (aMessage.cap.subcommand == "ACK") {
+      } else if (aMessage.cap.subcommand === "ACK") {
         // The server acknowledges our choice to use SASL, send the first
         // message.
         this.sendMessage("AUTHENTICATE", "PLAIN");
-      } else if (aMessage.cap.subcommand == "NAK") {
+      } else if (aMessage.cap.subcommand === "NAK") {
         this.removeCAP("sasl");
       }
 

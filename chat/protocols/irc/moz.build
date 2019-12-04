@@ -16,6 +16,7 @@ EXTRA_JS_MODULES += [
     'ircCommands.jsm',
     'ircCTCP.jsm',
     'ircDCC.jsm',
+    'ircEchoMessage.jsm',
     'ircHandlers.jsm',
     'ircISUPPORT.jsm',
     'ircMultiPrefix.jsm',

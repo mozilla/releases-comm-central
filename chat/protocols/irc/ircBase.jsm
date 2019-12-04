@@ -32,7 +32,18 @@ var {
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
 
 function privmsg(aAccount, aMessage, aIsNotification) {
-  let params = { incoming: true, tags: aMessage.tags };
+  let params = { tags: aMessage.tags };
+  // If the echo-message capability is enabled and the message is from our nick,
+  // mark it as outgoing. Otherwise, the message is incoming.
+  if (
+    aAccount._activeCAPs.has("echo-message") &&
+    aAccount.normalizeNick(aMessage.origin) ==
+      aAccount.normalizeNick(aAccount._nickname)
+  ) {
+    params.outgoing = true;
+  } else {
+    params.incoming = true;
+  }
   if (aIsNotification) {
     params.notification = true;
   }

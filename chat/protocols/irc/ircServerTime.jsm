@@ -4,7 +4,7 @@
 
 /*
  * This implements server-time for IRC.
- *   http://ircv3.net/specs/extensions/server-time-3.2.html
+ *   https://ircv3.net/specs/extensions/server-time-3.2.html
  */
 
 this.EXPORTED_SYMBOLS = ["capServerTime", "tagServerTime"];
@@ -52,7 +52,7 @@ var capServerTime = {
         this.addCAP("server-time");
         this.sendMessage("CAP", ["REQ", "server-time"]);
       } else if (
-        aMessage.cap.subcommand == "ACK" ||
+        aMessage.cap.subcommand === "ACK" ||
         aMessage.cap.subcommand === "NAK"
       ) {
         this.removeCAP("server-time");
@@ -71,7 +71,7 @@ var capServerTime = {
         this.addCAP("znc.in/server-time-iso");
         this.sendMessage("CAP", ["REQ", "znc.in/server-time-iso"]);
       } else if (
-        aMessage.cap.subcommand == "ACK" ||
+        aMessage.cap.subcommand === "ACK" ||
         aMessage.cap.subcommand === "NAK"
       ) {
         this.removeCAP("znc.in/server-time-iso");
