@@ -8,16 +8,13 @@ const BASE_URL =
 
 async function isExtensionLocked(win, addonID) {
   let addonCard = await BrowserTestUtils.waitForCondition(async () => {
-    if (!("getHtmlBrowser" in win)) {
-      return false;
-    }
     let doc = win.getHtmlBrowser().contentDocument;
     await win.htmlBrowserLoaded;
     return doc.querySelector(`addon-card[addon-id="${addonID}"]`);
   }, `Get addon-card for "${addonID}"`);
   let disableBtn = addonCard.querySelector('[action="toggle-disabled"]');
   let removeBtn = addonCard.querySelector('panel-item[action="remove"]');
-  ok(removeBtn.disabled, "Remove button should be hidden");
+  ok(removeBtn.disabled, "Remove button should be disabled");
   ok(disableBtn.hidden, "Disable button should be hidden");
 }
 
@@ -46,7 +43,7 @@ add_task(async function test_addon_install() {
 add_task(async function test_addon_locked() {
   let tabmail = document.getElementById("tabmail");
   let index = tabmail.tabInfo.length;
-  window.openAddonsMgr("addons://list/extension");
+  await window.openAddonsMgr("addons://list/extension");
   let tab = tabmail.tabInfo[index];
   let browser = tab.browser;
 

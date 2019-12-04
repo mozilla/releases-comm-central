@@ -553,7 +553,7 @@ function openOptionsDialog(aPaneID, aScrollPaneTo, aOtherArgs) {
 }
 
 function openAddonsMgr(aView) {
-  if (aView) {
+  return new Promise(resolve => {
     let emWindow;
     let browserWindow;
 
@@ -569,29 +569,34 @@ function openAddonsMgr(aView) {
     Services.obs.removeObserver(receivePong, "EM-pong");
 
     if (emWindow) {
-      emWindow.loadView(aView);
+      if (aView) {
+        emWindow.loadView(aView);
+      }
       let tabmail = browserWindow.document.getElementById("tabmail");
       tabmail.switchToTab(tabmail.getBrowserForDocument(emWindow));
       emWindow.focus();
+      resolve(emWindow);
       return;
     }
-  }
 
-  let addonSiteRegExp = Services.prefs.getCharPref(
-    "extensions.getAddons.siteRegExp"
-  );
-  let tab = openContentTab("about:addons", "tab", addonSiteRegExp);
-  tab.browser.droppedLinkHandler = event =>
-    tab.browser.contentWindow.gDragDrop.onDrop(event);
-
-  if (aView) {
     // This must be a new load, else the ping/pong would have
     // found the window above.
-    Services.obs.addObserver(function loadViewOnLoad(aSubject, aTopic, aData) {
-      Services.obs.removeObserver(loadViewOnLoad, aTopic);
-      aSubject.loadView(aView);
+    let addonSiteRegExp = Services.prefs.getCharPref(
+      "extensions.getAddons.siteRegExp"
+    );
+    let tab = openContentTab("about:addons", "tab", addonSiteRegExp);
+    tab.browser.droppedLinkHandler = event =>
+      tab.browser.contentWindow.gDragDrop.onDrop(event);
+
+    Services.obs.addObserver(function observer(aSubject, aTopic, aData) {
+      Services.obs.removeObserver(observer, aTopic);
+      if (aView) {
+        aSubject.loadView(aView);
+      }
+      aSubject.focus();
+      resolve(aSubject);
     }, "EM-loaded");
-  }
+  });
 }
 
 /**
