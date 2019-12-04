@@ -626,11 +626,11 @@ EmailConfigWizard.prototype = {
         self.stopSpinner(call.foundMsg);
         self.foundConfig(config);
       },
-      function(e) {
+      function(e, allErrors) {
         // all failed
         self._abortable = null;
         self.removeStatusLines();
-        if (e instanceof CancelledException) {
+        if (allErrors.some(e => e instanceof CancelledException)) {
           return;
         }
 
@@ -696,15 +696,18 @@ EmailConfigWizard.prototype = {
         call.successCallback(),
         (e, allErrors) => {
           // Must call error callback in any case to stop the discover mode.
-          call.errorCallback()(e); // ()(e) is correct
-          if (
-            e.code == 401 ||
-            (allErrors && allErrors.find(e => e.code == 401))
-          ) {
-            // Auth failed
+          let errorCallback = call.errorCallback();
+          if (allErrors.some(e => e.code == 401)) {
+            // Auth failed.
             // Ask user for username.
+            this.onStartOver();
+            this.stopSpinner(); // clears status message
             _show("usernameRow");
-            this.switchToMode("start");
+            _show("status-area");
+            _enable("manual-edit_button");
+            errorCallback(new CancelledException());
+          } else {
+            errorCallback(e);
           }
         }
       );
