@@ -41,7 +41,7 @@ var cwc = null; // compose window controller
 var folder = null;
 
 add_task(function setupModule(module) {
-  requestLongerTimeout(2);
+  requestLongerTimeout(3);
 
   folder = create_folder("PromptToSaveTest");
 
