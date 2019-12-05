@@ -3,7 +3,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var irc = {};
-Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
+Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
 
 var testData = [
   // First off, let's test the messages from RFC 2812.
@@ -153,7 +153,7 @@ function testRFC2812Messages() {
   run_next_test();
 }
 
-// Unreal sends a couple of broken messages, see ircMessage in irc.js for a
+// Unreal sends a couple of broken messages, see ircMessage in irc.jsm for a
 // description of what's wrong.
 function testBrokenUnrealMessages() {
   let messages = {

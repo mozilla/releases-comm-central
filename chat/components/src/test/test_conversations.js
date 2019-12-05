@@ -5,10 +5,9 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { GenericConvIMPrototype, Message } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
-
 var imConversations = {};
 Services.scriptloader.loadSubScript(
-  "resource:///components/imConversations.js",
+  "resource:///modules/imConversations.jsm",
   imConversations
 );
 

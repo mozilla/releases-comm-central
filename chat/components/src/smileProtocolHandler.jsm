@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["smileProtocolHandler"];
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
 var { getSmileRealURI } = ChromeUtils.import(
   "resource:///modules/imSmileys.jsm"
 );
@@ -33,10 +32,6 @@ smileProtocolHandler.prototype = {
     return false;
   },
 
-  classDescription: "Smile Protocol Handler",
-  classID: Components.ID("{04e58eae-dfbc-4c9e-8130-6d9ef19cbff4}"),
-  contractID: "@mozilla.org/network/protocol;1?name=smile",
   QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
+  classDescription: "Smile Protocol Handler",
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([smileProtocolHandler]);

@@ -5,13 +5,9 @@
 
 XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
 
-EXTRA_COMPONENTS += [
-    'xmpp.js',
-    'xmpp.manifest',
-]
-
 EXTRA_JS_MODULES += [
     'xmpp-authmechs.jsm',
+    'xmpp-base.jsm',
     'xmpp-commands.jsm',
     'xmpp-session.jsm',
     'xmpp-xml.jsm',
@@ -19,3 +15,7 @@ EXTRA_JS_MODULES += [
 ]
 
 JAR_MANIFESTS += ['jar.mn']
+
+XPCOM_MANIFESTS += [
+    'components.conf',
+]

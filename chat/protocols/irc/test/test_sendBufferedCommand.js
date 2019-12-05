@@ -4,7 +4,7 @@
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var irc = {};
-Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
+Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
 
 function FakeAccount() {
   this._commandBuffers = new Map();

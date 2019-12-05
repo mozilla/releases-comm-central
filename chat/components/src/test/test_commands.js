@@ -7,7 +7,7 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 // _findCommands in order to avoid having to intercept command execution.
 var imCommands = {};
 Services.scriptloader.loadSubScript(
-  "resource:///components/imCommands.js",
+  "resource:///modules/imCommands.jsm",
   imCommands
 );
 

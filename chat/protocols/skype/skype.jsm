@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["SkypeProtocol"];
 var { httpRequest } = ChromeUtils.import("resource://gre/modules/Http.jsm");
 var { StringToArrayBuffer } = ChromeUtils.import(
   "resource:///modules/ArrayBufferUtils.jsm"
@@ -956,7 +957,4 @@ SkypeProtocol.prototype = {
   getAccount(aImAccount) {
     return new SkypeAccount(this, aImAccount);
   },
-  classID: Components.ID("{8446c0f6-9f59-4710-844e-eaa6c1f49d35}"),
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([SkypeProtocol]);

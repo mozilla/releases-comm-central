@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { XMPPAccountPrototype } = ChromeUtils.import(
-  "resource:///modules/xmpp.jsm"
+  "resource:///modules/xmpp-base.jsm"
 );
 var { XMPPParser } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 

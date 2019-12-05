@@ -3,7 +3,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var skype = {};
-Services.scriptloader.loadSubScript("resource:///components/skype.js", skype);
+Services.scriptloader.loadSubScript("resource:///modules/skype.jsm", skype);
 
 var data = {
   "https://bay-client-s.gateway.messenger.live.com/v1/users/ME/contacts/8:clokep":

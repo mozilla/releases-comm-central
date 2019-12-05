@@ -3,7 +3,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XMPPAccountPrototype } = ChromeUtils.import(
-  "resource:///modules/xmpp.jsm"
+  "resource:///modules/xmpp-base.jsm"
 );
 var { XMPPSession } = ChromeUtils.import(
   "resource:///modules/xmpp-session.jsm"

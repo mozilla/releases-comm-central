@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var CC = Components.Constructor;
+var EXPORTED_SYMBOLS = ["Logger"];
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { EmptyEnumerator, l10nHelper, XPCOMUtils } = ChromeUtils.import(
@@ -1130,8 +1130,4 @@ Logger.prototype = {
 
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.imILogger]),
   classDescription: "Logger",
-  classID: Components.ID("{fb0dc220-2c7a-4216-9f19-6b8f3480eae9}"),
-  contractID: "@mozilla.org/chat/logger;1",
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([Logger]);

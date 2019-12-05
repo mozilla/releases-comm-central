@@ -8,10 +8,7 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gLogger = {};
-Services.scriptloader.loadSubScript(
-  "resource:///components/logger.js",
-  gLogger
-);
+Services.scriptloader.loadSubScript("resource:///modules/logger.jsm", gLogger);
 
 var logDirPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
 

@@ -3,7 +3,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var irc = {};
-Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
+Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
 
 var input = [
   undefined,

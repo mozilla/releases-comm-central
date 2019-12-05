@@ -3,9 +3,8 @@
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { commands } = ChromeUtils.import("resource:///modules/ircCommands.jsm");
-
 var irc = {};
-Services.scriptloader.loadSubScript("resource:///components/irc.js", irc);
+Services.scriptloader.loadSubScript("resource:///modules/irc.jsm", irc);
 
 // Ensure the commands have been initialized.
 Services.conversations.initConversations();

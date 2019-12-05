@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["GTalkProtocol"];
+
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -9,7 +11,7 @@ var { GenericProtocolPrototype } = ChromeUtils.import(
   "resource:///modules/jsProtoHelper.jsm"
 );
 var { XMPPAccountPrototype } = ChromeUtils.import(
-  "resource:///modules/xmpp.jsm"
+  "resource:///modules/xmpp-base.jsm"
 );
 var { XMPPSession } = ChromeUtils.import(
   "resource:///modules/xmpp-session.jsm"
@@ -112,7 +114,4 @@ GTalkProtocol.prototype = {
   get chatHasTopic() {
     return true;
   },
-  classID: Components.ID("{38a224c1-6748-49a9-8ab2-efc362b1000d}"),
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([GTalkProtocol]);

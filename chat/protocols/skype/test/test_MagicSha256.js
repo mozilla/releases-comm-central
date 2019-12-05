@@ -3,7 +3,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var skype = {};
-Services.scriptloader.loadSubScript("resource:///components/skype.js", skype);
+Services.scriptloader.loadSubScript("resource:///modules/skype.jsm", skype);
 
 var data = {
   "1416264993": "3a33ac47fe2ec1a33d569f4be5c69ddc",

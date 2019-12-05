@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var EXPORTED_SYMBOLS = ["ircProtocol"];
+
 var {
   ClassInfo,
   clearTimeout,
@@ -2417,7 +2419,4 @@ ircProtocol.prototype = {
   getAccount(aImAccount) {
     return new ircAccount(this, aImAccount);
   },
-  classID: Components.ID("{607b2c0b-9504-483f-ad62-41de09238aec}"),
 };
-
-var NSGetFactory = XPCOMUtils.generateNSGetFactory([ircProtocol]);
