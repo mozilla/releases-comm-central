@@ -7,9 +7,9 @@
         "version": "1.0"
       },
       "params": {
-        "searchUrlGetParams": {
-          "q": "{searchTerms}"
-        }
+        "searchUrlGetParams": [
+          { "name": "q", "value": "{searchTerms}" }
+        ]
       },
       "telemetryId": "google",
       "appliesTo": [{
@@ -23,9 +23,9 @@
         "version": "1.0"
       },
       "params": {
-        "searchUrlGetParams": {
-          "q": "{searchTerms}"
-        }
+        "searchUrlGetParams": [
+          { "name": "q", "value": "{searchTerms}" }
+        ]
       },
       "appliesTo": [{
         "included": {
@@ -55,17 +55,17 @@
       },
       "telemetryId": "baidu",
       "params": {
-        "searchUrlGetParams": {
-          "wd": "{searchTerms}",
-          "tn": "monline_7_dg",
-          "ie": "utf-8"
-        },
-        "suggestUrlGetParams": {
-          "wd": "{searchTerms}",
-          "tn": "monline_7_dg",
-          "ie": "utf-8",
-          "action": "opensearch"
-        }
+        "searchUrlGetParams": [
+          { "name": "wd", "value": "{searchTerms}" },
+          { "name": "tn", "value": "monline_7_dg" },
+          { "name": "ie", "value": "utf-8" }
+        ],
+        "suggestUrlGetParams": [
+          { "name": "wd", "value": "{searchTerms}" },
+          { "name": "tn", "value": "monline_7_dg" },
+          { "name": "ie", "value": "utf-8" },
+          { "name": "action", "value": "opensearch" }
+        ]
       },
       "appliesTo": [{
         "included": { "locales": { "matches": ["zh-CN"] } }
@@ -85,12 +85,12 @@
       },
       "telemetryId": "amazondotcom",
       "params": {
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended",
-          "sourceid": "Mozilla-search"
-        }
+        "searchUrlGetParams": [
+          { "name": "field-keywords", "value": "{searchTerms}" },
+          { "name": "ie", "value": "{inputEncoding}" },
+          { "name": "mode", "value": "blended" },
+          { "name": "sourceid", "value": "Mozilla-search" }
+        ]
       },
       "appliesTo": [{
         "included": { "regions": ["default"] }
@@ -160,12 +160,12 @@
         },
         "telemetryId": "amazon-france",
         "params": {
-          "searchUrlGetParams": {
-            "field-keywords": "{searchTerms}",
-            "ie": "{inputEncoding}",
-            "mode": "blended",
-            "sourceid":"Mozilla-search"
-          }
+          "searchUrlGetParams": [
+            { "name": "field-keywords", "value": "{searchTerms}" },
+            { "name": "ie", "value": "{inputEncoding}" },
+            { "name": "mode", "value": "blended" },
+            { "name": "sourceid", "value": "Mozilla-search" }
+          ]
         }
       }, {
         "included": {
@@ -186,12 +186,12 @@
         },
         "telemetryId": "amazon-en-GB",
         "params": {
-          "searchUrlGetParams": {
-            "field-keywords": "{searchTerms}",
-            "ie": "{inputEncoding}",
-            "mode": "blended",
-            "sourceid":"Mozilla-search"
-          }
+          "searchUrlGetParams": [
+            { "name": "field-keywords", "value": "{searchTerms}" },
+            { "name": "ie", "value": "{inputEncoding}" },
+            { "name": "mode", "value": "blended" },
+            { "name": "sourceid", "value": "Mozilla-search" }
+          ]
         }
       }]
     },
@@ -202,11 +202,11 @@
         "version": "1.1"
       },
       "params": {
-        "searchUrlGetParams": {
-          "field-keywords": "{searchTerms}",
-          "ie": "{inputEncoding}",
-          "mode": "blended"
-        }
+        "searchUrlGetParams": [
+          { "name": "field-keywords", "value": "{searchTerms}" },
+          { "name": "ie", "value": "{inputEncoding}" },
+          { "name": "mode", "value": "blended" }
+        ]
       },
       "appliesTo": [{
         "included": {
@@ -228,12 +228,12 @@
         },
         "telemetryId": "amazon-france",
         "params": {
-          "searchUrlGetParams": {
-            "field-keywords": "{searchTerms}",
-            "ie": "{inputEncoding}",
-            "mode": "blended",
-            "sourceid":"Mozilla-search"
-          }
+          "searchUrlGetParams": [
+            { "name": "field-keywords", "value": "{searchTerms}" },
+            { "name": "ie", "value": "{inputEncoding}" },
+            { "name": "mode", "value": "blended" },
+            { "name": "sourceid", "value": "Mozilla-search" }
+          ]
         }
       }, {
         "included": {
@@ -257,12 +257,12 @@
         },
         "telemetryId": "amazon-jp",
         "params": {
-          "searchUrlGetParams": {
-            "field-keywords": "{searchTerms}",
-            "ie": "{inputEncoding}",
-            "mode": "blended",
-            "sourceid":"Mozilla-search"
-          }
+          "searchUrlGetParams": [
+            { "name": "field-keywords", "value": "{searchTerms}" },
+            { "name": "ie", "value": "{inputEncoding}" },
+            { "name": "mode", "value": "blended" },
+            { "name": "sourceid", "value": "Mozilla-search" }
+          ]
         }
       }, {
         "included": { "locales": { "matches": ["it", "lij"] } },
@@ -271,12 +271,12 @@
         },
         "telemetryId": "amazon-it",
         "params": {
-          "searchUrlGetParams": {
-            "field-keywords": "{searchTerms}",
-            "ie": "{inputEncoding}",
-            "mode": "blended",
-            "sourceid":"Mozilla-search"
-          }
+          "searchUrlGetParams": [
+            { "name": "field-keywords", "value": "{searchTerms}" },
+            { "name": "ie", "value": "{inputEncoding}" },
+            { "name": "mode", "value": "blended" },
+            { "name": "sourceid", "value": "Mozilla-search" }
+          ]
         }
       }, {
         "included": { "locales": { "matches": ["de", "dsb", "hsb"] } },
@@ -285,12 +285,12 @@
         },
         "telemetryId": "amazon-de",
         "params": {
-          "searchUrlGetParams": {
-            "field-keywords": "{searchTerms}",
-            "ie": "{inputEncoding}",
-            "mode": "blended",
-            "sourceid":"Mozilla-search"
-          }
+          "searchUrlGetParams": [
+            { "name": "field-keywords", "value": "{searchTerms}" },
+            { "name": "ie", "value": "{inputEncoding}" },
+            { "name": "mode", "value": "blended" },
+            { "name": "sourceid", "value": "Mozilla-search" }
+          ]
         }
       }, {
         "included": {
@@ -306,12 +306,12 @@
         },
         "telemetryId": "amazon-en-GB",
         "params": {
-          "searchUrlGetParams": {
-            "field-keywords": "{searchTerms}",
-            "ie": "{inputEncoding}",
-            "mode": "blended",
-            "sourceid":"Mozilla-search"
-          }
+          "searchUrlGetParams": [
+            { "name": "field-keywords", "value": "{searchTerms}" },
+            { "name": "ie", "value": "{inputEncoding}" },
+            { "name": "mode", "value": "blended" },
+            { "name": "sourceid", "value": "Mozilla-search" }
+          ]
         }
       }, {
         "included": {
