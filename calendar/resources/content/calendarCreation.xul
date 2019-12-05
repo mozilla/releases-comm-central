@@ -58,7 +58,6 @@
             <radiogroup id="calendar-format" onselect="onSelectProvider(this.value)">
               <radio value="ics" label="&calendarproperties.webdav.label;" selected="true" />
               <radio value="caldav" label="&calendarproperties.caldav.label;"/>
-              <radio id="wcap-radio" value="wcap" label="&calendarproperties.wcap.label;"/>
             </radiogroup>
           </html:td>
         </html:tr>

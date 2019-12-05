@@ -32,7 +32,6 @@ calendar-@AB_CD@.jar:
     preferences/preferences.dtd                  (%chrome/calendar/preferences/preferences.dtd)
     preferences/views.dtd                        (%chrome/calendar/preferences/views.dtd)
     provider-uninstall.dtd                       (%chrome/calendar/provider-uninstall.dtd)
-    wcap.properties                              (%chrome/calendar/providers/wcap/wcap.properties)
     timezones.properties                         (%chrome/calendar/timezones.properties)
 
 lightning-@AB_CD@.jar:

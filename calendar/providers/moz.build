@@ -9,6 +9,4 @@ DIRS += [
     'ics',
     'memory',
     'storage',
-    'wcap',
 ]
-

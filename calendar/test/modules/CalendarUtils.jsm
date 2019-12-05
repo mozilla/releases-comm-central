@@ -523,7 +523,7 @@ function createCalendar(controller, name) {
  * @param data              (optional) dataset object
  *                              showReminders - False to disable reminders.
  *                              eMail - id of eMail account
- *                              network.format - ics/caldav/wcap
+ *                              network.format - ics/caldav
  *                              network.location - URI (undefined for local ICS)
  *                              network.offline - False to disable cache.
  */

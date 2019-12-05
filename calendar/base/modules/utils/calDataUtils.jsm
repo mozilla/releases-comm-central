@@ -297,7 +297,7 @@ var caldata = {
    * @param aIID           IID to use in comparison, undefined/null defaults to nsISupports
    */
   compareObjects: function(aObject, aOtherObject, aIID) {
-    // xxx todo: seems to work fine e.g. for WCAP, but I still mistrust this trickery...
+    // xxx todo: seems to work fine, but I still mistrust this trickery...
     //           Anybody knows an official API that could be used for this purpose?
     //           For what reason do clients need to pass aIID since
     //           every XPCOM object has to implement nsISupports?
