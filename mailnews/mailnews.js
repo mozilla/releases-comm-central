@@ -628,6 +628,9 @@ pref("mail.smtpserver.default.try_ssl", 0); // @see nsISmtpServer.socketType
 // If true, SMTP LOGIN auth and POP3 USER/PASS auth, the last of the methods to try, will use Latin1.
 pref("mail.smtp_login_pop3_user_pass_auth_is_latin1", true);
 
+// Strip CSS conditional rules in received and sent mail
+pref("mail.html_sanitize.drop_conditional_css", true);
+
 // For the next 3 prefs, see <http://www.bucksch.org/1/projects/mozilla/16507>
 pref("mail.display_glyph", true);   // TXT->HTML :-) etc. in viewer
 pref("mail.display_struct", true);  // TXT->HTML *bold* etc. in viewer; ditto

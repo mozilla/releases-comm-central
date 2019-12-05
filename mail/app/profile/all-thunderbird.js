@@ -241,9 +241,6 @@ pref("mailnews.headers.show_n_lines_before_more", 1);
 // here. A value of 0 means a new profile.
 pref("mail.ui-rdf.version", 0);
 
-// Strip CSS conditional rules in received and sent mail
-pref("mail.html_sanitize.drop_conditional_css", true);
-
 /////////////////////////////////////////////////////////////////
 // Overrides of the core mailnews.js and composer.js prefs
 /////////////////////////////////////////////////////////////////
