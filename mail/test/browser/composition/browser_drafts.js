@@ -45,6 +45,7 @@ var kBoxId = "mail-notification-top";
 var draftsFolder;
 
 add_task(function setupModule(module) {
+  requestLongerTimeout(2);
   draftsFolder = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
