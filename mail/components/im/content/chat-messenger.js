@@ -90,7 +90,11 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
 }
 
 function buddyListContextMenu(aXulMenu) {
-  this.target = aXulMenu.triggerNode;
+  this.target = aXulMenu.triggerNode.closest("richlistitem");
+  if (!this.target) {
+    this.shouldDisplay = false;
+    return;
+  }
   this.menu = aXulMenu;
   let localName = this.target.localName;
   this.onContact =
