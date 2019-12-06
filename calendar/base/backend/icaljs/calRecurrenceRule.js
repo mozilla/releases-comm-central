@@ -32,6 +32,11 @@ calRecurrenceRule.prototype = {
   makeImmutable: function() {
     this.isMutable = false;
   },
+  ensureMutable: function() {
+    if (!this.isMutable) {
+      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+    }
+  },
   clone: function() {
     return new calRecurrenceRule(new ICAL.Recur(this.innerObject));
   },
@@ -108,6 +113,7 @@ calRecurrenceRule.prototype = {
     return "RRULE:" + this.innerObject.toString() + ICAL.newLineChar;
   },
   set icalString(val) {
+    this.ensureMutable();
     this.innerObject = ICAL.Recur.fromString(val.replace(/^RRULE:/i, ""));
   },
 
@@ -117,6 +123,7 @@ calRecurrenceRule.prototype = {
     return new calIcalProperty(prop);
   },
   set icalProperty(rawval) {
+    this.ensureMutable();
     unwrapSetter(
       ICAL.Property,
       rawval,
@@ -131,6 +138,7 @@ calRecurrenceRule.prototype = {
     return this.innerObject.freq;
   },
   set type(val) {
+    this.ensureMutable();
     this.innerObject.freq = val;
   },
 
@@ -138,6 +146,7 @@ calRecurrenceRule.prototype = {
     return this.innerObject.interval;
   },
   set interval(val) {
+    this.ensureMutable();
     this.innerObject.interval = val;
   },
 
@@ -148,6 +157,7 @@ calRecurrenceRule.prototype = {
     return this.innerObject.count || -1;
   },
   set count(val) {
+    this.ensureMutable();
     this.innerObject.count = val && val > 0 ? val : null;
   },
 
@@ -159,6 +169,7 @@ calRecurrenceRule.prototype = {
     }
   },
   set untilDate(rawval) {
+    this.ensureMutable();
     unwrapSetter(
       ICAL.Time,
       rawval,
@@ -184,6 +195,7 @@ calRecurrenceRule.prototype = {
     return this.innerObject.wkst - 1;
   },
   set weekStart(val) {
+    this.ensureMutable();
     this.innerObject.wkst = val + 1;
   },
 

@@ -104,6 +104,7 @@ calRecurrenceRule::GetType(nsACString &aType) {
 
 NS_IMETHODIMP
 calRecurrenceRule::SetType(const nsACString &aType) {
+  if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
 #define RECUR_HELPER(x) \
   if (aType.EqualsLiteral(#x)) mIcalRecur.freq = ICAL_##x##_RECURRENCE
   RECUR_HELPER(SECONDLY);
@@ -142,6 +143,7 @@ calRecurrenceRule::GetCount(int32_t *aRecurCount) {
 
 NS_IMETHODIMP
 calRecurrenceRule::SetCount(int32_t aRecurCount) {
+  if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
   if (aRecurCount != -1) {
     if (aRecurCount < 0 || aRecurCount > INT_MAX) return NS_ERROR_ILLEGAL_VALUE;
     mIcalRecur.count = static_cast<int>(aRecurCount);
@@ -176,6 +178,7 @@ calRecurrenceRule::GetUntilDate(calIDateTime **aRecurEnd) {
 
 NS_IMETHODIMP
 calRecurrenceRule::SetUntilDate(calIDateTime *aRecurEnd) {
+  if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
   if (aRecurEnd) {
     nsresult rv;
     bool b;
@@ -227,6 +230,7 @@ calRecurrenceRule::GetInterval(int32_t *aInterval) {
 
 NS_IMETHODIMP
 calRecurrenceRule::SetInterval(int32_t aInterval) {
+  if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
   if (aInterval < 0 || aInterval > SHRT_MAX) return NS_ERROR_ILLEGAL_VALUE;
   mIcalRecur.interval = static_cast<short>(aInterval);
   return NS_OK;
@@ -283,6 +287,7 @@ NS_IMETHODIMP
 calRecurrenceRule::SetComponent(const nsACString &aComponentType,
                                 uint32_t aCount, int16_t *aValues) {
   NS_ENSURE_ARG_POINTER(aValues);
+  if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
 
   // Copy the passed-in array into the ical structure array
 #define HANDLE_COMPONENT(_comptype, _icalvar, _icalmax)             \
@@ -559,6 +564,8 @@ calRecurrenceRule::SetIcalProperty(calIIcalProperty *aProp) {
 
 NS_IMETHODIMP
 calRecurrenceRule::SetIcalString(const nsACString &str) {
+  if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
+
   nsresult rv = NS_OK;
   nsAutoCString name;
   nsCOMPtr<calIICSService> icsSvc = cal::getICSService();

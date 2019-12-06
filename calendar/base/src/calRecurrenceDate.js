@@ -31,7 +31,7 @@ calRecurrenceDate.prototype = {
 
   ensureMutable: function() {
     if (!this.isMutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_MUTABLE;
+      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
     }
   },
 
