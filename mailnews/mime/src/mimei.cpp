@@ -61,6 +61,7 @@
 #include "mimebuf.h"
 #include "mimemoz2.h"
 #include "nsIMimeContentTypeHandler.h"
+#include "nsICategoryManager.h"
 #include "nsCategoryManagerUtils.h"
 #include "nsXPCOMCID.h"
 #include "nsISimpleMimeConverter.h"

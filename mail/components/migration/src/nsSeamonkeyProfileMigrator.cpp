@@ -13,6 +13,7 @@
 #include "nsNetUtil.h"
 #include "nsSeamonkeyProfileMigrator.h"
 #include "nsAppDirectoryServiceDefs.h"
+#include "nsComponentManagerUtils.h"     // for do_CreateInstance
 #include "mozilla/ArrayUtils.h"
 #include "nsIFile.h"
 

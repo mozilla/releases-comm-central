@@ -22,6 +22,7 @@
 #include "nsNSSHelper.h"
 #include "nsNSSCertHelper.h"
 #include "nsReadableUtils.h"
+#include "nsComponentManagerUtils.h"     // for do_CreateInstance
 #include "nsString.h"
 #include "mozpkix/pkixtypes.h"
 
