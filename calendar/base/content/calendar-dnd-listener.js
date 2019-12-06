@@ -220,8 +220,7 @@ calDNDBaseObserver.prototype = {
 
     let data = {};
     let bestFlavor = {};
-    let length = {};
-    transferable.getAnyTransferData(bestFlavor, data, length);
+    transferable.getAnyTransferData(bestFlavor, data);
 
     try {
       data = data.value.QueryInterface(Ci.nsISupportsString);
@@ -549,13 +548,12 @@ function invokeEventDragSession(aItem, aXULBox) {
     QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
     item: aItem,
-    getFlavorData: function(aInTransferable, aInFlavor, aOutData, aOutDataLen) {
+    getFlavorData: function(aInTransferable, aInFlavor, aOutData) {
       if (
         aInFlavor == "application/vnd.x-moz-cal-event" ||
         aInFlavor == "application/vnd.x-moz-cal-task"
       ) {
         aOutData.value = aItem;
-        aOutDataLen.value = 1;
       } else {
         cal.ASSERT(false, "error:" + aInFlavor);
       }
@@ -564,10 +562,10 @@ function invokeEventDragSession(aItem, aXULBox) {
 
   if (cal.item.isEvent(aItem)) {
     transfer.addDataFlavor("application/vnd.x-moz-cal-event");
-    transfer.setTransferData("application/vnd.x-moz-cal-event", flavourProvider, 0);
+    transfer.setTransferData("application/vnd.x-moz-cal-event", flavourProvider);
   } else if (cal.item.isToDo(aItem)) {
     transfer.addDataFlavor("application/vnd.x-moz-cal-task");
-    transfer.setTransferData("application/vnd.x-moz-cal-task", flavourProvider, 0);
+    transfer.setTransferData("application/vnd.x-moz-cal-task", flavourProvider);
   }
 
   // Also set some normal data-types, in case we drag into another app
@@ -578,8 +576,8 @@ function invokeEventDragSession(aItem, aXULBox) {
 
   let supportsString = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
   supportsString.data = serializer.serializeToString();
-  transfer.setTransferData("text/calendar", supportsString, supportsString.data.length * 2);
-  transfer.setTransferData("text/unicode", supportsString, supportsString.data.length * 2);
+  transfer.setTransferData("text/calendar", supportsString);
+  transfer.setTransferData("text/unicode", supportsString);
 
   let action = Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
   let mutArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);

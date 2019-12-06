@@ -23,21 +23,19 @@ function getLoadContext() {
 var abFlavorDataProvider = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
-  getFlavorData(aTransferable, aFlavor, aData, aDataLen) {
+  getFlavorData(aTransferable, aFlavor, aData) {
     if (aFlavor == "application/x-moz-file-promise") {
       var primitive = {};
-      aTransferable.getTransferData("text/vcard", primitive, {});
+      aTransferable.getTransferData("text/vcard", primitive);
       var vCard = primitive.value.QueryInterface(Ci.nsISupportsString).data;
       aTransferable.getTransferData(
         "application/x-moz-file-promise-dest-filename",
-        primitive,
-        {}
+        primitive
       );
       var leafName = primitive.value.QueryInterface(Ci.nsISupportsString).data;
       aTransferable.getTransferData(
         "application/x-moz-file-promise-dir",
-        primitive,
-        {}
+        primitive
       );
       var localFile = primitive.value.QueryInterface(Ci.nsIFile).clone();
       localFile.append(leafName);
@@ -410,9 +408,8 @@ function DragAddressOverTargetControl(event) {
     dragSession.getData(trans, i);
     var dataObj = {};
     var bestFlavor = {};
-    var len = {};
     try {
-      trans.getAnyTransferData(bestFlavor, dataObj, len);
+      trans.getAnyTransferData(bestFlavor, dataObj);
     } catch (ex) {
       canDrop = false;
       break;
@@ -433,11 +430,10 @@ function DropAddressOverTargetControl(event) {
     dragSession.getData(trans, i);
     var dataObj = {};
     var bestFlavor = {};
-    var len = {};
 
     // Ensure we catch any empty data that may have slipped through
     try {
-      trans.getAnyTransferData(bestFlavor, dataObj, len);
+      trans.getAnyTransferData(bestFlavor, dataObj);
     } catch (ex) {
       continue;
     }
@@ -450,7 +446,7 @@ function DropAddressOverTargetControl(event) {
     }
 
     // pull the address out of the data object
-    var address = dataObj.data.substring(0, len.value);
+    var address = dataObj.data.substring(0, dataObj.length);
     if (!address) {
       continue;
     }

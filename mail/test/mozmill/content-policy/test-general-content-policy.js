@@ -614,7 +614,7 @@ function putHTMLOnClipboard(html) {
     Ci.nsISupportsString
   );
   wapper.data = html;
-  trans.setTransferData("text/html", wapper, wapper.data.length * 2);
+  trans.setTransferData("text/html", wapper);
 
   Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
 }

@@ -1533,16 +1533,14 @@ function messageFlavorDataProvider() {}
 messageFlavorDataProvider.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
-  getFlavorData(aTransferable, aFlavor, aData, aDataLen) {
+  getFlavorData(aTransferable, aFlavor, aData) {
     if (aFlavor !== "application/x-moz-file-promise") {
       return;
     }
     let fileUriPrimitive = {};
-    let dataSize = {};
     aTransferable.getTransferData(
       "application/x-moz-file-promise-url",
-      fileUriPrimitive,
-      dataSize
+      fileUriPrimitive
     );
 
     let fileUriStr = fileUriPrimitive.value.QueryInterface(
@@ -1555,19 +1553,14 @@ messageFlavorDataProvider.prototype = {
     let destDirPrimitive = {};
     aTransferable.getTransferData(
       "application/x-moz-file-promise-dir",
-      destDirPrimitive,
-      dataSize
+      destDirPrimitive
     );
     let destDirectory = destDirPrimitive.value.QueryInterface(Ci.nsIFile);
     let file = destDirectory.clone();
     file.append(fileName);
 
     let messageUriPrimitive = {};
-    aTransferable.getTransferData(
-      "text/x-moz-message",
-      messageUriPrimitive,
-      dataSize
-    );
+    aTransferable.getTransferData("text/x-moz-message", messageUriPrimitive);
     let messageUri = messageUriPrimitive.value.QueryInterface(
       Ci.nsISupportsString
     );

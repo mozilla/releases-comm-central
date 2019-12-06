@@ -335,7 +335,7 @@ add_task(function test_copy_to_clipboard_public() {
   let transferable = tab.browser.contentWindow.getClipboardTransferable();
   for (let flavor of ["text/html", "text/unicode"]) {
     let data = {};
-    transferable.getTransferData(flavor, data, {});
+    transferable.getTransferData(flavor, data);
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
     let contentBody;
     if (flavor == "text/html") {
@@ -396,7 +396,7 @@ add_task(function test_copy_to_clipboard_private() {
   let transferable = tab.browser.contentWindow.getClipboardTransferable();
   for (let flavor of ["text/html", "text/unicode"]) {
     let data = {};
-    transferable.getTransferData(flavor, data, {});
+    transferable.getTransferData(flavor, data);
     let text = data.value.QueryInterface(Ci.nsISupportsString).data;
     let contentBody;
     if (flavor == "text/html") {

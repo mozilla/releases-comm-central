@@ -839,8 +839,7 @@ function DropOnAddressingWidget(event) {
     dragSession.getData(trans, i);
     var dataObj = {};
     var bestFlavor = {};
-    var len = {};
-    trans.getAnyTransferData(bestFlavor, dataObj, len);
+    trans.getAnyTransferData(bestFlavor, dataObj);
     if (dataObj) {
       dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
     }
@@ -849,7 +848,7 @@ function DropOnAddressingWidget(event) {
     }
 
     // pull the address out of the data object
-    var address = dataObj.data.substring(0, len.value);
+    var address = dataObj.data.substring(0, dataObj.length);
     if (!address) {
       continue;
     }

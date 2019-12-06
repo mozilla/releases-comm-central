@@ -115,8 +115,8 @@ function copyToClipboard(aCalendarItemArray = null, aCutMode = false) {
     // Add data objects to transferable
     // Both Outlook 2000 client and Lotus Organizer use text/unicode
     // when pasting iCalendar data.
-    trans.setTransferData("text/calendar", icsWrapper, icsWrapper.data.length * 2); // double byte data
-    trans.setTransferData("text/unicode", icsWrapper, icsWrapper.data.length * 2);
+    trans.setTransferData("text/calendar", icsWrapper);
+    trans.setTransferData("text/unicode", icsWrapper);
 
     clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
     if (aCutMode) {
@@ -154,7 +154,7 @@ function pasteFromClipboard() {
   // Ask transferable for the best flavor.
   let flavor = {};
   let data = {};
-  trans.getAnyTransferData(flavor, data, {});
+  trans.getAnyTransferData(flavor, data);
   data = data.value.QueryInterface(Ci.nsISupportsString).data;
   switch (flavor.value) {
     case "text/calendar":

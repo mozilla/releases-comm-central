@@ -65,8 +65,7 @@ var EnigmailClipboard = {
         transferable.addDataFlavor("text/unicode");
         clipBoard.getData(transferable, clipBoardType);
         let flavour = {};
-        let length = {};
-        transferable.getAnyTransferData(flavour, data, length);
+        transferable.getAnyTransferData(flavour, data);
         cBoardContent = data.value.QueryInterface(Ci.nsISupportsString).data;
       }
       catch (ex) {}

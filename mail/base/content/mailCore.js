@@ -913,15 +913,13 @@ function nsFlavorDataProvider() {}
 nsFlavorDataProvider.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
-  getFlavorData(aTransferable, aFlavor, aData, aDataLen) {
+  getFlavorData(aTransferable, aFlavor, aData) {
     // get the url for the attachment
     if (aFlavor == "application/x-moz-file-promise") {
       var urlPrimitive = {};
-      var dataSize = {};
       aTransferable.getTransferData(
         "application/x-moz-file-promise-url",
-        urlPrimitive,
-        dataSize
+        urlPrimitive
       );
 
       var srcUrlPrimitive = urlPrimitive.value.QueryInterface(
@@ -932,8 +930,7 @@ nsFlavorDataProvider.prototype = {
       var dirPrimitive = {};
       aTransferable.getTransferData(
         "application/x-moz-file-promise-dir",
-        dirPrimitive,
-        dataSize
+        dirPrimitive
       );
       var destDirectory = dirPrimitive.value.QueryInterface(Ci.nsIFile);
 
@@ -961,7 +958,6 @@ nsFlavorDataProvider.prototype = {
           destDirectory
         );
         aData.value = destFilePath.QueryInterface(Ci.nsISupports);
-        aDataLen.value = 4;
       }
     }
   },

@@ -38,20 +38,17 @@ var nsTransferable = {
       var currFlavour = currData.flavour.contentType;
       trans.addDataFlavor(currFlavour);
       var supports = null; // nsISupports data
-      var length = 0;
       if (currData.flavour.dataIIDKey == "nsISupportsString") {
         supports = Cc["@mozilla.org/supports-string;1"].createInstance(
           Ci.nsISupportsString
         );
 
         supports.data = currData.supports;
-        length = supports.data.length;
       } else {
         // non-string data.
         supports = currData.supports;
-        length = 0; // kFlavorHasDataProvider
       }
-      trans.setTransferData(currFlavour, supports, length * 2);
+      trans.setTransferData(currFlavour, supports);
     }
     return trans;
   },
@@ -91,26 +88,25 @@ var nsTransferable = {
       }
 
       var data = {};
-      var length = {};
 
       if (aAnyFlag) {
         var flavour = {};
-        trans.getAnyTransferData(flavour, data, length);
+        trans.getAnyTransferData(flavour, data);
         if (data && flavour) {
           var selectedFlavour = aFlavourSet.flavourTable[flavour.value];
           if (selectedFlavour) {
             dataArray[i] = FlavourToXfer(
               data.value,
-              length.value,
+              data.length,
               selectedFlavour
             );
           }
         }
       } else {
         var firstFlavour = aFlavourSet.flavours[0];
-        trans.getTransferData(firstFlavour, data, length);
+        trans.getTransferData(firstFlavour, data);
         if (data && firstFlavour) {
-          dataArray[i] = FlavourToXfer(data.value, length.value, firstFlavour);
+          dataArray[i] = FlavourToXfer(data.value, data.length, firstFlavour);
         }
       }
     }

@@ -493,8 +493,7 @@ function DropOnAddressListTree(event) {
     dragSession.getData(trans, i);
     let dataObj = {};
     let bestFlavor = {};
-    let len = {};
-    trans.getAnyTransferData(bestFlavor, dataObj, len);
+    trans.getAnyTransferData(bestFlavor, dataObj);
     if (dataObj) {
       dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
     }
@@ -503,7 +502,7 @@ function DropOnAddressListTree(event) {
     }
 
     // pull the URL out of the data object
-    let address = dataObj.data.substring(0, len.value);
+    let address = dataObj.data.substring(0, dataObj.length);
     if (!address) {
       continue;
     }
