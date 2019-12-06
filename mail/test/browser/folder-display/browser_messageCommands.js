@@ -51,8 +51,12 @@ var archiveURI;
 
 var acctMgr;
 var tagArray;
+var gAutoRead;
 
 add_task(function setupModule(module) {
+  gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
+  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
+
   unreadFolder = create_folder("UnreadFolder");
   shiftDeleteFolder = create_folder("ShiftDeleteFolder");
   threadDeleteFolder = create_folder("ThreadDeleteFolder");
@@ -629,4 +633,5 @@ add_task(function test_tag_keys_disabled_in_content_tab() {
 registerCleanupFunction(function teardownModule() {
   // Make sure archiving is enabled at the end
   enable_archiving(true);
+  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
 });
