@@ -11,6 +11,7 @@
 #include "nsNetCID.h"
 #include "nsNetUtil.h"
 #include "nsIParser.h"
+#include "nsComponentManagerUtils.h"     // for do_CreateInstance
 #include "nsParserCIID.h"
 #include "nsStreamUtils.h"
 #include "nsStringStream.h"
