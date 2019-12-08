@@ -476,6 +476,7 @@ class SearchExtRunnable : public OpRunnable {
     // clean up
     ldap_controls_free(mServerctls);
     ldap_controls_free(mClientctls);
+    if (!mAttrs) return;
     // The last attr entry is null, so no need to free that.
     int numAttrs = 0;
     while (mAttrs[numAttrs]) {
