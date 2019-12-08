@@ -388,8 +388,8 @@ add_task(async function testOutsideMultiweekView() {
 add_task(async function testInsideMonthView() {
   let event = cal.createEvent();
   event.title = "Test Event";
-  event.startDate = cal.createDateTime("20190403T123400");
-  event.endDate = cal.createDateTime("20190420T234500");
+  event.startDate = cal.createDateTime("20190703T123400");
+  event.endDate = cal.createDateTime("20190720T234500");
   event = await calendar.addItem(event);
 
   await setCalendarView("month");
@@ -404,7 +404,7 @@ add_task(async function testInsideMonthView() {
   // -------
   // -------
 
-  goToDate(cal.createDateTime("20190401"));
+  goToDate(cal.createDateTime("20190701"));
   await BrowserTestUtils.waitForEvent(monthView, "viewloaded");
 
   for (let i = 0; i <= 1; i++) {
