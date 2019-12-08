@@ -121,8 +121,7 @@
                  command="Tools:Scratchpad"
                  key="key_scratchpad"/>
     <broadcaster id="devtoolsMenuBroadcaster_ResponsiveUI"
-                 command="Tools:ResponsiveUI"
-                 key="key_responsiveUI"/>
+                 command="Tools:ResponsiveUI"/>
     <broadcaster id="devtoolsMenuBroadcaster_Eyedropper"
                  command="Tools:Eyedropper"/>
     <broadcaster id="devtoolsMenuBroadcaster_PageSource"
