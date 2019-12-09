@@ -127,7 +127,6 @@ function MailTasksGetMessagesForAllServers(aBiff, aMsgWindow, aDefaultServer)
         // any ol' pop3Server will do -
         // the serversArray specifies which servers to download from
         pop3Server.downloadMailFromServers(pop3DownloadServersArray[i],
-                                           pop3DownloadServersArray[i].length,
                                            aMsgWindow,
                                            localFoldersToDownloadTo[i],
                                            null);

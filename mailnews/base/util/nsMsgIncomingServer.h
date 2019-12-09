@@ -68,7 +68,7 @@ class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
 
   static nsresult GetDeferredServers(
       nsIMsgIncomingServer *destServer,
-      nsCOMArray<nsIPop3IncomingServer> &aServers);
+      nsTArray<RefPtr<nsIPop3IncomingServer>> &aServers);
 
   nsresult CreateRootFolder();
   virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,

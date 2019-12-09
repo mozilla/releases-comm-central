@@ -30,8 +30,7 @@ interface nsIPop3IncomingServer : nsISupports {
   // new mail with this server.
   attribute boolean deferGetNewMail;
   void downloadMailFromServers(
-    [array, size_is(count)]in nsIPop3IncomingServer aServers,
-    in unsigned long count, in nsIMsgWindow aMsgWindow,
+    in Array<nsIPop3IncomingServer> aServers, in nsIMsgWindow aMsgWindow,
     in nsIMsgFolder aFolder, in nsIUrlListener aListener);
 };
 

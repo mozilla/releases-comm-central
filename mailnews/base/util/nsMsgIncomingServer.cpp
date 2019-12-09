@@ -1962,7 +1962,7 @@ nsMsgIncomingServer::GetSpamFilterPlugin(nsIMsgFilterPlugin **aFilterPlugin) {
 // that destServer may not be "this"
 nsresult nsMsgIncomingServer::GetDeferredServers(
     nsIMsgIncomingServer *destServer,
-    nsCOMArray<nsIPop3IncomingServer> &aServers) {
+    nsTArray<RefPtr<nsIPop3IncomingServer>> &aServers) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);

@@ -1903,7 +1903,6 @@ function MsgGetMessagesForAllServers(defaultServer) {
       // to download from.
       pop3Server.downloadMailFromServers(
         pop3DownloadServersArray[i],
-        pop3DownloadServersArray[i].length,
         msgWindow,
         localFoldersToDownloadTo[i],
         null
@@ -2985,7 +2984,6 @@ function GetMessagesForAllAuthenticatedAccounts() {
       // any ol' pop3Server will do - the serversArray specifies which servers to download from
       pop3Server.downloadMailFromServers(
         pop3DownloadServersArray[i],
-        pop3DownloadServersArray[i].length,
         msgWindow,
         localFoldersToDownloadTo[i],
         null
