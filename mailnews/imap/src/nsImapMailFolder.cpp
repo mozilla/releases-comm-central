@@ -8344,7 +8344,9 @@ nsImapMailFolder::SetJunkScoreForMessages(nsIArray *aMessages,
         nullptr,
         aJunkScore.EqualsLiteral("0") ? NS_LITERAL_CSTRING("NonJunk")
                                       : NS_LITERAL_CSTRING("Junk"),
-        EmptyCString(), keys.Elements(), keys.Length(), nullptr);
+        aJunkScore.EqualsLiteral("0") ? NS_LITERAL_CSTRING("Junk")
+                                      : NS_LITERAL_CSTRING("NonJunk"),
+        keys.Elements(), keys.Length(), nullptr);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
   }
   return rv;
