@@ -397,6 +397,7 @@ AddrBookDirectoryInner.prototype = {
     });
   },
   async _bulkAddCards(cards) {
+    let usedUIDs = new Set();
     let cardStatement = this._dbConnection.createStatement(
       "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)"
     );
@@ -406,7 +407,13 @@ AddrBookDirectoryInner.prototype = {
     let cardArray = cardStatement.newBindingParamsArray();
     let propertiesArray = propertiesStatement.newBindingParamsArray();
     for (let card of cards) {
-      let uid = card.UID || newUID();
+      let uid = card.UID;
+      if (!uid || usedUIDs.has(uid)) {
+        // A card cannot have the same UID as one that already exists.
+        // Assign a new UID to avoid losing data.
+        uid = newUID();
+      }
+      usedUIDs.add(uid);
       let localId = this._getNextCardId();
       let cardParams = cardArray.newBindingParams();
       cardParams.bindByName("uid", uid);
@@ -449,30 +456,53 @@ AddrBookDirectoryInner.prototype = {
         }
       }
     }
-    cardStatement.bindParameters(cardArray);
-    await new Promise(resolve => {
-      cardStatement.executeAsync({
-        handleError(error) {
-          Cu.reportError(error);
-        },
-        handleCompletion() {
-          resolve();
-        },
-      });
-    });
-    cardStatement.finalize();
-    propertiesStatement.bindParameters(propertiesArray);
-    await new Promise(resolve => {
-      propertiesStatement.executeAsync({
-        handleError(error) {
-          Cu.reportError(error);
-        },
-        handleCompletion() {
-          resolve();
-        },
-      });
-    });
-    propertiesStatement.finalize();
+    try {
+      this._dbConnection.beginTransaction();
+      if (cardArray.length > 0) {
+        cardStatement.bindParameters(cardArray);
+        await new Promise((resolve, reject) => {
+          cardStatement.executeAsync({
+            handleError(error) {
+              this._error = error;
+            },
+            handleCompletion(status) {
+              if (status == Ci.mozIStorageStatementCallback.REASON_ERROR) {
+                reject(
+                  Components.Exception(this._error.message, Cr.NS_ERROR_FAILURE)
+                );
+              } else {
+                resolve();
+              }
+            },
+          });
+        });
+        cardStatement.finalize();
+      }
+      if (propertiesArray.length > 0) {
+        propertiesStatement.bindParameters(propertiesArray);
+        await new Promise((resolve, reject) => {
+          propertiesStatement.executeAsync({
+            handleError(error) {
+              this._error = error;
+            },
+            handleCompletion(status) {
+              if (status == Ci.mozIStorageStatementCallback.REASON_ERROR) {
+                reject(
+                  Components.Exception(this._error.message, Cr.NS_ERROR_FAILURE)
+                );
+              } else {
+                resolve();
+              }
+            },
+          });
+        });
+        propertiesStatement.finalize();
+      }
+      this._dbConnection.commitTransaction();
+    } catch (ex) {
+      this._dbConnection.rollbackTransaction();
+      throw ex;
+    }
   },
 
   /* nsIAbCollection */
