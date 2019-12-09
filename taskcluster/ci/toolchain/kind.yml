@@ -26,8 +26,7 @@ jobs:
     - linux64-nasm
     - linux64-node
     - linux64-rust
-    - linux64-rust-1.32
-    - linux64-rust-1.34
+    - linux64-rust-1.39
     - linux64-rust-macos
     - linux64-sccache
     - linux64-upx
@@ -39,5 +38,5 @@ jobs:
     - win64-nasm
     - win64-node
     - win64-rust
-    - win64-rust-1.34
+    - win64-rust-1.39
     - win64-sccache
