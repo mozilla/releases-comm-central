@@ -352,9 +352,14 @@ var taskDetailsView = {
  * @param {String} [filter] - The filter name to set.
  */
 function taskViewUpdate(filter) {
+  if (!filter) {
+    let taskFilterGroup = document.getElementById("task-tree-filtergroup");
+    filter = taskFilterGroup.value || "all";
+  }
+
   let tree = document.getElementById("calendar-task-tree");
   let oldFilter = tree.getAttribute("filterValue");
-  if (filter && filter != oldFilter) {
+  if (filter != oldFilter) {
     tree.setAttribute("filterValue", filter);
     document
       .querySelectorAll(
@@ -375,7 +380,7 @@ function taskViewUpdate(filter) {
       radio.radioGroup.selectedItem = radio;
     }
   }
-  tree.updateFilter(filter || "all");
+  tree.updateFilter(filter);
 }
 
 /**
@@ -416,8 +421,7 @@ function taskViewObserveDisplayDeckChange(event) {
 
   // In case we find that the task view has been made visible, we refresh the view.
   if (deck.selectedPanel && deck.selectedPanel.id == "calendar-task-box") {
-    let taskFilterGroup = document.getElementById("task-tree-filtergroup");
-    taskViewUpdate(taskFilterGroup.value || "all");
+    taskViewUpdate();
   }
 }
 

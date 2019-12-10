@@ -465,6 +465,7 @@
 
           let oldItems = this.tree.mTaskArray.filter(item => item.calendar.id == opCalendar.id);
           this.tree.mTreeView.modifyItems(this.items, oldItems);
+          this.tree.dispatchEvent(new CustomEvent("refresh", { bubbles: false }));
         },
 
         onGetResult(opCalendar, status, itemType, detail, items) {
