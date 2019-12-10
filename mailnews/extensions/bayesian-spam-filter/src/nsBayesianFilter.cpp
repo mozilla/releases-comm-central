@@ -1405,7 +1405,8 @@ void nsBayesianFilter::classifyMessage(
     }
     proAliasArrays.AppendElement(proAliases);
     uint32_t proMessageCount = mCorpus.getMessageCount(proTrait);
-    for (uint32_t aliasIndex = 0; aliasIndex < proAliases.Length(); aliasIndex++)
+    for (uint32_t aliasIndex = 0; aliasIndex < proAliases.Length();
+         aliasIndex++)
       proMessageCount += mCorpus.getMessageCount(proAliases[aliasIndex]);
     numProMessages.AppendElement(proMessageCount);
 
@@ -1413,8 +1414,7 @@ void nsBayesianFilter::classifyMessage(
     nsTArray<uint32_t> antiAliases;
     uint32_t antiTrait = aAntiTraits[traitIndex];
     if (traitService) {
-      rv =
-          traitService->GetAliases(antiTrait, antiAliases);
+      rv = traitService->GetAliases(antiTrait, antiAliases);
       if (NS_FAILED(rv)) {
         NS_ERROR("trait service failed to get aliases");
         MOZ_LOG(BayesianFilterLogModule, LogLevel::Error,
@@ -1423,7 +1423,8 @@ void nsBayesianFilter::classifyMessage(
     }
     antiAliasArrays.AppendElement(antiAliases);
     uint32_t antiMessageCount = mCorpus.getMessageCount(antiTrait);
-    for (uint32_t aliasIndex = 0; aliasIndex < antiAliases.Length(); aliasIndex++)
+    for (uint32_t aliasIndex = 0; aliasIndex < antiAliases.Length();
+         aliasIndex++)
       antiMessageCount += mCorpus.getMessageCount(antiAliases[aliasIndex]);
     numAntiMessages.AppendElement(antiMessageCount);
   }
@@ -1435,16 +1436,16 @@ void nsBayesianFilter::classifyMessage(
     for (uint32_t traitIndex = 0; traitIndex < traitCount; traitIndex++) {
       uint32_t iProCount = mCorpus.getTraitCount(t, aProTraits[traitIndex]);
       // add in any counts for aliases to proTrait
-      for (uint32_t aliasIndex = 0; aliasIndex < proAliasArrays[traitIndex].Length();
-           aliasIndex++)
+      for (uint32_t aliasIndex = 0;
+           aliasIndex < proAliasArrays[traitIndex].Length(); aliasIndex++)
         iProCount +=
             mCorpus.getTraitCount(t, proAliasArrays[traitIndex][aliasIndex]);
       double proCount = static_cast<double>(iProCount);
 
       uint32_t iAntiCount = mCorpus.getTraitCount(t, aAntiTraits[traitIndex]);
       // add in any counts for aliases to antiTrait
-      for (uint32_t aliasIndex = 0; aliasIndex < antiAliasArrays[traitIndex].Length();
-           aliasIndex++)
+      for (uint32_t aliasIndex = 0;
+           aliasIndex < antiAliasArrays[traitIndex].Length(); aliasIndex++)
         iAntiCount +=
             mCorpus.getTraitCount(t, antiAliasArrays[traitIndex][aliasIndex]);
       double antiCount = static_cast<double>(iAntiCount);
