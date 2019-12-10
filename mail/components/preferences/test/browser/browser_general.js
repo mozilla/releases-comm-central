@@ -3,6 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
+  requestLongerTimeout(2);
+
   // Temporarily disable `Once` StaticPrefs check for this test so that we
   // can change layers.acceleration.disabled without debug builds failing.
   await SpecialPowers.pushPrefEnv({
