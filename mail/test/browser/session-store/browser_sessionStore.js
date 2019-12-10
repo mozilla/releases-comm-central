@@ -130,7 +130,8 @@ add_task(function setupModule(module) {
 registerCleanupFunction(function teardownModule(module) {
   folderA.server.rootFolder.propagateDelete(folderA, true, null);
   folderB.server.rootFolder.propagateDelete(folderB, true, null);
-  Services.prefs.clearUserPref("calendar.integration.notify");
+
+  Services.startup.quit(Ci.nsIAppStartup.eAttemptQuit);
 });
 
 add_task(function test_periodic_session_persistence_simple() {

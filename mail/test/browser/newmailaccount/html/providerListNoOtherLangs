@@ -11,7 +11,7 @@
   "label": "bar",
   "paid": false,
   "languages" : ["en-US"],
-  "api": "http://localhost:43336/registration.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/bar-tos",
   "privacy_url": "http://www.example.com/bar-privacy",
   "search_engine": "bar"
@@ -20,7 +20,7 @@
   "label": "Corrupt Provider",
   "paid": false,
   "languages" : ["en-US"],
-  "api": "http://localhost:43336/registrationCorrupt.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registrationCorrupt.html",
   "tos_url": "http://www.example.com/corrupt-tos",
   "privacy_url": "http://www.example.com/corrupt-privacy"
 }

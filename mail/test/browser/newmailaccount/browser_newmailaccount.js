@@ -73,8 +73,8 @@ var kProvisionerUrl =
 var kProvisionerEnabledPref = "mail.provider.enabled";
 var kSuggestFromNamePref = "mail.provider.suggestFromName";
 var kProviderListPref = "mail.provider.providerList";
-var kDefaultServerPort = 8888;
-var kDefaultServerRoot = "http://mochi.test:" + kDefaultServerPort;
+var kDefaultServerPort = 4444;
+var kDefaultServerRoot = "http://localhost:" + kDefaultServerPort;
 
 Services.prefs.setCharPref(kProviderListPref, url + "providerList");
 Services.prefs.setCharPref(kSuggestFromNamePref, url + "suggestFromName");
@@ -90,6 +90,8 @@ var gOldAcceptLangs = Services.locale.requestedLocales;
 var gNumAccounts;
 
 add_task(function setupModule(module) {
+  requestLongerTimeout(2);
+
   // Make sure we enable the Account Provisioner.
   Services.prefs.setBoolPref(kProvisionerEnabledPref, true);
   // Restrict the user's language to just en-US
@@ -148,7 +150,7 @@ function test_get_an_account(aCloseAndRestore) {
 
   // Make sure the page is loaded.
   wait_for_content_tab_load(undefined, function(aURL) {
-    return aURL.host == "localhost";
+    return aURL.host == "mochi.test";
   });
 
   let tab = mc.tabmail.currentTabInfo;
@@ -159,7 +161,7 @@ function test_get_an_account(aCloseAndRestore) {
     mc.tabmail.undoCloseTab();
     // Wait for the page to be loaded again...
     wait_for_content_tab_load(undefined, function(aURL) {
-      return aURL.host == "localhost";
+      return aURL.host == "mochi.test";
     });
     tab = mc.tabmail.currentTabInfo;
   }
@@ -1001,7 +1003,7 @@ function get_to_order_form(aAddress) {
 
   // Make sure the page is loaded.
   wait_for_content_tab_load(undefined, function(aURL) {
-    return aURL.host == "localhost";
+    return aURL.host == "mochi.test";
   });
 }
 
@@ -1069,7 +1071,9 @@ add_task(function test_internal_link_opening_behaviour() {
 
   // We should load the target page in the current tab browser.
   wait_for_browser_load(tab.browser, function(aURL) {
-    return aURL.host == "localhost" && aURL.pathQueryRef == "/target.html";
+    return (
+      aURL.host == "mochi.test" && aURL.pathQueryRef.endsWith("/target.html")
+    );
   });
   // Now close the tab.
   mc.tabmail.closeTab(tab);
@@ -1088,7 +1092,9 @@ add_task(function test_window_open_link_opening_behaviour() {
   // tab and be focused.
   let newTabLink = doc.getElementById("newtab");
   open_content_tab_with_click(newTabLink, function(aURL) {
-    return aURL.host == "localhost" && aURL.pathQueryRef == "/target.html";
+    return (
+      aURL.host == "mochi.test" && aURL.pathQueryRef.endsWith("/target.html")
+    );
   });
 
   // Close the new tab.

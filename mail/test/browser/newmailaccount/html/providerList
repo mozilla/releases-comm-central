@@ -11,7 +11,7 @@
   "label": "bar",
   "paid": false,
   "languages" : ["en-US", "fr-FR"],
-  "api": "http://localhost:43336/registration.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/bar-tos",
   "privacy_url": "http://www.example.com/bar-privacy",
   "search_engine": "bar"
@@ -20,7 +20,7 @@
   "label": "French Provider",
   "paid": false,
   "languages" : ["fr-FR"],
-  "api": "http://localhost:43336/registration.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/French-tos",
   "privacy_url": "http://www.example.com/French-privacy",
   "search_engine": "French"
@@ -29,7 +29,7 @@
   "label": "German Provider",
   "paid": false,
   "languages" : ["de-DE"],
-  "api": "http://localhost:43336/registration.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/German-tos",
   "privacy_url": "http://www.example.com/German-privacy",
   "search_engine": "German"
@@ -38,7 +38,7 @@
   "label": "Corrupt Provider",
   "paid": false,
   "languages" : ["en-US"],
-  "api": "http://localhost:43336/registrationCorrupt.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registrationCorrupt.html",
   "tos_url": "http://www.example.com/corrupt-tos",
   "privacy_url": "http://www.example.com/corrupt-privacy"
  },
@@ -46,7 +46,7 @@
   "label": "Error Provider",
   "paid": false,
   "languages" : ["en-US"],
-  "api": "http://localhost:43336/registrationError.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registrationError.html",
   "tos_url": "http://www.example.com/err-tos",
   "privacy_url": "http://www.example.com/err-privacy"
  },
@@ -54,7 +54,7 @@
   "label": "multi",
   "paid": true,
   "languages" : ["en-US"],
-  "api": "http://localhost:43336/registration.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/bar-tos",
   "privacy_url": "http://www.example.com/bar-privacy"
  }]

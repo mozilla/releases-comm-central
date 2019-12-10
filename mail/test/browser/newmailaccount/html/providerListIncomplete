@@ -11,7 +11,7 @@
   "label": "bar",
   "paid": false,
   "languages" : ["en-US", "fr-FR"],
-  "api": "http://localhost:43336/registration.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/tos",
   "privacy_url": "http://www.example.com/privacy",
   "search_engine": "bar"
@@ -20,7 +20,7 @@
   "label": "French Provider",
   "paid": false,
   "languages" : ["fr-FR"],
-  "api": "http://localhost:43336/registration.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/tos",
   "privacy_url": "http://www.example.com/privacy",
   "search_engine": "French"
@@ -29,7 +29,7 @@
   "label": "German Provider",
   "paid": false,
   "languages" : ["de-DE"],
-  "api": "http://localhost:43336/registration.html",
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registration.html",
   "tos_url": "http://www.example.com/tos",
   "privacy_url": "http://www.example.com/privacy",
   "search_engine": "German"
@@ -37,5 +37,5 @@
  {"id": "corrupt",
   "label": "Corrupt Provider",
   "languages" : ["en-US"],
-  "api": "http://localhost:43336/registrationCorrupt.html"
+  "api": "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/registrationCorrupt.html"
 }]

@@ -25,6 +25,9 @@ var {
   wait_for_new_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -38,6 +41,37 @@ add_task(function setupModule(module) {
     "pop3"
   );
   gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
+
+  ExtensionSupport.registerWindowListener("mochitest", {
+    chromeURLs: ["chrome://messenger/content/messenger.xul"],
+    onLoadWindow(aWindow) {
+      let testFolderTreeMode = {
+        __proto__: aWindow.IFolderTreeMode,
+        generateMap(aFTV) {
+          var { MailServices } = ChromeUtils.import(
+            "resource:///modules/MailServices.jsm"
+          );
+          // Pick the tinderbox@foo.invalid inbox and use it as the only folder
+          let server = MailServices.accounts.FindServer(
+            "tinderbox",
+            "tinderbox123",
+            "pop3"
+          );
+          let item = new aWindow.ftvItem(
+            server.rootFolder.getChildNamed("Inbox")
+          );
+          item.__defineGetter__("children", () => []);
+          return [item];
+        },
+      };
+
+      aWindow.gFolderTreeView.registerFolderTreeMode(
+        "testmode",
+        testFolderTreeMode,
+        "Test Mode"
+      );
+    },
+  });
 });
 
 // Provided by the extension in test-extension
@@ -76,4 +110,14 @@ add_task(function test_open_new_window_with_custom_mode() {
  */
 add_task(function test_switch_to_all_folders() {
   mc.folderTreeView.mode = "all";
+});
+
+registerCleanupFunction(() => {
+  ExtensionSupport.unregisterWindowListener("mochitest");
+  Assert.report(
+    false,
+    undefined,
+    undefined,
+    "Test ran to completion successfully"
+  );
 });

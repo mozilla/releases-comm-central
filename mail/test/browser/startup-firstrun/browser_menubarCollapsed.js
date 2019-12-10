@@ -9,43 +9,13 @@
 
 "use strict";
 
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { close_window, wait_for_existing_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 add_task(function test_main_menu_collapsed() {
-  // Due to random oranges on slower machines, we need to ensure that startup
-  // is complete before running this test.
-  let done = false;
-  let observer = {
-    observe(aSubject, aTopic, aData) {
-      if (aTopic == "mail-startup-done") {
-        done = true;
-      }
-    },
-  };
-  Services.obs.addObserver(observer, "mail-startup-done");
-
-  // Since no accounts were set up, and the account provisioner was disabled
-  // in prefs.js, the wizard will show up. Find it, and close it. This will
-  // cause mail-startup-done to eventually be fired.
-  let wizard = wait_for_existing_window("mail:autoconfig");
-  close_window(wizard);
-
-  // Spin the event loop until mail-startup-done is fired.
-  mc.waitFor(() => done);
-
-  let mainMenu = mc.e("mail-toolbar-menubar2");
+  let mainMenu = document.getElementById("mail-toolbar-menubar2");
   Assert.equal(
     mainMenu.getAttribute("autohide"),
     "true",
     "The main menu should have the autohide attribute set to true."
   );
-
-  Services.obs.removeObserver(observer, "mail-startup-done");
 });

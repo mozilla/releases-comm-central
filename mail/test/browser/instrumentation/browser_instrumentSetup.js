@@ -8,6 +8,9 @@ var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 
+var { open_mail_account_setup_wizard } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+);
 var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -31,38 +34,50 @@ var user = {
   incomingHost: "testin.example.com",
   outgoingHost: "testout.example.com",
 };
+const PREF_NAME = "mailnews.auto_config_url";
+const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
+
+add_task(function setupModule(module) {
+  let url =
+    "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
+  Services.prefs.setCharPref(PREF_NAME, url);
+});
+
+registerCleanupFunction(function teardownModule(module) {
+  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+});
 
 add_task(function test_mail_account_setup() {
-  let awc = wait_for_existing_window("mail:autoconfig");
+  open_mail_account_setup_wizard(function(awc) {
+    // Input user's account information
+    awc.e("realname").focus();
+    input_value(awc, user.name);
+    awc.keypress(null, "VK_TAB", {});
+    input_value(awc, user.email);
 
-  // Input user's account information
-  awc.e("realname").focus();
-  input_value(awc, user.name);
-  awc.keypress(null, "VK_TAB", {});
-  input_value(awc, user.email);
+    // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
+    awc.e("next_button").click();
 
-  // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
-  awc.e("next_button").click();
+    // XXX: This should probably use a notification, once we fix bug 561143.
+    awc.waitFor(
+      () => awc.window.gEmailConfigWizard._currentConfig != null,
+      "Timeout waiting for current config to become non-null",
+      8000,
+      600
+    );
+    plan_for_window_close(awc);
+    awc.e("create_button").click();
 
-  // XXX: This should probably use a notification, once we fix bug 561143.
-  awc.waitFor(
-    () => awc.window.gEmailConfigWizard._currentConfig != null,
-    "Timeout waiting for current config to become non-null",
-    8000,
-    600
-  );
-  plan_for_window_close(awc);
-  awc.e("create_button").click();
+    let events = mc.window.MailInstrumentation._currentState.events;
+    wait_for_window_close();
 
-  let events = mc.window.MailInstrumentation._currentState.events;
-  wait_for_window_close();
-
-  // we expect to have accountAdded and smtpServerAdded events.
-  if (!events.accountAdded.data) {
-    throw new Error("failed to add an account");
-  } else if (!events.smtpServerAdded.data) {
-    throw new Error("failed to add an smtp server");
-  }
+    // we expect to have accountAdded and smtpServerAdded events.
+    if (!events.accountAdded.data) {
+      throw new Error("failed to add an account");
+    } else if (!events.smtpServerAdded.data) {
+      throw new Error("failed to add an smtp server");
+    }
+  });
 });
 
 // Remove the accounts we added.

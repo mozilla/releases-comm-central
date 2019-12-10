@@ -80,6 +80,7 @@ add_task(function test_switch_to_smart_folder_mode() {
   assert_folder_mode("smart");
 
   smartFolderA = get_smart_folder_named(smartParentNameA);
+  SimpleTest.expectUncaughtException();
   mc.folderTreeView.selectFolder(smartFolderA);
 });
 
