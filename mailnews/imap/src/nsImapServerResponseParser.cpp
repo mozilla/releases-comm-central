@@ -1596,8 +1596,6 @@ void nsImapServerResponseParser::text() { skip_to_CRLF(); }
 void nsImapServerResponseParser::parse_folder_flags(bool calledForFlags) {
   uint16_t labelFlags = 0;
   uint16_t junkNotJunkFlags = 0;
-  bool storeUserFlags = calledForFlags && fFlagState;
-  uint16_t numOtherKeywords = 0;
 
   do {
     AdvanceToNextToken();
@@ -1619,54 +1617,34 @@ void nsImapServerResponseParser::parse_folder_flags(bool calledForFlags) {
       fSupportsUserDefinedFlags |= kImapMsgSupportForwardedFlag;
       fSupportsUserDefinedFlags |= kImapMsgSupportMDNSentFlag;
       fSupportsUserDefinedFlags |= kImapMsgLabelFlags;
-    } else {
-      // Treat special and built-in $LabelX's as user defined if a
-      // store occurs below. Include $Junk/$NotJunk in this too.
-      if (!PL_strncasecmp(fNextToken, "$MDNSent", 8))
-        fSupportsUserDefinedFlags |= kImapMsgSupportMDNSentFlag;
-      else if (!PL_strncasecmp(fNextToken, "$Forwarded", 10))
-        fSupportsUserDefinedFlags |= kImapMsgSupportForwardedFlag;
-      else if (!PL_strncasecmp(fNextToken, "$Label1", 7))
-        labelFlags |= 1;
-      else if (!PL_strncasecmp(fNextToken, "$Label2", 7))
-        labelFlags |= 2;
-      else if (!PL_strncasecmp(fNextToken, "$Label3", 7))
-        labelFlags |= 4;
-      else if (!PL_strncasecmp(fNextToken, "$Label4", 7))
-        labelFlags |= 8;
-      else if (!PL_strncasecmp(fNextToken, "$Label5", 7))
-        labelFlags |= 16;
-      else if (!PL_strncasecmp(fNextToken, "$Junk", 5))
-        junkNotJunkFlags |= 1;
-      else if (!PL_strncasecmp(fNextToken, "$NotJunk", 8))
-        junkNotJunkFlags |= 2;
-
-      // Store user keywords defined for mailbox, usually by other clients.
-      // But only do this for FLAGS response, not PERMANENTFLAGS response.
-      // This is only needed if '\*' does not appear in a PERMANENTFLAGS
-      // response indicating the user defined keywords are not allowed. But this
-      // is not known until this function is called for PERMANENTFLAGS which
-      // typically occurs after FLAGS, so must store them regardless.
-      if (storeUserFlags && *fNextToken != '\r') {
-        if (*(fNextToken + strlen(fNextToken) - 1) != ')') {
-          // Token doesn't end in ')' so save it as is.
-          fFlagState->SetOtherKeywords(numOtherKeywords++,
-                                       nsDependentCString(fNextToken));
-        } else {
-          // Token ends in ')' so end of list. Save all but ending ')'.
-          fFlagState->SetOtherKeywords(
-              numOtherKeywords++,
-              nsDependentCSubstring(fNextToken, strlen(fNextToken) - 1));
-        }
-      }
     }
+    // Treat special and built-in $LabelX's as user defined and include
+    // $Junk/$NotJunk too.
+    else if (!PL_strncasecmp(fNextToken, "$MDNSent", 8))
+      fSupportsUserDefinedFlags |= kImapMsgSupportMDNSentFlag;
+    else if (!PL_strncasecmp(fNextToken, "$Forwarded", 10))
+      fSupportsUserDefinedFlags |= kImapMsgSupportForwardedFlag;
+    else if (!PL_strncasecmp(fNextToken, "$Label1", 7))
+      labelFlags |= 1;
+    else if (!PL_strncasecmp(fNextToken, "$Label2", 7))
+      labelFlags |= 2;
+    else if (!PL_strncasecmp(fNextToken, "$Label3", 7))
+      labelFlags |= 4;
+    else if (!PL_strncasecmp(fNextToken, "$Label4", 7))
+      labelFlags |= 8;
+    else if (!PL_strncasecmp(fNextToken, "$Label5", 7))
+      labelFlags |= 16;
+    else if (!PL_strncasecmp(fNextToken, "$Junk", 5))
+      junkNotJunkFlags |= 1;
+    else if (!PL_strncasecmp(fNextToken, "$NotJunk", 8))
+      junkNotJunkFlags |= 2;
   } while (!fAtEndOfLine && ContinueParse());
 
   if (labelFlags == 31) fSupportsUserDefinedFlags |= kImapMsgLabelFlags;
 
   if (fFlagState) fFlagState->OrSupportedUserFlags(fSupportsUserDefinedFlags);
 
-  if (storeUserFlags) {
+  if (calledForFlags) {
     // Set true if both "$Junk" and "$NotJunk" appear in FLAGS.
     fStdJunkNotJunkUseOk = (junkNotJunkFlags == 3);
   }

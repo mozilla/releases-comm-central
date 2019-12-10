@@ -99,25 +99,6 @@ nsImapFlagAndUidState::GetSupportedUserFlags(uint16_t *aFlags) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsImapFlagAndUidState::SetOtherKeywords(uint16_t index,
-                                        const nsACString &otherKeyword) {
-  if (index == 0) fOtherKeywords.Clear();
-  nsAutoCString flag(otherKeyword);
-  ToLowerCase(flag);
-  fOtherKeywords.AppendElement(flag);
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsImapFlagAndUidState::GetOtherKeywords(uint16_t index, nsACString &aKeyword) {
-  if (index < fOtherKeywords.Length())
-    aKeyword = fOtherKeywords[index];
-  else
-    aKeyword = EmptyCString();
-  return NS_OK;
-}
-
 // we need to reset our flags, (re-read all) but chances are the memory
 // allocation needed will be very close to what we were already using
 

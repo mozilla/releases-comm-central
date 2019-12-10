@@ -4150,8 +4150,7 @@ void nsImapMailFolder::TweakHeaderFlags(nsIImapProtocol *aProtocol,
       }
       if (newFlags) tweakMe->OrFlags(newFlags, &dbHdrFlags);
       if (!customFlags.IsEmpty())
-        (void)HandleCustomFlags(m_curMsgUid, tweakMe, userFlags, customFlags,
-                                nullptr);
+        (void)HandleCustomFlags(m_curMsgUid, tweakMe, userFlags, customFlags);
     }
   }
 }
@@ -4428,9 +4427,10 @@ nsImapMailFolder::ReleaseUrlCacheEntry(nsIMsgMailNewsUrl *aUrl) {
 NS_IMETHODIMP
 nsImapMailFolder::BeginMessageUpload() { return NS_ERROR_FAILURE; }
 
-nsresult nsImapMailFolder::HandleCustomFlags(
-    nsMsgKey uidOfMessage, nsIMsgDBHdr *dbHdr, uint16_t userFlags,
-    nsCString &keywords, nsIImapFlagAndUidState *flagState) {
+nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
+                                             nsIMsgDBHdr *dbHdr,
+                                             uint16_t userFlags,
+                                             nsCString &keywords) {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -4462,59 +4462,59 @@ nsresult nsImapMailFolder::HandleCustomFlags(
       dbHdr->SetStringProperty("junkscoreorigin", "imapflag");
   }
 
-  if (flagState && !(userFlags & kImapMsgSupportUserFlag)) {
+  if (!(userFlags & kImapMsgSupportUserFlag)) {
     nsCString localKeywords;
-    if (!(userFlags & kImapMsgSupportUserFlag)) {
-      dbHdr->GetStringProperty("keywords", getter_Copies(localKeywords));
-      MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug,
-              ("UID=%" PRIu32 ", localKeywords=|%s| rcvdKeyword=|%s|",
-               uidOfMessage, localKeywords.get(), keywords.get()));
-    }
+    nsCString prevKeywords;
+    dbHdr->GetStringProperty("keywords", getter_Copies(localKeywords));
+    dbHdr->GetStringProperty("prevkeywords", getter_Copies(prevKeywords));
+    // localKeywords: tags currently stored in database for the message.
+    // keywords: tags stored in server and obtained when flags for the message
+    //           were last fetched. (Parameter of this function.)
+    // prevKeywords: saved keywords from previous call of this function.
+    // clang-format off
+    MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug,
+            ("UID=%" PRIu32 ", localKeywords=|%s| keywords=|%s|, prevKeywords=|%s|",
+             uidOfMessage, localKeywords.get(), keywords.get(), prevKeywords.get()));
+    // clang-format on
+
+    // Store keywords to detect changes on next call of this function.
+    dbHdr->SetStringProperty("prevkeywords", keywords.get());
+
+    // Parse the space separated strings into arrays.
     nsTArray<nsCString> localKeywordArray;
-    nsTArray<nsCString> rcvdKeywordArray;
+    nsTArray<nsCString> keywordArray;
+    nsTArray<nsCString> prevKeywordArray;
     ParseString(localKeywords, ' ', localKeywordArray);
-    ParseString(keywords, ' ', rcvdKeywordArray);
+    ParseString(keywords, ' ', keywordArray);
+    ParseString(prevKeywords, ' ', prevKeywordArray);
 
-    nsAutoCString mozLogDefinedKWs;
-    if (MOZ_LOG_TEST(IMAP_KW, mozilla::LogLevel::Debug))
-      mozLogDefinedKWs.AppendLiteral("Defined keywords = |");
-    uint32_t i = 0;
-    while (true) {
-      nsAutoCString definedKeyword;
-      flagState->GetOtherKeywords(i++, definedKeyword);
-      if (definedKeyword.IsEmpty()) {
-        if (MOZ_LOG_TEST(IMAP_KW, mozilla::LogLevel::Debug)) {
-          mozLogDefinedKWs.Append('|');
-          MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug,
-                  ("%s", mozLogDefinedKWs.get()));
-        }
-        break;
-      }
-
-      if (MOZ_LOG_TEST(IMAP_KW, mozilla::LogLevel::Debug)) {
-        mozLogDefinedKWs.Append(definedKeyword.get());
-        mozLogDefinedKWs.Append(' ');
-      }
-
-      bool inLocal = localKeywordArray.Contains(definedKeyword);
-      bool inRcvd = rcvdKeywordArray.Contains(definedKeyword);
-      if (inLocal && inRcvd) rcvdKeywordArray.RemoveElement(definedKeyword);
-      if (inLocal && !inRcvd) localKeywordArray.RemoveElement(definedKeyword);
+    // If keyword not received now but was the last time, remove it from
+    // the localKeywords. This means the keyword was removed by another user
+    // sharing the folder.
+    for (uint32_t i = 0; i < prevKeywordArray.Length(); i++) {
+      bool inRcvd = keywordArray.Contains(prevKeywordArray[i]);
+      bool inLocal = localKeywordArray.Contains(prevKeywordArray[i]);
+      if (!inRcvd && inLocal)
+        localKeywordArray.RemoveElement(prevKeywordArray[i]);
     }
+
     // Combine local and rcvd keyword arrays into a single string
     // so it can be passed to SetStringProperty(). If element of
     // local already in rcvd, avoid duplicates in combined string.
     nsAutoCString combinedKeywords;
-    for (i = 0; i < localKeywordArray.Length(); i++) {
-      if (!rcvdKeywordArray.Contains(localKeywordArray[i])) {
+    for (uint32_t i = 0; i < localKeywordArray.Length(); i++) {
+      if (!keywordArray.Contains(localKeywordArray[i])) {
         combinedKeywords.Append(localKeywordArray[i]);
         combinedKeywords.Append(' ');
       }
     }
-    for (i = 0; i < rcvdKeywordArray.Length(); i++) {
-      combinedKeywords.Append(rcvdKeywordArray[i]);
+    for (uint32_t i = 0; i < keywordArray.Length(); i++) {
+      combinedKeywords.Append(keywordArray[i]);
       combinedKeywords.Append(' ');
     }
+    MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug,
+            ("combinedKeywords stored = |%s|", combinedKeywords.get()));
+    // combinedKeywords are tags being stored in database for the message.
     return dbHdr->SetStringProperty("keywords", combinedKeywords.get());
   }
   return (userFlags & kImapMsgSupportUserFlag)
@@ -4561,8 +4561,7 @@ nsresult nsImapMailFolder::SyncFlags(nsIImapFlagAndUidState *flagState) {
     nsCString keywords;
     if (NS_SUCCEEDED(
             flagState->GetCustomFlags(uidOfMessage, getter_Copies(keywords))))
-      HandleCustomFlags(uidOfMessage, dbHdr, supportedUserFlags, keywords,
-                        flagState);
+      HandleCustomFlags(uidOfMessage, dbHdr, supportedUserFlags, keywords);
 
     NotifyMessageFlagsFromHdr(dbHdr, uidOfMessage, flags);
   }
@@ -4663,7 +4662,7 @@ nsImapMailFolder::NotifyMessageFlags(uint32_t aFlags,
       GetSupportedUserFlags(&supportedUserFlags);
       NotifyMessageFlagsFromHdr(dbHdr, aMsgKey, aFlags);
       nsCString keywords(aKeywords);
-      HandleCustomFlags(aMsgKey, dbHdr, supportedUserFlags, keywords, nullptr);
+      HandleCustomFlags(aMsgKey, dbHdr, supportedUserFlags, keywords);
     }
   }
   return NS_OK;
