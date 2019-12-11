@@ -117,7 +117,7 @@ nsAbCardProperty::nsAbCardProperty() : m_IsMailList(false) {
 
 nsAbCardProperty::~nsAbCardProperty(void) {}
 
-NS_IMPL_ISUPPORTS(nsAbCardProperty, nsIAbCard, nsIAbItem)
+NS_IMPL_ISUPPORTS(nsAbCardProperty, nsIAbCard)
 
 NS_IMETHODIMP nsAbCardProperty::GetUuid(nsACString &uuid) {
   // If we have indeterminate sub-ids, return an empty uuid.

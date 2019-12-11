@@ -29,7 +29,6 @@ class nsAbDirProperty : public nsIAbDirectory, public nsSupportsWeakReference {
   nsAbDirProperty(void);
 
   NS_DECL_ISUPPORTS
-  NS_DECL_NSIABITEM
   NS_DECL_NSIABDIRECTORY
 
  protected:

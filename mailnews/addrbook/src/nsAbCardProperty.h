@@ -31,7 +31,6 @@ class nsAbCardProperty : public nsIAbCard {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABCARD
-  NS_DECL_NSIABITEM
 
   nsAbCardProperty();
 

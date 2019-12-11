@@ -6,6 +6,7 @@
 
 #include "nsAbBaseCID.h"
 #include "nsTextAddress.h"
+#include "nsIAbCard.h"
 #include "nsIAbDirectory.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsIFile.h"

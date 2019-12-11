@@ -39,7 +39,6 @@ function check_ab(abConfig) {
 
   // Test - Check attributes
 
-  Assert.equal(AB.generateName(0), abConfig.dirName);
   Assert.equal(AB.propertiesChromeURI, kNormalPropertiesURI);
   Assert.equal(AB.readOnly, abConfig.readOnly);
   Assert.equal(AB.dirName, abConfig.dirName);

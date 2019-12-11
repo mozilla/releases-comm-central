@@ -3,9 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsIAbItem.idl"
+#include "nsISupports.idl"
 
 interface nsISimpleEnumerator;
+interface nsIStringBundle;
 interface nsIVariant;
 
 [scriptable, uuid(97448252-F189-11d4-A422-001083003D0C)]
@@ -66,7 +67,57 @@ interface nsIAbPreferMailFormat {
  * <tt>\@mozilla.org/addressbook/cardproperty;1</tt>.
  */
 [scriptable, uuid(9bddf024-5178-4097-894e-d84b4ddde101)]
-interface nsIAbCard : nsIAbItem {
+interface nsIAbCard : nsISupports {
+  /**
+   * A universally-unique identifier for this item.
+   *
+   * If this item cannot be associated with a UUID for some reason, it MUST
+   * return the empty string. The empty string MUST NOT be a valid UUID for any
+   * item. Under no circumstances may this function throw an error.
+   *
+   * It is STRONGLY RECOMMENDED that implementations guarantee that this UUID
+   * will not change between two different sessions of the application and that,
+   * if this item is deleted, the UUID will not be reused.
+   *
+   * The format of the UUID for a generic nsIAbCard is purposefully left
+   * undefined, although any item contained by an nsIAbDirectory SHOULD use
+   * nsIAbManager::generateUUID to generate the UUID.
+   */
+  readonly attribute AUTF8String uuid;
+
+  /**
+   * @{
+   * These constants reflect the possible values of the
+   * mail.addr_book.lastnamefirst preferences. They are intended to be used in
+   * generateName, defined below.
+   */
+   const unsigned long GENERATE_DISPLAY_NAME = 0;
+   const unsigned long GENERATE_LAST_FIRST_ORDER = 1;
+   const unsigned long GENERATE_FIRST_LAST_ORDER = 2;
+   /** @} */
+
+  /**
+   * Generate a name from the item for display purposes.
+   *
+   * If this item is an nsIAbCard, then it will use the aGenerateFormat option
+   * to determine the string to return.
+   * If this item is not an nsIAbCard, then the aGenerateFormat option may be
+   * ignored, and the displayName of the item returned.
+   *
+   * @param  aGenerateFormat The format to generate as per the GENERATE_*
+   *                         constants above.
+   * @param  aBundle         An optional parameter that is a pointer to a string
+   *                         bundle that holds:
+   *           chrome://messenger/locale/addressbook/addressBook.properties
+   *                         If this bundle is not supplied, then the function
+   *                         will obtain the bundle itself. If cached by the
+   *                         caller and supplied to this function, then
+   *                         performance will be improved over many calls.
+   * @return                 A string containing the generated name.
+   */
+  AString generateName(in long aGenerateFormat,
+                       [optional] in nsIStringBundle aBundle);
+
   /**
    * The UUID for the nsIAbDirectory containing this card.
    *
@@ -89,7 +140,7 @@ interface nsIAbCard : nsIAbItem {
    * The per-directory ID of this card.
    *
    * This property is the second part of the tuple logically representing a card
-   * UUID. It shares many requirements with that of nsIAbItem::uuid. In
+   * UUID. It shares many requirements with that of nsIAbCard::uuid. In
    * particular:
    * - It MUST be unique (within the scope of its directory).
    * - The empty string MUST only be used to indicate that it has not yet been

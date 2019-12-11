@@ -115,10 +115,8 @@ add_task(async function createAddressBook() {
   book = MailServices.ab.getDirectoryFromId(dirPrefId);
   observer.checkEvents(["onItemAdded", undefined, book]);
 
-  // Check nsIAbItem properties.
-  equal(book.uuid, "ldap_2.servers.newbook&new book");
-
   // Check nsIAbDirectory properties.
+  equal(book.uuid, "ldap_2.servers.newbook&new book");
   ok(!book.readOnly);
   ok(!book.isRemote);
   ok(!book.isSecure);
@@ -193,24 +191,8 @@ add_task(async function createContact() {
   equal(childCards.length, 1);
   ok(childCards[0].equals(contact));
 
-  // Check nsIAbItem properties.
-  equal(contact.uuid, "ldap_2.servers.newbook&updated book#1");
-
-  // Check nsIAbItem methods.
-  equal(
-    contact.generateName(Ci.nsIAbItem.GENERATE_DISPLAY_NAME),
-    "a new contact"
-  );
-  equal(
-    contact.generateName(Ci.nsIAbItem.GENERATE_LAST_FIRST_ORDER),
-    "contact, new"
-  );
-  equal(
-    contact.generateName(Ci.nsIAbItem.GENERATE_FIRST_LAST_ORDER),
-    "new contact"
-  );
-
   // Check nsIAbCard properties.
+  equal(contact.uuid, "ldap_2.servers.newbook&updated book#1");
   equal(contact.directoryId, book.uuid);
   equal(contact.localId, 1);
   equal(contact.UID.length, 36);
@@ -219,6 +201,20 @@ add_task(async function createContact() {
   equal(contact.displayName, "a new contact");
   equal(contact.primaryEmail, "test@invalid");
   equal(contact.isMailList, false);
+
+  // Check nsIAbCard methods.
+  equal(
+    contact.generateName(Ci.nsIAbCard.GENERATE_DISPLAY_NAME),
+    "a new contact"
+  );
+  equal(
+    contact.generateName(Ci.nsIAbCard.GENERATE_LAST_FIRST_ORDER),
+    "contact, new"
+  );
+  equal(
+    contact.generateName(Ci.nsIAbCard.GENERATE_FIRST_LAST_ORDER),
+    "new contact"
+  );
 });
 
 add_task(async function editContact() {
@@ -272,10 +268,8 @@ add_task(async function createMailingList() {
     ["onItemAdded", book, list]
   );
 
-  // Check nsIAbItem properties.
-  equal(list.uuid, "&new list");
-
   // Check nsIAbDirectory properties.
+  equal(list.uuid, "&new list");
   equal(list.dirName, "new list");
   equal(list.UID.length, 36);
   equal(list.URI, `${SCHEME}://${FILE_NAME}/MailList1`);

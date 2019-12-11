@@ -26,7 +26,7 @@ NS_IMPL_ISUPPORTS_INHERITED(JaCppAbDirectoryDelegator, JaBaseCppAbDirectory,
 
 // Delegator object to bypass JS method override.
 NS_IMPL_ISUPPORTS(JaCppAbDirectoryDelegator::Super, nsIAbDirectory,
-                  nsIAbItem, nsIInterfaceRequestor)
+                  nsIInterfaceRequestor)
 
 JaCppAbDirectoryDelegator::JaCppAbDirectoryDelegator()
     : mCppBase(new Super(this)), mMethods(nullptr) {}
@@ -56,7 +56,6 @@ NS_IMETHODIMP JaCppAbDirectoryDelegator::SetJsDelegate(
   // interface, which is OK.
   mJsISupports = aJsDelegate;
   mJsIAbDirectory = do_QueryInterface(aJsDelegate);
-  mJsIAbItem = do_QueryInterface(aJsDelegate);
   mJsIInterfaceRequestor = do_QueryInterface(aJsDelegate);
   return NS_OK;
 }

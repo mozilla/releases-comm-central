@@ -13,6 +13,7 @@
 #include "nsAbBaseCID.h"
 #include "nsNetUtil.h"
 #include "nsStringStream.h"
+#include "nsIAbCard.h"
 #include "nsIAbDirectory.h"
 #include "nsIAbManager.h"
 #include "prmem.h"

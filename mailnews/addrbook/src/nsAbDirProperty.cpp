@@ -43,8 +43,7 @@ nsAbDirProperty::~nsAbDirProperty(void) {
 #endif
 }
 
-NS_IMPL_ISUPPORTS(nsAbDirProperty, nsIAbDirectory, nsISupportsWeakReference,
-                  nsIAbItem)
+NS_IMPL_ISUPPORTS(nsAbDirProperty, nsIAbDirectory, nsISupportsWeakReference)
 
 NS_IMETHODIMP nsAbDirProperty::GetUuid(nsACString &uuid) {
   // XXX: not all directories have a dirPrefId...
@@ -55,12 +54,6 @@ NS_IMETHODIMP nsAbDirProperty::GetUuid(nsACString &uuid) {
   GetDirName(dirName);
   uuid.Append(NS_ConvertUTF16toUTF8(dirName));
   return rv;
-}
-
-NS_IMETHODIMP nsAbDirProperty::GenerateName(int32_t aGenerateFormat,
-                                            nsIStringBundle *aBundle,
-                                            nsAString &name) {
-  return GetDirName(name);
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetPropertiesChromeURI(nsACString &aResult) {

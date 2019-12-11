@@ -1167,7 +1167,7 @@ nsresult nsAbOSXDirectory::DeleteUid(const nsACString &aUid) {
 
   // Iterate backwards in case we remove something
   while (addressCount--) {
-    nsCOMPtr<nsIAbItem> abItem(do_QueryElementAt(m_AddressList, addressCount, &rv));
+    nsCOMPtr<nsISupports> abItem(do_QueryElementAt(m_AddressList, addressCount, &rv));
     if (NS_FAILED(rv)) continue;
 
     nsCOMPtr<nsIAbDirectory> directory(do_QueryInterface(abItem, &rv));

@@ -14,7 +14,6 @@ XPIDL_SOURCES += [
     'nsIAbDirFactory.idl',
     'nsIAbDirFactoryService.idl',
     'nsIAbDirSearchListener.idl',
-    'nsIAbItem.idl',
     'nsIAbLDAPAttributeMap.idl',
     'nsIAbLDIFService.idl',
     'nsIAbListener.idl',
