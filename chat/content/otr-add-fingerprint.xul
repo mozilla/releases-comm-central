@@ -6,59 +6,60 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
 <?xml-stylesheet href="chrome://chat/skin/otrFingerprintDialog.css" type="text/css"?>
 
-<!DOCTYPE dialog>
+<!DOCTYPE window>
 
-<dialog id="otrAddFingerDialog"
-        data-l10n-id="otr-add-finger"
+<window data-l10n-id="otr-add-finger"
         windowtype="OTR:AddFinger"
         onload="otrAddFinger.onload()"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        buttons="accept,cancel"
-        buttondisabledaccept="true">
+        xmlns:html="http://www.w3.org/1999/xhtml">
+  <dialog id="otrAddFingerDialog"
+          buttons="accept,cancel"
+          buttondisabledaccept="true">
 
-  <keyset id="mailKeys">
-    <key keycode="VK_ESCAPE" oncommand="window.close();"/>
-  </keyset>
+    <keyset id="mailKeys">
+      <key keycode="VK_ESCAPE" oncommand="window.close();"/>
+    </keyset>
 
-  <linkset>
-    <html:link rel="localization" href="messenger/otr/add-finger.ftl"/>
-  </linkset>
+    <linkset>
+      <html:link rel="localization" href="messenger/otr/add-finger.ftl"/>
+    </linkset>
 
-  <script src="chrome://chat/content/otr-add-fingerprint.js"/>
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <vbox class="dialog-container" flex="1">
-    <hbox align="center" pack="center" class="header-container">
-      <vbox>
-        <image class="header-icon icon-login"/>
-      </vbox>
-      <vbox flex="1">
-        <description id="otrDescription"/>
-      </vbox>
-    </hbox>
-    <hbox class="form-control" align="center">
-      <label data-l10n-id="otr-add-finger-fingerprint"
-             class="label-box"
-             control="fingerprint"/>
-      <hbox class="input-control" align="center" flex="1">
-        <html:input id="fingerprint" type="text"
-                    data-l10n-id="otr-add-finger-input"
-                    class="input-field"
-                    oninput="otrAddFinger.oninput(this);"
-                    onblur="otrAddFinger.onblur(this);"
-                    pattern="[ 0-9a-fA-F]*"
-                    minlength="44"
-                    maxlength="44"/>
+    <script src="chrome://chat/content/otr-add-fingerprint.js"/>
+    <script src="chrome://global/content/globalOverlay.js"/>
+    <script src="chrome://global/content/editMenuOverlay.js"/>
+    <vbox class="dialog-container" flex="1">
+      <hbox align="center" pack="center" class="header-container">
+        <vbox>
+          <image class="header-icon icon-login"/>
+        </vbox>
+        <vbox flex="1">
+          <description id="otrDescription"/>
+        </vbox>
       </hbox>
-      <image id="fingerWarning" class="form-icon icon-warning" hidden="true"/>
-    </hbox>
-    <vbox class="input-helper-container" flex="1" align="end">
-      <label id="fingerError"
-             data-l10n-id="otr-add-finger-tooltip-error"
-             class="msg-error"
-             hidden="true"/>
-      <label id="keyCount" class="input-helper" value="0/40"/>
+      <hbox class="form-control" align="center">
+        <label data-l10n-id="otr-add-finger-fingerprint"
+               class="label-box"
+               control="fingerprint"/>
+        <hbox class="input-control" align="center" flex="1">
+          <html:input id="fingerprint" type="text"
+                      data-l10n-id="otr-add-finger-input"
+                      class="input-field"
+                      oninput="otrAddFinger.oninput(this);"
+                      onblur="otrAddFinger.onblur(this);"
+                      pattern="[ 0-9a-fA-F]*"
+                      minlength="44"
+                      maxlength="44"/>
+        </hbox>
+        <image id="fingerWarning" class="form-icon icon-warning" hidden="true"/>
+      </hbox>
+      <vbox class="input-helper-container" flex="1" align="end">
+        <label id="fingerError"
+               data-l10n-id="otr-add-finger-tooltip-error"
+               class="msg-error"
+               hidden="true"/>
+        <label id="keyCount" class="input-helper" value="0/40"/>
+      </vbox>
     </vbox>
-  </vbox>
-</dialog>
+  </dialog>
+</window>

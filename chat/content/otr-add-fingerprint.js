@@ -70,7 +70,7 @@ var otrAddFinger = {
       this.fingerError.hidden = true;
     }
 
-    document.documentElement.getButton("accept").disabled =
+    document.getElementById("otrAddFingerDialog").getButton("accept").disabled =
       input.value && !input.validity.valid;
 
     this.keyCount.value = `${hex.length}/40`;

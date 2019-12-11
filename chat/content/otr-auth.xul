@@ -6,89 +6,89 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE dialog>
-<dialog
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:html="http://www.w3.org/1999/xhtml"
-  id="otrAuthDialog"
-  data-l10n-id="otr-auth"
-  data-l10n-attrs="buttonlabelaccept"
-  windowtype="OTR:Auth"
-  onload="otrAuth.onload()"
-  buttons="accept,cancel,help"
-  buttondisabledaccept="true">
+<!DOCTYPE winodw>
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        data-l10n-id="otr-auth"
+        data-l10n-attrs="buttonlabelaccept"
+        windowtype="OTR:Auth"
+        onload="otrAuth.onload()">
 
-  <linkset>
-    <html:link rel="localization" href="messenger/otr/auth.ftl"/>
-  </linkset>
+  <dialog id="otrAuthDialog"
+          buttons="accept,cancel,help"
+          buttondisabledaccept="true">
 
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://chat/content/otr-auth.js"/>
+    <linkset>
+      <html:link rel="localization" href="messenger/otr/auth.ftl"/>
+    </linkset>
 
-  <groupbox id="how" hidden="true">
-    <label><html:h4 data-l10n-id="auth-how"/></label>
-    <menulist id="howOption" oncommand="otrAuth.how();">
-      <menupopup>
-        <menuitem data-l10n-id="auth-questionAndAnswer-label" value="questionAndAnswer"/>
-        <menuitem data-l10n-id="auth-sharedSecret-label" value="sharedSecret"/>
-        <menuitem data-l10n-id="auth-manualVerification-label" value="manualVerification"/>
-      </menupopup>
-    </menulist>
-  </groupbox>
+    <script src="chrome://global/content/globalOverlay.js"/>
+    <script src="chrome://global/content/editMenuOverlay.js"/>
+    <script src="chrome://chat/content/otr-auth.js"/>
 
-  <groupbox id="questionAndAnswer" hidden="true">
-    <label><html:h4 data-l10n-id="auth-questionAndAnswer"/></label>
-    <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-qaInstruction"></description>
-    <label data-l10n-id="auth-question" control="question" flex="1"/>
-    <html:input id="question" type="text" class="input-inline"
-                aria-labelledby="auth-question"/>
-    <label data-l10n-id="auth-answer" control="answer" flex="1"/>
-    <html:input id="answer" type="text" class="input-inline"
-                aria-labelledby="auth-answer"
-                oninput="otrAuth.oninput(this)"/>
-  </groupbox>
-
-  <groupbox id="sharedSecret" hidden="true">
-    <label><html:h4 data-l10n-id="auth-sharedSecret"/></label>
-    <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-secretInstruction"></description>
-    <label data-l10n-id="auth-secret" control="secret" flex="1"/>
-    <html:input id="secret" type="text" class="input-inline"
-                aria-labelledby="auth-secret"
-                oninput="otrAuth.oninput(this)"/>
-  </groupbox>
-
-  <groupbox id="manualVerification" hidden="true">
-    <label><html:h4 data-l10n-id="auth-manualVerification"/></label>
-    <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-manualInstruction"></description>
-
-    <label id="yourFPLabel"/>
-    <html:input id="yourFPValue" type="text" class="input-inline"
-                readonly="readonly"
-                aria-labelledby="yourFPLabel"/>
-    <label id="theirFPLabel"/>
-    <html:input id="theirFPValue" type="text" class="input-inline"
-                readonly="readonly"
-                aria-labelledby="theirFPLabel"/>
-
-    <hbox align="center">
-      <label data-l10n-id="auth-verified"/>
-      <menulist id="verifiedOption">
+    <groupbox id="how" hidden="true">
+      <label><html:h4 data-l10n-id="auth-how"/></label>
+      <menulist id="howOption" oncommand="otrAuth.how();">
         <menupopup>
-          <menuitem data-l10n-id="auth-yes" value="yes"/>
-          <menuitem data-l10n-id="auth-no" value="no"/>
+          <menuitem data-l10n-id="auth-questionAndAnswer-label" value="questionAndAnswer"/>
+          <menuitem data-l10n-id="auth-sharedSecret-label" value="sharedSecret"/>
+          <menuitem data-l10n-id="auth-manualVerification-label" value="manualVerification"/>
         </menupopup>
       </menulist>
-    </hbox>
-  </groupbox>
+    </groupbox>
 
-  <groupbox id="ask" hidden="true">
-    <label id="receivedQuestionLabel" data-l10n-id="auth-questionReceived"/>
-    <description id="receivedQuestion" style="width: 300px; white-space: pre-wrap;"/>
-    <label id="responseLabel" control="response" flex="1"/>
-    <html:input id="response" type="text" class="input-inline"
-                aria-labelledby="responseLabel"
-                oninput="otrAuth.oninput(this)"/>
-  </groupbox>
+    <groupbox id="questionAndAnswer" hidden="true">
+      <label><html:h4 data-l10n-id="auth-questionAndAnswer"/></label>
+      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-qaInstruction"></description>
+      <label data-l10n-id="auth-question" control="question" flex="1"/>
+      <html:input id="question" type="text" class="input-inline"
+                  aria-labelledby="auth-question"/>
+      <label data-l10n-id="auth-answer" control="answer" flex="1"/>
+      <html:input id="answer" type="text" class="input-inline"
+                  aria-labelledby="auth-answer"
+                  oninput="otrAuth.oninput(this)"/>
+    </groupbox>
 
-</dialog>
+    <groupbox id="sharedSecret" hidden="true">
+      <label><html:h4 data-l10n-id="auth-sharedSecret"/></label>
+      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-secretInstruction"></description>
+      <label data-l10n-id="auth-secret" control="secret" flex="1"/>
+      <html:input id="secret" type="text" class="input-inline"
+                  aria-labelledby="auth-secret"
+                  oninput="otrAuth.oninput(this)"/>
+    </groupbox>
+
+    <groupbox id="manualVerification" hidden="true">
+      <label><html:h4 data-l10n-id="auth-manualVerification"/></label>
+      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-manualInstruction"></description>
+
+      <label id="yourFPLabel"/>
+      <html:input id="yourFPValue" type="text" class="input-inline"
+                  readonly="readonly"
+                  aria-labelledby="yourFPLabel"/>
+      <label id="theirFPLabel"/>
+      <html:input id="theirFPValue" type="text" class="input-inline"
+                  readonly="readonly"
+                  aria-labelledby="theirFPLabel"/>
+
+      <hbox align="center">
+        <label data-l10n-id="auth-verified"/>
+        <menulist id="verifiedOption">
+          <menupopup>
+            <menuitem data-l10n-id="auth-yes" value="yes"/>
+            <menuitem data-l10n-id="auth-no" value="no"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </groupbox>
+
+    <groupbox id="ask" hidden="true">
+      <label id="receivedQuestionLabel" data-l10n-id="auth-questionReceived"/>
+      <description id="receivedQuestion" style="width: 300px; white-space: pre-wrap;"/>
+      <label id="responseLabel" control="response" flex="1"/>
+      <html:input id="response" type="text" class="input-inline"
+                  aria-labelledby="responseLabel"
+                  oninput="otrAuth.oninput(this)"/>
+    </groupbox>
+  <dialog>
+</window>

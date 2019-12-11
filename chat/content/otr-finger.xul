@@ -5,50 +5,51 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css" ?>
 
-<!DOCTYPE dialog>
+<!DOCTYPE window>
 
-<dialog
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  xmlns:html="http://www.w3.org/1999/xhtml"
-  id="otr-fingerwindow"
-  data-l10n-id="otr-finger"
-  data-l10n-attrs="buttonlabelaccept"
-  onload="otrFinger.onload()"
-  buttons="accept">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        data-l10n-id="otr-finger"
+        data-l10n-attrs="buttonlabelaccept"
+        onload="otrFinger.onload()">
 
-  <linkset>
-    <html:link rel="localization" href="messenger/otr/finger.ftl"/>
-  </linkset>
+  <dialog id="otr-fingerwindow"
+          buttons="accept">
 
-  <script src="chrome://chat/content/otr-finger.js"/>
+    <linkset>
+      <html:link rel="localization" href="messenger/otr/finger.ftl"/>
+    </linkset>
 
-  <label data-l10n-id="finger-intro" />
-  <separator class="thin"/>
-  <vbox id="fingerprints" class="contentPane" flex="1">
-    <tree id="fingerTree"
-          flex="1"
-          width="800"
-          style="height: 20em;"
-          onselect="otrFinger.select()">
-      <treecols>
-        <treecol id="screenname" data-l10n-id="finger-screenName" flex="20" />
-        <splitter class="tree-splitter"/>
-        <treecol id="fingerprint" data-l10n-id="finger-fingerprint" flex="120" />
-        <splitter class="tree-splitter"/>
-        <treecol id="verified" data-l10n-id="finger-verified" flex="10" />
-        <splitter class="tree-splitter"/>
-      </treecols>
-      <treechildren/>
-    </tree>
+    <script src="chrome://chat/content/otr-finger.js"/>
+
+    <label data-l10n-id="finger-intro" />
     <separator class="thin"/>
-    <hbox>
-      <button id="remove"
-              data-l10n-id="finger-remove"
-              disabled="true"
-              oncommand="otrFinger.remove()"/>
-      <button id="remove-all"
-              data-l10n-id="finger-remove-all"
-              oncommand="otrFinger.removeAll()"/>
-    </hbox>
-  </vbox>
-</dialog>
+    <vbox id="fingerprints" class="contentPane" flex="1">
+      <tree id="fingerTree"
+            flex="1"
+            width="800"
+            style="height: 20em;"
+            onselect="otrFinger.select()">
+        <treecols>
+          <treecol id="screenname" data-l10n-id="finger-screenName" flex="20" />
+          <splitter class="tree-splitter"/>
+          <treecol id="fingerprint" data-l10n-id="finger-fingerprint" flex="120" />
+          <splitter class="tree-splitter"/>
+          <treecol id="verified" data-l10n-id="finger-verified" flex="10" />
+          <splitter class="tree-splitter"/>
+        </treecols>
+        <treechildren/>
+      </tree>
+      <separator class="thin"/>
+      <hbox>
+        <button id="remove"
+                data-l10n-id="finger-remove"
+                disabled="true"
+                oncommand="otrFinger.remove()"/>
+        <button id="remove-all"
+                data-l10n-id="finger-remove-all"
+                oncommand="otrFinger.removeAll()"/>
+      </hbox>
+    </vbox>
+  </dialog>
+</window>

@@ -173,7 +173,9 @@ var otrAuth = {
   },
 
   oninput(e) {
-    document.documentElement.getButton("accept").disabled = !e.value;
+    document
+      .getElementById("otrAuthDialog")
+      .getButton("accept").disabled = !e.value;
   },
 
   how() {
