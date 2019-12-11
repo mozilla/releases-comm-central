@@ -8,19 +8,20 @@
 <?xml-stylesheet href="chrome://lightning-common/skin/dialogOverlay.css" type="text/css"?>
 
 <!-- DTD File with all strings specific to the calendar -->
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
 ]>
 
-<dialog id="calendar-publishwindow"
-        title="&calendar.publish.dialog.title;"
+<window title="&calendar.publish.dialog.title;"
         windowtype="Calendar:PublishDialog"
-        buttons="accept,cancel"
         onload="loadCalendarPublishDialog()"
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog id="calendar-publishwindow"
+        buttons="accept,cancel">
 
   <!-- JavaScript includes -->
   <script src="chrome://calendar/content/publishDialog.js"/>
@@ -46,3 +47,4 @@
     </hbox>
   </vbox>
 </dialog>
+</window>

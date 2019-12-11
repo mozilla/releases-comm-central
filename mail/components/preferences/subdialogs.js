@@ -74,6 +74,18 @@ SubDialog.prototype = {
       contentStylesheet,
       this._frame.contentDocument.documentElement
     );
+    let dialog = this._frame.contentDocument.documentElement.querySelector(
+      "dialog"
+    );
+    if (dialog) {
+      let link = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "link"
+      );
+      link.setAttribute("href", aStylesheetURL);
+      link.setAttribute("rel", "stylesheet");
+      dialog.shadowRoot.appendChild(link);
+    }
   },
 
   async open(aURL, aFeatures = null, aParams = null, aClosingCallback = null) {

@@ -6,16 +6,16 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar-common/skin/calendar-occurrence-prompt.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://calendar/locale/calendar-occurrence-prompt.dtd">
+<!DOCTYPE window SYSTEM "chrome://calendar/locale/calendar-occurrence-prompt.dtd">
 
-<dialog id="calendar-occurrence-prompt"
-        buttons="accept,cancel"
-        windowtype="Calendar:OccurrencePrompt"
+<window windowtype="Calendar:OccurrencePrompt"
         onload="onLoad()"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xhtml2="http://www.w3.org/TR/xhtml2"
         xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"
         xhtml2:role="wairole:alertdialog">
+<dialog id="calendar-occurrence-prompt"
+        buttons="accept,cancel">
   <script><![CDATA[
       var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -107,3 +107,4 @@
             pack="start"/>
   </vbox>
 </dialog>
+</window>

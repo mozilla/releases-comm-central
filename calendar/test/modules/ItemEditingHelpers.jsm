@@ -68,16 +68,18 @@ var TIME_INPUT = `
 
 // The following can be used as is.
 var REC_DLG_ACCEPT = `
-    /id("calendar-event-dialog-recurrence")/shadow/
-    {"class":"dialog-button-box"}/{"dlgtype":"accept"}
+    /{"windowtype":"Calendar:EventDialog:Recurrence"}/id("calendar-event-dialog-recurrence")
+    /shadow/{"class":"dialog-button-box"}/{"dlgtype":"accept"}
 `;
 var REC_DLG_DAYS = `
-    /id("calendar-event-dialog-recurrence")/id("recurrence-pattern-groupbox")/
-    {"flex":"1"}/[1]/id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")
+    /{"windowtype":"Calendar:EventDialog:Recurrence"}/id("calendar-event-dialog-recurrence")
+    /id("recurrence-pattern-groupbox")/{"flex":"1"}/[1]/
+    id("period-deck")/id("period-deck-weekly-box")/[1]/id("daypicker-weekday")
 `;
 var REC_DLG_UNTIL_INPUT = `
-    /id("calendar-event-dialog-recurrence")/id("recurrence-range-groupbox")/[1]/
-    id("recurrence-duration")/id("recurrence-range-until-box")/id("repeat-until-date")/
+    /{"windowtype":"Calendar:EventDialog:Recurrence"}/id("calendar-event-dialog-recurrence")
+    /id("recurrence-range-groupbox")/[1]/id("recurrence-duration")
+    /id("recurrence-range-until-box")/id("repeat-until-date")/
     {"class":"datepicker-menulist"}/{"class":"menulist-input"}
 `;
 
@@ -486,7 +488,7 @@ async function handleAddingAttachment(dialogWindow, url) {
 
     attachmentDocument.getElementById("loginTextbox").value = url;
     synthesizeMouseAtCenter(
-      attachmentDocument.documentElement.getButton("accept"),
+      attachmentDocument.querySelector("dialog").getButton("accept"),
       {},
       attachmentWindow
     );
@@ -526,7 +528,7 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
           Assert.equal(attendeesDocument.activeElement.getAttribute("value"), null);
           sendString(attendee, attendeesWindow);
           synthesizeMouseAtCenter(
-            attendeesDocument.documentElement.getButton("accept"),
+            attendeesDocument.querySelector("dialog").getButton("accept"),
             {},
             attendeesWindow
           );
@@ -610,7 +612,7 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
       await sleep(timezoneWindow);
 
       synthesizeMouseAtCenter(
-        timezoneDocument.documentElement.getButton("accept"),
+        timezoneDocument.querySelector("dialog").getButton("accept"),
         {},
         timezoneWindow
       );

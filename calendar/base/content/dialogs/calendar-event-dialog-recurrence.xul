@@ -11,17 +11,18 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://lightning-common/skin/datetimepickers.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % dialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
   %dialogDTD;
 ]>
 
-<dialog id="calendar-event-dialog-recurrence"
-        title="&recurrence.title.label;"
+<window title="&recurrence.title.label;"
         windowtype="Calendar:EventDialog:Recurrence"
         onload="onLoad()"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog id="calendar-event-dialog-recurrence">
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-event-dialog-recurrence.js"/>
@@ -559,3 +560,4 @@
     </box>
   </groupbox>
 </dialog>
+</window>

@@ -10,22 +10,21 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://lightning-common/skin/datetimepickers.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %dtd2;
 ]>
 
-<dialog id="calendar-event-dialog-attendees-v2"
-        title="&invite.title.label;"
+<window title="&invite.title.label;"
         windowtype="Calendar:EventDialog:Attendees"
         onload="onLoad()"
-        defaultButton="none"
         height="500"
         persist="screenX screenY height width"
         orient="vertical"
-        style="padding-top: 8px; padding-bottom: 10px; padding-inline-start: 8px; padding-inline-end: 10px;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<dialog id="calendar-event-dialog-attendees-v2"
+        defaultButton="none">
 
   <!-- Javascript includes -->
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -259,3 +258,4 @@
   </hbox>
   <separator class="groove"/>
 </dialog>
+</window>

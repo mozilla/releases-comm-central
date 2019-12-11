@@ -27,10 +27,10 @@ async function withModalDialog(trigger, callback, whichButton) {
             await callback(win);
           }
 
-          let button =
-            win.document.documentElement.localName == "dialog"
-              ? win.document.documentElement.getButton(whichButton)
-              : win.document.querySelector("wizard").getButton(whichButton);
+          let dialog = win.document.querySelector("dialog");
+          let button = dialog
+            ? dialog.getButton(whichButton)
+            : win.document.querySelector("wizard").getButton(whichButton);
           EventUtils.synthesizeMouseAtCenter(button, {}, win);
           resolve();
         },

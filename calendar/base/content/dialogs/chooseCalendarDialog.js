@@ -53,13 +53,14 @@ function loadCalendars() {
   }
 
   // this button is the default action
-  let accept = document.documentElement.getButton("accept");
+  let dialog = document.getElementById("chooseCalendar");
+  let accept = dialog.getButton("accept");
   if (window.arguments[0].labelOk) {
     accept.setAttribute("label", window.arguments[0].labelOk);
     accept.removeAttribute("hidden");
   }
 
-  let extra1 = document.documentElement.getButton("extra1");
+  let extra1 = dialog.getButton("extra1");
   if (window.arguments[0].labelExtra1) {
     extra1.setAttribute("label", window.arguments[0].labelExtra1);
     extra1.removeAttribute("hidden");
@@ -72,7 +73,7 @@ function loadCalendars() {
     listbox.timedSelect(listbox.getItemAtIndex(selectedIndex), 0);
   } else {
     // If there are no calendars, then disable the accept button
-    document.documentElement.getButton("accept").setAttribute("disabled", "true");
+    accept.setAttribute("disabled", "true");
   }
 
   window.sizeToContent();

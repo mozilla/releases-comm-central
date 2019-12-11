@@ -43,7 +43,7 @@ add_task(function testCategoryColors() {
     editFrame.e("categoryColor").value = "#00CC00";
     editFrame.click(
       lookup(`
-            id("editCategory")/shadow/{"class":"dialog-button-box"}/{"dlgtype":"accept"}
+            id("editCategoryWindow")/id("editCategory")/shadow/{"class":"dialog-button-box"}/{"dlgtype":"accept"}
         `)
     );
 

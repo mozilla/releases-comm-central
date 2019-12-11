@@ -10,14 +10,15 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://lightning-common/skin/datetimepickers.css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://calendar/locale/dialogs/calendar-event-dialog-reminder.dtd" >
+<!DOCTYPE window SYSTEM "chrome://calendar/locale/dialogs/calendar-event-dialog-reminder.dtd" >
 
-<dialog id="calendar-event-dialog-reminder"
-        title="&reminderdialog.title;"
+<window title="&reminderdialog.title;"
         windowtype="Calendar:EventDialog:Reminder"
         onload="onLoad()"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog id="calendar-event-dialog-reminder">
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-event-dialog-reminder.js"/>
@@ -122,3 +123,4 @@
     </menupopup>
   </menulist>
 </dialog>
+</window>

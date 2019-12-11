@@ -6,17 +6,19 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
 <!-- DTD File with all strings specific to the file -->
-<!DOCTYPE dialog
+<!DOCTYPE window
 [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/preferences/categories.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd2;
 ]>
 
-<dialog id="editCategory"
+<window id="editCategoryWindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        buttons="accept,cancel"
         onload="editCategoryLoad();">
+
+<dialog id="editCategory"
+        buttons="accept,cancel">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -44,3 +46,4 @@
     </hbox>
   </vbox>
 </dialog>
+</window>

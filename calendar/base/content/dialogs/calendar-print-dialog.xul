@@ -17,16 +17,17 @@
 ]>
 
 
-<dialog id="calendar-new-printwindow"
-        title="&calendar.print.window.title;"
+<window title="&calendar.print.window.title;"
         windowtype="Calendar:PrintDialog"
         onload="loadCalendarPrintDialog();"
+        persist="screenX screenY width height"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog id="calendar-new-printwindow"
         buttons="accept,cancel"
         buttonlabelaccept="&calendar.print.button.label;"
         buttonaccesskeyaccept="&calendar.print.button.accesskey;"
-        defaultButton="accept"
-        persist="screenX screenY width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        defaultButton="accept">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -123,3 +124,4 @@
             style="border: 2px solid #3c3c3c; width:30em; height:30em; background-color: white;"/>
   </hbox>
 </dialog>
+</window>

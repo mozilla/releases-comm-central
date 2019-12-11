@@ -5,23 +5,22 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
-<!DOCTYPE dialog
+<!DOCTYPE window
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
 ]>
 
 
-<dialog id="calendar-error-prompt"
-        title="&calendar.error.title;"
+<window title="&calendar.error.title;"
         windowtype="Calendar:ErrorPrompt"
-        buttons="accept"
         onload="loadErrorPrompt()"
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         width="500"
         xmlns:html="http://www.w3.org/1999/xhtml">
-
+<dialog id="calendar-error-prompt"
+        buttons="accept">
     <script src="chrome://global/content/globalOverlay.js"/>
     <script src="chrome://global/content/editMenuOverlay.js"/>
     <script src="chrome://calendar/content/calendar-error-prompt.js"/>
@@ -44,3 +43,4 @@
         </vbox>
     </vbox>
 </dialog>
+</window>

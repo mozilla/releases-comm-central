@@ -15,7 +15,10 @@ var savePromptObserver = {
         // this is by checking whether the textbox is visible.
         if (doc.querySelector("#loginContainer").hasAttribute("hidden")) {
           Assert.report(true, undefined, undefined, "Unexpected save prompt appeared");
-          doc.documentElement.getButton("cancel").click();
+          doc
+            .querySelector("dialog")
+            .getButton("cancel")
+            .click();
         }
       }
     }

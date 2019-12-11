@@ -110,7 +110,7 @@ function receiveMessage(aEvent) {
       break;
     }
     case "cancelDialog":
-      document.documentElement.cancelDialog();
+      document.querySelector("dialog").cancelDialog();
       break;
     case "closeWindowOrTab":
       closeWindowOrTab(aEvent.data.iframeId);
@@ -214,6 +214,7 @@ function windowCloseListener(aEvent) {
 function onLoadLightningItemPanel(aIframeId, aUrl) {
   let iframe;
   let iframeSrc;
+  let dialog = document.querySelector("dialog");
 
   if (!gTabmail) {
     gTabmail = document.getElementById("tabmail") || null;
@@ -239,7 +240,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
     let statusbar = document.getElementById("status-bar");
 
     // Note: iframe.contentWindow is undefined before the iframe is inserted here.
-    document.documentElement.insertBefore(iframe, statusbar);
+    dialog.insertBefore(iframe, statusbar);
 
     // Move the args so they are positioned relative to the iframe,
     // for the window dialog just as they are for the tab.
@@ -248,8 +249,8 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
     iframe.contentWindow.arguments = [window.arguments[0]];
 
     // hide the ok and cancel dialog buttons
-    let accept = document.documentElement.getButton("accept");
-    let cancel = document.documentElement.getButton("cancel");
+    let accept = dialog.getButton("accept");
+    let cancel = dialog.getButton("cancel");
     accept.setAttribute("collapsed", "true");
     cancel.setAttribute("collapsed", "true");
     cancel.parentNode.setAttribute("collapsed", "true");
@@ -272,7 +273,6 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
     // Enlarge the dialog window so the iframe content fits, and prevent it
     // getting smaller. We don't know the minimum size of the content unless
     // it's overflowing, so don't attempt to enforce what we don't know.
-    let docEl = document.documentElement;
     let overflowListener = () => {
       let { scrollWidth, scrollHeight } = iframe.contentDocument.documentElement;
       let { clientWidth, clientHeight } = iframe;
@@ -285,13 +285,13 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
       // greater than 1 here, not 0.
       if (diffX > 1) {
         window.resizeBy(diffX, 0);
-        docEl.setAttribute("minwidth", docEl.getAttribute("width"));
+        dialog.setAttribute("minwidth", dialog.getAttribute("width"));
       }
       if (diffY > 1) {
         window.resizeBy(0, diffY);
-        docEl.setAttribute("minheight", docEl.getAttribute("height"));
+        dialog.setAttribute("minheight", dialog.getAttribute("height"));
       }
-      if (docEl.hasAttribute("minwidth") && docEl.hasAttribute("minheight")) {
+      if (dialog.hasAttribute("minwidth") && dialog.hasAttribute("minheight")) {
         iframe.contentWindow.removeEventListener("resize", overflowListener);
       }
     };
@@ -315,9 +315,9 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
   // for tasks in a window dialog, set the dialog id for CSS selection, etc.
   if (!gTabmail) {
     if (gConfig.isEvent) {
-      setDialogId(document.documentElement, "calendar-event-dialog");
+      setDialogId(dialog, "calendar-event-dialog");
     } else {
-      setDialogId(document.documentElement, "calendar-task-dialog");
+      setDialogId(dialog, "calendar-task-dialog");
     }
   }
 

@@ -905,11 +905,9 @@ function onTimebar(event) {
   // with plain xul and css, at least as far as i know.
   let timebar = document.getElementById("timebar");
   let scrollbar = document.getElementById("horizontal-scrollbar");
-  document.documentElement.style.setProperty(
-    "--spacer-top-height",
-    timebar.getBoundingClientRect().height + "px"
-  );
-  document.documentElement.style.setProperty(
+  let dialog = document.getElementById("calendar-event-dialog-attendees-v2");
+  dialog.style.setProperty("--spacer-top-height", timebar.getBoundingClientRect().height + "px");
+  dialog.style.setProperty(
     "--spacer-bottom-height",
     scrollbar.getBoundingClientRect().height + "px"
   );

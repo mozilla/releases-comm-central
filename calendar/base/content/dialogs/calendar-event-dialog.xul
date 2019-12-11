@@ -16,7 +16,7 @@
 <?xml-stylesheet type="text/css" href="chrome://communicator/skin/communicator.css"?>
 #endif
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
     <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
     <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
     <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
@@ -29,12 +29,15 @@
 
 <!-- Dialog id is changed during execution to allow different Window-icons
      on this dialog. document.loadOverlay() will not work on this one. -->
-<dialog title="&event.title.label;"
+<window id="calendar-event-window"
+        title="&event.title.label;"
         windowtype="Calendar:EventDialog"
         onload="onLoadLightningItemPanel();"
         onunload="onUnloadLightningItemPanel();"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog>
 
   <!-- Javascript includes -->
   <script src="chrome://lightning/content/lightning-item-panel.js"/>
@@ -651,3 +654,4 @@
     </hbox>
   </hbox>
 </dialog>
+</window>

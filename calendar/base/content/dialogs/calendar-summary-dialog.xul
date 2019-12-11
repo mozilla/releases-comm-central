@@ -14,7 +14,7 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-summary-dialog.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd" >
   <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd" >
   <!ENTITY % dialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" >
@@ -27,14 +27,15 @@
 
 <!-- Dialog id is changed during execution to allow different Window-icons
      on this dialog. document.loadOverlay() will not work on this one. -->
-<dialog id="calendar-summary-dialog"
-        windowtype="Calendar:EventSummaryDialog"
+<window windowtype="Calendar:EventSummaryDialog"
         onload="onLoad()"
         onunload="onUnload()"
         onresize="rearrangeAttendees();"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog id="calendar-summary-dialog">
 
   <!-- Javascript includes -->
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -419,3 +420,4 @@
            crop="end"/>
   </box>
 </dialog>
+</window>

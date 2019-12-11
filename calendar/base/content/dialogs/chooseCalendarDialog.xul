@@ -6,20 +6,19 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
 <!-- DTD File with all strings specific to the file -->
-<!DOCTYPE page
+<!DOCTYPE window
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd1;
 ]>
 
-<dialog id="chooseCalendar"
-        title="&calendar.select.dialog.title;"
+<window title="&calendar.select.dialog.title;"
         windowtype="Calendar:CalendarPicker"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        buttons="accept,cancel"
         onload="setTimeout(loadCalendars, 0);"
         minheight="200" minwidth="300"
         persist="screenX screenY height width">
-
+<dialog id="chooseCalendar"
+        buttons="accept,cancel">
     <script src="chrome://calendar/content/calendar-ui-utils.js"/>
     <script src="chrome://calendar/content/chooseCalendarDialog.js"/>
 
@@ -29,3 +28,4 @@
         <description id="promptNotify"/>
     </vbox>
 </dialog>
+</window>

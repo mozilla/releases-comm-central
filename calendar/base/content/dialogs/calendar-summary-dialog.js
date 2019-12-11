@@ -34,6 +34,7 @@ function onLoad() {
   let item = args.calendarEvent;
   item = item.clone(); // use an own copy of the passed item
   window.calendarItem = item;
+  let dialog = document.querySelector("dialog");
 
   // the calling entity provides us with an object that is responsible
   // for recording details about the initiated modification. the 'finalize'-property
@@ -58,9 +59,9 @@ function onLoad() {
 
   // set the dialog-id to enable the right window-icon to be loaded.
   if (cal.item.isEvent(item)) {
-    setDialogId(document.documentElement, "calendar-event-summary-dialog");
+    setDialogId(dialog, "calendar-event-summary-dialog");
   } else if (cal.item.isToDo(item)) {
-    setDialogId(document.documentElement, "calendar-task-summary-dialog");
+    setDialogId(dialog, "calendar-task-summary-dialog");
   }
 
   window.attendees = item.getAttendees();
@@ -250,13 +251,13 @@ function onLoad() {
   // If this item is read only we remove the 'cancel' button as users
   // can't modify anything, thus we go ahead with an 'ok' button only.
   if (window.readOnly) {
-    document.documentElement.getButton("cancel").setAttribute("collapsed", "true");
-    document.documentElement.getButton("accept").focus();
+    dialog.getButton("cancel").setAttribute("collapsed", "true");
+    dialog.getButton("accept").focus();
   }
 
   // disable default controls
-  let accept = document.documentElement.getButton("accept");
-  let cancel = document.documentElement.getButton("cancel");
+  let accept = dialog.getButton("accept");
+  let cancel = dialog.getButton("cancel");
   accept.setAttribute("collapsed", "true");
   cancel.setAttribute("collapsed", "true");
   cancel.parentNode.setAttribute("collapsed", "true");
@@ -343,7 +344,7 @@ function reply(aResponseMode, aPartStat) {
  */
 function saveAndClose(aResponseMode) {
   window.responseMode = aResponseMode;
-  document.documentElement.acceptDialog();
+  document.querySelector("dialog").acceptDialog();
 }
 
 function updateToolbar() {

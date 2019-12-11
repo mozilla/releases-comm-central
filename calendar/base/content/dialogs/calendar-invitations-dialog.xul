@@ -7,19 +7,19 @@
 <?xml-stylesheet href="chrome://calendar/content/calendar-invitations-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/calendar-invitations-dialog.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar-invitations-dialog.dtd" >  %dtd1;
 ]>
 
-<dialog
-  id="calendar-invitations-dialog"
-  title="&calendar.invitations.dialog.invitations.text;"
+<window title="&calendar.invitations.dialog.invitations.text;"
   windowtype="Calendar:InvitationsDialog"
-  buttons="accept,cancel"
   onload="return onLoad();"
   onunload="return onUnload();"
   persist="screenX screenY width height"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog id="calendar-invitations-dialog"
+        buttons="accept,cancel">
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-invitations-dialog.js"/>
@@ -44,3 +44,4 @@
     </stack>
   </vbox>
 </dialog>
+</window>

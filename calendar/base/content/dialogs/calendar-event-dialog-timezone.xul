@@ -9,19 +9,20 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar-common/skin/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://lightning-common/skin/datetimepickers.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
   <!ENTITY % dtd3 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %dtd3;
   <!ENTITY % dtd4 SYSTEM "chrome://calendar/locale/preferences/timezones.dtd" > %dtd4;
 ]>
 
-<dialog id="calendar-event-dialog-timezone"
-        title="&timezone.title.label;"
+<window title="&timezone.title.label;"
         windowtype="Calendar:EventDialog:Timezone"
         onload="onLoad()"
         persist="screenX screenY width height"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog id="calendar-event-dialog-timezone">
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
@@ -44,3 +45,4 @@
     <image class="timezone-highlight" tzid="+0000" id="highlighter"/>
   </stack>
 </dialog>
+</window>

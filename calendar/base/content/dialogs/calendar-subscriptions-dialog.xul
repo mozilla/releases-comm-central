@@ -9,22 +9,22 @@
 <?xml-stylesheet href="chrome://calendar/skin/calendar-subscriptions-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog
+<!DOCTYPE window
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar-subscriptions-dialog.dtd" >  %dtd1;
 ]>
 
-<dialog
-  id="calendar-subscriptions-dialog"
-  title="&calendar.subscriptions.dialog.title;"
+<window title="&calendar.subscriptions.dialog.title;"
   windowtype="Calendar:SubscriptionsDialog"
-  buttons="accept,cancel"
   onload="return onLoad();"
   onunload="return onUnload();"
   onkeypress="onKeyPress(event);"
   persist="screenX screenY width height"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml">
+
+<dialog id="calendar-subscriptions-dialog"
+        buttons="accept,cancel">
 
   <!-- Javascript includes -->
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -79,3 +79,4 @@
     <separator class="groove"/>
   </vbox>
 </dialog>
+</window>

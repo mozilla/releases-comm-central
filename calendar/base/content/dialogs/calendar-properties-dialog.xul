@@ -8,7 +8,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/notification.css" type="text/css"?>
 
-<!DOCTYPE dialog
+<!DOCTYPE window
 [
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
     <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
@@ -16,17 +16,18 @@
     <!ENTITY % dtd4 SYSTEM "chrome://lightning/locale/lightning.dtd" > %dtd4;
 ]>
 
-<dialog id="calendar-properties-dialog-2"
-        windowtype="Calendar:PropertiesDialog"
+<window windowtype="Calendar:PropertiesDialog"
         title="&calendar.server.dialog.title.edit;"
-        buttons="accept,cancel,extra1"
-        buttonlabelextra1="&calendarproperties.unsubscribe.label;"
-        buttonaccesskeyextra1="&calendarproperties.unsubscribe.accesskey;"
         onload="onLoad()"
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         width="500">
+
+<dialog id="calendar-properties-dialog-2"
+        buttons="accept,cancel,extra1"
+        buttonlabelextra1="&calendarproperties.unsubscribe.label;"
+        buttonaccesskeyextra1="&calendarproperties.unsubscribe.accesskey;">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -180,3 +181,4 @@
     </html:tr>
   </html:table>
 </dialog>
+</window>

@@ -37,8 +37,8 @@ add_task(async function testEventDialog() {
     event.keypress(null, "VK_ESCAPE", {});
   });
 
-  checkWithinTolerance(getPersistedValue("event", "width"), 640, LARGE_TOLERANCE);
-  checkWithinTolerance(getPersistedValue("event", "height"), 690, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("width"), 640, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
   dump("#ltnNewEvent click\n");
   controller.mainMenu.click("#ltnNewEvent");
@@ -69,8 +69,8 @@ add_task(async function testEventDialog() {
     event.keypress(null, "VK_ESCAPE", {});
   });
 
-  checkWithinTolerance(getPersistedValue("event", "width"), 640, LARGE_TOLERANCE);
-  checkWithinTolerance(getPersistedValue("event", "height"), 690, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("width"), 640, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
   Assert.ok(true, "Test ran to completion");
 });
@@ -79,8 +79,8 @@ add_task(async function testTaskDialog() {
   dump("#ltnNewTask click\n");
   controller.mainMenu.click("#ltnNewTask");
   await invokeEventDialog(controller, null, (task, iframe) => {
-    checkWithinTolerance(getPersistedValue("event", "width"), 640, LARGE_TOLERANCE);
-    checkWithinTolerance(getPersistedValue("event", "height"), 690, LARGE_TOLERANCE);
+    checkWithinTolerance(getPersistedValue("width"), 640, LARGE_TOLERANCE);
+    checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
     checkLargeEnough(task, iframe);
 
@@ -91,8 +91,8 @@ add_task(async function testTaskDialog() {
     task.keypress(null, "VK_ESCAPE", {});
   });
 
-  checkWithinTolerance(getPersistedValue("task", "width"), 650, LARGE_TOLERANCE);
-  checkWithinTolerance(getPersistedValue("task", "height"), 700, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("height"), 700, LARGE_TOLERANCE);
 
   dump("#ltnNewTask click\n");
   controller.mainMenu.click("#ltnNewTask");
@@ -146,10 +146,10 @@ function checkLargeEnough(outer, inner) {
   dump(`Dialog is ${outer.window.outerWidth} by ${outer.window.outerHeight}\n`);
 }
 
-function getPersistedValue(type, which) {
+function getPersistedValue(which) {
   return Services.xulStore.getValue(
     "chrome://calendar/content/calendar-event-dialog.xul",
-    `calendar-${type}-dialog`,
+    "calendar-event-window",
     which
   );
 }

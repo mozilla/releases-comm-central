@@ -23,7 +23,7 @@
           win.focus();
           var doc = win.document;
           var pane = doc.getElementById("paneLightning");
-          doc.documentElement.syncTreeWithPane(pane, true);
+          doc.querySelector("dialog").syncTreeWithPane(pane, true);
         } else {
           openDialog("chrome://communicator/content/pref/preferences.xul",
                      "PrefWindow",
