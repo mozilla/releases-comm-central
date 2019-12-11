@@ -1,34 +1,35 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
-  Interface for importing address books using the standard UI.  Address
-  book import occurs in several forms (yuck!).
-  The destination can be 1..n new address books corresponding to the source
-  format.  For instance a text file would import into a new address book
-  with the same name as the text file.
-  The destination can be 1 pre-defined address book, all entries will be
-  added to the supplied address book - this allows the address book UI so provide
-  an import command specific for an individual address book.
-
-  The source can import 1 or multiple address books.
-  The address books can be auto-discoverable or user specified.
-  The address books can require field mapping or not.
-
-  All of this is rather complicated but it should work out OK.
-  1) The first UI
-  panel will allow selection of the address book and will indicate to the user
-  if the address book will be imported into an existing address book or new address
-  books.  (This could be 2 separate xul UI's?).
-  2) The second panel will show field mapping if it is required - if it is required then
-  there will be one panel per address book for formats that support multiple
-  address books.  If it is not required then there will be no second panel.
-  3) Show the progress dialog for the import - this could be per address book if
-  mapping is required? what to do, what to doooooo.....
-  4) All done, maybe a what was done panel??
-*/
+/**
+ * Interface for importing address books using the standard UI. Address book
+ * import occurs in several forms (yuck!).
+ * The destination can be 1..n new address books corresponding to the source
+ * format.  For instance a text file would import into a new address book with
+ * the same name as the text file.
+ * The destination can be 1 pre-defined address book, all entries will be added
+ * to the supplied address book - this allows the address book UI so provide an
+ * import command specific for an individual address book.
+ *
+ * The source can import 1 or multiple address books.
+ * The address books can be auto-discoverable or user specified.
+ * The address books can require field mapping or not.
+ *
+ * All of this is rather complicated but it should work out OK.
+ * 1) The first UI panel will allow selection of the address book and will
+ *    indicate to the user if the address book will be imported into an
+ *    existing address book or new address books. (This could be 2 separate xul
+ *    UI's?).
+ * 2) The second panel will show field mapping if it is required - if it is
+ *    required then there will be one panel per address book for formats that
+ *    support multiple address books. If it is not required then there will be
+ *    no second panel.
+ * 3) Show the progress dialog for the import - this could be per address book
+ *    if mapping is required? what to do, what to doooooo.....
+ * 4) All done, maybe a what was done panel??
+ */
 
 #include "nsISupports.idl"
 
@@ -39,53 +40,52 @@ interface nsIAbDirectory;
 interface nsIImportFieldMap;
 
 [scriptable, uuid(6bba48be-331c-41e3-bc9f-c2ea3754d977)]
-interface nsIImportAddressBooks : nsISupports
-{
-  /*
-    Does this interface supports 1 or 1..n address books.  You only
-    get to choose 1 location so for formats where 1..n address books
-    are imported from a directory, then return true.  For a 1 to 1 relationship
-    between location and address books return false.
-  */
+interface nsIImportAddressBooks : nsISupports {
+  /**
+   * Does this interface supports 1 or 1..n address books.  You only get to
+   * choose 1 location so for formats where 1..n address books are imported
+   * from a directory, then return true.  For a 1 to 1 relationship between
+   * location and address books return false.
+   */
   boolean GetSupportsMultiple();
 
-  /*
-    If the address book is not found via a file location.then return true
-    along with a description string of how or where the address book is
-    located.  If it is a file location then return false.
-    If true, return a string like: "Outlook Express standard address book,
-    also known as the Windows address book" or just "Outlook Express address book".
-    If false, GetDefaultLocation will be called.
-  */
-
+  /**
+   * If the address book is not found via a file location.then return true
+   * along with a description string of how or where the address book is
+   * located.  If it is a file location then return false.
+   * If true, return a string like: "Outlook Express standard address book,
+   * also known as the Windows address book" or just "Outlook Express address
+   * book".
+   * If false, GetDefaultLocation will be called.
+   */
   boolean GetAutoFind(out wstring description);
 
-  /*
-    Returns true if the address book needs the user to specify a field map
-    for address books imported from this format.
-  */
+  /**
+   * Returns true if the address book needs the user to specify a field map for
+   * address books imported from this format.
+   */
   boolean GetNeedsFieldMap(in nsIFile location);
 
-  /*
-    If found and userVerify BOTH return false, then it is assumed that this
-    means an error - address book cannot be found on this machine.
-    If userVerify is true, the user will have an opportunity to specify
-    a different location to import address book from.
-  */
+  /**
+   * If found and userVerify BOTH return false, then it is assumed that this
+   * means an error - address book cannot be found on this machine.
+   * If userVerify is true, the user will have an opportunity to specify a
+   * different location to import address book from.
+   */
   void GetDefaultLocation(out nsIFile location,
                           out boolean found,
                           out boolean userVerify);
-  /*
-    Returns an nsIArray which contains an nsIImportABDescriptor for each
-    address book.  The array is not sorted before display to the user.
-    location is null if GetAutoFind returned true.
-  */
+  /**
+   * Returns an nsIArray which contains an nsIImportABDescriptor for each
+   * address book.  The array is not sorted before display to the user.
+   * location is null if GetAutoFind returned true.
+   */
   nsIArray FindAddressBooks(in nsIFile location);
 
-  /*
-    Fill in defaults (if any) for a field map for importing address
-    books from this location.
-  */
+  /**
+   * Fill in defaults (if any) for a field map for importing address books from
+   * this location.
+   */
   void InitFieldMap(in nsIImportFieldMap fieldMap);
 
   /**
@@ -97,8 +97,8 @@ interface nsIImportAddressBooks : nsISupports
    * @param aSource         The source data for the import.
    * @param aDestination    The proxy database for the destination of the
    *                        import.
-   * @param aFieldMap       The field map containing the mapping of fields to be
-   *                        used in cvs and tab type imports.
+   * @param aFieldMap       The field map containing the mapping of fields to
+   *                        be used in cvs and tab type imports.
    * @param aSupportService An optional proxy support service (nullptr is
    *                        acceptable if it is not required), may be required
    *                        for certain import types (e.g. nsIAbLDIFService for
@@ -115,26 +115,26 @@ interface nsIImportAddressBooks : nsISupports
                          out wstring aSuccessLog,
                          out boolean aFatalError);
 
-  /*
-    Return the amount of the address book that has been imported so far.  This number
-    is used to present progress information and must never be larger than the
-    size specified in nsIImportABDescriptor.GetSize();  May be called from
-    a different thread than ImportAddressBook()
-  */
+  /**
+   * Return the amount of the address book that has been imported so far. This
+   * number is used to present progress information and must never be larger
+   * than the size specified in nsIImportABDescriptor.GetSize(); May be called
+   * from a different thread than ImportAddressBook()
+   */
   unsigned long GetImportProgress();
 
-  /*
-    Set the location for reading sample data, this should be the same
-    as what is passed later to FindAddressBooks
-  */
+  /**
+   * Set the location for reading sample data, this should be the same as what
+   * is passed later to FindAddressBooks.
+   */
   void SetSampleLocation(in nsIFile location);
 
-  /*
-   * Return a string of sample data for a record, each field
-   * is separated by a newline (which means no newlines in the fields!)
-   * This is only supported by address books which use field maps and
-   * is used by the field map UI to allow the user to properly
-   * align fields to be imported.
+  /**
+   * Return a string of sample data for a record, each field is separated by a
+   * newline (which means no newlines in the fields!)
+   * This is only supported by address books which use field maps and is used
+   * by the field map UI to allow the user to properly align fields to be
+   * imported.
    *
    * @param recordNumber index of the recrds, starting from 0.
    * @param recordExists true if the record exists.
@@ -142,5 +142,4 @@ interface nsIImportAddressBooks : nsISupports
    * @returns a string of sample data for the desired record
    */
   wstring GetSampleData(in long recordNumber, out boolean recordExists);
-
 };
