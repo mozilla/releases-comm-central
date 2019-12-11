@@ -176,7 +176,6 @@ var directories = new Map();
 /**
  * Prototype for nsIAbDirectory objects that aren't mailing lists.
  *
- * @implements {nsIAbCollection}
  * @implements {nsIAbDirectory}
  */
 function AddrBookDirectoryInner(fileName) {
@@ -505,7 +504,7 @@ AddrBookDirectoryInner.prototype = {
     }
   },
 
-  /* nsIAbCollection */
+  /* nsIAbDirectory */
 
   get readOnly() {
     return false;
@@ -516,43 +515,6 @@ AddrBookDirectoryInner.prototype = {
   get isSecure() {
     return false;
   },
-  cardForEmailAddress(emailAddress) {
-    return (
-      this.getCardFromProperty("PrimaryEmail", emailAddress, false) ||
-      this.getCardFromProperty("SecondEmail", emailAddress, false)
-    );
-  },
-  getCardFromProperty(property, value, caseSensitive) {
-    let sql = caseSensitive
-      ? "SELECT card FROM properties WHERE name = :name AND value = :value LIMIT 1"
-      : "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value) LIMIT 1";
-    let selectStatement = this._dbConnection.createStatement(sql);
-    selectStatement.params.name = property;
-    selectStatement.params.value = value;
-    let result = null;
-    if (selectStatement.executeStep()) {
-      result = this._getCard({ uid: selectStatement.row.card });
-    }
-    selectStatement.finalize();
-    return result;
-  },
-  getCardsFromProperty(property, value, caseSensitive) {
-    let sql = caseSensitive
-      ? "SELECT card FROM properties WHERE name = :name AND value = :value"
-      : "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value)";
-    let selectStatement = this._dbConnection.createStatement(sql);
-    selectStatement.params.name = property;
-    selectStatement.params.value = value;
-    let results = [];
-    while (selectStatement.executeStep()) {
-      results.push(this._getCard({ uid: selectStatement.row.card }));
-    }
-    selectStatement.finalize();
-    return new SimpleEnumerator(results);
-  },
-
-  /* nsIAbDirectory */
-
   get propertiesChromeURI() {
     return "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml";
   },
@@ -746,6 +708,40 @@ AddrBookDirectoryInner.prototype = {
 
   generateName(generateFormat, bundle) {
     return this.dirName;
+  },
+  cardForEmailAddress(emailAddress) {
+    return (
+      this.getCardFromProperty("PrimaryEmail", emailAddress, false) ||
+      this.getCardFromProperty("SecondEmail", emailAddress, false)
+    );
+  },
+  getCardFromProperty(property, value, caseSensitive) {
+    let sql = caseSensitive
+      ? "SELECT card FROM properties WHERE name = :name AND value = :value LIMIT 1"
+      : "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value) LIMIT 1";
+    let selectStatement = this._dbConnection.createStatement(sql);
+    selectStatement.params.name = property;
+    selectStatement.params.value = value;
+    let result = null;
+    if (selectStatement.executeStep()) {
+      result = this._getCard({ uid: selectStatement.row.card });
+    }
+    selectStatement.finalize();
+    return result;
+  },
+  getCardsFromProperty(property, value, caseSensitive) {
+    let sql = caseSensitive
+      ? "SELECT card FROM properties WHERE name = :name AND value = :value"
+      : "SELECT card FROM properties WHERE name = :name AND LOWER(value) = LOWER(:value)";
+    let selectStatement = this._dbConnection.createStatement(sql);
+    selectStatement.params.name = property;
+    selectStatement.params.value = value;
+    let results = [];
+    while (selectStatement.executeStep()) {
+      results.push(this._getCard({ uid: selectStatement.row.card }));
+    }
+    selectStatement.finalize();
+    return new SimpleEnumerator(results);
   },
   deleteDirectory(directory) {
     let list = this._lists.get(directory.UID);

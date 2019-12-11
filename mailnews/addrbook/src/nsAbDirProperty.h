@@ -30,7 +30,6 @@ class nsAbDirProperty : public nsIAbDirectory, public nsSupportsWeakReference {
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIABITEM
-  NS_DECL_NSIABCOLLECTION
   NS_DECL_NSIABDIRECTORY
 
  protected:

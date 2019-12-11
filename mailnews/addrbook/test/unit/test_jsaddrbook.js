@@ -118,12 +118,10 @@ add_task(async function createAddressBook() {
   // Check nsIAbItem properties.
   equal(book.uuid, "ldap_2.servers.newbook&new book");
 
-  // Check nsIAbCollection properties;
+  // Check nsIAbDirectory properties.
   ok(!book.readOnly);
   ok(!book.isRemote);
   ok(!book.isSecure);
-
-  // Check nsIAbDirectory properties.
   equal(book.dirName, "new book");
   equal(book.dirType, DIR_TYPE);
   equal(book.fileName, FILE_NAME);

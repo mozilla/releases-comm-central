@@ -8,7 +8,6 @@ XPIDL_SOURCES += [
     'nsIAbAutoCompleteResult.idl',
     'nsIAbBooleanExpression.idl',
     'nsIAbCard.idl',
-    'nsIAbCollection.idl',
     'nsIAbDirectory.idl',
     'nsIAbDirectoryQuery.idl',
     'nsIAbDirectoryQueryProxy.idl',

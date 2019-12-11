@@ -44,7 +44,7 @@ nsAbDirProperty::~nsAbDirProperty(void) {
 }
 
 NS_IMPL_ISUPPORTS(nsAbDirProperty, nsIAbDirectory, nsISupportsWeakReference,
-                  nsIAbCollection, nsIAbItem)
+                  nsIAbItem)
 
 NS_IMETHODIMP nsAbDirProperty::GetUuid(nsACString &uuid) {
   // XXX: not all directories have a dirPrefId...

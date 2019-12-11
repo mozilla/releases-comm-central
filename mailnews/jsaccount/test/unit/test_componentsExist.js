@@ -28,7 +28,6 @@ let tests = [
   // JaAbDirectory
   ["@mozilla.org/jacppabdirectorydelegator;1", "nsISupports"],
   ["@mozilla.org/jacppabdirectorydelegator;1", "nsIAbDirectory"],
-  ["@mozilla.org/jacppabdirectorydelegator;1", "nsIAbCollection"],
   ["@mozilla.org/jacppabdirectorydelegator;1", "nsIAbItem"],
   ["@mozilla.org/jacppabdirectorydelegator;1", "msgIOverride"],
   ["@mozilla.org/jacppabdirectorydelegator;1", "nsIInterfaceRequestor"],
