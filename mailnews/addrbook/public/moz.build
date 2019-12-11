@@ -12,7 +12,6 @@ XPIDL_SOURCES += [
     'nsIAbDirectory.idl',
     'nsIAbDirectoryQuery.idl',
     'nsIAbDirectoryQueryProxy.idl',
-    'nsIAbDirectorySearch.idl',
     'nsIAbDirFactory.idl',
     'nsIAbDirFactoryService.idl',
     'nsIAbDirSearchListener.idl',

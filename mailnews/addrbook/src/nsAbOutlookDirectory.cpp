@@ -50,8 +50,7 @@ nsAbOutlookDirectory::~nsAbOutlookDirectory(void) {
 }
 
 NS_IMPL_ISUPPORTS_INHERITED(nsAbOutlookDirectory, nsAbDirProperty,
-                            nsIAbDirectoryQuery, nsIAbDirectorySearch,
-                            nsIAbDirSearchListener)
+                            nsIAbDirectoryQuery, nsIAbDirSearchListener)
 
 NS_IMETHODIMP nsAbOutlookDirectory::Init(const char *aUri) {
   nsresult rv = nsAbDirProperty::Init(aUri);
@@ -887,8 +886,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::StopQuery(int32_t aContext) {
   return NS_OK;
 }
 
-// nsIAbDirectorySearch methods
-NS_IMETHODIMP nsAbOutlookDirectory::StartSearch(void) {
+nsresult nsAbOutlookDirectory::StartSearch(void) {
   if (!mIsQueryURI) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
@@ -916,7 +914,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::StartSearch(void) {
   return DoQuery(this, arguments, this, -1, 0, &mSearchContext);
 }
 
-NS_IMETHODIMP nsAbOutlookDirectory::StopSearch(void) {
+nsresult nsAbOutlookDirectory::StopSearch(void) {
   if (!mIsQueryURI) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }

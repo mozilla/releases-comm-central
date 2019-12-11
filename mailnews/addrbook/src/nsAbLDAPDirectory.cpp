@@ -246,13 +246,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl) {
   return NS_OK;
 }
 
-/*
- *
- * nsIAbDirectorySearch methods
- *
- */
-
-NS_IMETHODIMP nsAbLDAPDirectory::StartSearch() {
+nsresult nsAbLDAPDirectory::StartSearch() {
   if (!mIsQueryURI || mQueryString.IsEmpty()) return NS_OK;
 
   nsresult rv = Initiate();
@@ -308,7 +302,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::StartSearch() {
   return rv;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::StopSearch() {
+nsresult nsAbLDAPDirectory::StopSearch() {
   nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 

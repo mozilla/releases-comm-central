@@ -18,7 +18,6 @@
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
 #include "nsDirPrefs.h"
-#include "nsIAbDirectorySearch.h"
 #include "nsIAbDirSearchListener.h"
 #include "nsInterfaceHashtable.h"
 #include "nsIAddrDBListener.h"
@@ -30,8 +29,7 @@
 class nsAbMDBDirectory
     : public nsAbMDBDirProperty,  // nsIAbDirectory, nsIAbMDBDirectory
       public nsIAbDirSearchListener,
-      public nsIAddrDBListener,
-      public nsIAbDirectorySearch {
+      public nsIAddrDBListener {
  public:
   nsAbMDBDirectory(void);
 
@@ -79,9 +77,6 @@ class nsAbMDBDirectory
                                   const nsACString &aValue, bool caseSensitive,
                                   nsISimpleEnumerator **result) override;
 
-  // nsIAbDirectorySearch methods
-  NS_DECL_NSIABDIRECTORYSEARCH
-
   // nsIAbDirSearchListener methods
   NS_DECL_NSIABDIRSEARCHLISTENER
 
@@ -94,6 +89,8 @@ class nsAbMDBDirectory
   nsresult NotifyItemDeleted(nsISupports *item);
   nsresult NotifyItemChanged(nsISupports *item);
   nsresult RemoveCardFromAddressList(nsIAbCard *card);
+
+  nsresult StartSearch();
 
   nsresult GetAbDatabase();
   nsCOMPtr<nsIAddrDatabase> mDatabase;

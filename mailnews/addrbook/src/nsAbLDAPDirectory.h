@@ -10,7 +10,6 @@
 #include "nsAbDirProperty.h"
 #include "nsAbLDAPDirectoryModify.h"
 #include "nsIAbDirectoryQuery.h"
-#include "nsIAbDirectorySearch.h"
 #include "nsIAbDirSearchListener.h"
 #include "nsIAbLDAPDirectory.h"
 #include "nsIMutableArray.h"
@@ -19,7 +18,6 @@
 
 class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
                           public nsAbLDAPDirectoryModify,
-                          public nsIAbDirectorySearch,
                           public nsIAbLDAPDirectory,
                           public nsIAbDirSearchListener {
  public:
@@ -46,14 +44,15 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD ModifyCard(nsIAbCard *aModifiedCard) override;
   NS_IMETHOD DeleteCards(nsIArray *aCards) override;
 
-  // nsIAbDirectorySearch methods
-  NS_DECL_NSIABDIRECTORYSEARCH
   NS_DECL_NSIABLDAPDIRECTORY
   NS_DECL_NSIABDIRSEARCHLISTENER
 
  protected:
   virtual ~nsAbLDAPDirectory();
   nsresult Initiate();
+
+  nsresult StartSearch();
+  nsresult StopSearch();
 
   bool mPerformingQuery;
   int32_t mContext;

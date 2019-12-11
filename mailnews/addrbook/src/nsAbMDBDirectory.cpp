@@ -40,8 +40,7 @@ nsAbMDBDirectory::~nsAbMDBDirectory(void) {
 }
 
 NS_IMPL_ISUPPORTS_INHERITED(nsAbMDBDirectory, nsAbMDBDirProperty,
-                            nsIAbDirSearchListener, nsIAbDirectorySearch,
-                            nsIAddrDBListener)
+                            nsIAbDirSearchListener, nsIAddrDBListener)
 
 NS_IMETHODIMP nsAbMDBDirectory::Init(const char *aUri) {
   // We need to ensure  that the m_DirPrefId is initialized properly
@@ -839,9 +838,7 @@ NS_IMETHODIMP nsAbMDBDirectory::OnAnnouncerGoingAway() {
   return NS_OK;
 }
 
-// nsIAbDirectorySearch methods
-
-NS_IMETHODIMP nsAbMDBDirectory::StartSearch() {
+nsresult nsAbMDBDirectory::StartSearch() {
   if (!mIsQueryURI) return NS_ERROR_FAILURE;
 
   nsresult rv;
@@ -901,12 +898,6 @@ NS_IMETHODIMP nsAbMDBDirectory::StartSearch() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = queryProxy->DoQuery(directory, arguments, this, -1, 0, &mContext);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAbMDBDirectory::StopSearch() {
-  if (!mIsQueryURI) return NS_ERROR_FAILURE;
-
   return NS_OK;
 }
 

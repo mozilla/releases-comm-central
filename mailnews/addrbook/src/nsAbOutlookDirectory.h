@@ -8,7 +8,6 @@
 #include "mozilla/Attributes.h"
 #include "nsAbDirProperty.h"
 #include "nsIAbDirectoryQuery.h"
-#include "nsIAbDirectorySearch.h"
 #include "nsIAbDirSearchListener.h"
 #include "nsDataHashtable.h"
 #include "nsInterfaceHashtable.h"
@@ -20,7 +19,6 @@ struct nsMapiEntry;
 
 class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
                              public nsIAbDirectoryQuery,
-                             public nsIAbDirectorySearch,
                              public nsIAbDirSearchListener,
                              public nsIAbDirectoryQueryResultListener {
  public:
@@ -54,14 +52,15 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD Init(const char *aUri) override;
   // nsIAbDirectoryQuery methods
   NS_DECL_NSIABDIRECTORYQUERY
-  // nsIAbDirectorySearch methods
-  NS_DECL_NSIABDIRECTORYSEARCH
   // Perform a MAPI query (function executed in a separate thread)
   nsresult ExecuteQuery(SRestriction &aRestriction,
                         nsIAbDirSearchListener *aListener, int32_t aResultLimit,
                         int32_t aTimeout, int32_t aThreadId);
 
  protected:
+  nsresult StartSearch();
+  nsresult StopSearch();
+
   // Retrieve hierarchy as cards, with an optional restriction
   nsresult GetChildCards(nsIMutableArray *aCards, void *aRestriction);
   // Retrieve hierarchy as directories
