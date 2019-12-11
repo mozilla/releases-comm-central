@@ -15,16 +15,15 @@
 %enigMailDTD;
 ]>
 
-<dialog id="enigmailKeyDetailsDlg"
-        title="&enigmail.keyDetails.title;"
+<window title="&enigmail.keyDetails.title;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        buttons="accept"
         minwidth="450px"
         persist="width height"
-        buttonlabelaccept="&enigmail.cardDetails.closeWindow.label;"
         onload="onLoad();">
-
+<dialog id="enigmailKeyDetailsDlg"
+        buttons="accept"
+        buttonlabelaccept="&enigmail.cardDetails.closeWindow.label;">
 
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/keyDetailsDlg.js"/>
@@ -210,3 +209,4 @@
   </hbox>
 
 </dialog>
+</window>

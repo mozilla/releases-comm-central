@@ -314,22 +314,28 @@ function test_shift_delete_prompt() {
 
   // First, try shift-deleting and then cancelling at the prompt.
   Services.prefs.setBoolPref("mail.warn_on_shift_delete", true);
-  plan_for_modal_dialog("commonDialog", function(controller) {
-    controller.window.document.documentElement.getButton("cancel").doCommand();
+  plan_for_modal_dialog("commonDialogWindow", function(controller) {
+    controller.window.document
+      .querySelector("dialog")
+      .getButton("cancel")
+      .doCommand();
   });
   // We don't use press_delete here because we're not actually deleting this
   // time!
   mc.keypress(null, "VK_DELETE", { shiftKey: true });
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
   // Make sure we didn't actually delete the message.
   assert_equals(curMessage, select_click_row(0));
 
   // Second, try shift-deleting and then accepting the deletion.
-  plan_for_modal_dialog("commonDialog", function(controller) {
-    controller.window.document.documentElement.getButton("accept").doCommand();
+  plan_for_modal_dialog("commonDialogWindow", function(controller) {
+    controller.window.document
+      .querySelector("dialog")
+      .getButton("accept")
+      .doCommand();
   });
   press_delete(mc, { shiftKey: true });
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
   // Make sure we really did delete the message.
   assert_not_equals(curMessage, select_click_row(0));
 
@@ -337,7 +343,7 @@ function test_shift_delete_prompt() {
   Services.prefs.setBoolPref("mail.warn_on_shift_delete", false);
   curMessage = select_click_row(0);
   press_delete(mc, { shiftKey: true });
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
   // Make sure we really did delete the message.
   assert_not_equals(curMessage, select_click_row(0));
 
@@ -352,22 +358,28 @@ function test_thread_delete_prompt() {
   let curMessage = select_click_row(0);
   // First, try deleting and then cancelling at the prompt.
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", true);
-  plan_for_modal_dialog("commonDialog", function(controller) {
-    controller.window.document.documentElement.getButton("cancel").doCommand();
+  plan_for_modal_dialog("commonDialogWindow", function(controller) {
+    controller.window.document
+      .querySelector("dialog")
+      .getButton("cancel")
+      .doCommand();
   });
   // We don't use press_delete here because we're not actually deleting this
   // time!
   mc.keypress(null, "VK_DELETE", {});
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
   // Make sure we didn't actually delete the message.
   assert_equals(curMessage, select_click_row(0));
 
   // Second, try deleting and then accepting the deletion.
-  plan_for_modal_dialog("commonDialog", function(controller) {
-    controller.window.document.documentElement.getButton("accept").doCommand();
+  plan_for_modal_dialog("commonDialogWindow", function(controller) {
+    controller.window.document
+      .querySelector("dialog")
+      .getButton("accept")
+      .doCommand();
   });
   press_delete(mc);
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
   // Make sure we really did delete the message.
   assert_not_equals(curMessage, select_click_row(0));
 
@@ -375,7 +387,7 @@ function test_thread_delete_prompt() {
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", false);
   curMessage = select_click_row(0);
   press_delete(mc);
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
   // Make sure we really did delete the message.
   assert_not_equals(curMessage, select_click_row(0));
 

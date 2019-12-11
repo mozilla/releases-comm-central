@@ -6,10 +6,11 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/cloudfile/selectDialog.css" type="text/css"?>
-<!DOCTYPE dialog SYSTEM "chrome://global/locale/commonDialog.dtd">
+<!DOCTYPE window SYSTEM "chrome://global/locale/commonDialog.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      onload="cloudfileDialogOnLoad();">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="cloudfileDialogOnLoad();">
+<dialog>
 
   <script type="application/javascript" src="chrome://messenger/content/cloudfile/selectDialog.js" />
   <script type="application/javascript" src="chrome://global/content/selectDialog.js" />
@@ -21,3 +22,4 @@
     </vbox>
   </vbox>
 </dialog>
+</window>

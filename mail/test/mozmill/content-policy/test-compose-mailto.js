@@ -48,7 +48,7 @@ function test_checkInsertImage() {
   gComposeWin.e("content-frame").focus();
 
   // Now open the image window
-  plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
+  plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     // Insert the url of the image.
     let srcloc = mwc.window.document.getElementById("srcInput");
     srcloc.focus();
@@ -60,7 +60,7 @@ function test_checkInsertImage() {
     mwc.click(mwc.eid("noAltTextRadio"));
 
     // Accept the dialog
-    mwc.window.document.getElementById("imageDlg").acceptDialog();
+    mwc.window.document.querySelector("dialog").acceptDialog();
   });
   gComposeWin.click(gComposeWin.eid("insertImage"));
 

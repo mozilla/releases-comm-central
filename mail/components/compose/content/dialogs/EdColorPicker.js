@@ -42,7 +42,7 @@ function Startup() {
   gDialog.TableRadio = document.getElementById("TableRadio");
   gDialog.CellRadio = document.getElementById("CellRadio");
   gDialog.ColorSwatch = document.getElementById("ColorPickerSwatch");
-  gDialog.Ok = document.documentElement.getButton("accept");
+  gDialog.Ok = document.querySelector("dialog").getButton("accept");
 
   // The type of color we are setting:
   //  text: Text, Link, ActiveLink, VisitedLink,

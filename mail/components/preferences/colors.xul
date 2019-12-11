@@ -8,18 +8,19 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/preferences/colors.dtd" >
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/preferences/colors.dtd" >
 
-<dialog id="ColorsDialog" type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&colorsDialog.title;"
-        dlgbuttons="accept,cancel"
 #ifdef XP_MACOSX
         style="width: &window.macWidth; !important;">
 #else
         style="width: &window.width; !important;">
 #endif
+<dialog id="ColorsDialog"
+        type="child"
+        dlgbuttons="accept,cancel">
   <prefpane id="ColorsDialogPane">
     <hbox>
       <groupbox flex="1">
@@ -84,3 +85,4 @@
   <script src="chrome://global/content/preferencesBindings.js"/>
   <script src="chrome://messenger/content/preferences/colors.js"/>
 </dialog>
+</window>

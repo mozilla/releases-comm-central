@@ -53,9 +53,11 @@ var gSystemIntegrationDialog = {
 
       // If called from preferences, use only a simpler "Cancel" label on the
       // cancel button.
-      document.documentElement.getButton(
-        "cancel"
-      ).label = document.documentElement.getAttribute("buttonlabelcancel2");
+      document
+        .querySelector("dialog")
+        .getButton("cancel").label = document
+        .querySelector("dialog")
+        .getAttribute("buttonlabelcancel2");
     }
 
     if (!this._mailCheckbox.disabled) {

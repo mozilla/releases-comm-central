@@ -51,9 +51,11 @@ var gSanitizePromptDialog = {
 
     this.onReadGeneric();
 
-    document.documentElement.getButton(
-      "accept"
-    ).label = this.bundleBrowser.getString("sanitizeButtonOK");
+    document
+      .querySelector("dialog")
+      .getButton("accept").label = this.bundleBrowser.getString(
+      "sanitizeButtonOK"
+    );
 
     if (this.selectedTimespan === Sanitizer.TIMESPAN_EVERYTHING) {
       this.prepareWarning();
@@ -160,7 +162,7 @@ var gSanitizePromptDialog = {
     }
 
     try {
-      document.documentElement.getButton("accept").disabled = !found;
+      document.querySelector("dialog").getButton("accept").disabled = !found;
     } catch (e) {}
 
     // Update the warning prompt if needed

@@ -22,7 +22,7 @@ function Startup() {
     return;
   }
 
-  gDialog.OkButton = document.documentElement.getButton("accept");
+  gDialog.OkButton = document.querySelector("dialog").getButton("accept");
   gDialog.NameInput = document.getElementById("nameInput");
 
   // Get a single selected element of the desired type

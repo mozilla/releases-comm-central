@@ -6,21 +6,21 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % mailViewLisDTD SYSTEM "chrome://messenger/locale/mailViewList.dtd">
 %mailViewLisDTD;
 <!ENTITY % FilterListDialogDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">
 %FilterListDialogDTD;
 ]>
 
-<dialog id="mailViewListDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         onload="mailViewListOnLoad();"
         windowtype="mailnews:mailviewlist"
         title="&mailViewListTitle.label;"
         width="400" height="340"
-        buttons="accept"
         persist="screenX screenY width height">
+<dialog id="mailViewListDialog"
+        buttons="accept">
 
   <script src="chrome://messenger/content/mailViewList.js"/>
 
@@ -39,3 +39,4 @@
     </hbox>
   </vbox>
 </dialog>
+</window>

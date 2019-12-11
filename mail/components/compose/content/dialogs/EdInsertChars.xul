@@ -6,15 +6,16 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertChars.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertChars.dtd">
 
-<dialog id="insertCharsDlg" title="&windowTitle.label;"
+<dialog title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        onload = "Startup()"
-        onfocus = "onFocus()"
+        onload="Startup()"
+        onfocus="onFocus()"
+        style="width: 20em">
+<dialog id="insertCharsDlg"
         buttonlabelaccept="&insertButton.label;"
-        buttonlabelcancel="&closeButton.label;"
-        style = "width: 20em">
+        buttonlabelcancel="&closeButton.label;">
 
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
@@ -53,3 +54,4 @@
   </hbox>
   <separator class="groove"/>
 </dialog>
+</window>

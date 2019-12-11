@@ -7,13 +7,16 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/preferences/dockoptions.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/preferences/dockoptions.dtd">
 
-<dialog id="DockOptionsDialog" type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&dockOptionsDialog.title;" dlgbuttons="accept,cancel"
+        title="&dockOptionsDialog.title;"
         style="width: &window.macWidth;">
+<dialog id="DockOptionsDialog"
+        type="child"
+        dlgbuttons="accept,cancel">
+
   <prefpane id="DockOptionsDialogPane">
     <hbox orient="vertical">
       <checkbox id="newMailNotificationBounce"
@@ -44,3 +47,4 @@
   <script src="chrome://global/content/preferencesBindings.js"/>
   <script src="chrome://messenger/content/preferences/dockoptions.js"/>
 </dialog>
+</window>

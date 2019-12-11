@@ -26,7 +26,7 @@ function mailViewOnLoad() {
     }
   }
 
-  dialog.OKButton = document.documentElement.getButton("accept");
+  dialog.OKButton = document.querySelector("dialog").getButton("accept");
   dialog.nameField = document.getElementById("name");
   dialog.nameField.focus();
 

@@ -1398,10 +1398,12 @@ function ApplyAttributesToOneCell(destElement) {
 function SetCloseButton() {
   // Change text on "Cancel" button after Apply is used
   if (!gApplyUsed) {
-    document.documentElement.setAttribute(
-      "buttonlabelcancel",
-      document.documentElement.getAttribute("buttonlabelclose")
-    );
+    document
+      .querySelector("dialog")
+      .setAttribute(
+        "buttonlabelcancel",
+        document.querySelector("dialog").getAttribute("buttonlabelclose")
+      );
     gApplyUsed = true;
   }
 }

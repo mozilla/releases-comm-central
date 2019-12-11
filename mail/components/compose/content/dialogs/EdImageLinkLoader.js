@@ -27,7 +27,7 @@ function OnLoadDialog() {
     // initialize the AttachSourceToMail checkbox
     gMsgCompAttachSourceElement.hidden = false;
 
-    switch (document.documentElement.id) {
+    switch (document.querySelector("dialog").id) {
       case "imageDlg":
         gMsgCompInputElement = gDialog.srcInput;
         gMsgCompProcessLink = false;

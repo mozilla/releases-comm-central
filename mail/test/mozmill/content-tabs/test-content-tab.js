@@ -203,8 +203,11 @@ function test_content_tab_onbeforeunload() {
   const interactionPref = "dom.require_user_interaction_for_beforeunload";
   Services.prefs.setBoolPref(interactionPref, false);
 
-  plan_for_modal_dialog("commonDialog", function(controller) {
-    controller.window.document.documentElement.getButton("accept").doCommand();
+  plan_for_modal_dialog("commonDialogWindow", function(controller) {
+    controller.window.document
+      .querySelector("dialog")
+      .getButton("accept")
+      .doCommand();
   });
   mc.tabmail.closeTab(tab);
   wait_for_modal_dialog();

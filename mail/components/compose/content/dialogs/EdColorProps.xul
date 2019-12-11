@@ -7,7 +7,7 @@
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % edColorPropertiesDTD SYSTEM "chrome://messenger/locale/messengercompose/EditorColorProperties.dtd">
 %edColorPropertiesDTD;
 <!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
@@ -16,10 +16,11 @@
 %edDialogOverlay;
 ]>
 
-<dialog title="&windowTitle.label;"
+<window title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="Startup()">
+<dialog>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -140,3 +141,4 @@
   </hbox>
   <separator class="groove"/>
 </dialog>
+</window>

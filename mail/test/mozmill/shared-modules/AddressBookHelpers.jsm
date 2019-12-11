@@ -409,9 +409,9 @@ function select_contacts(aContacts) {
  *                  augmented controller for the editing dialog.
  */
 function edit_selected_contact(aController, aFunction) {
-  windowHelper.plan_for_modal_dialog("abcardWindow", aFunction);
+  windowHelper.plan_for_modal_dialog("Mail:abcard", aFunction);
   aController.click(aController.eid("button-editcard"));
-  windowHelper.wait_for_modal_dialog("abcardWindow");
+  windowHelper.wait_for_modal_dialog("Mail:abcard");
 }
 
 /**
@@ -421,7 +421,11 @@ function edit_selected_contact(aController, aFunction) {
  * @param aController the contact editing dialog controller to use.
  */
 function accept_contact_changes(aController) {
-  if (!aController.window.document.documentElement.acceptDialog()) {
+  if (
+    !aController.window.document.documentElement
+      .querySelector("dialog")
+      .acceptDialog()
+  ) {
     throw new Error("Could not close the contact editing dialog!");
   }
 }

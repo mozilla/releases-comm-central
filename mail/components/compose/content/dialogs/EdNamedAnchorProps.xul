@@ -8,16 +8,17 @@
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % edNamedAnchorProperties SYSTEM "chrome://messenger/locale/messengercompose/EdNamedAnchorProperties.dtd">
 %edNamedAnchorProperties;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay;
 ]>
 
-<dialog title="&windowTitle.label;"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-    onload="Startup()">
+<window title="&windowTitle.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup()">
+<dialog>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -47,3 +48,4 @@
     <separator id="advancedSeparator" class="groove"/>
   </vbox>
 </dialog>
+</window>

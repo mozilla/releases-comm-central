@@ -27,9 +27,9 @@ var addBuddy = {
   },
 
   oninput() {
-    document.documentElement.getButton("accept").disabled = !addBuddy.getValue(
-      "name"
-    );
+    document
+      .querySelector("dialog")
+      .getButton("accept").disabled = !addBuddy.getValue("name");
   },
 
   getValue(aId) {

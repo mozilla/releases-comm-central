@@ -8,15 +8,16 @@
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % notificationsDTD SYSTEM "chrome://messenger/locale/preferences/notifications.dtd">
   %notificationsDTD;
 ]>
 
-<dialog id="NotificationsDialog" type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        dlgbuttons="accept,cancel"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&notificationsDialog2.title;">
+<dialog id="NotificationsDialog" type="child"
+        dlgbuttons="accept,cancel">
+
   <prefpane id="NotificationsDialogPane">
     <description>&alertCustomization.intro;</description>
     <checkbox id="previewText" class="indent" label="&previewText.label;" accesskey="&previewText.accesskey;" preference="mail.biff.alert.show_preview"/>
@@ -40,3 +41,4 @@
   <script src="chrome://global/content/preferencesBindings.js"/>
   <script src="chrome://messenger/content/preferences/notifications.js"/>
 </dialog>
+</window>

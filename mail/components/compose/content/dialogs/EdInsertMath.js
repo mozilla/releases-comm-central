@@ -19,7 +19,7 @@ function Startup() {
   }
 
   // Create dialog object for easy access
-  gDialog.accept = document.documentElement.getButton("accept");
+  gDialog.accept = document.querySelector("dialog").getButton("accept");
   gDialog.mode = document.getElementById("optionMode");
   gDialog.direction = document.getElementById("optionDirection");
   gDialog.input = document.getElementById("input");

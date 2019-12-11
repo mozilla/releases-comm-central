@@ -11,13 +11,13 @@
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EdAdvancedEdit.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EdAdvancedEdit.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        id="advancedEditDlg"
+<Window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 40em;"
         title="&WindowTitle.label;"
         onload="Startup()">
+<dialog id="advancedEditDlg">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -176,3 +176,4 @@
     </tabpanels>
   </tabbox>
 </dialog>
+</window>

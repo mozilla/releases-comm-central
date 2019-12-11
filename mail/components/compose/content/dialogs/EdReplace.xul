@@ -9,13 +9,14 @@
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorReplace.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorReplace.dtd">
 
-<dialog id="replaceDlg" title="&replaceDialog.title;"
-   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-   persist="screenX screenY"
-   buttons="cancel"
-   onload="onLoad()">
+<window title="&replaceDialog.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        persist="screenX screenY"
+        onload="onLoad()">
+<dialog id="replaceDlg"
+        buttons="cancel">
 
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
@@ -65,3 +66,4 @@
     </vbox>
   </hbox>
 </dialog>
+</window>

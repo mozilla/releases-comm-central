@@ -7,16 +7,17 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % receiptsDTD SYSTEM "chrome://messenger/locale/preferences/receipts.dtd">
 %receiptsDTD;
 ]>
 
-<dialog id="ReturnReceiptsDialog" type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        dlgbuttons="accept,cancel"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&dialog.title;"
         onload="enableDisableAllowedReceipts();">
+<dialog id="ReturnReceiptsDialog"
+        type="child"
+        dlgbuttons="accept,cancel">
 
   <prefpane id="ReturnReceiptsDialogPane">
     <script src="chrome://global/content/preferencesBindings.js"/>
@@ -99,3 +100,4 @@
     <separator/>
   </prefpane>
 </dialog>
+</window>

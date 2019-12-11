@@ -17,12 +17,12 @@
 %utilityDTD;
 ]>
 
-<dialog id="enigmailMsgBox"
-        title=""
+<window title=""
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         buttons="accept,help,cancel,extra1,extra2"
         onload="onLoad();"
-        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:html="http://www.w3.org/1999/xhtml">
+<dialog id="enigmailMsgBox"
         buttonpack="center">
 
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailMsgBox.js"/>
@@ -62,3 +62,4 @@
   </rows>
 </grid>
 </dialog>
+</window>

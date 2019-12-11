@@ -6,16 +6,16 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://mozapps/skin/profile/profileDowngrade.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % profileDTD SYSTEM "chrome://mozapps/locale/profile/profileDowngrade.dtd">
 %profileDTD;
 ]>
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="&window.title;" onload="init()" style="&window.style;"
-        buttonlabelextra1="&window.create;"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        title="&window.title;" onload="init()" style="&window.style;">
+<dialog buttonlabelextra1="&window.create;"
 #ifdef XP_WIN
         buttonlabelaccept="&window.quit-win;"
 #else
@@ -40,3 +40,4 @@
   </hbox>
 
 </dialog>
+</window>

@@ -8,13 +8,14 @@
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EdConvertToTable.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EdConvertToTable.dtd">
 
-<dialog title="&windowTitle.label;"
+<window title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="Startup()"
         style="min-width:20em">
+<dialog>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -46,3 +47,4 @@
   <checkbox id="DeleteSepCharacter" label="&deleteCharCheck.label;" persist="checked"/>
   <spacer class="spacer"/>
 </dialog>
+</window>

@@ -313,9 +313,9 @@ function test_attachment_name_click() {
 
   // Ensure the open dialog appears when clicking on the attachment name and
   // that the attachment list doesn't expand.
-  plan_for_modal_dialog("unknownContentType", function() {});
+  plan_for_modal_dialog("unknownContentTypeWindow", function() {});
   mc.click(mc.eid("attachmentName"));
-  wait_for_modal_dialog("unknownContentType");
+  wait_for_modal_dialog("unknownContentTypeWindow");
   assert_true(
     attachmentList.collapsed,
     "Attachment list should not expand when clicking on attachmentName!"
@@ -535,18 +535,18 @@ function test_delete_attachment_key() {
   mc.click(firstAttachment, 5, 5);
 
   // Try deleting with the delete key
-  plan_for_modal_dialog("commonDialog", function(cdc) {
-    cdc.window.document.documentElement.cancelDialog();
+  plan_for_modal_dialog("commonDialogWindow", function(cdc) {
+    cdc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
   mc.keypress(firstAttachment, "VK_DELETE", {});
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 
   // Try deleting with the shift-delete key combo.
-  plan_for_modal_dialog("commonDialog", function(cdc) {
-    cdc.window.document.documentElement.cancelDialog();
+  plan_for_modal_dialog("commonDialogWindow", function(cdc) {
+    cdc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
   mc.keypress(firstAttachment, "VK_DELETE", { shiftKey: true });
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 }
 
 function test_attachments_compose_menu() {

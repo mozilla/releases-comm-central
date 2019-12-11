@@ -74,9 +74,12 @@ function forward_selected_messages_and_go_to_drafts_folder(f) {
 
   plan_for_window_close(cwc);
   // mwc is modal window controller
-  plan_for_modal_dialog("commonDialog", function click_save(mwc) {
+  plan_for_modal_dialog("commonDialogWindow", function click_save(mwc) {
     // accept saving
-    mwc.window.document.documentElement.getButton("accept").doCommand();
+    mwc.window.document
+      .querySelector("dialog")
+      .getButton("accept")
+      .doCommand();
   });
 
   // quit -> do you want to save ?

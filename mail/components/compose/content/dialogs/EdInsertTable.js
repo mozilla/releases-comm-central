@@ -41,7 +41,7 @@ function Startup() {
   gDialog.widthPixelOrPercentMenulist = document.getElementById(
     "widthPixelOrPercentMenulist"
   );
-  gDialog.OkButton = document.documentElement.getButton("accept");
+  gDialog.OkButton = document.querySelector("dialog").getButton("accept");
 
   // Make a copy to use for AdvancedEdit
   globalElement = gTableElement.cloneNode(false);

@@ -7,19 +7,19 @@
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/cardDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % newCardDTD SYSTEM "chrome://messenger/locale/addressbook/abNewCardDialog.dtd">
   %newCardDTD;
   <!ENTITY % abCardDTD SYSTEM "chrome://messenger/locale/addressbook/abCard.dtd">
   %abCardDTD;
 ]>
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        id="abcardWindow"
-        icon="abcardWindow"
         windowtype="mailnews:newcarddialog"
-        onload="OnLoadNewCard()">
+        onload="OnLoadNewCard()"
+        icon="abcardWindow">
+<dialog id="abcardDialog">
 
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
@@ -40,3 +40,4 @@
 #include abCard.inc.xul
 
 </dialog>
+</window>

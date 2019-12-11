@@ -67,7 +67,7 @@ function ImageStartup() {
   gDialog.PreviewHeight = document.getElementById("PreviewHeight");
   gDialog.PreviewSize = document.getElementById("PreviewSize");
   gDialog.PreviewImage = null;
-  gDialog.OkButton = document.documentElement.getButton("accept");
+  gDialog.OkButton = document.querySelector("dialog").getButton("accept");
 }
 
 // Set dialog widgets with attribute data

@@ -29,15 +29,15 @@
 #endif
 ]>
 
-<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        id="systemIntegrationDialog"
+        onload="gSystemIntegrationDialog.onLoad();"
+        title="&systemIntegration.title;">
+<dialog id="systemIntegrationDialog"
         buttons="accept,cancel"
         buttonlabelaccept="&acceptIntegration.label;"
         buttonlabelcancel="&cancelIntegration.label;"
-        buttonlabelcancel2="&cancelIntegration2.label;"
-        onload="gSystemIntegrationDialog.onLoad();"
-        title="&systemIntegration.title;">
+        buttonlabelcancel2="&cancelIntegration2.label;">
 
   <script src="chrome://messenger/content/systemIntegrationDialog.js"/>
 
@@ -68,3 +68,4 @@
             accesskey="&checkOnStartup.accesskey;"/>
 
 </dialog>
+</window>

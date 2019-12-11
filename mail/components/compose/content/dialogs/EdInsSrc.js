@@ -22,7 +22,10 @@ function Startup() {
     return;
   }
 
-  document.documentElement.getButton("accept").removeAttribute("default");
+  document
+    .querySelector("dialog")
+    .getButton("accept")
+    .removeAttribute("default");
 
   // Create dialog object to store controls for easy access
   gDialog.srcInput = document.getElementById("srcInput");

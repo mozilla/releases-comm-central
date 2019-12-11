@@ -7,14 +7,14 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertSource.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertSource.dtd">
 
-<dialog title="&windowTitle.label;"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    xmlns:html="http://www.w3.org/1999/xhtml"
-    onload = "Startup()"
-    buttonlabelaccept="&insertButton.label;"
-    buttonaccesskeyaccept="&insertButton.accesskey;">
+<window title="&windowTitle.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup()">
+<dialog buttonlabelaccept="&insertButton.label;"
+        buttonaccesskeyaccept="&insertButton.accesskey;">
 
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -40,3 +40,4 @@
   <spacer class="spacer"/>
   <separator class="groove"/>
 </dialog>
+</window>

@@ -263,7 +263,10 @@ function test_delete_attachments() {
 
 function subtest_rename_attachment(cwc) {
   cwc.e("loginTextbox").value = "renamed.txt";
-  cwc.window.document.documentElement.getButton("accept").doCommand();
+  cwc.window.document
+    .querySelector("dialog")
+    .getButton("accept")
+    .doCommand();
 }
 
 function test_rename_attachment() {
@@ -278,9 +281,9 @@ function test_rename_attachment() {
   let bucket = cwc.e("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   cwc.click(new elib.Elem(node));
-  plan_for_modal_dialog("commonDialog", subtest_rename_attachment);
+  plan_for_modal_dialog("commonDialogWindow", subtest_rename_attachment);
   cwc.window.RenameSelectedAttachment();
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 
   assert_equals(node.getAttribute("name"), "renamed.txt");
 
@@ -291,7 +294,10 @@ function test_rename_attachment() {
 }
 
 function subtest_open_attachment(cwc) {
-  cwc.window.document.documentElement.getButton("cancel").doCommand();
+  cwc.window.document
+    .querySelector("dialog")
+    .getButton("cancel")
+    .doCommand();
 }
 
 function test_open_attachment() {
@@ -311,9 +317,9 @@ function test_open_attachment() {
   // Now, open the attachment.
   let bucket = cwc.e("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
-  plan_for_modal_dialog("unknownContentType", subtest_open_attachment);
+  plan_for_modal_dialog("unknownContentTypeWindow", subtest_open_attachment);
   cwc.doubleClick(new elib.Elem(node));
-  wait_for_modal_dialog("unknownContentType");
+  wait_for_modal_dialog("unknownContentTypeWindow");
 
   close_compose_window(cwc);
 }

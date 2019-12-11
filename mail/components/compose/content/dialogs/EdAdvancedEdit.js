@@ -88,7 +88,7 @@ function Startup() {
     "AddJSEAttributeValueInput"
   );
   gDialog.AddJSEAttributeTree = document.getElementById("JSEATree");
-  gDialog.okButton = document.documentElement.getButton("accept");
+  gDialog.okButton = document.querySelector("dialog").getButton("accept");
 
   // build the attribute trees
   BuildHTMLAttributeTable();

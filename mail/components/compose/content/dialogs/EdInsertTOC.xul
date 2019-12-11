@@ -8,13 +8,14 @@
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertTOC.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertTOC.dtd">
 
-<dialog title="&Window.title;"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    xmlns:html="http://www.w3.org/1999/xhtml"
-    onload="Startup();"
-    oncancel="window.close(); return true;">
+<window title="&Window.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup();"
+        oncancel="window.close(); return true;">
+<dialog>
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -254,3 +255,4 @@
     <separator class="groove"/>
   </vbox>
 </dialog>
+</window>

@@ -7,20 +7,20 @@
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
 <!ENTITY % sendOptionsDTD SYSTEM "chrome://messenger/locale/preferences/sendoptions.dtd" >
 %sendOptionsDTD;
 ]>
 
-<dialog id="SendOptionsDialog" type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        dlgbuttons="accept,cancel"
         style="min-height: 33em;"
         title="&dialog.title;"
         onload="gSendOptionsDialog.init();">
+<dialog id="SendOptionsDialog" type="child"
+        dlgbuttons="accept,cancel">
 
   <prefpane id="SendOptionsDialogPane">
     <script src="chrome://global/content/preferencesBindings.js"/>
@@ -100,3 +100,4 @@
     <separator/>
   </prefpane>
 </dialog>
+</window>

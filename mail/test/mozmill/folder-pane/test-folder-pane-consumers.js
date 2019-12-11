@@ -50,7 +50,7 @@ function subtest_create_virtual_folder(vfc) {
   vfc.click(vfc.eid("folderListPicker"));
   wait_for_modal_dialog("mailnews:virtualFolderList");
 
-  vfc.window.document.documentElement.cancelDialog();
+  vfc.window.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
 /**
@@ -64,7 +64,7 @@ function subtest_check_virtual_folder_list(listc) {
     tree.view.rowCount > 0,
     "Folder tree was empty in virtual folder selection!"
   );
-  listc.window.document.documentElement.cancelDialog();
+  listc.window.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
 function test_offline_sync_folder_selection_tree() {
@@ -87,7 +87,7 @@ function subtest_offline_sync(osc) {
   osc.click(osc.eid("select"));
   wait_for_modal_dialog("mailnews:selectOffline");
 
-  osc.window.document.documentElement.cancelDialog();
+  osc.window.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
 /**
@@ -101,7 +101,7 @@ function subtest_check_offline_folder_list(listc) {
     tree.view.rowCount > 0,
     "Folder tree was empty in offline sync selection!"
   );
-  listc.window.document.documentElement.cancelDialog();
+  listc.window.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
 function teardownModule() {

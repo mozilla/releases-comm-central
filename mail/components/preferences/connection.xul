@@ -5,17 +5,15 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/preferences/connection.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/preferences/connection.dtd">
 
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
-<dialog id="ConnectionsDialog" type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&connectionsDialog.title;"
-        dlgbuttons="accept,cancel"
         onbeforeaccept="return gConnectionsDialog.beforeAccept();"
         onload="gConnectionsDialog.checkForSystemProxy();"
 #ifdef XP_MACOSX
@@ -23,6 +21,9 @@
 #else
         style="width: &window.width; !important;">
 #endif
+<dialog id="ConnectionsDialog"
+        type="child"
+        dlgbuttons="accept,cancel">
 
   <linkset>
     <html:link rel="localization" href="messenger/preferences/connection.ftl"/>
@@ -166,3 +167,4 @@
   </vbox>
   <separator/>
 </dialog>
+</window>

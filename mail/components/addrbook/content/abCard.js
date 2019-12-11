@@ -353,7 +353,7 @@ function OnLoadEditCard() {
         // And the "prefer display name" checkbox
         document.getElementById("preferDisplayName").disabled = true;
 
-        document.documentElement.buttons = "accept";
+        document.querySelector("dialog").buttons = "accept";
         return;
       }
     }

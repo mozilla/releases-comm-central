@@ -112,7 +112,10 @@ function test_del_collapsed_thread() {
 }
 
 function subtest_say_yes(cwc) {
-  cwc.window.document.documentElement.getButton("accept").doCommand();
+  cwc.window.document
+    .querySelector("dialog")
+    .getButton("accept")
+    .doCommand();
 }
 
 /**
@@ -128,10 +131,10 @@ function test_next_unread() {
     wait_for_message_display_completion(msgc, true);
   }
 
-  plan_for_modal_dialog("commonDialog", subtest_say_yes);
+  plan_for_modal_dialog("commonDialogWindow", subtest_say_yes);
   msgc.keypress(null, "n", {});
   plan_for_message_display(msgc);
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
   wait_for_message_display_completion(msgc, true);
 
   // move to folder B

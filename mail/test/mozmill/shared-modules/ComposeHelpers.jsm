@@ -233,13 +233,15 @@ function close_compose_window(aController, aShouldPrompt) {
 
   windowHelper.plan_for_window_close(aController);
   if (aShouldPrompt) {
-    windowHelper.plan_for_modal_dialog("commonDialog", function clickDontSave(
-      controller
-    ) {
-      controller.window.document.documentElement
-        .getButton("extra1")
-        .doCommand();
-    });
+    windowHelper.plan_for_modal_dialog(
+      "commonDialogWindow",
+      function clickDontSave(controller) {
+        controller.window.document
+          .querySelector("dialog")
+          .getButton("extra1")
+          .doCommand();
+      }
+    );
     // Try to close, we should get a prompt to save.
     aController.window.goDoCommand("cmd_close");
     windowHelper.wait_for_modal_dialog();

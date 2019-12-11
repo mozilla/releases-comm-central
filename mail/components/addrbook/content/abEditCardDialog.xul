@@ -7,13 +7,14 @@
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/cardDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/abCard.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/abCard.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window windowtype="Mail:abcard"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        id="abcardWindow"
-        icon="abcardWindow"
-        onload="OnLoadEditCard()">
+        onload="OnLoadEditCard()"
+        icon="abcardWindow">
+<dialog id="abcardDialog">
 
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
@@ -26,3 +27,4 @@
 #include abCard.inc.xul
 
 </dialog>
+</window>

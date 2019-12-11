@@ -189,14 +189,16 @@ function remove_account(
       );
     }
 
-    cdc.window.document.documentElement.acceptDialog();
+    cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
     cdc.waitFor(
-      () => !cdc.window.document.documentElement.getButton("accept").disabled,
+      () =>
+        !cdc.window.document.querySelector("dialog").getButton("accept")
+          .disabled,
       "Timeout waiting for finish of account removal",
       5000,
       100
     );
-    cdc.window.document.documentElement.acceptDialog();
+    cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
   });
 
   aAccount = null;

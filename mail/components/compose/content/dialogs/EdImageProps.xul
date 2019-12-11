@@ -7,7 +7,7 @@
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % edImageProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorImageProperties.dtd">
 %edImageProperties;
 <!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
@@ -17,9 +17,11 @@
 ]>
 
 <!-- dialog containing a control requiring initial setup -->
-<dialog id="imageDlg" title="&windowTitle.label;"
+<window windowtype="Mail:image"
+        title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="Startup()"
+        onload="Startup()">
+<dialog id="imageDlg"
         buttons="accept,cancel">
 
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -119,3 +121,4 @@
   <separator class="groove"/>
 
 </dialog>
+</window>

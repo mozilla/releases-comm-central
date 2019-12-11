@@ -9,21 +9,21 @@
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css" ?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css" ?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % edTableProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorTableProperties.dtd">
 %edTableProperties;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
 %edDialogOverlay;
 ]>
 
-<dialog title="&tableWindow.title;"
-    id="tableDlg"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-    onload="Startup()"
-    buttons="accept,extra1,cancel"
-    buttonlabelclose="&closeButton.label;"
-    buttonlabelextra1="&applyButton.label;"
-    buttonaccesskeyextra1="&applyButton.accesskey;">
+<window title="&tableWindow.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="Startup()">
+<dialog id="tableDlg"
+        buttons="accept,extra1,cancel"
+        buttonlabelclose="&closeButton.label;"
+        buttonlabelextra1="&applyButton.label;"
+        buttonaccesskeyextra1="&applyButton.accesskey;">
 
   <!-- Methods common to all editor dialogs -->
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -347,3 +347,4 @@
   </tabbox>
   <spacer class="spacer"/>
 </dialog>
+</window>

@@ -10,15 +10,15 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/joinChat.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        id="joinChatDialog"
         windowtype="Messenger:JoinChat"
         title="&joinChatWindow.title;"
-        buttons="accept,cancel"
         onload="joinChat.onload()"
         autojoinLabel="&autojoin.label;"
         autojoinAccesskey="&autojoin.accesskey;">
+<dialog id="joinChatDialog"
+        buttons="accept,cancel">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -39,3 +39,4 @@
     <checkbox id="autojoin" label="&autojoin.label;" accesskey="&autojoin.accesskey;"/>
   </hbox>
 </dialog>
+</window>

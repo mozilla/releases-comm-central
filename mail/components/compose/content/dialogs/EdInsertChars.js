@@ -60,7 +60,10 @@ function onFocus() {
     enable = !window.opener.IsInHTMLSourceMode();
   }
 
-  SetElementEnabled(document.documentElement.getButton("accept"), enable);
+  SetElementEnabled(
+    document.querySelector("dialog").getButton("accept"),
+    enable
+  );
 }
 
 function onClose() {

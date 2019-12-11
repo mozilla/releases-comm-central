@@ -8,20 +8,21 @@
 <?xml-stylesheet href="chrome://messenger/skin/sanitizeDialog.css"?>
 <?xml-stylesheet href="chrome://messenger/content/sanitizeDialog.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
   <!ENTITY % sanitizeDTD SYSTEM "chrome://messenger/locale/sanitize.dtd">
   %brandDTD;
   %sanitizeDTD;
 ]>
 
-<dialog id="SanitizeDialog" type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        dlgbuttons="accept,cancel"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&sanitizeDialog2.title;"
         noneverythingtitle="&sanitizeDialog2.title;"
         style="width: &dialog.width;"
         onload="gSanitizePromptDialog.init();">
+<dialog id="SanitizeDialog"
+        dlgbuttons="accept,cancel"
+        type="child">
 
   <vbox id="SanitizeDialogPane">
     <stringbundle id="bundleBrowser"
@@ -95,3 +96,4 @@
 
   </vbox>
 </dialog>
+</window>

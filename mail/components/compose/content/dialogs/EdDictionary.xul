@@ -8,16 +8,16 @@
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/EditorPersonalDictionary.dtd">
-<dialog title="&windowTitle.label;"
-        buttons="accept"
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorPersonalDictionary.dtd">
+<window title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         persist="screenX screenY"
-        buttonlabelaccept="&CloseButton.label;"
-        buttonaccesskeyaccept="&CloseButton.accessKey;"
         onload="Startup()">
+<dialog buttonlabelaccept="&CloseButton.label;"
+        buttonaccesskeyaccept="&CloseButton.accessKey;"
+        buttons="accept">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -64,3 +64,4 @@
     </div>
   </hbox>
 </dialog>
+</window>

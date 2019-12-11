@@ -32,7 +32,9 @@ function onLoad() {
 
   gKeyId = window.arguments[0].keyId;
 
-  let accept = document.getElementById("enigmailKeyDetailsDlg").getButton("accept");
+  let accept = document
+    .getElementById("enigmailKeyDetailsDlg")
+    .getButton("accept");
   accept.focus();
 
   reloadData();

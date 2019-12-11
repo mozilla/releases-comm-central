@@ -7,16 +7,17 @@
 <?xml-stylesheet href="chrome://global/skin/"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % offlineDTD SYSTEM "chrome://messenger/locale/preferences/offline.dtd">
   %offlineDTD;
 ]>
 
-<dialog id="OfflineSettingsDialog" type="child"
-            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-            onload="gOfflineDialog.dialogSetup();"
-            dlgbuttons="accept,cancel"
-            title="&offlineDialog.title;">
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="gOfflineDialog.dialogSetup();"
+        title="&offlineDialog.title;">
+<dialog id="OfflineSettingsDialog"
+        type="child"
+        dlgbuttons="accept,cancel">
 
   <prefpane id="OfflineSettingsDialogPane">
     <script src="chrome://global/content/preferencesBindings.js"/>
@@ -63,3 +64,4 @@
     <separator/>
   </prefpane>
 </dialog>
+</window>

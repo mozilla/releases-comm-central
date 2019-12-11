@@ -32,7 +32,7 @@ function test_image_insertion_dialog_persist() {
   cwc.e("content-frame").focus();
 
   // Now open the image window
-  wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
+  wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     // Insert the url of the image.
     let srcloc = mwc.window.document.getElementById("srcInput");
     srcloc.focus();
@@ -43,34 +43,34 @@ function test_image_insertion_dialog_persist() {
     // Don't add alternate text
     mwc.click(mwc.eid("noAltTextRadio"));
 
-    mwc.window.document.documentElement.acceptDialog();
+    mwc.window.document.documentElement.querySelector("dialog").acceptDialog();
   });
   cwc.click(cwc.eid("insertImage"));
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
 
   // Check that the radio option persists
-  wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
+  wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     assert_true(
       mwc.window.document.getElementById("noAltTextRadio").selected,
       "We should persist the previously selected value"
     );
     // We change to "use alt text"
     mwc.click(mwc.eid("altTextRadio"));
-    mwc.window.document.documentElement.cancelDialog();
+    mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
   cwc.click(cwc.eid("insertImage"));
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
 
   // Check that the radio option still persists (be really sure)
-  wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
+  wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     assert_true(
       mwc.window.document.getElementById("altTextRadio").selected,
       "We should persist the previously selected value"
     );
     // Accept the dialog
-    mwc.window.document.documentElement.cancelDialog();
+    mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
   cwc.click(cwc.eid("insertImage"));
   wh.wait_for_modal_dialog();
@@ -80,12 +80,12 @@ function test_image_insertion_dialog_persist() {
   // Get the inserted image, double-click it, make sure we switch to "no alt
   // text", despite the persisted value being "use alt text"
   let img = cwc.e("content-frame").contentDocument.querySelector("img");
-  wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
+  wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     assert_true(
       mwc.window.document.getElementById("noAltTextRadio").selected,
       "We shouldn't use the persisted value because the insert image has no alt text"
     );
-    mwc.window.document.documentElement.cancelDialog();
+    mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
   cwc.doubleClick(new elib.Elem(img));
   wh.wait_for_modal_dialog();
@@ -95,7 +95,7 @@ function test_image_insertion_dialog_persist() {
   cwc.sleep(500);
 
   // Now use some alt text for the edit image dialog
-  wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
+  wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     assert_true(
       mwc.window.document.getElementById("noAltTextRadio").selected,
       "That value should persist still..."
@@ -107,7 +107,7 @@ function test_image_insertion_dialog_persist() {
     input_value(mwc, "some alt text");
     mwc.sleep(0);
     // Accept the dialog
-    mwc.window.document.documentElement.acceptDialog();
+    mwc.window.document.documentElement.querySelector("dialog").acceptDialog();
   });
   cwc.doubleClick(new elib.Elem(img));
   wh.wait_for_modal_dialog();
@@ -118,13 +118,13 @@ function test_image_insertion_dialog_persist() {
 
   // Make sure next time we edit it, we still have "use alt text" selected.
   img = cwc.e("content-frame").contentDocument.querySelector("img");
-  wh.plan_for_modal_dialog("imageDlg", function insert_image(mwc) {
+  wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     assert_true(
       mwc.window.document.getElementById("altTextRadio").selected,
       "We edited the image to make it have alt text, we should keep it selected"
     );
     // Accept the dialog
-    mwc.window.document.documentElement.cancelDialog();
+    mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
   cwc.doubleClick(new elib.Elem(img));
   wh.wait_for_modal_dialog();

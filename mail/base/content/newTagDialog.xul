@@ -7,12 +7,13 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/newTagDialog.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/newTagDialog.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&newTagDialog1.title;"
         onload="onLoad();">
+<dialog>
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
@@ -33,3 +34,4 @@
   </hbox>
   <separator/>
 </dialog>
+</window>
