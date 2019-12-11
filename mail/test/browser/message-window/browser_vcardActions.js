@@ -42,7 +42,9 @@ add_task(function test_check_vcard_icon() {
     // Check new card is properly prefilled.
     let emailField = cardc.e("PrimaryEmail");
     Assert.equal(emailField.value, "meister@example.com");
-    cardc.window.document.documentElement.acceptDialog();
+    cardc.window.document.documentElement
+      .querySelector("dialog")
+      .acceptDialog();
   }
 
   // Click icon on the vcard block.

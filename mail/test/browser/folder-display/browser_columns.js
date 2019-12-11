@@ -423,14 +423,17 @@ add_task(function test_reset_to_inbox() {
 });
 
 function subtest_say_yes(cwc) {
-  cwc.window.document.documentElement.getButton("accept").doCommand();
+  cwc.window.document
+    .querySelector("dialog")
+    .getButton("accept")
+    .doCommand();
 }
 
 function _apply_to_folder_common(aChildrenToo, folder) {
   if (aChildrenToo) {
     plan_for_observable_event("msg-folder-columns-propagated");
   }
-  plan_for_modal_dialog("commonDialog", subtest_say_yes);
+  plan_for_modal_dialog("commonDialogWindow", subtest_say_yes);
   invoke_column_picker_option([
     { class: "applyTo-menu" },
     {
@@ -442,7 +445,7 @@ function _apply_to_folder_common(aChildrenToo, folder) {
     { label: folder.name },
     { label: folder.name },
   ]);
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
   if (aChildrenToo) {
     wait_for_observable_event("msg-folder-columns-propagated");
   }

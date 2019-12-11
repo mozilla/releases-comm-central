@@ -182,9 +182,9 @@ add_task(function test_attachment_reminder_appears_properly() {
   assert_manual_reminder_state(cwc, true);
 
   // Now try to send, make sure we get the alert.
-  plan_for_modal_dialog("commonDialog", click_oh_i_did);
+  plan_for_modal_dialog("commonDialogWindow", click_oh_i_did);
   cwc.click(cwc.eid("button-send"));
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 
   // After confirming the reminder the menuitem should get disabled.
   assert_manual_reminder_state(cwc, false);
@@ -218,9 +218,9 @@ add_task(function test_attachment_reminder_dismissal() {
 
   // We didn't click the "Remind Me Later" - the alert should pop up
   // on send anyway.
-  plan_for_modal_dialog("commonDialog", click_oh_i_did);
+  plan_for_modal_dialog("commonDialogWindow", click_oh_i_did);
   cwc.click(cwc.eid("button-send"));
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 
   let notification = assert_automatic_reminder_state(cwc, true);
 
@@ -328,9 +328,9 @@ add_task(function test_no_send_now_sends() {
   wait_for_reminder_state(cwc, true);
 
   // Click the send button again, this time choose "No, Send Now".
-  plan_for_modal_dialog("commonDialog", click_no_send_now);
+  plan_for_modal_dialog("commonDialogWindow", click_no_send_now);
   cwc.click(cwc.eid("button-send"));
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 
   // After clicking "Send Now" sending is proceeding, just handle the error.
   click_send_and_handle_send_error(cwc, true);
@@ -382,9 +382,9 @@ add_task(function test_manual_attachment_reminder() {
   assert_automatic_reminder_state(cwc, false);
 
   // Now close the message with saving it as draft.
-  plan_for_modal_dialog("commonDialog", click_save_message);
+  plan_for_modal_dialog("commonDialogWindow", click_save_message);
   cwc.window.goDoCommand("cmd_close");
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 
   // Open another blank compose window.
   cwc = open_compose_new_mail();
@@ -415,9 +415,9 @@ add_task(function test_manual_attachment_reminder() {
   assert_automatic_reminder_state(cwc, false);
 
   // Now try to send, make sure we get the alert.
-  plan_for_modal_dialog("commonDialog", click_oh_i_did);
+  plan_for_modal_dialog("commonDialogWindow", click_oh_i_did);
   cwc.click(cwc.eid("button-send"));
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 
   // We were alerted once and the manual reminder is automatically turned off.
   assert_manual_reminder_state(cwc, false);
@@ -677,9 +677,9 @@ add_task(function test_reminder_in_draft() {
   wait_for_reminder_state(cwc, true);
 
   // Now close the message with saving it as draft.
-  plan_for_modal_dialog("commonDialog", click_save_message);
+  plan_for_modal_dialog("commonDialogWindow", click_save_message);
   cwc.window.goDoCommand("cmd_close");
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 
   // The draft message was saved into Local Folders/Drafts.
   be_in_folder(gDrafts);
@@ -791,25 +791,31 @@ add_task(function test_disabling_attachment_reminder() {
  *                         by other means.
  */
 function click_send_and_handle_send_error(aController, aAlreadySending) {
-  plan_for_modal_dialog("commonDialog", click_ok_on_send_error);
+  plan_for_modal_dialog("commonDialogWindow", click_ok_on_send_error);
   if (!aAlreadySending) {
     aController.click(aController.eid("button-send"));
   }
-  wait_for_modal_dialog("commonDialog");
+  wait_for_modal_dialog("commonDialogWindow");
 }
 
 /**
  * Click the "Oh, I Did!" button in the attachment reminder dialog.
  */
 function click_oh_i_did(controller) {
-  controller.window.document.documentElement.getButton("extra1").doCommand();
+  controller.window.document
+    .querySelector("dialog")
+    .getButton("extra1")
+    .doCommand();
 }
 
 /**
  * Click the "No, Send Now" button in the attachment reminder dialog.
  */
 function click_no_send_now(controller) {
-  controller.window.document.documentElement.getButton("accept").doCommand();
+  controller.window.document
+    .querySelector("dialog")
+    .getButton("accept")
+    .doCommand();
 }
 
 /**
@@ -821,7 +827,10 @@ function click_ok_on_send_error(controller) {
       "Not a send error dialog; title=" + controller.window.document.title
     );
   }
-  controller.window.document.documentElement.getButton("accept").doCommand();
+  controller.window.document
+    .querySelector("dialog")
+    .getButton("accept")
+    .doCommand();
 }
 
 /**
@@ -833,5 +842,8 @@ function click_save_message(controller) {
       "Not a Save message dialog; title=" + controller.window.document.title
     );
   }
-  controller.window.document.documentElement.getButton("accept").doCommand();
+  controller.window.document
+    .querySelector("dialog")
+    .getButton("accept")
+    .doCommand();
 }

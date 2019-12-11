@@ -228,15 +228,17 @@ function subtest_check_account_name(aAccount, aNewHostname, aNewUsername, amc) {
 
   if (aNewUsername) {
     // If username has changed, we get a confirmation dialog.
-    plan_for_modal_dialog("commonDialog", function(cdc) {
+    plan_for_modal_dialog("commonDialogWindow", function(cdc) {
       // Just dismiss it.
-      cdc.window.document.documentElement.acceptDialog();
+      cdc.window.document.documentElement
+        .querySelector("dialog")
+        .acceptDialog();
     });
   }
   // We really need to save the new values so click OK on the Account settings.
-  amc.window.document.documentElement.acceptDialog();
+  amc.window.document.documentElement.querySelector("dialog").acceptDialog();
   if (aNewUsername) {
-    wait_for_modal_dialog("commonDialog");
+    wait_for_modal_dialog("commonDialogWindow");
   }
 }
 
@@ -277,7 +279,7 @@ function subtest_check_invalid_junk_target(amc) {
   click_account_tree_row(amc, accountRow);
 
   // We need to save the new fixed values so click OK on the Account settings.
-  amc.window.document.documentElement.acceptDialog();
+  amc.window.document.documentElement.querySelector("dialog").acceptDialog();
 }
 
 /**
@@ -333,15 +335,17 @@ function subtest_check_invalid_hostname(amc, aExitSettings, aOriginalHostname) {
     Assert.equal(hostname.value, aOriginalHostname);
   } else {
     // If the hostname is bad, we should get a warning dialog.
-    plan_for_modal_dialog("commonDialog", function(cdc) {
+    plan_for_modal_dialog("commonDialogWindow", function(cdc) {
       // Just dismiss it.
-      cdc.window.document.documentElement.acceptDialog();
+      cdc.window.document.documentElement
+        .querySelector("dialog")
+        .acceptDialog();
     });
 
     // Click OK on the Account settings.
-    amc.window.document.documentElement.acceptDialog();
+    amc.window.document.documentElement.querySelector("dialog").acceptDialog();
 
-    wait_for_modal_dialog("commonDialog");
+    wait_for_modal_dialog("commonDialogWindow");
   }
 }
 
@@ -383,5 +387,5 @@ function subtest_check_trailing_spaces(amc) {
   Assert.equal(defaultAddress.value, badEmail);
 
   // We really need to save the new values so click OK on the Account settings.
-  amc.window.document.documentElement.acceptDialog();
+  amc.window.document.documentElement.querySelector("dialog").acceptDialog();
 }

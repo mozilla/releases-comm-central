@@ -244,7 +244,7 @@ function test_phishing_warning_for_local_domain() {
 
   let dialogAppeared = false;
 
-  plan_for_modal_dialog("commonDialog", function(ctrler) {
+  plan_for_modal_dialog("commonDialogWindow", function(ctrler) {
     dialogAppeared = true;
   });
 

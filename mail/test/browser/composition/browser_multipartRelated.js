@@ -98,14 +98,14 @@ add_task(function test_basic_multipart_related() {
   let fileURL = fileHandler.getURLSpecFromFile(file);
 
   // Add a simple image to our dialog
-  plan_for_modal_dialog("imageDlg", function(dialog) {
+  plan_for_modal_dialog("Mail:image", function(dialog) {
     // Insert the url of the image.
     dialog.type(null, fileURL);
     dialog.type(dialog.eid("altTextInput"), "Alt text");
     dialog.sleep(0);
 
     // Accept the dialog
-    dialog.window.document.getElementById("imageDlg").acceptDialog();
+    dialog.window.document.querySelector("dialog").acceptDialog();
   });
   compWin.click(compWin.eid("insertImage"));
   wait_for_modal_dialog();
