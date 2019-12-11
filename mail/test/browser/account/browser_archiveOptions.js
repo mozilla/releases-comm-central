@@ -101,7 +101,7 @@ add_task(function test_archive_options_enabled() {
 });
 
 function subtest_initial_state(identity) {
-  plan_for_modal_dialog("archive-options", function(ac) {
+  plan_for_modal_dialog("Mailnews:archiveOptions", function(ac) {
     Assert.equal(
       ac.e("archiveGranularity").selectedIndex,
       identity.archiveGranularity
@@ -117,7 +117,7 @@ function subtest_initial_state(identity) {
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     identity
   );
-  wait_for_modal_dialog("archive-options");
+  wait_for_modal_dialog("Mailnews:archiveOptions");
 }
 
 add_task(function test_open_archive_options() {
@@ -131,10 +131,11 @@ add_task(function test_open_archive_options() {
 });
 
 function subtest_save_state(identity, granularity, kfs) {
-  plan_for_modal_dialog("archive-options", function(ac) {
+  plan_for_modal_dialog("Mailnews:archiveOptions", function(ac) {
     ac.e("archiveGranularity").selectedIndex = granularity;
     ac.e("archiveKeepFolderStructure").checked = kfs;
     ac.keypress(null, "VK_RETURN", {});
+    ac.window.document.querySelector("dialog").acceptDialog();
   });
   mc.window.openDialog(
     "chrome://messenger/content/am-archiveoptions.xul",
@@ -142,7 +143,7 @@ function subtest_save_state(identity, granularity, kfs) {
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     identity
   );
-  wait_for_modal_dialog("archive-options");
+  wait_for_modal_dialog("Mailnews:archiveOptions");
 }
 
 add_task(function test_save_archive_options() {
