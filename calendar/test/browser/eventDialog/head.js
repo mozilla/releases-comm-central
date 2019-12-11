@@ -9,7 +9,7 @@ var savePromptObserver = {
     if (topic == "domwindowopened") {
       await BrowserTestUtils.waitForEvent(win, "load");
       // Make sure this is a prompt window.
-      if (win.location.href == "chrome://global/content/commonDialog.xul") {
+      if (win.location.href == "chrome://global/content/commonDialog.xhtml") {
         let doc = win.document;
         // Adding attachments also shows a prompt, but we can tell which one
         // this is by checking whether the textbox is visible.

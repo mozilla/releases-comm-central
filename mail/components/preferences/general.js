@@ -1275,7 +1275,7 @@ var gGeneralPane = {
   },
 
   showConfigEdit() {
-    gSubDialog.open("chrome://global/content/config.xul");
+    gSubDialog.open("chrome://global/content/config.xhtml");
   },
 
   /**
@@ -2109,7 +2109,7 @@ var gGeneralPane = {
       }
 
       gSubDialog.open(
-        "chrome://global/content/appPicker.xul",
+        "chrome://global/content/appPicker.xhtml",
         "resizable=no",
         params,
         closingCallback

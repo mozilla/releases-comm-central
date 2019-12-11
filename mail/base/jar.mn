@@ -112,9 +112,9 @@ messenger.jar:
 *   content/messenger/license.html                  (/@mozreltopsrcdir@/toolkit/content/license.html)
 % override chrome://global/content/license.html chrome://messenger/content/license.html
     content/messenger/profileDowngrade.js           (content/profileDowngrade.js)
-*   content/messenger/profileDowngrade.xul          (content/profileDowngrade.xul)
+*   content/messenger/profileDowngrade.xhtml        (content/profileDowngrade.xhtml)
 % override chrome://mozapps/content/profile/profileDowngrade.js chrome://messenger/content/profileDowngrade.js
-% override chrome://mozapps/content/profile/profileDowngrade.xul chrome://messenger/content/profileDowngrade.xul
+% override chrome://mozapps/content/profile/profileDowngrade.xhtml chrome://messenger/content/profileDowngrade.xhtml
 
 *   content/messenger/buildconfig.html              (content/buildconfig.html)
     content/messenger/buildconfig.css               (content/buildconfig.css)

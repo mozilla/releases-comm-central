@@ -459,7 +459,7 @@ add_task(async () => {
 add_task(async () => {
   let mailingListWindowPromise = BrowserTestUtils.promiseAlertDialog(
     "accept",
-    "chrome://global/content/commonDialog.xul"
+    "chrome://global/content/commonDialog.xhtml"
   );
 
   is(
