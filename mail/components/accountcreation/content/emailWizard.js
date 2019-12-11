@@ -704,6 +704,11 @@ EmailConfigWizard.prototype = {
             this.stopSpinner(); // clears status message
             _show("usernameRow");
             _show("status-area");
+            if (!this._exchangeUsername) {
+              this.showErrorStatus("credentials_incomplete");
+            } else {
+              this.showErrorStatus("credentials_wrong");
+            }
             _enable("manual-edit_button");
             errorCallback(new CancelledException());
           } else {
