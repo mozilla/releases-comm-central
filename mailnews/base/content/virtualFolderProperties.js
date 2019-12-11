@@ -33,7 +33,7 @@ document.addEventListener("dialogaccept", onOK);
 
 function onLoad() {
   var windowArgs = window.arguments[0];
-  var acceptButton = document.documentElement.getButton("accept");
+  var acceptButton = document.querySelector("dialog").getButton("accept");
 
   gMessengerBundle = document.getElementById("bundle_messenger");
 
@@ -44,21 +44,21 @@ function onLoad() {
 
   setSearchScope(nsMsgSearchScope.offlineMail);
   if (windowArgs.editExistingFolder) {
-    acceptButton.label = document.documentElement.getAttribute(
-      "editFolderAcceptButtonLabel"
-    );
-    acceptButton.accesskey = document.documentElement.getAttribute(
-      "editFolderAcceptButtonAccessKey"
-    );
+    acceptButton.label = document
+      .querySelector("dialog")
+      .getAttribute("editFolderAcceptButtonLabel");
+    acceptButton.accesskey = document
+      .querySelector("dialog")
+      .getAttribute("editFolderAcceptButtonAccessKey");
     InitDialogWithVirtualFolder(windowArgs.folder);
   } else {
     // we are creating a new virtual folder
-    acceptButton.label = document.documentElement.getAttribute(
-      "newFolderAcceptButtonLabel"
-    );
-    acceptButton.accesskey = document.documentElement.getAttribute(
-      "newFolderAcceptButtonAccessKey"
-    );
+    acceptButton.label = document
+      .querySelector("dialog")
+      .getAttribute("newFolderAcceptButtonLabel");
+    acceptButton.accesskey = document
+      .querySelector("dialog")
+      .getAttribute("newFolderAcceptButtonAccessKey");
     // it is possible that we were given arguments to pre-fill the dialog with...
     gSearchTermSession = Cc[
       "@mozilla.org/messenger/searchSession;1"
@@ -249,7 +249,7 @@ function onOK(event) {
 }
 
 function doEnabling() {
-  var acceptButton = document.documentElement.getButton("accept");
+  var acceptButton = document.querySelector("dialog").getButton("accept");
   acceptButton.disabled = !document.getElementById("name").value;
 }
 

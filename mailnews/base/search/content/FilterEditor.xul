@@ -8,23 +8,22 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % filterEditorDTD SYSTEM "chrome://messenger/locale/FilterEditor.dtd">
   %filterEditorDTD;
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
   %searchTermDTD;
 ]>
 
-<dialog id="FilterEditor"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&window.title;"
         style="&filterEditorDialog.dimensions;"
         windowtype="mailnews:filtereditor"
         persist="width height screenX screenY"
-        buttons="accept,cancel"
         onload="filterEditorOnLoad();">
-
+<dialog id="FilterEditor"
+        buttons="accept,cancel">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
   <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
@@ -136,3 +135,4 @@
     </hbox>
   </vbox>
 </dialog>
+</window>

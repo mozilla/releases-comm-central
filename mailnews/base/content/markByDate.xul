@@ -7,14 +7,13 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/markByDate.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/markByDate.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&messageMarkByDate.label;"
-        buttons="accept,cancel"
         onload="onLoad();">
-
+<dialog buttons="accept,cancel">
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/markByDate.js"/>
@@ -40,5 +39,5 @@
                 aria-labelledby="upperDateLabel"
                 size="11"/>
   </hbox>
-
 </dialog>
+</window>

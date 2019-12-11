@@ -104,7 +104,9 @@ var gFolderPropsSink = {
 
 function doEnabling() {
   var nameTextbox = document.getElementById("name");
-  document.documentElement.getButton("accept").disabled = !nameTextbox.value;
+  document
+    .querySelector("dialog")
+    .getButton("accept").disabled = !nameTextbox.value;
 }
 
 function folderPropsOKButton(event) {

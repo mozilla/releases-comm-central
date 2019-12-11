@@ -16,7 +16,7 @@ document.addEventListener("dialogaccept", onAccept);
 
 function onLoad(event) {
   gServer = window.arguments[0].account.incomingServer;
-  gDialog = document.documentElement;
+  gDialog = document.querySelector("dialog");
 
   let bundle = document.getElementById("bundle_removeAccount");
   let removeQuestion = bundle.getFormattedString("removeQuestion", [

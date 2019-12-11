@@ -176,7 +176,7 @@ function remove_account(
   );
   click_account_tree_row(aController, accountRow);
 
-  wh.plan_for_modal_dialog("removeAccountDialog", function(cdc) {
+  wh.plan_for_modal_dialog("Mailnews:removeAccount", function(cdc) {
     // Account removal confirmation dialog. Select what to remove.
     if (aRemoveAccount) {
       cdc.click(
@@ -205,6 +205,6 @@ function remove_account(
   aController.click_menus_in_sequence(aController.e("accountActionsDropdown"), [
     { id: "accountActionsDropdownRemove" },
   ]);
-  wh.wait_for_modal_dialog("removeAccountDialog");
+  wh.wait_for_modal_dialog("Mailnews:removeAccount");
   // TODO: For unknown reason this also closes the whole account manager.
 }

@@ -9,14 +9,13 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/am-server-advanced.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-server-advanced.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&serverAdvanced.label;"
-        buttons="accept,cancel"
         onload="onLoad();">
-
+<dialog buttons="accept,cancel">
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/am-server-advanced.js"/>
@@ -152,3 +151,4 @@
 
     </vbox>
 </dialog>
+</window>

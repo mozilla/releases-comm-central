@@ -7,15 +7,15 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/am-archiveoptions.dtd" >
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-archiveoptions.dtd" >
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        id="archive-options"
+<window windowtype="Mailnews:archiveOptions"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&dialogTitle.label;"
         width="350" height="350"
         persist="width height"
         onload="onLoadArchiveOptions();">
-
+<dialog id="archive-options">
   <script src="chrome://messenger/content/am-archiveoptions.js"/>
 
   <vbox flex="1">
@@ -96,3 +96,4 @@
     </groupbox>
   </vbox>
 </dialog>
+</window>

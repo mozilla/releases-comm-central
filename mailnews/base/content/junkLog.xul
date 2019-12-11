@@ -7,19 +7,18 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/junkLog.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/junkLog.dtd">
 
-<dialog id="viewLogWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         onload="onLoad();"
         title="&adaptiveJunkLog.title;"
         windowtype="mailnews:junklog"
-        buttons="accept"
-        buttonlabelaccept="&closeLog.label;"
-        buttonaccesskeyaccept="&closeLog.accesskey;"
         persist="screenX screenY width height"
         style="width: 40em; height: 25em;">
-
+<dialog id="viewLogWindow"
+        buttons="accept"
+        buttonlabelaccept="&closeLog.label;"
+        buttonaccesskeyaccept="&closeLog.accesskey;">
   <script src="chrome://messenger/content/junkLog.js"/>
 
   <vbox flex="1">
@@ -42,3 +41,4 @@
     </hbox>
   </vbox>
 </dialog>
+</window>

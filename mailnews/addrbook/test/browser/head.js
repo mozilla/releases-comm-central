@@ -36,7 +36,10 @@ async function createNewAddressBook(abWindow, abName) {
     "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul",
     abNameDialog => {
       EventUtils.sendString(abName, abNameDialog);
-      abNameDialog.document.documentElement.getButton("accept").click();
+      abNameDialog.document
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
     }
   );
 

@@ -6,23 +6,24 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % removalDTD SYSTEM "chrome://messenger/locale/removeAccount.dtd">
 %removalDTD;
 ]>
 
-<dialog id="removeAccountDialog"
+<window windowtype="Mailnews:removeAccount"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&dialogTitle;"
         width="600"
+        onload="onLoad();">
+<dialog id="removeAccountDialog"
         buttons="accept,disclosure,cancel"
         buttonlabelaccept="&removeButton.label;"
         buttonaccesskeyaccept="&removeButton.accesskey;"
-        defaultButton="cancel"
-        onload="onLoad();">
+        defaultButton="cancel">
   <stringbundle id="bundle_removeAccount"
                 src="chrome://messenger/locale/removeAccount.properties"/>
   <script src="chrome://messenger/content/removeAccount.js"/>
@@ -83,3 +84,4 @@
     </vbox>
   </deck>
 </dialog>
+</window>

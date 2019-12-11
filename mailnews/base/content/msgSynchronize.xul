@@ -8,15 +8,14 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        id="msg-synchronizer"
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         windowtype="mailnews:synchronizeOffline"
         title="&MsgSynchronize.label;"
         onload="OnLoad();"
         style="width: 35em;">
-
-<script src="chrome://messenger/content/msgSynchronize.js"/>
+<dialog id="msg-synchronizer">
+    <script src="chrome://messenger/content/msgSynchronize.js"/>
 
     <keyset id="keyset"/>
     <label hidden="true" wsm_persist="true" id="server.type"/>
@@ -40,3 +39,4 @@
                 oncommand="OnSelect();"/>
     </hbox>
 </dialog>
+</window>

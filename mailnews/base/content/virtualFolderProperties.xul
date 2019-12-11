@@ -10,26 +10,25 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
   <!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
   %folderDTD;
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
   %searchTermDTD;
 ]>
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        id="virtualFolderPropertiesDialog"
         title="&virtualFolderProperties.title;"
         onload="onLoad();"
+        style="width: 50em; height: 28em;"
+        windowtype="mailnews:virtualFolderProperties">
+<dialog id="virtualFolderPropertiesDialog"
         buttons="accept,cancel"
         newFolderAcceptButtonLabel="&newFolderButton.label;"
         newFolderAcceptButtonAccessKey="&newFolderButton.accesskey;"
         editFolderAcceptButtonLabel="&editFolderButton.label;"
-        editFolderAcceptButtonAccessKey="&editFolderButton.accesskey;"
-        style="width: 50em; height: 28em;"
-        windowtype="mailnews:virtualFolderProperties">
-
+        editFolderAcceptButtonAccessKey="&editFolderButton.accesskey;">
   <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_folder" src="chrome://messenger/locale/folderWidgets.properties"/>
@@ -97,6 +96,5 @@
 #include ../search/content/searchTerm.inc.xul
     </hbox>
   </vbox>
-
 </dialog>
-
+</window>

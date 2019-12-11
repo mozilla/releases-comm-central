@@ -78,6 +78,6 @@ function onMessagesOnly() {
 }
 
 function doEnabling() {
-  document.documentElement.getButton("accept").disabled = !dialog.nameField
-    .value;
+  document.querySelector("dialog").getButton("accept").disabled = !dialog
+    .nameField.value;
 }

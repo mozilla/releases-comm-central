@@ -7,12 +7,13 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/smtpEditOverlay.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/smtpEditOverlay.dtd">
 
-<dialog title="&smtpEditTitle.label;"
+<window title="&smtpEditTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="onLoad();">
+<dialog>
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
   <stringbundle id="bundle_brand"
@@ -135,3 +136,4 @@
     </groupbox>
   </vbox>
 </dialog>
+</window>

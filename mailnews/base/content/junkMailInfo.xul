@@ -4,7 +4,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
 <!ENTITY % junkMailInfoDTD SYSTEM "chrome://messenger/locale/junkMailInfo.dtd" >
@@ -14,12 +14,11 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/primaryToolbar.css" type="text/css"?>
 
-<dialog id="junkMailInfo"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&window.title;"
-        windowtype="mailnews:junkmailinfo"
+        windowtype="mailnews:junkmailinfo">
+<dialog id="junkMailInfo"
         buttons="accept">
-
   <vbox flex="1" width="&window.width;">
       <spacer/>
       <description>&info1a.label;<image align="center" id="junkIcon"/>&info1b.label;</description>
@@ -33,3 +32,4 @@
 #endif
   </vbox>
 </dialog>
+</window>

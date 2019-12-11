@@ -6,15 +6,14 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/renameFolderDialog.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/renameFolderDialog.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&renameFolderDialog.title;"
-        buttonlabelaccept="&accept.label;"
-        buttonaccesskeyaccept="&accept.accesskey;"
         onload="onLoad();">
-
+<dialog buttonlabelaccept="&accept.label;"
+        buttonaccesskeyaccept="&accept.accesskey;">
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/renameFolderDialog.js"/>
@@ -27,3 +26,4 @@
               aria-labelledby="nameLabel"
               oninput="doEnabling();"/>
 </dialog>
+</window>

@@ -5,15 +5,14 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/pref-directory.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/pref-directory.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        id="editDirectories"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&pref.ldap.window.title;"
-        buttons="accept"
         onload="onInitEditDirectories();"
         onunload="onUninitEditDirectories();">
-
+<dialog id="editDirectories"
+        buttons="accept">
   <script src="chrome://messenger/content/addressbook/abCommon.js"/>
   <script src="chrome://messenger/content/addressbook/pref-editdirectories.js"/>
 
@@ -40,3 +39,4 @@
     </vbox>
   </hbox>
 </dialog>
+</window>

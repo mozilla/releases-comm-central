@@ -7,12 +7,11 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         style="padding: 20px; width: 350px"
-        onload="onLoad()"
-        buttons="cancel">
-
+        onload="onLoad()">
+<dialog buttons="cancel">
   <script src="chrome://messenger/content/shutdownWindow.js"/>
   <stringbundle id="bundle_shutdown" src="chrome://messenger/locale/shutdownWindow.properties"/>
 
@@ -27,5 +26,5 @@
     <label id="shutdownTask_label" value="" />
     <separator class="thick" />
   </vbox>
-
 </dialog>
+</window>

@@ -7,17 +7,16 @@
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/pref-directory-add.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/pref-directory-add.dtd">
 
-<dialog id="addDirectory"
-        style="width: &newDirectoryWidth;"
+<window style="width: &newDirectoryWidth;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="Startup();"
-        onunload="onUnload();"
+        onunload="onUnload();">
+<dialog id="addDirectory"
         buttons="accept,cancel">
-
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/addressbook/pref-directory-add.js"/>
@@ -171,5 +170,5 @@
       </tabpanels>
     </tabbox>
   </vbox>
-
 </dialog>
+</window>

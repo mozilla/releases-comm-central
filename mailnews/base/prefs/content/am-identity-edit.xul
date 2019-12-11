@@ -8,7 +8,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog [
+<!DOCTYPE window [
 <!ENTITY % identityEditDTD SYSTEM "chrome://messenger/locale/am-identity-edit.dtd" >
 %identityEditDTD;
 <!ENTITY % identityDTD SYSTEM "chrome://messenger/locale/am-main.dtd" >
@@ -21,12 +21,11 @@
 %smimeDTD;
 ]>
 
-<dialog id="identityDialog"
-        xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="onLoadIdentityProperties();"
         style="&identityDialog.style;">
-
+<dialog id="identityDialog">
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
   <stringbundle id="bundle_messenger"
@@ -217,3 +216,4 @@
     </tabpanels>
   </tabbox>
 </dialog>
+</window>

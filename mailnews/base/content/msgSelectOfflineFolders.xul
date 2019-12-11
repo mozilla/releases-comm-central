@@ -5,16 +5,15 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/msgSelectOffline.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        id="select-offline"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         windowtype="mailnews:selectOffline"
         title="&MsgSelect.label;"
         width="450" height="400"
         persist="width height"
         onload="gSelectOffline.load();">
-
+<dialog id="select-offline">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
@@ -40,5 +39,5 @@
 
     <treechildren/>
   </tree>
-
 </dialog>
+</window>

@@ -7,16 +7,14 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/am-identities-list.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/am-identities-list.dtd">
 
-<dialog
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-  onload="onLoad();"
-  buttons="accept"
-  buttonlabelaccept="&identitiesListClose.label;"
-  buttonaccesskeyaccept="&identitiesListClose.accesskey;"
-  style="width: 40em;">
-
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="onLoad();"
+        style="width: 40em;">
+<dialog buttons="accept"
+        buttonlabelaccept="&identitiesListClose.label;"
+        buttonaccesskeyaccept="&identitiesListClose.accesskey;">
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
 <script src="chrome://messenger/content/am-identities-list.js"/>
 
@@ -59,5 +57,5 @@
             accesskey="&identitiesListDelete.accesskey;"/>
   </vbox>
 </hbox>
-
 </dialog>
+</window>

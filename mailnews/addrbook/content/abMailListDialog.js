@@ -302,7 +302,7 @@ function OnLoadEditList() {
       document.getElementById(kMailListFields[i]).readOnly = true;
     }
 
-    document.documentElement.buttons = "accept";
+    document.querySelector("dialog").buttons = "accept";
 
     // Getting a sane read-only implementation for the addressing widget would
     // basically need a separate dialog. Given I'm not sure about the future of

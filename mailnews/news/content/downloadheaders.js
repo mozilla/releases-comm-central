@@ -37,7 +37,7 @@ function OnLoad() {
     ]);
     setText("info", infotext);
     let okButtonText = newsBundle.getString("okButtonText");
-    let okbutton = document.documentElement.getButton("accept");
+    let okbutton = document.querySelector("dialog").getButton("accept");
     okbutton.setAttribute("label", okButtonText);
     okbutton.focus();
     setText("newsgroupLabel", args.groupName);

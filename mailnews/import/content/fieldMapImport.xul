@@ -10,14 +10,13 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/fieldMapImport.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/fieldMapImport.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/fieldMapImport.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        buttons="accept,cancel"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&fieldMapImport.title;"
         style="&fieldMapImport.size;"
         onload="OnLoadFieldMapImport();">
-
+<dialog buttons="accept,cancel">
   <script src="chrome://messenger/content/fieldMapImport.js"/>
   <script><![CDATA[
       function resizeColumns() {
@@ -76,5 +75,5 @@
       <spacer flex="1"/>
     </vbox>
   </hbox>
-
 </dialog>
+</window>

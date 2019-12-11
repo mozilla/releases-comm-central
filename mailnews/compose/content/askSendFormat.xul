@@ -5,18 +5,17 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/askSendFormat.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/askSendFormat.dtd">
 
-<dialog id="askSendFormat"
-        title="&windowTitle.label;"
+<window title="&windowTitle.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        buttonpack="center"
         onload="Startup();"
-        buttonlabelaccept="&send.label;"
-        buttonaccesskeyaccept="&send.accesskey;"
         style="width: 75ch; height: 20em;">
-
+<dialog id="askSendFormat"
+        buttonpack="center"
+        buttonlabelaccept="&send.label;"
+        buttonaccesskeyaccept="&send.accesskey;">
   <script src="chrome://messenger/content/messengercompose/askSendFormat.js"/>
 
   <stringbundle id="askSendFormatStringBundle"
@@ -42,3 +41,4 @@
       </vbox>
     </hbox>
 </dialog>
+</window>

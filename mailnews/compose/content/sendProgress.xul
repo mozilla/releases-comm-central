@@ -6,17 +6,16 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/messengercompose/sendProgress.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/sendProgress.dtd">
 
-<dialog id="sendProgress"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&sendDialog.title;"
         style="width: 56ch;"
         onload="onLoad();"
-        onunload="onUnload();"
+        onunload="onUnload();">
+<dialog id="sendProgress"
         buttons="cancel">
-
   <script src="chrome://messenger/content/messengercompose/sendProgress.js"/>
   <stringbundle id="sendProgressStringBundle"
                 src="chrome://messenger/locale/messengercompose/sendProgress.properties"/>
@@ -40,5 +39,5 @@
         </hbox>
       </vbox>
     </hbox>
-
 </dialog>
+</window>

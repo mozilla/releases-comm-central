@@ -181,7 +181,9 @@ function updateAddButton(aDisable) {
   }
 
   gAddButton.disabled = aDisable;
-  document.documentElement.defaultButton = aDisable ? "accept" : "extra1";
+  document.querySelector("dialog").defaultButton = aDisable
+    ? "accept"
+    : "extra1";
 }
 
 function updateRemoveButton() {

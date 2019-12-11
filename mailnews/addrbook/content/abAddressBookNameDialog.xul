@@ -6,13 +6,13 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 36em;"
         onload="abNameOnLoad();">
-
+<dialog>
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -26,3 +26,4 @@
                 aria-labelledby="nameLabel" oninput="abNameDoOkEnabling();"/>
   </hbox>
 </dialog>
+</window>

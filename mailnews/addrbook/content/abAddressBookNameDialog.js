@@ -21,7 +21,7 @@ var kJSDirectory = 101; // defined in nsDirPrefs.h
 
 function abNameOnLoad() {
   // Get the document elements.
-  gOkButton = document.documentElement.getButton("accept");
+  gOkButton = document.querySelector("dialog").getButton("accept");
   gNameInput = document.getElementById("name");
 
   // look in arguments[0] for parameters to see if we have a directory or not
@@ -56,7 +56,7 @@ function abNameOnLoad() {
     // Address book name is not editable, therefore disable the field and
     // only have an ok button that doesn't do anything.
     gNameInput.readOnly = true;
-    document.documentElement.buttons = "accept";
+    document.querySelector("dialog").buttons = "accept";
   } else {
     document.addEventListener("dialogaccept", abNameOKButton);
     gNameInput.focus();

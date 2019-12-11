@@ -66,7 +66,7 @@ add_task(async () => {
     // A callback that can interact with the mailing list dialog.
     async mlWindow => {
       let mlDocument = mlWindow.document;
-      let mlDocElement = mlDocument.documentElement;
+      let mlDocElement = mlDocument.querySelector("dialog");
 
       let listName = mlDocument.getElementById("ListName");
       let listNameFocusEvent = await BrowserTestUtils.waitForEvent(
@@ -203,7 +203,7 @@ add_task(async () => {
     // A callback that can interact with the mailing list dialog.
     async mlWindow => {
       let mlDocument = mlWindow.document;
-      let mlDocElement = mlDocument.documentElement;
+      let mlDocElement = mlDocument.querySelector("dialog");
 
       // The address input nodes are not there yet when the dialog window is
       // loaded, so wait until they exist.
@@ -380,7 +380,7 @@ add_task(async () => {
     // A callback that can interact with the mailing list dialog.
     async mailingListWindow => {
       let mlDocument = mailingListWindow.document;
-      let mlDocElement = mlDocument.documentElement;
+      let mlDocElement = mlDocument.querySelector("dialog");
 
       // The address input nodes are not there yet when the dialog window is
       // loaded, so wait until they exist.

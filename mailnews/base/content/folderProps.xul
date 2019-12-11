@@ -7,16 +7,15 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/folderProps.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/folderProps.dtd">
 
-<dialog id="folderPropertiesDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&folderProps.windowtitle.label;"
-        buttons="accept,cancel"
         onload="folderPropsOnLoad();"
         style="width: 56ch;">
-
+<dialog id="folderPropertiesDialog"
+        buttons="accept,cancel">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -213,5 +212,5 @@
     </vbox>
   </tabpanels>
 </tabbox>
-
 </dialog>
+</window>

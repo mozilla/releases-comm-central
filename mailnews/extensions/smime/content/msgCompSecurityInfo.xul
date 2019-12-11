@@ -6,15 +6,15 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgCompSecurityInfo.css" type="text/css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
+<!DOCTYPE window SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
 
-<dialog id="msgCompSecurityInfo" title="&title.label;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-  style="width: 50em;"
-  persist="width height"
-  buttons="accept"
-  onload="onLoad();">
-
+<window title="&title.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        style="width: 50em;"
+        persist="width height"
+        onload="onLoad();">
+<dialog id="msgCompSecurityInfo"
+        buttons="accept">
   <script src="chrome://messenger-smime/content/msgCompSecurityInfo.js"/>
   <script><![CDATA[
       function resizeColumns() {
@@ -65,3 +65,4 @@
             oncommand="viewSelectedCert();"/>
   </hbox>
 </dialog>
+</window>
