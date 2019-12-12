@@ -90,7 +90,7 @@ var FolderPaneController =
       case "cmd_shiftDelete":
       case "button_delete":
       case "button_shiftDelete":
-        MsgDeleteFolder();
+        gFolderTreeController.deleteFolder();
         break;
     }
   },
@@ -588,7 +588,7 @@ var DefaultController =
                 gDBView.doCommand(nsMsgViewCommandType.collapseAll);
         break;
       case "cmd_renameFolder":
-        MsgRenameFolder();
+        gFolderTreeController.renameFolder();
         return;
       case "cmd_sendUnsentMsgs":
         MsgSendUnsentMsgs();
@@ -618,7 +618,7 @@ var DefaultController =
         MsgViewPageSource();
         return;
       case "cmd_setFolderCharset":
-        MsgFolderProperties();
+        gFolderTreeController.editFolder();
         return;
       case "cmd_reload":
         ReloadMessage();
@@ -633,7 +633,7 @@ var DefaultController =
         MsgFindAgain(true);
         return;
       case "cmd_properties":
-        MsgFolderProperties();
+        gFolderTreeController.editFolder();
         return;
       case "button_search":
       case "cmd_search":
@@ -692,10 +692,10 @@ var DefaultController =
         deleteJunkInFolder();
         return;
       case "cmd_emptyTrash":
-        MsgEmptyTrash();
+        gFolderTreeController.emptyTrash();
         return;
       case "cmd_compactFolder":
-        MsgCompactFolder(true);
+        gFolderTreeController.compactFolder(true);
         return;
       case "cmd_downloadFlagged":
         MsgDownloadFlagged();
@@ -904,66 +904,6 @@ function IsFolderSelected()
 function IsMessageDisplayedInMessagePane()
 {
   return (!IsMessagePaneCollapsed() && (GetNumSelectedMessages() > 0));
-}
-
-function MsgDeleteFolder()
-{
-  const NS_MSG_ERROR_COPY_FOLDER_ABORTED = 0x8055001a;
-  var folderTree = GetFolderTree();
-  var selectedFolders = GetSelectedMsgFolders();
-  var prompt = Services.prompt;
-  for (var i = 0; i < selectedFolders.length; i++)
-  {
-    var selectedFolder = selectedFolders[i];
-    let specialFolder = getSpecialFolderString(selectedFolder);
-    if (specialFolder != "Inbox" && specialFolder != "Trash")
-    {
-      var folder = selectedFolder.QueryInterface(Ci.nsIMsgFolder);
-      if (folder.flags & Ci.nsMsgFolderFlags.Virtual)
-      {
-        var confirmation = gMessengerBundle.getString("confirmSavedSearchDeleteMessage");
-        var title = gMessengerBundle.getString("confirmSavedSearchDeleteTitle");
-        var buttonTitle = gMessengerBundle.getString("confirmSavedSearchDeleteButton");
-        var buttonFlags = prompt.BUTTON_TITLE_IS_STRING * prompt.BUTTON_POS_0 +
-                          prompt.BUTTON_TITLE_CANCEL * prompt.BUTTON_POS_1;
-        if (prompt.confirmEx(window, title, confirmation, buttonFlags, buttonTitle,
-                             "", "", "", {}) != 0) /* the yes button is in position 0 */
-          continue;
-        if (gCurrentVirtualFolderUri == selectedFolder.URI)
-          gCurrentVirtualFolderUri = null;
-        var array = Cc["@mozilla.org/array;1"]
-                      .createInstance(Ci.nsIMutableArray);
-        array.appendElement(folder);
-        folder.parent.deleteSubFolders(array, msgWindow);
-        continue;
-      }
-
-      if (isNewsURI(selectedFolder.URI))
-      {
-        var unsubscribe = ConfirmUnsubscribe(selectedFolder);
-        if (unsubscribe)
-          UnSubscribe(selectedFolder);
-      }
-      else if (specialFolder == "Junk" ?
-             CanRenameDeleteJunkMail(folder.URI) : folder.deletable)
-      {
-        // We can delete this folder.
-        var array = Cc["@mozilla.org/array;1"]
-                      .createInstance(Ci.nsIMutableArray);
-        array.appendElement(selectedFolder);
-        try
-        {
-          selectedFolder.parent.deleteSubFolders(array, msgWindow);
-        }
-        // Ignore known errors from canceled warning dialogs.
-        catch (ex) {
-          if (ex.result != NS_MSG_ERROR_COPY_FOLDER_ABORTED) {
-            throw ex;
-          }
-        }
-      }
-    }
-  }
 }
 
 function SetFocusThreadPaneIfNotOnMessagePane()

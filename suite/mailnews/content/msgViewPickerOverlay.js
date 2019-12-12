@@ -39,12 +39,8 @@ function ViewChange(aValue, aLabel)
       LaunchCustomizeDialog();
     else
     {
-      // Thunderbird uses the folder pane for this.
-      if ("gFolderTreeController" in window)
-        gFolderTreeController.newVirtualFolder(gCurrentViewLabel,
-                                               gSaveDefaultSVTerms);
-      else
-        openNewVirtualFolderDialogWithArgs(gCurrentViewLabel, gSaveDefaultSVTerms);
+      gFolderTreeController.newVirtualFolder(gCurrentViewLabel,
+                                             gSaveDefaultSVTerms);
     }
     return;
   }

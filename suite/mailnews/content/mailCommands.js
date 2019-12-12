@@ -263,14 +263,6 @@ function NewMessageToSelectedAddresses(type, format, identity) {
   }
 }
 
-function NewFolder(name, folder)
-{
-  if (!folder || !name)
-    return;
-
-  folder.createSubfolder(name, msgWindow);
-}
-
 function UnSubscribe(folder)
 {
   // Unsubscribe the current folder from the newsserver, this assumes any confirmation has already
@@ -451,61 +443,4 @@ function ViewPageSource(messages)
 function doHelpButton()
 {
     openHelp("mail-offline-items");
-}
-
-function confirmToProceed(commandName)
-{
-  const kDontAskAgainPref = "mailnews."+commandName+".dontAskAgain";
-  // default to ask user if the pref is not set
-  var dontAskAgain = false;
-  try {
-    dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
-  } catch (ex) {}
-
-  if (!dontAskAgain)
-  {
-    var checkbox = {value:false};
-    var choice = Services.prompt.confirmEx(
-                   window,
-                   gMessengerBundle.getString(commandName+"Title"),
-                   gMessengerBundle.getString(commandName+"Message"),
-                   Services.prompt.STD_YES_NO_BUTTONS,
-                   null, null, null,
-                   gMessengerBundle.getString(commandName+"DontAsk"),
-                   checkbox);
-    try {
-      if (checkbox.value)
-        Services.prefs.setBoolPref(kDontAskAgainPref, true);
-    } catch (ex) {}
-
-    if (choice != 0)
-      return false;
-  }
-  return true;
-}
-
-function deleteAllInFolder(commandName)
-{
-  var folder = GetMsgFolderFromUri(GetSelectedFolderURI(), true);
-  if (!folder)
-    return;
-
-  if (!confirmToProceed(commandName))
-    return;
-
-  // Delete sub-folders.
-  var iter = folder.subFolders;
-  while (iter.hasMoreElements())
-    folder.propagateDelete(iter.getNext(), true, msgWindow);
-
-  var children = Cc["@mozilla.org/array;1"]
-                  .createInstance(Ci.nsIMutableArray);
-
-  // Delete messages.
-  iter = folder.messages;
-  while (iter.hasMoreElements()) {
-    children.appendElement(iter.getNext());
-  }
-  folder.deleteMessages(children, msgWindow, true, false, null, false);
-  children.clear();
 }

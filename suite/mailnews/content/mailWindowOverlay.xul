@@ -430,20 +430,20 @@
     <menuitem id="folderPaneContext-new"
         label="&folderContextNew.label;"
         accesskey="&folderContextNew.accesskey;"
-        oncommand="MsgNewFolder(NewFolder);"/>
+        oncommand="gFolderTreeController.newFolder();"/>
     <menuitem id="folderPaneContext-remove"
               label="&folderContextRemove.label;"
               accesskey="&folderContextRemove.accesskey;"
-              oncommand="MsgDeleteFolder();"/>
+              oncommand="gFolderTreeController.deleteFolder();"/>
     <menuitem id="folderPaneContext-rename"
         label="&folderContextRename.label;"
         accesskey="&folderContextRename.accesskey;"
-        oncommand="MsgRenameFolder();"/>
+        oncommand="gFolderTreeController.renameFolder();"/>
 
     <menuitem id="folderPaneContext-compact"
         label="&folderContextCompact.label;"
         accesskey="&folderContextCompact.accesskey;"
-        oncommand="MsgCompactFolder(false);"/>
+        oncommand="gFolderTreeController.compactFolder(false);"/>
     <menuitem id="folderPaneContext-markMailFolderAllRead"
               label="&folderContextMarkMailFolderRead.label;"
               accesskey="&folderContextMarkMailFolderRead.accesskey;"
@@ -455,11 +455,11 @@
     <menuitem id="folderPaneContext-emptyTrash"
         label="&folderContextEmptyTrash.label;"
         accesskey="&folderContextEmptyTrash.accesskey;"
-        oncommand="MsgEmptyTrash();"/>
+        oncommand="gFolderTreeController.emptyTrash();"/>
     <menuitem id="folderPaneContext-emptyJunk"
         label="&folderContextEmptyJunk.label;"
         accesskey="&folderContextEmptyJunk.accesskey;"
-        oncommand="deleteAllInFolder('emptyJunk');"/>
+        oncommand="gFolderTreeController.emptyJunk();"/>
     <menuitem id="folderPaneContext-sendUnsentMessages"
         label="&folderContextSendUnsentMessages.label;"
         accesskey="&folderContextSendUnsentMessages.accesskey;"
@@ -470,11 +470,11 @@
     <menuitem id="folderPaneContext-properties"
         label="&folderContextProperties.label;"
         accesskey="&folderContextProperties.accesskey;"
-        oncommand="MsgFolderProperties();"/>
+        oncommand="gFolderTreeController.editFolder();"/>
     <menuitem id="folderPaneContext-settings"
               label="&folderContextSettings.label;"
               accesskey="&folderContextSettings.accesskey;"
-              oncommand="MsgFolderProperties();"/>
+              oncommand="gFolderTreeController.editFolder();"/>
   </menupopup>
 
   <menupopup id="mailContext"
@@ -916,9 +916,9 @@
           <menuitem id="menu_newFolder"
                     label="&newFolderCmd.label;"
                     accesskey="&newFolderCmd.accesskey;"
-                    oncommand="MsgNewFolder(NewFolder);"/>
+                    oncommand="gFolderTreeController.newFolder();"/>
           <menuitem id="menu_newVirtualFolder" label="&newVirtualFolderCmd.label;"
-                    oncommand="MsgVirtualFolderProperties(false);"
+                    oncommand="gFolderTreeController.newVirtualFolder();"
                     accesskey="&newVirtualFolderCmd.accesskey;"/>
           <menuitem id="newAccountMenuItem"
                     label="&newAccountCmd.label;"

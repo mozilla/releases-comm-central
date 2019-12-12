@@ -1439,38 +1439,6 @@ function MsgCreateFilter()
      top.MsgFilters(emailAddress, folder);
 }
 
-function MsgNewFolder(callBackFunctionName)
-{
-    var preselectedFolder = GetFirstSelectedMsgFolder();
-    var dualUseFolders = true;
-    var server = null;
-    var destinationFolder = null;
-
-    if (preselectedFolder)
-    {
-        try {
-            server = preselectedFolder.server;
-            if (server)
-            {
-                destinationFolder = getDestinationFolder(preselectedFolder, server);
-
-                var imapServer =
-                    server.QueryInterface(Ci.nsIImapIncomingServer);
-                if (imapServer)
-                    dualUseFolders = imapServer.dualUseFolders;
-            }
-        } catch (e) {
-            dump ("Exception: dualUseFolders = true\n");
-        }
-    }
-    window.openDialog("chrome://messenger/content/newFolderDialog.xul",
-                      "",
-                      "chrome,modal,centerscreen",
-                      {folder: destinationFolder,
-                       dualUseFolders: dualUseFolders,
-                       okCallback:callBackFunctionName});
-}
-
 function getDestinationFolder(preselectedFolder, server)
 {
     var destinationFolder = null;
@@ -1575,12 +1543,12 @@ function MsgOpenNewWindowForFolder(uri, key)
   var keyToSelect = key;
 
   if (!uriToOpen)
-    // use GetSelectedFolderURI() to find out which message to open instead of
-    // GetLoadedMsgFolder().URI.
-    // This is required because on a right-click, the currentIndex value will be
-    // different from the actual row that is highlighted.  GetSelectedFolderURI()
-    // will return the message that is highlighted.
-    uriToOpen = GetSelectedFolderURI();
+    // Use GetSelectedMsgFolders() to find out which message to open instead of
+    // GetLoadedMsgFolder().URI. This is required because on a right-click, the
+    // currentIndex value will be different from the actual row that is
+    // highlighted. GetSelectedMsgFolders() will return the message that is
+    // highlighted.
+    uriToOpen = GetSelectedMsgFolders()[0].URI;
 
   if (uriToOpen) {
    // get the messenger window open service and ask it to open a new window for us
@@ -1704,13 +1672,13 @@ function MsgOpenNewWindowForMessage(messageUri, folderUri)
     messageUri = gFolderDisplay.selectedMessageUri;
 
     if (!folderUri)
-        // use GetSelectedFolderURI() to find out which message to open
+        // Use GetSelectedMsgFolders() to find out which message to open
         // instead of gDBView.getURIForViewIndex(currentIndex).  This is
         // required because on a right-click, the currentIndex value will be
         // different from the actual row that is highlighted.
-        // GetSelectedFolderURI() will return the message that is
+        // GetSelectedMsgFolders() will return the message that is
         // highlighted.
-        folderUri = GetSelectedFolderURI();
+        folderUri = GetSelectedMsgFolders()[0].URI;
 
     // be sure to pass in the current view....
     if (messageUri && folderUri) {
@@ -1754,10 +1722,10 @@ function MsgMarkReadByDate()
 
 function MsgMarkAllRead()
 {
-    var folder = GetMsgFolderFromUri(GetSelectedFolderURI(), true);
+  var folder = GetSelectedMsgFolders()[0];
 
-    if(folder)
-        folder.markAllMessagesRead(msgWindow);
+  if (folder)
+    folder.markAllMessagesRead(msgWindow);
 }
 
 function MsgDownloadFlagged()
@@ -2103,8 +2071,12 @@ function IsGetNextNMessagesEnabled()
 
 function IsCompactFolderEnabled()
 {
-  var server = GetServer(GetSelectedFolderURI());
+  let folder = GetSelectedMsgFolders()[0];
+  if (!folder)
+    return false;
+  let server = folder.server;
   return (server &&
+      (server.type != 'nntp') && // compact news folder is not supported
       ((server.type != 'imap') || server.canCompactFoldersOnServer) &&
       isCommandEnabled("cmd_compactFolder"));   // checks e.g. if IMAP is offline
 }
