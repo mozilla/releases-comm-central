@@ -4789,10 +4789,10 @@ function getCurrentIdentity() {
 }
 
 function AdjustFocus() {
-  let element = document.getElementById("toAddrInput");
-  if (element.value == "") {
-    // Focus last row of addressing widget.
-    element.focus();
+  let element = document.getElementById("toAddrContainer");
+  if (element.querySelectorAll("mail-address-pill").length == 0) {
+    // Focus on the "To" recipient field.
+    document.getElementById("toAddrInput").focus();
   } else {
     element = document.getElementById("msgSubject");
     if (element.value == "") {
