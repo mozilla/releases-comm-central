@@ -216,9 +216,12 @@ var folderListener =
           }
           // Folder loading is over,
           // now issue quick search if there is an email address.
-          viewDebug("in folder loaded gVirtualFolderTerms = " + gVirtualFolderTerms + "\n");
-          viewDebug("in folder loaded gMsgFolderSelected = " +
-                    gMsgFolderSelected && gMsgFolderSelected.URI + "\n");
+          if (gVirtualFolderTerms)
+            viewDebug("in folder loaded gVirtualFolderTerms = " +
+                      gVirtualFolderTerms + "\n");
+          if (gMsgFolderSelected)
+            viewDebug("in folder loaded gMsgFolderSelected = " +
+                      gMsgFolderSelected.URI + "\n");
           if (rerootingFolder)
           {
             if (gSearchEmailAddress)
@@ -233,7 +236,8 @@ var folderListener =
               gDBView.viewFolder = gMsgFolderSelected;
               ViewChangeByFolder(gMsgFolderSelected);
             }
-            else if (gMsgFolderSelected.flags & nsMsgFolderFlags.Virtual)
+            else if (gMsgFolderSelected &&
+                     gMsgFolderSelected.flags & nsMsgFolderFlags.Virtual)
             {
               viewDebug("selected folder is virtual\n");
               gDefaultSearchViewTerms = null;
