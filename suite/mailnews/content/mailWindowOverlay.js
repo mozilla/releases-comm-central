@@ -1439,38 +1439,6 @@ function MsgCreateFilter()
      top.MsgFilters(emailAddress, folder);
 }
 
-function getDestinationFolder(preselectedFolder, server)
-{
-    var destinationFolder = null;
-
-    var isCreateSubfolders = preselectedFolder.canCreateSubfolders;
-    if (!isCreateSubfolders)
-    {
-        destinationFolder = server.rootMsgFolder;
-
-        var verifyCreateSubfolders = null;
-        if (destinationFolder)
-            verifyCreateSubfolders = destinationFolder.canCreateSubfolders;
-
-        // in case the server cannot have subfolders,
-        // get default account and set its incoming server as parent folder
-        if (!verifyCreateSubfolders)
-        {
-            var defaultFolder = GetDefaultAccountRootFolder();
-            var checkCreateSubfolders = null;
-            if (defaultFolder)
-                checkCreateSubfolders = defaultFolder.canCreateSubfolders;
-
-            if (checkCreateSubfolders)
-                destinationFolder = defaultFolder;
-        }
-    }
-    else
-        destinationFolder = preselectedFolder;
-
-    return destinationFolder;
-}
-
 function MsgSubscribe(folder)
 {
   var preselectedFolder = folder || GetFirstSelectedMsgFolder();

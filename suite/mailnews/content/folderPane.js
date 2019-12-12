@@ -26,30 +26,29 @@ var gFolderTreeController = {
    * @param aParent (optional)  the parent for the new subfolder
    */
   newFolder(aParent) {
-    var preselectedFolder = aParent || GetFirstSelectedMsgFolder();
-    var dualUseFolders = true;
-    var server = null;
-    var folder = null;
+    let folder = aParent || GetSelectedMsgFolders()[0];
 
-    if (preselectedFolder) {
-      try {
-        server = preselectedFolder.server;
-        if (server) {
-         folder = getDestinationFolder(preselectedFolder, server);
-
-          var imapServer = server.QueryInterface(Ci.nsIImapIncomingServer);
-          if (imapServer)
-            dualUseFolders = imapServer.dualUseFolders;
-        }
-      } catch (e) {
-        dump ("Exception: dualUseFolders = true\n");
-      }
+    // Make sure we actually can create subfolders.
+    if (!folder.canCreateSubfolders) {
+      // Check if we can create them at the root.
+      let rootMsgFolder = folder.server.rootMsgFolder;
+      if (rootMsgFolder.canCreateSubfolders)
+        folder = rootMsgFolder;
+      else // just use the default account
+        folder = GetDefaultAccountRootFolder();
     }
 
-    //xxx useless param
+    let dualUseFolders = true;
+    if (folder.server instanceof Ci.nsIImapIncomingServer)
+      dualUseFolders = folder.server.dualUseFolders;
+
     function newFolderCallback(aName, aFolder) {
+      // createSubfolder can throw an exception, causing the newFolder dialog
+      // to not close and wait for another input.
+      // TODO: Rewrite this logic and move the opening of alert dialogs from
+      // nsMsgLocalMailFolder::CreateSubfolderInternal to here (bug 831190#c16).
       if (aName)
-        folder.createSubfolder(aName, msgWindow);
+        aFolder.createSubfolder(aName, msgWindow);
     }
 
     window.openDialog("chrome://messenger/content/newFolderDialog.xul",
@@ -94,8 +93,14 @@ var gFolderTreeController = {
         msgFolder.throwAlertMsg("operationFailedFolderBusy", msgWindow);
         return;
       }
-      let msgDB = msgFolder.msgDatabase;
-      msgDB.summaryValid = false;
+      if (msgFolder.supportsOffline) {
+        // Remove the offline store, if any.
+        let offlineStore = msgFolder.filePath;
+        if (offlineStore.exists())
+          offlineStore.remove(false);
+      }
+      msgFolder.msgDatabase.summaryValid = false;
+
       try {
         msgFolder.closeAndBackupFolderDB("");
       }
@@ -133,23 +138,16 @@ var gFolderTreeController = {
   renameFolder(aFolder) {
     let folder = aFolder || GetSelectedMsgFolders()[0];
 
+    let controller = this;
     function renameCallback(aName, aUri) {
-      let folderTree = GetFolderTree();
-      if (gDBView)
-        gCurrentlyDisplayedMessage = gDBView.currentlyDisplayedMessage;
+      if (aUri != folder.URI)
+        Cu.reportError("got back a different folder to rename!");
 
-      ClearThreadPane();
-      ClearMessagePane();
+      controller._resetThreadPane();
+      let folderTree = GetFolderTree();
       folderTree.view.selection.clearSelection();
 
-      try {
-        folder.rename(aName, msgWindow);
-      }
-      catch(e) {
-        SelectFolder(folder.URI);  //restore selection
-        throw(e); // so that the dialog does not automatically close
-        dump ("Exception : RenameFolder \n");
-      }
+      folder.rename(aName, msgWindow);
     }
 
     window.openDialog("chrome://messenger/content/renameFolderDialog.xul",
@@ -166,11 +164,11 @@ var gFolderTreeController = {
    */
   deleteFolder(aFolder) {
     let folders = aFolder ? [aFolder] : GetSelectedMsgFolders();
-    const NS_MSG_ERROR_COPY_FOLDER_ABORTED = 0x8055001a;
     let prompt = Services.prompt;
     for (let folder of folders) {
-      let specialFolder = getSpecialFolderString(folder);
-      if (specialFolder == "Inbox" || specialFolder == "Trash")
+      let canDelete = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false) ?
+        CanRenameDeleteJunkMail(folder.URI) : folder.deletable;
+      if (!canDelete)
         continue;
 
       if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
@@ -184,53 +182,62 @@ var gFolderTreeController = {
           continue;
         if (gCurrentVirtualFolderUri == folder.URI)
           gCurrentVirtualFolderUri = null;
-        let array = Cc["@mozilla.org/array;1"]
-                      .createInstance(Ci.nsIMutableArray);
-        array.appendElement(folder);
-        folder.parent.deleteSubFolders(array, msgWindow);
-        continue;
       }
 
       if (isNewsURI(folder.URI)) {
-        let unsubscribe = ConfirmUnsubscribe(folder);
-        if (unsubscribe)
+        if (ConfirmUnsubscribe(folder))
           UnSubscribe(folder);
+        continue;
       }
-      else if (specialFolder == "Junk" ?
-               CanRenameDeleteJunkMail(folder.URI) : folder.deletable) {
-        // We can delete this folder.
-        let array = Cc["@mozilla.org/array;1"]
-                      .createInstance(Ci.nsIMutableArray);
-        array.appendElement(folder);
-        try {
-          folder.parent.deleteSubFolders(array, msgWindow);
+
+      // We can delete this folder.
+      let array = toXPCOMArray([folder], Ci.nsIMutableArray);
+      try {
+        folder.parent.deleteSubFolders(array, msgWindow);
+      }
+      // Ignore known errors from canceled warning dialogs.
+      catch (ex) {
+        const NS_MSG_ERROR_COPY_FOLDER_ABORTED = 0x8055001a;
+        if (ex.result != NS_MSG_ERROR_COPY_FOLDER_ABORTED) {
+          throw ex;
         }
-        // Ignore known errors from canceled warning dialogs.
-        catch (ex if (ex.result == NS_MSG_ERROR_COPY_FOLDER_ABORTED)) {}
       }
     }
   },
 
   /**
-   * Prompts the user to confirm and empties the trash for the selected folder
+   * Prompts the user to confirm and empties the trash for the selected folder.
+   * The folder and its children are only emptied if it has the proper Trash
+   * flag.
    *
-   * @param aFolder (optional)  the trash folder to empty
-   * @note Calling this function on a non-trash folder will result in strange
-   *       behavior!
+   * @param aFolder (optional)  The trash folder to empty. If unspecified or not
+   *                            a trash folder, the currently selected server's
+   *                            trash folder is used.
    */
   emptyTrash(aFolder) {
     let folder = aFolder || GetSelectedMsgFolders()[0];
+    if (!folder.getFlag(Ci.nsMsgFolderFlags.Trash))
+      folder = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
+    if (!folder)
+      return;
+
     if (this._checkConfirmationPrompt("emptyTrash"))
       folder.emptyTrash(msgWindow, null);
   },
 
   /**
-   * Deletes everything (folders and messages) in this folder
+   * Deletes everything (folders and messages) in the selected folder.
+   * The folder is only emptied if it has the proper Junk flag.
    *
-   * @param aFolder (optional)  the folder to empty
+   * @param aFolder (optional)  The folder to empty. If unspecified, the
+   *                            currently selected folder is used, if it
+   *                            is junk.
    */
   emptyJunk(aFolder) {
     let folder = aFolder || GetSelectedMsgFolders()[0];
+
+    if (!folder || !folder.getFlag(Ci.nsMsgFolderFlags.Junk))
+      return;
 
     if (!this._checkConfirmationPrompt("emptyJunk"))
       return;
@@ -240,16 +247,10 @@ var gFolderTreeController = {
     while (iter.hasMoreElements())
       folder.propagateDelete(iter.getNext(), true, msgWindow);
 
-    let children = Cc["@mozilla.org/array;1"]
-                     .createInstance(Ci.nsIMutableArray);
-
     // Now delete the messages.
-    iter = folder.messages;
-    while (iter.hasMoreElements()) {
-      children.appendElement(iter.getNext());
-    }
+    let messages = Array.from(fixIterator(folder.messages));
+    let children = toXPCOMArray(messages, Ci.nsIMutableArray);
     folder.deleteMessages(children, msgWindow, true, false, null, false);
-    children.clear();
   },
 
   /**
@@ -262,21 +263,14 @@ var gFolderTreeController = {
   compactFolder(aCompactAll, aFolder) {
     let folder = aFolder || GetSelectedMsgFolders()[0];
     let isImapFolder = folder.server.type == "imap";
-    if (!isImapFolder) {
-      if (folder.expungedBytes > 0) {
-        if (gDBView) {
-          gCurrentlyDisplayedMessage = gDBView.currentlyDisplayedMessage;
-          if (gDBView.msgFolder == folder || aCompactAll) {
-            ClearThreadPaneSelection();
-            ClearThreadPane();
-            ClearMessagePane();
-          }
-        }
-      }
-      else {
-        if (!aCompactAll) // you have one local folder with no room to compact
-          return;
-      }
+    // Can't compact folders that have just been compacted
+    if (!isImapFolder && !folder.expungedBytes && !aCompactAll)
+      return;
+
+    // Reset thread pane for non-imap folders.
+    if (!isImapFolder && gDBView &&
+        (gDBView.msgFolder == folder || aCompactAll)) {
+      this._resetThreadPane();
     }
     if (aCompactAll)
       folder.compactAll(null, msgWindow, isImapFolder || folder.server.type == "nntp");
@@ -293,6 +287,9 @@ var gFolderTreeController = {
    */
   newVirtualFolder(aName, aSearchTerms, aParent) {
     let folder = aParent || GetSelectedMsgFolders()[0];
+    if (!folder)
+      folder = GetDefaultAccountRootFolder();
+
     let name = folder.prettyName;
     if (aName)
       name += "-" + aName;
@@ -324,6 +321,30 @@ var gFolderTreeController = {
                       {folder: folder, editExistingFolder: true,
                        onOKCallback: editVirtualCallback,
                        msgWindow:msgWindow});
+  },
+
+  /**
+   * Opens a search window with the given folder, or the selected one if none
+   * is given.
+   *
+   * @param [aFolder] the folder to open the search window for, if different
+   *                  from the selected one
+   */
+  searchMessages(aFolder) {
+    MsgSearchMessages(aFolder || GetSelectedMsgFolders()[0]);
+  },
+
+  /**
+   * For certain folder commands, the thread pane needs to be invalidated, this
+   * takes care of doing so.
+   */
+  _resetThreadPane() {
+    if (gDBView)
+      gCurrentlyDisplayedMessage = gDBView.currentlyDisplayedMessage;
+
+    ClearThreadPaneSelection();
+    ClearThreadPane();
+    ClearMessagePane();
   },
 
   /**
