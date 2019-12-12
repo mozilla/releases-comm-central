@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from emailWizard.js */
+/* import-globals-from guessConfig.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(
@@ -102,7 +103,7 @@ function fetchConfigFromExchange(
       successive,
       username,
       password,
-      successCallback,
+      config => detectStandardProtocols(config, domain, successCallback),
       errorCallback
     );
   }, errorCallback); // all failed
@@ -503,4 +504,67 @@ function readAddonsJSON(json) {
     }
   }
   return addons;
+}
+
+/**
+ * Probe a found Exchange server for IMAP/POP3 and SMTP support.
+ *
+ * @param {AccountConfig} config - The initial detected Exchange configuration.
+ * @param {string} domain - The domain part of the user's email address
+ * @param {Function(config {AccountConfig})} successCallback - A callback that
+ *   will be called when we found an appropriate configuration.
+ *   The AccountConfig object will be passed in as first parameter.
+ */
+function detectStandardProtocols(config, domain, successCallback) {
+  gEmailWizardLogger.info("Exchange Autodiscover gave some results.");
+  let alts = [config.incoming, ...config.incomingAlternatives];
+  if (alts.find(alt => alt.type == "imap" || alt.type == "pop3")) {
+    // Autodiscover found an exchange server with advertized IMAP and/or
+    // POP3 support. We're done then.
+    successCallback(config);
+    return;
+  }
+
+  // Autodiscover is known not to advertize all that it supports. Let's see
+  // if there really isn't any IMAP/POP3 support by probing the Exchange
+  // server. Use the server hostname already found.
+  let config2 = new AccountConfig();
+  config2.incoming.hostname = config.incoming.hostname;
+  config2.incoming.username = config.incoming.username || "%EMAILADDRESS%";
+  // For Exchange 2013+ Kerberos/GSSAPI and NTLM options do not work by
+  // default at least for Linux users, even if support is detected.
+  config2.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
+
+  config2.outgoing.hostname = config.incoming.hostname;
+  config2.outgoing.username = config.incoming.username || "%EMAILADDRESS%";
+
+  config2.incomingAlternatives = config.incomingAlternatives;
+  config2.incomingAlternatives.push(config.incoming); // type=exchange
+
+  config2.outgoingAlternatives = config.outgoingAlternatives;
+  if (config.outgoing.hostname) {
+    config2.outgoingAlternatives.push(config.outgoing);
+  }
+
+  config2.oauthSettings = config.oauthSettings;
+
+  guessConfig(
+    domain,
+    function(type, hostname, port, ssl, done, config) {
+      gEmailWizardLogger.info(
+        `Probing exchange server ${hostname} for ${type} protocol support.`
+      );
+    },
+    function(probedConfig) {
+      // Probing succeded: found open protocols, yay!
+      successCallback(probedConfig);
+    },
+    function(e, probedConfig) {
+      // Probing didn't find any open protocols.
+      // Let's use the exchange (only) config that was listed then.
+      successCallback(config);
+    },
+    config2,
+    "both"
+  );
 }

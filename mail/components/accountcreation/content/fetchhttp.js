@@ -302,7 +302,7 @@ FetchHTTP.prototype = {
           errorStr = getStringBundle(
             "chrome://messenger/locale/accountCreationUtil.properties"
           ).GetStringFromName("cannot_contact_server.error");
-          ddump(errorStr);
+          ddump(errorStr + " on <" + this._url + ">");
         }
       }
 

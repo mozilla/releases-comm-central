@@ -755,7 +755,7 @@ EmailConfigWizard.prototype = {
             ? "guessed_settings_offline"
             : "found_settings_guess"
         );
-        this.resizeDialog();
+        self.resizeDialog();
       },
       function(e, config) {
         // guessconfig failed

@@ -133,8 +133,8 @@ function guessConfig(
   };
 
   var errorInCallback = function(e) {
-    // The caller's errorCallback threw.
-    // hopefully shouldn't happen for users.
+    // The caller's errorCallback threw. Hopefully shouldn't happen for users.
+    console.error(e);
     alertPrompt("Error in errorCallback for guessConfig()", e);
   };
 
