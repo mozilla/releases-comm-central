@@ -4,11 +4,14 @@
 
 "use strict";
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-const {FileUtils} = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-const {AppConstants} = ChromeUtils.import('resource://gre/modules/AppConstants.jsm');
-+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } =
+  ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { FileUtils } =
+  ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+const { AppConstants } =
+  ChromeUtils.import('resource://gre/modules/AppConstants.jsm');
+
 ChromeUtils.defineModuleGetter(this, "FileUtils",
   "resource://gre/modules/FileUtils.jsm");
 

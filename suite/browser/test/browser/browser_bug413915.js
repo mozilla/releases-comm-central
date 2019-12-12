@@ -1,5 +1,5 @@
-XPCOMUtils.defineLazyModuleGetter(this, "Feeds",
-                                  "resource:///modules/Feeds.jsm");
+ChromeUtils.defineModuleGetter(this, "Feeds",
+  "resource:///modules/Feeds.jsm");
 
 function test() {
   var exampleUri = Services.io.newURI("http://example.com/");

@@ -186,8 +186,6 @@ var Sanitizer = {
 
     history: {
       clear: function() {
-        const {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-
         // use try/catch for everything but the last task so we clear as much as possible
         try {
           PlacesUtils.history.clear();

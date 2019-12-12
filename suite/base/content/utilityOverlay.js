@@ -8,9 +8,9 @@
  * for shared application glue for the Communicator suite of applications
  **/
 
-// Services = object with smart getters for common XPCOM services
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } =
+  ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 
 XPCOMUtils.defineLazyModuleGetters(this, {

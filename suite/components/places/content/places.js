@@ -6,20 +6,20 @@
 /* import-globals-from editBookmarkOverlay.js */
 /* import-globals-from ../../../../../toolkit/content/contentAreaUtils.js */
 
-var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } =
+  ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 ChromeUtils.defineModuleGetter(this, "MigrationUtils",
-                               "resource:///modules/MigrationUtils.jsm");
+  "resource:///modules/MigrationUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "BookmarkJSONUtils",
-                               "resource://gre/modules/BookmarkJSONUtils.jsm");
+  "resource://gre/modules/BookmarkJSONUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "PlacesBackups",
-                               "resource://gre/modules/PlacesBackups.jsm");
+  "resource://gre/modules/PlacesBackups.jsm");
 ChromeUtils.defineModuleGetter(this, "DownloadUtils",
-                               "resource://gre/modules/DownloadUtils.jsm");
+  "resource://gre/modules/DownloadUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "OS",
-                               "resource://gre/modules/osfile.jsm");
+  "resource://gre/modules/osfile.jsm");
 
 const RESTORE_FILEPICKER_FILTER_EXT = "*.json;*.jsonlz4";
 
