@@ -238,7 +238,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 .folderSummary-previewText {
-  color: GrayText;
+  opacity: 0.6;
 }
 
 /* Make sidebar look normal. */

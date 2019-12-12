@@ -364,5 +364,5 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 }
 
 .folderSummary-previewText {
-  color: gray;
+  opacity: 0.6;
 }
