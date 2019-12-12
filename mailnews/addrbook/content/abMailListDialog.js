@@ -25,6 +25,21 @@ var gOldListName = "";
 var gLoadListeners = [];
 var gSaveListeners = [];
 
+var gAWContentHeight = 0;
+var gAWRowHeight = 0;
+var gNumberOfCols = 0;
+
+var test_addresses_sequence = false;
+
+if (
+  Services.prefs.getPrefType("mail.debug.test_addresses_sequence") ==
+  Ci.nsIPrefBranch.PREF_BOOL
+) {
+  test_addresses_sequence = Services.prefs.getBoolPref(
+    "mail.debug.test_addresses_sequence"
+  );
+}
+
 try {
   var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
     Ci.nsIDragService
@@ -462,8 +477,55 @@ function awAppendNewRow(setFocus) {
 
 // functions for accessing the elements in the addressing widget
 
+/**
+ * Returns the recipient type popup for a row.
+ *
+ * @param {String} row - Index of the recipient row to return. Starts at 1.
+ * @return {HTMLElement} This returns the menulist (not its child menupopup),
+ *   despite the function name.
+ */
+function awGetPopupElement(row) {
+  return document.getElementById("addressCol1#" + row);
+}
+
+/**
+ * Returns the recipient inputbox for a row.
+ *
+ * @param row  Index of the recipient row to return. Starts at 1.
+ * @return     This returns the input element.
+ */
 function awGetInputElement(row) {
   return document.getElementById("addressCol1#" + row);
+}
+
+function awGetElementByCol(row, col) {
+  var colID = "addressCol" + col + "#" + row;
+  return document.getElementById(colID);
+}
+
+function awGetListItem(row) {
+  var listbox = document.getElementById("addressingWidget");
+  if (listbox && row > 0) {
+    return listbox.getItemAtIndex(row - 1);
+  }
+
+  return null;
+}
+
+/**
+ * @param inputElement  The recipient input element.
+ * @return              The row index (starting from 1) where the input element
+ *                      is found. 0 if the element is not found.
+ */
+function awGetRowByInputElement(inputElement) {
+  if (!inputElement) {
+    return 0;
+  }
+
+  var listitem = inputElement.parentNode.parentNode;
+  return (
+    document.getElementById("addressingWidget").getIndexOfItem(listitem) + 1
+  );
 }
 
 function DragOverAddressListTree(event) {
@@ -580,4 +642,352 @@ function NotifySaveListeners(aMailingList) {
   for (let i = 0; i < gSaveListeners.length; i++) {
     gSaveListeners[i](aMailingList, document);
   }
+}
+
+/**
+ * Handles keypress events for the email address inputs (that auto-fill)
+ * in the Address Book Mailing List dialogs. When a comma-separated list of
+ * addresses is entered on one row, split them into one address per row. Only
+ * add a new blank row on "Enter" key. On "Tab" key focus moves to the "Cancel"
+ * button.
+ *
+ * @param {KeyboardEvent} event  The DOM keypress event.
+ * @param {Element} element      The element that triggered the keypress event.
+ */
+function awAbRecipientKeyPress(event, element) {
+  if (event.key != "Enter" && event.key != "Tab") {
+    return;
+  }
+
+  if (!element.value) {
+    if (event.key == "Enter") {
+      awReturnHit(element);
+    }
+  } else {
+    let inputElement = element;
+    let originalRow = awGetRowByInputElement(element);
+    let row;
+    let addresses = MailServices.headerParser.makeFromDisplayAddress(
+      element.value
+    );
+
+    if (addresses.length > 1) {
+      // Collect any existing addresses from the following rows so we don't
+      // simply overwrite them.
+      row = originalRow + 1;
+      inputElement = awGetInputElement(row);
+
+      while (inputElement) {
+        if (inputElement.value) {
+          addresses.push(inputElement.value);
+          inputElement.value = "";
+        }
+        row += 1;
+        inputElement = awGetInputElement(row);
+      }
+    }
+
+    // Insert the addresses, adding new rows if needed.
+    row = originalRow;
+    let needNewRows = false;
+
+    for (let address of addresses) {
+      if (needNewRows) {
+        inputElement = awAppendNewRow(false);
+      } else {
+        inputElement = awGetInputElement(row);
+        if (!inputElement) {
+          needNewRows = true;
+          inputElement = awAppendNewRow(false);
+        }
+      }
+
+      if (inputElement) {
+        inputElement.value = address;
+      }
+      row += 1;
+    }
+
+    if (event.key == "Enter") {
+      // Prevent the dialog from closing. "Enter" inserted a new row instead.
+      event.preventDefault();
+      awReturnHit(inputElement);
+    } else if (event.key == "Tab") {
+      // Focus the last row to let "Tab" move focus to the "Cancel" button.
+      let lastRow = row - 1;
+      awGetInputElement(lastRow).focus();
+    }
+  }
+}
+
+/**
+ * Handle keydown event on a recipient input.
+ * Enables recipient row deletion with DEL or BACKSPACE and
+ * recipient list navigation with cursor up/down.
+ *
+ * Note that the keydown event fires for ALL keys, so this may affect
+ * autocomplete as user enters a recipient text.
+ *
+ * @param {keydown event} event  the keydown event fired on a recipient input
+ * @param {<html:input>} inputElement  the recipient input element
+ *                                     on which the event fired (textbox-addressingWidget)
+ */
+function awRecipientKeyDown(event, inputElement) {
+  switch (event.key) {
+    // Enable deletion of empty recipient rows.
+    case "Delete":
+    case "Backspace":
+      if (inputElement.textLength == 1 && event.repeat) {
+        // User is holding down Delete or Backspace to delete recipient text
+        // inline and is now deleting the last character: Set flag to
+        // temporarily block row deletion.
+        top.awRecipientInlineDelete = true;
+      }
+      if (!inputElement.value && !event.altKey) {
+        // When user presses DEL or BACKSPACE on an empty row, and it's not an
+        // ongoing inline deletion, and not ALT+BACKSPACE for input undo,
+        // we delete the row.
+        if (top.awRecipientInlineDelete && !event.repeat) {
+          // User has released and re-pressed Delete or Backspace key
+          // after holding them down to delete recipient text inline:
+          // unblock row deletion.
+          top.awRecipientInlineDelete = false;
+        }
+        if (!top.awRecipientInlineDelete) {
+          let deleteForward = event.key == "Delete";
+          awDeleteHit(inputElement, deleteForward);
+        }
+      }
+      break;
+
+    // Enable browsing the list of recipients up and down with cursor keys.
+    case "ArrowDown":
+    case "ArrowUp":
+      // Only browse recipients if the autocomplete popup is not open.
+      if (!inputElement.popupOpen) {
+        let row = awGetRowByInputElement(inputElement);
+        let down = event.key == "ArrowDown";
+        let noEdgeRow = down ? row < top.MAX_RECIPIENTS : row > 1;
+        if (noEdgeRow) {
+          let targetRow = down ? row + 1 : row - 1;
+          awSetFocusTo(awGetInputElement(targetRow));
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Delete recipient row (addressingWidgetItem) from UI.
+ *
+ * @param {<html:input>} inputElement  the recipient input element
+ *                                     (textbox-addressingWidget) whose parent
+ *                                     row (addressingWidgetItem) will be deleted.
+ * @param {boolean} deleteForward  true: focus next row after deleting the row
+ *                                 false: focus previous row after deleting the row
+ */
+function awDeleteHit(inputElement, deleteForward = false) {
+  let row = awGetRowByInputElement(inputElement);
+
+  // Don't delete the row if it's the last one remaining; just reset it.
+  if (top.MAX_RECIPIENTS <= 1) {
+    inputElement.value = "";
+    return;
+  }
+
+  // Set the focus to the input field of the next/previous row according to
+  // the direction of deleting if possible.
+  // Note: awSetFocusTo() is asynchronous, i.e. we'll focus after row removal.
+  if (
+    (!deleteForward && row > 1) ||
+    (deleteForward && row == top.MAX_RECIPIENTS)
+  ) {
+    // We're deleting backwards, but not the first row,
+    // or forwards on the last row: Focus previous row.
+    awSetFocusTo(awGetInputElement(row - 1));
+  } else {
+    // We're deleting forwards, but not the last row,
+    // or backwards on the first row: Focus next row.
+    awSetFocusTo(awGetInputElement(row + 1));
+  }
+
+  // Delete the row.
+  awDeleteRow(row);
+}
+
+function awTestRowSequence() {
+  /*
+    This function is for debug and testing purpose only, normal user should not run it!
+
+    Every time we insert or delete a row, we must be sure we didn't break the ID sequence of
+    the addressing widget rows. This function will run a quick test to see if the sequence still ok
+
+    You need to define the pref mail.debug.test_addresses_sequence to true in order to activate it
+  */
+
+  if (!test_addresses_sequence) {
+    return true;
+  }
+
+  // Debug code to verify the sequence is still good.
+
+  let listbox = document.getElementById("addressingWidget");
+  let listitems = listbox.itemChildren;
+  if (listitems.length >= top.MAX_RECIPIENTS) {
+    for (let i = 1; i <= listitems.length; i++) {
+      let item = listitems[i - 1];
+      let inputID = item
+        .querySelector(`input[is="autocomplete-input"]`)
+        .id.split("#")[1];
+      let menulist = item.querySelector("menulist");
+      // In some places like the mailing list dialog there is no menulist,
+      // and so no popupID that needs to be kept in sequence.
+      let popupID = menulist && menulist.id.split("#")[1];
+      if (inputID != i || (popupID && popupID != i)) {
+        dump(
+          `#ERROR: sequence broken at row ${i}, ` +
+            `inputID=${inputID}, popupID=${popupID}\n`
+        );
+        return false;
+      }
+      dump("---SEQUENCE OK---\n");
+      return true;
+    }
+  } else {
+    dump(
+      `#ERROR: listitems.length(${listitems.length}) < ` +
+        `top.MAX_RECIPIENTS(${top.MAX_RECIPIENTS})\n`
+    );
+  }
+
+  return false;
+}
+
+function awRemoveRow(row) {
+  awGetListItem(row).remove();
+  awFitDummyRows();
+
+  top.MAX_RECIPIENTS--;
+}
+
+function awGetNumberOfCols() {
+  if (gNumberOfCols == 0) {
+    var listbox = document.getElementById("addressingWidget");
+    var listCols = listbox.getElementsByTagName("treecol");
+    gNumberOfCols = listCols.length;
+    if (!gNumberOfCols) {
+      // If no cols defined, that means we have only one!
+      gNumberOfCols = 1;
+    }
+  }
+
+  return gNumberOfCols;
+}
+
+function awCreateDummyItem(aParent) {
+  var listbox = document.getElementById("addressingWidget");
+  var item = listbox.getItemAtIndex(0);
+
+  var titem = document.createXULElement("richlistitem");
+  titem.setAttribute("_isDummyRow", "true");
+  titem.setAttribute("class", "dummy-row");
+  titem.style.height = item.getBoundingClientRect().height + "px";
+
+  for (let i = 0; i < awGetNumberOfCols(); i++) {
+    let cell = awCreateDummyCell(titem);
+    if (item.children[i].hasAttribute("style")) {
+      cell.setAttribute("style", item.children[i].getAttribute("style"));
+    }
+    if (item.children[i].hasAttribute("flex")) {
+      cell.setAttribute("flex", item.children[i].getAttribute("flex"));
+    }
+  }
+
+  if (aParent) {
+    aParent.appendChild(titem);
+  }
+
+  return titem;
+}
+
+function awFitDummyRows() {
+  awCalcContentHeight();
+  awCreateOrRemoveDummyRows();
+}
+
+function awCreateOrRemoveDummyRows() {
+  let listbox = document.getElementById("addressingWidget");
+  let listboxHeight = listbox.getBoundingClientRect().height;
+
+  // remove rows to remove scrollbar
+  let kids = listbox.querySelectorAll("[_isDummyRow]");
+  for (
+    let i = kids.length - 1;
+    gAWContentHeight > listboxHeight && i >= 0;
+    --i
+  ) {
+    gAWContentHeight -= gAWRowHeight;
+    kids[i].remove();
+  }
+
+  // add rows to fill space
+  if (gAWRowHeight) {
+    while (gAWContentHeight + gAWRowHeight < listboxHeight) {
+      awCreateDummyItem(listbox);
+      gAWContentHeight += gAWRowHeight;
+    }
+  }
+}
+
+function awCalcContentHeight() {
+  var listbox = document.getElementById("addressingWidget");
+  var items = listbox.itemChildren;
+
+  gAWContentHeight = 0;
+  if (items.length > 0) {
+    // all rows are forced to a uniform height in xul listboxes, so
+    // find the first listitem with a boxObject and use it as precedent
+    var i = 0;
+    do {
+      gAWRowHeight = items[i].getBoundingClientRect().height;
+      ++i;
+    } while (i < items.length && !gAWRowHeight);
+    gAWContentHeight = gAWRowHeight * items.length;
+  }
+}
+
+/* ::::::::::: addressing widget dummy rows ::::::::::::::::: */
+
+function awCreateDummyCell(aParent) {
+  var cell = document.createXULElement("hbox");
+  cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
+  if (aParent) {
+    aParent.appendChild(cell);
+  }
+
+  return cell;
+}
+
+function awGetNextDummyRow() {
+  // gets the next row from the top down
+  return document.querySelector("#addressingWidget > [_isDummyRow]");
+}
+
+/**
+ * Set focus to the specified element, typically a recipient input element.
+ * We do this asynchronously to allow other processes like adding or removing rows
+ * to complete before shifting focus.
+ *
+ * @param element  the element to receive focus asynchronously
+ */
+function awSetFocusTo(element) {
+  // Remember the (input) element to focus for asynchronous focusing, so that we
+  // play safe if this gets called again and the original element gets removed
+  // before we can focus it.
+  top.awInputToFocus = element;
+  setTimeout(_awSetFocusTo, 0);
+}
+
+function _awSetFocusTo() {
+  top.awInputToFocus.focus();
 }

@@ -6,94 +6,20 @@
 /* import-globals-from MsgComposeCommands.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-top.MAX_RECIPIENTS = 1; // For the initial listitem created in the XUL.
-
-var inputElementType = "";
-var selectElementType = "";
-var selectElementIndexTable = null;
-
-var gNumberOfCols = 0;
-
+var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+var { DisplayNameUtils } = ChromeUtils.import(
+  "resource:///modules/DisplayNameUtils.jsm"
+);
 var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 
-var test_addresses_sequence = false;
-
-if (
-  Services.prefs.getPrefType("mail.debug.test_addresses_sequence") ==
-  Ci.nsIPrefBranch.PREF_BOOL
-) {
-  test_addresses_sequence = Services.prefs.getBoolPref(
-    "mail.debug.test_addresses_sequence"
-  );
-}
-
-function awGetNumberOfCols() {
-  if (gNumberOfCols == 0) {
-    var listbox = document.getElementById("addressingWidget");
-    var listCols = listbox.getElementsByTagName("treecol");
-    gNumberOfCols = listCols.length;
-    if (!gNumberOfCols) {
-      // If no cols defined, that means we have only one!
-      gNumberOfCols = 1;
-    }
-  }
-
-  return gNumberOfCols;
-}
-
 /**
- * Adjust the default and minimum number of visible recipient rows for addressingWidget
+ * Convert all the written recipients into string and store them into the
+ * msgCompFields array to be printed in the message header.
+ *
+ * @param {Array} msgCompFields - The array containing all the recipients.
  */
-function awInitializeNumberOfRowsShown() {
-  let msgHeadersToolbar = document.getElementById("MsgHeadersToolbar");
-  let addressingWidget = document.getElementById("addressingWidget");
-  let awNumRowsShownDefault = Services.prefs.getIntPref(
-    "mail.compose.addresswidget.numRowsShownDefault"
-  );
-
-  // Work around bug 966655: extraHeight 2 pixels for msgHeadersToolbar ensures
-  // visibility of recipient rows per awNumRowsShownDefault and prevents scrollbar
-  // on empty Address Widget, depending on OS screen resolution dpi scaling
-  // (> 100%; thresholds differ).
-  let extraHeight = 2;
-
-  // Set minimum number of rows shown for address widget, per hardwired
-  // rows="1" attribute of addressingWidget, to prevent resizing the
-  // subject and format toolbar over the address widget.
-  // This lets users shrink the address widget to one row (with delicate UX)
-  // and thus maximize the space available for composition body,
-  // especially on small screens.
-  let toolbarRect = msgHeadersToolbar.getBoundingClientRect();
-  msgHeadersToolbar.minHeight = toolbarRect.height;
-
-  msgHeadersToolbar.height =
-    toolbarRect.height +
-    addressingWidget.getBoundingClientRect().height *
-      (awNumRowsShownDefault - 1) +
-    extraHeight;
-
-  // Update addressingWidget internals.
-  awCreateOrRemoveDummyRows();
-}
-
-// TODO: replace awGetSelectItemIndex with recipient type index constants
-
-function awGetSelectItemIndex(itemData) {
-  if (selectElementIndexTable == null) {
-    selectElementIndexTable = {};
-    var selectElem = document.getElementById("addressCol1#1");
-    for (var i = 0; i < selectElem.menupopup.children.length; i++) {
-      var aData = selectElem.menupopup.children[i].getAttribute("value");
-      selectElementIndexTable[aData] = i;
-    }
-  }
-
-  return selectElementIndexTable[itemData];
-}
-
 function Recipients2CompFields(msgCompFields) {
   if (!msgCompFields) {
     throw new Error(
@@ -101,82 +27,62 @@ function Recipients2CompFields(msgCompFields) {
     );
   }
 
-  var i = 1;
-  var addrTo = "";
-  var addrCc = "";
-  var addrBcc = "";
-  var addrReply = "";
-  var addrNg = "";
-  var addrFollow = "";
-  var to_Sep = "";
-  var cc_Sep = "";
-  var bcc_Sep = "";
-  var reply_Sep = "";
-  var ng_Sep = "";
-  var follow_Sep = "";
+  let addrTo = "";
+  let addrCc = "";
+  let addrBcc = "";
+  let addrReply = "";
+  let addrNg = "";
+  let addrFollow = "";
+  let to_Sep = "";
+  let cc_Sep = "";
+  let bcc_Sep = "";
+  let reply_Sep = "";
+  let ng_Sep = "";
+  let follow_Sep = "";
 
-  var recipientType;
-  var inputField;
-  var fieldValue;
-  var recipient;
-  while ((inputField = awGetInputElement(i))) {
-    fieldValue = inputField.value;
-    if (fieldValue != "") {
-      recipientType = awGetPopupElement(i).value;
-      recipient = null;
+  for (let pill of document.getElementsByTagName("mail-address-pill")) {
+    let fieldValue = pill.fullAddress;
+    let headerParser = MailServices.headerParser;
+    let recipient = headerParser
+      .makeFromDisplayAddress(fieldValue)
+      .map(fullValue =>
+        headerParser.makeMimeAddress(fullValue.name, fullValue.email)
+      )
+      .join(", ");
 
-      switch (recipientType) {
-        case "addr_to":
-        case "addr_cc":
-        case "addr_bcc":
-        case "addr_reply":
-          try {
-            let headerParser = MailServices.headerParser;
-            recipient = headerParser
-              .makeFromDisplayAddress(fieldValue)
-              .map(fullValue =>
-                headerParser.makeMimeAddress(fullValue.name, fullValue.email)
-              )
-              .join(", ");
-          } catch (ex) {
-            recipient = fieldValue;
-          }
-          break;
-      }
-
-      switch (recipientType) {
-        case "addr_to":
-          addrTo += to_Sep + recipient;
-          to_Sep = ",";
-          break;
-        case "addr_cc":
-          addrCc += cc_Sep + recipient;
-          cc_Sep = ",";
-          break;
-        case "addr_bcc":
-          addrBcc += bcc_Sep + recipient;
-          bcc_Sep = ",";
-          break;
-        case "addr_reply":
-          addrReply += reply_Sep + recipient;
-          reply_Sep = ",";
-          break;
-        case "addr_newsgroups":
-          addrNg += ng_Sep + fieldValue;
-          ng_Sep = ",";
-          break;
-        case "addr_followup":
-          addrFollow += follow_Sep + fieldValue;
-          follow_Sep = ",";
-          break;
-        case "addr_other":
-          let headerName = awGetPopupElement(i).label;
-          headerName = headerName.substring(0, headerName.indexOf(":"));
-          msgCompFields.setRawHeader(headerName, fieldValue, null);
-          break;
-      }
+    // Each pill knows from which recipient they were generated
+    // (addr_to, addrs_bcc, etc.).
+    let recipientType = pill.getAttribute("recipienttype");
+    switch (recipientType) {
+      case "addr_to":
+        addrTo += to_Sep + recipient;
+        to_Sep = ",";
+        break;
+      case "addr_cc":
+        addrCc += cc_Sep + recipient;
+        cc_Sep = ",";
+        break;
+      case "addr_bcc":
+        addrBcc += bcc_Sep + recipient;
+        bcc_Sep = ",";
+        break;
+      case "addr_reply":
+        addrReply += reply_Sep + recipient;
+        reply_Sep = ",";
+        break;
+      case "addr_newsgroups":
+        addrNg += ng_Sep + recipient;
+        ng_Sep = ",";
+        break;
+      case "addr_followup":
+        addrFollow += follow_Sep + recipient;
+        follow_Sep = ",";
+        break;
+      case "addr_other":
+        let label = pill.emailInput.getAttribute("aria-labelledby");
+        msgCompFields.setRawHeader(label, recipient, null);
+        break;
     }
-    i++;
   }
 
   msgCompFields.to = addrTo;
@@ -187,69 +93,85 @@ function Recipients2CompFields(msgCompFields) {
   msgCompFields.followupTo = addrFollow;
 }
 
+/**
+ * Convert all the recipients coming from a message header into pills.
+ *
+ * @param {Array} msgCompFields - The array containing all the recipients.
+ */
 function CompFields2Recipients(msgCompFields) {
   if (msgCompFields) {
-    let listbox = document.getElementById("addressingWidget");
-    let templateNode = listbox.getItemAtIndex(0);
-    templateNode.remove();
-
-    top.MAX_RECIPIENTS = 0;
-    let msgReplyTo = msgCompFields.replyTo;
-    let msgTo = msgCompFields.to;
-    let msgCC = msgCompFields.cc;
-    let msgBCC = msgCompFields.bcc;
+    let msgReplyTo = msgCompFields.replyTo
+      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.replyTo)
+      : null;
+    let msgTo = msgCompFields.to
+      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.to)
+      : null;
+    let msgCC = msgCompFields.cc
+      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.cc)
+      : null;
+    let msgBCC = msgCompFields.bcc
+      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.bcc)
+      : null;
     let msgNewsgroups = msgCompFields.newsgroups;
-    let msgFollowupTo = msgCompFields.followupTo;
-    let havePrimaryRecipient = false;
+    let msgFollowupTo = msgCompFields.followupTo
+      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.followupTo)
+      : null;
+
+    // Populate all the recipients with the proper values.
+    // We need to force the focus() on each input to trigger the attachment
+    // of the autocomplete mController.
     if (msgReplyTo) {
-      awSetInputAndPopupFromArray(
-        msgCompFields.splitRecipients(msgReplyTo, false),
-        "addr_reply",
-        listbox,
-        templateNode
-      );
-    }
-    if (msgTo) {
-      let rcp = msgCompFields.splitRecipients(msgTo, false);
-      if (rcp.length) {
-        awSetInputAndPopupFromArray(rcp, "addr_to", listbox, templateNode);
-        havePrimaryRecipient = true;
-      }
-    }
-    if (msgCC) {
-      awSetInputAndPopupFromArray(
-        msgCompFields.splitRecipients(msgCC, false),
-        "addr_cc",
-        listbox,
-        templateNode
-      );
-    }
-    if (msgBCC) {
-      awSetInputAndPopupFromArray(
-        msgCompFields.splitRecipients(msgBCC, false),
-        "addr_bcc",
-        listbox,
-        templateNode
-      );
-    }
-    if (msgNewsgroups) {
-      awSetInputAndPopup(
-        msgNewsgroups,
-        "addr_newsgroups",
-        listbox,
-        templateNode
-      );
-      havePrimaryRecipient = true;
-    }
-    if (msgFollowupTo) {
-      awSetInputAndPopup(msgFollowupTo, "addr_followup", listbox, templateNode);
+      showAddressRow(document.getElementById("addr_reply"), "addressRowReply");
+      let input = document.getElementById("replyAddrInput");
+      input.focus();
+      input.value = msgReplyTo.join(", ");
+      recipientAddPill(input, true);
     }
 
-    // If it's a new message, we need to add an extra empty recipient.
-    if (!havePrimaryRecipient) {
-      _awSetInputAndPopup("", "addr_to", listbox, templateNode);
+    if (msgTo) {
+      let input = document.getElementById("toAddrInput");
+      input.focus();
+      input.value = msgTo.join(", ");
+      recipientAddPill(input, true);
     }
-    awFitDummyRows(2);
+
+    if (msgCC) {
+      showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
+      let input = document.getElementById("ccAddrInput");
+      input.focus();
+      input.value = msgCC.join(", ");
+      recipientAddPill(input, true);
+    }
+
+    if (msgBCC) {
+      showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
+      let input = document.getElementById("bccAddrInput");
+      input.focus();
+      input.value = msgBCC.join(", ");
+      recipientAddPill(input, true);
+    }
+
+    if (msgNewsgroups) {
+      showAddressRow(
+        document.getElementById("addr_newsgroups"),
+        "addressRowNewsgroups"
+      );
+      let input = document.getElementById("newsgroupsAddrInput");
+      input.focus();
+      input.value = msgNewsgroups;
+      recipientAddPill(input, true);
+    }
+
+    if (msgFollowupTo) {
+      showAddressRow(
+        document.getElementById("addr_followup"),
+        "addressRowFollowup"
+      );
+      let input = document.getElementById("followupAddrInput");
+      input.focus();
+      input.value = msgFollowupTo.join(", ");
+      recipientAddPill(input, true);
+    }
 
     // CompFields2Recipients is called whenever a user replies or edits an existing message. We want to
     // add all of the non-empty recipients for this message to the ignore list for spell check
@@ -260,118 +182,48 @@ function CompFields2Recipients(msgCompFields) {
   }
 }
 
-function awSetInputAndPopupId(inputElem, popupElem, rowNumber) {
-  popupElem.id = "addressCol1#" + rowNumber;
-  inputElem.id = "addressCol2#" + rowNumber;
-  inputElem.setAttribute("aria-labelledby", popupElem.id);
-  inputElem.popup.addEventListener("click", () => {
-    awReturnHit(inputElem);
-  });
-}
-
 /**
- * Set value of the recipient input field at row rowNumber and set up
- * the recipient type menulist.
+ * Clear a specific recipient row if is visible and pills are present. This is
+ * commonly used when loading a new identity.
  *
- * @param inputElem                 recipient input element
- * @param inputValue                recipient value (address)
- * @param popupElem                 recipient type menulist element
- * @param popupValue
- * @param aNotifyRecipientsChanged  Notify that the recipients have changed.
- *                                  Generally we notify unless recipients are
- *                                  added in batch when the caller takes care
- *                                  of the notification.
+ * @param {Array} msgCompFields - The array containing all the recipient fields.
+ * @param {string} recipientType - Which recipient needs to be cleared.
+ * @param {Array} recipientsList - The array containing the old recipients.
  */
-function awSetInputAndPopupValue(
-  inputElem,
-  inputValue,
-  popupElem,
-  popupValue,
-  rowNumber,
-  aNotifyRecipientsChanged = true
-) {
-  inputElem.value = inputValue.trimLeft();
-
-  popupElem.selectedItem =
-    popupElem.menupopup.children[awGetSelectItemIndex(popupValue)];
-  // TODO: can there be a row without ID yet?
-  if (rowNumber >= 0) {
-    awSetInputAndPopupId(inputElem, popupElem, rowNumber);
-  }
-
-  _awSetAutoComplete(popupElem, inputElem);
-
-  if (aNotifyRecipientsChanged) {
-    onRecipientsChanged(true);
-  }
-}
-
-function _awSetInputAndPopup(inputValue, popupValue, parentNode, templateNode) {
-  top.MAX_RECIPIENTS++;
-
-  var newNode = templateNode.cloneNode(true);
-  parentNode.appendChild(newNode); // we need to insert the new node before we set the value of the select element!
-
-  var input = newNode.querySelector(`input[is="autocomplete-input"]`);
-  var select = newNode.querySelector("menulist");
-
-  if (input && select) {
-    awSetInputAndPopupValue(
-      input,
-      inputValue,
-      select,
-      popupValue,
-      top.MAX_RECIPIENTS
-    );
-  }
-}
-
-function awSetInputAndPopup(inputValue, popupValue, parentNode, templateNode) {
-  if (inputValue && popupValue) {
-    var addressArray = inputValue.split(",");
-
-    for (var index = 0; index < addressArray.length; index++) {
-      _awSetInputAndPopup(
-        addressArray[index],
-        popupValue,
-        parentNode,
-        templateNode
-      );
-    }
-  }
-}
-
-function awSetInputAndPopupFromArray(
-  inputArray,
-  popupValue,
-  parentNode,
-  templateNode
-) {
-  if (popupValue) {
-    for (let recipient of inputArray) {
-      _awSetInputAndPopup(recipient, popupValue, parentNode, templateNode);
-    }
-  }
-}
-
 function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
   if (!msgCompFields || !recipientsList) {
     return;
   }
 
-  var recipientArray = msgCompFields.splitRecipients(recipientsList, false);
+  let element;
+  switch (recipientType) {
+    case "addr_cc":
+      element = document.getElementById("ccAddrInput");
+      break;
+    case "addr_bcc":
+      element = document.getElementById("bccAddrInput");
+      break;
+    case "addr_reply":
+      element = document.getElementById("replyAddrInput");
+      break;
+    case "addr_to":
+    default:
+      element = document.getElementById("toAddrInput");
+      break;
+  }
 
-  for (var index = 0; index < recipientArray.length; index++) {
-    for (var row = 1; row <= top.MAX_RECIPIENTS; row++) {
-      var popup = awGetPopupElement(row);
-      if (popup.value == recipientType) {
-        var input = awGetInputElement(row);
-        if (input.value == recipientArray[index]) {
-          awSetInputAndPopupValue(input, "", popup, "addr_to", -1);
-          break;
-        }
-      }
-    }
+  let container = element.closest(".address-container");
+  for (let pill of container.querySelectorAll("mail-address-pill")) {
+    pill.remove();
+  }
+
+  // Reset the original input.
+  let input = container.querySelector(`input[is="autocomplete-input"]`);
+  input.value = "";
+
+  if (recipientType != "addr_to") {
+    container.classList.add("hidden");
+    document.getElementById(recipientType).removeAttribute("collapsed");
   }
 }
 
@@ -388,457 +240,65 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
     return;
   }
 
-  var recipientArray = msgCompFields.splitRecipients(recipientsList, false);
-  awAddRecipientsArray(recipientType, recipientArray);
+  awAddRecipientsArray(
+    recipientType,
+    msgCompFields.splitRecipients(recipientsList, false)
+  );
 }
 
 /**
- * Adds a batch of new rows matching recipientType and drops in the array of addresses.
+ * Adds a batch of new recipient pill matching recipientType
+ * and drops in the array of addresses.
  *
  * @param aRecipientType  Type of recipient, e.g. "addr_to".
  * @param aAddressArray   An array of recipient addresses (strings) to add.
  */
 function awAddRecipientsArray(aRecipientType, aAddressArray) {
-  // Find rows that are empty so that we can fill them.
-  let emptyRows = [];
-  for (let row = 1; row <= top.MAX_RECIPIENTS; row++) {
-    if (awGetInputElement(row).value == "") {
-      emptyRows.push(row);
-    }
+  let label = document.getElementById(aRecipientType);
+  let addresses = MailServices.headerParser.makeFromDisplayAddress(
+    aAddressArray
+  );
+  let element = document.getElementById(label.getAttribute("control"));
+
+  if (label && element.closest(".address-row").classList.contains("hidden")) {
+    label.click();
   }
 
-  // Push the new recipients into the found empty rows or append new rows when needed.
-  let row = 1;
-  for (let address of aAddressArray) {
-    if (emptyRows.length > 0) {
-      row = emptyRows.shift();
-    } else {
-      awAppendNewRow(false);
-      row = top.MAX_RECIPIENTS;
-    }
-
-    awSetInputAndPopupValue(
-      awGetInputElement(row),
-      address,
-      awGetPopupElement(row),
-      aRecipientType,
-      row,
-      false
-    );
+  for (let address of addresses) {
+    let pill = createRecipientPill(element, address);
+    element.closest(".address-container").insertBefore(pill, element);
   }
 
-  // Be sure we still have an empty row left.
-  if (
-    emptyRows.length == 0 &&
-    awGetInputElement(top.MAX_RECIPIENTS).value != ""
-  ) {
-    // Insert empty row at the end and focus.
-    awAppendNewRow(true);
-    awSetInputAndPopupValue(
-      awGetInputElement(top.MAX_RECIPIENTS),
-      "",
-      awGetPopupElement(top.MAX_RECIPIENTS),
-      aRecipientType,
-      top.MAX_RECIPIENTS,
-      false
-    );
-  } else {
-    // Focus the next empty row, if any, or the pre-existing empty last row.
-    row = emptyRows.length > 0 ? emptyRows.shift() : top.MAX_RECIPIENTS;
-    awSetFocusTo(awGetInputElement(row));
+  if (element.id != "replyAddrInput") {
+    onRecipientsChanged();
   }
-
-  onRecipientsChanged(true);
 
   // Add the recipients to our spell check ignore list.
   addRecipientsToIgnoreList(aAddressArray.join(", "));
-}
-
-/**
- * Adds a new row matching recipientType and drops in the single address.
- *
- * This is mostly used by addons, even though they should use AddRecipient().
- *
- * @param aRecipientType  Type of recipient, e.g. addr_to.
- * @param aAddress        A string with recipient address.
- */
-function awAddRecipient(aRecipientType, aAddress) {
-  awAddRecipientsArray(aRecipientType, [aAddress]);
-}
-
-function awTestRowSequence() {
-  /*
-    This function is for debug and testing purpose only, normal user should not run it!
-
-    Every time we insert or delete a row, we must be sure we didn't break the ID sequence of
-    the addressing widget rows. This function will run a quick test to see if the sequence still ok
-
-    You need to define the pref mail.debug.test_addresses_sequence to true in order to activate it
-  */
-
-  if (!test_addresses_sequence) {
-    return true;
-  }
-
-  // Debug code to verify the sequence is still good.
-
-  let listbox = document.getElementById("addressingWidget");
-  let listitems = listbox.itemChildren;
-  if (listitems.length >= top.MAX_RECIPIENTS) {
-    for (let i = 1; i <= listitems.length; i++) {
-      let item = listitems[i - 1];
-      let inputID = item
-        .querySelector(`input[is="autocomplete-input"]`)
-        .id.split("#")[1];
-      let menulist = item.querySelector("menulist");
-      // In some places like the mailing list dialog there is no menulist,
-      // and so no popupID that needs to be kept in sequence.
-      let popupID = menulist && menulist.id.split("#")[1];
-      if (inputID != i || (popupID && popupID != i)) {
-        dump(
-          `#ERROR: sequence broken at row ${i}, ` +
-            `inputID=${inputID}, popupID=${popupID}\n`
-        );
-        return false;
-      }
-      dump("---SEQUENCE OK---\n");
-      return true;
-    }
-  } else {
-    dump(
-      `#ERROR: listitems.length(${listitems.length}) < ` +
-        `top.MAX_RECIPIENTS(${top.MAX_RECIPIENTS})\n`
-    );
-  }
-
-  return false;
-}
-
-function awCleanupRows() {
-  var maxRecipients = top.MAX_RECIPIENTS;
-  var rowID = 1;
-
-  for (var row = 1; row <= maxRecipients; row++) {
-    var inputElem = awGetInputElement(row);
-    if (inputElem.value == "" && row < maxRecipients) {
-      awRemoveRow(awGetRowByInputElement(inputElem));
-    } else {
-      awSetInputAndPopupId(inputElem, awGetPopupElement(row), rowID);
-      rowID++;
-    }
-  }
-
-  awTestRowSequence();
-}
-
-function awDeleteRow(rowToDelete) {
-  // When we delete a row, we must reset the id of other rows in order to not break the sequence.
-  var maxRecipients = top.MAX_RECIPIENTS;
-  awRemoveRow(rowToDelete);
-
-  // assume 2 column update (input and popup)
-  for (var row = rowToDelete + 1; row <= maxRecipients; row++) {
-    awSetInputAndPopupId(
-      awGetInputElement(row),
-      awGetPopupElement(row),
-      row - 1
-    );
-  }
-
-  awTestRowSequence();
-}
-
-function awClickEmptySpace(target, setFocus) {
-  if (
-    document.getElementById("addressCol2#1").disabled ||
-    target == null ||
-    target.localName != "hbox"
-  ) {
-    return;
-  }
-
-  let lastInput = awGetInputElement(top.MAX_RECIPIENTS);
-
-  if (lastInput && lastInput.value) {
-    awAppendNewRow(setFocus);
-  } else if (setFocus) {
-    awSetFocusTo(lastInput);
-  }
-}
-
-function awReturnHit(inputElement) {
-  let row = awGetRowByInputElement(inputElement);
-  let nextInput = awGetInputElement(row + 1);
-
-  if (!nextInput) {
-    if (inputElement.value) {
-      awAppendNewRow(true);
-    } else {
-      // No address entered, switch to Subject field
-      let subjectField = document.getElementById("msgSubject");
-      subjectField.select();
-      subjectField.focus();
-    }
-  } else {
-    nextInput.select();
-    awSetFocusTo(nextInput);
-  }
-
-  // be sure to add the user add recipient to our ignore list
-  // when the user hits enter in an autocomplete widget...
-  addRecipientsToIgnoreList(inputElement.value);
-}
-
-function awDeleteAddressOnClick(deleteAddressElement) {
-  awDeleteHit(
-    deleteAddressElement.parentNode.parentNode.querySelector(
-      ".textbox-addressingWidget"
-    ),
-    true
-  );
-}
-
-/**
- * Delete recipient row (addressingWidgetItem) from UI.
- *
- * @param {<html:input>} inputElement  the recipient input element
- *                                     (textbox-addressingWidget) whose parent
- *                                     row (addressingWidgetItem) will be deleted.
- * @param {boolean} deleteForward  true: focus next row after deleting the row
- *                                 false: focus previous row after deleting the row
- */
-function awDeleteHit(inputElement, deleteForward = false) {
-  let row = awGetRowByInputElement(inputElement);
-
-  // Don't delete the row if it's the last one remaining; just reset it.
-  if (top.MAX_RECIPIENTS <= 1) {
-    inputElement.value = "";
-    return;
-  }
-
-  // Set the focus to the input field of the next/previous row according to
-  // the direction of deleting if possible.
-  // Note: awSetFocusTo() is asynchronous, i.e. we'll focus after row removal.
-  if (
-    (!deleteForward && row > 1) ||
-    (deleteForward && row == top.MAX_RECIPIENTS)
-  ) {
-    // We're deleting backwards, but not the first row,
-    // or forwards on the last row: Focus previous row.
-    awSetFocusTo(awGetInputElement(row - 1));
-  } else {
-    // We're deleting forwards, but not the last row,
-    // or backwards on the first row: Focus next row.
-    awSetFocusTo(awGetInputElement(row + 1));
-  }
-
-  // Delete the row.
-  awDeleteRow(row);
-}
-
-// If we add a menulist to the DOM, it has some child nodes added to it
-// by the menulist custom element. If we then clone the menulist and add
-// it to the DOM again, more child nodes are added and we end up with
-// bug 1525828. This function clones any menulist as it originally was.
-function _menulistFriendlyClone(element) {
-  let clone = element.cloneNode(false);
-  if (element.localName == "menulist") {
-    clone.appendChild(element.menupopup.cloneNode(true));
-    return clone;
-  }
-  for (let child of element.children) {
-    clone.appendChild(_menulistFriendlyClone(child));
-  }
-  return clone;
-}
-
-function awAppendNewRow(setFocus) {
-  var listbox = document.getElementById("addressingWidget");
-  var listitem1 = awGetListItem(1);
-
-  if (listbox && listitem1) {
-    var lastRecipientType = awGetPopupElement(top.MAX_RECIPIENTS).value;
-
-    var nextDummy = awGetNextDummyRow();
-    var newNode = _menulistFriendlyClone(listitem1);
-    if (nextDummy) {
-      listbox.replaceChild(newNode, nextDummy);
-    } else {
-      listbox.appendChild(newNode);
-    }
-
-    top.MAX_RECIPIENTS++;
-
-    var input = newNode.querySelector(`input[is="autocomplete-input"]`);
-    if (input) {
-      input.value = "";
-
-      // Reset autocomplete attribute "nomatch" so we don't cause red addresses
-      // on a cloned row.
-      input.removeAttribute("nomatch");
-    }
-    var select = newNode.querySelector("menulist");
-    if (select) {
-      // It only makes sense to clone some field types; others
-      // should not be cloned, since it just makes the user have
-      // to go to the trouble of selecting something else. In such
-      // cases let's default to 'To' (a reasonable default since
-      // we already default to 'To' on the first dummy field of
-      // a new message).
-      switch (lastRecipientType) {
-        case "addr_reply":
-        case "addr_other":
-          select.selectedIndex = awGetSelectItemIndex("addr_to");
-          break;
-        case "addr_followup":
-          select.selectedIndex = awGetSelectItemIndex("addr_newsgroups");
-          break;
-        default:
-          // e.g. "addr_to","addr_cc","addr_bcc","addr_newsgroups":
-          select.selectedIndex = awGetSelectItemIndex(lastRecipientType);
-      }
-
-      awSetInputAndPopupId(input, select, top.MAX_RECIPIENTS);
-
-      if (input) {
-        _awSetAutoComplete(select, input);
-      }
-    }
-
-    // Focus the new input widget
-    if (setFocus && input) {
-      awSetFocusTo(input);
-    }
-  }
-}
-
-// functions for accessing the elements in the addressing widget
-
-/**
- * Returns the recipient type popup for a row.
- *
- * @param row  Index of the recipient row to return. Starts at 1.
- * @return     This returns the menulist (not its child menupopup), despite the function name.
- */
-function awGetPopupElement(row) {
-  return document.getElementById("addressCol1#" + row);
-}
-
-/**
- * Returns the recipient inputbox for a row.
- *
- * @param row  Index of the recipient row to return. Starts at 1.
- * @return     This returns the input element.
- */
-function awGetInputElement(row) {
-  return document.getElementById("addressCol2#" + row);
-}
-
-function awGetElementByCol(row, col) {
-  var colID = "addressCol" + col + "#" + row;
-  return document.getElementById(colID);
-}
-
-function awGetListItem(row) {
-  var listbox = document.getElementById("addressingWidget");
-  if (listbox && row > 0) {
-    return listbox.getItemAtIndex(row - 1);
-  }
-
-  return null;
-}
-
-/**
- * @param inputElement  The recipient input element.
- * @return              The row index (starting from 1) where the input element
- *                      is found. 0 if the element is not found.
- */
-function awGetRowByInputElement(inputElement) {
-  if (!inputElement) {
-    return 0;
-  }
-
-  var listitem = inputElement.parentNode.parentNode;
-  return (
-    document.getElementById("addressingWidget").getIndexOfItem(listitem) + 1
-  );
-}
-
-// Copy Node - copy this node and insert ahead of the (before) node.  Append to end if before=0
-function awCopyNode(node, parentNode, beforeNode) {
-  var newNode = node.cloneNode(true);
-
-  if (beforeNode) {
-    parentNode.insertBefore(newNode, beforeNode);
-  } else {
-    parentNode.appendChild(newNode);
-  }
-
-  return newNode;
-}
-
-function awRemoveRow(row) {
-  awGetListItem(row).remove();
-  awFitDummyRows();
-
-  top.MAX_RECIPIENTS--;
-}
-
-/**
- * Set focus to the specified element, typically a recipient input element.
- * We do this asynchronously to allow other processes like adding or removing rows
- * to complete before shifting focus.
- *
- * @param element  the element to receive focus asynchronously
- */
-function awSetFocusTo(element) {
-  // Remember the (input) element to focus for asynchronous focusing, so that we
-  // play safe if this gets called again and the original element gets removed
-  // before we can focus it.
-  top.awInputToFocus = element;
-  setTimeout(_awSetFocusTo, 0);
-}
-
-function _awSetFocusTo() {
-  top.awInputToFocus.focus();
-}
-
-// Deprecated - use awSetFocusTo() instead.
-// ### TODO: This function should be removed if we're sure addons aren't using it.
-function awSetFocus(row, inputElement) {
-  awSetFocusTo(inputElement);
-}
-
-function awGetNumberOfRecipients() {
-  return top.MAX_RECIPIENTS;
+  calculateHeaderHeight();
 }
 
 function DragOverAddressingWidget(event) {
-  var validFlavor = false;
-  var dragSession = (dragSession = gDragService.getCurrentSession());
+  let dragSession = (dragSession = gDragService.getCurrentSession());
 
   if (dragSession.isDataFlavorSupported("text/x-moz-address")) {
-    validFlavor = true;
-  }
-
-  if (validFlavor) {
     dragSession.canDrop = true;
   }
 }
 
 function DropOnAddressingWidget(event) {
-  var dragSession = gDragService.getCurrentSession();
+  let dragSession = gDragService.getCurrentSession();
 
-  var trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
+  let trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
   trans.init(getLoadContext());
   trans.addDataFlavor("text/x-moz-address");
 
-  for (var i = 0; i < dragSession.numDropItems; ++i) {
+  for (let i = 0; i < dragSession.numDropItems; ++i) {
     dragSession.getData(trans, i);
-    var dataObj = {};
-    var bestFlavor = {};
+    let dataObj = {};
+    let bestFlavor = {};
     trans.getAnyTransferData(bestFlavor, dataObj);
     if (dataObj) {
       dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
@@ -848,7 +308,7 @@ function DropOnAddressingWidget(event) {
     }
 
     // pull the address out of the data object
-    var address = dataObj.data.substring(0, dataObj.length);
+    let address = dataObj.data.substring(0, dataObj.length);
     if (!address) {
       continue;
     }
@@ -857,490 +317,465 @@ function DropOnAddressingWidget(event) {
   }
 }
 
-function DropRecipient(target, recipient) {
-  // break down and add each address
-  return parseAndAddAddresses(
-    recipient,
-    awGetPopupElement(top.MAX_RECIPIENTS).value
-  );
-}
-
-function _awSetAutoComplete(selectElem, inputElem) {
-  let params = JSON.parse(inputElem.getAttribute("autocompletesearchparam"));
-  params.type = selectElem.value;
-  inputElem.setAttribute("autocompletesearchparam", JSON.stringify(params));
-}
-
-function awSetAutoComplete(rowNumber) {
-  var inputElem = awGetInputElement(rowNumber);
-  var selectElem = awGetPopupElement(rowNumber);
-  _awSetAutoComplete(selectElem, inputElem);
-}
-
-function awRecipientOnFocus(inputElement) {
-  inputElement.select();
-}
-
 /**
- * Handles keypress events for the email address inputs (that auto-fill)
- * in the Address Book Mailing List dialogs. When a comma-separated list of
- * addresses is entered on one row, split them into one address per row. Only
- * add a new blank row on "Enter" key. On "Tab" key focus moves to the "Cancel"
- * button.
+ * Find the autocomplete input when an address is dropped in the compose header.
  *
- * @param {KeyboardEvent} event  The DOM keypress event.
- * @param {Element} element      The element that triggered the keypress event.
+ * @param {XULElement} target - The element where an address was dropped.
+ * @param {string} recipient - The email address dragged by the user.
  */
-function awAbRecipientKeyPress(event, element) {
-  if (event.key != "Enter" && event.key != "Tab") {
+function DropRecipient(target, recipient) {
+  let input;
+
+  if (target.tagName == "label" && target.hasAttribute("control")) {
+    input = document.getElementById(target.getAttribute("control"));
+  } else {
+    let container = target.classList.contains("address-row")
+      ? target
+      : target.closest("hbox.address-row");
+
+    if (!container) {
+      return;
+    }
+    input = container.querySelector(
+      `.address-container > input[is="autocomplete-input"]`
+    );
+  }
+
+  if (!input || !input.hasAttribute("is")) {
     return;
   }
 
-  if (!element.value) {
-    if (event.key == "Enter") {
-      awReturnHit(element);
-    }
-  } else {
-    let inputElement = element;
-    let originalRow = awGetRowByInputElement(element);
-    let row;
-    let addresses = MailServices.headerParser.makeFromDisplayAddress(
-      element.value
-    );
+  let recipientType =
+    input.getAttribute("recipienttype") != "addr_other"
+      ? input.getAttribute("recipienttype")
+      : input.getAttribute("aria-labelledby");
 
-    if (addresses.length > 1) {
-      // Collect any existing addresses from the following rows so we don't
-      // simply overwrite them.
-      row = originalRow + 1;
-      inputElement = awGetInputElement(row);
-
-      while (inputElement) {
-        if (inputElement.value) {
-          addresses.push(inputElement.value);
-          inputElement.value = "";
-        }
-        row += 1;
-        inputElement = awGetInputElement(row);
-      }
-    }
-
-    // Insert the addresses, adding new rows if needed.
-    row = originalRow;
-    let needNewRows = false;
-
-    for (let address of addresses) {
-      if (needNewRows) {
-        inputElement = awAppendNewRow(false);
-      } else {
-        inputElement = awGetInputElement(row);
-        if (!inputElement) {
-          needNewRows = true;
-          inputElement = awAppendNewRow(false);
-        }
-      }
-
-      if (inputElement) {
-        inputElement.value = address;
-      }
-      row += 1;
-    }
-
-    if (event.key == "Enter") {
-      // Prevent the dialog from closing. "Enter" inserted a new row instead.
-      event.preventDefault();
-      awReturnHit(inputElement);
-    } else if (event.key == "Tab") {
-      // Focus the last row to let "Tab" move focus to the "Cancel" button.
-      let lastRow = row - 1;
-      awGetInputElement(lastRow).focus();
-    }
-  }
-}
-
-/**
- * Handles keypress events for the email address inputs (that auto-fill)
- * in the Message Compose window.
- *
- * @param event       The DOM keypress event
- * @param element     The element that triggered the keypress event
- */
-function awRecipientKeyPress(event, element) {
-  switch (event.key) {
-    case "Enter":
-    case "Tab":
-      // If the recipient input text contains a comma (we also convert pasted
-      // line feeds into commas), check if multiple recipients and add them
-      // accordingly. Handle semicolons too.
-      if (element.value.includes(",") || element.value.includes(";")) {
-        let addresses = element.value;
-        element.value = ""; // Clear out the current line so we don't try to autocomplete it.
-        parseAndAddAddresses(
-          addresses,
-          awGetPopupElement(awGetRowByInputElement(element)).value
-        );
-      } else if (event.key == "Tab") {
-        // Single recipient added via Tab key:
-        // Add the recipient to our spellcheck ignore list.
-        // For Enter key, this is done in awReturnHit().
-        addRecipientsToIgnoreList(element.value);
-      } else if (event.key == "Enter") {
-        awReturnHit(element);
-      }
-
-      break;
-  }
-}
-
-/**
- * Handle keydown event on a recipient input.
- * Enables recipient row deletion with DEL or BACKSPACE and
- * recipient list navigation with cursor up/down.
- *
- * Note that the keydown event fires for ALL keys, so this may affect
- * autocomplete as user enters a recipient text.
- *
- * @param {keydown event} event  the keydown event fired on a recipient input
- * @param {<html:input>} inputElement  the recipient input element
- *                                     on which the event fired (textbox-addressingWidget)
- */
-function awRecipientKeyDown(event, inputElement) {
-  switch (event.key) {
-    // Enable deletion of empty recipient rows.
-    case "Delete":
-    case "Backspace":
-      if (inputElement.textLength == 1 && event.repeat) {
-        // User is holding down Delete or Backspace to delete recipient text
-        // inline and is now deleting the last character: Set flag to
-        // temporarily block row deletion.
-        top.awRecipientInlineDelete = true;
-      }
-      if (!inputElement.value && !event.altKey) {
-        // When user presses DEL or BACKSPACE on an empty row, and it's not an
-        // ongoing inline deletion, and not ALT+BACKSPACE for input undo,
-        // we delete the row.
-        if (top.awRecipientInlineDelete && !event.repeat) {
-          // User has released and re-pressed Delete or Backspace key
-          // after holding them down to delete recipient text inline:
-          // unblock row deletion.
-          top.awRecipientInlineDelete = false;
-        }
-        if (!top.awRecipientInlineDelete) {
-          let deleteForward = event.key == "Delete";
-          awDeleteHit(inputElement, deleteForward);
-        }
-      }
-      break;
-
-    // Enable browsing the list of recipients up and down with cursor keys.
-    case "ArrowDown":
-    case "ArrowUp":
-      // Only browse recipients if the autocomplete popup is not open.
-      if (!inputElement.popupOpen) {
-        let row = awGetRowByInputElement(inputElement);
-        let down = event.key == "ArrowDown";
-        let noEdgeRow = down ? row < top.MAX_RECIPIENTS : row > 1;
-        if (noEdgeRow) {
-          let targetRow = down ? row + 1 : row - 1;
-          awSetFocusTo(awGetInputElement(targetRow));
-        }
-      }
-      break;
-  }
-}
-
-/* ::::::::::: addressing widget dummy rows ::::::::::::::::: */
-
-var gAWContentHeight = 0;
-var gAWRowHeight = 0;
-
-function awFitDummyRows() {
-  awCalcContentHeight();
-  awCreateOrRemoveDummyRows();
-}
-
-function awCreateOrRemoveDummyRows() {
-  let listbox = document.getElementById("addressingWidget");
-  let listboxHeight = listbox.getBoundingClientRect().height;
-
-  // remove rows to remove scrollbar
-  let kids = listbox.querySelectorAll("[_isDummyRow]");
-  for (
-    let i = kids.length - 1;
-    gAWContentHeight > listboxHeight && i >= 0;
-    --i
-  ) {
-    gAWContentHeight -= gAWRowHeight;
-    kids[i].remove();
-  }
-
-  // add rows to fill space
-  if (gAWRowHeight) {
-    while (gAWContentHeight + gAWRowHeight < listboxHeight) {
-      awCreateDummyItem(listbox);
-      gAWContentHeight += gAWRowHeight;
-    }
-  }
-}
-
-function awCalcContentHeight() {
-  var listbox = document.getElementById("addressingWidget");
-  var items = listbox.itemChildren;
-
-  gAWContentHeight = 0;
-  if (items.length > 0) {
-    // all rows are forced to a uniform height in xul listboxes, so
-    // find the first listitem with a boxObject and use it as precedent
-    var i = 0;
-    do {
-      gAWRowHeight = items[i].getBoundingClientRect().height;
-      ++i;
-    } while (i < items.length && !gAWRowHeight);
-    gAWContentHeight = gAWRowHeight * items.length;
-  }
-}
-
-function awCreateDummyItem(aParent) {
-  var listbox = document.getElementById("addressingWidget");
-  var item = listbox.getItemAtIndex(0);
-
-  var titem = document.createXULElement("richlistitem");
-  titem.setAttribute("_isDummyRow", "true");
-  titem.setAttribute("class", "dummy-row");
-  titem.style.height = item.getBoundingClientRect().height + "px";
-
-  for (let i = 0; i < awGetNumberOfCols(); i++) {
-    let cell = awCreateDummyCell(titem);
-    if (item.children[i].hasAttribute("style")) {
-      cell.setAttribute("style", item.children[i].getAttribute("style"));
-    }
-    if (item.children[i].hasAttribute("flex")) {
-      cell.setAttribute("flex", item.children[i].getAttribute("flex"));
-    }
-  }
-
-  if (aParent) {
-    aParent.appendChild(titem);
-  }
-
-  return titem;
-}
-
-function awCreateDummyCell(aParent) {
-  var cell = document.createXULElement("hbox");
-  cell.setAttribute("class", "addressingWidgetCell dummy-row-cell");
-  if (aParent) {
-    aParent.appendChild(cell);
-  }
-
-  return cell;
-}
-
-function awGetNextDummyRow() {
-  // gets the next row from the top down
-  return document.querySelector("#addressingWidget > [_isDummyRow]");
+  awAddRecipientsArray(recipientType, [recipient]);
 }
 
 function awSizerListen() {
-  // when splitter is clicked, fill in necessary dummy rows each time the mouse is moved
-  awCalcContentHeight(); // precalculate
+  // when splitter is clicked, fill in necessary dummy rows each time
+  // the mouse is moved.
   document.addEventListener("mousemove", awSizerMouseMove, true);
   document.addEventListener("mouseup", awSizerMouseUp, {
     capture: false,
     once: true,
   });
 }
-
+// Add the overflow scroll attribute to the recipients container.
 function awSizerMouseMove() {
-  awCreateOrRemoveDummyRows(2);
+  document.getElementById("recipientsContainer").classList.add("overflow");
 }
 
 function awSizerMouseUp() {
   document.removeEventListener("mousemove", awSizerMouseMove, true);
 }
 
-// Given an arbitrary block of text like a comma delimited list of names or a names separated by spaces,
-// we will try to autocomplete each of the names and then take the FIRST match for each name, adding it the
-// addressing widget on the compose window.
-
-var gAutomatedAutoCompleteListener = null;
-
-function parseAndAddAddresses(addressText, recipientType) {
-  // strip any leading >> characters inserted by the autocomplete widget
-  var strippedAddresses = addressText.replace(/.* >> /, "");
-
-  let addresses = MailServices.headerParser.makeFromDisplayAddress(
-    strippedAddresses
-  );
-
-  if (addresses.length > 0) {
-    // we need to set up our own autocomplete session and search for results
-    if (!gAutomatedAutoCompleteListener) {
-      gAutomatedAutoCompleteListener = new AutomatedAutoCompleteHandler();
-    }
-
-    gAutomatedAutoCompleteListener.init(
-      addresses.map(addr => addr.toString()),
-      recipientType
-    );
-  }
-}
-
-function AutomatedAutoCompleteHandler() {}
-
-// state driven self contained object which will autocomplete a block of addresses without any UI.
-// force picks the first match and adds it to the addressing widget, then goes on to the next
-// name to complete.
-
-AutomatedAutoCompleteHandler.prototype = {
-  param: this,
-  sessionName: null,
-  namesToComplete: null,
-  numNamesToComplete: 0,
-  indexIntoNames: 0,
-  finalAddresses: null,
-
-  numSessionsToSearch: 0,
-  numSessionsSearched: 0,
-  recipientType: null,
-  searchResults: null,
-
-  init(namesToComplete, recipientType) {
-    this.indexIntoNames = 0;
-    this.numNamesToComplete = namesToComplete.length;
-    this.namesToComplete = namesToComplete;
-    this.finalAddresses = [];
-
-    this.recipientType = recipientType ? recipientType : "addr_to";
-
-    // set up the auto complete sessions to use
-    this.autoCompleteNextAddress();
-  },
-
-  autoCompleteNextAddress() {
-    this.numSessionsToSearch = 0;
-    this.numSessionsSearched = 0;
-    this.searchResults = [];
-
-    if (this.indexIntoNames < this.numNamesToComplete) {
-      if (this.namesToComplete[this.indexIntoNames]) {
-        /* XXX This is used to work, until switching to the new toolkit broke it
-         We should fix it see bug 456550.
-      if (!this.namesToComplete[this.indexIntoNames].includes('@')) // don't autocomplete if address has an @ sign in it
-      {
-        // make sure total session count is updated before we kick off ANY actual searches
-        if (gAutocompleteSession)
-          this.numSessionsToSearch++;
-
-        if (gLDAPSession && gCurrentAutocompleteDirectory)
-          this.numSessionsToSearch++;
-
-        if (gAutocompleteSession)
-        {
-           gAutocompleteSession.onAutoComplete(this.namesToComplete[this.indexIntoNames], null, this);
-           // AB searches are actually synchronous. So by the time we get here we have already looked up results.
-
-           // if we WERE going to also do an LDAP lookup, then check to see if we have a valid match in the AB, if we do
-           // don't bother with the LDAP search too just return
-
-           if (gLDAPSession && gCurrentAutocompleteDirectory && this.searchResults[0] && this.searchResults[0].defaultItemIndex != -1)
-           {
-             this.processAllResults();
-             return;
-           }
-        }
-
-        if (gLDAPSession && gCurrentAutocompleteDirectory)
-          gLDAPSession.onStartLookup(this.namesToComplete[this.indexIntoNames], null, this);
-      }
-      */
-
-        if (!this.numSessionsToSearch) {
-          // LDAP and ab are turned off, so leave text alone.
-          this.processAllResults();
-        }
-      }
-    } else {
-      this.finish();
-    }
-  },
-
-  onStatus(aStatus) {},
-
-  onAutoComplete(aResults, aStatus) {
-    // store the results until all sessions are done and have reported in
-    if (aResults) {
-      this.searchResults[this.numSessionsSearched] = aResults;
-    }
-
-    this.numSessionsSearched++; // bump our counter
-
-    if (this.numSessionsToSearch <= this.numSessionsSearched) {
-      // We are all done.
-      setTimeout(gAutomatedAutoCompleteListener.processAllResults, 0);
-    }
-  },
-
-  processAllResults() {
-    // Take the first result and add it to the compose window
-    var addressToAdd;
-
-    // loop through the results looking for the non default case (default case is the address book with only one match, the default domain)
-    var sessionIndex;
-
-    var searchResultsForSession;
-
-    for (sessionIndex in this.searchResults) {
-      searchResultsForSession = this.searchResults[sessionIndex];
-      if (
-        searchResultsForSession &&
-        searchResultsForSession.defaultItemIndex > -1
-      ) {
-        addressToAdd = searchResultsForSession.items.queryElementAt(
-          searchResultsForSession.defaultItemIndex,
-          Ci.nsIAutoCompleteItem
-        ).value;
-        break;
-      }
-    }
-
-    // still no match? loop through looking for the -1 default index
-    if (!addressToAdd) {
-      for (sessionIndex in this.searchResults) {
-        searchResultsForSession = this.searchResults[sessionIndex];
-        if (
-          searchResultsForSession &&
-          searchResultsForSession.defaultItemIndex == -1
-        ) {
-          addressToAdd = searchResultsForSession.items.queryElementAt(
-            0,
-            Ci.nsIAutoCompleteItem
-          ).value;
-          break;
-        }
-      }
-    }
-
-    // no matches anywhere...just use what we were given
-    if (!addressToAdd) {
-      addressToAdd = this.namesToComplete[this.indexIntoNames];
-    }
-
-    this.finalAddresses.push(addressToAdd);
-
-    this.indexIntoNames++;
-    this.autoCompleteNextAddress();
-  },
-
-  finish() {
-    // This will now append all the recipients, set the focus on a new
-    // available row, and make sure it is visible.
-    awAddRecipientsArray(this.recipientType, this.finalAddresses);
-  },
-
-  QueryInterface: ChromeUtils.generateQI(["nsIAutoCompleteListener"]),
-};
-
 // Returns the load context for the current window
 function getLoadContext() {
   return window.docShell.QueryInterface(Ci.nsILoadContext);
 }
+
+/**
+ * Handles keypress events for the email address inputs (that auto-fill)
+ * in the Message Compose window.
+ *
+ * @param {Event} event - The DOM keypress event.
+ * @param {HTMLElement} element - The element that triggered the keypress event.
+ */
+function recipientKeyPress(event, element) {
+  switch (event.key) {
+    case "a":
+      // Select all the pills if the input is empty.
+      if ((event.ctrlKey || event.metaKey) && !element.value.trim()) {
+        selectRecipientPills(element);
+      }
+      break;
+    case ",":
+      event.preventDefault();
+      element.handleEnter(event);
+      break;
+    case "Home":
+    case "End":
+    case "ArrowLeft":
+    case "Backspace":
+      if (!element.value.trim() && !event.repeat) {
+        let pills = element
+          .closest(".address-container")
+          .querySelectorAll("mail-address-pill");
+        if (pills.length) {
+          let key = event.key == "Home" ? 0 : pills.length - 1;
+          pills[key].focus();
+          pills[key].checkKeyboardSelected(event, pills[key]);
+        }
+      }
+      break;
+    case "Enter":
+      // No address entered, move focus to Subject field.
+      if (!element.value.trim()) {
+        document.getElementById("msgSubject").focus();
+        return;
+      }
+      break;
+    case "Tab":
+      // Trigger the autocomplete controller only if we have a value
+      // to prevent interfering with the natural change of focus on Tab.
+      if (element.value.trim()) {
+        event.preventDefault();
+        element.handleEnter(event);
+      }
+      break;
+  }
+
+  // Don't alter the field size if any arrow key is triggered.
+  if ([37, 38, 39, 40].includes(event.keyCode)) {
+    return;
+  }
+
+  let size = parseInt(element.getAttribute("size"));
+  // Change the min size of the input field on typing.
+  if (event.key == "Backspace" && size > 1) {
+    element.setAttribute("size", size - 1);
+  } else {
+    element.setAttribute("size", size + 1);
+  }
+}
+
+/**
+ * Add a new "address-pill" to the parent recipient container.
+ *
+ * @param {HTMLElement} element - The element that triggered the keypress event.
+ * @param {boolean} [automatic=false] - Set to true if the change of recipients
+ *   was invoked programmatically and should not be considered a change of
+ *   message content.
+ */
+function recipientAddPill(element, automatic = false) {
+  if (!element.value.trim()) {
+    return;
+  }
+
+  let parent = document.getElementById(
+    element.closest(".address-container").id
+  );
+  let addresses = MailServices.headerParser.makeFromDisplayAddress(
+    element.value
+  );
+
+  for (let address of addresses) {
+    let pill = createRecipientPill(element, address);
+    parent.insertBefore(pill, element);
+
+    // Be sure to add the user add recipient to our ignore list
+    // when the user hits enter in an autocomplete widget...
+    addRecipientsToIgnoreList(element.value);
+  }
+
+  // Reset the input element.
+  element.removeAttribute("nomatch");
+  element.setAttribute("size", 1);
+  element.value = "";
+
+  // We need to detach the autocomplete Controller to prevent the input
+  // to be filled with the previously selected address when the "blur" event
+  // gets triggered.
+  element.detachController();
+  // Attach it again to enable autocomplete.
+  element.attachController();
+
+  onRecipientsChanged(automatic);
+  calculateHeaderHeight();
+}
+
+/**
+ * Create a new recipient pill.
+ *
+ * @param {HTMLElement} element - The original autocomplete input that generated
+ *   the pill.
+ * @param {Array} address - The array containing the recipient's info.
+ * @returns {XULElement} The newly created pill element.
+ */
+function createRecipientPill(element, address) {
+  let pill = document.createXULElement("mail-address-pill");
+
+  pill.originalInput = element;
+  pill.label = address.toString();
+  pill.emailAddress = address.email || "";
+  pill.fullAddress = address.toString();
+  pill.displayName = address.name || "";
+  pill.setAttribute("recipienttype", element.getAttribute("recipienttype"));
+
+  let listNames = MimeParser.parseHeaderField(
+    address.toString(),
+    MimeParser.HEADER_ADDRESS
+  );
+  let isMailingList =
+    listNames.length > 0 &&
+    MailServices.ab.mailListNameExists(listNames[0].name);
+  let isNewsgroup = element.classList.contains("nntp-input");
+
+  pill.classList.toggle(
+    "error",
+    !isValidAddress(address.email) && !isMailingList && !isNewsgroup
+  );
+
+  let emailCard = DisplayNameUtils.getCardForEmail(address.email);
+  pill.classList.toggle(
+    "warning",
+    isValidAddress(address.email) &&
+      !emailCard.card &&
+      !isMailingList &&
+      !isNewsgroup
+  );
+
+  return pill;
+}
+
+/**
+ * Force a focused styling on the recipient container of the currently
+ * selected input element.
+ *
+ * @param {HTMLElement} element - The element receving focus.
+ */
+function highlightAddressContainer(element) {
+  element.closest(".address-container").setAttribute("focused", "true");
+  deselectAllPills();
+}
+
+/**
+ * Deselect any previously selected pills.
+ */
+function deselectAllPills() {
+  for (let pill of document.querySelectorAll(`mail-address-pill[selected]`)) {
+    pill.removeAttribute("selected");
+  }
+}
+
+/**
+ * Remove the focused styling from the recipient container and create
+ * address pills if valid recipients were written.
+ *
+ * @param {HTMLElement} element - The element losing focus.
+ */
+function resetAddressContainer(element) {
+  let address = element.value.trim();
+  let listNames = MimeParser.parseHeaderField(
+    address,
+    MimeParser.HEADER_ADDRESS
+  );
+  let isMailingList =
+    listNames.length > 0 &&
+    MailServices.ab.mailListNameExists(listNames[0].name);
+
+  if (
+    address &&
+    (isValidAddress(address) ||
+      isMailingList ||
+      element.classList.contains("nntp-input"))
+  ) {
+    recipientAddPill(element);
+  }
+
+  // Reset the input size if no pill was created.
+  if (!address) {
+    element.setAttribute("size", 1);
+  }
+  element.closest(".address-container").removeAttribute("focused");
+}
+
+/**
+ * Trigger the startEditing() method of the mail-address-pill element.
+ *
+ * @param {XULlement} element - The element from which the context menu was
+ *   opened.
+ * @param {Event} event - The DOM event.
+ */
+function editAddressPill(element, event) {
+  element.closest("mail-address-pill").startEditing(event);
+}
+
+/**
+ * Copy the selected pills email address.
+ *
+ * @param {XULElement} element - The element from which the context menu was
+ *   opened.
+ */
+function copyEmailNewsAddress(element) {
+  let allAddresses = [];
+  for (let pill of getAllSelectedPills(element.closest("mail-address-pill"))) {
+    allAddresses.push(pill.fullAddress);
+  }
+
+  let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
+    Ci.nsIClipboardHelper
+  );
+  clipboard.copyString(allAddresses.join(", "));
+}
+
+/**
+ * Cut the selected pills email address.
+ *
+ * @param {XULElement} element - The element from which the context menu was
+ *   opened.
+ */
+function cutEmailNewsAddress(element) {
+  copyEmailNewsAddress(element);
+  deleteAddressPill(element);
+}
+
+/**
+ * Delete the selected pill/pills.
+ *
+ * @param {XULElement} element - The element from which the context menu was
+ *   opened.
+ */
+function deleteAddressPill(element) {
+  let firstPill = element.closest("mail-address-pill");
+
+  // We need to store the input location before removing the pills.
+  let input = firstPill
+    .closest(".address-container")
+    .querySelector(`input[is="autocomplete-input"][recipienttype]`);
+
+  for (let pill of getAllSelectedPills(firstPill)) {
+    pill.remove();
+  }
+
+  input.focus();
+  onRecipientsChanged();
+}
+
+/**
+ * Handle the keypress event on the labels to show the container row
+ * of an hidden recipient (Cc, Bcc, etc.).
+ *
+ * @param {Event} event - The DOM keypress event.
+ * @param {XULelement} label - The clicked label to hide.
+ * @param {string} rowID - The ID of the container to reveal.
+ */
+function showAddressRowKeyPress(event, label, rowID) {
+  if (event.key == "Enter") {
+    showAddressRow(label, rowID);
+  }
+}
+
+/**
+ * Show the container row of an hidden recipient (Cc, Bcc, etc.).
+ *
+ * @param {XULelement} label - The clicked label to hide.
+ * @param {string} rowID - The ID of the container to reveal.
+ */
+function showAddressRow(label, rowID) {
+  let container = document.getElementById(rowID);
+  let input = container.querySelector(`input[is="autocomplete-input"]`);
+
+  container.classList.remove("hidden");
+  label.setAttribute("collapsed", "true");
+  input.focus();
+}
+
+/**
+ * Hide the container row of a recipient (Cc, Bcc, etc.).
+ * The container can't be hidden if previously typed addresses are listed.
+ *
+ * @param {XULelement} element - The clicked label.
+ * @param {string} labelID - The ID of the label to show.
+ */
+function hideAddressRow(element, labelID) {
+  let container = element.closest(".address-row");
+  let fieldName = container.querySelector(".address-label-container > label");
+  let confirmTitle = getComposeBundle().getFormattedString(
+    "confirmRemoveRecipientRowTitle",
+    [fieldName.value]
+  );
+  let confirmBody = getComposeBundle().getFormattedString(
+    "confirmRemoveRecipientRowBody",
+    [fieldName.value]
+  );
+
+  let pills = container.querySelectorAll("mail-address-pill");
+  // Ask the user to confirm the removal of all the typed addresses.
+  if (
+    pills.length &&
+    !Services.prompt.confirm(null, confirmTitle, confirmBody)
+  ) {
+    return;
+  }
+
+  for (let pill of pills) {
+    pill.remove();
+  }
+
+  // Reset the original input.
+  let input = container.querySelector(`input[is="autocomplete-input"]`);
+  input.value = "";
+
+  container.classList.add("hidden");
+  document.getElementById(labelID).removeAttribute("collapsed");
+
+  onRecipientsChanged();
+}
+
+/**
+ * Calculate the height of the composer header area every time a pill is created.
+ * If the height is bigger than 2/3 of the compose window heigh, enable overflow.
+ */
+function calculateHeaderHeight() {
+  let container = document.getElementById("msgheaderstoolbar-box");
+  if (container.classList.contains("overflow")) {
+    return;
+  }
+
+  if (container.clientHeight >= window.outerHeight * 0.7) {
+    document.getElementById("recipientsContainer").classList.add("overflow");
+
+    let header = document.getElementById("headers-box");
+    if (!header.hasAttribute("height")) {
+      header.setAttribute("height", 300);
+    }
+  }
+}
+
+/**
+ * Move the focus on the first pill from the same .address-container.
+ *
+ * @param {XULElement} pill - The mail-address-pill element.
+ */
+function setFocusOnFirstPill(pill) {
+  pill.closest(".address-container").firstElementChild.focus();
+}
+
+// #TODO: The getSiblingPills(), getAllPills(), and getAllSelectedPills()
+// methods are not a good way to handle these scenarios, and they should be
+// moved into their own CE. See Bug 1601740
+
+/**
+ * Return all the pills from the same .address-container.
+ *
+ * @param {XULElement} pill - The mail-address-pill element.
+ * @return {Array} Array of mail-address-pill elements.
+ */
+function getSiblingPills(pill) {
+  return pill
+    .closest(".address-container")
+    .querySelectorAll("mail-address-pill");
+}
+
+/**
+ * Return all the pills currently available in the document.
+ *
+ * @return {Array} Array of mail-address-pill elements.
+ */
+function getAllPills() {
+  return document.querySelectorAll("mail-address-pill");
+}
+
+/**
+ * Return all the selected pills currently available in the document.
+ *
+ * @return {Array} Array of selected mail-address-pill elements.
+ */
+function getAllSelectedPills() {
+  return document.querySelectorAll(`mail-address-pill[selected]`);
+}
+
+// #END TODO

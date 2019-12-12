@@ -33,6 +33,7 @@ var {
 );
 var {
   clear_recipient,
+  get_first_pill,
   close_compose_window,
   open_compose_new_mail,
   setup_msg_contents,
@@ -103,12 +104,13 @@ function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   // On valid "To:" addressee input, Send must be enabled.
-  toggle_recipient_type(cwc, "addr_to");
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "");
   check_send_commands_state(cwc, true);
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
-  toggle_recipient_type(cwc, "addr_reply");
+  clear_recipient(cwc);
+  cwc.click(cwc.eid("addr_reply"));
+  setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
   check_send_commands_state(cwc, false);
 
   clear_recipient(cwc);
@@ -120,28 +122,25 @@ function test_send_enabled_manual_address() {
   setup_msg_contents(cwc, " recipient@", "", "");
   check_send_commands_state(cwc, false);
 
-  toggle_recipient_type(cwc, "addr_cc");
+  cwc.click(cwc.eid("addr_cc"));
   check_send_commands_state(cwc, false);
 
-  // We change focus from recipient type box to recipient input box.
-  // One click on the recipient input box selects the whole typed string (bug 1527547).
-  cwc.click(cwc.eid("addressCol2#1"), 200, 5);
-  // On macOS the focus is automatically returned to the input box after operating
-  // the type box and no focus event is fired. So the recipient is not selected
-  // and the caret is after the last typed character (where we left off).
-  if (AppConstants.platform == "macosx") {
-    // Click subject and then back to recipient input to see that it gets selected.
-    cwc.click(cwc.eid("msgSubject"));
-    cwc.click(cwc.eid("addressCol2#1"));
-  }
-  assert_equals(cwc.e("addressCol2#1").selectionStart, 0);
-  // End of selection counts the length of the " recipient@" string from above.
-  assert_equals(cwc.e("addressCol2#1").selectionEnd, 11);
-  // Another click after the recipient deselects it to allow typing.
-  cwc.click(cwc.eid("addressCol2#1"), 200, 5);
-  assert_equals(cwc.e("addressCol2#1").selectionStart, 11);
-  // This types additional characters into the recipient.
-  setup_msg_contents(cwc, "domain.invalid", "", "");
+  // Select the newly generated pill.
+  cwc.click(get_first_pill(cwc));
+  // Delete the selected pill.
+  cwc.keypress(null, "VK_DELETE", {});
+  // Confirm the address row is now empty.
+  assert_true(!get_first_pill(cwc).length);
+  // Confirm the send button is disabled.
+  check_send_commands_state(cwc, false);
+
+  // Add multiple recipients.
+  setup_msg_contents(
+    cwc,
+    "recipient@domain.invalid, info@somedomain.extension, name@incomplete",
+    "",
+    ""
+  );
   check_send_commands_state(cwc, true);
 
   clear_recipient(cwc);
@@ -166,8 +165,9 @@ function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   // - some string as a newsgroup
-  toggle_recipient_type(cwc, "addr_newsgroups");
-  setup_msg_contents(cwc, "newsgroup ", "", "");
+  cwc.e("addr_newsgroups").removeAttribute("collapsed");
+  cwc.click(cwc.eid("addr_newsgroups"));
+  setup_msg_contents(cwc, "newsgroup ", "", "", "newsgroupsAddrInput");
   check_send_commands_state(cwc, true);
 
   close_compose_window(cwc);
@@ -188,10 +188,9 @@ function test_send_enabled_prefilled_address() {
   let cwc = open_compose_new_mail(); // compose controller
   check_send_commands_state(cwc, true);
 
-  // Press backspace to remove the recipient. No other valid one is there,
-  // Send should become disabled.
-  cwc.e("addressCol2#1").select();
-  cwc.keypress(null, "VK_BACK_SPACE", {});
+  // Clear the CC list.
+  clear_recipient(cwc);
+  // No other pill is there. Send should become disabled.
   check_send_commands_state(cwc, false);
 
   close_compose_window(cwc);

@@ -743,6 +743,22 @@
            onpopupshowing="OnShowDictionaryMenu(event.target);">
 </menupopup>
 
+
+<menupopup id="emailAddressPillPopup" class="emailAddressPopup">
+  <menuitem id="editAddressPill" label="&editMenu.label;"
+            accesskey="&editMenu.accesskey;"
+            oncommand="editAddressPill(document.popupNode, event)"/>
+  <menuitem id="menu_cut" label="&cutCmd.label;"
+            accesskey="&cutCmd.accesskey;"
+            oncommand="cutEmailNewsAddress(document.popupNode)"/>
+  <menuitem id="menu_copy" label="&copyCmd.label;"
+            accesskey="&copyCmd.accesskey;"
+            oncommand="copyEmailNewsAddress(document.popupNode)"/>
+  <menuitem id="menu_delete" label="&deleteCmd.label;"
+            accesskey="&deleteCmd.accesskey;"
+            oncommand="deleteAddressPill(document.popupNode)"/>
+</menupopup>
+
 #ifdef XP_MACOSX
   <vbox id="titlebar">
     <hbox id="titlebar-content">
@@ -1981,8 +1997,9 @@
         <vbox flex="1" id="addresses-box">
           <hbox id="top-gradient-box">
             <hbox class="aw-firstColBox"/>
-            <hbox id="identityLabel-box" align="center" pack="end" style="&headersSpace.style;">
-              <label id="identityLabel" value="&fromAddr.label;"
+            <hbox id="identityLabel-box" align="center"
+                  pack="end" style="&headersSpace2.style;">
+              <label id="identityLabel" value="&fromAddr2.label;"
                      accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
             </hbox>
             <menulist is="menulist-editable" id="msgIdentity"
@@ -1992,37 +2009,23 @@
               <menupopup id="msgIdentityPopup"/>
             </menulist>
           </hbox>
-          <richlistbox id="addressingWidget" flex="1" seltype="multiple"
-                       onclick="awClickEmptySpace(event.originalTarget, true)"
-                       disableonsend="true">
-            <treecols hidden="true">
-              <treecol id="firstcol-addressingWidget"/>
-              <treecol id="typecol-addressingWidget" style="&headersSpace.style;"/>
-              <treecol id="textcol-addressingWidget" flex="1"/>
-            </treecols>
-            <richlistitem class="addressingWidgetItem" allowevents="true">
-              <hbox class="aw-firstColBox" align="center">
-                <image class="deleteAddress close-icon"
-                       onclick="awDeleteAddressOnClick(this);"/>
+
+          <vbox id="recipientsContainer" class="recipients-container" flex="1">
+            <hbox id="addressRowTo" class="addressingWidgetItem address-row">
+              <hbox class="aw-firstColBox"/>
+              <hbox class="address-label-container" align="top"
+                    pack="end" style="&headersSpace2.style;">
+                <label id="toAddrLabel" value="&toAddr2.label;"
+                       control="toAddrInput"/>
               </hbox>
-              <hbox class="addressingWidgetCell" align="center" style="&headersSpace.style;">
-                <menulist id="addressCol1#1" disableonsend="true"
-                          class="aw-menulist" flex="1"
-                          oncommand="onAddressColCommand(this.id);">
-                  <menupopup>
-                    <menuitem value="addr_to" label="&toAddr.label;"/>
-                    <menuitem value="addr_cc" label="&ccAddr.label;"/>
-                    <menuitem value="addr_bcc" label="&bccAddr.label;"/>
-                    <menuitem value="addr_reply" label="&replyAddr.label;"/>
-                    <menuitem value="addr_newsgroups" label="&newsgroupsAddr.label;"/>
-                    <menuitem value="addr_followup" label="&followupAddr.label;"/>
-                  </menupopup>
-                </menulist>
-              </hbox>
-              <hbox class="addressingWidgetCell input-container" flex="1" role="combobox">
-                <html:input is="autocomplete-input" id="addressCol2#1"
-                            class="plain textbox-addressingWidget uri-element"
-                            aria-labelledby="addressCol1#1"
+              <hbox id="toAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInput(event);">
+                <html:input is="autocomplete-input" id="toAddrInput"
+                            type="text"
+                            class="plain address-input pop-imap-input"
+                            disableonsend="true"
+                            aria-labelledby="toAddrLabel"
                             autocompletesearch="mydomain addrbook ldap news"
                             autocompletesearchparam="{}"
                             timeout="300"
@@ -2032,19 +2035,240 @@
                             completeselectedindex="true"
                             minresultsforpopup="2"
                             ignoreblurwhilesearching="true"
-                            onfocus="awRecipientOnFocus(this);"
-                            onchange="onRecipientsChanged();"
-                            oninput="onRecipientsChanged();"
-                            onkeypress="awRecipientKeyPress(event, this)"
-                            onkeydown="awRecipientKeyDown(event, this)"
-                            disableonsend="true"/>
+                            onfocus="highlightAddressContainer(this);"
+                            onblur="resetAddressContainer(this);"
+                            onkeypress="recipientKeyPress(event, this);"
+                            recipienttype="addr_to"
+                            size="1"/>
               </hbox>
-            </richlistitem>
-          </richlistbox>
+            </hbox>
+
+            <hbox id="addressRowCc" class="addressingWidgetItem address-row hidden">
+              <hbox class="aw-firstColBox" align="top">
+                <label onclick="hideAddressRow(this, 'addr_cc');"
+                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_cc'); }">
+                  <image class="close-icon"/>
+                </label>
+              </hbox>
+              <hbox class="address-label-container" align="top"
+                    pack="end" style="&headersSpace2.style;">
+                <label id="ccAddrLabel" value="&ccAddr2.label;"
+                       control="ccAddrInput"/>
+              </hbox>
+              <hbox id="ccAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInput(event);">
+                <html:input is="autocomplete-input" id="ccAddrInput"
+                            type="text"
+                            class="plain address-input pop-imap-input"
+                            disableonsend="true"
+                            aria-labelledby="ccAddrLabel"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="300"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="highlightAddressContainer(this);"
+                            onblur="resetAddressContainer(this);"
+                            onkeypress="recipientKeyPress(event, this);"
+                            recipienttype="addr_cc"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowBcc" class="addressingWidgetItem address-row hidden">
+              <hbox class="aw-firstColBox" align="top">
+                <label onclick="hideAddressRow(this, 'addr_bcc');"
+                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_bcc'); }">
+                  <image class="close-icon"/>
+                </label>
+              </hbox>
+              <hbox class="address-label-container" align="top"
+                    pack="end" style="&headersSpace2.style;">
+                <label id="bccAddrLabel" value="&bccAddr2.label;"
+                       control="bccAddrInput"/>
+              </hbox>
+              <hbox id="bccAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInput(event);">
+                <html:input is="autocomplete-input" id="bccAddrInput"
+                            type="text"
+                            class="plain address-input pop-imap-input"
+                            disableonsend="true"
+                            aria-labelledby="bccAddrLabel"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="300"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="highlightAddressContainer(this);"
+                            onblur="resetAddressContainer(this);"
+                            onkeypress="recipientKeyPress(event, this);"
+                            recipienttype="addr_bcc"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowReply" class="addressingWidgetItem address-row hidden">
+              <hbox class="aw-firstColBox" align="top">
+                <label onclick="hideAddressRow(this, 'addr_reply');"
+                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_reply'); }">
+                  <image class="close-icon"/>
+                </label>
+              </hbox>
+              <hbox class="address-label-container" align="top"
+                    pack="end" style="&headersSpace2.style;">
+                <label id="replyAddrLabel" value="&replyAddr2.label;"
+                       control="replyAddrInput"/>
+              </hbox>
+              <hbox id="replyAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInput(event);">
+                <html:input is="autocomplete-input" id="replyAddrInput"
+                            type="text"
+                            class="plain address-input pop-imap-input"
+                            disableonsend="true"
+                            aria-labelledby="replyAddrLabel"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="300"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="highlightAddressContainer(this);"
+                            onblur="resetAddressContainer(this);"
+                            onkeypress="recipientKeyPress(event, this);"
+                            recipienttype="addr_reply"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowNewsgroups" class="addressingWidgetItem address-row hidden">
+              <hbox class="aw-firstColBox" align="top">
+                <label onclick="hideAddressRow(this, 'addr_newsgroups');"
+                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_newsgroups'); }">
+                  <image class="close-icon"/>
+                </label>
+              </hbox>
+              <hbox class="address-label-container" align="top"
+                    pack="end" style="&headersSpace2.style;">
+                <label id="newsgroupsAddrLabel" value="&newsgroupsAddr2.label;"
+                       control="newsgroupsAddrInput"/>
+              </hbox>
+              <hbox id="newsgroupsAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInput(event);">
+                <html:input is="autocomplete-input" id="newsgroupsAddrInput"
+                            type="text"
+                            class="plain address-input nntp-input"
+                            disableonsend="true"
+                            aria-labelledby="newsgroupsAddrLabel"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="300"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="highlightAddressContainer(this);"
+                            onblur="resetAddressContainer(this);"
+                            onkeypress="recipientKeyPress(event, this);"
+                            recipienttype="addr_newsgroups"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
+            <hbox id="addressRowFollowup" class="addressingWidgetItem address-row hidden">
+              <hbox class="aw-firstColBox" align="top">
+                <label onclick="hideAddressRow(this, 'addr_followup');"
+                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_followup'); }">
+                  <image class="close-icon"/>
+                </label>
+              </hbox>
+              <hbox class="address-label-container" align="top"
+                    pack="end" style="&headersSpace2.style;">
+                <label id="followupAddrLabel" value="&followupAddr2.label;"
+                       control="followupAddrInput"/>
+              </hbox>
+              <hbox id="followupAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInput(event);">
+                <html:input is="autocomplete-input" id="followupAddrInput"
+                            type="text"
+                            class="plain address-input nntp-input"
+                            disableonsend="true"
+                            aria-labelledby="followupAddrLabel"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="300"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="highlightAddressContainer(this);"
+                            onblur="resetAddressContainer(this);"
+                            onkeypress="recipientKeyPress(event, this);"
+                            recipienttype="addr_followup"
+                            size="1"/>
+              </hbox>
+            </hbox>
+          </vbox>
+
+          <hbox class="addressingWidgetItem">
+            <hbox class="aw-firstColBox"/>
+            <hbox class="address-label-container" style="&headersSpace2.style;"/>
+            <hbox id="addressingWidgetLabels" class="address-extra-recipients"
+                  flex="1" align="center">
+              <label id="addr_to" control="toAddrInput" hidden="true"/>
+              <label id="addr_cc" onclick="showAddressRow(this, 'addressRowCc')"
+                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowCc')"
+                     control="ccAddrInput">
+                <image class="new-icon"/>&ccAddr2.label;
+              </label>
+              <label id="addr_bcc" onclick="showAddressRow(this, 'addressRowBcc')"
+                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowBcc')"
+                     control="bccAddrInput">
+                <image class="new-icon"/>&bccAddr2.label;
+              </label>
+              <label id="addr_reply" onclick="showAddressRow(this, 'addressRowReply')"
+                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowReply')"
+                     control="replyAddrInput">
+                <image class="new-icon"/>&replyAddr2.label;
+              </label>
+              <label id="addr_newsgroups" onclick="showAddressRow(this, 'addressRowNewsgroups')"
+                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowNewsgroups')"
+                     control="newsgroupsAddrInput" class="nntp-label">
+                <image class="new-icon"/>&newsgroupsAddr2.label;
+              </label>
+              <label id="addr_followup" onclick="showAddressRow(this, 'addressRowFollowup')"
+                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowFollowup')"
+                     control="followupAddrInput" class="nntp-label">
+                <image class="new-icon"/>&followupAddr2.label;
+              </label>
+            </hbox>
+          </hbox>
+
           <hbox id="subject-box">
             <hbox class="aw-firstColBox"/>
-            <hbox align="center" pack="end" style="&headersSpace.style;">
-              <label id="subjectLabel" value="&subject.label;" accesskey="&subject.accesskey;" control="msgSubject"/>
+            <hbox id="subjectLabel-box" align="center"
+                  pack="end" style="&headersSpace2.style;">
+              <label id="subjectLabel" value="&subject2.label;"
+                     accesskey="&subject.accesskey;" control="msgSubject"/>
             </hbox>
             <hbox flex="1" align="center" class="input-container">
               <moz-input-box spellcheck="true" style="flex: 1;">
@@ -2055,6 +2279,7 @@
                             oninput="gContentChanged = true; SetComposeWindowTitle();"
                             onkeypress="subjectKeyPress(event);"
                             aria-labelledby="subjectLabel"
+                            onfocus="deselectAllPills();"
                             style="-moz-box-flex: 1;"/>
                 </moz-input-box>
             </hbox>
@@ -2138,7 +2363,8 @@
             minheight="100"
             flex="1"
             ondblclick="EditorDblClick(event);"
-            context="msgComposeContext"/>
+            context="msgComposeContext"
+            onclick="deselectAllPills();"/>
     <findbar id="FindToolbar" browserid="content-frame"/>
   </vbox>
 

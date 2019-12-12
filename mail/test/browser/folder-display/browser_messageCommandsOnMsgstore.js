@@ -11,9 +11,11 @@
 
 "use strict";
 
-var { open_compose_with_forward, open_compose_with_reply } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
+var {
+  open_compose_with_forward,
+  open_compose_with_reply,
+  setup_msg_contents,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
   create_folder,
@@ -223,7 +225,7 @@ function reply_forward_message(aMsgRow, aReply) {
     // Forward the message.
     cwc = open_compose_with_forward();
     // Type in some recipient.
-    cwc.type(cwc.eid("addressCol2#1"), "somewhere@host.invalid");
+    setup_msg_contents(cwc, "somewhere@host.invalid", "", "");
   }
 
   // Send it later.

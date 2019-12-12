@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements */
+/* global MozElements getSiblingPills */
 
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
 /* import-globals-from ../../../base/content/mailCore.js */
@@ -86,9 +86,6 @@ var gCloseWindowAfterSave;
 var gSavedSendNowKey;
 var gSendFormat;
 
-var gMsgIdentityElement;
-var gMsgAddressingWidgetTreeElement;
-var gMsgSubjectElement;
 var gMsgAttachmentElement;
 var gMsgHeadersToolbarElement;
 // TODO: Maybe the following two variables can be combined.
@@ -129,6 +126,27 @@ var gNumUploadingAttachments;
 
 var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
+// Observer for the autocomplete input.
+const inputObserver = {
+  observe: (subject, topic, data) => {
+    if (topic == "autocomplete-did-enter-text") {
+      let input = subject.QueryInterface(Ci.nsIAutoCompleteInput)
+        .wrappedJSObject;
+
+      let element = document.getElementById(input.id);
+      // The observer is triggered also from within an already existing pill.
+      // Since the autocomplete-input inside a pill doesn't have an ID, we can
+      // interrupt this method if no element was selected, or the element has
+      // the .input-pill class.
+      if (!element || element.classList.contains("input-pill")) {
+        return;
+      }
+      // Trigger the pill creation.
+      recipientAddPill(element);
+    }
+  },
+};
+
 function InitializeGlobalVariables() {
   gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
@@ -163,6 +181,9 @@ function InitializeGlobalVariables() {
     Ci.nsIMsgWindow
   );
   MailServices.mailSession.AddMsgWindow(msgWindow);
+
+  // Add the observer.
+  Services.obs.addObserver(inputObserver, "autocomplete-did-enter-text");
 }
 InitializeGlobalVariables();
 
@@ -177,6 +198,9 @@ function ReleaseGlobalVariables() {
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
   // eslint-disable-next-line no-global-assign
   msgWindow = null;
+
+  // Remove the observer.
+  Services.obs.removeObserver(inputObserver, "autocomplete-did-enter-text");
 }
 
 // Notification box shown at the bottom of the window.
@@ -295,7 +319,7 @@ function preparePrintPreviewTitleHeader() {
   // into print preview (workaround for bug 1396455).
   let msgDocument = getBrowser().contentDocument;
   let msgSubject =
-    GetMsgSubjectElement().value.trim() ||
+    document.getElementById("msgSubject").value.trim() ||
     getComposeBundle().getString("defaultSubject");
   gChromeState.msgDocumentHadTitle = !!msgDocument.querySelector("title");
   gChromeState.msgDocumentTitle = msgDocument.title;
@@ -428,7 +452,7 @@ var stateListener = {
       let startNode = range.startContainer;
 
       editor.enableUndo(false);
-      let identityList = GetMsgIdentityElement();
+      let identityList = document.getElementById("msgIdentity");
       identityList.selectedItem = identityList.getElementsByAttribute(
         "identitykey",
         gMsgCompose.identity.key
@@ -2321,6 +2345,7 @@ function ComposeFieldsReady() {
       dump("### textEditor.wrapWidth exception text: " + e + " - failed\n");
     }
   }
+
   CompFields2Recipients(gMsgCompose.compFields);
   SetComposeWindowTitle();
   updateEditableFields(false);
@@ -2893,20 +2918,7 @@ function ComposeStartup(aParams) {
   document.addEventListener("paste", onPasteOrDrop);
   document.addEventListener("drop", onPasteOrDrop);
 
-  // Workaround for missing inbuilt funcionality of <menulist> to restore
-  // visibility when focused and receiving key presses while scrolled out of view.
-  // Note: Unrelated key presses (e.g. access keys for other UI elements)
-  // typically do not fire keyup on the menulist as focus will have shifted.
-  // Some false positives like function or OS keys might occur; we accept that.
-  // Alt+CursorDown will still show the dropdown in the wrong place.
-  let addressingWidget = GetMsgAddressingWidgetTreeElement();
-  addressingWidget.addEventListener("keyup", event => {
-    if (event.target.classList.contains("aw-menulist")) {
-      addressingWidget.ensureElementIsVisible(event.target);
-    }
-  });
-
-  let identityList = GetMsgIdentityElement();
+  let identityList = document.getElementById("msgIdentity");
   if (identityList) {
     FillIdentityList(identityList);
   }
@@ -3262,7 +3274,7 @@ function ComposeStartup(aParams) {
     }
   }
 
-  GetMsgSubjectElement().value = gMsgCompose.compFields.subject;
+  document.getElementById("msgSubject").value = gMsgCompose.compFields.subject;
 
   AddAttachments(gMsgCompose.compFields.attachments, null, false);
 
@@ -3380,7 +3392,7 @@ function WizCallback(state) {
 }
 
 function ComposeLoad() {
-  var other_headers = Services.prefs.getCharPref(
+  let otherHeaders = Services.prefs.getCharPref(
     "mail.compose.other.header",
     ""
   );
@@ -3393,13 +3405,17 @@ function ComposeLoad() {
     SetupCommandUpdateHandlers();
     // This will do migration, or create a new account if we need to.
     // We also want to open the account wizard if no identities are found
-    var state = verifyAccounts(WizCallback, true);
+    let state = verifyAccounts(WizCallback, true);
 
-    if (other_headers) {
-      var selectNode = document.getElementById("addressCol1#1");
-      var other_headers_Array = other_headers.split(",");
-      for (let i = 0; i < other_headers_Array.length; i++) {
-        selectNode.appendItem(other_headers_Array[i] + ":", "addr_other");
+    if (otherHeaders) {
+      let addressingWidgetLabels = document.getElementById(
+        "addressingWidgetLabels"
+      );
+      let recipientsContainer = document.getElementById("recipientsContainer");
+
+      for (let header of otherHeaders.split(",")) {
+        addressingWidgetLabels.appendChild(createRecipientLabel(header));
+        recipientsContainer.appendChild(createRecipientRow(header));
       }
     }
     if (state) {
@@ -3425,7 +3441,6 @@ function ComposeLoad() {
     MailToolboxCustomizeDone(aEvent, "CustomizeComposeToolbar");
   };
 
-  awInitializeNumberOfRowsShown();
   updateAttachmentPane();
   attachmentBucketMarkEmptyBucket();
 }
@@ -3490,6 +3505,141 @@ function SetDocumentCharacterSet(aCharset) {
 }
 
 /**
+ * Create the recipient label to add in the messenger compose dialog.
+ *
+ * @param {string} labelID - The unique identifier of the email header.
+ * @returns {XULelement} The newly create XUL label.
+ */
+function createRecipientLabel(labelID) {
+  let label = document.createXULElement("label");
+  label.setAttribute("id", labelID);
+  label.textContent = labelID;
+
+  label.addEventListener("click", () => {
+    showAddressRow(label, `addressRow${labelID}`);
+  });
+  label.addEventListener("keypress", event => {
+    showAddressRowKeyPress(event, label, `addressRow${labelID}`);
+  });
+  label.setAttribute("control", `${labelID}AddrInput`);
+
+  // Necessary to allow focus via TAB key.
+  label.setAttribute("tabindex", 0);
+
+  let newImage = document.createXULElement("image");
+  newImage.classList.add("new-icon");
+  label.prepend(newImage);
+
+  return label;
+}
+
+/**
+ * Create a new recipient row container with the input autocomplete.
+ *
+ * @param {string} labelID - The unique identifier of the email header.
+ * @returns {XULElement} - The newly created recipient row.
+ */
+function createRecipientRow(labelID) {
+  let row = document.createXULElement("hbox");
+  row.setAttribute("id", `addressRow${labelID}`);
+  row.classList.add("addressingWidgetItem", "address-row", "hidden");
+
+  let firstCol = document.createXULElement("hbox");
+  firstCol.setAttribute("align", "start");
+  firstCol.classList.add("aw-firstColBox");
+
+  let firstLabel = document.createXULElement("label");
+  firstLabel.addEventListener("click", () => {
+    hideAddressRow(firstLabel, labelID);
+  });
+  firstLabel.addEventListener("keypress", event => {
+    if (event.key == "Enter") {
+      hideAddressRow(firstLabel, labelID);
+    }
+  });
+  // Necessary to allow focus via TAB key.
+  firstLabel.setAttribute("tabindex", 0);
+
+  let closeImage = document.createXULElement("image");
+  closeImage.classList.add("close-icon");
+
+  firstLabel.appendChild(closeImage);
+  firstCol.appendChild(firstLabel);
+
+  let secondCol = document.createXULElement("hbox");
+  secondCol.setAttribute("align", "start");
+  secondCol.setAttribute("pack", "end");
+  secondCol.setAttribute(
+    "style",
+    getComposeBundle().getString("headersSpaceStyle")
+  );
+  secondCol.classList.add("address-label-container");
+
+  let secondLabel = document.createXULElement("label");
+  secondLabel.setAttribute("id", `${labelID}AddrLabel`);
+  secondLabel.value = labelID;
+  secondLabel.setAttribute("control", `${labelID}AddrInput`);
+
+  secondCol.appendChild(secondLabel);
+
+  let container = document.createXULElement("hbox");
+  container.setAttribute("id", `${labelID}AddrContainer`);
+  container.setAttribute("flex", "1");
+  container.setAttribute("align", "center");
+  container.classList.add(
+    "input-container",
+    "wrap-container",
+    "address-container"
+  );
+  container.addEventListener("click", focusAddressInput);
+
+  let input = document.createElement("input", {
+    is: "autocomplete-input",
+  });
+  input.setAttribute("id", `${labelID}AddrInput`);
+
+  input.setAttribute("type", "text");
+  input.classList.add("plain", "address-input", "nntp-input");
+  input.setAttribute("disableonsend", true);
+  input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
+  input.setAttribute("autocompletesearchparam", "{}");
+  input.setAttribute("timeout", 300);
+  input.setAttribute("maxrows", 6);
+  input.setAttribute("completedefaultindex", true);
+  input.setAttribute("forcecomplete", true);
+  input.setAttribute("completeselectedindex", true);
+  input.setAttribute("minresultsforpopup", 2);
+  input.setAttribute("ignoreblurwhilesearching", true);
+
+  input.addEventListener("focus", () => {
+    highlightAddressContainer(input);
+  });
+  input.addEventListener("blur", () => {
+    resetAddressContainer(input);
+  });
+  input.addEventListener("keypress", event => {
+    recipientKeyPress(event, input);
+  });
+
+  input.setAttribute("recipienttype", "addr_other");
+  input.setAttribute("size", 1);
+
+  let highlightNonMatches = Services.prefs.getBoolPref(
+    "mail.autoComplete.highlightNonMatches"
+  );
+
+  setupAutocompleteInput(input, highlightNonMatches);
+
+  container.appendChild(input);
+
+  row.appendChild(firstCol);
+  row.appendChild(secondCol);
+  row.appendChild(container);
+
+  return row;
+}
+
+/**
  * Return the full display string for any non-default text encoding of the
  * current composition (friendly name plus official character set name).
  * For the default text encoding, return empty string (""), to reduce
@@ -3535,10 +3685,10 @@ function GenericSendMessage(msgType) {
 
   Recipients2CompFields(msgCompFields);
   let addresses = MailServices.headerParser.makeFromDisplayAddress(
-    GetMsgIdentityElement().value
+    document.getElementById("msgIdentity").value
   );
   msgCompFields.from = MailServices.headerParser.makeMimeHeader(addresses);
-  var subject = GetMsgSubjectElement().value;
+  var subject = document.getElementById("msgSubject").value;
   msgCompFields.subject = subject;
   Attachments2CompFields(msgCompFields);
   // Some other msgCompFields have already been updated instantly in their respective
@@ -3584,7 +3734,7 @@ function GenericSendMessage(msgType) {
     if (fixedSubject != subject) {
       subject = fixedSubject;
       msgCompFields.subject = fixedSubject;
-      GetMsgSubjectElement().value = fixedSubject;
+      document.getElementById("msgSubject").value = fixedSubject;
     }
 
     // Remind the person if there isn't a subject
@@ -3605,7 +3755,7 @@ function GenericSendMessage(msgType) {
           { value: 0 }
         ) == 1
       ) {
-        GetMsgSubjectElement().focus();
+        document.getElementById("msgSubject").focus();
         return;
       }
     }
@@ -3852,6 +4002,21 @@ function isValidAddress(aAddress) {
 }
 
 /**
+ * Force the focus on the autocomplete input if the user clicks on an empty
+ * area of the address container.
+ *
+ * @param {Event} event - the event triggered by the click.
+ */
+function focusAddressInput(event) {
+  let container = event.originalTarget;
+  if (container.classList.contains("address-container")) {
+    container
+      .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+      .focus();
+  }
+}
+
+/**
  * Keep the Send buttons disabled until any recipient is entered.
  */
 function updateSendLock() {
@@ -3860,35 +4025,41 @@ function updateSendLock() {
     return;
   }
 
-  const mailTypes = ["addr_to", "addr_cc", "addr_bcc"];
+  const addressRows = [
+    "toAddrContainer",
+    "ccAddrContainer",
+    "bccAddrContainer",
+    "newsgroupsAddrContainer",
+  ];
 
-  // Enable the send buttons if anything usable was entered into at least one
-  // recipient field.
-  for (let row = 1; row <= top.MAX_RECIPIENTS; row++) {
-    let popupValue = awGetPopupElement(row).value;
-    let inputValue = awGetInputElement(row).value.trim();
-    if (mailTypes.includes(popupValue)) {
-      if (isValidAddress(inputValue)) {
-        // a properly looking email address
+  for (let parentID of addressRows) {
+    if (!gSendLocked) {
+      break;
+    }
+
+    let parent = document.getElementById(parentID);
+
+    if (!parent) {
+      continue;
+    }
+
+    for (let address of parent.querySelectorAll(".address-pill")) {
+      let listNames = MimeParser.parseHeaderField(
+        address.fullAddress,
+        MimeParser.HEADER_ADDRESS
+      );
+      let isMailingList =
+        listNames.length > 0 &&
+        MailServices.ab.mailListNameExists(listNames[0].name);
+
+      if (
+        isValidAddress(address.emailAddress) ||
+        isMailingList ||
+        address.originalInput.classList.contains("nntp-input")
+      ) {
         gSendLocked = false;
         break;
-      } else {
-        // a valid mailing list name in some or our addressbooks
-        let listNames = MimeParser.parseHeaderField(
-          inputValue,
-          MimeParser.HEADER_ADDRESS
-        );
-        if (
-          listNames.length > 0 &&
-          MailServices.ab.mailListNameExists(listNames[0].name)
-        ) {
-          gSendLocked = false;
-          break;
-        }
       }
-    } else if (popupValue == "addr_newsgroups" && inputValue != "") {
-      gSendLocked = false;
-      break;
     }
   }
 }
@@ -4034,8 +4205,9 @@ function Save() {
 }
 
 function SaveAsFile(saveAs) {
-  var subject = GetMsgSubjectElement().value;
-  GetCurrentEditorElement().contentDocument.title = subject;
+  GetCurrentEditorElement().contentDocument.title = document.getElementById(
+    "msgSubject"
+  ).value;
 
   if (gMsgCompose.bodyConvertible() == Ci.nsIMsgCompConvertible.Plain) {
     SaveDocument(saveAs, false, "text/plain");
@@ -4293,13 +4465,6 @@ var spellCheckReadyObserver = {
   },
 };
 
-function onAddressColCommand(aAddressWidgetId) {
-  gContentChanged = true;
-  let row = aAddressWidgetId.slice(aAddressWidgetId.lastIndexOf("#") + 1);
-  awSetAutoComplete(row);
-  updateSendCommands(true);
-}
-
 /**
  * Called if the list of recipients changed in any way.
  *
@@ -4433,9 +4598,9 @@ function ComposeChangeLanguage(aLang) {
 
         // Also force a recheck of the subject. If for some reason the spell
         // checker isn't ready yet, don't auto-create it, hence pass 'false'.
-        let inlineSpellChecker = GetMsgSubjectElement().editor.getInlineSpellChecker(
-          false
-        );
+        let inlineSpellChecker = document
+          .getElementById("msgSubject")
+          .editor.getInlineSpellChecker(false);
         if (inlineSpellChecker) {
           inlineSpellChecker.spellCheckRange(null);
         }
@@ -4606,7 +4771,7 @@ function FillIdentityList(menulist) {
 
 function getCurrentAccountKey() {
   // Get the account's key.
-  let identityList = GetMsgIdentityElement();
+  let identityList = document.getElementById("msgIdentity");
   return identityList.getAttribute("accountkey");
 }
 
@@ -4624,12 +4789,12 @@ function getCurrentIdentity() {
 }
 
 function AdjustFocus() {
-  let element = awGetInputElement(awGetNumberOfRecipients());
+  let element = document.getElementById("toAddrInput");
   if (element.value == "") {
     // Focus last row of addressing widget.
-    awSetFocusTo(element);
+    element.focus();
   } else {
-    element = GetMsgSubjectElement();
+    element = document.getElementById("msgSubject");
     if (element.value == "") {
       // Focus subject.
       element.focus();
@@ -4651,7 +4816,7 @@ function SetComposeWindowTitle(isPrintPreview = false) {
     ? "windowTitlePrintPreview"
     : "windowTitleWrite";
   let subject =
-    GetMsgSubjectElement().value.trim() ||
+    document.getElementById("msgSubject").value.trim() ||
     getComposeBundle().getString("defaultSubject");
   let brandBundle = document.getElementById("brandBundle");
   let brandShortName = brandBundle.getString("brandShortName");
@@ -6183,14 +6348,7 @@ function hideIrrelevantAddressingOptions(aAccountKey) {
   }
   // If there is no News (NNTP) account existing then
   // hide the Newsgroup and Followup-To recipient type in all the menulists.
-  let addrWidget = document.getElementById("addressingWidget");
-  // Only really touch the News related items we know about.
-  let newsTypes = addrWidget.querySelectorAll(
-    'menuitem[value="addr_newsgroups"], menuitem[value="addr_followup"]'
-  );
-  // Collapsing the menuitem only prevents it getting chosen, it does not
-  // affect the menulist widget display when Newsgroup is already selected.
-  for (let item of newsTypes) {
+  for (let item of document.querySelectorAll(".nntp-label")) {
     item.collapsed = hideNews;
   }
 }
@@ -6214,12 +6372,13 @@ function LoadIdentity(startup) {
       hideIrrelevantAddressingOptions(accountKey);
     }
 
-    let maxRecipients = awGetNumberOfRecipients();
-    for (let i = 1; i <= maxRecipients; i++) {
-      let params = JSON.parse(awGetInputElement(i).searchParam);
+    for (let input of document.querySelectorAll(
+      ".pop-imap-input,.nntp-input"
+    )) {
+      let params = JSON.parse(input.searchParam);
       params.idKey = idKey;
       params.accountKey = accountKey;
-      awGetInputElement(i).searchParam = JSON.stringify(params);
+      input.searchParam = JSON.stringify(params);
     }
 
     if (!startup && prevIdentity && idKey != prevIdentity.key) {
@@ -6253,7 +6412,6 @@ function LoadIdentity(startup) {
         newBcc += gCurrentIdentity.doBccList;
       }
 
-      var needToCleanUp = false;
       var msgCompFields = gMsgCompose.compFields;
 
       if (
@@ -6290,7 +6448,6 @@ function LoadIdentity(startup) {
       }
 
       if (newReplyTo != prevReplyTo) {
-        needToCleanUp = true;
         if (prevReplyTo != "") {
           awRemoveRecipients(msgCompFields, "addr_reply", prevReplyTo);
         }
@@ -6307,7 +6464,6 @@ function LoadIdentity(startup) {
       );
 
       if (newCc != prevCc) {
-        needToCleanUp = true;
         if (prevCc) {
           awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
         }
@@ -6320,7 +6476,6 @@ function LoadIdentity(startup) {
       }
 
       if (newBcc != prevBcc) {
-        needToCleanUp = true;
         if (prevBcc) {
           awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
         }
@@ -6331,10 +6486,6 @@ function LoadIdentity(startup) {
           newBcc = bcc2.filter(x => !toCcAddrs.has(x)).join(", ");
           awAddRecipients(msgCompFields, "addr_bcc", newBcc);
         }
-      }
-
-      if (needToCleanUp) {
-        awCleanupRows();
       }
 
       try {
@@ -6351,10 +6502,6 @@ function LoadIdentity(startup) {
     }
 
     if (!startup) {
-      if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches")) {
-        document.getElementById("addressCol2#1").highlightNonMatches = true;
-      }
-
       // Only do this if we aren't starting up...
       // It gets done as part of startup already.
       addRecipientsToIgnoreList(gCurrentIdentity.fullAddress);
@@ -6367,6 +6514,9 @@ function LoadIdentity(startup) {
           [identityElement.selectedItem.value]
         );
       }
+
+      SetMsgToRecipientElementFocus();
+      onRecipientsChanged(true);
     }
   }
 }
@@ -6416,20 +6566,55 @@ function MakeFromFieldEditable(ignoreWarning) {
 }
 
 function setupAutocomplete() {
-  var autoCompleteWidget = document.getElementById("addressCol2#1");
-  try {
-    // Request that input that isn't matched be highlighted.
-    // This element then gets cloned for subsequent rows, so they should
-    // honor it as well.
-    if (Services.prefs.getBoolPref("mail.autoComplete.highlightNonMatches")) {
-      autoCompleteWidget.highlightNonMatches = true;
+  let highlightNonMatches = Services.prefs.getBoolPref(
+    "mail.autoComplete.highlightNonMatches"
+  );
+
+  for (let input of document.querySelectorAll(".pop-imap-input,.nntp-input")) {
+    setupAutocompleteInput(input, highlightNonMatches);
+  }
+}
+
+function setupAutocompleteInput(input, highlightNonMatches) {
+  let params = JSON.parse(input.getAttribute("autocompletesearchparam"));
+  params.type = input.getAttribute("recipienttype");
+  input.setAttribute("autocompletesearchparam", JSON.stringify(params));
+
+  // This method overrides the autocomplete binding's openPopup (essentially
+  // duplicating the logic from the autocomplete popup binding's
+  // openAutocompletePopup method), modifying it so that the popup is aligned
+  // and sized based on the parentNode of the input field.
+  input.openPopup = () => {
+    if (input.focused) {
+      input.popup.openAutocompletePopup(
+        input.nsIAutocompleteInput,
+        input.closest(".address-container")
+      );
     }
-  } catch (ex) {}
+  };
+
+  // Request that input that isn't matched be highlighted.
+  input.highlightNonMatches = highlightNonMatches;
+}
+
+/**
+ * Select all the pills in the same recipient container if they exist.
+ *
+ * @param {HTMLElement} input - The autocomplete input field.
+ */
+function selectRecipientPills(input) {
+  let previous = input.previousElementSibling;
+  if (previous && previous.tagName == "mail-address-pill") {
+    for (let pill of getSiblingPills(input)) {
+      pill.setAttribute("selected", "selected");
+    }
+    previous.focus();
+  }
 }
 
 function fromKeyPress(event) {
   if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
-    awSetFocusTo(awGetInputElement(1));
+    document.getElementById("toAddrInput").focus();
   }
 }
 
@@ -6846,16 +7031,16 @@ function DisplaySaveFolderDlg(folderURI) {
   }
 }
 
-function SetMsgAddressingWidgetTreeElementFocus() {
-  awSetFocusTo(awGetInputElement(awGetNumberOfRecipients()));
+function SetMsgToRecipientElementFocus() {
+  document.getElementById("toAddrInput").focus();
 }
 
 function SetMsgIdentityElementFocus() {
-  GetMsgIdentityElement().focus();
+  document.getElementById("msgIdentity").focus();
 }
 
 function SetMsgSubjectElementFocus() {
-  GetMsgSubjectElement().focus();
+  document.getElementById("msgSubject").focus();
 }
 
 function SetMsgAttachmentElementFocus() {
@@ -6886,32 +7071,6 @@ function SetMsgBodyFrameFocus() {
   document.commandDispatcher.advanceFocusIntoSubtree(
     document.getElementById("appcontent")
   );
-}
-
-function GetMsgAddressingWidgetTreeElement() {
-  if (!gMsgAddressingWidgetTreeElement) {
-    gMsgAddressingWidgetTreeElement = document.getElementById(
-      "addressingWidget"
-    );
-  }
-
-  return gMsgAddressingWidgetTreeElement;
-}
-
-function GetMsgIdentityElement() {
-  if (!gMsgIdentityElement) {
-    gMsgIdentityElement = document.getElementById("msgIdentity");
-  }
-
-  return gMsgIdentityElement;
-}
-
-function GetMsgSubjectElement() {
-  if (!gMsgSubjectElement) {
-    gMsgSubjectElement = document.getElementById("msgSubject");
-  }
-
-  return gMsgSubjectElement;
 }
 
 function GetMsgAttachmentElement() {
@@ -6964,9 +7123,6 @@ function GetMsgHeadersToolbarElement() {
  *         its descendants has focus, otherwise null.
  */
 function WhichElementHasFocus() {
-  let msgIdentityElement = GetMsgIdentityElement();
-  let msgAddressingWidgetTreeElement = GetMsgAddressingWidgetTreeElement();
-  let msgSubjectElement = GetMsgSubjectElement();
   let msgAttachmentElement = GetMsgAttachmentElement();
   let abContactsPanelElement = sidebarDocumentGetElementById("abContactsPanel");
 
@@ -6977,9 +7133,9 @@ function WhichElementHasFocus() {
   let currentNode = top.document.commandDispatcher.focusedElement;
   while (currentNode) {
     if (
-      currentNode == msgIdentityElement ||
-      currentNode == msgAddressingWidgetTreeElement ||
-      currentNode == msgSubjectElement ||
+      currentNode == document.getElementById("msgIdentity") ||
+      currentNode == document.getElementById("toAddrInput") ||
+      currentNode == document.getElementById("msgSubject") ||
       currentNode == msgAttachmentElement ||
       currentNode == abContactsPanelElement
     ) {
@@ -6996,7 +7152,7 @@ function WhichElementHasFocus() {
  * in the message compose window. Ctrl+[Shift+]Tab | [Shift+]F6 on Windows.
  *
  * The default element to switch to when going in either direction (with or
- * without shift key pressed) is the AddressingWidgetTreeElement.
+ * without shift key pressed) is the ToRecipientElement.
  *
  * The only exception is when the MsgHeadersToolbar is collapsed,
  * then the focus will always be on the body of the message.
@@ -7009,17 +7165,17 @@ function SwitchElementFocus(event) {
     // happen with the default installation, but might happen with add-ons.
     // In that case, default to focusing the address widget as the first element
     // of the focus ring.
-    SetMsgAddressingWidgetTreeElementFocus();
+    SetMsgToRecipientElementFocus();
     return;
   }
 
   if (event && event.shiftKey) {
     // Backwards focus ring: e.g. Ctrl+Shift+Tab | Shift+F6
     switch (focusedElement) {
-      case gMsgAddressingWidgetTreeElement:
+      case document.getElementById("toAddrInput"):
         SetMsgIdentityElementFocus();
         break;
-      case gMsgIdentityElement:
+      case document.getElementById("msgIdentity"):
         // Focus the search input of contacts side bar if that's available,
         // otherwise focus message body.
         if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
@@ -7041,17 +7197,17 @@ function SwitchElementFocus(event) {
         SetMsgSubjectElementFocus();
         break;
       default:
-        // gMsgSubjectElement
-        SetMsgAddressingWidgetTreeElementFocus();
+        // document.getElementById("msgSubject")
+        SetMsgToRecipientElementFocus();
         break;
     }
   } else {
     // Forwards focus ring: e.g. Ctrl+Tab | F6
     switch (focusedElement) {
-      case gMsgAddressingWidgetTreeElement:
+      case document.getElementById("toAddrInput"):
         SetMsgSubjectElementFocus();
         break;
-      case gMsgSubjectElement:
+      case document.getElementById("msgSubject"):
         // Only set focus to the attachment element if it is shown.
         if (!document.getElementById("attachments-box").collapsed) {
           SetMsgAttachmentElementFocus();
@@ -7073,8 +7229,8 @@ function SwitchElementFocus(event) {
         SetMsgIdentityElementFocus();
         break;
       default:
-        // gMsgIdentityElement
-        SetMsgAddressingWidgetTreeElementFocus();
+        // document.getElementById("msgIdentity")
+        SetMsgToRecipientElementFocus();
         break;
     }
   }
@@ -7168,7 +7324,7 @@ function toggleAddressPicker(aFocus = true) {
       composerBox.querySelector('[focused="true"]');
     if (focusedElement) {
       focusedElement.focus();
-    } else if (!GetMsgSubjectElement().value) {
+    } else if (!document.getElementById("msgSubject").value) {
       SetMsgSubjectElementFocus();
     } else {
       SetMsgBodyFrameFocus();
@@ -7276,11 +7432,9 @@ var gAttachmentNotifier = {
 
     // Add an input event listener for the subject field since there
     // are ways of changing its value without key presses.
-    GetMsgSubjectElement().addEventListener(
-      "input",
-      this.subjectObserver,
-      true
-    );
+    document
+      .getElementById("msgSubject")
+      .addEventListener("input", this.subjectObserver, true);
 
     // We could have been opened with a draft message already containing
     // some keywords, so run the checker once to pick them up.
@@ -7408,7 +7562,7 @@ var gAttachmentNotifier = {
 
     // Prepend the subject to see if the subject contains any attachment
     // keywords too, after making sure that the subject has changed.
-    let subject = GetMsgSubjectElement().value;
+    let subject = document.getElementById("msgSubject").value;
     if (
       subject &&
       (gSubjectChanged ||
@@ -7492,7 +7646,7 @@ function InitEditor() {
   // inconsistent in subject and message body.
   let eEditorMailMask = Ci.nsIPlaintextEditor.eEditorMailMask;
   editor.flags |= eEditorMailMask;
-  GetMsgSubjectElement().editor.flags |= eEditorMailMask;
+  document.getElementById("msgSubject").editor.flags |= eEditorMailMask;
 
   // Control insertion of line breaks.
   editor.returnInParagraphCreatesNewParagraph = Services.prefs.getBoolPref(

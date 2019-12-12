@@ -96,151 +96,85 @@
   padding-top: 4px;
 }
 
-#msgIdentity {
-  -moz-appearance: none;
-  background-color: transparent;
-  min-height: 25px;
-  line-height: 1;
-  border: 1px solid transparent;
-  box-shadow: none;
-  margin-inline-end: 5px;
-  padding-inline-start: 3px !important;
-  background-image: none;
-  transition: border .2s, background-color .2s;
+#subjectLabel {
+  margin-bottom: 0;
 }
 
 @media (-moz-windows-default-theme: 0) {
-  #msgIdentity {
-    border-bottom-color: ThreeDShadow;
+  #msgSubject:not(:-moz-lwtheme),
+  #msgIdentity:not(:-moz-lwtheme),
+  .address-container:not(:-moz-lwtheme) {
+    --toolbarbutton-hover-bordercolor: ThreeDShadow;
   }
 
-  #msgIdentity:hover,
-  #msgIdentity:focus,
-  #msgIdentity:focus-within,
-  #msgIdentity[focused="true"] {
-    background-color: -moz-field;
-    border-color: ThreeDShadow;
+  #msgSubject:not(:-moz-lwtheme):hover,
+  #msgIdentity:not(:-moz-lwtheme):hover,
+  .address-container:not(:-moz-lwtheme):hover {
+    --toolbarbutton-hover-bordercolor: ThreeDDarkShadow;
   }
+}
+
+#identityLabel-box {
+  margin-top: 1px;
+}
+
+#msgIdentity {
+  line-height: 1;
+  box-shadow: none;
+  padding-inline-start: 3px !important;
 }
 
 #msgIdentity:-moz-focusring:not([open="true"]) > .menulist-label-box {
   outline: none;
 }
 
-#msgSubject {
-  -moz-appearance: none;
-  margin-top: 0;
-  margin-inline-end: 5px;
+@media (-moz-windows-default-theme: 0) {
+  #msgIdentity > .menulist-label-box {
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+
+  #msgIdentity > .menulist-dropmarker,
+  #msgIdentity > .menulist-dropmarker[disabled="true"] {
+    -moz-appearance: none;
+    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+    -moz-context-properties: fill;
+    fill: currentColor;
+    margin-top: 0;
+  }
+
+  .menulist-dropmarker::part(icon) {
+    width: 9px;
+    height: 7px;
+  }
+}
+
+#msgIdentity > html|input.menulist-input {
   background-color: inherit;
-  border: 1px solid transparent;
+  color: inherit;
+  margin: 2px 0;
+}
+
+.address-label-container {
+  padding-top: 5px;
+}
+
+#msgSubject {
+  margin-top: 0;
   padding: 2px;
   padding-inline-start: 5px;
-  transition: border .2s, background-color .2s;
 }
 
 @media (-moz-windows-default-theme) {
-  #msgSubject {
-    border-bottom-color: #a9b7c9;
+  #msgSubject,
+  #msgIdentity,
+  .address-container {
+    border-radius: 0;
   }
 
-  #msgSubject:hover,
-  #msgSubject:focus {
-    background-color: -moz-field;
-    border-color: #a9b7c9;
+  #msgIdentity[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
+    margin-inline: 3px -3px;
   }
-}
-
-@media (-moz-windows-default-theme: 0) {
-  #msgSubject {
-    border-bottom-color: ThreeDShadow;
-  }
-
-  #msgSubject:hover,
-  #msgSubject:focus {
-    background-color: -moz-field;
-    border-color: ThreeDShadow;
-  }
-}
-
-/* ::::: addressing widget ::::: */
-
-#addressingWidget {
-  -moz-user-focus: none;
-  -moz-appearance: none;
-  width: 0;
-  border: none;
-  background-color: transparent;
-  margin-top: 1px;
-  margin-bottom: 0;
-  padding-inline-end: 1px;
-}
-
-#addressingWidget > .addressingWidgetItem,
-#addressingWidget > .dummy-row {
-  border-style: none;
-  background: none;
-  color: inherit;
-  box-shadow: none;
-}
-
-#addressingWidget > .addressingWidgetItem {
-  padding-top: 0;
-  padding-bottom: 2px;
-}
-
-.textbox-addressingWidget,
-.dummy-row-cell:last-child {
-  margin-bottom: 2px !important;
-  padding: 2px !important;
-  padding-inline-start: 5px !important;
-  border: 1px solid transparent !important;
-  transition: border .2s, background-color .2s;
-}
-
-@media (-moz-windows-default-theme: 0) {
-  .textbox-addressingWidget,
-    .dummy-row-cell:last-child {
-    border-bottom-color: ThreeDShadow !important;
-    margin-inline-end: 1px !important;
-  }
-
-  .textbox-addressingWidget:hover,
-  .textbox-addressingWidget:focus {
-    background-color: -moz-field;
-    border-color: ThreeDShadow !important;
-  }
-}
-
-.addressingWidgetCell:nth-child(2),
-.dummy-row-cell:nth-child(2) {
-  border-bottom-color: transparent;
-}
-
-.deleteAddress {
-  margin-inline-end: 0;
-  margin-bottom: 1px;
-}
-
-.aw-menulist {
-  -moz-appearance: none;
-  -moz-box-align: center;
-  -moz-box-pack: center;
-  color: ButtonText;
-  margin: 0 1px 2px;
-  margin-inline-end: 4px;
-  padding: 3px 0 !important;
-}
-
-.aw-menulist:-moz-focusring:not([open="true"]) > .menulist-label-box {
-  outline: none;
-}
-
-.aw-menulist > .menulist-label-box {
-  margin: 0;
-}
-
-.aw-menulist > .menulist-dropmarker {
-  display: none;
 }
 
 /* ::::: format toolbar ::::: */
@@ -573,32 +507,6 @@ toolbar:not(:-moz-lwtheme) {
   text-shadow: none;
 }
 
-#msgIdentity > html|input.menulist-input {
-  background-color: inherit;
-  color: inherit;
-  margin: 2px 0;
-}
-
-@media (-moz-windows-default-theme) {
-  #msgIdentity {
-    border-radius: 0;
-    border-bottom-color: #a9b7c9;
-  }
-
-  #msgIdentity:hover,
-  #msgIdentity:focus,
-  #msgIdentity:focus-within,
-  #msgIdentity[focused="true"] {
-    background-color: -moz-field;
-    border-color: #a9b7c9;
-  }
-
-  #msgIdentity[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
-    margin-inline-start: 3px;
-    margin-inline-end: -3px;
-  }
-}
-
 /* ::::: primary toolbar buttons ::::: */
 
 @media (-moz-windows-default-theme) {
@@ -634,10 +542,6 @@ toolbar:not(:-moz-lwtheme) {
   background-color: transparent;
 }
 
-#subjectLabel {
-  margin-top: 0;
-}
-
 /* ::::: autocomplete icons ::::: */
 
 .ac-site-icon {
@@ -650,20 +554,7 @@ toolbar:not(:-moz-lwtheme) {
   -moz-image-region: rect(0 160px 16px 144px);
 }
 
-/* ::::: addressing widget ::::: */
-
 @media (-moz-windows-default-theme) {
-  .textbox-addressingWidget,
-  .dummy-row-cell:last-child {
-    border-bottom-color: #a9b7c9 !important;
-  }
-
-  .textbox-addressingWidget:hover,
-  .textbox-addressingWidget:focus {
-    background-color: -moz-field;
-    border-color: #a9b7c9 !important;
-  }
-
   menulist,
   menulist[disabled="true"] {
     color: inherit;
@@ -703,44 +594,6 @@ toolbar:not(:-moz-lwtheme) {
     width: 9px;
     height: 7px;
   }
-}
-
-.aw-menulist {
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-.aw-menulist > .menulist-label-box > .menulist-icon {
-  width: 9px;
-  height: 7px;
-  margin-inline-start: 2px;
-}
-
-@media (-moz-windows-default-theme: 0) {
-  .aw-menulist {
-    background-color: rgba(128, 128, 128, .3);
-    border: 1px solid ThreeDShadow;
-    transition: background-color .25s ease-in;
-  }
-
-  .aw-menulist:hover {
-    background-color: rgba(128, 128, 128, .45);
-  }
-
-  .aw-menulist:focus:not([open="true"]) > .menulist-label-box {
-    background-color: inherit;
-    color: inherit;
-  }
-}
-
-.aw-menulist > .menulist-label-box {
-  margin: -1px 0;
-}
-
-.aw-menulist > .menulist-label-box > .menulist-label {
-  margin: 0 3px !important;
-  text-align: end;
 }
 
 /* ::::: address book sidebar ::::: */
@@ -786,10 +639,6 @@ toolbar:not(:-moz-lwtheme) {
   menulist[open="true"] {
     text-shadow: none;
     transition: none;
-  }
-
-  .aw-menulist {
-    box-shadow: none;
   }
 }
 

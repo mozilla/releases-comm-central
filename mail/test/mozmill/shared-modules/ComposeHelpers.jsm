@@ -18,6 +18,7 @@ this.EXPORTED_SYMBOLS = [
   "wait_for_compose_window",
   "setup_msg_contents",
   "clear_recipient",
+  "get_first_pill",
   "toggle_recipient_type",
   "create_msg_attachment",
   "add_attachments",
@@ -317,24 +318,46 @@ function wait_for_compose_window(aController) {
  * @param aAddr  Recipient to fill in.
  * @param aSubj  Subject to fill in.
  * @param aBody  Message body to fill in.
+ * @param inputID  The input field to fill in.
  */
-function setup_msg_contents(aCwc, aAddr, aSubj, aBody) {
-  aCwc.type(aCwc.eid("addressCol2#1"), aAddr);
+function setup_msg_contents(
+  aCwc,
+  aAddr,
+  aSubj,
+  aBody,
+  inputID = "toAddrInput"
+) {
+  aCwc.type(aCwc.eid(inputID), aAddr);
+  aCwc.keypress(aCwc.eid(inputID), "VK_RETURN", {});
   aCwc.type(aCwc.eid("msgSubject"), aSubj);
   aCwc.type(aCwc.eid("content-frame"), aBody);
+
+  // Wait 1 second for the pill to be created.
+  aCwc.sleep(1000);
 }
 
 /**
  * Remove the recipient by typing backspaces.
  *
  * @param aController    Compose window controller.
- * @param aRecipientRow  The compose widget row containing recipient to remove.
  */
-function clear_recipient(aController, aRecipientRow = 1) {
-  let recipientElem = aController.window.awGetInputElement(aRecipientRow);
-  while (recipientElem.value != "") {
-    aController.keypress(new elib.Elem(recipientElem), "VK_BACK_SPACE", {});
+function clear_recipient(aController) {
+  for (let pill of aController.window.document.querySelectorAll(
+    "mail-address-pill"
+  )) {
+    aController.keypress(new elib.Elem(pill), "VK_BACK_SPACE", {});
   }
+}
+
+/**
+ * Return the first available recipient pill.
+ *
+ * @param aController - Compose window controller.
+ */
+function get_first_pill(aController) {
+  return new elib.Elem(
+    aController.window.document.querySelector("mail-address-pill")
+  );
 }
 
 /**

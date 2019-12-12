@@ -51,21 +51,9 @@ add_task(function setupModule(module) {
  * @param aItemsEnabled  List of item values that should be enabled (uncollapsed).
  */
 function check_address_types_state(aItemsEnabled) {
-  let addr_types = cwc
-    .e("addressingWidget")
-    .querySelectorAll("menuitem[value]");
+  let addr_types = cwc.e("addressingWidgetLabels").querySelectorAll("label");
   for (let item of addr_types) {
-    Assert.ok(
-      item.collapsed != aItemsEnabled.includes(item.getAttribute("value"))
-    );
-  }
-
-  // Even if the currently selected type is collaped,
-  // the containing menulist should never be collapsed.
-  let addr_lists = cwc.e("addressingWidget").querySelectorAll("menulist");
-  for (let list in addr_lists) {
-    Assert.ok(!list.collapsed);
-    Assert.ok(!list.disabled);
+    Assert.ok(item.collapsed != aItemsEnabled.includes(item.id));
   }
 }
 
@@ -162,14 +150,7 @@ add_task(function test_address_types() {
   ]);
   check_nntp_address_types();
 
-  // In a News account, choose "Newsgroup:" as the address type.
-  cwc.click(cwc.eid("addressCol1#1"));
-  cwc.click_menus_in_sequence(cwc.e("addressCol1#1").menupopup, [
-    { value: "addr_newsgroups" },
-  ]);
-  check_nntp_address_types();
-
-  // And switch back to the POP3 account.
+  // Switch back to the POP3 account.
   let POP3identity = accountPOP3.defaultIdentity.key;
   cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [

@@ -27,7 +27,7 @@ var { mc } = ChromeUtils.import(
  *                use F6
  */
 function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
-  let addressingElement = controller.e("addressingWidget");
+  let addressingElement = controller.e("toAddrInput");
   let subjectElement = controller.e("msgSubject");
   let attachmentElement = controller.e("attachmentBucket");
   let contentElement = controller.window.content;

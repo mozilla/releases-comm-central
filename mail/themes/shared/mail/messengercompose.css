@@ -34,16 +34,13 @@
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-:root[lwt-default-theme-in-dark-mode] #MsgHeadersToolbar,
-:root[lwt-default-theme-in-dark-mode] #addressingWidget,
-:root[lwt-default-theme-in-dark-mode] .aw-menulist {
+:root[lwt-default-theme-in-dark-mode] #MsgHeadersToolbar {
   color: inherit;
 }
 
 :root[lwt-default-theme-in-dark-mode] #msgIdentity,
 :root[lwt-default-theme-in-dark-mode] #msgSubject,
-:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget,
-:root[lwt-default-theme-in-dark-mode] .dummy-row-cell:last-child {
+:root[lwt-default-theme-in-dark-mode] .address-container {
   border-bottom-color: var(--composer-header-border-color) !important;
   color: var(--lwt-text-color);
 }
@@ -52,15 +49,13 @@
 :root[lwt-default-theme-in-dark-mode] #msgIdentity:focus,
 :root[lwt-default-theme-in-dark-mode] #msgIdentity:focus-within,
 :root[lwt-default-theme-in-dark-mode] #msgSubject:hover,
-:root[lwt-default-theme-in-dark-mode] #msgSubject:focus,
-:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget:hover,
-:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget:focus {
+:root[lwt-default-theme-in-dark-mode] #msgSubject:focus {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
   border-color: var(--lwt-toolbar-field-border-color) !important;
 }
 
-:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget >
+:root[lwt-default-theme-in-dark-mode] .address-container >
   .autocomplete-result-popupset {
   -moz-appearance: none;
   margin-top: -1px;
@@ -68,7 +63,7 @@
   color: var(--autocomplete-popup-color);
 }
 
-:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget
+:root[lwt-default-theme-in-dark-mode] .address-container
   panel[type="autocomplete-richlistbox"] {
   padding: 2px 0;
   color: inherit;
@@ -76,13 +71,13 @@
   border-color: var(--autocomplete-popup-border-color);
 }
 
-:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget
+:root[lwt-default-theme-in-dark-mode] .address-container
   .autocomplete-richlistbox {
   color: inherit;
   background-color: inherit;
 }
 
-:root[lwt-default-theme-in-dark-mode] .textbox-addressingWidget
+:root[lwt-default-theme-in-dark-mode] .address-container
   .autocomplete-richlistitem[selected] {
   background: #0a84ff;
   color: #fff;
@@ -340,36 +335,8 @@
 }
 
 .aw-firstColBox,
-#firstcol-addressingWidget,
-.dummy-row-cell:first-child {
+#firstcol-addressingWidget {
   width: 21px;
-}
-
-.deleteAddress {
-  cursor: default;
-  margin-inline-end: 3px;
-  margin-bottom: 1px;
-  width: 18px;
-  height: 18px;
-  transition-property: width, margin-inline-end;
-  transition-duration: 50ms, 50ms;
-  transition-timing-function: ease-in-out, ease-in-out;
-}
-
-.addressingWidgetItem:not(:hover):not(:focus-within) .aw-menulist {
-  border-color: transparent;
-  background: transparent;
-}
-
-.addressingWidgetItem:not(:hover):not(:focus-within) .deleteAddress,
-.addressingWidgetItem:not(:hover):not(:focus-within) .aw-menulist > .menulist-label-box {
-  fill: transparent;
-}
-
-.aw-menulist:focus,
-.aw-menulist[focused="true"] {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
 }
 
 /* :::: Format toolbar :::: */
@@ -482,4 +449,275 @@
 
 #attachmentNotificationBox > hbox > .messageImage {
   background-image: url("chrome://messenger/skin/icons/attach.svg");
+}
+
+#identityLabel,
+.address-label-container label {
+  margin-inline-end: 6px
+}
+
+#msgIdentity {
+  -moz-appearance: none;
+  -moz-box-align: center;
+  font: inherit;
+  margin-inline-end: 8px;
+  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  border-radius: 2px;
+  background-color: -moz-field;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  transition: border .2s, box-shadow .2s;
+}
+
+#msgSubject {
+  -moz-appearance: none;
+  margin-top: 0;
+  margin-inline: 4px 8px;
+  background-color: -moz-field;
+  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  border-radius: 2px;
+  padding-block: 5px;
+  padding-inline: 4px 2px;
+  transition: border .2s, box-shadow .2s;
+}
+
+.recipients-container {
+  display: block;
+  /* Necessary for unwanted overflow while resizing the message header */
+  height: 0;
+}
+
+.recipients-container.overflow {
+  overflow-y: auto;
+}
+
+.address-row {
+  display: flex;
+  flex: 1;
+  margin-block: 5px;
+  margin-inline-end: 8px;
+  align-items: self-start;
+}
+
+.address-row > .aw-firstColBox {
+  transition: opacity .2s ease;
+  opacity: 0;
+}
+
+.address-row:hover > .aw-firstColBox,
+.address-row:focus > .aw-firstColBox,
+.address-row:focus-within > .aw-firstColBox {
+  opacity: 1;
+}
+
+.address-row.hidden {
+  display: none;
+}
+
+.address-container {
+  flex: 1;
+  margin-inline-start: 4px;
+  margin-inline-end: 0;
+  padding: 1px 4px;
+  border: solid 1px var(--toolbarbutton-hover-bordercolor);
+  border-radius: 2px;
+  background-color: -moz-field;
+  transition: border .2s, box-shadow .2s;
+  cursor: text;
+}
+
+#msgSubject,
+#msgIdentity,
+.address-container {
+  min-height: 30px;
+}
+
+.address-input {
+  color: inherit;
+}
+
+.address-pill {
+  display: flex;
+  align-items: center;
+  border-radius: 9999px;
+  margin-inline-end: 2px;
+  margin-block: 2px;
+  background-color: rgba(0,0,0,0.1);
+  transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
+  -moz-user-focus: normal;
+  cursor: default;
+  box-shadow: inset 0 0 0 2px transparent;
+}
+
+.address-pill label,
+.address-pill .delete-pill-icon {
+  -moz-user-focus: none;
+  cursor: default;
+}
+
+.delete-pill-icon {
+  width: 1.25em;
+  height: 1.25em;
+  margin-inline-end: 2px;
+  padding: 3px;
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.1);
+  list-style-image: url("chrome://messenger/skin/icons/stop.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  transition: color .2s ease, background-color .2s ease;
+}
+
+.address-pill:hover:not(.editing),
+.address-pill:focus:not(.editing) {
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.3);
+}
+
+.address-pill.editing {
+  flex: 1;
+  background-color: transparent;
+  padding-inline: 6px;
+  box-shadow: inset 0 0 0 2px Highlight;
+  min-height: calc(1.25em + 4px); /* needed to not shrink in edit mode */
+}
+
+#MsgHeadersToolbar[brighttext] .address-pill:not(.editing) {
+  background-color: rgba(0,0,0,0.3);
+}
+
+#MsgHeadersToolbar[brighttext] .address-pill:hover:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill:focus:not(.editing) {
+  background-color: rgba(0,0,0,0.35);
+}
+
+.address-pill.error {
+  color: #a4000f;
+  background-color: rgba(255,0,0,0.1);
+}
+
+.address-pill.error:hover:not(.editing),
+.address-pill.error:focus:not(.editing) {
+  background-color: rgba(255,0,0,0.15);
+}
+
+#MsgHeadersToolbar[brighttext] .address-pill.error:not(.editing) {
+  color: #e10216;
+  background-color: #3e0006;
+}
+
+#MsgHeadersToolbar[brighttext] .address-pill.error:hover:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.error:focus:not(.editing)  {
+  background-color: #310005;
+}
+
+.address-pill.warning {
+  color: #a44900;
+  background-color: rgba(255,130,0,0.1);
+}
+
+.address-pill.warning:hover:not(.editing),
+.address-pill.warning:focus:not(.editing) {
+  background-color: rgba(255,130,0,0.15);
+}
+
+#MsgHeadersToolbar[brighttext] .address-pill.warning:not(.editing) {
+  color: #fe7100;
+  background-color: #341700;
+}
+
+#MsgHeadersToolbar[brighttext] .address-pill.warning:hover:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.warning:focus:not(.editing)  {
+  background-color: #301500;
+}
+
+.address-pill[selected]:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill[selected]:not(.editing),
+.address-pill.warning[selected]:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.warning[selected]:not(.editing),
+.address-pill.error[selected]:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.error[selected]:not(.editing) {
+  color: HighlightText;
+  background-color: Highlight;
+}
+
+#MsgHeadersToolbar[brighttext] .delete-pill-icon {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.delete-pill-icon:hover,
+#MsgHeadersToolbar[brighttext] .delete-pill-icon:hover {
+  background-color: HighlightText;
+  color: Highlight;
+}
+
+.address-extra-recipients {
+  margin-inline-end: 8px;
+}
+
+.address-extra-recipients label {
+  margin-top: 0;
+  margin-bottom: 6px;
+  transition: color 0.2s;
+  margin-inline-end: 12px;
+}
+
+.new-icon {
+  -moz-appearance: none;
+  -moz-context-properties: fill, fill-opacity;
+  list-style-image: url(chrome://messenger/skin/icons/new.svg);
+  color: inherit !important;
+  fill: currentColor;
+  fill-opacity: 1;
+  width: 15px;
+  height: 15px;
+  background-color: rgba(0,0,0,0.1);
+  border-radius: 50%;
+  padding: 3px;
+  vertical-align: sub;
+  display: inline-block;
+  margin-inline-end: 4px;
+}
+
+#MsgHeadersToolbar[brighttext] .new-icon {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.address-extra-recipients label:hover,
+.aw-firstColBox label:hover {
+  cursor: pointer;
+  color: Highlight;
+}
+
+.aw-firstColBox label:hover .close-icon {
+  fill-opacity: 0.1;
+}
+
+.aw-firstColBox label {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.address-extra-recipients label:focus:not(:hover),
+.aw-firstColBox label:focus:not(:hover) image {
+  outline: 2px dashed Highlight;
+}
+
+#msgIdentity:hover,
+#msgSubject:hover,
+.address-container:hover  {
+  border-color: rgba(0,0,0,0.5);
+}
+
+#MsgHeadersToolbar[brighttext] #msgIdentity:hover,
+#MsgHeadersToolbar[brighttext] #msgSubject:hover,
+#MsgHeadersToolbar[brighttext] .address-container:hover  {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+#msgIdentity:focus,
+#msgIdentity:focus-within,
+#msgIdentity[focused="true"],
+#msgSubject:focus,
+.address-container[focused="true"] {
+  border-color: Highlight;
 }

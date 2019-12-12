@@ -96,36 +96,23 @@ toolbar[nowindowdrag="true"] {
   padding-top: 5px;
 }
 
+#identityLabel-box {
+  margin-top: 3px;
+}
+
 #msgIdentity {
-  margin: 0;
-  margin-inline-end: 1px;
-  padding-inline-start: 3px;
-  padding-inline-end: 12px;
-  line-height: 1;
-  border: 1px solid transparent;
-  border-bottom-color: #C6C6C6;
-  border-radius: 2px;
-  -moz-appearance: none;
-  background-color: transparent;
+  margin-block: 2px 0;
+  margin-inline-start: 4px;
+  padding-block: 3px;
+  padding-inline-end: 20px;
   background-repeat: no-repeat;
-  background-position: calc(100% - 3px) center;
+  background-position: calc(100% - 5px);
   background-size: 9px 7px;
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  transition: border .2s, background-color .2s;
 }
 
 #msgIdentity:-moz-locale-dir(rtl) {
   background-position: 3px center;
-}
-
-#msgIdentity:hover,
-#msgIdentity:focus,
-#msgIdentity:focus-within,
-#msgIdentity[focused="true"] {
-  background-color: white;
-  border-color: #C6C6C6;
 }
 
 #msgIdentity > html|input.menulist-input {
@@ -144,10 +131,6 @@ toolbar[nowindowdrag="true"] {
 
 #msgIdentityPopup {
   margin-inline-start: initial;
-}
-
-#addresses-box {
-  margin: 4px 6px;
 }
 
 #attachments-header-box {
@@ -185,31 +168,33 @@ toolbar[nowindowdrag="true"] {
 }
 
 #subjectLabel {
-  margin-top: 0;
-  margin-bottom: 4px;
+  margin-top: 3px;
   margin-inline-end: 6px;
 }
 
-#msgSubject {
-  margin-top: 0;
-  margin-inline-start: 0;
-  margin-inline-end: 1px;
-  min-height: 20px;
-  background-color: inherit;
-  -moz-appearance: none;
-  border: 1px solid transparent;
-  border-bottom-color: #c6c6c6;
-  border-radius: 2px;
-  padding: 1px 2px;
-  padding-inline-start: 5px;
-  transition: border .2s, background-color .2s;
+#msgIdentity:focus,
+#msgIdentity:focus-within,
+#msgSubject:focus,
+.address-container[focused="true"] {
+  border-color: -moz-mac-focusring;
+  box-shadow: var(--focus-ring-box-shadow);
 }
 
-#msgSubject:hover,
-#msgSubject:focus {
-  background-color: white;
-  background-image: none;
-  border-color: #c6c6c6;
+.address-label-container {
+  padding-top: 7px;
+}
+
+.address-pill {
+  padding-block: 2px;
+}
+
+.address-pill label {
+  margin-block: 0;
+}
+
+.address-extra-recipients label:focus:not(:hover),
+.aw-firstColBox label:focus:not(:hover) image {
+  outline: 2px dashed -moz-mac-focusring;
 }
 
 /* ::::: autocomplete icons ::::: */
@@ -240,101 +225,6 @@ toolbar[nowindowdrag="true"] {
   -moz-image-region: rect(0 160px 16px 144px);
 }
 
-/* ::::: addressing widget ::::: */
-
-#addressingWidget {
-  -moz-user-focus: none;
-  -moz-appearance: none;
-  width: 0;
-  margin: 0;
-  padding-inline-end: 1px;
-  border: none;
-  background-color: transparent;
-}
-
-.addressingWidgetItem,
-.dummy-row {
-  background-color: inherit !important;
-  color: inherit !important;
-}
-
-.textbox-addressingWidget,
-.dummy-row-cell:last-child {
-  border: 1px solid transparent !important;
-  border-bottom-color: #C6C6C6 !important;
-  border-top-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  min-height: 20px;
-  margin-top: 1px !important;
-  margin-bottom: 1px !important;
-  padding: 1px 3px !important;
-  padding-inline-start: 6px !important;
-  transition: border .2s, background-color .2s;
-}
-
-.textbox-addressingWidget:focus,
-.textbox-addressingWidget:hover {
-  background-color: white;
-  background-image: none;
-  border-color: #C6C6C6 !important;
-}
-
-.deleteAddress {
-  margin-top: 1px;
-  margin-inline-end: 0;
-}
-
-.addressingWidgetCell:hover > .aw-menulist:not([open="true"]) + .deleteAddress {
-  margin-inline-end: 3px;
-  width: 18px;
-}
-
-.aw-menulist {
-  -moz-appearance: none;
-  -moz-box-align: center;
-  -moz-box-pack: center;
-  margin: 1px;
-  margin-inline-end: 4px;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  transition: background-color .25s ease-in;
-}
-
-.aw-menulist:-moz-locale-dir(rtl) {
-  background-position: calc(100% - 3px) center;
-}
-
-.aw-menulist[open="true"] {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
-
-.aw-menulist:focus {
-  border-color: -moz-mac-focusring;
-  box-shadow: 0 0 1.5px 1px -moz-mac-focusring;
-}
-
-.aw-menulist > .menulist-label-box > .menulist-icon {
-  width: 9px;
-  height: 7px;
-  margin-inline-start: 2px;
-}
-
-.aw-menulist  > .menulist-label-box > .menulist-label {
-  margin: 1px 1px 0 !important;
-  text-align: end;
-}
-
-.aw-menulist > .menulist-dropmarker {
-  display: none;
-}
-
 .menulist-description {
   color: #999;
 }
@@ -357,7 +247,7 @@ toolbar[nowindowdrag="true"] {
 #FormatToolbar {
   border-bottom: none;
   background-color: rgb(242, 242, 242) !important;
-  padding-top: 2px;
+  padding-block: 4px;
   margin-left: 3px;
   margin-right: 3px;
 }

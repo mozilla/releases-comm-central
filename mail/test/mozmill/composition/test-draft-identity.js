@@ -135,7 +135,7 @@ function checkCompIdentity(cwc, aIdentityKey, aFrom) {
     "The From identity is not correctly selected"
   );
   assert_equals(
-    cwc.window.GetMsgIdentityElement().value,
+    cwc.window.document.getElementById("msgIdentity").value,
     aFrom,
     "The From value was initialized to an unexpected value"
   );

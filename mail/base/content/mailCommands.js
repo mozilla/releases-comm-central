@@ -266,6 +266,7 @@ function ComposeMessage(type, format, folder, messageArray) {
           if (ignoreQuote) {
             type += msgComposeType.ReplyIgnoreQuote;
           }
+
           MailServices.compose.OpenComposeWindow(
             null,
             hdr,

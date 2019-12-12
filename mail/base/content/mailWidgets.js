@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../components/compose/content/addressingWidgetOverlay.js */
+
 /* global MozElements */
 /* global MozXULElement */
 /* global openUILink */
@@ -13,6 +15,7 @@
 /* global UpdateEmailNodeDetails */
 /* global PluralForm */
 /* global UpdateExtraAddressProcessing */
+/* global getSiblingPills setFocusOnFirstPill getAllPills getAllSelectedPills onRecipientsChanged */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -27,6 +30,10 @@
     "resource:///modules/DBViewWrapper.jsm"
   );
   const { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+  var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
+  var { DisplayNameUtils } = ChromeUtils.import(
+    "resource:///modules/DisplayNameUtils.jsm"
+  );
 
   class MozMailHeaderfield extends MozXULElement {
     connectedCallback() {
@@ -1747,4 +1754,459 @@
   customElements.define("attachment-list", MozAttachmentlist, {
     extends: "richlistbox",
   });
+
+  /**
+   * The MailAddressPill widget is used to display the email addresses in the
+   * messengercompose.xul window.
+   *
+   * @extends {MozXULElement}
+   */
+  class MailAddressPill extends MozXULElement {
+    static get inheritedAttributes() {
+      return {
+        ".pill-label": "crop,value=label",
+      };
+    }
+
+    connectedCallback() {
+      if (this.hasChildNodes() || this.delayConnectedCallback()) {
+        return;
+      }
+
+      // Used to store the html:input element from where the pill was generated.
+      this.originalInput;
+
+      this.classList.add("address-pill");
+      this.setAttribute("context", "emailAddressPillPopup");
+      this.setAttribute("allowevents", "true");
+
+      this.pillLabel = document.createXULElement("label");
+      this.pillLabel.classList.add("pill-label");
+
+      this.pillDeleteImage = document.createXULElement("image");
+      this.pillDeleteImage.classList.add("delete-pill-icon");
+
+      this.appendChild(this.pillLabel);
+      this._setupEmailInput();
+      this.appendChild(this.pillDeleteImage);
+
+      this._setupEventListeners();
+      this.initializeAttributeInheritance();
+
+      // @implements {nsIObserver}
+      this.inputObserver = {
+        observe: (subject, topic, data) => {
+          if (topic == "autocomplete-did-enter-text") {
+            this.updatePill();
+          }
+        },
+      };
+
+      Services.obs.addObserver(
+        this.inputObserver,
+        "autocomplete-did-enter-text"
+      );
+
+      // Remove the observer on window unload as the disconnectedCallback()
+      // will never be called when closing a window, so we might therefore
+      // leak if XPCOM isn't smart enough.
+      window.addEventListener(
+        "unload",
+        () => {
+          this.removeObserver();
+        },
+        { once: true }
+      );
+    }
+
+    get emailAddress() {
+      return this.getAttribute("emailAddress");
+    }
+
+    set emailAddress(val) {
+      this.setAttribute("emailAddress", val);
+    }
+
+    get label() {
+      return this.getAttribute("label");
+    }
+
+    set label(val) {
+      this.setAttribute("label", val);
+    }
+
+    get fullAddress() {
+      return this.getAttribute("fullAddress");
+    }
+
+    set fullAddress(val) {
+      this.setAttribute("fullAddress", val);
+    }
+
+    get displayName() {
+      return this.getAttribute("displayName");
+    }
+
+    set displayName(val) {
+      this.setAttribute("displayName", val);
+    }
+
+    /**
+     * Check if the pill is currently in "Edit Mode", meaning the label is
+     * hidden and the html:input field is visible.
+     *
+     * @returns {boolean} True if the pill is currently being edited.
+     */
+    get isEditing() {
+      return !this.emailInput.hasAttribute("hidden");
+    }
+
+    get fragment() {
+      if (!this.constructor.hasOwnProperty("_fragment")) {
+        this.constructor._fragment = MozXULElement.parseXULToFragment(`
+          <html:input is="autocomplete-input"
+                      type="text"
+                      class="${this.originalInput.getAttribute(
+                        "class"
+                      )} input-pill"
+                      disableonsend="true"
+                      aria-labelledby="${this.originalInput.getAttribute(
+                        "aria-labelledby"
+                      )}"
+                      autocompletesearch="mydomain addrbook ldap news"
+                      autocompletesearchparam="{}"
+                      timeout="300"
+                      maxrows="6"
+                      completedefaultindex="true"
+                      forcecomplete="true"
+                      completeselectedindex="true"
+                      minresultsforpopup="2"
+                      ignoreblurwhilesearching="true"
+                      hidden="hidden"/>
+        `);
+      }
+      return document.importNode(this.constructor._fragment, true);
+    }
+
+    _setupEmailInput() {
+      this.appendChild(this.fragment);
+
+      this.emailInput = this.querySelector(`input[is="autocomplete-input"]`);
+      this.emailInput.value = this.fullAddress;
+
+      let params = JSON.parse(
+        this.emailInput.getAttribute("autocompletesearchparam")
+      );
+      params.type = this.originalInput.getAttribute("recipienttype");
+      this.emailInput.setAttribute(
+        "autocompletesearchparam",
+        JSON.stringify(params)
+      );
+
+      this.appendChild(this.emailInput);
+    }
+
+    _setupEventListeners() {
+      this.addEventListener("click", this);
+      this.addEventListener("dblclick", this);
+      this.addEventListener("keypress", this);
+
+      this.emailInput.addEventListener("keypress", event => {
+        this.finishEditing(event);
+      });
+
+      this.emailInput.addEventListener("blur", () => {
+        this.updatePill();
+      });
+
+      this.pillDeleteImage.addEventListener("click", () => {
+        this.removePills();
+      });
+    }
+
+    handleEvent(event) {
+      switch (event.type) {
+        case "click":
+          this.checkSelected(event);
+          break;
+        case "dblclick":
+          this.startEditing(event);
+          break;
+        case "keypress":
+          this.handleKeyPress(event);
+          break;
+      }
+    }
+
+    handleKeyPress(event) {
+      if (this.isEditing) {
+        return;
+      }
+
+      switch (event.key) {
+        case " ":
+          this.checkSelected(event);
+          break;
+
+        case "Enter":
+        case "F2": // For Windows users
+          this.startEditing(event);
+          break;
+
+        case "Delete":
+        case "Backspace":
+          this.removePills();
+          break;
+
+        case "ArrowLeft":
+          if (this.previousElementSibling) {
+            this.previousElementSibling.focus();
+            this.checkKeyboardSelected(event, this.previousElementSibling);
+          }
+          break;
+
+        case "ArrowRight":
+          if (this.nextElementSibling.hasAttribute("hidden")) {
+            this.nextElementSibling.removeAttribute("hidden");
+            this.nextElementSibling.focus();
+            break;
+          }
+          this.nextElementSibling.focus();
+          this.checkKeyboardSelected(event, this.nextElementSibling);
+          break;
+
+        case "Home":
+          this.removeAttribute("selected");
+          setFocusOnFirstPill(this);
+          break;
+
+        case "End":
+          this.originalInput.focus();
+          break;
+
+        case "Tab":
+          for (let pill of getSiblingPills(this)) {
+            pill.removeAttribute("selected");
+          }
+          break;
+
+        case "a":
+          if (event.ctrlKey || event.metaKey) {
+            this.selectPills();
+          }
+          break;
+
+        case "c":
+          if (event.ctrlKey || event.metaKey) {
+            copyEmailNewsAddress(this);
+          }
+          break;
+
+        case "x":
+          if (event.ctrlKey || event.metaKey) {
+            copyEmailNewsAddress(this);
+            deleteAddressPill(this);
+          }
+          break;
+      }
+    }
+
+    selectPills() {
+      for (let pill of getSiblingPills(this)) {
+        pill.setAttribute("selected", "selected");
+      }
+    }
+
+    clearSelected() {
+      for (let pill of getAllPills()) {
+        pill.removeAttribute("selected");
+      }
+    }
+
+    checkSelected(event) {
+      if (
+        this.isEditing ||
+        (this.hasAttribute("selected") && event.which == 3)
+      ) {
+        return;
+      }
+
+      if (!event.ctrlKey && !event.metaKey && event.key != " ") {
+        this.clearSelected();
+      }
+
+      this.toggleAttribute("selected");
+      if (!this.hasAttribute("selected") && event.key != " ") {
+        this.blur();
+      } else {
+        this.focus();
+      }
+    }
+
+    checkKeyboardSelected(event, element) {
+      if (event.shiftKey) {
+        if (this.hasAttribute("selected") && element.hasAttribute("selected")) {
+          this.removeAttribute("selected");
+          return;
+        }
+
+        this.setAttribute("selected", "selected");
+        element.setAttribute("selected", "selected");
+      } else if (!event.ctrlKey) {
+        this.clearSelected();
+      }
+    }
+
+    /**
+     * When a "Delete" action is triggered, we need to check if other pills are
+     * currently selected and delete them all.
+     */
+    removePills() {
+      for (let pill of getAllSelectedPills()) {
+        pill.remove();
+      }
+
+      this.originalInput.focus();
+      this.remove();
+
+      onRecipientsChanged();
+    }
+
+    /**
+     * Simple email address validation.
+     *
+     * @param {String} address - An email address.
+     */
+    isValidAddress(address) {
+      return address.includes("@", 1) && !address.endsWith("@");
+    }
+
+    /**
+     * Convert the pill into "Edit Mode", meaning hiding the label and showing
+     * the html:input element.
+     *
+     * @param {Event} event - The DOM Event.
+     */
+    startEditing(event) {
+      if (this.isEditing) {
+        event.stopPropagation();
+        return;
+      }
+
+      for (let pill of getAllPills()) {
+        pill.finishEditing();
+      }
+
+      // We need to set the min and max width before hiding and showing the
+      // child nodes in order to prevent unwanted jumps in the resizing of the
+      // edited pill. Both properties are necessary to handle flexbox.
+      this.style.setProperty("max-width", `${this.clientWidth}px`);
+      this.style.setProperty("min-width", `${this.clientWidth}px`);
+
+      this.classList.add("editing");
+      this.pillLabel.setAttribute("hidden", "true");
+      this.pillDeleteImage.setAttribute("hidden", "true");
+      this.emailInput.removeAttribute("hidden");
+      this.emailInput.focus();
+
+      // In case the original address is shorter than the input field child node
+      // force resize the pill container to prevent overflows.
+      if (this.emailInput.clientWidth > this.clientWidth) {
+        this.style.setProperty("max-width", `${this.emailInput.clientWidth}px`);
+        this.style.setProperty("min-width", `${this.emailInput.clientWidth}px`);
+      } else {
+        this.style.setProperty("max-width", `${this.clientWidth}px`);
+        this.style.setProperty("min-width", `${this.clientWidth}px`);
+      }
+    }
+
+    /**
+     * Revert the pill UI to a regular selectable element, meaning the label is
+     * visible and the html:input field is hidden.
+     *
+     * @param {Event} event - The DOM Event.
+     */
+    finishEditing(event = null) {
+      let key = event ? event.key : "Escape";
+
+      switch (key) {
+        case "Escape":
+          this.emailInput.value = this.fullAddress;
+          this.resetPill();
+          break;
+        case "Delete":
+        case "Backspace":
+          if (!this.emailInput.value.trim() && !event.repeat) {
+            this.originalInput.focus();
+            this.remove();
+          }
+          break;
+      }
+    }
+
+    updatePill() {
+      let addresses = MailServices.headerParser.makeFromDisplayAddress(
+        this.emailInput.value
+      );
+
+      if (!addresses[0]) {
+        this.originalInput.focus();
+        this.remove();
+        return;
+      }
+
+      this.label = addresses[0].toString();
+      this.emailAddress = addresses[0].email || "";
+      this.fullAddress = addresses[0].toString();
+      this.displayName = addresses[0].name || "";
+      // We need to detach the autocomplete Controller to prevent the input
+      // to be filled with the previously selected address when the "blur"
+      // event gets triggered.
+      this.emailInput.detachController();
+      // Attach it again to enable autocomplete.
+      this.emailInput.attachController();
+
+      this.resetPill();
+    }
+
+    resetPill() {
+      let isValid = this.isValidAddress(this.emailAddress);
+      let listNames = MimeParser.parseHeaderField(
+        this.fullAddress,
+        MimeParser.HEADER_ADDRESS
+      );
+      let isMailingList =
+        listNames.length > 0 &&
+        MailServices.ab.mailListNameExists(listNames[0].name);
+      let isNewsgroup = this.originalInput.classList.contains("nntp-input");
+
+      this.classList.toggle(
+        "error",
+        !isValid && !isMailingList && !isNewsgroup
+      );
+
+      let emailCard = DisplayNameUtils.getCardForEmail(this.emailAddress);
+      this.classList.toggle(
+        "warning",
+        isValid && !emailCard.card && !isMailingList && !isNewsgroup
+      );
+
+      this.style.removeProperty("max-width");
+      this.style.removeProperty("min-width");
+      this.classList.remove("editing");
+      this.pillLabel.removeAttribute("hidden");
+      this.pillDeleteImage.removeAttribute("hidden");
+      this.emailInput.setAttribute("hidden", "hidden");
+      this.originalInput.focus();
+    }
+
+    removeObserver() {
+      Services.obs.removeObserver(
+        this.inputObserver,
+        "autocomplete-did-enter-text"
+      );
+    }
+  }
+
+  customElements.define("mail-address-pill", MailAddressPill);
 }

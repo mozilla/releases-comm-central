@@ -87,7 +87,7 @@ function create_draft(aFrom, aIdKey) {
     "From - Wed Mar 01 01:02:03 2017\n" +
     "X-Mozilla-Status: 0000\n" +
     "X-Mozilla-Status2: 00000000\n" +
-    "X-Mozilla-Keys:                                                                                 \n" +
+    "X-Mozilla-Keys:\n" +
     "FCC: mailbox://nobody@Local%20Folders/Sent\n" +
     (aIdKey
       ? // prettier-ignore
@@ -134,7 +134,7 @@ function checkCompIdentity(cwc, aIdentityKey, aFrom) {
     "The From identity is not correctly selected"
   );
   Assert.equal(
-    cwc.window.GetMsgIdentityElement().value,
+    cwc.window.document.getElementById("msgIdentity").value,
     aFrom,
     "The From value was initialized to an unexpected value"
   );

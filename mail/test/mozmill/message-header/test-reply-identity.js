@@ -168,7 +168,7 @@ function test_reply_matching_only_deliveredto() {
   let replyWin = open_compose_with_reply();
   // Should have selected the second id, which is listed in Delivered-To:.
   checkReply(replyWin, identity2Email);
-  close_compose_window(replyWin);
+  close_compose_window(replyWin, false /* no prompt*/);
 }
 
 function test_reply_matching_subaddress() {

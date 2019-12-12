@@ -106,16 +106,12 @@
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-#MsgHeadersToolbar,
-#addressingWidget,
-.aw-menulist {
+#MsgHeadersToolbar {
   color: inherit;
 }
 
 #msgIdentity,
-#msgSubject,
-.textbox-addressingWidget,
-.dummy-row-cell:last-child {
+#msgSubject {
   border-bottom-color: var(--composer-header-border-color) !important;
   color: var(--lwt-text-color);
 }
@@ -124,12 +120,23 @@
 #msgIdentity:focus,
 #msgIdentity:focus-within,
 #msgSubject:hover,
-#msgSubject:focus,
-.textbox-addressingWidget:hover,
-.textbox-addressingWidget:focus {
+#msgSubject:focus {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
   border-color: var(--lwt-toolbar-field-border-color) !important;
+}
+
+#msgIdentity,
+#msgSubject,
+.address-container {
+  background-color: var(--lwt-toolbar-field-background-color);
+  color: var(--lwt-toolbar-field-color);
+}
+
+#msgIdentity:focus,
+#msgSubject:focus,
+.address-container[focused="true"] {
+  border-color: Highlight !important;
 }
 
 :root[lwt-popup-brighttext] panel[type="autocomplete-richlistbox"]:-moz-lwtheme {

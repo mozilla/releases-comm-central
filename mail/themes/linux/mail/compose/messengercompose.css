@@ -136,31 +136,8 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 }
 
 #subjectLabel {
+  margin-bottom: 0;
   margin-inline-end: 6px;
-  padding-bottom: 1px;
-}
-
-#subject-box {
-  margin-inline-start: -2px;
-}
-
-#msgSubject {
-  -moz-appearance: none;
-  margin-top: 0;
-  margin-inline-start: 6px;
-  margin-inline-end: 5px;
-  background-color: inherit;
-  border: 1px solid transparent;
-  border-bottom-color: var(--toolbarbutton-hover-bordercolor);
-  padding: 3px 2px;
-  padding-inline-start: 5px !important;
-  transition: border .2s, background-color .2s;
-}
-
-#msgSubject:hover,
-#msgSubject:focus {
-  background-color: -moz-field;
-  border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
 /* ::::: autocomplete icons ::::: */
@@ -173,95 +150,6 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 .autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(208px 16px 224px 0);
-}
-
-/* ::::: addressing widget ::::: */
-
-#addressingWidget {
-  -moz-user-focus: none;
-  -moz-appearance: none;
-  width: 0;
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-inline-end: 1px;
-  border: none;
-  background-color: transparent;
-}
-
-.addressingWidgetItem,
-.dummy-row {
-  background-color: transparent !important;
-  color: inherit !important;
-  margin-top: 1px;
-}
-
-.textbox-addressingWidget,
-.dummy-row-cell:last-child {
-  padding: 3px 2px !important;
-  padding-inline-start: 5px !important;
-  border: solid 1px transparent !important;
-  border-bottom-color: var(--toolbarbutton-hover-bordercolor) !important;
-  transition: border .2s, background-color .2s;
- }
-
-.addressingWidgetCell:nth-child(2),
-.dummy-row-cell:nth-child(2) {
-  border-bottom-color: transparent;
-}
-
-.textbox-addressingWidget:focus,
-.textbox-addressingWidget:hover {
-  background-color: -moz-field;
-  border-color: var(--toolbarbutton-hover-bordercolor) !important;
-}
-
-.deleteAddress {
-  margin-inline-start: 0;
-  margin-bottom: initial;
-}
-
-.addressingWidgetCell:hover > .aw-menulist:not([open="true"]) + .deleteAddress {
-  margin-inline-start: 5px;
-  width: 18px;
-}
-
-.aw-menulist {
-  font: inherit;
-  margin: 0;
-  margin-inline-start: 1px;
-  margin-inline-end: 7px;
-  padding-inline-end: 0;
-  outline: 1px solid transparent;
-  outline-offset: -3px;
-}
-
-.aw-menulist > .menulist-label-box {
-  margin: -3px 1px;
-  padding-inline-start: 12px;
-  padding-inline-end: 0;
-  background-position: left;
-}
-
-.aw-menulist:-moz-locale-dir(rtl) > .menulist-label-box {
-  background-position: right;
-}
-
-.aw-menulist:focus {
-  outline-color: -moz-DialogText;
-  outline-style: dotted;
-}
-
-.aw-menulist > .menulist-label-box > .menulist-label {
-  margin: 0 3px !important;
-  text-align: end;
-}
-
-.aw-menulist > .menulist-label-box > .menulist-icon {
-  margin-inline-start: 2px;
-}
-
-.aw-menulist > .menulist-dropmarker {
-  height: 11px;
 }
 
 #composeContentBox {
@@ -296,47 +184,34 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   padding-top: 4px;
 }
 
+.address-label-container {
+  padding-top: 6px;
+}
+
+.address-pill {
+  padding-block: 2px;
+}
+
+.address-pill label {
+  margin-block: 0;
+}
+
 #identityLabel-box {
   margin-top: 1px;
 }
 
-#identityLabel {
-  margin-bottom: 1px;
-  margin-inline-end: 8px
-}
-
 #msgIdentity {
-  -moz-appearance: none;
-  -moz-box-align: center;
-  margin-right: 5px;
-  margin-bottom: 0;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-inline-start: 2px;
-  padding-inline-end: 20px;
-  font: inherit;
-  border: 1px solid transparent;
-  border-bottom-color: var(--toolbarbutton-hover-bordercolor);
-  background-color: transparent;
+  margin-block: 2px 0;
+  padding-block: 4px;
+  padding-inline: 2px 20px;
   background-repeat: no-repeat;
-  background-position: calc( 100% - 5px);
+  background-position: calc(100% - 5px);
   background-size: 9px 7px;
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-  transition: border .2s, background-color .2s;
 }
 
 #msgIdentity:-moz-locale-dir(rtl) {
   background-position: 5px;
-}
-
-#msgIdentity:hover,
-#msgIdentity:focus,
-#msgIdentity:focus-within,
-#msgIdentity[focused="true"] {
-  background-color: -moz-field;
-  border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
 #msgIdentity > .menulist-label-box {
@@ -365,6 +240,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   color: WindowText;
   margin-left: 3px;
   margin-right: 3px;
+  padding-block: 4px;
 }
 
 .formatting-button {

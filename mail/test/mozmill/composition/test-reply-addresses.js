@@ -83,34 +83,22 @@ function checkReply(aReplyFunction, aExpectedFields) {
  * Helper to check that the reply window has the expected address fields.
  */
 function checkToAddresses(replyWinController, expectedFields) {
-  let addressingWidgetItems = replyWinController.window.document.querySelectorAll(
-    "#addressingWidget .addressingWidgetItem"
+  let rows = replyWinController.window.document.querySelectorAll(
+    "#recipientsContainer .address-row:not(.hidden)"
   );
 
   let obtainedFields = [];
-  for (let i = 0; i < addressingWidgetItems.length; i++) {
-    let addrTypePopup = addressingWidgetItems[i].querySelector("menupopup");
-    let addrTextbox = addressingWidgetItems[i].querySelector(
-      `input[is="autocomplete-input"]`
+  for (let row of rows) {
+    let addrTextbox = row.querySelector(
+      `input[is="autocomplete-input"][recipienttype]`
     );
 
-    let selectedIndex = addrTypePopup.parentNode.selectedIndex;
-    let typeMenuitems = addrTypePopup.children;
-    let addrType =
-      selectedIndex != -1
-        ? typeMenuitems[selectedIndex].value
-        : typeMenuitems[0].value;
+    let addresses = [];
+    for (let pill of row.querySelectorAll("mail-address-pill")) {
+      addresses.push(pill.fullAddress);
+    }
 
-    if (!addrTextbox.value) {
-      continue;
-    }
-    let addresses = obtainedFields[addrType];
-    if (addresses) {
-      addresses.push(addrTextbox.value);
-    } else {
-      addresses = [addrTextbox.value];
-    }
-    obtainedFields[addrType] = addresses;
+    obtainedFields[addrTextbox.getAttribute("recipienttype")] = addresses;
   }
 
   // Check what we expect is there.

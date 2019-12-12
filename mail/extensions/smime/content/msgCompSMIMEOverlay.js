@@ -234,7 +234,7 @@ function showMessageComposeSecurityStatus() {
     "chrome,modal,resizable,centerscreen",
     {
       compFields: gMsgCompose.compFields,
-      subject: GetMsgSubjectElement().value,
+      subject: document.getElementById("msgSubject").value,
       smFields: gSMFields,
       isSigningCertAvailable:
         gCurrentIdentity.getUnicharAttribute("signing_cert_name") != "",
