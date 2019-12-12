@@ -19,16 +19,7 @@ var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
 const DIRTYPE_JS = 101;
 
 // Tree Sort helper methods.
-var AB_ORDER = [
-  "aab",
-  "pab",
-  "mork",
-  "js",
-  "ldap",
-  "mapi+other",
-  "anyab",
-  "cab",
-];
+var AB_ORDER = ["aab", "pab", "js", "ldap", "mapi+other", "anyab", "cab"];
 
 function getDirectoryValue(aDir, aKey) {
   if (aKey == "ab_type") {
@@ -40,9 +31,6 @@ function getDirectoryValue(aDir, aKey) {
     }
     if (aDir._directory.URI == kCollectedAddressbookURI) {
       return "cab";
-    }
-    if (aDir._directory instanceof Ci.nsIAbMDBDirectory) {
-      return "mork";
     }
     if (aDir._directory.dirType == DIRTYPE_JS) {
       return "js";

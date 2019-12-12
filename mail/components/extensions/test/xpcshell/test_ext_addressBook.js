@@ -613,11 +613,11 @@ add_task(async function test_addressBooks() {
       .QueryInterface(Ci.nsIAbDirectory);
     switch (action) {
       case "createAddressBook": {
-        const kPABDirectory = 2; // defined in nsDirPrefs.h
+        const kJSDirectory = 101; // defined in nsDirPrefs.h
         let dirPrefId = MailServices.ab.newAddressBook(
           "external add",
           "",
-          kPABDirectory
+          kJSDirectory
         );
         let book = MailServices.ab.getDirectoryFromId(dirPrefId);
         extension.sendMessage(book.UID, dirPrefId);

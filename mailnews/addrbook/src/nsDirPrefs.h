@@ -19,7 +19,7 @@
 #define PREF_LDAP_VERSION_NAME "ldap_2.version"
 #define PREF_LDAP_SERVER_TREE_NAME "ldap_2.servers"
 
-#define kMainLdapAddressBook "ldap.mab" /* v3 main ldap address book file */
+#define kMainLdapAddressBook "ldap.sqlite"  // v3 main ldap address book file
 
 /* DIR_Server.dirType */
 typedef enum {

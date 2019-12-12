@@ -9,10 +9,9 @@
 #include "nsAbBaseCID.h"
 #include "nsAddrDatabase.h"
 #include "nsIAbManager.h"
-#include "nsIAbMDBDirectory.h"
 #include "nsServiceManagerUtils.h"
 #include "nsAbDirFactoryService.h"
-#include "nsAbMDBDirFactory.h"
+#include "nsIAbDirFactory.h"
 #include "nsArrayEnumerator.h"
 
 #include "nsCRTGlue.h"
@@ -119,21 +118,6 @@ nsresult nsAbBSDirectory::EnsureInitialized() {
 
     // Set the uri property
     nsAutoCString URI(server->uri);
-    // This is in case the uri is never set
-    // in the nsDirPref.cpp code.
-    if (!server->uri) {
-      URI = NS_LITERAL_CSTRING(kMDBDirectoryRoot);
-      URI += nsDependentCString(server->fileName);
-    }
-
-    /*
-     * Check that we are not converting from a
-     * a 4.x address book file e.g. pab.na2
-     * check if the URI ends with ".na2"
-     */
-    if (StringEndsWith(URI, NS_LITERAL_CSTRING(kABFileName_PreviousSuffix)))
-      URI.Replace(kMDBDirectoryRootLen, URI.Length() - kMDBDirectoryRootLen,
-                  server->fileName);
 
     // Create the directories
     rv = CreateDirectoriesFromFactory(URI, server, false /* notify */);
@@ -181,11 +165,7 @@ NS_IMETHODIMP nsAbBSDirectory::CreateNewDirectory(const nsAString &aDirName,
                              (DirectoryType)aType, aPrefName, &server);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (aType == PABDirectory) {
-    // Add the URI property
-    URI.AssignLiteral(kMDBDirectoryRoot);
-    URI.Append(nsDependentCString(server->fileName));
-  } else if (aType == JSDirectory) {
+  if (aType == JSDirectory) {
     URI.AssignLiteral(kJSDirectoryRoot);
     URI.Append(nsDependentCString(server->fileName));
   }
@@ -202,12 +182,8 @@ NS_IMETHODIMP nsAbBSDirectory::CreateDirectoryByURI(
   nsresult rv = EnsureInitialized();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString fileName;
-  if (StringBeginsWith(aURI, NS_LITERAL_CSTRING(kMDBDirectoryRoot)))
-    fileName = Substring(aURI, kMDBDirectoryRootLen);
-
   DIR_Server *server = nullptr;
-  rv = DIR_AddNewAddressBook(aDisplayName, fileName, aURI, PABDirectory,
+  rv = DIR_AddNewAddressBook(aDisplayName, EmptyCString(), aURI, PABDirectory,
                              EmptyCString(), &server);
   NS_ENSURE_SUCCESS(rv, rv);
 

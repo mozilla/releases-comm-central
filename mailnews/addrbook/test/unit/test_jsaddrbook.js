@@ -4,9 +4,9 @@
 
 "use strict";
 
-var DIR_TYPE = kPABData.dirType;
-var FILE_NAME = DIR_TYPE == 101 ? "abook-1.sqlite" : "abook-1.mab";
-var SCHEME = DIR_TYPE == 101 ? "jsaddrbook" : "moz-abmdbdirectory";
+var DIR_TYPE = 101;
+var FILE_NAME = "abook-1.sqlite";
+var SCHEME = "jsaddrbook";
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -359,6 +359,29 @@ add_task(async function deleteContact() {
   equal(Array.from(book.childCards).length, 0);
 });
 
+// Tests that the UID on a new contact can be set.
+add_task(async function createContactWithUID() {
+  let contactWithUID = Cc[
+    "@mozilla.org/addressbook/cardproperty;1"
+  ].createInstance(Ci.nsIAbCard);
+  contactWithUID.UID = "I'm a UID!";
+  contactWithUID = book.addCard(contactWithUID);
+  equal("I'm a UID!", contactWithUID.UID, "New contact has the UID we set");
+
+  Assert.throws(() => {
+    // Set the UID after it already exists.
+    contactWithUID.UID = "This should not be possible";
+  }, /NS_ERROR_FAILURE/);
+
+  // Setting the UID to it's existing value should not fail.
+  contactWithUID.UID = contactWithUID.UID; // eslint-disable-line no-self-assign
+
+  let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  cardArray.appendElement(contactWithUID);
+  book.deleteCards(cardArray);
+  observer.events.length = 0;
+});
+
 add_task(async function deleteAddressBook() {
   MailServices.ab.deleteAddressBook(book.URI);
   // Wait for files to close.
@@ -374,12 +397,7 @@ add_task(async function deleteAddressBook() {
   dbFile.append(FILE_NAME);
   ok(!dbFile.exists());
   equal([...MailServices.ab.directories].length, 2);
-  if (DIR_TYPE == 101) {
-    throws(
-      () => MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`),
-      /.*/
-    );
-  }
+  throws(() => MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`), /.*/);
 });
 
 add_task(async function cleanUp() {

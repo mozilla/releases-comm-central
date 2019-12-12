@@ -735,8 +735,8 @@ var MailMigrator = {
       database.openMDB(oldFile, false);
 
       let directory = Cc[
-        "@mozilla.org/addressbook/directory;1?type=moz-abmdbdirectory"
-      ].createInstance(Ci.nsIAbMDBDirectory);
+        "@mozilla.org/addressbook/directoryproperty;1"
+      ].createInstance(Ci.nsIAbDirectory);
 
       let cardMap = new Map();
       for (let card of database.enumerateCards(directory)) {
@@ -758,8 +758,10 @@ var MailMigrator = {
             mailList.description = card.getProperty("Notes", "");
             mailList = newBook.addMailList(mailList);
 
-            directory.dbRowID = card.localId;
-            for (let listCard of database.enumerateListAddresses(directory)) {
+            for (let listCard of database.enumerateListAddresses(
+              directory,
+              card.localId
+            )) {
               listCard.QueryInterface(Ci.nsIAbCard);
               if (cardMap.has(listCard.localId)) {
                 mailList.addCard(cardMap.get(listCard.localId));

@@ -18,7 +18,6 @@
 #include "nsIAbManager.h"
 #include "nsIFile.h"
 #include "nsWeakReference.h"
-#include "nsIAbMDBDirectory.h"
 #if defined(MOZ_LDAP_XPCOM)
 #  include "nsIAbLDAPDirectory.h"
 #endif
@@ -261,8 +260,6 @@ nsresult DIR_AddNewAddressBook(const nsAString &dirName,
 
     if (!fileName.IsEmpty())
       server->fileName = ToNewCString(fileName);
-    else if (dirType == PABDirectory)
-      DIR_SetFileName(&server->fileName, kMDBAddressBook);
     else if (dirType == LDAPDirectory)
       DIR_SetFileName(&server->fileName, kMainLdapAddressBook);
     else if (dirType == JSDirectory)
@@ -937,9 +934,7 @@ void DIR_SetServerFileName(DIR_Server *server) {
     if (!server->fileName || !*server->fileName) /* when all else has failed,
                                                     generate a default name */
     {
-      if (server->dirType == PABDirectory) {
-        DIR_SetFileName(&(server->fileName), kMDBAddressBook);
-      } else if (server->dirType == LDAPDirectory) {
+      if (server->dirType == LDAPDirectory) {
         DIR_SetFileName(
             &(server->fileName),
             kMainLdapAddressBook); /* generates file name with an ldap prefix */
@@ -1039,8 +1034,6 @@ static void DIR_GetPrefsForOneServer(DIR_Server *server) {
   switch (server->dirType) {
     case PABDirectory:
     case MAPIDirectory:
-      s = kMDBDirectoryRoot;
-      break;
     case JSDirectory:
       s = kJSDirectoryRoot;
       break;

@@ -29,7 +29,6 @@
 #include "prmem.h"
 #include "nsIDocShell.h"
 #include "nsAbBaseCID.h"
-#include "nsIAbMDBDirectory.h"
 #include "nsCExternalHandlerService.h"
 #include "nsIMIMEService.h"
 #include "nsIDocShellTreeItem.h"
@@ -4424,9 +4423,7 @@ nsresult nsMsgCompose::AttachmentPrettyName(const nsACString &scheme,
 nsresult nsMsgCompose::GetABDirAndMailLists(
     const nsACString &aDirUri, nsCOMArray<nsIAbDirectory> &aDirArray,
     nsTArray<nsMsgMailList> &aMailListArray) {
-  static bool collectedAddressbookFound;
-  if (aDirUri.EqualsLiteral(kMDBDirectoryRoot))
-    collectedAddressbookFound = false;
+  static bool collectedAddressbookFound = false;
 
   nsresult rv;
   nsCOMPtr<nsIAbManager> abManager =

@@ -26,8 +26,6 @@ interface nsISimpleEnumerator;
 #define kABFileName_PreviousSuffixLen 4
 #define kABFileName_CurrentSuffix  ".mab" /* v3 address book extension */
 
-#define kMDBAddressBook            "abook.mab"
-
 #define kJSDirectoryRoot           "jsaddrbook://"
 #define kJSAddressBook             "abook.sqlite"
 %}

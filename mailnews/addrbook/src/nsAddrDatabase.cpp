@@ -10,7 +10,6 @@
 #include "nsAutoPtr.h"
 #include "nsUnicharUtils.h"
 #include "nsAbBaseCID.h"
-#include "nsIAbMDBDirectory.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
@@ -1297,78 +1296,7 @@ NS_IMETHODIMP nsAddrDatabase::AddListCardColumnsToRow(
 nsresult nsAddrDatabase::AddListAttributeColumnsToRow(nsIAbDirectory *list,
                                                       nsIMdbRow *listRow,
                                                       nsIAbDirectory *aParent) {
-  nsresult err = NS_OK;
-
-  if ((!list && !listRow) || !m_mdbEnv) return NS_ERROR_NULL_POINTER;
-
-  mdbOid rowOid, tableOid;
-  m_mdbPabTable->GetOid(m_mdbEnv, &tableOid);
-  listRow->GetOid(m_mdbEnv, &rowOid);
-
-  nsCOMPtr<nsIAbMDBDirectory> dblist(do_QueryInterface(list, &err));
-  if (NS_SUCCEEDED(err)) dblist->SetDbRowID(rowOid.mOid_Id);
-
-  // add the row to the singleton table.
-  if (NS_SUCCEEDED(err) && listRow) {
-    nsAutoCString acStr;
-    list->GetUID(acStr);
-    AddUID(listRow, acStr.get());
-
-    nsString unicodeStr;
-
-    list->GetDirName(unicodeStr);
-    if (!unicodeStr.IsEmpty())
-      AddUnicodeToColumn(listRow, m_ListNameColumnToken,
-                         m_LowerListNameColumnToken, unicodeStr.get());
-
-    list->GetListNickName(unicodeStr);
-    AddListNickName(listRow, NS_ConvertUTF16toUTF8(unicodeStr).get());
-
-    list->GetDescription(unicodeStr);
-    AddListDescription(listRow, NS_ConvertUTF16toUTF8(unicodeStr).get());
-
-    // XXX todo, this code has problems if you manually enter duplicate emails.
-    nsCOMPtr<nsIMutableArray> pAddressLists;
-    list->GetAddressLists(getter_AddRefs(pAddressLists));
-
-    uint32_t count;
-    pAddressLists->GetLength(&count);
-
-    nsAutoString email;
-    uint32_t i, total;
-    total = 0;
-    for (i = 0; i < count; i++) {
-      nsCOMPtr<nsIAbCard> pCard(do_QueryElementAt(pAddressLists, i, &err));
-
-      if (NS_FAILED(err)) continue;
-
-      pCard->GetPrimaryEmail(email);
-      if (!email.IsEmpty()) total++;
-    }
-    SetListAddressTotal(listRow, total);
-
-    uint32_t pos;
-    for (i = 0; i < count; i++) {
-      nsCOMPtr<nsIAbCard> pCard(do_QueryElementAt(pAddressLists, i, &err));
-
-      if (NS_FAILED(err)) continue;
-
-      bool listHasCard = false;
-      err = list->HasCard(pCard, &listHasCard);
-
-      // start from 1
-      pos = i + 1;
-      pCard->GetPrimaryEmail(email);
-      if (!email.IsEmpty()) {
-        nsCOMPtr<nsIAbCard> pNewCard;
-        err = AddListCardColumnsToRow(pCard, listRow, pos,
-                                      getter_AddRefs(pNewCard), listHasCard,
-                                      list, aParent);
-        if (pNewCard) pAddressLists->ReplaceElementAt(pNewCard, i);
-      }
-    }
-  }
-  return NS_OK;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 uint32_t nsAddrDatabase::GetListAddressTotal(nsIMdbRow *listRow) {
@@ -1590,49 +1518,7 @@ nsresult nsAddrDatabase::DeleteCardFromListRow(nsIMdbRow *pListRow,
 NS_IMETHODIMP nsAddrDatabase::DeleteCardFromMailList(nsIAbDirectory *mailList,
                                                      nsIAbCard *card,
                                                      bool aNotify) {
-  if (!card || !m_mdbPabTable || !m_mdbStore || !m_mdbEnv)
-    return NS_ERROR_NULL_POINTER;
-
-  nsresult err = NS_OK;
-
-  // get the right row
-  nsIMdbRow *pListRow = nullptr;
-  mdbOid listRowOid;
-  listRowOid.mOid_Scope = m_ListRowScopeToken;
-
-  nsCOMPtr<nsIAbMDBDirectory> dbmailList(do_QueryInterface(mailList, &err));
-  NS_ENSURE_SUCCESS(err, err);
-
-  dbmailList->GetDbRowID((uint32_t *)&listRowOid.mOid_Id);
-
-  err = m_mdbStore->GetRow(m_mdbEnv, &listRowOid, &pListRow);
-  NS_ENSURE_SUCCESS(err, err);
-  if (!pListRow) return NS_OK;
-
-  uint32_t cardRowID;
-
-  err = card->GetPropertyAsUint32(kRowIDProperty, &cardRowID);
-  if (NS_FAILED(err)) return NS_ERROR_NULL_POINTER;
-
-  bool cardFound = false;
-  err = DeleteCardFromListRow(pListRow, cardRowID, &cardFound);
-  if (NS_SUCCEEDED(err) && aNotify) {
-    NotifyCardEntryChange(AB_NotifyDeleted, card, mailList);
-    // Notify the addrbook-list-member-removed observer if the card was found
-    // and removed.
-    if (cardFound) {
-      nsCOMPtr<nsIObserverService> observerService =
-          mozilla::services::GetObserverService();
-      if (observerService) {
-        nsAutoCString listUID;
-        mailList->GetUID(listUID);
-        observerService->NotifyObservers(card, "addrbook-list-member-removed",
-                                         NS_ConvertUTF8toUTF16(listUID).get());
-      }
-    }
-  }
-  NS_RELEASE(pListRow);
-  return NS_OK;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP nsAddrDatabase::SetCardValue(nsIAbCard *card, const char *name,
@@ -1768,97 +1654,17 @@ NS_IMETHODIMP nsAddrDatabase::ContainsCard(nsIAbCard *card, bool *hasCard) {
 
 NS_IMETHODIMP nsAddrDatabase::DeleteMailList(nsIAbDirectory *aMailList,
                                              nsIAbDirectory *aParent) {
-  if (!aMailList || !m_mdbPabTable || !m_mdbStore || !m_mdbEnv)
-    return NS_ERROR_NULL_POINTER;
-
-  nsresult err = NS_OK;
-
-  // get the row
-  nsCOMPtr<nsIMdbRow> pListRow;
-  mdbOid rowOid;
-  rowOid.mOid_Scope = m_ListRowScopeToken;
-
-  nsCOMPtr<nsIAbMDBDirectory> dbmailList(do_QueryInterface(aMailList, &err));
-  NS_ENSURE_SUCCESS(err, err);
-  dbmailList->GetDbRowID((uint32_t *)&rowOid.mOid_Id);
-
-  err = m_mdbStore->GetRow(m_mdbEnv, &rowOid, getter_AddRefs(pListRow));
-  NS_ENSURE_SUCCESS(err, err);
-
-  if (!pListRow) return NS_OK;
-
-  nsCOMPtr<nsIAbCard> card;
-  err = CreateABListCard(pListRow, getter_AddRefs(card));
-  NS_ENSURE_SUCCESS(err, err);
-
-  err = DeleteRow(m_mdbPabTable, pListRow);
-
-  if (NS_SUCCEEDED(err) && aParent)
-    NotifyCardEntryChange(AB_NotifyDeleted, card, aParent);
-
-  return err;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP nsAddrDatabase::EditMailList(nsIAbDirectory *mailList,
                                            nsIAbCard *listCard, bool notify) {
-  if (!mailList || !m_mdbPabTable || !m_mdbStore || !m_mdbEnv)
-    return NS_ERROR_NULL_POINTER;
-
-  nsresult err = NS_OK;
-
-  nsIMdbRow *pListRow = nullptr;
-  mdbOid rowOid;
-  rowOid.mOid_Scope = m_ListRowScopeToken;
-
-  nsCOMPtr<nsIAbMDBDirectory> dbmailList(do_QueryInterface(mailList, &err));
-  NS_ENSURE_SUCCESS(err, err);
-  dbmailList->GetDbRowID((uint32_t *)&rowOid.mOid_Id);
-
-  err = m_mdbStore->GetRow(m_mdbEnv, &rowOid, &pListRow);
-  NS_ENSURE_SUCCESS(err, err);
-
-  if (!pListRow) return NS_OK;
-
-  err = AddListAttributeColumnsToRow(mailList, pListRow, mailList);
-  NS_ENSURE_SUCCESS(err, err);
-
-  if (notify) {
-    NotifyListEntryChange(AB_NotifyPropertyChanged, mailList);
-
-    if (listCard) {
-      NotifyCardEntryChange(AB_NotifyPropertyChanged, listCard, mailList);
-    }
-
-    nsCOMPtr<nsIObserverService> observerService =
-        mozilla::services::GetObserverService();
-    if (observerService) {
-      observerService->NotifyObservers(mailList, "addrbook-list-updated",
-                                       nullptr);
-    }
-  }
-
-  NS_RELEASE(pListRow);
-  return NS_OK;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP nsAddrDatabase::ContainsMailList(nsIAbDirectory *mailList,
                                                bool *hasList) {
-  if (!mailList || !m_mdbPabTable || !m_mdbEnv) return NS_ERROR_NULL_POINTER;
-
-  nsresult err = NS_OK;
-  mdb_bool hasOid;
-  mdbOid rowOid;
-
-  rowOid.mOid_Scope = m_ListRowScopeToken;
-
-  nsCOMPtr<nsIAbMDBDirectory> dbmailList(do_QueryInterface(mailList, &err));
-  NS_ENSURE_SUCCESS(err, err);
-  dbmailList->GetDbRowID((uint32_t *)&rowOid.mOid_Id);
-
-  err = m_mdbPabTable->HasOid(m_mdbEnv, &rowOid, &hasOid);
-  if (NS_SUCCEEDED(err)) *hasList = hasOid;
-
-  return (NS_SUCCEEDED(err)) ? NS_OK : NS_ERROR_FAILURE;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP nsAddrDatabase::GetNewRow(nsIMdbRow **newRow) {
@@ -2210,57 +2016,7 @@ nsresult nsAddrDatabase::GetListCardFromDB(nsIAbCard *listCard,
 
 nsresult nsAddrDatabase::GetListFromDB(nsIAbDirectory *newList,
                                        nsIMdbRow *listRow) {
-  nsresult err = NS_OK;
-  if (!newList || !listRow || !m_mdbStore || !m_mdbEnv)
-    return NS_ERROR_NULL_POINTER;
-
-  nsAutoString tempString;
-
-  err = GetStringColumn(listRow, m_UIDColumnToken, tempString);
-  if (NS_SUCCEEDED(err) && !tempString.IsEmpty()) {
-    newList->SetUID(NS_ConvertUTF16toUTF8(tempString));
-  }
-  err = GetStringColumn(listRow, m_ListNameColumnToken, tempString);
-  if (NS_SUCCEEDED(err) && !tempString.IsEmpty()) {
-    newList->SetDirName(tempString);
-  }
-  err = GetStringColumn(listRow, m_ListNickNameColumnToken, tempString);
-  if (NS_SUCCEEDED(err) && !tempString.IsEmpty()) {
-    newList->SetListNickName(tempString);
-  }
-  err = GetStringColumn(listRow, m_ListDescriptionColumnToken, tempString);
-  if (NS_SUCCEEDED(err) && !tempString.IsEmpty()) {
-    newList->SetDescription(tempString);
-  }
-
-  nsCOMPtr<nsIAbMDBDirectory> dbnewList(do_QueryInterface(newList, &err));
-  NS_ENSURE_SUCCESS(err, err);
-
-  uint32_t totalAddress = GetListAddressTotal(listRow);
-  uint32_t pos;
-  for (pos = 1; pos <= totalAddress; ++pos) {
-    mdb_token listAddressColumnToken;
-    mdb_id rowID;
-
-    char columnStr[COLUMN_STR_MAX];
-    PR_snprintf(columnStr, COLUMN_STR_MAX, kMailListAddressFormat, pos);
-    m_mdbStore->StringToToken(m_mdbEnv, columnStr, &listAddressColumnToken);
-
-    nsCOMPtr<nsIMdbRow> cardRow;
-    err = GetIntColumn(listRow, listAddressColumnToken, (uint32_t *)&rowID, 0);
-    NS_ENSURE_SUCCESS(err, err);
-    err = GetCardRowByRowID(rowID, getter_AddRefs(cardRow));
-    NS_ENSURE_SUCCESS(err, err);
-
-    if (cardRow) {
-      nsCOMPtr<nsIAbCard> card;
-      err = CreateABCard(cardRow, 0, getter_AddRefs(card));
-
-      if (NS_SUCCEEDED(err)) dbnewList->AddAddressToList(card);
-    }
-  }
-
-  return err;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 class nsAddrDBEnumerator : public nsSimpleEnumerator, public nsIAddrDBListener {
@@ -2538,19 +2294,11 @@ NS_IMETHODIMP nsAddrDatabase::GetMailingListsFromDB(nsIAbDirectory *parentDir) {
 }
 
 NS_IMETHODIMP nsAddrDatabase::EnumerateListAddresses(
-    nsIAbDirectory *directory, nsISimpleEnumerator **result) {
-  nsresult rv = NS_OK;
-  mdb_id rowID;
-
-  nsCOMPtr<nsIAbMDBDirectory> dbdirectory(do_QueryInterface(directory, &rv));
-
-  if (NS_SUCCEEDED(rv)) {
-    dbdirectory->GetDbRowID((uint32_t *)&rowID);
-
-    NS_ADDREF(*result = new nsListAddressEnumerator(this, rowID));
-    m_dbDirectory = do_GetWeakReference(directory);
-  }
-  return rv;
+    nsIAbDirectory *directory, uint32_t listRowID,
+    nsISimpleEnumerator **result) {
+  NS_ADDREF(*result = new nsListAddressEnumerator(this, listRowID));
+  m_dbDirectory = do_GetWeakReference(directory);
+  return NS_OK;
 }
 
 nsresult nsAddrDatabase::CreateCardFromDeletedCardsTable(nsIMdbRow *cardRow,
@@ -2567,7 +2315,7 @@ nsresult nsAddrDatabase::CreateCardFromDeletedCardsTable(nsIMdbRow *cardRow,
 
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIAbCard> personCard;
-    personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
+    personCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     InitCardFromRow(personCard, cardRow);
@@ -2592,7 +2340,7 @@ nsresult nsAddrDatabase::CreateCard(nsIMdbRow *cardRow, mdb_id listRowID,
 
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIAbCard> personCard;
-    personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
+    personCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     InitCardFromRow(personCard, cardRow);
@@ -2635,34 +2383,29 @@ nsresult nsAddrDatabase::CreateABListCard(nsIMdbRow *listRow,
   nsAutoString fileName;
   rv = m_dbName->GetLeafName(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
-  listURI = PR_smprintf("%s%s/MailList%ld", kMDBDirectoryRoot,
-                        NS_ConvertUTF16toUTF8(fileName).get(), rowID);
+  listURI = PR_smprintf("MailList%ld", rowID);
 
   nsCOMPtr<nsIAbCard> personCard;
-  nsCOMPtr<nsIAbMDBDirectory> dbm_dbDirectory(
-      do_QueryReferent(m_dbDirectory, &rv));
-  if (NS_SUCCEEDED(rv) && dbm_dbDirectory) {
-    personCard = do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+  personCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    if (personCard) {
-      GetListCardFromDB(personCard, listRow);
+  if (personCard) {
+    GetListCardFromDB(personCard, listRow);
 
-      personCard->SetPropertyAsUint32(kRowIDProperty, rowID);
-      personCard->SetIsMailList(true);
-      personCard->SetMailListURI(listURI);
+    personCard->SetPropertyAsUint32(kRowIDProperty, rowID);
+    personCard->SetIsMailList(true);
+    personCard->SetMailListURI(listURI);
 
-      nsAutoCString id;
-      id.AppendInt(rowID);
-      personCard->SetLocalId(id);
+    nsAutoCString id;
+    id.AppendInt(rowID);
+    personCard->SetLocalId(id);
 
-      nsCOMPtr<nsIAbDirectory> abDir(do_QueryReferent(m_dbDirectory));
-      if (abDir) abDir->GetUuid(id);
-      personCard->SetDirectoryId(id);
-    }
-
-    personCard.forget(result);
+    nsCOMPtr<nsIAbDirectory> abDir(do_QueryReferent(m_dbDirectory));
+    if (abDir) abDir->GetUuid(id);
+    personCard->SetDirectoryId(id);
   }
+
+  personCard.forget(result);
   if (listURI) PR_smprintf_free(listURI);
 
   return rv;
@@ -2671,58 +2414,7 @@ nsresult nsAddrDatabase::CreateABListCard(nsIMdbRow *listRow,
 /* create a sub directory for mailing list in the address book left pane */
 nsresult nsAddrDatabase::CreateABList(nsIMdbRow *listRow,
                                       nsIAbDirectory **result) {
-  nsresult rv = NS_OK;
-
-  if (!listRow || !m_mdbEnv || !result) return NS_ERROR_NULL_POINTER;
-
-  mdbOid outOid;
-  mdb_id rowID = 0;
-
-  if (NS_SUCCEEDED(listRow->GetOid(m_mdbEnv, &outOid))) rowID = outOid.mOid_Id;
-
-  char *listURI = nullptr;
-
-  nsAutoString fileName;
-  m_dbName->GetLeafName(fileName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  listURI = PR_smprintf("%s%s/MailList%ld", kMDBDirectoryRoot,
-                        NS_ConvertUTF16toUTF8(fileName).get(), rowID);
-
-  nsCOMPtr<nsIAbDirectory> mailList;
-  nsCOMPtr<nsIAbMDBDirectory> dbm_dbDirectory(
-      do_QueryReferent(m_dbDirectory, &rv));
-  if (NS_SUCCEEDED(rv) && dbm_dbDirectory) {
-    rv = dbm_dbDirectory->AddDirectory(listURI, getter_AddRefs(mailList));
-
-    nsCOMPtr<nsIAbMDBDirectory> dbmailList(do_QueryInterface(mailList, &rv));
-
-    if (mailList) {
-      // if we are using turbo, and we "exit" and restart with the same profile
-      // the current mailing list will still be in memory, so when we do
-      // GetResource() and QI, we'll get it again.
-      // in that scenario, the mailList that we pass in will already be
-      // be a mailing list, with a valid row and all the entries
-      // in that scenario, we can skip GetListFromDB(), which would have
-      // have added all the cards to the list again.
-      // see bug #134743
-      mdb_id existingID;
-      dbmailList->GetDbRowID(&existingID);
-      if (existingID != rowID) {
-        // Ensure IsMailList is set up first.
-        mailList->SetIsMailList(true);
-        GetListFromDB(mailList, listRow);
-        dbmailList->SetDbRowID(rowID);
-      }
-
-      dbm_dbDirectory->AddMailListToDirectory(mailList);
-      mailList.forget(result);
-    }
-  }
-
-  if (listURI) PR_smprintf_free(listURI);
-
-  return rv;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 nsresult nsAddrDatabase::GetCardRowByRowID(mdb_id rowID, nsIMdbRow **dbRow) {
@@ -2806,34 +2498,7 @@ NS_IMETHODIMP nsAddrDatabase::GetCardsFromAttribute(
 }
 
 NS_IMETHODIMP nsAddrDatabase::AddListDirNode(nsIMdbRow *listRow) {
-  nsresult rv = NS_OK;
-
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
-
-  if (NS_SUCCEEDED(rv)) {
-    nsAutoString parentURI;
-    rv = m_dbName->GetLeafName(parentURI);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    parentURI.Replace(0, 0, NS_LITERAL_STRING(kMDBDirectoryRoot));
-
-    nsCOMPtr<nsIAbDirectory> parentDir;
-    rv = abManager->GetDirectory(NS_ConvertUTF16toUTF8(parentURI),
-                                 getter_AddRefs(parentDir));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (parentDir) {
-      m_dbDirectory = do_GetWeakReference(parentDir);
-      nsCOMPtr<nsIAbDirectory> mailList;
-      rv = CreateABList(listRow, getter_AddRefs(mailList));
-      if (mailList) {
-        nsCOMPtr<nsIAbMDBDirectory> dbparentDir(
-            do_QueryInterface(parentDir, &rv));
-        if (NS_SUCCEEDED(rv)) dbparentDir->NotifyDirItemAdded(mailList);
-      }
-    }
-  }
-  return rv;
+  return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP nsAddrDatabase::FindMailListbyUnicodeName(

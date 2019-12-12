@@ -16,7 +16,7 @@ function bug_537815_fixture_setup() {
 
   for (i = 1; i <= max_addressbooks; i++) {
     let ab_name = ab_prefix + i;
-    MailServices.ab.newAddressBook(ab_name, "", 2);
+    MailServices.ab.newAddressBook(ab_name, "", 101);
     dump("created: " + ab_name + "\n");
 
     for (var j = 1; j < 2; j++) {

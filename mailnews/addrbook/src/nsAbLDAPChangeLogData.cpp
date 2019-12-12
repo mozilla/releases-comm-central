@@ -10,7 +10,6 @@
 #include "nsIAddrBookSession.h"
 #include "nsAbBaseCID.h"
 #include "nsAbUtils.h"
-#include "nsAbMDBCard.h"
 #include "nsAbLDAPCard.h"
 #include "nsIAuthPrompt.h"
 #include "nsIStringBundle.h"

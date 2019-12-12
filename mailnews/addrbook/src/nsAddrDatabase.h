@@ -52,6 +52,7 @@ class nsAddrDatabase : public nsIAddrDatabase {
                             nsISimpleEnumerator **result) override;
   NS_IMETHOD GetMailingListsFromDB(nsIAbDirectory *parentDir) override;
   NS_IMETHOD EnumerateListAddresses(nsIAbDirectory *directory,
+                                    uint32_t listRowID,
                                     nsISimpleEnumerator **result) override;
   NS_IMETHOD DeleteCard(nsIAbCard *newCard, bool notify,
                         nsIAbDirectory *parent) override;

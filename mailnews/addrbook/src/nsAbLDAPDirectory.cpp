@@ -16,7 +16,6 @@
 #include "nsArrayEnumerator.h"
 #include "nsEnumeratorUtils.h"
 #include "nsIAbLDAPAttributeMap.h"
-#include "nsIAbMDBDirectory.h"
 #include "nsIAbManager.h"
 #include "nsIAddrDatabase.h"
 #include "nsILDAPURL.h"
@@ -115,7 +114,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator **result) {
     if (fileName.IsEmpty()) return NS_OK;
 
     // perform the same query, but on the local directory
-    nsAutoCString localDirectoryURI(NS_LITERAL_CSTRING(kMDBDirectoryRoot));
+    nsAutoCString localDirectoryURI(NS_LITERAL_CSTRING(kJSDirectoryRoot));
     localDirectoryURI.Append(fileName);
     if (mIsQueryURI) {
       localDirectoryURI.Append('?');

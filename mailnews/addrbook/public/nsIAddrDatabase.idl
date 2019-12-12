@@ -122,7 +122,8 @@ interface nsIAddrDatabase : nsIAddrDBAnnouncer {
    * @param directory the directory of which to enumerate the cards.
    * @return an enumerator.
    */
-  nsISimpleEnumerator enumerateListAddresses(in nsIAbDirectory directory);
+  nsISimpleEnumerator enumerateListAddresses(in nsIAbDirectory directory,
+                                             in unsigned long listRowID);
 
   void getMailingListsFromDB(in nsIAbDirectory parentDir);
 

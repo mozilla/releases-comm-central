@@ -214,7 +214,8 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchEntry(
   // Although we would may naturally create an nsIAbLDAPCard here, we don't
   // need to as we are writing this straight to the database, so just create
   // the database version instead.
-  nsCOMPtr<nsIAbCard> newCard(do_CreateInstance(NS_ABMDBCARD_CONTRACTID, &rv));
+  nsCOMPtr<nsIAbCard> newCard(
+      do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID, &rv));
   if (NS_FAILED(rv)) {
     Abort();
     return rv;

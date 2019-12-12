@@ -18,7 +18,6 @@ XPIDL_SOURCES += [
     'nsIAbLDIFService.idl',
     'nsIAbListener.idl',
     'nsIAbManager.idl',
-    'nsIAbMDBDirectory.idl',
     'nsIAbView.idl',
     'nsIAddbookUrl.idl',
     'nsIAddrDatabase.idl',
