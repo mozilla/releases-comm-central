@@ -451,6 +451,12 @@
   background-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
+#signing-status,
+#encryption-status {
+  display: flex;
+  align-items: center;
+}
+
 #identityLabel,
 .address-label-container label {
   margin-inline-end: 6px
