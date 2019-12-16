@@ -75,5 +75,3 @@ set_define('MOZ_OPENPGP', openpgp)
 
 set_config('MOZ_MOVEMAIL', target_is_unix)
 set_define('HAVE_MOVEMAIL', target_is_unix)
-
-include('../db/moz.configure')
