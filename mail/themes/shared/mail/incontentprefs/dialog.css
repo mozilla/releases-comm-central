@@ -32,7 +32,7 @@ prefpane {
 }
 
 tabbox {
-  /* override the rule in certManager.xul */
+  /* override the rule in certManager.xhtml */
   margin: 0 0 5px !important;
 }
 

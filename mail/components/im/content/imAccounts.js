@@ -275,7 +275,7 @@ var gAccountManager = {
       location: prplAccount.connectionTarget,
     };
     window.openDialog(
-      "chrome://pippki/content/exceptionDialog.xul",
+      "chrome://pippki/content/exceptionDialog.xhtml",
       "",
       "chrome,centerscreen,modal",
       params

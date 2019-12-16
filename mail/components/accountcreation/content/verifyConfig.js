@@ -389,7 +389,7 @@ urlListener.prototype = {
       location: targetSite,
     };
     window.openDialog(
-      "chrome://pippki/content/exceptionDialog.xul",
+      "chrome://pippki/content/exceptionDialog.xhtml",
       "",
       "chrome,centerscreen,modal",
       params

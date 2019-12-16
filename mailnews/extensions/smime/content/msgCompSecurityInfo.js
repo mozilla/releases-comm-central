@@ -281,7 +281,7 @@ function onSelectionChange(event) {
 function viewCertHelper(parent, cert) {
   Services.ww.openWindow(
     parent,
-    "chrome://pippki/content/certViewer.xul",
+    "chrome://pippki/content/certViewer.xhtml",
     "_blank",
     "centerscreen,chrome,titlebar",
     cert

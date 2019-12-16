@@ -404,7 +404,7 @@ var gPrivacyPane = {
    * Display the user's certificates and associated options.
    */
   showCertificates() {
-    gSubDialog.open("chrome://pippki/content/certManager.xul");
+    gSubDialog.open("chrome://pippki/content/certManager.xhtml");
   },
 
   /**
@@ -432,7 +432,7 @@ var gPrivacyPane = {
    * Display a dialog from which the user can manage his security devices.
    */
   showSecurityDevices() {
-    gSubDialog.open("chrome://pippki/content/device_manager.xul");
+    gSubDialog.open("chrome://pippki/content/device_manager.xhtml");
   },
 };
 

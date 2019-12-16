@@ -2353,7 +2353,7 @@ SecurityWarningDialog.prototype = {
         location: config.incoming.targetSite,
       };
       window.openDialog(
-        "chrome://pippki/content/exceptionDialog.xul",
+        "chrome://pippki/content/exceptionDialog.xhtml",
         "",
         "chrome,centerscreen,modal",
         params
@@ -2376,7 +2376,7 @@ SecurityWarningDialog.prototype = {
           location: config.outgoing.targetSite,
         };
         window.openDialog(
-          "chrome://pippki/content/exceptionDialog.xul",
+          "chrome://pippki/content/exceptionDialog.xhtml",
           "",
           "chrome,centerscreen,modal",
           params

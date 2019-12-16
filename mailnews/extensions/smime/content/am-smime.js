@@ -495,7 +495,7 @@ function openCertManager() {
     lastCertManager.focus();
   } else {
     window.openDialog(
-      "chrome://pippki/content/certManager.xul",
+      "chrome://pippki/content/certManager.xhtml",
       "",
       "centerscreen,resizable=yes,dialog=no"
     );
@@ -512,7 +512,7 @@ function openDeviceManager() {
     lastCertManager.focus();
   } else {
     window.openDialog(
-      "chrome://pippki/content/device_manager.xul",
+      "chrome://pippki/content/device_manager.xhtml",
       "",
       "centerscreen,resizable=yes,dialog=no"
     );
