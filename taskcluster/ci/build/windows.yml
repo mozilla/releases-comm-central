@@ -16,6 +16,8 @@ win32/opt:
     index:
         product: thunderbird
         job-name: win32-opt
+    attributes:
+        enable-build-signing: true
     treeherder:
         platform: windows2012-32/opt
         symbol: B
@@ -53,6 +55,7 @@ win32-shippable/opt:
     attributes:
         shippable: true
         nightly: true
+        enable-build-signing: true
         enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird
@@ -89,6 +92,8 @@ win32/debug:
     index:
         product: thunderbird
         job-name: win32-debug
+    attributes:
+        enable-build-signing: true
     treeherder:
         platform: windows2012-32/debug
         symbol: B
@@ -122,6 +127,8 @@ win64/opt:
     index:
         product: thunderbird
         job-name: win64-opt
+    attributes:
+        enable-build-signing: true
     treeherder:
         platform: windows2012-64/opt
         symbol: B
@@ -159,6 +166,7 @@ win64-shippable/opt:
     attributes:
         shippable: true
         nightly: true
+        enable-build-signing: true
         enable-full-crashsymbols: true
     shipping-phase: build
     shipping-product: thunderbird
@@ -195,6 +203,8 @@ win64/debug:
     index:
         product: thunderbird
         job-name: win64-debug
+    attributes:
+        enable-build-signing: true
     treeherder:
         platform: windows2012-64/debug
         symbol: B
