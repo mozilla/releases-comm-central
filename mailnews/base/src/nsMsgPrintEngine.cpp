@@ -8,6 +8,7 @@
 
 #include "nscore.h"
 #include "nsCOMPtr.h"
+#include "nsQueryObject.h"
 
 #include "nsIComponentManager.h"
 
@@ -216,20 +217,21 @@ nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin) {
 
   window->GetDocShell()->SetAppType(nsIDocShell::APP_TYPE_MAIL);
 
-  nsCOMPtr<nsIDocShellTreeItem> docShellAsItem = window->GetDocShell();
-  NS_ENSURE_TRUE(docShellAsItem, NS_ERROR_FAILURE);
-
-  nsCOMPtr<nsIDocShellTreeItem> rootAsItem;
-  docShellAsItem->GetInProcessSameTypeRootTreeItem(getter_AddRefs(rootAsItem));
-
-  nsCOMPtr<nsIDocShellTreeItem> childItem;
-  rootAsItem->FindChildWithName(NS_LITERAL_STRING("content"), true, false,
-                                nullptr, nullptr, getter_AddRefs(childItem));
-
-  mDocShell = do_QueryInterface(childItem);
-
-  if (mDocShell) SetupObserver();
-
+  nsIDocShell *rootShell = window->GetDocShell();
+  nsTArray<RefPtr<nsIDocShell>> docShells;
+  rootShell->GetAllDocShellsInSubtree(
+      nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
+  for (auto &docShell : docShells) {
+    nsCOMPtr<nsIDocShellTreeItem> child = do_QueryObject(docShell);
+    bool childNameEquals = false;
+    child->NameEquals(NS_LITERAL_STRING("content"), &childNameEquals);
+    if (childNameEquals) {
+      mDocShell = do_QueryInterface(child);
+      break;
+    }
+  }
+  NS_ENSURE_TRUE(mDocShell, NS_ERROR_FAILURE);
+  SetupObserver();
   return NS_OK;
 }
 

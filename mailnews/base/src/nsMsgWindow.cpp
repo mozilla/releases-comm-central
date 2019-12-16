@@ -36,6 +36,7 @@
 #include "mozilla/TransactionManager.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 #include "mozilla/Components.h"
+#include "nsQueryObject.h"
 
 NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
                   nsISupportsWeakReference, nsIMsgWindowTest)
@@ -70,17 +71,29 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell **aDocShell) {
     nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
     if (rootShell) {
       nsCOMPtr<nsIDocShellTreeItem> msgDocShellItem;
-      if (rootShell)
-        rootShell->FindChildWithName(NS_LITERAL_STRING("messagepane"), true,
-                                     false, nullptr, nullptr,
-                                     getter_AddRefs(msgDocShellItem));
-      NS_ENSURE_TRUE(msgDocShellItem, NS_ERROR_FAILURE);
-      docShell = do_QueryInterface(msgDocShellItem);
+      if (rootShell) {
+        nsTArray<RefPtr<nsIDocShell>> docShells;
+        rootShell->GetAllDocShellsInSubtree(nsIDocShell::typeContent,
+                                            nsIDocShell::ENUMERATE_FORWARDS,
+                                            docShells);
+        for (auto &ds : docShells) {
+          nsCOMPtr<nsIDocShellTreeItem> child = do_QueryObject(ds);
+          bool childNameEquals = false;
+          child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
+          if (childNameEquals) {
+            docShell = do_QueryInterface(child);
+            break;
+          }
+        }
+      }
+      NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
+
       // we don't own mMessageWindowDocShell so don't try to keep a reference to
       // it!
       mMessageWindowDocShellWeak = do_GetWeakReference(docShell);
     }
   }
+  NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
   docShell.forget(aDocShell);
   return NS_OK;
 }

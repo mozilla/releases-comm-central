@@ -19,6 +19,7 @@
 #include "mozilla/Path.h"
 #include "mozilla/Services.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
+#include "nsQueryObject.h"
 
 // necko
 #include "nsMimeTypes.h"
@@ -229,22 +230,20 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin,
 
     NS_ENSURE_TRUE(aWin, NS_ERROR_FAILURE);
     nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWin);
-
-    nsIDocShell *docShell = win->GetDocShell();
-    nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(docShell);
-    NS_ENSURE_TRUE(docShellAsItem, NS_ERROR_FAILURE);
-
-    nsCOMPtr<nsIDocShellTreeItem> rootDocShellAsItem;
-    docShellAsItem->GetInProcessSameTypeRootTreeItem(
-        getter_AddRefs(rootDocShellAsItem));
-
-    nsCOMPtr<nsIDocShellTreeItem> childAsItem;
-    rv = rootDocShellAsItem->FindChildWithName(NS_LITERAL_STRING("messagepane"),
-                                               true, false, nullptr, nullptr,
-                                               getter_AddRefs(childAsItem));
-
-    mDocShell = do_QueryInterface(childAsItem);
-    if (NS_SUCCEEDED(rv) && mDocShell) {
+    nsIDocShell *rootShell = win->GetDocShell();
+    nsTArray<RefPtr<nsIDocShell>> docShells;
+    rootShell->GetAllDocShellsInSubtree(
+        nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
+    for (auto &docShell : docShells) {
+      nsCOMPtr<nsIDocShellTreeItem> child = do_QueryObject(docShell);
+      bool childNameEquals = false;
+      child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
+      if (childNameEquals) {
+        mDocShell = do_QueryInterface(child);
+        break;
+      }
+    }
+    if (mDocShell) {
       // Important! Clear out mCurrentDisplayCharset so we reset a default
       // charset on mDocshell the next time we try to load something into it.
       mCurrentDisplayCharset = "";
@@ -253,12 +252,11 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin,
         aMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
     }
 
-    // we don't always have a message pane, like in the addressbook
+    // We don't always have a message pane, like in the addressbook
     // so if we don't have a docshell, use the one for the app window.
     // we do this so OpenURL() will work.
-    if (!mDocShell) mDocShell = docShell;
-  }  // if aWin
-  else {
+    if (!mDocShell) mDocShell = rootShell;
+  } else {
     // Remove the folder listener if we added it, i.e. if mWindow is non-null
     if (mWindow) {
       rv = mailSession->RemoveFolderListener(this);

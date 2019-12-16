@@ -49,6 +49,7 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "nsIURIMutator.h"
+#include "nsQueryObject.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
 #  include "mozilla/Logging.h"
@@ -243,20 +244,26 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
 
   // Now delve down in to the message to get the HTML representation of the
   // selection
-  nsCOMPtr<nsIDocShell> rootDocShell;
-  rv = aMsgWindow->GetRootDocShell(getter_AddRefs(rootDocShell));
+  nsCOMPtr<nsIDocShell> rootShell;
+  rv = aMsgWindow->GetRootDocShell(getter_AddRefs(rootShell));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIDocShellTreeItem> childAsItem;
-  rv = rootDocShell->FindChildWithName(NS_LITERAL_STRING("messagepane"), true,
-                                       false, nullptr, nullptr,
-                                       getter_AddRefs(childAsItem));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIDocShell> messagePaneDocShell;
+  nsTArray<RefPtr<nsIDocShell>> docShells;
+  rootShell->GetAllDocShellsInSubtree(
+      nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
+  for (auto &docShell : docShells) {
+    nsCOMPtr<nsIDocShellTreeItem> child = do_QueryObject(docShell);
+    bool childNameEquals = false;
+    child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
+    if (childNameEquals) {
+      messagePaneDocShell = do_QueryInterface(child);
+      break;
+    }
+  }
+  NS_ENSURE_TRUE(messagePaneDocShell, NS_ERROR_FAILURE);
 
-  nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(childAsItem, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<mozIDOMWindowProxy> domWindow(do_GetInterface(childAsItem));
+  nsCOMPtr<mozIDOMWindowProxy> domWindow(do_GetInterface(messagePaneDocShell));
   NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
   nsCOMPtr<nsPIDOMWindowOuter> privateWindow =
       nsPIDOMWindowOuter::From(domWindow);
@@ -306,7 +313,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
   }
 
   nsCOMPtr<nsIContentViewer> contentViewer;
-  rv = docShell->GetContentViewer(getter_AddRefs(contentViewer));
+  rv = messagePaneDocShell->GetContentViewer(getter_AddRefs(contentViewer));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<mozilla::dom::Document> domDocument(contentViewer->GetDocument());
