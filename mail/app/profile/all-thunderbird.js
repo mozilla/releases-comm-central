@@ -971,31 +971,6 @@ pref("devtools.performance.ui.enable-memory-flame", false);
   pref("devtools.performance.ui.experimental", false);
 #endif
 
-// Preferences for the new performance panel.
-// This pref configures the base URL for the profiler.firefox.com instance to
-// use. This is useful so that a developer can change it while working on
-// profiler.firefox.com, or in tests. This isn't exposed directly to the user.
-pref("devtools.performance.recording.ui-base-url", "https://profiler.firefox.com");
-
-// Profiler buffer size. It is the maximum number of 8-bytes entries in the
-// profiler's buffer. 10000000 is ~80mb.
-pref("devtools.performance.recording.entries", 10000000);
-// Profiler interval in microseconds. 1000µs is 1ms
-pref("devtools.performance.recording.interval", 1000);
-// Profiler duration of entries in the profiler's buffer in seconds.
-// `0` means no time limit for the markers, they roll off naturally from the
-// circular buffer.
-pref("devtools.performance.recording.duration", 0);
-// Profiler feature set. See tools/profiler/core/platform.cpp for features and
-// explanations.
-// Please update the if branch as well if you upadate this.
-pref("devtools.performance.recording.features", "[\"js\",\"leaf\",\"responsiveness\",\"stackwalk\"]");
-pref("devtools.performance.recording.threads", "[\"GeckoMain\",\"Compositor\"]");
-// A JSON array of strings, where each string is a file path to an objdir on
-// the host machine. This is used in order to look up symbol information from
-// build artifacts of local builds.
-pref("devtools.performance.recording.objdirs", "[]");
-
 // The default cache UI setting
 pref("devtools.cache.disabled", false);
 
@@ -1094,6 +1069,10 @@ pref("devtools.webconsole.filter.netxhr", false);
 
 // Webconsole autocomplete preference
 pref("devtools.webconsole.input.autocomplete",true);
+
+// Set to true to eagerly show the results of webconsole terminal evaluations
+// when they don't have side effects.
+pref("devtools.webconsole.input.eagerEvaluation", false);
 
 // Browser console filters
 pref("devtools.browserconsole.filter.error", true);
