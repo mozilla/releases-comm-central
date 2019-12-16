@@ -71,7 +71,6 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
-    '/%s/intl/chardet' % CONFIG['mozreltopsrcdir'],
     '/%s/security/certverifier' % CONFIG['mozreltopsrcdir'],
     '/%s/security/manager/ssl' % CONFIG['mozreltopsrcdir']
 ]
