@@ -36,7 +36,6 @@
 #include "mozilla/TransactionManager.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 #include "mozilla/Components.h"
-#include "nsQueryObject.h"
 
 NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
                   nsISupportsWeakReference, nsIMsgWindowTest)
@@ -76,12 +75,11 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell **aDocShell) {
         rootShell->GetAllDocShellsInSubtree(nsIDocShell::typeContent,
                                             nsIDocShell::ENUMERATE_FORWARDS,
                                             docShells);
-        for (auto &ds : docShells) {
-          nsCOMPtr<nsIDocShellTreeItem> child = do_QueryObject(ds);
+        for (auto &child : docShells) {
           bool childNameEquals = false;
           child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
           if (childNameEquals) {
-            docShell = do_QueryInterface(child);
+            docShell = child;
             break;
           }
         }

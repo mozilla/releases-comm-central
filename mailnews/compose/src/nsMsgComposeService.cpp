@@ -49,7 +49,6 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "nsIURIMutator.h"
-#include "nsQueryObject.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
 #  include "mozilla/Logging.h"
@@ -252,12 +251,11 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
   nsTArray<RefPtr<nsIDocShell>> docShells;
   rootShell->GetAllDocShellsInSubtree(
       nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
-  for (auto &docShell : docShells) {
-    nsCOMPtr<nsIDocShellTreeItem> child = do_QueryObject(docShell);
+  for (auto &child : docShells) {
     bool childNameEquals = false;
     child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
     if (childNameEquals) {
-      messagePaneDocShell = do_QueryInterface(child);
+      messagePaneDocShell = child;
       break;
     }
   }

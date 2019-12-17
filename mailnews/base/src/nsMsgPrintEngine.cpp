@@ -8,7 +8,6 @@
 
 #include "nscore.h"
 #include "nsCOMPtr.h"
-#include "nsQueryObject.h"
 
 #include "nsIComponentManager.h"
 
@@ -221,12 +220,11 @@ nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin) {
   nsTArray<RefPtr<nsIDocShell>> docShells;
   rootShell->GetAllDocShellsInSubtree(
       nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
-  for (auto &docShell : docShells) {
-    nsCOMPtr<nsIDocShellTreeItem> child = do_QueryObject(docShell);
+  for (auto &child : docShells) {
     bool childNameEquals = false;
     child->NameEquals(NS_LITERAL_STRING("content"), &childNameEquals);
     if (childNameEquals) {
-      mDocShell = do_QueryInterface(child);
+      mDocShell = child;
       break;
     }
   }

@@ -19,7 +19,6 @@
 #include "mozilla/Path.h"
 #include "mozilla/Services.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
-#include "nsQueryObject.h"
 
 // necko
 #include "nsMimeTypes.h"
@@ -234,12 +233,11 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin,
     nsTArray<RefPtr<nsIDocShell>> docShells;
     rootShell->GetAllDocShellsInSubtree(
         nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
-    for (auto &docShell : docShells) {
-      nsCOMPtr<nsIDocShellTreeItem> child = do_QueryObject(docShell);
+    for (auto &child : docShells) {
       bool childNameEquals = false;
       child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
       if (childNameEquals) {
-        mDocShell = do_QueryInterface(child);
+        mDocShell = child;
         break;
       }
     }
