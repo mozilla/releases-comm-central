@@ -1012,3 +1012,8 @@ NS_IMETHODIMP nsStreamConverter::FirePendingStartRequest() {
   }
   return NS_OK;
 }
+
+NS_IMETHODIMP nsStreamConverter::GetConvertedType(const nsACString &aFromType,
+                                                  nsACString &aToType) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
