@@ -304,7 +304,7 @@ nsresult nsStreamConverter::DetermineOutputFormat(const char *aUrl,
 
   // is this is a part that should just come out raw
   const char *part = FindQueryElementData(queryPart, "part=");
-  if (part && !mToType.EqualsLiteral("application/vnd.mozilla.xul+xml")) {
+  if (part && !mToType.EqualsLiteral("application/xhtml+xml")) {
     // default for parts
     mOutputFormat = "raw";
     *aNewType = nsMimeOutput::nsMimeMessageRaw;

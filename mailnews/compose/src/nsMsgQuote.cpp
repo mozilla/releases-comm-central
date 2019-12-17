@@ -164,7 +164,7 @@ nsresult nsMsgQuote::QuoteMessage(
 
   nsCOMPtr<nsIStreamListener> convertedListener;
   rv = streamConverterService->AsyncConvertData(
-      "message/rfc822", "application/vnd.mozilla.xul+xml", mStreamListener,
+      "message/rfc822", "application/xhtml+xml", mStreamListener,
       quoteSupport, getter_AddRefs(convertedListener));
   if (NS_FAILED(rv)) return rv;
 

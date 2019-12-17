@@ -39,7 +39,7 @@
   }
 
 #define NS_XUL_MIME_EMITTER_CONTRACTID \
-  NS_MIME_EMITTER_CONTRACTID_PREFIX "application/vnd.mozilla.xul+xml"
+  NS_MIME_EMITTER_CONTRACTID_PREFIX "application/xhtml+xml"
 // {FAA8AF16-DCFF-11d2-A411-00805F613C19}
 #define NS_XUL_MIME_EMITTER_CID                     \
   {                                                 \
