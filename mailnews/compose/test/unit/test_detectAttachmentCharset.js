@@ -40,33 +40,25 @@ async function testUTF16LE() {
 }
 
 async function testShiftJIS() {
-  Services.prefs.setStringPref(
-    "intl.charset.detector",
-    "ja_parallel_state_machine"
-  );
   await createMessage(do_get_file("data/test-SHIFT_JIS.txt"));
   checkAttachmentCharset("Shift_JIS");
 }
 
 async function testISO2022JP() {
-  Services.prefs.setStringPref(
-    "intl.charset.detector",
-    "ja_parallel_state_machine"
-  );
   await createMessage(do_get_file("data/test-ISO-2022-JP.txt"));
   checkAttachmentCharset("ISO-2022-JP");
 }
 
 async function testKOI8R() {
-  Services.prefs.setStringPref("intl.charset.detector", "ruprob");
+  // NOTE: KOI8-R is detected as KOI8-U which is a superset covering both
+  // Russian and Ukrainian (a few box-drawing characters are repurposed).
   await createMessage(do_get_file("data/test-KOI8-R.txt"));
-  checkAttachmentCharset("KOI8-R");
+  checkAttachmentCharset("KOI8-U");
 }
 
 async function testWindows1252() {
-  Services.prefs.clearUserPref("intl.charset.detector");
   await createMessage(do_get_file("data/test-windows-1252.txt"));
-  checkAttachmentCharset(null); // windows-1252 is not directly detected.
+  checkAttachmentCharset("windows-1252");
 }
 
 var tests = [

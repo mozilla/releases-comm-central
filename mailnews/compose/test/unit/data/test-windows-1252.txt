@@ -1,1 +1,2 @@
-ä - This is text in windows-1252.
+Buenos días - François a été à Paris - Budapester Straße, Berlin.
+This is text in windows-1252.
