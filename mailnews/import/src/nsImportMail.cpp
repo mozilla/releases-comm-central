@@ -923,6 +923,7 @@ NS_IMETHODIMP ContainsChildNamedRunnable::Run() {
 
 nsresult ProxyContainsChildNamed(nsIMsgFolder *aFolder, const nsAString &aName,
                                  bool *aResult) {
+  NS_ENSURE_ARG(aFolder);
   RefPtr<ContainsChildNamedRunnable> containsChildNamed =
       new ContainsChildNamedRunnable(aFolder, aName, aResult);
   nsresult rv = NS_DispatchToMainThread(containsChildNamed, NS_DISPATCH_SYNC);
