@@ -101,7 +101,7 @@ int LDAP_CALL ldapssl_install_routines(LDAP *ld);
  * int needkeydb - boolean.  Must be !=0 if client Authentication
  *     is required
  * char *keydbpath - path to the key database.  This can be a shortcut
- *     to the directory name, if so key3.db will be postfixed to the string.
+ *     to the directory name, if so key4.db will be postfixed to the string.
  * void *keydbhandle - Normally this is NULL, This memory will need
  *     to be freed
  * int needsecmoddb - boolean.  Must be !=0 to assure that the correct

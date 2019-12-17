@@ -15,8 +15,8 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * @returns Promise When the storage database is usable.
  */
 function setupForPassword(storageName) {
-  let keyDB = do_get_file(gDEPTH + "mailnews/data/key3.db");
-  keyDB.copyTo(do_get_profile(), "key3.db");
+  let keyDB = do_get_file(gDEPTH + "mailnews/data/key4.db");
+  keyDB.copyTo(do_get_profile(), "key4.db");
 
   let signons = do_get_file(gDEPTH + "mailnews/data/" + storageName);
   signons.copyTo(do_get_profile(), "logins.json");
