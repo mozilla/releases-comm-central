@@ -37,16 +37,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var EXPORTED_SYMBOLS = ["mozmill"];
+var EXPORTED_SYMBOLS = [];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
-const mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
+
 const utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 // Observer when a new top-level window is ready
@@ -99,7 +97,7 @@ function attachEventListeners(aWindow) {
           var errorRegex = /about:.+(error)|(blocked)\?/;
           if (errorRegex.exec(doc.baseURI)) {
             // Wait about 1s to be sure the DOM is ready
-            mozmill.utils.sleep(1000);
+            utils.sleep(1000);
 
             // Only update the flag if we have a document as target
             if ("defaultView" in doc) {
