@@ -29,7 +29,7 @@ AboutRedirector.prototype = {
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
     preferences: {
-      url: "chrome://messenger/content/preferences/aboutPreferences.xul",
+      url: "chrome://messenger/content/preferences/aboutPreferences.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
     downloads: {

@@ -1264,7 +1264,7 @@ function ToggleMessageTag(key, addKey) {
 function AddTag() {
   var args = { result: "", okCallback: AddTagCallback };
   window.openDialog(
-    "chrome://messenger/content/newTagDialog.xul",
+    "chrome://messenger/content/newTagDialog.xhtml",
     "",
     "chrome,titlebar,modal",
     args
