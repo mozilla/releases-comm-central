@@ -31,12 +31,6 @@ function checkDraftHeadersAndBody(
   );
   checkMessageHeaders(msgData, expectedHeaders);
 
-  if (!expectedBody.endsWith("\r\n")) {
-    // The compose code will enforce an ending \r\n, so we will expect that
-    // go get added if it's not there already.
-    expectedBody += "\r\n";
-  }
-
   // Get the message body, decode from base64 and check.
   let endOfHeaders = msgData.indexOf("\r\n\r\n");
   let body = msgData.slice(endOfHeaders + 4);
