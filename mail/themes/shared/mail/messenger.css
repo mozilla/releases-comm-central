@@ -530,3 +530,8 @@ html|input[type="number"].size4 {
 html|input[type="number"].size5 {
   width: calc(5ch + 44px);
 }
+
+/* Fix the height of the print preview toolbar */
+#print-preview-toolbar {
+  max-height: 2.5em;
+}
