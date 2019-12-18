@@ -2,13 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: comm_taskgraph.loader.reference:loader
-base-path: taskcluster/ci
+loader: comm_taskgraph.loader.merge:loader
+reference-base-path: taskcluster/ci
 
 kind-dependencies:
     - packages
 
-jobs:
+reference-jobs:
     - debian7-amd64-build
     - debian7-base
     - debian7-i386-build
@@ -19,6 +19,7 @@ jobs:
     - debian9-base
     - debian9-packages
     - debian9-raw
+    - debian10-amd64-build
     - debian10-base
     - debian10-packages
     - debian10-raw
@@ -32,3 +33,11 @@ jobs:
     - periodic-updates
     - toolchain-build
     - update-verify
+
+transforms:
+    - taskgraph.transforms.docker_image:transforms
+    - taskgraph.transforms.cached_tasks:transforms
+    - taskgraph.transforms.task:transforms
+
+jobs-from:
+    - docker-image.yml
