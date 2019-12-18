@@ -5,6 +5,7 @@
 
 XPCSHELL_TESTS_MANIFESTS += [
     'unit/xpcshell.ini',
+    'unit/xpcshell_migration.ini',
 ]
 
 BROWSER_CHROME_MANIFESTS += [

@@ -785,28 +785,43 @@ var MailMigrator = {
     for (let name of Services.prefs.getChildList("ldap_2.servers.")) {
       try {
         if (
-          !name.endsWith(".dirType") ||
-          Services.prefs.getIntPref(name) != 2
+          name.endsWith(".uri") &&
+          Services.prefs.getStringPref(name).startsWith("ldap://")
         ) {
-          continue;
-        }
-
-        let prefName = name.substring(0, name.length - 8);
-        let fileName = Services.prefs.getStringPref(`${prefName}.filename`);
-        fileName = fileName.replace(/\.mab$/, "");
-
-        Services.prefs.setIntPref(`${prefName}.dirType`, 101);
-        Services.prefs.setStringPref(
-          `${prefName}.filename`,
-          `${fileName}.sqlite`
-        );
-        if (Services.prefs.prefHasUserValue(`${prefName}.uri`)) {
-          Services.prefs.setStringPref(
-            `${prefName}.uri`,
-            `jsaddrbook://${fileName}.sqlite`
+          let prefName = name.substring(0, name.length - 4);
+          let fileName = Services.prefs.getStringPref(
+            `${prefName}.filename`,
+            ""
           );
+          if (fileName.endsWith(".mab")) {
+            fileName = fileName.replace(/\.mab$/, "");
+            Services.prefs.setStringPref(
+              `${prefName}.filename`,
+              `${fileName}.sqlite`
+            );
+            await migrateBook(fileName);
+          }
+        } else if (
+          name.endsWith(".dirType") &&
+          Services.prefs.getIntPref(name) == 2
+        ) {
+          let prefName = name.substring(0, name.length - 8);
+          let fileName = Services.prefs.getStringPref(`${prefName}.filename`);
+          fileName = fileName.replace(/\.mab$/, "");
+
+          Services.prefs.setIntPref(`${prefName}.dirType`, 101);
+          Services.prefs.setStringPref(
+            `${prefName}.filename`,
+            `${fileName}.sqlite`
+          );
+          if (Services.prefs.prefHasUserValue(`${prefName}.uri`)) {
+            Services.prefs.setStringPref(
+              `${prefName}.uri`,
+              `jsaddrbook://${fileName}.sqlite`
+            );
+          }
+          await migrateBook(fileName);
         }
-        await migrateBook(fileName);
       } catch (ex) {
         Cu.reportError(ex);
       }

@@ -87,11 +87,6 @@ interface nsIAbLDAPDirectory : nsISupports
   readonly attribute nsIFile replicationFile;
 
   /**
-   * A database that is set up for the replication file.
-   */
-  readonly attribute nsIAddrDatabase replicationDatabase;
-
-  /**
    * The LDAP attributes used to build the Relative Distinguished Name
    * of new cards, in the form of a comma separated list.
    *

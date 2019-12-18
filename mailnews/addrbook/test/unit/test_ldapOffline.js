@@ -28,10 +28,10 @@ function run_test() {
     .getDirectory(kLDAPUriPrefix + abUri)
     .QueryInterface(Ci.nsIAbLDAPDirectory);
 
-  const kLDAPFileName = "ldap-1.mab";
+  const kLDAPFileName = "ldap-1.sqlite";
 
   // Test setup - copy the data file into place
-  do_get_file("data/cardForEmail.mab").copyTo(do_get_profile(), kLDAPFileName);
+  loadABFile("data/cardForEmail", kLDAPFileName);
 
   // And tell the ldap directory we want this file.
   abDir.replicationFileName = kLDAPFileName;

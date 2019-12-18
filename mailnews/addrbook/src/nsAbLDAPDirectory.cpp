@@ -622,23 +622,6 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationFile(nsIFile **aResult) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetReplicationDatabase(
-    nsIAddrDatabase **aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  nsresult rv;
-  nsCOMPtr<nsIFile> databaseFile;
-  rv = GetReplicationFile(getter_AddRefs(databaseFile));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIAddrDatabase> addrDBFactory =
-      do_GetService(NS_ADDRDATABASE_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return addrDBFactory->Open(databaseFile, false /* no create */, true,
-                             aResult);
-}
-
 NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
                                          nsIAbCard **aAddedCard) {
   NS_ENSURE_ARG_POINTER(aUpdatedCard);

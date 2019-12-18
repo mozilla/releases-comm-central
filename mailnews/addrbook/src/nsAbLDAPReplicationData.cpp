@@ -5,6 +5,7 @@
 
 #include "nsILDAPMessage.h"
 #include "nsAbLDAPReplicationData.h"
+#include "nsIAbManager.h"
 #include "nsIAbCard.h"
 #include "nsAbBaseCID.h"
 #include "nsAbUtils.h"
@@ -28,10 +29,7 @@ nsAbLDAPProcessReplicationData::nsAbLDAPProcessReplicationData()
       mDBOpen(false),
       mInitialized(false) {}
 
-nsAbLDAPProcessReplicationData::~nsAbLDAPProcessReplicationData() {
-  /* destructor code */
-  if (mDBOpen && mReplicationDB) mReplicationDB->Close(false);
-}
+nsAbLDAPProcessReplicationData::~nsAbLDAPProcessReplicationData() {}
 
 NS_IMETHODIMP nsAbLDAPProcessReplicationData::Init(
     nsIAbLDAPDirectory *aDirectory, nsILDAPConnection *aConnection,
@@ -130,8 +128,6 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::Abort() {
   }
 
   if (mReplicationDB && mDBOpen) {
-    // force close since we need to delete the file.
-    mReplicationDB->ForceClosed();
     mDBOpen = false;
 
     // delete the unsaved replication file
@@ -230,7 +226,8 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchEntry(
     return NS_OK;
   }
 
-  rv = mReplicationDB->CreateNewCardAndAddToDB(newCard, false, nullptr);
+  nsCOMPtr<nsIAbCard> tempCard;
+  rv = mReplicationDB->AddCard(newCard, getter_AddRefs(tempCard));
   if (NS_FAILED(rv)) {
     Abort();
     return rv;
@@ -240,10 +237,10 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchEntry(
   nsAutoCString authDN;
   rv = aMessage->GetDn(authDN);
   if (NS_SUCCEEDED(rv) && !authDN.IsEmpty()) {
-    newCard->SetPropertyAsAUTF8String("_DN", authDN);
+    tempCard->SetPropertyAsAUTF8String("_DN", authDN);
   }
 
-  rv = mReplicationDB->EditCard(newCard, false, nullptr);
+  rv = mReplicationDB->ModifyCard(tempCard);
   if (NS_FAILED(rv)) {
     Abort();
     return rv;
@@ -264,10 +261,6 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchEntry(
 
 nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchResult(
     nsILDAPMessage *aMessage) {
-#ifdef DEBUG_rdayal
-  printf("LDAP Replication : Got Results for Completion");
-#endif
-
   NS_ENSURE_ARG_POINTER(aMessage);
   if (!mInitialized) return NS_ERROR_NOT_INITIALIZED;
 
@@ -280,9 +273,6 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchResult(
         errorCode == nsILDAPErrors::SIZELIMIT_EXCEEDED) {
       Done(true);
       if (mReplicationDB && mDBOpen) {
-        rv = mReplicationDB->Close(true);
-        NS_ASSERTION(NS_SUCCEEDED(rv),
-                     "Replication DB Close on Success failed");
         mDBOpen = false;
         // once we have saved the new replication file, delete the backup file
         if (mBackupReplicationFile) {
@@ -300,10 +290,6 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchResult(
   if (mReplicationDB && mDBOpen) {
     // if error result is returned close the DB without saving ???
     // should we commit anyway ??? whatever is returned is not lost then !!
-    rv = mReplicationDB
-             ->ForceClosed();  // force close since we need to delete the file.
-    NS_ASSERTION(NS_SUCCEEDED(rv),
-                 "Replication DB ForceClosed on Failure failed");
     mDBOpen = false;
     // if error result is returned remove the replicated file
     if (mReplicationFile) {
@@ -412,16 +398,15 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate) {
     }
   }
 
-  nsCOMPtr<nsIAddrDatabase> addrDBFactory =
-      do_GetService(NS_ADDRDATABASE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) {
-    if (mBackupReplicationFile) mBackupReplicationFile->Remove(false);
-    Done(false);
-    return rv;
-  }
+  nsCString uri(kJSDirectoryRoot);
+  uri.Append(fileName);
 
-  rv = addrDBFactory->Open(mReplicationFile, aCreate, true,
-                           getter_AddRefs(mReplicationDB));
+  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = abManager->GetDirectory(uri, getter_AddRefs(mReplicationDB));
+  NS_ENSURE_SUCCESS(rv, rv);
+
   if (NS_FAILED(rv)) {
     Done(false);
     if (mBackupReplicationFile) mBackupReplicationFile->Remove(false);
@@ -448,12 +433,4 @@ void nsAbLDAPProcessReplicationData::Done(bool aSuccess) {
   // since this is called when all is done here, either on success,
   // failure or abort release the query now.
   mQuery = nullptr;
-}
-
-nsresult nsAbLDAPProcessReplicationData::DeleteCard(nsString &aDn) {
-  nsCOMPtr<nsIAbCard> cardToDelete;
-  mReplicationDB->GetCardFromAttribute(nullptr, "_DN",
-                                       NS_ConvertUTF16toUTF8(aDn), false,
-                                       getter_AddRefs(cardToDelete));
-  return mReplicationDB->DeleteCard(cardToDelete, false, nullptr);
 }

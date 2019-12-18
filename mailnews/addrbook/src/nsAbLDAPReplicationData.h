@@ -38,7 +38,7 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
   // pointer to the query to call back to once we've finished
   nsCOMPtr<nsIAbLDAPReplicationQuery> mQuery;
 
-  nsCOMPtr<nsIAddrDatabase> mReplicationDB;
+  nsCOMPtr<nsIAbDirectory> mReplicationDB;
   nsCOMPtr<nsIFile> mReplicationFile;
   nsCOMPtr<nsIFile> mBackupReplicationFile;
 
@@ -56,7 +56,6 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
   virtual nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage);
 
   nsresult OpenABForReplicatedDir(bool bCreate);
-  nsresult DeleteCard(nsString &aDn);
   void Done(bool aSuccess);
 };
 
