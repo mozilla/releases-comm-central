@@ -28,8 +28,8 @@
 #define FILE_NAME_PERSONALDICTIONARY NS_LITERAL_STRING("persdict.dat")
 #define FILE_NAME_PERSONAL_ADDRESSBOOK NS_LITERAL_STRING("abook.mab")
 #define FILE_NAME_MAILVIEWS NS_LITERAL_STRING("mailviews.dat")
-#define FILE_NAME_CERT8DB NS_LITERAL_STRING("cert8.db")
-#define FILE_NAME_KEY3DB NS_LITERAL_STRING("key3.db")
+#define FILE_NAME_CERT9DB NS_LITERAL_STRING("cert9.db")
+#define FILE_NAME_KEY4DB NS_LITERAL_STRING("key4.db")
 #define FILE_NAME_SECMODDB NS_LITERAL_STRING("secmod.db")
 #define FILE_NAME_PREFS NS_LITERAL_STRING("prefs.js")
 #define FILE_NAME_USER_PREFS NS_LITERAL_STRING("user.js")
@@ -564,11 +564,11 @@ nsresult nsSeamonkeyProfileMigrator::CopyPreferences(bool aReplace) {
   }
 
   // Security Stuff
-  tmp = CopyFile(FILE_NAME_CERT8DB, FILE_NAME_CERT8DB);
+  tmp = CopyFile(FILE_NAME_CERT9DB, FILE_NAME_CERT9DB);
   if (NS_FAILED(tmp)) {
     rv = tmp;
   }
-  tmp = CopyFile(FILE_NAME_KEY3DB, FILE_NAME_KEY3DB);
+  tmp = CopyFile(FILE_NAME_KEY4DB, FILE_NAME_KEY4DB);
   if (NS_FAILED(tmp)) {
     rv = tmp;
   }
