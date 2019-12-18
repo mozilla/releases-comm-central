@@ -149,6 +149,30 @@ function removeChildNodes(el) {
   }
 }
 
+/**
+ * Resize the window based on the content height and width.
+ * Since the sizeToContent() method doesn't account for the height of
+ * wrapped text, we're checking if the width and height of the "mastervbox"
+ * or "warningbox" is taller than the window width and height. This is necessary
+ * to account for l10n strings or the user manually resizing the window.
+ */
+function resizeDialog() {
+  // We have two main elements here: mastervbox and warningbox. Resize the
+  // window according to which one is visible.
+  let mastervbox = document.getElementById("mastervbox");
+  let box = mastervbox.hidden
+    ? document.getElementById("warningbox")
+    : mastervbox;
+
+  if (box.clientHeight > window.innerHeight) {
+    window.innerHeight = box.clientHeight;
+  }
+
+  if (box.clientWidth > window.innerWidth) {
+    window.innerWidth = box.clientWidth;
+  }
+}
+
 function EmailConfigWizard() {
   this._init();
 }
@@ -294,27 +318,6 @@ EmailConfigWizard.prototype = {
   },
 
   /**
-   * Resize the window based on the content height and width.
-   * Since the sizeToContent() method doesn't account for the height of
-   * wrapped text, we're checking if the width and height of the "mastervbox"
-   * is taller than the window width and height. This is necessary to account
-   * for l10n strings or the user manually resizing the window.
-   */
-  resizeDialog() {
-    let mastervbox = document.getElementById("mastervbox");
-    let contentHeight = mastervbox.clientHeight;
-    let contentWidth = mastervbox.clientWidth;
-
-    if (contentHeight > window.innerHeight) {
-      window.innerHeight = contentHeight;
-    }
-
-    if (contentWidth > window.innerWidth) {
-      window.innerWidth = contentWidth;
-    }
-  },
-
-  /**
    * Changes the window configuration to the different modes we have.
    * Shows/hides various window parts and buttons.
    * @param modename {String-enum}
@@ -439,7 +442,7 @@ EmailConfigWizard.prototype = {
         _hide("manual-edit_button");
       }
     }
-    this.resizeDialog();
+    resizeDialog();
   },
 
   /**
@@ -755,7 +758,7 @@ EmailConfigWizard.prototype = {
             ? "guessed_settings_offline"
             : "found_settings_guess"
         );
-        self.resizeDialog();
+        resizeDialog();
       },
       function(e, config) {
         // guessconfig failed
@@ -852,7 +855,7 @@ EmailConfigWizard.prototype = {
       this._showStatusTitle("");
       _hide("stop_button");
       gEmailWizardLogger.warn("all spinner stop");
-      this.resizeDialog();
+      resizeDialog();
       return;
     }
 
@@ -861,7 +864,7 @@ EmailConfigWizard.prototype = {
     this._showStatusTitle(actionStrName);
     _hide("stop_button");
     gEmailWizardLogger.warn("all spinner stop " + actionStrName);
-    this.resizeDialog();
+    resizeDialog();
   },
 
   showErrorStatus(actionStrName) {
@@ -1056,7 +1059,7 @@ EmailConfigWizard.prototype = {
           _disable("create_button");
         }
 
-        this.resizeDialog();
+        resizeDialog();
       })();
       return;
     }
@@ -1064,7 +1067,7 @@ EmailConfigWizard.prototype = {
     _show("result_hostnames");
     _hide("result_exchange");
     _enable("create_button");
-    this.resizeDialog();
+    resizeDialog();
 
     var unknownString = gStringsBundle.getString("resultUnknown");
 
@@ -2025,7 +2028,7 @@ EmailConfigWizard.prototype = {
         _enable("create_button");
         // hidden in non-manual mode, so it's fine to enable
         _enable("half-manual-test_button");
-        self.resizeDialog();
+        resizeDialog();
       }
     );
   },
@@ -2260,7 +2263,7 @@ SecurityWarningDialog.prototype = {
       "warning dialog shown for unknown reason"
     );
 
-    this.resizeDialog();
+    resizeDialog();
   },
 
   toggleDetails(id) {
@@ -2274,7 +2277,7 @@ SecurityWarningDialog.prototype = {
       tech.removeAttribute("expanded");
     }
 
-    this.resizeDialog();
+    resizeDialog();
   },
 
   /**
@@ -2295,7 +2298,7 @@ SecurityWarningDialog.prototype = {
   onCancel() {
     _hide("warningbox");
     _show("mastervbox");
-    this.resizeDialog();
+    resizeDialog();
 
     this._cancelCallback();
   },
@@ -2322,7 +2325,7 @@ SecurityWarningDialog.prototype = {
 
     _show("mastervbox");
     _hide("warningbox");
-    this.resizeDialog();
+    resizeDialog();
 
     this._okCallback();
   },
