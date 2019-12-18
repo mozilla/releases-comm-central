@@ -3,47 +3,47 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-*   content/messenger/preferences/aboutPreferences.xul
+*   content/messenger/preferences/aboutPreferences.xhtml
     content/messenger/preferences/preferences.js
     content/messenger/preferences/preferencesTab.js
     content/messenger/preferences/general.js
 #ifdef XP_MACOSX
     content/messenger/preferences/dockoptions.js
-    content/messenger/preferences/dockoptions.xul
+    content/messenger/preferences/dockoptions.xhtml
 #endif
     content/messenger/preferences/chat.js
     content/messenger/preferences/messagestyle.js
     content/messenger/preferences/messengerLanguages.js
-    content/messenger/preferences/messengerLanguages.xul
+    content/messenger/preferences/messengerLanguages.xhtml
     content/messenger/preferences/colors.js
-*   content/messenger/preferences/colors.xul
+*   content/messenger/preferences/colors.xhtml
     content/messenger/preferences/compose.js
     content/messenger/preferences/privacy.js
-    content/messenger/preferences/sendoptions.xul
+    content/messenger/preferences/sendoptions.xhtml
     content/messenger/preferences/sendoptions.js
     content/messenger/preferences/receipts.js
-    content/messenger/preferences/receipts.xul
+    content/messenger/preferences/receipts.xhtml
     content/messenger/preferences/connection.js
-*   content/messenger/preferences/connection.xul
+*   content/messenger/preferences/connection.xhtml
     content/messenger/preferences/downloads.js
     content/messenger/preferences/attachmentReminder.js
-    content/messenger/preferences/attachmentReminder.xul
-    content/messenger/preferences/applicationManager.xul
+    content/messenger/preferences/attachmentReminder.xhtml
+    content/messenger/preferences/applicationManager.xhtml
     content/messenger/preferences/applicationManager.js
     content/messenger/preferences/handlers.css
     content/messenger/preferences/actionsshared.js
     content/messenger/preferences/fonts.js
-    content/messenger/preferences/fonts.xul
+    content/messenger/preferences/fonts.xhtml
 #ifndef XP_MACOSX
     content/messenger/preferences/notifications.js
-    content/messenger/preferences/notifications.xul
+    content/messenger/preferences/notifications.xhtml
 #endif
     content/messenger/preferences/offline.js
-    content/messenger/preferences/offline.xul
+    content/messenger/preferences/offline.xhtml
     content/messenger/preferences/cookies.js
-*   content/messenger/preferences/cookies.xul
+*   content/messenger/preferences/cookies.xhtml
     content/messenger/preferences/passwordManager.js
-    content/messenger/preferences/passwordManager.xul
+    content/messenger/preferences/passwordManager.xhtml
     content/messenger/preferences/permissions.js
-    content/messenger/preferences/permissions.xul
+    content/messenger/preferences/permissions.xhtml
     content/messenger/preferences/subdialogs.js

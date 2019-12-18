@@ -685,7 +685,7 @@ function LoadPostAccountWizard() {
           !SearchIntegration.firstRunDone)
       ) {
         window.openDialog(
-          "chrome://messenger/content/systemIntegrationDialog.xul",
+          "chrome://messenger/content/systemIntegrationDialog.xhtml",
           "SystemIntegration",
           "modal,centerscreen,chrome,resizable=no"
         );

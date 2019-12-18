@@ -176,7 +176,7 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
     prefTab.browser.contentDocument
       .getElementById("dialogOverlay-0")
       .querySelector("browser"),
-    "chrome://messenger/content/preferences/fonts.xul"
+    "chrome://messenger/content/preferences/fonts.xhtml"
   );
 
   // The font pickers are populated async so we need to wait for it.

@@ -22,7 +22,7 @@ var cth = ChromeUtils.import(
 
 /**
  * Open the preferences tab with the given pane displayed. The pane needs to
- * be one of the prefpane ids in mail/components/preferences/aboutPreferences.xul.
+ * be one of the prefpane ids in mail/components/preferences/aboutPreferences.xhtml.
  *
  * @param aPaneID The ID of the pref pane to display (see
  *     mail/components/preferences/aboutPreferences.xul for valid IDs.)

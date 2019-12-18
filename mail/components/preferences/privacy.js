@@ -151,7 +151,7 @@ var gPrivacyPane = {
       introText: bundle.getString("cookiepermissionstext"),
     };
     gSubDialog.open(
-      "chrome://messenger/content/preferences/permissions.xul",
+      "chrome://messenger/content/preferences/permissions.xhtml",
       null,
       params
     );
@@ -161,7 +161,7 @@ var gPrivacyPane = {
    * Displays all the user's cookies in a dialog.
    */
   showCookies(aCategory) {
-    gSubDialog.open("chrome://messenger/content/preferences/cookies.xul");
+    gSubDialog.open("chrome://messenger/content/preferences/cookies.xhtml");
   },
 
   /**
@@ -214,7 +214,7 @@ var gPrivacyPane = {
       introText: bundle.getString("imagepermissionstext"),
     };
     gSubDialog.open(
-      "chrome://messenger/content/preferences/permissions.xul",
+      "chrome://messenger/content/preferences/permissions.xhtml",
       null,
       params
     );
@@ -329,7 +329,7 @@ var gPrivacyPane = {
    */
   showPasswords() {
     gSubDialog.open(
-      "chrome://messenger/content/preferences/passwordManager.xul"
+      "chrome://messenger/content/preferences/passwordManager.xhtml"
     );
   },
 

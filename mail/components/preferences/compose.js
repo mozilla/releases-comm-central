@@ -84,12 +84,12 @@ var gComposePane = {
   },
 
   sendOptionsDialog() {
-    gSubDialog.open("chrome://messenger/content/preferences/sendoptions.xul");
+    gSubDialog.open("chrome://messenger/content/preferences/sendoptions.xhtml");
   },
 
   attachmentReminderOptionsDialog() {
     gSubDialog.open(
-      "chrome://messenger/content/preferences/attachmentReminder.xul",
+      "chrome://messenger/content/preferences/attachmentReminder.xhtml",
       "resizable=no"
     );
   },
@@ -156,7 +156,7 @@ var gComposePane = {
 
   editDirectories() {
     gSubDialog.open(
-      "chrome://messenger/content/addressbook/pref-editdirectories.xul"
+      "chrome://messenger/content/addressbook/pref-editdirectories.xhtml"
     );
   },
 

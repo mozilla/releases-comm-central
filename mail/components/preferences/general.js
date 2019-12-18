@@ -476,14 +476,14 @@ var gGeneralPane = {
 
   customizeMailAlert() {
     gSubDialog.open(
-      "chrome://messenger/content/preferences/notifications.xul",
+      "chrome://messenger/content/preferences/notifications.xhtml",
       "resizable=no"
     );
   },
 
   configureDockOptions() {
     gSubDialog.open(
-      "chrome://messenger/content/preferences/dockoptions.xul",
+      "chrome://messenger/content/preferences/dockoptions.xhtml",
       "resizable=no"
     );
   },
@@ -743,7 +743,7 @@ var gGeneralPane = {
 
     // otherwise, bring up the default client dialog
     gSubDialog.open(
-      "chrome://messenger/content/systemIntegrationDialog.xul",
+      "chrome://messenger/content/systemIntegrationDialog.xhtml",
       "resizable=no",
       "calledFromPrefs"
     );
@@ -849,7 +849,7 @@ var gGeneralPane = {
    * configured.
    */
   configureFonts() {
-    gSubDialog.open("chrome://messenger/content/preferences/fonts.xul");
+    gSubDialog.open("chrome://messenger/content/preferences/fonts.xhtml");
   },
 
   /**
@@ -858,7 +858,7 @@ var gGeneralPane = {
    */
   configureColors() {
     gSubDialog.open(
-      "chrome://messenger/content/preferences/colors.xul",
+      "chrome://messenger/content/preferences/colors.xhtml",
       "resizable=no"
     );
   },
@@ -1026,7 +1026,7 @@ var gGeneralPane = {
   showMessengerLanguages({ search }) {
     let opts = { selected: gGeneralPane.selectedLocales, search };
     gSubDialog.open(
-      "chrome://messenger/content/preferences/messengerLanguages.xul",
+      "chrome://messenger/content/preferences/messengerLanguages.xhtml",
       null,
       opts,
       this.messengerLanguagesClosed
@@ -1198,7 +1198,7 @@ var gGeneralPane = {
         okCallback: editTagCallback,
       };
       gSubDialog.open(
-        "chrome://messenger/content/newTagDialog.xul",
+        "chrome://messenger/content/newTagDialog.xhtml",
         "resizable=no",
         args
       );
@@ -1208,7 +1208,7 @@ var gGeneralPane = {
   addTag() {
     var args = { result: "", okCallback: addTagCallback };
     gSubDialog.open(
-      "chrome://messenger/content/newTagDialog.xul",
+      "chrome://messenger/content/newTagDialog.xhtml",
       "resizable=no",
       args
     );
@@ -1269,7 +1269,7 @@ var gGeneralPane = {
    */
   showReturnReceipts() {
     gSubDialog.open(
-      "chrome://messenger/content/preferences/receipts.xul",
+      "chrome://messenger/content/preferences/receipts.xhtml",
       "resizable=no"
     );
   },
@@ -1282,7 +1282,7 @@ var gGeneralPane = {
    * Display the the connection settings dialog.
    */
   showConnections() {
-    gSubDialog.open("chrome://messenger/content/preferences/connection.xul");
+    gSubDialog.open("chrome://messenger/content/preferences/connection.xhtml");
   },
 
   /**
@@ -1290,7 +1290,7 @@ var gGeneralPane = {
    */
   showOffline() {
     gSubDialog.open(
-      "chrome://messenger/content/preferences/offline.xul",
+      "chrome://messenger/content/preferences/offline.xhtml",
       "resizable=no"
     );
   },
@@ -2048,7 +2048,7 @@ var gGeneralPane = {
     };
 
     gSubDialog.open(
-      "chrome://messenger/content/preferences/applicationManager.xul",
+      "chrome://messenger/content/preferences/applicationManager.xhtml",
       "resizable=no",
       handlerInfo,
       closingCallback
