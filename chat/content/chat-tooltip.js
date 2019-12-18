@@ -189,7 +189,7 @@
         MozXULElement.parseXULToFragment(`
           <vbox class="largeTooltip">
             <hbox align="start" crop="end" flex="1">
-              <vbox flex="1">
+              <vbox>
                 <stack>
                   <!-- The box around the user icon is a workaround for bug 955673. -->
                   <box class="userIconHolder">
@@ -207,7 +207,7 @@
                   </hbox>
                   <spacer flex="1"></spacer>
                 </vbox>
-                <description class="tooltipMessage"></description>
+                <description class="tooltipMessage" crop="end"></description>
               </stack>
             </hbox>
             <html:table class="tooltipTable">
@@ -252,19 +252,9 @@
       return this._table;
     }
 
-    setBuddyIcon(aSrc) {
-      let img = this.querySelector(".userIcon");
-      if (aSrc) {
-        img.setAttribute("userIcon", aSrc);
-      } else {
-        img.removeAttribute("userIcon");
-      }
-    }
-
     setMessage(aMessage) {
-      // Setting the textContent directly allows text wrapping.
       let msg = this.querySelector(".tooltipMessage");
-      msg.textContent = aMessage;
+      msg.value = aMessage;
     }
 
     reset() {
@@ -313,7 +303,7 @@
       // so we only use it for JavaScript prpls.
       // This is a terrible, terrible hack to work around the fact that
       // ClassInfo.implementationLanguage has gone.
-      if (!aAccount.prplAccount.wrappedJSObject) {
+      if (!aAccount.prplAccount || !aAccount.prplAccount.wrappedJSObject) {
         return;
       }
       this.observedUserInfo = aObservedName;
@@ -330,7 +320,11 @@
       this.setAttribute("displayname", displayName);
       let account = aBuddy.account;
       this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
-      this.setBuddyIcon(aBuddy.buddyIconFilename);
+      if (aBuddy.buddyIconFilename || aBuddy.buddyIconFilename == "") {
+        this.setAttribute("userIcon", aBuddy.buddyIconFilename);
+      } else {
+        this.removeAttribute("userIcon");
+      }
 
       let statusType = aBuddy.statusType;
       this.setAttribute("status", Status.toAttribute(statusType));
@@ -368,7 +362,7 @@
             this.setMessage(Status.toLabel(statusType, elt.value));
             break;
           case Ci.prplITooltipInfo.icon:
-            this.setBuddyIcon(elt.value);
+            this.setAttribute("userIcon", elt.value);
             break;
         }
       }
@@ -383,7 +377,7 @@
       this.setAttribute("displayname", aConv.name);
       let account = aConv.account;
       this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
-      this.setBuddyIcon(null);
+      this.removeAttribute("userIcon");
       if (aConv.isChat) {
         this.setAttribute("status", "chat");
         if (!aConv.account.connected || aConv.left) {
@@ -435,7 +429,15 @@
       this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
       this.setAttribute("status", "unknown");
       this.setMessage(Status.toLabel("unknown"));
-      this.setBuddyIcon(aParticipant ? aParticipant.buddyIconFilename : null);
+      if (
+        aParticipant.buddyIconFilename ||
+        aParticipant.buddyIconFilename == ""
+      ) {
+        this.setAttribute("userIcon", aParticipant.buddyIconFilename);
+      } else {
+        this.removeAttribute("userIcon");
+      }
+
       this.requestBuddyInfo(account, normalizedNick);
       return true;
     }
