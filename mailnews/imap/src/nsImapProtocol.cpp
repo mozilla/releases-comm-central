@@ -9469,6 +9469,13 @@ NS_IMETHODIMP nsImapMockChannel::Cancel(nsresult status) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsImapMockChannel::GetCanceled(bool* aCanceled) {
+  nsresult status = NS_ERROR_FAILURE;
+  GetStatus(&status);
+  *aCanceled = NS_FAILED(status);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsImapMockChannel::Suspend() {
   MOZ_ASSERT_UNREACHABLE("nsImapMockChannel::Suspend");
   return NS_ERROR_NOT_IMPLEMENTED;

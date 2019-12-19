@@ -67,6 +67,13 @@ NS_IMETHODIMP nsNntpMockChannel::Cancel(nsresult status) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsNntpMockChannel::GetCanceled(bool* aCanceled) {
+  nsresult status = NS_ERROR_FAILURE;
+  GetStatus(&status);
+  *aCanceled = NS_FAILED(status);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsNntpMockChannel::Suspend() {
   MOZ_ASSERT_UNREACHABLE("nsNntpMockChannel::Suspend");
   return NS_ERROR_NOT_IMPLEMENTED;
