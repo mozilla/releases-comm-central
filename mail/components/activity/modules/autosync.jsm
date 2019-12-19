@@ -142,7 +142,7 @@ var autosyncModule = {
 
       // transfer all subjects.
       // same as above, not mandatory
-      let subjects = process.getSubjects({});
+      let subjects = process.getSubjects();
       for (let subject of subjects) {
         event.addSubject(subject);
       }

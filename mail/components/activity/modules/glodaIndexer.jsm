@@ -228,7 +228,7 @@ var glodaIndexerActivity = {
       event.iconClass = "indexMail";
 
       // Transfer subjects.
-      let subjects = this.currentJob.process.getSubjects({});
+      let subjects = this.currentJob.process.getSubjects();
       for (let subject of subjects) {
         event.addSubject(subject);
       }

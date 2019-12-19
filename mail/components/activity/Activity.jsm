@@ -47,11 +47,8 @@ Activity.prototype = {
     this._subjects.push(aSubject);
   },
 
-  getSubjects(aCount) {
-    let list = this._subjects.slice();
-
-    aCount.value = list.length;
-    return list;
+  getSubjects() {
+    return this._subjects.slice();
   },
 };
 

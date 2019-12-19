@@ -181,8 +181,7 @@ interface nsIActivity : nsISupports {
    *
    * @return The list of subject objects associated by the activity.
    */
-  void getSubjects(out unsigned long length, [retval, array,
-                   size_is(length)] out nsIVariant aSubjects);
+  Array<nsIVariant> getSubjects();
 
   /*
    * Background:
