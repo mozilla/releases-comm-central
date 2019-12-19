@@ -307,20 +307,15 @@ nsMsgQuickSearchDBView::OnSearchDone(nsresult status) {
       m_hdrHits[i - 1]->GetMessageKey(&key);
       keyArray.AppendElement(key);
     }
-    nsMsgKey *staleHits;
-    uint32_t numBadHits;
     if (m_db) {
-      nsresult rv =
-          m_db->RefreshCache(searchUri.get(), m_hdrHits.Count(),
-                             keyArray.Elements(), &numBadHits, &staleHits);
+      nsTArray<nsMsgKey> staleHits;
+      nsresult rv = m_db->RefreshCache(searchUri.get(), keyArray, staleHits);
       NS_ENSURE_SUCCESS(rv, rv);
-      nsCOMPtr<nsIMsgDBHdr> hdrDeleted;
-
-      for (uint32_t i = 0; i < numBadHits; i++) {
-        m_db->GetMsgHdrForKey(staleHits[i], getter_AddRefs(hdrDeleted));
+      for (nsMsgKey staleKey : staleHits) {
+        nsCOMPtr<nsIMsgDBHdr> hdrDeleted;
+        m_db->GetMsgHdrForKey(staleKey, getter_AddRefs(hdrDeleted));
         if (hdrDeleted) OnHdrDeleted(hdrDeleted, nsMsgKey_None, 0, this);
       }
-      delete[] staleHits;
     }
     nsCOMPtr<nsIMsgDatabase> virtDatabase;
     nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;

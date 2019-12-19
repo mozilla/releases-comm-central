@@ -5119,9 +5119,8 @@ nsMsgDatabase::GetCachedHits(const char *aSearchFolderUri,
 }
 
 NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char *aSearchFolderUri,
-                                          uint32_t aNumKeys, nsMsgKey *aNewHits,
-                                          uint32_t *aNumBadHits,
-                                          nsMsgKey **aStaleHits) {
+                                          nsTArray<nsMsgKey> const &aNewHits,
+                                          nsTArray<nsMsgKey> &aStaleHits) {
   nsCOMPtr<nsIMdbTable> table;
   nsresult err =
       GetSearchResultsTable(aSearchFolderUri, true, getter_AddRefs(table));
@@ -5136,9 +5135,9 @@ NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char *aSearchFolderUri,
 
   uint32_t rowCount;
   table->GetCount(GetEnv(), &rowCount);
-  nsTArray<nsMsgKey> staleHits;
+  aStaleHits.Clear();
   // should assert that each array is sorted
-  while (newHitIndex < aNumKeys || tableRowIndex < rowCount) {
+  while (newHitIndex < aNewHits.Length() || tableRowIndex < rowCount) {
     mdbOid oid;
     nsMsgKey tableRowKey = nsMsgKey_None;
     if (tableRowIndex < rowCount) {
@@ -5151,12 +5150,13 @@ NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char *aSearchFolderUri,
           oid.mOid_Id;  // ### TODO need the real key for the 0th key problem.
     }
 
-    if (newHitIndex < aNumKeys && aNewHits[newHitIndex] == tableRowKey) {
+    if (newHitIndex < aNewHits.Length() &&
+        aNewHits[newHitIndex] == tableRowKey) {
       newHitIndex++;
       tableRowIndex++;
       continue;
     } else if (tableRowIndex >= rowCount ||
-               (newHitIndex < aNumKeys &&
+               (newHitIndex < aNewHits.Length() &&
                 aNewHits[newHitIndex] < tableRowKey)) {
       nsCOMPtr<nsIMdbRow> hdrRow;
       mdbOid rowObjectId;
@@ -5173,21 +5173,14 @@ NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char *aSearchFolderUri,
       }
       newHitIndex++;
       continue;
-    } else if (newHitIndex >= aNumKeys || aNewHits[newHitIndex] > tableRowKey) {
-      staleHits.AppendElement(tableRowKey);
+    } else if (newHitIndex >= aNewHits.Length() ||
+               aNewHits[newHitIndex] > tableRowKey) {
+      aStaleHits.AppendElement(tableRowKey);
       table->CutOid(GetEnv(), &oid);
       rowCount--;
       continue;  // don't increment tableRowIndex since we removed that row.
     }
   }
-  *aNumBadHits = staleHits.Length();
-  if (*aNumBadHits) {
-    *aStaleHits =
-        static_cast<nsMsgKey *>(moz_xmalloc(*aNumBadHits * sizeof(nsMsgKey)));
-    if (!*aStaleHits) return NS_ERROR_OUT_OF_MEMORY;
-    memcpy(*aStaleHits, staleHits.Elements(), *aNumBadHits * sizeof(nsMsgKey));
-  } else
-    *aStaleHits = nullptr;
 
 #ifdef DEBUG_David_Bienvenu
   printf("after refreshing cache\n");

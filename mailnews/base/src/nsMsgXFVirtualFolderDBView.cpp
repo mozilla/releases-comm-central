@@ -182,28 +182,24 @@ nsMsgXFVirtualFolderDBView::OnHdrPropertyChanged(
 }
 
 void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForFolder(
-    nsIMsgFolder *folder, nsMsgKey *newHits, uint32_t numNewHits) {
+    nsIMsgFolder *folder, nsTArray<nsMsgKey> const &newHits) {
   nsCOMPtr<nsIMsgDatabase> db;
   nsresult rv = folder->GetMsgDatabase(getter_AddRefs(db));
   if (NS_SUCCEEDED(rv) && db) {
     nsCString searchUri;
     m_viewFolder->GetURI(searchUri);
-    uint32_t numBadHits;
-    nsMsgKey *badHits;
-    rv = db->RefreshCache(searchUri.get(), numNewHits, newHits, &numBadHits,
-                          &badHits);
+    nsTArray<nsMsgKey> badHits;
+    rv = db->RefreshCache(searchUri.get(), newHits, badHits);
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsIMsgDBHdr> badHdr;
-      for (uint32_t badHitIndex = 0; badHitIndex < numBadHits; badHitIndex++) {
+      for (nsMsgKey badKey : badHits) {
         // ### of course, this isn't quite right, since we should be
         // using FindHdr, and we shouldn't be expanding the threads.
-        db->GetMsgHdrForKey(badHits[badHitIndex], getter_AddRefs(badHdr));
+        db->GetMsgHdrForKey(badKey, getter_AddRefs(badHdr));
         // Let nsMsgSearchDBView decide what to do about this header
         // getting removed.
         if (badHdr) OnHdrDeleted(badHdr, nsMsgKey_None, 0, this);
       }
-
-      delete[] badHits;
     }
   }
 }
@@ -219,8 +215,7 @@ void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForPrevSearchedFolders(
       m_hdrHits[i]->GetMessageKey(&newHits[i]);
 
     newHits.Sort();
-    UpdateCacheAndViewForFolder(m_curFolderGettingHits, newHits.Elements(),
-                                newHits.Length());
+    UpdateCacheAndViewForFolder(m_curFolderGettingHits, newHits);
     m_foldersSearchingOver.RemoveObject(m_curFolderGettingHits);
   }
 
@@ -233,7 +228,8 @@ void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForPrevSearchedFolders(
     } else {
       // This must be a folder that had no hits with the current search.
       // So all cached hits, if any, need to be removed.
-      UpdateCacheAndViewForFolder(m_foldersSearchingOver[0], nullptr, 0);
+      nsTArray<nsMsgKey> noHits;
+      UpdateCacheAndViewForFolder(m_foldersSearchingOver[0], noHits);
       m_foldersSearchingOver.RemoveObjectAt(0);
     }
   }

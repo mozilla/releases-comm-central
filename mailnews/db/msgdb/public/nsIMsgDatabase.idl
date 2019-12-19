@@ -545,8 +545,15 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
 
   // These are used for caching search hits in a db, to speed up saved search folders.
   nsISimpleEnumerator getCachedHits(in string aSearchFolderUri);
-  void refreshCache(in string aSearchFolderUri, in unsigned long aNumKeys, [array, size_is (aNumKeys)] in nsMsgKey aNewHits,
-     out unsigned long aNumBadHits, [array, size_is(aNumBadHits)] out nsMsgKey aStaleHits);
+
+  /**
+   * Update search cache to ensure it contains aNewHits.
+   *
+   * @param aSearchFolderUri the target folder.
+   * @param aNewHits sorted list of new message keys.
+   * @returns list of keys of messages removed from cache.
+   */
+  Array<nsMsgKey> refreshCache(in string aSearchFolderUri, in Array<nsMsgKey> aNewHits);
   void updateHdrInCache(in string aSearchFolderUri, in nsIMsgDBHdr aHdr, in boolean aAdd);
   boolean hdrIsInCache(in string aSearchFolderUri, in nsIMsgDBHdr aHdr);
 

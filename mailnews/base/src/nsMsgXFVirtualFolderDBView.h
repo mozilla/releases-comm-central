@@ -48,8 +48,8 @@ class nsMsgXFVirtualFolderDBView : public nsMsgSearchDBView {
   virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey parentKey,
                                bool ensureListed) override;
   void UpdateCacheAndViewForPrevSearchedFolders(nsIMsgFolder *curSearchFolder);
-  void UpdateCacheAndViewForFolder(nsIMsgFolder *folder, nsMsgKey *newHits,
-                                   uint32_t numNewHits);
+  void UpdateCacheAndViewForFolder(nsIMsgFolder *folder,
+                                   nsTArray<nsMsgKey> const &newHits);
   void RemovePendingDBListeners();
 
  protected:
