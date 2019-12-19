@@ -454,7 +454,7 @@ calIcalComponent.prototype = {
   },
 
   addSubcomponent: function(comp) {
-    comp.getReferencedTimezones({}).forEach(this.addTimezoneReference, this);
+    comp.getReferencedTimezones().forEach(this.addTimezoneReference, this);
     let jscomp = unwrapSingle(ICAL.Component, comp);
     this.innerObject.addSubcomponent(jscomp);
   },
@@ -542,9 +542,7 @@ calIcalComponent.prototype = {
   },
 
   getReferencedTimezones: function(aCount) {
-    let vals = Object.keys(this.mReferencedZones).map(timezone => this.mReferencedZones[timezone]);
-    aCount.value = vals.length;
-    return vals;
+    return Object.keys(this.mReferencedZones).map(timezone => this.mReferencedZones[timezone]);
   },
 
   serializeToICSStream: function() {

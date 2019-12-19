@@ -140,8 +140,7 @@ interface calIIcalComponent : nsISupports
      * These are the timezones that are in use by this
      * component and its children.
      */
-    void getReferencedTimezones(out uint32_t aCount,
-                                [array,size_is(aCount),retval] out calITimezone aTimezones);
+    Array<calITimezone> getReferencedTimezones();
 
     /**
      * Clones the component. The cloned component is decoupled from any parent.

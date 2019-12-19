@@ -470,31 +470,18 @@ calIcalComponent::AddTimezoneReference(calITimezone *aTimezone) {
 }
 
 NS_IMETHODIMP
-calIcalComponent::GetReferencedTimezones(uint32_t *aCount,
-                                         calITimezone ***aTimezones) {
-  NS_ENSURE_ARG_POINTER(aCount);
-  NS_ENSURE_ARG_POINTER(aTimezones);
-
+calIcalComponent::GetReferencedTimezones(
+    nsTArray<RefPtr<calITimezone>> &aTimezones) {
+  aTimezones.ClearAndRetainStorage();
   uint32_t const count = mReferencedTimezones.Count();
   if (count == 0) {
-    *aCount = 0;
-    *aTimezones = nullptr;
     return NS_OK;
   }
-
-  calITimezone **const timezones =
-      static_cast<calITimezone **>(moz_xmalloc(sizeof(calITimezone *) * count));
-  CAL_ENSURE_MEMORY(timezones);
-  // tzptr will get used as an iterator by the enumerator function
-  calITimezone **tzptr = timezones;
+  aTimezones.SetCapacity(count);
   for (auto iter = mReferencedTimezones.ConstIter(); !iter.Done();
        iter.Next()) {
-    NS_ADDREF(*tzptr = iter.Data());
-    ++tzptr;
+    aTimezones.AppendElement(iter.Data());
   }
-
-  *aTimezones = timezones;
-  *aCount = count;
   return NS_OK;
 }
 
@@ -1003,25 +990,13 @@ calIcalComponent::AddSubcomponent(calIIcalComponent *aComp) {
 
   calIcalComponent *const ical = toIcalComponent(icalcomp);
 
-  uint32_t tzCount = 0;
-  calITimezone **timezones = nullptr;
-  rv = ical->GetReferencedTimezones(&tzCount, &timezones);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsTArray<RefPtr<calITimezone>> timezones;
+  rv = ical->GetReferencedTimezones(timezones);
   calIcalComponent *const vcal = getParentVCalendarOrThis();
-  bool failed = false;
-  for (uint32_t i = 0; i < tzCount; i++) {
-    if (!failed) {
-      rv = vcal->AddTimezoneReference(timezones[i]);
-      if (NS_FAILED(rv)) failed = true;
-    }
-
-    NS_RELEASE(timezones[i]);
+  for (auto &tz : timezones) {
+    rv = vcal->AddTimezoneReference(tz);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
-
-  free(timezones);
-
-  if (failed) return rv;
 
   if (ical->mParent) {
     ical->mComponent = icalcomponent_new_clone(ical->mComponent);
