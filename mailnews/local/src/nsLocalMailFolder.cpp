@@ -1139,8 +1139,7 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) {
 
   nsCOMPtr<nsIMutableArray> messages;
   rv = MsgGetHdrsFromKeys(mDatabase, thoseMarked.Elements(),
-                          thoseMarked.Length(),
-                          getter_AddRefs(messages));
+                          thoseMarked.Length(), getter_AddRefs(messages));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
@@ -1173,8 +1172,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread *thread) {
 
   nsCOMPtr<nsIMutableArray> messages;
   rv = MsgGetHdrsFromKeys(mDatabase, thoseMarked.Elements(),
-                          thoseMarked.Length(),
-                          getter_AddRefs(messages));
+                          thoseMarked.Length(), getter_AddRefs(messages));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
