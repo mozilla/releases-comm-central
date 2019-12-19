@@ -19,12 +19,7 @@ function test_preview(aMessageHeaderKeys, aStatus) {
   Assert.notEqual(headerKeys, null);
   Assert.equal(headerKeys.length, 2);
   try {
-    localAccountUtils.inboxFolder.fetchMsgPreviewText(
-      headerKeys,
-      headerKeys.length,
-      false,
-      null
-    );
+    localAccountUtils.inboxFolder.fetchMsgPreviewText(headerKeys, false, null);
     Assert.equal(
       localAccountUtils.inboxFolder
         .GetMessageHeader(headerKeys[0])

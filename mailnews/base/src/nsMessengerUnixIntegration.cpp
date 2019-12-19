@@ -227,8 +227,9 @@ bool nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
   if (NS_FAILED(aHdr->GetMessageKey(&messageKey))) return false;
 
   bool asyncResult = false;
-  nsresult rv = folder->FetchMsgPreviewText(&messageKey, 1, localOnly, this,
-                                            &asyncResult);
+  nsTArray<nsMsgKey> singleKey({messageKey});
+  nsresult rv =
+      folder->FetchMsgPreviewText(singleKey, localOnly, this, &asyncResult);
   // If we're still waiting on getting the message previews,
   // bail early.  We'll come back later when the async operation
   // finishes.

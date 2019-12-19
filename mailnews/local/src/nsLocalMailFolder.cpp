@@ -3446,9 +3446,8 @@ nsMsgLocalMailFolder::WarnIfLocalFileTooBig(nsIMsgWindow *aWindow,
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(
-    nsMsgKey *aKeysToFetch, uint32_t aNumKeys, bool aLocalOnly,
+    nsTArray<nsMsgKey> const &aKeysToFetch, bool aLocalOnly,
     nsIUrlListener *aUrlListener, bool *aAsyncResults) {
-  NS_ENSURE_ARG_POINTER(aKeysToFetch);
   NS_ENSURE_ARG_POINTER(aAsyncResults);
 
   *aAsyncResults = false;
@@ -3457,7 +3456,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(
   nsresult rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  for (uint32_t i = 0; i < aNumKeys; i++) {
+  for (uint32_t i = 0; i < aKeysToFetch.Length(); i++) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     nsCString prevBody;
     rv = GetMessageHeader(aKeysToFetch[i], getter_AddRefs(msgHdr));

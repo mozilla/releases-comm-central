@@ -149,7 +149,6 @@
           try {
             outAsync.value = folder.fetchMsgPreviewText(
               msgKeys.value,
-              numMsgKeys.value,
               false,
               urlListener
             );

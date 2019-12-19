@@ -302,7 +302,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
                                    nsIMsgWindow *msgWindow) override;
   NS_IMETHOD GetCanFileMessages(bool *aCanFileMessages) override;
   NS_IMETHOD GetCanDeleteMessages(bool *aCanDeleteMessages) override;
-  NS_IMETHOD FetchMsgPreviewText(nsMsgKey *aKeysToFetch, uint32_t aNumKeys,
+  NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const &aKeysToFetch,
                                  bool aLocalOnly, nsIUrlListener *aUrlListener,
                                  bool *aAsyncResults) override;
 

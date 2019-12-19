@@ -62,7 +62,7 @@ var gTestArray = [
     let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
-    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, keys.length, false, null));
+    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, false, null));
     Assert.equal(hdrs[0].getStringProperty("preview"), bugmail10_preview);
     // check inbox message
     hdrs = [];
@@ -72,12 +72,7 @@ var gTestArray = [
     keys.push(hdr.messageKey);
     hdrs.push(hdr);
     Assert.ok(
-      !localAccountUtils.inboxFolder.fetchMsgPreviewText(
-        keys,
-        keys.length,
-        false,
-        null
-      )
+      !localAccountUtils.inboxFolder.fetchMsgPreviewText(keys, false, null)
     );
     Assert.equal(hdrs[0].getStringProperty("preview"), basic1_preview);
   },

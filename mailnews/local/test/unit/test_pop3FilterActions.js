@@ -91,12 +91,7 @@ var gTestArray = [
       hdrs.push(hdr);
     }
     Assert.ok(
-      !localAccountUtils.inboxFolder.fetchMsgPreviewText(
-        keys,
-        keys.length,
-        false,
-        null
-      )
+      !localAccountUtils.inboxFolder.fetchMsgPreviewText(keys, false, null)
     );
     let preview1 = hdrs[0].getStringProperty("preview");
     let preview2 = hdrs[1].getStringProperty("preview");
