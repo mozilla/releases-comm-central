@@ -354,7 +354,7 @@ var alertUtilsWindowWatcher = {
   },
 
   getNewAuthPrompter(aParent) {
-    return Cc["@mozilla.org/login-manager/prompter;1"].getService(
+    return Cc["@mozilla.org/login-manager/authprompter;1"].getService(
       Ci.nsIAuthPrompt
     );
   },
@@ -380,6 +380,6 @@ var gDummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
 );
 gDummyMsgWindow instanceof Ci.nsIMsgWindowTest;
 gDummyMsgWindow.setAuthPrompt(
-  Cc["@mozilla.org/login-manager/prompter;1"].getService(Ci.nsIAuthPrompt)
+  Cc["@mozilla.org/login-manager/authprompter;1"].getService(Ci.nsIAuthPrompt)
 );
 gDummyMsgWindow.setPromptDialog(alertUtilsPrompts);
