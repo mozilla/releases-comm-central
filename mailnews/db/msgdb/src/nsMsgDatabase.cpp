@@ -2424,14 +2424,11 @@ nsMsgDatabase::MarkHdrNotNew(nsIMsgDBHdr *aMsgHdr,
   return SetMsgHdrFlag(aMsgHdr, false, nsMsgMessageFlags::New, aInstigator);
 }
 
-NS_IMETHODIMP nsMsgDatabase::MarkAllRead(uint32_t *aNumKeys,
-                                         nsMsgKey **aThoseMarked) {
-  NS_ENSURE_ARG_POINTER(aNumKeys);
-  NS_ENSURE_ARG_POINTER(aThoseMarked);
+NS_IMETHODIMP nsMsgDatabase::MarkAllRead(nsTArray<nsMsgKey> &aThoseMarked) {
   nsMsgHdr *pHeader;
+  aThoseMarked.ClearAndRetainStorage();
 
   nsCOMPtr<nsISimpleEnumerator> hdrs;
-  nsTArray<nsMsgKey> thoseMarked;
   nsresult rv = EnumerateMessages(getter_AddRefs(hdrs));
   if (NS_FAILED(rv)) return rv;
   bool hasMore = false;
@@ -2447,20 +2444,11 @@ NS_IMETHODIMP nsMsgDatabase::MarkAllRead(uint32_t *aNumKeys,
     if (!isRead) {
       nsMsgKey key;
       (void)pHeader->GetMessageKey(&key);
-      thoseMarked.AppendElement(key);
+      aThoseMarked.AppendElement(key);
       rv = MarkHdrRead(pHeader, true, nullptr);  // ### dmb - blow off error?
     }
     NS_RELEASE(pHeader);
   }
-
-  *aNumKeys = thoseMarked.Length();
-
-  if (thoseMarked.Length()) {
-    *aThoseMarked = (nsMsgKey *)moz_xmemdup(
-        &thoseMarked[0], thoseMarked.Length() * sizeof(nsMsgKey));
-    if (!*aThoseMarked) return NS_ERROR_OUT_OF_MEMORY;
-  } else
-    *aThoseMarked = nullptr;
 
   // force num new to 0.
   int32_t numUnreadMessages;

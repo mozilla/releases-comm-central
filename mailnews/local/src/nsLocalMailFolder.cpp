@@ -1127,34 +1127,36 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsMsgKey *thoseMarked = nullptr;
-  uint32_t numMarked = 0;
+  nsTArray<nsMsgKey> thoseMarked;
   EnableNotifications(allMessageCountNotifications, false);
-  rv = mDatabase->MarkAllRead(&numMarked, &thoseMarked);
+  rv = mDatabase->MarkAllRead(thoseMarked);
   EnableNotifications(allMessageCountNotifications, true);
-  if (NS_FAILED(rv) || !numMarked || !thoseMarked) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  do {
-    nsCOMPtr<nsIMutableArray> messages;
-    rv = MsgGetHdrsFromKeys(mDatabase, thoseMarked, numMarked,
-                            getter_AddRefs(messages));
-    if (NS_FAILED(rv)) break;
+  if (thoseMarked.IsEmpty()) {
+    return NS_OK;
+  }
 
-    nsCOMPtr<nsIMsgPluggableStore> msgStore;
-    rv = GetMsgStore(getter_AddRefs(msgStore));
-    if (NS_FAILED(rv)) break;
+  nsCOMPtr<nsIMutableArray> messages;
+  rv = MsgGetHdrsFromKeys(mDatabase, thoseMarked.Elements(),
+                          thoseMarked.Length(),
+                          getter_AddRefs(messages));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = msgStore->ChangeFlags(messages, nsMsgMessageFlags::Read, true);
-    if (NS_FAILED(rv)) break;
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
+  rv = msgStore->ChangeFlags(messages, nsMsgMessageFlags::Read, true);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    // Setup a undo-state
-    if (aMsgWindow)
-      rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked, numMarked);
-  } while (false);
+  mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
 
-  free(thoseMarked);
+  // Setup a undo-state
+  if (aMsgWindow)
+    rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked.Elements(),
+                                  thoseMarked.Length());
+
   return rv;
 }
 

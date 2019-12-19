@@ -31,7 +31,7 @@ class nsNewsDatabase : public nsMsgDatabase, public nsINewsDatabase {
 
   NS_IMETHOD GetHighWaterArticleNum(nsMsgKey *key) override;
   NS_IMETHOD GetLowWaterArticleNum(nsMsgKey *key) override;
-  NS_IMETHOD MarkAllRead(uint32_t *aNumMarked, nsMsgKey **thoseMarked) override;
+  NS_IMETHOD MarkAllRead(nsTArray<nsMsgKey> &thoseMarked) override;
 
   virtual nsresult ExpireUpTo(nsMsgKey expireKey);
   virtual nsresult ExpireRange(nsMsgKey startRange, nsMsgKey endRange);

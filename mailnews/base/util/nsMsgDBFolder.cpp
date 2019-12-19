@@ -1396,16 +1396,15 @@ nsMsgDBFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) {
 
   if (NS_SUCCEEDED(rv)) {
     EnableNotifications(allMessageCountNotifications, false);
-    nsMsgKey *thoseMarked;
-    uint32_t numMarked;
-    rv = mDatabase->MarkAllRead(&numMarked, &thoseMarked);
+    nsTArray<nsMsgKey> thoseMarked;
+    rv = mDatabase->MarkAllRead(thoseMarked);
     EnableNotifications(allMessageCountNotifications, true);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Setup a undo-state
-    if (aMsgWindow && numMarked)
-      rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked, numMarked);
-    free(thoseMarked);
+    if (aMsgWindow && thoseMarked.Length() > 0)
+      rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked.Elements(),
+                                    thoseMarked.Length());
   }
 
   SetHasNewMessages(false);

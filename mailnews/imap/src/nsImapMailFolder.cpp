@@ -1705,20 +1705,19 @@ NS_IMETHODIMP
 nsImapMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) {
   nsresult rv = GetDatabase();
   if (NS_SUCCEEDED(rv)) {
-    nsMsgKey *thoseMarked;
-    uint32_t numMarked;
+    nsTArray<nsMsgKey> thoseMarked;
     EnableNotifications(allMessageCountNotifications, false);
-    rv = mDatabase->MarkAllRead(&numMarked, &thoseMarked);
+    rv = mDatabase->MarkAllRead(thoseMarked);
     EnableNotifications(allMessageCountNotifications, true);
-    if (NS_SUCCEEDED(rv) && numMarked) {
-      rv = StoreImapFlags(kImapMsgSeenFlag, true, thoseMarked, numMarked,
-                          nullptr);
+    if (NS_SUCCEEDED(rv) && thoseMarked.Length() > 0) {
+      rv = StoreImapFlags(kImapMsgSeenFlag, true, thoseMarked.Elements(),
+                          thoseMarked.Length(), nullptr);
       mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
 
       // Setup a undo-state
       if (aMsgWindow)
-        rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked, numMarked);
-      free(thoseMarked);
+        rv = AddMarkAllReadUndoAction(aMsgWindow, thoseMarked.Elements(),
+                                      thoseMarked.Length());
     }
   }
   return rv;
