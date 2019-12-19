@@ -54,7 +54,12 @@ customElements.whenDefined("autocomplete-input").then(() => {
 
       this.addEventListener("keypress", event => {
         if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
-          this.doSearch();
+          // Trigger the click event if a popup result is currently selected.
+          if (this.popup.richlistbox.selectedIndex != -1) {
+            this.popup.onPopupClick(event);
+          } else {
+            this.doSearch();
+          }
           event.preventDefault();
           event.stopPropagation();
         }
