@@ -40,7 +40,12 @@ add_task(async function testLastDayOfMonthRecurrence() {
   // Rotate view.
   switchToView(controller, "day");
   controller.mainMenu.click("#ltnViewRotated");
-  controller.waitFor(() => eid("day-view").getNode().orient == "horizontal");
+  controller.waitFor(
+    () =>
+      eid("day-view")
+        .getNode()
+        .getAttribute("orient") == "horizontal"
+  );
 
   // Create monthly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
@@ -130,9 +135,18 @@ registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(controller, CALENDARNAME);
   // Reset view.
   switchToView(controller, "day");
-  if (eid("day-view").getNode().orient == "horizontal") {
+  if (
+    eid("day-view")
+      .getNode()
+      .getAttribute("orient") == "horizontal"
+  ) {
     controller.mainMenu.click("#ltnViewRotated");
   }
-  controller.waitFor(() => eid("day-view").getNode().orient == "vertical");
+  controller.waitFor(
+    () =>
+      eid("day-view")
+        .getNode()
+        .getAttribute("orient") == "vertical"
+  );
   closeAllEventDialogs();
 });

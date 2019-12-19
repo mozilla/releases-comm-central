@@ -328,7 +328,9 @@
       this.style.pointerEvents = "auto";
       this.setAttribute("tooltip", "itemTooltip");
 
-      this.orient = this.getAttribute("orient");
+      if (!this.hasAttribute("orient")) {
+        this.setAttribute("orient", "vertical");
+      }
       this.addEventNameTextboxListener();
       this.initializeAttributeInheritance();
     }

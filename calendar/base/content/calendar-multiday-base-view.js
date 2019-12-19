@@ -507,15 +507,6 @@
       return count;
     }
 
-    set orient(orient) {
-      this.setAttribute("orient", orient);
-      return orient;
-    }
-
-    get orient() {
-      return this.getAttribute("orient") || "vertical";
-    }
-
     get timebar() {
       return this.querySelector(".timebar");
     }
@@ -623,7 +614,7 @@
       }
       // Update the position of the indicator.
       const position = Math.round(this.mPixPerMin * this.mTimeIndicatorMinutes) - 1;
-      const posAttr = this.orient == "vertical" ? "top: " : "left: ";
+      const posAttr = this.getAttribute("orient") == "vertical" ? "top: " : "left: ";
 
       if (this.timeBarTimeIndicator) {
         this.timeBarTimeIndicator.setAttribute("style", posAttr + position + "px;");
@@ -684,7 +675,7 @@
       const isARelayout = !calViewElem;
 
       const scrollboxRect = this.scrollbox.getBoundingClientRect();
-      const isOrientHorizontal = self.orient == "horizontal";
+      const isOrientHorizontal = self.getAttribute("orient") == "horizontal";
 
       const size = isOrientHorizontal ? scrollboxRect.width : scrollboxRect.height;
 

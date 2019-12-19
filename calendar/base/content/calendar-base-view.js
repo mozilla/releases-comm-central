@@ -543,11 +543,11 @@
     }
 
     set rotated(rotated) {
-      return (this.orient = rotated ? "horizontal" : "vertical");
+      return this.setAttribute("orient", rotated ? "horizontal" : "vertical");
     }
 
     get rotated() {
-      return this.orient == "horizontal";
+      return this.getAttribute("orient") == "horizontal";
     }
 
     get supportsRotation() {

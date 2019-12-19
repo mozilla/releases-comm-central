@@ -368,7 +368,10 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
     hdrToolbar = document.getElementById("header-view-toolbar");
     hdrToolbar.firstPermanentChild = firstPermanentChild;
     hdrToolbar.lastPermanentChild = lastPermanentChild;
-    messagePaneSplitter.orient = desiredParent.orient;
+    messagePaneSplitter.setAttribute(
+      "orient",
+      desiredParent.getAttribute("orient")
+    );
     if (aMsgWindowInitialized) {
       messenger.setWindow(null, null);
       messenger.setWindow(window, msgWindow);

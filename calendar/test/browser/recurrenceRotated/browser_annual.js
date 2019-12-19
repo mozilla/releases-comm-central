@@ -33,7 +33,12 @@ add_task(async function testAnnualRecurrence() {
 
   // Rotate view.
   controller.mainMenu.click("#ltnViewRotated");
-  controller.waitFor(() => eid("day-view").getNode().orient == "horizontal");
+  controller.waitFor(
+    () =>
+      eid("day-view")
+        .getNode()
+        .getAttribute("orient") == "horizontal"
+  );
 
   // Create yearly recurring all-day event.
   let eventBox = lookupEventBox("day", ALLDAY, null, 1, null);
@@ -82,9 +87,18 @@ add_task(async function testAnnualRecurrence() {
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(controller, CALENDARNAME);
   // Reset view.
-  if (eid("day-view").getNode().orient == "horizontal") {
+  if (
+    eid("day-view")
+      .getNode()
+      .getAttribute("orient") == "horizontal"
+  ) {
     controller.mainMenu.click("#ltnViewRotated");
   }
-  controller.waitFor(() => eid("day-view").getNode().orient == "vertical");
+  controller.waitFor(
+    () =>
+      eid("day-view")
+        .getNode()
+        .getAttribute("orient") == "vertical"
+  );
   closeAllEventDialogs();
 });

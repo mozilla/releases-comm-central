@@ -242,7 +242,7 @@
         return;
       }
       super.connectedCallback();
-      this.orient = "vertical";
+      this.setAttribute("orient", "vertical");
     }
   }
 

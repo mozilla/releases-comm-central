@@ -1330,7 +1330,7 @@
         }
       });
 
-      if (this.orient === "horizontal") {
+      if (this.getAttribute("orient") === "horizontal") {
         this.addEventListener("keypress", event => {
           switch (event.keyCode) {
             case KeyEvent.DOM_VK_LEFT:
@@ -1679,7 +1679,7 @@
     }
 
     _itemsPerRow() {
-      if (this.orient === "vertical") {
+      if (this.getAttribute("orient") === "vertical") {
         // Vertical attachment lists have one item per row by definition.
         return 1;
       }
