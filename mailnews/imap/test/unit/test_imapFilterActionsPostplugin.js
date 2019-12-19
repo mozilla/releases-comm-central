@@ -372,10 +372,8 @@ function testCounts(aHasNew, aUnreadDelta, aFolderNewDelta, aDbNewDelta) {
     let folderNew = IMAPPump.inbox.getNumNewMessages(false);
     let hasNew = IMAPPump.inbox.hasNewMessages;
     let unread = IMAPPump.inbox.getNumUnread(false);
-    let countOut = {};
-    let arrayOut = {};
-    db().getNewList(countOut, arrayOut);
-    let dbNew = countOut.value ? countOut.value : 0;
+    let arrayOut = db().getNewList();
+    let dbNew = arrayOut.length;
     dump(
       " hasNew: " +
         hasNew +

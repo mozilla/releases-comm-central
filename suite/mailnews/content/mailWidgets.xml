@@ -1896,11 +1896,9 @@
               // now get the database
               var msgDatabase = aFolder.msgDatabase;
               aFolder.msgDatabase = null;
-              var msgKeys = {};
-              var numMsgKeys = {};
-              msgDatabase.getNewList(numMsgKeys, msgKeys);
+              let msgKeys = msgDatabase.getNewList();
 
-              if (!numMsgKeys.value)
+              if (!msgKeys.length)
                 continue;
 
               if (showPreviewText)
@@ -1908,7 +1906,7 @@
                 // fetchMsgPreviewText forces the previewText property to get generated
                 // for each of the message keys.
                 try {
-                  aOutAsync.value = aFolder.fetchMsgPreviewText(msgKeys.value, false, aUrlListener);
+                  aOutAsync.value = aFolder.fetchMsgPreviewText(msgKeys, false, aUrlListener);
                   aFolder.msgDatabase = null;
                 }
                 catch (ex)
@@ -1933,10 +1931,10 @@
               var index = 0;
               var hdrParser = Cc["@mozilla.org/messenger/headerparser;1"]
                                 .getService(Ci.nsIMsgHeaderParser);
-              while (document.getAnonymousNodes(this)[0].childNodes.length < this.mMaxMsgHdrsInPopup && index < numMsgKeys.value)
+              while (document.getAnonymousNodes(this)[0].childNodes.length < this.mMaxMsgHdrsInPopup && index < msgKeys.length)
               {
                 var msgPopup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummaryMessage");
-                var msgHdr = msgDatabase.GetMsgHdrForKey(msgKeys.value[index++]);
+                var msgHdr = msgDatabase.GetMsgHdrForKey(msgKeys[index++]);
 
                 var msgSubject = msgHdr.mime2DecodedSubject;
                 const kMsgFlagHasRe = 0x0010; // MSG_FLAG_HAS_RE

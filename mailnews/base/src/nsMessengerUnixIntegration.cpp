@@ -440,14 +440,12 @@ void nsMessengerUnixIntegration::FillToolTipInfo() {
     if (NS_FAILED(folderWithNewMail->GetMsgDatabase(getter_AddRefs(db))))
       return;
 
-    uint32_t numNewKeys = 0;
-    uint32_t *newMessageKeys;
-    db->GetNewList(&numNewKeys, &newMessageKeys);
+    nsTArray<nsMsgKey> newMessageKeys;
+    db->GetNewList(newMessageKeys);
 
     // If we had new messages, we *should* have new keys, but we'll
     // check just in case.
-    if (numNewKeys <= 0) {
-      free(newMessageKeys);
+    if (newMessageKeys.IsEmpty()) {
       return;
     }
 
@@ -460,7 +458,7 @@ void nsMessengerUnixIntegration::FillToolTipInfo() {
     // Next, add the new message headers to an nsCOMArray.  We
     // only add message headers that are newer than lastMRUTime.
     nsCOMArray<nsIMsgDBHdr> newMsgHdrs;
-    for (unsigned int i = 0; i < numNewKeys; ++i) {
+    for (unsigned int i = 0; i < newMessageKeys.Length(); ++i) {
       nsCOMPtr<nsIMsgDBHdr> hdr;
       if (NS_FAILED(
               db->GetMsgHdrForKey(newMessageKeys[i], getter_AddRefs(hdr))))
@@ -471,10 +469,6 @@ void nsMessengerUnixIntegration::FillToolTipInfo() {
 
       if (dateInSeconds > lastMRUTime) newMsgHdrs.AppendObject(hdr);
     }
-
-    // At this point, we don't need newMessageKeys any more,
-    // so let's free it.
-    free(newMessageKeys);
 
     // If we didn't happen to add any message headers, bail out
     if (!newMsgHdrs.Count()) return;

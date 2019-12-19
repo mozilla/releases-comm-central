@@ -540,11 +540,8 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
 
   /**
    * The list of messages currently in the NEW state.
-   *
-   * If there are no such messages, a null pointer may be returned.
-   * the caller should free when done using free.
    */
-  void getNewList(out unsigned long count, [array, size_is(count)] out nsMsgKey newKeys);
+  Array<nsMsgKey> getNewList();
 
   // These are used for caching search hits in a db, to speed up saved search folders.
   nsISimpleEnumerator getCachedHits(in string aSearchFolderUri);

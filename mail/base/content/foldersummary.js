@@ -135,11 +135,9 @@
         }
 
         folder.msgDatabase = null;
-        let msgKeys = {};
-        let numMsgKeys = {};
-        msgDatabase.getNewList(numMsgKeys, msgKeys);
+        let msgKeys = msgDatabase.getNewList();
 
-        if (!numMsgKeys.value) {
+        if (!msgKeys.length) {
           continue;
         }
 
@@ -148,7 +146,7 @@
           // for each of the message keys.
           try {
             outAsync.value = folder.fetchMsgPreviewText(
-              msgKeys.value,
+              msgKeys,
               false,
               urlListener
             );
@@ -177,13 +175,9 @@
           return false;
         }
 
-        for (
-          let i = 0;
-          i < this.maxMsgHdrsInPopup && i < numMsgKeys.value;
-          i++
-        ) {
+        for (let i = 0; i < this.maxMsgHdrsInPopup && i < msgKeys.length; i++) {
           let msgBox = createFolderSummaryMessage();
-          let msgHdr = msgDatabase.GetMsgHdrForKey(msgKeys.value[i]);
+          let msgHdr = msgDatabase.GetMsgHdrForKey(msgKeys[i]);
           msgBox.addEventListener("click", event => {
             if (event.button !== 0) {
               return;

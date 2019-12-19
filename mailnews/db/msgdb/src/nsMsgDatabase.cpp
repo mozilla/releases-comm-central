@@ -5082,26 +5082,9 @@ NS_IMETHODIMP nsMsgDatabase::ResetHdrCacheSize(uint32_t aSize) {
   return NS_OK;
 }
 
-/**
-  void getNewList(out unsigned long count, [array, size_is(count)] out long
-  newKeys);
- */
 NS_IMETHODIMP
-nsMsgDatabase::GetNewList(uint32_t *aCount, nsMsgKey **aNewKeys) {
-  NS_ENSURE_ARG_POINTER(aCount);
-  NS_ENSURE_ARG_POINTER(aNewKeys);
-
-  *aCount = m_newSet.Length();
-  if (*aCount > 0) {
-    *aNewKeys =
-        static_cast<nsMsgKey *>(moz_xmalloc(*aCount * sizeof(nsMsgKey)));
-    if (!*aNewKeys) return NS_ERROR_OUT_OF_MEMORY;
-    memcpy(*aNewKeys, m_newSet.Elements(), *aCount * sizeof(nsMsgKey));
-    return NS_OK;
-  }
-  // if there were no new messages, signal this by returning a null pointer
-  //
-  *aNewKeys = nullptr;
+nsMsgDatabase::GetNewList(nsTArray<nsMsgKey> &aNewKeys) {
+  aNewKeys = m_newSet;
   return NS_OK;
 }
 

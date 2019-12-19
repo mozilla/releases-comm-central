@@ -542,14 +542,7 @@ NS_IMETHODIMP nsMsgDBFolder::ClearNewMessages() {
   if (!dbWasCached) GetDatabase();
 
   if (mDatabase) {
-    uint32_t numNewKeys;
-    nsMsgKey *newMessageKeys;
-    rv = mDatabase->GetNewList(&numNewKeys, &newMessageKeys);
-    if (NS_SUCCEEDED(rv) && newMessageKeys) {
-      m_saveNewMsgs.Clear();
-      m_saveNewMsgs.AppendElements(newMessageKeys, numNewKeys);
-      free(newMessageKeys);
-    }
+    mDatabase->GetNewList(m_saveNewMsgs);
     mDatabase->ClearNewList(true);
   }
   if (!dbWasCached) SetMsgDatabase(nullptr);
@@ -913,14 +906,7 @@ nsMsgDBFolder::SetMsgDatabase(nsIMsgDatabase *aMsgDatabase) {
     mDatabase->RemoveListener(this);
     mDatabase->ClearCachedHdrs();
     if (!aMsgDatabase) {
-      uint32_t numNewKeys;
-      nsMsgKey *newMessageKeys;
-      nsresult rv = mDatabase->GetNewList(&numNewKeys, &newMessageKeys);
-      if (NS_SUCCEEDED(rv) && newMessageKeys) {
-        m_newMsgs.Clear();
-        m_newMsgs.AppendElements(newMessageKeys, numNewKeys);
-      }
-      free(newMessageKeys);
+      mDatabase->GetNewList(m_newMsgs);
     }
   }
   mDatabase = aMsgDatabase;
@@ -2448,22 +2434,20 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun) {
 
   // get the list of new messages
   //
-  uint32_t numNewKeys;
-  nsMsgKey *newKeys;
-  rv = database->GetNewList(&numNewKeys, &newKeys);
+  nsTArray<nsMsgKey> newKeys;
+  rv = database->GetNewList(newKeys);
   NS_ENSURE_SUCCESS(rv, rv);
 
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-          ("Running filters on %" PRIu32 " new messages", numNewKeys));
+          ("Running filters on %" PRIu32 " new messages",
+           (uint32_t)newKeys.Length()));
 
   nsTArray<nsMsgKey> newMessageKeys;
   // Start from m_saveNewMsgs (and clear its current state).  m_saveNewMsgs is
   // where we stash the list of new messages when we are told to clear the list
   // of new messages by the UI (which purges the list from the nsMsgDatabase).
   newMessageKeys.SwapElements(m_saveNewMsgs);
-  if (numNewKeys) newMessageKeys.AppendElements(newKeys, numNewKeys);
-
-  free(newKeys);
+  newMessageKeys.AppendElements(newKeys);
 
   // build up list of keys to classify
   nsTArray<nsMsgKey> classifyMsgKeys;
