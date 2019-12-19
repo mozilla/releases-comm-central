@@ -181,7 +181,7 @@ var { MailServices } = ChromeUtils.import(
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var FILE_LOAD_PATHS = ["../../mozmill/"];
+var FILE_LOAD_PATHS = ["../../mochitest/", "../../testing/mochitest/"];
 
 /**
  * Server hostname as set in runtest.py

@@ -696,7 +696,7 @@ nsBrowserAccess.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIBrowserDOMWindow"]),
 
   // The following function may be called during account creation, it is called by
-  // the Mozmill test test-newmailaccount.js::test_window_open_link_opening_behaviour.
+  // the test browser_newmailaccount.js::test_window_open_link_opening_behaviour.
   createContentWindow(
     aURI,
     aOpener,

@@ -29,8 +29,5 @@ marionette-tests:
 mochitest-tests:
     - mochitest-thunderbird
 
-mozmill-tests:
-    - mozmill
-
 xpcshell-tests:
     - xpcshell

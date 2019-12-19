@@ -76,7 +76,6 @@ py-flake8:
         mach: >
             lint -f treeherder -l flake8 -n
             comm/taskcluster
-            comm/mail/test/resources/installmozmill.py
     when:
         files-changed:
             - '**/*.py'

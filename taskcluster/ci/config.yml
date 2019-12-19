@@ -9,7 +9,6 @@ product-dir: comm/mail
 treeherder:
     group-names:
         'X': 'Xpcshell tests'
-        'Z': 'MozMill tests'
         'I': 'Docker Image Builds'
         'TL': 'Toolchain builds for Linux 64-bits'
         'TM': 'Toolchain builds for OSX'

@@ -2,14 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-MOZMILLDIR=$(topobjdir)/_tests/mozmill
-ifeq ($(OS_ARCH),WINNT)
-VIRTUALENV_BIN = $(topobjdir)/_virtualenvs/init/Scripts
-else
-VIRTUALENV_BIN = $(topobjdir)/_virtualenvs/init/bin
-endif
-MOZMILLPYTHON = $(abspath $(VIRTUALENV_BIN)/python$(BIN_SUFFIX))
-
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 # Mac options
 APP_NAME = $(MOZ_APP_DISPLAYNAME)
@@ -27,39 +19,9 @@ endif
 check-no-solo = $(foreach solo,SOLO_TEST SOLO_FILE,$(if $($(solo)),$(error $(subst SOLOVAR,$(solo),$(1)))))
 find-solo-test = $(if $(and $(SOLO_TEST),$(SOLO_FILE)),$(error Both SOLO_TEST and SOLO_FILE are specified. You may only specify one.),$(if $(SOLO_TEST),$(SOLO_TEST),$(if $(SOLO_FILE),$(SOLO_FILE),$(error SOLO_TEST or SOLO_FILE needs to be specified.))))
 
-# PYTHONHOME messes very badly with virtualenv setups, so unset it.
-mozmill:
-	$(call check-no-solo,SOLOVAR is specified. Perhaps you meant mozmill-one.)
-	unset PYTHONHOME && cd $(MOZMILLDIR) && MACOSX_DEPLOYMENT_TARGET= \
-	$(MOZMILLPYTHON) runtestlist.py --list=mozmilltests.list \
-	--binary="$(ABS_BINARY)" \
-	--dir=$(commtopsrcdir)/mail/test/mozmill \
-	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
-	--testing-modules-dir=$(topobjdir)/_tests/modules \
-	$(MOZMILL_EXTRA)
-
-mozmill-one: solo-test = $(find-solo-test)
-mozmill-one:
-	unset PYTHONHOME && cd $(MOZMILLDIR) && MACOSX_DEPLOYMENT_TARGET= \
-	$(MOZMILLPYTHON) runtest.py \
-	--test=$(commtopsrcdir)/mail/test/mozmill/$(solo-test) \
-	--binary="$(ABS_BINARY)" \
-	--symbols-path=$(ABS_DIST)/crashreporter-symbols \
-	--testing-modules-dir=$(topobjdir)/_tests/modules \
-	$(MOZMILL_EXTRA)
-
 # We need to add the mozmill tests to the package for tests.
 # If Lightning is enabled, also stage the lightning extension
 ifdef MOZ_CALENDAR
-package-tests: stage-calendar
-else
-package-tests: stage-mozmill
-endif
-
-stage-mozmill: make-stage-dir
-	$(MAKE) -C $(commtopobjdir)/mail/test/mozmill stage-package
-
-stage-calendar: stage-mozmill
+package-tests:
 	$(MAKE) -C $(commtopobjdir)/calendar/lightning stage-package
-
-.PHONY: stage-mozmill stage-calendar
+endif

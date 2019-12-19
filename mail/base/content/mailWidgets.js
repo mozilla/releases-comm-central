@@ -629,7 +629,7 @@
       if (useChildren) {
         // Generate an observer notification when we have finished
         // configuring all folders.  This is currently done for the benefit
-        // of our mozmill tests.
+        // of our tests.
         let observerCallback = function() {
           Services.obs.notifyObservers(
             gFolderDisplay.displayedFolder,

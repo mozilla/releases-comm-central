@@ -106,7 +106,7 @@ this.legacy = class extends ExtensionAPI {
     ExtensionSupport.loadedLegacyExtensions.set(this.extension.id, state);
     if (this.extension.startupReason == "ADDON_INSTALL") {
       // Usually, sideloaded extensions are disabled when they first appear,
-      // but for MozMill to run calendar tests, we disable this.
+      // but to run calendar tests, we disable this.
       let scope = XPIInternal.XPIStates.findAddon(this.extension.id).location
         .scope;
       let autoDisableScopes = Services.prefs.getIntPref(

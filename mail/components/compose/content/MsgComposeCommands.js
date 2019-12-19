@@ -3459,7 +3459,7 @@ function ComposeUnload() {
   );
   UnloadCommandUpdateHandlers();
 
-  // In some Mozmill tests, the window is closed so quickly that the observer
+  // In some tests, the window is closed so quickly that the observer
   // hasn't fired and removed itself yet, so let's remove it here.
   spellCheckReadyObserver.removeObserver();
   // Stop gSpellChecker so personal dictionary is saved.

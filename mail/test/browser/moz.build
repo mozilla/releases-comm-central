@@ -38,3 +38,45 @@ BROWSER_CHROME_MANIFESTS += [
     'tabmail/browser.ini',
     'utils/browser.ini',
 ]
+
+DIRS += [
+    'shared-modules',
+]
+
+TESTING_JS_MODULES.mozmill += [
+    '../resources/mozmill/mozmill/extension/content/modules/controller.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/elementslib.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/events.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/frame.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/init.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/jum.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/mozmill.jsm',
+    '../resources/mozmill/mozmill/extension/content/modules/utils.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/arrays.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/dom.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/EventUtils.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/httpd.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/os.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/securable-module.jsm',
+    '../resources/mozmill/mozmill/extension/content/stdlib/strings.jsm',
+]
+
+TEST_HARNESS_FILES.testing.mochitest.fakeserver += [
+    '../../../mailnews/test/fakeserver/auth.js',
+    '../../../mailnews/test/fakeserver/imapd.js',
+    '../../../mailnews/test/fakeserver/maild.js',
+    '../../../mailnews/test/fakeserver/nntpd.js',
+    '../../../mailnews/test/fakeserver/pop3d.js',
+    '../../../mailnews/test/fakeserver/smtpd.js',
+]
+
+TEST_HARNESS_FILES.testing.mochitest.resources += [
+    '../../../mailnews/test/resources/asyncTestUtils.js',
+    '../../../mailnews/test/resources/folderEventLogHelper.js',
+    '../../../mailnews/test/resources/logHelper.js',
+    '../../../mailnews/test/resources/messageGenerator.js',
+    '../../../mailnews/test/resources/messageInjection.js',
+    '../../../mailnews/test/resources/messageModifier.js',
+    '../../../mailnews/test/resources/smimeUtils.jsm',
+    '../../base/test/unit/resources/viewWrapperTestUtils.js',
+]

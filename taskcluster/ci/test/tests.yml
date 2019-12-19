@@ -61,36 +61,6 @@ xpcshell:
                     - win32-node
                 default: []
 
-mozmill:
-    description: "mozmill test run"
-    suite: mozmill
-    treeherder-symbol: Z(Z)
-    run-on-projects: built-projects
-    docker-image:
-        in-tree: "desktop1604-test"
-    chunks: 4
-    instance-size: default
-    max-run-time: 5400
-    e10s: false
-    allow-software-gl-layers: false
-    mozharness:
-        script: desktop_unittest.py
-        config:
-            by-test-platform:
-                windows.*:
-                    - unittests/win_unittest.py
-                    - unittests/thunderbird_extra.py
-                macosx.*64.*:
-                    - unittests/mac_unittest.py
-                    - unittests/thunderbird_extra.py
-                linux.*:
-                    - unittests/linux_unittest.py
-                    - remove_executables.py
-                    - unittests/thunderbird_extra.py
-        extra-options:
-            - "--mozmill-suite=mozmill"
-        requires-signed-builds: false
-
 mochitest-thunderbird:
     description: "Mochitest browser-chrome-thunderbird run"
     suite:

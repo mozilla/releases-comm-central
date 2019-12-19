@@ -2,8 +2,6 @@ ac_add_options --enable-application=comm/mail
 ac_add_options --enable-calendar
 
 # Disable enforcing that add-ons are signed by the trusted root.
-# This is the default on trunk, but it is toggled for beta causing
-# MozMill to fail since its add-ons aren't signed. So we force it here.
 MOZ_REQUIRE_SIGNING=0
 
 . "$topsrcdir/build/mozconfig.common.override"

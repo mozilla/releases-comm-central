@@ -22,9 +22,6 @@ config = {
             }
         },
     },
-    "all_mozmill_suites": {
-        "mozmill": ["--list=tests/mozmill/mozmilltests.list"],
-    },
     "all_mochitest_suites": {
         "mochitest-browser-chrome-thunderbird": ["--flavor=browser",
                                                  "--subsuite=thunderbird",
