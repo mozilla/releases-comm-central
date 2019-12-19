@@ -65,9 +65,8 @@ nsresult nsMailDatabase::GetAllOfflineOpsTable() {
   return rv;
 }
 
-NS_IMETHODIMP nsMailDatabase::DeleteMessages(uint32_t aNumKeys,
-                                             nsMsgKey *nsMsgKeys,
-                                             nsIDBChangeListener *instigator) {
+NS_IMETHODIMP nsMailDatabase::DeleteMessages(
+    nsTArray<nsMsgKey> const &nsMsgKeys, nsIDBChangeListener *instigator) {
   nsresult rv;
   if (m_folder) {
     bool isLocked;
@@ -78,7 +77,7 @@ NS_IMETHODIMP nsMailDatabase::DeleteMessages(uint32_t aNumKeys,
     }
   }
 
-  rv = nsMsgDatabase::DeleteMessages(aNumKeys, nsMsgKeys, instigator);
+  rv = nsMsgDatabase::DeleteMessages(nsMsgKeys, instigator);
   SetSummaryValid(true);
   return rv;
 }

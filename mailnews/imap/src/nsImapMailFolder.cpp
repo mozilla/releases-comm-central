@@ -2064,8 +2064,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
             if (notifier) notifier->NotifyMsgsDeleted(messages);
           }
           DeleteStoreMessages(messages);
-          database->DeleteMessages(srcKeyArray.Length(), srcKeyArray.Elements(),
-                                   nullptr);
+          database->DeleteMessages(srcKeyArray, nullptr);
           EnableNotifications(allMessageCountNotifications, true);
         }
         if (listener) {
@@ -2548,8 +2547,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
     }
     DeleteStoreMessages(hdrsToDelete);
     EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
-    mDatabase->DeleteMessages(keysToDelete.Length(), keysToDelete.Elements(),
-                              nullptr);
+    mDatabase->DeleteMessages(keysToDelete, nullptr);
     EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
   }
   int32_t numUnreadFromServer;
@@ -4689,8 +4687,7 @@ nsImapMailFolder::NotifyMessageDeleted(const char *onlineFolderName,
       if (!affectedMessages.IsEmpty())  // perhaps Search deleted these messages
       {
         DeleteStoreMessages(affectedMessages);
-        mDatabase->DeleteMessages(affectedMessages.Length(),
-                                  affectedMessages.Elements(), nullptr);
+        mDatabase->DeleteMessages(affectedMessages, nullptr);
       }
     } else  // && !imapDeleteIsMoveToTrash // TODO: can this ever be executed?
       SetIMAPDeletedFlag(mDatabase, affectedMessages, false);
@@ -4956,8 +4953,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
                     // assume that the src is also imap that uses offline
                     // storage.
                     DeleteStoreMessages(srcKeyArray, srcFolder);
-                    srcDB->DeleteMessages(srcKeyArray.Length(),
-                                          srcKeyArray.Elements(), nullptr);
+                    srcDB->DeleteMessages(srcKeyArray, nullptr);
                   } else
                     MarkMessagesImapDeleted(&srcKeyArray, true, srcDB);
                 }
@@ -5080,8 +5076,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
                 if (!supportsCompaction && numHdrs)
                   DeleteStoreMessages(msgHdrs);
 
-                db->DeleteMessages(keyArray.Length(), keyArray.Elements(),
-                                   nullptr);
+                db->DeleteMessages(keyArray, nullptr);
                 db->SetSummaryValid(true);
                 db->Commit(nsMsgDBCommitType::kLargeCommit);
               }
@@ -6780,8 +6775,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
     DeleteStoreMessages(keysToDelete, srcFolder);
     srcFolder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications,
                                    false);
-    sourceMailDB->DeleteMessages(keysToDelete.Length(), keysToDelete.Elements(),
-                                 nullptr);
+    sourceMailDB->DeleteMessages(keysToDelete, nullptr);
     srcFolder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications,
                                    true);
   }

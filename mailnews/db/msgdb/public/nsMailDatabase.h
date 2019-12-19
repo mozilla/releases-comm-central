@@ -22,7 +22,7 @@ class nsMailDatabase : public nsMsgDatabase {
   nsMailDatabase();
   virtual ~nsMailDatabase();
   NS_IMETHOD ForceClosed() override;
-  NS_IMETHOD DeleteMessages(uint32_t aNumKeys, nsMsgKey *nsMsgKeys,
+  NS_IMETHOD DeleteMessages(nsTArray<nsMsgKey> const &nsMsgKeys,
                             nsIDBChangeListener *instigator) override;
 
   nsresult Open(nsMsgDBService *aDBService, nsIFile *aSummaryFile, bool create,

@@ -267,8 +267,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
     srcDB->SetSummaryValid(true);
   }
 
-  dstDB->DeleteMessages(m_dstKeyArray.Length(), m_dstKeyArray.Elements(),
-                        nullptr);
+  dstDB->DeleteMessages(m_dstKeyArray, nullptr);
   dstDB->SetSummaryValid(true);
 
   return rv;
@@ -340,8 +339,7 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
         localFolder->MarkMsgsOnPop3Server(srcMessages,
                                           POP3_DELETE /*deleteMsgs*/);
 
-      rv = srcDB->DeleteMessages(m_srcKeyArray.Length(),
-                                 m_srcKeyArray.Elements(), nullptr);
+      rv = srcDB->DeleteMessages(m_srcKeyArray, nullptr);
       srcDB->SetSummaryValid(true);
     } else {
       nsCOMPtr<nsIMsgDBHdr> srcHdr;

@@ -772,7 +772,8 @@ bool MsgMapiListContext::DeleteMessage(nsMsgKey key) {
   if (!m_db) return FALSE;
 
   if (!IsIMAPHost()) {
-    return NS_SUCCEEDED((m_db->DeleteMessages(1, &key, nullptr)));
+    nsTArray<nsMsgKey> doomed({key});
+    return NS_SUCCEEDED((m_db->DeleteMessages(doomed, nullptr)));
   }
 #if 0
   else if ( m_folder->GetIMAPFolderInfoMail() )

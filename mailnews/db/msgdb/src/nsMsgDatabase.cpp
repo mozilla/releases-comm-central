@@ -1756,13 +1756,12 @@ NS_IMETHODIMP nsMsgDatabase::DeleteMessage(nsMsgKey key,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDatabase::DeleteMessages(uint32_t aNumKeys,
-                                            nsMsgKey *nsMsgKeys,
+NS_IMETHODIMP nsMsgDatabase::DeleteMessages(nsTArray<nsMsgKey> const &nsMsgKeys,
                                             nsIDBChangeListener *instigator) {
   nsresult err = NS_OK;
 
   uint32_t kindex;
-  for (kindex = 0; kindex < aNumKeys; kindex++) {
+  for (kindex = 0; kindex < nsMsgKeys.Length(); kindex++) {
     nsMsgKey key = nsMsgKeys[kindex];
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
@@ -4807,7 +4806,7 @@ nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
   }
 
   if (!hdrsToDelete) {
-    DeleteMessages(keysToDelete.Length(), keysToDelete.Elements(), nullptr);
+    DeleteMessages(keysToDelete, nullptr);
 
     if (keysToDelete.Length() >
         10)  // compress commit if we deleted more than 10
@@ -4864,7 +4863,7 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
   if (!hdrsToDelete) {
     int32_t numKeysToDelete = keysToDelete.Length();
     if (numKeysToDelete > 0) {
-      DeleteMessages(keysToDelete.Length(), keysToDelete.Elements(), nullptr);
+      DeleteMessages(keysToDelete, nullptr);
       if (numKeysToDelete > 10)  // compress commit if we deleted more than 10
         Commit(nsMsgDBCommitType::kCompressCommit);
       else

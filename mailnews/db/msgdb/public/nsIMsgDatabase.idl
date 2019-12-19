@@ -417,8 +417,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
 
   Array<nsMsgKey> markAllRead();
 
-  void deleteMessages(in unsigned long aNumKeys,
-                      [array, size_is(aNumKeys)] in nsMsgKey nsMsgKeys,
+  void deleteMessages(in Array<nsMsgKey> nsMsgKeys,
                       in nsIDBChangeListener instigator);
   void DeleteMessage(in nsMsgKey key,
                            in nsIDBChangeListener instigator,

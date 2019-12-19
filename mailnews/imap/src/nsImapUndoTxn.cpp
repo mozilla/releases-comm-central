@@ -293,8 +293,7 @@ nsresult nsImapMoveCopyMsgTxn::RedoMailboxDelete() {
     if (NS_FAILED(rv) || !srcFolder) return rv;
     rv = srcFolder->GetMsgDatabase(getter_AddRefs(srcDB));
     if (NS_SUCCEEDED(rv)) {
-      srcDB->DeleteMessages(m_srcKeyArray.Length(), m_srcKeyArray.Elements(),
-                            nullptr);
+      srcDB->DeleteMessages(m_srcKeyArray, nullptr);
       srcDB->SetSummaryValid(true);
     }
     return NS_OK;  // always return NS_OK

@@ -31,7 +31,7 @@ class nsImapMailDatabase : public nsMailDatabase {
   NS_IMETHOD SetUint64AttributeOnPendingHdr(nsIMsgDBHdr *aPendingHdr,
                                             const char *aProperty,
                                             uint64_t aPropertyVal) override;
-  NS_IMETHOD DeleteMessages(uint32_t aNumKeys, nsMsgKey *nsMsgKeys,
+  NS_IMETHOD DeleteMessages(nsTArray<nsMsgKey> const &nsMsgKeys,
                             nsIDBChangeListener *instigator) override;
   NS_IMETHOD UpdatePendingAttributes(nsIMsgDBHdr *aNewHdr) override;
 

@@ -47,8 +47,8 @@ void nsImapMailDatabase::UpdateFolderFlag(
 // We override this to avoid our parent class (nsMailDatabase)'s
 // grabbing of the folder semaphore, and bailing on failure.
 NS_IMETHODIMP nsImapMailDatabase::DeleteMessages(
-    uint32_t aNumKeys, nsMsgKey *nsMsgKeys, nsIDBChangeListener *instigator) {
-  return nsMsgDatabase::DeleteMessages(aNumKeys, nsMsgKeys, instigator);
+    nsTArray<nsMsgKey> const &nsMsgKeys, nsIDBChangeListener *instigator) {
+  return nsMsgDatabase::DeleteMessages(nsMsgKeys, instigator);
 }
 
 nsresult nsImapMailDatabase::AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) {
