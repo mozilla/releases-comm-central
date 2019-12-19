@@ -2052,15 +2052,14 @@ NS_IMETHODIMP nsMsgDatabase::MarkHasAttachments(
 NS_IMETHODIMP
 nsMsgDatabase::MarkThreadRead(nsIMsgThread *thread,
                               nsIDBChangeListener *instigator,
-                              uint32_t *aNumMarked, nsMsgKey **aThoseMarked) {
+                              nsTArray<nsMsgKey> &aThoseMarkedRead) {
   NS_ENSURE_ARG_POINTER(thread);
-  NS_ENSURE_ARG_POINTER(aNumMarked);
-  NS_ENSURE_ARG_POINTER(aThoseMarked);
+  aThoseMarkedRead.ClearAndRetainStorage();
   nsresult rv = NS_OK;
 
   uint32_t numChildren;
-  nsTArray<nsMsgKey> thoseMarked;
   thread->GetNumChildren(&numChildren);
+  aThoseMarkedRead.SetCapacity(numChildren);
   for (uint32_t curChildIndex = 0; curChildIndex < numChildren;
        curChildIndex++) {
     nsCOMPtr<nsIMsgDBHdr> child;
@@ -2072,21 +2071,11 @@ nsMsgDatabase::MarkThreadRead(nsIMsgThread *thread,
       if (!isRead) {
         nsMsgKey key;
         if (NS_SUCCEEDED(child->GetMessageKey(&key)))
-          thoseMarked.AppendElement(key);
+          aThoseMarkedRead.AppendElement(key);
         MarkHdrRead(child, true, instigator);
       }
     }
   }
-
-  *aNumMarked = thoseMarked.Length();
-
-  if (thoseMarked.Length()) {
-    *aThoseMarked = (nsMsgKey *)moz_xmemdup(
-        &thoseMarked[0], thoseMarked.Length() * sizeof(nsMsgKey));
-    if (!*aThoseMarked) return NS_ERROR_OUT_OF_MEMORY;
-  } else
-    *aThoseMarked = nullptr;
-
   return rv;
 }
 

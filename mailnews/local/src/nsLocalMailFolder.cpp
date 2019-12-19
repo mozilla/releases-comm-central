@@ -1162,28 +1162,28 @@ NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread *thread) {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsMsgKey *thoseMarked = nullptr;
-  uint32_t numMarked = 0;
-  rv = mDatabase->MarkThreadRead(thread, nullptr, &numMarked, &thoseMarked);
-  if (NS_FAILED(rv) || !numMarked || !thoseMarked) return rv;
+  nsTArray<nsMsgKey> thoseMarked;
+  rv = mDatabase->MarkThreadRead(thread, nullptr, thoseMarked);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (thoseMarked.IsEmpty()) {
+    return NS_OK;
+  }
 
-  do {
-    nsCOMPtr<nsIMutableArray> messages;
-    rv = MsgGetHdrsFromKeys(mDatabase, thoseMarked, numMarked,
-                            getter_AddRefs(messages));
-    if (NS_FAILED(rv)) break;
+  nsCOMPtr<nsIMutableArray> messages;
+  rv = MsgGetHdrsFromKeys(mDatabase, thoseMarked.Elements(),
+                          thoseMarked.Length(),
+                          getter_AddRefs(messages));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIMsgPluggableStore> msgStore;
-    rv = GetMsgStore(getter_AddRefs(msgStore));
-    if (NS_FAILED(rv)) break;
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = msgStore->ChangeFlags(messages, nsMsgMessageFlags::Read, true);
-    if (NS_FAILED(rv)) break;
+  rv = msgStore->ChangeFlags(messages, nsMsgMessageFlags::Read, true);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-  } while (false);
+  mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
 
-  free(thoseMarked);
   return rv;
 }
 

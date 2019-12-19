@@ -1727,13 +1727,12 @@ nsImapMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) {
 NS_IMETHODIMP nsImapMailFolder::MarkThreadRead(nsIMsgThread *thread) {
   nsresult rv = GetDatabase();
   if (NS_SUCCEEDED(rv)) {
-    nsMsgKey *keys;
-    uint32_t numKeys;
-    rv = mDatabase->MarkThreadRead(thread, nullptr, &numKeys, &keys);
-    if (NS_SUCCEEDED(rv) && numKeys) {
-      rv = StoreImapFlags(kImapMsgSeenFlag, true, keys, numKeys, nullptr);
+    nsTArray<nsMsgKey> keys;
+    rv = mDatabase->MarkThreadRead(thread, nullptr, keys);
+    if (NS_SUCCEEDED(rv) && keys.Length() > 0) {
+      rv = StoreImapFlags(kImapMsgSeenFlag, true, keys.Elements(),
+                          keys.Length(), nullptr);
       mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
-      free(keys);
     }
   }
   return rv;

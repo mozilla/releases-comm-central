@@ -1414,13 +1414,9 @@ nsMsgDBFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) {
 
 NS_IMETHODIMP nsMsgDBFolder::MarkThreadRead(nsIMsgThread *thread) {
   nsresult rv = GetDatabase();
-  if (NS_SUCCEEDED(rv)) {
-    nsMsgKey *keys;
-    uint32_t numKeys;
-    rv = mDatabase->MarkThreadRead(thread, nullptr, &numKeys, &keys);
-    free(keys);
-  }
-  return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsTArray<nsMsgKey> keys;
+  return mDatabase->MarkThreadRead(thread, nullptr, keys);
 }
 
 NS_IMETHODIMP
