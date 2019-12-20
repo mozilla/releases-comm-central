@@ -638,7 +638,7 @@ NS_IMETHODIMP nsLDAPConnectionRunnable::Run() {
     case LDAP_RES_SEARCH_REFERENCE:
       // XXX what should we do with LDAP_RES_SEARCH_EXTENDED
       operationFinished = false;
-      MOZ_FALLTHROUGH;
+      [[fallthrough]];
     default: {
       msg = new nsLDAPMessage;
       if (!msg) return NS_ERROR_NULL_POINTER;

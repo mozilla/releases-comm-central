@@ -503,7 +503,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator* aHeaderNames,
         if (StringBeginsWith(headerName, NS_LITERAL_CSTRING("x-mozilla")))
           break;
         // fall through
-        MOZ_FALLTHROUGH;
+        [[fallthrough]];
       case 'u':
         addTokenForHeader(headerName.get(), headerValue);
         break;

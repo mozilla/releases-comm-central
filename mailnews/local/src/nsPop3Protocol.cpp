@@ -1514,7 +1514,7 @@ void nsPop3Protocol::InitPrefAuthMethods(int32_t authMethodPrefValue) {
           POP3LOGMODULE, LogLevel::Error,
           (POP3LOG("POP: bad pref authMethod = %d\n"), authMethodPrefValue));
       // fall to any
-      MOZ_FALLTHROUGH;
+      [[fallthrough]];
     case nsMsgAuthMethod::anything:
       m_prefAuthMethods = POP3_HAS_AUTH_USER | POP3_HAS_AUTH_LOGIN |
                           POP3_HAS_AUTH_PLAIN | POP3_HAS_AUTH_CRAM_MD5 |
@@ -1666,7 +1666,7 @@ int32_t nsPop3Protocol::ProcessAuth() {
       break;
     case POP3_HAS_AUTH_CRAM_MD5:
       MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("POP CRAM")));
-      MOZ_FALLTHROUGH;
+      [[fallthrough]];
     case POP3_HAS_AUTH_PLAIN:
     case POP3_HAS_AUTH_USER:
       MOZ_LOG(POP3LOGMODULE, LogLevel::Debug, (POP3LOG("POP username")));

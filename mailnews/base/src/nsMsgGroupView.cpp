@@ -206,7 +206,7 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr *msgHdr, nsString &aHashKey) {
     } break;
     case nsMsgViewSortType::byReceived:
       rcvDate = true;
-      MOZ_FALLTHROUGH;
+      [[fallthrough]];
     case nsMsgViewSortType::byDate: {
       uint32_t ageBucket;
       rv = GetAgeBucketValue(msgHdr, &ageBucket, rcvDate);
@@ -767,7 +767,7 @@ nsMsgGroupView::CellTextForColumn(int32_t aRow, const nsAString &aColumnName,
     switch (m_sortType) {
       case nsMsgViewSortType::byReceived:
         rcvDate = true;
-        MOZ_FALLTHROUGH;
+        [[fallthrough]];
       case nsMsgViewSortType::byDate: {
         uint32_t ageBucket = 0;
         GetAgeBucketValue(msgHdr, &ageBucket, rcvDate);

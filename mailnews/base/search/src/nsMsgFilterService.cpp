@@ -743,7 +743,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           // would not have run if move succeeded.
           m_nextAction = numActions;
           // Fall through to the copy case.
-          MOZ_FALLTHROUGH;
+          [[fallthrough]];
         case nsMsgFilterAction::CopyToFolder: {
           nsCString uri;
           curFolder->GetURI(uri);

@@ -169,7 +169,7 @@ static nsresult StripOutGroupNames(char *addresses) {
           group = false;
         // end of the group, act like a recipient separator now...
         /* NO BREAK */
-        MOZ_FALLTHROUGH;
+        [[fallthrough]];
       case ',':
         if (!quoted) {
           atFound = false;

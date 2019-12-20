@@ -1898,7 +1898,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
           msgIsNew = false;
         }
           // FALLTHROUGH
-          MOZ_FALLTHROUGH;
+          [[fallthrough]];
         case nsMsgFilterAction::MoveToFolder: {
           // if moving to a different file, do it.
           if (!actionTargetFolderUri.IsEmpty() &&

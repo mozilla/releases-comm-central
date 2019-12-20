@@ -5969,7 +5969,7 @@ nsMsgDBView::NoteChange(nsMsgViewIndex firstLineChanged, int32_t numChanged,
         // RowCountChanged() will call our GetRowCount().
         mTree->RowCountChanged(firstLineChanged, numChanged);
         mRemovingRow = false;
-        MOZ_FALLTHROUGH;
+        [[fallthrough]];
       case nsMsgViewNotificationCode::all:
         ClearHdrCache();
         break;
@@ -6258,7 +6258,7 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
     case nsMsgNavigationType::firstUnreadMessage:
       startIndex = nsMsgViewIndex_None;
       // Note fall through - is this motion ever used?
-      MOZ_FALLTHROUGH;
+      [[fallthrough]];
     case nsMsgNavigationType::nextUnreadMessage:
       for (curIndex = (startIndex == nsMsgViewIndex_None) ? 0 : startIndex;
            curIndex <= lastIndex && lastIndex != nsMsgViewIndex_None;
