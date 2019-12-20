@@ -49,6 +49,9 @@
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
 #include "nsIURIMutator.h"
+#include "mozilla/dom/Element.h"
+#include "mozilla/dom/XULFrameElement.h"
+#include "nsFrameLoader.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
 #  include "mozilla/Logging.h"
@@ -248,17 +251,14 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDocShell> messagePaneDocShell;
-  nsTArray<RefPtr<nsIDocShell>> docShells;
-  rootShell->GetAllDocShellsInSubtree(
-      nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
-  for (auto &child : docShells) {
-    bool childNameEquals = false;
-    child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
-    if (childNameEquals) {
-      messagePaneDocShell = child;
-      break;
-    }
-  }
+  RefPtr<mozilla::dom::Element> el = rootShell->GetDocument()->GetElementById(
+      NS_LITERAL_STRING("messagepane"));
+  RefPtr<mozilla::dom::XULFrameElement> frame =
+      mozilla::dom::XULFrameElement::FromNodeOrNull(el);
+  NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
+  RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
+  NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
+  messagePaneDocShell = doc->GetDocShell();
   NS_ENSURE_TRUE(messagePaneDocShell, NS_ERROR_FAILURE);
 
   nsCOMPtr<mozIDOMWindowProxy> domWindow(do_GetInterface(messagePaneDocShell));

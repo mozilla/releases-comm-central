@@ -47,6 +47,9 @@
 #include "nsIWebNavigation.h"
 #include "nsContentUtils.h"
 #include "nsDocShellLoadState.h"
+#include "mozilla/dom/Element.h"
+#include "mozilla/dom/XULFrameElement.h"
+#include "nsFrameLoader.h"
 
 // mail
 #include "nsIMsgMailNewsUrl.h"
@@ -230,17 +233,14 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin,
     NS_ENSURE_TRUE(aWin, NS_ERROR_FAILURE);
     nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWin);
     nsIDocShell *rootShell = win->GetDocShell();
-    nsTArray<RefPtr<nsIDocShell>> docShells;
-    rootShell->GetAllDocShellsInSubtree(
-        nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
-    for (auto &child : docShells) {
-      bool childNameEquals = false;
-      child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
-      if (childNameEquals) {
-        mDocShell = child;
-        break;
-      }
-    }
+    RefPtr<mozilla::dom::Element> el = rootShell->GetDocument()->GetElementById(
+        NS_LITERAL_STRING("messagepane"));
+    RefPtr<mozilla::dom::XULFrameElement> frame =
+        mozilla::dom::XULFrameElement::FromNodeOrNull(el);
+    mDocShell = nullptr;
+    RefPtr<mozilla::dom::Document> doc;
+    if (frame) doc = frame->GetContentDocument();
+    if (doc) mDocShell = doc->GetDocShell();
     if (mDocShell) {
       // Important! Clear out mCurrentDisplayCharset so we reset a default
       // charset on mDocshell the next time we try to load something into it.

@@ -35,7 +35,10 @@
 #include "nsMsgUtils.h"
 #include "mozilla/TransactionManager.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
+#include "mozilla/dom/Element.h"
+#include "mozilla/dom/XULFrameElement.h"
 #include "mozilla/Components.h"
+#include "nsFrameLoader.h"
 
 NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
                   nsISupportsWeakReference, nsIMsgWindowTest)
@@ -69,22 +72,18 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell **aDocShell) {
     // docshell
     nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
     if (rootShell) {
-      nsCOMPtr<nsIDocShellTreeItem> msgDocShellItem;
       if (rootShell) {
-        nsTArray<RefPtr<nsIDocShell>> docShells;
-        rootShell->GetAllDocShellsInSubtree(nsIDocShell::typeContent,
-                                            nsIDocShell::ENUMERATE_FORWARDS,
-                                            docShells);
-        for (auto &child : docShells) {
-          bool childNameEquals = false;
-          child->NameEquals(NS_LITERAL_STRING("messagepane"), &childNameEquals);
-          if (childNameEquals) {
-            docShell = child;
-            break;
-          }
-        }
+        RefPtr<mozilla::dom::Element> el =
+            rootShell->GetDocument()->GetElementById(
+                NS_LITERAL_STRING("messagepane"));
+        RefPtr<mozilla::dom::XULFrameElement> frame =
+            mozilla::dom::XULFrameElement::FromNodeOrNull(el);
+        NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
+        RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
+        NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
+        docShell = doc->GetDocShell();
+        NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
       }
-      NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
 
       // we don't own mMessageWindowDocShell so don't try to keep a reference to
       // it!

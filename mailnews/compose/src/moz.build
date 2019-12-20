@@ -50,6 +50,8 @@ LOCAL_INCLUDES += [
   '/%s/dom/base' % CONFIG['mozreltopsrcdir'],
 ]
 
+include('/ipc/chromium/chromium-config.mozbuild')
+
 FINAL_LIBRARY = 'mail'
 
 # clang-cl rightly complains about switch on nsresult.

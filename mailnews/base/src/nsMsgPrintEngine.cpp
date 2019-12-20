@@ -39,6 +39,9 @@
 #include "nsContentUtils.h"
 #include "nsIChannel.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/dom/Element.h"
+#include "mozilla/dom/XULFrameElement.h"
+#include "nsFrameLoader.h"
 
 static const char *kPrintingPromptService =
     "@mozilla.org/embedcomp/printingprompt-service;1";
@@ -217,17 +220,14 @@ nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy *aWin) {
   window->GetDocShell()->SetAppType(nsIDocShell::APP_TYPE_MAIL);
 
   nsIDocShell *rootShell = window->GetDocShell();
-  nsTArray<RefPtr<nsIDocShell>> docShells;
-  rootShell->GetAllDocShellsInSubtree(
-      nsIDocShell::typeContent, nsIDocShell::ENUMERATE_FORWARDS, docShells);
-  for (auto &child : docShells) {
-    bool childNameEquals = false;
-    child->NameEquals(NS_LITERAL_STRING("content"), &childNameEquals);
-    if (childNameEquals) {
-      mDocShell = child;
-      break;
-    }
-  }
+  RefPtr<mozilla::dom::Element> el =
+      rootShell->GetDocument()->GetElementById(NS_LITERAL_STRING("content"));
+  RefPtr<mozilla::dom::XULFrameElement> frame =
+      mozilla::dom::XULFrameElement::FromNodeOrNull(el);
+  NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
+  RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
+  NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
+  mDocShell = doc->GetDocShell();
   NS_ENSURE_TRUE(mDocShell, NS_ERROR_FAILURE);
   SetupObserver();
   return NS_OK;
