@@ -267,6 +267,7 @@ function test_mark_messages_replied() {
     Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read
   );
 }
+test_mark_messages_replied.EXCLUDED_PLATFORMS = ["winnt", "darwin", "linux"];
 
 function test_mark_messages_forwarded() {
   be_in_folder(gInbox);
@@ -287,6 +288,7 @@ function test_mark_messages_forwarded() {
       Ci.nsMsgMessageFlags.Read
   );
 }
+test_mark_messages_forwarded.EXCLUDED_PLATFORMS = ["winnt", "darwin", "linux"];
 
 function teardownModule(module) {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
