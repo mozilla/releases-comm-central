@@ -35,6 +35,8 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var cwc = null; // compose window controller
 
 add_task(function setupModule(module) {
+  requestLongerTimeout(2);
+
   // These prefs can't be set in the manifest as they contain white-space.
   Services.prefs.setStringPref(
     "mail.identity.id1.htmlSigText",
