@@ -1930,26 +1930,9 @@ NS_IMETHODIMP nsMessenger::GetFolderUriAtNavigatePos(int32_t aPos,
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMessenger::GetNavigateHistory(uint32_t *aCurPos,
-                                              uint32_t *aCount,
-                                              char ***aHistoryUris) {
-  NS_ENSURE_ARG_POINTER(aCount);
-  NS_ENSURE_ARG_POINTER(aCurPos);
-
-  *aCurPos = mCurHistoryPos >> 1;
-  *aCount = mLoadedMsgHistory.Length();
-  // for just enabling commands, we don't need the history uris.
-  if (!aHistoryUris) return NS_OK;
-
-  char **outArray, **next;
-  next = outArray = (char **)moz_xmalloc(*aCount * sizeof(char *));
-  if (!outArray) return NS_ERROR_OUT_OF_MEMORY;
-  for (uint32_t i = 0; i < *aCount; i++) {
-    *next = ToNewCString(mLoadedMsgHistory[i]);
-    if (!*next) return NS_ERROR_OUT_OF_MEMORY;
-    next++;
-  }
-  *aHistoryUris = outArray;
+NS_IMETHODIMP nsMessenger::GetNavigateHistory(
+    nsTArray<nsCString> &aHistoryUris) {
+  aHistoryUris = mLoadedMsgHistory;
   return NS_OK;
 }
 

@@ -707,13 +707,9 @@ function PopulateHistoryMenu(menuPopup, navOffset)
   while (menuPopup.hasChildNodes())
     menuPopup.lastChild.remove();
 
-  var curPos = {};
-  var numEntries = {};
-  var historyEntries = {};
-  messenger.getNavigateHistory(curPos, numEntries, historyEntries);
-  var historyArray = historyEntries.value;
-  var maxPos = numEntries.value / 2; // numEntries is always even
-  var startPos = curPos.value;
+  let startPos = messenger.navigatePos;
+  let historyArray = messenger.getNavigateHistory();
+  let maxPos = historyArray.length / 2; // Array consists of pairs.
   if (GetLoadedMessage())
     startPos += navOffset;
 

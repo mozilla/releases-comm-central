@@ -131,12 +131,13 @@ interface nsIMessenger : nsISupports {
     ACString getMsgUriAtNavigatePos(in long aPos);
     ACString getFolderUriAtNavigatePos(in long aPos);
     attribute long navigatePos;
-    // If caller just wants the count and cur pos, they can pass in a null history pointer, which will be more efficient
-    // if they want a list suitable for display in a back/forward menu drop down, they should pass in a aHistory pointer,
-    // and they'll get returned an array with strings containing something like subject and sender of the message -
-    // other possible info is the folder containing the message, and the preview text, if available.
-    void getNavigateHistory(out unsigned long aCurPos, out unsigned long aCount, [array, size_is(aCount)] out string aHistory);
-
+    /** Fetch the message navigation history.
+      *
+      * @returns An array containing two URIs for each history position.
+      *          First msgURI, then folderURI. So the array will be
+      *          twice as long as the number of history positions.
+      */
+    Array<ACString> getNavigateHistory();
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);
 };
 

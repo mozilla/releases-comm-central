@@ -6505,18 +6505,18 @@ nsMsgDBView::NavigateStatus(nsMsgNavigationTypeValue motion, bool *_retval) {
       break;
     case nsMsgNavigationType::forward:
     case nsMsgNavigationType::back:
-      uint32_t curPos;
-      uint32_t historyCount;
       if (messenger) {
-        messenger->GetNavigateHistory(&curPos, &historyCount, nullptr);
+        int32_t curPos;
+        messenger->GetNavigatePos(&curPos);
+        nsTArray<nsCString> history;
+        messenger->GetNavigateHistory(history);
         int32_t desiredPos = (int32_t)curPos;
         if (motion == nsMsgNavigationType::forward)
           desiredPos++;
         else
-          //? operator code didn't work for me.
           desiredPos--;
 
-        enable = (desiredPos >= 0 && desiredPos < (int32_t)historyCount / 2);
+        enable = (desiredPos >= 0 && desiredPos < (int32_t)history.Length() / 2);
       }
       break;
     default:

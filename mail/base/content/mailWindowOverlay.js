@@ -1462,15 +1462,15 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
   while (menuPopup.hasChildNodes()) {
     menuPopup.lastChild.remove();
   }
-  var curPos = {};
-  var numEntries = {};
-  var historyEntries = {};
-  messenger.getNavigateHistory(curPos, numEntries, historyEntries);
-  curPos.value = curPos.value * 2;
+  let historyArray = messenger.getNavigateHistory();
+  let curPos = messenger.navigatePos * 2;
   navDebug(
-    "curPos = " + curPos.value + " numEntries = " + numEntries.value + "\n"
+    "curPos = " +
+      curPos.value +
+      " historyArray.length = " +
+      historyArray.length +
+      "\n"
   );
-  var historyArray = historyEntries.value;
   var folder;
   var newMenuItem;
   if (gFolderDisplay.selectedMessage) {
