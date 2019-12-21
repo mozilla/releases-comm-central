@@ -257,6 +257,7 @@ function reply_forward_message(aMsgRow, aReply) {
   gInbox.addMessageDispositionState(curMessage, disposition);
 }
 
+test_mark_messages_replied.__force_skip__ = true; // See bug 1602584.
 function test_mark_messages_replied() {
   reply_forward_message(2, true);
   let curMessage = select_click_row(2);
@@ -267,8 +268,8 @@ function test_mark_messages_replied() {
     Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read
   );
 }
-test_mark_messages_replied.EXCLUDED_PLATFORMS = ["winnt", "darwin", "linux"];
 
+test_mark_messages_forwarded.__force_skip__ = true; // See bug 1602584.
 function test_mark_messages_forwarded() {
   be_in_folder(gInbox);
   // Forward a clean message.
@@ -288,7 +289,6 @@ function test_mark_messages_forwarded() {
       Ci.nsMsgMessageFlags.Read
   );
 }
-test_mark_messages_forwarded.EXCLUDED_PLATFORMS = ["winnt", "darwin", "linux"];
 
 function teardownModule(module) {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
