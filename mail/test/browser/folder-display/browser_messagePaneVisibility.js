@@ -31,6 +31,7 @@ var folder;
 add_task(function setupModule(module) {
   folder = create_folder("MessagePaneVisibility");
   make_new_sets_in_folder(folder, [{ count: 3 }]);
+  Assert.ok(true, "setupModule ran to completion");
 });
 
 /**
@@ -40,6 +41,7 @@ add_task(function setupModule(module) {
 add_task(function test_message_pane_visible_state_is_right() {
   be_in_folder(folder);
   assert_message_pane_visible();
+  Assert.ok(true, "test_message_pane_visible_state_is_right ran to completion");
 });
 
 /**
@@ -51,6 +53,7 @@ add_task(function test_account_central_has_no_splitter() {
   be_in_folder(folder.rootFolder);
   assert_message_pane_hidden(true);
   be_in_folder(folder);
+  Assert.ok(true, "test_account_central_has_no_splitter ran to completion");
 });
 
 /**
@@ -59,6 +62,7 @@ add_task(function test_account_central_has_no_splitter() {
 add_task(function test_toggle_message_pane_off() {
   toggle_message_pane();
   assert_message_pane_hidden();
+  Assert.ok(true, "test_toggle_message_pane_off ran to completion");
 });
 
 /**
@@ -67,6 +71,7 @@ add_task(function test_toggle_message_pane_off() {
 add_task(function test_toggle_message_pane_on() {
   toggle_message_pane();
   assert_message_pane_visible();
+  Assert.ok(true, "test_toggle_message_pane_on ran to completion");
 });
 
 /**
@@ -91,6 +96,11 @@ add_task(function test_collapsed_message_pane_does_not_break_message_tab() {
 
   // - restore the state...
   toggle_message_pane();
+
+  Assert.ok(
+    true,
+    "test_collapsed_message_pane_does_not_break_message_tab ran to completion"
+  );
 });
 
 /**
@@ -157,6 +167,8 @@ add_task(function test_message_pane_is_sticky() {
   // (redundant) [ folder pane toggle - => + ]
   toggle_message_pane();
   assert_message_pane_visible();
+
+  Assert.ok(true, "test_message_pane_is_sticky ran to completion");
 });
 
 /**
@@ -237,4 +249,9 @@ add_task(function test_message_pane_persistence_generally_works() {
     //  restores it to + for when we are done.
     toggle_message_pane();
   }
+
+  Assert.ok(
+    true,
+    "test_message_pane_persistence_generally_works ran to completion"
+  );
 });

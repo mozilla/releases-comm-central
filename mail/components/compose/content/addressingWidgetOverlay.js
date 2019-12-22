@@ -478,7 +478,9 @@ function recipientAddPill(element, automatic = false) {
   // We need to detach the autocomplete Controller to prevent the input
   // to be filled with the previously selected address when the "blur" event
   // gets triggered.
-  element.detachController();
+  if (element.mController.input) {
+    element.detachController();
+  }
   // Attach it again to enable autocomplete.
   element.attachController();
 

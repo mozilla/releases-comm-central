@@ -28,6 +28,7 @@ var folder;
 add_task(function setupModule(module) {
   folder = create_folder("FolderPaneVisibility");
   make_new_sets_in_folder(folder, [{ count: 3 }]);
+  Assert.ok(true, "setupModule ran to completion");
 });
 
 /**
@@ -59,6 +60,7 @@ function assert_folder_pane_visible() {
   if (paneMenuItem.getAttribute("checked") != "true") {
     throw new Error("The Folder Pane menu item should be checked.");
   }
+  Assert.ok(true, "assert_folder_pane_visible ran to completion");
 }
 
 /**
@@ -100,12 +102,14 @@ function assert_folder_pane_hidden(aFolderPaneIllegal) {
       throw new Error("The Folder Pane menu item should not be checked.");
     }
   }
+  Assert.ok(true, "assert_folder_pane_hidden ran to completion");
 }
 
 function toggle_folder_pane() {
   // Since we don't have a shortcut to toggle the folder pane, we're going to
   // have to collapse it ourselves
   mc.window.MsgToggleFolderPane();
+  Assert.ok(true, "toggle_folder_pane ran to completion");
 }
 
 /**
@@ -114,6 +118,7 @@ function toggle_folder_pane() {
 add_task(function test_folder_pane_visible_state_is_right() {
   be_in_folder(folder);
   assert_folder_pane_visible();
+  Assert.ok(true, "test_folder_pane_visible_state_is_right ran to completion");
 });
 
 /**
@@ -122,6 +127,7 @@ add_task(function test_folder_pane_visible_state_is_right() {
 add_task(function test_toggle_folder_pane_off() {
   toggle_folder_pane();
   assert_folder_pane_hidden();
+  Assert.ok(true, "test_toggle_folder_pane_off ran to completion");
 });
 
 /**
@@ -130,6 +136,7 @@ add_task(function test_toggle_folder_pane_off() {
 add_task(function test_toggle_folder_pane_on() {
   toggle_folder_pane();
   assert_folder_pane_visible();
+  Assert.ok(true, "test_toggle_folder_pane_on ran to completion");
 });
 
 /**
@@ -196,6 +203,8 @@ add_task(function test_folder_pane_is_sticky() {
   // (redundant) [ folder pane toggle - => + ]
   toggle_folder_pane();
   assert_folder_pane_visible();
+
+  Assert.ok(true, "test_folder_pane_is_sticky ran to completion");
 });
 
 /**
@@ -270,4 +279,9 @@ add_task(function test_folder_pane_persistence_generally_works() {
   }
   // For one last time, make sure.
   assert_folder_pane_visible();
+
+  Assert.ok(
+    true,
+    "test_folder_pane_persistence_generally_works ran to completion"
+  );
 });

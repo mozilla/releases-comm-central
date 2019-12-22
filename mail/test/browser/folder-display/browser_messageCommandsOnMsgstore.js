@@ -272,8 +272,14 @@ add_task(function test_mark_messages_forwarded() {
   check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Forwarded);
 
   // Forward a message that is read and already replied to.
-  reply_forward_message(2, false);
   curMessage = select_click_row(2);
+  check_status(
+    curMessage,
+    null,
+    null,
+    Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read
+  );
+  reply_forward_message(2, false);
   check_status(
     curMessage,
     null,

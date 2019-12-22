@@ -474,6 +474,9 @@ MultiMessageSummary.prototype = {
       // items warrant it.
       let key = glodaMsg.messageKey + glodaMsg.folder.uri;
       let headerNode = this._msgNodes[key];
+      if (!headerNode) {
+        continue;
+      }
       if (!knownMessageNodes.has(headerNode)) {
         knownMessageNodes.set(headerNode, {
           read: true,

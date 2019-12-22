@@ -3510,12 +3510,14 @@ ConversationOpener.prototype = {
     let glodaEnabled = Services.prefs.getBoolPref(
       "mailnews.database.global.indexer.enabled"
     );
-
-    if (glodaEnabled && gFolderDisplay.selectedCount > 0) {
-      let message = gFolderDisplay.selectedMessage;
-      return Gloda.isMessageIndexed(message);
+    if (!glodaEnabled) {
+      return false;
     }
-    return false;
+    let message = gFolderDisplay.selectedMessage;
+    if (!message) {
+      return false;
+    }
+    return Gloda.isMessageIndexed(message);
   },
   onItemsAdded(aItems) {},
   onItemsModified(aItems) {},
