@@ -197,7 +197,7 @@ calRecurrenceRule.prototype = {
     this.innerObject.wkst = val + 1;
   },
 
-  getComponent: function(aType, aCount) {
+  getComponent: function(aType) {
     let values = this.innerObject.getComponent(aType);
     if (aType == "BYDAY") {
       // BYDAY values are alphanumeric: SU, MO, TU, etc..
@@ -219,13 +219,10 @@ calRecurrenceRule.prototype = {
       }
     }
 
-    if (aCount) {
-      aCount.value = values.length;
-    }
     return values;
   },
 
-  setComponent: function(aType, aCount, aValues) {
+  setComponent: function(aType, aValues) {
     let values = aValues;
     if (aType == "BYDAY") {
       // BYDAY values are alphanumeric: SU, MO, TU, etc..

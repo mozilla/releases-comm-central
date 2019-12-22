@@ -77,7 +77,7 @@ function test_icalstring() {
     "RRULE:FREQ=WEEKLY;COUNT=5;INTERVAL=2;BYDAY=MO",
     { count: 5, isByCount: true, type: "WEEKLY", interval: 2 }
   );
-  equal(rrule.getComponent("BYDAY", {}).toString(), [2].toString());
+  equal(rrule.getComponent("BYDAY").toString(), [2].toString());
 
   if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
     let rdate = checkComp(cal.createRecurrenceDate.bind(cal), "RDATE:20120101T000000", {

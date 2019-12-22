@@ -1748,7 +1748,7 @@ upgrade.v22 = function(db, version) {
                 let comp = "BY" + rtype;
                 let rstr = rtypes[rtype].toString();
                 let rarray = rstr.split(",").map(parseInt10);
-                ritem.setComponent(comp, rarray.length, rarray);
+                ritem.setComponent(comp, rarray);
               }
             }
           }

@@ -81,7 +81,7 @@ add_task(async () => {
             equal(ritem.interval, 2);
             equal(ritem.count, 5);
             equal(ritem.isByCount, true);
-            equal(ritem.getComponent("BYDAY", {}).toString(), [2].toString());
+            equal(ritem.getComponent("BYDAY").toString(), [2].toString());
             equal(ritem.isNegative, false);
           } else if (ritem instanceof Ci.calIRecurrenceDate) {
             if (ritem.isNegative) {

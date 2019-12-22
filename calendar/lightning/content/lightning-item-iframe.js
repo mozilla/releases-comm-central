@@ -1455,7 +1455,7 @@ function getRepeatTypeAndUntilDate(aItem) {
               "BYSETPOS",
             ];
             if (!checkRecurrenceRule(rule, byparts)) {
-              let ruleComp = rule.getComponent("BYDAY", {});
+              let ruleComp = rule.getComponent("BYDAY");
               if (rule.interval == 1) {
                 if (ruleComp.length > 0) {
                   if (ruleComp.length == 5) {
@@ -2935,7 +2935,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
         break;
       case "every.weekday":
         recRule.type = "DAILY";
-        recRule.setComponent("BYDAY", 5, [2, 3, 4, 5, 6]);
+        recRule.setComponent("BYDAY", [2, 3, 4, 5, 6]);
         break;
       case "bi.weekly":
         recRule.type = "WEEKLY";

@@ -975,10 +975,10 @@ function test_rrule_interface() {
   ok(rrule.isByCount);
   ok(!rrule.isNegative);
   ok(rrule.isFinite);
-  equal(rrule.getComponent("BYDAY", {}).toString(), [3, 4].toString());
+  equal(rrule.getComponent("BYDAY").toString(), [3, 4].toString());
 
   // Now start changing things
-  rrule.setComponent("BYDAY", 2, [4, 5]);
+  rrule.setComponent("BYDAY", [4, 5]);
   equal(rrule.icalString.match(/BYDAY=WE,TH/), "BYDAY=WE,TH");
 
   rrule.count = -1;
@@ -1175,102 +1175,102 @@ function test_rrule_icalstring() {
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "DAILY";
-  recRule.setComponent("BYDAY", 5, [2, 3, 4, 5, 6]);
+  recRule.setComponent("BYDAY", [2, 3, 4, 5, 6]);
   equal(recRule.icalString, "RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR\r\n");
-  deepEqual(recRule.getComponent("BYDAY", {}), [2, 3, 4, 5, 6]);
+  deepEqual(recRule.getComponent("BYDAY"), [2, 3, 4, 5, 6]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "WEEKLY";
   recRule.interval = 3;
-  recRule.setComponent("BYDAY", 3, [2, 4, 6]);
+  recRule.setComponent("BYDAY", [2, 4, 6]);
   equal(recRule.icalString, "RRULE:FREQ=WEEKLY;INTERVAL=3;BYDAY=MO,WE,FR\r\n");
-  deepEqual(recRule.getComponent("BYDAY", {}), [2, 4, 6]);
+  deepEqual(recRule.getComponent("BYDAY"), [2, 4, 6]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "MONTHLY";
-  recRule.setComponent("BYDAY", 7, [2, 3, 4, 5, 6, 7, 1]);
+  recRule.setComponent("BYDAY", [2, 3, 4, 5, 6, 7, 1]);
   equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR,SA,SU\r\n");
-  deepEqual(recRule.getComponent("BYDAY", {}), [2, 3, 4, 5, 6, 7, 1]);
+  deepEqual(recRule.getComponent("BYDAY"), [2, 3, 4, 5, 6, 7, 1]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "MONTHLY";
-  recRule.setComponent("BYDAY", 1, [10]);
+  recRule.setComponent("BYDAY", [10]);
   equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=1MO\r\n");
-  deepEqual(recRule.getComponent("BYDAY", {}), [10]);
+  deepEqual(recRule.getComponent("BYDAY"), [10]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "MONTHLY";
-  recRule.setComponent("BYDAY", 1, [20]);
+  recRule.setComponent("BYDAY", [20]);
   equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=2WE\r\n");
-  deepEqual(recRule.getComponent("BYDAY", {}), [20]);
+  deepEqual(recRule.getComponent("BYDAY"), [20]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "MONTHLY";
-  recRule.setComponent("BYDAY", 1, [-22]);
+  recRule.setComponent("BYDAY", [-22]);
   equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYDAY=-2FR\r\n");
-  deepEqual(recRule.getComponent("BYDAY", {}), [-22]);
+  deepEqual(recRule.getComponent("BYDAY"), [-22]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "MONTHLY";
-  recRule.setComponent("BYMONTHDAY", 1, [5]);
+  recRule.setComponent("BYMONTHDAY", [5]);
   equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYMONTHDAY=5\r\n");
-  deepEqual(recRule.getComponent("BYMONTHDAY", {}), [5]);
+  deepEqual(recRule.getComponent("BYMONTHDAY"), [5]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "MONTHLY";
-  recRule.setComponent("BYMONTHDAY", 3, [1, 9, 17]);
+  recRule.setComponent("BYMONTHDAY", [1, 9, 17]);
   equal(recRule.icalString, "RRULE:FREQ=MONTHLY;BYMONTHDAY=1,9,17\r\n");
-  deepEqual(recRule.getComponent("BYMONTHDAY", {}), [1, 9, 17]);
+  deepEqual(recRule.getComponent("BYMONTHDAY"), [1, 9, 17]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "YEARLY";
-  recRule.setComponent("BYMONTH", 1, [1]);
-  recRule.setComponent("BYMONTHDAY", 1, [3]);
+  recRule.setComponent("BYMONTH", [1]);
+  recRule.setComponent("BYMONTHDAY", [3]);
   ok(
     [
       "RRULE:FREQ=YEARLY;BYMONTHDAY=3;BYMONTH=1\r\n",
       "RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=3\r\n",
     ].includes(recRule.icalString)
   );
-  deepEqual(recRule.getComponent("BYMONTH", {}), [1]);
-  deepEqual(recRule.getComponent("BYMONTHDAY", {}), [3]);
+  deepEqual(recRule.getComponent("BYMONTH"), [1]);
+  deepEqual(recRule.getComponent("BYMONTHDAY"), [3]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "YEARLY";
-  recRule.setComponent("BYMONTH", 1, [4]);
-  recRule.setComponent("BYDAY", 1, [3]);
+  recRule.setComponent("BYMONTH", [4]);
+  recRule.setComponent("BYDAY", [3]);
   ok(
     [
       "RRULE:FREQ=YEARLY;BYDAY=TU;BYMONTH=4\r\n",
       "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=TU\r\n",
     ].includes(recRule.icalString)
   );
-  deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
-  deepEqual(recRule.getComponent("BYDAY", {}), [3]);
+  deepEqual(recRule.getComponent("BYMONTH"), [4]);
+  deepEqual(recRule.getComponent("BYDAY"), [3]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "YEARLY";
-  recRule.setComponent("BYMONTH", 1, [4]);
-  recRule.setComponent("BYDAY", 1, [10]);
+  recRule.setComponent("BYMONTH", [4]);
+  recRule.setComponent("BYDAY", [10]);
   ok(
     [
       "RRULE:FREQ=YEARLY;BYDAY=1MO;BYMONTH=4\r\n",
       "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=1MO\r\n",
     ].includes(recRule.icalString)
   );
-  deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
-  deepEqual(recRule.getComponent("BYDAY", {}), [10]);
+  deepEqual(recRule.getComponent("BYMONTH"), [4]);
+  deepEqual(recRule.getComponent("BYDAY"), [10]);
 
   recRule = cal.createRecurrenceRule();
   recRule.type = "YEARLY";
-  recRule.setComponent("BYMONTH", 1, [4]);
-  recRule.setComponent("BYDAY", 1, [-22]);
+  recRule.setComponent("BYMONTH", [4]);
+  recRule.setComponent("BYDAY", [-22]);
   ok(
     [
       "RRULE:FREQ=YEARLY;BYDAY=-2FR;BYMONTH=4\r\n",
       "RRULE:FREQ=YEARLY;BYMONTH=4;BYDAY=-2FR\r\n",
     ].includes(recRule.icalString)
   );
-  deepEqual(recRule.getComponent("BYMONTH", {}), [4]);
-  deepEqual(recRule.getComponent("BYDAY", {}), [-22]);
+  deepEqual(recRule.getComponent("BYMONTH"), [4]);
+  deepEqual(recRule.getComponent("BYDAY"), [-22]);
 }

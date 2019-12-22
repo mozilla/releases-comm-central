@@ -236,85 +236,70 @@ calRecurrenceRule::SetInterval(int32_t aInterval) {
   return NS_OK;
 }
 
-/* void getComponent (in AUTF8String aComponentType, out unsigned long aCount,
- * [array, size_is (aCount), retval] out long aValues); */
+// Helper table to encode the size/location of the various arrays in the
+// icalrecurrencetype struct.
+static const struct {
+  const char *name;
+  size_t offset;
+  size_t maxCount;
+} recurrenceTable[] = {
+    {"BYSECOND", offsetof(icalrecurrencetype, by_second), ICAL_BY_SECOND_SIZE},
+    {"BYMINUTE", offsetof(icalrecurrencetype, by_minute), ICAL_BY_MINUTE_SIZE},
+    {"BYHOUR", offsetof(icalrecurrencetype, by_hour), ICAL_BY_HOUR_SIZE},
+    {"BYDAY", offsetof(icalrecurrencetype, by_day), ICAL_BY_DAY_SIZE},
+    {"BYMONTHDAY", offsetof(icalrecurrencetype, by_month_day),
+     ICAL_BY_MONTHDAY_SIZE},
+    {"BYYEARDAY", offsetof(icalrecurrencetype, by_year_day),
+     ICAL_BY_YEARDAY_SIZE},
+    {"BYWEEKNO", offsetof(icalrecurrencetype, by_week_no), ICAL_BY_WEEKNO_SIZE},
+    {"BYMONTH", offsetof(icalrecurrencetype, by_month), ICAL_BY_MONTH_SIZE},
+    {"BYSETPOS", offsetof(icalrecurrencetype, by_set_pos), ICAL_BY_SETPOS_SIZE},
+    {nullptr, 0, 0}};
+
 NS_IMETHODIMP
 calRecurrenceRule::GetComponent(const nsACString &aComponentType,
-                                uint32_t *aCount, int16_t **aValues) {
-  NS_ENSURE_ARG_POINTER(aCount);
-  NS_ENSURE_ARG_POINTER(aValues);
-
-  // This little ugly macro counts the number of real entries
-  // we have in the relevant array, and then clones it to the result.
-#define HANDLE_COMPONENT(_comptype, _icalvar, _icalmax)                   \
-  if (aComponentType.EqualsLiteral(#_comptype)) {                         \
-    int count;                                                            \
-    for (count = 0; count < _icalmax; count++) {                          \
-      if (mIcalRecur._icalvar[count] == ICAL_RECURRENCE_ARRAY_MAX) break; \
-    }                                                                     \
-    if (count) {                                                          \
-      *aValues = (int16_t *)moz_xmemdup(mIcalRecur._icalvar,              \
-                                        count * sizeof(int16_t));         \
-      if (!*aValues) return NS_ERROR_OUT_OF_MEMORY;                       \
-    } else {                                                              \
-      *aValues = nullptr;                                                 \
-    }                                                                     \
-    *aCount = count;                                                      \
+                                nsTArray<int16_t> &aValues) {
+  aValues.ClearAndRetainStorage();
+  // Look up the array for this component type.
+  for (int i = 0; recurrenceTable[i].name; ++i) {
+    auto const &row = recurrenceTable[i];
+    if (aComponentType.EqualsASCII(row.name)) {
+      // Found it.
+      int16_t const *src = (int16_t *)((uint8_t *)&mIcalRecur + row.offset);
+      size_t count;
+      for (count = 0; count < row.maxCount; count++) {
+        if (src[count] == ICAL_RECURRENCE_ARRAY_MAX) break;
+      }
+      aValues.ReplaceElementsAt(0, aValues.Length(), src, count);
+      return NS_OK;
+    }
   }
-
-  HANDLE_COMPONENT(BYSECOND, by_second, ICAL_BY_SECOND_SIZE)
-  else HANDLE_COMPONENT(BYMINUTE, by_minute, ICAL_BY_MINUTE_SIZE) else HANDLE_COMPONENT(
-      BYHOUR, by_hour,
-      ICAL_BY_HOUR_SIZE) else HANDLE_COMPONENT(BYDAY, by_day,
-                                               ICAL_BY_DAY_SIZE)  // special
-      else HANDLE_COMPONENT(BYMONTHDAY, by_month_day, ICAL_BY_MONTHDAY_SIZE) else HANDLE_COMPONENT(BYYEARDAY, by_year_day, ICAL_BY_YEARDAY_SIZE) else HANDLE_COMPONENT(
-          BYWEEKNO, by_week_no,
-          ICAL_BY_WEEKNO_SIZE) else HANDLE_COMPONENT(BYMONTH, by_month,
-                                                     ICAL_BY_MONTH_SIZE) else HANDLE_COMPONENT(BYSETPOS,
-                                                                                               by_set_pos,
-                                                                                               ICAL_BY_SETPOS_SIZE) else {
-    // invalid component; XXX - error code
-    return NS_ERROR_FAILURE;
-  }
-#undef HANDLE_COMPONENT
-
-  return NS_OK;
+  return NS_ERROR_FAILURE;  // Invalid component.
 }
 
-/* void setComponent (in AUTF8String aComponentType, in unsigned long aCount,
- * [array, size_is (aCount)] in long aValues); */
 NS_IMETHODIMP
 calRecurrenceRule::SetComponent(const nsACString &aComponentType,
-                                uint32_t aCount, int16_t *aValues) {
-  NS_ENSURE_ARG_POINTER(aValues);
+                                nsTArray<int16_t> const &aValues) {
   if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
 
-  // Copy the passed-in array into the ical structure array
-#define HANDLE_COMPONENT(_comptype, _icalvar, _icalmax)             \
-  if (aComponentType.EqualsLiteral(#_comptype)) {                   \
-    if (aCount > _icalmax) return NS_ERROR_FAILURE;                 \
-    memcpy(mIcalRecur._icalvar, aValues, aCount * sizeof(int16_t)); \
-    if (aCount < _icalmax)                                          \
-      mIcalRecur._icalvar[aCount] = ICAL_RECURRENCE_ARRAY_MAX;      \
+  // Look up the array for this component type.
+  for (int i = 0; recurrenceTable[i].name; ++i) {
+    auto const &row = recurrenceTable[i];
+    if (aComponentType.EqualsASCII(row.name)) {
+      // Found it.
+      int16_t *dest = (int16_t *)((uint8_t *)&mIcalRecur + row.offset);
+      if (aValues.Length() > row.maxCount) return NS_ERROR_FAILURE;
+      for (int16_t v : aValues) {
+        *dest++ = v;
+      }
+      // Terminate array unless full.
+      if (aValues.Length() < row.maxCount) {
+        *dest++ = ICAL_RECURRENCE_ARRAY_MAX;
+      }
+      return NS_OK;
+    }
   }
-
-  HANDLE_COMPONENT(BYSECOND, by_second, ICAL_BY_SECOND_SIZE)
-  else HANDLE_COMPONENT(BYMINUTE, by_minute, ICAL_BY_MINUTE_SIZE) else HANDLE_COMPONENT(
-      BYHOUR, by_hour,
-      ICAL_BY_HOUR_SIZE) else HANDLE_COMPONENT(BYDAY, by_day,
-                                               ICAL_BY_DAY_SIZE)  // special
-      else HANDLE_COMPONENT(BYMONTHDAY, by_month_day, ICAL_BY_MONTHDAY_SIZE) else HANDLE_COMPONENT(BYYEARDAY, by_year_day, ICAL_BY_YEARDAY_SIZE) else HANDLE_COMPONENT(
-          BYWEEKNO, by_week_no,
-          ICAL_BY_WEEKNO_SIZE) else HANDLE_COMPONENT(BYMONTH, by_month,
-                                                     ICAL_BY_MONTH_SIZE) else HANDLE_COMPONENT(BYSETPOS,
-                                                                                               by_set_pos,
-                                                                                               ICAL_BY_SETPOS_SIZE) else {
-    // invalid component; XXX - error code
-    return NS_ERROR_FAILURE;
-  }
-#undef HANDLE_COMPONENT
-
-  return NS_OK;
+  return NS_ERROR_FAILURE;  // Invalid component.
 }
 
 /* calIDateTime getNextOccurrence (in calIDateTime aStartTime, in calIDateTime

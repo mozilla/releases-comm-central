@@ -479,9 +479,9 @@ function initializeControls(rule) {
       break;
   }
 
-  let byDayRuleComponent = rule.getComponent("BYDAY", {});
-  let byMonthDayRuleComponent = rule.getComponent("BYMONTHDAY", {});
-  let byMonthRuleComponent = rule.getComponent("BYMONTH", {});
+  let byDayRuleComponent = rule.getComponent("BYDAY");
+  let byMonthDayRuleComponent = rule.getComponent("BYMONTHDAY");
+  let byMonthRuleComponent = rule.getComponent("BYMONTH");
   let kDefaultTimezone = cal.dtz.defaultTimezone;
   let startDate = gStartTime.getInTimezone(kDefaultTimezone);
 
@@ -640,7 +640,7 @@ function onSave(item) {
       } else {
         recRule.interval = 1;
         let onDays = [2, 3, 4, 5, 6];
-        recRule.setComponent("BYDAY", onDays.length, onDays);
+        recRule.setComponent("BYDAY", onDays);
       }
       break;
     }
@@ -650,7 +650,7 @@ function onSave(item) {
       recRule.interval = ndays;
       let onDays = DaypickerWeekday.days;
       if (onDays.length > 0) {
-        recRule.setComponent("BYDAY", onDays.length, onDays);
+        recRule.setComponent("BYDAY", onDays);
       }
       break;
     }
@@ -665,20 +665,20 @@ function onSave(item) {
         if (monthlyDOW < 0) {
           if (monthlyOrdinal == 0) {
             // Monthly rule "Every day of the month".
-            recRule.setComponent("BYDAY", 7, ALL_WEEKDAYS);
+            recRule.setComponent("BYDAY", ALL_WEEKDAYS);
           } else {
             // One of the first five days or the last day of the month.
-            recRule.setComponent("BYMONTHDAY", 1, [monthlyOrdinal]);
+            recRule.setComponent("BYMONTHDAY", [monthlyOrdinal]);
           }
         } else {
           let sign = monthlyOrdinal < 0 ? -1 : 1;
           let onDays = [(Math.abs(monthlyOrdinal) * 8 + monthlyDOW) * sign];
-          recRule.setComponent("BYDAY", onDays.length, onDays);
+          recRule.setComponent("BYDAY", onDays);
         }
       } else {
         let monthlyDays = DaypickerMonthday.days;
         if (monthlyDays.length > 0) {
-          recRule.setComponent("BYMONTHDAY", monthlyDays.length, monthlyDays);
+          recRule.setComponent("BYMONTHDAY", monthlyDays);
         }
       }
       break;
@@ -690,26 +690,26 @@ function onSave(item) {
       let yearlyGroup = document.getElementById("yearly-group");
       if (yearlyGroup.selectedIndex == 0) {
         let yearlyByMonth = [Number(getElementValue("yearly-month-ordinal"))];
-        recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
+        recRule.setComponent("BYMONTH", yearlyByMonth);
         let yearlyByDay = [Number(getElementValue("yearly-days"))];
-        recRule.setComponent("BYMONTHDAY", yearlyByDay.length, yearlyByDay);
+        recRule.setComponent("BYMONTHDAY", yearlyByDay);
       } else {
         let yearlyByMonth = [Number(getElementValue("yearly-month-rule"))];
-        recRule.setComponent("BYMONTH", yearlyByMonth.length, yearlyByMonth);
+        recRule.setComponent("BYMONTH", yearlyByMonth);
         let yearlyOrdinal = Number(getElementValue("yearly-ordinal"));
         let yearlyDOW = Number(getElementValue("yearly-weekday"));
         if (yearlyDOW < 0) {
           if (yearlyOrdinal == 0) {
             // Yearly rule "Every day of a month".
-            recRule.setComponent("BYDAY", 7, ALL_WEEKDAYS);
+            recRule.setComponent("BYDAY", ALL_WEEKDAYS);
           } else {
             // One of the first five days or the last of a month.
-            recRule.setComponent("BYMONTHDAY", 1, [yearlyOrdinal]);
+            recRule.setComponent("BYMONTHDAY", [yearlyOrdinal]);
           }
         } else {
           let sign = yearlyOrdinal < 0 ? -1 : 1;
           let onDays = [(Math.abs(yearlyOrdinal) * 8 + yearlyDOW) * sign];
-          recRule.setComponent("BYDAY", onDays.length, onDays);
+          recRule.setComponent("BYDAY", onDays);
         }
       }
       break;
