@@ -7,20 +7,17 @@
 interface nsIInterfaceRequestor;
 
 /**
- * nsICertPickDialogs
- * Provides generic UI for choosing a certificate
+ * nsICertPickDialogs provides a generic UI for choosing a certificate.
  */
 [scriptable, uuid(51d59b08-1dd2-11b2-ad4a-a51b92f8a184)]
 interface nsICertPickDialogs : nsISupports
 {
   /**
-   * PickCertificate
-   *   General purpose certificate prompter
+   * General purpose certificate prompter.
    */
-  void PickCertificate(in nsIInterfaceRequestor ctx,
-                       [array, size_is(count)] in wstring certNickList,
-                       [array, size_is(count)] in wstring certDetailsList,
-                       in unsigned long count,
+  void pickCertificate(in nsIInterfaceRequestor ctx,
+                       in Array<AString> certNickList,
+                       in Array<AString> certDetailsList,
                        inout long selectedIndex,
                        out boolean canceled);
 };

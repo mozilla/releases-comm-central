@@ -221,11 +221,13 @@ nsresult nsCertPicker::Init() {
 
 NS_IMETHODIMP
 nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
-                              const char16_t **certNickList,
-                              const char16_t **certDetailsList, uint32_t count,
+                              const nsTArray<nsString> &certNickList,
+                              const nsTArray<nsString> &certDetailsList,
                               int32_t *selectedIndex, bool *canceled) {
   nsresult rv;
   uint32_t i;
+  MOZ_ASSERT(certNickList.Length() == certDetailsList.Length());
+  const uint32_t count = certNickList.Length();
 
   *canceled = false;
 
@@ -236,29 +238,29 @@ nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
   block->SetNumberStrings(1 + count * 2);
 
   for (i = 0; i < count; i++) {
-    rv = block->SetString(i, certNickList[i]);
-    if (NS_FAILED(rv)) return rv;
+    rv = block->SetString(i, ToNewUnicode(certNickList[i]));
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   for (i = 0; i < count; i++) {
-    rv = block->SetString(i + count, certDetailsList[i]);
-    if (NS_FAILED(rv)) return rv;
+    rv = block->SetString(i + count, ToNewUnicode(certDetailsList[i]));
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   rv = block->SetInt(0, count);
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = block->SetInt(1, *selectedIndex);
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = nsNSSDialogHelper::openDialog(
       nullptr, "chrome://messenger/content/certpicker.xul", block);
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   int32_t status;
 
   rv = block->GetInt(0, &status);
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   *canceled = (status == 0) ? true : false;
   if (!*canceled) {
@@ -275,8 +277,6 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
                                         bool *canceled, nsIX509Cert **_retval) {
   int32_t selectedIndex = -1;
   bool selectionFound = false;
-  char16_t **certNicknameList = nullptr;
-  char16_t **certDetailsList = nullptr;
   CERTCertListNode *node = nullptr;
   nsresult rv = NS_OK;
 
@@ -327,16 +327,8 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
     return NS_ERROR_NOT_AVAILABLE;
   }
 
-  certNicknameList =
-      (char16_t **)moz_xmalloc(sizeof(char16_t *) * nicknames->numnicknames);
-  certDetailsList =
-      (char16_t **)moz_xmalloc(sizeof(char16_t *) * nicknames->numnicknames);
-
-  if (!certNicknameList || !certDetailsList) {
-    free(certNicknameList);
-    free(certDetailsList);
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
+  nsTArray<nsString> certNicknameList(nicknames->numnicknames);
+  nsTArray<nsString> certDetailsList(nicknames->numnicknames);
 
   int32_t CertsToUse;
 
@@ -362,8 +354,8 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
 
       if (NS_SUCCEEDED(
               FormatUIStrings(tempCert, i_nickname, nickWithSerial, details))) {
-        certNicknameList[CertsToUse] = ToNewUnicode(nickWithSerial);
-        certDetailsList[CertsToUse] = ToNewUnicode(details);
+        certNicknameList.AppendElement(nickWithSerial);
+        certDetailsList.AppendElement(details);
         if (!selectionFound) {
           /* for the case when selectedNickname refers to nickname + serial */
           if (nickWithSerial == nsDependentString(selectedNickname)) {
@@ -372,40 +364,31 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
           }
         }
       } else {
-        certNicknameList[CertsToUse] = nullptr;
-        certDetailsList[CertsToUse] = nullptr;
+        // Placeholder, to keep the indexes valid.
+        certNicknameList.AppendElement(NS_LITERAL_STRING(""));
+        certDetailsList.AppendElement(NS_LITERAL_STRING(""));
       }
 
       ++CertsToUse;
     }
   }
 
-  if (CertsToUse) {
-    nsCOMPtr<nsICertPickDialogs> dialogs;
-    rv = getNSSDialogs(getter_AddRefs(dialogs), NS_GET_IID(nsICertPickDialogs),
-                       NS_CERTPICKDIALOGS_CONTRACTID);
-
-    if (NS_SUCCEEDED(rv)) {
-      // Show the cert picker dialog and get the index of the selected cert.
-      rv = dialogs->PickCertificate(ctx, (const char16_t **)certNicknameList,
-                                    (const char16_t **)certDetailsList,
-                                    CertsToUse, &selectedIndex, canceled);
-    }
-  }
-
-  int32_t i;
-  for (i = 0; i < CertsToUse; ++i) {
-    free(certNicknameList[i]);
-    free(certDetailsList[i]);
-  }
-  free(certNicknameList);
-  free(certDetailsList);
-
-  if (!CertsToUse) {
+  if (certNicknameList.IsEmpty()) {
     return NS_ERROR_NOT_AVAILABLE;
   }
 
+  nsCOMPtr<nsICertPickDialogs> dialogs;
+  rv = getNSSDialogs(getter_AddRefs(dialogs), NS_GET_IID(nsICertPickDialogs),
+                     NS_CERTPICKDIALOGS_CONTRACTID);
+
+  if (NS_SUCCEEDED(rv)) {
+    // Show the cert picker dialog and get the index of the selected cert.
+    rv = dialogs->PickCertificate(ctx, certNicknameList, certDetailsList,
+                                  &selectedIndex, canceled);
+  }
+
   if (NS_SUCCEEDED(rv) && !*canceled) {
+    int32_t i;
     for (i = 0, node = CERT_LIST_HEAD(certList); !CERT_LIST_END(node, certList);
          ++i, node = CERT_LIST_NEXT(node)) {
       if (i == selectedIndex) {
