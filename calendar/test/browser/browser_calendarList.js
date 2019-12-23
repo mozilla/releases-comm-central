@@ -270,7 +270,7 @@ add_task(async () => {
   // Test reordering calendars.
 
   let dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
-  dragSession.startDragSession();
+  dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
 
   EventUtils.synthesizeDragStart(calendarList.itemChildren[3], null, null, 2, 2);
   await new Promise(resolve => setTimeout(resolve));
