@@ -41,6 +41,7 @@ var { MailServices } = ChromeUtils.import(
 var folderToSendFrom;
 
 add_task(function setupModule(module) {
+  requestLongerTimeout(2);
   folderToSendFrom = create_folder("FolderWithUTF8");
 });
 
