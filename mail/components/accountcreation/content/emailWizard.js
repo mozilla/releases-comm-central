@@ -454,6 +454,7 @@ EmailConfigWizard.prototype = {
       this.onStop();
     }
     this.switchToMode("start");
+    this.checkStartDone();
   },
 
   getConcreteConfig() {
@@ -501,7 +502,6 @@ EmailConfigWizard.prototype = {
   onInputEmail() {
     this._email = e("email").value;
     this.onStartOver();
-    this.checkStartDone();
   },
 
   onInputRealname() {
@@ -511,12 +511,12 @@ EmailConfigWizard.prototype = {
 
   onInputUsername() {
     this._exchangeUsername = e("usernameEx").value;
-    this.checkStartDone();
+    this.onStartOver();
   },
 
   onInputPassword() {
     this._password = e("password").value;
-    this.checkStartDone();
+    this.onStartOver();
   },
 
   /**
