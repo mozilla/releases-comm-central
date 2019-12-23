@@ -66,8 +66,6 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
   list-style-image: url(chrome://messenger/skin/icons/unreadmail.png) !important;
-  width: 16px;
-  height: 16px;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread, selected, focus) {
