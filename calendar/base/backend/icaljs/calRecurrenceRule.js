@@ -52,7 +52,7 @@ calRecurrenceRule.prototype = {
     return wrapGetter(calDateTime, this.innerObject.getNextOccurrence(aStartTime, aRecId));
   },
 
-  getOccurrences: function(aStartTime, aRangeStart, aRangeEnd, aMaxCount, aCount) {
+  getOccurrences: function(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
     aStartTime = unwrapSingle(ICAL.Time, aStartTime);
     aRangeStart = unwrapSingle(ICAL.Time, aRangeStart);
     aRangeEnd = unwrapSingle(ICAL.Time, aRangeEnd);
@@ -73,7 +73,6 @@ calRecurrenceRule.prototype = {
 
       // If the start of the recurrence is past the end, we have no dates
       if (aStartTime.compare(dtend) >= 0) {
-        aCount.value = 0;
         return [];
       }
     }
@@ -105,7 +104,6 @@ calRecurrenceRule.prototype = {
       }
     }
 
-    aCount.value = occurrences.length;
     return occurrences;
   },
 

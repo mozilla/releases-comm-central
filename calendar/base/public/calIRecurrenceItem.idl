@@ -45,11 +45,10 @@ interface calIRecurrenceItem : nsISupports
   // return array of calIDateTime of the start of all occurrences of
   // this event starting at aStartTime, between rangeStart and an
   // optional rangeEnd
-  void getOccurrences (in calIDateTime aStartTime,
-                       in calIDateTime aRangeStart,
-                       in calIDateTime aRangeEnd,
-                       in unsigned long aMaxCount,
-                       out unsigned long aCount, [array,size_is(aCount),retval] out calIDateTime aDates);
+  Array<calIDateTime> getOccurrences(in calIDateTime aStartTime,
+                                     in calIDateTime aRangeStart,
+                                     in calIDateTime aRangeEnd,
+                                     in unsigned long aMaxCount);
 
   attribute calIIcalProperty icalProperty;
   attribute AUTF8String icalString;

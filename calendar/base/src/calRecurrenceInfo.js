@@ -296,7 +296,7 @@ calRecurrenceInfo.prototype = {
         // This is fine, since there will never be an EXDATE that
         // occurs before the event started and its illegal to EXDATE an
         // RDATE.
-        let rdates = ritem.getOccurrences(startDate, startDate, null, 0, {});
+        let rdates = ritem.getOccurrences(startDate, startDate, null, 0);
         // Map all negative dates.
         for (let rdate of rdates) {
           negMap[getRidKey(rdate)] = true;
@@ -507,7 +507,7 @@ calRecurrenceInfo.prototype = {
 
     // Apply positive rules
     for (let ritem of this.mPositiveRules) {
-      let cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount, {});
+      let cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount);
       if (cur_dates.length == 0) {
         continue;
       }
@@ -545,7 +545,7 @@ calRecurrenceInfo.prototype = {
 
     // Apply negative rules
     for (let ritem of this.mNegativeRules) {
-      let cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount, {});
+      let cur_dates = ritem.getOccurrences(startDate, searchStart, rangeEnd, maxCount);
       if (cur_dates.length == 0) {
         continue;
       }

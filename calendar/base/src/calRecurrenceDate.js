@@ -70,16 +70,14 @@ calRecurrenceDate.prototype = {
     }
   },
 
-  getOccurrences: function(aStartTime, aRangeStart, aRangeEnd, aMaxCount, aCount) {
+  getOccurrences: function(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
     if (
       this.mDate &&
       this.mDate.compare(aRangeStart) >= 0 &&
       (!aRangeEnd || this.mDate.compare(aRangeEnd) < 0)
     ) {
-      aCount.value = 1;
       return [this.mDate];
     } else {
-      aCount.value = 0;
       return [];
     }
   },

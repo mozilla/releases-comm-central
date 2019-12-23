@@ -386,11 +386,10 @@ NS_IMETHODIMP
 calRecurrenceRule::GetOccurrences(calIDateTime *aStartTime,
                                   calIDateTime *aRangeStart,
                                   calIDateTime *aRangeEnd, uint32_t aMaxCount,
-                                  uint32_t *aCount, calIDateTime ***aDates) {
+                                  nsTArray<RefPtr<calIDateTime>> &aDates) {
   NS_ENSURE_ARG_POINTER(aStartTime);
   NS_ENSURE_ARG_POINTER(aRangeStart);
-  NS_ENSURE_ARG_POINTER(aCount);
-  NS_ENSURE_ARG_POINTER(aDates);
+  aDates.ClearAndRetainStorage();
 
   // make sure the request is sane; infinite recurrence
   // with no end time is bad times.
@@ -438,8 +437,6 @@ calRecurrenceRule::GetOccurrences(calIDateTime *aStartTime,
     // if the start of the recurrence is past the end,
     // we have no dates
     if (icaltime_compare(dtstart, dtend) >= 0) {
-      *aDates = nullptr;
-      *aCount = 0;
       return NS_OK;
     }
   }
@@ -447,8 +444,6 @@ calRecurrenceRule::GetOccurrences(calIDateTime *aStartTime,
   icalrecur_iterator *recur_iter;
   recur_iter = icalrecur_iterator_new(mIcalRecur, dtstart);
   if (!recur_iter) return NS_ERROR_OUT_OF_MEMORY;
-
-  uint32_t count = 0;
 
   for (icaltimetype next = icalrecur_iterator_next(recur_iter);
        !icaltime_is_null_time(next);
@@ -462,13 +457,8 @@ calRecurrenceRule::GetOccurrences(calIDateTime *aStartTime,
 
     if (aRangeEnd && icaltime_compare(dtNext, dtend) >= 0) break;
 
-    calIDateTime *const cdt = new calDateTime(&next, tz);
-    if (!cdt) {
-      icalrecur_iterator_free(recur_iter);
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
-
-    dates.AppendObject(cdt);
+    calIDateTime *cdt = new calDateTime(&next, tz);
+    aDates.AppendElement(cdt);
 #ifdef DEBUG_dbo
     {
       nsAutoCString str;
@@ -476,25 +466,10 @@ calRecurrenceRule::GetOccurrences(calIDateTime *aStartTime,
       printf("  occ: %s\n", str.get());
     }
 #endif
-    count++;
-    if (aMaxCount && aMaxCount <= count) break;
+    if (aMaxCount && aMaxCount <= aDates.Length()) break;
   }
 
   icalrecur_iterator_free(recur_iter);
-
-  if (count) {
-    calIDateTime **const dateArray = static_cast<calIDateTime **>(
-        moz_xmalloc(sizeof(calIDateTime *) * count));
-    CAL_ENSURE_MEMORY(dateArray);
-    for (uint32_t i = 0; i < count; ++i) {
-      NS_ADDREF(dateArray[i] = dates[i]);
-    }
-    *aDates = dateArray;
-  } else {
-    *aDates = nullptr;
-  }
-
-  *aCount = count;
 
   return NS_OK;
 }
