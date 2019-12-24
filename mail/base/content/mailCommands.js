@@ -313,7 +313,7 @@ function NewMessageToSelectedAddresses(type, format, identity) {
 
 function Subscribe(preselectedMsgFolder) {
   window.openDialog(
-    "chrome://messenger/content/subscribe.xul",
+    "chrome://messenger/content/subscribe.xhtml",
     "subscribe",
     "chrome,modal,titlebar,resizable=yes",
     {
@@ -492,7 +492,7 @@ function ViewPageSource(messages) {
       // display the message source, not the processed HTML.
       url = url.replace(/type=application\/x-message-display&/, "");
       window.openDialog(
-        "chrome://messenger/content/viewSource.xul",
+        "chrome://messenger/content/viewSource.xhtml",
         "_blank",
         "all,dialog=no",
         { URL: url, browser, outerWindowID: browser.outerWindowID }

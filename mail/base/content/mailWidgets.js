@@ -1757,7 +1757,7 @@
 
   /**
    * The MailAddressPill widget is used to display the email addresses in the
-   * messengercompose.xul window.
+   * messengercompose.xhtml window.
    *
    * @extends {MozXULElement}
    */

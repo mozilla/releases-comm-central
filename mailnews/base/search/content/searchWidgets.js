@@ -469,7 +469,7 @@
         // Customize menuitem selected.
         let args = {};
         window.openDialog(
-          "chrome://messenger/content/CustomHeaders.xul",
+          "chrome://messenger/content/CustomHeaders.xhtml",
           "",
           "modal,centerscreen,resizable,titlebar,chrome",
           args

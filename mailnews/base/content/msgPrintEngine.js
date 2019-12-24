@@ -170,7 +170,7 @@ function StopUrls() {
 
 function PrintEnginePrint() {
   printEngineWindow = window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xul",
+    "chrome://messenger/content/msgPrintEngine.xhtml",
     "",
     "chrome,dialog=no,all,centerscreen",
     false
@@ -179,7 +179,7 @@ function PrintEnginePrint() {
 
 function PrintEnginePrintPreview() {
   printEngineWindow = window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xul",
+    "chrome://messenger/content/msgPrintEngine.xhtml",
     "",
     "chrome,dialog=no,all,centerscreen",
     true

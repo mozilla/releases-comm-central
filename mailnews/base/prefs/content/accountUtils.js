@@ -72,7 +72,7 @@ function showMailIntegrationDialog() {
       !shellService.isDefaultClient(true, appTypesCheck)
     ) {
       window.openDialog(
-        "chrome://communicator/content/defaultClientDialog.xul",
+        "chrome://communicator/content/defaultClientDialog.xhtml",
         "DefaultClient",
         "modal,centerscreen,chrome,resizable=no"
       );
@@ -200,7 +200,7 @@ function msgOpenAccountWizard(wizardCallback, type) {
   gNewAccountToLoad = null;
 
   window.openDialog(
-    "chrome://messenger/content/AccountWizard.xul",
+    "chrome://messenger/content/AccountWizard.xhtml",
     "AccountWizard",
     "chrome,modal,titlebar,centerscreen",
     { okCallback: wizardCallback, acctType: type }
@@ -249,7 +249,7 @@ function AddMailAccount() {
 
 function AddIMAccount() {
   window.openDialog(
-    "chrome://messenger/content/chat/imAccountWizard.xul",
+    "chrome://messenger/content/chat/imAccountWizard.xhtml",
     "",
     "chrome,modal,titlebar,centerscreen"
   );
@@ -257,7 +257,7 @@ function AddIMAccount() {
 
 function AddFeedAccount() {
   window.openDialog(
-    "chrome://messenger-newsblog/content/feedAccountWizard.xul",
+    "chrome://messenger-newsblog/content/feedAccountWizard.xhtml",
     "",
     "chrome,modal,titlebar,centerscreen"
   );
@@ -269,8 +269,8 @@ function AddFeedAccount() {
  *
  * @param selectPage  The xul file name for the viewing page or
  *                    null for the account main page. Other pages are
- *                    'am-server.xul', 'am-copies.xul', 'am-offline.xul',
- *                    'am-addressing.xul', 'am-smtp.xul'
+ *                    'am-server.xhtml', 'am-copies.xhtml', 'am-offline.xhtml',
+ *                    'am-addressing.xhtml', 'am-smtp.xhtml'
  * @param  aServer    The server of the account to select. Optional.
  */
 function MsgAccountManager(selectPage, aServer) {
@@ -300,7 +300,7 @@ function MsgAccountManager(selectPage, aServer) {
     }
 
     window.openDialog(
-      "chrome://messenger/content/AccountManager.xul",
+      "chrome://messenger/content/AccountManager.xhtml",
       "AccountManager",
       "chrome,centerscreen,modal,titlebar,resizable",
       { server: aServer, selectPage }
@@ -503,7 +503,7 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
   } else if (AppConstants.MOZ_APP_NAME == "thunderbird") {
     // disabling modal for the time being, see 688273 REMOVEME
     window.openDialog(
-      "chrome://messenger/content/accountcreation/emailWizard.xul",
+      "chrome://messenger/content/accountcreation/emailWizard.xhtml",
       "AccountSetup",
       "chrome,titlebar,centerscreen,resizable",
       { msgWindow, okCallback, extraData }

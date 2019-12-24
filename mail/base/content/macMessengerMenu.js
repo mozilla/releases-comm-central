@@ -101,7 +101,7 @@ function openAddressBookDock() {
   } else {
     Services.ww.openWindow(
       null,
-      "chrome://messenger/content/addressbook/addressbook.xul",
+      "chrome://messenger/content/addressbook/addressbook.xhtml",
       null,
       "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
       null

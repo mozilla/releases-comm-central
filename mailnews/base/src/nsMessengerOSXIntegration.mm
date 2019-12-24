@@ -98,7 +98,7 @@ static void openMailWindow(const nsCString &aUri) {
           // bug 507593 is implemented.
 #ifdef MOZ_SUITE
         nsCOMPtr<mozIDOMWindowProxy> newWindow;
-        wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul", "_blank",
+        wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xhtml", "_blank",
                            "all,chrome,dialog=no,status,toolbar", msgUri,
                            getter_AddRefs(newWindow));
 #else
@@ -109,7 +109,7 @@ static void openMailWindow(const nsCString &aUri) {
         messenger->MsgHdrFromURI(aUri, getter_AddRefs(msgHdr));
         if (msgHdr) {
           nsCOMPtr<mozIDOMWindowProxy> newWindow;
-          wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xul", "_blank",
+          wwatch->OpenWindow(0, "chrome://messenger/content/messageWindow.xhtml", "_blank",
                              "all,chrome,dialog=no,status,toolbar", msgHdr,
                              getter_AddRefs(newWindow));
         }

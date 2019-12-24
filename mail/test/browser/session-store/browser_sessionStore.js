@@ -91,7 +91,7 @@ function open3PaneWindow() {
   plan_for_new_window("mail:3pane");
   Services.ww.openWindow(
     null,
-    "chrome://messenger/content/messenger.xul",
+    "chrome://messenger/content/messenger.xhtml",
     "",
     "all,chrome,dialog=no,status,toolbar",
     null
@@ -103,7 +103,7 @@ function openAddressBook() {
   plan_for_new_window("mail:addressbook");
   Services.ww.openWindow(
     null,
-    "chrome://messenger/content/addressbook/addressbook.xul",
+    "chrome://messenger/content/addressbook/addressbook.xhtml",
     "",
     "all,chrome,dialog=no,status,toolbar",
     null

@@ -339,7 +339,7 @@ function AddToDictionary() {
 
 function EditDictionary() {
   window.openDialog(
-    "chrome://editor/content/EdDictionary.xul",
+    "chrome://editor/content/EdDictionary.xhtml",
     "_blank",
     "chrome,close,titlebar,modal",
     "",

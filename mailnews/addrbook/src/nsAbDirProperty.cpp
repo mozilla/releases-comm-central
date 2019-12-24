@@ -65,7 +65,7 @@ NS_IMETHODIMP nsAbDirProperty::GenerateName(int32_t aGenerateFormat,
 
 NS_IMETHODIMP nsAbDirProperty::GetPropertiesChromeURI(nsACString &aResult) {
   aResult.AssignLiteral(
-      "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul");
+      "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml");
   return NS_OK;
 }
 

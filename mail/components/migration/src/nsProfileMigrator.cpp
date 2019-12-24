@@ -29,7 +29,7 @@
 NS_IMPL_ISUPPORTS(nsProfileMigrator, nsIProfileMigrator)
 
 #define MIGRATION_WIZARD_FE_URL \
-  "chrome://messenger/content/migration/migration.xul"
+  "chrome://messenger/content/migration/migration.xhtml"
 #define MIGRATION_WIZARD_FE_FEATURES "chrome,dialog,modal,centerscreen"
 
 NS_IMETHODIMP

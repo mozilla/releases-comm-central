@@ -144,6 +144,6 @@ nsMovemailIncomingServer::GetServerRequiresPasswordForBiff(
 
 NS_IMETHODIMP
 nsMovemailIncomingServer::GetAccountManagerChrome(nsAString &aResult) {
-  aResult.AssignLiteral("am-main.xul");
+  aResult.AssignLiteral("am-main.xhtml");
   return NS_OK;
 }

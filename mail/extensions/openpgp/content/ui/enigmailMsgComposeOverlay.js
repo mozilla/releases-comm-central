@@ -146,13 +146,13 @@ Enigmail.msg = {
     if (sb) {
       EnigmailLog.DEBUG("enigmailMsgComposeOverlay: contentDocument=" + sb.contentDocument + "\n");
       EnigmailTimer.setTimeout(function _f() {
-        loadOverlay(sb.contentDocument.defaultView, "chrome://openpgp/content/ui/enigmailAbContactsPanel.xul");
+        loadOverlay(sb.contentDocument.defaultView, "chrome://openpgp/content/ui/enigmailAbContactsPanel.xhtml");
       }, 2000);
     }
 
     let customizeToolbar = document.getElementById("customizeToolbarSheetIFrame");
     customizeToolbar.addEventListener("pageshow", function(event) {
-      loadOverlay(event.target.defaultView, "chrome://openpgp/content/ui/enigmailCustToolOverlay.xul");
+      loadOverlay(event.target.defaultView, "chrome://openpgp/content/ui/enigmailCustToolOverlay.xhtml");
     }, false);
 
     gMsgCompose.RegisterStateListener(Enigmail.composeStateListener);
@@ -1010,7 +1010,7 @@ Enigmail.msg = {
     }
     var userIdValue = "";
 
-    window.openDialog("chrome://openpgp/content/ui/enigmailKeySelection.xul", "", "dialog,modal,centerscreen,resizable", inputObj, resultObj);
+    window.openDialog("chrome://openpgp/content/ui/enigmailKeySelection.xhtml", "", "dialog,modal,centerscreen,resizable", inputObj, resultObj);
     try {
       if (resultObj.cancelled) return;
       this.extractAndAttachKey(resultObj.userList, true);
@@ -1264,7 +1264,7 @@ Enigmail.msg = {
       account = EnigmailFuncs.getAccountForIdentity(currentId);
     }
     catch (ex) {}
-    window.openDialog("chrome://openpgp/content/ui/editSingleAccount.xul", "", "dialog,modal,centerscreen", {
+    window.openDialog("chrome://openpgp/content/ui/editSingleAccount.xhtml", "", "dialog,modal,centerscreen", {
       identity: currentId,
       account: account
     });
@@ -2377,7 +2377,7 @@ Enigmail.msg = {
       success: false,
       resetDefaults: false
     };
-    window.openDialog("chrome://openpgp/content/ui/enigmailEncryptionDlg.xul", "", "dialog,modal,centerscreen", inputObj);
+    window.openDialog("chrome://openpgp/content/ui/enigmailEncryptionDlg.xhtml", "", "dialog,modal,centerscreen", inputObj);
 
     if (!inputObj.success) return; // Cancel pressed
 
@@ -2998,7 +2998,7 @@ Enigmail.msg = {
       inputObj.dialogHeader = EnigmailLocale.getString("recipientsSelectionHdr");
 
       // perform key selection dialog:
-      window.openDialog("chrome://openpgp/content/ui/enigmailKeySelection.xul", "",
+      window.openDialog("chrome://openpgp/content/ui/enigmailKeySelection.xhtml", "",
         "dialog,modal,centerscreen,resizable", inputObj, resultObj);
 
       // process result from key selection dialog:
@@ -3131,7 +3131,7 @@ Enigmail.msg = {
         if (excess) {
           EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Excess lines detected\n");
           var resultObj = {};
-          window.openDialog("chrome://openpgp/content/ui/enigmailWrapSelection.xul", "", "dialog,modal,centerscreen", resultObj);
+          window.openDialog("chrome://openpgp/content/ui/enigmailWrapSelection.xhtml", "", "dialog,modal,centerscreen", resultObj);
           try {
             if (resultObj.cancelled) {
               // cancel pressed -> do not send, return instead.
@@ -3709,12 +3709,12 @@ Enigmail.msg = {
             //add var to disable remember box since we're dealing with restricted scenarios...
             inputObj.restrictedScenario = true;
             resultObj.selected = -1;
-            window.openDialog("chrome://openpgp/content/ui/enigmailAttachmentsDialog.xul", "", "dialog,modal,centerscreen", inputObj, resultObj);
+            window.openDialog("chrome://openpgp/content/ui/enigmailAttachmentsDialog.xhtml", "", "dialog,modal,centerscreen", inputObj, resultObj);
           }
         }
         else {
           resultObj.selected = -1;
-          window.openDialog("chrome://openpgp/content/ui/enigmailAttachmentsDialog.xul", "", "dialog,modal,centerscreen", inputObj, resultObj);
+          window.openDialog("chrome://openpgp/content/ui/enigmailAttachmentsDialog.xhtml", "", "dialog,modal,centerscreen", inputObj, resultObj);
         }
         if (resultObj.selected < 0) {
           // dialog cancelled

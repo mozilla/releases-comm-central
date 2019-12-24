@@ -1532,7 +1532,7 @@ nsNntpService::Handle(nsICommandLine *aCmdLine) {
 
     nsCOMPtr<mozIDOMWindowProxy> opened;
     wwatch->OpenWindow(
-        nullptr, "chrome://messenger/content/", "_blank",
+        nullptr, "chrome://messenger/content/messenger.xhtml", "_blank",
         "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
         nullptr, getter_AddRefs(opened));
     aCmdLine->SetPreventDefault(true);
@@ -1601,7 +1601,7 @@ nsNntpService::HandleContent(const char *aContentType,
           arg->SetData(folderURL);
 
           nsCOMPtr<mozIDOMWindowProxy> newWindow;
-          rv = wwatcher->OpenWindow(nullptr, "chrome://messenger/content/",
+          rv = wwatcher->OpenWindow(nullptr, "chrome://messenger/content/messenger.xhtml",
                                     "_blank", "chome,all,dialog=no", arg,
                                     getter_AddRefs(newWindow));
           NS_ENSURE_SUCCESS(rv, rv);

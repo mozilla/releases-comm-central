@@ -106,9 +106,9 @@ var MailMigrator = {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
     const UI_VERSION = 17;
-    const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xul";
+    const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
-      "chrome://messenger/content/messengercompose/messengercompose.xul";
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml";
     const UI_VERSION_PREF = "mail.ui-rdf.version";
     let currentUIVersion = Services.prefs.getIntPref(UI_VERSION_PREF, 0);
 
@@ -288,7 +288,7 @@ var MailMigrator = {
               );
               origin = origin.replace(
                 "chrome://messenger/content/?",
-                "chrome://messenger/content/"
+                "chrome://messenger/content/messenger.xhtml"
               );
               Services.perms.addFromPrincipal(
                 Services.scriptSecurityManager.createContentPrincipal(

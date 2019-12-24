@@ -256,7 +256,7 @@ calCalendarManager.prototype = {
       paramBlock.SetString(2, ex);
       Services.ww.openWindow(
         null,
-        "chrome://calendar/content/calendar-error-prompt.xul",
+        "chrome://calendar/content/calendar-error-prompt.xhtml",
         "_blank",
         "chrome,dialog=yes,alwaysRaised=yes",
         paramBlock
@@ -802,7 +802,7 @@ calMgrCalendarObserver.prototype = {
     // unloaded [to clean it?] before loading, so wait for detected load
     // event before detecting unload event that signifies user closed this
     // prompt window.)
-    let promptUrl = "chrome://calendar/content/calendar-error-prompt.xul";
+    let promptUrl = "chrome://calendar/content/calendar-error-prompt.xhtml";
     let features = "chrome,dialog=yes,alwaysRaised=yes";
     let promptWindow = Services.ww.openWindow(null, promptUrl, "_blank", features, paramBlock);
     promptWindow.addEventListener("load", awaitLoad, { capture: false, once: true });
@@ -869,7 +869,7 @@ var gCalendarManagerAddonListener = {
   },
 
   queryUninstallProvider: function(aAddon) {
-    const uri = "chrome://calendar/content/calendar-providerUninstall-dialog.xul";
+    const uri = "chrome://calendar/content/calendar-providerUninstall-dialog.xhtml";
     const features = "chrome,titlebar,resizable,modal";
     let calMgr = cal.getCalendarManager();
     let affectedCalendars = calMgr

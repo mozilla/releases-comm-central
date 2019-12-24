@@ -321,7 +321,7 @@ function onAdvancedEdit() {
     // Open the AdvancedEdit dialog, passing in the element to be edited
     //  (the copy named "globalElement")
     window.openDialog(
-      "chrome://editor/content/EdAdvancedEdit.xul",
+      "chrome://editor/content/EdAdvancedEdit.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable=yes",
       "",
@@ -630,7 +630,7 @@ function SetRelativeCheckbox(checkbox) {
   SetElementEnabled(checkbox, enable);
 }
 
-// oncommand handler for the Relativize checkbox in EditorOverlay.xul
+// oncommand handler for the Relativize checkbox in EditorOverlay.xhtml
 function MakeInputValueRelativeOrAbsolute(checkbox) {
   var input = document.getElementById(checkbox.getAttribute("for"));
   if (!input) {

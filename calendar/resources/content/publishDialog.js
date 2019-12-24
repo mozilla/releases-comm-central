@@ -4,7 +4,7 @@
 
 /* exported loadCalendarPublishDialog, closeDialog */
 
-/* globals publishButtonLabel, closeButtonLabel */ // From publishDialog.xul
+/* globals publishButtonLabel, closeButtonLabel */ // From publishDialog.xhtml
 
 var gOnOkFunction; // function to be called when user clicks OK
 var gPublishObject;

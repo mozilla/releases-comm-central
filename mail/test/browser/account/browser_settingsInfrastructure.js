@@ -97,7 +97,11 @@ add_task(function test_account_dot_IDs() {
  * @param amc  the account options controller
  */
 function subtest_check_account_dot_IDs(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+  let accountRow = get_account_tree_row(
+    gPopAccount.key,
+    "am-server.xhtml",
+    amc
+  );
   click_account_tree_row(amc, accountRow);
 
   let iframe = amc.e("contentFrame").contentDocument;
@@ -107,10 +111,10 @@ function subtest_check_account_dot_IDs(amc) {
   Assert.ok(!loginCheck.checked);
   amc.check(new elib.Elem(loginCheck), true);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
@@ -147,14 +151,14 @@ function subtest_check_account_dot_IDs(amc) {
   // Change the ID so that "server.login.At.StartUp" exists now.
   loginCheck.id = "server.login.At.StartUp";
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
-  // We can't check by element property here, because the am-server.xul pane was
+  // We can't check by element property here, because the am-server.xhtml pane was
   // reloaded and the element now has the original ID of "server.loginAtStartUp".
   rawCheckValue = amc.window.getAccountValue(
     gPopAccount,
@@ -191,7 +195,7 @@ add_task(function test_account_locked_prefs() {
 function subtest_check_locked_prefs_addressing(amc) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
-    "am-addressing.xul",
+    "am-addressing.xhtml",
     amc
   );
   click_account_tree_row(amc, accountRow);
@@ -227,10 +231,14 @@ function subtest_check_locked_prefs_addressing(amc) {
   Services.prefs.lockPref(controlPref);
 
   // Refresh the pane by switching to another one.
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-addressing.xul", amc);
+  accountRow = get_account_tree_row(
+    gPopAccount.key,
+    "am-addressing.xhtml",
+    amc
+  );
   click_account_tree_row(amc, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
@@ -263,7 +271,11 @@ function subtest_check_locked_prefs_addressing(amc) {
  * @param amc  the account options controller
  */
 function subtest_check_locked_prefs_server(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+  let accountRow = get_account_tree_row(
+    gPopAccount.key,
+    "am-server.xhtml",
+    amc
+  );
   click_account_tree_row(amc, accountRow);
 
   let iframe = amc.e("contentFrame").contentDocument;
@@ -303,10 +315,10 @@ function subtest_check_locked_prefs_server(amc) {
   Services.prefs.lockPref(controlPref);
 
   // Refresh the pane by switching to another one.
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
@@ -405,7 +417,7 @@ add_task(function test_account_onchange_handler() {
 function subtest_check_onchange_handler(amc) {
   let accountRow = get_account_tree_row(
     gImapAccount.key,
-    "am-offline.xul",
+    "am-offline.xhtml",
     amc
   );
   click_account_tree_row(amc, accountRow);
@@ -426,10 +438,10 @@ function subtest_check_onchange_handler(amc) {
   amc.type(new elib.Elem(autoSync), "35");
 
   // Immediately switch to another pane and back.
-  accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xul", amc);
+  accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
-  accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xul", amc);
+  accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   iframe = amc.e("contentFrame").contentDocument;

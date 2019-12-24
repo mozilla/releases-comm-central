@@ -121,7 +121,7 @@ function hideShowDownloadMsgsUI(isPop) {
     if (!Services.io.offline) {
       if (
         window.opener.location.href ==
-        "chrome://messenger/content/messenger.xul"
+        "chrome://messenger/content/messenger.xhtml"
       ) {
         downloadMsgs.hidden = false;
         return;

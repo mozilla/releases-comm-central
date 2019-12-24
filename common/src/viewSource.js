@@ -259,9 +259,9 @@ ViewSourceChrome.prototype = {
    * DOM nodes.
    *
    * This is also the place where we handle any arguments that have been
-   * passed to viewSource.xul.
+   * passed to viewSource.xhtml.
    *
-   * Modern consumers should pass a single object argument to viewSource.xul:
+   * Modern consumers should pass a single object argument to viewSource.xhtml:
    *
    *   URL (required):
    *     A string URL for the page we'd like to view the source of.
@@ -337,13 +337,13 @@ ViewSourceChrome.prototype = {
   },
 
   /**
-   * This is the deprecated API for viewSource.xul, for old-timer consumers.
+   * This is the deprecated API for viewSource.xhtml, for old-timer consumers.
    * This API might eventually go away.
    */
   // NOT WORKING ANYMORE AFTER REMOVAL OF THE "ViewSource:LoadSourceDeprecated" MESSAGE IN BUG 1443371.
   _loadViewSourceDeprecated(aArguments) {
     Deprecated.warning(
-      "The arguments you're passing to viewSource.xul " +
+      "The arguments you're passing to viewSource.xhtml " +
         "are using an out-of-date API.",
       "https://developer.mozilla.org/en-US/Add-ons/Code_snippets/View_Source_for_XUL_Applications"
     );
@@ -358,7 +358,7 @@ ViewSourceChrome.prototype = {
       let pageDescriptor = aArguments[2];
       if (Cu.isCrossProcessWrapper(pageDescriptor)) {
         throw new Error(
-          "Cannot pass a CPOW as the page descriptor to viewSource.xul."
+          "Cannot pass a CPOW as the page descriptor to viewSource.xhtml."
         );
       }
     }

@@ -223,7 +223,7 @@ Enigmail.edit = {
     inputObj.options += ",sendlabel=" + label;
     inputObj.options += ",";
 
-    window.openDialog("chrome://openpgp/content/ui/enigmailKeySelection.xul", "", "dialog,modal,centerscreen,resizable", inputObj, resultObj);
+    window.openDialog("chrome://openpgp/content/ui/enigmailKeySelection.xhtml", "", "dialog,modal,centerscreen,resizable", inputObj, resultObj);
     try {
       if (resultObj.cancelled) return;
       var selKey = resultObj.userList[0];

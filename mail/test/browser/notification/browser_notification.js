@@ -53,7 +53,7 @@ var gMockAlertsService = {
     alertListener,
     name
   ) {
-    // Setting the _doFail flag allows us to revert to the newmailalert.xul
+    // Setting the _doFail flag allows us to revert to the newmailalert.xhtml
     // notification
     if (this._doFail) {
       SimpleTest.expectUncaughtException(true);
@@ -213,7 +213,7 @@ function make_gradually_newer_sets_in_folder(aFolder, aArgs) {
 }
 
 /**
- * Test that we revert to newmailalert.xul if there is no system
+ * Test that we revert to newmailalert.xhtml if there is no system
  * notification service present.
  */
 add_task(function test_revert_to_newmailalert() {
@@ -222,7 +222,7 @@ add_task(function test_revert_to_newmailalert() {
   // to send a notification.
   gMockAlertsService._doFail = true;
 
-  // We expect the newmailalert.xul window...
+  // We expect the newmailalert.xhtml window...
   plan_for_new_window("alert:alert");
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 2 }]);
   let controller = wait_for_new_window("alert:alert");
@@ -240,17 +240,17 @@ add_task(function test_new_mail_received_causes_notification() {
 });
 
 /**
- * Test that if notification shows, we don't show newmailalert.xul
+ * Test that if notification shows, we don't show newmailalert.xhtml
  */
 add_task(function test_dont_show_newmailalert() {
   setupTest();
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
 
-  // Wait for newmailalert.xul to show
+  // Wait for newmailalert.xhtml to show
   plan_for_new_window("alert:alert");
   try {
     wait_for_new_window("alert:alert");
-    throw Error("Opened newmailalert.xul when we shouldn't have.");
+    throw Error("Opened newmailalert.xhtml when we shouldn't have.");
   } catch (e) {
     // Correct behaviour - the window didn't show.
   }

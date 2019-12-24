@@ -2211,7 +2211,7 @@ function MsgSaveAsTemplate() {
 function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
   if (folderURI) {
     window.openDialog(
-      "chrome://messenger/content/",
+      "chrome://messenger/content/messenger.xhtml",
       "_blank",
       "chrome,all,dialog=no",
       folderURI,
@@ -2226,7 +2226,7 @@ function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
   let selectedFolders = gFolderTreeView.getSelectedFolders();
   for (let i = 0; i < selectedFolders.length; i++) {
     window.openDialog(
-      "chrome://messenger/content/",
+      "chrome://messenger/content/messenger.xhtml",
       "_blank",
       "chrome,all,dialog=no",
       selectedFolders[i].URI,
@@ -2317,7 +2317,7 @@ function MsgOpenFromFile() {
       .finalize();
 
     window.openDialog(
-      "chrome://messenger/content/messageWindow.xul",
+      "chrome://messenger/content/messageWindow.xhtml",
       "_blank",
       "all,chrome,dialog=no,status,toolbar",
       uri
@@ -2337,7 +2337,7 @@ function MsgOpenNewWindowForMessage(aMsgHdr) {
     // we also need to tell the window about our current view so that it can
     //  clone it.  This enables advancing through the messages, etc.
     window.openDialog(
-      "chrome://messenger/content/messageWindow.xul",
+      "chrome://messenger/content/messageWindow.xhtml",
       "_blank",
       "all,chrome,dialog=no,status,toolbar",
       aMsgHdr,
@@ -2447,7 +2447,7 @@ function MsgMarkAsFlagged() {
 
 function MsgMarkReadByDate() {
   window.openDialog(
-    "chrome://messenger/content/markByDate.xul",
+    "chrome://messenger/content/markByDate.xhtml",
     "",
     "chrome,modal,titlebar,centerscreen",
     gFolderDisplay.displayedFolder
@@ -2533,7 +2533,7 @@ function MsgFilters(emailAddress, folder, fieldName) {
     }
 
     window.openDialog(
-      "chrome://messenger/content/FilterEditor.xul",
+      "chrome://messenger/content/FilterEditor.xhtml",
       "",
       "chrome, modal, resizable,centerscreen,dialog=yes",
       args
@@ -2696,7 +2696,7 @@ function PrintEnginePrintInternal(doPrintPreview, msgType) {
   }
 
   window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xul",
+    "chrome://messenger/content/msgPrintEngine.xhtml",
     "",
     "chrome,dialog=no,all,centerscreen",
     messageList.length,
@@ -2770,7 +2770,7 @@ function IsGetNextNMessagesEnabled() {
 
 function MsgSynchronizeOffline() {
   window.openDialog(
-    "chrome://messenger/content/msgSynchronize.xul",
+    "chrome://messenger/content/msgSynchronize.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     { msgWindow }
@@ -3847,7 +3847,7 @@ function QuickSearchFocus() {
 function MsgSearchMessages(aFolder) {
   // We always open a new search dialog for each search command
   window.openDialog(
-    "chrome://messenger/content/SearchDialog.xul",
+    "chrome://messenger/content/SearchDialog.xhtml",
     "_blank",
     "chrome,resizable,status,centerscreen,dialog=no",
     { folder: aFolder || gFolderDisplay.displayedFolder }
@@ -3874,7 +3874,7 @@ function MsgJunkMailInfo(aCheckFirstUse) {
     desiredWindow.focus();
   } else {
     window.openDialog(
-      "chrome://messenger/content/junkMailInfo.xul",
+      "chrome://messenger/content/junkMailInfo.xhtml",
       "mailnews:junkmailinfo",
       "centerscreen,resizable=no,titlebar,chrome,modal",
       null
@@ -3887,7 +3887,7 @@ function MsgSearchAddresses() {
   OpenOrFocusWindow(
     args,
     "mailnews:absearch",
-    "chrome://messenger/content/ABSearchDialog.xul"
+    "chrome://messenger/content/ABSearchDialog.xhtml"
   );
 }
 
@@ -3895,7 +3895,7 @@ function MsgFilterList(args) {
   OpenOrFocusWindow(
     args,
     "mailnews:filterlist",
-    "chrome://messenger/content/FilterListDialog.xul"
+    "chrome://messenger/content/FilterListDialog.xhtml"
   );
 }
 
@@ -4031,7 +4031,7 @@ async function initAddonPrefsMenu(
 
 function openNewCardDialog() {
   window.openDialog(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen"
   );

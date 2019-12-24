@@ -119,5 +119,7 @@ add_task(async () => {
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
   await test_it(extension);
 
-  Services.xulStore.removeDocument("chrome://messenger/content/messenger.xul");
+  Services.xulStore.removeDocument(
+    "chrome://messenger/content/messenger.xhtml"
+  );
 });

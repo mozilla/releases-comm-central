@@ -111,7 +111,7 @@ var EnigmailDialog = {
       win = EnigmailWindows.getBestParentWin();
     }
 
-    win.openDialog("chrome://openpgp/content/ui/enigmailMsgBox.xul", "_blank",
+    win.openDialog("chrome://openpgp/content/ui/enigmailMsgBox.xhtml", "_blank",
       "chrome,dialog,modal,centerscreen,resizable,titlebar", {
         msgtext: mesg,
         checkboxLabel: checkboxLabel,
@@ -162,7 +162,7 @@ var EnigmailDialog = {
       win = EnigmailWindows.getBestParentWin();
     }
 
-    win.openDialog("chrome://openpgp/content/ui/enigmailMsgBox.xul", "",
+    win.openDialog("chrome://openpgp/content/ui/enigmailMsgBox.xhtml", "",
       "chrome,dialog,modal,centerscreen,resizable", argsObj, result);
 
     if (argsObj.checkboxLabel) {
@@ -429,7 +429,7 @@ var EnigmailDialog = {
       win = EnigmailWindows.getBestParentWin();
     }
 
-    win.openDialog("chrome://openpgp/content/ui/enigmailKeyImportInfo.xul", "",
+    win.openDialog("chrome://openpgp/content/ui/enigmailKeyImportInfo.xhtml", "",
       "chrome,dialog,modal,centerscreen,resizable", {
         keyList: keyList
       },

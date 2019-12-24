@@ -462,7 +462,7 @@ function keyMgrAddPhoto(userId, keyId) {
     okPressed: false
   };
 
-  window.openDialog("chrome://openpgp/content/ui/enigmailImportPhoto.xul", inFile, "chrome,modal=1,resizable=1,dialog=1,centerscreen", argsObj);
+  window.openDialog("chrome://openpgp/content/ui/enigmailImportPhoto.xhtml", inFile, "chrome,modal=1,resizable=1,dialog=1,centerscreen", argsObj);
 
   if (!argsObj.okPressed) return;
 
@@ -746,7 +746,7 @@ function enigmailManageUids() {
   var resultObj = {
     refresh: false
   };
-  window.openDialog("chrome://openpgp/content/ui/enigmailManageUidDlg.xul",
+  window.openDialog("chrome://openpgp/content/ui/enigmailManageUidDlg.xhtml",
     "", "dialog,modal,centerscreen,resizable=yes", inputObj, resultObj);
   if (resultObj.refresh) {
     refreshKeys();
@@ -1038,7 +1038,7 @@ function addToPRRule() {
     keyId: gKeyList[keyList[0]].keyId,
     userId: gKeyList[keyList[0]].userId
   };
-  window.openDialog("chrome://openpgp/content/ui/enigmailSelectRule.xul",
+  window.openDialog("chrome://openpgp/content/ui/enigmailSelectRule.xhtml",
     "", "dialog,modal,centerscreen", inputObj);
 
 }
@@ -1209,7 +1209,7 @@ function accessKeyServer(accessType, callbackFunc) {
         inputObj.keyId = "";
     }
 
-    window.openDialog("chrome://openpgp/content/ui/enigmailKeyserverDlg.xul",
+    window.openDialog("chrome://openpgp/content/ui/enigmailKeyserverDlg.xhtml",
       "", "dialog,modal,centerscreen", inputObj, resultObj);
     keyServer = resultObj.value;
   }
@@ -1222,7 +1222,7 @@ function accessKeyServer(accessType, callbackFunc) {
     inputObj.keyId = keyList.map(k => {
       return "0x" + k.fpr;
     });
-    window.openDialog("chrome://openpgp/content/ui/enigRetrieveProgress.xul",
+    window.openDialog("chrome://openpgp/content/ui/enigRetrieveProgress.xhtml",
       "", "dialog,modal,centerscreen", inputObj, resultObj);
 
     if (resultObj.result) {

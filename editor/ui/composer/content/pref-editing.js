@@ -54,7 +54,7 @@ function GetColorAndUpdatePref(aType, aButtonID)
 
   colorObj.Type = aType;
 
-  window.openDialog("chrome://editor/content/EdColorPicker.xul", "_blank", "chrome,close,titlebar,modal", "", colorObj);
+  window.openDialog("chrome://editor/content/EdColorPicker.xhtml", "_blank", "chrome,close,titlebar,modal", "", colorObj);
 
   // User canceled the dialog
   if (colorObj.Cancel)

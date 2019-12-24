@@ -232,7 +232,7 @@ function onInput() {
 
 function doImageProperties() {
   window.openDialog(
-    "chrome://editor/content/EdImageProps.xul",
+    "chrome://editor/content/EdImageProps.xhtml",
     "_blank",
     "chrome,close,titlebar,modal",
     globalElement

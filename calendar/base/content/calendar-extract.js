@@ -219,7 +219,7 @@ var calendarExtract = {
   },
 
   addListeners: function() {
-    if (window.top.document.location == "chrome://messenger/content/messenger.xul") {
+    if (window.top.document.location == "chrome://messenger/content/messenger.xhtml") {
       // covers initial load and folder change
       let folderTree = document.getElementById("folderTree");
       folderTree.addEventListener("select", this.setState);

@@ -20,9 +20,9 @@ function _strArgs(id, args) {
   return syncL10n.formatValueSync(id, args);
 }
 
-const OTR_AUTH_DIALOG_URL = "chrome://chat/content/otr-auth.xul";
+const OTR_AUTH_DIALOG_URL = "chrome://chat/content/otr-auth.xhtml";
 const OTR_ADD_FINGER_DIALOG_URL =
-  "chrome://chat/content/otr-add-fingerprint.xul";
+  "chrome://chat/content/otr-add-fingerprint.xhtml";
 
 const AUTH_STATUS_UNVERIFIED = "otr-auth-unverified";
 var authLabelMap;

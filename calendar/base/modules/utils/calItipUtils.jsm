@@ -631,7 +631,7 @@ var calitip = {
         };
         args.promptText = cal.l10n.getCalString("importPrompt");
         aWindow.openDialog(
-          "chrome://calendar/content/chooseCalendarDialog.xul",
+          "chrome://calendar/content/chooseCalendarDialog.xhtml",
           "_blank",
           "chrome,titlebar,modal,resizable",
           args

@@ -650,7 +650,7 @@ var nsSaveAndChangeEncodingCommand = {
     window.exportToText = false;
     var oldTitle = GetDocumentTitle();
     window.openDialog(
-      "chrome://editor/content/EditorSaveAsCharset.xul",
+      "chrome://editor/content/EditorSaveAsCharset.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable=yes"
     );
@@ -720,7 +720,7 @@ var nsPublishCommand = {
         window.ok = false;
         let oldTitle = GetDocumentTitle();
         window.openDialog(
-          "chrome://editor/content/EditorPublish.xul",
+          "chrome://editor/content/EditorPublish.xhtml",
           "_blank",
           "chrome,close,titlebar,modal",
           "",
@@ -760,7 +760,7 @@ var nsPublishAsCommand = {
       var publishData = {};
       var oldTitle = GetDocumentTitle();
       window.openDialog(
-        "chrome://editor/content/EditorPublish.xul",
+        "chrome://editor/content/EditorPublish.xhtml",
         "_blank",
         "chrome,close,titlebar,modal",
         "",
@@ -2093,7 +2093,7 @@ function Publish(publishData) {
 
     // Start progress monitoring
     gProgressDialog = window.openDialog(
-      "chrome://editor/content/EditorPublishProgress.xul",
+      "chrome://editor/content/EditorPublishProgress.xhtml",
       "_blank",
       "chrome,dependent,titlebar",
       gPublishData,
@@ -2258,7 +2258,7 @@ var nsPublishSettingsCommand = {
       // Launch Publish Settings dialog
 
       window.ok = window.openDialog(
-        "chrome://editor/content/EditorPublishSettings.xul",
+        "chrome://editor/content/EditorPublishSettings.xhtml",
         "_blank",
         "chrome,close,titlebar,modal",
         ""
@@ -2352,7 +2352,7 @@ var nsOpenRemoteCommand = {
   doCommand(aCommand) {
     var params = { action: "2", url: "" };
     openDialog(
-      "chrome://communicator/content/openLocation.xul",
+      "chrome://communicator/content/openLocation.xhtml",
       "_blank",
       "chrome,modal,titlebar",
       params
@@ -2545,7 +2545,7 @@ var nsFindReplaceCommand = {
 
   doCommand(aCommand, editorElement) {
     window.openDialog(
-      "chrome://editor/content/EdReplace.xul",
+      "chrome://editor/content/EdReplace.xhtml",
       "_blank",
       "chrome,modal,titlebar",
       editorElement
@@ -2618,7 +2618,7 @@ var nsSpellingCommand = {
         window.document.documentElement.getAttribute("windowtype") ==
         "msgcompose";
       window.openDialog(
-        "chrome://editor/content/EdSpellCheck.xul",
+        "chrome://editor/content/EdSpellCheck.xhtml",
         "_blank",
         "dialog,close,titlebar,modal,resizable",
         false,
@@ -2695,7 +2695,7 @@ var nsFormCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdFormProps.xul",
+      "chrome://editor/content/EdFormProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2712,7 +2712,7 @@ var nsInputTagCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdInputProps.xul",
+      "chrome://editor/content/EdInputProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2729,7 +2729,7 @@ var nsInputImageCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdInputImage.xul",
+      "chrome://editor/content/EdInputImage.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2746,7 +2746,7 @@ var nsTextAreaCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdTextAreaProps.xul",
+      "chrome://editor/content/EdTextAreaProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2763,7 +2763,7 @@ var nsSelectCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdSelectProps.xul",
+      "chrome://editor/content/EdSelectProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2780,7 +2780,7 @@ var nsButtonCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdButtonProps.xul",
+      "chrome://editor/content/EdButtonProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2816,7 +2816,7 @@ var nsLabelCommand = {
       if (labelElement) {
         // We only open the dialog for an existing label
         window.openDialog(
-          "chrome://editor/content/EdLabelProps.xul",
+          "chrome://editor/content/EdLabelProps.xhtml",
           "_blank",
           "chrome,close,titlebar,modal",
           labelElement
@@ -2838,7 +2838,7 @@ var nsFieldSetCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdFieldSetProps.xul",
+      "chrome://editor/content/EdFieldSetProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2876,7 +2876,7 @@ var nsImageCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdImageProps.xul",
+      "chrome://editor/content/EdImageProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2909,7 +2909,7 @@ var nsHLineCommand = {
     if (hLine) {
       // We only open the dialog for an existing HRule
       window.openDialog(
-        "chrome://editor/content/EdHLineProps.xul",
+        "chrome://editor/content/EdHLineProps.xhtml",
         "_blank",
         "chrome,close,titlebar,modal"
       );
@@ -2963,7 +2963,7 @@ var nsLinkCommand = {
     var element = GetObjectForProperties();
     if (element && element.nodeName.toLowerCase() == "img") {
       window.openDialog(
-        "chrome://editor/content/EdImageProps.xul",
+        "chrome://editor/content/EdImageProps.xhtml",
         "_blank",
         "chrome,close,titlebar,modal",
         null,
@@ -2971,7 +2971,7 @@ var nsLinkCommand = {
       );
     } else {
       window.openDialog(
-        "chrome://editor/content/EdLinkProps.xul",
+        "chrome://editor/content/EdLinkProps.xhtml",
         "_blank",
         "chrome,close,titlebar,modal"
       );
@@ -2989,7 +2989,7 @@ var nsAnchorCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdNamedAnchorProps.xul",
+      "chrome://editor/content/EdNamedAnchorProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal",
       ""
@@ -3007,7 +3007,7 @@ var nsInsertHTMLWithDialogCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdInsSrc.xul",
+      "chrome://editor/content/EdInsSrc.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable",
       ""
@@ -3025,7 +3025,7 @@ var nsInsertMathWithDialogCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdInsertMath.xul",
+      "chrome://editor/content/EdInsertMath.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable",
       ""
@@ -3086,7 +3086,7 @@ var nsGridCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdSnapToGrid.xul",
+      "chrome://editor/content/EdSnapToGrid.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -3103,7 +3103,7 @@ var nsListPropertiesCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdListProps.xul",
+      "chrome://editor/content/EdListProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -3121,7 +3121,7 @@ var nsPagePropertiesCommand = {
   doCommand(aCommand) {
     var oldTitle = GetDocumentTitle();
     window.openDialog(
-      "chrome://editor/content/EdPageProps.xul",
+      "chrome://editor/content/EdPageProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal",
       ""
@@ -3330,7 +3330,7 @@ var nsSetSmiley = {
 function doAdvancedProperties(element) {
   if (element) {
     window.openDialog(
-      "chrome://editor/content/EdAdvancedEdit.xul",
+      "chrome://editor/content/EdAdvancedEdit.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable=yes",
       "",
@@ -3366,7 +3366,7 @@ var nsColorPropertiesCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://editor/content/EdColorProps.xul",
+      "chrome://editor/content/EdColorProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal",
       ""
@@ -4057,7 +4057,7 @@ var nsConvertToTable = {
   doCommand(aCommand) {
     if (this.isCommandEnabled()) {
       window.openDialog(
-        "chrome://editor/content/EdConvertToTable.xul",
+        "chrome://editor/content/EdConvertToTable.xhtml",
         "_blank",
         "chrome,close,titlebar,modal"
       );

@@ -46,7 +46,7 @@ XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
     }
 
     window.openDialog(
-      "chrome://messenger/content/viewSource.xul",
+      "chrome://messenger/content/viewSource.xhtml",
       "_blank",
       "all,dialog=no",
       aArgs
@@ -81,7 +81,7 @@ Services.obs.addObserver(
                 }
 
                 window.openDialog(
-                  "chrome://messenger/content/viewSource.xul",
+                  "chrome://messenger/content/viewSource.xhtml",
                   "_blank",
                   "all,dialog=no",
                   aArgs
@@ -225,7 +225,7 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
 
   var toolbox = document.getElementById(toolboxId);
 
-  var customizeURL = "chrome://messenger/content/customizeToolbar.xul";
+  var customizeURL = "chrome://messenger/content/customizeToolbar.xhtml";
   gCustomizeSheet = Services.prefs.getBoolPref(
     "toolbar.customization.usesheet"
   );
@@ -489,7 +489,10 @@ function toOpenWindowByType(inType, uri) {
 }
 
 function toMessengerWindow() {
-  toOpenWindowByType("mail:3pane", "chrome://messenger/content/messenger.xul");
+  toOpenWindowByType(
+    "mail:3pane",
+    "chrome://messenger/content/messenger.xhtml"
+  );
 }
 
 function focusOnMail(tabNo, event) {
@@ -504,7 +507,7 @@ function focusOnMail(tabNo, event) {
     }
   } else {
     window.open(
-      "chrome://messenger/content/messenger.xul",
+      "chrome://messenger/content/messenger.xhtml",
       "_blank",
       "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
     );
@@ -514,7 +517,7 @@ function focusOnMail(tabNo, event) {
 function toAddressBook() {
   toOpenWindowByType(
     "mail:addressbook",
-    "chrome://messenger/content/addressbook/addressbook.xul"
+    "chrome://messenger/content/addressbook/addressbook.xhtml"
   );
 }
 
@@ -529,7 +532,7 @@ function showChatTab() {
 
 function toImport() {
   window.openDialog(
-    "chrome://messenger/content/importDialog.xul",
+    "chrome://messenger/content/importDialog.xhtml",
     "importDialog",
     "chrome, modal, titlebar, centerscreen"
   );
@@ -634,7 +637,7 @@ function openIMAccountMgr() {
   } else {
     win = Services.ww.openWindow(
       null,
-      "chrome://messenger/content/chat/imAccounts.xul",
+      "chrome://messenger/content/chat/imAccounts.xhtml",
       "Accounts",
       "chrome,resizable,centerscreen",
       null
@@ -645,7 +648,7 @@ function openIMAccountMgr() {
 
 function openIMAccountWizard() {
   const kFeatures = "chrome,centerscreen,modal,titlebar";
-  const kUrl = "chrome://messenger/content/chat/imAccountWizard.xul";
+  const kUrl = "chrome://messenger/content/chat/imAccountWizard.xhtml";
   const kName = "IMAccountWizard";
 
   if (AppConstants.platform == "macosx") {
@@ -714,7 +717,7 @@ function openAboutDialog() {
   }
 
   window.openDialog(
-    "chrome://messenger/content/aboutDialog.xul",
+    "chrome://messenger/content/aboutDialog.xhtml",
     "About",
     features
   );

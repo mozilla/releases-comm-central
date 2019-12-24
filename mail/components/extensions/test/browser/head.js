@@ -159,7 +159,7 @@ async function openNewMailWindow(options = {}) {
   }
 
   let win = window.openDialog(
-    "chrome://messenger/content/",
+    "chrome://messenger/content/messenger.xhtml",
     "_blank",
     "chrome,all,dialog=no"
   );

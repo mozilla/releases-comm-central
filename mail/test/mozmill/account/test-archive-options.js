@@ -50,7 +50,7 @@ function setupModule(module) {
  * @param isEnabled    true if the button should be enabled, false otherwise
  */
 function subtest_check_archive_options_enabled(amc, aAccountKey, isEnabled) {
-  let accountRow = get_account_tree_row(aAccountKey, "am-copies.xul", amc);
+  let accountRow = get_account_tree_row(aAccountKey, "am-copies.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   let iframe = amc.window.document.getElementById("contentFrame");
@@ -112,7 +112,7 @@ function subtest_initial_state(identity) {
     );
   });
   mc.window.openDialog(
-    "chrome://messenger/content/am-archiveoptions.xul",
+    "chrome://messenger/content/am-archiveoptions.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     identity
@@ -138,7 +138,7 @@ function subtest_save_state(identity, granularity, kfs) {
     ac.window.document.querySelector("dialog").acceptDialog();
   });
   mc.window.openDialog(
-    "chrome://messenger/content/am-archiveoptions.xul",
+    "chrome://messenger/content/am-archiveoptions.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     identity

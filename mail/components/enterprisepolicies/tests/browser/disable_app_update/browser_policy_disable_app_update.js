@@ -87,7 +87,7 @@ function waitForAboutDialog() {
 
         async function aboutDialogOnLoad() {
           domwindow.removeEventListener("load", aboutDialogOnLoad, true);
-          let chromeURI = "chrome://messenger/content/aboutDialog.xul";
+          let chromeURI = "chrome://messenger/content/aboutDialog.xhtml";
           is(
             domwindow.document.location.href,
             chromeURI,

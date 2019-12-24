@@ -33,7 +33,7 @@ AboutRedirector.prototype = {
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
     downloads: {
-      url: "chrome://messenger/content/downloads/aboutDownloads.xul",
+      url: "chrome://messenger/content/downloads/aboutDownloads.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
     policies: {

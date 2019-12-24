@@ -121,7 +121,7 @@ calAlarmMonitor.prototype = {
     if (!calAlarmWindow && (!this.mWindowOpening || this.mWindowOpening.closed)) {
       this.mWindowOpening = Services.ww.openWindow(
         null,
-        "chrome://calendar/content/calendar-alarm-dialog.xul",
+        "chrome://calendar/content/calendar-alarm-dialog.xhtml",
         "_blank",
         "chrome,dialog=yes,all,resizable",
         this

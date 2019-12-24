@@ -518,12 +518,12 @@ function openEventDialog(
     if (args.inTab) {
       url = args.useNewItemUI
         ? "chrome://lightning/content/html-item-editing/lightning-item-iframe.html"
-        : "chrome://lightning/content/lightning-item-iframe.xul";
+        : "chrome://lightning/content/lightning-item-iframe.xhtml";
     } else {
-      url = "chrome://calendar/content/calendar-event-dialog.xul";
+      url = "chrome://calendar/content/calendar-event-dialog.xhtml";
     }
   } else {
-    url = "chrome://calendar/content/calendar-summary-dialog.xul";
+    url = "chrome://calendar/content/calendar-summary-dialog.xhtml";
     args.inTab = false;
   }
 
@@ -611,7 +611,7 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
     // use rv to pass our return value.
     let rv = { value: CANCEL, items: items, action: aAction };
     window.openDialog(
-      "chrome://calendar/content/calendar-occurrence-prompt.xul",
+      "chrome://calendar/content/calendar-occurrence-prompt.xhtml",
       "PromptOccurrenceModification",
       "centerscreen,chrome,modal,titlebar",
       rv

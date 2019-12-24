@@ -262,7 +262,7 @@ function test_send_enabled_address_contacts_sidebar() {
   let sidebar = cwc.e("sidebar");
   wait_for_frame_load(
     sidebar,
-    "chrome://messenger/content/addressbook/abContactsPanel.xul?focus"
+    "chrome://messenger/content/addressbook/abContactsPanel.xhtml?focus"
   );
 
   let abTree = sidebar.contentDocument.getElementById("abResultsTree");

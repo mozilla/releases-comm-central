@@ -278,7 +278,7 @@
 <!ENTITY attachmentBucketHeader.tooltip "Attachment Pane">
 <!ENTITY attachmentBucketCloseButton.tooltip "Hide the attachment pane">
 
-<!-- Format Toolbar, imported from editorAppShell.xul -->
+<!-- Format Toolbar, imported from editorAppShell.xhtml -->
 <!ENTITY SmileButton.tooltip "Insert a smiley face">
 <!ENTITY smiley1Cmd.label "Smile">
 <!ENTITY smiley2Cmd.label "Frown">

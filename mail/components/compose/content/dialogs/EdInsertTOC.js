@@ -28,7 +28,7 @@ const kMozTocClassPrefixLength = 6;
 
 document.addEventListener("dialogaccept", () => BuildTOC(true));
 
-// Startup() is called when EdInsertTOC.xul is opened
+// Startup() is called when EdInsertTOC.xhtml is opened
 function Startup() {
   // early way out if if we have no editor
   if (!GetCurrentEditor()) {

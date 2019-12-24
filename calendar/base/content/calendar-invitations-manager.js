@@ -241,7 +241,7 @@ InvitationsManager.prototype = {
     window.setCursor("wait");
     // open the dialog
     window.openDialog(
-      "chrome://calendar/content/calendar-invitations-dialog.xul",
+      "chrome://calendar/content/calendar-invitations-dialog.xhtml",
       "_blank",
       "chrome,titlebar,resizable",
       args

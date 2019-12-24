@@ -17,7 +17,7 @@ var EnigmailConstants = {
   // - encryptForced, signForced, pgpmimeForced (except CONFLICT)
   // NOTE:
   // - values 0/1/2 are used with this fixed semantics in the persistent rules
-  // - see also enigmailEncryptionDlg.xul
+  // - see also enigmailEncryptionDlg.xhtml
   ENIG_NEVER: 0,
   ENIG_UNDEF: 1,
   ENIG_ALWAYS: 2,

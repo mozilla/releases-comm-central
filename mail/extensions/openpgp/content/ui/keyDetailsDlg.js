@@ -219,7 +219,7 @@ function manageUids() {
   var resultObj = {
     refresh: false
   };
-  window.openDialog("chrome://openpgp/content/ui/enigmailManageUidDlg.xul",
+  window.openDialog("chrome://openpgp/content/ui/enigmailManageUidDlg.xhtml",
     "", "dialog,modal,centerscreen,resizable=yes", inputObj, resultObj);
   if (resultObj.refresh) {
     enableRefresh();

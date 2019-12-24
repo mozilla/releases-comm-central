@@ -212,7 +212,7 @@ add_task(function test_tab_reorder_window() {
 
   let aWnd2 = Services.ww.openWindow(
     null,
-    "chrome://messenger/content/",
+    "chrome://messenger/content/messenger.xhtml",
     "",
     "all,chrome,dialog=no,status,toolbar",
     args

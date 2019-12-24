@@ -235,7 +235,7 @@ var gBigFileObserver = {
 
       let propBag = PromptUtils.objectToPropBag(args);
       openDialog(
-        "chrome://messenger/content/cloudfile/selectDialog.xul",
+        "chrome://messenger/content/cloudfile/selectDialog.xhtml",
         "_blank",
         "centerscreen,chrome,modal,titlebar",
         propBag

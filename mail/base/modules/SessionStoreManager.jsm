@@ -110,7 +110,7 @@ var SessionStoreManager = {
 
     for (var i = 0; i < this._initialState.windows.length; ++i) {
       aWindow.open(
-        "chrome://messenger/content/messenger.xul",
+        "chrome://messenger/content/messenger.xhtml",
         "_blank",
         "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
       );

@@ -10,7 +10,7 @@
   "legacy": {
     "type": "bootstrap",
     "options": {
-      "page": "chrome://mozmill/content/prefs.xul"
+      "page": "chrome://mozmill/content/prefs.xhtml"
     }
   }
 }

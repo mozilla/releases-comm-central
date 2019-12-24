@@ -236,7 +236,7 @@ function migrateCalendarUI() {
       // we copy that custom set of toolbar items to the event/task tab
       // toolbar and add the app menu button and a spring for alignment.
       let xulStore = Services.xulStore;
-      let uri = "chrome://calendar/content/calendar-event-dialog.xul";
+      let uri = "chrome://calendar/content/calendar-event-dialog.xhtml";
 
       if (xulStore.hasValue(uri, "event-toolbar", "currentset")) {
         let windowSet = xulStore.getValue(uri, "event-toolbar", "currentset");
@@ -260,8 +260,8 @@ function migrateCalendarUI() {
       // Rename toolbar button id "button-save" to
       // "button-saveandclose" in customized toolbars
       let xulStore = Services.xulStore;
-      let windowUri = "chrome://calendar/content/calendar-event-dialog.xul";
-      let tabUri = "chrome://messenger/content/messenger.xul";
+      let windowUri = "chrome://calendar/content/calendar-event-dialog.xhtml";
+      let tabUri = "chrome://messenger/content/messenger.xhtml";
 
       if (xulStore.hasValue(windowUri, "event-toolbar", "currentset")) {
         let windowSet = xulStore.getValue(windowUri, "event-toolbar", "currentset");

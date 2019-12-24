@@ -112,7 +112,7 @@ function onLoad() {
 
   msgProgress = window.arguments[0];
   if (!msgProgress) {
-    Cu.reportError("Invalid argument to sendProgress.xul.");
+    Cu.reportError("Invalid argument to sendProgress.xhtml.");
     window.close();
     return;
   }

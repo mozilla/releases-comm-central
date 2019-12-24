@@ -250,7 +250,7 @@ Sanitizer.__defineGetter__("prefs", function() {
 Sanitizer.showUI = function(aParentWindow) {
   Services.ww.openWindow(
     AppConstants.platform == "macosx" ? null : aParentWindow,
-    "chrome://messenger/content/sanitize.xul",
+    "chrome://messenger/content/sanitize.xhtml",
     "Sanitize",
     "chrome,titlebar,dialog,centerscreen,modal",
     null

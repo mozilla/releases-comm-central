@@ -64,7 +64,7 @@ function showMessageReadSecurityInfo() {
   params.SetInt(2, gEncryptionStatus);
 
   window.openDialog(
-    "chrome://messenger-smime/content/msgReadSecurityInfo.xul",
+    "chrome://messenger-smime/content/msgReadSecurityInfo.xhtml",
     "",
     "chrome,resizable,modal,dialog,centerscreen",
     params

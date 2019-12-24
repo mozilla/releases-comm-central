@@ -21,7 +21,7 @@ function publishCalendarData() {
   args.onOk = self.publishCalendarDataDialogResponse;
 
   openDialog(
-    "chrome://calendar/content/publishDialog.xul",
+    "chrome://calendar/content/publishDialog.xhtml",
     "caPublishEvents",
     "chrome,titlebar,modal,resizable",
     args
@@ -64,7 +64,7 @@ function publishEntireCalendar(aCalendar) {
       args.onOk = publishEntireCalendar;
       args.promptText = cal.l10n.getCalString("publishPrompt");
       openDialog(
-        "chrome://calendar/content/chooseCalendarDialog.xul",
+        "chrome://calendar/content/chooseCalendarDialog.xhtml",
         "_blank",
         "chrome,titlebar,modal,resizable",
         args
@@ -88,7 +88,7 @@ function publishEntireCalendar(aCalendar) {
 
   args.publishObject = publishObject;
   openDialog(
-    "chrome://calendar/content/publishDialog.xul",
+    "chrome://calendar/content/publishDialog.xhtml",
     "caPublishEvents",
     "chrome,titlebar,modal,resizable",
     args

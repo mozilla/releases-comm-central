@@ -1,3 +1,6 @@
+# Temporarily disabled, see bug 1605845
+*.xhtml
+
 # Always ignore node_modules.
 **/node_modules/**/*.*
 

@@ -133,7 +133,7 @@ const PanelUI = {
     this._initElements();
 
     [this.menuButtonMail, this.menuButtonChat].forEach(button => {
-      // There's no chat button in the messageWindow.xul context.
+      // There's no chat button in the messageWindow.xhtml context.
       if (button) {
         button.addEventListener("mousedown", this);
         button.addEventListener("keypress", this);
@@ -237,7 +237,7 @@ const PanelUI = {
     window.removeEventListener("activate", this);
 
     [this.menuButtonMail, this.menuButtonChat].forEach(button => {
-      // There's no chat button in the messageWindow.xul context.
+      // There's no chat button in the messageWindow.xhtml context.
       if (button) {
         button.removeEventListener("mousedown", this);
         button.removeEventListener("keypress", this);

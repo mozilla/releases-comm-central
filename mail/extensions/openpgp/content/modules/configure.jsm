@@ -257,7 +257,7 @@ var EnigmailConfigure = {
               // but
               // - without starting the service again because we do that right now
               // - and modal (waiting for its end)
-              win.openDialog("chrome://openpgp/content/ui/pref-enigmail.xul",
+              win.openDialog("chrome://openpgp/content/ui/pref-enigmail.xhtml",
                 "_blank", "chrome,resizable=yes,modal", {
                   'showBasic': true,
                   'clientType': 'thunderbird',

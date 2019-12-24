@@ -604,7 +604,7 @@ function saveAsVirtualFolder() {
   var doOnlineSearch = searchOnline.checked && !searchOnline.disabled;
 
   window.openDialog(
-    "chrome://messenger/content/virtualFolderProperties.xul",
+    "chrome://messenger/content/virtualFolderProperties.xhtml",
     "",
     "chrome,titlebar,modal,centerscreen",
     {

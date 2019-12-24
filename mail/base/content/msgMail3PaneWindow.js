@@ -779,7 +779,7 @@ function FindOther3PaneWindow() {
 }
 
 /**
- * Called by messenger.xul:onunload, the 3-pane window inside of tabs window.
+ * Called by messenger.xhtml:onunload, the 3-pane window inside of tabs window.
  *  It's being unloaded!  Right now!
  */
 function OnUnloadMessenger() {

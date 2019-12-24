@@ -232,7 +232,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
     iframe = document.createXULElement("iframe");
     iframeSrc = window.arguments[0].useNewItemUI
       ? "chrome://lightning/content/html-item-editing/lightning-item-iframe.html"
-      : "chrome://lightning/content/lightning-item-iframe.xul";
+      : "chrome://lightning/content/lightning-item-iframe.xhtml";
 
     iframe.setAttribute("id", "lightning-item-panel-iframe");
     iframe.setAttribute("flex", "1");
@@ -483,7 +483,7 @@ function openNewMessage() {
  */
 function openNewCardDialog() {
   window.openDialog(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen"
   );
@@ -1006,7 +1006,7 @@ function onCommandCustomize() {
   wintype = wintype.replace(/:/g, "");
 
   window.openDialog(
-    "chrome://messenger/content/customizeToolbar.xul",
+    "chrome://messenger/content/customizeToolbar.xhtml",
     "CustomizeToolbar" + wintype,
     "chrome,all,dependent",
     document.getElementById(toolboxId), // toolbox dom node

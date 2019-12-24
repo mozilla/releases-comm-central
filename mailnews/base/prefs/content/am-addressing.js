@@ -9,7 +9,7 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function onLoad() {
-  parent.onPanelLoaded("am-addressing.xul");
+  parent.onPanelLoaded("am-addressing.xhtml");
 }
 
 function onInit(aPageId, aServerId) {
@@ -23,7 +23,7 @@ function onInitCompositionAndAddressing() {
 
 function onEditDirectories() {
   window.openDialog(
-    "chrome://messenger/content/addressbook/pref-editdirectories.xul",
+    "chrome://messenger/content/addressbook/pref-editdirectories.xhtml",
     "editDirectories",
     "chrome,modal=yes,resizable=no",
     null

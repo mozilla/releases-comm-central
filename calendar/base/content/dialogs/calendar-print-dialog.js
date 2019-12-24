@@ -271,7 +271,7 @@ document.addEventListener("dialogaccept", event => {
     statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
 
     let printWindow = window.openDialog(
-      "chrome://messenger/content/msgPrintEngine.xul",
+      "chrome://messenger/content/msgPrintEngine.xhtml",
       "",
       "chrome,dialog=no,all",
       1,

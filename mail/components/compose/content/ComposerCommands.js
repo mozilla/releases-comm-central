@@ -1893,7 +1893,7 @@ function Publish(publishData) {
 
     // Start progress monitoring
     gProgressDialog = window.openDialog(
-      "chrome://messenger/content/messengercompose/EditorPublishProgress.xul",
+      "chrome://messenger/content/messengercompose/EditorPublishProgress.xhtml",
       "_blank",
       "chrome,dependent,titlebar",
       gPublishData,
@@ -2124,7 +2124,7 @@ var nsFindReplaceCommand = {
 
   doCommand(aCommand, editorElement) {
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdReplace.xul",
+      "chrome://messenger/content/messengercompose/EdReplace.xhtml",
       "_blank",
       "chrome,modal,titlebar",
       editorElement
@@ -2197,7 +2197,7 @@ var nsSpellingCommand = {
         window.document.documentElement.getAttribute("windowtype") ==
         "msgcompose";
       window.openDialog(
-        "chrome://messenger/content/messengercompose/EdSpellCheck.xul",
+        "chrome://messenger/content/messengercompose/EdSpellCheck.xhtml",
         "_blank",
         "dialog,close,titlebar,modal,resizable",
         false,
@@ -2218,7 +2218,7 @@ var nsImageCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdImageProps.xul",
+      "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2251,7 +2251,7 @@ var nsHLineCommand = {
     if (hLine) {
       // We only open the dialog for an existing HRule
       window.openDialog(
-        "chrome://messenger/content/messengercompose/EdHLineProps.xul",
+        "chrome://messenger/content/messengercompose/EdHLineProps.xhtml",
         "_blank",
         "chrome,close,titlebar,modal"
       );
@@ -2305,7 +2305,7 @@ var nsLinkCommand = {
     var element = GetObjectForProperties();
     if (element && element.nodeName.toLowerCase() == "img") {
       window.openDialog(
-        "chrome://messenger/content/messengercompose/EdImageProps.xul",
+        "chrome://messenger/content/messengercompose/EdImageProps.xhtml",
         "_blank",
         "chrome,close,titlebar,modal",
         null,
@@ -2313,7 +2313,7 @@ var nsLinkCommand = {
       );
     } else {
       window.openDialog(
-        "chrome://messenger/content/messengercompose/EdLinkProps.xul",
+        "chrome://messenger/content/messengercompose/EdLinkProps.xhtml",
         "_blank",
         "chrome,close,titlebar,modal"
       );
@@ -2331,7 +2331,7 @@ var nsAnchorCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdNamedAnchorProps.xul",
+      "chrome://messenger/content/messengercompose/EdNamedAnchorProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal",
       ""
@@ -2349,7 +2349,7 @@ var nsInsertHTMLWithDialogCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdInsSrc.xul",
+      "chrome://messenger/content/messengercompose/EdInsSrc.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable",
       ""
@@ -2367,7 +2367,7 @@ var nsInsertMathWithDialogCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdInsertMath.xul",
+      "chrome://messenger/content/messengercompose/EdInsertMath.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable",
       ""
@@ -2428,7 +2428,7 @@ var nsListPropertiesCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdListProps.xul",
+      "chrome://messenger/content/messengercompose/EdListProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal"
     );
@@ -2604,7 +2604,7 @@ var nsSetSmiley = {
 function doAdvancedProperties(element) {
   if (element) {
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdAdvancedEdit.xul",
+      "chrome://messenger/content/messengercompose/EdAdvancedEdit.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable=yes",
       "",
@@ -2623,7 +2623,7 @@ var nsColorPropertiesCommand = {
 
   doCommand(aCommand) {
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdColorProps.xul",
+      "chrome://messenger/content/messengercompose/EdColorProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal",
       ""
@@ -3184,7 +3184,7 @@ var nsConvertToTable = {
   doCommand(aCommand) {
     if (this.isCommandEnabled()) {
       window.openDialog(
-        "chrome://messenger/content/messengercompose/EdConvertToTable.xul",
+        "chrome://messenger/content/messengercompose/EdConvertToTable.xhtml",
         "_blank",
         "chrome,close,titlebar,modal"
       );

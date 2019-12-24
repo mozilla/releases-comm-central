@@ -335,7 +335,7 @@ var calprovider = {
     };
 
     window.openDialog(
-      "chrome://calendar/content/calendar-conflicts-dialog.xul",
+      "chrome://calendar/content/calendar-conflicts-dialog.xhtml",
       "calendarConflictsDialog",
       "chrome,titlebar,modal",
       args

@@ -816,7 +816,7 @@
               <menuseparator/>
               <menuitem id="menu_NewContact" label="&newContact.label;"
                         accesskey="&newContact.accesskey;" class="menuitem-iconic"
-                        oncommand="window.openDialog('chrome://messenger/content/addressbook/abNewCardDialog.xul', '', 'chrome,modal,resizable=no,centerscreen');"/>
+                        oncommand="window.openDialog('chrome://messenger/content/addressbook/abNewCardDialog.xhtml', '', 'chrome,modal,resizable=no,centerscreen');"/>
             </menupopup>
           </menu>
           <menu id="menu_Attach" label="&attachMenu.label;" accesskey="&attachMenu.accesskey;">
@@ -1753,11 +1753,11 @@
       </menu>
 
 #ifdef XP_MACOSX
-#include ../../../base/content/macWindowMenu.inc.xul
+#include ../../../base/content/macWindowMenu.inc.xhtml
 #endif
 
       <!-- Help -->
-#include ../../../base/content/helpMenu.inc.xul
+#include ../../../base/content/helpMenu.inc.xhtml
     </menubar>
    </toolbaritem>
   </toolbar>
@@ -2344,7 +2344,7 @@
                class="chromeclass-toolbar"
                persist="collapsed"
                customizable="true" nowindowdrag="true">
-#include editFormatButtons.inc.xul
+#include editFormatButtons.inc.xhtml
         <spacer flex="1"/>
       </toolbar>
     </toolbox>

@@ -1210,7 +1210,7 @@ function EditorSelectColor(colorType, mouseEvent) {
     // Launch the ColorPicker dialog
     // TODO: Figure out how to position this under the color buttons on the toolbar
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdColorPicker.xul",
+      "chrome://messenger/content/messengercompose/EdColorPicker.xhtml",
       "_blank",
       "chrome,close,titlebar,modal",
       "",
@@ -2234,7 +2234,7 @@ function EditorInsertOrEditTable(insertAllowed) {
   if (IsInTable()) {
     // Edit properties of existing table
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdTableProps.xul",
+      "chrome://messenger/content/messengercompose/EdTableProps.xhtml",
       "_blank",
       "chrome,close,titlebar,modal",
       "",
@@ -2257,7 +2257,7 @@ function EditorInsertOrEditTable(insertAllowed) {
 function EditorInsertTable() {
   // Insert a new table
   window.openDialog(
-    "chrome://messenger/content/messengercompose/EdInsertTable.xul",
+    "chrome://messenger/content/messengercompose/EdInsertTable.xhtml",
     "_blank",
     "chrome,close,titlebar,modal",
     ""
@@ -2275,7 +2275,7 @@ function EditorTableCellProperties() {
     if (cell) {
       // Start Table Properties dialog on the "Cell" panel
       window.openDialog(
-        "chrome://messenger/content/messengercompose/EdTableProps.xul",
+        "chrome://messenger/content/messengercompose/EdTableProps.xhtml",
         "_blank",
         "chrome,close,titlebar,modal",
         "",
@@ -2426,7 +2426,7 @@ function EditorFindOrCreateInsertCharWindow() {
     } else {
       // The dialog will set window.InsertCharWindow to itself
       window.openDialog(
-        "chrome://messenger/content/messengercompose/EdInsertChars.xul",
+        "chrome://messenger/content/messengercompose/EdInsertChars.xhtml",
         "_blank",
         "chrome,close,titlebar",
         ""
@@ -2471,7 +2471,7 @@ function SwitchInsertCharToAnotherEditorOrClose() {
 
 function UpdateTOC() {
   window.openDialog(
-    "chrome://messenger/content/messengercompose/EdInsertTOC.xul",
+    "chrome://messenger/content/messengercompose/EdInsertTOC.xhtml",
     "_blank",
     "chrome,close,modal,titlebar"
   );

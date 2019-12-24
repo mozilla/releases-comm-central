@@ -119,7 +119,7 @@ function showNeedSetupInfo() {
     {}
   );
   if (buttonPressed == 0) {
-    MsgAccountManager("am-smime.xul", GetServer());
+    MsgAccountManager("am-smime.xhtml", GetServer());
   }
 }
 
@@ -229,7 +229,7 @@ function showMessageComposeSecurityStatus() {
   Recipients2CompFields(gMsgCompose.compFields);
 
   window.openDialog(
-    "chrome://messenger-smime/content/msgCompSecurityInfo.xul",
+    "chrome://messenger-smime/content/msgCompSecurityInfo.xhtml",
     "",
     "chrome,modal,resizable,centerscreen",
     {
@@ -300,7 +300,7 @@ function onComposerSendMessage() {
 
     if (autocompleteDirectory) {
       window.openDialog(
-        "chrome://messenger-smime/content/certFetchingStatus.xul",
+        "chrome://messenger-smime/content/certFetchingStatus.xhtml",
         "",
         "chrome,modal,resizable,centerscreen",
         autocompleteDirectory,

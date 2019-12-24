@@ -5,7 +5,7 @@
 /* global MozElements MozXULElement */
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
 
-// This file is loaded in messenger.xul.
+// This file is loaded in messenger.xhtml.
 /* globals fixIterator, MailToolboxCustomizeDone, openIMAccountMgr,
    PROTO_TREE_VIEW, Services, Status, statusSelector, ZoomManager */
 
@@ -1030,7 +1030,7 @@ var chatHandler = {
   _openDialog(aType) {
     let features = "chrome,modal,titlebar,centerscreen";
     window.openDialog(
-      "chrome://messenger/content/chat/" + aType + ".xul",
+      "chrome://messenger/content/chat/" + aType + ".xhtml",
       "",
       features
     );

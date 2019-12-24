@@ -99,7 +99,7 @@ var ChatCore = {
     if (aTopic == "browser-request") {
       Services.ww.openWindow(
         null,
-        "chrome://chat/content/browserRequest.xul",
+        "chrome://chat/content/browserRequest.xhtml",
         null,
         "chrome",
         aSubject

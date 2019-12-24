@@ -754,7 +754,7 @@ function open_message_from_file(file) {
 
   windowHelper.plan_for_new_window("mail:messageWindow");
   mc.window.openDialog(
-    "chrome://messenger/content/messageWindow.xul",
+    "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
     "all,chrome,dialog=no,status,toolbar",
     fileURL

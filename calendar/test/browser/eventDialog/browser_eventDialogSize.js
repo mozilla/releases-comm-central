@@ -148,7 +148,7 @@ function checkLargeEnough(outer, inner) {
 
 function getPersistedValue(which) {
   return Services.xulStore.getValue(
-    "chrome://calendar/content/calendar-event-dialog.xul",
+    "chrome://calendar/content/calendar-event-dialog.xhtml",
     "calendar-event-window",
     which
   );

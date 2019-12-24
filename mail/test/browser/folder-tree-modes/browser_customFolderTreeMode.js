@@ -43,7 +43,7 @@ add_task(function setupModule(module) {
   gInbox = get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
 
   ExtensionSupport.registerWindowListener("mochitest", {
-    chromeURLs: ["chrome://messenger/content/messenger.xul"],
+    chromeURLs: ["chrome://messenger/content/messenger.xhtml"],
     onLoadWindow(aWindow) {
       let testFolderTreeMode = {
         __proto__: aWindow.IFolderTreeMode,

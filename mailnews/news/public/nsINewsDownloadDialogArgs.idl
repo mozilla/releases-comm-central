@@ -15,5 +15,5 @@ interface nsINewsDownloadDialogArgs: nsISupports {
 };
 
 %{ C++
-#define DOWNLOAD_HEADERS_URL "chrome://messenger/content/downloadheaders.xul"
+#define DOWNLOAD_HEADERS_URL "chrome://messenger/content/downloadheaders.xhtml"
 %}

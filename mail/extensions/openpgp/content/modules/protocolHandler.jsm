@@ -141,22 +141,22 @@ EnigmailProtocolHandler.prototype = {
       // About Enigmail
       //            winName = "about:"+enigmail;
       winName = "about:enigmail";
-      spec = "chrome://openpgp/content/ui/enigmailAbout.xul";
+      spec = "chrome://openpgp/content/ui/enigmailAbout.xhtml";
 
     } else if (aURI.spec == aURI.scheme + ":console") {
       // Display enigmail console messages
       winName = "enigmail:console";
-      spec = "chrome://openpgp/content/ui/enigmailConsole.xul";
+      spec = "chrome://openpgp/content/ui/enigmailConsole.xhtml";
 
     } else if (aURI.spec == aURI.scheme + ":keygen") {
       // Display enigmail key generation console
       winName = "enigmail:keygen";
-      spec = "chrome://openpgp/content/ui/enigmailKeygen.xul";
+      spec = "chrome://openpgp/content/ui/enigmailKeygen.xhtml";
 
     } else {
       // Display Enigmail about page
       winName = "about:enigmail";
-      spec = "chrome://openpgp/content/ui/enigmailAbout.xul";
+      spec = "chrome://openpgp/content/ui/enigmailAbout.xhtml";
     }
 
     var windowManager = Cc[WMEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);

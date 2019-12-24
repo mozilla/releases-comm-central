@@ -102,7 +102,7 @@ IMIncomingServer.prototype = {
   set realHostName(aValue) {},
 
   port: -1,
-  accountManagerChrome: "am-im.xul",
+  accountManagerChrome: "am-im.xhtml",
 
   // FIXME need a new imIIncomingService iface + classinfo for these 3 properties :(
   get password() {

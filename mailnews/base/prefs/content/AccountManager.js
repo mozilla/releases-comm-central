@@ -7,7 +7,7 @@
  * here's how this dialog works:
  * The main dialog contains a tree on the left (accounttree) and a
  * deck on the right. Each card in the deck on the right contains an
- * IFRAME which loads a particular preference document (such as am-main.xul)
+ * IFRAME which loads a particular preference document (such as am-main.xhtml)
  *
  * when the user clicks on items in the tree on the right, two things have
  * to be determined before the UI can be updated:
@@ -913,7 +913,7 @@ function onRemoveAccount(event) {
   };
 
   window.openDialog(
-    "chrome://messenger/content/removeAccount.xul",
+    "chrome://messenger/content/removeAccount.xhtml",
     "removeAccount",
     "chrome,titlebar,modal,centerscreen,resizable=no",
     removeArgs
@@ -1062,7 +1062,7 @@ function saveAccount(accountValues, account) {
         {}
       );
       if (!review) {
-        onAccountTreeSelect("am-junk.xul", account);
+        onAccountTreeSelect("am-junk.xhtml", account);
         return false;
       }
     }
@@ -1316,7 +1316,7 @@ function pageURL(pageId) {
     // we could compare against "main","server","copies","offline","addressing",
     // "smtp" and "advanced" first to save the work, but don't,
     // as some of these might be turned into extensions (for thunderbird)
-    let packageName = pageId.split("am-")[1].split(".xul")[0];
+    let packageName = pageId.split("am-")[1].split(".xhtml")[0];
     chromePackageName = MailServices.accounts.getChromePackageName(packageName);
   } catch (ex) {
     chromePackageName = "messenger";
@@ -1720,12 +1720,15 @@ var gAccountTree = {
       return bundle.getString(aString);
     }
     var panels = [
-      { string: getString("prefPanel-server"), src: "am-server.xul" },
-      { string: getString("prefPanel-copies"), src: "am-copies.xul" },
-      { string: getString("prefPanel-synchronization"), src: "am-offline.xul" },
-      { string: getString("prefPanel-diskspace"), src: "am-offline.xul" },
-      { string: getString("prefPanel-addressing"), src: "am-addressing.xul" },
-      { string: getString("prefPanel-junk"), src: "am-junk.xul" },
+      { string: getString("prefPanel-server"), src: "am-server.xhtml" },
+      { string: getString("prefPanel-copies"), src: "am-copies.xhtml" },
+      {
+        string: getString("prefPanel-synchronization"),
+        src: "am-offline.xhtml",
+      },
+      { string: getString("prefPanel-diskspace"), src: "am-offline.xhtml" },
+      { string: getString("prefPanel-addressing"), src: "am-addressing.xhtml" },
+      { string: getString("prefPanel-junk"), src: "am-junk.xhtml" },
     ];
 
     let accounts = allAccountsSorted(false);
@@ -1804,7 +1807,7 @@ var gAccountTree = {
               let title = bundle.GetStringFromName("prefPanel-" + svc.name);
               panelsToKeep.push({
                 string: title,
-                src: "am-" + svc.name + ".xul",
+                src: "am-" + svc.name + ".xhtml",
               });
             }
           } catch (e) {
@@ -1885,7 +1888,7 @@ var gAccountTree = {
     let treecell = document.createXULElement("treecell");
     treerow.appendChild(treecell);
     treecell.setAttribute("label", getString("prefPanel-smtp"));
-    treeitem.setAttribute("PageTag", "am-smtp.xul");
+    treeitem.setAttribute("PageTag", "am-smtp.xhtml");
     treecell.setAttribute(
       "properties",
       "folderNameCol isServer-true serverType-smtp"

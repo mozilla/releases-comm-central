@@ -142,7 +142,7 @@ add_task(function test_go_search() {
 
   // - Click the "Save as Search Folder" button, id "saveAsVFButton"
   // This will create a virtual folder properties dialog...
-  // (label: "New Saved Search Folder", source: virtualFolderProperties.xul
+  // (label: "New Saved Search Folder", source: virtualFolderProperties.xhtml
   //  no windowtype, id: "virtualFolderPropertiesDialog")
   plan_for_modal_dialog(
     "mailnews:virtualFolderProperties",

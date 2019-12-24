@@ -2046,7 +2046,7 @@ function editAttendees() {
 
   // open the dialog modally
   openDialog(
-    "chrome://calendar/content/calendar-event-dialog-attendees.xul",
+    "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
     "_blank",
     "chrome,titlebar,modal,resizable",
     args
@@ -2760,7 +2760,7 @@ function editRepeat() {
 
   // open the dialog modally
   openDialog(
-    "chrome://calendar/content/calendar-event-dialog-recurrence.xul",
+    "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
     "_blank",
     "chrome,titlebar,modal,resizable",
     args
@@ -3499,7 +3499,7 @@ function editTimezone(aElementId, aDateTime, aCallback) {
 
   // open the dialog modally
   openDialog(
-    "chrome://calendar/content/calendar-event-dialog-timezone.xul",
+    "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     "_blank",
     "chrome,titlebar,modal,resizable",
     args

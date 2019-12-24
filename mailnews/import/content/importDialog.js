@@ -894,7 +894,7 @@ async function ImportAddress(module, success, error) {
     let result = {};
     result.ok = false;
     window.openDialog(
-      "chrome://messenger/content/fieldMapImport.xul",
+      "chrome://messenger/content/fieldMapImport.xhtml",
       "",
       "chrome,modal,titlebar",
       {
@@ -1043,14 +1043,14 @@ function next() {
         let SEAMONKEY_ID = "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}";
         if (Services.appinfo.ID == SEAMONKEY_ID) {
           window.openDialog(
-            "chrome://communicator/content/migration/migration.xul",
+            "chrome://communicator/content/migration/migration.xhtml",
             "",
             "chrome,dialog,modal,centerscreen"
           );
         } else {
           // Running as Thunderbird or its clone.
           window.openDialog(
-            "chrome://messenger/content/migration/migration.xul",
+            "chrome://messenger/content/migration/migration.xhtml",
             "",
             "chrome,dialog,modal,centerscreen",
             null,

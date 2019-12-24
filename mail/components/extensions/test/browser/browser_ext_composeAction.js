@@ -197,6 +197,6 @@ add_task(async function the_test() {
   await test_it(extensionDetails, "FormatToolbar");
 
   Services.xulStore.removeDocument(
-    "chrome://messenger/content/messengercompose/messengercompose.xul"
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml"
   );
 });

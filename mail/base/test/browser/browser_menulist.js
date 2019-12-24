@@ -1,7 +1,7 @@
 /* import-globals-from ../../content/utilityOverlay.js */
 
 add_task(async () => {
-  let TEST_DOCUMENT_URL = getRootDirectory(gTestPath) + "files/menulist.xul";
+  let TEST_DOCUMENT_URL = getRootDirectory(gTestPath) + "files/menulist.xhtml";
   let testDocument = await new Promise(resolve => {
     Services.obs.addObserver(function documentLoaded(subject) {
       if (subject.URL == TEST_DOCUMENT_URL) {

@@ -68,7 +68,7 @@ add_task(function test_windowListeners() {
   Assert.ok(
     ExtensionSupport.registerWindowListener("test-addon2", {
       chromeURLs: [
-        "chrome://messenger/content/messengercompose/messengercompose.xul",
+        "chrome://messenger/content/messengercompose/messengercompose.xhtml",
       ],
       onLoadWindow() {
         addonListener("test-addon2", "load");
@@ -88,7 +88,7 @@ add_task(function test_windowListeners() {
   Assert.ok(
     ExtensionSupport.registerWindowListener("test-addon3", {
       chromeURLs: [
-        "chrome://messenger/content/messengercompose/messengercompose.xul",
+        "chrome://messenger/content/messengercompose/messengercompose.xhtml",
       ],
       onLoadWindow() {
         addonListener("test-addon3", "load");
@@ -103,7 +103,7 @@ add_task(function test_windowListeners() {
   Assert.ok(
     ExtensionSupport.registerWindowListener("test-addon4", {
       chromeURLs: [
-        "chrome://messenger/content/messengercompose/messengercompose.xul",
+        "chrome://messenger/content/messengercompose/messengercompose.xhtml",
       ],
       onLoadWindow() {
         addonListener("test-addon4", "load");

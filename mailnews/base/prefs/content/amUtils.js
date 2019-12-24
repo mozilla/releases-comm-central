@@ -259,7 +259,7 @@ function editSMTPServer(aServer) {
   let args = { server: aServer, result: false, addSmtpServer: "" };
 
   window.openDialog(
-    "chrome://messenger/content/SmtpServerEdit.xul",
+    "chrome://messenger/content/SmtpServerEdit.xhtml",
     "smtpEdit",
     "chrome,titlebar,modal,centerscreen",
     args

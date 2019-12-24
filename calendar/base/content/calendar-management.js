@@ -655,7 +655,7 @@ function openCalendarSubscriptionsDialog() {
 
   // open the dialog modally
   window.openDialog(
-    "chrome://calendar/content/calendar-subscriptions-dialog.xul",
+    "chrome://calendar/content/calendar-subscriptions-dialog.xhtml",
     "_blank",
     "chrome,titlebar,modal,resizable"
   );

@@ -83,7 +83,7 @@ function initIdentityValues(identity) {
       identity.escapedVCard;
     initSmtpServer(identity.smtpServerKey);
 
-    // This field does not exist for the default identity shown in the am-main.xul pane.
+    // This field does not exist for the default identity shown in the am-main.xhtml pane.
     let idLabel = document.getElementById("identity.label");
     if (idLabel) {
       idLabel.value = identity.label;
@@ -443,7 +443,7 @@ function editVCard() {
 
   // read vCard hidden value from UI
   window.openDialog(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
     {

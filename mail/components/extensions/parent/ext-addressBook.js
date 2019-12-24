@@ -8,7 +8,8 @@ var { MailServices } = ChromeUtils.import(
 );
 
 const AB_WINDOW_TYPE = "mail:addressbook";
-const AB_WINDOW_URI = "chrome://messenger/content/addressbook/addressbook.xul";
+const AB_WINDOW_URI =
+  "chrome://messenger/content/addressbook/addressbook.xhtml";
 
 const kJSDirectory = 101; // defined in nsDirPrefs.h
 

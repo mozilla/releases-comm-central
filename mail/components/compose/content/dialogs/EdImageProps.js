@@ -280,7 +280,7 @@ function onAccept(event) {
 function onLinkAdvancedEdit() {
   window.AdvancedEditOK = false;
   window.openDialog(
-    "chrome://messenger/content/messengercompose/EdAdvancedEdit.xul",
+    "chrome://messenger/content/messengercompose/EdAdvancedEdit.xhtml",
     "_blank",
     "chrome,close,titlebar,modal,resizable=yes",
     "",

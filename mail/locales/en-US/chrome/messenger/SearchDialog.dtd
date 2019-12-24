@@ -2,7 +2,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!-- for SearchDialog.xul -->
+<!-- for SearchDialog.xhtml -->
 <!ENTITY searchHeading.label         "Search for messages in:">
 <!ENTITY searchHeading.accesskey     "h">
 <!ENTITY searchSubfolders.label      "Search subfolders">
@@ -25,7 +25,7 @@
 <!ENTITY saveAsVFButton.label        "Save as Search Folder">
 <!ENTITY saveAsVFButton.accesskey    "v">
 
-<!-- for ABSearchDialog.xul -->
+<!-- for ABSearchDialog.xhtml -->
 <!ENTITY abSearchHeading.label       "Search in:">
 <!ENTITY abSearchHeading.accesskey   "h">
 <!ENTITY propertiesButton.label      "Properties">

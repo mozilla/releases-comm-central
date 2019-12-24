@@ -339,7 +339,7 @@ function AddToDictionary() {
 
 function EditDictionary() {
   window.openDialog(
-    "chrome://messenger/content/messengercompose/EdDictionary.xul",
+    "chrome://messenger/content/messengercompose/EdDictionary.xhtml",
     "_blank",
     "chrome,close,titlebar,modal",
     "",

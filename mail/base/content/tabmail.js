@@ -1304,7 +1304,7 @@
 
       return window
         .openDialog(
-          "chrome://messenger/content/",
+          "chrome://messenger/content/messenger.xhtml",
           "_blank",
           features.join(","),
           null,

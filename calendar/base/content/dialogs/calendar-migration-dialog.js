@@ -188,7 +188,7 @@ var gDataMigrator = {
     }
     migLOG("DMs: " + DMs.length);
 
-    let url = "chrome://calendar/content/calendar-migration-dialog.xul";
+    let url = "chrome://calendar/content/calendar-migration-dialog.xhtml";
     if (AppConstants.platform == "macosx") {
       let win = Services.wm.getMostRecentWindow("Calendar:MigrationWizard");
       if (win) {

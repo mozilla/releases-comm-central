@@ -312,7 +312,7 @@ function onAdvancedEdit() {
     // Open the AdvancedEdit dialog, passing in the element to be edited
     //  (the copy named "globalElement")
     window.openDialog(
-      "chrome://messenger/content/messengercompose/EdAdvancedEdit.xul",
+      "chrome://messenger/content/messengercompose/EdAdvancedEdit.xhtml",
       "_blank",
       "chrome,close,titlebar,modal,resizable=yes",
       "",
@@ -514,7 +514,7 @@ function SetRelativeCheckbox(checkbox) {
   SetElementEnabled(checkbox, enable);
 }
 
-// oncommand handler for the Relativize checkbox in EditorOverlay.xul
+// oncommand handler for the Relativize checkbox in EditorOverlay.xhtml
 function MakeInputValueRelativeOrAbsolute(checkbox) {
   var input = document.getElementById(checkbox.getAttribute("for"));
   if (!input) {

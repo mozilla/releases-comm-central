@@ -93,7 +93,7 @@ function subtest_check_account_open_state(amc, aWishedState) {
 
   // Whatever the open state of the account was, selecting one of its subpanes
   // must open it.
-  amc.window.selectServer(gPopAccount.incomingServer, "am-junk.xul");
+  amc.window.selectServer(gPopAccount.incomingServer, "am-junk.xhtml");
   assert_true(accountTree.view.isContainerOpen(accountRow));
 
   // Set the proper state again for continuation of the test.

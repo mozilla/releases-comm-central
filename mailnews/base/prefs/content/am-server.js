@@ -253,7 +253,7 @@ function onAdvanced() {
   }
 
   window.openDialog(
-    "chrome://messenger/content/am-server-advanced.xul",
+    "chrome://messenger/content/am-server-advanced.xhtml",
     "_blank",
     "chrome,modal,titlebar",
     serverSettings

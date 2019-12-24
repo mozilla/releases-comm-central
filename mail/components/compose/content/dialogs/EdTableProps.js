@@ -528,7 +528,7 @@ function GetColorAndUpdate(ColorWellID) {
       break;
   }
   window.openDialog(
-    "chrome://messenger/content/messengercompose/EdColorPicker.xul",
+    "chrome://messenger/content/messengercompose/EdColorPicker.xhtml",
     "_blank",
     "chrome,close,titlebar,modal",
     "",

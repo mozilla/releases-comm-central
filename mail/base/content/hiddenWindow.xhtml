@@ -72,7 +72,7 @@
 
 <!-- keys are appended from the overlay -->
 <keyset id="mailKeys">
-#include mainKeySet.inc.xul
+#include mainKeySet.inc.xhtml
   <keyset id="tasksKeys">
     <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
          modifiers="accel,shift"/>
@@ -82,7 +82,7 @@
 </keyset>
 
 <commandset id="mailCommands">
-#include mainCommandSet.inc.xul
+#include mainCommandSet.inc.xhtml
   <commandset id="mailSearchMenuItems"/>
   <commandset id="globalEditMenuItems"
               commandupdater="true"
@@ -102,14 +102,14 @@
   </commandset>
 </commandset>
 
-  <!-- it's the whole mailWindowOverlay.xul menubar! hidden windows need to
+  <!-- it's the whole mailWindowOverlay.xhtml menubar! hidden windows need to
        have a menubar for situations where they're the only window remaining
        on a platform that wants to leave the app running, like the Mac.
   -->
 
-#include mainNavigationToolbox.inc.xul
+#include mainNavigationToolbox.inc.xhtml
   </toolbox>
-#include mainMailToolbox.inc.xul
+#include mainMailToolbox.inc.xhtml
 
 <browser id="hiddenBrowser" disablehistory="true"/>
 

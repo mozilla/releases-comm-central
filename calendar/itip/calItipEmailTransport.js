@@ -286,7 +286,7 @@ calItipEmailTransport.prototype = {
 
           // xxx todo: add send/progress UI, maybe recycle
           //           "@mozilla.org/messengercompose/composesendlistener;1"
-          //           and/or "chrome://messenger/content/messengercompose/sendProgress.xul"
+          //           and/or "chrome://messenger/content/messengercompose/sendProgress.xhtml"
           // i.e. bug 432662
           let msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(Ci.nsIMsgSend);
           msgSend.sendMessageFile(

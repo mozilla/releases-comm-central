@@ -35,7 +35,7 @@ add_task(function testCategoryColors() {
 
     let editFrame = wait_for_frame_load(
       tab.browser.contentDocument.getElementById("dialogOverlay-0").querySelector("browser"),
-      "chrome://calendar/content/preferences/editCategory.xul"
+      "chrome://calendar/content/preferences/editCategory.xhtml"
     );
     let { replaceText, lookup } = helpersForController(editFrame);
     let categoryName = editFrame.eid("categoryName");

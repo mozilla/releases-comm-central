@@ -937,7 +937,7 @@
                   label="&addressBookCmd.label;"
                   accesskey="&addressBookCmd.accesskey;"
                   key="key_addressbook"
-                  oncommand="toOpenWindowByType('mail:addressbook', 'chrome://messenger/content/addressbook/addressbook.xul');"
+                  oncommand="toOpenWindowByType('mail:addressbook', 'chrome://messenger/content/addressbook/addressbook.xhtml');"
                   class="menuitem-iconic"/>
         <menuseparator id="devToolsSeparator"/>
 #endif
@@ -1084,11 +1084,11 @@
       </menu>
 
 #ifdef XP_MACOSX
-#include macWindowMenu.inc.xul
+#include macWindowMenu.inc.xhtml
 #endif
 
       <!-- Help -->
-#include helpMenu.inc.xul
+#include helpMenu.inc.xhtml
 
       <spacer id="menubar_spacer" flex="100%"/>
       </menubar>

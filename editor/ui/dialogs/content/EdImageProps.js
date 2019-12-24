@@ -280,7 +280,7 @@ function onAccept(event) {
 function onLinkAdvancedEdit() {
   window.AdvancedEditOK = false;
   window.openDialog(
-    "chrome://editor/content/EdAdvancedEdit.xul",
+    "chrome://editor/content/EdAdvancedEdit.xhtml",
     "_blank",
     "chrome,close,titlebar,modal,resizable=yes",
     "",

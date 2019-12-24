@@ -987,7 +987,7 @@ var defaultController = {
           window.document.documentElement.getAttribute("windowtype") ==
           "msgcompose";
         window.openDialog(
-          "chrome://messenger/content/messengercompose/EdSpellCheck.xul",
+          "chrome://messenger/content/messengercompose/EdSpellCheck.xhtml",
           "_blank",
           "dialog,close,titlebar,modal,resizable",
           false,
@@ -3715,7 +3715,7 @@ function GenericSendMessage(msgType) {
       SetMsgBodyFrameFocus();
       window.cancelSendMessage = false;
       window.openDialog(
-        "chrome://messenger/content/messengercompose/EdSpellCheck.xul",
+        "chrome://messenger/content/messengercompose/EdSpellCheck.xhtml",
         "_blank",
         "dialog,close,titlebar,modal,resizable",
         true,
@@ -3856,7 +3856,7 @@ function GenericSendMessage(msgType) {
         abort: false,
       };
       window.openDialog(
-        "chrome://messenger/content/messengercompose/askSendFormat.xul",
+        "chrome://messenger/content/messengercompose/askSendFormat.xhtml",
         "askSendFormatDialog",
         "chrome,modal,titlebar,centerscreen",
         result2
@@ -7088,11 +7088,11 @@ function GetMsgAttachmentElement() {
  * @param aWindowId {string} the ID of a <window> in the sidebar <browser>;
  *                           only return the element if the window exists.
  *                           Assuming unique window ids and that there there can
- *                           only ever be one <window> in a <browser>'s src.xul
+ *                           only ever be one <window> in a <browser>'s src.xhtml
  *                           (documentation is pretty poor), that means that the
  *                           element will only be returned if it is found in the
- *                           same src.xul as the window (as opposed to any
- *                           src.xul / window currently displayed in the sidebar
+ *                           same src.xhtml as the window (as opposed to any
+ *                           src.xhtml / window currently displayed in the sidebar
  *                           browser).
  */
 function sidebarDocumentGetElementById(aId, aWindowId) {
@@ -7250,7 +7250,7 @@ function sidebarCloseButtonOnCommand() {
 function toggleAddressPicker(aFocus = true) {
   // Caveat: This function erroneously assumes that only abContactsPanel can
   // be shown in the sidebar browser, so it will fail if any other src is shown
-  // as we do not reliably enforce abContactsPanel.xul as src of the sidebar
+  // as we do not reliably enforce abContactsPanel.xhtml as src of the sidebar
   // <browser>. Currently we don't show anything else in the sidebar, but
   // add-ons might.
   let sidebarBox = document.getElementById("sidebar-box");
@@ -7281,7 +7281,7 @@ function toggleAddressPicker(aFocus = true) {
       // abContactsPanel.js, we do the focusing first thing to avoid timing
       // issues when trying to focus from here while contacts side bar is still
       // loading.
-      let url = "chrome://messenger/content/addressbook/abContactsPanel.xul";
+      let url = "chrome://messenger/content/addressbook/abContactsPanel.xhtml";
       if (aFocus) {
         url += "?focus";
       }

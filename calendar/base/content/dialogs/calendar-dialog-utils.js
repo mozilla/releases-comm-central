@@ -155,7 +155,7 @@ function editReminder() {
 
   // open the dialog modally
   openDialog(
-    "chrome://calendar/content/calendar-event-dialog-reminder.xul",
+    "chrome://calendar/content/calendar-event-dialog-reminder.xhtml",
     "_blank",
     "chrome,titlebar,modal,resizable",
     args

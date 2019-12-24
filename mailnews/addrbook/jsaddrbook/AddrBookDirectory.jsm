@@ -554,7 +554,7 @@ AddrBookDirectoryInner.prototype = {
   /* nsIAbDirectory */
 
   get propertiesChromeURI() {
-    return "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul";
+    return "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml";
   },
   get dirName() {
     return this.getLocalizedStringValue("description", "");

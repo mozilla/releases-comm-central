@@ -532,7 +532,7 @@ function ChangeArchiveHierarchy() {
   let identity = parent.gIdentity || parent.getCurrentAccount().defaultIdentity;
 
   top.window.openDialog(
-    "chrome://messenger/content/am-archiveoptions.xul",
+    "chrome://messenger/content/am-archiveoptions.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     identity

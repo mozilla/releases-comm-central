@@ -39,7 +39,7 @@ nsNoIncomingServer::GetLocalDatabaseType(nsACString &type) {
 
 NS_IMETHODIMP
 nsNoIncomingServer::GetAccountManagerChrome(nsAString &aResult) {
-  aResult.AssignLiteral("am-serverwithnoidentities.xul");
+  aResult.AssignLiteral("am-serverwithnoidentities.xhtml");
   return NS_OK;
 }
 

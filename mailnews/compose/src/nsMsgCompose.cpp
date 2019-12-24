@@ -1328,7 +1328,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
 
           mProgress->OpenProgressDialog(
               m_window, aMsgWindow,
-              "chrome://messenger/content/messengercompose/sendProgress.xul",
+              "chrome://messenger/content/messengercompose/sendProgress.xhtml",
               false, params);
         }
       }

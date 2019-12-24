@@ -119,7 +119,7 @@ function loadEventsFromFile(aCalendar) {
         args.calendars = calendars;
         args.promptText = cal.l10n.getCalString("importPrompt");
         openDialog(
-          "chrome://calendar/content/chooseCalendarDialog.xul",
+          "chrome://calendar/content/chooseCalendarDialog.xhtml",
           "_blank",
           "chrome,titlebar,modal,resizable",
           args
@@ -334,7 +334,7 @@ function exportEntireCalendar(aCalendar) {
       args.onOk = getItemsFromCal;
       args.promptText = cal.l10n.getCalString("exportPrompt");
       openDialog(
-        "chrome://calendar/content/chooseCalendarDialog.xul",
+        "chrome://calendar/content/chooseCalendarDialog.xhtml",
         "_blank",
         "chrome,titlebar,modal,resizable",
         args

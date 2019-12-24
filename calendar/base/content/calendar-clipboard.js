@@ -268,7 +268,7 @@ function pasteFromClipboard() {
           }
 
           window.openDialog(
-            "chrome://calendar/content/chooseCalendarDialog.xul",
+            "chrome://calendar/content/chooseCalendarDialog.xhtml",
             "_blank",
             "chrome,titlebar,modal,resizable",
             args

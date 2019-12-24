@@ -139,7 +139,7 @@ function LaunchCustomizeDialog() {
   OpenOrFocusWindow(
     {},
     "mailnews:mailviewlist",
-    "chrome://messenger/content/mailViewList.xul"
+    "chrome://messenger/content/mailViewList.xhtml"
   );
 }
 

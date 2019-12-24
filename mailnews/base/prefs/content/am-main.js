@@ -49,7 +49,7 @@ function manageIdentities() {
   saveIdentitySettings(identity);
 
   window.openDialog(
-    "am-identities-list.xul",
+    "am-identities-list.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
     args

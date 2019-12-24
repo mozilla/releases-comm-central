@@ -894,7 +894,7 @@ nsMsgIncomingServer::GetLocalDatabaseType(nsACString &aResult) {
 
 NS_IMETHODIMP
 nsMsgIncomingServer::GetAccountManagerChrome(nsAString &aResult) {
-  aResult.AssignLiteral("am-main.xul");
+  aResult.AssignLiteral("am-main.xhtml");
   return NS_OK;
 }
 

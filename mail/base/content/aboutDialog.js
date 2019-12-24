@@ -118,7 +118,7 @@ function openAboutTab(url) {
 
   // No existing windows.
   window.openDialog(
-    "chrome://messenger/content/",
+    "chrome://messenger/content/messenger.xhtml",
     "_blank",
     "chrome,dialog=no,all",
     null,

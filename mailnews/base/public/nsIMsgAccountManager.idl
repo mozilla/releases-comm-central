@@ -246,5 +246,5 @@ interface nsIMsgAccountManagerExtension : nsISupports
 {
   readonly attribute ACString name;   // examples:  mdn
   boolean showPanel(in nsIMsgIncomingServer server);
-  readonly attribute ACString chromePackageName;  // example:  messenger, chrome://messenger/content/am-mdn.xul and chrome://messenger/locale/am-mdn.properties
+  readonly attribute ACString chromePackageName;  // example:  messenger, chrome://messenger/content/am-mdn.xhtml and chrome://messenger/locale/am-mdn.properties
 };

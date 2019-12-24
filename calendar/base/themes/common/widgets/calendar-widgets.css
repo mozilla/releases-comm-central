@@ -124,8 +124,8 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
  * Note that #calendar-list is used for 2 separate lists that look similar,
  * but are otherwise independent:
  *
- * - calendar-providerUninstall-dialog.xul
- * - messenger-overlay-sidebar.xul
+ * - calendar-providerUninstall-dialog.xhtml
+ * - messenger-overlay-sidebar.xhtml
  *
  * Please be careful when changing the following CSS.
  */

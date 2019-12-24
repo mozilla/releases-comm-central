@@ -76,7 +76,7 @@ add_task(async () => {
   });
   is(
     composeWindow.location.href,
-    "chrome://messenger/content/messengercompose/messengercompose.xul"
+    "chrome://messenger/content/messengercompose/messengercompose.xhtml"
   );
   let composeDocument = composeWindow.document;
 

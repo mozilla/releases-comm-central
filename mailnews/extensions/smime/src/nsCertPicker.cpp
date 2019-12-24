@@ -254,7 +254,7 @@ nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = nsNSSDialogHelper::openDialog(
-      nullptr, "chrome://messenger/content/certpicker.xul", block);
+      nullptr, "chrome://messenger/content/certpicker.xhtml", block);
   NS_ENSURE_SUCCESS(rv, rv);
 
   int32_t status;

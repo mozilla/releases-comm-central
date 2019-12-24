@@ -46,7 +46,7 @@ function refreshListView(aSelectedMailView) {
 
 function onNewMailView() {
   window.openDialog(
-    "chrome://messenger/content/mailViewSetup.xul",
+    "chrome://messenger/content/mailViewSetup.xhtml",
     "",
     "centerscreen,resizable,modal,titlebar,chrome",
     { onOkCallback: refreshListView }
@@ -99,7 +99,7 @@ function onEditMailView() {
     var args = { mailView: selMailView, onOkCallback: refreshListView };
 
     window.openDialog(
-      "chrome://messenger/content/mailViewSetup.xul",
+      "chrome://messenger/content/mailViewSetup.xhtml",
       "",
       "centerscreen,modal,resizable,titlebar,chrome",
       args

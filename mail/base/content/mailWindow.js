@@ -47,9 +47,9 @@ var gMailWindowLog = Log4Moz.getConfiguredLogger(
 );
 
 /**
- * Called by messageWindow.xul:onunload,  the 'single message display window'.
+ * Called by messageWindow.xhtml:onunload,  the 'single message display window'.
  *
- * Also called by messenger.xul:onunload's (the 3-pane window inside of tabs
+ * Also called by messenger.xhtml:onunload's (the 3-pane window inside of tabs
  *  window) unload function, OnUnloadMessenger.
  */
 function OnMailWindowUnload() {

@@ -301,8 +301,8 @@ function ComposeAMessage(event) {
  * Open AccountManager to view settings for a given account
  * @param selectPage  the xul file name for the viewing page,
  *                    null for the account main page, other pages are
- *                    'am-server.xul', 'am-copies.xul', 'am-offline.xul',
- *                    'am-addressing.xul', 'am-smtp.xul'
+ *                    'am-server.xhtml', 'am-copies.xhtml', 'am-offline.xhtml',
+ *                    'am-addressing.xhtml', 'am-smtp.xhtml'
  */
 function ViewSettings(selectPage) {
   window.parent.MsgAccountManager(selectPage, gSelectedServer);

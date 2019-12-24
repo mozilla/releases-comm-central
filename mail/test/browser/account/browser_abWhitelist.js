@@ -60,7 +60,7 @@ registerCleanupFunction(function teardownModule(module) {
 function subtest_check_whitelist_init_and_save(amc) {
   // Ok, the advanced settings window is open.  Let's choose
   // the junkmail settings.
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xul", amc);
+  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   let doc = amc.window.document.getElementById("contentFrame").contentDocument;
@@ -89,7 +89,7 @@ function subtest_check_whitelist_init_and_save(amc) {
  * Then, we'll clear the address books and save.
  */
 function subtest_check_whitelist_load_and_clear(amc) {
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xul", amc);
+  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   let doc = amc.window.document.getElementById("contentFrame").contentDocument;
@@ -118,7 +118,7 @@ function subtest_check_whitelist_load_and_clear(amc) {
  * were actually cleared.
  */
 function subtest_check_whitelist_load_cleared(amc) {
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xul", amc);
+  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   let doc = amc.window.document.getElementById("contentFrame").contentDocument;

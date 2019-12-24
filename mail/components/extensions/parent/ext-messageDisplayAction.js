@@ -32,8 +32,8 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
     this.manifest_name = "message_display_action";
     this.manifestName = "messageDisplayAction";
     this.windowURLs = [
-      "chrome://messenger/content/messenger.xul",
-      "chrome://messenger/content/messageWindow.xul",
+      "chrome://messenger/content/messenger.xhtml",
+      "chrome://messenger/content/messageWindow.xhtml",
     ];
     this.toolboxId = "header-view-toolbox";
     this.toolbarId = "header-view-toolbar";

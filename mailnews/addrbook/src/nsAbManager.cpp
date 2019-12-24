@@ -1322,7 +1322,7 @@ nsAbManager::Handle(nsICommandLine *aCmdLine) {
 
   nsCOMPtr<mozIDOMWindowProxy> opened;
   wwatch->OpenWindow(
-      nullptr, "chrome://messenger/content/addressbook/addressbook.xul",
+      nullptr, "chrome://messenger/content/addressbook/addressbook.xhtml",
       "_blank",
       "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar", nullptr,
       getter_AddRefs(opened));

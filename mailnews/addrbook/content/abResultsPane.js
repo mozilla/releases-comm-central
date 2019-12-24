@@ -217,7 +217,7 @@ function GetSelectedAbCards() {
   // then use the ab view from sidebar (gCurFrame is from sidebarOverlay.js)
   if (document.getElementById("sidebar-box")) {
     const abPanelUrl =
-      "chrome://messenger/content/addressbook/addressbook-panel.xul";
+      "chrome://messenger/content/addressbook/addressbook-panel.xhtml";
     if (
       gCurFrame &&
       gCurFrame.getAttribute("src") == abPanelUrl &&

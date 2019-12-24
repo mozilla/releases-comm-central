@@ -514,7 +514,7 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
       synthesizeMouseAtCenter(dialogDocument.getElementById("button-attendees"), {}, dialogWindow);
       await BrowserTestUtils.promiseAlertDialog(
         undefined,
-        "chrome://calendar/content/calendar-event-dialog-attendees.xul",
+        "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
         async attendeesWindow => {
           await sleep(attendeesWindow);
           let attendeesDocument = attendeesWindow.document;
@@ -598,7 +598,7 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
 
   await BrowserTestUtils.promiseAlertDialog(
     undefined,
-    "chrome://calendar/content/calendar-event-dialog-timezone.xul",
+    "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     async timezoneWindow => {
       let timezoneDocument = timezoneWindow.document;
       let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");

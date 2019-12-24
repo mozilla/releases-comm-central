@@ -5,7 +5,7 @@
 /* exported gCategoriesPane */
 
 /* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
-// From categories.xul.
+// From categories.xhtml.
 /* globals noneLabel, newTitle, editTitle, overwrite, overwriteTitle, noBlankCategories */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
@@ -51,7 +51,7 @@ var gCategoriesPane = {
 
     this.updateCategoryList();
 
-    this.mCategoryDialog = "chrome://calendar/content/preferences/editCategory.xul";
+    this.mCategoryDialog = "chrome://calendar/content/preferences/editCategory.xhtml";
 
     // Workaround for Bug 1151440 - the HTML color picker won't work
     // in linux when opened from modal dialog

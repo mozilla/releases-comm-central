@@ -131,7 +131,7 @@
   <script src="chrome://messenger/content/customizable-toolbar.js"/>
 
   <commandset id="mailCommands">
-#include mainCommandSet.inc.xul
+#include mainCommandSet.inc.xhtml
     <commandset id="mailSearchMenuItems"/>
     <commandset id="attachmentCommands">
       <command id="cmd_openAllAttachments"
@@ -157,7 +157,7 @@
 
   <keyset id="mailKeys">
     <key keycode="VK_ESCAPE" oncommand="window.close();"/>
-#include mainKeySet.inc.xul
+#include mainKeySet.inc.xhtml
     <keyset id="tasksKeys">
 #ifdef XP_MACOSX
       <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage"
@@ -173,16 +173,16 @@
     </keyset>
   </keyset>
 
-  <!-- Popup menus provided by mailWindowOverlay.xul -->
+  <!-- Popup menus provided by mailWindowOverlay.xhtml -->
   <popupset id="mainPopupSet">
-#include mainPopupSet.inc.xul
+#include mainPopupSet.inc.xhtml
 
 <!-- The panelUI is for the appmenu. -->
-#include ../../components/customizableui/content/panelUI.inc.xul
+#include ../../components/customizableui/content/panelUI.inc.xhtml
 
-#include msgHdrPopup.inc.xul
+#include msgHdrPopup.inc.xhtml
   </popupset>
-#include editContactPanel.inc.xul
+#include editContactPanel.inc.xhtml
 
 #ifdef XP_MACOSX
   <vbox id="titlebar">
@@ -201,11 +201,11 @@
 #endif
 
   <!-- navigation-toolbox with the main menubar -->
-#include mainNavigationToolbox.inc.xul
+#include mainNavigationToolbox.inc.xhtml
   </toolbox>
 
   <!-- mail-toolbox with the main toolbarbuttons -->
-#include mainMailToolbox.inc.xul
+#include mainMailToolbox.inc.xhtml
 
   <tooltip id="aHTMLTooltip" page="true"/>
 
@@ -218,7 +218,7 @@
           ondragexit="nsDragAndDrop.dragExit(event, messagepaneObserver);">
 
       <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
-#include msgHdrView.inc.xul
+#include msgHdrView.inc.xhtml
       </hbox>
       <!-- The msgNotificationBar appears on top of the message and displays
            information like: junk, mdn, remote content and phishing warnings -->
@@ -234,7 +234,7 @@
                src="about:blank" onclick="return contentAreaClick(event);" />
       <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
       <vbox id="attachmentView" collapsed="true">
-#include msgAttachmentView.inc.xul
+#include msgAttachmentView.inc.xhtml
       </vbox>
       <findbar id="FindToolbar" browserid="messagepane"/>
     </vbox>
@@ -246,6 +246,6 @@
   </panel>
 
   <hbox id="status-bar" class="statusbar chromeclass-status">
-#include mainStatusbar.inc.xul
+#include mainStatusbar.inc.xhtml
   </hbox>
 </window>

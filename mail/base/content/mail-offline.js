@@ -92,7 +92,7 @@ var MailOfflineMgr = {
    * account.
    */
   openOfflineAccountSettings() {
-    window.parent.MsgAccountManager("am-offline.xul");
+    window.parent.MsgAccountManager("am-offline.xhtml");
   },
 
   /**

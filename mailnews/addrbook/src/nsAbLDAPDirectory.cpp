@@ -54,7 +54,7 @@ NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPDirectory, nsAbDirProperty,
 
 NS_IMETHODIMP nsAbLDAPDirectory::GetPropertiesChromeURI(nsACString &aResult) {
   aResult.AssignLiteral(
-      "chrome://messenger/content/addressbook/pref-directory-add.xul");
+      "chrome://messenger/content/addressbook/pref-directory-add.xhtml");
   return NS_OK;
 }
 

@@ -4,6 +4,6 @@
 
 #ifdef MOZ_SUITE
 messenger.jar:
-    content/messenger/am-dsn.xul                                     (content/am-dsn.xul)
+    content/messenger/am-dsn.xhtml                                   (content/am-dsn.xhtml)
     content/messenger/am-dsn.js                                      (content/am-dsn.js)
 #endif

@@ -15,17 +15,17 @@
  * context sensitive help.
  */
 var pageTagPairs = {
-  "chrome://messenger/content/am-main.xul": "mail_account_identity",
-  "chrome://messenger/content/am-server.xul": "mail",
-  "chrome://messenger/content/am-copies.xul": "mail_copies",
-  "chrome://messenger/content/am-addressing.xul": "mail_addressing_settings",
-  "chrome://messenger/content/am-junk.xul": "mail-account-junk",
-  "chrome://messenger/content/am-offline.xul": "mail-offline-accounts",
-  "chrome://messenger/content/am-smtp.xul": "mail_smtp",
-  "chrome://messenger/content/am-smime.xul": "mail_security_settings",
-  "chrome://messenger/content/am-serverwithnoidentities.xul":
+  "chrome://messenger/content/am-main.xhtml": "mail_account_identity",
+  "chrome://messenger/content/am-server.xhtml": "mail",
+  "chrome://messenger/content/am-copies.xhtml": "mail_copies",
+  "chrome://messenger/content/am-addressing.xhtml": "mail_addressing_settings",
+  "chrome://messenger/content/am-junk.xhtml": "mail-account-junk",
+  "chrome://messenger/content/am-offline.xhtml": "mail-offline-accounts",
+  "chrome://messenger/content/am-smtp.xhtml": "mail_smtp",
+  "chrome://messenger/content/am-smime.xhtml": "mail_security_settings",
+  "chrome://messenger/content/am-serverwithnoidentities.xhtml":
     "mail_local_folders_settings",
-  "chrome://messenger/content/am-mdn.xul": "mail-account-receipts",
+  "chrome://messenger/content/am-mdn.xhtml": "mail-account-receipts",
 };
 
 function doHelpButton() {
@@ -44,15 +44,15 @@ function doHelpButton() {
      * help content that is based on server type. For any pages with such requirement
      * do add comments here about the page and a new case statement for pageSourceURI
      * switch.
-     * - server settings ("chrome://messenger/content/am-server.xul")
-     * - offline/diskspace settings ("chrome://messenger/content/am-offline.xul")
+     * - server settings ("chrome://messenger/content/am-server.xhtml")
+     * - offline/diskspace settings ("chrome://messenger/content/am-offline.xhtml")
      */
     switch (pageSourceURI) {
-      case "chrome://messenger/content/am-server.xul":
+      case "chrome://messenger/content/am-server.xhtml":
         helpTag = "mail_server_" + serverType;
         break;
 
-      case "chrome://messenger/content/am-offline.xul":
+      case "chrome://messenger/content/am-offline.xhtml":
         helpTag = "mail_offline_" + serverType;
         break;
 

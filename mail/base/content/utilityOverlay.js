@@ -269,7 +269,7 @@ function openTab(tabType, tabParams, where) {
   // Either we explicitly wanted to open in a new window, or we fell through to
   // here because there's no 3pane.
   return window.openDialog(
-    "chrome://messenger/content/",
+    "chrome://messenger/content/messenger.xhtml",
     "_blank",
     "chrome,dialog=no,all",
     null,

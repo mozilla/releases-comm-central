@@ -244,7 +244,7 @@ function OpenMessageByHeader(messageHeader, openInNewWindow) {
 
   if (openInNewWindow) {
     window.openDialog(
-      "chrome://messenger/content/messageWindow.xul",
+      "chrome://messenger/content/messageWindow.xhtml",
       "_blank",
       "all,chrome,dialog=no,status,toolbar",
       messageHeader
@@ -707,7 +707,7 @@ function addEmail() {
   var url = gContextMenu.linkURL;
   var addresses = getEmail(url);
   window.openDialog(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
     "",
     "chrome,resizable=no,titlebar,modal,centerscreen",
     { primaryEmail: addresses }

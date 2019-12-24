@@ -62,7 +62,7 @@ add_task(async () => {
 add_task(async () => {
   let mailingListWindowPromise = BrowserTestUtils.promiseAlertDialog(
     null,
-    "chrome://messenger/content/addressbook/abMailListDialog.xul",
+    "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
     // A callback that can interact with the mailing list dialog.
     async mlWindow => {
       let mlDocument = mlWindow.document;
@@ -199,7 +199,7 @@ add_task(async () => {
 add_task(async () => {
   let mailingListWindowPromise = BrowserTestUtils.promiseAlertDialog(
     null,
-    "chrome://messenger/content/addressbook/abEditListDialog.xul",
+    "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
     // A callback that can interact with the mailing list dialog.
     async mlWindow => {
       let mlDocument = mlWindow.document;
@@ -376,7 +376,7 @@ add_task(async () => {
 add_task(async () => {
   let mailingListWindowPromise = BrowserTestUtils.promiseAlertDialog(
     null,
-    "chrome://messenger/content/addressbook/abEditListDialog.xul",
+    "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
     // A callback that can interact with the mailing list dialog.
     async mailingListWindow => {
       let mlDocument = mailingListWindow.document;

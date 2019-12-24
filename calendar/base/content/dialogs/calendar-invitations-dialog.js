@@ -4,7 +4,7 @@
 
 /* exported onLoad, onUnload */
 
-/* globals invitationsText, MozXULElement, MozElements */ // From calendar-invitations-dialog.xul.
+/* globals invitationsText, MozXULElement, MozElements */ // From calendar-invitations-dialog.xhtml.
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 

@@ -121,7 +121,7 @@ NS_IMETHODIMP nsRssIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
 }
 
 NS_IMETHODIMP nsRssIncomingServer::GetAccountManagerChrome(nsAString &aResult) {
-  aResult.AssignLiteral("am-newsblog.xul");
+  aResult.AssignLiteral("am-newsblog.xhtml");
   return NS_OK;
 }
 

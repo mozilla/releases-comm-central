@@ -109,7 +109,7 @@ MailGlue.prototype = {
 
     ExtensionSupport.registerWindowListener("Thunderbird-internal-Toolbox", {
       chromeURLs: [
-        "chrome://devtools/content/framework/toolbox-process-window.xul",
+        "chrome://devtools/content/framework/toolbox-process-window.xhtml",
       ],
       onLoadWindow: _setupToolbox,
     });
@@ -162,7 +162,7 @@ MailGlue.prototype = {
         break;
       case "chrome-document-global-created":
         // Set up lwt, but only if the "lightweightthemes" attr is set on the root
-        // (i.e. in messenger.xul).
+        // (i.e. in messenger.xhtml).
         aSubject.addEventListener(
           "DOMContentLoaded",
           () => {
@@ -181,7 +181,7 @@ MailGlue.prototype = {
         let doc = aSubject;
         if (
           doc.nodePrincipal.isSystemPrincipal &&
-          (doc.contentType == "application/vnd.mozilla.xul+xml" ||
+          (doc.contentType == "application/vnd.mozilla.xhtml+xml" ||
             doc.contentType == "application/xhtml+xml" ||
             doc.contentType == "text/html") &&
           // People shouldn't be using our built-in custom elements in
@@ -213,7 +213,7 @@ MailGlue.prototype = {
     if (Services.appinfo.inSafeMode) {
       Services.ww.openWindow(
         null,
-        "chrome://messenger/content/safeMode.xul",
+        "chrome://messenger/content/safeMode.xhtml",
         "_blank",
         "chrome,centerscreen,modal,resizable=no",
         null
@@ -282,7 +282,7 @@ MailGlue.prototype = {
       // If we didn't have an open 3 pane window, try and open one.
       Services.ww.openWindow(
         null,
-        "chrome://messenger/content/",
+        "chrome://messenger/content/messenger.xhtml",
         "_blank",
         "chrome,dialog=no,all",
         { type: "contentTab", tabParams }

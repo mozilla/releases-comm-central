@@ -185,7 +185,7 @@ var editContactInlineUI = {
     this.saveChanges();
 
     window.openDialog(
-      "chrome://messenger/content/addressbook/abEditCardDialog.xul",
+      "chrome://messenger/content/addressbook/abEditCardDialog.xhtml",
       "",
       "chrome,modal,resizable=no,centerscreen",
       { abURI: this._cardDetails.book.URI, card: this._cardDetails.card }

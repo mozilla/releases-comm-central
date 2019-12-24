@@ -141,7 +141,7 @@ var account = {
 
   viewFingerprintKeys() {
     window.openDialog(
-      "chrome://chat/content/otr-finger.xul",
+      "chrome://chat/content/otr-finger.xhtml",
       "",
       "chrome,modal,titlebar,centerscreen",
       this.account

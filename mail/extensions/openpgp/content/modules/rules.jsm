@@ -417,7 +417,7 @@ var EnigmailRules = {
           inputObj.toAddress = "{" + theAddr + "}";
           inputObj.options = "";
           inputObj.command = "add";
-          window.openDialog("chrome://openpgp/content/ui/enigmailSingleRcptSettings.xul", "",
+          window.openDialog("chrome://openpgp/content/ui/enigmailSingleRcptSettings.xhtml", "",
             "dialog,modal,centerscreen,resizable", inputObj, resultObj);
           if (resultObj.cancelled === true) {
             return false;

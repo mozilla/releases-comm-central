@@ -231,7 +231,7 @@ this.windows = class extends ExtensionAPI {
             let args = createWindowArgs(uris);
             window = Services.ww.openWindow(
               null,
-              "chrome://messenger/content/",
+              "chrome://messenger/content/messenger.xhtml",
               "_blank",
               features.join(","),
               args
@@ -243,7 +243,7 @@ this.windows = class extends ExtensionAPI {
             }
             window = Services.ww.openWindow(
               null,
-              "chrome://messenger/content/",
+              "chrome://messenger/content/messenger.xhtml",
               "_blank",
               features.join(","),
               args

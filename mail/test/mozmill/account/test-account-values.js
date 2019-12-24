@@ -85,7 +85,11 @@ function test_default_CC_address() {
  * @param amc  the account options controller
  */
 function subtest_check_default_CC_address(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-copies.xul", amc);
+  let accountRow = get_account_tree_row(
+    gPopAccount.key,
+    "am-copies.xhtml",
+    amc
+  );
   click_account_tree_row(amc, accountRow);
 
   let iframe = amc.window.document.getElementById("contentFrame");
@@ -208,7 +212,7 @@ function test_account_name() {
  * @param amc           the account options controller
  */
 function subtest_check_account_name(aAccount, aNewHostname, aNewUsername, amc) {
-  let accountRow = get_account_tree_row(aAccount.key, "am-server.xul", amc);
+  let accountRow = get_account_tree_row(aAccount.key, "am-server.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   let iframe = amc.window.document.getElementById("contentFrame");
@@ -278,7 +282,7 @@ function test_invalid_junk_target() {
  * @param amc  the account options controller
  */
 function subtest_check_invalid_junk_target(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
+  let accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
   click_account_tree_row(amc, accountRow);
 
   // We need to save the new fixed values so click OK on the Account settings.
@@ -315,7 +319,11 @@ function test_invalid_hostname() {
  * @param aOriginalHostname  Original hostname of this server.
  */
 function subtest_check_invalid_hostname(amc, aExitSettings, aOriginalHostname) {
-  let accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+  let accountRow = get_account_tree_row(
+    gPopAccount.key,
+    "am-server.xhtml",
+    amc
+  );
   click_account_tree_row(amc, accountRow);
 
   let iframe = amc.window.document.getElementById("contentFrame");
@@ -325,11 +333,11 @@ function subtest_check_invalid_hostname(amc, aExitSettings, aOriginalHostname) {
   hostname.value = "some_invalid+host&domain*in>invalid";
 
   if (!aExitSettings) {
-    accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xul", amc);
+    accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
     click_account_tree_row(amc, accountRow);
 
     // The invalid hostname should be set back to previous value at this point...
-    accountRow = get_account_tree_row(gPopAccount.key, "am-server.xul", amc);
+    accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", amc);
     click_account_tree_row(amc, accountRow);
 
     // ...let's check that:

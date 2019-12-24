@@ -1478,7 +1478,7 @@ var MessageWindowController = {
           win.showChatTab();
         } else {
           window.openDialog(
-            "chrome://messenger/content/",
+            "chrome://messenger/content/messenger.xhtml",
             "_blank",
             "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
             null,

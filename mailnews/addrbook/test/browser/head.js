@@ -13,7 +13,7 @@ async function openAddressBookWindow() {
 
       return (
         win.document.documentURI ==
-        "chrome://messenger/content/addressbook/addressbook.xul"
+        "chrome://messenger/content/addressbook/addressbook.xhtml"
       );
     }
   );
@@ -33,7 +33,7 @@ async function openAddressBookWindow() {
 async function createNewAddressBook(abWindow, abName) {
   let newAddressBookPromise = BrowserTestUtils.promiseAlertDialog(
     null,
-    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul",
+    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml",
     abNameDialog => {
       EventUtils.sendString(abName, abNameDialog);
       abNameDialog.document

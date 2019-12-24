@@ -199,7 +199,7 @@ MailDefaultHandler.prototype = {
                   ].createInstance(Ci.nsISupportsString);
                   Services.ww.openWindow(
                     null,
-                    "chrome://messenger/content/",
+                    "chrome://messenger/content/messenger.xhtml",
                     "_blank",
                     "chrome,dialog=no,all",
                     argstring
@@ -215,7 +215,7 @@ MailDefaultHandler.prototype = {
                 argstring.data = remoteParams.join(",");
                 Services.ww.openWindow(
                   null,
-                  "chrome://messenger/content/messengercompose/messengercompose.xul",
+                  "chrome://messenger/content/messengercompose/messengercompose.xhtml",
                   "_blank",
                   "chrome,dialog=no,all",
                   argstring
@@ -285,7 +285,7 @@ MailDefaultHandler.prototype = {
 
       Services.ww.openWindow(
         null,
-        "chrome://messenger/content/preferences/preferences.xul",
+        "chrome://messenger/content/preferences/preferences.xhtml",
         "_blank",
         features,
         null
@@ -372,7 +372,7 @@ MailDefaultHandler.prototype = {
 
           Services.ww.openWindow(
             null,
-            "chrome://messenger/content/messageWindow.xul",
+            "chrome://messenger/content/messageWindow.xhtml",
             "_blank",
             "all,chrome,dialog=no,status,toolbar",
             fileURL
@@ -415,7 +415,7 @@ MailDefaultHandler.prototype = {
               let card = MailServices.ab.escapedVCardToAbCard(data);
               Services.ww.openWindow(
                 null,
-                "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+                "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
                 "_blank",
                 "chrome,resizable=no,titlebar,modal,centerscreen",
                 card
@@ -463,7 +463,7 @@ MailDefaultHandler.prototype = {
 
       Services.ww.openWindow(
         null,
-        "chrome://messenger/content/",
+        "chrome://messenger/content/messenger.xhtml",
         "_blank",
         "chrome,dialog=no,all",
         argstring

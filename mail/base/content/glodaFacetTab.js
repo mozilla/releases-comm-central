@@ -81,7 +81,7 @@ var glodaFacetTabType = {
     });
     aTab.iframe.setAttribute(
       "src",
-      "chrome://messenger/content/glodaFacetViewWrapper.xul"
+      "chrome://messenger/content/glodaFacetViewWrapper.xhtml"
     );
 
     this.lastTabId++;

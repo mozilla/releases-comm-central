@@ -258,7 +258,7 @@ function chooseFoldersToSearch() {
   // for those folders. Otherwise fall back to the preselectedfolderURI which is the parent folder
   // for this new virtual folder.
   window.openDialog(
-    "chrome://messenger/content/virtualFolderListEdit.xul",
+    "chrome://messenger/content/virtualFolderListEdit.xhtml",
     "",
     "chrome,titlebar,modal,centerscreen,resizable",
     {

@@ -1347,7 +1347,7 @@ for (let mouseOp of MOUSE_OPS_TO_WRAP) {
  */
 var PerWindowTypeAugmentations = {
   /**
-   * The 3pane window is messenger.xul, the default window.
+   * The 3pane window is messenger.xhtml, the default window.
    */
   "mail:3pane": {
     /**

@@ -1766,7 +1766,7 @@ Enigmail.msg = {
     var messageList = [uri];
     var printPreview = (elementId.indexOf("printpreview") >= 0);
 
-    window.openDialog("chrome://messenger/content/msgPrintEngine.xul",
+    window.openDialog("chrome://messenger/content/msgPrintEngine.xhtml",
       "",
       "chrome,dialog=no,all,centerscreen",
       1, messageList, statusFeedback,

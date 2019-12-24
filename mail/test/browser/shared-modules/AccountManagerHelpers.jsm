@@ -171,7 +171,7 @@ function remove_account(
 ) {
   let accountRow = get_account_tree_row(
     aAccount.key,
-    "am-server.xul",
+    "am-server.xhtml",
     aController
   );
   click_account_tree_row(aController, accountRow);

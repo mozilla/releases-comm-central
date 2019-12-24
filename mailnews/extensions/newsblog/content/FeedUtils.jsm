@@ -493,7 +493,7 @@ var FeedUtils = {
         arg.data = aUrl;
         Services.ww.openWindow(
           null,
-          "chrome://messenger/content/",
+          "chrome://messenger/content/messenger.xhtml",
           "_blank",
           "chrome,dialog=no,all",
           arg

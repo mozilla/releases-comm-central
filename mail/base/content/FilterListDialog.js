@@ -388,7 +388,7 @@ function onEditFilter() {
   let args = { filter: selectedFilter, filterList: gCurrentFilterList };
 
   window.openDialog(
-    "chrome://messenger/content/FilterEditor.xul",
+    "chrome://messenger/content/FilterEditor.xhtml",
     "FilterEditor",
     "chrome,modal,titlebar,resizable,centerscreen",
     args
@@ -457,7 +457,7 @@ function calculatePositionAndShowCreateFilterDialog(args) {
   args.filterList = gCurrentFilterList;
 
   window.openDialog(
-    "chrome://messenger/content/FilterEditor.xul",
+    "chrome://messenger/content/FilterEditor.xhtml",
     "FilterEditor",
     "chrome,modal,titlebar,resizable,centerscreen",
     args
@@ -649,7 +649,7 @@ function viewLog() {
   var args = { filterList: gCurrentFilterList };
 
   window.openDialog(
-    "chrome://messenger/content/viewLog.xul",
+    "chrome://messenger/content/viewLog.xhtml",
     "FilterLog",
     "chrome,modal,titlebar,resizable,centerscreen",
     args

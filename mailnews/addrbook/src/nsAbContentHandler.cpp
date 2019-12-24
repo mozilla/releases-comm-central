@@ -94,7 +94,7 @@ nsAbContentHandler::HandleContent(const char *aContentType,
         RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
         rv = window->OpenDialog(
             NS_LITERAL_STRING(
-                "chrome://messenger/content/addressbook/abNewCardDialog.xul"),
+                "chrome://messenger/content/addressbook/abNewCardDialog.xhtml"),
             EmptyString(),
             NS_LITERAL_STRING(
                 "chrome,resizable=no,titlebar,modal,centerscreen"),
@@ -170,7 +170,7 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
       RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
       rv = parentWindow->OpenDialog(
           NS_LITERAL_STRING(
-              "chrome://messenger/content/addressbook/abNewCardDialog.xul"),
+              "chrome://messenger/content/addressbook/abNewCardDialog.xhtml"),
           EmptyString(),
           NS_LITERAL_STRING("chrome,resizable=no,titlebar,modal,centerscreen"),
           cardFromVCard, getter_AddRefs(dialogWindow));

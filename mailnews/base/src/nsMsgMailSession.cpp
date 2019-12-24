@@ -622,7 +622,7 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
 
     mMsgProgress->OpenProgressDialog(
         internalDomWin, topMsgWindow,
-        "chrome://messenger/content/shutdownWindow.xul", false, nullptr);
+        "chrome://messenger/content/shutdownWindow.xhtml", false, nullptr);
 
     if (mQuitForced) {
       nsCOMPtr<nsIThread> thread(do_GetCurrentThread());

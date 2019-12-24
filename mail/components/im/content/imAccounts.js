@@ -359,7 +359,7 @@ var gAccountManager = {
   },
 
   new() {
-    this.openDialog("chrome://messenger/content/chat/imAccountWizard.xul");
+    this.openDialog("chrome://messenger/content/chat/imAccountWizard.xhtml");
   },
   edit() {
     // Find the nsIIncomingServer for the current imIAccount.
@@ -383,7 +383,7 @@ var gAccountManager = {
       win.selectServer(server);
     } else {
       window.openDialog(
-        "chrome://messenger/content/AccountManager.xul",
+        "chrome://messenger/content/AccountManager.xhtml",
         "AccountManager",
         "chrome,centerscreen,modal,titlebar,resizable",
         { server, selectPage: null }

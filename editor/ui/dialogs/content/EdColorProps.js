@@ -220,7 +220,7 @@ function GetColorAndUpdate(ColorWellID) {
   }
 
   window.openDialog(
-    "chrome://editor/content/EdColorPicker.xul",
+    "chrome://editor/content/EdColorPicker.xhtml",
     "_blank",
     "chrome,close,titlebar,modal",
     "",

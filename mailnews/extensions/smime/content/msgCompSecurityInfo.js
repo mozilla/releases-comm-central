@@ -91,7 +91,7 @@ function onLoad() {
 
         if (autocompleteDirectory) {
           window.openDialog(
-            "chrome://messenger-smime/content/certFetchingStatus.xul",
+            "chrome://messenger-smime/content/certFetchingStatus.xhtml",
             "",
             "chrome,resizable=1,modal=1,dialog=1",
             autocompleteDirectory,

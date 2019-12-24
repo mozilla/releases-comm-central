@@ -373,7 +373,7 @@ function AbPrintCardInternal(doPrintPreview, msgType) {
   }
 
   window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xul",
+    "chrome://messenger/content/msgPrintEngine.xhtml",
     "",
     "chrome,dialog=no,all",
     selectionArray.length,
@@ -418,7 +418,7 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType) {
     "addbook://" + abURIArr[0] + "/" + abURIArr[1] + "?action=print";
 
   window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xul",
+    "chrome://messenger/content/msgPrintEngine.xhtml",
     "",
     "chrome,dialog=no,all",
     1,
@@ -572,7 +572,7 @@ function onAdvancedAbSearch() {
     existingSearchWindow.focus();
   } else {
     window.openDialog(
-      "chrome://messenger/content/ABSearchDialog.xul",
+      "chrome://messenger/content/ABSearchDialog.xhtml",
       "",
       "chrome,resizable,status,centerscreen,dialog=no",
       { directory: selectedDirURI }
@@ -817,7 +817,7 @@ function AbIMSelected() {
       win.chatHandler.focusConversation(uiConv);
     } else {
       window.openDialog(
-        "chrome://messenger/content/",
+        "chrome://messenger/content/messenger.xhtml",
         "_blank",
         "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
         null,

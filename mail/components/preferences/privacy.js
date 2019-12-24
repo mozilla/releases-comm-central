@@ -228,7 +228,7 @@ var gPrivacyPane = {
   },
 
   openJunkLog() {
-    gSubDialog.open("chrome://messenger/content/junkLog.xul");
+    gSubDialog.open("chrome://messenger/content/junkLog.xhtml");
   },
 
   resetTrainingData() {

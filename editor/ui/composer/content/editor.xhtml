@@ -9,15 +9,15 @@
 <?xml-stylesheet href="chrome://editor/skin/editorPrimaryToolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/editorFormatToolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/editorModeToolbar.css" type="text/css"?>
-<?xul-overlay href="chrome://editor/content/editorOverlay.xul"?>
-<?xul-overlay href="chrome://editor/content/editingOverlay.xul"?>
-<?xul-overlay href="chrome://editor/content/composerOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
-<?xul-overlay href="chrome://editor/content/EditorContextMenuOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
-<?xul-overlay href="chrome://communicator/content/sidebar/sidebarOverlay.xul"?>
+<?xul-overlay href="chrome://editor/content/editorOverlay.xhtml"?>
+<?xul-overlay href="chrome://editor/content/editingOverlay.xhtml"?>
+<?xul-overlay href="chrome://editor/content/composerOverlay.xhtml"?>
+<?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xhtml"?>
+<?xul-overlay href="chrome://editor/content/EditorContextMenuOverlay.xhtml"?>
+<?xul-overlay href="chrome://communicator/content/charsetOverlay.xhtml"?>
+<?xul-overlay href="chrome://communicator/content/utilityOverlay.xhtml"?>
+<?xul-overlay href="chrome://communicator/content/tasksOverlay.xhtml"?>
+<?xul-overlay href="chrome://communicator/content/sidebar/sidebarOverlay.xhtml"?>
 
 <!DOCTYPE window [
 <!ENTITY % editorDTD SYSTEM "chrome://editor/locale/editor.dtd" >
@@ -303,7 +303,7 @@
 
 <!-- sidebar/toolbar/content/status -->
 <hbox id="sidebar-parent" flex="1">
-  <!-- From sidebarOverlay.xul -->
+  <!-- From sidebarOverlay.xhtml -->
   <vbox id="sidebar-box" class="chromeclass-extrachrome" hidden="true"/>
   <splitter id="sidebar-splitter" class="chromeclass-extrachrome" hidden="true"/>
 
@@ -364,7 +364,7 @@
   </vbox> <!-- appcontent -->
 </hbox><!-- sidebar-parent -->
 
-    <!-- Some of this is from globalOverlay.xul -->
+    <!-- Some of this is from globalOverlay.xhtml -->
     <hbox class="statusbar chromeclass-status" id="status-bar">
       <statusbarpanel id="component-bar"/>
       <hbox id="structToolbar" class="statusbarpanel" flex="1" pack="end">

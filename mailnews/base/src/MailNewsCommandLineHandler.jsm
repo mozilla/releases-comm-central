@@ -104,7 +104,7 @@ MailNewsCommandLineHandler.prototype = {
             // Open this file in a new message window.
             Services.ww.openWindow(
               null,
-              "chrome://messenger/content/messageWindow.xul",
+              "chrome://messenger/content/messageWindow.xhtml",
               "_blank",
               "all,chrome,dialog=no,status,toolbar",
               fileURL
@@ -128,7 +128,7 @@ MailNewsCommandLineHandler.prototype = {
       } else {
         Services.ww.openWindow(
           null,
-          "chrome://messenger/content/",
+          "chrome://messenger/content/messenger.xhtml",
           "_blank",
           "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar,dialog=no",
           null

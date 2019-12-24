@@ -17,7 +17,7 @@ function uninstall() {}
 function startup(data, reason) {
   addonID = data.id;
   ExtensionSupport.registerWindowListener(addonID, {
-    chromeURLs: ["chrome://messenger/content/messenger.xul"],
+    chromeURLs: ["chrome://messenger/content/messenger.xhtml"],
     onLoadWindow: setupServer,
   });
 }

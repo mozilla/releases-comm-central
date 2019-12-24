@@ -5,7 +5,7 @@
 /* exported gCalendarGeneralPane */
 
 /* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
-/* globals labelLong, labelShort */ // From general.xul.
+/* globals labelLong, labelShort */ // From general.xhtml.
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 

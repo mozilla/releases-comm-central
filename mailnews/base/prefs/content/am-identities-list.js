@@ -87,7 +87,7 @@ function openIdentityEditor(identity) {
     : gIdentityListBox.itemCount;
 
   window.openDialog(
-    "am-identity-edit.xul",
+    "am-identity-edit.xhtml",
     "",
     "chrome,modal,resizable,centerscreen",
     args

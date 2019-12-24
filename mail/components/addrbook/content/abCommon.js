@@ -213,7 +213,7 @@ function SendCommandToResultsPane(command) {
 
 function AbNewLDAPDirectory() {
   window.docShell.rootTreeItem.domWindow.openDialog(
-    "chrome://messenger/content/addressbook/pref-directory-add.xul",
+    "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
     null
@@ -222,7 +222,7 @@ function AbNewLDAPDirectory() {
 
 function AbNewAddressBook() {
   window.openDialog(
-    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xul",
+    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
     null
@@ -760,7 +760,7 @@ function AbNewList() {
 
 function goNewListDialog(selectedAB) {
   window.openDialog(
-    "chrome://messenger/content/addressbook/abMailListDialog.xul",
+    "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
     { selectedAB }
@@ -774,7 +774,7 @@ function goEditListDialog(abCard, listURI) {
     refresh: false, // This is an out param, true if OK in dialog is clicked.
   };
   window.openDialog(
-    "chrome://messenger/content/addressbook/abEditListDialog.xul",
+    "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
     params
@@ -786,7 +786,7 @@ function goEditListDialog(abCard, listURI) {
 
 function goNewCardDialog(selectedAB) {
   window.openDialog(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xul",
+    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
     { selectedAB }
@@ -795,7 +795,7 @@ function goNewCardDialog(selectedAB) {
 
 function goEditCardDialog(abURI, card) {
   window.openDialog(
-    "chrome://messenger/content/addressbook/abEditCardDialog.xul",
+    "chrome://messenger/content/addressbook/abEditCardDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
     { abURI, card }

@@ -217,7 +217,7 @@ var EmailAccountProvisioner = {
           existingAccountManager.focus();
         } else {
           window.openDialog(
-            "chrome://messenger/content/AccountManager.xul",
+            "chrome://messenger/content/AccountManager.xhtml",
             "AccountManager",
             "chrome,centerscreen,modal,titlebar",
             { server: account.incomingServer }

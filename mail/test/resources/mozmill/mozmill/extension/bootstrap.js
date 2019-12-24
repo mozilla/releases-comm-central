@@ -35,7 +35,7 @@ function startup(data, reason) {
   loadDefaultPrefs();
 
   ExtensionSupport.registerWindowListener(data.id, {
-    chromeURLs: ["chrome://messenger/content/messenger.xul"],
+    chromeURLs: ["chrome://messenger/content/messenger.xhtml"],
     onLoadWindow: setupUI,
   });
 }

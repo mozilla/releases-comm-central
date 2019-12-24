@@ -24,7 +24,7 @@ var calwindow = {
   openCalendarWizard: function(aWindow, aCallback) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
-      "chrome://calendar/content/calendarCreation.xul",
+      "chrome://calendar/content/calendarCreation.xhtml",
       "caEditServer",
       // Workaround for Bug 1151440 - the HTML color picker won't work
       // in linux when opened from modal dialog
@@ -44,7 +44,7 @@ var calwindow = {
   openCalendarProperties: function(aWindow, aCalendar) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
-      "chrome://calendar/content/calendar-properties-dialog.xul",
+      "chrome://calendar/content/calendar-properties-dialog.xhtml",
       "CalendarPropertiesDialog",
       "modal,chrome,titlebar,resizable",
       { calendar: aCalendar }
@@ -59,7 +59,7 @@ var calwindow = {
   openPrintDialog: function(aWindow = null) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
-      "chrome://calendar/content/calendar-print-dialog.xul",
+      "chrome://calendar/content/calendar-print-dialog.xhtml",
       "Print",
       "centerscreen,chrome,resizable"
     );

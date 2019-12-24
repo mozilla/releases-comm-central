@@ -249,7 +249,7 @@ PgpMimeHandler.prototype = {
 
     while (winEnum.hasMoreElements()) {
       let thisWin = winEnum.getNext();
-      if (thisWin.location.href.search(/\/messenger.xul$/) > 0) {
+      if (thisWin.location.href.search(/\/messenger.xhtml$/) > 0) {
         return thisWin;
       }
     }

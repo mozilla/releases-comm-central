@@ -57,7 +57,7 @@ setup(name=PACKAGE_NAME,
       packages=find_packages(exclude=['test']),
       include_package_data=True,
       package_data={
-          '': ['*.js', '*.css', '*.html', '*.txt', '*.xpi', '*.rdf', '*.xul', '*.jsm', '*.xml' 'extension'],
+          '': ['*.js', '*.css', '*.html', '*.txt', '*.xpi', '*.rdf', '*.xhtml', '*.jsm', '*.xml' 'extension'],
       },
       zip_safe=False,
       entry_points="""

@@ -19,7 +19,7 @@ var gSmtpServerListWindow = {
   mSetDefaultServerButton: null,
 
   onLoad() {
-    parent.onPanelLoaded("am-smtp.xul");
+    parent.onPanelLoaded("am-smtp.xhtml");
 
     this.mBundle = document.getElementById("bundle_messenger");
     this.mServerList = document.getElementById("smtpList");

@@ -19,5 +19,5 @@ openpgp.jar:
   skin/tb-win                                  (skin/tb-win/*)
   skin/tb-linux                                (skin/tb-linux/*)
   am-enigprefs.properties                      (content/strings/am-enigprefs.properties)
-  content/openpgp/am-enigprefs.xul             (content/am-enigprefs.xul)
+  content/openpgp/am-enigprefs.xhtml           (content/am-enigprefs.xhtml)
 

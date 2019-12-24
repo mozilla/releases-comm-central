@@ -1793,10 +1793,10 @@ EmailConfigWizard.prototype = {
       existingAccountManager.focus();
     } else {
       window.openDialog(
-        "chrome://messenger/content/AccountManager.xul",
+        "chrome://messenger/content/AccountManager.xhtml",
         "AccountManager",
         "chrome,centerscreen,modal,titlebar",
-        { server: newAccount.incomingServer, selectPage: "am-server.xul" }
+        { server: newAccount.incomingServer, selectPage: "am-server.xhtml" }
       );
     }
     window.close();

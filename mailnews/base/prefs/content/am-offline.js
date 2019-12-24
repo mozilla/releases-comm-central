@@ -176,7 +176,7 @@ function onPreInit(account, accountValues) {
 
 function onClickSelect() {
   top.window.openDialog(
-    "chrome://messenger/content/msgSelectOfflineFolders.xul",
+    "chrome://messenger/content/msgSelectOfflineFolders.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes"
   );

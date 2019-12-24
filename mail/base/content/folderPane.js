@@ -2891,7 +2891,7 @@ var gFolderTreeController = {
     }
 
     window.openDialog(
-      "chrome://messenger/content/newFolderDialog.xul",
+      "chrome://messenger/content/newFolderDialog.xhtml",
       "",
       "chrome,modal,resizable=no,centerscreen",
       { folder, dualUseFolders, okCallback: newFolderCallback }
@@ -2975,7 +2975,7 @@ var gFolderTreeController = {
     }
 
     window.openDialog(
-      "chrome://messenger/content/folderProps.xul",
+      "chrome://messenger/content/folderProps.xhtml",
       "",
       "chrome,modal,centerscreen",
       {
@@ -3014,7 +3014,7 @@ var gFolderTreeController = {
       folder.rename(aName, msgWindow);
     }
     window.openDialog(
-      "chrome://messenger/content/renameFolderDialog.xul",
+      "chrome://messenger/content/renameFolderDialog.xhtml",
       "",
       "chrome,modal,centerscreen",
       {
@@ -3216,7 +3216,7 @@ var gFolderTreeController = {
     }
 
     window.openDialog(
-      "chrome://messenger/content/virtualFolderProperties.xul",
+      "chrome://messenger/content/virtualFolderProperties.xhtml",
       "",
       "chrome,modal,centerscreen",
       { folder, searchTerms: aSearchTerms, newFolderName: name }
@@ -3237,7 +3237,7 @@ var gFolderTreeController = {
       }
     }
     window.openDialog(
-      "chrome://messenger/content/virtualFolderProperties.xul",
+      "chrome://messenger/content/virtualFolderProperties.xhtml",
       "",
       "chrome,modal,centerscreen",
       {

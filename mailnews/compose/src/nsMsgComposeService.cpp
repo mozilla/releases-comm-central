@@ -72,7 +72,7 @@
 #endif
 
 #define DEFAULT_CHROME \
-  "chrome://messenger/content/messengercompose/messengercompose.xul"
+  "chrome://messenger/content/messengercompose/messengercompose.xhtml"
 
 #define PREF_MAILNEWS_REPLY_QUOTING_SELECTION "mailnews.reply_quoting_selection"
 #define PREF_MAILNEWS_REPLY_QUOTING_SELECTION_MULTI_WORD \

@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = ["ActivityManagerUI"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xul";
+const ACTIVITY_MANAGER_URL = "chrome://messenger/content/activity.xhtml";
 
 function ActivityManagerUI() {}
 

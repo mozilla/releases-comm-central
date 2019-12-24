@@ -437,7 +437,7 @@ function editStartTimezone() {
 
   // Open the dialog modally
   openDialog(
-    "chrome://calendar/content/calendar-event-dialog-timezone.xul",
+    "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     "_blank",
     "chrome,titlebar,modal,resizable",
     args
@@ -468,7 +468,7 @@ function editEndTimezone() {
 
   // Open the dialog modally
   openDialog(
-    "chrome://calendar/content/calendar-event-dialog-timezone.xul",
+    "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     "_blank",
     "chrome,titlebar,modal,resizable",
     args

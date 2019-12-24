@@ -6,16 +6,16 @@ chat.jar:
 % content chat %content/chat/
 	content/chat/accounts.css
 	content/chat/browserRequest.js
-	content/chat/browserRequest.xul
+	content/chat/browserRequest.xhtml
 	content/chat/imAccountOptionsHelper.js
 	content/chat/chat-account-richlistitem.js
 	content/chat/chat-tooltip.js
 	content/chat/conversation-browser.js
 	content/chat/conv.html
 	content/chat/otr-add-fingerprint.js
-	content/chat/otr-add-fingerprint.xul
+	content/chat/otr-add-fingerprint.xhtml
 	content/chat/otr-auth.js
-	content/chat/otr-auth.xul
+	content/chat/otr-auth.xhtml
 	content/chat/otr-finger.js
-	content/chat/otr-finger.xul
+	content/chat/otr-finger.xhtml
 	content/chat/otrWorker.js

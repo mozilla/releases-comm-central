@@ -253,7 +253,7 @@ var MailUtils = {
 
     Services.ww.openWindow(
       null,
-      "chrome://messenger/content/messageWindow.xul",
+      "chrome://messenger/content/messageWindow.xhtml",
       "",
       "all,chrome,dialog=no,status,toolbar",
       args
@@ -303,7 +303,7 @@ var MailUtils = {
       args.wrappedJSObject = args;
       Services.ww.openWindow(
         null,
-        "chrome://messenger/content/",
+        "chrome://messenger/content/messenger.xhtml",
         "",
         "all,chrome,dialog=no,status,toolbar",
         args
