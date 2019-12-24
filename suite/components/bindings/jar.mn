@@ -5,7 +5,7 @@
 comm.jar:
    content/communicator/customizeToolbar.css                        (../../../common/src/customizeToolbar.css)
    content/communicator/customizeToolbar.js                         (../../../common/src/customizeToolbar.js)
-*  content/communicator/customizeToolbar.xul                        (../../../common/src/customizeToolbar.xul)
+*  content/communicator/customizeToolbar.xhtml                      (../../../common/src/customizeToolbar.xhtml)
    content/communicator/bindings/datetimepicker.xml                 (datetimepicker.xml)
    content/communicator/bindings/findbar.xml                        (findbar.xml)
    content/communicator/bindings/general.xml                        (general.xml)
