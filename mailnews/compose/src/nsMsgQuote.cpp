@@ -164,8 +164,8 @@ nsresult nsMsgQuote::QuoteMessage(
 
   nsCOMPtr<nsIStreamListener> convertedListener;
   rv = streamConverterService->AsyncConvertData(
-      "message/rfc822", "application/xhtml+xml", mStreamListener,
-      quoteSupport, getter_AddRefs(convertedListener));
+      "message/rfc822", "application/xhtml+xml", mStreamListener, quoteSupport,
+      getter_AddRefs(convertedListener));
   if (NS_FAILED(rv)) return rv;
 
   //  now try to open the channel passing in our display consumer as the
