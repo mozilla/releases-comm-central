@@ -740,7 +740,7 @@ NS_IMETHODIMP nsMsgProtocol::Cancel(nsresult status) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetCanceled(bool* aCanceled) {
+NS_IMETHODIMP nsMsgProtocol::GetCanceled(bool *aCanceled) {
   nsresult status = NS_ERROR_FAILURE;
   GetStatus(&status);
   *aCanceled = NS_FAILED(status);

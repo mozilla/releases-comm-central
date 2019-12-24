@@ -9469,7 +9469,7 @@ NS_IMETHODIMP nsImapMockChannel::Cancel(nsresult status) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMockChannel::GetCanceled(bool* aCanceled) {
+NS_IMETHODIMP nsImapMockChannel::GetCanceled(bool *aCanceled) {
   nsresult status = NS_ERROR_FAILURE;
   GetStatus(&status);
   *aCanceled = NS_FAILED(status);

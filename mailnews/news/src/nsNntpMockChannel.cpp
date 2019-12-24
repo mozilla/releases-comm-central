@@ -67,7 +67,7 @@ NS_IMETHODIMP nsNntpMockChannel::Cancel(nsresult status) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetCanceled(bool* aCanceled) {
+NS_IMETHODIMP nsNntpMockChannel::GetCanceled(bool *aCanceled) {
   nsresult status = NS_ERROR_FAILURE;
   GetStatus(&status);
   *aCanceled = NS_FAILED(status);
