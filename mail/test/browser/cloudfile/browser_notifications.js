@@ -452,7 +452,7 @@ add_task(function test_privacy_warning_notification_no_persist() {
     "./data/testFile2",
   ]);
   let provider = new MockCloudfileAccount();
-  provider.init("aKey");
+  provider.init("mocktestKey");
 
   provider.uploadFile = function(aFile, aListener) {
     return new Promise(resolve =>

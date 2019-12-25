@@ -187,14 +187,9 @@ var cloudFileAccounts = new (class extends EventEmitter {
   }
 
   getDisplayName(aKeyOrAccount) {
-    try {
-      let key = this._ensureKey(aKeyOrAccount);
-      return Services.prefs.getCharPref(ACCOUNT_ROOT + key + ".displayName");
-    } catch (e) {
-      // If no display name has been set, we return the empty string.
-      Cu.reportError(e);
-      return "";
-    }
+    // If no display name has been set, we return the empty string.
+    let key = this._ensureKey(aKeyOrAccount);
+    return Services.prefs.getCharPref(ACCOUNT_ROOT + key + ".displayName", "");
   }
 
   setDisplayName(aKeyOrAccount, aDisplayName) {
