@@ -36,9 +36,7 @@
 
   <menupopup id="copyPopup">
     <menuitem id="copyMenuitem"
-              label="&copyCmd.label;"
-              accesskey="&copyCmd.accesskey;"
-              tooltiptext="&copyCmd.label;"
+              data-l10n-id="text-action-copy"
               oncommand="Cc['@mozilla.org/widget/clipboardhelper;1']
                            .getService(Ci.nsIClipboardHelper)
                            .copyString(window.getSelection().isCollapsed ?
@@ -91,20 +89,16 @@
               command="cmd_undo"/>
     <menuseparator id="mailContext-sep-undo"/>
     <menuitem id="mailContext-cut"
-              label="&cutCmd.label;"
-              accesskey="&cutCmd.accesskey;"
+              data-l10n-id="text-action-cut"
               command="cmd_copy"/>
     <menuitem id="mailContext-copy"
-              label="&copyCmd.label;"
-              accesskey="&copyCmd.accesskey;"
+              data-l10n-id="text-action-copy"
               command="cmd_copy"/>
     <menuitem id="mailContext-paste"
-              label="&pasteCmd.label;"
-              accesskey="&pasteCmd.accesskey;"
+              data-l10n-id="text-action-paste"
               command="cmd_paste"/>
     <menuitem id="mailContext-selectall"
-              label="&selectAllCmd.label;"
-              accesskey="&selectAllCmd.accesskey;"
+              data-l10n-id="text-action-select-all"
               command="cmd_selectAll"/>
     <menuseparator id="mailContext-sep-clipboard"/>
 
@@ -509,12 +503,10 @@
   <menupopup id="aboutPagesContext"
              onpopupshowing="goUpdateCommand('cmd_copy'); goUpdateCommand('cmd_selectAll');">
     <menuitem id="aboutPagesContext-copy"
-              label="&copyCmd.label;"
-              accesskey="&copyCmd.accesskey;"
+              data-l10n-id="text-action-copy"
               command="cmd_copy"/>
     <menuitem id="aboutPagesContext-selectall"
-              label="&selectAllCmd.label;"
-              accesskey="&selectAllCmd.accesskey;"
+              data-l10n-id="text-action-select-all"
               command="cmd_selectAll"/>
   </menupopup>
 

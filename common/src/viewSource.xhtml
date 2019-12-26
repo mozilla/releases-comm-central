@@ -36,6 +36,7 @@
 
 <linkset>
   <html:link rel="localization" href="messenger/menubar.ftl"/>
+  <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
 </linkset>
 
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -153,8 +154,7 @@
               command="cmd_findAgain"/>
     <menuseparator/>
     <menuitem id="cMenu_copy"
-              label="&copyCmd.label;"
-              accesskey="&copyCmd.accesskey;"
+              data-l10n-id="text-action-copy"
               command="cmd_copy"/>
     <menuitem id="context-copyLink"
               label="&copyLinkCmd.label;"
@@ -166,8 +166,7 @@
               oncommand="viewSourceChrome.onContextMenuCopyLinkOrEmail();"/>
     <menuseparator/>
     <menuitem id="cMenu_selectAll"
-              label="&selectAllCmd.label;"
-              accesskey="&selectAllCmd.accesskey;"
+              data-l10n-id="text-action-select-all"
               command="cmd_selectAll"/>
   </menupopup>
 
@@ -201,34 +200,41 @@
       <menu id="menu_edit" label="&editMenu.label;"
             accesskey="&editMenu.accesskey;">
         <menupopup id="editmenu-popup">
-          <menuitem id="menu_undo" label="&undoCmd.label;"
-                    key="key_undo" accesskey="&undoCmd.accesskey;"
+          <menuitem id="menu_undo"
+                    data-l10n-id="text-action-undo"
+                    key="key_undo"
                     command="cmd_undo"
                     class="menuitem-iconic"/>
-          <menuitem id="menu_redo" label="&redoCmd.label;"
-                    key="key_redo" accesskey="&redoCmd.accesskey;"
+          <menuitem id="menu_redo"
+                    data-l10n-id="text-action-redo"
+                    key="key_redo"
                     command="cmd_redo"
                     class="menuitem-iconic"/>
           <menuseparator/>
-          <menuitem id="menu_cut" label="&cutCmd.label;"
-                    key="key_cut" accesskey="&cutCmd.accesskey;"
+          <menuitem id="menu_cut"
+                    data-l10n-id="text-action-cut"
+                    key="key_cut"
                     command="cmd_cut"
                     class="menuitem-iconic"/>
-          <menuitem id="menu_copy" label="&copyCmd.label;"
-                    key="key_copy" accesskey="&copyCmd.accesskey;"
+          <menuitem id="menu_copy"
+                    data-l10n-id="text-action-copy"
+                    key="key_copy"
                     command="cmd_copy"
                     class="menuitem-iconic"/>
-          <menuitem id="menu_paste" label="&pasteCmd.label;"
-                    key="key_paste" accesskey="&pasteCmd.accesskey;"
+          <menuitem id="menu_paste"
+                    data-l10n-id="text-action-paste"
+                    key="key_paste"
                     command="cmd_paste"
                     class="menuitem-iconic"/>
-          <menuitem id="menu_delete" label="&deleteCmd.label;"
-                    key="key_delete" accesskey="&deleteCmd.accesskey;"
+          <menuitem id="menu_delete"
+                    data-l10n-id="text-action-delete"
+                    key="key_delete"
                     command="cmd_delete"
                     class="menuitem-iconic"/>
           <menuseparator/>
-          <menuitem id="menu_selectAll" label="&selectAllCmd.label;"
-                    key="key_selectAll" accesskey="&selectAllCmd.accesskey;"
+          <menuitem id="menu_selectAll"
+                    data-l10n-id="text-action-select-all"
+                    key="key_selectAll"
                     command="cmd_selectAll"/>
           <menuseparator/>
           <menuitem id="menu_find" label="&findCmd.label;"

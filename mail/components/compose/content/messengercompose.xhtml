@@ -58,6 +58,7 @@
 
 <linkset>
   <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
+  <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
   <html:link rel="localization" href="messenger/menubar.ftl"/>
 </linkset>
 
@@ -599,15 +600,15 @@
             oncommand="gSpellChecker.ignoreWord();"/>
   <menuseparator id="spellCheckSuggestionsSeparator"/>
 
-  <menuitem label="&undo.label;" accesskey="&undo.accesskey;" command="cmd_undo"/>
-  <menuitem label="&cut.label;" accesskey="&cut.accesskey;" command="cmd_cut"/>
-  <menuitem label="&copy.label;" accesskey="&copy.accesskey;" command="cmd_copy"/>
-  <menuitem label="&paste.label;" accesskey="&paste.accesskey;" command="cmd_paste"/>
+  <menuitem data-l10n-id="text-action-undo" command="cmd_undo"/>
+  <menuitem data-l10n-id="text-action-cut" command="cmd_cut"/>
+  <menuitem data-l10n-id="text-action-copy" command="cmd_copy"/>
+  <menuitem data-l10n-id="text-action-paste" command="cmd_paste"/>
   <menuitem command="cmd_pasteNoFormatting"/>
   <menuitem label="&pasteQuote.label;" accesskey="&pasteQuote.accesskey;" command="cmd_pasteQuote"/>
-  <menuitem label="&delete.label;" accesskey="&delete.accesskey;" command="cmd_delete"/>
+  <menuitem data-l10n-id="text-action-delete" command="cmd_delete"/>
   <menuseparator/>
-  <menuitem label="&selectAll.label;" accesskey="&selectAll.accesskey;" command="cmd_selectAll"/>
+  <menuitem data-l10n-id="text-action-select-all" command="cmd_selectAll"/>
 
   <!-- Spellchecking general menu items (enable, add dictionaries...) -->
   <menuseparator id="spellCheckSeparator"/>
@@ -748,14 +749,14 @@
   <menuitem id="editAddressPill" label="&editMenu.label;"
             accesskey="&editMenu.accesskey;"
             oncommand="editAddressPill(document.popupNode, event)"/>
-  <menuitem id="menu_cut" label="&cutCmd.label;"
-            accesskey="&cutCmd.accesskey;"
+  <menuitem id="menu_cut"
+            data-l10n-id="text-action-cut"
             oncommand="cutEmailNewsAddress(document.popupNode)"/>
-  <menuitem id="menu_copy" label="&copyCmd.label;"
-            accesskey="&copyCmd.accesskey;"
+  <menuitem id="menu_copy"
+            data-l10n-id="text-action-copy"
             oncommand="copyEmailNewsAddress(document.popupNode)"/>
-  <menuitem id="menu_delete" label="&deleteCmd.label;"
-            accesskey="&deleteCmd.accesskey;"
+  <menuitem id="menu_delete"
+            data-l10n-id="text-action-delete"
             oncommand="deleteAddressPill(document.popupNode)"/>
 </menupopup>
 
@@ -887,21 +888,21 @@
       <menu id="menu_Edit" label="&editMenu.label;" accesskey="&editMenu.accesskey;">
         <menupopup id="menu_EditPopup" onpopupshowing="updateEditItems();">
           <menuitem id="menu_undo" class="menuitem-iconic"
-                    label="&undoCmd.label;" key="key_undo"
-                    accesskey="&undoCmd.accesskey;" command="cmd_undo"/>
+                    data-l10n-id="text-action-undo"
+                    key="key_undo" command="cmd_undo"/>
           <menuitem id="menu_redo" class="menuitem-iconic"
-                    label="&redoCmd.label;" key="key_redo"
-                    accesskey="&redoCmd.accesskey;" command="cmd_redo"/>
+                    data-l10n-id="text-action-redo"
+                    key="key_redo" command="cmd_redo"/>
           <menuseparator/>
           <menuitem id="menu_cut" class="menuitem-iconic"
-                    label="&cutCmd.label;" key="key_cut"
-                    accesskey="&cutCmd.accesskey;" command="cmd_cut"/>
+                    data-l10n-id="text-action-cut"
+                    key="key_cut" command="cmd_cut"/>
           <menuitem id="menu_copy" class="menuitem-iconic"
-                    label="&copyCmd.label;" key="key_copy"
-                    accesskey="&copyCmd.accesskey;" command="cmd_copy"/>
+                    data-l10n-id="text-action-copy"
+                    key="key_copy" command="cmd_copy"/>
           <menuitem id="menu_paste" class="menuitem-iconic"
-                    label="&pasteCmd.label;" key="key_paste"
-                    accesskey="&pasteCmd.accesskey;" command="cmd_paste"/>
+                    data-l10n-id="text-action-paste"
+                    key="key_paste" command="cmd_paste"/>
           <menuitem id="menu_pasteNoFormatting"
                     command="cmd_pasteNoFormatting" key="pastenoformattingkb"/>
           <menuitem id="menu_pasteQuote"
@@ -909,8 +910,7 @@
                     command="cmd_pasteQuote"
                     key="pastequotationkb"/>
           <menuitem id="menu_delete" class="menuitem-iconic"
-                    label="&deleteCmd.label;"
-                    accesskey="&deleteCmd.accesskey;"
+                    data-l10n-id="text-action-delete"
                     key="key_delete"
                     command="cmd_delete"/>
           <menuseparator/>
@@ -931,8 +931,7 @@
                     command="cmd_reorderAttachments"/>
           <menuseparator/>
           <menuitem id="menu_selectAll"
-                    label="&selectAllCmd.label;"
-                    accesskey="&selectAllCmd.accesskey;"
+                    data-l10n-id="text-action-select-all"
                     key="key_selectAll"
                     command="cmd_selectAll"/>
           <menuseparator/>
@@ -1911,15 +1910,15 @@
                command="cmd_quoteMessage"/>
 
     <toolbarbutton id="cut-button" class="toolbarbutton-1"
-                   label="&cutCmd.label;"
+                   data-l10n-id="text-action-cut"
                    command="cmd_cut"
                    tooltiptext="&cutButton.tooltip;"/>
     <toolbarbutton id="copy-button" class="toolbarbutton-1"
-                   label="&copyCmd.label;"
+                   data-l10n-id="text-action-copy"
                    command="cmd_copy"
                    tooltiptext="&copyButton.tooltip;"/>
     <toolbarbutton id="paste-button" class="toolbarbutton-1"
-                   label="&pasteCmd.label;"
+                   data-l10n-id="text-action-paste"
                    command="cmd_paste"
                    tooltiptext="&pasteButton.tooltip;"/>
 
@@ -2281,7 +2280,7 @@
                             aria-labelledby="subjectLabel"
                             onfocus="deselectAllPills();"
                             style="-moz-box-flex: 1;"/>
-                </moz-input-box>
+              </moz-input-box>
             </hbox>
           </hbox>
         </vbox>
