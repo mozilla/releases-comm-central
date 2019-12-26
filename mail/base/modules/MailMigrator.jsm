@@ -97,6 +97,17 @@ var MailMigrator = {
     }
   },
 
+  _migrateXULStoreForDocument(fromURL, toURL) {
+    Array.from(Services.xulStore.getIDsEnumerator(fromURL)).forEach(id => {
+      Array.from(Services.xulStore.getAttributeEnumerator(fromURL, id)).forEach(
+        attr => {
+          let value = Services.xulStore.getValue(fromURL, id, attr);
+          Services.xulStore.setValue(toURL, id, attr, value);
+        }
+      );
+    });
+  },
+
   /* eslint-disable complexity */
   /**
    * Determine if the UI has been upgraded in a way that requires us to reset
@@ -105,7 +116,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 17;
+    const UI_VERSION = 18;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -405,6 +416,22 @@ var MailMigrator = {
             "composeToolbar2",
             "currentset",
             cs
+          );
+        }
+      }
+
+      if (currentUIVersion < 18) {
+        for (let url of [
+          "chrome://calendar/content/calendar-event-dialog-attendees.xul",
+          "chrome://calendar/content/calendar-event-dialog.xul",
+          "chrome://messenger/content/addressbook/addressbook.xul",
+          "chrome://messenger/content/messageWindow.xhtml",
+          "chrome://messenger/content/messenger.xul",
+          "chrome://messenger/content/messengercompose/messengercompose.xul",
+        ]) {
+          this._migrateXULStoreForDocument(
+            url,
+            url.replace(/\.xul$/, ".xhtml")
           );
         }
       }
