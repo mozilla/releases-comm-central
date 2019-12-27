@@ -275,6 +275,46 @@ add_task(function test_content_language_header() {
 });
 
 /**
+ * Tests Content-Language header suppression.
+ */
+add_task(function test_content_language_header_suppression() {
+  let statusQuo = Services.prefs.getBoolPref("mail.suppress_content_language");
+  Services.prefs.setBoolPref("mail.suppress_content_language", true);
+
+  let cwc = open_compose_new_mail();
+
+  setup_msg_contents(
+    cwc,
+    "test@example.invalid",
+    "Testing Content-Language header suppression",
+    "Hello, we speak blank"
+  );
+
+  cwc.window.SaveAsDraft();
+  utils.waitFor(
+    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    "Saving of draft did not finish"
+  );
+  wait_for_window_focused(cwc.window);
+  close_compose_window(cwc);
+
+  be_in_folder(draftsFolder);
+  let draftMsg = select_click_row(0);
+  let draftMsgContent = get_msg_source(draftMsg);
+
+  // Check no line contains our Content-Language.
+  Assert.ok(
+    !draftMsgContent.split("\n").some(line => /^Content-Language:/.test(line)),
+    "Didn't find Content-Language header in draft content"
+  );
+
+  // Clean up the created draft.
+  press_delete(mc);
+
+  Services.prefs.setBoolPref("mail.suppress_content_language", statusQuo);
+});
+
+/**
  * Tests space stuffing of plaintext message.
  */
 add_task(function test_remove_space_stuffing_format_flowed() {
