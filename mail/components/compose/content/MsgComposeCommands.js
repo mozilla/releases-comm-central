@@ -2903,9 +2903,12 @@ function ComposeStartup(aParams) {
         // Update the language in the composition fields, so we can save it
         // to the draft next time.
         if (gMsgCompose && gMsgCompose.compFields) {
-          gMsgCompose.compFields.contentLanguage = document.documentElement.getAttribute(
-            "lang"
-          );
+          let lang = Services.prefs.getBoolPref(
+            "mail.suppress_content_language"
+          )
+            ? ""
+            : document.documentElement.getAttribute("lang");
+          gMsgCompose.compFields.contentLanguage = lang;
         }
       }
     });

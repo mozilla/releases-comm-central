@@ -20,6 +20,9 @@ pref("mail.reply_quote_inline",             false);
 // (which is called "Reply-To Munging") we override the Reply-To header with
 // the From header.
 pref("mail.override_list_reply_to", true);
+// hidden pref for controlling if the Content-Language header
+// should be set.
+pref("mail.suppress_content_language", false);
 
 // hidden pref for controlling if the user agent string
 // is displayed in the message pane or not...
