@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsIAddrDBAnnouncer.idl"
 #include "nsIAbCard.idl"
 #include "nsIAbDirectory.idl"
 
@@ -49,7 +48,7 @@ interface nsAddrDBCommitType
 };
 
 [scriptable, uuid(c54973e4-d251-4b93-a0d0-81a616225061)]
-interface nsIAddrDatabase : nsIAddrDBAnnouncer {
+interface nsIAddrDatabase : nsISupports {
 
   /**
    * Path to the address book database that this instance represents.

@@ -136,9 +136,6 @@ nsAddrDatabase::nsAddrDatabase()
 nsAddrDatabase::~nsAddrDatabase() {
   Close(false);  // better have already been closed.
 
-  // better not be any listeners, because we're going away.
-  NS_ASSERTION(m_ChangeListeners.Length() == 0, "shouldn't have any listeners");
-
   RemoveFromCache(this);
   // clean up after ourself!
   if (m_mdbPabTable) m_mdbPabTable->Release();
@@ -146,55 +143,7 @@ nsAddrDatabase::~nsAddrDatabase() {
   NS_IF_RELEASE(m_mdbEnv);
 }
 
-NS_IMPL_ISUPPORTS(nsAddrDatabase, nsIAddrDatabase, nsIAddrDBAnnouncer)
-
-NS_IMETHODIMP nsAddrDatabase::AddListener(nsIAddrDBListener *listener) {
-  NS_ENSURE_ARG_POINTER(listener);
-  m_ChangeListeners.AppendElement(listener);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAddrDatabase::RemoveListener(nsIAddrDBListener *listener) {
-  NS_ENSURE_ARG_POINTER(listener);
-  return m_ChangeListeners.RemoveElement(listener) ? NS_OK : NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP nsAddrDatabase::NotifyCardAttribChange(uint32_t abCode) {
-  NS_OBSERVER_ARRAY_NOTIFY_OBSERVERS(m_ChangeListeners, nsIAddrDBListener,
-                                     OnCardAttribChange, (abCode));
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAddrDatabase::NotifyCardEntryChange(uint32_t aAbCode,
-                                                    nsIAbCard *aCard,
-                                                    nsIAbDirectory *aParent) {
-  int32_t currentDisplayNameVersion = 0;
-
-  // Update "mail.displayname.version" prefernce
-  nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));
-
-  prefs->GetIntPref("mail.displayname.version", &currentDisplayNameVersion);
-
-  prefs->SetIntPref("mail.displayname.version", ++currentDisplayNameVersion);
-
-  NS_OBSERVER_ARRAY_NOTIFY_OBSERVERS(m_ChangeListeners, nsIAddrDBListener,
-                                     OnCardEntryChange,
-                                     (aAbCode, aCard, aParent));
-  return NS_OK;
-}
-
-nsresult nsAddrDatabase::NotifyListEntryChange(uint32_t abCode,
-                                               nsIAbDirectory *dir) {
-  NS_OBSERVER_ARRAY_NOTIFY_OBSERVERS(m_ChangeListeners, nsIAddrDBListener,
-                                     OnListEntryChange, (abCode, dir));
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAddrDatabase::NotifyAnnouncerGoingAway(void) {
-  NS_OBSERVER_ARRAY_NOTIFY_OBSERVERS(m_ChangeListeners, nsIAddrDBListener,
-                                     OnAnnouncerGoingAway, ());
-  return NS_OK;
-}
+NS_IMPL_ISUPPORTS(nsAddrDatabase, nsIAddrDatabase)
 
 // Apparently its not good for nsTArray to be allocated as static. Don't know
 // why it isn't but its not, so don't think about making it a static variable.
@@ -560,7 +509,6 @@ NS_IMETHODIMP nsAddrDatabase::ForceClosed() {
   // make sure someone has a reference so object won't get deleted out from
   // under us.
   NS_ADDREF_THIS();
-  NotifyAnnouncerGoingAway();
   // OK, remove from cache first and close the store.
   RemoveFromCache(this);
 
@@ -1133,13 +1081,8 @@ NS_IMETHODIMP nsAddrDatabase::CreateNewCardAndAddToDB(
 
     nsresult merror = m_mdbPabTable->AddRow(m_mdbEnv, cardRow);
     NS_ENSURE_SUCCESS(merror, NS_ERROR_FAILURE);
-  } else
-    return rv;
-
-  //  do notification
-  if (aNotify) {
-    NotifyCardEntryChange(AB_NotifyInserted, aNewCard, aParent);
   }
+
   return rv;
 }
 
@@ -1211,8 +1154,6 @@ NS_IMETHODIMP nsAddrDatabase::CreateNewListCardAndAddToDB(
 
   addressList->AppendElement(newCard);
 
-  if (notify) NotifyCardEntryChange(AB_NotifyInserted, newCard, aList);
-
   return rv;
 }
 
@@ -1257,22 +1198,6 @@ NS_IMETHODIMP nsAddrDatabase::AddListCardColumnsToRow(
     }
 
     CreateABCard(pCardRow, 0, aPNewCard);
-
-    if (cardWasAdded) {
-      NotifyCardEntryChange(AB_NotifyInserted, *aPNewCard, aParent);
-      if (aRoot) NotifyCardEntryChange(AB_NotifyInserted, *aPNewCard, aRoot);
-    } else if (!aInMailingList) {
-      nsresult rv;
-      nsCOMPtr<nsIAddrDBListener> parentListener(
-          do_QueryInterface(aParent, &rv));
-
-      // Ensure the parent is in the listener list (and hence wants to be
-      // notified)
-      if (NS_SUCCEEDED(rv) && m_ChangeListeners.Contains(parentListener))
-        parentListener->OnCardEntryChange(AB_NotifyInserted, aPCard, aParent);
-    } else {
-      NotifyCardEntryChange(AB_NotifyPropertyChanged, aPCard, aParent);
-    }
 
     // add a column with address row id to the list row
     mdb_token listAddressColumnToken;
@@ -1354,7 +1279,6 @@ NS_IMETHODIMP nsAddrDatabase::CreateMailListAndAddToDB(
 
     nsCOMPtr<nsIAbCard> listCard;
     CreateABListCard(listRow, getter_AddRefs(listCard));
-    NotifyCardEntryChange(AB_NotifyInserted, listCard, aParent);
 
     NS_RELEASE(listRow);
     return NS_OK;
@@ -1453,10 +1377,6 @@ NS_IMETHODIMP nsAddrDatabase::DeleteCard(nsIAbCard *aCard, bool aNotify,
   }
 
   err = DeleteRow(m_mdbPabTable, pCardRow);
-
-  if (NS_SUCCEEDED(err)) {
-    if (aNotify) NotifyCardEntryChange(AB_NotifyDeleted, aCard, aParent);
-  }
 
   NS_RELEASE(pCardRow);
   return NS_OK;
@@ -1620,8 +1540,6 @@ NS_IMETHODIMP nsAddrDatabase::EditCard(nsIAbCard *aCard, bool aNotify,
 
   err = AddAttributeColumnsToRow(aCard, cardRow);
   NS_ENSURE_SUCCESS(err, err);
-
-  if (aNotify) NotifyCardEntryChange(AB_NotifyPropertyChanged, aCard, aParent);
 
   return NS_OK;
 }
@@ -2019,22 +1937,18 @@ nsresult nsAddrDatabase::GetListFromDB(nsIAbDirectory *newList,
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-class nsAddrDBEnumerator : public nsSimpleEnumerator, public nsIAddrDBListener {
+class nsAddrDBEnumerator : public nsSimpleEnumerator {
  public:
-  NS_DECL_ISUPPORTS_INHERITED
-
   const nsID &DefaultInterface() override { return NS_GET_IID(nsIAbCard); }
 
   // nsISimpleEnumerator methods:
   NS_DECL_NSISIMPLEENUMERATOR
-  NS_DECL_NSIADDRDBLISTENER
 
   // nsAddrDBEnumerator methods:
   explicit nsAddrDBEnumerator(nsAddrDatabase *aDb);
   void Clear();
 
  protected:
-  ~nsAddrDBEnumerator() override;
   RefPtr<nsAddrDatabase> mDb;
   nsIMdbTable *mDbTable;
   nsCOMPtr<nsIMdbTableRowCursor> mRowCursor;
@@ -2043,21 +1957,7 @@ class nsAddrDBEnumerator : public nsSimpleEnumerator, public nsIAddrDBListener {
 };
 
 nsAddrDBEnumerator::nsAddrDBEnumerator(nsAddrDatabase *aDb)
-    : mDb(aDb), mDbTable(aDb->GetPabTable()), mRowPos(-1) {
-  if (aDb) aDb->AddListener(this);
-}
-
-nsAddrDBEnumerator::~nsAddrDBEnumerator() { Clear(); }
-
-void nsAddrDBEnumerator::Clear() {
-  mRowCursor = nullptr;
-  mCurrentRow = nullptr;
-  mDbTable = nullptr;
-  if (mDb) mDb->RemoveListener(this);
-}
-
-NS_IMPL_ISUPPORTS_INHERITED(nsAddrDBEnumerator, nsSimpleEnumerator,
-                            nsIAddrDBListener)
+    : mDb(aDb), mDbTable(aDb->GetPabTable()), mRowPos(-1) {}
 
 NS_IMETHODIMP
 nsAddrDBEnumerator::HasMoreElements(bool *aResult) {
@@ -2133,30 +2033,6 @@ nsAddrDBEnumerator::GetNext(nsISupports **aResult) {
   }
 
   return NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP nsAddrDBEnumerator::OnCardAttribChange(uint32_t abCode) {
-  return NS_OK;
-}
-
-/* void onCardEntryChange (in unsigned long aAbCode, in nsIAbCard aCard, in
- * nsIAbDirectory aParent); */
-NS_IMETHODIMP nsAddrDBEnumerator::OnCardEntryChange(uint32_t aAbCode,
-                                                    nsIAbCard *aCard,
-                                                    nsIAbDirectory *aParent) {
-  return NS_OK;
-}
-
-/* void onListEntryChange (in unsigned long abCode, in nsIAbDirectory list); */
-NS_IMETHODIMP nsAddrDBEnumerator::OnListEntryChange(uint32_t abCode,
-                                                    nsIAbDirectory *list) {
-  return NS_OK;
-}
-
-/* void onAnnouncerGoingAway (); */
-NS_IMETHODIMP nsAddrDBEnumerator::OnAnnouncerGoingAway() {
-  Clear();
-  return NS_OK;
 }
 
 class nsListAddressEnumerator final : public nsSimpleEnumerator {

@@ -21,8 +21,6 @@ XPIDL_SOURCES += [
     'nsIAbView.idl',
     'nsIAddbookUrl.idl',
     'nsIAddrDatabase.idl',
-    'nsIAddrDBAnnouncer.idl',
-    'nsIAddrDBListener.idl',
     'nsIMsgVCardService.idl',
 ]
 

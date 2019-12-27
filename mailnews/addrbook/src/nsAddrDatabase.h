@@ -11,7 +11,6 @@
 #include "nsIFile.h"
 #include "mdb.h"
 #include "nsString.h"
-#include "nsIAddrDBListener.h"
 #include "nsCOMPtr.h"
 #include "nsTObserverArray.h"
 #include "nsIWeakReferenceUtils.h"
@@ -27,7 +26,6 @@ class nsAddrDatabase : public nsIAddrDatabase {
 
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
-  NS_DECL_NSIADDRDBANNOUNCER
   //////////////////////////////////////////////////////////////////////////////
   // nsIAddrDatabase methods:
 
@@ -429,7 +427,6 @@ class nsAddrDatabase : public nsIAddrDatabase {
   nsCOMPtr<nsIFile> m_dbName;
   bool m_mdbTokensInitialized;
   bool m_mdbDeletedCardsTableRemoved;
-  nsTObserverArray<nsIAddrDBListener *> m_ChangeListeners;
 
   mdb_kind m_PabTableKind;
   mdb_kind m_MailListTableKind;
