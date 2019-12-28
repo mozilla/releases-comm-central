@@ -272,9 +272,6 @@ add_task(async () => {
   let dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
   dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
 
-  EventUtils.synthesizeDragStart(calendarList.itemChildren[3], null, null, 2, 2);
-  await new Promise(resolve => setTimeout(resolve));
-
   let [result, dataTransfer] = EventUtils.synthesizeDragOver(
     calendarList.itemChildren[3],
     calendarList.itemChildren[0],
