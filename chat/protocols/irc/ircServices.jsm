@@ -13,7 +13,7 @@
  * showing the message to the user if we're unsure what to do.
  *
  * Anope
- *  http://www.anope.org/docgen/1.8/
+ *  https://www.anope.org/docgen/1.8/
  */
 
 this.EXPORTED_SYMBOLS = ["ircServices", "servicesBase"];

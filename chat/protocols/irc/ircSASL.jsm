@@ -5,7 +5,7 @@
 /*
  * This implements SASL for IRC.
  *   https://raw.github.com/atheme/atheme/master/doc/SASL
- *   https://github.com/ircv3/ircv3-specifications/blob/master/extensions/sasl-3.1
+ *   https://ircv3.net/specs/extensions/sasl-3.2
  */
 
 this.EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];

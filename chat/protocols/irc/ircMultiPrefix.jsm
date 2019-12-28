@@ -11,8 +11,8 @@
  *   foo MODE -o
  * foo knows that it has mode +h, but bar does not know foo has +h set.
  *
- *   http://wiki.inspircd.org/Modules/2.1/namesx
- *   http://ircv3.atheme.org/extensions/multi-prefix-3.1
+ *   https://docs.inspircd.org/2/modules/namesx/
+ *   https://ircv3.net/specs/extensions/multi-prefix-3.1
  */
 
 this.EXPORTED_SYMBOLS = ["isupportNAMESX", "capMultiPrefix"];

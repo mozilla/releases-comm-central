@@ -4,7 +4,7 @@
 
 /*
  * This implements server-time for IRC.
- *   https://ircv3.net/specs/extensions/server-time-3.2.html
+ *   https://ircv3.net/specs/extensions/server-time-3.2
  */
 
 this.EXPORTED_SYMBOLS = ["capServerTime", "tagServerTime"];

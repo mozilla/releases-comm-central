@@ -8,8 +8,8 @@
  *   The 005 numeric
  *     http://www.irc.org/tech_docs/005.html
  *   RFC Drafts: IRC RPL_ISUPPORT Numeric Definition
- *     http://tools.ietf.org/html/draft-brocklesby-irc-isupport-03
- *     http://tools.ietf.org/html/draft-hardy-irc-isupport-00
+ *     https://tools.ietf.org/html/draft-brocklesby-irc-isupport-03
+ *     https://tools.ietf.org/html/draft-hardy-irc-isupport-00
  */
 
 this.EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];

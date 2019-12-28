@@ -10,7 +10,7 @@
  *
  * Resources for these commands include:
  *  https://github.com/atheme/charybdis/blob/master/include/numeric.h
- *  http://hg.unrealircd.com/hg/unreal/raw-file/tip/include/numeric.h
+ *  https://github.com/unrealircd/unrealircd/blob/unreal42/include/numeric.h
  */
 this.EXPORTED_SYMBOLS = ["ircNonStandard"];
 
