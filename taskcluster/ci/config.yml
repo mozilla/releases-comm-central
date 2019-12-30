@@ -153,6 +153,11 @@ workers:
             implementation: succeed
             os: none
             worker-type: succeed
+        misc:
+            provisioner: gecko-t
+            implementation: docker-worker
+            os: linux
+            worker-type: misc
 
 mac-notarization:
     mac-behavior:
