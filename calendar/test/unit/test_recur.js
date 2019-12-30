@@ -729,11 +729,7 @@ function test_rules() {
   occ1.QueryInterface(Ci.calIEvent);
   occ1.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
   item.recurrenceInfo.modifyException(occ1, true);
-  check_recur(
-    item,
-    ["20020403T120000Z", "20020404T114500Z"],
-    "20020404T114500"
-  );
+  check_recur(item, ["20020403T120000Z", "20020404T114500Z"], "20020404T114500");
 
   item = makeEvent(
     "DESCRIPTION:all occurrences have exceptions\n" +
@@ -748,11 +744,7 @@ function test_rules() {
   occ2.QueryInterface(Ci.calIEvent);
   occ2.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
   item.recurrenceInfo.modifyException(occ2, true);
-  check_recur(
-    item,
-    ["20020402T120000Z", "20020403T120000Z"],
-    "20020403T114500"
-  );
+  check_recur(item, ["20020402T120000Z", "20020403T120000Z"], "20020403T114500");
 
   item = makeEvent(
     "DESCRIPTION:rdate and exception before the recurrence start date\n" +
@@ -776,11 +768,7 @@ function test_rules() {
       "DTSTART:20020401T114500Z\n" +
       "EXDATE;VALUE=DATE:20020402\n"
   );
-  check_recur(
-    item,
-    ["20020401T114500Z", "20020403T114500Z"],
-    "20020403T114500"
-  );
+  check_recur(item, ["20020401T114500Z", "20020403T114500Z"], "20020403T114500");
 
   item = makeEvent(
     "DESCRIPTION:EXDATE with a timezone\n" +
@@ -788,11 +776,7 @@ function test_rules() {
       "DTSTART;TZID=Europe/Berlin:20020401T114500\n" +
       "EXDATE;TZID=Europe/Berlin:20020402T114500\n"
   );
-  check_recur(
-    item,
-    ["20020401T114500", "20020403T114500"],
-    "20020403T094500"
-  );
+  check_recur(item, ["20020401T114500", "20020403T114500"], "20020403T094500");
 }
 
 function test_limit() {
