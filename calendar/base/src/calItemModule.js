@@ -30,7 +30,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-this.NSGetFactory = cid => {
+this._NSGetFactory = cid => {
   let scriptLoadOrder = [
     "resource://calendar/calendar-js/calItemBase.js",
     "resource://calendar/calendar-js/calCachedCalendar.js",
@@ -90,6 +90,12 @@ this.NSGetFactory = cid => {
     calWeekInfoService,
   ];
 
-  this.NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
-  return this.NSGetFactory(cid);
+  this._NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+  return this._NSGetFactory(cid);
+};
+
+// This version of NSGetFactory is used every time, even if it is replaced. Instead, we use a shim
+// calling an internal function. The internal function is replaced after the first run.
+this.NSGetFactory = cid => {
+  return this._NSGetFactory(cid);
 };
