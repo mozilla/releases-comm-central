@@ -109,7 +109,7 @@ add_task(async function testDescriptionWhitespace() {
   }
 
   Assert.ok(true, "Test ran to completion");
-}).skip();
+});
 
 registerCleanupFunction(function teardownModule(module) {
   deleteCalendars(controller, CALENDARNAME);
