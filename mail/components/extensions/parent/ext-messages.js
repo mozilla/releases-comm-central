@@ -234,6 +234,18 @@ this.messages = class extends ExtensionAPI {
           if (queryInfo.fromDate || queryInfo.toDate) {
             query.dateRange([queryInfo.fromDate, queryInfo.toDate]);
           }
+          let validTags;
+          if (queryInfo.tags) {
+            validTags = MailServices.tags
+              .getAllTags()
+              .filter(tag => tag.key in queryInfo.tags.tags && queryInfo.tags.tags[tag.key]);
+            if (validTags.length === 0) {
+              // No messages will match this. Just return immediately.
+              return messageListTracker.startList([], context.extension);
+            }
+            query.tags(...validTags);
+            validTags = validTags.map(tag => tag.key);
+          }
 
           let collectionArray = await new Promise(resolve => {
             query.getCollection({
@@ -254,6 +266,12 @@ this.messages = class extends ExtensionAPI {
             collectionArray = collectionArray.filter(
               msg => msg.isRead == !queryInfo.unread
             );
+          }
+          if (validTags && queryInfo.tags.mode == "all") {
+            collectionArray = collectionArray.filter(msg => {
+              let messageTags = msg.getStringProperty("keywords").split(" ");
+              return validTags.every(tag => messageTags.includes(tag));
+            });
           }
 
           return messageListTracker.startList(

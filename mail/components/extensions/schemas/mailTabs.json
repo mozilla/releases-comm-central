@@ -3,29 +3,6 @@
     "namespace": "mailTabs",
     "types": [
       {
-        "id": "QuickFilterTagsDetail",
-        "type": "object",
-        "properties": {
-          "tags": {
-            "type": "object",
-            "description": "Object keys are tags to filter on, values are <code>true</code> if the message must have the tag, or <code>false</code> if it must not have the tag. For a list of available tags, call the :ref:`messages.listTags` method.",
-            "patternProperties": {
-              ".*": {
-                "type": "boolean"
-              }
-            }
-          },
-          "mode": {
-            "type": "string",
-            "description": "Whether all of the tag filters must apply, or any of them.",
-            "enum": [
-              "all",
-              "any"
-            ]
-          }
-        }
-      },
-      {
         "id": "QuickFilterTextDetail",
         "type": "object",
         "properties": {
@@ -234,7 +211,7 @@
                     "type": "boolean"
                   },
                   {
-                    "$ref": "QuickFilterTagsDetail"
+                    "$ref": "messages.TagsDetail"
                   }
                 ],
                 "description": "Shows only messages with tags on them."
