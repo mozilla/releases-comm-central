@@ -760,8 +760,8 @@ nsresult nsAddrDatabase::GetIntColumn(nsIMdbRow *cardRow, mdb_token outToken,
   return err;
 }
 
-NS_IMETHODIMP nsAddrDatabase::InitCardFromRow(nsIAbCard *newCard,
-                                              nsIMdbRow *cardRow) {
+nsresult nsAddrDatabase::InitCardFromRow(nsIAbCard *newCard,
+                                         nsIMdbRow *cardRow) {
   nsresult rv = NS_OK;
   if (!newCard || !cardRow || !m_mdbEnv) return NS_ERROR_NULL_POINTER;
 
