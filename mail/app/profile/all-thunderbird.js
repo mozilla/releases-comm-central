@@ -398,6 +398,9 @@ pref("browser.download.manager.addToRecentDocs", true);
 pref("browser.helperApps.deleteTempFileOnExit", true);
 #endif
 
+// Whether to start the private browsing mode at application startup. Not used in Thunderbird.
+pref("browser.privatebrowsing.autostart", false);
+
 pref("spellchecker.dictionary", "");
 // Dictionary download preference
 pref("spellchecker.dictionaries.download.url", "https://addons.thunderbird.net/%LOCALE%/%APP%/dictionaries/");
