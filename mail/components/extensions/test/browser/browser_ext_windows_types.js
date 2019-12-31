@@ -33,6 +33,10 @@ add_task(async () => {
       });
       browser.test.assertEq("addressBook", windowDetail.type);
       browser.test.assertEq(1, windowDetail.tabs.length);
+      // These three properties should not be present, but not fail either.
+      browser.test.assertEq(undefined, windowDetail.tabs[0].favIconUrl);
+      browser.test.assertEq(undefined, windowDetail.tabs[0].title);
+      browser.test.assertEq(undefined, windowDetail.tabs[0].url);
 
       let removedWindowPromise = waitForEvent("onRemoved");
       await browser.addressBooks.closeUI();
@@ -50,6 +54,10 @@ add_task(async () => {
       });
       browser.test.assertEq("messageCompose", windowDetail.type);
       browser.test.assertEq(1, windowDetail.tabs.length);
+      // These three properties should not be present, but not fail either.
+      browser.test.assertEq(undefined, windowDetail.tabs[0].favIconUrl);
+      browser.test.assertEq(undefined, windowDetail.tabs[0].title);
+      browser.test.assertEq(undefined, windowDetail.tabs[0].url);
 
       removedWindowPromise = waitForEvent("onRemoved");
       await browser.tabs.remove(windowDetail.tabs[0].id);
@@ -67,6 +75,10 @@ add_task(async () => {
       });
       browser.test.assertEq("messageDisplay", windowDetail.type);
       browser.test.assertEq(1, windowDetail.tabs.length);
+      // These three properties should not be present, but not fail either.
+      browser.test.assertEq(undefined, windowDetail.tabs[0].favIconUrl);
+      browser.test.assertEq(undefined, windowDetail.tabs[0].title);
+      browser.test.assertEq(undefined, windowDetail.tabs[0].url);
 
       removedWindowPromise = waitForEvent("onRemoved");
       browser.test.sendMessage("closeMessage");
@@ -75,7 +87,7 @@ add_task(async () => {
       browser.test.notifyPass();
     },
     manifest: {
-      permissions: ["addressBooks"],
+      permissions: ["addressBooks", "tabs"],
     },
   });
 
