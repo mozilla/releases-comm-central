@@ -360,7 +360,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   // send notification to copy service listener.
   nsresult OnCopyCompleted(nsISupports *srcSupport, nsresult exitCode);
 
-  static nsresult AllocateUidStringFromKeys(nsMsgKey *keys, uint32_t numKeys,
+  static nsresult AllocateUidStringFromKeys(const nsTArray<nsMsgKey> &keys,
                                             nsCString &msgIds);
   static nsresult BuildIdsAndKeyArray(nsIArray *messages, nsCString &msgIds,
                                       nsTArray<nsMsgKey> &keyArray);

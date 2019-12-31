@@ -97,13 +97,7 @@ function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
           Ci.nsIMsgDBHdr
         ).messageKey;
       }
-      aFolder.storeCustomKeywords(
-        null,
-        "Junk",
-        "NonJunk",
-        junkMsgKeys,
-        junkMsgKeys.length
-      );
+      aFolder.storeCustomKeywords(null, "Junk", "NonJunk", junkMsgKeys);
     }
 
     if (aGoodMsgHdrs.length) {
@@ -114,13 +108,7 @@ function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
           Ci.nsIMsgDBHdr
         ).messageKey;
       }
-      aFolder.storeCustomKeywords(
-        null,
-        "NonJunk",
-        "Junk",
-        goodMsgKeys,
-        goodMsgKeys.length
-      );
+      aFolder.storeCustomKeywords(null, "NonJunk", "Junk", goodMsgKeys);
     }
   }
 

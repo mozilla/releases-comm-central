@@ -146,7 +146,7 @@ nsresult nsMsgMdnGenerator::StoreMDNSentFlag(nsIMsgFolder *folder,
   nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(folder);
   // Store the $MDNSent flag if the folder is an Imap Mail Folder
   if (imapFolder)
-    return imapFolder->StoreImapFlags(kImapMsgMDNSentFlag, true, &key, 1,
+    return imapFolder->StoreImapFlags(kImapMsgMDNSentFlag, true, {key},
                                       nullptr);
   return rv;
 }

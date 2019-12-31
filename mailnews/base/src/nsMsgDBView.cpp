@@ -2966,8 +2966,7 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
       case nsMsgViewCommandType::junk:
         return imapFolder->StoreCustomKeywords(
             msgWindow, NS_LITERAL_CSTRING("Junk"),
-            NS_LITERAL_CSTRING("NonJunk"), imapUids.Elements(),
-            imapUids.Length(), nullptr);
+            NS_LITERAL_CSTRING("NonJunk"), imapUids, nullptr);
       case nsMsgViewCommandType::unjunk: {
         nsCOMPtr<nsIMsgDBHdr> msgHdr;
         GetHdrForFirstSelectedMessage(getter_AddRefs(msgHdr));
@@ -2975,14 +2974,12 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
         if (msgHdr) msgHdr->GetFlags(&msgFlags);
 
         if (msgFlags & nsMsgMessageFlags::IMAPDeleted)
-          imapFolder->StoreImapFlags(kImapMsgDeletedFlag, false,
-                                     imapUids.Elements(), imapUids.Length(),
+          imapFolder->StoreImapFlags(kImapMsgDeletedFlag, false, imapUids,
                                      nullptr);
 
         return imapFolder->StoreCustomKeywords(
             msgWindow, NS_LITERAL_CSTRING("NonJunk"),
-            NS_LITERAL_CSTRING("Junk"), imapUids.Elements(), imapUids.Length(),
-            nullptr);
+            NS_LITERAL_CSTRING("Junk"), imapUids, nullptr);
       }
       default:
         break;
@@ -2990,8 +2987,7 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
 
     // Can't get here without thisIsImapThreadPane == TRUE.
     if (flags != kNoImapMsgFlag) {
-      imapFolder->StoreImapFlags(flags, addFlags, imapUids.Elements(),
-                                 imapUids.Length(), nullptr);
+      imapFolder->StoreImapFlags(flags, addFlags, imapUids, nullptr);
     }
   }
 
@@ -3469,9 +3465,7 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
         msgHdr->GetMessageKey(&imapUids[i]);
       }
 
-      imapFolder->StoreImapFlags(kImapMsgDeletedFlag, false,
-                                 imapUids.Elements(), imapUids.Length(),
-                                 nullptr);
+      imapFolder->StoreImapFlags(kImapMsgDeletedFlag, false, imapUids, nullptr);
     }
 
     NoteEndChange(nsMsgViewNotificationCode::none, 0, 0);

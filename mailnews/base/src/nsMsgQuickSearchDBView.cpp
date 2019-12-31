@@ -103,8 +103,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(
 
     nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(m_folder);
     if (NS_SUCCEEDED(rv) && imapFolder)
-      rv = imapFolder->StoreImapFlags(kImapMsgSeenFlag, true, m_keys.Elements(),
-                                      m_keys.Length(), nullptr);
+      rv = imapFolder->StoreImapFlags(kImapMsgSeenFlag, true, m_keys, nullptr);
 
     m_db->SetSummaryValid(true);
     return rv;

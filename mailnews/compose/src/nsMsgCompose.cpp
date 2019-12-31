@@ -3613,7 +3613,7 @@ nsresult nsMsgComposeSendListener::RemoveDraftOrTemplate(nsIMsgCompose *compObj,
           nsMsgKey messageID = srcStr.ToInteger(&err);
           if (messageID != nsMsgKey_None) {
             rv = imapFolder->StoreImapFlags(kImapMsgDeletedFlag, true,
-                                            &messageID, 1, nullptr);
+                                            {messageID}, nullptr);
           }
         }
       }

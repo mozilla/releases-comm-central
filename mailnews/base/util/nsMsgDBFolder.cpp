@@ -5418,7 +5418,7 @@ void nsMsgDBFolder::ClearProcessingFlags() {
   }
 }
 
-nsresult nsMsgDBFolder::MessagesInKeyOrder(nsTArray<nsMsgKey> &aKeyArray,
+nsresult nsMsgDBFolder::MessagesInKeyOrder(const nsTArray<nsMsgKey> &aKeyArray,
                                            nsIMsgFolder *srcFolder,
                                            nsIMutableArray *messages) {
   // XXX: the output messages - should really be and nsCOMArray<nsIMsgDBHdr>

@@ -2386,7 +2386,7 @@ function RemoveDraft()
       if (folder instanceof Ci.nsIMsgImapMailFolder)
       {
         const kImapMsgDeletedFlag = 0x0008;
-        folder.storeImapFlags(kImapMsgDeletedFlag, true, [msgKey], 1, null);
+        folder.storeImapFlags(kImapMsgDeletedFlag, true, [msgKey], null);
       }
     }
   } catch (ex) {}

@@ -4966,13 +4966,10 @@ function RemoveDraft() {
       // couldn't find header - perhaps an imap folder.
       var imapFolder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
       if (imapFolder) {
-        let keyArray = [];
-        keyArray[0] = msgKey;
         imapFolder.storeImapFlags(
           Ci.nsMsgFolderFlags.Expunged,
           true,
-          keyArray,
-          1,
+          [msgKey],
           null
         );
       }
