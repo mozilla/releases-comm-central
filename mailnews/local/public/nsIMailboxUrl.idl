@@ -35,7 +35,7 @@ interface nsIMailboxUrl : nsISupports {
   readonly attribute nsMsgKey messageKey;
 
   // this is to support multiple msg move/copy in one url
-  void setMoveCopyMsgKeys(out nsMsgKey keysToFlag, in long numKeys);
+  void setMoveCopyMsgKeys(in Array<nsMsgKey> keysToFlag);
   void getMoveCopyMsgHdrForIndex(in unsigned long msgIndex, out nsIMsgDBHdr msgHdr);
   readonly attribute unsigned long numMoveCopyMsgs;
   attribute unsigned long curMoveCopyMsgIndex;

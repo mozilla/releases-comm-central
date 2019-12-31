@@ -228,7 +228,7 @@ nsImapMailboxSpec &nsImapMailboxSpec::operator=(
 // use the flagState to determine if the gaps in the msgUids correspond to gaps
 // in the mailbox, in which case we can still use ranges. If flagState is null,
 // we won't do this.
-void AllocateImapUidString(uint32_t *msgUids, uint32_t &msgCount,
+void AllocateImapUidString(const uint32_t *msgUids, uint32_t &msgCount,
                            nsImapFlagAndUidState *flagState,
                            nsCString &returnString) {
   uint32_t startSequence = (msgCount > 0) ? msgUids[0] : 0xFFFFFFFF;

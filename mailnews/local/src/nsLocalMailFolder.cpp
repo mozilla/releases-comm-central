@@ -2539,8 +2539,8 @@ nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsIArray *messages,
     if (srcLocalFolder) StartMessage();
     nsCOMPtr<nsIURI> dummyNull;
     rv = mCopyState->m_messageService->CopyMessages(
-        keyArray.Length(), keyArray.Elements(), srcFolder, streamListener,
-        isMove, nullptr, aMsgWindow, getter_AddRefs(dummyNull));
+        keyArray, srcFolder, streamListener, isMove, nullptr, aMsgWindow,
+        getter_AddRefs(dummyNull));
   }
   return rv;
 }

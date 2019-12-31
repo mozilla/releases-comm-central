@@ -716,11 +716,11 @@ NS_IMETHODIMP nsImapService::CopyMessage(const char *aSrcMailboxURI,
 }
 
 NS_IMETHODIMP nsImapService::CopyMessages(
-    uint32_t aNumKeys, nsMsgKey *aKeys, nsIMsgFolder *srcFolder,
+    const nsTArray<nsMsgKey> &aKeys, nsIMsgFolder *srcFolder,
     nsIStreamListener *aMailboxCopy, bool moveMessage,
     nsIUrlListener *aUrlListener, nsIMsgWindow *aMsgWindow, nsIURI **aURL) {
   NS_ENSURE_ARG_POINTER(aMailboxCopy);
-  NS_ENSURE_ARG_POINTER(aKeys);
+  NS_ENSURE_TRUE(!aKeys.IsEmpty(), NS_ERROR_INVALID_ARG);
 
   nsresult rv;
   nsCOMPtr<nsISupports> streamSupport = do_QueryInterface(aMailboxCopy, &rv);
@@ -738,7 +738,11 @@ NS_IMETHODIMP nsImapService::CopyMessages(
       srcFolder->GenerateMessageURI(aKeys[0], uri);
 
       nsCString messageIds;
-      AllocateImapUidString(aKeys, aNumKeys, nullptr, messageIds);
+      // TODO: AllocateImapUidString() maxes out at 950 keys or so... it
+      // updates the numKeys passed in, but here the resulting value is
+      // ignored. Does this need sorting out?
+      uint32_t numKeys = aKeys.Length();
+      AllocateImapUidString(aKeys.Elements(), numKeys, nullptr, messageIds);
       nsCOMPtr<nsIImapUrl> imapUrl;
       nsAutoCString urlSpec;
       char hierarchyDelimiter = GetHierarchyDelimiter(folder);

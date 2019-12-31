@@ -57,8 +57,7 @@ interface nsIMsgMessageService : nsISupports {
    * @param aMsgWindow
    * @returns URI that's run to perform the copy
    */
-  nsIURI CopyMessages(in unsigned long aNumKeys,
-                      [array, size_is (aNumKeys)] in nsMsgKey aKeys,
+  nsIURI CopyMessages(in Array<nsMsgKey> aKeys,
                       in nsIMsgFolder srcFolder,
                       in nsIStreamListener aCopyListener,
                       in boolean aMoveMessage,

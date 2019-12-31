@@ -44,7 +44,7 @@ class nsMailboxUrl : public nsIMailboxUrl,
     return NS_OK;
   }
   NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
-  NS_IMETHOD SetMoveCopyMsgKeys(nsMsgKey *keysToFlag, int32_t numKeys) override;
+  NS_IMETHOD SetMoveCopyMsgKeys(const nsTArray<nsMsgKey> &keysToFlag) override;
   NS_IMETHOD GetMoveCopyMsgHdrForIndex(uint32_t msgIndex,
                                        nsIMsgDBHdr **msgHdr) override;
   NS_IMETHOD GetNumMoveCopyMsgs(uint32_t *numMsgs) override;

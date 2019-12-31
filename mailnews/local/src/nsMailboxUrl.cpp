@@ -510,10 +510,9 @@ NS_IMETHODIMP nsMailboxUrl::SetCharsetOverRide(const char *aCharacterSet) {
   return NS_OK;
 }
 
-/* void setMoveCopyMsgKeys (out nsMsgKey keysToFlag, in long numKeys); */
-NS_IMETHODIMP nsMailboxUrl::SetMoveCopyMsgKeys(nsMsgKey *keysToFlag,
-                                               int32_t numKeys) {
-  m_keys.ReplaceElementsAt(0, m_keys.Length(), keysToFlag, numKeys);
+NS_IMETHODIMP nsMailboxUrl::SetMoveCopyMsgKeys(
+    const nsTArray<nsMsgKey> &keysToFlag) {
+  m_keys = keysToFlag;
   if (!m_keys.IsEmpty() && m_messageKey == nsMsgKey_None)
     m_messageKey = m_keys[0];
   return NS_OK;

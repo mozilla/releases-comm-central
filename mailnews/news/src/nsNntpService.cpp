@@ -593,7 +593,7 @@ nsNntpService::CopyMessage(const char *aSrcMessageURI,
 }
 
 NS_IMETHODIMP
-nsNntpService::CopyMessages(uint32_t aNumKeys, nsMsgKey *akeys,
+nsNntpService::CopyMessages(const nsTArray<nsMsgKey> &akeys,
                             nsIMsgFolder *srcFolder,
                             nsIStreamListener *aMailboxCopyHandler,
                             bool moveMessage, nsIUrlListener *aUrlListener,

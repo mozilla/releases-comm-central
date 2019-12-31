@@ -96,12 +96,12 @@ nsresult nsMailboxService::CopyMessage(const char *aSrcMailboxURI,
 }
 
 nsresult nsMailboxService::CopyMessages(
-    uint32_t aNumKeys, nsMsgKey *aMsgKeys, nsIMsgFolder *srcFolder,
+    const nsTArray<nsMsgKey> &aMsgKeys, nsIMsgFolder *srcFolder,
     nsIStreamListener *aMailboxCopyHandler, bool moveMessage,
     nsIUrlListener *aUrlListener, nsIMsgWindow *aMsgWindow, nsIURI **aURL) {
   nsresult rv = NS_OK;
   NS_ENSURE_ARG(srcFolder);
-  NS_ENSURE_ARG(aMsgKeys);
+  NS_ENSURE_TRUE(!aMsgKeys.IsEmpty(), NS_ERROR_INVALID_ARG);
   nsCOMPtr<nsIMailboxUrl> mailboxurl;
 
   nsMailboxAction actionToUse = nsIMailboxUrl::ActionMoveMessage;
@@ -124,7 +124,7 @@ nsresult nsMailboxService::CopyMessages(
         nsCOMPtr<nsIMailboxUrl> mailboxUrl(do_QueryInterface(url));
         msgUrl->SetMsgWindow(aMsgWindow);
 
-        mailboxUrl->SetMoveCopyMsgKeys(aMsgKeys, aNumKeys);
+        mailboxUrl->SetMoveCopyMsgKeys(aMsgKeys);
         rv = RunMailboxUrl(url, aMailboxCopyHandler);
       }
     }
