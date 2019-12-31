@@ -1370,7 +1370,8 @@ function convertMessage(msgHdr, extension) {
     messageObject.folder = convertFolder(msgHdr.folder, msgHdr.accountKey);
   }
   let tags = msgHdr.getProperty("keywords");
-  messageObject.tags = tags ? tags.split(" ") : [];
+  tags = tags ? tags.split(" ") : [];
+  messageObject.tags = tags.filter(MailServices.tags.isValidKey);
   return messageObject;
 }
 

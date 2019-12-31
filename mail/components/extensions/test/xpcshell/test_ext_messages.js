@@ -4,6 +4,9 @@
 
 "use strict";
 
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
@@ -20,6 +23,12 @@ async function run_test() {
   createMessages(subFolders[0], 99); // Trash
   createMessages(subFolders[1], 1); // Unsent messages
   createMessages(subFolders[2], 5); // test1
+
+  let messageArray = toXPCOMArray(
+    [[...subFolders[1].messages][0]],
+    Ci.nsIMutableArray
+  );
+  subFolders[1].addKeywordsToMessages(messageArray, "testKeyword");
 
   run_next_test();
 }
@@ -162,7 +171,7 @@ add_task(async function test_update() {
   let message = [...subFolders[1].messages][0];
   ok(!message.isFlagged);
   ok(!message.isRead);
-  equal(message.getProperty("keywords"), "");
+  equal(message.getProperty("keywords"), "testKeyword");
 
   await extension.startup();
   extension.sendMessage({ accountId: account.key, path: "/Unsent Messages" });
@@ -180,24 +189,24 @@ add_task(async function test_update() {
   extension.sendMessage();
 
   await extension.awaitMessage("tags1");
-  equal(message.getProperty("keywords"), "$label1");
+  equal(message.getProperty("keywords"), "testKeyword $label1");
   extension.sendMessage();
 
   await extension.awaitMessage("tags2");
-  equal(message.getProperty("keywords"), "$label2 $label3");
+  equal(message.getProperty("keywords"), "testKeyword $label2 $label3");
   extension.sendMessage();
 
   await extension.awaitMessage("empty");
   ok(message.isFlagged);
   ok(message.isRead);
-  equal(message.getProperty("keywords"), "$label2 $label3");
+  equal(message.getProperty("keywords"), "testKeyword $label2 $label3");
   extension.sendMessage();
 
   await extension.awaitMessage("clear");
   ok(!message.isFlagged);
   ok(!message.isRead);
   equal(message.getStringProperty("junkscore"), 0);
-  equal(message.getProperty("keywords"), "");
+  equal(message.getProperty("keywords"), "testKeyword");
   extension.sendMessage();
 
   await extension.awaitFinish("finished");

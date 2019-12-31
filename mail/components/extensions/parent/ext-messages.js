@@ -283,12 +283,17 @@ this.messages = class extends ExtensionAPI {
             msgHdr.folder.setJunkScoreForMessages(messages, score);
           }
           if (Array.isArray(newProperties.tags)) {
-            newProperties.tags = newProperties.tags.filter(
-              MailServices.tags.isValidKey
-            );
-            msgHdr.setProperty("keywords", newProperties.tags.join(" "));
-            for (let window of Services.wm.getEnumerator("mail:3pane")) {
-              window.OnTagsChange();
+            let currentTags = msgHdr.getStringProperty("keywords").split(" ");
+            let msgHdrArray = toXPCOMArray([msgHdr], Ci.nsIMutableArray);
+
+            for (let { key: tagKey } of MailServices.tags.getAllTags()) {
+              if (newProperties.tags.includes(tagKey)) {
+                if (!currentTags.includes(tagKey)) {
+                  msgHdr.folder.addKeywordsToMessages(msgHdrArray, tagKey);
+                }
+              } else if (currentTags.includes(tagKey)) {
+                msgHdr.folder.removeKeywordsFromMessages(msgHdrArray, tagKey);
+              }
             }
           }
         },
