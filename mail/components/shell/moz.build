@@ -36,11 +36,3 @@ if SOURCES:
     FINAL_LIBRARY = 'mailcomps'
 
 CXXFLAGS += CONFIG['TK_CFLAGS']
-
-EXTRA_JS_MODULES += [
-    'SetDefaultMail.jsm',
-]
-
-XPCOM_MANIFESTS += [
-    'components.conf',
-]
