@@ -399,8 +399,6 @@ pref("mailnews.scroll_to_new_message", true);
 // if true, any click on a column header other than the thread column will unthread the view
 pref("mailnews.thread_pane_column_unthreads", false);
 
-pref("mailnews.account_central_page.url", "chrome://messenger/locale/messenger.properties");
-
 /* default prefs for Mozilla 5.0 */
 pref("mail.identity.default.compose_html", true);
 pref("mail.identity.default.valid", true);

@@ -1816,13 +1816,10 @@ FolderDisplayWidget.prototype = {
     }
     var accountBox = document.getElementById("accountCentralBox");
     document.getElementById("displayDeck").selectedPanel = accountBox;
-    var acctCentralPage = Services.prefs.getComplexValue(
-      "mailnews.account_central_page.url",
-      Ci.nsIPrefLocalizedString
-    ).data;
+
     // Prevent a second load if necessary.
     let loadURL =
-      acctCentralPage +
+      "chrome://messenger/content/msgAccountCentral.xhtml" +
       (this.displayedFolder ? "?folderURI=" + this.displayedFolder.URI : "");
     if (window.frames.accountCentralPane.location.href != loadURL) {
       window.frames.accountCentralPane.location.href = loadURL;
