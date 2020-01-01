@@ -24,6 +24,7 @@ if CONFIG['MOZ_BUNDLED_FONTS']:
 TEST_DIRS += [
     'test/browser',
     'test/marionette',
+    'test/static',
 ]
 
 FINAL_TARGET_FILES.defaults += ['app/permissions']
