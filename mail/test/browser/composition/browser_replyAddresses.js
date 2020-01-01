@@ -41,7 +41,7 @@ var { MailServices } = ChromeUtils.import(
 );
 
 add_task(function setupModule(module) {
-  requestLongerTimeout(3);
+  requestLongerTimeout(4);
 
   // Now set up an account with some identities.
   let acctMgr = MailServices.accounts;
