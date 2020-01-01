@@ -375,7 +375,9 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
     if (aMsgWindowInitialized) {
       messenger.setWindow(null, null);
       messenger.setWindow(window, msgWindow);
-      ReloadMessage();
+      // Hack to make sure that the message is re-displayed
+      // with the correct charset.
+      setTimeout(ReloadMessage);
     }
 
     // The quick filter bar gets badly lied to due to standard XUL/XBL problems,
