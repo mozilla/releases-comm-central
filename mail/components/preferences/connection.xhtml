@@ -65,13 +65,13 @@
           <row>
             <hbox/>
             <hbox>
-              <checkbox id="shareAllProxies" label="&shareproxy.label;" accesskey="&shareproxy.accesskey;"
+              <checkbox id="shareAllProxies" label="&proxyHttpSharing.label;" accesskey="&proxyHttpSharing.accesskey;"
                         preference="network.proxy.share_proxy_settings" class="align-no-label"/>
             </hbox>
           </row>
           <row align="center">
             <hbox pack="end">
-              <label value="&ssl.label;" accesskey="&ssl.accesskey;" control="networkProxySSL"/>
+              <label value="&https.label;" accesskey="&https.accesskey;" control="networkProxySSL"/>
             </hbox>
             <hbox align="center" class="input-container">
               <html:input id="networkProxySSL"
@@ -82,6 +82,7 @@
                           preference="network.proxy.ssl_port"/>
             </hbox>
           </row>
+          <separator/>
           <row align="center">
             <hbox pack="end">
               <label value="&socks.label;" accesskey="&socks.accesskey;" control="networkProxySOCKS"/>

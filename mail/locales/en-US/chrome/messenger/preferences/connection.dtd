@@ -21,8 +21,8 @@
 <!ENTITY  reload.accesskey              "l">
 <!ENTITY  http.label                    "HTTP Proxy:">
 <!ENTITY  http.accesskey                "h">
-<!ENTITY  ssl.label                     "SSL Proxy:">
-<!ENTITY  ssl.accesskey                 "s">
+<!ENTITY  https.label                   "HTTPS Proxy:">
+<!ENTITY  https.accesskey               "S">
 <!ENTITY  socks.label                   "SOCKS Host:">
 <!ENTITY  socks.accesskey               "c">
 <!ENTITY  socks4.label                  "SOCKS v4">
@@ -41,9 +41,9 @@
 <!-- LOCALIZATION NOTE (noproxyLocalhostDesc.label): Do not translate
   localhost, 127.0.0.1 and ::1.
 -->
-<!ENTITY  noproxyLocalhostDesc.label   "Connections to localhost, 127.0.0.1, and ::1 are never proxied.">
-<!ENTITY  shareproxy.label              "Use this proxy server for all protocols">
-<!ENTITY  shareproxy.accesskey          "x">
+<!ENTITY  noproxyLocalhostDesc.label    "Connections to localhost, 127.0.0.1, and ::1 are never proxied.">
+<!ENTITY  proxyHttpSharing.label        "Also use this proxy for HTTPS">
+<!ENTITY  proxyHttpSharing.accesskey    "x">
 <!ENTITY  autologinproxy.label          "Do not prompt for authentication if password is saved">
 <!ENTITY  autologinproxy.accesskey      "i">
 <!ENTITY  autologinproxy.tooltip        "This option silently authenticates you to proxies when you have saved credentials for them. You will be prompted if authentication fails.">
