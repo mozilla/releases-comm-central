@@ -440,13 +440,25 @@ var MailMigrator = {
         // Clear socks proxy values if they were shared from http, to prevent
         // websocket breakage after bug 1577862 (see bug 1606679).
         if (
-          Services.prefs.getBoolPref("network.proxy.share_proxy_settings", false) &&
+          Services.prefs.getBoolPref(
+            "network.proxy.share_proxy_settings",
+            false
+          ) &&
           Services.prefs.getIntPref("network.proxy.type", 0) == 1
         ) {
           let httpProxy = Services.prefs.getCharPref("network.proxy.http", "");
-          let httpPort = Services.prefs.getIntPref("network.proxy.http_port", 0);
-          let socksProxy = Services.prefs.getCharPref("network.proxy.socks", "");
-          let socksPort = Services.prefs.getIntPref("network.proxy.socks_port", 0);
+          let httpPort = Services.prefs.getIntPref(
+            "network.proxy.http_port",
+            0
+          );
+          let socksProxy = Services.prefs.getCharPref(
+            "network.proxy.socks",
+            ""
+          );
+          let socksPort = Services.prefs.getIntPref(
+            "network.proxy.socks_port",
+            0
+          );
           if (httpProxy && httpProxy == socksProxy && httpPort == socksPort) {
             Services.prefs.setCharPref(
               "network.proxy.socks",
