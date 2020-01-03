@@ -264,9 +264,9 @@ function awAddRecipientsArray(aRecipientType, aAddressArray) {
     label.click();
   }
 
+  let recipientArea = document.getElementById("recipientsContainer");
   for (let address of addresses) {
-    let pill = createRecipientPill(element, address);
-    element.closest(".address-container").insertBefore(pill, element);
+    recipientArea.createRecipientPill(element, address);
   }
 
   if (element.id != "replyAddrInput") {
@@ -388,7 +388,11 @@ function recipientKeyPress(event, element) {
     case "a":
       // Select all the pills if the input is empty.
       if ((event.ctrlKey || event.metaKey) && !element.value.trim()) {
-        selectRecipientPills(element);
+        let previous = element.previousElementSibling;
+        if (previous && previous.tagName == "mail-address-pill") {
+          document.getElementById("recipientsContainer").selectPills(previous);
+          previous.focus();
+        }
       }
       break;
     case ",":
@@ -406,13 +410,17 @@ function recipientKeyPress(event, element) {
         if (pills.length) {
           let key = event.key == "Home" ? 0 : pills.length - 1;
           pills[key].focus();
-          pills[key].checkKeyboardSelected(event, pills[key]);
+          document
+            .getElementById("recipientsContainer")
+            .checkKeyboardSelected(event, pills[key]);
         }
       }
       break;
     case "Enter":
       // No address entered, move focus to Subject field.
       if (!element.value.trim()) {
+        event.stopPropagation();
+        event.preventDefault();
         document.getElementById("msgSubject").focus();
         return;
       }
@@ -454,16 +462,13 @@ function recipientAddPill(element, automatic = false) {
     return;
   }
 
-  let parent = document.getElementById(
-    element.closest(".address-container").id
-  );
   let addresses = MailServices.headerParser.makeFromDisplayAddress(
     element.value
   );
+  let recipientArea = document.getElementById("recipientsContainer");
 
   for (let address of addresses) {
-    let pill = createRecipientPill(element, address);
-    parent.insertBefore(pill, element);
+    recipientArea.createRecipientPill(element, address);
 
     // Be sure to add the user add recipient to our ignore list
     // when the user hits enter in an autocomplete widget...
@@ -489,54 +494,10 @@ function recipientAddPill(element, automatic = false) {
 }
 
 /**
- * Create a new recipient pill.
- *
- * @param {HTMLElement} element - The original autocomplete input that generated
- *   the pill.
- * @param {Array} address - The array containing the recipient's info.
- * @returns {XULElement} The newly created pill element.
- */
-function createRecipientPill(element, address) {
-  let pill = document.createXULElement("mail-address-pill");
-
-  pill.originalInput = element;
-  pill.label = address.toString();
-  pill.emailAddress = address.email || "";
-  pill.fullAddress = address.toString();
-  pill.displayName = address.name || "";
-  pill.setAttribute("recipienttype", element.getAttribute("recipienttype"));
-
-  let listNames = MimeParser.parseHeaderField(
-    address.toString(),
-    MimeParser.HEADER_ADDRESS
-  );
-  let isMailingList =
-    listNames.length > 0 &&
-    MailServices.ab.mailListNameExists(listNames[0].name);
-  let isNewsgroup = element.classList.contains("nntp-input");
-
-  pill.classList.toggle(
-    "error",
-    !isValidAddress(address.email) && !isMailingList && !isNewsgroup
-  );
-
-  let emailCard = DisplayNameUtils.getCardForEmail(address.email);
-  pill.classList.toggle(
-    "warning",
-    isValidAddress(address.email) &&
-      !emailCard.card &&
-      !isMailingList &&
-      !isNewsgroup
-  );
-
-  return pill;
-}
-
-/**
  * Force a focused styling on the recipient container of the currently
  * selected input element.
  *
- * @param {HTMLElement} element - The element receving focus.
+ * @param {HTMLElement} element - The element receiving focus.
  */
 function highlightAddressContainer(element) {
   element.closest(".address-container").setAttribute("focused", "true");
@@ -592,7 +553,9 @@ function resetAddressContainer(element) {
  * @param {Event} event - The DOM event.
  */
 function editAddressPill(element, event) {
-  element.closest("mail-address-pill").startEditing(event);
+  document
+    .getElementById("recipientsContainer")
+    .startEditing(element.closest("mail-address-pill"), event);
 }
 
 /**
@@ -603,7 +566,9 @@ function editAddressPill(element, event) {
  */
 function copyEmailNewsAddress(element) {
   let allAddresses = [];
-  for (let pill of getAllSelectedPills(element.closest("mail-address-pill"))) {
+  for (let pill of document
+    .getElementById("recipientsContainer")
+    .getAllSelectedPills()) {
     allAddresses.push(pill.fullAddress);
   }
 
@@ -631,14 +596,14 @@ function cutEmailNewsAddress(element) {
  *   opened.
  */
 function deleteAddressPill(element) {
-  let firstPill = element.closest("mail-address-pill");
-
   // We need to store the input location before removing the pills.
-  let input = firstPill
+  let input = element
     .closest(".address-container")
     .querySelector(`input[is="autocomplete-input"][recipienttype]`);
 
-  for (let pill of getAllSelectedPills(firstPill)) {
+  for (let pill of document
+    .getElementById("recipientsContainer")
+    .getAllSelectedPills()) {
     pill.remove();
   }
 
@@ -663,7 +628,7 @@ function showAddressRowKeyPress(event, label, rowID) {
 /**
  * Show the container row of an hidden recipient (Cc, Bcc, etc.).
  *
- * @param {XULelement} label - The clicked label to hide.
+ * @param {XULElement} label - The clicked label to hide.
  * @param {string} rowID - The ID of the container to reveal.
  */
 function showAddressRow(label, rowID) {
@@ -736,48 +701,3 @@ function calculateHeaderHeight() {
     }
   }
 }
-
-/**
- * Move the focus on the first pill from the same .address-container.
- *
- * @param {XULElement} pill - The mail-address-pill element.
- */
-function setFocusOnFirstPill(pill) {
-  pill.closest(".address-container").firstElementChild.focus();
-}
-
-// #TODO: The getSiblingPills(), getAllPills(), and getAllSelectedPills()
-// methods are not a good way to handle these scenarios, and they should be
-// moved into their own CE. See Bug 1601740
-
-/**
- * Return all the pills from the same .address-container.
- *
- * @param {XULElement} pill - The mail-address-pill element.
- * @return {Array} Array of mail-address-pill elements.
- */
-function getSiblingPills(pill) {
-  return pill
-    .closest(".address-container")
-    .querySelectorAll("mail-address-pill");
-}
-
-/**
- * Return all the pills currently available in the document.
- *
- * @return {Array} Array of mail-address-pill elements.
- */
-function getAllPills() {
-  return document.querySelectorAll("mail-address-pill");
-}
-
-/**
- * Return all the selected pills currently available in the document.
- *
- * @return {Array} Array of selected mail-address-pill elements.
- */
-function getAllSelectedPills() {
-  return document.querySelectorAll(`mail-address-pill[selected]`);
-}
-
-// #END TODO

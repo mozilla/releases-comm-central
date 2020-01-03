@@ -2009,11 +2009,12 @@
             </menulist>
           </hbox>
 
-          <vbox id="recipientsContainer" class="recipients-container" flex="1">
+          <mail-recipients-area id="recipientsContainer" orient="vertical"
+                                class="recipients-container" flex="1">
             <hbox id="addressRowTo" class="addressingWidgetItem address-row">
               <hbox class="aw-firstColBox"/>
-              <hbox class="address-label-container" align="top"
-                    pack="end" style="&headersSpace2.style;">
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
                 <label id="toAddrLabel" value="&toAddr2.label;"
                        control="toAddrInput"/>
               </hbox>
@@ -2049,8 +2050,8 @@
                   <image class="close-icon"/>
                 </label>
               </hbox>
-              <hbox class="address-label-container" align="top"
-                    pack="end" style="&headersSpace2.style;">
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
                 <label id="ccAddrLabel" value="&ccAddr2.label;"
                        control="ccAddrInput"/>
               </hbox>
@@ -2086,8 +2087,8 @@
                   <image class="close-icon"/>
                 </label>
               </hbox>
-              <hbox class="address-label-container" align="top"
-                    pack="end" style="&headersSpace2.style;">
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
                 <label id="bccAddrLabel" value="&bccAddr2.label;"
                        control="bccAddrInput"/>
               </hbox>
@@ -2123,8 +2124,8 @@
                   <image class="close-icon"/>
                 </label>
               </hbox>
-              <hbox class="address-label-container" align="top"
-                    pack="end" style="&headersSpace2.style;">
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
                 <label id="replyAddrLabel" value="&replyAddr2.label;"
                        control="replyAddrInput"/>
               </hbox>
@@ -2160,8 +2161,8 @@
                   <image class="close-icon"/>
                 </label>
               </hbox>
-              <hbox class="address-label-container" align="top"
-                    pack="end" style="&headersSpace2.style;">
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
                 <label id="newsgroupsAddrLabel" value="&newsgroupsAddr2.label;"
                        control="newsgroupsAddrInput"/>
               </hbox>
@@ -2197,8 +2198,8 @@
                   <image class="close-icon"/>
                 </label>
               </hbox>
-              <hbox class="address-label-container" align="top"
-                    pack="end" style="&headersSpace2.style;">
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
                 <label id="followupAddrLabel" value="&followupAddr2.label;"
                        control="followupAddrInput"/>
               </hbox>
@@ -2226,7 +2227,7 @@
                             size="1"/>
               </hbox>
             </hbox>
-          </vbox>
+          </mail-recipients-area>
 
           <hbox class="addressingWidgetItem">
             <hbox class="aw-firstColBox"/>

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements getSiblingPills */
+/* global MozElements */
 
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
 /* import-globals-from ../../../base/content/mailCore.js */
@@ -3402,8 +3402,6 @@ function ComposeLoad() {
 
   AddMessageComposeOfflineQuitObserver();
 
-  setupAutocomplete();
-
   try {
     SetupCommandUpdateHandlers();
     // This will do migration, or create a new account if we need to.
@@ -3417,8 +3415,20 @@ function ComposeLoad() {
       let recipientsContainer = document.getElementById("recipientsContainer");
 
       for (let header of otherHeaders.split(",")) {
+        let recipient = {
+          id: `${header}AddrInput`,
+          row: `addressRow${header}`,
+          label: `${header}AddrLabel`,
+          labelId: header,
+          container: `${header}AddrContainer`,
+          class: "nntp-input",
+          type: "addr_other",
+        };
+
         addressingWidgetLabels.appendChild(createRecipientLabel(header));
-        recipientsContainer.appendChild(createRecipientRow(header));
+        recipientsContainer.appendChild(
+          recipientsContainer.buildRecipientRows(recipient)
+        );
       }
     }
     if (state) {
@@ -3534,112 +3544,6 @@ function createRecipientLabel(labelID) {
   label.prepend(newImage);
 
   return label;
-}
-
-/**
- * Create a new recipient row container with the input autocomplete.
- *
- * @param {string} labelID - The unique identifier of the email header.
- * @returns {XULElement} - The newly created recipient row.
- */
-function createRecipientRow(labelID) {
-  let row = document.createXULElement("hbox");
-  row.setAttribute("id", `addressRow${labelID}`);
-  row.classList.add("addressingWidgetItem", "address-row", "hidden");
-
-  let firstCol = document.createXULElement("hbox");
-  firstCol.setAttribute("align", "start");
-  firstCol.classList.add("aw-firstColBox");
-
-  let firstLabel = document.createXULElement("label");
-  firstLabel.addEventListener("click", () => {
-    hideAddressRow(firstLabel, labelID);
-  });
-  firstLabel.addEventListener("keypress", event => {
-    if (event.key == "Enter") {
-      hideAddressRow(firstLabel, labelID);
-    }
-  });
-  // Necessary to allow focus via TAB key.
-  firstLabel.setAttribute("tabindex", 0);
-
-  let closeImage = document.createXULElement("image");
-  closeImage.classList.add("close-icon");
-
-  firstLabel.appendChild(closeImage);
-  firstCol.appendChild(firstLabel);
-
-  let secondCol = document.createXULElement("hbox");
-  secondCol.setAttribute("align", "start");
-  secondCol.setAttribute("pack", "end");
-  secondCol.setAttribute(
-    "style",
-    getComposeBundle().getString("headersSpaceStyle")
-  );
-  secondCol.classList.add("address-label-container");
-
-  let secondLabel = document.createXULElement("label");
-  secondLabel.setAttribute("id", `${labelID}AddrLabel`);
-  secondLabel.value = labelID;
-  secondLabel.setAttribute("control", `${labelID}AddrInput`);
-
-  secondCol.appendChild(secondLabel);
-
-  let container = document.createXULElement("hbox");
-  container.setAttribute("id", `${labelID}AddrContainer`);
-  container.setAttribute("flex", "1");
-  container.setAttribute("align", "center");
-  container.classList.add(
-    "input-container",
-    "wrap-container",
-    "address-container"
-  );
-  container.addEventListener("click", focusAddressInput);
-
-  let input = document.createElement("input", {
-    is: "autocomplete-input",
-  });
-  input.setAttribute("id", `${labelID}AddrInput`);
-
-  input.setAttribute("type", "text");
-  input.classList.add("plain", "address-input", "nntp-input");
-  input.setAttribute("disableonsend", true);
-  input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
-  input.setAttribute("autocompletesearchparam", "{}");
-  input.setAttribute("timeout", 300);
-  input.setAttribute("maxrows", 6);
-  input.setAttribute("completedefaultindex", true);
-  input.setAttribute("forcecomplete", true);
-  input.setAttribute("completeselectedindex", true);
-  input.setAttribute("minresultsforpopup", 2);
-  input.setAttribute("ignoreblurwhilesearching", true);
-
-  input.addEventListener("focus", () => {
-    highlightAddressContainer(input);
-  });
-  input.addEventListener("blur", () => {
-    resetAddressContainer(input);
-  });
-  input.addEventListener("keypress", event => {
-    recipientKeyPress(event, input);
-  });
-
-  input.setAttribute("recipienttype", "addr_other");
-  input.setAttribute("size", 1);
-
-  let highlightNonMatches = Services.prefs.getBoolPref(
-    "mail.autoComplete.highlightNonMatches"
-  );
-
-  setupAutocompleteInput(input, highlightNonMatches);
-
-  container.appendChild(input);
-
-  row.appendChild(firstCol);
-  row.appendChild(secondCol);
-  row.appendChild(container);
-
-  return row;
 }
 
 /**
@@ -6565,16 +6469,6 @@ function MakeFromFieldEditable(ignoreWarning) {
   );
 }
 
-function setupAutocomplete() {
-  let highlightNonMatches = Services.prefs.getBoolPref(
-    "mail.autoComplete.highlightNonMatches"
-  );
-
-  for (let input of document.querySelectorAll(".pop-imap-input,.nntp-input")) {
-    setupAutocompleteInput(input, highlightNonMatches);
-  }
-}
-
 function setupAutocompleteInput(input, highlightNonMatches) {
   let params = JSON.parse(input.getAttribute("autocompletesearchparam"));
   params.type = input.getAttribute("recipienttype");
@@ -6595,21 +6489,6 @@ function setupAutocompleteInput(input, highlightNonMatches) {
 
   // Request that input that isn't matched be highlighted.
   input.highlightNonMatches = highlightNonMatches;
-}
-
-/**
- * Select all the pills in the same recipient container if they exist.
- *
- * @param {HTMLElement} input - The autocomplete input field.
- */
-function selectRecipientPills(input) {
-  let previous = input.previousElementSibling;
-  if (previous && previous.tagName == "mail-address-pill") {
-    for (let pill of getSiblingPills(input)) {
-      pill.setAttribute("selected", "selected");
-    }
-    previous.focus();
-  }
 }
 
 function fromKeyPress(event) {

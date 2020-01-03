@@ -15,7 +15,7 @@
 /* global UpdateEmailNodeDetails */
 /* global PluralForm */
 /* global UpdateExtraAddressProcessing */
-/* global getSiblingPills setFocusOnFirstPill getAllPills getAllSelectedPills onRecipientsChanged */
+/* global onRecipientsChanged */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -1783,12 +1783,8 @@
       this.pillLabel = document.createXULElement("label");
       this.pillLabel.classList.add("pill-label");
 
-      this.pillDeleteImage = document.createXULElement("image");
-      this.pillDeleteImage.classList.add("delete-pill-icon");
-
       this.appendChild(this.pillLabel);
       this._setupEmailInput();
-      this.appendChild(this.pillDeleteImage);
 
       this._setupEventListeners();
       this.initializeAttributeInheritance();
@@ -1907,10 +1903,6 @@
     }
 
     _setupEventListeners() {
-      this.addEventListener("click", this);
-      this.addEventListener("dblclick", this);
-      this.addEventListener("keypress", this);
-
       this.emailInput.addEventListener("keypress", event => {
         this.finishEditing(event);
       });
@@ -1918,158 +1910,6 @@
       this.emailInput.addEventListener("blur", () => {
         this.updatePill();
       });
-
-      this.pillDeleteImage.addEventListener("click", () => {
-        this.removePills();
-      });
-    }
-
-    handleEvent(event) {
-      switch (event.type) {
-        case "click":
-          this.checkSelected(event);
-          break;
-        case "dblclick":
-          this.startEditing(event);
-          break;
-        case "keypress":
-          this.handleKeyPress(event);
-          break;
-      }
-    }
-
-    handleKeyPress(event) {
-      if (this.isEditing) {
-        return;
-      }
-
-      switch (event.key) {
-        case " ":
-          this.checkSelected(event);
-          break;
-
-        case "Enter":
-        case "F2": // For Windows users
-          this.startEditing(event);
-          break;
-
-        case "Delete":
-        case "Backspace":
-          this.removePills();
-          break;
-
-        case "ArrowLeft":
-          if (this.previousElementSibling) {
-            this.previousElementSibling.focus();
-            this.checkKeyboardSelected(event, this.previousElementSibling);
-          }
-          break;
-
-        case "ArrowRight":
-          if (this.nextElementSibling.hasAttribute("hidden")) {
-            this.nextElementSibling.removeAttribute("hidden");
-            this.nextElementSibling.focus();
-            break;
-          }
-          this.nextElementSibling.focus();
-          this.checkKeyboardSelected(event, this.nextElementSibling);
-          break;
-
-        case "Home":
-          this.removeAttribute("selected");
-          setFocusOnFirstPill(this);
-          break;
-
-        case "End":
-          this.originalInput.focus();
-          break;
-
-        case "Tab":
-          for (let pill of getSiblingPills(this)) {
-            pill.removeAttribute("selected");
-          }
-          break;
-
-        case "a":
-          if (event.ctrlKey || event.metaKey) {
-            this.selectPills();
-          }
-          break;
-
-        case "c":
-          if (event.ctrlKey || event.metaKey) {
-            copyEmailNewsAddress(this);
-          }
-          break;
-
-        case "x":
-          if (event.ctrlKey || event.metaKey) {
-            copyEmailNewsAddress(this);
-            deleteAddressPill(this);
-          }
-          break;
-      }
-    }
-
-    selectPills() {
-      for (let pill of getSiblingPills(this)) {
-        pill.setAttribute("selected", "selected");
-      }
-    }
-
-    clearSelected() {
-      for (let pill of getAllPills()) {
-        pill.removeAttribute("selected");
-      }
-    }
-
-    checkSelected(event) {
-      if (
-        this.isEditing ||
-        (this.hasAttribute("selected") && event.which == 3)
-      ) {
-        return;
-      }
-
-      if (!event.ctrlKey && !event.metaKey && event.key != " ") {
-        this.clearSelected();
-      }
-
-      this.toggleAttribute("selected");
-      if (!this.hasAttribute("selected") && event.key != " ") {
-        this.blur();
-      } else {
-        this.focus();
-      }
-    }
-
-    checkKeyboardSelected(event, element) {
-      if (event.shiftKey) {
-        if (this.hasAttribute("selected") && element.hasAttribute("selected")) {
-          this.removeAttribute("selected");
-          return;
-        }
-
-        this.setAttribute("selected", "selected");
-        element.setAttribute("selected", "selected");
-      } else if (!event.ctrlKey) {
-        this.clearSelected();
-      }
-    }
-
-    /**
-     * When a "Delete" action is triggered, we need to check if other pills are
-     * currently selected and delete them all.
-     */
-    removePills() {
-      for (let pill of getAllSelectedPills()) {
-        pill.remove();
-      }
-
-      this.originalInput.focus();
-      this.remove();
-
-      onRecipientsChanged();
     }
 
     /**
@@ -2082,21 +1922,10 @@
     }
 
     /**
-     * Convert the pill into "Edit Mode", meaning hiding the label and showing
-     * the html:input element.
-     *
-     * @param {Event} event - The DOM Event.
+     * Convert the pill into "Edit Mode" by hiding the label and showing the
+     * html:input element.
      */
-    startEditing(event) {
-      if (this.isEditing) {
-        event.stopPropagation();
-        return;
-      }
-
-      for (let pill of getAllPills()) {
-        pill.finishEditing();
-      }
-
+    startEditing() {
       // We need to set the min and max width before hiding and showing the
       // child nodes in order to prevent unwanted jumps in the resizing of the
       // edited pill. Both properties are necessary to handle flexbox.
@@ -2105,7 +1934,6 @@
 
       this.classList.add("editing");
       this.pillLabel.setAttribute("hidden", "true");
-      this.pillDeleteImage.setAttribute("hidden", "true");
       this.emailInput.removeAttribute("hidden");
       this.emailInput.focus();
 
@@ -2195,7 +2023,6 @@
       this.style.removeProperty("min-width");
       this.classList.remove("editing");
       this.pillLabel.removeAttribute("hidden");
-      this.pillDeleteImage.removeAttribute("hidden");
       this.emailInput.setAttribute("hidden", "hidden");
       this.originalInput.focus();
     }
@@ -2209,4 +2036,403 @@
   }
 
   customElements.define("mail-address-pill", MailAddressPill);
+
+  /**
+   * The MailRecipientsArea widget is used to display the recipient rows in the
+   * header area of the messengercompose.xul window.
+   *
+   * @extends {MozXULElement}
+   */
+  class MailRecipientsArea extends MozXULElement {
+    connectedCallback() {
+      if (this.delayConnectedCallback() || this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
+      this.highlightNonMatches = Services.prefs.getBoolPref(
+        "mail.autoComplete.highlightNonMatches"
+      );
+
+      for (let input of this.querySelectorAll(".pop-imap-input,.nntp-input")) {
+        setupAutocompleteInput(input, this.highlightNonMatches);
+      }
+    }
+
+    /**
+     * Create a new recipient row container with the input autocomplete.
+     *
+     * @param {Array} recipient - The unique identifier of the email header.
+     * @returns {XULElement} - The newly created recipient row.
+     */
+    buildRecipientRows(recipient) {
+      let row = document.createXULElement("hbox");
+      row.setAttribute("id", recipient.row);
+      row.classList.add("addressingWidgetItem", "address-row");
+
+      let firstCol = document.createXULElement("hbox");
+      firstCol.classList.add("aw-firstColBox");
+
+      row.classList.add("hidden");
+
+      let firstLabel = document.createXULElement("label");
+      let labelId =
+        recipient.type == "addr_other" ? recipient.labelId : recipient.type;
+      firstLabel.addEventListener("click", () => {
+        hideAddressRow(firstLabel, labelId);
+      });
+      firstLabel.addEventListener("keypress", event => {
+        if (event.key == "Enter") {
+          hideAddressRow(firstLabel, labelId);
+        }
+      });
+      // Necessary to allow focus via TAB key.
+      firstLabel.setAttribute("tabindex", 0);
+
+      let closeImage = document.createXULElement("image");
+      closeImage.classList.add("close-icon");
+
+      firstLabel.appendChild(closeImage);
+      firstCol.appendChild(firstLabel);
+      row.appendChild(firstCol);
+
+      let labelContainer = document.createXULElement("hbox");
+      labelContainer.setAttribute("align", "top");
+      labelContainer.setAttribute("pack", "end");
+      labelContainer.setAttribute("flex", 1);
+      labelContainer.classList.add("address-label-container");
+      labelContainer.setAttribute(
+        "style",
+        getComposeBundle().getString("headersSpaceStyle")
+      );
+
+      let label = document.createXULElement("label");
+      label.setAttribute("id", recipient.label);
+      label.setAttribute("value", recipient.labelId);
+      label.setAttribute("control", recipient.id);
+      label.setAttribute("flex", 1);
+      label.setAttribute("crop", "end");
+      labelContainer.appendChild(label);
+      row.appendChild(labelContainer);
+
+      let inputContainer = document.createXULElement("hbox");
+      inputContainer.setAttribute("id", recipient.container);
+      inputContainer.setAttribute("flex", 1);
+      inputContainer.setAttribute("align", "center");
+      inputContainer.classList.add(
+        "input-container",
+        "wrap-container",
+        "address-container"
+      );
+      inputContainer.addEventListener("click", focusAddressInput);
+
+      let input = document.createElement("input", {
+        is: "autocomplete-input",
+      });
+      input.setAttribute("id", recipient.id);
+
+      input.setAttribute("type", "text");
+      input.classList.add("plain", "address-input", recipient.class);
+      input.setAttribute("disableonsend", true);
+      input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
+      input.setAttribute("autocompletesearchparam", "{}");
+      input.setAttribute("timeout", 300);
+      input.setAttribute("maxrows", 6);
+      input.setAttribute("completedefaultindex", true);
+      input.setAttribute("forcecomplete", true);
+      input.setAttribute("completeselectedindex", true);
+      input.setAttribute("minresultsforpopup", 2);
+      input.setAttribute("ignoreblurwhilesearching", true);
+
+      input.addEventListener("focus", () => {
+        highlightAddressContainer(input);
+      });
+      input.addEventListener("blur", () => {
+        resetAddressContainer(input);
+      });
+      input.addEventListener("keypress", event => {
+        recipientKeyPress(event, input);
+      });
+
+      input.setAttribute("recipienttype", recipient.type);
+      input.setAttribute("size", 1);
+
+      setupAutocompleteInput(input, this.highlightNonMatches);
+
+      inputContainer.appendChild(input);
+
+      row.appendChild(inputContainer);
+
+      return row;
+    }
+
+    /**
+     * Create a new recipient pill.
+     *
+     * @param {HTMLElement} element - The original autocomplete input that
+     *   generated the pill.
+     * @param {Array} address - The array containing the recipient's info.
+     */
+    createRecipientPill(element, address) {
+      let pill = document.createXULElement("mail-address-pill");
+
+      pill.originalInput = element;
+      pill.label = address.toString();
+      pill.emailAddress = address.email || "";
+      pill.fullAddress = address.toString();
+      pill.displayName = address.name || "";
+      pill.setAttribute("recipienttype", element.getAttribute("recipienttype"));
+
+      let listNames = MimeParser.parseHeaderField(
+        address.toString(),
+        MimeParser.HEADER_ADDRESS
+      );
+      let isMailingList =
+        listNames.length > 0 &&
+        MailServices.ab.mailListNameExists(listNames[0].name);
+      let isNewsgroup = element.classList.contains("nntp-input");
+
+      pill.classList.toggle(
+        "error",
+        !isValidAddress(address.email) && !isMailingList && !isNewsgroup
+      );
+
+      let emailCard = DisplayNameUtils.getCardForEmail(address.email);
+      pill.classList.toggle(
+        "warning",
+        isValidAddress(address.email) &&
+          !emailCard.card &&
+          !isMailingList &&
+          !isNewsgroup
+      );
+
+      pill.addEventListener("click", event => {
+        this.checkSelected(pill, event);
+      });
+      pill.addEventListener("dblclick", event => {
+        this.startEditing(pill, event);
+      });
+      pill.addEventListener("keypress", event => {
+        this.handleKeyPress(pill, event);
+      });
+
+      element.closest(".address-container").insertBefore(pill, element);
+    }
+
+    /**
+     * Move the focus on the first pill from the same .address-container.
+     *
+     * @param {XULElement} pill - The mail-address-pill element.
+     * @param {Event} event - The DOM Event.
+     */
+    handleKeyPress(pill, event) {
+      if (pill.isEditing) {
+        return;
+      }
+
+      switch (event.key) {
+        case "Enter":
+        case "F2": // For Windows users
+          this.startEditing(pill, event);
+          break;
+
+        case "Delete":
+        case "Backspace":
+          this.removePills(pill);
+          break;
+
+        case "ArrowLeft":
+          if (pill.previousElementSibling) {
+            pill.previousElementSibling.focus();
+            this.checkKeyboardSelected(event, pill.previousElementSibling);
+          }
+          break;
+
+        case "ArrowRight":
+          if (pill.nextElementSibling.hasAttribute("hidden")) {
+            pill.nextElementSibling.removeAttribute("hidden");
+            pill.nextElementSibling.focus();
+            break;
+          }
+          pill.nextElementSibling.focus();
+          this.checkKeyboardSelected(event, pill.nextElementSibling);
+          break;
+
+        case " ":
+          this.checkSelected(pill, event);
+          break;
+
+        case "Home":
+          pill.removeAttribute("selected");
+          this.setFocusOnFirstPill(pill);
+          break;
+
+        case "End":
+          pill.originalInput.focus();
+          break;
+
+        case "Tab":
+          for (let item of this.getSiblingPills(pill)) {
+            item.removeAttribute("selected");
+          }
+          break;
+
+        case "a":
+          if (event.ctrlKey || event.metaKey) {
+            this.selectPills(pill);
+          }
+          break;
+
+        case "c":
+          if (event.ctrlKey || event.metaKey) {
+            copyEmailNewsAddress(pill);
+          }
+          break;
+
+        case "x":
+          if (event.ctrlKey || event.metaKey) {
+            copyEmailNewsAddress(pill);
+            deleteAddressPill(pill);
+          }
+          break;
+      }
+    }
+
+    /**
+     * Handle the selection and focus of the pill elements on mouse events.
+     *
+     * @param {XULElement} pill - The mail-address-pill element.
+     * @param {Event} event - The DOM Event.
+     */
+    checkSelected(pill, event) {
+      if (
+        pill.isEditing ||
+        (pill.hasAttribute("selected") && event.which == 3)
+      ) {
+        return;
+      }
+
+      if (!event.ctrlKey && !event.metaKey && event.key != " ") {
+        this.clearSelected();
+      }
+
+      pill.toggleAttribute("selected");
+      if (!pill.hasAttribute("selected") && event.key != " ") {
+        pill.blur();
+      } else {
+        pill.focus();
+      }
+    }
+
+    /**
+     * Handle the selection and focus of the pill elements on keyboard
+     * navigation.
+     *
+     * @param {Event} event - The DOM Event.
+     * @param {XULElement} element - The mail-address-pill element.
+     */
+    checkKeyboardSelected(event, element) {
+      if (event.shiftKey) {
+        if (this.hasAttribute("selected") && element.hasAttribute("selected")) {
+          this.removeAttribute("selected");
+          return;
+        }
+
+        this.setAttribute("selected", "selected");
+        element.setAttribute("selected", "selected");
+      } else if (!event.ctrlKey) {
+        this.clearSelected();
+      }
+    }
+
+    clearSelected() {
+      for (let pill of this.getAllPills()) {
+        pill.removeAttribute("selected");
+      }
+    }
+
+    /**
+     * Trigger the pill.startEditing() method.
+     *
+     * @param {XULElement} pill - The mail-address-pill element.
+     * @param {Event} event - The DOM Event.
+     */
+    startEditing(pill, event) {
+      if (pill.isEditing) {
+        event.stopPropagation();
+        return;
+      }
+
+      pill.startEditing();
+    }
+
+    /**
+     * When a "Delete" action is triggered, we need to check if other pills are
+     * currently selected and delete them all.
+     *
+     * @param {XULElement} pill - The mail-address-pill element.
+     */
+    removePills(pill) {
+      for (let item of this.getAllSelectedPills()) {
+        item.remove();
+      }
+
+      pill.originalInput.focus();
+      pill.remove();
+
+      onRecipientsChanged();
+    }
+
+    /**
+     * Move the focus on the first pill from the same .address-container.
+     *
+     * @param {XULElement} pill - The mail-address-pill element.
+     */
+    setFocusOnFirstPill(pill) {
+      pill.closest(".address-container").firstElementChild.focus();
+    }
+
+    /**
+     * Select all the pills from the same .address-container.
+     *
+     * @param {XULElement} pill - The mail-address-pill element.
+     */
+    selectPills(pill) {
+      for (let item of this.getSiblingPills(pill)) {
+        item.setAttribute("selected", "selected");
+      }
+    }
+
+    /**
+     * Return all the pills from the same .address-container.
+     *
+     * @param {XULElement} pill - The mail-address-pill element.
+     * @return {Array} Array of mail-address-pill elements.
+     */
+    getSiblingPills(pill) {
+      return pill
+        .closest(".address-container")
+        .querySelectorAll("mail-address-pill");
+    }
+
+    /**
+     * Return all the pills currently available in the address area.
+     *
+     * @return {Array} Array of mail-address-pill elements.
+     */
+    getAllPills() {
+      return this.querySelectorAll("mail-address-pill");
+    }
+
+    /**
+     * Return all the selected pills currently available in the address area.
+     *
+     * @return {Array} Array of selected mail-address-pill elements.
+     */
+    getAllSelectedPills() {
+      return this.querySelectorAll("mail-address-pill[selected]");
+    }
+  }
+
+  customElements.define("mail-recipients-area", MailRecipientsArea);
 }
