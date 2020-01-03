@@ -61,6 +61,12 @@
   }
 
 //
+// JS/SQLite address book
+//
+#define NS_ABJSDIRECTORY_CONTRACTID \
+  NS_AB_DIRECTORY_TYPE_CONTRACTID_PREFIX "jsaddrbook"
+
+//
 // nsAddressBookDB
 //
 #define NS_ADDRDATABASE_CONTRACTID "@mozilla.org/addressbook/carddatabase;1"

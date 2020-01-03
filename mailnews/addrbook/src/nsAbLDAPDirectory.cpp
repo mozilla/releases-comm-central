@@ -125,8 +125,11 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator **result) {
         do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(localDirectoryURI, getter_AddRefs(directory));
+    nsCOMPtr<nsIAbDirectory> directory =
+        do_CreateInstance(NS_ABJSDIRECTORY_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = directory->Init(localDirectoryURI.get());
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = directory->GetChildCards(result);

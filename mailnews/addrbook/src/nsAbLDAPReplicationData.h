@@ -10,18 +10,21 @@
 #include "nsIWebProgressListener.h"
 #include "nsIAbLDAPReplicationQuery.h"
 #include "nsAbLDAPListenerBase.h"
-#include "nsIAddrDatabase.h"
+#include "nsIAbDirectory.h"
 #include "nsIFile.h"
 #include "nsDirPrefs.h"
 #include "nsIAbLDAPAttributeMap.h"
 #include "nsIAbLDAPDirectory.h"
 #include "nsString.h"
+#include "mozilla/MozPromise.h"
 
 class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
-                                       public nsAbLDAPListenerBase {
+                                       public nsAbLDAPListenerBase,
+                                       public nsIObserver {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIABLDAPPROCESSREPLICATIONDATA
+  NS_DECL_NSIOBSERVER
 
   nsAbLDAPProcessReplicationData();
 
@@ -40,13 +43,13 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
 
   nsCOMPtr<nsIAbDirectory> mReplicationDB;
   nsCOMPtr<nsIFile> mReplicationFile;
-  nsCOMPtr<nsIFile> mBackupReplicationFile;
+  nsCOMPtr<nsIFile> mOldReplicationFile;
+  nsCString mReplicationFileName;
 
   // state of processing, protocol used and count of results
   int32_t mState;
   int32_t mProtocol;
   int32_t mCount;
-  bool mDBOpen;
   bool mInitialized;
 
   nsCOMPtr<nsIAbLDAPDirectory> mDirectory;
@@ -57,6 +60,9 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
 
   nsresult OpenABForReplicatedDir(bool bCreate);
   void Done(bool aSuccess);
+
+  RefPtr<mozilla::GenericPromise> PromiseDatabaseClosed(nsIFile *file);
+  RefPtr<mozilla::GenericPromise::Private> mDatabaseClosedPromise;
 };
 
 #endif  // nsAbLDAPReplicationData_h__

@@ -100,15 +100,21 @@ AddrBookDirectory.prototype = {
 // nothing else ever tells us to close them.
 
 var connections = new Map();
-var closeObserver = {
-  observe() {
-    for (let connection of connections.values()) {
-      connection.asyncClose();
-    }
-    connections.clear();
-  },
-};
-Services.obs.addObserver(closeObserver, "quit-application");
+Services.obs.addObserver(() => {
+  for (let connection of connections.values()) {
+    connection.asyncClose();
+  }
+  connections.clear();
+  directories.clear();
+}, "quit-application");
+
+// Close a connection on demand. This serves as an escape hatch from C++ code.
+
+Services.obs.addObserver(async file => {
+  file.QueryInterface(Ci.nsIFile);
+  await closeConnectionTo(file);
+  Services.obs.notifyObservers(file, "addrbook-close-ab-complete");
+}, "addrbook-close-ab");
 
 /**
  * Opens an SQLite connection to `file`, caches the connection, and upgrades
