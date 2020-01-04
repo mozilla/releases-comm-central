@@ -63,11 +63,6 @@ scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
 
     worker-types:
-        'linux-depsigning':
-            - 'project:comm:thunderbird:releng:signing:cert:dep-signing'
-        'linux-signing':
-            - 'project:comm:thunderbird:releng:signing:cert:nightly-signing'
-            - 'project:comm:thunderbird:releng:signing:cert:release-signing'
         'scriptworker-k8s/comm-1-beetmover':
             - 'project:comm:thunderbird:releng:beetmover:bucket:dep'
         'scriptworker-k8s/comm-3-beetmover':
@@ -117,7 +112,10 @@ workers:
             provisioner: scriptworker-k8s
             implementation: scriptworker-signing
             os: linux
-            worker-type: comm-3-signing
+            worker-type:
+                by-release-level:
+                    production: comm-3-signing
+                    staging: comm-t-signing
         mac-depsigning:
             provisioner: scriptworker-prov-v1
             implementation: scriptworker-iscript
@@ -127,7 +125,10 @@ workers:
             provisioner: scriptworker-prov-v1
             implementation: scriptworker-iscript
             os: macosx
-            worker-type: tb-signing-mac-v1
+            worker-type:
+                by-release-level:
+                    production: tb-signing-mac-v1
+                    staging: tb-depsigning-mac-v1
         t-linux(-large|-xlarge):
             provisioner: comm-t
             implementation: docker-worker
