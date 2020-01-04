@@ -82,9 +82,9 @@
 
 # Remove erroneous files left over from broken Mac signing process
 #ifdef XP_MACOSX
-@APPNAME@/Contents/Library/Spotlight/thunderbird.mdimporter/Contents/_CodeSignature/._CodeResources
-@APPNAME@/Contents/Library/Spotlight/thunderbird.mdimporter/Contents/._Info.plist
-@APPNAME@/Contents/Library/Spotlight/thunderbird.mdimporter/Contents/Resources/._schema.xml
-@APPNAME@/Contents/Library/Spotlight/thunderbird.mdimporter/Contents/Resources/English.lproj/._InfoPlist.strings
-@APPNAME@/Contents/Library/Spotlight/thunderbird.mdimporter/Contents/Resources/English.lproj/._schema.strings
+Contents/Library/Spotlight/thunderbird.mdimporter/Contents/_CodeSignature/._CodeResources
+Contents/Library/Spotlight/thunderbird.mdimporter/Contents/._Info.plist
+Contents/Library/Spotlight/thunderbird.mdimporter/Contents/Resources/._schema.xml
+Contents/Library/Spotlight/thunderbird.mdimporter/Contents/Resources/English.lproj/._InfoPlist.strings
+Contents/Library/Spotlight/thunderbird.mdimporter/Contents/Resources/English.lproj/._schema.strings
 #endif
