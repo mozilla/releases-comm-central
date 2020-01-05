@@ -12,5 +12,3 @@ EXTRA_JS_MODULES += [
 JS_PREFERENCE_PP_FILES += [
     'composer.js'
 ]
-
-DEFINES['TOOLKIT_DIR'] = "%s/toolkit" % (CONFIG['moztopsrcdir'],)
