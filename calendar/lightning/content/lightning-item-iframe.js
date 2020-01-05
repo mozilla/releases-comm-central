@@ -1429,7 +1429,7 @@ function getRepeatTypeAndUntilDate(aItem) {
 
   if (recurrenceInfo) {
     repeatType = "custom";
-    let ritems = recurrenceInfo.getRecurrenceItems({});
+    let ritems = recurrenceInfo.getRecurrenceItems();
     let rules = [];
     let exceptions = [];
     for (let ritem of ritems) {
@@ -2904,7 +2904,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
           let endDate = gStartTime.clone();
           endDate.year += 10;
           let lastOccurrenceDate = null;
-          let dates = recurrenceInfo.getOccurrenceDates(gStartTime, endDate, 0, {});
+          let dates = recurrenceInfo.getOccurrenceDates(gStartTime, endDate, 0);
           if (dates) {
             lastOccurrenceDate = dates[dates.length - 1];
           }

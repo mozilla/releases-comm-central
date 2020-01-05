@@ -674,7 +674,7 @@ calStorageCalendar.prototype = {
         // If the item is recurring, get all occurrences that fall in
         // the range. If the item doesn't fall into the range at all,
         // this expands to 0 items.
-        expandedItems = item.recurrenceInfo.getOccurrences(aRangeStart, aRangeEnd, 0, {});
+        expandedItems = item.recurrenceInfo.getOccurrences(aRangeStart, aRangeEnd, 0);
         if (wantUnrespondedInvitations) {
           expandedItems = expandedItems.filter(checkUnrespondedInvitation);
         }
@@ -2350,7 +2350,7 @@ calStorageCalendar.prototype = {
     let rec = item.recurrenceInfo;
     if (rec) {
       flags = CAL_ITEM_FLAG.HAS_RECURRENCE;
-      let ritems = rec.getRecurrenceItems({});
+      let ritems = rec.getRecurrenceItems();
       let array = this.prepareAsyncStatement(stmts, this.mInsertRecurrence);
       for (let ritem of ritems) {
         let params = this.prepareAsyncParams(array);
@@ -2359,7 +2359,7 @@ calStorageCalendar.prototype = {
         array.addParams(params);
       }
 
-      let exceptions = rec.getExceptionIds({});
+      let exceptions = rec.getExceptionIds();
       if (exceptions.length > 0) {
         flags |= CAL_ITEM_FLAG.HAS_EXCEPTIONS;
 
@@ -2591,7 +2591,7 @@ calStorageCalendar.prototype = {
     }
     let rec = aItem.recurrenceInfo;
     if (rec) {
-      let exceptions = rec.getExceptionIds({});
+      let exceptions = rec.getExceptionIds();
       if (exceptions.length > 0) {
         for (let exid of exceptions) {
           let ex = rec.getExceptionFor(exid);

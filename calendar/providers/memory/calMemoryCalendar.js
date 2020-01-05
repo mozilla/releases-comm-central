@@ -498,8 +498,7 @@ calMemoryCalendar.prototype = {
           let occurrences = item.recurrenceInfo.getOccurrences(
             startDate,
             aRangeEnd,
-            aCount ? aCount - itemsFound.length : 0,
-            {}
+            aCount ? aCount - itemsFound.length : 0
           );
           if (wantUnrespondedInvitations) {
             occurrences = occurrences.filter(checkUnrespondedInvitation);

@@ -92,7 +92,7 @@ function test_fake_parent() {
   let rinfo = item.recurrenceInfo;
 
   equal(rinfo.countRecurrenceItems(), 1);
-  let excs = rinfo.getOccurrences(cal.createDateTime("20120101T010101"), null, 0, {});
+  let excs = rinfo.getOccurrences(cal.createDateTime("20120101T010101"), null, 0);
   equal(excs.length, 1);
   let exc = excs[0].QueryInterface(Ci.calIEvent);
   equal(exc.startDate.icalString, "20120101T010102");

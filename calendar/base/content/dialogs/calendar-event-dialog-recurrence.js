@@ -169,7 +169,7 @@ const RecurrencePreview = {
           // dates that are strictly monotonically increasing.
           // should getOccurrenceDates() not enforce this assumption we
           // need to fall back to some different algorithm.
-          let dates = recurrenceInfo.getOccurrenceDates(start, end, 0, {});
+          let dates = recurrenceInfo.getOccurrenceDates(start, end, 0);
 
           // now run through all days of this month and set the
           // 'busy' attribute with respect to the occurrence array.

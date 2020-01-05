@@ -163,14 +163,13 @@ calRecurrenceInfo.prototype = {
     return this.mEndDate;
   },
 
-  getRecurrenceItems: function(aCount) {
+  getRecurrenceItems: function() {
     this.ensureBaseItem();
 
-    aCount.value = this.mRecurrenceItems.length;
     return this.mRecurrenceItems;
   },
 
-  setRecurrenceItems: function(aCount, aItems) {
+  setRecurrenceItems: function(aItems) {
     this.ensureBaseItem();
     this.ensureMutable();
 
@@ -588,14 +587,13 @@ calRecurrenceInfo.prototype = {
     return dates;
   },
 
-  getOccurrenceDates: function(aRangeStart, aRangeEnd, aMaxCount, aCount) {
+  getOccurrenceDates: function(aRangeStart, aRangeEnd, aMaxCount) {
     let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
     dates = dates.map(date => date.rstart);
-    aCount.value = dates.length;
     return dates;
   },
 
-  getOccurrences: function(aRangeStart, aRangeEnd, aMaxCount, aCount) {
+  getOccurrences: function(aRangeStart, aRangeEnd, aMaxCount) {
     let results = [];
     let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
     if (dates.length) {
@@ -610,8 +608,6 @@ calRecurrenceInfo.prototype = {
         results.push(this.getOccurrenceFor(dates[i].id));
       }
     }
-
-    aCount.value = results.length;
     return results;
   },
 
@@ -732,7 +728,7 @@ calRecurrenceInfo.prototype = {
     delete this.mExceptionMap[getRidKey(aRecurrenceId)];
   },
 
-  getExceptionIds: function(aCount) {
+  getExceptionIds: function() {
     this.ensureBaseItem();
 
     let ids = [];
@@ -740,8 +736,6 @@ calRecurrenceInfo.prototype = {
       let item = this.mExceptionMap[ex];
       ids.push(item.recurrenceId);
     }
-
-    aCount.value = ids.length;
     return ids;
   },
 
@@ -767,7 +761,7 @@ calRecurrenceInfo.prototype = {
 
     // take RDATE's and EXDATE's into account.
     const kCalIRecurrenceDate = Ci.calIRecurrenceDate;
-    let ritems = this.getRecurrenceItems({});
+    let ritems = this.getRecurrenceItems();
     for (let ritem of ritems) {
       let rDateInstance = cal.wrapInstance(ritem, kCalIRecurrenceDate);
       let rRuleInstance = cal.wrapInstance(ritem, Ci.calIRecurrenceRule);
@@ -793,7 +787,7 @@ calRecurrenceInfo.prototype = {
 
     let startTimezone = aNewStartTime.timezone;
     let modifiedExceptions = [];
-    for (let exid of this.getExceptionIds({})) {
+    for (let exid of this.getExceptionIds()) {
       let ex = this.getExceptionFor(exid);
       if (ex) {
         ex = ex.clone();

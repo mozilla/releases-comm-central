@@ -413,7 +413,7 @@ calAlarmService.prototype = {
     until.month += 1;
 
     if (aItem && aItem.recurrenceInfo) {
-      return aItem.recurrenceInfo.getOccurrences(this.mRangeStart, until, 0, {});
+      return aItem.recurrenceInfo.getOccurrences(this.mRangeStart, until, 0);
     } else {
       return cal.item.checkIfInRange(aItem, this.mRangeStart, until) ? [aItem] : [];
     }

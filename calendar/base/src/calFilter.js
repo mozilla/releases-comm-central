@@ -809,7 +809,7 @@ calFilter.prototype = {
       // the parent item doesn't match the filter, we can return the first future exception
       // that matches the filter
       let exMatch = null;
-      aItem.recurrenceInfo.getExceptionIds({}).forEach(function(rID) {
+      aItem.recurrenceInfo.getExceptionIds().forEach(function(rID) {
         let ex = aItem.recurrenceInfo.getExceptionFor(rID);
         ex.QueryInterface(Ci.calIEvent);
         if (

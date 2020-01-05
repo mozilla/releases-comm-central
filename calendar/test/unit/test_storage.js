@@ -75,7 +75,7 @@ add_task(async () => {
         equal(rel.getParameter("FOO"), "BAR");
 
         // Check recurrence item
-        for (let ritem of item.recurrenceInfo.getRecurrenceItems({})) {
+        for (let ritem of item.recurrenceInfo.getRecurrenceItems()) {
           if (ritem instanceof Ci.calIRecurrenceRule) {
             equal(ritem.type, "MONTHLY");
             equal(ritem.interval, 2);

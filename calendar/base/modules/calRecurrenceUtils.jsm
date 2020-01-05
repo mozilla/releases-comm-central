@@ -382,7 +382,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
  *                            rules and an array of negative rules.
  */
 function splitRecurrenceRules(recurrenceInfo) {
-  let ritems = recurrenceInfo.getRecurrenceItems({});
+  let ritems = recurrenceInfo.getRecurrenceItems();
   let rules = [];
   let exceptions = [];
   for (let ritem of ritems) {
@@ -429,7 +429,7 @@ function countOccurrences(aItem) {
     occCounter = 0;
     let excCounter = 0;
     let byCount = false;
-    let ritems = recInfo.getRecurrenceItems({});
+    let ritems = recInfo.getRecurrenceItems();
     for (let ritem of ritems) {
       if (ritem instanceof Ci.calIRecurrenceRule) {
         if (ritem.isByCount) {
@@ -443,7 +443,7 @@ function countOccurrences(aItem) {
             until = ritem.untilDate.clone();
           }
 
-          let exceptionIds = recInfo.getExceptionIds({});
+          let exceptionIds = recInfo.getExceptionIds();
           for (let exceptionId of exceptionIds) {
             let recur = recInfo.getExceptionFor(exceptionId);
             recur.QueryInterface(Ci.calIEvent);
@@ -460,7 +460,7 @@ function countOccurrences(aItem) {
           from.addDuration(cal.createDuration("-P1D"));
           until.addDuration(cal.createDuration("P1D"));
 
-          let occurrences = recInfo.getOccurrences(from, until, 0, {});
+          let occurrences = recInfo.getOccurrences(from, until, 0);
           occCounter = occCounter + occurrences.length;
         }
       } else if (ritem instanceof Ci.calIRecurrenceDate) {

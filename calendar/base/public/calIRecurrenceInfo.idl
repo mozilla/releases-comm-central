@@ -52,12 +52,11 @@ interface calIRecurrenceInfo : nsISupports
    */
   readonly attribute PRTime recurrenceEndDate;
 
-  /*
+  Array<calIRecurrenceItem> getRecurrenceItems();
+  /**
    * Set of recurrence items; the order of these matters.
    */
-
-  void getRecurrenceItems(out unsigned long aCount, [array,size_is(aCount),retval] out calIRecurrenceItem aItems);
-  void setRecurrenceItems(in unsigned long aCount, [array,size_is(aCount)] in calIRecurrenceItem aItems);
+  void setRecurrenceItems(in Array<calIRecurrenceItem> aItems);
 
   unsigned long countRecurrenceItems();
   void clearRecurrenceItems();
@@ -117,7 +116,7 @@ interface calIRecurrenceInfo : nsISupports
   /**
    * Returns a list of all recurrence ids that have exceptions.
    */
-  void getExceptionIds(out unsigned long aCount, [array,size_is(aCount),retval] out calIDateTime aIds);
+  Array<calIDateTime> getExceptionIds();
 
   /*
    * Recurrence calculation
@@ -163,10 +162,9 @@ interface calIRecurrenceInfo : nsISupports
    * @param aCount          The number of dates returned.
    * @return                The array of dates.
    */
-  void getOccurrenceDates(in calIDateTime aRangeStart,
-                          in calIDateTime aRangeEnd,
-                          in unsigned long aMaxCount,
-                          out unsigned long aCount, [array,size_is(aCount),retval] out calIDateTime aDates);
+  Array<calIDateTime> getOccurrenceDates(in calIDateTime aRangeStart,
+                                         in calIDateTime aRangeEnd,
+                                         in unsigned long aMaxCount);
 
   /**
    * Return an array of calIItemBase representing all occurrences of this event
@@ -180,8 +178,7 @@ interface calIRecurrenceInfo : nsISupports
    * @param aCount          The number of occurrences returned.
    * @return                The array of occurrences.
    */
-  void getOccurrences(in calIDateTime aRangeStart,
-                       in calIDateTime aRangeEnd,
-                       in unsigned long aMaxCount,
-                       out unsigned long aCount, [array,size_is(aCount),retval] out calIItemBase aItems);
+  Array<calIItemBase> getOccurrences(in calIDateTime aRangeStart,
+                                     in calIDateTime aRangeEnd,
+                                     in unsigned long aMaxCount);
 };

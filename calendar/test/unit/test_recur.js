@@ -32,8 +32,8 @@ function test_rules() {
     // Get recurrence dates
     let start = createDate(1990, 0, 1);
     let end = createDate(2020, 0, 1);
-    let recdates = event.recurrenceInfo.getOccurrenceDates(start, end, 0, {});
-    let occurrences = event.recurrenceInfo.getOccurrences(start, end, 0, {});
+    let recdates = event.recurrenceInfo.getOccurrenceDates(start, end, 0);
+    let occurrences = event.recurrenceInfo.getOccurrences(start, end, 0);
 
     // Check number of items
     dump("Expected " + expected.length + " occurrences\n");
@@ -790,29 +790,29 @@ function test_limit() {
 
   let start = createDate(1990, 0, 1);
   let end = createDate(2020, 0, 1);
-  let recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 0, {});
-  let occurrences = item.recurrenceInfo.getOccurrences(start, end, 0, {});
+  let recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 0);
+  let occurrences = item.recurrenceInfo.getOccurrences(start, end, 0);
 
   equal(recdates.length, 3);
   equal(occurrences.length, 3);
 
-  recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 2, {});
-  occurrences = item.recurrenceInfo.getOccurrences(start, end, 2, {});
+  recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 2);
+  occurrences = item.recurrenceInfo.getOccurrences(start, end, 2);
 
   equal(recdates.length, 2);
   equal(occurrences.length, 2);
 
-  recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 9, {});
-  occurrences = item.recurrenceInfo.getOccurrences(start, end, 9, {});
+  recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 9);
+  occurrences = item.recurrenceInfo.getOccurrences(start, end, 9);
 
   equal(recdates.length, 3);
   equal(occurrences.length, 3);
 }
 
 function test_clone(event) {
-  let oldRecurItems = event.recurrenceInfo.getRecurrenceItems({});
+  let oldRecurItems = event.recurrenceInfo.getRecurrenceItems();
   let cloned = event.recurrenceInfo.clone();
-  let newRecurItems = cloned.getRecurrenceItems({});
+  let newRecurItems = cloned.getRecurrenceItems();
 
   // Check number of recurrence items
   equal(oldRecurItems.length, newRecurItems.length);
@@ -836,7 +836,7 @@ function test_interface() {
   ok(cal.data.compareObjects(rinfo.item, item, Ci.calIEvent));
 
   // getRecurrenceItems
-  let ritems = rinfo.getRecurrenceItems({});
+  let ritems = rinfo.getRecurrenceItems();
   equal(ritems.length, 3);
 
   let checkritems = new Map(
@@ -864,7 +864,7 @@ function test_interface() {
   newRItems[1].isNegative = true;
   newRItems[1].date = cal.createDateTime("20020404T114500Z");
 
-  rinfo.setRecurrenceItems(2, newRItems);
+  rinfo.setRecurrenceItems(newRItems);
   let itemString = item.icalString;
 
   equal(itemString.match(/RRULE:[A-Z=,]*FREQ=WEEKLY/), null);
@@ -949,7 +949,7 @@ function test_interface() {
   ok(rinfo.getExceptionFor(occDate2) != null);
 
   // getExceptionIds
-  let ids = rinfo.getExceptionIds({});
+  let ids = rinfo.getExceptionIds();
   equal(ids.length, 2);
   ok(ids[0].compare(occDate1) == 0);
   ok(ids[1].compare(occDate2) == 0);
@@ -957,7 +957,7 @@ function test_interface() {
   // removeExceptionFor
   rinfo.removeExceptionFor(occDate1);
   ok(rinfo.getExceptionFor(occDate1) == null);
-  equal(rinfo.getExceptionIds({}).length, 1);
+  equal(rinfo.getExceptionIds().length, 1);
 }
 
 function test_rrule_interface() {
@@ -1141,8 +1141,7 @@ function test_failures() {
     rinfo.getOccurrenceDates(
       cal.createDateTime("20120101T010101"),
       cal.createDateTime("20120203T010101"),
-      0,
-      {}
+      0
     ).length,
     0
   );

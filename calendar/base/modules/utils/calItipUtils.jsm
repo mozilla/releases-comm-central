@@ -751,12 +751,12 @@ var calitip = {
         // check whether the two differ only in EXDATEs
         let clonedItem = aItem.clone();
         let exdates = [];
-        for (let ritem of clonedItem.recurrenceInfo.getRecurrenceItems({})) {
+        for (let ritem of clonedItem.recurrenceInfo.getRecurrenceItems()) {
           let wrappedRItem = cal.wrapInstance(ritem, Ci.calIRecurrenceDate);
           if (
             ritem.isNegative &&
             wrappedRItem &&
-            !aOriginalItem.recurrenceInfo.getRecurrenceItems({}).some(recitem => {
+            !aOriginalItem.recurrenceInfo.getRecurrenceItems().some(recitem => {
               let wrappedR = cal.wrapInstance(recitem, Ci.calIRecurrenceDate);
               return (
                 recitem.isNegative && wrappedR && wrappedR.date.compare(wrappedRItem.date) == 0
@@ -1377,7 +1377,7 @@ function updateItem(item, itipItemItem) {
   let recInfo = itipItemItem.recurrenceInfo;
   if (recInfo) {
     // keep care of installing all overridden items, and mind existing alarms, categories:
-    for (let rid of recInfo.getExceptionIds({})) {
+    for (let rid of recInfo.getExceptionIds()) {
       let excItem = recInfo.getExceptionFor(rid).clone();
       cal.ASSERT(excItem, "unexpected!");
       let newExc = newItem.recurrenceInfo.getOccurrenceFor(rid).clone();

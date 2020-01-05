@@ -329,7 +329,7 @@ InvitationsManager.prototype = {
     let recInfo = item.recurrenceInfo;
     if (recInfo && !cal.itip.isOpenInvitation(item)) {
       // scan exceptions:
-      let ids = recInfo.getExceptionIds({});
+      let ids = recInfo.getExceptionIds();
       for (let id of ids) {
         let ex = recInfo.getExceptionFor(id);
         if (ex && this.validateItem(ex) && !this.hasItem(ex)) {

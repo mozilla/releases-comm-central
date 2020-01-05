@@ -149,7 +149,7 @@ ltn.invitation = {
       };
 
       // Show removed instances
-      for (let exc of aEvent.recurrenceInfo.getRecurrenceItems({})) {
+      for (let exc of aEvent.recurrenceInfo.getRecurrenceItems()) {
         if (exc instanceof Ci.calIRecurrenceDate) {
           if (exc.isNegative) {
             // This is an EXDATE
@@ -167,7 +167,7 @@ ltn.invitation = {
       }
 
       // Show modified occurrences
-      for (let recurrenceId of aEvent.recurrenceInfo.getExceptionIds({})) {
+      for (let recurrenceId of aEvent.recurrenceInfo.getExceptionIds()) {
         let exc = aEvent.recurrenceInfo.getExceptionFor(recurrenceId);
         let excLocation = exc.getProperty("LOCATION");
 

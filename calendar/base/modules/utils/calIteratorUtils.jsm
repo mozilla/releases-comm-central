@@ -29,7 +29,7 @@ var caliterate = {
       yield item;
       let rec = item.recurrenceInfo;
       if (rec) {
-        for (let exid of rec.getExceptionIds({})) {
+        for (let exid of rec.getExceptionIds()) {
           yield rec.getExceptionFor(exid);
         }
       }

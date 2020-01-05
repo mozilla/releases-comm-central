@@ -969,7 +969,7 @@ calItemBase.prototype = {
     }
 
     if (this.mRecurrenceInfo) {
-      for (let ritem of this.mRecurrenceInfo.getRecurrenceItems({})) {
+      for (let ritem of this.mRecurrenceInfo.getRecurrenceItems()) {
         icalcomp.addProperty(ritem.icalProperty);
       }
     }
@@ -1051,7 +1051,7 @@ calItemBase.prototype = {
   // Array<calIItemBase> getOccurrencesBetween(in calIDateTime aStartDate, in calIDateTime aEndDate);
   getOccurrencesBetween: function(aStartDate, aEndDate) {
     if (this.recurrenceInfo) {
-      return this.recurrenceInfo.getOccurrences(aStartDate, aEndDate, 0, {});
+      return this.recurrenceInfo.getOccurrences(aStartDate, aEndDate, 0);
     }
 
     if (cal.item.checkIfInRange(this, aStartDate, aEndDate)) {

@@ -38,10 +38,10 @@ function really_run_test() {
   let end = createDate(2009, 11, 31);
 
   // the following call caused a never ending loop:
-  let occurrenceDates = event.recurrenceInfo.getOccurrenceDates(start, end, 0, {});
+  let occurrenceDates = event.recurrenceInfo.getOccurrenceDates(start, end, 0);
   equal(occurrenceDates.length, 2);
 
   // the following call caused a never ending loop:
-  let occurrences = event.recurrenceInfo.getOccurrences(start, end, 0, {});
+  let occurrences = event.recurrenceInfo.getOccurrences(start, end, 0);
   equal(occurrences.length, 2);
 }
