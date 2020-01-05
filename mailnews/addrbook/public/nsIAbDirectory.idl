@@ -38,11 +38,11 @@ interface nsISimpleEnumerator;
  *
  * @mozilla.org/addressbook/directory;1?type=<AB URI Scheme>
  *
- * Where AB URI Scheme does not include the ://.  For example, for the Mork-based
- * address book, the scheme is "moz-abmdbdirectory", so the contract ID for
- * the Mork-based address book type is:
+ * Where AB URI Scheme does not include the ://.  For example, for the
+ * SQLite-based address book, the scheme is "jsaddrbook", so the contract ID for
+ * the SQLite-based address book type is:
  *
- * @mozilla.org/addressbook/directory;1?type=moz-abmdbdirectory
+ * @mozilla.org/addressbook/directory;1?type=jsaddrbook
  *
  * The UUID of an nsIAbDirectory is its preference ID and its name, concatenated
  * together.

@@ -12,7 +12,7 @@ interface nsIAbLDAPReplicationQuery;
 interface nsIWebProgressListener;
 
 /**
- * this service does replication of an LDAP directory to a local Mork AB Database.
+ * this service does replication of an LDAP directory to a local AB Database.
  */
 [scriptable, uuid(e628bbc9-8793-4f0b-bce4-990d399b1fca)]
 interface nsIAbLDAPProcessReplicationData : nsISupports
