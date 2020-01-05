@@ -24,7 +24,7 @@ body {
   margin-bottom: 0.5em;
 }
 
-#refreshButton {
+#refreshButton, #autorefcheck {
   vertical-align: middle;
 }
 
