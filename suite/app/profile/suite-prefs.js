@@ -359,6 +359,10 @@ pref("network.auth.non-web-content-triggered-resources-http-auth-allow", true);
 
 pref("mail.biff.show_new_alert",     true);
 
+// If messages or folders are opened using the context menu or a middle click,
+// should we open them in the foreground or in the background?
+pref("mail.tabs.loadInBackground", true);
+
 pref("mailnews.ui.deleteMarksRead", true);
 pref("mailnews.ui.deleteAlwaysSelectedMessages", false);
 

@@ -37,11 +37,12 @@ var gMailNewsTabsType =
       type: "3pane",
 
       // aTabInfo belongs to the newly created tab,
-      // aModeBits is a combination of kTabShow* layout bits (or null),
-      // aFolderURI designates the folder to select (or null)
-      // aMsgHdr designates the message to select (or null)
-      openTab: function(aTabInfo, aModeBits, aFolderURI, aMsgHdr)
-      {
+      // aArgs can contain:
+      // * modeBits is a combination of kTabShow* layout bits (or null),
+      // * folderURI designates the folder to select (or null)
+      // * msgHdr designates the message to select (or null)
+      openTab: function(aTabInfo, {modeBits: aModeBits, folderURI: aFolderURI,
+                                   msgHdr: aMsgHdr}) {
         // clone the current 3pane state before overriding parts of it
         this.saveTabState(aTabInfo);
 
@@ -525,24 +526,21 @@ function GetTabMail()
   return document.getElementById("tabmail");
 }
 
-function MsgOpenNewTab(aType, aModeBits)
-{
+function MsgOpenNewTab(aType, aModeBits, aBackground) {
   // duplicate the current tab
   var tabmail = GetTabMail();
   if (tabmail)
-    tabmail.openTab(aType, aModeBits);
+    tabmail.openTab(aType, {modeBits: aModeBits, background: aBackground});
 }
 
-function MsgOpenNewTabForFolder()
-{
+function MsgOpenNewTabForFolder(aBackground) {
   // open current folder in full 3pane tab
-  MsgOpenNewTab("3pane", kTabModeFolder);
+  MsgOpenNewTab("3pane", kTabModeFolder, aBackground);
 }
 
-function MsgOpenNewTabForMessage()
-{
+function MsgOpenNewTabForMessage(aBackground) {
   // open current message in message tab
-  MsgOpenNewTab("3pane", kTabModeMessage);
+  MsgOpenNewTab("3pane", kTabModeMessage, aBackground);
 }
 
 // A Thunderbird compatibility function called from e.g. newsblog.

@@ -37,9 +37,12 @@
     - 3) Code that wants to monitor to know when the active tab changes.
     -
     - Consumer code should use the following methods:
-    - * openTab(aTabModeName, arguments...): Open a tab of the given "mode",
-    -   passing the provided arguments.  The tab type author should tell you
-    -   the modes they implement and the required/optional arguments.
+    - * openTab(aTabModeName, aArgs): Open a tab of the given "mode",
+    -   passing the provided arguments as an object.  The tab type author
+    -   should tell you the modes they implement and the required/optional
+    -   arguments.
+    -   One of the arguments you can pass is "background": if this is true,
+    -   the tab will be loaded in the background.
     - * setTabTitle([aOptionalTabInfo]): Tells us that the title of the current
     -   tab (if no argument is provided) or provided tab needs to be updated.
     -   This will result in a call to the tab mode's logic to update the title.
@@ -93,22 +96,23 @@
     -     If this limit is reached, any additional calls to openTab for this
     -     mode will simply result in the first existing tab of this mode being
     -     displayed.
-    - * shouldSwitchTo(arguments...): Optional function. Called when
-    -     openTab is called on the top-level tabmail binding. It is used to
-    -     decide if the openTab function should switch to an existing tab or
-    -     actually open a new tab.
+    - * shouldSwitchTo(aArgs): Optional function. Called when openTab is called
+    -     on the top-level tabmail binding. It is used to decide if the openTab
+    -     function should switch to an existing tab or actually open a new tab.
     -     If the openTab function should switch to an existing tab, return the
     -     index of that tab; otherwise return -1.
-    - * openTab(aTabInfo, arguments...): Called when a tab of the given mode is
-    -     in the process of being opened.  aTabInfo will have its "mode"
-    -     attribute set to the mode definition of the tab mode being opened.
-    -     You should set the "title" attribute on it, and may set any other
-    -     attributes you wish for your own use in subsequent functions.  Note
-    -     that 'this' points to the tab type definition, not the mode definition
-    -     as you might expect.  This allows you to place common logic code on
-    -     the tab type for use by multiple modes and to defer to it.  Any
-    -     arguments provided to the caller of tabmail.openTab will be passed to
-    -     your function as well.
+    -     aArgs is a set of named parameters (the ones that are later passed to
+    -     openTab).
+    - * openTab(aTabInfo, aArgs): Called when a tab of the given mode is in the
+    -     process of being opened.  aTabInfo will have its "mode" attribute
+    -     set to the mode definition of the tab mode being opened. You should
+    -     set the "title" attribute on it, and may set any other attributes
+    -     you wish for your own use in subsequent functions.  Note that 'this'
+    -     points to the tab type definition, not the mode definition as you
+    -     might expect.  This allows you to place common logic code on the
+    -     tab type for use by multiple modes and to defer to it.  Any arguments
+    -     provided to the caller of tabmail.openTab will be passed to your
+    -     function as well, including background.
     - * canCloseTab(aTabInfo): Optional function.
     -     Return true (false) if the tab is (not) allowed to close.
     -     A tab's default permission is stored in aTabInfo.canClose.
@@ -362,7 +366,7 @@
 
       <method name="openTab">
         <parameter name="aTabModeName"/>
-        <!-- parameter name="aMoreParameters..."/-->
+        <parameter name="aArgs"/>
         <body>
           <![CDATA[
             if (!aTabModeName)
@@ -377,24 +381,29 @@
               return;
             }
 
+            // Do this so that we don't generate strict warnings.
+            let background = ("background" in aArgs) && aArgs.background;
+
             // If the mode wants us to, we should switch to an existing tab
-            // rather than open a new one.
+            // rather than open a new one. We shouldn't switch to the tab if
+            // we're opening it in the background, though.
             let shouldSwitchToFunc = tabMode.shouldSwitchTo ||
                                      tabMode.tabType.shouldSwitchTo;
 
             if (shouldSwitchToFunc)
             {
-              let args = Array.prototype.slice.call(arguments, 1);
-              let tabIndex = shouldSwitchToFunc.apply(tabMode.tabType, args);
+              let tabIndex = shouldSwitchToFunc.apply(tabMode.tabType, [aArgs]);
               if (tabIndex >= 0)
               {
-                this.selectTabByIndex(tabIndex);
+                if (!background)
+                  this.selectTabByIndex(tabIndex);
                 return;
               }
             }
 
-            // we need to save the state before it gets corrupted
-            this.saveCurrentTabState();
+            if (!background)
+              // we need to save the state before it gets corrupted
+              this.saveCurrentTabState();
 
             let tabInfo = {mode: tabMode, canClose: true};
             tabMode.tabs.push(tabInfo);
@@ -422,19 +431,18 @@
             let oldPanel = this.panelContainer.selectedPanel;
 
             // Open new tabs in the background?
-            let switchToNewTab = !this.mPrefs.getBoolPref("browser.tabs.loadInBackground");
-            tabInfo.switchToNewTab = switchToNewTab;
+            tabInfo.switchToNewTab = !background;
 
             // the order of the following statements is important
             let oldTabInfo = this.currentTabInfo;
             this.tabInfo[this.tabContainer.childNodes.length - 1] = tabInfo;
 
-            if (switchToNewTab)
-            {
+            if (!background) {
               this.currentTabInfo = tabInfo;
               // this has a side effect of calling updateCurrentTab, but our
               // setting currentTabInfo above will cause it to take no action.
-              this.tabContainer.selectedIndex = this.tabContainer.childNodes.length - 1;
+              this.tabContainer.selectedIndex =
+                this.tabContainer.childNodes.length - 1;
             }
             // make sure we are on the right panel
             let selectedPanel;
@@ -458,7 +466,7 @@
             {
               selectedPanel = tabInfo.mode.tabType.panel;
             }
-            if (switchToNewTab)
+            if (!background)
               this.panelContainer.selectedPanel = selectedPanel;
 
             oldPanel.removeAttribute("selected");
@@ -466,27 +474,23 @@
 
             let tabOpenFunc = tabInfo.mode.openTab ||
                               tabInfo.mode.tabType.openTab;
-            let args = [tabInfo].concat(Array.prototype.slice.call(arguments, 1));
             if (tabOpenFunc)
-              tabOpenFunc.apply(tabInfo.mode.tabType, args);
+              tabOpenFunc.apply(tabInfo.mode.tabType, [tabInfo, aArgs]);
 
-            if (!switchToNewTab)
-            {
+            if (background) {
               // if the new tab isn't made current,
               // its title won't change automatically
               this.setTabTitle(tabInfo);
             }
 
-            if (this.tabMonitors.length)
-            {
-              if (switchToNewTab)
-                for (let tabMonitor of this.tabMonitors)
-                  tabMonitor.onTabSwitched(tabInfo, oldTabInfo);
+            if (!background && this.tabMonitors.length) {
+              for (let tabMonitor of this.tabMonitors)
+                tabMonitor.onTabSwitched(tabInfo, oldTabInfo);
             }
 
             t.setAttribute("label", tabInfo.title);
-            if (switchToNewTab)
-            {
+
+            if (!background) {
               let docTitle = tabInfo.title;
               if (AppConstants.platform != "macosx") {
                 docTitle += " - " + gBrandBundle.getString("brandFullName");
@@ -1478,7 +1482,7 @@
             {
               // new-tab-button only appears in the tabstrip
               // duplicate the current tab
-              tabmail.openTab();
+              tabmail.openTab("", {});
             }
           }
         ]]>

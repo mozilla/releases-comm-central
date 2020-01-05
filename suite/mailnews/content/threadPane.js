@@ -19,7 +19,7 @@ function ThreadPaneOnClick(event)
       // we don't allow new tabs in the search dialog
       if (document.documentElement.id != "searchMailWindow")
       {
-        MsgOpenNewTabForMessage();
+        OpenMessageInNewTab(event);
         RestoreSelectionWithoutContentLoad(GetThreadTree());
       }
       return;
@@ -51,7 +51,7 @@ function ThreadPaneOnClick(event)
     // twisty, don't open the message in a new window.
     if (event.detail == 2 && !cell.col.cycler && (cell.childElt != "twisty"))
     {
-      ThreadPaneDoubleClick();
+      ThreadPaneDoubleClick(event);
       // Double clicking should not toggle the open/close state of the thread.
       // This will happen if we don't prevent the event from bubbling to the
       // default handler in tree.xml.
@@ -178,8 +178,7 @@ function HandleColumnClick(columnID)
   }
 }
 
-function ThreadPaneDoubleClick()
-{
+function ThreadPaneDoubleClick(event) {
   const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
   if (IsSpecialFolderSelected(nsMsgFolderFlags.Drafts, true))
   {
@@ -194,7 +193,7 @@ function ThreadPaneDoubleClick()
            document.documentElement.id != "searchMailWindow")
   {        // we don't allow new tabs in the search dialog
     // open the message in a new tab on double click
-    MsgOpenNewTabForMessage();
+    OpenMessageInNewTab(event);
     RestoreSelectionWithoutContentLoad(GetThreadTree());
   }
   else
@@ -206,7 +205,7 @@ function ThreadPaneDoubleClick()
 function ThreadPaneKeyPress(event)
 {
   if (event.keyCode == KeyEvent.DOM_VK_RETURN)
-    ThreadPaneDoubleClick();
+    ThreadPaneDoubleClick(event);
 }
 
 function MsgSortByThread()
