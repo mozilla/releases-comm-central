@@ -2488,7 +2488,7 @@
             var tab = this.tabContainer.insertBefore(this.tabs[aSrcIndex], this.tabs.item(aDestIndex));
 
             this.mCurrentTab._selected = true;
-            this.tabContainer.arrowScrollbox.ensureElementIsVisible(this.mCurrentTab, false);
+            this.tabContainer._handleTabSelect(false);
 
             tab.dispatchEvent(new UIEvent("TabMove",
               { bubbles: true, cancelable: false, view: window,
@@ -3239,7 +3239,7 @@
 
            var tabs = document.getBindingParent(this);
            tabs.setAttribute("overflow", true);
-           this.ensureElementIsVisible(tabs.selectedItem, false);
+           tabs._handleTabSelect(false);
         ]]>
       </handler>
     </handlers>
@@ -3320,9 +3320,12 @@
       </field>
 
       <method name="_handleTabSelect">
+        <parameter name="aSmoothScroll"/>
         <body>
           <![CDATA[
-            this.arrowScrollbox.ensureElementIsVisible(this.selectedItem);
+            if (this.getAttribute("overflow") == "true")
+              this.arrowScrollbox.ensureElementIsVisible(this.selectedItem,
+                                                         aSmoothScroll);
           ]]>
         </body>
       </method>
@@ -3339,7 +3342,7 @@
                 var width = this.arrowScrollbox.boxObject.width;
                 if (width != this.arrowScrollboxWidth)
                 {
-                  this._handleTabSelect();
+                  this._handleTabSelect(false);
                   this.arrowScrollboxWidth = width;
                 }
                 break;
