@@ -150,7 +150,7 @@ var MailMigrator = {
       // UI versions below 5 could only exist in an old profile with localstore.rdf
       // file used for the XUL store. Since TB55 this file is no longer read.
       // Since UI version 5, the xulstore.json file is being used, so we only
-      // support those version here, see bug 1371898.
+      // support those versions here, see bug 1371898.
 
       // In UI version 6, we move the otherActionsButton button to the
       // header-view-toolbar.
@@ -264,7 +264,7 @@ var MailMigrator = {
         }
       }
 
-      // Untangled starting in Paragraph mode from Enter key preference
+      // Untangle starting in Paragraph mode from Enter key preference.
       if (currentUIVersion < 13) {
         Services.prefs.setBoolPref(
           "mail.compose.default_to_paragraph",
