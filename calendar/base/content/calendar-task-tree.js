@@ -334,7 +334,7 @@
     persistColumnState() {
       const columns = Array.from(this.querySelectorAll("treecol"));
       const widths = columns.map(col => col.width || 0);
-      const ordinals = columns.map(col => col.ordinal);
+      const ordinals = columns.map(col => col.getAttribute("ordinal"));
       const visibleColumns = columns
         .filter(col => col.getAttribute("hidden") != "true")
         .map(col => col.getAttribute("itemproperty"));
@@ -373,7 +373,7 @@
           col.setAttribute("hidden", "true");
         }
         if (ordinals && ordinals.length > 0) {
-          col.ordinal = Number(ordinals.shift());
+          col.setAttribute("ordinal", ordinals.shift());
         }
         if (widths && widths.length > 0) {
           col.width = Number(widths.shift());
