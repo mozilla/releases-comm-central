@@ -238,8 +238,6 @@ pref("browser.tabs.warnOnOpen", true);
 pref("browser.tabs.maxOpenBeforeWarn", 15);
 pref("browser.tabs.insertRelatedAfterCurrent", true);
 pref("browser.tabs.insertAllTabsAfterCurrent", false);
-// 0 = append, 1 = replace
-pref("browser.tabs.loadGroup", 1);
 
 // For future use
 pref("browser.tabs.loadBookmarksInBackground", false);

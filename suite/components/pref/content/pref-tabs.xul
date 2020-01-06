@@ -29,9 +29,6 @@
       <preference id="browser.tabs.insertRelatedAfterCurrent"
                   name="browser.tabs.insertRelatedAfterCurrent"
                   type="bool"/>
-      <preference id="browser.tabs.loadGroup"
-                  name="browser.tabs.loadGroup"
-                  type="int"/>
       <preference id="browser.tabs.opentabfor.middleclick"
                   name="browser.tabs.opentabfor.middleclick"
                   type="bool"/>
@@ -66,20 +63,6 @@
                   label="&relatedAfterCurrent.label;"
                   accesskey="&relatedAfterCurrent.accesskey;"
                   preference="browser.tabs.insertRelatedAfterCurrent"/>
-      </groupbox>
-
-      <groupbox id="loadGroupPreferences" align="start">
-        <caption label="&loadGroup.label;"/>
-        <radiogroup id="loadGroup"
-                    orient="horizontal"
-                    preference="browser.tabs.loadGroup">
-          <radio value="0"
-                 label="&loadGroupAppend.label;"
-                 accesskey="&loadGroupAppend.accesskey;"/>
-          <radio value="1"
-                 label="&loadGroupReplace.label;"
-                 accesskey="&loadGroupReplace.accesskey;"/>
-        </radiogroup>
       </groupbox>
 
       <groupbox id="useTabPreferences" align="start">

@@ -14,12 +14,6 @@
 <!ENTITY relatedAfterCurrent.label "Open related tabs after current tab">
 <!ENTITY relatedAfterCurrent.accesskey "O">
 
-<!ENTITY loadGroup.label "When opening a bookmark group">
-<!ENTITY loadGroupAppend.label "Add tabs">
-<!ENTITY loadGroupAppend.accesskey "A">
-<!ENTITY loadGroupReplace.label "Replace existing tabs">
-<!ENTITY loadGroupReplace.accesskey "R">
-
 <!ENTITY openTabs.label "Open tabs instead of windows for">
 
 <!ENTITY openManagers.label "Open in a new tab instead of a stand-alone window">

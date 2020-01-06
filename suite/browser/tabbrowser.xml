@@ -2610,121 +2610,19 @@
         </body>
       </method>
 
-      <field name="backBrowserGroup">
-        []
-      </field>
-
-      <field name="forwardBrowserGroup">
-        []
-      </field>
-
-      <method name="replaceGroup">
-        <parameter name="aGroup"/>
-        <body>
-        <![CDATA[
-          var oldBrowserGroup = [];
-          var oldCount = this.tabs.length;
-          var newCount = aGroup.length;
-          var n = Math.max(oldCount, newCount);
-          for (var i = 0; i < n; ++i) {
-            if (i < newCount) {
-              var data = aGroup[i];
-              if ("sessionHistory" in data) {
-                this.addTab("about:blank", null);
-                var browser = this.tabContainer.lastChild.linkedBrowser;
-                // need to hold on to the listener so it won't go away
-                // addProgressListener only has a weak pointer to it
-                browser._SHListener =
-                    this.mInstallSH(browser, aGroup[i].sessionHistory);
-                browser.webProgress.addProgressListener(browser._SHListener, Ci.nsIWebProgress.NOTIFY_ALL);
-              } else {
-                var referrerURI = "referrerURI" in data ? data.referrerURI : null;
-                this.addTab(data.URI, referrerURI);
-              }
-            }
-            if (i < oldCount) {
-              var firstTab = this.tabContainer.firstChild;
-              var browserData = {
-                sessionHistory : firstTab.linkedBrowser.sessionHistory
-              }
-              oldBrowserGroup.push(browserData);
-              this.removeTab(firstTab, { disableUndo: true });
-            }
-          }
-          return oldBrowserGroup;
-        ]]>
-        </body>
-      </method>
-
-      <method name="appendGroup">
-        <parameter name="aGroup"/>
-        <body>
-        <![CDATA[
-          for (var i in aGroup) {
-            var page = aGroup[i];
-            var referrerURI = "referrerURI" in page ? page.referrerURI : null;
-            this.addTab(page.URI, referrerURI);
-          }
-        ]]>
-        </body>
-      </method>
-
-      <method name="loadGroup">
-        <parameter name="aGroup"/>
-        <body>
-        <![CDATA[
-          if (aGroup.length == 0)
-            return null;
-
-          var tab;
-          if (Services.prefs.getIntPref("browser.tabs.loadGroup") == 0) {
-            var oldCount = this.tabs.length;
-            this.appendGroup(aGroup);
-            tab = this.tabs[oldCount];
-          } else {
-            this.backBrowserGroup = this.replaceGroup(aGroup);
-            this.forwardBrowserGroup = [];
-            tab = this.tabContainer.firstChild;
-          }
-          return tab;
-        ]]>
-        </body>
-      </method>
-
-      <method name="goBackGroup">
-        <body>
-        <![CDATA[
-          this.forwardBrowserGroup = this.replaceGroup(this.backBrowserGroup);
-          this.backBrowserGroup = [];
-        ]]>
-        </body>
-      </method>
-
-      <method name="goForwardGroup">
-        <body>
-        <![CDATA[
-          this.backBrowserGroup = this.replaceGroup(this.forwardBrowserGroup);
-          this.forwardBrowserGroup = [];
-        ]]>
-        </body>
-      </method>
-
       <!-- BEGIN FORWARDED BROWSER PROPERTIES.  IF YOU ADD A PROPERTY TO THE BROWSER ELEMENT
            MAKE SURE TO ADD IT HERE AS WELL. -->
       <property name="canGoBack"
-                onget="return this.backBrowserGroup.length != 0 || this.mCurrentBrowser.canGoBack;"
+                onget="return this.mCurrentBrowser.canGoBack;"
                 readonly="true"/>
 
       <property name="canGoForward"
-                onget="return this.forwardBrowserGroup.length != 0 || this.mCurrentBrowser.canGoForward;"
+                onget="return this.mCurrentBrowser.canGoForward;"
                 readonly="true"/>
 
       <method name="goBack">
         <body>
           <![CDATA[
-            if (this.backBrowserGroup.length != 0)
-              return this.goBackGroup();
-
             return this.mCurrentBrowser.goBack();
           ]]>
         </body>
@@ -2733,9 +2631,6 @@
       <method name="goForward">
         <body>
           <![CDATA[
-            if (this.forwardBrowserGroup.length != 0)
-              return this.goForwardGroup();
-
             return this.mCurrentBrowser.goForward();
           ]]>
         </body>

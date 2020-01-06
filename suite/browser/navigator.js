@@ -1406,35 +1406,13 @@ function BrowserHandleShiftBackspace()
   }
 }
 
-function SetGroupHistory(popupMenu, direction)
-{
-  while (popupMenu.hasChildNodes())
-    popupMenu.lastChild.remove();
-
-  var menuItem = document.createElementNS(XUL_NS, "menuitem");
-  var label = gNavigatorBundle.getString("tabs.historyItem");
-  menuItem.setAttribute("label", label);
-  menuItem.setAttribute("index", direction);
-  popupMenu.appendChild(menuItem);
-}
-
 function BrowserBackMenu(event)
 {
-  if (gBrowser.backBrowserGroup.length != 0) {
-    SetGroupHistory(event.target, "back");
-    return true;
-  }
-
   return FillHistoryMenu(event.target, "back");
 }
 
 function BrowserForwardMenu(event)
 {
-  if (gBrowser.forwardBrowserGroup.length != 0) {
-    SetGroupHistory(event.target, "forward");
-    return true;
-  }
-
   return FillHistoryMenu(event.target, "forward");
 }
 
