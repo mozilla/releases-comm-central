@@ -2481,6 +2481,8 @@
             this.mTabFilters.splice(aDestIndex, 0, this.mTabFilters.splice(aSrcIndex, 1)[0]);
             this.mTabListeners.splice(aDestIndex, 0, this.mTabListeners.splice(aSrcIndex, 1)[0]);
 
+            let wasFocused = (document.activeElement == this.mCurrentTab);
+
             this.mCurrentTab._selected = false;
 
             if (aDestIndex >= aSrcIndex)
@@ -2488,6 +2490,10 @@
             var tab = this.tabContainer.insertBefore(this.tabs[aSrcIndex], this.tabs.item(aDestIndex));
 
             this.mCurrentTab._selected = true;
+
+            if (wasFocused)
+              this.mCurrentTab.focus();
+
             this.tabContainer._handleTabSelect(false);
 
             tab.dispatchEvent(new UIEvent("TabMove",
@@ -2562,7 +2568,6 @@
             var tabPos = this.tabContainer.selectedIndex;
             if (tabPos < this.browsers.length - 1) {
               this.moveTabTo(tabPos, tabPos + 1);
-              this.mCurrentTab.focus();
             }
             else if (this.arrowKeysShouldWrap)
               this.moveTabToStart();
@@ -2576,7 +2581,6 @@
             var tabPos = this.tabContainer.selectedIndex;
             if (tabPos > 0) {
               this.moveTabTo(tabPos, tabPos - 1);
-              this.mCurrentTab.focus();
             }
             else if (this.arrowKeysShouldWrap)
               this.moveTabToEnd();
@@ -2590,7 +2594,6 @@
             var tabPos = this.tabContainer.selectedIndex;
             if (tabPos > 0) {
               this.moveTabTo(tabPos, 0);
-              this.mCurrentTab.focus();
             }
           ]]>
         </body>
@@ -2602,7 +2605,6 @@
             var tabPos = this.tabContainer.selectedIndex;
             if (tabPos < this.browsers.length - 1) {
               this.moveTabTo(tabPos, this.browsers.length - 1);
-              this.mCurrentTab.focus();
             }
           ]]>
         </body>
