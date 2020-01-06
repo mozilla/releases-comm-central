@@ -25,6 +25,7 @@ var {
   click_tree_row,
   FAKE_SERVER_HOSTNAME,
   get_special_folder,
+  wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -91,6 +92,8 @@ function check_send_commands_state(aCwc, aEnabled) {
  */
 add_task(function test_send_enabled_manual_address() {
   let cwc = open_compose_new_mail(); // compose controller
+  let panel = cwc.e("extraRecipientsPanel"); // extra recipients panel
+
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
 
@@ -100,6 +103,8 @@ add_task(function test_send_enabled_manual_address() {
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
   clear_recipient(cwc);
+  cwc.click(cwc.eid("extraRecipientsLabel"));
+  wait_for_popup_to_open(panel);
   cwc.click(cwc.eid("addr_reply"));
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
   check_send_commands_state(cwc, false);
@@ -153,6 +158,12 @@ add_task(function test_send_enabled_manual_address() {
 
   clear_recipient(cwc);
   check_send_commands_state(cwc, false);
+
+  // Show the extraRecipientsLabel in order to trigger the opening og the
+  // extraRecipientsPanel.
+  cwc.e("extraRecipientsLabel").removeAttribute("collapsed");
+  cwc.click(cwc.eid("extraRecipientsLabel"));
+  wait_for_popup_to_open(panel);
 
   // - some string as a newsgroup
   cwc.e("addr_newsgroups").removeAttribute("collapsed");

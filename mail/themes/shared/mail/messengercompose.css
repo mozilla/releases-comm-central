@@ -467,7 +467,7 @@
   -moz-appearance: none;
   -moz-box-align: center;
   font: inherit;
-  margin-inline-end: 8px;
+  margin-inline-end: 0;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: 2px;
   background-color: -moz-field;
@@ -501,7 +501,7 @@
 .address-row {
   display: flex;
   flex: 1;
-  margin-block: 5px;
+  margin-block: 6px;
   margin-inline-end: 8px;
   align-items: self-start;
 }
@@ -633,42 +633,73 @@
   background-color: Highlight;
 }
 
-.address-extra-recipients {
+.address-identity-recipient {
   margin-inline-end: 8px;
 }
 
 .address-extra-recipients label {
-  margin-top: 0;
-  margin-bottom: 6px;
+  margin-block: 0;
+  margin-inline: 12px 6px;
   transition: color 0.2s;
-  margin-inline-end: 12px;
+  line-height: 1;
 }
 
-.new-icon {
+.overflow-icon {
   -moz-appearance: none;
   -moz-context-properties: fill, fill-opacity;
-  list-style-image: url(chrome://messenger/skin/icons/new.svg);
+  list-style-image: url(chrome://messenger/skin/icons/overflow.svg);
   color: inherit !important;
   fill: currentColor;
   fill-opacity: 1;
   width: 15px;
-  height: 15px;
-  background-color: rgba(0,0,0,0.1);
-  border-radius: 50%;
-  padding: 3px;
-  vertical-align: sub;
-  display: inline-block;
-  margin-inline-end: 4px;
 }
 
-#MsgHeadersToolbar[brighttext] .new-icon {
-  background-color: rgba(255, 255, 255, 0.1);
+label.extra-recipients-label {
+  border-radius: 2px;
+  padding: 2px;
+  width: 16px;
+  height: 16px;
+  margin-inline: 6px;
 }
 
-.address-extra-recipients label:hover,
-.aw-firstColBox label:hover {
+.extra-recipients-label:hover,
+.extra-recipients-label:focus {
+  cursor: pointer;
+  background-color: var(--toolbarbutton-hover-background);
+}
+
+.extra-recipients-label image {
+  display: inline;
+  vertical-align: middle;
+}
+
+.address-extra-recipients label:hover:not(.extra-recipients-label),
+.aw-firstColBox label:hover:not(.extra-recipients-label) {
   cursor: pointer;
   color: Highlight;
+}
+
+#extraRecipientsPanel {
+  min-width: 160px;
+  --arrowpanel-padding: 0;
+}
+
+#extraRecipientsPanel label {
+  padding: 4px 8px;
+  margin: 2px 0;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#extraRecipientsPanel label:hover,
+#extraRecipientsPanel label:focus {
+  background-color: var(--arrowpanel-dimmed);
+}
+
+#extraRecipientsPanel label:hover:active {
+  background-color: var(--arrowpanel-dimmed-further);
+  box-shadow: 0 1px 0 hsla(210, 4%, 10%, .03) inset;
 }
 
 .aw-firstColBox label:hover .close-icon {
@@ -680,8 +711,8 @@
   margin-bottom: 0;
 }
 
-.address-extra-recipients label:focus:not(:hover),
-.aw-firstColBox label:focus:not(:hover) image {
+.address-extra-recipients label:focus:not(:hover):not(.extra-recipients-label),
+.aw-firstColBox label:focus:not(:hover):not(.extra-recipients-label) image {
   outline: 2px dashed Highlight;
 }
 

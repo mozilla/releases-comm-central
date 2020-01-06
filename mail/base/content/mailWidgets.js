@@ -2381,6 +2381,7 @@
       pill.remove();
 
       onRecipientsChanged();
+      calculateHeaderHeight();
     }
 
     /**

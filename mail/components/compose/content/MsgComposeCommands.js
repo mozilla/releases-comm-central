@@ -12,6 +12,8 @@
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */
 
+/* global updateRecipientsPanelVisibility */
+
 /**
  * Commands for the message composition window.
  */
@@ -3409,8 +3411,8 @@ function ComposeLoad() {
     let state = verifyAccounts(WizCallback, true);
 
     if (otherHeaders) {
-      let addressingWidgetLabels = document.getElementById(
-        "addressingWidgetLabels"
+      let extraRecipientsPanel = document.getElementById(
+        "extraRecipientsPanel"
       );
       let recipientsContainer = document.getElementById("recipientsContainer");
 
@@ -3425,7 +3427,7 @@ function ComposeLoad() {
           type: "addr_other",
         };
 
-        addressingWidgetLabels.appendChild(createRecipientLabel(header));
+        extraRecipientsPanel.appendChild(createRecipientLabel(header));
         recipientsContainer.appendChild(
           recipientsContainer.buildRecipientRows(recipient)
         );
@@ -3526,7 +3528,7 @@ function SetDocumentCharacterSet(aCharset) {
 function createRecipientLabel(labelID) {
   let label = document.createXULElement("label");
   label.setAttribute("id", labelID);
-  label.textContent = labelID;
+  label.setAttribute("value", labelID);
 
   label.addEventListener("click", () => {
     showAddressRow(label, `addressRow${labelID}`);
@@ -3538,10 +3540,6 @@ function createRecipientLabel(labelID) {
 
   // Necessary to allow focus via TAB key.
   label.setAttribute("tabindex", 0);
-
-  let newImage = document.createXULElement("image");
-  newImage.classList.add("new-icon");
-  label.prepend(newImage);
 
   return label;
 }
@@ -6255,6 +6253,8 @@ function hideIrrelevantAddressingOptions(aAccountKey) {
   for (let item of document.querySelectorAll(".nntp-label")) {
     item.collapsed = hideNews;
   }
+
+  updateRecipientsPanelVisibility();
 }
 
 function LoadIdentity(startup) {

@@ -588,6 +588,23 @@
                  command="cmd_sortAttachmentsToggle"/>
 </panel>
 
+<panel id="extraRecipientsPanel" type="arrow" orient="vertical"
+       onkeypress="if (event.key == 'Enter') { this.hidePopup(); }"
+       onclick="this.hidePopup();">
+  <label id="addr_reply" value="&replyAddr2.label;"
+         onclick="showAddressRow(this, 'addressRowReply')"
+         onkeypress="showAddressRowKeyPress(event, this, 'addressRowReply')"
+         control="replyAddrInput" class="recipient-label"/>
+  <label id="addr_newsgroups" value="&newsgroupsAddr2.label;"
+         onclick="showAddressRow(this, 'addressRowNewsgroups')"
+         onkeypress="showAddressRowKeyPress(event, this, 'addressRowNewsgroups')"
+         control="newsgroupsAddrInput" class="nntp-label recipient-label"/>
+  <label id="addr_followup" value="&followupAddr2.label;"
+         onclick="showAddressRow(this, 'addressRowFollowup')"
+         onkeypress="showAddressRowKeyPress(event, this, 'addressRowFollowup')"
+         control="followupAddrInput" class="nntp-label recipient-label"/>
+</panel>
+
 <menupopup id="msgComposeContext"
            onpopupshowing="if (event.target != this) { return true; } openEditorContextMenu(this);">
 
@@ -1994,7 +2011,7 @@
              ondragexit="nsDragAndDrop.dragExit(event, envelopeDragObserver);">
       <hbox id="msgheaderstoolbar-box" flex="1">
         <vbox flex="1" id="addresses-box">
-          <hbox id="top-gradient-box">
+          <hbox id="top-gradient-box" class="address-identity-recipient">
             <hbox class="aw-firstColBox"/>
             <hbox id="identityLabel-box" align="center"
                   pack="end" style="&headersSpace2.style;">
@@ -2007,6 +2024,30 @@
                       oncommand="LoadIdentity(false);" disableonsend="true">
               <menupopup id="msgIdentityPopup"/>
             </menulist>
+
+            <hbox class="addressingWidgetItem">
+              <hbox id="addressingWidgetLabels" class="address-extra-recipients"
+                    flex="1" align="center">
+                <label id="addr_to" control="toAddrInput" hidden="true"/>
+                <label id="addr_cc" value="&ccAddr2.label;"
+                       onclick="showAddressRow(this, 'addressRowCc')"
+                       onkeypress="showAddressRowKeyPress(event, this, 'addressRowCc')"
+                       control="ccAddrInput" class="recipient-label"/>
+                <label id="addr_bcc" value="&bccAddr2.label;"
+                       onclick="showAddressRow(this, 'addressRowBcc')"
+                       onkeypress="showAddressRowKeyPress(event, this, 'addressRowBcc')"
+                       control="bccAddrInput" class="recipient-label"/>
+
+                <label id="extraRecipientsLabel"
+                       onclick="showExtraRecipients(event);"
+                       tooltiptext="&extraRecipients.tooltip;"
+                       class="extra-recipients-label"
+                       onkeypress="if (event.key == 'Enter') { showExtraRecipients(event); }">
+                    <image class="overflow-icon"/>
+                </label>
+
+              </hbox>
+            </hbox>
           </hbox>
 
           <mail-recipients-area id="recipientsContainer" orient="vertical"
@@ -2228,40 +2269,6 @@
               </hbox>
             </hbox>
           </mail-recipients-area>
-
-          <hbox class="addressingWidgetItem">
-            <hbox class="aw-firstColBox"/>
-            <hbox class="address-label-container" style="&headersSpace2.style;"/>
-            <hbox id="addressingWidgetLabels" class="address-extra-recipients"
-                  flex="1" align="center">
-              <label id="addr_to" control="toAddrInput" hidden="true"/>
-              <label id="addr_cc" onclick="showAddressRow(this, 'addressRowCc')"
-                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowCc')"
-                     control="ccAddrInput">
-                <image class="new-icon"/>&ccAddr2.label;
-              </label>
-              <label id="addr_bcc" onclick="showAddressRow(this, 'addressRowBcc')"
-                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowBcc')"
-                     control="bccAddrInput">
-                <image class="new-icon"/>&bccAddr2.label;
-              </label>
-              <label id="addr_reply" onclick="showAddressRow(this, 'addressRowReply')"
-                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowReply')"
-                     control="replyAddrInput">
-                <image class="new-icon"/>&replyAddr2.label;
-              </label>
-              <label id="addr_newsgroups" onclick="showAddressRow(this, 'addressRowNewsgroups')"
-                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowNewsgroups')"
-                     control="newsgroupsAddrInput" class="nntp-label">
-                <image class="new-icon"/>&newsgroupsAddr2.label;
-              </label>
-              <label id="addr_followup" onclick="showAddressRow(this, 'addressRowFollowup')"
-                     onkeypress="showAddressRowKeyPress(event, this, 'addressRowFollowup')"
-                     control="followupAddrInput" class="nntp-label">
-                <image class="new-icon"/>&followupAddr2.label;
-              </label>
-            </hbox>
-          </hbox>
 
           <hbox id="subject-box">
             <hbox class="aw-firstColBox"/>

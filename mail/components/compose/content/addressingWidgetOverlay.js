@@ -638,6 +638,8 @@ function showAddressRow(label, rowID) {
   container.classList.remove("hidden");
   label.setAttribute("collapsed", "true");
   input.focus();
+
+  updateRecipientsPanelVisibility();
 }
 
 /**
@@ -680,6 +682,7 @@ function hideAddressRow(element, labelID) {
   document.getElementById(labelID).removeAttribute("collapsed");
 
   onRecipientsChanged();
+  updateRecipientsPanelVisibility();
 }
 
 /**
@@ -687,17 +690,50 @@ function hideAddressRow(element, labelID) {
  * If the height is bigger than 2/3 of the compose window heigh, enable overflow.
  */
 function calculateHeaderHeight() {
-  let container = document.getElementById("msgheaderstoolbar-box");
-  if (container.classList.contains("overflow")) {
+  let container = document.getElementById("recipientsContainer");
+  if (
+    container.classList.contains("overflow") &&
+    container.scrollHeight >= window.outerHeight * 0.7
+  ) {
+    return;
+  }
+
+  let header = document.getElementById("headers-box");
+  if (
+    container.classList.contains("overflow") &&
+    container.scrollHeight < window.outerHeight * 0.7
+  ) {
+    container.classList.remove("overflow");
+    header.removeAttribute("height");
     return;
   }
 
   if (container.clientHeight >= window.outerHeight * 0.7) {
-    document.getElementById("recipientsContainer").classList.add("overflow");
+    container.classList.add("overflow");
 
-    let header = document.getElementById("headers-box");
     if (!header.hasAttribute("height")) {
       header.setAttribute("height", 300);
     }
   }
+}
+
+/**
+ * Show the #extraRecipientsPanel.
+ *
+ * @param {Event} event - The DOM event.
+ */
+function showExtraRecipients(event) {
+  let panel = document.getElementById("extraRecipientsPanel");
+  panel.openPopup(event.originalTarget, "after_end", -8, 0, true);
+}
+
+/**
+ * Hide or show the panel and overflow button for the extra recipients
+ * based on the currently available labels.
+ */
+function updateRecipientsPanelVisibility() {
+  document.getElementById("extraRecipientsLabel").collapsed =
+    document
+      .getElementById("extraRecipientsPanel")
+      .querySelectorAll('label:not([collapsed="true"])').length == 0;
 }

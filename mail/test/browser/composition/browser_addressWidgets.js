@@ -51,7 +51,7 @@ add_task(function setupModule(module) {
  * @param aItemsEnabled  List of item values that should be enabled (uncollapsed).
  */
 function check_address_types_state(aItemsEnabled) {
-  let addr_types = cwc.e("addressingWidgetLabels").querySelectorAll("label");
+  let addr_types = document.querySelectorAll("label.recipient-label");
   for (let item of addr_types) {
     Assert.ok(item.collapsed != aItemsEnabled.includes(item.id));
   }
