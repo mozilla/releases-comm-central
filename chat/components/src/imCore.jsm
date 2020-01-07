@@ -347,9 +347,10 @@ CoreService.prototype = {
     }
 
     let protocols = [];
-    let entries = categoryManager.enumerateCategory(kProtocolPluginCategory);
-    while (entries.hasMoreElements()) {
-      let id = entries.getNext().QueryInterface(Ci.nsISupportsCString).data;
+    for (let entry of categoryManager.enumerateCategory(
+      kProtocolPluginCategory
+    )) {
+      let id = entry.data;
 
       // If the preference is set to disable this prpl, don't show it in the
       // full list of protocols.

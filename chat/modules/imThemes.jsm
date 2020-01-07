@@ -336,8 +336,8 @@ function getDirectoryEntries(aDir) {
     let entries = zr.findEntries(filter);
 
     let parentLength = strEntry.length;
-    while (entries.hasMore()) {
-      results.push(entries.getNext().substring(parentLength));
+    for (let entry of entries) {
+      results.push(entry.substring(parentLength));
     }
     zr.close();
   } else if (uri.scheme == "file") {
@@ -348,9 +348,7 @@ function getDirectoryEntries(aDir) {
       return [];
     }
 
-    let children = dir.directoryEntries;
-    while (children.hasMoreElements()) {
-      let file = children.nextFile;
+    for (let file of dir.directoryEntries) {
       results.push(file.leafName);
     }
   }

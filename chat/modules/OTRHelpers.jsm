@@ -11,9 +11,8 @@ var OTRHelpers = {
   },
 
   *getAccounts() {
-    let accounts = Services.accounts.getAccounts();
-    while (accounts.hasMoreElements()) {
-      yield accounts.getNext();
+    for (let account of Services.accounts.getAccounts()) {
+      yield account;
     }
   },
 

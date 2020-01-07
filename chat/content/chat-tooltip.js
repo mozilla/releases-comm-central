@@ -346,8 +346,7 @@
     }
 
     updateTooltipInfo(aTooltipInfo) {
-      while (aTooltipInfo.hasMoreElements()) {
-        let elt = aTooltipInfo.getNext().QueryInterface(Ci.prplITooltipInfo);
+      for (let elt of aTooltipInfo) {
         switch (elt.type) {
           case Ci.prplITooltipInfo.pair:
           case Ci.prplITooltipInfo.sectionHeader:

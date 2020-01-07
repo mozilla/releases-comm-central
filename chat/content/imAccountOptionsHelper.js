@@ -44,13 +44,11 @@ var accountOptionsHelper = {
     hbox.appendChild(label);
     vbox.appendChild(hbox);
 
-    aList.QueryInterface(Ci.nsISimpleEnumerator);
     let menulist = document.createXULElement("menulist");
     menulist.setAttribute("id", aName);
     menulist.setAttribute("flex", "1");
     let popup = menulist.appendChild(document.createXULElement("menupopup"));
-    while (aList.hasMoreElements()) {
-      let elt = aList.getNext();
+    for (let elt of aList) {
       let item = document.createXULElement("menuitem");
       item.setAttribute("label", elt.name);
       item.setAttribute("value", elt.value);

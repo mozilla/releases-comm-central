@@ -116,17 +116,15 @@ var OTRUI = {
   },
 
   addMenuObserver() {
-    let iter = Services.ww.getWindowEnumerator();
-    while (iter.hasMoreElements()) {
-      OTRUI.addMenus(iter.getNext());
+    for (let win of Services.ww.getWindowEnumerator()) {
+      OTRUI.addMenus(win);
     }
     Services.obs.addObserver(OTRUI, "domwindowopened");
   },
 
   removeMenuObserver() {
-    let iter = Services.ww.getWindowEnumerator();
-    while (iter.hasMoreElements()) {
-      OTRUI.removeMenus(iter.getNext());
+    for (let win of Services.ww.getWindowEnumerator()) {
+      OTRUI.removeMenus(win);
     }
     Services.obs.removeObserver(OTRUI, "domwindowopened");
   },
@@ -272,10 +270,8 @@ var OTRUI = {
         Services.obs.addObserver(OTRUI, "conversation-closed");
         Services.obs.addObserver(OTRUI, "prpl-quit");
 
-        let conversations = Services.conversations.getConversations();
-        while (conversations.hasMoreElements()) {
-          let aConv = conversations.getNext();
-          OTRUI.initConv(aConv);
+        for (let conv of Services.conversations.getConversations()) {
+          OTRUI.initConv(conv);
         }
         OTRUI.addMenuObserver();
 
@@ -292,9 +288,7 @@ var OTRUI = {
       return OTR.disconnect(aConv, true);
     }
     let allGood = true;
-    let conversations = Services.conversations.getConversations();
-    while (conversations.hasMoreElements()) {
-      let conv = conversations.getNext();
+    for (let conv of Services.conversations.getConversations()) {
       if (conv.isChat) {
         continue;
       }
@@ -865,9 +859,8 @@ var OTRUI = {
     Services.obs.removeObserver(OTRUI, "conversation-closed");
     Services.obs.removeObserver(OTRUI, "prpl-quit");
 
-    let conversations = Services.conversations.getConversations();
-    while (conversations.hasMoreElements()) {
-      OTRUI.resetConv(conversations.getNext());
+    for (let conv of Services.conversations.getConversations()) {
+      OTRUI.resetConv(conv);
     }
     OTR.removeObserver(OTRUI);
     OTR.close();

@@ -1212,9 +1212,7 @@ Account.prototype = {
   finishAuthorizationRequest() {
     // Clean up the cookies, so that several twitter OAuth dialogs can work
     // during the same session (bug 954308).
-    let cookies = Services.cookies.getCookiesFromHost("twitter.com", {});
-    while (cookies.hasMoreElements()) {
-      let cookie = cookies.getNext().QueryInterface(Ci.nsICookie);
+    for (let cookie of Services.cookies.getCookiesFromHost("twitter.com", {})) {
       Services.cookies.remove(
         cookie.host,
         cookie.name,

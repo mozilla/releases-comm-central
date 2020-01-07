@@ -390,9 +390,7 @@ var GenericIRCConversation = {
     let msg = _(msgType, account.whoisInformation.get(nick).nick);
 
     // Iterate over each field.
-    let tooltipInfo = aSubject.QueryInterface(Ci.nsISimpleEnumerator);
-    while (tooltipInfo.hasMoreElements()) {
-      let elt = tooltipInfo.getNext().QueryInterface(Ci.prplITooltipInfo);
+    for (let elt of aSubject.QueryInterface(Ci.nsISimpleEnumerator)) {
       switch (elt.type) {
         case Ci.prplITooltipInfo.pair:
         case Ci.prplITooltipInfo.sectionHeader:
