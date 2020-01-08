@@ -466,6 +466,16 @@ nsPgpMimeProxy::SetLoadGroup(nsILoadGroup *aLoadGroup) {
 }
 
 NS_IMETHODIMP
+nsPgpMimeProxy::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
+  return GetTRRModeImpl(aTRRMode);
+}
+
+NS_IMETHODIMP
+nsPgpMimeProxy::SetTRRMode(nsIRequest::TRRMode aTRRMode) {
+  return SetTRRModeImpl(aTRRMode);
+}
+
+NS_IMETHODIMP
 nsPgpMimeProxy::GetLoadFlags(nsLoadFlags *aLoadFlags) {
   *aLoadFlags = mLoadFlags;
   return NS_OK;

@@ -96,6 +96,14 @@ NS_IMETHODIMP nsNntpMockChannel::GetLoadGroup(nsILoadGroup **aLoadGroup) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsNntpMockChannel::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
+  return GetTRRModeImpl(aTRRMode);
+}
+
+NS_IMETHODIMP nsNntpMockChannel::SetTRRMode(nsIRequest::TRRMode aTRRMode) {
+  return SetTRRModeImpl(aTRRMode);
+}
+
 NS_IMETHODIMP nsNntpMockChannel::GetLoadFlags(nsLoadFlags *aLoadFlags) {
   FORWARD_CALL(GetLoadFlags, aLoadFlags)
   *aLoadFlags = m_loadFlags;

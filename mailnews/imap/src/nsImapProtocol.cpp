@@ -8562,6 +8562,14 @@ NS_IMETHODIMP nsImapMockChannel::GetLoadGroup(nsILoadGroup **aLoadGroup) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsImapMockChannel::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
+  return GetTRRModeImpl(aTRRMode);
+}
+
+NS_IMETHODIMP nsImapMockChannel::SetTRRMode(nsIRequest::TRRMode aTRRMode) {
+  return SetTRRModeImpl(aTRRMode);
+}
+
 NS_IMETHODIMP nsImapMockChannel::GetLoadInfo(nsILoadInfo **aLoadInfo) {
   NS_IF_ADDREF(*aLoadInfo = m_loadInfo);
   return NS_OK;
