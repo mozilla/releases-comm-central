@@ -96,7 +96,7 @@ NS_IMETHODIMP nsNntpMockChannel::GetLoadGroup(nsILoadGroup **aLoadGroup) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
+NS_IMETHODIMP nsNntpMockChannel::GetTRRMode(nsIRequest::TRRMode *aTRRMode) {
   return GetTRRModeImpl(aTRRMode);
 }
 

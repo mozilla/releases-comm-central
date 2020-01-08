@@ -8562,7 +8562,7 @@ NS_IMETHODIMP nsImapMockChannel::GetLoadGroup(nsILoadGroup **aLoadGroup) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMockChannel::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
+NS_IMETHODIMP nsImapMockChannel::GetTRRMode(nsIRequest::TRRMode *aTRRMode) {
   return GetTRRModeImpl(aTRRMode);
 }
 

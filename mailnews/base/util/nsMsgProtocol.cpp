@@ -502,7 +502,7 @@ NS_IMETHODIMP nsMsgProtocol::SetLoadGroup(nsILoadGroup *aLoadGroup) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
+NS_IMETHODIMP nsMsgProtocol::GetTRRMode(nsIRequest::TRRMode *aTRRMode) {
   return GetTRRModeImpl(aTRRMode);
 }
 

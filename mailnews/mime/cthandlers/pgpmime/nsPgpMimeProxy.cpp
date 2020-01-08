@@ -466,7 +466,7 @@ nsPgpMimeProxy::SetLoadGroup(nsILoadGroup *aLoadGroup) {
 }
 
 NS_IMETHODIMP
-nsPgpMimeProxy::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
+nsPgpMimeProxy::GetTRRMode(nsIRequest::TRRMode *aTRRMode) {
   return GetTRRModeImpl(aTRRMode);
 }
 
