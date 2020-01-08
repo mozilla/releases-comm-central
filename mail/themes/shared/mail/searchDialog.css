@@ -135,7 +135,7 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 
 :root[lwt-tree] #searchTermList button:hover:active,
 :root[lwt-tree] #searchTermList menulist[open="true"] {
-  box-shadow: --toolbarbutton-active-boxshadow;
+  box-shadow: var(--toolbarbutton-active-boxshadow);
 }
 
 :root[lwt-tree] #searchTermList menulist > .menulist-label-box {

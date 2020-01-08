@@ -59,7 +59,6 @@
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
     list-style-image: url(chrome://calendar-common/skin/icons/priority.svg);
-    -moz-image-region: none;
     -moz-context-properties: fill;
     fill: red;
     margin-inline-start: -2px;

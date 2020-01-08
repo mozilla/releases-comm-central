@@ -40,8 +40,6 @@ const kDisplayModeTabIDS = [
 ];
 const kNormalStyleSheet =
   "chrome://messenger/content/messengercompose/EditorContent.css";
-const kAllTagsStyleSheet =
-  "chrome://messenger/content/messengercompose/EditorAllTags.css";
 const kContentEditableStyleSheet = "resource://gre/res/contenteditable.css";
 
 var kTextMimeType = "text/plain";

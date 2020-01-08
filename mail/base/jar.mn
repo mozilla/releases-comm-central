@@ -133,6 +133,13 @@ comm.jar:
    content/communicator/labelsencodings.properties  (/@mozreltopsrcdir@/dom/encoding/labelsencodings.properties)
    content/communicator/utilityOverlay.js           (content/utilityOverlay.js)
 
-# This is needed for built_in_addons.json
+# These files are referenced from various toolkit files.
 browser.jar:
 % content browser %content/
+    content/illustrations/error-malformed-url.svg      (../../../browser/base/content/illustrations/error-malformed-url.svg)
+% skin browser classic/1.0 %skin/
+    skin/controlcenter/trackers.svg                    (../../../browser/themes/shared/controlcenter/trackers.svg)
+    skin/identity-icon.svg                             (../../../browser/themes/shared/identity-block/identity-icon.svg)
+    skin/preferences/in-content/no-search-results.svg  (../../../browser/themes/shared/incontentprefs/no-search-results.svg)
+    skin/private-browsing.svg                          (../../../browser/themes/shared/icons/private-browsing.svg)
+    skin/warning.svg                                   (../../../browser/themes/shared/warning.svg)

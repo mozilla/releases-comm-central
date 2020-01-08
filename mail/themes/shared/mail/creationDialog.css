@@ -47,13 +47,6 @@
   --btn-shadow-hover: rgba(0, 110, 255, 0.25);
 }
 
-#brandLogo {
-  list-style-image: url("chrome://branding/content/about-logo.svg");
-  width: 64px;
-  height: 64px;
-  margin-bottom: 10px;
-}
-
 .hub-container {
   background-color: var(--bg-color);
   color: var(--text-color);
