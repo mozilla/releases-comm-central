@@ -1,0 +1,104 @@
+{
+  "eurus": {
+    "dn": "uid=eurus,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Eurus Holmes",
+      "givenName": "Eurus",
+      "mail": "eurus@bakerstreet.invalid",
+      "sn": "Holmes"
+    }
+  },
+  "irene": {
+    "dn": "uid=irene,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Irene Adler",
+      "givenName": "irene",
+      "mail": "irene@bakerstreet.invalid",
+      "sn": "Adler"
+    }
+  },
+  "john": {
+    "dn": "uid=john,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "John Watson",
+      "givenName": "John",
+      "mail": "john@bakerstreet.invalid",
+      "sn": "Watson"
+    }
+  },
+  "lestrade": {
+    "dn": "uid=lestrade,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Greg Lestrade",
+      "givenName": "Greg",
+      "mail": "lestrade@bakerstreet.invalid",
+      "o": "New Scotland Yard",
+      "sn": "Lestrade"
+    }
+  },
+  "mary": {
+    "dn": "uid=mary,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Mary Watson",
+      "givenName": "Mary",
+      "mail": "mary@bakerstreet.invalid",
+      "sn": "Watson"
+    }
+  },
+  "molly": {
+    "dn": "uid=molly,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Molly Hooper",
+      "givenName": "Molly",
+      "mail": "molly@bakerstreet.invalid",
+      "o": "St. Bartholomew's Hospital",
+      "sn": "Hooper"
+    }
+  },
+  "moriarty": {
+    "dn": "uid=moriarty,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Jim Moriarty",
+      "givenName": "Jim",
+      "mail": "moriarty@bakerstreet.invalid",
+      "sn": "Moriarty"
+    }
+  },
+  "mrs_hudson": {
+    "dn": "uid=mrs_hudson,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Mrs Hudson",
+      "givenName": "Martha",
+      "mail": "mrs_hudson@bakerstreet.invalid",
+      "sn": "Hudson"
+    }
+  },
+  "mycroft": {
+    "dn": "uid=mycroft,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Mycroft Holmes",
+      "givenName": "Mycroft",
+      "mail": "mycroft@bakerstreet.invalid",
+      "sn": "Holmes"
+    }
+  },
+  "sherlock": {
+    "dn": "uid=sherlock,dc=bakerstreet,dc=invalid",
+    "attributes": {
+      "objectClass": "person",
+      "cn": "Sherlock Holmes",
+      "givenName": "Sherlock",
+      "mail": "sherlock@bakerstreet.invalid",
+      "sn": "Holmes"
+    }
+  }
+}

@@ -142,6 +142,7 @@ var gAddressBookAbViewListener = {
   },
   onCountChanged(total) {
     SetStatusText(total);
+    window.dispatchEvent(new CustomEvent("countchange"));
   },
 };
 
