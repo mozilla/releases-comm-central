@@ -125,19 +125,21 @@ add_task(async function test_accounts() {
             accountId: account1Id,
             name: "Trash",
             path: "/Trash",
+            subFolders: [
+              {
+                accountId: account1Id,
+                name: "foo 'bar'(!)",
+                path: "/Trash/foo 'bar'(!)",
+              },
+              {
+                accountId: account1Id,
+                name: "Ϟ",
+                // This character is not supported on Windows, so it gets hashed,
+                // by NS_MsgHashIfNecessary.
+                path: platformInfo.os == "win" ? "/Trash/b52bc214" : "/Trash/Ϟ",
+              },
+            ],
             type: "trash",
-          },
-          {
-            accountId: account1Id,
-            name: "foo 'bar'(!)",
-            path: "/Trash/foo 'bar'(!)",
-          },
-          {
-            accountId: account1Id,
-            name: "Ϟ",
-            // This character is not supported on Windows, so it gets hashed,
-            // by NS_MsgHashIfNecessary.
-            path: platformInfo.os == "win" ? "/Trash/b52bc214" : "/Trash/Ϟ",
           },
           {
             accountId: account1Id,
@@ -161,17 +163,19 @@ add_task(async function test_accounts() {
             accountId: account2Id,
             name: "Inbox",
             path: "/INBOX",
+            subFolders: [
+              {
+                accountId: account2Id,
+                name: "foo 'bar'(!)",
+                path: "/INBOX/foo 'bar'(!)",
+              },
+              {
+                accountId: account2Id,
+                name: "Ϟ",
+                path: "/INBOX/&A94-",
+              },
+            ],
             type: "inbox",
-          },
-          {
-            accountId: account2Id,
-            name: "foo 'bar'(!)",
-            path: "/INBOX/foo 'bar'(!)",
-          },
-          {
-            accountId: account2Id,
-            name: "Ϟ",
-            path: "/INBOX/&A94-",
           },
           {
             // The trash folder magically appears at this point.

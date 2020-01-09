@@ -43,8 +43,12 @@ add_task(async function test_folders() {
       browser.test.assertEq("/folder1/folder2", folder2.path);
 
       account = await browser.accounts.get(accountId);
-      browser.test.assertEq(4, account.folders.length);
-      browser.test.assertEq("/folder1/folder2", account.folders[3].path);
+      browser.test.assertEq(3, account.folders.length);
+      browser.test.assertEq(1, account.folders[2].subFolders.length);
+      browser.test.assertEq(
+        "/folder1/folder2",
+        account.folders[2].subFolders[0].path
+      );
 
       let folder3 = await browser.folders.rename(
         { accountId, path: "/folder1/folder2" },
@@ -55,17 +59,25 @@ add_task(async function test_folders() {
       browser.test.assertEq("/folder1/folder3", folder3.path);
 
       account = await browser.accounts.get(accountId);
-      browser.test.assertEq(4, account.folders.length);
-      browser.test.assertEq("/folder1/folder3", account.folders[3].path);
+      browser.test.assertEq(3, account.folders.length);
+      browser.test.assertEq(1, account.folders[2].subFolders.length);
+      browser.test.assertEq(
+        "/folder1/folder3",
+        account.folders[2].subFolders[0].path
+      );
 
       await browser.folders.delete({ accountId, path: "/folder1/folder3" });
 
       account = await browser.accounts.get(accountId);
-      browser.test.assertEq(4, account.folders.length);
+      browser.test.assertEq(3, account.folders.length);
       browser.test.assertEq("/Trash", account.folders[0].path);
-      browser.test.assertEq("/Trash/folder3", account.folders[1].path);
-      browser.test.assertEq("/Unsent Messages", account.folders[2].path);
-      browser.test.assertEq("/folder1", account.folders[3].path);
+      browser.test.assertEq(1, account.folders[0].subFolders.length);
+      browser.test.assertEq(
+        "/Trash/folder3",
+        account.folders[0].subFolders[0].path
+      );
+      browser.test.assertEq("/Unsent Messages", account.folders[1].path);
+      browser.test.assertEq("/folder1", account.folders[2].path);
 
       await browser.folders.delete({ accountId, path: "/Trash/folder3" });
 

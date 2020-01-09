@@ -93,6 +93,7 @@ add_task(async function test_update() {
     state.folderPaneVisible = true;
     state.messagePaneVisible = true;
     state.displayedFolder = folders[0];
+    delete state.displayedFolder.subFolders;
     await checkCurrent(state);
     await awaitMessage("checkRealLayout", state);
     await awaitMessage("checkRealSort", state);

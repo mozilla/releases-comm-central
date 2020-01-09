@@ -25,14 +25,15 @@ function convertAccount(account) {
     return null;
   }
 
-  let folders = [];
-  let traverse = function(folder, accountId) {
+  let traverse = function(folder) {
+    let f = convertFolder(folder, account.key);
+    f.subFolders = [];
     for (let subFolder of fixIterator(folder.subFolders, Ci.nsIMsgFolder)) {
-      folders.push(convertFolder(subFolder, accountId));
-      traverse(subFolder, accountId);
+      f.subFolders.push(traverse(subFolder));
     }
+    return f;
   };
-  traverse(account.incomingServer.rootFolder, account.key);
+  let folders = traverse(account.incomingServer.rootFolder).subFolders;
 
   return {
     id: account.key,

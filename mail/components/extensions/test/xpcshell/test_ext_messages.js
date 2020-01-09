@@ -405,23 +405,39 @@ add_task(async function test_archive() {
       await browser.messages.archive(messagesBefore.messages.map(m => m.id));
 
       let accountAfter = await browser.accounts.get(accountId);
-      browser.test.assertEq(7, accountAfter.folders.length);
+      browser.test.assertEq(4, accountAfter.folders.length);
       browser.test.assertEq("/test", accountAfter.folders[2].path);
       browser.test.assertEq("/Archives", accountAfter.folders[3].path);
-      browser.test.assertEq("/Archives/2018", accountAfter.folders[4].path);
-      browser.test.assertEq("/Archives/2019", accountAfter.folders[5].path);
-      browser.test.assertEq("/Archives/2020", accountAfter.folders[6].path);
+      browser.test.assertEq(3, accountAfter.folders[3].subFolders.length);
+      browser.test.assertEq(
+        "/Archives/2018",
+        accountAfter.folders[3].subFolders[0].path
+      );
+      browser.test.assertEq(
+        "/Archives/2019",
+        accountAfter.folders[3].subFolders[1].path
+      );
+      browser.test.assertEq(
+        "/Archives/2020",
+        accountAfter.folders[3].subFolders[2].path
+      );
 
       let messagesAfter = await browser.messages.list(accountAfter.folders[2]);
       browser.test.assertEq(0, messagesAfter.messages.length);
 
-      let messages2018 = await browser.messages.list(accountAfter.folders[4]);
+      let messages2018 = await browser.messages.list(
+        accountAfter.folders[3].subFolders[0]
+      );
       browser.test.assertEq(2, messages2018.messages.length);
 
-      let messages2019 = await browser.messages.list(accountAfter.folders[5]);
+      let messages2019 = await browser.messages.list(
+        accountAfter.folders[3].subFolders[1]
+      );
       browser.test.assertEq(12, messages2019.messages.length);
 
-      let messages2020 = await browser.messages.list(accountAfter.folders[6]);
+      let messages2020 = await browser.messages.list(
+        accountAfter.folders[3].subFolders[2]
+      );
       browser.test.assertEq(1, messages2020.messages.length);
 
       browser.test.notifyPass("finished");
