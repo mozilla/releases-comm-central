@@ -93,6 +93,20 @@ function InitEditMessagesMenu()
   goSetMenuValue('cmd_delete', 'valueDefault');
   goSetAccessKey('cmd_delete', 'valueDefaultAccessKey');
   document.commandDispatcher.updateCommands('create-menu-edit');
+
+  // initialize the favorite Folder checkbox in the edit menu
+  let favoriteFolderMenu = document.getElementById("menu_favoriteFolder");
+  if (!favoriteFolderMenu.hasAttribute("disabled")) {
+    let folders = GetSelectedMsgFolders();
+    if (folders.length == 1 && !folders[0].isServer) {
+      let checked = folders[0].getFlag(Ci.nsMsgFolderFlags.Favorite);
+      // Adjust the checked state on the menu item.
+      favoriteFolderMenu.setAttribute("checked", checked);
+      favoriteFolderMenu.hidden = false;
+    } else {
+      favoriteFolderMenu.hidden = true;
+    }
+  }
 }
 
 function InitGoMessagesMenu()
@@ -1450,6 +1464,12 @@ function MsgUnsubscribe()
     if (ConfirmUnsubscribe(folder)) {
         UnSubscribe(folder);
     }
+}
+
+function ToggleFavoriteFolderFlag()
+{
+  var folder = GetFirstSelectedMsgFolder();
+  folder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
 }
 
 function MsgSaveAsFile()

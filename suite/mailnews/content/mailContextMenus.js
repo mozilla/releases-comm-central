@@ -264,6 +264,7 @@ function FillFolderPaneContextMenu()
   SetupRenameMenuItem(folder, numSelected, isServer, serverType, specialFolder);
   SetupRemoveMenuItem(folder, numSelected, isServer, serverType, specialFolder);
   SetupCompactMenuItem(folder, numSelected);
+  SetupFavoritesMenuItem(folder, numSelected, isServer, "folderPaneContext-favoriteFolder");
 
   ShowMenuItem("folderPaneContext-emptyTrash", (numSelected <= 1) && (specialFolder == 'Trash'));
   EnableMenuItem("folderPaneContext-emptyTrash", true);
@@ -335,6 +336,20 @@ function SetupCompactMenuItem(folder, numSelected)
 
   if (canCompact)
     SetMenuItemLabel("folderPaneContext-compact", gMessengerBundle.getString("compactFolder"));
+}
+
+function SetupFavoritesMenuItem(folder, numSelected, isServer, menuItemId)
+{
+  var showItem = !isServer && (numSelected <=1);
+  ShowMenuItem(menuItemId, showItem);
+
+  // adjust the checked state on the menu
+  if (showItem)
+  {
+    document.getElementById(menuItemId)
+            .setAttribute("checked",
+                          folder.getFlag(Ci.nsMsgFolderFlags.Favorite));
+  }
 }
 
 function SetupNewMenuItem(folder, numSelected, isServer, serverType, specialFolder)
