@@ -2235,12 +2235,9 @@ function attachFile(cloudProvider) {
     if (rv != Ci.nsIFilePicker.returnOK || !filePicker.files) {
       return;
     }
-    let files = filePicker.files;
 
     // Create the attachment
-    while (files.hasMoreElements()) {
-      let file = files.getNext().QueryInterface(Ci.nsIFile);
-
+    for (let file of filePicker.files) {
       let fileHandler = Services.io
         .getProtocolHandler("file")
         .QueryInterface(Ci.nsIFileProtocolHandler);

@@ -16,11 +16,10 @@ var calendarExtract = {
     let chrome = Cc["@mozilla.org/chrome/chrome-registry;1"]
       .getService(Ci.nsIXULChromeRegistry)
       .QueryInterface(Ci.nsIToolkitChromeRegistry);
-    let locales = chrome.getLocalesForPackage("calendar");
     let langRegex = /^(([^-]+)-*(.*))$/;
 
-    while (locales.hasMore()) {
-      let localeParts = langRegex.exec(locales.getNext());
+    for (let locale of chrome.getLocalesForPackage("calendar")) {
+      let localeParts = langRegex.exec(locale);
       let langName = localeParts[2];
 
       try {

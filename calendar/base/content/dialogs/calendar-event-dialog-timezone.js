@@ -31,11 +31,10 @@ function onLoad() {
     addMenuItem(tzMenuPopup, cal.dtz.UTC.displayName, cal.dtz.UTC.tzid);
   }
 
-  let enumerator = tzProvider.timezoneIds;
   let tzids = {};
   let displayNames = [];
-  while (enumerator.hasMore()) {
-    let timezone = tzProvider.getTimezone(enumerator.getNext());
+  for (let timezoneId of tzProvider.timezoneIds) {
+    let timezone = tzProvider.getTimezone(timezoneId);
     if (timezone && !timezone.isFloating && !timezone.isUTC) {
       let displayName = timezone.displayName;
       displayNames.push(displayName);

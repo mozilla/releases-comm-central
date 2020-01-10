@@ -38,11 +38,10 @@ add_task(async function zone_test() {
   }
 
   let tzs = cal.getTimezoneService();
-  let zones = tzs.timezoneIds;
   let foundZone = false;
-  while (zones.hasMore()) {
+  for (let zone of tzs.timezoneIds) {
     foundZone = true;
-    resolveZone(zones.getNext());
+    resolveZone(zone);
   }
 
   ok(foundZone, "There is at least one timezone");
@@ -57,11 +56,10 @@ add_task(async function alias_test() {
   }
 
   let tzs = cal.getTimezoneService();
-  let aliases = tzs.aliasIds;
   let foundAlias = false;
-  while (aliases.hasMore()) {
+  for (let aliasId of tzs.aliasIds) {
     foundAlias = true;
-    resolveAlias(aliases.getNext());
+    resolveAlias(aliasId);
   }
 
   ok(foundAlias, "There is at least one alias");

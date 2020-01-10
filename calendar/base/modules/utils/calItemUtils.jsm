@@ -627,9 +627,7 @@ var calitem = {
    */
   findWindow: function(aItem) {
     // check for existing dialog windows
-    let list = Services.wm.getEnumerator("Calendar:EventDialog");
-    while (list.hasMoreElements()) {
-      let dlg = list.getNext();
+    for (let dlg of Services.wm.getEnumerator("Calendar:EventDialog")) {
       if (
         dlg.arguments[0] &&
         dlg.arguments[0].mode == "modify" &&
@@ -640,9 +638,7 @@ var calitem = {
       }
     }
     // check for existing summary windows
-    list = Services.wm.getEnumerator("Calendar:EventSummaryDialog");
-    while (list.hasMoreElements()) {
-      let dlg = list.getNext();
+    for (let dlg of Services.wm.getEnumerator("Calendar:EventSummaryDialog")) {
       if (dlg.calendarItem && dlg.calendarItem.hashId == aItem.hashId) {
         return dlg;
       }

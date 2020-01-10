@@ -9,7 +9,6 @@
 /* import-globals-from calendar-views-utils.js */
 /* globals PanelUI */
 
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
@@ -132,7 +131,7 @@ var calendarWindowPrefs = {
         case "calendar.view.useSystemColors": {
           let attributeValue =
             Services.prefs.getBoolPref("calendar.view.useSystemColors", false) && "true";
-          for (let win of fixIterator(Services.ww.getWindowEnumerator())) {
+          for (let win of Services.ww.getWindowEnumerator()) {
             setElementValue(win.document.documentElement, attributeValue, "systemcolors");
           }
           break;

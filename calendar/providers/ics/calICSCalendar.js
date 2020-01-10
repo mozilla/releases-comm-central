@@ -704,10 +704,8 @@ calICSCalendar.prototype = {
 
     function purgeOldBackups() {
       // Enumerate files in the backupdir for expiry of old backups
-      let dirEnum = backupDir.directoryEntries;
       let files = [];
-      while (dirEnum.hasMoreElements()) {
-        let file = dirEnum.nextFile;
+      for (let file of backupDir.directoryEntries) {
         if (file.isFile()) {
           files.push({ name: file.leafName, lastmodified: file.lastModifiedTime });
         }

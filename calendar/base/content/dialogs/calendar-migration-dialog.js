@@ -307,9 +307,7 @@ var gDataMigrator = {
 
     // Now check all of the profiles in each of these folders for data
     for (let prof of profiles) {
-      let dirEnum = prof.directoryEntries;
-      while (dirEnum.hasMoreElements()) {
-        let profile = dirEnum.nextFile;
+      for (let profile of prof.directoryEntries) {
         if (profile.isFile()) {
           continue;
         } else {
@@ -333,12 +331,10 @@ var gDataMigrator = {
   checkIcal: function() {
     function icalMigrate(aDataDir, aCallback) {
       aDataDir.append("Sources");
-      let dirs = aDataDir.directoryEntries;
       let calManager = cal.getCalendarManager();
 
       let i = 1;
-      while (dirs.hasMoreElements()) {
-        let dataDir = dirs.nextFile;
+      for (let dataDir of aDataDir.directoryEntries) {
         let dataStore = dataDir.clone();
         dataStore.append("corestorage.ics");
         if (!dataStore.exists()) {
@@ -436,9 +432,7 @@ var gDataMigrator = {
       };
 
       let calManager = cal.getCalendarManager();
-      let dirs = aDataDir.directoryEntries;
-      while (dirs.hasMoreElements()) {
-        let dataDir = dirs.nextFile;
+      for (let dataDir of aDataDir.directoryEntries) {
         let dataStore = dataDir.clone();
         dataStore.append("calendar.ics");
         evoDataMigrate(dataStore);

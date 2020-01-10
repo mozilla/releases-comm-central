@@ -771,8 +771,7 @@ function guessSystemTimezone() {
 
   // Third, try all known timezones.
   const tzIDs = tzSvc.timezoneIds;
-  while (tzIDs.hasMore()) {
-    let tzId = tzIDs.getNext();
+  for (let tzId of tzIDs) {
     try {
       let score = checkTZ(tzId);
       switch (score) {

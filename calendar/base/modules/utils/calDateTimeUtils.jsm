@@ -275,9 +275,7 @@ var caldtz = {
 
         let tzService = cal.getTimezoneService();
         // Enumerate timezones, set them, check their offset
-        let enumerator = tzService.timezoneIds;
-        while (enumerator.hasMore()) {
-          let id = enumerator.getNext();
+        for (let id of tzService.timezoneIds) {
           dateTime.timezone = tzService.getTimezone(id);
           if (dateTime.timezoneOffset == offset_in_s) {
             // This is our last step, so go ahead and return
