@@ -2106,9 +2106,11 @@ NS_IMETHODIMP
 nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
                                    nsMsgJunkStatus aClassification,
                                    uint32_t aJunkPercent) {
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, NS_OK);
+
   if (!aMsgURI)  // This signifies end of batch.
   {
-    nsresult rv = NS_OK;
     // Apply filters if needed.
     uint32_t length;
     if (mPostBayesMessagesToFilter &&
@@ -2163,7 +2165,7 @@ nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
   }
 
   nsCOMPtr<nsIMsgIncomingServer> server;
-  nsresult rv = GetServer(getter_AddRefs(server));
+  rv = GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsISpamSettings> spamSettings;
