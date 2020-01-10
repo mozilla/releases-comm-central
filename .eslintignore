@@ -69,7 +69,6 @@ mailnews/extensions/smime/content/smime.js
 # mail exclusions
 mail/app/profile/all-thunderbird.js
 mail/app/profile/channel-prefs.js
-mail/app/profile/prefs.js
 mail/base/content/protovis-r2.6-modded.js
 mail/branding/nightly/thunderbird-branding.js
 mail/branding/thunderbird/thunderbird-branding.js

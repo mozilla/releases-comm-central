@@ -106,9 +106,6 @@ libs:: $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/messengerWindow.ico
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
 endif
 
-libs:: $(srcdir)/profile/prefs.js
-	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/defaults/profile
-
 # channel-prefs.js is handled separate from other prefs due to bug 756325
 libs:: $(srcdir)/profile/channel-prefs.js
 	$(NSINSTALL) -D $(DIST)/bin/defaults/pref
