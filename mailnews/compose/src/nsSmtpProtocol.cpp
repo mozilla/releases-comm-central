@@ -2133,8 +2133,8 @@ nsresult nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString passwordTitle;
-  rv = composeStringBundle->GetStringFromName("smtpEnterPasswordPromptTitle",
-                                              passwordTitle);
+  rv = composeStringBundle->FormatStringFromName(
+      "smtpEnterPasswordPromptTitleWithHostname", formatStrings, passwordTitle);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = aSmtpServer->GetPasswordWithUI(

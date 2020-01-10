@@ -1978,8 +1978,6 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol *aProtocol,
 NS_IMETHODIMP
 nsImapIncomingServer::PromptPassword(nsIMsgWindow *aMsgWindow,
                                      nsAString &aPassword) {
-  nsString passwordTitle;
-  GetImapStringByName("imapEnterPasswordPromptTitle", passwordTitle);
   NS_ENSURE_STATE(m_stringBundle);
 
   nsAutoCString userName;
@@ -1991,12 +1989,21 @@ nsImapIncomingServer::PromptPassword(nsIMsgWindow *aMsgWindow,
   nsresult rv = GetStringBundle();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  AutoTArray<nsString, 2> formatStrings;
-  CopyASCIItoUTF16(userName, *formatStrings.AppendElement());
-  CopyASCIItoUTF16(hostName, *formatStrings.AppendElement());
+  AutoTArray<nsString, 1> formatStrings;
+  CopyUTF8toUTF16(userName, *formatStrings.AppendElement());
+
+  nsString passwordTitle;
+  rv = m_stringBundle->FormatStringFromName(
+      "imapEnterPasswordPromptTitleWithUsername", formatStrings, passwordTitle);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  AutoTArray<nsString, 2> formatStrings2;
+  CopyUTF8toUTF16(userName, *formatStrings2.AppendElement());
+  CopyUTF8toUTF16(hostName, *formatStrings2.AppendElement());
+
   nsString passwordText;
   rv = m_stringBundle->FormatStringFromName("imapEnterServerPasswordPrompt",
-                                            formatStrings, passwordText);
+                                            formatStrings2, passwordText);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = GetPasswordWithUI(passwordText, passwordTitle, aMsgWindow, aPassword);

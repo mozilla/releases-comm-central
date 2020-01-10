@@ -795,8 +795,8 @@ NS_IMETHODIMP nsPop3Protocol::OnPromptStart(bool *aResult) {
                                        passwordParams, passwordPrompt);
 
   nsString passwordTitle;
-  mLocalBundle->GetStringFromName("pop3EnterPasswordPromptTitle",
-                                  passwordTitle);
+  mLocalBundle->FormatStringFromName("pop3EnterPasswordPromptTitleWithUsername",
+                                     passwordParams, passwordTitle);
 
   // Now go and get the password.
   if (!passwordPrompt.IsEmpty() && !passwordTitle.IsEmpty())
