@@ -45,7 +45,7 @@ function ThreadPaneOnClick(event) {
   }
 
   // Grouped By Sort dummy header row non cycler column doubleclick toggles the
-  // thread's open/close state; tree.xml handles it. Cyclers are not currently
+  // thread's open/closed state; tree.js handles it. Cyclers are not currently
   // implemented in group header rows, a click/doubleclick there should
   // select/toggle thread state.
   if (gFolderDisplay.view.isGroupedByHeaderAtIndex(treeCellInfo.row)) {
@@ -62,18 +62,13 @@ function ThreadPaneOnClick(event) {
     return;
   }
 
-  // If the cell is in a cycler column or if the user doubleclicked on the
-  // twisty, don't open the message in a new window.
+  // Cyclers and twisties respond to single clicks, not double clicks.
   if (
     event.detail == 2 &&
     !treeCellInfo.col.cycler &&
     treeCellInfo.childElt != "twisty"
   ) {
     ThreadPaneDoubleClick();
-    // Doubleclicking should not toggle the open/close state of the thread.
-    // This will happen if we don't prevent the event from bubbling to the
-    // default handler in tree.xml.
-    event.stopPropagation();
   } else if (treeCellInfo.col.id == "junkStatusCol") {
     MsgJunkMailInfo(true);
   } else if (
@@ -228,8 +223,8 @@ function ThreadPaneKeyDown(event) {
     return;
   }
 
-  // Grouped By Sort dummy header row <enter> toggles the thread's open/close
-  // state. Let tree.xml handle it.
+  // Grouped By Sort dummy header row <enter> toggles the thread's open/closed
+  // state. Let tree.js handle it.
   if (
     gFolderDisplay.view.showGroupedBySort &&
     gFolderDisplay.treeSelection &&
@@ -242,7 +237,7 @@ function ThreadPaneKeyDown(event) {
   }
 
   // Prevent any thread that happens to be last selected (currentIndex) in a
-  // single or multi selection from toggling in tree.xml.
+  // single or multi selection from toggling in tree.js.
   event.stopImmediatePropagation();
 
   ThreadPaneDoubleClick();
@@ -453,8 +448,19 @@ function ThreadPaneOnLoad() {
   if (!tree) {
     return;
   }
-
   tree.addEventListener("click", ThreadPaneOnClick, true);
+  tree.addEventListener(
+    "dblclick",
+    event => {
+      // The tree.js dblclick event handler is handling editing and toggling
+      // open state of the cell. We don't use editing, and we want to handle
+      // the toggling through the click handler (also for double click), so
+      // capture the dblclick event before it bubbles up and causes the
+      // tree.js dblclick handler to toggle open state.
+      event.stopPropagation();
+    },
+    true
+  );
 
   // The mousedown event listener below should only be added in the thread
   // pane of the mailnews 3pane window, not in the advanced search window.
