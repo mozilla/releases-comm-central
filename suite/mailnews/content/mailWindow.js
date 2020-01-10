@@ -336,26 +336,6 @@ function messagePaneOnClick(event)
   return true;
 }
 
-function AddDataSources()
-{
-  SetupMoveCopyMenus('moveMenu', accountManagerDataSource, folderDataSource);
-  SetupMoveCopyMenus('copyMenu', accountManagerDataSource, folderDataSource);
-  SetupMoveCopyMenus('button-file', accountManagerDataSource, folderDataSource);
-  SetupMoveCopyMenus('mailContext-copyMenu', accountManagerDataSource, folderDataSource);
-  SetupMoveCopyMenus('mailContext-moveMenu', accountManagerDataSource, folderDataSource);
-}
-
-function SetupMoveCopyMenus(menuid, accountManagerDataSource, folderDataSource)
-{
-  var menu = document.getElementById(menuid);
-  if (menu)
-  {
-    menu.database.AddDataSource(accountManagerDataSource);
-    menu.database.AddDataSource(folderDataSource);
-    menu.setAttribute('ref', 'msgaccounts:/');
-  }
-}
-
 // We're going to implement our status feedback for the mail window in JS now.
 // the following contains the implementation of our status feedback object
 

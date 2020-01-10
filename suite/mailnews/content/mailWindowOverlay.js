@@ -98,7 +98,7 @@ function InitEditMessagesMenu()
 function InitGoMessagesMenu()
 {
   // deactivate the folders in the go menu if we don't have a folderpane
-  document.getElementById("mailFolderPane")
+  document.getElementById("goFolderMenu")
           .setAttribute("disabled", IsFolderPaneCollapsed());
   document.commandDispatcher.updateCommands('create-menu-go');
 }
@@ -957,41 +957,29 @@ function MsgDeleteMessage(aReallyDelete)
     gDBView.doCommand(nsMsgViewCommandType.deleteMsg);
 }
 
-function MsgCopyMessage(destFolder)
-{
-  try {
-    // get the msg folder we're copying messages into
-    var destUri = destFolder.getAttribute('id');
-    let destMsgFolder = GetMsgFolderFromUri(destUri);
-    if (gMessageDisplay.isDummy)
-    {
-      let file = window.arguments[0].QueryInterface(Ci.nsIFileURL).file;
-      MailServices.copy.CopyFileMessage(file, destMsgFolder, null, false,
-                                        Ci.nsMsgMessageFlags.Read,
-                                        "", null, msgWindow);
-    }
-    else
-    {
-      gDBView.doCommandWithFolder(nsMsgViewCommandType.copyMessages, destMsgFolder);
-    }
+/**
+ * Copies the selected messages to the destination folder
+ * @param aDestFolder  the destination folder
+ */
+function MsgCopyMessage(aDestFolder) {
+  if (gMessageDisplay.isDummy) {
+    let file = window.arguments[0].QueryInterface(Ci.nsIFileURL).file;
+    MailServices.copy.CopyFileMessage(file, aDestFolder, null, false,
+                                      Ci.nsMsgMessageFlags.Read,
+                                      "", null, msgWindow);
   }
-  catch (ex) {
-    dump("MsgCopyMessage failed: " + ex + "\n");
+  else {
+    gDBView.doCommandWithFolder(nsMsgViewCommandType.copyMessages, aDestFolder);
   }
 }
 
-function MsgMoveMessage(destFolder)
-{
-  try {
-    // get the msg folder we're moving messages into
-    var destUri = destFolder.getAttribute('id');
-    let destMsgFolder = GetMsgFolderFromUri(destUri);
-    SetNextMessageAfterDelete();
-    gDBView.doCommandWithFolder(nsMsgViewCommandType.moveMessages, destMsgFolder);
-  }
-  catch (ex) {
-    dump("MsgMoveMessage failed: " + ex + "\n");
-  }
+/**
+ * Moves the selected messages to the destination folder
+ * @param aDestFolder  the destination folder
+ */
+function MsgMoveMessage(aDestFolder) {
+  SetNextMessageAfterDelete();
+  gDBView.doCommandWithFolder(nsMsgViewCommandType.moveMessages, aDestFolder);
 }
 
 /**
@@ -2977,11 +2965,6 @@ function MailToolboxCustomizeInit()
 function MailToolboxCustomizeDone(aToolboxChanged)
 {
   toolboxCustomizeDone("mail-menubar", getMailToolbox(), aToolboxChanged);
-  SetupMoveCopyMenus('button-file', accountManagerDataSource, folderDataSource);
-
-  // make sure the folder location picker is initialized, if it exists
-  if ("OnLoadLocationTree" in window)
-    OnLoadLocationTree();
 }
 
 function MailToolboxCustomizeChange(event)

@@ -715,7 +715,6 @@ function OnLoadMessenger()
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);
 
-  InitializeDataSources();
   InitPanes();
 
   MigrateJunkMailSettings();
@@ -975,7 +974,6 @@ function AddToSession()
 function InitPanes()
 {
   OnLoadFolderPane();
-  OnLoadLocationTree();
   OnLoadThreadPane();
   SetupCommandUpdateHandlers();
 }
@@ -984,14 +982,6 @@ function UnloadPanes()
 {
   // Call to <mail3PaneWindowCommands.js>.
   UnloadCommandUpdateHandlers();
-}
-
-function InitializeDataSources()
-{
-  //Setup common mailwindow stuff.
-  AddDataSources();
-
-  SetupMoveCopyMenus('goMenu', accountManagerDataSource, folderDataSource);
 }
 
 function AddMutationObserver(callback)
@@ -1046,22 +1036,6 @@ function UpdateAttachmentCol()
   threadTree.setAttribute("noattachcol", attachmentCol.getAttribute("hidden"));
   threadTree.treeBoxObject.clearStyleAndImageCaches();
   return attachmentCol;
-}
-
-function OnLoadLocationTree()
-{
-  var locationTree = document.getElementById("folderLocationPopup").tree;
-  if (locationTree)
-  {
-    locationTree.database.AddDataSource(accountManagerDataSource);
-    locationTree.database.AddDataSource(folderDataSource);
-    locationTree.setAttribute("ref", "msgaccounts:/");
-  }
-}
-
-function OnLocationTreeSelect(menulist)
-{
-  SelectFolder(menulist.getAttribute('uri'));
 }
 
 function UpdateLocationBar(resource)
@@ -1404,8 +1378,12 @@ function EnsureFolderIndex(builder, msgFolder)
 
 function SelectFolder(folderUri)
 {
-  var folderTree = GetFolderTree();
   let msgFolder = GetMsgFolderFromUri(folderUri);
+  SelectMsgFolder(msgFolder);
+}
+
+function SelectMsgFolder(msgFolder) {
+  var folderTree = GetFolderTree();
 
   // Before we can select a folder, we need to make sure it is "visible"
   // in the tree. To do that, we need to ensure that all its

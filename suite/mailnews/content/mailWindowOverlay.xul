@@ -57,11 +57,6 @@
   <stringbundle id="findBundle" src="chrome://global/locale/finddialog.properties"/>
 </stringbundleset>
 
-<broadcasterset id="mailBroadcasters">
-  <!-- Go Menu -->
-  <broadcaster id="mailFolderPane"/>
-</broadcasterset>
-
 <!-- Performance optimization...we include utilityOverlay.xul which defines some command sets
      which are updated based on events like focus and select. We have our own custom events
      which we use to optmize when we do command updating. To avoid unnecessary command updating,
@@ -624,187 +619,26 @@
     <menu id="mailContext-moveMenu"
           label="&contextMoveMsgMenu.label;"
           accesskey="&contextMoveMsgMenu.accesskey;"
-          sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-          sortDirection="ascending"
-          datasources="rdf:null">
-      <menupopup id="mailContext-fileHereMenu">
-        <menu label="&contextMoveCopyMsgRecentMenu.label;"
-              accesskey="&contextMoveCopyMsgRecentMenu.accesskey;"
-              sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-              sortDirection="ascending"
-              datasources="rdf:mailnewsrecentfolders"
-              ref="mailnewsrecentfolders:/">
-          <menupopup/>
-          <template>
-            <rule nc:CanFileMessages="true">
-              <menupopup>
-                <menuitem uri="..." class="folderMenuItem menuitem-iconic"
-                          label="rdf:http://home.netscape.com/NC-rdf#FolderTreeSimpleName"
-                          oncommand="MsgMoveMessage(event.target);"
-                          SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                          BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                          IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                          IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                          ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-              </menupopup>
-            </rule>
-          </template>
-        </menu>
-        <menuseparator/>
-      </menupopup>
-      <template>
-      <rule nc:NoSelect="true" iscontainer="true" isempty="false">
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name">
-              <menupopup>
-                <menuitem label="&fileHereMenu.label;" accesskey="&fileHereMenu.accesskey;" disabled="true"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:NoSelect="true">
-          <menupopup>
-            <menuitem uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name" disabled="true"/>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true" iscontainer="true" isempty="false">
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-              SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-              BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-              IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-              IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-              ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup>
-                <menuitem label="&fileHereMenu.label;" accesskey="&fileHereMenu.accesskey;"
-                  oncommand="MsgMoveMessage(event.target.parentNode.parentNode)"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessagesOnServer="false">
-          <!-- don't show servers (nntp & any others) which does not allow message filing -->
-          <!-- File, Move & Copy menus -->
-        </rule>
-        <rule nc:CanFileMessages="false" iscontainer="true" isempty="false">
-          <!-- note, there is no "file here" -->
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-                  SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                  BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                  IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                  IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                  ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup/>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true">
-          <menupopup>
-            <menuitem uri="..." class="folderMenuItem menuitem-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name" oncommand="MsgMoveMessage(event.target)"
-              SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-              BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-              IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-              IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-              ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-          </menupopup>
-        </rule>
-      </template>
+          oncommand="MsgMoveMessage(event.target._folder);">
+      <menupopup id="mailContext-fileHereMenu"
+                 type="folder"
+                 mode="filing"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
     </menu>
     <menu id="mailContext-copyMenu"
           label="&contextCopyMsgMenu.label;"
           accesskey="&contextCopyMsgMenu.accesskey;"
-          sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-          sortDirection="ascending"
-          datasources="rdf:null">
-      <menupopup id="mailContext-copyHereMenu">
-        <menu label="&contextMoveCopyMsgRecentMenu.label;"
-              accesskey="&contextMoveCopyMsgRecentMenu.accesskey;"
-              sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-              sortDirection="ascending"
-              datasources="rdf:mailnewsrecentfolders"
-              ref="mailnewsrecentfolders:/">
-          <menupopup/>
-          <template>
-            <rule nc:CanFileMessages="true">
-              <menupopup>
-                <menuitem uri="..." class="folderMenuItem menuitem-iconic"
-                          label="rdf:http://home.netscape.com/NC-rdf#FolderTreeSimpleName"
-                          oncommand="MsgCopyMessage(event.target);"
-                          SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                          BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                          IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                          IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                          ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-              </menupopup>
-            </rule>
-          </template>
-        </menu>
-        <menuseparator/>
-      </menupopup>
-      <template>
-      <rule nc:NoSelect="true" iscontainer="true" isempty="false">
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name">
-              <menupopup>
-                <menuitem label="&copyHereMenu.label;" accesskey="&copyHereMenu.accesskey;" disabled="true"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:NoSelect="true">
-          <menupopup>
-            <menuitem uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name" disabled="true"/>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true" iscontainer="true" isempty="false">
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-              SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-              BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-              IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-              IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-              ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup>
-                <menuitem label="&copyHereMenu.label;" accesskey="&copyHereMenu.accesskey;"
-                  oncommand="MsgCopyMessage(event.target.parentNode.parentNode)"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessagesOnServer="false">
-          <!-- don't show servers (nntp & any others) which does not allow message filing -->
-          <!-- File, Move & Copy menus -->
-        </rule>
-        <rule nc:CanFileMessages="false" iscontainer="true" isempty="false">
-          <!-- note, there is no "file here" -->
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-                  SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                  BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                  IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                  IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                  ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup/>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true">
-          <menupopup>
-            <menuitem uri="..." class="folderMenuItem menuitem-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-              oncommand="MsgCopyMessage(event.target)"
-              SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-              BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-              IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-              IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-              ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-          </menupopup>
-        </rule>
-      </template>
+          oncommand="MsgCopyMessage(event.target._folder);">
+      <menupopup id="mailContext-copyHereMenu"
+                 type="folder"
+                 mode="filing"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
     </menu>
     <menuitem id="mailContext-saveAs"
               label="&contextSaveAs.label;"
@@ -1332,9 +1166,7 @@
     </menupopup>
   </menu>
 
-  <menu id="goMenu" label="&goMenu.label;" accesskey="&goMenu.accesskey;" datasources="rdf:null"
-        oncommand="SelectFolder(event.target.getAttribute('value'));"
-        sortResource="http://home.netscape.com/NC-rdf#FolderTreeName" sortDirection="ascending">
+  <menu id="goMenu" label="&goMenu.label;" accesskey="&goMenu.accesskey;">
     <menupopup id="menu_GoPopup" onpopupshowing="InitGoMessagesMenu();">
       <menu id="goNextMenu" label="&nextMenu.label;" accesskey="&nextMenu.accesskey;">
         <menupopup id="menu_GoNextPopup">
@@ -1389,58 +1221,24 @@
                 key="key_goForward"
                 command="cmd_goForward"/>
       <menuseparator id="goNextAfterForwardSeparator" observes="mailHideMenus"/>
+      <menu id="goFolderMenu"
+            label="&folderMenu.label;"
+            accesskey="&folderMenu.accesskey;"
+            oncommand="SelectMsgFolder(event.target._folder);"
+            observes="mailHideMenus">
+        <menupopup id="menu_GoFolderPopup"
+                   type="folder"
+                   showFileHereLabel="true"
+                   showRecent="true"
+                   recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                   recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"/>
+      </menu>
+      <menuseparator id="goFolderSeparator"/>
       <menuitem id="goStartPage" label="&startPageCmd.label;"
                 accesskey="&startPageCmd.accesskey;" command="cmd_goStartPage"
                 observes="mailHideMenus"/>
       <menuseparator id="goNextAfterStartPageSeparator" observes="mailHideMenus"/>
     </menupopup>
-    <template>
-      <rule iscontainer="true" isempty="false">
-        <menupopup>
-          <menu uri="rdf:*" class="folderMenuItem menu-iconic"
-                observes="mailFolderPane"
-              SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-              BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-              IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-              IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-              ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"
-              HasUnreadMessages="rdf:http://home.netscape.com/NC-rdf#HasUnreadMessages"
-              NewMessages="rdf:http://home.netscape.com/NC-rdf#NewMessages"
-              SubfoldersHaveUnreadMessages="rdf:http://home.netscape.com/NC-rdf#SubfoldersHaveUnreadMessages"
-              label="rdf:http://home.netscape.com/NC-rdf#Name">
-            <menupopup>
-              <menuitem value="rdf:*"
-                  class="folderMenuItem menuitem-iconic"
-                  SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                  BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                  IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                  IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                  ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"
-                  HasUnreadMessages="rdf:http://home.netscape.com/NC-rdf#HasUnreadMessages"
-                  NewMessages="rdf:http://home.netscape.com/NC-rdf#NewMessages"
-                  SubfoldersHaveUnreadMessages="rdf:http://home.netscape.com/NC-rdf#SubfoldersHaveUnreadMessages"
-                  label="rdf:http://home.netscape.com/NC-rdf#Name"/>
-              <menuseparator/>
-            </menupopup>
-          </menu>
-        </menupopup>
-      </rule>
-      <rule>
-        <menupopup>
-          <menuitem uri="rdf:*" value="rdf:*" class="folderMenuItem menuitem-iconic"
-                    observes="mailFolderPane"
-              SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-              BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-              IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-              IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-              ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"
-              HasUnreadMessages="rdf:http://home.netscape.com/NC-rdf#HasUnreadMessages"
-              NewMessages="rdf:http://home.netscape.com/NC-rdf#NewMessages"
-              SubfoldersHaveUnreadMessages="rdf:http://home.netscape.com/NC-rdf#SubfoldersHaveUnreadMessages"
-              label="rdf:http://home.netscape.com/NC-rdf#Name"/>
-        </menupopup>
-      </rule>
-    </template>
   </menu>
 
   <menu id="messageMenu" label="&msgMenu.label;" accesskey="&msgMenu.accesskey;">
@@ -1546,193 +1344,26 @@
      <menu id="moveMenu"
            label="&moveMsgToMenu.label;"
            accesskey="&moveMsgToMenu.accesskey;"
-           datasources="rdf:null"
-           sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-           sortDirection="ascending">
-        <menupopup id="menu_MovePopup">
-          <menu label="&moveCopyMsgRecentMenu.label;"
-                accesskey="&moveCopyMsgRecentMenu.accesskey;"
-                sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-                sortDirection="ascending"
-                datasources="rdf:mailnewsrecentfolders"
-                ref="mailnewsrecentfolders:/">
-            <menupopup/>
-            <template>
-              <rule nc:CanFileMessages="true">
-                <menupopup id="menu_MoveRecentPopup">
-                  <menuitem uri="..." class="folderMenuItem menuitem-iconic"
-                            label="rdf:http://home.netscape.com/NC-rdf#FolderTreeSimpleName"
-                            oncommand="MsgMoveMessage(event.target);"
-                            SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                            BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                            IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                            IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                            ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-                </menupopup>
-              </rule>
-            </template>
-          </menu>
-          <menuseparator id="moveMsgRecentSeparator"/>
-        </menupopup>
-        <template>
-        <rule nc:NoSelect="true" iscontainer="true" isempty="false">
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name">
-              <menupopup>
-                <menuitem label="&fileHereMenu.label;"
-                          accesskey="&fileHereMenu.accesskey;"
-                          disabled="true"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:NoSelect="true">
-          <menupopup>
-            <menuitem uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name" disabled="true"/>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true" iscontainer="true" isempty="false">
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-             SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-             BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-             IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-             IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-             ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup>
-                <menuitem label="&fileHereMenu.label;"
-                          accesskey="&fileHereMenu.accesskey;"
-                          oncommand="MsgMoveMessage(event.target.parentNode.parentNode)"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessagesOnServer="false">
-          <!-- don't show servers (nntp & any others) which does not allow message filing -->
-          <!-- File, Move & Copy menus -->
-        </rule>
-        <rule nc:CanFileMessages="false" iscontainer="true" isempty="false">
-          <!-- note, there is no "file here" -->
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-             SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-             BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-             IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-             IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-             ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup/>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true">
-          <menupopup>
-            <menuitem uri="..." class="folderMenuItem menuitem-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name" oncommand="MsgMoveMessage(event.target)"
-             SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-             BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-             IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-             IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-             ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-          </menupopup>
-        </rule>
-      </template>
+           oncommand="MsgMoveMessage(event.target._folder);">
+        <menupopup id="menu_MovePopup"
+                   type="folder"
+                   mode="filing"
+                   showFileHereLabel="true"
+                   showRecent="true"
+                   recentLabel="&moveCopyMsgRecentMenu.label;"
+                   recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
     </menu>
     <menu id="copyMenu"
           label="&copyMsgToMenu.label;"
           accesskey="&copyMsgToMenu.accesskey;"
-          datasources="rdf:null"
-          sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-          sortDirection="ascending">
-        <menupopup id="menu_copyPopup">
-          <menu label="&moveCopyMsgRecentMenu.label;"
-                accesskey="&moveCopyMsgRecentMenu.accesskey;"
-                sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-                sortDirection="ascending"
-                datasources="rdf:mailnewsrecentfolders"
-                ref="mailnewsrecentfolders:/">
-            <menupopup/>
-            <template>
-              <rule nc:CanFileMessages="true">
-                <menupopup id="menu_copyRecentPopup">
-                  <menuitem uri="..." class="folderMenuItem menuitem-iconic"
-                            label="rdf:http://home.netscape.com/NC-rdf#FolderTreeSimpleName"
-                            oncommand="MsgCopyMessage(event.target);"
-                            SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                            BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                            IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                            IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                            ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-                </menupopup>
-              </rule>
-            </template>
-          </menu>
-          <menuseparator id="copyMsgRecentSeparator"/>
-        </menupopup>
-      <template>
-        <rule nc:NoSelect="true" iscontainer="true" isempty="false">
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name">
-              <menupopup>
-                <menuitem label="&copyHereMenu.label;"
-                          accesskey="&copyHereMenu.accesskey;"
-                          disabled="true"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:NoSelect="true">
-          <menupopup>
-            <menuitem uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name" disabled="true"/>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true" iscontainer="true" isempty="false">
-          <menupopup id="menu_copyFolderMenuPopup3">
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-             SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-             BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-             IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-             IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-             ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup>
-                <menuitem label="&copyHereMenu.label;"
-                          accesskey="&copyHereMenu.accesskey;"
-                          oncommand="MsgCopyMessage(event.target.parentNode.parentNode)"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessagesOnServer="false">
-          <!-- don't show servers (nntp & any others) which does not allow message filing -->
-          <!-- File, Move & Copy menus -->
-        </rule>
-        <rule nc:CanFileMessages="false" iscontainer="true" isempty="false">
-          <!-- note, there is no "file here" -->
-          <menupopup>
-            <menu uri="..."  class="folderMenuItem menu-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-             SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-             BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-             IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-             IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-             ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup/>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true">
-          <menupopup>
-            <menuitem uri="..." class="folderMenuItem menuitem-iconic" label="rdf:http://home.netscape.com/NC-rdf#Name"
-             oncommand="MsgCopyMessage(event.target)"
-             SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-             BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-             IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-             IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-             ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-          </menupopup>
-        </rule>
-      </template>
+          oncommand="MsgCopyMessage(event.target._folder);">
+        <menupopup id="menu_copyPopup"
+                   type="folder"
+                   mode="filing"
+                   showFileHereLabel="true"
+                   showRecent="true"
+                   recentLabel="&moveCopyMsgRecentMenu.label;"
+                   recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
     </menu>
     <menu id="tagMenu" label="&tagMenu.label;" accesskey="&tagMenu.accesskey;">
       <menupopup id="tagMenu-tagpopup" onpopupshowing="InitMessageTags(this)">
@@ -2003,111 +1634,15 @@
                    class="toolbarbutton-1"
                    label="&fileButton.label;"
                    observes="button_file"
-                   datasources="rdf:null"
                    tooltiptext="&fileButton.tooltip;"
-                   sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-                   sortDirection="ascending">
-      <menupopup id="button-filePopup">
-        <menu label="&moveCopyMsgRecentMenu.label;"
-              accesskey="&moveCopyMsgRecentMenu.accesskey;"
-              sortResource="http://home.netscape.com/NC-rdf#FolderTreeName"
-              sortDirection="ascending"
-              datasources="rdf:mailnewsrecentfolders"
-              ref="mailnewsrecentfolders:/">
-          <menupopup/>
-          <template>
-            <rule nc:CanFileMessages="true">
-              <menupopup>
-                <menuitem uri="..."
-                          class="folderMenuItem menuitem-iconic"
-                          label="rdf:http://home.netscape.com/NC-rdf#FolderTreeSimpleName"
-                          oncommand="MsgMoveMessage(event.target);"
-                          SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                          BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                          IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                          IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                          ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-              </menupopup>
-            </rule>
-          </template>
-        </menu>
-        <menuseparator/>
-      </menupopup>
-      <template>
-      <rule nc:NoSelect="true" iscontainer="true" isempty="false">
-        <menupopup>
-          <menu uri="..."
-                class="folderMenuItem menu-iconic"
-                label="rdf:http://home.netscape.com/NC-rdf#Name">
-            <menupopup>
-              <menuitem label="&fileHereMenu.label;"
-                        accesskey="&fileHereMenu.accesskey;"
-                        disabled="true"/>
-              <menuseparator/>
-            </menupopup>
-          </menu>
-        </menupopup>
-      </rule>
-      <rule nc:NoSelect="true">
-        <menupopup>
-          <menuitem uri="..."
-                    class="folderMenuItem menu-iconic"
-                    label="rdf:http://home.netscape.com/NC-rdf#Name"
-                    disabled="true"/>
-        </menupopup>
-      </rule>
-        <rule nc:CanFileMessages="true" iscontainer="true" isempty="false">
-          <menupopup>
-            <menu uri="..."
-                  class="folderMenuItem menu-iconic"
-                  label="rdf:http://home.netscape.com/NC-rdf#Name"
-                  SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                  BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                  IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                  IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                  ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup>
-                <menuitem label="&fileHereMenu.label;"
-                          accesskey="&fileHereMenu.accesskey;"
-                          oncommand="MsgMoveMessage(event.target.parentNode.parentNode)"/>
-                <menuseparator/>
-              </menupopup>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessagesOnServer="false">
-          <!-- don't show servers (nntp & any others) which does not allow message filing -->
-          <!-- File, Move & Copy menus -->
-        </rule>
-        <rule nc:CanFileMessages="false" iscontainer="true" isempty="false">
-        <!-- note, there is no "file here" -->
-          <menupopup>
-            <menu uri="..."
-                  class="folderMenuItem menu-iconic"
-                  label="rdf:http://home.netscape.com/NC-rdf#Name"
-                  SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                  BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                  IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                  IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                  ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType">
-              <menupopup/>
-            </menu>
-          </menupopup>
-        </rule>
-        <rule nc:CanFileMessages="true">
-          <menupopup>
-            <menuitem uri="..."
-                      class="folderMenuItem menuitem-iconic"
-                      label="rdf:http://home.netscape.com/NC-rdf#Name"
-                      oncommand="MsgMoveMessage(event.target)"
-                      SpecialFolder="rdf:http://home.netscape.com/NC-rdf#SpecialFolder"
-                      BiffState="rdf:http://home.netscape.com/NC-rdf#BiffState"
-                      IsServer="rdf:http://home.netscape.com/NC-rdf#IsServer"
-                      IsSecure="rdf:http://home.netscape.com/NC-rdf#IsSecure"
-                      ServerType="rdf:http://home.netscape.com/NC-rdf#ServerType"/>
-          </menupopup>
-        </rule>
-      </template>
+                   oncommand="MsgMoveMessage(event.target._folder);">
+      <menupopup id="button-filePopup"
+                 type="folder"
+                 mode="filing"
+                 showRecent="true"
+                 showFileHereLabel="true"
+                 recentLabel="&moveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
     </toolbarbutton>
 
     <toolbarbutton id="button-goback"

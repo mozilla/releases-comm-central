@@ -151,8 +151,12 @@
                 label=" "
                 crop="center">
         <menupopup id="folderLocationPopup"
-                   height="400"
-                   oncommand="OnLocationTreeSelect(this);"/>
+                   class="menulist-menupopup"
+                   type="folder"
+                   flex="1"
+                   mode="notDeferred"
+                   showFileHereLabel="true"
+                   oncommand="SelectFolder(event.target.id);"/>
       </menulist>
     </toolbaritem>
     <toolbaritem id="mailviews-container"
