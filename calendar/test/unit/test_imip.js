@@ -5,7 +5,7 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var calItipEmailTransport = {};
 Services.scriptloader.loadSubScript(
-  "resource://calendar/components/calItipEmailTransport.js",
+  "resource:///components/calItipEmailTransport.js",
   calItipEmailTransport
 );
 

@@ -14,12 +14,12 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 this.NSGetFactory = cid => {
   let scriptLoadOrder = [
-    "resource://calendar/calendar-js/calTimezone.js",
-    "resource://calendar/calendar-js/calDateTime.js",
-    "resource://calendar/calendar-js/calDuration.js",
-    "resource://calendar/calendar-js/calICSService.js",
-    "resource://calendar/calendar-js/calPeriod.js",
-    "resource://calendar/calendar-js/calRecurrenceRule.js",
+    "resource:///components/calTimezone.js",
+    "resource:///components/calDateTime.js",
+    "resource:///components/calDuration.js",
+    "resource:///components/calICSService.js",
+    "resource:///components/calPeriod.js",
+    "resource:///components/calRecurrenceRule.js",
   ];
 
   for (let script of scriptLoadOrder) {

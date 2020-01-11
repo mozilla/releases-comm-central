@@ -68,7 +68,7 @@ calStartupService.prototype = {
         let fileSrc = new FileSource(
           "calendar",
           packaged,
-          "resource://calendar/chrome/calendar-{locale}/locale/{locale}/"
+          "resource:///chrome/{locale}/locale/{locale}/calendar/"
         );
         L10nRegistry.registerSource(fileSrc);
         aCompleteListener.onResult(null, Cr.NS_OK);

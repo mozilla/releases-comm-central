@@ -17,7 +17,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * @param fixedLang       whether to use only fallbackLocale for extraction
  */
 function Extractor(fallbackLocale, dayStart, fixedLang) {
-  this.bundleUrl = "resource://calendar/chrome/calendar-LOCALE/calendar-extract.properties";
+  this.bundleUrl = "resource:///chrome/LOCALE/locale/LOCALE/calendar/calendar-extract.properties";
   this.fallbackLocale = fallbackLocale;
   this.email = "";
   this.marker = "--MARK--";

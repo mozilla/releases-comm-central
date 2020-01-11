@@ -103,7 +103,7 @@ calTimezoneService.prototype = {
       });
     }
 
-    fetchJSON("resource://calendar/timezones/zones.json")
+    fetchJSON("resource:///res/zones.json")
       .then(tzData => {
         for (let tzid of Object.keys(tzData.aliases)) {
           let data = tzData.aliases[tzid];
@@ -856,7 +856,7 @@ function guessSystemTimezone() {
 }
 
 this.NSGetFactory = cid => {
-  Services.scriptloader.loadSubScript("resource://calendar/calendar-js/calTimezone.js", this);
+  Services.scriptloader.loadSubScript("resource:///components/calTimezone.js", this);
   this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calTimezoneService]);
   return this.NSGetFactory(cid);
 };

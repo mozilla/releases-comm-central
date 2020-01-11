@@ -573,7 +573,7 @@ calICSService.prototype = {
     // There are way too many error checking messages here, but I had so
     // much pain with this method that I don't want it to break again.
     try {
-      let worker = new ChromeWorker("resource://calendar/calendar-js/calICSService-worker.js");
+      let worker = new ChromeWorker("resource:///components/calICSService-worker.js");
       worker.onmessage = function(event) {
         let rc = Cr.NS_ERROR_FAILURE;
         let icalComp = null;

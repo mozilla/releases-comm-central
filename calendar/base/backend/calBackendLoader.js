@@ -40,10 +40,7 @@ calBackendLoader.prototype = {
 
       // Load ical.js backend
       let scope = {};
-      Services.scriptloader.loadSubScript(
-        "resource://calendar/components/calICALJSComponents.js",
-        scope
-      );
+      Services.scriptloader.loadSubScript("resource:///components/calICALJSComponents.js", scope);
 
       // Register the icaljs components. We used to unregisterFactory, but this caused all
       // sorts of problems. Just registering over it seems to work quite fine.
