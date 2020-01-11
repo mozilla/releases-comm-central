@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-EXTRA_JS_MODULES.utils += [
+EXTRA_JS_MODULES.calendar.utils += [
     'utils/calACLUtils.jsm',
     'utils/calAlarmUtils.jsm',
     'utils/calAsyncUtils.jsm',
@@ -24,7 +24,7 @@ EXTRA_JS_MODULES.utils += [
     'utils/calXMLUtils.jsm',
 ]
 
-EXTRA_JS_MODULES += [
+EXTRA_JS_MODULES.calendar += [
     'calExtract.jsm',
     'calHashedArray.jsm',
     'calRecurrenceUtils.jsm',

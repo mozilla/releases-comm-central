@@ -18,9 +18,3 @@ endif
 
 check-no-solo = $(foreach solo,SOLO_TEST SOLO_FILE,$(if $($(solo)),$(error $(subst SOLOVAR,$(solo),$(1)))))
 find-solo-test = $(if $(and $(SOLO_TEST),$(SOLO_FILE)),$(error Both SOLO_TEST and SOLO_FILE are specified. You may only specify one.),$(if $(SOLO_TEST),$(SOLO_TEST),$(if $(SOLO_FILE),$(SOLO_FILE),$(error SOLO_TEST or SOLO_FILE needs to be specified.))))
-
-# If Lightning is enabled, also stage the lightning extension
-ifdef MOZ_CALENDAR
-package-tests:
-	$(MAKE) -C $(commtopobjdir)/calendar/lightning stage-package
-endif

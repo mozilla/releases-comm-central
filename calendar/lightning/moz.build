@@ -16,29 +16,7 @@ DIRS += [
 
 TEST_DIRS += ['../test']
 
-version_parts = CONFIG['MOZ_APP_VERSION'].split('.')
-major_version = version_parts[0]
-DEFINES['MOZ_APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
-DEFINES['MOZ_APP_MAXVERSION'] = major_version + '.*'
-
-if CONFIG['MOZ_ARTIFACT_BUILDS']:
-    XPI_NAME = 'lightning'
-    export('XPI_NAME')
-else:
-    if CONFIG['NIGHTLY_BUILD']:
-        DIST_SUBDIR = 'extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
-    else:
-        DIST_SUBDIR = 'distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}'
-    export('DIST_SUBDIR')
-
-FINAL_TARGET_PP_FILES += [
-    'manifest.json',
-]
-
 JAR_MANIFESTS += ['jar.mn']
-
-USE_EXTENSION_MANIFEST = True
-export('USE_EXTENSION_MANIFEST')
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     DEFINES['THEME'] = 'windows'
@@ -51,7 +29,7 @@ JS_PREFERENCE_PP_FILES += [
     'content/lightning.js',
 ]
 
-FINAL_TARGET_FILES.timezones += [
+FINAL_TARGET_FILES.res += [
     '../timezones/zones.json',
 ]
 

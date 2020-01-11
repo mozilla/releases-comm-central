@@ -10,7 +10,8 @@ EXTRA_COMPONENTS += [
 
 JAR_MANIFESTS += ['jar.mn']
 
-FINAL_TARGET_FILES['calendar-js'] += [
+# These files go in components so they can be packaged correctly.
+FINAL_TARGET_FILES.components += [
     'calHtmlExport.js',
     'calIcsImportExport.js',
     'calListFormatter.js',
