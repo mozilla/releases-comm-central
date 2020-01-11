@@ -97,7 +97,6 @@
 
 .headerValue {
   overflow-wrap: anywhere;
-  display: block;
 }
 
 .headerValue[containsEmail="true"] {
