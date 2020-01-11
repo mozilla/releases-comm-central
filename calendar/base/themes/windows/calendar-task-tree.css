@@ -31,7 +31,12 @@
         border-color: green !important;
     }
 
-    .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus) {
+    :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
+        border-color: #00bd00 !important;
+    }
+
+    .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus),
+    :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus) {
         color: white !important;
     }
 
@@ -39,7 +44,12 @@
         border-color: red !important;
     }
 
-    .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus) {
+    :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-row(overdue, selected, focus) {
+        border-color: #ff7a7a !important;
+    }
+
+    .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus),
+    :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus) {
         color: white !important;
     }
 

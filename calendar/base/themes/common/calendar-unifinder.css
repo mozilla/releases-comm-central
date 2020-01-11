@@ -9,8 +9,7 @@
 
 #unifinder-search-results-tree > treechildren::-moz-tree-cell-text(lowpriority) {
    font-style: italic;
-   color: GrayText !important;
-   background-color: -moz-field;
+   opacity: 0.6;
 }
 
 /* workaround to avoid Window Flick */
