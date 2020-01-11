@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * Prints a two column view of a week of events, much like a paper day-planner

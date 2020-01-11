@@ -6,7 +6,7 @@
 
 /* import-globals-from ../calendar-ui-utils.js */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * Sets up the timezone dialog from the window arguments, also setting up all

@@ -7,9 +7,9 @@
 /* import-globals-from ../calendar-ui-utils.js */
 
 var { splitRecurrenceRules } = ChromeUtils.import(
-  "resource://calendar/modules/calRecurrenceUtils.jsm"
+  "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gIsReadOnly = false;

@@ -8,7 +8,7 @@
 // From categories.xhtml.
 /* globals newTitle, editTitle, overwrite, overwriteTitle, noBlankCategories */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 

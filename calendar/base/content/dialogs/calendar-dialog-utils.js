@@ -13,7 +13,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 // Variables related to whether we are in a tab or a window dialog.
 var gInTab = false;

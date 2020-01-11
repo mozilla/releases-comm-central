@@ -13,8 +13,10 @@
 /* import-globals-from calendar-item-editing.js */
 /* global gCurrentMode */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { countOccurrences } = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { countOccurrences } = ChromeUtils.import(
+  "resource:///modules/calendar/calRecurrenceUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**

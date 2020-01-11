@@ -9,7 +9,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+  var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   /**
    * The time bar that displays time divisions to the side or top of a multiday (day or week) view.
    */

@@ -22,7 +22,7 @@
  * Used by all grid views.
  */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * PUBLIC: Displays a tooltip with details when hovering over an item in the views

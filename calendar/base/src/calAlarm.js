@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 var ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
 var ALARM_RELATED_START = Ci.calIAlarm.ALARM_RELATED_START;

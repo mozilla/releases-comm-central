@@ -7,7 +7,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm", "cal");
 
 /*
  * Scheduling and iTIP helper code

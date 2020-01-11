@@ -6,7 +6,7 @@
 
 "use strict";
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 // Wrap in a block to prevent leaking to window scope.
 {

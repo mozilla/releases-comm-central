@@ -8,7 +8,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+  var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
   /**
    * An abstract class to handle drag on drop for calendar.

@@ -5,10 +5,10 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { upgradeDB } = ChromeUtils.import("resource://calendar/modules/calStorageUpgrade.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { upgradeDB } = ChromeUtils.import("resource:///modules/calendar/calStorageUpgrade.jsm");
 var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
-  "resource://calendar/modules/calStorageHelpers.jsm"
+  "resource:///modules/calendar/calStorageHelpers.jsm"
 );
 
 var USECS_PER_SECOND = 1000000;

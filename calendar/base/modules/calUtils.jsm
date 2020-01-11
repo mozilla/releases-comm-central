@@ -441,109 +441,109 @@ XPCOMUtils.defineLazyPreferenceGetter(
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "acl",
-  "resource://calendar/modules/utils/calACLUtils.jsm",
+  "resource:///modules/calendar/utils/calACLUtils.jsm",
   "calacl"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "alarms",
-  "resource://calendar/modules/utils/calAlarmUtils.jsm",
+  "resource:///modules/calendar/utils/calAlarmUtils.jsm",
   "calalarms"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "async",
-  "resource://calendar/modules/utils/calAsyncUtils.jsm",
+  "resource:///modules/calendar/utils/calAsyncUtils.jsm",
   "calasync"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "auth",
-  "resource://calendar/modules/utils/calAuthUtils.jsm",
+  "resource:///modules/calendar/utils/calAuthUtils.jsm",
   "calauth"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "category",
-  "resource://calendar/modules/utils/calCategoryUtils.jsm",
+  "resource:///modules/calendar/utils/calCategoryUtils.jsm",
   "calcategory"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "data",
-  "resource://calendar/modules/utils/calDataUtils.jsm",
+  "resource:///modules/calendar/utils/calDataUtils.jsm",
   "caldata"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "dtz",
-  "resource://calendar/modules/utils/calDateTimeUtils.jsm",
+  "resource:///modules/calendar/utils/calDateTimeUtils.jsm",
   "caldtz"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "email",
-  "resource://calendar/modules/utils/calEmailUtils.jsm",
+  "resource:///modules/calendar/utils/calEmailUtils.jsm",
   "calemail"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "item",
-  "resource://calendar/modules/utils/calItemUtils.jsm",
+  "resource:///modules/calendar/utils/calItemUtils.jsm",
   "calitem"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "iterate",
-  "resource://calendar/modules/utils/calIteratorUtils.jsm",
+  "resource:///modules/calendar/utils/calIteratorUtils.jsm",
   "caliterate"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "itip",
-  "resource://calendar/modules/utils/calItipUtils.jsm",
+  "resource:///modules/calendar/utils/calItipUtils.jsm",
   "calitip"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "l10n",
-  "resource://calendar/modules/utils/calL10NUtils.jsm",
+  "resource:///modules/calendar/utils/calL10NUtils.jsm",
   "call10n"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "print",
-  "resource://calendar/modules/utils/calPrintUtils.jsm",
+  "resource:///modules/calendar/utils/calPrintUtils.jsm",
   "calprint"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "provider",
-  "resource://calendar/modules/utils/calProviderUtils.jsm",
+  "resource:///modules/calendar/utils/calProviderUtils.jsm",
   "calprovider"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "unifinder",
-  "resource://calendar/modules/utils/calUnifinderUtils.jsm",
+  "resource:///modules/calendar/utils/calUnifinderUtils.jsm",
   "calunifinder"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "view",
-  "resource://calendar/modules/utils/calViewUtils.jsm",
+  "resource:///modules/calendar/utils/calViewUtils.jsm",
   "calview"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "window",
-  "resource://calendar/modules/utils/calWindowUtils.jsm",
+  "resource:///modules/calendar/utils/calWindowUtils.jsm",
   "calwindow"
 );
 XPCOMUtils.defineLazyModuleGetter(
   cal,
   "xml",
-  "resource://calendar/modules/utils/calXMLUtils.jsm",
+  "resource:///modules/calendar/utils/calXMLUtils.jsm",
   "calxml"
 );
 

@@ -10,7 +10,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
   /**
    * Implements the Drag and Drop class for the Calendar Header Container.

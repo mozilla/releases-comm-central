@@ -6,7 +6,7 @@
 
 var FIREFOX_UID = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 

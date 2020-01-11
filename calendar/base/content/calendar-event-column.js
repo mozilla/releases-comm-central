@@ -8,7 +8,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
   /**
    * The MozCalendarEventColumn widget used for displaying event boxes in one column per day.

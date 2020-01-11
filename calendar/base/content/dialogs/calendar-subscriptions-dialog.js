@@ -4,7 +4,7 @@
 
 /* exported onLoad, onUnload, onKeyPress, onInputKeyPress, onSubscribe, onUnsubscribe */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * Cancels any pending search operations.

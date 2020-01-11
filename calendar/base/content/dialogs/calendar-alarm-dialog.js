@@ -11,7 +11,7 @@
 /* import-globals-from ../calendar-item-editing.js */
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 

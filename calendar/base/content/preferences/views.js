@@ -44,7 +44,7 @@ var gViewsPane = {
    * menulists. This is needed to respect locales that use AM/PM.
    */
   initializeViewStartEndMenus: function() {
-    const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+    const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
     let calTime = cal.createDateTime();
     calTime.minute = 0;

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 var xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';

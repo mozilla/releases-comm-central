@@ -21,14 +21,14 @@
 /* import-globals-from html-item-editing/react-code.js */
 /* globals gTimezonesEnabled, gShowLink */ // Set by lightning-item-panel.js.
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {
   recurrenceRule2String,
   splitRecurrenceRules,
   checkRecurrenceRule,
   countOccurrences,
-} = ChromeUtils.import("resource://calendar/modules/calRecurrenceUtils.jsm");
+} = ChromeUtils.import("resource:///modules/calendar/calRecurrenceUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 

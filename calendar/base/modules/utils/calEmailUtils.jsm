@@ -5,7 +5,7 @@
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm", "cal");
 
 /*
  * Functions for processing email addresses and sending email

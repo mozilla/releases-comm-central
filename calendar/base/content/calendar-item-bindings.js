@@ -6,7 +6,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
   /**
    * Date info that is displayed on task details and event details.

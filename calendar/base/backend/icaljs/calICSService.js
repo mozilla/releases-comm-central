@@ -5,9 +5,9 @@
 /* import-globals-from calICALJSComponents.js */
 
 var { ICAL, unwrapSetter, unwrapSingle, wrapGetter } = ChromeUtils.import(
-  "resource://calendar/modules/Ical.jsm"
+  "resource:///modules/calendar/Ical.jsm"
 );
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 function calIcalProperty(innerObject) {
   this.innerObject = innerObject || new ICAL.Property();

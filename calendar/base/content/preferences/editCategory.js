@@ -4,7 +4,7 @@
 
 /* exported editCategoryLoad, categoryNameChanged, clickColor, delay */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 // Global variable, set to true if the user has picked a custom color.
 var customColorSelected = false;

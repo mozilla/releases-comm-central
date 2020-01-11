@@ -7,7 +7,7 @@
 /* import-globals-from calendar-management.js */
 /* import-globals-from import-export.js */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 

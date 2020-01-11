@@ -7,7 +7,7 @@
 /* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
 /* globals labelLong, labelShort */ // From general.xhtml.
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 Preferences.addAll([
   { id: "calendar.date.format", type: "int" },

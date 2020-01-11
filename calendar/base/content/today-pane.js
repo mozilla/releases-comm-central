@@ -7,7 +7,7 @@
 /* import-globals-from calendar-chrome-startup.js */
 /* import-globals-from calendar-views-utils.js */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * Namespace object to hold functions related to the today pane.

@@ -7,7 +7,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm", "cal");
 
 /*
  * Helpers and base class for calendar providers

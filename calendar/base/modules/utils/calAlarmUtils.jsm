@@ -5,7 +5,7 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource://calendar/modules/calUtils.jsm", "cal");
+XPCOMUtils.defineLazyModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm", "cal");
 
 /*
  * Helpers for manipulating calendar alarms

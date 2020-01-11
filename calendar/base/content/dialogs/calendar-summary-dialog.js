@@ -11,9 +11,9 @@
 /* import-globals-from ../../src/calApplicationUtils.js */
 /* import-globals-from calendar-dialog-utils.js */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { recurrenceRule2String } = ChromeUtils.import(
-  "resource://calendar/modules/calRecurrenceUtils.jsm"
+  "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 

@@ -11,7 +11,7 @@ var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 //
 // calDavCalendar.js

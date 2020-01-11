@@ -13,7 +13,7 @@
 
 /* globals gTabmail editToDoStatus editConfigState postponeTask */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * Add registered calendars to the given menupopup. Removes all previous

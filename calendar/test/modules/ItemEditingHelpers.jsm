@@ -27,7 +27,7 @@ var { helpersForController, menulistSelect } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 

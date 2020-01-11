@@ -17,7 +17,7 @@
 <dialog id="calendar-occurrence-prompt"
         buttons="accept,cancel">
   <script><![CDATA[
-      var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+      var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
       document.addEventListener("dialogaccept", () => exitOccurrenceDialog(1));
       document.addEventListener("dialogcancel", () => exitOccurrenceDialog(0));

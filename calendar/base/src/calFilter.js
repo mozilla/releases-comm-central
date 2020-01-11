@@ -5,7 +5,7 @@
 /* import-globals-from ../content/calendar-views-utils.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * Object that contains a set of filter properties that may be used by a calFilter object

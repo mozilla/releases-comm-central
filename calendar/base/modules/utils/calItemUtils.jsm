@@ -4,7 +4,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calHashedArray.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calHashedArray.jsm");
 
 /*
  * Calendar item related functions

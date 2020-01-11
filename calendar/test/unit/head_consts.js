@@ -42,7 +42,7 @@ updateAppInfo();
   Cc["@mozilla.org/calendar/backend-loader;1"].getService();
 })();
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTimezone) {
   let date = Cc["@mozilla.org/calendar/datetime;1"].createInstance(Ci.calIDateTime);

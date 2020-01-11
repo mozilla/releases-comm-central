@@ -16,7 +16,7 @@
 /* import-globals-from ../../base/content/calendar-ui-utils.js */
 
 // XXX Need to determine which of these we really need here.
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 

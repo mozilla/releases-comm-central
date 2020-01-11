@@ -8,9 +8,9 @@
 /* import-globals-from calendar-item-editing.js */
 /* import-globals-from calendar-ui-utils.js */
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { recurrenceRule2String } = ChromeUtils.import(
-  "resource://calendar/modules/calRecurrenceUtils.jsm"
+  "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");

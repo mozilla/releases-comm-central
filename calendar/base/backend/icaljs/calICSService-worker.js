@@ -13,7 +13,7 @@ var NS_OK = 0;
 var NS_ERROR_FAILURE = 2147500037;
 
 // eslint-disable-next-line no-unused-vars
-importScripts("resource://calendar/modules/Ical.jsm");
+importScripts("resource:///modules/calendar/Ical.jsm");
 
 onmessage = function(event) {
   try {

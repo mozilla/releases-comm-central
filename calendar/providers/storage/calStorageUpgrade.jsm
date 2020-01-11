@@ -69,9 +69,9 @@
 /* exported upgradeDB */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CAL_ITEM_FLAG, textToDate, getTimezone, newDateTime } = ChromeUtils.import(
-  "resource://calendar/modules/calStorageHelpers.jsm"
+  "resource:///modules/calendar/calStorageHelpers.jsm"
 );
 
 // The current database version. Be sure to increment this when you create a new

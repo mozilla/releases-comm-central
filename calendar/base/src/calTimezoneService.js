@@ -8,8 +8,8 @@ var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { ICAL, unwrapSingle } = ChromeUtils.import("resource://calendar/modules/Ical.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
 function calStringEnumerator(stringArray) {
   this.mIndex = 0;
