@@ -127,8 +127,7 @@ async function testBodyWithLongLine() {
     '<meta http-equiv="content-type" content="text/html; charset=utf-8">' +
     "</head><body>" +
     longMultibyteLine +
-    "</body></html>" +
-    newline;
+    "</body></html>\r\n";
   fields.body = htmlMessage;
   await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
@@ -159,7 +158,7 @@ async function testBodyWithLongLine() {
     '<meta http-equiv="content-type" content="text/html; charset=utf-8">' +
     "</head><body>" +
     longMultibyteLineCJK +
-    "</body></html>";
+    "</body></html>\r\n";
   fields.body = htmlMessage;
   await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
@@ -167,7 +166,7 @@ async function testBodyWithLongLine() {
       "Content-Type": "text/html; charset=UTF-8",
       "Content-Transfer-Encoding": "base64",
     },
-    htmlMessage + newline
+    htmlMessage
   );
 
   // Again, but this time as plain text.
@@ -192,7 +191,7 @@ async function testBodyWithLongLine() {
     '<meta http-equiv="content-type" content="text/html; charset=ISO-2022-JP">' +
     "</head><body>" +
     longMultibyteLineJapanese +
-    "</body></html>";
+    "</body></html>\r\n";
   fields.body = htmlMessage;
   await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
@@ -200,7 +199,7 @@ async function testBodyWithLongLine() {
       "Content-Type": "text/html; charset=ISO-2022-JP",
       "Content-Transfer-Encoding": "base64",
     },
-    htmlMessage + newline,
+    htmlMessage,
     "ISO-2022-JP"
   );
 
