@@ -168,7 +168,6 @@
 ; Mail Specific Files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @RESPATH@/defaults/messenger/mailViews.dat
-@RESPATH@/defaults/profile/prefs.js
 
 @RESPATH@/isp/*
 
