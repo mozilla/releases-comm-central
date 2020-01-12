@@ -96,7 +96,7 @@
       </xul:tabbox>
       <children/>
     </content>
-    <implementation implements="nsIObserver">
+    <implementation implements="nsIDOMEventListener, nsIObserver">
       <field name="mSessionStore" readonly="true">
         Cc["@mozilla.org/suite/sessionstore;1"].getService(Ci.nsISessionStore);
       </field>
@@ -154,9 +154,15 @@
       <field name="mContextTab">
         null
       </field>
-      <field name="_keyEventHandler" readonly="true">
-      <![CDATA[({
-        handleEvent: function handleEvent(aEvent) {
+
+      <method name="_handleKeyEvent">
+        <parameter name="aEvent"/>
+        <body><![CDATA[
+          if (!aEvent.isTrusted) {
+            // Don't let untrusted events mess with tabs.
+            return;
+          }
+
           if (aEvent.altKey)
             return;
 
@@ -174,6 +180,7 @@
                 this.tabContainer.advanceSelectedTab(offset, true);
                 aEvent.stopPropagation();
                 aEvent.preventDefault();
+                return;
             }
           } else {
             if (aEvent.ctrlKey && !aEvent.shiftKey && !aEvent.metaKey &&
@@ -182,11 +189,39 @@
               this.removeCurrentTab();
               aEvent.stopPropagation();
               aEvent.preventDefault();
+              return;
+            }
+
+            if (aEvent.target == this) {
+              switch (aEvent.keyCode) {
+                case KeyEvent.DOM_VK_UP:
+                  this.moveTabBackward();
+                  break;
+                case KeyEvent.DOM_VK_DOWN:
+                  this.moveTabForward();
+                  break;
+                case KeyEvent.DOM_VK_RIGHT:
+                case KeyEvent.DOM_VK_LEFT:
+                  this.moveTabOver(aEvent);
+                  break;
+                case KeyEvent.DOM_VK_HOME:
+                  this.moveTabToStart();
+                  break;
+                case KeyEvent.DOM_VK_END:
+                  this.moveTabToEnd();
+                  break;
+                default:
+                  // Stop the keypress event for the above keyboard
+                  // shortcuts only.
+                  return;
+              }
+              aEvent.stopPropagation();
+              aEvent.preventDefault();
             }
           }
-        }.bind(this)
-      })]]>
-      </field>
+        ]]></body>
+      </method>
+
       <field name="arrowKeysShouldWrap">
         null
       </field>
@@ -1339,23 +1374,6 @@
           ]]>
         </body>
       </method>
-      <method name="onTitleChanged">
-        <parameter name="evt"/>
-        <body>
-          <![CDATA[
-            if (evt.target != this.contentDocument)
-              return;
-
-            var tabBrowser = this.parentNode.parentNode.parentNode.parentNode;
-            var tab = document.getAnonymousElementByAttribute(tabBrowser, "linkedpanel", this.parentNode.id);
-
-            tabBrowser.setTabTitle(tab);
-
-            if (tab == tabBrowser.mCurrentTab)
-              tabBrowser.updateTitlebar();
-          ]]>
-        </body>
-      </method>
 
       <method name="setTabTitle">
         <parameter name="aTab"/>
@@ -1611,8 +1629,6 @@
             // initialized by this point.
             this.mPanelContainer.appendChild(n);
 
-            b.addEventListener("DOMTitleChanged", this.onTitleChanged, true);
-
             // We start our browsers out as inactive.
             b.docShellIsActive = false;
 
@@ -1809,9 +1825,6 @@
             // reattach the old history
             b.webNavigation.sessionHistory = hist;
 
-            // Hook up the title change listener again
-            b.addEventListener("DOMTitleChanged", this.onTitleChanged, true);
-
             // add back the filters, security first (bug 313335)
             const nsIWebProgress = Ci.nsIWebProgress;
             var secFlags = nsIWebProgress.NOTIFY_STATE_ALL | nsIWebProgress.NOTIFY_LOCATION | nsIWebProgress.NOTIFY_SECURITY;
@@ -1907,9 +1920,6 @@
             filter.removeProgressListener(this.mTabListeners[index]);
             this.mTabFilters.splice(index, 1);
             this.mTabListeners.splice(index, 1);
-
-            // Remove our title change listener
-            oldBrowser.removeEventListener("DOMTitleChanged", this.onTitleChanged, true);
 
             // We are no longer the primary content area
             oldBrowser.removeAttribute("primary");
@@ -2540,6 +2550,8 @@
         </body>
       </method>
 
+      <!-- moveTabLeft and moveTabRight methods have been kept for backwards
+           compatibility for extensions. Internally moveTabOver is used. -->
       <method name="moveTabLeft">
         <body>
           <![CDATA[
@@ -2606,6 +2618,21 @@
             if (tabPos < this.browsers.length - 1) {
               this.moveTabTo(tabPos, this.browsers.length - 1);
             }
+          ]]>
+        </body>
+      </method>
+
+      <method name="moveTabOver">
+        <parameter name="aEvent"/>
+        <body>
+          <![CDATA[
+            var direction = window.getComputedStyle(this, null).direction;
+            var keyCode = aEvent.keyCode;
+            if ((direction == "ltr" && keyCode == KeyEvent.DOM_VK_RIGHT) ||
+                (direction == "rtl" && keyCode == KeyEvent.DOM_VK_LEFT))
+              this.moveTabForward();
+            else
+              this.moveTabBackward();
           ]]>
         </body>
       </method>
@@ -2942,9 +2969,20 @@
       <field name="_lastSearchString">null</field>
       <field name="_lastSearchHighlight">false</field>
 
+      <method name="handleEvent">
+        <parameter name="aEvent"/>
+        <body><![CDATA[
+          switch (aEvent.type) {
+            case "keypress":
+              this._handleKeyEvent(aEvent);
+              break;
+          }
+        ]]></body>
+      </method>
+
       <constructor>
         <![CDATA[
-          document.addEventListener("keypress", this._keyEventHandler);
+          document.addEventListener("keypress", this);
           this.arrowKeysShouldWrap = AppConstants.platform == "macosx";
           // Bail out early if we are in tabmail. See Bug 521803.
           if (!this.mPanelContainer)
@@ -2957,9 +2995,6 @@
           this.mPanelContainer.childNodes[0].id = uniqueId;
           this.tabs[0].linkedPanel = uniqueId;
           this.tabs[0].linkedBrowser = this.mCurrentBrowser;
-
-          // Wire up the first title change listener.
-          this.mCurrentBrowser.addEventListener("DOMTitleChanged", this.onTitleChanged, true);
 
           // Ensure the browser's session history and security UI are wired up
           // note that toolkit browser automatically inits its security UI
@@ -3008,7 +3043,7 @@
 
       <destructor>
         <![CDATA[
-          document.removeEventListener("keypress", this._keyEventHandler);
+          document.removeEventListener("keypress", this);
           // Bail out early if we are in tabmail. See Bug 521803.
           if (!this.mPanelContainer)
             return;
@@ -3018,8 +3053,6 @@
             this.mTabFilters[i].removeProgressListener(this.mTabListeners[i]);
             this.mTabFilters[i] = null;
             this.mTabListeners[i] = null;
-            // eventListeners are removed from the browsers in display order of the browsers
-            this.browsers[i].removeEventListener("DOMTitleChanged", this.onTitleChanged, true);
           }
           Services.obs.removeObserver(this, "browser:purge-session-history");
           Services.prefs.removeObserver("browser.tabs.max_tabs_undo", this);
@@ -3078,12 +3111,24 @@
         ]]>
       </handler>
 
-      <handler event="keypress" keycode="VK_LEFT" modifiers="accel" action="if (event.target == this) { this.moveTabLeft(); event.preventDefault(); }"/>
-      <handler event="keypress" keycode="VK_RIGHT" modifiers="accel" action="if (event.target == this) { this.moveTabRight(); event.preventDefault(); }"/>
-      <handler event="keypress" keycode="VK_UP" modifiers="accel" action="if (event.target == this) { this.moveTabBackward(); event.preventDefault(); }"/>
-      <handler event="keypress" keycode="VK_DOWN" modifiers="accel" action="if (event.target == this) { this.moveTabForward(); event.preventDefault(); }"/>
-      <handler event="keypress" keycode="VK_HOME" modifiers="accel" action="if (event.target == this) { this.moveTabToStart(); event.preventDefault(); }"/>
-      <handler event="keypress" keycode="VK_END" modifiers="accel" action="if (event.target == this) { this.moveTabToEnd(); event.preventDefault(); }"/>
+      <handler event="DOMTitleChanged">
+        <![CDATA[
+          if (!event.isTrusted)
+            return;
+
+          var contentWin = event.target.defaultView;
+          if (contentWin != contentWin.top)
+            return;
+
+          var tab = this._getTabForContentWindow(contentWin);
+          if (!tab)
+            return;
+
+          this.setTabTitle(tab);
+          if (tab == this.mCurrentTab)
+            this.updateTitlebar();
+        ]]>
+      </handler>
 
       <handler event="click" phase="capturing" group="system">
         <![CDATA[
