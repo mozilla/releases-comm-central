@@ -22,10 +22,6 @@
   font-family: -moz-fixed;
 }
 
-#identitiesList {
-  max-height: 15em;
-}
-
 richlistitem[default="true"],
 #identitiesList > richlistitem:first-child {
   font-weight: bold;
