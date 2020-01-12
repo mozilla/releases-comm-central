@@ -90,10 +90,63 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
   MailServices.compose.OpenComposeWindowWithParams(null, params);
 }
 
+var composeEventTracker = new (class extends EventEmitter {
+  constructor() {
+    super();
+    this.listenerCount = 0;
+  }
+  on(event, listener) {
+    super.on(event, listener);
+
+    this.listenerCount++;
+    if (this.listenerCount == 1) {
+      windowTracker.addListener("beforesend", this);
+    }
+  }
+  off(event, listener) {
+    super.off(event, listener);
+
+    this.listenerCount--;
+    if (this.listenerCount == 0) {
+      windowTracker.removeListener("beforesend", this);
+    }
+  }
+  async handleEvent(event) {
+    event.preventDefault();
+
+    let msgType = event.detail;
+    let composeWindow = event.target;
+
+    let results = await this.emit("compose-before-send");
+    if (results && results.length > 0) {
+      for (let result of results) {
+        if (result) {
+          if (result.cancel) {
+            return;
+          }
+        }
+      }
+    }
+    composeWindow.CompleteGenericSendMessage(msgType);
+  }
+})();
+
 this.compose = class extends ExtensionAPI {
   getAPI(context) {
     return {
       compose: {
+        onBeforeSend: new EventManager({
+          context,
+          name: "compose.onBeforeSend",
+          register: fire => {
+            let listener = () => fire.async();
+
+            composeEventTracker.on("compose-before-send", listener);
+            return () => {
+              composeEventTracker.off("compose-before-send", listener);
+            };
+          },
+        }).api(),
         async beginNew(composeParams) {
           openComposeWindow(null, Ci.nsIMsgCompType.New, composeParams);
         },

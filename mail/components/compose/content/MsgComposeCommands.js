@@ -3580,7 +3580,6 @@ function DoSpellCheckBeforeSend() {
   return Services.prefs.getBoolPref("mail.SpellCheckBeforeSend");
 }
 
-/* eslint-disable complexity */
 /**
  * Handles message sending operations.
  * @param msgType nsIMsgCompDeliverMode of the operation.
@@ -3795,8 +3794,26 @@ function GenericSendMessage(msgType) {
           "Invalid nsIMsgCompSendFormat action; action=" + action
         );
     }
+
+    let beforeSendEvent = new CustomEvent("beforesend", {
+      cancelable: true,
+      detail: msgType,
+    });
+    window.dispatchEvent(beforeSendEvent);
+    if (beforeSendEvent.defaultPrevented) {
+      return;
+    }
   }
 
+  CompleteGenericSendMessage(msgType);
+}
+
+/**
+ * Finishes message sending. This should ONLY be called directly from
+ * GenericSendMessage, or if GenericSendMessage was interrupted by your code.
+ * @param msgType nsIMsgCompDeliverMode of the operation.
+ */
+function CompleteGenericSendMessage(msgType) {
   // hook for extra compose pre-processing
   Services.obs.notifyObservers(window, "mail:composeOnSend");
 
@@ -3822,7 +3839,7 @@ function GenericSendMessage(msgType) {
         false
       );
       if (disableFallback) {
-        msgCompFields.needToCheckCharset = false;
+        gMsgCompose.compFields.needToCheckCharset = false;
       } else {
         fallbackCharset.value = "UTF-8";
       }
@@ -3895,7 +3912,6 @@ function GenericSendMessage(msgType) {
     SetDocumentCharacterSet(gMsgCompose.compFields.characterSet);
   }
 }
-/* eslint-enable complexity */
 
 /**
  * Check if the given address is valid (contains a @).

@@ -1,0 +1,169 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
+
+add_task(async () => {
+  let account = createAccount();
+  addIdentity(account);
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      function waitForEvent(eventName) {
+        return new Promise(resolve => {
+          let listener = window => {
+            browser.windows[eventName].removeListener(listener);
+            resolve(window);
+          };
+          browser.windows[eventName].addListener(listener);
+        });
+      }
+
+      async function beginSend(sendIsFailure) {
+        await new Promise(resolve => {
+          browser.test.onMessage.addListener(function listener() {
+            browser.test.onMessage.removeListener(listener);
+            resolve();
+          });
+          browser.test.sendMessage("beginSend");
+        });
+        return checkIfSent(sendIsFailure);
+      }
+
+      function checkIfSent(sendIsFailure) {
+        return new Promise(resolve => {
+          browser.test.onMessage.addListener(function listener() {
+            browser.test.onMessage.removeListener(listener);
+            resolve();
+          });
+          browser.test.sendMessage("checkIfSent", sendIsFailure);
+        });
+      }
+
+      // Open a compose window with a message. The message will never send
+      // because we removed the sending function, so we can attempt to send
+      // it over and over.
+
+      let createdWindowPromise = waitForEvent("onCreated");
+      await browser.compose.beginNew({
+        to: ["test@test.invalid"],
+        subject: "Test",
+      });
+      let createdWindow = await createdWindowPromise;
+      browser.test.assertEq("messageCompose", createdWindow.type);
+
+      // Send the message. No listeners exist, so sending should continue.
+
+      await beginSend(false);
+
+      // Add a non-cancelling listener. Sending should continue.
+
+      let listener1 = () => {
+        listener1.fired = true;
+        return {};
+      };
+      browser.compose.onBeforeSend.addListener(listener1);
+      await beginSend(false);
+      browser.test.assertTrue(listener1.fired, "listener1 was fired");
+      browser.compose.onBeforeSend.removeListener(listener1);
+
+      // Add a cancelling listener. Sending should not continue.
+
+      let listener2 = () => {
+        listener2.fired = true;
+        return { cancel: true };
+      };
+      browser.compose.onBeforeSend.addListener(listener2);
+      await beginSend(true);
+      browser.test.assertTrue(listener2.fired, "listener2 was fired");
+      browser.compose.onBeforeSend.removeListener(listener2);
+      await beginSend(false); // Removing the listener worked.
+
+      // Add a listener returning a Promise. Resolve the Promise to unblock.
+      // Sending should continue.
+
+      let listener3 = () => {
+        listener3.fired = true;
+        return new Promise(resolve => {
+          listener3.resolve = resolve;
+        });
+      };
+      browser.compose.onBeforeSend.addListener(listener3);
+      await beginSend(true);
+      browser.test.assertTrue(listener3.fired, "listener3 was fired");
+      listener3.resolve({ cancel: false });
+      await checkIfSent(false);
+      browser.compose.onBeforeSend.removeListener(listener3);
+
+      // Add a listener returning a Promise. Resolve the Promise to cancel.
+      // Sending should not continue.
+
+      let listener4 = () => {
+        listener4.fired = true;
+        return new Promise(resolve => {
+          listener4.resolve = resolve;
+        });
+      };
+      browser.compose.onBeforeSend.addListener(listener4);
+      await beginSend(true);
+      browser.test.assertTrue(listener4.fired, "listener4 was fired");
+      listener4.resolve({ cancel: true });
+      await checkIfSent(true);
+      browser.compose.onBeforeSend.removeListener(listener4);
+      await beginSend(false); // Removing the listener worked.
+
+      // Clean up.
+
+      let removedWindowPromise = waitForEvent("onRemoved");
+      browser.windows.remove(createdWindow.id);
+      await removedWindowPromise;
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: { permissions: ["accountsRead", "messagesRead"] },
+  });
+
+  // We can't allow sending to actually happen, this is a test. For every
+  // compose window that opens, replace the function which does the actual
+  // sending with one that only records when it has been called.
+  let didTryToSendMessage = false;
+  ExtensionSupport.registerWindowListener("xpcshell", {
+    chromeURLs: [
+      "chrome://messenger/content/messengercompose/messengercompose.xhtml",
+    ],
+    onLoadWindow(window) {
+      window.CompleteGenericSendMessage = function(msgType) {
+        didTryToSendMessage = true;
+      };
+    },
+  });
+  registerCleanupFunction(() =>
+    ExtensionSupport.unregisterWindowListener("xpcshell")
+  );
+
+  extension.onMessage("beginSend", async () => {
+    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    is(composeWindows.length, 1);
+
+    composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Now);
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkIfSent", async sendIsFailure => {
+    if (didTryToSendMessage) {
+      ok(!sendIsFailure, "tried to send a message, but should not have");
+    } else {
+      ok(sendIsFailure, "didn't try to send a message, but should have");
+    }
+
+    didTryToSendMessage = false;
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});

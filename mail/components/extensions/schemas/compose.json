@@ -68,6 +68,22 @@
         }
       }
     ],
+    "events": [
+      {
+        "name": "onBeforeSend",
+        "type": "function",
+        "description": "Fired when a message is about to be sent from the compose window.",
+        "returns": {
+          "type": "object",
+          "properties": {
+            "cancel": {
+              "type": "boolean",
+              "optional": true
+            }
+          }
+        }
+      }
+    ],
     "functions": [
       {
         "name": "beginNew",
