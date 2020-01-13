@@ -1,0 +1,44 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# This file requires the following localization files:
+# chrome://lightning/locale/lightning.dtd
+# chrome://calendar/locale/preferences/preferences.dtd
+# chrome://calendar/locale/preferences/general.dtd
+# chrome://calendar/locale/global.dtd
+# chrome://calendar/locale/calendar-event-dialog.dtd
+# chrome://calendar/locale/preferences/alarms.dtd
+# chrome://calendar/locale/preferences/categories.dtd
+# chrome://calendar/locale/preferences/views.dtd
+
+  <prefpane id="paneLightning"
+            flex="1"
+            insertbefore="paneAdvanced"
+            label="&lightning.preferencesLabel;">
+
+    <hbox id="calendarPaneCategory"
+          class="subcategory"
+          data-category="paneCalendar">
+      <html:h1>&panelHeader.title;</html:h1>
+    </hbox>
+
+#include ../../base/content/preferences/views.inc.xhtml
+#include ../../base/content/preferences/general.inc.xhtml
+
+    <hbox id="chatPaneCategory"
+          class="subcategory"
+          data-category="paneCalendar">
+      <html:h1>&panelReminder.title;</html:h1>
+    </hbox>
+
+#include ../../base/content/preferences/alarms.inc.xhtml
+
+    <hbox id="chatPaneCategory"
+          class="subcategory"
+          data-category="paneCalendar">
+      <html:h1>&panelCategory.title;</html:h1>
+    </hbox>
+
+#include ../../base/content/preferences/categories.inc.xhtml
+  </prefpane>

@@ -12,8 +12,6 @@ lightning.jar:
 % overlay chrome://communicator/content/pref/preferences.xhtml chrome://lightning/content/suite-overlay-preferences.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % overlay about:addons chrome://lightning/content/suite-overlay-addons.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % overlay chrome://mozapps/content/extensions/extensions.xhtml chrome://lightning/content/suite-overlay-addons.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
-% overlay chrome://messenger/content/preferences/preferences.xhtml chrome://lightning/content/messenger-overlay-preferences.xhtml
-% overlay about:preferences chrome://lightning/content/messenger-overlay-preferences.xhtml
 % overlay chrome://lightning/content/messenger-overlay-sidebar.xhtml chrome://lightning/content/suite-overlay-sidebar.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % override chrome://lightning-common/skin/accountCentral.css chrome://lightning-common/skin/suite-accountCentral.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % content lightning %content/
@@ -32,7 +30,7 @@ lightning.jar:
     content/messenger-overlay-sidebar.js                   (content/messenger-overlay-sidebar.js)
     content/messenger-overlay-sidebar.xhtml                (content/messenger-overlay-sidebar.xhtml)
     content/messenger-overlay-preferences.js               (content/messenger-overlay-preferences.js)
-*   content/messenger-overlay-preferences.xhtml            (content/messenger-overlay-preferences.xhtml)
+*   content/messenger-overlay-preferences.inc.xhtml        (content/messenger-overlay-preferences.inc.xhtml)
 #ifdef MOZ_SUITE
     content/suite-overlay-addons.xhtml                     (content/suite-overlay-addons.xhtml)
     content/suite-overlay-preferences.xhtml                (content/suite-overlay-preferences.xhtml)

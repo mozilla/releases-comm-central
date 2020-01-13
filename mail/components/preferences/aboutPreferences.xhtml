@@ -11,6 +11,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/preferences/applications.css"?>
 <?xml-stylesheet href="chrome://global/skin/in-content/common.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
+<?xml-stylesheet href="chrome://calendar-common/skin/calendar-preferences.css" type="text/css"?>
+<?xml-stylesheet href="chrome://lightning/skin/lightning.css"?>
 
 <!DOCTYPE preftab [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
@@ -51,6 +53,22 @@
 <!ENTITY % aboutDialogDTD SYSTEM "chrome://messenger/locale/aboutDialog.dtd" >
 %aboutDialogDTD;
 #endif
+<!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
+%lightningDTD;
+<!ENTITY % calendarPreferencesDTD SYSTEM "chrome://calendar/locale/preferences/preferences.dtd">
+%calendarPreferencesDTD;
+<!ENTITY % calendarGeneralDTD SYSTEM "chrome://calendar/locale/preferences/general.dtd">
+%calendarGeneralDTD;
+<!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
+%globalDTD;
+<!ENTITY % eventDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
+%eventDTD;
+<!ENTITY % alarmsDTD SYSTEM "chrome://calendar/locale/preferences/alarms.dtd">
+%alarmsDTD;
+<!ENTITY % categoriesDTD SYSTEM "chrome://calendar/locale/preferences/categories.dtd">
+%categoriesDTD;
+<!ENTITY % viewsDTD SYSTEM "chrome://calendar/locale/preferences/views.dtd">
+%viewsDTD;
 ]>
 
 <preftab id="MailPreferences" flex="1"
@@ -110,7 +128,7 @@
 #include compose.inc.xhtml
 #include privacy.inc.xhtml
 #include chat.inc.xhtml
-            <prefpane id="paneLightning" label="&paneLightning.title;"/>
+#include ../../../calendar/lightning/content/messenger-overlay-preferences.inc.xhtml
           </hbox>
         </hbox>
       </hbox>
@@ -142,4 +160,23 @@
   <script src="chrome://communicator/content/contentAreaClick.js"/>
   <script src="chrome://messenger/content/preferences/preferences.js"/>
   <script src="chrome://messenger/content/preferences/subdialogs.js"/>
+
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
+  <!-- Get the localized text for use in the JS. -->
+  <script>
+    var labelLong  = "&pref.dateformat.long;";
+    var labelShort = "&pref.dateformat.short;";
+    var noneLabel  = "&pref.categories.none.label;";
+    var newTitle   = "&pref.categories.new.title;";
+    var editTitle  = "&pref.categories.edit.title;";
+    var overwrite  = "&pref.categories.overwrite;";
+    var overwriteTitle = "&pref.categories.overwrite.title;";
+    var noBlankCategories = "&pref.categories.noBlankCategories;";
+  </script>
+  <script src="chrome://calendar/content/preferences/general.js"/>
+  <script src="chrome://calendar/content/preferences/alarms.js"/>
+  <script src="chrome://calendar/content/preferences/categories.js"/>
+  <script src="chrome://calendar/content/preferences/views.js"/>
+  <script src="chrome://lightning/content/messenger-overlay-preferences.js"/>
 </preftab>
