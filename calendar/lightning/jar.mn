@@ -9,7 +9,6 @@ lightning.jar:
 % overlay chrome://messenger/content/messenger.xhtml chrome://lightning/content/lightning-item-panel.xhtml
 % overlay chrome://messenger/content/messenger.xhtml chrome://lightning/content/messenger-overlay-sidebar.xhtml
 % overlay chrome://messenger/content/messageWindow.xhtml chrome://lightning/content/imip-bar-overlay.xhtml
-% overlay chrome://messenger/content/messageWindow.xhtml chrome://lightning/content/messenger-overlay-messageWindow.xhtml
 % overlay chrome://lightning/content/messenger-overlay-sidebar.xhtml chrome://lightning/content/imip-bar-overlay.xhtml
 % overlay chrome://communicator/content/pref/preferences.xhtml chrome://lightning/content/suite-overlay-preferences.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % overlay about:addons chrome://lightning/content/suite-overlay-addons.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
@@ -31,7 +30,6 @@ lightning.jar:
     content/lightning-item-iframe.xhtml                    (content/lightning-item-iframe.xhtml)
     content/lightning-item-iframe.js                       (content/lightning-item-iframe.js)
     content/lightning-utils.js                             (content/lightning-utils.js)
-    content/messenger-overlay-messageWindow.xhtml          (content/messenger-overlay-messageWindow.xhtml)
     content/messenger-overlay-sidebar.js                   (content/messenger-overlay-sidebar.js)
     content/messenger-overlay-sidebar.xhtml                (content/messenger-overlay-sidebar.xhtml)
     content/messenger-overlay-preferences.js               (content/messenger-overlay-preferences.js)
