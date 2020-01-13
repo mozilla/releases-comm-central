@@ -5,9 +5,6 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gOkButton;
@@ -68,7 +65,7 @@ function abNameOKButton(event) {
   var newName = gNameInput.value.trim();
 
   // Do not allow an already existing name.
-  for (let ab of fixIterator(MailServices.ab.directories, Ci.nsIAbDirectory)) {
+  for (let ab of MailServices.ab.directories) {
     if (
       ab.dirName.toLowerCase() == newName.toLowerCase() &&
       (!gDirectory || ab.URI != gDirectory.URI)

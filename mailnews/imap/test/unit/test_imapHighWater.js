@@ -109,12 +109,15 @@ function* doMoves() {
   yield false;
   // get five messages to move from Inbox to folder 1.
   let headers1 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  let msgEnumerator = gIMAPInbox.msgDatabase.EnumerateMessages();
-  for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++) {
-    let header = msgEnumerator.getNext();
+  let count = 0;
+  for (let header of gIMAPInbox.msgDatabase.EnumerateMessages()) {
+    if (count >= 5) {
+      break;
+    }
     if (header instanceof Ci.nsIMsgDBHdr) {
       headers1.appendElement(header);
     }
+    count++;
   }
   // this will add dummy headers with keys > 0xffffff80
   MailServices.copy.CopyMessages(
@@ -135,12 +138,15 @@ function* doMoves() {
   // headers, and thus highWater is recalculated.
   Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 6);
   headers1 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  msgEnumerator = gIMAPInbox.msgDatabase.EnumerateMessages();
-  for (let i = 0; i < 5 && msgEnumerator.hasMoreElements(); i++) {
-    let header = msgEnumerator.getNext();
+  count = 0;
+  for (let header of gIMAPInbox.msgDatabase.EnumerateMessages()) {
+    if (count >= 5) {
+      break;
+    }
     if (header instanceof Ci.nsIMsgDBHdr) {
       headers1.appendElement(header);
     }
+    count++;
   }
   // Check that CopyMessages will handle having a high highwater mark.
   // It will thrown an exception if it can't.

@@ -10,9 +10,6 @@ var { MailServices } = ChromeUtils.import(
 var { isLegalHostNameOrIP, cleanUpHostName } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 var gCurrentDirectory = null;
 var gReplicationBundle = null;
@@ -338,10 +335,7 @@ function onAccept(event) {
 
     let findDupeName = function(newName) {
       // Do not allow an already existing name.
-      for (let ab of fixIterator(
-        MailServices.ab.directories,
-        Ci.nsIAbDirectory
-      )) {
+      for (let ab of MailServices.ab.directories) {
         if (
           ab.dirName.toLowerCase() == newName.toLowerCase() &&
           (!gCurrentDirectory || ab.URI != gCurrentDirectory.URI)

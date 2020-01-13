@@ -89,11 +89,11 @@ var GlodaUtils = {
 
   getCardForEmail(aAddress) {
     // search through all of our local address books looking for a match.
-    let enumerator = MailServices.ab.directories;
     let cardForEmailAddress;
-    let addrbook;
-    while (!cardForEmailAddress && enumerator.hasMoreElements()) {
-      addrbook = enumerator.getNext().QueryInterface(Ci.nsIAbDirectory);
+    for (let addrbook of MailServices.ab.directories) {
+      if (cardForEmailAddress) {
+        break;
+      }
       try {
         cardForEmailAddress = addrbook.cardForEmailAddress(aAddress);
         if (cardForEmailAddress) {

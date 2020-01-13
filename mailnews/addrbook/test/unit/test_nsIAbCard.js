@@ -9,24 +9,17 @@
 
 // Main function for the this test so we can check both personal and
 // collected books work correctly in an easy manner.
+
 function run_test() {
   loadABFile("data/cardForEmail", kPABData.fileName);
 
   // Test - Get the directory
   let AB = MailServices.ab.getDirectory(kPABData.URI);
-
-  var childCards = AB.childCards;
   var fullCard = null;
-  var tempCard;
 
-  while (childCards.hasMoreElements()) {
-    tempCard = childCards.getNext();
-
+  for (let tempCard of AB.childCards) {
     // We want the one with the right email...
-    if (
-      tempCard instanceof Ci.nsIAbCard &&
-      tempCard.primaryEmail == "PrimaryEmail1@test.invalid"
-    ) {
+    if (tempCard.primaryEmail == "PrimaryEmail1@test.invalid") {
       fullCard = tempCard;
     }
   }

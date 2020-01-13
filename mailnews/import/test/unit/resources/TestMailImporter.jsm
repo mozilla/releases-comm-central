@@ -70,9 +70,7 @@ TestMailImpoter.prototype = {
       depth
     );
     result.appendElement(descriptor);
-    let entries = directory.directoryEntries;
-    while (entries.hasMoreElements()) {
-      let entry = entries.nextFile;
+    for (let entry of directory.directoryEntries) {
       if (entry.isDirectory()) {
         this._collectMailboxesInDirectory(entry, depth + 1, result);
       }
@@ -90,9 +88,7 @@ TestMailImpoter.prototype = {
     this.progress = 0;
     let msgStore = destination.msgStore;
 
-    let entries = source.directoryEntries;
-    while (entries.hasMoreElements()) {
-      let entry = entries.nextFile;
+    for (let entry of source.directoryEntries) {
       if (!entry.isFile()) {
         continue;
       }

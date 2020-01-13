@@ -173,12 +173,8 @@ function testManyConnections() {
       }
     },
   };
-  let groups = _server.rootFolder.subFolders;
-  while (groups.hasMoreElements()) {
-    groups
-      .getNext()
-      .QueryInterface(Ci.nsIMsgFolder)
-      .getNewMessages(null, listener);
+  for (let group of _server.rootFolder.subFolders) {
+    group.getNewMessages(null, listener);
     listener.ran++;
   }
   server.performTest();

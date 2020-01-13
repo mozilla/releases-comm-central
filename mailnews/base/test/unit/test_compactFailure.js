@@ -124,11 +124,7 @@ function* setup_open_failure_folder() {
 }
 
 function* delete_all_messages() {
-  let enumerator = gTargetFolder.messages;
-  let headers = [];
-  while (enumerator.hasMoreElements()) {
-    headers.push(enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr));
-  }
+  let headers = [...gTargetFolder.messages];
 
   let array = toXPCOMArray(headers, Ci.nsIMutableArray);
 

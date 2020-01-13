@@ -63,8 +63,7 @@ function checkOfflineStore(prevOfflineStoreSize) {
   let size = {};
   let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
   if (enumerator) {
-    while (enumerator.hasMoreElements()) {
-      let header = enumerator.getNext();
+    for (let header of enumerator) {
       // this will verify that the message in the offline store
       // starts with "From " - otherwise, it returns an error.
       if (

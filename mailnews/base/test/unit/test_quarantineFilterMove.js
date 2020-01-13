@@ -120,13 +120,7 @@ var gTestArray = [
 ];
 
 function folderCount(folder) {
-  let enumerator = folder.msgDatabase.EnumerateMessages();
-  let count = 0;
-  while (enumerator.hasMoreElements()) {
-    count++;
-    enumerator.getNext();
-  }
-  return count;
+  return [...folder.msgDatabase.EnumerateMessages()].length;
 }
 
 function run_test() {

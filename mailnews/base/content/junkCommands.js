@@ -411,9 +411,7 @@ function deleteJunkInFolder() {
     var junkMsgHdrs = Cc["@mozilla.org/array;1"].createInstance(
       Ci.nsIMutableArray
     );
-    var enumerator = gDBView.msgFolder.messages;
-    while (enumerator.hasMoreElements()) {
-      let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    for (let msgHdr of gDBView.msgFolder.messages) {
       let junkScore = msgHdr.getStringProperty("junkscore");
       if (junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE) {
         junkMsgHdrs.appendElement(msgHdr);

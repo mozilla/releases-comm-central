@@ -163,10 +163,7 @@ function _test(registry) {
 }
 
 function teardown() {
-  let smtpServers = MailServices.smtp.servers;
-
-  while (smtpServers.hasMoreElements()) {
-    let server = smtpServers.getNext().QueryInterface(Ci.nsISmtpServer);
+  for (let server of MailServices.smtp.servers) {
     MailServices.smtp.deleteServer(server);
   }
 

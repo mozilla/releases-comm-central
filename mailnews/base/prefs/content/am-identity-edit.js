@@ -464,7 +464,6 @@ function getAccountForFolderPickerState() {
  */
 function loadSMTPServerList() {
   var smtpServerList = document.getElementById("identity.smtpServerKey");
-  let servers = MailServices.smtp.servers;
   let defaultServer = MailServices.smtp.defaultServer;
   let currentValue = smtpServerList.value;
 
@@ -473,9 +472,7 @@ function loadSMTPServerList() {
     smtpPopup.lastChild.remove();
   }
 
-  while (servers.hasMoreElements()) {
-    var server = servers.getNext();
-
+  for (let server of MailServices.smtp.servers) {
     if (server instanceof Ci.nsISmtpServer) {
       var serverName = "";
       if (server.description) {

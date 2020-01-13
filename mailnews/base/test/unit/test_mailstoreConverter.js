@@ -140,12 +140,7 @@ async function doMboxTest(srvName, mboxFilename, expectCnt) {
   Assert.ok(curDir.isDirectory(), "'cur' directory created");
 
   // Check number of messages in Inbox/cur is what we expect.
-  let cnt = 0;
-  let it = curDir.directoryEntries;
-  while (it.hasMoreElements()) {
-    it.nextFile;
-    cnt++;
-  }
+  let cnt = [...curDir.directoryEntries].length;
 
   Assert.equal(
     cnt,

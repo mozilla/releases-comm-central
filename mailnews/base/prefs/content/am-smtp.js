@@ -213,9 +213,7 @@ var gSmtpServerListWindow = {
       return;
     }
 
-    while (aServers.hasMoreElements()) {
-      var server = aServers.getNext();
-
+    for (let server of aServers) {
       if (server instanceof Ci.nsISmtpServer) {
         var isDefault = aDefaultServer.key == server.key;
 

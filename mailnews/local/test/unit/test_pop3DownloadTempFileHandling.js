@@ -32,10 +32,8 @@ function continueTest() {
   }
 
   // get message headers for the inbox folder
-  let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()) {
     Assert.equal(hdr.subject, testSubjects[msgCount++]);
   }
   Assert.equal(msgCount, 2);

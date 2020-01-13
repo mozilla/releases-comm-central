@@ -212,10 +212,8 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   // lists need help initialising themselves
   MailServices.ab.directories;
 
-  let childCards0 = ab.childCards;
-  while (childCards0.hasMoreElements()) {
-    let c = childCards0.getNext().QueryInterface(Ci.nsIAbCard);
-    ab.dropCard(c, false);
+  for (let card of ab.childCards) {
+    ab.dropCard(card, false);
   }
 
   aCardData.forEach(function(cd) {
@@ -238,11 +236,6 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
     }
     ab.addMailList(list);
   });
-
-  let childCards = ab.childCards;
-  while (childCards.hasMoreElements()) {
-    childCards.getNext().QueryInterface(Ci.nsIAbCard);
-  }
 }
 
 function run_test() {
@@ -427,11 +420,7 @@ function run_test() {
   print("Checking by popularity index:");
   let pab = MailServices.ab.getDirectory(kPABData.URI);
 
-  var childCards = pab.childCards;
-
-  while (childCards.hasMoreElements()) {
-    var card = childCards.getNext().QueryInterface(Ci.nsIAbCard);
-
+  for (let card of pab.childCards) {
     if (card.isMailList) {
       continue;
     }

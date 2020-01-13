@@ -209,23 +209,15 @@ function run_test() {
 
 // count of messages in a folder, using the database
 function folderCount(folder) {
-  let enumerator = folder.msgDatabase.EnumerateMessages();
-  let count = 0;
-  while (enumerator.hasMoreElements()) {
-    count++;
-    enumerator.getNext();
-  }
-  return count;
+  return [...folder.msgDatabase.EnumerateMessages()].length;
 }
 
 // display of message subjects in a folder
 function listMessages(folder) {
-  let enumerator = folder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
   dl("listing messages for " + folder.prettyName);
-  while (enumerator.hasMoreElements()) {
+  for (let hdr of folder.msgDatabase.EnumerateMessages()) {
     msgCount++;
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     dl(msgCount + ": " + hdr.subject);
   }
 }

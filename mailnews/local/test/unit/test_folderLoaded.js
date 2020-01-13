@@ -66,11 +66,9 @@ var tests = [
 
   function* firstUpdate() {
     // get message headers for the target folder
-    let enumerator = gTargetFolder.msgDatabase.EnumerateMessages();
     var msgCount = 0;
-    while (enumerator.hasMoreElements()) {
+    for (let hdr of gTargetFolder.msgDatabase.EnumerateMessages()) {
       msgCount++;
-      let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
       Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
     }
     Assert.equal(msgCount, 2);

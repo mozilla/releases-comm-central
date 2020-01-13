@@ -42,11 +42,9 @@ add_task(async function runPump() {
 
   // Accumulate messages to copy.
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  let enumerator = inbox.msgDatabase.EnumerateMessages();
   let msgCount = 0;
-  while (enumerator.hasMoreElements()) {
+  for (let hdr of inbox.msgDatabase.EnumerateMessages()) {
     msgCount++;
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     messages.appendElement(hdr);
     Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
   }
@@ -73,12 +71,10 @@ add_task(async function runPump() {
 
   // Check the destination headers.
   messages.clear();
-  enumerator = testFolder.msgDatabase.EnumerateMessages();
   msgCount = 0;
   let subjects = [];
-  while (enumerator.hasMoreElements()) {
+  for (let hdr of testFolder.msgDatabase.EnumerateMessages()) {
     msgCount++;
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     messages.appendElement(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
@@ -92,9 +88,7 @@ add_task(async function runPump() {
   }
 
   // Make sure the body matches the message.
-  enumerator = testFolder.msgDatabase.EnumerateMessages();
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of testFolder.msgDatabase.EnumerateMessages()) {
     let body = mailTestUtils.loadMessageToString(testFolder, hdr);
     Assert.ok(body.includes(hdr.subject));
   }

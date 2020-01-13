@@ -283,11 +283,10 @@ AbImportHelper.prototype = {
           newAb.childCards instanceof Ci.nsISimpleEnumerator
       );
       // get the imported card(s) and check each one
-      var iter = newAb.childCards;
       var count = 0;
-      for (; iter.hasMoreElements(); count++) {
-        var importedCard = iter.getNext().QueryInterface(Ci.nsIAbCard);
+      for (let importedCard of newAb.childCards) {
         this.compareCards(this.mJsonCards[count], importedCard);
+        count++;
       }
       // make sure there are the same number of cards in the address book and
       // the JSON array
@@ -308,10 +307,7 @@ AbImportHelper.prototype = {
   getAbByName(aName) {
     Assert.ok(aName && aName.length > 0);
 
-    var iter = MailServices.ab.directories;
-    var data = null;
-    while (iter.hasMoreElements()) {
-      data = iter.getNext();
+    for (let data of MailServices.ab.directories) {
       if (data instanceof Ci.nsIAbDirectory) {
         if (data.dirName == aName) {
           return data;
@@ -411,10 +407,8 @@ MailImportHelper.prototype = {
     Assert.equal(expectedFolder.leafName, actualFolder.name);
     let expectedSubFolderCount = 0;
 
-    let expectedEnumerator = expectedFolder.directoryEntries;
     let expectedSubFolders = [];
-    while (expectedEnumerator.hasMoreElements()) {
-      let entry = expectedEnumerator.nextFile;
+    for (let entry of expectedFolder.directoryEntries) {
       if (entry.isDirectory()) {
         expectedSubFolderCount++;
         expectedSubFolders.push(entry);

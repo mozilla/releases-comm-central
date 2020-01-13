@@ -35,12 +35,8 @@ var Tests = [
   // add a property and test its value
   {
     setup: function setupProperty() {
-      let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
-      while (enumerator.hasMoreElements()) {
-        enumerator
-          .getNext()
-          .QueryInterface(Ci.nsIMsgDBHdr)
-          .setUint32Property("iam23", 23);
+      for (let msgHdr of localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()) {
+        msgHdr.setUint32Property("iam23", 23);
       }
     },
     hdrProperty: "iam23",

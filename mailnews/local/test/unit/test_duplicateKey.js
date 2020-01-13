@@ -68,10 +68,9 @@ add_task(async function runPump() {
 });
 
 function showMessages(folder) {
-  let enumerator = folder.msgDatabase.EnumerateMessages();
   var hdrs = [];
-  while (enumerator.hasMoreElements()) {
-    hdrs.push(enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+  for (let hdr of folder.msgDatabase.EnumerateMessages()) {
+    hdrs.push(hdr);
     dump(
       "key " +
         (hdrs.length - 1) +

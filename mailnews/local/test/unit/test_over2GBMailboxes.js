@@ -68,9 +68,7 @@ function run_test() {
 
 // Get message whose offset is over 2 GiB.
 function getMessageHdr() {
-  let msgEnum = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
-  while (msgEnum.hasMoreElements()) {
-    let header = msgEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let header of localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()) {
     if (header.messageOffset >= 0x80000000) {
       return header;
     }

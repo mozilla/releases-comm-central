@@ -45,8 +45,7 @@ function checkDirs(aDirs, aDirArray) {
   // Don't modify the passed in array.
   var dirArray = aDirArray.concat();
 
-  while (aDirs.hasMoreElements()) {
-    var dir = aDirs.getNext().QueryInterface(nsIAbDirectory);
+  for (let dir of aDirs) {
     var loc = dirArray.indexOf(dir.URI);
 
     Assert.equal(MailServices.ab.getDirectory(dir.URI), dir);

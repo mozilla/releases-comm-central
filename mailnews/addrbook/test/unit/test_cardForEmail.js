@@ -81,9 +81,8 @@ function run_test() {
   var i = 0;
   var data = ["John", "Jane"];
 
-  while (cards.hasMoreElements()) {
+  for (card of cards) {
     i++;
-    card = cards.getNext().QueryInterface(Ci.nsIAbCard);
     Assert.equal(card.lastName, "Doe");
     var index = data.indexOf(card.firstName);
     Assert.notEqual(index, -1);

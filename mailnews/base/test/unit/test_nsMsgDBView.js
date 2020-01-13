@@ -308,9 +308,7 @@ function setup_view(aViewType, aViewFlags, aTestFolder) {
   ) {
     let searchNotify = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);
     searchNotify.onNewSearch();
-    let enumerator = aTestFolder.msgDatabase.EnumerateMessages();
-    while (enumerator.hasMoreElements()) {
-      let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    for (let msgHdr of aTestFolder.msgDatabase.EnumerateMessages()) {
       searchNotify.onSearchHit(msgHdr, msgHdr.folder);
     }
     searchNotify.onSearchDone(Cr.NS_OK);

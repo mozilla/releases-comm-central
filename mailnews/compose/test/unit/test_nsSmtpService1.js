@@ -75,9 +75,7 @@ function run_test() {
 
   var found = [false, false, false];
 
-  while (smtpServers.hasMoreElements()) {
-    smtpServer = smtpServers.getNext();
-
+  for (smtpServer of smtpServers) {
     for (i = 0; i < 3; ++i) {
       if (smtpServer == smtpServerArray[i]) {
         found[i] = true;

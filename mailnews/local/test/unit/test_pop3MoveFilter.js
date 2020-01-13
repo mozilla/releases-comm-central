@@ -83,9 +83,7 @@ var gTestArray = [
   function verifyMessages() {
     let hdrs = [];
     let keys = [];
-    let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
-    while (enumerator.hasMoreElements()) {
-      let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    for (let hdr of gMoveFolder.msgDatabase.EnumerateMessages()) {
       keys.push(hdr.messageKey);
       hdrs.push(hdr);
     }
@@ -102,13 +100,7 @@ var gTestArray = [
 ];
 
 function folderCount(folder) {
-  let enumerator = folder.msgDatabase.EnumerateMessages();
-  let count = 0;
-  while (enumerator.hasMoreElements()) {
-    count++;
-    enumerator.getNext();
-  }
-  return count;
+  return [...folder.msgDatabase.EnumerateMessages()].length;
 }
 
 function setup_store(storeID) {

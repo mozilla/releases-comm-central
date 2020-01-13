@@ -44,10 +44,8 @@ var gTestArray = [
     // Clear the gMsgHdrs array.
     gMsgHdrs = [];
     // get message headers for the inbox folder
-    let enumerator = gMoveMailInbox.msgDatabase.EnumerateMessages();
     var msgCount = 0;
-    while (enumerator.hasMoreElements()) {
-      let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    for (let hdr of gMoveMailInbox.msgDatabase.EnumerateMessages()) {
       gMsgHdrs.push(hdr);
       Assert.equal(hdr.subject, testSubjects[msgCount++]);
     }

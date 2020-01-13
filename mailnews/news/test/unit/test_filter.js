@@ -45,11 +45,7 @@ function testAttrib(handler, daemon, localserver) {
   });
   server.performTest();
 
-  var headerEnum = folder.messages;
-  var headers = [];
-  while (headerEnum.hasMoreElements()) {
-    headers.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
-  }
+  var headers = [...folder.messages];
 
   try {
     Assert.equal(headers.length, 8);
@@ -105,11 +101,7 @@ function testAction(handler, daemon, localserver) {
   });
   server.performTest();
 
-  var headerEnum = folder.messages;
-  var headers = [];
-  while (headerEnum.hasMoreElements()) {
-    headers.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
-  }
+  let headers = [...folder.messages];
 
   try {
     Assert.equal(headers.length, 7);

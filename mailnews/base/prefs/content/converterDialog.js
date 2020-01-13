@@ -294,9 +294,8 @@ function startContinue(aSelectedStoreType, aResponse) {
       return true;
     }
     if (aFolder.hasSubFolders) {
-      let subFolders = aFolder.subFolders;
-      while (subFolders.hasMoreElements()) {
-        if (canCompact(subFolders.getNext().QueryInterface(Ci.nsIMsgFolder))) {
+      for (let subFolder of aFolder.subFolders) {
+        if (canCompact(subFolder)) {
           return true;
         }
       }

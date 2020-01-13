@@ -39,20 +39,12 @@ function run_test() {
   // Now go offline
   Services.io.offline = true;
 
-  // Now try and get the card that has been replicated for offline use.
-  let childCards = abDir.childCards;
-  let count = 0;
-
   // Make sure we clear any memory that is now loose, so that the crash would
   // be triggered.
   gc();
 
-  while (childCards.hasMoreElements()) {
-    // Make sure everything is an nsIAbCard.
-    childCards.getNext().QueryInterface(Ci.nsIAbCard);
-
-    ++count;
-  }
+  // Now try and get the card that has been replicated for offline use.
+  let count = [...abDir.childCards].length;
 
   Assert.equal(count, 4);
 }

@@ -42,13 +42,7 @@ var copyListener = {
 
 function continue_test() {
   // test some of the default properties
-  var enumerator = gHdr.propertyEnumerator;
-  var properties = [];
-  while (enumerator.hasMore()) {
-    var property = enumerator.getNext();
-    // dump("\nProperty is " + property);
-    properties.push(property);
-  }
+  let properties = [...gHdr.propertyEnumerator];
   Assert.ok(properties.includes("flags"));
   Assert.ok(properties.includes("size"));
   // this will be added in the next section, but does not exist yet
@@ -57,10 +51,8 @@ function continue_test() {
   // add a new property, and make sure that it appears
   gHdr.setStringProperty("iamnew", "somevalue");
 
-  enumerator = gHdr.propertyEnumerator;
   properties = [];
-  while (enumerator.hasMore()) {
-    property = enumerator.getNext();
+  for (let property of gHdr.propertyEnumerator) {
     // dump("\nProperty 2 is " + property);
     properties.push(property);
   }

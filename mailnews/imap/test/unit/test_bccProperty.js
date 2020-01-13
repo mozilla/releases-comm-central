@@ -44,9 +44,7 @@ function* downloadAllForOffline() {
 
 function checkBccs() {
   // locate the new message by enumerating through the database
-  let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
     Assert.ok(hdr.bccList.includes("Another Person"));
     Assert.ok(hdr.bccList.includes("<u1@example.com>"));
     Assert.ok(!hdr.bccList.includes("IDoNotExist"));

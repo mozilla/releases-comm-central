@@ -63,11 +63,7 @@ function setupNNTPDaemon() {
   });
 
   var auto_add = do_get_file("postings/auto-add/");
-  var files = [];
-  var enumerator = auto_add.directoryEntries;
-  while (enumerator.hasMoreElements()) {
-    files.push(enumerator.nextFile);
-  }
+  var files = [...auto_add.directoryEntries];
 
   files.sort(function(a, b) {
     if (a.leafName == b.leafName) {
@@ -196,11 +192,7 @@ function create_post(baseURL, file) {
 }
 
 function resetFolder(folder) {
-  var headerEnum = folder.messages;
-  var headers = [];
-  while (headerEnum.hasMoreElements()) {
-    headers.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
-  }
+  var headers = [...folder.messages];
 
   var db = folder.msgDatabase;
   db.dBFolderInfo.knownArtsSet = "";

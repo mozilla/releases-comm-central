@@ -17,17 +17,13 @@ function run_test() {
   Services.prefs.readUserPrefsFromFile(specialPrefs);
 
   // Now load the ABs and check we've got all of them.
-  let dirs = MailServices.ab.directories;
-
   let results = [
     { name: "extension", result: false },
     { name: kPABData.dirName, result: false },
     { name: kCABData.dirName, result: false },
   ];
 
-  while (dirs.hasMoreElements()) {
-    let dir = dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
-
+  for (let dir of MailServices.ab.directories) {
     for (let i = 0; i < results.length; ++i) {
       if (results[i].name == dir.dirName) {
         Assert.ok(!results[i].result);

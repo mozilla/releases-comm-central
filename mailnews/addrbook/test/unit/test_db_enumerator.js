@@ -20,9 +20,7 @@ function bug_537815_fixture_setup() {
     dump("created: " + ab_name + "\n");
 
     for (var j = 1; j < 2; j++) {
-      let enm_dirs = MailServices.ab.directories;
-      while (enm_dirs.hasMoreElements()) {
-        let elem = enm_dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
+      for (let elem of MailServices.ab.directories) {
         let uri = elem.URI;
         let dir = MailServices.ab.getDirectory(uri);
 
@@ -48,20 +46,11 @@ function bug_537815_fixture_setup() {
 }
 
 function bug_537815_test() {
-  let enm_dirs = MailServices.ab.directories;
-
-  while (enm_dirs.hasMoreElements()) {
-    let elem = enm_dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
+  for (let elem of MailServices.ab.directories) {
     let uri = elem.URI;
     let dir = MailServices.ab.getDirectory(uri);
-
     if (elem.dirName.startsWith(ab_prefix)) {
-      let enm_cards = dir.childCards;
-
-      while (enm_cards.hasMoreElements()) {
-        let item = enm_cards.getNext();
-        let abCard = item.QueryInterface(Ci.nsIAbCard);
-
+      for (let abCard of dir.childCards) {
         for (let key in card_properties) {
           abCard.getProperty(key, null);
         }
@@ -78,12 +67,8 @@ function test_bug_537815() {
 }
 
 function bug_537815_fixture_tear_down() {
-  let enm_dirs = MailServices.ab.directories;
   let a_uri = {};
-
-  while (enm_dirs.hasMoreElements()) {
-    let elem = enm_dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
-
+  for (let elem of MailServices.ab.directories) {
     if (elem.dirName.startsWith(ab_prefix)) {
       a_uri[elem.URI] = true;
       dump("to be deleted: " + elem.dirName + "\n");

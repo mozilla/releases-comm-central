@@ -131,8 +131,7 @@ function calculateFolderSize(folder) {
       gMsgLinebreak =
         "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
     }
-    while (enumerator.hasMoreElements()) {
-      var header = enumerator.getNext();
+    for (let header of enumerator) {
       if (header instanceof Ci.nsIMsgDBHdr) {
         totalSize += header.messageSize + gMsgLinebreak.length;
       }
@@ -145,8 +144,7 @@ function verifyMsgOffsets(folder) {
   let msgDB = folder.msgDatabase;
   let enumerator = msgDB.EnumerateMessages();
   if (enumerator) {
-    while (enumerator.hasMoreElements()) {
-      let header = enumerator.getNext();
+    for (let header of enumerator) {
       if (header instanceof Ci.nsIMsgDBHdr) {
         let storeToken = header.getStringProperty("storeToken");
         Assert.equal(storeToken, header.messageOffset);
@@ -215,9 +213,7 @@ var gTestArray = [
 
     // Store message keys before deletion and compaction.
     gMsgKeys.folder = gLocalFolder3;
-    let folderMsgs = gLocalFolder3.messages;
-    while (folderMsgs.hasMoreElements()) {
-      let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    for (let header of gLocalFolder3.messages) {
       gMsgKeys.push(header.messageKey);
     }
 
@@ -243,9 +239,7 @@ var gTestArray = [
 
     // Store message keys before deletion and compaction.
     gMsgKeys.folder = gLocalFolder2;
-    let folderMsgs = gLocalFolder2.messages;
-    while (folderMsgs.hasMoreElements()) {
-      let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    for (let header of gLocalFolder2.messages) {
       gMsgKeys.push(header.messageKey);
     }
 
@@ -348,9 +342,7 @@ function run_test() {
 // debug utility to show the key/offset/ID relationship of messages in a folder
 function showMessages(folder, text) {
   dump("Show messages for folder <" + folder.name + "> " + text + "\n");
-  let folderMsgs = folder.messages;
-  while (folderMsgs.hasMoreElements()) {
-    let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let header of folder.messages) {
     dump(
       "key: " +
         header.messageKey +

@@ -498,12 +498,7 @@ DBListener.prototype = {
 // folder counts match the database counts)
 function folderCount(folder) {
   // count using the database
-  let enumerator = folder.msgDatabase.EnumerateMessages();
-  let dbCount = 0;
-  while (enumerator.hasMoreElements()) {
-    dbCount++;
-    enumerator.getNext();
-  }
+  let dbCount = [...folder.msgDatabase.EnumerateMessages()].length;
 
   // count using the folder
   let count = folder.getTotalMessages(false);

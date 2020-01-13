@@ -22,11 +22,9 @@ add_task(async function runPump() {
   await gPOP3Pump.run();
 
   // get message headers for the inbox folder
-  let enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
-  while (enumerator.hasMoreElements()) {
+  for (let hdr of localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()) {
     msgCount++;
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
   }
   Assert.equal(msgCount, 2);

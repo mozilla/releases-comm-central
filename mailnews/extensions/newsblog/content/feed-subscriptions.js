@@ -687,10 +687,7 @@ var FeedSubscriptions = {
     };
 
     // If a feed has any sub folders, add them to the list of children.
-    let folderEnumerator = aFolder.subFolders;
-
-    while (folderEnumerator.hasMoreElements()) {
-      let folder = folderEnumerator.getNext();
+    for (let folder of aFolder.subFolders) {
       if (
         folder instanceof Ci.nsIMsgFolder &&
         !folder.getFlag(Ci.nsMsgFolderFlags.Trash) &&
@@ -2661,9 +2658,7 @@ var FeedSubscriptions = {
     let indentString = " ".repeat(indentLevel - 2);
 
     let feedOutline;
-    let folderEnumerator = baseFolder.subFolders;
-    while (folderEnumerator.hasMoreElements()) {
-      let folder = folderEnumerator.getNext().QueryInterface(Ci.nsIMsgFolder);
+    for (let folder of baseFolder.subFolders) {
       FeedUtils.log.debug(
         "generateOutlineList: folder - " + folder.filePath.path
       );
@@ -2710,9 +2705,7 @@ var FeedSubscriptions = {
     }
 
     let folderOutline, feedOutline;
-    let folderEnumerator = baseFolder.subFolders;
-    while (folderEnumerator.hasMoreElements()) {
-      let folder = folderEnumerator.getNext().QueryInterface(Ci.nsIMsgFolder);
+    for (let folder of baseFolder.subFolders) {
       FeedUtils.log.debug(
         "generateOutlineStruct: folder - " + folder.filePath.path
       );

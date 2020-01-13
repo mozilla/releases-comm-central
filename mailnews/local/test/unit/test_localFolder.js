@@ -23,8 +23,7 @@ var gPluggableStores = [
  * @param actual    actual subfolders enumerator
  */
 function check_sub_folders(expected, actual) {
-  while (actual.hasMoreElements()) {
-    let actualFolder = actual.getNext().QueryInterface(Ci.nsIMsgFolder);
+  for (let actualFolder of actual) {
     let index;
     for (index = 0; index < expected.length; index++) {
       if (expected[index].name == actualFolder.name) {

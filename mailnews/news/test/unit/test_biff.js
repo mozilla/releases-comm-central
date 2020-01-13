@@ -16,9 +16,7 @@ function run_test() {
   let localserver = setupLocalServer(server.port);
   // Remove all but the test.filter folder
   let rootFolder = localserver.rootFolder;
-  let enumerator = rootFolder.subFolders;
-  while (enumerator.hasMoreElements()) {
-    let folder = enumerator.getNext().QueryInterface(Ci.nsIMsgFolder);
+  for (let folder of rootFolder.subFolders) {
     if (folder.name != "test.filter") {
       rootFolder.propagateDelete(folder, true, null);
     }

@@ -51,9 +51,7 @@ add_task(async function maildirToMbox() {
 
   // Accumulate messages to copy.
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  let enumerator = gInboxFolder.msgDatabase.EnumerateMessages();
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of gInboxFolder.msgDatabase.EnumerateMessages()) {
     messages.appendElement(hdr);
   }
   Assert.equal(messages.length, 2);
@@ -73,10 +71,8 @@ add_task(async function maildirToMbox() {
 
   // Check the destination headers.
   messages.clear();
-  enumerator = gTestFolder.msgDatabase.EnumerateMessages();
   let subjects = [];
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of gTestFolder.msgDatabase.EnumerateMessages()) {
     messages.appendElement(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
@@ -93,9 +89,7 @@ add_task(async function maildirToMbox() {
   }
 
   // Make sure the body matches the message.
-  enumerator = gTestFolder.msgDatabase.EnumerateMessages();
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of gTestFolder.msgDatabase.EnumerateMessages()) {
     let body = mailTestUtils.loadMessageToString(gTestFolder, hdr);
     Assert.ok(body.includes(hdr.subject));
   }
@@ -106,9 +100,7 @@ add_task(async function mboxToMaildir() {
 
   // Accumulate messages to copy.
   let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  let enumerator = gTestFolder.msgDatabase.EnumerateMessages();
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of gTestFolder.msgDatabase.EnumerateMessages()) {
     messages.appendElement(hdr);
   }
   Assert.equal(messages.length, 2);
@@ -128,10 +120,8 @@ add_task(async function mboxToMaildir() {
 
   // Check the destination headers.
   messages.clear();
-  enumerator = gInboxFolder.msgDatabase.EnumerateMessages();
   let subjects = [];
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of gInboxFolder.msgDatabase.EnumerateMessages()) {
     messages.appendElement(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
@@ -148,9 +138,7 @@ add_task(async function mboxToMaildir() {
   }
 
   // Make sure the body matches the message.
-  enumerator = gInboxFolder.msgDatabase.EnumerateMessages();
-  while (enumerator.hasMoreElements()) {
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let hdr of gInboxFolder.msgDatabase.EnumerateMessages()) {
     let body = mailTestUtils.loadMessageToString(gInboxFolder, hdr);
     Assert.ok(body.includes(hdr.subject));
   }

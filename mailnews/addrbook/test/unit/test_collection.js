@@ -377,8 +377,8 @@ function run_test() {
   var cardsToDelete = Cc["@mozilla.org/array;1"].createInstance(
     Ci.nsIMutableArray
   );
-  while (childCards.hasMoreElements()) {
-    cardsToDelete.appendElement(childCards.getNext());
+  for (let childCard of childCards) {
+    cardsToDelete.appendElement(childCard);
   }
 
   collectChecker.AB.deleteCards(cardsToDelete);
@@ -447,9 +447,8 @@ function run_test() {
   childCards = collectChecker.AB.childCards;
   var foundCards = [];
 
-  while (childCards.hasMoreElements()) {
-    card = childCards.getNext();
-    if (card instanceof Ci.nsIAbCard && card.primaryEmail == kSingleAddress) {
+  for (card of childCards) {
+    if (card.primaryEmail == kSingleAddress) {
       foundCards.push(card);
     }
   }

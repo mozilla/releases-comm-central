@@ -24,13 +24,8 @@ function add_card(aEmailAddress, aDisplayName) {
 }
 
 function get_card_for_email(aEmailAddress) {
-  let books = MailServices.ab.directories;
-
-  let book, card;
-
-  while (books.hasMoreElements()) {
-    book = books.getNext().QueryInterface(Ci.nsIAbDirectory);
-    card = book.cardForEmailAddress(aEmailAddress);
+  for (let book of MailServices.ab.directories) {
+    let card = book.cardForEmailAddress(aEmailAddress);
     if (card) {
       return [book, card];
     }

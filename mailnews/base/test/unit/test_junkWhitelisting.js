@@ -54,9 +54,8 @@ function run_test() {
 
 function continueTest() {
   // get the message headers
-  let headerEnum = localAccountUtils.inboxFolder.messages;
-  while (headerEnum.hasMoreElements()) {
-    hdrs.push(headerEnum.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+  for (let header of localAccountUtils.inboxFolder.messages) {
+    hdrs.push(header);
   }
 
   // check with spam properties set on the local server

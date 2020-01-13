@@ -16,9 +16,6 @@
     "resource:///modules/MailServices.jsm"
   );
   const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-  const { fixIterator } = ChromeUtils.import(
-    "resource:///modules/iteratorUtils.jsm"
-  );
 
   const updateParentNode = parentNode => {
     if (parentNode.hasAttribute("initialActionIndex")) {
@@ -1427,17 +1424,14 @@
             continue;
           }
 
-          while (enumerator.hasMoreElements()) {
-            let header = enumerator.getNext();
-            if (header instanceof Ci.nsIMsgDBHdr) {
-              let uri =
-                msgFolder.URI +
-                "?messageId=" +
-                header.messageId +
-                "&subject=" +
-                header.mime2DecodedSubject;
-              templates.push({ label: header.mime2DecodedSubject, value: uri });
-            }
+          for (let header of enumerator) {
+            let uri =
+              msgFolder.URI +
+              "?messageId=" +
+              header.messageId +
+              "&subject=" +
+              header.mime2DecodedSubject;
+            templates.push({ label: header.mime2DecodedSubject, value: uri });
           }
         }
         return templates;

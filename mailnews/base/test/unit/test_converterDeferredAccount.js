@@ -77,10 +77,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
  * @param target - maildir target directory
  */
 function checkConversion(source, target) {
-  let sourceContents = source.directoryEntries;
-
-  while (sourceContents.hasMoreElements()) {
-    let sourceContent = sourceContents.nextFile;
+  for (let sourceContent of source.directoryEntries) {
     let sourceContentName = sourceContent.leafName;
     let ext = sourceContentName.substr(-4);
     let targetFile = FileUtils.File(
@@ -100,11 +97,7 @@ function checkConversion(source, target) {
       Assert.ok(tmp.exists());
       if (targetFile.leafName == "Inbox") {
         let curContents = cur.directoryEntries;
-        let curContentsCount = 0;
-        while (curContents.hasMoreElements()) {
-          curContents.nextFile;
-          curContentsCount++;
-        }
+        let curContentsCount = [...curContents].length;
         Assert.equal(curContentsCount, 1000);
       }
     }

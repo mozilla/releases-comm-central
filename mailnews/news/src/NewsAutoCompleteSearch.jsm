@@ -108,9 +108,7 @@ NewsAutoCompleteSearch.prototype = {
     }
 
     if (this.cachedServer) {
-      let groups = this.cachedServer.rootFolder.subFolders;
-      while (groups.hasMoreElements()) {
-        let curr = groups.getNext().QueryInterface(Ci.nsIMsgFolder);
+      for (let curr of this.cachedServer.rootFolder.subFolders) {
         if (curr.prettyName.includes(aSearchString)) {
           result._searchResults.push({
             value: curr.prettyName,

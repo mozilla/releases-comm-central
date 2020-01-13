@@ -85,22 +85,7 @@ StringBundle.prototype = {
    *          an array of objects with key and value properties
    */
   getAll() {
-    let strings = [];
-
-    // FIXME: for performance, return an enumerable array that wraps the string
-    // bundle's nsISimpleEnumerator (does JavaScript already support this?).
-
-    let enumerator = this.stringBundle.getSimpleEnumeration();
-
-    while (enumerator.hasMoreElements()) {
-      // We could simply return the nsIPropertyElement objects, but I think
-      // it's better to return standard JS objects that behave as consumers
-      // expect JS objects to behave (f.e. you can modify them dynamically).
-      let string = enumerator.getNext().QueryInterface(Ci.nsIPropertyElement);
-      strings.push({ key: string.key, value: string.value });
-    }
-
-    return strings;
+    return [...this.stringBundle.getSimpleEnumeration()];
   },
 
   // the deprecated XBL binding-compatible API

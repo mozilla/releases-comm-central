@@ -123,11 +123,9 @@ var tests = [
     let db = IMAPPump.inbox.msgDatabase;
 
     // test the headers in the inbox
-    let enumerator = db.EnumerateMessages();
     let count = 0;
-    while (enumerator.hasMoreElements()) {
+    for (let message of db.EnumerateMessages()) {
       count++;
-      var message = enumerator.getNext();
       message instanceof Ci.nsIMsgDBHdr;
       dump(
         "message <" +
@@ -205,11 +203,9 @@ var tests = [
 
     // test the db headers in folder1
     db = gFolder1.msgDatabase;
-    let enumerator = db.EnumerateMessages();
     let count = 0;
-    while (enumerator.hasMoreElements()) {
+    for (let message of db.EnumerateMessages()) {
       count++;
-      var message = enumerator.getNext();
       message instanceof Ci.nsIMsgDBHdr;
       dump(
         "message <" +
@@ -255,8 +251,8 @@ var tests = [
     let messages = Cc["@mozilla.org/array;1"].createInstance(
       Ci.nsIMutableArray
     );
-    while (enumerator.hasMoreElements()) {
-      messages.appendElement(enumerator.getNext());
+    for (let message of enumerator) {
+      messages.appendElement(message);
     }
     // this is sync, I believe?
     MailServices.copy.CopyMessages(

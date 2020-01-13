@@ -161,8 +161,7 @@ function MigrateABRemoteContentSettings() {
   }
 
   // Search through all of our local address books looking for a match.
-  let enumerator = MailServices.ab.directories;
-  while (enumerator.hasMoreElements()) {
+  for (let addrbook of MailServices.ab.directories) {
     let migrateAddress = function(aEmail) {
       let uri = Services.io.newURI(
         "chrome://messenger/content/email=" + aEmail
@@ -174,7 +173,6 @@ function MigrateABRemoteContentSettings() {
       );
     };
 
-    let addrbook = enumerator.getNext().QueryInterface(Ci.nsIAbDirectory);
     try {
       // If it's a read-only book, don't try to find a card as we we could never
       // have set the AllowRemoteContent property.
@@ -182,10 +180,7 @@ function MigrateABRemoteContentSettings() {
         continue;
       }
 
-      let childCards = addrbook.childCards;
-      while (childCards.hasMoreElements()) {
-        let card = childCards.getNext().QueryInterface(Ci.nsIAbCard);
-
+      for (let card of addrbook.childCards) {
         if (card.getProperty("AllowRemoteContent", "0") == "0") {
           // Not allowed for this contact.
           continue;

@@ -55,9 +55,7 @@ function* streamMessages() {
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
   let fileNames = [];
-  let msgFiles = do_get_file("../../../data/").directoryEntries;
-  while (msgFiles.hasMoreElements()) {
-    let file = msgFiles.nextFile;
+  for (let file of do_get_file("../../../data/").directoryEntries) {
     let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
     if (msgfileuri.fileName.toLowerCase().startsWith("bodystructure")) {
       inbox.addMessage(new imapMessage(msgfileuri.spec, inbox.uidnext++, []));

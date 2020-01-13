@@ -133,11 +133,9 @@ var mailTestUtils = {
   // Gets message header number N (0 based index) in a folder.
   getMsgHdrN(folder, n) {
     let i = 0;
-    let enumerator = folder.msgDatabase.EnumerateMessages();
-    while (enumerator.hasMoreElements()) {
-      let next = enumerator.getNext();
+    for (let next of folder.msgDatabase.EnumerateMessages()) {
       if (i == n) {
-        return next.QueryInterface(Ci.nsIMsgDBHdr);
+        return next;
       }
       i++;
     }

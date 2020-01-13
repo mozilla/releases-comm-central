@@ -809,12 +809,7 @@ function doHelpButton() {
 function getCustomActions() {
   if (!gCustomActions) {
     gCustomActions = [];
-    let customActionsEnum = MailServices.filters.getCustomActions();
-    while (customActionsEnum.hasMoreElements()) {
-      gCustomActions.push(
-        customActionsEnum.getNext().QueryInterface(Ci.nsIMsgFilterCustomAction)
-      );
-    }
+    gCustomActions = [...MailServices.filters.getCustomActions()];
   }
 }
 

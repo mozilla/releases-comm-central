@@ -213,36 +213,32 @@ AbAutoCompleteSearch.prototype = {
     var commentColumn = this._commentColumn == 1 ? directory.dirName : "";
 
     // Now iterate through all the cards.
-    while (childCards.hasMoreElements()) {
-      var card = childCards.getNext();
+    for (let card of childCards) {
+      if (card.isMailList) {
+        this._addToResult(commentColumn, directory, card, "", true, result);
+      } else {
+        let email = card.primaryEmail;
+        if (email) {
+          this._addToResult(
+            commentColumn,
+            directory,
+            card,
+            email,
+            true,
+            result
+          );
+        }
 
-      if (card instanceof Ci.nsIAbCard) {
-        if (card.isMailList) {
-          this._addToResult(commentColumn, directory, card, "", true, result);
-        } else {
-          let email = card.primaryEmail;
-          if (email) {
-            this._addToResult(
-              commentColumn,
-              directory,
-              card,
-              email,
-              true,
-              result
-            );
-          }
-
-          email = card.getProperty("SecondEmail", "");
-          if (email) {
-            this._addToResult(
-              commentColumn,
-              directory,
-              card,
-              email,
-              false,
-              result
-            );
-          }
+        email = card.getProperty("SecondEmail", "");
+        if (email) {
+          this._addToResult(
+            commentColumn,
+            directory,
+            card,
+            email,
+            false,
+            result
+          );
         }
       }
     }
@@ -465,14 +461,11 @@ AbAutoCompleteSearch.prototype = {
       let searchQuery = generateQueryURI(result.modelQuery, searchWords);
 
       // Now do the searching
-      let allABs = this._abManager.directories;
-
       // We're not going to bother searching sub-directories, currently the
       // architecture forces all cards that are in mailing lists to be in ABs as
       // well, therefore by searching sub-directories (aka mailing lists) we're
       // just going to find duplicates.
-      while (allABs.hasMoreElements()) {
-        let dir = allABs.getNext();
+      for (let dir of this._abManager.directories) {
         if (
           dir instanceof Ci.nsIAbDirectory &&
           dir.useForAutocomplete("idKey" in params ? params.idKey : null)
