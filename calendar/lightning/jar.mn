@@ -7,7 +7,6 @@ lightning.jar:
 % override chrome://messagebody/skin/imip.css chrome://lightning/skin/imip.css
 % override chrome://messagebody/skin/calendar-event-dialog-attendees.png chrome://calendar-common/skin/calendar-event-dialog-attendees.png
 % overlay chrome://messenger/content/messenger.xhtml chrome://lightning/content/lightning-item-panel.xhtml
-% overlay chrome://messenger/content/msgAccountCentral.xhtml chrome://lightning/content/messenger-overlay-accountCentral.xhtml
 % overlay chrome://messenger/content/messenger.xhtml chrome://lightning/content/messenger-overlay-sidebar.xhtml
 % overlay chrome://messenger/content/messageWindow.xhtml chrome://lightning/content/imip-bar-overlay.xhtml
 % overlay chrome://messenger/content/messageWindow.xhtml chrome://lightning/content/messenger-overlay-messageWindow.xhtml
@@ -32,7 +31,6 @@ lightning.jar:
     content/lightning-item-iframe.xhtml                    (content/lightning-item-iframe.xhtml)
     content/lightning-item-iframe.js                       (content/lightning-item-iframe.js)
     content/lightning-utils.js                             (content/lightning-utils.js)
-    content/messenger-overlay-accountCentral.xhtml         (content/messenger-overlay-accountCentral.xhtml)
     content/messenger-overlay-messageWindow.xhtml          (content/messenger-overlay-messageWindow.xhtml)
     content/messenger-overlay-sidebar.js                   (content/messenger-overlay-sidebar.js)
     content/messenger-overlay-sidebar.xhtml                (content/messenger-overlay-sidebar.xhtml)

@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountCentral.css" type="text/css"?>
+<?xml-stylesheet href="chrome://lightning-common/skin/accountCentral.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
@@ -12,6 +13,8 @@
    %globalDTD;
   <!ENTITY % acctCentralDTD SYSTEM "chrome://messenger/locale/msgAccountCentral.dtd">
    %acctCentralDTD;
+  <!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
+   %lightningDTD;
 ]>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
@@ -182,6 +185,15 @@
         </vbox>
       </hbox>
 #endif
+
+      <spacer id="calendar-newCalendar-separator" flex="1"/>
+      <hbox id="calendar-newCalendar-row" class="acctCentralRow">
+        <hbox>
+          <label class="acctCentralText acctCentralLinkText"
+                 value="&lightning.acctCentral.newCalendar.label;"
+                 onclick="window.parent.cal.window.openCalendarWizard(window);"/>
+        </hbox>
+      </hbox>
 
       <spacer id="accountsSectionSpacer" class="big" flex="5" collapsed="true"/>
 
