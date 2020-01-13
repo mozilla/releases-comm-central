@@ -245,12 +245,9 @@ PgpMimeHandler.prototype = {
   getMessengerWindow: function() {
     let windowManager = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
 
-    let winEnum = windowManager.getEnumerator(null);
-
-    while (winEnum.hasMoreElements()) {
-      let thisWin = winEnum.getNext();
-      if (thisWin.location.href.search(/\/messenger.xhtml$/) > 0) {
-        return thisWin;
+    for (let win of windowManager.getEnumerator(null)) {
+      if (win.location.href.search(/\/messenger.xhtml$/) > 0) {
+        return win;
       }
     }
 

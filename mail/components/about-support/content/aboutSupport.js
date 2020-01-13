@@ -947,8 +947,7 @@ var snapshotFormatters = {
               .then(enumerator => {
                 var logs = [];
                 logs.push(`${name}:`);
-                while (enumerator.hasMoreElements()) {
-                  const { key, value } = enumerator.getNext();
+                for (let { key, value } of enumerator) {
                   logs.push(`${key}: ${value}`);
                 }
                 $("enumerate-database-result").textContent +=

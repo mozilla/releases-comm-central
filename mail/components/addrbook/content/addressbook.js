@@ -461,10 +461,7 @@ function AbExportSelection() {
  * Export all found addressbooks, each in a separate file.
  */
 function AbExportAll() {
-  let directories = MailServices.ab.directories;
-
-  while (directories.hasMoreElements()) {
-    let directory = directories.getNext();
+  for (let directory of MailServices.ab.directories) {
     // Do not export LDAP ABs.
     if (!directory.URI.startsWith(kLdapUrlPrefix)) {
       AbExport(directory.URI);

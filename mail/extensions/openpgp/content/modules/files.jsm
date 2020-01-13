@@ -498,9 +498,8 @@ var EnigmailFiles = {
       let zipReader = EnigmailFiles.openZipFile(zipFile);
       let f = zipReader.findEntries("*");
 
-      while (f.hasMore()) {
+      for (let i of f) {
         let t = targetDir.clone();
-        let i = f.getNext();
         let entry = zipReader.getEntry(i);
 
         if (!EnigmailOS.isDosLike) {

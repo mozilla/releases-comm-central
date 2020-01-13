@@ -374,9 +374,7 @@ const accessHkpInternal = {
     let certDb = Cc["@mozilla.org/security/x509certdb;1"].getService(Ci.nsIX509CertDB);
     let cert = null;
 
-    let it = certDb.getCerts().getEnumerator();
-    while (it.hasMoreElements()) {
-      cert = it.getNext().QueryInterface(Ci.nsIX509Cert);
+    for (cert of certDb.getCerts().getEnumerator()) {
       if (cert.subjectName === SKS_CACERT_SUBJECTNAME && cert.certType === Ci.nsIX509Cert.CA_CERT) {
         return cert;
       }

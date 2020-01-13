@@ -83,11 +83,7 @@ function getWindows(type) {
   if (type == undefined) {
     type = "";
   }
-  var windows = [];
-  var enumerator = Services.wm.getEnumerator(type);
-  while (enumerator.hasMoreElements()) {
-    windows.push(enumerator.getNext());
-  }
+  let windows = [...Services.wm.getEnumerator(type)];
   if (type == "") {
     windows.push(hwindow);
   }

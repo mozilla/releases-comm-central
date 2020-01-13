@@ -920,16 +920,14 @@ function enigmailRefreshAllKeys() {
 // Iterate through contact emails and download them
 function enigmailDowloadContactKeysEngine() {
   let abManager = Cc["@mozilla.org/abmanager;1"].getService(Ci.nsIAbManager);
-
-  let allAddressBooks = abManager.directories;
   let emails = [];
 
-  while (allAddressBooks.hasMoreElements()) {
-    let addressBook = allAddressBooks.getNext().QueryInterface(Ci.nsIAbDirectory);
-
-    if (addressBook instanceof Ci.nsIAbDirectory) { // or nsIAbItem or nsIAbCollection
+  for (let addressBook of abManager.directories) {
+    if (addressBook instanceof Ci.nsIAbDirectory) {
+      // or nsIAbItem or nsIAbCollection
       // ask for confirmation for each address book:
-      var doIt = EnigmailDialog.confirmDlg(window,
+      var doIt = EnigmailDialog.confirmDlg(
+        window,
         EnigGetString("downloadContactsKeys.importFrom", addressBook.dirName),
         EnigGetString("dlgYes"),
         EnigGetString("dlg.button.skip"));
@@ -937,12 +935,7 @@ function enigmailDowloadContactKeysEngine() {
         continue; // SKIP this address book
       }
 
-      let allChildCards = addressBook.childCards;
-
-      while (allChildCards.hasMoreElements()) {
-
-        let card = allChildCards.getNext().QueryInterface(Ci.nsIAbCard);
-
+      for (let card of addressBook.childCards) {
         try {
           let email = card.getPropertyAsAString("PrimaryEmail");
           if (email && email.indexOf("@") >= 0) {
@@ -956,7 +949,6 @@ function enigmailDowloadContactKeysEngine() {
             emails.push(email);
           }
         } catch (e) {}
-
       }
     }
   }

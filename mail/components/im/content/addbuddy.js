@@ -10,7 +10,7 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var addBuddy = {
   onload() {
     let accountList = document.getElementById("accountlist");
-    for (let acc of fixIterator(Services.accounts.getAccounts())) {
+    for (let acc of Services.accounts.getAccounts()) {
       if (!acc.connected) {
         continue;
       }

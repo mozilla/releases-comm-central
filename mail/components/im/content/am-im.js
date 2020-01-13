@@ -99,9 +99,8 @@ var account = {
   },
 
   *getProtoOptions() {
-    let options = this.proto.getOptions();
-    while (options.hasMoreElements()) {
-      yield options.getNext();
+    for (let option of this.proto.getOptions()) {
+      yield option;
     }
   },
 

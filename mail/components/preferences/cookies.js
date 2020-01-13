@@ -527,12 +527,10 @@ var gCookiesWindow = {
   },
 
   _loadCookies() {
-    var e = Services.cookies.enumerator;
     var hostCount = { value: 0 };
     this._hosts = {};
     this._hostOrder = [];
-    while (e.hasMoreElements()) {
-      var cookie = e.getNext();
+    for (let cookie of Services.cookies.enumerator) {
       if (cookie && cookie instanceof Ci.nsICookie) {
         var strippedHost = this._makeStrippedHost(cookie.host);
         this._addCookie(strippedHost, cookie, hostCount);

@@ -782,9 +782,7 @@ var GlodaIMIndexer = {
 
     // Sweep the logs directory for log files, adding any new entries to the
     // _knownFiles tree as we traverse.
-    let children = dir.directoryEntries;
-    while (children.hasMoreElements()) {
-      let proto = children.nextFile;
+    for (let proto of dir.directoryEntries) {
       if (!proto.isDirectory()) {
         continue;
       }
@@ -794,8 +792,7 @@ var GlodaIMIndexer = {
       }
       let protoObj = this._knownFiles[protoName];
       let accounts = proto.directoryEntries;
-      while (accounts.hasMoreElements()) {
-        let account = accounts.nextFile;
+      for (let account of accounts) {
         if (!account.isDirectory()) {
           continue;
         }
@@ -804,9 +801,7 @@ var GlodaIMIndexer = {
           protoObj[accountName] = {};
         }
         let accountObj = protoObj[accountName];
-        let convs = account.directoryEntries;
-        while (convs.hasMoreElements()) {
-          let conv = convs.nextFile;
+        for (let conv of account.directoryEntries) {
           let convName = conv.leafName;
           if (!conv.isDirectory() || convName == ".system") {
             continue;
@@ -828,9 +823,7 @@ var GlodaIMIndexer = {
   *_worker_convFolderSweep(aJob, aCallbackHandle) {
     let folder = aJob.folder;
 
-    let sessions = folder.directoryEntries;
-    while (sessions.hasMoreElements()) {
-      let file = sessions.nextFile;
+    for (let file of folder.directoryEntries) {
       let fileName = file.leafName;
       if (
         !file.isFile() ||

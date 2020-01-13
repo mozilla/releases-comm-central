@@ -464,9 +464,8 @@ add_task(function test_multiple_3pane_periodic_session_persistence() {
 
   // then get the state objects for each window
   let state = [];
-  let enumerator = Services.wm.getEnumerator("mail:3pane");
-  while (enumerator.hasMoreElements()) {
-    state.push(enumerator.getNext().getWindowStateForSessionPersistence());
+  for (let window of Services.wm.getEnumerator("mail:3pane")) {
+    state.push(window.getWindowStateForSessionPersistence());
   }
 
   SessionStoreManager._saveState();
@@ -490,9 +489,8 @@ add_task(function test_multiple_3pane_periodic_session_persistence() {
   }
 
   // close all but one 3pane window
-  enumerator = Services.wm.getEnumerator("mail:3pane");
-  while (enumerator.hasMoreElements()) {
-    let window = enumerator.getNext();
+  let enumerator = Services.wm.getEnumerator("mail:3pane");
+  for (let window of enumerator) {
     if (enumerator.hasMoreElements()) {
       window.close();
     }
@@ -538,8 +536,7 @@ add_task(function test_clean_shutdown_session_persistence_simple() {
   // close all the 3pane windows
   let lastWindowState = null;
   let enumerator = Services.wm.getEnumerator("mail:3pane");
-  while (enumerator.hasMoreElements()) {
-    let window = enumerator.getNext();
+  for (let window of enumerator) {
     if (!enumerator.hasMoreElements()) {
       lastWindowState = window.getWindowStateForSessionPersistence();
     }

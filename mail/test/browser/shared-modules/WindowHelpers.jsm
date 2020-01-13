@@ -1923,11 +1923,8 @@ function captureWindowStatesForErrorReporting(normalizeForJsonFunc) {
   let info = {};
   let windows = (info.windows = []);
 
-  let enumerator = Services.wm.getEnumerator(null);
   let iWin = 0;
-  while (enumerator.hasMoreElements()) {
-    let win = enumerator.getNext();
-
+  for (let win of Services.wm.getEnumerator(null)) {
     let winId =
       getWindowTypeOrId(win.document.documentElement) || "unnamed:" + iWin;
 

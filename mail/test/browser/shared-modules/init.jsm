@@ -138,9 +138,7 @@ function initialize() {
   Services.obs.addObserver(windowCloseObserver, "outer-window-destroyed");
 
   // Attach event listeners to all open windows
-  var enumerator = Services.wm.getEnumerator("");
-  while (enumerator.hasMoreElements()) {
-    var win = enumerator.getNext();
+  for (let win of Services.wm.getEnumerator("")) {
     attachEventListeners(win);
 
     // For windows or dialogs already open we have to explicitly set the property

@@ -770,9 +770,7 @@ function HandleAppCommandEvent(evt) {
  * Look for another 3-pane window.
  */
 function FindOther3PaneWindow() {
-  let enumerator = Services.wm.getEnumerator("mail:3pane");
-  while (enumerator.hasMoreElements()) {
-    let win = enumerator.getNext();
+  for (let win of Services.wm.getEnumerator("mail:3pane")) {
     if (win != window) {
       return win;
     }

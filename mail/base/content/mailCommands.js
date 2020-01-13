@@ -120,20 +120,18 @@ function ComposeMessage(type, format, folder, messageArray) {
   // Check if the draft is already open in another window. If it is, just focus the window.
   if (type == msgComposeType.Draft && messageArray.length == 1) {
     // We'll search this uri in the opened windows.
-    let wenum = Services.wm.getEnumerator("");
-    while (wenum.hasMoreElements()) {
-      let w = wenum.getNext();
+    for (let win of Services.wm.getEnumerator("")) {
       // Check if it is a compose window.
       if (
-        w.document.defaultView.gMsgCompose &&
-        w.document.defaultView.gMsgCompose.compFields.draftId
+        win.document.defaultView.gMsgCompose &&
+        win.document.defaultView.gMsgCompose.compFields.draftId
       ) {
         let wKey = GetMsgKeyFromURI(
-          w.document.defaultView.gMsgCompose.compFields.draftId
+          win.document.defaultView.gMsgCompose.compFields.draftId
         );
         if (wKey == msgKey) {
           // Found ! just focus it...
-          w.focus();
+          win.focus();
           // ...and nothing to do anymore.
           return;
         }

@@ -3146,9 +3146,8 @@ var gFolderTreeController = {
     }
 
     // Delete any subfolders this folder might have
-    let iter = folder.subFolders;
-    while (iter.hasMoreElements()) {
-      folder.propagateDelete(iter.getNext(), true, msgWindow);
+    for (let subFolder of folder.subFolders) {
+      folder.propagateDelete(subFolder, true, msgWindow);
     }
 
     // Now delete the messages
@@ -3490,9 +3489,7 @@ var gFolderStatsHelpers = {
   getSubfoldersSize(aFolder) {
     let folderSize = 0;
     if (aFolder.hasSubFolders) {
-      let subFolders = aFolder.subFolders;
-      while (subFolders.hasMoreElements()) {
-        let subFolder = subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
+      for (let subFolder of aFolder.subFolders) {
         let subSize = this.getFolderSize(subFolder);
         let subSubSize = this.getSubfoldersSize(subFolder);
         if (subSize == this.kUnknownSize || subSubSize == this.kUnknownSize) {

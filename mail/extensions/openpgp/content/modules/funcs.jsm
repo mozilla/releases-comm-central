@@ -363,13 +363,7 @@ var EnigmailFuncs = {
     let nCerts = 0;
 
     if (certs) {
-      // FIXME: API Change: what should happen for TB 70 and newer?
-      let e = certs.getEnumerator();
-
-      while (e.hasMoreElements()) {
-        nCerts++;
-        e.getNext();
-      }
+      let nCerts = [...certs.getEnumerator()].length;
     }
 
     return nCerts;

@@ -33,10 +33,8 @@ var EnigmailAddrbook = {
    */
   lookupEmailAddress: function(emailAddr) {
     let abm = Cc[ABMANAGER].getService(Ci.nsIAbManager);
-    let enumerator = abm.directories;
 
-    while (enumerator.hasMoreElements()) {
-      let abd = enumerator.getNext().QueryInterface(Ci.nsIAbDirectory);
+    for (let abd of abm.directories) {
       try {
         let crd = abd.cardForEmailAddress(emailAddr);
         if (crd) return {

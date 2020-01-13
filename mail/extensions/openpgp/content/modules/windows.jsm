@@ -56,16 +56,14 @@ var EnigmailWindows = {
   openWin: function(winName, spec, winOptions, optObj) {
     var windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
 
-    var winEnum = windowManager.getEnumerator(null);
     var recentWin = null;
-    while (winEnum.hasMoreElements() && !recentWin) {
-      var thisWin = winEnum.getNext();
-      if (thisWin.location.href == spec) {
-        recentWin = thisWin;
+    for (let win of windowManager.getEnumerator(null)) {
+      if (win.location.href == spec) {
+        recentWin = win;
         break;
       }
-      if (winName && thisWin.name && thisWin.name == winName) {
-        thisWin.focus();
+      if (winName && win.name && win.name == winName) {
+        win.focus();
         break;
       }
 
@@ -96,15 +94,14 @@ var EnigmailWindows = {
     var windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
 
     var bestFit = null;
-    var winEnum = windowManager.getEnumerator(null);
+    var winEnum = ;
 
-    while (winEnum.hasMoreElements()) {
-      var thisWin = winEnum.getNext();
-      if (thisWin.location.href.search(/\/messenger.xhtml$/) > 0) {
-        bestFit = thisWin;
+    for (let win of windowManager.getEnumerator(null)) {
+      if (win.location.href.search(/\/messenger.xhtml$/) > 0) {
+        bestFit = win;
       }
-      if (!bestFit && thisWin.location.href.search(/\/messengercompose.xhtml$/) > 0) {
-        bestFit = thisWin;
+      if (!bestFit && win.location.href.search(/\/messengercompose.xhtml$/) > 0) {
+        bestFit = win;
       }
     }
 
@@ -224,10 +221,8 @@ var EnigmailWindows = {
     const winName = "enigmail:KeyManager";
     const spec = "chrome://openpgp/content/ui/enigmailKeygen.xhtml";
 
-    let winEnum = windowManager.getEnumerator(null);
     let recentWin = null;
-    while (winEnum.hasMoreElements() && !recentWin) {
-      let thisWin = winEnum.getNext();
+    for (let thisWin of windowManager.getEnumerator(null) && !recentWin) {
       if (thisWin.location.href == spec) {
         recentWin = thisWin;
         break;

@@ -12,7 +12,7 @@ var autoJoinPref = "autoJoin";
 var joinChat = {
   onload() {
     var accountList = document.getElementById("accountlist");
-    for (let acc of fixIterator(Services.accounts.getAccounts())) {
+    for (let acc of Services.accounts.getAccounts()) {
       if (!acc.connected || !acc.canJoinChat) {
         continue;
       }
@@ -49,7 +49,7 @@ var joinChat = {
       protoId == "prpl-gtalk"
     );
 
-    for (let field of fixIterator(acc.getChatRoomFields())) {
+    for (let field of acc.getChatRoomFields()) {
       let div1 = document.createElementNS(
         "http://www.w3.org/1999/xhtml",
         "div"

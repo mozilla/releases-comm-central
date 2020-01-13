@@ -269,9 +269,7 @@ EmailConfigWizard.prototype = {
 
     // Populate SMTP server dropdown with already configured SMTP servers from
     // other accounts.
-    let smtpServers = MailServices.smtp.servers;
-    while (smtpServers.hasMoreElements()) {
-      let server = smtpServers.getNext().QueryInterface(Ci.nsISmtpServer);
+    for (let server of MailServices.smtp.servers) {
       let label = server.displayname;
       let key = server.key;
       if (

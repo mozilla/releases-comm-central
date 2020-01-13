@@ -75,9 +75,7 @@ function run_test() {
 
   // Test Preferences section
   let s = "Preferences";
-  let keys = testIni.getKeys(s);
-  while (keys.hasMore()) {
-    let key = keys.getNext();
+  for (let key of testIni.getKeys(s)) {
     let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
     switch (typeof value) {
       case "boolean":
@@ -100,9 +98,7 @@ function run_test() {
   // Add any prefs found in it to the overrides array
   let overrides = [];
   s = "LocalizablePreferences-en-US";
-  keys = testIni.getKeys(s);
-  while (keys.hasMore()) {
-    let key = keys.getNext();
+  for (let key of testIni.getKeys(s)) {
     let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
     value = "data:text/plain," + key + "=" + value;
     Assert.equal(value, Services.prefs.getCharPref(key));
@@ -113,9 +109,7 @@ function run_test() {
   // Any prefs here that aren't found in overrides are not overridden
   //   by LocalizablePrefs-[locale] and should be tested
   s = "LocalizablePreferences";
-  keys = testIni.getKeys(s);
-  while (keys.hasMore()) {
-    let key = keys.getNext();
+  for (let key of testIni.getKeys(s)) {
     if (!overrides.includes(key)) {
       let value = TBDistCustomizer.parseValue(testIni.getString(s, key));
       value = value.replace(/%LOCALE%/g, "en-US");

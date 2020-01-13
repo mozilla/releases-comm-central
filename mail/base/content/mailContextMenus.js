@@ -288,7 +288,6 @@ function OpenMessageByHeader(messageHeader, openInNewWindow) {
 // return message header if message was found
 function SearchForMessageIdInSubFolder(folder, messageId) {
   var messageHeader;
-  var subFolders = folder.subFolders;
 
   // search in folder
   if (!folder.isServer) {
@@ -296,9 +295,8 @@ function SearchForMessageIdInSubFolder(folder, messageId) {
   }
 
   // search subfolders recursively
-  while (subFolders.hasMoreElements() && !messageHeader) {
+  for (let currentFolder of folder.subFolders && !messageHeader) {
     // search in current folder
-    var currentFolder = subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
     messageHeader = CheckForMessageIdInFolder(currentFolder, messageId);
 
     // search in its subfolder

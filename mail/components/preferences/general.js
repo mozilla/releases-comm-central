@@ -1537,11 +1537,7 @@ var gGeneralPane = {
    * Load the set of handlers defined by the application datastore.
    */
   _loadApplicationHandlers() {
-    var wrappedHandlerInfos = gHandlerService.enumerate();
-    while (wrappedHandlerInfos.hasMoreElements()) {
-      let wrappedHandlerInfo = wrappedHandlerInfos
-        .getNext()
-        .QueryInterface(Ci.nsIHandlerInfo);
+    for (let wrappedHandlerInfo of gHandlerService.enumerate()) {
       let type = wrappedHandlerInfo.type;
 
       let handlerInfoWrapper;
@@ -1656,9 +1652,8 @@ var gGeneralPane = {
   _typeDetails(aHandlerInfo) {
     let exts = [];
     if (aHandlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) {
-      let extIter = aHandlerInfo.wrappedHandlerInfo.getFileExtensions();
-      while (extIter.hasMore()) {
-        let ext = "." + extIter.getNext();
+      for (let extName of aHandlerInfo.wrappedHandlerInfo.getFileExtensions()) {
+        let ext = "." + extName;
         if (!exts.includes(ext)) {
           exts.push(ext);
         }
@@ -1807,10 +1802,8 @@ var gGeneralPane = {
 
     // Create menu items for possible handlers.
     let preferredApp = handlerInfo.preferredApplicationHandler;
-    let possibleApps = handlerInfo.possibleApplicationHandlers.enumerate();
     var possibleAppMenuItems = [];
-    while (possibleApps.hasMoreElements()) {
-      let possibleApp = possibleApps.getNext();
+    for (let possibleApp of handlerInfo.possibleApplicationHandlers.enumerate()) {
       if (!gGeneralPane.isValidHandlerApp(possibleApp)) {
         continue;
       }
@@ -2568,9 +2561,8 @@ class HandlerInfoWrapper {
   }
 
   addPossibleApplicationHandler(aNewHandler) {
-    var possibleApps = this.possibleApplicationHandlers.enumerate();
-    while (possibleApps.hasMoreElements()) {
-      if (possibleApps.getNext().equals(aNewHandler)) {
+    for (let possibleApp of this.possibleApplicationHandlers.enumerate()) {
+      if (possibleApp.equals(aNewHandler)) {
         return;
       }
     }

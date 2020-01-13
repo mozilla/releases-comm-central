@@ -46,13 +46,7 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function listDirectory(file) {
   // file is the given directory (nsIFile)
-  var entries = file.directoryEntries;
-  var array = [];
-  while (entries.hasMoreElements()) {
-    let entry = entries.nextFile;
-    array.push(entry);
-  }
-  return array;
+  return [...file.directoryEntries];
 }
 
 function getFileForPath(path) {

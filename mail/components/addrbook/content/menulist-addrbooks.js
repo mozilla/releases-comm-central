@@ -124,10 +124,8 @@ if (!customElements.get("menulist")) {
     _rebuild() {
       // Init the address book cache.
       this._directories.length = 0;
-      let directories = MailServices.ab.directories;
 
-      while (directories && directories.hasMoreElements()) {
-        let ab = directories.getNext();
+      for (let ab of MailServices.ab.directories) {
         if (ab instanceof Ci.nsIAbDirectory && this._matches(ab)) {
           this._directories.push(ab);
 

@@ -4022,12 +4022,7 @@ function SendMessage() {
     "mailnews.sendInBackground"
   );
   if (sendInBackground && AppConstants.platform != "macosx") {
-    let enumerator = Services.wm.getEnumerator(null);
-    let count = 0;
-    while (enumerator.hasMoreElements() && count < 2) {
-      enumerator.getNext();
-      count++;
-    }
+    let count = [...Services.wm.getEnumerator(null)].length;
     if (count == 1) {
       sendInBackground = false;
     }

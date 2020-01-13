@@ -322,9 +322,7 @@ function checkIncomingServerAlreadyExists(config) {
  */
 function checkOutgoingServerAlreadyExists(config) {
   assert(config instanceof AccountConfig);
-  let smtpServers = MailServices.smtp.servers;
-  while (smtpServers.hasMoreElements()) {
-    let existingServer = smtpServers.getNext().QueryInterface(Ci.nsISmtpServer);
+  for (let existingServer of MailServices.smtp.servers) {
     // TODO check username with full email address, too, like for incoming
     if (
       existingServer.hostname == config.outgoing.hostname &&

@@ -594,9 +594,7 @@ var chatHandler = {
     cti.setAttribute("displayName", aConversation.title);
 
     // Find and display the contact for this log.
-    let accounts = imServices.accounts.getAccounts();
-    while (accounts.hasMoreElements()) {
-      let account = accounts.getNext();
+    for (let account of imServices.accounts.getAccounts()) {
       if (
         account.normalizedName == aConversation.account.normalizedName &&
         account.protocol.normalizedName == aConversation.account.protocol.name
@@ -1078,7 +1076,7 @@ var chatHandler = {
     let connected = false;
     let hasAccount = false;
     let canJoinChat = false;
-    for (let account of fixIterator(imServices.accounts.getAccounts())) {
+    for (let account of imServices.accounts.getAccounts()) {
       hasAccount = true;
       if (account.connected) {
         connected = true;
@@ -1747,8 +1745,7 @@ chatLogTreeView.prototype = {
 
     // Build a chatLogTreeLogItem for each log, and put it in the right group.
     let groups = {};
-    while (this._logs.hasMoreElements()) {
-      let log = this._logs.getNext();
+    for (let log of this._logs) {
       let logDate = new Date(log.time * 1000);
       // Calculate elapsed time between the log and 00:00:00 today.
       let timeFromToday = todayDate - logDate;

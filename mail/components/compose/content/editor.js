@@ -2394,11 +2394,8 @@ function SwitchInsertCharToThisWindow(windowWithDialog) {
 function FindEditorWithInsertCharDialog() {
   try {
     // Find window with an InsertCharsWindow and switch association to this one
-    let enumerator = Services.wm.getEnumerator(null);
 
-    while (enumerator.hasMoreElements()) {
-      var tempWindow = enumerator.getNext();
-
+    for (let tempWindow of Services.wm.getEnumerator(null)) {
       if (
         !tempWindow.closed &&
         tempWindow != window &&
@@ -2447,8 +2444,7 @@ function SwitchInsertCharToAnotherEditorOrClose() {
 
     // TODO: Fix this to search for command controllers and look for "cmd_InsertChars"
     // For now, detect just Web Composer and HTML Mail Composer
-    while (enumerator.hasMoreElements()) {
-      var tempWindow = enumerator.getNext();
+    for (let tempWindow of enumerator) {
       if (
         !tempWindow.closed &&
         tempWindow != window &&

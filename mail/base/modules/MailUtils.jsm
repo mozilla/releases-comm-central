@@ -541,16 +541,9 @@ var MailUtils = {
    * @returns {nsIAbDirectory|null} - Found list or null.
    */
   findListInAddressBooks(entryName) {
-    let allAddressBooks = MailServices.ab.directories;
-
-    while (allAddressBooks.hasMoreElements()) {
-      let abDir = allAddressBooks.getNext().QueryInterface(Ci.nsIAbDirectory);
-
+    for (let abDir of MailServices.ab.directories) {
       if (abDir.supportsMailingLists) {
-        let dirs = abDir.childNodes;
-
-        while (dirs.hasMoreElements()) {
-          let dir = dirs.getNext().QueryInterface(Ci.nsIAbDirectory);
+        for (let dir of abDir.childNodes) {
           if (dir.isMailList && dir.dirName == entryName) {
             return dir;
           }

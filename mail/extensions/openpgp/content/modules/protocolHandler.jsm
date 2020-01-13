@@ -161,12 +161,10 @@ EnigmailProtocolHandler.prototype = {
 
     var windowManager = Cc[WMEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
 
-    var winEnum = windowManager.getEnumerator(null);
     var recentWin = null;
-    while (winEnum.hasMoreElements() && !recentWin) {
-      var thisWin = winEnum.getNext();
-      if (thisWin.location.href == spec) {
-        recentWin = thisWin;
+    for (let win of windowManager.getEnumerator(null)) {
+      if (win.location.href == spec) {
+        recentWin = win;
       }
     }
 

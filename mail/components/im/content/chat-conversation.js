@@ -106,30 +106,25 @@
               if (!this._isConversationSelected) {
                 break;
               }
-              subject.QueryInterface(Ci.nsISimpleEnumerator);
-              while (subject.hasMoreElements()) {
-                this.insertBuddy(this.createBuddy(subject.getNext()));
+              for (let nick of subject.QueryInterface(Ci.nsISimpleEnumerator)) {
+                this.insertBuddy(this.createBuddy(nick));
               }
               this.updateParticipantCount();
               break;
 
             case "chat-buddy-remove":
-              subject.QueryInterface(Ci.nsISimpleEnumerator);
               if (!this._isConversationSelected) {
-                while (subject.hasMoreElements()) {
-                  let name = subject
-                    .getNext()
-                    .QueryInterface(Ci.nsISupportsString)
-                    .toString();
+                for (let nick of subject.QueryInterface(
+                  Ci.nsISimpleEnumerator
+                )) {
+                  let name = nick.toString();
                   if (this._isBuddyActive(name)) {
                     delete this._activeBuddies[name];
                   }
                 }
                 break;
               }
-              while (subject.hasMoreElements()) {
-                let nick = subject.getNext();
-                nick.QueryInterface(Ci.nsISupportsString);
+              for (let nick of subject.QueryInterface(Ci.nsISimpleEnumerator)) {
                 this.removeBuddy(nick.toString());
               }
               this.updateParticipantCount();

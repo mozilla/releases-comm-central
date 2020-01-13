@@ -123,10 +123,8 @@ abDirTreeItem.prototype = {
         myEnum = this._directory.childNodes;
       }
 
-      while (myEnum.hasMoreElements()) {
-        var abItem = new abDirTreeItem(
-          myEnum.getNext().QueryInterface(Ci.nsIAbDirectory)
-        );
+      for (let dir of myEnum) {
+        var abItem = new abDirTreeItem(dir);
         if (
           gDirectoryTreeView &&
           this.id == kAllDirectoryRoot + "?" &&

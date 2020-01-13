@@ -65,12 +65,7 @@ add_task(function test_open_draft_again() {
   mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
   let cwc = wait_for_compose_window();
 
-  let cwins = 0;
-  let e = Services.wm.getEnumerator("msgcompose");
-  while (e.hasMoreElements()) {
-    e.getNext();
-    cwins++;
-  }
+  let cwins = [...Services.wm.getEnumerator("msgcompose")].length;
 
   // click edit in main win again
   mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
@@ -82,12 +77,7 @@ add_task(function test_open_draft_again() {
     "the original draft composition window should have got focus (again)"
   );
 
-  let cwins2 = 0;
-  let e2 = Services.wm.getEnumerator("msgcompose");
-  while (e2.hasMoreElements()) {
-    e2.getNext();
-    cwins2++;
-  }
+  let cwins2 = [...Services.wm.getEnumerator("msgcompose")].length;
 
   Assert.ok(cwins2 > 0, "No compose window open!");
   Assert.equal(cwins, cwins2, "The number of compose windows changed!");

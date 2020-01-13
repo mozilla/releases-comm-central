@@ -240,10 +240,8 @@ class WindowTracker extends WindowTrackerBase {
     // If we're lucky, this isn't a popup, and we can just return this.
     if (win && win.document.documentElement.getAttribute("chromehidden")) {
       win = null;
-      let windowList = Services.wm.getEnumerator("mail:3pane", true);
       // This is oldest to newest, so this gets a bit ugly.
-      while (windowList.hasMoreElements()) {
-        let nextWin = windowList.getNext();
+      for (let nextWin of Services.wm.getEnumerator("mail:3pane", true)) {
         if (!nextWin.document.documentElement.getAttribute("chromehidden")) {
           win = nextWin;
         }

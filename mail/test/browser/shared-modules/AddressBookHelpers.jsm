@@ -76,10 +76,7 @@ function ensure_card_exists(emailAddress, displayName, preferDisplayName) {
  * @param emailAddress the address that should have no cards
  */
 function ensure_no_card_exists(emailAddress) {
-  var books = MailServices.ab.directories;
-
-  while (books.hasMoreElements()) {
-    var ab = books.getNext().QueryInterface(Ci.nsIAbDirectory);
+  for (let ab of MailServices.ab.directories) {
     try {
       var card = ab.cardForEmailAddress(emailAddress);
       if (card) {
@@ -98,11 +95,9 @@ function ensure_no_card_exists(emailAddress) {
  * @param aEmailAddress the address to search for
  */
 function get_cards_in_all_address_books_for_email(aEmailAddress) {
-  var books = MailServices.ab.directories;
   var result = [];
 
-  while (books.hasMoreElements()) {
-    var ab = books.getNext().QueryInterface(Ci.nsIAbDirectory);
+  for (let ab of MailServices.ab.directories) {
     var card = ab.cardForEmailAddress(aEmailAddress);
     if (card) {
       result.push(card);
@@ -204,9 +199,7 @@ function create_mailing_list(aMailingListName) {
  * @param aDirName the dirName of the mailing list
  */
 function get_mailing_list_from_address_book(aAddressBook, aDirName) {
-  let mailingLists = aAddressBook.childNodes;
-  while (mailingLists.hasMoreElements()) {
-    let item = mailingLists.getNext();
+  for (let item of aAddressBook.childNodes) {
     let list = item.QueryInterface(Ci.nsIAbDirectory);
     if (list && list.dirName == aDirName) {
       return list;

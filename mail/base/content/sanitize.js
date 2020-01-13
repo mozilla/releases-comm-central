@@ -97,10 +97,7 @@ Sanitizer.prototype = {
       clear() {
         if (this.range) {
           // Iterate through the cookies and delete any created after our cutoff.
-          var cookiesEnum = Services.cookies.enumerator;
-          while (cookiesEnum.hasMoreElements()) {
-            var cookie = cookiesEnum.getNext().QueryInterface(Ci.nsICookie);
-
+          for (let cookie of Services.cookies.enumerator) {
             if (cookie.creationTime > this.range[0]) {
               // This cookie was created after our cutoff, clear it
               Services.cookies.remove(

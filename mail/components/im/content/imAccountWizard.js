@@ -432,8 +432,8 @@ var accountWizard = {
   },
 
   *getIter(aEnumerator) {
-    while (aEnumerator.hasMoreElements()) {
-      yield aEnumerator.getNext();
+    for (let iter of aEnumerator) {
+      yield iter;
     }
   },
   getProtocols() {

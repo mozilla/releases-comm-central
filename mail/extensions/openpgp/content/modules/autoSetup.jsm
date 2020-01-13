@@ -126,11 +126,8 @@ var EnigmailAutoSetup = {
 
             EnigmailLog.DEBUG(`autoSetup.jsm: determinePreviousInstallType: scanning folder "${msgFolder.name}"\n`);
 
-            let msgEnumerator = msgDatabase.ReverseEnumerateMessages();
-
             // Iterating through each message in the Folder
-            while (msgEnumerator.hasMoreElements()) {
-              let msgHeader = msgEnumerator.getNext().QueryInterface(nsIMsgDBHdr);
+            for (let msgHeader of msgDatabase.ReverseEnumerateMessages()) {
               let msgURI = msgFolder.getUriForMsg(msgHeader);
 
               let msgAuthor = "";
@@ -450,9 +447,8 @@ function getMsgFolders(folder, msgFolderArr) {
 
   // add all subfolders
   if (folder.hasSubFolders) {
-    let subFolders = folder.subFolders;
-    while (subFolders.hasMoreElements()) {
-      getMsgFolders(subFolders.getNext().QueryInterface(nsIMsgFolder), msgFolderArr);
+    for (let folder of folder.subFolders) {
+      getMsgFolders(folder, msgFolderArr);
     }
   }
 }
@@ -481,9 +477,9 @@ function streamListener(callback) {
     onStartHeaders: function() {},
     onEndHeaders: function() {},
     processHeaders: function(aHeaderNameEnumerator, aHeaderValueEnumerator, aDontCollectAddress) {
-      while (aHeaderNameEnumerator.hasMore()) {
+      for (let headerName of aHeaderNameEnumerator) {
         this.mHeaders.push({
-          name: aHeaderNameEnumerator.getNext().toLowerCase(),
+          name: headerName.toLowerCase(),
           value: aHeaderValueEnumerator.getNext()
         });
       }
@@ -614,8 +610,8 @@ function getStreamedHeaders(msgURI, mms) {
           headers.initialize(aRawString);
 
           let i = headers.headerNames;
-          while (i.hasMore()) {
-            let hdrName = i.getNext().toLowerCase();
+          for (let hdr of headers.headerNames) {
+            let hdrName = hdr.toLowerCase();
 
             let hdrValue = headers.extractHeader(hdrName, true);
             headerObj[hdrName] = hdrValue;

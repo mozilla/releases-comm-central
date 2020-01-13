@@ -28,15 +28,11 @@ function loadTagsIntoCSS(aDocument) {
 }
 
 function addTagToAllDocumentSheets(aKey, aColor) {
-  let windowList = Services.wm.getEnumerator("mail:3pane", true);
-  while (windowList.hasMoreElements()) {
-    let nextWin = windowList.getNext();
+  for (let nextWin of Services.wm.getEnumerator("mail:3pane", true)) {
     addTagToSheet(aKey, aColor, findTagColorSheet(nextWin.document));
   }
 
-  windowList = Services.wm.getEnumerator("mailnews:search", true);
-  while (windowList.hasMoreElements()) {
-    let nextWin = windowList.getNext();
+  for (let nextWin of Services.wm.getEnumerator("mailnews:search", true)) {
     addTagToSheet(aKey, aColor, findTagColorSheet(nextWin.document));
   }
 }

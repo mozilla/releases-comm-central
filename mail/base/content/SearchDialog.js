@@ -428,10 +428,7 @@ function getSearchFolders() {
 }
 
 function AddSubFolders(folder, outFolders) {
-  var subFolders = folder.subFolders;
-  while (subFolders.hasMoreElements()) {
-    var nextFolder = subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
-
+  for (let nextFolder of folder.subFolders) {
     if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual)) {
       if (!nextFolder.noSelect) {
         outFolders.push(nextFolder);
@@ -445,11 +442,7 @@ function AddSubFolders(folder, outFolders) {
 function AddSubFoldersToURI(folder) {
   var returnString = "";
 
-  var subFolders = folder.subFolders;
-
-  while (subFolders.hasMoreElements()) {
-    var nextFolder = subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
-
+  for (let nextFolder of folder.subFolders) {
     if (!(nextFolder.flags & Ci.nsMsgFolderFlags.Virtual)) {
       if (!nextFolder.noSelect && !nextFolder.isServer) {
         if (returnString.length > 0) {

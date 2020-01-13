@@ -52,8 +52,7 @@ var TBDistCustomizer = {
 
     if (sections.Preferences) {
       let keys = this._ini.getKeys("Preferences");
-      while (keys.hasMore()) {
-        let key = keys.getNext();
+      for (let key of keys) {
         try {
           // Get the string value of the key
           let value = this.parseValue(this._ini.getString("Preferences", key));
@@ -86,8 +85,7 @@ var TBDistCustomizer = {
 
     if (sections.LocalizablePreferences) {
       let keys = this._ini.getKeys("LocalizablePreferences");
-      while (keys.hasMore()) {
-        let key = keys.getNext();
+      for (let key of keys) {
         try {
           let value = this.parseValue(
             this._ini.getString("LocalizablePreferences", key)
@@ -107,8 +105,7 @@ var TBDistCustomizer = {
 
     if (sections["LocalizablePreferences-" + this._locale]) {
       let keys = this._ini.getKeys("LocalizablePreferences-" + this._locale);
-      while (keys.hasMore()) {
-        let key = keys.getNext();
+      for (let key of keys) {
         try {
           let value = this.parseValue(
             this._ini.getString("LocalizablePreferences-" + this._locale, key)
@@ -159,8 +156,8 @@ XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale", function() {
 
 function enumToObject(UTF8Enumerator) {
   let ret = {};
-  while (UTF8Enumerator.hasMore()) {
-    ret[UTF8Enumerator.getNext()] = 1;
+  for (let UTF8Obj of UTF8Enumerator) {
+    ret[UTF8Obj] = 1;
   }
   return ret;
 }

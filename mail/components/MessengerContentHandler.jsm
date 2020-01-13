@@ -342,9 +342,7 @@ MailDefaultHandler.prototype = {
 
     if (!uri && cmdLine.state != Ci.nsICommandLine.STATE_INITIAL_LAUNCH) {
       try {
-        var wlist = Services.wm.getEnumerator("mail:3pane");
-        if (wlist.hasMoreElements()) {
-          var window = wlist.getNext();
+        for (let window of Services.wm.getEnumerator("mail:3pane")) {
           window.focus();
           return;
         }

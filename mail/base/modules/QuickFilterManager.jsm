@@ -624,11 +624,9 @@ QuickFilterManager.defineFilter({
   domId: "qfb-inaddrbook",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
-    let enumerator = MailServices.ab.directories;
     let firstBook = true;
     term = null;
-    while (enumerator.hasMoreElements()) {
-      let addrbook = enumerator.getNext();
+    for (let addrbook of MailServices.ab.directories) {
       if (addrbook instanceof Ci.nsIAbDirectory && !addrbook.isRemote) {
         term = aTermCreator.createTerm();
         term.attrib = Ci.nsMsgSearchAttrib.Sender;

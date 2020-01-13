@@ -16,15 +16,10 @@ var { allAccountsSorted } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function GetSubFoldersInFolderPaneOrder(folder) {
-  var subFolders = folder.subFolders;
   var msgFolders = [];
 
   // get all the subfolders
-  while (subFolders.hasMoreElements()) {
-    msgFolders[msgFolders.length] = subFolders
-      .getNext()
-      .QueryInterface(Ci.nsIMsgFolder);
-  }
+  msgFolders = [...folder.subFolders];
 
   function compareFolderSortKey(folder1, folder2) {
     return folder1.compareSortKeys(folder2);

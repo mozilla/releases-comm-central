@@ -162,9 +162,7 @@ var SessionStoreManager = {
 
     // XXX we'd like to support other window types in future, but for now
     // only get the 3pane windows.
-    let enumerator = Services.wm.getEnumerator("mail:3pane");
-    while (enumerator.hasMoreElements()) {
-      let win = enumerator.getNext();
+    for (let win of Services.wm.getEnumerator("mail:3pane")) {
       if (
         win &&
         "complete" == win.document.readyState &&
@@ -246,9 +244,8 @@ var SessionStoreManager = {
     if (!this._shutdownStateSaved) {
       // determine whether aWindow is the last open window
       let lastWindow = true;
-      let enumerator = Services.wm.getEnumerator("mail:3pane");
-      while (enumerator.hasMoreElements()) {
-        if (enumerator.getNext() != aWindow) {
+      for (let win of Services.wm.getEnumerator("mail:3pane")) {
+        if (win != aWindow) {
           lastWindow = false;
         }
       }

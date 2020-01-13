@@ -488,10 +488,7 @@ add_task(function test_tab_recentlyClosed() {
 function teardownTest(test) {
   // Some test cases open new windows, thus we need to ensure all
   // opened windows get closed.
-  let en = Services.wm.getEnumerator("mail:3pane");
-  while (en.hasMoreElements()) {
-    var win = en.getNext();
-
+  for (let win of Services.wm.getEnumerator("mail:3pane")) {
     if (win != mc.window) {
       win.close();
     }

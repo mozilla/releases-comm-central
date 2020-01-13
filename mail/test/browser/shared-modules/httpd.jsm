@@ -1904,9 +1904,7 @@ function defaultIndexHandler(metadata, response) {
   NS_ASSERT(directory && directory.isDirectory());
 
   var fileList = [];
-  var files = directory.directoryEntries;
-  while (files.hasMoreElements()) {
-    var f = files.nextFile;
+  for (let f of directory.directoryEntries) {
     var name = f.leafName;
     if (
       !f.isHidden() &&
@@ -3234,10 +3232,8 @@ ServerHandler.prototype = {
 
       body += " HTTP/" + metadata.httpVersion + "\r\n";
 
-      var headEnum = metadata.headers;
-      while (headEnum.hasMoreElements()) {
-        var fieldName = headEnum.getNext().QueryInterface(Ci.nsISupportsString)
-          .data;
+      for (let field of metadata.headers) {
+        var fieldName = field.data;
         body += fieldName + ": " + metadata.getHeader(fieldName) + "\r\n";
       }
 

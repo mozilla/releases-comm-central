@@ -201,9 +201,7 @@ IMIncomingServer.prototype = {
     }
 
     this._defaultOptionValues = {};
-    let options = this.imAccount.protocol.getOptions();
-    while (options.hasMoreElements()) {
-      let opt = options.getNext();
+    for (let opt of this.imAccount.protocol.getOptions()) {
       let type = opt.type;
       if (type == opt.typeBool) {
         this._defaultOptionValues[opt.name] = opt.getBool();

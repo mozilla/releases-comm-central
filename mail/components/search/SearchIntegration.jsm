@@ -415,11 +415,7 @@ var SearchSupport = {
       }
 
       // iterate over the folder finding the next message to index
-      while (this._headerEnumerator.hasMoreElements()) {
-        let msgHdr = this._headerEnumerator
-          .getNext()
-          .QueryInterface(Ci.nsIMsgDBHdr);
-
+      for (let msgHdr of this._headerEnumerator) {
         // Check if the file exists. If it does, then assume indexing to be
         // complete for this file
         if (this._getSupportFile(msgHdr).exists()) {

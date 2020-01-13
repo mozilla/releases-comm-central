@@ -126,9 +126,7 @@ function add_email_to_address_book(aEmailAddr) {
   );
   card.primaryEmail = aEmailAddr;
 
-  let enumerator = MailServices.ab.directories;
-  while (enumerator.hasMoreElements()) {
-    let addrbook = enumerator.getNext();
+  for (let addrbook of MailServices.ab.directories) {
     if (addrbook instanceof Ci.nsIAbDirectory) {
       addrbook.addCard(card);
       return;
