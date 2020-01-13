@@ -535,9 +535,12 @@ var ltnImipBar = {
   },
 };
 
-if (document.getElementById("msgHeaderView").loaded) {
-  ltnImipBar.load();
-} else {
-  addEventListener("messagepane-loaded", ltnImipBar.load, true);
+{
+  let msgHeaderView = document.getElementById("msgHeaderView");
+  if (msgHeaderView && msgHeaderView.loaded) {
+    ltnImipBar.load();
+  } else {
+    addEventListener("messagepane-loaded", ltnImipBar.load, true);
+  }
 }
 addEventListener("messagepane-unloaded", ltnImipBar.unload, true);
