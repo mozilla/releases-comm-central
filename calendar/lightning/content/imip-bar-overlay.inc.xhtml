@@ -1,26 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<!DOCTYPE overlay [
-    <!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
-    %lightningDTD;
-]>
+# This file requires the following localization files:
+# chrome://lightning/locale/lightning.dtd
 
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-
-    <script src="chrome://lightning/content/lightning-utils.js"/>
-    <script src="chrome://lightning/content/imip-bar.js"/>
-    <script src="chrome://calendar/content/calendar-management.js"/>
-    <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-
-    <vbox id="messagepanebox">
-      <vbox id="singlemessage" insertbefore="msgHeaderView">
         <hbox id="imip-bar"
               class="lightning-notification-bar"
               collapsed="true"
-              insertbefore="msgHeaderView"
               label="&lightning.imipbar.description;">
           <image/>
           <description class="msgNotificationBarText"
@@ -293,6 +280,3 @@
             </hbox>
           </vbox>
         </hbox>
-      </vbox>
-    </vbox>
-</overlay>

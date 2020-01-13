@@ -69,6 +69,8 @@
 %eventDialogDTD;
 <!ENTITY % toolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd">
 %toolbarDTD;
+<!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
+%lightningDTD;
 ]>
 
 <!--
@@ -185,6 +187,12 @@
 
 <!-- move needed functions into a single js file -->
 <script src="chrome://messenger/content/threadPane.js"/>
+
+<!-- calendar imip bar -->
+<script src="chrome://lightning/content/lightning-utils.js"/>
+<script src="chrome://lightning/content/imip-bar.js"/>
+<script src="chrome://calendar/content/calendar-management.js"/>
+<script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
 <commandset id="mailCommands">
 #include mainCommandSet.inc.xhtml
@@ -646,6 +654,7 @@
                              src="chrome://messenger/content/multimessageview.xhtml"
                              autofind="false"/>
                     <vbox id="singlemessage" flex="1">
+#include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
                       <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml
                       </hbox>

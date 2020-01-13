@@ -51,6 +51,8 @@
 %quickFilterBarDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
+<!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
+%lightningDTD;
 ]>
 
 <!--
@@ -132,6 +134,12 @@
   <script src="chrome://messenger/content/customizable-toolbar.js"/>
   <script src="chrome://calendar/content/calendar-statusbar.js"/>
   <script src="chrome://calendar/content/calendar-item-editing.js"/>
+
+  <!-- calendar imip bar -->
+  <script src="chrome://lightning/content/lightning-utils.js"/>
+  <script src="chrome://lightning/content/imip-bar.js"/>
+  <script src="chrome://calendar/content/calendar-management.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
   <commandset id="mailCommands">
 #include mainCommandSet.inc.xhtml
@@ -219,7 +227,9 @@
           ondragover="messagepaneObserver.onDragOver(event);"
           ondrop="messagepaneObserver.onDrop(event);"
           ondragexit="messagepaneObserver.onDragExit(event);">
-
+      <vbox id="singlemessage">
+#include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
+      </vbox>
       <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml
       </hbox>
