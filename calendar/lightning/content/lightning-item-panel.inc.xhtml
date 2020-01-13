@@ -1,26 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- This Source Code Form is subject to the terms of the Mozilla Public
-   - License, v. 2.0. If a copy of the MPL was not distributed with this
-   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<!-- lightning-toolbar.dtd is only needed for the app menu button -->
-<!DOCTYPE overlay [
-    <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-    <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
-    <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
-    <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
-    <!ENTITY % toolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd">
-    %brandDTD;
-    %globalDTD;
-    %calendarDTD;
-    %eventDialogDTD;
-    %toolbarDTD;
-]>
+# This file requires the following localization files:
+# chrome://calendar/locale/global.dtd
+# chrome://calendar/locale/calendar.dtd
+# chrome://calendar/locale/calendar-event-dialog.dtd
+# chrome://lightning/locale/lightning-toolbar.dtd
 
-<overlay id="ltnCalendarItemPanelContentOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-
-  <tabpanels id="tabpanelcontainer">
     <vbox id="lightningItemPanel" collapsed="true">
 
       <!-- The id of the inner vbox and the iframe are set dynamically
@@ -149,17 +136,3 @@
 
       </vbox>
     </vbox>
-  </tabpanels>
-
-  <popupset id="calendar-popupset">
-    <menupopup id="event-dialog-toolbar-context-menu"
-               onpopupshowing="onToolbarsPopupShowingForTabType(event);">
-      <menuseparator id="customizeEventToolbarMenuSeparator"/>
-      <menuitem id="CustomizeDialogToolbar"
-                label="&event.menu.view.toolbars.customize.label;"
-                command="cmd_customize"/>
-    </menupopup>
-  </popupset>
-
-</overlay>
-

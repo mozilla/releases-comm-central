@@ -61,6 +61,14 @@
 #endif
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
+<!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
+%globalDTD;
+<!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
+%calendarDTD;
+<!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
+%eventDialogDTD;
+<!ENTITY % toolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd">
+%toolbarDTD;
 ]>
 
 <!--
@@ -680,6 +688,7 @@
           </box>
         </box> <!-- end of mailContent -->
 #include ../../components/im/content/chat-messenger.inc.xhtml
+#include ../../../calendar/lightning/content/lightning-item-panel.inc.xhtml
       </tabpanels>
      </tabbox>
     </tabmail>
