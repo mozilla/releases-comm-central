@@ -33,6 +33,7 @@ var mozmill = ChromeUtils.import(
 var {
   assert_notification_displayed,
   close_notification,
+  wait_for_notification_to_show,
   wait_for_notification_to_stop,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
@@ -294,7 +295,7 @@ add_task(function test_link_insertion_goes_away_on_error() {
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider, false);
 
-  assert_upload_notification_displayed(cwc, true);
+  wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   close_compose_window(cwc);
@@ -419,7 +420,7 @@ add_task(function test_privacy_warning_notification() {
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider);
 
-  assert_upload_notification_displayed(cwc, true);
+  wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   // Assert that the warning is displayed.
@@ -466,7 +467,7 @@ add_task(function test_privacy_warning_notification_no_persist() {
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider, false);
 
-  assert_upload_notification_displayed(cwc, true);
+  wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   // Assert that the warning is displayed.
@@ -511,7 +512,7 @@ add_task(function test_privacy_warning_notification_open_after_close() {
   let cwc = open_compose_new_mail(mc);
   add_cloud_attachments(cwc, provider, false);
 
-  assert_upload_notification_displayed(cwc, true);
+  wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   // Assert that the warning is displayed.
@@ -531,7 +532,7 @@ add_task(function test_privacy_warning_notification_open_after_close() {
   ]);
   add_cloud_attachments(cwc, provider);
 
-  assert_upload_notification_displayed(cwc, true);
+  wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   // Assert that the privacy warning notification is displayed again.
