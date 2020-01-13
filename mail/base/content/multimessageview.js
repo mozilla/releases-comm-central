@@ -242,12 +242,16 @@ MultiMessageSummary.prototype = {
     row.classList.toggle("thread", thread && thread.length > 1);
     row.classList.toggle("unread", numUnread > 0);
     row.classList.toggle("starred", isStarred);
-    row.innerHTML =
-      '<div class="star"/>' +
-      '<div class="item_summary">' +
-      '<div class="item_header"/>' +
-      '<div class="snippet"/>' +
-      "</div>";
+
+    row.appendChild(document.createElement("div")).classList.add("star");
+
+    let summary = document.createElement("div");
+    summary.classList.add("item_summary");
+    summary
+      .appendChild(document.createElement("div"))
+      .classList.add("item_header");
+    summary.appendChild(document.createElement("div")).classList.add("snippet");
+    row.appendChild(summary);
 
     let itemHeaderNode = row.querySelector(".item_header");
 
