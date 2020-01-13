@@ -588,6 +588,7 @@ function openAddonsMgr(aView) {
       "extensions.getAddons.siteRegExp"
     );
     let tab = openContentTab("about:addons", "tab", addonSiteRegExp);
+    // Also in `contentTabType.restoreTab` in specialTabs.js.
     tab.browser.droppedLinkHandler = event =>
       tab.browser.contentWindow.gDragDrop.onDrop(event);
 

@@ -993,12 +993,17 @@ var specialTabs = {
       };
     },
     restoreTab(aTabmail, aPersistedState) {
-      aTabmail.openTab("contentTab", {
+      let tab = aTabmail.openTab("contentTab", {
         contentPage: aPersistedState.tabURI,
         clickHandler: aPersistedState.clickHandler,
         duplicate: aPersistedState.duplicate,
         background: true,
       });
+      if (aPersistedState.tabURI == "about:addons") {
+        // Also in `openAddonsMgr` in mailCore.js.
+        tab.browser.droppedLinkHandler = event =>
+          tab.browser.contentWindow.gDragDrop.onDrop(event);
+      }
     },
   },
 
