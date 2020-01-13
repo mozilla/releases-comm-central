@@ -35,14 +35,6 @@ ChromeUtils.defineModuleGetter(
     ) {
       continue;
     }
-    if (
-      pane.id == "paneLightning" &&
-      !ExtensionSupport.loadedLegacyExtensions.has(
-        "{e2fda1a4-762b-4020-b5ad-a41df1933103}"
-      )
-    ) {
-      continue;
-    }
 
     var radio = document.createXULElement("radio");
     radio.setAttribute("pane", pane.id);
