@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global currentView, MozElements, MozXULElement, Services,
+/* global calendarNavigationBar, currentView, MozElements, MozXULElement, Services,
    setAttributeToChildren, setBooleanAttribute, timeIndicator, gCurrentMode */
 
 "use strict";
@@ -818,7 +818,7 @@
 
       // Update the navigation bar only when changes are related to the current view.
       if (this.isVisible()) {
-        cal.navigationBar.setDateRange(viewStart, viewEnd);
+        calendarNavigationBar.setDateRange(viewStart, viewEnd);
       }
 
       // Check whether view range has been changed since last call to relayout().

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals cal currentView MozElements MozXULElement Services toggleOrientation */
+/* global cal, currentView, calendarNavigationBar, MozElements, MozXULElement, Services,
+   toggleOrientation */
 
 "use strict";
 
@@ -924,7 +925,7 @@
     }
 
     setDateRange(startDate, endDate) {
-      cal.navigationBar.setDateRange(startDate, endDate);
+      calendarNavigationBar.setDateRange(startDate, endDate);
     }
 
     getSelectedItems() {

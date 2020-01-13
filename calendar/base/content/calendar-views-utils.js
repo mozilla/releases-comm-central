@@ -6,7 +6,7 @@
  *          observeViewDaySelect, toggleOrientation,
  *          toggleWorkdaysOnly, toggleTasksInView, toggleShowCompletedInView,
  *          goToDate, getLastCalendarView, deleteSelectedEvents,
- *          editSelectedEvents, selectAllEvents
+ *          editSelectedEvents, selectAllEvents, calendarNavigationBar
  */
 
 /* import-globals-from calendar-chrome-startup.js */
@@ -591,7 +591,7 @@ function selectAllEvents() {
   composite.getItems(filter, 0, currentView().startDay, end, listener);
 }
 
-cal.navigationBar = {
+var calendarNavigationBar = {
   setDateRange: function(startDate, endDate) {
     let docTitle = "";
     if (startDate) {
