@@ -73,7 +73,6 @@ class nsMsgPrintEngine : public nsIMsgPrintEngine,
   nsCOMPtr<nsIContentViewer> mContentViewer;
   nsCOMPtr<nsIStringBundle> mStringBundle;   // String bundles...
   nsCOMPtr<nsIMsgStatusFeedback> mFeedback;  // Tell the user something
-  nsCOMPtr<nsIWebBrowserPrint> mWebBrowserPrint;
   nsCOMPtr<nsIPrintSettings> mPrintSettings;
   nsCOMPtr<mozIDOMWindowProxy> mMsgDOMWin;
   bool mIsDoingPrintPreview;

@@ -529,11 +529,11 @@ void nsMsgPrintEngine::PrintMsgWindow() {
 
   mDocShell->GetContentViewer(getter_AddRefs(mContentViewer));
   if (mContentViewer) {
-    mWebBrowserPrint = do_QueryInterface(mContentViewer);
-    if (mWebBrowserPrint) {
+    nsCOMPtr<nsIWebBrowserPrint> webBrowserPrint =
+        do_QueryInterface(mContentViewer);
+    if (webBrowserPrint) {
       if (!mPrintSettings) {
-        mWebBrowserPrint->GetGlobalPrintSettings(
-            getter_AddRefs(mPrintSettings));
+        webBrowserPrint->GetGlobalPrintSettings(getter_AddRefs(mPrintSettings));
       }
 
       // fix for bug #118887 and bug #176016
@@ -550,12 +550,12 @@ void nsMsgPrintEngine::PrintMsgWindow() {
         }
       } else {
         mPrintSettings->SetPrintSilent(mCurrentlyPrintingURI != 0);
-        rv = mWebBrowserPrint->Print(mPrintSettings,
-                                     (nsIWebProgressListener *)this);
+        rv = webBrowserPrint->Print(mPrintSettings,
+                                    (nsIWebProgressListener *)this);
       }
 
       if (NS_FAILED(rv)) {
-        mWebBrowserPrint = nullptr;
+        webBrowserPrint = nullptr;
         mContentViewer = nullptr;
         bool isPrintingCancelled = false;
         if (mPrintSettings) {
