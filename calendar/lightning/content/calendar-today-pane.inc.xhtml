@@ -1,0 +1,390 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<splitter id="today-splitter"
+          collapse="after"
+          resizebefore="closest"
+          state="collapsed"
+          class="calendar-sidebar-splitter"
+          oncommand="TodayPane.onCommandTodaySplitter();">
+</splitter>
+<calendar-modevbox id="today-pane-panel"
+                   mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                   modewidths="200,200,200,200,200,200"
+                   modesplitterstates="open,open,open,open,open,open"
+                   refcontrol="calendar_toggle_todaypane_command"
+                   persist="modewidths">
+  <box class="sidebar-header" align="center">
+    <label id="today-pane-header"/>
+    <spacer flex="1"/>
+    <calendar-modebox mode="mail,calendar,chat,calendarEvent,calendarTask">
+      <toolbarbutton id="today-pane-cycler-prev"
+                     dir="prev"
+                     class="today-pane-cycler"
+                     oncommand="TodayPane.cyclePaneView(-1);"/>
+      <toolbarbutton id="today-pane-cycler-next"
+                     dir="next"
+                     class="today-pane-cycler"
+                     oncommand="TodayPane.cyclePaneView(1);"/>
+    </calendar-modebox>
+    <spacer id="buttonspacer"/>
+    <toolbarbutton id="today-closer" class="today-closebutton close-icon"
+                   oncommand="document.getElementById('today-pane-panel').setVisible(false, true, true);
+                              TodayPane.updateDisplay();
+                              TodayPane.updateSplitterState();"/>
+  </box>
+  <vbox flex="1">
+    <calendar-modevbox id="agenda-panel"
+                       flex="1"
+                       mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                       collapsedinmodes="calendar"
+                       persist="collapsed height collapsedinmodes">
+      <calendar-modebox id="today-none-box"
+                        mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                        collapsedinmodes="mail,calendar,task,chat,calendarEvent,calendarTask"
+                        refcontrol="ltnTodayPaneDisplayNone"
+                        persist="collapsedinmodes"/>
+      <calendar-modebox id="today-minimonth-box"
+                        pack="center"
+                        class="today-subpane"
+                        mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                        collapsedinmodes="mail,calendar,task,chat,calendarEvent,calendarTask"
+                        refcontrol="ltnTodayPaneDisplayMinimonth"
+                        persist="collapsedinmodes">
+        <calendar-minimonth id="today-minimonth"
+                            onchange="TodayPane.setDaywithjsDate(this.value);"/>
+      </calendar-modebox>
+      <calendar-modebox id="mini-day-box"
+                        mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                        class="today-subpane"
+                        refcontrol="ltnTodayPaneDisplayMiniday"
+                        collapsedinmodes=""
+                        persist="collapsedinmodes"
+                        onDOMMouseScroll="TodayPane.advance(event.detail > 0 ? 1 : -1);">
+        <stack flex="1">
+          <image id="mini-day-image" flex="1"/>
+          <hbox flex="1">
+            <stack id="dateContainer">
+              <hbox pack="center"
+                    align="center">
+                <label id="datevalue-label" class="dateValue"
+                       ondblclick="TodayPane.onDoubleClick(event);"
+                       onmousedown="TodayPane.onMousedown(event);"/>
+              </hbox>
+              <hbox id="dragCenter-image-container" flex="1" pack="center" align="center">
+                <image id="dragCenter-image" hidden="true"/>
+              </hbox>
+            </stack>
+            <vbox flex="1">
+              <hbox pack="center">
+                <deck id="weekdayNameContainer" pack="center"
+                      ondblclick="TodayPane.onDoubleClick(event);">
+                  <label/>
+                  <label/>
+                  <label/>
+                  <label/>
+                  <label/>
+                  <label/>
+                  <label/>
+                </deck>
+                <spacer id="weekspacer" flex="1"/>
+                <hbox pack="end">
+                  <toolbarbutton id="previous-day-button"
+                                 class="miniday-nav-buttons"
+                                 tooltiptext="&onedaybackward.tooltip;"
+                                 onmousedown="TodayPane.onMousedown(event, -1);"
+                                 dir="-1"/>
+                  <toolbarbutton id="today-button"
+                                 class="miniday-nav-buttons"
+                                 tooltiptext="&showToday.tooltip;"
+                                 oncommand="TodayPane.setDay(cal.dtz.now());"/>
+                  <toolbarbutton id="next-day-button"
+                                 class="miniday-nav-buttons"
+                                 tooltiptext="&onedayforward.tooltip;"
+                                 onmousedown="TodayPane.onMousedown(event, 1);"
+                                 dir="1"/>
+                </hbox>
+              </hbox>
+              <hbox pack="start">
+                <label id="monthNameContainer" class="monthlabel"
+                       ondblclick="TodayPane.onDoubleClick(event);"/>
+                <label id="currentWeek-label" class="monthlabel"
+                       ondblclick="TodayPane.onDoubleClick(event);"/>
+                <spacer flex="1"/>
+              </hbox>
+            </vbox>
+            <toolbarbutton id="miniday-dropdown-button"
+                           tooltiptext="&showselectedday.tooltip;"
+                           type="menu">
+              <panel id="miniday-month-panel" position="after_end"
+                     onpopupshown="this.firstElementChild.focusCalendar();">
+                <calendar-minimonth id="miniday-dropdown-minimonth"
+                                    flex="1"
+                                    onchange="TodayPane.setDaywithjsDate(this.value);
+                                              document.getElementById('miniday-month-panel').hidePopup();"/>
+              </panel>
+            </toolbarbutton>
+          </hbox>
+        </stack>
+      </calendar-modebox>
+      <vbox flex="1">
+        <hbox id="agenda-toolbar" iconsize="small">
+          <toolbarbutton id="todaypane-new-event-button"
+                         mode="mail"
+                         iconsize="small"
+                         orient="horizontal"
+                         label="&calendar.newevent.button.label;"
+                         tooltiptext="&calendar.newevent.button.tooltip;"
+                         command="calendar_new_event_todaypane_command"/>
+        </hbox>
+        <richlistbox id="agenda-listbox" flex="1" context="_child"
+                     onblur="agendaListbox.onBlur();"
+                     onfocus="agendaListbox.onFocus();"
+                     onkeypress="agendaListbox.onKeyPress(event);"
+                     ondblclick="agendaListbox.createNewEvent(event);"
+                     ondragstart="nsDragAndDrop.startDrag(event, calendarCalendarButtonDNDObserver);"
+                     ondragover="nsDragAndDrop.dragOver(event, calendarCalendarButtonDNDObserver);"
+                     ondrop="nsDragAndDrop.drop(event, calendarCalendarButtonDNDObserver);">
+          <menupopup id="agenda-menupopup" onpopupshowing="return agendaListbox.setupContextMenu(event.target)">
+            <menuitem label="&calendar.context.modifyorviewitem.label;"
+                      accesskey="&calendar.context.modifyorviewitem.accesskey;"
+                      command="agenda_edit_event_command"/>
+            <menu id="agenda-context-menu-convert-menu"
+                  label="&calendar.context.convertmenu.label;"
+                  accesskey="&calendar.context.convertmenu.accesskey.calendar;">
+              <menupopup id="agenda-context-menu-convert-menupopup">
+                <menuitem id="agenda-context-menu-convert-message-menuitem"
+                          label="&calendar.context.convertmenu.message.label;"
+                          accesskey="&calendar.context.convertmenu.message.accesskey;"
+                          oncommand="calendarMailButtonDNDObserver.onDropItems(agendaListbox.getSelectedItems())"/>
+                <menuitem id="agenda-context-menu-convert-task-menuitem"
+                          class="event-only"
+                          label="&calendar.context.convertmenu.task.label;"
+                          accesskey="&calendar.context.convertmenu.task.accesskey;"
+                          oncommand="calendarTaskButtonDNDObserver.onDropItems(agendaListbox.getSelectedItems())"/>
+              </menupopup>
+            </menu>
+            <menuseparator id="calendar-today-pane-menuseparator-before-delete"/>
+            <menuitem label="&calendar.context.deleteevent.label;"
+                      accesskey="&calendar.context.deleteevent.accesskey;"
+                      key="calendar-delete-item-key"
+                      command="agenda_delete_event_command"/>
+            <menu id="calendar-today-pane-menu-attendance-menu"
+                  label="&calendar.context.attendance.menu.label;"
+                  accesskey="&calendar.context.attendance.menu.accesskey;"
+                  oncommand="setContextPartstat(event.target, agendaListbox.getSelectedItems())"
+                  observes="calendar_attendance_command">
+              <menupopup id="agenda-context-menu-attendance-menupopup">
+                <label id="agenda-context-attendance-thisoccurrence-label"
+                       class="calendar-context-heading-label"
+                       scope="this-occurrence"
+                       value="&calendar.context.attendance.occurrence.label;"/>
+                <menu id="agenda-context-menu-attendance-accepted-menu"
+                      label="&calendar.context.attendance.occ.accepted.label;"
+                      accesskey="&calendar.context.attendance.occ.accepted.accesskey;"
+                      value="ACCEPTED"
+                      name="agenda-context-attendance"
+                      scope="this-occurrence">
+                  <menupopup id="agenda-context-menu-occurrence-accepted-menupopup">
+                    <menuitem id="agenda-context-menu-attend-accept-menuitem"
+                              scope="this-occurrence"
+                              label="&calendar.context.attendance.send.label;"
+                              accesskey="&calendar.context.attendance.send.accesskey;"
+                              respvalue="ACCEPTED"
+                              respmode="AUTO"/>
+                    <menuitem id="agenda-context-menu-attend-accept-dontsend-menuitem"
+                              scope="this-occurrence"
+                              label="&calendar.context.attendance.dontsend.label;"
+                              accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                              respvalue="ACCEPTED"
+                              respmode="NONE"/>
+                  </menupopup>
+                </menu>
+                <menu id="agenda-context-menu-attendance-tentative-menu"
+                      label="&calendar.context.attendance.occ.tentative.label;"
+                      accesskey="&calendar.context.attendance.occ.tentative.accesskey;"
+                      value="TENTATIVE"
+                      name="agenda-context-attendance"
+                      scope="this-occurrence">
+                  <menupopup id="agenda-context-menu-occurrence-tentative-menupopup">
+                    <menuitem id="agenda-context-menu-attend-tentative-menuitem"
+                              scope="this-occurrence"
+                              label="&calendar.context.attendance.send.label;"
+                              accesskey="&calendar.context.attendance.send.accesskey;"
+                              respvalue="TENTATIVE"
+                              respmode="AUTO"/>
+                    <menuitem id="agenda-context-menu-attend-tentative-dontsend-menuitem"
+                              scope="this-occurrence"
+                              label="&calendar.context.attendance.dontsend.label;"
+                              accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                              respvalue="TENTATIVE"
+                              respmode="NONE"/>
+                  </menupopup>
+                </menu>
+                <menu id="agenda-context-menu-attendance-declined-menu"
+                      label="&calendar.context.attendance.occ.declined.label;"
+                      accesskey="&calendar.context.attendance.occ.declined.accesskey;"
+                      value="DECLINED"
+                      name="agenda-context-attendance"
+                      scope="this-occurrence">
+                  <menupopup id="agenda-context-menu-occurrence-tentative-menupopup">
+                    <menuitem id="agenda-context-menu-attend-declined-menuitem"
+                              scope="this-occurrence"
+                              label="&calendar.context.attendance.send.label;"
+                              accesskey="&calendar.context.attendance.send.accesskey;"
+                              respvalue="DECLINED"
+                              respmode="AUTO"/>
+                    <menuitem id="agenda-context-menu-attend-declined-dontsend-menuitem"
+                              scope="this-occurrence"
+                              label="&calendar.context.attendance.dontsend.label;"
+                              accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                              respvalue="DECLINED"
+                              respmode="NONE"/>
+                  </menupopup>
+                </menu>
+                <menuitem id="agenda-context-menu-attendance-delegated-menu"
+                          label="&calendar.context.attendance.occ.delegated.label;"
+                          name="agenda-context-attendance"
+                          scope="this-occurrence"
+                          value="DELEGATED"/>
+                <menuitem id="agenda-context-menu-attendance-needsaction-menu"
+                          label="&calendar.context.attendance.occ.needsaction.label;"
+                          name="agenda-context-attendance"
+                          scope="this-occurrence"
+                          value="NEEDS-ACTION"/>
+                <label id="agenda-context-attendance-alloccurrence-label"
+                       class="calendar-context-heading-label"
+                       scope="all-occurrences"
+                       value="&calendar.context.attendance.all2.label;"/>
+                <menu id="agenda-context-menu-attendance-accepted-all-menu"
+                      label="&calendar.context.attendance.all.accepted.label;"
+                      accesskey="&calendar.context.attendance.all.accepted.accesskey;"
+                      value="ACCEPTED"
+                      name="agenda-context-attendance-all"
+                      scope="all-occurrences">
+                  <menupopup id="agenda-context-menu-alloccurrences-accept-menupopup">
+                    <menuitem id="agenda-context-menu-attend-accept-all-menuitem"
+                              scope="all-occurrences"
+                              label="&calendar.context.attendance.send.label;"
+                              accesskey="&calendar.context.attendance.send.accesskey;"
+                              respvalue="ACCEPTED"
+                              respmode="AUTO"/>
+                    <menuitem id="agenda-context-menu-attend-accept-all-dontsend-menuitem"
+                              scope="all-occurrences"
+                              label="&calendar.context.attendance.dontsend.label;"
+                              accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                              respvalue="ACCEPTED"
+                              respmode="NONE"/>
+                  </menupopup>
+                </menu>
+                <menu id="agenda-context-menu-attendance-tentative-all-menu"
+                      label="&calendar.context.attendance.all.tentative.label;"
+                      accesskey="&calendar.context.attendance.all.tentative.accesskey;"
+                      value="TENTATIVE"
+                      name="agenda-context-attendance-all"
+                      scope="all-occurrences">
+                  <menupopup id="agenda-context-menu-alloccurrences-tentative-menupopup">
+                    <menuitem id="agenda-context-menu-attend-tentative-all-menuitem"
+                              scope="all-occurrences"
+                              label="&calendar.context.attendance.send.label;"
+                              accesskey="&calendar.context.attendance.send.accesskey;"
+                              respvalue="TENTATIVE"
+                              respmode="AUTO"/>
+                    <menuitem id="agenda-context-menu-attend-tentative-all-dontsend-menuitem"
+                              scope="all-occurrences"
+                              label="&calendar.context.attendance.dontsend.label;"
+                              accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                              respvalue="TENTATIVE"
+                              respmode="NONE"/>
+                  </menupopup>
+                </menu>
+                <menu id="agenda-context-menu-attendance-decline-all-menu"
+                      label="&calendar.context.attendance.all.declined.label;"
+                      accesskey="&calendar.context.attendance.all.declined.accesskey;"
+                      value="DECLINED"
+                      name="agenda-context-attendance-all"
+                      scope="all-occurrences">
+                  <menupopup id="agenda-context-menu-alloccurrences-decline-menupopup">
+                    <menuitem id="agenda-context-menu-attend-declined-all-menuitem"
+                              scope="all-occurrences"
+                              label="&calendar.context.attendance.send.label;"
+                              accesskey="&calendar.context.attendance.send.accesskey;"
+                              respvalue="DECLINED"
+                              respmode="AUTO"/>
+                    <menuitem id="agenda-context-menu-attend-declined-all-dontsend-menuitem"
+                              scope="all-occurrences"
+                              label="&calendar.context.attendance.dontsend.label;"
+                              accesskey="&calendar.context.attendance.dontsend.accesskey;"
+                              respvalue="DECLINED"
+                              respmode="NONE"/>
+                  </menupopup>
+                </menu>
+                <menuitem id="agenda-context-menu-attendance-delegated-all-menu"
+                          label="&calendar.context.attendance.all.delegated.label;"
+                          name="agenda-context-attendance-delegated-all"
+                          scope="all-occurrences"
+                          value="DELEGATED"/>
+                <menuitem id="agenda-context-menu-attendance-needsaction-all-menu"
+                          label="&calendar.context.attendance.all.needsaction.label;"
+                          name="agenda-context-attendance-needaction-all"
+                          scope="all-occurrences"
+                          value="NEEDS-ACTION"/>
+              </menupopup>
+            </menu>
+          </menupopup>
+          <richlistitem is="agenda-header-richlistitem" id="today-header"
+                        class="agenda-header-richlistitem"
+                        title="&calendar.today.button.label;"
+                        checked="true"
+                        persist="checked"/>
+          <richlistitem is="agenda-header-richlistitem" id="tomorrow-header"
+                        class="agenda-header-richlistitem"
+                        title="&calendar.tomorrow.button.label;"
+                        checked="false"
+                        persist="checked"/>
+          <richlistitem is="agenda-header-richlistitem" id="nextweek-header"
+                        class="agenda-header-richlistitem"
+                        title="&calendar.upcoming.button.label;"
+                        checked="false"
+                        persist="checked"/>
+        </richlistbox>
+      </vbox>
+    </calendar-modevbox>
+    <splitter id="today-pane-splitter" persist="hidden"/>
+    <calendar-modevbox id="todo-tab-panel"
+                       flex="1"
+                       mode="mail,calendar,chat,calendarEvent,calendarTask"
+                       collapsedinmodes="mail,task,chat,calendarEvent,calendarTask"
+                       persist="height collapsedinmodes"
+                       ondragstart="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
+                       ondragover="nsDragAndDrop.dragOver(event, calendarTaskButtonDNDObserver);"
+                       ondrop="nsDragAndDrop.drop(event, calendarTaskButtonDNDObserver);">
+      <!-- This second vbox means all of this is added to the DOM at once,
+           so the label's binding doesn't complain about not having a control. -->
+      <vbox flex="1">
+        <box id="show-completed-checkbox-box" align="center">
+          <checkbox id="show-completed-checkbox"
+                    label="&calendar.unifinder.showcompletedtodos.label;"
+                    flex="1"
+                    crop="end"
+                    oncommand="TodayPane.updateCalendarToDoUnifinder()"
+                    persist="checked"
+                    autocheck="false"/>
+        </box>
+        <vbox id="calendar-task-tree-detail" flex="1">
+          <tree is="calendar-task-tree-todaypane" id="unifinder-todo-tree"
+                flex="1"
+                visible-columns="completed priority title"
+                persist="visible-columns ordinals widths sort-active sort-direction filterValue"
+                context="taskitem-context-menu"/>
+          <html:input id="unifinder-task-edit-field"
+                      class="task-edit-field themeableSearchBox"
+                      onfocus="taskEdit.onFocus(event)"
+                      onblur="taskEdit.onBlur(event)"
+                      onkeypress="taskEdit.onKeyPress(event)"/>
+        </vbox>
+      </vbox>
+    </calendar-modevbox>
+  </vbox>
+</calendar-modevbox>
