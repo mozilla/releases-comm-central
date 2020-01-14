@@ -17,6 +17,7 @@ lightning.jar:
     content/calendar-commands.inc.xhtml                    (content/calendar-commands.inc.xhtml)
     content/calendar-context-menus-and-tooltips.inc.xhtml  (content/calendar-context-menus-and-tooltips.inc.xhtml)
     content/calendar-keys.inc.xhtml                        (content/calendar-keys.inc.xhtml)
+    content/calendar-menu-events-tasks.inc.xhtml           (content/calendar-menu-events-tasks.inc.xhtml)
     content/calendar-status-bar.inc.xhtml                  (content/calendar-status-bar.inc.xhtml)
     content/calendar-tab-panels.inc.xhtml                  (content/calendar-tab-panels.inc.xhtml)
     content/calendar-today-pane.inc.xhtml                  (content/calendar-today-pane.inc.xhtml)
