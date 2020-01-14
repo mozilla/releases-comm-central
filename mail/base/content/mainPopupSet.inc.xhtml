@@ -327,6 +327,21 @@
               label="&moveToFolderAgain.label;"
               accesskey="&moveToFolderAgain.accesskey;"/>
 
+    <menu id="mailContext-calendar-convert-menu"
+          label="&calendar.context.convertmenu.label;"
+          accesskey="&calendar.context.convertmenu.accesskey.mail;">
+      <menupopup id="mailContext-calendar-convert-menupopup">
+        <menuitem id="mailContext-calendar-convert-event-menuitem"
+                  label="&calendar.context.convertmenu.event.label;"
+                  accesskey="&calendar.context.convertmenu.event.accesskey;"
+                  oncommand="calendarExtract.extractFromEmail(true)" />
+        <menuitem id="mailContext-calendar-convert-task-menuitem"
+                  label="&calendar.context.convertmenu.task.label;"
+                  accesskey="&calendar.context.convertmenu.task.accesskey;"
+                  oncommand="calendarExtract.extractFromEmail(false)" />
+      </menupopup>
+    </menu>
+
     <menuitem id="mailContext-delete"
               command="cmd_delete"/>
 
@@ -511,7 +526,7 @@
   </menupopup>
 
   <menupopup id="toolbar-context-menu"
-             onpopupshowing="onViewToolbarsPopupShowing(event, 'mail-toolbox');">
+             onpopupshowing="calendarOnToolbarsPopupShowing(event);">
     <menuseparator id="customizeMailToolbarMenuSeparator"/>
     <menuitem id="CustomizeMailToolbar"
               command="cmd_CustomizeMailToolbar"
