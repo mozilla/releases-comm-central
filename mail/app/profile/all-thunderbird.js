@@ -1261,7 +1261,7 @@ pref("toolkit.telemetry.bhrPing.enabled", true);
 // Required to enable telemetry pings (defaults to true if
 // MOZ_SERVICES_HEALTHREPORT is defined, but we're not yet sure we want
 // that...)
-pref(`datareporting.healthreport.uploadEnabled`, true);
+pref("datareporting.healthreport.uploadEnabled", true);
 
 pref("toolkit.telemetry.infoURL", "https://www.mozilla.org/thunderbird/legal/privacy/#telemetry");
 
