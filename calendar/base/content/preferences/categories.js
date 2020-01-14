@@ -6,7 +6,7 @@
 
 /* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
 // From categories.xhtml.
-/* globals noneLabel, newTitle, editTitle, overwrite, overwriteTitle, noBlankCategories */
+/* globals newTitle, editTitle, overwrite, overwriteTitle, noBlankCategories */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -92,12 +92,9 @@ var gCategoriesPane = {
 
       let categoryColor = document.createXULElement("box");
       categoryColor.setAttribute("width", "150");
-      try {
-        let colorCode = categoryPrefBranch.getCharPref(categoryNameFix);
-        categoryColor.setAttribute("id", colorCode);
-        categoryColor.setAttribute("style", "background-color: " + colorCode + ";");
-      } catch (ex) {
-        categoryColor.setAttribute("label", noneLabel);
+      let colorCode = categoryPrefBranch.getCharPref(categoryNameFix, "");
+      if (colorCode) {
+        categoryColor.style.backgroundColor = colorCode;
       }
 
       newListItem.appendChild(categoryName);
@@ -219,15 +216,7 @@ var gCategoriesPane = {
     } else {
       this.backupData(categoryNameFix);
       gCategoryList.splice(list.selectedIndex, 1, categoryName);
-      if (categoryColor) {
-        categoryPrefBranch.setCharPref(categoryNameFix, categoryColor);
-      } else {
-        try {
-          categoryPrefBranch.clearUserPref(categoryNameFix);
-        } catch (ex) {
-          dump("Exception caught in 'saveCategory': " + ex + "\n");
-        }
-      }
+      categoryPrefBranch.setCharPref(categoryNameFix, categoryColor || "");
     }
 
     // If 'Overwrite' was chosen, delete category that was being edited

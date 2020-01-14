@@ -30,7 +30,10 @@ add_task(function testCategoryColors() {
       Assert.ok(item.lastElementChild.style.backgroundColor);
     }
 
+    // Edit the name and colour of a built-in category.
+
     controller.click(content_tab_eid(tab, "categorieslist"), 5, 5);
+    Assert.equal(listBox.selectedIndex, 0);
     controller.click(content_tab_eid(tab, "editCButton"));
 
     let editFrame = wait_for_frame_load(
@@ -48,8 +51,35 @@ add_task(function testCategoryColors() {
     );
 
     let listItem = listBox.itemChildren[listBox.itemCount - 1];
+    Assert.equal(listBox.selectedItem, listItem);
     Assert.equal(listItem.firstElementChild.value, "ZZZ Mozmill");
     Assert.equal(listItem.lastElementChild.style.backgroundColor, "rgb(0, 204, 0)");
+    Assert.equal(Services.prefs.getCharPref("calendar.category.color.zzz_mozmill"), "#00cc00");
+
+    // Remove the colour of a built-in category.
+
+    controller.click(content_tab_eid(tab, "categorieslist"), 5, 5);
+    controller.keypress(content_tab_eid(tab, "categorieslist"), "VK_HOME", {});
+    Assert.equal(listBox.selectedIndex, 0);
+    let itemName = listBox.itemChildren[0].firstElementChild.value;
+    controller.click(content_tab_eid(tab, "editCButton"));
+
+    editFrame = wait_for_frame_load(
+      tab.browser.contentDocument.getElementById("dialogOverlay-0").querySelector("browser"),
+      "chrome://calendar/content/preferences/editCategory.xhtml"
+    );
+    editFrame.click(editFrame.eid("useColor"));
+    editFrame.click(
+      lookup(`
+            id("editCategoryWindow")/id("editCategory")/shadow/{"class":"dialog-button-box"}/{"dlgtype":"accept"}
+        `)
+    );
+
+    listItem = listBox.itemChildren[0];
+    Assert.equal(listBox.selectedItem, listItem);
+    Assert.equal(listItem.firstElementChild.value, itemName);
+    Assert.equal(listItem.lastElementChild.style.backgroundColor, "");
+    Assert.equal(Services.prefs.getCharPref(`calendar.category.color.${itemName.toLowerCase()}`), "");
   }, controller);
 });
 
