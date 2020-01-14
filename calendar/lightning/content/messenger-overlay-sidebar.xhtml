@@ -12,38 +12,6 @@
   <!-- App Menu Integration -->
   <!-- Calendar menu items added to appmenu menus -->
 
-  <!-- Main Appmenu View -->
-  <vbox id="appMenu-mainViewItems">
-    <toolbarbutton id="appmenu_Event_Task"
-                   class="subviewbutton subviewbutton-nav"
-                   label="&lightning.menu.eventtask.label;"
-                   insertafter="appmenu_messageMenu"
-                   closemenu="none"
-                   oncommand="PanelUI.showSubView('appmenu_Event_Task_View', this)"/>
-  </vbox>
-
-  <!-- New -->
-  <vbox id="appMenu-newViewItems">
-    <toolbarbutton id="appmenu_ltnNewEvent"
-                   class="subviewbutton subviewbutton-iconic"
-                   label="&lightning.menupopup.new.event.label;"
-                   insertbefore="appmenu_newFolder"
-                   command="calendar_new_event_command"/>
-    <toolbarbutton id="appmenu_ltnNewTask"
-                   class="subviewbutton subviewbutton-iconic"
-                   label="&lightning.menupopup.new.task.label;"
-                   insertbefore="appmenu_newFolder"
-                   command="calendar_new_todo_command"/>
-    <toolbarseparator id="appmenu_afterltnNewTask"
-                      insertbefore="appmenu_newFolder"
-                      observes="appmenu_newFolder"/>
-    <toolbarbutton id="appmenu_ltnNewCalendar"
-                   class="subviewbutton subviewbutton-iconic"
-                   label="&lightning.menupopup.new.calendar.label;"
-                   command="calendar_new_calendar_command"
-                   insertafter="appmenu_newAccountMenuItem"/>
-  </vbox>
-
   <!-- File -->
   <vbox id="appMenu-fileViewItems">
     <toolbarbutton id="appmenu_Open"
