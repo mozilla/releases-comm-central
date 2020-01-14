@@ -1,0 +1,86 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!-- event/task in tab statusbarpanels -->
+<hbox id="status-privacy"
+      class="statusbarpanel event-dialog"
+      align="center"
+      flex="1"
+      collapsed="true"
+      pack="start">
+  <label value="&event.statusbarpanel.privacy.label;"/>
+  <hbox id="status-privacy-public-box" privacy="PUBLIC">
+    <label value="&event.menu.options.privacy.public.label;"/>
+  </hbox>
+  <hbox id="status-privacy-confidential-box" privacy="CONFIDENTIAL">
+    <label value="&event.menu.options.privacy.confidential.label;"/>
+  </hbox>
+  <hbox id="status-privacy-private-box" privacy="PRIVATE">
+    <label value="&event.menu.options.privacy.private.label;"/>
+  </hbox>
+</hbox>
+<hbox id="status-priority"
+      class="statusbarpanel event-dialog"
+      align="center"
+      flex="1"
+      collapsed="true"
+      pack="start">
+  <label value="&event.priority2.label;"/>
+  <image id="image-priority-low"
+         class="cal-statusbar-1"
+         collapsed="true"
+         value="low"/>
+  <image id="image-priority-normal"
+         class="cal-statusbar-1"
+         collapsed="true"
+         value="normal"/>
+  <image id="image-priority-high"
+         class="cal-statusbar-1"
+         collapsed="true"
+         value="high"/>
+</hbox>
+<hbox id="status-status"
+      class="statusbarpanel event-dialog"
+      align="center"
+      flex="1"
+      collapsed="true"
+      pack="start">
+  <label value="&task.status.label;"/>
+  <label id="status-status-tentative-label"
+         value="&newevent.status.tentative.label;"
+         hidden="true"/>
+  <label id="status-status-confirmed-label"
+         value="&newevent.status.confirmed.label;"
+         hidden="true"/>
+  <label id="status-status-cancelled-label"
+         value="&newevent.eventStatus.cancelled.label;"
+         hidden="true"/>
+</hbox>
+<hbox id="status-freebusy"
+      class="statusbarpanel event-only event-dialog"
+      align="center"
+      flex="1"
+      collapsed="true"
+      pack="start">
+  <label value="&event.statusbarpanel.freebusy.label;"/>
+  <label id="status-freebusy-free-label"
+         value="&event.freebusy.legend.free;"
+         hidden="true"/>
+  <label id="status-freebusy-busy-label"
+         value="&event.freebusy.legend.busy;"
+         hidden="true"/>
+</hbox>
+<!-- end event/task in tab statusbarpanels -->
+
+<calendar-modebox id="calendar-show-todaypane-panel"
+                  class="statusbarpanel"
+                  mode="mail,calendar,task,chat,calendarEvent,calendarTask"
+                  collapsedinmodes="special"
+                  pack="center">
+  <toolbarbutton id="calendar-status-todaypane-button"
+                 type="checkbox"
+                 label="&todaypane.statusButton.label;"
+                 tooltiptext="&calendar.todaypane.button.tooltip;"
+                 command="calendar_toggle_todaypane_command"/>
+</calendar-modebox>

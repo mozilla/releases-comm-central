@@ -912,8 +912,17 @@
   <statuspanel id="statusbar-display"/>
   <hbox id="status-bar" class="statusbar chromeclass-status">
 #include mainStatusbar.inc.xhtml
+    <hbox id="calendar-invitations-panel"
+          class="statusbarpanel"
+          oncommand="openInvitationsDialog()">
+      <label id="calendar-invitations-label"
+             class="text-link"
+             onclick="openInvitationsDialog()"
+             onkeypress="if (event.key == 'Enter') { openInvitationsDialog(); }"/>
+    </hbox>
     <label id="unreadMessageCount" class="statusbarpanel"/>
     <label id="totalMessageCount" class="statusbarpanel"/>
+#include ../../../calendar/lightning/content/calendar-status-bar.inc.xhtml
   </hbox>
 </window>
 
