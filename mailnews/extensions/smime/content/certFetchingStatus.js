@@ -85,11 +85,10 @@ function importCert(ber_value) {
     gCertDB = Cc[nsX509CertDB].getService(nsIX509CertDB);
   }
 
-  var cert_length = {};
-  var cert_bytes = ber_value.get(cert_length);
-
+  // ber_value has type nsILDAPBERValue
+  var cert_bytes = ber_value.get();
   if (cert_bytes) {
-    gCertDB.importEmailCertificate(cert_bytes, cert_length.value, null);
+    gCertDB.importEmailCertificate(cert_bytes, cert_bytes.length, null);
   }
 }
 
