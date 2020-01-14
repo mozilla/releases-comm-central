@@ -12,20 +12,6 @@
   <!-- App Menu Integration -->
   <!-- Calendar menu items added to appmenu menus -->
 
-  <!-- File -->
-  <vbox id="appMenu-fileViewItems">
-    <toolbarbutton id="appmenu_Open"
-                   class="subviewbutton subviewbutton-nav"
-                   mode="calendar"
-                   label="&lightning.menupopup.open.label;"
-                   closemenu="none"
-                   accesskey="&lightning.menupopup.open.accesskey;"
-                   insertbefore="appmenu_openMessageFileMenuitem"
-                   oncommand="PanelUI.showSubView('appMenu-fileOpenView', this)"/>
-  </vbox>
-  <toolbarbutton id="appmenu_openMessageFileMenuitem"
-                 hidden="true"/>
-
   <!-- View -->
   <vbox id="appMenu-viewViewItems">
     <toolbarseparator id="appmenu_ltnViewMenuSeparator"/>
@@ -198,23 +184,6 @@
                        class="subviewbutton subviewbutton-iconic"
                        label="&calendar.context.postpone.1week.label;"
                        command="calendar_postpone-1week_command"/>
-      </vbox>
-    </panelview>
-
-    <!-- File / Open -->
-    <panelview id="appMenu-fileOpenView"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_OpenMessageFileMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&lightning.menupopup.open.message.label;"
-                       accesskey="&lightning.menupopup.open.message.accesskey;"
-                       oncommand="MsgOpenFromFile();"/>
-        <toolbarbutton id="appmenu_OpenCalendarFileMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&lightning.menupopup.open.calendar.label;"
-                       accesskey="&lightning.menupopup.open.calendar.accesskey;"
-                       oncommand="openLocalCalendar();"/>
       </vbox>
     </panelview>
 

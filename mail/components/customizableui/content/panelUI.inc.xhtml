@@ -525,10 +525,13 @@
                class="PanelUI-subView">
       <vbox id="appMenu-fileViewItems"
             class="panel-subview-body">
-        <toolbarbutton id="appmenu_openMessageFileMenuitem"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&openMessageFileCmd.label;"
-                       oncommand="MsgOpenFromFile();"/>
+        <toolbarbutton id="appmenu_Open"
+                       class="subviewbutton subviewbutton-nav"
+                       mode="calendar"
+                       label="&openMenuCmd.label;"
+                       closemenu="none"
+                       accesskey="&openMenuCmd.accesskey;"
+                       oncommand="PanelUI.showSubView('appMenu-fileOpenView', this)"/>
         <toolbarbutton id="appmenu_close"
                        class="subviewbutton subviewbutton-iconic"
                        label="&closeCmd.label;"
@@ -573,6 +576,23 @@
                        label="&offlineMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-fileOfflineView', this)"/>
+      </vbox>
+    </panelview>
+
+    <!-- File / Open -->
+    <panelview id="appMenu-fileOpenView"
+               class="PanelUI-subView">
+      <vbox class="panel-subview-body">
+        <toolbarbutton id="appmenu_OpenMessageFileMenuitem"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&openMessageFileCmd.label;"
+                       accesskey="&openMessageFileCmd.accesskey;"
+                       oncommand="MsgOpenFromFile();"/>
+        <toolbarbutton id="appmenu_OpenCalendarFileMenuitem"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&lightning.menupopup.open.calendar.label;"
+                       accesskey="&lightning.menupopup.open.calendar.accesskey;"
+                       oncommand="openLocalCalendar();"/>
       </vbox>
     </panelview>
 
