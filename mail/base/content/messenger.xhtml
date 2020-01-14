@@ -24,6 +24,27 @@
 <?xml-stylesheet href="chrome://messenger/skin/customizableui/panelUI.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
+<!-- Calendar CSS -->
+<?xml-stylesheet href="chrome://lightning/skin/lightning.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://calendar/skin/calendar-event-dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/content/calendar-event-dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar-common/skin/dialogs/calendar-event-dialog.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://calendar/skin/today-pane.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://calendar/skin/calendar-unifinder.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://calendar/skin/calendar-task-tree.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/skin/calendar-task-view.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://calendar/skin/calendar-views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar-common/skin/calendar-alarms.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar-common/skin/widgets/minimonth.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/skin/widgets/calendar-widgets.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://lightning/skin/lightning-toolbar.css" type="text/css"?>
+
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
@@ -61,8 +82,8 @@
 #endif
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
-<!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
-%globalDTD;
+<!ENTITY % calendarGlobalDTD SYSTEM "chrome://calendar/locale/global.dtd">
+%calendarGlobalDTD;
 <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
 %calendarDTD;
 <!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
@@ -71,6 +92,14 @@
 %toolbarDTD;
 <!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
 %lightningDTD;
+<!ENTITY % calendarMenuOverlayDTD SYSTEM "chrome://calendar/locale/menuOverlay.dtd" >
+%calendarMenuOverlayDTD;
+<!ENTITY % lightningToolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd" >
+%lightningToolbarDTD;
+<!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd" >
+%globalDTD;
+<!ENTITY % mailOverlayDTD SYSTEM "chrome://messenger/locale/mailOverlay.dtd">
+%mailOverlayDTD;
 ]>
 
 <!--
@@ -191,8 +220,80 @@
 <!-- calendar imip bar -->
 <script src="chrome://lightning/content/lightning-utils.js"/>
 <script src="chrome://lightning/content/imip-bar.js"/>
+<!-- calendar-management.js also needed for multiple calendar support and today pane -->
 <script src="chrome://calendar/content/calendar-management.js"/>
 <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+
+<script src="chrome://lightning/content/messenger-overlay-sidebar.js"/>
+
+<script src="chrome://calendar/content/calendar-day-label.js"/>
+
+<!-- NEEDED FOR CLIPBOARD SUPPORT -->
+<script src="chrome://calendar/content/calendar-clipboard.js"/>
+
+<!-- NEEDED FOR IMPORT / EXPORT SUPPORT -->
+<script src="chrome://calendar/content/import-export.js"/>
+
+<!-- NEEDED FOR PUBLICATION SUPPORT -->
+<script src="chrome://calendar/content/publish.js"/>
+
+<script src="chrome://calendar/content/calendar-item-editing.js"/>
+<script src="chrome://calendar/content/calendar-chrome-startup.js"/>
+<script src="chrome://calendar/content/mouseoverPreviews.js"/>
+
+<script src="chrome://calendar/content/calendar-views-utils.js"/>
+<script src="chrome://calendar/content/calendar-base-view.js"/>
+<script src="chrome://calendar/content/calendar-month-base-view.js"/>
+<script src="chrome://calendar/content/widgets/calendar-dnd-widgets.js"/>
+<script src="chrome://calendar/content/calendar-multiday-base-view.js"/>
+<script src="chrome://calendar/content/calendar-views.js"/>
+<script src="chrome://calendar/content/calendar-editable-item.js"/>
+<script src="chrome://calendar/content/calendar-month-view.js"/>
+<script src="chrome://calendar/content/calendar-multiday-view.js"/>
+<script src="chrome://calendar/content/calendar-event-column.js"/>
+
+<script src="chrome://calendar/content/calendar-creation.js"/>
+<script src="chrome://calendar/content/calendar-dnd-listener.js"/>
+<script src="chrome://calendar/content/calendar-statusbar.js"/>
+<script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
+<script src="chrome://global/content/nsDragAndDrop.js"/>
+<script src="chrome://calendar/content/widgets/calendar-modebox.js"/>
+
+<!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
+<script src="chrome://calendar/content/calendar-task-editing.js"/>
+
+<script src="chrome://calendar/content/calendar-extract.js"/>
+
+<script src="chrome://calendar/content/calendar-invitations-manager.js"/>
+
+<!-- NEEDED FOR EVENT/TASK IN A TAB -->
+<script src="chrome://lightning/content/lightning-item-panel.js"/>
+
+<script src="chrome://calendar/content/calendar-command-controller.js"/>
+
+<!-- NEEDED FOR TODAY PANE -->
+<script src="chrome://calendar/content/agenda-listbox.js"/>
+<script src="chrome://calendar/content/today-pane.js"/>
+<script src="chrome://calendar/content/agenda-listbox-utils.js"/>
+
+<!-- NEEDED FOR EVENTS VIEW (UNIFINDER) -->
+<script src="chrome://calendar/content/calendar-unifinder.js"/>
+
+<!-- NEEDED FOR TODAY PANE AND TASKS VIEW -->
+<script src="chrome://calendar/content/calFilter.js"/>
+<script src="chrome://calendar/content/calendar-task-tree-utils.js"/>
+
+<!-- NEEDED FOR TASK VIEW -->
+<script src="chrome://calendar/content/calendar-task-tree-view.js"/>
+<script src="chrome://calendar/content/calendar-task-tree.js"/>
+<script src="chrome://calendar/content/calendar-task-view.js"/>
+<script src="chrome://calendar/content/calendar-dialog-utils.js"/>
+<script src="chrome://calendar/content/calApplicationUtils.js"/>
+<script src="chrome://calendar/content/calendar-item-bindings.js"/>
+<script src="chrome://calendar/content/calendar-menus.js"/>
+
+<!-- NEEDED FOR CALENDAR VIEWS -->
+<script src="chrome://calendar/content/calendar-event-gripbar.js"/>
 
 <commandset id="mailCommands">
 #include mainCommandSet.inc.xhtml
