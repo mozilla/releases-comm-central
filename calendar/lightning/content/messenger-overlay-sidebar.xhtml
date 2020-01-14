@@ -10,72 +10,6 @@
          xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- App Menu Integration -->
-  <!-- Calendar menu items added to appmenu menus -->
-
-  <!-- View -->
-  <vbox id="appMenu-viewViewItems">
-    <toolbarseparator id="appmenu_ltnViewMenuSeparator"/>
-    <toolbarbutton id="appmenu_ltnTodayPaneMenu"
-                   class="subviewbutton subviewbutton-nav"
-                   label="&calendar.context.button.label;"
-                   closemenu="none"
-                   oncommand="PanelUI.showSubView('appmenu_ltnTodayPaneView', this)"/>
-    <toolbarbutton id="appmenu_ltnCalendarMenu"
-                   class="subviewbutton subviewbutton-nav"
-                   observes="calendar_in_foreground"
-                   insertbefore="viewSortMenuSeparator"
-                   label="&lightning.menu.view.calendar.label;"
-                   closemenu="none"
-                   oncommand="PanelUI.showSubView('appmenu_ltnCalendarMenuView', this)"/>
-    <toolbarbutton id="appmenu_ltnTasksMenu"
-                   class="subviewbutton subviewbutton-nav"
-                   observes="calendar_mode_task"
-                   insertbefore="viewSortMenuSeparator"
-                   label="&lightning.menu.view.tasks.label;"
-                   closemenu="none"
-                   oncommand="PanelUI.showSubView('appmenu_ltnTasksView', this)"/>
-  </vbox>
-
-  <!-- Go -->
-  <vbox id="appMenu-goViewItems">
-    <toolbarbutton id="appmenu_ltnGoToToday"
-                   class="subviewbutton subviewbutton-iconic"
-                   insertafter="appmenu_goNextSeparator"
-                   label="&goTodayCmd.label;"
-                   command="calendar_go_to_today_command"/>
-  </vbox>
-
-  <!-- Go / Next -->
-  <vbox id="appMenu-goNextViewItems">
-    <toolbarseparator id="appmenu_ltnGoNextSeparator"/>
-    <!-- Label is set up automatically using the view id. When writing a
-         view extension, overlay this toolbarbutton and add a label-<myviewtype>
-         attribute with the correct label -->
-    <toolbarbutton id="appmenu_calendar-go-menu-next"
-                   class="subviewbutton subviewbutton-iconic"
-                   label=""
-                   label-day="&lightning.toolbar.day.label;"
-                   label-week="&lightning.toolbar.week.label;"
-                   label-multiweek="&lightning.toolbar.week.label;"
-                   label-month="&lightning.toolbar.month.label;"
-                   command="calendar_view_next_command"/>
-  </vbox>
-
-  <!-- Go / Previous -->
-  <vbox id="appMenu-goPreviousViewItems">
-    <toolbarseparator id="appmenu_ltnGoPreviousSeparator"/>
-    <!-- Label is set up automatically using the view id. When writing a
-         view extension, overlay this menuitem and add a label-<myviewtype>
-         attribute with the correct label -->
-    <toolbarbutton id="appmenu_calendar-go-menu-previous"
-                   class="subviewbutton subviewbutton-iconic"
-                   label=""
-                   label-day="&lightning.toolbar.day.label;"
-                   label-week="&lightning.toolbar.week.label;"
-                   label-multiweek="&lightning.toolbar.week.label;"
-                   label-month="&lightning.toolbar.month.label;"
-                   command="calendar_view_prev_command"/>
-  </vbox>
 
   <!-- Calendar submenus added to the appmenu -->
   <panelmultiview id="appMenu-multiView">
@@ -188,7 +122,7 @@
     </panelview>
 
     <!-- View / Today Pane -->
-    <panelview id="appmenu_ltnTodayPaneView"
+    <panelview id="appmenu_calendar-today-pane-view"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
         <toolbarbutton id="appmenu_ltnShowTodayPane-2"
@@ -225,7 +159,7 @@
     </panelview>
 
     <!-- View / Calendar -->
-    <panelview id="appmenu_ltnCalendarMenuView"
+    <panelview id="appmenu_calendar-calendar-view"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
         <toolbarbutton id="appmenu_ltnChangeViewDay"
@@ -319,7 +253,7 @@
     </panelview>
 
     <!-- View / Tasks -->
-    <panelview id="appmenu_ltnTasksView"
+    <panelview id="appmenu_calendar-tasks-view"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
         <toolbarbutton id="appmenu_ltnTasksViewFilterTasks"

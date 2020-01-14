@@ -661,6 +661,25 @@
                        label="&folderView.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-foldersView', this)"/>
+        <toolbarseparator id="appmenu_calendar-view-menu-separator"/>
+        <toolbarbutton id="appmenu_calendar-today-pane-menu"
+                      class="subviewbutton subviewbutton-nav"
+                      label="&calendar.context.button.label;"
+                      closemenu="none"
+                      oncommand="PanelUI.showSubView('appmenu_calendar-today-pane-view', this)"/>
+        <toolbarbutton id="appmenu_calendar-calendar-menu"
+                      class="subviewbutton subviewbutton-nav"
+                      observes="calendar_in_foreground"
+                      label="&lightning.menu.view.calendar.label;"
+                      closemenu="none"
+                      oncommand="PanelUI.showSubView('appmenu_calendar-calendar-view', this)"/>
+        <toolbarbutton id="appmenu_calendar-tasks-menu"
+                      class="subviewbutton subviewbutton-nav"
+                      observes="calendar_mode_task"
+                      label="&lightning.menu.view.tasks.label;"
+                      closemenu="none"
+                      oncommand="PanelUI.showSubView('appmenu_calendar-tasks-view', this)"/>
+        <toolbarseparator id="appmenu_viewSortMenuSeparator"/>
         <toolbarbutton id="appmenu_viewSortMenu"
                        class="subviewbutton subviewbutton-nav"
                        label="&sortMenu.label;"
@@ -1209,6 +1228,10 @@
                        key="key_goBack"
                        command="cmd_goBack"/>
         <toolbarseparator id="appmenu_goNextSeparator"/>
+        <toolbarbutton id="appmenu_calendar-go-to-today"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&goTodayCmd.label;"
+                       command="calendar_go_to_today_command"/>
         <toolbarbutton id="appmenu_goChat"
                        class="subviewbutton subviewbutton-iconic"
                        label="&goChatCmd.label;"
@@ -1262,6 +1285,18 @@
                        label="&nextUnreadThread.label;"
                        key="key_nextUnreadThread"
                        command="cmd_nextUnreadThread"/>
+        <toolbarseparator id="appmenu_GoNextAfterUnreadThreadSeparator"/>
+        <!-- Label is set up automatically using the view id. When writing a
+             view extension, add a `label-<myviewtype>` attribute with the
+             correct label. -->
+        <toolbarbutton id="appmenu_calendar-go-menu-next"
+                       class="subviewbutton subviewbutton-iconic"
+                       label=""
+                       label-day="&lightning.toolbar.day.label;"
+                       label-week="&lightning.toolbar.week.label;"
+                       label-multiweek="&lightning.toolbar.week.label;"
+                       label-month="&lightning.toolbar.month.label;"
+                       command="calendar_view_next_command"/>
       </vbox>
     </panelview>
 
@@ -1285,6 +1320,18 @@
                        class="subviewbutton subviewbutton-iconic"
                        label="&prevStarredMsgCmd.label;"
                        command="cmd_previousFlaggedMsg"/>
+        <toolbarseparator id="appmenu_goPreviousAfterFlaggedSeparator"/>
+        <!-- Label is set up automatically using the view id. When writing a
+             view extension, add a `label-<myviewtype>` attribute with the
+             correct label. -->
+        <toolbarbutton id="appmenu_calendar-go-menu-previous"
+                       class="subviewbutton subviewbutton-iconic"
+                       label=""
+                       label-day="&lightning.toolbar.day.label;"
+                       label-week="&lightning.toolbar.week.label;"
+                       label-multiweek="&lightning.toolbar.week.label;"
+                       label-month="&lightning.toolbar.month.label;"
+                       command="calendar_view_prev_command"/>
       </vbox>
     </panelview>
 
