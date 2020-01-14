@@ -35,10 +35,7 @@ For Histograms, we use a `TB_` or `TELEMETRY_TEST_TB_` prefix.
 `getSnapshotForHistograms()`/`getSnapshotForKeyedHistograms()` have an option
 to filter out histograms with a `TELEMETRY_TEST_` prefix).
 
-
-## Enabling telemetry
-
-### Compile-time
+## Compile-time switches
 
 Telemetry is not compiled in by default. You need to add the following line
 to your mozconfig:
@@ -47,71 +44,123 @@ to your mozconfig:
 
 The nightly and release configs have this setting already (`$ grep -r MOZ_TELEMETRY_ mail/config/mozconfigs`).
 
+## Runtime prefs for testing
 
-### At run time
+There are a few `user.js` settings you'll want to set up for enabling telemetry local builds:
 
-There's a complex set of conditions to enable telemetry reporting.
-The runtime settings needed for a minimal test setup are:
+### Send telemetry to a local server
 
-- `toolkit.telemetry.server` - URL where the collected data will be POSTed to
-   (`https://incoming.telemetry.mozilla.org`). So if you're running a local
-   server for testing, you'll likely want this to be some localhost URL.
-- `toolkit.telemetry.server.owner` - The owner of the server (`Mozilla`).
-   The implication is that it's polite to change this if you're running a
-   non-Mozilla server.
-- `toolkit.telemetry.send.overrideOfficialCheck` - usually, telemetry is only
-   send for official builds (ie `export MOZILLA_OFFICIAL=1` in `mozconfig`).
-   Setting this to `true` enables sending for unofficial builds.
-- `datareporting.policy.dataSubmissionEnabled` - allows submission to the
-   server.
-- `datareporting.policy.dataSubmissionPolicyBypassNotification` - bypasses the
-   checks to see if the policy has been shown and agreed to by the user. Set it
-   to `true` for testing.
-- `toolkit.telemetry.log.level` - very handy for watching telemetry activity in
-   the javascript console. `Trace`, `Debug`, `Info`, `Warn`, etc...
+You'll want to set the telemetry end point to a locally-running http server, eg:
+```
+user_pref("toolkit.telemetry.server", "http://localhost:12345");
+user_pref("toolkit.telemetry.server_owner", "TimmyTestfish");
+user_pref("datareporting.healthreport.uploadEnabled",true);
+```
 
-example (values to paste into prefs.js):
+For a simple test server, try https://github.com/mozilla/gzipServer
+(or alternatively https://github.com/bcampbell/webhole).
+
+### Override the official-build-only check
 
 ```
-user_pref("toolkit.telemetry.server", "http://localhost:8080/wibble");
-user_pref("toolkit.telemetry.server_owner", "Nobody");
+user_pref("toolkit.telemetry.send.overrideOfficialCheck", true);
+```
+
+Without toolkit.telemetry.send.overrideOfficialCheck set, telemetry is only sent for official builds.
+
+### Bypass data policy checks
+
+The data policy checks make sure the user has been shown and
+has accepted the data policy. Bypass them with:
+
+```
 user_pref("datareporting.policy.dataSubmissionPolicyBypassNotification",true);
 user_pref("datareporting.policy.dataSubmissionEnabled", true);
+```
+
+### Enable telemetry tracing
+
+```
 user_pref("toolkit.telemetry.log.level", "Trace");
+```
+
+The output will show up on the DevTools console:
+
+    Menu => "Tools" => "Developer Tools" => "Error Console"  (CTRL+SHIFT+J)
+
+If pings aren't showing up, look there for clues.
+
+To log to stdout as well as the console:
+```
+user_pref("toolkit.telemetry.log.dump", true);
+```
+
+### Reduce submission interval
+
+For testing it can be handy to reduce down the submission interval (it's
+usually on the order of hours), eg:
+```
+user_pref("services.sync.telemetry.submissionInterval", 20); // in seconds
+```
+
+### Example user.js file
+
+All the above suggestions in one go, for `$PROFILE/user.js`:
+
+```
+user_pref("toolkit.telemetry.server", "http://localhost:12345");
+user_pref("toolkit.telemetry.server_owner", "TimmyTestfish");
+user_pref("toolkit.telemetry.log.level", "Trace");
+user_pref("toolkit.telemetry.log.dump", true);
 user_pref("toolkit.telemetry.send.overrideOfficialCheck", true);
+user_pref("datareporting.policy.dataSubmissionPolicyBypassNotification",true);
+user_pref("services.sync.telemetry.submissionInterval", 20);
+user_pref("datareporting.policy.dataSubmissionEnabled", true);
+user_pref("datareporting.healthreport.uploadEnabled",true);
 ```
 
 ## Troubleshooting
 
-### Running a test server
+### Sending test pings
 
-To run a test server locally to dump out the sent data, try
-https://github.com/mozilla/gzipServer
-(or alternatively https://github.com/bcampbell/webhole).
-
-Make sure you set `toolkit.telemetry.server`/`toolkit.telemetry.server_owner`
-to point to your local server.
-
-### Log output
-
-If you've got logging on (eg `user_pref("toolkit.telemetry.log.level", "Trace");`),
-the output will show up on the javascript console:
-
-    Menu => "Tools" => "Developer Tools" => "Error Console"
-
-If data isn't showing up, keep an eye out for messages in the console.
-For example: "Telemetry is not allowed to send pings" is an indication that
-the official-build check is failing (overridden by
-`toolkit.telemetry.send.overrideOfficialCheck`).
-
-### Test pings
-
-From the javascript console, you can force an immediate test ping:
+From the DevTools console, you can send an immediate test ping:
 
 ```
 Cu.import("resource://gre/modules/TelemetrySession.jsm");
-TelemetrySession.testPing()
+TelemetrySession.testPing();
 ```
+
+### Trace message: "Telemetry is not allowed to send pings"
+
+This indicates `TelemetrySend.sendingEnabled()` is returning false;
+
+Fails if not an official build (override using `toolkit.telemetry.send.overrideOfficialCheck`).
+
+If `toolkit.telemetry.unified` and `datareporting.healthreport.uploadEnabled` are true, then
+`sendingEnabled()` returns true;
+
+If `toolkit.telemetry.unified` is false, then the intended-to-be-deprecated `toolkit.telemetry.enabled` controls the result.
+We're using unified telemetry, so this shouldn't be an issue.
+
+### Trace message: "can't send ping now, persisting to disk"
+
+Trace shows:
+```
+TelemetrySend::submitPing - can't send ping now, persisting to disk - canSendNow: false
+```
+
+This means `TelemetryReportingPolicy.canUpload()` is returning false.
+
+Requirements for `canUpload()`:
+
+`datareporting.policy.dataSubmissionEnabled` must be true.
+AND
+`datareporting.policy.dataSubmissionPolicyNotifiedTime` has a sane timestamp (and is > `OLDEST_ALLOWED_ACCEPTANCE_YEAR`).
+AND
+`datareporting.policy.dataSubmissionPolicyAcceptedVersion` >= `datareporting.policy.minimumPolicyVersion`
+
+Or the notification policy can be bypassed by setting:
+`datareporting.policy.dataSubmissionPolicyBypassNotification` to true.
 
 ## Further documentation
 

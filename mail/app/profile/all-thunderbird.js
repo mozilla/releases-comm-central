@@ -369,7 +369,6 @@ pref("browser.display.auto_quality_min_font_size", 0);
 
 pref("view_source.syntax_highlight", false);
 
-pref("toolkit.telemetry.infoURL", "https://www.mozilla.org/thunderbird/legal/privacy/#telemetry");
 
 /////////////////////////////////////////////////////////////////
 // End core all.js pref overrides
@@ -1230,3 +1229,39 @@ pref("devtools.whatsnew.enabled", true);
 // Temporary preference to fully disable the WhatsNew panel on any target.
 // Should be removed in https://bugzilla.mozilla.org/show_bug.cgi?id=1596037
 pref("devtools.whatsnew.feature-enabled", true);
+
+// Telemetry settings.
+
+// Server to submit telemetry pings to.
+// For now we'll just default to local testing:
+pref("toolkit.telemetry.server", "http://localhost:8080");
+pref("toolkit.telemetry.server_owner", "Thunderbird");
+
+// Determines if Telemetry pings can be archived locally.
+pref("toolkit.telemetry.archive.enabled", true);
+// Enables sending the shutdown ping when Thunderbird shuts down.
+pref("toolkit.telemetry.shutdownPingSender.enabled", true);
+// Enables sending the shutdown ping using the pingsender from the first session.
+pref("toolkit.telemetry.shutdownPingSender.enabledFirstSession", false);
+// Enables sending a duplicate of the first shutdown ping from the first session.
+pref("toolkit.telemetry.firstShutdownPing.enabled", true);
+// Enables sending the 'new-profile' ping on new profiles.
+pref("toolkit.telemetry.newProfilePing.enabled", true);
+// Enables sending 'update' pings on Thunderbird updates.
+pref("toolkit.telemetry.updatePing.enabled", true);
+// Enables sending 'bhr' pings when the app hangs.
+pref("toolkit.telemetry.bhrPing.enabled", true);
+// Whether to enable Ecosystem Telemetry, requires a restart.
+#ifdef NIGHTLY_BUILD
+  pref("toolkit.telemetry.ecosystemtelemetry.enabled", true);
+#else
+  pref("toolkit.telemetry.ecosystemtelemetry.enabled", false);
+#endif
+
+// Required to enable telemetry pings (defaults to true if
+// MOZ_SERVICES_HEALTHREPORT is defined, but we're not yet sure we want
+// that...)
+pref(`datareporting.healthreport.uploadEnabled`, true);
+
+pref("toolkit.telemetry.infoURL", "https://www.mozilla.org/thunderbird/legal/privacy/#telemetry");
+
