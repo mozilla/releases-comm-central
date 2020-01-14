@@ -10,14 +10,6 @@
          xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- CALENDAR MENUS -->
-  <menupopup id="menu_EditPopup">
-    <menuitem id="ltnCalendarProperties"
-              insertafter="menu_properties"
-              label="&calendar.properties.label;"
-              accesskey="&calendar.properties.accesskey;"
-              command="calendar_edit_calendar_command"/>
-  </menupopup>
-
   <menupopup id="menu_View_Popup">
     <menu id="menu_Toolbars"
           onpopupshowing="onToolbarsPopupShowingForTabType(event);"/>
@@ -218,50 +210,6 @@
     </menu>
   </menupopup>
 
-  <menupopup id="menu_GoPopup">
-    <menuitem id="ltnGoToToday"
-              insertafter="goNextSeparator"
-              label="&goTodayCmd.label;"
-              accesskey="&goTodayCmd.accesskey;"
-              command="calendar_go_to_today_command"
-              key="calendar-go-to-today-key"/>
-  </menupopup>
-
-  <menupopup id="menu_GoNextPopup">
-    <menuseparator id="ltnGoNextSeparator"/>
-    <!-- Label is set up automatically using the view id. When writing a
-         view extension, overlay this menuitem and add a label-<myviewtype>
-         attribute with the correct label -->
-    <menuitem id="calendar-go-menu-next"
-              label=""
-              label-day="&lightning.toolbar.day.label;"
-              label-week="&lightning.toolbar.week.label;"
-              label-multiweek="&lightning.toolbar.week.label;"
-              label-month="&lightning.toolbar.month.label;"
-              accesskey-day="&lightning.toolbar.day.accesskey;"
-              accesskey-week="&lightning.toolbar.week.accesskey;"
-              accesskey-multiweek="&lightning.toolbar.week.accesskey;"
-              accesskey-month="&lightning.toolbar.month.accesskey;"
-              command="calendar_view_next_command"/>
-  </menupopup>
-
-  <menupopup id="menu_GoPreviousPopup">
-    <menuseparator id="ltnGoPreviousSeparator"/>
-    <!-- Label is set up automatically using the view id. When writing a
-         view extension, overlay this menuitem and add a label-<myviewtype>
-         attribute with the correct label -->
-    <menuitem id="calendar-go-menu-previous"
-              label=""
-              label-day="&lightning.toolbar.day.label;"
-              label-week="&lightning.toolbar.week.label;"
-              label-multiweek="&lightning.toolbar.week.label;"
-              label-month="&lightning.toolbar.month.label;"
-              accesskey-day="&lightning.toolbar.day.accesskey;"
-              accesskey-week="&lightning.toolbar.week.accesskey;"
-              accesskey-multiweek="&lightning.toolbar.week.accesskey;"
-              accesskey-month="&lightning.toolbar.month.accesskey;"
-              command="calendar_view_prev_command"/>
-  </menupopup>
 
   <menupopup id="mailContext">
     <menu id="mailContext-calendar-convert-menu"

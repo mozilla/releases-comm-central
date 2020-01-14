@@ -346,6 +346,10 @@
         <menuitem id="menu_properties" label="&folderPropsCmd2.label;"
                   accesskey="&folderPropsCmd.accesskey;"
                   command="cmd_properties"/>
+        <menuitem id="calendar-properties-menuitem"
+                  label="&calendar.properties.label;"
+                  accesskey="&calendar.properties.accesskey;"
+                  command="calendar_edit_calendar_command"/>
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
         <menuitem id="menu_accountmgr"
@@ -650,6 +654,21 @@
                         accesskey="&nextUnreadThread.accesskey;"
                         command="cmd_nextUnreadThread"
                         key="key_nextUnreadThread"/>
+              <menuseparator id="goNextAfterUnreadThreadSeparator"/>
+              <!-- Label is set up automatically using the view id. When writing
+                   a view extension, add a `label-<myviewtype>` attribute with
+                   the correct label. -->
+              <menuitem id="calendar-go-menu-next"
+                        label=""
+                        label-day="&lightning.toolbar.day.label;"
+                        label-week="&lightning.toolbar.week.label;"
+                        label-multiweek="&lightning.toolbar.week.label;"
+                        label-month="&lightning.toolbar.month.label;"
+                        accesskey-day="&lightning.toolbar.day.accesskey;"
+                        accesskey-week="&lightning.toolbar.week.accesskey;"
+                        accesskey-multiweek="&lightning.toolbar.week.accesskey;"
+                        accesskey-month="&lightning.toolbar.month.accesskey;"
+                        command="calendar_view_next_command"/>
             </menupopup>
           </menu>
           <menu id="goPreviousMenu" label="&prevMenu.label;" accesskey="&prevMenu.accesskey;">
@@ -668,6 +687,21 @@
                         label="&prevStarredMsgCmd.label;"
                         accesskey="&prevStarredMsgCmd.accesskey;"
                         command="cmd_previousFlaggedMsg"/>
+              <menuseparator id="goPreviousAfterFlaggedSeparator"/>
+              <!-- Label is set up automatically using the view id. When writing
+                   a view extension, add a `label-<myviewtype>` attribute with
+                   the correct label. -->
+              <menuitem id="calendar-go-menu-previous"
+                        label=""
+                        label-day="&lightning.toolbar.day.label;"
+                        label-week="&lightning.toolbar.week.label;"
+                        label-multiweek="&lightning.toolbar.week.label;"
+                        label-month="&lightning.toolbar.month.label;"
+                        accesskey-day="&lightning.toolbar.day.accesskey;"
+                        accesskey-week="&lightning.toolbar.week.accesskey;"
+                        accesskey-multiweek="&lightning.toolbar.week.accesskey;"
+                        accesskey-month="&lightning.toolbar.month.accesskey;"
+                        command="calendar_view_prev_command"/>
             </menupopup>
           </menu>
           <menuitem id="menu_goForward" label="&goForwardCmd.label;"
@@ -679,6 +713,11 @@
                     key="key_goBack"
                     class="menuitem-iconic"/>
           <menuseparator id="goNextSeparator"/>
+          <menuitem id="calendar-go-to-today-menuitem"
+                    label="&goTodayCmd.label;"
+                    accesskey="&goTodayCmd.accesskey;"
+                    command="calendar_go_to_today_command"
+                    key="calendar-go-to-today-key"/>
           <menuitem id="menu_goChat" label="&goChatCmd.label;"
                     accesskey="&goChatCmd.accesskey;"
                     command="cmd_chat"
