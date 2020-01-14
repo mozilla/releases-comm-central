@@ -50,6 +50,18 @@
                         accesskey="&newNewMsgCmd.accesskey;"
                         key="key_newMessage2"
                         command="cmd_newMessage"/>
+              <menuitem id="calendar-new-event-menuitem"
+                        label="&lightning.menupopup.new.event.label;"
+                        accesskey="&lightning.menupopup.new.event.accesskey;"
+                        key="calendar-new-event-key"
+                        command="calendar_new_event_command"/>
+              <menuitem id="calendar-new-task-menuitem"
+                        label="&lightning.menupopup.new.task.label;"
+                        accesskey="&lightning.menupopup.new.task.accesskey;"
+                        key="calendar-new-todo-key"
+                        command="calendar_new_todo_command"/>
+              <menuseparator id="calendar-after-new-task-menuseparator"
+                             observes="menu_newFolder"/>
               <menuitem id="menu_newFolder" label="&newFolderCmd.label;"
                         command="cmd_newFolder"
                         accesskey="&newFolderCmd.accesskey;"
@@ -79,6 +91,10 @@
                         label="&newOtherAccountsCmd.label;"
                         accesskey="&newOtherAccountsCmd.accesskey;"
                         oncommand="MsgAccountWizard();"/>
+              <menuitem id="calendar-new-calendar-menuitem"
+                        label="&lightning.menupopup.new.calendar.label;"
+                        command="calendar_new_calendar_command"
+                        accesskey="&lightning.menupopup.new.calendar.accesskey;"/>
               <menuseparator id="newPopupMenuSeparator"/>
               <menuitem id="menu_newCard"
                         label="&newContactCmd.label;"

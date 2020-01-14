@@ -35,7 +35,7 @@ add_task(async function testAlarmDialog() {
   viewForward(controller, 1);
 
   controller.click(lookupEventBox("day", ALLDAY, undefined, 1));
-  controller.mainMenu.click("#ltnNewEvent");
+  controller.mainMenu.click("#calendar-new-event-menuitem");
 
   // Create a new all-day event tomorrow.
   await invokeEventDialog(controller, null, async (event, iframe) => {

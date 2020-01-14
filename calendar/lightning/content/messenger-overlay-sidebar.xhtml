@@ -10,28 +10,6 @@
          xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- CALENDAR MENUS -->
-  <menupopup id="menu_NewPopup">
-    <menuitem id="ltnNewEvent"
-              label="&lightning.menupopup.new.event.label;"
-              insertbefore="menu_newFolder"
-              accesskey="&lightning.menupopup.new.event.accesskey;"
-              key="calendar-new-event-key"
-              command="calendar_new_event_command"/>
-    <menuitem id="ltnNewTask"
-              label="&lightning.menupopup.new.task.label;"
-              insertbefore="menu_newFolder"
-              accesskey="&lightning.menupopup.new.task.accesskey;"
-              key="calendar-new-todo-key"
-              command="calendar_new_todo_command"/>
-    <menuseparator id="afterltnNewTask"
-                   insertbefore="menu_newFolder"
-                   observes="menu_newFolder"/>
-    <menuitem id="ltnNewCalendar" label="&lightning.menupopup.new.calendar.label;"
-               command="calendar_new_calendar_command"
-               accesskey="&lightning.menupopup.new.calendar.accesskey;"
-               insertafter="newAccountMenuItem"/>
-  </menupopup>
-
   <menupopup id="menu_EditPopup">
     <menuitem id="ltnCalendarProperties"
               insertafter="menu_properties"

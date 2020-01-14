@@ -38,7 +38,7 @@ add_task(async function testLocalICS() {
   plan_for_modal_dialog("Calendar:NewCalendarWizard", wizard => {
     handleNewCalendarWizard(wizard, calendarName, { network: { format: "ics" } });
   });
-  controller.mainMenu.click("#ltnNewCalendar");
+  controller.mainMenu.click("#calendar-new-calendar-menuitem");
   wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
 
   // Create new event.
