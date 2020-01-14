@@ -4,7 +4,7 @@
 
 /* exported refreshUIBits, switchCalendarView, rescheduleInvitationsUpdate,
  *          openInvitationsDialog, onToolbarsPopupShowingWithMode,
- *          InitViewCalendarPaneMenu, onToolbarsPopupShowingForTabType,
+ *          InitViewCalendarPaneMenu, calendarOnToolbarsPopupShowing,
  *          customizeMailToolbarForTabType, gCurrentMode
  */
 
@@ -778,7 +778,7 @@ function getToolboxIdForCurrentTabType() {
  * @param {MouseEvent} aEvent              The popupshowing event
  * @param {nsIDOMXULElement} aInsertPoint  (optional) menuitem node
  */
-function onToolbarsPopupShowingForTabType(aEvent, aInsertPoint) {
+function calendarOnToolbarsPopupShowing(aEvent, aInsertPoint) {
   if (onViewToolbarsPopupShowing.length < 3) {
     // SeaMonkey
     onViewToolbarsPopupShowing(aEvent);

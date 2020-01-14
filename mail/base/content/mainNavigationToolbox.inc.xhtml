@@ -374,7 +374,7 @@
         <menu id="menu_Toolbars"
               label="&viewToolbarsMenu.label;"
               accesskey="&viewToolbarsMenu.accesskey;"
-              onpopupshowing="onViewToolbarsPopupShowing(event, 'mail-toolbox');">
+              onpopupshowing="calendarOnToolbarsPopupShowing(event);">
           <menupopup id="view_toolbars_popup">
             <menuitem id="view_toolbars_popup_quickFilterBar"
                       type="checkbox"
@@ -447,6 +447,9 @@
                       oncommand="gFolderTreeView.toggleCompact(this.getAttribute('checked') == 'true');"/>
           </menupopup>
         </menu>
+
+#include ../../../calendar/lightning/content/calendar-view-menu.inc.xhtml
+
         <menuseparator id="viewSortMenuSeparator"/>
         <menu id="viewSortMenu" accesskey="&sortMenu.accesskey;" label="&sortMenu.label;">
           <menupopup id="menu_viewSortPopup" onpopupshowing="InitViewSortByMenu()">
