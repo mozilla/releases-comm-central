@@ -10,37 +10,6 @@
          xmlns:html="http://www.w3.org/1999/xhtml">
 
   <!-- CALENDAR MENUS -->
-  <menupopup id="menu_FilePopup">
-    <menu id="menu_Open"
-          mode="calendar"
-          label="&lightning.menupopup.open.label;"
-          accesskey="&lightning.menupopup.open.accesskey;"
-          insertafter="menu_New">
-      <menupopup id="menu_OpenPopup">
-        <menuitem id="ltnOpenMessageFileMenuitem"
-                  label="&lightning.menupopup.open.message.label;"
-                  accesskey="&lightning.menupopup.open.message.accesskey;"
-                  oncommand="MsgOpenFromFile();"/>
-        <menuitem id="ltnOpenCalendarFileMenuitem"
-                  label="&lightning.menupopup.open.calendar.label;"
-                  accesskey="&lightning.menupopup.open.calendar.accesskey;"
-                  oncommand="openLocalCalendar();"/>
-      </menupopup>
-    </menu>
-    <menuitem id="ltnSave"
-              insertbefore="menu_saveAs"
-              label="&event.menu.item.save.label;"
-              accesskey="&event.menu.item.save.tab.accesskey;"
-              key="save-key"
-              command="cmd_save"/>
-    <menuitem id="ltnSaveAndClose"
-              insertafter="ltnSave"
-              label="&event.menu.item.saveandclose.label;"
-              accesskey="&event.menu.item.saveandclose.tab.accesskey;"
-              command="cmd_accept"/>
-  </menupopup>
-  <menuitem id="openMessageFileMenuitem" hidden="true"/>
-
   <menupopup id="menu_NewPopup">
     <menuitem id="ltnNewEvent"
               label="&lightning.menupopup.new.event.label;"

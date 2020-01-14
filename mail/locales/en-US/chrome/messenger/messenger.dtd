@@ -42,8 +42,10 @@
 <!ENTITY  newMessageCmd.accesskey "m">
 <!ENTITY  newContactCmd.label "Address Book Contact…">
 <!ENTITY  newContactCmd.accesskey "C">
-<!ENTITY openMessageFileCmd.label "Open Saved Message…">
-<!ENTITY openMessageFileCmd.accesskey "O">
+<!ENTITY openMenuCmd.label "Open">
+<!ENTITY openMenuCmd.accesskey "O">
+<!ENTITY openMessageFileCmd.label "Saved Message…">
+<!ENTITY openMessageFileCmd.accesskey "M">
 <!ENTITY saveAsMenu.label "Save As">
 <!ENTITY saveAsMenu.accesskey "S">
 <!ENTITY saveAsFileCmd.label "File">

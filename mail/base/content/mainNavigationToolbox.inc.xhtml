@@ -90,9 +90,22 @@
                         command="cmd_addChatBuddy"/>
             </menupopup>
           </menu>
-          <menuitem id="openMessageFileMenuitem" label="&openMessageFileCmd.label;"
-            accesskey="&openMessageFileCmd.accesskey;" class="menuitem-iconic"
-            oncommand="MsgOpenFromFile();"/>
+          <menu id="menu_Open"
+                mode="calendar"
+                label="&openMenuCmd.label;"
+                accesskey="&openMenuCmd.accesskey;">
+            <menupopup id="menu_OpenPopup">
+              <menuitem id="openMessageFileMenuitem"
+                        label="&openMessageFileCmd.label;"
+                        class="menuitem-iconic"
+                        accesskey="&openMessageFileCmd.accesskey;"
+                        oncommand="MsgOpenFromFile();"/>
+              <menuitem id="ltnOpenCalendarFileMenuitem"
+                        label="&lightning.menupopup.open.calendar.label;"
+                        accesskey="&lightning.menupopup.open.calendar.accesskey;"
+                        oncommand="openLocalCalendar();"/>
+            </menupopup>
+          </menu>
           <menuitem id="menu_close"
                     label="&closeCmd.label;"
                     key="key_close"
@@ -100,6 +113,15 @@
                     command="cmd_close"
                     class="menuitem-iconic"/>
           <menuseparator id="fileMenuAfterCloseSeparator"/>
+          <menuitem id="ltnSave"
+                    label="&event.menu.item.save.label;"
+                    accesskey="&event.menu.item.save.tab.accesskey;"
+                    key="save-key"
+                    command="cmd_save"/>
+          <menuitem id="ltnSaveAndClose"
+                    label="&event.menu.item.saveandclose.label;"
+                    accesskey="&event.menu.item.saveandclose.tab.accesskey;"
+                    command="cmd_accept"/>
           <menu id="menu_saveAs" class="menu-iconic menuitem-iconic"
                 label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
             <menupopup id="menu_SavePopup">

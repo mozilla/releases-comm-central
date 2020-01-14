@@ -19,10 +19,6 @@
 <!ENTITY lightning.menupopup.new.calendar.accesskey "n">
 
 <!-- Open menu popup in File menu -->
-<!ENTITY lightning.menupopup.open.label               "Open">
-<!ENTITY lightning.menupopup.open.accesskey           "O">
-<!ENTITY lightning.menupopup.open.message.label       "Saved Message…">
-<!ENTITY lightning.menupopup.open.message.accesskey   "M">
 <!ENTITY lightning.menupopup.open.calendar.label      "Calendar File…">
 <!ENTITY lightning.menupopup.open.calendar.accesskey  "C">
 
