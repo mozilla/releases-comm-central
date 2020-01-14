@@ -16,6 +16,7 @@ lightning.jar:
     content/calendar-commands.inc.xhtml                    (content/calendar-commands.inc.xhtml)
     content/calendar-context-menus-and-tooltips.inc.xhtml  (content/calendar-context-menus-and-tooltips.inc.xhtml)
     content/calendar-keys.inc.xhtml                        (content/calendar-keys.inc.xhtml)
+    content/calendar-tab-panels.inc.xhtml                  (content/calendar-tab-panels.inc.xhtml)
     content/html-item-editing/lightning-item-iframe.html   (content/html-item-editing/lightning-item-iframe.html)
     content/html-item-editing/react-code.js                (content/html-item-editing/react-code.js)
     content/imip-bar.js                                    (content/imip-bar.js)

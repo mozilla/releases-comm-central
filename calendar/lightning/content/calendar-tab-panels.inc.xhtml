@@ -1,0 +1,620 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<vbox id="calendarTabPanel">
+  <!-- Unfortunately we use the same panel for task and calendar tabs, so
+       we need to show one toolbar or the other. -->
+  <calendar-modevbox id="calendar-toolbox-container"
+                     mode="calendar">
+    <toolbox id="calendar-toolbox"
+             class="mail-toolbox"
+             mode="full"
+             defaultmode="full"
+             iconsize="small"
+             defaulticonsize="small"
+             labelalign="end"
+             defaultlabelalign="end">
+      <toolbarpalette id="CalendarToolbarPalette">
+        <toolbarbutton id="calendar-synchronize-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.sync.label;"
+                       tooltiptext="&lightning.toolbar.sync.tooltip;"
+                       command="calendar_reload_remote_calendars"/>
+        <toolbarbutton id="calendar-newevent-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.newevent.label;"
+                       tooltiptext="&lightning.toolbar.newevent.tooltip;"
+                       command="calendar_new_event_command"/>
+        <toolbarbutton id="calendar-newtask-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.newtask.label;"
+                       tooltiptext="&lightning.toolbar.newtask.tooltip;"
+                       command="calendar_new_todo_command"/>
+        <toolbarbutton id="calendar-goto-today-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.gototoday.label;"
+                       tooltiptext="&lightning.toolbar.gototoday.tooltip;"
+                       command="calendar_go_to_today_command"/>
+        <toolbarbutton id="calendar-edit-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.edit.label;"
+                       tooltiptext="&lightning.toolbar.edit.tooltip;"
+                       command="calendar_modify_focused_item_command"/>
+        <toolbarbutton id="calendar-delete-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.delete.label;"
+                       tooltiptext="&lightning.toolbar.delete.tooltip;"
+                       command="calendar_delete_focused_item_command"/>
+        <toolbarbutton id="calendar-print-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.print.label;"
+                       tooltiptext="&lightning.toolbar.print.tooltip;"
+                       command="cmd_print"/>
+        <toolbarbutton id="calendar-unifinder-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&showUnifinderCmd.label;"
+                       tooltiptext="&showUnifinderCmd.tooltip;"
+                       command="calendar_show_unifinder_command"/>
+        <toolbarbutton id="calendar-appmenu-button"
+                       type="menu"
+                       class="toolbarbutton-1 button-appmenu"
+                       label="&lightning.toolbar.appmenuButton.label;"
+                       tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
+      </toolbarpalette>
+      <toolbar is="customizable-toolbar" id="calendar-toolbar2"
+               class="inline-toolbar chromeclass-toolbar"
+               toolbarname="&lightning.toolbar.calendar.name;"
+               accesskey="&lightning.toolbar.calendar.name.accesskey;"
+               fullscreentoolbar="true" mode="full"
+               customizable="true"
+               context="calendar-toolbar-context"
+               iconsize="small"
+               defaultset="calendar-synchronize-button,calendar-newevent-button,calendar-newtask-button,calendar-edit-button,calendar-delete-button,spring,calendar-appmenu-button"/>
+    </toolbox>
+  </calendar-modevbox>
+
+  <calendar-modevbox id="task-toolbox-container"
+                     mode="task">
+    <toolbox id="task-toolbox"
+             class="mail-toolbox"
+             mode="full"
+             defaultmode="full"
+             iconsize="small"
+             defaulticonsize="small"
+             labelalign="end"
+             defaultlabelalign="end">
+      <toolbarpalette id="TaskToolbarPalette">
+        <toolbarbutton id="task-synchronize-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.sync.label;"
+                       tooltiptext="&lightning.toolbar.sync.tooltip;"
+                       command="calendar_reload_remote_calendars"/>
+        <toolbarbutton id="task-newevent-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.newevent.label;"
+                       tooltiptext="&lightning.toolbar.newevent.tooltip;"
+                       command="calendar_new_event_command"/>
+        <toolbarbutton id="task-newtask-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.newtask.label;"
+                       tooltiptext="&lightning.toolbar.newtask.tooltip;"
+                       command="calendar_new_todo_command"/>
+        <toolbarbutton id="task-edit-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.edit.label;"
+                       tooltiptext="&lightning.toolbar.edit.tooltip;"
+                       command="calendar_modify_focused_item_command"/>
+        <toolbarbutton id="task-delete-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.delete.label;"
+                       tooltiptext="&lightning.toolbar.delete.tooltip;"
+                       command="calendar_delete_focused_item_command"/>
+        <toolbarbutton id="task-print-button"
+                       class="toolbarbutton-1 calbar-toolbarbutton-1"
+                       label="&lightning.toolbar.print.label;"
+                       tooltiptext="&lightning.toolbar.print.tooltip;"
+                       command="cmd_print"/>
+        <toolbarbutton id="task-appmenu-button"
+                       type="menu"
+                       class="toolbarbutton-1 button-appmenu"
+                       label="&lightning.toolbar.appmenuButton.label;"
+                       tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
+      </toolbarpalette>
+      <toolbar is="customizable-toolbar" id="task-toolbar2"
+               class="inline-toolbar chromeclass-toolbar"
+               toolbarname="&lightning.toolbar.task.name;"
+               accesskey="&lightning.toolbar.task.name.accesskey;"
+               fullscreentoolbar="true" mode="full"
+               customizable="true"
+               context="task-toolbar-context"
+               iconsize="small"
+               defaultset="task-synchronize-button,task-newevent-button,task-newtask-button,task-edit-button,task-delete-button,spring,task-appmenu-button"/>
+    </toolbox>
+  </calendar-modevbox>
+  <hbox id="calendarContent" flex="1">
+    <vbox id="ltnSidebar"
+          width="200"
+          persist="collapsed width">
+      <calendar-modevbox id="minimonth-pane"
+                         mode="calendar,task"
+                         refcontrol="calendar_toggle_minimonthpane_command">
+        <vbox align="center">
+          <hbox id="calMinimonthBox" pack="center">
+            <calendar-minimonth id="calMinimonth" onchange="minimonthPick(this.value);"/>
+          </hbox>
+        </vbox>
+      </calendar-modevbox>
+      <separator id="minimonth-splitter" minwidth="100"/>
+      <vbox id="calendar-panel" flex="1">
+        <calendar-modevbox id="task-filter-pane"
+                           mode="task"
+                           refcontrol="calendar_toggle_filter_command">
+          <checkbox id="task-tree-filter-header"
+                           checked="true"
+                           class="treenode-checkbox"
+                           label="&calendar.task.filter.title.label;"/>
+          <calendar-modevbox id="task-filtertree-pane"
+                             flex="1"
+                             mode="task"
+                             refcontrol="task-tree-filter-header">
+            <radiogroup id="task-tree-filtergroup" class="task-tree-subpane"
+                        persist="value">
+              <radio id="opt_throughcurrent_filter" label="&calendar.task.filter.current.label;" value="throughcurrent" command="calendar_task_filter_command"/>
+              <radio id="opt_today_filter" label="&calendar.task.filter.today.label;" value="throughtoday" command="calendar_task_filter_command"/>
+              <radio id="opt_next7days_filter" label="&calendar.task.filter.next7days.label;" value="throughsevendays" command="calendar_task_filter_command"/>
+              <radio id="opt_notstarted_filter" label="&calendar.task.filter.notstarted.label;" value="notstarted" command="calendar_task_filter_command"/>
+              <radio id="opt_overdue_filter" label="&calendar.task.filter.overdue.label;" value="overdue" command="calendar_task_filter_command"/>
+              <radio id="opt_completed_filter" label="&calendar.task.filter.completed.label;" value="completed" command="calendar_task_filter_command"/>
+              <radio id="opt_open_filter" label="&calendar.task.filter.open.label;" value="open" command="calendar_task_filter_command"/>
+              <radio id="opt_all_filter" label="&calendar.task.filter.all.label;" value="all" command="calendar_task_filter_command"/>
+            </radiogroup>
+          </calendar-modevbox>
+        </calendar-modevbox>
+        <calendar-modevbox id="calendar-list-pane"
+                           flex="1"
+                           mode="calendar,task"
+                           refcontrol="calendar_toggle_calendarlist_command">
+          <checkbox id="calendar-list-header"
+                           checked="true"
+                           class="treenode-checkbox"
+                           label="&calendar.list.header.label;"/>
+          <calendar-modevbox id="calendar-list-inner-pane"
+                             flex="1"
+                             mode="calendar,task"
+                             refcontrol="calendar-list-header">
+            <richlistbox id="calendar-list" flex="1" context="list-calendars-context-menu"/>
+          </calendar-modevbox>
+        </calendar-modevbox>
+      </vbox>
+    </vbox>
+
+    <splitter id="calsidebar_splitter"
+              collapse="before"
+              persist="state"
+              class="calendar-sidebar-splitter"/>
+
+    <deck id="calendarDisplayDeck" flex="1">
+      <!-- Events View ("Unifinder") -->
+      <vbox id="calendar-view-box" context="calendar-view-context-menu">
+        <vbox id="bottom-events-box" persist="height">
+          <hbox id="unifinder-searchBox" persist="collapsed">
+            <box align="center">
+              <menulist id="event-filter-menulist" value="P7D" persist="value">
+                <menupopup id="event-filter-menupopup" oncommand="refreshEventTree()">
+                  <menuitem id="event-filter-all"
+                            label="&calendar.events.filter.all.label;"
+                            value="all"/>
+                  <menuitem id="event-filter-today"
+                            label="&calendar.events.filter.today.label;"
+                            value="today"/>
+                  <menuitem id="event-filter-next7days"
+                            label="&calendar.events.filter.next7Days.label;"
+                            value="P7D"/>
+                  <menuitem id="event-filter-next14Days"
+                            label="&calendar.events.filter.next14Days.label;"
+                            value="P14D"/>
+                  <menuitem id="event-filter-next31Days"
+                            label="&calendar.events.filter.next31Days.label;"
+                            value="P31D"/>
+                  <menuitem id="event-filter-thisCalendarMonth"
+                            label="&calendar.events.filter.thisCalendarMonth.label;"
+                            value="thisCalendarMonth"/>
+                  <menuitem id="event-filter-future"
+                            label="&calendar.events.filter.future.label;"
+                            value="future"/>
+                  <menuitem id="event-filter-current"
+                            label="&calendar.events.filter.current.label;"
+                            value="current"/>
+                  <menuitem id="event-filter-currentview"
+                            label="&calendar.events.filter.currentview.label;"
+                            value="currentview"/>
+                </menupopup>
+              </menulist>
+            </box>
+            <box align="center" flex="1">
+              <label control="unifinder-search-field" value="&calendar.search.options.searchfor;"/>
+              <search-textbox id="unifinder-search-field"
+                              class="themeableSearchBox"
+                              oncommand="refreshEventTree();"
+                              flex="1"/>
+            </box>
+            <toolbarbutton id="unifinder-closer"
+                           class="unifinder-closebutton close-icon"
+                           command="calendar_show_unifinder_command"
+                           tooltiptext="&calendar.unifinder.close.tooltip;"/>
+          </hbox>
+          <tree id="unifinder-search-results-tree" flex="1"
+                onselect="unifinderSelect(event); calendarController.onSelectionChanged()"
+                onkeypress="unifinderKeyPress(event)"
+                _selectDelay="500"
+                persist="sort-active sort-direction"
+                enableColumnDrag="true">
+            <treecols id="unifinder-search-results-tree-cols">
+              <treecol id="unifinder-search-results-tree-col-title"
+                       persist="hidden ordinal width"
+                       flex="1"
+                       itemproperty="title"
+                       label="&calendar.unifinder.tree.title.label;"
+                       tooltiptext="&calendar.unifinder.tree.title.tooltip2;"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="unifinder-search-results-tree-col-startdate"
+                       persist="hidden ordinal width"
+                       flex="1"
+                       itemproperty="startDate"
+                       label="&calendar.unifinder.tree.startdate.label;"
+                       tooltiptext="&calendar.unifinder.tree.startdate.tooltip2;"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="unifinder-search-results-tree-col-enddate"
+                       persist="hidden ordinal width"
+                       flex="1"
+                       itemproperty="endDate"
+                       label="&calendar.unifinder.tree.enddate.label;"
+                       tooltiptext="&calendar.unifinder.tree.enddate.tooltip2;"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="unifinder-search-results-tree-col-categories"
+                       persist="hidden ordinal width"
+                       flex="1"
+                       itemproperty="categories"
+                       label="&calendar.unifinder.tree.categories.label;"
+                       tooltiptext="&calendar.unifinder.tree.categories.tooltip2;"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="unifinder-search-results-tree-col-location"
+                       persist="hidden ordinal width"
+                       flex="1"
+                       hidden="true"
+                       itemproperty="location"
+                       label="&calendar.unifinder.tree.location.label;"
+                       tooltiptext="&calendar.unifinder.tree.location.tooltip2;"/>
+              <splitter class="tree-splitter"/>
+              <treecol id="unifinder-search-results-tree-col-status"
+                       persist="hidden ordinal width"
+                       flex="1"
+                       hidden="true"
+                       itemproperty="status"
+                       label="&calendar.unifinder.tree.status.label;"
+                       tooltiptext="&calendar.unifinder.tree.status.tooltip2;"/>
+              <treecol id="unifinder-search-results-tree-col-calendarname"
+                       persist="hidden ordinal width"
+                       flex="1"
+                       hidden="true"
+                       itemproperty="calendar"
+                       label="&calendar.unifinder.tree.calendarname.label;"
+                       tooltiptext="&calendar.unifinder.tree.calendarname.tooltip2;"/>
+            </treecols>
+
+            <!-- on mousedown here happens before onclick above -->
+            <treechildren tooltip="eventTreeTooltip"
+                          context="calendar-item-context-menu"
+                          onkeypress="if (event.key == 'Enter') { unifinderEditCommand(); }"
+                          ondragenter="return false;"
+                          ondblclick="unifinderDoubleClick(event)"
+                          onfocus="focusFirstItemIfNoSelection();"/>
+          </tree>
+        </vbox>
+        <splitter id="calendar-view-splitter"
+                  resizebefore="closest"
+                  resizeafter="farthest"
+                  persist="state"
+                  class="chromeclass-extrachrome sidebar-splitter calendar-splitter"
+                  orient="vertical"
+                  onmouseup="setTimeout(refreshEventTree, 10);"/>
+
+        <!-- Calendar Views -->
+        <hbox id="calendar-nav-control">
+          <vbox flex="1">
+            <hbox flex="1" class="navigation-inner-box" align="center">
+              <!-- If you are extending a view, add attributes to these
+                   nodes for your view. i.e if your view has the id
+                   "foobar-view", then you need to add the attribute
+                   tooltiptext-foobar="..." -->
+              <hbox pack="center">
+                <toolbarbutton id="previous-view-button"
+                               class="view-navigation-button"
+                               type="prev"
+                               tooltiptext-day="&calendar.navigation.prevday.tooltip;"
+                               tooltiptext-week="&calendar.navigation.prevweek.tooltip;"
+                               tooltiptext-multiweek="&calendar.navigation.prevweek.tooltip;"
+                               tooltiptext-month="&calendar.navigation.prevmonth.tooltip;"
+                               command="calendar_view_prev_command"/>
+                <toolbarbutton id="today-view-button"
+                               class="today-navigation-button"
+                               label="&calendar.today.button.label;"
+                               tooltiptext-all="&calendar.today.button.tooltip;"
+                               command="calendar_view_today_command"/>
+                <toolbarbutton id="next-view-button"
+                               class="view-navigation-button"
+                               type="next"
+                               tooltiptext-day="&calendar.navigation.nextday.tooltip;"
+                               tooltiptext-week="&calendar.navigation.nextweek.tooltip;"
+                               tooltiptext-multiweek="&calendar.navigation.nextweek.tooltip;"
+                               tooltiptext-month="&calendar.navigation.nextmonth.tooltip;"
+                               command="calendar_view_next_command"/>
+              </hbox>
+              <label id="intervalDescription"
+                     class="view-header"
+                     crop="end"
+                     flex="1"
+                     pack="start"/>
+              <spacer flex="1"/>
+              <label id="calendarWeek"
+                     class="view-header"
+                     type="end"
+                     crop="start"/>
+            </hbox>
+            <hbox flex="1" class="navigation-bottombox"/>
+          </vbox>
+          <vbox id="view-tabbox" pack="end">
+            <radiogroup id="view-tabs"
+                        class="calview-tabs"
+                        orient="horizontal">
+              <radio id="calendar-day-view-button"
+                     label="&calendar.day.button.label;"
+                     tooltiptext="&calendar.day.button.tooltip;"
+                     class="calview"
+                     command="calendar_day-view_command"/>
+              <radio id="calendar-week-view-button"
+                     label="&calendar.week.button.label;"
+                     tooltiptext="&calendar.week.button.tooltip;"
+                     class="calview"
+                     command="calendar_week-view_command"/>
+              <radio id="calendar-multiweek-view-button"
+                     label="&calendar.multiweek.button.label;"
+                     tooltiptext="&calendar.multiweek.button.tooltip;"
+                     class="calview"
+                     command="calendar_multiweek-view_command"/>
+              <radio id="calendar-month-view-button"
+                     label="&calendar.month.button.label;"
+                     tooltiptext="&calendar.month.button.tooltip;"
+                     class="calview"
+                     command="calendar_month-view_command"/>
+            </radiogroup>
+            <box class="navigation-bottombox"/>
+          </vbox>
+          <vbox>
+            <vbox flex="1" class="navigation-spacer-box"/>
+            <hbox class="navigation-bottombox"/>
+          </vbox>
+        </hbox>
+        <deck flex="1"
+              id="view-deck"
+              persist="selectedIndex">
+          <!-- Note: the "id" attributes of the calendar panes **must** follow the
+               notation 'type + "-" + "view"', where "type" should refer to the
+               displayed time period as described in base/public/calICalendarView.idl -->
+          <calendar-day-view id="day-view" flex="1"
+                             context="calendar-view-context-menu"
+                             item-context="calendar-item-context-menu"/>
+          <calendar-week-view id="week-view" flex="1"
+                              context="calendar-view-context-menu"
+                              item-context="calendar-item-context-menu"/>
+          <calendar-multiweek-view id="multiweek-view" flex="1"
+                                   context="calendar-view-context-menu"
+                                   item-context="calendar-item-context-menu"/>
+          <calendar-month-view id="month-view" flex="1"
+                               context="calendar-view-context-menu"
+                               item-context="calendar-item-context-menu"/>
+        </deck>
+      </vbox>
+      <!-- Tasks View -->
+      <vbox id="calendar-task-box" flex="1"
+            onselect="taskDetailsView.onSelect(event);">
+        <hbox id="task-addition-box" align="center">
+          <box align="center" flex="1">
+            <toolbarbutton id="calendar-add-task-button"
+                           label="&calendar.newtask.button.label;"
+                           tooltiptext="&calendar.newtask.button.tooltip;"
+                           command="calendar_new_todo_command"/>
+            <hbox align="center" flex="1" class="input-container">
+              <html:input id="view-task-edit-field"
+                          class="task-edit-field themeableSearchBox"
+                          onfocus="taskEdit.onFocus(event)"
+                          onblur="taskEdit.onBlur(event)"
+                          onkeypress="taskEdit.onKeyPress(event)"/>
+            </hbox>
+          </box>
+          <box align="center" flex="1">
+            <search-textbox id="task-text-filter-field"
+                            class="themeableSearchBox"
+                            flex="1"
+                            placeholder=""
+                            emptytextbase="&calendar.task.text-filter.textbox.emptytext.base1;"
+                            keyLabelNonMac="&calendar.task.text-filter.textbox.emptytext.keylabel.nonmac;"
+                            keyLabelMac="&calendar.task.text-filter.textbox.emptytext.keylabel.mac;"
+                            oncommand="taskViewUpdate();"/>
+          </box>
+        </hbox>
+        <vbox flex="1">
+          <tree is="calendar-task-tree" id="calendar-task-tree"
+                flex="1"
+                visible-columns="completed priority title entryDate dueDate"
+                persist="visible-columns ordinals widths sort-active sort-direction height"
+                context="taskitem-context-menu"/>
+          <splitter id="calendar-task-view-splitter" collapse="none" persist="state" class="calendar-splitter"/>
+          <vbox id="calendar-task-details-container"
+                class="main-header-area"
+                flex="1"
+                persist="height"
+                hidden="true">
+            <hbox id="calendar-task-details">
+              <hbox id="other-actions-box">
+                <vbox id="task-actions-toolbox">
+                  <hbox id="task-actions-toolbar" class="toolbar">
+                    <toolbarbutton id="task-actions-category"
+                                   type="menu"
+                                   label="&calendar.unifinder.tree.categories.label;"
+                                   tooltiptext="&calendar.task.category.button.tooltip;"
+                                   command="calendar_task_category_command"
+                                   class="toolbarbutton-1 msgHeaderView-button">
+                      <menupopup id="task-actions-category-popup"
+                                 onpopupshowing="taskDetailsView.loadCategories(event);"
+                                 onpopuphiding="return taskDetailsView.saveCategories(event);">
+                        <html:input id="task-actions-category-textbox"
+                                    placeholder="&event.categories.textbox.label;"
+                                    onblur="this.parentNode.removeAttribute(&quot;ignorekeys&quot;);"
+                                    onfocus="this.parentNode.setAttribute(&quot;ignorekeys&quot;, &quot;true&quot;);"
+                                    onkeypress="taskDetailsView.categoryTextboxKeypress(event);"/>
+                        <menuseparator/>
+                      </menupopup>
+                    </toolbarbutton>
+                    <toolbarbutton is="toolbarbutton-menu-button" id="task-actions-markcompleted"
+                                   type="menu-button"
+                                   label="&calendar.context.markcompleted.label;"
+                                   tooltiptext="&calendar.task.complete.button.tooltip;"
+                                   command="calendar_toggle_completed_command"
+                                   class="toolbarbutton-1 msgHeaderView-button">
+                      <menupopup is="calendar-task-progress-menupopup" id="task-actions-markcompleted-menupopup"/>
+                    </toolbarbutton>
+                    <toolbarbutton id="task-actions-priority"
+                                   type="menu"
+                                   label="&calendar.context.priority.label;"
+                                   tooltiptext="&calendar.task.priority.button.tooltip;"
+                                   command="calendar_general-priority_command"
+                                   class="toolbarbutton-1 msgHeaderView-button">
+                      <menupopup is="calendar-task-priority-menupopup" id="task-actions-priority-menupopup"/>
+                    </toolbarbutton>
+                    <toolbarbutton id="calendar-delete-task-button"
+                                   class="toolbarbutton-1 msgHeaderView-button"
+                                   label="&calendar.taskview.delete.label;"
+                                   tooltiptext="&calendar.context.deletetask.label;"
+                                   command="calendar_delete_todo_command"/>
+                  </hbox>
+                </vbox>
+              </hbox>
+              <hbox id ="calendar-task-details-box">
+                <html:table id="calendar-task-details-grid">
+                  <html:tr id="calendar-task-details-title-row"
+                           hidden="hidden">
+                    <html:th class="task-details-name">
+                      &calendar.task-details.title.label;
+                    </html:th>
+                    <html:td id="calendar-task-details-title"
+                             class="task-details-value">
+                    </html:td>
+                  </html:tr>
+                  <html:tr id="calendar-task-details-priority-row"
+                           hidden="hidden">
+                    <html:th id="calendar-task-details-priority-label"
+                             class="task-details-name">
+                      &calendar.task-details.priority.label;
+                    </html:th>
+                    <html:td id="calendar-task-details-priority-td">
+                      <label id="calendar-task-details-priority-low"
+                             value="&calendar.task-details.priority.low.label;"
+                             class="task-details-value"
+                             hidden="true"/>
+                      <label id="calendar-task-details-priority-normal"
+                             value="&calendar.task-details.priority.normal.label;"
+                             class="task-details-value"
+                             hidden="true"/>
+                      <label id="calendar-task-details-priority-high"
+                             value="&calendar.task-details.priority.high.label;"
+                             class="task-details-value"
+                             hidden="true"/>
+                    </html:td>
+                  </html:tr>
+                  <html:tr id="calendar-task-details-organizer-row"
+                           hidden="hidden">
+                    <html:th class="task-details-name">
+                      &calendar.task-details.organizer.label;
+                    </html:th>
+                    <html:td id="calendar-task-details-organizer"
+                             class="task-details-value text-link"
+                             onclick="sendMailToOrganizer()">
+                    </html:td>
+                  </html:tr>
+                  <html:tr id="calendar-task-details-status-row"
+                           hidden="hidden">
+                    <html:th class="task-details-name">
+                      &calendar.task-details.status.label;
+                    </html:th>
+                    <html:td id="calendar-task-details-status"
+                             class="task-details-value">
+                    </html:td>
+                  </html:tr>
+                  <html:tr id="calendar-task-details-category-row"
+                           hidden="hidden">
+                    <html:th class="task-details-name">
+                      &calendar.task-details.category.label;
+                    </html:th>
+                    <html:td id="calendar-task-details-category"
+                             class="task-details-value">
+                    </html:td>
+                  </html:tr>
+                  <html:tr id="task-start-row"
+                           class="item-date-row"
+                           hidden="hidden">
+                    <html:th class="headline"
+                             control="task-start-date">
+                      &calendar.task-details.start.label;
+                    </html:th>
+                    <html:td>
+                      <html:input is="calendar-item-date-input" id="task-start-date" mode="start"/>
+                    </html:td>
+                  </html:tr>
+                  <html:tr id="task-due-row"
+                           class="item-date-row"
+                           hidden="hidden">
+                    <html:th class="headline"
+                             control="task-due-date">
+                      &calendar.task-details.due.label;
+                    </html:th>
+                    <html:td>
+                      <html:input is="calendar-item-date-input" id="task-due-date" mode="end"/>
+                    </html:td>
+                  </html:tr>
+                  <html:tr id="calendar-task-details-repeat-row"
+                           hidden="hidden">
+                    <html:th class="task-details-name">
+                      &calendar.task-details.repeat.label;
+                    </html:th>
+                    <html:td id="calendar-task-details-repeat"
+                             class="task-details-value">
+                    </html:td>
+                  </html:tr>
+                </html:table>
+              </hbox>
+            </hbox>
+            <hbox id="calendar-task-details-description-wrapper" flex="1">
+              <html:textarea id="calendar-task-details-description"/>
+            </hbox>
+            <hbox id="calendar-task-details-attachment-row"
+                  align="start"
+                  hidden="true">
+              <hbox pack="end">
+                <label value="&calendar.task-details.attachments.label;"
+                       class="task-details-name"/>
+              </hbox>
+              <vbox id="calendar-task-details-attachment-rows"
+                    align="start"
+                    flex="1"
+                    style="overflow: auto;"
+                    hidden="true">
+              </vbox>
+            </hbox>
+          </vbox>
+        </vbox>
+      </vbox>
+    </deck>
+  </hbox>
+</vbox>
