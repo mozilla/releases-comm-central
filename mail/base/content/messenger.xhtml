@@ -338,7 +338,11 @@
     <command id="cmd_newCard" oncommand="openNewCardDialog()"/>
   </commandset>
   <command id="cmd_close" oncommand="CloseTabOrWindow();"/>
+  <command id="cmd_CustomizeMailToolbar"
+           oncommand="customizeMailToolbarForTabType()"/>
 </commandset>
+
+#include ../../../calendar/lightning/content/calendar-commands.inc.xhtml
 
 <keyset id="mailKeys">
   <!-- Tab/F6 Keys -->
