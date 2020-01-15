@@ -24,6 +24,12 @@ var kDefaultCharsetsPrefVersion = 1;
 
 function migrateMailnews() {
   try {
+    MigrateProfileClientid();
+  } catch (e) {
+    logException(e);
+  }
+
+  try {
     MigrateServerAuthPref();
   } catch (e) {
     logException(e);
@@ -39,6 +45,108 @@ function migrateMailnews() {
     MigrateDefaultCharsets();
   } catch (e) {
     logException(e);
+  }
+}
+
+/**
+ * Creates the server specific 'CLIENTID' prefs and tries to pair up any imap
+ * services with smtp services which are using the same username and hostname.
+ */
+function MigrateProfileClientid() {
+  let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(
+    Ci.nsIUUIDGenerator
+  );
+  // Comma-separated list of all account ids.
+  let accounts = Services.prefs.getCharPref("mail.accountmanager.accounts");
+  // Comma-separated list of all smtp servers.
+  let smtpServers = Services.prefs.getCharPref("mail.smtpservers");
+  // If both accounts and smtpservers are empty then there is nothing to do.
+  if (accounts.length == 0 && smtpServers.length == 0) {
+    return;
+  }
+  // A cache to allow CLIENTIDS to be stored and shared across services that
+  // share a username and hostname.
+  let clientidCache = new Map();
+  // There may be accounts but no smtpservers so check the length before
+  // trying to split the smtp servers and iterate in the loop below.
+  if (smtpServers.length > 0) {
+    // Since the length of the smtpServers string is non-zero then we can split
+    // the string by comma and iterate each entry in the comma-separated list.
+    let smtpServerKeys = smtpServers.split(",");
+    // Now walk all smtp servers and generate any missing CLIENTIDS, caching
+    // all CLIENTIDS along the way to be reused for matching imap servers
+    // if possible.
+    for (let smtpServerKey of smtpServerKeys) {
+      let server = "mail.smtpserver." + smtpServerKey + ".";
+      if (
+        !Services.prefs.prefHasUserValue(server + "clientid") ||
+        !Services.prefs.getCharPref(server + "clientid")
+      ) {
+        // Always give outgoing servers a new unique CLIENTID.
+        let newClientid = uuidGen
+          .generateUUID()
+          .toString()
+          .replace(/[{}]/g, "");
+        Services.prefs.setCharPref(server + "clientid", newClientid);
+      }
+      // Cache all CLIENTIDs from all outgoing servers to reuse them for any
+      // incoming servers which have a matching username and hostname.
+      let username = Services.prefs.getCharPref(server + "username");
+      let hostname = Services.prefs.getCharPref(server + "hostname");
+      let combinedKey;
+      try {
+        combinedKey =
+          username + "@" + Services.eTLD.getBaseDomainFromHost(hostname);
+      } catch (e) {
+        combinedKey = username + "@" + hostname;
+      }
+      clientidCache.set(
+        combinedKey,
+        Services.prefs.getCharPref(server + "clientid")
+      );
+    }
+  }
+
+  let accountKeys = accounts.split(",");
+
+  // Now walk all imap accounts and generate any missing CLIENTIDS, reusing
+  // cached CLIENTIDS if possible.
+  for (let accountKey of accountKeys) {
+    let serverKey = Services.prefs.getCharPref(
+      "mail.account." + accountKey + ".server"
+    );
+    let server = "mail.server." + serverKey + ".";
+    // Check if this server needs the CLIENTID preference to be populated.
+    if (
+      !Services.prefs.prefHasUserValue(server + "clientid") ||
+      !Services.prefs.getCharPref(server + "clientid")
+    ) {
+      // Grab username + hostname to check if a CLIENTID is cached.
+      let username = Services.prefs.getCharPref(server + "userName");
+      let hostname = Services.prefs.getCharPref(server + "hostname");
+      let combinedKey;
+      try {
+        combinedKey =
+          username + "@" + Services.eTLD.getBaseDomainFromHost(hostname);
+      } catch (e) {
+        combinedKey = username + "@" + hostname;
+      }
+      if (!clientidCache.has(combinedKey)) {
+        // Generate a new CLIENTID if no matches were found from smtp servers.
+        let newClientid = uuidGen
+          .generateUUID()
+          .toString()
+          .replace(/[{}]/g, "");
+        Services.prefs.setCharPref(server + "clientid", newClientid);
+      } else {
+        // Otherwise if a cached CLIENTID was found for this username + hostname
+        // then we can just use the outgoing CLIENTID which was matching.
+        Services.prefs.setCharPref(
+          server + "clientid",
+          clientidCache.get(combinedKey)
+        );
+      }
+    }
   }
 }
 

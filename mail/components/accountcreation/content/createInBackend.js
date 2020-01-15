@@ -19,6 +19,9 @@ var { MailServices } = ChromeUtils.import(
  * @return {nsIMsgAccount} - the newly created account
  */
 function createAccountInBackend(config) {
+  let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(
+    Ci.nsIUUIDGenerator
+  );
   // incoming server
   let inServer = MailServices.accounts.createIncomingServer(
     config.incoming.username,
@@ -28,6 +31,46 @@ function createAccountInBackend(config) {
   inServer.port = config.incoming.port;
   inServer.authMethod = config.incoming.auth;
   inServer.password = config.incoming.password;
+  // This new CLIENTID is for the outgoing server, and will be applied to the
+  // incoming only if the incoming username and hostname match the outgoing.
+  // We must generate this unconditionally because we cannot determine whether
+  // the outgoing server has clientid enabled yet or not, and we need to do it
+  // here in order to populate the incoming server if the outgoing matches.
+  let newOutgoingClientid = uuidGen
+    .generateUUID()
+    .toString()
+    .replace(/[{}]/g, "");
+  // Grab the base domain of both incoming and outgoing hostname in order to
+  // compare the two to detect if the base domain is the same.
+  let incomingBaseDomain;
+  let outgoingBaseDomain;
+  try {
+    incomingBaseDomain = Services.eTLD.getBaseDomainFromHost(
+      config.incoming.hostname
+    );
+  } catch (e) {
+    incomingBaseDomain = config.incoming.hostname;
+  }
+  try {
+    outgoingBaseDomain = Services.eTLD.getBaseDomainFromHost(
+      config.outgoing.hostname
+    );
+  } catch (e) {
+    outgoingBaseDomain = config.outgoing.hostname;
+  }
+  if (
+    config.incoming.username == config.outgoing.username &&
+    incomingBaseDomain == outgoingBaseDomain
+  ) {
+    inServer.clientid = newOutgoingClientid;
+  } else {
+    // If the username/hostname are different then generate a new CLIENTID.
+    inServer.clientid = uuidGen
+      .generateUUID()
+      .toString()
+      .replace(/[{}]/g, "");
+  }
+
   if (config.rememberPassword && config.incoming.password.length) {
     rememberPassword(inServer, config.incoming.password);
   }
@@ -105,6 +148,10 @@ function createAccountInBackend(config) {
     outServer.hostname = config.outgoing.hostname;
     outServer.port = config.outgoing.port;
     outServer.authMethod = config.outgoing.auth;
+    // Populate the clientid if it is enabled for this outgoing server.
+    if (outServer.clientidEnabled) {
+      outServer.clientid = newOutgoingClientid;
+    }
     if (config.outgoing.auth > 1) {
       outServer.username = username;
       outServer.password = config.incoming.password;

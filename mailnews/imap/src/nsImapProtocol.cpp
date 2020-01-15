@@ -873,6 +873,14 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI *aURL, nsISupports *aConsumer) {
         m_preferPlainText = preferPlainText;
       }
     }
+    // If enabled, retrieve the clientid so that we can use it later.
+    bool clientidEnabled = false;
+    if (NS_SUCCEEDED(server->GetClientidEnabled(&clientidEnabled)) &&
+        clientidEnabled)
+      server->GetClientid(m_clientId);
+    else {
+      m_clientId.Truncate();
+    }
 
     bool proxyCallback = false;
     if (m_runningUrl && !m_transport /* and we don't have a transport yet */) {
@@ -5558,6 +5566,20 @@ nsresult nsImapProtocol::SendDataParseIMAPandCheckForNewMail(
   return rv;
 }
 
+nsresult nsImapProtocol::ClientID() {
+  IncrementCommandTagNumber();
+  nsCString command(GetServerCommandTag());
+  command += " CLIENTID UUID ";
+  command += m_clientId;
+  command += CRLF;
+  nsresult rv = SendDataParseIMAPandCheckForNewMail(command.get(), nullptr);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!GetServerStateParser().LastCommandSuccessful()) {
+    return NS_ERROR_FAILURE;
+  }
+  return NS_OK;
+}
+
 nsresult nsImapProtocol::AuthLogin(const char *userName,
                                    const nsString &aPassword,
                                    eIMAPCapabilityFlag flag) {
@@ -8117,6 +8139,45 @@ bool nsImapProtocol::TryToLogon() {
                  "ChooseAuthMethod still fails."));
         return false;
       }
+    }
+  }
+
+  // Check the uri host for localhost indicators to see if we
+  // should bypass the SSL check for clientid.
+  // Unfortunately we cannot call IsOriginPotentiallyTrustworthy
+  // here because it can only be called from the main thread.
+  bool isLocalhostConnection = false;
+  if (m_mockChannel) {
+    nsCOMPtr<nsIURI> uri;
+    m_mockChannel->GetURI(getter_AddRefs(uri));
+    if (uri) {
+      nsCString uriHost;
+      uri->GetHost(uriHost);
+      if (uriHost.Equals("127.0.0.1") || uriHost.Equals("::1") ||
+          uriHost.Equals("localhost")) {
+        isLocalhostConnection = true;
+      }
+    }
+  }
+
+  // Whether our connection can be considered 'secure' and whether
+  // we should allow the CLIENTID to be sent over this channel.
+  bool isSecureConnection =
+      (m_connectionType.EqualsLiteral("starttls") ||
+       m_connectionType.EqualsLiteral("ssl") || isLocalhostConnection);
+
+  // Before running the ClientID command we check for clientid
+  // support by checking the server capability flags for the
+  // flag kHasClientIDCapability.
+  // We check that the m_clientId string is not empty, and
+  // we ensure the connection can be considered secure.
+  if ((GetServerStateParser().GetCapabilityFlag() & kHasClientIDCapability) &&
+      !m_clientId.IsEmpty() && isSecureConnection) {
+    rv = ClientID();
+    if (NS_FAILED(rv)) {
+      MOZ_LOG(IMAP, LogLevel::Error,
+              ("TryToLogon: Could not issue CLIENTID command"));
+      skipLoop = true;
     }
   }
 

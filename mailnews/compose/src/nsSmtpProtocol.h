@@ -53,6 +53,7 @@ typedef enum _SmtpState {
   SMTP_SUSPENDED,                         // 25
   SMTP_AUTH_OAUTH2_STEP,                  // 26
   SMTP_AUTH_OAUTH2_RESPONSE,              // 27
+  SMTP_CLIENTID_RESPONSE,                 // 28
 } SmtpState;
 
 // State Flags (Note, I use the word state in terms of storing
@@ -64,6 +65,7 @@ typedef enum _SmtpState {
 #define SMTP_EHLO_STARTTLS_ENABLED 0x00000008
 #define SMTP_EHLO_SIZE_ENABLED 0x00000010
 #define SMTP_EHLO_8BIT_ENABLED 0x00000020
+#define SMTP_EHLO_CLIENTID_ENABLED 0x00000040
 
 // insecure mechanisms follow
 #define SMTP_AUTH_LOGIN_ENABLED 0x00000100
@@ -139,6 +141,7 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   uint32_t m_addressesLeft;
   nsCString m_mailAddr;
   nsCString m_helloArgument;
+  nsCString m_clientId;
   int32_t m_sizelimit;
 
   // *** the following should move to the smtp server when we support
@@ -148,6 +151,8 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   bool m_tlsEnabled;
 
   bool m_tlsInitiated;
+
+  bool m_clientIDInitialized;
 
   bool m_sendDone;
 
@@ -198,6 +203,7 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   nsresult AuthOAuth2Step1();
 
   nsresult SendTLSResponse();
+  nsresult SendClientIDResponse();
   nsresult SendMailResponse();
   nsresult SendRecipientResponse();
   nsresult SendDataResponse();

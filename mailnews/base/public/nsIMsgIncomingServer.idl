@@ -77,6 +77,17 @@ interface nsIMsgIncomingServer : nsISupports {
   attribute ACString type;
 
   /**
+   * The CLIENTID to use for this server.
+   * @see https://tools.ietf.org/html/draft-yu-imap-client-id-01
+   */
+  attribute ACString clientid;
+
+  /**
+   * Whether the CLIENTID feature above is enabled.
+   */
+  attribute boolean clientidEnabled;
+
+  /**
    * The proper instance of nsIMsgProtocolInfo corresponding to this server type.
    */
   readonly attribute nsIMsgProtocolInfo protocolInfo;

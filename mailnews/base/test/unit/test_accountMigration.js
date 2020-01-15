@@ -38,6 +38,18 @@ function run_test() {
     "account1,account2"
   );
 
+  // Set server1 and server2 username and hostname to test Clientid population.
+  Services.prefs.setCharPref("mail.server.server1.userName", "testuser1");
+  Services.prefs.setCharPref("mail.server.server2.userName", "testuser2");
+  Services.prefs.setCharPref(
+    "mail.server.server1.hostname",
+    "mail.sampledomain1.com"
+  );
+  Services.prefs.setCharPref(
+    "mail.server.server2.hostname",
+    "mail.sampledomain2.com"
+  );
+
   loadABFile("data/remoteContent", kPABData.fileName);
 
   let uriAllowed = Services.io.newURI(
@@ -77,6 +89,10 @@ function run_test() {
   // Now migrate the prefs.
   migrateMailnews();
 
+  // Check that server 1 and server 2 have the same clientid.
+  Assert.ok(Services.prefs.prefHasUserValue("mail.server.server1.clientid"));
+  Assert.ok(Services.prefs.prefHasUserValue("mail.server.server2.clientid"));
+
   // Check what has been set.
   Assert.ok(!Services.prefs.prefHasUserValue("mail.server.server1.authMethod"));
   Assert.ok(Services.prefs.prefHasUserValue("mail.server.server2.authMethod"));
@@ -107,6 +123,18 @@ function run_test() {
   // smtp2 has useSecAuth set to true, auth_method unset
   Services.prefs.setBoolPref("mail.smtpserver.smtp2.useSecAuth", true);
 
+  // Set server1 and server2 username and hostname to test clientid population.
+  Services.prefs.setCharPref("mail.smtpserver.smtp1.username", "testuser1");
+  Services.prefs.setCharPref("mail.smtpserver.smtp2.username", "testuser2");
+  Services.prefs.setCharPref(
+    "mail.smtpserver.smtp1.hostname",
+    "mail.sampledomain1.com"
+  );
+  Services.prefs.setCharPref(
+    "mail.smtpserver.smtp2.hostname",
+    "mail.sampledomain2.com"
+  );
+
   // Migration should now have added permissions for the address that had them
   // and not for the one that didn't have them.
   Assert.ok(Services.prefs.getIntPref("mail.ab_remote_content.migrated") > 0);
@@ -121,6 +149,10 @@ function run_test() {
 
   // Now migrate the prefs
   migrateMailnews();
+
+  // Check that smtpserver 1 and smtpserver 2 now have a clientid.
+  Assert.ok(Services.prefs.prefHasUserValue("mail.smtpserver.smtp1.clientid"));
+  Assert.ok(Services.prefs.prefHasUserValue("mail.smtpserver.smtp2.clientid"));
 
   Assert.ok(
     !Services.prefs.prefHasUserValue("mail.smtpserver.smtp1.authMethod")
@@ -137,6 +169,9 @@ function run_test() {
   // setting the value back to "3", i.e. Ci.nsMsgAuthMethod.passwordCleartext.
   Services.prefs.clearUserPref("mail.smtpserver.smtp2.authMethod");
 
+  // Now clear the mail.server.server1.clientid to test re-population.
+  Services.prefs.clearUserPref("mail.server.server2.clientid");
+
   // Now attempt migration again, e.g. a second load of TB
   migrateMailnews();
 
@@ -146,5 +181,12 @@ function run_test() {
   );
   Assert.ok(
     !Services.prefs.prefHasUserValue("mail.smtpserver.smtp2.authMethod")
+  );
+
+  // The server2 clientid should be the same as the smtpserver2 now since
+  // they are for the same mail.sampledomain2.com domain.
+  Assert.equal(
+    Services.prefs.getCharPref("mail.smtpserver.smtp2.clientid"),
+    Services.prefs.getCharPref("mail.server.server2.clientid")
   );
 }

@@ -1115,11 +1115,13 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString &oldName,
   rv = accountManager->NotifyServerChanged(this);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // 4. Lastly, replace all occurrences of old name in the acct name with the
-  // new one.
+  // 4. Replace all occurrences of old name in the acct name with the new one.
   nsString acctName;
   rv = GetPrettyName(acctName);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  // 5. Clear the clientid because the user or host have changed.
+  SetClientid(EmptyCString());
 
   // If new username contains @ then better do not update the account name.
   if (acctName.IsEmpty() || (!hostnameChanged && (atPos != kNotFound)))
@@ -1554,6 +1556,8 @@ NS_IMPL_SERVERPREF_STR(nsMsgIncomingServer, Username, "userName")
 NS_IMPL_SERVERPREF_INT(nsMsgIncomingServer, AuthMethod, "authMethod")
 NS_IMPL_SERVERPREF_INT(nsMsgIncomingServer, BiffMinutes, "check_time")
 NS_IMPL_SERVERPREF_STR(nsMsgIncomingServer, Type, "type")
+NS_IMPL_SERVERPREF_STR(nsMsgIncomingServer, Clientid, "clientid")
+NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, ClientidEnabled, "clientidEnabled")
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, DownloadOnBiff, "download_on_biff")
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, Valid, "valid")
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, EmptyTrashOnExit,

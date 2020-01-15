@@ -727,6 +727,7 @@ function IMAP_RFC3501_handler(daemon) {
   this.kAuthSchemes = []; // Added by RFC2195 extension. Test may modify as needed.
   this.kCapabilities = [
     /* "LOGINDISABLED", "STARTTLS", */
+    "CLIENTID",
   ]; // Test may modify as needed.
   this.kUidCommands = ["FETCH", "STORE", "SEARCH", "COPY"];
 
@@ -738,7 +739,15 @@ function IMAP_RFC3501_handler(daemon) {
 
   this._enabledCommands = {
     // IMAP_STATE_NOT_AUTHED
-    0: ["CAPABILITY", "NOOP", "LOGOUT", "STARTTLS", "AUTHENTICATE", "LOGIN"],
+    0: [
+      "CAPABILITY",
+      "NOOP",
+      "LOGOUT",
+      "STARTTLS",
+      "CLIENTID",
+      "AUTHENTICATE",
+      "LOGIN",
+    ],
     // IMAP_STATE_AUTHED
     1: [
       "CAPABILITY",
@@ -798,6 +807,7 @@ function IMAP_RFC3501_handler(daemon) {
     NOOP: [],
     LOGOUT: [],
     STARTTLS: [],
+    CLIENTID: ["string", "string"],
     AUTHENTICATE: ["atom", "..."],
     LOGIN: ["string", "string"],
     SELECT: ["mailbox"],
@@ -1037,6 +1047,9 @@ IMAP_RFC3501_handler.prototype = {
     }
     capa += "\0OK CAPABILITY completed";
     return capa;
+  },
+  CLIENTID(args) {
+    return "OK Recognized a valid CLIENTID command, used for authentication methods";
   },
   LOGOUT(args) {
     this.closing = true;

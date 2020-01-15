@@ -113,6 +113,8 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
     case NS_ERROR_SENDING_DATA_COMMAND:
     case NS_ERROR_SENDING_MESSAGE:
     case NS_ERROR_SMTP_GREETING:
+    case NS_ERROR_CLIENTID:
+    case NS_ERROR_CLIENTID_PERMISSION:
       exitString = errorStringNameForErrorCode(aCode);
       bundle->GetStringFromName(exitString, eMsg);
       if (aCode == NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1) {
@@ -233,6 +235,7 @@ nsresult nsSmtpProtocol::Initialize(nsIURI *aURL) {
   m_usernamePrompted = false;
   m_prefSocketType = nsMsgSocketType::trySTARTTLS;
   m_tlsInitiated = false;
+  m_clientIDInitialized = false;
 
   m_url = aURL;  // Needed in nsMsgAsyncWriteProtocol::UpdateProgress().
   m_urlErrorState = NS_ERROR_FAILURE;
@@ -277,6 +280,12 @@ nsresult nsSmtpProtocol::Initialize(nsIURI *aURL) {
     smtpServer->GetAuthMethod(&authMethod);
     smtpServer->GetSocketType(&m_prefSocketType);
     smtpServer->GetHelloArgument(m_helloArgument);
+    bool clientidEnabled = false;
+    if (NS_SUCCEEDED(smtpServer->GetClientidEnabled(&clientidEnabled)) &&
+        clientidEnabled)
+      smtpServer->GetClientid(m_clientId);
+    else
+      m_clientId.Truncate();
 
     // Query for OAuth2 support. If the SMTP server preferences don't allow
     // for OAuth2, then don't carry around the OAuth2 module any longer
@@ -848,6 +857,10 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream *inputStream,
       SetFlag(SMTP_EHLO_STARTTLS_ENABLED);
     } else if (responseLine.LowerCaseEqualsLiteral("dsn")) {
       SetFlag(SMTP_EHLO_DSN_ENABLED);
+    } else if (responseLine.LowerCaseEqualsLiteral("clientid")) {
+      SetFlag(SMTP_EHLO_CLIENTID_ENABLED);
+      // If we have "clientid" in the ehlo response, then TLS must be present.
+      if (m_prefSocketType == nsMsgSocketType::SSL) m_tlsEnabled = true;
     } else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("AUTH"),
                                 nsCaseInsensitiveCStringComparator())) {
       SetFlag(SMTP_AUTH);
@@ -946,6 +959,38 @@ nsresult nsSmtpProtocol::SendTLSResponse() {
   m_nextState = SMTP_AUTH_PROCESS_STATE;
 
   return rv;
+}
+
+nsresult nsSmtpProtocol::SendClientIDResponse() {
+  if (m_responseCode / 10 == 25) {
+    // ClientID success!
+    m_clientIDInitialized = true;
+    ClearFlag(SMTP_EHLO_CLIENTID_ENABLED);
+    m_nextState = SMTP_AUTH_PROCESS_STATE;
+    return NS_OK;
+  }
+  // ClientID failed
+  nsresult errorCode;
+  if (m_responseCode == 550) {
+    // 'You are not permitted to access this'
+    // 'Access Denied' + server response
+    errorCode = NS_ERROR_CLIENTID_PERMISSION;
+  } else {
+    if (MOZ_LOG_TEST(SMTPLogModule, mozilla::LogLevel::Error)) {
+      if (m_responseCode != 501 && m_responseCode != 503 &&
+          m_responseCode != 504 && m_responseCode / 100 != 4) {
+        // If not 501, 503, 504 or 4xx, log an error.
+        MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error,
+                ("SendClientIDResponse: Unexpected error occurred, server "
+                 "responded: %s\n",
+                 m_responseText.get()));
+      }
+    }
+    errorCode = NS_ERROR_CLIENTID;
+  }
+  nsExplainErrorDetails(m_runningURL, errorCode, m_responseText.get(), nullptr);
+  m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
+  return NS_ERROR_SMTP_AUTH_FAILURE;
 }
 
 void nsSmtpProtocol::InitPrefAuthMethods(int32_t authMethodPrefValue) {
@@ -1090,6 +1135,19 @@ nsresult nsSmtpProtocol::ProcessAuth() {
       m_nextState = SMTP_ERROR_DONE;
       m_urlErrorState = NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS;
       return NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS;
+    }
+  }
+
+  if (!m_clientIDInitialized && m_tlsEnabled && !m_clientId.IsEmpty()) {
+    if (TestFlag(SMTP_EHLO_CLIENTID_ENABLED)) {
+      buffer = "CLIENTID UUID ";
+      buffer += m_clientId;
+      buffer += CRLF;
+      status = SendData(buffer.get());
+      m_nextState = SMTP_RESPONSE;
+      m_nextStateAfterResponse = SMTP_CLIENTID_RESPONSE;
+      SetFlag(SMTP_PAUSE_FOR_READ);
+      return status;
     }
   }
 
@@ -1936,6 +1994,12 @@ nsresult nsSmtpProtocol::ProcessProtocolState(nsIURI *url,
           SetFlag(SMTP_PAUSE_FOR_READ);
         else
           status = SendEhloResponse(inputStream, length);
+        break;
+      case SMTP_CLIENTID_RESPONSE:
+        if (inputStream == nullptr)
+          SetFlag(SMTP_PAUSE_FOR_READ);
+        else
+          status = SendClientIDResponse();
         break;
       case SMTP_AUTH_PROCESS_STATE:
         status = ProcessAuth();

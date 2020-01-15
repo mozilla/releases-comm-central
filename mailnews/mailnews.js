@@ -453,6 +453,15 @@ pref("mail.collect_addressbook", "jsaddrbook://history.sqlite");
 
 pref("mail.default_sendlater_uri", "mailbox://nobody@Local%20Folders/Unsent%20Messages");
 
+pref("mail.server.default.clientid", "");
+pref("mail.smtpserver.default.clientid", "");
+
+// This is not to be enabled by default until the prerequisite
+// changes are completed. See here for details:
+//  https://bugzilla.mozilla.org/show_bug.cgi?id=1565379
+pref("mail.server.default.clientidEnabled", false);
+pref("mail.smtpserver.default.clientidEnabled", false);
+
 pref("mail.smtpservers", "");
 pref("mail.accountmanager.accounts", "");
 
