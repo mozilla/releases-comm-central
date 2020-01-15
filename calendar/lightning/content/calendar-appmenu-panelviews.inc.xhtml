@@ -1,0 +1,311 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!-- calendar appmenu panelviews -->
+
+<!-- Events and Tasks -->
+<panelview id="appmenu_Event_Task_View"
+           class="PanelUI-subView">
+  <vbox class="panel-subview-body">
+    <toolbarbutton id="appmenu_ltnMenuSwitchToCalendar"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&lightning.toolbar.calendar.label;"
+                   command="switch2calendar"
+                   value="calendar"
+                   autocheck="false">
+    </toolbarbutton>
+    <toolbarbutton id="appmenu_ltnMenuSwitchToTask"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&lightning.toolbar.task.label;"
+                   command="switch2task"
+                   value="task"
+                   autocheck="false">
+    </toolbarbutton>
+    <toolbarseparator id="appmenu_ltnBeforeCalendarSection"/>
+    <toolbarbutton id="appmenu_ltnExportCalendar"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&calendar.export.label;"
+                   command="calendar_export_command"/>
+    <toolbarbutton id="appmenu_ltnImportCalendar"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&calendar.import.label;"
+                   command="calendar_import_command"/>
+    <toolbarbutton id="appmenu_ltnPublishCalendar"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&calendar.publish.label;"
+                   command="calendar_publish_calendar_command"/>
+    <toolbarbutton id="appmenu_ltnDeleteSelectedCalendar"
+                   class="subviewbutton subviewbutton-iconic"
+                   labeldelete="&calendar.deletecalendar.label;"
+                   labelremove="&calendar.removecalendar.label;"
+                   labelunsubscribe="&calendar.unsubscribecalendar.label;"
+                   accesskeydelete="&calendar.deletecalendar.accesskey;"
+                   accesskeyremove="&calendar.removecalendar.accesskey;"
+                   accesskeyunsubscribe="&calendar.unsubscribecalendar.accesskey;"
+                   command="calendar_delete_calendar_command"/>
+    <toolbarseparator id="ltnBeforeTaskActions"/>
+    <toolbarbutton id="appmenu_ltnTaskActionsMarkCompletedMenuitem"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&calendar.context.markcompleted.label;"
+                   command="calendar_toggle_completed_command"/>
+    <toolbarbutton id="appmenu_ltnTaskActionsPriorityMenuitem"
+                   class="subviewbutton subviewbutton-nav"
+                   label="&calendar.context.priority.label;"
+                   closemenu="none"
+                   oncommand="PanelUI.showSubView('appmenu_ltnTaskPriorityView', this)"/>
+    <toolbarbutton id="appmenu_ltnTaskActionsProgressMenuitem"
+                   class="subviewbutton subviewbutton-nav"
+                   label="&calendar.context.progress.label;"
+                   closemenu="none"
+                   oncommand="PanelUI.showSubView('appmenu_ltnTaskProgressView', this)"/>
+    <toolbarbutton id="appmenu_ltnTaskActionsPostponeMenuitem"
+                   class="subviewbutton subviewbutton-nav"
+                   label="&calendar.context.postpone.label;"
+                   observes="calendar_general-postpone_command"
+                   closemenu="none"
+                   oncommand="PanelUI.showSubView('appmenu_ltnTaskActionsPostponeView', this)"/>
+    <toolbarseparator id="appmenu_ltnBeforeUnifinderSection" />
+    <toolbarbutton id="appmenu_ltnShowUnifinder"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   checked="true"
+                   label="&showUnifinderCmd.label;"
+                   command="calendar_show_unifinder_command"/>
+    <toolbarseparator id="appmenu_ltnBeforeCalendarProperties" />
+    <toolbarbutton id="appmenu_ltnCalendarProperties"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&calendar.properties.label;"
+                   command="calendar_edit_calendar_command"/>
+  </vbox>
+</panelview>
+
+<!-- Events and Tasks / Priority -->
+<panelview is="calendar-task-priority-panelview" id="appmenu_ltnTaskPriorityView"
+           class="PanelUI-subView"/>
+
+<!-- Events and Tasks / Progress -->
+<panelview is="calendar-task-progress-panelview" id="appmenu_ltnTaskProgressView"
+           class="PanelUI-subView"/>
+
+<!-- Events and Tasks / Postpone Task -->
+<panelview id="appmenu_ltnTaskActionsPostponeView"
+           class="PanelUI-subView">
+  <vbox class="panel-subview-body">
+    <toolbarbutton id="ltnTaskActionsPostponeMenu-1hour"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&calendar.context.postpone.1hour.label;"
+                   command="calendar_postpone-1hour_command"/>
+    <toolbarbutton id="appmenu_ltnTaskActionsPostponeMenu-1day"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&calendar.context.postpone.1day.label;"
+                   command="calendar_postpone-1day_command"/>
+    <toolbarbutton id="appmenu_ltnTaskActionsPostponeMenu-1week"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&calendar.context.postpone.1week.label;"
+                   command="calendar_postpone-1week_command"/>
+  </vbox>
+</panelview>
+
+<!-- View / Today Pane -->
+<panelview id="appmenu_calendar-today-pane-view"
+           class="PanelUI-subView">
+  <vbox class="panel-subview-body">
+    <toolbarbutton id="appmenu_ltnShowTodayPane-2"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&todaypane.showTodayPane.label;"
+                   type="checkbox"
+                   command="calendar_toggle_todaypane_command"/>
+    <toolbarseparator id="appmenu_ltnSeparatorBeforeDisplayMiniday"/>
+    <toolbarbutton id="appmenu_ltnTodayPaneDisplayMiniday"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="minidisplay"
+                   value="miniday"
+                   type="radio"
+                   oncommand="TodayPane.displayMiniSection('miniday')"
+                   observes="ltnTodayPaneDisplayMiniday"
+                   label="&todaypane.showMiniday.label;"/>
+    <toolbarbutton id="appmenu_ltnTodayPaneDisplayMinimonth"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="minidisplay"
+                   value="minimonth"
+                   type="radio"
+                   oncommand="TodayPane.displayMiniSection('minimonth')"
+                   observes="ltnTodayPaneDisplayMinimonth"
+                   label="&todaypane.showMinimonth.label;"/>
+    <toolbarbutton id="appmenu_ltnTodayPaneDisplayNone"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="minidisplay"
+                   value="none"
+                   type="radio"
+                   oncommand="TodayPane.displayMiniSection('none')"
+                   observes="ltnTodayPaneDisplayNone"
+                   label="&todaypane.showNone.label;"/>
+  </vbox>
+</panelview>
+
+<!-- View / Calendar -->
+<panelview id="appmenu_calendar-calendar-view"
+           class="PanelUI-subView">
+  <vbox class="panel-subview-body">
+    <toolbarbutton id="appmenu_ltnChangeViewDay"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&lightning.toolbar.day.label;"
+                   type="radio"
+                   name="calendarMenuViews"
+                   command="calendar_day-view_command"/>
+    <toolbarbutton id="appmenu_ltnChangeViewWeek"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&lightning.toolbar.week.label;"
+                   type="radio"
+                   name="calendarMenuViews"
+                   command="calendar_week-view_command"/>
+    <toolbarbutton id="appmenu_ltnChangeViewMultiweek"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&lightning.toolbar.multiweek.label;"
+                   type="radio"
+                   name="calendarMenuViews"
+                   command="calendar_multiweek-view_command"/>
+    <toolbarbutton id="appmenu_ltnChangeViewMonth"
+                   class="subviewbutton subviewbutton-iconic"
+                   label="&lightning.toolbar.month.label;"
+                   type="radio"
+                   name="calendarMenuViews"
+                   command="calendar_month-view_command"/>
+    <toolbarseparator id="appmenu_ltnBeforeCalendarViewSection"/>
+    <toolbarbutton id="appmenu_ltnCalendarPaneMenu"
+                   class="subviewbutton subviewbutton-nav"
+                   label="&lightning.toolbar.calendarmenu.label;"
+                   closemenu="none"
+                   oncommand="PanelUI.showSubView('appmenu_ltnCalendarPaneView', this)"/>
+    <toolbarseparator id="appmenu_ltnBeforeCurrentViewMenu"/>
+    <toolbarbutton id="appmenu_ltnCalendarCurrentViewMenu"
+                   class="subviewbutton subviewbutton-nav"
+                   observes="calendar_mode_calendar"
+                   label="&showCurrentView.label;"
+                   closemenu="none"
+                   oncommand="PanelUI.showSubView('appmenu_ltnCalendarCurrentViewView', this)"/>
+  </vbox>
+</panelview>
+
+<!-- View / Calendar / Calendar Pane -->
+<panelview id="appmenu_ltnCalendarPaneView"
+           class="PanelUI-subView">
+  <vbox class="panel-subview-body">
+    <toolbarbutton id="appmenu_ltnViewCalendarPane"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&lightning.toolbar.calendarpane.label;"
+                   command="calendar_toggle_calendarsidebar_command"/>
+    <toolbarseparator id="appmenu_ltnCalendarPaneMenuSeparator"/>
+    <toolbarbutton id="appmenu_ltnTasksViewMinimonth"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&calendar.tasks.view.minimonth.label;"
+                   command="calendar_toggle_minimonthpane_command"/>
+    <toolbarbutton id="appmenu_ltnTasksViewCalendarlist"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&calendar.tasks.view.calendarlist.label;"
+                   command="calendar_toggle_calendarlist_command"/>
+  </vbox>
+</panelview>
+
+<!-- View / Calendar / Current View -->
+<panelview id="appmenu_ltnCalendarCurrentViewView"
+           class="PanelUI-subView">
+  <vbox class="panel-subview-body">
+    <toolbarbutton id="appmenu_ltnWorkdaysOnlyMenuitem"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&calendar.onlyworkday.checkbox.label;"
+                   command="calendar_toggle_workdays_only_command"/>
+    <toolbarbutton id="appmenu_ltnTasksInViewMenuitem"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&calendar.displaytodos.checkbox.label;"
+                   command="calendar_toggle_tasks_in_view_command"/>
+    <toolbarbutton id="appmenu_ltnShowCompletedInViewMenuItem"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&calendar.completedtasks.checkbox.label;"
+                   command="calendar_toggle_show_completed_in_view_command"/>
+    <toolbarbutton id="appmenu_ltnViewRotated"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&calendar.orientation.label;"
+                   command="calendar_toggle_orientation_command"/>
+  </vbox>
+</panelview>
+
+<!-- View / Tasks -->
+<panelview id="appmenu_calendar-tasks-view"
+           class="PanelUI-subView">
+  <vbox class="panel-subview-body">
+    <toolbarbutton id="appmenu_ltnTasksViewFilterTasks"
+                   class="subviewbutton subviewbutton-iconic"
+                   type="checkbox"
+                   label="&calendar.tasks.view.filtertasks.label;"
+                   command="calendar_toggle_filter_command"/>
+    <toolbarseparator id="appmenu_ltnTasksViewSeparator"/>
+    <toolbarbutton id="appmenu_ltnTasksViewFilterCurrent"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="filtergroup"
+                   value="throughcurrent"
+                   type="radio"
+                   command="calendar_task_filter_command"
+                   label="&calendar.task.filter.current.label;"/>
+    <toolbarbutton id="appmenu_ltnTasksViewFilterToday"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="filtergroup"
+                   value="throughtoday"
+                   type="radio"
+                   command="calendar_task_filter_command"
+                   label="&calendar.task.filter.today.label;"/>
+    <toolbarbutton id="appmenu_ltnTasksViewFilterNext7days"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="filtergroup"
+                   value="throughsevendays"
+                   type="radio"
+                   command="calendar_task_filter_command"
+                   label="&calendar.task.filter.next7days.label;"/>
+    <toolbarbutton id="appmenu_ltnTasksViewFilterNotstartedtasks"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="filtergroup"
+                   value="notstarted"
+                   type="radio"
+                   command="calendar_task_filter_command"
+                   label="&calendar.task.filter.notstarted.label;"/>
+    <toolbarbutton id="appmenu_ltnTasksViewFilterOverdue"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="filtergroup"
+                   value="overdue"
+                   type="radio"
+                   command="calendar_task_filter_command"
+                   label="&calendar.task.filter.overdue.label;"/>
+    <toolbarbutton id="appmenu_ltnTasksViewFilterCompleted"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="filtergroup"
+                   type="radio"
+                   value="completed"
+                   command="calendar_task_filter_command"
+                   label="&calendar.task.filter.completed.label;"/>
+    <toolbarbutton id="appmenu_ltnTasksViewFilterOpen"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="filtergroup"
+                   type="radio"
+                   value="open"
+                   command="calendar_task_filter_command"
+                   label="&calendar.task.filter.open.label;"/>
+    <toolbarbutton id="appmenu_ltnTasksViewFilterAll"
+                   class="subviewbutton subviewbutton-iconic"
+                   name="filtergroup"
+                   value="all"
+                   type="radio"
+                   command="calendar_task_filter_command"
+                   label="&calendar.task.filter.all.label;"/>
+  </vbox>
+</panelview>

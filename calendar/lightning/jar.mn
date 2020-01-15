@@ -6,13 +6,13 @@
 lightning.jar:
 % override chrome://messagebody/skin/imip.css chrome://lightning/skin/imip.css
 % override chrome://messagebody/skin/calendar-event-dialog-attendees.png chrome://calendar-common/skin/calendar-event-dialog-attendees.png
-% overlay chrome://messenger/content/messenger.xhtml chrome://lightning/content/messenger-overlay-sidebar.xhtml
 % overlay chrome://communicator/content/pref/preferences.xhtml chrome://lightning/content/suite-overlay-preferences.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % overlay about:addons chrome://lightning/content/suite-overlay-addons.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % overlay chrome://mozapps/content/extensions/extensions.xhtml chrome://lightning/content/suite-overlay-addons.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % overlay chrome://lightning/content/messenger-overlay-sidebar.xhtml chrome://lightning/content/suite-overlay-sidebar.xhtml application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % override chrome://lightning-common/skin/accountCentral.css chrome://lightning-common/skin/suite-accountCentral.css application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 % content lightning %content/
+    content/calendar-appmenu-panelviews.inc.xhtml          (content/calendar-appmenu-panelviews.inc.xhtml)
     content/calendar-buttons-mail-toolbar.inc.xhtml        (content/calendar-buttons-mail-toolbar.inc.xhtml)
     content/calendar-commands.inc.xhtml                    (content/calendar-commands.inc.xhtml)
     content/calendar-context-menus-and-tooltips.inc.xhtml  (content/calendar-context-menus-and-tooltips.inc.xhtml)
@@ -35,7 +35,6 @@ lightning.jar:
     content/lightning-item-iframe.js                       (content/lightning-item-iframe.js)
     content/lightning-utils.js                             (content/lightning-utils.js)
     content/messenger-overlay-sidebar.js                   (content/messenger-overlay-sidebar.js)
-    content/messenger-overlay-sidebar.xhtml                (content/messenger-overlay-sidebar.xhtml)
     content/messenger-overlay-preferences.js               (content/messenger-overlay-preferences.js)
 *   content/messenger-overlay-preferences.inc.xhtml        (content/messenger-overlay-preferences.inc.xhtml)
 #ifdef MOZ_SUITE
