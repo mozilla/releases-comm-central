@@ -40,7 +40,6 @@ lightning.jar:
 % skin lightning classic/1.0 %skin/osx/ os=Darwin
 % skin lightning classic/1.0 %skin/windows/ os=WINNT
 % skin lightning-common classic/1.0 %skin/lightning-common/
-% style chrome://messenger/content/customizeToolbar.xhtml chrome://lightning/skin/lightning-toolbar.css
     skin/lightning-common/accountCentral.css               (themes/common/accountCentral.css)
     skin/lightning-common/html-item-editing.css            (themes/common/html-item-editing.css)
     skin/lightning-common/todayButton-arrow.svg            (themes/common/images/todayButton-arrow.svg)
