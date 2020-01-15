@@ -20,8 +20,6 @@
     constructor() {
       super();
 
-      this.inputID = null;
-
       this.addEventListener("popupshowing", event => {
         // If normalMaxRows wasn't already set by the input, then set it here
         // so that we restore the correct number when the popup is hidden.
@@ -30,17 +28,6 @@
         if (this._normalMaxRows < 0 && this.mInput) {
           this._normalMaxRows = this.mInput.maxRows;
         }
-
-        // Set an attribute for styling the popup based on the input.
-        if (
-          !this.inputID &&
-          this.mInput &&
-          this.mInput.ownerDocument &&
-          this.mInput.ownerDocument.documentURIObject.schemeIs("chrome")
-        ) {
-          this.inputID = this.mInput.id;
-        }
-        this.setAttribute("autocompleteinput", this.inputID);
 
         this.mPopupOpen = true;
       });
@@ -58,8 +45,6 @@
           isListActive = false;
         }
         this.mInput.controller.stopSearch();
-
-        this.removeAttribute("autocompleteinput");
         this.mPopupOpen = false;
 
         // Reset the maxRows property to the cached "normal" value (if there's

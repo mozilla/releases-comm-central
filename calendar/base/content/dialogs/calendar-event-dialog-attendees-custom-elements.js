@@ -342,7 +342,6 @@
           if (event.originalTarget.localName == "input") {
             let input = event.originalTarget;
 
-            input.setAttribute("autocompleteinput", input.id);
             this.mPopupOpen = true;
 
             switch (event.key) {
