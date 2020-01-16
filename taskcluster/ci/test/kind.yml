@@ -43,3 +43,12 @@ job-defaults:
             - comm/.gecko_rev.yml
             - comm/.taskcluster.yml
             - comm/moz.build
+    fetches:
+        toolchain:
+            by-test-platform:
+                win.*:
+                    - win32-minidump-stackwalk
+                macosx.*:
+                    - macosx64-minidump-stackwalk
+                default:
+                    - linux64-minidump-stackwalk
