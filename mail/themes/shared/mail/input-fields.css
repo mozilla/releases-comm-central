@@ -58,6 +58,5 @@ html|input[type="number"].input-number-inline {
 }
 
 html|input[type="number"]::-moz-number-spin-box {
-  height: initial;
-  margin-inline-start: 2px;
+  margin-inline-start: 4px;
 }

@@ -796,7 +796,7 @@
               </menupopup>
             </menulist>
             <html:input type="number"
-                        class="input-inline search-value-textbox input-number-mozbox"
+                        class="input-inline search-value-textbox"
                         inherits="disabled"/>
             <hbox flex="1"
                   class="search-value-custom"

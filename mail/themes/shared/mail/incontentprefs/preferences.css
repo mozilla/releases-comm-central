@@ -262,7 +262,6 @@ html|input[type="number"].size5 {
 
 html|input[type="number"]::-moz-number-spin-box {
   margin-inline-start: 10px;
-  height: initial;
 }
 
 html|input[type="number"]::-moz-number-spin-up,

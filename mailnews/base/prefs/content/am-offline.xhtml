@@ -66,7 +66,7 @@
         <radio id="useAutosync.ByAge" accesskey="&ageAutosync.accesskey;"
                value="1" label="&ageAutosyncBefore.label;" oncommand="onAutosyncChange();"/>
         <html:input id="autosyncValue" type="number"
-                    class="size4 input-inline autosync input-number-mozbox" min="1"
+                    class="size4 input-inline autosync" min="1"
                     onchange="onAutosyncChange();"
                     aria-labelledby="ageAutosyncBefore autosyncValue ageAutosyncMiddle autosyncInterval ageAutosyncAfter"/>
         <label id="ageAutosyncMiddle" control="autosyncValue" value="&ageAutosyncMiddle.label;"/>
@@ -99,7 +99,7 @@
                   accesskey="&autosyncNotDownload.accesskey;"
                   oncommand="onAutosyncNotDownload();"/>
         <html:input id="offline.notDownloadMin" type="number"
-                    class="size4 input-inline input-number-mozbox"
+                    class="size4 input-inline"
                     min="1" value="50"
                     wsm_persist="true"
                     aria-labelledby="offline.notDownload offline.notDownloadMin kbLabel"/>
@@ -112,7 +112,7 @@
                   accesskey="&nntpDownloadMsg.accesskey;"
                   oncommand="onCheckItem('nntp.downloadMsgMin', 'nntp.downloadMsg');"/>
         <html:input id="nntp.downloadMsgMin" type="number"
-                    class="size2 input-inline input-number-mozbox" min="1" value="30"
+                    class="size2 input-inline" min="1" value="30"
                     wsm_persist="true"
                     aria-labelledby="nntp.downloadMsg nntp.downloadMsgMin daysOldLabel"/>
         <label value="&daysOld.label;" control="nntp.downloadMsgMin"
@@ -133,7 +133,7 @@
             <radio id="retention.keepNewMsg" accesskey="&retentionKeepRecent.accesskey;"
                 value="3" label="&retentionKeepRecent.label;" oncommand="onCheckKeepMsg();"/>
             <html:input id="retention.keepNewMsgMin" type="number"
-                        class="size4 input-inline input-number-mozbox"
+                        class="size4 input-inline"
                         min="1" value="2000"
                         aria-labelledby="retention.keepNewMsg retention.keepNewMsgMin newMsgLabel"/>
             <label value="&message.label;" control="retention.keepNewMsgMin" id="newMsgLabel"/>
@@ -142,7 +142,7 @@
             <radio id="retention.keepOldMsg" accesskey="&retentionKeepMsg.accesskey;"
                 value="2" label="&retentionKeepMsg.label;" oncommand="onCheckKeepMsg();"/>
             <html:input id="retention.keepOldMsgMin" type="number"
-                        class="size4 input-inline input-number-mozbox" min="1" value="30"
+                        class="size4 input-inline" min="1" value="30"
                         aria-labelledby="retention.keepOldMsg retention.keepOldMsgMin oldMsgLabel"/>
             <label value="&daysOld.label;" control="retention.keepOldMsgMin" id="oldMsgLabel"/>
         </hbox>
@@ -158,7 +158,7 @@
         <checkbox id="nntp.removeBody" accesskey="&nntpRemoveMsgBody.accesskey;"
                   label="&nntpRemoveMsgBody.label;" oncommand="onCheckItem('nntp.removeBodyMin', 'nntp.removeBody');"/>
         <html:input id="nntp.removeBodyMin" type="number"
-                    class="size2 input-inline input-number-mozbox" min="1" value="30"
+                    class="size2 input-inline" min="1" value="30"
                     aria-labelledby="nntp.removeBody nntp.removeBodyMin daysOldMsg"/>
         <label value="&daysOld.label;" control="nntp.removeBodyMin" id="daysOldMsg"/>
     </hbox>

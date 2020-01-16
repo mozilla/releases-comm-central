@@ -258,7 +258,7 @@
           <menuseparator/>
           <hbox class="snooze-options-box">
             <html:input type="number"
-                        class="size3 input-number-mozbox snooze-value-textbox"
+                        class="size3 snooze-value-textbox"
                         oninput="updateUIText()"
                         onselect="updateUIText()"/>
             <menulist class="snooze-unit-menulist" allowevents="true">

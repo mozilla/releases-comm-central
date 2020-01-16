@@ -23,16 +23,20 @@ menulist.actionsMenu > .menulist-dropmarker {
   margin-block: 11px;
 }
 
+html|input[type="number"] {
+  min-height: 28px;
+}
+
 html|input[type="number"]::-moz-number-spin-box {
   margin-inline-end: 0;
 }
 
 html|input[type="number"]::-moz-number-spin-up {
-  min-height: 10px;
+  min-height: 12px;
 }
 
 html|input[type="number"]::-moz-number-spin-down {
-  min-height: 11px;
+  min-height: 13px;
 }
 
 .sidebar-footer-label {

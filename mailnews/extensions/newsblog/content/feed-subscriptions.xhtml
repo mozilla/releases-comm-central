@@ -5,7 +5,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/textbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
@@ -148,7 +147,7 @@
                     label="&biffStart.label;"
                     accesskey="&biffStart.accesskey;"
                     oncommand="FeedSubscriptions.setPrefs(this);"/>
-          <html:input id="updateValue" type="number" class="size3 input-number-mozbox" min="1"
+          <html:input id="updateValue" type="number" class="size3" min="1"
                       aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"
                       oninput="FeedSubscriptions.setPrefs(this);"
                       onchange="FeedSubscriptions.setPrefs(this);"/>

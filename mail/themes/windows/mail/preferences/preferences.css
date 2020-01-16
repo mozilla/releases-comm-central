@@ -22,9 +22,17 @@ html|h2 {
   font-size: 1.125em;
 }
 
+html|input[type="number"] {
+  min-height: 27px;
+}
+
+html|input[type="number"]::-moz-number-spin-box {
+  margin-inline-end: 11px;
+}
+
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
-  min-height: 13px;
+  min-height: 12px;
 }
 
 /**

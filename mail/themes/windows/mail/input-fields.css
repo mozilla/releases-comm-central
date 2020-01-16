@@ -13,3 +13,8 @@ html|input.input-inline {
 html|input.input-filefield {
   background: center left 2px / 16px no-repeat -moz-dialog;
 }
+
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  min-height: .7em;
+}

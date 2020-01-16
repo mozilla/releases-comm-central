@@ -13,3 +13,7 @@ html|input.input-filefield {
   padding: 2px 4px;
   background: center left 2px / 16px no-repeat -moz-field;
 }
+
+html|input[type="number"] {
+  padding-inline-end: 0;
+}
