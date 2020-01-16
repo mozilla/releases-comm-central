@@ -185,6 +185,7 @@ mail-newsgroups-headerfield.headerValueBox {
 /* ::::: msg header email addresses ::::: */
 
 .emailDisplayButton {
+  display: -moz-inline-box;
   padding-inline-start: 2px;
   padding-inline-end: 2px;
 }
