@@ -79,7 +79,10 @@ add_task(function testCategoryColors() {
     Assert.equal(listBox.selectedItem, listItem);
     Assert.equal(listItem.firstElementChild.value, itemName);
     Assert.equal(listItem.lastElementChild.style.backgroundColor, "");
-    Assert.equal(Services.prefs.getCharPref(`calendar.category.color.${itemName.toLowerCase()}`), "");
+    Assert.equal(
+      Services.prefs.getCharPref(`calendar.category.color.${itemName.toLowerCase()}`),
+      ""
+    );
   }, controller);
 });
 
