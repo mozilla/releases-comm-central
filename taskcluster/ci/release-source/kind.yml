@@ -23,6 +23,8 @@ job-defaults:
         max-run-time: 3600
         env:
             PKG_SRCPACK_BASENAME: source
+    attributes:
+        shippable: true
     run:
         using: mozharness
         comm-checkout: true
