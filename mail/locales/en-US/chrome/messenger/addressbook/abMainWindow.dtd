@@ -44,11 +44,6 @@
 <!-- Edit Menu -->
 <!ENTITY editMenu.label                                 "Edit">
 <!ENTITY editMenu.accesskey                             "E">
-<!ENTITY undoCmd.key                                    "Z">
-<!ENTITY redoCmd.key                                    "Y">
-<!ENTITY cutCmd.key                                     "X">
-<!ENTITY copyCmd.key                                    "C">
-<!ENTITY pasteCmd.key                                   "V">
 <!ENTITY deleteCmd.label                                "Delete">
 <!ENTITY deleteAbCmd.label                              "Delete Address Book">
 <!ENTITY deleteContactCmd.label                         "Delete Contact">
@@ -56,7 +51,6 @@
 <!ENTITY deleteListCmd.label                            "Delete List">
 <!ENTITY deleteListsCmd.label                           "Delete Lists">
 <!ENTITY deleteItemsCmd.label                           "Delete Items">
-<!ENTITY selectAllCmd.key                               "A">
 <!ENTITY searchAddressesCmd.key                         "f">
 <!ENTITY swapFirstNameLastNameCmd.label                 "Swap First/Last Name">
 <!ENTITY swapFirstNameLastNameCmd.accesskey             "w">

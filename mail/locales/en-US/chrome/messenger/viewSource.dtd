@@ -12,6 +12,8 @@
 <!ENTITY mainWindow.titlemodifierseparator " - ">
 <!ENTITY mainWindow.preface "Source of: ">
 
+<!ENTITY editMenu.label "Edit">
+<!ENTITY editMenu.accesskey "E">
 <!ENTITY fileMenu.label "File">
 <!ENTITY fileMenu.accesskey "F">
 <!ENTITY savePageCmd.label "Save Page As…">
