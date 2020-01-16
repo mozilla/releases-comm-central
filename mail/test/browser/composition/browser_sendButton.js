@@ -30,7 +30,7 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
-  clear_recipient,
+  clear_recipients,
   get_first_pill,
   close_compose_window,
   open_compose_new_mail,
@@ -102,14 +102,14 @@ add_task(function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, true);
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
-  clear_recipient(cwc);
+  clear_recipients(cwc);
   cwc.click(cwc.eid("extraRecipientsLabel"));
   wait_for_popup_to_open(panel);
   cwc.click(cwc.eid("addr_reply"));
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
   check_send_commands_state(cwc, false);
 
-  clear_recipient(cwc);
+  clear_recipients(cwc);
   check_send_commands_state(cwc, false);
 
   // Bug 1296535
@@ -138,7 +138,7 @@ add_task(function test_send_enabled_manual_address() {
   );
   check_send_commands_state(cwc, true);
 
-  clear_recipient(cwc);
+  clear_recipients(cwc);
   check_send_commands_state(cwc, false);
 
   // - a mailinglist in addressbook
@@ -150,13 +150,13 @@ add_task(function test_send_enabled_manual_address() {
   setup_msg_contents(cwc, " emptyList", "", "");
   check_send_commands_state(cwc, true);
 
-  clear_recipient(cwc);
+  clear_recipients(cwc);
   check_send_commands_state(cwc, false);
 
   setup_msg_contents(cwc, "emptyList <list> ", "", "");
   check_send_commands_state(cwc, true);
 
-  clear_recipient(cwc);
+  clear_recipients(cwc);
   check_send_commands_state(cwc, false);
 
   // Show the extraRecipientsLabel in order to trigger the opening og the
@@ -190,7 +190,7 @@ add_task(function test_send_enabled_prefilled_address() {
   check_send_commands_state(cwc, true);
 
   // Clear the CC list.
-  clear_recipient(cwc);
+  clear_recipients(cwc);
   // No other pill is there. Send should become disabled.
   check_send_commands_state(cwc, false);
 

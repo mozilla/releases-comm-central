@@ -17,7 +17,7 @@ this.EXPORTED_SYMBOLS = [
   "close_compose_window",
   "wait_for_compose_window",
   "setup_msg_contents",
-  "clear_recipient",
+  "clear_recipients",
   "get_first_pill",
   "toggle_recipient_type",
   "create_msg_attachment",
@@ -337,15 +337,16 @@ function setup_msg_contents(
 }
 
 /**
- * Remove the recipient by typing backspaces.
+ * Remove all recipients.
  *
  * @param aController    Compose window controller.
  */
-function clear_recipient(aController) {
+function clear_recipients(aController) {
   for (let pill of aController.window.document.querySelectorAll(
     "mail-address-pill"
   )) {
-    aController.keypress(new elib.Elem(pill), "VK_BACK_SPACE", {});
+    pill.toggleAttribute("selected", true);
+    aController.e("recipientsContainer").removeSelectedPills(pill);
   }
 }
 
