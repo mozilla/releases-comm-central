@@ -115,7 +115,7 @@ static void activateWindow(mozIDOMWindowProxy *win) {
   } else {
     // Use internal method.
     nsCOMPtr<nsPIDOMWindowOuter> privateWindow = nsPIDOMWindowOuter::From(win);
-    privateWindow->Focus();
+    privateWindow->Focus(mozilla::dom::CallerType::System);
   }
 }
 // end shameless copying from nsNativeAppWinSupport.cpp

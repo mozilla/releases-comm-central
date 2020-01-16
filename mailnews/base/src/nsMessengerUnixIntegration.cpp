@@ -83,7 +83,7 @@ static void openMailWindow(const nsACString &aFolderUri) {
     if (domWindow) {
       nsCOMPtr<nsPIDOMWindowOuter> privateWindow =
           nsPIDOMWindowOuter::From(domWindow);
-      privateWindow->Focus();
+      privateWindow->Focus(mozilla::dom::CallerType::System);
     }
   } else {
     // the user doesn't have a mail window open already so open one for them...
