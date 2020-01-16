@@ -70,7 +70,6 @@ set_defconf('THUNDERBIRD_VERSION_DISPLAY', thunderbird_version.version_display)
 set_define('MOZ_SEPARATE_MANIFEST_FOR_THEME_OVERRIDES', True)
 
 imply_option('MOZ_PLACES', True)
-imply_option('MOZ_ALLOW_LEGACY_EXTENSIONS', True)
 imply_option('MOZ_DEDICATED_PROFILES', True)
 imply_option('MOZ_BLOCK_PROFILE_DOWNGRADE', True)
 
