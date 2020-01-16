@@ -12,36 +12,6 @@ ChromeUtils.defineModuleGetter(this, "NetUtil", "resource://gre/modules/NetUtil.
 
 updateAppInfo();
 
-(function() {
-  let manager = Cc["@mozilla.org/component-manager-extra;1"].getService(
-    Ci.nsIComponentManagerExtra
-  );
-
-  let bindir = Services.dirsvc.get("CurProcD", Ci.nsIFile);
-  if (!AppConstants.NIGHTLY_BUILD) {
-    bindir.append("distribution");
-  }
-  bindir.append("extensions");
-
-  let xpiFile = bindir.clone();
-  xpiFile.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}.xpi");
-
-  if (xpiFile.exists()) {
-    dump("Loading " + xpiFile.path + "\n");
-    manager.addLegacyExtensionManifestLocation(xpiFile);
-  } else {
-    // The XPI file is created by the automation, and not available on a local build.
-    // Use the unpacked version instead.
-    bindir.append("{e2fda1a4-762b-4020-b5ad-a41df1933103}");
-    dump("Loading " + bindir.path + "\n");
-    manager.addLegacyExtensionManifestLocation(bindir);
-  }
-
-  // Make sure to load the backend loader as early as possible, as xpcshell doesn't have the
-  // normal app flow with profile-after-change et al.
-  Cc["@mozilla.org/calendar/backend-loader;1"].getService();
-})();
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTimezone) {
