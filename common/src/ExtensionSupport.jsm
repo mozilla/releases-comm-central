@@ -153,12 +153,8 @@ var ExtensionSupport = {
         );
         zipReader.open(prefFile);
         let entries = zipReader.findEntries("defaults/preferences/*.js");
-        let unsortedEntries = [];
-        while (entries.hasMore()) {
-          unsortedEntries.push(entries.getNext());
-        }
 
-        for (let entryName of unsortedEntries.sort().reverse()) {
+        for (let entryName of [...entries].sort().reverse()) {
           let stream = zipReader.getInputStream(entryName);
           let entrySize = zipReader.getEntry(entryName).realSize;
           if (entrySize > 0) {

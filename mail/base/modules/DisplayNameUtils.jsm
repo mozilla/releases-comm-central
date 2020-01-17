@@ -38,8 +38,7 @@ function getCardForEmail(aEmailAddress) {
   // Email address is searched for in any of the address books that support
   // the cardForEmailAddress function.
   // Future expansion could be to domain matches
-  let books = MailServices.ab.directories;
-  for (let book of fixIterator(books, Ci.nsIAbDirectory)) {
+  for (let book of MailServices.ab.directories) {
     try {
       let card = book.cardForEmailAddress(aEmailAddress);
       if (card) {

@@ -59,30 +59,26 @@ var _folderEventLogHelper_msgFolderListener = {
       aJunkProcessed ? "junk processed" : "did not junk process",
       aTraitProcessed ? "trait processed" : "did not trait process",
     ];
-    for (let msgHdr of fixIterator(aMsgs, Ci.nsIMsgDBHdr)) {
+    for (let msgHdr of aMsgs) {
       args.push(msgHdr);
     }
     mark_action("msgEvent", "msgsClassified", args);
   },
 
   msgsDeleted(aMsgs) {
-    let args = [];
-    for (let msgHdr of fixIterator(aMsgs, Ci.nsIMsgDBHdr)) {
-      args.push(msgHdr);
-    }
-    mark_action("msgEvent", "msgsDeleted", args);
+    mark_action("msgEvent", "msgsDeleted", [...aMsgs]);
   },
 
   msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
     let args = [aMove ? "moved" : "copied"];
-    for (let msgHdr of fixIterator(aSrcMsgs, Ci.nsIMsgDBHdr)) {
+    for (let msgHdr of aSrcMsgs) {
       args.push(msgHdr);
     }
     args.push("to");
     args.push(aDestFolder);
     if (aDestMsgs) {
       args.push("dest headers:");
-      for (let msgHdr of fixIterator(aDestMsgs, Ci.nsIMsgDBHdr)) {
+      for (let msgHdr of aDestMsgs) {
         args.push(msgHdr);
       }
     }

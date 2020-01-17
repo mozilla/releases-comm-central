@@ -13,9 +13,6 @@ if (!customElements.get("menulist")) {
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
-  const { fixIterator } = ChromeUtils.import(
-    "resource:///modules/iteratorUtils.jsm"
-  );
   /**
    * MozMenulistAddrbooks is a menulist widget that is automatically
    * populated with the complete address book list.
@@ -131,7 +128,7 @@ if (!customElements.get("menulist")) {
 
           if (this.getAttribute("mailinglists") == "true") {
             // Also append contained mailinglists.
-            for (let list of fixIterator(ab.childNodes, Ci.nsIAbDirectory)) {
+            for (let list of ab.childNodes) {
               if (this._matches(list)) {
                 this._directories.push(list);
               }

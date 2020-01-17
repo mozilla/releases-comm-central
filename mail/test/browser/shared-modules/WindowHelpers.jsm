@@ -28,9 +28,6 @@ this.EXPORTED_SYMBOLS = [
   "augment_controller",
 ];
 
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -244,10 +241,7 @@ var WindowWatcher = {
     //  window type yet.
     // because this iterates from old to new, this does the right thing in that
     //  side-effects of consider will pick the most recent window.
-    for (let appWindow of fixIterator(
-      Services.wm.getAppWindowEnumerator(null),
-      Ci.nsIAppWindow
-    )) {
+    for (let appWindow of Services.wm.getAppWindowEnumerator(null)) {
       if (!this.consider(appWindow)) {
         this.monitoringList.push(appWindow);
       }

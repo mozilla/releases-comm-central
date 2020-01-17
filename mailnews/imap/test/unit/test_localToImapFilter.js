@@ -111,13 +111,7 @@ var tests = [
 ];
 
 function folderCount(folder) {
-  let enumerator = folder.msgDatabase.EnumerateMessages();
-  let count = 0;
-  // eslint-disable-next-line no-unused-vars
-  for (let hdr of fixIterator(enumerator, Ci.nsIMsgDBHdr)) {
-    count++;
-  }
-  return count;
+  return [...folder.msgDatabase.EnumerateMessages()].length;
 }
 
 function setup() {
@@ -152,10 +146,9 @@ asyncUrlListener.callback = function(aUrl, aExitCode) {
 };
 
 function listMessages(folder) {
-  let enumerator = folder.msgDatabase.EnumerateMessages();
   var msgCount = 0;
   dump("listing messages for " + folder.prettyName + "\n");
-  for (let hdr of fixIterator(enumerator, Ci.nsIMsgDBHdr)) {
+  for (let hdr of folder.msgDatabase.EnumerateMessages()) {
     msgCount++;
     dump(msgCount + ": " + hdr.subject + "\n");
   }
