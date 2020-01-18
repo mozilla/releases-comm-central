@@ -34,15 +34,13 @@ interface nsICMSMessage : nsISupports
   void getSignerCert(out nsIX509Cert scert);
   void getEncryptionCert(out nsIX509Cert ecert);
   void verifySignature();
-  void verifyDetachedSignature(in UnsignedCharPtr aDigestData,
-                               in unsigned long aDigestDataLen,
+  void verifyDetachedSignature(in Array<octet> aDigestData,
                                in int16_t aDigestType);
   void CreateEncrypted(in nsIArray aRecipientCerts);
 
   /* The parameter aDigestType must be one of the values in nsICryptoHash */
   void CreateSigned(in nsIX509Cert scert, in nsIX509Cert ecert,
-                    in UnsignedCharPtr aDigestData,
-                    in unsigned long aDigestDataLen, in int16_t aDigestType);
+                    in Array<octet> aDigestData, in int16_t aDigestType);
 
   /**
     * Async version of nsICMSMessage::VerifySignature.
@@ -58,21 +56,10 @@ interface nsICMSMessage : nsISupports
     * availability of results will be notified using a
     * call to nsISMimeVerificationListener.
     *
-    * We are using "native unsigned char" ptr, because the function
-    * signatures of this one and nsICMSMessage::verifyDetachedSignature
-    * should be the identical.
-    *
-    * Once both interfaces get cleaned up (bug 330503), the function signature
-    * should look like:
-    *     [array, length_is(aDigestDataLen)] or [const, array, length_is(aDigestDataLen])
-    *     in octet aDigestData,
-    *     in unsigned long aDigestDataLen);
-    *
     * Set aDigestType to one of the values from nsICryptoHash.
    */
   void asyncVerifyDetachedSignature(in nsISMimeVerificationListener listener,
-                                    in UnsignedCharPtr aDigestData,
-                                    in unsigned long aDigestDataLen,
+                                    in Array<octet> aDigestData,
                                     in int16_t aDigestType);
 };
 

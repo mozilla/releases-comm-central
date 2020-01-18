@@ -572,7 +572,6 @@ FAIL:
 
 nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
     bool aOuter, nsIMsgSendReport *sendReport) {
-  int status;
   nsresult rv;
   nsCOMPtr<nsICMSMessage> cinfo =
       do_CreateInstance(NS_CMSMESSAGE_CONTRACTID, &rv);
@@ -603,12 +602,10 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
    */
 
   nsAutoCString hashString;
-  mDataHash->Finish(false, hashString);
-
+  rv = mDataHash->Finish(false, hashString);
   mDataHash = nullptr;
-
-  status = PR_GetError();
-  if (status < 0) goto FAIL;
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (PR_GetError() < 0) return NS_ERROR_FAILURE;
 
   /* Write out the headers for the signature.
    */
@@ -622,8 +619,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
       mMultipartSignedBoundary, sig_content_desc_utf8.get());
 
   if (!header) {
-    rv = NS_ERROR_OUT_OF_MEMORY;
-    goto FAIL;
+    return NS_ERROR_OUT_OF_MEMORY;
   }
 
   L = strlen(header);
@@ -641,6 +637,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
   }
 
   PR_Free(header);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   /* Create the signature...
    */
@@ -650,12 +647,14 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
   PR_ASSERT(mSelfSigningCert);
   PR_SetError(0, 0);
 
-  rv = cinfo->CreateSigned(mSelfSigningCert, mSelfEncryptionCert,
-                           (unsigned char *)hashString.get(),
-                           hashString.Length(), mHashType);
+  nsTArray<uint8_t> digest;
+  digest.AppendElements(hashString.get(), hashString.Length());
+
+  rv = cinfo->CreateSigned(mSelfSigningCert, mSelfEncryptionCert, digest,
+                           mHashType);
   if (NS_FAILED(rv)) {
     SetError(sendReport, u"ErrorCanNotSignMail");
-    goto FAIL;
+    return rv;
   }
 
   // Initialize the base64 encoder for the signature data.
@@ -669,22 +668,20 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
   rv = encoder->Start(cinfo, mime_crypto_write_base64, mSigEncoder);
   if (NS_FAILED(rv)) {
     SetError(sendReport, u"ErrorCanNotSignMail");
-    goto FAIL;
+    return rv;
   }
 
   // We're not passing in any data, so no update needed.
   rv = encoder->Finish();
   if (NS_FAILED(rv)) {
     SetError(sendReport, u"ErrorCanNotSignMail");
-    goto FAIL;
+    return rv;
   }
 
   // Shut down the sig's base64 encoder.
   rv = mSigEncoder->Flush();
   mSigEncoder = nullptr;
-  if (NS_FAILED(rv)) {
-    goto FAIL;
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   /* Now write out the terminating boundary.
    */
@@ -695,8 +692,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
     mMultipartSignedBoundary = 0;
 
     if (!header) {
-      rv = NS_ERROR_OUT_OF_MEMORY;
-      goto FAIL;
+      return NS_ERROR_OUT_OF_MEMORY;
     }
     L = strlen(header);
     if (aOuter) {
@@ -712,7 +708,6 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
     }
   }
 
-FAIL:
   return rv;
 }
 

@@ -54,7 +54,7 @@ void nsCMSMessage::destructorSafeDestroyNSSReference() {
 }
 
 NS_IMETHODIMP nsCMSMessage::VerifySignature() {
-  return CommonVerifySignature(nullptr, 0, 0);
+  return CommonVerifySignature({}, 0);
 }
 
 NSSCMSSignerInfo *nsCMSMessage::GetTopLevelSignerInfo() {
@@ -150,17 +150,15 @@ NS_IMETHODIMP nsCMSMessage::GetEncryptionCert(nsIX509Cert **) {
 }
 
 NS_IMETHODIMP
-nsCMSMessage::VerifyDetachedSignature(unsigned char *aDigestData,
-                                      uint32_t aDigestDataLen,
+nsCMSMessage::VerifyDetachedSignature(const nsTArray<uint8_t> &aDigestData,
                                       int16_t aDigestType) {
-  if (!aDigestData || !aDigestDataLen) return NS_ERROR_FAILURE;
+  if (aDigestData.IsEmpty()) return NS_ERROR_FAILURE;
 
-  return CommonVerifySignature(aDigestData, aDigestDataLen, aDigestType);
+  return CommonVerifySignature(aDigestData, aDigestType);
 }
 
-nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
-                                             uint32_t aDigestDataLen,
-                                             int16_t aDigestType) {
+nsresult nsCMSMessage::CommonVerifySignature(
+    const nsTArray<uint8_t> &aDigestData, int16_t aDigestType) {
   MOZ_LOG(gCMSLog, LogLevel::Debug,
           ("nsCMSMessage::CommonVerifySignature, content level count %d",
            NSS_CMSMessage_ContentLevelCount(m_cmsMsg)));
@@ -205,11 +203,13 @@ nsresult nsCMSMessage::CommonVerifySignature(unsigned char *aDigestData,
     goto loser;
   }
 
-  if (aDigestData && aDigestDataLen) {
+  if (!aDigestData.IsEmpty()) {
     SECOidTag oidTag;
     SECItem digest;
-    digest.data = aDigestData;
-    digest.len = aDigestDataLen;
+    // NSS_CMSSignedData_SetDigestValue() takes a copy and won't mutate our
+    // data, so we're OK to cast away the const here.
+    digest.data = const_cast<uint8_t *>(aDigestData.Elements());
+    digest.len = aDigestData.Length();
 
     if (NSS_CMSSignedData_HasDigests(sigd)) {
       SECAlgorithmID **existingAlgs = NSS_CMSSignedData_GetDigestAlgs(sigd);
@@ -344,29 +344,28 @@ loser:
 
 NS_IMETHODIMP nsCMSMessage::AsyncVerifySignature(
     nsISMimeVerificationListener *aListener) {
-  return CommonAsyncVerifySignature(aListener, nullptr, 0, 0);
+  return CommonAsyncVerifySignature(aListener, {}, 0);
 }
 
 NS_IMETHODIMP nsCMSMessage::AsyncVerifyDetachedSignature(
-    nsISMimeVerificationListener *aListener, unsigned char *aDigestData,
-    uint32_t aDigestDataLen, int16_t aDigestType) {
-  if (!aDigestData || !aDigestDataLen) return NS_ERROR_FAILURE;
+    nsISMimeVerificationListener *aListener,
+    const nsTArray<uint8_t> &aDigestData, int16_t aDigestType) {
+  if (aDigestData.IsEmpty()) return NS_ERROR_FAILURE;
 
-  return CommonAsyncVerifySignature(aListener, aDigestData, aDigestDataLen,
-                                    aDigestType);
+  return CommonAsyncVerifySignature(aListener, aDigestData, aDigestType);
 }
 
 class SMimeVerificationTask final : public CryptoTask {
  public:
   SMimeVerificationTask(nsICMSMessage *aMessage,
                         nsISMimeVerificationListener *aListener,
-                        unsigned char *aDigestData, uint32_t aDigestDataLen,
-                        int16_t aDigestType) {
+                        const nsTArray<uint8_t> &aDigestData,
+                        int16_t aDigestType)
+      : mMessage(aMessage),
+        mListener(aListener),
+        mDigestData(aDigestData),
+        mDigestType(aDigestType) {
     MOZ_ASSERT(NS_IsMainThread());
-    mMessage = aMessage;
-    mListener = aListener;
-    mDigestData.Assign(reinterpret_cast<char *>(aDigestData), aDigestDataLen);
-    mDigestType = aDigestType;
   }
 
  private:
@@ -375,12 +374,10 @@ class SMimeVerificationTask final : public CryptoTask {
 
     mozilla::StaticMutexAutoLock lock(sMutex);
     nsresult rv;
-    if (!mDigestData.IsEmpty()) {
-      rv = mMessage->VerifyDetachedSignature(
-          reinterpret_cast<uint8_t *>(const_cast<char *>(mDigestData.get())),
-          mDigestData.Length(), mDigestType);
-    } else {
+    if (mDigestData.IsEmpty()) {
       rv = mMessage->VerifySignature();
+    } else {
+      rv = mMessage->VerifyDetachedSignature(mDigestData, mDigestType);
     }
 
     return rv;
@@ -392,7 +389,7 @@ class SMimeVerificationTask final : public CryptoTask {
 
   nsCOMPtr<nsICMSMessage> mMessage;
   nsCOMPtr<nsISMimeVerificationListener> mListener;
-  nsCString mDigestData;
+  nsTArray<uint8_t> mDigestData;
   int16_t mDigestType;
 
   static mozilla::StaticMutex sMutex;
@@ -401,10 +398,10 @@ class SMimeVerificationTask final : public CryptoTask {
 mozilla::StaticMutex SMimeVerificationTask::sMutex;
 
 nsresult nsCMSMessage::CommonAsyncVerifySignature(
-    nsISMimeVerificationListener *aListener, unsigned char *aDigestData,
-    uint32_t aDigestDataLen, int16_t aDigestType) {
-  RefPtr<CryptoTask> task = new SMimeVerificationTask(
-      this, aListener, aDigestData, aDigestDataLen, aDigestType);
+    nsISMimeVerificationListener *aListener,
+    const nsTArray<uint8_t> &aDigestData, int16_t aDigestType) {
+  RefPtr<CryptoTask> task =
+      new SMimeVerificationTask(this, aListener, aDigestData, aDigestType);
   return task->Dispatch();
 }
 
@@ -585,7 +582,7 @@ bool nsCMSMessage::IsAllowedHash(const int16_t aCryptoHashInt) {
 
 NS_IMETHODIMP
 nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
-                           unsigned char *aDigestData, uint32_t aDigestDataLen,
+                           const nsTArray<uint8_t> &aDigestData,
                            int16_t aDigestType) {
   NS_ENSURE_ARG(aSigningCert);
   MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::CreateSigned"));
@@ -718,12 +715,13 @@ nsCMSMessage::CreateSigned(nsIX509Cert *aSigningCert, nsIX509Cert *aEncryptCert,
   }
 
   // Finally, add the pre-computed digest if passed in
-  if (aDigestData) {
+  if (!aDigestData.IsEmpty()) {
     SECItem digest;
 
-    digest.data = aDigestData;
-    digest.len = aDigestDataLen;
-
+    // NSS_CMSSignedData_SetDigestValue() takes a copy and won't mutate our
+    // data, so we're OK to cast away the const here.
+    digest.data = const_cast<uint8_t *>(aDigestData.Elements());
+    digest.len = aDigestData.Length();
     if (NSS_CMSSignedData_SetDigestValue(sigd, digestType, &digest) !=
         SECSuccess) {
       MOZ_LOG(gCMSLog, LogLevel::Debug,

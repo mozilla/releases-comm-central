@@ -582,17 +582,16 @@ void MimeCMSRequestAsyncSignatureVerification(
     nsICMSMessage *aCMSMsg, const char *aFromAddr, const char *aFromName,
     const char *aSenderAddr, const char *aSenderName,
     nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel,
-    const nsCString &aMsgNeckoURL, unsigned char *item_data, uint32_t item_len,
-    int16_t digest_type) {
+    const nsCString &aMsgNeckoURL, const nsTArray<uint8_t> &aDigestData,
+    int16_t aDigestType) {
   RefPtr<nsSMimeVerificationListener> listener =
       new nsSMimeVerificationListener(aFromAddr, aFromName, aSenderAddr,
                                       aSenderName, aHeaderSink,
                                       aMimeNestingLevel, aMsgNeckoURL);
-  if (item_data)
-    aCMSMsg->AsyncVerifyDetachedSignature(listener, item_data, item_len,
-                                          digest_type);
-  else
+  if (aDigestData.IsEmpty())
     aCMSMsg->AsyncVerifySignature(listener);
+  else
+    aCMSMsg->AsyncVerifyDetachedSignature(listener, aDigestData, aDigestType);
 }
 
 static int MimeCMS_eof(void *crypto_closure, bool abort_p) {
@@ -702,7 +701,7 @@ static int MimeCMS_eof(void *crypto_closure, bool abort_p) {
       MimeCMSRequestAsyncSignatureVerification(
           data->content_info, from_addr.get(), from_name.get(),
           sender_addr.get(), sender_name.get(), data->smimeHeaderSink,
-          aRelativeNestLevel, data->url, nullptr, 0, 0);
+          aRelativeNestLevel, data->url, {}, 0);
     }
   }
 
