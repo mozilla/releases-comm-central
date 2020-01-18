@@ -86,6 +86,9 @@ task-priority:
         'comm-central': 'medium'
         'default': 'low'
 
+taskgraph:
+    register: comm_taskgraph:register
+
 workers:
     aliases:
         b-linux.*:
