@@ -3116,7 +3116,7 @@ static int isEnglish = -1;
 static bool nonEnglishApp() {
   if (isEnglish == -1) {
     nsAutoCString locale;
-    mozilla::intl::LocaleService::GetInstance()->GetAppLocaleAsLangTag(locale);
+    mozilla::intl::LocaleService::GetInstance()->GetAppLocaleAsBCP47(locale);
     isEnglish = (locale.EqualsLiteral("en") ||
                  StringBeginsWith(locale, NS_LITERAL_CSTRING("en-")))
                     ? 1
