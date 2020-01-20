@@ -43,9 +43,6 @@ jobs:
                     thunderbird-beta-latest-ssl: installer-ssl
                     thunderbird-beta-latest: installer
                     thunderbird-beta-msi-latest-ssl: msi
-                comm-esr60:
-                    thunderbird-latest-ssl: installer-ssl
-                    thunderbird-latest: installer
                 comm-esr68:
                     thunderbird-latest-ssl: installer-ssl
                     thunderbird-latest: installer

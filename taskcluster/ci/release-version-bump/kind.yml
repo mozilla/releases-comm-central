@@ -18,7 +18,7 @@ job-defaults:
     shipping-phase: ship
     worker-type:
         by-project:
-            comm-(beta|esr60|esr68): scriptworker-k8s/comm-3-tree
+            comm-(beta|esr68): scriptworker-k8s/comm-3-tree
             default: scriptworker-k8s/comm-1-tree
     worker:
         implementation: treescript
@@ -28,12 +28,12 @@ job-defaults:
         bump-files:
             by-project:
                 default: ["mail/config/version_display.txt"]
-                comm-(beta|esr60|esr68):
+                comm-(beta|esr68):
                     - "mail/config/version.txt"
                     - "mail/config/version_display.txt"
         push:
             by-project:
-                comm-(beta|esr60|esr68): true
+                comm-(beta|esr68): true
                 default: false
 
 jobs:

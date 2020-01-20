@@ -21,7 +21,7 @@ job-defaults:
         max-run-time: 600
     emails:
         by-project:
-            comm-(beta|esr60|esr68): ["thunderbird-drivers@mozilla.org"]
+            comm-(beta|esr68): ["thunderbird-drivers@mozilla.org"]
             try-comm-central: ["{config[params][owner]}"]
             default: []
 
