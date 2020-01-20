@@ -1384,6 +1384,8 @@ void nsImapServerResponseParser::xaolenvelope_data() {
 }
 
 void nsImapServerResponseParser::parse_address(nsAutoCString &addressLine) {
+  // NOTE: Not sure this function correctly handling group address syntax.
+  // See Bug 1609846.
   if (!strcmp(fNextToken, "NIL")) return;
   bool firstAddress = true;
   // should really look at chars here
@@ -1406,11 +1408,13 @@ void nsImapServerResponseParser::parse_address(nsAutoCString &addressLine) {
         AdvanceToNextToken();
         char *hostName = CreateNilString();
         AdvanceToNextToken();
-        addressLine += mailboxName;
+        if (mailboxName) {
+          addressLine += mailboxName;
+        }
         if (hostName) {
           addressLine += '@';
           addressLine += hostName;
-          free(hostName);
+          PR_Free(hostName);
         }
         if (personalName) {
           addressLine += " (";
@@ -1418,6 +1422,7 @@ void nsImapServerResponseParser::parse_address(nsAutoCString &addressLine) {
           addressLine += ')';
         }
       }
+      PR_Free(mailboxName);
     }
     PR_Free(personalName);
     PR_Free(atDomainList);
