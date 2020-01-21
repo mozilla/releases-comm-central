@@ -399,6 +399,10 @@ function awAddRecipientsArray(aRecipientType, aAddressArray) {
     onRecipientsChanged();
   }
 
+  element
+    .closest(".address-container")
+    .classList.add("addressing-field-edited");
+
   // Add the recipients to our spell check ignore list.
   addRecipientsToIgnoreList(aAddressArray.join(", "));
   calculateHeaderHeight();
@@ -601,6 +605,12 @@ function recipientAddPill(element, automatic = false) {
   // Attach it again to enable autocomplete.
   element.attachController();
 
+  if (!automatic) {
+    element
+      .closest(".address-container")
+      .classList.add("addressing-field-edited");
+  }
+
   onRecipientsChanged(automatic);
   calculateHeaderHeight();
   udpateAddressingInputAriaLabel(element.closest(".address-row"));
@@ -769,21 +779,40 @@ function hideAddressRow(element, labelID) {
   let container = element.closest(".address-row");
   let fieldName = container.querySelector(".address-label-container > label");
   let confirmTitle = getComposeBundle().getFormattedString(
-    "confirmRemoveRecipientRowTitle",
+    "confirmRemoveRecipientRowTitle2",
     [fieldName.value]
   );
   let confirmBody = getComposeBundle().getFormattedString(
-    "confirmRemoveRecipientRowBody",
+    "confirmRemoveRecipientRowBody2",
     [fieldName.value]
+  );
+  let confirmButton = getComposeBundle().getString(
+    "confirmRemoveRecipientRowButton"
   );
 
   let pills = container.querySelectorAll("mail-address-pill");
-  // Ask the user to confirm the removal of all the typed addresses.
-  if (
-    pills.length &&
-    !Services.prompt.confirm(null, confirmTitle, confirmBody)
-  ) {
-    return;
+  let isEdited = container
+    .querySelector(".address-container")
+    .classList.contains("addressing-field-edited");
+
+  // Ask the user to confirm the removal of all the typed addresses if the field
+  // holds addressing pills and has been previously edited.
+  if (isEdited && pills.length) {
+    let result = Services.prompt.confirmEx(
+      window,
+      confirmTitle,
+      confirmBody,
+      Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+        Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL,
+      confirmButton,
+      null,
+      null,
+      null,
+      {}
+    );
+    if (result == 1) {
+      return;
+    }
   }
 
   for (let pill of pills) {
@@ -797,8 +826,8 @@ function hideAddressRow(element, labelID) {
   container.classList.add("hidden");
   document.getElementById(labelID).removeAttribute("collapsed");
 
-  // Update the sender button only if pills were deleted.
-  onRecipientsChanged(!pills.length);
+  // Update the sender button only if the content was previously changed.
+  onRecipientsChanged(!isEdited);
   updateRecipientsPanelVisibility();
   udpateAddressingInputAriaLabel(container);
 

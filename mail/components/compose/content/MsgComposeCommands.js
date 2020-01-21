@@ -3535,6 +3535,7 @@ function SetDocumentCharacterSet(aCharset) {
 function updateStringsOfAddressingFields() {
   for (let row of document.querySelectorAll(".address-row")) {
     udpateAddressingInputAriaLabel(row);
+    updateTooltipsOfAddressingFields(row);
   }
 }
 
@@ -3553,6 +3554,19 @@ function udpateAddressingInputAriaLabel(row) {
     "aria-label",
     l10n.formatValueSync("address-input-type", { type, count })
   );
+}
+
+/**
+ * Update the close label of the recipient row.
+ *
+ * @param {Element} row - The recipient address-row.
+ */
+function updateTooltipsOfAddressingFields(row) {
+  let type = row.querySelector(".address-label-container > label").value;
+  let tooltip = l10n.formatValueSync("remove-address-row-type", { type });
+  row
+    .querySelector(".aw-firstColBox > label")
+    .setAttribute("tooltiptext", tooltip);
 }
 
 /**

@@ -34,6 +34,13 @@
   var { DisplayNameUtils } = ChromeUtils.import(
     "resource:///modules/DisplayNameUtils.jsm"
   );
+  var { Localization } = ChromeUtils.import(
+    "resource://gre/modules/Localization.jsm"
+  );
+  var l10n = new Localization(
+    ["messenger/messengercompose/messengercompose.ftl"],
+    true
+  );
 
   class MozMailHeaderfield extends MozXULElement {
     connectedCallback() {
@@ -2090,6 +2097,10 @@
       let firstLabel = document.createXULElement("label");
       let labelId =
         recipient.type == "addr_other" ? recipient.labelId : recipient.type;
+      let tooltip = l10n.formatValueSync("remove-address-row-type", {
+        type: recipient.labelId,
+      });
+      firstLabel.setAttribute("tooltiptext", tooltip);
       firstLabel.addEventListener("click", () => {
         hideAddressRow(firstLabel, labelId);
       });
