@@ -33,8 +33,9 @@ interface nsIMessenger : nsISupports {
     void addMsgUrlToNavigateHistory(in ACString aURL);
     void openURL(in ACString aURL);
 
-    /** load a custom message by url, e.g load a attachment as a email
-      */
+    /**
+     * Load a custom message by url, e.g load a attachment as a email
+     */
     void loadURL(in mozIDOMWindowProxy ptr, in ACString aURL);
 
     void launchExternalURL(in ACString aURL);
@@ -131,12 +132,13 @@ interface nsIMessenger : nsISupports {
     ACString getMsgUriAtNavigatePos(in long aPos);
     ACString getFolderUriAtNavigatePos(in long aPos);
     attribute long navigatePos;
-    /** Fetch the message navigation history.
-      *
-      * @returns An array containing two URIs for each history position.
-      *          First msgURI, then folderURI. So the array will be
-      *          twice as long as the number of history positions.
-      */
+    /**
+     * Fetch the message navigation history.
+     *
+     * @returns An array containing two URIs for each history position.
+     *          First msgURI, then folderURI. So the array will be
+     *          twice as long as the number of history positions.
+     */
     Array<ACString> getNavigateHistory();
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);
 };
