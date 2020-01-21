@@ -13,7 +13,6 @@
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsImapUtils.h"
-#include "nsAutoPtr.h"
 
 class nsIMAPBodyShell;
 class nsIMAPBodypart;

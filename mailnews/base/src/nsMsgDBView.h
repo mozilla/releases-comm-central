@@ -28,7 +28,6 @@
 #include "nsTHashtable.h"
 #include "nsHashKeys.h"
 #include "nsIMsgCustomColumnHandler.h"
-#include "nsAutoPtr.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsSimpleEnumerator.h"
 #define MESSENGER_STRING_URL "chrome://messenger/locale/messenger.properties"

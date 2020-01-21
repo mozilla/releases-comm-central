@@ -21,7 +21,6 @@
 #include "nsIMsgIdentity.h"
 #include "nsIPrompt.h"
 #include "nsIWindowWatcher.h"
-#include "nsAutoPtr.h"
 #include "nsComposeStrings.h"
 #include "nsIAsyncInputStream.h"
 #include "nsIPrincipal.h"

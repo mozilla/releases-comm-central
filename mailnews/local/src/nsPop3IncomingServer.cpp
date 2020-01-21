@@ -15,7 +15,6 @@
 #include "nsMsgLocalCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsPop3Protocol.h"
-#include "nsAutoPtr.h"
 #include "nsMsgKeyArray.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgAccountManager.h"

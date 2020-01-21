@@ -27,7 +27,6 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsThreadUtils.h"
-#include "nsAutoPtr.h"
 #include "mozilla/Services.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 

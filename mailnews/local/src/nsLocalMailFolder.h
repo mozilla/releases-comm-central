@@ -12,7 +12,6 @@
 
 #include "mozilla/Attributes.h"
 #include "nsMsgDBFolder.h" /* include the interface we are going to support */
-#include "nsAutoPtr.h"
 #include "nsICopyMessageListener.h"
 #include "nsMsgTxn.h"
 #include "nsIMsgMessageService.h"

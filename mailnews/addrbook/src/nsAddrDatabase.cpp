@@ -7,7 +7,6 @@
 
 #include "nsAddrDatabase.h"
 #include "nsString.h"
-#include "nsAutoPtr.h"
 #include "nsUnicharUtils.h"
 #include "nsAbBaseCID.h"
 #include "nsServiceManagerUtils.h"

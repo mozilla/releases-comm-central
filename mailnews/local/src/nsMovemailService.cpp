@@ -29,7 +29,6 @@
 
 #include "nsILineInputStream.h"
 #include "nsNetUtil.h"
-#include "nsAutoPtr.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgPluggableStore.h"
 #include "mozilla/Services.h"

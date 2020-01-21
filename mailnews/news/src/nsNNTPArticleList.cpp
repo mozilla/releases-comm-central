@@ -8,7 +8,6 @@
 #include "nsCOMPtr.h"
 #include "nsNNTPArticleList.h"
 #include "nsIMsgFolder.h"
-#include "nsAutoPtr.h"
 #include "nsMsgKeyArray.h"
 
 NS_IMPL_ISUPPORTS(nsNNTPArticleList, nsINNTPArticleList)

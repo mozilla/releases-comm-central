@@ -15,7 +15,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsCRT.h"
-#include "nsAutoPtr.h"
 #include "mozilla/Encoding.h"
 
 /////////////////////////////////////////////////////////////////////////////////////

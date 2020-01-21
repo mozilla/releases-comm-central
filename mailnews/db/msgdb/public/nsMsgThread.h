@@ -6,7 +6,6 @@
 #ifndef _nsMsgThread_H
 #define _nsMsgThread_H
 
-#include "nsAutoPtr.h"
 #include "nsIMsgThread.h"
 #include "nsString.h"
 #include "MailNewsTypes.h"

@@ -12,7 +12,6 @@
 #include "nsIImapMessageSink.h"
 #include "nsICopyMessageListener.h"
 #include "nsIUrlListener.h"
-#include "nsAutoPtr.h"
 #include "nsIImapIncomingServer.h"  // we need this for its IID
 #include "nsIMsgParseMailMsgState.h"
 #include "nsImapUndoTxn.h"

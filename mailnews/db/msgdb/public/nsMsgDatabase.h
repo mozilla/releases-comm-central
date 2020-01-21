@@ -13,7 +13,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsMsgHdr.h"
 #include "nsString.h"
-#include "nsAutoPtr.h"
 #include "nsIDBChangeListener.h"
 #include "nsIDBChangeAnnouncer.h"
 #include "nsMsgMessageFlags.h"

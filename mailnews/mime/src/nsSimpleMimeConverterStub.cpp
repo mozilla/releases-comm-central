@@ -12,7 +12,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsICategoryManager.h"
 #include "nsCOMPtr.h"
-#include "nsAutoPtr.h"
 #include "nsISimpleMimeConverter.h"
 #include "nsServiceManagerUtils.h"
 #include "nsSimpleMimeConverterStub.h"

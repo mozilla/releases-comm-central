@@ -33,7 +33,6 @@
 #include "nsISupportsPrimitives.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsAutoPtr.h"
 #include "prmem.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"

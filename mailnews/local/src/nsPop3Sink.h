@@ -13,7 +13,6 @@
 #include "plstr.h"
 #include "prenv.h"
 #include "nsIMsgFolder.h"
-#include "nsAutoPtr.h"
 #include "nsTArray.h"
 #include "nsString.h"
 

@@ -8,7 +8,6 @@
 #include "nsAbOSXUtils.h"
 #include "nsAbQueryStringToExpression.h"
 #include "nsArrayEnumerator.h"
-#include "nsAutoPtr.h"
 #include "nsCOMArray.h"
 #include "nsEnumeratorUtils.h"
 #include "nsIAbDirectoryQueryProxy.h"

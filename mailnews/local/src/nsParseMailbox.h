@@ -20,7 +20,6 @@
 #include "nsIWeakReferenceUtils.h"
 #include "nsIMsgWindow.h"
 #include "nsImapMoveCoalescer.h"
-#include "nsAutoPtr.h"
 #include "nsString.h"
 #include "nsIMsgFilterList.h"
 #include "nsIMsgFilter.h"

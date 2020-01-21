@@ -12,7 +12,6 @@
 #include "msgIOverride.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgIncomingServer.h"
-#include "nsAutoPtr.h"
 #include "nsDataHashtable.h"
 #include "nsIInterfaceRequestor.h"
 

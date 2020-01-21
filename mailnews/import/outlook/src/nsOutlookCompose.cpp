@@ -33,7 +33,6 @@
 #include "nsMimeTypes.h"
 #include "nsMsgUtils.h"
 
-#include "nsAutoPtr.h"
 #include "nsIThread.h"
 #include "nsThreadUtils.h"
 

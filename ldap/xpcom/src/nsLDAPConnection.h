@@ -22,7 +22,6 @@
 #include "nsIRequest.h"
 #include "nsCOMArray.h"
 #include "nsIObserver.h"
-#include "nsAutoPtr.h"
 #include "mozilla/Mutex.h"
 
 /**

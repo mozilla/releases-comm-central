@@ -43,7 +43,6 @@
 #include "nsIMsgSearchCustomTerm.h"
 #include "nsIMsgSearchTerm.h"
 #include "nsIMsgThread.h"
-#include "nsAutoPtr.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgOperationListener.h"
 #include "mozilla/Attributes.h"

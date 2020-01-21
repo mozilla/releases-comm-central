@@ -10,7 +10,6 @@
 #include "DelegateList.h"
 #include "msgCore.h"
 #include "msgIOverride.h"
-#include "nsAutoPtr.h"
 #include "nsCycleCollectionParticipant.h"
 #include "nsDataHashtable.h"
 #include "nsIFile.h"

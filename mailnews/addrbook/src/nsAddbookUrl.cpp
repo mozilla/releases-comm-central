@@ -9,7 +9,6 @@
 #include "nsString.h"
 #include "nsAbBaseCID.h"
 #include "nsComponentManagerUtils.h"
-#include "nsAutoPtr.h"
 #include "mozilla/Encoding.h"
 
 /////////////////////////////////////////////////////////////////////////////////////

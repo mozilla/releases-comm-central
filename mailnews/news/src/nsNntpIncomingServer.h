@@ -26,7 +26,6 @@
 #include "nsTArray.h"
 
 #include "nsNntpMockChannel.h"
-#include "nsAutoPtr.h"
 
 /* get some implementation from nsMsgIncomingServer */
 class nsNntpIncomingServer : public nsMsgIncomingServer,

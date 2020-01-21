@@ -5,7 +5,6 @@
 #ifndef nsAutoSyncManager_h__
 #  define nsAutoSyncManager_h__
 
-#  include "nsAutoPtr.h"
 #  include "nsString.h"
 #  include "nsCOMArray.h"
 #  include "nsIObserver.h"

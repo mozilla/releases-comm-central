@@ -42,7 +42,6 @@
 #include "nsIImapHeaderXferInfo.h"
 #include "nsMsgLineBuffer.h"
 #include "nsIAsyncInputStream.h"
-#include "nsAutoPtr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgAsyncPrompter.h"
 #include "mozilla/ReentrantMonitor.h"

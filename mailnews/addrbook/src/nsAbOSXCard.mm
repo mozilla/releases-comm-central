@@ -6,7 +6,6 @@
 #include "nsAbOSXCard.h"
 #include "nsAbOSXDirectory.h"
 #include "nsAbOSXUtils.h"
-#include "nsAutoPtr.h"
 #include "nsIAbManager.h"
 #include "nsObjCExceptions.h"
 #include "nsServiceManagerUtils.h"

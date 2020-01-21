@@ -12,7 +12,6 @@
 #include "nsIFile.h"
 #include "nsIUrlListener.h"
 #include "nsCOMPtr.h"
-#include "nsAutoPtr.h"
 #include "nsMsgDBCID.h"
 #include "nsMsgFolderFlags.h"
 #include "nsISeekableStream.h"

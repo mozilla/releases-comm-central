@@ -856,7 +856,6 @@ NS_IMETHODIMP nsMsgHdr::GetIsKilled(bool *isKilled) {
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "nsIStringEnumerator.h"
-#include "nsAutoPtr.h"
 #define NULL_MORK_COLUMN 0
 class nsMsgPropertyEnumerator : public nsStringEnumeratorBase {
  public:

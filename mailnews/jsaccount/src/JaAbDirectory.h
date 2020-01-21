@@ -12,7 +12,6 @@
 #include "msgIOverride.h"
 #include "nsIAbDirectory.h"
 #include "nsAbDirProperty.h"
-#include "nsAutoPtr.h"
 #include "nsDataHashtable.h"
 #include "nsIInterfaceRequestor.h"
 

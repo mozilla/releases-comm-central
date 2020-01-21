@@ -54,7 +54,6 @@
 #include "nsILoginManager.h"
 #include "nsEmbedCID.h"
 #include "mozilla/Services.h"
-#include "nsAutoPtr.h"
 #include "nsIInputStream.h"
 #include "nsMemory.h"
 #include "nsIURIMutator.h"

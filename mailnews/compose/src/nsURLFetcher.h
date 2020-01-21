@@ -8,7 +8,6 @@
 #include "nsIURLFetcher.h"
 
 #include "nsCOMPtr.h"
-#include "nsAutoPtr.h"
 #include "nsIInputStream.h"
 #include "nsIStreamListener.h"
 

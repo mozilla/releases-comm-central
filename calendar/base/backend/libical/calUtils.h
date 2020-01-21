@@ -7,7 +7,6 @@
 #  include "nsCRT.h"
 #  include "nsString.h"
 
-#  include "nsAutoPtr.h"
 #  include "nsIStringEnumerator.h"
 
 #  include "calITimezone.h"

@@ -25,7 +25,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsMsgMimeCID.h"
 #include "nsMsgUtils.h"
-#include "nsAutoPtr.h"
 #include "nsMemory.h"
 #include "mozilla/Services.h"
 

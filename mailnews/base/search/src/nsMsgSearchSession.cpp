@@ -21,7 +21,6 @@
 #include "nsMsgLocalSearch.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsAutoPtr.h"
 
 NS_IMPL_ISUPPORTS(nsMsgSearchSession, nsIMsgSearchSession, nsIUrlListener,
                   nsISupportsWeakReference)

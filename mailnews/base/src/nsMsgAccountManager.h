@@ -27,7 +27,6 @@
 #include "nsInterfaceHashtable.h"
 #include "nsIMsgDatabase.h"
 #include "nsIDBChangeListener.h"
-#include "nsAutoPtr.h"
 #include "nsTObserverArray.h"
 
 class VirtualFolderChangeListener final : public nsIDBChangeListener {

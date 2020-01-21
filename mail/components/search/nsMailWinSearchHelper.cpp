@@ -5,7 +5,6 @@
 
 #include "nsMailWinSearchHelper.h"
 #include "nsDirectoryServiceUtils.h"
-#include "nsAutoPtr.h"
 #include "nsString.h"
 #include "nsIDirectoryEnumerator.h"
 #include "mozilla/ArrayUtils.h"

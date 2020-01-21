@@ -18,7 +18,6 @@
 #include "nsIMimeMiscStatus.h"
 #include "nsIMsgSMIMEHeaderSink.h"
 #include "nsCOMPtr.h"
-#include "nsAutoPtr.h"
 #include "nsIX509Cert.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"

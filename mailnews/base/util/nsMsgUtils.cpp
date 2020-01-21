@@ -10,6 +10,7 @@
 #include "nsMsgMessageFlags.h"
 #include "nsString.h"
 #include "nsIServiceManager.h"
+#include "nsAutoPtr.h"
 #include "nsCOMPtr.h"
 #include "nsIFolderLookupService.h"
 #include "nsIImapUrl.h"

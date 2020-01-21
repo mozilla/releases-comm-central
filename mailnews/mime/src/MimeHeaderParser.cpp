@@ -8,7 +8,6 @@
 #include "mozilla/mailnews/Services.h"
 #include "mozilla/DebugOnly.h"
 #include "nsMemory.h"
-#include "nsAutoPtr.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgHeaderParser.h"
 

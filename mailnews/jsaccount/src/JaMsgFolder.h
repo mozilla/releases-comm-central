@@ -12,7 +12,6 @@
 #include "msgIOverride.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgDBFolder.h"
-#include "nsAutoPtr.h"
 #include "nsCycleCollectionParticipant.h"
 #include "nsDataHashtable.h"
 #include "nsIInterfaceRequestor.h"

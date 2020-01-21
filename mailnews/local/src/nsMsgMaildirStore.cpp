@@ -16,6 +16,7 @@
 #include "nsISimpleEnumerator.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsMsgFolderFlags.h"
+#include "nsAutoPtr.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsNetUtil.h"

@@ -6,7 +6,6 @@
 #include "msgCore.h"  // precompiled header...
 #include "nsCOMPtr.h"
 #include "nsIMsgFolder.h"
-#include "nsAutoPtr.h"
 #include "nsIFile.h"
 #include "nsNetUtil.h"
 #include "nsIMsgHdr.h"
