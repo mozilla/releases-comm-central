@@ -1774,40 +1774,29 @@ void ResetChannelCharset(MimeObject *obj) {
       obj->options->default_charset && obj->headers) {
     mime_stream_data *msd = (mime_stream_data *)(obj->options->stream_closure);
     char *ct = MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
-    if ((ct) && (msd) && (msd->channel)) {
-      char *ptr = strstr(ct, "charset=");
-      if (ptr) {
-        // First, setup the channel!
+    if (ct && msd && msd->channel) {
+      char *cSet = MimeHeaders_get_parameter(ct, "charset", nullptr, nullptr);
+      if (cSet) {
+        // The content-type does specify a charset. First, setup the channel.
         msd->channel->SetContentType(nsDependentCString(ct));
 
         // Second, if this is a Save As operation, then we need to convert
-        // to override the output charset!
-        mime_stream_data *msd = GetMSD(obj->options);
-        if ((msd) && (msd->format_out == nsMimeOutput::nsMimeMessageSaveAs)) {
-          // Extract the charset alone
-          char *cSet = nullptr;
-          if (*(ptr + 8) == '"')
-            cSet = strdup(ptr + 9);
-          else
-            cSet = strdup(ptr + 8);
-          if (cSet) {
-            char *ptr2 = cSet;
-            while ((*cSet) && (*cSet != ' ') && (*cSet != ';') &&
-                   (*cSet != '\r') && (*cSet != '\n') && (*cSet != '"'))
-              ptr2++;
-
-            if (*cSet) {
-              PR_FREEIF(obj->options->default_charset);
-              obj->options->default_charset = strdup(cSet);
-              obj->options->override_charset = true;
-            }
-
-            PR_FREEIF(cSet);
-          }
+        // to override the output charset.
+        if (msd->format_out == nsMimeOutput::nsMimeMessageSaveAs) {
+          // The previous version of this code would have entered an infinite
+          // loop. But it never showed up, so it's not clear that we ever get
+          // here...  See bug #1597891.
+          PR_FREEIF(obj->options->default_charset);
+          obj->options->default_charset = cSet;
+          cSet = nullptr;  // Ownership was transferred.
+          obj->options->override_charset = true;
+          MOZ_DIAGNOSTIC_ASSERT(
+              false, "Ahh. So this code _is_ run after all! (see bug 1597891)");
         }
+        PR_FREEIF(cSet);
       }
-      PR_FREEIF(ct);
     }
+    PR_FREEIF(ct);
   }
 }
 
