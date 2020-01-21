@@ -23,6 +23,22 @@ html|input.menulist-input {
   padding-inline-end: 0;
 }
 
+@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme: 0) {
+  html|input.menulist-input {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-inline-start: 0;
+  }
+}
+
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme: 0) {
+  html|input.menulist-input {
+    margin-top: -1px;
+    margin-bottom: -1px;
+    margin-inline-start: 0;
+  }
+}
+
 menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
   display: -moz-box;
 }

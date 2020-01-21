@@ -23,8 +23,3 @@ menulist html|*.textbox-input {
   padding: 0;
   font: inherit;
 }
-
-menulist[is="menulist-editable"][editable="true"][disabled="true"]
-  .menulist-dropmarker {
-  display: none !important;
-}

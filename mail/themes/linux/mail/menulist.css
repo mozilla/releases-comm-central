@@ -11,9 +11,6 @@ menulist html|*.textbox-input {
 
 menulist[is="menulist-editable"][editable="true"] {
   -moz-appearance: textfield;
-}
-
-menulist[is="menulist-editable"][editable="true"]:not([disabled]) {
   margin-inline-end: 2.4em;
 }
 
