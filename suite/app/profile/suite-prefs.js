@@ -586,8 +586,10 @@ pref("extensions.autoDisableScopes", 15);
 // Enable add-ons installed and owned by the application, like the default theme.
 pref("extensions.startupScanScopes", 4);
 
-// Allow "legacy" XUL/XPCOM extensions.
-pref("extensions.legacy.enabled", true);
+// If true, unprivileged extensions may use experimental APIs on
+// nightly and developer edition.
+pref("extensions.experiments.enabled", true);
+
 // Extensions that should not be flagged as legacy in about:addons
 // {972ce4c6-7e08-4474-a285-3208198ce6fd} default theme
 // {59c81df5-4b7a-477b-912d-4e0fdf64e5f2} chatZilla
