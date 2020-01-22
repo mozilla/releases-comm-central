@@ -94,7 +94,6 @@ var EnigmailWindows = {
     var windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
 
     var bestFit = null;
-    var winEnum = ;
 
     for (let win of windowManager.getEnumerator(null)) {
       if (win.location.href.search(/\/messenger.xhtml$/) > 0) {
@@ -106,7 +105,7 @@ var EnigmailWindows = {
     }
 
     if (!bestFit) {
-      winEnum = windowManager.getEnumerator(null);
+      var winEnum = windowManager.getEnumerator(null);
       bestFit = winEnum.getNext();
     }
 
