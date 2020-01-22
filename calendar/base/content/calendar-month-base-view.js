@@ -251,6 +251,9 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
       } else {
         this.refresh();
         // Refresh the selected day if it doesn't appear in the view.
+
+        // The selectedDay setter does some work...
+        // eslint-disable-next-line no-self-assign
         this.selectedDay = this.selectedDay;
       }
     }
