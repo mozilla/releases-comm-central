@@ -792,7 +792,7 @@ function test_more_widget() {
   // add the message to the end of the folder
   add_message_to_folder(folder, msg);
 
-  // select and open the injected message;
+  // Select and open the injected message;
   // It is at the second last message in the display list.
   let curMessage = select_click_row(-2);
 
@@ -906,6 +906,7 @@ function subtest_more_widget_display(toDescription) {
   let maxLines = Services.prefs.getIntPref(
     "mailnews.headers.show_n_lines_before_more"
   );
+  dump("xxxmagnus test maxLines=" + maxLines + "\n");
 
   // allow for a 15% tolerance for any padding that may be applied
   if (numLines < 0.85 * maxLines || numLines > 1.15 * maxLines) {

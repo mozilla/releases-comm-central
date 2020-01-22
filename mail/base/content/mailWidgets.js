@@ -862,11 +862,12 @@
       extends: "menulist",
     });
   }
+
   /**
-   * The MozMailMultiEmailheaderfield widget shows multiple emails. It collapses long rows and allows
-   * toggling the full view open. This widget is typically used in the message header pane to show
-   * addresses for To, Cc, Bcc, and any other addressing type header that can contain more than one
-   * mailbox.
+   * The MozMailMultiEmailheaderfield widget shows multiple emails. It collapses
+   * long rows and allows toggling the full view open. This widget is typically
+   * used in the message header pane to show addresses for To, Cc, Bcc, and any
+   * other addressing type header that can contain more than one mailbox.
    *
    * extends {MozXULElement}
    */
@@ -874,22 +875,17 @@
     constructor() {
       super();
 
-      // This field is used to buffer the width of the comma node so that it only has to be determined
-      // once during the lifetime of this widget. Otherwise it would cause an expensive reflow every
-      // time.
+      // This field is used to buffer the width of the comma node so that it
+      // only has to be determined once during the lifetime of this widget.
+      // Otherwise it would cause an expensive reflow every time.
       this.commaNodeWidth = 0;
 
-      // The number of lines of addresses we will display before adding a (more) indicator to the
-      // widget. This can be increased using the preference mailnews.headers.show_n_lines_before_more.
+      // The number of lines of addresses we will display before adding a (more)
+      // indicator to the widget. This can be increased using the preference
+      // mailnews.headers.show_n_lines_before_more.
       this.maxLinesBeforeMore = 1;
 
-      // The number addresses which did fit up to now before the (more) indicator became necessary to
-      // be added. This determines how many address elements are cached for the lifetime of the
-      // widget.
-      this.maxAddressesBeforeMore = 1;
-
-      // This field is used to specify the maximum number of addresses in the more button tooltip
-      // text.
+      // The maximum number of addresses in the more button tooltip text.
       this.tooltipLength = 20;
 
       this.addresses = [];
@@ -969,127 +965,90 @@
     }
 
     /**
-     * Private method used to create email address nodes for either our short or long view.
+     * Private method used to create email address nodes for either our short or
+     * long view.
      *
-     * @param {Boolean} all   If false, show only a few addresses + "more".
-     * @return {Integer}      Number of addresses we have put into the list.
+     * @param {boolean} all - If false, show only a few addresses + "more".
+     * @return {integer} The number of addresses we have put into the list.
      */
     _fillAddressesNode(all) {
-      // try to leverage any cached nodes before creating new ones
-      // XXX look for possible perf win using heuristic for the 2nd param instead of hardcoding 1.
-      let cached = this.emailAddresses.children.length;
-
-      // XXXdmose one or more of the ancestor nodes could be collapsed, so this hack just undoes that
-      // for all ancestors.  We should do better.  Observed causes include the message header pane
-      // being collapsed before the first message has been read, as well as (more common), the <row>
-      // containing this widget being collapsed because the previously displayed message didn't have
-      // this header.
-      for (let node = this.emailAddresses; node; node = node.parentNode) {
-        node.collapsed = false;
+      while (this.emailAddresses.lastChild) {
+        this.emailAddresses.lastChild.remove();
       }
 
       // This ensures that the worst-case "n more" width is considered.
-      this.addNMore(this.addresses.length);
-      const availableWidth = this.emailAddresses.clientWidth;
-      this.more.collapsed = true;
+      this.setNMore(this.addresses.length);
+      this.more.collapsed = false;
+      let availableWidth =
+        this.emailAddresses.clientWidth - this.more.clientWidth;
 
       // Add addresses until we're done, or we overflow the allowed lines.
-      let i = 0;
-      for (
-        let curLine = 0, curLineWidth = 0;
-        i < this.addresses.length && (all || curLine < this.maxLinesBeforeMore);
-        i++
-      ) {
-        let newAddressNode;
-
-        // First, add a comma as long as this isn't the first address.
+      let addrCount = 0;
+      for (let i = 0, line = 0, lineWidth = 0; i < this.addresses.length; i++) {
         if (i > 0) {
-          if (cached-- > 0) {
-            this.emailAddresses.children[i * 2 - 1].hidden = false;
-          } else {
-            this.appendComma();
-            if (this.commaNodeWidth == 0) {
-              this.commaNodeWidth = this.emailAddresses.lastElementChild.clientWidth;
-            }
+          this.appendComma();
+          // Calculate comma node width only the first time.
+          if (this.commaNodeWidth == 0) {
+            this.commaNodeWidth = this.emailAddresses.lastElementChild.clientWidth;
           }
         }
 
-        // Now add an email address.
-        if (cached-- > 0) {
-          newAddressNode = this.emailAddresses.children[i * 2];
-          newAddressNode.hidden = false;
-        } else {
-          newAddressNode = document.createXULElement("mail-emailaddress");
-
-          // Stash the headerName somewhere that UpdateEmailNodeDetails will be able to find it.
-          newAddressNode.setAttribute("headerName", this.headerName);
-
-          newAddressNode = this.emailAddresses.appendChild(newAddressNode);
-        }
+        let newAddressNode = document.createXULElement("mail-emailaddress");
+        // Stash the headerName somewhere that UpdateEmailNodeDetails will be
+        // able to find it.
+        newAddressNode.setAttribute("headerName", this.headerName);
         this._updateEmailAddressNode(newAddressNode, this.addresses[i]);
+        newAddressNode = this.emailAddresses.appendChild(newAddressNode);
+        addrCount++;
 
-        // Reading .clientWidth triggers an expensive reflow, so only do it when necessary for
-        // possible early loop exit to display (X more).
-        if (!all) {
-          // Calculate width and lines, consider the i+1 comma node if we have to
-          // <http://www.w3.org/TR/cssom-view/#client-attributes>
-          // <https://developer.mozilla.org/en/Determining_the_dimensions_of_elements>
-          let newLineWidth =
-            i + 1 < this.addresses.length
-              ? newAddressNode.clientWidth + this.commaNodeWidth
-              : newAddressNode.clientWidth;
-          curLineWidth += newLineWidth;
+        if (all) {
+          continue;
+        }
 
-          let overLineWidth = curLineWidth - availableWidth;
-          if (overLineWidth > 0 && i > 0) {
-            curLine++;
-            curLineWidth = newLineWidth;
-          }
+        // Reading .clientWidth triggers an expensive reflow, so only do it
+        // when necessary for possible early loop exit to display (X more).
+        // Calculate width and lines, consider the i+1 comma node if we have to
+        // <http://www.w3.org/TR/cssom-view/#client-attributes>
+        // <https://developer.mozilla.org/en/Determining_the_dimensions_of_elements>
+        let newLineWidth =
+          i + 1 < this.addresses.length
+            ? newAddressNode.clientWidth + this.commaNodeWidth
+            : newAddressNode.clientWidth;
+        lineWidth += newLineWidth;
 
+        let overLineWidth = lineWidth - availableWidth;
+        if (overLineWidth > 0 && i > 0) {
+          line++;
+          lineWidth = newLineWidth;
+        }
+
+        if (line >= this.maxLinesBeforeMore) {
           // Hide the last node spanning into the additional line (n>1)
           // also hide it if <30px left after sliding the address (n=1)
           // or if the last address would be truncated without "more"
           if (
-            curLine >= this.maxLinesBeforeMore &&
-            (this.maxLinesBeforeMore > 1 ||
-              (i + 1 == this.addresses.length && overLineWidth > 30) ||
-              newLineWidth - overLineWidth < 30)
+            this.maxLinesBeforeMore > 1 ||
+            (i + 1 == this.addresses.length && overLineWidth > 30) ||
+            newLineWidth - overLineWidth < 30
           ) {
-            this.emailAddresses.lastElementChild.hidden = true;
-            i--;
+            this.emailAddresses.lastElementChild.remove(); // last addr
+            this.emailAddresses.lastElementChild.remove(); // last comma
+            addrCount--;
           }
+          break;
         }
       }
 
-      // Update maxAddressesBeforeMore if we exceed the current cache estimate, but only if we aren't
-      // supposed to show all addresses.
-      if (!all && this.maxAddressesBeforeMore < i) {
-        this.maxAddressesBeforeMore = i;
+      this.more.collapsed = all || addrCount == this.addresses.length;
+
+      // If there are addresses we're not showing, set up the (N more) widget.
+      if (!this.more.collapsed) {
+        let remainingAddresses = this.addresses.length - addrCount;
+        this.setNMore(remainingAddresses);
+        this.setNMoreTooltiptext(this.addresses.slice(-remainingAddresses));
       }
 
-      // Hide any extra nodes but keep them around for later.
-      cached = this.emailAddresses.children.length;
-      for (let j = Math.max(i * 2 - 1, 0); j < cached; j++) {
-        this.emailAddresses.children[j].hidden = true;
-      }
-
-      // If we're not required to show all addresses, and there are still addresses remaining, add an
-      // (N more) widget.
-      if (!all) {
-        let remainingAddresses = this.addresses.length - i;
-        if (remainingAddresses > 0) {
-          if (this.emailAddresses.children.length % 2 == 0) {
-            this.emailAddresses.lastElementChild.hidden = false;
-          } else {
-            this.appendComma();
-          }
-
-          this.addNMore(remainingAddresses);
-          this.setNMoreTooltiptext(this.addresses.slice(-remainingAddresses));
-        }
-      }
-
-      return i; // number of addresses shown
+      return addrCount; // number of addresses shown
     }
 
     /**
@@ -1102,9 +1061,11 @@
       this.maxLinesBeforeMore = Services.prefs.getIntPref(
         "mailnews.headers.show_n_lines_before_more"
       );
-      const dt = Ci.nsMimeHeaderDisplayTypes;
       let headerchoice = Services.prefs.getIntPref("mail.show_headers");
-      if (this.maxLinesBeforeMore < 1 || headerchoice == dt.AllHeaders) {
+      if (
+        this.maxLinesBeforeMore < 1 ||
+        headerchoice == Ci.nsMimeHeaderDisplayTypes.AllHeaders
+      ) {
         this._fillAddressesNode(true);
         this.longEmailAddresses.removeAttribute("singleline");
       } else {
@@ -1129,9 +1090,10 @@
     }
 
     /**
-     * Add a (N more) widget which can be clicked to reveal the rest.
+     * Set up a (N more) widget which can be clicked to reveal the rest.
+     * @param {integer} number - the number of addresses "more" will reveal
      */
-    addNMore(number) {
+    setNMore(number) {
       // Figure out the right plural for the language we're using
       let words = document
         .getElementById("bundle_messenger")
@@ -1142,8 +1104,6 @@
       this.more.setAttribute("value", moreForm);
       // Remove the tooltip text of the more widget.
       this.more.removeAttribute("tooltiptext");
-
-      this.more.collapsed = false;
     }
 
     /**
@@ -1199,8 +1159,8 @@
     }
 
     /**
-     * Called when the (more) indicator has been clicked on; re-renders the widget with all the
-     * addresses.
+     * Called when the (more) indicator has been clicked on; re-renders the
+     * widget with all the addresses.
      */
     toggleWrap() {
       // Workaround the fact that XUL line-wrapping and "overflow: auto" don't interact properly
@@ -1217,8 +1177,6 @@
       // displayed and wrapped.
       this.longEmailAddresses.removeAttribute("singleline");
 
-      this.clearChildNodes();
-
       // Re-render the node, this time with all the addresses.
       this._fillAddressesNode(true);
       document
@@ -1231,29 +1189,13 @@
       // This attribute will be reinit in the 'UpdateExpandedMessageHeaders()' method.
     }
 
-    /**
-     * Clears both our divs.
-     */
-    clearChildNodes() {
-      this.more.collapsed = true;
-
-      // We want to keep around the first maxAddressesBeforeMore email address nodes as well as any
-      // intervening comma nodes.
-      const numItemsToPreserve = this.maxAddressesBeforeMore * 2 - 1;
-      let numItemsInNode = this.emailAddresses.childNodes.length;
-
-      while (numItemsInNode && numItemsInNode > numItemsToPreserve) {
-        this.emailAddresses.lastChild.remove();
-        numItemsInNode--;
-      }
-    }
-
     clearHeaderValues() {
       // Clear out our local state.
       this.addresses = [];
       this.longEmailAddresses.setAttribute("singleline", "true");
-      // Remove anything inside of each of our labels.
-      this.clearChildNodes();
+      while (this.emailAddresses.lastChild) {
+        this.emailAddresses.lastChild.remove();
+      }
     }
   }
   customElements.define(

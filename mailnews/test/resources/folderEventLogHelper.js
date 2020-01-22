@@ -59,6 +59,7 @@ var _folderEventLogHelper_msgFolderListener = {
       aJunkProcessed ? "junk processed" : "did not junk process",
       aTraitProcessed ? "trait processed" : "did not trait process",
     ];
+    dump("xxxmagnus aMsgs=" + aMsgs + "\n");
     for (let msgHdr of aMsgs) {
       args.push(msgHdr);
     }
