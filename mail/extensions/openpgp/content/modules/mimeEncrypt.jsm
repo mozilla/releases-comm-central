@@ -466,10 +466,21 @@ PgpMimeEncrypt.prototype = {
       return;
     }
 
+    if (this.encapsulate) {
+      this.writeToPipe("--" + this.encapsulate + "--\r\n");
+    }
+
+    if (this.encHeader) {
+      this.writeToPipe("\r\n--" + this.encHeader + "--\r\n");
+      if (this.cryptoMode == MIME_SIGNED) {
+        this.writeOut("\r\n--" + this.encHeader + "--\r\n");
+      }
+    }
 
     let statusFlagsObj = {};
     let errorMsgObj = {};
-    let proc = EnigmailEncryption.encryptMessageStart(this.win,
+    //let proc =
+    EnigmailEncryption.encryptMessageStart(this.win,
       this.UIFlags,
       this.senderEmailAddr,
       this.recipients,
@@ -479,31 +490,32 @@ PgpMimeEncrypt.prototype = {
       this,
       statusFlagsObj,
       errorMsgObj);
-    if (!proc) throw Cr.NS_ERROR_FAILURE;
+
+    //if (!proc) throw Cr.NS_ERROR_FAILURE;
 
     try {
-      if (this.encapsulate) this.writeToPipe("--" + this.encapsulate + "--\r\n");
-
-      if (this.encHeader) {
-        this.writeToPipe("\r\n--" + this.encHeader + "--\r\n");
-        if (this.cryptoMode == MIME_SIGNED) this.writeOut("\r\n--" + this.encHeader + "--\r\n");
-      }
-
       this.flushInput();
 
+      /*
       if (!this.pipe) {
         this.closePipe = true;
       }
-      else
+      else {
         this.pipe.close();
+      }
+      */
 
       // wait here for proc to terminate
-      proc.wait();
+      //proc.wait();
 
       LOCAL_DEBUG("mimeEncrypt.js: finishCryptoEncapsulation: exitCode = " + this.exitCode + "\n");
-      if (this.exitCode !== 0) throw Cr.NS_ERROR_FAILURE;
+      if (this.exitCode !== 0) {
+        throw Cr.NS_ERROR_FAILURE;
+      }
 
-      if (this.cryptoMode == MIME_SIGNED) this.signedHeaders2();
+      if (this.cryptoMode == MIME_SIGNED) {
+        this.signedHeaders2();
+      }
 
       this.encryptedData = this.encryptedData.replace(/\r/g, "").replace(/\n/g, "\r\n"); // force CRLF
       this.writeOut(this.encryptedData);
@@ -671,6 +683,13 @@ PgpMimeEncrypt.prototype = {
     return res;
   },
 
+  getInputForEncryption() {
+    return this.pipeQueue;
+  },
+  
+  addEncryptedOutput(s) {
+    this.stdout(s);
+  },
 
   // API for decryptMessage Listener
   stdin: function(pipe) {

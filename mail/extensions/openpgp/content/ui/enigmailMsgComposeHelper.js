@@ -73,6 +73,7 @@ Enigmail.hlp = {
         addresses = EnigmailFuncs.stripEmail(emailsOrKeys).split(',');
       } catch (ex) {}
 
+      /*
       // resolve GnuPG groups
       let gpgGroups = EnigmailGpg.getGpgGroups();
       for (let i = 0; i < addresses.length; i++) {
@@ -89,6 +90,7 @@ Enigmail.hlp = {
           }
         }
       }
+      */
 
       // resolve all the email addresses if possible:
       keyMissing = EnigmailKeyRing.getValidKeysForAllRecipients(addresses, minTrustLevel, details, resultingArray);

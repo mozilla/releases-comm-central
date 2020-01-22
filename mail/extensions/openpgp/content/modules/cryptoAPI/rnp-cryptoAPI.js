@@ -274,7 +274,10 @@ class RNPCryptoAPI extends CryptoAPI {
   async deleteKey(keyFingerprint, deleteSecret) {
     return RNP.deleteKey(keyId, deleteSecret);
   }
-  
+
+  async encryptAndOrSign(plaintext, args, resultStatus) {
+    return RNP.encryptAndOrSign(plaintext, args, resultStatus);
+  }
 }
 
 function getRNPAPI() {

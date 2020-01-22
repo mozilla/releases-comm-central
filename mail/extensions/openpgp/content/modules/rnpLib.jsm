@@ -87,6 +87,9 @@ const rnp_key_handle_t = ctypes.void_t.ptr;
 const rnp_uid_handle_t = ctypes.void_t.ptr;
 const rnp_identifier_iterator_t = ctypes.void_t.ptr;
 const rnp_op_generate_t = ctypes.void_t.ptr;
+const rnp_op_encrypt_t = ctypes.void_t.ptr;
+const rnp_op_sign_t = ctypes.void_t.ptr;
+const rnp_op_sign_signature_t = ctypes.void_t.ptr;
 
 const rnp_password_cb_t = ctypes.FunctionType(abi, ctypes.bool, [
   rnp_ffi_t,
@@ -128,6 +131,8 @@ function enableRNPLibJS() {
       if (this.rnp_ffi_create(this.ffi.address(), "GPG", "GPG")) {
         throw new Error("Couldn't initialize librnp.");
       }
+      
+      this.rnp_ffi_set_log_fd(this.ffi, 2); // stderr
 
       this.keep_password_cb_alive = rnp_password_cb_t(
         this.password_cb,
@@ -246,6 +251,14 @@ function enableRNPLibJS() {
       abi,
       rnp_result_t,
       rnp_ffi_t
+    ),
+    
+    rnp_ffi_set_log_fd: librnp.declare(
+      "rnp_ffi_set_log_fd",
+      abi,
+      rnp_result_t,
+      rnp_ffi_t,
+      ctypes.int
     ),
 
     rnp_get_public_key_count: librnp.declare(
@@ -692,6 +705,130 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       ctypes.uint32_t
     ),
+    
+    rnp_op_encrypt_create: librnp.declare(
+      "rnp_op_encrypt_create",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t.ptr,
+      rnp_ffi_t,
+      rnp_input_t,
+      rnp_output_t
+    ),
+
+    rnp_op_sign_cleartext_create: librnp.declare(
+      "rnp_op_sign_cleartext_create",
+      abi,
+      rnp_result_t,
+      rnp_op_sign_t.ptr,
+      rnp_ffi_t,
+      rnp_input_t,
+      rnp_output_t
+    ),
+
+    rnp_op_sign_detached_create: librnp.declare(
+      "rnp_op_sign_detached_create",
+      abi,
+      rnp_result_t,
+      rnp_op_sign_t.ptr,
+      rnp_ffi_t,
+      rnp_input_t,
+      rnp_output_t
+    ),
+        
+    rnp_op_encrypt_add_recipient: librnp.declare(
+      "rnp_op_encrypt_add_recipient",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t,
+      rnp_key_handle_t
+    ),
+    
+    rnp_op_encrypt_add_signature: librnp.declare(
+      "rnp_op_encrypt_add_signature",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t,
+      rnp_key_handle_t,
+      rnp_op_sign_signature_t.ptr
+    ),
+    
+    rnp_op_sign_add_signature: librnp.declare(
+      "rnp_op_sign_add_signature",
+      abi,
+      rnp_result_t,
+      rnp_op_sign_t,
+      rnp_key_handle_t,
+      rnp_op_sign_signature_t.ptr
+    ),
+    
+    rnp_op_encrypt_set_armor: librnp.declare(
+      "rnp_op_encrypt_set_armor",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t,
+      ctypes.bool
+    ),
+
+    rnp_op_sign_set_armor: librnp.declare(
+      "rnp_op_sign_set_armor",
+      abi,
+      rnp_result_t,
+      rnp_op_sign_t,
+      ctypes.bool
+    ),
+    
+    rnp_op_encrypt_set_hash: librnp.declare(
+      "rnp_op_encrypt_set_hash",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t,
+      ctypes.char.ptr
+    ),
+
+    rnp_op_sign_set_hash: librnp.declare(
+      "rnp_op_sign_set_hash",
+      abi,
+      rnp_result_t,
+      rnp_op_sign_t,
+      ctypes.char.ptr
+    ),
+
+    rnp_op_encrypt_set_cipher: librnp.declare(
+      "rnp_op_encrypt_set_cipher",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t,
+      ctypes.char.ptr
+    ),
+    
+    rnp_op_sign_execute: librnp.declare(
+      "rnp_op_sign_execute",
+      abi,
+      rnp_result_t,
+      rnp_op_sign_t
+    ),
+    
+    rnp_op_sign_destroy: librnp.declare(
+      "rnp_op_sign_destroy",
+      abi,
+      rnp_result_t,
+      rnp_op_sign_t
+    ),
+    
+    rnp_op_encrypt_execute: librnp.declare(
+      "rnp_op_encrypt_execute",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t
+    ),
+    
+    rnp_op_encrypt_destroy: librnp.declare(
+      "rnp_op_encrypt_destroy",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t
+    ),
 
     rnp_result_t,
     rnp_ffi_t,
@@ -702,6 +839,9 @@ function enableRNPLibJS() {
     rnp_uid_handle_t,
     rnp_identifier_iterator_t,
     rnp_op_generate_t,
+    rnp_op_encrypt_t,
+    rnp_op_sign_t,
+    rnp_op_sign_signature_t,
     
     RNP_LOAD_SAVE_PUBLIC_KEYS: 1,
     

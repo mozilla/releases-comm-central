@@ -186,12 +186,13 @@ var EnigmailKeyRing = {
     this.getAllKeys(); // ensure keylist is loaded;
 
     if (searchTerm === "") return res;
-
+    console.debug(gKeyListObj.keyList);
     for (let i in gKeyListObj.keyList) {
       let k = gKeyListObj.keyList[i];
 
       for (let j in k.userIds) {
         if (k.userIds[j].type === "uid" && k.userIds[j].userId.search(s) >= 0) {
+          console.debug("found " + k.userIds[j].userId);
           if (!onlyValidUid || (!EnigmailTrust.isInvalid(k.userIds[j].keyTrust))) {
             res.push(k);
             continue;
@@ -199,7 +200,7 @@ var EnigmailKeyRing = {
         }
       }
     }
-
+    console.debug("getKeysByUserId result: %o", res);
     return res;
   },
 
@@ -231,6 +232,7 @@ var EnigmailKeyRing = {
   getSecretKeyByUserId: function(searchTerm) {
     EnigmailLog.DEBUG("keyRing.jsm: getSecretKeyByUserId: '" + searchTerm + "'\n");
     let keyList = this.getKeysByUserId(searchTerm, true);
+    console.debug("getSecretKeyByUserId, got result from getKeysByUserId: %o", keyList);
 
     let foundKey = null;
 
@@ -255,6 +257,7 @@ var EnigmailKeyRing = {
         }
       }
     }
+    console.debug("getSecretKeyByUserId, foundKey: " + foundKey);
     return foundKey;
   },
 

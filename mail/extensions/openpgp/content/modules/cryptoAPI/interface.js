@@ -291,4 +291,8 @@ class CryptoAPI {
   async deleteKey(keyFingerprint, deleteSecret) {
     return null;
   }
+
+  async encryptAndOrSign(plaintext, args, resultStatus) {
+    return null;
+  }
 }

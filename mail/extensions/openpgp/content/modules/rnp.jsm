@@ -13,6 +13,11 @@ const { EnigmailTime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/time.jsm"
 );
 
+const str_encrypt = "encrypt";
+const str_sign = "sign";
+const str_certify = "certify";
+const str_authenticate = "authenticate";
+
 // rnp module
 
 var RNPLib;
@@ -48,7 +53,7 @@ var RNP = {
     }
   },
 
-  addKeyAttributes(handle, keyObj, is_subkey, forListing) {
+  addKeyAttributes(handle, meta, keyObj, is_subkey, forListing) {
     let have_secret = new ctypes.bool;
     let key_id = new ctypes.char.ptr;
     let fingerprint = new ctypes.char.ptr;
@@ -110,29 +115,33 @@ var RNP = {
     keyObj.expiry = EnigmailTime.getDateTime(keyObj.expiryTime, true, false);
 
     keyObj.keyUseFor = "";
-    if (RNPLib.rnp_key_allows_usage(handle, "encrypt", allowed.address())) {
+    if (RNPLib.rnp_key_allows_usage(handle, str_encrypt, allowed.address())) {
       throw "rnp_key_allows_usage failed";
     }
     if (allowed.value) {
       keyObj.keyUseFor += "e";
+      meta.e = true;
     }
-    if (RNPLib.rnp_key_allows_usage(handle, "sign", allowed.address())) {
+    if (RNPLib.rnp_key_allows_usage(handle, str_sign, allowed.address())) {
       throw "rnp_key_allows_usage failed";
     }
     if (allowed.value) {
       keyObj.keyUseFor += "s";
+      meta.s = true;
     }
-    if (RNPLib.rnp_key_allows_usage(handle, "certify", allowed.address())) {
+    if (RNPLib.rnp_key_allows_usage(handle, str_certify, allowed.address())) {
       throw "rnp_key_allows_usage failed";
     }
     if (allowed.value) {
       keyObj.keyUseFor += "c";
+      meta.c = true;
     }
-    if (RNPLib.rnp_key_allows_usage(handle, "authenticate", allowed.address())) {
+    if (RNPLib.rnp_key_allows_usage(handle, str_authenticate, allowed.address())) {
       throw "rnp_key_allows_usage failed";
     }
     if (allowed.value) {
       keyObj.keyUseFor += "a";
+      meta.a = true;
     }
   },
   
@@ -154,6 +163,13 @@ var RNP = {
     if (rv) {
       return null;
     }
+    
+    let meta = {
+      a: false,
+      s: false,
+      c: false,
+      e: false,
+    };
 
     while (!RNPLib.rnp_identifier_iterator_next(iter, grip.address())) {
       if (grip.isNull()) {
@@ -164,7 +180,6 @@ var RNP = {
       let handle = new RNPLib.rnp_key_handle_t;
       let keyObj = {};
 
-      keyObj.keyTrust = "/";
       keyObj.ownerTrust = null;
       keyObj.userId = null;
       keyObj.userIds = [];
@@ -195,6 +210,8 @@ var RNP = {
           }
         }
 
+        this.addKeyAttributes(handle, meta, keyObj, false, forListing);
+
         let key_revoked = new ctypes.bool;
         if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
           throw "rnp_key_is_revoked failed";
@@ -205,9 +222,11 @@ var RNP = {
           if (forListing) {
             keyObj.revoke = true;
           }
+        } else if (keyObj.secretAvailable) {
+          keyObj.keyTrust = "u";
+        } else {
+          keyObj.keyTrust = "o";
         }
-
-        this.addKeyAttributes(handle, keyObj, false, forListing);
 
         /* The remaining actions are done for primary keys, only. */
         if (is_subkey.value) {
@@ -219,7 +238,7 @@ var RNP = {
         if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
           throw "rnp_key_get_uid_count failed";
         }
-console.log("rnp_key_get_uid_count: " + uid_count.value);
+        console.debug("rnp_key_get_uid_count: " + uid_count.value);
         for (let i = 0; i < uid_count.value; i++) {
           let uid_handle = new RNPLib.rnp_uid_handle_t;
           let is_revoked = new ctypes.bool;
@@ -249,7 +268,7 @@ console.log("rnp_key_get_uid_count: " + uid_count.value);
             let uidObj = {};
             uidObj.userId = uid_str.readString();
             uidObj.type = "uid";
-            uidObj.keyTrust = "/";
+            uidObj.keyTrust = keyObj.keyTrust;
             uidObj.uidFpr = "??fpr??"
             
             keyObj.userIds.push(uidObj);
@@ -263,7 +282,7 @@ console.log("rnp_key_get_uid_count: " + uid_count.value);
         if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
           throw "rnp_key_get_subkey_count failed";
         }
-console.log("rnp_key_get_subkey_count: " + sub_count.value);
+        console.debug("rnp_key_get_subkey_count: " + sub_count.value);
         for (let i = 0; i < sub_count.value; i++) {
           let sub_handle = new RNPLib.rnp_key_handle_t;
           if (RNPLib.rnp_key_get_subkey_at(handle, i, sub_handle.address())) {
@@ -271,11 +290,24 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
           }
 
           let subKeyObj = {};
-          subKeyObj.keyTrust = "/";
-          this.addKeyAttributes(sub_handle, subKeyObj, true, forListing);
+          subKeyObj.keyTrust = keyObj.keyTrust;
+          this.addKeyAttributes(sub_handle, meta, subKeyObj, true, forListing);
           keyObj.subKeys.push(subKeyObj);
 
           RNPLib.rnp_key_handle_destroy(sub_handle);
+        }
+        
+        if (meta.s) {
+          keyObj.keyUseFor += "S";
+        }
+        if (meta.a) {
+          keyObj.keyUseFor += "A";
+        }
+        if (meta.c) {
+          keyObj.keyUseFor += "C";
+        }
+        if (meta.e) {
+          keyObj.keyUseFor += "E";
         }
       } catch (ex) {
         console.log(ex);
@@ -320,7 +352,7 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
       false
     );
 
-    let max_out = encrypted.length * 2;
+    let max_out = encrypted.length * 10;
 
     let output_to_memory = new RNPLib.rnp_output_t;
     RNPLib.rnp_output_to_memory(output_to_memory.address(), max_out);
@@ -334,7 +366,7 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
       input_from_memory,
       output_to_memory
     );
-    console.log("decrypt exit code: " + result.exitCode);
+    console.debug("decrypt exit code: " + result.exitCode);
 
     if (!result.exitCode) {
       let result_buf = new ctypes.uint8_t.ptr();
@@ -345,10 +377,10 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
         result_len.address(),
         false
       );
-      console.log("decrypt get buffer result code: " + result.exitCode);
+      console.debug("decrypt get buffer result code: " + result.exitCode);
 
       if (!result.exitCode) {
-        console.log("decrypt result len: " + result_len.value);
+        console.debug("decrypt result len: " + result_len.value);
         //let buf_array = ctypes.cast(result_buf, ctypes.uint8_t.array(result_len.value).ptr).contents;
         //let char_array = ctypes.cast(buf_array, ctypes.char.array(result_len.value));
 
@@ -359,7 +391,7 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
 
         result.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
         result.decryptedData = char_array.readString();
-        console.log(result.decryptedData);
+        console.debug(result.decryptedData);
       }
     }
 
@@ -529,7 +561,7 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
     // as seen in keyRing.importKeyAsync.
     // (should prevent the incorrect popup "no keys imported".)
 
-    console.log("result key listing, rv: " + rv + ", result: " + jsonInfo.readString());
+    console.debug("result key listing, rv= %s, result= %s", rv, jsonInfo.readString());
 
     RNPLib.rnp_buffer_destroy(jsonInfo);
     RNPLib.rnp_input_destroy(input_from_memory);
@@ -541,7 +573,7 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
     // Create a separate, temporary RNP storage area (FFI),
     // import the key block into it, then get the listing.
 
-    console.log("trying to get key listing for this data: " + keyBlockStr);
+    console.debug("trying to get key listing for this data: " + keyBlockStr);
 
     let tempFFI = new RNPLib.rnp_ffi_t;
     if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
@@ -552,8 +584,7 @@ console.log("rnp_key_get_subkey_count: " + sub_count.value);
 
     let keys = this.getKeysFromFFI(tempFFI, true);
 
-console.log("result key array:");
-console.log(keys);
+    console.debug("result key array: %o", keys);
 
     RNPLib.rnp_ffi_destroy(tempFFI);
     return keys;
@@ -564,7 +595,7 @@ console.log(keys);
   },
 
   deleteKey(keyFingerprint, deleteSecret) {
-console.log("deleting key with fingerprint: " + keyFingerprint);
+    console.debug("deleting key with fingerprint: " + keyFingerprint);
 
     let handle = new RNPLib.rnp_key_handle_t;
     if (RNPLib.rnp_locate_key(RNPLib.ffi, "fingerprint", keyFingerprint, handle.address())) {
@@ -582,6 +613,298 @@ console.log("deleting key with fingerprint: " + keyFingerprint);
 
     RNPLib.rnp_key_handle_destroy(handle);
     this.saveKeyRings();
+  },
+
+  getKeyHandleByIdentifier(id) {
+    console.debug("getKeyHandleByIdentifier searching for: " + id);
+    
+    if (id.startsWith("<")) {
+      throw "search by email address not yet implemented: " + id;
+    }
+    if (!id.startsWith("0x")) {
+      throw "unexpected identifier " + id;
+    }
+    // remove 0x
+    id = id.substring(2);
+
+    let type;
+    if (id.length == 16) {
+      type = "keyid";
+    } else if (id.length == 40) {
+      type = "fingerprint";
+    } else {
+      throw "key/fingerprint identifier of unexpected length: " + id;
+    }
+
+    let key = new RNPLib.rnp_key_handle_t;
+    if (RNPLib.rnp_locate_key(RNPLib.ffi, type, id, key.address())) {
+      throw "rnp_locate_key failed, " + type + ", " + id;
+    }
+    
+    if (!key) {
+      console.debug("getKeyHandleByIdentifier nothing found");
+    } else {
+      console.debug("getKeyHandleByIdentifier found!");
+      let is_subkey = new ctypes.bool;
+      if (RNPLib.rnp_key_is_sub(key, is_subkey.address())) {
+        throw "rnp_key_is_sub failed";
+      }
+      console.debug("is_primary? " + !is_subkey.value);
+    }
+    
+    return key;
+  },
+  
+  isKeyUsableFor(key, usage) {
+    let allowed = new ctypes.bool;
+    if (RNPLib.rnp_key_allows_usage(key, usage, allowed.address())) {
+      throw "rnp_key_allows_usage failed";
+    }
+    return allowed.value;
+  },
+  
+  getSuitableSubkey(primary, usage) {
+    let found_handle = null;
+    let sub_count = new ctypes.size_t;
+    if (RNPLib.rnp_key_get_subkey_count(primary, sub_count.address())) {
+      throw "rnp_key_get_subkey_count failed";
+    }
+    for (let i = 0; i < sub_count.value; i++) {
+      let sub_handle = new RNPLib.rnp_key_handle_t;
+      if (RNPLib.rnp_key_get_subkey_at(primary, i, sub_handle.address())) {
+          throw "rnp_key_get_subkey_at failed";
+      }
+      let expiration = new ctypes.uint32_t;
+      if (RNPLib.rnp_key_get_expiration(sub_handle, expiration.address())) {
+        throw "rnp_key_get_expiration failed";
+      }
+      let skip = false;
+      if (expiration.value != 0) {
+        let now_seconds = Math.floor(Date.now()/1000);
+        if (expiration.value > now_seconds) {
+          skip = true;
+        }
+      }
+      if (!skip) {
+        let key_revoked = new ctypes.bool;
+        if (RNPLib.rnp_key_is_revoked(sub_handle, key_revoked.address())) {
+          skip = true;
+        }
+      }
+      if (!skip) {
+        if (!this.isKeyUsableFor(sub_handle, usage)) {
+          skip = true;
+        }
+      }
+      if (skip) {
+        RNPLib.rnp_key_handle_destroy(sub_handle);
+      } else {
+        found_handle = sub_handle;
+        break;
+      }
+    }
+
+    return found_handle;
+  },
+
+  addSuitableEncryptKey(key, op) {
+    let use_sub = null;
+    console.debug("addSuitableEncryptKey");
+
+    /* looks like this will be unnecessary
+
+    if (!this.isKeyUsableFor(key, str_encrypt)) {
+      console.debug("addSuitableEncryptKey primary not usable");
+      use_sub = this.getSuitableSubkey(key, str_encrypt);
+      if (!use_sub) {
+        throw "no suitable subkey found for " + str_encrypt;
+      } else {
+        console.debug("addSuitableEncryptKey using subkey");
+      }
+    }
+    */
+    if (RNPLib.rnp_op_encrypt_add_recipient(op, (use_sub != null) ? use_sub : key)) {
+      throw "rnp_op_encrypt_add_recipient sender failed";
+    }
+    if (use_sub) {
+      RNPLib.rnp_key_handle_destroy(use_sub);
+    }
+  },
+
+  encryptAndOrSign(plaintext, args, resultStatus) {
+    resultStatus.exitCode = -1;
+    resultStatus.statusFlags = 0;
+    resultStatus.statusMsg = "";
+    resultStatus.errorMsg = "";
+
+    console.debug(`encryptAndOrSign, plaintext (length=${plaintext.length}): ${plaintext}`);
+
+    var tmp_array = ctypes.char.array()(plaintext);
+    var plaintext_array = ctypes.cast(
+      tmp_array,
+      ctypes.uint8_t.array(plaintext.length)
+    );
+
+    let input = new RNPLib.rnp_input_t;
+    if (RNPLib.rnp_input_from_memory(input.address(), plaintext_array,
+          plaintext.length, false)) {
+      throw "rnp_input_from_memory failed";
+    }
+
+    let output = new RNPLib.rnp_output_t;
+    RNPLib.rnp_output_to_memory(output.address(), 0);
+
+    let op;
+    if (args.encrypt) {
+      op = new RNPLib.rnp_op_encrypt_t;
+      if (RNPLib.rnp_op_encrypt_create(op.address(), RNPLib.ffi,
+          input, output)) {
+        throw "rnp_op_encrypt_create failed";
+      }
+    } else if (args.sign) {
+      op = new RNPLib.rnp_op_sign_t;
+      if (args.sigTypeClear) {
+        if (RNPLib.rnp_op_sign_cleartext_create(op.address(), RNPLib.ffi,
+            input, output)) {
+          throw "rnp_op_sign_cleartext_create failed";
+        }
+      } else  if (args.sigTypeDetached) {
+        if (RNPLib.rnp_op_sign_detached_create(op.address(), RNPLib.ffi,
+            input, output)) {
+          throw "rnp_op_sign_detached_create failed";
+        }
+      } else {
+        throw "not yet implemented scenario: signing, neither clear nor encrypt, without encryption";
+      }
+    } else {
+      throw "invalid parameters, neither encrypt nor sign";
+    }
+
+    let senderKey = null;
+    if (args.sign || args.encryptToSender) {
+      senderKey = this.getKeyHandleByIdentifier(args.sender);
+      if (!senderKey) {
+        return null;
+      }
+      if (args.encryptToSender) {
+        this.addSuitableEncryptKey(senderKey, op);
+      }
+      if (args.sign) {
+        let use_sub = null;
+        if (!this.isKeyUsableFor(senderKey, str_sign)) {
+          use_sub = this.getSuitableSubkey(senderKey, str_sign);
+          if (!use_sub) {
+            throw "no suitable subkey found for " + str_sign;
+          }
+        }
+        if (args.encrypt) {
+          if (RNPLib.rnp_op_encrypt_add_signature(op, 
+              (use_sub != null) ? use_sub : senderKey, 
+              null)) {
+            throw "rnp_op_encrypt_add_signature failed";
+          }
+        } else {
+          if (RNPLib.rnp_op_sign_add_signature(op, 
+              use_sub ? use_sub : senderKey, 
+              null)) {
+            throw "rnp_op_sign_add_signature failed";
+          }
+        }
+        if (use_sub) {
+          RNPLib.rnp_key_handle_destroy(use_sub);
+        }
+      }
+      RNPLib.rnp_key_handle_destroy(senderKey);
+    }
+
+    if (args.encrypt) {
+      for (let id in args.to) {
+        let toKey = this.getKeyHandleByIdentifier(args.to[id]);
+        if (!toKey) {
+          resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT
+          return null;
+        }
+        this.addSuitableEncryptKey(toKey, op);
+        RNPLib.rnp_key_handle_destroy(toKey);
+      }
+
+      for (let id in args.bcc) {
+        let bccKey = this.getKeyHandleByIdentifier(args.bcc[id]);
+        if (!bccKey) {
+          resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT
+          return null;
+        }
+        this.addSuitableEncryptKey(bccKey, op);
+        RNPLib.rnp_key_handle_destroy(bccKey);
+      }
+
+      // TODO decide if our compatibility requirements allow us to
+      // use AEAD
+      if (RNPLib.rnp_op_encrypt_set_cipher(op, "AES256")) {
+        throw "rnp_op_encrypt_set_cipher failed";
+      }
+
+      // TODO, map args.signatureHash string to RNP and call
+      //       rnp_op_encrypt_set_hash
+      if (RNPLib.rnp_op_encrypt_set_hash(op, "SHA256")) {
+        throw "rnp_op_encrypt_set_hash failed";
+      }
+
+      if (RNPLib.rnp_op_encrypt_set_armor(op, args.armor)) {
+        throw "rnp_op_encrypt_set_armor failed";
+      }
+
+      let rv = RNPLib.rnp_op_encrypt_execute(op);
+      if (rv) {
+        throw "rnp_op_encrypt_execute failed: " + rv;
+      }
+      RNPLib.rnp_op_encrypt_destroy(op);
+
+    } else {
+      RNPLib.rnp_op_sign_set_hash(op, "SHA256");
+      // TODO, map args.signatureHash string to RNP and call
+      //       rnp_op_encrypt_set_hash
+
+      RNPLib.rnp_op_sign_set_armor(op, args.armor);
+
+      RNPLib.rnp_op_sign_execute(op);
+      RNPLib.rnp_op_sign_destroy(op);
+    }
+    
+    RNPLib.rnp_input_destroy(input);
+
+    let result = null;
+
+    let result_buf = new ctypes.uint8_t.ptr();
+    let result_len = new ctypes.size_t();
+    if (!RNPLib.rnp_output_memory_get_buf(output, result_buf.address(),
+                                          result_len.address(), false)) {
+      console.debug("encrypt result len: " + result_len.value);
+      //let buf_array = ctypes.cast(result_buf, ctypes.uint8_t.array(result_len.value).ptr).contents;
+      //let char_array = ctypes.cast(buf_array, ctypes.char.array(result_len.value));
+
+      let char_array = ctypes.cast(
+        result_buf,
+        ctypes.char.array(result_len.value).ptr
+      ).contents;
+
+      result = char_array.readString();
+      console.debug(result);
+    }
+
+    RNPLib.rnp_output_destroy(output);
+
+    resultStatus.exitCode = 0;
+    
+    if (args.encrypt) {
+      resultStatus.statusFlags |= EnigmailConstants.END_ENCRYPTION;
+    }
+
+    if (args.sign) {
+      resultStatus.statusFlags |= EnigmailConstants.SIG_CREATED;
+    }
+    
+    return result;
   },
 
 };

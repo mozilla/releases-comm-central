@@ -215,8 +215,9 @@ class EnigmailKeyObj {
     } else if (this.keyTrust.search(/i/i) >= 0) {
       // public key invalid
       retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid", [this.userId, "0x" + this.keyId]);
-    } else
+    } else {
       retVal.keyValid = true;
+    }
 
     return retVal;
   }
@@ -250,28 +251,37 @@ class EnigmailKeyObj {
           found = 0;
         // public key is valid; check for signing subkeys
         for (let sk in this.subKeys) {
-          if (this.subKeys[sk].keyUseFor.search(/[sS]/) >= 0) {
-            // found subkey usable for signing
-            ++found;
-            if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) ++expired;
-            if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) ++revoked;
-            if (this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 || this.subKeys[sk].keyUseFor.search(/D/) >= 0) ++unusable;
+          if (this.subKeys[sk].keyUseFor.search(/S/) >= 0) {
+            if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) {
+              ++expired;
+            } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
+              ++revoked;
+            } else if (this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 || this.subKeys[sk].keyUseFor.search(/D/) >= 0) {
+              ++unusable;
+            } else {
+              // found subkey usable
+              ++found;
+            }
           }
         }
 
-        if (found > 0 && (expired > 0 || revoked > 0)) {
-          if (found === expired) {
+        if (!found) {
+          if (expired) {
             retVal.reason = EnigmailLocale.getString("keyRing.signSubKeysExpired", [this.userId, "0x" + this.keyId]);
-          } else if (found === revoked) {
+          } else if (revoked) {
             retVal.reason = EnigmailLocale.getString("keyRing.signSubKeysRevoked", [this.userId, "0x" + this.keyId]);
-          } else {
+          } else if (unusable) {
             retVal.reason = EnigmailLocale.getString("keyRing.signSubKeysUnusable", [this.userId, "0x" + this.keyId]);
+          } else {
+            retVal.reason = EnigmailLocale.getString("keyRing.pubKeyNotForSigning", [this.userId, "0x" + this.keyId]);
           }
-        } else
-          retVal.reason = EnigmailLocale.getString("keyRing.pubKeyNotForSigning", [this.userId, "0x" + this.keyId]);
+        } else {
+          retVal.keyValid = true;
+        }
       }
     }
 
+    console.debug("getSigningValidity retVal: " + retVal);
     return retVal;
   }
 
@@ -284,7 +294,6 @@ class EnigmailKeyObj {
    */
   getEncryptionValidity() {
     let retVal = this.getPubKeyValidity();
-
     if (!retVal.keyValid) return retVal;
 
     if (this.keyUseFor.search(/E/) < 0) {
@@ -301,28 +310,37 @@ class EnigmailKeyObj {
         // public key is valid; check for encryption subkeys
 
         for (let sk in this.subKeys) {
-          if (this.subKeys[sk].keyUseFor.search(/[eE]/) >= 0) {
-            // found subkey usable for signing
-            ++found;
-            if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) ++expired;
-            if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) ++revoked;
-            if (this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 || this.subKeys[sk].keyUseFor.search(/D/) >= 0) ++unusable;
+          if (this.subKeys[sk].keyUseFor.search(/E/) >= 0) {
+            if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) {
+              ++expired;
+            } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
+              ++revoked;
+            } else if (this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 || this.subKeys[sk].keyUseFor.search(/D/) >= 0) {
+              ++unusable;
+            } else {
+              // found subkey usable
+              ++found;
+            }
           }
         }
 
-        if (found > 0 && (expired > 0 || revoked > 0)) {
-          if (found === expired) {
+        if (!found) {
+          if (expired) {
             retVal.reason = EnigmailLocale.getString("keyRing.encSubKeysExpired", [this.userId, "0x" + this.keyId]);
-          } else if (found === revoked) {
+          } else if (revoked) {
             retVal.reason = EnigmailLocale.getString("keyRing.encSubKeysRevoked", [this.userId, "0x" + this.keyId]);
-          } else {
+          } else if (unusable) {
             retVal.reason = EnigmailLocale.getString("keyRing.encSubKeysUnusable", [this.userId, "0x" + this.keyId]);
+          } else {
+            retVal.reason = EnigmailLocale.getString("keyRing.pubKeyNotForEncryption", [this.userId, "0x" + this.keyId]);
           }
-        } else
-          retVal.reason = EnigmailLocale.getString("keyRing.pubKeyNotForEncryption", [this.userId, "0x" + this.keyId]);
+        } else {
+          retVal.keyValid = true;
+        }
       }
     }
 
+    console.debug("getEncryptionValidity retVal: " + retVal);
     return retVal;
   }
 
