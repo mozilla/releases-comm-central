@@ -119,7 +119,10 @@ static int MimeMultipartSigned_parse_eof(MimeObject *obj, bool abort_p) {
      the signed object.
      */
     status = MimeMultipartSigned_emit_child(obj);
-    if (status < 0) return status;
+    if (status < 0) {
+      obj->closed_p = true;
+      return status;
+    }
   }
 
   MimeMultipartSigned_cleanup(obj, false);
