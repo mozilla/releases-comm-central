@@ -48,38 +48,54 @@ function registerFolderEventLogHelper() {
 /**
  * nsIMsgFolderListener implementation to logHelper events that gloda cares
  *  about.
+ * @implements {nsIMsgFolderListener}
  */
 var _folderEventLogHelper_msgFolderListener = {
   msgAdded(aMsg) {
     mark_action("msgEvent", "msgAdded", [aMsg]);
   },
 
+  /**
+   * @param {nsIArray} aMsgs
+   */
   msgsClassified(aMsgs, aJunkProcessed, aTraitProcessed) {
     let args = [
       aJunkProcessed ? "junk processed" : "did not junk process",
       aTraitProcessed ? "trait processed" : "did not trait process",
     ];
-    dump("xxxmagnus aMsgs=" + aMsgs + "\n");
-    for (let msgHdr of aMsgs) {
+    for (let msgHdr of fixIterator(aMsgs, Ci.nsIMsgDBHdr)) {
       args.push(msgHdr);
     }
     mark_action("msgEvent", "msgsClassified", args);
   },
 
+  /**
+   * @param {nsIArray} aMsgs
+   */
   msgsDeleted(aMsgs) {
-    mark_action("msgEvent", "msgsDeleted", [...aMsgs]);
+    let args = [];
+    for (let msgHdr of fixIterator(aMsgs, Ci.nsIMsgDBHdr)) {
+      args.push(msgHdr);
+    }
+    mark_action("msgEvent", "msgsDeleted", args);
   },
 
+  /**
+   * @param {boolean} aMove
+   * @param {nsIArray} aSrcMsgs
+   * @param {nsIMsgFolder} aDestFolder
+   * @param {nsIArray} aDestMsgs
+   */
   msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
     let args = [aMove ? "moved" : "copied"];
-    for (let msgHdr of aSrcMsgs) {
+    for (let msgHdr of fixIterator(aSrcMsgs, Ci.nsIMsgDBHdr)) {
       args.push(msgHdr);
     }
     args.push("to");
     args.push(aDestFolder);
     if (aDestMsgs) {
       args.push("dest headers:");
-      for (let msgHdr of aDestMsgs) {
+      for (let msgHdr of fixIterator(aDestMsgs, Ci.nsIMsgDBHdr)) {
         args.push(msgHdr);
       }
     }

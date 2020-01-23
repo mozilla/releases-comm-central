@@ -906,7 +906,6 @@ function subtest_more_widget_display(toDescription) {
   let maxLines = Services.prefs.getIntPref(
     "mailnews.headers.show_n_lines_before_more"
   );
-  dump("xxxmagnus test maxLines=" + maxLines + "\n");
 
   // allow for a 15% tolerance for any padding that may be applied
   if (numLines < 0.85 * maxLines || numLines > 1.15 * maxLines) {
