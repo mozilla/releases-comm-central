@@ -351,11 +351,9 @@ pref("network.protocol-handler.warn-external.ftp", false);
 pref("network.hosts.smtp_server",           "mail");
 pref("network.hosts.pop_server",            "mail");
 
-#if defined(DEBUG)
-  // For testing purposes only: Flipping this pref to true allows
-  // to skip the assertion that every about page ships with a CSP.
-  pref("csp.skip_about_page_has_csp_assert", true);
-#endif
+// For testing purposes only: Flipping this pref to true allows
+// to skip the assertion that every about page ships with a CSP.
+pref("dom.security.skip_about_page_has_csp_assert", true);
 
 pref("security.warn_entering_secure", false);
 pref("security.warn_entering_weak", false);
