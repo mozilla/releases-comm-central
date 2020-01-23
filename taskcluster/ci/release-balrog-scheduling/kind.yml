@@ -16,8 +16,8 @@ kind-dependencies:
 job-defaults:
     run-on-projects: []
     shipping-phase: ship
+    worker-type: balrog
     worker:
-        implementation: balrog
         balrog-action: schedule
 
 jobs:

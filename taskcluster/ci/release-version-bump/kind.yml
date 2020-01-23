@@ -16,10 +16,7 @@ job-defaults:
     description: Release Promotion version bump/tag
     run-on-projects: []
     shipping-phase: ship
-    worker-type:
-        by-project:
-            comm-(beta|esr68): scriptworker-k8s/comm-3-tree
-            default: scriptworker-k8s/comm-1-tree
+    worker-type: tree
     worker:
         implementation: treescript
         dontbuild: true

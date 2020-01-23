@@ -14,8 +14,8 @@ transforms:
 job-defaults:
     run-on-projects: []  # to make sure this never runs in CI
     shipping-phase: promote
+    worker-type: balrog
     worker:
-        implementation: balrog
         balrog-action: submit-toplevel
         require-mirrors: true
         archive-domain:

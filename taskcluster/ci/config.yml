@@ -62,19 +62,6 @@ release-promotion:
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
 
-    worker-types:
-        'scriptworker-k8s/comm-1-beetmover':
-            - 'project:comm:thunderbird:releng:beetmover:bucket:dep'
-        'scriptworker-k8s/comm-3-beetmover':
-            - 'project:comm:thunderbird:releng:beetmover:bucket:nightly'
-            - 'project:comm:thunderbird:releng:beetmover:bucket:release'
-        'scriptworker-k8s/comm-1-balrog':
-            - 'project:comm:thunderbird:releng:balrog:server:dep'
-        'scriptworker-k8s/comm-3-balrog':
-            - 'project:comm:thunderbird:releng:balrog:server:nightly'
-            - 'project:comm:thunderbird:releng:balrog:server:beta'
-            - 'project:comm:thunderbird:releng:balrog:server:release'
-
 partner-urls:
     release-partner-repack: {}
     release-eme-free-repack: {}
@@ -106,6 +93,32 @@ workers:
             implementation: docker-worker
             os: linux
             worker-type: '{alias}'
+        balrog:
+            provisioner: scriptworker-k8s
+            implementation: balrog
+            os: scriptworker
+            worker-type:
+                by-release-level:
+                    production: comm-3-balrog
+                    staging: comm-1-balrog
+        bouncer:
+            provisioner: scriptworker-k8s
+            # Note that this implementation doesn't correspond with a
+            # payload_builder, there are several `bouncer-*` implementations.
+            implementation: bouncer
+            os: scriptworker
+            worker-type:
+                by-release-level:
+                    production: comm-3-bouncer
+                    staging: comm-1-bouncer
+        beetmover:
+            provisioner: scriptworker-k8s
+            implementation: beetmover
+            os: scriptworker
+            worker-type:
+                by-release-level:
+                    production: comm-3-beetmover
+                    staging: comm-1-beetmover
         linux-depsigning:
             provisioner: scriptworker-k8s
             implementation: scriptworker-signing
@@ -132,6 +145,14 @@ workers:
                 by-release-level:
                     production: tb-signing-mac-v1
                     staging: tb-depsigning-mac-v1
+        tree:
+            provisioner: scriptworker-k8s
+            implementation: treescript
+            os: scriptworker
+            worker-type:
+                by-release-level:
+                    production: comm-3-tree
+                    staging: comm-1-tree
         t-linux(-large|-xlarge):
             provisioner: comm-t
             implementation: docker-worker
