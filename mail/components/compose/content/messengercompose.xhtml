@@ -602,11 +602,11 @@
   <label id="addr_newsgroups" value="&newsgroupsAddr2.label;"
          onclick="showAddressRow(this, 'addressRowNewsgroups')"
          onkeypress="showAddressRowKeyPress(event, this, 'addressRowNewsgroups')"
-         control="newsgroupsAddrInput" class="nntp-label recipient-label"/>
+         control="newsgroupsAddrInput" class="news-label news-primary-label recipient-label"/>
   <label id="addr_followup" value="&followupAddr2.label;"
          onclick="showAddressRow(this, 'addressRowFollowup')"
          onkeypress="showAddressRowKeyPress(event, this, 'addressRowFollowup')"
-         control="followupAddrInput" class="nntp-label recipient-label"/>
+         control="followupAddrInput" class="news-label recipient-label"/>
 </panel>
 
 <menupopup id="msgComposeContext"
@@ -2032,15 +2032,19 @@
             <hbox class="addressingWidgetItem">
               <hbox id="addressingWidgetLabels" class="address-extra-recipients"
                     flex="1" align="center">
-                <label id="addr_to" control="toAddrInput" hidden="true"/>
+                <label id="addr_to" value="&toAddr2.label;"
+                       onclick="showAddressRow(this, 'addressRowTo')"
+                       onkeypress="showAddressRowKeyPress(event, this, 'addressRowTo')"
+                       control="toAddrInput" class="mail-primary-label mail-label recipient-label"
+                       collapsed="true"/>
                 <label id="addr_cc" value="&ccAddr2.label;"
                        onclick="showAddressRow(this, 'addressRowCc')"
                        onkeypress="showAddressRowKeyPress(event, this, 'addressRowCc')"
-                       control="ccAddrInput" class="recipient-label"/>
+                       control="ccAddrInput" class="mail-label recipient-label"/>
                 <label id="addr_bcc" value="&bccAddr2.label;"
                        onclick="showAddressRow(this, 'addressRowBcc')"
                        onkeypress="showAddressRowKeyPress(event, this, 'addressRowBcc')"
-                       control="bccAddrInput" class="recipient-label"/>
+                       control="bccAddrInput" class="mail-label recipient-label"/>
 
                 <label id="extraRecipientsLabel"
                        onclick="showExtraRecipients(event);"
@@ -2057,7 +2061,13 @@
           <mail-recipients-area id="recipientsContainer" orient="vertical"
                                 class="recipients-container" flex="1">
             <hbox id="addressRowTo" class="addressingWidgetItem address-row">
-              <hbox class="aw-firstColBox"/>
+              <hbox class="aw-firstColBox" align="top">
+                <label onclick="hideAddressRow(this, 'addr_to');"
+                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_to'); }"
+                       collapsed="true">
+                  <image class="close-icon"/>
+                </label>
+              </hbox>
               <hbox class="address-label-container" align="top" pack="end"
                     style="&headersSpace2.style;">
                 <label id="toAddrLabel" value="&toAddr2.label;"
@@ -2068,7 +2078,7 @@
                     onclick="focusAddressInput(event);">
                 <html:input is="autocomplete-input" id="toAddrInput"
                             type="text"
-                            class="plain address-input pop-imap-input"
+                            class="plain address-input mail-input mail-primary-input"
                             disableonsend="true"
                             aria-labelledby="toAddrLabel"
                             autocompletesearch="mydomain addrbook ldap news"
@@ -2105,7 +2115,7 @@
                     onclick="focusAddressInput(event);">
                 <html:input is="autocomplete-input" id="ccAddrInput"
                             type="text"
-                            class="plain address-input pop-imap-input"
+                            class="plain address-input mail-input"
                             disableonsend="true"
                             aria-labelledby="ccAddrLabel"
                             autocompletesearch="mydomain addrbook ldap news"
@@ -2142,7 +2152,7 @@
                     onclick="focusAddressInput(event);">
                 <html:input is="autocomplete-input" id="bccAddrInput"
                             type="text"
-                            class="plain address-input pop-imap-input"
+                            class="plain address-input mail-input"
                             disableonsend="true"
                             aria-labelledby="bccAddrLabel"
                             autocompletesearch="mydomain addrbook ldap news"
@@ -2179,7 +2189,7 @@
                     onclick="focusAddressInput(event);">
                 <html:input is="autocomplete-input" id="replyAddrInput"
                             type="text"
-                            class="plain address-input pop-imap-input"
+                            class="plain address-input mail-input"
                             disableonsend="true"
                             aria-labelledby="replyAddrLabel"
                             autocompletesearch="mydomain addrbook ldap news"
@@ -2216,7 +2226,7 @@
                     onclick="focusAddressInput(event);">
                 <html:input is="autocomplete-input" id="newsgroupsAddrInput"
                             type="text"
-                            class="plain address-input nntp-input"
+                            class="plain address-input news-input news-primary-input"
                             disableonsend="true"
                             aria-labelledby="newsgroupsAddrLabel"
                             autocompletesearch="mydomain addrbook ldap news"
@@ -2253,7 +2263,7 @@
                     onclick="focusAddressInput(event);">
                 <html:input is="autocomplete-input" id="followupAddrInput"
                             type="text"
-                            class="plain address-input nntp-input"
+                            class="plain address-input news-input"
                             disableonsend="true"
                             aria-labelledby="followupAddrLabel"
                             autocompletesearch="mydomain addrbook ldap news"

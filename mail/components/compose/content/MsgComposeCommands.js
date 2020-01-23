@@ -12,7 +12,8 @@
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */
 
-/* global updateRecipientsPanelVisibility */
+/* global updateRecipientsPanelVisibility, updateUIforNNTPAccount
+          updateUIforIMAPAccount */
 
 /**
  * Commands for the message composition window.
@@ -3423,7 +3424,7 @@ function ComposeLoad() {
           label: `${header}AddrLabel`,
           labelId: header,
           container: `${header}AddrContainer`,
-          class: "nntp-input",
+          class: "news-input",
           type: "addr_other",
         };
 
@@ -3960,7 +3961,7 @@ function updateSendLock() {
       if (
         isValidAddress(address.emailAddress) ||
         isMailingList ||
-        address.originalInput.classList.contains("nntp-input")
+        address.originalInput.classList.contains("news-input")
       ) {
         gSendLocked = false;
         break;
@@ -4689,20 +4690,32 @@ function getCurrentIdentity() {
 }
 
 function AdjustFocus() {
-  let element = document.getElementById("toAddrContainer");
+  // If is NNTP account, check the newsgroup field.
+  let account = MailServices.accounts.getAccount(getCurrentAccountKey());
+  let accountType = account.incomingServer.type;
+
+  let element =
+    accountType == "nntp"
+      ? document.getElementById("newsgroupsAddrContainer")
+      : document.getElementById("toAddrContainer");
+
+  // Focus on the recipient input field if no pills are present.
   if (element.querySelectorAll("mail-address-pill").length == 0) {
-    // Focus on the "To" recipient field.
-    document.getElementById("toAddrInput").focus();
-  } else {
-    element = document.getElementById("msgSubject");
-    if (element.value == "") {
-      // Focus subject.
-      element.focus();
-    } else {
-      // Focus message body.
-      SetMsgBodyFrameFocus();
-    }
+    element
+      .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+      .focus();
+    return;
   }
+
+  // Focus subject if empty.
+  element = document.getElementById("msgSubject");
+  if (element.value == "") {
+    element.focus();
+    return;
+  }
+
+  // Focus message body.
+  SetMsgBodyFrameFocus();
 }
 
 /**
@@ -6230,10 +6243,12 @@ function DetermineConvertibility() {
  * Hides addressing options (To, CC, Bcc, Newsgroup, Followup-To, etc.)
  * that are not relevant for the account type used for sending.
  *
- * @param aAccountKey  Key of the account that is currently selected
- *                     as the sending account.
+ * @param {string} accountKey - Key of the account that is currently selected
+ *   as the sending account.
+ * @param {string} prevKey - Key of the account that was previously selected
+ *   as the sending account.
  */
-function hideIrrelevantAddressingOptions(aAccountKey) {
+function hideIrrelevantAddressingOptions(accountKey, prevKey) {
   let hideNews = true;
   for (let account of fixIterator(
     MailServices.accounts.accounts,
@@ -6245,8 +6260,22 @@ function hideIrrelevantAddressingOptions(aAccountKey) {
   }
   // If there is no News (NNTP) account existing then
   // hide the Newsgroup and Followup-To recipient type in all the menulists.
-  for (let item of document.querySelectorAll(".nntp-label")) {
+  for (let item of document.querySelectorAll(".news-label")) {
     item.collapsed = hideNews;
+  }
+
+  let account = MailServices.accounts.getAccount(accountKey);
+  let accountType = account.incomingServer.type;
+
+  // If the new account is a News (NNTP) account.
+  if (accountType == "nntp") {
+    updateUIforNNTPAccount();
+    return;
+  }
+
+  // If the new account is a Mail account and a previous account was selected.
+  if (accountType != "nntp" && prevKey != "") {
+    updateUIforIMAPAccount();
   }
 
   updateRecipientsPanelVisibility();
@@ -6259,6 +6288,7 @@ function LoadIdentity(startup) {
   if (identityElement) {
     let idKey = null;
     let accountKey = null;
+    let currKey = getCurrentAccountKey();
     if (identityElement.selectedItem) {
       // Set the identity key value on the menu list.
       idKey = identityElement.selectedItem.getAttribute("identitykey");
@@ -6268,12 +6298,14 @@ function LoadIdentity(startup) {
       // Set the account key value on the menu list.
       accountKey = identityElement.selectedItem.getAttribute("accountkey");
       identityElement.setAttribute("accountkey", accountKey);
-      hideIrrelevantAddressingOptions(accountKey);
+
+      // Update the addressing options only if a new account was selected.
+      if (currKey != getCurrentAccountKey()) {
+        hideIrrelevantAddressingOptions(accountKey, currKey);
+      }
     }
 
-    for (let input of document.querySelectorAll(
-      ".pop-imap-input,.nntp-input"
-    )) {
+    for (let input of document.querySelectorAll(".mail-input,.news-input")) {
       let params = JSON.parse(input.searchParam);
       params.idKey = idKey;
       params.accountKey = accountKey;

@@ -1831,6 +1831,8 @@
 
       this.emailInput = this.querySelector(`input[is="autocomplete-input"]`);
       this.emailInput.value = this.fullAddress;
+      this.emailInput.classList.remove("mail-primary-input");
+      this.emailInput.classList.remove("news-primary-input");
 
       let params = JSON.parse(
         this.emailInput.getAttribute("autocompletesearchparam")
@@ -1948,7 +1950,7 @@
       let isMailingList =
         listNames.length > 0 &&
         MailServices.ab.mailListNameExists(listNames[0].name);
-      let isNewsgroup = this.originalInput.classList.contains("nntp-input");
+      let isNewsgroup = this.originalInput.classList.contains("news-input");
 
       this.classList.toggle(
         "error",
@@ -1996,7 +1998,7 @@
         "mail.autoComplete.highlightNonMatches"
       );
 
-      for (let input of this.querySelectorAll(".pop-imap-input,.nntp-input")) {
+      for (let input of this.querySelectorAll(".mail-input,.news-input")) {
         setupAutocompleteInput(input, this.highlightNonMatches);
       }
     }
@@ -2132,7 +2134,7 @@
       let isMailingList =
         listNames.length > 0 &&
         MailServices.ab.mailListNameExists(listNames[0].name);
-      let isNewsgroup = element.classList.contains("nntp-input");
+      let isNewsgroup = element.classList.contains("news-input");
 
       pill.classList.toggle(
         "error",

@@ -78,6 +78,13 @@ function check_nntp_address_types() {
   ]);
 }
 
+/**
+ * With an NNTP account, the 'To' addressing row should be hidden.
+ */
+function check_collapsed_pop_recipient(cwc) {
+  Assert.ok(cwc.e("addressRowTo").classList.contains("hidden"));
+}
+
 function add_NNTP_account() {
   // Create a NNTP server
   let nntpServer = MailServices.accounts
@@ -135,6 +142,7 @@ add_task(function test_address_types() {
   be_in_folder(accountNNTP.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
   check_nntp_address_types();
+  check_collapsed_pop_recipient(cwc);
   close_compose_window(cwc);
 
   // Now try the same accounts but choosing them in the From dropdown

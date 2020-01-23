@@ -130,6 +130,9 @@ function CompFields2Recipients(msgCompFields) {
 
     if (msgTo) {
       let input = document.getElementById("toAddrInput");
+      if (input.closest(".address-row").classList.contains("hidden")) {
+        showAddressRow(document.getElementById("addr_to"), "addressRowTo");
+      }
       input.focus();
       input.value = msgTo.join(", ");
       recipientAddPill(input, true);
@@ -179,6 +182,103 @@ function CompFields2Recipients(msgCompFields) {
     addRecipientsToIgnoreList(
       [currentAddress, msgTo, msgCC, msgBCC].filter(adr => adr).join(", ")
     );
+  }
+}
+
+/**
+ * Update the recipients area UI to show News related fields and hide
+ * Mail releated fields.
+ */
+function updateUIforNNTPAccount() {
+  // Hide the `mail-primary-input` field row if no pills have been created.
+  let mailContainer = document
+    .querySelector(".mail-primary-input")
+    .closest(".address-container");
+  if (mailContainer.querySelectorAll("mail-address-pill").length == 0) {
+    mailContainer
+      .closest(".address-row")
+      .querySelector(".aw-firstColBox > label")
+      .click();
+  }
+
+  // Show the closing label.
+  mailContainer
+    .closest(".address-row")
+    .querySelector(".aw-firstColBox > label")
+    .removeAttribute("collapsed");
+
+  // Show the `news-primary-input` field row if not already visible.
+  let newsContainer = document
+    .querySelector(".news-primary-input")
+    .closest(".address-row");
+  if (newsContainer.classList.contains("hidden")) {
+    document.querySelector(".news-primary-label").click();
+  } else {
+    document
+      .querySelector(".news-primary-label")
+      .setAttribute("collapsed", "true");
+  }
+
+  // Hide the closing label.
+  newsContainer
+    .querySelector(".aw-firstColBox > label")
+    .setAttribute("collapsed", "true");
+
+  // Reorder `mail-label` menu items.
+  let panel = document.getElementById("extraRecipientsPanel");
+  for (let label of document.querySelectorAll(".mail-label")) {
+    panel.appendChild(label);
+  }
+
+  // Reorder `news-label` menu items.
+  let extraRecipients = document.querySelector(".address-extra-recipients");
+  for (let label of document.querySelectorAll(".news-label")) {
+    extraRecipients.prepend(label);
+  }
+}
+
+/**
+ * Update the recipients area UI to show Mail related fields and hide
+ * News releated fields. This method is called only if the UI was previously
+ * updated to accommodate a News account type.
+ */
+function updateUIforIMAPAccount() {
+  // Show the `mail-primary-input` field row if not already visible.
+  let mailContainer = document
+    .querySelector(".mail-primary-input")
+    .closest(".address-row");
+  if (mailContainer.classList.contains("hidden")) {
+    document.querySelector(".mail-primary-label").click();
+  }
+
+  // Hide the closing label.
+  mailContainer
+    .querySelector(".aw-firstColBox > label")
+    .setAttribute("collapsed", "true");
+
+  // Hide the `news-primary-input` field row if no pills have been created.
+  let newsContainer = document
+    .querySelector(".news-primary-input")
+    .closest(".address-row");
+  if (newsContainer.querySelectorAll("mail-address-pill").length == 0) {
+    newsContainer.querySelector(".aw-firstColBox > label").click();
+  }
+
+  // Show the closing label.
+  newsContainer
+    .querySelector(".aw-firstColBox > label")
+    .removeAttribute("collapsed");
+
+  // Reorder `mail-label` menu items.
+  let panel = document.getElementById("extraRecipientsPanel");
+  for (let label of document.querySelectorAll(".news-label")) {
+    panel.appendChild(label);
+  }
+
+  // Reorder `news-label` menu items.
+  let extraRecipients = document.querySelector(".address-extra-recipients");
+  for (let label of document.querySelectorAll(".mail-label")) {
+    extraRecipients.prepend(label);
   }
 }
 
@@ -531,7 +631,7 @@ function resetAddressContainer(element) {
     address &&
     (isValidAddress(address) ||
       isMailingList ||
-      element.classList.contains("nntp-input"))
+      element.classList.contains("news-input"))
   ) {
     recipientAddPill(element);
   }
@@ -679,7 +779,8 @@ function hideAddressRow(element, labelID) {
   container.classList.add("hidden");
   document.getElementById(labelID).removeAttribute("collapsed");
 
-  onRecipientsChanged();
+  // Update the sender button only if pills were deleted.
+  onRecipientsChanged(!pills.length);
   updateRecipientsPanelVisibility();
 }
 
