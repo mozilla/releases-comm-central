@@ -7,6 +7,8 @@ macosx64/debug:
     index:
         product: thunderbird
         job-name: macosx64-debug
+    dependencies:
+        thirdparty-libotr-macosx64: thirdparty-libotr-macosx64
     treeherder:
         platform: osx-cross/debug
         symbol: B
@@ -45,12 +47,16 @@ macosx64/debug:
             - linux64-rust-macos
             - linux64-rust-size
             - linux64-sccache
+        thirdparty-libotr-macosx64:
+            - libotr.tar.xz
 
 macosx64/opt:
     description: "MacOS X x64 Cross-compile"
     index:
         product: thunderbird
         job-name: macosx64-opt
+    dependencies:
+        thirdparty-libotr-macosx64: thirdparty-libotr-macosx64
     treeherder:
         platform: osx-cross/opt
         symbol: B
@@ -87,6 +93,8 @@ macosx64/opt:
             - linux64-rust-macos
             - linux64-rust-size
             - linux64-sccache
+        thirdparty-libotr-macosx64:
+            - libotr.tar.xz
 
 macosx64-shippable/opt:
     description: "MacOS X x64 Cross-compile"
@@ -100,6 +108,8 @@ macosx64-shippable/opt:
         product: thunderbird
         job-name: macosx64-opt
         type: shippable
+    dependencies:
+        thirdparty-libotr-macosx64: thirdparty-libotr-macosx64
     treeherder:
         platform: osx-shippable/opt
         symbol: B
@@ -136,3 +146,5 @@ macosx64-shippable/opt:
             - linux64-node
             - linux64-rust-macos
             - linux64-rust-size
+        thirdparty-libotr-macosx64:
+            - libotr.tar.xz

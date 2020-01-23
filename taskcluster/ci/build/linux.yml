@@ -7,6 +7,8 @@ linux64/opt:
     index:
         product: thunderbird
         job-name: linux64-opt
+    dependencies:
+        thirdparty-libotr-linux64: thirdparty-libotr-linux64
     treeherder:
         platform: linux64/opt
         symbol: B
@@ -37,6 +39,8 @@ linux64/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+        thirdparty-libotr-linux64:
+            - libotr.tar.xz
 
 linux64-shippable/opt:
     description: "Linux64 Shippable"
@@ -50,6 +54,8 @@ linux64-shippable/opt:
         product: thunderbird
         job-name: linux64-opt
         type: shippable
+    dependencies:
+        thirdparty-libotr-linux64: thirdparty-libotr-linux64
     treeherder:
         platform: linux64-shippable/opt
         symbol: B
@@ -80,12 +86,16 @@ linux64-shippable/opt:
             - linux64-node
             - linux64-rust
             - linux64-rust-size
+        thirdparty-libotr-linux64:
+            - libotr.tar.xz
 
 linux64/debug:
     description: "Linux64 Debug"
     index:
         product: thunderbird
         job-name: linux64-debug
+    dependencies:
+        thirdparty-libotr-linux64: thirdparty-libotr-linux64
     treeherder:
         platform: linux64/debug
         symbol: B
@@ -118,12 +128,16 @@ linux64/debug:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+        thirdparty-libotr-linux64:
+            - libotr.tar.xz
 
 linux/opt:
     description: "Linux32 Opt"
     index:
         product: thunderbird
         job-name: linux32-opt
+    dependencies:
+        thirdparty-libotr-linux32: thirdparty-libotr-linux32
     treeherder:
         platform: linux32/opt
         symbol: B
@@ -154,6 +168,8 @@ linux/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+        thirdparty-libotr-linux32:
+            - libotr.tar.xz
 
 linux-shippable/opt:
     description: "Linux32 Shippable"
@@ -167,6 +183,8 @@ linux-shippable/opt:
         product: thunderbird
         job-name: linux32-opt
         type: shippable
+    dependencies:
+        thirdparty-libotr-linux32: thirdparty-libotr-linux32
     treeherder:
         platform: linux32-shippable/opt
         symbol: B
@@ -197,12 +215,16 @@ linux-shippable/opt:
             - linux64-node
             - linux64-rust
             - linux64-rust-size
+        thirdparty-libotr-linux32:
+            - libotr.tar.xz
 
 linux/debug:
     description: "Linux32 Debug"
     index:
         product: thunderbird
         job-name: linux32-debug
+    dependencies:
+        thirdparty-libotr-linux32: thirdparty-libotr-linux32
     treeherder:
         platform: linux32/debug
         symbol: B
@@ -235,3 +257,5 @@ linux/debug:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+        thirdparty-libotr-linux32:
+            - libotr.tar.xz

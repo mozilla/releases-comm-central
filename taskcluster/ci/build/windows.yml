@@ -25,6 +25,8 @@ win32/opt:
     index:
         product: thunderbird
         job-name: win32-opt
+    dependencies:
+        thirdparty-libotr-win32: thirdparty-libotr-win32
     attributes:
         enable-build-signing: true
     treeherder:
@@ -50,6 +52,8 @@ win32/opt:
     fetches:
         toolchain:
             - win64-sccache
+        thirdparty-libotr-win32:
+            - libotr.tar.xz
 
 win32-shippable/opt:
     description: "Win32 Opt Shippable"
@@ -57,6 +61,8 @@ win32-shippable/opt:
         product: thunderbird
         job-name: win32-opt
         type: shippable
+    dependencies:
+        thirdparty-libotr-win32: thirdparty-libotr-win32
     attributes:
         shippable: true
         nightly: true
@@ -85,12 +91,17 @@ win32-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win32
+    fetches:
+        thirdparty-libotr-win32:
+            - libotr.tar.xz
 
 win32/debug:
     description: "Win32 Debug"
     index:
         product: thunderbird
         job-name: win32-debug
+    dependencies:
+        thirdparty-libotr-win32: thirdparty-libotr-win32
     attributes:
         enable-build-signing: true
     treeherder:
@@ -116,12 +127,16 @@ win32/debug:
     fetches:
         toolchain:
             - win64-sccache
+        thirdparty-libotr-win32:
+            - libotr.tar.xz
 
 win64/opt:
     description: "Win64 Opt"
     index:
         product: thunderbird
         job-name: win64-opt
+    dependencies:
+        thirdparty-libotr-win64: thirdparty-libotr-win64
     attributes:
         enable-build-signing: true
     treeherder:
@@ -147,6 +162,8 @@ win64/opt:
     fetches:
         toolchain:
             - win64-sccache
+        thirdparty-libotr-win64:
+            - libotr.tar.xz
 
 win64-shippable/opt:
     description: "Win64 Opt Shippable"
@@ -154,6 +171,8 @@ win64-shippable/opt:
         product: thunderbird
         job-name: win64-opt
         type: shippable
+    dependencies:
+        thirdparty-libotr-win64: thirdparty-libotr-win64
     attributes:
         shippable: true
         nightly: true
@@ -182,12 +201,17 @@ win64-shippable/opt:
             - taskcluster_nightly.py
         extra-config:
             stage_platform: win64
+    fetches:
+        thirdparty-libotr-win64:
+            - libotr.tar.xz
 
 win64/debug:
     description: "Win64 Debug"
     index:
         product: thunderbird
         job-name: win64-debug
+    dependencies:
+        thirdparty-libotr-win64: thirdparty-libotr-win64
     attributes:
         enable-build-signing: true
     treeherder:
@@ -213,3 +237,5 @@ win64/debug:
     fetches:
         toolchain:
             - win64-sccache
+        thirdparty-libotr-win64:
+            - libotr.tar.xz
