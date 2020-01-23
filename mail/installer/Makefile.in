@@ -170,6 +170,10 @@ ifdef CLANG_CL
 DEFINES += -DCLANG_CL
 endif
 
+ifdef TB_LIBOTR_PREBUILT
+DEFINES += -DTB_LIBOTR_PREBUILT
+endif
+
 libs::
 	$(MAKE) -C $(commtopobjdir)/mail/locales langpack
 

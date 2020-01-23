@@ -221,6 +221,24 @@
 ; Thunderbird specific
 @RESPATH@/@PREF_DIR@/all-im.js
 
+; OTR libraries
+#ifdef TB_LIBOTR_PREBUILT
+#ifdef XP_WIN
+@BINPATH@/libotr-5.dll
+@BINPATH@/libgcrypt-20.dll
+@BINPATH@/libssp-0.dll
+#ifdef _AMD64_
+@BINPATH@/libgpg-error6-0.dll
+#else
+@BINPATH@/libgpg-error-0.dll
+#endif
+#elif defined(XP_MACOSX)
+@BINPATH@/libotr.5.dylib
+#elif defined(XP_LINUX)
+@BINPATH@/libotr.so.5
+#endif
+#endif
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Chrome Files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
