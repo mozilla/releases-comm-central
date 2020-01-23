@@ -41,7 +41,7 @@
 :root[lwt-default-theme-in-dark-mode] #msgIdentity,
 :root[lwt-default-theme-in-dark-mode] #msgSubject,
 :root[lwt-default-theme-in-dark-mode] .address-container {
-  border-bottom-color: var(--composer-header-border-color) !important;
+  background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-text-color);
 }
 
@@ -50,35 +50,25 @@
 :root[lwt-default-theme-in-dark-mode] #msgIdentity:focus-within,
 :root[lwt-default-theme-in-dark-mode] #msgSubject:hover,
 :root[lwt-default-theme-in-dark-mode] #msgSubject:focus {
-  background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
-  border-color: var(--lwt-toolbar-field-border-color) !important;
+  border-color: var(--lwt-toolbar-field-border-color);
 }
 
-:root[lwt-default-theme-in-dark-mode] .address-container >
-  .autocomplete-result-popupset {
-  -moz-appearance: none;
+:root[lwt-default-theme-in-dark-mode] panel[type="autocomplete-richlistbox"]:-moz-lwtheme {
   margin-top: -1px;
+  padding: 2px 0;
   background: var(--autocomplete-popup-background);
   color: var(--autocomplete-popup-color);
-}
-
-:root[lwt-default-theme-in-dark-mode] .address-container
-  panel[type="autocomplete-richlistbox"] {
-  padding: 2px 0;
-  color: inherit;
-  background-color: inherit;
   border-color: var(--autocomplete-popup-border-color);
+  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-:root[lwt-default-theme-in-dark-mode] .address-container
-  .autocomplete-richlistbox {
+:root[lwt-default-theme-in-dark-mode] .autocomplete-richlistbox {
   color: inherit;
   background-color: inherit;
 }
 
-:root[lwt-default-theme-in-dark-mode] .address-container
-  .autocomplete-richlistitem[selected] {
+:root[lwt-default-theme-in-dark-mode] .autocomplete-richlistitem[selected] {
   background: #0a84ff;
   color: #fff;
 }
@@ -525,18 +515,11 @@
   flex: 1;
   margin-inline-start: 4px;
   margin-inline-end: 0;
-  padding: 1px 4px;
   border: solid 1px var(--toolbarbutton-hover-bordercolor);
   border-radius: 2px;
   background-color: -moz-field;
   transition: border .2s, box-shadow .2s;
   cursor: text;
-}
-
-#msgSubject,
-#msgIdentity,
-.address-container {
-  min-height: 30px;
 }
 
 .address-input {
@@ -553,7 +536,7 @@
   transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
   -moz-user-focus: normal;
   cursor: default;
-  box-shadow: inset 0 0 0 2px transparent;
+  box-shadow: inset 0 0 0 1px transparent;
 }
 
 .address-pill label {
@@ -563,14 +546,14 @@
 
 .address-pill:hover:not(.editing),
 .address-pill:focus:not(.editing) {
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.3);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3);
 }
 
 .address-pill.editing {
   flex: 1;
   background-color: transparent;
   padding-inline: 6px;
-  box-shadow: inset 0 0 0 2px Highlight;
+  box-shadow: inset 0 0 0 1px Highlight;
   min-height: calc(1.25em + 4px); /* needed to not shrink in edit mode */
 }
 
@@ -580,12 +563,12 @@
 
 #MsgHeadersToolbar[brighttext] .address-pill:hover:not(.editing),
 #MsgHeadersToolbar[brighttext] .address-pill:focus:not(.editing) {
-  background-color: rgba(0,0,0,0.35);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3);
 }
 
 .address-pill.error {
   color: #a4000f;
-  background-color: rgba(255,0,0,0.1);
+  background-color: #ffe5e5;
 }
 
 .address-pill.error:hover:not(.editing),
@@ -605,7 +588,7 @@
 
 .address-pill.warning {
   color: #a44900;
-  background-color: rgba(255,130,0,0.1);
+  background-color: #fff2e5;
 }
 
 .address-pill.warning:hover:not(.editing),
@@ -638,6 +621,8 @@
 }
 
 .address-extra-recipients label {
+  border-radius: 2px;
+  padding: 2px 4px;
   margin-block: 0;
   margin-inline: 12px 6px;
   transition: color 0.2s;
@@ -655,15 +640,12 @@
 }
 
 label.extra-recipients-label {
-  border-radius: 2px;
-  padding: 2px;
   width: 16px;
   height: 16px;
   margin-inline: 6px;
 }
 
-.extra-recipients-label:hover,
-.extra-recipients-label:focus {
+.address-extra-recipients label:hover {
   cursor: pointer;
   background-color: var(--toolbarbutton-hover-background);
 }
@@ -671,12 +653,6 @@ label.extra-recipients-label {
 .extra-recipients-label image {
   display: inline;
   vertical-align: middle;
-}
-
-.address-extra-recipients label:hover:not(.extra-recipients-label),
-.aw-firstColBox label:hover:not(.extra-recipients-label) {
-  cursor: pointer;
-  color: Highlight;
 }
 
 #extraRecipientsPanel {
@@ -692,14 +668,8 @@ label.extra-recipients-label {
   transition: background-color 0.2s;
 }
 
-#extraRecipientsPanel label:hover,
-#extraRecipientsPanel label:focus {
+#extraRecipientsPanel label:hover {
   background-color: var(--arrowpanel-dimmed);
-}
-
-#extraRecipientsPanel label:hover:active {
-  background-color: var(--arrowpanel-dimmed-further);
-  box-shadow: 0 1px 0 hsla(210, 4%, 10%, .03) inset;
 }
 
 .aw-firstColBox label:hover .close-icon {
@@ -711,8 +681,8 @@ label.extra-recipients-label {
   margin-bottom: 0;
 }
 
-.address-extra-recipients label:focus:not(:hover):not(.extra-recipients-label),
-.aw-firstColBox label:focus:not(:hover):not(.extra-recipients-label) image {
+.address-extra-recipients label:focus:not(:hover),
+.aw-firstColBox label:focus:not(:hover) image {
   outline: 2px dashed Highlight;
 }
 
@@ -733,5 +703,5 @@ label.extra-recipients-label {
 #msgIdentity[focused="true"],
 #msgSubject:focus,
 .address-container[focused="true"] {
-  border-color: Highlight;
+  border-color: Highlight !important;
 }

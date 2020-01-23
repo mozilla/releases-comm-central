@@ -184,6 +184,16 @@ toolbar[nowindowdrag="true"] {
   padding-top: 7px;
 }
 
+.address-container {
+  padding: 1px 4px;
+}
+
+#msgSubject,
+#msgIdentity,
+.address-container {
+  min-height: 26px;
+}
+
 .address-pill {
   padding-block: 2px;
 }

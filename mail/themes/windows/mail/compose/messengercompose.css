@@ -159,6 +159,16 @@
   padding-top: 5px;
 }
 
+.address-container {
+  padding: 0 4px;
+}
+
+#msgSubject,
+#msgIdentity,
+.address-container {
+  min-height: 28px;
+}
+
 #msgSubject {
   margin-top: 0;
   padding: 2px;

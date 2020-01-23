@@ -184,8 +184,18 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   padding-top: 4px;
 }
 
+.address-container {
+  padding: 1px 4px;
+}
+
 .address-label-container {
   padding-top: 6px;
+}
+
+#msgSubject,
+#msgIdentity,
+.address-container {
+  min-height: 30px;
 }
 
 .address-pill {

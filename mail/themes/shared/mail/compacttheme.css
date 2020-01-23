@@ -112,18 +112,7 @@
 
 #msgIdentity,
 #msgSubject {
-  border-bottom-color: var(--composer-header-border-color) !important;
   color: var(--lwt-text-color);
-}
-
-#msgIdentity:hover,
-#msgIdentity:focus,
-#msgIdentity:focus-within,
-#msgSubject:hover,
-#msgSubject:focus {
-  background-color: var(--lwt-toolbar-field-background-color);
-  color: var(--lwt-toolbar-field-color);
-  border-color: var(--lwt-toolbar-field-border-color) !important;
 }
 
 #msgIdentity,
@@ -133,10 +122,13 @@
   color: var(--lwt-toolbar-field-color);
 }
 
+#msgIdentity:hover,
 #msgIdentity:focus,
-#msgSubject:focus,
-.address-container[focused="true"] {
-  border-color: Highlight !important;
+#msgIdentity:focus-within,
+#msgSubject:hover,
+#msgSubject:focus {
+  color: var(--lwt-toolbar-field-color);
+  border-color: var(--lwt-toolbar-field-border-color);
 }
 
 :root[lwt-popup-brighttext] panel[type="autocomplete-richlistbox"]:-moz-lwtheme {
