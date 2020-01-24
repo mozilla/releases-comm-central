@@ -4,14 +4,19 @@
 
 var EXPORTED_SYMBOLS = ["MatrixProtocol"];
 
-var { XPCOMUtils, nsSimpleEnumerator, l10nHelper } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+var {
+  XPCOMUtils,
+  EmptyEnumerator,
+  nsSimpleEnumerator,
+  l10nHelper,
+} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   GenericAccountPrototype,
   GenericConvChatPrototype,
   GenericConvChatBuddyPrototype,
   GenericProtocolPrototype,
+  TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
@@ -22,6 +27,18 @@ ChromeUtils.defineModuleGetter(
   this,
   "MatrixSDK",
   "resource:///modules/matrix-sdk.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "getHttpUriForMxc",
+  "resource:///modules/matrix-sdk.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "DownloadUtils",
+  "resource://gre/modules/DownloadUtils.jsm"
 );
 
 function MatrixParticipant(aRoomMember) {
@@ -318,6 +335,93 @@ MatrixAccount.prototype = {
   },
   createConversation(aName) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  },
+
+  requestBuddyInfo(aUserId) {
+    let user = this._client.getUser(aUserId);
+    if (!user) {
+      Services.obs.notifyObservers(
+        EmptyEnumerator,
+        "user-info-received",
+        aUserId
+      );
+      return;
+    }
+
+    // Convert timespan in milli-seconds into a human-readable form.
+    let getNormalizedTime = function(aTime) {
+      let valuesAndUnits = DownloadUtils.convertTimeUnits(aTime / 1000);
+      // If the time is exact to the first set of units, trim off
+      // the subsequent zeroes.
+      if (!valuesAndUnits[2]) {
+        valuesAndUnits.splice(2, 2);
+      }
+      return _("tooltip.timespan", valuesAndUnits.join(" "));
+    };
+
+    let tooltipInfo = [];
+
+    if (user.displayName) {
+      tooltipInfo.push(
+        new TooltipInfo(_("tooltip.displayName"), user.displayName)
+      );
+    }
+
+    // Add the user's current status.
+    const kSetIdleStatusAfterSeconds = 3600;
+    const kPresentToStatusEnum = {
+      online: Ci.imIStatusInfo.STATUS_AVAILABLE,
+      offline: Ci.imIStatusInfo.STATUS_AWAY,
+      unavailable: Ci.imIStatusInfo.STATUS_OFFLINE,
+    };
+    let status = kPresentToStatusEnum[user.presence];
+    // If the user hasn't been seen in a long time, consider them idle.
+    if (
+      !user.currentlyActive &&
+      user.lastActiveAgo > kSetIdleStatusAfterSeconds
+    ) {
+      status = Ci.imIStatusInfo.STATUS_IDLE;
+
+      tooltipInfo.push(
+        new TooltipInfo(
+          _("tooltip.lastActive"),
+          getNormalizedTime(user.lastActiveAgo)
+        )
+      );
+    }
+    tooltipInfo.push(
+      new TooltipInfo(
+        status,
+        user.presenceStatusMsg,
+        Ci.prplITooltipInfo.status
+      )
+    );
+
+    if (user.avatarUrl) {
+      // This matches the configuration of the .userIcon class in chat.css.
+      const width = 48;
+      const height = 48;
+
+      // Convert the MXC URL to an HTTP URL.
+      let realUrl = getHttpUriForMxc(
+        this._client.getHomeserverUrl(),
+        user.avatarUrl,
+        width,
+        height,
+        "scale",
+        false
+      );
+      // TODO Cache the photo URI for this participant.
+      tooltipInfo.push(
+        new TooltipInfo(null, realUrl, Ci.prplITooltipInfo.icon)
+      );
+    }
+
+    Services.obs.notifyObservers(
+      new nsSimpleEnumerator(tooltipInfo),
+      "user-info-received",
+      aUserId
+    );
   },
 
   get userId() {

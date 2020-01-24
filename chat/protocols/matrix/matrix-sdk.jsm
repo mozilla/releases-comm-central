@@ -17,7 +17,7 @@ const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/base-loader.js"
 );
 
-this.EXPORTED_SYMBOLS = ["MatrixSDK"];
+this.EXPORTED_SYMBOLS = ["MatrixSDK", "getHttpUriForMxc"];
 
 // Set-up loading so require works properly in CommonJS modules.
 //
@@ -136,5 +136,10 @@ let loader = Loader({
 
 let requirer = Module("matrix-module", "");
 let require = Require(loader, requirer);
+
+// The main entry point into the Matrix client.
 let MatrixSDK = require("matrix.js");
 MatrixSDK.request(require("browser-request"));
+
+// Helper functions.
+let getHttpUriForMxc = require("../content-repo").getHttpUriForMxc;
