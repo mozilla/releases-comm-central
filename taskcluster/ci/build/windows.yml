@@ -18,6 +18,7 @@ job-defaults:
             - win64-nasm
             - win64-node
             - win64-rust
+            - win64-rust-size
 
 win32/opt:
     description: "Win32 Opt"

@@ -33,6 +33,7 @@ linux64/opt:
             - linux64-nasm
             - linux64-node
             - linux64-rust
+            - linux64-rust-size
             - linux64-sccache
 
 linux64-shippable/opt:
@@ -74,6 +75,7 @@ linux64-shippable/opt:
             - linux64-nasm
             - linux64-node
             - linux64-rust
+            - linux64-rust-size
 
 linux64/debug:
     description: "Linux64 Debug"
@@ -108,6 +110,7 @@ linux64/debug:
             - linux64-nasm
             - linux64-node
             - linux64-rust
+            - linux64-rust-size
             - linux64-sccache
 
 linux/opt:
@@ -141,6 +144,7 @@ linux/opt:
             - linux64-nasm
             - linux64-node
             - linux64-rust
+            - linux64-rust-size
             - linux64-sccache
 
 linux-shippable/opt:
@@ -182,6 +186,7 @@ linux-shippable/opt:
             - linux64-nasm
             - linux64-node
             - linux64-rust
+            - linux64-rust-size
 
 linux/debug:
     description: "Linux32 Debug"
@@ -216,4 +221,5 @@ linux/debug:
             - linux64-nasm
             - linux64-node
             - linux64-rust
+            - linux64-rust-size
             - linux64-sccache

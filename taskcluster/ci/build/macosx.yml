@@ -42,6 +42,7 @@ macosx64/debug:
             - linux64-nasm
             - linux64-node
             - linux64-rust-macos
+            - linux64-rust-size
             - linux64-sccache
 
 macosx64/opt:
@@ -82,6 +83,7 @@ macosx64/opt:
             - linux64-nasm
             - linux64-node
             - linux64-rust-macos
+            - linux64-rust-size
             - linux64-sccache
 
 macosx64-shippable/opt:
@@ -130,3 +132,4 @@ macosx64-shippable/opt:
             - linux64-nasm
             - linux64-node
             - linux64-rust-macos
+            - linux64-rust-size
