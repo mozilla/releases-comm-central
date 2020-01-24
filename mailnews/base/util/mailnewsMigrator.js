@@ -57,30 +57,30 @@ function MigrateProfileClientid() {
     Ci.nsIUUIDGenerator
   );
   // Comma-separated list of all account ids.
-  let accounts = Services.prefs.getCharPref("mail.accountmanager.accounts");
+  let accounts = Services.prefs.getCharPref("mail.accountmanager.accounts", "");
   // Comma-separated list of all smtp servers.
-  let smtpServers = Services.prefs.getCharPref("mail.smtpservers");
+  let smtpServers = Services.prefs.getCharPref("mail.smtpservers", "");
   // If both accounts and smtpservers are empty then there is nothing to do.
   if (accounts.length == 0 && smtpServers.length == 0) {
     return;
   }
-  // A cache to allow CLIENTIDS to be stored and shared across services that
+  // A cache to allow CLIENTIDs to be stored and shared across services that
   // share a username and hostname.
   let clientidCache = new Map();
   // There may be accounts but no smtpservers so check the length before
   // trying to split the smtp servers and iterate in the loop below.
   if (smtpServers.length > 0) {
-    // Since the length of the smtpServers string is non-zero then we can split
-    // the string by comma and iterate each entry in the comma-separated list.
-    let smtpServerKeys = smtpServers.split(",");
     // Now walk all smtp servers and generate any missing CLIENTIDS, caching
     // all CLIENTIDS along the way to be reused for matching imap servers
     // if possible.
-    for (let smtpServerKey of smtpServerKeys) {
-      let server = "mail.smtpserver." + smtpServerKey + ".";
+
+    // Since the length of the smtpServers string is non-zero then we can split
+    // the string by comma and iterate each entry in the comma-separated list.
+    for (let key of smtpServers.split(",")) {
+      let server = "mail.smtpserver." + key + ".";
       if (
         !Services.prefs.prefHasUserValue(server + "clientid") ||
-        !Services.prefs.getCharPref(server + "clientid")
+        !Services.prefs.getCharPref(server + "clientid", "")
       ) {
         // Always give outgoing servers a new unique CLIENTID.
         let newClientid = uuidGen
@@ -89,9 +89,14 @@ function MigrateProfileClientid() {
           .replace(/[{}]/g, "");
         Services.prefs.setCharPref(server + "clientid", newClientid);
       }
+      let username = Services.prefs.getCharPref(server + "username", "");
+      if (!username) {
+        // Not all SMTP servers require a username.
+        continue;
+      }
+
       // Cache all CLIENTIDs from all outgoing servers to reuse them for any
       // incoming servers which have a matching username and hostname.
-      let username = Services.prefs.getCharPref(server + "username");
       let hostname = Services.prefs.getCharPref(server + "hostname");
       let combinedKey;
       try {
@@ -107,22 +112,23 @@ function MigrateProfileClientid() {
     }
   }
 
-  let accountKeys = accounts.split(",");
-
   // Now walk all imap accounts and generate any missing CLIENTIDS, reusing
   // cached CLIENTIDS if possible.
-  for (let accountKey of accountKeys) {
+  for (let key of accounts.split(",")) {
     let serverKey = Services.prefs.getCharPref(
-      "mail.account." + accountKey + ".server"
+      "mail.account." + key + ".server"
     );
     let server = "mail.server." + serverKey + ".";
     // Check if this server needs the CLIENTID preference to be populated.
     if (
       !Services.prefs.prefHasUserValue(server + "clientid") ||
-      !Services.prefs.getCharPref(server + "clientid")
+      !Services.prefs.getCharPref(server + "clientid", "")
     ) {
       // Grab username + hostname to check if a CLIENTID is cached.
-      let username = Services.prefs.getCharPref(server + "userName");
+      let username = Services.prefs.getCharPref(server + "userName", "");
+      if (!username) {
+        continue;
+      }
       let hostname = Services.prefs.getCharPref(server + "hostname");
       let combinedKey;
       try {

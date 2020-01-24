@@ -27,6 +27,7 @@ function run_test() {
   // migrator.
   Services.prefs.setCharPref("mail.account.account1.server", "server1");
   Services.prefs.setCharPref("mail.account.account2.server", "server2");
+  Services.prefs.setCharPref("mail.account.account3.server", "server3");
 
   // Server1 has nothing set.
 
@@ -35,10 +36,10 @@ function run_test() {
 
   Services.prefs.setCharPref(
     "mail.accountmanager.accounts",
-    "account1,account2"
+    "account1,account2,account3"
   );
 
-  // Set server1 and server2 username and hostname to test Clientid population.
+  // Set server1 and server2 username and hostname to test clientid population.
   Services.prefs.setCharPref("mail.server.server1.userName", "testuser1");
   Services.prefs.setCharPref("mail.server.server2.userName", "testuser2");
   Services.prefs.setCharPref(
@@ -89,9 +90,13 @@ function run_test() {
   // Now migrate the prefs.
   migrateMailnews();
 
-  // Check that server 1 and server 2 have the same clientid.
+  // Check that server1 and server2 have the same clientid.
   Assert.ok(Services.prefs.prefHasUserValue("mail.server.server1.clientid"));
   Assert.ok(Services.prefs.prefHasUserValue("mail.server.server2.clientid"));
+
+  // Check that server3 didn't get a clientid, since it has no userName.
+  // This is the case for nntp.
+  Assert.ok(!Services.prefs.prefHasUserValue("mail.server.server3.clientid"));
 
   // Check what has been set.
   Assert.ok(!Services.prefs.prefHasUserValue("mail.server.server1.authMethod"));
@@ -116,7 +121,7 @@ function run_test() {
   // Now check SMTP
   //
 
-  Services.prefs.setCharPref("mail.smtpservers", "smtp1,smtp2");
+  Services.prefs.setCharPref("mail.smtpservers", "smtp1,smtp2,smtp3");
 
   // smtp1 has nothing set.
 
@@ -133,6 +138,10 @@ function run_test() {
   Services.prefs.setCharPref(
     "mail.smtpserver.smtp2.hostname",
     "mail.sampledomain2.com"
+  );
+  Services.prefs.setCharPref(
+    "mail.smtpserver.smtp3.hostname",
+    "mail.nousername.example.com"
   );
 
   // Migration should now have added permissions for the address that had them
@@ -153,6 +162,10 @@ function run_test() {
   // Check that smtpserver 1 and smtpserver 2 now have a clientid.
   Assert.ok(Services.prefs.prefHasUserValue("mail.smtpserver.smtp1.clientid"));
   Assert.ok(Services.prefs.prefHasUserValue("mail.smtpserver.smtp2.clientid"));
+
+  // Check that the smtp3server 2 got a clientid, even if it has no
+  // username. All SMTP servers don't require a username.
+  Assert.ok(Services.prefs.prefHasUserValue("mail.smtpserver.smtp3.clientid"));
 
   Assert.ok(
     !Services.prefs.prefHasUserValue("mail.smtpserver.smtp1.authMethod")
