@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["ActivityProcess", "ActivityEvent", "ActivityWarning"];
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 // Base class for ActivityProcess and ActivityEvent objects
 

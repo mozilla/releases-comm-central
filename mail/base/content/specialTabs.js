@@ -16,7 +16,7 @@ var { AddonManager } = ChromeUtils.import(
   "resource://gre/modules/AddonManager.jsm"
 );
 var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.js"
+  "resource:///modules/StringBundle.jsm"
 );
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"

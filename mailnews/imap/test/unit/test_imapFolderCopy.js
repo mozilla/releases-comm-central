@@ -4,10 +4,10 @@
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
-load("../../../resources/messageGenerator.js");
+load("../../../resources/MessageGenerator.jsm");
 
 var gEmptyLocal1, gEmptyLocal2, gEmptyLocal3, gNotEmptyLocal4;
 

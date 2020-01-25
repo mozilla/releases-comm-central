@@ -5,7 +5,7 @@
  */
 
 /****
-   Private sub-module to gnupg.js for handling key lists from GnuPG
+   Private sub-module to GnuPGCryptoAPI.jsm for handling key lists from GnuPG
  ****/
 
 "use strict";
@@ -356,7 +356,7 @@ async function getPhotoFileFromGnuPG(keyId, photoNumber) {
  */
 
 function extractSignatures(gpgKeyList, ignoreUnknownUid) {
-  EnigmailLog.DEBUG("gnupg.js: extractSignatures\n");
+  EnigmailLog.DEBUG("GnuPGCryptoAPI.jsm: extractSignatures\n");
 
   var listObj = {};
 
@@ -425,7 +425,7 @@ function extractSignatures(gpgKeyList, ignoreUnknownUid) {
 
 
 async function getGpgKeyData(armorKeyString) {
-  EnigmailLog.DEBUG("gnupg.js: getGpgKeyData()\n");
+  EnigmailLog.DEBUG("GnuPGCryptoAPI.jsm: getGpgKeyData()\n");
 
   if (!EnigmailGpg.getGpgFeature("supports-show-only")) {
     throw "unsupported";

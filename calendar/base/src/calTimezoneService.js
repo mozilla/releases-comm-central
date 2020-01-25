@@ -9,7 +9,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { ICAL, unwrapSingle } = ChromeUtils.import("resource://calendar/modules/ical.js");
+var { ICAL, unwrapSingle } = ChromeUtils.import("resource://calendar/modules/Ical.jsm");
 
 function calStringEnumerator(stringArray) {
   this.mIndex = 0;

@@ -3,8 +3,8 @@
  * Test suite for local folder functions.
  */
 
-/* import-globals-from ../../../test/resources/messageGenerator.js */
-load("../../../resources/messageGenerator.js");
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
+load("../../../resources/MessageGenerator.jsm");
 
 var { toXPCOMArray } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"

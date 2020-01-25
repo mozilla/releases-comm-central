@@ -6,7 +6,7 @@
 /* globals AboutSupport, AboutSupportPlatform */
 
 var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/localAccountUtils.js"
+  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
 
 /*

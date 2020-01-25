@@ -6,7 +6,7 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/mailTestUtils.js"
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
 var CC = Components.Constructor;

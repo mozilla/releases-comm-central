@@ -1,6 +1,6 @@
 /* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /**
- * Tests the operation of the GlodaContent (in connotent.js) and its exposure
+ * Tests the operation of the GlodaContent (in GlodaContent.jsm) and its exposure
  * via Gloda.getMessageContent for local messages.
  */
 

@@ -5,7 +5,7 @@
 ChromeUtils.defineModuleGetter(
   this,
   "Gloda",
-  "resource:///modules/gloda/public.js"
+  "resource:///modules/gloda/GlodaPublic.jsm"
 );
 ChromeUtils.defineModuleGetter(
   this,
@@ -20,7 +20,7 @@ ChromeUtils.defineModuleGetter(
 ChromeUtils.defineModuleGetter(
   this,
   "MsgHdrToMimeMessage",
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 ChromeUtils.defineModuleGetter(
   this,

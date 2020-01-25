@@ -14,7 +14,7 @@ var { MailServices } = ChromeUtils.import(
 /* import-globals-from ../../../test/resources/passwordStorage.js */
 load("../../../resources/passwordStorage.js");
 
-// The basic daemon to use for testing nntpd.js implementations
+// The basic daemon to use for testing Nntpd.jsm implementations
 var daemon = setupNNTPDaemon();
 
 add_task(async function() {

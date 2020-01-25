@@ -5,7 +5,7 @@
 /* import-globals-from calICALJSComponents.js */
 
 var { ICAL, unwrapSetter, unwrapSingle, wrapGetter } = ChromeUtils.import(
-  "resource://calendar/modules/ical.js"
+  "resource://calendar/modules/Ical.jsm"
 );
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
 

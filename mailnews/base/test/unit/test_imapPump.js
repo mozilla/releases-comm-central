@@ -17,15 +17,15 @@ const { PromiseTestUtils } = ChromeUtils.import(
 
 // IMAP pump
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
-  "resource://testing-common/mailnews/IMAPpump.js"
+  "resource://testing-common/mailnews/IMAPpump.jsm"
 );
 var { imapMessage } = ChromeUtils.import(
-  "resource://testing-common/mailnews/imapd.js"
+  "resource://testing-common/mailnews/Imapd.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { fsDebugAll } = ChromeUtils.import(
-  "resource://testing-common/mailnews/maild.js"
+  "resource://testing-common/mailnews/Maild.jsm"
 );
 
 // Globals

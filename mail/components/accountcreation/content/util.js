@@ -8,7 +8,7 @@
 
 /* import-globals-from emailWizard.js */
 
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // --------------------------
@@ -664,7 +664,7 @@ function deepCopy(org) {
 }
 
 if (typeof gEmailWizardLogger == "undefined") {
-  var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+  var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
   gEmailWizardLogger.level = Log4Moz.Level.Info;
   gEmailWizardLogger.addAppender(

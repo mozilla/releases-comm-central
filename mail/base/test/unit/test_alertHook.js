@@ -12,7 +12,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MockFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MockFactory.js"
+  "resource://testing-common/mailnews/MockFactory.jsm"
 );
 alertHook.init();
 

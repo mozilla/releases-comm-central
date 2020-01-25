@@ -6,7 +6,7 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/localAccountUtils.js"
+  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
 
 var test = null;
@@ -24,7 +24,7 @@ var gDEPTH = "../../../../";
 
 // Import the servers
 var { fsDebugAll, gThreadManager, nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/maild.js"
+  "resource://testing-common/mailnews/Maild.jsm"
 );
 var {
   newsArticle,
@@ -33,7 +33,7 @@ var {
   NNTP_RFC4643_extension,
   NNTP_RFC977_handler,
   nntpDaemon,
-} = ChromeUtils.import("resource://testing-common/mailnews/nntpd.js");
+} = ChromeUtils.import("resource://testing-common/mailnews/Nntpd.jsm");
 
 var kSimpleNewsArticle =
   "From: John Doe <john.doe@example.com>\n" +

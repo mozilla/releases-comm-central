@@ -12,7 +12,7 @@ ChromeUtils.defineModuleGetter(
   "AddonManager",
   "resource://gre/modules/AddonManager.jsm"
 );
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 /**
  * Tries to get a configuration from an MS Exchange server

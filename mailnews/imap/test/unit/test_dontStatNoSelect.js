@@ -6,8 +6,8 @@ var gIMAPInbox;
 var gFolder2Mailbox;
 var gFolder1, gFolder2;
 
-/* import-globals-from ../../../test/resources/messageGenerator.js */
-load("../../../resources/messageGenerator.js");
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
+load("../../../resources/MessageGenerator.jsm");
 // async support
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */

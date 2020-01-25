@@ -14,7 +14,7 @@ load("../../../resources/asyncTestUtils.js");
 
 // javascript mime emitter functions
 var mimeMsg = {};
-ChromeUtils.import("resource:///modules/gloda/mimemsg.js", mimeMsg);
+ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm", mimeMsg);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

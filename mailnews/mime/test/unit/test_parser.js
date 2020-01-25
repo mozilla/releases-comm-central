@@ -8,7 +8,7 @@
 // HeaderParser methods are run correctly.
 
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 // Utility method to compare objects
 function compare_objects(real, expected) {

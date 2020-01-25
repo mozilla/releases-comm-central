@@ -8,7 +8,7 @@
  */
 
 var { migrateMailnews } = ChromeUtils.import(
-  "resource:///modules/mailnewsMigrator.js"
+  "resource:///modules/MailnewsMigrator.jsm"
 );
 
 /* import-globals-from ../../../test/resources/abSetup.js */

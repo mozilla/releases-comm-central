@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.js"
+  "resource:///modules/StringBundle.jsm"
 );
 
-var { FacetDriver } = ChromeUtils.import("resource:///modules/gloda/facet.js");
+var { FacetDriver } = ChromeUtils.import("resource:///modules/gloda/Facet.jsm");
 
 var glodaFacetTabType = {
   name: "glodaFacet",

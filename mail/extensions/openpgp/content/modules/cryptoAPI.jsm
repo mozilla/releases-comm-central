@@ -19,12 +19,12 @@ function EnigmailCryptoAPI() {
     if (gOpenPGPEngine == 1) {
       const {
         getRNPAPI
-      } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/rnp-cryptoAPI.js");
+      } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/RNPCryptoAPI.jsm");
       gCurrentApi = getRNPAPI();
     } else if (gOpenPGPEngine == 2) {
       const {
         getGnuPGAPI
-      } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/gnupg.js");
+      } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/GnuPGCryptoAPI.jsm");
       gCurrentApi = getGnuPGAPI();
     }
   }

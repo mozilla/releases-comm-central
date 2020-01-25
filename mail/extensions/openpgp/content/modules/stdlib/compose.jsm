@@ -26,7 +26,7 @@ const {
   MimeMessage, MimeContainer,
   MimeBody, MimeUnknown,
   MimeMessageAttachment
-} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
+} = ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm");
 
 
 var MailServices;

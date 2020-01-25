@@ -4,7 +4,7 @@
 
 /* import-globals-from calICALJSComponents.js */
 
-var { ICAL, unwrapSetter, wrapGetter } = ChromeUtils.import("resource://calendar/modules/ical.js");
+var { ICAL, unwrapSetter, wrapGetter } = ChromeUtils.import("resource://calendar/modules/Ical.jsm");
 
 function calPeriod(innerObject) {
   this.innerObject = innerObject || new ICAL.Period({});

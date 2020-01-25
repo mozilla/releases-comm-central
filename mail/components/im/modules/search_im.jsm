@@ -5,7 +5,9 @@
 this.EXPORTED_SYMBOLS = ["GlodaIMSearcher"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+const { Gloda } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaPublic.jsm"
+);
 
 /**
  * How much time boost should a 'score point' amount to?  The authoritative,

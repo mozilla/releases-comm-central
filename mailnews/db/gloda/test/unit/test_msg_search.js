@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Test msg_search.js our heuristic-based fulltext search mechanism.  Things we
+ * Test GlodaMsgSearcher.jsm our heuristic-based fulltext search mechanism.  Things we
  *  generally want to verify:
  * - fulltext weighting by where the match happened works.
  * - static interestingness impacts things appropriately.
@@ -42,7 +42,7 @@ function unique_string() {
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { GlodaMsgSearcher } = ChromeUtils.import(
-  "resource:///modules/gloda/msg_search.js"
+  "resource:///modules/gloda/GlodaMsgSearcher.jsm"
 );
 
 /**

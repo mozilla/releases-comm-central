@@ -64,7 +64,7 @@ function addIdentity(account, email = "xpcshell@localhost") {
 
 function createMessages(folder, count) {
   const { MessageGenerator } = ChromeUtils.import(
-    "resource://testing-common/mailnews/messageGenerator.js"
+    "resource://testing-common/mailnews/MessageGenerator.jsm"
   );
   let messages = new MessageGenerator().makeMessages({
     count,

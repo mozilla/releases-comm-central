@@ -15,11 +15,11 @@ Services.prefs.setCharPref(
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
-load("../../../resources/messageGenerator.js");
+load("../../../resources/MessageGenerator.jsm");
 load("../../../resources/alertTestUtils.js");
 
 var log = Log.repository.getLogger("MailStoreConverter");

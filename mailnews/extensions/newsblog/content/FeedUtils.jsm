@@ -6,7 +6,7 @@
 this.EXPORTED_SYMBOLS = ["Feed", "FeedItem", "FeedParser", "FeedUtils"];
 
 /* eslint-disable-next-line no-unused-vars */
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

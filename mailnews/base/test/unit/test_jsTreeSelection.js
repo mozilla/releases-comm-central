@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { JSTreeSelection } = ChromeUtils.import(
-  "resource:///modules/jsTreeSelection.js"
+  "resource:///modules/JsTreeSelection.jsm"
 );
 
 var fakeView = {

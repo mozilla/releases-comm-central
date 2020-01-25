@@ -12,10 +12,10 @@
     "resource://gre/modules/Services.jsm"
   );
   const { Log4Moz } = ChromeUtils.import(
-    "resource:///modules/gloda/log4moz.js"
+    "resource:///modules/gloda/Log4moz.jsm"
   );
   const { makeFriendlyDateAgo } = ChromeUtils.import(
-    "resource:///modules/templateUtils.js"
+    "resource:///modules/TemplateUtils.jsm"
   );
   /**
    * The MozActivityBaseRichlistItem widget is the base class for all the

@@ -9,7 +9,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+  const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
   /**
    * Calendar observer for calendar view elements. Used in CalendarBaseView class.

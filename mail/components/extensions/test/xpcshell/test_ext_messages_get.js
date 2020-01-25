@@ -9,15 +9,15 @@ var { ExtensionTestUtils } = ChromeUtils.import(
 );
 ExtensionTestUtils.init(this);
 
-var imapd = ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
+var imapd = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
 var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/mailTestUtils.js"
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 var { MessageGenerator } = ChromeUtils.import(
-  "resource://testing-common/mailnews/messageGenerator.js"
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/maild.js"
+  "resource://testing-common/mailnews/Maild.jsm"
 );
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"

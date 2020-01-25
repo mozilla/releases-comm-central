@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Tests the operation of the GlodaContent (in connotent.js) and its exposure
+ * Tests the operation of the GlodaContent (in GlodaContent.jsm) and its exposure
  * via Gloda.getMessageContent.  This may also be implicitly tested by indexing
  * and fulltext query tests (on messages), but the buck stops here for the
  * content stuff.
@@ -18,13 +18,13 @@
 load("resources/glodaTestHelper.js");
 
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 
 // we need to be able to get at GlodaFundAttr to check the number of whittler
 //   invocations
 var { GlodaFundAttr } = ChromeUtils.import(
-  "resource:///modules/gloda/fundattr.js"
+  "resource:///modules/gloda/GlodaFundAttr.jsm"
 );
 
 /* ===== Data ===== */

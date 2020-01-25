@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Test that imapd.js fakeserver correctly emulates GMail server
+// Test that Imapd.jsm fakeserver correctly emulates GMail server
 // That means X-GM-EXT-1 capability and GMail flavor XLIST
 // per https://developers.google.com/google-apps/gmail/imap_extensions
 
@@ -16,7 +16,7 @@ load("../../../resources/alertTestUtils.js");
 
 // IMAP pump
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
-  "resource://testing-common/mailnews/IMAPpump.js"
+  "resource://testing-common/mailnews/IMAPpump.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

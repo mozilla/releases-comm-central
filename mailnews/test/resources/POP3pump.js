@@ -29,22 +29,22 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/localAccountUtils.js"
+  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
 
 // Import the pop3 server scripts
 var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/maild.js"
+  "resource://testing-common/mailnews/Maild.jsm"
 );
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/auth.js"
+  "resource://testing-common/mailnews/Auth.jsm"
 );
 var {
   pop3Daemon,
   POP3_RFC1939_handler,
   POP3_RFC2449_handler,
   POP3_RFC5034_handler,
-} = ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
+} = ChromeUtils.import("resource://testing-common/mailnews/Pop3d.jsm");
 var { Promise } = ChromeUtils.import("resource://gre/modules/Promise.jsm");
 
 function POP3Pump() {

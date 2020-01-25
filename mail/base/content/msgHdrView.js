@@ -27,7 +27,9 @@ var { DisplayNameUtils } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/utils.js");
+var { GlodaUtils } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaUtils.jsm"
+);
 var { Status: statusUtils } = ChromeUtils.import(
   "resource:///modules/imStatusUtils.jsm"
 );

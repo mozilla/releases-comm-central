@@ -5,7 +5,7 @@
  */
 
 /****
-   Private sub-module to gnupg.js for handling key import/export
+   Private sub-module to GnuPGCryptoAPI.jsm for handling key import/export
  ****/
 
 "use strict";

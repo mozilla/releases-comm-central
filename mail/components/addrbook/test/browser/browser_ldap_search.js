@@ -6,7 +6,7 @@ const { LDAPServer } = ChromeUtils.import(
   "resource://testing-common/LDAPServer.jsm"
 );
 const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/mailTestUtils.js"
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
 const jsonFile =

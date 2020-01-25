@@ -2,15 +2,15 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/mailTestUtils.js"
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/localAccountUtils.js"
+  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
 
 var CC = Components.Constructor;
@@ -39,12 +39,12 @@ var {
   fsDebugAll,
   fsDebugRecv,
   fsDebugRecvSend,
-} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+} = ChromeUtils.import("resource://testing-common/mailnews/Maild.jsm");
 var { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
-  "resource://testing-common/mailnews/smtpd.js"
+  "resource://testing-common/mailnews/Smtpd.jsm"
 );
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/auth.js"
+  "resource://testing-common/mailnews/Auth.jsm"
 );
 
 var gDraftFolder;

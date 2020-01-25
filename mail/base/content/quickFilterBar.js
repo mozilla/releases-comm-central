@@ -6,7 +6,7 @@
 /* import-globals-from mailWindow.js */
 
 var { logException, errorWithDebug } = ChromeUtils.import(
-  "resource:///modules/errUtils.js"
+  "resource:///modules/ErrUtils.jsm"
 );
 var {
   MessageTextFilter,

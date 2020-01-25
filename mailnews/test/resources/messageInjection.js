@@ -25,7 +25,7 @@ var { toXPCOMArray } = ChromeUtils.import(
 
 var imapMessage;
 try {
-  var temp = ChromeUtils.import("resource://testing-common/mailnews/imapd.js");
+  var temp = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
   imapMessage = temp.imapMessage;
 } catch (e) {
   // mozmill tests include this file, but they don't have testing-only modules
@@ -138,7 +138,7 @@ function configure_message_injection(aInjectionConfig) {
 
     // Pull in the IMAP fake server code
     let { IMAPPump, setupIMAPPump } = ChromeUtils.import(
-      "resource://testing-common/mailnews/IMAPpump.js"
+      "resource://testing-common/mailnews/IMAPpump.jsm"
     );
 
     // set up IMAP fakeserver and incoming server
@@ -498,7 +498,7 @@ function make_virtual_folder(aFolders, aSearchDef, aBooleanAnd, aName) {
   }
 
   let { VirtualFolderHelper } = ChromeUtils.import(
-    "resource:///modules/virtualFolderWrapper.js"
+    "resource:///modules/VirtualFolderWrapper.jsm"
   );
   let wrapped = VirtualFolderHelper.createNewVirtualFolder(
     name,

@@ -5,7 +5,7 @@
 let gAccount, gFolders;
 
 const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/mailTestUtils.js"
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
 const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);

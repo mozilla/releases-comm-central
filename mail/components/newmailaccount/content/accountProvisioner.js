@@ -13,12 +13,12 @@ var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
 var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.js"
+  "resource:///modules/StringBundle.jsm"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 // Get a configured logger for this component.
 // To debug, set mail.provider.logging.dump (or .console)="All"

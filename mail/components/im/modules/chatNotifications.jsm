@@ -6,7 +6,7 @@ this.EXPORTED_SYMBOLS = ["Notifications"];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.js"
+  "resource:///modules/StringBundle.jsm"
 );
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"

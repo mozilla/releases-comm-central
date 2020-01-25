@@ -17,13 +17,13 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // Platform-specific includes
 var AboutSupportPlatform;
 if ("@mozilla.org/windows-registry-key;1" in Cc) {
-  let temp = ChromeUtils.import("resource:///modules/aboutSupportWin32.js");
+  let temp = ChromeUtils.import("resource:///modules/AboutSupportWin32.jsm");
   AboutSupportPlatform = temp.AboutSupportPlatform;
 } else if ("nsILocalFileMac" in Ci) {
-  let temp = ChromeUtils.import("resource:///modules/aboutSupportMac.js");
+  let temp = ChromeUtils.import("resource:///modules/AboutSupportMac.jsm");
   AboutSupportPlatform = temp.AboutSupportPlatform;
 } else {
-  let temp = ChromeUtils.import("resource:///modules/aboutSupportUnix.js");
+  let temp = ChromeUtils.import("resource:///modules/AboutSupportUnix.jsm");
   AboutSupportPlatform = temp.AboutSupportPlatform;
 }
 

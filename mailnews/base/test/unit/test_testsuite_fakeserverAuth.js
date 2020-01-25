@@ -1,5 +1,5 @@
 /**
- * Tests functions in mailnews/test/fakeserver/auth.js
+ * Tests functions in mailnews/test/fakeserver/Auth.jsm
  * which are responsible for the authentication in the
  * fakeserver.
  *
@@ -8,7 +8,7 @@
  */
 
 var { AuthPLAIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/auth.js"
+  "resource://testing-common/mailnews/Auth.jsm"
 );
 
 var kUsername = "fred1";

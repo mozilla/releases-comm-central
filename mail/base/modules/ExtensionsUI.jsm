@@ -24,7 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   PluralForm: "resource://gre/modules/PluralForm.jsm",
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
-  StringBundle: "resource:///modules/StringBundle.js",
+  StringBundle: "resource:///modules/StringBundle.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "addonsBundle", function() {

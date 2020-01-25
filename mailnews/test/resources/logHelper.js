@@ -12,9 +12,9 @@
  *  or not.
  */
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["Element", "Node"]);
 

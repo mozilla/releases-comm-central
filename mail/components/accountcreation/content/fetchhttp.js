@@ -17,8 +17,8 @@
 
 /* import-globals-from emailWizard.js */
 
-var { JXON } = ChromeUtils.import("resource:///modules/JXON.js");
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
+var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 /**
  * Set up a fetch.

@@ -37,7 +37,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 var statusHeader = "X-Mozilla-Status: ";
 

@@ -4,10 +4,10 @@
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
-load("../../../resources/messageGenerator.js");
+load("../../../resources/MessageGenerator.jsm");
 
 // The following folder names are not pure ASCII and will be MUTF-7 encoded.
 const folderName1 = "I18N box\u00E1"; // I18N boxá

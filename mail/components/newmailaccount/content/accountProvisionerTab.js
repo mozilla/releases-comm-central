@@ -8,7 +8,7 @@
 /* globals specialTabs */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 /**
  * A content tab for the account provisioner.  We use Javascript-y magic to

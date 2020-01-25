@@ -42,8 +42,8 @@ const {
   MimeMessage, MimeContainer,
   MimeBody, MimeUnknown,
   MimeMessageAttachment
-} = ChromeUtils.import("resource:///modules/gloda/mimemsg.js");
-const GlodaUtils = ChromeUtils.import("resource:///modules/gloda/utils.js").GlodaUtils;
+} = ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm");
+const GlodaUtils = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm").GlodaUtils;
 const {
   fixIterator, toXPCOMArray, toArray
 } =ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
@@ -346,7 +346,7 @@ function msgHdrIsJunk(aMsgHdr) {
 }
 
 /**
- * Recycling the HeaderHandlerBase from mimemsg.js
+ * Recycling the HeaderHandlerBase from MimeMessage.jsm
  */
 function HeaderHandler(aHeaders) {
   this.headers = aHeaders;
@@ -395,7 +395,7 @@ function createStreamListener(k) {
 
 /**
  * @param aMsgHdr The message header whose headers you want
- * @param k A function that takes a HeaderHandler object (see mimemsg.js).
+ * @param k A function that takes a HeaderHandler object (see MimeMessage.jsm).
  *  Such an object has a get function, a has function. It has a header property,
  *  whose keys are lowercased header names, and whose values are list of
  *  strings corresponding to the multiple entries found for that header.

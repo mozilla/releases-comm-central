@@ -10,7 +10,7 @@ var { DBViewWrapper } = ChromeUtils.import(
   "resource:///modules/DBViewWrapper.jsm"
 );
 var { JSTreeSelection } = ChromeUtils.import(
-  "resource:///modules/jsTreeSelection.js"
+  "resource:///modules/JsTreeSelection.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");

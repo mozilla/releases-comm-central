@@ -20,7 +20,7 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 var MailMigrator = {
   /**

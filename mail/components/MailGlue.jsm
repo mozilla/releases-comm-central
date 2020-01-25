@@ -246,7 +246,7 @@ MailGlue.prototype = {
       Cc[WINTASKBAR_CONTRACTID].getService(Ci.nsIWinTaskbar).available
     ) {
       const { WinTaskbarJumpList } = ChromeUtils.import(
-        "resource:///modules/windowsJumpLists.js"
+        "resource:///modules/WindowsJumpLists.jsm"
       );
       WinTaskbarJumpList.startup();
     }

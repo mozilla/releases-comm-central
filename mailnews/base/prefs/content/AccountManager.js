@@ -33,7 +33,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { BrowserUtils } = ChromeUtils.import(
   "resource://gre/modules/BrowserUtils.jsm"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );

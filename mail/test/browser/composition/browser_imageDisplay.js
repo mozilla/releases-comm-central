@@ -32,7 +32,7 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 var gImageFolder;
 

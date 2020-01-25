@@ -5,12 +5,12 @@
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/gloda.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var { mimeMsgToContentSnippetAndMeta } = ChromeUtils.import(
-  "resource:///modules/gloda/connotent.js"
+  "resource:///modules/gloda/GlodaContent.jsm"
 );
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 var { DisplayNameUtils } = ChromeUtils.import(
   "resource:///modules/DisplayNameUtils.jsm"
@@ -21,7 +21,7 @@ var { MailServices } = ChromeUtils.import(
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 var { PluralStringFormatter, makeFriendlyDateAgo } = ChromeUtils.import(
-  "resource:///modules/templateUtils.js"
+  "resource:///modules/TemplateUtils.jsm"
 );
 
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);

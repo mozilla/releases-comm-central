@@ -8,7 +8,7 @@ var { MailServices } = ChromeUtils.import(
 );
 var { ctypes } = ChromeUtils.import("resource:///modules/ctypes.jsm");
 var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/localAccountUtils.js"
+  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
 
 // Ensure the profile directory is set up.
@@ -16,10 +16,10 @@ do_get_profile();
 
 // Import fakeserver
 var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/maild.js"
+  "resource://testing-common/mailnews/Maild.jsm"
 );
 var { smtpDaemon, SMTP_RFC2821_handler } = ChromeUtils.import(
-  "resource://testing-common/mailnews/smtpd.js"
+  "resource://testing-common/mailnews/Smtpd.jsm"
 );
 
 var SMTP_PORT = 1024 + 120;

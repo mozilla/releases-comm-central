@@ -18,7 +18,7 @@
 
 var EXPORTED_SYMBOLS = ["SearchIntegration"];
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );

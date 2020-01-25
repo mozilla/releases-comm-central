@@ -9,7 +9,7 @@
 var EXPORTED_SYMBOLS = ["SmimeUtils"];
 
 var { MockFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MockFactory.js"
+  "resource://testing-common/mailnews/MockFactory.jsm"
 );
 
 const gCertDialogs = {

@@ -31,7 +31,7 @@ var { MailServices } = ChromeUtils.import(
 /* import-globals-from ../../../../../test/resources/abSetup.js */
 /* import-globals-from ../../../../../test/resources/logHelper.js */
 /* import-globals-from ../../../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../../../test/resources/MessageGenerator.jsm */
 /* import-globals-from ../../../../../test/resources/messageModifier.js */
 /* import-globals-from ../../../../../test/resources/messageInjection.js */
 /* import-globals-from ../../../../../test/resources/folderEventLogHelper.js */
@@ -39,7 +39,7 @@ load("../../../../resources/abSetup.js");
 load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
 
-load("../../../../resources/messageGenerator.js");
+load("../../../../resources/MessageGenerator.jsm");
 load("../../../../resources/messageModifier.js");
 load("../../../../resources/messageInjection.js");
 
@@ -53,7 +53,7 @@ var msgGen = (gMessageGenerator = new MessageGenerator());
 // Create a message scenario generator using that message generator
 var scenarios = new MessageScenarioFactory(msgGen);
 
-var { logObject } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logObject } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 /**
  * Create a 'me' identity of "me@localhost" for the benefit of Gloda.  At the
@@ -99,29 +99,29 @@ for (let { envVar, prefName } of ENVIRON_MAPPINGS) {
 
 /* exported IndexingJob, GlodaFolder, TagNoun */
 // -- Import our modules
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaIndexer, IndexingJob } = ChromeUtils.import(
-  "resource:///modules/gloda/indexer.js"
+  "resource:///modules/gloda/GlodaIndexer.jsm"
 );
 var { GlodaMsgIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/index_msg.js"
+  "resource:///modules/gloda/IndexMsg.jsm"
 );
 var { GlodaDatastore } = ChromeUtils.import(
-  "resource:///modules/gloda/datastore.js"
+  "resource:///modules/gloda/GlodaDatastore.jsm"
 );
 var { GlodaCollectionManager } = ChromeUtils.import(
-  "resource:///modules/gloda/collection.js"
+  "resource:///modules/gloda/Collection.jsm"
 );
 var { GlodaFolder, GlodaMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/datamodel.js"
+  "resource:///modules/gloda/GlodaDataModel.jsm"
 );
-var { TagNoun } = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
+var { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 
 // -- Add a logger listener that throws when we give it a warning/error.
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var throwingAppender = new Log4Moz.ThrowingAppender(do_throw);
 throwingAppender.level = Log4Moz.Level.Warn;
 Log4Moz.repository.rootLogger.addAppender(throwingAppender);
@@ -1287,7 +1287,7 @@ function sqlRun(sql) {
  * Resume execution when the db has run all the async statements whose execution
  *  was queued prior to this call.  We trigger a commit to accomplish this,
  *  although this could also be accomplished without a commit.  (Though we would
- *  have to reach into datastore.js and get at the raw connection or extend
+ *  have to reach into GlodaDatastore.jsm and get at the raw connection or extend
  *  datastore to provide a way to accomplish this.)
  */
 function wait_for_gloda_db_flush() {

@@ -14,7 +14,7 @@ const EXPORTED_SYMBOLS = ["PeriodicFilterManager"];
 const { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

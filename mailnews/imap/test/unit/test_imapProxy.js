@@ -8,8 +8,8 @@ var { NetworkTestUtils } = ChromeUtils.import(
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
-/* import-globals-from ../../../test/resources/messageGenerator.js */
-load("../../../resources/messageGenerator.js");
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
+load("../../../resources/MessageGenerator.jsm");
 
 var server, daemon, incomingServer;
 

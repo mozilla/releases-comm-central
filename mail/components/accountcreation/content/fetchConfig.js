@@ -9,7 +9,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { JXON } = ChromeUtils.import("resource:///modules/JXON.js");
+var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
 var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 
 /**

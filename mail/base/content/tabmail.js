@@ -15,7 +15,7 @@
     "resource://gre/modules/Services.jsm"
   );
   const { GlodaMsgSearcher } = ChromeUtils.import(
-    "resource:///modules/gloda/msg_search.js"
+    "resource:///modules/gloda/GlodaMsgSearcher.jsm"
   );
 
   /**

@@ -24,7 +24,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
     "resource://gre/modules/AppConstants.jsm"
   );
   const { GlodaMsgSearcher } = ChromeUtils.import(
-    "resource:///modules/gloda/msg_search.js"
+    "resource:///modules/gloda/GlodaMsgSearcher.jsm"
   );
   const { GlodaIMSearcher } = ChromeUtils.import(
     "resource:///modules/search_im.jsm"

@@ -15,6 +15,10 @@ load("../../../resources/asyncTestUtils.js");
 
 // IMAP pump
 
+var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
+  "resource://testing-common/mailnews/IMAPpump.jsm"
+);
+
 setupIMAPPump();
 
 // Definition of tests

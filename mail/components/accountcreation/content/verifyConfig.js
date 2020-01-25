@@ -11,10 +11,10 @@ var { MailServices } = ChromeUtils.import(
 var { OAuth2Providers } = ChromeUtils.import(
   "resource:///modules/OAuth2Providers.jsm"
 );
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 if (typeof gEmailWizardLogger == "undefined") {
-  var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+  var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
   var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
 }
 

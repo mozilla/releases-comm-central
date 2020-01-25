@@ -44,19 +44,19 @@ DIRS += [
 ]
 
 TEST_HARNESS_FILES.testing.mochitest.fakeserver += [
-    '../../../mailnews/test/fakeserver/auth.js',
-    '../../../mailnews/test/fakeserver/imapd.js',
-    '../../../mailnews/test/fakeserver/maild.js',
-    '../../../mailnews/test/fakeserver/nntpd.js',
-    '../../../mailnews/test/fakeserver/pop3d.js',
-    '../../../mailnews/test/fakeserver/smtpd.js',
+    '../../../mailnews/test/fakeserver/Auth.jsm',
+    '../../../mailnews/test/fakeserver/Imapd.jsm',
+    '../../../mailnews/test/fakeserver/Maild.jsm',
+    '../../../mailnews/test/fakeserver/Nntpd.jsm',
+    '../../../mailnews/test/fakeserver/Pop3d.jsm',
+    '../../../mailnews/test/fakeserver/Smtpd.jsm',
 ]
 
 TEST_HARNESS_FILES.testing.mochitest.resources += [
     '../../../mailnews/test/resources/asyncTestUtils.js',
     '../../../mailnews/test/resources/folderEventLogHelper.js',
     '../../../mailnews/test/resources/logHelper.js',
-    '../../../mailnews/test/resources/messageGenerator.js',
+    '../../../mailnews/test/resources/MessageGenerator.jsm',
     '../../../mailnews/test/resources/messageInjection.js',
     '../../../mailnews/test/resources/messageModifier.js',
     '../../../mailnews/test/resources/smimeUtils.jsm',

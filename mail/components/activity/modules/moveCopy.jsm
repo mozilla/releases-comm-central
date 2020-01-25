@@ -18,7 +18,7 @@ const { MailServices } = ChromeUtils.import(
 const { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 // This module provides a link between the move/copy code and the activity
 // manager.

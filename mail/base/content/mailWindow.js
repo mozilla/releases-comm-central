@@ -21,15 +21,15 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { appIdleManager } = ChromeUtils.import(
-  "resource:///modules/appIdleManager.js"
+  "resource:///modules/AppIdleManager.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 
 // This file stores variables common to mail windows
 var messenger;

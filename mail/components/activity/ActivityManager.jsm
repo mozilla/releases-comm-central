@@ -5,7 +5,7 @@
 
 var EXPORTED_SYMBOLS = ["ActivityManager"];
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 function ActivityManager() {}
 

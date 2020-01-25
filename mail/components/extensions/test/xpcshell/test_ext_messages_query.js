@@ -9,9 +9,9 @@ var { ExtensionTestUtils } = ChromeUtils.import(
 );
 ExtensionTestUtils.init(this);
 
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/indexer.js"
+  "resource:///modules/gloda/GlodaIndexer.jsm"
 );
 
 // Create some folders and populate them.

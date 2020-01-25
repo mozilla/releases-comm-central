@@ -13,14 +13,14 @@
 var { MsgHdrSyntheticView } = ChromeUtils.import(
   "resource:///modules/MsgHdrSyntheticView.jsm"
 );
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { getSpecialFolderString } = ChromeUtils.import(
   "resource:///modules/folderUtils.jsm"
 );
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 
 /**

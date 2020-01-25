@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
-var { ICAL } = ChromeUtils.import("resource://calendar/modules/ical.js");
+var { ICAL } = ChromeUtils.import("resource://calendar/modules/Ical.jsm");
 
 function calICALJSTimezone(innerObject) {
   this.innerObject = innerObject || new ICAL.Timezone();

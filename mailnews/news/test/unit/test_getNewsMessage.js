@@ -10,7 +10,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-// The basic daemon to use for testing nntpd.js implementations
+// The basic daemon to use for testing Nntpd.jsm implementations
 var daemon = setupNNTPDaemon();
 
 var server;

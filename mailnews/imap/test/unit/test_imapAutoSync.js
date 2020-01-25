@@ -25,9 +25,9 @@ load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
 
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
-/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 load("../../../resources/alertTestUtils.js");
-load("../../../resources/messageGenerator.js");
+load("../../../resources/MessageGenerator.jsm");
 
 // Globals
 var { MailServices } = ChromeUtils.import(

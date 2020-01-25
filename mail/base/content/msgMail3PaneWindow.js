@@ -5,7 +5,7 @@
 
 /* import-globals-from ../../../../toolkit/modules/PageMenu.jsm */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
-/* import-globals-from ../../../mailnews/base/util/mailnewsMigrator.js */
+/* import-globals-from ../../../mailnews/base/util/MailnewsMigrator.jsm */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
 /* import-globals-from messenger-customization.js */
@@ -23,23 +23,23 @@
 /* globals PanelUI */
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
+var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 var { JSTreeSelection } = ChromeUtils.import(
-  "resource:///modules/jsTreeSelection.js"
+  "resource:///modules/JsTreeSelection.jsm"
 );
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailInstrumentation } = ChromeUtils.import(
   "resource:///modules/MailInstrumentation.jsm"
 );
 var { migrateMailnews } = ChromeUtils.import(
-  "resource:///modules/mailnewsMigrator.js"
+  "resource:///modules/MailnewsMigrator.jsm"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { msgDBCacheManager } = ChromeUtils.import(
-  "resource:///modules/msgDBCacheManager.js"
+  "resource:///modules/MsgDBCacheManager.jsm"
 );
 var { SessionStoreManager } = ChromeUtils.import(
   "resource:///modules/SessionStoreManager.jsm"

@@ -38,7 +38,7 @@ XPIDL_MODULE = 'mailcompsbase'
 
 EXTRA_JS_MODULES += [
     'AboutRedirector.jsm',
-    'appIdleManager.js',
+    'AppIdleManager.jsm',
     'MailGlue.jsm',
     'MessengerContentHandler.jsm',
 ]

@@ -8,13 +8,13 @@
  *  the the view and controller.
  *
  * Because much of the work related to faceting is not UI-specific, we try and
- *  push as much of it into mailnews/db/gloda/facet.js.  In some cases we may
+ *  push as much of it into mailnews/db/gloda/Facet.jsm.  In some cases we may
  *  get it wrong and it may eventually want to migrate.
  */
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.js"
+  "resource:///modules/StringBundle.jsm"
 );
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
@@ -25,12 +25,12 @@ var { MailServices } = ChromeUtils.import(
 );
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 var { logObject, logException } = ChromeUtils.import(
-  "resource:///modules/errUtils.js"
+  "resource:///modules/ErrUtils.jsm"
 );
 
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { FacetDriver, FacetUtils } = ChromeUtils.import(
-  "resource:///modules/gloda/facet.js"
+  "resource:///modules/gloda/Facet.jsm"
 );
 
 var glodaFacetStrings = new StringBundle(

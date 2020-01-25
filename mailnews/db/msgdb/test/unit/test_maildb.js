@@ -3,8 +3,8 @@
  * Test suite for msg database functions.
  */
 
-/* import-globals-from ../../../../test/resources/messageGenerator.js */
-load("../../../../resources/messageGenerator.js");
+/* import-globals-from ../../../../test/resources/MessageGenerator.jsm */
+load("../../../../resources/MessageGenerator.jsm");
 
 var dbService;
 var gTestFolder;

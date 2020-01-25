@@ -12,7 +12,7 @@ const { MailViewConstants, MailViewManager } = ChromeUtils.import(
 );
 const { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 const { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/virtualFolderWrapper.js"
+  "resource:///modules/VirtualFolderWrapper.jsm"
 );
 
 var MSG_VIEW_FLAG_DUMMY = 0x20000000;

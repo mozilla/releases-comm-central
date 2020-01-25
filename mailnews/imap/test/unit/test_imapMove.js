@@ -10,9 +10,9 @@ var { MailServices } = ChromeUtils.import(
 );
 
 /* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 load("../../../resources/logHelper.js");
-load("../../../resources/messageGenerator.js");
+load("../../../resources/MessageGenerator.jsm");
 
 var gFolder1;
 

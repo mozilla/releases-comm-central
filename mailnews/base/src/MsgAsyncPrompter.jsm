@@ -8,7 +8,7 @@ var { Deprecated } = ChromeUtils.import(
   "resource://gre/modules/Deprecated.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 function runnablePrompter(asyncPrompter, hashKey) {
   this._asyncPrompter = asyncPrompter;

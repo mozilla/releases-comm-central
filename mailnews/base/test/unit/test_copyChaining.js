@@ -4,8 +4,8 @@
 
 // Test of chaining copies between the same folders
 
-/* import-globals-from ../../../test/resources/messageGenerator.js */
-load("../../../resources/messageGenerator.js");
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
+load("../../../resources/MessageGenerator.jsm");
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

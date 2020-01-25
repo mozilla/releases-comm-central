@@ -2,15 +2,15 @@ const { toXPCOMArray } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
 const { MockFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MockFactory.js"
+  "resource://testing-common/mailnews/MockFactory.jsm"
 );
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 load("../../../resources/logHelper.js");
 load("../../../resources/asyncTestUtils.js");
-load("../../../resources/messageGenerator.js");
+load("../../../resources/MessageGenerator.jsm");
 
 Services.prefs.setCharPref(
   "mail.serverDefaultStoreContractID",

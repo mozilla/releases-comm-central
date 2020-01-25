@@ -5,7 +5,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

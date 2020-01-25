@@ -12,7 +12,7 @@
 
 var EXPORTED_SYMBOLS = ["GlodaAutoComplete"];
 
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 var Gloda = null;
 var GlodaUtils = null; // eslint-disable-line no-unused-vars
@@ -460,7 +460,7 @@ FullTextCompleter.prototype = {
     if (aSearchString.length < 4) {
       return false;
     }
-    // We use code very similar to that in msg_search.js, except that we
+    // We use code very similar to that in GlodaMsgSearcher.jsm, except that we
     // need to detect when we found phrases, as well as strip commas.
     aSearchString = aSearchString.trim();
     let terms = [];
@@ -513,19 +513,21 @@ function GlodaAutoComplete() {
   try {
     // set up our awesome globals!
     if (Gloda === null) {
-      let loadNS = ChromeUtils.import("resource:///modules/gloda/public.js");
+      let loadNS = ChromeUtils.import(
+        "resource:///modules/gloda/GlodaPublic.jsm"
+      );
       Gloda = loadNS.Gloda;
 
-      loadNS = ChromeUtils.import("resource:///modules/gloda/utils.js");
+      loadNS = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm");
       GlodaUtils = loadNS.GlodaUtils;
-      loadNS = ChromeUtils.import("resource:///modules/gloda/suffixtree.js");
+      loadNS = ChromeUtils.import("resource:///modules/gloda/SuffixTree.jsm");
       MultiSuffixTree = loadNS.MultiSuffixTree;
-      loadNS = ChromeUtils.import("resource:///modules/gloda/noun_tag.js");
+      loadNS = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
       TagNoun = loadNS.TagNoun;
-      loadNS = ChromeUtils.import("resource:///modules/gloda/noun_freetag.js");
+      loadNS = ChromeUtils.import("resource:///modules/gloda/NounFreetag.jsm");
       FreeTagNoun = loadNS.FreeTagNoun;
 
-      loadNS = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+      loadNS = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
       LOG = loadNS.Log4Moz.repository.getLogger("gloda.autocomp");
     }
 

@@ -29,5 +29,5 @@ EXTRA_JS_MODULES += [
     'calHashedArray.jsm',
     'calRecurrenceUtils.jsm',
     'calUtils.jsm',
-    'ical.js',
+    'Ical.jsm',
 ]

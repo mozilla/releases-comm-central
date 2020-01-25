@@ -54,11 +54,11 @@ function setupModule() {
     },
   };
   folderDisplayHelper.load_via_src_path(
-    "fakeserver/nntpd.js",
+    "fakeserver/Nntpd.jsm",
     testHelperModule
   );
   folderDisplayHelper.load_via_src_path(
-    "fakeserver/maild.js",
+    "fakeserver/Maild.jsm",
     testHelperModule
   );
 }

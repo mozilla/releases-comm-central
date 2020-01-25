@@ -1596,7 +1596,7 @@
 
       // this.author.textContent = ;
       let { makeFriendlyDateAgo } = ChromeUtils.import(
-        "resource:///modules/templateUtils.js"
+        "resource:///modules/TemplateUtils.jsm"
       );
       this.date.textContent = makeFriendlyDateAgo(message.date);
 

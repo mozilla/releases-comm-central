@@ -11,8 +11,8 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-/* import-globals-from ../../../test/resources/messageGenerator.js */
-load("../../../resources/messageGenerator.js");
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
+load("../../../resources/MessageGenerator.jsm");
 
 var gSecondFolder, gThirdFolder;
 var gSynthMessage1, gSynthMessage2;
@@ -24,7 +24,7 @@ var tests = [
   setupIMAPPump,
   function serverParms() {
     var { fsDebugAll } = ChromeUtils.import(
-      "resource://testing-common/mailnews/maild.js"
+      "resource://testing-common/mailnews/Maild.jsm"
     );
     IMAPPump.server.setDebugLevel(fsDebugAll);
   },

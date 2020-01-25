@@ -5,7 +5,7 @@
 /* globals DisplayNameUtils, fixIterator, MailServices, MailUtils */
 
 const { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/mailTestUtils.js"
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
 const inputs = {

@@ -6,12 +6,14 @@ this.EXPORTED_SYMBOLS = [];
 
 var CC = Components.Constructor;
 
-const { Gloda } = ChromeUtils.import("resource:///modules/gloda/public.js");
+const { Gloda } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaPublic.jsm"
+);
 const { GlodaAccount } = ChromeUtils.import(
-  "resource:///modules/gloda/datamodel.js"
+  "resource:///modules/gloda/GlodaDataModel.jsm"
 );
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
-  "resource:///modules/gloda/indexer.js"
+  "resource:///modules/gloda/GlodaIndexer.jsm"
 );
 const { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
@@ -39,7 +41,7 @@ ChromeUtils.defineModuleGetter(
 ChromeUtils.defineModuleGetter(
   this,
   "GlodaDatastore",
-  "resource:///modules/gloda/datastore.js"
+  "resource:///modules/gloda/GlodaDatastore.jsm"
 );
 
 var kCacheFileName = "indexedFiles.json";
@@ -68,7 +70,7 @@ XPCOMUtils.defineLazyGetter(this, "MailFolder", () =>
 var gIMAccounts = {};
 
 function GlodaIMConversation(aTitle, aTime, aPath, aContent) {
-  // grokNounItem from gloda.js puts automatically the values of all
+  // grokNounItem from Gloda.jsm puts automatically the values of all
   // JS properties in the jsonAttributes magic attribute, except if
   // they start with _, so we put the values in _-prefixed properties,
   // and have getters in the prototype.
@@ -198,7 +200,7 @@ var IMConversationNoun = {
 Gloda.defineNoun(IMConversationNoun);
 
 // Needs to be set after calling defineNoun, otherwise it's replaced
-// by databind.js' implementation.
+// by GlodaDatabind.jsm' implementation.
 IMConversationNoun.objFromRow = function(aRow) {
   // Row columns are:
   // 0 id
@@ -287,7 +289,7 @@ this._attrFulltext = Gloda.defineAttribute({
   subjectNouns: [IMConversationNoun.id],
   objectNoun: Gloda.NOUN_FULLTEXT,
 });
-// For facet.js DateFaceter
+// For Facet.jsm DateFaceter
 Gloda.defineAttribute({
   provider: WidgetProvider,
   extensionName: EXT_NAME,

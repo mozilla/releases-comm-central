@@ -10,7 +10,7 @@ var { MailViewManager, MailViewConstants } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/virtualFolderWrapper.js"
+  "resource:///modules/VirtualFolderWrapper.jsm"
 );
 var { toXPCOMArray } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
@@ -28,8 +28,8 @@ if (
   /* import-globals-from ../../../../../mailnews/test/resources/asyncTestUtils.js */
   load("../../../../mailnews/resources/asyncTestUtils.js");
 
-  /* import-globals-from ../../../../../mailnews/test/resources/messageGenerator.js */
-  load("../../../../mailnews/resources/messageGenerator.js");
+  /* import-globals-from ../../../../../mailnews/test/resources/MessageGenerator.jsm */
+  load("../../../../mailnews/resources/MessageGenerator.jsm");
   /* import-globals-from ../../../../../mailnews/test/resources/messageModifier.js */
   load("../../../../mailnews/resources/messageModifier.js");
   /* import-globals-from ../../../../../mailnews/test/resources/messageInjection.js */

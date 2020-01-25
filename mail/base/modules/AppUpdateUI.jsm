@@ -18,7 +18,7 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.js"
+  "resource:///modules/StringBundle.jsm"
 );
 
 const PREF_APP_UPDATE_UNSUPPORTED_URL = "app.update.unsupported.url";

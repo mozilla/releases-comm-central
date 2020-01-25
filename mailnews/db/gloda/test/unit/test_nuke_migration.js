@@ -56,10 +56,10 @@ function run_test() {
   make_out_of_date_database();
 
   // - tickle gloda
-  // public.js loads gloda.js which self-initializes and initializes the datastore
-  ChromeUtils.import("resource:///modules/gloda/public.js");
+  // GlodaPublic.jsm loads Gloda.jsm which self-initializes and initializes the datastore
+  ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
   let { GlodaDatastore } = ChromeUtils.import(
-    "resource:///modules/gloda/datastore.js"
+    "resource:///modules/gloda/GlodaDatastore.jsm"
   );
 
   Assert.notEqual(GlodaDatastore.asyncConnection, null);

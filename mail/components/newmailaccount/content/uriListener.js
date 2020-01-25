@@ -16,7 +16,7 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var { JXON } = ChromeUtils.import("resource:///modules/JXON.js");
+var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
 
 /**
  * This is an observer that watches all HTTP requests for one where the

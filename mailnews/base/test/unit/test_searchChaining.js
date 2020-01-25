@@ -8,14 +8,14 @@
 
 // main test
 
-/* import-globals-from ../../../test/resources/messageGenerator.js */
-load("../../../resources/messageGenerator.js");
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
+load("../../../resources/MessageGenerator.jsm");
 
 var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
-  "resource://testing-common/mailnews/IMAPpump.js"
+  "resource://testing-common/mailnews/IMAPpump.jsm"
 );
 var { imapMessage } = ChromeUtils.import(
-  "resource://testing-common/mailnews/imapd.js"
+  "resource://testing-common/mailnews/Imapd.jsm"
 );
 const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"

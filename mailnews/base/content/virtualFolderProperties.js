@@ -22,7 +22,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { VirtualFolderHelper } = ChromeUtils.import(
-  "resource:///modules/virtualFolderWrapper.js"
+  "resource:///modules/VirtualFolderWrapper.jsm"
 );
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"

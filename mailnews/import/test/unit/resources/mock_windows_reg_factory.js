@@ -1,5 +1,5 @@
 const { MockFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MockFactory.js"
+  "resource://testing-common/mailnews/MockFactory.jsm"
 );
 
 var gUuid;

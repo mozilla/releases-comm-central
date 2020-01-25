@@ -5,7 +5,7 @@
 
 /* import-globals-from emailWizard.js */
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This is a bit ugly - we set outgoingDone to false

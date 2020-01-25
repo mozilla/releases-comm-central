@@ -6,10 +6,10 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/mailTestUtils.js"
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 var { localAccountUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/localAccountUtils.js"
+  "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
 
 var test = null;
@@ -26,9 +26,9 @@ do_get_profile();
 var gDEPTH = "../../../../";
 
 // Import the pop3 server scripts
-/* import-globals-from ../../../test/fakeserver/maild.js */
-/* import-globals-from ../../../test/fakeserver/auth.js */
-/* import-globals-from ../../../test/fakeserver/pop3d.js */
+/* import-globals-from ../../../test/fakeserver/Maild.jsm */
+/* import-globals-from ../../../test/fakeserver/Auth.jsm */
+/* import-globals-from ../../../test/fakeserver/Pop3d.jsm */
 var {
   nsMailServer,
   gThreadManager,
@@ -36,16 +36,16 @@ var {
   fsDebugAll,
   fsDebugRecv,
   fsDebugRecvSend,
-} = ChromeUtils.import("resource://testing-common/mailnews/maild.js");
+} = ChromeUtils.import("resource://testing-common/mailnews/Maild.jsm");
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
-  "resource://testing-common/mailnews/auth.js"
+  "resource://testing-common/mailnews/Auth.jsm"
 );
 var {
   pop3Daemon,
   POP3_RFC1939_handler,
   POP3_RFC2449_handler,
   POP3_RFC5034_handler,
-} = ChromeUtils.import("resource://testing-common/mailnews/pop3d.js");
+} = ChromeUtils.import("resource://testing-common/mailnews/Pop3d.jsm");
 
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.

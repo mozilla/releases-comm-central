@@ -12,12 +12,12 @@
 /* import-globals-from ../../../test/resources/logHelper.js */
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
 /* import-globals-from ../../../test/resources/passwordStorage.js */
-/* import-globals-from ../../../test/resources/mailTestUtils.js */
+/* import-globals-from ../../../test/resources/MailTestUtils.jsm */
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 load("../../../resources/logHelper.js");
 load("../../../resources/alertTestUtils.js");
 load("../../../resources/passwordStorage.js");
-load("../../../resources/mailTestUtils.js");
+load("../../../resources/MailTestUtils.jsm");
 load("../../../resources/asyncTestUtils.js");
 
 var server;

@@ -14,13 +14,13 @@
  */
 /* import-globals-from ../../../../test/resources/logHelper.js */
 /* import-globals-from ../../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../../test/resources/MessageGenerator.jsm */
 /* import-globals-from ../../../../test/resources/messageModifier.js */
 /* import-globals-from ../../../../test/resources/messageInjection.js */
 load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
 
-load("../../../../resources/messageGenerator.js");
+load("../../../../resources/MessageGenerator.jsm");
 load("../../../../resources/messageModifier.js");
 load("../../../../resources/messageInjection.js");
 
@@ -31,7 +31,7 @@ var msgGen = (gMessageGenerator = new MessageGenerator());
 var scenarios = new MessageScenarioFactory(msgGen);
 
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 
 var htmlText = "<html><head></head><body>I am HTML! Woo! </body></html>";

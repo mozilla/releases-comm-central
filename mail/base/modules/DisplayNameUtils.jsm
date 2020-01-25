@@ -9,7 +9,7 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.js"
+  "resource:///modules/StringBundle.jsm"
 );
 
 var EXPORTED_SYMBOLS = ["DisplayNameUtils"];

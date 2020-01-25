@@ -29,7 +29,7 @@
     "resource://gre/modules/Services.jsm"
   );
   const { StringBundle } = ChromeUtils.import(
-    "resource:///modules/StringBundle.js"
+    "resource:///modules/StringBundle.jsm"
   );
 
   /**

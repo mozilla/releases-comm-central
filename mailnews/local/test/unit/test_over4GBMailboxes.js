@@ -23,11 +23,11 @@
 
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 /* import-globals-from ../../../test/resources/alertTestUtils.js */
-/* import-globals-from ../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 /* import-globals-from ../../../test/resources/POP3pump.js */
 load("../../../resources/asyncTestUtils.js");
 load("../../../resources/alertTestUtils.js");
-load("../../../resources/messageGenerator.js");
+load("../../../resources/MessageGenerator.jsm");
 load("../../../resources/POP3pump.js");
 
 Services.prefs.setCharPref(

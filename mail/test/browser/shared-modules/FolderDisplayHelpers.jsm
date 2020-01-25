@@ -171,7 +171,7 @@ var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 var nsMsgViewIndex_None = 0xffffffff;
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
@@ -326,7 +326,7 @@ function setupModule() {
   // -- the rest of the asyncTestUtils framework (but not actually async)
 
   load_via_src_path("resources/asyncTestUtils.js", testHelperModule);
-  load_via_src_path("resources/messageGenerator.js", testHelperModule);
+  load_via_src_path("resources/MessageGenerator.jsm", testHelperModule);
   load_via_src_path("resources/messageModifier.js", testHelperModule);
   load_via_src_path("resources/messageInjection.js", testHelperModule);
   load_via_src_path("resources/viewWrapperTestUtils.js", testHelperModule);

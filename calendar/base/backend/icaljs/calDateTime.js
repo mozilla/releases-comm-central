@@ -4,7 +4,7 @@
 
 /* import-globals-from calICALJSComponents.js */
 
-var { ICAL, unwrap, unwrapSetter } = ChromeUtils.import("resource://calendar/modules/ical.js");
+var { ICAL, unwrap, unwrapSetter } = ChromeUtils.import("resource://calendar/modules/Ical.jsm");
 
 var UNIX_TIME_TO_PRTIME = 1000000;
 

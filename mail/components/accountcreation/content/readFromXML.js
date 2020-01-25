@@ -5,7 +5,7 @@
 
 /* import-globals-from emailWizard.js */
 
-var { logException } = ChromeUtils.import("resource:///modules/errUtils.js");
+var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var {
   cleanUpHostName,
   isLegalHostNameOrIP,

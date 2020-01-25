@@ -22,7 +22,7 @@ var nsActWarning = Components.Constructor(
 );
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/log4moz.js");
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 /**
  * This really, really, sucks. Due to mailnews widespread use of

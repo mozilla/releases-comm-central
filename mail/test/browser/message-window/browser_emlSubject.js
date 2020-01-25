@@ -18,7 +18,7 @@ var { close_window } = ChromeUtils.import(
 );
 
 var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.js"
+  "resource:///modules/StringBundle.jsm"
 );
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"

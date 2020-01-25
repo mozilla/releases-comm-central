@@ -19,13 +19,13 @@
  */
 /* import-globals-from ../../../../test/resources/logHelper.js */
 /* import-globals-from ../../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../../test/resources/messageGenerator.js */
+/* import-globals-from ../../../../test/resources/MessageGenerator.jsm */
 /* import-globals-from ../../../../test/resources/messageModifier.js */
 /* import-globals-from ../../../../test/resources/messageInjection.js */
 load("../../../../resources/logHelper.js");
 load("../../../../resources/asyncTestUtils.js");
 
-load("../../../../resources/messageGenerator.js");
+load("../../../../resources/MessageGenerator.jsm");
 load("../../../../resources/messageModifier.js");
 load("../../../../resources/messageInjection.js");
 
@@ -36,14 +36,14 @@ var msgGen = (gMessageGenerator = new MessageGenerator());
 var scenarios = new MessageScenarioFactory(msgGen);
 
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 
 // While we're at it, we'll also test the correctness of the GlodaAttachment
 // representation, esp. its "I just need the part information to rebuild the
 // URLs" claim.
 var { GlodaFundAttr } = ChromeUtils.import(
-  "resource:///modules/gloda/fundattr.js"
+  "resource:///modules/gloda/GlodaFundAttr.jsm"
 );
 
 var partText = new SyntheticPartLeaf("I am text! Woo!");
@@ -710,7 +710,7 @@ var gInbox;
 function run_test() {
   registerCleanupFunction(function() {
     let { GlodaDatastore } = ChromeUtils.import(
-      "resource:///modules/gloda/datastore.js"
+      "resource:///modules/gloda/GlodaDatastore.jsm"
     );
     GlodaDatastore.shutdown();
   });

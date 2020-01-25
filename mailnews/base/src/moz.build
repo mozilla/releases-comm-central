@@ -63,7 +63,7 @@ EXTRA_JS_MODULES += [
     'MailNotificationService.jsm',
     'MsgAsyncPrompter.jsm',
     'OAuth2Module.jsm',
-    'virtualFolderWrapper.js',
+    'VirtualFolderWrapper.jsm',
 ]
 LOCAL_INCLUDES += [
   '/%s/dom/base' % CONFIG['mozreltopsrcdir'],

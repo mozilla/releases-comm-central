@@ -13,7 +13,7 @@
 load("resources/glodaTestHelper.js");
 
 var { MimeTypeNoun } = ChromeUtils.import(
-  "resource:///modules/gloda/noun_mimetype.js"
+  "resource:///modules/gloda/NounMimetype.jsm"
 );
 
 /* ===== Tests ===== */

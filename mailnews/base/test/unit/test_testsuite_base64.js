@@ -1,5 +1,5 @@
 /**
- * Tests functions atob() and btoa() in mailnews/test/resources/mailTestUtils.js .
+ * Tests functions atob() and btoa() in mailnews/test/resources/MailTestUtils.jsm .
  *
  * Note:
  * btoa() = base64 encode

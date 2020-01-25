@@ -14,7 +14,7 @@ var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
-  "resource:///modules/gloda/mimemsg.js"
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 
 /**
