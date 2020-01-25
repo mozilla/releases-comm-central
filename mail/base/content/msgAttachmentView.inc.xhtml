@@ -19,7 +19,7 @@
                                    tooltiptext="&openAttachment.tooltip;"
                                    tooltiptextopen="&openAttachment.tooltip;"
                                    onclick="OpenAttachmentFromBar(event);"
-                                   ondragstart="nsDragAndDrop.startDrag(event, attachmentNameDNDObserver);"/>
+                                   ondragstart="attachmentNameDNDObserver.onDragStart(event);"/>
                             <label id="attachmentSize"/>
                           </hbox>
                           <!-- Use a very large flex value here so that attachmentCount doesn't take
@@ -102,6 +102,5 @@
                                        context="attachmentListContext"
                                        itemcontext="attachmentItemContext"
                                        role="listbox"
-                                       ondragstart="nsDragAndDrop.startDrag(event, attachmentListDNDObserver);"
-                                       ondragover="nsDragAndDrop.dragOver(event, attachmentListDNDObserver);"/>
+                                       ondragstart="attachmentListDNDObserver.onDragStart(event);"/>
                         </hbox>

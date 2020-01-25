@@ -97,7 +97,6 @@
   <script src="chrome://messenger/content/mailContextMenus.js"/>
   <script src="chrome://messenger/content/phishingDetector.js"/>
   <script src="chrome://communicator/content/contentAreaClick.js"/>
-  <script src="chrome://global/content/nsDragAndDrop.js"/>
   <script src="chrome://messenger/content/msgViewNavigation.js"/>
   <script src="chrome://messenger/content/editContactPanel.js"/>
   <script src="chrome://messenger/content/toolbarIconColor.js"/>
@@ -214,9 +213,9 @@
   <!-- a convenience box for ease of extension overlaying -->
   <hbox id="messagepaneboxwrapper" flex="1">
     <vbox id="messagepanebox" flex="3"
-          ondragover="nsDragAndDrop.dragOver(event, messagepaneObserver);"
-          ondrop="nsDragAndDrop.drop(event, messagepaneObserver);"
-          ondragexit="nsDragAndDrop.dragExit(event, messagepaneObserver);">
+          ondragover="messagepaneObserver.onDragOver(event);"
+          ondrop="messagepaneObserver.onDrop(event);"
+          ondragexit="messagepaneObserver.onDragExit(event);">
 
       <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml

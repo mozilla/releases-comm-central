@@ -11,7 +11,6 @@
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
-/* import-globals-from nsDragAndDrop.js */
 /* global Enigmail */
 
 var { XPCOMUtils } = ChromeUtils.import(
@@ -3384,29 +3383,25 @@ function ClearAttachmentList() {
   }
 }
 
-var attachmentListDNDObserver = {
-  onDragStart(aEvent, aAttachmentData, aDragAction) {
-    let target = aEvent.target;
-
+let attachmentListDNDObserver = {
+  onDragStart(event) {
+    let target = event.target;
     if (target.localName == "richlistitem") {
-      let selection = target.parentNode.selectedItems;
-      aAttachmentData.data = new TransferDataSet();
-      for (let item of selection) {
-        let transferData = CreateAttachmentTransferData(item.attachment);
-        if (transferData) {
-          aAttachmentData.data.push(transferData);
-        }
+      let attachments = [];
+      for (let item of target.parentNode.selectedItems) {
+        attachments.push(item.attachment);
       }
+      setupDataTransfer(event, attachments);
     }
+    event.stopPropagation();
   },
 };
 
-var attachmentNameDNDObserver = {
-  onDragStart(aEvent, aAttachmentData, aDragAction) {
-    var attachmentList = document.getElementById("attachmentList");
-    aAttachmentData.data = CreateAttachmentTransferData(
-      attachmentList.getItemAtIndex(0).attachment
-    );
+let attachmentNameDNDObserver = {
+  onDragStart(event) {
+    let attachmentList = document.getElementById("attachmentList");
+    setupDataTransfer(event, [attachmentList.getItemAtIndex(0).attachment]);
+    event.stopPropagation();
   },
 };
 

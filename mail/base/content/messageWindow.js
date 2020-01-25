@@ -19,7 +19,6 @@
 /* import-globals-from messageDisplay.js */
 /* import-globals-from msgHdrView.js */
 /* import-globals-from msgViewNavigation.js */
-/* import-globals-from nsDragAndDrop.js */
 /* import-globals-from phishingDetector.js */
 /* import-globals-from toolbarIconColor.js */
 /* globals PanelUI */
@@ -318,43 +317,44 @@ StandaloneMessageDisplayWidget.prototype = {
   },
 };
 
-var messagepaneObserver = {
-  canHandleMultipleItems: false,
-
-  onDrop(aEvent, aData, aDragSession) {
-    var sourceUri = aData.data;
+let messagepaneObserver = {
+  onDrop(event) {
+    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
+      .getService(Ci.nsIDragService)
+      .getCurrentSession();
+    if (!this.canDrop(event, dragSession)) {
+      return;
+    }
+    let sourceUri = event.dataTransfer.getData("text/x-moz-message");
     if (
       !gFolderDisplay.selectedMessage ||
       sourceUri != gFolderDisplay.selectedMessageUris[0]
     ) {
-      var msgHdr = messenger.msgHdrFromURI(sourceUri);
-      let originGlobal = aDragSession.sourceNode.ownerDocument.defaultValue;
+      let msgHdr = messenger.msgHdrFromURI(sourceUri);
+      let originGlobal = dragSession.sourceNode.ownerGlobal;
       gFolderDisplay.cloneView(originGlobal.gFolderDisplay.view);
       gFolderDisplay.selectMessage(msgHdr);
     }
+    event.stopPropagation();
   },
 
-  onDragOver(aEvent, aFlavour, aDragSession) {
-    var messagepanebox = document.getElementById("messagepanebox");
+  onDragOver(event) {
+    let messagepanebox = document.getElementById("messagepanebox");
     messagepanebox.setAttribute("dragover", "true");
+    event.stopPropagation();
+    event.preventDefault();
   },
 
-  onDragExit(aEvent, aDragSession) {
-    var messagepanebox = document.getElementById("messagepanebox");
+  onDragExit(event) {
+    let messagepanebox = document.getElementById("messagepanebox");
     messagepanebox.removeAttribute("dragover");
   },
 
-  canDrop(aEvent, aDragSession) {
+  canDrop(event, dragSession) {
     // allow drop from mail:3pane window only - 4xp
-    var doc = aDragSession.sourceNode.ownerDocument;
-    var elem = doc.getElementById("messengerWindow");
+    let doc = dragSession.sourceNode.ownerDocument;
+    let elem = doc.getElementById("messengerWindow");
     return elem && elem.getAttribute("windowtype") == "mail:3pane";
-  },
-
-  getSupportedFlavours() {
-    var flavourSet = new FlavourSet();
-    flavourSet.appendFlavour("text/x-moz-message");
-    return flavourSet;
   },
 };
 

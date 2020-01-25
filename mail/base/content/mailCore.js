@@ -854,58 +854,67 @@ function SanitizeAttachmentDisplayName(aAttachment) {
 }
 
 /**
- * Create a TransferData object for a message attachment, either from the
- * message reader or the composer.
+ * Appends a dataTransferItem to the associated event for message attachments,
+ * either from the message reader or the composer.
  *
- * @param aAttachment the attachment object
- * @return the TransferData
+ * @param {Event} event - The associated event.
+ * @param {nsIMsgAttachment[]} attachments - The attachments to setup
  */
-function CreateAttachmentTransferData(aAttachment) {
+function setupDataTransfer(event, attachments) {
   // For now, disallow drag-and-drop on cloud attachments. In the future, we
   // should allow this.
-  if (
-    aAttachment.contentType == "text/x-moz-deleted" ||
-    aAttachment.sendViaCloud
-  ) {
-    return null;
-  }
+  let index = 0;
+  for (let attachment of attachments) {
+    if (
+      attachment.contentType == "text/x-moz-deleted" ||
+      attachment.sendViaCloud
+    ) {
+      return;
+    }
 
-  var name = aAttachment.name || aAttachment.displayName;
+    let name = attachment.name || attachment.displayName;
 
-  var data = new TransferData();
-  if (aAttachment.url && name) {
+    if (!attachment.url || !name) {
+      continue;
+    }
+
     // Only add type/filename info for non-file URLs that don't already
     // have it.
-    var info;
-    if (/(^file:|&filename=)/.test(aAttachment.url)) {
-      info = aAttachment.url;
+    let info;
+    if (/(^file:|&filename=)/.test(attachment.url)) {
+      info = attachment.url;
     } else {
       info =
-        aAttachment.url +
+        attachment.url +
         "&type=" +
-        aAttachment.contentType +
+        attachment.contentType +
         "&filename=" +
         encodeURIComponent(name);
     }
 
-    data.addDataForFlavour(
+    event.dataTransfer.mozSetDataAt(
       "text/x-moz-url",
-      info + "\n" + name + "\n" + aAttachment.size
+      info + "\n" + name + "\n" + attachment.size,
+      index
     );
-    data.addDataForFlavour("text/x-moz-url-data", aAttachment.url);
-    data.addDataForFlavour("text/x-moz-url-desc", name);
-    data.addDataForFlavour(
+    event.dataTransfer.mozSetDataAt(
+      "text/x-moz-url-data",
+      attachment.url,
+      index
+    );
+    event.dataTransfer.mozSetDataAt("text/x-moz-url-desc", name, index);
+    event.dataTransfer.mozSetDataAt(
       "application/x-moz-file-promise-url",
-      aAttachment.url
+      attachment.url,
+      index
     );
-    data.addDataForFlavour(
+    event.dataTransfer.mozSetDataAt(
       "application/x-moz-file-promise",
       new nsFlavorDataProvider(),
-      0,
-      Ci.nsISupports
+      index
     );
+    index++;
   }
-  return data;
 }
 
 function nsFlavorDataProvider() {}

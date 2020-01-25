@@ -80,7 +80,6 @@
 
 <!-- drag and drop -->
 <script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
-<script src="chrome://global/content/nsDragAndDrop.js"/>
 
 <!-- move needed functions into a single js file -->
 <script src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
@@ -1806,9 +1805,9 @@
                    label="&attachButton.label;"
                    tooltiptext="&attachButton.tooltip2;"
                    command="cmd_attachFile"
-                   ondragover="nsDragAndDrop.dragOver(event, envelopeDragObserver);"
-                   ondrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
-                   ondragexit="nsDragAndDrop.dragExit(event, envelopeDragObserver);">
+                   ondragover="envelopeDragObserver.onDragOver(event);"
+                   ondrop="envelopeDragObserver.onDrop(event);"
+                   ondragexit="envelopeDragObserver.onDragExit(event);">
       <menupopup id="button-attachPopup" onpopupshowing="updateAttachmentItems();">
         <menuitem id="button-attachPopup_attachFileItem"
                   label="&attachFileCmd.label;"
@@ -2010,9 +2009,9 @@
              persist="collapsed"
              flex="1"
              customizable="true" nowindowdrag="true"
-             ondragover="nsDragAndDrop.dragOver(event, envelopeDragObserver);"
-             ondrop="nsDragAndDrop.drop(event, envelopeDragObserver);"
-             ondragexit="nsDragAndDrop.dragExit(event, envelopeDragObserver);">
+             ondragover="envelopeDragObserver.onDragOver(event);"
+             ondrop="envelopeDragObserver.onDrop(event);"
+             ondragexit="envelopeDragObserver.onDragExit(event);">
       <hbox id="msgheaderstoolbar-box" flex="1">
         <vbox flex="1" id="addresses-box">
           <hbox id="top-gradient-box" class="address-identity-recipient">
@@ -2350,7 +2349,7 @@
                        onclick="attachmentBucketOnClick(event);"
                        onkeypress="attachmentBucketOnKeyPress(event);"
                        onselect="attachmentBucketOnSelect();"
-                       ondragstart="attachmentBucketOnDragStart(event);"
+                       ondragstart="attachmentBucketDNDObserver.onDragStart(event);"
                        onblur="attachmentBucketOnBlur();"/>
         </vbox>
         <vbox id="attachments-placeholder-box"

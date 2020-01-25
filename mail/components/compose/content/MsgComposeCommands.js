@@ -6039,10 +6039,6 @@ function attachmentBucketOnKeyPress(aEvent) {
   }
 }
 
-function attachmentBucketOnDragStart(aEvent) {
-  nsDragAndDrop.startDrag(aEvent, attachmentBucketDNDObserver);
-}
-
 function attachmentBucketOnClick(aEvent) {
   // Handle click on attachment pane whitespace:
   // - With selected attachments, clear selection first.
@@ -6531,31 +6527,34 @@ function subjectKeyPress(event) {
   }
 }
 
+// content types supported in the envelopeDragObserver.
+let flavours = [
+  "text/x-moz-address",
+  "text/x-moz-message",
+  "application/x-moz-file",
+  "text/x-moz-url",
+];
 // we can drag and drop addresses, files, messages and urls into the compose envelope
 var envelopeDragObserver = {
-  canHandleMultipleItems: true,
-
   /**
    * Adjust the drop target when dragging from the attachment bucket onto itself
    * by picking the nearest possible insertion point (generally, between two
    * list items).
    *
-   * @param aEvent the drag-and-drop event being performed
-   * @return {attachmentitem|string} the adjusted drop target:
-   *                                 - an attachmentitem node for inserting
-   *                                   *before*
-   *                                 - "none" if this isn't a valid insertion point
-   *                                 - "afterLastItem" for appending at the
-   *                                   bottom of the list.
+   * @param {Event} event - The drag-and-drop event being performed.
+   * @return {attachmentitem|string} - the adjusted drop target:
+   *   - an attachmentitem node for inserting *before*
+   *   - "none" if this isn't a valid insertion point
+   *   - "afterLastItem" for appending at the bottom of the list.
    */
-  _adjustDropTarget(aEvent) {
-    let target = aEvent.target;
+  _adjustDropTarget(event) {
+    let target = event.target;
     let bucket = document.getElementById("attachmentBucket");
 
     if (target == bucket) {
       // Dragging or dropping at top/bottom border of the listbox
       if (
-        (aEvent.screenY - target.screenY) /
+        (event.screenY - target.screenY) /
           target.getBoundingClientRect().height <
         0.5
       ) {
@@ -6569,7 +6568,7 @@ var envelopeDragObserver = {
       // Allow bottom half of attachment list header as extended drop target
       // for top of list, because otherwise it would be too small.
       if (
-        (aEvent.screenY - target.screenY) /
+        (event.screenY - target.screenY) /
           target.getBoundingClientRect().height >=
         0.5
       ) {
@@ -6586,7 +6585,7 @@ var envelopeDragObserver = {
       // If we're dragging/dropping in bottom half of attachmentitem,
       // adjust target to target.nextElementSibling (to show dropmarker above that).
       if (
-        (aEvent.screenY - target.screenY) /
+        (event.screenY - target.screenY) /
           target.getBoundingClientRect().height >=
         0.5
       ) {
@@ -6652,15 +6651,19 @@ var envelopeDragObserver = {
     }
   },
 
-  onDrop(aEvent, aData, aDragSession) {
+  // eslint-disable-next-line complexity
+  onDrop(event) {
     let bucket = document.getElementById("attachmentBucket");
-    let dragSourceNode = aDragSession.sourceNode;
+    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
+      .getService(Ci.nsIDragService)
+      .getCurrentSession();
+    let dragSourceNode = dragSession.sourceNode;
     if (dragSourceNode && dragSourceNode.parentNode == bucket) {
       // We dragged from the attachment pane onto itself, so instead of
       // attaching a new object, we're just reordering them.
 
       // Adjust the drop target according to mouse position on list (items).
-      let target = this._adjustDropTarget(aEvent);
+      let target = this._adjustDropTarget(event);
 
       // Get a non-live, sorted list of selected attachment list items.
       let selItems = attachmentsSelectionGetSortedArray();
@@ -6732,41 +6735,44 @@ var envelopeDragObserver = {
       return;
     }
 
-    let dataList = aData.dataList;
     let attachments = [];
+    let dt = event.dataTransfer;
+    let dataList = [];
+    for (let i = 0; i < dt.mozItemCount; i++) {
+      let types = Array.from(dt.mozTypesAt(i));
+      for (let flavour of flavours) {
+        if (types.includes(flavour)) {
+          let data = dt.mozGetDataAt(flavour, i);
+          if (data) {
+            dataList.push({ data, flavour });
+          }
+          break;
+        }
+      }
+    }
 
-    for (let dataListObj of dataList) {
-      let item = dataListObj.first;
-      let rawData = item.data;
+    for (let { data, flavour } of dataList) {
       let isValidAttachment = false;
       let prettyName;
       let size;
 
       // We could be dropping an attachment of various flavours OR an address;
       // check and do the right thing.
-      // Note that case blocks {...} are recommended to avoid redeclaration errors
-      // when using 'let'.
-      switch (item.flavour.contentType) {
+      switch (flavour) {
         // Process attachments.
         case "application/x-moz-file": {
-          let fileHandler = Services.io
-            .getProtocolHandler("file")
-            .QueryInterface(Ci.nsIFileProtocolHandler);
-          if (!rawData.exists() || !rawData.isReadable()) {
-            // For some reason we couldn't read the file just dragged. Permission problem?
-            Cu.reportError(
-              "Couldn't access the dragged file " + rawData.leafName
-            );
-            break;
+          if (data instanceof Ci.nsIFile) {
+            size = data.fileSize;
           }
-
           try {
-            size = rawData.fileSize;
-            rawData = fileHandler.getURLSpecFromFile(rawData);
+            data = Services.io
+              .getProtocolHandler("file")
+              .QueryInterface(Ci.nsIFileProtocolHandler)
+              .getURLSpecFromFile(data);
             isValidAttachment = true;
           } catch (e) {
             Cu.reportError(
-              "Couldn't process the dragged file " + rawData.leafName + ":" + e
+              "Couldn't process the dragged file " + data.leafName + ":" + e
             );
           }
           break;
@@ -6775,16 +6781,16 @@ var envelopeDragObserver = {
         case "text/x-moz-message": {
           isValidAttachment = true;
           let msgHdr = gMessenger
-            .messageServiceFromURI(rawData)
-            .messageURIToMsgHdr(rawData);
+            .messageServiceFromURI(data)
+            .messageURIToMsgHdr(data);
           prettyName = msgHdr.mime2DecodedSubject + ".eml";
           size = msgHdr.messageSize;
           break;
         }
 
         case "text/x-moz-url": {
-          let pieces = rawData.split("\n");
-          rawData = pieces[0];
+          let pieces = data.split("\n");
+          data = pieces[0];
           if (pieces.length > 1) {
             prettyName = pieces[1];
           }
@@ -6796,7 +6802,7 @@ var envelopeDragObserver = {
           // by checking if we can extract a scheme using Services.io.
           // Don't attach invalid or mailto: URLs.
           try {
-            let scheme = Services.io.extractScheme(rawData);
+            let scheme = Services.io.extractScheme(data);
             if (scheme != "mailto") {
               isValidAttachment = true;
             }
@@ -6806,16 +6812,12 @@ var envelopeDragObserver = {
 
         // Process address: Drop it into recipient field.
         case "text/x-moz-address": {
-          if (rawData) {
-            DropRecipient(aEvent.target, rawData);
+          DropRecipient(event.target, data);
 
-            // Since we are now using ondrop (eDrop) instead of previously using
-            // ondragdrop (eLegacyDragDrop), we must prevent the default
-            // which is dropping the address text into the widget.
-            // Note that stopPropagation() is called by our caller in
-            // nsDragAndDrop.js.
-            aEvent.preventDefault();
-          }
+          // Since we are now using ondrop (eDrop) instead of previously using
+          // ondragdrop (eLegacyDragDrop), we must prevent the default
+          // which is dropping the address text into the widget.
+          event.preventDefault();
           break;
         }
       }
@@ -6825,7 +6827,7 @@ var envelopeDragObserver = {
         let attachment = Cc[
           "@mozilla.org/messengercompose/attachment;1"
         ].createInstance(Ci.nsIMsgAttachment);
-        attachment.url = rawData;
+        attachment.url = data;
         attachment.name = prettyName;
 
         if (size !== undefined) {
@@ -6842,16 +6844,20 @@ var envelopeDragObserver = {
     }
 
     bucket.focus();
+    event.stopPropagation();
   },
 
-  onDragOver(aEvent, aFlavour, aDragSession) {
+  onDragOver(event) {
+    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
+      .getService(Ci.nsIDragService)
+      .getCurrentSession();
     let bucket = document.getElementById("attachmentBucket");
-    let dragSourceNode = aDragSession.sourceNode;
+    let dragSourceNode = dragSession.sourceNode;
     if (dragSourceNode && dragSourceNode.parentNode == bucket) {
       // If we're dragging from the attachment bucket onto itself, we need to
       // show a drop marker.
 
-      let target = this._adjustDropTarget(aEvent);
+      let target = this._adjustDropTarget(event);
 
       if (
         (target.matches && target.matches("richlistitem.attachmentItem")) ||
@@ -6863,44 +6869,38 @@ var envelopeDragObserver = {
         // target == "none", target is not a listItem, or no target:
         // Indicate that we can't drop here.
         this._hideDropMarker();
-        aEvent.dataTransfer.dropEffect = "none";
+        event.dataTransfer.dropEffect = "none";
       }
       return;
     }
 
-    if (aFlavour.contentType != "text/x-moz-address") {
-      // Make sure the attachment pane is visible during drag over.
-      toggleAttachmentPane("show");
-    } else {
-      DragAddressOverTargetControl(aEvent);
+    for (let flavour of flavours) {
+      if (dragSession.isDataFlavorSupported(flavour)) {
+        if (flavour != "text/x-moz-address") {
+          // Make sure the attachment pane is visible during drag over.
+          toggleAttachmentPane("show");
+        } else {
+          DragAddressOverTargetControl(event);
+        }
+        event.stopPropagation();
+        event.preventDefault();
+        break;
+      }
     }
   },
 
-  onDragExit(aEvent, aDragSession) {
+  onDragExit(event) {
     this._hideDropMarker();
-  },
-
-  getSupportedFlavours() {
-    let flavourSet = new FlavourSet();
-    // Prefer "text/x-moz-address", so when an address from the address book
-    // is dragged, this flavour is tested first. Otherwise the attachment
-    // bucket would open since the addresses also carry the
-    // "application/x-moz-file" flavour.
-    flavourSet.appendFlavour("text/x-moz-address");
-    flavourSet.appendFlavour("text/x-moz-message");
-    flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
-    flavourSet.appendFlavour("text/x-moz-url");
-    return flavourSet;
   },
 };
 
-var attachmentBucketDNDObserver = {
-  onDragStart(aEvent, aAttachmentData, aDragAction) {
-    var target = aEvent.target;
-
+let attachmentBucketDNDObserver = {
+  onDragStart(event) {
+    let target = event.target;
     if (target.matches("richlistitem.attachmentItem")) {
-      aAttachmentData.data = CreateAttachmentTransferData(target.attachment);
+      setupDataTransfer(event, [target.attachment]);
     }
+    event.stopPropagation();
   },
 };
 
