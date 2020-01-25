@@ -8,7 +8,7 @@
 typedef long nsMsgFilterTypeType;
 
 [scriptable,uuid(b963a9c6-3a75-4d91-9f79-7186418d4d2d)]
-interface nsMsgFilterType {
+interface nsMsgFilterType : nsISupports {
     /* these longs are all actually of type nsMsgFilterTypeType */
   const long None             = 0x00;
   const long InboxRule        = 0x01;
@@ -33,7 +33,7 @@ typedef long nsMsgFilterIndex;
 typedef long nsMsgRuleActionType;
 
 [scriptable, uuid(7726FE79-AFA3-4a39-8292-733AEE288737)]
-interface nsMsgFilterAction {
+interface nsMsgFilterAction : nsISupports {
 
     // Custom Action.
     const long Custom=-1;

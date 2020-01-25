@@ -13,7 +13,7 @@ interface nsIMsgDBHdr;
 
 [scriptable, uuid(6e893e59-af98-4f62-a326-0f00f32147cd)]
 
-interface nsMsgSearchScope {
+interface nsMsgSearchScope : nsISupports {
   const nsMsgSearchScopeValue offlineMail = 0;
   const nsMsgSearchScopeValue offlineMailFilter = 1;
   const nsMsgSearchScopeValue onlineMail = 2;
@@ -46,7 +46,7 @@ typedef long nsMsgSearchAttribValue;
  * attributes display in the filter editor.
  */
 [scriptable, uuid(a83ca7e8-4591-4111-8fb8-fd76ac73c866)]
-interface nsMsgSearchAttrib {
+interface nsMsgSearchAttrib : nsISupports {
     const nsMsgSearchAttribValue Custom = -2;  /* a custom term, see nsIMsgSearchCustomTerm */
     const nsMsgSearchAttribValue Default = -1;
     const nsMsgSearchAttribValue Subject = 0;  /* mail and news */
@@ -111,7 +111,7 @@ interface nsMsgSearchAttrib {
 typedef long nsMsgSearchOpValue;
 
 [scriptable, uuid(9160b196-6fcb-4eba-aaaf-6c806c4ee420)]
-interface nsMsgSearchOp {
+interface nsMsgSearchOp : nsISupports {
     const nsMsgSearchOpValue Contains = 0; /* for text attributes      */
     const nsMsgSearchOpValue DoesntContain = 1;
     const nsMsgSearchOpValue Is = 2; /* is and isn't also apply to some non-text attrs */
@@ -146,7 +146,7 @@ typedef long nsMsgSearchWidgetValue;
 
 /* FEs use this to help build the search dialog box */
 [scriptable,uuid(903dd2e8-304e-11d3-92e6-00a0c900d445)]
-interface nsMsgSearchWidget {
+interface nsMsgSearchWidget : nsISupports {
     const nsMsgSearchWidgetValue Text = 0;
     const nsMsgSearchWidgetValue Date = 1;
     const nsMsgSearchWidgetValue Menu = 2;
@@ -157,7 +157,7 @@ interface nsMsgSearchWidget {
 typedef long nsMsgSearchBooleanOperator;
 
 [scriptable, uuid(a37f3f4a-304e-11d3-8f94-00a0c900d445)]
-interface nsMsgSearchBooleanOp {
+interface nsMsgSearchBooleanOp : nsISupports {
     const nsMsgSearchBooleanOperator BooleanOR = 0;
     const nsMsgSearchBooleanOperator BooleanAND = 1;
 };

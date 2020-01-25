@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsISupports.idl"
+
 typedef unsigned long nsMsgKey;
 typedef unsigned long nsMsgViewIndex;
 
@@ -17,7 +19,7 @@ typedef unsigned long nsMsgJunkStatus;
 typedef unsigned long nsMsgJunkScore;
 
 [scriptable, uuid(94C0D8D8-2045-11d3-8A8F-0060B0FC04D2)]
-interface nsMsgPriority {
+interface nsMsgPriority : nsISupports {
     const nsMsgPriorityValue notSet = 0;
     const nsMsgPriorityValue none = 1;
     const nsMsgPriorityValue lowest = 2;
@@ -35,7 +37,7 @@ interface nsMsgPriority {
  * and @see nsISmtpServer.socketType
  */
 [scriptable, uuid(bc78bc74-1b34-48e8-ac2b-968e8dff1aeb)]
-interface nsMsgSocketType {
+interface nsMsgSocketType : nsISupports {
     /// No SSL or STARTTLS
     const nsMsgSocketTypeValue plain = 0;
     /// Use TLS via STARTTLS, but only if server offers it.
@@ -55,7 +57,7 @@ interface nsMsgSocketType {
  * and @see nsISmtpServer.authMethod
  */
 [scriptable, uuid(4a10e647-d179-4a53-b7ef-df575ff5f405)]
-interface nsMsgAuthMethod {
+interface nsMsgAuthMethod : nsISupports {
     // 0 is intentionally undefined and invalid
     /// No login needed. E.g. IP-address-based.
     const nsMsgAuthMethodValue none = 1;

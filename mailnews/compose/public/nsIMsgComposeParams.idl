@@ -13,7 +13,7 @@ interface nsIMsgDBHdr;
 typedef long MSG_ComposeType;
 
 [scriptable, uuid(c7035852-7531-11d3-9a73-006008948010)]
-interface nsIMsgCompType {
+interface nsIMsgCompType : nsISupports {
     const long New                      = 0;
     const long Reply                    = 1;
     const long ReplyAll                 = 2;
@@ -61,7 +61,7 @@ interface nsIMsgCompType {
 typedef long MSG_ComposeFormat;
 
 [scriptable, uuid(a28325e8-7531-11d3-8f1c-006008948010)]
-interface nsIMsgCompFormat {
+interface nsIMsgCompFormat : nsISupports{
     const long Default                  = 0;
     const long HTML                     = 1;
     const long PlainText                = 2;

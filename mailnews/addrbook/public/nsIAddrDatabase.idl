@@ -40,7 +40,7 @@ interface nsISimpleEnumerator;
 %}
 
 [scriptable, uuid(20d4c6c3-0460-403e-aa9c-813654641566)]
-interface nsAddrDBCommitType
+interface nsAddrDBCommitType : nsISupports
 {
   const long kLargeCommit = 1;
   const long kSessionCommit = 2;

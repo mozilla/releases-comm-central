@@ -3,11 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsISupports.idl"
+
 typedef unsigned long nsMsgMessageFlagType;
 
 /// Flags about a single message.
 [scriptable,uuid(1ea3acdb-7b9f-4e35-9513-76e0a0cc6baa)]
-interface nsMsgMessageFlags
+interface nsMsgMessageFlags : nsISupports
 {
   /// This message has been read
   const nsMsgMessageFlagType Read            = 0x00000001;
@@ -129,7 +131,7 @@ typedef unsigned long nsMsgProcessingFlagType;
  * to these flags need to be supported in the key sets in nsMsgDBFolder
  */
 [scriptable,uuid(1f7d642b-de2a-45f0-a27f-9c9ce0b741d8)]
-interface nsMsgProcessingFlags
+interface nsMsgProcessingFlags : nsISupports
 {
   /// This message needs junk classification
   const nsMsgProcessingFlagType ClassifyJunk   = 0x00000001;

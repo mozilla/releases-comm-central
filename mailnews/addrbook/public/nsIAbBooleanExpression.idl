@@ -16,7 +16,7 @@ typedef long nsAbBooleanConditionType;
  *
  */
 [scriptable, uuid(F51387B1-5AEF-4A1C-830E-7CD3B02366CE)]
-interface nsIAbBooleanConditionTypes
+interface nsIAbBooleanConditionTypes : nsISupports
 {
     const long Exists        = 0;
     const long DoesNotExist        = 1;
@@ -43,7 +43,7 @@ typedef long nsAbBooleanOperationType;
  *
  */
 [uuid(9bdd2e51-2be4-49a4-a558-36d1a812231a)]
-interface nsIAbBooleanOperationTypes
+interface nsIAbBooleanOperationTypes : nsISupports
 {
     const long AND        = 0;
     const long OR        = 1;

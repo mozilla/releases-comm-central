@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsISupports.idl"
+
 // This must be limited to unsigned long (uint32_t, no uint64_t)
 // as long as nsIMsgFolder exposes the 'flags' property which contains
 // all the flags values. The callers are used to do
@@ -12,7 +14,7 @@ typedef unsigned long nsMsgFolderFlagType;
 
 /// Flags about a folder or a newsgroup.
 [scriptable,uuid(440cd0fc-b4b3-4a0f-a492-92fbe7920588)]
-interface nsMsgFolderFlags {
+interface nsMsgFolderFlags : nsISupports {
   /**
    * @name Folder Type Flags
    * These flags define the type of folder. Exactly one will be set.

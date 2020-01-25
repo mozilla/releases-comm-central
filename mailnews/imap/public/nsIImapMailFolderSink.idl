@@ -16,7 +16,7 @@ interface nsIImapHeaderXferInfo;
 typedef long ImapOnlineCopyState;
 
 [scriptable, uuid(5f7484b0-68b4-11d3-a53e-0060b0fc04b7)]
-interface ImapOnlineCopyStateType
+interface ImapOnlineCopyStateType : nsISupports
 {
    const long kInProgress = 0;
    const long kSuccessfulCopy = 1;

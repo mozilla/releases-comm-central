@@ -79,8 +79,7 @@ interface nsIMsgDownloadSettings : nsISupports
 typedef long nsMsgDBCommit;
 
 [scriptable, uuid(15431853-e448-45dc-8978-9958bf74d9b7)]
-
-interface nsMsgDBCommitType
+interface nsMsgDBCommitType : nsISupports
 {
   const long kLargeCommit = 1;
   const long kSessionCommit = 2;

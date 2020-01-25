@@ -6,7 +6,7 @@
 #include "nsIURI.idl"
 
 [scriptable, uuid(6EB9D874-01AA-11d4-8FBE-000064657374)]
-interface nsIAddbookUrlOperation
+interface nsIAddbookUrlOperation : nsISupports
 {
     const long InvalidUrl = 0;
     const long PrintAddressBook = 1;

@@ -23,7 +23,7 @@ interface nsIMsgWindow;
 typedef long MSG_ComposeSaveType;
 
 [scriptable, uuid(6953e50a-7531-11d3-85fe-006008948010)]
-interface nsIMsgCompSaveType {
+interface nsIMsgCompSaveType : nsISupports {
     const long File     = 0;
     const long Template = 1;
     const long Draft    = 2;
@@ -32,7 +32,7 @@ interface nsIMsgCompSaveType {
 typedef long MSG_DeliverMode;
 
 [scriptable, uuid(a9f27dd7-8f89-4de3-8fbf-41b789c16ee5)]
-interface nsIMsgCompDeliverMode {
+interface nsIMsgCompDeliverMode : nsISupports {
     const long Now = 0;
     const long Later = 1;
     const long Save = 2;
@@ -45,7 +45,7 @@ interface nsIMsgCompDeliverMode {
 };
 
 [scriptable, uuid(f38ea280-e090-11d3-a449-e3153319347c)]
-interface nsIMsgCompSendFormat {
+interface nsIMsgCompSendFormat : nsISupports {
     const long AskUser = 4;     /* Hack: Bug 44512. If this is 0 and passed
                                    as results.action to the askSendFormat
                                    dialog, the args object gets destroyed.*/
@@ -55,7 +55,7 @@ interface nsIMsgCompSendFormat {
 };
 
 [scriptable, uuid(9638af92-1dd1-11b2-bef1-ca5fee0abc62)]
-interface nsIMsgCompConvertible/*ToTXT*/ {
+interface nsIMsgCompConvertible : nsISupports /*ToTXT*/ {
     const long Plain = 1;  // Like 4.x: Only <html>, <p>, <br>, ...
     const long Yes = 2;  // *Minor* alterations of the look: <ol>, <dd>, ...
     const long Altering = 3;  /* Look altered: <strong>, <i>, <h1>, ...
@@ -80,7 +80,7 @@ interface nsIMsgComposeStateListener : nsISupports
 };
 
 [scriptable, uuid(061aae23-7e0a-4818-9a15-1b5db3ceb7f4)]
-interface nsIMsgComposeNotificationType
+interface nsIMsgComposeNotificationType : nsISupports
 {
     const long ComposeFieldsReady = 0;
     const long ComposeProcessDone = 1;

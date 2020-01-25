@@ -14,7 +14,7 @@ interface nsIMsgWindow;
 typedef long nsMsgImapDeleteModel;
 
 [scriptable, uuid(bbfc33de-fe89-11d3-a564-0060b0fc04b7)]
-interface nsMsgImapDeleteModels
+interface nsMsgImapDeleteModels : nsISupports
 {
   const long IMAPDelete = 0;    /* delete with a big red x */
   const long MoveToTrash = 1;   /* delete moves message to the trash */

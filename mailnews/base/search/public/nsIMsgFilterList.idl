@@ -105,7 +105,7 @@ interface nsIMsgFilterList : nsISupports {
 
 /* these longs are all actually of type nsMsgFilterMotionValue */
 [scriptable, uuid(d067b528-304e-11d3-a0e1-00a0c900d445)]
-interface nsMsgFilterMotion {
+interface nsMsgFilterMotion : nsISupports {
     const long up = 0;
     const long down = 1;
 };

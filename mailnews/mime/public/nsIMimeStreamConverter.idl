@@ -14,7 +14,7 @@ interface nsIURI;
 typedef long nsMimeOutputType;
 
 [scriptable, uuid(fdc2956e-d558-43fb-bfdd-fb9511229aa5)]
-interface nsMimeOutput
+interface nsMimeOutput : nsISupports
 {
   const long nsMimeMessageSplitDisplay = 0;
   const long nsMimeMessageHeaderDisplay = 1;

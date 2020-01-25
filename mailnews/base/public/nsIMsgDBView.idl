@@ -24,7 +24,7 @@ typedef long nsMsgViewCommandTypeValue;
 typedef long nsMsgNavigationTypeValue;
 
 [scriptable, uuid(682a18be-fd18-11d4-a5be-0060b0fc04b7)]
-interface nsMsgViewSortOrder
+interface nsMsgViewSortOrder : nsISupports
 {
   const nsMsgViewSortOrderValue none = 0;
   const nsMsgViewSortOrderValue ascending = 1;
@@ -32,7 +32,7 @@ interface nsMsgViewSortOrder
 };
 
 [scriptable, uuid(f28a1cdf-06c3-4e98-8f66-f49991670071)]
-interface nsMsgViewType {
+interface nsMsgViewType : nsISupports {
   const nsMsgViewTypeValue eShowAllThreads = 0;
   const nsMsgViewTypeValue eShowThreadsWithUnread = 2;
   const nsMsgViewTypeValue eShowWatchedThreadsWithUnread = 3;
@@ -42,7 +42,7 @@ interface nsMsgViewType {
 };
 
 [scriptable, uuid(64852276-1dd2-11b2-8103-afe12002c053)]
-interface nsMsgViewFlagsType
+interface nsMsgViewFlagsType : nsISupports
 {
   /**
    * flags for GetViewFlags
@@ -56,7 +56,7 @@ interface nsMsgViewFlagsType
 };
 
 [scriptable, uuid(b94fc200-3008-420a-85c7-67842f133ef8)]
-interface nsMsgViewSortType
+interface nsMsgViewSortType : nsISupports
 {
   const nsMsgViewSortTypeValue byNone = 0x11; /* not sorted */
   const nsMsgViewSortTypeValue byDate = 0x12;
@@ -81,7 +81,7 @@ interface nsMsgViewSortType
 };
 
 [scriptable, uuid(255d1c1e-fde7-11d4-a5be-0060b0fc04b7)]
-interface nsMsgViewNotificationCode
+interface nsMsgViewNotificationCode : nsISupports
 {
   const nsMsgViewNotificationCodeValue none = 0;
   /* No change; this call is just being used to potentially nest other sets of calls
@@ -124,7 +124,7 @@ interface nsMsgViewNotificationCode
 };
 
 [scriptable, uuid(4ec9248e-0108-11d5-a5be-0060b0fc04b7)]
-interface nsMsgViewCommandCheckState
+interface nsMsgViewCommandCheckState : nsISupports
 {
   const nsMsgViewCommandCheckStateValue notUsed = 0;
   const nsMsgViewCommandCheckStateValue checked = 1;
@@ -132,7 +132,7 @@ interface nsMsgViewCommandCheckState
 };
 
 [scriptable, uuid(ad36e6cc-0109-11d5-a5be-0060b0fc04b7)]
-interface nsMsgViewCommandType
+interface nsMsgViewCommandType : nsISupports
 {
   const nsMsgViewCommandTypeValue markMessagesRead = 0;
   const nsMsgViewCommandTypeValue markMessagesUnread = 1;
@@ -178,7 +178,7 @@ interface nsMsgViewCommandType
 };
 
 [scriptable, uuid(65903eb2-1dd2-11b2-ac45-c5b69c1618d7)]
-interface nsMsgNavigationType
+interface nsMsgNavigationType : nsISupports
 {
   const nsMsgNavigationTypeValue firstMessage = 1;
   const nsMsgNavigationTypeValue nextMessage = 2;

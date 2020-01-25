@@ -19,7 +19,7 @@ typedef unsigned short imapMessageFlagsType;
 typedef long nsImapContentModifiedType;
 
 [scriptable, uuid(2e91901e-ff6c-11d3-b9fa-00108335942a)]
-interface nsImapContentModifiedTypes
+interface nsImapContentModifiedTypes : nsISupports
 {
   const long IMAP_CONTENT_NOT_MODIFIED = 0;
   const long IMAP_CONTENT_MODIFIED_VIEW_INLINE = 1;

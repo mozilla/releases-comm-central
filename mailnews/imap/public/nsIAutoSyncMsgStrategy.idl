@@ -10,7 +10,7 @@ interface nsIMsgDBHdr;
 typedef long nsAutoSyncStrategyDecisionType;
 
 [scriptable,uuid(0365bec5-3753-43c2-b13e-441747815f37)]
-interface nsAutoSyncStrategyDecisions
+interface nsAutoSyncStrategyDecisions : nsISupports
 {
   /// same priority
   const nsAutoSyncStrategyDecisionType Same         = 0x00000001;

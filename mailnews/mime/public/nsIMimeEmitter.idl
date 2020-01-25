@@ -12,7 +12,7 @@ interface nsIStreamListener;
 interface nsIChannel;
 
 [scriptable, uuid(eb9beb09-44de-4ad2-a560-f572b1afd534)]
-interface nsMimeHeaderDisplayTypes
+interface nsMimeHeaderDisplayTypes : nsISupports
 {
     const long MicroHeaders = 0;
     const long NormalHeaders = 1;
