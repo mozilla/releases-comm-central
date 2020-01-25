@@ -1715,9 +1715,6 @@
         return;
       }
 
-      // Used to store the html:input element from where the pill was generated.
-      this.originalInput;
-
       this.classList.add("address-pill");
       this.setAttribute("context", "emailAddressPillPopup");
       this.setAttribute("allowevents", "true");
@@ -1734,7 +1731,7 @@
       // @implements {nsIObserver}
       this.inputObserver = {
         observe: (subject, topic, data) => {
-          if (topic == "autocomplete-did-enter-text") {
+          if (topic == "autocomplete-did-enter-text" && this.isEditing) {
             this.updatePill();
           }
         },
@@ -1789,6 +1786,19 @@
       this.setAttribute("displayName", val);
     }
 
+    get emailInput() {
+      return this.querySelector(`input[is="autocomplete-input"]`);
+    }
+
+    /**
+     * Get the main addressing input field the pill belongs to.
+     */
+    get rowInput() {
+      return this.closest(".address-container").querySelector(
+        `input[is="autocomplete-input"][recipienttype]`
+      );
+    }
+
     /**
      * Check if the pill is currently in "Edit Mode", meaning the label is
      * hidden and the html:input field is visible.
@@ -1804,13 +1814,8 @@
         this.constructor._fragment = MozXULElement.parseXULToFragment(`
           <html:input is="autocomplete-input"
                       type="text"
-                      class="${this.originalInput.getAttribute(
-                        "class"
-                      )} input-pill"
+                      class="input-pill"
                       disableonsend="true"
-                      aria-labelledby="${this.originalInput.getAttribute(
-                        "aria-labelledby"
-                      )}"
                       autocompletesearch="mydomain addrbook ldap news"
                       autocompletesearchparam="{}"
                       timeout="300"
@@ -1828,22 +1833,7 @@
 
     _setupEmailInput() {
       this.appendChild(this.fragment);
-
-      this.emailInput = this.querySelector(`input[is="autocomplete-input"]`);
       this.emailInput.value = this.fullAddress;
-      this.emailInput.classList.remove("mail-primary-input");
-      this.emailInput.classList.remove("news-primary-input");
-
-      let params = JSON.parse(
-        this.emailInput.getAttribute("autocompletesearchparam")
-      );
-      params.type = this.originalInput.getAttribute("recipienttype");
-      this.emailInput.setAttribute(
-        "autocompletesearchparam",
-        JSON.stringify(params)
-      );
-
-      this.appendChild(this.emailInput);
     }
 
     _setupEventListeners() {
@@ -1909,7 +1899,7 @@
         case "Delete":
         case "Backspace":
           if (!this.emailInput.value.trim() && !event.repeat) {
-            this.originalInput.focus();
+            this.rowInput.focus();
             this.remove();
           }
           break;
@@ -1922,7 +1912,7 @@
       );
 
       if (!addresses[0]) {
-        this.originalInput.focus();
+        this.rowInput.focus();
         this.remove();
         return;
       }
@@ -1950,7 +1940,7 @@
       let isMailingList =
         listNames.length > 0 &&
         MailServices.ab.mailListNameExists(listNames[0].name);
-      let isNewsgroup = this.originalInput.classList.contains("news-input");
+      let isNewsgroup = this.emailInput.classList.contains("news-input");
 
       this.classList.toggle(
         "error",
@@ -1968,7 +1958,7 @@
       this.classList.remove("editing");
       this.pillLabel.removeAttribute("hidden");
       this.emailInput.setAttribute("hidden", "hidden");
-      this.originalInput.focus();
+      this.rowInput.focus();
     }
 
     removeObserver() {
@@ -2120,8 +2110,8 @@
     createRecipientPill(element, address) {
       let pill = document.createXULElement("mail-address-pill");
 
-      pill.originalInput = element;
       pill.label = address.toString();
+
       pill.emailAddress = address.email || "";
       pill.fullAddress = address.toString();
       pill.displayName = address.name || "";
@@ -2161,6 +2151,29 @@
       });
 
       element.closest(".address-container").insertBefore(pill, element);
+
+      // The emailInput attribute is accessible only after the pill has been
+      // appended to the DOM.
+      let classes = element.getAttribute("class").split(" ");
+      var fixedClassed = classes.filter(value => {
+        return value != "mail-primary-input" && value != "news-primary-input";
+      });
+      for (let css of fixedClassed) {
+        pill.emailInput.classList.add(css);
+      }
+      pill.emailInput.setAttribute(
+        "aria-labelledby",
+        element.getAttribute("aria-labelledby")
+      );
+
+      let params = JSON.parse(
+        pill.emailInput.getAttribute("autocompletesearchparam")
+      );
+      params.type = element.getAttribute("recipienttype");
+      pill.emailInput.setAttribute(
+        "autocompletesearchparam",
+        JSON.stringify(params)
+      );
     }
 
     /**
@@ -2212,7 +2225,7 @@
           break;
 
         case "End":
-          pill.originalInput.focus();
+          pill.rowInput.focus();
           break;
 
         case "Tab":
@@ -2317,11 +2330,15 @@
      * @param {XULElement} pill - The mail-address-pill element.
      */
     removePills(pill) {
+      // Store the addressing input that needs to receive focus before deleting
+      // the pill.
+      let rowInput = pill.rowInput;
       for (let item of this.getAllSelectedPills()) {
         item.remove();
       }
 
-      pill.originalInput.focus();
+      rowInput.focus();
+      // Manually remove the pill in case it wasn't part of the selected array.
       pill.remove();
 
       onRecipientsChanged();

@@ -3961,7 +3961,7 @@ function updateSendLock() {
       if (
         isValidAddress(address.emailAddress) ||
         isMailingList ||
-        address.originalInput.classList.contains("news-input")
+        address.emailInput.classList.contains("news-input")
       ) {
         gSendLocked = false;
         break;
