@@ -143,6 +143,14 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   visibility: collapse;
 }
 
+@media (-moz-os-version: windows-win7) and (-moz-windows-glass: 0) {
+  #messengerWindow[tabsintitlebar]
+    #mail-toolbar-menubar2:not([autohide]) + #tabs-toolbar >
+    .titlebar-placeholder {
+    visibility: collapse;
+  }
+}
+
 /* Add extra space to titlebar for dragging */
 :root[sizemode="normal"] #mail-toolbar-menubar2[autohide="true"][inactive] ~ #tabs-toolbar {
   padding-top: var(--space-above-tabbar);
