@@ -361,6 +361,10 @@ pref("security.warn_leaving_secure", false);
 pref("security.warn_viewing_mixed", false);
 pref("security.aboutcertificate.enabled", false);
 
+// Prompt for the master password prior to opening application windows,
+// to avoid the race that triggers multiple prompts (see bug 177175).
+pref("security.prompt_for_master_password_on_startup", true);
+
 pref("general.config.obscure_value", 0); // for MCD .cfg files
 
 pref("browser.display.auto_quality_min_font_size", 0);
