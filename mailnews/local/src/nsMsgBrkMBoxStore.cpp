@@ -967,6 +967,9 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent,
 
     nsCOMPtr<nsIMsgFolder> child;
     rv = parent->AddSubfolder(leafName, getter_AddRefs(child));
+    if (NS_FAILED(rv) && rv != NS_MSG_FOLDER_EXISTS) {
+      return rv;
+    }
     if (child) {
       nsString folderName;
       child->GetName(folderName);  // try to get it from cache/db
@@ -974,7 +977,9 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent,
       if (deep) {
         nsCOMPtr<nsIFile> path;
         rv = child->GetFilePath(getter_AddRefs(path));
-        AddSubFolders(child, path, true);
+        NS_ENSURE_SUCCESS(rv, rv);
+        rv = AddSubFolders(child, path, true);
+        NS_ENSURE_SUCCESS(rv, rv);
       }
     }
   }

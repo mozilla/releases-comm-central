@@ -184,6 +184,7 @@ nsMsgLocalMailFolder::GetSubFolders(nsISimpleEnumerator **aResult) {
     NS_ENSURE_SUCCESS(rv, rv);
     // This should add all existing folders as sub-folders of this folder.
     rv = msgStore->DiscoverSubFolders(this, true);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIFile> path;
     rv = GetFilePath(getter_AddRefs(path));
