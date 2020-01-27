@@ -55,53 +55,37 @@ var abFlavorDataProvider = {
   },
 };
 
-var abResultsPaneObserver = {
-  onDragStart(aEvent, aXferData, aDragAction) {
-    var selectedRows = GetSelectedRows();
+let abResultsPaneObserver = {
+  onDragStart(event) {
+    let selectedRows = GetSelectedRows();
 
     if (!selectedRows) {
       return;
     }
 
-    var selectedAddresses = GetSelectedAddresses();
+    let selectedAddresses = GetSelectedAddresses();
 
-    aXferData.data = new TransferData();
-    aXferData.data.addDataForFlavour("moz/abcard", selectedRows);
-    aXferData.data.addDataForFlavour("text/x-moz-address", selectedAddresses);
-    aXferData.data.addDataForFlavour("text/unicode", selectedAddresses);
+    event.dataTransfer.setData("moz/abcard", selectedRows);
+    event.dataTransfer.setData("moz/abcard", selectedRows);
+    event.dataTransfer.setData("text/x-moz-address", selectedAddresses);
+    event.dataTransfer.setData("text/unicode", selectedAddresses);
 
-    let srcDirectory = getSelectedDirectory();
-    // The default allowable actions are copy, move and link, so we need
-    // to restrict them here.
-    if (!srcDirectory.readOnly) {
-      // Only allow copy & move from read-write directories.
-      aDragAction.action =
-        Ci.nsIDragService.DRAGDROP_ACTION_COPY |
-        Ci.nsIDragService.DRAGDROP_ACTION_MOVE;
-    } else {
-      // Only allow copy from read-only directories.
-      aDragAction.action = Ci.nsIDragService.DRAGDROP_ACTION_COPY;
-    }
-
-    var card = GetSelectedCard();
+    let card = GetSelectedCard();
     if (card && card.displayName) {
       try {
         // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
         // Don't break drag-and-drop if that happens.
         let vCard = card.translateTo("vcard");
-        aXferData.data.addDataForFlavour(
-          "text/vcard",
-          decodeURIComponent(vCard)
-        );
-        aXferData.data.addDataForFlavour(
+        event.dataTransfer.setData("text/vcard", decodeURIComponent(vCard));
+        event.dataTransfer.setData(
           "application/x-moz-file-promise-dest-filename",
           card.displayName + ".vcf"
         );
-        aXferData.data.addDataForFlavour(
+        event.dataTransfer.setData(
           "application/x-moz-file-promise-url",
           "data:text/vcard," + vCard
         );
-        aXferData.data.addDataForFlavour(
+        event.dataTransfer.setData(
           "application/x-moz-file-promise",
           abFlavorDataProvider
         );
@@ -109,16 +93,12 @@ var abResultsPaneObserver = {
         Cu.reportError(ex);
       }
     }
-  },
 
-  onDrop(aEvent, aXferData, aDragSession) {},
-
-  onDragExit(aEvent, aDragSession) {},
-
-  onDragOver(aEvent, aFlavour, aDragSession) {},
-
-  getSupportedFlavours() {
-    return null;
+    event.dataTransfer.effectAllowed = "copyMove";
+    // a drag targeted at a tree should instead use the treechildren so that
+    // the current selection is used as the drag feedback
+    event.dataTransfer.addElement(event.originalTarget);
+    event.stopPropagation();
   },
 };
 
@@ -415,41 +395,4 @@ function DragAddressOverTargetControl(event) {
     }
   }
   dragSession.canDrop = canDrop;
-}
-
-function DropAddressOverTargetControl(event) {
-  var dragSession = gDragService.getCurrentSession();
-
-  var trans = Cc["@mozilla.org/widget/transferable;1"].createInstance(
-    Ci.nsITransferable
-  );
-  trans.addDataFlavor("text/x-moz-address");
-
-  for (var i = 0; i < dragSession.numDropItems; ++i) {
-    dragSession.getData(trans, i);
-    var dataObj = {};
-    var bestFlavor = {};
-
-    // Ensure we catch any empty data that may have slipped through
-    try {
-      trans.getAnyTransferData(bestFlavor, dataObj);
-    } catch (ex) {
-      continue;
-    }
-
-    if (dataObj) {
-      dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
-    }
-    if (!dataObj) {
-      continue;
-    }
-
-    // pull the address out of the data object
-    var address = dataObj.data.substring(0, dataObj.length);
-    if (!address) {
-      continue;
-    }
-
-    DropRecipient(address);
-  }
 }

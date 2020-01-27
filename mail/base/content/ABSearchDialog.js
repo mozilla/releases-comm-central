@@ -10,7 +10,6 @@
 /* import-globals-from commandglue.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from msgMail3PaneWindow.js */
-/* import-globals-from nsDragAndDrop.js */
 
 var { encodeABTermValue } = ChromeUtils.import(
   "resource:///modules/ABQueryUtils.jsm"

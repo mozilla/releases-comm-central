@@ -54,7 +54,6 @@
 
 <!-- move needed functions into a single js file -->
 <script src="chrome://communicator/content/utilityOverlay.js"/>
-<script src="chrome://global/content/nsDragAndDrop.js"/>
 <script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
 <script src="chrome://global/content/globalOverlay.js"/>
 <script src="chrome://global/content/editMenuOverlay.js"/>
@@ -808,7 +807,7 @@
           -->
         </treecols>
 
-        <treechildren ondragstart="nsDragAndDrop.startDrag(event, abResultsPaneObserver);"/>
+        <treechildren ondragstart="abResultsPaneObserver.onDragStart(event);"/>
       </tree>
 
       <splitter id="results-splitter" collapse="after" persist="state" orient="vertical"/>

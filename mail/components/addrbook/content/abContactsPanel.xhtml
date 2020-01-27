@@ -22,7 +22,6 @@
 
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
-  <script src="chrome://global/content/nsDragAndDrop.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://communicator/content/utilityOverlay.js"/>
@@ -149,7 +148,7 @@
                  persist="hidden ordinal width sortDirection" hidden="true"
                  flex="1" label="&PrimaryEmail.label;"/>
       </treecols>
-      <treechildren ondragstart="nsDragAndDrop.startDrag(event, abResultsPaneObserver);"/>
+      <treechildren ondragstart="abResultsPaneObserver.onDragStart(event);"/>
     </tree>
 
     <separator class="thin"/>

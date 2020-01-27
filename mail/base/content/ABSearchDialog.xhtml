@@ -33,7 +33,6 @@
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
-  <script src="chrome://global/content/nsDragAndDrop.js"/>
   <script src="chrome://messenger/content/mailWindow.js"/>
   <script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -164,7 +163,7 @@
            -->
 
           </treecols>
-          <treechildren ondragstart="nsDragAndDrop.startDrag(event, abResultsPaneObserver);"/>
+          <treechildren ondragstart="abResultsPaneObserver.onDragStart(event);"/>
         </tree>
       </vbox>
       <hbox align="start">
