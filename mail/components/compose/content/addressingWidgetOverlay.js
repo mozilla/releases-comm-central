@@ -688,25 +688,15 @@ function cutEmailNewsAddress(element) {
 }
 
 /**
- * Delete the selected pill/pills.
+ * Delete the selected pill(s).
  *
  * @param {XULElement} element - The element from which the context menu was
  *   opened.
  */
 function deleteAddressPill(element) {
-  // We need to store the input location before removing the pills.
-  let input = element
-    .closest(".address-container")
-    .querySelector(`input[is="autocomplete-input"][recipienttype]`);
-
-  for (let pill of document
-    .getElementById("recipientsContainer")
-    .getAllSelectedPills()) {
-    pill.remove();
-  }
-
-  input.focus();
-  onRecipientsChanged();
+  // element is the pill's <label>, get the pill.
+  let pill = element.closest("mail-address-pill");
+  document.getElementById("recipientsContainer").removeSelectedPills(pill);
 }
 
 /**
