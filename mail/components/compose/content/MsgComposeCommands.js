@@ -6972,7 +6972,12 @@ function DisplaySaveFolderDlg(folderURI) {
 }
 
 function SetMsgToRecipientElementFocus() {
-  document.getElementById("toAddrInput").focus();
+  if (!document.getElementById("addressRowTo").classList.contains("hidden")) {
+    document.getElementById("toAddrInput").focus();
+    return;
+  }
+
+  SetFocusOnNextAvailableElement(document.getElementById("toAddrInput"));
 }
 
 function SetMsgIdentityElementFocus() {
@@ -7075,7 +7080,15 @@ function WhichElementHasFocus() {
     if (
       currentNode == document.getElementById("msgIdentity") ||
       currentNode == document.getElementById("toAddrInput") ||
+      currentNode == document.getElementById("ccAddrInput") ||
+      currentNode == document.getElementById("bccAddrInput") ||
+      currentNode == document.getElementById("replyAddrInput") ||
+      currentNode == document.getElementById("newsgroupsAddrInput") ||
+      currentNode == document.getElementById("followupAddrInput") ||
       currentNode == document.getElementById("msgSubject") ||
+      currentNode == document.getElementById("extraRecipientsLabel") ||
+      currentNode == document.getElementById("addr_bcc") ||
+      currentNode == document.getElementById("addr_cc") ||
       currentNode == msgAttachmentElement ||
       currentNode == abContactsPanelElement
     ) {
@@ -7112,6 +7125,21 @@ function SwitchElementFocus(event) {
   if (event && event.shiftKey) {
     // Backwards focus ring: e.g. Ctrl+Shift+Tab | Shift+F6
     switch (focusedElement) {
+      case document.getElementById("newsgroupsAddrInput"):
+        SetFocusOnPreviousAvailableElement(focusedElement);
+        break;
+      case document.getElementById("followupAddrInput"):
+        SetFocusOnPreviousAvailableElement(focusedElement);
+        break;
+      case document.getElementById("replyAddrInput"):
+        SetFocusOnPreviousAvailableElement(focusedElement);
+        break;
+      case document.getElementById("bccAddrInput"):
+        SetFocusOnPreviousAvailableElement(focusedElement);
+        break;
+      case document.getElementById("ccAddrInput"):
+        SetFocusOnPreviousAvailableElement(focusedElement);
+        break;
       case document.getElementById("toAddrInput"):
         SetMsgIdentityElementFocus();
         break;
@@ -7136,44 +7164,125 @@ function SwitchElementFocus(event) {
       case gMsgAttachmentElement:
         SetMsgSubjectElementFocus();
         break;
+      case document.getElementById("msgSubject"):
+        SetFocusOnPreviousAvailableElement(focusedElement);
+        break;
       default:
-        // document.getElementById("msgSubject")
+        // focus on '#msgIdentity'
         SetMsgToRecipientElementFocus();
         break;
     }
-  } else {
-    // Forwards focus ring: e.g. Ctrl+Tab | F6
-    switch (focusedElement) {
-      case document.getElementById("toAddrInput"):
-        SetMsgSubjectElementFocus();
-        break;
-      case document.getElementById("msgSubject"):
-        // Only set focus to the attachment element if it is shown.
-        if (!document.getElementById("attachments-box").collapsed) {
-          SetMsgAttachmentElementFocus();
-        } else {
-          SetMsgBodyFrameFocus();
-        }
-        break;
-      case gMsgAttachmentElement:
+
+    return;
+  }
+
+  // Forwards focus ring: e.g. Ctrl+Tab | F6
+  switch (focusedElement) {
+    case document.getElementById("toAddrInput"):
+      SetFocusOnNextAvailableElement(focusedElement);
+      break;
+    case document.getElementById("ccAddrInput"):
+      SetFocusOnNextAvailableElement(focusedElement);
+      break;
+    case document.getElementById("bccAddrInput"):
+      SetFocusOnNextAvailableElement(focusedElement);
+      break;
+    case document.getElementById("replyAddrInput"):
+      SetFocusOnNextAvailableElement(focusedElement);
+      break;
+    case document.getElementById("followupAddrInput"):
+      SetFocusOnNextAvailableElement(focusedElement);
+      break;
+    case document.getElementById("newsgroupsAddrInput"):
+      SetFocusOnNextAvailableElement(focusedElement);
+      break;
+    case document.getElementById("msgSubject"):
+      // Only set focus to the attachment element if it is shown.
+      if (!document.getElementById("attachments-box").collapsed) {
+        SetMsgAttachmentElementFocus();
+      } else {
         SetMsgBodyFrameFocus();
-        break;
-      case window.content:
-        // Focus the search input of contacts side bar if that's available,
-        // otherwise focus "From" selector.
-        if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
-          SetMsgIdentityElementFocus();
-        }
-        break;
-      case sidebarDocumentGetElementById("abContactsPanel"):
+      }
+      break;
+    case gMsgAttachmentElement:
+      SetMsgBodyFrameFocus();
+      break;
+    case window.content:
+      // Focus the search input of contacts side bar if that's available,
+      // otherwise focus "From" selector.
+      if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
         SetMsgIdentityElementFocus();
-        break;
-      default:
-        // document.getElementById("msgIdentity")
-        SetMsgToRecipientElementFocus();
-        break;
+      }
+      break;
+    case sidebarDocumentGetElementById("abContactsPanel"):
+      SetMsgIdentityElementFocus();
+      break;
+    default:
+      SetMsgToRecipientElementFocus();
+      break;
+  }
+}
+
+/**
+ * Find the closest visible previous element in the list of recipients
+ * and move the focus on its autocomplete input field.
+ *
+ * @param {HTMLElement} element - The currently focused element.
+ */
+function SetFocusOnPreviousAvailableElement(element) {
+  // If the current element is msgSubject we need to select the last not hidden
+  // row in the mail-recipients-area.
+  if (element == document.getElementById("msgSubject")) {
+    element = document.getElementById("recipientsContainer").lastChild;
+
+    // If the last available address-row child is not hidden, grab the focus.
+    if (!element.classList.contains("hidden")) {
+      element
+        .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+        .focus();
+      return;
     }
   }
+
+  // If a previous address row is abailable and not hidden,
+  // focus on the autocomplete input field.
+  let previousRow = element.closest(".address-row").previousElementSibling;
+  while (previousRow) {
+    if (!previousRow.classList.contains("hidden")) {
+      previousRow
+        .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+        .focus();
+      return;
+    }
+    previousRow = previousRow.previousElementSibling;
+  }
+
+  // Move the focus on the msgIdentity if no extra recipients are available.
+  SetMsgIdentityElementFocus();
+}
+
+/**
+ * Find the closest visible next element in the list of recipients
+ * and move the focus on its autocomplete input field.
+ *
+ * @param {HTMLElement} element - The currently focused element.
+ */
+function SetFocusOnNextAvailableElement(element) {
+  // If a next address row is abailable and not hidden,
+  // focus on the autocomplete input field.
+  let nextRow = element.closest(".address-row").nextElementSibling;
+  while (nextRow) {
+    if (!nextRow.classList.contains("hidden")) {
+      nextRow
+        .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+        .focus();
+      return;
+    }
+    nextRow = nextRow.nextElementSibling;
+  }
+
+  // Move the focus on the msgSubject if no extra recipients are available.
+  SetMsgSubjectElementFocus();
 }
 
 function sidebarCloseButtonOnCommand() {

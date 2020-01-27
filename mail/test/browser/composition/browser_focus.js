@@ -27,11 +27,19 @@ var { mc } = ChromeUtils.import(
  *                use F6
  */
 function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
+  // Make sure the accessibility tabfocus is set to 7 to enable normal Tab
+  // focus on non-input field elements. This is necessary only for macOS as
+  // the dafault value is 2 instead of the default 7 used on Windows and Linux.
+  Services.prefs.setIntPref("accessibility.tabfocus", 7);
+
   let addressingElement = controller.e("toAddrInput");
   let subjectElement = controller.e("msgSubject");
   let attachmentElement = controller.e("attachmentBucket");
   let contentElement = controller.window.content;
   let identityElement = controller.e("msgIdentity");
+  let extraRecipientsLabel = controller.e("extraRecipientsLabel");
+  let bccLabel = controller.e("addr_bcc");
+  let ccLabel = controller.e("addr_cc");
 
   let key = ctrlTab ? "VK_TAB" : "VK_F6";
 
@@ -52,6 +60,20 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
   Assert.equal(addressingElement, controller.window.WhichElementHasFocus());
 
   controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
+
+  if (ctrlTab) {
+    Assert.equal(
+      extraRecipientsLabel,
+      controller.window.WhichElementHasFocus()
+    );
+    controller.keypress(null, key, { shiftKey: true });
+    Assert.equal(bccLabel, controller.window.WhichElementHasFocus());
+    controller.keypress(null, key, { shiftKey: true });
+    Assert.equal(ccLabel, controller.window.WhichElementHasFocus());
+
+    controller.keypress(null, key, { shiftKey: true });
+  }
+
   Assert.equal(identityElement, controller.window.WhichElementHasFocus());
   controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
   Assert.equal(contentElement, controller.window.WhichElementHasFocus());
@@ -64,6 +86,9 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
   controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
   mc.sleep(0); // Focusing the addressing element happens in a timeout...
   Assert.equal(addressingElement, controller.window.WhichElementHasFocus());
+
+  // Reset the preferences.
+  Services.prefs.clearUserPref("accessibility.tabfocus");
 }
 
 add_task(function test_f6_no_attachment() {
