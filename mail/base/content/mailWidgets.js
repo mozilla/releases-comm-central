@@ -1803,7 +1803,7 @@
      * Check if the pill is currently in "Edit Mode", meaning the label is
      * hidden and the html:input field is visible.
      *
-     * @return {boolean} true if the pill is currently being edited.
+     * @returns {boolean} True if the pill is currently being edited.
      */
     get isEditing() {
       return !this.emailInput.hasAttribute("hidden");
@@ -1961,36 +1961,6 @@
       this.rowInput.focus();
     }
 
-    /**
-     * Get the nearest sibling pill which is not selected.
-     *
-     * @param {("next"|"previous")} [siblingsType="next"] - Iterate next or
-     *   previous siblings.
-     * @return {HTMLElement} - The nearest unselected sibling element, or null.
-     */
-    getUnselectedSiblingPill(siblingsType = "next") {
-      if (siblingsType == "next") {
-        // Check for next siblings.
-        let element = this.nextElementSibling;
-        while (element) {
-          if (!element.hasAttribute("selected")) {
-            return element;
-          }
-          element = element.nextElementSibling;
-        }
-        return null;
-      }
-      // Check for previous siblings.
-      let element = this.previousElementSibling;
-      while (element) {
-        if (!element.hasAttribute("selected")) {
-          return element;
-        }
-        element = element.previousElementSibling;
-      }
-      return null;
-    }
-
     removeObserver() {
       Services.obs.removeObserver(
         this.inputObserver,
@@ -2027,7 +1997,7 @@
      * Create a new recipient row container with the input autocomplete.
      *
      * @param {Array} recipient - The unique identifier of the email header.
-     * @return {Element} - The newly created recipient row.
+     * @returns {XULElement} - The newly created recipient row.
      */
     buildRecipientRows(recipient) {
       let row = document.createXULElement("hbox");
@@ -2207,9 +2177,9 @@
     }
 
     /**
-     * Handle keypress event on a pill in the mail-recipients-area.
+     * Move the focus on the first pill from the same .address-container.
      *
-     * @param {Element} pill - The mail-address-pill element where Event fired.
+     * @param {XULElement} pill - The mail-address-pill element.
      * @param {Event} event - The DOM Event.
      */
     handleKeyPress(pill, event) {
@@ -2225,18 +2195,7 @@
 
         case "Delete":
         case "Backspace":
-          // We must never delete a focused pill which is not selected.
-          // If no pills selected, just select the focused pill.
-          // For rapid repeated deletions (esp. from holding BACKSPACE),
-          // stop before selecting another focused pill for deletion.
-          if (!this.hasSelectedPills() && !event.repeat) {
-            pill.setAttribute("selected", "selected");
-            break;
-          }
-          // Delete selected pills, handle focus and select another pill
-          // where applicable.
-          let focusType = event.key == "Delete" ? "next" : "previous";
-          this.removeSelectedPills(pill, focusType, true);
+          this.removePills(pill);
           break;
 
         case "ArrowLeft":
@@ -2290,7 +2249,7 @@
         case "x":
           if (event.ctrlKey || event.metaKey) {
             copyEmailNewsAddress(pill);
-            this.removeSelectedPills(pill);
+            deleteAddressPill(pill);
           }
           break;
       }
@@ -2339,10 +2298,7 @@
         this.setAttribute("selected", "selected");
         element.setAttribute("selected", "selected");
       } else if (!event.ctrlKey) {
-        // Non-modified navigation keys must select the target pill and deselect
-        // all others. Also some other keys like Backspace from rowInput.
         this.clearSelected();
-        element.setAttribute("selected", "selected");
       }
     }
 
@@ -2368,61 +2324,23 @@
     }
 
     /**
-     * Delete all selected pills and handle focus and selection smartly as needed.
+     * When a "Delete" action is triggered, we need to check if other pills are
+     * currently selected and delete them all.
      *
-     * @param {Element} pill - The mail-address-pill element where Event fired.
-     * @param {("next"|"previous")} [focusType="next"] - How to move focus after
-     *   removing pills: try to focus one of the next siblings (for DEL etc.)
-     *   or one of the previous siblings (for BACKSPACE).
-     * @param {boolean} [select=false] - After deletion, whether to select the
-     *   focused pill where applicable.
+     * @param {XULElement} pill - The mail-address-pill element.
      */
-    removeSelectedPills(pill, focusType = "next", select = false) {
-      // We'll look hard for an appropriate element to focus after the removal.
-      let focusElement = null;
-      // Get addressContainer and rowInput now as pill might be deleted later.
-      let addressContainer = pill.closest(".address-container");
+    removePills(pill) {
+      // Store the addressing input that needs to receive focus before deleting
+      // the pill.
       let rowInput = pill.rowInput;
-      let unselectedSourcePill = false;
-      if (pill.hasAttribute("selected")) {
-        // Find focus (1): Focused pill is selected and will be deleted;
-        // try nearest sibling, observing focusType direction.
-        focusElement = pill.getUnselectedSiblingPill(focusType);
-      } else {
-        // The source pill isn't selected; keep it focused ("satellite focus").
-        unselectedSourcePill = true;
-        focusElement = pill;
+      for (let item of this.getAllSelectedPills()) {
+        item.remove();
       }
 
-      // Remove selected pills.
-      let selectedPills = this.getAllSelectedPills();
-      for (let sPill of selectedPills) {
-        sPill.remove();
-      }
+      rowInput.focus();
+      // Manually remove the pill in case it wasn't part of the selected array.
+      pill.remove();
 
-      // Find focus (2): When deleting backwards, if no previous sibling found,
-      // this means that the first pill was deleted. Try the first remaining pill,
-      // but don't auto-select it because it's in the opposite direction.
-      if (!focusElement && focusType == "previous") {
-        focusElement = addressContainer.querySelector("mail-address-pill");
-      } else if (
-        select &&
-        focusElement &&
-        selectedPills.length == 1 &&
-        !unselectedSourcePill
-      ) {
-        // If select = true (DEL or BACKSPACE), and we found a pill to focus in
-        // round (1), and we have removed a single pill only, and it's not a
-        // case of "satellite focus" (see above):
-        // Conveniently select the nearest pill for rapid consecutive deletions.
-        focusElement.setAttribute("selected", "selected");
-      }
-      // Find focus (3): If all else fails (no pills left in addressContainer,
-      // or last pill deleted forwards): Focus rowInput.
-      if (!focusElement) {
-        focusElement = rowInput;
-      }
-      focusElement.focus();
       onRecipientsChanged();
       calculateHeaderHeight();
     }
@@ -2475,15 +2393,6 @@
      */
     getAllSelectedPills() {
       return this.querySelectorAll("mail-address-pill[selected]");
-    }
-
-    /**
-     * Check if any pill in the addressing area is selected.
-     *
-     * @return {boolean} true if any pill is selected.
-     */
-    hasSelectedPills() {
-      return Boolean(this.querySelector("mail-address-pill[selected]"));
     }
   }
 
