@@ -468,7 +468,7 @@ function SetRelativeCheckbox(checkbox) {
 
   var editor = GetCurrentEditor();
   // Mail never allows relative URLs, so hide the checkbox
-  if (editor && editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask) {
+  if (editor && editor.flags & Ci.nsIEditor.eEditorMailMask) {
     checkbox.collapsed = true;
     return;
   }
@@ -662,7 +662,7 @@ function FillLinkMenulist(linkMenulist, headingsArray) {
       }
     } else {
       // Don't bother with named anchors in Mail.
-      if (editor && editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask) {
+      if (editor && editor.flags & Ci.nsIEditor.eEditorMailMask) {
         linkMenulist.removeAttribute("enablehistory");
         return;
       }

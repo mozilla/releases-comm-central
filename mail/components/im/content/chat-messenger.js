@@ -895,7 +895,7 @@ var chatHandler = {
         // Set "mail editor mask" so changing the language doesn't
         // affect the global preference and multiple chats can have
         // individual languages.
-        conv.editor.editor.flags |= Ci.nsIPlaintextEditor.eEditorMailMask;
+        conv.editor.editor.flags |= Ci.nsIEditor.eEditorMailMask;
 
         // Initialise language to the default.
         conv.editor.setAttribute(

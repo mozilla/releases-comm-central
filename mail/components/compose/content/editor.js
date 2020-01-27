@@ -2116,10 +2116,7 @@ function goUpdateTableMenuItems(commandset) {
   var enabledIfTable = false;
 
   var flags = editor.flags;
-  if (
-    !(flags & nsIPlaintextEditor.eEditorReadonlyMask) &&
-    IsEditingRenderedHTML()
-  ) {
+  if (!(flags & Ci.nsIEditor.eEditorReadonlyMask) && IsEditingRenderedHTML()) {
     var tagNameObj = { value: "" };
     var element;
     try {
@@ -2173,7 +2170,7 @@ function IsInTable() {
     var flags = editor.flags;
     return (
       IsHTMLEditor() &&
-      !(flags & nsIPlaintextEditor.eEditorReadonlyMask) &&
+      !(flags & Ci.nsIEditor.eEditorReadonlyMask) &&
       IsEditingRenderedHTML() &&
       null != editor.getElementOrParentByTagName("table", null)
     );
@@ -2187,7 +2184,7 @@ function IsInTableCell() {
     var flags = editor.flags;
     return (
       IsHTMLEditor() &&
-      !(flags & nsIPlaintextEditor.eEditorReadonlyMask) &&
+      !(flags & Ci.nsIEditor.eEditorReadonlyMask) &&
       IsEditingRenderedHTML() &&
       null != editor.getElementOrParentByTagName("td", null)
     );

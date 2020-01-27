@@ -240,9 +240,9 @@ function updateEditableFields(aDisable) {
   }
 
   if (aDisable) {
-    gMsgCompose.editor.flags |= Ci.nsIPlaintextEditor.eEditorReadonlyMask;
+    gMsgCompose.editor.flags |= Ci.nsIEditor.eEditorReadonlyMask;
   } else {
-    gMsgCompose.editor.flags &= ~Ci.nsIPlaintextEditor.eEditorReadonlyMask;
+    gMsgCompose.editor.flags &= ~Ci.nsIEditor.eEditorReadonlyMask;
   }
 
   let elements = document.querySelectorAll('[disableonsend="true"]');
@@ -2342,8 +2342,7 @@ function ComposeFieldsReady() {
   // If we are in plain text, we need to set the wrap column
   if (!gMsgCompose.composeHTML) {
     try {
-      gMsgCompose.editor.QueryInterface(Ci.nsIPlaintextEditor).wrapWidth =
-        gMsgCompose.wrapLength;
+      gMsgCompose.editor.wrapWidth = gMsgCompose.wrapLength;
     } catch (e) {
       dump("### textEditor.wrapWidth exception text: " + e + " - failed\n");
     }
@@ -7693,7 +7692,7 @@ function InitEditor() {
   // Set eEditorMailMask flag to avoid using content prefs for spell checker,
   // otherwise dictionary setting in preferences is ignored and dictionary is
   // inconsistent in subject and message body.
-  let eEditorMailMask = Ci.nsIPlaintextEditor.eEditorMailMask;
+  let eEditorMailMask = Ci.nsIEditor.eEditorMailMask;
   editor.flags |= eEditorMailMask;
   document.getElementById("msgSubject").editor.flags |= eEditorMailMask;
 

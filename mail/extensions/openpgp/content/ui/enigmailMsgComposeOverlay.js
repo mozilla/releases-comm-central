@@ -3094,8 +3094,7 @@ Enigmail.msg = {
     wrapresultObj.usePpgMime = false;
     try {
       const dce = Components.interfaces.nsIDocumentEncoder;
-      var wrapper = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIEditorMailSupport);
-      var editor = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIPlaintextEditor);
+      var editor = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIEditorMailSupport);
       var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
 
       var wrapWidth = this.getMailPref("mailnews.wraplength");
@@ -3109,7 +3108,7 @@ Enigmail.msg = {
       if (wrapWidth && editor.wrapWidth > 0) {
         // First use standard editor wrap mechanism:
         editor.wrapWidth = wrapWidth - 2;
-        wrapper.rewrap(true);
+        editor.rewrap(true);
         editor.wrapWidth = wrapWidth;
 
         // Now get plaintext from editor
@@ -4104,8 +4103,7 @@ Enigmail.msg = {
     }
     var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
 
-    var wrapper = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIEditorMailSupport);
-    var editor = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIPlaintextEditor);
+    var editor = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIEditorMailSupport);
     var wrapWidth = 72;
 
     if (!(sendInfo.sendFlags & ENCRYPT)) {
@@ -4124,7 +4122,7 @@ Enigmail.msg = {
           if (EnigmailPrefs.getPref("wrapHtmlBeforeSend")) {
             if (wrapWidth) {
               editor.wrapWidth = wrapWidth - 2; // prepare for the worst case: a 72 char's long line starting with '-'
-              wrapper.rewrap(false);
+              editor.rewrap(false);
             }
           }
         }

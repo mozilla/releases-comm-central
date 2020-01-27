@@ -20,7 +20,6 @@ var nsIMsgCompConvertible = Ci.nsIMsgCompConvertible;
 var nsIMsgCompType = Ci.nsIMsgCompType;
 var nsIMsgCompFormat = Ci.nsIMsgCompFormat;
 var nsIAbPreferMailFormat = Ci.nsIAbPreferMailFormat;
-var nsIPlaintextEditorMail = Ci.nsIPlaintextEditor;
 var mozISpellCheckingEngine = Ci.mozISpellCheckingEngine;
 
 /**
@@ -134,7 +133,7 @@ function ReleaseGlobalVariables()
 
 function disableEditableFields()
 {
-  gMsgCompose.editor.flags |= nsIPlaintextEditorMail.eEditorReadonlyMask;
+  gMsgCompose.editor.flags |= Ci.nsIEditor.eEditorReadonlyMask;
   var disableElements = document.getElementsByAttribute("disableonsend", "true");
   for (let i = 0; i < disableElements.length; i++)
     disableElements[i].setAttribute('disabled', 'true');
@@ -143,7 +142,7 @@ function disableEditableFields()
 
 function enableEditableFields()
 {
-  gMsgCompose.editor.flags &= ~nsIPlaintextEditorMail.eEditorReadonlyMask;
+  gMsgCompose.editor.flags &= ~Ci.nsIEditor.eEditorReadonlyMask;
   var enableElements = document.getElementsByAttribute("disableonsend", "true");
   for (let i = 0; i < enableElements.length; i++)
     enableElements[i].removeAttribute('disabled');
@@ -982,8 +981,7 @@ function ComposeFieldsReady()
   //If we are in plain text, we need to set the wrap column
   if (! gMsgCompose.composeHTML) {
     try {
-      gMsgCompose.editor.QueryInterface(nsIPlaintextEditorMail).wrapWidth
-          = gMsgCompose.wrapLength;
+      gMsgCompose.editor.wrapWidth = gMsgCompose.wrapLength;
     }
     catch (e) {
       dump("### textEditor.wrapWidth exception text: " + e + " - failed\n");
@@ -3328,7 +3326,7 @@ function InitEditor(editor)
   // Set the eEditorMailMask flag to avoid using content prefs for the spell
   // checker, otherwise the dictionary setting in preferences is ignored and
   // the dictionary is inconsistent between the subject and message body.
-  var eEditorMailMask = Ci.nsIPlaintextEditor.eEditorMailMask;
+  var eEditorMailMask = Ci.nsIEditor.eEditorMailMask;
   editor.flags |= eEditorMailMask;
   GetMsgSubjectElement().editor.flags |= eEditorMailMask;
 

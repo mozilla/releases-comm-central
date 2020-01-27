@@ -168,7 +168,6 @@ function GetSelectionAsText() {
 }
 
 /** *********** Get Current Editor and associated interfaces or info ***************/
-const nsIPlaintextEditor = Ci.nsIPlaintextEditor;
 const nsIHTMLEditor = Ci.nsIHTMLEditor;
 const nsITableEditor = Ci.nsITableEditor;
 const nsIEditorStyleSheets = Ci.nsIEditorStyleSheets;
@@ -187,7 +186,6 @@ function GetCurrentEditor() {
 
     // Do QIs now so editor users won't have to figure out which interface to use
     // Using "instanceof" does the QI for us.
-    editor instanceof Ci.nsIPlaintextEditor;
     editor instanceof Ci.nsIHTMLEditor;
   } catch (e) {
     dump(e) + "\n";

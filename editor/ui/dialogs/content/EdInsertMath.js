@@ -119,9 +119,7 @@ function insertLaTeXCommand(aButton) {
 
   // For a single math symbol, just use the insertText command.
   if (aButton.label) {
-    gDialog.input.editor
-      .QueryInterface(Ci.nsIPlaintextEditor)
-      .insertText(aButton.label);
+    gDialog.input.editor.insertText(aButton.label);
     return;
   }
 
@@ -152,7 +150,7 @@ function insertLaTeXCommand(aButton) {
   }
 
   // Update the input text and selection.
-  gDialog.input.editor.QueryInterface(Ci.nsIPlaintextEditor).insertText(latex);
+  gDialog.input.editor.insertText(latex);
   gDialog.input.setSelectionRange(
     selectionStart + latexNewStart,
     selectionStart + latexNewEnd

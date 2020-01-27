@@ -19,7 +19,7 @@ function OnLoadDialog() {
   if (
     gMsgCompAttachSourceElement &&
     editor &&
-    editor.flags & Ci.nsIPlaintextEditor.eEditorMailMask
+    editor.flags & Ci.nsIEditor.eEditorMailMask
   ) {
     SetRelativeCheckbox = function() {
       SetAttachCheckbox();

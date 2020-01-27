@@ -2028,8 +2028,8 @@ function SetDocumentEditable(isDocEditable) {
     try {
       var flags = editor.flags;
       editor.flags = isDocEditable
-        ? (flags &= ~nsIPlaintextEditor.eEditorReadonlyMask)
-        : flags | nsIPlaintextEditor.eEditorReadonlyMask;
+        ? (flags &= ~Ci.nsIEditor.eEditorReadonlyMask)
+        : flags | Ci.nsIEditor.eEditorReadonlyMask;
     } catch (e) {}
 
     // update all commands

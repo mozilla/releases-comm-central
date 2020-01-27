@@ -22,7 +22,6 @@
 #include "nsMimeTypes.h"
 #include "nsICharsetConverterManager.h"
 #include "nsTextFormatter.h"
-#include "nsIPlaintextEditor.h"
 #include "nsIHTMLEditor.h"
 #include "nsIEditor.h"
 #include "plstr.h"
@@ -618,7 +617,6 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
 
   // Now, insert it into the editor...
   RefPtr<HTMLEditor> htmlEditor = m_editor->AsHTMLEditor();
-  nsCOMPtr<nsIPlaintextEditor> textEditor(do_QueryInterface(m_editor));
   int32_t reply_on_top = 0;
   bool sig_bottom = true;
   m_identity->GetReplyOnTop(&reply_on_top);
@@ -641,7 +639,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
       m_identity->GetReplyOnTop(&reply_on_top);
       if (reply_on_top == 1) {
         // HTML editor eats one line break but not a whole paragraph.
-        if (aHTMLEditor && !paragraphMode) textEditor->InsertLineBreak();
+        if (aHTMLEditor && !paragraphMode) htmlEditor->InsertLineBreak();
 
         // add one newline if a signature comes before the quote, two otherwise
         bool includeSignature = true;
@@ -656,10 +654,10 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
         if (!paragraphMode || !aHTMLEditor) {
           if (includeSignature && !sig_bottom &&
               ((NS_SUCCEEDED(rv) && attachFile) || !prefSigText.IsEmpty()))
-            textEditor->InsertLineBreak();
+            htmlEditor->InsertLineBreak();
           else {
-            textEditor->InsertLineBreak();
-            textEditor->InsertLineBreak();
+            htmlEditor->InsertLineBreak();
+            htmlEditor->InsertLineBreak();
           }
         }
       }
@@ -682,7 +680,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
 
     mInsertingQuotedContent = false;
 
-    (void)TagEmbeddedObjects(m_editor);
+    (void)TagEmbeddedObjects(htmlEditor);
 
     if (!aSignature.IsEmpty()) {
       // we cannot add it on top earlier, because TagEmbeddedObjects will mark
@@ -692,12 +690,12 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
       if (aHTMLEditor)
         htmlEditor->InsertHTML(aSignature);
       else {
-        textEditor->InsertLineBreak();
+        htmlEditor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature,
                                         NS_LITERAL_STRING("moz-signature"));
       }
 
-      if (sigOnTop) m_editor->EndOfDocument();
+      if (sigOnTop) htmlEditor->EndOfDocument();
     }
   } else {
     if (aHTMLEditor) {
@@ -735,7 +733,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
       // contain unsanitized remote content), tag any embedded objects
       // with moz-do-not-send=true so they don't get attached upon send.
       if (isForwarded || mType == nsIMsgCompType::EditAsNew)
-        (void)TagEmbeddedObjects(m_editor);
+        (void)TagEmbeddedObjects(htmlEditor);
 
       if (!aSignature.IsEmpty()) {
         if (isForwarded && sigOnTop) {
@@ -749,16 +747,16 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
           MoveToEndOfDocument();
         }
         htmlEditor->InsertHTML(aSignature);
-        if (isForwarded && sigOnTop) m_editor->EndOfDocument();
+        if (isForwarded && sigOnTop) htmlEditor->EndOfDocument();
       } else
-        m_editor->EndOfDocument();
+        htmlEditor->EndOfDocument();
     } else {
       bool sigOnTopInserted = false;
       if (isForwarded && sigOnTop && !aSignature.IsEmpty()) {
-        textEditor->InsertLineBreak();
+        htmlEditor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature,
                                         NS_LITERAL_STRING("moz-signature"));
-        m_editor->EndOfDocument();
+        htmlEditor->EndOfDocument();
         sigOnTopInserted = true;
       }
 
@@ -798,7 +796,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
 
           // Position into the div, so out content goes there.
           RefPtr<Selection> selection;
-          m_editor->GetSelection(getter_AddRefs(selection));
+          htmlEditor->GetSelection(getter_AddRefs(selection));
           rv = selection->Collapse(divElem, 0);
           NS_ENSURE_SUCCESS(rv, rv);
         }
@@ -807,7 +805,6 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
         NS_ENSURE_SUCCESS(rv, rv);
 
         if (isForwarded) {
-          nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
           // Special treatment for forwarded messages: Part 2.
           if (sigOnTopInserted) {
             // Sadly the M-C editor inserts a <br> between the <div> for the
@@ -818,14 +815,14 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
             if (brBeforeDiv) {
               tagLocalName = brBeforeDiv->LocalName();
               if (tagLocalName.EqualsLiteral("br")) {
-                rv = editor->DeleteNode(brBeforeDiv);
+                rv = htmlEditor->DeleteNode(brBeforeDiv);
                 NS_ENSURE_SUCCESS(rv, rv);
               }
             }
           }
 
           // Clean up the <br> we inserted.
-          rv = editor->DeleteNode(extraBr);
+          rv = htmlEditor->DeleteNode(extraBr);
           NS_ENSURE_SUCCESS(rv, rv);
         }
 
@@ -838,7 +835,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
       }
 
       if ((!isForwarded || !sigOnTop) && !aSignature.IsEmpty()) {
-        textEditor->InsertLineBreak();
+        htmlEditor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature,
                                         NS_LITERAL_STRING("moz-signature"));
       }
@@ -846,13 +843,13 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
   }
 
   if (aBuf.IsEmpty())
-    m_editor->BeginningOfDocument();
+    htmlEditor->BeginningOfDocument();
   else {
     switch (reply_on_top) {
       // This should set the cursor after the body but before the sig
       case 0: {
-        if (!textEditor) {
-          m_editor->BeginningOfDocument();
+        if (!htmlEditor) {
+          htmlEditor->BeginningOfDocument();
           break;
         }
 
@@ -864,14 +861,14 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
         // get parent and offset of mailcite
         rv = GetNodeLocation(nodeInserted, address_of(parent), &offset);
         if (NS_FAILED(rv) || (!parent)) {
-          m_editor->BeginningOfDocument();
+          htmlEditor->BeginningOfDocument();
           break;
         }
 
         // get selection
-        m_editor->GetSelection(getter_AddRefs(selection));
+        htmlEditor->GetSelection(getter_AddRefs(selection));
         if (!selection) {
-          m_editor->BeginningOfDocument();
+          htmlEditor->BeginningOfDocument();
           break;
         }
 
@@ -879,7 +876,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
         selection->Collapse(parent, offset + 1);
 
         // insert a break at current selection
-        if (!paragraphMode || !aHTMLEditor) textEditor->InsertLineBreak();
+        if (!paragraphMode || !aHTMLEditor) htmlEditor->InsertLineBreak();
 
         // i'm not sure if you need to move the selection back to before the
         // break. expirement.
@@ -889,7 +886,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
       }
 
       case 2: {
-        nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
+        nsCOMPtr<nsIEditor> editor(htmlEditor);  // Strong reference.
         editor->SelectAll();
         break;
       }
@@ -903,14 +900,14 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString &aPrefix, nsString &aBuf,
   }
 
   nsCOMPtr<nsISelectionController> selCon;
-  m_editor->GetSelectionController(getter_AddRefs(selCon));
+  htmlEditor->GetSelectionController(getter_AddRefs(selCon));
 
   if (selCon)
     selCon->ScrollSelectionIntoView(
         nsISelectionController::SELECTION_NORMAL,
         nsISelectionController::SELECTION_ANCHOR_REGION, true);
 
-  m_editor->EnableUndo(true);
+  htmlEditor->EnableUndo(true);
   SetBodyModified(false);
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
@@ -2853,8 +2850,7 @@ MOZ_CAN_RUN_SCRIPT nsresult QuotingOutputStreamListener::InsertToCompose(
     compose->SetInsertingQuotedContent(true);
     if (!mCitePrefix.IsEmpty()) {
       if (!aHTMLEditor) mCitePrefix.AppendLiteral("\n");
-      nsCOMPtr<nsIPlaintextEditor> textEditor(do_QueryInterface(aEditor));
-      if (textEditor) textEditor->InsertText(mCitePrefix);
+      if (aEditor) aEditor->InsertText(mCitePrefix);
     }
 
     RefPtr<mozilla::HTMLEditor> htmlEditor = aEditor->AsHTMLEditor();
@@ -2870,8 +2866,7 @@ MOZ_CAN_RUN_SCRIPT nsresult QuotingOutputStreamListener::InsertToCompose(
   }
 
   if (aEditor) {
-    nsCOMPtr<nsIPlaintextEditor> textEditor = do_QueryInterface(aEditor);
-    if (textEditor) {
+    if (aEditor) {
       RefPtr<Selection> selection;
       nsCOMPtr<nsINode> parent;
       int32_t offset;
@@ -2887,7 +2882,7 @@ MOZ_CAN_RUN_SCRIPT nsresult QuotingOutputStreamListener::InsertToCompose(
         // place selection after mailcite
         selection->Collapse(parent, offset + 1);
         // insert a break at current selection
-        textEditor->InsertLineBreak();
+        aEditor->InsertLineBreak();
         selection->Collapse(parent, offset + 1);
       }
       nsCOMPtr<nsISelectionController> selCon;
@@ -5400,11 +5395,9 @@ nsMsgCompose::SetIdentity(nsIMsgIdentity *aIdentity) {
 
     if (NS_SUCCEEDED(rv)) {
       if (m_composeHTML) {
-        nsCOMPtr<nsIHTMLEditor> htmlEditor(do_QueryInterface(editor));
-        rv = htmlEditor->InsertHTML(aSignature);
+        rv = MOZ_KnownLive(editor->AsHTMLEditor())->InsertHTML(aSignature);
       } else {
-        nsCOMPtr<nsIPlaintextEditor> textEditor(do_QueryInterface(editor));
-        rv = textEditor->InsertLineBreak();
+        rv = editor->InsertLineBreak();
         InsertDivWrappedTextAtSelection(aSignature,
                                         NS_LITERAL_STRING("moz-signature"));
       }

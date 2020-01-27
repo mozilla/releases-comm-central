@@ -64,7 +64,6 @@ function EditorOnLoad()
     gSourceContentWindow = document.getElementById("content-source");
     gSourceContentWindow.makeEditable("text", false);
     gSourceTextEditor = gSourceContentWindow.getEditor(gSourceContentWindow.contentWindow);
-    gSourceTextEditor.QueryInterface(Ci.nsIPlaintextEditor);
     gSourceTextEditor.enableUndo(false);
     gSourceTextEditor.rootElement.style.fontFamily = "-moz-fixed";
     gSourceTextEditor.rootElement.style.whiteSpace = "pre";

@@ -130,11 +130,10 @@
         <body><![CDATA[
           var str = this.getAttribute("newlines");
           if (str && this.editor) {
-            for (let x in Ci.nsIPlaintextEditor) {
+            for (let x in Ci.nsIEditor) {
               if (/^eNewlines/.test(x)) {
                 if (str == RegExp.rightContext.toLowerCase()) {
-                  this.editor.QueryInterface(Ci.nsIPlaintextEditor)
-                      .newlineHandling = Ci.nsIPlaintextEditor[x];
+                  this.editor.newlineHandling = Ci.nsIEditor[x];
                   break;
                 }
               }

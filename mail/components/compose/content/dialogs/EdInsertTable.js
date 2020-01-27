@@ -49,7 +49,7 @@ function Startup() {
     if (
       Services.prefs.getBoolPref("editor.use_css") &&
       IsHTMLEditor() &&
-      !(gActiveEditor.flags & Ci.nsIPlaintextEditor.eEditorMailMask)
+      !(gActiveEditor.flags & Ci.nsIEditor.eEditorMailMask)
     ) {
       // only for Composer and not for htmlmail
       globalElement.setAttribute("style", "text-align: left;");
