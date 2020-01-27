@@ -528,6 +528,8 @@ var TodayPane = {
     let splitter = document.getElementById("today-splitter");
     let splitterCollapsed = splitter.getAttribute("state") == "collapsed";
 
+    todaypane.setModeAttribute("modewidths", todaypane.getAttribute("width"));
+
     if (splitterCollapsed == todaypane.isVisible()) {
       document.getElementById("calendar_toggle_todaypane_command").doCommand();
     }
