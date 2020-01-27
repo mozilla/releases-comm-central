@@ -51,6 +51,7 @@
 }
 
 .attachmentList[orient="horizontal"] .attachmentItem {
+  display: -moz-inline-box;
   min-width: 10em;
   padding: 1px 3px;
   border-radius: 2px;
