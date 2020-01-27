@@ -1369,7 +1369,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
             if (NS_SUCCEEDED(hasher->Init(nsICryptoHash::MD5)) &&
                 NS_SUCCEEDED(
                     hasher->Update((const uint8_t *)m_headers.GetBuffer(),
-                                   m_headers.GetSize())) &&
+                                   m_headers.GetBufferPos())) &&
                 NS_SUCCEEDED(hasher->Finish(true, hash)))
               md5_b64 = hash.get();
           }
