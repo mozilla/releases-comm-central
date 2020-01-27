@@ -31,7 +31,6 @@
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/chat/imAccounts.js"/>
   <script src="chrome://messenger/content/chat/imStatusSelector.js"/>
-  <script src="chrome://global/content/nsDragAndDrop.js" />
   <script src="chrome://global/content/nsTransferable.js" />
   <script src="chrome://chat/content/chat-account-richlistitem.js" />
   <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
@@ -155,10 +154,10 @@
       <!-- notificationbox will be added here lazily. -->
       <richlistbox id="accountlist" flex="1" context="accountsContextMenu"
                    onselect="gAccountManager.onAccountSelect();"
-                   ondragstart="nsDragAndDrop.startDrag(event, gAMDragAndDrop);"
-                   ondragover="nsDragAndDrop.dragOver(event, gAMDragAndDrop);"
+                   ondragstart="gAMDragAndDrop.onDragStart(event);"
+                   ondragover="gAMDragAndDrop.onDragOver(event);"
                    ondragend="gAMDragAndDrop.cleanBorders(true);"
-                   ondrop="nsDragAndDrop.drop(event, gAMDragAndDrop);"/>
+                   ondrop="gAMDragAndDrop.onDrop(event);"/>
     </vbox>
   </deck>
 

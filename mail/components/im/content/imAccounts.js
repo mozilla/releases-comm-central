@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// mail/base/content/nsDragAndDrop.js
-/* globals FlavourSet, TransferData, MozElements */
+/* globals MozElements */
 // imStatusSelector.js
 /* globals statusSelector */
 
@@ -706,8 +705,12 @@ var gAMDragAndDrop = {
     return this.SCROLL_SPEED;
   },
 
-  onDragStart(aEvent, aTransferData, aAction) {
-    let accountElement = aEvent.target.closest(
+  onDragStart(event) {
+    let target = event.target;
+    if (target.nodeType != Node.ELEMENT_NODE) {
+      target = target.parentNode;
+    }
+    let accountElement = target.closest(
       'richlistitem[is="chat-account-richlistitem"]'
     );
     if (!accountElement) {
@@ -717,43 +720,37 @@ var gAMDragAndDrop = {
       throw new Error("Can't drag while there is only one account!");
     }
 
-    // Transferdata is never used, but we need to transfer something.
-    aTransferData.data = new TransferData();
-    aTransferData.data.addDataForFlavour(
-      this.ACCOUNT_MIME_TYPE,
-      accountElement
-    );
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.dropEffect = "move";
+    event.dataTransfer.addElement(accountElement);
+    event.dataTransfer.setData(this.ACCOUNT_MIME_TYPE, accountElement);
+    event.stopPropagation();
   },
 
-  onDragOver(aEvent, aFlavour, aSession) {
-    let accountElement = aEvent.target.closest(
+  onDragOver(event) {
+    let target = event.target;
+    if (target.nodeType != Node.ELEMENT_NODE) {
+      target = target.parentNode;
+    }
+    let accountElement = target.closest(
       'richlistitem[is="chat-account-richlistitem"]'
     );
     if (!accountElement) {
       return;
     }
-    // We are dragging over the account manager, consider it is the same as
-    // the last element.
-    if (accountElement == gAccountManager.accountList) {
-      accountElement = gAccountManager.accountList.lastElementChild;
-    }
 
     // Auto scroll the account list if we are dragging at the top/bottom
-    this.checkForMagicScroll(aEvent.clientY);
+    this.checkForMagicScroll(event.clientY);
 
     // The hovered element has changed, change the border too
     if ("_accountElement" in this && this._accountElement != accountElement) {
       this.cleanBorders();
     }
 
-    if (!aSession.canDrop) {
-      aEvent.dataTransfer.dropEffect = "none";
-      return;
-    }
-    aEvent.dataTransfer.dropEffect = "move";
+    event.dataTransfer.dropEffect = "move";
 
     if (
-      aEvent.clientY <
+      event.clientY <
       accountElement.getBoundingClientRect().top +
         accountElement.clientHeight / 2
     ) {
@@ -775,9 +772,11 @@ var gAMDragAndDrop = {
     }
 
     this._accountElement = accountElement;
+    event.stopPropagation();
+    event.preventDefault();
   },
 
-  cleanBorders(aIsEnd) {
+  cleanBorders(isEnd) {
     if (!this._accountElement) {
       return;
     }
@@ -786,7 +785,7 @@ var gAMDragAndDrop = {
     let previousItem = this._accountElement.previousElementSibling;
     if (previousItem) {
       if (
-        aIsEnd &&
+        isEnd &&
         !previousItem.style.borderBottom &&
         previousItem.previousElementSibling
       ) {
@@ -795,28 +794,18 @@ var gAMDragAndDrop = {
       previousItem.style.borderBottom = "";
     }
 
-    if (aIsEnd) {
+    if (isEnd) {
       delete this._accountElement;
     }
   },
 
-  canDrop(aEvent, aSession) {
-    let accountElement = aEvent.target.closest(
-      'richlistitem[is="chat-account-richlistitem"]'
-    );
-    if (accountElement == gAccountManager.accountList) {
-      accountElement = gAccountManager.accountList.lastElementChild;
-    }
-    return accountElement != gAccountManager.accountList.selectedItem;
-  },
-
-  checkForMagicScroll(aClientY) {
+  checkForMagicScroll(clientY) {
     let accountList = gAccountManager.accountList;
     let listSize = accountList.getBoundingClientRect();
     let direction = 1;
-    if (aClientY < listSize.top + this.MAGIC_SCROLL_HEIGHT) {
+    if (clientY < listSize.top + this.MAGIC_SCROLL_HEIGHT) {
       direction = -1;
-    } else if (aClientY < listSize.bottom - this.MAGIC_SCROLL_HEIGHT) {
+    } else if (clientY < listSize.bottom - this.MAGIC_SCROLL_HEIGHT) {
       // We are not on a scroll zone
       return;
     }
@@ -824,18 +813,15 @@ var gAMDragAndDrop = {
     accountList.scrollTop += direction * this.SCROLL_SPEED;
   },
 
-  onDrop(aEvent, aTransferData, aSession) {
-    let accountElement = aEvent.target.closest(
+  onDrop(event) {
+    let target = event.target;
+    if (target.nodeType != Node.ELEMENT_NODE) {
+      target = target.parentNode;
+    }
+    let accountElement = target.closest(
       'richlistitem[is="chat-account-richlistitem"]'
     );
     if (!accountElement) {
-      return;
-    }
-    if (accountElement == gAccountManager.accountList) {
-      accountElement = gAccountManager.accountList.lastElementChild;
-    }
-
-    if (!aSession.canDrop) {
       return;
     }
 
@@ -844,7 +830,7 @@ var gAMDragAndDrop = {
     let offset =
       accountList.getIndexOfItem(accountElement) - accountList.selectedIndex;
     let isDroppingAbove =
-      aEvent.clientY <
+      event.clientY <
       accountElement.getBoundingClientRect().top +
         accountElement.clientHeight / 2;
     if (offset > 0) {
@@ -853,15 +839,7 @@ var gAMDragAndDrop = {
       offset += !isDroppingAbove;
     }
     gAccountManager.moveCurrentItem(offset);
-  },
-
-  getSupportedFlavours() {
-    var flavours = new FlavourSet();
-    flavours.appendFlavour(
-      this.ACCOUNT_MIME_TYPE,
-      "nsIDOMXULSelectControlItemElement"
-    );
-    return flavours;
+    event.stopPropagation();
   },
 };
 
