@@ -149,17 +149,17 @@
           "selectedMessages": {
             "$ref": "messages.MessageList",
             "optional": true,
-            "description": "The selected messages, if the context menu was opened in the message list."
+            "description": "The selected messages, if the context menu was opened in the message list. The ``messagesRead`` permission is required."
           },
           "displayedFolder": {
             "$ref": "folders.MailFolder",
             "optional": true,
-            "description": "The displayed folder, if the context menu was opened in the message list."
+            "description": "The displayed folder, if the context menu was opened in the message list. The ``accountsRead`` permission is required."
           },
           "selectedFolder": {
             "$ref": "folders.MailFolder",
             "optional": true,
-            "description": "The selected folder, if the context menu was opened in the folder pane."
+            "description": "The selected folder, if the context menu was opened in the folder pane. The ``accountsRead`` permission is required."
           }
         }
       }
