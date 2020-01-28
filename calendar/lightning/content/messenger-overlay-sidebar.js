@@ -375,6 +375,8 @@ window.addEventListener("load", e => {
 });
 
 async function ltnOnLoad(event) {
+  await uninstallLightningAddon();
+
   // Check if the binary component was loaded
   checkCalendarBinaryComponent();
 
@@ -414,6 +416,20 @@ async function ltnOnLoad(event) {
   updateTodayPaneButton();
 
   Services.obs.notifyObservers(window, "lightning-startup-done");
+}
+
+/**
+ * Uninstall the Lightning calendar addon, now that calendar is in Thunderbird.
+ */
+async function uninstallLightningAddon() {
+  try {
+    let addon = await AddonManager.getAddonByID("{e2fda1a4-762b-4020-b5ad-a41df1933103}");
+    if (addon) {
+      await addon.uninstall();
+    }
+  } catch (err) {
+    console.error("Error while attempting to uninstall Lightning addon:", err);
+  }
 }
 
 /* Called at midnight to tell us to redraw date-specific widgets.  Do NOT call
