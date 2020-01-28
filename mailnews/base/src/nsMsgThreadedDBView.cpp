@@ -219,9 +219,10 @@ int32_t nsMsgThreadedDBView::AddKeys(nsMsgKey *pKeys, int32_t *pFlags,
       continue;
 
     // Skip ignored subthreads
-    nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    m_db->GetMsgHdrForKey(pKeys[i], getter_AddRefs(msgHdr));
     if (!(m_viewFlags & nsMsgViewFlagsType::kShowIgnored)) {
+      nsCOMPtr<nsIMsgDBHdr> msgHdr;
+      m_db->GetMsgHdrForKey(pKeys[i], getter_AddRefs(msgHdr));
+      if (!msgHdr) continue;
       bool killed;
       msgHdr->GetIsKilled(&killed);
       if (killed) continue;
