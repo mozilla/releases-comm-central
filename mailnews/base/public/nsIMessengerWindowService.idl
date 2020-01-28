@@ -8,10 +8,11 @@
 
 [scriptable, uuid(113a1a5a-1dd2-11b2-b1b7-a85ccc06c8ce)]
 interface nsIMessengerWindowService : nsISupports {
-    /* aWindowType --> the type of window you want to create. i.e. "mail:3pane"
-       aFolderURI --> the folder resource you want pre-selected (if any)
-     aMsgKey --> a particular message you may want selected in that folder (if any)
-  */
+  /**
+   * @param aWindowType  the type of window you want to create. i.e. "mail:3pane"
+   * @param aFolderURI   the folder resource you want pre-selected (if any)
+   * @param aMsgKey      a particular message you may want selected in that folder (if any)
+   */
   void openMessengerWindowWithUri(in string aWindowType, in string aFolderURI, in nsMsgKey aMsgKey);
 };
 
