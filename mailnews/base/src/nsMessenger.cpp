@@ -148,7 +148,7 @@ class nsSaveMsgListener : public nsIUrlListener,
   char m_dataBuffer[FILE_IO_BUFFER_SIZE];
   nsCOMPtr<nsIChannel> m_channel;
   nsCString m_templateUri;
-  nsMessenger *m_messenger;  // not ref counted
+  RefPtr<nsMessenger> m_messenger;
   nsSaveAllAttachmentsState *m_saveAllAttachmentsState;
 
   // rhp: For character set handling
