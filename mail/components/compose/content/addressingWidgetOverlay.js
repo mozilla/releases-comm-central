@@ -772,6 +772,45 @@ function hideAddressRow(element, labelID) {
   // Update the sender button only if pills were deleted.
   onRecipientsChanged(!pills.length);
   updateRecipientsPanelVisibility();
+
+  // Move focus to the next focusable autocomplete input field.
+  if (
+    container.nextElementSibling &&
+    !container.nextElementSibling.classList.contains("hidden")
+  ) {
+    container.nextElementSibling
+      .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+      .focus();
+    return;
+  }
+  // Move focus to the subject field.
+  document.getElementById("msgSubject").focus();
+}
+
+/**
+ * Handle the keypress event on the close label of a recipient row.
+ *
+ * @param {Event} event - The DOM Event.
+ * @param {Element} element - The focused label.
+ * @param {string} labelID - The ID of the label to show.
+ */
+function closeLabelKeyPress(event, element, labelID) {
+  switch (event.key) {
+    case "Enter":
+      hideAddressRow(element, labelID);
+      break;
+
+    case "Tab":
+      if (event.shiftKey) {
+        return;
+      }
+      event.preventDefault();
+      element
+        .closest(".address-row")
+        .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+        .focus();
+      break;
+  }
 }
 
 /**

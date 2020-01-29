@@ -6518,6 +6518,40 @@ function fromKeyPress(event) {
   if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
     document.getElementById("toAddrInput").focus();
   }
+
+  // Interrupt if it's not a Tab event or the shift key was pressed.
+  if (event.key != "Tab" || event.shiftKey) {
+    return;
+  }
+
+  // If extra labels are available, let the focus move normally.
+  if (
+    document
+      .getElementById("addressingWidgetLabels")
+      .querySelectorAll(`label:not([collapsed="true"])`).length > 0
+  ) {
+    return;
+  }
+
+  // If the extra recipients label is visible, let the focus move normally.
+  if (!document.getElementById("extraRecipientsLabel").collapsed) {
+    return;
+  }
+
+  event.preventDefault();
+
+  let row = document
+    .getElementById("recipientsContainer")
+    .querySelector(".address-row:not(.hidden)");
+
+  // Move focus on the close label if not collapsed.
+  if (!row.querySelector(".aw-firstColBox > label").collapsed) {
+    row.querySelector(".aw-firstColBox > label").focus();
+    return;
+  }
+
+  // Focus on the autocomplete input field.
+  row.querySelector(`input[is="autocomplete-input"][recipienttype]`).focus();
 }
 
 function subjectKeyPress(event) {

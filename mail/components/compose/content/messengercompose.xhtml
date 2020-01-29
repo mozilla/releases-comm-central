@@ -2062,7 +2062,7 @@
             <hbox id="addressRowTo" class="addressingWidgetItem address-row">
               <hbox class="aw-firstColBox" align="top">
                 <label onclick="hideAddressRow(this, 'addr_to');"
-                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_to'); }"
+                       onkeypress="closeLabelKeyPress(event, this, 'addr_to');"
                        collapsed="true">
                   <image class="close-icon"/>
                 </label>
@@ -2100,7 +2100,7 @@
             <hbox id="addressRowCc" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
                 <label onclick="hideAddressRow(this, 'addr_cc');"
-                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_cc'); }">
+                       onkeypress="closeLabelKeyPress(event, this, 'addr_cc');">
                   <image class="close-icon"/>
                 </label>
               </hbox>
@@ -2137,7 +2137,7 @@
             <hbox id="addressRowBcc" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
                 <label onclick="hideAddressRow(this, 'addr_bcc');"
-                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_bcc'); }">
+                       onkeypress="closeLabelKeyPress(event, this, 'addr_bcc');">
                   <image class="close-icon"/>
                 </label>
               </hbox>
@@ -2174,7 +2174,7 @@
             <hbox id="addressRowReply" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
                 <label onclick="hideAddressRow(this, 'addr_reply');"
-                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_reply'); }">
+                       onkeypress="closeLabelKeyPress(event, this, 'addr_reply');">
                   <image class="close-icon"/>
                 </label>
               </hbox>
@@ -2211,7 +2211,7 @@
             <hbox id="addressRowNewsgroups" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
                 <label onclick="hideAddressRow(this, 'addr_newsgroups');"
-                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_newsgroups'); }">
+                       onkeypress="closeLabelKeyPress(event, this, 'addr_newsgroups');">
                   <image class="close-icon"/>
                 </label>
               </hbox>
@@ -2248,7 +2248,7 @@
             <hbox id="addressRowFollowup" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
                 <label onclick="hideAddressRow(this, 'addr_followup');"
-                       onkeypress="if (event.key == 'Enter') { hideAddressRow(this, 'addr_followup'); }">
+                       onkeypress="closeLabelKeyPress(event, this, 'addr_followup');">
                   <image class="close-icon"/>
                 </label>
               </hbox>

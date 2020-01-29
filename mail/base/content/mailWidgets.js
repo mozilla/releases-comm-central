@@ -2023,7 +2023,35 @@
 
       for (let input of this.querySelectorAll(".mail-input,.news-input")) {
         setupAutocompleteInput(input, this.highlightNonMatches);
+
+        input.addEventListener("keypress", event => {
+          if (event.key != "Tab" || !event.shiftKey) {
+            return;
+          }
+          event.preventDefault();
+          this.moveFocusToPreviousElement(input);
+        });
       }
+
+      // Force the focus on the first available input field if Tab is
+      // pressed on the extraRecipientsLabel label.
+      document
+        .getElementById("extraRecipientsLabel")
+        .addEventListener("keypress", event => {
+          if (event.key == "Tab" && !event.shiftKey) {
+            event.preventDefault();
+            let row = this.querySelector(".address-row:not(.hidden)");
+            // If the close label is collpased, focus on the input field.
+            if (row.querySelector(".aw-firstColBox > label").collapsed) {
+              row
+                .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+                .focus();
+              return;
+            }
+            // Focus on the close label.
+            row.querySelector(".aw-firstColBox > label").focus();
+          }
+        });
     }
 
     /**
@@ -2049,9 +2077,7 @@
         hideAddressRow(firstLabel, labelId);
       });
       firstLabel.addEventListener("keypress", event => {
-        if (event.key == "Enter") {
-          hideAddressRow(firstLabel, labelId);
-        }
+        closeLabelKeyPress(event, firstLabel, labelId);
       });
       // Necessary to allow focus via TAB key.
       firstLabel.setAttribute("tabindex", 0);
@@ -2099,6 +2125,7 @@
       input.setAttribute("id", recipient.id);
 
       input.setAttribute("type", "text");
+      input.setAttribute("aria-labelledby", recipient.labelId);
       input.classList.add("plain", "address-input", recipient.class);
       input.setAttribute("disableonsend", true);
       input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
@@ -2119,6 +2146,11 @@
       });
       input.addEventListener("keypress", event => {
         recipientKeyPress(event, input);
+        if (event.key != "Tab" || !event.shiftKey) {
+          return;
+        }
+        event.preventDefault();
+        this.moveFocusToPreviousElement(input);
       });
 
       input.setAttribute("recipienttype", recipient.type);
@@ -2273,9 +2305,15 @@
           break;
 
         case "Tab":
+          event.preventDefault();
           for (let item of this.getSiblingPills(pill)) {
             item.removeAttribute("selected");
           }
+          if (event.shiftKey) {
+            this.moveFocusToPreviousElement(pill);
+            return;
+          }
+          pill.rowInput.focus();
           break;
 
         case "a":
@@ -2489,6 +2527,47 @@
      */
     hasSelectedPills() {
       return Boolean(this.querySelector("mail-address-pill[selected]"));
+    }
+
+    /**
+     * Move the focus to the previous focusable element.
+     *
+     * @param {Element} element - The element where the event was triggered.
+     */
+    moveFocusToPreviousElement(element) {
+      let row = element.closest(".address-row");
+      // Move focus on the close label if not collapsed.
+      if (!row.querySelector(".aw-firstColBox > label").collapsed) {
+        row.querySelector(".aw-firstColBox > label").focus();
+        return;
+      }
+      // If a previous address row is available and not hidden,
+      // focus on the autocomplete input field.
+      let previousRow = row.previousElementSibling;
+      while (previousRow) {
+        if (!previousRow.classList.contains("hidden")) {
+          previousRow
+            .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+            .focus();
+          return;
+        }
+        previousRow = previousRow.previousElementSibling;
+      }
+      // Move the focus on the extra recipients label if not collapsed
+      if (!document.querySelector(".extra-recipients-label").collapsed) {
+        document.querySelector(".extra-recipients-label").focus();
+        return;
+      }
+      // Move the focus on the msgIdentity if no extra recipients are available.
+      let labels = document
+        .querySelector(".address-extra-recipients")
+        .querySelectorAll(`label:not([collapsed="true"])`);
+      if (labels.length == 0) {
+        document.getElementById("msgIdentity").focus();
+        return;
+      }
+      // Select the last available label.
+      labels[labels.length - 1].focus();
     }
   }
 
