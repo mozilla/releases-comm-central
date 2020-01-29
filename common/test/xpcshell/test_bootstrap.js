@@ -180,13 +180,12 @@ function getUninstallNewVersion() {
 }
 
 async function checkBootstrappedPref() {
-  let XPIScope = ChromeUtils.import(
-    "resource://gre/modules/addons/XPIProvider.jsm",
-    null
+  let { XPIInternal } = ChromeUtils.import(
+    "resource://gre/modules/addons/XPIProvider.jsm"
   );
 
   let data = new Map();
-  for (let entry of XPIScope.XPIStates.enabledAddons()) {
+  for (let entry of XPIInternal.XPIStates.enabledAddons()) {
     data.set(entry.id, entry);
   }
 

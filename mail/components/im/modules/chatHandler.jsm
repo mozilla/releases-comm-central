@@ -24,7 +24,7 @@ var ChatCore = {
     }
     this._initializing = true;
 
-    ChromeUtils.import("resource:///modules/index_im.jsm", null);
+    ChromeUtils.import("resource:///modules/index_im.jsm");
 
     Services.obs.addObserver(this, "browser-request");
     Services.obs.addObserver(this, "contact-signed-on");

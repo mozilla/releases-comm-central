@@ -190,11 +190,11 @@ Object.defineProperty(this, "TEST_UNPACKED", {
 });
 
 // We need some internal bits of AddonManager
-var AMscope = ChromeUtils.import(
-  "resource://gre/modules/AddonManager.jsm",
-  null
-);
-var { AddonManager, AddonManagerInternal, AddonManagerPrivate } = AMscope;
+var {
+  AddonManager,
+  AddonManagerInternal,
+  AddonManagerPrivate,
+} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 
 const promiseAddonByID = AddonManager.getAddonByID;
 const promiseAddonsByIDs = AddonManager.getAddonsByIDs;

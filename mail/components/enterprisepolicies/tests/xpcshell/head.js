@@ -52,8 +52,7 @@ async function setupPolicyEngineWithJson(json, customSchema) {
 
   if (customSchema) {
     let schemaModule = ChromeUtils.import(
-      "resource:///modules/policies/schema.jsm",
-      null
+      "resource:///modules/policies/schema.jsm"
     );
     schemaModule.schema = customSchema;
   }

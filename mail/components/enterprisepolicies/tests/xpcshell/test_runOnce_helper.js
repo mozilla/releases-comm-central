@@ -3,6 +3,7 @@
 
 "use strict";
 
+// eslint-disable-next-line mozilla/reject-chromeutils-import-null
 let { runOnce } = ChromeUtils.import(
   "resource:///modules/policies/Policies.jsm",
   null
