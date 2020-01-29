@@ -119,11 +119,15 @@ function MigrateProfileClientid() {
       "mail.account." + key + ".server"
     );
     let server = "mail.server." + serverKey + ".";
-    // Check if this server needs the CLIENTID preference to be populated.
+    // Check if this imap server needs the CLIENTID preference to be populated.
     if (
       !Services.prefs.prefHasUserValue(server + "clientid") ||
       !Services.prefs.getCharPref(server + "clientid", "")
     ) {
+      // Clientid should only be provisioned for imap accounts.
+      if (Services.prefs.getCharPref(server + "type", "") != "imap") {
+        continue;
+      }
       // Grab username + hostname to check if a CLIENTID is cached.
       let username = Services.prefs.getCharPref(server + "userName", "");
       if (!username) {
