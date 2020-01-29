@@ -14,6 +14,7 @@ from taskgraph.util.partials import populate_release_history
 logger = logging.getLogger(__name__)
 
 COMM = os.path.join(GECKO, 'comm')
+COMM_SCRIPTS = os.path.join(COMM, 'taskcluster', 'scripts')
 
 BALROG_PRODUCT = 'Thunderbird'
 

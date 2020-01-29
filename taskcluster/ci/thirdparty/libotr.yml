@@ -1,0 +1,76 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+
+job-defaults:
+    description: 'libotr library build'
+    index:
+        product: thunderbird
+    treeherder:
+        symbol: libotr
+    worker:
+        docker-image: {in-tree: "toolchain-build"}
+    when:
+        files-changed:
+            - comm/third_party/README.libgcrypt
+            - comm/third_party/README.libgpg-error
+            - comm/third_party/README.libotr
+            - comm/third_party/libgcrypt
+            - comm/third_party/libgpg-error
+            - comm/third_party/libotr
+    thirdparty:
+        script: 'build-libotr.sh'
+        artifact: 'libotr.tar.xz'
+
+
+libotr-linux64:
+    treeherder:
+        platform: linux64/opt
+    thirdparty:
+        args: ['linux64']
+    toolchain:
+        - linux64-clang
+        - linux64-binutils
+
+libotr-linux32:
+    treeherder:
+        platform: linux32/opt
+    thirdparty:
+        args: ['linux32']
+    toolchain:
+        - linux64-clang
+        - linux64-binutils
+
+libotr-macosx64:
+    worker:
+        env:
+            # We just use the browser manifest, since we don't need anything different
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
+    treeherder:
+        platform: osx-cross/opt
+    run:
+        tooltool-downloads: internal
+    thirdparty:
+        args: ['macosx64']
+    toolchain:
+        - linux64-binutils
+        - linux64-cctools-port
+        - linux64-clang-macosx-cross
+        - linux64-llvm-dsymutil
+
+libotr-win32:
+    worker:
+        docker-image: {in-tree: tb-debian-mingw}
+    treeherder:
+        platform: windows2012-32/opt
+    thirdparty:
+        args: ['win32']
+
+libotr-win64:
+    worker:
+        docker-image: {in-tree: tb-debian-mingw}
+    treeherder:
+        platform: windows2012-64/opt
+    thirdparty:
+        args: ['win64']
