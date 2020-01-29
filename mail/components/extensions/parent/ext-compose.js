@@ -9,13 +9,6 @@ ChromeUtils.defineModuleGetter(
 );
 
 async function openComposeWindow(relatedMessageId, type, composeParams) {
-  function generateAddressFromCard(card) {
-    return MailServices.headerParser.makeMimeAddress(
-      card.displayName,
-      card.primaryEmail
-    );
-  }
-
   // ForwardInline is totally broken, see bug 1513824.
   if (type == Ci.nsIMsgCompType.ForwardInline) {
     let msgHdr = null;
@@ -65,14 +58,22 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
             let contactNode = this.addressBookCache.findContactById(
               recipient.id
             );
-            recipients.push(generateAddressFromCard(contactNode.item));
+            recipients.push(
+              MailServices.headerParser.makeMimeAddress(
+                contactNode.item.displayName,
+                contactNode.item.primaryEmail
+              )
+            );
           } else {
             let mailingListNode = this.addressBookCache.findMailingListById(
               recipient.id
             );
-            for (let contactNode of mailingListNode.contacts) {
-              recipients.push(generateAddressFromCard(contactNode.item));
-            }
+            recipients.push(
+              MailServices.headerParser.makeMimeAddress(
+                mailingListNode.item.dirName,
+                mailingListNode.item.description || mailingListNode.item.dirName
+              )
+            );
           }
         }
         composeFields[field] = recipients.join(",");
