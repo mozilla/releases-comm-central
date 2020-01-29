@@ -124,6 +124,7 @@ add_task(async function test_update() {
       browser.test.assertFalse(message.flagged);
       browser.test.assertFalse(message.read);
       browser.test.assertFalse(message.junk);
+      browser.test.assertEq(0, message.junkScore);
       browser.test.assertEq(0, message.tags.length);
 
       // Test that setting flagged works.
@@ -152,6 +153,15 @@ add_task(async function test_update() {
       await browser.messages.update(message.id, {});
       await awaitMessage("empty");
 
+      message = await browser.messages.get(message.id);
+      browser.test.assertTrue(message.flagged);
+      browser.test.assertTrue(message.read);
+      browser.test.assertTrue(message.junk);
+      browser.test.assertEq(100, message.junkScore);
+      browser.test.assertEq(2, message.tags.length);
+      browser.test.assertEq(tags[1].key, message.tags[0]);
+      browser.test.assertEq(tags[2].key, message.tags[1]);
+
       // Test that clearing properties works.
       await browser.messages.update(message.id, {
         flagged: false,
@@ -160,6 +170,13 @@ add_task(async function test_update() {
         tags: [],
       });
       await awaitMessage("clear");
+
+      message = await browser.messages.get(message.id);
+      browser.test.assertFalse(message.flagged);
+      browser.test.assertFalse(message.read);
+      browser.test.assertFalse(message.junk);
+      browser.test.assertEq(0, message.junkScore);
+      browser.test.assertEq(0, message.tags.length);
 
       browser.test.notifyPass("finished");
     },

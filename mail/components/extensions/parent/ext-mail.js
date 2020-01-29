@@ -1349,6 +1349,10 @@ function convertMessage(msgHdr, extension) {
   let composeFields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
+  let junkScore = parseInt(msgHdr.getProperty("junkscore"), 10) || 0;
+  let junkThreshold = Services.prefs.getIntPref(
+    "mail.adaptivefilters.junk_threshold"
+  );
 
   let messageObject = {
     id: messageTracker.getId(msgHdr),
@@ -1363,6 +1367,8 @@ function convertMessage(msgHdr, extension) {
     subject: msgHdr.mime2DecodedSubject,
     read: msgHdr.isRead,
     flagged: msgHdr.isFlagged,
+    junk: junkScore >= junkThreshold,
+    junkScore,
   };
   if (extension.hasPermission("accountsRead")) {
     messageObject.folder = convertFolder(msgHdr.folder, msgHdr.accountKey);
