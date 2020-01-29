@@ -236,9 +236,6 @@ calCalendarManager.prototype = {
           // For now we alert and quit on schema errors like we've done before:
           this.alertAndQuit();
           return null;
-        case Ci.calIErrors.STORAGE_UNKNOWN_TIMEZONES_ERROR:
-          uiMessage = cal.l10n.getCalString("unknownTimezonesError", [uri.spec]);
-          break;
         default:
           uiMessage = cal.l10n.getCalString("unableToCreateProvider", [uri.spec]);
           break;

@@ -103,16 +103,7 @@ calTimezoneService.prototype = {
       });
     }
 
-    let resNamespace = "calendar";
-    // Check for presence of the calendar timezones add-on.
-    let resProtocol = Services.io
-      .getProtocolHandler("resource")
-      .QueryInterface(Ci.nsIResProtocolHandler);
-    if (resProtocol.hasSubstitution("calendar-timezones")) {
-      resNamespace = "calendar-timezones";
-    }
-
-    fetchJSON("resource://" + resNamespace + "/timezones/zones.json")
+    fetchJSON("resource://calendar/timezones/zones.json")
       .then(tzData => {
         for (let tzid of Object.keys(tzData.aliases)) {
           let data = tzData.aliases[tzid];
@@ -130,7 +121,7 @@ calTimezoneService.prototype = {
         this.mVersion = tzData.version;
         cal.LOG("[calTimezoneService] Timezones version " + this.version + " loaded");
 
-        let bundleURL = "chrome://" + resNamespace + "/locale/timezones.properties";
+        let bundleURL = "chrome://calendar/locale/timezones.properties";
         this.stringBundle = ICAL.Timezone.cal_tz_bundle = Services.strings.createBundle(bundleURL);
 
         // Make sure UTC and floating are cached by calling their getters
@@ -144,10 +135,7 @@ calTimezoneService.prototype = {
           }
         },
         error => {
-          // We have to give up. Show an error and fail hard!
-          let msg = cal.l10n.getCalString("missingCalendarTimezonesError");
-          cal.ERROR(msg);
-          cal.showError(msg);
+          cal.ERROR("Missing calendar timezones error.");
         }
       );
   },
