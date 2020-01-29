@@ -24,7 +24,7 @@ def register(graph_config):
     the process.
     """
     logger.info("{} path registered".format(__name__))
-    _import_modules([])
+    _import_modules(['documentation'])
 
 
 def _import_modules(modules):
