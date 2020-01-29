@@ -15,82 +15,22 @@
 // For the purposes of this test, we read enough to see if the group command is
 // being misread or not, as it is complicated enough.
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
-load("../../../resources/alertTestUtils.js");
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+
+const { NetworkTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/NetworkTestUtils.jsm"
 );
 
 var daemon, localserver, server;
 var highWater = 0;
 
-var tests = [test_newMsgs, trigger_bug, cleanUp];
-
-function* test_newMsgs() {
-  // Start by initializing the folder, and mark some messages as read.
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
-  Assert.equal(folder.getTotalMessages(false), 0);
-  folder.getNewMessages(null, asyncUrlListener);
-  // Do another folder to use up both connections
-  localserver.rootFolder
-    .getChildNamed("test.subscribe.simple")
-    .getNewMessages(null, asyncUrlListener);
-  // Two things to listen for -- yield twice
-  yield false;
-  yield false;
-  folder.QueryInterface(Ci.nsIMsgNewsFolder).setReadSetFromStr("1-3");
-  Assert.equal(folder.getTotalMessages(false) - folder.getNumUnread(false), 3);
-  highWater = folder.getTotalMessages(false);
-  Assert.equal(folder.msgDatabase.dBFolderInfo.highWater, highWater);
-}
-
-function* trigger_bug() {
-  // Kill the connection and start it up again.
-  dump("Stopping server!\n");
-  server.stop();
-  server.start();
-
-  // Get new messages for all folders. Once we've seen one folder, trigger a
-  // load of the folder in question. This second load should, if the bug is
-  // present, be overwritten with one from the load queue that causes the
-  // confusion. It then loads it again, and should (before the patch that fixes
-  // this) read the 200 logon instead of the 211 group.
-  let folder = localserver.rootFolder.getChildNamed("test.filter");
-  localserver.performExpand(null);
-  // We also need a callback to know that folders have been loaded.
-  let folderListener = {
-    OnItemEvent(item, event) {
-      dump(event + " triggered for " + item.prettyName + "!\n\n\n");
-      if (
-        event == "FolderLoaded" &&
-        item.prettyName == "test.subscribe.simple"
-      ) {
-        folder.getNewMessages(null, asyncUrlListener);
-      } else if (event == "FolderLoaded" && item == folder) {
-        async_driver();
-      }
-    },
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
-  };
-  MailServices.mailSession.AddFolderListener(
-    folderListener,
-    Ci.nsIFolderListener.event
-  );
-  // Again, two things will need to be listened for
-  yield false;
-  yield false;
-  Assert.equal(folder.msgDatabase.dBFolderInfo.highWater, highWater);
-  yield true;
-}
-function cleanUp() {
-  localserver.closeCachedConnections();
-}
-function run_test() {
+add_task(async function setup() {
   daemon = setupNNTPDaemon();
   server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
@@ -106,6 +46,76 @@ function run_test() {
   Assert.equal(localserver.maximumConnectionsNumber, 2);
 
   localserver.maximumConnectionsNumber = 2;
+});
 
-  async_run_tests(tests);
-}
+add_task(async function test_newMsgs() {
+  // Start by initializing the folder, and mark some messages as read.
+  let folder = localserver.rootFolder.getChildNamed("test.filter");
+  Assert.equal(folder.getTotalMessages(false), 0);
+  let asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  folder.getNewMessages(null, asyncUrlListener);
+  await asyncUrlListener.promise;
+  // Do another folder to use up both connections
+  localserver.rootFolder
+    .getChildNamed("test.subscribe.simple")
+    .getNewMessages(null, asyncUrlListener);
+  await asyncUrlListener.promise;
+  folder.QueryInterface(Ci.nsIMsgNewsFolder).setReadSetFromStr("1-3");
+  Assert.equal(folder.getTotalMessages(false) - folder.getNumUnread(false), 3);
+  highWater = folder.getTotalMessages(false);
+  Assert.equal(folder.msgDatabase.dBFolderInfo.highWater, highWater);
+});
+
+add_task(async function trigger_bug() {
+  // Kill the connection and start it up again.
+  server.stop();
+  server.start();
+
+  // Get new messages for all folders. Once we've seen one folder, trigger a
+  // load of the folder in question. This second load should, if the bug is
+  // present, be overwritten with one from the load queue that causes the
+  // confusion. It then loads it again, and should (before the patch that fixes
+  // this) read the 200 logon instead of the 211 group.
+  let testFolder = localserver.rootFolder.getChildNamed("test.filter");
+  let asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  let promiseFolderEvent = function(folder, event) {
+    return new Promise((resolve, reject) => {
+      let folderListener = {
+        QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
+        OnItemEvent(aEventFolder, aEvent) {
+          if (
+            aEvent == "FolderLoaded" &&
+            aEventFolder.prettyName == "test.subscribe.simple"
+          ) {
+            aEventFolder.getNewMessages(null, asyncUrlListener);
+            return;
+          }
+
+          if (folder === aEventFolder && event == aEvent) {
+            MailServices.mailSession.RemoveFolderListener(folderListener);
+            resolve();
+          }
+        },
+      };
+      MailServices.mailSession.AddFolderListener(
+        folderListener,
+        Ci.nsIFolderListener.event
+      );
+    });
+  };
+  let folderLoadedPromise = promiseFolderEvent(testFolder, "FolderLoaded");
+
+  localserver.performExpand(null);
+
+  // Wait for test.subscribe.simple to load. That will trigger getNewMessages.
+  await folderLoadedPromise;
+  // Wait for the new messages to be loaded.
+  await asyncUrlListener.promise;
+
+  Assert.equal(testFolder.msgDatabase.dBFolderInfo.highWater, highWater);
+});
+
+add_task(async function cleanUp() {
+  NetworkTestUtils.shutdownServers();
+  localserver.closeCachedConnections();
+});
