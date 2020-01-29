@@ -138,6 +138,15 @@ MailGlue.prototype = {
   observe(aSubject, aTopic, aData) {
     let fs;
     switch (aTopic) {
+      case "app-startup":
+        // Record the previously started version. This is used to check for
+        // extensions that were disabled by an application update. We need to
+        // read this pref before the Add-Ons Manager changes it.
+        this.previousVersion = Services.prefs.getCharPref(
+          "extensions.lastAppVersion",
+          "0"
+        );
+        break;
       case "xpcom-shutdown":
         this._dispose();
         break;
@@ -255,6 +264,44 @@ MailGlue.prototype = {
       "resource:///modules/ExtensionsUI.jsm"
     );
     ExtensionsUI.checkForSideloadedExtensions();
+
+    // If the application has been updated, look for any extensions that may
+    // have been disabled by the update, and check for newer versions of those
+    // extensions.
+    let currentVersion = Services.appinfo.version;
+    if (this.previousVersion != "0" && this.previousVersion != currentVersion) {
+      let { AddonManager } = ChromeUtils.import(
+        "resource://gre/modules/AddonManager.jsm"
+      );
+      let startupChanges = AddonManager.getStartupChanges(
+        AddonManager.STARTUP_CHANGE_DISABLED
+      );
+      if (startupChanges.length > 0) {
+        let { XPIDatabase } = ChromeUtils.import(
+          "resource://gre/modules/addons/XPIDatabase.jsm"
+        );
+        let addons = XPIDatabase.getAddons();
+        for (let addon of addons) {
+          if (
+            startupChanges.includes(addon.id) &&
+            addon.permissions() & AddonManager.PERM_CAN_UPGRADE &&
+            !addon.isCompatible
+          ) {
+            AddonManager.getAddonByID(addon.id).then(addon => {
+              addon.findUpdates(
+                {
+                  onUpdateFinished() {},
+                  onUpdateAvailable(addon, install) {
+                    install.install();
+                  },
+                },
+                AddonManager.UPDATE_WHEN_NEW_APP_INSTALLED
+              );
+            });
+          }
+        }
+      }
+    }
 
     // Certificates revocation list, etc.
     Services.tm.idleDispatchToMainThread(() => {
