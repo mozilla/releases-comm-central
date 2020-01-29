@@ -42,6 +42,8 @@ function run_test() {
   // Set server1 and server2 username and hostname to test clientid population.
   Services.prefs.setCharPref("mail.server.server1.userName", "testuser1");
   Services.prefs.setCharPref("mail.server.server2.userName", "testuser2");
+  Services.prefs.setCharPref("mail.server.server1.type", "imap");
+  Services.prefs.setCharPref("mail.server.server2.type", "imap");
   Services.prefs.setCharPref(
     "mail.server.server1.hostname",
     "mail.sampledomain1.com"
