@@ -125,7 +125,6 @@
 #include "nsWeakReference.h"
 #include "nsPIDOMWindow.h"
 #include "nsIMsgComposeSecure.h"
-#include "nsAutoPtr.h"
 #include "nsMsgAttachmentData.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgOperationListener.h"
@@ -329,7 +328,6 @@ class nsMsgComposeAndSend : public nsIMsgSend,
   //
   char *m_attachment1_type;
   char *m_attachment1_encoding;
-  nsAutoPtr<MimeEncoder> m_attachment1_encoder;
   char *m_attachment1_body;
   uint32_t m_attachment1_body_length;
   char *mOriginalHTMLBody;

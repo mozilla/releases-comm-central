@@ -14,7 +14,6 @@
 #include "nsMsgFolderFlags.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgLocalMailFolder.h"
-#include "nsAutoPtr.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsIDirectoryEnumerator.h"
@@ -37,6 +36,7 @@
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/UniquePtr.h"
 #include "prprf.h"
 #include <cstdlib>  // for std::abs(int/long)
 #include <cmath>    // for std::abs(float/double)
@@ -867,8 +867,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(nsIArray *aHdrArray,
   nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(outputStream, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoPtr<nsLineBuffer<char> > lineBuffer(new nsLineBuffer<char>);
-  NS_ENSURE_TRUE(lineBuffer, NS_ERROR_OUT_OF_MEMORY);
+  mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
 
   // For each message, we seek to the beginning of the x-mozilla-status header,
   // and start reading lines, looking for x-mozilla-keys: headers; If we're
@@ -897,10 +896,10 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(nsIArray *aHdrArray,
     (void)msgHdr->GetStatusOffset(&statusOffset);
     uint64_t desiredOffset = messageOffset + statusOffset;
 
-    ChangeKeywordsHelper(msgHdr, desiredOffset, lineBuffer, keywordArray, aAdd,
+    ChangeKeywordsHelper(msgHdr, desiredOffset, *lineBuffer, keywordArray, aAdd,
                          outputStream, seekableStream, inputStream);
   }
-  lineBuffer = nullptr;
+  lineBuffer.reset();
   if (restoreStreamPos != -1)
     seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, restoreStreamPos);
   else if (outputStream)

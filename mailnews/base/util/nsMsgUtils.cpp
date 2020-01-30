@@ -10,7 +10,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsString.h"
 #include "nsIServiceManager.h"
-#include "nsAutoPtr.h"
 #include "nsCOMPtr.h"
 #include "nsIFolderLookupService.h"
 #include "nsIImapUrl.h"
@@ -82,6 +81,7 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/Encoding.h"
 #include "mozilla/EncodingDetector.h"
+#include "mozilla/UniquePtr.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -1717,8 +1717,7 @@ NS_MSG_BASE bool MsgIsHex(const char *aHexString, size_t aNumChars) {
 
 NS_MSG_BASE nsresult MsgStreamMsgHeaders(nsIInputStream *aInputStream,
                                          nsIStreamListener *aConsumer) {
-  nsAutoPtr<nsLineBuffer<char> > lineBuffer(new nsLineBuffer<char>);
-  NS_ENSURE_TRUE(lineBuffer, NS_ERROR_OUT_OF_MEMORY);
+  mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
 
   nsresult rv;
 
@@ -1736,7 +1735,7 @@ NS_MSG_BASE nsresult MsgStreamMsgHeaders(nsIInputStream *aInputStream,
     msgHeaders.Append(curLine);
     msgHeaders.AppendLiteral("\r\n");
   }
-  lineBuffer = nullptr;
+  lineBuffer.reset();
   nsCOMPtr<nsIStringInputStream> hdrsStream =
       do_CreateInstance("@mozilla.org/io/string-input-stream;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);

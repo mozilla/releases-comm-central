@@ -135,10 +135,7 @@ nsMsgAttachmentHandler::nsMsgAttachmentHandler()
       m_current_column(0),
       m_max_column(0),
       m_lines(0),
-      m_file_analyzed(false),
-
-      // Mime
-      m_encoder(nullptr) {}
+      m_file_analyzed(false) {}
 
 nsMsgAttachmentHandler::~nsMsgAttachmentHandler() {
   if (mTmpFile && mDeleteFile) mTmpFile->Remove(false);
@@ -413,13 +410,13 @@ nsresult nsMsgAttachmentHandler::PickEncoding(const char *charset,
   // Now that we've picked an encoding, initialize the filter.
   NS_ASSERTION(!m_encoder, "not-null m_encoder");
   if (m_encoding.LowerCaseEqualsLiteral(ENCODING_BASE64)) {
-    m_encoder = MimeEncoder::GetBase64Encoder(mime_encoder_output_fn,
-                                              mime_delivery_state);
+    m_encoder.reset(MimeEncoder::GetBase64Encoder(mime_encoder_output_fn,
+                                                  mime_delivery_state));
   } else if (m_encoding.LowerCaseEqualsLiteral(ENCODING_QUOTED_PRINTABLE)) {
-    m_encoder =
-        MimeEncoder::GetQPEncoder(mime_encoder_output_fn, mime_delivery_state);
+    m_encoder.reset(
+        MimeEncoder::GetQPEncoder(mime_encoder_output_fn, mime_delivery_state));
   } else {
-    m_encoder = nullptr;
+    m_encoder.reset();
   }
 
   // Do some cleanup for documents with unknown content type.

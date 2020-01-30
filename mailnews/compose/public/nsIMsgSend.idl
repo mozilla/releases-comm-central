@@ -145,7 +145,6 @@ interface nsIMsgEmbeddedImageData : nsISupports
 %{ C++
 // Forward declaration
 class nsMsgAttachmentHandler;
-#include "nsAutoPtr.h"
 #include "nsTArray.h"
 %}
 

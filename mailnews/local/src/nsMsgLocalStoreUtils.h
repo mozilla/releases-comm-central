@@ -28,7 +28,7 @@ class nsMsgLocalStoreUtils {
   static nsresult AddDirectorySeparator(nsIFile *path);
   static bool nsShouldIgnoreFile(nsAString &name, nsIFile *path);
   static void ChangeKeywordsHelper(nsIMsgDBHdr *message, uint64_t desiredOffset,
-                                   nsLineBuffer<char> *lineBuffer,
+                                   nsLineBuffer<char> &lineBuffer,
                                    nsTArray<nsCString> &keywordArray, bool aAdd,
                                    nsIOutputStream *outputStream,
                                    nsISeekableStream *seekableStream,

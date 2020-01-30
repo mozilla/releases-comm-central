@@ -16,7 +16,7 @@
 #include "nsIMutableArray.h"
 #include "nsString.h"
 #include "nsIOutputStream.h"
-#include "nsAutoPtr.h"
+#include "mozilla/UniquePtr.h"
 
 class nsIMsgCompFields;
 namespace mozilla {
@@ -69,7 +69,7 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
   nsCOMPtr<nsIOutputStream> mStream;
   int16_t mHashType;
   nsCOMPtr<nsICryptoHash> mDataHash;
-  nsAutoPtr<MimeEncoder> mSigEncoder;
+  mozilla::UniquePtr<MimeEncoder> mSigEncoder;
   char *mMultipartSignedBoundary;
   nsString mSigningCertName;
   nsAutoCString mSigningCertDBKey;
@@ -82,7 +82,7 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
   nsCOMPtr<nsICMSEncoder> mEncryptionContext;
   nsCOMPtr<nsIStringBundle> mSMIMEBundle;
 
-  nsAutoPtr<MimeEncoder> mCryptoEncoder;
+  mozilla::UniquePtr<MimeEncoder> mCryptoEncoder;
   bool mIsDraft;
 
   enum { eBufferSize = 8192 };

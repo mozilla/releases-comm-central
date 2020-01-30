@@ -8,7 +8,6 @@
 */
 
 #include "prprf.h"
-#include "mozilla/Logging.h"
 #include "msgCore.h"
 #include "nsMsgMaildirStore.h"
 #include "nsIMsgFolder.h"
@@ -16,7 +15,6 @@
 #include "nsISimpleEnumerator.h"
 #include "nsIDirectoryEnumerator.h"
 #include "nsMsgFolderFlags.h"
-#include "nsAutoPtr.h"
 #include "nsCOMArray.h"
 #include "nsIFile.h"
 #include "nsNetUtil.h"
@@ -37,6 +35,8 @@
 #include "nsIMsgFilterPlugin.h"
 #include "nsLocalUndoTxn.h"
 #include "nsIMessenger.h"
+#include "mozilla/Logging.h"
+#include "mozilla/UniquePtr.h"
 
 static mozilla::LazyLogModule MailDirLog("MailDirStore");
 
@@ -1343,8 +1343,7 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(nsIArray *aHdrArray,
   NS_ENSURE_SUCCESS(rv, rv);
   if (!messageCount) return NS_ERROR_INVALID_ARG;
 
-  nsAutoPtr<nsLineBuffer<char> > lineBuffer(new nsLineBuffer<char>);
-  NS_ENSURE_TRUE(lineBuffer, NS_ERROR_OUT_OF_MEMORY);
+  mozilla::UniquePtr<nsLineBuffer<char> > lineBuffer(new nsLineBuffer<char>);
 
   nsTArray<nsCString> keywordArray;
   ParseString(aKeywords, ' ', keywordArray);
@@ -1366,14 +1365,13 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(nsIArray *aHdrArray,
     (void)message->GetStatusOffset(&statusOffset);
     uint64_t desiredOffset = statusOffset;
 
-    ChangeKeywordsHelper(message, desiredOffset, lineBuffer, keywordArray, aAdd,
-                         outputStream, seekableStream, inputStream);
+    ChangeKeywordsHelper(message, desiredOffset, *lineBuffer, keywordArray,
+                         aAdd, outputStream, seekableStream, inputStream);
     if (inputStream) inputStream->Close();
     // ### TODO - if growKeywords property is set on the message header,
     // we need to rewrite the message file with extra room for the keywords,
     // or schedule some sort of background task to do this.
   }
-  lineBuffer = nullptr;
   return NS_OK;
 }
 

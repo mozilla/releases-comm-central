@@ -9,6 +9,7 @@
 #include "msgCore.h"
 #include "prprf.h" /* should be defined into msgCore.h? */
 #include "nsMsgSend.h"
+#include "mozilla/UniquePtr.h"
 
 namespace mozilla {
 namespace mailnews {
@@ -47,11 +48,10 @@ class nsMsgSendPart {
   virtual nsresult SetMimeDeliveryState(nsIMsgSend *state);
 
   // Note that the nsMsgSendPart class will take over ownership of the
-  // MimeEncoderData* object, deleting it when it chooses.  (This is
+  // MimeEncoderData object, deleting it when it chooses.  (This is
   // necessary because deleting these objects is the only current way to
   // flush out the data in them.)
-  void SetEncoder(MimeEncoder *encoder) { m_encoder = encoder; }
-  MimeEncoder *GetEncoder() { return m_encoder; }
+  void SetEncoder(MimeEncoder *encoder) { m_encoder.reset(encoder); }
 
   void SetStripSensitiveHeaders(bool value) {
     m_strip_sensitive_headers = value;
@@ -80,7 +80,7 @@ class nsMsgSendPart {
   char *m_other;
   char m_charset_name[64 + 1];  // charset name associated with this part
   bool m_strip_sensitive_headers;
-  nsAutoPtr<MimeEncoder> m_encoder;
+  mozilla::UniquePtr<MimeEncoder> m_encoder;
 
   nsMsgSendPart **m_children;
   int32_t m_numchildren;

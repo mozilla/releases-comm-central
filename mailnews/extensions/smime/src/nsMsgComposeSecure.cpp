@@ -528,7 +528,8 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
 
   // Initialize the base64 encoder
   MOZ_ASSERT(!mCryptoEncoder, "Shouldn't have an encoder already");
-  mCryptoEncoder = MimeEncoder::GetBase64Encoder(mime_encoder_output_fn, this);
+  mCryptoEncoder.reset(
+      MimeEncoder::GetBase64Encoder(mime_encoder_output_fn, this));
 
   /* Initialize the encrypter (and add the sender's cert.) */
   PR_ASSERT(mSelfEncryptionCert);
@@ -552,7 +553,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
   mBufferedBytes = 0;
 
   rv = mEncryptionContext->Start(mEncryptionCinfo, mime_crypto_write_base64,
-                                 mCryptoEncoder);
+                                 mCryptoEncoder.get());
   if (NS_FAILED(rv)) {
     SetError(sendReport, u"ErrorEncryptMail");
     goto FAIL;
@@ -659,13 +660,13 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
 
   // Initialize the base64 encoder for the signature data.
   MOZ_ASSERT(!mSigEncoder, "Shouldn't already have a mSigEncoder");
-  mSigEncoder = MimeEncoder::GetBase64Encoder(
-      (aOuter ? mime_encoder_output_fn : mime_nested_encoder_output_fn), this);
+  mSigEncoder.reset(MimeEncoder::GetBase64Encoder(
+      (aOuter ? mime_encoder_output_fn : mime_nested_encoder_output_fn), this));
 
   /* Write out the signature.
    */
   PR_SetError(0, 0);
-  rv = encoder->Start(cinfo, mime_crypto_write_base64, mSigEncoder);
+  rv = encoder->Start(cinfo, mime_crypto_write_base64, mSigEncoder.get());
   if (NS_FAILED(rv)) {
     SetError(sendReport, u"ErrorCanNotSignMail");
     return rv;
@@ -680,7 +681,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
 
   // Shut down the sig's base64 encoder.
   rv = mSigEncoder->Flush();
-  mSigEncoder = nullptr;
+  mSigEncoder.reset();
   NS_ENSURE_SUCCESS(rv, rv);
 
   /* Now write out the terminating boundary.
@@ -758,7 +759,7 @@ nsresult nsMsgComposeSecure::MimeFinishEncryption(
 
   // Shut down the base64 encoder.
   mCryptoEncoder->Flush();
-  mCryptoEncoder = nullptr;
+  mCryptoEncoder.reset();
 
   uint32_t n;
   rv = mStream->Write(CRLF, 2, &n);

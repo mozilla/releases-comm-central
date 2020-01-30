@@ -83,6 +83,7 @@
 #include "nsINSSErrorsService.h"
 #include "mozilla/Logging.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/UniquePtr.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -741,15 +742,13 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
   // part is empty; we need to add things to skip it if this part is empty.
 
   // Set up encoder for the first part (message body.)
-  //
-  NS_ASSERTION(!m_attachment1_encoder, "not-null m_attachment1_encoder");
   if (!PL_strcasecmp(m_attachment1_encoding, ENCODING_BASE64)) {
-    m_attachment1_encoder =
-        MimeEncoder::GetBase64Encoder(mime_encoder_output_fn, this);
+    mainbody->SetEncoder(
+        MimeEncoder::GetBase64Encoder(mime_encoder_output_fn, this));
   } else if (!PL_strcasecmp(m_attachment1_encoding,
                             ENCODING_QUOTED_PRINTABLE)) {
-    m_attachment1_encoder =
-        MimeEncoder::GetQPEncoder(mime_encoder_output_fn, this);
+    mainbody->SetEncoder(
+        MimeEncoder::GetQPEncoder(mime_encoder_output_fn, this));
   }
 
   // If we converted HTML into plaintext, the plaintext part
@@ -774,8 +773,6 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
   }
 
   PR_FREEIF(hdrs);
-
-  mainbody->SetEncoder(m_attachment1_encoder.forget());
 
   //
   // Now we need to process attachments and slot them in the
@@ -1006,7 +1003,7 @@ int32_t nsMsgComposeAndSend::PreProcessPart(
   status = part->SetFile(ma->mTmpFile);
   if (NS_FAILED(status)) return 0;
   if (ma->m_encoder) {
-    part->SetEncoder(ma->m_encoder.forget());
+    part->SetEncoder(ma->m_encoder.release());
   }
 
   ma->m_current_column = 0;

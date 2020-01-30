@@ -13,8 +13,8 @@
 #include "nsIMsgSend.h"
 #include "nsIFileStreams.h"
 #include "nsIStreamConverter.h"
-#include "nsAutoPtr.h"
 #include "nsIMsgAttachmentHandler.h"
+#include "mozilla/UniquePtr.h"
 
 #ifdef XP_MACOSX
 
@@ -173,7 +173,7 @@ class nsMsgAttachmentHandler : public nsIMsgAttachmentHandler {
   uint32_t m_lines;
   bool m_file_analyzed;
 
-  nsAutoPtr<MimeEncoder> m_encoder;
+  mozilla::UniquePtr<MimeEncoder> m_encoder;
   nsCString m_uri;  // original uri string
 
   nsresult GetMimeDeliveryState(nsIMsgSend **_retval);

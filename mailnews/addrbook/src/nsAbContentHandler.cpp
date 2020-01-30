@@ -7,9 +7,9 @@
 #include "nsAbBaseCID.h"
 #include "nsNetUtil.h"
 #include "nsCOMPtr.h"
-#include "nsAutoPtr.h"
 #include "mozilla/NullPrincipal.h"
 #include "mozilla/dom/BrowsingContext.h"
+#include "mozilla/UniquePtr.h"
 #include "nsISupportsPrimitives.h"
 #include "plstr.h"
 #include "nsPIDOMWindow.h"
@@ -148,12 +148,13 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
   nsCOMPtr<nsIMsgVCardService> vCardService =
       do_GetService(NS_MSGVCARDSERVICE_CONTRACTID);
   if (vCardService) {
-    nsAutoPtr<VObject> vObj(
+    mozilla::UniquePtr<VObject> vObj(
         vCardService->Parse_MIME((const char *)data, datalen));
     if (vObj) {
       int32_t len = 0;
       nsCString vCard;
-      vCard.Adopt(vCardService->WriteMemoryVObjects(0, &len, vObj, false));
+      vCard.Adopt(
+          vCardService->WriteMemoryVObjects(0, &len, vObj.get(), false));
 
       nsCOMPtr<nsIAbManager> ab = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);

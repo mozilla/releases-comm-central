@@ -49,15 +49,15 @@
 #include "nsNativeCharsetUtils.h"
 #include "nsMailHeaders.h"
 #include "nsCOMArray.h"
-#include "nsAutoPtr.h"
 #include "nsIRssIncomingServer.h"
 #include "nsNetUtil.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsReadLine.h"
 #include "nsArrayUtils.h"
 #include "nsIStringEnumerator.h"
-#include "mozilla/Services.h"
 #include "nsIURIMutator.h"
+#include "mozilla/Services.h"
+#include "mozilla/UniquePtr.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // nsLocal
@@ -3290,8 +3290,7 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState *aState,
   aState->m_seekableStream = do_QueryInterface(aState->m_inputStream);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsAutoPtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
-  NS_ENSURE_TRUE(lineBuffer, NS_ERROR_OUT_OF_MEMORY);
+  mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
 
   aState->m_uidl = nullptr;
 
@@ -3325,7 +3324,6 @@ nsMsgLocalMailFolder::GetUidlFromFolder(nsLocalFolderScanState *aState,
     aState->m_inputStream->Close();
     aState->m_inputStream = nullptr;
   }
-  lineBuffer = nullptr;
   return rv;
 }
 

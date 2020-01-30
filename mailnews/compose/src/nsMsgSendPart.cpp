@@ -561,8 +561,7 @@ nsresult nsMsgSendPart::Write() {
       // We are attaching a message, so we should be careful to
       // strip out certain sensitive internal header fields.
       bool skipping = false;
-      nsAutoPtr<nsLineBuffer<char> > lineBuffer(new nsLineBuffer<char>);
-      NS_ENSURE_TRUE(lineBuffer, NS_ERROR_OUT_OF_MEMORY);
+      mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
 
       while (more) {
         // NS_ReadLine doesn't return line termination chars.
@@ -610,7 +609,6 @@ nsresult nsMsgSendPart::Write() {
           break;  // Now can do normal reads for the body.
         }
       }
-      lineBuffer = nullptr;
     }
 
     while (NS_SUCCEEDED(status)) {

@@ -54,7 +54,6 @@
 #include "nsThreadUtils.h"
 #include "nsITransactionManager.h"
 #include "nsMsgReadStateTxn.h"
-#include "nsAutoPtr.h"
 #include "prmem.h"
 #include "nsIPK11TokenDB.h"
 #include "nsIPK11Token.h"
@@ -63,14 +62,15 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgFilterService.h"
 #include "nsDirectoryServiceUtils.h"
-#include "mozilla/Services.h"
 #include "nsMimeTypes.h"
 #include "nsIMsgFilter.h"
 #include "nsIScriptError.h"
 #include "nsIURIMutator.h"
+#include "nsIXULAppInfo.h"
+#include "mozilla/Services.h"
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
-#include "nsIXULAppInfo.h"
+#include "mozilla/UniquePtr.h"
 
 using namespace mozilla;
 
@@ -4962,8 +4962,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
      4. multipart/mixed - scan past boundary, treat next part as body.
    */
 
-  nsAutoPtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
-  NS_ENSURE_TRUE(lineBuffer, NS_ERROR_OUT_OF_MEMORY);
+  UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
 
   nsAutoCString msgText;
   nsAutoString contentType;
@@ -5111,7 +5110,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
       if (bytesRead > bytesToRead) break;
     }
   }
-  lineBuffer = nullptr;
+  lineBuffer.reset();
 
   // if the snippet is encoded, decode it
   if (!encoding.IsEmpty())

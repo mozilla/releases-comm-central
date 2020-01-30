@@ -84,7 +84,7 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString &name, nsIFile *path) {
 
 void nsMsgLocalStoreUtils::ChangeKeywordsHelper(
     nsIMsgDBHdr *message, uint64_t desiredOffset,
-    nsLineBuffer<char> *lineBuffer, nsTArray<nsCString> &keywordArray,
+    nsLineBuffer<char> &lineBuffer, nsTArray<nsCString> &keywordArray,
     bool aAdd, nsIOutputStream *outputStream, nsISeekableStream *seekableStream,
     nsIInputStream *inputStream) {
   uint32_t bytesWritten;
@@ -99,7 +99,7 @@ void nsMsgLocalStoreUtils::ChangeKeywordsHelper(
     keywordToWrite.Append(keywordArray[i]);
     seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, desiredOffset);
     // need to reset lineBuffer, which is cheaper than creating a new one.
-    lineBuffer->start = lineBuffer->end = lineBuffer->buf;
+    lineBuffer.start = lineBuffer.end = lineBuffer.buf;
     bool inKeywordHeader = false;
     bool foundKeyword = false;
     int64_t offsetToAddKeyword = 0;
@@ -111,10 +111,11 @@ void nsMsgLocalStoreUtils::ChangeKeywordsHelper(
       seekableStream->Tell(&lineStartPos);
       // we need to adjust the linestart pos by how much extra the line
       // buffer has read from the stream.
-      lineStartPos -= (lineBuffer->end - lineBuffer->start);
+      lineStartPos -= (lineBuffer.end - lineBuffer.start);
       // NS_ReadLine doesn't return line termination chars.
       nsCString keywordHeaders;
-      nsresult rv = NS_ReadLine(inputStream, lineBuffer, keywordHeaders, &more);
+      nsresult rv =
+          NS_ReadLine(inputStream, &lineBuffer, keywordHeaders, &more);
       if (NS_SUCCEEDED(rv)) {
         if (keywordHeaders.IsEmpty())
           break;  // passed headers; no x-mozilla-keywords header; give up.
