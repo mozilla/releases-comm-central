@@ -10,6 +10,10 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+var { OAuth2Providers } = ChromeUtils.import(
+  "resource:///modules/OAuth2Providers.jsm"
+);
+
 var gSmtpServerListWindow = {
   mBundle: null,
   mServerList: null,
@@ -174,6 +178,13 @@ var gSmtpServerListWindow = {
         );
     }
     if (authStr) {
+      let details = OAuth2Providers.getHostnameDetails(aServer.hostname);
+      if (!details) {
+        document
+          .getElementById("authMethod-oauth2")
+          .toggleAttribute("disabled", true);
+      }
+
       document.getElementById("authMethodValue").value = this.mBundle.getString(
         authStr
       );

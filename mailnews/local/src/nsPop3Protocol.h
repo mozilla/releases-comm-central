@@ -17,6 +17,7 @@
 #include "nsIMsgFolder.h"  // TO include biffState enum. Change to bool later...
 #include "nsIMsgAsyncPrompter.h"
 #include "nsIProtocolProxyCallback.h"
+#include "msgIOAuth2Module.h"
 
 #include "prerror.h"
 #include "plhash.h"
@@ -50,11 +51,6 @@
 
 #define OUTPUT_BUFFER_SIZE 8192  // maximum size of command string
 
-/* structure to hold data pertaining to the active state of
- * a transfer in progress.
- *
- */
-
 enum Pop3CapabilityEnum {
   POP3_CAPABILITY_UNDEFINED = 0x00000000,
   POP3_HAS_XSENDER = 0x00000001,
@@ -77,7 +73,8 @@ enum Pop3CapabilityEnum {
   POP3_HAS_RESP_CODES = 0x00020000,
   POP3_HAS_AUTH_RESP_CODE = 0x00040000,
   POP3_HAS_STLS = 0x00080000,
-  POP3_HAS_AUTH_GSSAPI = 0x00100000
+  POP3_HAS_AUTH_GSSAPI = 0x00100000,
+  POP3_HAS_AUTH_XOAUTH2 = 0x00200000
 };
 
 // TODO use value > 0?
@@ -85,6 +82,10 @@ enum Pop3CapabilityEnum {
 #define POP3_HAS_AUTH_ANY 0x00001C00
 #define POP3_HAS_AUTH_ANY_SEC 0x0011E000
 
+/**
+ * Structure to hold data pertaining to the active state of a transfer in
+ * progress.
+ */
 enum Pop3StatesEnum {
   POP3_READ_PASSWORD,                          // 0
   POP3_START_CONNECT,                          // 1
@@ -142,7 +143,9 @@ enum Pop3StatesEnum {
   POP3_OBTAIN_PASSWORD_BEFORE_USERNAME,         // 47
   POP3_FINISH_OBTAIN_PASSWORD_BEFORE_USERNAME,  // 48
   POP3_OBTAIN_PASSWORD_BEFORE_PASSWORD,         // 49
-  POP3_FINISH_OBTAIN_PASSWORD_BEFORE_PASSWORD   // 50
+  POP3_FINISH_OBTAIN_PASSWORD_BEFORE_PASSWORD,  // 50
+
+  POP3_AUTH_OAUTH2_RESPONSE,  // 51
 };
 
 #define KEEP 'k'        /* If we want to keep this item on server. */
@@ -239,11 +242,13 @@ typedef struct _Pop3ConData {
 class nsPop3Protocol : public nsMsgProtocol,
                        public nsIPop3Protocol,
                        public nsIMsgAsyncPromptListener,
+                       public msgIOAuth2ModuleListener,
                        public nsIProtocolProxyCallback {
  public:
   explicit nsPop3Protocol(nsIURI* aURL);
 
   NS_DECL_ISUPPORTS_INHERITED
+  NS_DECL_MSGIOAUTH2MODULELISTENER
   NS_DECL_NSIPOP3PROTOCOL
   NS_DECL_NSIMSGASYNCPROMPTLISTENER
   NS_DECL_NSIPROTOCOLPROXYCALLBACK
@@ -359,6 +364,7 @@ class nsPop3Protocol : public nsMsgProtocol,
   int32_t NextAuthStep();
   int32_t AuthLogin();
   int32_t AuthLoginResponse();
+  int32_t AuthOAuth2Response();
   int32_t AuthNtlm();
   int32_t AuthNtlmResponse();
   int32_t AuthGSSAPI();
@@ -391,6 +397,10 @@ class nsPop3Protocol : public nsMsgProtocol,
 
   Pop3StatesEnum GetNextPasswordObtainState();
   nsresult RerunUrl();
+
+  // The support module for OAuth2 logon, only present if OAuth2 is enabled
+  // and working.
+  nsCOMPtr<msgIOAuth2Module> mOAuth2Support;
 };
 
 #endif /* nsPop3Protocol_h__ */

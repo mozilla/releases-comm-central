@@ -1466,8 +1466,9 @@ EmailConfigWizard.prototype = {
     }
     this.fillPortDropdown(config.incoming.type);
 
-    // If the hostname supports OAuth2 and imap is enabled, enable OAuth2.
+    // If the incoming server hostname supports OAuth2, enable OAuth2 for it.
     let iDetails = OAuth2Providers.getHostnameDetails(config.incoming.hostname);
+    e("in-authMethod-oauth2").hidden = !iDetails;
     if (iDetails) {
       gEmailWizardLogger.info(
         "OAuth2 details for incoming server " +
@@ -1475,16 +1476,13 @@ EmailConfigWizard.prototype = {
           " is " +
           iDetails
       );
-    }
-    e("in-authMethod-oauth2").hidden = !(
-      iDetails && e("incoming_protocol").value == 1
-    );
-    if (!e("in-authMethod-oauth2").hidden) {
       config.oauthSettings = {};
       [config.oauthSettings.issuer, config.oauthSettings.scope] = iDetails;
       // oauthsettings are not stored nor changeable in the user interface, so just
       // store them in the base configuration.
       this._currentConfig.oauthSettings = config.oauthSettings;
+    } else {
+      e("incoming_authMethod").value = 0; // Set to autodetect.
     }
 
     // outgoing server
@@ -1509,8 +1507,9 @@ EmailConfigWizard.prototype = {
       this.adjustOutgoingPortToSSLAndProtocol(config);
     }
 
-    // If the hostname supports OAuth2 and imap is enabled, enable OAuth2.
+    // If the smtp hostname supports OAuth2, enable OAuth2 for it.
     let oDetails = OAuth2Providers.getHostnameDetails(config.outgoing.hostname);
+    e("out-authMethod-oauth2").hidden = !oDetails;
     if (oDetails) {
       gEmailWizardLogger.info(
         "OAuth2 details for outgoing server " +
@@ -1518,14 +1517,13 @@ EmailConfigWizard.prototype = {
           " is " +
           oDetails
       );
-    }
-    e("out-authMethod-oauth2").hidden = !oDetails;
-    if (!e("out-authMethod-oauth2").hidden) {
       config.oauthSettings = {};
       [config.oauthSettings.issuer, config.oauthSettings.scope] = oDetails;
       // oauthsettings are not stored nor changeable in the user interface, so just
       // store them in the base configuration.
       this._currentConfig.oauthSettings = config.oauthSettings;
+    } else {
+      e("outgoing_authMethod").value = 0; // Set to autodetect.
     }
 
     // populate fields even if existingServerKey, in case user changes back
