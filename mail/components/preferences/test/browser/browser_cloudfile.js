@@ -22,7 +22,7 @@ add_task(async () => {
     // that it is registered.
     cloudFileAccounts.registerProvider("WeTransfer-Test", {
       displayName: "WeTransfer",
-      type: "ext-wetransfer@extensions.thunderbird.net"
+      type: "ext-wetransfer@extensions.thunderbird.net",
     });
     registerCleanupFunction(() => {
       cloudFileAccounts.unregisterProvider("WeTransfer-Test");
