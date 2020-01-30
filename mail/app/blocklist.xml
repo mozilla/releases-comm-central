@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1579987441268">
+<blocklist xmlns="http://www.mozilla.org/2006/addons-blocklist" lastupdate="1580207330647">
   <emItems>
     <emItem blockID="i334" id="{0F827075-B026-42F3-885D-98981EE7B1AE}">
       <prefs/>
@@ -3459,6 +3459,22 @@
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
     <emItem blockID="ad789bcb-4c12-401d-b6fe-202a5b6697b6" id="djuvt@czgnp">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="18581952-6448-4728-9fd4-2860b3e6534e" id="{c6ce41ee-a4e3-4fd7-ab6a-988b6916d66a}">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="303a149e-8262-4d16-b24b-348b84d5051e" id="/^((\{9237d0ab-aaf0-41a2-b873-c0f131b09ce4\})|(\{18b14b7d-e228-416a-bab8-37acf6d6dfca\})|(rwkaddon@racewarkingdoms\.com)|(\{2e2d6d72-2634-496c-a8db-db869b639a21\}))$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="70af2927-6552-4eae-a91a-89e4cdd61b88" id="/^((\{0ded4ebe-965f-4de0-89d2-91ed13ae15ee\})|(\{5c143da2-6a9e-4afe-9ca2-b758aebe6e64\})|(\{c6566b12-297b-41fb-8189-f32a7d1c1b87\}))$/">
+      <prefs/>
+      <versionRange minVersion="0" maxVersion="*" severity="3"/>
+    </emItem>
+    <emItem blockID="5b4a4d34-1341-49ea-8b53-96a1ecfac49e" id="/^((\{6b7df170-e6fa-4b9b-bd76-d6b866a5bc6c\})|(\{7e1c1f98-4c89-4668-b9ea-e258e7c9e22b\})|(\{1f2128cd-bcaa-4e60-b555-0713054df0f9\})|(\{9043971c-ce88-400b-b56f-7a9e3853eb32\})|(\{afcbdf71-be6d-46cf-b5ff-6a6b9ec7f920\}))$/">
       <prefs/>
       <versionRange minVersion="0" maxVersion="*" severity="3"/>
     </emItem>
