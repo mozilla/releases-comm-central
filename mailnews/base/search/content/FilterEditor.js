@@ -623,12 +623,7 @@ function _checkActionsReorder() {
   // Compare the two lists.
   let statusBar = document.getElementById("statusbar");
   for (let index = 0; index < gActionListOrdered.length; index++) {
-    if (
-      index !=
-      gTempFilter.getActionIndex(
-        gActionListOrdered.queryElementAt(index, nsIMsgRuleAction)
-      )
-    ) {
+    if (index != gTempFilter.getActionIndex(gActionListOrdered[index])) {
       // If the lists are not the same unhide the status bar and show warning.
       statusBar.style.visibility = "visible";
       return;
@@ -670,9 +665,7 @@ function showActionsOrder() {
   // Present a nicely formatted list of action names and arguments.
   let actionList = gFilterBundle.getString("filterActionOrderExplanation");
   for (let i = 0; i < gActionListOrdered.length; i++) {
-    let actionIndex = gTempFilter.getActionIndex(
-      gActionListOrdered.queryElementAt(i, nsIMsgRuleAction)
-    );
+    let actionIndex = gTempFilter.getActionIndex(gActionListOrdered[i]);
     let action = actionStrings[actionIndex];
     actionList += gFilterBundle.getFormattedString("filterActionItem", [
       i + 1,

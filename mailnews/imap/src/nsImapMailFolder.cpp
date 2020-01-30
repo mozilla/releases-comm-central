@@ -3152,13 +3152,11 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
 
   bool deleteToTrash = DeleteIsMoveToTrash();
 
-  nsCOMPtr<nsIArray> filterActionList;
-  rv = filter->GetSortedActionList(getter_AddRefs(filterActionList));
+  nsTArray<RefPtr<nsIMsgRuleAction>> filterActionList;
+  rv = filter->GetSortedActionList(filterActionList);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t numActions;
-  rv = filterActionList->GetLength(&numActions);
-  NS_ENSURE_SUCCESS(rv, rv);
+  uint32_t numActions = filterActionList.Length();
 
   nsCString msgId;
   msgHdr->GetMessageId(getter_Copies(msgId));
@@ -3182,9 +3180,8 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter *filter,
 
   nsresult finalResult = NS_OK;  // result of all actions
   for (uint32_t actionIndex = 0; actionIndex < numActions; actionIndex++) {
-    nsCOMPtr<nsIMsgRuleAction> filterAction =
-        do_QueryElementAt(filterActionList, actionIndex, &rv);
-    if (NS_FAILED(rv) || !filterAction) {
+    nsCOMPtr<nsIMsgRuleAction> filterAction(filterActionList[actionIndex]);
+    if (!filterAction) {
       MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,
               ("(Imap) Filter action at index %" PRIu32 " invalid, skipping",
                actionIndex));

@@ -653,12 +653,11 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
     bool loggingEnabled = false;
     if (m_filters) (void)m_filters->GetLoggingEnabled(&loggingEnabled);
 
-    nsCOMPtr<nsIArray> actionList;
-    rv = m_curFilter->GetSortedActionList(getter_AddRefs(actionList));
+    nsTArray<RefPtr<nsIMsgRuleAction>> actionList;
+    rv = m_curFilter->GetSortedActionList(actionList);
     BREAK_IF_FAILURE(rv, "Could not get action list for filter");
 
-    uint32_t numActions;
-    actionList->GetLength(&numActions);
+    uint32_t numActions = actionList.Length();
 
     if (m_nextAction == 0) {
       MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
@@ -677,9 +676,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
     // after the return from an async copy.
     while (m_nextAction < numActions) {
       nsresult finalResult = NS_OK;
-      nsCOMPtr<nsIMsgRuleAction> filterAction(
-          do_QueryElementAt(actionList, m_nextAction++, &rv));
-      CONTINUE_IF_FAILURE(rv, "actionList cannot QI element");
+      nsCOMPtr<nsIMsgRuleAction> filterAction(actionList[m_nextAction]);
+      ++m_nextAction;
 
       nsMsgRuleActionType actionType;
       rv = filterAction->GetType(&actionType);

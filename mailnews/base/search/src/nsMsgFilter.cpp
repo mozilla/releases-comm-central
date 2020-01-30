@@ -255,31 +255,22 @@ nsMsgFilter::CreateAction(nsIMsgRuleAction **aAction) {
 //    m+1     MoveToFolder or Delete
 //    m+2     StopExecution
 NS_IMETHODIMP
-nsMsgFilter::GetSortedActionList(nsIArray **aActionList) {
-  NS_ENSURE_ARG_POINTER(aActionList);
-
-  uint32_t numActions;
-  nsresult rv = GetActionCount(&numActions);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMutableArray> orderedActions(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+nsMsgFilter::GetSortedActionList(
+    nsTArray<RefPtr<nsIMsgRuleAction>> &aActionList) {
+  aActionList.Clear();
+  aActionList.SetCapacity(m_actionList.Length());
 
   // hold separate pointers into the action list
   uint32_t nextIndexForNormal = 0, nextIndexForCopy = 0, nextIndexForMove = 0;
-  for (uint32_t index = 0; index < numActions; ++index) {
-    nsCOMPtr<nsIMsgRuleAction> action;
-    rv = GetActionAt(index, getter_AddRefs(action));
-    if (NS_FAILED(rv) || !action) continue;
+  for (auto action : m_actionList) {
+    if (!action) continue;
 
     nsMsgRuleActionType actionType;
     action->GetType(&actionType);
     switch (actionType) {
       case nsMsgFilterAction::FetchBodyFromPop3Server: {
         // always insert in front
-        rv = orderedActions->InsertElementAt(action, 0);
-        NS_ENSURE_SUCCESS(rv, rv);
+        aActionList.InsertElementAt(0, action);
         ++nextIndexForNormal;
         ++nextIndexForCopy;
         ++nextIndexForMove;
@@ -288,8 +279,7 @@ nsMsgFilter::GetSortedActionList(nsIArray **aActionList) {
 
       case nsMsgFilterAction::CopyToFolder: {
         // insert into copy actions block, in order of appearance
-        rv = orderedActions->InsertElementAt(action, nextIndexForCopy);
-        NS_ENSURE_SUCCESS(rv, rv);
+        aActionList.InsertElementAt(nextIndexForCopy, action);
         ++nextIndexForCopy;
         ++nextIndexForMove;
         break;
@@ -298,23 +288,20 @@ nsMsgFilter::GetSortedActionList(nsIArray **aActionList) {
       case nsMsgFilterAction::MoveToFolder:
       case nsMsgFilterAction::Delete: {
         // insert into move/delete action block
-        rv = orderedActions->InsertElementAt(action, nextIndexForMove);
-        NS_ENSURE_SUCCESS(rv, rv);
+        aActionList.InsertElementAt(nextIndexForMove, action);
         ++nextIndexForMove;
         break;
       }
 
       case nsMsgFilterAction::StopExecution: {
         // insert into stop action block
-        rv = orderedActions->AppendElement(action);
-        NS_ENSURE_SUCCESS(rv, rv);
+        aActionList.AppendElement(action);
         break;
       }
 
       default: {
         // insert into normal action block, in order of appearance
-        rv = orderedActions->InsertElementAt(action, nextIndexForNormal);
-        NS_ENSURE_SUCCESS(rv, rv);
+        aActionList.InsertElementAt(nextIndexForNormal, action);
         ++nextIndexForNormal;
         ++nextIndexForCopy;
         ++nextIndexForMove;
@@ -323,7 +310,6 @@ nsMsgFilter::GetSortedActionList(nsIArray **aActionList) {
     }
   }
 
-  orderedActions.forget(aActionList);
   return NS_OK;
 }
 

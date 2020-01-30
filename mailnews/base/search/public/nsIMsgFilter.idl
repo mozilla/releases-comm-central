@@ -123,7 +123,7 @@ interface nsIMsgFilter : nsISupports {
     void clearActionList();
 
     // Returns the action list in the order it will be really executed in.
-    readonly attribute nsIArray sortedActionList;
+    readonly attribute Array<nsIMsgRuleAction> sortedActionList;
 
     void SaveToTextFile(in nsIOutputStream aStream);
 };
