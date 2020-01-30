@@ -91,7 +91,7 @@
                    flex="1"/>
             <toolbarbutton id="otrButton"
                            mode="dialog"
-                           class="otr-button toolbarbutton-1"
+                           class="otr-button"
                            type="menu"
                            label="Insecure"
                            data-l10n-id="start-tooltip">

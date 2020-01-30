@@ -90,3 +90,7 @@
 #appmenu_imAccountsStatus .menu-iconic-icon {
   visibility: visible;
 }
+
+.otr-button:hover {
+  color: inherit;
+}

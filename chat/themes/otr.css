@@ -28,32 +28,41 @@
   list-style-image: url("chrome://chat/skin/otr-connection-encrypted.svg");
 }
 
-toolbarbutton.otr-button {
-  -moz-appearance: button !important;
+.otr-button {
+  -moz-appearance: none !important;
   padding: 1px !important;
+  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  border-radius: var(--toolbarbutton-border-radius);
+  background: var(--toolbarbutton-hover-background) !important;
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.otr-button:not([disabled="true"]):not([open="true"]):hover {
+  background: var(--toolbarbutton-active-background) !important;
+  border-color: var(--toolbarbutton-active-bordercolor);
+}
+
+.otr-button[open="true"] {
+  background: var(--toolbarbutton-active-background) !important;
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
 }
 
 .otr-button > image {
-  margin-inline-end: 3px;
+  margin-inline-end: 3px !important;
   width: 14px;
 }
 
 .otr-button .toolbarbutton-menu-dropmarker {
   -moz-appearance: none !important;
-  list-style-image: none;
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
   margin-left: 0;
   margin-right: 0;
   margin-inline-start: 3px;
-  width: 9px;
-}
-
-.otr-button .toolbarbutton-menu-dropmarker::part(icon) {
-  width: 17px;
-  height: 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 9px 7px;
 }
 
 /* otr botificationbox tweaks */
