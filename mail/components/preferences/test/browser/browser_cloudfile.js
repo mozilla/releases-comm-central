@@ -2,12 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+let { AddonManager } = ChromeUtils.import(
+  "resource://gre/modules/AddonManager.jsm"
+);
 let { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
 let { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
+
+add_task(async () => {
+  let weTransfer = await AddonManager.getAddonByID(
+    "wetransfer@extensions.thunderbird.net"
+  );
+  if (!weTransfer) {
+    // WeTransfer isn't registered in artifact builds because the wrong
+    // built_in_addons.json is used. For the purposes of this test, pretend
+    // that it is registered.
+    cloudFileAccounts.registerProvider("WeTransfer-Test", {
+      displayName: "WeTransfer",
+      type: "ext-wetransfer@extensions.thunderbird.net"
+    });
+    registerCleanupFunction(() => {
+      cloudFileAccounts.unregisterProvider("WeTransfer-Test");
+    });
+  }
+});
 
 const ICON_URL = getRootDirectory(gTestPath) + "files/icon.svg";
 const MANAGEMENT_URL = getRootDirectory(gTestPath) + "files/management.html";
