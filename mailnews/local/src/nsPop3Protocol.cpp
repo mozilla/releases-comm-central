@@ -379,7 +379,7 @@ nsresult nsPop3Protocol::MarkMsgForHost(const char *hostName,
 // nsPop3Protocol class implementation
 
 NS_IMPL_ISUPPORTS_INHERITED(nsPop3Protocol, nsMsgProtocol,
-                            msgIOAuth2ModuleListener, nsIProtocolProxyCallback)
+                            msgIOAuth2ModuleListener, nsIMsgAsyncPromptListener, nsIProtocolProxyCallback)
 
 nsPop3Protocol::nsPop3Protocol(nsIURI *aURL)
     : nsMsgProtocol(aURL),
