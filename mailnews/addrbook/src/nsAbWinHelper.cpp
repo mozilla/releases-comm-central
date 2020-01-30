@@ -212,8 +212,7 @@ void nsMapiEntryArray::CleanUp(void) {
 using namespace mozilla;
 
 uint32_t nsAbWinHelper::mEntryCounter = 0;
-nsAutoPtr<mozilla::Mutex> nsAbWinHelper::mMutex;
-uint32_t nsAbWinHelper::mUseCount = 0;
+mozilla::StaticAutoPtr<mozilla::Mutex> nsAbWinHelper::mMutex;
 // There seems to be a deadlock/auto-destruction issue
 // in MAPI when multiple threads perform init/release
 // operations at the same time. So I've put a mutex
@@ -222,15 +221,10 @@ uint32_t nsAbWinHelper::mUseCount = 0;
 // same protection (MAPI is supposed to be thread-safe).
 
 nsAbWinHelper::nsAbWinHelper(void) : mLastError(S_OK), mAddressBook(NULL) {
-  if (!mUseCount++) mMutex = new mozilla::Mutex("nsAbWinHelper.mMutex");
-
   MOZ_COUNT_CTOR(nsAbWinHelper);
 }
 
-nsAbWinHelper::~nsAbWinHelper(void) {
-  if (!--mUseCount) mMutex = nullptr;
-  MOZ_COUNT_DTOR(nsAbWinHelper);
-}
+nsAbWinHelper::~nsAbWinHelper(void) { MOZ_COUNT_DTOR(nsAbWinHelper); }
 
 BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders) {
   aFolders.CleanUp();
