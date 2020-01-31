@@ -12,6 +12,7 @@ DIRS += [
     'components',
     '../locales',
     'modules',
+    'themes',
 ]
 
 TEST_DIRS += ['../test']

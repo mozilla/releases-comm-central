@@ -1,0 +1,22 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+calendar.jar:
+% skin calendar classic/1.0 %skin/osx/ os=Darwin
+#include ../common/jar.inc.mn
+    skin/osx/calendar-daypicker.css                             (calendar-daypicker.css)
+    skin/osx/calendar-task-tree.css                             (calendar-task-tree.css)
+    skin/osx/calendar-task-view.css                             (calendar-task-view.css)
+    skin/osx/calendar-unifinder.css                             (calendar-unifinder.css)
+    skin/osx/calendar-views.css                                 (calendar-views.css)
+    skin/osx/calendar-alarm-dialog.css                          (dialogs/calendar-alarm-dialog.css)
+    skin/osx/calendar-event-dialog.css                          (dialogs/calendar-event-dialog.css)
+    skin/osx/calendar-invitations-dialog.css                    (dialogs/calendar-invitations-dialog.css)
+    skin/osx/calendar-subscriptions-dialog.css                  (dialogs/calendar-subscriptions-dialog.css)
+    skin/osx/checkbox-images-graphite.png                       (images/checkbox-images-graphite.png)
+    skin/osx/checkbox-images.png                                (images/checkbox-images.png)
+    skin/osx/locked-selected-mac.svg                            (images/locked-selected-mac.svg)
+    skin/osx/warn-selected-mac.svg                              (images/warn-selected-mac.svg)
+    skin/osx/today-pane.css                                     (today-pane.css)
+    skin/osx/widgets/calendar-widgets.css                       (widgets/calendar-widgets.css)

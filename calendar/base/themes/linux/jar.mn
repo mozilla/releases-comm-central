@@ -1,0 +1,18 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+calendar.jar:
+% skin calendar classic/1.0 %skin/linux/
+#include ../common/jar.inc.mn
+    skin/linux/calendar-daypicker.css                           (calendar-daypicker.css)
+    skin/linux/calendar-task-tree.css                           (calendar-task-tree.css)
+    skin/linux/calendar-task-view.css                           (calendar-task-view.css)
+    skin/linux/calendar-unifinder.css                           (calendar-unifinder.css)
+    skin/linux/calendar-views.css                               (calendar-views.css)
+    skin/linux/calendar-alarm-dialog.css                        (dialogs/calendar-alarm-dialog.css)
+    skin/linux/calendar-event-dialog.css                        (dialogs/calendar-event-dialog.css)
+    skin/linux/calendar-subscriptions-dialog.css                (dialogs/calendar-subscriptions-dialog.css)
+    skin/linux/calendar-invitations-dialog.css                  (dialogs/calendar-invitations-dialog.css)
+    skin/linux/today-pane.css                                   (today-pane.css)
+    skin/linux/widgets/calendar-widgets.css                     (widgets/calendar-widgets.css)

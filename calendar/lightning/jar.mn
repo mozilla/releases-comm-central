@@ -36,35 +36,6 @@ lightning.jar:
     content/caldav-lightning-calendar-properties.js        (../providers/caldav/content/caldav-lightning-calendar-properties.js)
     content/caldav-lightning-utils.js                      (../providers/caldav/content/caldav-lightning-utils.js)
 
-% skin lightning classic/1.0 %skin/linux/
-% skin lightning classic/1.0 %skin/osx/ os=Darwin
-% skin lightning classic/1.0 %skin/windows/ os=WINNT
-% skin lightning-common classic/1.0 %skin/lightning-common/
-    skin/lightning-common/accountCentral.css               (themes/common/accountCentral.css)
-    skin/lightning-common/html-item-editing.css            (themes/common/html-item-editing.css)
-    skin/lightning-common/todayButton-arrow.svg            (themes/common/images/todayButton-arrow.svg)
-    skin/lightning-common/imip.css                         (themes/common/imip.css)
-    skin/lightning-common/lightning.css                    (themes/common/lightning.css)
-    skin/lightning-common/lightning-toolbar.css            (themes/common/lightning-toolbar.css)
-    skin/lightning-common/suite-accountCentral.css         (themes/common/suite-accountCentral.css)
-    skin/lightning-common/datetimepickers.css              (../resources/skin/datetimepickers.css)
-    skin/lightning-common/dialogOverlay.css                (../resources/skin/dialogOverlay.css)
-
-# Linux theme files
-    skin/linux/imip.css                                    (themes/linux/imip.css)
-    skin/linux/lightning.css                               (themes/linux/lightning.css)
-    skin/linux/lightning-toolbar.css                       (themes/linux/lightning-toolbar.css)
-
-# OS X theme files
-    skin/osx/imip.css                                      (themes/osx/imip.css)
-    skin/osx/lightning.css                                 (themes/osx/lightning.css)
-    skin/osx/lightning-toolbar.css                         (themes/osx/lightning-toolbar.css)
-
-# Windows theme files
-    skin/windows/imip.css                                  (themes/windows/imip.css)
-    skin/windows/lightning.css                             (themes/windows/lightning.css)
-    skin/windows/lightning-toolbar.css                     (themes/windows/lightning-toolbar.css)
-
 calendar.jar:
     content/calendarCreation.js                   (../resources/content/calendarCreation.js)
     content/calendarCreation.xhtml                (../resources/content/calendarCreation.xhtml)

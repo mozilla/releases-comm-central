@@ -1,0 +1,18 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+calendar.jar:
+% skin calendar classic/1.0 %skin/windows/ os=WINNT
+#include ../common/jar.inc.mn
+    skin/windows/calendar-daypicker.css                         (calendar-daypicker.css)
+    skin/windows/calendar-task-tree.css                         (calendar-task-tree.css)
+    skin/windows/calendar-task-view.css                         (calendar-task-view.css)
+    skin/windows/calendar-unifinder.css                         (calendar-unifinder.css)
+    skin/windows/calendar-views.css                             (calendar-views.css)
+    skin/windows/calendar-alarm-dialog.css                      (dialogs/calendar-alarm-dialog.css)
+    skin/windows/calendar-event-dialog.css                      (dialogs/calendar-event-dialog.css)
+    skin/windows/calendar-invitations-dialog.css                (dialogs/calendar-invitations-dialog.css)
+    skin/windows/calendar-subscriptions-dialog.css              (dialogs/calendar-subscriptions-dialog.css)
+    skin/windows/today-pane.css                                 (today-pane.css)
+    skin/windows/widgets/calendar-widgets.css                   (widgets/calendar-widgets.css)

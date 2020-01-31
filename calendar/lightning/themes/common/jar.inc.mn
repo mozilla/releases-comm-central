@@ -1,0 +1,19 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# This is not a complete / proper jar manifest. It is included by the
+# actual theme-specific manifests, so that shared resources need only
+# be specified once. As a result, the source file paths are relative
+# to the location of the actual manifest.
+
+% skin lightning-common classic/1.0 %skin/lightning-common/
+    skin/lightning-common/accountCentral.css               (../common/accountCentral.css)
+    skin/lightning-common/html-item-editing.css            (../common/html-item-editing.css)
+    skin/lightning-common/todayButton-arrow.svg            (../common/images/todayButton-arrow.svg)
+    skin/lightning-common/imip.css                         (../common/imip.css)
+    skin/lightning-common/lightning.css                    (../common/lightning.css)
+    skin/lightning-common/lightning-toolbar.css            (../common/lightning-toolbar.css)
+    skin/lightning-common/suite-accountCentral.css         (../common/suite-accountCentral.css)
+    skin/lightning-common/datetimepickers.css              (../../../resources/skin/datetimepickers.css)
+    skin/lightning-common/dialogOverlay.css                (../../../resources/skin/dialogOverlay.css)

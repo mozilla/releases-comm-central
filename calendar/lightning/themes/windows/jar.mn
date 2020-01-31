@@ -1,0 +1,10 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+lightning.jar:
+% skin lightning classic/1.0 %skin/windows/ os=WINNT
+#include ../common/jar.inc.mn
+    skin/windows/imip.css                                  (imip.css)
+    skin/windows/lightning.css                             (lightning.css)
+    skin/windows/lightning-toolbar.css                     (lightning-toolbar.css)

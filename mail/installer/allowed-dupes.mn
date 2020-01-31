@@ -46,24 +46,6 @@ chrome/calendar/content/calUtils.js
 chrome/calendar/skin/common/icons/calendar-tab.svg
 chrome/calendar/skin/common/icons/category.svg
 chrome/calendar/skin/common/icons/complete.svg
-chrome/calendar/skin/linux/calendar-event-dialog.css
-chrome/calendar/skin/windows/calendar-event-dialog.css
-chrome/calendar/skin/linux/calendar-invitations-dialog.css
-chrome/calendar/skin/windows/calendar-invitations-dialog.css
-chrome/calendar/skin/osx/calendar-subscriptions-dialog.css
-chrome/calendar/skin/windows/calendar-subscriptions-dialog.css
-chrome/calendar/skin/linux/calendar-daypicker.css
-chrome/calendar/skin/windows/calendar-daypicker.css
-chrome/calendar/skin/linux/calendar-alarm-dialog.css
-chrome/calendar/skin/windows/calendar-alarm-dialog.css
-chrome/calendar/skin/linux/calendar-management.css
-chrome/calendar/skin/windows/calendar-management.css
-chrome/calendar/skin/linux/widgets/calendar-widgets.css
-chrome/calendar/skin/windows/widgets/calendar-widgets.css
-chrome/lightning/skin/linux/imip.css
-chrome/lightning/skin/windows/imip.css
-chrome/lightning/skin/linux/lightning-toolbar.css
-chrome/lightning/skin/osx/lightning-toolbar.css
 
 # Variants of paths in mozilla/browser/installer/allowed-dupes.mn:
 # bug 658850
