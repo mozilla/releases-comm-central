@@ -8,6 +8,42 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailServices.jsm"
 );
 
+async function parseComposeRecipientList(list) {
+  if (Array.isArray(list)) {
+    let recipients = [];
+    for (let recipient of list) {
+      if (typeof recipient == "string") {
+        recipients.push(recipient);
+        continue;
+      }
+      if (!("addressBookCache" in this)) {
+        await extensions.asyncLoadModule("addressBook");
+      }
+      if (recipient.type == "contact") {
+        let contactNode = this.addressBookCache.findContactById(recipient.id);
+        recipients.push(
+          MailServices.headerParser.makeMimeAddress(
+            contactNode.item.displayName,
+            contactNode.item.primaryEmail
+          )
+        );
+      } else {
+        let mailingListNode = this.addressBookCache.findMailingListById(
+          recipient.id
+        );
+        recipients.push(
+          MailServices.headerParser.makeMimeAddress(
+            mailingListNode.item.dirName,
+            mailingListNode.item.description || mailingListNode.item.dirName
+          )
+        );
+      }
+    }
+    return recipients.join(",");
+  }
+  return list;
+}
+
 async function openComposeWindow(relatedMessageId, type, composeParams) {
   // ForwardInline is totally broken, see bug 1513824.
   if (type == Ci.nsIMsgCompType.ForwardInline) {
@@ -43,43 +79,19 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
   }
   params.type = type;
   if (composeParams) {
-    for (let field of ["to", "cc", "bcc"]) {
-      if (Array.isArray(composeParams[field])) {
-        let recipients = [];
-        for (let recipient of composeParams[field]) {
-          if (typeof recipient == "string") {
-            recipients.push(recipient);
-            continue;
-          }
-          if (!("addressBookCache" in this)) {
-            await extensions.asyncLoadModule("addressBook");
-          }
-          if (recipient.type == "contact") {
-            let contactNode = this.addressBookCache.findContactById(
-              recipient.id
-            );
-            recipients.push(
-              MailServices.headerParser.makeMimeAddress(
-                contactNode.item.displayName,
-                contactNode.item.primaryEmail
-              )
-            );
-          } else {
-            let mailingListNode = this.addressBookCache.findMailingListById(
-              recipient.id
-            );
-            recipients.push(
-              MailServices.headerParser.makeMimeAddress(
-                mailingListNode.item.dirName,
-                mailingListNode.item.description || mailingListNode.item.dirName
-              )
-            );
-          }
-        }
-        composeFields[field] = recipients.join(",");
+    for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
+      composeFields[field] = await parseComposeRecipientList(
+        composeParams[field]
+      );
+    }
+    if (composeParams.newsgroups) {
+      if (Array.isArray(composeParams.newsgroups)) {
+        composeFields.newsgroups = composeParams.newsgroups.join(",");
+      } else {
+        composeFields.newsgroups = composeParams.newsgroups;
       }
     }
-    for (let field of ["replyTo", "subject", "body"]) {
+    for (let field of ["subject", "body"]) {
       if (composeParams[field]) {
         composeFields[field] = composeParams[field];
       }
@@ -88,6 +100,35 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
 
   params.composeFields = composeFields;
   MailServices.compose.OpenComposeWindowWithParams(null, params);
+}
+
+function getComposeState(composeWindow) {
+  let composeFields = composeWindow.GetComposeDetails();
+
+  let details = {
+    to: composeFields.splitRecipients(composeFields.to, false),
+    cc: composeFields.splitRecipients(composeFields.cc, false),
+    bcc: composeFields.splitRecipients(composeFields.bcc, false),
+    replyTo: composeFields.splitRecipients(composeFields.replyTo, false),
+    followupTo: composeFields.splitRecipients(composeFields.followupTo, false),
+    newsgroups: composeFields.newsgroups
+      ? composeFields.newsgroups.split(",")
+      : [],
+    subject: composeFields.subject,
+  };
+  return details;
+}
+
+async function setComposeState(composeWindow, details) {
+  for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
+    if (field in details) {
+      details[field] = await parseComposeRecipientList(details[field]);
+    }
+  }
+  if (Array.isArray(details.newsgroups)) {
+    details.newsgroups = details.newsgroups.join(",");
+  }
+  composeWindow.SetComposeDetails(details);
 }
 
 var composeEventTracker = new (class extends EventEmitter {
@@ -117,12 +158,18 @@ var composeEventTracker = new (class extends EventEmitter {
     let msgType = event.detail;
     let composeWindow = event.target;
 
-    let results = await this.emit("compose-before-send");
+    let results = await this.emit(
+      "compose-before-send",
+      getComposeState(composeWindow)
+    );
     if (results && results.length > 0) {
       for (let result of results) {
         if (result) {
           if (result.cancel) {
             return;
+          }
+          if (result.details) {
+            setComposeState(composeWindow, result.details);
           }
         }
       }
@@ -133,13 +180,32 @@ var composeEventTracker = new (class extends EventEmitter {
 
 this.compose = class extends ExtensionAPI {
   getAPI(context) {
+    function getComposeTab(tabId) {
+      let tab = tabManager.get(tabId);
+      if (tab instanceof TabmailTab) {
+        throw new ExtensionError("Not a valid compose window");
+      }
+      let location = tab.nativeTab.location.href;
+      if (
+        location !=
+        "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+      ) {
+        throw new ExtensionError(`Not a valid compose window: ${location}`);
+      }
+      return tab;
+    }
+
+    let { extension } = context;
+    let { tabManager } = extension;
     return {
       compose: {
         onBeforeSend: new EventManager({
           context,
           name: "compose.onBeforeSend",
           register: fire => {
-            let listener = () => fire.async();
+            let listener = (event, details) => {
+              return fire.async(details);
+            };
 
             composeEventTracker.on("compose-before-send", listener);
             return () => {
@@ -170,6 +236,14 @@ this.compose = class extends ExtensionAPI {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
           }
           openComposeWindow(messageId, type, composeParams);
+        },
+        getComposeDetails(tabId) {
+          let tab = getComposeTab(tabId);
+          return getComposeState(tab.nativeTab);
+        },
+        setComposeDetails(tabId, details) {
+          let tab = getComposeTab(tabId);
+          return setComposeState(tab.nativeTab, details);
         },
       },
     };

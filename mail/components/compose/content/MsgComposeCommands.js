@@ -3582,20 +3582,56 @@ function DoSpellCheckBeforeSend() {
 }
 
 /**
- * Handles message sending operations.
- * @param msgType nsIMsgCompDeliverMode of the operation.
+ * Updates gMsgCompose.compFields to match the UI.
+ *
+ * @returns {nsIMsgCompFields}
  */
-function GenericSendMessage(msgType) {
-  var msgCompFields = gMsgCompose.compFields;
+function GetComposeDetails() {
+  let msgCompFields = gMsgCompose.compFields;
 
   Recipients2CompFields(msgCompFields);
   let addresses = MailServices.headerParser.makeFromDisplayAddress(
     document.getElementById("msgIdentity").value
   );
   msgCompFields.from = MailServices.headerParser.makeMimeHeader(addresses);
-  var subject = document.getElementById("msgSubject").value;
-  msgCompFields.subject = subject;
+  msgCompFields.subject = document.getElementById("msgSubject").value;
   Attachments2CompFields(msgCompFields);
+
+  return msgCompFields;
+}
+
+/**
+ * Updates the UI to match newValues.
+ *
+ * @param {Object} newValues - New values to use. Values that should not change
+ *    should be null or not present.
+ * @param {string} [fields.to]
+ * @param {string} [fields.cc]
+ * @param {string} [fields.bcc]
+ * @param {string} [fields.replyTo]
+ * @param {string} [fields.newsgroups]
+ * @param {string} [fields.followupTo]
+ * @param {string} [fields.subject]
+ */
+function SetComposeDetails(newValues) {
+  CompFields2Recipients(newValues);
+  if (newValues.subject !== null) {
+    gMsgCompose.compFields.subject = document.getElementById(
+      "msgSubject"
+    ).value = newValues.subject;
+    SetComposeWindowTitle();
+  }
+}
+
+/**
+ * Handles message sending operations.
+ *
+ * @param {nsIMsgCompDeliverMode} mode - The delivery mode of the operation.
+ */
+function GenericSendMessage(msgType) {
+  let msgCompFields = GetComposeDetails();
+  let subject = msgCompFields.subject;
+
   // Some other msgCompFields have already been updated instantly in their respective
   // toggle functions, e.g. ToggleReturnReceipt(), ToggleDSN(),  ToggleAttachVCard(),
   // and toggleAttachmentReminder().

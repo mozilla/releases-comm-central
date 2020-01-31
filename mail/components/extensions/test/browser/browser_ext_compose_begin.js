@@ -61,7 +61,7 @@ add_task(async () => {
       };
       let list = await browser.mailingLists.create(addressBook, {
         name: "Holmes and Watson",
-        description: "Tenants at 221B",
+        description: "Tenants221B",
       });
       await browser.mailingLists.addMember(list, contacts.sherlock);
       await browser.mailingLists.addMember(list, contacts.john);
@@ -74,7 +74,21 @@ add_task(async () => {
       await browser.compose.beginNew();
       await checkWindow({});
 
-      // Start a new message, with a subject and recipients.
+      // Start a new message, with a subject and recipients as strings.
+
+      createdWindowPromise = waitForEvent("onCreated");
+      await browser.compose.beginNew({
+        to: "Sherlock Holmes <sherlock@bakerstreet.invalid>",
+        cc: "John Watson <john@bakerstreet.invalid>",
+        subject: "Did you miss me?",
+      });
+      await checkWindow({
+        to: ["Sherlock Holmes <sherlock@bakerstreet.invalid>"],
+        cc: ["John Watson <john@bakerstreet.invalid>"],
+        subject: "Did you miss me?",
+      });
+
+      // Start a new message, with a subject and recipients as string arrays.
 
       createdWindowPromise = waitForEvent("onCreated");
       await browser.compose.beginNew({
@@ -83,8 +97,8 @@ add_task(async () => {
         subject: "Did you miss me?",
       });
       await checkWindow({
-        to: "Sherlock Holmes <sherlock@bakerstreet.invalid>",
-        cc: "John Watson <john@bakerstreet.invalid>",
+        to: ["Sherlock Holmes <sherlock@bakerstreet.invalid>"],
+        cc: ["John Watson <john@bakerstreet.invalid>"],
         subject: "Did you miss me?",
       });
 
@@ -97,8 +111,8 @@ add_task(async () => {
         subject: "Did you miss me?",
       });
       await checkWindow({
-        to: "Sherlock Holmes <sherlock@bakerstreet.invalid>",
-        cc: "John Watson <john@bakerstreet.invalid>",
+        to: ["Sherlock Holmes <sherlock@bakerstreet.invalid>"],
+        cc: ["John Watson <john@bakerstreet.invalid>"],
         subject: "Did you miss me?",
       });
 
@@ -110,7 +124,7 @@ add_task(async () => {
         subject: "Did you miss me?",
       });
       await checkWindow({
-        to: 'Holmes and Watson <"Tenants at 221B">',
+        to: ["Holmes and Watson <Tenants221B>"],
         subject: "Did you miss me?",
       });
 
@@ -119,7 +133,7 @@ add_task(async () => {
       createdWindowPromise = waitForEvent("onCreated");
       await browser.compose.beginReply(messages[0].id);
       await checkWindow({
-        to: messages[0].author.replace(/"/g, ""),
+        to: [messages[0].author.replace(/"/g, "")],
         subject: `Re: ${messages[0].subject}`,
       });
 
@@ -134,7 +148,7 @@ add_task(async () => {
         }
       );
       await checkWindow({
-        to: "Mycroft Holmes <mycroft@bakerstreet.invalid>",
+        to: ["Mycroft Holmes <mycroft@bakerstreet.invalid>"],
         subject: `Fwd: ${messages[1].subject}`,
       });
 
@@ -145,29 +159,7 @@ add_task(async () => {
   });
 
   extension.onMessage("checkWindow", async expected => {
-    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
-    is(composeWindows.length, 1);
-    await new Promise(resolve => composeWindows[0].setTimeout(resolve));
-
-    let fields = Cc[
-      "@mozilla.org/messengercompose/composefields;1"
-    ].createInstance(Ci.nsIMsgCompFields);
-    composeWindows[0].Recipients2CompFields(fields);
-    for (let field of ["to", "cc", "bcc", "replyTo"]) {
-      if (field in expected) {
-        is(fields[field], expected[field], `${field} is correct`);
-      } else {
-        is(fields[field], "", `${field} is empty`);
-      }
-    }
-
-    let subject = composeWindows[0].document.getElementById("msgSubject").value;
-    if ("subject" in expected) {
-      is(subject, expected.subject, "subject is correct");
-    } else {
-      is(subject, "", "subject is empty");
-    }
-
+    await checkComposeHeaders(expected);
     extension.sendMessage();
   });
 

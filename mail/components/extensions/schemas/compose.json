@@ -29,32 +29,61 @@
         ]
       },
       {
-        "id": "ComposeParams",
-        "type": "object",
-        "properties": {
-          "to": {
+        "id": "ComposeRecipientList",
+        "choices": [
+          {
+            "type": "string",
+            "description": "A name and email address in the format \"Name <email@example.com>\", or just an email address."
+          },
+          {
             "type": "array",
             "items": {
               "$ref": "ComposeRecipient"
             },
+            "optional": true
+          }
+        ]
+      },
+      {
+        "id": "ComposeDetails",
+        "type": "object",
+        "description": "Used by various functions to represent the state of a message being composed. Note that functions using this type may have a partial implementation.",
+        "properties": {
+          "to": {
+            "$ref": "ComposeRecipientList",
             "optional": true
           },
           "cc": {
-            "type": "array",
-            "items": {
-              "$ref": "ComposeRecipient"
-            },
+            "$ref": "ComposeRecipientList",
             "optional": true
           },
           "bcc": {
-            "type": "array",
-            "items": {
-              "$ref": "ComposeRecipient"
-            },
+            "$ref": "ComposeRecipientList",
             "optional": true
           },
           "replyTo": {
-            "type": "string",
+            "$ref": "ComposeRecipientList",
+            "optional": true
+          },
+          "followupTo": {
+            "$ref": "ComposeRecipientList",
+            "optional": true
+          },
+          "newsgroups": {
+            "choices": [
+              {
+                "type": "string",
+                "description": "A newsgroup name."
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "An array of newsgroup names.",
+                "optional": true
+              }
+            ],
             "optional": true
           },
           "subject": {
@@ -73,12 +102,25 @@
         "name": "onBeforeSend",
         "type": "function",
         "description": "Fired when a message is about to be sent from the compose window.",
+        "parameters": [
+          {
+            "name": "details",
+            "$ref": "ComposeDetails",
+            "description": "The current state of the compose window. This is functionally the same as the :ref:`compose.getComposeDetails` function."
+          }
+        ],
         "returns": {
           "type": "object",
           "properties": {
             "cancel": {
               "type": "boolean",
-              "optional": true
+              "optional": true,
+              "description": "Cancels the send."
+            },
+            "details": {
+              "$ref": "ComposeDetails",
+              "optional": true,
+              "description": "Updates the compose window. See the :ref:`compose.setComposeDetails` function for more information."
             }
           }
         }
@@ -92,7 +134,7 @@
         "parameters": [
           {
             "name": "details",
-            "$ref": "ComposeParams",
+            "$ref": "ComposeDetails",
             "optional": true
           }
         ]
@@ -142,8 +184,38 @@
           },
           {
             "name": "details",
-            "$ref": "ComposeParams",
+            "$ref": "ComposeDetails",
             "optional": true
+          }
+        ]
+      },
+      {
+        "name": "getComposeDetails",
+        "type": "function",
+        "async": true,
+        "description": "Fetches the current state of a compose window. Currently only a limited amount of information is available, more will be added in later versions.",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          }
+        ]
+      },
+      {
+        "name": "setComposeDetails",
+        "type": "function",
+        "async": true,
+        "description": "Updates the compose window. Specify only fields that you want to change. Currently only the to/cc/bcc/replyTo/followupTo/newsgroups fields and the subject are implemented.",
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
+          {
+            "name": "details",
+            "$ref": "ComposeDetails"
           }
         ]
       }

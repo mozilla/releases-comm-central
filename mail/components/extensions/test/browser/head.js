@@ -170,3 +170,56 @@ async function openNewMailWindow(options = {}) {
 
   return win;
 }
+
+/**
+ * Check the headers of an open compose window against expected values.
+ *
+ * @param {Object} expected - A dictionary of expected headers.
+ *    Omit headers that should have no value.
+ * @param {string[]} [fields.to]
+ * @param {string[]} [fields.cc]
+ * @param {string[]} [fields.bcc]
+ * @param {string[]} [fields.replyTo]
+ * @param {string[]} [fields.followupTo]
+ * @param {string[]} [fields.newsgroups]
+ * @param {string} [fields.subject]
+ */
+async function checkComposeHeaders(expected) {
+  let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+  is(composeWindows.length, 1);
+  let composeDocument = composeWindows[0].document;
+  await new Promise(resolve => composeWindows[0].setTimeout(resolve));
+
+  let checkField = (fieldName, elementId) => {
+    let pills = composeDocument
+      .getElementById(elementId)
+      .getElementsByTagName("mail-address-pill");
+
+    if (fieldName in expected) {
+      is(
+        pills.length,
+        expected[fieldName].length,
+        `${fieldName} has the right number of pills`
+      );
+      for (let i = 0; i < expected[fieldName].length; i++) {
+        is(pills[i].label, expected[fieldName][i]);
+      }
+    } else {
+      is(pills.length, 0, `${fieldName} is empty`);
+    }
+  };
+
+  checkField("to", "addressRowTo");
+  checkField("cc", "addressRowCc");
+  checkField("bcc", "addressRowBcc");
+  checkField("replyTo", "addressRowReply");
+  checkField("followupTo", "addressRowFollowup");
+  checkField("newsgroups", "addressRowNewsgroups");
+
+  let subject = composeDocument.getElementById("msgSubject").value;
+  if ("subject" in expected) {
+    is(subject, expected.subject, "subject is correct");
+  } else {
+    is(subject, "", "subject is empty");
+  }
+}
