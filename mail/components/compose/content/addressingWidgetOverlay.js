@@ -487,7 +487,7 @@ function recipientKeyPress(event, element) {
   switch (event.key) {
     case "a":
       // Select all the pills if the input is empty.
-      if ((event.ctrlKey || event.metaKey) && !element.value.trim()) {
+      if ((event.ctrlKey || event.metaKey) && !element.value) {
         let previous = element.previousElementSibling;
         if (previous && previous.tagName == "mail-address-pill") {
           document.getElementById("recipientsContainer").selectPills(previous);
@@ -500,10 +500,9 @@ function recipientKeyPress(event, element) {
       element.handleEnter(event);
       break;
     case "Home":
-    case "End":
     case "ArrowLeft":
     case "Backspace":
-      if (!element.value.trim() && !event.repeat) {
+      if (!element.value && !event.repeat) {
         let pills = element
           .closest(".address-container")
           .querySelectorAll("mail-address-pill");
@@ -517,11 +516,13 @@ function recipientKeyPress(event, element) {
       }
       break;
     case "Enter":
-      // No address entered, move focus to Subject field.
+      // No address entered, trim input and move focus to the next available
+      // element.
       if (!element.value.trim()) {
+        element.value = "";
         event.stopPropagation();
         event.preventDefault();
-        document.getElementById("msgSubject").focus();
+        SetFocusOnNextAvailableElement(element);
       }
       break;
     case "Tab":
