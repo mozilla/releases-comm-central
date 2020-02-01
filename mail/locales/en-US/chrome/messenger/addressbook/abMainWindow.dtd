@@ -145,6 +145,7 @@ because displayed names don't have the comma in between. -->
 <!ENTITY deleteButton2.accesskey                        "D">
 
 <!-- Address Book Toolbar Tooltips -->
+<!ENTITY columnChooser.tooltip                          "Select columns to display">
 <!ENTITY newContactButton.tooltip                       "Create a new address book contact">
 <!ENTITY newlistButton.tooltip                          "Create a new list">
 <!ENTITY editPropertiesButton.tooltip                   "Edit the selected item">

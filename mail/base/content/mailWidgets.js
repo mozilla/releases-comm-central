@@ -504,12 +504,16 @@
       }
       if (!this.querySelector("treecolpicker[is=thread-pane-treecolpicker]")) {
         this.appendChild(
-          MozXULElement.parseXULToFragment(`
+          MozXULElement.parseXULToFragment(
+            `
             <treecolpicker is="thread-pane-treecolpicker"
                            class="treecol-image"
+                           tooltiptext="&columnChooser2.tooltip;"
                            fixed="true">
             </treecolpicker>
-          `)
+            `,
+            ["chrome://messenger/locale/messenger.dtd"]
+          )
         );
       }
       // Exceptionally apply super late, so we get the other goodness from there
