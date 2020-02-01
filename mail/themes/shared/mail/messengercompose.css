@@ -524,6 +524,7 @@
 
 .address-input {
   color: inherit;
+  padding-block: 4px;
 }
 
 .address-pill {

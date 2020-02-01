@@ -1721,6 +1721,7 @@
 
       this.pillLabel = document.createXULElement("label");
       this.pillLabel.classList.add("pill-label");
+      this.pillLabel.setAttribute("crop", "center");
 
       this.appendChild(this.pillLabel);
       this._setupEmailInput();
@@ -2030,6 +2031,21 @@
           }
           event.preventDefault();
           this.moveFocusToPreviousElement(input);
+        });
+
+        input.addEventListener("keyup", event => {
+          // Change the min size of the input field on typing only if the
+          // current width is smaller than 80% of its container's width or none
+          // arrow keys were pressed to prevent overflow.
+          if (
+            input.clientWidth <
+              input.closest(".address-container").clientWidth * 0.8 &&
+            !["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(
+              event.key
+            )
+          ) {
+            input.setAttribute("size", input.value.trim().length || 1);
+          }
         });
       }
 

@@ -522,7 +522,6 @@ function recipientKeyPress(event, element) {
         event.stopPropagation();
         event.preventDefault();
         document.getElementById("msgSubject").focus();
-        return;
       }
       break;
     case "Tab":
@@ -533,19 +532,6 @@ function recipientKeyPress(event, element) {
         element.handleEnter(event);
       }
       break;
-  }
-
-  // Don't alter the field size if any arrow key is triggered.
-  if ([37, 38, 39, 40].includes(event.keyCode)) {
-    return;
-  }
-
-  let size = parseInt(element.getAttribute("size"));
-  // Change the min size of the input field on typing.
-  if (event.key == "Backspace" && size > 1) {
-    element.setAttribute("size", size - 1);
-  } else {
-    element.setAttribute("size", size + 1);
   }
 }
 
