@@ -533,6 +533,7 @@
   border-radius: 4px;
   margin-inline-end: 3px;
   margin-block: 2px;
+  padding-inline: 7px;
   background-color: rgba(0,0,0,0.1);
   transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
   -moz-user-focus: normal;
@@ -543,6 +544,7 @@
 .address-pill label {
   -moz-user-focus: none;
   cursor: default;
+  margin-inline: 0;
 }
 
 .address-pill:hover:not(.editing),
@@ -553,7 +555,6 @@
 .address-pill.editing {
   flex: 1;
   background-color: transparent;
-  padding-inline: 6px;
   box-shadow: inset 0 0 0 1px Highlight;
   min-height: calc(1.25em + 4px); /* needed to not shrink in edit mode */
 }

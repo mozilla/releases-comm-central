@@ -1877,9 +1877,6 @@
       if (this.emailInput.clientWidth > this.clientWidth) {
         this.style.setProperty("max-width", `${this.emailInput.clientWidth}px`);
         this.style.setProperty("min-width", `${this.emailInput.clientWidth}px`);
-      } else {
-        this.style.setProperty("max-width", `${this.clientWidth}px`);
-        this.style.setProperty("min-width", `${this.clientWidth}px`);
       }
     }
 
