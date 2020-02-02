@@ -16,9 +16,9 @@
 
 .tab-bottom[selected="true"] {
   color: -moz-FieldText;
-  -moz-border-top-colors: -moz-Field;
-  -moz-border-bottom-colors: ThreeDShadow -moz-Field;
-  -moz-border-left-colors: ThreeDHighlight -moz-Field;
+  border-top-color: -moz-Field;
+  border-bottom-color: ThreeDShadow;
+  border-left-color: ThreeDHighlight;
 }
 
 #NormalModeButton {

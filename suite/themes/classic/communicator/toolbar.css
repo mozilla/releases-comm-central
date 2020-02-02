@@ -16,8 +16,8 @@
 
   toolbox {
     background-color: -moz-Dialog;
-    border-top: 2px solid;
-    -moz-border-top-colors: ThreeDShadow ThreeDHighlight;
+    border-top: 1px solid;
+    border-top-color: ThreeDShadow;
   }
 
   /* ::::: toolbar & menubar ::::: */
@@ -44,12 +44,11 @@
   /* ::::: toolbar decorations ::::: */
 
   toolbarseparator {
-    border-top: 2px solid transparent;
-    border-bottom: 2px solid transparent;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    -moz-border-left-colors  : transparent transparent ThreeDShadow;
-    -moz-border-right-colors : transparent transparent ThreeDHighlight;
+    padding: 2px;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    border-left-color  : ThreeDShadow;
+    border-right-color : ThreeDHighlight;
   }
 }
 

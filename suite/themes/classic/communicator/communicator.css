@@ -236,11 +236,11 @@ treecols:-moz-lwtheme {
 
 dialogheader {
   margin: 0px 5px 5px 5px;
-  border: 2px solid;
-  -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
-  -moz-border-right-colors: ThreeDHighlight ThreeDDarkShadow;
-  -moz-border-bottom-colors: ThreeDHighlight ThreeDDarkShadow;
-  -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
+  border: 1px solid;
+  border-top-color: ThreeDDarkShadow;
+  border-right-color: ThreeDDarkShadow;
+  border-bottom-color: ThreeDDarkShadow;
+  border-left-color: ThreeDDarkShadow;
   padding: 5px 8px;
   background-color: Highlight;
   color: HighlightText;

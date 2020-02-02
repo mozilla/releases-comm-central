@@ -66,20 +66,20 @@
 
 #folderTree {
   border-right: 1px solid;
-  -moz-border-right-colors: ThreeDShadow;
+  border-right-color: ThreeDShadow;
   min-width: 1px;
 }
 
 #threadTree {
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
+  border-bottom: 1px solid;
+  border-bottom-color: ThreeDLightShadow;
   min-width: 1px;
 }
 
 #threadTree,
 #accountCentralBox {
-  border-left: 2px solid;
-  -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
+  border-left: 1px solid;
+  border-left-color: ThreeDDarkShadow;
 }
 
 #locationIcon {
@@ -89,10 +89,10 @@
 /* ..... message pane adjustments ..... */
 
 #messagepanebox {
- border-top: 2px solid;
- border-left: 2px solid;
- -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
- -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
+ border-top: 1px solid;
+ border-left: 1px solid;
+ border-top-color: ThreeDDarkShadow;
+ border-left-color: ThreeDDarkShadow;
 }
 
 #msgHeaderView {

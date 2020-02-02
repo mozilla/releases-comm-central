@@ -51,8 +51,8 @@ tabpanels {
   padding-top: 2px; /* compensates the top margin of background tabs */
   padding-bottom: 3px; /* compensates the bottom margin of background tabs */
   background-color: -moz-dialog;
-  -moz-border-top-colors: unset;
-  -moz-border-right-colors: unset;
+  border-top-color: unset;
+  border-right-color: unset;
   color: -moz-dialogtext;
   border: 1px solid Gray;
   border-top: 2px solid RoyalBlue;
@@ -77,13 +77,13 @@ tabpanels {
   -moz-appearance: tab;
   margin: 2px 0px 1px;
   padding: 0px;
-  border-top: 2px solid;
-  border-right: 2px solid;
-  border-left: 2px solid;
+  border-top: 1px solid;
+  border-right: 1px solid;
+  border-left: 1px solid;
   border-bottom: 1px solid ThreeDHighlight;
-  -moz-border-top-colors: ThreeDHighlight ThreeDLightShadow;
-  -moz-border-right-colors: ThreeDDarkShadow ThreeDShadow;
-  -moz-border-left-colors: ThreeDHighlight ThreeDLightShadow;
+  border-top-color: ThreeDLightShadow;
+  border-right-color: ThreeDDarkShadow;
+  border-left-color: ThreeDLightShadow;
   border-radius: 2px 2px 0px 0px;
 }
 
@@ -96,12 +96,12 @@ tabpanels {
 
 .scrollbutton-up:-moz-locale-dir(rtl),
 .scrollbutton-down:-moz-locale-dir(ltr) {
-  -moz-border-right-colors: ThreeDHighlight ThreeDShadow;
+  border-right-color: ThreeDShadow;
 }
 
 .scrollbutton-up:-moz-locale-dir(ltr),
 .scrollbutton-down:-moz-locale-dir(rtl) {
-  -moz-border-left-colors: ThreeDHighlight ThreeDShadow;
+  border-left-color: ThreeDShadow;
 }
 
 .scrollbutton-up,

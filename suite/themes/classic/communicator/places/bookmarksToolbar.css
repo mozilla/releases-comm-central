@@ -33,10 +33,10 @@ toolbarbutton.bookmark-item:not([container="true"]):not([disabled="true"]):hover
 toolbarbutton.bookmark-item[disabled="true"],
 toolbarbutton.bookmark-item:not([container="true"]):hover,
 toolbarbutton.bookmark-item:not([container="true"]):hover:active {
-  -moz-border-top-colors: transparent !important;
-  -moz-border-right-colors: transparent !important;
-  -moz-border-bottom-colors: transparent !important;
-  -moz-border-left-colors: transparent !important;
+  border-top-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
   background: transparent !important;
 }
 

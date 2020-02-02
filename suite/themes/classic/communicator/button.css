@@ -157,24 +157,25 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
 .button-toolbar, 
 .button-toolbar[disabled="true"]:hover,
 .button-toolbar[disabled="true"]:hover:active {
-  -moz-border-top-colors: transparent ThreeDHighlight;
-  -moz-border-right-colors: transparent ThreeDShadow;
-  -moz-border-bottom-colors: transparent ThreeDShadow;
-  -moz-border-left-colors: transparent ThreeDHighlight;
+  padding: 1px;
+  border-top-color: ThreeDHighlight;
+  border-right-color: ThreeDShadow;
+  border-bottom-color: ThreeDShadow;
+  border-left-color: ThreeDHighlight;
 }
   
 .button-toolbar:hover {
-  -moz-border-top-colors: ThreeDDarkShadow ThreeDHighlight;
-  -moz-border-right-colors: ThreeDDarkShadow ThreeDShadow;
-  -moz-border-bottom-colors: ThreeDDarkShadow ThreeDShadow;
-  -moz-border-left-colors: ThreeDDarkShadow ThreeDHighlight;
+  border-top-color: ThreeDDarkShadow;
+  border-right-color: ThreeDDarkShadow;
+  border-bottom-color: ThreeDDarkShadow;
+  border-left-color: ThreeDDarkShadow;
 }
 
 .button-toolbar:hover:active {
-  -moz-border-top-colors: ThreeDDarkShadow ThreeDShadow;
-  -moz-border-right-colors: ThreeDDarkShadow ThreeDHighlight;
-  -moz-border-bottom-colors: ThreeDDarkShadow ThreeDHighlight;
-  -moz-border-left-colors: ThreeDDarkShadow ThreeDShadow;
+  border-top-color: ThreeDDarkShadow;
+  border-right-color: ThreeDDarkShadow;
+  border-bottom-color: ThreeDDarkShadow;
+  border-left-color: ThreeDDarkShadow;
 }
 
 /* ::::: taskbuttons ::::: */
@@ -207,25 +208,25 @@ toolbar[labelalign="end"] .toolbarbutton-1 > hbox > vbox {
   .toolbarbutton-menubutton-dropmarker {
     border: 1px solid;
     padding: 2px;
-    -moz-border-top-colors: transparent;
-    -moz-border-right-colors: transparent;
-    -moz-border-bottom-colors: transparent;
-    -moz-border-left-colors: transparent;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
   }
 
   toolbarbutton[type="menu-button"]:hover > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
-    -moz-border-top-colors: ThreeDHighlight;
-    -moz-border-right-colors: ThreeDShadow;
-    -moz-border-bottom-colors: ThreeDShadow;
-    -moz-border-left-colors: ThreeDHighlight;
+    border-top-color: ThreeDHighlight;
+    border-right-color: ThreeDShadow;
+    border-bottom-color: ThreeDShadow;
+    border-left-color: ThreeDHighlight;
   }
 
   toolbarbutton[type="menu-button"]:hover:active > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]),
   toolbarbutton[type="menu-button"][open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
-    -moz-border-top-colors: ThreeDShadow;
-    -moz-border-right-colors: ThreeDHighlight;
-    -moz-border-bottom-colors: ThreeDHighlight;
-    -moz-border-left-colors: ThreeDShadow;
+    border-top-color: ThreeDShadow;
+    border-right-color: ThreeDHighlight;
+    border-bottom-color: ThreeDHighlight;
+    border-left-color: ThreeDShadow;
     padding-top: 3px;
     padding-bottom: 1px;
     padding-inline-start: 3px;

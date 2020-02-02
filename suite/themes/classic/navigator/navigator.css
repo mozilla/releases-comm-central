@@ -206,17 +206,17 @@ toolbar[iconsize="small"] > #sync-button[status=active] {
 }
 
 #FindToolbar {
-  -moz-border-top-colors: ThreeDHighlight;
+  border-top-color: ThreeDHighlight;
   border-top-width: 1px;
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: ThreeDShadow ThreeDHighlight;
+  border-bottom: 1px solid;
+  border-bottom-color: ThreeDShadow;
   padding-top: 1px;
   padding-bottom: 0px;
 }
 
 #FindToolbar:-moz-lwtheme {
-  -moz-border-top-colors: transparent;
-  -moz-border-bottom-colors: transparent;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
 }
 
 /* ::::: fullscreen window controls ::::: */
@@ -227,8 +227,8 @@ toolbar[iconsize="small"] > #sync-button[status=active] {
   padding-bottom: 0px;
   padding-inline-start: 4px;
   padding-inline-end: 2px;
-  border-left: 2px solid;
-  -moz-border-left-colors: ThreeDHighlight ThreeDShadow;
+  border-left: 1px solid;
+  border-left-color: ThreeDShadow;
   background-color: -moz-Dialog;
 }
 
@@ -535,8 +535,8 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   min-width: 2em; /* Fix to show the menulist-dropmarker under newer GTK3 versions */
   border-right-width: 1px;
   border-bottom-width: 1px;
-  -moz-border-right-colors: ThreeDShadow;
-  -moz-border-bottom-colors: ThreeDShadow;
+  border-right-color: ThreeDShadow;
+  border-bottom-color: ThreeDShadow;
 }
 
 .autocomplete-treebody::-moz-tree-cell-text(value) {

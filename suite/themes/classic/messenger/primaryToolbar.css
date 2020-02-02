@@ -545,7 +545,7 @@ toolbar[iconsize="small"] > #extractTaskButton > .box-inherit > .toolbarbutton-i
 
 .msgNotificationBar {
   border-bottom: 1px solid;
-  -moz-border-bottom-colors: #000000;
+  border-bottom-color: #000000;
   -moz-appearance: toolbox;
   background-color: #C7BC8F;
   color: black;

@@ -33,7 +33,7 @@ hbox.wizard-box {
   border-left: none;
   border-right: none;
   border-top: none;
-  -moz-border-bottom-colors: ThreeDHighlight ThreeDShadow;
+  border-bottom-color: ThreeDShadow;
   padding-top: 12px;
   padding-bottom: 12px;
   padding-inline-start: 25px;

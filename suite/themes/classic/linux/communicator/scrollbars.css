@@ -141,11 +141,11 @@ scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"][disabled="true"
 
   html|div thumb,
   html|div scrollbarbutton {
-    border: 2px solid;
-    -moz-border-top-colors: ThreeDLightShadow ThreeDHighlight;
-    -moz-border-right-colors: ThreeDDarkShadow ThreeDShadow;
-    -moz-border-bottom-colors: ThreeDDarkShadow ThreeDShadow;
-    -moz-border-left-colors: ThreeDLightShadow ThreeDHighlight;
+    border: 1px solid;
+    border-top-color: ThreeDLightShadow;
+    border-right-color: ThreeDDarkShadow;
+    border-bottom-color: ThreeDDarkShadow;
+    border-left-color: ThreeDLightShadow;
     background-color: -moz-Dialog;
   }
 
@@ -170,10 +170,10 @@ scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"][disabled="true"
   }
 
   html|div scrollbarbutton:hover:active, html|div scrollbarbutton[active="true"] {
-    -moz-border-top-colors: ThreeDShadow -moz-Dialog;
-    -moz-border-right-colors: ThreeDShadow -moz-Dialog;
-    -moz-border-bottom-colors: ThreeDShadow -moz-Dialog;
-    -moz-border-left-colors: ThreeDShadow -moz-Dialog;
+    border-top-color: -moz-Dialog;
+    border-right-color: -moz-Dialog;
+    border-bottom-color: -moz-Dialog;
+    border-left-color: -moz-Dialog;
     background-position: 60% 60%;
   }
 
