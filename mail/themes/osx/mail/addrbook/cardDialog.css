@@ -120,6 +120,8 @@
 
 @media (min-resolution: 2dppx) {
   .person-icon {
+    width: 16px;
+    height: 16px;
     list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
     -moz-image-region: rect(0px 160px 32px 128px);
   }
