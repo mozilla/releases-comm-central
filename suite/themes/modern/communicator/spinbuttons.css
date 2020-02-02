@@ -7,11 +7,12 @@ spinbuttons {
 }
 
 .spinbuttons-button {
-  border: 2px solid;
-  -moz-border-top-colors: #5D616E #B1BBC9;
-  -moz-border-right-colors: #2D3B49 #A7B4C1;
-  -moz-border-bottom-colors: #2D3B49 #9DAAB9;
-  -moz-border-left-colors: #5D616E #B1BBC9;
+  border: 1px solid;
+  padding: 1px;
+  border-top-color: #5D616E;
+  border-right-color: #2D3B49;
+  border-bottom-color: #2D3B49;
+  border-left-color: #5D616E;
   border-radius: 0;
   background: #B1BBC5 50% 50% no-repeat;
   width: 13px;
@@ -21,20 +22,22 @@ spinbuttons {
 }
 
 .spinbuttons-button:hover:active {
-  -moz-border-top-colors: #8290A5 #899AAC;
-  -moz-border-right-colors: #8290A5 #899AAC;
-  -moz-border-bottom-colors: #8290A5 #899AAC;
-  -moz-border-left-colors: #8290A5 #899AAC;
+  border-color: #8290A5;
+  border-top-color: #8290A5;
+  border-right-color: #8290A5;
+  border-bottom-color: #8290A5;
+  border-left-color: #8290A5;
   background-color: #90A1B3;
 }
 
 .spinbuttons-button[disabled="true"] {
   background-color: #B7BFCB;
-  border: 2px solid !important;
-  -moz-border-top-colors: #8290A5 #C6CDD7 !important;
-  -moz-border-right-colors: #8290A5 #A9B5C1 !important;
-  -moz-border-bottom-colors: #8290A5 #A9B5C1 !important;
-  -moz-border-left-colors: #8290A5 #C6CDD7 !important;
+  border: 1px solid !important;
+  padding: 1px !important;
+  border-top-color: #8290A5 !important;
+  border-right-color: #8290A5 !important;
+  border-bottom-color: #8290A5 !important;
+  border-left-color: #8290A5 !important;
 }
 
 .spinbuttons-up {

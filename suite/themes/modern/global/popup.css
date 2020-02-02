@@ -15,11 +15,7 @@ panel:not([type="arrow"]),
 menupopup,
 popup {
   cursor: default;
-  border: 2px solid;
-  -moz-border-top-colors: #7F8893 #EEF4FC;
-  -moz-border-right-colors: #7F8893 #B9BFC7;
-  -moz-border-bottom-colors: #7F8893 #B9BFC7;
-  -moz-border-left-colors: #7F8893 #EEF4FC;
+  border: 1px solid #7F8893;
   min-width: 1px;
   background-color: #DDE3EB;
   color: #22262F;
@@ -52,22 +48,22 @@ panel[type="arrow"][side="right"] {
 
 .panel-arrow[side="top"] {
   border-top-style: none;
-  -moz-border-bottom-colors: #7F8893;
+  border-bottom-color: #7F8893;
 }
 
 .panel-arrow[side="bottom"] {
   border-bottom-style: none;
-  -moz-border-top-colors: #7F8893;
+  border-top-color: #7F8893;
 }
 
 .panel-arrow[side="left"] {
   border-left-style: none;
-  -moz-border-right-colors: #7F8893;
+  border-right-color: #7F8893;
 }
 
 .panel-arrow[side="right"] {
   border-right-style: none;
-  -moz-border-left-colors: #7F8893;
+  border-left-color: #7F8893;
 }
 
 /* ::::: tooltip ::::: */
@@ -97,10 +93,7 @@ tooltip[titletip="true"] {
 menulist > menupopup,
 .menulist-menupopup {
   border-width: 1px;
-  -moz-border-top-colors: #000000;
-  -moz-border-right-colors: #000000;
-  -moz-border-bottom-colors: #000000;
-  -moz-border-left-colors: #000000;
+  border-color: #000000;
   padding: 0px;
   min-width: 0px;
 }

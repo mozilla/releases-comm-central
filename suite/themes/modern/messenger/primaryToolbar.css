@@ -361,8 +361,7 @@ toolbar[iconsize="small"] > #sync-button[status=active] {
 /* ::::: message notification bar style rules ::::: */
 
 .msgNotificationBar {
-  border-bottom: 1px solid;
-  -moz-border-bottom-colors: #000000;
+  border-bottom: 1px solid #000000;
   -moz-appearance: toolbox;
   background-color: #C7BC8F;
   color: black;

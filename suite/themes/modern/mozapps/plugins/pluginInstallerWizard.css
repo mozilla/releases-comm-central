@@ -4,11 +4,7 @@
 
 #licenseContainer, #pluginList {
   margin: 2px 4px;
-  border: 2px solid;
-  -moz-border-top-colors: #BEC3D3 #5D616E;
-  -moz-border-right-colors: #F8FAFE #5D616E;
-  -moz-border-bottom-colors: #F8FAFE #5D616E;
-  -moz-border-left-colors: #BEC3D3 #5D616E;
+  border: 1px solid #5D616E;
   background-color: #FFFFFF;
   color: #000000;
 }

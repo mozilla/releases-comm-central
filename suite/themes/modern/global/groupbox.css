@@ -12,11 +12,7 @@
 
 groupbox {
   margin: 5px;
-  border: 2px solid;
-  -moz-border-top-colors: #858B97 #ECEFF2;
-  -moz-border-right-colors: #ECEFF2 #858B97;
-  -moz-border-bottom-colors: #ECEFF2 #858B97;
-  -moz-border-left-colors: #858B97 #ECEFF2;
+  border: 1px solid #858B97;
   padding: 5px;
 }
 

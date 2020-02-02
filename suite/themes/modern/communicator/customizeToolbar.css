@@ -14,10 +14,7 @@ dialog {
 
 #CustomizeToolbarWindow > #main-box {
   border-top: none;
-  border-left: 2px solid;
-  border-right: 2px solid;
-  border-bottom: 3px solid;
-  -moz-border-right-colors: #F8FAFE #5D616E;
-  -moz-border-bottom-colors: #5D616E #5D616E #BEC3D3;
-  -moz-border-left-colors: #5D616E #F8FAFE;
+  border-left: 1px solid #5D616E;
+  border-right: 1px solid #5D616E;
+  border-bottom: 2px solid #5D616E;
 }

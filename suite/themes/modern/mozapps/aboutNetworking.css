@@ -36,12 +36,10 @@ body {
   display: inline-block;
 
   margin: 2px;
-  border: 6px solid;
-  -moz-border-top-colors: transparent transparent transparent #000000 #BBC6D1 #B1BBC9;
-  -moz-border-right-colors: transparent transparent transparent #000000 #A2AEBB #A7B4C1;
-  -moz-border-bottom-colors: transparent transparent transparent #000000 #97A6B6 #9DAAB9;
-  -moz-border-left-colors: transparent transparent transparent #000000 #BBC6D1 #B1BBC9;
-  border-radius: 5px;
+  border: 1px solid;
+  padding: 3px;
+  border-color: #000000;
+  border-radius: 2px;
   min-width: 6em;
   background-color: #AAB6C4;
   background-clip: padding-box;

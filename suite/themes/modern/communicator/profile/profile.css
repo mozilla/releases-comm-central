@@ -36,7 +36,7 @@ hbox.wizard-box {
   border-right: none;
   border-top: none;
   border-bottom-width: 1px;
-  -moz-border-bottom-colors: #000000;
+  border-bottom-color: #000000;
   padding-top: 12px;
   padding-bottom: 12px;
   padding-inline-start: 25px;

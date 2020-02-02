@@ -163,7 +163,7 @@ toolbar[iconsize="small"] > #print-button[disabled="true"],
 
 #compose-toolbar-sizer {
   border-top-width: 1px;
-  -moz-border-top-colors: #EEF0F3;
+  border-top-color: #EEF0F3;
 }
 
 #FontFaceSelect {

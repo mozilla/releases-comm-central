@@ -63,22 +63,19 @@
 /* ..... tree adjustments ..... */
 
 #folderTree {
-  border-right: 2px solid;
-  -moz-border-right-colors: #DFE5EF #97A4B2;
+  border-right: 1px solid #97A4B2;
   min-width: 1px;
 }
 
 #threadTree {
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: #DFE5EF #97A4B2;
+  border-bottom: 1px solid #97A4B2;
   min-width: 1px;
 }
 
 #threadTree,
 #accountCentralBox,
 #messagepanebox {
-  border-left: 2px solid;
-  -moz-border-left-colors: #AAB4BF #3B414F;
+  border-left: 1px solid #3B414F;
 }
 
 /* ::::: search toolbar ::::: */
@@ -108,8 +105,7 @@
 /* ..... message pane adjustments ..... */
 
 #messagepanebox {
- border-top: 2px solid;
- -moz-border-top-colors: #AAB4BF #3B414F;
+ border-top: 1px solid #3B414F;
 }
 
 #msgHeaderView {

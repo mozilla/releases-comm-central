@@ -81,14 +81,14 @@
 /* ::::: sidebar panel ::::: */
 
 .iframe-panel {
-  border-bottom: 6px solid;
-  -moz-border-bottom-colors: #B9C4D0 #B9C4D0 #B9C4D0 #B9C4D0 #DAE3ED #96A7B8;
+  border-bottom: 1px solid;
+  border-bottom-color: #96A7B8;
 }
 
 .browser-sidebar {
   -moz-binding: url("chrome://global/skin/globalBindings.xml#browser-miniscroll") !important;
-  border-bottom: 6px solid;
-  -moz-border-bottom-colors: #B9C4D0 #B9C4D0 #B9C4D0 #B9C4D0 #DAE3ED #96A7B8;  
+  border-bottom: 1px solid;
+  border-bottom-color: #96A7B8;  
 }
 
 
@@ -108,9 +108,9 @@
 }
 
 .sidebar-tab-left-box {
-  border-top: 2px solid;
+  border-top: 1px solid;
   border-bottom: 2px solid #B9C4D0;
-  -moz-border-top-colors: #8A9DAF #D4E1EA;
+  border-top-color: #8A9DAF;
   min-width: 90px;
 }
 
@@ -135,15 +135,15 @@
 }
 
 .sidebar-tab-right-line {
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: #DAE3ED #96A7B8;
+  border-bottom: 1px solid;
+  border-bottom-color: #96A7B8;
 }
 
 /* ..... hover state ..... */
 
 .box-texttab:hover > .sidebar-tab-left-box {
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: #CCD7E2 #9CADBB;
+  border-bottom: 1px solid;
+  border-bottom-color: #9CADBB;
 }
 
 .box-texttab:hover > .sidebar-tab-right-box > .sidebar-tab-right-top-box 
@@ -164,10 +164,10 @@
 }
 
 .box-texttab:hover:active > .sidebar-tab-left-box {
-  border-left: 2px solid;
-  -moz-border-bottom-colors: #D8E2EC #A1B1BE	;
-  -moz-border-top-colors: #8A9DAF #748490;
-  -moz-border-left-colors: #737E8A #90A0AD;
+  border-left: 1px solid;
+  border-bottom-color: #A1B1BE	;
+  border-top-color: #748490;
+  border-left-color: #737E8A;
   background-color: #A1B1BE;
 }
 
@@ -200,7 +200,7 @@
 .box-texttab[selected] > .sidebar-tab-left-box {
   border-bottom: none !important;
   border-left: none !important;
-  -moz-border-top-colors: #8A9DAF #DFEBF2 !important;
+  border-top-color: #8A9DAF !important;
   background-color: #CBD5E0 !important;
 }
 
@@ -229,7 +229,7 @@
 
 .box-texttab[selected] > .sidebar-tab-right-box > .sidebar-tab-right-top-box > .sidebar-tab-right-line 
 {
-  -moz-border-bottom-colors: #E2EAF4 #8CA2B3 !important;
+  border-bottom-color: #8CA2B3 !important;
 }
 
 /* ::::: sidebar navigation buttons ::::: */

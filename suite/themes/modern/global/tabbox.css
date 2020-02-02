@@ -22,12 +22,9 @@ tabs {
 /* ::::: tabpanels ::::: */
 
 tabpanels {
-  border-right: 3px solid;
-  border-left: 3px solid;
-  border-bottom: 3px solid;
-  -moz-border-right-colors: #000000 #BAC2CD #C1C9D3;
-  -moz-border-bottom-colors: #000000 #BAC2CD #C1C9D3;
-  -moz-border-left-colors: #000000 #DFE2E6 #D0D7DD;
+  border-right: 1px solid #000000;
+  border-left: 1px solid #000000;
+  border-bottom: 1px solid #000000;
   padding: 5px;
   background-color: #C7D0D9;
 }
@@ -36,12 +33,8 @@ tabpanels {
 
 tab {
   margin: 0px;
-  border: 3px solid;
-  border-bottom-width: 3px;
-  -moz-border-top-colors: #000000 #90A0B0 #98A7B5;
-  -moz-border-right-colors: #000000 #90A0B0 #98A7B5;
-  -moz-border-bottom-colors: #000000 #98A7B5;
-  -moz-border-left-colors: #000000 #90A0B0 #98A7B5;
+  border: 1px solid #000000;
+  border-bottom-width: 1px;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   padding: 1px 3px;
@@ -62,9 +55,9 @@ tab {
 /* ..... active state ..... */
 
 tab:hover:active {
-  -moz-border-top-colors: transparent #8190A5 #899AAC;
-  -moz-border-right-colors: transparent #8190A5 #899AAC;
-  -moz-border-left-colors: transparent #8190A5 #899AAC;
+  border-top-color: #8190A5;
+  border-right-color: #8190A5;
+  border-left-color: #8190A5;
   background-color: #8B9AAD;
   color: #FFFFFF;
 }
@@ -73,10 +66,10 @@ tab:hover:active {
 
 tab[selected="true"],
 tab[selected="true"]:hover:active {
-  -moz-border-top-colors: #000000 #DFE2E6 #D0D7DD;
-  -moz-border-right-colors: #000000 #BAC2CD #C1C9D3;
-  -moz-border-bottom-colors: transparent;
-  -moz-border-left-colors: #000000 #DFE2E6 #D0D7DD;
+  border-top-color: #000000;
+  border-right-color: #000000;
+  border-bottom-color: transparent;
+  border-left-color: #000000;
   background-color: #C7D0D9;
   color: #000000;
 }
@@ -87,8 +80,8 @@ tab[selected="true"]:hover:active {
    ::::: */
 
 .tab-bottom {
-  -moz-border-top-colors: #000000 #8C9DAF #8C9DAF;
-  -moz-border-bottom-colors: #000000 #8190A5 #899AAC #8D9EB0;
+  border-top-color: #000000;
+  border-bottom-color: #000000;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 3px;
@@ -96,20 +89,20 @@ tab[selected="true"]:hover:active {
 }
 
 .tab-bottom:hover:active {
-  -moz-border-top-colors: #000000 #8C9DAF #8C9DAF;
-  -moz-border-bottom-colors: transparent #8190A5 #899AAC #8D9EB0;
+  border-top-color: #000000;
+  border-bottom-color: transparent;
 }
    
 .tab-bottom[selected="true"] {
-  -moz-border-top-colors: transparent !important;
-  -moz-border-bottom-colors: #000000 #DFE2E6 #D0D7DD transparent !important;
+  border-top-color: transparent !important;
+  border-bottom-color: #000000 !important;
 }
 
 tab:focus {
-  -moz-border-top-colors: #000000 #8C9DAF #8C9DAF;
-  -moz-border-left-colors: #000000 #8C9DAF #8C9DAF;
-  -moz-border-right-colors: #000000 #8C9DAF #8C9DAF;
-  -moz-border-bottom-colors: #8190A5 #8190A5 #899AAC;
+  border-top-color: #000000;
+  border-left-color: #000000;
+  border-right-color: #000000;
+  border-bottom-color: #8190A5;
 }
 
 .tab-bottom > .tab-text {

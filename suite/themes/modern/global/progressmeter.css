@@ -12,11 +12,11 @@
 
 progressmeter {
   margin: 2px 4px;
-  border: 2px solid;
-  -moz-border-top-colors: #8997A1 #C7D0D9;
-  -moz-border-right-colors: #E0ECF6 #C7D0D9;
-  -moz-border-bottom-colors: #E0ECF6 #C7D0D9;
-  -moz-border-left-colors: #8997A1 #C7D0D9;
+  border: 1px solid;
+  border-top-color: #8997A1;
+  border-right-color: #C7D0D9;
+  border-bottom-color: #C7D0D9;
+  border-left-color: #8997A1;
   min-width: 128px;
   height: 14px;
 }
@@ -39,9 +39,9 @@ progressmeter[mode="undetermined"] {
 
 .progressmeter-statusbar {
   margin: 0;
-  -moz-border-bottom-colors: transparent transparent;
-  -moz-border-top-colors: #E0ECF6 #C7D0D9;
-  -moz-border-right-colors: #8997A1 #C7D0D9;
-  -moz-border-left-colors: #E0ECF6 #C7D0D9;
+  border-bottom-color: transparent;
+  border-top-color: #C7D0D9;
+  border-right-color: #8997A1;
+  border-left-color: #C7D0D9;
 }
 

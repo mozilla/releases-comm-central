@@ -12,11 +12,7 @@
 
 listbox {
   margin: 2px 4px;
-  border: 2px solid;
-  -moz-border-top-colors: #BEC3D3 #5D616E;
-  -moz-border-right-colors: #F8FAFE #5D616E;
-  -moz-border-bottom-colors: #F8FAFE #5D616E;
-  -moz-border-left-colors: #BEC3D3 #5D616E;
+  border: 1px solid #5D616E;
   background-color: #FFFFFF;
   color: #000000;
 }
@@ -78,25 +74,21 @@ listcell {
 
 listheader {
   -moz-box-align: center;
-  border: 2px solid;
-  -moz-border-top-colors: #EEF0F3 #C7D0D9;
-  -moz-border-right-colors: #63676B #A5ABB0;
-  -moz-border-bottom-colors: #63676B #A5ABB0;
-  -moz-border-left-colors: #EEF0F3 #C7D0D9;
+  border: 1px solid;
+  border-top-color: #C7D0D9;
+  border-right-color: #63676B;
+  border-bottom-color: #63676B;
+  border-left-color: #C7D0D9;
   padding: 0 4px;
   background-color: #C7D0D9;
   color: #000000;
 }
 
 listheader[sortable="true"]:hover:active {
-  border-top: 2px solid;
-  border-right: 1px solid;
-  border-bottom: 1px solid;
-  border-left: 2px solid;
-  -moz-border-top-colors: #A5ABB0 #C7D0D9;
-  -moz-border-right-colors: #A5ABB0;
-  -moz-border-bottom-colors: #A5ABB0;
-  -moz-border-left-colors: #A5ABB0 #C7D0D9;
+  border-top: 1px solid #A5ABB0;
+  border-right: 1px solid #A5ABB0;
+  border-bottom: 1px solid #A5ABB0;
+  border-left: 1px solid #A5ABB0;
   padding-top: 1px;
   padding-bottom: 0px;
   padding-inline-start: 5px;

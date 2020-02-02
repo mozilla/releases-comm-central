@@ -15,7 +15,7 @@
   */
   background-color: #C7D0D9;
   border: 1px solid #494F5D;
-  border-radius: 5px;
+  border-radius: 2px;
 }
 
 .nav-button {
@@ -380,10 +380,10 @@
 
 .addon {
   color: black;
-  border-top: 2px solid;
-  -moz-border-top-colors: rgba(0, 0, 0, 0.1) rgba(255, 255, 255, 0.1);
+  border-top: 1px solid;
+  border-top-color: rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid;
-  -moz-border-bottom-colors: rgba(255, 255, 255, 0.1);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
   padding: 5px;
   background-origin: border-box;
 }
@@ -391,13 +391,13 @@
 .view-pane:not(#search-view) .addon:first-of-type,
 #search-view .addon[first] {
   border-top-width: 1px;
-  -moz-border-top-colors: rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.1);
 }
 
 .view-pane:not(#search-view) .addon:last-of-type,
 #search-view .addon[last] {
-  border-bottom-width: 2px;
-  -moz-border-bottom-colors: rgba(0, 0, 0, 0.1) rgba(255, 255, 255, 0.1);
+  border-bottom-width: 1px;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
 }
 
 .details {
@@ -808,8 +808,8 @@
 
 .detail-row,
 .detail-row-complex {
-  border-top: 2px solid;
-  -moz-border-top-colors: rgba(28, 31, 37, 0.1) rgba(255, 255, 255, 0.1);
+  border-top: 1px solid;
+  border-top-color: rgba(28, 31, 37, 0.1);
   -moz-box-align: center;
 }
 
@@ -1036,12 +1036,10 @@
 
 .header-button {
   margin: 2px;
-  border: 6px solid;
-  -moz-border-top-colors: transparent transparent transparent #000000 #BBC6D1 #B1BBC9;
-  -moz-border-right-colors: transparent transparent transparent #000000 #A2AEBB #A7B4C1;
-  -moz-border-bottom-colors: transparent transparent transparent #000000 #97A6B6 #9DAAB9;
-  -moz-border-left-colors: transparent transparent transparent #000000 #BBC6D1 #B1BBC9;
-  border-radius: 5px;
+  border: 1px solid;
+  padding: 3px;
+  border-color: #000000;
+  border-radius: 2px;
   background-color: #AAB6C4;
   background-clip: padding-box;
   color: #000000;
@@ -1049,17 +1047,11 @@
 }
 
 .header-button:focus {
-  -moz-border-top-colors: transparent #98A5B2 #98A5B2 #000000 #BBC6D1 #B1BBC9;
-  -moz-border-right-colors: transparent #98A5B2 #98A5B2 #000000 #A2AEBB #A7B4C1;
-  -moz-border-bottom-colors: transparent #98A5B2 #98A5B2 #000000 #97A6B6 #9DAAB9;
-  -moz-border-left-colors: transparent #98A5B2 #98A5B2 #000000 #BBC6D1 #B1BBC9;
+  border-color: #98A5B2;
 }
 
 .header-button[disabled="true"] {
-  -moz-border-top-colors: transparent transparent transparent #8290A5 #C6CDD7 #BCC5D1 !important;
-  -moz-border-right-colors: transparent transparent transparent #8290A5 #A9B5C1 #B2BAC7 !important;
-  -moz-border-bottom-colors: transparent transparent transparent #8290A5 #A9B5C1 #B2BAC7 !important;
-  -moz-border-left-colors: transparent transparent transparent #8290A5 #C6CDD7 #BCC5D1 !important;
+  border-color: #8290A5 !important;
   background-color: #B7BFCB !important;
   color: #8C99AB !important;
 }
@@ -1070,20 +1062,14 @@
 
 .header-button:not([disabled="true"]):active:hover,
 .header-button[open="true"] {
-  -moz-border-top-colors: transparent transparent transparent #000000 #8290A5 #899AAC;
-  -moz-border-right-colors: transparent transparent transparent #000000 #8290A5 #899AAC;
-  -moz-border-bottom-colors: transparent transparent transparent #000000 #8290A5 #899AAC;
-  -moz-border-left-colors: transparent transparent transparent #000000 #8290A5 #899AAC;
+  border-color: #000000;
   background-color: #90A1B3;
   color: #FFFFFF;
 }
 
 .header-button:not([disabled="true"]):active:hover:focus,
 .header-button[open="true"]:focus {
-  -moz-border-top-colors: transparent #98A5B2 #98A5B2 #000000 #8290A5 #899AAC;
-  -moz-border-right-colors: transparent #98A5B2 #98A5B2 #000000 #8290A5 #899AAC;
-  -moz-border-bottom-colors: transparent #98A5B2 #98A5B2 #000000 #8290A5 #899AAC;
-  -moz-border-left-colors: transparent #98A5B2 #98A5B2 #000000 #8290A5 #899AAC;
+  border-color: #98A5B2;
 }
 
 .header-button > .toolbarbutton-text {

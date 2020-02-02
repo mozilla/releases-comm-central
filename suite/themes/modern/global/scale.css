@@ -34,11 +34,7 @@
 /* ::::: scale thumb ::::: */
 
 .scale-thumb {
-  border: 3px solid;
-  -moz-border-top-colors: #000000 #E4EBF2 #C3CAD2;
-  -moz-border-right-colors: #000000 #8F9DAD #A4AFBB;
-  -moz-border-bottom-colors: #000000 #8F9DAD #A4AFBB;
-  -moz-border-left-colors: #000000 #E4EBF2 #C3CAD2;
+  border: 1px solid #000000;
   background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.gif");
   min-width: 18px;
 }
@@ -50,9 +46,6 @@
 }
 
 .scale-thumb[disabled="true"] {
-  -moz-border-top-colors: #000000 #708092 #939FAD;
-  -moz-border-right-colors: #000000 #718193 #9EA9B5;
-  -moz-border-bottom-colors: #000000 #8795A4 #929EAC;
-  -moz-border-left-colors: #000000 #ADB6C0 #9EA9B5;
+  border-color: #000000;
   background: #9CA8B4;
 }

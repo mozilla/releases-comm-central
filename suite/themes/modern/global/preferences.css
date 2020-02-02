@@ -52,8 +52,7 @@ radio[pane]:hover:active {
 }
 
 .paneSelector {
-  border-bottom: 2px solid;
-  -moz-border-bottom-colors: #ECEFF2 #2D3B49;
+  border-bottom: 1px solid #2D3B49;
   margin: 0px;
   padding-inline-start: 10px;
   background-color: #FFFFFF;

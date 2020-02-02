@@ -46,10 +46,7 @@ panel[type="autocomplete-richlistbox"],
 .autocomplete-history-popup {
   -moz-appearance: none;
   border: 1px solid;
-  -moz-border-top-colors: #6B747E;
-  -moz-border-right-colors: #6B747E;
-  -moz-border-bottom-colors: #6B747E;
-  -moz-border-left-colors: #6B747E;
+  border-color: #6B747E;
   background-color: #FFFFFF;
 }
 

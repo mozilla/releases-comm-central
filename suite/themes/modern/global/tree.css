@@ -12,11 +12,7 @@
 
 tree {
   margin: 0px 4px;
-  border: 2px solid;
-  -moz-border-top-colors: #BEC3D3 #5D616E;
-  -moz-border-right-colors: #F8FAFE #5D616E;
-  -moz-border-bottom-colors: #F8FAFE #5D616E;
-  -moz-border-left-colors: #BEC3D3 #5D616E;
+  border: 1px solid #5D616E;
   background-color: #FFFFFF;
   color: #000000;
 }
@@ -176,11 +172,11 @@ treechildren::-moz-tree-checkbox(checked) {
 
 treechildren::-moz-tree-progressmeter {
   margin: 2px 4px;
-  border: 2px solid;
-  -moz-border-top-colors: #8997A1 #C7D0D9;
-  -moz-border-right-colors: #E0ECF6 #C7D0D9;
-  -moz-border-bottom-colors: #E0ECF6 #C7D0D9;
-  -moz-border-left-colors: #8997A1 #C7D0D9;
+  border: 1px solid;
+  border-top-color: #8997A1;
+  border-right-color: #C7D0D9;
+  border-bottom-color: #C7D0D9;
+  border-left-color: #8997A1;
   color: #6B7B8D;
 }
 
@@ -198,11 +194,11 @@ treecol,
 treecolpicker {
   -moz-box-align: center;
   -moz-box-pack: center;
-  border: 2px solid;
-  -moz-border-top-colors: #EEF0F3 #C7D0D9;
-  -moz-border-right-colors: #63676B #A5ABB0;
-  -moz-border-bottom-colors: #63676B #A5ABB0;
-  -moz-border-left-colors: #EEF0F3 #C7D0D9;
+  border: 1px solid;
+  border-top-color: #C7D0D9;
+  border-right-color: #63676B;
+  border-bottom-color: #63676B;
+  border-left-color: #C7D0D9;
   background-color: #C7D0D9;
   color: #000000;
   padding: 0px 4px;
@@ -226,14 +222,11 @@ treecol[hideheader="true"] {
 
 treecol:hover:active,
 treecolpicker:hover:active {
-  border-top: 2px solid;
+  border-top: 1px solid;
   border-right: 1px solid;
   border-bottom: 1px solid;
   border-left: 2px solid;
-  -moz-border-top-colors: #A5ABB0 #C7D0D9;
-  -moz-border-right-colors: #A5ABB0;
-  -moz-border-bottom-colors: #A5ABB0;
-  -moz-border-left-colors: #A5ABB0 #C7D0D9;
+  border-color: #A5ABB0;
   padding-top: 1px;
   padding-bottom: 0px;
   padding-inline-start: 5px;
@@ -250,22 +243,22 @@ treecolpicker:hover:active {
 /* ::::: column drag and drop styles ::::: */
 
 treecol[dragging="true"] {
-  -moz-border-top-colors: #000000 #90A1B3 !important;
-  -moz-border-right-colors: #000000 #90A1B3 !important;
-  -moz-border-bottom-colors: #000000 #90A1B3 !important;
-  -moz-border-left-colors: #000000 #90A1B3 !important;
+  border-top-color: #000000 !important;
+  border-right-color: #000000 !important;
+  border-bottom-color: #000000 !important;
+  border-left-color: #000000 !important;
   background-color: #90A1B3 !important;
   color: #FFFFFF !important;
 }
 
 treecol[insertafter="true"]:-moz-locale-dir(ltr),
 treecol[insertbefore="true"]:-moz-locale-dir(rtl) {
-  -moz-border-right-colors: #000000 #666666;
+  border-right-color: #000000;
 }
 
 treecol[insertafter="true"]:-moz-locale-dir(rtl),
 treecol[insertbefore="true"]:-moz-locale-dir(ltr) {
-  -moz-border-left-colors: #000000 #666666;
+  border-left-color: #000000;
 }
 
 treechildren::-moz-tree-column(insertbefore) {
@@ -336,11 +329,11 @@ treechildren::-moz-tree-cell-text(selected, editing) {
 
 .tree-input {
   -moz-appearance: none;
+  border-top-color: #C7D0D9;
+  border-bottom-color: #C7D0D9;
+  border-left-color: #C7D0D9;
+  border-right-color: #C7D0D9;
   border: 1px solid #C7D0D9;
-  -moz-border-top-colors: #C7D0D9;
-  -moz-border-bottom-colors: #C7D0D9;
-  -moz-border-left-colors: #C7D0D9;
-  -moz-border-right-colors: #C7D0D9;
   margin-top: 0px;
   margin-bottom: 0px;
   margin-inline-start: -4px;

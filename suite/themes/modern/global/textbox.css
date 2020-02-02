@@ -15,7 +15,7 @@
 
 textbox {
   margin: 2px 4px;
-  border: 2px solid;
+  border: 1px solid;
   padding-top: 1px;
   padding-bottom: 1px;
   padding-inline-start: 2px;
@@ -33,10 +33,7 @@ html|*.textbox-textarea::placeholder {
 
 textbox,
 textbox[readonly="true"][focused="true"] {
-  -moz-border-top-colors: #BEC3D3 #5D616E;
-  -moz-border-right-colors: #F8FAFE #5D616E;
-  -moz-border-bottom-colors: #F8FAFE #5D616E;
-  -moz-border-left-colors: #BEC3D3 #5D616E;
+  border-color: #5D616E;
 }
 
 html|*.textbox-input,
@@ -53,19 +50,16 @@ html|*.textbox-textarea {
 /* ..... focused state ..... */
 
 textbox[focused="true"] {
-  -moz-border-top-colors: #98A5B2 #000000;
-  -moz-border-right-colors: #98A5B2 #000000;
-  -moz-border-bottom-colors: #98A5B2 #000000;
-  -moz-border-left-colors: #98A5B2 #000000;
+  border-color: #000000;
 }
 
 /* ..... disabled state ..... */
 
 textbox[disabled="true"] {
-  -moz-border-top-colors: #BEC3D3 #98A5B2;
-  -moz-border-right-colors: #F8FAFE #98A5B2;
-  -moz-border-bottom-colors: #F8FAFE #98A5B2;
-  -moz-border-left-colors: #BEC3D3 #98A5B2;
+  border-top-color: #98A5B2;
+  border-right-color: #F8FAFE;
+  border-bottom-color: #F8FAFE;
+  border-left-color: #BEC3D3;
   background-color: #C7D0D9;
   color: #999999;
   cursor: default !important;

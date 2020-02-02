@@ -13,11 +13,7 @@
 colorpicker[type="button"] {
   width: 38px;
   height: 24px;
-  border: 4px solid;
-  -moz-border-top-colors: transparent transparent #97A4B2 #DFE5EF;
-  -moz-border-right-colors: transparent transparent #3B414F #AAB4BF;
-  -moz-border-bottom-colors: transparent transparent #3B414F #AAB4BF;
-  -moz-border-left-colors: transparent transparent #97A4B2 #DFE5EF;
+  border: 4px solid transparent;
   background-color: #C7D0D9;
   padding: 3px;
 }
@@ -27,25 +23,16 @@ colorpicker[type="button"] {
 }
 
 colorpicker[type="button"][open="true"] {
-  -moz-border-top-colors: transparent transparent #3B414F #A6B3C0;
-  -moz-border-right-colors: transparent transparent #3B414F #A6B3C0;
-  -moz-border-bottom-colors: transparent transparent #3B414F #A6B3C0;
-  -moz-border-left-colors: transparent transparent #3B414F #A6B3C0;
+  border-color: #3B414F;
   background-color: #A6B3C0;
 }
 
 colorpicker[type="button"]:focus {
-  -moz-border-top-colors: #98A5B2 #98A5B2 #97A4B2 #DFE5EF;
-  -moz-border-right-colors: #98A5B2 #98A5B2 #3B414F #AAB4BF;
-  -moz-border-bottom-colors: #98A5B2 #98A5B2 #3B414F #AAB4BF;
-  -moz-border-left-colors: #98A5B2 #98A5B2 #97A4B2 #DFE5EF;
+  border-color: #98A5B2;
 }
 
 colorpicker[type="button"][open="true"]:focus {
-  -moz-border-top-colors: #98A5B2 #98A5B2 #3B414F #A6B3C0;
-  -moz-border-right-colors: #98A5B2 #98A5B2 #3B414F #A6B3C0;
-  -moz-border-bottom-colors: #98A5B2 #98A5B2 #3B414F #A6B3C0;
-  -moz-border-left-colors: #98A5B2 #98A5B2 #3B414F #A6B3C0;
+  border-color: #98A5B2;
 }
 
 /* ::::: colorpicker tiles ::::: */

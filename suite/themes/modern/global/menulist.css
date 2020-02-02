@@ -39,12 +39,9 @@ menulist {
 .menulist-label-box {
   -moz-box-align: center;
   -moz-box-pack: center;
-  border-top: 3px solid;
-  border-bottom: 3px solid;
-  border-left: 3px solid;
-  -moz-border-top-colors: #000000 #BBC4D1 #B3BBC9;
-  -moz-border-bottom-colors: #000000 #99A7B7 #9EACBB;
-  -moz-border-left-colors: #000000 #BBC4D1 #B3BBC9;
+  padding: 2px;
+  border: 1px solid #000000;
+  border-right: 1px solid transparent;
   border-top-left-radius: 2px;
   border-bottom-left-radius: 2px;
   background-color: #A6B3C0;
@@ -52,8 +49,8 @@ menulist {
 }
 
 .menulist-dropmarker {
-  border-left: 2px solid;
-  -moz-border-left-colors: #6D7C8F #C1CBD9;
+  border: 1px solid black;
+  border-left: 1px solid #6D7C8F;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
 }
@@ -77,9 +74,9 @@ menulist[open="true"] {
 }
   
 menulist[open="true"] > .menulist-label-box {
-  -moz-border-top-colors: #313948 #8393A7 #8C9DAF;
-  -moz-border-bottom-colors: #313948 #8393A7 #8C9DAF;
-  -moz-border-left-colors: #313948 #8393A7 #8C9DAF;
+  border-top-color: #313948;
+  border-bottom-color: #313948;
+  border-left-color: #313948;
   background-color: #91A2B4;
 }
 
@@ -94,17 +91,17 @@ menulist[disabled="true"] {
 }
   
 menulist[disabled="true"] > .menulist-label-box {
-  -moz-border-top-colors: #727D8E #D0D6DF #BDC6D2 !important;
-  -moz-border-bottom-colors: #727D8E #AAB5C2 #B3BBC8 !important;
+  border-top-color: #727D8E !important;
+  border-bottom-color: #727D8E !important;
   background-color: #B7BFCB !important;
 }
 
 menulist[disabled="true"] > .menulist-label-box {
-  -moz-border-left-colors: #727D8E #C9D0D9 #BDC6D2 !important;
+  border-left-color: #727D8E !important;
 }
 
 menulist[disabled="true"] > .menulist-dropmarker {
-  -moz-border-left-colors: #95A1AD #C7D0DC !important;
+  border-left-color: #95A1AD !important;
 }
 
 /* ::::: editable menulists ::::: */
@@ -140,11 +137,11 @@ menulist[focused="true"] {
   -moz-box-align: center;
   -moz-box-pack: center;
   margin: 0;
-  border: 2px solid;
-  -moz-border-top-colors: #CED5DD #A6B3C0;
-  -moz-border-right-colors: #5D616E #99A9BA;
-  -moz-border-bottom-colors: #5D616E #99A9BA;
-  -moz-border-left-colors: #CED5DD #A6B3C0;
+  border: 1px solid;
+  border-top-color: #A6B3C0;
+  border-right-color: #5D616E;
+  border-bottom-color: #5D616E;
+  border-left-color: #A6B3C0;
   border-radius: 0;
   padding: 1px;
   min-height: 0px;
@@ -175,9 +172,9 @@ menulist[focused="true"] {
 }
       
 .menulist-compact[open="true"] {
-  -moz-border-top-colors: #788797 #91A2B4;
-  -moz-border-right-colors: #5D616E #788797;
-  -moz-border-bottom-colors: #5D616E #788797;
-  -moz-border-left-colors: #788797 #91A2B4;
+  border-top-color: #788797;
+  border-right-color: #5D616E;
+  border-bottom-color: #5D616E;
+  border-left-color: #788797;
   background-color: #91A2B4;
 }

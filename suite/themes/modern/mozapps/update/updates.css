@@ -58,11 +58,7 @@ wizardpage {
 /* License Page */
 #licenseContent {
   margin: 2px 4px;
-  border: 2px solid;
-  -moz-border-top-colors: #BEC3D3 #5D616E;
-  -moz-border-right-colors: #F8FAFE #5D616E;
-  -moz-border-bottom-colors: #F8FAFE #5D616E;
-  -moz-border-left-colors: #BEC3D3 #5D616E;
+  border: 1px solid #5D616E;
   background-color: #FFFFFF;
   color: #000000;
 }
@@ -100,20 +96,17 @@ wizardpage {
   -moz-image-region: rect(0px, 48px, 16px, 32px);
   margin: 0;
   border: 1px solid !important;
-  -moz-border-top-colors: transparent !important;
-  -moz-border-right-colors: transparent !important;
-  -moz-border-bottom-colors: transparent !important;
-  -moz-border-left-colors: transparent !important;
+  border-top-colors: transparent !important;
+  border-right-colors: transparent !important;
+  border-bottom-colors: transparent !important;
+  border-left-colors: transparent !important;
   border-radius: 0 !important;
   outline: none !important;
 }
 
 #pauseButton:focus {
   border-style: dotted !important;
-  -moz-border-top-colors: #000000 !important;
-  -moz-border-right-colors: #000000 !important;
-  -moz-border-bottom-colors: #000000 !important;
-  -moz-border-left-colors: #000000 !important;
+  border-color: #000000 !important;
 }
 
 #pauseButton[disabled="true"] {
@@ -167,11 +160,7 @@ update {
 #historyItems {
   height: 200px;
   margin: 1px 5px 4px;
-  border: 2px solid;
-  -moz-border-top-colors: #BEC3D3 #5D616E;
-  -moz-border-right-colors: #F8FAFE #5D616E;
-  -moz-border-bottom-colors: #F8FAFE #5D616E;
-  -moz-border-left-colors: #BEC3D3 #5D616E;
+  border: 1px solid #5D616E;
 }
 
 #historyItems > scrollbox {

@@ -189,11 +189,7 @@ toolbar[iconsize="small"] > #print-button[disabled="true"] {
 
 dialogheader {
   margin: 0px 5px 5px;
-  border: 2px solid;
-  -moz-border-top-colors: #858B97 #2D3B49;
-  -moz-border-right-colors: #ECEFF2 #2D3B49;
-  -moz-border-bottom-colors: #ECEFF2 #2D3B49;
-  -moz-border-left-colors: #858B97 #2D3B49;
+  border: 1px solid #2D3B49;
   padding: 5px 8px;
   background-color: #90A1B3;
   color: #000000;

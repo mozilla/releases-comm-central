@@ -58,20 +58,13 @@ richlistitem[type="download"]:not([selected="true"]) .status {
   list-style-image: url("chrome://communicator/skin/downloads/downloadButtons.png");
   -moz-image-region: rect(0px, 48px, 16px, 32px);
   margin: 0;
-  border: 1px dotted !important;
-  -moz-border-top-colors: transparent !important;
-  -moz-border-right-colors: transparent !important;
-  -moz-border-bottom-colors: transparent !important;
-  -moz-border-left-colors: transparent !important;
+  border: 1px dotted transparent !important;
   border-radius: 0 !important;
   outline: none !important;
 }
 
 .mini-button:focus {
-  -moz-border-top-colors: #000000 !important;
-  -moz-border-right-colors: #000000 !important;
-  -moz-border-bottom-colors: #000000 !important;
-  -moz-border-left-colors: #000000 !important;
+  border-color: #000000 !important;
 }
 
 .cancel {
