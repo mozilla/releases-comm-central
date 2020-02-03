@@ -9,7 +9,7 @@
  *         calendarOfflineManager
  */
 
-/* import-globals-from dialogs/calendar-migration-dialog.js */
+/* import-globals-from calendar-migration.js */
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-ui-utils.js */
 
