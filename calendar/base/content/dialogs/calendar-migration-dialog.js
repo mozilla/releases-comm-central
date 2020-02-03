@@ -173,7 +173,7 @@ var gDataMigrator = {
     migLOG("mPlatform is: " + this.mPlatform);
 
     let DMs = [];
-    let migrators = [this.checkOldCal, this.checkEvolution, this.checkWindowsMail, this.checkIcal];
+    let migrators = [this.checkEvolution, this.checkWindowsMail, this.checkIcal];
     // XXX also define a category and an interface here for pluggability
     for (let migrator of migrators) {
       let migs = migrator.call(this);
@@ -204,124 +204,6 @@ var gDataMigrator = {
         DMs
       );
     }
-  },
-
-  /**
-   * Checks to see if we can find any traces of an older moz-cal program.
-   * This could be either the old calendar-extension, or Sunbird 0.2.  If so,
-   * it offers to move that data into our new storage format.
-   */
-  checkOldCal: function() {
-    // This is the function that the migration wizard will call to actually
-    // migrate the data.  It's defined here because we may use it multiple
-    // times (with different aProfileDirs), for instance if there is both
-    // a Thunderbird and Firefox cal-extension
-    function extMigrator(aProfileDir, aCallback) {
-      // Get the old datasource
-      let dataSource = aProfileDir.clone();
-      dataSource.append("CalendarManager.rdf");
-      if (!dataSource.exists()) {
-        return;
-      }
-
-      // Let this be a lesson to anyone designing APIs. The RDF API is so
-      // impossibly confusing that it's actually simpler/cleaner/shorter
-      // to simply parse as XML and use the better DOM APIs.
-      let req = new XMLHttpRequest();
-      req.open("GET", "file://" + dataSource.path, true);
-      req.onreadystatechange = function() {
-        if (req.readyState == 4) {
-          migLOG(req.responseText);
-          parseAndMigrate(req.responseXML, aCallback);
-        }
-      };
-      req.send(null);
-    }
-
-    // Callback from the XHR above.  Parses CalendarManager.rdf and imports
-    // the data describe therein.
-    function parseAndMigrate(aDoc, aCallback) {
-      function getRDFAttr(aNode, aAttr) {
-        return aNode.getAttributeNS("http://home.netscape.com/NC-rdf#", aAttr);
-      }
-
-      // For duplicate detection
-      let calManager = cal.getCalendarManager();
-      let uris = [];
-      for (let oldCal of calManager.getCalendars()) {
-        uris.push(oldCal.uri);
-      }
-
-      const RDFNS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-      let nodes = aDoc.getElementsByTagNameNS(RDFNS, "Description");
-      migLOG("nodes: " + nodes.length);
-      for (let i = 0; i < nodes.length; i++) {
-        migLOG("Beginning calendar node");
-        let calendar;
-        let node = nodes[i];
-        if (getRDFAttr(node, "remote") == "false") {
-          migLOG("not remote");
-          let localFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-          localFile.initWithPath(getRDFAttr(node, "path"));
-          calendar = gDataMigrator.importICSToStorage(localFile);
-        } else {
-          // Remote subscription
-          // XXX check for duplicates
-          let url = Services.io.newURI(getRDFAttr(node, "remotePath"));
-          calendar = calManager.createCalendar("ics", url);
-        }
-        calendar.name = getRDFAttr(node, "name");
-        calendar.setProperty("color", getRDFAttr(node, "color"));
-        calManager.registerCalendar(calendar);
-        cal.view.getCompositeCalendar(window).addCalendar(calendar);
-      }
-      aCallback();
-    }
-
-    migLOG("Checking for the old calendar extension/app");
-    let migrators = [];
-
-    // Look in our current profile directory, in case we're upgrading in
-    // place
-    let profileDir = this.dirService.get("ProfD", Ci.nsIFile);
-    profileDir.append("Calendar");
-    if (profileDir.exists()) {
-      migLOG("Found old extension directory in current app");
-      let title = "Mozilla Calendar Extension";
-      migrators.push(new dataMigrator(title, extMigrator, [profileDir]));
-    }
-
-    // Check the profiles of the various other moz-apps for calendar data
-    let profiles = [];
-
-    // Do they use Firefox?
-    let ffProf, sbProf;
-    if ((ffProf = this.getFirefoxProfile())) {
-      profiles.push(ffProf);
-    }
-
-    // We're lightning, check Sunbird
-    if ((sbProf = this.getSunbirdProfile())) {
-      profiles.push(sbProf);
-    }
-
-    // Now check all of the profiles in each of these folders for data
-    for (let prof of profiles) {
-      for (let profile of prof.directoryEntries) {
-        if (profile.isFile()) {
-          continue;
-        } else {
-          profile.append("Calendar");
-          if (profile.exists()) {
-            migLOG("Found old extension directory at" + profile.path);
-            let title = "Mozilla Calendar";
-            migrators.push(new dataMigrator(title, extMigrator, [profile]));
-          }
-        }
-      }
-    }
-
-    return migrators;
   },
 
   /**
@@ -556,81 +438,6 @@ var gDataMigrator = {
     putItemsIntoCal(calendar, items, icsFile.leafName);
 
     return calendar;
-  },
-
-  /**
-   * Helper functions for getting the profile directory of various MozApps
-   * (Getting the profile dir is way harder than it should be.)
-   *
-   * Sunbird:
-   *     Unix:     ~jdoe/.mozilla/sunbird/
-   *     Windows:  %APPDATA%\Mozilla\Sunbird\Profiles
-   *     Mac OS X: ~jdoe/Library/Application Support/Sunbird/Profiles
-   *
-   * Firefox:
-   *     Unix:     ~jdoe/.mozilla/firefox/
-   *     Windows:  %APPDATA%\Mozilla\Firefox\Profiles
-   *     Mac OS X: ~jdoe/Library/Application Support/Firefox/Profiles
-   *
-   * Thunderbird:
-   *     Unix:     ~jdoe/.thunderbird/
-   *     Windows:  %APPDATA%\Thunderbird\Profiles
-   *     Mac OS X: ~jdoe/Library/Thunderbird/Profiles
-   *
-   * Notice that Firefox and Sunbird follow essentially the same pattern, so
-   * we group them with getNormalProfile
-   */
-  getFirefoxProfile: function() {
-    return this.getNormalProfile("Firefox");
-  },
-
-  /**
-   * @see getFirefoxProfile
-   */
-  getThunderbirdProfile: function() {
-    let profileRoot = this.dirService.get("DefProfRt", Ci.nsIFile);
-    migLOG("searching for Thunderbird in " + profileRoot.path);
-    return profileRoot.exists() ? profileRoot : null;
-  },
-
-  /**
-   * @see getFirefoxProfile
-   */
-  getSunbirdProfile: function() {
-    return this.getNormalProfile("Sunbird");
-  },
-
-  /**
-   * Common function to retrieve the profile directory for a given app.
-   * @see getFirefoxProfile
-   */
-  getNormalProfile: function(aAppName) {
-    let localFile;
-    let profileRoot = this.dirService.get("DefProfRt", Ci.nsIFile);
-    migLOG("profileRoot = " + profileRoot.path);
-
-    switch (this.mPlatform) {
-      case "darwin": // Mac OS X
-        localFile = profileRoot.parent.parent;
-        localFile.append("Application Support");
-        localFile.append(aAppName);
-        localFile.append("Profiles");
-        break;
-      case "winnt":
-        localFile = profileRoot.parent.parent;
-        localFile.append("Mozilla");
-        localFile.append(aAppName);
-        localFile.append("Profiles");
-        break;
-      default:
-        // Unix
-        localFile = profileRoot.parent;
-        localFile.append(".mozilla");
-        localFile.append(aAppName.toLowerCase());
-        break;
-    }
-    migLOG("searching for " + aAppName + " in " + localFile.path);
-    return localFile.exists() ? localFile : null;
   },
 };
 
