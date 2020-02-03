@@ -18,7 +18,7 @@ var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
  * Convert all the written recipients into string and store them into the
  * msgCompFields array to be printed in the message header.
  *
- * @param {Array} msgCompFields - The array containing all the recipients.
+ * @param {Object} msgCompFields - An object to receive the recipients.
  */
 function Recipients2CompFields(msgCompFields) {
   if (!msgCompFields) {
@@ -96,92 +96,116 @@ function Recipients2CompFields(msgCompFields) {
 /**
  * Convert all the recipients coming from a message header into pills.
  *
- * @param {Array} msgCompFields - The array containing all the recipients.
+ * @param {Object} msgCompFields - An object containing all the recipients. If
+ *                                 any property is not a string, it is ignored.
  */
 function CompFields2Recipients(msgCompFields) {
   if (msgCompFields) {
-    let msgReplyTo = msgCompFields.replyTo
-      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.replyTo)
-      : null;
-    let msgTo = msgCompFields.to
-      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.to)
-      : null;
-    let msgCC = msgCompFields.cc
-      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.cc)
-      : null;
-    let msgBCC = msgCompFields.bcc
-      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.bcc)
-      : null;
-    let msgNewsgroups = msgCompFields.newsgroups;
-    let msgFollowupTo = msgCompFields.followupTo
-      ? MailServices.headerParser.parseEncodedHeader(msgCompFields.followupTo)
-      : null;
-
     // Populate all the recipients with the proper values.
     // We need to force the focus() on each input to trigger the attachment
     // of the autocomplete mController.
-    if (msgReplyTo) {
-      showAddressRow(document.getElementById("addr_reply"), "addressRowReply");
+    if (typeof msgCompFields.replyTo == "string") {
       let input = document.getElementById("replyAddrInput");
-      input.focus();
-      input.value = msgReplyTo.join(", ");
-      recipientAddPill(input, true);
-    }
+      recipientClearPills(input);
 
-    if (msgTo) {
-      let input = document.getElementById("toAddrInput");
-      if (input.closest(".address-row").classList.contains("hidden")) {
-        showAddressRow(document.getElementById("addr_to"), "addressRowTo");
+      let msgReplyTo = MailServices.headerParser.parseEncodedHeader(
+        msgCompFields.replyTo
+      );
+      if (msgReplyTo.length) {
+        showAddressRow(
+          document.getElementById("addr_reply"),
+          "addressRowReply"
+        );
+        input.focus();
+        input.value = msgReplyTo.join(", ");
+        recipientAddPill(input, true);
       }
-      input.focus();
-      input.value = msgTo.join(", ");
-      recipientAddPill(input, true);
     }
 
-    if (msgCC) {
-      showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
+    if (typeof msgCompFields.to == "string") {
+      let input = document.getElementById("toAddrInput");
+      recipientClearPills(input);
+
+      let msgTo = MailServices.headerParser.parseEncodedHeader(
+        msgCompFields.to
+      );
+      if (msgTo.length) {
+        if (input.closest(".address-row").classList.contains("hidden")) {
+          showAddressRow(document.getElementById("addr_to"), "addressRowTo");
+        }
+        input.focus();
+        input.value = msgTo.join(", ");
+        recipientAddPill(input, true);
+      }
+    }
+
+    if (typeof msgCompFields.cc == "string") {
       let input = document.getElementById("ccAddrInput");
-      input.focus();
-      input.value = msgCC.join(", ");
-      recipientAddPill(input, true);
+      recipientClearPills(input);
+
+      let msgCC = MailServices.headerParser.parseEncodedHeader(
+        msgCompFields.cc
+      );
+      if (msgCC.length) {
+        showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
+        input.focus();
+        input.value = msgCC.join(", ");
+        recipientAddPill(input, true);
+      }
     }
 
-    if (msgBCC) {
-      showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
+    if (typeof msgCompFields.bcc == "string") {
       let input = document.getElementById("bccAddrInput");
-      input.focus();
-      input.value = msgBCC.join(", ");
-      recipientAddPill(input, true);
+      recipientClearPills(input);
+
+      let msgBCC = MailServices.headerParser.parseEncodedHeader(
+        msgCompFields.bcc
+      );
+      if (msgBCC.length) {
+        showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
+        input.focus();
+        input.value = msgBCC.join(", ");
+        recipientAddPill(input, true);
+      }
     }
 
-    if (msgNewsgroups) {
-      showAddressRow(
-        document.getElementById("addr_newsgroups"),
-        "addressRowNewsgroups"
-      );
+    if (typeof msgCompFields.newsgroups == "string") {
       let input = document.getElementById("newsgroupsAddrInput");
-      input.focus();
-      input.value = msgNewsgroups;
-      recipientAddPill(input, true);
+      recipientClearPills(input);
+
+      if (msgCompFields.newsgroups) {
+        showAddressRow(
+          document.getElementById("addr_newsgroups"),
+          "addressRowNewsgroups"
+        );
+        input.focus();
+        input.value = msgCompFields.newsgroups;
+        recipientAddPill(input, true);
+      }
     }
 
-    if (msgFollowupTo) {
-      showAddressRow(
-        document.getElementById("addr_followup"),
-        "addressRowFollowup"
-      );
+    if (typeof msgCompFields.followupTo == "string") {
       let input = document.getElementById("followupAddrInput");
-      input.focus();
-      input.value = msgFollowupTo.join(", ");
-      recipientAddPill(input, true);
+      recipientClearPills(input);
+
+      let msgFollowupTo = MailServices.headerParser.parseEncodedHeader(
+        msgCompFields.followupTo
+      );
+      if (msgFollowupTo.length) {
+        showAddressRow(
+          document.getElementById("addr_followup"),
+          "addressRowFollowup"
+        );
+        input.focus();
+        input.value = msgFollowupTo.join(", ");
+        recipientAddPill(input, true);
+      }
     }
 
-    // CompFields2Recipients is called whenever a user replies or edits an existing message. We want to
-    // add all of the non-empty recipients for this message to the ignore list for spell check
-    let currentAddress = gCurrentIdentity ? gCurrentIdentity.fullAddress : "";
-    addRecipientsToIgnoreList(
-      [currentAddress, msgTo, msgCC, msgBCC].filter(adr => adr).join(", ")
-    );
+    // Add the sender to our spell check ignore list.
+    if (gCurrentIdentity) {
+      addRecipientsToIgnoreList(gCurrentIdentity.fullAddress);
+    }
   }
 }
 
@@ -576,6 +600,18 @@ function recipientAddPill(element, automatic = false) {
 
   onRecipientsChanged(automatic);
   calculateHeaderHeight();
+}
+
+/**
+ * Remove existing "address-pill" elements from the parent recipient container.
+ *
+ * @param {HTMLElement} element - The input element in the container to clear.
+ */
+function recipientClearPills(element) {
+  let container = element.closest(".address-container");
+  for (let pill of container.querySelectorAll("mail-address-pill")) {
+    pill.remove();
+  }
 }
 
 /**
