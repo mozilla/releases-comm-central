@@ -73,8 +73,6 @@ var gMsgHeadersToolbarElement;
 var gComposeType;
 
 // i18n globals
-var gSendDefaultCharset;
-var gCharsetTitle;
 var gCharsetConvertManager;
 
 var gLastWindowToHaveFocus;
@@ -105,8 +103,6 @@ function InitializeGlobalVariables()
   gCloseWindowAfterSave = false;
   gSavedSendNowKey = null;
   gSendFormat = nsIMsgCompSendFormat.AskUser;
-  gSendDefaultCharset = null;
-  gCharsetTitle = null;
   gCharsetConvertManager = Cc['@mozilla.org/charset-converter-manager;1'].getService(Ci.nsICharsetConverterManager);
   gMailSession = Cc["@mozilla.org/messenger/services/session;1"].getService(Ci.nsIMsgMailSession);
   gHideMenus = false;
@@ -1533,55 +1529,25 @@ function SetDocumentCharacterSet(aCharset)
     aCharset = "ISO-2022-JP";
   }
   gMsgCompose.SetDocumentCharset(aCharset);
-  gCharsetTitle = null;
   SetComposeWindowTitle();
 }
 
 function GetCharsetUIString()
 {
-  var charset = gMsgCompose.compFields.characterSet;
-  if (gSendDefaultCharset == null) {
-    gSendDefaultCharset = gMsgCompose.compFields.defaultCharacterSet;
-  }
+  // The charset here is already the canonical charset (not an alias).
+  let charset = gMsgCompose.compFields.characterSet;
+  if (!charset)
+    return "";
 
-  charset = charset.toUpperCase();
-  if (charset == "US-ASCII")
-    charset = "ISO-8859-1";
-
-  if (charset != gSendDefaultCharset) {
-
-    if (gCharsetTitle == null) {
-      try {
-        // check if we have a converter for this charset
-        var charsetAlias = gCharsetConvertManager.getCharsetAlias(charset);
-        var encoderList = gCharsetConvertManager.getEncoderList();
-        var found = false;
-        while (encoderList.hasMore()) {
-            if (charsetAlias == encoderList.getNext()) {
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-        {
-          dump("no charset converter available for " +  charset + " default charset is used instead\n");
-          // set to default charset, no need to show it in the window title
-          gMsgCompose.compFields.characterSet = gSendDefaultCharset;
-          return "";
-        }
-
-        // get a localized string
-        gCharsetTitle = gCharsetConvertManager.getCharsetTitle(charsetAlias);
-      }
-      catch (ex) {
-        dump("failed to get a charset title of " + charset + "!\n");
-        gCharsetTitle = charset; // just show the charset itself
-      }
+  if (charset.toLowerCase() != gMsgCompose.compFields.defaultCharacterSet.toLowerCase()) {
+    try {
+      return " - " + gCharsetConvertManager.getCharsetTitle(charset);
     }
-
-    return " - " + gCharsetTitle;
+    catch(e) { // Not a canonical charset after all...
+      Cu.reportError("Not charset title for charset=" + charset);
+      return " - " + charset;
+    }
   }
-
   return "";
 }
 
