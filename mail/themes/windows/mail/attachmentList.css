@@ -26,6 +26,7 @@
     padding: 1px;
   }
 
+  .attachmentList:focus .attachmentItem[selected="true"],
   #attachmentList:focus > .attachmentItem[selected="true"] {
     color: -moz-FieldText;
   }
