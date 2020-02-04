@@ -249,12 +249,8 @@ var { cal } = ChromeUtils.import("resource://calendar/modules/calUtils.jsm");
         this.setDateRange(date.startOfMonth, date.endOfMonth);
         this.selectedDay = date;
       } else {
-        this.refresh();
         // Refresh the selected day if it doesn't appear in the view.
-
-        // The selectedDay setter does some work...
-        // eslint-disable-next-line no-self-assign
-        this.selectedDay = this.selectedDay;
+        this.refresh();
       }
     }
 
