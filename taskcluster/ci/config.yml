@@ -80,6 +80,7 @@ task-priority:
 
 taskgraph:
     register: comm_taskgraph:register
+    decision-parameters: 'comm_taskgraph:get_decision_parameters'
 
 workers:
     aliases:
