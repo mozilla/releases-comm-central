@@ -24,6 +24,7 @@ jobs:
     - debian10-raw
     - desktop1604-test
     - fetch
+    - funsize-update-generator
     - index-task
     - image_builder
     - lint

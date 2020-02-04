@@ -23,6 +23,8 @@ treeherder:
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
         'M': 'Mochitests'
+        'p': 'Partial generation'
+        'ps': 'Partials signing'
         'ms': 'Complete MAR signing'
         'MSI': 'Repack installers into MSIs'
         'MSIs': 'Signing of Repacked installers of MSIs'
@@ -51,13 +53,16 @@ release-promotion:
         promote_thunderbird:
             product: thunderbird
             target-tasks-method: promote_desktop
+            partial-updates: true
         push_thunderbird:
             product: thunderbird
             target-tasks-method: push_desktop
+            partial-updates: true
         ship_thunderbird:
             product: thunderbird
             target-tasks-method: ship_desktop
             version-bump: true
+            partial-updates: true
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'

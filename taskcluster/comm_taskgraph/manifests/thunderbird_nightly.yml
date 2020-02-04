@@ -391,6 +391,23 @@ mapping:
                 default:
                     - ${year}/${month}/${upload_date}-${branch}-l10n
                     - latest-${branch}-l10n
+    ${partial}:
+        <<: *default
+        description: "Partials MAR files to serve as updates"
+        all_locales: true
+        from:
+            - partials-signing
+        partials_only: true
+        pretty_name: thunderbird-${branch}-${version}-${filename_platform}-${locale}-${from_buildid}-${buildid}.partial.mar
+        checksums_path: thunderbird-${branch}-${version}-${filename_platform}-${locale}-${from_buildid}-${buildid}.partial.mar
+        update_balrog_manifest: true
+        from_buildid: ${from_buildid}
+        destinations:
+            by-locale:
+                en-US:
+                    - partials/${year}/${month}/${upload_date}-${branch}
+                default:
+                    - partials/${year}/${month}/${upload_date}-${branch}-l10n
     lightning.xpi:
         <<: *default
         description: "Lightning XPI (en-US only)"

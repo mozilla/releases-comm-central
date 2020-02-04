@@ -325,6 +325,19 @@ mapping:
         update_balrog_manifest: true
         destinations:
             - ${version}-candidates/build${build_number}/update/${path_platform}
+    ${partial}:
+        <<: *default
+        description: "Partials MAR files to serve as updates"
+        all_locales: true
+        from:
+            - partials-signing
+        partials_only: true
+        pretty_name: thunderbird-${previous_version}-${version}.partial.mar
+        checksums_path: update/${path_platform}/${locale}/thunderbird-${previous_version}-${version}.partial.mar
+        update_balrog_manifest: true
+        from_buildid: ${from_buildid}
+        destinations:
+            - ${version}-candidates/build${build_number}/update/${path_platform}
     lightning.xpi:
         <<: *default
         description: "Lightning XPI (en-US only)"
