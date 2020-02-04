@@ -3529,6 +3529,7 @@ function createRecipientLabel(labelID) {
   let label = document.createXULElement("label");
   label.setAttribute("id", labelID);
   label.setAttribute("value", labelID);
+  label.setAttribute("role", "button");
 
   label.addEventListener("click", () => {
     showAddressRow(label, `addressRow${labelID}`);

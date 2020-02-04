@@ -594,15 +594,15 @@
 <panel id="extraRecipientsPanel" type="arrow" orient="vertical"
        onkeypress="if (event.key == 'Enter') { this.hidePopup(); }"
        onclick="this.hidePopup();">
-  <label id="addr_reply" value="&replyAddr2.label;"
+  <label id="addr_reply" value="&replyAddr2.label;" role="button"
          onclick="showAddressRow(this, 'addressRowReply')"
          onkeypress="showAddressRowKeyPress(event, this, 'addressRowReply')"
          control="replyAddrInput" class="recipient-label"/>
-  <label id="addr_newsgroups" value="&newsgroupsAddr2.label;"
+  <label id="addr_newsgroups" value="&newsgroupsAddr2.label;" role="button"
          onclick="showAddressRow(this, 'addressRowNewsgroups')"
          onkeypress="showAddressRowKeyPress(event, this, 'addressRowNewsgroups')"
          control="newsgroupsAddrInput" class="news-label news-primary-label recipient-label"/>
-  <label id="addr_followup" value="&followupAddr2.label;"
+  <label id="addr_followup" value="&followupAddr2.label;" role="button"
          onclick="showAddressRow(this, 'addressRowFollowup')"
          onkeypress="showAddressRowKeyPress(event, this, 'addressRowFollowup')"
          control="followupAddrInput" class="news-label recipient-label"/>
@@ -2031,21 +2031,21 @@
             <hbox class="addressingWidgetItem">
               <hbox id="addressingWidgetLabels" class="address-extra-recipients"
                     flex="1" align="center">
-                <label id="addr_to" value="&toAddr2.label;"
+                <label id="addr_to" value="&toAddr2.label;" role="button"
                        onclick="showAddressRow(this, 'addressRowTo')"
                        onkeypress="showAddressRowKeyPress(event, this, 'addressRowTo')"
                        control="toAddrInput" class="mail-primary-label mail-label recipient-label"
                        collapsed="true"/>
-                <label id="addr_cc" value="&ccAddr2.label;"
+                <label id="addr_cc" value="&ccAddr2.label;" role="button"
                        onclick="showAddressRow(this, 'addressRowCc')"
                        onkeypress="showAddressRowKeyPress(event, this, 'addressRowCc')"
                        control="ccAddrInput" class="mail-label recipient-label"/>
-                <label id="addr_bcc" value="&bccAddr2.label;"
+                <label id="addr_bcc" value="&bccAddr2.label;" role="button"
                        onclick="showAddressRow(this, 'addressRowBcc')"
                        onkeypress="showAddressRowKeyPress(event, this, 'addressRowBcc')"
                        control="bccAddrInput" class="mail-label recipient-label"/>
 
-                <label id="extraRecipientsLabel"
+                <label id="extraRecipientsLabel" role="button"
                        onclick="showExtraRecipients(event);"
                        tooltiptext="&extraRecipients.tooltip;"
                        class="extra-recipients-label"
@@ -2061,7 +2061,7 @@
                                 class="recipients-container" flex="1">
             <hbox id="addressRowTo" class="addressingWidgetItem address-row">
               <hbox class="aw-firstColBox" align="top">
-                <label onclick="hideAddressRow(this, 'addr_to');"
+                <label role="button" onclick="hideAddressRow(this, 'addr_to');"
                        onkeypress="closeLabelKeyPress(event, this, 'addr_to');"
                        collapsed="true">
                   <image class="close-icon"/>
@@ -2099,7 +2099,7 @@
 
             <hbox id="addressRowCc" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
-                <label onclick="hideAddressRow(this, 'addr_cc');"
+                <label role="button" onclick="hideAddressRow(this, 'addr_cc');"
                        onkeypress="closeLabelKeyPress(event, this, 'addr_cc');">
                   <image class="close-icon"/>
                 </label>
@@ -2136,7 +2136,7 @@
 
             <hbox id="addressRowBcc" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
-                <label onclick="hideAddressRow(this, 'addr_bcc');"
+                <label role="button" onclick="hideAddressRow(this, 'addr_bcc');"
                        onkeypress="closeLabelKeyPress(event, this, 'addr_bcc');">
                   <image class="close-icon"/>
                 </label>
@@ -2173,7 +2173,7 @@
 
             <hbox id="addressRowReply" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
-                <label onclick="hideAddressRow(this, 'addr_reply');"
+                <label role="button" onclick="hideAddressRow(this, 'addr_reply');"
                        onkeypress="closeLabelKeyPress(event, this, 'addr_reply');">
                   <image class="close-icon"/>
                 </label>
@@ -2210,7 +2210,7 @@
 
             <hbox id="addressRowNewsgroups" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
-                <label onclick="hideAddressRow(this, 'addr_newsgroups');"
+                <label role="button" onclick="hideAddressRow(this, 'addr_newsgroups');"
                        onkeypress="closeLabelKeyPress(event, this, 'addr_newsgroups');">
                   <image class="close-icon"/>
                 </label>
@@ -2247,7 +2247,7 @@
 
             <hbox id="addressRowFollowup" class="addressingWidgetItem address-row hidden">
               <hbox class="aw-firstColBox" align="top">
-                <label onclick="hideAddressRow(this, 'addr_followup');"
+                <label role="button" onclick="hideAddressRow(this, 'addr_followup');"
                        onkeypress="closeLabelKeyPress(event, this, 'addr_followup');">
                   <image class="close-icon"/>
                 </label>

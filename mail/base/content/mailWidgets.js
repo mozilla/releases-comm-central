@@ -2096,6 +2096,7 @@
       firstLabel.addEventListener("keypress", event => {
         closeLabelKeyPress(event, firstLabel, labelId);
       });
+      firstLabel.setAttribute("role", "button");
       // Necessary to allow focus via TAB key.
       firstLabel.setAttribute("tabindex", 0);
 
