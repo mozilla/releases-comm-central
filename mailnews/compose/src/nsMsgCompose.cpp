@@ -66,6 +66,7 @@
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/ErrorResult.h"
+#include "mozilla/Telemetry.h"
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "mozilla/dom/Selection.h"
@@ -994,6 +995,12 @@ nsMsgCompose::Initialize(nsIMsgComposeParams *aParams,
 
   rv = composeService->DetermineComposeHTML(m_identity, format, &m_composeHTML);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  if (m_composeHTML) {
+    Telemetry::ScalarAdd(Telemetry::ScalarID::TB_COMPOSE_FORMAT_HTML, 1);
+  } else {
+    Telemetry::ScalarAdd(Telemetry::ScalarID::TB_COMPOSE_FORMAT_PLAIN_TEXT, 1);
+  }
 
   if (composeFields) {
     nsAutoCString draftId;  // will get set for drafts and templates
