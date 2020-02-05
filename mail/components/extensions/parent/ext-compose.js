@@ -158,22 +158,28 @@ var composeEventTracker = new (class extends EventEmitter {
     let msgType = event.detail;
     let composeWindow = event.target;
 
+    composeWindow.ToggleWindowLock(true);
+
     let results = await this.emit(
       "compose-before-send",
       getComposeState(composeWindow)
     );
-    if (results && results.length > 0) {
+    if (results) {
       for (let result of results) {
-        if (result) {
-          if (result.cancel) {
-            return;
-          }
-          if (result.details) {
-            setComposeState(composeWindow, result.details);
-          }
+        if (!result) {
+          continue;
+        }
+        if (result.cancel) {
+          composeWindow.ToggleWindowLock(false);
+          return;
+        }
+        if (result.details) {
+          setComposeState(composeWindow, result.details);
         }
       }
     }
+
+    composeWindow.ToggleWindowLock(false);
     composeWindow.CompleteGenericSendMessage(msgType);
   }
 })();
