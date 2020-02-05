@@ -13,6 +13,7 @@ const PORT = 25;
 var daemon, localserver, server;
 
 add_task(async function setup() {
+  localAccountUtils.loadLocalMailAccount();
   server = setupServerDaemon();
   daemon = server._daemon;
   server.start();
@@ -46,7 +47,3 @@ add_task(async function cleanUp() {
   NetworkTestUtils.shutdownServers();
 });
 
-function run_test() {
-  localAccountUtils.loadLocalMailAccount();
-  run_next_test();
-}
