@@ -436,7 +436,7 @@ var MailMigrator = {
         }
       }
 
-      if (currentUIVersion < 18) {
+      if (currentUIVersion < 19) {
         // Clear socks proxy values if they were shared from http, to prevent
         // websocket breakage after bug 1577862 (see bug 1606679).
         if (
