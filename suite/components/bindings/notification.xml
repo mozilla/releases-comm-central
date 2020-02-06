@@ -539,27 +539,24 @@
             var mimetype;
             var pluginsPage;
             var pluginName = this._stringBundle.GetStringFromName("pluginInfo.unknownPlugin");
-            if (pluginElement instanceof HTMLAppletElement) {
-              mimetype = "application/x-java-vm";
+
+            if (pluginElement instanceof HTMLObjectElement) {
+              pluginsPage = pluginElement.codebase;
             } else {
-              if (pluginElement instanceof HTMLObjectElement) {
-                pluginsPage = pluginElement.codebase;
-              } else {
-                pluginsPage = pluginElement.getAttribute("pluginspage");
-                if (pluginsPage) {
-                  var doc = pluginElement.ownerDocument;
-                  pluginsPage = Services.io.newURI(pluginsPage,
-                                                   doc.characterSet,
-                                                   doc.documentURIObject).spec;
-                }
+              pluginsPage = pluginElement.getAttribute("pluginspage");
+              if (pluginsPage) {
+                var doc = pluginElement.ownerDocument;
+                pluginsPage = Services.io.newURI(pluginsPage,
+                                                 doc.characterSet,
+                                                 doc.documentURIObject).spec;
               }
+            }
 
-              mimetype = pluginElement.QueryInterface(Ci.nsIObjectLoadingContent)
-                                      .actualType;
+            mimetype = pluginElement.QueryInterface(Ci.nsIObjectLoadingContent)
+                                    .actualType;
 
-              if (!mimetype) {
-                mimetype = pluginElement.type;
-              }
+            if (!mimetype) {
+              mimetype = pluginElement.type;
             }
 
             var navMimeType = navigator.mimeTypes.namedItem(mimetype);
