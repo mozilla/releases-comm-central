@@ -239,7 +239,9 @@ add_task(async () => {
       await browser.addressBooks.delete(addressBook);
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "addressBooks", "messagesRead"] },
+    manifest: {
+      permissions: ["accountsRead", "addressBooks", "compose", "messagesRead"],
+    },
   });
 
   extension.onMessage("checkWindow", async expected => {

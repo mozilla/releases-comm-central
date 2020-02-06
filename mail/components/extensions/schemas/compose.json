@@ -1,5 +1,21 @@
 [
   {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "compose"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "namespace": "compose",
     "types": [
       {
@@ -100,6 +116,9 @@
         "name": "onBeforeSend",
         "type": "function",
         "description": "Fired when a message is about to be sent from the compose window.",
+        "permissions": [
+          "compose"
+        ],
         "parameters": [
           {
             "name": "details",
@@ -192,6 +211,9 @@
         "type": "function",
         "async": true,
         "description": "Fetches the current state of a compose window. Currently only a limited amount of information is available, more will be added in later versions.",
+        "permissions": [
+          "compose"
+        ],
         "parameters": [
           {
             "type": "integer",
@@ -205,6 +227,9 @@
         "type": "function",
         "async": true,
         "description": "Updates the compose window. Specify only fields that you want to change. Currently only the to/cc/bcc/replyTo/followupTo/newsgroups fields and the subject are implemented.",
+        "permissions": [
+          "compose"
+        ],
         "parameters": [
           {
             "type": "integer",

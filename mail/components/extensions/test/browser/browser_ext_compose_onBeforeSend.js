@@ -172,7 +172,7 @@ add_task(async () => {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    manifest: { permissions: ["accountsRead", "compose", "messagesRead"] },
   });
 
   // We can't allow sending to actually happen, this is a test. For every
