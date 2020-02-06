@@ -80,8 +80,6 @@ const TAB_EVENTS = ["TabOpen", "TabClose", "TabSelect", "TabShow", "TabHide"];
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 const {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-// debug.js adds NS_ASSERT. cf. bug 669196
-const {debug} = ChromeUtils.import("resource://gre/modules/debug.js");
 
 XPCOMUtils.defineLazyServiceGetter(this, "SecMan",
   "@mozilla.org/scriptsecuritymanager;1", "nsIScriptSecurityManager");
@@ -1476,8 +1474,8 @@ SessionStoreService.prototype = {
           // First Focus the window & tab we're having trouble with.
           aTab.ownerDocument.defaultView.focus();
           aTab.ownerDocument.defaultView.getBrowser().selectedTab = aTab;
-          NS_ASSERT(false, "SessionStore failed gathering complete history " +
-                           "for the focused window/tab. See bug 669196.");
+          debug("SessionStore failed gathering complete history " +
+                "for the focused window/tab. See bug 669196.");
           aTab.__SS_broken_history = true;
         }
       }
