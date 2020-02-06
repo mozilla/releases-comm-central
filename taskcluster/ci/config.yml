@@ -179,7 +179,7 @@ workers:
             os: none
             worker-type: succeed
         misc:
-            provisioner: gecko-t
+            provisioner: comm-t
             implementation: docker-worker
             os: linux
             worker-type: misc
