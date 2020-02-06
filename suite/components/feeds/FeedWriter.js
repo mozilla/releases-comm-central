@@ -1217,7 +1217,6 @@ FeedWriter.prototype = {
   classID: FEEDWRITER_CID,
   QueryInterface: XPCOMUtils.generateQI([ Ci.nsIDOMGlobalPropertyInitializer,
                                           Ci.nsIDOMEventListener,
-                                          Ci.nsINavHistoryObserver,
                                           Ci.nsIObserver])
 
 };
