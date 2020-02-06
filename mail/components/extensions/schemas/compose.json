@@ -39,8 +39,7 @@
             "type": "array",
             "items": {
               "$ref": "ComposeRecipient"
-            },
-            "optional": true
+            }
           }
         ]
       },
@@ -80,8 +79,7 @@
                 "items": {
                   "type": "string"
                 },
-                "description": "An array of newsgroup names.",
-                "optional": true
+                "description": "An array of newsgroup names."
               }
             ],
             "optional": true
