@@ -34,7 +34,7 @@ var gMigrateWizard = {
     wizard.title = props.formatStringFromName("migrationTitle", ["Lightning"]);
     desc.textContent = props.formatStringFromName("migrationDescription", ["Lightning"]);
 
-    migLOG("migrators: " + window.arguments.length);
+    console.debug("migrators: " + window.arguments.length);
     for (let migrator of window.arguments[0]) {
       let checkbox = document.createXULElement("checkbox");
       checkbox.setAttribute("checked", true);
@@ -86,7 +86,7 @@ var gMigrateWizard = {
 
         // Increment i to point to the next migrator
         i++;
-        migLOG("starting migrator: " + mig.title);
+        console.debug("starting migrator: " + mig.title);
         label.value = props.formatStringFromName("migratingApp", [mig.title]);
         meter.value = ((i - 1) / migrators.length) * 100;
         mig.args.push(getNextMigrator);
@@ -94,12 +94,12 @@ var gMigrateWizard = {
         try {
           mig.migrate(...mig.args);
         } catch (e) {
-          migLOG("Failed to migrate: " + mig.title);
-          migLOG(e);
+          console.debug("Failed to migrate: " + mig.title);
+          console.debug(e);
           getNextMigrator();
         }
       } else {
-        migLOG("migration done");
+        console.debug("migration done");
         wizard.canAdvance = true;
         label.value = props.GetStringFromName("finished");
         meter.value = 100;
@@ -164,13 +164,13 @@ var gDataMigrator = {
     if (Services.appinfo.ID == FIREFOX_UID) {
       this.mIsInFirefox = true;
       // We can't handle Firefox Lightning yet
-      migLOG("Holy cow, you're Firefox-Lightning! sorry, can't help.");
+      console.debug("Holy cow, you're Firefox-Lightning! sorry, can't help.");
       return;
     }
 
     this.mPlatform = Services.appinfo.OS.toLowerCase();
 
-    migLOG("mPlatform is: " + this.mPlatform);
+    console.debug("mPlatform is: " + this.mPlatform);
 
     let DMs = [];
     let migrators = [this.checkEvolution, this.checkWindowsMail, this.checkIcal];
@@ -186,7 +186,7 @@ var gDataMigrator = {
       // No migration available
       return;
     }
-    migLOG("DMs: " + DMs.length);
+    console.debug("DMs: " + DMs.length);
 
     let url = "chrome://calendar/content/calendar-migration-dialog.xhtml";
     if (AppConstants.platform == "macosx") {
@@ -271,11 +271,11 @@ var gDataMigrator = {
         calManager.registerCalendar(calendar);
         cal.view.getCompositeCalendar(window).addCalendar(calendar);
       }
-      migLOG("icalMig making callback");
+      console.debug("icalMig making callback");
       aCallback();
     }
 
-    migLOG("Checking for ical data");
+    console.debug("Checking for ical data");
     let profileDir = this.dirService.get("ProfD", Ci.nsIFile);
     let icalSpec = profileDir.path;
     let diverge = icalSpec.indexOf("Thunderbird");
@@ -303,7 +303,7 @@ var gDataMigrator = {
     function evoMigrate(aDataDir, aCallback) {
       let i = 1;
       let evoDataMigrate = function(dataStore) {
-        migLOG("Migrating evolution data file in " + dataStore.path);
+        console.debug("Migrating evolution data file in " + dataStore.path);
         if (dataStore.exists()) {
           let calendar = gDataMigrator.importICSToStorage(dataStore);
           calendar.name = "Evolution " + i++;
@@ -440,19 +440,3 @@ var gDataMigrator = {
     return calendar;
   },
 };
-
-/**
- * logs to system and error console, depending on the calendar.migration.log
- * preference.
- *
- * XXX Use log4moz instead.
- *
- * @param aString   The string to log
- */
-function migLOG(aString) {
-  if (!Services.prefs.getBoolPref("calendar.migration.log", false)) {
-    return;
-  }
-  Services.console.logStringMessage(aString);
-  dump(aString + "\n");
-}
