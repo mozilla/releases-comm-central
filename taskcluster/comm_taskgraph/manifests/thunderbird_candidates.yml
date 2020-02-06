@@ -338,15 +338,3 @@ mapping:
         from_buildid: ${from_buildid}
         destinations:
             - ${version}-candidates/build${build_number}/update/${path_platform}
-    lightning.xpi:
-        <<: *default
-        description: "Lightning XPI (en-US only)"
-        all_locales: false  # Uses default_locale only
-        from:
-            - build
-        only_for_platforms:
-            - linux64-shippable
-        pretty_name: lightning.${locale}.xpi
-        checksums_path: lightning.${locale}.xpi
-        destinations:
-            - ${version}-candidates/build${build_number}

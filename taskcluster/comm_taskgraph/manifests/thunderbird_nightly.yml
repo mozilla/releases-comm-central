@@ -408,17 +408,3 @@ mapping:
                     - partials/${year}/${month}/${upload_date}-${branch}
                 default:
                     - partials/${year}/${month}/${upload_date}-${branch}-l10n
-    lightning.xpi:
-        <<: *default
-        description: "Lightning XPI (en-US only)"
-        all_locales: false  # Uses default_locale only
-        from:
-            - build
-        only_for_platforms:
-            - linux64-shippable
-        pretty_name: lightning.${locale}.xpi
-        checksums_path: lightning.${locale}.xpi
-        destinations:
-            - ${year}/${month}/${upload_date}-${branch}
-            - latest-${branch}
-            - latest-${branch}-l10n
