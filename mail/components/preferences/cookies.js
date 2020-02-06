@@ -530,13 +530,9 @@ var gCookiesWindow = {
     var hostCount = { value: 0 };
     this._hosts = {};
     this._hostOrder = [];
-    for (let cookie of Services.cookies.enumerator) {
-      if (cookie && cookie instanceof Ci.nsICookie) {
-        var strippedHost = this._makeStrippedHost(cookie.host);
-        this._addCookie(strippedHost, cookie, hostCount);
-      } else {
-        break;
-      }
+    for (let cookie of Services.cookies.cookies) {
+      var strippedHost = this._makeStrippedHost(cookie.host);
+      this._addCookie(strippedHost, cookie, hostCount);
     }
     this._view._rowCount = hostCount.value;
   },
