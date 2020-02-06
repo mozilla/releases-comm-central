@@ -2288,9 +2288,9 @@
             // autoscroll the tab strip if we drag over the scroll buttons,
             // even if we aren't dragging a tab
             var pixelsToScroll = 0;
-            var tabStrip = this.mTabContainer.arrowScrollbox;
+            var tabStrip = this.tabContainer.arrowScrollbox;
             var ltr = window.getComputedStyle(this, null).direction == "ltr";
-            if (this.mTabContainer.getAttribute("overflow") == "true") {
+            if (this.tabContainer.getAttribute("overflow") == "true") {
               var targetAnonid = aEvent.originalTarget.getAttribute("anonid");
               switch (targetAnonid) {
                 case "scrollbutton-up":
