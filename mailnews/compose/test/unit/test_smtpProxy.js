@@ -46,4 +46,3 @@ add_task(async function sendMessage() {
 add_task(async function cleanUp() {
   NetworkTestUtils.shutdownServers();
 });
-
