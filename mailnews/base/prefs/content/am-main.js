@@ -48,7 +48,7 @@ function manageIdentities() {
   var identity = gAccount.defaultIdentity;
   saveIdentitySettings(identity);
 
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "am-identities-list.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",

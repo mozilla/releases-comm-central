@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals MozElements */
-// imStatusSelector.js
 /* globals statusSelector */
+/* globals MsgAccountManager */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { fixIterator } = ChromeUtils.import(
@@ -376,18 +376,7 @@ var gAccountManager = {
       }
     }
 
-    let win = Services.wm.getMostRecentWindow("mailnews:accountmanager");
-    if (win) {
-      win.focus();
-      win.selectServer(server);
-    } else {
-      window.openDialog(
-        "chrome://messenger/content/AccountManager.xhtml",
-        "AccountManager",
-        "chrome,centerscreen,modal,titlebar,resizable",
-        { server, selectPage: null }
-      );
-    }
+    MsgAccountManager(null, server);
   },
   autologin() {
     var elt = this.accountList.selectedItem;

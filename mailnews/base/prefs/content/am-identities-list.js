@@ -86,7 +86,7 @@ function openIdentityEditor(identity) {
     ? gIdentityListBox.selectedIndex
     : gIdentityListBox.itemCount;
 
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "am-identity-edit.xhtml",
     "",
     "chrome,modal,resizable,centerscreen",
@@ -211,4 +211,5 @@ function onDelete(event) {
 
 function onOk() {
   window.arguments[0].result = true;
+  window.dispatchEvent(new CustomEvent("prefchange"));
 }

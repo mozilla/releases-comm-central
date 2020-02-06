@@ -32,6 +32,10 @@ var { MailServices } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+var { mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
 add_task(function setupModule(module) {
@@ -84,8 +88,8 @@ registerCleanupFunction(function teardownModule(module) {
  * pane switches.
  */
 add_task(function test_account_dot_IDs() {
-  open_advanced_settings(function(amc) {
-    subtest_check_account_dot_IDs(amc);
+  open_advanced_settings(function(tab) {
+    subtest_check_account_dot_IDs(tab);
   });
 });
 
@@ -94,41 +98,43 @@ add_task(function test_account_dot_IDs() {
  * of the element contains multiple dots (not used in standard TB yet
  * but extensions may want it).
  *
- * @param amc  the account options controller
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_check_account_dot_IDs(amc) {
+function subtest_check_account_dot_IDs(tab) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-server.xhtml",
-    amc
+    tab
   );
-  click_account_tree_row(amc, accountRow);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.e("contentFrame").contentDocument;
+  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
   // Check whether a standard element with "server.loginAtStartUp" stores its
   // value properly.
   let loginCheck = iframe.getElementById("server.loginAtStartUp");
   Assert.ok(!loginCheck.checked);
-  amc.check(new elib.Elem(loginCheck), true);
+  mc.check(new elib.Elem(loginCheck), true);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = amc.e("contentFrame").contentDocument;
+  iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   // Check by element properties.
   loginCheck = iframe.getElementById("server.loginAtStartUp");
   Assert.ok(loginCheck.checked);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
-  let rawCheckValue = amc.window.getAccountValue(
+  let rawCheckValue = tab.browser.contentWindow.getAccountValue(
     gPopAccount,
-    amc.window.getValueArrayFor(gPopAccount),
+    tab.browser.contentWindow.getValueArrayFor(gPopAccount),
     "server",
     "loginAtStartUp",
     null,
@@ -138,9 +144,9 @@ function subtest_check_account_dot_IDs(amc) {
   Assert.ok(rawCheckValue);
 
   // The "server.login.At.StartUp" value does not exist yet, so the value should be 'null'.
-  rawCheckValue = amc.window.getAccountValue(
+  rawCheckValue = tab.browser.contentWindow.getAccountValue(
     gPopAccount,
-    amc.window.getValueArrayFor(gPopAccount),
+    tab.browser.contentWindow.getValueArrayFor(gPopAccount),
     "server",
     "login.At.StartUp",
     null,
@@ -151,18 +157,18 @@ function subtest_check_account_dot_IDs(amc) {
   // Change the ID so that "server.login.At.StartUp" exists now.
   loginCheck.id = "server.login.At.StartUp";
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
   // We can't check by element property here, because the am-server.xhtml pane was
   // reloaded and the element now has the original ID of "server.loginAtStartUp".
-  rawCheckValue = amc.window.getAccountValue(
+  rawCheckValue = tab.browser.contentWindow.getAccountValue(
     gPopAccount,
-    amc.window.getValueArrayFor(gPopAccount),
+    tab.browser.contentWindow.getValueArrayFor(gPopAccount),
     "server",
     "login.At.StartUp",
     null,
@@ -177,12 +183,12 @@ function subtest_check_account_dot_IDs(amc) {
  * Check if form controls are properly disabled when their attached prefs are locked.
  */
 add_task(function test_account_locked_prefs() {
-  open_advanced_settings(function(amc) {
-    subtest_check_locked_prefs_addressing(amc);
+  open_advanced_settings(function(tab) {
+    subtest_check_locked_prefs_addressing(tab);
   });
 
-  open_advanced_settings(function(amc) {
-    subtest_check_locked_prefs_server(amc);
+  open_advanced_settings(function(tab) {
+    subtest_check_locked_prefs_server(tab);
   });
 });
 
@@ -190,17 +196,18 @@ add_task(function test_account_locked_prefs() {
  * Check that the LDAP server selection elements (radio group) are properly
  * disabled when their attached pref (prefstring attribute) is locked.
  *
- * @param amc  the account options controller
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_check_locked_prefs_addressing(amc) {
+function subtest_check_locked_prefs_addressing(tab) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-addressing.xhtml",
-    amc
+    tab
   );
-  click_account_tree_row(amc, accountRow);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.e("contentFrame").contentDocument;
+  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   // By default, 'use global LDAP server preferences' is set, not the
   // 'different LDAP server'.
@@ -217,7 +224,7 @@ function subtest_check_locked_prefs_addressing(amc) {
 
   // Now toggle the 'different LDAP server' on. The server selector
   // and edit button should enable.
-  amc.radio(new elib.Elem(useLDAPdirectory));
+  mc.radio(new elib.Elem(useLDAPdirectory));
   Assert.ok(!LDAPdirectory.disabled);
   Assert.ok(!LDAPeditButton.disabled);
 
@@ -231,19 +238,20 @@ function subtest_check_locked_prefs_addressing(amc) {
   Services.prefs.lockPref(controlPref);
 
   // Refresh the pane by switching to another one.
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
   accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-addressing.xhtml",
-    amc
+    tab
   );
-  click_account_tree_row(amc, accountRow);
+  click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = amc.e("contentFrame").contentDocument;
+  iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   // We are now back and the 'different LDAP server' should still be selected
   // (the setting was saved).
@@ -268,17 +276,18 @@ function subtest_check_locked_prefs_addressing(amc) {
  * checkboxes + textbox) are properly disabled when their attached pref
  * (prefstring attribute) is locked.
  *
- * @param amc  the account options controller
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_check_locked_prefs_server(amc) {
+function subtest_check_locked_prefs_server(tab) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-server.xhtml",
-    amc
+    tab
   );
-  click_account_tree_row(amc, accountRow);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.e("contentFrame").contentDocument;
+  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   // Top level leaveOnServer checkbox, disabled by default.
   let leaveOnServer = iframe.getElementById("pop3.leaveMessagesOnServer");
@@ -295,13 +304,13 @@ function subtest_check_locked_prefs_server(amc) {
   Assert.ok(daysToLeave.disabled);
 
   // When leaveOnServer is checked, only deleteByAge will get enabled.
-  amc.check(new elib.Elem(leaveOnServer), true);
+  mc.check(new elib.Elem(leaveOnServer), true);
   Assert.ok(leaveOnServer.checked);
   Assert.ok(!deleteByAge.disabled);
   Assert.ok(daysToLeave.disabled);
 
   // When deleteByAge is checked, daysToLeave will get enabled.
-  amc.check(new elib.Elem(deleteByAge), true);
+  mc.check(new elib.Elem(deleteByAge), true);
   Assert.ok(deleteByAge.checked);
   Assert.ok(!daysToLeave.disabled);
 
@@ -315,15 +324,16 @@ function subtest_check_locked_prefs_server(amc) {
   Services.prefs.lockPref(controlPref);
 
   // Refresh the pane by switching to another one.
-  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = amc.e("contentFrame").contentDocument;
+  iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   // Now leaveOnServer was preserved as checked.
   leaveOnServer = iframe.getElementById("pop3.leaveMessagesOnServer");
@@ -341,7 +351,7 @@ function subtest_check_locked_prefs_server(amc) {
 
   // When leaveOnserver is unchecked, both of deleteByAge and daysToLeave
   // should get disabled.
-  amc.check(new elib.Elem(leaveOnServer), false);
+  mc.check(new elib.Elem(leaveOnServer), false);
   Assert.ok(!leaveOnServer.disabled);
   Assert.ok(!leaveOnServer.checked);
 
@@ -361,22 +371,23 @@ function subtest_check_locked_prefs_server(amc) {
  * even when empty. This is tested on the Reply-To field.
  */
 add_task(function test_replyTo_leak() {
-  open_advanced_settings(function(amc) {
-    subtest_check_replyTo_leak(amc);
+  open_advanced_settings(function(tab) {
+    subtest_check_replyTo_leak(tab);
   });
 });
 
 /**
- * @param amc  the account options controller
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_check_replyTo_leak(amc) {
-  let accountRow = get_account_tree_row(gPopAccount.key, null, amc);
-  click_account_tree_row(amc, accountRow);
+function subtest_check_replyTo_leak(tab) {
+  let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.window.document.getElementById("contentFrame");
+  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   // The Reply-To field should be empty.
-  let replyAddress = iframe.contentDocument.getElementById("identity.replyTo");
+  let replyAddress = iframe.getElementById("identity.replyTo");
   Assert.equal(replyAddress.value, "");
 
   // Now we set a value into it and switch to another account, the main pane.
@@ -391,11 +402,11 @@ function subtest_check_replyTo_leak(amc) {
   );
   let firstAccount = MailServices.accounts.FindAccountForServer(firstServer);
 
-  accountRow = get_account_tree_row(firstAccount.key, null, amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(firstAccount.key, null, tab);
+  click_account_tree_row(tab, accountRow);
 
   // the Reply-To field should be empty as this account does not have it set.
-  replyAddress = iframe.contentDocument.getElementById("identity.replyTo");
+  replyAddress = iframe.getElementById("identity.replyTo");
   Assert.equal(replyAddress.value, "");
 }
 
@@ -404,25 +415,26 @@ function subtest_check_replyTo_leak(amc) {
  * Check if onchange handlers are properly executed when panes are switched.
  */
 add_task(function test_account_onchange_handler() {
-  open_advanced_settings(function(amc) {
-    subtest_check_onchange_handler(amc);
+  open_advanced_settings(function(tab) {
+    subtest_check_onchange_handler(tab);
   });
 });
 
 /**
  * Check if onchange handlers are properly executed when panes are switched.
  *
- * @param amc  the account options controller
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_check_onchange_handler(amc) {
+function subtest_check_onchange_handler(tab) {
   let accountRow = get_account_tree_row(
     gImapAccount.key,
     "am-offline.xhtml",
-    amc
+    tab
   );
-  click_account_tree_row(amc, accountRow);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.e("contentFrame").contentDocument;
+  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   let autoSync = iframe.getElementById("autosyncValue");
   // 30 is the default value so check if we are in clean state.
@@ -433,18 +445,19 @@ function subtest_check_onchange_handler(amc) {
   Assert.equal(autoSyncInterval.value, 1);
 
   // Now type in 35 (days).
-  amc.radio(new elib.ID(iframe, "useAutosync.ByAge"));
+  mc.radio(new elib.ID(iframe, "useAutosync.ByAge"));
   autoSync.select();
-  amc.type(new elib.Elem(autoSync), "35");
+  mc.type(new elib.Elem(autoSync), "35");
 
   // Immediately switch to another pane and back.
-  accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  iframe = amc.e("contentFrame").contentDocument;
+  iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   // The pane optimized the entered value a bit. So now we should find 5.
   autoSync = iframe.getElementById("autosyncValue");

@@ -35,7 +35,7 @@ var PORT_NUMBERS_TO_TEST = [
 
 var gTestNumber;
 
-function subtest_check_set_port_number(amc, aDontSet) {
+function subtest_check_set_port_number(tab, dontSet) {
   // This test expects the following POP account to exist by default
   // with port number 110 and no security.
   let server = MailServices.accounts.FindServer(
@@ -45,10 +45,12 @@ function subtest_check_set_port_number(amc, aDontSet) {
   );
   let account = MailServices.accounts.FindAccountForServer(server);
 
-  let accountRow = get_account_tree_row(account.key, "am-server.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.window.document.getElementById("contentFrame");
+  let iframe = tab.browser.contentWindow.document.getElementById(
+    "contentFrame"
+  );
   let portElem = iframe.contentDocument.getElementById("server.port");
   portElem.focus();
 
@@ -61,22 +63,16 @@ function subtest_check_set_port_number(amc, aDontSet) {
     );
   }
 
-  if (!aDontSet) {
-    delete_all_existing(amc, new elib.Elem(portElem));
-    input_value(amc, PORT_NUMBERS_TO_TEST[gTestNumber]);
+  if (!dontSet) {
+    delete_all_existing(mc, new elib.Elem(portElem));
+    input_value(mc, PORT_NUMBERS_TO_TEST[gTestNumber]);
 
     mc.sleep(0);
   }
-
-  mc.click(
-    new elib.Elem(
-      amc.window.document.getElementById("accountManager").getButton("accept")
-    )
-  );
 }
 
-function subtest_check_port_number(amc) {
-  subtest_check_set_port_number(amc, true);
+function subtest_check_port_number(tab) {
+  subtest_check_set_port_number(tab, true);
 }
 
 add_task(function test_account_port_setting() {

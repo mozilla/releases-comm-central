@@ -300,7 +300,7 @@ function openSubscriptionsDialog(aFolder) {
 
     subscriptionsWindow.focus();
   } else {
-    window.openDialog(
+    window.docShell.rootTreeItem.domWindow.openDialog(
       "chrome://messenger-newsblog/content/feed-subscriptions.xhtml",
       "",
       "centerscreen,chrome,dialog=no,resizable",

@@ -47,11 +47,9 @@ var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
 
-document.addEventListener("dialogcancel", onNotAccept);
-document.addEventListener("dialogaccept", event => {
-  if (!onAccept(true)) {
-    event.preventDefault();
-  }
+document.addEventListener("prefchange", event => {
+  onAccept(true);
+  event.stopPropagation();
 });
 
 // If Local directory has changed the app needs to restart. Once this is set
@@ -134,16 +132,12 @@ function updateElementWithKeys(account, element, type) {
 // called when the whole document loads
 // perform initialization here
 function onLoad() {
-  var selectedServer;
-  var selectPage = null;
+  let selectedServer = document.documentElement.server;
+  let selectPage = document.documentElement.selectPage || null;
 
   // Arguments can have two properties: (1) "server," the nsIMsgIncomingServer
   // to select initially and (2) "selectPage," the page for that server to that
   // should be selected.
-  if ("arguments" in window && window.arguments[0]) {
-    selectedServer = window.arguments[0].server;
-    selectPage = window.arguments[0].selectPage;
-  }
 
   accountArray = {};
   gGenericAttributeTypes = {};
@@ -152,9 +146,23 @@ function onLoad() {
 
   setTimeout(selectServer, 0, selectedServer, selectPage);
 
-  // Make sure the account manager window fits the screen.
-  document.getElementById("accountManager").style.maxHeight =
-    window.screen.availHeight - 30 + "px";
+  let contentFrame = document.getElementById("contentFrame");
+  contentFrame.addEventListener("load", event => {
+    let inputElements = contentFrame.contentDocument.querySelectorAll(
+      "checkbox, input, menulist, textarea, radiogroup, richlistbox"
+    );
+    for (let input of inputElements) {
+      if (input.localName == "input" || input.localName == "textarea") {
+        input.addEventListener("change", event => {
+          onAccept(true);
+        });
+      } else {
+        input.addEventListener("command", event => {
+          onAccept(true);
+        });
+      }
+    }
+  });
 }
 
 function onUnload() {
@@ -912,7 +920,7 @@ function onRemoveAccount(event) {
     result: false,
   };
 
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "chrome://messenger/content/removeAccount.xhtml",
     "removeAccount",
     "chrome,titlebar,modal,centerscreen,resizable=no",

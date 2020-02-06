@@ -36,6 +36,7 @@ function onAcceptArchiveOptions() {
   gIdentity.archiveKeepFolderStructure = document.getElementById(
     "archiveKeepFolderStructure"
   ).checked;
+  window.dispatchEvent(new CustomEvent("prefchange"));
 }
 
 /**

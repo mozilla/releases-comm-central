@@ -40,6 +40,10 @@ AboutRedirector.prototype = {
       url: "chrome://messenger/content/policies/aboutPolicies.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
+    accountsettings: {
+      url: "chrome://messenger/content/AccountManager.xhtml",
+      flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
+    },
   },
 
   /**

@@ -58,12 +58,12 @@ registerCleanupFunction(function teardownModule(module) {
 });
 
 add_task(function test_account_data_deletion() {
-  open_advanced_settings(function(amc) {
-    subtest_account_data_deletion1(amc);
+  open_advanced_settings(function(tab) {
+    subtest_account_data_deletion1(tab);
   });
 
-  open_advanced_settings(function(amc) {
-    subtest_account_data_deletion2(amc);
+  open_advanced_settings(function(tab) {
+    subtest_account_data_deletion2(tab);
   });
 });
 
@@ -71,9 +71,9 @@ add_task(function test_account_data_deletion() {
  * Bug 274452
  * Check if files of an account are preserved.
  *
- * @param amc  The account options controller.
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_account_data_deletion1(amc) {
+function subtest_account_data_deletion1(tab) {
   let accountDir = gPopAccount.incomingServer.localPath;
   Assert.ok(accountDir.isDirectory());
 
@@ -82,7 +82,7 @@ function subtest_account_data_deletion1(amc) {
   inboxFile.append("Inbox.msf");
   Assert.ok(inboxFile.isFile());
 
-  remove_account(gPopAccount, amc, true, false);
+  remove_account(gPopAccount, tab, true, false);
   gPopAccount = null;
   Assert.ok(accountDir.exists());
 }
@@ -91,9 +91,9 @@ function subtest_account_data_deletion1(amc) {
  * Bug 274452
  * Check if files of an account can be deleted.
  *
- * @param amc  The account options controller.
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_account_data_deletion2(amc) {
+function subtest_account_data_deletion2(tab) {
   let accountDir = gImapAccount.incomingServer.localPath;
   Assert.ok(accountDir.isDirectory());
 
@@ -102,7 +102,7 @@ function subtest_account_data_deletion2(amc) {
   inboxFile.append("INBOX.msf");
   Assert.ok(inboxFile.isFile());
 
-  remove_account(gImapAccount, amc, true, true);
+  remove_account(gImapAccount, tab, true, true);
   gImapAccount = null;
   Assert.ok(!accountDir.exists());
 }

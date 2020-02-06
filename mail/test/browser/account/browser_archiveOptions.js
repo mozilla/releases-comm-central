@@ -45,15 +45,17 @@ add_task(function setupModule(module) {
 /**
  * Check that the archive options button is enabled or disabled appropriately.
  *
- * @param amc          the account options controller
- * @param aAccountKey  key of the account the check
- * @param isEnabled    true if the button should be enabled, false otherwise
+ * @param {Object} tab - The account manager tab.
+ * @param {Number} accountKey - Key of the account the check.
+ * @param {boolean} isEnabled - True if the button should be enabled, false otherwise.
  */
-function subtest_check_archive_options_enabled(amc, aAccountKey, isEnabled) {
-  let accountRow = get_account_tree_row(aAccountKey, "am-copies.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+function subtest_check_archive_options_enabled(tab, accountKey, isEnabled) {
+  let accountRow = get_account_tree_row(accountKey, "am-copies.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let iframe = amc.window.document.getElementById("contentFrame");
+  let iframe = tab.browser.contentWindow.document.getElementById(
+    "contentFrame"
+  );
   let button = iframe.contentDocument.getElementById("archiveHierarchyButton");
 
   Assert.equal(button.disabled, !isEnabled);
@@ -82,19 +84,19 @@ add_task(function test_archive_options_enabled() {
   defaultIdentity.archiveFolder = imapServer.rootFolder.URI;
 
   imapServer.isGMailServer = false;
-  open_advanced_settings(function(amc) {
-    subtest_check_archive_options_enabled(amc, account.key, true);
+  open_advanced_settings(function(tab) {
+    subtest_check_archive_options_enabled(tab, account.key, true);
   });
-  open_advanced_settings(function(amc) {
-    subtest_check_archive_options_enabled(amc, defaultAccount.key, true);
+  open_advanced_settings(function(tab) {
+    subtest_check_archive_options_enabled(tab, defaultAccount.key, true);
   });
 
   imapServer.isGMailServer = true;
-  open_advanced_settings(function(amc) {
-    subtest_check_archive_options_enabled(amc, account.key, false);
+  open_advanced_settings(function(tab) {
+    subtest_check_archive_options_enabled(tab, account.key, false);
   });
-  open_advanced_settings(function(amc) {
-    subtest_check_archive_options_enabled(amc, defaultAccount.key, false);
+  open_advanced_settings(function(tab) {
+    subtest_check_archive_options_enabled(tab, defaultAccount.key, false);
   });
 
   MailServices.accounts.removeAccount(account);
@@ -155,12 +157,14 @@ add_task(function test_save_archive_options() {
   Assert.equal(defaultIdentity.archiveKeepFolderStructure, true);
 });
 
-function subtest_check_archive_enabled(amc, archiveEnabled) {
+function subtest_check_archive_enabled(tab, archiveEnabled) {
   defaultIdentity.archiveEnabled = archiveEnabled;
 
-  click_account_tree_row(amc, 2);
+  click_account_tree_row(tab, 2);
 
-  let iframe = amc.window.document.getElementById("contentFrame");
+  let iframe = tab.browser.contentWindow.document.getElementById(
+    "contentFrame"
+  );
   let checkbox = iframe.contentDocument.getElementById(
     "identity.archiveEnabled"
   );
@@ -178,25 +182,24 @@ add_task(function test_archive_enabled() {
   });
 });
 
-function subtest_disable_archive(amc) {
+function subtest_disable_archive(tab) {
   defaultIdentity.archiveEnabled = true;
-  click_account_tree_row(amc, 2);
+  click_account_tree_row(tab, 2);
 
-  let iframe = amc.window.document.getElementById("contentFrame");
+  let iframe = tab.browser.contentWindow.document.getElementById(
+    "contentFrame"
+  );
   let checkbox = iframe.contentDocument.getElementById(
     "identity.archiveEnabled"
   );
 
   Assert.ok(checkbox.checked);
   Assert.ok(!checkbox.disabled);
-  amc.click(new elib.Elem(checkbox));
+  mc.click(new elib.Elem(checkbox));
   utils.waitFor(
     () => !checkbox.checked,
     "Archive checkbox didn't toggle to unchecked"
   );
-  plan_for_window_close(amc);
-  amc.window.document.getElementById("accountManager").acceptDialog();
-  wait_for_window_close();
 
   Assert.ok(!defaultIdentity.archiveEnabled);
 }

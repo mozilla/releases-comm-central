@@ -22,17 +22,6 @@ function onLoadIdentityProperties() {
   gAccount = window.arguments[0].account;
   let prefBundle = document.getElementById("bundle_prefs");
 
-  // Make the dialog the same height and 90% of the width of the main Account
-  // manager page when the Account manager is not maximized.
-  let accountDialog = Services.wm.getMostRecentWindow("mailnews:accountmanager")
-    .document;
-  if (accountDialog.documentElement.getAttribute("sizemode") != "maximized") {
-    document.getElementById("identityDialog").style.width =
-      accountDialog.getElementById("accountManager").clientWidth * 0.9 + "px";
-    document.getElementById("identityDialog").style.height =
-      accountDialog.getElementById("accountManager").clientHeight + "px";
-  }
-
   if (gIdentity) {
     let listName = gIdentity.identityName;
     document.title = prefBundle.getFormattedString("identityDialogTitleEdit", [
@@ -212,6 +201,7 @@ function onOk(event) {
   saveAddressingAndCompositionSettings(gIdentity);
 
   window.arguments[0].result = true;
+  window.dispatchEvent(new CustomEvent("prefchange"));
 }
 
 // returns false and prompts the user if
@@ -442,7 +432,7 @@ function editVCard() {
   var escapedVCard = document.getElementById("identity.escapedVCard");
 
   // read vCard hidden value from UI
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",

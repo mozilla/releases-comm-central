@@ -10,12 +10,9 @@
 <window windowtype="mailnews:accountmanager"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&accountManagerTitle.label;"
-        style="&accountManager.size;"
         persist="width height screenX screenY"
         onload="onLoad(event);"
         onunload="onUnload();">
-<dialog id="accountManager"
-        buttons="accept,cancel">
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
 <script src="chrome://messenger/content/accountUtils.js"/>
@@ -90,5 +87,4 @@
 
     <iframe id="contentFrame" name="contentFrame" flex="1"/>
   </hbox>
-</dialog>
 </window>

@@ -258,7 +258,7 @@ function accountNameExists(aAccountName, aAccountKey) {
 function editSMTPServer(aServer) {
   let args = { server: aServer, result: false, addSmtpServer: "" };
 
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "chrome://messenger/content/SmtpServerEdit.xhtml",
     "smtpEdit",
     "chrome,titlebar,modal,centerscreen",

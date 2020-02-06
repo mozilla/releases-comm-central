@@ -71,7 +71,7 @@ function showMailIntegrationDialog() {
       shellService.shouldCheckDefaultClient &&
       !shellService.isDefaultClient(true, appTypesCheck)
     ) {
-      window.openDialog(
+      window.docShell.rootTreeItem.domWindow.openDialog(
         "chrome://communicator/content/defaultClientDialog.xhtml",
         "DefaultClient",
         "modal,centerscreen,chrome,resizable=no"
@@ -199,7 +199,7 @@ function MsgAccountWizard(wizardCallback) {
 function msgOpenAccountWizard(wizardCallback, type) {
   gNewAccountToLoad = null;
 
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "chrome://messenger/content/AccountWizard.xhtml",
     "AccountWizard",
     "chrome,modal,titlebar,centerscreen",
@@ -248,7 +248,7 @@ function AddMailAccount() {
 }
 
 function AddIMAccount() {
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "chrome://messenger/content/chat/imAccountWizard.xhtml",
     "",
     "chrome,modal,titlebar,centerscreen"
@@ -256,7 +256,7 @@ function AddIMAccount() {
 }
 
 function AddFeedAccount() {
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "chrome://messenger-newsblog/content/feedAccountWizard.xhtml",
     "",
     "chrome,modal,titlebar,centerscreen"
@@ -274,38 +274,33 @@ function AddFeedAccount() {
  * @param  aServer    The server of the account to select. Optional.
  */
 function MsgAccountManager(selectPage, aServer) {
-  var existingAccountManager = Services.wm.getMostRecentWindow(
-    "mailnews:accountmanager"
-  );
-
-  if (existingAccountManager) {
-    existingAccountManager.focus();
-  } else {
-    if (!aServer) {
-      if (typeof window.GetSelectedMsgFolders === "function") {
-        let folders = window.GetSelectedMsgFolders();
-        if (folders.length > 0) {
-          aServer = folders[0].server;
-        }
-      }
-      if (
-        !aServer &&
-        typeof window.GetDefaultAccountRootFolder === "function"
-      ) {
-        let folder = window.GetDefaultAccountRootFolder();
-        if (folder instanceof Ci.nsIMsgFolder) {
-          aServer = folder.server;
-        }
+  if (!aServer) {
+    if (typeof window.GetSelectedMsgFolders === "function") {
+      let folders = window.GetSelectedMsgFolders();
+      if (folders.length > 0) {
+        aServer = folders[0].server;
       }
     }
-
-    window.openDialog(
-      "chrome://messenger/content/AccountManager.xhtml",
-      "AccountManager",
-      "chrome,centerscreen,modal,titlebar,resizable",
-      { server: aServer, selectPage }
-    );
+    if (!aServer && typeof window.GetDefaultAccountRootFolder === "function") {
+      let folder = window.GetDefaultAccountRootFolder();
+      if (folder instanceof Ci.nsIMsgFolder) {
+        aServer = folder.server;
+      }
+    }
   }
+  let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  let onLoad = function(event, browser) {
+    browser.contentDocument.documentElement.server = aServer;
+    browser.contentDocument.documentElement.selectPage = selectPage;
+  };
+  mailWindow.focus();
+  mailWindow.document.getElementById("tabmail").openTab("contentTab", {
+    contentPage: "about:accountsettings",
+    clickHandler: "specialTabs.aboutClickHandler(event);",
+    server: aServer,
+    selectPage,
+    onLoad,
+  });
 }
 
 function loadInboxForNewAccount() {
@@ -474,7 +469,7 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
   // accountProvisioner.xhtml isn't throwing errors or warnings, that's due
   // to bug 688273.  Just make the window non-modal to get those errors and
   // warnings back, and then clear this comment when bug 688273 is closed.
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml",
     "AccountCreation",
     windowParams,
@@ -502,7 +497,7 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
     existingWindow.focus();
   } else if (AppConstants.MOZ_APP_NAME == "thunderbird") {
     // disabling modal for the time being, see 688273 REMOVEME
-    window.openDialog(
+    window.docShell.rootTreeItem.domWindow.openDialog(
       "chrome://messenger/content/accountcreation/emailWizard.xhtml",
       "AccountSetup",
       "chrome,titlebar,centerscreen,resizable",

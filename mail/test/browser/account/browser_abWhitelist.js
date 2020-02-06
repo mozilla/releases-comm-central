@@ -13,6 +13,9 @@ var controller = ChromeUtils.import(
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
+var { mc } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
 
 var {
   click_account_tree_row,
@@ -53,17 +56,21 @@ registerCleanupFunction(function teardownModule(module) {
   Services.prefs.setCharPref(gKeyString, gOldWhiteList);
 });
 
-/* First, test that when we initially load the account manager, that
+/**
+ * First, test that when we initially load the account manager, that
  * we're not whitelisting any address books.  Then, we'll check all
  * address books and save.
+ *
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_check_whitelist_init_and_save(amc) {
+function subtest_check_whitelist_init_and_save(tab) {
   // Ok, the advanced settings window is open.  Let's choose
   // the junkmail settings.
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let doc = amc.window.document.getElementById("contentFrame").contentDocument;
+  let doc = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
 
   // At this point, we shouldn't have anything checked, but we should have
   // the two default address books (Personal and Collected) displayed
@@ -77,22 +84,23 @@ function subtest_check_whitelist_init_and_save(amc) {
   // Now we'll check both address books
   for (let i = 0; i < list.getRowCount(); i++) {
     let abNode = list.getItemAtIndex(i);
-    amc.click(new elib.Elem(abNode.firstElementChild));
+    mc.click(new elib.Elem(abNode.firstElementChild));
   }
-
-  // And close the dialog
-  amc.window.document.getElementById("accountManager").acceptDialog();
 }
 
-/* Next, we'll make sure that the address books we checked in
+/**
+ * Next, we'll make sure that the address books we checked in
  * subtest_check_whitelist_init_and_save were properly saved.
  * Then, we'll clear the address books and save.
+ *
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_check_whitelist_load_and_clear(amc) {
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+function subtest_check_whitelist_load_and_clear(tab) {
+  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let doc = amc.window.document.getElementById("contentFrame").contentDocument;
+  let doc = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
   let list = doc.getElementById("whiteListAbURI");
   let whiteListURIs = Services.prefs.getCharPref(gKeyString).split(" ");
 
@@ -107,21 +115,21 @@ function subtest_check_whitelist_load_and_clear(amc) {
     // prefs
     Assert.ok(whiteListURIs.includes(abNode.getAttribute("value")));
     // Now un-check that address book
-    amc.click(new elib.Elem(abNode.firstElementChild));
+    mc.click(new elib.Elem(abNode.firstElementChild));
   }
-
-  // And close the dialog
-  amc.window.document.getElementById("accountManager").acceptDialog();
 }
 
-/* Finally, we'll make sure that the address books we cleared
+/**
+ * Finally, we'll make sure that the address books we cleared
  * were actually cleared.
+ * @param {Object} tab - The account manager tab.
  */
-function subtest_check_whitelist_load_cleared(amc) {
-  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", amc);
-  click_account_tree_row(amc, accountRow);
+function subtest_check_whitelist_load_cleared(tab) {
+  let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
+  click_account_tree_row(tab, accountRow);
 
-  let doc = amc.window.document.getElementById("contentFrame").contentDocument;
+  let doc = tab.browser.contentWindow.document.getElementById("contentFrame")
+    .contentDocument;
   let list = doc.getElementById("whiteListAbURI");
   let whiteListURIs = "";
 
@@ -145,9 +153,6 @@ function subtest_check_whitelist_load_cleared(amc) {
     // prefs
     Assert.ok(!whiteListURIs.includes(abNode.getAttribute("value")));
   }
-
-  // And close the dialog
-  amc.window.document.getElementById("accountManager").acceptDialog();
 }
 
 add_task(function test_address_book_whitelist() {

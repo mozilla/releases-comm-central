@@ -494,7 +494,7 @@ function openCertManager() {
   if (lastCertManager) {
     lastCertManager.focus();
   } else {
-    window.openDialog(
+    window.docShell.rootTreeItem.domWindow.openDialog(
       "chrome://pippki/content/certManager.xhtml",
       "",
       "centerscreen,resizable=yes,dialog=no"
@@ -511,7 +511,7 @@ function openDeviceManager() {
   if (lastCertManager) {
     lastCertManager.focus();
   } else {
-    window.openDialog(
+    window.docShell.rootTreeItem.domWindow.openDialog(
       "chrome://pippki/content/device_manager.xhtml",
       "",
       "centerscreen,resizable=yes,dialog=no"
@@ -522,4 +522,5 @@ function openDeviceManager() {
 function smimeOnLoadEditor() {
   smimeInitializeFields();
   document.addEventListener("dialogaccept", smimeOnAcceptEditor);
+  window.dispatchEvent(new CustomEvent("prefchange"));
 }

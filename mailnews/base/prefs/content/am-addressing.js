@@ -22,7 +22,7 @@ function onInitCompositionAndAddressing() {
 }
 
 function onEditDirectories() {
-  window.openDialog(
+  window.docShell.rootTreeItem.domWindow.openDialog(
     "chrome://messenger/content/addressbook/pref-editdirectories.xhtml",
     "editDirectories",
     "chrome,modal=yes,resizable=no",
