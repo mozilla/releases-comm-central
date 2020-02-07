@@ -23,6 +23,13 @@ Services.prefs.setIntPref(
   AddonManager.SCOPE_PROFILE + AddonManager.SCOPE_USER
 );
 
+// Make Cu.isInAutomation true.
+Services.prefs.setBoolPref(
+  "security.turn_off_all_security_so_that_viruses_can_take_over_this_computer",
+  true
+);
+Services.prefs.setIntPref("extensions.sideloadScopes", AddonManager.SCOPE_ALL);
+
 BootstrapMonitor.init();
 
 createAppInfo("xpcshell@tests.mozilla.org", "XPCShell", "1", "1.9.2");
