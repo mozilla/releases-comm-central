@@ -8,6 +8,7 @@ transforms:
     - taskgraph.transforms.name_sanity:transforms
     - taskgraph.transforms.partials:transforms
     - taskgraph.transforms.task:transforms
+    - comm_taskgraph.transforms.partials:transforms
 
 kind-dependencies:
     - repackage
