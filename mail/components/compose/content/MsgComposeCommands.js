@@ -49,6 +49,14 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
+var { Localization } = ChromeUtils.import(
+  "resource://gre/modules/Localization.jsm"
+);
+var l10n = new Localization(
+  ["messenger/messengercompose/messengercompose.ftl"],
+  true
+);
+
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(
   this,
@@ -3458,6 +3466,7 @@ function ComposeLoad() {
 
   updateAttachmentPane();
   attachmentBucketMarkEmptyBucket();
+  updateStringsOfAddressingFields();
 }
 
 function ComposeUnload() {
@@ -3517,6 +3526,33 @@ function SetDocumentCharacterSet(aCharset) {
   } else {
     dump("Compose has not been created!\n");
   }
+}
+
+/**
+ * Update the translatable string of every recipient row
+ * with the properly formatted values.
+ */
+function updateStringsOfAddressingFields() {
+  for (let row of document.querySelectorAll(".address-row")) {
+    udpateAddressingInputAriaLabel(row);
+  }
+}
+
+/**
+ * Update the aria-label of the autocomplete input field.
+ *
+ * @param {Element} row - The recipient address-row.
+ */
+function udpateAddressingInputAriaLabel(row) {
+  let type = row.querySelector(".address-label-container > label").value;
+  let count = row.querySelectorAll("mail-address-pill").length;
+  let input = row.querySelector(
+    `input[is="autocomplete-input"][recipienttype]`
+  );
+  input.setAttribute(
+    "aria-label",
+    l10n.formatValueSync("address-input-type", { type, count })
+  );
 }
 
 /**

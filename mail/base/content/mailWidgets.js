@@ -2143,7 +2143,6 @@
       input.setAttribute("id", recipient.id);
 
       input.setAttribute("type", "text");
-      input.setAttribute("aria-labelledby", recipient.labelId);
       input.classList.add("plain", "address-input", recipient.class);
       input.setAttribute("disableonsend", true);
       input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
@@ -2486,6 +2485,7 @@
 
       onRecipientsChanged();
       calculateHeaderHeight();
+      udpateAddressingInputAriaLabel(rowInput.closest(".address-row"));
     }
 
     /**

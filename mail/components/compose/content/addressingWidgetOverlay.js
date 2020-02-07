@@ -349,6 +349,8 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
     container.classList.add("hidden");
     document.getElementById(recipientType).removeAttribute("collapsed");
   }
+
+  udpateAddressingInputAriaLabel(element.closest(".address-row"));
 }
 
 /**
@@ -400,6 +402,7 @@ function awAddRecipientsArray(aRecipientType, aAddressArray) {
   // Add the recipients to our spell check ignore list.
   addRecipientsToIgnoreList(aAddressArray.join(", "));
   calculateHeaderHeight();
+  udpateAddressingInputAriaLabel(element.closest(".address-row"));
 }
 
 function DragOverAddressingWidget(event) {
@@ -600,6 +603,7 @@ function recipientAddPill(element, automatic = false) {
 
   onRecipientsChanged(automatic);
   calculateHeaderHeight();
+  udpateAddressingInputAriaLabel(element.closest(".address-row"));
 }
 
 /**
@@ -612,6 +616,7 @@ function recipientClearPills(element) {
   for (let pill of container.querySelectorAll("mail-address-pill")) {
     pill.remove();
   }
+  udpateAddressingInputAriaLabel(element.closest(".address-row"));
 }
 
 /**
@@ -795,6 +800,7 @@ function hideAddressRow(element, labelID) {
   // Update the sender button only if pills were deleted.
   onRecipientsChanged(!pills.length);
   updateRecipientsPanelVisibility();
+  udpateAddressingInputAriaLabel(container);
 
   // Move focus to the next focusable autocomplete input field.
   if (
