@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "open_compose_new_mail",
   "open_compose_with_reply",
   "open_compose_with_reply_to_all",

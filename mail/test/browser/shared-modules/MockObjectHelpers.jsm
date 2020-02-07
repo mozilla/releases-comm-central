@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = ["MockObjectReplacer", "MockObjectRegisterer"];
+const EXPORTED_SYMBOLS = ["MockObjectReplacer", "MockObjectRegisterer"];
 
 var Cm = Components.manager;
 

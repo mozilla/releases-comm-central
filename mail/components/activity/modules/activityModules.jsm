@@ -6,7 +6,7 @@
 // This module is designed to be a central place to initialise activity related
 // modules.
 
-this.EXPORTED_SYMBOLS = [];
+const EXPORTED_SYMBOLS = [];
 
 const { sendLaterModule } = ChromeUtils.import(
   "resource:///modules/activity/sendLater.jsm"

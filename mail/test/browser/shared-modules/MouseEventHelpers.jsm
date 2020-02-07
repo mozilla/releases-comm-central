@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "drag_n_drop_element",
   "synthesize_drag_start",
   "synthesize_drag_over",

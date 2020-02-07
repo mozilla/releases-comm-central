@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["alertHook"];
+const EXPORTED_SYMBOLS = ["alertHook"];
 
 var nsActWarning = Components.Constructor(
   "@mozilla.org/activity-warning;1",

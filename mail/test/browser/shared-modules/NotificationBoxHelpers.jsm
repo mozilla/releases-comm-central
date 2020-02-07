@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "check_notification_displayed",
   "assert_notification_displayed",
   "close_notification",

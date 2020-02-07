@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["autosyncModule"];
+const EXPORTED_SYMBOLS = ["autosyncModule"];
 
 var nsActProcess = Components.Constructor(
   "@mozilla.org/activity-process;1",

@@ -5,7 +5,7 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["MailConstants"];
+const EXPORTED_SYMBOLS = ["MailConstants"];
 
 // Immutable for export.
 var MailConstants = Object.freeze({

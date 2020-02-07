@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "assert_element_visible",
   "element_visible_recursive",
   "assert_element_not_visible",

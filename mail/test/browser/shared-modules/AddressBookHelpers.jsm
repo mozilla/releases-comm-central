@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "ensure_card_exists",
   "ensure_no_card_exists",
   "open_address_book_window",

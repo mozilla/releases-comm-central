@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "create_body_part",
   "create_deleted_attachment",
   "create_detached_attachment",

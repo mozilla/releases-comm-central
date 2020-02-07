@@ -8,7 +8,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = ["to_mime_message"];
+const EXPORTED_SYMBOLS = ["to_mime_message"];
 
 var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");

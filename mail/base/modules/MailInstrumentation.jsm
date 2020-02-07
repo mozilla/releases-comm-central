@@ -8,7 +8,7 @@
 
 /* :::::::: Constants and Helpers ::::::::::::::: */
 
-this.EXPORTED_SYMBOLS = ["MailInstrumentation"];
+const EXPORTED_SYMBOLS = ["MailInstrumentation"];
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 

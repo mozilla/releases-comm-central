@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "mark_selected_messages_as_junk",
   "delete_mail_marked_as_junk",
 ];

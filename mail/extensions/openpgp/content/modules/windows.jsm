@@ -6,7 +6,7 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailWindows"];
+const EXPORTED_SYMBOLS = ["EnigmailWindows"];
 
 const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
 const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;

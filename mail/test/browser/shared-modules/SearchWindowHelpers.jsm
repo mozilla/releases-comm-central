@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "open_search_window",
   "open_search_window_from_context_menu",
   "close_search_window",

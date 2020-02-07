@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "open_content_tab_with_url",
   "open_content_tab_with_click",
   "plan_for_content_tab_load",

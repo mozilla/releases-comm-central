@@ -2,7 +2,7 @@
 /* vim: set sts=2 sw=2 et tw=80: */
 "use strict";
 
-this.EXPORTED_SYMBOLS = ["ToolbarButtonAPI"];
+const EXPORTED_SYMBOLS = ["ToolbarButtonAPI"];
 
 ChromeUtils.defineModuleGetter(
   this,

@@ -8,7 +8,7 @@
  * An implementation of an HTTP server.
  */
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "HTTP_400",
   "HTTP_401",
   "HTTP_402",

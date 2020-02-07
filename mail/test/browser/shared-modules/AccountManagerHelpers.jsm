@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "open_advanced_settings",
   "open_mail_account_setup_wizard",
   "click_account_tree_row",

@@ -911,4 +911,4 @@ var RNP = {
 
 // exports
 
-this.EXPORTED_SYMBOLS = ["RNP"];
+const EXPORTED_SYMBOLS = ["RNP"];

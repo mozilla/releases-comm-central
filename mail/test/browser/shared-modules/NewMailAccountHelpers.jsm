@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "wait_for_provider_list_loaded",
   "wait_for_search_ready",
   "open_provisioner_window",

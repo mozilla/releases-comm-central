@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = ["schema"];
+const EXPORTED_SYMBOLS = ["schema"];
 
-this.schema =
+var schema =
 #include policies-schema.json

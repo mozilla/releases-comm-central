@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   // These are used by test-folder-display-helpers.js and shouldn't really be
   // exported, but it's convenient right now.
   "captureWindowStatesForErrorReporting",

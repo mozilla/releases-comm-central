@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = ["CustomizeDialogHelper"];
+const EXPORTED_SYMBOLS = ["CustomizeDialogHelper"];
 
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"

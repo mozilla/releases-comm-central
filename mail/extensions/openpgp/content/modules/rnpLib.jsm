@@ -856,4 +856,4 @@ function enableRNPLibJS() {
 
 // exports
 
-this.EXPORTED_SYMBOLS = ["RNPLibLoader"];
+const EXPORTED_SYMBOLS = ["RNPLibLoader"];

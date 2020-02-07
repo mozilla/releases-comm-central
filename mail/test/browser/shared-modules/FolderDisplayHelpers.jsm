@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "add_message_to_folder",
   "add_sets_to_folders",
   "add_to_toolbar",

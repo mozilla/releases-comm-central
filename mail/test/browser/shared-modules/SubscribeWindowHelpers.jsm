@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "open_subscribe_window_from_context_menu",
   "enter_text_in_search_box",
   "check_newsgroup_displayed",

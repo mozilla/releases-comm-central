@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "assert_quick_filter_button_enabled",
   "assert_quick_filter_bar_visible",
   "toggle_quick_filter_bar",

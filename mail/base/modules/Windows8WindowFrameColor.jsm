@@ -4,7 +4,7 @@
 
 "use strict";
 
-this.EXPORTED_SYMBOLS = ["Windows8WindowFrameColor"];
+const EXPORTED_SYMBOLS = ["Windows8WindowFrameColor"];
 
 const { WindowsRegistry } = ChromeUtils.import(
   "resource://gre/modules/WindowsRegistry.jsm"

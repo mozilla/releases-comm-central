@@ -2,8 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// This module is responsible for performing DNS queries using ctypes for
-// loading system DNS libraries on Linux, Mac and Windows.
+/**
+ * This module is responsible for performing DNS queries using ctypes for
+ * loading system DNS libraries on Linux, Mac and Windows.
+ */
+
+const EXPORTED_SYMBOLS = ["DNS"];
+
+var DNS = null;
 
 if (typeof Components !== "undefined") {
   var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
@@ -470,6 +476,5 @@ if (typeof Components === "undefined") {
       return this.lookup(aName, NS_T_MX);
     },
   };
-  this.DNS = dns_async_front;
-  this.EXPORTED_SYMBOLS = ["DNS"];
+  DNS = dns_async_front;
 }

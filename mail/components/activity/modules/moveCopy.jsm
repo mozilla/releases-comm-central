@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["moveCopyModule"];
+const EXPORTED_SYMBOLS = ["moveCopyModule"];
 
 var nsActEvent = Components.Constructor(
   "@mozilla.org/activity-event;1",
