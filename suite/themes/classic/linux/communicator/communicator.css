@@ -233,6 +233,26 @@ treecols:-moz-lwtheme {
 
 /* ::::: tree rows ::::: */
 
+/* ::::: dialog header ::::: */
+
+dialogheader {
+  margin: 0px 5px 5px 5px;
+  border: 1px solid;
+  border-top-color: ThreeDDarkShadow;
+  border-right-color: ThreeDDarkShadow;
+  border-bottom-color: ThreeDDarkShadow;
+  border-left-color: ThreeDDarkShadow;
+  padding: 5px 8px;
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+.dialogheader-title {
+  margin: 0px !important;
+  font-size: larger;
+  font-weight: bold;
+}
+
 /* ::::: statusbar ::::: */
 
 statusbar {

@@ -12,6 +12,7 @@ prefwindow {
   -moz-appearance: window;
   background-color: -moz-Dialog;
   color: -moz-DialogText;
+  font: message-box;
   padding-top: 8px;
   padding-bottom: 0px;
   padding-inline-start: 8px;
