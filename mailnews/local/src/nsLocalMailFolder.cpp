@@ -1322,11 +1322,14 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
   rv = srcFolder->GetURI(protocolType);
   protocolType.SetLength(protocolType.FindChar(':'));
 
-  bool needOfflineBody =
+  // If we're offline and the source folder is imap or news, to do the
+  // copy the message bodies MUST reside in offline storage.
+  bool needOfflineBodies =
       (WeAreOffline() && (MsgLowerCaseEqualsLiteral(protocolType, "imap") ||
                           MsgLowerCaseEqualsLiteral(protocolType, "news")));
   int64_t totalMsgSize = 0;
   uint32_t numMessages = 0;
+  bool allMsgsHaveOfflineStore = true;
   messages->GetLength(&numMessages);
   for (uint32_t i = 0; i < numMessages; i++) {
     nsCOMPtr<nsIMsgDBHdr> message(do_QueryElementAt(messages, i, &rv));
@@ -1340,15 +1343,20 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
       */
       totalMsgSize += msgSize + 200;
 
-      if (needOfflineBody) {
-        bool hasMsgOffline = false;
-        message->GetMessageKey(&key);
-        srcFolder->HasMsgOffline(key, &hasMsgOffline);
-        if (!hasMsgOffline) {
-          if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
-          ThrowAlertMsg("cantMoveMsgWOBodyOffline", msgWindow);
-          return OnCopyCompleted(srcSupport, false);
-        }
+      // Check if each source folder message has offline storage regardless
+      // of whether we're online or offline.
+      message->GetMessageKey(&key);
+      bool hasMsgOffline = false;
+      srcFolder->HasMsgOffline(key, &hasMsgOffline);
+      allMsgsHaveOfflineStore = allMsgsHaveOfflineStore && hasMsgOffline;
+
+      // If we're offline and not all messages are in offline storage, the copy
+      // or move can't occur and a notification for the user to download the
+      // messages is posted.
+      if (needOfflineBodies && !hasMsgOffline) {
+        if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
+        ThrowAlertMsg("cantMoveMsgWOBodyOffline", msgWindow);
+        return OnCopyCompleted(srcSupport, false);
       }
     }
   }
@@ -1466,9 +1474,13 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
     }
   }
 
-  if (numMsgs > 1 &&
-      ((MsgLowerCaseEqualsLiteral(protocolType, "imap") && !WeAreOffline()) ||
-       MsgLowerCaseEqualsLiteral(protocolType, "mailbox"))) {
+  if (numMsgs > 1 && ((MsgLowerCaseEqualsLiteral(protocolType, "imap") &&
+                       !allMsgsHaveOfflineStore) ||
+                      MsgLowerCaseEqualsLiteral(protocolType, "mailbox"))) {
+    // For an imap source folder with more than one message to be copied that
+    // are not all in offline storage, this fetches all the messages from the
+    // imap server to do the copy. When source folder is "mailbox", this is not
+    // a concern since source messages are in local storage.
     mCopyState->m_copyingMultipleMessages = true;
     rv = CopyMessagesTo(mCopyState->m_messages, keyArray, msgWindow, this,
                         isMove);
@@ -1477,6 +1489,8 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
       (void)OnCopyCompleted(srcSupport, false);
     }
   } else {
+    // This obtains the source messages from local/offline storage to do the
+    // copy. Note: CopyMessageTo() actually handles one or more messages.
     nsCOMPtr<nsISupports> msgSupport =
         do_QueryElementAt(mCopyState->m_messages, 0);
     if (msgSupport) {
