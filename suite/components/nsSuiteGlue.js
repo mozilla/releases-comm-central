@@ -204,6 +204,13 @@ SuiteGlue.prototype = {
           .loadFrameScript("chrome://navigator/content/content.js", true);
         ChromeUtils.import("resource://gre/modules/NotificationDB.jsm");
         break;
+      case "browser-delayed-startup-finished":
+         // Intended fallthrough.
+      case "mail-startup-done":
+        Services.obs.removeObserver(this, "browser-delayed-startup-finished");
+        Services.obs.removeObserver(this, "mail-startup-done");
+        this._onFirstWindowLoaded(subject);
+        break;
       case "sessionstore-windows-restored":
         this._onBrowserStartup(subject);
         break;
@@ -331,6 +338,8 @@ SuiteGlue.prototype = {
     Services.obs.addObserver(this, "profile-before-change", true);
     Services.obs.addObserver(this, "profile-after-change", true);
     Services.obs.addObserver(this, "final-ui-startup", true);
+    Services.obs.addObserver(this, "browser-delayed-startup-finished", true);
+    Services.obs.addObserver(this, "mail-startup-done", true);
     Services.obs.addObserver(this, "sessionstore-windows-restored", true);
     Services.obs.addObserver(this, "browser:purge-session-history", true);
     Services.obs.addObserver(this, "quit-application-requested", true);
@@ -583,10 +592,7 @@ SuiteGlue.prototype = {
   },
 
   // Browser startup complete. All initial windows have opened.
-  _onBrowserStartup: function(aWindow)
-  {
-    AutoCompletePopup.init();
-
+  _onBrowserStartup: function(aWindow) {
     if (Services.prefs.getBoolPref("plugins.update.notifyUser"))
       this._showPluginUpdatePage(aWindow);
 
@@ -612,14 +618,6 @@ SuiteGlue.prototype = {
     if (this._shouldShowRights())
       this._showRightsNotification(notifyBox);
 
-    if ("@mozilla.org/windows-taskbar;1" in Cc &&
-        Cc["@mozilla.org/windows-taskbar;1"]
-          .getService(Ci.nsIWinTaskbar).available) {
-      let temp = {};
-      ChromeUtils.import("resource:///modules/WindowsJumpLists.jsm", temp);
-      temp.WinTaskbarJumpList.startup();
-    }
-
     // Load the "more info" page for a locked places.sqlite
     // This property is set earlier by places-database-locked topic.
     if (this._isPlacesDatabaseLocked) {
@@ -631,6 +629,19 @@ SuiteGlue.prototype = {
       notifyBox.showUpdateWarning();
 
     this._checkForDefaultClient(aWindow);
+  },
+
+  // First mail or browser window loaded.
+  _onFirstWindowLoaded: function(aWindow) {
+    AutoCompletePopup.init();
+
+    if ("@mozilla.org/windows-taskbar;1" in Cc &&
+        Cc["@mozilla.org/windows-taskbar;1"]
+          .getService(Ci.nsIWinTaskbar).available) {
+      let temp = {};
+      ChromeUtils.import("resource:///modules/WindowsJumpLists.jsm", temp);
+      temp.WinTaskbarJumpList.startup();
+    }
 
     // Initialize the download manager after the app starts so that
     // auto-resume downloads begin (such as after crashing or quitting with
@@ -1259,7 +1270,8 @@ SuiteGlue.prototype = {
                         .createInstance(Ci.nsISupportsString);
       argString.data = "";
       gDownloadManager = Services.ww.openWindow(null, DOWNLOAD_MANAGER_URL,
-                                                null, "all,dialog=no",
+                                                null,
+                                                "all,dialog=no,non-private",
                                                 argString);
       gDownloadManager.addEventListener("load", function() {
         gDownloadManager.addEventListener("unload", function() {
