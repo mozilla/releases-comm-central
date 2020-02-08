@@ -23,20 +23,9 @@
   color: -moz-DialogText;
 }
 
-#table {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
-}
-
 .facet-more,
 .show-more {
   padding: 0;
-}
-
-.facet-more[needed="true"],
-.results-message-showall-button,
-.results-message-sort-bar {
-  font-size: x-small;
 }
 
 .barry {

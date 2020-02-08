@@ -81,45 +81,59 @@
       this.countNode = document.createElement("h2");
       this.countNode.classList.add("results-message-count");
 
-      const showallDiv = document.createElement("div");
-      showallDiv.classList.add("results-message-showall");
+      this.toggleTimeline = document.createElement("label");
+      this.toggleTimeline.setAttribute("id", "date-toggle");
+      this.toggleTimeline.setAttribute("role", "button");
+      this.toggleTimeline.setAttribute("tabindex", 0);
+      this.toggleTimeline.classList.add("gloda-timeline-button");
+      this.toggleTimeline.addEventListener("click", () => {
+        FacetContext.toggleTimeline();
+      });
+      this.toggleTimeline.addEventListener("keypress", event => {
+        if (event.charCode == KeyEvent.DOM_VK_SPACE) {
+          FacetContext.toggleTimeline();
+          event.preventDefault();
+        }
+      });
 
-      this.showNode = document.createElement("span");
-      this.showNode.classList.add("results-message-showall-button");
-      this.showNode.setAttribute("tabindex", "0");
-      this.showNode.setAttribute("role", "button");
-      this.showNode.onclick = () => {
-        FacetContext.showActiveSetInTab();
-      };
+      const timelineImage = document.createElement("img");
+      timelineImage.setAttribute(
+        "src",
+        "chrome://messenger/skin/icons/popular.svg"
+      );
+      this.toggleTimeline.appendChild(timelineImage);
+
+      this.toggleText = document.createElement("span");
+      this.toggleTimeline.appendChild(this.toggleText);
 
       const sortDiv = document.createElement("div");
       sortDiv.classList.add("results-message-sort-bar");
 
-      this.sortLabelNode = document.createElement("span");
-      this.sortLabelNode.classList.add("result-message-sort-label");
+      this.sortSelect = document.createElement("select");
 
-      this.sortRelevanceNode = document.createElement("span");
-      this.sortRelevanceNode.classList.add("results-message-sort-value");
-      this.sortRelevanceNode.setAttribute("tabindex", "0");
-      this.sortRelevanceNode.setAttribute("role", "button");
+      let revelanceItem = document.createElement("option");
+      revelanceItem.textContent = glodaFacetStrings.get(
+        "glodaFacetView.results.message.sort.relevance2"
+      );
+      revelanceItem.setAttribute("value", "-dascore");
+      revelanceItem.setAttribute("selected", true);
+      this.sortSelect.appendChild(revelanceItem);
 
-      this.sortDateNode = document.createElement("span");
-      this.sortDateNode.classList.add("results-message-sort-value");
-      this.sortDateNode.setAttribute("tabindex", "0");
-      this.sortDateNode.setAttribute("role", "button");
+      let dateItem = document.createElement("option");
+      dateItem.textContent = glodaFacetStrings.get(
+        "glodaFacetView.results.message.sort.date2"
+      );
+      dateItem.setAttribute("value", "-date");
+      this.sortSelect.appendChild(dateItem);
 
       this.messagesNode = document.createElement("div");
       this.messagesNode.classList.add("messages");
 
       header.appendChild(this.countNode);
-      header.appendChild(showallDiv);
+      header.appendChild(this.toggleTimeline);
       header.appendChild(sortDiv);
 
-      showallDiv.appendChild(this.showNode);
-
-      sortDiv.appendChild(this.sortLabelNode);
-      sortDiv.appendChild(this.sortRelevanceNode);
-      sortDiv.appendChild(this.sortDateNode);
+      sortDiv.appendChild(this.sortSelect);
 
       this.appendChild(header);
       this.appendChild(this.messagesNode);
@@ -155,61 +169,13 @@
         .replace("#1", topMessagesStr)
         .replace("#2", outOfStr);
 
-      const GlodaMessage = Gloda.lookupNounDef("message").clazz;
-      let visible = messages.some(m => m instanceof GlodaMessage);
-      this.showNode.style.display = visible ? "inline" : "none";
-      this.showNode.textContent = glodaFacetStrings.get(
-        "glodaFacetView.results.message.openEmailAsList.label"
-      );
-      this.showNode.setAttribute(
-        "title",
-        glodaFacetStrings.get(
-          "glodaFacetView.results.message.openEmailAsList.tooltip"
-        )
-      );
-      this.showNode.onkeypress = event => {
-        if (event.charCode == KeyEvent.DOM_VK_SPACE) {
-          FacetContext.showActiveSetInTab();
-          event.preventDefault();
-        }
-      };
-
-      this.sortLabelNode.textContent = glodaFacetStrings.get(
-        "glodaFacetView.results.message.sort.label"
+      this.toggleText.textContent = glodaFacetStrings.get(
+        "glodaFacetView.results.message.timeline.label"
       );
 
-      this.sortRelevanceNode.textContent = glodaFacetStrings.get(
-        "glodaFacetView.results.message.sort.relevance"
-      );
-
-      this.sortRelevanceNode.onclick = () => {
-        FacetContext.sortBy = "-dascore";
-        this.updateSortLabels();
-      };
-      this.sortRelevanceNode.onkeypress = event => {
-        if (event.charCode == KeyEvent.DOM_VK_SPACE) {
-          FacetContext.sortBy = "-dascore";
-          this.updateSortLabels();
-          event.preventDefault();
-        }
-      };
-
-      this.sortDateNode.textContent = glodaFacetStrings.get(
-        "glodaFacetView.results.message.sort.date"
-      );
-      this.sortDateNode.onclick = () => {
-        FacetContext.sortBy = "-date";
-        this.updateSortLabels();
-      };
-      this.sortDateNode.onkeypress = event => {
-        if (event.charCode == KeyEvent.DOM_VK_SPACE) {
-          FacetContext.sortBy = "-date";
-          this.updateSortLabels();
-          event.preventDefault();
-        }
-      };
-
-      this.updateSortLabels(FacetContext.sortBy);
+      this.sortSelect.addEventListener("change", () => {
+        FacetContext.sortBy = this.sortSelect.value;
+      });
 
       while (this.messagesNode.hasChildNodes()) {
         this.messagesNode.lastChild.remove();
@@ -221,22 +187,6 @@
           msgNode.message = message;
           msgNode.setAttribute("class", "message");
           this.messagesNode.appendChild(msgNode);
-        }
-      } catch (e) {
-        logException(e);
-      }
-    }
-
-    updateSortLabels() {
-      try {
-        let sortBy = FacetContext.sortBy;
-
-        if (sortBy == "-dascore") {
-          this.sortRelevanceNode.setAttribute("selected", "true");
-          this.sortDateNode.removeAttribute("selected");
-        } else if (sortBy == "-date") {
-          this.sortRelevanceNode.removeAttribute("selected");
-          this.sortDateNode.setAttribute("selected", "true");
         }
       } catch (e) {
         logException(e);
@@ -287,7 +237,7 @@
       this.bubble = document.createElement("span");
       this.bubble.classList.add("facet-checkbox-bubble");
 
-      this.checkbox = document.createXULElement("input");
+      this.checkbox = document.createElement("input");
       this.checkbox.setAttribute("type", "checkbox");
 
       this.labelNode = document.createElement("span");

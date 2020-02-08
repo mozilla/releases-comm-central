@@ -2,52 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://messenger/skin/");
+
+body,
 html {
-  height: 100%;
-}
-
-body {
-  padding: 0;
   margin: 0;
+  padding: 0;
   height: 100%;
 }
 
-#table {
-  display: table;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-#table>div {
-  display: table-row;
+#gloda-facet-view {
+  display: flex;
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+  min-height: 100%;
+  align-items: stretch;
 }
 
 .facets-sidebar {
-  display: table-cell;
   width: 20em;
   max-width: 20em;
   padding: 4px;
-  min-height: 100%;
   padding-inline-start: 1em;
-  font-size: 90%;
 }
 
 #main-column {
+  flex: 1;
   padding-inline-start: 1em;
-  display: table-cell;
 }
 
 #header {
-  position: relative;
-  max-width: 40em;
-  display: block;
+  max-width: 60em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2em;
 }
 
 #data-column {
   margin-top: 1em;
   margin-inline-end: 1em;
-  max-width: 40em;
+  max-width: 60em;
   display: flex;
   flex-direction: column;
 }
@@ -100,13 +95,14 @@ body {
 /* ===== Query Explanation ===== */
 
 #query-explanation {
-  display: block;
-  height: 40px;
-  font-size: 140% !important;
-  padding: 2px;
   padding-inline-start: 0;
-  padding-top: 1em;
-  padding-inline-end: 80px;
+  font-size: small;
+}
+
+.explanation-fulltext-label,
+.explanation-query-label {
+  font-size: medium;
+  font-weight: bold;
 }
 
 .explanation-fulltext-label,
@@ -117,11 +113,6 @@ body {
 .explanation-fulltext-criteria {
   color: GrayText;
   margin: 0 0.1em;
-}
-
-
-.explanation-query-label {
-  margin-top: 1ex;
 }
 
 .explanation-query-label,
@@ -136,11 +127,6 @@ h1, h2, h3 {
   cursor: default;
 }
 
-#filter-header-label {
-  margin: 0;
-  margin-top: 1em;
-}
-
 .facetious[uninitialized] {
   display: none !important;
 }
@@ -149,27 +135,6 @@ h1, h2, h3 {
   display: list-item; /* take the whole column width */
   list-style: none;
   padding: 2px;
-}
-
-h1 {
-  font-size: medium !important;
-  padding-bottom: 0.5em;
-}
-
-h2 {
-  display: block;
-  margin: 0;
-  font-size: 100%;
-  margin-top: 1em;
-  margin-bottom: 0.5em;
-}
-
-.facet > h3,
-.facet-content > h3 {
-  font-size: 90%;
-  padding-inline-start: 0;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
 }
 
 .facet-included-header[state="empty"],
@@ -199,37 +164,26 @@ h2 {
   padding-bottom: 1em;
 }
 
-#date-toggle {
-  position: absolute;
-  right: 1em;
-  bottom: 0;
-  margin: 5px;
-  font-size: 90%;
-  text-align: end;
-  display: none;
-  width: 46px !important;
-  height: 17px !important;
-  margin-inline-end: 2px;
-  margin-top: 2px;
-  padding: 4px;
-  background-image: url("chrome://messenger/skin/icons/timeline.svg");
-  background-position: center;
-  background-repeat: no-repeat;
-  border-radius: var(--borderRadius);
+.gloda-timeline-button {
+  -moz-appearance: button !important;
+  margin-inline-start: 8px;
   -moz-context-properties: fill;
-  fill: Highlight;
+  fill: currentColor;
 }
 
-html[dir="rtl"] #date-toggle {
-  right: auto;
-  left: 1em;
+.gloda-timeline-button > img {
+  width: 14px;
+  height: 10px;
+  margin-inline-end: 2px;
+  display: inline-block;
 }
 
-#date-toggle:hover {
-  background-color: Highlight;
-  fill: HighlightText;
+.gloda-timeline-button[checked="true"] {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+  border-radius: var(--borderRadius);
 }
-
 
 .facet-date-zoom-out {
   position: absolute;
@@ -286,7 +240,10 @@ html[dir="rtl"] .date-vis-frame {
   padding-inline-end: 6px;
   border-radius: var(--borderRadius);
   cursor: pointer;
-  font-size: 90%;
+}
+
+.facet-checkbox-bubble > input {
+  display: none;
 }
 
 facet-boolean[disabled] {
@@ -299,7 +256,9 @@ facet-boolean-filtered[disabled] > .facet-checkbox-bubble {
 }
 
 facet-boolean:not([disabled]):hover > .facet-checkbox-bubble,
-facet-boolean-filtered:not([disabled]):hover > .facet-checkbox-bubble {
+facet-boolean-filtered:not([disabled]):hover > .facet-checkbox-bubble,
+facet-boolean[checked="true"]:not([disabled]) > .facet-checkbox-bubble,
+facet-boolean-filtered[checked="true"]:not([disabled]) > .facet-checkbox-bubble {
   background-color: Highlight;
   color: HighlightText;
 }
@@ -345,16 +304,11 @@ facet-boolean-filtered:not([checked]) > .facet-filter-list {
   margin: 1px;
   margin-top: 0.5em;
   padding: 0.2em 1em;
-  font-size: 85%;
   cursor: pointer;
 }
 
 .facet-more[needed="true"] {
   display: inline-block;
-}
-
-.bar {
-  display: block;
 }
 
 html[dir="rtl"] .bar-count {
@@ -368,14 +322,8 @@ html[dir="rtl"] .bar-count {
 }
 
 .bar {
-  display: block;
   position: relative;
   cursor: pointer;
-  font-size: 80%;
-}
-
-.bar:hover {
-  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .bar[selected="true"] {
@@ -383,6 +331,7 @@ html[dir="rtl"] .bar-count {
   color: HighlightText;
 }
 
+.bar:hover,
 .bar:focus {
   background-color: Highlight;
   outline: none;
@@ -406,8 +355,8 @@ html[dir="rtl"] .bar-count {
 .bar-count {
   position: absolute;
   display: block;
-  right: 3px;
-  margin-inline-end: 1.5em;
+  right: 0;
+  margin-inline-end: 8px;
   line-height: 1.6em;
   color: GrayText;
 }
@@ -416,13 +365,13 @@ html[dir="rtl"] .bar-link {
   padding: 0.3em 0.5em 0.3em 2em;
 }
 
-.bar:hover > .bar-link {
-  color: GrayText;
-}
-
+.bar:hover > .bar-link,
+.bar:hover > .bar-count,
+.bar:focus > .bar-link,
 .bar:focus > .bar-count {
   color: HighlightText;
 }
+
 .bar[selected="true"]> .bar-link {
   color: HighlightText;
 }
@@ -434,50 +383,50 @@ html[dir="rtl"] .bar-link {
 
 .results-message-header {
   display: none; /* $('.results-message-header').show() is run if there are results */
-  width: 100%;
-  background-color: rgba(0,0,0,0.1);
-  border-top: 2px solid GrayText;
-  padding: 2px;
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+  padding: 4px 2px;
+  padding-inline-end: 0;
   margin-bottom: 0.5em;
 }
 
 #results[state="some"] .results-message-header {
-  display: table;
+  display: flex;
+  align-items: center;
 }
 
 .results-message-count {
-  display: table-cell;
+  font-weight: 600;
+  font-size: 1rem;
   margin: 0;
-  padding-inline-start: 2px;
-  font-weight: normal;
-  font-size: small;
-}
-
-.results-message-showall {
-  display: table-cell;
 }
 
 .results-message-showall-button {
-  padding: 0.2em 1em;
-  font-size: small;
-  border-radius: var(--borderRadius);
+  -moz-appearance: none !important;
+  color: -moz-NativehyperlinkText;
   cursor: pointer;
-  text-align: center;
+  padding: 4px;
+  border-radius: var(--borderRadius);
+  padding-inline-end: 20px;
+  margin-inline-end: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  background-image: url("chrome://messenger/skin/icons/new-window.svg");
+  background-position: right 4px center;
+  background-size: 11px;
+  background-repeat: no-repeat;
+  transition: all ease 140ms;
 }
 
 .results-message-showall-button:hover,
 .results-message-showall-button:focus {
-  background-color: var(--buttonHoverColor);
-  color: var(--buttonHoverTextColor);
-  text-decoration: none;
+  background-color: Highlight;
+  color: Highlighttext;
 }
 
-
 .results-message-sort-bar {
-  display: table-cell;
-  padding-inline-end: 2px;
-  text-align: end;
-  font-size: small;
+  flex: 1;
+  display: flex;
+  justify-content: end;
 }
 
 .results-message-sort-label {
