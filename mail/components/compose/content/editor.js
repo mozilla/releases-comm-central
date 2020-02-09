@@ -98,28 +98,13 @@ var nsIFilePicker = Ci.nsIFilePicker;
 var kUseCssPref = "editor.use_css";
 var kCRInParagraphsPref = "editor.CR_creates_new_p";
 
-const gSourceTextListener = {
-  NotifyDocumentCreated() {},
-  NotifyDocumentWillBeDestroyed() {},
-  NotifyDocumentStateChanged(isChanged) {
-    window.updateCommands("save");
-  },
-};
-
-const gSourceTextObserver = {
-  observe(aSubject, aTopic, aData) {
-    // we currently only use this to update undo
-    window.updateCommands("undo");
-  },
-};
-
 // This should be called by all editor users when they close their window.
 function EditorCleanup() {
   SwitchInsertCharToAnotherEditorOrClose();
 }
 
+/** @implements {nsIDocumentStateListener} */
 var DocumentReloadListener = {
-  NotifyDocumentCreated() {},
   NotifyDocumentWillBeDestroyed() {},
 
   NotifyDocumentStateChanged(isNowDirty) {

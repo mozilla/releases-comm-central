@@ -5245,10 +5245,6 @@ Enigmail.composeStateListener = {
         return this;
       },
 
-      NotifyDocumentCreated: function() {
-        EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: EDSL.NotifyDocumentCreated\n");
-      },
-
       NotifyDocumentWillBeDestroyed: function() {
         EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: EDSL.enigDocStateListener.NotifyDocumentWillBeDestroyed\n");
       },

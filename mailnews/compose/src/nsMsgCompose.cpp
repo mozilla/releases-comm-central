@@ -1580,8 +1580,6 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCompose::InitEditor(
     NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "SetForceCharacterSet() failed");
   }
 
-  // This is what used to be done in mDocumentListener,
-  //   nsMsgDocumentStateListener::NotifyDocumentCreated()
   bool quotingToFollow = false;
   GetQuotingToFollow(&quotingToFollow);
   if (quotingToFollow)
