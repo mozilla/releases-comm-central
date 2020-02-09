@@ -6,7 +6,6 @@
 EXTRA_JS_MODULES += [
     'ChromeManifest.jsm',
     'ExtensionSupport.jsm',
-    'Overlays.jsm',
 ]
 
 SOURCES += [

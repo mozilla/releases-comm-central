@@ -3973,25 +3973,6 @@ async function initAddonPrefsMenu(
         });
       }
     }
-    if (
-      ExtensionSupport.loadedLegacyExtensions.has(addon.id) ||
-      ExtensionSupport.loadedBootstrapExtensions.has(addon.id)
-    ) {
-      let webextension = ExtensionParent.GlobalManager.getExtension(addon.id);
-      let legacy = webextension.manifest.legacy;
-      if (
-        typeof legacy == "boolean" ||
-        !legacy.options ||
-        !legacy.options.page
-      ) {
-        continue;
-      }
-      addonsFound.push({
-        addon,
-        optionsURL: legacy.options.page,
-        optionsOpenInTab: legacy.options.open_in_tab,
-      });
-    }
   }
 
   // Populate the menu with addon names and icons.

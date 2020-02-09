@@ -14,9 +14,6 @@ const HTML_NS = "http://www.w3.org/1999/xhtml";
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { BrowserUtils } = ChromeUtils.import(
-  "resource://gre/modules/BrowserUtils.jsm"
-);
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
@@ -328,7 +325,6 @@ var gXPInstallObserver = {
       appName,
     ]);
 
-    let restartRequired = await this._installRequiresRestart(addon);
     let icon = DEFAULT_EXTENSION_ICON;
     if (addon.isWebExtension) {
       icon = AddonManager.getPreferredIconURL(addon, 32, window) || icon;
@@ -344,56 +340,21 @@ var gXPInstallObserver = {
     let list = document.getElementById("addon-installed-list");
     list.hidden = true;
 
-    this._showInstallNotification(browser, restartRequired, message, options);
+    this._showInstallNotification(browser, message, options);
   },
 
-  _showInstallNotification(browser, restartRequired, message, options) {
-    let document = getTopWindow().document;
-
-    let brandBundle = document.getElementById("bundle_brand");
-    let appName = brandBundle.getString("brandShortName");
-
-    let action;
-    let secondaryActions = null;
-    let textEl = document.getElementById("addon-installed-restart-text");
-    if (restartRequired) {
-      action = {
-        label: addonsBundle.getString("addonPostInstall.restart.label"),
-        accessKey: addonsBundle.getString("addonPostInstall.restart.accesskey"),
-        callback: () => {
-          BrowserUtils.restartApplication();
-        },
-      };
-      secondaryActions = [
-        {
-          label: addonsBundle.getString("addonPostInstall.noRestart.label"),
-          accessKey: addonsBundle.getString(
-            "addonPostInstall.noRestart.accesskey"
-          ),
-          callback: () => {},
-        },
-      ];
-      textEl.textContent = addonsBundle.getFormattedString(
-        "addonPostInstall.restartRequired.message",
-        [appName]
-      );
-      textEl.hidden = false;
-    } else {
-      action = {
-        label: addonsBundle.getString("addonPostInstall.okay.label"),
-        accessKey: addonsBundle.getString("addonPostInstall.okay.accesskey"),
-        callback: () => {},
-      };
-      textEl.hidden = true;
-    }
-
+  _showInstallNotification(browser, message, options) {
     showNotification(
       browser,
       "addon-installed",
       message,
       "addons-notification-icon",
-      action,
-      secondaryActions,
+      {
+        label: addonsBundle.getString("addonPostInstall.okay.label"),
+        accessKey: addonsBundle.getString("addonPostInstall.okay.accesskey"),
+        callback: () => {},
+      },
+      null,
       options
     );
   },
@@ -788,30 +749,6 @@ var gXPInstallObserver = {
     }
   },
 
-  async _installRequiresRestart(addon) {
-    if (!addon.isWebExtension) {
-      return false;
-    }
-
-    let data = new ExtensionData(addon.getResourceURI());
-    await data.loadManifest();
-
-    if (!data.manifest.legacy) {
-      return false;
-    }
-
-    switch (typeof data.manifest.legacy) {
-      case "boolean":
-        return data.manifest.legacy;
-      case "object":
-        return !(
-          data.manifest.legacy.type && data.manifest.legacy.type == "bootstrap"
-        );
-      default:
-        return false;
-    }
-  },
-
   async _checkForSideloaded(browser) {
     let sideloaded = await AddonManagerPrivate.getNewSideloads();
     if (sideloaded.length == 0) {
@@ -864,20 +801,11 @@ var gXPInstallObserver = {
     while (list.lastChild) {
       list.lastChild.remove();
     }
-    let textEl = document.getElementById("addon-installed-restart-text");
-    textEl.textContent = addonsBundle.getFormattedString(
-      "addonPostInstall.restartRequired.message",
-      [appName]
-    );
-    textEl.hidden = false;
 
-    let restartRequired = false;
     for (let addon of enabled) {
       let item = document.createElementNS(HTML_NS, "li");
       item.textContent = addon.name;
       list.appendChild(item);
-      restartRequired =
-        restartRequired || (await this._installRequiresRestart(addon));
     }
 
     let options = {
@@ -886,7 +814,7 @@ var gXPInstallObserver = {
       timeout: Date.now() + 30000,
     };
 
-    this._showInstallNotification(browser, restartRequired, message, options);
+    this._showInstallNotification(browser, message, options);
   },
 };
 
