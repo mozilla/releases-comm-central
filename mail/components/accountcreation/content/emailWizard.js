@@ -1481,8 +1481,6 @@ EmailConfigWizard.prototype = {
       // oauthsettings are not stored nor changeable in the user interface, so just
       // store them in the base configuration.
       this._currentConfig.oauthSettings = config.oauthSettings;
-    } else {
-      e("incoming_authMethod").value = 0; // Set to autodetect.
     }
 
     // outgoing server
@@ -1522,8 +1520,6 @@ EmailConfigWizard.prototype = {
       // oauthsettings are not stored nor changeable in the user interface, so just
       // store them in the base configuration.
       this._currentConfig.oauthSettings = config.oauthSettings;
-    } else {
-      e("outgoing_authMethod").value = 0; // Set to autodetect.
     }
 
     // populate fields even if existingServerKey, in case user changes back
