@@ -87,7 +87,12 @@ endif
 package-win32-installer: $(SUBMAKEFILES)
 	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen ZIP_IN='$(ZIP_OUT)' installer
 
+ifdef MOZ_ARTIFACT_BUILDS
+langpack:
+	@echo 'Skipping language pack creation'
+else
 langpack: langpack-$(AB_CD)
+endif
 
 # This is a generic target that will make a langpack, repack ZIP (+tarball)
 # builds, and repack an installer if applicable. It is called from the
