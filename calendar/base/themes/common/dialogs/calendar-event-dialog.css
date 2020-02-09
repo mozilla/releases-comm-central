@@ -42,7 +42,7 @@ window[systemcolors] > dialog {
  *-------------------------------------------------------------------*/
 
 #button-save {
-  list-style-image: url(chrome://calendar-common/skin/icons/save.svg);
+  list-style-image: url(chrome://messenger/skin/icons/save.svg);
 }
 
 #button-save[mode="send"] {
@@ -59,21 +59,21 @@ window[systemcolors] > dialog {
 }
 
 #button-attendees {
-  list-style-image: url(chrome://calendar-common/skin/icons/address.svg);
+  list-style-image: url(chrome://messenger/skin/icons/address.svg);
 }
 
 #button-privacy {
-  list-style-image: url(chrome://calendar-common/skin/icons/security.svg);
+  list-style-image: url(chrome://messenger/skin/icons/security.svg);
 }
 
 #button-url {
-  list-style-image: url(chrome://calendar-common/skin/icons/attach.svg);
+  list-style-image: url(chrome://messenger/skin/icons/attach.svg);
 }
 
 #deleteButton,
 #button-delete.cal-event-toolbarbutton {
   /* !important to override the SM #button-delete states */
-  list-style-image: url(chrome://calendar-common/skin/icons/delete.svg) !important;
+  list-style-image: url(chrome://messenger/skin/icons/delete.svg) !important;
   -moz-image-region: auto !important;
 }
 

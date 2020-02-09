@@ -37,7 +37,7 @@
 
 #calendar-delete-button,
 #task-delete-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/delete.svg);
+    list-style-image: url(chrome://messenger/skin/icons/delete.svg);
 }
 
 #calendar-goto-today-button {
@@ -46,7 +46,7 @@
 
 #calendar-print-button,
 #task-print-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/print.svg);
+    list-style-image: url(chrome://messenger/skin/icons/print.svg);
 }
 
 #calendar-unifinder-button {

@@ -217,7 +217,7 @@
 }
 
 #calendar-delete-task-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/delete.svg);
+    list-style-image: url(chrome://messenger/skin/icons/delete.svg);
 }
 
 .input-container {
