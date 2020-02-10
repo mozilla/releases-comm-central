@@ -238,7 +238,10 @@ this.messages = class extends ExtensionAPI {
           if (queryInfo.tags) {
             validTags = MailServices.tags
               .getAllTags()
-              .filter(tag => tag.key in queryInfo.tags.tags && queryInfo.tags.tags[tag.key]);
+              .filter(
+                tag =>
+                  tag.key in queryInfo.tags.tags && queryInfo.tags.tags[tag.key]
+              );
             if (validTags.length === 0) {
               // No messages will match this. Just return immediately.
               return messageListTracker.startList([], context.extension);

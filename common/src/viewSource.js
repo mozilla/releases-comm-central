@@ -50,9 +50,7 @@ var viewSourceChrome = {
         charset = "Shift_JIS";
       }
       gBrowser.characterSet = charset;
-      gBrowser.reloadWithFlags(
-        Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE
-      );
+      gBrowser.reloadWithFlags(Ci.nsIWebNavigation.LOAD_FLAGS_CHARSET_CHANGE);
     }
   },
 
