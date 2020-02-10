@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url(chrome://calendar-common/skin/calendar-task-tree.css);
+@import url(chrome://calendar/skin/shared/calendar-task-tree.css);
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
 .calendar-task-tree-col-completed {
-    list-style-image: url(chrome://calendar-common/skin/checkbox-images.png);
+    list-style-image: url(chrome://calendar/skin/shared/checkbox-images.png);
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, completed),

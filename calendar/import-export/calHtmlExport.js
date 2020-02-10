@@ -29,7 +29,7 @@ calHtmlExporter.prototype = {
   },
 
   exportToStream: function(aStream, aItems, aTitle) {
-    let document = cal.xml.parseFile("chrome://calendar-common/skin/printing/calHtmlExport.html");
+    let document = cal.xml.parseFile("chrome://calendar/skin/shared/printing/calHtmlExport.html");
     let itemContainer = document.getElementById("item-container");
     document.getElementById("title").textContent = aTitle || cal.l10n.getCalString("HTMLTitle");
 

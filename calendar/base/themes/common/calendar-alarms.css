@@ -11,15 +11,15 @@
 }
 
 .reminder-icon[value="DISPLAY"] {
-    list-style-image: url(chrome://calendar-common/skin/icons/alarm.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/alarm.svg);
 }
 
 .alarm-icons-box[suppressed="true"] > .reminder-icon[value="DISPLAY"] {
-    list-style-image: url(chrome://calendar-common/skin/icons/alarm-no.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/alarm-no.svg);
 }
 
 .reminder-icon[value="EMAIL"] {
-    list-style-image: url(chrome://calendar-common/skin/icons/email.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/email.svg);
 }
 
 .alarm-icons-box[flashing="true"] > .reminder-icon[value="DISPLAY"] {

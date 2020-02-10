@@ -161,7 +161,7 @@
 
 #calendar-add-task-button {
     margin-inline-start: 5px;
-    list-style-image: url(chrome://calendar-common/skin/icons/newtask.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/newtask.svg);
     -moz-image-region: rect(0 16px 16px 0);
     -moz-context-properties: fill, fill-opacity;
     fill: currentColor;
@@ -209,11 +209,11 @@
 }
 
 #task-actions-markcompleted {
-    list-style-image: url(chrome://calendar-common/skin/icons/complete.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
 }
 
 #task-actions-priority {
-    list-style-image: url(chrome://calendar-common/skin/icons/priority.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
 }
 
 #calendar-delete-task-button {

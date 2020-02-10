@@ -8,8 +8,8 @@
     --itip-icon-usertype: -32px; /* default: INDIVIDUAL */
     width: 16px;
     height: 16px;
-    background-image: url(chrome://calendar-common/skin/calendar-itip-icons.svg),
-                      url(chrome://calendar-common/skin/calendar-itip-icons.svg);
+    background-image: url(chrome://calendar/skin/shared/calendar-itip-icons.svg),
+                      url(chrome://calendar/skin/shared/calendar-itip-icons.svg);
     background-position: var(--itip-icon-partstat), var(--itip-icon-usertype) var(--itip-icon-role);
 }
 .invitation-table .itip-icon[partstat="ACCEPTED"] {

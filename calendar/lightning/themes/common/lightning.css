@@ -11,7 +11,7 @@
 
 #task-tab-button,
 #newMsgButton-task-menuitem {
-    list-style-image: url(chrome://calendar-common/skin/icons/task-tab.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
     -moz-image-region: auto;
 }
 
@@ -24,7 +24,7 @@
 
 .icon-holder[type="tasks"],
 .tabmail-tab[type="tasks"] {
-    list-style-image: url(chrome://calendar-common/skin/icons/task-tab.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
     -moz-image-region: auto;
 }
 
@@ -74,7 +74,7 @@
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-    list-style-image: url(chrome://calendar-common/skin/icons/pane.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/pane.svg);
     width: 16px;
     height: 16px;
     -moz-context-properties: fill, fill-opacity;
@@ -112,7 +112,7 @@
 #imip-bar > image {
   -moz-context-properties: fill;
   fill: currentColor;
-  list-style-image: url(chrome://calendar-common/skin/icons/imip-bar.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/imip-bar.svg);
 }
 
 .imipMoreButton > .toolbarbutton-icon {
@@ -126,31 +126,31 @@
 
 .imipAcceptRecurrencesButton,
 .imipAcceptButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/complete.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
 }
 
 .imipDeclineCounterButton,
 .imipDeclineRecurrencesButton,
 .imipDeclineButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/decline.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
 }
 
 .imipTentativeRecurrencesButton,
 .imipTentativeButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/tentative.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/tentative.svg);
 }
 
 .imipDetailsButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/find.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/find.svg);
 }
 
 .imipAddButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/newevent.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/newevent.svg);
 }
 
 .imipRescheduleButton,
 .imipUpdateButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/synchronize.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/synchronize.svg);
 }
 
 .imipDeleteButton {
@@ -158,7 +158,7 @@
 }
 
 .imipReconfirmButton {
-    list-style-image: url(chrome://calendar-common/skin/icons/priority.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
 }
 
 .imipAcceptLabel {

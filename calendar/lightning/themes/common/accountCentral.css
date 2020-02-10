@@ -7,5 +7,5 @@
 }
 
 #lightning-newCalendar-row > hbox > label {
-  background: url(chrome://calendar-common/skin/icons/cal-icon24.png) no-repeat;
+  background: url(chrome://calendar/skin/shared/icons/cal-icon24.png) no-repeat;
 }

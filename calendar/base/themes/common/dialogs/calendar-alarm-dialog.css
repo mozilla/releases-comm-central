@@ -55,7 +55,7 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-b
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-calendar-image {
     -moz-context-properties: fill;
     fill: currentColor;
-    list-style-image: url(chrome://calendar-common/skin/icons/icon32.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/icon32.svg);
     margin-top: 2px;
 }
 
@@ -67,11 +67,11 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-ca
 }
 
 .snooze-popup-ok-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/complete.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/complete.svg);
 }
 
 .snooze-popup-cancel-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/decline.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/decline.svg);
 }
 
 .snooze-popup-button > .button-box > .button-icon {

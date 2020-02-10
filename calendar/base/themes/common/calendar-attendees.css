@@ -64,8 +64,8 @@ html|input.textbox-addressingWidget:disabled {
     width: 16px;
     height: 16px;
     max-height: 16px;
-    background-image: url(chrome://calendar-common/skin/calendar-itip-icons.svg),
-                      url(chrome://calendar-common/skin/calendar-itip-icons.svg);
+    background-image: url(chrome://calendar/skin/shared/calendar-itip-icons.svg),
+                      url(chrome://calendar/skin/shared/calendar-itip-icons.svg);
     background-position: var(--itip-icon-partstat), var(--itip-icon-usertype) var(--itip-icon-role);
 }
 .itip-icon[partstat="ACCEPTED"] {
@@ -146,7 +146,7 @@ html|span.ac-emphasize-text {
 
 .status-icon {
     margin: 0 3px;
-    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
+    list-style-image: url(chrome://calendar/skin/shared/calendar-event-dialog-attendees.png);
     -moz-image-region: rect(0px 48px 14px 36px);
 }
 
@@ -184,7 +184,7 @@ html|span.ac-emphasize-text {
 
 .role-icon {
     margin: 0 3px;
-    list-style-image: url(chrome://calendar-common/skin/calendar-event-dialog-attendees.png);
+    list-style-image: url(chrome://calendar/skin/shared/calendar-event-dialog-attendees.png);
     -moz-image-region: rect(0px 159px 16px 138px);
 }
 
@@ -223,7 +223,7 @@ html|span.ac-emphasize-text {
 .usertype-icon,
 .usertype-icon[cutype="INDIVIDUAL"] {
     margin: 0 3px;
-    list-style-image: url(chrome://calendar-common/skin/attendee-icons.png);
+    list-style-image: url(chrome://calendar/skin/shared/attendee-icons.png);
     -moz-image-region: rect(0px 16px 16px 0px);
 }
 .usertype-icon[disabled="true"],

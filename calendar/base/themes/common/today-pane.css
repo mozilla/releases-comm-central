@@ -71,7 +71,7 @@
   padding-right: 5px;
   -moz-context-properties: fill;
   fill: currentColor;
-  list-style-image: url("chrome://calendar-common/skin/view-cycler.svg");
+  list-style-image: url("chrome://calendar/skin/shared/view-cycler.svg");
 }
 
 .today-pane-cycler:hover {
@@ -148,7 +148,7 @@
 }
 
 #dragCenter-image {
-  list-style-image: url("chrome://calendar-common/skin/widgets/drag-center.svg");
+  list-style-image: url("chrome://calendar/skin/shared/widgets/drag-center.svg");
 }
 
 .miniday-nav-buttons {
@@ -156,7 +156,7 @@
   min-width: 19px;
   -moz-user-focus: normal;
   -moz-context-properties: fill, fill-opacity;
-  list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
+  list-style-image: url("chrome://calendar/skin/shared/widgets/nav-arrow.svg");
   fill: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
@@ -191,7 +191,7 @@
 }
 
 #today-button {
-  list-style-image: url("chrome://calendar-common/skin/widgets/nav-today.svg");
+  list-style-image: url("chrome://calendar/skin/shared/widgets/nav-today.svg");
 }
 
 .miniday-nav-buttons[disabled] {
@@ -233,7 +233,7 @@
 
 #todaypane-new-event-button {
   -moz-user-focus: normal;
-  list-style-image: url(chrome://calendar-common/skin/icons/newevent.svg);
+  list-style-image: url(chrome://calendar/skin/shared/icons/newevent.svg);
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
@@ -413,13 +413,13 @@ richlistitem[is="agenda-allday-richlistitem"] {
 }
 
 .agenda-multiDayEvent-image[type="start"] {
-  list-style-image: url("chrome://calendar-common/skin/event-start.svg");
+  list-style-image: url("chrome://calendar/skin/shared/event-start.svg");
 }
 
 .agenda-multiDayEvent-image[type="continue"] {
-  list-style-image: url("chrome://calendar-common/skin/event-continue.svg");
+  list-style-image: url("chrome://calendar/skin/shared/event-continue.svg");
 }
 
 .agenda-multiDayEvent-image[type="end"] {
-  list-style-image: url("chrome://calendar-common/skin/event-end.svg");
+  list-style-image: url("chrome://calendar/skin/shared/event-end.svg");
 }

@@ -3,16 +3,16 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 calendar.jar:
-% skin calendar classic/1.0 %skin/windows/ os=WINNT
+% skin calendar classic/1.0 %skin/classic/calendar/ os=WINNT
 #include ../common/jar.inc.mn
-    skin/windows/calendar-daypicker.css                         (calendar-daypicker.css)
-    skin/windows/calendar-task-tree.css                         (calendar-task-tree.css)
-    skin/windows/calendar-task-view.css                         (calendar-task-view.css)
-    skin/windows/calendar-unifinder.css                         (calendar-unifinder.css)
-    skin/windows/calendar-views.css                             (calendar-views.css)
-    skin/windows/calendar-alarm-dialog.css                      (dialogs/calendar-alarm-dialog.css)
-    skin/windows/calendar-event-dialog.css                      (dialogs/calendar-event-dialog.css)
-    skin/windows/calendar-invitations-dialog.css                (dialogs/calendar-invitations-dialog.css)
-    skin/windows/calendar-subscriptions-dialog.css              (dialogs/calendar-subscriptions-dialog.css)
-    skin/windows/today-pane.css                                 (today-pane.css)
-    skin/windows/widgets/calendar-widgets.css                   (widgets/calendar-widgets.css)
+    skin/classic/calendar/calendar-daypicker.css                         (calendar-daypicker.css)
+    skin/classic/calendar/calendar-task-tree.css                         (calendar-task-tree.css)
+    skin/classic/calendar/calendar-task-view.css                         (calendar-task-view.css)
+    skin/classic/calendar/calendar-unifinder.css                         (calendar-unifinder.css)
+    skin/classic/calendar/calendar-views.css                             (calendar-views.css)
+    skin/classic/calendar/calendar-alarm-dialog.css                      (dialogs/calendar-alarm-dialog.css)
+    skin/classic/calendar/calendar-event-dialog.css                      (dialogs/calendar-event-dialog.css)
+    skin/classic/calendar/calendar-invitations-dialog.css                (dialogs/calendar-invitations-dialog.css)
+    skin/classic/calendar/calendar-subscriptions-dialog.css              (dialogs/calendar-subscriptions-dialog.css)
+    skin/classic/calendar/today-pane.css                                 (today-pane.css)
+    skin/classic/calendar/widgets/calendar-widgets.css                   (widgets/calendar-widgets.css)

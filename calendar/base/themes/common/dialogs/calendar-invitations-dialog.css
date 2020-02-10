@@ -40,17 +40,17 @@ richlistitem[is="calendar-invitations-richlistitem"][selected="true"] {
 }
 
 .calendar-invitations-richlistitem-icon[status="NEEDS-ACTION"] {
-  list-style-image: url("chrome://calendar-common/skin/calendar-invitations-dialog-list-images.png");
+  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png");
   -moz-image-region: rect(0px 32px 32px 0px);
 }
 
 .calendar-invitations-richlistitem-icon[status="ACCEPTED"] {
-  list-style-image: url("chrome://calendar-common/skin/calendar-invitations-dialog-list-images.png");
+  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png");
   -moz-image-region: rect(0px 64px 32px 32px);
 }
 
 .calendar-invitations-richlistitem-icon[status="DECLINED"] {
-  list-style-image: url("chrome://calendar-common/skin/calendar-invitations-dialog-list-images.png");
+  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png");
   -moz-image-region: rect(0px 96px 32px 64px);
 }
 
@@ -71,11 +71,11 @@ richlistitem[is="calendar-invitations-richlistitem"][selected="true"] .calendar-
 }
 
 .calendar-invitations-richlistitem-accept-button {
-  list-style-image: url("chrome://calendar-common/skin/calendar-invitations-dialog-button-images.png");
+  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-button-images.png");
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 
 .calendar-invitations-richlistitem-decline-button {
-  list-style-image: url("chrome://calendar-common/skin/calendar-invitations-dialog-button-images.png");
+  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-button-images.png");
   -moz-image-region: rect(0px 32px 16px 16px);
 }

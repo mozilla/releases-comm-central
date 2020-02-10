@@ -43,21 +43,21 @@
 
 #accept-buttons-box[type="mixed"] > #accept-occurrence-button,
 #accept-buttons-box[type="event"] > #accept-occurrence-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#event-single);
+  list-style-image: url(chrome://calendar/skin/shared/calendar-occurrence.svg#event-single);
 }
 
 #accept-buttons-box[type="mixed"] > #accept-parent-button,
 #accept-buttons-box[type="mixed"] > #accept-allfollowing-button,
 #accept-buttons-box[type="event"] > #accept-parent-button,
 #accept-buttons-box[type="event"] > #accept-allfollowing-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#event-all);
+  list-style-image: url(chrome://calendar/skin/shared/calendar-occurrence.svg#event-all);
 }
 
 #accept-buttons-box[type="task"] > .occurrence-accept-buttons {
-  list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#task-single);
+  list-style-image: url(chrome://calendar/skin/shared/calendar-occurrence.svg#task-single);
 }
 
 #accept-buttons-box[type="task"] > #accept-parent-button,
 #accept-buttons-box[type="task"] > #accept-allfollowing-button {
-  list-style-image: url(chrome://calendar-common/skin/calendar-occurrence.svg#task-all);
+  list-style-image: url(chrome://calendar/skin/shared/calendar-occurrence.svg#task-all);
 }

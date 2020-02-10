@@ -9,30 +9,30 @@
 
 /* Lightning "Tasks" Toolbarbutton */
 #lightning-button-tasks {
-    list-style-image: url(chrome://calendar-common/skin/icons/task-tab.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/task-tab.svg);
 }
 
 /* Toolbar buttons */
 #calendar-synchronize-button,
 #task-synchronize-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/synchronize.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/synchronize.svg);
 }
 
 #extractEventButton,
 #task-newevent-button,
 #calendar-newevent-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/newevent.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/newevent.svg);
 }
 
 #extractTaskButton,
 #task-newtask-button,
 #calendar-newtask-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/newtask.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/newtask.svg);
 }
 
 #calendar-edit-button,
 #task-edit-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/edit.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/edit.svg);
 }
 
 #calendar-delete-button,
@@ -41,7 +41,7 @@
 }
 
 #calendar-goto-today-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/today.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/today.svg);
 }
 
 #calendar-print-button,
@@ -50,5 +50,5 @@
 }
 
 #calendar-unifinder-button {
-    list-style-image: url(chrome://calendar-common/skin/icons/find.svg);
+    list-style-image: url(chrome://calendar/skin/shared/icons/find.svg);
 }

@@ -22,7 +22,7 @@ calMonthPrinter.prototype = {
 
   formatToHtml: function(aStream, aStart, aEnd, aItems, aTitle) {
     let document = cal.xml.parseFile(
-      "chrome://calendar-common/skin/printing/calMonthGridPrinter.html"
+      "chrome://calendar/skin/shared/printing/calMonthGridPrinter.html"
     );
     let defaultTimezone = cal.dtz.defaultTimezone;
 

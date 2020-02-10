@@ -124,7 +124,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 .minimonth-nav-btns {
   -moz-appearance: none;
   padding: 4px;
-  list-style-image: url("chrome://calendar-common/skin/widgets/nav-arrow.svg");
+  list-style-image: url("chrome://calendar/skin/shared/widgets/nav-arrow.svg");
   -moz-user-focus: normal;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -150,7 +150,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 }
 
 .minimonth-nav-btns[dir="0"] {
-  list-style-image: url("chrome://calendar-common/skin/widgets/nav-today.svg");
+  list-style-image: url("chrome://calendar/skin/shared/widgets/nav-today.svg");
 }
 
 .minimonth-cal-box {
