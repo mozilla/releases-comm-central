@@ -101,7 +101,7 @@
 #calendar-status-todaypane-button > .toolbarbutton-icon-end {
   -moz-context-properties: fill;
   fill: currentColor;
-  list-style-image: url(chrome://lightning-common/skin/todayButton-arrow.svg);
+  list-style-image: url(chrome://calendar/skin/shared/todayButton-arrow.svg);
 }
 
 #calendar-status-todaypane-button[checked="true"] > .toolbarbutton-icon-end {
