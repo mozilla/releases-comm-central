@@ -28,7 +28,7 @@ var CacheObserver = {
   },
 
   /* nsISupports */
-  QueryInterface: XPCOMUtils.generateQI(
+  QueryInterface: ChromeUtils.generateQI(
     [Ci.nsICacheStorageConsumptionObserver,
      Ci.nsISupportsWeakReference])
 };

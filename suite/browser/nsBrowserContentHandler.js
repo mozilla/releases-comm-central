@@ -219,17 +219,11 @@ var nsBrowserContentHandler = {
   },
 
   /* nsISupports */
-  QueryInterface: function QueryInterface(iid) {
-    if (iid.equals(nsISupports) ||
-        iid.equals(nsICommandLineHandler) ||
-        iid.equals(nsICommandLine) ||
-        iid.equals(nsICommandLineValidator) ||
-        iid.equals(nsIContentHandler) ||
-        iid.equals(nsIFactory))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler,
+                                          Ci.nsICommandLine,
+                                          Ci.nsICommandLineValidator,
+                                          Ci.nsIContentHandler,
+                                          Ci.nsIFactory]),
 
   _handledURI: null,
 

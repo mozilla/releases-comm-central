@@ -38,7 +38,7 @@ AutoCompleteInput.prototype = {
   setSelectedIndex: function() {},
   get searchCount() { return this.searches.length; },
   getSearchAt: function(aIndex) { return this.searches[aIndex]; },
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsIAutoCompleteInput,
     Ci.nsIAutoCompletePopup,
   ])

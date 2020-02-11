@@ -107,7 +107,7 @@ FeedConverter.prototype = {
   /**
    * See nsISupports.idl
    */
-  QueryInterface: XPCOMUtils.generateQI(
+  QueryInterface: ChromeUtils.generateQI(
     [Ci.nsIFeedResultListener,
      Ci.nsIStreamConverter,
      Ci.nsIStreamListener,
@@ -450,7 +450,7 @@ FeedResultService.prototype = {
       delete this._results[uri.spec];
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFeedResultService]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIFeedResultService]),
   classID: Components.ID("{e5b05e9d-f037-48e4-b9a4-b99476582927}")
 };
 

@@ -53,11 +53,10 @@ var ZoomListeners =
   name: "browser.content.full-zoom",
 
   QueryInterface:
-  XPCOMUtils.generateQI([Ci.nsIObserver,
-                         Ci.nsIContentPrefObserver,
-                         Ci.nsIContentPrefCallback2,
-                         Ci.nsISupportsWeakReference,
-                         Ci.nsISupports]),
+  ChromeUtils.generateQI([Ci.nsIObserver,
+                          Ci.nsIContentPrefObserver,
+                          Ci.nsIContentPrefCallback2,
+                          Ci.nsISupportsWeakReference]),
 
   init: function ()
   {
@@ -180,8 +179,8 @@ var gStatusBarPopupIconPrefListener =
 };
 
 var gFormSubmitObserver = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFormSubmitObserver,
-                                         Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIFormSubmitObserver,
+                                          Ci.nsIObserver]),
 
   panel: null,
 

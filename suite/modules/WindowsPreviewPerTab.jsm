@@ -159,7 +159,7 @@ function PreviewController(win, tab) {
 }
 
 PreviewController.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsITaskbarPreviewController]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsITaskbarPreviewController]),
 
   _cachedWidth: 0,
   _cachedHeight: 0,
@@ -854,9 +854,9 @@ var AeroPeek = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISupportsWeakReference,
-                                         Ci.nsINavHistoryObserver,
-                                         Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISupportsWeakReference,
+                                          Ci.nsINavHistoryObserver,
+                                          Ci.nsIObserver]),
 };
 
 XPCOMUtils.defineLazyGetter(AeroPeek, "cacheTimer", () =>

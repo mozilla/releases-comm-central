@@ -165,7 +165,7 @@ var gProgressListener = {
 
   // ---------- nsISupports methods ----------
 
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
                       Ci.nsIWebProgressListener2,
                       Ci.nsIWebProgressListener,
                       Ci.nsIInterfaceRequestor]),

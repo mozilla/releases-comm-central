@@ -1202,15 +1202,10 @@ BatchMessageMover.prototype =
     }
   },
 
-  QueryInterface(aIID) {
-    if (aIID.equals(Ci.nsIUrlListener) ||
-        aIID.equals(Ci.nsIMsgCopyServiceListener) ||
-        aIID.equals(Ci.nsIMsgFolderListener) ||
-        aIID.equals(Ci.nsIMsgOperationListener) ||
-        aIID.equals(Ci.nsISupports))
-      return this;
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIUrlListener,
+                                          Ci.nsIMsgCopyServiceListener,
+                                          Ci.nsIMsgFolderListener,
+                                          Ci.nsIMsgOperationListener]),
 }
 
 function MsgArchiveSelectedMessages(aEvent) {

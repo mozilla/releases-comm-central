@@ -65,7 +65,7 @@ typeAheadFind.prototype = {
   mXULBrowserWindow: null,
 
   /* nsISupports */
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
       Ci.nsISupportsWeakReference,
       Ci.nsIObserver,
       Ci.nsITimerCallback,

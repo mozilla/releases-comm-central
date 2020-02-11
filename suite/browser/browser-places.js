@@ -793,7 +793,7 @@ var BookmarkingUI = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsINavBookmarkObserver
   ]),
 

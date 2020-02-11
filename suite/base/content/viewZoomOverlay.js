@@ -34,10 +34,10 @@ var FullZoom = FullZoom || {
   // nsISupports
 
   QueryInterface:
-  XPCOMUtils.generateQI([Ci.nsIObserver,
-                         Ci.nsIContentPrefObserver,
-                         Ci.nsIContentPrefCallback2,
-                         Ci.nsISupportsWeakReference]),
+  ChromeUtils.generateQI([Ci.nsIObserver,
+                          Ci.nsIContentPrefObserver,
+                          Ci.nsIContentPrefCallback2,
+                          Ci.nsISupportsWeakReference]),
 
   //**************************************************************************//
   // Initialization & Destruction

@@ -56,7 +56,7 @@ WebContentConverter.prototype = {
     wccr.loadPreferredHandler(request);
   },
 
-  QueryInterface: XPCOMUtils.generateQI(
+  QueryInterface: ChromeUtils.generateQI(
     [Ci.nsIStreamConverter,
      Ci.nsIStreamListener])
 };
@@ -68,7 +68,7 @@ var WebContentConverterFactory = {
     return new WebContentConverter().QueryInterface(iid);
   },
 
-  QueryInterface: XPCOMUtils.generateQI(
+  QueryInterface: ChromeUtils.generateQI(
     [Ci.nsIFactory])
 };
 
@@ -122,7 +122,7 @@ ServiceInfo.prototype = {
     return this._uri.replace(/%s/gi, encodeURIComponent(uri));
   },
 
-  QueryInterface: XPCOMUtils.generateQI(
+  QueryInterface: ChromeUtils.generateQI(
     [Ci.nsIWebContentHandlerInfo])
 };
 
@@ -838,7 +838,7 @@ WebContentConverterRegistrar.prototype = {
   /**
    * See nsISupports
    */
-  QueryInterface: XPCOMUtils.generateQI(
+  QueryInterface: ChromeUtils.generateQI(
     [Ci.nsIWebContentConverterService,
      Ci.nsIWebContentHandlerRegistrar,
      Ci.nsIObserver,

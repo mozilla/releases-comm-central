@@ -14,7 +14,7 @@ function waitForBookmarkNotification(aNotification, aCallback, aProperty)
     },
 
     // nsINavBookmarkObserver
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsINavBookmarkObserver]),
+    QueryInterface: ChromeUtils.generateQI([Ci.nsINavBookmarkObserver]),
     onBeginUpdateBatch: function onBeginUpdateBatch() {
       return this.validate(arguments.callee.name, arguments);
     },

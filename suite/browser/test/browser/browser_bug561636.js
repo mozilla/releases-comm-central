@@ -22,7 +22,7 @@ function checkPopupMessage(doc)
 }
 
 var gObserver = {
-  QueryInterface : XPCOMUtils.generateQI([Ci.nsIFormSubmitObserver]),
+  QueryInterface : ChromeUtils.generateQI([Ci.nsIFormSubmitObserver]),
 
   notifyInvalidSubmit : function (aFormElement, aInvalidElements)
   {

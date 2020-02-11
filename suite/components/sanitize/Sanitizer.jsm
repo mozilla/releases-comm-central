@@ -286,9 +286,9 @@ var Sanitizer = {
     }
   },
 
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsiObserver,
-    Ci.nsISupportsWeakReference
+    Ci.nsISupportsWeakReference,
   ]),
 
   items: {
@@ -390,8 +390,8 @@ var Sanitizer = {
               unregisterSucceeded: () => { resolve(true); },
               // We don't care about failures.
               unregisterFailed: () => { resolve(true); },
-              QueryInterface: XPCOMUtils.generateQI(
-                [Ci.nsIServiceWorkerUnregisterCallback])
+              QueryInterface: ChromeUtils.generateQI(
+                [Ci.nsIServiceWorkerUnregisterCallback]),
             };
 
             serviceWorkerManager.propagateUnregister(sw.principal,

@@ -26,7 +26,7 @@ function rebuildSmartBookmarks() {
       print("Got console message: " + aMsg.message);
     },
 
-    QueryInterface: XPCOMUtils.generateQI([
+    QueryInterface: ChromeUtils.generateQI([
       Ci.nsIConsoleListener
     ]),
   };

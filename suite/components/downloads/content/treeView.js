@@ -20,7 +20,7 @@ function DownloadTreeView() {
 }
 
 DownloadTreeView.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsITreeView]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
 
   // ***** nsITreeView attributes and methods *****
   get rowCount() {

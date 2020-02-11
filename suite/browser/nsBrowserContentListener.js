@@ -64,15 +64,9 @@ nsBrowserContentListener.prototype =
 
         uriLoader.unRegisterContentListener(this);
     },
-    QueryInterface: function(iid)
-    {
-        if (iid.equals(Ci.nsIURIContentListener) ||
-            iid.equals(Ci.nsISupportsWeakReference) ||
-            iid.equals(Ci.nsISupports))
-            return this;
 
-        throw Cr.NS_ERROR_NO_INTERFACE;
-    },
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIURIContentListener,
+                                            Ci.nsISupportsWeakReference]),
 
     doContent: function(contentType, isContentPreferred, request, contentHandler)
     {

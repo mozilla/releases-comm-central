@@ -1564,10 +1564,10 @@ SuiteGlue.prototype = {
   // for XPCOM
   classID: Components.ID("{bbbbe845-5a1b-40ee-813c-f84b8faaa07c}"),
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                         Ci.nsIWebProgressListener,
-                                         Ci.nsISupportsWeakReference,
-                                         Ci.nsISuiteGlue])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
+                                          Ci.nsIWebProgressListener,
+                                          Ci.nsISupportsWeakReference,
+                                          Ci.nsISuiteGlue])
 
 }
 
@@ -1622,7 +1622,7 @@ function ContentPermissionPrompt() {}
 ContentPermissionPrompt.prototype = {
   classID: Components.ID("{9d4c845d-3f09-402a-b66d-50f291d7d50f}"),
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIContentPermissionPrompt]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIContentPermissionPrompt]),
 
   /**
    * This implementation of nsIContentPermissionPrompt.prompt ensures

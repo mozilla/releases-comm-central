@@ -376,15 +376,9 @@ nsMsgStatusFeedback.prototype =
     return aOriginalTarget;
   },
 
-  QueryInterface : function(iid)
-    {
-      if (iid.equals(Ci.nsIMsgStatusFeedback) ||
-          iid.equals(Ci.nsIXULBrowserWindow) ||
-          iid.equals(Ci.nsISupportsWeakReference) ||
-          iid.equals(Ci.nsISupports))
-        return this;
-      throw Cr.NS_NOINTERFACE;
-    },
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgStatusFeedback,
+                                          Ci.nsIXULBrowserWindow,
+                                          Ci.nsISupportsWeakReference]),
 
   // nsIMsgStatusFeedback implementation.
   showStatusString : function(statusText)
@@ -500,13 +494,7 @@ function nsMsgWindowCommands()
 
 nsMsgWindowCommands.prototype =
 {
-  QueryInterface : function(iid)
-  {
-    if (iid.equals(Ci.nsIMsgWindowCommands) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindowCommands]),
 
   selectFolder: function(folderUri)
   {

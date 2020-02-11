@@ -35,7 +35,7 @@ About.prototype = {
   // synctabsURI: "chrome://communicator/content/aboutSyncTabs.xul",
 
   classID: Components.ID("{d54f2c89-8fd6-4eeb-a7a4-51d4dcdf460f}"),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIAboutModule]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAboutModule"]);
 
   getModule: function(aURI) {
     return aURI.pathQueryRef.replace(/-|\W.*$/g, "").toLowerCase();

@@ -579,15 +579,9 @@ nsHelpStatusHandler.prototype = {
     onLocationChange : function(aWebProgress, aRequest, aLocation, aFlags) {
         UpdateBackForwardButtons();
     },
-    QueryInterface : function(aIID) {
-        if (aIID.equals(Ci.nsIWebProgressListener) ||
-            aIID.equals(Ci.nsISupportsWeakReference) ||
-            aIID.equals(Ci.nsIXULBrowserWindow) ||
-            aIID.equals(Ci.nsISupports)) {
-          return this;
-        }
-        throw Cr.NS_NOINTERFACE;
-    },
+    QueryInterface : ChromeUtils.generateQI([Ci.nsIWebProgressListener,
+                                             Ci.nsISupportsWeakReference,
+                                             Ci.nsIXULBrowserWindow]),
 
     init : function() {},
 
@@ -844,12 +838,6 @@ var helpContentListener = {
   },
   loadCookie: null,
   parentContentListener: null,
-  QueryInterface: function (aIID) {
-    if (aIID.equals(Ci.nsIURIContentListener) ||
-        aIID.equals(Ci.nsISupportsWeakReference) ||
-        aIID.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIURIContentListener,
+                                          Ci.nsISupportsWeakReference]),
 };

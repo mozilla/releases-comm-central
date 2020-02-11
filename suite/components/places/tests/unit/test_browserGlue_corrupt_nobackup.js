@@ -31,7 +31,7 @@ var bookmarksObserver = {
   onItemChanged: function() {},
   onItemVisited: function(id, visitID, time) {},
   onItemMoved: function() {},
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsINavBookmarkObserver])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsINavBookmarkObserver])
 };
 
 function run_test() {

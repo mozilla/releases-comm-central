@@ -27,7 +27,7 @@ jsConsoleHandler.prototype = {
   helpInfo : "  --suiteconsole        Open the Error console.\n",
 
   classID: Components.ID("{afeee354-8c99-4725-adb1-8502218c5c3c}"),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler]),
 };
 
 this.NSGetFactory = XPCOMUtils.generateNSGetFactory([jsConsoleHandler]);

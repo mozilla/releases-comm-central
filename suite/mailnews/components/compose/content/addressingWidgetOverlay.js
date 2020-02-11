@@ -1157,11 +1157,5 @@ AutomatedAutoCompleteHandler.prototype =
     this.autoCompleteNextAddress();
   },
 
-  QueryInterface : function(iid)
-  {
-      if (iid.equals(Ci.nsIAutoCompleteListener) ||
-          iid.equals(Ci.nsISupports))
-        return this;
-      throw Cr.NS_NOINTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteListener]),
 }

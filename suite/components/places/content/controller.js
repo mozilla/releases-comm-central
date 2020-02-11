@@ -80,7 +80,7 @@ PlacesController.prototype = {
    */
   _view: null,
 
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsIClipboardOwner
   ]),
 

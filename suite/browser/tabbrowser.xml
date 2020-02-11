@@ -754,14 +754,10 @@
               this.mFeeds.push(aLink);
             },
 
-            QueryInterface: function(aIID) {
-              if (aIID.equals(Ci.nsIWebProgressListener) ||
-                  aIID.equals(Ci.nsIWebProgressListener2) ||
-                  aIID.equals(Ci.nsISupportsWeakReference) ||
-                  aIID.equals(Ci.nsISupports))
-                return this;
-              throw Cr.NS_NOINTERFACE;
-            }
+            QueryInterface: ChromeUtils.generateQI([
+                Ci.nsIWebProgressListener,
+                Ci.nsIWebProgressListener2,
+                Ci.nsISupportsWeakReference]),
           });
         ]]>
         </body>
@@ -809,14 +805,9 @@
             {
             },
 
-            QueryInterface : function(aIID)
-            {
-              if (aIID.equals(Ci.nsIWebProgressListener) ||
-                  aIID.equals(Ci.nsISupportsWeakReference) ||
-                  aIID.equals(Ci.nsISupports))
-                return this;
-              throw Cr.NS_NOINTERFACE;
-            }
+            QueryInterface : ChromeUtils.generateQI([
+                Ci.nsIWebProgressListener,
+                Ci.nsISupportsWeakReference]),
           });
         ]]>
         </body>

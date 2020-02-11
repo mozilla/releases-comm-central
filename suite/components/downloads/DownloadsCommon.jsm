@@ -72,8 +72,8 @@ const PREF_DM_BEHAVIOR = "browser.download.manager.behavior";
 const PROGRESS_DIALOG_URL = "chrome://communicator/content/downloads/progressDialog.xul";
 
 var PrefObserver = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                         Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
+                                          Ci.nsISupportsWeakReference]),
   getPref(name) {
     try {
       switch (typeof this.prefs[name]) {

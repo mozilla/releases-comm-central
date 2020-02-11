@@ -124,8 +124,8 @@ var gDataman = {
   },
 
   // :::::::::: data change observers ::::::::::
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                         Ci.nsIContentPrefObserver]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
+                                          Ci.nsIContentPrefObserver]),
 
   observe: function co_observe(aSubject, aTopic, aData) {
     gDataman.debugMsg("Observed: " + aTopic + " - " + aData);

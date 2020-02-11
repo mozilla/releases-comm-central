@@ -321,7 +321,7 @@ function OnAddressBookDataChanged(aAction, aParentDir, aItem)
 // through our mime converter.
 
 var messageHeaderSink = {
-    QueryInterface: XPCOMUtils.generateQI(
+    QueryInterface: ChromeUtils.generateQI(
       [Ci.nsIMsgHeaderSink]),
     onStartHeaders: function()
     {
@@ -1888,7 +1888,7 @@ function nsFlavorDataProvider()
 
 nsFlavorDataProvider.prototype =
 {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFlavorDataProvider]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
   getFlavorData : function(aTransferable, aFlavor, aData, aDataLen)
   {

@@ -30,7 +30,7 @@ var observer = {
       finish();
     }
   },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver])
 };
 Services.obs.addObserver(observer, "uri-visit-saved");
 

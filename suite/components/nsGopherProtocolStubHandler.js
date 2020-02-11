@@ -20,7 +20,7 @@ GopherProtocol.prototype = {
   classID: Components.ID("{22042bdb-56e4-47c6-8b12-fdfa859c05a9}"),
 
   // nsISupports
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProtocolHandler]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
 
   // nsIProtocolHandler
   scheme: "gopher",

@@ -50,7 +50,7 @@ PlacesTreeView.prototype = {
     return this;
   },
 
-  QueryInterface: XPCOMUtils.generateQI(PTV_interfaces),
+  QueryInterface: ChromeUtils.generateQI(PTV_interfaces),
 
   // Bug 761494:
   // ----------

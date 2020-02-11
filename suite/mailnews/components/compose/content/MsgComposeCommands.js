@@ -453,15 +453,8 @@ var progressListener = {
       // we can ignore this notification
     },
 
-    QueryInterface : function(iid)
-    {
-      if (iid.equals(Ci.nsIWebProgressListener) ||
-          iid.equals(Ci.nsISupportsWeakReference) ||
-          iid.equals(Ci.nsISupports))
-        return this;
-
-      throw Cr.NS_NOINTERFACE;
-    }
+    QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
+                                            Ci.nsISupportsWeakReference]),
 };
 
 var defaultController =
@@ -2925,15 +2918,8 @@ function nsAttachmentOpener()
 
 nsAttachmentOpener.prototype =
 {
-  QueryInterface: function(iid)
-  {
-    if (iid.equals(Ci.nsIURIContentListener) ||
-        iid.equals(Ci.nsIInterfaceRequestor) ||
-        iid.equals(Ci.nsISupports)) {
-      return this;
-    }
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIURIContentListener,
+                                          Ci.nsIInterfaceRequestor]),
 
   doContent: function(contentType, isContentPreferred, request, contentHandler)
   {

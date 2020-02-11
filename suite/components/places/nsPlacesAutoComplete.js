@@ -270,7 +270,7 @@ AutoCompleteStatementCallbackWrapper.prototype = {
   //////////////////////////////////////////////////////////////////////////////
   //// nsISupports
 
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.mozIStorageStatementCallback,
   ])
 };
@@ -1308,7 +1308,7 @@ nsPlacesAutoComplete.prototype = {
 
   _xpcom_factory: XPCOMUtils.generateSingletonFactory(nsPlacesAutoComplete),
 
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsIAutoCompleteSearch,
     Ci.nsIAutoCompleteSimpleResultListener,
     Ci.mozIPlacesAutoComplete,

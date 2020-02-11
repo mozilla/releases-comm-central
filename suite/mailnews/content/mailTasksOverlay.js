@@ -228,13 +228,8 @@ nsMsgBadCertHandler.prototype = {
   },
 
   // nsISupports
-  QueryInterface: function(iid) {
-    if (!iid.equals(Ci.nsIBadCertListener2) &&
-        !iid.equals(Ci.nsIInterfaceRequestor) &&
-        !iid.equals(Ci.nsISupports))
-      throw Cr.NS_ERROR_NO_INTERFACE;
-    return this;
-  }
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIBadCertListener2,
+                                          Ci.nsIInterfaceRequestor]),
 };
 
 function InformUserOfCertError(status, targetSite)

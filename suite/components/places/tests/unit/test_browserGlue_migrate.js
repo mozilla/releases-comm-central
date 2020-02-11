@@ -32,7 +32,7 @@ var bookmarksObserver = {
   onItemChanged: function() {},
   onItemVisited: function(id, visitID, time) {},
   onItemMoved: function() {},
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsINavBookmarkObserver])
+  QueryInterface: ChromeUtils.generateQI([Ci.nsINavBookmarkObserver])
 };
 
 const PREF_SMART_BOOKMARKS_VERSION = "browser.places.smartBookmarksVersion";

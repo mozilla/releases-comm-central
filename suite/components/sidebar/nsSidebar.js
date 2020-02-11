@@ -299,7 +299,7 @@ nsSidebar.prototype.classInfo = XPCOMUtils.generateCI({
     flags: nsIClassInfo.DOM_OBJECT});
 
 nsSidebar.prototype.QueryInterface =
-    XPCOMUtils.generateQI([nsISidebar]);
+    ChromeUtils.generateQI([Ci.nsISidebar]);
 
 nsSidebar.prototype.classID = SIDEBAR_CID;
 

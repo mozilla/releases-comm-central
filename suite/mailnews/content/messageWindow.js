@@ -158,14 +158,7 @@ nsMsgDBViewCommandUpdater.prototype =
 
   summarizeSelection: function() {return false},
 
-  QueryInterface : function(iid)
-  {
-    if (iid.equals(Ci.nsIMsgDBViewCommandUpdater) ||
-        iid.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_NOINTERFACE;
-  }
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgDBViewCommandUpdater]),
 }
 
 function HandleDeleteOrMoveMsgCompleted(folder)

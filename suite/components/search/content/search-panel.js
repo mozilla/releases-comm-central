@@ -73,8 +73,8 @@ function doSearch() {
 }
 
 var engineObserver = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver,
-                                         Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver,
+                                          Ci.nsISupportsWeakReference]),
 
   observe: function(aEngine, aTopic, aVerb) {
     if (aTopic == SEARCH_ENGINE_TOPIC) {

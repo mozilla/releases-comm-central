@@ -25,8 +25,8 @@ const {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm
 const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 var gSyncSetup = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
-                                         Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
+                                          Ci.nsISupportsWeakReference]),
 
   captchaBrowser: null,
   wizard: null,

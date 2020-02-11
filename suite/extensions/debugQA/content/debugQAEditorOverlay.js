@@ -158,14 +158,7 @@ sampleJSTransaction.prototype = {
     return false;
   },
 
-  QueryInterface: function(aIID, theResult)
-  {
-    if (aIID.equals(Ci.nsITransaction) ||
-        aIID.equals(Ci.nsISupports))
-      return this;
-
-    throw Cr.NS_ERROR_NO_INTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI([Ci.nsITransaction]),
 
   insert_node_at_point: function(node, container, offset)
   {

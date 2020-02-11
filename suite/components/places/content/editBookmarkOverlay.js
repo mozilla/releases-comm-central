@@ -459,7 +459,7 @@ var gEditItemOverlay = {
   },
 
   QueryInterface:
-  XPCOMUtils.generateQI([Ci.nsINavBookmarkObserver]),
+  ChromeUtils.generateQI([Ci.nsINavBookmarkObserver]),
 
   _element(aID) {
     return document.getElementById("editBMPanel_" + aID);

@@ -12,13 +12,8 @@ var reporterListener = {
     return this.securityButton = document.getElementById("security-button");
   },
 
-  QueryInterface: function(aIID) {
-    if (aIID.equals(Ci.nsIWebProgressListener)   ||
-        aIID.equals(Ci.nsISupportsWeakReference) ||
-        aIID.equals(Ci.nsISupports))
-      return this;
-    throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIWebProgressListener,
+                                          Ci.nsISupportsWeakReference]),
 
   onStateChange: function(/*in nsIWebProgress*/ aWebProgress,
                      /*in nsIRequest*/ aRequest,

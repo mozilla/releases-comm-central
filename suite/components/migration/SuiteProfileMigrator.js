@@ -139,7 +139,7 @@ ProfileMigrator.prototype = {
     return ["", null];
   },
 
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsIProfileMigrator]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIProfileMigrator]),
   classDescription: "Profile Migrator",
   contractID: "@mozilla.org/toolkit/profile-migrator;1",
   classID: Components.ID("{d5148b7c-ba4e-4f7a-a80b-1ae48b90b910}"),

@@ -122,9 +122,9 @@ function SessionStoreService() {
 
 SessionStoreService.prototype = {
   classID: Components.ID("{d37ccdf1-496f-4135-9575-037180af010d}"),
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISessionStore,
-                                         Ci.nsIObserver,
-                                         Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISessionStore,
+                                          Ci.nsIObserver,
+                                          Ci.nsISupportsWeakReference]),
 
   // xul:tab attributes to (re)store (extensions might want to hook in here);
   // the favicon is always saved for the about:sessionrestore page
@@ -4149,8 +4149,8 @@ function SessionStoreSHistoryListener(ss, aTab) {
 }
 
 SessionStoreSHistoryListener.prototype = {
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsISHistoryListener,
-                                         Ci.nsISupportsWeakReference]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISHistoryListener,
+                                          Ci.nsISupportsWeakReference]),
   browser: null,
   ss: null,
   tab: null,

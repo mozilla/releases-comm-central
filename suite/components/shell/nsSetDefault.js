@@ -46,7 +46,7 @@ nsSetDefault.prototype = {
             "  -setDefaultFeed    Set this app as the default feedreader.\n",
 
   classID: Components.ID("{a3d5b950-690a-491f-a881-2c2cdcd241cb}"),
-  QueryInterface: XPCOMUtils.generateQI([nsICommandLineHandler])
+  QueryInterface: ChromeUtils.generateQI([nsICommandLineHandler])
 }
 
 var NSGetFactory = XPCOMUtils.generateNSGetFactory([nsSetDefault]);

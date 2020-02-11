@@ -752,7 +752,7 @@ NavBookmarkObserver.prototype = {
   onItemChanged: function () {},
   onItemVisited: function () {},
   onItemMoved: function () {},
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsINavBookmarkObserver,
   ])
 };
@@ -772,7 +772,7 @@ NavHistoryObserver.prototype = {
   onClearHistory: function () {},
   onPageChanged: function () {},
   onDeleteVisits: function () {},
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsINavHistoryObserver,
   ])
 };
@@ -801,7 +801,7 @@ NavHistoryResultObserver.prototype = {
   nodeTitleChanged: function () {},
   nodeURIChanged: function () {},
   sortingChanged: function () {},
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsINavHistoryResultObserver,
   ])
 };

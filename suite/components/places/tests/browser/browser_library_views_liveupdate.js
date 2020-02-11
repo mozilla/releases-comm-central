@@ -148,7 +148,7 @@ function finishTest() {
  * nodes positions in the affected views.
  */
 var bookmarksObserver = {
-  QueryInterface: XPCOMUtils.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     Ci.nsINavBookmarkObserver
   , Ci.nsIAnnotationObserver
   ]),
