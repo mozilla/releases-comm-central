@@ -166,9 +166,6 @@
               "tags": {
                 "$ref": "TagsDetail",
                 "optional": true,
-                "items": {
-                  "type": "string"
-                },
                 "description": "Returns only messages with the specified tags. For a list of available tags, call the listTags method. Querying for messages that must *not* have a tag does not work."
               },
               "folder": {
