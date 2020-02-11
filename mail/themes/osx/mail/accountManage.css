@@ -4,9 +4,9 @@
 
 @import url("chrome://messenger/skin/shared/accountManage.css");
 
-
-#accounttree {
-  margin-inline-end: 8px;
+window > vbox,
+#accountTreeBox {
+  font-size: 1.36em;
 }
 
 treechildren::-moz-tree-cell-text(folderNameCol, isServer-true) {
@@ -41,9 +41,12 @@ description {
   background-color: #FFFFFF;
 }
 
-/* ::::: dialog header ::::: */
-
-.dialogheader {
-  margin: 0 5px 5px;
-  padding: 5px 8px;
+#accountActionsButton> .button-box > .button-menu-dropmarker {
+  -moz-appearance: none;
+  display: -moz-box;
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  width: 12px;
+  height: 12px;
 }

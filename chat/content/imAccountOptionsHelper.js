@@ -91,7 +91,7 @@ var accountOptionsHelper = {
           break;
         case Ci.prplIPref.typeString:
           vbox.appendChild(
-            this.createTextbox(null, opt.getString(), text, name)
+            this.createTextbox("text", opt.getString(), text, name)
           );
           break;
         case Ci.prplIPref.typeList:

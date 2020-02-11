@@ -5,7 +5,6 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE window [
 <!ENTITY %         newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
@@ -39,11 +38,11 @@
 
     <description class="secDesc">&accountSettingsDesc.label;</description>
 
-    <hbox align="center" class="input-container">
+    <hbox align="center">
       <label id="server.prettyNameLabel" value="&accountName.label;"
              accesskey="&accountName.accesskey;"
              control="server.prettyName"/>
-      <html:input id="server.prettyName" type="text" class="input-inline"
+      <html:input id="server.prettyName" type="text"
                   wsm_persist="true"
                   size="30"
                   aria-labelled-by="server.prettyNameLabel"
@@ -137,7 +136,7 @@
         <label id="server.localPathLabel" value="&localPath.label;" control="server.localPath"/>
         <hbox align="center" class="input-container">
           <html:input id="server.localPath" type="text" readonly="readonly"
-                      class="uri-element input-filefield"
+                      class="uri-element input-inline"
                       aria-labelledby="server.localPathLabel"
                       wsm_persist="true"
                       datatype="nsIFile"

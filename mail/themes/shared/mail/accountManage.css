@@ -7,8 +7,102 @@
   ======================================================================= */
 
 @import url("chrome://messenger/skin/");
+@import url("chrome://global/skin/in-content/common.css");
+@import url("chrome://messenger/skin/preferences/preferences.css");
+
+window > vbox {
+  padding-block: 40px;
+  padding-inline: 25px 28px;
+}
+
+groupbox {
+  -moz-appearance: none;
+  border-style: none;
+  margin: 0 0 32px;
+  padding: initial;
+}
+
+#accountTreeBox {
+  margin-block: 28px;
+  margin-inline: 28px 3px;
+}
+
+/* Styles for the Account Actions button */
+
+#accountActionsButton {
+  margin-inline: 0;
+}
+
+#accountActionsDropdown {
+  -moz-appearance: none;
+  min-width: 32ch;
+  font-size: 1em;
+  border: 1px solid var(--in-content-box-border-color);
+  border-radius: 2px;
+  background-color: var(--in-content-box-background);
+}
+
+#accountActionsDropdown menuitem {
+  -moz-appearance: none;
+  color: var(--in-content-text-color);
+  padding-block: 0.2em;
+  padding-inline: 10px 30px;
+}
+
+#accountActionsDropdown > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
+  color: var(--in-content-text-color);
+  background-color: var(--in-content-item-hover);
+}
+
+#accountActionsDropdown > menuitem:not([disabled="true"])[selected="true"] {
+  color: var(--in-content-selected-text);
+  background-color: var(--in-content-item-selected);
+}
+
+#accountActionsDropdown > menuitem[disabled="true"] {
+  color: #999;
+  /* override the [_moz-menuactive="true"] background color from
+     global/menu.css */
+  background-color: transparent;
+}
+
+#accountActionsDropdown menuseparator {
+  -moz-appearance: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--in-content-box-border-color);
+  border-bottom: none;
+}
 
 /* ::::: account manager :::::: */
+
+.header {
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.4em;
+  margin-block: 16px 4px;
+  padding-bottom: 0;
+}
+
+.input-container:not([hidden="true"]) {
+  display: flex;
+}
+
+.input-container:not([hidden="true"]) > .input-inline {
+  flex: 1;
+}
+
+.identity-table {
+  margin-inline-end: 14px;
+}
+
+.folderMenuItem > .menulist-dropmarker {
+  -moz-image-region: auto;
+}
+
+menupopup[is="folder-menupopup"] {
+  -moz-appearance: none;
+}
 
 .specialFolderPickerGrid {
   margin-inline-start: 20px;
@@ -39,8 +133,9 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   width: 1ch;
 }
 
-#accountActionsDropdown {
-  min-width: 30ch;
+.label-inline {
+  margin-block: auto;
+  min-width: 200px;
 }
 
 /* ::::: SMTP Server Panel :::::: */
@@ -50,15 +145,30 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 #backgroundBox {
-  background-color: #FFFFFF;
-  opacity: 0.5;
+  background-color: var(--in-content-box-background);
 }
 
 #smtpServerInfoBox {
-  border: 1px solid ThreeDShadow;
-  border-right-color: ThreeDHighlight;
-  border-bottom-color: ThreeDHighlight;
-  margin: 0 5px 5px;
+  background-color: var(--in-content-box-background);
+  margin: 0 6px 5px;
+}
+
+#smtpServerInfoBox label {
+  height: 30px;
+  margin-block: 0;
+  padding-block: 3px;
+}
+
+#smtpServerInfoBox .input-container {
+  display: flex;
+  height: 30px;
+}
+
+.input-container > .plain {
+  flex: 1;
+  background-color: transparent;
+  border-style: none;
+  padding-block: 0;
 }
 
 #smtpServerInfoBox textbox {
@@ -71,18 +181,13 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 
 /* ::::: dialog header ::::: */
 
-.dialogheader {
-  margin: 0 5px 5px;
-  border: 1px solid ThreeDDarkShadow;
-  padding: 5px 8px;
-  background-color: Highlight;
-  color: HighlightText;
-}
-
 .dialogheader-title {
-  margin: 0 !important;
-  font-size: larger;
-  font-weight: bold;
+  margin-block: 0 8px;
+  margin-inline-start: 0;
+  font-size: 1.46em;
+  font-weight: 300;
+  line-height: 1.3em;
+  color: var(--in-content-text-color);
 }
 
 .identity-table th {
@@ -96,17 +201,4 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 
 .identity-table td input {
   width: 100%;
-}
-
-input[type="number"].size2 {
-  width: calc(2ch + 30px);
-}
-input[type="number"].size3 {
-  width: calc(3ch + 30px);
-}
-input[type="number"].size4 {
-  width: calc(4ch + 30px);
-}
-input[type="number"].size5 {
-  width: calc(5ch + 30px);
 }

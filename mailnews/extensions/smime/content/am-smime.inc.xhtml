@@ -86,13 +86,15 @@
       </groupbox>
 
       <!-- Certificate manager -->
-      <groupbox id="smimeCertificateManager" orient="horizontal">
+      <groupbox id="smimeCertificateManager">
         <label class="header">&certificates.label;</label>
-        <button id="openCertManagerButton" oncommand="openCertManager();"
-                label="&manageCerts2.label;" accesskey="&manageCerts2.accesskey;"
-                prefstring="security.disable_button.openCertManager"/>
-        <button id="openDeviceManagerButton" oncommand="openDeviceManager();"
-                label="&manageDevices.label;" accesskey="&manageDevices.accesskey;"
-                prefstring="security.disable_button.openDeviceManager"/>
+        <hbox>
+          <button id="openCertManagerButton" oncommand="openCertManager();"
+                  label="&manageCerts2.label;" accesskey="&manageCerts2.accesskey;"
+                  prefstring="security.disable_button.openCertManager"/>
+          <button id="openDeviceManagerButton" oncommand="openDeviceManager();"
+                  label="&manageDevices.label;" accesskey="&manageDevices.accesskey;"
+                  prefstring="security.disable_button.openDeviceManager"/>
+        </hbox>
       </groupbox>
     </vbox>

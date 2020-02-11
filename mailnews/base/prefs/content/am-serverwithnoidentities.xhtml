@@ -4,7 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd" >%accountNoIdentDTD;
@@ -20,6 +19,7 @@
   <script src="chrome://messenger/content/am-serverwithnoidentities.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
 
+  <vbox>
   <hbox class="dialogheader">
     <label class="dialogheader-title" value="&accountTitle.label;"/>
   </hbox>
@@ -33,14 +33,13 @@
          id="server.storeContractID"/>
 
   <description class="secDesc">&accountSettingsDesc.label;</description>
-  <hbox align="center" class="input-container">
+  <hbox align="center">
     <label id="server.prettyName.label" value="&accountName.label;"
            control="server.prettyName" accesskey="&accountName.accesskey;"/>
     <html:input id="server.prettyName"
                 type="text"
                 wsm_persist="true"
                 size="30"
-                class="input-inline"
                 onblur="parent.setAccountLabel(gAccount.key, null, this.value);"
                 prefstring="mail.server.%serverkey%.name"
                 aria-labelledby="server.prettyName.label"/>
@@ -94,4 +93,5 @@
               oncommand="BrowseForLocalFolders()"/>
     </hbox>
   </groupbox>
+  </vbox>
 </window>
