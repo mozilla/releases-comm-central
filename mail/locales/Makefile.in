@@ -75,9 +75,7 @@ libs-%:
 	@$(MAKE) -C $(DEPTH)/devtools/client/locales AB_CD=$* XPI_NAME=locale-$* XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
 	@$(MAKE) -C $(DEPTH)/devtools/startup/locales AB_CD=$* XPI_NAME=locale-$* XPI_ROOT_APPID='$(XPI_ROOT_APPID)'
 	@$(MAKE) -C ../../chat/locales AB_CD=$* XPI_NAME=locale-$*
-ifdef MOZ_CALENDAR
 	@$(MAKE) -C ../../calendar/locales AB_CD=$* XPI_NAME=locale-$*
-endif
 	@$(MAKE) -C $(DEPTH)/extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref
 	@$(MAKE) multilocale.txt-$* AB_CD=$* XPI_NAME=locale-$*

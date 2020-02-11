@@ -17,13 +17,9 @@ include('/%s/toolkit/toolkit.mozbuild' % CONFIG['mozreltopsrcdir'])
 if CONFIG['MOZ_EXTENSIONS']:
     DIRS += ['/%s/extensions' % CONFIG['mozreltopsrcdir']]
 
-DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
-
-
-if CONFIG['MOZ_CALENDAR']:
-    DIRS += ['/%s/calendar/lightning' % CONFIG['commreltopsrcdir']]
-
 DIRS += [
+    '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
+    '/%s/calendar/lightning' % CONFIG['commreltopsrcdir'],
     '/%s/chat' % CONFIG['commreltopsrcdir'],
     '/%s/mail' % CONFIG['commreltopsrcdir'],
 ]

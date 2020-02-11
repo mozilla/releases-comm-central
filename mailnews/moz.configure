@@ -4,25 +4,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
-# =========================================================
-# = Lightning extension
-# =========================================================
-@depends(application)
-def calendar_default(app):
-    return app[0].endswith('/suite')
-
-option('--enable-calendar', default=calendar_default,
-       help='Enable building of the Lightning calendar extension')
-
-
-@depends_if('--enable-calendar')
-def calendar(arg):
-    return True
-
-
-set_config('MOZ_CALENDAR', calendar)
-
 # =========================================================
 # = LDAP
 # =========================================================
@@ -75,3 +56,12 @@ set_define('MOZ_OPENPGP', openpgp)
 
 set_config('MOZ_MOVEMAIL', target_is_unix)
 set_define('HAVE_MOVEMAIL', target_is_unix)
+
+
+option('--enable-calendar', default=False,
+       help='Deprecated. Please remove it from your mozconfig.')
+
+
+@depends_if('--enable-calendar')
+def calendar_deprecated(arg):
+    return True
