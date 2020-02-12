@@ -70,14 +70,16 @@
 
 # Since then, the following were added:
 
-# Remove unpacked lightning extension.
+# Remove lightning extension.
 #ifdef NIGHTLY_BUILD
 @DIR_RESOURCES@extensions/
 @DIR_RESOURCES@extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/*
+@DIR_RESOURCES@extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}.xpi
 #else
 @DIR_RESOURCES@distribution/
 @DIR_RESOURCES@distribution/extensions/
 @DIR_RESOURCES@distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/*
+@DIR_RESOURCES@distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}.xpi
 #endif
 
 # Remove erroneous files left over from broken Mac signing process
