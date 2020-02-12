@@ -13,7 +13,7 @@ transforms:
     - comm_taskgraph.transforms.signing:transforms
 
 kind-dependencies:
-    - nightly-l10n-signing
+    - shippable-l10n-signing
     - toolchain
 
 only-for-build-platforms:
