@@ -627,7 +627,7 @@ QuickFilterManager.defineFilter({
     let firstBook = true;
     term = null;
     for (let addrbook of MailServices.ab.directories) {
-      if (addrbook instanceof Ci.nsIAbDirectory && !addrbook.isRemote) {
+      if (!addrbook.isRemote) {
         term = aTermCreator.createTerm();
         term.attrib = Ci.nsMsgSearchAttrib.Sender;
         value = term.value;

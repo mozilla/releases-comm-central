@@ -127,10 +127,8 @@ function add_email_to_address_book(aEmailAddr) {
   card.primaryEmail = aEmailAddr;
 
   for (let addrbook of MailServices.ab.directories) {
-    if (addrbook instanceof Ci.nsIAbDirectory) {
-      addrbook.addCard(card);
-      return;
-    }
+    addrbook.addCard(card);
+    return;
   }
 
   throw new Error("Unable to find any suitable address book.");

@@ -17,6 +17,7 @@ add_task(async function test_addressBooks() {
     let firstBookId, secondBookId, newContactId;
 
     let events = [];
+    let eventPromiseResolve;
     for (let eventNamespace of ["addressBooks", "contacts", "mailingLists"]) {
       for (let eventName of [
         "onCreated",
@@ -28,6 +29,11 @@ add_task(async function test_addressBooks() {
         if (eventName in browser[eventNamespace]) {
           browser[eventNamespace][eventName].addListener((...args) => {
             events.push({ namespace: eventNamespace, name: eventName, args });
+            if (eventPromiseResolve) {
+              let resolve = eventPromiseResolve;
+              eventPromiseResolve = null;
+              resolve();
+            }
           });
         }
       }
@@ -498,11 +504,15 @@ add_task(async function test_addressBooks() {
       ]);
       browser.test.assertEq("external edit", updatedBook.name);
 
+      let eventPromise = new Promise(resolve => {
+        eventPromiseResolve = resolve;
+      });
       await awaitMessage(
         "outsideEventsTest",
         "deleteAddressBook",
         newBookPrefId
       );
+      await eventPromise;
       checkEvents(["addressBooks", "onDeleted", bookId]);
 
       let [parentId1, contactId] = await awaitMessage(
@@ -696,7 +706,7 @@ add_task(async function test_addressBooks() {
       case "deleteMailingList": {
         let list = findMailingList(args[0]);
         if (list) {
-          MailServices.ab.deleteAddressBook(list.URI);
+          parent.deleteDirectory(list);
           extension.sendMessage();
           return;
         }

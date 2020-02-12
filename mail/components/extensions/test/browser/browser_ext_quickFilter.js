@@ -130,7 +130,10 @@ add_task(async () => {
   card.setProperty("LastName", author[1]);
   card.setProperty("DisplayName", `${author[0]} ${author[1]}`);
   card.setProperty("PrimaryEmail", author[2]);
-  MailServices.ab.directories.getNext().addCard(card);
+  MailServices.ab.directories
+    .getNext()
+    .QueryInterface(Ci.nsIAbDirectory)
+    .addCard(card);
 
   await extension.startup();
   await extension.awaitFinish("quickFilter");

@@ -466,10 +466,7 @@ AbAutoCompleteSearch.prototype = {
       // well, therefore by searching sub-directories (aka mailing lists) we're
       // just going to find duplicates.
       for (let dir of this._abManager.directories) {
-        if (
-          dir instanceof Ci.nsIAbDirectory &&
-          dir.useForAutocomplete("idKey" in params ? params.idKey : null)
-        ) {
+        if (dir.useForAutocomplete("idKey" in params ? params.idKey : null)) {
           this._searchCards(searchQuery, dir, result);
         }
       }

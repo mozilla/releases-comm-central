@@ -45,7 +45,9 @@ function SetAbView(aURI) {
   // If we don't have a URI, just clear the view and leave everything else
   // alone.
   if (!aURI) {
-    gAbView.clearView();
+    if (gAbView) {
+      gAbView.clearView();
+    }
     return;
   }
 

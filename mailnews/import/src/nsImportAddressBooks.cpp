@@ -412,7 +412,10 @@ NS_IMETHODIMP nsImportGenericAddressBooks::BeginImport(
   // Create/obtain any address books that we need here, so that we don't need
   // to do so inside the import thread which would just proxy the create
   // operations back to the main thread anyway.
-  nsCOMPtr<nsIAbDirectory> db = GetAddressBookFromUri(m_pDestinationUri.get());
+  nsCOMPtr<nsIAbDirectory> db;
+  if (!m_pDestinationUri.IsEmpty()) {
+    db = GetAddressBookFromUri(m_pDestinationUri.get());
+  }
   for (uint32_t i = 0; i < count; ++i) {
     nsCOMPtr<nsIImportABDescriptor> book = do_QueryElementAt(m_Books, i);
     if (book) {

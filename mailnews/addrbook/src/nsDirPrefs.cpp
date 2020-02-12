@@ -28,6 +28,7 @@
 #include "nsComponentManagerUtils.h"
 #include "msgCore.h"
 #include "nsString.h"
+#include "nsAppDirectoryServiceDefs.h"
 
 #include <ctype.h>
 
@@ -569,13 +570,9 @@ static void DIR_DeleteServer(DIR_Server *server) {
 nsresult DIR_DeleteServerFromList(DIR_Server *server) {
   if (!server) return NS_ERROR_NULL_POINTER;
 
-  nsresult rv = NS_OK;
   nsCOMPtr<nsIFile> dbPath;
-
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv))
-    rv = abManager->GetUserProfileDirectory(getter_AddRefs(dbPath));
+  nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,
+                                       getter_AddRefs(dbPath));
 
   if (NS_SUCCEEDED(rv)) {
     // close the database, as long as it isn't the special ones
@@ -840,15 +837,12 @@ static void DIR_ConvertServerFileName(DIR_Server *pServer) {
 void DIR_SetFileName(char **fileName, const char *defaultName) {
   if (!fileName) return;
 
-  nsresult rv = NS_OK;
   nsCOMPtr<nsIFile> dbPath;
+  nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,
+                                       getter_AddRefs(dbPath));
 
   *fileName = nullptr;
 
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv))
-    rv = abManager->GetUserProfileDirectory(getter_AddRefs(dbPath));
   if (NS_SUCCEEDED(rv)) {
     rv = dbPath->AppendNative(nsDependentCString(defaultName));
     if (NS_SUCCEEDED(rv)) {

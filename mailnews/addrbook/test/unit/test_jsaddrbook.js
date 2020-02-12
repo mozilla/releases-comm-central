@@ -12,7 +12,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 var book, contact, list, listCard;
 var observer = {
@@ -30,13 +29,27 @@ var observer = {
     Services.obs.removeObserver(observer, "addrbook-list-updated");
     Services.obs.removeObserver(observer, "addrbook-list-member-added");
   },
+  promiseEvent() {
+    return new Promise(resolve => {
+      this.eventPromise = resolve;
+    });
+  },
+  resolveEventPromise() {
+    if (this.eventPromise) {
+      let resolve = this.eventPromise;
+      delete this.eventPromise;
+      resolve();
+    }
+  },
 
   events: [],
   onItemAdded(parent, item) {
     this.events.push(["onItemAdded", parent, item]);
+    this.resolveEventPromise();
   },
   onItemRemoved(parent, item) {
     this.events.push(["onItemRemoved", parent, item]);
+    this.resolveEventPromise();
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
     this.events.push([
@@ -46,6 +59,7 @@ var observer = {
       oldValue,
       newValue,
     ]);
+    this.resolveEventPromise();
   },
   observe(subject, topic, data) {
     this.events.push([topic, subject, data]);
@@ -222,8 +236,7 @@ add_task(async function editContact() {
   contact.lastName = "contact";
   book.modifyCard(contact);
   observer.checkEvents(
-    // TODO MDB has three null args but we can do better than that.
-    ["onItemPropertyChanged", contact],
+    ["onItemPropertyChanged", contact, "FirstName", "new", "updated"],
     ["addrbook-contact-updated", contact, book.UID]
   );
   equal(contact.firstName, "updated");
@@ -339,7 +352,7 @@ add_task(async function removeMailingListMember() {
 });
 
 add_task(async function deleteMailingList() {
-  MailServices.ab.deleteAddressBook(list.URI);
+  book.deleteDirectory(list);
   observer.checkEvents(
     ["onItemRemoved", book, listCard],
     ["onItemRemoved", list, listCard],
@@ -383,10 +396,9 @@ add_task(async function createContactWithUID() {
 });
 
 add_task(async function deleteAddressBook() {
+  let deletePromise = observer.promiseEvent();
   MailServices.ab.deleteAddressBook(book.URI);
-  // Wait for files to close.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await deletePromise;
 
   observer.checkEvents(["onItemRemoved", undefined, book]);
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.dirType"));
@@ -397,7 +409,7 @@ add_task(async function deleteAddressBook() {
   dbFile.append(FILE_NAME);
   ok(!dbFile.exists());
   equal([...MailServices.ab.directories].length, 2);
-  throws(() => MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`), /.*/);
+  ok(!MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`));
 });
 
 add_task(async function cleanUp() {

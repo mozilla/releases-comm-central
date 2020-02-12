@@ -159,6 +159,7 @@ function openConnectionTo(file) {
  * Closes the SQLite connection to `file` and removes it from the cache.
  */
 function closeConnectionTo(file) {
+  directories.delete(file.leafName);
   let connection = connections.get(file.path);
   if (connection) {
     return new Promise(resolve => {
@@ -168,7 +169,6 @@ function closeConnectionTo(file) {
         },
       });
       connections.delete(file.path);
-      directories.delete(file.leafName);
     });
   }
   return Promise.resolve();
@@ -210,6 +210,9 @@ function AddrBookDirectoryInner(fileName) {
   this._fileName = fileName;
 }
 AddrBookDirectoryInner.prototype = {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirectory]),
+  classID: Components.ID("{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"),
+
   _uid: null,
   _nextCardId: null,
   _nextListId: null,
@@ -809,9 +812,16 @@ AddrBookDirectoryInner.prototype = {
     }
     for (let [name, newValue] of newProperties.entries()) {
       let oldValue = oldProperties.get(name);
+      if (oldValue == null && newValue == "") {
+        continue;
+      }
       if (oldValue != newValue) {
-        // TODO We can do better than null. But MDB doesn't.
-        MailServices.ab.notifyItemPropertyChanged(card, null, null, null);
+        MailServices.ab.notifyItemPropertyChanged(
+          card,
+          name,
+          oldValue,
+          newValue
+        );
       }
     }
     Services.obs.notifyObservers(card, "addrbook-contact-updated", this.UID);

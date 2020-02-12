@@ -26,6 +26,7 @@ add_task(async function() {
   // Do the migration.
 
   await MailMigrator._migrateAddressBooks();
+  await new Promise(resolve => Services.tm.dispatchToMainThread(resolve));
 
   // Check new files have been created, and old ones renamed.
 

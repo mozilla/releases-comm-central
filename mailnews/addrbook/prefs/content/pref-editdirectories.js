@@ -15,19 +15,28 @@ var { MailServices } = ChromeUtils.import(
 // correct places an would be an infrequent operation.
 var gAddressBookAbListener = {
   onItemAdded(parentDir, item) {
-    if (item instanceof Ci.nsIAbDirectory) {
-      fillDirectoryList(item);
+    try {
+      item.QueryInterface(Ci.nsIAbDirectory);
+    } catch (ex) {
+      return;
     }
+    fillDirectoryList(item);
   },
   onItemRemoved(parentDir, item) {
-    if (item instanceof Ci.nsIAbDirectory) {
-      fillDirectoryList();
+    try {
+      item.QueryInterface(Ci.nsIAbDirectory);
+    } catch (ex) {
+      return;
     }
+    fillDirectoryList();
   },
   onItemPropertyChanged(item, property, oldValue, newValue) {
-    if (item instanceof Ci.nsIAbDirectory) {
-      fillDirectoryList(item);
+    try {
+      item.QueryInterface(Ci.nsIAbDirectory);
+    } catch (ex) {
+      return;
     }
+    fillDirectoryList(item);
   },
 };
 

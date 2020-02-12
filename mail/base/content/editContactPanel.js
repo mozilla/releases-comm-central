@@ -151,10 +151,8 @@ var editContactInlineUI = {
     if (this._cardDetails.book.supportsMailingLists) {
       // We only have to look in one book here, because cards currently have
       // to be in the address book they belong to.
-      let mailingLists = this._cardDetails.book.childNodes;
-      while (mailingLists.hasMoreElements() && !inMailList) {
-        let list = mailingLists.getNext();
-        if (!(list instanceof Ci.nsIAbDirectory) || !list.isMailList) {
+      for (let list of this._cardDetails.book.childNodes) {
+        if (!list.isMailList) {
           continue;
         }
 
@@ -166,6 +164,9 @@ var editContactInlineUI = {
             inMailList = true;
             break;
           }
+        }
+        if (inMailList) {
+          break;
         }
       }
     }

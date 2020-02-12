@@ -279,8 +279,8 @@ AbImportHelper.prototype = {
       var newAb = this.getAbByName(this.mAbName);
       Assert.ok(newAb !== null);
       Assert.ok(
-        newAb instanceof Ci.nsIAbDirectory &&
-          newAb.childCards instanceof Ci.nsISimpleEnumerator
+        newAb.QueryInterface(Ci.nsIAbDirectory) &&
+          newAb.childCards.QueryInterface(Ci.nsISimpleEnumerator)
       );
       // get the imported card(s) and check each one
       var count = 0;
@@ -308,10 +308,8 @@ AbImportHelper.prototype = {
     Assert.ok(aName && aName.length > 0);
 
     for (let data of MailServices.ab.directories) {
-      if (data instanceof Ci.nsIAbDirectory) {
-        if (data.dirName == aName) {
-          return data;
-        }
+      if (data.dirName == aName) {
+        return data;
       }
     }
     return null;

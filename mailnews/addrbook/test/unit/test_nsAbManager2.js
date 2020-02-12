@@ -21,6 +21,7 @@ abL.prototype = {
   onItemAdded(parentItem, item) {
     this.mReceived |= nsIAbListener.itemAdded;
     this.mDirectory = item;
+    this.resolveEventPromise();
     if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
     }
@@ -28,6 +29,7 @@ abL.prototype = {
   onItemRemoved(parentItem, item) {
     this.mReceived |= nsIAbListener.directoryRemoved;
     this.mDirectory = item;
+    this.resolveEventPromise();
     if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
     }
@@ -35,8 +37,22 @@ abL.prototype = {
   onItemPropertyChanged(item, property, oldValue, newValue) {
     this.mReceived |= nsIAbListener.itemChanged;
     this.mDirectory = item;
+    this.resolveEventPromise();
     if (this.mAutoRemoveItem) {
       MailServices.ab.removeAddressBookListener(this);
+    }
+  },
+
+  promiseEvent() {
+    return new Promise(resolve => {
+      this.mEventPromise = resolve;
+    });
+  },
+  resolveEventPromise() {
+    if (this.mEventPromise) {
+      let resolve = this.mEventPromise;
+      delete this.mEventPromise;
+      resolve();
     }
   },
 };
@@ -88,9 +104,11 @@ function addDirectory(dirName) {
   return newDirectory;
 }
 
-function removeDirectory(directory) {
+async function removeDirectory(directory) {
   // Remove the directory
+  let deletePromise = gAblAll.promiseEvent();
   MailServices.ab.deleteAddressBook(directory.URI);
+  await deletePromise;
 
   // Check correct notifications
   Assert.equal(gAblAll.mReceived, nsIAbListener.directoryRemoved);
@@ -109,7 +127,7 @@ function removeDirectory(directory) {
   }
 }
 
-function run_test() {
+async function run_test() {
   var i;
 
   // Set up listeners
@@ -151,7 +169,7 @@ function run_test() {
 
   expectedABs.splice(pos, 1);
 
-  removeDirectory(newDirectory1);
+  await removeDirectory(newDirectory1);
   newDirectory1 = null;
 
   // Test - Check new directory list
@@ -160,7 +178,7 @@ function run_test() {
 
   // Test - Repeat the removal
 
-  removeDirectory(newDirectory2);
+  await removeDirectory(newDirectory2);
   newDirectory2 = null;
 
   expectedABs.pop();

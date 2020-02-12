@@ -83,9 +83,9 @@ add_test(function() {
 
   Assert.equal(abListener.result[0][0], "onItemPropertyChanged");
   Assert.equal(abListener.result[0][1], newCard);
-  Assert.equal(abListener.result[0][2], null);
+  Assert.equal(abListener.result[0][2], "LastName");
   Assert.ok(!abListener.result[0][3]);
-  Assert.ok(!abListener.result[0][4]);
+  Assert.equal(abListener.result[0][4], "invalid");
   abListener.result = [];
 
   // Test - delete a card

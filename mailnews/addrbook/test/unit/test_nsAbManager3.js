@@ -17,21 +17,37 @@ abListener.prototype = {
   onItemAdded(aParentItem, aItem) {
     this.mReceived |= Ci.nsIAbListener.itemAdded;
     this.mDirectory = aItem;
+    this.resolveEventPromise();
   },
 
   onItemRemoved(aParentItem, aItem) {
     this.mReceived |= Ci.nsIAbListener.directoryRemoved;
     this.mDirectory = aItem;
+    this.resolveEventPromise();
   },
 
   onItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
     this.mReceived |= Ci.nsIAbListener.itemChanged;
     this.mDirectory = aItem;
+    this.resolveEventPromise();
   },
 
   reset() {
     this.mReceived = 0;
     this.mDirectory = null;
+  },
+
+  promiseEvent() {
+    return new Promise(resolve => {
+      this.mEventPromise = resolve;
+    });
+  },
+  resolveEventPromise() {
+    if (this.mEventPromise) {
+      let resolve = this.mEventPromise;
+      delete this.mEventPromise;
+      resolve();
+    }
   },
 };
 
@@ -57,8 +73,10 @@ function renameDirectory(directory, newName) {
   gAbListener.reset();
 }
 
-function removeDirectory(directory) {
+async function removeDirectory(directory) {
+  let deletePromise = gAbListener.promiseEvent();
   MailServices.ab.deleteAddressBook(directory.URI);
+  await deletePromise;
 
   Assert.equal(gAbListener.mReceived, Ci.nsIAbListener.directoryRemoved);
   Assert.equal(
@@ -73,7 +91,7 @@ function removeDirectory(directory) {
  * Create 4 addressbooks (directories). Rename the second one and delete
  * the third one. Check if their names are still correct. (bug 745664)
  */
-function run_test() {
+async function run_test() {
   gAbListener = new abListener();
   MailServices.ab.addAddressBookListener(gAbListener, Ci.nsIAbListener.all);
   registerCleanupFunction(function() {
@@ -92,7 +110,7 @@ function run_test() {
   for (let dir in dirNames) {
     Assert.equal(dirNames[dir], directories[dir].dirName);
   }
-  removeDirectory(directories[2]);
+  await removeDirectory(directories[2]);
   dirNames.splice(2, 1);
   directories.splice(2, 1);
 

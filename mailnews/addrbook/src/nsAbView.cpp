@@ -179,8 +179,10 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
   mSortColumn.AssignLiteral("");
   mSortDirection.AssignLiteral("");
 
-  nsCString uri;
-  aAddressBook->GetURI(uri);
+  nsCString uri = EmptyCString();
+  if (aAddressBook) {
+    aAddressBook->GetURI(uri);
+  }
   int32_t searchBegin = uri.FindChar('?');
   nsCString searchQuery(Substring(uri, searchBegin));
   // This is a special case, a workaround basically, to just have all ABs.
@@ -188,7 +190,7 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
     searchQuery.AssignLiteral("");
   }
 
-  if (Substring(uri, 0, searchBegin).EqualsLiteral(kAllDirectoryRoot)) {
+  if (!aAddressBook) {
     mIsAllDirectoryRootView = true;
     // We have special request case to search all addressbooks, so we need
     // to iterate over all addressbooks.
@@ -768,6 +770,7 @@ nsCString getQuery(nsCOMPtr<nsIAbDirectory> aDir) {
 }
 
 NS_IMETHODIMP nsAbView::OnItemAdded(nsISupports *parentDir, nsISupports *item) {
+  if (!parentDir) return NS_OK;
   if (!mDirectory)  // No address book selected.
     return NS_OK;
 
@@ -872,6 +875,8 @@ int32_t nsAbView::FindIndexForInsert(AbCard *abcard) {
 
 NS_IMETHODIMP nsAbView::OnItemRemoved(nsISupports *parentDir,
                                       nsISupports *item) {
+  if (!parentDir) return NS_OK;
+
   nsresult rv;
 
   nsCOMPtr<nsIAbDirectory> directory = do_QueryInterface(parentDir, &rv);

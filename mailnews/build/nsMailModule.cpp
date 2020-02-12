@@ -114,7 +114,7 @@
 #include "nsAbBSDirectory.h"
 #include "nsAbDirFactoryService.h"
 #include "nsAddrDatabase.h"
-#include "nsAbManager.h"
+// #include "nsAbManager.h"
 #include "nsAbContentHandler.h"
 #include "nsAbDirProperty.h"
 #include "nsAbAddressCollector.h"
@@ -434,7 +434,6 @@ NS_DEFINE_NAMED_CID(NS_MAILNEWSDLF_CID);
 ////////////////////////////////////////////////////////////////////////////////
 // addrbook factories
 ////////////////////////////////////////////////////////////////////////////////
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsAbManager, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbContentHandler)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirProperty)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbCardProperty)
@@ -897,7 +896,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_STOPWATCH_CID, false, NULL, nsStopwatchConstructor},
     {&kNS_MAILNEWSDLF_CID, false, NULL, MailNewsDLFConstructor},
     // Address Book Entries
-    {&kNS_ABMANAGER_CID, false, NULL, nsAbManagerConstructor},
+    // {&kNS_ABMANAGER_CID, false, NULL, nsAbManagerConstructor},
     {&kNS_ABDIRECTORY_CID, false, NULL, nsAbBSDirectoryConstructor},
     {&kNS_ADDRDATABASE_CID, false, NULL, nsAddrDatabaseConstructor},
     {&kNS_ABCARDPROPERTY_CID, false, NULL, nsAbCardPropertyConstructor},
