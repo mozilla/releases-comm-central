@@ -1203,7 +1203,7 @@ calICSService::ParseICSAsync(const nsACString &serialized,
   nsCOMPtr<nsIThread> currentThread;
   rv = NS_GetCurrentThread(getter_AddRefs(currentThread));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = NS_NewThread(getter_AddRefs(workerThread));
+  rv = NS_NewNamedThread("ICS parser", getter_AddRefs(workerThread));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIRunnable> worker = new ParserWorker(

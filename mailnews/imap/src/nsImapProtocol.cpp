@@ -641,7 +641,7 @@ nsImapProtocol::Initialize(nsIImapHostSessionList *aHostSessionList,
 
   // Now initialize the thread for the connection
   if (m_thread == nullptr) {
-    nsresult rv = NS_NewThread(getter_AddRefs(m_iThread), this);
+    nsresult rv = NS_NewNamedThread("IMAP", getter_AddRefs(m_iThread), this);
     if (NS_FAILED(rv)) {
       NS_ASSERTION(m_iThread, "Unable to create imap thread.");
       return rv;
