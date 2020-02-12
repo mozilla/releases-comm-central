@@ -342,20 +342,6 @@ nsAbDirProperty::HasMailListWithName(const char16_t *aName, bool *aHasList) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsAbDirProperty::CreateNewDirectory(const nsAString &aDirName,
-                                    const nsACString &aURI, uint32_t aType,
-                                    const nsACString &aPrefName,
-                                    nsACString &aResult) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP
-nsAbDirProperty::CreateDirectoryByURI(const nsAString &aDisplayName,
-                                      const nsACString &aURI) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsAbDirProperty::AddMailList(nsIAbDirectory *list,
                                            nsIAbDirectory **addedList) {
   return NS_ERROR_NOT_IMPLEMENTED;

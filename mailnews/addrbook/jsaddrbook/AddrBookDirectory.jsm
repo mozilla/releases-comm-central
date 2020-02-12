@@ -940,14 +940,6 @@ AddrBookDirectoryInner.prototype = {
   copyMailList(srcList) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
-  createNewDirectory(dirName, uri, type, prefName) {
-    // Deliberately not implemented, this isn't the root directory.
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-  },
-  createDirectoryByURI(displayName, uri) {
-    // Deliberately not implemented, this isn't the root directory.
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-  },
   getIntValue(name, defaultValue) {
     return this._prefBranch.getIntPref(name, defaultValue);
   },

@@ -20,8 +20,6 @@
  * - description
  * - editMailListToDatabase
  * - copyMailList
- * - createNewDirectory
- * - createDirectoryByURI
  */
 
 // Main function for the this test so we can check both personal and

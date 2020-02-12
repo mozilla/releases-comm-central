@@ -27,16 +27,6 @@
 //
 #define NS_ABMANAGER_CONTRACTID "@mozilla.org/abmanager;1"
 
-#define NS_ABMANAGERSTARTUPHANDLER_CONTRACTID \
-  "@mozilla.org/commandlinehandler/general-startup;1?type=addressbook"
-
-#define NS_ABMANAGER_CID                             \
-  {                                                  \
-    0xad81b321, 0x8a8a, 0x42ca, {                    \
-      0xa5, 0x08, 0xfe, 0x65, 0x9d, 0x8e, 0x45, 0x86 \
-    }                                                \
-  }
-
 //
 // nsAbContentHandler
 //
@@ -44,19 +34,6 @@
   {                                                  \
     0xa72ad552, 0x0484, 0x4b5f, {                    \
       0x8d, 0x45, 0x2d, 0x79, 0x15, 0x8d, 0x22, 0xe3 \
-    }                                                \
-  }
-
-//
-// nsAbBSDirectory - the root address book
-//
-#define NS_ABDIRECTORY_CONTRACTID \
-  NS_AB_DIRECTORY_TYPE_CONTRACTID_PREFIX "moz-abdirectory"
-
-#define NS_ABDIRECTORY_CID                           \
-  {                                                  \
-    0x012D3C24, 0x1DD2, 0x11B2, {                    \
-      0xBA, 0x79, 0xB4, 0xAD, 0x35, 0x9F, 0xC4, 0x61 \
     }                                                \
   }
 

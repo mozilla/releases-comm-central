@@ -19,40 +19,7 @@ NS_IMPL_ISUPPORTS(nsAbLDAPReplicationQuery, nsIAbLDAPReplicationQuery)
 nsAbLDAPReplicationQuery::nsAbLDAPReplicationQuery() : mInitialized(false) {}
 
 nsresult nsAbLDAPReplicationQuery::InitLDAPData() {
-  nsAutoCString fileName;
-  nsresult rv = mDirectory->GetReplicationFileName(fileName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // this is done here to take care of the problem related to bug # 99124.
-  // earlier versions of Mozilla could have the fileName associated with the
-  // directory to be abook.mab which is the profile's personal addressbook. If
-  // the pref points to it, calls nsDirPrefs to generate a new server filename.
-  if (fileName.IsEmpty() || fileName.EqualsLiteral(kPersonalAddressbook)) {
-    // Ensure fileName is empty for DIR_GenerateAbFileName to work
-    // correctly.
-    fileName.Truncate();
-
-    nsCOMPtr<nsIAbDirectory> standardDir(do_QueryInterface(mDirectory, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCString dirPrefId;
-    rv = standardDir->GetDirPrefId(dirPrefId);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // XXX This should be replaced by a local function at some stage.
-    // For now we'll continue using the nsDirPrefs version.
-    DIR_Server *server = DIR_GetServerFromList(dirPrefId.get());
-    if (server) {
-      DIR_SetServerFileName(server);
-      // Now ensure the prefs are saved
-      DIR_SavePrefsForOneServer(server);
-    }
-  }
-
-  rv = mDirectory->SetReplicationFileName(fileName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = mDirectory->GetLDAPURL(getter_AddRefs(mURL));
+  nsresult rv = mDirectory->GetLDAPURL(getter_AddRefs(mURL));
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = mDirectory->GetAuthDn(mLogin);
