@@ -46,8 +46,6 @@ job-defaults:
     fetches:
         toolchain:
             by-test-platform:
-                win.*:
-                    - win32-minidump-stackwalk
                 macosx.*:
                     - macosx64-minidump-stackwalk
                 default:
