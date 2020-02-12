@@ -78,9 +78,12 @@ nsContextMenu.prototype = {
   initMenu(aPopup, aIsShift) {
     this.menu = aPopup;
 
+    let target = this.menu.target || document.popupNode;
+    delete this.menu.target;
+
     // Get contextual info.
-    this.setTarget(document.popupNode);
-    this.setMessageTargets(document.popupNode);
+    this.setTarget(target);
+    this.setMessageTargets(target);
 
     if (!this.inThreadPane && this.messagepaneIsBlank) {
       this.shouldDisplay = false;
@@ -120,7 +123,7 @@ nsContextMenu.prototype = {
           ? this.selectionInfo.fullText
           : undefined,
       };
-      if (document.popupNode.closest("tree") == gFolderDisplay.tree) {
+      if (target.closest("tree") == gFolderDisplay.tree) {
         subject.displayedFolder = gFolderDisplay.view.displayedFolder;
         subject.selectedMessages = gFolderDisplay.selectedMessages;
       }

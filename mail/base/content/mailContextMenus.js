@@ -46,6 +46,18 @@ function RestoreSelectionWithoutContentLoad(tree) {
 }
 
 /**
+ * Used when mailContext opens for elements in a <browser> to keep a reference
+ * to the event's target. This target is preferred over document.popupNode
+ * because it could be an element in a shadow DOM, whereas document.popupNode
+ * would not be.
+ * @param event the oncontextmenu event
+ */
+function mailContextOnContextMenu(event) {
+  document.getElementById("mailContext").target =
+    event.composedTarget || event.originalTarget;
+}
+
+/**
  * Function to clear out the global nsContextMenu, and in the case when we
  * were a threadpane context menu, restore the selection so that a right-click
  * on a non-selected row doesn't move the selection.
