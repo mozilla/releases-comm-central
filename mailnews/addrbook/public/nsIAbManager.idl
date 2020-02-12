@@ -150,15 +150,6 @@ interface nsIAbManager : nsISupports
   boolean mailListNameExists(in wstring name);
 
   /**
-   * Translates an escaped vcard string into a nsIAbCard.
-   *
-   * @param  escapedVCardStr  The string containing the vcard.
-   *
-   * @return            A card containing the translated vcard data.
-   */
-  nsIAbCard escapedVCardToAbCard(in string escapedVCardStr);
-
-  /**
    * Generates a UUID from a (directory ID, local ID) tuple.
    *
    * Use of this method is preferred in such cases, since it is designed to work

@@ -157,9 +157,9 @@ function OnLoadNewCard() {
     if ("escapedVCardStr" in window.arguments[0]) {
       // hide non vcard values
       HideNonVcardFields();
-      gEditCard.card = MailServices.ab.escapedVCardToAbCard(
-        window.arguments[0].escapedVCardStr
-      );
+      gEditCard.card = Cc["@mozilla.org/addressbook/msgvcardservice;1"]
+        .getService(Ci.nsIMsgVCardService)
+        .escapedVCardToAbCard(window.arguments[0].escapedVCardStr);
     }
 
     if ("titleProperty" in window.arguments[0]) {

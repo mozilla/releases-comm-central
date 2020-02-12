@@ -5,6 +5,8 @@
 
 #include "nsISupports.idl"
 
+interface nsIAbCard;
+
 %{C++
 #include "nsVCardObj.h"
 %}
@@ -13,7 +15,7 @@
 [ptr] native VObjectIterator_ptr(VObjectIterator);
 [ptr] native const_char_ptr(const char);
 
-[uuid(8b6ae917-676d-4f1f-bbad-2ecc9be0d9b1)]
+[scriptable, builtinclass, uuid(8b6ae917-676d-4f1f-bbad-2ecc9be0d9b1)]
 interface nsIMsgVCardService : nsISupports {
   [noscript, notxpcom] void cleanVObject(in VObject_ptr o);
   [noscript, notxpcom] VObject_ptr nextVObjectInList(in VObject_ptr o);
@@ -26,4 +28,13 @@ interface nsIMsgVCardService : nsISupports {
   [noscript, notxpcom] long moreIteration(in VObjectIterator_ptr i);
   [noscript, notxpcom] const_char_ptr vObjectName(in VObject_ptr o);
   [noscript, notxpcom] charPtr vObjectAnyValue(in VObject_ptr o);
+
+  /**
+   * Translates an escaped vcard string into a nsIAbCard.
+   *
+   * @param  escapedVCardStr  The string containing the vcard.
+   *
+   * @return A card containing the translated vcard data.
+   */
+  nsIAbCard escapedVCardToAbCard(in string escapedVCardStr);
 };

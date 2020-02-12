@@ -19,9 +19,9 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgVCardService.h"
 #include "nsIAbCard.h"
-#include "nsIAbManager.h"
 #include "nsVCard.h"
 #include "nsIChannel.h"
+#include "nsIMsgVCardService.h"
 //
 // nsAbContentHandler
 //
@@ -70,12 +70,13 @@ nsAbContentHandler::HandleContent(const char *aContentType,
         nsCOMPtr<nsPIDOMWindowOuter> parentWindow =
             nsPIDOMWindowOuter::From(domWindow);
 
-        nsCOMPtr<nsIAbManager> ab = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+        nsCOMPtr<nsIMsgVCardService> vCardService =
+            do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
 
         nsCOMPtr<nsIAbCard> cardFromVCard;
-        rv = ab->EscapedVCardToAbCard(unescapedData.get(),
-                                      getter_AddRefs(cardFromVCard));
+        rv = vCardService->EscapedVCardToAbCard(unescapedData.get(),
+                                                getter_AddRefs(cardFromVCard));
         NS_ENSURE_SUCCESS(rv, rv);
 
         nsCOMPtr<nsISupportsInterfacePointer> ifptr =
@@ -156,11 +157,13 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
       vCard.Adopt(
           vCardService->WriteMemoryVObjects(0, &len, vObj.get(), false));
 
-      nsCOMPtr<nsIAbManager> ab = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+      nsCOMPtr<nsIMsgVCardService> vCardService =
+          do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCOMPtr<nsIAbCard> cardFromVCard;
-      rv = ab->EscapedVCardToAbCard(vCard.get(), getter_AddRefs(cardFromVCard));
+      rv = vCardService->EscapedVCardToAbCard(vCard.get(),
+                                              getter_AddRefs(cardFromVCard));
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsCOMPtr<mozIDOMWindowProxy> domWindow = do_GetInterface(aContext);

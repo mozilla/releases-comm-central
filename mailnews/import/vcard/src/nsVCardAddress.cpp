@@ -8,11 +8,11 @@
 #include "nsVCardAddress.h"
 
 #include "nsIAbCard.h"
-#include "nsIAbManager.h"
 #include "nsIAbDirectory.h"
 #include "nsIFile.h"
 #include "nsIInputStream.h"
 #include "nsILineInputStream.h"
+#include "nsIMsgVCardService.h"
 
 #include "plstr.h"
 #include "msgCore.h"
@@ -51,7 +51,8 @@ nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
   nsCOMPtr<nsILineInputStream> lineStream(do_QueryInterface(inputStream, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIAbManager> ab = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
+  nsCOMPtr<nsIMsgVCardService> vCardService =
+      do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool more = true;
@@ -61,8 +62,8 @@ nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
     if (NS_SUCCEEDED(rv) && !record.IsEmpty()) {
       // Parse the vCard and build an nsIAbCard from it
       nsCOMPtr<nsIAbCard> cardFromVCard;
-      rv =
-          ab->EscapedVCardToAbCard(record.get(), getter_AddRefs(cardFromVCard));
+      rv = vCardService->EscapedVCardToAbCard(record.get(),
+                                              getter_AddRefs(cardFromVCard));
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsIAbCard *outCard;

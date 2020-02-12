@@ -417,7 +417,9 @@ MailDefaultHandler.prototype = {
                 inputStream,
                 inputStream.available()
               );
-              let card = MailServices.ab.escapedVCardToAbCard(data);
+              let card = Cc["@mozilla.org/addressbook/msgvcardservice;1"]
+                .getService(Ci.nsIMsgVCardService)
+                .escapedVCardToAbCard(data);
               Services.ww.openWindow(
                 null,
                 "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",

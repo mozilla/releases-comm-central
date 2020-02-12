@@ -299,9 +299,6 @@ AddrBookManager.prototype = {
     }
     return false;
   },
-  escapedVCardToAbCard(escapedVCardStr) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-  },
   generateUUID(directoryId, localId) {
     return `${directoryId}#${localId}`;
   },
