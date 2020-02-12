@@ -4,7 +4,7 @@
 
 /* Lightning "Calendar" Toolbarbutton */
 #lightning-button-calendar {
-    list-style-image: url(chrome://calendar-common/skin/icons/calendar-tab.svg);
+    list-style-image: url(chrome://messenger/skin/shared/in-content/calendar.svg);
 }
 
 /* Lightning "Tasks" Toolbarbutton */

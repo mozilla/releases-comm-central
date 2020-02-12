@@ -15,8 +15,6 @@ chrome/classic/skin/classic/messenger/icons/accounts.svg
 chrome/classic/skin/classic/messenger/icons/addon-install-confirm.svg
 chrome/classic/skin/classic/messenger/icons/new-mail-alert.png
 chrome/classic/skin/classic/messenger/icons/spelling.svg
-chrome/classic/skin/classic/messenger/icons/tag.svg
-chrome/classic/skin/classic/messenger/shared/in-content/calendar.svg
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/branding/icon64.png
 chrome/messenger/content/messenger/extension.svg
@@ -43,9 +41,6 @@ components/calFilter.js
 chrome/calendar/content/calFilter.js
 components/calUtils.js
 chrome/calendar/content/calUtils.js
-chrome/calendar/skin/common/icons/calendar-tab.svg
-chrome/calendar/skin/common/icons/category.svg
-chrome/calendar/skin/common/icons/complete.svg
 
 # Variants of paths in mozilla/browser/installer/allowed-dupes.mn:
 # bug 658850

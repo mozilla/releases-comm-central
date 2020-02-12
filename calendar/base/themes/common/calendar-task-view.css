@@ -205,7 +205,7 @@
 }
 
 #task-actions-category {
-    list-style-image: url(chrome://calendar-common/skin/icons/category.svg);
+    list-style-image: url(chrome://messenger/skin/icons/tag.svg);
 }
 
 #task-actions-markcompleted {
