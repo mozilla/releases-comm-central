@@ -16,6 +16,7 @@ job-defaults:
     shipping-phase: promote
     worker-type: balrog
     worker:
+        implementation: balrog
         balrog-action: submit-toplevel
         require-mirrors: true
         archive-domain:
