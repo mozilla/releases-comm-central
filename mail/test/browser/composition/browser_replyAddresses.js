@@ -141,6 +141,31 @@ function checkToAddresses(replyWinController, expectedFields) {
       );
     }
   }
+
+  // Check if the input "aria-label" attribute was properly updated.
+  for (let row of rows) {
+    let addrLabel = row.querySelector(".address-label-container > label").value;
+    let addrTextbox = row.querySelector(
+      `input[is="autocomplete-input"][recipienttype]`
+    );
+    let ariaLabel = addrTextbox.getAttribute("aria-label");
+    let pillCount = row.querySelectorAll("mail-address-pill").length;
+
+    switch (pillCount) {
+      case 0:
+        Assert.equal(ariaLabel, "Empty " + addrLabel + " input field");
+        break;
+      case 1:
+        Assert.equal(ariaLabel, addrLabel + " input field with one address");
+        break;
+      default:
+        Assert.equal(
+          ariaLabel,
+          addrLabel + " input field with " + pillCount + " addresses"
+        );
+        break;
+    }
+  }
 }
 
 /**
