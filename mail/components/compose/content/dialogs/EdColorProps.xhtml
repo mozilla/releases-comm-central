@@ -30,10 +30,8 @@
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox align="start">
-    <hbox class="groupbox-title">
-      <label class="header">&pageColors.label;</label>
-    </hbox>
+  <html:fieldset align="start">
+    <html:legend>&pageColors.label;</html:legend>
     <radiogroup id="PageColorGroup">
       <radio id="DefaultColorsRadio" label="&defaultColorsRadio.label;" oncommand="UseDefaultColors()"
         accesskey="&defaultColorsRadio.accessKey;"
@@ -103,7 +101,7 @@
       <spacer flex="1"/>
     </hbox>
     <spacer class="spacer"/>
-  </groupbox>
+  </html:fieldset>
   <spacer class="spacer"/>
   <label control="BackgroundImageInput"
          value="&backgroundImage.label;"

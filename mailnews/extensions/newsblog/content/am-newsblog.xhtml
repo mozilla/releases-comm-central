@@ -52,18 +52,18 @@
 
     <separator class="thin"/>
 
-    <groupbox>
-      <label class="header">&serverSettings.label;</label>
+    <html:fieldset>
+      <html:legend>&serverSettings.label;</html:legend>
       <checkbox id="doBiff"
                 label="&biffAll.label;"
                 accesskey="&biffAll.accesskey;"
                 oncommand="setPrefs(this)"/>
-    </groupbox>
+    </html:fieldset>
 
     <separator class="thin"/>
 
-    <groupbox>
-      <label class="header">&newFeedSettings.label;</label>
+    <html:fieldset>
+      <html:legend>&newFeedSettings.label;</html:legend>
 
       <hbox align="center">
         <checkbox id="updateEnabled"
@@ -107,7 +107,7 @@
                       placeholder="&autoTagPrefix.placeholder;"
                       onchange="setPrefs(this)"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <separator class="thin"/>
 
@@ -120,8 +120,8 @@
 
     <separator class="thin"/>
 
-    <groupbox>
-      <label class="header">&messageStorage.label;</label>
+    <html:fieldset>
+      <html:legend>&messageStorage.label;</html:legend>
 
       <checkbox id="server.emptyTrashOnExit"
                 wsm_persist="true"
@@ -149,6 +149,6 @@
         </hbox>
       </vbox>
 
-    </groupbox>
+    </html:fieldset>
   </vbox>
 </window>

@@ -14,8 +14,8 @@
       <html:h1 data-l10n-id="chat-pane-header"/>
     </hbox>
 
-    <groupbox data-category="paneChat">
-      <label><html:h2 data-l10n-id="chat-status-title"/></label>
+    <html:fieldset data-category="paneChat">
+      <html:legend data-l10n-id="chat-status-title"></html:legend>
         <!-- Startup -->
         <hbox align="center">
           <label id="chatStartupAction" value="&startupAction.label;"
@@ -54,10 +54,10 @@
                       class="idle-reporting-enabled indent"
                       preference="messenger.status.defaultIdleAwayMessage"/>
         </vbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox data-category="paneChat">
-      <label><html:h2 data-l10n-id="chat-notifications-title"/></label>
+    <html:fieldset data-category="paneChat">
+      <html:legend data-l10n-id="chat-notifications-title"></html:legend>
       <hbox>
         <checkbox id="sendTyping"
                   label="&sendTyping.label;"
@@ -135,7 +135,7 @@
                   oncommand="gChatPane.browseForSoundFile();"/>
         </hbox>
       </radiogroup>
-    </groupbox>
+    </html:fieldset>
 
     <hbox id="chatPaneStylingCategory"
           class="subcategory"
@@ -143,7 +143,7 @@
       <html:h1 data-l10n-id="chat-pane-styling-header"/>
     </hbox>
 
-    <groupbox data-category="paneChat">
+    <html:fieldset data-category="paneChat">
       <separator/>
       <hbox align="baseline">
         <label value="&messageStyleTheme.label;" control="messagestyle-themename"
@@ -172,6 +172,7 @@
         </menulist>
       </hbox>
       <separator class="thin"/>
+      <hbox align="start">
       <label value="&messageStylePreview.label;"/>
       <tooltip id="aHTMLTooltip" page="true"/>
       <deck flex="1" id="previewDeck" selectedIndex="1">
@@ -184,6 +185,7 @@
           </hbox>
         </vbox>
       </deck>
+      </hbox>
       <hbox align="baseline">
         <label value="&messageStyleVariant.label;" control="themevariant"
                accesskey="&messageStyleVariant.accesskey;"/>
@@ -194,6 +196,6 @@
       <checkbox id="showHeaderCheckbox" label="&messageStyleShowHeader.label;"
                 accesskey="&messageStyleShowHeader.accesskey;"
                 preference="messenger.options.messagesStyle.showHeader"/>
-    </groupbox>
+    </html:fieldset>
 
   </prefpane>

@@ -30,10 +30,8 @@
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox>
-    <hbox class="groupbox-title">
-      <label class="header">&dimensionsBox.label;</label>
-    </hbox>
+  <html:fieldset>
+    <html:legend>&dimensionsBox.label;</html:legend>
     <html:table>
       <html:tr>
         <html:th>
@@ -69,18 +67,16 @@
       </html:tr>
     </html:table>
     <checkbox id="3dShading" label="&threeDShading.label;" accesskey="&threeDShading.accessKey;"/>
-  </groupbox>
-  <groupbox>
-    <hbox class="groupbox-title">
-      <label class="header">&alignmentBox.label;</label>
-    </hbox>
+  </html:fieldset>
+  <html:fieldset>
+    <html:legend>&alignmentBox.label;</html:legend>
     <radiogroup id="alignmentGroup" orient="horizontal">
       <spacer class="spacer"/>
       <radio id="leftAlign"   label="&leftRadio.label;"   accesskey="&leftRadio.accessKey;"/>
       <radio id="centerAlign" label="&centerRadio.label;" accesskey="&centerRadio.accessKey;"/>
       <radio id="rightAlign"  label="&rightRadio.label;"  accesskey="&rightRadio.accessKey;"/>
     </radiogroup>
-  </groupbox>
+  </html:fieldset>
   <spacer class="spacer"/>
   <hbox>
     <button  id="SaveDefault" label="&saveSettings.label;"

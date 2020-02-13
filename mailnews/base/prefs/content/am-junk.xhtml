@@ -28,8 +28,8 @@
       <label class="dialogheader-title" value="&junkSettings.label;"/>
     </hbox>
 
-    <groupbox>
-      <label class="header">&junkClassification.label;</label>
+    <html:fieldset>
+      <html:legend>&junkClassification.label;</html:legend>
 
       <label hidden="true"
              id="server.spamLevel"
@@ -122,10 +122,13 @@
 
       <description width="1">&ispHeadersWarning.label;</description>
 
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox>
-      <label class="header">&junkActions.label;</label>
+    <separator/>
+    <separator/>
+
+    <html:fieldset>
+      <html:legend>&junkActions.label;</html:legend>
 
       <checkbox id="server.moveOnSpam"
                 label="&move.label;"
@@ -207,7 +210,7 @@
                control="server.purgeSpamInterval"/>
       </hbox>
 
-    </groupbox>
+    </html:fieldset>
 
     <separator class="thin"/>
 

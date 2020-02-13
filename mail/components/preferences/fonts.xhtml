@@ -4,6 +4,7 @@
    - file, You can obtain one at https://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
 <!DOCTYPE window [
@@ -36,7 +37,7 @@
       <html:link rel="localization" href="messenger/preferences/fonts.ftl"/>
     </linkset>
 
-    <groupbox>
+    <html:fieldset>
       <hbox align="center">
         <label control="selectLangs">
           <html:h2 id="fontsTitle" accesskey="&language.accesskey;">&language.label;</html:h2>
@@ -228,10 +229,10 @@
           </menulist>
         </hbox>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox>
-      <label><html:h2>&fontControl.label;</html:h2></label>
+    <html:fieldset>
+      <html:legend>&fontControl.label;</html:legend>
 
       <hbox>
         <checkbox id="useDocumentFonts"
@@ -246,10 +247,10 @@
                   accesskey="&fixedWidth.accesskey;"
                   preference="mail.fixed_width_messages"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox align="start">
-      <label><html:h2>&languagesTitle2.label;</html:h2></label>
+    <html:fieldset>
+      <html:legend>&languagesTitle2.label;</html:legend>
 
       <label value="&composingDescription2.label;"/>
 
@@ -280,7 +281,7 @@
       <checkbox id="replyInDefaultCharset" label="&replyInDefaultCharset3.label;"
                 preference="mailnews.reply_in_default_charset"
                 accesskey="&replyInDefaultCharset3.accesskey;"/>
-    </groupbox>
+    </html:fieldset>
     <separator/>
   </vbox>
 </dialog>

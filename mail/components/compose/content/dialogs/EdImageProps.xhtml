@@ -82,42 +82,26 @@
     </tabpanels>
   </tabbox>
 
-  <hbox align="end">
-    <groupbox id="imagePreview" orient="horizontal" flex="1">
-      <hbox class="groupbox-title">
-        <label class="header">&previewBox.label;</label>
-      </hbox>
-      <hbox id="preview-image-box" align="center">
-        <spacer flex="1"/>
-        <description id="preview-image-holder"/>
-        <spacer flex="1"/>
-      </hbox>
-      <vbox id="PreviewSize" collapsed="true">
-        <spacer flex="1"/>
-        <label value="&actualSize.label;"/>
-        <hbox>
-          <label value="&widthEditField.label;"/>
-          <spacer flex="1"/>
-          <label id="PreviewWidth"/>
-        </hbox>
-        <hbox>
-          <label value="&heightEditField.label;"/>
-          <spacer flex="1"/>
-          <label id="PreviewHeight"/>
-        </hbox>
-        <spacer flex="1"/>
-      </vbox>
-    </groupbox>
+  <spacer flex="1"/>
 
-    <vbox id="AdvancedEdit">
-      <hbox flex="1" style="margin-top: 0.2em" align="center">
-        <!-- This will right-align the button -->
-        <spacer flex="1"/>
-        <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
-                accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
-      </hbox>
-    </vbox>
+  <html:fieldset id="imagePreview" hidden="hidden">
+    <html:legend>&previewBox.label;</html:legend>
+
+    <html:figure>
+      <html:img id="preview-image" style="display:inline-block;"/>
+      <html:figcaption style="float:right;">
+        <label value="&actualSize.label;"/> <label id="PreviewWidth"/>x<label id="PreviewHeight"/>
+      </html:figcaption>
+    </html:figure>
+  </html:fieldset>
+
+  <hbox pack="end">
+    <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()"
+            label="&AdvancedEditButton.label;"
+            accesskey="&AdvancedEditButton.accessKey;"
+            tooltiptext="&AdvancedEditButton.tooltip;"/>
   </hbox>
+
   <separator class="groove"/>
 
 </dialog>

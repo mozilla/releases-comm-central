@@ -21,9 +21,8 @@
     <label class="dialogheader-title" value="&pane.title;"/>
   </hbox>
 
-  <groupbox>
-
-    <label class="header">&pane.title;</label>
+  <html:fieldset>
+    <html:legend>&pane.title;</html:legend>
 
     <hbox id="prefChoices" align="center">
       <radiogroup id="identity.dsn_use_custom_prefs"
@@ -55,5 +54,5 @@
                 preftype="bool"
                 prefstring="mail.identity.%identitykey%.dsn_always_request_on"/>
     </vbox>
-  </groupbox>
+  </html:fieldset>
 </window>

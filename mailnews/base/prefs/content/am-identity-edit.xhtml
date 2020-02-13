@@ -58,8 +58,8 @@
     <tabpanels id="identityTabsPanels" flex="1">
       <!-- Identity Settings Tab -->
       <vbox flex="1" name="settings">
-        <groupbox>
-          <label class="header">&publicData.label;</label>
+        <html:fieldset>
+          <html:legend>&publicData.label;</html:legend>
           <html:table class="identity-table">
             <html:tr>
               <html:th>
@@ -163,10 +163,10 @@
                     accesskey="&editVCard.accesskey;" oncommand="editVCard()"/>
             <label id="identity.escapedVCard" hidden="true"/>
           </hbox>
-        </groupbox>
+        </html:fieldset>
 
-        <groupbox>
-          <label class="header">&privateData.label;</label>
+        <html:fieldset>
+          <html:legend>&privateData.label;</html:legend>
 
           <label value="&smtpName.label;"
                  control="identity.smtpServerKey"
@@ -198,7 +198,7 @@
                         class="input-inline"
                         aria-labelledby="identity.input.label"/>
           </hbox>
-        </groupbox>
+        </html:fieldset>
 
         <spacer flex="1"/>
       </vbox>

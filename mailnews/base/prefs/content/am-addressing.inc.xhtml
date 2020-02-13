@@ -5,8 +5,8 @@
     <vbox flex="1" id="compositionAndAddressing">
       <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
-      <groupbox>
-        <label class="header">&compositionGroupTitle.label;</label>
+      <html:fieldset>
+        <html:legend>&compositionGroupTitle.label;</html:legend>
         <hbox align="center">
           <checkbox wsm_persist="true" id="identity.composeHtml" label="&useHtml.label;"
                     accesskey="&useHtml.accesskey;"
@@ -66,12 +66,12 @@
                   accesskey="&globalComposingPrefs.accesskey;"
                   oncommand="showGlobalComposingPrefs();"/>
         </hbox>
-      </groupbox>
+      </html:fieldset>
 
       <separator class="thin"/>
 
-      <groupbox>
-        <label class="header">&addressingGroupTitle.label;</label>
+      <html:fieldset>
+        <html:legend>&addressingGroupTitle.label;</html:legend>
 #ifndef MOZ_THUNDERBIRD
         <hbox align="center">
           <checkbox wsm_persist="true" id="identity.autocompleteToMyDomain"
@@ -117,5 +117,5 @@
                   accesskey="&globalAddressingPrefs.accesskey;"
                   oncommand="showGlobalAddressingPrefs();"/>
         </hbox>
-      </groupbox>
+      </html:fieldset>
     </vbox>

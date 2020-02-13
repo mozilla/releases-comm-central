@@ -15,7 +15,7 @@
       <html:h1 data-l10n-id="composition-category-header"/>
     </hbox>
 
-    <groupbox data-category="paneCompose">
+    <html:fieldset data-category="paneCompose">
       <separator class="thin"/>
       <hbox align="center">
         <label value="&forwardMsg.label;" accesskey="&forwardMsg.accesskey;" control="forwardMessageMode"/>
@@ -48,9 +48,9 @@
                   accesskey="&warnOnSendAccelKey.accesskey;"/>
         <spacer flex="1"/>
       </hbox>
-    </groupbox>
-    <groupbox data-category="paneCompose">
-      <label><html:h2 data-l10n-id="composition-spelling-title"/></label>
+    </html:fieldset>
+    <html:fieldset data-category="paneCompose">
+      <html:legend data-l10n-id="composition-spelling-title"></html:legend>
       <hbox>
         <checkbox id="spellCheckBeforeSend"
                   label="&spellCheck.label;"
@@ -80,9 +80,9 @@
                 value="&downloadDictionaries.label;"/>
         <spacer flex="1"/>
       </hbox>
-    </groupbox>
-    <groupbox data-category="paneCompose">
-      <label><html:h2 data-l10n-id="compose-html-style-title"/></label>
+    </html:fieldset>
+    <html:fieldset data-category="paneCompose">
+      <html:legend data-l10n-id="compose-html-style-title"></html:legend>
       <hbox>
         <vbox flex="1">
           <hbox align="center">
@@ -158,7 +158,7 @@
                 accesskey="&sendOptions.accesskey;"
                 oncommand="gComposePane.sendOptionsDialog();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <hbox id="compositionAddressingCategory"
           class="subcategory"
@@ -166,7 +166,7 @@
       <html:h1 data-l10n-id="composition-addressing-header"/>
     </hbox>
 
-    <groupbox data-category="paneCompose">
+    <html:fieldset data-category="paneCompose">
       <!-- Address Autocomplete -->
       <separator class="thin"/>
 
@@ -218,7 +218,7 @@
                   mailinglists="true"
                   flex="1"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <hbox id="compositionAttachmentsCategory"
           class="subcategory"
@@ -226,7 +226,7 @@
       <html:h1 data-l10n-id="composition-attachments-header"/>
     </hbox>
 
-    <groupbox data-category="paneCompose">
+    <html:fieldset data-category="paneCompose">
       <hbox align="center">
         <checkbox id="attachment_reminder_label"
                   label="&attachmentReminder.label;"
@@ -287,6 +287,6 @@
           </vbox>
         </hbox>
       </vbox>
-    </groupbox>
+    </html:fieldset>
 
   </prefpane>

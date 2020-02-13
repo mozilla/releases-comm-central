@@ -26,32 +26,33 @@
       <label class="dialogheader-title"/>
     </hbox>
 
-    <groupbox id="offline.titlebox" hidefor="movemail,pop3,none,rss">
-      <label class="header">&syncGroupTitle.label;</label>
+    <html:fieldset id="offline.titlebox" hidefor="movemail,pop3,none,rss">
+      <html:legend>&syncGroupTitle.label;</html:legend>
 
-    <checkbox hidefor="movemail,pop3,nntp,none"
-              id="offline.folders" label="&allFoldersOffline2.label;"
-              oncommand="toggleOffline()"
-              accesskey="&allFoldersOffline2.accesskey;"/>
+      <vbox>
+        <checkbox hidefor="movemail,pop3,nntp,none"
+                  id="offline.folders" label="&allFoldersOffline2.label;"
+                  oncommand="toggleOffline()"
+                  accesskey="&allFoldersOffline2.accesskey;"/>
 
-    <description hidefor="pop3,nntp,movemail,none,rss">&allFoldersOfflineNote.label;</description>
+        <description hidefor="pop3,nntp,movemail,none,rss">&allFoldersOfflineNote.label;</description>
 
-    <separator class="thin" hidefor="movemail,pop3,nntp,none"/>
+        <separator class="thin" hidefor="movemail,pop3,nntp,none"/>
 
-    <hbox hidefor="movemail,pop3,nntp,none" pack="end">
-        <button label="&offlineImapAdvancedOffline.label;" accesskey="&offlineImapAdvancedOffline.accesskey;"
-                oncommand="onClickSelect()" id="selectImapFoldersButton" class="selectForOfflineUseButton"/>
-    </hbox>
+        <hbox hidefor="movemail,pop3,nntp,none" pack="end">
+          <button label="&offlineImapAdvancedOffline.label;" accesskey="&offlineImapAdvancedOffline.accesskey;"
+                  oncommand="onClickSelect()" id="selectImapFoldersButton" class="selectForOfflineUseButton"/>
+        </hbox>
 
-    <hbox hidefor="movemail,pop3,imap,none" pack="end">
-        <button label="&offlineSelectNntp.label;" accesskey="&offlineSelectNntp.accesskey;"
-                oncommand="onClickSelect()" id="selectNewsgroupsButton" class="selectForOfflineUseButton"/>
-    </hbox>
+        <hbox hidefor="movemail,pop3,imap,none" pack="end">
+          <button label="&offlineSelectNntp.label;" accesskey="&offlineSelectNntp.accesskey;"
+                  oncommand="onClickSelect()" id="selectNewsgroupsButton" class="selectForOfflineUseButton"/>
+        </hbox>
+      </vbox>
+    </html:fieldset>
 
-    </groupbox>
-
-    <groupbox id="diskspace.titlebox">
-      <label class="header" hidefor="movemail,pop3,none,rss">&diskspaceGroupTitle.label;</label>
+    <html:fieldset id="diskspace.titlebox">
+      <html:legend hidefor="movemail,pop3,none,rss">&diskspaceGroupTitle.label;</html:legend>
 
     <description hidefor="pop3,nntp,movemail,none,rss">&doNotDownloadImap.label;</description>
     <description hidefor="pop3,imap,movemail,none,rss">&doNotDownloadNntp.label;</description>
@@ -162,6 +163,6 @@
         <label value="&daysOld.label;" control="nntp.removeBodyMin" id="daysOldMsg"/>
     </hbox>
     </vbox>
-    </groupbox>
+    </html:fieldset>
   </vbox>
 </window>

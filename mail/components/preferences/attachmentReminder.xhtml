@@ -24,8 +24,7 @@
   <prefpane id="attachmentReminderOptionsDialogPane">
     <script src="chrome://messenger/content/preferences/attachmentReminder.js"/>
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
-
-    <groupbox>
+    <vbox>
       <label control="keywordList">&attachKeywordText.label;</label>
       <hbox>
         <richlistbox id="keywordList" flex="1" height="250px"
@@ -39,7 +38,7 @@
                   oncommand="gAttachmentReminderOptionsDialog.removeKeyword();"/>
         </vbox>
       </hbox>
-    </groupbox>
+    </vbox>
   </prefpane>
 </dialog>
 </window>

@@ -62,11 +62,10 @@ function ImageStartup() {
   gDialog.imagetbInput = document.getElementById("imagetopbottomInput");
   gDialog.border = document.getElementById("border");
   gDialog.alignTypeSelect = document.getElementById("alignTypeSelect");
-  gDialog.ImageHolder = document.getElementById("preview-image-holder");
   gDialog.PreviewWidth = document.getElementById("PreviewWidth");
   gDialog.PreviewHeight = document.getElementById("PreviewHeight");
-  gDialog.PreviewSize = document.getElementById("PreviewSize");
-  gDialog.PreviewImage = null;
+  gDialog.PreviewImage = document.getElementById("preview-image");
+  gDialog.PreviewImage.addEventListener("load", PreviewImageLoaded);
   gDialog.OkButton = document.querySelector("dialog").getButton("accept");
 }
 
@@ -261,8 +260,7 @@ function PreviewImageLoaded() {
       gDialog.PreviewWidth.setAttribute("value", gActualWidth);
       gDialog.PreviewHeight.setAttribute("value", gActualHeight);
 
-      gDialog.PreviewSize.collapsed = false;
-      gDialog.ImageHolder.collapsed = false;
+      document.getElementById("imagePreview").hidden = false;
 
       SetSizeWidgets(gDialog.widthInput.value, gDialog.heightInput.value);
     }
@@ -274,11 +272,7 @@ function PreviewImageLoaded() {
 }
 
 function LoadPreviewImage() {
-  gDialog.PreviewSize.collapsed = true;
-  // XXXbz workaround for bug 265416 / bug 266284
-  gDialog.ImageHolder.collapsed = true;
-
-  var imageSrc = TrimString(gDialog.srcInput.value);
+  var imageSrc = gDialog.srcInput.value.trim();
   if (!imageSrc) {
     return;
   }
@@ -307,26 +301,8 @@ function LoadPreviewImage() {
     }
   } catch (e) {}
 
-  if (gDialog.PreviewImage) {
-    removeEventListener("load", PreviewImageLoaded, true);
-  }
-
-  if (gDialog.ImageHolder.hasChildNodes()) {
-    gDialog.ImageHolder.firstElementChild.remove();
-  }
-
-  gDialog.PreviewImage = document.createElementNS(
-    "http://www.w3.org/1999/xhtml",
-    "img"
-  );
-  if (gDialog.PreviewImage) {
-    // set the src before appending to the document -- see bug 198435 for why
-    // this is needed.
-    // XXXbz that bug is long-since fixed.  Is this still needed?
-    gDialog.PreviewImage.addEventListener("load", PreviewImageLoaded, true);
-    gDialog.PreviewImage.src = imageSrc;
-    gDialog.ImageHolder.appendChild(gDialog.PreviewImage);
-  }
+  gDialog.PreviewImage.addEventListener("load", PreviewImageLoaded, true);
+  gDialog.PreviewImage.src = imageSrc;
 }
 
 function SetActualSize() {

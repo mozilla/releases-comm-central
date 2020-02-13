@@ -47,8 +47,8 @@
 
   <separator class="thin"/>
 
-  <groupbox>
-    <label class="header">&messageStorage.label;</label>
+  <html:fieldset>
+    <html:legend>&messageStorage.label;</html:legend>
 
     <vbox align="start">
       <checkbox wsm_persist="true" id="server.emptyTrashOnExit"
@@ -92,6 +92,6 @@
               accesskey="&browseFolder.accesskey;"
               oncommand="BrowseForLocalFolders()"/>
     </hbox>
-  </groupbox>
+  </html:fieldset>
   </vbox>
 </window>

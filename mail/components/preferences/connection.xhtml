@@ -8,6 +8,7 @@
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/preferences/connection.dtd">
 
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
@@ -34,8 +35,8 @@
   <script src="chrome://global/content/preferencesBindings.js"/>
   <script src="chrome://messenger/content/preferences/connection.js"/>
 
-  <groupbox>
-    <label><html:h2>&proxyTitle.label;</html:h2></label>
+  <html:fieldset>
+    <html:legend>&proxyTitle.label;</html:legend>
 
     <radiogroup id="networkProxyType" preference="network.proxy.type">
       <radio value="0" label="&noProxyTypeRadio.label;" accesskey="&noProxyTypeRadio.accesskey;"/>
@@ -119,7 +120,7 @@
                 preference="pref.advanced.proxies.disable_button.reload"/>
       </hbox>
     </radiogroup>
-  </groupbox>
+  </html:fieldset>
   <separator class="thin"/>
   <label value="&noproxy.label;"
           accesskey="&noproxy.accesskey;"

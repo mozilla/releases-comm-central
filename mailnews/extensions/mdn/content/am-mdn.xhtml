@@ -24,9 +24,8 @@
       <label class="dialogheader-title" value="&pane.title;"/>
     </hbox>
 
-    <groupbox>
-
-      <label class="header">&pane.title;</label>
+    <html:fieldset>
+      <html:legend>&pane.title;</html:legend>
 
       <hbox id="prefChoices" align="center" flex="1">
         <radiogroup id="identity.use_custom_prefs" wsm_persist="true" genericattr="true"
@@ -126,12 +125,9 @@
               </vbox>
             </hbox>
           </radiogroup>
-
         </vbox>
-
       </vbox>
-
-    </groupbox>
+    </html:fieldset>
   </vbox>
 
 </window>

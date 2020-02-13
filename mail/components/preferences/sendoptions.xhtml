@@ -28,9 +28,9 @@
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 
-    <groupbox>
-      <label><html:h2>&sendMail.title;</html:h2></label>
-
+    <html:fieldset style="padding-bottom:2em;">
+      <html:legend>&sendMail.title;</html:legend>
+      <vbox>
       <checkbox id="autoDowngrade"
                 label="&autoDowngrade.label;"
                 accesskey="&autoDowngrade.accesskey;"
@@ -52,7 +52,8 @@
       <separator class="thin"/>
 
       <description control="mailDefaultHTMLAction">&override.label;</description>
-    </groupbox>
+      </vbox>
+    </html:fieldset>
 
     <separator class="thin"/>
 

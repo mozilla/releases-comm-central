@@ -11,8 +11,8 @@
 
       <description>&securityHeading.label;</description>
 
-      <groupbox id="signing.titlebox">
-        <label class="header">&signingGroupTitle.label;</label>
+      <html:fieldset id="signing.titlebox">
+        <html:legend>&signingGroupTitle.label;</html:legend>
 
         <label id="identity.signing_cert_nameLabel"
                value="&signingCert.message;" control="identity.signing_cert_name"
@@ -43,10 +43,10 @@
         <checkbox id="identity.sign_mail" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.sign_mail"
                   label="&signMessage.label;" accesskey="&signMessage.accesskey;"/>
-      </groupbox>
+      </html:fieldset>
 
-      <groupbox id="encryption.titlebox">
-        <label class="header">&encryptionGroupTitle.label;</label>
+      <html:fieldset id="encryption.titlebox">
+        <html:legend>&encryptionGroupTitle.label;</html:legend>
 
         <label value="&encryptionCert.message;"
                control="identity.encryption_cert_name"/>
@@ -83,11 +83,11 @@
                  label="&alwaysEncryptMessage.label;"
                  accesskey="&alwaysEncryptMessage.accesskey;"/>
         </radiogroup>
-      </groupbox>
+      </html:fieldset>
 
       <!-- Certificate manager -->
-      <groupbox id="smimeCertificateManager">
-        <label class="header">&certificates.label;</label>
+      <html:fieldset id="smimeCertificateManager">
+        <html:legend>&certificates.label;</html:legend>
         <hbox>
           <button id="openCertManagerButton" oncommand="openCertManager();"
                   label="&manageCerts2.label;" accesskey="&manageCerts2.accesskey;"
@@ -96,5 +96,5 @@
                   label="&manageDevices.label;" accesskey="&manageDevices.accesskey;"
                   prefstring="security.disable_button.openDeviceManager"/>
         </hbox>
-      </groupbox>
+      </html:fieldset>
     </vbox>

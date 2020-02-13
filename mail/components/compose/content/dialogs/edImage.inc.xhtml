@@ -153,10 +153,8 @@
       </vbox>
 
       <hbox id="imageAppearance">
-        <groupbox>
-          <hbox class="groupbox-title">
-            <label id="spacingLabel" class="header">&spacingBox.label;</label>
-          </hbox>
+        <html:fieldset>
+          <html:legend id="spacingLabel">&spacingBox.label;</html:legend>
           <html:table>
             <html:tr>
               <html:th>
@@ -210,13 +208,11 @@
               </html:td>
             </html:tr>
           </html:table>
-        </groupbox>
+        </html:fieldset>
 
         <vbox>
-          <groupbox align="start">
-            <hbox class="groupbox-title">
-              <label id="alignLabel" class="header">&alignment.label;</label>
-            </hbox>
+          <html:fieldset>
+            <html:legend id="alignLabel">&alignment.label;</html:legend>
             <menulist id="alignTypeSelect" class="align-menu">
               <menupopup>
                 <menuitem class="align-menu menuitem-iconic"
@@ -237,12 +233,10 @@
                           label="&wrapRightPopup.value;"/>
               </menupopup>
             </menulist>
-          </groupbox>
+          </html:fieldset>
 
-          <groupbox>
-            <hbox class="groupbox-title">
-              <label id="imagemapLabel" class="header">&imagemapBox.label;</label>
-            </hbox>
+          <html:fieldset>
+            <html:legend id="imagemapLabel">&imagemapBox.label;</html:legend>
             <hbox equalsize="always">
             <button id="removeImageMap"
                     oncommand="removeImageMap()"
@@ -251,6 +245,6 @@
                     flex="1"/>
             <spacer flex="1"/><!-- remove when we restore Image Map Editor -->
             </hbox>
-          </groupbox>
+          </html:fieldset>
         </vbox>
       </hbox>

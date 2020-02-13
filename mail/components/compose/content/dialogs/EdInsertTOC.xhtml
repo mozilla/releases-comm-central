@@ -28,10 +28,8 @@
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
   <spacer id="dummy" style="display:none"/>
   <vbox flex="1">
-    <groupbox>
-      <hbox class="groupbox-title">
-        <label class="header">&buildToc.label;</label>
-      </hbox>
+    <html:fieldset>
+      <html:legend>&buildToc.label;</html:legend>
       <html:table>
         <html:tr>
           <html:th></html:th>
@@ -243,7 +241,7 @@
           </html:td>
         </html:tr>
       </html:table>
-    </groupbox>
+    </html:fieldset>
     <vbox>
       <checkbox id="orderedListCheckbox"
                 label="&orderedList.label;"

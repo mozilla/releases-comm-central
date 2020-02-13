@@ -35,10 +35,8 @@
   <script src="chrome://calendar/content/calendar-daypicker.js"/>
 
   <!-- recurrence pattern -->
-  <groupbox id="recurrence-pattern-groupbox">
-    <hbox class="groupbox-title">
-      <label id="recurrence-pattern-caption" class="header">&event.recurrence.pattern.label;</label>
-    </hbox>
+  <html:fieldset id="recurrence-pattern-groupbox">
+    <html:legend id="recurrence-pattern-caption">&event.recurrence.pattern.label;</html:legend>
     <hbox flex="1" id="recurrence-pattern-hbox">
       <vbox>
         <label value="&event.recurrence.occurs.label;"
@@ -490,13 +488,11 @@
         </deck>
       </vbox>
     </hbox>
-  </groupbox>
+  </html:fieldset>
 
   <!-- range of recurrence -->
-  <groupbox id="recurrence-range-groupbox">
-    <hbox class="groupbox-title">
-      <label id="recurrence-range-caption" class="header">&event.recurrence.range.label;</label>
-    </hbox>
+  <html:fieldset id="recurrence-range-groupbox">
+    <html:legend id="recurrence-range-caption">&event.recurrence.range.label;</html:legend>
     <vbox>
       <radiogroup id="recurrence-duration"
                   oncommand="updateRecurrenceControls()">
@@ -541,13 +537,11 @@
         </box>
       </radiogroup>
     </vbox>
-  </groupbox>
+  </html:fieldset>
 
   <!-- preview -->
-  <groupbox id="preview-border" flex="1">
-    <hbox class="groupbox-title">
-      <label id="recurrence-preview-label" class="header">&event.recurrence.preview.label;</label>
-    </hbox>
+  <html:fieldset id="preview-border">
+    <html:legend id="recurrence-preview-label">&event.recurrence.preview.label;</html:legend>
     <box id="recurrence-preview" flex="1">
       <vbox>
         <hbox>
@@ -558,6 +552,6 @@
         </hbox>
       </vbox>
     </box>
-  </groupbox>
+  </html:fieldset>
 </dialog>
 </window>

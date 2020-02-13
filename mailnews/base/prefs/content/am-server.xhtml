@@ -94,8 +94,8 @@
 
     <separator class="thin"/>
 
-    <groupbox hidefor="movemail">
-      <label class="header">&securitySettings.label;</label>
+    <html:fieldset hidefor="movemail">
+      <html:legend>&securitySettings.label;</html:legend>
       <html:table>
         <html:tr>
           <html:td>
@@ -148,10 +148,10 @@
           </html:td>
         </html:tr>
       </html:table>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox>
-      <label class="header">&serverSettings.label;</label>
+    <html:fieldset>
+      <html:legend>&serverSettings.label;</html:legend>
       <vbox align="start">
       <checkbox wsm_persist="true"
                 id="server.loginAtStartUp"
@@ -351,10 +351,10 @@
               accesskey="&alwaysAuthenticate.accesskey;"
               prefattribute="value"
               prefstring="mail.server.%serverkey%.always_authenticate"/>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox>
-      <label class="header">&messageStorage.label;</label>
+    <html:fieldset>
+      <html:legend>&messageStorage.label;</html:legend>
 
       <hbox align="end">
         <vbox align="start" flex="1" id="exitHandlingBox=">
@@ -440,7 +440,7 @@
         </hbox>
       </vbox>
 
-    </groupbox>
+    </html:fieldset>
 
     <separator class="thin"/>
 

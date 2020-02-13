@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountCreation.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/creationDialog.css" type="text/css"?>
@@ -239,10 +240,9 @@
         </form>
       </vbox><!-- .hub-wrapper -->
 
-      <groupbox id="result_area"
-                class="hub-wrapper config-area"
-                hidden="true"
-                pack="center">
+      <html:fieldset id="result_area" class="hub-wrapper config-area"
+                     hidden="hidden"
+                     pack="center">
         <hbox flex="1">
           <label class="label-result"
                  value="&protocol.label;"
@@ -305,13 +305,10 @@
             </vbox>
           </hbox>
         </vbox>
-      </groupbox>
+      </html:fieldset>
 
-      <groupbox id="manual-edit_area"
-                class="hub-wrapper config-area"
-                hidden="true"
-                pack="center"
-                orient="vertical">
+      <html:fieldset id="manual-edit_area" class="hub-wrapper config-area"
+                     hidden="hidden">
 
         <html:table class="manual-config-table">
           <html:tr>
@@ -491,7 +488,7 @@
           </html:tr>
 
         </html:table>
-      </groupbox>
+      </html:fieldset>
 
       <hbox class="hub-footer">
         <hbox id="left_buttons_area" align="center" pack="start" flex="1">

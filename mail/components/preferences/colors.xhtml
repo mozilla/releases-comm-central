@@ -6,6 +6,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/preferences/colors.dtd" >
@@ -23,8 +24,9 @@
         dlgbuttons="accept,cancel">
   <prefpane id="ColorsDialogPane">
     <hbox>
-      <groupbox flex="1">
-        <label><html:h2>&color;</html:h2></label>
+      <hbox flex="1">
+      <html:fieldset>
+        <html:legend>&color;</html:legend>
         <hbox align="center">
           <label value="&textColor.label;" accesskey="&textColor.accesskey;" control="foregroundtextmenu"/>
           <spacer flex="1"/>
@@ -40,10 +42,11 @@
           <checkbox id="browserUseSystemColors" label="&useSystemColors.label;" accesskey="&useSystemColors.accesskey;"
                     preference="browser.display.use_system_colors"/>
         </hbox>
-      </groupbox>
-
-      <groupbox flex="1">
-        <label><html:h2>&links;</html:h2></label>
+      </html:fieldset>
+      </hbox>
+      <hbox flex="1">
+      <html:fieldset>
+        <html:legend>&links;</html:legend>
         <hbox align="center">
           <label value="&linkColor.label;" accesskey="&linkColor.accesskey;" control="unvisitedlinkmenu"/>
           <spacer flex="1"/>
@@ -59,7 +62,8 @@
           <checkbox id="browserUnderlineAnchors" label="&underlineLinks.label;" accesskey="&underlineLinks.accesskey;"
                     preference="browser.underline_anchors"/>
         </hbox>
-      </groupbox>
+      </html:fieldset>
+      </hbox>
     </hbox>
 #ifdef XP_WIN
     <vbox align="start">

@@ -1,8 +1,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-    <groupbox data-category="paneCalendar">
-        <label><html:h2>&pref.calendar.todaypane.agenda.caption;</html:h2></label>
+    <html:fieldset data-category="paneCalendar">
+        <html:legend>&pref.calendar.todaypane.agenda.caption;</html:legend>
         <hbox align="center">
             <label value="&pref.soondays2.label;"
                    accesskey="&pref.soondays2.accesskey;"
@@ -23,10 +23,10 @@
                 </menupopup>
             </menulist>
         </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox id="defaults-itemtype-groupbox" data-category="paneCalendar">
-        <label><html:h2 id="defaults-itemtype-caption">&pref.eventsandtasks.label;</html:h2></label>
+    <html:fieldset id="defaults-itemtype-groupbox" data-category="paneCalendar">
+        <html:legend>&pref.eventsandtasks.label;</html:legend>
         <vbox id="defaults-itemtype-box">
             <hbox id="defaults-event-grid-box" align="center">
                 <label id="default-event-length-label"
@@ -166,14 +166,14 @@
                       accesskey="&pref.editInTab.accesskey;"
                       preference="calendar.item.editInTab"/>
         </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox id="systemColorsGroupbox" data-category="paneCalendar">
-        <label><html:h2>&pref.accessibility.label;</html:h2></label>
+    <html:fieldset id="systemColorsGroupbox" data-category="paneCalendar">
+        <html:legend>&pref.accessibility.label;</html:legend>
         <hbox align="center">
             <checkbox id="systemColors" pack="end"
                       label="&pref.systemcolors.label;"
                       accesskey="&pref.systemcolors.accesskey;"
                       preference="calendar.view.useSystemColors"/>
         </hbox>
-    </groupbox>
+    </html:fieldset>

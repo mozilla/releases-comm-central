@@ -43,10 +43,8 @@
 
       <!-- TABLE PANEL -->
       <vbox>
-        <groupbox orient="horizontal">
-          <hbox class="groupbox-title">
-            <label class="header">&size.label;</label>
-          </hbox>
+        <html:fieldset orient="horizontal">
+          <html:legend>&size.label;</html:legend>
           <hbox>
             <vbox>
               <hbox>
@@ -99,11 +97,9 @@
               </html:div>
             </vbox>
           </hbox>
-        </groupbox>
-        <groupbox>
-          <hbox class="groupbox-title">
-            <label class="header">&tableBorderSpacing.label;</label>
-          </hbox>
+        </html:fieldset>
+        <html:fieldset>
+          <html:legend>&tableBorderSpacing.label;</html:legend>
           <hbox>
             <vbox>
               <hbox flex="1" align="center">
@@ -148,7 +144,7 @@
               </hbox>
             </vbox>
           </hbox>
-        </groupbox>
+        </html:fieldset>
         <!-- Table Alignment and Caption -->
         <hbox flex="1" align="center">
           <label control="TableAlignList"
@@ -198,12 +194,10 @@
 
       <!-- CELL PANEL -->
       <vbox>
-        <groupbox orient="horizontal" align="center">
-          <hbox class="groupbox-title">
-            <label class="header">&cellSelection.label;</label>
-          </hbox>
+        <html:fieldset>
+          <html:legend>&cellSelection.label;</html:legend>
           <vbox>
-            <menulist id="SelectionList" oncommand="ChangeSelection(event.target.value)" flex="1">
+            <menulist id="SelectionList" oncommand="ChangeSelection(event.target.value)">
               <menupopup>
                 <!-- JS code assumes order is Cell, Row, Column -->
                 <menuitem label="&cellSelectCell.label;"   value="1"/>
@@ -211,10 +205,9 @@
                 <menuitem label="&cellSelectColumn.label;" value="3"/>
               </menupopup>
             </menulist>
-            <hbox flex="1">
+            <hbox>
               <button id="PreviousButton"
                       oncommand="MoveSelection(0)"
-                      flex="1"
                       align="center">
                 <image/>
                 <label value="&cellSelectPrevious.label;"
@@ -224,7 +217,6 @@
               <button id="NextButton"
                       oncommand="MoveSelection(1)"
                       class="align-right"
-                      flex="1"
                       align="center">
                 <image/>
                 <label value="&cellSelectNext.label;"
@@ -232,16 +224,17 @@
                        control="NextButton"/>
               </button>
             </hbox>
-          </vbox>
-          <spacer class="bigspacer"/>
-            <description class="wrap" flex="1">&applyBeforeChange.label;</description>
-        </groupbox>
-        <hbox align="center">
-          <!-- cell size groupbox -->
-          <groupbox>
-            <hbox class="groupbox-title">
-              <label class="header">&size.label;</label>
+            <hbox flex="1">
+              &applyBeforeChange.label;
             </hbox>
+          </vbox>
+        </html:fieldset>
+
+        <separator class="groove"/>
+
+        <hbox align="center">
+          <html:fieldset>
+            <html:legend>&size.label;</html:legend>
             <hbox>
               <vbox>
                 <hbox flex="1" align="center">
@@ -270,12 +263,9 @@
                 </hbox>
               </vbox>
             </hbox>
-          </groupbox>
-          <!-- Alignment -->
-          <groupbox>
-            <hbox class="groupbox-title">
-              <label class="header">&cellContentAlignment.label;</label>
-            </hbox>
+          </html:fieldset>
+          <html:fieldset>
+            <html:legend>&cellContentAlignment.label;</html:legend>
             <hbox>
               <vbox>
                 <hbox align="center" flex="1">
@@ -303,7 +293,7 @@
                 </menulist>
               </vbox>
             </hbox>
-          </groupbox>
+          </html:fieldset>
         </hbox>
         <spacer class="spacer"/>
         <hbox align="center">

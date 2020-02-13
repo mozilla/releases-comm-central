@@ -24,8 +24,9 @@
                 preference="mail.biff.animate_dock_icon"
                 accesskey="&bounceSystemDockIcon.accesskey;"/>
       <separator class="thin"/>
-      <groupbox flex="1">
-        <label><html:h2>&dockIconBadge.label;</html:h2></label>
+      <html:fieldset>
+        <html:legend>&dockIconBadge.label;</html:legend>
+        <vbox>
         <separator class="thin"/>
         <label value="&dockIconShow.label;"/>
         <radiogroup id="dockCount"
@@ -38,7 +39,8 @@
                  label="&newMessagesCountDock.label;"
                  accesskey="&newMessagesCountDock.label;"/>
         </radiogroup>
-      </groupbox>
+        </vbox>
+      </html:fieldset>
       <separator/>
       <description class="bold">&directNotificationSettings.label;</description>
     </hbox>

@@ -1,8 +1,8 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-    <groupbox data-category="paneCalendar">
-        <label><html:h2>&pref.alarmgoesoff.label;</html:h2></label>
+    <html:fieldset data-category="paneCalendar">
+        <html:legend>&pref.alarmgoesoff.label;</html:legend>
         <vbox id="alarm-sound-box">
             <hbox align="center">
                 <checkbox id="alarmSoundCheckbox"
@@ -59,10 +59,10 @@
                       label="&pref.missedalarms2;"
                       accesskey="&pref.calendar.alarms.missedAlarms.accessKey;"/>
         </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox data-category="paneCalendar">
-        <label><html:h2>&pref.calendar.alarms.defaults.label;</html:h2></label>
+    <html:fieldset data-category="paneCalendar">
+        <html:legend>&pref.calendar.alarms.defaults.label;</html:legend>
         <hbox align="center">
             <label value="&pref.defaultsnoozelength.label;"
                    accesskey="&pref.defaultsnoozelength.accesskey;"
@@ -185,4 +185,4 @@
             </html:table>
             <spacer flex="1"/>
         </hbox>
-    </groupbox>
+    </html:fieldset>

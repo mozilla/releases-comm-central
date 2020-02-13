@@ -72,10 +72,8 @@
                 label="&accountAdvancedTitle.label;">
       <description>&accountAdvancedInfo.label;</description>
       <separator class="thin"/>
-      <groupbox id="aliasGroupbox">
-        <hbox class="groupbox-title">
-          <label id="aliasGroupboxCaption" class="header">&accountAliasGroupbox.caption;</label>
-        </hbox>
+      <html:fieldset id="aliasGroupbox">
+        <html:legend id="aliasGroupboxCaption">&accountAliasGroupbox.caption;</html:legend>
         <hbox id="aliasBox" align="baseline" class="input-container">
           <label id="aliasLabel"
                  value="&accountAliasField.label;"
@@ -84,17 +82,15 @@
           <html:input id="alias" type="text" class="input-inline"/>
         </hbox>
         <description>&accountAliasInfo.label;</description>
-      </groupbox>
+      </html:fieldset>
 
       <checkbox id="newMailNotification"
                 label="&accountAdvanced.newMailNotification.label;" hidden="true"/>
 
-      <groupbox id="protoSpecificGroupbox">
-        <hbox class="groupbox-title">
-          <label id="protoSpecificCaption" class="header"/>
-        </hbox>
+      <html:fieldset id="protoSpecificGroupbox">
+        <html:legend id="protoSpecificCaption"></html:legend>
         <vbox id="protoSpecific" flex="1"/>
-      </groupbox>
+      </html:fieldset>
     </wizardpage>
 
     <wizardpage id="accountsummary" pageid="accountsummary"

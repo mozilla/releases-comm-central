@@ -32,21 +32,17 @@
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <vbox style="min-width: 20em">
-    <groupbox>
-      <hbox class="groupbox-title">
-        <label id="linkTextCaption" class="header"/>
-      </hbox>
+    <html:fieldset>
+      <html:legend><label id="linkTextCaption"/></html:legend>
       <vbox>
         <label id="linkTextMessage" control="linkTextInput"/>
         <html:input id="linkTextInput" type="text" class="input-inline"
                     aria-labelledby="linkTextMessage"/>
       </vbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox id="LinkURLBox">
-      <hbox class="groupbox-title">
-        <label class="header">&LinkURLBox.label;</label>
-      </hbox>
+    <html:fieldset id="LinkURLBox">
+      <html:legend>&LinkURLBox.label;</html:legend>
       <vbox id="LinkLocationBox">
         <label id="hrefLabel"
                control="hrefInput"
@@ -72,7 +68,7 @@
                 label="&attachLinkSource.label;"
                 accesskey="&attachLinkSource.accesskey;"
                 oncommand="DoAttachSourceCheckbox()"/>
-    </groupbox>
+    </html:fieldset>
   </vbox>
   <vbox id="AdvancedEdit">
     <hbox flex="1" style="margin-top: 0.2em" align="center">

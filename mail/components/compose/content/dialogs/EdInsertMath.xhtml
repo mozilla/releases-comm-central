@@ -36,10 +36,8 @@
     <tabpanels oncommand="insertLaTeXCommand(event.target);"/>
   </tabbox>
   <spacer class="spacer"/>
-  <groupbox>
-    <hbox class="groupbox-title">
-      <label class="header">&options.label;</label>
-    </hbox>
+  <html:fieldset>
+    <html:legend>&options.label;</html:legend>
     <hbox>
       <radiogroup id="optionMode" oncommand="updateMode();">
         <radio label="&optionInline.label;"
@@ -54,7 +52,7 @@
                accesskey="&optionRTL.accesskey;"/>
       </radiogroup>
     </hbox>
-  </groupbox>
+  </html:fieldset>
   <spacer class="spacer"/>
   <separator class="groove"/>
 </dialog>

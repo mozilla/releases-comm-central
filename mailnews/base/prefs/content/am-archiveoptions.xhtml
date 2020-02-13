@@ -32,9 +32,10 @@
               label="&keepFolderStructure.label;"
               accesskey="&keepFolderStructure.accesskey;"/>
 
-    <groupbox flex="1">
-      <label class="header">&archiveExample.label;</label>
-      <tree id="archiveTree" hidecolumnpicker="true" disabled="true" flex="1">
+    <html:fieldset flex="1">
+      <html:legend>&archiveExample.label;</html:legend>
+      <hbox flex="1">
+      <tree id="archiveTree" hidecolumnpicker="true" disabled="true" flex="1" style="min-height:8em;">
         <treecols>
           <treecol primary="true" hideheader="true" flex="1"
                    id="folderNameCol"/>
@@ -93,7 +94,8 @@
           </treeitem>
         </treechildren>
       </tree>
-    </groupbox>
+      </hbox>
+    </html:fieldset>
   </vbox>
 </dialog>
 </window>

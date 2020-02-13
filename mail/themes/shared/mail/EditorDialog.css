@@ -282,21 +282,23 @@ tree.list {
   border-top-color: #d7d7d7;
 }
 
-/* ::::: groupbox ::::: */
-
-groupbox {
-  -moz-appearance: groupbox;
-  margin: 3px;
-  margin-top: 1em;
+html|fieldset {
+  margin: 1em 3px 3px 3px;
   padding: 3px 0 6px;
+  border: none;
 }
-
-groupbox > .groupbox-title > .header {
-  font-weight: normal;
+html|legend {
+  font-weight: bold;
   margin-top: -1em;
   margin-inline-start: 3px;
   padding-inline: 3px;
-  background-color: -moz-dialog;
+}
+
+html|fieldset > hbox,
+html|fieldset > vbox,
+html|fieldset > radiogroup,
+html|fieldset > menulist {
+  width: -moz-available;
 }
 
 html|table html|th {

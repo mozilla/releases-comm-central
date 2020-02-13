@@ -25,10 +25,8 @@
   <script src="chrome://messenger/content/messengercompose/EdInsertTable.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <groupbox>
-    <hbox class="groupbox-title">
-      <label class="header">&size.label;</label>
-    </hbox>
+  <html:fieldset>
+    <html:legend>&size.label;</html:legend>
     <html:table>
       <html:tr>
         <html:th>
@@ -71,7 +69,7 @@
       </html:tr>
     </html:table>
     <spacer class="spacer"/>
-  </groupbox>
+  </html:fieldset>
   <spacer class="spacer"/>
   <hbox align="center">
     <label control="borderInput"

@@ -738,20 +738,24 @@ findbar {
   text-shadow: none;
 }
 
-/* ::::: groupbox ::::: */
-
-groupbox {
-  -moz-appearance: groupbox;
+fieldset {
   padding: 0 8px 5px;
-  margin: 6px;
-  margin-top: 1.5em;
+  margin: 1.5em 6px 6px 6px;
+  border: none;
 }
 
-groupbox > .groupbox-title > .header {
+legend {
   font-size: 1.18em;
   font-weight: normal;
   margin-top: -1.3em;
   margin-bottom: 5px;
   margin-inline-start: -5px;
+  font-weight: bold;
+}
+
+fieldset > hbox,
+fieldset > vbox,
+fieldset > radiogroup {
+  width: -moz-available;
 }
 

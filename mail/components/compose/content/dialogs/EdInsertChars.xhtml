@@ -24,10 +24,8 @@
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
-  <groupbox>
-    <hbox class="groupbox-title">
-      <label class="header">&category.label;</label>
-    </hbox>
+  <html:fieldset>
+    <html:legend>&category.label;</html:legend>
     <radiogroup id="CatGrp" persist="category letter_index char_index">
       <radio id="AccentUpper" label="&accentUpper.label;"   oncommand="ChangeCategory(this.id)"/>
       <radio id="AccentLower" label="&accentLower.label;"   oncommand="ChangeCategory(this.id)"/>
@@ -36,7 +34,7 @@
       <radio id="Symbol"      label="&commonSymbols.label;" oncommand="ChangeCategory(this.id)"/>
     </radiogroup>
     <spacer class="spacer"/>
-  </groupbox>
+  </html:fieldset>
   <hbox equalsize="always">
     <vbox flex="1">
       <!-- value is set in JS from editor.properties strings -->

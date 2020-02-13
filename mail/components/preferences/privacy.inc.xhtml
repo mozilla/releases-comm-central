@@ -13,8 +13,8 @@
     </hbox>
 
     <!-- Mail Content -->
-    <groupbox id="mailContentGroup" data-category="panePrivacy">
-      <label><html:h2>&captionMailContent.label;</html:h2></label>
+    <html:fieldset id="mailContentGroup" data-category="panePrivacy">
+      <html:legend>&captionMailContent.label;</html:legend>
       <hbox id="remoteContentBox">
         <checkbox id="acceptRemoteContent"
                   preference="mailnews.message_display.disable_remote_image"
@@ -31,11 +31,11 @@
                href="https://support.mozilla.org/kb/remote-content-in-messages"
                value="&acceptRemoteContentInfo.label;"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <!-- Web Content -->
-    <groupbox id="webContentGroup" data-category="panePrivacy">
-      <label><html:h2>&captionWebContent.label;</html:h2></label>
+    <html:fieldset id="webContentGroup" data-category="panePrivacy">
+      <html:legend>&captionWebContent.label;</html:legend>
       <checkbox id="keepHistory"
                 preference="places.history.enabled"
                 label="&keepHistory.label;"
@@ -98,7 +98,7 @@
                href="https://www.mozilla.org/dnt"
                value="&doNotTrackLearnMore.label;"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <hbox id="privacyPasswordsCategory"
           class="subcategory"
@@ -108,7 +108,7 @@
 
     <separator data-category="panePrivacy"/>
 
-    <groupbox data-category="panePrivacy">
+    <html:fieldset data-category="panePrivacy">
       <hbox align="center">
         <description>&savedPasswords.intro;</description>
         <spacer flex="1"/>
@@ -133,7 +133,7 @@
                 accesskey="&changeMasterPassword.accesskey;"
                 oncommand="gPrivacyPane.changeMasterPassword();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <hbox id="privacyJunkCategory"
           class="subcategory"
@@ -143,7 +143,7 @@
 
     <separator data-category="panePrivacy"/>
 
-    <groupbox data-category="panePrivacy">
+    <html:fieldset data-category="panePrivacy">
       <description>&junkMail.intro;</description>
       <separator class="thin"/>
       <hbox>
@@ -189,12 +189,12 @@
         <button id="openJunkLogButton" label="&openJunkLog.label;" accesskey="&openJunkLog.accesskey;"
                 oncommand="gPrivacyPane.openJunkLog();"/>
       </hbox>
-      <hbox align="start">
+      <hbox align="start" style="padding-bottom:2em;">
         <spacer flex="1"/>
         <button label="&resetTrainingData.label;" accesskey="&resetTrainingData.accesskey;"
                 oncommand="gPrivacyPane.resetTrainingData()"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
 #ifdef MOZ_DATA_REPORTING
     <hbox id="privacyDataCollectionCategory"
@@ -204,8 +204,8 @@
     </hbox>
 
 #ifdef MOZ_TELEMETRY_REPORTING
-    <groupbox data-category="panePrivacy">
-      <label><html:h2>&telemetrySection.label;</html:h2></label>
+    <html:fieldset data-category="panePrivacy">
+      <html:legend>&telemetrySection.label;</html:legend>
       <description>&telemetryDesc.label;</description>
       <hbox align="center">
         <checkbox id="submitTelemetryBox"
@@ -216,11 +216,11 @@
         <label is="text-link" id="telemetryLearnMore"
                value="&telemetryLearnMore.label;"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 #endif
 #ifdef MOZ_CRASHREPORTER
-    <groupbox data-category="panePrivacy">
-      <label><html:h2>&crashReporterSection.label;</html:h2></label>
+    <html:fieldset data-category="panePrivacy">
+      <html:legend>&crashReporterSection.label;</html:legend>
       <description>&crashReporterDesc.label;</description>
       <hbox align="center">
         <checkbox id="submitCrashesBox" class="tail-with-learn-more"
@@ -230,7 +230,7 @@
         <label is="text-link" id="crashReporterLearnMore"
                value="&crashReporterLearnMore.label;"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 #endif
 #endif
 
@@ -240,8 +240,8 @@
       <html:h1 data-l10n-id="privacy-security-header"/>
     </hbox>
 
-    <groupbox data-category="panePrivacy">
-      <label><html:h2 data-l10n-id="privacy-scam-detection-title"/></label>
+    <html:fieldset data-category="panePrivacy">
+      <html:legend data-l10n-id="privacy-scam-detection-title"></html:legend>
       <description>&phishingDetector1.intro;</description>
       <separator class="thin"/>
       <hbox>
@@ -251,11 +251,11 @@
                   preference="mail.phishing.detection.enabled"/>
         <spacer flex="1"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <!-- Anti Virus -->
-    <groupbox data-category="panePrivacy">
-      <label><html:h2 data-l10n-id="privacy-anti-virus-title"/></label>
+    <html:fieldset data-category="panePrivacy">
+      <html:legend data-l10n-id="privacy-anti-virus-title"></html:legend>
       <description>&antiVirus.intro;</description>
       <separator class="thin"/>
       <hbox>
@@ -265,10 +265,10 @@
                   preference="mailnews.downloadToTempFile"/>
         <spacer flex="1"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox data-category="panePrivacy">
-      <label><html:h2 data-l10n-id="privacy-certificates-title"/></label>
+    <html:fieldset data-category="panePrivacy">
+      <html:legend data-l10n-id="privacy-certificates-title"></html:legend>
       <description id="CertSelectionDesc" control="certSelection">&certSelection.description;</description>
 
       <!--
@@ -310,6 +310,6 @@
                   preference="security.disable_button.openDeviceManager"/>
         </vbox>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
   </prefpane>

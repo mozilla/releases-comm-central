@@ -60,7 +60,7 @@
   border-top: 1px solid var(--in-content-border-color);
 }
 
-groupbox[data-category] {
+fieldset[data-category] {
   margin: 0 0 32px;
 }
 
@@ -71,15 +71,14 @@ html|h1 {
   line-height: 1.3em;
 }
 
-html|h2 {
+html|legend {
   margin: 16px 0 4px;
   font-size: 1.1em;
 }
 
-html|h3 {
-  font-size: 1em;
-  font-weight: 600;
-  margin: 4px 0 !important;
+html|th {
+  font-weight: normal;
+  text-align: start;
 }
 
 description,
@@ -409,12 +408,6 @@ html|input.indent {
 /**
  * toolkit element overrides
  */
-
-groupbox label:not(.menu-accel):not(.menu-iconic-accel):not(.menu-text):not(.menu-iconic-text):not(.menulist-label):not(.indent):not(.learnMore):not(.tail-with-learn-more),
-groupbox description {
-  /* !important needed to override toolkit !important rule */
-  margin-inline: 0 !important;
-}
 
 richlistbox {
   -moz-appearance: none;

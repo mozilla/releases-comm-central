@@ -34,8 +34,9 @@
       <html:h1 data-l10n-id="pane-general-title"/>
     </hbox>
 
-    <groupbox data-category="paneGeneral">
-      <label><html:h2>&messengerStartPage.label;</html:h2></label>
+    <html:fieldset data-category="paneGeneral">
+      <html:legend>&messengerStartPage.label;</html:legend>
+      <vbox>
         <hbox align="start">
           <checkbox id="mailnewsStartPageEnabled" label="&enableStartPage.label;"
                     preference="mailnews.start_page.enabled"
@@ -52,10 +53,11 @@
                   oncommand="gGeneralPane.restoreDefaultStartPage();">
           </button>
         </hbox>
-    </groupbox>
+      </vbox>
+    </html:fieldset>
 
-    <groupbox data-category="paneGeneral">
-      <label><html:h2 >&defaultSearchEngine.label;</html:h2></label>
+    <html:fieldset data-category="paneGeneral">
+      <html:legend>&defaultSearchEngine.label;</html:legend>
       <hbox align="center">
         <menulist id="defaultWebSearch">
           <menupopup id="defaultWebSearchPopup"/>
@@ -69,11 +71,12 @@
                 accesskey="&removeSearchEngine.accesskey;"
                 oncommand="gGeneralPane.removeSearchEngine();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
 #ifdef HAVE_SHELL_SERVICE
-    <groupbox id="systemDefaultsGroup" data-category="paneGeneral" orient="vertical">
-      <label><html:h2>&systemIntegration.label;</html:h2></label>
+    <html:fieldset id="systemDefaultsGroup" data-category="paneGeneral">
+      <html:legend>&systemIntegration.label;</html:legend>
+      <vbox>
       <hbox id="checkDefaultBox" align="center">
         <checkbox id="alwaysCheckDefault"
                   preference="mail.shell.checkDefaultClient"
@@ -91,7 +94,8 @@
                   label="&searchIntegration.label;"
                   accesskey="&searchIntegration.accesskey;"/>
       </hbox>
-    </groupbox>
+      </vbox>
+    </html:fieldset>
 #endif
 
     <hbox id="languageAndAppearanceCategory"
@@ -101,8 +105,8 @@
     </hbox>
 
     <!-- Fonts and Colors -->
-    <groupbox id="fontsGroup" data-category="paneGeneral">
-      <label><html:h2>&fontsAndColors1.label;</html:h2></label>
+    <html:fieldset id="fontsGroup" data-category="paneGeneral">
+      <html:legend>&fontsAndColors1.label;</html:legend>
 
       <hbox id="fontSettings" flex="1">
         <vbox id="fontRow" flex="1">
@@ -151,7 +155,7 @@
         </vbox>
       </hbox>
       <hbox>
-        <label><html:h2>&displayWidth.label;</html:h2></label>
+        <html:legend>&displayWidth.label;</html:legend>
       </hbox>
       <hbox>
         <checkbox id="displayGlyph"
@@ -185,11 +189,11 @@
         <label value="&quotedTextColor.label;" accesskey="&quotedTextColor.accesskey;" control="citationmenu"/>
         <html:input type="color" id="citationmenu" preference="mail.citation_color"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <!-- Date and time formatting -->
-    <groupbox data-category="paneGeneral">
-      <label><html:h2>&dateTimeFormatting.label;</html:h2></label>
+    <html:fieldset data-category="paneGeneral">
+      <html:legend>&dateTimeFormatting.label;</html:legend>
       <radiogroup id="formatLocale" align="start"
                   preference="intl.regional_prefs.use_os_locales"
                   orient="vertical">
@@ -200,10 +204,10 @@
                value="true"/>
                <!-- label and accesskey will be set dynamically -->
       </radiogroup>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox id="messengerLanguagesBox" data-category="paneGeneral" hidden="true">
-      <label><html:h2>&languageSelector.label;</html:h2></label>
+    <html:fieldset id="messengerLanguagesBox" data-category="paneGeneral" hidden="hidden">
+      <html:legend>&languageSelector.label;</html:legend>
         <vbox align="start">
         <description flex="1"
                      controls="chooseMessengerLanguage"
@@ -226,11 +230,11 @@
         <image class="message-bar-icon"/>
         <vbox class="message-bar-content-container" align="stretch" flex="1"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <!-- Scrolling -->
-    <groupbox id="scrollingGroup" data-category="paneGeneral">
-      <label><html:h2>&scrolling.label;</html:h2></label>
+    <html:fieldset id="scrollingGroup" data-category="paneGeneral">
+      <html:legend>&scrolling.label;</html:legend>
       <hbox>
         <checkbox id="useAutoScroll"
                   label="&useAutoScroll.label;"
@@ -245,7 +249,7 @@
                   preference="general.smoothScroll"/>
         <spacer flex="1"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
 
     <hbox id="incomingMailCategory"
@@ -254,8 +258,8 @@
       <html:h1 data-l10n-id="general-incoming-mail-header"/>
     </hbox>
 
-    <groupbox data-category="paneGeneral">
-      <label><html:h2>&newMessagesArrive.label;</html:h2></label>
+    <html:fieldset data-category="paneGeneral">
+      <html:legend>&newMessagesArrive.label;</html:legend>
 #ifdef XP_MACOSX
       <hbox align="center">
         <description flex="1">&changeDockIconOptions.label;</description>
@@ -333,7 +337,7 @@
                 accesskey="&browse.accesskey;"
                 oncommand="gGeneralPane.browseForSoundFile();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <hbox id="filesAttachmentCategory"
           class="subcategory"
@@ -341,7 +345,7 @@
       <html:h1 data-l10n-id="general-files-and-attachment-header"/>
     </hbox>
 
-    <groupbox data-category="paneGeneral">
+    <html:fieldset data-category="paneGeneral">
       <hbox>
         <search-textbox id="filter"
                         flex="1"
@@ -396,7 +400,7 @@
           </hbox>
         </radiogroup>
       </vbox>
-    </groupbox>
+    </html:fieldset>
 
     <hbox id="tagsCategory"
           class="subcategory"
@@ -404,7 +408,7 @@
       <html:h1 data-l10n-id="general-tags-header"/>
     </hbox>
 
-    <groupbox data-category="paneGeneral">
+    <html:fieldset data-category="paneGeneral">
       <label control="tagList">&displayTagsText.label;</label>
       <hbox>
         <richlistbox id="tagList"
@@ -425,7 +429,7 @@
                   oncommand="gGeneralPane.removeTag();"/>
         </vbox>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
 
     <hbox id="readingAndDisplayCategory"
@@ -434,7 +438,7 @@
       <html:h1 data-l10n-id="general-reading-and-display-header"/>
     </hbox>
 
-    <groupbox data-category="paneGeneral">
+    <html:fieldset data-category="paneGeneral">
       <vbox>
         <hbox>
           <checkbox id="automaticallyMarkAsRead"
@@ -513,7 +517,7 @@
                 accesskey="&showReturnReceipts.accesskey;"
                 oncommand="gGeneralPane.showReturnReceipts();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
 #ifdef MOZ_UPDATER
     <hbox id="updatesCategory"
@@ -523,8 +527,8 @@
     </hbox>
 
     <!-- Update -->
-    <groupbox id="updateApp" data-category="paneGeneral">
-      <label><html:h2>&updateApp2.label;</html:h2></label>
+    <html:fieldset id="updateApp" data-category="paneGeneral">
+      <html:legend>&updateApp2.label;</html:legend>
       <hbox align="center">
         <vbox>
           <description>
@@ -647,7 +651,7 @@
                 accesskey="&useService.accesskey;"
                 preference="app.update.service.enabled"/>
 #endif
-    </groupbox>
+    </html:fieldset>
 #endif
 
     <hbox id="networkAndDiskspaceCategory"
@@ -657,28 +661,28 @@
     </hbox>
 
     <!-- Networking & Disk Space -->
-    <groupbox data-category="paneGeneral">
-      <label><html:h2>&connectionsInfo.caption;</html:h2></label>
+    <html:fieldset data-category="paneGeneral">
+      <html:legend>&connectionsInfo.caption;</html:legend>
       <hbox align="center">
         <description flex="1" control="catProxiesButton">&proxiesConfigure.label;</description>
         <button id="catProxiesButton" icon="network" label="&showSettings.label;"
                 accesskey="&showSettings.accesskey;"
                 oncommand="gGeneralPane.showConnections();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox data-category="paneGeneral">
-      <label><html:h2>&offlineInfo.caption;</html:h2></label>
+    <html:fieldset data-category="paneGeneral">
+      <html:legend>&offlineInfo.caption;</html:legend>
       <hbox align="center">
         <description flex="1" control="offlineSettingsButton">&offlineInfo.label;</description>
         <button id="offlineSettingsButton" label="&showOffline.label;"
                 accesskey="&showOffline.accesskey;"
                 oncommand="gGeneralPane.showOffline();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox data-category="paneGeneral">
-      <label><html:h2>&Diskspace;</html:h2></label>
+    <html:fieldset data-category="paneGeneral">
+      <html:legend>&Diskspace;</html:legend>
       <hbox align="center">
         <label id="actualDiskCacheSize" flex="1"/>
         <button id="clearCacheButton" icon="clear"
@@ -712,10 +716,10 @@
                       aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>
           <label id="compactFolderMB" value="&offlineCompactFoldersMB.label;"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox data-category="paneGeneral">
-      <label><html:h2 data-l10n-id="general-indexing-label"/></label>
+    <html:fieldset data-category="paneGeneral">
+      <html:legend data-l10n-id="general-indexing-label"></html:legend>
       <vbox>
         <hbox>
           <checkbox id="enableGloda"
@@ -748,16 +752,16 @@
       </vbox>
       <vbox>
       </vbox>
-    </groupbox>
+    </html:fieldset>
 
     <separator class="thin" data-category="paneGeneral"/>
 
-    <groupbox data-category="paneGeneral">
+    <html:fieldset data-category="paneGeneral">
       <hbox pack="end">
         <button id="configEditor" label="&configEdit.label;"
                 accesskey="&configEdit.accesskey;"
                 oncommand="gGeneralPane.showConfigEdit();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
   </prefpane>

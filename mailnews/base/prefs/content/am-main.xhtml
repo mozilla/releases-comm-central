@@ -41,8 +41,8 @@
 
     <separator class="thin"/>
 
-    <groupbox style="width: 20em !important;" flex="1">
-      <label class="header">&identityTitle.label;</label>
+    <html:fieldset style="width:20em !important;">
+      <html:legend>&identityTitle.label;</html:legend>
       <description>&identityDesc.label;</description>
       <separator class="thin"/>
       <html:table class="identity-table">
@@ -118,7 +118,7 @@
         </html:tr>
       </html:table>
 
-      <hbox class="indent" flex="1" style="min-height: 100px; display: flex; align-items: stretch;">
+      <hbox class="indent" flex="1" style="min-height:100px; display:flex;">
         <html:textarea id="identity.htmlSigText" wsm_persist="true" rows="4" style="flex-grow: 1;"
                        prefstring="mail.identity.%identitykey%.htmlSigText" class="signatureBox"/>
       </hbox>
@@ -182,7 +182,7 @@
                 accesskey="&smtpServerEdit.accesskey;"
                 oncommand="editCurrentSMTP();"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <separator class="thin"/>
 
@@ -195,5 +195,4 @@
 
     <spacer flex="1"/>
   </vbox>
-
 </window>

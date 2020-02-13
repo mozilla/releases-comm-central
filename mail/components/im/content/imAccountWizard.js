@@ -234,7 +234,9 @@ var accountWizard = {
       var bundle = document.getElementById("accountsBundle");
       document.getElementById(
         "protoSpecificCaption"
-      ).value = bundle.getFormattedString("protoOptions", [this.proto.name]);
+      ).textContent = bundle.getFormattedString("protoOptions", [
+        this.proto.name,
+      ]);
     }
   },
 

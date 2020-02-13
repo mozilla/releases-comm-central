@@ -899,20 +899,25 @@ findbar {
 
 /* ::::: groupbox ::::: */
 
-groupbox {
-  -moz-appearance: groupbox;
-  border: 2px groove ThreeDFace;
+fieldset {
+  border: 0.5px groove ThreeDLightShadow;
   border-radius: 3px;
-  margin: 3px;
-  margin-top: 1em;
+  margin: 1em 3px 3px 3px;
   padding: 3px 0 6px;
 }
 
-groupbox > .groupbox-title > .header {
+legend {
   font-weight: normal;
   margin-top: -1em;
   margin-inline-start: 3px;
   padding-right: 3px;
   padding-left: 3px;
   background-color: -moz-dialog;
+  font-weight: bold;
+}
+
+fieldset > hbox,
+fieldset > vbox,
+fieldset > radiogroup {
+  width: -moz-available;
 }

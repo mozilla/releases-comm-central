@@ -26,8 +26,8 @@
   <script src="chrome://messenger/content/SmtpServerEdit.js"/>
 
   <vbox id="smtpServerEditor">
-    <groupbox>
-      <label class="header">&settings.caption;</label>
+    <html:fieldset>
+      <html:legend>&settings.caption;</html:legend>
       <hbox flex="1">
         <vbox>
           <hbox flex="1" align="center">
@@ -72,12 +72,12 @@
           </hbox>
         </vbox>
       </hbox>
-    </groupbox>
+    </html:fieldset>
 
     <separator class="thin"/>
 
-    <groupbox>
-      <label class="header">&security.caption;</label>
+    <html:fieldset>
+      <html:legend>&security.caption;</html:legend>
 
       <hbox flex="1">
         <vbox>
@@ -133,7 +133,7 @@
                       aria-labelledby="smtp.username.label"/>
         </vbox>
       </hbox>
-    </groupbox>
+    </html:fieldset>
   </vbox>
 </dialog>
 </window>

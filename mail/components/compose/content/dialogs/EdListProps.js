@@ -235,7 +235,7 @@ function BuildBulletStyleList() {
   }
 
   if (label) {
-    gDialog.BulletStyleLabel.setAttribute("label", label);
+    gDialog.BulletStyleLabel.textContent = label;
   }
 }
 

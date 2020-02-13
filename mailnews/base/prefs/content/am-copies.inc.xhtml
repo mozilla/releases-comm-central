@@ -30,8 +30,8 @@
     <label id="identity.tmplFolderPickerMode" hidden="true" wsm_persist="true"
            pref="true" preftype="int" prefattribute="value"
            prefstring="mail.identity.%identitykey%.tmpl_folder_picker_mode"/>
-    <groupbox id="copiesGroup">
-      <label class="header">&sendingPrefix.label;</label>
+    <html:fieldset id="copiesGroup">
+      <html:legend>&sendingPrefix.label;</html:legend>
 
       <hbox align="center">
         <checkbox id="identity.doFcc" wsm_persist="true" label="&fccMailFolder.label;"
@@ -124,11 +124,10 @@
                       placeholder="&bccAddressList.placeholder;"/>
         </vbox>
       </hbox>
+    </html:fieldset>
 
-    </groupbox>
-
-    <groupbox id="archivesGroup">
-      <label class="header">&archivesTitle.label;</label>
+    <html:fieldset id="archivesGroup">
+      <html:legend>&archivesTitle.label;</html:legend>
 
       <hbox align="center">
         <checkbox id="identity.archiveEnabled" wsm_persist="true"
@@ -185,10 +184,10 @@
           </vbox>
         </hbox>
       </radiogroup>
-    </groupbox>
+    </html:fieldset>
 
-    <groupbox id="foldersGroup">
-      <label class="header">&specialFolders.label;</label>
+    <html:fieldset id="foldersGroup">
+      <html:legend>&specialFolders.label;</html:legend>
 
       <hbox align="center">
         <label value="&keepDrafts2.label;" control="messageDrafts"/>
@@ -281,5 +280,5 @@
                   prefattribute="value"
                   prefstring="mail.identity.%identitykey%.showSaveMsgDlg"/>
       </hbox>
-    </groupbox>
+    </html:fieldset>
   </vbox>

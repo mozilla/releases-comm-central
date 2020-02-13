@@ -837,10 +837,18 @@ findbar {
   color: var(--toolbar-color);
 }
 
-/* ::::: groupbox ::::: */
-
-groupbox {
-  -moz-appearance: groupbox;
+fieldset {
   margin: 5px;
   padding: 5px;
+  border: none;
+}
+
+legend {
+  font-weight: bold;
+}
+
+fieldset > hbox,
+fieldset > vbox,
+fieldset > radiogroup {
+  width: -moz-available;
 }
