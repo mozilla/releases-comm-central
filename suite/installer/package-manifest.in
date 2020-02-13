@@ -524,7 +524,6 @@ man/*
 @RESPATH@/distribution/extensions/debugQA@mozilla.org.xpi
 #endif
 
-#ifdef MOZ_CALENDAR
 [calendar]
 @RESPATH@/chrome/calendar@JAREXT@
 @RESPATH@/chrome/calendar.manifest
@@ -605,4 +604,3 @@ man/*
 @RESPATH@/components/calTransactionManager.js
 @RESPATH@/components/calWeekInfoService.js
 @RESPATH@/components/calWeekPrinter.js
-#endif

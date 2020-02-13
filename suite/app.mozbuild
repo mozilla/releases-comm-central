@@ -16,14 +16,9 @@ if CONFIG['MOZ_IRC']:
 if CONFIG['MOZ_DOMINSPECTOR']:
     DIRS += ['/extensions/inspector']
 
-DIRS += ['/%s' % CONFIG['MOZ_BRANDING_DIRECTORY']]
-
-if CONFIG['MOZ_CALENDAR']:
-    DIRS += [
-        '/comm/calendar/lightning',
-    ]
-
 DIRS += [
+    '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
+    '/comm/calendar',
     '/comm/editor/ui',
     '/comm/suite',
 ]
