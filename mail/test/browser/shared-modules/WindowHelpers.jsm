@@ -28,9 +28,6 @@ const EXPORTED_SYMBOLS = [
   "augment_controller",
 ];
 
-var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
@@ -39,6 +36,10 @@ var elib = ChromeUtils.import(
 );
 var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
+
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * Timeout to use when waiting for the first window ever to load.  This is
@@ -78,7 +79,6 @@ var WINDOW_FOCUS_TIMEOUT_MS = 10000;
 // Have a dummy mark_action function in case test-folder-display-helpers does
 // not provide us with one.
 var mark_action = function dummy_mark_action() {};
-var mark_failure = function dummy_mark_failure() {};
 var normalize_for_json = function dummy_normalize_for_json() {};
 /**
  * This is used by test-folder-display-helpers to provide us with a reference
@@ -90,7 +90,6 @@ function hereIsMarkAction(
   normalize_for_json_impl
 ) {
   mark_action = mark_action_impl;
-  mark_failure = mark_failure_impl;
   normalize_for_json = normalize_for_json_impl;
 }
 
@@ -822,10 +821,14 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
     utils.waitFor(isLoadedChecker);
   } catch (e) {
     if (e instanceof utils.TimeoutError) {
-      mark_failure([
-        "Timeout waiting for content page to load. Current URL is:",
-        aDetails.currentURI.spec,
-      ]);
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        `Timeout waiting for content page to load. Current URL is: ${
+          aDetails.currentURI.spec
+        }`
+      );
     } else {
       throw e;
     }

@@ -167,6 +167,7 @@ var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 var nsMsgViewIndex_None = 0xffffffff;
@@ -203,7 +204,6 @@ var inboxFolder = null;
 
 // logHelper exports
 var mark_action;
-var mark_failure;
 
 // Default size of the main Thunderbird window in which the tests will run.
 var gDefaultWindowWidth = 1024;
@@ -237,7 +237,6 @@ function setupModule() {
   //  namespace, so we need to help them out to maintain their delusion.
   load_via_src_path("resources/logHelper.js", testHelperModule);
   mark_action = testHelperModule.mark_action;
-  mark_failure = testHelperModule.mark_failure;
 
   // Remove the dump appender that got appended; it just adds noise.
   testHelperModule._mailnewsTestLogger.removeAppender(
@@ -359,7 +358,7 @@ function setupModule() {
   // and further complicate this horrid seven-dimensional rats' nest.
   windowHelper.hereIsMarkAction(
     mark_action,
-    mark_failure,
+    null,
     testHelperModule._normalize_for_json
   );
 
@@ -832,18 +831,7 @@ function switch_tab(aNewTab) {
  * @param aTab The tab that should currently be selected.
  */
 function assert_selected_tab(aTab) {
-  if (mc.tabmail.currentTabInfo != aTab) {
-    mark_failure([
-      "The currently selected tab should be",
-      aTab,
-      "(index: " + mc.tabmail.tabInfo.indexOf(aTab) + ") but is",
-      _jsonize_tabmail_tab(mc.tabmail.currentTabInfo),
-      "(index: " +
-        mc.tabmail.tabInfo.indexOf(mc.tabmail.currentTabInfo) +
-        ") tabs:",
-      mc.tabmail.tabInfo,
-    ]);
-  }
+  Assert.equal(mc.tabmail.currentTabInfo, aTab);
 }
 
 /**
@@ -852,14 +840,7 @@ function assert_selected_tab(aTab) {
  * @param aTab The tab that should currently not be selected.
  */
 function assert_not_selected_tab(aTab) {
-  if (mc.tabmail.currentTabInfo == aTab) {
-    mark_failure([
-      "The currently selected tab should not be",
-      aTab,
-      "but is. Tabs:",
-      _jsonize_tabmail_tab(mc.tabmail.tabInfo),
-    ]);
-  }
+  Assert.notEqual(mc.tabmail.currentTabInfo, aTab);
 }
 
 /**
@@ -874,18 +855,7 @@ function assert_tab_mode_name(aTab, aModeName) {
     aTab = mc.tabmail.currentTabInfo;
   }
 
-  if (aTab.mode.type != aModeName) {
-    mark_failure([
-      "Tab",
-      aTab,
-      "should be of type",
-      aModeName,
-      "but is actually of type",
-      aTab.mode.type,
-      "Tabs:",
-      mc.tabmail.tabInfo,
-    ]);
-  }
+  Assert.equal(aTab.mode.type, aModeName, `Tab should be of type ${aModeName}`);
 }
 
 /**
@@ -895,17 +865,7 @@ function assert_tab_mode_name(aTab, aModeName) {
  */
 function assert_number_of_tabs_open(aNumber) {
   let actualNumber = mc.tabmail.tabContainer.allTabs.length;
-  if (actualNumber != aNumber) {
-    mark_failure([
-      "There should be " +
-        aNumber +
-        " tabs open, but there " +
-        "are actually " +
-        actualNumber +
-        " tabs open. Tabs:",
-      mc.tabmail.tabInfo,
-    ]);
-  }
+  Assert.equal(actualNumber, aNumber, `There should be ${aNumber} tabs open`);
 }
 
 /**
@@ -938,18 +898,7 @@ function assert_tab_titled_from(aTab, aWhat) {
  * @param aTitle The title to check.
  */
 function assert_tab_has_title(aTab, aTitle) {
-  if (aTab.title != aTitle) {
-    mark_failure([
-      "Tab title of tab",
-      aTab,
-      "should be '" +
-        aTitle +
-        "' but is not." +
-        " (Current title: '" +
-        aTab.title +
-        "')",
-    ]);
-  }
+  Assert.equal(aTab.title, aTitle);
 }
 
 /**
@@ -1027,11 +976,12 @@ function select_none(aController) {
     utils.waitFor(noMessageChecker);
   } catch (e) {
     if (e instanceof utils.TimeoutError) {
-      mark_failure([
-        "Timeout waiting for displayedMessage to become null.",
-        "Current value: ",
-        aController.messageDisplay.displayedMessage,
-      ]);
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        "Timeout waiting for displayedMessage to become null."
+      );
     } else {
       throw e;
     }
@@ -2055,10 +2005,14 @@ function wait_for_blank_content_pane(aController) {
     utils.waitFor(isBlankChecker);
   } catch (e) {
     if (e instanceof utils.TimeoutError) {
-      mark_failure([
-        "Timeout waiting for blank content pane.  Current location:",
-        aController.window.content.location.href,
-      ]);
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        `Timeout waiting for blank content pane. Current location: ${
+          aController.window.content.location.href
+        }`
+      );
     } else {
       throw e;
     }
@@ -2101,7 +2055,12 @@ var FolderListener = {
       utils.waitFor(() => self.sawEvents);
     } catch (e) {
       if (e instanceof utils.TimeoutError) {
-        mark_failure(["Timeout waiting for events:", this.watchingFor]);
+        Assert.report(
+          true,
+          undefined,
+          undefined,
+          `Timeout waiting for events: ${this.watchingFor}`
+        );
       } else {
         throw e;
       }
@@ -2170,14 +2129,11 @@ function assert_messages_not_in_view(aMessages, aController) {
     aMessages = [aMessages];
   }
   for (let msgHdr of aMessages) {
-    if (mc.dbView.findIndexOfMsgHdr(msgHdr, true) != nsMsgViewIndex_None) {
-      mark_failure([
-        "Message header is present in view but should not be:",
-        msgHdr,
-        "index:",
-        mc.dbView.findIndexOfMsgHdr(msgHdr, true),
-      ]);
-    }
+    Assert.equal(
+      mc.dbView.findIndexOfMsgHdr(msgHdr, true),
+      nsMsgViewIndex_None,
+      `Message header is present in view but should not be`
+    );
   }
 }
 var assert_message_not_in_view = assert_messages_not_in_view;
@@ -2393,15 +2349,7 @@ function assert_selected(...aArgs) {
   let selectedIndices = troller.folderDisplay.selectedIndices;
   // - test selection equivalence
   // which is the same as string equivalence in this case. muah hah hah.
-  if (desiredIndices.toString() != selectedIndices.toString()) {
-    mark_failure([
-      "Desired selection is:",
-      desiredIndices,
-      "but actual selection is: ",
-      selectedIndices,
-    ]);
-  }
-
+  Assert.equal(desiredIndices.toString(), selectedIndices.toString());
   return [troller, desiredIndices];
 }
 
@@ -3044,14 +2992,7 @@ var assert_folder_selected = assert_folders_selected;
  */
 function assert_folder_displayed(...aArgs) {
   let [troller, desiredFolders] = _process_row_folder_arguments(...aArgs);
-  if (troller.folderDisplay.displayedFolder != desiredFolders[0]) {
-    mark_failure([
-      "The displayed folder should be",
-      desiredFolders[0],
-      "but is actually",
-      troller.folderDisplay.displayedFolder,
-    ]);
-  }
+  Assert.equal(troller.folderDisplay.displayedFolder, desiredFolders[0]);
 }
 
 /**
@@ -3072,14 +3013,7 @@ function assert_folder_displayed(...aArgs) {
 function assert_folders_selected_and_displayed(...aArgs) {
   let [troller, desiredFolders] = assert_folders_selected(...aArgs);
   if (desiredFolders.length > 0) {
-    if (troller.folderDisplay.displayedFolder != desiredFolders[0]) {
-      mark_failure([
-        "The displayed folder should be",
-        desiredFolders[0],
-        "but is actually",
-        troller.folderDisplay.displayedFolder,
-      ]);
-    }
+    Assert.equal(troller.folderDisplay.displayedFolder, desiredFolders[0]);
   }
 }
 

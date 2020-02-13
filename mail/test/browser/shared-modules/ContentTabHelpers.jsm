@@ -9,14 +9,12 @@ const EXPORTED_SYMBOLS = [
   "open_content_tab_with_click",
   "plan_for_content_tab_load",
   "wait_for_content_tab_load",
-  "assert_content_tab_has_url",
   "assert_content_tab_has_favicon",
   "content_tab_e",
   "content_tab_eid",
   "get_content_tab_element_display",
   "assert_content_tab_element_hidden",
   "assert_content_tab_element_visible",
-  "wait_for_content_tab_element_display_value",
   "wait_for_content_tab_element_display",
   "get_element_by_text",
   "assert_content_tab_text_present",
@@ -46,6 +44,7 @@ var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var FAST_TIMEOUT = 1000;
@@ -53,7 +52,6 @@ var FAST_INTERVAL = 100;
 var EXT_PROTOCOL_SVC_CID = "@mozilla.org/uriloader/external-protocol-service;1";
 
 var mc = folderDisplayHelper.mc;
-var mark_failure = folderDisplayHelper.mark_failure;
 
 var _originalBlocklistURL = null;
 
@@ -286,22 +284,6 @@ function wait_for_content_tab_load(aTab, aURL, aTimeout) {
 }
 
 /**
- * Assert that the given content tab has the given URL (string) loaded.
- */
-function assert_content_tab_has_url(aTab, aURL) {
-  if (aTab.browser.currentURI.spec != aURL) {
-    mark_failure([
-      "The tab",
-      aTab,
-      "should have URL",
-      aURL,
-      "but instead has",
-      aTab.browser.currentURI.spec,
-    ]);
-  }
-}
-
-/**
  * Gets the element with the given ID from the content tab's displayed page.
  */
 function content_tab_e(aTab, aId) {
@@ -312,16 +294,7 @@ function content_tab_e(aTab, aId) {
  * Assert that the given content tab has the given URL loaded as a favicon.
  */
 function assert_content_tab_has_favicon(aTab, aURL) {
-  if (aTab.browser.mIconURL != aURL) {
-    mark_failure([
-      "The tab",
-      aTab,
-      "should have a favicon with URL",
-      aURL,
-      "but instead has",
-      aTab.browser.mIconURL,
-    ]);
-  }
+  Assert.equal(aTab.browser.mIconURL, aURL, "Checking tab favicon");
 }
 
 /**
@@ -345,15 +318,7 @@ function get_content_tab_element_display(aTab, aElem) {
  */
 function assert_content_tab_element_hidden(aTab, aElem) {
   let display = get_content_tab_element_display(aTab, aElem);
-  if (display != "none") {
-    mark_failure([
-      "Element",
-      aElem,
-      "should be hidden but has display",
-      display,
-      "instead",
-    ]);
-  }
+  Assert.equal(display, "none", "Element should be hidden");
 }
 
 /**
@@ -361,38 +326,7 @@ function assert_content_tab_element_hidden(aTab, aElem) {
  */
 function assert_content_tab_element_visible(aTab, aElem) {
   let display = get_content_tab_element_display(aTab, aElem);
-  if (display == "none") {
-    mark_failure([
-      "Element",
-      aElem,
-      "should be visible but has display",
-      display,
-      "instead",
-    ]);
-  }
-}
-
-/**
- * Waits for the element's display property to be the given value.
- */
-function wait_for_content_tab_element_display_value(aTab, aElem, aValue) {
-  function isValue() {
-    return get_content_tab_element_display(aTab, aElem) == aValue;
-  }
-  try {
-    utils.waitFor(isValue);
-  } catch (e) {
-    if (e instanceof utils.TimeoutError) {
-      mark_failure([
-        "Timeout waiting for element",
-        aElem,
-        "to have display value",
-        aValue,
-      ]);
-    } else {
-      throw e;
-    }
-  }
+  Assert.notEqual(display, "none", "Element should be visible");
 }
 
 /**
@@ -406,7 +340,12 @@ function wait_for_content_tab_element_display(aTab, aElem) {
     utils.waitFor(isValue);
   } catch (e) {
     if (e instanceof utils.TimeoutError) {
-      mark_failure(["Timeout waiting for element", aElem, "to become visible"]);
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        "Timeout waiting for element to become visible"
+      );
     } else {
       throw e;
     }
@@ -445,20 +384,20 @@ function get_content_tab_element_by_text(aTab, aText) {
  * Asserts that the given text is present on the content tab's page.
  */
 function assert_content_tab_text_present(aTab, aText) {
-  if (!get_content_tab_element_by_text(aTab, aText)) {
-    mark_failure([
-      'Unable to find string "' + aText + "\" on the content tab's page",
-    ]);
-  }
+  Assert.ok(
+    get_content_tab_element_by_text(aTab, aText),
+    `String "${aText}" should be on the content tab's page`
+  );
 }
 
 /**
  * Asserts that the given text is absent on the content tab's page.
  */
 function assert_content_tab_text_absent(aTab, aText) {
-  if (get_content_tab_element_by_text(aTab, aText)) {
-    mark_failure(['Found string "' + aText + "\" on the content tab's page"]);
-  }
+  Assert.ok(
+    !get_content_tab_element_by_text(aTab, aText),
+    `String "${aText}" should not be on the content tab's page`
+  );
 }
 
 /**

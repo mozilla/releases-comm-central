@@ -17,8 +17,10 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var folderDisplayHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+
 var mc = folderDisplayHelper.mc;
-var mark_failure = folderDisplayHelper.mark_failure;
 
 /**
  * Mark the selected messages as junk. This is done by pressing the J key.
@@ -130,15 +132,11 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
     );
 
     // Check the number of deleted messages.
-    if (aNumDeletesExpected != numMessagesDeleted) {
-      mark_failure([
-        "Expected",
-        aNumDeletesExpected,
-        "deletes, but",
-        numMessagesDeleted,
-        "happened",
-      ]);
-    }
+    Assert.equal(
+      aNumDeletesExpected,
+      numMessagesDeleted,
+      `Expected ${aNumDeletesExpected} deletes`
+    );
   } finally {
     aController.window.deleteJunkInFolder = realDeleteJunkInFolder;
   }
