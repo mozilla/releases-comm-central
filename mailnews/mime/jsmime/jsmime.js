@@ -897,7 +897,8 @@
       // Indicators of current state
       let inAngle = false,
         inComment = false,
-        needsSpace = false;
+        needsSpace = false,
+        afterAddress = false;
       let preserveSpace = false;
       let commentClosed = false;
 
@@ -957,7 +958,7 @@
         }
         // Clear pending flags and variables.
         name = localPart = address = lastComment = "";
-        inAngle = inComment = needsSpace = false;
+        inAngle = inComment = needsSpace = afterAddress = false;
       }
 
       // Main parsing loop
@@ -976,7 +977,7 @@
             results = results.concat(addrlist);
           }
           addrlist = [];
-        } else if (token === "<") {
+        } else if (token === "<" && !afterAddress) {
           if (inAngle) {
             // Interpret the address we were parsing as a name.
             if (address.length > 0) {
@@ -986,10 +987,11 @@
           } else {
             inAngle = true;
           }
-        } else if (token === ">") {
+        } else if (token === ">" && !afterAddress) {
           inAngle = false;
           // Forget addr-spec comments.
           lastComment = "";
+          afterAddress = true;
         } else if (token === "(") {
           inComment = true;
           // The needsSpace flag may not always be set even if it should be,
@@ -1016,6 +1018,9 @@
           commentClosed = true;
           continue;
         } else if (token === "@") {
+          if (afterAddress) {
+            continue;
+          }
           // An @ means we see an email address. If we're not within <> brackets,
           // then we just parsed an email address instead of a display name. Empty
           // out the display name for the current production.
@@ -1032,6 +1037,7 @@
           // name, add it to the result list. If we don't, then our input looks like
           // To: , , -> don't bother adding an empty entry.
           addToAddrList(name, address);
+          afterAddress = false;
         } else if (token === ";") {
           // Add pending name to the list
           addToAddrList(name, address);
@@ -1070,7 +1076,9 @@
           } else if (inAngle) {
             address += spacedToken;
           } else {
-            name += spacedToken;
+            if (!afterAddress) {
+              name += spacedToken;
+            }
             // Never add a space to the local-part, if we just ignored a comment.
             if (commentClosed) {
               localPart += token;

@@ -685,6 +685,24 @@ define(function(require) {
           "Tabby \t \t A\t\tB <tab@example.com>",
           [{ name: "Tabby A B", email: "tab@example.com" }],
         ],
+        // Ensure it's the address in angles that is parsed as address.
+        [
+          "<attacker@example.com>friend@example.com\t, bystander@example.com,Someone (some@invalid) <someone@example.com>,",
+          [
+            { name: "", email: "attacker@example.com" },
+            { name: "", email: "bystander@example.com" },
+            { name: "Someone (some@invalid)", email: "someone@example.com" },
+          ],
+        ],
+        [
+          "me (via foo@example.com) <attacker2@example.com>friend2@example.com ",
+          [
+            {
+              name: "me (via foo@example.com)",
+              email: "attacker2@example.com",
+            },
+          ],
+        ],
       ];
       header_tests.forEach(function(data) {
         arrayTest(data, function() {

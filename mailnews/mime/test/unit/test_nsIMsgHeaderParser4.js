@@ -108,6 +108,15 @@ function run_test() {
         ["Marge", "marge@example.com"],
       ],
     },
+    {
+      displayString: "<attacker@example.com>friend@example.com",
+      addresses: [["", "attacker@example.com"]],
+    },
+    {
+      displayString:
+        'me "you" (via foo@example.com) <attacker2@example.com> friend@example.com,',
+      addresses: [['me "you" (via foo@example.com)', "attacker2@example.com"]],
+    },
   ];
 
   // Test -  strings
