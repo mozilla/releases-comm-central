@@ -527,7 +527,11 @@
 
         // Add items to context menu and attach controller to handle them
         this.controllers.appendController(this.searchbarController);
-        document.getBindingParent(this)._textboxInitialized = true;
+        // bindingParent is not set in the sidebar because there is no
+        // searchbar created in it.
+        if (bindingParent) {
+          bindingParent._textboxInitialized = true;
+        }
 
         // Add observer for suggest preference
         Services.prefs.addObserver("browser.search.suggest.enabled", this);
@@ -563,6 +567,12 @@
           }
         ]]></body>
       </method>
+
+      <field name="FormHistory" readonly="true"><![CDATA[
+        (ChromeUtils.import("resource://gre/modules/FormHistory.jsm", {}))
+                    .FormHistory;
+        ]]>
+      </field>
 
       <!-- nsIController -->
       <field name="searchbarController" readonly="true"><![CDATA[({
