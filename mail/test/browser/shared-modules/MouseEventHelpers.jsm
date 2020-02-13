@@ -16,9 +16,7 @@ var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
-var fdh = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 
 /**
  * Execute a drag and drop session.
@@ -49,7 +47,7 @@ function drag_n_drop_element(
   aListener
 ) {
   let dt = synthesize_drag_start(aDragWindow, aDragObject, aListener);
-  fdh.assert_true(dt, "Drag target was undefined");
+  Assert.ok(dt, "Drag target was undefined");
 
   synthesize_drag_over(aDropWindow, aDropObject, dt);
 

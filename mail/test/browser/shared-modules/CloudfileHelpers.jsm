@@ -17,6 +17,7 @@ var fdh = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
@@ -37,7 +38,7 @@ var kDefaults = {
 function getFile(aFilename, aRoot) {
   let path = os.getFileForPath(aRoot);
   let file = os.getFileForPath(os.abspath(aFilename, path));
-  fdh.assert_true(file.exists, "File " + aFilename + " does not exist.");
+  Assert.ok(file.exists, "File " + aFilename + " does not exist.");
   return file;
 }
 

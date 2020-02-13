@@ -10,13 +10,11 @@ var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 
-var fdh = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var USE_SHEET_PREF = "toolbar.customization.usesheet";
@@ -76,10 +74,7 @@ CustomizeDialogHelper.prototype = {
     // XXX the dialog embedded in a sheet, but I do not know how.
     if (this._openInWindow) {
       wh.wait_for_window_close();
-      fdh.assert_true(
-        aCtc.window.closed,
-        "The customization dialog is not closed."
-      );
+      Assert.ok(aCtc.window.closed, "The customization dialog is not closed.");
     }
   },
 
@@ -106,6 +101,6 @@ CustomizeDialogHelper.prototype = {
     let toolbar = aController.e(this._toolbarId);
     let defaultSet = toolbar.getAttribute("defaultset");
 
-    fdh.assert_equals(toolbar.currentSet, defaultSet);
+    Assert.equal(toolbar.currentSet, defaultSet);
   },
 };

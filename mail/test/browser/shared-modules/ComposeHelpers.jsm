@@ -42,6 +42,8 @@ var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+
 var kTextNodeType = 3;
 
 var mc = folderDisplayHelper.mc;
@@ -417,7 +419,7 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
 
   let attachmentsDone = false;
   function collectAddedAttachments(event) {
-    folderDisplayHelper.assert_equals(event.detail.length, attachments.length);
+    Assert.equal(event.detail.length, attachments.length);
     attachmentsDone = true;
   }
 

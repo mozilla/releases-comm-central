@@ -23,6 +23,8 @@ var folderDisplayHelper = ChromeUtils.import(
 );
 var mc = folderDisplayHelper.mc;
 
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+
 /**
  * This function takes either a string or an elementlibs.Elem, and returns
  * whether it is hidden or not (simply by poking at its hidden property). It
@@ -47,7 +49,7 @@ function element_visible(aElt) {
  * @param aWhy The error message in case of failure
  */
 function assert_element_visible(aElt, aWhy) {
-  folderDisplayHelper.assert_true(element_visible(aElt), aWhy);
+  Assert.ok(element_visible(aElt), aWhy);
 }
 
 /**
@@ -83,7 +85,7 @@ function element_visible_recursive(aElem) {
  * @param aWhy The error message in case of failure
  */
 function assert_element_not_visible(aElt, aWhy) {
-  folderDisplayHelper.assert_true(!element_visible(aElt), aWhy);
+  Assert.ok(!element_visible(aElt), aWhy);
 }
 
 /**

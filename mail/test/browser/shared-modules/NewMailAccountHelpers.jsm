@@ -30,6 +30,7 @@ var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
 
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
@@ -94,9 +95,9 @@ function assert_links_shown(aController, aLinks) {
     let anchors = aController.window.document.querySelectorAll(
       'a[href="' + aLink + '"]'
     );
-    fdh.assert_true(anchors.length > 0);
+    Assert.ok(anchors.length > 0);
     for (let anchor of anchors) {
-      fdh.assert_false(anchor.hidden);
+      Assert.ok(!anchor.hidden);
     }
   });
 }
@@ -113,7 +114,7 @@ function assert_links_not_shown(aController, aLinks) {
     let anchors = aController.window.document.querySelectorAll(
       'a[href="' + aLink + '"]'
     );
-    fdh.assert_equals(anchors.length, 0);
+    Assert.equal(anchors.length, 0);
   });
 }
 

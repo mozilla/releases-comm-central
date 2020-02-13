@@ -25,6 +25,9 @@ const EXPORTED_SYMBOLS = [
 var fdh = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+
 var mc = fdh.mc;
 // disable the deferred search processing!
 mc.window.QuickFilterBarMuxer.deferredUpdateSearch =
@@ -111,10 +114,10 @@ function toggle_tag_mode() {
   let qbm = mc.e("qfb-boolean-mode");
   if (qbm.value === "AND") {
     qbm.selectedIndex--; // = move to "OR";
-    fdh.assert_equals(qbm.value, "OR", "qfb-boolean-mode has wrong state");
+    Assert.equal(qbm.value, "OR", "qfb-boolean-mode has wrong state");
   } else if (qbm.value === "OR") {
     qbm.selectedIndex++; // = move to "AND";
-    fdh.assert_equals(qbm.value, "AND", "qfb-boolean-mode has wrong state");
+    Assert.equal(qbm.value, "AND", "qfb-boolean-mode has wrong state");
   } else {
     throw new Error("qfb-boolean-mode value=" + qbm.value);
   }

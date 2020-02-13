@@ -14,9 +14,7 @@ const EXPORTED_SYMBOLS = [
   "assert_collapsed",
   "assert_default_window_size",
   "assert_displayed",
-  "assert_equals",
   "assert_expanded",
-  "assert_false",
   "assert_folder_at_index_as",
   "assert_folder_child_in_view",
   "assert_folder_collapsed",
@@ -41,7 +39,6 @@ const EXPORTED_SYMBOLS = [
   "assert_messages_summarized",
   "assert_multimessage_pane_focused",
   "assert_no_folders_selected",
-  "assert_not_equals",
   "assert_not_selected_tab",
   "assert_not_showing_unread_only",
   "assert_not_shown",
@@ -58,7 +55,6 @@ const EXPORTED_SYMBOLS = [
   "assert_tab_mode_name",
   "assert_tab_titled_from",
   "assert_thread_tree_focused",
-  "assert_true",
   "assert_visible",
   "be_in_folder",
   "click_tree_row",
@@ -3110,7 +3106,7 @@ function assert_folder_tree_view_row_count(aCount) {
  */
 function assert_folder_at_index_as(n, str) {
   let folderN = mc.window.gFolderTreeView.getFTVItemForIndex(n);
-  assert_equals(folderN.text, str);
+  Assert.equal(folderN.text, str);
 }
 
 /**
@@ -3395,12 +3391,12 @@ function set_pane_layout(aLayout) {
  * Some tests change the window size so need to be sure what size they start with.
  */
 function assert_default_window_size() {
-  assert_equals(
+  Assert.equal(
     mc.window.outerWidth,
     gDefaultWindowWidth,
     "Main window didn't meet the expected width"
   );
-  assert_equals(
+  Assert.equal(
     mc.window.outerHeight,
     gDefaultWindowHeight,
     "Main window didn't meet the expected height"
@@ -3480,38 +3476,4 @@ function load_via_src_path(aPath, aModule) {
 
   // If we've got this far, then we weren't successful, fail out.
   throw new Error("Could not find " + aPath + " in available paths");
-}
-
-function assert_equals(a, b, comment) {
-  if (!comment) {
-    comment = "a != b";
-  }
-  assert_true(a == b, comment + ": '" + a + "' != '" + b + "'.");
-}
-
-function assert_not_equals(a, b, comment) {
-  if (!comment) {
-    comment = "a == b";
-  }
-  assert_true(a != b, comment + ": '" + a + "' == '" + b + "'.");
-}
-
-// something less sucky than do_check_true
-function assert_true(
-  aBeTrue,
-  aWhy = "Expected value of expression is not 'true'"
-) {
-  if (!aBeTrue) {
-    throw new Error(aWhy);
-  }
-}
-
-// something less sucky than do_check_false
-function assert_false(
-  aBeTrue,
-  aWhy = "Expected value of expression is not 'false'"
-) {
-  if (aBeTrue) {
-    throw new Error(aWhy);
-  }
 }
