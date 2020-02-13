@@ -1139,15 +1139,15 @@ nsMsgSendLater::GetSendingMessages(bool *aResult) {
   return NS_OK;
 }
 
-#define NOTIFY_LISTENERS(propertyfunc_, params_)                              \
-  PR_BEGIN_MACRO                                                              \
-  nsTObserverArray<nsCOMPtr<nsIMsgSendLaterListener> >::ForwardIterator iter( \
-      mListenerArray);                                                        \
-  nsCOMPtr<nsIMsgSendLaterListener> listener;                                 \
-  while (iter.HasMore()) {                                                    \
-    listener = iter.GetNext();                                                \
-    listener->propertyfunc_ params_;                                          \
-  }                                                                           \
+#define NOTIFY_LISTENERS(propertyfunc_, params_)                             \
+  PR_BEGIN_MACRO                                                             \
+  nsTObserverArray<nsCOMPtr<nsIMsgSendLaterListener>>::ForwardIterator iter( \
+      mListenerArray);                                                       \
+  nsCOMPtr<nsIMsgSendLaterListener> listener;                                \
+  while (iter.HasMore()) {                                                   \
+    listener = iter.GetNext();                                               \
+    listener->propertyfunc_ params_;                                         \
+  }                                                                          \
   PR_END_MACRO
 
 void nsMsgSendLater::NotifyListenersOnStartSending(

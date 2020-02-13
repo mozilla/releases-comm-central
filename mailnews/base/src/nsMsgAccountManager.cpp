@@ -156,8 +156,8 @@ nsresult nsMsgAccountManager::Shutdown() {
   nsCOMPtr<nsIMsgDBService> msgDBService =
       do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
   if (msgDBService) {
-    nsTObserverArray<RefPtr<VirtualFolderChangeListener> >::ForwardIterator
-        iter(m_virtualFolderListeners);
+    nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
+        m_virtualFolderListeners);
     RefPtr<VirtualFolderChangeListener> listener;
 
     while (iter.HasMore()) {
@@ -562,7 +562,7 @@ nsresult nsMsgAccountManager::createKeyedServer(
   rv = server->GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTObserverArray<nsCOMPtr<nsIFolderListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIFolderListener>>::ForwardIterator iter(
       mFolderListeners);
   while (iter.HasMore()) {
     rootFolder->AddFolderListener(iter.GetNext());
@@ -573,7 +573,7 @@ nsresult nsMsgAccountManager::createKeyedServer(
 }
 
 void nsMsgAccountManager::removeListenersFromFolder(nsIMsgFolder *aFolder) {
-  nsTObserverArray<nsCOMPtr<nsIFolderListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIFolderListener>>::ForwardIterator iter(
       mFolderListeners);
   while (iter.HasMore()) {
     aFolder->RemoveFolderListener(iter.GetNext());
@@ -2941,7 +2941,7 @@ nsresult nsMsgAccountManager::RemoveVFListenerForVF(nsIMsgFolder *virtualFolder,
       do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTObserverArray<RefPtr<VirtualFolderChangeListener> >::ForwardIterator iter(
+  nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
       m_virtualFolderListeners);
   RefPtr<VirtualFolderChangeListener> listener;
 
@@ -3026,8 +3026,8 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemAdded(nsIMsgFolder *parentItem,
   // folders with this flag, and if so, add this folder to the scope.
   if (addToSmartFolders) {
     // quick way to enumerate the saved searches.
-    nsTObserverArray<RefPtr<VirtualFolderChangeListener> >::ForwardIterator
-        iter(m_virtualFolderListeners);
+    nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
+        m_virtualFolderListeners);
     RefPtr<VirtualFolderChangeListener> listener;
 
     while (iter.HasMore()) {
@@ -3133,7 +3133,7 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemRemoved(nsIMsgFolder *parentItem,
   removedFolderURI.Append('|');
 
   // Enumerate the saved searches.
-  nsTObserverArray<RefPtr<VirtualFolderChangeListener> >::ForwardIterator iter(
+  nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
       m_virtualFolderListeners);
   RefPtr<VirtualFolderChangeListener> listener;
 
@@ -3241,7 +3241,7 @@ nsresult nsMsgAccountManager::RemoveFolderFromSmartFolder(
   NS_ASSERTION(!(flags & flagsChanged), "smart folder flag should not be set");
   // Flag was removed. Look for smart folder based on that flag,
   // and remove this folder from its scope.
-  nsTObserverArray<RefPtr<VirtualFolderChangeListener> >::ForwardIterator iter(
+  nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
       m_virtualFolderListeners);
   RefPtr<VirtualFolderChangeListener> listener;
 

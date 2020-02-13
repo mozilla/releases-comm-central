@@ -183,15 +183,15 @@ nsDefaultAutoSyncFolderStrategy::IsExcluded(nsIMsgFolder *aFolder,
   return NS_OK;
 }
 
-#define NOTIFY_LISTENERS_STATIC(obj_, propertyfunc_, params_)                \
-  PR_BEGIN_MACRO                                                             \
-  nsTObserverArray<nsCOMPtr<nsIAutoSyncMgrListener> >::ForwardIterator iter( \
-      obj_->mListeners);                                                     \
-  nsCOMPtr<nsIAutoSyncMgrListener> listener;                                 \
-  while (iter.HasMore()) {                                                   \
-    listener = iter.GetNext();                                               \
-    listener->propertyfunc_ params_;                                         \
-  }                                                                          \
+#define NOTIFY_LISTENERS_STATIC(obj_, propertyfunc_, params_)               \
+  PR_BEGIN_MACRO                                                            \
+  nsTObserverArray<nsCOMPtr<nsIAutoSyncMgrListener>>::ForwardIterator iter( \
+      obj_->mListeners);                                                    \
+  nsCOMPtr<nsIAutoSyncMgrListener> listener;                                \
+  while (iter.HasMore()) {                                                  \
+    listener = iter.GetNext();                                              \
+    listener->propertyfunc_ params_;                                        \
+  }                                                                         \
   PR_END_MACRO
 
 #define NOTIFY_LISTENERS(propertyfunc_, params_) \
