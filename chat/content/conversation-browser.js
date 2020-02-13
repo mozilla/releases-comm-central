@@ -335,18 +335,20 @@
         Services.clipboard.supportsSelectionClipboard() &&
         Services.prefs.getBoolPref("clipboard.autocopy");
       if (this.autoCopyEnabled) {
-        this.contentWindow
-          .getSelection()
-          .addSelectionListener(this.chatSelectionListener);
+        let selection = this.contentWindow.getSelection();
+        if (selection) {
+          selection.addSelectionListener(this.chatSelectionListener);
+        }
       }
     }
 
     disableMagicCopy() {
       this.contentWindow.controllers.removeController(this.copyController);
       if (this.autoCopyEnabled) {
-        this.contentWindow
-          .getSelection()
-          .removeSelectionListener(this.chatSelectionListener);
+        let selection = this.contentWindow.getSelection();
+        if (selection) {
+          selection.removeSelectionListener(this.chatSelectionListener);
+        }
       }
     }
 
