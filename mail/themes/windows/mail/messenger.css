@@ -834,11 +834,11 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
   }
 }
 
-/* Status panel */
-
 .statusbarpanel-iconic {
   padding: 0 1px;
 }
+
+/* Status panel */
 
 .statuspanel-label {
   margin: 0;

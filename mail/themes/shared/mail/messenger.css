@@ -336,6 +336,14 @@ toolbarpaletteitem toolbarbutton {
   list-style-image: url("chrome://messenger/skin/icons/notloading.png");
 }
 
+/* Status panel */
+
+:root[lwt-tree] .statuspanel-label {
+  background-color: var(--lwt-toolbar-field-background-color);
+  color: var(--lwt-toolbar-field-color, -moz-dialogText);
+  border-color: var(--lwt-toolbar-field-border-color);
+}
+
 /* ::::: Status bar ::::: */
 
 #status-bar:-moz-lwtheme {

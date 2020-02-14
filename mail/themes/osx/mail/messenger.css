@@ -681,11 +681,11 @@ button[is="button-menu-button"] > .button-box > dropmarker {
   --tabs-border-color: hsla(0,0%,60%,.4);
 }
 
-/* Status panel */
-
 .statusbarpanel-iconic {
   padding: 0;
 }
+
+/* Status panel */
 
 .statuspanel-label {
   margin: 0;

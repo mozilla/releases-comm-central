@@ -769,11 +769,11 @@ menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
   -moz-appearance: none;
 }
 
-/* Status panel */
-
 .statusbarpanel-iconic {
   padding: 0 1px;
 }
+
+/* Status panel */
 
 .statuspanel-label {
   margin: 0;
