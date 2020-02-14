@@ -14,6 +14,15 @@ radio[pane] > .radio-label-box {
   font-size: 1.34em;
 }
 
+html|fieldset {
+  border-style: none;
+}
+
+html|legend {
+  padding-inline: 0;
+  background-color: transparent;
+}
+
 html|h2 {
   background-color: transparent;
 }

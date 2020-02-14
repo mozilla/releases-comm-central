@@ -62,6 +62,7 @@
 
 fieldset[data-category] {
   margin: 0 0 32px;
+  padding: 0;
 }
 
 html|h1 {
@@ -74,6 +75,8 @@ html|h1 {
 html|legend {
   margin: 16px 0 4px;
   font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.4em;
 }
 
 html|th {

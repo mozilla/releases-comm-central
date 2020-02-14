@@ -24,8 +24,8 @@ html|h2 {
   padding-inline-start: 0;
 }
 
-groupbox > .groupbox-body {
-  padding: 0;
+html|legend {
+  margin: 0;
 }
 
 html|input[type="number"] {
