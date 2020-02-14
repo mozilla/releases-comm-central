@@ -293,7 +293,7 @@ document.addEventListener("dialogaccept", event => {
     };
     printWindow.addEventListener("unload", closer);
 
-    if (gPrintSettingsAreGlobal && gSavePrintSettings) {
+    if (gSavePrintSettings) {
       let PSSVC = Cc["@mozilla.org/gfx/printsettings-service;1"].getService(
         Ci.nsIPrintSettingsService
       );
