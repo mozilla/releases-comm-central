@@ -4,17 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    '../libical',
-    '../base',
-    '../providers',
-    '../import-export',
-    '../itip',
     'components',
-    '../locales',
     'modules',
 ]
-
-TEST_DIRS += ['../test']
 
 JAR_MANIFESTS += ['jar.mn']
 
@@ -27,10 +19,6 @@ else:
 
 JS_PREFERENCE_PP_FILES += [
     'content/lightning.js',
-]
-
-FINAL_TARGET_FILES.res += [
-    '../timezones/zones.json',
 ]
 
 with Files('**'):

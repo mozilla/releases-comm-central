@@ -19,7 +19,7 @@ if CONFIG['MOZ_EXTENSIONS']:
 
 DIRS += [
     '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
-    '/%s/calendar/lightning' % CONFIG['commreltopsrcdir'],
+    '/%s/calendar' % CONFIG['commreltopsrcdir'],
     '/%s/chat' % CONFIG['commreltopsrcdir'],
     '/%s/mail' % CONFIG['commreltopsrcdir'],
 ]
