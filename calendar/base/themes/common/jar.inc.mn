@@ -45,6 +45,7 @@
     ../icons/default/calendar-event-summary-dialog.png                           (../common/icons/calendar-event-summary-dialog.png)
     ../icons/default/calendar-task-dialog.png                                    (../common/icons/calendar-task-dialog.png)
     ../icons/default/calendar-task-summary-dialog.png                            (../common/icons/calendar-task-summary-dialog.png)
+    skin/classic/calendar/shared/icons/cal-icon24.png                            (../common/images/cal-icon24.png)
     skin/classic/calendar/shared/icons/complete.svg                              (../common/icons/complete.svg)
     skin/classic/calendar/shared/icons/confidential.svg                          (../common/icons/confidential.svg)
     skin/classic/calendar/shared/icons/decline.svg                               (../common/icons/decline.svg)
@@ -96,4 +97,3 @@
     skin/classic/calendar/shared/widgets/nav-arrow.svg                           (../common/widgets/images/nav-arrow.svg)
     skin/classic/calendar/shared/widgets/nav-today.svg                           (../common/widgets/images/nav-today.svg)
     skin/classic/calendar/shared/widgets/minimonth.css                           (../common/widgets/minimonth.css)
-    skin/classic/calendar/shared/icons/cal-icon24.png                            (../linux/images/cal-icon24.png)
