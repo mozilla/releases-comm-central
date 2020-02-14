@@ -738,16 +738,45 @@ function deleteAddressPill(element) {
 }
 
 /**
- * Handle the keypress event on the labels to show the container row
- * of an hidden recipient (Cc, Bcc, etc.).
+ * Handle the keypress event on the recipient labels for keyboard navigation and
+ * to show the container row of a hidden recipient (Cc, Bcc, etc.).
  *
  * @param {Event} event - The DOM keypress event.
- * @param {XULelement} label - The clicked label to hide.
- * @param {string} rowID - The ID of the container to reveal.
+ * @param {string} rowID - The ID of the container to reveal on Enter.
  */
-function showAddressRowKeyPress(event, label, rowID) {
-  if (event.key == "Enter") {
-    showAddressRow(label, rowID);
+function showAddressRowKeyPress(event, rowID) {
+  switch (event.key) {
+    case "Enter":
+      showAddressRow(event.target, rowID);
+      break;
+    case "ArrowUp":
+    case "ArrowDown":
+    case "ArrowRight":
+    case "ArrowLeft":
+      let label = event.target;
+      // Convert nodelist into an array to tame the beast and use .indexOf().
+      let focusable = [
+        ...label.parentElement.querySelectorAll(
+          ".recipient-label:not([collapsed='true'])"
+        ),
+      ];
+      let lastIndex = focusable.length - 1;
+      // Bail out if there's only one item left, so nowhere to go with focus.
+      if (lastIndex == 0) {
+        break;
+      }
+      // Move focus inside the panel focus ring.
+      let index = focusable.indexOf(label);
+      let newIndex;
+      if (event.key == "ArrowDown" || event.key == "ArrowRight") {
+        newIndex = index == lastIndex ? 0 : ++index;
+      } else {
+        newIndex = index == 0 ? lastIndex : --index;
+      }
+      focusable[newIndex].focus();
+      // Prevent the keys from being handled again by our listeners on the panel.
+      event.stopPropagation();
+      break;
   }
 }
 
@@ -904,13 +933,81 @@ function calculateHeaderHeight() {
 }
 
 /**
+ * Handle keypress event on a label inside #extraRecipientsPanel.
+ *
+ * @param {event} event - The DOM keypress event on the label.
+ */
+function extraRecipientsLabelOnKeyPress(event) {
+  switch (event.key) {
+    case "Enter":
+    case "ArrowRight":
+    case "ArrowDown":
+      // Open the extra recipients panel.
+      showExtraRecipients(event);
+      break;
+    case "ArrowLeft":
+    case "ArrowUp":
+      // Allow navigating away from focused extraRecipientsLabel using cursor
+      // keys.
+      let focusable = event.currentTarget.parentElement.querySelectorAll(
+        '.recipient-label:not([collapsed="true"]):not(.extra-recipients-label)'
+      );
+      let focusEl = focusable[focusable.length - 1];
+      if (focusEl) {
+        focusEl.focus();
+      }
+      break;
+  }
+}
+
+/**
  * Show the #extraRecipientsPanel.
  *
  * @param {Event} event - The DOM event.
  */
 function showExtraRecipients(event) {
   let panel = document.getElementById("extraRecipientsPanel");
+  // If panel was opened with keyboard, focus first recipient label;
+  // otherwise focus the panel [tabindex=0] to enable keyboard navigation.
+  panel.addEventListener(
+    "popupshown",
+    () => {
+      (event.type == "keypress"
+        ? panel.querySelector('.recipient-label:not([collapsed="true"])')
+        : panel
+      ).focus();
+    },
+    { once: true }
+  );
   panel.openPopup(event.originalTarget, "after_end", -8, 0, true);
+}
+
+/**
+ * Handle keypress event on #extraRecipientsPanel.
+ *
+ * @param {event} event - The DOM keypress event on the panel.
+ */
+function extraRecipientsPanelOnKeyPress(event) {
+  switch (event.key) {
+    case "Enter":
+      event.currentTarget.hidePopup();
+      break;
+
+    // Ensure access to panel focus ring after *click* on extraRecipientsLabel.
+    case "ArrowDown":
+      // Focus first focusable recipient label.
+      event.currentTarget
+        .querySelector('.recipient-label:not([collapsed="true"])')
+        .focus();
+      break;
+    case "ArrowUp":
+      // Focus last focusable recipient label.
+      let focusable = event.currentTarget.querySelectorAll(
+        '.recipient-label:not([collapsed="true"])'
+      );
+      focusable[focusable.length - 1].focus();
+      break;
+  }
 }
 
 /**

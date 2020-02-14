@@ -664,13 +664,14 @@ label.extra-recipients-label {
 
 #extraRecipientsPanel label {
   padding: 4px 8px;
-  margin: 2px 0;
+  margin: 0;
   width: 100%;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-#extraRecipientsPanel label:hover {
+#extraRecipientsPanel label:hover,
+#extraRecipientsPanel label:focus {
   background-color: var(--arrowpanel-dimmed);
 }
 

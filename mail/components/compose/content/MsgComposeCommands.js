@@ -3425,6 +3425,7 @@ function ComposeLoad() {
       let recipientsContainer = document.getElementById("recipientsContainer");
 
       for (let header of otherHeaders.split(",")) {
+        header = header.trim();
         let recipient = {
           id: `${header}AddrInput`,
           row: `addressRow${header}`,
@@ -3570,26 +3571,27 @@ function updateTooltipsOfAddressingFields(row) {
 }
 
 /**
- * Create the recipient label to add in the messenger compose dialog.
+ * Create a custom recipient label to add in the compose window.
  *
- * @param {string} labelID - The unique identifier of the email header.
- * @returns {XULelement} The newly create XUL label.
+ * @param {string} labelID - The unique identifier of the custom email header.
+ * @returns {Element} The newly created label.
  */
 function createRecipientLabel(labelID) {
   let label = document.createXULElement("label");
   label.setAttribute("id", labelID);
-  label.setAttribute("value", labelID);
+  label.classList.add("recipient-label");
   label.setAttribute("role", "button");
+  label.setAttribute("value", labelID);
 
   label.addEventListener("click", () => {
     showAddressRow(label, `addressRow${labelID}`);
   });
   label.addEventListener("keypress", event => {
-    showAddressRowKeyPress(event, label, `addressRow${labelID}`);
+    showAddressRowKeyPress(event, `addressRow${labelID}`);
   });
   label.setAttribute("control", `${labelID}AddrInput`);
 
-  // Necessary to allow focus via TAB key.
+  // Necessary to allow focus via TAB key or cursor keys.
   label.setAttribute("tabindex", 0);
 
   return label;
