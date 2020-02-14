@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported refreshUIBits, switchCalendarView, rescheduleInvitationsUpdate,
- *          openInvitationsDialog, onToolbarsPopupShowingWithMode,
- *          InitViewCalendarPaneMenu, calendarOnToolbarsPopupShowing,
- *          customizeMailToolbarForTabType, gCurrentMode
+/* exported calendarOnToolbarsPopupShowing, customizeMailToolbarForTabType,
+ *          gCurrentMode, InitViewCalendarPaneMenu, loadCalendarComponent,
+ *          onToolbarsPopupShowingWithMode, openInvitationsDialog, refreshUIBits,
+ *          rescheduleInvitationsUpdate, switchCalendarView
  */
 
 /* import-globals-from ../../base/content/calendar-command-controller.js */
@@ -374,7 +374,11 @@ window.addEventListener("load", e => {
   tabmail.registerTabMonitor(calendarTabMonitor);
 });
 
-async function ltnOnLoad(event) {
+/**
+ * Loads the calendar component. Called once at startup as the application
+ * window is loaded, before tabs are restored.
+ */
+async function loadCalendarComponent() {
   await uninstallLightningAddon();
 
   // Check if the binary component was loaded
@@ -765,8 +769,6 @@ function calInitMessageMenu() {
 }
 calInitMessageMenu.origFunc = InitMessageMenu;
 InitMessageMenu = calInitMessageMenu;
-
-window.addEventListener("load", ltnOnLoad, { capture: false, once: true });
 
 /**
  * Get the toolbox id for the current tab type.

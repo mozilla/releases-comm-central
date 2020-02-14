@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/modules/PageMenu.jsm */
+/* import-globals-from ../../../calendar/lightning/content/messenger-overlay-sidebar.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../../mailnews/base/util/MailnewsMigrator.jsm */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
@@ -845,6 +846,9 @@ function getWindowStateForSessionPersistence() {
  * @return true if the restoration was successful, false otherwise.
  */
 async function atStartupRestoreTabs(aDontRestoreFirstTab) {
+  // The calendar component needs to be loaded before restoring any calendar tabs.
+  await loadCalendarComponent();
+
   let state = await SessionStoreManager.loadingWindow(window);
   if (state) {
     let tabsState = state.tabs;
