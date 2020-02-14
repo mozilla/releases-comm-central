@@ -106,7 +106,6 @@ nsContextMenu.prototype = {
           ? document.getElementById("tabmail").currentTabInfo
           : undefined,
         isContentSelected: this.isContentSelected,
-        inFrame: this.inFrame,
         isTextSelected: this.isTextSelected,
         onTextInput: this.onTextInput,
         onLink: this.onLink,
@@ -116,19 +115,27 @@ nsContextMenu.prototype = {
         onCanvas: this.onCanvas,
         onEditable: this.onEditable,
         srcUrl: this.mediaURL,
-        pageUrl: this.browser ? this.browser.currentURI.spec : undefined,
         linkText: this.onLink ? this.linkText() : undefined,
         linkUrl: this.linkURL,
         selectionText: this.isTextSelected
           ? this.selectionInfo.fullText
           : undefined,
       };
+      if (this.target) {
+        subject.inFrame =
+          this.target.ownerGlobal != this.target.ownerGlobal.top;
+        subject.frameUrl = this.target.ownerGlobal.location.href;
+        subject.pageUrl = this.target.ownerGlobal.top.location.href;
+        subject.principal = this.target.ownerDocument.nodePrincipal;
+      }
       if (target.closest("tree") == gFolderDisplay.tree) {
         subject.displayedFolder = gFolderDisplay.view.displayedFolder;
         subject.selectedMessages = gFolderDisplay.selectedMessages;
       }
+      subject.context = subject;
       subject.wrappedJSObject = subject;
 
+      Services.obs.notifyObservers(subject, "on-prepare-contextmenu");
       Services.obs.notifyObservers(subject, "on-build-contextmenu");
     }
 

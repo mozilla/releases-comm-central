@@ -38,7 +38,7 @@ let tabListener = {
    * @param {Integer} flags                 The web progress flags for this change
    */
   onLocationChange(browser, webProgress, request, locationURI, flags) {
-    if (webProgress.isTopLevel) {
+    if (webProgress && webProgress.isTopLevel) {
       let tabmail = browser.ownerDocument.getElementById("tabmail");
       let nativeTabInfo = tabmail.getTabForBrowser(browser);
 

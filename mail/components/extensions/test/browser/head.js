@@ -19,6 +19,15 @@ PromiseTestUtils.whitelistRejectionsGlobally(/Message manager disconnected/);
 PromiseTestUtils.whitelistRejectionsGlobally(/No matching message handler/);
 PromiseTestUtils.whitelistRejectionsGlobally(/Receiving end does not exist/);
 
+registerCleanupFunction(() => {
+  let tabmail = document.getElementById("tabmail");
+  is(tabmail.tabInfo.length, 1);
+
+  while (tabmail.tabInfo.length > 1) {
+    tabmail.closeTab(tabmail.tabInfo[1]);
+  }
+});
+
 function createAccount() {
   registerCleanupFunction(() => {
     [...MailServices.accounts.accounts.enumerate()].forEach(cleanUpAccount);
@@ -222,4 +231,61 @@ async function checkComposeHeaders(expected) {
   } else {
     is(subject, "", "subject is empty");
   }
+}
+
+async function openContextMenu(selector = "#img1", win = window) {
+  let contentAreaContextMenu = win.document.getElementById("mailContext");
+  let popupShownPromise = BrowserTestUtils.waitForEvent(
+    contentAreaContextMenu,
+    "popupshown"
+  );
+  let tabmail = document.getElementById("tabmail");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    selector,
+    { type: "mousedown", button: 2 },
+    tabmail.selectedBrowser
+  );
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    selector,
+    { type: "contextmenu" },
+    tabmail.selectedBrowser
+  );
+  await popupShownPromise;
+  return contentAreaContextMenu;
+}
+
+async function closeExtensionContextMenu(itemToSelect, modifiers = {}) {
+  let contentAreaContextMenu = document.getElementById("mailContext");
+  let popupHiddenPromise = BrowserTestUtils.waitForEvent(
+    contentAreaContextMenu,
+    "popuphidden"
+  );
+  if (itemToSelect) {
+    EventUtils.synthesizeMouseAtCenter(itemToSelect, modifiers);
+  } else {
+    contentAreaContextMenu.hidePopup();
+  }
+  await popupHiddenPromise;
+
+  // Bug 1351638: parent menu fails to close intermittently, make sure it does.
+  contentAreaContextMenu.hidePopup();
+}
+
+async function openSubmenu(submenuItem, win = window) {
+  const submenu = submenuItem.menupopup;
+  const shown = BrowserTestUtils.waitForEvent(submenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(submenuItem, {}, win);
+  await shown;
+  return submenu;
+}
+
+async function closeContextMenu(contextMenu) {
+  let contentAreaContextMenu =
+    contextMenu || document.getElementById("mailContext");
+  let popupHiddenPromise = BrowserTestUtils.waitForEvent(
+    contentAreaContextMenu,
+    "popuphidden"
+  );
+  contentAreaContextMenu.hidePopup();
+  await popupHiddenPromise;
 }

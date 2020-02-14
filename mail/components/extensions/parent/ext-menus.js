@@ -29,8 +29,10 @@ var gRootItems = new Map();
 // Menu IDs that were eligible for being shown in the current menu.
 var gShownMenuItems = new DefaultMap(() => []);
 
-// Set of extensions that are listening to onShown.
-var gOnShownSubscribers = new Set();
+// Map[Extension -> Set[Contexts]]
+// A DefaultMap (keyed by extension) which keeps track of the
+// contexts with a subscribed onShown event listener.
+var gOnShownSubscribers = new DefaultMap(() => new Set());
 
 // If id is not specified for an item we use an integer.
 var gNextMenuItemID = 0;
@@ -95,7 +97,7 @@ var gMenuBuilder = {
     );
   },
 
-  createAndInsertTopLevelElements(root, contextData, nextElementSibling) {
+  createAndInsertTopLevelElements(root, contextData, nextSibling) {
     let rootElements;
     if (contextData.onBrowserAction || contextData.onPageAction) {
       if (contextData.extension.id !== root.extension.id) {
@@ -109,8 +111,8 @@ var gMenuBuilder = {
       );
 
       // Action menu items are prepended to the menu, followed by a separator.
-      nextElementSibling = nextElementSibling || this.xulMenu.firstElementChild;
-      if (rootElements.length && !this.itemsToCleanUp.has(nextElementSibling)) {
+      nextSibling = nextSibling || this.xulMenu.firstElementChild;
+      if (rootElements.length && !this.itemsToCleanUp.has(nextSibling)) {
         rootElements.push(
           this.xulMenu.ownerDocument.createXULElement("menuseparator")
         );
@@ -129,13 +131,12 @@ var gMenuBuilder = {
           false
         );
         // The extension menu should be rendered at the top, but after the navigation buttons.
-        nextElementSibling =
-          nextElementSibling ||
-          this.xulMenu.querySelector(":scope > #context-sep-navigation + *");
+        nextSibling =
+          nextSibling || this.xulMenu.querySelector(":scope > :first-child");
         if (
           rootElements.length &&
           showDefaults &&
-          !this.itemsToCleanUp.has(nextElementSibling)
+          !this.itemsToCleanUp.has(nextSibling)
         ) {
           rootElements.push(
             this.xulMenu.ownerDocument.createXULElement("menuseparator")
@@ -166,8 +167,8 @@ var gMenuBuilder = {
       return;
     }
 
-    if (nextElementSibling) {
-      nextElementSibling.before(...rootElements);
+    if (nextSibling) {
+      nextSibling.before(...rootElements);
     } else {
       this.xulMenu.append(...rootElements);
     }
@@ -273,7 +274,7 @@ var gMenuBuilder = {
   buildSingleElement(item, contextData) {
     let doc = contextData.menu.ownerDocument;
     let element;
-    if (item.children.length > 0) {
+    if (item.children.length) {
       element = this.createMenuElement(doc, item);
     } else if (item.type == "separator") {
       element = doc.createXULElement("menuseparator");
@@ -406,19 +407,7 @@ var gMenuBuilder = {
         }
 
         let info = item.getClickInfo(contextData, wasChecked);
-
-        const map = {
-          shiftKey: "Shift",
-          altKey: "Alt",
-          metaKey: "Command",
-          ctrlKey: "Ctrl",
-        };
-        info.modifiers = Object.keys(map)
-          .filter(key => event[key])
-          .map(key => map[key]);
-        if (event.ctrlKey && AppConstants.platform === "macosx") {
-          info.modifiers.push("MacCtrl");
-        }
+        info.modifiers = clickModifiersFromEvent(event);
 
         info.button = button;
 
@@ -441,8 +430,8 @@ var gMenuBuilder = {
       { once: true }
     );
 
+    // eslint-disable-next-line mozilla/balanced-listeners
     element.addEventListener("click", event => {
-      // eslint-disable-line mozilla/balanced-listeners
       if (
         event.target !== event.currentTarget ||
         // Ignore menu items that are usually not clickeable,
@@ -508,10 +497,10 @@ var gMenuBuilder = {
     // Find the group of existing top-level items (usually 0 or 1 items)
     // and remember its position for when the new items are inserted.
     let elementIdPrefix = `${makeWidgetId(extension.id)}-menuitem-`;
-    let nextElementSibling = null;
+    let nextSibling = null;
     for (let item of this.itemsToCleanUp) {
       if (item.id && item.id.startsWith(elementIdPrefix)) {
-        nextElementSibling = item.nextElementSibling;
+        nextSibling = item.nextSibling;
         item.remove();
         this.itemsToCleanUp.delete(item);
       }
@@ -519,11 +508,7 @@ var gMenuBuilder = {
 
     let root = gRootItems.get(extension);
     if (root) {
-      this.createAndInsertTopLevelElements(
-        root,
-        contextData,
-        nextElementSibling
-      );
+      this.createAndInsertTopLevelElements(root, contextData, nextSibling);
     }
     this.removeSeparatorIfNoTopLevelItems();
   },
@@ -542,7 +527,9 @@ var gMenuBuilder = {
     if (contextData.onBrowserAction || contextData.onPageAction) {
       dispatchOnShownEvent(contextData.extension);
     } else {
-      gOnShownSubscribers.forEach(dispatchOnShownEvent);
+      for (const extension of gOnShownSubscribers.keys()) {
+        dispatchOnShownEvent(extension);
+      }
     }
 
     this.contextData = contextData;
@@ -634,7 +621,7 @@ function getContextViewType(contextData) {
   ) {
     return contextData.webExtBrowserType;
   }
-  if (contextData.tab && contextData.menu.id === "tabContextMenu") {
+  if (contextData.tab && contextData.menu.id === "mailContext") {
     return "tab";
   }
   return undefined;
@@ -665,6 +652,7 @@ function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
     if (contextData.onAudio || contextData.onImage || contextData.onVideo) {
       info.srcUrl = contextData.srcUrl;
     }
+    info.pageUrl = contextData.pageUrl;
     if (contextData.inFrame) {
       info.frameUrl = contextData.frameUrl;
     }
@@ -967,12 +955,7 @@ const menuTracker = {
   unregister() {
     Services.obs.removeObserver(this, "on-build-contextmenu");
     for (const window of windowTracker.browserWindows()) {
-      for (const id of this.menuIds) {
-        const menu = window.document.getElementById(id);
-        if (menu) {
-          menu.removeEventListener("popupshowing", this);
-        }
-      }
+      this.cleanupWindow(window);
     }
     windowTracker.removeOpenListener(this.onWindowOpen);
   },
@@ -987,6 +970,15 @@ const menuTracker = {
       const menu = window.document.getElementById(id);
       if (menu) {
         menu.addEventListener("popupshowing", menuTracker);
+      }
+    }
+  },
+
+  cleanupWindow(window) {
+    for (const id of this.menuIds) {
+      const menu = window.document.getElementById(id);
+      if (menu) {
+        menu.removeEventListener("popupshowing", this);
       }
     }
   },
@@ -1026,7 +1018,7 @@ this.menus = class extends ExtensionAPI {
     gMenuMap.set(extension, new Map());
   }
 
-  onShutdown(reason) {
+  onShutdown() {
     let { extension } = this;
 
     if (gMenuMap.has(extension)) {
@@ -1082,10 +1074,14 @@ this.menus = class extends ExtensionAPI {
               let tab = nativeTab && extension.tabManager.convert(nativeTab);
               fire.sync(info, tab);
             };
-            gOnShownSubscribers.add(extension);
+            gOnShownSubscribers.get(extension).add(context);
             extension.on("webext-menu-shown", listener);
             return () => {
-              gOnShownSubscribers.delete(extension);
+              const contexts = gOnShownSubscribers.get(extension);
+              contexts.delete(context);
+              if (contexts.size === 0) {
+                gOnShownSubscribers.delete(extension);
+              }
               extension.off("webext-menu-shown", listener);
             };
           },

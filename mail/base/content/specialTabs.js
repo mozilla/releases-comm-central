@@ -887,7 +887,7 @@ var specialTabs = {
       aTab.root = clone;
 
       // Start setting up the browser.
-      aTab.browser = aTab.panel.querySelector("browser");
+      aTab.linkedBrowser = aTab.browser = aTab.panel.querySelector("browser");
       aTab.toolbar = aTab.panel.querySelector(".contentTabToolbar");
       aTab.backButton = aTab.toolbar.querySelector(".back-btn");
       aTab.backButton.addEventListener("command", () => aTab.browser.goBack());

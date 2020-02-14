@@ -22,6 +22,7 @@ var { ExtensionError, getInnerWindowID } = ExtensionUtils;
 var { defineLazyGetter } = ExtensionCommon;
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
   ExtensionPageChild: "resource://gre/modules/ExtensionPageChild.jsm",
   ExtensionProcessScript: "resource://gre/modules/ExtensionProcessScript.jsm",
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
@@ -110,6 +111,24 @@ const getSender = (extension, target, sender) => {
 // Used by Extension.jsm.
 global.tabGetSender = getSender;
 
+global.clickModifiersFromEvent = event => {
+  const map = {
+    shiftKey: "Shift",
+    altKey: "Alt",
+    metaKey: "Command",
+    ctrlKey: "Ctrl",
+  };
+  let modifiers = Object.keys(map)
+    .filter(key => event[key])
+    .map(key => map[key]);
+
+  if (event.ctrlKey && AppConstants.platform === "macosx") {
+    modifiers.push("MacCtrl");
+  }
+
+  return modifiers;
+};
+
 global.makeWidgetId = id => {
   id = id.toLowerCase();
   // FIXME: This allows for collisions.
@@ -173,7 +192,9 @@ class WindowTracker extends WindowTrackerBase {
    */
   addProgressListener(window, listener) {
     let tabmail = window.document.getElementById("tabmail");
-    tabmail.addTabsProgressListener(listener);
+    if (tabmail) {
+      tabmail.addTabsProgressListener(listener);
+    }
   }
 
   /**
@@ -184,7 +205,9 @@ class WindowTracker extends WindowTrackerBase {
    */
   removeProgressListener(window, listener) {
     let tabmail = window.document.getElementById("tabmail");
-    tabmail.removeTabsProgressListener(listener);
+    if (tabmail) {
+      tabmail.removeTabsProgressListener(listener);
+    }
   }
 
   /**
