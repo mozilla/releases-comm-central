@@ -6,6 +6,9 @@
 
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 const {ShellService} = ChromeUtils.import("resource:///modules/ShellService.jsm");
+// Needed as this script is also loaded by pref-applicationManager.xul.
+const {XPCOMUtils} =
+  ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function Startup()
 {

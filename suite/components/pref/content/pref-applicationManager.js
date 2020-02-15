@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var gAppManagerDialog = {
   _removed: [],
 
@@ -14,9 +16,10 @@ var gAppManagerDialog = {
       contentText = bundle.getString("descriptionHandleWebFeeds");
     else {
       var description = gApplicationsPane._describeType(this.handlerInfo);
-      var key = (this.handlerInfo.wrappedHandlerInfo instanceof nsIMIMEInfo) ?
-                "descriptionHandleFile" :
-                "descriptionHandleProtocol";
+      var key =
+        (this.handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) ?
+          "descriptionHandleFile" :
+          "descriptionHandleProtocol";
       contentText = bundle.getFormattedString(key, [description]);
     }
     document.getElementById("appDescription").textContent = contentText;
@@ -31,7 +34,8 @@ var gAppManagerDialog = {
       app.QueryInterface(Ci.nsIHandlerApp);
       var item = list.appendItem(app.name);
       item.className = "listitem-iconic";
-      item.setAttribute("image", gApplicationsPane._getIconURLForHandlerApp(app));
+      item.setAttribute("image",
+                        gApplicationsPane._getIconURLForHandlerApp(app));
       item.app = app;
     }
 
