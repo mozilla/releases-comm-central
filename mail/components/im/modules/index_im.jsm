@@ -15,9 +15,6 @@ const { GlodaAccount } = ChromeUtils.import(
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -103,8 +100,7 @@ GlodaIMConversation.prototype = {
     }
 
     // Find the nsIIncomingServer for the current imIAccount.
-    let mgr = MailServices.accounts;
-    for (let account of fixIterator(mgr.accounts, Ci.nsIMsgAccount)) {
+    for (let account of MailServices.accounts.accounts) {
       let incomingServer = account.incomingServer;
       if (!incomingServer || incomingServer.type != "im") {
         continue;

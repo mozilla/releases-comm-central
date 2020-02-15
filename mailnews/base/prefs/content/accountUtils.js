@@ -21,11 +21,9 @@ var gAnyValidIdentity = false; // If there are no valid identities for any accou
 var gNewAccountToLoad = null; // used to load new messages if we come from the mail3pane
 
 function getInvalidAccounts(accounts) {
-  let numAccounts = accounts.length;
   let invalidAccounts = [];
   let numIdentities = 0;
-  for (let i = 0; i < numAccounts; i++) {
-    let account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
+  for (let account of accounts) {
     try {
       if (!account.incomingServer.valid) {
         invalidAccounts[invalidAccounts.length] = account;

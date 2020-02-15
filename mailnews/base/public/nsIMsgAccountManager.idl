@@ -85,7 +85,7 @@ interface nsIMsgAccountManager : nsISupports {
    * Accounts with hidden servers are not returned.
    * array of nsIMsgAccount
    */
-  readonly attribute nsIArray accounts;
+  readonly attribute Array<nsIMsgAccount> accounts;
 
   /* list of all identities in all accounts
    * array of nsIMsgIdentity

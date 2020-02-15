@@ -234,10 +234,7 @@ function openPrefsFromAccountManager(
  *                      searching the name. If unset, do not skip any account.
  */
 function accountNameExists(aAccountName, aAccountKey) {
-  for (let account of fixIterator(
-    MailServices.accounts.accounts,
-    Ci.nsIMsgAccount
-  )) {
+  for (let account of MailServices.accounts.accounts) {
     if (
       account.key != aAccountKey &&
       account.incomingServer &&

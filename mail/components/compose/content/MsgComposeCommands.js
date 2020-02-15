@@ -6701,10 +6701,7 @@ function DetermineConvertibility() {
  */
 function hideIrrelevantAddressingOptions(accountKey, prevKey) {
   let hideNews = true;
-  for (let account of fixIterator(
-    MailServices.accounts.accounts,
-    Ci.nsIMsgAccount
-  )) {
+  for (let account of MailServices.accounts.accounts) {
     if (account.incomingServer.type == "nntp") {
       hideNews = false;
     }

@@ -12,10 +12,7 @@ function run_test() {
   MailServices.accounts.createLocalMailAccount();
 
   // Get the account
-  let account = MailServices.accounts.accounts.queryElementAt(
-    0,
-    Ci.nsIMsgAccount
-  );
+  let account = MailServices.accounts.accounts[0];
 
   // Get the root folder
   var root = account.incomingServer.rootFolder;

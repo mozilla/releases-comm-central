@@ -182,10 +182,7 @@ function getDefaultIdentity() {
  */
 function getIdentities(aSkipNntpIdentities = true) {
   let identities = [];
-  for (let account of fixIterator(
-    MailServices.accounts.accounts,
-    Ci.nsIMsgAccount
-  )) {
+  for (let account of MailServices.accounts.accounts) {
     let server = account.incomingServer;
     if (
       aSkipNntpIdentities &&
@@ -424,13 +421,7 @@ function combine(a1, a2) {
  * @return {Bool}
  */
 function hasConfiguredAccounts() {
-  let accountManager = Cc[
-    "@mozilla.org/messenger/account-manager;1"
-  ].getService(Ci.nsIMsgAccountManager);
-
-  for (let acct = 0; acct < accountManager.accounts.length; acct++) {
-    let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
-
+  for (let ac of MailServices.accounts.accounts) {
     if (ac.incomingServer.type !== "none") {
       if (ac.defaultIdentity.email.length > 0) {
         return true;

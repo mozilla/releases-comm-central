@@ -473,10 +473,7 @@ SettingsImportHelper.prototype = {
   },
 
   _ensureNoAccounts() {
-    let accounts = MailServices.accounts.accounts;
-
-    for (let i = 0; i < accounts.length; i++) {
-      let account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
+    for (let account of MailServices.accounts.accounts) {
       MailServices.accounts.removeAccount(account);
     }
   },
@@ -564,9 +561,7 @@ SettingsImportHelper.prototype = {
   },
 
   checkResults() {
-    let accounts = MailServices.accounts.accounts;
-    for (let i = 0; i < accounts.length - 1; i++) {
-      let actualAccount = accounts.queryElementAt(i, Ci.nsIMsgAccount);
+    for (let actualAccount of MailServices.accounts.accounts) {
       if (this._isLocalMailAccount(actualAccount)) {
         continue;
       }

@@ -90,9 +90,8 @@ var AboutSupport = {
    */
   getAccountDetails() {
     let accountDetails = [];
-    let accounts = MailServices.accounts.accounts;
 
-    for (let account of fixIterator(accounts, Ci.nsIMsgAccount)) {
+    for (let account of MailServices.accounts.accounts) {
       let server = account.incomingServer;
       accountDetails.push({
         key: account.key,

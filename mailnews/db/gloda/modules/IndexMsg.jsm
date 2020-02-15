@@ -2014,10 +2014,7 @@ var GlodaMsgIndexer = {
     this._log.info("Queueing all accounts for indexing.");
 
     GlodaDatastore._beginTransaction();
-    for (let account of fixIterator(
-      MailServices.accounts.accounts,
-      Ci.nsIMsgAccount
-    )) {
+    for (let account of MailServices.accounts.accounts) {
       this.indexAccount(account);
     }
     GlodaDatastore._commitTransaction();

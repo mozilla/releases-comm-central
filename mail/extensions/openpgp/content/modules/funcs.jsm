@@ -22,6 +22,9 @@ const { EnigmailPrefs } = ChromeUtils.import(
 const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 );
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gTxtConverter = null;
 
@@ -414,13 +417,7 @@ var EnigmailFuncs = {
    * Get the nsIMsgAccount associated with a given nsIMsgIdentity
    */
   getAccountForIdentity(identity) {
-    let accountManager = Cc[
-      "@mozilla.org/messenger/account-manager;1"
-    ].getService(Ci.nsIMsgAccountManager);
-
-    for (let acct = 0; acct < accountManager.accounts.length; acct++) {
-      let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
-
+    for (let ac of MailServices.accounts.accounts) {
       for (let i = 0; i < ac.identities.length; i++) {
         let id = ac.identities.queryElementAt(i, Ci.nsIMsgIdentity);
         if (id.key === identity.key) {
@@ -435,17 +432,12 @@ var EnigmailFuncs = {
    * Get the default identity of the default account
    */
   getDefaultIdentity() {
-    let accountManager = Cc[
-      "@mozilla.org/messenger/account-manager;1"
-    ].getService(Ci.nsIMsgAccountManager);
-
     try {
       let ac;
-      if (accountManager.defaultAccount) {
-        ac = accountManager.defaultAccount;
+      if (MailServices.accounts.defaultAccount) {
+        ac = MailServices.accounts.defaultAccount;
       } else {
-        for (let i = 0; i < accountManager.accounts.length; i++) {
-          ac = accountManager.accounts.queryElementAt(i, Ci.nsIMsgAccount);
+        for (ac of MailServices.accounts.accounts) {
           if (
             ac.incomingServer.type === "imap" ||
             ac.incomingServer.type === "pop3"

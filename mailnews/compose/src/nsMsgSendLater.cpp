@@ -615,13 +615,12 @@ nsMsgSendLater::HasUnsentMessages(nsIMsgIdentity *aIdentity, bool *aResult) {
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIArray> accounts;
-  accountManager->GetAccounts(getter_AddRefs(accounts));
+  nsTArray<RefPtr<nsIMsgAccount>> accounts;
+  rv = accountManager->GetAccounts(accounts);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t cnt = 0;
-  rv = accounts->GetLength(&cnt);
-  if (cnt == 0) return NS_OK;  // no account set up -> no unsent messages
+  if (accounts.IsEmpty())
+    return NS_OK;  // no account set up -> no unsent messages
 
   // XXX This code should be set up for multiple unsent folders, however we
   // don't support that at the moment, so for now just assume one folder.

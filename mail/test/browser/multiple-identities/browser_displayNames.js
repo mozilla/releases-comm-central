@@ -45,11 +45,7 @@ add_task(function setupModule(module) {
 
   // We need to make sure we have only one identity:
   // 1) Delete all accounts except for Local Folders
-  for (let i = MailServices.accounts.accounts.length - 1; i >= 0; i--) {
-    let account = MailServices.accounts.accounts.queryElementAt(
-      i,
-      Ci.nsIMsgAccount
-    );
+  for (let account of MailServices.accounts.accounts) {
     if (account != localAccount) {
       MailServices.accounts.removeAccount(account);
     }

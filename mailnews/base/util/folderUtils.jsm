@@ -17,9 +17,6 @@ this.EXPORTED_SYMBOLS = [
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { fixIterator, toArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 /**
  * Returns a string representation of a folder's "special" type.
@@ -159,15 +156,12 @@ function compareAccounts(aAccount1, aAccount2) {
  * @param aExcludeIMAccounts  Remove IM accounts from the list?
  */
 function allAccountsSorted(aExcludeIMAccounts) {
-  // Get the account list, and add the proper items.
-  let accountList = toArray(
-    fixIterator(MailServices.accounts.accounts, Ci.nsIMsgAccount)
-  );
-
   // This is a HACK to work around bug 41133. If we have one of the
   // dummy "news" accounts there, that account won't have an
   // incomingServer attached to it, and everything will blow up.
-  accountList = accountList.filter(a => a.incomingServer);
+  let accountList = MailServices.accounts.accounts.filter(
+    a => a.incomingServer
+  );
 
   // Remove IM servers.
   if (aExcludeIMAccounts) {

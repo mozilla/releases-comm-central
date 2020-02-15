@@ -33,10 +33,7 @@ var createHttpServer = (...args) => {
 
 function createAccount() {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts
-    .enumerate()
-    .getNext()
-    .QueryInterface(Ci.nsIMsgAccount);
+  let account = MailServices.accounts.accounts[0];
   account.incomingServer = MailServices.accounts.localFoldersServer;
   info(`Created account ${account.toString()}`);
 
@@ -49,7 +46,7 @@ function cleanUpAccount(account) {
 }
 
 registerCleanupFunction(() => {
-  [...MailServices.accounts.accounts.enumerate()].forEach(cleanUpAccount);
+  MailServices.accounts.accounts.forEach(cleanUpAccount);
 });
 
 function addIdentity(account, email = "xpcshell@localhost") {

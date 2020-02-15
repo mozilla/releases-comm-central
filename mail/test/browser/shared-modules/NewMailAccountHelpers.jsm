@@ -32,9 +32,6 @@ var { input_value } = ChromeUtils.import(
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -145,10 +142,7 @@ function wait_to_be_offline(w) {
  * @param aAddress the email address to try to remove.
  */
 function remove_email_account(aAddress) {
-  for (let account of fixIterator(
-    MailServices.accounts.accounts,
-    Ci.nsIMsgAccount
-  )) {
+  for (let account of MailServices.accounts.accounts) {
     if (account.defaultIdentity && account.defaultIdentity.email == aAddress) {
       MailServices.accounts.removeAccount(account);
       break;

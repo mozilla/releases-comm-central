@@ -49,10 +49,7 @@ this.accounts = class extends ExtensionAPI {
       accounts: {
         async list() {
           let accounts = [];
-          for (let account of fixIterator(
-            MailServices.accounts.accounts,
-            Ci.nsIMsgAccount
-          )) {
+          for (let account of MailServices.accounts.accounts) {
             account = convertAccount(account);
             if (account) {
               accounts.push(account);

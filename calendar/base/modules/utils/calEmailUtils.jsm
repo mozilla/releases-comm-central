@@ -53,9 +53,7 @@ var calemail = {
    * @param {Function} aFunc       The function to be called for each identity and account
    */
   iterateIdentities(aFunc) {
-    let accounts = MailServices.accounts.accounts;
-    for (let i = 0; i < accounts.length; ++i) {
-      let account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
+    for (let account of MailServices.accounts.accounts) {
       let identities = account.identities;
       for (let j = 0; j < identities.length; ++j) {
         let identity = identities.queryElementAt(j, Ci.nsIMsgIdentity);

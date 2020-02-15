@@ -4,7 +4,6 @@
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
 
@@ -267,8 +266,7 @@ var calprovider = {
       let foundIdentity = findIdentity(foundAccount);
 
       if (!foundAccount || !foundIdentity) {
-        let accounts = MailServices.accounts.accounts;
-        for (let account of fixIterator(accounts, Ci.nsIMsgAccount)) {
+        for (let account of MailServices.accounts.accounts) {
           let identity = findIdentity(account);
 
           if (account && identity) {

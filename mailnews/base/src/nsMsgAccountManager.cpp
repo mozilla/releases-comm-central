@@ -829,16 +829,13 @@ NS_IMETHODIMP nsMsgAccountManager::GetFolderCache(
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::GetAccounts(nsIArray **_retval) {
+nsMsgAccountManager::GetAccounts(nsTArray<RefPtr<nsIMsgAccount>> &accounts) {
   nsresult rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMutableArray> accounts(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t index = 0; index < m_accounts.Length(); index++) {
-    nsCOMPtr<nsIMsgAccount> existingAccount(m_accounts[index]);
+  accounts.Clear();
+  accounts.SetCapacity(m_accounts.Length());
+  for (auto existingAccount : m_accounts) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     existingAccount->GetIncomingServer(getter_AddRefs(server));
     if (!server) continue;
@@ -847,9 +844,8 @@ nsMsgAccountManager::GetAccounts(nsIArray **_retval) {
       server->GetHidden(&hidden);
       if (hidden) continue;
     }
-    accounts->AppendElement(existingAccount);
+    accounts.AppendElement(existingAccount);
   }
-  accounts.forget(_retval);
   return NS_OK;
 }
 

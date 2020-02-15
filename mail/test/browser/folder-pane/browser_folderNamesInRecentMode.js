@@ -35,10 +35,7 @@ add_task(function test_folder_names_in_recent_view_mode() {
   // We need 2 local accounts that have pristine folders with
   // unmodified times, so that it does not influence the
   // list of Recent folders. So clear out the most-recently-used time.
-  for (let acc of fixIterator(
-    MailServices.accounts.accounts,
-    Ci.nsIMsgAccount
-  )) {
+  for (let acc of MailServices.accounts.accounts) {
     for (let fld of fixIterator(
       acc.incomingServer.rootFolder.subFolders,
       Ci.nsIMsgFolder
@@ -47,8 +44,8 @@ add_task(function test_folder_names_in_recent_view_mode() {
     }
   }
 
-  let acc1 = MailServices.accounts.accounts.queryElementAt(1, Ci.nsIMsgAccount);
-  let acc2 = MailServices.accounts.accounts.queryElementAt(0, Ci.nsIMsgAccount);
+  let acc1 = MailServices.accounts.accounts[1];
+  let acc2 = MailServices.accounts.accounts[0];
   let rootFolder1 = acc1.incomingServer.rootFolder;
   let rootFolder2 = acc2.incomingServer.rootFolder;
 

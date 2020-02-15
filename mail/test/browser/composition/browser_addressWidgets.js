@@ -118,10 +118,7 @@ function remove_NNTP_account() {
  */
 add_task(function test_address_types() {
   // Be sure there is no NNTP account yet.
-  for (let account of fixIterator(
-    MailServices.accounts.accounts,
-    Ci.nsIMsgAccount
-  )) {
+  for (let account of MailServices.accounts.accounts) {
     Assert.notEqual(
       account.incomingServer.type,
       "nntp",

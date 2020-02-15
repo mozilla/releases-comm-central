@@ -5,9 +5,6 @@
 const EXPORTED_SYMBOLS = ["allContacts", "onlineContacts", "ChatCore"];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -53,7 +50,7 @@ var ChatCore = {
             accountsById[account.numericId] = account;
           }
           let mgr = MailServices.accounts;
-          for (let account of fixIterator(mgr.accounts, Ci.nsIMsgAccount)) {
+          for (let account of mgr.accounts) {
             let incomingServer = account.incomingServer;
             if (!incomingServer || incomingServer.type != "im") {
               continue;

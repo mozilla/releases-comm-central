@@ -655,15 +655,11 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIArray> accounts;
-  rv = accountManager->GetAccounts(getter_AddRefs(accounts));
+  nsTArray<RefPtr<nsIMsgAccount>> accounts;
+  rv = accountManager->GetAccounts(accounts);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t accountCount;
-  accounts->GetLength(&accountCount);
-
-  for (uint32_t i = 0; i < accountCount; ++i) {
-    nsCOMPtr<nsIMsgAccount> account(do_QueryElementAt(accounts, i, &rv));
+  for (auto account : accounts) {
     if (!account) continue;
 
     nsCOMPtr<nsIMsgIncomingServer> incomingServer;

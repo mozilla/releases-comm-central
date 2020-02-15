@@ -17,11 +17,11 @@ add_task(async function setup() {
 
 function createAccount() {
   registerCleanupFunction(() => {
-    [...MailServices.accounts.accounts.enumerate()].forEach(cleanUpAccount);
+    MailServices.accounts.accounts.forEach(cleanUpAccount);
   });
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts.enumerate().getNext();
+  let account = MailServices.accounts.accounts[0];
   info(`Created account ${account.toString()}`);
 
   return account;

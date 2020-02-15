@@ -26,6 +26,9 @@ const { EnigmailConstants } = ChromeUtils.import(
 const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
 );
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 const getWindows = EnigmailLazy.loader(
@@ -97,15 +100,10 @@ var EnigmailKeyUsability = {
    */
   getKeysSpecForIdentities() {
     EnigmailLog.DEBUG("keyUsability.jsm: getKeysSpecForIdentities()\n");
-    let accountManager = Cc[
-      "@mozilla.org/messenger/account-manager;1"
-    ].getService(Ci.nsIMsgAccountManager);
 
     let keySpecList = [];
 
-    for (let acct = 0; acct < accountManager.accounts.length; acct++) {
-      let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
-
+    for (let ac of MailServices.accounts.accounts) {
       for (let i = 0; i < ac.identities.length; i++) {
         let id = ac.identities.queryElementAt(i, Ci.nsIMsgIdentity);
         if (id.getBoolAttribute("enablePgp")) {

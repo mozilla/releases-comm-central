@@ -7,9 +7,6 @@
 /* globals MsgAccountManager */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -364,8 +361,7 @@ var gAccountManager = {
     // Find the nsIIncomingServer for the current imIAccount.
     let server = null;
     let imAccountId = this.accountList.selectedItem.account.numericId;
-    let mgr = MailServices.accounts;
-    for (let account of fixIterator(mgr.accounts, Ci.nsIMsgAccount)) {
+    for (let account of MailServices.accounts.accounts) {
       let incomingServer = account.incomingServer;
       if (!incomingServer || incomingServer.type != "im") {
         continue;

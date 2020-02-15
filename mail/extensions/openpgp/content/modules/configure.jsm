@@ -46,6 +46,9 @@ const { EnigmailLazy } = ChromeUtils.import(
 const { EnigmailAutoSetup } = ChromeUtils.import(
   "chrome://openpgp/content/modules/autoSetup.jsm"
 );
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * Upgrade sending prefs
@@ -149,13 +152,9 @@ function replaceKeyIdWithFpr() {
  * (v1.8.x -> v1.9)
  */
 function defaultPgpMime() {
-  let accountManager = Cc[
-    "@mozilla.org/messenger/account-manager;1"
-  ].getService(Ci.nsIMsgAccountManager);
   let changedSomething = false;
 
-  for (let acct = 0; acct < accountManager.accounts.length; acct++) {
-    let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
+  for (let ac of MailServices.accounts.accounts) {
     if (ac.incomingServer.type.search(/(pop3|imap|movemail)/) >= 0) {
       for (let i = 0; i < ac.identities.length; i++) {
         let id = ac.identities.queryElementAt(i, Ci.nsIMsgIdentity);
@@ -184,12 +183,7 @@ function defaultPgpMime() {
  */
 function setAutocryptForOldAccounts() {
   try {
-    let accountManager = Cc[
-      "@mozilla.org/messenger/account-manager;1"
-    ].getService(Ci.nsIMsgAccountManager);
-
-    for (let acct = 0; acct < accountManager.accounts.length; acct++) {
-      let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
+    for (let ac of MailServices.accounts.accounts) {
       if (ac.incomingServer.type.search(/(pop3|imap|movemail)/) >= 0) {
         ac.incomingServer.setIntValue("acPreferEncrypt", 1);
       }

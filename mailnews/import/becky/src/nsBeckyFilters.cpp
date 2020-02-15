@@ -655,17 +655,12 @@ nsresult nsBeckyFilters::GetMessageFolder(const nsAString &aName,
   accountManager = do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIArray> accounts;
-  rv = accountManager->GetAccounts(getter_AddRefs(accounts));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t accountCount;
-  rv = accounts->GetLength(&accountCount);
+  nsTArray<RefPtr<nsIMsgAccount>> accounts;
+  rv = accountManager->GetAccounts(accounts);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> found;
-  for (uint32_t i = 0; i < accountCount; i++) {
-    nsCOMPtr<nsIMsgAccount> account(do_QueryElementAt(accounts, i));
+  for (auto account : accounts) {
     if (!account) continue;
 
     nsCOMPtr<nsIMsgIncomingServer> server;
