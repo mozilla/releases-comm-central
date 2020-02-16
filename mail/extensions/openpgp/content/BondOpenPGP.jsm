@@ -11,6 +11,9 @@
 const EXPORTED_SYMBOLS = ["BondOpenPGP"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailConstants } = ChromeUtils.import(
+  "resource:///modules/MailConstants.jsm"
+);
 
 const EnigmailLazy = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
@@ -47,6 +50,14 @@ var BondOpenPGP = {
   initDone: false,
 
   init() {
+    if (!MailConstants.MOZ_OPENPGP) {
+      return;
+    }
+    const engine = Services.prefs.getIntPref("temp.openpgp.engine");
+    if (!engine) {
+      return;
+    }
+
     if (this.initDone) {
       return;
     }

@@ -281,7 +281,7 @@ class EnigmailKeyObj {
       }
     }
 
-    console.debug("getSigningValidity retVal: " + retVal);
+    console.debug("getSigningValidity retVal: %o", retVal);
     return retVal;
   }
 
@@ -340,7 +340,7 @@ class EnigmailKeyObj {
       }
     }
 
-    console.debug("getEncryptionValidity retVal: " + retVal);
+    console.debug("getEncryptionValidity retVal: %o", retVal);
     return retVal;
   }
 

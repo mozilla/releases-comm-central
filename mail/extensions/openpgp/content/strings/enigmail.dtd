@@ -729,3 +729,5 @@
 <!ENTITY enigmail.importSetup.importingKeys          "Importing keys in GnuPG. This may take a while ...">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "Restoring GnuPG settings ...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Restoring Gine-Liam settings ...">
+
+<!ENTITY copyCmd.label            "Copy">

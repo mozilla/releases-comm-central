@@ -83,12 +83,7 @@ UnknownProtoHandler.prototype = {
   },
 
   onDataAvailable: function(p1, p2, p3, p4) {
-    if (EnigmailCompat.isMessageUriInPgpMime()) {
-      this.processData(p1, p2, p3, p4);
-    }
-    else {
-      this.processData(p1, null, p2, p3, p4);
-    }
+    this.processData(p1, p2, p3, p4);
   },
 
   processData: function (req, stream, offset, count) {

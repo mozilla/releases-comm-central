@@ -70,20 +70,11 @@ var EnigmailStreams = {
       }
     };
 
-    if (EnigmailCompat.isMessageUriInPgpMime()) {
-      // TB >= 67
-      listener.onDataAvailable = function(req, stream, offset, count) {
-        // EnigmailLog.DEBUG("enigmailCommon.jsm: stringListener.onDataAvailable: "+count+"\n");
-        this.inStream.setInputStream(stream);
-        this.data += this.inStream.readBytes(count);
-      };
-    } else {
-      listener.onDataAvailable = function(req, ctxt, stream, offset, count) {
-        // EnigmailLog.DEBUG("enigmailCommon.jsm: stringListener.onDataAvailable: "+count+"\n");
-        this.inStream.setInputStream(stream);
-        this.data += this.inStream.readBytes(count);
-      };
-    }
+    listener.onDataAvailable = function(req, stream, offset, count) {
+      // EnigmailLog.DEBUG("enigmailCommon.jsm: stringListener.onDataAvailable: "+count+"\n");
+      this.inStream.setInputStream(stream);
+      this.data += this.inStream.readBytes(count);
+    };
 
     return listener;
   },

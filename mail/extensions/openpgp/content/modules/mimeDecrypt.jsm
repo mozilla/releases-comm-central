@@ -137,11 +137,7 @@ function MimeDecryptHandler() {
   this.dataIsBase64 = null;
   this.base64Cache = "";
 
-  if (EnigmailCompat.isMessageUriInPgpMime()) {
-    this.onDataAvailable = this.onDataAvailable68;
-  } else {
-    this.onDataAvailable = this.onDataAvailable60;
-  }
+  this.onDataAvailable = this.onDataAvailable68;
 }
 
 MimeDecryptHandler.prototype = {
@@ -245,39 +241,6 @@ MimeDecryptHandler.prototype = {
         } else {
           this.cacheData(data);
         }
-      }
-    }
-  },
-
-  /**
-   * onDataAvailable for TB <= 66
-   */
-  onDataAvailable60: function(req, dummy, stream, offset, count) {
-
-    // get data from libmime
-    if (!this.initOk) return;
-    this.inStream.init(stream);
-
-    if (count > 0) {
-      var data = this.inStream.read(count);
-
-      if (this.mimePartCount == 0 && this.dataIsBase64 === null) {
-        // try to determine if this could be a base64 encoded message part
-        this.dataIsBase64 = this.isBase64Encoding(data);
-      }
-
-      if (!this.dataIsBase64) {
-        if (data.search(/[\r\n][^\r\n]+[\r\n]/) >= 0) {
-          // process multi-line data line by line
-          let lines = data.replace(/\r\n/g, "\n").split(/\n/);
-
-          for (let i = 0; i < lines.length; i++) {
-            this.processData(lines[i] + "\r\n");
-          }
-        } else
-          this.processData(data);
-      } else {
-        this.base64Cache += data;
       }
     }
   },

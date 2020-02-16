@@ -1838,20 +1838,10 @@ Enigmail.msg = {
       }
     };
 
-    if (EnigmailCompat.isMessageUriInPgpMime()) {
-      // TB >= 67
-      listener.onDataAvailable = function(req, stream, offset, count) {
-        this.inStream.init(stream);
-        this.data += this.inStream.read(count);
-      };
-    }
-    else {
-      listener.onDataAvailable = function(req, ctxt, stream, offset, count) {
-        this.inStream.init(stream);
-        this.data += this.inStream.read(count);
-      };
-    }
-
+    listener.onDataAvailable = function(req, stream, offset, count) {
+      this.inStream.init(stream);
+      this.data += this.inStream.read(count);
+    };
 
     msgSvc.streamMessage(msgUriSpec,
       listener,

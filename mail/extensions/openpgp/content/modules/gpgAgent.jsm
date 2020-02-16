@@ -117,6 +117,9 @@ var EnigmailGpgAgent = {
   },
 
   isCmdGpgAgent: function(pid) {
+    console.debug("reaching disabled EnigmailGpgAgent.isCmdGpgAgent()");
+    return;
+
     EnigmailLog.DEBUG("gpgAgent.jsm: isCmdGpgAgent:\n");
 
     const environment = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
@@ -156,6 +159,9 @@ var EnigmailGpgAgent = {
   },
 
   isAgentTypeGpgAgent: function() {
+    console.debug("reaching disabled EnigmailGpgAgent.isAgentTypeGpgAgent()");
+    return;
+
     // determine if the used agent is a gpg-agent
 
     EnigmailLog.DEBUG("gpgAgent.jsm: isAgentTypeGpgAgent:\n");
@@ -215,6 +221,9 @@ var EnigmailGpgAgent = {
   },
 
   getAgentMaxIdle: function() {
+    console.debug("reaching disabled EnigmailGpgAgent.getAgentMaxIdle()");
+    return;
+
     EnigmailLog.DEBUG("gpgAgent.jsm: getAgentMaxIdle:\n");
     let maxIdle = -1;
 
@@ -257,6 +266,9 @@ var EnigmailGpgAgent = {
   },
 
   setAgentMaxIdle: function(idleMinutes) {
+    console.debug("reaching disabled EnigmailGpgAgent.setAgentMaxIdle()");
+    return;
+
     EnigmailLog.DEBUG("gpgAgent.jsm: setAgentMaxIdle:\n");
     if (!EnigmailCore.getService()) return;
 
@@ -325,6 +337,8 @@ var EnigmailGpgAgent = {
    * @return String - directory name, or NULL (in case the command did not succeed)
    */
   getGpgHomeDir: function() {
+    console.debug("reaching disabled EnigmailGpgAgent.getGpgHomeDir()");
+    return;
 
     let param = EnigmailPrefs.getPref("agentAdditionalParam");
 
@@ -379,6 +393,9 @@ var EnigmailGpgAgent = {
    * @param preferredPath: String - try to use specific path to locate gpg
    */
   setAgentPath: function(domWindow, esvc, preferredPath) {
+    console.debug("reaching disabled EnigmailGpgAgent.setAgentPath()");
+    return;
+
     EnigmailLog.DEBUG("gpgAgent.jsm: setAgentPath()\n");
     let agentPath = "";
     try {
@@ -544,6 +561,9 @@ var EnigmailGpgAgent = {
    * @return Object: nsIFile pointing to gpg, or NULL
    */
   resolveGpgPath: function(env) {
+    console.debug("reaching disabled EnigmailGpgAgent.resolveGpgPath()");
+    return;
+
     EnigmailLog.DEBUG("gpgAgent.jsm: resolveGpgPath()\n");
 
     let agentName = "";
@@ -761,6 +781,9 @@ var EnigmailGpgAgent = {
   },
 
   finalize: function() {
+    console.debug("reaching disabled EnigmailGpgAgent.finalize()");
+    return;
+
     if (EnigmailGpgAgent.gpgAgentProcess) {
       EnigmailLog.DEBUG("gpgAgent.jsm: EnigmailGpgAgent.finalize: stopping gpg-agent\n");
       try {

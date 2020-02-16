@@ -142,10 +142,10 @@ function buildKeyList(refresh) {
 
   var keyListObj = {};
 
-  // if (refresh) {
-  //   EnigmailKeyRing.clearCache();
-  // }
-
+  if (refresh) {
+    EnigmailKeyRing.clearCache();
+  }
+  
   keyListObj = EnigmailKeyRing.getAllKeys(window, getSortColumn(), getSortDirection());
 
   if (!keyListObj.keySortList) return;

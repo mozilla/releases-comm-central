@@ -18,7 +18,7 @@ const EnigmailTrust = ChromeUtils.import("chrome://openpgp/content/modules/trust
 const EnigmailArmor = ChromeUtils.import("chrome://openpgp/content/modules/armor.jsm").EnigmailArmor;
 const EnigmailTime = ChromeUtils.import("chrome://openpgp/content/modules/time.jsm").EnigmailTime;
 const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
-const subprocess = ChromeUtils.import("chrome://openpgp/content/modules/subprocess.jsm").subprocess;
+//const subprocess = ChromeUtils.import("chrome://openpgp/content/modules/subprocess.jsm").subprocess;
 const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
 const newEnigmailKeyObj = ChromeUtils.import("chrome://openpgp/content/modules/keyObj.jsm").newEnigmailKeyObj;
 const EnigmailTimer = ChromeUtils.import("chrome://openpgp/content/modules/timer.jsm").EnigmailTimer;
@@ -74,9 +74,12 @@ var EnigmailKeyRing = {
    * @return keyListObj    - |object| { keyList, keySortList } (see above)
    */
   getAllKeys: function(win, sortColumn, sortDirection) {
+    console.debug("keyring.getAllKeys");
     if (gKeyListObj.keySortList.length === 0) {
+      console.debug("keyring.getAllKeys - loadkeylist");
       loadKeyList(win, sortColumn, sortDirection);
-      getWindows().keyManReloadKeys();
+      console.debug("keyring.getAllKeys - keymanreloadkeys");
+//getWindows().keyManReloadKeys();
       /* TODO: do we need something similar with TB's future trust behavior?
       if (!gKeyCheckDone) {
         gKeyCheckDone = true;
@@ -257,7 +260,7 @@ var EnigmailKeyRing = {
         }
       }
     }
-    console.debug("getSecretKeyByUserId, foundKey: " + foundKey);
+    console.debug("getSecretKeyByUserId, foundKey: %o", foundKey);
     return foundKey;
   },
 
@@ -391,8 +394,34 @@ var EnigmailKeyRing = {
    *
    * @return String - if outputFile is NULL, the key block data; "" if a file is written
    */
-  extractKey: function(includeSecretKey, userId, outputFile, exitCodeObj, errorMsgObj) {
-    EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.extractKey: " + userId + "\n");
+  extractKey: function(includeSecretKey, id, outputFile, exitCodeObj, errorMsgObj) {
+    EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.extractKey: " + id + "\n");
+    exitCodeObj.value = -1;
+
+    console.debug("keyRing.jsm: EnigmailKeyRing.extractKey: type of parameter id:");
+    console.debug(typeof id);
+    console.debug(id);
+    
+    if (includeSecretKey) {
+      throw "extractKey with secret key not implemented";
+    }
+    
+    if (!id.length) {
+        return "";
+    }
+    
+    if (id.length > 1) {
+      throw "keyRing.jsm: EnigmailKeyRing.extractKey: multiple IDs not yet implemented";
+    }
+
+    const cApi = EnigmailCryptoAPI();
+    let keyBlock = cApi.sync(cApi.getPublicKey(id[0]));
+    if (!keyBlock) {
+      errorMsgObj.value = EnigmailLocale.getString("failKeyExtract");
+      return "";
+    }
+
+    /*
     let args = EnigmailGpg.getStandardArgs(true).concat(["-a", "--export"]);
 
     if (userId) {
@@ -445,7 +474,9 @@ var EnigmailKeyRing = {
 
       keyBlock += "\n" + secKeyBlock;
     }
+    */
 
+    exitCodeObj.value = 0;
     if (outputFile) {
       if (!EnigmailFiles.writeFileContents(outputFile, keyBlock, DEFAULT_FILE_PERMS)) {
         exitCodeObj.value = -1;
@@ -719,6 +750,8 @@ var EnigmailKeyRing = {
 
     let proc = null;
 
+    console.debug("reaching disabled keyRing.generateKey");
+    /*
     try {
       proc = subprocess.call({
         command: EnigmailGpg.agentPath,
@@ -756,6 +789,7 @@ var EnigmailKeyRing = {
       EnigmailLog.ERROR("keyRing.jsm: generateKey: subprocess.call failed with '" + ex.toString() + "'\n");
       throw ex;
     }
+    */
 
     gKeygenProcess = proc;
 

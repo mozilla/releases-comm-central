@@ -340,8 +340,13 @@ var subprocess = {
     return {
       wait: function() {
         let mainThread = Services.tm.mainThread;
-        while (resolved === null)
-          mainThread.processNextEvent(true);
+        try {
+          while (resolved === null) {
+            mainThread.processNextEvent(true);
+          }
+        } catch(ex) {
+          console.log(ex);
+        }
 
         return resolved;
       },

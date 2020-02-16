@@ -43,11 +43,7 @@ function MimeVerify(protocol) {
   this.exitCode = null;
   this.inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
 
-  if (EnigmailCompat.isMessageUriInPgpMime()) {
-    this.onDataAvailable = this.onDataAvailable68;
-  } else {
-    this.onDataAvailable = this.onDataAvailable60;
-  }
+  this.onDataAvailable = this.onDataAvailable68;
 }
 
 

@@ -44,6 +44,8 @@ var gDebugLogLevel = 0;
 
 function PgpMimeEncrypt(sMimeSecurityInfo) {
   this.wrappedJSObject = this;
+  console.debug(`in PgpMimeEncrypt: wrappedJSObject:`);
+  console.debug(this);
 
   // nsIMsgSMIMECompFields
   this.signMessage = false;
@@ -58,12 +60,7 @@ function PgpMimeEncrypt(sMimeSecurityInfo) {
   this.originalSubject = null;
   this.keyMap = {};
 
-  if (EnigmailCompat.isMessageUriInPgpMime()) {
-    this.onDataAvailable = this.onDataAvailable68;
-  }
-  else {
-    this.onDataAvailable = this.onDataAvailable60;
-  }
+  this.onDataAvailable = this.onDataAvailable68;
 
   try {
     if (sMimeSecurityInfo) {
@@ -81,18 +78,11 @@ PgpMimeEncrypt.prototype = {
   classDescription: "Enigmail JS Encryption Handler",
   classID: PGPMIME_ENCRYPT_CID,
   get contractID() {
-    if (Components.classesByID && Components.classesByID[kSmimeComposeSecureCID]) {
-      // hack needed for TB < 62: we overwrite the S/MIME encryption handler
-      return SMIME_ENCRYPT_CONTRACTID;
-    }
-    else {
-      return PGPMIME_ENCRYPT_CONTRACTID;
-    }
+    return PGPMIME_ENCRYPT_CONTRACTID;
   },
   QueryInterface: EnigmailCompat.generateQI([
     "nsIMsgComposeSecure",
     "nsIStreamListener",
-    "nsIMsgSMIMECompFields" // TB < 64
   ]),
 
   signMessage: false,
@@ -170,30 +160,8 @@ PgpMimeEncrypt.prototype = {
   requiresCryptoEncapsulation: function(msgIdentity, msgCompFields) {
     EnigmailLog.DEBUG("mimeEncrypt.js: requiresCryptoEncapsulation\n");
     try {
-        if (Components.classesByID && kSmimeComposeSecureCID in Components.classesByID) {
-          // TB < 64
-          if (this.checkSMime) {
-            // Remember to use original CID, not CONTRACTID, to avoid infinite looping!
-            this.smimeCompose = Components.classesByID[kSmimeComposeSecureCID].createInstance(Ci.nsIMsgComposeSecure);
-            this.useSmime = this.smimeCompose.requiresCryptoEncapsulation(msgIdentity, msgCompFields);
-          }
-
-          if (this.useSmime) return true;
-
-          if (msgCompFields.securityInfo) {
-            let securityInfo = msgCompFields.securityInfo.wrappedJSObject;
-            if (!securityInfo) return false;
-
-            for (let prop of ["sendFlags", "UIFlags", "senderEmailAddr", "recipients", "bccRecipients", "originalSubject", "keyMap"]) {
-              this[prop] = securityInfo[prop];
-            }
-          }
-          else return false;
-        }
-        else {
-          // TB >= 64: we are not called for S/MIME
-          this.disableSMimeCheck();
-        }
+        // TB >= 64: we are not called for S/MIME
+        this.disableSMimeCheck();
 
         return (this.sendFlags & (EnigmailConstants.SEND_SIGNED |
           EnigmailConstants.SEND_ENCRYPTED |

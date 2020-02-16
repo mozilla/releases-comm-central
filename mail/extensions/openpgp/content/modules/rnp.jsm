@@ -617,37 +617,45 @@ var RNP = {
 
   getKeyHandleByIdentifier(id) {
     console.debug("getKeyHandleByIdentifier searching for: " + id);
+    let key = null;
     
     if (id.startsWith("<")) {
-      throw "search by email address not yet implemented: " + id;
-    }
-    if (!id.startsWith("0x")) {
-      throw "unexpected identifier " + id;
-    }
-    // remove 0x
-    id = id.substring(2);
-
-    let type;
-    if (id.length == 16) {
-      type = "keyid";
-    } else if (id.length == 40) {
-      type = "fingerprint";
+      //throw "search by email address not yet implemented: " + id;
+      if (!id.endsWith(">")) {
+        throw "if search identifier starts with < then it must end with > : " + id;
+      }
+      key = this.findKeyByEmail(id);
     } else {
-      throw "key/fingerprint identifier of unexpected length: " + id;
-    }
+      if (!id.startsWith("0x")) {
+        throw "unexpected identifier " + id;
+      } else {
+        // remove 0x
+        id = id.substring(2);
+      }
 
-    let key = new RNPLib.rnp_key_handle_t;
-    if (RNPLib.rnp_locate_key(RNPLib.ffi, type, id, key.address())) {
-      throw "rnp_locate_key failed, " + type + ", " + id;
+      let type = null;
+      if (id.length == 16) {
+        type = "keyid";
+      } else if (id.length == 40) {
+        type = "fingerprint";
+      } else {
+        throw "key/fingerprint identifier of unexpected length: " + id;
+      }
+
+      key = new RNPLib.rnp_key_handle_t;
+      if (RNPLib.rnp_locate_key(RNPLib.ffi, type, id, key.address())) {
+        throw "rnp_locate_key failed, " + type + ", " + id;
+      }
     }
     
-    if (!key) {
+    if (key.isNull()) {
       console.debug("getKeyHandleByIdentifier nothing found");
     } else {
       console.debug("getKeyHandleByIdentifier found!");
       let is_subkey = new ctypes.bool;
-      if (RNPLib.rnp_key_is_sub(key, is_subkey.address())) {
-        throw "rnp_key_is_sub failed";
+      let res = RNPLib.rnp_key_is_sub(key, is_subkey.address());
+      if (res) {
+        throw "rnp_key_is_sub failed: " + res;
       }
       console.debug("is_primary? " + !is_subkey.value);
     }
@@ -711,7 +719,7 @@ var RNP = {
     let use_sub = null;
     console.debug("addSuitableEncryptKey");
 
-    /* looks like this will be unnecessary
+    // looks like this will be unnecessary ???
 
     if (!this.isKeyUsableFor(key, str_encrypt)) {
       console.debug("addSuitableEncryptKey primary not usable");
@@ -722,7 +730,7 @@ var RNP = {
         console.debug("addSuitableEncryptKey using subkey");
       }
     }
-    */
+
     if (RNPLib.rnp_op_encrypt_add_recipient(op, (use_sub != null) ? use_sub : key)) {
       throw "rnp_op_encrypt_add_recipient sender failed";
     }
@@ -907,6 +915,148 @@ var RNP = {
     return result;
   },
 
+  findKeyByEmail(id) {
+    if (!id.startsWith("<") || !id.endsWith(">")) {
+      throw "invalid parameter given to findKeyByEmail";
+    }
+
+    let keys = [];
+    let rv;
+
+    let iter = new RNPLib.rnp_identifier_iterator_t;
+    let grip = new ctypes.char.ptr();
+
+    rv = RNPLib.rnp_identifier_iterator_create(RNPLib.ffi, iter.address(), "grip");
+    if (rv) {
+      return null;
+    }
+    
+    let foundHandle = null;
+    while (!foundHandle && !RNPLib.rnp_identifier_iterator_next(iter, grip.address())) {
+      if (grip.isNull()) {
+        break;
+      }
+
+      let have_handle = false;
+      let handle = new RNPLib.rnp_key_handle_t;
+
+      try {
+        let is_subkey = new ctypes.bool;
+        let uid_count = new ctypes.size_t;
+
+        if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
+          throw "rnp_locate_key failed";
+        }
+        have_handle = true;
+        if (RNPLib.rnp_key_is_sub(handle, is_subkey.address())) {
+          throw "rnp_key_is_sub failed";
+        }
+        if (is_subkey.value) {
+          continue;
+        }
+
+        let key_revoked = new ctypes.bool;
+        if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
+          throw "rnp_key_is_revoked failed";
+        }
+
+        if (key_revoked.value) {
+          continue;
+        }
+
+        if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
+          throw "rnp_key_get_uid_count failed";
+        }
+        console.debug("rnp_key_get_uid_count: " + uid_count.value);
+        for (let i = 0; i < uid_count.value; i++) {
+          let uid_handle = new RNPLib.rnp_uid_handle_t;
+          let is_revoked = new ctypes.bool;
+
+          if (RNPLib.rnp_key_get_uid_handle_at(handle, i, uid_handle.address())) {
+            throw "rnp_key_get_uid_handle_at failed";
+          }
+
+          if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
+            throw "rnp_uid_is_revoked failed";
+          }
+
+          if (!is_revoked.value) {
+            let uid_str = new ctypes.char.ptr;
+            if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
+              throw "rnp_key_get_uid_at failed";
+            }
+
+            let userId = uid_str.readString();
+            
+            if (userId.includes(id)) {
+              foundHandle = handle;
+            }
+            
+            RNPLib.rnp_buffer_destroy(uid_str);
+          }
+
+          RNPLib.rnp_uid_handle_destroy(uid_handle);
+        }
+
+      } catch (ex) {
+        console.log(ex);
+      } finally {
+        if (!foundHandle && have_handle) {
+          RNPLib.rnp_key_handle_destroy(handle);
+        }
+      }
+    }
+
+    RNPLib.rnp_identifier_iterator_destroy(iter);
+    
+    return foundHandle;
+  },
+
+  getPublicKey(id) {
+    let result = "";
+    let key = this.getKeyHandleByIdentifier(id);
+
+    if (key.isNull()) {
+      return result;
+    }
+
+    let flags = RNPLib.RNP_KEY_EXPORT_ARMORED | 
+                RNPLib.RNP_KEY_EXPORT_PUBLIC | 
+                RNPLib.RNP_KEY_EXPORT_SUBKEYS;
+
+    let output_to_memory = new RNPLib.rnp_output_t;
+    RNPLib.rnp_output_to_memory(output_to_memory.address(), 0);
+
+    if (RNPLib.rnp_key_export(key, output_to_memory, flags)) {
+      throw "rnp_key_export failed";
+    }
+
+    let result_buf = new ctypes.uint8_t.ptr();
+    let result_len = new ctypes.size_t();
+    let exitCode = RNPLib.rnp_output_memory_get_buf(
+      output_to_memory,
+      result_buf.address(),
+      result_len.address(),
+      false
+    );
+    console.debug("decrypt get buffer result code: " + exitCode);
+
+    if (!exitCode) {
+      console.debug("decrypt result len: " + result_len.value);
+
+      let char_array = ctypes.cast(
+        result_buf,
+        ctypes.char.array(result_len.value).ptr
+      ).contents;
+
+      result = char_array.readString();
+      console.debug(result);
+    }
+
+    RNPLib.rnp_output_destroy(output_to_memory);
+    RNPLib.rnp_key_handle_destroy(key);
+    return result;
+  },
 };
 
 // exports

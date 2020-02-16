@@ -221,7 +221,7 @@ var EnigmailWindows = {
     const spec = "chrome://openpgp/content/ui/enigmailKeygen.xhtml";
 
     let recentWin = null;
-    for (let thisWin of windowManager.getEnumerator(null) && !recentWin) {
+    for (let thisWin of windowManager.getEnumerator(null)) {
       if (thisWin.location.href == spec) {
         recentWin = thisWin;
         break;

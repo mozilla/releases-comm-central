@@ -263,7 +263,8 @@ var EnigmailEncryption = {
       result.sigTypeClear = true;
     }
 
-    console.debug("getCryptParams returning: " + result);
+    console.debug(`getCryptParams returning:`);
+    console.debug(result);
     return result;
   },
 
@@ -406,8 +407,9 @@ var EnigmailEncryption = {
 
     let resultStatus = {};
     const cApi = EnigmailCryptoAPI();
+    console.debug("listener: %o", listener);
     let encrypted = cApi.sync(cApi.encryptAndOrSign(listener.getInputForEncryption(), encryptArgs, resultStatus));
-    console.debug("encryptAndOrSign returned: " + encrypted);
+    console.debug(`encryptAndOrSign returned: ${encrypted}`);
 
     listener.addEncryptedOutput(encrypted);
 

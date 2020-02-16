@@ -50,7 +50,7 @@ function enigmailKeygenLoad() {
   let eccElem = document.getElementById("keyType_ecc");
   eccElem.removeAttribute("hidden");
   updateKeySizeSel(eccElem);
-  document.getElementById("keyType").selectedItem = eccElem;
+  //document.getElementById("keyType").selectedItem = eccElem;
 
   if (gUserIdentityListPopup) {
     fillIdentityListPopup();
@@ -68,10 +68,12 @@ function enigmailKeygenLoad() {
     EnigAlert(EnigGetString("accessError"));
   }
 
+  /*
   if (EnigmailGpgAgent.agentType != "gpg") {
     EnigAlert(EnigGetString("onlyGPG"));
     return;
   }
+  */
 }
 
 function updateKeySizeSel(selectedObj) {

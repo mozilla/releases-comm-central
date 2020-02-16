@@ -278,6 +278,10 @@ class RNPCryptoAPI extends CryptoAPI {
   async encryptAndOrSign(plaintext, args, resultStatus) {
     return RNP.encryptAndOrSign(plaintext, args, resultStatus);
   }
+  
+  async getPublicKey(id) {
+    return RNP.getPublicKey(id);
+  }
 }
 
 function getRNPAPI() {

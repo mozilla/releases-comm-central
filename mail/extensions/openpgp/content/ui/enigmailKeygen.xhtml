@@ -57,11 +57,11 @@
         <label value="&enigmail.keyGen.expire.label;" control="expireInput"/>
       </hbox>
       <hbox align="center">
-        <html:input id="expireInput" size="5" maxlength="5" value="5"/>
-        <menulist id="timeScale" label="&enigmail.keyGen.years.label;" value="365">
+        <html:input id="expireInput" size="5" maxlength="5" value="1"/>
+        <menulist id="timeScale" label="&enigmail.keyGen.months.label;" value="30">
           <menupopup id="timeScalePopup">
-            <menuitem id="years" value="365" label="&enigmail.keyGen.years.label;" selected="true"/>
-            <menuitem id="months" value="30" label="&enigmail.keyGen.months.label;"/>
+            <menuitem id="years" value="365" label="&enigmail.keyGen.years.label;"/>
+            <menuitem id="months" value="30" label="&enigmail.keyGen.months.label;" selected="true"/>
             <menuitem id="days" value="1" label="&enigmail.keyGen.days.label;"/>
           </menupopup>
         </menulist>
@@ -96,10 +96,10 @@
               <label value="&enigmail.keyGen.keySize.label;" control="keySize"/>
             </hbox>
             <hbox flex="0">
-              <menulist id="keySize" label="4096" value="4096" >
+              <menulist id="keySize" label="3072" value="3072" >
                 <menupopup id="keySizePopup">
-                  <menuitem id="keySize_3072" value="3072" label="3072"/>
-                  <menuitem id="keySize_4096" value="4096" label="4096" selected="true"/>
+                  <menuitem id="keySize_3072" value="3072" label="3072" selected="true"/>
+                  <menuitem id="keySize_4096" value="4096" label="4096"/>
                 </menupopup>
               </menulist>
             </hbox>

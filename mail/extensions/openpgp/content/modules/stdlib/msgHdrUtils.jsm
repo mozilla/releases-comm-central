@@ -380,10 +380,8 @@ function createStreamListener(k) {
 
     // nsIStreamListener
     onDataAvailable: function(aRequest, dummy, aInputStream, aOffset, aCount) {
-      if (isPlatformNewerThan("67")) {
-        aInputStream = dummy;
-        aCount = aOffset;
-      }
+      aInputStream = dummy;
+      aCount = aOffset;
       if (this._stream == null) {
         this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
         this._stream.init(aInputStream);
@@ -521,15 +519,4 @@ function msgHdrsModifyRaw(aMsgHdrs, aTransformer) {
       tick();
     }), null, null, false, "");
   }
-}
-
-
-/**
- * return true, if plafform is newer than or equal a given version
- */
-function isPlatformNewerThan(requestedVersion) {
-  let vc = Cc["@mozilla.org/xpcom/version-comparator;1"].getService(Ci.nsIVersionComparator);
-  let appVer = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo).platformVersion;
-
-  return vc.compare(appVer, requestedVersion) >= 0;
 }

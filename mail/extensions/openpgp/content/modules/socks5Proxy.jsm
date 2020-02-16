@@ -46,18 +46,10 @@ function buildListener(hasFoundTor, isDoneChecking) {
     QueryInterface: EnigmailCompat.generateQI(["nsIRequestObserver", "nsIStreamListener"])
   };
 
-  if (EnigmailCompat.isMessageUriInPgpMime()) {
-    // TB >= 67
-    listener.onDataAvailable = function(request, inputStream, offset, count) {
-      const response = createScriptableInputStream(inputStream).read(count);
-      hasFoundTor(response.indexOf(EXPECTED_TOR_EXISTS_RESPONSE) !== -1);
-    };
-  } else {
-    listener.onDataAvailable = function(request, ctxt, inputStream, offset, count) {
-      const response = createScriptableInputStream(inputStream).read(count);
-      hasFoundTor(response.indexOf(EXPECTED_TOR_EXISTS_RESPONSE) !== -1);
-    };
-  }
+  listener.onDataAvailable = function(request, inputStream, offset, count) {
+    const response = createScriptableInputStream(inputStream).read(count);
+    hasFoundTor(response.indexOf(EXPECTED_TOR_EXISTS_RESPONSE) !== -1);
+  };
 
   return listener;
 }

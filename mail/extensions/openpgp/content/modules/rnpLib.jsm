@@ -830,6 +830,15 @@ function enableRNPLibJS() {
       rnp_op_encrypt_t
     ),
 
+    rnp_key_export: librnp.declare(
+      "rnp_key_export",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      rnp_output_t,
+      ctypes.uint32_t
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -850,6 +859,11 @@ function enableRNPLibJS() {
     RNP_KEY_REMOVE_PUBLIC: 1,
     
     RNP_KEY_REMOVE_SECRET: 2,
+    
+    RNP_KEY_EXPORT_ARMORED: 1,
+    RNP_KEY_EXPORT_PUBLIC: 2,
+    RNP_KEY_EXPORT_SECRET: 4,
+    RNP_KEY_EXPORT_SUBKEYS: 8,
 
   };
 }
