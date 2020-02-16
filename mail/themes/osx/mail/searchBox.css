@@ -27,8 +27,10 @@
 }
 
 /* special treatment because these boxes are on themable toolbars */
+.gloda-search:focus,
 .searchBox[focused="true"],
-.themeableSearchBox[focused="true"] {
+.themeableSearchBox:not([disabled="true"]):focus,
+.themeableSearchBox:not([disabled="true"])[focused="true"] {
   border-color: -moz-mac-focusring;
   box-shadow: var(--focus-ring-box-shadow);
 }
