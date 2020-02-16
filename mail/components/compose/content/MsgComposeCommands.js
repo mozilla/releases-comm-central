@@ -5,6 +5,7 @@
 /* global MozElements */
 
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
+/* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../../base/content/mailCore.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from addressingWidgetOverlay.js */
@@ -47,6 +48,9 @@ var { PluralForm } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
+);
+var { MailConstants } = ChromeUtils.import(
+  "resource:///modules/MailConstants.jsm"
 );
 
 var { Localization } = ChromeUtils.import(
@@ -105,6 +109,26 @@ var gDisableAttachmentReminder;
 var gComposeType;
 var gLanguageObserver;
 var gBodyFromArgs;
+
+var gSMFields = null;
+var gSelectedTechnologyIsPGP = false;
+
+var gSendSigned = false;
+var gAttachMyPublicPGPKey = false;
+
+var gSendEncrypted = false;
+var gOptionalEncryption = false; // Only encrypt if possible. Ignored if !gSendEncrypted.
+
+var gUserTouchedSendEncrypted = false;
+var gUserTouchedSendSigned = false;
+var gUserTouchedAttachMyPubKey = false;
+
+var gIsRelatedToEncryptedOriginal = false;
+var gIsRelatedToSignedOriginal = false;
+
+var gEncryptedURIService = Cc[
+  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
+].getService(Ci.nsIEncryptedSMIMEURIsService);
 
 // i18n globals
 var gCharsetConvertManager;
@@ -1524,6 +1548,149 @@ function InitFileSaveAsMenu() {
   document
     .getElementById("cmd_saveAsTemplate")
     .setAttribute("checked", defaultSaveOperation == "template");
+}
+
+function toggleGlobalSignMessage() {
+  gSendSigned = !gSendSigned;
+  gUserTouchedSendSigned = true;
+  setEncSigStatusUI();
+
+  /*
+  if (gSMFields.signMessage) // make sure we have a cert name...
+  {
+    if (!gCurrentIdentity.getUnicharAttribute("signing_cert_name"))
+    {
+      gSMFields.signMessage = false;
+      showSMNeedSetupInfo();
+      return;
+    }
+  }
+  */
+}
+
+function setGlobalEncryptMessage(mode) {
+  let oldSendEnc = gSendEncrypted;
+  let oldOptEnc = gOptionalEncryption;
+
+  switch (mode) {
+    case 0:
+      gSendEncrypted = false;
+      gOptionalEncryption = false;
+      break;
+    case 1:
+      gSendEncrypted = true;
+      gOptionalEncryption = true;
+      break;
+    case 2:
+      gSendEncrypted = true;
+      gOptionalEncryption = false;
+      break;
+    default:
+      return;
+  }
+
+  if (oldSendEnc != gSendEncrypted || oldOptEnc != gOptionalEncryption) {
+    gUserTouchedSendEncrypted = true;
+  }
+
+  setEncSigStatusUI();
+
+  /*
+  if (gSMFields.requireEncryptMessage)
+  {
+    // Make sure we have a cert.
+    if (!gCurrentIdentity.getUnicharAttribute("encryption_cert_name"))
+    {
+      gSMFields.requireEncryptMessage = false;
+      showSMNeedSetupInfo();
+      return;
+    }
+  }
+  */
+}
+
+function toggleAttachMyPublicKey() {
+  gAttachMyPublicPGPKey = !gAttachMyPublicPGPKey;
+  gUserTouchedAttachMyPubKey = true;
+}
+
+function setSecuritySettings(menu_id) {
+  document
+    .getElementById("menu_securityEncryptDisable" + menu_id)
+    .setAttribute("checked", !gSendEncrypted && !gOptionalEncryption);
+  /*
+  document
+    .getElementById("menu_securityEncryptOptional" + menu_id)
+    .setAttribute("checked", gSendEncrypted && gOptionalEncryption);
+  */
+  document
+    .getElementById("menu_securityEncryptRequire" + menu_id)
+    .setAttribute("checked", gSendEncrypted && !gOptionalEncryption);
+
+  document
+    .getElementById("menu_securitySign" + menu_id)
+    .setAttribute("checked", gSendSigned);
+
+  if (MailConstants.MOZ_OPENPGP) {
+    document
+      .getElementById("encTech_OpenPGP" + menu_id)
+      .setAttribute("checked", gSelectedTechnologyIsPGP);
+    document
+      .getElementById("encTech_SMIME" + menu_id)
+      .setAttribute("checked", !gSelectedTechnologyIsPGP);
+
+    let sep = document.getElementById("myPublicKeySeparator" + menu_id);
+    let box = document.getElementById("menu_securityMyPublicKey" + menu_id);
+
+    sep.setAttribute("hidden", !gSelectedTechnologyIsPGP);
+    box.setAttribute("hidden", !gSelectedTechnologyIsPGP);
+    box.setAttribute("checked", gAttachMyPublicPGPKey);
+  }
+}
+
+function showMessageComposeSecurityStatus() {
+  Recipients2CompFields(gMsgCompose.compFields);
+
+  window.openDialog(
+    "chrome://messenger-smime/content/msgCompSecurityInfo.xhtml",
+    "",
+    "chrome,modal,resizable,centerscreen",
+    {
+      compFields: gMsgCompose.compFields,
+      subject: document.getElementById("msgSubject").value,
+      smFields: gSMFields,
+      isSigningCertAvailable:
+        gCurrentIdentity.getUnicharAttribute("signing_cert_name") != "",
+      isEncryptionCertAvailable:
+        gCurrentIdentity.getUnicharAttribute("encryption_cert_name") != "",
+      currentIdentity: gCurrentIdentity,
+    }
+  );
+}
+
+function showSMNeedSetupInfo() {
+  let compSmimeBundle = document.getElementById("bundle_comp_smime");
+  let brandBundle = document.getElementById("brandBundle");
+  if (!compSmimeBundle || !brandBundle) {
+    return;
+  }
+
+  let buttonPressed = Services.prompt.confirmEx(
+    window,
+    brandBundle.getString("brandShortName"),
+    compSmimeBundle.getString("NeedSetup"),
+    Services.prompt.STD_YES_NO_BUTTONS,
+    0,
+    0,
+    0,
+    null,
+    {}
+  );
+  if (buttonPressed == 0) {
+    let servers = MailServices.accounts.getServersForIdentity(gCurrentIdentity);
+    let server = servers.queryElementAt(0, Ci.nsIMsgIncomingServer);
+    MsgAccountManager("am-smime.xhtml", server);
+  }
 }
 
 function openEditorContextMenu(popup) {
@@ -3468,6 +3635,29 @@ function ComposeLoad() {
   updateAttachmentPane();
   attachmentBucketMarkEmptyBucket();
   updateStringsOfAddressingFields();
+
+  top.controllers.appendController(SecurityController);
+  gMsgCompose.compFields.composeSecure = null;
+  gSMFields = Cc[
+    "@mozilla.org/messengercompose/composesecure;1"
+  ].createInstance(Ci.nsIMsgComposeSecure);
+  if (gSMFields) {
+    gMsgCompose.compFields.composeSecure = gSMFields;
+  }
+
+  // TODO: call code to get default settings for gSendEncrypted etc.
+  if (
+    gEncryptedURIService &&
+    gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
+  ) {
+    gIsRelatedToEncryptedOriginal = true;
+  }
+
+  if (gIsRelatedToEncryptedOriginal) {
+    gSendEncrypted = true;
+  }
+
+  setEncSigStatusUI();
 }
 
 function ComposeUnload() {
@@ -3514,7 +3704,89 @@ function ComposeUnload() {
   }
 
   ReleaseGlobalVariables();
+
+  top.controllers.removeController(SecurityController);
 }
+
+function setEncSigStatusUI() {
+  document
+    .getElementById("signing-status")
+    .classList.toggle("signing-msg", gSendSigned);
+  document
+    .getElementById("encryption-status")
+    .classList.toggle("encrypting-msg", gSendEncrypted);
+
+  if (MailConstants.MOZ_OPENPGP) {
+    let techStatus = top.document.getElementById("encryption-tech");
+    if (gSelectedTechnologyIsPGP) {
+      techStatus.value = "OpenPGP";
+    } else {
+      techStatus.value = "S/MIME";
+    }
+    techStatus.collapsed = !gSendSigned && !gSendEncrypted;
+  }
+}
+
+function onSecurityChoice(value) {
+  switch (value) {
+    case "enc0":
+      setGlobalEncryptMessage(0);
+      break;
+
+    case "enc1":
+      setGlobalEncryptMessage(1);
+      break;
+
+    case "enc2":
+      setGlobalEncryptMessage(2);
+      break;
+
+    case "sig":
+      toggleGlobalSignMessage();
+      break;
+
+    case "mykey":
+      toggleAttachMyPublicKey();
+      break;
+
+    case "OpenPGP":
+      gSelectedTechnologyIsPGP = true;
+      setEncSigStatusUI();
+      break;
+
+    case "SMIME":
+      gSelectedTechnologyIsPGP = false;
+      setEncSigStatusUI();
+      break;
+
+    case "status":
+    case undefined: // toolbar button was clicked
+      showMessageComposeSecurityStatus();
+      break;
+  }
+}
+
+var SecurityController = {
+  supportsCommand(command) {
+    switch (command) {
+      case "cmd_viewSecurityStatus":
+        return true;
+
+      default:
+        return false;
+    }
+  },
+
+  isCommandEnabled(command) {
+    switch (command) {
+      case "cmd_viewSecurityStatus":
+        return true;
+
+      default:
+        return false;
+    }
+  },
+};
 
 function SetDocumentCharacterSet(aCharset) {
   if (gMsgCompose) {
@@ -3626,6 +3898,49 @@ function GetCharsetUIString() {
     }
   }
   return "";
+}
+
+function onSendSMIME() {
+  let emailAddresses = [];
+
+  try {
+    if (!gMsgCompose.compFields.composeSecure.requireEncryptMessage) {
+      return;
+    }
+
+    Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
+      .createInstance(Ci.nsISMimeJSHelper)
+      .getNoCertAddresses(gMsgCompose.compFields, emailAddresses);
+  } catch (e) {
+    return;
+  }
+
+  if (emailAddresses.length > 0) {
+    // The rules here: If the current identity has a directoryServer set, then
+    // use that, otherwise, try the global preference instead.
+
+    let autocompleteDirectory;
+
+    // Does the current identity override the global preference?
+    if (gCurrentIdentity.overrideGlobalPref) {
+      autocompleteDirectory = gCurrentIdentity.directoryServer;
+    } else if (Services.prefs.getBoolPref("ldap_2.autoComplete.useDirectory")) {
+      // Try the global one
+      autocompleteDirectory = Services.prefs.getCharPref(
+        "ldap_2.autoComplete.directoryServer"
+      );
+    }
+
+    if (autocompleteDirectory) {
+      window.openDialog(
+        "chrome://messenger-smime/content/certFetchingStatus.xhtml",
+        "",
+        "chrome,modal,resizable,centerscreen",
+        autocompleteDirectory,
+        emailAddresses.value
+      );
+    }
+  }
 }
 
 // Add-ons can override this to customize the behavior.
@@ -3943,10 +4258,16 @@ function CompleteGenericSendMessage(msgType) {
     }
   }
 
+  if (!gSelectedTechnologyIsPGP) {
+    gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
+    gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
+    onSendSMIME();
+  }
+
   try {
     // Just before we try to send the message, fire off the
-    // compose-send-message event for listeners such as smime so they can do
-    // any pre-security work such as fetching certificates before sending.
+    // compose-send-message event for listeners, so they can do
+    // any pre-security work before sending.
     var event = document.createEvent("UIEvents");
     event.initEvent("compose-send-message", false, true);
     var msgcomposeWindow = document.getElementById("msgcomposeWindow");

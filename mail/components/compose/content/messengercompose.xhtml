@@ -1686,7 +1686,7 @@
       </menu>
 
       <menu id="optionsMenu" label="&optionsMenu.label;" accesskey="&optionsMenu.accesskey;">
-        <menupopup id="optionsMenuPopup" onpopupshowing="setSecuritySettings(1);">
+        <menupopup id="optionsMenuPopup" onpopupshowing="setSecuritySettings('_Menubar');">
           <menuitem id="menu_checkspelling"
                     label="&checkSpellingCmd2.label;"
                     accesskey="&checkSpellingCmd2.accesskey;"
@@ -1737,18 +1737,64 @@
           <menuseparator/>
           <menuitem type="checkbox" command="cmd_customizeFromAddress"
                     accesskey="&customizeFromAddress.accesskey;"/>
-          <menuseparator id="smimeOptionsSeparator"/>
 
-          <menuitem id="menu_securityEncryptRequire1"
-                    type="checkbox"
-                    label="&menu_securityEncryptRequire.label;"
+#ifdef MOZ_OPENPGP
+          <menuseparator id="encryptTechOptionsSeparator_Menubar"/>
+
+          <menu id="menu_encTech_Menubar"
+                label="&menu_securityTech.label;" accesskey="&menu_securityTech.accesskey;">
+            <menupopup id="button-encTech_Menubar" oncommand="onSecurityChoice(event.target.value);">
+              <menuitem id="encTech_OpenPGP_Menubar"
+                        label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"
+                        value="OpenPGP" type="radio" name="radiogroup_encTech"/>
+              <menuitem id="encTech_SMIME_Menubar"
+                        label="&menu_techSMIME.label;" accesskey="&menu_techSMIME.accesskey;"
+                        value="SMIME" type="radio" name="radiogroup_encTech"/>
+            </menupopup>
+          </menu>
+#endif
+
+          <menuseparator id="encryptOptionsSeparator_Menubar"/>
+
+          <menuitem id="menu_securityEncryptDisable_Menubar"
+                    type="radio" name="radiogroup_encEnable"
+                    label="&menu_securityDoNotEncrypt.label;"
+                    accesskey="&menu_securityDoNotEncrypt.accesskey;"
+                    value="enc0"
+                    oncommand="onSecurityChoice(event.target.value);"/>
+          <!--
+          <menuitem id="menu_securityEncryptOptional_Menubar"
+                    type="radio" name="radiogroup_encEnable"
+                    label="&menu_securityEncryptOptional.label;"
+                    accesskey="&menu_securityEncryptOptional.accesskey;"
+                    value="enc1"
+                    oncommand="onSecurityChoice(event.target.value);"/>
+          -->
+          <menuitem id="menu_securityEncryptRequire_Menubar"
+                    type="radio" name="radiogroup_encEnable"
+                    label="&menu_securityEncryptRequire2.label;"
                     accesskey="&menu_securityEncryptRequire.accesskey;"
-                    oncommand="toggleEncryptMessage();"/>
-          <menuitem id="menu_securitySign1"
+                    value="enc2"
+                    oncommand="onSecurityChoice(event.target.value);"/>
+
+          <menuseparator id="signOptionsSeparator_Menubar"/>
+
+          <menuitem id="menu_securitySign_Menubar"
                     type="checkbox"
                     label="&menu_securitySign.label;"
                     accesskey="&menu_securitySign.accesskey;"
-                    oncommand="toggleSignMessage();"/>
+                    value="sig"
+                    oncommand="onSecurityChoice(event.target.value);"/>
+
+#ifdef MOZ_OPENPGP
+        <menuseparator id="myPublicKeySeparator_Menubar"/>
+        <menuitem id="menu_securityMyPublicKey_Menubar"
+                  type="checkbox"
+                  label="&menu_securityAttachMyKey.label;"
+                  accesskey="&menu_securityAttachMyKey.accesskey;"
+                  value="mykey"
+                  oncommand="onSecurityChoice(event.target.value);"/>
+#endif
         </menupopup>
       </menu>
 
@@ -1863,23 +1909,64 @@
                    class="toolbarbutton-1"
                    label="&securityButton.label;"
                    tooltiptext="&securityButton.tooltip;"
-                   oncommand="doSecurityButton();">
-      <menupopup onpopupshowing="setSecuritySettings(2);">
-        <menuitem id="menu_securityEncryptRequire2"
-                  type="checkbox"
-                  label="&menu_securityEncryptRequire.label;"
+                   oncommand="onSecurityChoice(event.target.value);">
+      <menupopup onpopupshowing="setSecuritySettings('_Toolbar');">
+#ifdef MOZ_OPENPGP
+        <menu id="menu_encTech_Toolbar"
+              label="&menu_securityTech.label;" accesskey="&menu_securityTech.accesskey;">
+          <menupopup id="button-encTech_Toolbar">
+            <menuitem id="encTech_OpenPGP_Toolbar"
+                      label="&menu_techPGP.label;" accesskey="&menu_techPGP.accesskey;"
+                      value="OpenPGP" type="radio" name="radiogroup_encTech"/>
+            <menuitem id="encTech_SMIME_Toolbar"
+                      label="&menu_techSMIME.label;" accesskey="&menu_techSMIME.accesskey;"
+                      value="SMIME" type="radio" name="radiogroup_encTech"/>
+          </menupopup>
+        </menu>
+#endif
+
+        <menuseparator id="encryptOptionsSeparator_Toolbar"/>
+
+        <menuitem id="menu_securityEncryptDisable_Toolbar"
+                  type="radio" name="radiogroup_encEnable"
+                  label="&menu_securityDoNotEncrypt.label;"
+                  accesskey="&menu_securityDoNotEncrypt.accesskey;"
+                  value="enc0"/>
+        <!--
+        <menuitem id="menu_securityEncryptOptional_Toolbar"
+                  type="radio" name="radiogroup_encEnable"
+                  label="&menu_securityEncryptOptional.label;"
+                  accesskey="&menu_securityEncryptOptional.accesskey;"
+                  value="enc1"/>
+        -->
+        <menuitem id="menu_securityEncryptRequire_Toolbar"
+                  type="radio" name="radiogroup_encEnable"
+                  label="&menu_securityEncryptRequire2.label;"
                   accesskey="&menu_securityEncryptRequire.accesskey;"
-                  oncommand="setNextCommand('encryptMessage');"/>
-        <menuitem id="menu_securitySign2"
+                  value="enc2"/>
+
+        <menuseparator id="signOptionsSeparator_Toolbar"/>
+
+        <menuitem id="menu_securitySign_Toolbar"
                   type="checkbox"
                   label="&menu_securitySign.label;"
                   accesskey="&menu_securitySign.accesskey;"
-                  oncommand="setNextCommand('signMessage');"/>
-        <menuseparator id="smimeToolbarButtonSeparator"/>
-        <menuitem id="menu_securityStatus2"
+                  value="sig"/>
+
+#ifdef MOZ_OPENPGP
+        <menuseparator id="myPublicKeySeparator_Toolbar"/>
+        <menuitem id="menu_securityMyPublicKey_Toolbar"
+                  type="checkbox"
+                  label="&menu_securityAttachMyKey.label;"
+                  accesskey="&menu_securityAttachMyKey.accesskey;"
+                  value="mykey"/>
+#endif
+
+        <menuseparator id="statusInfoSeparator"/>
+        <menuitem id="menu_securityStatus_Toolbar"
                   label="&menu_securityStatus.label;"
                   accesskey="&menu_securityStatus.accesskey;"
-                  oncommand="setNextCommand('show');"/>
+                  value="status"/>
       </menupopup>
     </toolbarbutton>
 
@@ -2429,6 +2516,9 @@
           collapsed="true">
       <html:progress id="compose-progressmeter" class="progressmeter-statusbar" value="0" max="100"/>
     </hbox>
+#ifdef MOZ_OPENPGP
+    <label id="encryption-tech" class="statusbarpanel"/>
+#endif
     <hbox id="signing-status"
           class="statusbarpanel statusbarpanel-iconic"
           collapsed="true"

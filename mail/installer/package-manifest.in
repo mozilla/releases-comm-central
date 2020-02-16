@@ -257,9 +257,18 @@
 @RESPATH@/defaults/settings/main
 @RESPATH@/greprefs.js
 
+#ifdef MOZ_OPENPGP
+@RESPATH@/defaults/pref/openpgp-prefs.js
+#endif
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; App extensions to Mail
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+#ifdef MOZ_OPENPGP
+@RESPATH@/chrome/openpgp@JAREXT@
+@RESPATH@/chrome/openpgp.manifest
+#endif
 
 ; LDAP components
 #ifdef MOZ_LDAP_XPCOM
