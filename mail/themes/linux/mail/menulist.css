@@ -16,7 +16,7 @@ menulist[is="menulist-editable"][editable="true"] {
 
 menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
   display: -moz-box;
-  min-width: 2em;
+  width: 2em;
   margin-top: -2px;
   margin-bottom: -2px;
   margin-inline-end: -2.4em;

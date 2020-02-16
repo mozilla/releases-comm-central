@@ -745,11 +745,6 @@ treechildren::-moz-tree-cell-text {
   padding-inline-start: 5px;
 }
 
-/* Fix to show the menulist-dropmarker under newer GTK3 versions */
-menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
-  min-width: 2em;
-}
-
 /* Status bar */
 
 .statusbar {
