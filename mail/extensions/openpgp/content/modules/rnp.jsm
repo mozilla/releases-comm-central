@@ -636,7 +636,7 @@ var RNP = {
       let type = null;
       if (id.length == 16) {
         type = "keyid";
-      } else if (id.length == 40) {
+      } else if (id.length == 40 || id.length == 32) {
         type = "fingerprint";
       } else {
         throw "key/fingerprint identifier of unexpected length: " + id;
@@ -689,18 +689,27 @@ var RNP = {
       let skip = false;
       if (expiration.value != 0) {
         let now_seconds = Math.floor(Date.now()/1000);
-        if (expiration.value > now_seconds) {
+        let creation = new ctypes.uint32_t;
+        if (RNPLib.rnp_key_get_creation(sub_handle, creation.address())) {
+          throw "rnp_key_get_expiration failed";
+        }
+        let expiration_seconds = creation.value + expiration.value;
+        console.debug("now: " + now_seconds + " vs. subkey creation+expiration in seconds: " + expiration_seconds);
+        if (now_seconds > expiration_seconds) {
+          console.debug("skipping expired subkey");
           skip = true;
         }
       }
       if (!skip) {
         let key_revoked = new ctypes.bool;
         if (RNPLib.rnp_key_is_revoked(sub_handle, key_revoked.address())) {
+          console.debug("skipping revoked subkey");
           skip = true;
         }
       }
       if (!skip) {
         if (!this.isKeyUsableFor(sub_handle, usage)) {
+          console.debug("skipping subkey not usable for request");
           skip = true;
         }
       }
@@ -708,6 +717,12 @@ var RNP = {
         RNPLib.rnp_key_handle_destroy(sub_handle);
       } else {
         found_handle = sub_handle;
+
+        let fingerprint = new ctypes.char.ptr;
+        if (RNPLib.rnp_key_get_fprint(found_handle, fingerprint.address())) {
+          throw "rnp_key_get_fprint failed";
+        }
+        console.debug("found suitable subkey, fingerprint: " + fingerprint.readString());
         break;
       }
     }

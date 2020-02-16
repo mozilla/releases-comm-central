@@ -148,6 +148,7 @@ Enigmail.msg = {
 
     Enigmail.msg.msgComposeReset(false); // false => not closing => call setIdentityDefaults()
 
+    // TODO this migration code needs to move to a better place, possibly configure.jsm
     {
       // Use a new pref identityEnigmailPrefsMigrated, default false.
       // Only if we're doing this for the first time for an identity,
