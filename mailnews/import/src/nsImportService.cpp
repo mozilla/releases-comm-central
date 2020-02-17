@@ -374,6 +374,9 @@ nsresult nsImportService::LoadModuleInfo(const char *pClsId,
   nsresult rv;
 
   nsCID clsId;
+  // initialize
+  clsId.Clear();
+
   clsId.Parse(pClsId);
   nsCOMPtr<nsIImportModule> module = do_CreateInstance(clsId, &rv);
   if (NS_FAILED(rv)) return rv;
