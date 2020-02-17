@@ -201,8 +201,10 @@ SessionStoreService.prototype = {
       Services.obs.addObserver(this, aTopic, true);
     }, this);
 
-    // observe prefs changes so we can modify stored data to match
+    this._max_tabs_undo = this._prefBranch.getIntPref("sessionstore.max_tabs_undo");
     this._prefBranch.addObserver("sessionstore.max_tabs_undo", this, true);
+
+    this._max_windows_undo = this._prefBranch.getIntPref("sessionstore.max_windows_undo");
     this._prefBranch.addObserver("sessionstore.max_windows_undo", this, true);
 
     // this pref is only read at startup, so no need to observe it
@@ -433,11 +435,13 @@ SessionStoreService.prototype = {
       // if the user decreases the max number of closed tabs they want
       // preserved update our internal states to match that max
       case "sessionstore.max_tabs_undo":
+        this._max_tabs_undo = this._prefBranch.getIntPref("sessionstore.max_tabs_undo");
         for (let ix in this._windows) {
-          this._windows[ix]._closedTabs.splice(this._prefBranch.getIntPref("sessionstore.max_tabs_undo"), this._windows[ix]._closedTabs.length);
+          this._windows[ix]._closedTabs.splice(this._max_tabs_undo, this._windows[ix]._closedTabs.length);
         }
         break;
       case "sessionstore.max_windows_undo":
+        this._max_windows_undo = this._prefBranch.getIntPref("sessionstore.max_windows_undo");
         this._capClosedWindows();
         break;
       case "sessionstore.interval":
@@ -800,9 +804,8 @@ SessionStoreService.prototype = {
     event.initEvent("SSTabClosing", true, false);
     aTab.dispatchEvent(event);
 
-    var maxTabsUndo = this._prefBranch.getIntPref("sessionstore.max_tabs_undo");
     // don't update our internal state if we don't have to
-    if (maxTabsUndo == 0) {
+    if (this._max_tabs_undo == 0) {
       return;
     }
 
@@ -815,8 +818,8 @@ SessionStoreService.prototype = {
       aTab.tabData = { state: tabState };
       var closedTabs = this._windows[aWindow.__SSi]._closedTabs;
       closedTabs.unshift(aTab.tabData);
-      if (closedTabs.length > maxTabsUndo)
-        closedTabs.length = maxTabsUndo;
+      if (closedTabs.length > this._max_tabs_undo)
+        closedTabs.length = this._max_tabs_undo;
     };
   },
 
@@ -1289,7 +1292,7 @@ SessionStoreService.prototype = {
         if (winState._closedTabs && winState._closedTabs.length) {
           let curWinState = this._windows[windowToUse.__SSi];
           curWinState._closedTabs = curWinState._closedTabs.concat(winState._closedTabs);
-          curWinState._closedTabs.splice(this._prefBranch.getIntPref("sessionstore.max_tabs_undo"), curWinState._closedTabs.length);
+          curWinState._closedTabs.splice(this._max_tabs_undo, curWinState._closedTabs.length);
         }
 
         // Restore into that window - pretend it's a followup since we'll already
@@ -3904,17 +3907,16 @@ SessionStoreService.prototype = {
    * resize such that we have at least one non-popup window.
    */
   _capClosedWindows : function sss_capClosedWindows() {
-    let maxWindowsUndo = this._prefBranch.getIntPref("sessionstore.max_windows_undo");
-    if (this._closedWindows.length <= maxWindowsUndo)
+    if (this._closedWindows.length <= this._max_windows_undo)
       return;
-    let spliceTo = maxWindowsUndo;
+    let spliceTo = this._max_windows_undo;
     if (AppConstants.platform != "macosx") {
       let normalWindowIndex = 0;
       // try to find a non-popup window in this._closedWindows
       while (normalWindowIndex < this._closedWindows.length &&
              this._closedWindows[normalWindowIndex].isPopup)
         normalWindowIndex++;
-      if (normalWindowIndex >= maxWindowsUndo)
+      if (normalWindowIndex >= this._max_windows_undo)
         spliceTo = normalWindowIndex + 1;
     }
 
