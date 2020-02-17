@@ -121,6 +121,11 @@
         ],
         "parameters": [
           {
+            "type": "integer",
+            "name": "tabId",
+            "minimum": 0
+          },
+          {
             "name": "details",
             "$ref": "ComposeDetails",
             "description": "The current state of the compose window. This is functionally the same as the :ref:`compose.getComposeDetails` function."

@@ -67,45 +67,47 @@ add_task(async () => {
 
       await checkWindow({ to: ["test@test.invalid"], subject: "Test" });
 
+      let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+
       // Send the message. No listeners exist, so sending should continue.
 
       await beginSend(true);
 
       // Add a non-cancelling listener. Sending should continue.
 
-      let listener1 = () => {
-        listener1.fired = true;
+      let listener1 = tabId => {
+        listener1.tabId = tabId;
         return {};
       };
       browser.compose.onBeforeSend.addListener(listener1);
       await beginSend(true);
-      browser.test.assertTrue(listener1.fired, "listener1 was fired");
+      browser.test.assertEq(tab.id, listener1.tabId, "listener1 was fired");
       browser.compose.onBeforeSend.removeListener(listener1);
 
       // Add a cancelling listener. Sending should not continue.
 
-      let listener2 = () => {
-        listener2.fired = true;
+      let listener2 = tabId => {
+        listener2.tabId = tabId;
         return { cancel: true };
       };
       browser.compose.onBeforeSend.addListener(listener2);
       await beginSend(false, false);
-      browser.test.assertTrue(listener2.fired, "listener2 was fired");
+      browser.test.assertEq(tab.id, listener2.tabId, "listener2 was fired");
       browser.compose.onBeforeSend.removeListener(listener2);
       await beginSend(true); // Removing the listener worked.
 
       // Add a listener returning a Promise. Resolve the Promise to unblock.
       // Sending should continue.
 
-      let listener3 = () => {
-        listener3.fired = true;
+      let listener3 = tabId => {
+        listener3.tabId = tabId;
         return new Promise(resolve => {
           listener3.resolve = resolve;
         });
       };
       browser.compose.onBeforeSend.addListener(listener3);
       await beginSend(false, true);
-      browser.test.assertTrue(listener3.fired, "listener3 was fired");
+      browser.test.assertEq(tab.id, listener3.tabId, "listener3 was fired");
       listener3.resolve({ cancel: false });
       await checkIfSent(true);
       browser.compose.onBeforeSend.removeListener(listener3);
@@ -113,15 +115,15 @@ add_task(async () => {
       // Add a listener returning a Promise. Resolve the Promise to cancel.
       // Sending should not continue.
 
-      let listener4 = () => {
-        listener4.fired = true;
+      let listener4 = tabId => {
+        listener4.tabId = tabId;
         return new Promise(resolve => {
           listener4.resolve = resolve;
         });
       };
       browser.compose.onBeforeSend.addListener(listener4);
       await beginSend(false, true);
-      browser.test.assertTrue(listener4.fired, "listener4 was fired");
+      browser.test.assertEq(tab.id, listener4.tabId, "listener4 was fired");
       listener4.resolve({ cancel: true });
       await checkIfSent(false, false);
       browser.compose.onBeforeSend.removeListener(listener4);
@@ -134,8 +136,8 @@ add_task(async () => {
       // First check that the original headers are unmodified.
       await checkWindow({ to: ["test@test.invalid"], subject: "Test" });
 
-      let listener5 = details => {
-        listener5.fired = true;
+      let listener5 = (tabId, details) => {
+        listener5.tabId = tabId;
         listener5.details = details;
         return {
           details: {
@@ -145,7 +147,7 @@ add_task(async () => {
       };
       browser.compose.onBeforeSend.addListener(listener5);
       await beginSend(true);
-      browser.test.assertTrue(listener5.fired, "listener5 was fired");
+      browser.test.assertEq(tab.id, listener5.tabId, "listener5 was fired");
       browser.test.assertEq(1, listener5.details.to.length);
       browser.test.assertEq(
         "test@test.invalid",

@@ -162,6 +162,7 @@ var composeEventTracker = new (class extends EventEmitter {
 
     let results = await this.emit(
       "compose-before-send",
+      tabTracker.getId(composeWindow),
       getComposeState(composeWindow)
     );
     if (results) {
@@ -209,8 +210,8 @@ this.compose = class extends ExtensionAPI {
           context,
           name: "compose.onBeforeSend",
           register: fire => {
-            let listener = (event, details) => {
-              return fire.async(details);
+            let listener = (event, tabId, details) => {
+              return fire.async(tabId, details);
             };
 
             composeEventTracker.on("compose-before-send", listener);
