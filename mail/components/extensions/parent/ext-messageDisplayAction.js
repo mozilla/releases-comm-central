@@ -25,10 +25,11 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
   close() {
     super.close();
     messageDisplayActionMap.delete(this.extension);
+    windowTracker.removeListener("TabSelect", this);
   }
 
   constructor(extension) {
-    super(extension);
+    super(extension, global);
     this.manifest_name = "message_display_action";
     this.manifestName = "messageDisplayAction";
     this.windowURLs = [
@@ -37,6 +38,8 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
     ];
     this.toolboxId = "header-view-toolbox";
     this.toolbarId = "header-view-toolbar";
+
+    windowTracker.addListener("TabSelect", this);
   }
 
   makeButton(window) {

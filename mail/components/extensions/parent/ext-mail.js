@@ -164,6 +164,50 @@ function getTabBrowser(nativeTabInfo) {
 }
 global.getTabBrowser = getTabBrowser;
 
+/**
+ * Manages tab-specific and window-specific context data, and dispatches
+ * tab select events across all windows.
+ */
+global.TabContext = class extends EventEmitter {
+  /**
+   * @param {Function} getDefaultPrototype
+   *        Provides the prototype of the context value for a tab or window when there is none.
+   *        Called with a XULElement or ChromeWindow argument.
+   *        Should return an object or null.
+   */
+  constructor(getDefaultPrototype) {
+    super();
+    this.getDefaultPrototype = getDefaultPrototype;
+    this.tabData = new WeakMap();
+  }
+
+  /**
+   * Returns the context data associated with `keyObject`.
+   *
+   * @param {XULElement|ChromeWindow} keyObject
+   *        Browser tab or browser chrome window.
+   * @returns {Object}
+   */
+  get(keyObject) {
+    if (!this.tabData.has(keyObject)) {
+      let data = Object.create(this.getDefaultPrototype(keyObject));
+      this.tabData.set(keyObject, data);
+    }
+
+    return this.tabData.get(keyObject);
+  }
+
+  /**
+   * Clears the context data associated with `keyObject`.
+   *
+   * @param {XULElement|ChromeWindow} keyObject
+   *        Browser tab or browser chrome window.
+   */
+  clear(keyObject) {
+    this.tabData.delete(keyObject);
+  }
+};
+
 /* global searchInitialized */
 // This promise is used to wait for the search service to be initialized.
 // None of the code in the WebExtension modules requests that initialization.

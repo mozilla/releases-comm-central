@@ -10,7 +10,7 @@ ChromeUtils.defineModuleGetter(
 
 this.composeAction = class extends ToolbarButtonAPI {
   constructor(extension) {
-    super(extension);
+    super(extension, global);
     this.manifest_name = "compose_action";
     this.manifestName = "composeAction";
     this.windowURLs = [
@@ -25,8 +25,6 @@ this.composeAction = class extends ToolbarButtonAPI {
     if (format) {
       this.paint = this.paintFormatToolbar;
     }
-
-    this.global = global;
   }
 
   paintFormatToolbar(window) {
