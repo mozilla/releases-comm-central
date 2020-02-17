@@ -45,6 +45,21 @@ async function parseComposeRecipientList(list) {
 }
 
 async function openComposeWindow(relatedMessageId, type, composeParams) {
+  function waitForWindow() {
+    return new Promise(resolve => {
+      function observer(subject, topic, data) {
+        if (
+          subject.location.href ==
+          "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+        ) {
+          Services.obs.removeObserver(observer, "chrome-document-loaded");
+          resolve();
+        }
+      }
+      Services.obs.addObserver(observer, "chrome-document-loaded");
+    });
+  }
+
   // ForwardInline is totally broken, see bug 1513824.
   if (type == Ci.nsIMsgCompType.ForwardInline) {
     let msgHdr = null;
@@ -54,6 +69,7 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
       msgHdr = messageTracker.getMessage(relatedMessageId);
       msgURI = msgHdr.folder.getUriForMsg(msgHdr);
     }
+    let newWindowPromise = waitForWindow();
     MailServices.compose.OpenComposeWindow(
       null,
       msgHdr,
@@ -63,7 +79,7 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
       hdrIdentity,
       null
     );
-    return;
+    return newWindowPromise;
   }
 
   let params = Cc[
@@ -99,7 +115,10 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
   }
 
   params.composeFields = composeFields;
+
+  let newWindowPromise = waitForWindow();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
+  return newWindowPromise;
 }
 
 function getComposeState(composeWindow) {
@@ -220,8 +239,8 @@ this.compose = class extends ExtensionAPI {
             };
           },
         }).api(),
-        async beginNew(composeParams) {
-          openComposeWindow(null, Ci.nsIMsgCompType.New, composeParams);
+        beginNew(composeParams) {
+          return openComposeWindow(null, Ci.nsIMsgCompType.New, composeParams);
         },
         beginReply(messageId, replyType) {
           let type = Ci.nsIMsgCompType.Reply;
@@ -230,7 +249,7 @@ this.compose = class extends ExtensionAPI {
           } else if (replyType == "replyToAll") {
             type = Ci.nsIMsgCompType.ReplyAll;
           }
-          openComposeWindow(messageId, type);
+          return openComposeWindow(messageId, type);
         },
         beginForward(messageId, forwardType, composeParams) {
           let type = Ci.nsIMsgCompType.ForwardInline;
@@ -242,7 +261,7 @@ this.compose = class extends ExtensionAPI {
           ) {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
           }
-          openComposeWindow(messageId, type, composeParams);
+          return openComposeWindow(messageId, type, composeParams);
         },
         getComposeDetails(tabId) {
           let tab = getComposeTab(tabId);
