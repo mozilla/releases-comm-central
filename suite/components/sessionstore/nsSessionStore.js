@@ -133,8 +133,9 @@ SessionStoreService.prototype = {
   // set default load state
   _loadState: STATE_STOPPED,
 
-  // During the initial restore and setBrowserState calls tracks the number of windows yet to be restored
-  _restoreCount: 0,
+  // During the initial restore and setBrowserState calls tracks the number of
+  // windows yet to be restored
+  _restoreCount: -1,
 
   // whether a setBrowserState call is in progress
   _browserSetState: false,
@@ -3818,11 +3819,19 @@ SessionStoreService.prototype = {
   },
 
   _sendRestoreCompletedNotifications: function sss_sendRestoreCompletedNotifications() {
-    if (this._restoreCount) {
+    // not all windows restored, yet
+    if (this._restoreCount > 1) {
       this._restoreCount--;
-      if (this._restoreCount == 0)
-        Services.tm.mainThread.dispatch(this, Ci.nsIThread.DISPATCH_NORMAL);
+      return;
     }
+
+    // observers were already notified
+    if (this._restoreCount == -1)
+      return;
+
+    Services.tm.mainThread.dispatch(this, Ci.nsIThread.DISPATCH_NORMAL);
+
+    this._restoreCount = -1;
   },
 
   run: function sss_run() {
