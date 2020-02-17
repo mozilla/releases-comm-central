@@ -807,6 +807,9 @@ pref("intl.multilingual.downloadEnabled", false);
 // Dark in-content pages
 pref("browser.in-content.dark-mode", true);
 
+// if true, use full page zoom instead of text zoom
+pref("browser.zoom.full", true);
+
 // Developer Tools related preferences
 pref("devtools.debugger.log", false);
 pref("devtools.chrome.enabled", true);
