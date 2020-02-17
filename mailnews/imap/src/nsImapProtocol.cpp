@@ -1523,25 +1523,44 @@ void nsImapProtocol::EstablishServerConnection() {
       }
     }
   } else if (!PL_strncasecmp(serverResponse, ESC_PREAUTH, ESC_PREAUTH_LEN)) {
-    // we've been pre-authenticated.
-    // we can skip the whole password step, right into the
-    // kAuthenticated state
-    GetServerStateParser().PreauthSetAuthenticatedState();
+    // PREAUTH greeting received. We've been pre-authenticated by the server.
+    // We can skip sending a password and transition right into the
+    // kAuthenticated state; but we won't if the user has configured STARTTLS.
+    // (STARTTLS can only occur with the server in non-authenticated state.)
+    if (!(m_socketType == nsMsgSocketType::alwaysSTARTTLS ||
+          m_socketType == nsMsgSocketType::trySTARTTLS)) {
+      GetServerStateParser().PreauthSetAuthenticatedState();
 
-    if (GetServerStateParser().GetCapabilityFlag() == kCapabilityUndefined)
-      Capability();
+      if (GetServerStateParser().GetCapabilityFlag() == kCapabilityUndefined)
+        Capability();
 
-    if (!(GetServerStateParser().GetCapabilityFlag() &
-          (kIMAP4Capability | kIMAP4rev1Capability | kIMAP4other))) {
-      // AlertUserEvent_UsingId(MK_MSG_IMAP_SERVER_NOT_IMAP4);
-      SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
+      if (!(GetServerStateParser().GetCapabilityFlag() &
+            (kIMAP4Capability | kIMAP4rev1Capability | kIMAP4other))) {
+        // AlertUserEventUsingId(MK_MSG_IMAP_SERVER_NOT_IMAP4);
+        SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
+      } else {
+        // let's record the user as authenticated.
+        m_imapServerSink->SetUserAuthenticated(true);
+
+        ProcessAfterAuthenticated();
+        // the connection was a success
+        SetConnectionStatus(NS_OK);
+      }
     } else {
-      // let's record the user as authenticated.
-      m_imapServerSink->SetUserAuthenticated(true);
-
-      ProcessAfterAuthenticated();
-      // the connection was a success
-      SetConnectionStatus(NS_OK);
+      // STARTTLS is configured so don't transition to authenticated state. Just
+      // alert the user, log the error and drop the connection. This may
+      // indicate a man-in-the middle attack if the user is not expecting
+      // PREAUTH. The user must change the connection security setting to other
+      // than STARTTLS to allow PREAUTH to be accepted on subsequent IMAP
+      // connections.
+      AlertUserEventUsingName("imapServerDisconnected");
+      const nsCString &hostName = GetImapHostName();
+      MOZ_LOG(
+          IMAP, LogLevel::Error,
+          ("PREAUTH received from IMAP server %s because STARTTLS selected. "
+           "Connection dropped",
+           hostName.get()));
+      SetConnectionStatus(NS_ERROR_FAILURE);  // stop netlib
     }
   }
 
