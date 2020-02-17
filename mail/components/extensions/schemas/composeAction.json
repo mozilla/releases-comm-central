@@ -411,6 +411,11 @@
         "type": "function",
         "description": "Fired when a toolbar action icon is clicked.  This event will not fire if the toolbar action has a popup.",
         "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "minimum": 1
+          }
         ]
       }
     ]
