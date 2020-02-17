@@ -76,9 +76,6 @@ mailattachcount {
 }
 
 /* ::::: images ::::: */
-img {
-  image-orientation: from-image;
-}
 
 img[overflowing]:not([shrinktofit]) {
   cursor: zoom-out;
