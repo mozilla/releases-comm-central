@@ -2345,9 +2345,23 @@
           break;
 
         case "a":
-          if (event.ctrlKey || event.metaKey) {
-            this.selectPills(pill);
+          if (!(event.ctrlKey || event.metaKey) || event.repeat) {
+            // Bail out if it's not Ctrl+A or Cmd+A or if repeated keypress.
+            break;
           }
+          if (
+            pill
+              .closest(".address-container")
+              .querySelector("mail-address-pill:not([selected])")
+          ) {
+            // For non-repeated Ctrl+A, if there's at least one unselected pill,
+            // first select all pills of the same .address-container.
+            this.selectPills(pill);
+            break;
+          }
+          // For non-repeated Ctrl+A, if pills in same container are already
+          // selected, select all pills of the entire <mail-recipients-area>.
+          this.selectAllPills(pill);
           break;
 
         case "c":
@@ -2509,9 +2523,20 @@
     }
 
     /**
+     * Select all the pills from the mail-recipients-area element.
+     *
+     * @param {Element} pill - The focused mail-address-pill element.
+     */
+    selectAllPills(pill) {
+      for (let item of this.getAllPills(pill)) {
+        item.setAttribute("selected", "selected");
+      }
+    }
+
+    /**
      * Select all the pills from the same .address-container.
      *
-     * @param {XULElement} pill - The mail-address-pill element.
+     * @param {Element} pill - The focused <mail-address-pill> element.
      */
     selectPills(pill) {
       for (let item of this.getSiblingPills(pill)) {
@@ -2522,8 +2547,8 @@
     /**
      * Return all the pills from the same .address-container.
      *
-     * @param {XULElement} pill - The mail-address-pill element.
-     * @return {Array} Array of mail-address-pill elements.
+     * @param {Element} pill - The focused <mail-address-pill> element.
+     * @return {NodeList} NodeList of <mail-address-pill> elements in same field.
      */
     getSiblingPills(pill) {
       return pill
@@ -2532,25 +2557,25 @@
     }
 
     /**
-     * Return all the pills currently available in the address area.
+     * Return all the pills currently available in the <mail-recipients-area>.
      *
-     * @return {Array} Array of mail-address-pill elements.
+     * @return {NodeList} NodeList of all <mail-address-pill> elements.
      */
     getAllPills() {
       return this.querySelectorAll("mail-address-pill");
     }
 
     /**
-     * Return all the selected pills currently available in the address area.
+     * Return all currently selected pills in the <mail-recipients-area>.
      *
-     * @return {Array} Array of selected mail-address-pill elements.
+     * @return {NodeList} NodeList of all selected <mail-address-pill> elements.
      */
     getAllSelectedPills() {
       return this.querySelectorAll("mail-address-pill[selected]");
     }
 
     /**
-     * Check if any pill in the addressing area is selected.
+     * Check if any pill in the <mail-recipients-area> is selected.
      *
      * @return {boolean} true if any pill is selected.
      */
