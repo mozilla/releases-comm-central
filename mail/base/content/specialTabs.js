@@ -21,6 +21,9 @@ var { StringBundle } = ChromeUtils.import(
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
+var { Localization } = ChromeUtils.import(
+  "resource://gre/modules/Localization.jsm"
+);
 
 function tabProgressListener(aTab, aStartsBlank) {
   this.mTab = aTab;
@@ -355,7 +358,12 @@ var kTelemetryPromptRev = 2;
 var contentTabBaseType = {
   // List of URLs that will receive special treatment when opened in a tab.
   // Note that about:preferences is loaded via a different mechanism.
-  inContentWhitelist: ["about:addons", "about:blank", "about:*"],
+  inContentWhitelist: [
+    "about:addons",
+    "about:blank",
+    "about:profiles",
+    "about:*",
+  ],
 
   // Code to run if a particular document is loaded in a tab.
   // The array members (functions) are for the respective document URLs
@@ -373,6 +381,21 @@ var contentTabBaseType = {
 
     // Let's not mess with about:blank.
     null,
+
+    // about:profiles
+    function(aDocument, aTab) {
+      // Need a timeout to let the script run to create the needed buttons.
+      setTimeout(() => {
+        let l10n = new Localization(["messenger/aboutProfilesExtra.ftl"], true);
+        for (let button of aDocument.querySelectorAll(
+          `[data-l10n-id="profiles-launch-profile"]`
+        )) {
+          button.textContent = l10n.formatValueSync(
+            "profiles-launch-profile-plain"
+          );
+        }
+      }, 500);
+    },
 
     // Other about:* pages.
     function(aDocument, aTab) {
