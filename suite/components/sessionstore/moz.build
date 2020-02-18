@@ -14,10 +14,11 @@ XPIDL_MODULE = 'suitecommon'
 EXTRA_COMPONENTS += [
     'nsSessionStartup.js',
     'nsSessionStartup.manifest',
+    'nsSessionStore.js',
 ]
 
-EXTRA_COMPONENTS += [
-    'nsSessionStore.js',
+EXTRA_JS_MODULES.sessionstore = [
+    'XPathGenerator.jsm',
 ]
 
 JAR_MANIFESTS += ['jar.mn']
