@@ -1956,12 +1956,6 @@
         !isValid && !isMailingList && !isNewsgroup
       );
 
-      let emailCard = DisplayNameUtils.getCardForEmail(this.emailAddress);
-      this.classList.toggle(
-        "warning",
-        isValid && !emailCard.card && !isMailingList && !isNewsgroup
-      );
-
       this.style.removeProperty("max-width");
       this.style.removeProperty("min-width");
       this.classList.remove("editing");
@@ -2223,15 +2217,6 @@
       pill.classList.toggle(
         "error",
         !isValidAddress(address.email) && !isMailingList && !isNewsgroup
-      );
-
-      let emailCard = DisplayNameUtils.getCardForEmail(address.email);
-      pill.classList.toggle(
-        "warning",
-        isValidAddress(address.email) &&
-          !emailCard.card &&
-          !isMailingList &&
-          !isNewsgroup
       );
 
       pill.addEventListener("click", event => {
