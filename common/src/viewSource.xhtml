@@ -67,9 +67,9 @@
 #endif
   <command id="cmd_reload" oncommand="viewSourceChrome.reload();"/>
   <command id="cmd_goToLine" oncommand="viewSourceChrome.promptAndGoToLine();"/>
+  <command id="cmd_wrapLongLines" oncommand="viewSourceChrome.toggleWrapping();"/>
 #ifdef MOZ_SUITE
   <command id="cmd_highlightSyntax" oncommand="viewSourceChrome.toggleSyntaxHighlighting();"/>
-  <command id="cmd_wrapLongLines" oncommand="viewSourceChrome.toggleWrapping();"/>
   <command id="Browser:Back" oncommand="viewSourceChrome.goBack()" class="viewSourceNavigation"/>
   <command id="Browser:Forward" oncommand="viewSourceChrome.goForward()" class="viewSourceNavigation"/>
 #endif
@@ -147,14 +147,11 @@
               observes="viewSourceNavigation"/>
     <menuseparator observes="viewSourceNavigation"/>
 #endif
-    <menuitem id="cMenu_findAgain"
-              label="&findAgainCmd.label;"
-              accesskey="&findAgainCmd.accesskey;"
-              command="cmd_findAgain"/>
-    <menuseparator/>
     <menuitem id="cMenu_copy"
               data-l10n-id="text-action-copy"
               command="cmd_copy"/>
+    <menuseparator/>
+#ifdef MOZ_SUITE
     <menuitem id="context-copyLink"
               label="&copyLinkCmd.label;"
               accesskey="&copyLinkCmd.accesskey;"
@@ -164,9 +161,19 @@
               accesskey="&copyEmailCmd.accesskey;"
               oncommand="viewSourceChrome.onContextMenuCopyLinkOrEmail();"/>
     <menuseparator/>
+#endif
     <menuitem id="cMenu_selectAll"
               data-l10n-id="text-action-select-all"
               command="cmd_selectAll"/>
+    <menuseparator/>
+    <menuitem id="cMenu_find"
+              label="&findCmd.label;"
+              accesskey="&findCmd.accesskey;"
+              command="cmd_find"/>
+    <menuitem id="cMenu_findAgain"
+              label="&findAgainCmd.label;"
+              accesskey="&findAgainCmd.accesskey;"
+              command="cmd_findAgain"/>
   </menupopup>
 
   <!-- Menu -->
@@ -179,6 +186,7 @@
           <menuitem key="key_savePage" command="cmd_savePage" id="menu_savePage"
                     label="&savePageCmd.label;" accesskey="&savePageCmd.accesskey;"
                     class="menuitem-iconic"/>
+          <menuseparator/>
           <menuitem command="cmd_pagesetup" id="menu_pageSetup"
                     label="&pageSetupCmd.label;" accesskey="&pageSetupCmd.accesskey;"/>
 #ifndef XP_MACOSX
@@ -199,36 +207,10 @@
       <menu id="menu_edit" label="&editMenu.label;"
             accesskey="&editMenu.accesskey;">
         <menupopup id="editmenu-popup">
-          <menuitem id="menu_undo"
-                    data-l10n-id="text-action-undo"
-                    key="key_undo"
-                    command="cmd_undo"
-                    class="menuitem-iconic"/>
-          <menuitem id="menu_redo"
-                    data-l10n-id="text-action-redo"
-                    key="key_redo"
-                    command="cmd_redo"
-                    class="menuitem-iconic"/>
-          <menuseparator/>
-          <menuitem id="menu_cut"
-                    data-l10n-id="text-action-cut"
-                    key="key_cut"
-                    command="cmd_cut"
-                    class="menuitem-iconic"/>
           <menuitem id="menu_copy"
                     data-l10n-id="text-action-copy"
                     key="key_copy"
                     command="cmd_copy"
-                    class="menuitem-iconic"/>
-          <menuitem id="menu_paste"
-                    data-l10n-id="text-action-paste"
-                    key="key_paste"
-                    command="cmd_paste"
-                    class="menuitem-iconic"/>
-          <menuitem id="menu_delete"
-                    data-l10n-id="text-action-delete"
-                    key="key_delete"
-                    command="cmd_delete"
                     class="menuitem-iconic"/>
           <menuseparator/>
           <menuitem id="menu_selectAll"
@@ -276,10 +258,10 @@
                                 CharsetMenu.update(event.target, content.document.characterSet);">
             <menupopup/>
           </menu>
-#ifdef MOZ_SUITE
           <menuseparator/>
           <menuitem id="menu_wrapLongLines" type="checkbox" command="cmd_wrapLongLines"
                     label="&menu_wrapLongLines.title;" accesskey="&menu_wrapLongLines.accesskey;"/>
+#ifdef MOZ_SUITE
           <menuitem type="checkbox" id="menu_highlightSyntax" command="cmd_highlightSyntax"
                     label="&menu_highlightSyntax.label;" accesskey="&menu_highlightSyntax.accesskey;"/>
 #endif

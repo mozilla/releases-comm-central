@@ -22,6 +22,10 @@ addEventListener("load", () => {
       document.documentElement.getAttribute("titlemodifier");
   });
 
+  if (Services.prefs.getBoolPref("view_source.wrap_long_lines", false)) {
+    document.getElementById("cmd_wrapLongLines").setAttribute("checked", "true");
+  }
+
   gViewSourceUtils.viewSourceInBrowser({
     ...window.arguments[0],
     viewSourceBrowser: gBrowser,
@@ -32,6 +36,16 @@ var viewSourceChrome = {
   promptAndGoToLine() {
     let actor = gViewSourceUtils.getViewSourceActor(gBrowser.browsingContext);
     actor.manager.getActor("ViewSourcePage").promptAndGoToLine();
+  },
+
+  toggleWrapping() {
+    let state = gBrowser.contentDocument.body.classList.toggle("wrap");
+    if (state) {
+      document.getElementById("cmd_wrapLongLines").setAttribute("checked", "true");
+    } else {
+      document.getElementById("cmd_wrapLongLines").removeAttribute("checked");
+    }
+    Services.prefs.setBoolPref("view_source.wrap_long_lines", state);
   },
 
   /**
@@ -97,7 +111,7 @@ var PrintPreviewListener = {
   },
 
   getNavToolbox() {
-    return document.getElementById("navigator-toolbox");
+    return document.getElementById("toolbar-placeholder");
   },
 
   onEnter() {
