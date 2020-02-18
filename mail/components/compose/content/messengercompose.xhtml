@@ -57,6 +57,7 @@
   <stringbundle id="charsetBundle" src="chrome://communicator/content/labelsencodings.properties"/>
 
 <linkset>
+  <html:link rel="localization" href="messenger/messengercompose/messengercompose.ftl"/>
   <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
   <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
   <html:link rel="localization" href="messenger/menubar.ftl"/>
@@ -770,18 +771,33 @@
 
 
 <menupopup id="emailAddressPillPopup" class="emailAddressPopup">
-  <menuitem id="editAddressPill" label="&editMenu.label;"
-            accesskey="&editMenu.accesskey;"
+  <menuitem id="editAddressPill"
+            class="pill-action-edit"
+            data-l10n-id="pill-action-edit"
             oncommand="editAddressPill(document.popupNode, event)"/>
+  <menuitem id="menu_delete"
+            data-l10n-id="text-action-delete"
+            oncommand="deleteSelectedPills(document.popupNode)"/>
+  <menuseparator/>
   <menuitem id="menu_cut"
             data-l10n-id="text-action-cut"
             oncommand="cutEmailNewsAddress(document.popupNode)"/>
   <menuitem id="menu_copy"
             data-l10n-id="text-action-copy"
             oncommand="copyEmailNewsAddress(document.popupNode)"/>
-  <menuitem id="menu_delete"
-            data-l10n-id="text-action-delete"
-            oncommand="deleteAddressPill(document.popupNode)"/>
+  <menuseparator/>
+  <menuitem id="moveAddressPillTo"
+            class="pill-action-move"
+            data-l10n-id="pill-action-move-to"
+            oncommand="moveSelectedPills(document.popupNode, 'addr_to')"/>
+  <menuitem id="moveAddressPillCc"
+            class="pill-action-move"
+            data-l10n-id="pill-action-move-cc"
+            oncommand="moveSelectedPills(document.popupNode, 'addr_cc')"/>
+  <menuitem id="moveAddressPillBcc"
+            class="pill-action-move"
+            data-l10n-id="pill-action-move-bcc"
+            oncommand="moveSelectedPills(document.popupNode, 'addr_bcc')"/>
 </menupopup>
 
 #ifdef XP_MACOSX

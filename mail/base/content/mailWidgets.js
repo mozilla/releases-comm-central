@@ -2199,6 +2199,7 @@
      * @param {HTMLElement} element - The original autocomplete input that
      *   generated the pill.
      * @param {Array} address - The array containing the recipient's info.
+     * @return {Element} The newly created pill.
      */
     createRecipientPill(element, address) {
       let pill = document.createXULElement("mail-address-pill");
@@ -2243,6 +2244,14 @@
         this.handleKeyPress(pill, event);
       });
 
+      pill.addEventListener("contextmenu", event => {
+        // Update the context menu options only if opened via the context menu
+        // keyboard button.
+        if (event.buttons == 0) {
+          emailAddressPillOnPopupShown();
+        }
+      });
+
       element.closest(".address-container").insertBefore(pill, element);
 
       // The emailInput attribute is accessible only after the pill has been
@@ -2267,6 +2276,8 @@
         "autocompletesearchparam",
         JSON.stringify(params)
       );
+
+      return pill;
     }
 
     /**
@@ -2386,10 +2397,12 @@
      * @param {Event} event - The DOM Event.
      */
     checkSelected(pill, event) {
-      if (
-        pill.isEditing ||
-        (pill.hasAttribute("selected") && event.which == 3)
-      ) {
+      if (pill.isEditing) {
+        return;
+      }
+
+      if (pill.hasAttribute("selected") && event.button == 2) {
+        emailAddressPillOnPopupShown();
         return;
       }
 
@@ -2402,6 +2415,12 @@
         pill.blur();
       } else {
         pill.focus();
+      }
+
+      // Update the options in the context menu only after the pills were
+      // selected and if the event was a right click.
+      if (event.button == 2) {
+        emailAddressPillOnPopupShown();
       }
     }
 
@@ -2448,6 +2467,33 @@
       }
 
       pill.startEditing();
+    }
+
+    /**
+     * Move the selected pills email address to another addressing row.
+     *
+     * @param {Element} element - The element from which the context menu was
+     *   opened.
+     * @param {string} targetFieldType - The target recipient type,
+     *   e.g. "addr_to".
+     */
+    moveSelectedPills(element, targetFieldType) {
+      // Store all the selected addresses inside an array.
+      let selectedAddresses = [...this.getAllSelectedPills()].map(
+        pill => pill.fullAddress
+      );
+
+      // Remove all the selected pills.
+      let pill = element.closest("mail-address-pill");
+      this.removeSelectedPills(pill);
+
+      // Create new addressing pills inside the target recipient row and maintain
+      // the current selection.
+      awAddRecipientsArray(targetFieldType, selectedAddresses, true);
+
+      // Move focus to the last selected pill.
+      let selectedPills = this.getAllSelectedPills();
+      selectedPills[selectedPills.length - 1].focus();
     }
 
     /**

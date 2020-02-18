@@ -378,8 +378,9 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
  *
  * @param aRecipientType  Type of recipient, e.g. "addr_to".
  * @param aAddressArray   An array of recipient addresses (strings) to add.
+ * @param {boolean} select - If the newly generated pills should be selected.
  */
-function awAddRecipientsArray(aRecipientType, aAddressArray) {
+function awAddRecipientsArray(aRecipientType, aAddressArray, select = false) {
   let label = document.getElementById(aRecipientType);
   let addresses = MailServices.headerParser.makeFromDisplayAddress(
     aAddressArray
@@ -392,7 +393,10 @@ function awAddRecipientsArray(aRecipientType, aAddressArray) {
 
   let recipientArea = document.getElementById("recipientsContainer");
   for (let address of addresses) {
-    recipientArea.createRecipientPill(element, address);
+    let pill = recipientArea.createRecipientPill(element, address);
+    if (select) {
+      pill.setAttribute("selected", "selected");
+    }
   }
 
   if (element.id != "replyAddrInput") {
@@ -701,17 +705,14 @@ function editAddressPill(element, event) {
  *   opened.
  */
 function copyEmailNewsAddress(element) {
-  let allAddresses = [];
-  for (let pill of document
-    .getElementById("recipientsContainer")
-    .getAllSelectedPills()) {
-    allAddresses.push(pill.fullAddress);
-  }
+  let selectedAddresses = [
+    ...document.getElementById("recipientsContainer").getAllSelectedPills(),
+  ].map(pill => pill.fullAddress);
 
   let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
     Ci.nsIClipboardHelper
   );
-  clipboard.copyString(allAddresses.join(", "));
+  clipboard.copyString(selectedAddresses.join(", "));
 }
 
 /**
@@ -722,19 +723,101 @@ function copyEmailNewsAddress(element) {
  */
 function cutEmailNewsAddress(element) {
   copyEmailNewsAddress(element);
-  deleteAddressPill(element);
+  deleteSelectedPills(element);
 }
 
 /**
  * Delete the selected pill(s).
  *
- * @param {XULElement} element - The element from which the context menu was
+ * @param {Element} element - The label element from which the context menu was
  *   opened.
  */
-function deleteAddressPill(element) {
-  // element is the pill's <label>, get the pill.
+function deleteSelectedPills(element) {
+  // element is the <label> of the focused pill, get the pill itself.
   let pill = element.closest("mail-address-pill");
   document.getElementById("recipientsContainer").removeSelectedPills(pill);
+}
+
+/**
+ * Handle disabling of "Move to..." context menu items according to the types
+ * of selected pills.
+ */
+function emailAddressPillOnPopupShown() {
+  let menu = document.getElementById("emailAddressPillPopup");
+
+  // Reset previously disabled menuitems.
+  for (let menuitem of menu.querySelectorAll(
+    ".pill-action-move, .pill-action-edit"
+  )) {
+    menuitem.disabled = false;
+  }
+
+  // If more than one pill is selected, disable the editing item.
+  if (
+    document.getElementById("recipientsContainer").getAllSelectedPills()
+      .length > 1
+  ) {
+    menu.querySelector("#editAddressPill").disabled = true;
+  }
+
+  // If Newsgroups or Followups are part of the selection, disable everything.
+  if (
+    document.querySelectorAll(
+      `mail-address-pill[recipienttype="addr_newsgroups"][selected]`
+    ).length ||
+    document.querySelectorAll(
+      `mail-address-pill[recipienttype="addr_followup"][selected]`
+    ).length
+  ) {
+    for (let menuitem of menu.querySelectorAll(".pill-action-move")) {
+      menuitem.disabled = true;
+    }
+    return;
+  }
+
+  let selectedTypes = [];
+  // Add all the recipient types of the selected pills.
+  for (let row of document.querySelectorAll(".address-row:not(.hidden)")) {
+    if (row.querySelectorAll("mail-address-pill[selected]").length) {
+      selectedTypes.push(
+        row
+          .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+          .getAttribute("recipienttype")
+      );
+    }
+  }
+
+  // Interrupt if more than one type is selected.
+  if (selectedTypes.length > 1) {
+    return;
+  }
+
+  switch (selectedTypes[0]) {
+    case "addr_to":
+      menu.querySelector("#moveAddressPillTo").disabled = true;
+      break;
+
+    case "addr_cc":
+      menu.querySelector("#moveAddressPillCc").disabled = true;
+      break;
+
+    case "addr_bcc":
+      menu.querySelector("#moveAddressPillBcc").disabled = true;
+      break;
+  }
+}
+
+/**
+ * Move the selected pills email address to another addressing row.
+ *
+ * @param {Element} element - The element from which the context menu was
+ *   opened.
+ * @param {string} targetFieldType - The target recipient type, e.g. "addr_to".
+ */
+function moveSelectedPills(element, targetFieldType) {
+  document
+    .getElementById("recipientsContainer")
+    .moveSelectedPills(element, targetFieldType);
 }
 
 /**

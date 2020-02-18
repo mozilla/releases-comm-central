@@ -524,6 +524,9 @@
 
 .address-input {
   color: inherit;
+}
+
+.address-container > .address-input {
   padding-block: 4px;
 }
 
