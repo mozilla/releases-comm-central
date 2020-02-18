@@ -820,22 +820,22 @@ var MailMigrator = {
     let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
     for (let name of Services.prefs.getChildList("ldap_2.servers.")) {
       try {
-        if (
-          name.endsWith(".uri") &&
-          Services.prefs.getStringPref(name).startsWith("ldap://")
-        ) {
-          let prefName = name.substring(0, name.length - 4);
-          let fileName = Services.prefs.getStringPref(
-            `${prefName}.filename`,
-            ""
-          );
-          if (fileName.endsWith(".mab")) {
-            fileName = fileName.replace(/\.mab$/, "");
-            Services.prefs.setStringPref(
+        if (name.endsWith(".uri")) {
+          let uri = Services.prefs.getStringPref(name);
+          if (uri.startsWith("ldap://") || uri.startsWith("ldaps://")) {
+            let prefName = name.substring(0, name.length - 4);
+            let fileName = Services.prefs.getStringPref(
               `${prefName}.filename`,
-              `${fileName}.sqlite`
+              ""
             );
-            await migrateBook(fileName);
+            if (fileName.endsWith(".mab")) {
+              fileName = fileName.replace(/\.mab$/, "");
+              Services.prefs.setStringPref(
+                `${prefName}.filename`,
+                `${fileName}.sqlite`
+              );
+              await migrateBook(fileName);
+            }
           }
         } else if (
           name.endsWith(".dirType") &&

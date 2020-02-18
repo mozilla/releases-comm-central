@@ -139,7 +139,7 @@
 #endif
 
 #if defined(MOZ_MAPI_SUPPORT)
-#  include "nsAbOutlookDirFactory.h"
+#  include "nsAbOutlookInterface.h"
 #  include "nsAbOutlookDirectory.h"
 #endif
 
@@ -439,7 +439,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAddbookProtocolHandler)
 
 #if defined(MOZ_MAPI_SUPPORT)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOutlookDirectory)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOutlookDirFactory)
+NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOutlookInterface)
 #endif
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirectoryQueryArguments)
@@ -481,7 +481,7 @@ NS_DEFINE_NAMED_CID(NS_BOOLEANCONDITIONSTRING_CID);
 NS_DEFINE_NAMED_CID(NS_BOOLEANEXPRESSION_CID);
 #if defined(MOZ_MAPI_SUPPORT)
 NS_DEFINE_NAMED_CID(NS_ABOUTLOOKDIRECTORY_CID);
-NS_DEFINE_NAMED_CID(NS_ABOUTLOOKDIRFACTORY_CID);
+NS_DEFINE_NAMED_CID(NS_ABOUTLOOKINTERFACE_CID);
 #endif
 
 #if defined(MOZ_LDAP_XPCOM)
@@ -892,8 +892,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_ABCONTENTHANDLER_CID, false, NULL, nsAbContentHandlerConstructor},
 #if defined(MOZ_MAPI_SUPPORT)
     {&kNS_ABOUTLOOKDIRECTORY_CID, false, NULL, nsAbOutlookDirectoryConstructor},
-    {&kNS_ABOUTLOOKDIRFACTORY_CID, false, NULL,
-     nsAbOutlookDirFactoryConstructor},
+    {&kNS_ABOUTLOOKINTERFACE_CID, false, NULL, nsAbOutlookInterfaceConstructor},
 #endif
     {&kNS_ABDIRECTORYQUERYARGUMENTS_CID, false, NULL,
      nsAbDirectoryQueryArgumentsConstructor},
@@ -1129,7 +1128,7 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
      &kNS_ABCONTENTHANDLER_CID},
 #if defined(MOZ_MAPI_SUPPORT)
     {NS_ABOUTLOOKDIRECTORY_CONTRACTID, &kNS_ABOUTLOOKDIRECTORY_CID},
-    {NS_ABOUTLOOKDIRFACTORY_CONTRACTID, &kNS_ABOUTLOOKDIRFACTORY_CID},
+    {NS_ABOUTLOOKINTERFACE_CONTRACTID, &kNS_ABOUTLOOKINTERFACE_CID},
 #endif
     {NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID,
      &kNS_ABDIRECTORYQUERYARGUMENTS_CID},

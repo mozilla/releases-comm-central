@@ -524,6 +524,10 @@ nsAbOSXDirectory::Init(const char *aUri) {
     if (!mIsQueryURI) AssertCard(abManager, card);
   }
 
+  if (isRootOSXDirectory) {
+    AssertChildNodes();
+  }
+
   return NS_OK;
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;

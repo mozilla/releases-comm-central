@@ -32,7 +32,7 @@ function getDirectoryValue(aDir, aKey) {
     if (aDir._directory.URI == kCollectedAddressbookURI) {
       return "cab";
     }
-    if (aDir._directory.dirType == DIRTYPE_JS) {
+    if (aDir._directory.URI.startsWith("jsaddrbook://")) {
       return "js";
     }
     if (aDir._directory instanceof Ci.nsIAbLDAPDirectory) {

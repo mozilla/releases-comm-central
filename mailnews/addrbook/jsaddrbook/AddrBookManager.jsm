@@ -25,6 +25,16 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/AddrBookUtils.jsm"
 );
 
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "env",
+  "@mozilla.org/process/environment;1",
+  "nsIEnvironment"
+);
+
 /** Directory type constants, as defined in nsDirPrefs.h. */
 const LDAP_DIRECTORY_TYPE = 0;
 const MAPI_DIRECTORY_TYPE = 3;
@@ -89,14 +99,48 @@ function ensureInitialized() {
   store = new Map();
 
   for (let pref of Services.prefs.getChildList("ldap_2.servers.")) {
-    if (pref.endsWith(".dirType")) {
-      let prefName = pref.substring(0, pref.length - 8);
-      let dirType = Services.prefs.getIntPref(pref);
-      let fileName = Services.prefs.getStringPref(`${prefName}.filename`, "");
-      if (dirType == JS_DIRECTORY_TYPE && fileName) {
-        let uri = `jsaddrbook://${fileName}`;
-        createDirectoryObject(uri, true);
+    try {
+      if (pref.endsWith(".uri")) {
+        let uri = Services.prefs.getStringPref(pref);
+        if (uri.startsWith("ldap://") || uri.startsWith("ldaps://")) {
+          let prefName = pref.substring(0, pref.length - 4);
+
+          uri = `moz-abldapdirectory://${prefName}`;
+          createDirectoryObject(uri, true);
+        }
+      } else if (pref.endsWith(".dirType")) {
+        let prefName = pref.substring(0, pref.length - 8);
+        let dirType = Services.prefs.getIntPref(pref);
+        let fileName = Services.prefs.getStringPref(`${prefName}.filename`, "");
+        let uri = Services.prefs.getStringPref(`${prefName}.uri`, "");
+
+        switch (dirType) {
+          case MAPI_DIRECTORY_TYPE:
+            if (env.exists("MOZ_AUTOMATION")) {
+              break;
+            }
+            if (AppConstants.platform == "macosx") {
+              createDirectoryObject(uri, true);
+            } else if (AppConstants.platform == "win") {
+              let outlookInterface = Cc[
+                "@mozilla.org/addressbook/outlookinterface;1"
+              ].getService(Ci.nsIAbOutlookInterface);
+              for (let folderURI of outlookInterface.getFolderURIs(uri)) {
+                let dir = createDirectoryObject(folderURI, true);
+                store.set(folderURI, dir);
+              }
+            }
+            break;
+          case JS_DIRECTORY_TYPE:
+            if (fileName) {
+              let uri = `jsaddrbook://${fileName}`;
+              createDirectoryObject(uri, true);
+            }
+            break;
+        }
       }
+    } catch (ex) {
+      Cu.reportError(ex);
     }
   }
 }
@@ -139,8 +183,8 @@ AddrBookManager.prototype = {
     if (!uriParts) {
       throw Cr.NS_ERROR_UNEXPECTED;
     }
-    let [, , , tail] = uriParts;
-    if (tail) {
+    let [, scheme, , tail] = uriParts;
+    if (tail && types.includes(scheme)) {
       // `tail` could either point to a mailing list or a query.
       // Both of these will be handled differently in future.
       return createDirectoryObject(uri);
@@ -177,21 +221,86 @@ AddrBookManager.prototype = {
 
     ensureInitialized();
 
-    let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    file.append("abook.sqlite");
-    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
-    file.remove(false);
-    uri = `jsaddrbook://${file.leafName}`;
+    switch (type) {
+      case LDAP_DIRECTORY_TYPE: {
+        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        file.append("ldap.sqlite");
+        file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
-    ensureUniquePrefName();
-    Services.prefs.setStringPref(`${prefName}.description`, dirName);
-    Services.prefs.setIntPref(`${prefName}.dirType`, type);
-    Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
-    Services.prefs.setStringPref(`${prefName}.uri`, uri);
+        ensureUniquePrefName();
+        Services.prefs.setStringPref(`${prefName}.description`, dirName);
+        Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
+        Services.prefs.setStringPref(`${prefName}.uri`, uri);
 
-    uri = `jsaddrbook://${file.leafName}`;
-    let dir = createDirectoryObject(uri, true);
-    this.notifyDirectoryItemAdded(null, dir);
+        uri = `moz-abldapdirectory://${prefName}`;
+        let dir = createDirectoryObject(uri, true);
+        this.notifyDirectoryItemAdded(null, dir);
+        break;
+      }
+      case MAPI_DIRECTORY_TYPE: {
+        if (AppConstants.platform == "macosx") {
+          uri = "moz-abosxdirectory:///";
+          if (store.has(uri)) {
+            throw Cr.NS_ERROR_UNEXPECTED;
+          }
+          prefName = "ldap_2.servers.osx";
+        } else if (AppConstants.platform == "win") {
+          if (
+            ![
+              "moz-aboutlookdirectory://oe/",
+              "moz-aboutlookdirectory://op/",
+            ].includes(uri)
+          ) {
+            throw Cr.NS_ERROR_UNEXPECTED;
+          }
+          if (store.has(uri)) {
+            throw Cr.NS_ERROR_UNEXPECTED;
+          }
+          prefName = "ldap_2.servers.oe";
+        } else {
+          throw Cr.NS_ERROR_UNEXPECTED;
+        }
+
+        Services.prefs.setIntPref(`${prefName}.dirType`, MAPI_DIRECTORY_TYPE);
+        Services.prefs.setStringPref(
+          `${prefName}.description`,
+          "chrome://messenger/locale/addressbook/addressBook.properties"
+        );
+        Services.prefs.setStringPref(`${prefName}.uri`, uri);
+
+        if (AppConstants.platform == "macosx") {
+          let dir = createDirectoryObject(uri, true);
+          this.notifyDirectoryItemAdded(null, dir);
+        } else if (AppConstants.platform == "win") {
+          let outlookInterface = Cc[
+            "@mozilla.org/addressbook/outlookinterface;1"
+          ].getService(Ci.nsIAbOutlookInterface);
+          for (let folderURI of outlookInterface.getFolderURIs(uri)) {
+            let dir = createDirectoryObject(folderURI, true);
+            this.notifyDirectoryItemAdded(null, dir);
+          }
+        }
+        break;
+      }
+      case JS_DIRECTORY_TYPE: {
+        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        file.append("abook.sqlite");
+        file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+
+        ensureUniquePrefName();
+        Services.prefs.setStringPref(`${prefName}.description`, dirName);
+        Services.prefs.setIntPref(`${prefName}.dirType`, type);
+        Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
+
+        uri = `jsaddrbook://${file.leafName}`;
+        let dir = createDirectoryObject(uri, true);
+        this.notifyDirectoryItemAdded(null, dir);
+        break;
+      }
+      default:
+        throw Cr.NS_ERROR_UNEXPECTED;
+    }
+
     return prefName;
   },
   deleteAddressBook(uri) {
@@ -226,16 +335,20 @@ AddrBookManager.prototype = {
     Services.prefs.clearUserPref(`${prefName}.filename`);
     Services.prefs.clearUserPref(`${prefName}.uid`);
     Services.prefs.clearUserPref(`${prefName}.uri`);
-    store.delete(`jsaddrbook://${fileName}`);
+    store.delete(uri);
 
-    let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    file.append(fileName);
-    closeConnectionTo(file).then(() => {
-      if (file.exists()) {
-        file.remove(false);
-      }
+    if (fileName) {
+      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      file.append(fileName);
+      closeConnectionTo(file).then(() => {
+        if (file.exists()) {
+          file.remove(false);
+        }
+        this.notifyDirectoryDeleted(null, dir);
+      });
+    } else {
       this.notifyDirectoryDeleted(null, dir);
-    });
+    }
   },
   exportAddressBook(parentWin, directory) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;

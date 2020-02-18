@@ -155,10 +155,10 @@
 //
 // Outlook directory factory
 //
-#  define NS_ABOUTLOOKDIRFACTORY_CONTRACTID \
-    NS_AB_DIRECTORY_FACTORY_CONTRACTID_PREFIX "moz-aboutlookdirectory"
+#  define NS_ABOUTLOOKINTERFACE_CONTRACTID \
+    "@mozilla.org/addressbook/outlookinterface;1"
 
-#  define NS_ABOUTLOOKDIRFACTORY_CID                   \
+#  define NS_ABOUTLOOKINTERFACE_CID                    \
     {                                                  \
       0x558ccc0f, 0x2681, 0x4dac, {                    \
         0xa0, 0x66, 0xde, 0xbd, 0x8d, 0x26, 0xfa, 0xf6 \
