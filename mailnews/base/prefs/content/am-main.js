@@ -48,20 +48,21 @@ function manageIdentities() {
   var identity = gAccount.defaultIdentity;
   saveIdentitySettings(identity);
 
-  window.docShell.rootTreeItem.domWindow.openDialog(
-    "am-identities-list.xhtml",
-    "",
-    "chrome,modal,resizable=no,centerscreen",
-    args
+  parent.gSubDialog.open(
+    "chrome://messenger/content/am-identities-list.xhtml",
+    null,
+    args,
+    onCloseIdentities
   );
 
-  if (args.result) {
-    // now re-initialize the default identity settings in case they changed
-    identity = gAccount.defaultIdentity; // Refetch the default identity in case it changed.
-    initIdentityValues(identity);
+  function onCloseIdentities() {
+    if (args.result) {
+      // now re-initialize the default identity settings in case they changed
+      identity = gAccount.defaultIdentity; // Refetch the default identity in case it changed.
+      initIdentityValues(identity);
+      // Refresh the SMTP list in case the user changed server properties
+      // from the identity dialog.
+      loadSMTPServerList();
+    }
   }
-
-  // Refresh the SMTP list in case the user changed server properties
-  // from the identity dialog.
-  loadSMTPServerList();
 }

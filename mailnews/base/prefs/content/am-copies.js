@@ -530,12 +530,11 @@ function setupArchiveItems() {
  */
 function ChangeArchiveHierarchy() {
   let identity = parent.gIdentity || parent.getCurrentAccount().defaultIdentity;
+  let arg = { identity };
 
-  window.docShell.rootTreeItem.domWindow.window.openDialog(
+  parent.gSubDialog.open(
     "chrome://messenger/content/am-archiveoptions.xhtml",
-    "",
-    "centerscreen,chrome,modal,titlebar,resizable=yes",
-    identity
+    null,
+    arg
   );
-  return true;
 }

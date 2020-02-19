@@ -117,7 +117,7 @@ function subtest_initial_state(identity) {
     "chrome://messenger/content/am-archiveoptions.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",
-    identity
+    { identity }
   );
   wait_for_modal_dialog("Mailnews:archiveOptions");
 }
@@ -143,7 +143,7 @@ function subtest_save_state(identity, granularity, kfs) {
     "chrome://messenger/content/am-archiveoptions.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",
-    identity
+    { identity }
   );
   wait_for_modal_dialog("Mailnews:archiveOptions");
 }

@@ -22,11 +22,8 @@ function onInitCompositionAndAddressing() {
 }
 
 function onEditDirectories() {
-  window.docShell.rootTreeItem.domWindow.openDialog(
-    "chrome://messenger/content/addressbook/pref-editdirectories.xhtml",
-    "editDirectories",
-    "chrome,modal=yes,resizable=no",
-    null
+  parent.gSubDialog.open(
+    "chrome://messenger/content/addressbook/pref-editdirectories.xhtml"
   );
 }
 

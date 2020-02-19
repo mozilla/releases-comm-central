@@ -10,7 +10,7 @@ const { Localization } = ChromeUtils.import(
 
 const syncL10n = new Localization(["messenger/otr/finger.ftl"], true);
 
-var [account] = window.arguments;
+var [account] = window.arguments.account;
 
 var gFingers;
 var fingerTreeView = {

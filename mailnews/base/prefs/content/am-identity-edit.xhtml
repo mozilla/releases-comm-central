@@ -23,7 +23,7 @@
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="onLoadIdentityProperties();"
-        style="&identityDialog.style;">
+        style="width: 75ch; height: 56em;">
 <dialog id="identityDialog">
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
@@ -192,6 +192,7 @@
           <hbox align="center" class="input-container">
             <label id="identity.input.label" value="&identityAlias.label;"
                    accesskey="&identityAlias.accesskey;"
+                   style="margin-block: auto;"
                    control="identity.label"/>
             <html:input id="identity.label"
                         type="text"
@@ -200,7 +201,6 @@
           </hbox>
         </html:fieldset>
 
-        <spacer flex="1"/>
       </vbox>
 
       <!-- Copies & Folders Tab -->

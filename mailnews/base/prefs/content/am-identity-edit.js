@@ -430,18 +430,18 @@ function editVCardCallback(escapedVCardStr) {
 
 function editVCard() {
   var escapedVCard = document.getElementById("identity.escapedVCard");
+  let args = {
+    escapedVCardStr: escapedVCard.value,
+    okCallback: editVCardCallback,
+    titleProperty: "editVCardTitle",
+    hideABPicker: true,
+  };
 
   // read vCard hidden value from UI
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  parent.gSubDialog.open(
     "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
-    "",
-    "chrome,modal,resizable=no,centerscreen",
-    {
-      escapedVCardStr: escapedVCard.value,
-      okCallback: editVCardCallback,
-      titleProperty: "editVCardTitle",
-      hideABPicker: true,
-    }
+    "resizable=no",
+    args
   );
 }
 
@@ -496,9 +496,12 @@ function editCurrentSMTP() {
     smtpKey === ""
       ? MailServices.smtp.defaultServer
       : MailServices.smtp.getServerByKey(smtpKey);
+  let args = { server, result: false, addSmtpServer: "" };
 
-  let args = editSMTPServer(server);
-  if (args.result) {
-    loadSMTPServerList();
-  }
+  parent.gSubDialog.open(
+    "chrome://messenger/content/SmtpServerEdit.xhtml",
+    null,
+    args,
+    loadSMTPServerList
+  );
 }

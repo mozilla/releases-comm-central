@@ -86,15 +86,17 @@ function openIdentityEditor(identity) {
     ? gIdentityListBox.selectedIndex
     : gIdentityListBox.itemCount;
 
-  window.docShell.rootTreeItem.domWindow.openDialog(
-    "am-identity-edit.xhtml",
-    "",
-    "chrome,modal,resizable,centerscreen",
-    args
+  parent.gSubDialog.open(
+    "chrome://messenger/content/am-identity-edit.xhtml",
+    null,
+    args,
+    onCloseIdentity
   );
 
-  if (args.result) {
-    refreshIdentityList(indexToSelect);
+  function onCloseIdentity() {
+    if (args.result) {
+      refreshIdentityList(indexToSelect);
+    }
   }
 }
 

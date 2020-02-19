@@ -11,7 +11,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&accountManagerTitle.label;"
         persist="width height screenX screenY"
-        onload="onLoad(event);"
+        onload="onLoad(event); gSubDialog.init();"
         onunload="onUnload();">
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
@@ -22,7 +22,9 @@
 <script src="chrome://messenger/content/am-help.js"/>
 #endif
 <script src="chrome://messenger/content/amUtils.js"/>
+<script src="chrome://messenger/content/preferences/subdialogs.js"/>
 
+  <stack id="preferences-stack" flex="1">
   <hbox flex="1">
     <vbox id="accountTreeBox" style="&accountTree.width;">
       <tree flex="1" onselect="onAccountTreeSelect(null, null);" id="accounttree"
@@ -84,7 +86,28 @@
               accesskey="&removeButton.accesskey;"/>
 #endif
     </vbox>
-
     <iframe id="contentFrame" name="contentFrame" flex="1"/>
   </hbox>
+  <stack id="dialogStack" hidden="true"/>
+  <vbox id="dialogTemplate"
+        class="dialogOverlay"
+        align="center"
+        pack="center"
+        topmost="true"
+        hidden="true">
+    <vbox class="dialogBox"
+          pack="end"
+          role="dialog"
+          aria-labelledby="dialogTitle">
+      <hbox class="dialogTitleBar" align="center">
+        <label class="dialogTitle" flex="1"/>
+        <button class="dialogClose close-icon"
+                aria-label="&accountManagerCloseButton.label;"/>
+      </hbox>
+      <browser class="dialogFrame"
+               autoscroll="false"
+               disablehistory="true"/>
+    </vbox>
+  </vbox>
+</stack>
 </window>

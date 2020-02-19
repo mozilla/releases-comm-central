@@ -139,11 +139,11 @@ var account = {
   },
 
   viewFingerprintKeys() {
-    window.docShell.rootTreeItem.domWindow.openDialog(
+    let otrAccount = { account: this.account };
+    parent.gSubDialog.open(
       "chrome://chat/content/otr-finger.xhtml",
-      "",
-      "chrome,modal,titlebar,centerscreen",
-      this.account
+      null,
+      otrAccount
     );
   },
 };

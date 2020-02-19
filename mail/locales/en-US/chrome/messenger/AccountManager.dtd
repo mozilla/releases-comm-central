@@ -5,6 +5,7 @@
 <!-- extracted from AccountManager.xhtml -->
 
 <!ENTITY accountManagerTitle.label "Account Settings">
+<!ENTITY  accountManagerCloseButton.label "Close">
 
 <!ENTITY accountActionsButton.label "Account Actions">
 <!ENTITY accountActionsButton.accesskey "A">

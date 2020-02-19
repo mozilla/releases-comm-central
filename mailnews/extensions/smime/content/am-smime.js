@@ -488,35 +488,11 @@ function smimeClearCert(smime_cert) {
 }
 
 function openCertManager() {
-  // Check for an existing certManager window and focus it; it's not
-  // application modal.
-  let lastCertManager = Services.wm.getMostRecentWindow("mozilla:certmanager");
-  if (lastCertManager) {
-    lastCertManager.focus();
-  } else {
-    window.docShell.rootTreeItem.domWindow.openDialog(
-      "chrome://pippki/content/certManager.xhtml",
-      "",
-      "centerscreen,resizable=yes,dialog=no"
-    );
-  }
+  parent.gSubDialog.open("chrome://pippki/content/certManager.xhtml");
 }
 
 function openDeviceManager() {
-  // Check for an existing deviceManager window and focus it; it's not
-  // application modal.
-  let lastCertManager = Services.wm.getMostRecentWindow(
-    "mozilla:devicemanager"
-  );
-  if (lastCertManager) {
-    lastCertManager.focus();
-  } else {
-    window.docShell.rootTreeItem.domWindow.openDialog(
-      "chrome://pippki/content/device_manager.xhtml",
-      "",
-      "centerscreen,resizable=yes,dialog=no"
-    );
-  }
+  parent.gSubDialog.open("chrome://pippki/content/device_manager.xhtml");
 }
 
 function smimeOnLoadEditor() {

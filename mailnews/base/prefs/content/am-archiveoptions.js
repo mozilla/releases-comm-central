@@ -13,7 +13,7 @@ document.addEventListener("dialogaccept", onAcceptArchiveOptions);
  */
 function onLoadArchiveOptions() {
   // extract the account
-  gIdentity = window.arguments[0];
+  gIdentity = window.arguments[0].identity;
 
   let granularity = document.getElementById("archiveGranularity");
   granularity.selectedIndex = gIdentity.archiveGranularity;

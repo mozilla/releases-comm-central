@@ -20,6 +20,10 @@ fieldset {
   padding: initial;
 }
 
+fieldset:last-of-type {
+  margin-bottom: 0;
+}
+
 #accountTreeBox {
   margin-block: 28px;
   margin-inline: 28px 3px;
