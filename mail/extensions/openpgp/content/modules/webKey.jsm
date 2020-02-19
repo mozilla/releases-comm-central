@@ -84,7 +84,7 @@ var EnigmailWks = {
       this.isCanceled = true;
     };
 
-    if (!ids) throw "error";
+    if (!ids) throw new Error("error");
 
     if (ids.senderIdentities.length === 0) {
       return new Promise(resolve => {

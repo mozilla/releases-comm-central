@@ -445,7 +445,7 @@ MimeDecryptHandler.prototype = {
       if (!this.isUrlEnigmailConvert()) {
         this.returnData(EnigmailMimeDecrypt.emptyAttachment());
       } else {
-        throw "mimeDecrypt.jsm: Cannot decrypt messages with mixed (encrypted/non-encrypted) content";
+        throw new Error("Cannot decrypt messages with mixed (encrypted/non-encrypted) content");
       }
       return;
     }

@@ -334,8 +334,8 @@ var EnigmailFuncs = {
    */
   compareMimePartLevel: function(mime1, mime2) {
     let s = new RegExp("^[0-9]+(\\.[0-9]+)*$");
-    if (mime1.search(s) < 0) throw "Invalid mime1";
-    if (mime2.search(s) < 0) throw "Invalid mime2";
+    if (mime1.search(s) < 0) throw new Error("Invalid mime1");
+    if (mime2.search(s) < 0) throw new Error("Invalid mime2");
 
     let a1 = mime1.split(/\./);
     let a2 = mime2.split(/\./);

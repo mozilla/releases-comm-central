@@ -42,13 +42,13 @@ var gLastEncryptedUri = "";
 
 const throwErrors = {
   onDataAvailable: function() {
-    throw "error";
+    throw new Error("error");
   },
   onStartRequest: function() {
-    throw "error";
+    throw new Error("error");
   },
   onStopRequest: function() {
-    throw "error";
+    throw new Error("error");
   }
 };
 

@@ -242,7 +242,7 @@ var EnigmailAutoSetup = {
         let passwd = EnigmailWindows.autocryptSetupPasswd(passwordWindow, "input", res.passphraseFormat, res.passphraseHint);
 
         if ((!passwd) || passwd == "") {
-          throw "noPasswd";
+          throw new Error("noPasswd");
         }
 
         // TODO: await EnigmailAutocrypt.handleBackupMessage(passwd, res.attachmentData, headerValue.acSetupMessage.author);

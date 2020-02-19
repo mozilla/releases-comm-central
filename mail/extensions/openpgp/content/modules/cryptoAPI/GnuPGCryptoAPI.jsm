@@ -266,7 +266,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
   }
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {
-    throw "GnuPG genKey() not implemented";
+    throw new Error("GnuPG genKey() not implemented");
     return null;
   }
 

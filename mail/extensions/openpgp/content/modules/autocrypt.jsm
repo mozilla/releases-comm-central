@@ -68,7 +68,7 @@ var EnigmailAutocrypt = {
         fromAddr = EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
       }
       catch (ex) {
-        throw "processAutocryptHeader error " + ex;
+        throw new Error("processAutocryptHeader error " + ex);
       }
       let foundTypes = {};
       let paramArr = [];

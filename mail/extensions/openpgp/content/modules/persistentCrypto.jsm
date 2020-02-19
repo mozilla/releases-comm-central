@@ -332,7 +332,7 @@ CryptMessageIntoFolder.prototype = {
   decryptPGPMIME: async function(mimePart) {
     EnigmailLog.DEBUG("persistentCrypto.jsm: decryptPGPMIME(" + mimePart.partNum + ")\n");
 
-    if (!mimePart.subParts[1]) throw "Not a correct PGP/MIME message";
+    if (!mimePart.subParts[1]) throw new Error("Not a correct PGP/MIME message");
 
     const uiFlags = EnigmailConstants.UI_INTERACTIVE | EnigmailConstants.UI_UNVERIFIED_ENC_OK |
       EnigmailConstants.UI_IGNORE_MDC_ERROR;
@@ -356,7 +356,7 @@ CryptMessageIntoFolder.prototype = {
     if (!data || data.length === 0) {
       if (statusFlagsObj.value & EnigmailConstants.DISPLAY_MESSAGE) {
         getDialog().alert(null, errorMsgObj.value);
-        throw "Decryption impossible";
+        throw new Error("Decryption impossible");
       }
     }
 

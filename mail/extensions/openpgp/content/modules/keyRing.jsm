@@ -400,7 +400,7 @@ var EnigmailKeyRing = {
     console.debug(id);
     
     if (includeSecretKey) {
-      throw "extractKey with secret key not implemented";
+      throw new Error("extractKey with secret key not implemented");
     }
     
     if (!id.length) {
@@ -408,7 +408,7 @@ var EnigmailKeyRing = {
     }
     
     if (id.length > 1) {
-      throw "keyRing.jsm: EnigmailKeyRing.extractKey: multiple IDs not yet implemented";
+      throw new Error("keyRing.jsm: EnigmailKeyRing.extractKey: multiple IDs not yet implemented");
     }
 
     const cApi = EnigmailCryptoAPI();
@@ -495,11 +495,11 @@ var EnigmailKeyRing = {
     }
 
     if (limitedUids.length > 0) {
-      throw "importKeyAsync with limitedUids: not implemented";
+      throw new Error("importKeyAsync with limitedUids: not implemented");
     }
 
     if (minimizeKey) {
-      throw "importKeyAsync with minimizeKey: not implemented";
+      throw new Error("importKeyAsync with minimizeKey: not implemented");
     }
 
     const cApi = EnigmailCryptoAPI();

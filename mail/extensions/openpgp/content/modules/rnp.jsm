@@ -64,7 +64,7 @@ var RNP = {
     let allowed = new ctypes.bool;
 
     if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
-      throw "rnp_key_have_secret failed";
+      throw new Error("rnp_key_have_secret failed");
     }
 
     keyObj.secretAvailable = have_secret.value;
@@ -76,7 +76,7 @@ var RNP = {
     }
 
     if (RNPLib.rnp_key_get_keyid(handle, key_id.address())) {
-      throw "rnp_key_get_keyid failed";
+      throw new Error("rnp_key_get_keyid failed");
     }
     keyObj.keyId = key_id.readString();
     if (forListing) {
@@ -84,28 +84,28 @@ var RNP = {
     }
 
     if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
-      throw "rnp_key_get_fprint failed";
+      throw new Error("rnp_key_get_fprint failed");
     }
     keyObj.fpr = fingerprint.readString();
 
     if (RNPLib.rnp_key_get_alg(handle, algo.address())) {
-      throw "rnp_key_get_alg failed";
+      throw new Error("rnp_key_get_alg failed");
     }
     keyObj.algoSym = algo.readString();
     
     if (RNPLib.rnp_key_get_bits(handle, bits.address())) {
-      throw "rnp_key_get_bits failed";
+      throw new Error("rnp_key_get_bits failed");
     }
     keyObj.keySize = bits.value;
 
     if (RNPLib.rnp_key_get_creation(handle, key_creation.address())) {
-      throw "rnp_key_get_creation failed";
+      throw new Error("rnp_key_get_creation failed");
     }
     keyObj.keyCreated = key_creation.value;
     keyObj.created = EnigmailTime.getDateTime(keyObj.keyCreated, true, false);
 
     if (RNPLib.rnp_key_get_expiration(handle, key_expiration.address())) {
-      throw "rnp_key_get_creation failed";
+      throw new Error("rnp_key_get_creation failed");
     }
     if (key_expiration.value > 0) {
       keyObj.expiryTime = keyObj.keyCreated + key_expiration.value;
@@ -116,28 +116,28 @@ var RNP = {
 
     keyObj.keyUseFor = "";
     if (RNPLib.rnp_key_allows_usage(handle, str_encrypt, allowed.address())) {
-      throw "rnp_key_allows_usage failed";
+      throw new Error("rnp_key_allows_usage failed");
     }
     if (allowed.value) {
       keyObj.keyUseFor += "e";
       meta.e = true;
     }
     if (RNPLib.rnp_key_allows_usage(handle, str_sign, allowed.address())) {
-      throw "rnp_key_allows_usage failed";
+      throw new Error("rnp_key_allows_usage failed");
     }
     if (allowed.value) {
       keyObj.keyUseFor += "s";
       meta.s = true;
     }
     if (RNPLib.rnp_key_allows_usage(handle, str_certify, allowed.address())) {
-      throw "rnp_key_allows_usage failed";
+      throw new Error("rnp_key_allows_usage failed");
     }
     if (allowed.value) {
       keyObj.keyUseFor += "c";
       meta.c = true;
     }
     if (RNPLib.rnp_key_allows_usage(handle, str_authenticate, allowed.address())) {
-      throw "rnp_key_allows_usage failed";
+      throw new Error("rnp_key_allows_usage failed");
     }
     if (allowed.value) {
       keyObj.keyUseFor += "a";
@@ -192,16 +192,16 @@ var RNP = {
         let uid_count = new ctypes.size_t;
 
         if (RNPLib.rnp_locate_key(ffi, "grip", grip, handle.address())) {
-          throw "rnp_locate_key failed";
+          throw new Error("rnp_locate_key failed");
         }
         have_handle = true;
         if (RNPLib.rnp_key_is_sub(handle, is_subkey.address())) {
-          throw "rnp_key_is_sub failed";
+          throw new Error("rnp_key_is_sub failed");
         }
         if (is_subkey.value) {
           let primary_grip = new ctypes.char.ptr();
           if (RNPLib.rnp_key_get_primary_grip(handle, primary_grip.address())) {
-            throw "rnp_key_get_primary_grip failed";
+            throw new Error("rnp_key_get_primary_grip failed");
           }
           /* Skip if we have primary key. Subkey will be processed together with primary */
           if (!primary_grip.isNull()) {
@@ -214,7 +214,7 @@ var RNP = {
 
         let key_revoked = new ctypes.bool;
         if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
-          throw "rnp_key_is_revoked failed";
+          throw new Error("rnp_key_is_revoked failed");
         }
 
         if (key_revoked.value) {
@@ -236,7 +236,7 @@ var RNP = {
         let primary_uid_set = false;
 
         if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
-          throw "rnp_key_get_uid_count failed";
+          throw new Error("rnp_key_get_uid_count failed");
         }
         console.debug("rnp_key_get_uid_count: " + uid_count.value);
         for (let i = 0; i < uid_count.value; i++) {
@@ -244,17 +244,17 @@ var RNP = {
           let is_revoked = new ctypes.bool;
 
           if (RNPLib.rnp_key_get_uid_handle_at(handle, i, uid_handle.address())) {
-            throw "rnp_key_get_uid_handle_at failed";
+            throw new Error("rnp_key_get_uid_handle_at failed");
           }
 
           if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
-            throw "rnp_uid_is_revoked failed";
+            throw new Error("rnp_uid_is_revoked failed");
           }
 
           if (!is_revoked.value) {
             let uid_str = new ctypes.char.ptr;
             if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
-              throw "rnp_key_get_uid_at failed";
+              throw new Error("rnp_key_get_uid_at failed");
             }
             
             if (!primary_uid_set) {
@@ -280,13 +280,13 @@ var RNP = {
         }
 
         if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
-          throw "rnp_key_get_subkey_count failed";
+          throw new Error("rnp_key_get_subkey_count failed");
         }
         console.debug("rnp_key_get_subkey_count: " + sub_count.value);
         for (let i = 0; i < sub_count.value; i++) {
           let sub_handle = new RNPLib.rnp_key_handle_t;
           if (RNPLib.rnp_key_get_subkey_at(handle, i, sub_handle.address())) {
-              throw "rnp_key_get_subkey_at failed";
+              throw new Error("rnp_key_get_subkey_at failed");
           }
 
           let subKeyObj = {};
@@ -434,95 +434,95 @@ var RNP = {
 
     let genOp = new RNPLib.rnp_op_generate_t;
     if (RNPLib.rnp_op_generate_create(genOp.address(), RNPLib.ffi, primaryKeyType)) {
-      throw "rnp_op_generate_create primary failed";
+      throw new Error("rnp_op_generate_create primary failed");
     }
 
     if (RNPLib.rnp_op_generate_set_userid(genOp, userId)) {
-      throw "rnp_op_generate_set_userid failed";
+      throw new Error("rnp_op_generate_set_userid failed");
     }
     
     if (passphrase != null && passphrase.length != 0) {
       if (RNPLib.rnp_op_generate_set_protection_password(genOp, passphrase)) {
-        throw "rnp_op_generate_set_protection_password failed";
+        throw new Error("rnp_op_generate_set_protection_password failed");
       }
     }
     
     if (primaryKeyBits != 0) {
       if (RNPLib.rnp_op_generate_set_bits(genOp, primaryKeyBits)) {
-        throw "rnp_op_generate_set_bits primary failed";
+        throw new Error("rnp_op_generate_set_bits primary failed");
       }
     }
     
     if (primaryKeyCurve != null) {
       if (RNPLib.rnp_op_generate_set_curve(genOp, primaryKeyCurve)) {
-        throw "rnp_op_generate_set_curve primary failed";
+        throw new Error("rnp_op_generate_set_curve primary failed");
       }
     }
     
     if (expireSeconds != 0) {
       if (RNPLib.rnp_op_generate_set_expiration(genOp, expireSeconds)) {
-        throw "rnp_op_generate_set_expiration primary failed";
+        throw new Error("rnp_op_generate_set_expiration primary failed");
       }
     }
     
     if (RNPLib.rnp_op_generate_execute(genOp)) {
-      throw "rnp_op_generate_execute primary failed";
+      throw new Error("rnp_op_generate_execute primary failed");
     }
     
     let primaryKey = new RNPLib.rnp_key_handle_t;
     if (RNPLib.rnp_op_generate_get_key(genOp, primaryKey.address())) {
-      throw "rnp_op_generate_get_key primary failed";
+      throw new Error("rnp_op_generate_get_key primary failed");
     }
 
     RNPLib.rnp_op_generate_destroy(genOp);
 
     let ctypes_key_id = new ctypes.char.ptr;
     if (RNPLib.rnp_key_get_keyid(primaryKey, ctypes_key_id.address())) {
-      throw "rnp_key_get_keyid failed";
+      throw new Error("rnp_key_get_keyid failed");
     }
     newKeyId = ctypes_key_id.readString();
     
     if (RNPLib.rnp_op_generate_subkey_create(genOp.address(), RNPLib.ffi, primaryKey, subKeyType)) {
-      throw "rnp_op_generate_subkey_create primary failed";
+      throw new Error("rnp_op_generate_subkey_create primary failed");
     }
 
     if (passphrase != null && passphrase.length != 0) {
       if (RNPLib.rnp_op_generate_set_protection_password(genOp, passphrase)) {
-        throw "rnp_op_generate_set_protection_password failed";
+        throw new Error("rnp_op_generate_set_protection_password failed");
       }
     }
 
     if (subKeyBits != 0) {
       if (RNPLib.rnp_op_generate_set_bits(genOp, subKeyBits)) {
-        throw "rnp_op_generate_set_bits sub failed";
+        throw new Error("rnp_op_generate_set_bits sub failed");
       }
     }
     
     if (subKeyCurve != null) {
       if (RNPLib.rnp_op_generate_set_curve(genOp, subKeyCurve)) {
-        throw "rnp_op_generate_set_curve sub failed";
+        throw new Error("rnp_op_generate_set_curve sub failed");
       }
     }
     
     if (expireSeconds != 0) {
       if (RNPLib.rnp_op_generate_set_expiration(genOp, expireSeconds)) {
-        throw "rnp_op_generate_set_expiration sub failed";
+        throw new Error("rnp_op_generate_set_expiration sub failed");
       }
     }
 
     try {
       if (passphrase != null && passphrase.length != 0) {
         if (RNPLib.rnp_key_unlock(primaryKey, passphrase)) {
-          throw "rnp_key_unlock failed";
+          throw new Error("rnp_key_unlock failed");
         }
       }
 
       if (RNPLib.rnp_op_generate_execute(genOp)) {
-        throw "rnp_op_generate_execute sub failed";
+        throw new Error("rnp_op_generate_execute sub failed");
       }
     } finally {
       if (RNPLib.rnp_key_lock(primaryKey)) {
-        throw "rnp_key_lock failed";
+        throw new Error("rnp_key_lock failed");
       }
     }
 
@@ -599,7 +599,7 @@ var RNP = {
 
     let handle = new RNPLib.rnp_key_handle_t;
     if (RNPLib.rnp_locate_key(RNPLib.ffi, "fingerprint", keyFingerprint, handle.address())) {
-      throw "rnp_locate_key failed";
+      throw new Error("rnp_locate_key failed");
     }
 
     let flags = RNPLib.RNP_KEY_REMOVE_PUBLIC;
@@ -620,14 +620,14 @@ var RNP = {
     let key = null;
     
     if (id.startsWith("<")) {
-      //throw "search by email address not yet implemented: " + id;
+      //throw new Error("search by email address not yet implemented: " + id);
       if (!id.endsWith(">")) {
-        throw "if search identifier starts with < then it must end with > : " + id;
+        throw new Error("if search identifier starts with < then it must end with > : " + id);
       }
       key = this.findKeyByEmail(id);
     } else {
       if (!id.startsWith("0x")) {
-        throw "unexpected identifier " + id;
+        throw new Error("unexpected identifier " + id);
       } else {
         // remove 0x
         id = id.substring(2);
@@ -639,12 +639,12 @@ var RNP = {
       } else if (id.length == 40 || id.length == 32) {
         type = "fingerprint";
       } else {
-        throw "key/fingerprint identifier of unexpected length: " + id;
+        throw new Error("key/fingerprint identifier of unexpected length: " + id);
       }
 
       key = new RNPLib.rnp_key_handle_t;
       if (RNPLib.rnp_locate_key(RNPLib.ffi, type, id, key.address())) {
-        throw "rnp_locate_key failed, " + type + ", " + id;
+        throw new Error("rnp_locate_key failed, " + type + ", " + id);
       }
     }
     
@@ -655,7 +655,7 @@ var RNP = {
       let is_subkey = new ctypes.bool;
       let res = RNPLib.rnp_key_is_sub(key, is_subkey.address());
       if (res) {
-        throw "rnp_key_is_sub failed: " + res;
+        throw new Error("rnp_key_is_sub failed: " + res);
       }
       console.debug("is_primary? " + !is_subkey.value);
     }
@@ -666,7 +666,7 @@ var RNP = {
   isKeyUsableFor(key, usage) {
     let allowed = new ctypes.bool;
     if (RNPLib.rnp_key_allows_usage(key, usage, allowed.address())) {
-      throw "rnp_key_allows_usage failed";
+      throw new Error("rnp_key_allows_usage failed");
     }
     return allowed.value;
   },
@@ -675,23 +675,23 @@ var RNP = {
     let found_handle = null;
     let sub_count = new ctypes.size_t;
     if (RNPLib.rnp_key_get_subkey_count(primary, sub_count.address())) {
-      throw "rnp_key_get_subkey_count failed";
+      throw new Error("rnp_key_get_subkey_count failed");
     }
     for (let i = 0; i < sub_count.value; i++) {
       let sub_handle = new RNPLib.rnp_key_handle_t;
       if (RNPLib.rnp_key_get_subkey_at(primary, i, sub_handle.address())) {
-          throw "rnp_key_get_subkey_at failed";
+          throw new Error("rnp_key_get_subkey_at failed");
       }
       let expiration = new ctypes.uint32_t;
       if (RNPLib.rnp_key_get_expiration(sub_handle, expiration.address())) {
-        throw "rnp_key_get_expiration failed";
+        throw new Error("rnp_key_get_expiration failed");
       }
       let skip = false;
       if (expiration.value != 0) {
         let now_seconds = Math.floor(Date.now()/1000);
         let creation = new ctypes.uint32_t;
         if (RNPLib.rnp_key_get_creation(sub_handle, creation.address())) {
-          throw "rnp_key_get_expiration failed";
+          throw new Error("rnp_key_get_expiration failed");
         }
         let expiration_seconds = creation.value + expiration.value;
         console.debug("now: " + now_seconds + " vs. subkey creation+expiration in seconds: " + expiration_seconds);
@@ -720,7 +720,7 @@ var RNP = {
 
         let fingerprint = new ctypes.char.ptr;
         if (RNPLib.rnp_key_get_fprint(found_handle, fingerprint.address())) {
-          throw "rnp_key_get_fprint failed";
+          throw new Error("rnp_key_get_fprint failed");
         }
         console.debug("found suitable subkey, fingerprint: " + fingerprint.readString());
         break;
@@ -740,14 +740,14 @@ var RNP = {
       console.debug("addSuitableEncryptKey primary not usable");
       use_sub = this.getSuitableSubkey(key, str_encrypt);
       if (!use_sub) {
-        throw "no suitable subkey found for " + str_encrypt;
+        throw new Error("no suitable subkey found for " + str_encrypt);
       } else {
         console.debug("addSuitableEncryptKey using subkey");
       }
     }
 
     if (RNPLib.rnp_op_encrypt_add_recipient(op, (use_sub != null) ? use_sub : key)) {
-      throw "rnp_op_encrypt_add_recipient sender failed";
+      throw new Error("rnp_op_encrypt_add_recipient sender failed");
     }
     if (use_sub) {
       RNPLib.rnp_key_handle_destroy(use_sub);
@@ -771,7 +771,7 @@ var RNP = {
     let input = new RNPLib.rnp_input_t;
     if (RNPLib.rnp_input_from_memory(input.address(), plaintext_array,
           plaintext.length, false)) {
-      throw "rnp_input_from_memory failed";
+      throw new Error("rnp_input_from_memory failed");
     }
 
     let output = new RNPLib.rnp_output_t;
@@ -782,25 +782,25 @@ var RNP = {
       op = new RNPLib.rnp_op_encrypt_t;
       if (RNPLib.rnp_op_encrypt_create(op.address(), RNPLib.ffi,
           input, output)) {
-        throw "rnp_op_encrypt_create failed";
+        throw new Error("rnp_op_encrypt_create failed");
       }
     } else if (args.sign) {
       op = new RNPLib.rnp_op_sign_t;
       if (args.sigTypeClear) {
         if (RNPLib.rnp_op_sign_cleartext_create(op.address(), RNPLib.ffi,
             input, output)) {
-          throw "rnp_op_sign_cleartext_create failed";
+          throw new Error("rnp_op_sign_cleartext_create failed");
         }
       } else  if (args.sigTypeDetached) {
         if (RNPLib.rnp_op_sign_detached_create(op.address(), RNPLib.ffi,
             input, output)) {
-          throw "rnp_op_sign_detached_create failed";
+          throw new Error("rnp_op_sign_detached_create failed");
         }
       } else {
-        throw "not yet implemented scenario: signing, neither clear nor encrypt, without encryption";
+        throw new Error("not yet implemented scenario: signing, neither clear nor encrypt, without encryption");
       }
     } else {
-      throw "invalid parameters, neither encrypt nor sign";
+      throw new Error("invalid parameters, neither encrypt nor sign");
     }
 
     let senderKey = null;
@@ -817,20 +817,20 @@ var RNP = {
         if (!this.isKeyUsableFor(senderKey, str_sign)) {
           use_sub = this.getSuitableSubkey(senderKey, str_sign);
           if (!use_sub) {
-            throw "no suitable subkey found for " + str_sign;
+            throw new Error("no suitable subkey found for " + str_sign);
           }
         }
         if (args.encrypt) {
           if (RNPLib.rnp_op_encrypt_add_signature(op, 
               (use_sub != null) ? use_sub : senderKey, 
               null)) {
-            throw "rnp_op_encrypt_add_signature failed";
+            throw new Error("rnp_op_encrypt_add_signature failed");
           }
         } else {
           if (RNPLib.rnp_op_sign_add_signature(op, 
               use_sub ? use_sub : senderKey, 
               null)) {
-            throw "rnp_op_sign_add_signature failed";
+            throw new Error("rnp_op_sign_add_signature failed");
           }
         }
         if (use_sub) {
@@ -864,22 +864,22 @@ var RNP = {
       // TODO decide if our compatibility requirements allow us to
       // use AEAD
       if (RNPLib.rnp_op_encrypt_set_cipher(op, "AES256")) {
-        throw "rnp_op_encrypt_set_cipher failed";
+        throw new Error("rnp_op_encrypt_set_cipher failed");
       }
 
       // TODO, map args.signatureHash string to RNP and call
       //       rnp_op_encrypt_set_hash
       if (RNPLib.rnp_op_encrypt_set_hash(op, "SHA256")) {
-        throw "rnp_op_encrypt_set_hash failed";
+        throw new Error("rnp_op_encrypt_set_hash failed");
       }
 
       if (RNPLib.rnp_op_encrypt_set_armor(op, args.armor)) {
-        throw "rnp_op_encrypt_set_armor failed";
+        throw new Error("rnp_op_encrypt_set_armor failed");
       }
 
       let rv = RNPLib.rnp_op_encrypt_execute(op);
       if (rv) {
-        throw "rnp_op_encrypt_execute failed: " + rv;
+        throw new Error("rnp_op_encrypt_execute failed: " + rv);
       }
       RNPLib.rnp_op_encrypt_destroy(op);
 
@@ -932,7 +932,7 @@ var RNP = {
 
   findKeyByEmail(id) {
     if (!id.startsWith("<") || !id.endsWith(">")) {
-      throw "invalid parameter given to findKeyByEmail";
+      throw new Error("invalid parameter given to findKeyByEmail");
     }
 
     let keys = [];
@@ -960,11 +960,11 @@ var RNP = {
         let uid_count = new ctypes.size_t;
 
         if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
-          throw "rnp_locate_key failed";
+          throw new Error("rnp_locate_key failed");
         }
         have_handle = true;
         if (RNPLib.rnp_key_is_sub(handle, is_subkey.address())) {
-          throw "rnp_key_is_sub failed";
+          throw new Error("rnp_key_is_sub failed");
         }
         if (is_subkey.value) {
           continue;
@@ -972,7 +972,7 @@ var RNP = {
 
         let key_revoked = new ctypes.bool;
         if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
-          throw "rnp_key_is_revoked failed";
+          throw new Error("rnp_key_is_revoked failed");
         }
 
         if (key_revoked.value) {
@@ -980,7 +980,7 @@ var RNP = {
         }
 
         if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
-          throw "rnp_key_get_uid_count failed";
+          throw new Error("rnp_key_get_uid_count failed");
         }
         console.debug("rnp_key_get_uid_count: " + uid_count.value);
         for (let i = 0; i < uid_count.value; i++) {
@@ -988,17 +988,17 @@ var RNP = {
           let is_revoked = new ctypes.bool;
 
           if (RNPLib.rnp_key_get_uid_handle_at(handle, i, uid_handle.address())) {
-            throw "rnp_key_get_uid_handle_at failed";
+            throw new Error("rnp_key_get_uid_handle_at failed");
           }
 
           if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
-            throw "rnp_uid_is_revoked failed";
+            throw new Error("rnp_uid_is_revoked failed");
           }
 
           if (!is_revoked.value) {
             let uid_str = new ctypes.char.ptr;
             if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
-              throw "rnp_key_get_uid_at failed";
+              throw new Error("rnp_key_get_uid_at failed");
             }
 
             let userId = uid_str.readString();
@@ -1043,7 +1043,7 @@ var RNP = {
     RNPLib.rnp_output_to_memory(output_to_memory.address(), 0);
 
     if (RNPLib.rnp_key_export(key, output_to_memory, flags)) {
-      throw "rnp_key_export failed";
+      throw new Error("rnp_key_export failed");
     }
 
     let result_buf = new ctypes.uint8_t.ptr();

@@ -2510,7 +2510,7 @@ Enigmail.msg = {
         passwd = EnigmailWindows.autocryptSetupPasswd(window, "input", res.passphraseFormat, passwd || res.passphraseHint);
 
         if ((!passwd) || passwd == "") {
-          throw "noPasswd";
+          throw new Error("noPasswd");
         }
 
         // TODO: return EnigmailAutocrypt.handleBackupMessage(passwd, res.attachmentData, currentHeaderData.from.headerValue);

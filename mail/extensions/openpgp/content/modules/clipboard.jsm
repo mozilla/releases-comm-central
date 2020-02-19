@@ -53,7 +53,9 @@ var EnigmailClipboard = {
    */
 
   getClipboardContent: function(window, clipBoardType) {
-    if (!window) throw "erorr - window must not be null";
+    if (!window) {
+      throw new Error("window is a required parameter");
+    }
 
     let clipBoard = Cc["@mozilla.org/widget/clipboard;1"].getService(Ci.nsIClipboard);
     let data = {};
