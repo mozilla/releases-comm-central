@@ -12,28 +12,11 @@ const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/loca
 const EnigmailBuildDate = ChromeUtils.import("chrome://openpgp/content/modules/buildDate.jsm").EnigmailBuildDate;
 const EnigmailApp = ChromeUtils.import("chrome://openpgp/content/modules/app.jsm").EnigmailApp;
 const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailGpgAgent = ChromeUtils.import("chrome://openpgp/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
 const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 function getEnigmailVersion() {
   let versionStr = EnigmailApp.getVersion() + " (" + EnigmailBuildDate.built + ")";
   return EnigmailLocale.getString("usingVersion", versionStr);
-}
-
-function getGpgWorking() {
-  var enigmailSvc = EnigmailCore.getService();
-
-  var agentStr;
-  if (enigmailSvc) {
-    agentStr = EnigmailLocale.getString("usingAgent", [EnigmailGpgAgent.agentType, EnigmailGpgAgent.agentPath.path]);
-  } else {
-    agentStr = EnigmailLocale.getString("agentError");
-
-    if (enigmailSvc && enigmailSvc.initializationError)
-      agentStr += "\n" + enigmailSvc.initializationError;
-  }
-
-  return agentStr;
 }
 
 var EnigmailLocalizeHtml = {
@@ -48,7 +31,6 @@ var EnigmailLocalizeHtml = {
     return matchingElements;
   },
 
-
   onPageLoad: function(doc) {
     let elem = this.getAllElementsWithAttribute(doc, "txtId");
 
@@ -59,10 +41,10 @@ var EnigmailLocalizeHtml = {
 
       switch (txtId) {
         case "FNC_enigmailVersion":
-          node.innerHTML = getEnigmailVersion();
+          node.innerHTML = "no version";
           break;
         case "FNC_isGpgWorking":
-          node.innerHTML = getGpgWorking();
+          node.innerHTML = "no agent";
           break;
         default:
           node.innerHTML = EnigmailLocale.getString(txtId, param);

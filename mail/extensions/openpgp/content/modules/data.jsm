@@ -21,7 +21,7 @@ function converter(charset) {
 
 var EnigmailData = {
   getUnicodeData: function(data) {
-    // convert output from subprocess to Unicode
+    // convert output to Unicode
     var tmpStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
     tmpStream.setData(data, data.length);
     var inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);

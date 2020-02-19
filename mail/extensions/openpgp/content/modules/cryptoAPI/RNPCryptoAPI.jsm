@@ -40,21 +40,6 @@ const EnigmailLocale = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
 ).EnigmailLocale;
 
-/*
-const {
-  obtainKeyList,
-  createKeyObj,
-  getPhotoFileFromGnuPG,
-  extractSignatures,
-  getGpgKeyData
-} = ChromeUtils.import("chrome://openpgp/content/cryptoAPI/gnupg-keylist.jsm");
-
-const {
-  GnuPG_importKeyFromFile,
-  GnuPG_extractSecretKey
-} = ChromeUtils.import("chrome://openpgp/content/cryptoAPI/gnupg-key.jsm");
-*/
-
 /**
  * RNP implementation of CryptoAPI
  */
@@ -76,13 +61,6 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   /**
-   * Get groups defined in gpg.conf in the same structure as KeyObject
-   *
-   * @return {Array of KeyObject} with type = "grp"
-   */
-  getGroups() {}
-
-  /**
    * Obtain signatures for a given set of key IDs.
    *
    * @param {String}  keyId:            space-separated list of key IDs
@@ -90,7 +68,9 @@ class RNPCryptoAPI extends CryptoAPI {
    *
    * @return {Promise<Array of Object>} - see extractSignatures()
    */
-  async getKeySignatures(keyId, ignoreUnknownUid = false) {}
+  async getKeySignatures(keyId, ignoreUnknownUid = false) {
+    throw new Error("Not implemented");
+  }
 
   /**
    * Export the minimum key for the public key object:
@@ -106,7 +86,9 @@ class RNPCryptoAPI extends CryptoAPI {
    *    - errorMsg (if exitCode != 0)
    *    - keyData: BASE64-encded string of key data
    */
-  async getMinimalPubKey(fpr, email, subkeyDates) {}
+  async getMinimalPubKey(fpr, email, subkeyDates) {
+    throw new Error("Not implemented");
+  }
 
   /**
    * Extract a photo ID from a key, store it as file and return the file object.
@@ -116,7 +98,9 @@ class RNPCryptoAPI extends CryptoAPI {
    *
    * @return {nsIFile} object or null in case no data / error.
    */
-  async getPhotoFile(keyId, photoNumber) {}
+  async getPhotoFile(keyId, photoNumber) {
+    throw new Error("Not implemented");
+  }
 
   async importKeyBlock(keyBlock) {
     // TODO: get status results
@@ -137,7 +121,9 @@ class RNPCryptoAPI extends CryptoAPI {
    *   - {Number}          importSum:       total number of processed keys
    *   - {Number}          importUnchanged: number of unchanged keys
    */
-  async importKeyFromFile(inputFile) {}
+  async importKeyFromFile(inputFile) {
+    throw new Error("Not implemented");
+  }
 
   /**
    * Export secret key(s) to a file
@@ -151,7 +137,9 @@ class RNPCryptoAPI extends CryptoAPI {
    *   - {String} errorMsg:  error message in case exitCode !== 0
    */
 
-  async extractSecretKey(keyId, minimalKey) {}
+  async extractSecretKey(keyId, minimalKey) {
+    throw new Error("Not implemented");
+  }
 
   /**
    *
@@ -160,7 +148,9 @@ class RNPCryptoAPI extends CryptoAPI {
    * @return {String or null} - the name of the attached file
    */
 
-  async getFileName(byteData) {}
+  async getFileName(byteData) {
+    throw new Error("Not implemented");
+  }
 
   /**
    *
@@ -173,7 +163,9 @@ class RNPCryptoAPI extends CryptoAPI {
    * The message will be an error message in this case.
    */
 
-  async verifyAttachment(filePath, sigPath) {}
+  async verifyAttachment(filePath, sigPath) {
+    throw new Error("Not implemented");
+  }
 
   /**
    *
@@ -186,7 +178,9 @@ class RNPCryptoAPI extends CryptoAPI {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  async decryptAttachment(encrypted) {}
+  async decryptAttachment(encrypted) {
+    throw new Error("Not implemented");
+  }
 
   /**
    *

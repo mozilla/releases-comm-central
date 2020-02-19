@@ -15,16 +15,10 @@
 var EXPORTED_SYMBOLS = ["EnigmailWks"];
 
 
-
-
-
 const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
 const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
 const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailExecution = ChromeUtils.import("chrome://openpgp/content/modules/execution.jsm").EnigmailExecution;
-const EnigmailGpgAgent = ChromeUtils.import("chrome://openpgp/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
 const EnigmailStdlib = ChromeUtils.import("chrome://openpgp/content/modules/stdlib.jsm").EnigmailStdlib;
-const EnigmailSend = ChromeUtils.import("chrome://openpgp/content/modules/send.jsm").EnigmailSend;
 const EnigmailMimeEncrypt = ChromeUtils.import("chrome://openpgp/content/modules/mimeEncrypt.jsm").EnigmailMimeEncrypt;
 const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
 const EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
@@ -45,59 +39,7 @@ var EnigmailWks = {
    */
   getWksClientPathAsync: function(window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: getWksClientPathAsync\n");
-
-    if (EnigmailWks.wksClientPath === null) {
-      let listener = EnigmailExecution.newSimpleListener(null, function(ret) {
-        if (ret === 0) {
-          try {
-            let stdout = listener.stdoutData;
-
-            let libexecdir = /^libexecdir:(.+?)$/m.exec(stdout)[1];
-            if (libexecdir) {
-              libexecdir = libexecdir.replace(/%3a/gi, ":");
-            }
-            else {
-              libexecdir = "";
-            }
-
-            let wks_client = checkIfExists(libexecdir, GPG_WKS_CLIENT);
-            if (!wks_client) {
-              let bindir = /^bindir:(.+?)$/m.exec(stdout)[1];
-              if (bindir) {
-                bindir = bindir.replace(/%3a/gi, ":");
-              }
-              else {
-                bindir = "";
-              }
-              wks_client = checkIfExists(bindir, GPG_WKS_CLIENT);
-
-              if (!wks_client) {
-                cb(null);
-                return;
-              }
-            }
-
-            EnigmailWks.wksClientPath = wks_client;
-            cb(wks_client);
-          }
-          catch (e) {
-            EnigmailLog.DEBUG("webKey.jsm: getWksClientPathAsync: " + e.toString() + "\n");
-            cb(null);
-          }
-        }
-        else {
-          cb(null);
-        }
-      });
-
-      return EnigmailExecution.execStart(EnigmailGpgAgent.gpgconfPath, ["--list-dirs"], false, window, listener, {
-        value: null
-      });
-    }
-    else {
-      cb(EnigmailWks.wksClientPath);
-      return null;
-    }
+    throw new Error("Not implemented");
   },
 
   /**
@@ -111,20 +53,7 @@ var EnigmailWks = {
    */
   isWksSupportedAsync: function(email, window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: isWksSupportedAsync: email = " + email + "\n");
-    return EnigmailWks.getWksClientPathAsync(window, function(wks_client) {
-      if (wks_client === null) {
-        cb(false);
-      }
-      let listener = EnigmailExecution.newSimpleListener(null, function(ret) {
-        cb(ret === 0);
-      });
-      let proc = EnigmailExecution.execStart(wks_client, ["--supported", email], false, window, listener, {
-        value: null
-      });
-      if (proc === null) {
-        cb(false);
-      }
-    });
+    throw new Error("Not implemented");
   },
 
 
@@ -179,45 +108,7 @@ var EnigmailWks = {
 
   submitKey: function(ident, key, window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: submitKey(): email = " + ident.email + "\n");
-    return EnigmailWks.getWksClientPathAsync(window, function(wks_client) {
-      if (wks_client === null) {
-        cb(false);
-        return null;
-      }
-      let listener = EnigmailExecution.newSimpleListener(null, function(ret) {
-        if (ret !== 0) {
-          cb(false);
-          return;
-        }
-        EnigmailLog.DEBUG("webKey.jsm: submitKey: send " + listener.stdoutData + "\n");
-        let si = EnigmailMimeEncrypt.createMimeEncrypt(null);
-        let subject = listener.stdoutData.match(/^Subject:[ \t]*(.+)$/im);
-        let to = listener.stdoutData.match(/^To:[ \t]*(.+)$/im);
-
-        if (subject !== null && to !== null) {
-          si.sendFlags = EnigmailConstants.SEND_VERBATIM;
-
-          if (!EnigmailSend.simpleSendMessage({
-                urls: [],
-                identity: ident,
-                to: to[1],
-                subject: subject[1],
-                composeSecure: si
-              },
-              listener.stdoutData,
-              cb
-            )) {
-            cb(false);
-          }
-        }
-        else {
-          cb(false);
-        }
-      });
-      return EnigmailExecution.execStart(wks_client, ["--create", key.fpr, ident.email], false, window, listener, {
-        value: null
-      });
-    });
+    throw new Error("Not implemented");
   },
 
   /**
@@ -234,60 +125,7 @@ var EnigmailWks = {
 
   confirmKey: function(ident, body, window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: confirmKey: ident=" + ident.email + "\n");
-
-    var sanitized = body.replace(/\r?\n/g, "\r\n");
-    return EnigmailWks.getWksClientPathAsync(window, function(wks_client) {
-      if (wks_client === null) {
-        if (cb) {
-          cb(false);
-        }
-        return;
-      }
-      let listener = EnigmailExecution.newSimpleListener(function(pipe) {
-        try {
-          pipe.write(sanitized);
-          pipe.close();
-        }
-        catch (e) {
-          if (cb) {
-            cb(false);
-          }
-          EnigmailLog.DEBUG(e + "\n");
-        }
-      }, function(ret) {
-        try {
-          let si = EnigmailMimeEncrypt.createMimeEncrypt(null);
-          let subject = listener.stdoutData.match(/^Subject:[ \t]*(.+)$/im);
-          let to = listener.stdoutData.match(/^To:[ \t]*(.+)$/im);
-
-          if (subject !== null && to !== null) {
-            si.sendFlags = EnigmailConstants.SEND_VERBATIM;
-
-            if (!EnigmailSend.simpleSendMessage({
-                  urls: [],
-                  identity: ident,
-                  to: to[1],
-                  subject: subject[1],
-                  composeSecure: si
-                },
-                listener.stdoutData,
-                cb
-              )) {
-              cb(false);
-            }
-          }
-        }
-        catch (e) {
-          if (cb) {
-            cb(false);
-          }
-          EnigmailLog.DEBUG(e + "\n");
-        }
-      });
-      EnigmailExecution.execStart(wks_client, ["--receive"], false, window, listener, {
-        value: null
-      });
-    });
+    throw new Error("Not implemented");
   }
 };
 

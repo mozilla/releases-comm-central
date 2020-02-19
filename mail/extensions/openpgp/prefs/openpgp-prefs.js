@@ -5,12 +5,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// 0: disable openpgp
-// 1: use internal default engine
-// 2: use gnupg engine
-pref("temp.openpgp.engine", 0);
-
-
 /**
  * Default pref values for Enigmail
  */
@@ -21,12 +15,6 @@ pref("temp.openpgp.configuredVersion", "");
 
 // Hide prefs and menu entries from non-advanced users
 pref("temp.openpgp.advancedUser", false);
-
-// additional parameter(s) to pass to GnuPG
-pref("temp.openpgp.agentAdditionalParam", "");
-
-// path to gpg executable
-pref("temp.openpgp.agentPath", "");
 
 // ** enigmail keySel preferences:
 // use rules to assign keys
@@ -61,9 +49,6 @@ pref("temp.openpgp.displaySecondaryUid", true);
 
 // treat '-- ' as signature separator
 pref("temp.openpgp.doubleDashSeparator", true);
-
-// last state of dialog to choose encryption method if there are attachments
-pref("temp.openpgp.encryptAttachments", 1);
 
 // skip the attachments dialog
 pref("temp.openpgp.encryptAttachmentsSkipDlg", 0);

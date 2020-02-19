@@ -16,7 +16,6 @@ const EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/key
 const EnigmailKeyserverURIs = ChromeUtils.import("chrome://openpgp/content/modules/keyserverUris.jsm").EnigmailKeyserverURIs;
 const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
 const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailExecution = ChromeUtils.import("chrome://openpgp/content/modules/execution.jsm").EnigmailExecution;
 const EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm").EnigmailGpg;
 const EnigmailHttpProxy = ChromeUtils.import("chrome://openpgp/content/modules/httpProxy.jsm").EnigmailHttpProxy;
 const EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm").EnigmailOS;
@@ -836,58 +835,24 @@ const accessGnuPG = {
    */
   accessKeyServer: function(actionFlag, keyserver, keyId, listener) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG: accessKeyServer(${keyserver})\n`);
+    throw new Error("Not implemented");
 
-    let processHandle = {
-      value: null
-    };
-
-    if (listener) {
-      listener._isCancelled = 0;
-      listener.onCancel = function() {
-        EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG: accessKeyServer: onCancel\n`);
-
-        if (processHandle.value) {
-          processHandle.value.killProcess();
-        }
-        this._isCancelled = 1;
-      };
-    }
-
+    /*
     if (keyserver === null) {
       keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
     }
 
-    let args = EnigmailGpg.getStandardArgs(true);
-    args.push("--log-file");
-    args.push(EnigmailOS.isWin32 ? "NUL" : "/dev/null");
-    args.push("--with-colons");
-
-    let cmd = "";
-
     let proxyHost = EnigmailHttpProxy.getHttpProxy();
-    if (proxyHost) {
-      args = args.concat(["--keyserver-options", "http-proxy=" + proxyHost]);
-    }
-
-    args.push("--keyserver");
-    args.push(keyserver);
 
     switch (actionFlag) {
       case EnigmailConstants.SEARCH_KEY:
-        cmd = "--search-keys";
         break;
       case EnigmailConstants.DOWNLOAD_KEY:
-        cmd = "--recv-keys";
         break;
       case EnigmailConstants.UPLOAD_KEY:
-        cmd = "--send-keys";
         break;
     }
-
-    args.push(cmd);
-    args = args.concat(keyId.split(/ +/));
-
-    return EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, "", processHandle);
+    */
   },
 
   parseStatusMsg: function(execResult) {

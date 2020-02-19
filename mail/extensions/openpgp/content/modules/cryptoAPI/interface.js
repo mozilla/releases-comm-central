@@ -99,16 +99,6 @@ class CryptoAPI {
   }
 
   /**
-   * Get groups defined in gpg.conf in the same structure as KeyObject
-   * [synchronous]
-   *
-   * @return {Array of KeyObject} with type = "grp"
-   */
-  getGroups() {
-    return [];
-  }
-
-  /**
    * Extract a photo ID from a key, store it as file and return the file object.
    *
    * @param {String} keyId:       Key ID / fingerprint

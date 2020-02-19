@@ -18,7 +18,6 @@ const EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/key
 const EnigmailZBase32 = ChromeUtils.import("chrome://openpgp/content/modules/zbase32.jsm").EnigmailZBase32;
 const EnigmailOpenPGP = ChromeUtils.import("chrome://openpgp/content/modules/openpgp.jsm").EnigmailOpenPGP;
 const EnigmailKey = ChromeUtils.import("chrome://openpgp/content/modules/key.jsm").EnigmailKey;
-const EnigmailDns = ChromeUtils.import("chrome://openpgp/content/modules/dns.jsm").EnigmailDns;
 const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
 const EnigmailSqliteDb = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb.jsm").EnigmailSqliteDb;
 
@@ -403,6 +402,8 @@ async function getSiteSpecificUrl(emailAddr) {
   }
 
   if (!url) {
+    throw new Error("EnigmailWkdLookup getSiteSpecificUrl with DNS not implemented");
+    /*
     try {
       let mxHosts = await EnigmailDns.lookup("MX", domain);
       if (mxHosts & mxHosts.indexOf("mail.protonmail.ch") >= 0 ||
@@ -411,6 +412,7 @@ async function getSiteSpecificUrl(emailAddr) {
       }
     }
     catch (ex) {}
+    */
   }
 
   return url;

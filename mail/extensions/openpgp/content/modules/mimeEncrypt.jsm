@@ -700,7 +700,6 @@ PgpMimeEncrypt.prototype = {
 
     if (this.exitCode !== 0)
       EnigmailDialog.alert(this.win, retStatusObj.errorMsg);
-
   },
 };
 

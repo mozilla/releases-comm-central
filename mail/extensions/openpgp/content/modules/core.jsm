@@ -13,13 +13,11 @@ const {
 } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-const subprocess = ChromeUtils.import("chrome://openpgp/content/modules/subprocess.jsm").subprocess;
 const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
 
 // load all modules lazily to avoid possible cross-reference errors
 const getEnigmailConsole = EnigmailLazy.loader("enigmail/pipeConsole.jsm", "EnigmailConsole");
-//const getEnigmailGpgAgent = EnigmailLazy.loader("enigmail/gpgAgent.jsm", "EnigmailGpgAgent");
 const getEnigmailMimeEncrypt = EnigmailLazy.loader("enigmail/mimeEncrypt.jsm", "EnigmailMimeEncrypt");
 const getEnigmailProtocolHandler = EnigmailLazy.loader("enigmail/protocolHandler.jsm", "EnigmailProtocolHandler");
 const getEnigmailFiltersWrapper = EnigmailLazy.loader("enigmail/filtersWrapper.jsm", "EnigmailFiltersWrapper");
@@ -122,7 +120,6 @@ var EnigmailCore = {
     getEnigmailFiltersWrapper().onShutdown();
     getEnigmailVerify().unregisterContentTypeHandler();
 
-    //getEnigmailGpgAgent().finalize();
     getEnigmailLocale().shutdown();
     getEnigmailLog().onShutdown();
 
@@ -223,29 +220,6 @@ function initializeLogging(env) {
   }
 }
 
-function initializeSubprocessLogging(env) {
-  const nspr_log_modules = env.get("NSPR_LOG_MODULES");
-  const matches = nspr_log_modules.match(/subprocess:(\d+)/);
-
-  subprocess.registerLogHandler(function(txt) {
-    getEnigmailLog().ERROR("subprocess.jsm: " + txt);
-  });
-
-  if (matches && matches.length > 1 && matches[1] > 2) {
-    subprocess.registerDebugHandler(function(txt) {
-      getEnigmailLog().DEBUG("subprocess.jsm: " + txt);
-    });
-  }
-}
-
-function initializeAgentInfo() {
-  return;
-
-  if (!getEnigmailOS().isDosLike && !getEnigmailGpgAgent().isDummy()) {
-    EnigmailCore.addToEnvList("GPG_AGENT_INFO=" + getEnigmailGpgAgent().gpgAgentInfo.envStr);
-  }
-}
-
 function failureOn(ex, status) {
   status.initializationError = getEnigmailLocale().getString("enigmailNotAvailable");
   getEnigmailLog().ERROR("core.jsm: Enigmail.initialize: Error - " + status.initializationError + "\n");
@@ -340,7 +314,6 @@ Enigmail.prototype = {
 
     this.environment = getEnvironment(this);
 
-    initializeSubprocessLogging(this.environment);
     initializeEnvironment(this.environment);
 
     try {
@@ -348,11 +321,6 @@ Enigmail.prototype = {
     } catch (ex) {
       failureOn(ex, this);
     }
-
-    //getEnigmailGpgAgent().setAgentPath(domWindow, this, gPreferredGpgPath);
-    //getEnigmailGpgAgent().detectGpgAgent(domWindow, this);
-
-    //initializeAgentInfo();
 
     //getEnigmailKeyRefreshService().start(getEnigmailKeyServer());
 
@@ -368,7 +336,6 @@ Enigmail.prototype = {
 
     getEnigmailConsole().write("Reinitializing Enigmail service ...\n");
     initializeEnvironment(this.environment);
-    //getEnigmailGpgAgent().setAgentPath(null, this, gPreferredGpgPath);
     this.initialized = true;
   },
 
@@ -443,13 +410,6 @@ Enigmail.prototype = {
       const configuredVersion = getEnigmailPrefs().getPref("configuredVersion");
 
       getEnigmailLog().DEBUG("core.jsm: getService: last used version: " + configuredVersion + "\n");
-
-      /*
-      if (firstInitialization && this.initialized &&
-        getEnigmailGpgAgent().agentType === "pgp") {
-        getEnigmailDialog().alert(win, getEnigmailLocale().getString("pgpNotSupported"));
-      }
-      */
 
       if (this.initialized && (getEnigmailApp().getVersion() != configuredVersion)) {
         getEnigmailConfigure().configureEnigmail(win, startingPreferences);

@@ -301,7 +301,7 @@ MimeDecryptHandler.prototype = {
     return ret;
   },
 
-  // cache encrypted data for writing to subprocess
+  // cache encrypted data
   cacheData: function(str) {
     if (gDebugLogLevel > 4)
       LOCAL_DEBUG("mimeDecrypt.jsm: cacheData: " + str.length + "\n");

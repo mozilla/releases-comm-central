@@ -17,13 +17,10 @@ const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files
 const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
 const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-const EnigmailExecution = ChromeUtils.import("chrome://openpgp/content/modules/execution.jsm").EnigmailExecution;
-const subprocess = ChromeUtils.import("chrome://openpgp/content/modules/subprocess.jsm").subprocess;
 const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
 const EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm").EnigmailOS;
 const EnigmailVersioning = ChromeUtils.import("chrome://openpgp/content/modules/versioning.jsm").EnigmailVersioning;
 const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
-const getGpgAgent = EnigmailLazy.loader("enigmail/gpgAgent.jsm", "EnigmailGpgAgent");
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 const MINIMUM_GPG_VERSION = "2.0.14";
@@ -44,54 +41,6 @@ function pushTrimmedStr(arr, str, splitStr) {
     }
   }
   return (str.length > 0);
-}
-
-function getDirmngrTorStatus(exitCodeObj) {
-  const command = getGpgAgent().resolveToolPath("gpg-connect-agent");
-  if (command === null) {
-    return null;
-  }
-
-  const args = ["--dirmngr"];
-
-  EnigmailLog.CONSOLE("enigmail> " + EnigmailFiles.formatCmdLine(command, args) + "\n");
-
-  let stdout = "";
-  try {
-    exitCodeObj.value = subprocess.call({
-      command: command,
-      arguments: args,
-      environment: EnigmailCore.getEnvList(),
-      stdin: function(stdin) {
-        stdin.write("GETINFO tor\r\n");
-        stdin.write("bye\r\n");
-        stdin.write("\r\n");
-        stdin.close();
-      },
-      stdout: function(data) {
-        stdout += data;
-      }
-    }).wait();
-  } catch (ex) {
-    exitCodeObj.value = -1;
-    EnigmailLog.DEBUG("enigmail> DONE with FAILURE\n");
-  }
-
-  return stdout;
-}
-
-function dirmngrConfiguredWithTor() {
-  if (!EnigmailGpg.getGpgFeature("supports-dirmngr")) return false;
-
-  const exitCodeObj = {
-    value: null
-  };
-  const output = getDirmngrTorStatus(exitCodeObj);
-
-  if (output === null || exitCodeObj.value < 0) {
-    return false;
-  }
-  return output.match(/Tor mode is enabled/) !== null;
 }
 
 var EnigmailGpg = {
@@ -124,7 +73,6 @@ var EnigmailGpg = {
    genkey-no-protection - is "%no-protection" supported for generting keys (true for gpg >= 2.1)
    search-keys-cmd      - what command to use to terminate the --search-key operation. ("save" for gpg > 2.1; "quit" otherwise)
    socks-on-windows     - is SOCKS proxy supported on Windows (true for gpg >= 2.0.20)
-   supports-dirmngr     - is dirmngr supported (true for gpg >= 2.1)
    supports-ecc-keys    - are ECC (elliptic curve) keys supported (true for gpg >= 2.1)
    supports-sender      - does gnupg understand the --sender argument (true for gpg >= 2.1.15)
    supports-wkd         - does gpg support wkd (web key directory) (true for gpg >= 2.1.19)
@@ -162,8 +110,6 @@ var EnigmailGpg = {
         return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
       case "windows-photoid-bug":
         return EnigmailVersioning.lessThan(gpgVersion, "2.0.16");
-      case "supports-dirmngr":
-        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
       case "supports-ecc-keys":
         return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
       case "socks-on-windows":
@@ -191,149 +137,6 @@ var EnigmailGpg = {
     }
 
     return undefined;
-  },
-
-  /**
-   * get the standard arguments to pass to every GnuPG subprocess
-   *
-   * @withBatchOpts: Boolean - true: use --batch and some more options
-   *                           false: don't use --batch and co.
-   *
-   * @return: Array of String - the list of arguments
-   */
-  getStandardArgs: function(withBatchOpts) {
-    // return the arguments to pass to every GnuPG subprocess
-    let r = ["--charset", "utf-8", "--display-charset", "utf-8", "--no-auto-check-trustdb"]; // mandatory parameters to add in all cases
-
-    try {
-      let p = EnigmailPrefs.getPref("agentAdditionalParam").replace(/\\\\/g, "\\");
-
-      let i = 0;
-      let last = 0;
-      let foundSign = "";
-      let startQuote = -1;
-
-      while ((i = p.substr(last).search(/['"]/)) >= 0) {
-        if (startQuote == -1) {
-          startQuote = i;
-          foundSign = p.substr(last).charAt(i);
-          last = i + 1;
-        } else if (p.substr(last).charAt(i) == foundSign) {
-          // found enquoted part
-          if (startQuote > 1) pushTrimmedStr(r, p.substr(0, startQuote), true);
-
-          pushTrimmedStr(r, p.substr(startQuote + 1, last + i - startQuote - 1), false);
-          p = p.substr(last + i + 1);
-          last = 0;
-          startQuote = -1;
-          foundSign = "";
-        } else {
-          last = last + i + 1;
-        }
-      }
-
-      pushTrimmedStr(r, p, true);
-    } catch (ex) {}
-
-
-    if (withBatchOpts) {
-      r = r.concat(GPG_BATCH_OPT_LIST);
-    }
-
-    return r;
-  },
-
-  // returns the output of --with-colons --list-config
-  getGnupgConfig: function(exitCodeObj, errorMsgObj) {
-    if (!EnigmailGpg.agentPath) {
-      exitCodeObj.value = 0;
-      return "";
-    }
-
-    const args = EnigmailGpg.getStandardArgs(true).
-    concat(["--fixed-list-mode", "--with-colons", "--list-config"]);
-
-    const statusMsgObj = {};
-    const cmdErrorMsgObj = {};
-    const statusFlagsObj = {};
-
-    const listText = EnigmailExecution.execCmd(EnigmailGpg.agentPath, args, "", exitCodeObj, statusFlagsObj, statusMsgObj, cmdErrorMsgObj);
-
-    if (exitCodeObj.value !== 0) {
-      errorMsgObj.value = EnigmailLocale.getString("badCommand");
-      if (cmdErrorMsgObj.value) {
-        errorMsgObj.value += "\n" + EnigmailFiles.formatCmdLine(EnigmailGpg.agentPath, args);
-        errorMsgObj.value += "\n" + cmdErrorMsgObj.value;
-      }
-
-      return "";
-    }
-
-    return listText.replace(/(\r\n|\r)/g, "\n");
-  },
-
-  /**
-   * return an array containing the aliases and the email addresses
-   * of groups defined in gpg.conf
-   *
-   * @return: array of objects with the following properties:
-   *  - alias: group name as used by GnuPG
-   *  - keylist: list of keys (any form that GnuPG accepts), separated by ";"
-   *
-   * (see docu for gnupg parameter --group)
-   */
-  getGpgGroups: function() {
-    const exitCodeObj = {};
-    const errorMsgObj = {};
-
-    const cfgStr = EnigmailGpg.getGnupgConfig(exitCodeObj, errorMsgObj);
-
-    if (exitCodeObj.value !== 0) {
-      getDialog().alert(errorMsgObj.value);
-      return null;
-    }
-
-    const groups = [];
-    const cfg = cfgStr.split(/\n/);
-
-    for (let i = 0; i < cfg.length; i++) {
-      if (cfg[i].indexOf("cfg:group") === 0) {
-        const groupArr = cfg[i].split(/:/);
-        groups.push({
-          alias: groupArr[2],
-          keylist: groupArr[3]
-        });
-      }
-    }
-
-    return groups;
-  },
-
-  /**
-   * Force GnuPG to recalculate the trust db. This is sometimes required after importing keys.
-   *
-   * no return value
-   */
-  recalcTrustDb: function() {
-    EnigmailLog.DEBUG("enigmailCommon.jsm: recalcTrustDb:\n");
-
-    const command = EnigmailGpg.agentPath;
-    const args = EnigmailGpg.getStandardArgs(false).
-    concat(["--check-trustdb"]);
-
-    try {
-      const proc = subprocess.call({
-        command: EnigmailGpg.agentPath,
-        arguments: args,
-        environment: EnigmailCore.getEnvList(),
-        charset: null,
-        mergeStderr: false
-      });
-      proc.wait();
-    } catch (ex) {
-      EnigmailLog.ERROR("enigmailCommon.jsm: recalcTrustDb: subprocess.call failed with '" + ex.toString() + "'\n");
-      throw ex;
-    }
   },
 
   signingAlgIdToString: function(id) {
@@ -381,11 +184,4 @@ var EnigmailGpg = {
         return EnigmailLocale.getString("unknownHashAlg", [parseInt(id, 10)]);
     }
   },
-
-  /**
-   * For versions of GPG 2.1 and higher, checks to see if the dirmngr is configured to use Tor
-   *
-   * @return    Boolean     - True if dirmngr is configured with Tor. False otherwise
-   */
-  dirmngrConfiguredWithTor: dirmngrConfiguredWithTor
 };

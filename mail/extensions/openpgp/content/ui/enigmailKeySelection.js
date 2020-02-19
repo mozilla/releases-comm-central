@@ -127,14 +127,6 @@ function getKeyList(secretOnly, refresh) {
       }
 
       keyList = EnigmailFuncs.cloneObj(userList.keyList);
-
-      let grpList = cApi.getGroups().map(k => {
-        return newEnigmailKeyObj(k);
-      });
-
-      for (let i in grpList) {
-        keyList.push(grpList[i]);
-      }
     }
   } catch (ex) {
     EnigmailLog.writeException("enigmailKeySelection.js: getKeyList", ex);

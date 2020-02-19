@@ -14,7 +14,7 @@ var Ci = Components.interfaces;
 
 // modules
 /* global EnigmailData: false, EnigmailLog: false, EnigmailLocale: false, EnigmailGpg: false, EnigmailKeyEditor: false */
-/* global EnigmailOS: false, EnigmailPrefs: false, EnigmailGpgAgent: false, EnigmailApp: false, EnigmailKeyRing: false */
+/* global EnigmailOS: false, EnigmailPrefs: false, EnigmailApp: false, EnigmailKeyRing: false */
 /* global EnigmailDialog: false, EnigmailFuncs: false */
 
 // from enigmailCommon.js:
@@ -67,13 +67,6 @@ function enigmailKeygenLoad() {
   if (!enigmailSvc) {
     EnigAlert(EnigGetString("accessError"));
   }
-
-  /*
-  if (EnigmailGpgAgent.agentType != "gpg") {
-    EnigAlert(EnigGetString("onlyGPG"));
-    return;
-  }
-  */
 }
 
 function updateKeySizeSel(selectedObj) {
@@ -159,24 +152,7 @@ function enigmailKeygenTerminate(exitCode) {
 
 function genAndSaveRevCert(keyId, uid) {
   EnigmailLog.DEBUG("enigmailKeygen.js: genAndSaveRevCert\n");
-
-  return new Promise(
-    function(resolve, reject) {
-
-      let keyFile = EnigmailApp.getProfileDirectory();
-      keyFile.append("0x" + keyId + "_rev.asc");
-
-      // create a revokation cert in the TB profile directoy
-      EnigmailKeyEditor.genRevokeCert(window, "0x" + keyId, keyFile, "1", "",
-        function _revokeCertCb(exitCode, errorMsg) {
-          if (exitCode !== 0) {
-            EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + errorMsg);
-            reject(1);
-          }
-          saveRevCert(keyFile, keyId, uid, resolve, reject);
-        });
-    }
-  );
+  throw new Error("Not implemented");
 }
 
 /**

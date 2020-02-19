@@ -12,7 +12,6 @@ const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm
 const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
 const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailSystem = ChromeUtils.import("chrome://openpgp/content/modules/system.jsm").EnigmailSystem;
 const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
 const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
 
@@ -129,7 +128,7 @@ function handleErrorCode(c, errorNumber) {
       case 93: // dirmngr error
         c.statusFlags |= EnigmailConstants.DISPLAY_MESSAGE;
         c.retStatusObj.extendedStatus += "disp:get_passphrase ";
-        c.retStatusObj.statusMsg = EnigmailLocale.getString("errorHandling.dirmngrError") + "\n\n" + EnigmailLocale.getString("errorHandling.readFaq");
+        c.retStatusObj.statusMsg = "";
         c.isError = true;
         break;
       case 2:
@@ -484,62 +483,7 @@ function buildErrorMessageForCardCtrl(c, errCode, detectedCard) {
   return errorMsg;
 }
 
-function parseErrorOutputWith(c) {
-  EnigmailLog.DEBUG("errorHandling.jsm: parseErrorOutputWith: status message: \n" + c.errOutput + "\n");
-
-  c.errLines = splitErrorOutput(c.errOutput);
-  c.isError = false; // set to true if a hard error was found
-
-  // parse all error lines
-  c.inDecryptionFailed = false; // to save details of encryption failed messages
-  for (var j = 0; j < c.errLines.length; j++) {
-    var errLine = c.errLines[j];
-    parseErrorLine(errLine, c);
-    if (c.isError) break;
-  }
-
-  detectForgedInsets(c);
-
-  c.retStatusObj.blockSeparation = c.retStatusObj.blockSeparation.replace(/ $/, "");
-  c.retStatusObj.statusFlags = c.statusFlags;
-  if (c.retStatusObj.statusMsg.length === 0) c.retStatusObj.statusMsg = c.statusArray.join("\n");
-  if (c.errorMsg.length === 0) {
-    c.errorMsg = c.errArray.map(function f(str, idx) {
-      return EnigmailSystem.convertNativeToUnicode(str);
-    }, EnigmailSystem).join("\n");
-  } else {
-    c.errorMsg = EnigmailSystem.convertNativeToUnicode(c.errorMsg);
-  }
-
-  if ((c.statusFlags & EnigmailConstants.CARDCTRL) && c.errCode > 0) {
-    c.errorMsg = buildErrorMessageForCardCtrl(c, c.errCode, c.detectedCard);
-    c.statusFlags |= EnigmailConstants.DISPLAY_MESSAGE;
-  }
-
-  let inDecryption = 0;
-  let m;
-  for (let i in c.statusArray) {
-    if (c.statusArray[i].search(/^BEGIN_DECRYPTION( .*)?$/) === 0) {
-      inDecryption = 1;
-    } else if (c.statusArray[i].search(/^END_DECRYPTION( .*)?$/) === 0) {
-      inDecryption = 0;
-    } else if (inDecryption >0) {
-      m = c.statusArray[i].match(/^(PLAINTEXT [0-9]+ [0-9]+ )(.*)$/);
-      if (m && m.length >= 3) c.retStatusObj.encryptedFileName = m[2];        
-    }
-  }
-
-  EnigmailLog.DEBUG("errorHandling.jsm: parseErrorOutputWith: statusFlags = " + EnigmailData.bytesToHex(EnigmailData.pack(c.statusFlags, 4)) + "\n");
-  EnigmailLog.DEBUG("errorHandling.jsm: parseErrorOutputWith: return with c.errorMsg = " + c.errorMsg + "\n");
-  return c.errorMsg;
-}
-
 var EnigmailErrorHandling = {
-  parseErrorOutput: function(errOutput, retStatusObj) {
-    var context = newContext(errOutput, retStatusObj);
-    return parseErrorOutputWith(context);
-  },
-
   /**
    * Determin why a given key or userID cannot be used for signing
    *

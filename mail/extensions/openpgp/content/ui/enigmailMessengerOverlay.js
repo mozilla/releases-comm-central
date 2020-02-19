@@ -38,7 +38,6 @@ var EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRi
 var EnigmailDecryption = ChromeUtils.import("chrome://openpgp/content/modules/decryption.jsm").EnigmailDecryption;
 var EnigmailAttachment = ChromeUtils.import("chrome://openpgp/content/modules/attachment.jsm").EnigmailAttachment;
 var EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-var EnigmailPassword = ChromeUtils.import("chrome://openpgp/content/modules/passwords.jsm").EnigmailPassword;
 var EnigmailKeyUsability = ChromeUtils.import("chrome://openpgp/content/modules/keyUsability.jsm").EnigmailKeyUsability;
 var EnigmailURIs = ChromeUtils.import("chrome://openpgp/content/modules/uris.jsm").EnigmailURIs;
 var EnigmailProtocolHandler = ChromeUtils.import("chrome://openpgp/content/modules/protocolHandler.jsm").EnigmailProtocolHandler;

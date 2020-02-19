@@ -53,15 +53,9 @@ var BondOpenPGP = {
     if (!MailConstants.MOZ_OPENPGP) {
       return;
     }
-    const engine = Services.prefs.getIntPref("temp.openpgp.engine");
-    if (!engine) {
-      return;
-    }
-
     if (this.initDone) {
       return;
     }
-
     this.initDone = true;
     console.log("loading OpenPGP");
     try {

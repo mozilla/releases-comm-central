@@ -4,30 +4,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailCryptoAPI"];
 
 var gCurrentApi = null;
+var gGnuPGApi = null;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 function EnigmailCryptoAPI() {
   if (!gCurrentApi) {
-    const gOpenPGPEngine = Services.prefs.getIntPref("temp.openpgp.engine");
-    
-    if (gOpenPGPEngine == 1) {
-      const {
-        getRNPAPI
-      } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/RNPCryptoAPI.jsm");
-      gCurrentApi = getRNPAPI();
-    } else if (gOpenPGPEngine == 2) {
-      const {
-        getGnuPGAPI
-      } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/GnuPGCryptoAPI.jsm");
-      gCurrentApi = getGnuPGAPI();
-    }
+    const {
+      getRNPAPI
+    } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/RNPCryptoAPI.jsm");
+    gCurrentApi = getRNPAPI();
   }
-
   return gCurrentApi;
+}
+
+function EnigmailGnuPGAPI() {
+  if (!gGnuPGApi) {
+    const {
+      getGnuPGAPI
+    } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/GnuPGCryptoAPI.jsm");
+    gGnuPGApi = getGnuPGAPI();
+  }
+  return gGnuPGApi;
 }

@@ -10,7 +10,6 @@ var EXPORTED_SYMBOLS = ["EnigmailKeyRing"];
 
 const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
 const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailExecution = ChromeUtils.import("chrome://openpgp/content/modules/execution.jsm").EnigmailExecution;
 const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
 const EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm").EnigmailGpg;
@@ -18,7 +17,6 @@ const EnigmailTrust = ChromeUtils.import("chrome://openpgp/content/modules/trust
 const EnigmailArmor = ChromeUtils.import("chrome://openpgp/content/modules/armor.jsm").EnigmailArmor;
 const EnigmailTime = ChromeUtils.import("chrome://openpgp/content/modules/time.jsm").EnigmailTime;
 const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
-//const subprocess = ChromeUtils.import("chrome://openpgp/content/modules/subprocess.jsm").subprocess;
 const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
 const newEnigmailKeyObj = ChromeUtils.import("chrome://openpgp/content/modules/keyObj.jsm").newEnigmailKeyObj;
 const EnigmailTimer = ChromeUtils.import("chrome://openpgp/content/modules/timer.jsm").EnigmailTimer;
@@ -33,7 +31,6 @@ const getKeyUsability = EnigmailLazy.loader("enigmail/keyUsability.jsm", "Enigma
 
 const DEFAULT_FILE_PERMS = 0o600;
 
-let gKeygenProcess = null;
 let gKeyListObj = null;
 let gKeyIndex = [];
 let gSubkeyIndex = [];
@@ -421,61 +418,6 @@ var EnigmailKeyRing = {
       return "";
     }
 
-    /*
-    let args = EnigmailGpg.getStandardArgs(true).concat(["-a", "--export"]);
-
-    if (userId) {
-      args = args.concat(userId.split(/[ ,\t]+/));
-    }
-
-    const cmdErrorMsgObj = {};
-    let keyBlock = EnigmailExecution.execCmd(EnigmailGpg.agentPath, args, "", exitCodeObj, {}, {}, cmdErrorMsgObj);
-
-    if ((exitCodeObj.value === 0) && !keyBlock) {
-      exitCodeObj.value = -1;
-    }
-
-    if (exitCodeObj.value !== 0) {
-      errorMsgObj.value = EnigmailLocale.getString("failKeyExtract");
-
-      if (cmdErrorMsgObj.value) {
-        errorMsgObj.value += "\n" + EnigmailFiles.formatCmdLine(EnigmailGpg.agentPath, args);
-        errorMsgObj.value += "\n" + cmdErrorMsgObj.value;
-      }
-
-      return "";
-    }
-
-    if (includeSecretKey) {
-
-      let keyList;
-      if (userId) {
-        keyList = userId.split(/[ ,\t]+/);
-      }
-      else {
-        keyList = this.getAllSecretKeys().map(keyObj => {
-          return keyObj.keyId;
-        });
-      }
-      let secKeyBlock = keyList.map(uid => {
-        let keyObj = EnigmailKeyRing.getKeyById(uid);
-        if (keyObj) return keyObj.getSecretKey(false).keyData;
-
-        let k = EnigmailKeyRing.getKeysByUserId(uid);
-        if (k && k.length > 0) {
-          return k.map(keyObj => {
-            return keyObj.getSecretKey(false).keyData;
-          }).join("\n");
-        }
-        else {
-          return "";
-        }
-      }).join("\n");
-
-      keyBlock += "\n" + secKeyBlock;
-    }
-    */
-
     exitCodeObj.value = 0;
     if (outputFile) {
       if (!EnigmailFiles.writeFileContents(outputFile, keyBlock, DEFAULT_FILE_PERMS)) {
@@ -485,50 +427,6 @@ var EnigmailKeyRing = {
       return "";
     }
     return keyBlock;
-  },
-
-  /**
-   * Export the ownertrust database from GnuPG
-   * @param outputFile        String or nsIFile - output file name or Object - or NULL
-   * @param exitCodeObj       Object   - o.value will contain exit code
-   * @param errorMsgObj       Object   - o.value will contain error message from GnuPG
-   *
-   * @return String - if outputFile is NULL, the key block data; "" if a file is written
-   */
-  extractOwnerTrust: function(outputFile, exitCodeObj, errorMsgObj) {
-    let args = EnigmailGpg.getStandardArgs(true).concat(["--export-ownertrust"]);
-
-    let trustData = EnigmailExecution.execCmd(EnigmailGpg.agentPath, args, "", exitCodeObj, {}, {}, errorMsgObj);
-
-    if (outputFile) {
-      if (!EnigmailFiles.writeFileContents(outputFile, trustData, DEFAULT_FILE_PERMS)) {
-        exitCodeObj.value = -1;
-        errorMsgObj.value = EnigmailLocale.getString("fileWriteFailed", [outputFile]);
-      }
-      return "";
-    }
-
-    return trustData;
-  },
-
-  /**
-   * Import the ownertrust database into GnuPG
-   * @param inputFile        String or nsIFile - input file name or Object - or NULL
-   * @param errorMsgObj       Object   - o.value will contain error message from GnuPG
-   *
-   * @return exit code
-   */
-  importOwnerTrust: function(inputFile, errorMsgObj) {
-    let args = EnigmailGpg.getStandardArgs(true).concat(["--import-ownertrust"]);
-
-    let exitCodeObj = {};
-    try {
-      let trustData = EnigmailFiles.readFile(inputFile);
-      EnigmailExecution.execCmd(EnigmailGpg.agentPath, args, trustData, exitCodeObj, {}, {}, errorMsgObj);
-    }
-    catch (ex) {}
-
-    return exitCodeObj.value;
   },
 
   /**
@@ -604,27 +502,6 @@ var EnigmailKeyRing = {
       throw "importKeyAsync with minimizeKey: not implemented";
     }
 
-    /*
-    let args = EnigmailGpg.getStandardArgs(false).concat(["--no-verbose", "--status-fd", "2"]);
-    if (minimizeKey) {
-      args = args.concat(["--import-options", "import-minimal"]);
-    }
-
-    if (limitedUids.length > 0 && EnigmailGpg.getGpgFeature("export-specific-uid")) {
-      let filter = limitedUids.map(i => {
-        return `mbox =~ ${i}`;
-      }).join(" || ");
-
-      args.push("--import-filter");
-      args.push(`keep-uid=${filter}`);
-    }
-    args = args.concat(["--no-auto-check-trustdb", "--import"]);
-
-    const res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, pgpBlock);
-
-    const statusMsg = res.statusMsg;
-    */
-
     const cApi = EnigmailCryptoAPI();
     let result = cApi.sync(cApi.importKeyBlock(pgpBlock));
 
@@ -637,47 +514,7 @@ var EnigmailKeyRing = {
 
     EnigmailKeyRing.clearCache();
 
-    /*
-    let exitCode = 1;
-    if (statusMsg && (statusMsg.search(/^IMPORT_RES /m) > -1)) {
-      let importRes = statusMsg.match(/^IMPORT_RES ([0-9]+) ([0-9]+) ([0-9]+) 0 ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+)/m);
-
-      if (importRes !== null) {
-        let secCount = parseInt(importRes[9], 10); // number of secret keys found
-        let secImported = parseInt(importRes[10], 10); // number of secret keys imported
-        let secDups = parseInt(importRes[11], 10); // number of secret keys already on the keyring
-
-        if (secCount !== secImported + secDups) {
-          EnigmailKeyRing.clearCache();
-          errorMsgObj.value = EnigmailLocale.getString("import.secretKeyImportError");
-          return 1;
-        }
-      }
-
-      exitCode = 0;
-      // Normal return
-      if (statusMsg.search(/^IMPORT_OK /m) > -1) {
-        let l = statusMsg.split(/\r|\n/);
-        for (let i = 0; i < l.length; i++) {
-          const matches = l[i].match(/^(IMPORT_OK [0-9]+ )(([0-9a-fA-F]{8}){2,5})/);
-          if (matches && (matches.length > 2)) {
-            EnigmailLog.DEBUG("enigmail.js: Enigmail.importKey: IMPORTED 0x" + matches[2] + "\n");
-            importedKeysObj.value.push(matches[2]);
-          }
-        }
-
-        if (importedKeysObj.value.length > 0) {
-          EnigmailKeyRing.updateKeys(importedKeysObj.value);
-        }
-      }
-    }
-    */
-
     return exitCode;
-  },
-
-  isGeneratingKey: function() {
-    return gKeygenProcess !== null;
   },
 
   /**
@@ -700,102 +537,7 @@ var EnigmailKeyRing = {
   generateKey: function(name, comment, email, expiryDate, keyLength, keyType,
     passphrase, listener) {
     EnigmailLog.WRITE("keyRing.jsm: generateKey:\n");
-
-    if (EnigmailKeyRing.isGeneratingKey()) {
-      // key generation already ongoing
-      throw Components.results.NS_ERROR_FAILURE;
-    }
-
-    const args = EnigmailGpg.getStandardArgs(true).concat(["--gen-key"]);
-
-    EnigmailLog.CONSOLE(EnigmailFiles.formatCmdLine(EnigmailGpg.agentPath, args));
-
-    let inputData = "%echo Generating key\nKey-Type: ";
-
-    switch (keyType) {
-      case "RSA":
-        inputData += "RSA\nKey-Usage: sign,auth\nKey-Length: " + keyLength;
-        inputData += "\nSubkey-Type: RSA\nSubkey-Usage: encrypt\nSubkey-Length: " + keyLength + "\n";
-        break;
-      case "ECC":
-        inputData += "EDDSA\nKey-Curve: Ed25519\nKey-Usage: sign\n";
-        inputData += "Subkey-Type: ECDH\nSubkey-Curve: Curve25519\nSubkey-Usage: encrypt\n";
-        break;
-      default:
-        return null;
-    }
-
-    if (name.replace(/ /g, "").length) {
-      inputData += "Name-Real: " + name + "\n";
-    }
-    if (comment && comment.replace(/ /g, "").length) {
-      inputData += "Name-Comment: " + comment + "\n";
-    }
-    inputData += "Name-Email: " + email + "\n";
-    inputData += "Expire-Date: " + String(expiryDate) + "\n";
-
-    EnigmailLog.CONSOLE(inputData + " \n");
-
-    if (passphrase.length) {
-      inputData += "Passphrase: " + passphrase + "\n";
-    }
-    else {
-      if (EnigmailGpg.getGpgFeature("genkey-no-protection")) {
-        inputData += "%echo no-protection\n";
-        inputData += "%no-protection\n";
-      }
-    }
-
-    inputData += "%commit\n%echo done\n";
-
-    let proc = null;
-
-    console.debug("reaching disabled keyRing.generateKey");
-    /*
-    try {
-      proc = subprocess.call({
-        command: EnigmailGpg.agentPath,
-        arguments: args,
-        environment: EnigmailCore.getEnvList(),
-        charset: null,
-        stdin: function(pipe) {
-          pipe.write(inputData);
-          pipe.close();
-        },
-        stderr: function(data) {
-          // extract key ID
-          if (data.search(/^\[GNUPG:\] KEY_CREATED/m)) {
-            let m = data.match(/^(\[GNUPG:\] KEY_CREATED [BPS] )([^ \r\n\t]+)$/m);
-            if (m && m.length > 2) {
-              listener.keyId = "0x" + m[2];
-            }
-          }
-          listener.onDataAvailable(data);
-        },
-        done: function(result) {
-          gKeygenProcess = null;
-          try {
-            if (result.exitCode === 0) {
-              EnigmailKeyRing.clearCache();
-            }
-            listener.onStopRequest(result.exitCode);
-          }
-          catch (ex) {}
-        },
-        mergeStderr: false
-      });
-    }
-    catch (ex) {
-      EnigmailLog.ERROR("keyRing.jsm: generateKey: subprocess.call failed with '" + ex.toString() + "'\n");
-      throw ex;
-    }
-    */
-
-    gKeygenProcess = proc;
-
-    EnigmailLog.DEBUG("keyRing.jsm: generateKey: subprocess = " + proc + "\n");
-
-    return proc;
+    throw new Error("Not implemented");
   },
 
   /**

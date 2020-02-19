@@ -73,25 +73,6 @@ Enigmail.hlp = {
         addresses = EnigmailFuncs.stripEmail(emailsOrKeys).split(',');
       } catch (ex) {}
 
-      /*
-      // resolve GnuPG groups
-      let gpgGroups = EnigmailGpg.getGpgGroups();
-      for (let i = 0; i < addresses.length; i++) {
-        let addr = addresses[i].toLowerCase();
-        for (let j = 0; j < gpgGroups.length; j++) {
-          if (addr == gpgGroups[j].alias.toLowerCase() ||
-            "<" + addr + ">" == gpgGroups[j].alias.toLowerCase()) {
-            // replace address with keylist
-            let grpList = gpgGroups[j].keylist.split(/;/);
-            addresses[i] = grpList[0];
-            for (let k = 1; k < grpList.length; k++) {
-              addresses.push(grpList[k]);
-            }
-          }
-        }
-      }
-      */
-
       // resolve all the email addresses if possible:
       keyMissing = EnigmailKeyRing.getValidKeysForAllRecipients(addresses, minTrustLevel, details, resultingArray);
     } catch (ex) {

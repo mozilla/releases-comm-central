@@ -9,12 +9,7 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailVersioning"];
 
-
-
-
-
 const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailExecution = ChromeUtils.import("chrome://openpgp/content/modules/execution.jsm").EnigmailExecution;
 
 let vc = null;
 
@@ -45,29 +40,6 @@ function getVersion(output, executable) {
   else {
     return null;
   }
-}
-
-/**
- * Test the version number of any application (not gpg)
- */
-function versionFoundMeetsMinimumVersionRequired(executable, minimumVersion) {
-  const args = ["--version"];
-  const exitCodeObj = {
-    value: null
-  };
-  const output = EnigmailExecution.resolveAndSimpleExec(executable, args, exitCodeObj, {});
-  if (!output || exitCodeObj.value < 0) {
-    EnigmailLog.DEBUG("executable not found: " + executable + "\n");
-    return false;
-  }
-
-  const version = getVersion(output, executable);
-  if (!version) {
-    EnigmailLog.DEBUG("couldn't find a version in the output from " + executable + " - total output: " + output + "\n");
-    return false;
-  }
-
-  return greaterThanOrEqual(version, minimumVersion);
 }
 
 function greaterThanOrEqual(versionWeHave, versionWeAreComparingWith) {
@@ -113,16 +85,4 @@ var EnigmailVersioning = {
    * @return    Boolean     - The result of versionWeHave < versionWeAreComparingWith
    */
   lessThan: lessThan,
-  /**
-   * Uses Mozilla's Version Comparator Component to identify whether an executable version
-   * meets the required version specified
-   *
-   * @param     String  executable               - version of the executable
-   * @param     String  minimumVersion           - version we want to compare with
-   *
-   * @return    Boolean     - True if the executable version meets the minimum version required,
-   *                          false if it does not or it does not exist, or if a version was not
-   *                          parseable from its output
-   */
-  versionFoundMeetsMinimumVersionRequired: versionFoundMeetsMinimumVersionRequired
 };

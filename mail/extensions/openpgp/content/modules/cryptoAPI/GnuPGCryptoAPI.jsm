@@ -19,19 +19,15 @@ Services.scriptloader.loadSubScript("chrome://openpgp/content/modules/cryptoAPI/
 const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
 const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm").EnigmailGpg;
-const EnigmailExecution = ChromeUtils.import("chrome://openpgp/content/modules/execution.jsm").EnigmailExecution;
 const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
 const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
 const EnigmailTime = ChromeUtils.import("chrome://openpgp/content/modules/time.jsm").EnigmailTime;
 const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
 const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailPassword = ChromeUtils.import("chrome://openpgp/content/modules/passwords.jsm").EnigmailPassword;
 const EnigmailErrorHandling = ChromeUtils.import("chrome://openpgp/content/modules/errorHandling.jsm").EnigmailErrorHandling;
-const GnuPGDecryption = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/gnupg-decryption.jsm").GnuPGDecryption;
 
 const {
   obtainKeyList,
-  createKeyObj,
   getPhotoFileFromGnuPG,
   extractSignatures,
   getGpgKeyData
@@ -64,35 +60,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
   }
 
   /**
-   * Get groups defined in gpg.conf in the same structure as KeyObject
-   *
-   * @return {Array of KeyObject} with type = "grp"
-   */
-  getGroups() {
-    let groups = EnigmailGpg.getGpgGroups();
-
-    let r = [];
-    for (var i = 0; i < groups.length; i++) {
-
-      let keyObj = createKeyObj(["grp"]);
-      keyObj.keyTrust = "g";
-      keyObj.userId = EnigmailData.convertGpgToUnicode(groups[i].alias).replace(/\\e3A/g, ":");
-      keyObj.keyId = keyObj.userId;
-      var grpMembers = EnigmailData.convertGpgToUnicode(groups[i].keylist).replace(/\\e3A/g, ":").split(/[,;]/);
-      for (var grpIdx = 0; grpIdx < grpMembers.length; grpIdx++) {
-        keyObj.userIds.push({
-          userId: grpMembers[grpIdx],
-          keyTrust: "q"
-        });
-      }
-      r.push(keyObj);
-    }
-
-    return r;
-  }
-
-
-  /**
    * Obtain signatures for a given set of key IDs.
    *
    * @param {String}  keyId:            space-separated list of key IDs
@@ -102,28 +69,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
   async getKeySignatures(keyId, ignoreUnknownUid = false) {
     EnigmailLog.DEBUG(`gnupg.js: getKeySignatures: ${keyId}\n`);
-
-    const args = EnigmailGpg.getStandardArgs(true).concat(["--with-fingerprint", "--fixed-list-mode", "--with-colons", "--list-sig"]).concat(keyId.split(" "));
-
-    let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, "");
-
-    if (!(res.statusFlags & EnigmailConstants.BAD_SIGNATURE)) {
-      // ignore exit code as recommended by GnuPG authors
-      res.exitCode = 0;
-    }
-
-    if (res.exitCode !== 0) {
-      if (res.errorMsg) {
-        res.errorMsg += "\n" + EnigmailFiles.formatCmdLine(EnigmailGpg.agentPath, args);
-        res.errorMsg += "\n" + res.errorMsg;
-      }
-      return "";
-    }
-
-    if (res.stdoutData.length > 0) {
-      return extractSignatures(res.stdoutData, ignoreUnknownUid);
-    }
-    return null;
+    throw new Error("Not implemented");
   }
 
 
@@ -143,51 +89,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
   async getMinimalPubKey(fpr, email, subkeyDates) {
     EnigmailLog.DEBUG(`gnupg.js: getMinimalPubKey: ${fpr}\n`);
-
-    let retObj = {
-      exitCode: 0,
-      errorMsg: "",
-      keyData: ""
-    };
-    let minimalKeyBlock = null;
-
-    let args = EnigmailGpg.getStandardArgs(true);
-
-    if (EnigmailGpg.getGpgFeature("export-specific-uid")) {
-      // Use GnuPG filters if possible
-      let dropSubkeyFilter = "usage!~e && usage!~s";
-
-      if (subkeyDates && subkeyDates.length > 0) {
-        dropSubkeyFilter = subkeyDates.map(x => `key_created!=${x}`).join(" && ");
-      }
-      args = args.concat(["--export-options", "export-minimal,no-export-attributes",
-        "--export-filter", "keep-uid=" + (email ? "mbox=" + email : "primary=1"),
-        "--export-filter", "drop-subkey=" + dropSubkeyFilter,
-        "--export", fpr
-      ]);
-    } else {
-      args = args.concat(["--export-options", "export-minimal,no-export-attributes", "-a", "--export", fpr]);
-    }
-
-    const statusObj = {};
-    const exitCodeObj = {};
-    let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args);
-    let keyBlock = res.stdoutData;
-
-    // GnuPG 2.1.10+
-    if (!EnigmailGpg.getGpgFeature("export-result")) {
-      retObj.exitCode = 2;
-      retObj.errorMsg = EnigmailLocale.getString("failKeyExtract");
-    }
-
-    let r = new RegExp("^\\[GNUPG:\\] EXPORTED " + fpr, "m");
-    if (res.stderrData.search(r) < 0) {
-      retObj.exitCode = 2;
-      retObj.errorMsg = EnigmailLocale.getString("failKeyExtract");
-    }
-
-    retObj.keyData = btoa(keyBlock);
-    return retObj;
+    throw new Error("Not implemented");
   }
 
   /**
@@ -254,20 +156,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   async getFileName(byteData) {
     EnigmailLog.DEBUG(`gnupg.js: getFileName()\n`);
-    const args = EnigmailGpg.getStandardArgs(true).concat(EnigmailPassword.command()).concat(["--decrypt"]);
-
-    let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, byteData + "\n");
-
-    const matches = res.stderrData.match(/^(\[GNUPG:\] PLAINTEXT [0-9]+ [0-9]+ )(.*)$/m);
-    if (matches && (matches.length > 2)) {
-      var filename = matches[2];
-      if (filename.indexOf(" ") > 0) {
-        filename = filename.replace(/ .*$/, "");
-      }
-      return EnigmailData.convertToUnicode(unescape(filename), "utf-8");
-    } else {
-      return null;
-    }
+    throw new Error("Not implemented");
   }
 
   /**
@@ -283,20 +172,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   async verifyAttachment(filePath, sigPath) {
     EnigmailLog.DEBUG(`gnupg.js: verifyAttachment()\n`);
-    const args = EnigmailGpg.getStandardArgs(true).concat(["--verify", sigPath, filePath]);
-    let result = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args);
-    const decrypted = {};
-    GnuPGDecryption.decryptMessageEnd(result.stderrData, result.exitCode, 1, true, true, EnigmailConstants.UI_INTERACTIVE, decrypted);
-    if (result.exitCode === 0) {
-      const detailArr = decrypted.sigDetails.split(/ /);
-      const dateTime = EnigmailTime.getDateTime(detailArr[2], true, true);
-      const msg1 = decrypted.errorMsg.split(/\n/)[0];
-      const msg2 = EnigmailLocale.getString("keyAndSigDate", ["0x" + decrypted.keyId, dateTime]);
-      const message = msg1 + "\n" + msg2;
-      return (message);
-    } else {
-      throw (decrypted.errorMsg);
-    }
+    throw new Error("Not implemented");
   }
 
 
@@ -313,14 +189,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   async decryptAttachment(encrypted) {
     EnigmailLog.DEBUG(`gnupg.js: decryptAttachment()\n`);
-
-    let args = EnigmailGpg.getStandardArgs(true);
-    args.push("--yes");
-    args = args.concat(EnigmailPassword.command());
-    args.push("-d");
-
-    let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, encrypted);
-    return res;
+    throw new Error("Not implemented");
   }
 
 
@@ -338,26 +207,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   async decrypt(encrypted, options) {
     EnigmailLog.DEBUG(`gnupg.js: decrypt()\n`);
-
-    options.logFile = EnigmailErrorHandling.getTempLogFile();
-    const args = GnuPGDecryption.getDecryptionArgs(options);
-    let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, encrypted);
-    EnigmailErrorHandling.appendLogFileToDebug(options.logFile);
-
-    if (res.statusFlags & EnigmailConstants.MISSING_PASSPHRASE) {
-      EnigmailLog.ERROR("decryption.jsm: decryptMessageStart: Error - no passphrase supplied\n");
-      throw {
-        errorMsg: EnigmailLocale.getString("noPassphrase")
-      };
-    }
-
-    const result = {
-      exitCode: res.exitCode,
-      decryptedData: res.stdoutData
-    };
-    GnuPGDecryption.decryptMessageEnd(res.stderrData, res.exitCode, res.stdoutData.length, options.verifyOnly, options.noOutput, options.uiFlags, result);
-
-    return result;
+    throw new Error("Not implemented");
   }
 
   /**

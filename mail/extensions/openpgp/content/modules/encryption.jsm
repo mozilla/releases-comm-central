@@ -16,12 +16,9 @@ const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs
 const EnigmailApp = ChromeUtils.import("chrome://openpgp/content/modules/app.jsm").EnigmailApp;
 const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailDialog = ChromeUtils.import("chrome://openpgp/content/modules/dialog.jsm").EnigmailDialog;
-const EnigmailGpgAgent = ChromeUtils.import("chrome://openpgp/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
 const EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm").EnigmailGpg;
 const EnigmailErrorHandling = ChromeUtils.import("chrome://openpgp/content/modules/errorHandling.jsm").EnigmailErrorHandling;
-const EnigmailExecution = ChromeUtils.import("chrome://openpgp/content/modules/execution.jsm").EnigmailExecution;
 const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
-const EnigmailPassword = ChromeUtils.import("chrome://openpgp/content/modules/passwords.jsm").EnigmailPassword;
 const EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
 const EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
 const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
@@ -396,15 +393,6 @@ var EnigmailEncryption = {
       }
     };
 
-    // GnuPG
-    /*
-    var proc = EnigmailExecution.execStart(EnigmailGpgAgent.agentPath, encryptArgs, signMsg, win, listener, statusFlagsObj);
-    if (statusFlagsObj.value & EnigmailConstants.MISSING_PASSPHRASE) {
-      EnigmailLog.ERROR("encryption.jsm: encryptMessageStart: Error - no passphrase supplied\n");
-      errorMsgObj.value = "";
-    }
-    */
-
     let resultStatus = {};
     const cApi = EnigmailCryptoAPI();
     console.debug("listener: %o", listener);
@@ -441,9 +429,9 @@ var EnigmailEncryption = {
       return -1;
     }
 
-    EnigmailErrorHandling.parseErrorOutput(stderrStr, retStatusObj);
+    //EnigmailErrorHandling.parseErrorOutput(stderrStr, retStatusObj);
 
-    exitCode = EnigmailExecution.fixExitCode(exitCode, retStatusObj);
+    //exitCode = EnigmailExecution.fixExitCode(exitCode, retStatusObj);
     if ((exitCode === 0) && !outputLen) {
       exitCode = -1;
     }
@@ -498,7 +486,9 @@ var EnigmailEncryption = {
   encryptMessage: function(parent, uiFlags, plainText, fromMailAddr, toMailAddr, bccMailAddr, sendFlags,
     exitCodeObj, statusFlagsObj, errorMsgObj) {
     EnigmailLog.DEBUG("enigmail.js: Enigmail.encryptMessage: " + plainText.length + " bytes from " + fromMailAddr + " to " + toMailAddr + " (" + sendFlags + ")\n");
+    throw new Error("Not implemented");
 
+    /*
     exitCodeObj.value = -1;
     statusFlagsObj.value = 0;
     errorMsgObj.value = "";
@@ -567,56 +557,6 @@ var EnigmailEncryption = {
     // Error processing
     EnigmailLog.DEBUG("enigmail.js: Enigmail.encryptMessage: command execution exit code: " + exitCodeObj.value + "\n");
     return "";
+  */
   },
-
-  encryptAttachment: function(parent, fromMailAddr, toMailAddr, bccMailAddr, sendFlags, inFile, outFile,
-    exitCodeObj, statusFlagsObj, errorMsgObj) {
-    EnigmailLog.DEBUG("encryption.jsm: EnigmailEncryption.encryptAttachment infileName=" + inFile.path + "\n");
-
-    statusFlagsObj.value = 0;
-    sendFlags |= EnigmailConstants.SEND_ATTACHMENT;
-
-    let asciiArmor = false;
-    try {
-      asciiArmor = EnigmailPrefs.getPrefBranch().getBoolPref("inlineAttachAsciiArmor");
-    }
-    catch (ex) {}
-
-    const asciiFlags = (asciiArmor ? ENC_TYPE_ATTACH_ASCII : ENC_TYPE_ATTACH_BINARY);
-    let args = EnigmailEncryption.getEncryptCommand(fromMailAddr, toMailAddr, bccMailAddr, "", sendFlags, asciiFlags, errorMsgObj);
-
-    if (!args) {
-      return null;
-    }
-
-    const signMessage = (sendFlags & EnigmailConstants.SEND_SIGNED);
-
-    if (signMessage) {
-      args = args.concat(EnigmailPassword.command());
-    }
-
-    //const inFilePath = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(inFile.QueryInterface(Ci.nsIFile)));
-    const fileContents = EnigmailFiles.readBinaryFile(inFile.QueryInterface(Ci.nsIFile));
-    const inFileName = inFile.QueryInterface(Ci.nsIFile).leafName;
-    const outFilePath = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(outFile.QueryInterface(Ci.nsIFile)));
-
-    args = args.concat(["--yes", "-o", outFilePath, "--set-filename", inFileName]);
-
-    let cmdErrorMsgObj = {};
-
-    const msg = EnigmailExecution.execCmd(EnigmailGpgAgent.agentPath, args, fileContents, exitCodeObj, statusFlagsObj, {}, cmdErrorMsgObj);
-    if (exitCodeObj.value !== 0) {
-      if (cmdErrorMsgObj.value) {
-        errorMsgObj.value = EnigmailFiles.formatCmdLine(EnigmailGpgAgent.agentPath, args);
-        errorMsgObj.value += "\n" + cmdErrorMsgObj.value;
-      }
-      else {
-        errorMsgObj.value = "An unknown error has occurred";
-      }
-
-      return "";
-    }
-
-    return msg;
-  }
 };

@@ -337,55 +337,11 @@ function enigmailDeleteKey() {
     RNP.deleteKey(gKeyList[keyList[j]].fpr, deleteSecret);
   }
   clearKeyCache();
-
-
-  /*
-  let fprArr = [];
-  for (let j in keyList) {
-    fprArr.push("0x" + gKeyList[keyList[j]].fpr);
-  }
-
-  EnigmailKeyEditor.deleteKey(window, fprArr.join(" "), deleteSecret,
-    function(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigAlert(EnigGetString("deleteKeyFailed") + "\n\n" + errorMsg);
-        return;
-      }
-      refreshKeys();
-    });
-  */
 }
 
 
 function enigmailEnableKey() {
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc)
-    return;
-
-  var keyList = getSelectedKeys();
-  var disableKey = (gKeyList[keyList[0]].keyUseFor.indexOf("D") < 0 &&
-    gKeyList[keyList[0]].keyTrust.indexOf(ENIG_KEY_DISABLED) < 0);
-
-  var keyIndex = 0;
-
-  function processNextKey() {
-    EnigmailKeyEditor.enableDisableKey(window, "0x" + gKeyList[keyList[keyIndex]].keyId, disableKey, function _enDisCb(exitCode, errorMsg) {
-      if (exitCode === 0) {
-        ++keyIndex;
-        if (keyIndex < keyList.length) {
-          processNextKey();
-          return;
-        } else {
-          refreshKeys();
-        }
-      } else {
-        EnigAlert(EnigGetString("enableKeyFailed") + "\n\n" + errorMsg);
-        if (keyIndex > 0) refreshKeys();
-      }
-    });
-  }
-
-  processNextKey();
+  throw new Error("Not implemented");
 }
 
 function enigShowPhoto() {
@@ -425,56 +381,7 @@ function enigmailAddPhoto() {
 }
 
 function keyMgrAddPhoto(userId, keyId) {
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc)
-    return;
-  var inFile;
-  var validFile = false;
-  while (!validFile) {
-    inFile = EnigFilePicker(EnigGetString("keyMan.addphoto.filepicker.title"),
-      "", false, "*.jpg",
-      null, ["JPG", "*.jpg", "JPEG", "*.jpeg"]);
-    if (!inFile) return;
-
-    var jpgHeader = EnigReadFileContents(inFile, 10);
-
-    validFile = (jpgHeader.charCodeAt(0) == 0xFF &&
-      jpgHeader.charCodeAt(1) == 0xD8 &&
-      jpgHeader.substr(6, 4) == "JFIF");
-
-    if (!validFile) {
-      EnigAlert(EnigGetString("keyMan.addphoto.noJpegFile"));
-    }
-  }
-
-  if (inFile.fileSize > 25600) {
-    // warn if file size > 25 kB
-    if (!EnigConfirm(EnigGetString("keyMan.addphoto.warnLargeFile"), EnigGetString("dlg.button.continue"), EnigGetString("dlg.button.cancel")))
-      return;
-  }
-
-  var ioServ = enigGetService(IOSERVICE_CONTRACTID, "nsIIOService");
-  var photoUri = ioServ.newFileURI(inFile).spec;
-  var argsObj = {
-    photoUri: photoUri,
-    userId: userId,
-    keyId: keyId,
-    okPressed: false
-  };
-
-  window.openDialog("chrome://openpgp/content/ui/enigmailImportPhoto.xhtml", inFile, "chrome,modal=1,resizable=1,dialog=1,centerscreen", argsObj);
-
-  if (!argsObj.okPressed) return;
-
-  EnigmailKeyEditor.addPhoto(window, "0x" + keyId, inFile,
-    function(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigAlert(EnigGetString("keyMan.addphoto.failed") + "\n\n" + errorMsg);
-        return;
-      }
-      refreshKeys();
-    });
-
+  throw new Error("Not implemented");
 }
 
 function enigCreateKeyMsg() {

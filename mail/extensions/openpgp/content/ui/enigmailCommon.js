@@ -23,7 +23,6 @@ var Ci = Components.interfaces;
 // Many of these components are not used in this file, but are instead used in other files that are loaded together with EnigmailCommon
 var EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
 var EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
-var EnigmailKeyEditor = ChromeUtils.import("chrome://openpgp/content/modules/keyEditor.jsm").EnigmailKeyEditor;
 var EnigmailKey = ChromeUtils.import("chrome://openpgp/content/modules/key.jsm").EnigmailKey;
 var EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
 var EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
@@ -43,7 +42,6 @@ var EnigmailErrorHandling = ChromeUtils.import("chrome://openpgp/content/modules
 var EnigmailKeyServer = ChromeUtils.import("chrome://openpgp/content/modules/keyserver.jsm").EnigmailKeyServer;
 var EnigmailEvents = ChromeUtils.import("chrome://openpgp/content/modules/events.jsm").EnigmailEvents;
 var EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm").EnigmailGpg;
-var EnigmailGpgAgent = ChromeUtils.import("chrome://openpgp/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
 var EnigmailStreams = ChromeUtils.import("chrome://openpgp/content/modules/streams.jsm").EnigmailStreams;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
@@ -472,17 +470,14 @@ function EnigSignKey(userId, keyId) {
 
 
 function EnigChangeKeyPwd(keyId, userId) {
-  // gpg-agent used: gpg-agent will handle everything
-  EnigmailKeyEditor.changePassphrase(window, "0x" + keyId, "", "",
-    function _changePwdCb(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigAlert(EnigGetString("changePassFailed") + "\n\n" + errorMsg);
-      }
-    });
+  throw new Error("Not implemented");
 }
 
 
 function EnigRevokeKey(keyId, userId, callbackFunc) {
+  throw new Error("Not implemented");
+
+  /*
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc)
     return false;
@@ -503,26 +498,8 @@ function EnigRevokeKey(keyId, userId, callbackFunc) {
   } catch (ex) {}
   revFile.append("revkey.asc");
 
-  EnigmailKeyEditor.genRevokeCert(window, "0x" + keyId, revFile, "0", "",
-    function _revokeCertCb(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        revFile.remove(false);
-        EnigAlert(EnigGetString("revokeKeyFailed") + "\n\n" + errorMsg);
-        return;
-      }
-      var errorMsgObj = {};
-      var r = EnigmailKeyRing.importKeyFromFile(revFile, errorMsgObj);
-      revFile.remove(false);
-      if (r !== 0) {
-        EnigAlert(EnigGetString("revokeKeyFailed") + "\n\n" + EnigConvertGpgToUnicode(errorMsgObj.value));
-      } else {
-        EnigAlert(EnigGetString("revokeKeyOk"));
-      }
-      if (callbackFunc) {
-        callbackFunc(r === 0);
-      }
-    });
   return true;
+  */
 }
 
 function EnigGetLocalFileApi() {
@@ -538,6 +515,9 @@ function EnigGetFilePath(nsFileObj) {
 }
 
 function EnigCreateRevokeCert(keyId, userId, callbackFunc) {
+  throw new Error("Not implemented");
+
+  /*
   var defaultFileName = userId.replace(/[<>]/g, "");
   defaultFileName += " (0x" + keyId + ") rev.asc";
   var outFile = EnigFilePicker(EnigGetString("saveRevokeCertAs"),
@@ -549,17 +529,8 @@ function EnigCreateRevokeCert(keyId, userId, callbackFunc) {
   if (!enigmailSvc)
     return -1;
 
-  EnigmailKeyEditor.genRevokeCert(window, "0x" + keyId, outFile, "1", "",
-    function _revokeCertCb(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + errorMsg);
-      } else {
-        EnigAlert(EnigGetString("revokeCertOK"));
-      }
-
-      if (callbackFunc) callbackFunc(exitCode === 0);
-    });
   return 0;
+  */
 }
 
 
