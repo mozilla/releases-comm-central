@@ -1643,6 +1643,14 @@ nsMsgIncomingServer::GetPasswordPromptRequired(bool *aPasswordIsRequired) {
   if (m_password.IsEmpty()) (void)GetPasswordWithoutUI();
 
   *aPasswordIsRequired = m_password.IsEmpty();
+  if (*aPasswordIsRequired) {
+    // Set *aPasswordIsRequired false if authMethod is oauth2.
+    int32_t authMethod = 0;
+    rv = GetAuthMethod(&authMethod);
+    if (NS_SUCCEEDED(rv) && authMethod == nsMsgAuthMethod::OAuth2) {
+      *aPasswordIsRequired = false;
+    }
+  }
   return rv;
 }
 
