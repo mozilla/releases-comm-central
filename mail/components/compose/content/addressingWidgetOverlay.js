@@ -531,6 +531,10 @@ function recipientKeyPress(event, element) {
       }
       break;
     case ",":
+      // Don't trigger autocomplete if the typed value is not a valid address.
+      if (!isValidAddress(element.value)) {
+        return;
+      }
       event.preventDefault();
       element.handleEnter(event);
       break;
