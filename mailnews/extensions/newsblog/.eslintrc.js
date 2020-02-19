@@ -21,9 +21,6 @@ module.exports = {
   },
 
   rules: {
-    // Warn about cyclomatic complexity in functions.
-    complexity: ["error", 80],
-
     // Enforce valid JSDoc comments.
     "valid-jsdoc": [
       "error",

@@ -12,7 +12,7 @@ calWeekInfoService.prototype = {
   classID: Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}"),
 
   // calIWeekInfoService:
-  getWeekTitle: function(aDateTime) {
+  getWeekTitle(aDateTime) {
     /**
      * This implementation is based on the ISO 8601 standard.
      * ISO 8601 defines week one as the first week with at least 4
@@ -81,7 +81,7 @@ calWeekInfoService.prototype = {
    * @param aDate     a date time object
    * @return          a dateTime-object denoting the first day of the week
    */
-  getStartOfWeek: function(aDate) {
+  getStartOfWeek(aDate) {
     let date = aDate.clone();
     date.isDate = true;
     let offset = Services.prefs.getIntPref("calendar.week.start", 0) - aDate.weekday;
@@ -99,7 +99,7 @@ calWeekInfoService.prototype = {
    * @param aDate     a date time object
    * @return          a dateTime-object denoting the last day of the week
    */
-  getEndOfWeek: function(aDate) {
+  getEndOfWeek(aDate) {
     let date = this.getStartOfWeek(aDate);
     date.day += 6;
     return date;

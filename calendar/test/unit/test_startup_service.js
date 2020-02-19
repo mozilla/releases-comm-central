@@ -6,22 +6,22 @@ function run_test() {
   let ssvc = Cc["@mozilla.org/calendar/startup-service;1"].getService(Ci.nsIObserver);
 
   let first = {
-    startup: function(aListener) {
+    startup(aListener) {
       second.canStart = true;
       aListener.onResult(null, Cr.NS_OK);
     },
-    shutdown: function(aListener) {
+    shutdown(aListener) {
       ok(this.canStop);
       aListener.onResult(null, Cr.NS_OK);
     },
   };
 
   let second = {
-    startup: function(aListener) {
+    startup(aListener) {
       ok(this.canStart);
       aListener.onResult(null, Cr.NS_OK);
     },
-    shutdown: function(aListener) {
+    shutdown(aListener) {
       first.canStop = true;
       aListener.onResult(null, Cr.NS_OK);
     },

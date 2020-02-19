@@ -41,24 +41,24 @@ add_test(function test_registration() {
     deleted = false,
     readOnly = false;
   let mgrobs = cal.createAdapter(Ci.calICalendarManagerObserver, {
-    onCalendarRegistered: function(aCalendar) {
+    onCalendarRegistered(aCalendar) {
       if (aCalendar.id == memory.id) {
         registered = true;
       }
     },
-    onCalendarUnregistering: function(aCalendar) {
+    onCalendarUnregistering(aCalendar) {
       if (aCalendar.id == memory.id) {
         unregistered = true;
       }
     },
-    onCalendarDeleting: function(aCalendar) {
+    onCalendarDeleting(aCalendar) {
       if (aCalendar.id == memory.id) {
         deleted = true;
       }
     },
   });
   let calobs = cal.createAdapter(Ci.calIObserver, {
-    onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
+    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
       equal(aCalendar.id, memory.id);
       equal(aName, "readOnly");
       readOnly = aValue;
@@ -212,9 +212,8 @@ add_test(function test_removeModes() {
     memory.wrappedJSObject.getProperty = function(name) {
       if (name == "capabilities.removeModes") {
         return removeModes;
-      } else {
-        return oldGetProperty.apply(this, arguments);
       }
+      return oldGetProperty.apply(this, arguments);
     };
 
     let oldDeleteCalendar = memory.wrappedJSObject.deleteCalendar;

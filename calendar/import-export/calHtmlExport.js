@@ -15,7 +15,7 @@ calHtmlExporter.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.calIExporter]),
   classID: Components.ID("{72d9ab35-9b1b-442a-8cd0-ae49f00b159b}"),
 
-  getFileTypes: function() {
+  getFileTypes() {
     let wildmat = "*.html; *.htm";
     let label = cal.l10n.getCalString("filterHtml", [wildmat]);
     return [
@@ -28,7 +28,7 @@ calHtmlExporter.prototype = {
     ];
   },
 
-  exportToStream: function(aStream, aItems, aTitle) {
+  exportToStream(aStream, aItems, aTitle) {
     let document = cal.xml.parseFile("chrome://calendar/skin/shared/printing/calHtmlExport.html");
     let itemContainer = document.getElementById("item-container");
     document.getElementById("title").textContent = aTitle || cal.l10n.getCalString("HTMLTitle");

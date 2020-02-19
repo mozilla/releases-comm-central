@@ -61,7 +61,7 @@ calICSCalendar.prototype = {
   mObserver: null,
   locked: false,
 
-  initICSCalendar: function() {
+  initICSCalendar() {
     this.mMemoryCalendar = Cc["@mozilla.org/calendar/calendar;1?type=memory"].createInstance(
       Ci.calICalendar
     );
@@ -82,11 +82,11 @@ calICSCalendar.prototype = {
     return cal.l10n.getCalString("icsName");
   },
 
-  createCalendar: function() {
+  createCalendar() {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
-  deleteCalendar: function(_cal, listener) {
+  deleteCalendar(_cal, listener) {
     throw Cr.NS_ERROR_NOT_IMPLEMENTED;
   },
 
@@ -130,7 +130,7 @@ calICSCalendar.prototype = {
     }
   },
 
-  getProperty: function(aName) {
+  getProperty(aName) {
     switch (aName) {
       case "requiresNetwork":
         return !this.uri.schemeIs("file");
@@ -138,17 +138,17 @@ calICSCalendar.prototype = {
     return this.__proto__.__proto__.getProperty.apply(this, arguments);
   },
 
-  refresh: function() {
+  refresh() {
     this.queue.push({ action: "refresh", forceRefresh: false });
     this.processQueue();
   },
 
-  forceRefresh: function() {
+  forceRefresh() {
     this.queue.push({ action: "refresh", forceRefresh: true });
     this.processQueue();
   },
 
-  prepareChannel: function(aChannel, aForceRefresh) {
+  prepareChannel(aChannel, aForceRefresh) {
     aChannel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
     aChannel.notificationCallbacks = this;
 
@@ -157,7 +157,7 @@ calICSCalendar.prototype = {
     this.mHooks.onBeforeGet(aChannel, aForceRefresh);
   },
 
-  createMemoryCalendar: function() {
+  createMemoryCalendar() {
     // Create a new calendar, to get rid of all the old events
     // Don't forget to remove the observer
     if (this.mMemoryCalendar) {
@@ -170,7 +170,7 @@ calICSCalendar.prototype = {
     this.mMemoryCalendar.superCalendar = this;
   },
 
-  doRefresh: function(aForce) {
+  doRefresh(aForce) {
     let channel = Services.io.newChannelFromURI(
       this.mUri,
       null,
@@ -199,7 +199,7 @@ calICSCalendar.prototype = {
   },
 
   // nsIChannelEventSink implementation
-  asyncOnChannelRedirect: function(aOldChannel, aNewChannel, aFlags, aCallback) {
+  asyncOnChannelRedirect(aOldChannel, aNewChannel, aFlags, aCallback) {
     this.prepareChannel(aNewChannel, true);
     aCallback.onRedirectVerifyCallback(Cr.NS_OK);
   },
@@ -207,7 +207,7 @@ calICSCalendar.prototype = {
   // nsIStreamLoaderObserver impl
   // Listener for download. Parse the downloaded file
 
-  onStreamComplete: function(loader, ctxt, status, resultLength, result) {
+  onStreamComplete(loader, ctxt, status, resultLength, result) {
     let cont = false;
 
     if (Components.isSuccessCode(status)) {
@@ -262,7 +262,7 @@ calICSCalendar.prototype = {
     let self = this;
     let listener = {
       // calIIcsParsingListener
-      onParsingComplete: function(rc, parser_) {
+      onParsingComplete(rc, parser_) {
         try {
           for (let item of parser_.getItems()) {
             self.mMemoryCalendar.adoptItem(item, null);
@@ -289,7 +289,7 @@ calICSCalendar.prototype = {
     parser.parseString(str, null, listener);
   },
 
-  writeICS: function() {
+  writeICS() {
     cal.LOG("[calICSCalendar] Commencing write of ICS Calendar " + this.name);
     this.lock();
     try {
@@ -304,13 +304,13 @@ calICSCalendar.prototype = {
     }
   },
 
-  doWriteICS: function() {
+  doWriteICS() {
     cal.LOG("[calICSCalendar] Writing ICS File " + this.uri.spec);
     let self = this;
     let listener = {
       serializer: null,
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
         let inLastWindowClosingSurvivalArea = false;
         try {
           // All events are returned. Now set up a channel and a
@@ -366,7 +366,7 @@ calICSCalendar.prototype = {
           self.forceRefresh();
         }
       },
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
         this.serializer.addItems(aItems);
       },
     };
@@ -406,8 +406,8 @@ calICSCalendar.prototype = {
 
   // nsIStreamListener impl
   // For after publishing. Do error checks here
-  onStartRequest: function(request) {},
-  onDataAvailable: function(request, inStream, sourceOffset, count) {
+  onStartRequest(request) {},
+  onDataAvailable(request, inStream, sourceOffset, count) {
     // All data must be consumed. For an upload channel, there is
     // no meaningful data. So it gets read and then ignored
     let scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
@@ -416,7 +416,7 @@ calICSCalendar.prototype = {
     scriptableInputStream.init(inStream);
     scriptableInputStream.read(-1);
   },
-  onStopRequest: function(request, status, errorMsg) {
+  onStopRequest(request, status, errorMsg) {
     let httpChannel;
     let requestSucceeded = false;
     try {
@@ -462,10 +462,10 @@ calICSCalendar.prototype = {
   // Always use the queue, just to reduce the amount of places where
   // this.mMemoryCalendar.addItem() and friends are called. less
   // copied code.
-  addItem: function(aItem, aListener) {
+  addItem(aItem, aListener) {
     this.adoptItem(aItem.clone(), aListener);
   },
-  adoptItem: function(aItem, aListener) {
+  adoptItem(aItem, aListener) {
     if (this.readOnly) {
       throw calIErrors.CAL_IS_READONLY;
     }
@@ -473,7 +473,7 @@ calICSCalendar.prototype = {
     this.processQueue();
   },
 
-  modifyItem: function(aNewItem, aOldItem, aListener) {
+  modifyItem(aNewItem, aOldItem, aListener) {
     if (this.readOnly) {
       throw calIErrors.CAL_IS_READONLY;
     }
@@ -486,7 +486,7 @@ calICSCalendar.prototype = {
     this.processQueue();
   },
 
-  deleteItem: function(aItem, aListener) {
+  deleteItem(aItem, aListener) {
     if (this.readOnly) {
       throw calIErrors.CAL_IS_READONLY;
     }
@@ -498,7 +498,7 @@ calICSCalendar.prototype = {
     this.processQueue();
   },
 
-  getItem: function(aId, aListener) {
+  getItem(aId, aListener) {
     this.queue.push({
       action: "get_item",
       id: aId,
@@ -507,7 +507,7 @@ calICSCalendar.prototype = {
     this.processQueue();
   },
 
-  getItems: function(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
+  getItems(aItemFilter, aCount, aRangeStart, aRangeEnd, aListener) {
     this.queue.push({
       action: "get_items",
       itemFilter: aItemFilter,
@@ -519,7 +519,7 @@ calICSCalendar.prototype = {
     this.processQueue();
   },
 
-  processQueue: function() {
+  processQueue() {
     if (this.isLocked()) {
       return;
     }
@@ -529,8 +529,8 @@ calICSCalendar.prototype = {
     }
     modListener.prototype = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onGetResult: function(calendar, status, itemType, detail, items) {},
-      onOperationComplete: function() {
+      onGetResult(calendar, status, itemType, detail, items) {},
+      onOperationComplete() {
         this.mAction.opCompleteArgs = arguments;
       },
     };
@@ -593,11 +593,11 @@ calICSCalendar.prototype = {
     }
   },
 
-  lock: function() {
+  lock() {
     this.locked = true;
   },
 
-  unlock: function(errCode) {
+  unlock(errCode) {
     cal.ASSERT(this.locked, "unexpected!");
 
     this.mModificationActions.forEach(action => {
@@ -618,14 +618,14 @@ calICSCalendar.prototype = {
     this.processQueue();
   },
 
-  isLocked: function() {
+  isLocked() {
     return this.locked;
   },
 
-  startBatch: function() {
+  startBatch() {
     this.mObserver.onStartBatch();
   },
-  endBatch: function() {
+  endBatch() {
     this.mObserver.onEndBatch();
   },
 
@@ -651,7 +651,7 @@ calICSCalendar.prototype = {
    *           will be called in the original context in which makeBackup
    *           was called
    */
-  makeBackup: function(aCallback) {
+  makeBackup(aCallback) {
     // Uses |pseudoID|, an id of the calendar, defined below
     function makeName(type) {
       return "calBackupData_" + pseudoID + "_" + type + ".ics";
@@ -809,7 +809,7 @@ calICSCalendar.prototype = {
 
     let self = this;
     let listener = {
-      onDownloadComplete: function(opdownloader, request, ctxt, status, result) {
+      onDownloadComplete(opdownloader, request, ctxt, status, result) {
         if (doInitialBackup) {
           copyToOverwriting(result, backupDir, makeName("initial"));
         }
@@ -842,34 +842,34 @@ calICSObserver.prototype = {
   mInBatch: false,
 
   // calIObserver:
-  onStartBatch: function() {
+  onStartBatch() {
     this.mCalendar.observers.notify("onStartBatch");
     this.mInBatch = true;
   },
-  onEndBatch: function() {
+  onEndBatch() {
     this.mCalendar.observers.notify("onEndBatch");
     this.mInBatch = false;
   },
-  onLoad: function(calendar) {
+  onLoad(calendar) {
     this.mCalendar.observers.notify("onLoad", [calendar]);
   },
-  onAddItem: function(aItem) {
+  onAddItem(aItem) {
     this.mCalendar.observers.notify("onAddItem", [aItem]);
   },
-  onModifyItem: function(aNewItem, aOldItem) {
+  onModifyItem(aNewItem, aOldItem) {
     this.mCalendar.observers.notify("onModifyItem", [aNewItem, aOldItem]);
   },
-  onDeleteItem: function(aDeletedItem) {
+  onDeleteItem(aDeletedItem) {
     this.mCalendar.observers.notify("onDeleteItem", [aDeletedItem]);
   },
-  onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
+  onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
     this.mCalendar.observers.notify("onPropertyChanged", [aCalendar, aName, aValue, aOldValue]);
   },
-  onPropertyDeleting: function(aCalendar, aName) {
+  onPropertyDeleting(aCalendar, aName) {
     this.mCalendar.observers.notify("onPropertyDeleting", [aCalendar, aName]);
   },
 
-  onError: function(aCalendar, aErrNo, aMessage) {
+  onError(aCalendar, aErrNo, aMessage) {
     this.mCalendar.readOnly = true;
     this.mCalendar.notifyError(aErrNo, aMessage);
   },
@@ -894,7 +894,7 @@ function dummyHooks(calendar) {
 }
 
 dummyHooks.prototype = {
-  onBeforeGet: function(aChannel, aForceRefresh) {
+  onBeforeGet(aChannel, aForceRefresh) {
     return true;
   },
 
@@ -904,15 +904,15 @@ dummyHooks.prototype = {
    *     didn't change, there might be no data in this GET), true in all
    *     other cases
    */
-  onAfterGet: function(aChannel) {
+  onAfterGet(aChannel) {
     return true;
   },
 
-  onBeforePut: function(aChannel) {
+  onBeforePut(aChannel) {
     return true;
   },
 
-  onAfterPut: function(aChannel, aRespFunc) {
+  onAfterPut(aChannel, aRespFunc) {
     aRespFunc();
     return true;
   },
@@ -923,7 +923,7 @@ function httpHooks(calendar) {
 }
 
 httpHooks.prototype = {
-  onBeforeGet: function(aChannel, aForceRefresh) {
+  onBeforeGet(aChannel, aForceRefresh) {
     let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
     httpchannel.setRequestHeader("Accept", "text/calendar,text/plain;q=0.8,*/*;q=0.5", false);
 
@@ -939,7 +939,7 @@ httpHooks.prototype = {
     return true;
   },
 
-  onAfterGet: function(aChannel) {
+  onAfterGet(aChannel) {
     let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
     let responseStatus = 0;
     let responseStatusCategory = 0;
@@ -996,7 +996,7 @@ httpHooks.prototype = {
     return true;
   },
 
-  onBeforePut: function(aChannel) {
+  onBeforePut(aChannel) {
     if (this.mEtag) {
       let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
 
@@ -1007,7 +1007,7 @@ httpHooks.prototype = {
     return true;
   },
 
-  onAfterPut: function(aChannel, aRespFunc) {
+  onAfterPut(aChannel, aRespFunc) {
     let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
     try {
       this.mEtag = httpchannel.getResponseHeader("ETag");
@@ -1057,15 +1057,14 @@ httpHooks.prototype = {
   },
 
   // nsIProgressEventSink
-  onProgress: function(aRequest, aContext, aProgress, aProgressMax) {},
-  onStatus: function(aRequest, aContext, aStatus, aStatusArg) {},
+  onProgress(aRequest, aContext, aProgress, aProgressMax) {},
+  onStatus(aRequest, aContext, aStatus, aStatusArg) {},
 
-  getInterface: function(aIid) {
+  getInterface(aIid) {
     if (aIid.equals(Ci.nsIProgressEventSink)) {
       return this;
-    } else {
-      throw Cr.NS_ERROR_NO_INTERFACE;
     }
+    throw Cr.NS_ERROR_NO_INTERFACE;
   },
 };
 
@@ -1074,7 +1073,7 @@ function fileHooks(calendar) {
 }
 
 fileHooks.prototype = {
-  onBeforeGet: function(aChannel, aForceRefresh) {
+  onBeforeGet(aChannel, aForceRefresh) {
     return true;
   },
 
@@ -1084,7 +1083,7 @@ fileHooks.prototype = {
    *     didn't change, there might be no data in this GET), true in all
    *     other cases
    */
-  onAfterGet: function(aChannel) {
+  onAfterGet(aChannel) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
     if (this.mtime) {
       let newMtime = filechannel.file.lastModifiedTime;
@@ -1096,16 +1095,15 @@ fileHooks.prototype = {
     return true;
   },
 
-  onBeforePut: function(aChannel) {
+  onBeforePut(aChannel) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
     if (this.mtime && this.mtime != filechannel.file.lastModifiedTime) {
       return false;
-    } else {
-      return true;
     }
+    return true;
   },
 
-  onAfterPut: function(aChannel, aRespFunc) {
+  onAfterPut(aChannel, aRespFunc) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
     this.mtime = filechannel.file.lastModifiedTime;
     aRespFunc();

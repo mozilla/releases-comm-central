@@ -124,7 +124,7 @@ calFilterProperties.prototype = {
 
   onfilter: null,
 
-  equals: function(aFilterProps) {
+  equals(aFilterProps) {
     if (!(aFilterProps instanceof calFilterProperties)) {
       return false;
     }
@@ -134,7 +134,7 @@ calFilterProperties.prototype = {
     }, this);
   },
 
-  clone: function() {
+  clone() {
     let cloned = new calFilterProperties();
     let props = ["start", "end", "due", "status", "category", "occurrences", "onfilter"];
     props.forEach(function(prop) {
@@ -144,7 +144,7 @@ calFilterProperties.prototype = {
     return cloned;
   },
 
-  LOG: function(aString) {
+  LOG(aString) {
     cal.LOG(
       "[calFilterProperties] " +
         (aString || "") +
@@ -188,7 +188,7 @@ calFilter.prototype = {
   /**
    * Initializes the predefined filters.
    */
-  initDefinedFilters: function() {
+  initDefinedFilters() {
     let filters = [
       "all",
       "notstarted",
@@ -218,7 +218,7 @@ calFilter.prototype = {
    * @result          The filter properties for the specified filter, or null if the filter
    *                  not predefined.
    */
-  getPreDefinedFilterProperties: function(aFilter) {
+  getPreDefinedFilterProperties(aFilter) {
     let props = new calFilterProperties();
 
     if (!aFilter) {
@@ -321,7 +321,7 @@ calFilter.prototype = {
    * @param aFilterName         The name to define the filter properties as.
    * @param aFilterProperties   The filter properties to define.
    */
-  defineFilter: function(aFilterName, aFilterProperties) {
+  defineFilter(aFilterName, aFilterProperties) {
     if (!(aFilterProperties instanceof calFilterProperties)) {
       return;
     }
@@ -336,12 +336,11 @@ calFilter.prototype = {
    * @return                    The properties defined by the filter name, or null if
    *                            the filter name was not previously defined.
    */
-  getDefinedFilterProperties: function(aFilter) {
+  getDefinedFilterProperties(aFilter) {
     if (aFilter in this.mDefinedFilters) {
       return this.mDefinedFilters[aFilter].clone();
-    } else {
-      return null;
     }
+    return null;
   },
 
   /**
@@ -352,7 +351,7 @@ calFilter.prototype = {
    *                            were defined as, or null if the filter properties were
    *                            not previously defined.
    */
-  getDefinedFilterName: function(aFilterProperties) {
+  getDefinedFilterName(aFilterProperties) {
     for (let filter in this.mDefinedFilters) {
       if (this.mDefinedFilters[filter].equals(aFilterProperties)) {
         return filter;
@@ -368,7 +367,7 @@ calFilter.prototype = {
    * @return                    Returns true if the item matches the filter text or no
    *                            filter text has been set, false otherwise.
    */
-  textFilter: function(aItem) {
+  textFilter(aItem) {
     if (!this.mFilterText) {
       return true;
     }
@@ -397,7 +396,7 @@ calFilter.prototype = {
    * @return                    Returns true if the item falls within the date range
    *                            specified by mStartDate and mEndDate, false otherwise.
    */
-  dateRangeFilter: function(aItem) {
+  dateRangeFilter(aItem) {
     return cal.item.checkIfInRange(aItem, this.mStartDate, this.mEndDate);
   },
 
@@ -409,7 +408,7 @@ calFilter.prototype = {
    * @return                    Returns true if the item matches the filter properties
    *                            currently applied, false otherwise.
    */
-  propertyFilter: function(aItem) {
+  propertyFilter(aItem) {
     let result;
     let props = this.mFilterProperties;
     if (!props) {
@@ -492,7 +491,7 @@ calFilter.prototype = {
    *                            date value for the end of the date range.
    * @return                    The calculated date for the property.
    */
-  getDateForProperty: function(prop, start) {
+  getDateForProperty(prop, start) {
     let props = this.mFilterProperties || new calFilterProperties();
     let result = null;
     let selectedDate = this.mSelectedDate || currentView().selectedDay || cal.dtz.now();
@@ -558,7 +557,7 @@ calFilter.prototype = {
    *
    * @return                    The current [startDate, endDate] for the applied filter.
    */
-  getDatesForFilter: function() {
+  getDatesForFilter() {
     let startDate = null;
     let endDate = null;
 
@@ -678,7 +677,7 @@ calFilter.prototype = {
    *                          - a String representing a duration offset from now
    *                          - a Function to use for the onfilter callback for a custom filter
    */
-  applyFilter: function(aFilter) {
+  applyFilter(aFilter) {
     this.mFilterProperties = null;
 
     if (typeof aFilter == "string") {
@@ -716,7 +715,7 @@ calFilter.prototype = {
    *
    * @return                    The current [startDate, endDate] for the applied filter.
    */
-  updateFilterDates: function() {
+  updateFilterDates() {
     let [startDate, endDate] = this.getDatesForFilter();
     this.mStartDate = startDate;
     this.mEndDate = endDate;
@@ -742,7 +741,7 @@ calFilter.prototype = {
    * @return                    A new array containing the items that match the filters, or
    *                            null if no filter has been applied.
    */
-  filterItems: function(aItems, aCallback) {
+  filterItems(aItems, aCallback) {
     if (!this.mFilterProperties) {
       return null;
     }
@@ -765,7 +764,7 @@ calFilter.prototype = {
    * @return                    Returns true if the item matches the filters,
    *                            false otherwise.
    */
-  isItemInFilters: function(aItem) {
+  isItemInFilters(aItem) {
     return this.propertyFilter(aItem) && this.textFilter(aItem);
   },
 
@@ -777,7 +776,7 @@ calFilter.prototype = {
    * @return                    Returns the next occurrence that matches the filters,
    *                            or null if no match is found.
    */
-  getNextOccurrence: function(aItem) {
+  getNextOccurrence(aItem) {
     if (!aItem.recurrenceInfo) {
       return this.isItemInFilters(aItem) ? aItem : null;
     }
@@ -805,23 +804,22 @@ calFilter.prototype = {
       // we've hit the maximum number of iterations without finding a match
       cal.WARN("[calFilter] getNextOccurrence: reached maximum iterations for " + aItem.title);
       return null;
-    } else {
-      // the parent item doesn't match the filter, we can return the first future exception
-      // that matches the filter
-      let exMatch = null;
-      aItem.recurrenceInfo.getExceptionIds().forEach(function(rID) {
-        let ex = aItem.recurrenceInfo.getExceptionFor(rID);
-        ex.QueryInterface(Ci.calIEvent);
-        if (
-          ex &&
-          cal.dtz.now().compare(ex.startDate || ex.entryDate) < 0 &&
-          this.isItemInFilters(ex)
-        ) {
-          exMatch = ex;
-        }
-      }, this);
-      return exMatch;
     }
+    // the parent item doesn't match the filter, we can return the first future exception
+    // that matches the filter
+    let exMatch = null;
+    aItem.recurrenceInfo.getExceptionIds().forEach(function(rID) {
+      let ex = aItem.recurrenceInfo.getExceptionFor(rID);
+      ex.QueryInterface(Ci.calIEvent);
+      if (
+        ex &&
+        cal.dtz.now().compare(ex.startDate || ex.entryDate) < 0 &&
+        this.isItemInFilters(ex)
+      ) {
+        exMatch = ex;
+      }
+    }, this);
+    return exMatch;
   },
 
   /**
@@ -833,7 +831,7 @@ calFilter.prototype = {
    *                            match the filters, an empty array if there are no
    *                            matches, or null if the filter is not initialized.
    */
-  getOccurrences: function(aItem) {
+  getOccurrences(aItem) {
     if (!this.mFilterProperties) {
       return null;
     }
@@ -877,7 +875,7 @@ calFilter.prototype = {
    * @param aListener           The calIOperationListener object to return results to.
    * @return                    the calIOperation handle to track the operation.
    */
-  getItems: function(aCalendar, aItemType, aListener) {
+  getItems(aCalendar, aItemType, aListener) {
     if (!this.mFilterProperties) {
       return null;
     }
@@ -891,7 +889,7 @@ calFilter.prototype = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
       onOperationComplete: aListener.onOperationComplete.bind(aListener),
 
-      onGetResult: function(aOpCalendar, aStatus, aOpItemType, aDetail, aItems) {
+      onGetResult(aOpCalendar, aStatus, aOpItemType, aDetail, aItems) {
         let items;
         if (props.occurrences == props.FILTER_OCCURRENCES_PAST_AND_NEXT) {
           // with the FILTER_OCCURRENCES_PAST_AND_NEXT occurrence filter we will

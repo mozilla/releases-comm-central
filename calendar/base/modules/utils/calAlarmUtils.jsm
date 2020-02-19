@@ -23,7 +23,7 @@ var calalarms = {
    *
    * @param aItem     The item to apply the default alarm values to.
    */
-  setDefaultValues: function(aItem) {
+  setDefaultValues(aItem) {
     let type = cal.item.isEvent(aItem) ? "event" : "todo";
     if (Services.prefs.getIntPref("calendar.alarms.onfor" + type + "s", 0) == 1) {
       let alarmOffset = cal.createDuration();
@@ -62,38 +62,38 @@ var calalarms = {
    * @param aAlarm    The alarm to calculate the date for.
    * @return          The alarm date.
    */
-  calculateAlarmDate: function(aItem, aAlarm) {
+  calculateAlarmDate(aItem, aAlarm) {
     if (aAlarm.related == aAlarm.ALARM_RELATED_ABSOLUTE) {
       return aAlarm.alarmDate;
-    } else {
-      let returnDate;
-      if (aAlarm.related == aAlarm.ALARM_RELATED_START) {
-        returnDate = aItem[cal.dtz.startDateProp(aItem)];
-      } else if (aAlarm.related == aAlarm.ALARM_RELATED_END) {
-        returnDate = aItem[cal.dtz.endDateProp(aItem)];
-      }
-
-      if (returnDate && aAlarm.offset) {
-        // Handle all day events.  This is kinda weird, because they don't
-        // have a well defined startTime.  We just consider the start/end
-        // to be midnight in the user's timezone.
-        if (returnDate.isDate) {
-          let timezone = cal.dtz.defaultTimezone;
-          // This returns a copy, so no extra cloning needed.
-          returnDate = returnDate.getInTimezone(timezone);
-          returnDate.isDate = false;
-        } else if (returnDate.timezone.tzid == "floating") {
-          let timezone = cal.dtz.defaultTimezone;
-          returnDate = returnDate.getInTimezone(timezone);
-        } else {
-          // Clone the date to correctly add the duration.
-          returnDate = returnDate.clone();
-        }
-
-        returnDate.addDuration(aAlarm.offset);
-        return returnDate;
-      }
     }
+    let returnDate;
+    if (aAlarm.related == aAlarm.ALARM_RELATED_START) {
+      returnDate = aItem[cal.dtz.startDateProp(aItem)];
+    } else if (aAlarm.related == aAlarm.ALARM_RELATED_END) {
+      returnDate = aItem[cal.dtz.endDateProp(aItem)];
+    }
+
+    if (returnDate && aAlarm.offset) {
+      // Handle all day events.  This is kinda weird, because they don't
+      // have a well defined startTime.  We just consider the start/end
+      // to be midnight in the user's timezone.
+      if (returnDate.isDate) {
+        let timezone = cal.dtz.defaultTimezone;
+        // This returns a copy, so no extra cloning needed.
+        returnDate = returnDate.getInTimezone(timezone);
+        returnDate.isDate = false;
+      } else if (returnDate.timezone.tzid == "floating") {
+        let timezone = cal.dtz.defaultTimezone;
+        returnDate = returnDate.getInTimezone(timezone);
+      } else {
+        // Clone the date to correctly add the duration.
+        returnDate = returnDate.clone();
+      }
+
+      returnDate.addDuration(aAlarm.offset);
+      return returnDate;
+    }
+
     return null;
   },
 
@@ -108,7 +108,7 @@ var calalarms = {
    *                    passed, ALARM_RELATED_START will be assumed.
    * @return          The alarm offset.
    */
-  calculateAlarmOffset: function(aItem, aAlarm, aRelated) {
+  calculateAlarmOffset(aItem, aAlarm, aRelated) {
     let offset = aAlarm.offset;
     if (aAlarm.related == aAlarm.ALARM_RELATED_ABSOLUTE) {
       let returnDate;
@@ -132,7 +132,7 @@ var calalarms = {
    * @param aElement    The element to add the images to.
    * @param aReminders  The set of reminders to add images for.
    */
-  addReminderImages: function(aElement, aReminders) {
+  addReminderImages(aElement, aReminders) {
     function setupActionImage(node, reminder) {
       let image = node || aElement.ownerDocument.createXULElement("image");
       image.setAttribute("class", "reminder-icon");

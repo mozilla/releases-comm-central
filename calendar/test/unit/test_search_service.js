@@ -20,13 +20,13 @@ function test_found() {
 
   let provider1 = {
     id: 1,
-    searchForCalendars: function() {},
+    searchForCalendars() {},
   };
 
   let provider2 = {
     id: 2,
     called: false,
-    searchForCalendars: function(aStr, aHint, aMax, aListener) {
+    searchForCalendars(aStr, aHint, aMax, aListener) {
       ok(!this.called);
       this.called = true;
 
@@ -51,7 +51,7 @@ function test_found() {
 
   let listener = {
     called: false,
-    onResult: function(request, result) {
+    onResult(request, result) {
       ok(!this.called);
       this.called = true;
 
@@ -69,14 +69,14 @@ function test_failure() {
   search.getProviders().forEach(search.removeProvider, search);
 
   let provider = {
-    searchForCalendars: function(aStr, aHint, aMax, aListener) {
+    searchForCalendars(aStr, aHint, aMax, aListener) {
       throw new Error("error");
     },
   };
 
   let listener = {
     called: false,
-    onResult: function(request, result) {
+    onResult(request, result) {
       ok(!this.called);
       this.called = true;
       equal(result.length, 0);
@@ -94,10 +94,10 @@ function test_cancel() {
 
   let provider = {
     QueryInterface: cal.generateQI([Ci.calICalendarSearchProvider, Ci.calIOperation]),
-    searchForCalendars: function(aStr, aHint, aMax, aListener) {
+    searchForCalendars(aStr, aHint, aMax, aListener) {
       Services.tm.currentThread.dispatch(
         {
-          run: function() {
+          run() {
             dump("Cancelling search...");
             operation.cancel();
           },
@@ -113,14 +113,14 @@ function test_cancel() {
     isPending: true,
     cancelCalled: false,
     status: Cr.NS_OK,
-    cancel: function() {
+    cancel() {
       this.cancelCalled = true;
     },
   };
 
   let listener = {
     called: false,
-    onResult: function(request, result) {
+    onResult(request, result) {
       equal(result, null);
 
       // If an exception occurs, the operation is not added to the opgroup

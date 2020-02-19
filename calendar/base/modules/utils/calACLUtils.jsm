@@ -22,7 +22,7 @@ var calacl = {
    * @param aCalendar     The calendar to check
    * @return              True if the calendar is writable
    */
-  isCalendarWritable: function(aCalendar) {
+  isCalendarWritable(aCalendar) {
     return (
       !aCalendar.getProperty("disabled") &&
       !aCalendar.readOnly &&
@@ -39,7 +39,7 @@ var calacl = {
    * @param aCalendar     The calendar to check
    * @return              True if the calendar is writable
    */
-  userCanAddItemsToCalendar: function(aCalendar) {
+  userCanAddItemsToCalendar(aCalendar) {
     let aclEntry = aCalendar.aclEntry;
     return (
       !aclEntry || !aclEntry.hasAccessControl || aclEntry.userIsOwner || aclEntry.userCanAddItems
@@ -53,7 +53,7 @@ var calacl = {
    * @param aCalendar     The calendar to check
    * @return              True if the calendar is writable
    */
-  userCanDeleteItemsFromCalendar: function(aCalendar) {
+  userCanDeleteItemsFromCalendar(aCalendar) {
     let aclEntry = aCalendar.aclEntry;
     return (
       !aclEntry || !aclEntry.hasAccessControl || aclEntry.userIsOwner || aclEntry.userCanDeleteItems
@@ -68,7 +68,7 @@ var calacl = {
    * @param aItem         The calendar item to check
    * @return              True if the item is modifiable
    */
-  userCanModifyItem: function(aItem) {
+  userCanModifyItem(aItem) {
     let aclEntry = aItem.aclEntry;
     return (
       !aclEntry ||
@@ -86,7 +86,7 @@ var calacl = {
    * @return              True if the invitation w.r.t. the item can be
    *                        responded to.
    */
-  userCanRespondToInvitation: function(aItem) {
+  userCanRespondToInvitation(aItem) {
     let aclEntry = aItem.aclEntry;
     // TODO check if || is really wanted here
     return calacl.userCanModifyItem(aItem) || aclEntry.userCanRespond;

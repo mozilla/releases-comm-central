@@ -14,31 +14,31 @@ calIcsSerializer.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.calIIcsSerializer]),
   classID: Components.ID("{207a6682-8ff1-4203-9160-729ec28c8766}"),
 
-  addItems: function(aItems) {
+  addItems(aItems) {
     if (aItems.length > 0) {
       this.mItems = this.mItems.concat(aItems);
     }
   },
 
-  addProperty: function(aProperty) {
+  addProperty(aProperty) {
     this.mProperties.push(aProperty);
   },
 
-  addComponent: function(aComponent) {
+  addComponent(aComponent) {
     this.mComponents.push(aComponent);
   },
 
-  serializeToString: function() {
+  serializeToString() {
     let calComp = this.getIcalComponent();
     return calComp.serializeToICS();
   },
 
-  serializeToInputStream: function(aStream) {
+  serializeToInputStream(aStream) {
     let calComp = this.getIcalComponent();
     return calComp.serializeToICSStream();
   },
 
-  serializeToStream: function(aStream) {
+  serializeToStream(aStream) {
     let str = this.serializeToString();
 
     // Convert the javascript string to an array of bytes, using the
@@ -52,7 +52,7 @@ calIcsSerializer.prototype = {
     convStream.close();
   },
 
-  getIcalComponent: function() {
+  getIcalComponent() {
     let calComp = cal.getIcsService().createIcalComponent("VCALENDAR");
     cal.item.setStaticProps(calComp);
 

@@ -42,7 +42,7 @@ var caldtz = {
    *
    * @param aTzid     The timezone id to add
    */
-  saveRecentTimezone: function(aTzid) {
+  saveRecentTimezone(aTzid) {
     let recentTimezones = caldtz.getRecentTimezones();
     const MAX_RECENT_TIMEZONES = 5; // We don't need a pref for *everything*.
 
@@ -58,7 +58,7 @@ var caldtz = {
    * Returns a calIDateTime that corresponds to the current time in the user's
    * default timezone.
    */
-  now: function() {
+  now() {
     let date = caldtz.jsDateToDateTime(new Date());
     return date.getInTimezone(caldtz.defaultTimezone);
   },
@@ -70,7 +70,7 @@ var caldtz = {
    * @param aReferenceDate    If passed, the time of this date will be modified,
    *                            keeping the date and timezone intact.
    */
-  getDefaultStartDate: function(aReferenceDate) {
+  getDefaultStartDate(aReferenceDate) {
     let startDate = caldtz.now();
     if (aReferenceDate) {
       let savedHour = startDate.hour;
@@ -98,7 +98,7 @@ var caldtz = {
    * @param aReferenceDate    If passed, the time of this date will be modified,
    *                            keeping the date and timezone intact.
    */
-  setDefaultStartEndHour: function(aItem, aReferenceDate) {
+  setDefaultStartEndHour(aItem, aReferenceDate) {
     aItem[caldtz.startDateProp(aItem)] = caldtz.getDefaultStartDate(aReferenceDate);
 
     if (cal.item.isEvent(aItem)) {
@@ -111,7 +111,7 @@ var caldtz = {
    * Returns the property name used for the start date of an item, ie either an
    * event's start date or a task's entry date.
    */
-  startDateProp: function(aItem) {
+  startDateProp(aItem) {
     if (cal.item.isEvent(aItem)) {
       return "startDate";
     } else if (cal.item.isToDo(aItem)) {
@@ -124,7 +124,7 @@ var caldtz = {
    * Returns the property name used for the end date of an item, ie either an
    * event's end date or a task's due date.
    */
-  endDateProp: function(aItem) {
+  endDateProp(aItem) {
     if (cal.item.isEvent(aItem)) {
       return "endDate";
     } else if (cal.item.isToDo(aItem)) {
@@ -140,7 +140,7 @@ var caldtz = {
    * @param date2     The right date to compare
    * @return          True, if dates are on the same day
    */
-  sameDay: function(date1, date2) {
+  sameDay(date1, date2) {
     if (date1 && date2) {
       if (date1.day == date2.day && date1.month == date2.month && date1.year == date2.year) {
         return true;
@@ -156,7 +156,7 @@ var caldtz = {
    *
    * @param aDate  the date or datetime to check
    */
-  ensureDateTime: function(aDate) {
+  ensureDateTime(aDate) {
     if (!aDate || !aDate.isDate) {
       return aDate;
     }
@@ -177,7 +177,7 @@ var caldtz = {
    *           If you pass a timezone, then the passed jsDate's timezone will be ignored,
    *           but only its local time portions are be taken.
    */
-  jsDateToDateTime: function(aDate, aTimezone) {
+  jsDateToDateTime(aDate, aTimezone) {
     let newDate = cal.createDateTime();
     if (aTimezone) {
       newDate.resetTo(
@@ -202,12 +202,11 @@ var caldtz = {
    * @param cdt       The calIDateTime instnace
    * @return          The Javascript date equivalent.
    */
-  dateTimeToJsDate: function(cdt) {
+  dateTimeToJsDate(cdt) {
     if (cdt.timezone.isFloating) {
       return new Date(cdt.year, cdt.month, cdt.day, cdt.hour, cdt.minute, cdt.second);
-    } else {
-      return new Date(cdt.nativeTime / 1000);
     }
+    return new Date(cdt.nativeTime / 1000);
   },
 
   /**
@@ -218,7 +217,7 @@ var caldtz = {
    * @param aTimezone     The timezone this date string is most likely in
    * @return              A calIDateTime object
    */
-  fromRFC3339: function(aStr, aTimezone) {
+  fromRFC3339(aStr, aTimezone) {
     // XXX I have not covered leapseconds (matches[8]), this might need to
     // be done. The only reference to leap seconds I found is bug 227329.
     let dateTime = cal.createDateTime();
@@ -299,7 +298,7 @@ var caldtz = {
    * @param aDateTime     The calIDateTime object
    * @return              The RFC3339 compliant date string
    */
-  toRFC3339: function(aDateTime) {
+  toRFC3339(aDateTime) {
     if (!aDateTime) {
       return "";
     }
@@ -349,7 +348,7 @@ var caldtz = {
    * @param aConvertZones     (optional) If true, return calITimezones instead
    * @return                  An array of timezone ids or calITimezones.
    */
-  getRecentTimezones: function(aConvertZones) {
+  getRecentTimezones(aConvertZones) {
     let recentTimezones = JSON.parse(
       Services.prefs.getStringPref("calendar.timezone.recent", "[]") || "[]"
     );

@@ -32,13 +32,13 @@ calEvent.prototype = {
     interfaces: calEventInterfaces,
   }),
 
-  cloneShallow: function(aNewParent) {
+  cloneShallow(aNewParent) {
     let cloned = new calEvent();
     this.cloneItemBaseInto(cloned, aNewParent);
     return cloned;
   },
 
-  createProxy: function(aRecurrenceId) {
+  createProxy(aRecurrenceId) {
     cal.ASSERT(!this.mIsProxy, "Tried to create a proxy for an existing proxy!", true);
 
     let proxy = new calEvent();
@@ -56,17 +56,16 @@ calEvent.prototype = {
     return proxy;
   },
 
-  makeImmutable: function() {
+  makeImmutable() {
     this.makeItemBaseImmutable();
   },
 
   get duration() {
     if (this.endDate && this.startDate) {
       return this.endDate.subtractDate(this.startDate);
-    } else {
-      // Return a null-duration if we don't have an end date
-      return cal.createDuration();
     }
+    // Return a null-duration if we don't have an end date
+    return cal.createDuration();
   },
 
   get recurrenceStartDate() {
@@ -148,7 +147,7 @@ calEvent.prototype = {
     this.mDirty = false;
   },
 
-  isPropertyPromoted: function(name) {
+  isPropertyPromoted(name) {
     // avoid strict undefined property warning
     return this.eventPromotedProps[name] || false;
   },

@@ -18,20 +18,20 @@ calTransactionManager.prototype = {
   classID: Components.ID("{1d529847-d292-4222-b066-b8b17a794d62}"),
 
   transactionManager: null,
-  createAndCommitTxn: function(aAction, aItem, aCalendar, aOldItem, aListener, aExtResponse) {
+  createAndCommitTxn(aAction, aItem, aCalendar, aOldItem, aListener, aExtResponse) {
     let txn = new calTransaction(aAction, aItem, aCalendar, aOldItem, aListener, aExtResponse);
     this.transactionManager.doTransaction(txn);
   },
 
-  beginBatch: function() {
+  beginBatch() {
     this.transactionManager.beginBatch(null);
   },
 
-  endBatch: function() {
+  endBatch() {
     this.transactionManager.endBatch(false);
   },
 
-  checkWritable: function(transaction) {
+  checkWritable(transaction) {
     function checkItem(item) {
       return (
         item &&
@@ -45,22 +45,22 @@ calTransactionManager.prototype = {
     return trans && checkItem(trans.mItem) && checkItem(trans.mOldItem);
   },
 
-  undo: function() {
+  undo() {
     this.transactionManager.undoTransaction();
   },
 
-  canUndo: function() {
+  canUndo() {
     return (
       this.transactionManager.numberOfUndoItems > 0 &&
       this.checkWritable(this.transactionManager.peekUndoStack())
     );
   },
 
-  redo: function() {
+  redo() {
     this.transactionManager.redoTransaction();
   },
 
-  canRedo: function() {
+  canRedo() {
     return (
       this.transactionManager.numberOfRedoItems > 0 &&
       this.checkWritable(this.transactionManager.peekRedoStack())
@@ -93,7 +93,7 @@ calTransaction.prototype = {
   mIsDoTransaction: false,
   mExtResponse: null,
 
-  onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+  onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
     if (Components.isSuccessCode(aStatus)) {
       cal.itip.checkAndSend(
         aOperationType,
@@ -118,13 +118,13 @@ calTransaction.prototype = {
     }
   },
 
-  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+  onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
     if (this.mListener) {
       this.mListener.onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems);
     }
   },
 
-  doTransaction: function() {
+  doTransaction() {
     this.mIsDoTransaction = true;
     switch (this.mAction) {
       case "add":
@@ -140,7 +140,7 @@ calTransaction.prototype = {
         } else {
           let self = this;
           let addListener = {
-            onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+            onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
               self.onOperationComplete(...arguments);
               if (Components.isSuccessCode(aStatus)) {
                 self.mOldItem.calendar.deleteItem(self.mOldItem, self);
@@ -160,7 +160,7 @@ calTransaction.prototype = {
     }
   },
 
-  undoTransaction: function() {
+  undoTransaction() {
     this.mIsDoTransaction = false;
     switch (this.mAction) {
       case "add":
@@ -186,13 +186,13 @@ calTransaction.prototype = {
     }
   },
 
-  redoTransaction: function() {
+  redoTransaction() {
     this.doTransaction();
   },
 
   isTransient: false,
 
-  merge: function(aTransaction) {
+  merge(aTransaction) {
     // No support for merging
     return false;
   },

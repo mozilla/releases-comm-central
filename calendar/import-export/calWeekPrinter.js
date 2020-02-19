@@ -20,7 +20,7 @@ calWeekPrinter.prototype = {
     return cal.l10n.getCalString("weekPrinterName");
   },
 
-  formatToHtml: function(aStream, aStart, aEnd, aItems, aTitle) {
+  formatToHtml(aStream, aStart, aEnd, aItems, aTitle) {
     let document = cal.xml.parseFile("chrome://calendar/skin/shared/printing/calWeekPrinter.html");
     let defaultTimezone = cal.dtz.defaultTimezone;
 
@@ -94,7 +94,7 @@ calWeekPrinter.prototype = {
     convStream.writeString(html);
   },
 
-  setupWeek: function(document, startOfWeek, dayTable) {
+  setupWeek(document, startOfWeek, dayTable) {
     const weekdayMap = [
       "sunday",
       "monday",

@@ -19,7 +19,7 @@ calSleepMonitor.prototype = {
   expected: null,
   tolerance: 1000,
 
-  callback: function() {
+  callback() {
     let now = Date.now();
     if (now - this.expected > this.tolerance) {
       cal.LOG("[calSleepMonitor] Sleep cycle detected, notifying observers.");
@@ -27,7 +27,7 @@ calSleepMonitor.prototype = {
     }
     this.expected = now + this.interval;
   },
-  start: function() {
+  start() {
     this.stop();
     this.expected = Date.now() + this.interval;
     this.timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
@@ -37,7 +37,7 @@ calSleepMonitor.prototype = {
       Ci.nsITimer.TYPE_REPEATING_PRECISE
     );
   },
-  stop: function() {
+  stop() {
     if (this.timer) {
       this.timer.cancel();
       this.timer = null;
@@ -45,7 +45,7 @@ calSleepMonitor.prototype = {
   },
 
   // nsIObserver:
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     // calSleepMonitor is not used on Windows or OSX.
     if (Services.appinfo.OS == "WINNT" || Services.appinfo.OS == "Darwin") {
       return;

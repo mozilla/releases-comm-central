@@ -17,7 +17,7 @@ function callOrderedServices(method, services) {
   let service = services.shift();
   if (service) {
     service[method]({
-      onResult: function() {
+      onResult() {
         callOrderedServices(method, services);
       },
     });
@@ -38,7 +38,7 @@ calStartupService.prototype = {
   /**
    * Sets up the needed observers for noticing startup/shutdown
    */
-  setupObservers: function() {
+  setupObservers() {
     Services.obs.addObserver(this, "profile-after-change");
     Services.obs.addObserver(this, "profile-before-change");
     Services.obs.addObserver(this, "xpcom-shutdown");
@@ -52,7 +52,7 @@ calStartupService.prototype = {
    *
    * @return      The startup order as an array.
    */
-  getStartupOrder: function() {
+  getStartupOrder() {
     let self = this;
     let tzService = Cc["@mozilla.org/calendar/timezone-service;1"]
       .getService(Ci.calITimezoneService)
@@ -63,7 +63,7 @@ calStartupService.prototype = {
 
     // Localization service
     let locales = {
-      startup: function(aCompleteListener) {
+      startup(aCompleteListener) {
         let packaged = Services.locale.packagedLocales;
         let fileSrc = new FileSource(
           "calendar",
@@ -73,19 +73,19 @@ calStartupService.prototype = {
         L10nRegistry.registerSource(fileSrc);
         aCompleteListener.onResult(null, Cr.NS_OK);
       },
-      shutdown: function(aCompleteListener) {
+      shutdown(aCompleteListener) {
         aCompleteListener.onResult(null, Cr.NS_OK);
       },
     };
 
     // Notification object
     let notify = {
-      startup: function(aCompleteListener) {
+      startup(aCompleteListener) {
         self.started = true;
         Services.obs.notifyObservers(null, "calendar-startup-done");
         aCompleteListener.onResult(null, Cr.NS_OK);
       },
-      shutdown: function(aCompleteListener) {
+      shutdown(aCompleteListener) {
         // Argh, it would have all been so pretty! Since we just reverse
         // the array, the shutdown notification would happen before the
         // other shutdown calls. For lack of pretty code, I'm
@@ -104,7 +104,7 @@ calStartupService.prototype = {
   /**
    * Observer notification callback
    */
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     switch (aTopic) {
       case "profile-after-change":
         callOrderedServices("startup", this.getStartupOrder());

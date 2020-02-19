@@ -29,15 +29,15 @@ calRecurrenceRule.prototype = {
   innerObject: null,
 
   isMutable: true,
-  makeImmutable: function() {
+  makeImmutable() {
     this.isMutable = false;
   },
-  ensureMutable: function() {
+  ensureMutable() {
     if (!this.isMutable) {
       throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
     }
   },
-  clone: function() {
+  clone() {
     return new calRecurrenceRule(new ICAL.Recur(this.innerObject));
   },
 
@@ -46,13 +46,13 @@ calRecurrenceRule.prototype = {
     return this.innerObject.isFinite();
   },
 
-  getNextOccurrence: function(aStartTime, aRecId) {
+  getNextOccurrence(aStartTime, aRecId) {
     aStartTime = unwrapSingle(ICAL.Time, aStartTime);
     aRecId = unwrapSingle(ICAL.Time, aRecId);
     return wrapGetter(calDateTime, this.innerObject.getNextOccurrence(aStartTime, aRecId));
   },
 
-  getOccurrences: function(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
+  getOccurrences(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
     aStartTime = unwrapSingle(ICAL.Time, aStartTime);
     aRangeStart = unwrapSingle(ICAL.Time, aRangeStart);
     aRangeEnd = unwrapSingle(ICAL.Time, aRangeEnd);
@@ -162,9 +162,8 @@ calRecurrenceRule.prototype = {
   get untilDate() {
     if (this.innerObject.until) {
       return new calDateTime(this.innerObject.until);
-    } else {
-      return null;
     }
+    return null;
   },
   set untilDate(rawval) {
     this.ensureMutable();
@@ -197,7 +196,7 @@ calRecurrenceRule.prototype = {
     this.innerObject.wkst = val + 1;
   },
 
-  getComponent: function(aType) {
+  getComponent(aType) {
     let values = this.innerObject.getComponent(aType);
     if (aType == "BYDAY") {
       // BYDAY values are alphanumeric: SU, MO, TU, etc..
@@ -222,7 +221,7 @@ calRecurrenceRule.prototype = {
     return values;
   },
 
-  setComponent: function(aType, aValues) {
+  setComponent(aType, aValues) {
     let values = aValues;
     if (aType == "BYDAY") {
       // BYDAY values are alphanumeric: SU, MO, TU, etc..

@@ -17,9 +17,9 @@ function calDeletedItems() {
   this.wrappedJSObject = this;
 
   this.completedNotifier = {
-    handleResult: function() {},
-    handleError: function() {},
-    handleCompletion: function() {},
+    handleResult() {},
+    handleError() {},
+    handleCompletion() {},
   };
 }
 
@@ -44,13 +44,13 @@ calDeletedItems.prototype = {
   // be used in real code.
   completedNotifier: null,
 
-  flush: function() {
+  flush() {
     this.ensureStatements();
     this.stmtFlush.params.stale_time = cal.dtz.now().nativeTime - this.STALE_TIME;
     this.stmtFlush.executeAsync(this.completedNotifier);
   },
 
-  getDeletedDate: function(aId, aCalId) {
+  getDeletedDate(aId, aCalId) {
     this.ensureStatements();
     let stmt;
     if (aCalId) {
@@ -75,7 +75,7 @@ calDeletedItems.prototype = {
     return null;
   },
 
-  markDeleted: function(aItem) {
+  markDeleted(aItem) {
     this.ensureStatements();
     this.stmtMarkDelete.params.calId = aItem.calendar.id;
     this.stmtMarkDelete.params.id = aItem.id;
@@ -84,13 +84,13 @@ calDeletedItems.prototype = {
     this.stmtMarkDelete.executeAsync(this.completedNotifier);
   },
 
-  unmarkDeleted: function(aItem) {
+  unmarkDeleted(aItem) {
     this.ensureStatements();
     this.stmtUnmarkDelete.params.id = aItem.id;
     this.stmtUnmarkDelete.executeAsync(this.completedNotifier);
   },
 
-  initDB: function() {
+  initDB() {
     if (this.mDB) {
       // Looks like we've already initialized, exit early
       return;
@@ -117,7 +117,7 @@ calDeletedItems.prototype = {
     cal.addShutdownObserver(this.shutdown.bind(this));
   },
 
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "profile-after-change") {
       // Make sure to observe calendar changes so we know when things are
       // deleted. We don't initialize the statements until first use.
@@ -125,7 +125,7 @@ calDeletedItems.prototype = {
     }
   },
 
-  ensureStatements: function() {
+  ensureStatements() {
     if (!this.mDB) {
       this.initDB();
     }
@@ -153,7 +153,7 @@ calDeletedItems.prototype = {
     }
   },
 
-  shutdown: function() {
+  shutdown() {
     try {
       let stmts = [
         this.stmtMarkDelete,
@@ -178,22 +178,22 @@ calDeletedItems.prototype = {
   },
 
   // calIObserver
-  onStartBatch: function() {},
-  onEndBatch: function() {},
-  onModifyItem: function() {},
-  onError: function() {},
-  onPropertyChanged: function() {},
-  onPropertyDeleting: function() {},
+  onStartBatch() {},
+  onEndBatch() {},
+  onModifyItem() {},
+  onError() {},
+  onPropertyChanged() {},
+  onPropertyDeleting() {},
 
-  onAddItem: function(aItem) {
+  onAddItem(aItem) {
     this.unmarkDeleted(aItem);
   },
 
-  onDeleteItem: function(aItem) {
+  onDeleteItem(aItem) {
     this.markDeleted(aItem);
   },
 
-  onLoad: function() {
+  onLoad() {
     this.flush();
   },
 };

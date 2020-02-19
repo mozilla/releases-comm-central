@@ -20,7 +20,7 @@ calMonthPrinter.prototype = {
     return cal.l10n.getCalString("monthPrinterName");
   },
 
-  formatToHtml: function(aStream, aStart, aEnd, aItems, aTitle) {
+  formatToHtml(aStream, aStart, aEnd, aItems, aTitle) {
     let document = cal.xml.parseFile(
       "chrome://calendar/skin/shared/printing/calMonthGridPrinter.html"
     );
@@ -107,7 +107,7 @@ calMonthPrinter.prototype = {
     convStream.writeString(html);
   },
 
-  normalizeStartDate: function(aStart) {
+  normalizeStartDate(aStart) {
     // Make sure the start date is really a date.
     let startDate = aStart.clone();
     startDate.isDate = true;
@@ -130,7 +130,7 @@ calMonthPrinter.prototype = {
     return startDate;
   },
 
-  normalizeEndDate: function(aEnd) {
+  normalizeEndDate(aEnd) {
     // Copy end date, which is exclusive. For our calculations, we will
     // only be handling dates and the formatToHtml() code is much cleaner with
     // the range being inclusive.
@@ -154,7 +154,7 @@ calMonthPrinter.prototype = {
     return endDate;
   },
 
-  setupMonth: function(document, startOfMonth, dayTable) {
+  setupMonth(document, startOfMonth, dayTable) {
     let monthTemplate = document.getElementById("month-template");
     let monthContainer = document.getElementById("month-container");
 
@@ -199,7 +199,7 @@ calMonthPrinter.prototype = {
     cal.data.binaryInsertNode(monthContainer, currentMonth, currentMonth.item, compareDates);
   },
 
-  setupWeek: function(document, weekContainer, startOfWeek, mainMonth, dayTable) {
+  setupWeek(document, weekContainer, startOfWeek, mainMonth, dayTable) {
     const weekdayMap = [
       "sunday",
       "monday",

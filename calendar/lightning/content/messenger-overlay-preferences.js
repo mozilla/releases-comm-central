@@ -15,7 +15,7 @@
 Preferences.add({ id: "calendar.preferences.lightning.selectedTabIndex", type: "int" });
 
 var gLightningPane = {
-  init: function() {
+  init() {
     let elements = document.querySelectorAll("#paneLightning preference");
     for (let element of elements) {
       element.updateElements();

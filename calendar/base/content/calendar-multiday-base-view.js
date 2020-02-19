@@ -396,9 +396,8 @@
         return this.mStartDate;
       } else if (this.mDateList && this.mDateList.length > 0) {
         return this.mDateList[0];
-      } else {
-        return null;
       }
+      return null;
     }
 
     get endDate() {
@@ -406,9 +405,8 @@
         return this.mEndDate;
       } else if (this.mDateList && this.mDateList.length > 0) {
         return this.mDateList[this.mDateList.length - 1];
-      } else {
-        return null;
       }
+      return null;
     }
 
     set selectedDay(day) {

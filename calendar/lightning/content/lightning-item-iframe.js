@@ -81,7 +81,7 @@ XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
 });
 
 var eventDialogQuitObserver = {
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     // Check whether or not we want to veto the quit request (unless another
     // observer already did.
     if (
@@ -98,7 +98,7 @@ var eventDialogCalendarObserver = {
   target: null,
   isObserving: false,
 
-  onModifyItem: function(aNewItem, aOldItem) {
+  onModifyItem(aNewItem, aOldItem) {
     if (
       this.isObserving &&
       "calendarItem" in window &&
@@ -147,7 +147,7 @@ var eventDialogCalendarObserver = {
     }
   },
 
-  onDeleteItem: function(aDeletedItem) {
+  onDeleteItem(aDeletedItem) {
     if (
       this.isObserving &&
       "calendarItem" in window &&
@@ -158,15 +158,15 @@ var eventDialogCalendarObserver = {
     }
   },
 
-  onStartBatch: function() {},
-  onEndBatch: function() {},
-  onLoad: function() {},
-  onAddItem: function() {},
-  onError: function() {},
-  onPropertyChanged: function() {},
-  onPropertyDeleting: function() {},
+  onStartBatch() {},
+  onEndBatch() {},
+  onLoad() {},
+  onAddItem() {},
+  onError() {},
+  onPropertyChanged() {},
+  onPropertyDeleting() {},
 
-  observe: function(aCalendar) {
+  observe(aCalendar) {
     // use the new calendar if one was passed, otherwise use the last one
     this.target = aCalendar || this.target;
     if (this.target) {
@@ -176,7 +176,7 @@ var eventDialogCalendarObserver = {
     }
   },
 
-  cancel: function() {
+  cancel() {
     if (this.isObserving && this.target) {
       this.target.removeObserver(this);
       this.isObserving = false;
@@ -295,7 +295,7 @@ function receiveMessage(aEvent) {
       let response = onCancel(aEvent.data.id, true);
       sendMessage({
         command: "replyToClosingWindowWithTabs",
-        response: response,
+        response,
       });
       break;
     }
@@ -345,7 +345,7 @@ function onLoad() {
       let item = window.calendarItem;
 
       // ...and close the window.
-      sendMessage({ command: "closeWindowOrTab", iframeId: iframeId });
+      sendMessage({ command: "closeWindowOrTab", iframeId });
 
       return item;
     };
@@ -769,8 +769,8 @@ function loadDialog(aItem) {
     let accessKey = cal.l10n.getString("calendar-event-dialog", accessKeyString);
     sendMessage({
       command: "initializeItemMenu",
-      label: label,
-      accessKey: accessKey,
+      label,
+      accessKey,
     });
   }
 
@@ -1329,10 +1329,10 @@ function dateTimeControls2State(aStartDatepicker) {
  */
 function updateEntryDate() {
   updateDateCheckboxes("todo-entrydate", "todo-has-entrydate", {
-    isValid: function() {
+    isValid() {
       return gStartTime != null;
     },
-    setDateTime: function(date) {
+    setDateTime(date) {
       gStartTime = date;
     },
   });
@@ -1343,10 +1343,10 @@ function updateEntryDate() {
  */
 function updateDueDate() {
   updateDateCheckboxes("todo-duedate", "todo-has-duedate", {
-    isValid: function() {
+    isValid() {
       return gEndTime != null;
     },
-    setDateTime: function(date) {
+    setDateTime(date) {
       gEndTime = date;
     },
   });
@@ -3233,7 +3233,7 @@ function onCommandSave(aIsClosing) {
   // the ability to cancel the operation though.
   let listener = {
     QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-    onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aItem) {
+    onOperationComplete(aCalendar, aStatus, aOpType, aId, aItem) {
       // Check if the current window has a calendarItem first, because in case of undo
       // window refers to the main window and we would get a 'calendarItem is undefined' warning.
       if (!aIsClosing && "calendarItem" in window) {
@@ -3266,7 +3266,7 @@ function onCommandSave(aIsClosing) {
         window.counterProposal.onReschedule();
       }
     },
-    onGetResult: function(calendarItem, status, itemType, detail, items) {},
+    onGetResult(calendarItem, status, itemType, detail, items) {},
   };
   let resp = document.getElementById("notify-attendees-checkbox").checked
     ? Ci.calIItipItem.AUTO
@@ -3305,7 +3305,7 @@ function onCommandDeleteItem() {
   } else {
     let deleteListener = {
       // when deletion of item is complete, close the dialog
-      onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
         // Check if the current window has a calendarItem first, because in case of undo
         // window refers to the main window and we would get a 'calendarItem is undefined' warning.
         if ("calendarItem" in window) {
@@ -3763,11 +3763,10 @@ function showOrHideItemURL(aShow, aUrl) {
     // and there is an external app for the scheme
     handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
     return !handler || handler.externalAppExistsForScheme(uri.scheme);
-  } else {
-    // Hide if there is no url, or the menuitem was chosen so that the url
-    // should be hidden.
-    return false;
   }
+  // Hide if there is no url, or the menuitem was chosen so that the url
+  // should be hidden.
+  return false;
 }
 
 /**

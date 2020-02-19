@@ -96,7 +96,7 @@ var cal = {
    * @param aMsg The message to be shown
    * @param aWindow The window to show the message in, or null for any window.
    */
-  showError: function(aMsg, aWindow = null) {
+  showError(aMsg, aWindow = null) {
     Services.prompt.alert(aWindow, cal.l10n.getCalString("genericErrorTitle"), aMsg);
   },
 
@@ -107,7 +107,7 @@ var cal = {
    * @param aDepth (optional) The number of frames to include. Defaults to 5.
    * @param aSkip  (optional) Number of frames to skip
    */
-  STACK: function(aDepth = 10, aSkip = 0) {
+  STACK(aDepth = 10, aSkip = 0) {
     let stack = "";
     let frame = Components.stack.caller;
     for (let i = 1; i <= aDepth + aSkip && frame; i++) {
@@ -128,7 +128,7 @@ var cal = {
    *                    if false, code flow will continue
    *                    may be a result code
    */
-  ASSERT: function(aCondition, aMessage, aCritical = false) {
+  ASSERT(aCondition, aMessage, aCritical = false) {
     if (aCondition) {
       return;
     }
@@ -159,7 +159,7 @@ var cal = {
    * @param {nsIIDRef[]} aInterfaces  The interfaces that this object implements
    * @return {nsQIResult}             The object queried for aIID
    */
-  generateClassQI: function(aGlobal, aIID, aInterfaces) {
+  generateClassQI(aGlobal, aIID, aInterfaces) {
     const generatedQI =
       aInterfaces.length > 1 ? cal.generateQI(aInterfaces) : ChromeUtils.generateQI(aInterfaces);
     Object.defineProperty(aGlobal, "QueryInterface", { value: generatedQI });
@@ -175,27 +175,26 @@ var cal = {
    * @param {Array<String|nsIIDRef>} aInterfaces      The interfaces to generate QI for.
    * @return {Function}                               The QueryInterface function
    */
-  generateQI: function(aInterfaces) {
+  generateQI(aInterfaces) {
     if (aInterfaces.length == 1) {
       cal.WARN(
         "When generating QI for one interface, please use ChromeUtils.generateQI",
         cal.STACK(10)
       );
       return ChromeUtils.generateQI(aInterfaces);
-    } else {
-      /* Note that Ci[Ci.x] == Ci.x for all x */
-      let names = [];
-      if (aInterfaces) {
-        for (let i = 0; i < aInterfaces.length; i++) {
-          let iface = aInterfaces[i];
-          let name = (iface && iface.name) || String(iface);
-          if (name in Ci) {
-            names.push(name);
-          }
+    }
+    /* Note that Ci[Ci.x] == Ci.x for all x */
+    let names = [];
+    if (aInterfaces) {
+      for (let i = 0; i < aInterfaces.length; i++) {
+        let iface = aInterfaces[i];
+        let name = (iface && iface.name) || String(iface);
+        if (name in Ci) {
+          names.push(name);
         }
       }
-      return makeQI(names);
     }
+    return makeQI(names);
   },
 
   /**
@@ -206,7 +205,7 @@ var cal = {
    * "flags". The values of the properties will be returned as the values of the
    * various properties of the nsIClassInfo implementation.
    */
-  generateCI: function(classInfo) {
+  generateCI(classInfo) {
     if ("QueryInterface" in classInfo) {
       throw Error("In generateCI, don't use a component for generating classInfo");
     }
@@ -222,7 +221,7 @@ var cal = {
       get interfaces() {
         return [Ci.nsIClassInfo, Ci.nsISupports].concat(_interfaces);
       },
-      getScriptableHelper: function() {
+      getScriptableHelper() {
         return null;
       },
       contractID: classInfo.contractID,
@@ -236,7 +235,7 @@ var cal = {
   /**
    * Schedules execution of the passed function to the current thread's queue.
    */
-  postPone: function(func) {
+  postPone(func) {
     if (this.threadingEnabled) {
       Services.tm.currentThread.dispatch({ run: func }, Ci.nsIEventTarget.DISPATCH_NORMAL);
     } else {
@@ -260,7 +259,7 @@ var cal = {
    *  - calIOperationListener
    *  - calICompositeObserver
    */
-  createAdapter: function(iface, template) {
+  createAdapter(iface, template) {
     let methods;
     let adapter = template || {};
     switch (iface.name || iface) {
@@ -306,7 +305,7 @@ var cal = {
    *
    * @return {String}         The generated UUID
    */
-  getUUID: function() {
+  getUUID() {
     let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator);
     // generate uuids without braces to avoid problems with
     // CalDAV servers that don't support filenames with {}
@@ -323,10 +322,10 @@ var cal = {
    * @param topic topic to listen for
    * @param oneTime whether to listen only once
    */
-  addObserver: function(func, topic, oneTime) {
+  addObserver(func, topic, oneTime) {
     let observer = {
       // nsIObserver:
-      observe: function(subject, topic_, data) {
+      observe(subject, topic_, data) {
         if (topic == topic_) {
           if (oneTime) {
             Services.obs.removeObserver(this, topic);
@@ -358,7 +357,7 @@ var cal = {
    * }
    *
    */
-  wrapInstance: function(aObj, aInterface) {
+  wrapInstance(aObj, aInterface) {
     if (!aObj) {
       return null;
     }
@@ -377,7 +376,7 @@ var cal = {
    * @param aObj  The object under consideration
    * @return      The possibly unwrapped object.
    */
-  unwrapInstance: function(aObj) {
+  unwrapInstance(aObj) {
     return aObj && aObj.wrappedJSObject ? aObj.wrappedJSObject : aObj;
   },
 
@@ -386,7 +385,7 @@ var cal = {
    *
    * @param func function to execute
    */
-  addShutdownObserver: function(func) {
+  addShutdownObserver(func) {
     cal.addObserver(func, "xpcom-shutdown", true /* one time */);
   },
 

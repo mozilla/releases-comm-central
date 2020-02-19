@@ -15,26 +15,26 @@ calDateTimeFormatter.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.calIDateTimeFormatter]),
   classID: Components.ID("{4123da9a-f047-42da-a7d0-cc4175b9f36a}"),
 
-  formatDate: function(aDate) {
+  formatDate(aDate) {
     // Format the date using user's format preference (long or short)
     let format = Services.prefs.getIntPref("calendar.date.format", 0);
     return format == 0 ? this.formatDateLong(aDate) : this.formatDateShort(aDate);
   },
 
-  formatDateShort: function(aDate) {
+  formatDateShort(aDate) {
     return this._inTimezone(aDate, { dateStyle: "short" });
   },
 
-  formatDateLong: function(aDate) {
+  formatDateLong(aDate) {
     return this._inTimezone(aDate, { dateStyle: "full" });
   },
 
-  formatDateWithoutYear: function(aDate) {
+  formatDateWithoutYear(aDate) {
     let dtOptions = { month: "short", day: "numeric" };
     return this._inTimezone(aDate, dtOptions);
   },
 
-  formatTime: function(aDate) {
+  formatTime(aDate) {
     if (aDate.isDate) {
       return this.mDateStringBundle.GetStringFromName("AllDay");
     }
@@ -42,16 +42,15 @@ calDateTimeFormatter.prototype = {
     return this._inTimezone(aDate, { timeStyle: "short" });
   },
 
-  formatDateTime: function(aDate) {
+  formatDateTime(aDate) {
     let formattedDate = this.formatDate(aDate);
     let formattedTime = this.formatTime(aDate);
 
     let timeBeforeDate = Services.prefs.getBoolPref("calendar.date.formatTimeBeforeDate", false);
     if (timeBeforeDate) {
       return formattedTime + " " + formattedDate;
-    } else {
-      return formattedDate + " " + formattedTime;
     }
+    return formattedDate + " " + formattedTime;
   },
 
   /**
@@ -61,7 +60,7 @@ calDateTimeFormatter.prototype = {
    * @param  {JsObject}     aOptions The options object for formatting.
    * @return {String}                The date as a string.
    */
-  _inTimezone: function(aDate, aOptions) {
+  _inTimezone(aDate, aOptions) {
     let formatter = new Services.intl.DateTimeFormat(undefined, aOptions);
 
     let timezone = aDate.timezone;
@@ -79,7 +78,7 @@ calDateTimeFormatter.prototype = {
     return formatter.format(cal.dtz.dateTimeToJsDate(aDate));
   },
 
-  formatTimeInterval: function(aStartDate, aEndDate) {
+  formatTimeInterval(aStartDate, aEndDate) {
     if (!aStartDate && aEndDate) {
       return this.formatTime(aEndDate);
     }
@@ -96,7 +95,7 @@ calDateTimeFormatter.prototype = {
     return this.formatTime(aStartDate) + "\u2013" + this.formatTime(aEndDate);
   },
 
-  formatInterval: function(aStartDate, aEndDate) {
+  formatInterval(aStartDate, aEndDate) {
     // Check for tasks without start and/or due date
     if (aEndDate == null && aStartDate == null) {
       return cal.l10n.getCalString("datetimeIntervalTaskWithoutDate");
@@ -125,107 +124,102 @@ calDateTimeFormatter.prototype = {
       // All-day interval, so we should leave out the time part
       if (sameDay) {
         return this.formatDateLong(aStartDate);
-      } else {
-        let startDay = this.formatDayWithOrdinal(aStartDate.day);
-        let startYear = aStartDate.year;
-        let endDay = this.formatDayWithOrdinal(endDate.day);
-        let endYear = endDate.year;
-        if (aStartDate.year != endDate.year) {
-          let startMonthName = cal.l10n.formatMonth(
-            aStartDate.month + 1,
-            "calendar",
-            "daysIntervalBetweenYears"
-          );
-          let endMonthName = cal.l10n.formatMonth(
-            aEndDate.month + 1,
-            "calendar",
-            "daysIntervalBetweenYears"
-          );
-          return cal.l10n.getCalString("daysIntervalBetweenYears", [
-            startMonthName,
-            startDay,
-            startYear,
-            endMonthName,
-            endDay,
-            endYear,
-          ]);
-        } else if (aStartDate.month == endDate.month) {
-          let startMonthName = cal.l10n.formatMonth(
-            aStartDate.month + 1,
-            "calendar",
-            "daysIntervalInMonth"
-          );
-          return cal.l10n.getCalString("daysIntervalInMonth", [
-            startMonthName,
-            startDay,
-            endDay,
-            endYear,
-          ]);
-        } else {
-          let startMonthName = cal.l10n.formatMonth(
-            aStartDate.month + 1,
-            "calendar",
-            "daysIntervalBetweenMonths"
-          );
-          let endMonthName = cal.l10n.formatMonth(
-            aEndDate.month + 1,
-            "calendar",
-            "daysIntervalBetweenMonths"
-          );
-          return cal.l10n.getCalString("daysIntervalBetweenMonths", [
-            startMonthName,
-            startDay,
-            endMonthName,
-            endDay,
-            endYear,
-          ]);
-        }
       }
-    } else {
-      let startDateString = this.formatDate(aStartDate);
-      let startTime = this.formatTime(aStartDate);
-      let endDateString = this.formatDate(endDate);
-      let endTime = this.formatTime(endDate);
-      // non-allday, so need to return date and time
-      if (sameDay) {
-        // End is on the same day as start, so we can leave out the end date
-        if (startTime == endTime) {
-          // End time is on the same time as start, so we can leave out the end time
-          // "5 Jan 2006 13:00"
-          return cal.l10n.getCalString("datetimeIntervalOnSameDateTime", [
-            startDateString,
-            startTime,
-          ]);
-        } else {
-          // still include end time
-          // "5 Jan 2006 13:00 - 17:00"
-          return cal.l10n.getCalString("datetimeIntervalOnSameDay", [
-            startDateString,
-            startTime,
-            endTime,
-          ]);
-        }
-      } else {
-        // Spanning multiple days, so need to include date and time
-        // for start and end
-        // "5 Jan 2006 13:00 - 7 Jan 2006 9:00"
-        return cal.l10n.getCalString("datetimeIntervalOnSeveralDays", [
-          startDateString,
-          startTime,
-          endDateString,
-          endTime,
+      let startDay = this.formatDayWithOrdinal(aStartDate.day);
+      let startYear = aStartDate.year;
+      let endDay = this.formatDayWithOrdinal(endDate.day);
+      let endYear = endDate.year;
+      if (aStartDate.year != endDate.year) {
+        let startMonthName = cal.l10n.formatMonth(
+          aStartDate.month + 1,
+          "calendar",
+          "daysIntervalBetweenYears"
+        );
+        let endMonthName = cal.l10n.formatMonth(
+          aEndDate.month + 1,
+          "calendar",
+          "daysIntervalBetweenYears"
+        );
+        return cal.l10n.getCalString("daysIntervalBetweenYears", [
+          startMonthName,
+          startDay,
+          startYear,
+          endMonthName,
+          endDay,
+          endYear,
+        ]);
+      } else if (aStartDate.month == endDate.month) {
+        let startMonthName = cal.l10n.formatMonth(
+          aStartDate.month + 1,
+          "calendar",
+          "daysIntervalInMonth"
+        );
+        return cal.l10n.getCalString("daysIntervalInMonth", [
+          startMonthName,
+          startDay,
+          endDay,
+          endYear,
         ]);
       }
+      let startMonthName = cal.l10n.formatMonth(
+        aStartDate.month + 1,
+        "calendar",
+        "daysIntervalBetweenMonths"
+      );
+      let endMonthName = cal.l10n.formatMonth(
+        aEndDate.month + 1,
+        "calendar",
+        "daysIntervalBetweenMonths"
+      );
+      return cal.l10n.getCalString("daysIntervalBetweenMonths", [
+        startMonthName,
+        startDay,
+        endMonthName,
+        endDay,
+        endYear,
+      ]);
     }
+    let startDateString = this.formatDate(aStartDate);
+    let startTime = this.formatTime(aStartDate);
+    let endDateString = this.formatDate(endDate);
+    let endTime = this.formatTime(endDate);
+    // non-allday, so need to return date and time
+    if (sameDay) {
+      // End is on the same day as start, so we can leave out the end date
+      if (startTime == endTime) {
+        // End time is on the same time as start, so we can leave out the end time
+        // "5 Jan 2006 13:00"
+        return cal.l10n.getCalString("datetimeIntervalOnSameDateTime", [
+          startDateString,
+          startTime,
+        ]);
+      }
+      // still include end time
+      // "5 Jan 2006 13:00 - 17:00"
+      return cal.l10n.getCalString("datetimeIntervalOnSameDay", [
+        startDateString,
+        startTime,
+        endTime,
+      ]);
+    }
+    // Spanning multiple days, so need to include date and time
+    // for start and end
+    // "5 Jan 2006 13:00 - 7 Jan 2006 9:00"
+    return cal.l10n.getCalString("datetimeIntervalOnSeveralDays", [
+      startDateString,
+      startTime,
+      endDateString,
+      endTime,
+    ]);
   },
 
-  formatDayWithOrdinal: function(aDay) {
+  formatDayWithOrdinal(aDay) {
     let ordinalSymbols = this.mDateStringBundle.GetStringFromName("dayOrdinalSymbol").split(",");
     let dayOrdinalSymbol = ordinalSymbols[aDay - 1] || ordinalSymbols[0];
     return aDay + dayOrdinalSymbol;
   },
 
-  _getItemDates: function(aItem) {
+  _getItemDates(aItem) {
     let start = aItem[cal.dtz.startDateProp(aItem)];
     let end = aItem[cal.dtz.endDateProp(aItem)];
     let kDefaultTimezone = cal.dtz.defaultTimezone;
@@ -245,30 +239,30 @@ calDateTimeFormatter.prototype = {
     return [start, end];
   },
 
-  formatItemInterval: function(aItem) {
+  formatItemInterval(aItem) {
     return this.formatInterval(...this._getItemDates(aItem));
   },
 
-  formatItemTimeInterval: function(aItem) {
+  formatItemTimeInterval(aItem) {
     return this.formatTimeInterval(...this._getItemDates(aItem));
   },
 
-  monthName: function(aMonthIndex) {
+  monthName(aMonthIndex) {
     let oneBasedMonthIndex = aMonthIndex + 1;
     return this.mDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".name");
   },
 
-  shortMonthName: function(aMonthIndex) {
+  shortMonthName(aMonthIndex) {
     let oneBasedMonthIndex = aMonthIndex + 1;
     return this.mDateStringBundle.GetStringFromName("month." + oneBasedMonthIndex + ".Mmm");
   },
 
-  dayName: function(aDayIndex) {
+  dayName(aDayIndex) {
     let oneBasedDayIndex = aDayIndex + 1;
     return this.mDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".name");
   },
 
-  shortDayName: function(aDayIndex) {
+  shortDayName(aDayIndex) {
     let oneBasedDayIndex = aDayIndex + 1;
     return this.mDateStringBundle.GetStringFromName("day." + oneBasedDayIndex + ".Mmm");
   },

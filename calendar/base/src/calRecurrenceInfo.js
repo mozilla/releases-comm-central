@@ -36,17 +36,17 @@ calRecurrenceInfo.prototype = {
   /**
    * Helpers
    */
-  ensureBaseItem: function() {
+  ensureBaseItem() {
     if (!this.mBaseItem) {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
     }
   },
-  ensureMutable: function() {
+  ensureMutable() {
     if (this.mImmutable) {
       throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
     }
   },
-  ensureSortedRecurrenceRules: function() {
+  ensureSortedRecurrenceRules() {
     if (!this.mPositiveRules || !this.mNegativeRules) {
       this.mPositiveRules = [];
       this.mNegativeRules = [];
@@ -66,7 +66,7 @@ calRecurrenceInfo.prototype = {
   get isMutable() {
     return !this.mImmutable;
   },
-  makeImmutable: function() {
+  makeImmutable() {
     if (this.mImmutable) {
       return;
     }
@@ -87,7 +87,7 @@ calRecurrenceInfo.prototype = {
     this.mImmutable = true;
   },
 
-  clone: function() {
+  clone() {
     let cloned = new calRecurrenceInfo();
     cloned.mBaseItem = this.mBaseItem;
 
@@ -163,13 +163,13 @@ calRecurrenceInfo.prototype = {
     return this.mEndDate;
   },
 
-  getRecurrenceItems: function() {
+  getRecurrenceItems() {
     this.ensureBaseItem();
 
     return this.mRecurrenceItems;
   },
 
-  setRecurrenceItems: function(aItems) {
+  setRecurrenceItems(aItems) {
     this.ensureBaseItem();
     this.ensureMutable();
 
@@ -179,13 +179,13 @@ calRecurrenceInfo.prototype = {
     this.mNegativeRules = null;
   },
 
-  countRecurrenceItems: function() {
+  countRecurrenceItems() {
     this.ensureBaseItem();
 
     return this.mRecurrenceItems.length;
   },
 
-  getRecurrenceItemAt: function(aIndex) {
+  getRecurrenceItemAt(aIndex) {
     this.ensureBaseItem();
 
     if (aIndex < 0 || aIndex >= this.mRecurrenceItems.length) {
@@ -195,7 +195,7 @@ calRecurrenceInfo.prototype = {
     return this.mRecurrenceItems[aIndex];
   },
 
-  appendRecurrenceItem: function(aItem) {
+  appendRecurrenceItem(aItem) {
     this.ensureBaseItem();
     this.ensureMutable();
     this.ensureSortedRecurrenceRules();
@@ -208,7 +208,7 @@ calRecurrenceInfo.prototype = {
     }
   },
 
-  deleteRecurrenceItemAt: function(aIndex) {
+  deleteRecurrenceItemAt(aIndex) {
     this.ensureBaseItem();
     this.ensureMutable();
 
@@ -225,7 +225,7 @@ calRecurrenceInfo.prototype = {
     this.mRecurrenceItems.splice(aIndex, 1);
   },
 
-  deleteRecurrenceItem: function(aItem) {
+  deleteRecurrenceItem(aItem) {
     // Because xpcom objects can be wrapped in various ways, testing for
     // mere == sometimes returns false even when it should be true.  Use
     // the interface pointer returned by sip to avoid that problem.
@@ -243,7 +243,7 @@ calRecurrenceInfo.prototype = {
     }
   },
 
-  insertRecurrenceItemAt: function(aItem, aIndex) {
+  insertRecurrenceItemAt(aItem, aIndex) {
     this.ensureBaseItem();
     this.ensureMutable();
     this.ensureSortedRecurrenceRules();
@@ -261,7 +261,7 @@ calRecurrenceInfo.prototype = {
     this.mRecurrenceItems.splice(aIndex, 0, aItem);
   },
 
-  clearRecurrenceItems: function() {
+  clearRecurrenceItems() {
     this.ensureBaseItem();
     this.ensureMutable();
 
@@ -273,7 +273,7 @@ calRecurrenceInfo.prototype = {
   /*
    * calculations
    */
-  getNextOccurrence: function(aTime) {
+  getNextOccurrence(aTime) {
     this.ensureBaseItem();
     this.ensureSortedRecurrenceRules();
 
@@ -415,7 +415,7 @@ calRecurrenceInfo.prototype = {
     return minOccRid ? this.getOccurrenceFor(minOccRid) : null;
   },
 
-  getPreviousOccurrence: function(aTime) {
+  getPreviousOccurrence(aTime) {
     // TODO libical currently does not provide us with easy means of
     // getting the previous occurrence. This could be fixed to improve
     // performance greatly. Filed as libical feature request 1944020.
@@ -434,7 +434,7 @@ calRecurrenceInfo.prototype = {
   },
 
   // internal helper function;
-  calculateDates: function(aRangeStart, aRangeEnd, aMaxCount) {
+  calculateDates(aRangeStart, aRangeEnd, aMaxCount) {
     this.ensureBaseItem();
     this.ensureSortedRecurrenceRules();
 
@@ -587,13 +587,13 @@ calRecurrenceInfo.prototype = {
     return dates;
   },
 
-  getOccurrenceDates: function(aRangeStart, aRangeEnd, aMaxCount) {
+  getOccurrenceDates(aRangeStart, aRangeEnd, aMaxCount) {
     let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
     dates = dates.map(date => date.rstart);
     return dates;
   },
 
-  getOccurrences: function(aRangeStart, aRangeEnd, aMaxCount) {
+  getOccurrences(aRangeStart, aRangeEnd, aMaxCount) {
     let results = [];
     let dates = this.calculateDates(aRangeStart, aRangeEnd, aMaxCount);
     if (dates.length) {
@@ -611,7 +611,7 @@ calRecurrenceInfo.prototype = {
     return results;
   },
 
-  getOccurrenceFor: function(aRecurrenceId) {
+  getOccurrenceFor(aRecurrenceId) {
     let proxy = this.getExceptionFor(aRecurrenceId);
     if (!proxy) {
       return this.item.createProxy(aRecurrenceId);
@@ -619,7 +619,7 @@ calRecurrenceInfo.prototype = {
     return proxy;
   },
 
-  removeOccurrenceAt: function(aRecurrenceId) {
+  removeOccurrenceAt(aRecurrenceId) {
     this.ensureBaseItem();
     this.ensureMutable();
 
@@ -632,7 +632,7 @@ calRecurrenceInfo.prototype = {
     this.appendRecurrenceItem(rdate);
   },
 
-  restoreOccurrenceAt: function(aRecurrenceId) {
+  restoreOccurrenceAt(aRecurrenceId) {
     this.ensureBaseItem();
     this.ensureMutable();
     this.ensureSortedRecurrenceRules();
@@ -681,7 +681,7 @@ calRecurrenceInfo.prototype = {
   // I think is the right thing to do for CalDAV; I don't know what
   // we'll do for incoming ITIP events though.
   //
-  modifyException: function(anItem, aTakeOverOwnership) {
+  modifyException(anItem, aTakeOverOwnership) {
     this.ensureBaseItem();
 
     anItem = cal.unwrapInstance(anItem);
@@ -714,7 +714,7 @@ calRecurrenceInfo.prototype = {
     this.mExceptionMap[exKey] = itemtoadd;
   },
 
-  getExceptionFor: function(aRecurrenceId) {
+  getExceptionFor(aRecurrenceId) {
     this.ensureBaseItem();
     // Interface calIRecurrenceInfo specifies result be null if not found.
     // To avoid strict "reference to undefined property" warning, appending
@@ -723,12 +723,12 @@ calRecurrenceInfo.prototype = {
     return this.mExceptionMap[getRidKey(aRecurrenceId)] || null;
   },
 
-  removeExceptionFor: function(aRecurrenceId) {
+  removeExceptionFor(aRecurrenceId) {
     this.ensureBaseItem();
     delete this.mExceptionMap[getRidKey(aRecurrenceId)];
   },
 
-  getExceptionIds: function() {
+  getExceptionIds() {
     this.ensureBaseItem();
 
     let ids = [];
@@ -742,7 +742,7 @@ calRecurrenceInfo.prototype = {
   // changing the startdate of an item needs to take exceptions into account.
   // in case we're about to modify a parentItem (aka 'folded' item), we need
   // to modify the recurrenceId's of all possibly existing exceptions as well.
-  onStartDateChange: function(aNewStartTime, aOldStartTime) {
+  onStartDateChange(aNewStartTime, aOldStartTime) {
     // passing null for the new starttime would indicate an error condition,
     // since having a recurrence without a starttime is invalid.
     cal.ASSERT(aNewStartTime, "invalid arg!", true);
@@ -808,7 +808,7 @@ calRecurrenceInfo.prototype = {
     }
   },
 
-  onIdChange: function(aNewId) {
+  onIdChange(aNewId) {
     // patch all overridden items' id:
     for (let ex in this.mExceptionMap) {
       let item = this.mExceptionMap[ex];

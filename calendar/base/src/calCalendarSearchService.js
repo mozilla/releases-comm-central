@@ -18,7 +18,7 @@ calCalendarSearchListener.prototype = {
   mNumOperations: 0,
   opGroup: null,
 
-  notifyResult: function(result) {
+  notifyResult(result) {
     let listener = this.mFinalListener;
     if (listener) {
       if (!this.opGroup.isPending) {
@@ -29,7 +29,7 @@ calCalendarSearchListener.prototype = {
   },
 
   // calIGenericOperationListener:
-  onResult: function(aOperation, aResult) {
+  onResult(aOperation, aResult) {
     if (this.mFinalListener) {
       if (!aOperation || !aOperation.isPending) {
         --this.mNumOperations;
@@ -67,7 +67,7 @@ calCalendarSearchService.prototype = {
   }),
 
   // calICalendarSearchProvider:
-  searchForCalendars: function(aString, aHints, aMaxResults, aListener) {
+  searchForCalendars(aString, aHints, aMaxResults, aListener) {
     let groupListener = new calCalendarSearchListener(this.mProviders.size, aListener);
     for (let provider of this.mProviders.values()) {
       try {
@@ -83,13 +83,13 @@ calCalendarSearchService.prototype = {
   },
 
   // calICalendarSearchService:
-  getProviders: function() {
+  getProviders() {
     return [...this.mProviders];
   },
-  addProvider: function(aProvider) {
+  addProvider(aProvider) {
     this.mProviders.add(aProvider.QueryInterface(Ci.calICalendarSearchProvider));
   },
-  removeProvider: function(aProvider) {
+  removeProvider(aProvider) {
     this.mProviders.delete(aProvider.QueryInterface(Ci.calICalendarSearchProvider));
   },
 };

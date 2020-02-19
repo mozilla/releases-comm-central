@@ -35,9 +35,9 @@ function calAlarmService() {
     alarmService: this,
 
     // calIObserver:
-    onStartBatch: function() {},
-    onEndBatch: function() {},
-    onLoad: function(calendar) {
+    onStartBatch() {},
+    onEndBatch() {},
+    onLoad(calendar) {
       // ignore any onLoad events until initial getItems() call of startup has finished:
       if (calendar && this.alarmService.mLoadedCalendars[calendar.id]) {
         // a refreshed calendar signals that it has been reloaded
@@ -46,10 +46,10 @@ function calAlarmService() {
       }
     },
 
-    onAddItem: function(aItem) {
+    onAddItem(aItem) {
       this.alarmService.addAlarmsForOccurrences(aItem);
     },
-    onModifyItem: function(aNewItem, aOldItem) {
+    onModifyItem(aNewItem, aOldItem) {
       if (!aNewItem.recurrenceId) {
         // deleting an occurrence currently calls modifyItem(newParent, *oldOccurrence*)
         aOldItem = aOldItem.parentItem;
@@ -58,11 +58,11 @@ function calAlarmService() {
       this.onDeleteItem(aOldItem);
       this.onAddItem(aNewItem);
     },
-    onDeleteItem: function(aDeletedItem) {
+    onDeleteItem(aDeletedItem) {
       this.alarmService.removeAlarmsForOccurrences(aDeletedItem);
     },
-    onError: function(aCalendar, aErrNo, aMessage) {},
-    onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
+    onError(aCalendar, aErrNo, aMessage) {},
+    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
       switch (aName) {
         case "suppressAlarms":
         case "disabled":
@@ -70,7 +70,7 @@ function calAlarmService() {
           break;
       }
     },
-    onPropertyDeleting: function(aCalendar, aName) {
+    onPropertyDeleting(aCalendar, aName) {
       this.onPropertyChanged(aCalendar, aName);
     },
   };
@@ -79,18 +79,18 @@ function calAlarmService() {
     QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
     alarmService: this,
 
-    onCalendarRegistered: function(aCalendar) {
+    onCalendarRegistered(aCalendar) {
       this.alarmService.observeCalendar(aCalendar);
       // initial refresh of alarms for new calendar:
       this.alarmService.initAlarms([aCalendar]);
     },
-    onCalendarUnregistering: function(aCalendar) {
+    onCalendarUnregistering(aCalendar) {
       // XXX todo: we need to think about calendar unregistration;
       // there may still be dangling items (-> alarm dialog),
       // dismissing those alarms may write data...
       this.alarmService.unobserveCalendar(aCalendar);
     },
-    onCalendarDeleting: function(aCalendar) {
+    onCalendarDeleting(aCalendar) {
       this.alarmService.unobserveCalendar(aCalendar);
       delete this.alarmService.mLoadedCalendars[aCalendar.id];
     },
@@ -121,7 +121,7 @@ calAlarmService.prototype = {
   /**
    * nsIObserver
    */
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     // This will also be called on app-startup, but nothing is done yet, to
     // prevent unwanted dialogs etc. See bug 325476 and 413296
     if (aTopic == "profile-after-change" || aTopic == "wake_notification") {
@@ -146,7 +146,7 @@ calAlarmService.prototype = {
     return (this.mTimezone = aTimezone);
   },
 
-  snoozeAlarm: function(aItem, aAlarm, aDuration) {
+  snoozeAlarm(aItem, aAlarm, aDuration) {
     // Right now we only support snoozing all alarms for the given item for
     // aDuration.
 
@@ -178,7 +178,7 @@ calAlarmService.prototype = {
     return newEvent.calendar.modifyItem(newEvent, aItem.parentItem, null);
   },
 
-  dismissAlarm: function(aItem, aAlarm) {
+  dismissAlarm(aItem, aAlarm) {
     let rv;
     if (cal.acl.isCalendarWritable(aItem.calendar) && cal.acl.userCanModifyItem(aItem)) {
       let now = nowUTC();
@@ -207,15 +207,15 @@ calAlarmService.prototype = {
     return rv;
   },
 
-  addObserver: function(aObserver) {
+  addObserver(aObserver) {
     this.mObservers.add(aObserver);
   },
 
-  removeObserver: function(aObserver) {
+  removeObserver(aObserver) {
     this.mObservers.delete(aObserver);
   },
 
-  startup: function() {
+  startup() {
     if (this.mStarted) {
       return;
     }
@@ -238,7 +238,7 @@ calAlarmService.prototype = {
     /* set up a timer to update alarms every N hours */
     let timerCallback = {
       alarmService: this,
-      notify: function() {
+      notify() {
         let now = nowUTC();
         let start;
         if (this.alarmService.mRangeEnd) {
@@ -271,7 +271,7 @@ calAlarmService.prototype = {
     this.mStarted = true;
   },
 
-  shutdown: function() {
+  shutdown() {
     if (!this.mStarted) {
       return;
     }
@@ -301,17 +301,17 @@ calAlarmService.prototype = {
     this.mStarted = false;
   },
 
-  observeCalendar: function(calendar) {
+  observeCalendar(calendar) {
     calendar.addObserver(this.calendarObserver);
   },
 
-  unobserveCalendar: function(calendar) {
+  unobserveCalendar(calendar) {
     calendar.removeObserver(this.calendarObserver);
     this.disposeCalendarTimers([calendar]);
     this.mObservers.notify("onRemoveAlarmsByCalendar", [calendar]);
   },
 
-  addAlarmsForItem: function(aItem) {
+  addAlarmsForItem(aItem) {
     if (cal.item.isToDo(aItem) && aItem.isCompleted) {
       // If this is a task and it is completed, don't add the alarm.
       return;
@@ -397,7 +397,7 @@ calAlarmService.prototype = {
     }
   },
 
-  removeAlarmsForItem: function(aItem) {
+  removeAlarmsForItem(aItem) {
     // make sure already fired alarms are purged out of the alarm window:
     this.mObservers.notify("onRemoveAlarmsByItem", [aItem]);
     // Purge alarms specifically for this item (i.e exception)
@@ -406,7 +406,7 @@ calAlarmService.prototype = {
     }
   },
 
-  getOccurrencesInRange: function(aItem) {
+  getOccurrencesInRange(aItem) {
     // We search 1 month in each direction for alarms.  Therefore,
     // we need occurrences between initial start date and 1 month from now
     let until = nowUTC();
@@ -414,33 +414,32 @@ calAlarmService.prototype = {
 
     if (aItem && aItem.recurrenceInfo) {
       return aItem.recurrenceInfo.getOccurrences(this.mRangeStart, until, 0);
-    } else {
-      return cal.item.checkIfInRange(aItem, this.mRangeStart, until) ? [aItem] : [];
     }
+    return cal.item.checkIfInRange(aItem, this.mRangeStart, until) ? [aItem] : [];
   },
 
-  addAlarmsForOccurrences: function(aParentItem) {
+  addAlarmsForOccurrences(aParentItem) {
     let occs = this.getOccurrencesInRange(aParentItem);
 
     // Add an alarm for each occurrence
     occs.forEach(this.addAlarmsForItem, this);
   },
 
-  removeAlarmsForOccurrences: function(aParentItem) {
+  removeAlarmsForOccurrences(aParentItem) {
     let occs = this.getOccurrencesInRange(aParentItem);
 
     // Remove alarm for each occurrence
     occs.forEach(this.removeAlarmsForItem, this);
   },
 
-  addTimer: function(aItem, aAlarm, aTimeout) {
+  addTimer(aItem, aAlarm, aTimeout) {
     this.mTimerMap[aItem.calendar.id] = this.mTimerMap[aItem.calendar.id] || {};
     this.mTimerMap[aItem.calendar.id][aItem.hashId] =
       this.mTimerMap[aItem.calendar.id][aItem.hashId] || {};
 
     let self = this;
     let alarmTimerCallback = {
-      notify: function() {
+      notify() {
         self.alarmFired(aItem, aAlarm);
       },
     };
@@ -449,7 +448,7 @@ calAlarmService.prototype = {
     this.mTimerMap[aItem.calendar.id][aItem.hashId][aAlarm.icalString] = timer;
   },
 
-  removeTimer: function(aItem, aAlarm) {
+  removeTimer(aItem, aAlarm) {
     /* Is the calendar in the timer map */
     if (
       aItem.calendar.id in this.mTimerMap &&
@@ -477,7 +476,7 @@ calAlarmService.prototype = {
     }
   },
 
-  disposeCalendarTimers: function(aCalendars) {
+  disposeCalendarTimers(aCalendars) {
     for (let calendar of aCalendars) {
       if (calendar.id in this.mTimerMap) {
         for (let hashId in this.mTimerMap[calendar.id]) {
@@ -492,14 +491,14 @@ calAlarmService.prototype = {
     }
   },
 
-  findAlarms: function(aCalendars, aStart, aUntil) {
+  findAlarms(aCalendars, aStart, aUntil) {
     let getListener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
       alarmService: this,
       addRemovePromise: PromiseUtils.defer(),
       batchCount: 0,
       results: false,
-      onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
         this.addRemovePromise.promise.then(
           aValue => {
             // calendar has been loaded, so until now, onLoad events can be ignored:
@@ -520,7 +519,7 @@ calAlarmService.prototype = {
           this.addRemovePromise.resolve();
         }
       },
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
         let promise = this.addRemovePromise;
         this.batchCount++;
         this.results = true;
@@ -562,7 +561,7 @@ calAlarmService.prototype = {
     }
   },
 
-  initAlarms: function(aCalendars) {
+  initAlarms(aCalendars) {
     // Purge out all alarm timers belonging to the refreshed/loaded calendars
     this.disposeCalendarTimers(aCalendars);
 
@@ -583,7 +582,7 @@ calAlarmService.prototype = {
     this.findAlarms(aCalendars, start, until);
   },
 
-  alarmFired: function(aItem, aAlarm) {
+  alarmFired(aItem, aAlarm) {
     if (
       !aItem.calendar.getProperty("suppressAlarms") &&
       !aItem.calendar.getProperty("disabled") &&

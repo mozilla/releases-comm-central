@@ -32,6 +32,7 @@ module.exports = {
   plugins: ["html", "mozilla"],
 
   rules: {
+    complexity: ["error", 80],
     "func-names": ["error", "never"],
     "mozilla/prefer-boolean-length-check": "off",
   },

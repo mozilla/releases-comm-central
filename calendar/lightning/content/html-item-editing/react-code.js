@@ -12,12 +12,12 @@
 var gTopComponent = null;
 
 var Tabstrip = React.createClass({
-  handleChange: function(index) {
+  handleChange(index) {
     // The click handler will update the state with
     // the index of the focused menu entry
     this.props.onInput(this.props.keyprop, index);
   },
-  render: function() {
+  render() {
     return React.DOM.ul(
       { id: "tabstrip" },
       this.props.tabs.map((tab, index) => {
@@ -38,10 +38,10 @@ var Tabstrip = React.createClass({
 });
 
 var TextField = React.createClass({
-  handleChange: function(event) {
+  handleChange(event) {
     this.props.onInput(this.props.keyprop, event.target.value);
   },
-  render: function() {
+  render() {
     return React.DOM.input({
       type: "text",
       // placeholder: "New Event"
@@ -52,10 +52,10 @@ var TextField = React.createClass({
 });
 
 var TextArea = React.createClass({
-  handleChange: function(event) {
+  handleChange(event) {
     this.props.onInput(this.props.keyprop, event.target.value);
   },
-  render: function() {
+  render() {
     return React.DOM.textarea({
       type: "text",
       // placeholder: "New Event"
@@ -69,10 +69,10 @@ var TextArea = React.createClass({
 });
 
 var Checkbox = React.createClass({
-  handleChange: function(event) {
+  handleChange(event) {
     this.props.onInput(this.props.keyprop, event.target.checked);
   },
-  render: function() {
+  render() {
     return React.DOM.input({
       type: "checkbox",
       checked: this.props.checked,
@@ -82,10 +82,10 @@ var Checkbox = React.createClass({
 });
 
 var Dropdown = React.createClass({
-  handleChange: function(event) {
+  handleChange(event) {
     this.props.onInput(this.props.keyprop, event.target.value);
   },
-  render: function() {
+  render() {
     return React.DOM.select(
       {
         value: this.props.value,
@@ -108,10 +108,10 @@ var Dropdown = React.createClass({
 });
 
 var Link = React.createClass({
-  handleClick: function() {
+  handleClick() {
     this.props.onInput(this.props.value);
   },
-  render: function() {
+  render() {
     return React.DOM.a(
       {
         // href: "",
@@ -123,16 +123,16 @@ var Link = React.createClass({
 });
 
 var DatePicker = React.createClass({
-  render: function() {
+  render() {
     return React.DOM.input({ type: "date" });
   },
 });
 
 var Capsule = React.createClass({
-  handleDelete: function() {
+  handleDelete() {
     this.props.onDelete(this.props.keyprop, this.props.value);
   },
-  render: function() {
+  render() {
     return React.DOM.span(
       {
         className: "capsule",
@@ -151,7 +151,7 @@ var Capsule = React.createClass({
 });
 
 var TopComponent = React.createClass({
-  getDefaultProps: function() {
+  getDefaultProps() {
     return {
       // these "initial" props are passed in as props but
       // immediately become state (state can change, props do not)
@@ -222,7 +222,7 @@ var TopComponent = React.createClass({
       supportsPriority: false,
     };
   },
-  getInitialState: function() {
+  getInitialState() {
     // all the passed-in props that begin with 'initial' become state
     return {
       title: this.props.initialTitle,
@@ -253,51 +253,51 @@ var TopComponent = React.createClass({
       activeTab: 0,
     };
   },
-  updateWideview: function() {
+  updateWideview() {
     let wideview = window.innerWidth > 750;
     if (wideview != this.state.isWideview) {
       this.setState({ isWideview: wideview });
     }
   },
-  componentWillMount: function() {
+  componentWillMount() {
     this.updateWideview();
   },
-  componentDidMount: function() {
+  componentDidMount() {
     window.addEventListener("resize", this.updateWideview);
   },
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     window.removeEventListener("resize", this.updateWideview);
   },
-  exportState: function() {
+  exportState() {
     // Use this to access this component's state from above/outside
     // the react component hierarchy, for example, when saving changes.
     return this.state;
   },
-  importState: function(aStateObj) {
+  importState(aStateObj) {
     // Use this to impose state changes from above/outside of the
     // react component hierarchy.
     this.setState(aStateObj);
   },
-  handleSimpleChange: function(aKey, aValue) {
+  handleSimpleChange(aKey, aValue) {
     let obj = {};
     obj[aKey] = aValue;
     this.setState(obj);
   },
-  handleShowTimeAsChange: function(aKey, aValue) {
+  handleShowTimeAsChange(aKey, aValue) {
     // convert from true/false to OPAQUE/TRANSPARENT
     let list = this.props.showTimeAsList;
     let index = list.findIndex(i => i[1] == aValue);
     let newValue = list[index][0];
     this.handleSimpleChange(aKey, newValue);
   },
-  linkClicked: function(aValue) {},
-  onDeleteCapsule: function(aKey, aValue) {
+  linkClicked(aValue) {},
+  onDeleteCapsule(aKey, aValue) {
     let a = this.state[aKey];
     let index = a.indexOf(aValue);
     a.splice(index, 1);
     this.setState({ aKey: a });
   },
-  render: function() {
+  render() {
     // 'key' doesn't seem to work as a prop name (presumably because
     // already used by react?), so using 'keyprop' instead for now.
     let titleDiv = React.DOM.div(
@@ -525,59 +525,58 @@ var TopComponent = React.createClass({
           showTimeAsDiv
         )
       );
-    } else {
-      // narrowview
-      let tabpanelChildren = [
-        descriptionDiv,
-        React.DOM.div(
-          {
-            className: "wrapper",
-            style: { flexDirection: "column" },
-          },
-          statusDiv,
-          priorityDiv,
-          showTimeAsDiv
-        ),
-        remindersDiv,
-        attachmentsDiv,
-        attendeesDiv,
-      ];
-      let tabpanels = this.props.tabs.map((elem, index) => {
-        return React.DOM.div(
-          {
-            className: "box tabpanel " + (this.state.activeTab == index ? "" : "hidden"),
-            key: "tabpanelkey " + index,
-          },
-          tabpanelChildren[index]
-        );
-      });
-      return React.DOM.div(
-        { id: "topwrapper" },
-        React.DOM.div(
-          { className: "wrapper" },
-          titleDiv,
-          locationDiv,
-          startDiv,
-          endDiv,
-          allDayDiv,
-          repeatDiv,
-          React.DOM.div(
-            { style: { flexDirection: "row", display: "flex" } },
-            calendarDiv,
-            privacyDiv
-          ),
-          categoriesDiv,
-          React.createElement(Tabstrip, {
-            tabs: this.props.tabs,
-            keyprop: "activeTab",
-            activeTab: this.state.activeTab,
-            onInput: this.handleSimpleChange,
-          }),
-          tabpanels,
-          urlDiv
-        )
-      );
     }
+    // narrowview
+    let tabpanelChildren = [
+      descriptionDiv,
+      React.DOM.div(
+        {
+          className: "wrapper",
+          style: { flexDirection: "column" },
+        },
+        statusDiv,
+        priorityDiv,
+        showTimeAsDiv
+      ),
+      remindersDiv,
+      attachmentsDiv,
+      attendeesDiv,
+    ];
+    let tabpanels = this.props.tabs.map((elem, index) => {
+      return React.DOM.div(
+        {
+          className: "box tabpanel " + (this.state.activeTab == index ? "" : "hidden"),
+          key: "tabpanelkey " + index,
+        },
+        tabpanelChildren[index]
+      );
+    });
+    return React.DOM.div(
+      { id: "topwrapper" },
+      React.DOM.div(
+        { className: "wrapper" },
+        titleDiv,
+        locationDiv,
+        startDiv,
+        endDiv,
+        allDayDiv,
+        repeatDiv,
+        React.DOM.div(
+          { style: { flexDirection: "row", display: "flex" } },
+          calendarDiv,
+          privacyDiv
+        ),
+        categoriesDiv,
+        React.createElement(Tabstrip, {
+          tabs: this.props.tabs,
+          keyprop: "activeTab",
+          activeTab: this.state.activeTab,
+          onInput: this.handleSimpleChange,
+        }),
+        tabpanels,
+        urlDiv
+      )
+    );
   },
 });
 

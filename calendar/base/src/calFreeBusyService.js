@@ -19,7 +19,7 @@ calFreeBusyListener.prototype = {
   mNumOperations: 0,
   opGroup: null,
 
-  notifyResult: function(result) {
+  notifyResult(result) {
     let listener = this.mFinalListener;
     if (listener) {
       if (!this.opGroup.isPending) {
@@ -30,7 +30,7 @@ calFreeBusyListener.prototype = {
   },
 
   // calIGenericOperationListener:
-  onResult: function(aOperation, aResult) {
+  onResult(aOperation, aResult) {
     if (this.mFinalListener) {
       if (!aOperation || !aOperation.isPending) {
         --this.mNumOperations;
@@ -59,7 +59,7 @@ calFreeBusyService.prototype = {
   mProviders: null,
 
   // calIFreeBusyProvider:
-  getFreeBusyIntervals: function(aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
+  getFreeBusyIntervals(aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
     let groupListener = new calFreeBusyListener(this.mProviders.size, aListener);
     for (let provider of this.mProviders.values()) {
       let operation = provider.getFreeBusyIntervals(
@@ -75,10 +75,10 @@ calFreeBusyService.prototype = {
   },
 
   // calIFreeBusyService:
-  addProvider: function(aProvider) {
+  addProvider(aProvider) {
     this.mProviders.add(aProvider.QueryInterface(Ci.calIFreeBusyProvider));
   },
-  removeProvider: function(aProvider) {
+  removeProvider(aProvider) {
     this.mProviders.delete(aProvider.QueryInterface(Ci.calIFreeBusyProvider));
   },
 };

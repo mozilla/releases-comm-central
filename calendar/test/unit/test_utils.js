@@ -130,7 +130,7 @@ function test_OperationGroup() {
   let pendingOp1 = {
     id: 1,
     isPending: true,
-    cancel: function() {
+    cancel() {
       this.cancelCalled = true;
       return true;
     },
@@ -143,7 +143,7 @@ function test_OperationGroup() {
   let pendingOp2 = {
     id: 2,
     isPending: true,
-    cancel: function() {
+    cancel() {
       this.cancelCalled = true;
       return true;
     },

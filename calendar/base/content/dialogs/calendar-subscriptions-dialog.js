@@ -100,7 +100,7 @@ function onSearch() {
   }
 
   let opListener = {
-    onResult: function(operation, result) {
+    onResult(operation, result) {
       if (result) {
         for (let calendar of result) {
           let newNode = document.createXULElement("richlistitem", {

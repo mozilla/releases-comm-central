@@ -150,9 +150,8 @@ function getSqlTable(schemaVersion) {
   let version = "v" + (schemaVersion || DB_SCHEMA_VERSION);
   if (version in upgrade) {
     return upgrade[version]();
-  } else {
-    return {};
   }
+  return {};
 }
 
 /**
@@ -1209,7 +1208,7 @@ upgrade.v16 = function(db, version) {
   beginTransaction(db);
   try {
     createFunction(db, "translateAlarm", 4, {
-      onFunctionCall: function(storArgs) {
+      onFunctionCall(storArgs) {
         try {
           let [aOffset, aRelated, aAlarmTime, aTzId] = mapStorageArgs(storArgs);
 
@@ -1562,7 +1561,7 @@ upgrade.v22 = function(db, version) {
   try {
     // Update attachments to using icalString directly
     createFunction(db, "translateAttachment", 3, {
-      onFunctionCall: function(storArgs) {
+      onFunctionCall(storArgs) {
         try {
           let [aData, aFmtType, aEncoding] = mapStorageArgs(storArgs);
 
@@ -1587,7 +1586,7 @@ upgrade.v22 = function(db, version) {
 
     // Update relations to using icalString directly
     createFunction(db, "translateRelation", 2, {
-      onFunctionCall: function(storArgs) {
+      onFunctionCall(storArgs) {
         try {
           let [aRelType, aRelId] = mapStorageArgs(storArgs);
           let relation = cal.createRelation();
@@ -1604,7 +1603,7 @@ upgrade.v22 = function(db, version) {
 
     // Update attendees table to using icalString directly
     createFunction(db, "translateAttendee", 8, {
-      onFunctionCall: function(storArgs) {
+      onFunctionCall(storArgs) {
         try {
           let [
             aAttendeeId,
@@ -1671,7 +1670,7 @@ upgrade.v22 = function(db, version) {
 
     // Update recurrence table to using icalString directly
     createFunction(db, "translateRecurrence", 17, {
-      onFunctionCall: function(storArgs) {
+      onFunctionCall(storArgs) {
         function parseInt10(x) {
           return parseInt(x, 10);
         }

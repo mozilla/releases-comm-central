@@ -8,7 +8,7 @@ function run_test() {
     .getTimezoneService()
     .QueryInterface(Ci.calIStartupService)
     .startup({
-      onResult: function() {
+      onResult() {
         really_run_test();
         do_test_finished();
       },

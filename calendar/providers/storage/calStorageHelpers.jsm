@@ -48,9 +48,8 @@ function getInUtcOrKeepFloating(date) {
   let timezone = date.timezone;
   if (timezone.isFloating || timezone.isUTC) {
     return date;
-  } else {
-    return date.getInTimezone(cal.dtz.UTC);
   }
+  return date.getInTimezone(cal.dtz.UTC);
 }
 
 /**
@@ -128,7 +127,7 @@ function calStorageTimezone(comp) {
   this.longitude = null;
 }
 calStorageTimezone.prototype = {
-  toString: function() {
+  toString() {
     return this.icalComponent.toString();
   },
 };

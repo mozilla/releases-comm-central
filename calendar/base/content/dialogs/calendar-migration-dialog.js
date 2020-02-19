@@ -10,7 +10,7 @@ var gMigrateWizard = {
    * that were passed in via window.arguments and adds them to checklist. The
    * user can then check these off to migrate the data from those sources.
    */
-  loadMigrators: function() {
+  loadMigrators() {
     let wizardPage2 = document.getElementById("wizardPage2");
     wizardPage2.addEventListener("pageshow", gMigrateWizard.migrateChecked);
 
@@ -40,7 +40,7 @@ var gMigrateWizard = {
    * that were checked and begins migrating their data.  Also controls the
    * progress dialog so the user can see what is happening. (somewhat)
    */
-  migrateChecked: function() {
+  migrateChecked() {
     let migrators = [];
 
     // Get all the checked migrators into an array
@@ -105,7 +105,7 @@ var gMigrateWizard = {
   /**
    * Makes sure the wizard "back" button can not be pressed.
    */
-  setCanRewindFalse: function() {
+  setCanRewindFalse() {
     document.querySelector("wizard").canRewind = false;
   },
 };

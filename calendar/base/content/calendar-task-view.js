@@ -22,7 +22,7 @@ var taskDetailsView = {
    * XXXberend Please document this function, possibly also consolidate since
    * its the only function in taskDetailsView.
    */
-  onSelect: function(event) {
+  onSelect(event) {
     function displayElement(id, flag) {
       setBooleanAttribute(id, "hidden", !flag);
       return flag;
@@ -192,7 +192,7 @@ var taskDetailsView = {
     }
   },
 
-  loadCategories: function() {
+  loadCategories() {
     let categoryPopup = document.getElementById("task-actions-category-popup");
     let item = document.getElementById("calendar-task-tree").currentTask;
 
@@ -233,7 +233,7 @@ var taskDetailsView = {
     }
   },
 
-  saveCategories: function(event) {
+  saveCategories(event) {
     let categoryPopup = document.getElementById("task-actions-category-popup");
     let item = document.getElementById("calendar-task-tree").currentTask;
 
@@ -257,7 +257,7 @@ var taskDetailsView = {
     return true;
   },
 
-  categoryTextboxKeypress: function(event) {
+  categoryTextboxKeypress(event) {
     let category = event.target.value;
     let categoryPopup = document.getElementById("task-actions-category-popup");
 

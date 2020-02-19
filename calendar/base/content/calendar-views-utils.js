@@ -30,7 +30,7 @@ var calendarViewController = {
    * Creates a new event
    * @see calICalendarViewController
    */
-  createNewEvent: function(calendar, startTime, endTime, forceAllday) {
+  createNewEvent(calendar, startTime, endTime, forceAllday) {
     // if we're given both times, skip the dialog
     if (startTime && endTime && !startTime.isDate && !endTime.isDate) {
       let item = cal.createEvent();
@@ -46,7 +46,7 @@ var calendarViewController = {
    * Modifies the given occurrence
    * @see calICalendarViewController
    */
-  modifyOccurrence: function(occurrence, newStartTime, newEndTime, newTitle) {
+  modifyOccurrence(occurrence, newStartTime, newEndTime, newTitle) {
     // if modifying this item directly (e.g. just dragged to new time),
     // then do so; otherwise pop up the dialog
     if (newStartTime || newEndTime || newTitle) {
@@ -91,7 +91,7 @@ var calendarViewController = {
    * Deletes the given occurrences
    * @see calICalendarViewController
    */
-  deleteOccurrences: function(occurrencesArg, useParentItems, doNotConfirm, extResponseArg = null) {
+  deleteOccurrences(occurrencesArg, useParentItems, doNotConfirm, extResponseArg = null) {
     startBatchTransaction();
     let recurringItems = {};
     let extResponse = extResponseArg || { responseMode: Ci.calIItipItem.USER };
@@ -328,7 +328,7 @@ function scheduleMidnightUpdate(refreshCallback) {
   // workaround bug 291386.  If we don't, we stand a decent chance of getting
   // stuck in an infinite loop.
   let udCallback = {
-    notify: function(timer) {
+    notify(timer) {
       refreshCallback();
     },
   };
@@ -562,10 +562,10 @@ function selectAllEvents() {
   let items = [];
   let listener = {
     QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-    onOperationComplete: function(calendar, status, operationType, id, detail) {
+    onOperationComplete(calendar, status, operationType, id, detail) {
       currentView().setSelectedItems(items, false);
     },
-    onGetResult: function(calendar, status, itemType, detail, itemsArg) {
+    onGetResult(calendar, status, itemType, detail, itemsArg) {
       for (let item of itemsArg) {
         items.push(item);
       }
@@ -594,7 +594,7 @@ function selectAllEvents() {
 }
 
 var calendarNavigationBar = {
-  setDateRange: function(startDate, endDate) {
+  setDateRange(startDate, endDate) {
     let docTitle = "";
     if (startDate) {
       let intervalLabel = document.getElementById("intervalDescription");
@@ -637,13 +637,13 @@ var calendarNavigationBar = {
  */
 var timeIndicator = {
   timer: null,
-  start: function(interval, thisArg) {
+  start(interval, thisArg) {
     timeIndicator.timer = setInterval(
       () => thisArg.updateTimeIndicatorPosition(false),
       interval * 1000
     );
   },
-  cancel: function() {
+  cancel() {
     if (timeIndicator.timer) {
       clearTimeout(timeIndicator.timer);
       timeIndicator.timer = null;
@@ -653,7 +653,7 @@ var timeIndicator = {
 };
 
 var timezoneObserver = {
-  observe: function() {
+  observe() {
     let minimonth = getMinimonth();
     minimonth.update(minimonth.value);
   },

@@ -21,7 +21,7 @@ var calprint = {
    * @param dt    The date to translate
    * @return      YYYY-MM-DD
    */
-  getDateKey: function(date) {
+  getDateKey(date) {
     return date.year + "-" + date.month + "-" + date.day;
   },
 
@@ -40,7 +40,7 @@ var calprint = {
    * @param item              The item to serialize
    * @param dayContainer      The DOM Node to insert the container in
    */
-  addItemToDaybox: function(document, item, boxDate, dayContainer) {
+  addItemToDaybox(document, item, boxDate, dayContainer) {
     // Clone our template
     let itemNode = document.getElementById("item-template").cloneNode(true);
     itemNode.removeAttribute("id");
@@ -85,7 +85,7 @@ var calprint = {
    * @param document          The DOM Document to set things on
    * @param item              The item to serialize
    */
-  addItemToDayboxNodate: function(document, item) {
+  addItemToDayboxNodate(document, item) {
     let taskContainer = document.getElementById("task-container");
     let taskNode = document.getElementById("task-template").cloneNode(true);
     taskNode.removeAttribute("id");
@@ -121,7 +121,7 @@ var calprint = {
    * @param aItem     The item providing the interval
    * @return          The string describing the interval
    */
-  getItemIntervalString: function(aItem, aBoxDate) {
+  getItemIntervalString(aItem, aBoxDate) {
     // omit time label for all-day items
     let startDate = aItem[cal.dtz.startDateProp(aItem)];
     let endDate = aItem[cal.dtz.endDateProp(aItem)];
@@ -145,19 +145,17 @@ var calprint = {
     if (start.compare(end) == 0) {
       // Events that start and end in the same day.
       return dateFormatter.formatTimeInterval(startDate, endDate);
-    } else {
-      // Events that span two or more days.
-      let compareStart = aBoxDate.compare(start);
-      let compareEnd = aBoxDate.compare(end);
-      if (compareStart == 0) {
-        return "\u21e4 " + dateFormatter.formatTime(startDate); // unicode '⇤'
-      } else if (compareStart > 0 && compareEnd < 0) {
-        return "\u21ff"; // unicode '↔'
-      } else if (compareEnd == 0) {
-        return "\u21e5 " + dateFormatter.formatTime(endDate); // unicode '⇥'
-      } else {
-        return "";
-      }
     }
+    // Events that span two or more days.
+    let compareStart = aBoxDate.compare(start);
+    let compareEnd = aBoxDate.compare(end);
+    if (compareStart == 0) {
+      return "\u21e4 " + dateFormatter.formatTime(startDate); // unicode '⇤'
+    } else if (compareStart > 0 && compareEnd < 0) {
+      return "\u21ff"; // unicode '↔'
+    } else if (compareEnd == 0) {
+      return "\u21e5 " + dateFormatter.formatTime(endDate); // unicode '⇥'
+    }
+    return "";
   },
 };

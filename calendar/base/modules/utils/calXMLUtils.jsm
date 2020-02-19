@@ -26,7 +26,7 @@ var calxml = {
    * @param aType     (optional) Force a result type, must be an XPathResult constant
    * @return          The result, see above for details.
    */
-  evalXPath: function(aNode, aExpr, aResolver, aType) {
+  evalXPath(aNode, aExpr, aResolver, aType) {
     const XPR = {
       // XPathResultType
       ANY_TYPE: 0,
@@ -113,14 +113,13 @@ var calxml = {
    * @param aType     (optional) Force a result type, must be an XPathResult constant
    * @return          The result, see above for details.
    */
-  evalXPathFirst: function(aNode, aExpr, aResolver, aType) {
+  evalXPathFirst(aNode, aExpr, aResolver, aType) {
     let result = calxml.evalXPath(aNode, aExpr, aResolver, aType);
 
     if (Array.isArray(result)) {
       return result[0];
-    } else {
-      return result;
     }
+    return result;
   },
 
   /**
@@ -129,7 +128,7 @@ var calxml = {
    * @param str       The string to parse
    * @return          The parsed DOM Document
    */
-  parseString: function(str) {
+  parseString(str) {
     let parser = new DOMParser();
     parser.forceEnableXULXBL();
     return parser.parseFromString(str, "application/xml");
@@ -142,7 +141,7 @@ var calxml = {
    * @param uri       The URI to read.
    * @return          The DOM Document resulting from the file.
    */
-  parseFile: function(uri) {
+  parseFile(uri) {
     let req = new XMLHttpRequest();
     req.open("GET", uri, false);
     req.overrideMimeType("text/xml");
@@ -156,7 +155,7 @@ var calxml = {
    * @param doc       The DOM document to serialize
    * @return          The DOM document as a string.
    */
-  serializeDOM: function(doc) {
+  serializeDOM(doc) {
     let serializer = new XMLSerializer();
     return serializer.serializeToString(doc);
   },
@@ -168,7 +167,7 @@ var calxml = {
    * @param isAttribute   If true, " and ' are also escaped
    * @return              The escaped string
    */
-  escapeString: function(str, isAttribute) {
+  escapeString(str, isAttribute) {
     return str.replace(/[&<>'"]/g, chr => {
       switch (chr) {
         case "&":

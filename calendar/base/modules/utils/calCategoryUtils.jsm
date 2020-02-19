@@ -21,7 +21,7 @@ var calcategory = {
    *
    * @return      The default set of categories as a comma separated string.
    */
-  setupDefaultCategories: function() {
+  setupDefaultCategories() {
     let defaultBranch = Services.prefs.getDefaultBranch("");
 
     // First, set up the category names
@@ -48,7 +48,7 @@ var calcategory = {
    *
    * @return                      array of category names
    */
-  fromPrefs: function() {
+  fromPrefs() {
     let categories = Services.prefs.getStringPref("calendar.categories.names", null);
 
     // If no categories are configured load a default set from properties file
@@ -69,7 +69,7 @@ var calcategory = {
    *                                which may contain escaped commas (\,) in names.
    * @return                      list of category names
    */
-  stringToArray: function(aCategories) {
+  stringToArray(aCategories) {
     if (!aCategories) {
       return [];
     }
@@ -98,7 +98,7 @@ var calcategory = {
    *                                    contain unescaped commas, which will
    *                                    be escaped in combined string.
    */
-  arrayToString: function(aSortedCategoriesArray) {
+  arrayToString(aSortedCategoriesArray) {
     return aSortedCategoriesArray.map(cat => cat.replace(/,/g, "\\,")).join(",");
   },
 };

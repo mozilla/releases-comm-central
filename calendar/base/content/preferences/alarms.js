@@ -31,7 +31,7 @@ var gAlarmsPane = {
    * Initialize the alarms pref pane. Sets up dialog controls to match the
    * values set in prefs.
    */
-  init: function() {
+  init() {
     // Enable/disable the alarm sound URL box and buttons
     this.alarmsPlaySoundPrefChanged();
 
@@ -51,21 +51,20 @@ var gAlarmsPane = {
    * @param aFileURL    A string with a file:// url.
    * @return            The corresponding nsIFile.
    */
-  convertURLToLocalFile: function(aFileURL) {
+  convertURLToLocalFile(aFileURL) {
     // Convert the file url into a nsIFile
     if (aFileURL) {
       let fph = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
       return fph.getFileFromURLSpec(aFileURL);
-    } else {
-      return null;
     }
+    return null;
   },
 
   /**
    * Handler function to be called when the calendar.alarms.soundURL pref has
    * changed. Updates the label in the dialog.
    */
-  readSoundLocation: function() {
+  readSoundLocation() {
     let soundUrl = document.getElementById("alarmSoundFileField");
     soundUrl.value = Preferences.get("calendar.alarms.soundURL").value;
     if (soundUrl.value.startsWith("file://")) {
@@ -80,7 +79,7 @@ var gAlarmsPane = {
   /**
    * Causes the default sound to be selected in the dialog controls
    */
-  useDefaultSound: function() {
+  useDefaultSound() {
     let defaultSoundUrl = "chrome://calendar/content/sound.wav";
     Preferences.get("calendar.alarms.soundURL").value = defaultSoundUrl;
     document.getElementById("alarmSoundCheckbox").checked = true;
@@ -90,7 +89,7 @@ var gAlarmsPane = {
   /**
    * Opens a filepicker to open a local sound for the alarm.
    */
-  browseAlarm: function() {
+  browseAlarm() {
     let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
     // If we already have a sound file, then use the path for that sound file
@@ -120,7 +119,7 @@ var gAlarmsPane = {
   /**
    * Plays the alarm sound currently selected.
    */
-  previewAlarm: function() {
+  previewAlarm() {
     let soundUrl;
     if (Preferences.get("calendar.alarms.soundType").value == 0) {
       soundUrl = "chrome://calendar/content/sound.wav";
@@ -147,7 +146,7 @@ var gAlarmsPane = {
    * has been changed. Updates the disabled state of fields that depend on
    * playing a sound.
    */
-  alarmsPlaySoundPrefChanged: function() {
+  alarmsPlaySoundPrefChanged() {
     let alarmsPlaySoundPref = Preferences.get("calendar.alarms.playsound");
     let alarmsSoundType = Preferences.get("calendar.alarms.soundType");
 

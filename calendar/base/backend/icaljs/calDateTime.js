@@ -18,10 +18,10 @@ calDateTime.prototype = {
   classID: Components.ID("{36783242-ec94-4d8a-9248-d2679edd55b9}"),
 
   isMutable: true,
-  makeImmutable: function() {
+  makeImmutable() {
     this.isMutable = false;
   },
-  clone: function() {
+  clone() {
     return new calDateTime(this.innerObject.clone());
   },
 
@@ -92,19 +92,19 @@ calDateTime.prototype = {
     );
   },
 
-  resetTo: function(year, month, day, hour, minute, second, timezone) {
+  resetTo(year, month, day, hour, minute, second, timezone) {
     this.innerObject.fromData({
-      year: year,
+      year,
       month: month + 1,
-      day: day,
-      hour: hour,
-      minute: minute,
-      second: second,
+      day,
+      hour,
+      minute,
+      second,
     });
     this.timezone = timezone;
   },
 
-  reset: function() {
+  reset() {
     this.innerObject.reset();
   },
 
@@ -125,7 +125,7 @@ calDateTime.prototype = {
     return this.innerObject.dayOfYear();
   },
 
-  toString: function() {
+  toString() {
     return this.innerObject.toString();
   },
 
@@ -155,10 +155,9 @@ calDateTime.prototype = {
     if (a.isDate || b.isDate) {
       // Lightning expects 20120101 and 20120101T010101 to be equal
       return a.compareDateOnlyTz(b, a.zone);
-    } else {
-      // If both are dates or date-times, then just do the normal compare
-      return a.compare(b);
     }
+    // If both are dates or date-times, then just do the normal compare
+    return a.compare(b);
   }),
 
   get startOfWeek() {

@@ -23,7 +23,7 @@ calProtocolHandler.prototype = {
     return this.mHttpProtocol.protocolFlags;
   },
 
-  newURI: function(aSpec, anOriginalCharset, aBaseURI) {
+  newURI(aSpec, anOriginalCharset, aBaseURI) {
     return Cc["@mozilla.org/network/standard-url-mutator;1"]
       .createInstance(Ci.nsIStandardURLMutator)
       .init(
@@ -37,7 +37,7 @@ calProtocolHandler.prototype = {
       .QueryInterface(Ci.nsIStandardURL);
   },
 
-  newChannel: function(aUri, aLoadInfo) {
+  newChannel(aUri, aLoadInfo) {
     let uri = aUri
       .mutate()
       .setScheme(this.mHttpProtocol.scheme)
@@ -61,7 +61,7 @@ calProtocolHandler.prototype = {
   },
 
   // We are not overriding any special ports
-  allowPort: function(aPort, aScheme) {
+  allowPort(aPort, aScheme) {
     return false;
   },
 };

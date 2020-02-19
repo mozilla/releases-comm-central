@@ -40,7 +40,7 @@ add_task(async function test_setDefaultValues_events() {
   equal(item.getAlarms().length, 0);
 
   let mockCalendar = {
-    getProperty: function() {
+    getProperty() {
       return ["SHOUT"];
     },
   };
@@ -100,7 +100,7 @@ add_task(async function test_setDefaultValues_tasks() {
   equal(item.getAlarms().length, 0);
 
   let mockCalendar = {
-    getProperty: function() {
+    getProperty() {
       return ["SHOUT"];
     },
   };

@@ -50,7 +50,7 @@ var taskEdit = {
    * @param aDisable  A boolean if the target should be disabled.
    * @param aValue    The value that should be set on the target.
    */
-  setupTaskField: function(aTarget, aDisable, aValue) {
+  setupTaskField(aTarget, aDisable, aValue) {
     aTarget.value = aValue;
     setElementValue(aTarget, aDisable && "true", "readonly");
     setElementValue(aTarget, aDisable && "true", "aria-disabled");
@@ -61,7 +61,7 @@ var taskEdit = {
    *
    * @param aEvent    The DOM focus event
    */
-  onFocus: function(aEvent) {
+  onFocus(aEvent) {
     let edit = aEvent.target;
     let calendar = getSelectedCalendar();
     edit.showsInstructions = true;
@@ -81,7 +81,7 @@ var taskEdit = {
    *
    * @param aEvent    The DOM blur event
    */
-  onBlur: function(aEvent) {
+  onBlur(aEvent) {
     let edit = aEvent.target;
     let calendar = getSelectedCalendar();
     if (!calendar) {
@@ -107,7 +107,7 @@ var taskEdit = {
    *
    * @param aEvent    The DOM keypress event
    */
-  onKeyPress: function(aEvent) {
+  onKeyPress(aEvent) {
     if (aEvent.key == "Enter") {
       let edit = aEvent.target;
       if (edit.value && edit.value.length > 0) {
@@ -125,7 +125,7 @@ var taskEdit = {
    * Window load function to set up all quick-add inputs. The input must
    * have the class "task-edit-field".
    */
-  onLoad: function(aEvent) {
+  onLoad(aEvent) {
     let taskEditFields = document.getElementsByClassName("task-edit-field");
     for (let i = 0; i < taskEditFields.length; i++) {
       taskEdit.onBlur({ target: taskEditFields[i] });
@@ -138,7 +138,7 @@ var taskEdit = {
   /**
    * Window load function to clean up all quick-add fields.
    */
-  onUnload: function() {
+  onUnload() {
     cal.view.getCompositeCalendar(window).removeObserver(taskEdit.compositeObserver);
     taskEdit.observedCalendar = null;
   },
@@ -153,15 +153,15 @@ var taskEdit = {
     QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
 
     // calIObserver:
-    onStartBatch: function() {},
-    onEndBatch: function() {},
-    onLoad: function(aCalendar) {},
-    onAddItem: function(aItem) {},
-    onModifyItem: function(aNewItem, aOldItem) {},
-    onDeleteItem: function(aDeletedItem) {},
-    onError: function(aCalendar, aErrNo, aMessage) {},
+    onStartBatch() {},
+    onEndBatch() {},
+    onLoad(aCalendar) {},
+    onAddItem(aItem) {},
+    onModifyItem(aNewItem, aOldItem) {},
+    onDeleteItem(aDeletedItem) {},
+    onError(aCalendar, aErrNo, aMessage) {},
 
-    onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
+    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
       if (aCalendar.id != getSelectedCalendar().id) {
         // Optimization: if the given calendar isn't the default calendar,
         // then we don't need to change any readonly/disabled states.
@@ -179,7 +179,7 @@ var taskEdit = {
       }
     },
 
-    onPropertyDeleting: function(aCalendar, aName) {
+    onPropertyDeleting(aCalendar, aName) {
       // Since the old value is not used directly in onPropertyChanged,
       // but should not be the same as the value, set it to a different
       // value.
@@ -198,20 +198,20 @@ var taskEdit = {
     QueryInterface: cal.generateQI([Ci.calIObserver, Ci.calICompositeObserver]),
 
     // calIObserver:
-    onStartBatch: function() {},
-    onEndBatch: function() {},
-    onLoad: function(aCalendar) {},
-    onAddItem: function(aItem) {},
-    onModifyItem: function(aNewItem, aOldItem) {},
-    onDeleteItem: function(aDeletedItem) {},
-    onError: function(aCalendar, aErrNo, aMessage) {},
-    onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {},
-    onPropertyDeleting: function(aCalendar, aName) {},
+    onStartBatch() {},
+    onEndBatch() {},
+    onLoad(aCalendar) {},
+    onAddItem(aItem) {},
+    onModifyItem(aNewItem, aOldItem) {},
+    onDeleteItem(aDeletedItem) {},
+    onError(aCalendar, aErrNo, aMessage) {},
+    onPropertyChanged(aCalendar, aName, aValue, aOldValue) {},
+    onPropertyDeleting(aCalendar, aName) {},
 
     // calICompositeObserver:
-    onCalendarAdded: function(aCalendar) {},
-    onCalendarRemoved: function(aCalendar) {},
-    onDefaultCalendarChanged: function(aNewDefault) {
+    onCalendarAdded(aCalendar) {},
+    onCalendarRemoved(aCalendar) {},
+    onDefaultCalendarChanged(aNewDefault) {
       let taskEditFields = document.getElementsByClassName("task-edit-field");
       for (let i = 0; i < taskEditFields.length; i++) {
         taskEdit.onBlur({ target: taskEditFields[i] });

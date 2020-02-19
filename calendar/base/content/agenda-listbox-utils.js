@@ -51,7 +51,7 @@ agendaListbox.init = function() {
   // At this point, we're ready and waiting for refreshPeriodDates to be called by TodayPane.
 
   let prefObserver = {
-    observe: function(aSubject, aTopic, aPrefName) {
+    observe(aSubject, aTopic, aPrefName) {
       switch (aPrefName) {
         case "calendar.agendaListbox.soondays":
           agendaListbox.soonDays = getSoondaysPreference();
@@ -388,10 +388,9 @@ agendaListbox.isBefore = function(aItem, aCompItem, aPeriod) {
           !compItemDate.isDate ||
           (aCompItem.duration.days != 1 && aCompItem.startDate.compare(compItemDate) != 0)
         );
-      } else {
-        // intermediate day of an all-day events spannig multiple days
-        return !compItemDate.isDate;
       }
+      // intermediate day of an all-day events spannig multiple days
+      return !compItemDate.isDate;
     } else if (aCompItem.startDate.isDate) {
       return false;
     }
@@ -615,7 +614,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
     operation: null,
     cancelled: false,
 
-    onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
+    onOperationComplete(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {
       if (this.agendaListbox.mPendingRefreshJobs.has(this.calId)) {
         this.agendaListbox.mPendingRefreshJobs.delete(this.calId);
       }
@@ -625,7 +624,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
       }
     },
 
-    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aItems) {
+    onGetResult(aOpCalendar, aStatus, aItemType, aDetail, aItems) {
       if (this.cancelled || !Components.isSuccessCode(aStatus)) {
         return;
       }
@@ -634,7 +633,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
       }
     },
 
-    cancel: function() {
+    cancel() {
       this.cancelled = true;
       let operation = cal.wrapInstance(this.operation, Ci.calIOperation);
       if (operation && operation.isPending) {
@@ -643,7 +642,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
       }
     },
 
-    execute: function() {
+    execute() {
       if (!(aStart || aEnd || aCalendar)) {
         this.agendaListbox.removeListItems();
       }
@@ -855,14 +854,14 @@ agendaListbox.getListItemByHashId = function(ahashId) {
  * The operation listener used for calendar queries.
  * Implements calIOperationListener.
  */
-agendaListbox.calendarOpListener = { agendaListbox: agendaListbox };
+agendaListbox.calendarOpListener = { agendaListbox };
 
 /**
  * Calendar and composite observer, used to keep agenda listbox up to date.
  * @see calIObserver
  * @see calICompositeObserver
  */
-agendaListbox.calendarObserver = { agendaListbox: agendaListbox };
+agendaListbox.calendarObserver = { agendaListbox };
 
 agendaListbox.calendarObserver.QueryInterface = cal.generateQI([
   Ci.calIObserver,
@@ -1073,7 +1072,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
   // workaround bug 291386.  If we don't, we stand a decent chance of getting
   // stuck in an infinite loop.
   let udCallback = {
-    notify: function(timer) {
+    notify(timer) {
       aRefreshCallback();
     },
   };
@@ -1083,7 +1082,7 @@ function scheduleNextCurrentEventUpdate(aRefreshCallback, aMsUntil) {
   } else {
     // Observer for wake after sleep/hibernate/standby to create new timers and refresh UI
     let wakeObserver = {
-      observe: function(aSubject, aTopic, aData) {
+      observe(aSubject, aTopic, aData) {
         if (aTopic == "wake_notification") {
           aRefreshCallback();
         }

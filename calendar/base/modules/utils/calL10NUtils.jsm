@@ -33,9 +33,8 @@ function _getString(aComponent, aBundleName, aStringName, aParams = []) {
 
     if (aParams && aParams.length) {
       return props.formatStringFromName(aStringName, aParams);
-    } else {
-      return props.GetStringFromName(aStringName);
     }
+    return props.GetStringFromName(aStringName);
   } catch (ex) {
     let msg = `Failed to read '${aStringName}' from ${propName}.`;
     Cu.reportError(`${msg} Error: ${ex}`);
@@ -131,7 +130,7 @@ var call10n = {
    * @param {String} aStringBase   The base string name, .monthFormat will be appended
    * @return {String}              The formatted month name
    */
-  formatMonth: function(aMonthNum, aBundleName, aStringBase) {
+  formatMonth(aMonthNum, aBundleName, aStringBase) {
     let monthForm = call10n.getString(aBundleName, aStringBase + ".monthFormat") || "nominative";
 
     if (monthForm == "nominative") {
@@ -147,7 +146,7 @@ var call10n = {
    *
    * @return {nsICollation}       A new locale collator
    */
-  createLocaleCollator: function() {
+  createLocaleCollator() {
     return Cc["@mozilla.org/intl/collation-factory;1"]
       .getService(Ci.nsICollationFactory)
       .CreateCollation();
@@ -159,7 +158,7 @@ var call10n = {
    * @param {String[]} aStringArray   The strings to sort
    * @return {String[]}               The sorted strings, more specifically aStringArray
    */
-  sortArrayByLocaleCollator: function(aStringArray) {
+  sortArrayByLocaleCollator(aStringArray) {
     let collator = call10n.createLocaleCollator();
     aStringArray.sort((a, b) => collator.compareString(0, a, b));
     return aStringArray;

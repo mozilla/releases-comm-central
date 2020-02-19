@@ -28,7 +28,7 @@ function test_aclmanager() {
       return this;
     },
 
-    getItemEntry: function(item) {
+    getItemEntry(item) {
       if (item.id == "withentry") {
         return itemEntry;
       }

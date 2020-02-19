@@ -18,7 +18,7 @@ ltn.invitation = {
    * @param  {calItipItem}     aItipItem  the itip item to check
    * @return {String}          the header title
    */
-  getItipHeader: function(aItipItem) {
+  getItipHeader(aItipItem) {
     let header;
 
     if (aItipItem) {
@@ -74,7 +74,7 @@ ltn.invitation = {
    * @param  {calItipItem}  aItipItem  The itip item, which contains aEvent.
    * @return {DOM}                     The html representation of aEvent.
    */
-  createInvitationOverlay: function(aEvent, aItipItem) {
+  createInvitationOverlay(aEvent, aItipItem) {
     // Creates HTML using the Node strings in the properties file
     let doc = cal.xml.parseFile("chrome://lightning/content/lightning-invitation.xhtml");
     let formatter = cal.getDateFormatter();
@@ -292,7 +292,7 @@ ltn.invitation = {
    * @param  {String} aIgnoreId  attendee id to ignore, usually the organizer
    * @return {String}            updated serialized DOM of the new document
    */
-  compareInvitationOverlay: function(aOldDoc, aNewDoc, aIgnoreId) {
+  compareInvitationOverlay(aOldDoc, aNewDoc, aIgnoreId) {
     /**
      * Transforms text node content to formatted child nodes. Decorations are defined in imip.css
      * @param {Node}    aToNode text node to change
@@ -435,7 +435,7 @@ ltn.invitation = {
    * @param   {nsIMsgIdentity} aIdentity   the identity to use for that email
    * @returns {String}                     the source code of the header section of the email
    */
-  getHeaderSection: function(aMessageId, aIdentity, aToList, aSubject) {
+  getHeaderSection(aMessageId, aIdentity, aToList, aSubject) {
     let recipient = aIdentity.fullName + " <" + aIdentity.email + ">";
     let from = aIdentity.fullName.length
       ? cal.email.validateRecipientList(recipient)
@@ -485,7 +485,7 @@ ltn.invitation = {
    * @return {String}            Datetime string with a modified tz-offset notation compared to
    *                             Date.toString() like "Fri, 20 Nov 2015 09:45:36 +0100"
    */
-  getRfc5322FormattedDate: function(aDate = null) {
+  getRfc5322FormattedDate(aDate = null) {
     let date = aDate || new Date();
     let str = date
       .toString()
@@ -507,7 +507,7 @@ ltn.invitation = {
    * @param  {String} aText   a unicode encoded string
    * @return {String}         the converted uft-8 encoded string
    */
-  encodeUTF8: function(aText) {
+  encodeUTF8(aText) {
     return ltn.invitation.convertFromUnicode("UTF-8", aText).replace(/(\r\n)|\n/g, "\r\n");
   },
 
@@ -517,7 +517,7 @@ ltn.invitation = {
    * @param  {String} aSrc       unicode text to convert
    * @return {String}            the converted string
    */
-  convertFromUnicode: function(aCharset, aSrc) {
+  convertFromUnicode(aCharset, aSrc) {
     let unicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
       Ci.nsIScriptableUnicodeConverter
     );
@@ -532,7 +532,7 @@ ltn.invitation = {
    *                             converted - default value is false
    * @return {String}            the encoded string
    */
-  encodeMimeHeader: function(aHeader, aIsEmail = false) {
+  encodeMimeHeader(aHeader, aIsEmail = false) {
     let fieldNameLen = aHeader.indexOf(": ") + 2;
     return MailServices.mimeConverter.encodeMimePartIIStr_UTF8(
       aHeader,
@@ -553,7 +553,7 @@ ltn.invitation = {
    *                                                 and original properties.
    * @return {String} JsObject.comment           A comment of the attendee, if any
    */
-  parseCounter: function(aProposedItem, aExistingItem) {
+  parseCounter(aProposedItem, aExistingItem) {
     let isEvent = cal.item.isEvent(aProposedItem);
     // atm we only support a subset of properties, for a full list see RfC 5546 section 3.2.7
     let properties = ["SUMMARY", "LOCATION", "DTSTART", "DTEND", "COMMENT"];

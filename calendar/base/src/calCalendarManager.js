@@ -43,7 +43,7 @@ calCalendarManager.prototype = {
   },
 
   // calIStartupService:
-  startup: function(aCompleteListener) {
+  startup(aCompleteListener) {
     AddonManager.addAddonListener(gCalendarManagerAddonListener);
     this.mCache = null;
     this.mCalObservers = null;
@@ -64,7 +64,7 @@ calCalendarManager.prototype = {
     aCompleteListener.onResult(null, Cr.NS_OK);
   },
 
-  shutdown: function(aCompleteListener) {
+  shutdown(aCompleteListener) {
     for (let id in this.mCache) {
       let calendar = this.mCache[id];
       calendar.removeObserver(this.mCalObservers[calendar.id]);
@@ -86,15 +86,15 @@ calCalendarManager.prototype = {
     aCompleteListener.onResult(null, Cr.NS_OK);
   },
 
-  setupOfflineObservers: function() {
+  setupOfflineObservers() {
     Services.obs.addObserver(this, "network:offline-status-changed");
   },
 
-  cleanupOfflineObservers: function() {
+  cleanupOfflineObservers() {
     Services.obs.removeObserver(this, "network:offline-status-changed");
   },
 
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     switch (aTopic) {
       case "timer-callback": {
         // Refresh all the calendars that can be refreshed.
@@ -173,7 +173,7 @@ calCalendarManager.prototype = {
     }
   },
 
-  alertAndQuit: function() {
+  alertAndQuit() {
     // We want to include the extension name in the error message rather
     // than blaming Thunderbird.
     let hostAppName = cal.l10n.getAnyString("branding", "brand", "brandShortName");
@@ -212,7 +212,7 @@ calCalendarManager.prototype = {
   /**
    * calICalendarManager interface
    */
-  createCalendar: function(type, uri) {
+  createCalendar(type, uri) {
     try {
       if (!Cc["@mozilla.org/calendar/calendar;1?type=" + type]) {
         // Don't notify the user with an extra dialog if the provider
@@ -262,7 +262,7 @@ calCalendarManager.prototype = {
     }
   },
 
-  registerCalendar: function(calendar) {
+  registerCalendar(calendar) {
     this.assureCache();
 
     // If the calendar is already registered, bail out
@@ -296,7 +296,7 @@ calCalendarManager.prototype = {
     this.notifyObservers("onCalendarRegistered", [calendar]);
   },
 
-  setupCalendar: function(calendar) {
+  setupCalendar(calendar) {
     this.mCache[calendar.id] = calendar;
 
     // Add an observer to track readonly-mode triggers
@@ -317,7 +317,7 @@ calCalendarManager.prototype = {
     this.setupRefreshTimer(calendar);
   },
 
-  setupRefreshTimer: function(aCalendar) {
+  setupRefreshTimer(aCalendar) {
     // Add the refresh timer for this calendar
     let refreshInterval = aCalendar.getProperty("refreshInterval");
     if (refreshInterval === null) {
@@ -338,14 +338,14 @@ calCalendarManager.prototype = {
     }
   },
 
-  clearRefreshTimer: function(aCalendar) {
+  clearRefreshTimer(aCalendar) {
     if (aCalendar.id in this.mRefreshTimer && this.mRefreshTimer[aCalendar.id]) {
       this.mRefreshTimer[aCalendar.id].cancel();
       delete this.mRefreshTimer[aCalendar.id];
     }
   },
 
-  unregisterCalendar: function(calendar) {
+  unregisterCalendar(calendar) {
     this.notifyObservers("onCalendarUnregistering", [calendar]);
 
     // calendar may be a calICalendar wrapper:
@@ -373,7 +373,7 @@ calCalendarManager.prototype = {
     this.clearRefreshTimer(calendar);
   },
 
-  removeCalendar: function(calendar, mode = 0) {
+  removeCalendar(calendar, mode = 0) {
     const cICM = Ci.calICalendarManager;
 
     let removeModes = new Set(calendar.getProperty("capabilities.removeModes") || ["unsubscribe"]);
@@ -403,15 +403,14 @@ calCalendarManager.prototype = {
     }
   },
 
-  getCalendarById: function(aId) {
+  getCalendarById(aId) {
     if (aId in this.mCache) {
       return this.mCache[aId];
-    } else {
-      return null;
     }
+    return null;
   },
 
-  getCalendars: function() {
+  getCalendars() {
     this.assureCache();
     let calendars = [];
     for (let id in this.mCache) {
@@ -421,7 +420,7 @@ calCalendarManager.prototype = {
     return calendars;
   },
 
-  assureCache: function() {
+  assureCache() {
     if (!this.mCache) {
       this.mCache = {};
       this.mCalObservers = {};
@@ -488,7 +487,7 @@ calCalendarManager.prototype = {
     }
   },
 
-  getCalendarPref_: function(calendar, name) {
+  getCalendarPref_(calendar, name) {
     cal.ASSERT(calendar, "Invalid Calendar!");
     cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
     cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
@@ -505,7 +504,7 @@ calCalendarManager.prototype = {
     return value;
   },
 
-  setCalendarPref_: function(calendar, name, value) {
+  setCalendarPref_(calendar, name, value) {
     cal.ASSERT(calendar, "Invalid Calendar!");
     cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
     cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
@@ -528,7 +527,7 @@ calCalendarManager.prototype = {
     }
   },
 
-  deleteCalendarPref_: function(calendar, name) {
+  deleteCalendarPref_(calendar, name) {
     cal.ASSERT(calendar, "Invalid Calendar!");
     cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
     cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
@@ -536,24 +535,24 @@ calCalendarManager.prototype = {
   },
 
   mObservers: null,
-  addObserver: function(aObserver) {
+  addObserver(aObserver) {
     this.mObservers.add(aObserver);
   },
-  removeObserver: function(aObserver) {
+  removeObserver(aObserver) {
     this.mObservers.delete(aObserver);
   },
-  notifyObservers: function(functionName, args) {
+  notifyObservers(functionName, args) {
     this.mObservers.notify(functionName, args);
   },
 
   mCalendarObservers: null,
-  addCalendarObserver: function(aObserver) {
+  addCalendarObserver(aObserver) {
     return this.mCalendarObservers.add(aObserver);
   },
-  removeCalendarObserver: function(aObserver) {
+  removeCalendarObserver(aObserver) {
     return this.mCalendarObservers.delete(aObserver);
   },
-  notifyCalendarObservers: function(functionName, args) {
+  notifyCalendarObservers(functionName, args) {
     this.mCalendarObservers.notify(functionName, args);
   },
 };
@@ -585,30 +584,30 @@ calMgrCalendarObserver.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowMediatorListener, Ci.calIObserver]),
 
   // calIObserver:
-  onStartBatch: function() {
+  onStartBatch() {
     return this.calMgr.notifyCalendarObservers("onStartBatch", arguments);
   },
-  onEndBatch: function() {
+  onEndBatch() {
     return this.calMgr.notifyCalendarObservers("onEndBatch", arguments);
   },
-  onLoad: function(calendar) {
+  onLoad(calendar) {
     return this.calMgr.notifyCalendarObservers("onLoad", arguments);
   },
-  onAddItem: function(aItem) {
+  onAddItem(aItem) {
     return this.calMgr.notifyCalendarObservers("onAddItem", arguments);
   },
-  onModifyItem: function(aNewItem, aOldItem) {
+  onModifyItem(aNewItem, aOldItem) {
     return this.calMgr.notifyCalendarObservers("onModifyItem", arguments);
   },
-  onDeleteItem: function(aDeletedItem) {
+  onDeleteItem(aDeletedItem) {
     return this.calMgr.notifyCalendarObservers("onDeleteItem", arguments);
   },
-  onError: function(aCalendar, aErrNo, aMessage) {
+  onError(aCalendar, aErrNo, aMessage) {
     this.calMgr.notifyCalendarObservers("onError", arguments);
     this.announceError(aCalendar, aErrNo, aMessage);
   },
 
-  onPropertyChanged: function(aCalendar, aName, aValue, aOldValue) {
+  onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
     this.calMgr.notifyCalendarObservers("onPropertyChanged", arguments);
     switch (aName) {
       case "requiresNetwork":
@@ -631,7 +630,7 @@ calMgrCalendarObserver.prototype = {
     }
   },
 
-  changeCalendarCache: function(aCalendar, aName, aValue, aOldValue) {
+  changeCalendarCache(aCalendar, aName, aValue, aOldValue) {
     const cICM = Ci.calICalendarManager;
     aOldValue = aOldValue || false;
     aValue = aValue || false;
@@ -692,12 +691,12 @@ calMgrCalendarObserver.prototype = {
     }
   },
 
-  onPropertyDeleting: function(aCalendar, aName) {
+  onPropertyDeleting(aCalendar, aName) {
     this.onPropertyChanged(aCalendar, aName, false, true);
   },
 
   // Error announcer specific functions
-  announceError: function(aCalendar, aErrNo, aMessage) {
+  announceError(aCalendar, aErrNo, aMessage) {
     let paramBlock = Cc["@mozilla.org/embedcomp/dialogparam;1"].createInstance(
       Ci.nsIDialogParamBlock
     );
@@ -766,7 +765,7 @@ calMgrCalendarObserver.prototype = {
     }
   },
 
-  announceParamBlock: function(paramBlock) {
+  announceParamBlock(paramBlock) {
     function awaitLoad(event) {
       promptWindow.addEventListener("unload", awaitUnload, { capture: false, once: true });
     }
@@ -813,7 +812,7 @@ function calDummyCalendar(type) {
 calDummyCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
 
-  getProperty: function(aName) {
+  getProperty(aName) {
     switch (aName) {
       case "force-disabled":
         return true;
@@ -851,21 +850,21 @@ function timerCallback(aCalendar) {
 }
 
 var gCalendarManagerAddonListener = {
-  onDisabling: function(aAddon, aNeedsRestart) {
+  onDisabling(aAddon, aNeedsRestart) {
     if (!this.queryUninstallProvider(aAddon)) {
       // If the addon should not be disabled, then re-enable it.
       aAddon.userDisabled = false;
     }
   },
 
-  onUninstalling: function(aAddon, aNeedsRestart) {
+  onUninstalling(aAddon, aNeedsRestart) {
     if (!this.queryUninstallProvider(aAddon)) {
       // If the addon should not be uninstalled, then cancel the uninstall.
       aAddon.cancelUninstall();
     }
   },
 
-  queryUninstallProvider: function(aAddon) {
+  queryUninstallProvider(aAddon) {
     const uri = "chrome://calendar/content/calendar-providerUninstall-dialog.xhtml";
     const features = "chrome,titlebar,resizable,modal";
     let calMgr = cal.getCalendarManager();
@@ -912,7 +911,6 @@ function appendToRealm(authHeader, appendStr) {
       }
     }
     return authHeader.substr(0, idx - 1) + " " + appendStr + authHeader.substr(idx - 1);
-  } else {
-    return authHeader;
   }
+  return authHeader;
 }

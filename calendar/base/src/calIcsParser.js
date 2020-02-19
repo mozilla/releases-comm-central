@@ -17,7 +17,7 @@ calIcsParser.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.calIIcsParser]),
   classID: Components.ID("{6fe88047-75b6-4874-80e8-5f5800f14984}"),
 
-  processIcalComponent: function(rootComp, aAsyncParsing) {
+  processIcalComponent(rootComp, aAsyncParsing) {
     let calComp;
     // libical returns the vcalendar component if there is just one vcalendar.
     // If there are multiple vcalendars, it returns an xroot component, with
@@ -115,7 +115,7 @@ calIcsParser.prototype = {
     });
   },
 
-  parseString: function(aICSString, aTzProvider, aAsyncParsing) {
+  parseString(aICSString, aTzProvider, aAsyncParsing) {
     if (aAsyncParsing) {
       let self = this;
 
@@ -125,7 +125,7 @@ calIcsParser.prototype = {
       // The listener passed to parseICSAsync is a calICsComponentParsingListener
       //   required by the ics service, that receives the parsed root component.
       cal.getIcsService().parseICSAsync(aICSString, aTzProvider, {
-        onParsingComplete: function(rc, rootComp) {
+        onParsingComplete(rc, rootComp) {
           if (Components.isSuccessCode(rc)) {
             self.processIcalComponent(rootComp, aAsyncParsing);
           } else {
@@ -155,7 +155,7 @@ calIcsParser.prototype = {
     }
   },
 
-  parseFromStream: function(aStream, aTzProvider, aAsyncParsing) {
+  parseFromStream(aStream, aTzProvider, aAsyncParsing) {
     // Read in the string. Note that it isn't a real string at this point,
     // because likely, the file is utf8. The multibyte chars show up as multiple
     // 'chars' in this string. So call it an array of octets for now.
@@ -166,19 +166,19 @@ calIcsParser.prototype = {
     this.parseString(stringData, aTzProvider, aAsyncParsing);
   },
 
-  getItems: function() {
+  getItems() {
     return this.mItems.concat([]);
   },
 
-  getParentlessItems: function() {
+  getParentlessItems() {
     return this.mParentlessItems.concat([]);
   },
 
-  getProperties: function() {
+  getProperties() {
     return this.mProperties.concat([]);
   },
 
-  getComponents: function() {
+  getComponents() {
     return this.mComponents.concat([]);
   },
 };
@@ -218,7 +218,7 @@ parserState.prototype = {
    * @param item      The item to check for
    * @param date      The datetime object to check with
    */
-  checkTimezone: function(item, date) {
+  checkTimezone(item, date) {
     function isPhantomTimezone(timezone) {
       return !timezone.icalComponent && !timezone.isUTC && !timezone.isFloating;
     }
@@ -246,10 +246,10 @@ parserState.prototype = {
    *
    * @param subComp       The component to process
    */
-  submit: function(subComp) {
+  submit(subComp) {
     let self = this;
     let runner = {
-      run: function() {
+      run() {
         let item = null;
         switch (subComp.componentType) {
           case "VEVENT":
@@ -308,7 +308,7 @@ parserState.prototype = {
    *
    * @return      True, if all tasks have been completed
    */
-  checkCompletion: function() {
+  checkCompletion() {
     if (this.joinFunc && this.threadCount == 0) {
       this.joinFunc();
       return true;
@@ -321,7 +321,7 @@ parserState.prototype = {
    *
    * @param joinFunc      The join function to call
    */
-  join: function(joinFunc) {
+  join(joinFunc) {
     this.joinFunc = joinFunc;
     this.checkCompletion();
   },

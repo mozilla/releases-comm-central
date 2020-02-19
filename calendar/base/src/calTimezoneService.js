@@ -17,13 +17,13 @@ function calStringEnumerator(stringArray) {
 }
 calStringEnumerator.prototype = {
   // nsIUTF8StringEnumerator:
-  [Symbol.iterator]: function() {
+  [Symbol.iterator]() {
     return this.mStringArray.values();
   },
-  hasMore: function() {
+  hasMore() {
     return this.mIndex < this.mStringArray.length;
   },
-  getNext: function() {
+  getNext() {
     if (!this.hasMore()) {
       throw Cr.NS_ERROR_UNEXPECTED;
     }
@@ -61,17 +61,17 @@ calTimezoneService.prototype = {
   }),
 
   // ical.js TimezoneService methods
-  has: function(id) {
+  has(id) {
     return this.getTimezone(id) != null;
   },
-  get: function(id) {
+  get(id) {
     return id ? unwrapSingle(ICAL.Timezone, this.getTimezone(id)) : null;
   },
-  remove: function() {},
-  register: function() {},
+  remove() {},
+  register() {},
 
   // calIStartupService:
-  startup: function(aCompleteListener) {
+  startup(aCompleteListener) {
     function fetchJSON(aURL) {
       cal.LOG("[calTimezoneService] Loading " + aURL);
 
@@ -140,7 +140,7 @@ calTimezoneService.prototype = {
       );
   },
 
-  shutdown: function(aCompleteListener) {
+  shutdown(aCompleteListener) {
     Services.prefs.removeObserver("calendar.timezone.local", this);
     aCompleteListener.onResult(null, Cr.NS_OK);
   },
@@ -177,7 +177,7 @@ calTimezoneService.prototype = {
   },
 
   // calITimezoneProvider:
-  getTimezone: function(tzid) {
+  getTimezone(tzid) {
     if (!tzid) {
       cal.ERROR("Unknown timezone requested\n" + cal.STACK(10));
       return null;
@@ -211,7 +211,7 @@ calTimezoneService.prototype = {
         let tzComp = icalComp.getFirstSubcomponent("vtimezone");
         timezone.zone = new calICALJSTimezone(
           ICAL.Timezone.fromData({
-            tzid: tzid,
+            tzid,
             component: tzComp,
             latitude: timezone.latitude,
             longitude: timezone.longitude,
@@ -282,7 +282,7 @@ calTimezoneService.prototype = {
     return this.mDefaultTimezone;
   },
 
-  setupObservers: function() {
+  setupObservers() {
     if (!this.mHasSetupObservers) {
       // Now set up the observer
       Services.prefs.addObserver("calendar.timezone.local", this);
@@ -290,7 +290,7 @@ calTimezoneService.prototype = {
     }
   },
 
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "nsPref:changed" && aData == "calendar.timezone.local") {
       // Unsetting the default timezone will make the next call to the
       // default timezone getter set up the correct timezone again.
@@ -349,12 +349,10 @@ function guessSystemTimezone() {
       if (offsetDec == 0 && offsetJun == 0) {
         if (tzNameJun == "UTC" && tzNameDec == "UTC") {
           return 3;
-        } else {
-          return 2;
         }
-      } else {
-        return 0;
+        return 2;
       }
+      return 0;
     }
 
     let subComp = timezone.icalComponent;
@@ -371,9 +369,8 @@ function guessSystemTimezone() {
     if (offsetDec == standardTZOffset && offsetDec == offsetJun && !daylight) {
       if (standardName && standardName == tzNameJun) {
         return 3;
-      } else {
-        return 2;
       }
+      return 2;
     }
 
     if (offsetDec == standardTZOffset && offsetJun == daylightTZOffset && daylight) {
@@ -386,9 +383,8 @@ function guessSystemTimezone() {
           daylightName == tzNameDec
         ) {
           return 3;
-        } else {
-          return dateMatchWt;
         }
+        return dateMatchWt;
       }
     }
 
@@ -396,9 +392,8 @@ function guessSystemTimezone() {
     if (offsetJun == standardTZOffset && offsetDec == offsetJun && !daylight) {
       if (standardName && standardName == tzNameDec) {
         return 3;
-      } else {
-        return 2;
       }
+      return 2;
     }
 
     if (offsetJun == standardTZOffset && offsetDec == daylightTZOffset && daylight) {
@@ -411,9 +406,8 @@ function guessSystemTimezone() {
           daylightName == tzNameDec
         ) {
           return 3;
-        } else {
-          return dateMatchWt;
         }
+        return dateMatchWt;
       }
     }
     return 0;

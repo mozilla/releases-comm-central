@@ -45,20 +45,20 @@ var ltnImipBar = {
   /**
    * Thunderbird Message listener interface, hide the bar before we begin
    */
-  onStartHeaders: function() {
+  onStartHeaders() {
     ltnImipBar.resetBar();
   },
 
   /**
    * Thunderbird Message listener interface
    */
-  onEndHeaders: function() {},
+  onEndHeaders() {},
 
   /**
    * Load Handler called to initialize the imip bar
    * NOTE: This function is called without a valid this-context!
    */
-  load: function() {
+  load() {
     // Add a listener to gMessageListeners defined in msgHdrView.js
     gMessageListeners.push(ltnImipBar);
 
@@ -79,7 +79,7 @@ var ltnImipBar = {
    * Unload handler to clean up after the imip bar
    * NOTE: This function is called without a valid this-context!
    */
-  unload: function() {
+  unload() {
     removeEventListener("messagepane-loaded", ltnImipBar.load, true);
     removeEventListener("messagepane-unloaded", ltnImipBar.unload, true);
 
@@ -87,7 +87,7 @@ var ltnImipBar = {
     Services.obs.removeObserver(ltnImipBar, "onItipItemCreation");
   },
 
-  observe: function(subject, topic, state) {
+  observe(subject, topic, state) {
     if (topic == "onItipItemCreation") {
       let itipItem = null;
       let msgOverlay = null;
@@ -122,7 +122,7 @@ var ltnImipBar = {
   /**
    * Hide the imip bar and reset the itip item.
    */
-  resetBar: function() {
+  resetBar() {
     imipBar.collapsed = true;
     ltnImipBar.resetButtons();
 
@@ -134,7 +134,7 @@ var ltnImipBar = {
   /**
    * Resets all buttons and its menuitems, all buttons are hidden thereafter
    */
-  resetButtons: function() {
+  resetButtons() {
     let buttons = ltnImipBar.getButtons();
     for (let button of buttons) {
       button.setAttribute("hidden", "true");
@@ -147,7 +147,7 @@ var ltnImipBar = {
   /**
    * Provides a list of all available buttons
    */
-  getButtons: function() {
+  getButtons() {
     let toolbarbuttons = document
       .getElementById("imip-view-toolbar")
       .getElementsByTagName("toolbarbutton");
@@ -159,7 +159,7 @@ var ltnImipBar = {
    *
    * @param aButton        button node
    */
-  getMenuItems: function(aButton) {
+  getMenuItems(aButton) {
     let items = [];
     let mitems = aButton.getElementsByTagName("menuitem");
     if (mitems != null && mitems.length > 0) {
@@ -175,7 +175,7 @@ var ltnImipBar = {
    * to avoid dropdowns which are empty or only replicating the default button action
    * Should be called once the buttons are set up
    */
-  conformButtonType: function() {
+  conformButtonType() {
     // check only needed on visible and not simple buttons
     let buttons = ltnImipBar
       .getButtons()
@@ -211,7 +211,7 @@ var ltnImipBar = {
    * @param foundItems    An array of items found while searching for the item
    *                      in subscribed calendars
    */
-  setupOptions: function(itipItem, rc, actionFunc, foundItems) {
+  setupOptions(itipItem, rc, actionFunc, foundItems) {
     let data = cal.itip.getOptionsText(itipItem, rc, actionFunc, foundItems);
 
     if (Components.isSuccessCode(rc)) {
@@ -276,7 +276,7 @@ var ltnImipBar = {
   /**
    * Displays changes in case of invitation updates in invitation overlay
    */
-  displayModifications: function() {
+  displayModifications() {
     if (
       !ltnImipBar.msgOverlay ||
       !msgWindow ||
@@ -326,7 +326,7 @@ var ltnImipBar = {
    *                                          see calItipItem interface
    * @returns {Boolean}                     true, if the action succeeded
    */
-  executeAction: function(aParticipantStatus, aResponse) {
+  executeAction(aParticipantStatus, aResponse) {
     /**
      * Internal function to trigger an scheduling operation
      *
@@ -353,7 +353,7 @@ var ltnImipBar = {
 
         let opListener = {
           QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-          onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+          onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
             if (Components.isSuccessCode(aStatus) && isDeclineCounter) {
               // TODO: move the DECLINECOUNTER stuff to actionFunc
               aItipItem.getItemList().forEach(aItem => {
@@ -403,7 +403,7 @@ var ltnImipBar = {
               cal.showError(label);
             }
           },
-          onGetResult: function(calendar, status, itemType, detail, items) {},
+          onGetResult(calendar, status, itemType, detail, items) {},
         };
 
         try {

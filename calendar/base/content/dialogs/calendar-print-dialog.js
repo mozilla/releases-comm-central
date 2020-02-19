@@ -149,10 +149,10 @@ function getPrintSettings(receiverFunc) {
   if (requiresFetch) {
     let listener = {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-      onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDateTime) {
+      onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDateTime) {
         receiverFunc(settings);
       },
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
         settings.eventList = settings.eventList.concat(aItems);
         if (!settings.printTasksWithNoDueDate) {
           let eventWithDueDate = [];

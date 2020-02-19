@@ -25,7 +25,7 @@ var gCalendarStatusFeedback = {
 
   QueryInterface: ChromeUtils.generateQI([Ci.calIStatusObserver]),
 
-  initialize: function(aWindow) {
+  initialize(aWindow) {
     if (!this.mInitialized) {
       this.mWindow = aWindow;
       this.mStatusText = this.mWindow.document.getElementById("statusText");
@@ -36,7 +36,7 @@ var gCalendarStatusFeedback = {
     }
   },
 
-  showStatusString: function(status) {
+  showStatusString(status) {
     this.mStatusText.setAttribute("label", status);
   },
 
@@ -44,7 +44,7 @@ var gCalendarStatusFeedback = {
     return this.mProgressMode;
   },
 
-  startMeteors: function(aProgressMode, aCalendarCount) {
+  startMeteors(aProgressMode, aCalendarCount) {
     if (aProgressMode != Ci.calIStatusObserver.NO_PROGRESS) {
       if (!this.mInitialized) {
         Cu.reportError("StatusObserver has not been initialized!");
@@ -69,7 +69,7 @@ var gCalendarStatusFeedback = {
     }
   },
 
-  stopMeteors: function() {
+  stopMeteors() {
     if (!this.mInitialized) {
       return;
     }
@@ -85,7 +85,7 @@ var gCalendarStatusFeedback = {
     }
   },
 
-  calendarCompleted: function(aCalendar) {
+  calendarCompleted(aCalendar) {
     if (!this.mInitialized) {
       return;
     }

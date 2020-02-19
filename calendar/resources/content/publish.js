@@ -107,10 +107,10 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
   let itemArray = [];
   let getListener = {
     QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+    onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
       publishItemArray(itemArray, CalendarPublishObject.remotePath, aProgressDialog);
     },
-    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+    onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
       if (!Components.isSuccessCode(aStatus)) {
         return;
       }
@@ -200,7 +200,7 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
 
 var notificationCallbacks = {
   // nsIInterfaceRequestor interface
-  getInterface: function(iid, instance) {
+  getInterface(iid, instance) {
     if (iid.equals(Ci.nsIAuthPrompt)) {
       // use the window watcher service to get a nsIAuthPrompt impl
       return Services.ww.getNewAuthPrompter(null);

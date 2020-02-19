@@ -42,7 +42,7 @@ cal.HashedArray.prototype = {
    * @param item      The item to get the hashId for
    * @return          The hashId of the item
    */
-  hashAccessor: function(item) {
+  hashAccessor(item) {
     return item.hashId;
   },
 
@@ -52,7 +52,7 @@ cal.HashedArray.prototype = {
    * @param index         The index of the item to retrieve.
    * @return              The retrieved item.
    */
-  itemByIndex: function(index) {
+  itemByIndex(index) {
     return this.mArray[index];
   },
 
@@ -62,7 +62,7 @@ cal.HashedArray.prototype = {
    * @param id            The hashId of the item to retrieve.
    * @return              The retrieved item.
    */
-  itemById: function(id) {
+  itemById(id) {
     if (this.mBatch > 0) {
       throw new Error("Accessing Array by ID not supported in batch mode");
     }
@@ -76,7 +76,7 @@ cal.HashedArray.prototype = {
    * @param item          The item to search for.
    * @return              The index of the item.
    */
-  indexOf: function(item) {
+  indexOf(item) {
     if (this.mBatch > 0) {
       throw new Error("Accessing Array Indexes not supported in batch mode");
     }
@@ -89,7 +89,7 @@ cal.HashedArray.prototype = {
    *
    * @param id            The id of the item to be removed
    */
-  removeById: function(id) {
+  removeById(id) {
     if (this.mBatch > 0) {
       throw new Error("Remvoing by ID in batch mode is not supported"); /* TODO */
     }
@@ -104,7 +104,7 @@ cal.HashedArray.prototype = {
    *
    * @param index         The index of the item to remove.
    */
-  removeByIndex: function(index) {
+  removeByIndex(index) {
     delete this.mHash[this.hashAccessor(this.mArray[index])];
     this.mArray.splice(index, 1);
     this.reindex(index);
@@ -113,7 +113,7 @@ cal.HashedArray.prototype = {
   /**
    * Clear the whole array, removing all items. This also resets batch mode.
    */
-  clear: function() {
+  clear() {
     this.mHash = {};
     this.mArray = [];
     this.mFirstDirty = -1;
@@ -126,7 +126,7 @@ cal.HashedArray.prototype = {
    * @param item          The item to add.
    * @return              The index of the added item.
    */
-  addItem: function(item) {
+  addItem(item) {
     let index = this.mArray.length;
     this.mArray.push(item);
     this.reindex(index);
@@ -141,15 +141,14 @@ cal.HashedArray.prototype = {
    * @param item          The item to modify.
    * @return              The (new) index.
    */
-  modifyItem: function(item) {
+  modifyItem(item) {
     let hashId = this.hashAccessor(item);
     if (hashId in this.mHash) {
       let index = this.mHash[this.hashAccessor(item)];
       this.mArray[index] = item;
       return index;
-    } else {
-      return this.addItem(item);
     }
+    return this.addItem(item);
   },
 
   /**
@@ -162,7 +161,7 @@ cal.HashedArray.prototype = {
    * @param to        (optional) The index to end indexing on. If left out,
    *                    defaults to the array length.
    */
-  reindex: function(from, to) {
+  reindex(from, to) {
     if (this.mArray.length == 0) {
       return;
     }
@@ -190,11 +189,11 @@ cal.HashedArray.prototype = {
     }
   },
 
-  startBatch: function() {
+  startBatch() {
     this.mBatch++;
   },
 
-  endBatch: function() {
+  endBatch() {
     this.mBatch = Math.max(0, this.mBatch - 1);
 
     if (this.mBatch == 0 && this.mFirstDirty > -1) {
@@ -206,7 +205,7 @@ cal.HashedArray.prototype = {
   /**
    * Iterator to allow iterating the hashed array object.
    */
-  [Symbol.iterator]: function*() {
+  *[Symbol.iterator]() {
     yield* this.mArray;
   },
 };
@@ -232,13 +231,13 @@ cal.SortedHashedArray.prototype = {
 
   mCompFunc: null,
 
-  addItem: function(item) {
+  addItem(item) {
     let newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
     this.reindex(newIndex);
     return newIndex;
   },
 
-  modifyItem: function(item) {
+  modifyItem(item) {
     let hashId = this.hashAccessor(item);
     if (hashId in this.mHash) {
       let cmp = this.mCompFunc(item, this.mArray[this.mHash[hashId]]);
@@ -246,16 +245,14 @@ cal.SortedHashedArray.prototype = {
         // The item will be at the same index, we just need to replace it
         this.mArray[this.mHash[hashId]] = item;
         return this.mHash[hashId];
-      } else {
-        let oldIndex = this.mHash[hashId];
-
-        let newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
-        this.mArray.splice(oldIndex, 1);
-        this.reindex(oldIndex, newIndex);
-        return newIndex;
       }
-    } else {
-      return this.addItem(item);
+      let oldIndex = this.mHash[hashId];
+
+      let newIndex = cal.data.binaryInsert(this.mArray, item, this.mCompFunc, false);
+      this.mArray.splice(oldIndex, 1);
+      this.reindex(oldIndex, newIndex);
+      return newIndex;
     }
+    return this.addItem(item);
   },
 };

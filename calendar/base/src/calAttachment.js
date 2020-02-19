@@ -135,23 +135,22 @@ calAttachment.prototype = {
     return val;
   },
 
-  getParameter: function(aName) {
+  getParameter(aName) {
     return this.mProperties.get(aName);
   },
 
-  setParameter: function(aName, aValue) {
+  setParameter(aName, aValue) {
     if (aValue || aValue === 0) {
       return this.mProperties.set(aName, aValue);
-    } else {
-      return this.mProperties.delete(aName);
     }
+    return this.mProperties.delete(aName);
   },
 
-  deleteParameter: function(aName) {
+  deleteParameter(aName) {
     this.mProperties.delete(aName);
   },
 
-  clone: function() {
+  clone() {
     let newAttachment = new calAttachment();
     newAttachment.mData = this.mData;
     newAttachment.mHashId = this.mHashId;
@@ -161,7 +160,7 @@ calAttachment.prototype = {
     return newAttachment;
   },
 
-  setData: function(aData) {
+  setData(aData) {
     // Sets the data and invalidates the hash so it will be recalculated
     this.mHashId = null;
     this.mData = aData;

@@ -18,17 +18,17 @@ calAttendee.prototype = {
     return !this.mImmutable;
   },
 
-  modify: function() {
+  modify() {
     if (this.mImmutable) {
       throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
     }
   },
 
-  makeImmutable: function() {
+  makeImmutable() {
     this.mImmutable = true;
   },
 
-  clone: function() {
+  clone() {
     let a = new calAttendee();
 
     if (this.mIsOrganizer) {
@@ -151,10 +151,10 @@ calAttendee.prototype = {
   },
 
   // The has/get/set/deleteProperty methods are case-insensitive.
-  getProperty: function(aName) {
+  getProperty(aName) {
     return this.mProperties.get(aName.toUpperCase());
   },
-  setProperty: function(aName, aValue) {
+  setProperty(aName, aValue) {
     this.modify();
     if (aValue || !isNaN(parseInt(aValue, 10))) {
       this.mProperties.set(aName.toUpperCase(), aValue);
@@ -162,7 +162,7 @@ calAttendee.prototype = {
       this.mProperties.delete(aName.toUpperCase());
     }
   },
-  deleteProperty: function(aName) {
+  deleteProperty(aName) {
     this.modify();
     this.mProperties.delete(aName.toUpperCase());
   },
@@ -178,7 +178,7 @@ calAttendee.prototype = {
     return (this.mId = aId ? cal.email.prependMailTo(aId) : null);
   },
 
-  toString: function() {
+  toString() {
     const emailRE = new RegExp("^mailto:", "i");
     let stringRep = (this.id || "").replace(emailRE, "");
     let commonName = this.commonName;

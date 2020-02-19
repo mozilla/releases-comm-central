@@ -21,7 +21,7 @@ var calwindow = {
    * @param aWindow    the window to open the dialog on, or null for the main calendar window
    * @param aCallback  a function to be performed after calendar creation
    */
-  openCalendarWizard: function(aWindow, aCallback) {
+  openCalendarWizard(aWindow, aCallback) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
       "chrome://calendar/content/calendarCreation.xhtml",
@@ -41,7 +41,7 @@ var calwindow = {
    * @param aWindow    the window to open the dialog on, or null for the main calendar window
    * @param aCalendar  the calendar whose properties should be displayed
    */
-  openCalendarProperties: function(aWindow, aCalendar) {
+  openCalendarProperties(aWindow, aCalendar) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
       "chrome://calendar/content/calendar-properties-dialog.xhtml",
@@ -56,7 +56,7 @@ var calwindow = {
    *
    * @param aWindow    the window to open the dialog on, or null for the main calendar window
    */
-  openPrintDialog: function(aWindow = null) {
+  openPrintDialog(aWindow = null) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
       "chrome://calendar/content/calendar-print-dialog.xhtml",
@@ -68,7 +68,7 @@ var calwindow = {
   /**
    * Returns the most recent calendar window in an application independent way
    */
-  getCalendarWindow: function() {
+  getCalendarWindow() {
     return (
       Services.wm.getMostRecentWindow("calendarMainWindow") ||
       Services.wm.getMostRecentWindow("mail:3pane")

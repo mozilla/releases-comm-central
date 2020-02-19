@@ -17,7 +17,7 @@ ltnMimeConverter.prototype = {
 
   uri: null,
 
-  convertToHTML: function(contentType, data) {
+  convertToHTML(contentType, data) {
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(data);
     let event = null;

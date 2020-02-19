@@ -49,16 +49,16 @@ add_task(async () => {
   // Add the item to the storage calendar and retrieve it again
   await new Promise(resolve => {
     storageCal.adoptItem(item, {
-      onGetResult: function(calendar, status, itemType, detail, items) {},
+      onGetResult(calendar, status, itemType, detail, items) {},
       onOperationComplete: resolve,
     });
   });
   let retrievedItem = await new Promise(resolve => {
     storageCal.getItem("c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5", {
-      onGetResult: function(cal, stat, type, detail, items) {
+      onGetResult(cal, stat, type, detail, items) {
         resolve(items[0]);
       },
-      onOperationComplete: function() {},
+      onOperationComplete() {},
     });
   });
 

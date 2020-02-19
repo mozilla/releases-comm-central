@@ -53,7 +53,7 @@ var calitem = {
        * @param aState    The state to be in
        * @param aMethod   The method name expecting the state
        */
-      _expectState: function(aState, aMethod) {
+      _expectState(aState, aMethod) {
         if ((this.state & aState) == 0) {
           throw new Error(
             "ItemDiff method " + aMethod + " called while in unexpected state " + this.state
@@ -66,7 +66,7 @@ var calitem = {
        *
        * @param item      The item to load
        */
-      load1: function(item) {
+      load1(item) {
         this.load([item]);
       },
 
@@ -76,7 +76,7 @@ var calitem = {
        *
        * @param items     The array of items to load
        */
-      load: function(items) {
+      load(items) {
         this._expectState(this.STATE_INITIAL | this.STATE_LOADING, "load");
 
         for (let item of items) {
@@ -91,7 +91,7 @@ var calitem = {
        *
        * @param item      The item to calculate difference with
        */
-      difference1: function(item) {
+      difference1(item) {
         this.difference([item]);
       },
 
@@ -101,7 +101,7 @@ var calitem = {
        *
        * @param items     The array of items to calculate difference with
        */
-      difference: function(items) {
+      difference(items) {
         this._expectState(
           this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING,
           "difference"
@@ -133,7 +133,7 @@ var calitem = {
        * Tell the engine that all load and difference calls have been made, this
        * makes sure that all item states are correctly returned.
        */
-      complete: function() {
+      complete() {
         this._expectState(
           this.STATE_INITIAL | this.STATE_LOADING | this.STATE_DIFFERING,
           "complete"
@@ -184,7 +184,7 @@ var calitem = {
       /**
        * Resets the difference engine to its initial state.
        */
-      reset: function() {
+      reset() {
         this.mInitialItems = {};
         this.mModifiedItems = new cal.HashedArray();
         this.mModifiedOldItems = new cal.HashedArray();
@@ -203,7 +203,7 @@ var calitem = {
    * @param aItem the item either a task or an event
    * @return true or false
    */
-  isItemSupported: function(aItem, aCalendar) {
+  isItemSupported(aItem, aCalendar) {
     if (calitem.isToDo(aItem)) {
       return aCalendar.getProperty("capabilities.tasks.supported") !== false;
     } else if (calitem.isEvent(aItem)) {
@@ -217,7 +217,7 @@ var calitem = {
    *
    * @param aCalendar
    */
-  isEventCalendar: function(aCalendar) {
+  isEventCalendar(aCalendar) {
     return aCalendar.getProperty("capabilities.events.supported") !== false;
   },
 
@@ -226,7 +226,7 @@ var calitem = {
    *
    * @param aCalendar
    */
-  isTaskCalendar: function(aCalendar) {
+  isTaskCalendar(aCalendar) {
     return aCalendar.getProperty("capabilities.tasks.supported") !== false;
   },
 
@@ -236,7 +236,7 @@ var calitem = {
    * @param aObject  the object to test
    * @returns        true if the object is a calIEvent, false otherwise
    */
-  isEvent: function(aObject) {
+  isEvent(aObject) {
     return cal.wrapInstance(aObject, Ci.calIEvent) != null;
   },
 
@@ -246,7 +246,7 @@ var calitem = {
    * @param aObject  the object to test
    * @returns        true if the object is a calITodo, false otherwise
    */
-  isToDo: function(aObject) {
+  isToDo(aObject) {
     return cal.wrapInstance(aObject, Ci.calITodo) != null;
   },
 
@@ -259,7 +259,7 @@ var calitem = {
    * @param returnDtstartOrDue returns item's start (or due) date in case
    *                           the item is in the specified Range; null otherwise.
    */
-  checkIfInRange: function(item, rangeStart, rangeEnd, returnDtstartOrDue) {
+  checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
     let startDate;
     let endDate;
     let queryStart = cal.dtz.ensureDateTime(rangeStart);
@@ -315,7 +315,7 @@ var calitem = {
     return null;
   },
 
-  setItemProperty: function(item, propertyName, aValue, aCapability) {
+  setItemProperty(item, propertyName, aValue, aCapability) {
     let isSupported =
       item.calendar.getProperty("capabilities." + aCapability + ".supported") !== false;
     let value = aCapability && !isSupported ? null : aValue;
@@ -404,7 +404,7 @@ var calitem = {
    *
    * @param aIsAllDay      If true, the default transparency for all-day events is returned
    */
-  getEventDefaultTransparency: function(aIsAllDay) {
+  getEventDefaultTransparency(aIsAllDay) {
     let transp = null;
     if (aIsAllDay) {
       transp = Services.prefs.getBoolPref(
@@ -445,7 +445,7 @@ var calitem = {
      *                                     ignore.
      * @return                  True, if items match.
      */
-  compareContent: function(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams) {
+  compareContent(aFirstItem, aSecondItem, aIgnoreProps, aIgnoreParams) {
     let ignoreProps = arr2hash(
       aIgnoreProps || [
         "SEQUENCE",
@@ -514,7 +514,7 @@ var calitem = {
    * @param item an item
    * @param offset an offset (calIDuration)
    */
-  shiftOffset: function(item, offset) {
+  shiftOffset(item, offset) {
     // When modifying dates explicitly using the setters is important
     // since those may triggers e.g. calIRecurrenceInfo::onStartDateChange
     // or invalidate other properties. Moreover don't modify the date-time objects
@@ -548,7 +548,7 @@ var calitem = {
    * @param aNewDate             The date at which the new item is going to start
    * @return                     The modified item
    */
-  moveToDate: function(aOldItem, aNewDate) {
+  moveToDate(aOldItem, aNewDate) {
     let newItem = aOldItem.clone();
     let start = (
       aOldItem[cal.dtz.startDateProp(aOldItem)] || aOldItem[cal.dtz.endDateProp(aOldItem)]
@@ -583,7 +583,7 @@ var calitem = {
   /**
    * Shortcut function to serialize an item (including all overridden items).
    */
-  serialize: function(aItem) {
+  serialize(aItem) {
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
@@ -609,7 +609,7 @@ var calitem = {
    * @param aIcalComponent        The ical component to set the prodid and
    *                                version on.
    */
-  setStaticProps: function(aIcalComponent) {
+  setStaticProps(aIcalComponent) {
     // Throw for an invalid parameter
     aIcalComponent = cal.wrapInstance(aIcalComponent, Ci.calIIcalComponent);
     if (!aIcalComponent) {
@@ -625,7 +625,7 @@ var calitem = {
    *
    * @param aItem     The item of the dialog to search for.
    */
-  findWindow: function(aItem) {
+  findWindow(aItem) {
     // check for existing dialog windows
     for (let dlg of Services.wm.getEnumerator("Calendar:EventDialog")) {
       if (
@@ -653,7 +653,7 @@ var calitem = {
    * @param aIsDate       True or false indicating the new value of 'isDate'
    * @return              The modified item
    */
-  setToAllDay: function(aItem, aIsDate) {
+  setToAllDay(aItem, aIsDate) {
     let start = aItem[cal.dtz.startDateProp(aItem)];
     let end = aItem[cal.dtz.endDateProp(aItem)];
     if (start || end) {
@@ -669,9 +669,8 @@ var calitem = {
         item[cal.dtz.endDateProp(item)] = end;
       }
       return item;
-    } else {
-      return aItem;
     }
+    return aItem;
   },
 
   /**
@@ -681,7 +680,7 @@ var calitem = {
    * @param aTask     The task to check.
    * @return          The progress atom.
    */
-  getProgressAtom: function(aTask) {
+  getProgressAtom(aTask) {
     let nowdate = new Date();
 
     if (aTask.recurrenceInfo) {

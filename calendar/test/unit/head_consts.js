@@ -36,11 +36,10 @@ function createEventFromIcalString(icalString) {
     let items = parser.getItems();
     cal.ASSERT(items.length == 1);
     return items[0].QueryInterface(Ci.calIEvent);
-  } else {
-    let event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);
-    event.icalString = icalString;
-    return event;
   }
+  let event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);
+  event.icalString = icalString;
+  return event;
 }
 
 function createTodoFromIcalString(icalString) {
@@ -140,9 +139,8 @@ function getProps(aItem, aProp) {
   }
   if (value) {
     return value.toString();
-  } else {
-    return null;
   }
+  return null;
 }
 
 function compareItemsSpecific(aLeftItem, aRightItem, aPropArray) {
@@ -241,7 +239,7 @@ function readJSONFile(aFile) {
 function do_load_timezoneservice(callback) {
   do_test_pending();
   cal.getTimezoneService().startup({
-    onResult: function() {
+    onResult() {
       do_test_finished();
       callback();
     },
@@ -251,7 +249,7 @@ function do_load_timezoneservice(callback) {
 function do_load_calmgr(callback) {
   do_test_pending();
   cal.getCalendarManager().startup({
-    onResult: function() {
+    onResult() {
       do_test_finished();
       callback();
     },
@@ -260,7 +258,7 @@ function do_load_calmgr(callback) {
 
 function do_calendar_startup(callback) {
   let obs = {
-    observe: function() {
+    observe() {
       Services.obs.removeObserver(this, "calendar-startup-done");
       do_test_finished();
       executeSoon(callback);

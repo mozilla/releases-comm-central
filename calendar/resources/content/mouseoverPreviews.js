@@ -71,9 +71,8 @@ function getPreviewForItem(aItem, aIsTooltip = true) {
     return getPreviewForEvent(aItem, aIsTooltip);
   } else if (cal.item.isToDo(aItem)) {
     return getPreviewForTask(aItem, aIsTooltip);
-  } else {
-    return null;
   }
+  return null;
 }
 
 /**
@@ -217,9 +216,8 @@ function getPreviewForTask(toDoItem, aIsTooltip = true) {
     }
 
     return vbox;
-  } else {
-    return null;
   }
+  return null;
 }
 
 /**
@@ -283,9 +281,8 @@ function getPreviewForEvent(aEvent, aIsTooltip = true) {
       boxAppendBody(vbox, description, aIsTooltip);
     }
     return vbox;
-  } else {
-    return null;
   }
+  return null;
 }
 
 /**

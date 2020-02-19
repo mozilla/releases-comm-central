@@ -47,7 +47,7 @@ var gDataMigrator = {
    * If there is at least one valid migrator, we'll pop open the migration
    * wizard, otherwise, we'll return silently.
    */
-  checkAndMigrate: function() {
+  checkAndMigrate() {
     if (Services.appinfo.ID == FIREFOX_UID) {
       this.mIsInFirefox = true;
       // We can't handle Firefox Lightning yet
@@ -97,7 +97,7 @@ var gDataMigrator = {
    * Checks to see if Apple's iCal is installed and offers to migrate any data
    * the user has created in it.
    */
-  checkIcal: function() {
+  checkIcal() {
     function icalMigrate(aDataDir, aCallback) {
       aDataDir.append("Sources");
       let calManager = cal.getCalendarManager();
@@ -186,7 +186,7 @@ var gDataMigrator = {
    * Checks to see if Evolution is installed and offers to migrate any data
    * stored there.
    */
-  checkEvolution: function() {
+  checkEvolution() {
     function evoMigrate(aDataDir, aCallback) {
       let i = 1;
       let evoDataMigrate = function(dataStore) {
@@ -217,7 +217,7 @@ var gDataMigrator = {
     return evoDir.exists() ? [new dataMigrator("Evolution", evoMigrate, [evoDir])] : [];
   },
 
-  checkWindowsMail: function() {
+  checkWindowsMail() {
     function doMigrate(aCalendarNodes, aMailDir, aCallback) {
       let calManager = cal.getCalendarManager();
 
@@ -294,7 +294,7 @@ var gDataMigrator = {
    *
    * @param icsFile     The nsI(Local)File to import.
    */
-  importICSToStorage: function(icsFile) {
+  importICSToStorage(icsFile) {
     const uri = "moz-storage-calendar://";
     let calendar = cal.getCalendarManager().createCalendar("storage", Services.io.newURI(uri));
     let icsImporter = Cc["@mozilla.org/calendar/import;1?type=ics"].getService(Ci.calIImporter);

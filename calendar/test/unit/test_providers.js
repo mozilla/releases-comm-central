@@ -208,7 +208,7 @@ add_task(async function testIcalData() {
     let count = 0;
     await new Promise(resolve => {
       let listener = {
-        onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+        onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
           equal(aStatus, 0);
           if (aOperationType == Ci.calIOperationListener.ADD) {
             // perform getItems() on calendar
@@ -218,7 +218,7 @@ add_task(async function testIcalData() {
             resolve();
           }
         },
-        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+        onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
           if (aItems.length) {
             count += aItems.length;
             for (let i = 0; i < aItems.length; i++) {
@@ -261,7 +261,7 @@ add_task(async function testIcalData() {
       let returnedItem = null;
       let listener = {
         promises: [],
-        onOperationComplete: async function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+        async onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
           equal(aStatus, 0);
           if (aOperationType == Ci.calIOperationListener.ADD) {
             compareItemsSpecific(aDetail, aItem);
@@ -287,7 +287,7 @@ add_task(async function testIcalData() {
           }
           this.promises.pop()();
         },
-        onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+        onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
           if (aItems.length) {
             count += aItems.length;
             returnedItem = aItems[0];
@@ -314,7 +314,7 @@ add_task(async function testMetaData() {
     event1.id = "item1";
     await new Promise(resolve => {
       aCalendar.addItem(event1, {
-        onGetResult: function(calendar, aStatus, aItemType, aDetail, aItems) {},
+        onGetResult(calendar, aStatus, aItemType, aDetail, aItems) {},
         onOperationComplete: resolve,
       });
     });
@@ -326,7 +326,7 @@ add_task(async function testMetaData() {
     event2.id = "item2";
     await new Promise(resolve => {
       aCalendar.addItem(event2, {
-        onGetResult: function(calendar, aStatus, aItemType, aDetail, aItems) {},
+        onGetResult(calendar, aStatus, aItemType, aDetail, aItems) {},
         onOperationComplete: resolve,
       });
     });

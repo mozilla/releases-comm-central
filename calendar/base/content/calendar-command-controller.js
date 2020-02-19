@@ -110,13 +110,13 @@ var calendarController = {
     cmd_selectAll: true,
   },
 
-  updateCommands: function() {
+  updateCommands() {
     for (let command in this.commands) {
       goUpdateCommand(command);
     }
   },
 
-  supportsCommand: function(aCommand) {
+  supportsCommand(aCommand) {
     if (aCommand in this.commands) {
       return true;
     }
@@ -126,7 +126,8 @@ var calendarController = {
     return false;
   },
 
-  isCommandEnabled: function(aCommand) {
+  /* eslint-disable complexity */
+  isCommandEnabled(aCommand) {
     switch (aCommand) {
       case "calendar_new_event_command":
       case "calendar_new_event_context_command":
@@ -280,8 +281,9 @@ var calendarController = {
     }
     return false;
   },
+  /* eslint-enable complexity */
 
-  doCommand: function(aCommand) {
+  doCommand(aCommand) {
     switch (aCommand) {
       // Common Commands
       case "calendar_new_event_command":
@@ -462,13 +464,13 @@ var calendarController = {
     }
   },
 
-  onEvent: function(aEvent) {},
+  onEvent(aEvent) {},
 
-  isCalendarInForeground: function() {
+  isCalendarInForeground() {
     return gCurrentMode && gCurrentMode != "mail";
   },
 
-  isInMode: function(mode) {
+  isInMode(mode) {
     switch (mode) {
       case "mail":
         return !this.isCalendarInForeground();
@@ -480,7 +482,7 @@ var calendarController = {
     return false;
   },
 
-  onSelectionChanged: function(aEvent) {
+  onSelectionChanged(aEvent) {
     let selectedItems = aEvent.detail;
 
     calendarUpdateDeleteCommand(selectedItems);
@@ -709,7 +711,7 @@ var calendarController2 = {
   supportsCommand: calendarController.supportsCommand,
   onEvent: calendarController.onEvent,
 
-  isCommandEnabled: function(aCommand) {
+  isCommandEnabled(aCommand) {
     switch (aCommand) {
       // Thunderbird Commands
       case "cmd_cut":
@@ -741,7 +743,7 @@ var calendarController2 = {
     }
   },
 
-  doCommand: function(aCommand) {
+  doCommand(aCommand) {
     if (!this.isCommandEnabled(aCommand)) {
       // doCommand is triggered for cmd_cut even if the command is disabled
       // so we bail out here

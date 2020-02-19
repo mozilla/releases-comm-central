@@ -106,7 +106,7 @@ var calendarWindowPrefs = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 
   /** Initialize the preference observers */
-  init: function() {
+  init() {
     Services.prefs.addObserver("calendar.view.useSystemColors", this);
     Services.ww.registerNotification(this);
 
@@ -115,7 +115,7 @@ var calendarWindowPrefs = {
   },
 
   /**  Cleanup the preference observers */
-  cleanup: function() {
+  cleanup() {
     Services.prefs.removeObserver("calendar.view.useSystemColors", this);
     Services.ww.unregisterNotification(this);
   },
@@ -125,7 +125,7 @@ var calendarWindowPrefs = {
    *
    * @see nsIObserver
    */
-  observe: function(aSubject, aTopic, aData) {
+  observe(aSubject, aTopic, aData) {
     if (aTopic == "nsPref:changed") {
       switch (aData) {
         case "calendar.view.useSystemColors": {

@@ -305,10 +305,10 @@ function exportEntireCalendar(aCalendar) {
   let itemArray = [];
   let getListener = {
     QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-    onOperationComplete: function(aOpCalendar, aStatus, aOperationType, aId, aDetail) {
+    onOperationComplete(aOpCalendar, aStatus, aOperationType, aId, aDetail) {
       saveEventsToFile(itemArray, aOpCalendar.name);
     },
-    onGetResult: function(aOpCalendar, aStatus, aItemType, aDetail, aItems) {
+    onGetResult(aOpCalendar, aStatus, aItemType, aDetail, aItems) {
       for (let item of aItems) {
         itemArray.push(item);
       }

@@ -210,7 +210,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 function onLoad() {
   let operationListener = {
     QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-    onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+    onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
       let updatingBox = document.getElementById("updating-box");
       updatingBox.setAttribute("hidden", "true");
       let richListBox = document.getElementById("invitations-listbox");
@@ -221,7 +221,7 @@ function onLoad() {
         noInvitationsBox.removeAttribute("hidden");
       }
     },
-    onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+    onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
       if (!Components.isSuccessCode(aStatus)) {
         return;
       }

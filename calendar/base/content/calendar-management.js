@@ -612,33 +612,33 @@ function showOnlyCalendar(aCalendar) {
 var compositeObserver = {
   QueryInterface: cal.generateQI([Ci.calIObserver, Ci.calICompositeObserver]),
 
-  onStartBatch: function() {},
-  onEndBatch: function() {},
-  onAddItem: function() {},
-  onModifyItem: function() {},
-  onDeleteItem: function() {},
-  onError: function() {},
-  onPropertyChanged: function() {},
-  onPropertyDeleting: function() {},
+  onStartBatch() {},
+  onEndBatch() {},
+  onAddItem() {},
+  onModifyItem() {},
+  onDeleteItem() {},
+  onError() {},
+  onPropertyChanged() {},
+  onPropertyDeleting() {},
 
-  onLoad: function() {
+  onLoad() {
     calendarUpdateNewItemsCommand();
     document.commandDispatcher.updateCommands("calendar_commands");
   },
 
-  onCalendarAdded: function(aCalendar) {
+  onCalendarAdded(aCalendar) {
     // Update the calendar commands for number of remote calendars and for
     // more than one calendar
     document.commandDispatcher.updateCommands("calendar_commands");
   },
 
-  onCalendarRemoved: function(aCalendar) {
+  onCalendarRemoved(aCalendar) {
     // Update commands to disallow deleting the last calendar and only
     // allowing reload remote calendars when there are remote calendars.
     document.commandDispatcher.updateCommands("calendar_commands");
   },
 
-  onDefaultCalendarChanged: function(aNewCalendar) {
+  onDefaultCalendarChanged(aNewCalendar) {
     // A new default calendar may mean that the new calendar has different
     // ACLs. Make sure the commands are updated.
     calendarUpdateNewItemsCommand();
@@ -667,7 +667,7 @@ function openCalendarSubscriptionsDialog() {
 var calendarOfflineManager = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 
-  init: function() {
+  init() {
     if (this.initialized) {
       throw Cr.NS_ERROR_ALREADY_INITIALIZED;
     }
@@ -677,7 +677,7 @@ var calendarOfflineManager = {
     this.initialized = true;
   },
 
-  uninit: function() {
+  uninit() {
     if (!this.initialized) {
       throw Cr.NS_ERROR_NOT_INITIALIZED;
     }
@@ -685,11 +685,11 @@ var calendarOfflineManager = {
     this.initialized = false;
   },
 
-  isOnline: function() {
+  isOnline() {
     return !Services.io.offline;
   },
 
-  updateOfflineUI: function(aIsOffline) {
+  updateOfflineUI(aIsOffline) {
     // Refresh the current view
     currentView().goToDay(currentView().selectedDay);
 
@@ -697,7 +697,7 @@ var calendarOfflineManager = {
     document.commandDispatcher.updateCommands("calendar_commands");
   },
 
-  observe: function(aSubject, aTopic, aState) {
+  observe(aSubject, aTopic, aState) {
     if (aTopic == "network:offline-status-changed") {
       this.updateOfflineUI(aState == "offline");
     }

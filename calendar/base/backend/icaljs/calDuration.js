@@ -21,10 +21,10 @@ calDuration.prototype = {
   },
 
   isMutable: true,
-  makeImmutable: function() {
+  makeImmutable() {
     this.isMutable = false;
   },
-  clone: function() {
+  clone() {
     return new calDuration(this.innerObject.clone());
   },
 
@@ -85,13 +85,13 @@ calDuration.prototype = {
     return this.innerObject.compare(val);
   }),
 
-  reset: function() {
+  reset() {
     this.innerObject.reset();
   },
-  normalize: function() {
+  normalize() {
     this.innerObject.normalize();
   },
-  toString: function() {
+  toString() {
     return this.innerObject.toString();
   },
 

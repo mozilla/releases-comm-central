@@ -24,7 +24,7 @@ var calview = {
    * @return              true or false depending on whether the mouse pointer
    *                      resides over the xulelement
    */
-  isMouseOverBox: function(aMouseEvent, aXULElement) {
+  isMouseOverBox(aMouseEvent, aXULElement) {
     let boundingRect = aXULElement.getBoundingClientRect();
     let boxWidth = boundingRect.width;
     let boxHeight = boundingRect.height;
@@ -45,7 +45,7 @@ var calview = {
    * @param aAttribute    The name of the attribute
    * @param aAttribute    The value of the attribute
    */
-  removeChildElementsByAttribute: function(aParentNode, aAttribute, aValue) {
+  removeChildElementsByAttribute(aParentNode, aAttribute, aValue) {
     let childNode = aParentNode.lastElementChild;
     while (childNode) {
       let prevChildNode = childNode.previousElementSibling;
@@ -76,7 +76,7 @@ var calview = {
    *                      parent node with aLocalName could be
    *                      retrieved it is returned 'null'.
    */
-  getParentNodeOrThis: function(aChildNode, aLocalName) {
+  getParentNodeOrThis(aChildNode, aLocalName) {
     let node = aChildNode;
     while (node && node.localName != aLocalName) {
       node = node.parentNode;
@@ -99,7 +99,7 @@ var calview = {
    *                          'aAttributeValue'. If no appropriate
    *                          parent node can be retrieved it is returned 'null'.
    */
-  getParentNodeOrThisByAttribute: function(aChildNode, aAttributeName, aAttributeValue) {
+  getParentNodeOrThisByAttribute(aChildNode, aAttributeName, aAttributeValue) {
     let node = aChildNode;
     while (node && node.getAttribute(aAttributeName) != aAttributeValue) {
       node = node.parentNode;
@@ -133,7 +133,7 @@ var calview = {
    * @param aString       The unicode string to format
    * @return              The formatted string using only chars [_a-zA-Z0-9-]
    */
-  formatStringForCSSRule: function(aString) {
+  formatStringForCSSRule(aString) {
     function toReplacement(char) {
       // char code is natural number (positive integer)
       let nat = char.charCodeAt(0);
@@ -153,7 +153,7 @@ var calview = {
    *
    * @param aWindow       The window to get the composite calendar for.
    */
-  getCompositeCalendar: function(aWindow) {
+  getCompositeCalendar(aWindow) {
     if (typeof aWindow._compositeCalendar == "undefined") {
       let comp = (aWindow._compositeCalendar = Cc[
         "@mozilla.org/calendar/calendar;1?type=composite"
@@ -176,7 +176,7 @@ var calview = {
    * @param str           The string to hash into a color.
    * @return              The hashed color.
    */
-  hashColor: function(str) {
+  hashColor(str) {
     // This is the palette of colors in the current colorpicker implementation.
     // Unfortunately, there is no easy way to extract these colors from the
     // binding directly.
@@ -263,7 +263,7 @@ var calview = {
    *
    * @param bgColor   the background color as a "#RRGGBB" string
    */
-  getContrastingTextColor: function(bgColor) {
+  getContrastingTextColor(bgColor) {
     let calcColor = bgColor.replace(/#/g, "");
     let red = parseInt(calcColor.substring(0, 2), 16);
     let green = parseInt(calcColor.substring(2, 4), 16);
@@ -288,7 +288,7 @@ var calview = {
    * @param b     The second item
    * @return      The usual -1, 0, 1
    */
-  compareItems: function(a, b) {
+  compareItems(a, b) {
     if (!a) {
       return -1;
     }

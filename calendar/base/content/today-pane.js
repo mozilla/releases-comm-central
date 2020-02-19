@@ -29,7 +29,7 @@ var TodayPane = {
   /**
    * Load Handler, sets up the today pane controls.
    */
-  onLoad: async function() {
+  async onLoad() {
     await agendaListbox.init();
 
     TodayPane.paneViews = [
@@ -54,14 +54,14 @@ var TodayPane = {
   /**
    * Unload handler, cleans up the today pane on window unload.
    */
-  onUnload: function() {
+  onUnload() {
     Services.obs.removeObserver(TodayPane, "defaultTimezoneChanged");
   },
 
   /**
    * React if the default timezone changes.
    */
-  observe: function() {
+  observe() {
     if (this.start !== null) {
       this.setDay(this.start.getInTimezone(cal.dtz.defaultTimezone));
     }
@@ -71,7 +71,7 @@ var TodayPane = {
    * Sets up the label for the switcher that allows switching between today pane
    * views. (event+task, task only, event only)
    */
-  updateDisplay: function() {
+  updateDisplay() {
     let agendaIsVisible = document.getElementById("agenda-panel").isVisible(gCurrentMode);
     let todoIsVisible = document.getElementById("todo-tab-panel").isVisible(gCurrentMode);
     let index = 2;
@@ -136,7 +136,7 @@ var TodayPane = {
    *
    * @param {String} [filter] - The filter name to set.
    */
-  updateCalendarToDoUnifinder: function(filter) {
+  updateCalendarToDoUnifinder(filter) {
     let tree = document.getElementById("unifinder-todo-tree");
 
     // Set up hiding completed tasks for the unifinder-todo tree
@@ -172,7 +172,7 @@ var TodayPane = {
   /**
    * Go to month/week/day views when double-clicking a label inside miniday
    */
-  onDoubleClick: function(aEvent) {
+  onDoubleClick(aEvent) {
     if (aEvent.button == 0) {
       if (aEvent.target.id == "datevalue-label") {
         switchCalendarView("day", true);
@@ -186,7 +186,7 @@ var TodayPane = {
         return;
       }
       let title = document.getElementById("calendar-tab-button").getAttribute("tooltiptext");
-      document.getElementById("tabmail").openTab("calendar", { title: title });
+      document.getElementById("tabmail").openTab("calendar", { title });
       currentView().goToDay(agendaListbox.today.start);
     }
   },
@@ -195,7 +195,7 @@ var TodayPane = {
    * Set conditions about start dragging on day-label or start switching
    * with time on navigation buttons.
    */
-  onMousedown: function(aEvent, aDir) {
+  onMousedown(aEvent, aDir) {
     if (aEvent.button != 0) {
       return;
     }
@@ -223,7 +223,7 @@ var TodayPane = {
    *
    * NOTE: This function is usually called without the correct this pointer.
    */
-  onMousemove: function(aEvent) {
+  onMousemove(aEvent) {
     const MIN_DRAG_DISTANCE_SQ = 49;
     let x = aEvent.clientX - TodayPane.minidayDrag.startX;
     let y = aEvent.clientY - TodayPane.minidayDrag.startY;
@@ -255,7 +255,7 @@ var TodayPane = {
    * Figure out the days switching speed according to the position (when
    * dragging) or time elapsed (when pressing buttons).
    */
-  updateAdvanceTimer: function(aEvent, aDir) {
+  updateAdvanceTimer(aEvent, aDir) {
     const INITIAL_TIME = 400;
     const REL_DISTANCE = 8;
     const MINIMUM_TIME = 100;
@@ -296,7 +296,7 @@ var TodayPane = {
    *
    * NOTE: This function is usually called without the correct this pointer.
    */
-  stopSwitching: function(aEvent) {
+  stopSwitching(aEvent) {
     let element = aEvent.target;
     if (
       TodayPane.minidayDrag.session &&
@@ -334,7 +334,7 @@ var TodayPane = {
    * @param aCycleForward     If true, the views are cycled in the forward
    *                            direction, otherwise in the opposite direction
    */
-  cyclePaneView: function(aCycleForward) {
+  cyclePaneView(aCycleForward) {
     if (this.paneViews == null) {
       return;
     }
@@ -358,7 +358,7 @@ var TodayPane = {
   /**
    * Shows short weekday names in the weekdayNameContainer
    */
-  setShortWeekdays: function() {
+  setShortWeekdays() {
     let weekdisplaydeck = document.getElementById("weekdayNameContainer");
     let children = weekdisplaydeck.children;
 
@@ -372,7 +372,7 @@ var TodayPane = {
    *
    * @param aNewDate      The date to show.
    */
-  setDaywithjsDate: function(aNewDate) {
+  setDaywithjsDate(aNewDate) {
     let newdatetime = cal.dtz.jsDateToDateTime(aNewDate, cal.dtz.floating);
     newdatetime = newdatetime.getInTimezone(cal.dtz.defaultTimezone);
     this.setDay(newdatetime, true);
@@ -385,7 +385,7 @@ var TodayPane = {
    * @param aDontUpdateMinimonth      If true, the minimonth will not be
    *                                    updated to show the same date.
    */
-  setDay: function(aNewDate, aDontUpdateMinimonth) {
+  setDay(aNewDate, aDontUpdateMinimonth) {
     if (this.setDay.alreadySettingDay) {
       // If we update the mini-month, this function gets called again.
       return;
@@ -436,7 +436,7 @@ var TodayPane = {
    * @param aDir      The number of days to advance. Negative numbers advance
    *                    backwards in time.
    */
-  advance: function(aDir) {
+  advance(aDir) {
     if (aDir != 0) {
       this.start.day += aDir;
       this.setDay(this.start);
@@ -446,7 +446,7 @@ var TodayPane = {
   /**
    * Checks if the today pane is showing today's date.
    */
-  showsToday: function() {
+  showsToday() {
     return cal.dtz.sameDay(cal.dtz.now(), this.start);
   },
 
@@ -454,7 +454,7 @@ var TodayPane = {
    * Update the period headers in the agenda listbox using the today pane's
    * start date.
    */
-  updatePeriod: function() {
+  updatePeriod() {
     agendaListbox.refreshPeriodDates(this.start.clone());
     if (document.getElementById("todo-tab-panel").isVisible()) {
       this.updateCalendarToDoUnifinder();
@@ -466,7 +466,7 @@ var TodayPane = {
    *
    * @param aSection      The section to display
    */
-  displayMiniSection: function(aSection) {
+  displayMiniSection(aSection) {
     document.getElementById("today-minimonth-box").setVisible(aSection == "minimonth");
     document.getElementById("mini-day-box").setVisible(aSection == "miniday");
     document.getElementById("today-none-box").setVisible(aSection == "none");
@@ -480,7 +480,7 @@ var TodayPane = {
   /**
    * Handler function to update the today-pane when the current mode changes.
    */
-  onModeModified: function() {
+  onModeModified() {
     let todayPanePanel = document.getElementById("today-pane-panel");
     // Store the previous mode panel's width.
     todayPanePanel.setModeAttribute("modewidths", todayPanePanel.width, TodayPane.previousMode);
@@ -500,7 +500,7 @@ var TodayPane = {
    *
    * @param aEvent        The DOM event occurring on activated command.
    */
-  toggleVisibility: function(aEvent) {
+  toggleVisibility(aEvent) {
     document.getElementById("today-pane-panel").togglePane(aEvent);
     TodayPane.updateDisplay();
     TodayPane.updateSplitterState();
@@ -509,7 +509,7 @@ var TodayPane = {
   /**
    * Update the today-splitter state.
    */
-  updateSplitterState: function() {
+  updateSplitterState() {
     let splitter = document.getElementById("today-splitter");
     if (this.isVisible) {
       splitter.removeAttribute("hidden");
@@ -523,7 +523,7 @@ var TodayPane = {
    * Generates the todaypane toggle command when the today-splitter
    * is being collapsed or uncollapsed.
    */
-  onCommandTodaySplitter: function() {
+  onCommandTodaySplitter() {
     let todaypane = document.getElementById("today-pane-panel");
     let splitter = document.getElementById("today-splitter");
     let splitterCollapsed = splitter.getAttribute("state") == "collapsed";
@@ -538,7 +538,7 @@ var TodayPane = {
   /**
    * Checks if the todayPaneStatusLabel should be hidden.
    */
-  showTodayPaneStatusLabel: function() {
+  showTodayPaneStatusLabel() {
     let attributeValue =
       Services.prefs.getBoolPref("calendar.view.showTodayPaneStatusLabel", true) && "false";
     setElementValue(

@@ -33,13 +33,7 @@ var calprovider = {
    * @param {?nsIChannel} aExisting                           An existing channel to modify (optional)
    * @return {nsIChannel}                                     The prepared channel
    */
-  prepHttpChannel: function(
-    aUri,
-    aUploadData,
-    aContentType,
-    aNotificationCallbacks,
-    aExisting = null
-  ) {
+  prepHttpChannel(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting = null) {
     let originAttributes = {};
 
     // The current nsIHttpChannel implementation separates connections only
@@ -111,7 +105,7 @@ var calprovider = {
    * @param {nsIChannel} aChannel                 Channel for request
    * @param {nsIStreamLoaderObserver} aListener   Listener for method completion
    */
-  sendHttpRequest: function(aStreamLoader, aChannel, aListener) {
+  sendHttpRequest(aStreamLoader, aChannel, aListener) {
     aStreamLoader.init(aListener);
     aChannel.asyncOpen(aStreamLoader);
   },
@@ -121,7 +115,7 @@ var calprovider = {
    *
    * @return {nsIStreamLoader}        A fresh streamloader
    */
-  createStreamLoader: function() {
+  createStreamLoader() {
     return Cc["@mozilla.org/network/stream-loader;1"].createInstance(Ci.nsIStreamLoader);
   },
 
@@ -144,7 +138,7 @@ var calprovider = {
    * @param {nsIIDRef} aIID       The interface ID to return
    * @return {nsISupports}        The requested interface
    */
-  InterfaceRequestor_getInterface: function(aIID) {
+  InterfaceRequestor_getInterface(aIID) {
     try {
       // Try to query the this object for the requested interface but don't
       // throw if it fails since that borks the network code.
@@ -158,9 +152,8 @@ var calprovider = {
         return this.calAuthPrompt;
       } else if (aIID.equals(Ci.nsIAuthPromptProvider) || aIID.equals(Ci.nsIPrompt)) {
         return Services.ww.getNewPrompter(null);
-      } else {
-        Components.returnCode = e;
       }
+      Components.returnCode = e;
     }
     return null;
   },
@@ -185,7 +178,7 @@ var calprovider = {
 
       let timerCallback = {
         thisProvider: this.thisProvider,
-        notify: function(timer) {
+        notify(timer) {
           let params = {
             exceptionAdded: false,
             securityInfo: secInfo,
@@ -241,7 +234,7 @@ var calprovider = {
    * @param {calICalendar} aCalendar      The calendar to get the transport for
    * @return {?calIItipTransport}         The email transport, or null if no identity configured
    */
-  getImipTransport: function(aCalendar) {
+  getImipTransport(aCalendar) {
     // assure an identity is configured for the calendar
     if (aCalendar && aCalendar.getProperty("imip.identity")) {
       return Cc["@mozilla.org/calendar/itip-transport;1?type=email"].getService(
@@ -258,7 +251,7 @@ var calprovider = {
    * @param {?Object} outAccount          Optional out value for account
    * @return {nsIMsgIdentity}             The configured identity
    */
-  getEmailIdentityOfCalendar: function(aCalendar, outAccount) {
+  getEmailIdentityOfCalendar(aCalendar, outAccount) {
     cal.ASSERT(aCalendar, "no calendar!", Cr.NS_ERROR_INVALID_ARG);
     let key = aCalendar.getProperty("imip.identity.key");
     if (key === null) {
@@ -290,32 +283,31 @@ var calprovider = {
         outAccount.value = foundIdentity ? foundAccount : null;
       }
       return foundIdentity;
-    } else {
-      if (key.length == 0) {
-        // i.e. "None"
-        return null;
-      }
-      let identity = null;
-      cal.email.iterateIdentities((identity_, account) => {
-        if (identity_.key == key) {
-          identity = identity_;
-          if (outAccount) {
-            outAccount.value = account;
-          }
-        }
-        return identity_.key != key;
-      });
-
-      if (!identity) {
-        // dangling identity:
-        cal.WARN(
-          "Calendar " +
-            (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +
-            " has a dangling E-Mail identity configured."
-        );
-      }
-      return identity;
     }
+    if (key.length == 0) {
+      // i.e. "None"
+      return null;
+    }
+    let identity = null;
+    cal.email.iterateIdentities((identity_, account) => {
+      if (identity_.key == key) {
+        identity = identity_;
+        if (outAccount) {
+          outAccount.value = account;
+        }
+      }
+      return identity_.key != key;
+    });
+
+    if (!identity) {
+      // dangling identity:
+      cal.WARN(
+        "Calendar " +
+          (aCalendar.uri ? aCalendar.uri.spec : aCalendar.id) +
+          " has a dangling E-Mail identity configured."
+      );
+    }
+    return identity;
   },
 
   /**
@@ -325,7 +317,7 @@ var calprovider = {
    * @param {calIItemBase} aItem  The item to raise a conflict for
    * @return {Boolean}            True, if the item should be overwritten
    */
-  promptOverwrite: function(aMode, aItem) {
+  promptOverwrite(aMode, aItem) {
     let window = cal.window.getCalendarWindow();
     let args = {
       item: aItem,
@@ -348,7 +340,7 @@ var calprovider = {
    *
    * @return {nsIFile}        The calendar-data directory as nsIFile
    */
-  getCalendarDirectory: function() {
+  getCalendarDirectory() {
     if (calprovider.getCalendarDirectory.mDir === undefined) {
       let dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
       dir.append("calendar-data");

@@ -31,7 +31,7 @@ calIcalProperty.prototype = {
   get parent() {
     return this.innerObject.parent;
   },
-  toString: function() {
+  toString() {
     return this.innerObject.toICAL();
   },
 
@@ -63,9 +63,8 @@ calIcalProperty.prototype = {
           return val;
         } else if ("toICALString" in val) {
           return val.toICALString();
-        } else {
-          return val.toString();
         }
+        return val.toString();
       })
       .join(",");
   },
@@ -116,7 +115,7 @@ calIcalProperty.prototype = {
     return this.innerObject.name.toUpperCase();
   },
 
-  getParameter: function(name) {
+  getParameter(name) {
     // Unfortunately getting the "VALUE" parameter won't work, since in
     // jCal it has been translated to the value type id.
     if (name == "VALUE") {
@@ -130,7 +129,7 @@ calIcalProperty.prototype = {
 
     return this.innerObject.getParameter(name.toLowerCase());
   },
-  setParameter: function(name, value) {
+  setParameter(name, value) {
     // Similar problems for setting the value parameter. Lightning code
     // expects setting the value parameter to just change the value type
     // and attempt to use the previous value as the new one. To do this in
@@ -172,7 +171,7 @@ calIcalProperty.prototype = {
       this.innerObject.setParameter(name.toLowerCase(), value);
     }
   },
-  removeParameter: function(name) {
+  removeParameter(name) {
     // Again, VALUE needs special handling. Removing the value parameter is
     // kind of like resetting it to the default type. So find out the
     // default type and then set the value parameter to it.
@@ -189,14 +188,14 @@ calIcalProperty.prototype = {
     }
   },
 
-  clearXParameters: function() {
+  clearXParameters() {
     cal.WARN(
       "calIICSService::clearXParameters is no longer implemented, please use removeParameter"
     );
   },
 
   paramIterator: null,
-  getFirstParameterName: function() {
+  getFirstParameterName() {
     let innerObject = this.innerObject;
     this.paramIterator = (function*() {
       let defaultType = innerObject.getDefaultType();
@@ -212,7 +211,7 @@ calIcalProperty.prototype = {
     return this.getNextParameterName();
   },
 
-  getNextParameterName: function() {
+  getNextParameterName() {
     if (this.paramIterator) {
       let next = this.paramIterator.next();
       if (next.done) {
@@ -220,9 +219,8 @@ calIcalProperty.prototype = {
       }
 
       return next.value;
-    } else {
-      return this.getFirstParameterName();
     }
+    return this.getFirstParameterName();
   },
 };
 
@@ -236,7 +234,7 @@ calIcalComponent.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.calIIcalComponent]),
   classID: Components.ID("{51ac96fd-1279-4439-a85b-6947b37f4cea}"),
 
-  clone: function() {
+  clone() {
     return new calIcalComponent(new ICAL.Component(this.innerObject.toJSON()));
   },
 
@@ -255,7 +253,7 @@ calIcalComponent.prototype = {
   },
 
   componentIterator: null,
-  getFirstSubcomponent: function(kind) {
+  getFirstSubcomponent(kind) {
     if (kind == "ANY") {
       kind = null;
     } else if (kind) {
@@ -272,7 +270,7 @@ calIcalComponent.prototype = {
     })();
     return this.getNextSubcomponent(kind);
   },
-  getNextSubcomponent: function(kind) {
+  getNextSubcomponent(kind) {
     if (this.componentIterator) {
       let next = this.componentIterator.next();
       if (next.done) {
@@ -280,9 +278,8 @@ calIcalComponent.prototype = {
       }
 
       return next.value;
-    } else {
-      return this.getFirstSubcomponent(kind);
     }
+    return this.getFirstSubcomponent(kind);
   },
 
   get componentType() {
@@ -371,7 +368,7 @@ calIcalComponent.prototype = {
     this.innerObject.updatePropertyWithValue("priority", val);
   },
 
-  _setTimeAttr: function(propName, val) {
+  _setTimeAttr(propName, val) {
     let prop = this.innerObject.updatePropertyWithValue(propName, val);
     if (
       val &&
@@ -446,21 +443,21 @@ calIcalComponent.prototype = {
     unwrapSetter(ICAL.Time, val, this._setTimeAttr.bind(this, "recurrence-id"), this);
   },
 
-  serializeToICS: function() {
+  serializeToICS() {
     return this.innerObject.toString() + ICAL.newLineChar;
   },
-  toString: function() {
+  toString() {
     return this.innerObject.toString();
   },
 
-  addSubcomponent: function(comp) {
+  addSubcomponent(comp) {
     comp.getReferencedTimezones().forEach(this.addTimezoneReference, this);
     let jscomp = unwrapSingle(ICAL.Component, comp);
     this.innerObject.addSubcomponent(jscomp);
   },
 
   propertyIterator: null,
-  getFirstProperty: function(kind) {
+  getFirstProperty(kind) {
     if (kind == "ANY") {
       kind = null;
     } else if (kind) {
@@ -492,7 +489,7 @@ calIcalComponent.prototype = {
     return this.getNextProperty(kind);
   },
 
-  getNextProperty: function(kind) {
+  getNextProperty(kind) {
     if (this.propertyIterator) {
       let next = this.propertyIterator.next();
       if (next.done) {
@@ -500,12 +497,11 @@ calIcalComponent.prototype = {
       }
 
       return next.value;
-    } else {
-      return this.getFirstProperty(kind);
     }
+    return this.getFirstProperty(kind);
   },
 
-  _getNextParentVCalendar: function() {
+  _getNextParentVCalendar() {
     let vcalendar = this; // eslint-disable-line consistent-this
     while (vcalendar && vcalendar.componentType != "VCALENDAR") {
       vcalendar = vcalendar.parent;
@@ -513,7 +509,7 @@ calIcalComponent.prototype = {
     return vcalendar || this;
   },
 
-  addProperty: function(prop) {
+  addProperty(prop) {
     try {
       let datetime = prop.valueAsDatetime;
       if (datetime && datetime.timezone) {
@@ -528,7 +524,7 @@ calIcalComponent.prototype = {
     this.innerObject.addProperty(jsprop);
   },
 
-  addTimezoneReference: function(timezone) {
+  addTimezoneReference(timezone) {
     if (timezone) {
       if (!(timezone.tzid in this.mReferencedZones) && this.componentType == "VCALENDAR") {
         let comp = timezone.icalComponent;
@@ -541,11 +537,11 @@ calIcalComponent.prototype = {
     }
   },
 
-  getReferencedTimezones: function(aCount) {
+  getReferencedTimezones(aCount) {
     return Object.keys(this.mReferencedZones).map(timezone => this.mReferencedZones[timezone]);
   },
 
-  serializeToICSStream: function() {
+  serializeToICSStream() {
     let unicodeConverter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(
       Ci.nsIScriptableUnicodeConverter
     );
@@ -562,14 +558,14 @@ calICSService.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.calIICSService]),
   classID: Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}"),
 
-  parseICS: function(serialized, tzProvider) {
+  parseICS(serialized, tzProvider) {
     // TODO ical.js doesn't support tz providers, but this is usually null
     // or our timezone service anyway.
     let comp = ICAL.parse(serialized);
     return new calIcalComponent(new ICAL.Component(comp));
   },
 
-  parseICSAsync: function(serialized, tzProvider, listener) {
+  parseICSAsync(serialized, tzProvider, listener) {
     // There are way too many error checking messages here, but I had so
     // much pain with this method that I don't want it to break again.
     try {
@@ -601,15 +597,15 @@ calICSService.prototype = {
     }
   },
 
-  createIcalComponent: function(kind) {
+  createIcalComponent(kind) {
     return new calIcalComponent(new ICAL.Component(kind.toLowerCase()));
   },
 
-  createIcalProperty: function(kind) {
+  createIcalProperty(kind) {
     return new calIcalProperty(new ICAL.Property(kind.toLowerCase()));
   },
 
-  createIcalPropertyFromString: function(str) {
+  createIcalPropertyFromString(str) {
     return new calIcalProperty(ICAL.Property.fromString(str.trim(), ICAL.design.icalendar));
   },
 };

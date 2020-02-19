@@ -14,12 +14,12 @@ function test_listener_set() {
   let listener2Id = null;
 
   let listener1 = cal.createAdapter("calIOperationListener", {
-    onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
+    onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
       listener1Id = aId;
     },
   });
   let listener2 = cal.createAdapter("calIOperationListener", {
-    onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
+    onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
       listener2Id = aId;
     },
   });
@@ -40,7 +40,7 @@ function test_listener_set() {
   // function uses a live list of observers.
   let called = 0;
   let listener3 = cal.createAdapter("calIOperationListener", {
-    onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
+    onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
       set.delete(listener3);
       if (called == 0) {
         set.add(listener3);
@@ -62,18 +62,18 @@ function test_observer_set() {
   let listenerCountEnd2 = 0;
 
   let listener1 = cal.createAdapter("calIObserver", {
-    onStartBatch: function() {
+    onStartBatch() {
       listenerCountBegin1++;
     },
-    onEndBatch: function() {
+    onEndBatch() {
       listenerCountEnd1++;
     },
   });
   let listener2 = cal.createAdapter("calIObserver", {
-    onStartBatch: function() {
+    onStartBatch() {
       listenerCountBegin2++;
     },
-    onEndBatch: function() {
+    onEndBatch() {
       listenerCountEnd2++;
     },
   });

@@ -32,7 +32,7 @@ var gCalendarGeneralPane = {
    * Initialize the general pref pane. Sets up dialog controls to match the
    * values set in prefs.
    */
-  init: function() {
+  init() {
     let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
       Ci.calIDateTimeFormatter
     );
@@ -83,7 +83,7 @@ var gCalendarGeneralPane = {
     this.initializeTodaypaneMenu();
   },
 
-  updateDefaultTodoDates: function() {
+  updateDefaultTodoDates() {
     let defaultDue = document.getElementById("default_task_due").value;
     let defaultStart = document.getElementById("default_task_start").value;
     let offsetValues = ["offsetcurrent", "offsetnexthour"];
@@ -103,7 +103,7 @@ var gCalendarGeneralPane = {
     updateMenuLabelsPlural("default_task_due_offset_text", "default_task_due_offset_units");
   },
 
-  initializeTodaypaneMenu: function() {
+  initializeTodaypaneMenu() {
     // Assign the labels for the menuitem
     let soondaysMenu = document.getElementById("soondays-menulist");
     let items = soondaysMenu.getElementsByTagName("menuitem");

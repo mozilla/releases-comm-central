@@ -470,15 +470,14 @@ function openEventDialog(
       // item. Don't show the dialog.
       disposeJob(job);
       return;
-    } else {
-      // Pick the first calendar that supports the item and is writable
-      calendar = calendars[0];
-      if (calendarItem) {
-        // XXX The dialog currently uses the items calendar as a first
-        // choice. Since we are shortly before a release to keep
-        // regression risk low, explicitly set the item's calendar here.
-        calendarItem.calendar = calendars[0];
-      }
+    }
+    // Pick the first calendar that supports the item and is writable
+    calendar = calendars[0];
+    if (calendarItem) {
+      // XXX The dialog currently uses the items calendar as a first
+      // choice. Since we are shortly before a release to keep
+      // regression risk low, explicitly set the item's calendar here.
+      calendarItem.calendar = calendars[0];
     }
   }
 
@@ -609,7 +608,7 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
   } else if (aItem && items.length) {
     // Prompt the user. Setting modal blocks the dialog until it is closed. We
     // use rv to pass our return value.
-    let rv = { value: CANCEL, items: items, action: aAction };
+    let rv = { value: CANCEL, items, action: aAction };
     window.openDialog(
       "chrome://calendar/content/calendar-occurrence-prompt.xhtml",
       "PromptOccurrenceModification",

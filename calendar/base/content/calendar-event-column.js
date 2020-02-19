@@ -430,8 +430,8 @@
       return {
         start: startHour * 60 + startMinute,
         end: endHour * 60 + endMinute,
-        realStart: realStart,
-        realEnd: realEnd,
+        realStart,
+        realEnd,
       };
     }
 
@@ -1106,9 +1106,9 @@
 
       // Return values needed to build the shadows while dragging.
       return {
-        shadows: shadows, // Number of shadows.
-        offset: offset, // Offset first<->selected shadows.
-        startMin: startMin, // First shadow start minute.
+        shadows, // Number of shadows.
+        offset, // Offset first<->selected shadows.
+        startMin, // First shadow start minute.
         endMin: end % this.mEndMin, // Last shadow end minute.
       };
     }
@@ -1132,10 +1132,10 @@
       // week and the positions of these (visible) columns in the set of
       // columns shadows of the occurrence.
       return {
-        firstCol: firstCol,
-        firstIndex: firstIndex,
-        lastCol: lastCol,
-        lastIndex: lastIndex,
+        firstCol,
+        firstIndex,
+        lastCol,
+        lastIndex,
       };
     }
 

@@ -373,20 +373,19 @@ function getEventBoxPath(controller, view, option, row, column, hour) {
     }
 
     return path;
-  } else {
-    path += `
+  }
+  path += `
             /{"class":"mainbox"}/{"class":"monthgrid"}/
             [${row - 1}]/[${column - 1}]/[0]
         `;
 
-    if (option == CANVAS_BOX) {
-      path += `
+  if (option == CANVAS_BOX) {
+    path += `
                 /{"class":"calendar-day-items"}
             `;
-    }
-
-    return path;
   }
+
+  return path;
 }
 
 /**
@@ -402,13 +401,12 @@ function getEventDetails(view) {
             {"class":"calendar-event-selection"}/{"class":"calendar-event-box-container"}/
             {"class":"calendar-event-details"}
         `;
-  } else {
-    return `
+  }
+  return `
             {"flex":"1"}/[0]/{"class":"calendar-color-box"}/
             {"class":"calendar-event-selection"}/{"class":"calendar-event-box-container"}/
             {"class":"calendar-event-details"}
         `;
-  }
 }
 
 /**

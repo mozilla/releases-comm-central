@@ -20,11 +20,11 @@ calBackendLoader.prototype = {
 
   loaded: false,
 
-  observe: function() {
+  observe() {
     // Nothing to do here, just need the entry so this is instantiated
   },
 
-  loadBackend: function() {
+  loadBackend() {
     if (this.loaded) {
       return;
     }
@@ -62,11 +62,11 @@ calBackendLoader.prototype = {
 
 function lazyFactoryFor(backendScope, classID) {
   return {
-    createInstance: function(aOuter, aIID) {
+    createInstance(aOuter, aIID) {
       let realFactory = backendScope.NSGetFactory(classID);
       return realFactory.createInstance(aOuter, aIID);
     },
-    lockFactory: function(lock) {
+    lockFactory(lock) {
       let realFactory = backendScope.NSGetFactory(classID);
       return realFactory.lockFactory(lock);
     },

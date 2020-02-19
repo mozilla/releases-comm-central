@@ -31,18 +31,18 @@ ItipChannel.prototype = {
   securityInfo: null,
 
   open: NYI,
-  asyncOpen: function(observer) {
+  asyncOpen(observer) {
     observer.onStartRequest(this, null);
   },
-  asyncRead: function(listener, ctxt) {
+  asyncRead(listener, ctxt) {
     return listener.onStartRequest(this, ctxt);
   },
 
-  isPending: function() {
+  isPending() {
     return true;
   },
   status: Cr.NS_OK,
-  cancel: function(status) {
+  cancel(status) {
     this.status = status;
   },
   suspend: NYI,
@@ -59,7 +59,7 @@ ItipProtocolHandler.prototype = {
   protocolFlags: Ci.nsIProtocolHandler.URI_NORELATIVE | Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD,
   allowPort: () => false,
   isSecure: false,
-  newChannel: function(URI, aLoadInfo) {
+  newChannel(URI, aLoadInfo) {
     dump("Creating new ItipChannel for " + URI + "\n");
     return new ItipChannel(URI, aLoadInfo);
   },
@@ -72,7 +72,7 @@ ItipContentHandler.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIContentHandler]),
   classID: Components.ID("{47c31f2b-b4de-11d9-bfe6-001124736B74}"),
 
-  handleContent: function(contentType, windowTarget, request) {
+  handleContent(contentType, windowTarget, request) {
     let channel = request.QueryInterface(Ci.nsIChannel);
     let uri = channel.URI.spec;
     if (!uri.startsWith(ITIP_HANDLER_PROTOCOL + ":")) {

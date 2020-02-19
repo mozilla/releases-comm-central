@@ -17,14 +17,14 @@ var cIOL = Ci.calIOperationListener;
 var cIC = Ci.calICalendar;
 
 var promisifyProxyHandler = {
-  promiseOperation: function(target, name, args) {
+  promiseOperation(target, name, args) {
     let deferred = PromiseUtils.defer();
     let listener = calasync.promiseOperationListener(deferred);
     args.push(listener);
     target[name](...args);
     return deferred.promise;
   },
-  get: function(target, name) {
+  get(target, name) {
     switch (name) {
       // calICalendar methods
       case "adoptItem":
@@ -82,7 +82,7 @@ var calasync = {
    * otherwise code might indefinitely wait for the listener to return or there
    * will be complaints that an argument is missing.
    */
-  promisifyCalendar: function(aCalendar) {
+  promisifyCalendar(aCalendar) {
     return new Proxy(aCalendar, promisifyProxyHandler);
   },
   /**
@@ -105,12 +105,12 @@ var calasync = {
    *     return calendar.addItem(aItem);
    *   }
    */
-  promiseOperationListener: function(deferred) {
+  promiseOperationListener(deferred) {
     return {
       QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
       items: [],
       itemStatus: Cr.NS_OK,
-      onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+      onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
         this.itemStatus = aStatus;
         if (Components.isSuccessCode(aStatus)) {
           this.items = this.items.concat(aItems);
@@ -119,7 +119,7 @@ var calasync = {
         }
       },
 
-      onOperationComplete: function(aCalendar, aStatus, aOpType, aId, aDetail) {
+      onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
         if (!Components.isSuccessCode(aStatus)) {
           // This function has failed, reject with the status
           deferred.reject(aStatus);

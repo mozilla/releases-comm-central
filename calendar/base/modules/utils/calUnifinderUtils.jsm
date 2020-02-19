@@ -22,7 +22,7 @@ var calunifinder = {
    * @param {String} aKey             The property name that should be sorted
    * @return {*}                      The value used in sort comparison
    */
-  getItemSortKey: function(aItem, aKey) {
+  getItemSortKey(aItem, aKey) {
     const taskStatus = ["NEEDS-ACTION", "IN-PROCESS", "COMPLETED", "CANCELLED"];
     const eventStatus = ["TENTATIVE", "CONFIRMED", "CANCELLED"];
 
@@ -70,7 +70,7 @@ var calunifinder = {
    * @param {String} aSortKey             The sort key to get the compare function for
    * @return {Function}                   The function to be used for sorting values of the type
    */
-  sortEntryComparer: function(aSortKey) {
+  sortEntryComparer(aSortKey) {
     switch (aSortKey) {
       case "title":
       case "categories":
@@ -103,7 +103,7 @@ var calunifinder = {
    * @param {String} aSortKey                 The item sort key
    * @param {?Number} aModifier               Either 1 or -1, to indicate sort direction
    */
-  sortItems: function(aItems, aSortKey, aModifier = 1) {
+  sortItems(aItems, aSortKey, aModifier = 1) {
     let comparer = calunifinder.sortEntryComparer(aSortKey);
     aItems.sort((a, b) => {
       let sortvalA = calunifinder.getItemSortKey(a, aSortKey);
@@ -126,7 +126,7 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
    * @param {Number} modifier     -1 to flip direction, or 1
    * @return {Number}             Either -1, 0, or 1
    */
-  number: function(a, b, modifier = 1) {
+  number(a, b, modifier = 1) {
     return sortCompare.general(Number(a), Number(b), modifier);
   },
 
@@ -138,7 +138,7 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
    * @param {Number} modifier     -1 to flip direction, or 1
    * @return {Number}             Either -1, 0, or 1
    */
-  date: function(a, b, modifier = 1) {
+  date(a, b, modifier = 1) {
     return sortCompare.general(a, b, modifier);
   },
 
@@ -150,7 +150,7 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
    * @param {Number} modifier     -1 to flip direction, or 1
    * @return {Number}             Either -1, 0, or 1
    */
-  general: function(a, b, modifier = 1) {
+  general(a, b, modifier = 1) {
     return ((a > b) - (a < b)) * modifier;
   },
 
@@ -162,7 +162,7 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
    * @param {Number} modifier     -1 to flip direction, or 1
    * @return {Number}             Either -1, 0, or 1
    */
-  date_filled: function(a, b, modifier = 1) {
+  date_filled(a, b, modifier = 1) {
     const NULL_DATE = -62168601600000000;
 
     if (a == b) {
@@ -171,9 +171,8 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
       return 1;
     } else if (b == NULL_DATE) {
       return -1;
-    } else {
-      return sortCompare.general(a, b, modifier);
     }
+    return sortCompare.general(a, b, modifier);
   },
 
   /**
@@ -184,7 +183,7 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
    * @param {Number} modifier     -1 to flip direction, or 1
    * @return {Number}             Either -1, 0, or 1
    */
-  string: function(a, b, modifier = 1) {
+  string(a, b, modifier = 1) {
     if (a.length == 0 || b.length == 0) {
       // sort empty values to end (so when users first sort by a
       // column, they can see and find the desired values in that
@@ -203,7 +202,7 @@ const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
    * @param {Number} modifier     Provided for consistency, but unused
    * @return {Number}             Will always return 0
    */
-  unknown: function(a, b, modifier = 1) {
+  unknown(a, b, modifier = 1) {
     return 0;
   },
 });

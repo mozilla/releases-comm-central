@@ -25,17 +25,17 @@ calRecurrenceDate.prototype = {
     interfaces: calRecurrenceDateInterfaces,
   }),
 
-  makeImmutable: function() {
+  makeImmutable() {
     this.isMutable = false;
   },
 
-  ensureMutable: function() {
+  ensureMutable() {
     if (!this.isMutable) {
       throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
     }
   },
 
-  clone: function() {
+  clone() {
     let other = new calRecurrenceDate();
     other.mDate = this.mDate ? this.mDate.clone() : null;
     other.mIsNegative = this.mIsNegative;
@@ -62,24 +62,22 @@ calRecurrenceDate.prototype = {
     return (this.mDate = val);
   },
 
-  getNextOccurrence: function(aStartTime, aOccurrenceTime) {
+  getNextOccurrence(aStartTime, aOccurrenceTime) {
     if (this.mDate && this.mDate.compare(aStartTime) > 0) {
       return this.mDate;
-    } else {
-      return null;
     }
+    return null;
   },
 
-  getOccurrences: function(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
+  getOccurrences(aStartTime, aRangeStart, aRangeEnd, aMaxCount) {
     if (
       this.mDate &&
       this.mDate.compare(aRangeStart) >= 0 &&
       (!aRangeEnd || this.mDate.compare(aRangeEnd) < 0)
     ) {
       return [this.mDate];
-    } else {
-      return [];
     }
+    return [];
   },
 
   get icalString() {

@@ -19,7 +19,7 @@ calListFormatter.prototype = {
     return cal.l10n.getCalString("formatListName");
   },
 
-  formatToHtml: function(aStream, aStart, aEnd, aItems, aTitle) {
+  formatToHtml(aStream, aStart, aEnd, aItems, aTitle) {
     let htmlexporter = Cc["@mozilla.org/calendar/export;1?type=htmllist"].createInstance(
       Ci.calIExporter
     );

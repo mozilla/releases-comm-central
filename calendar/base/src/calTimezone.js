@@ -58,7 +58,7 @@ calICALJSTimezone.prototype = {
     return displayName;
   },
 
-  tostring: function() {
+  tostring() {
     return this.innerObject.toString();
   },
 };
@@ -76,7 +76,7 @@ calLibicalTimezone.prototype = {
   QueryInterface: ChromeUtils.generateQI([Ci.calITimezone]),
   classID: Components.ID("{6702eb17-a968-4b43-b562-0d0c5f8e9eb5}"),
 
-  toString: function() {
+  toString() {
     return this.icalComponent ? this.icalComponent.toString() : this.tzid;
   },
 

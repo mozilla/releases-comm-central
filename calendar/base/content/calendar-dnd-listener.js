@@ -23,7 +23,7 @@ var itemConversion = {
    * @param aItem     The target calIItemBase.
    * @param aMessage  The nsIMsgHdr to convert from.
    */
-  calendarItemFromMessage: function(aItem, aMsgHdr) {
+  calendarItemFromMessage(aItem, aMsgHdr) {
     let msgFolder = aMsgHdr.folder;
     let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
@@ -62,7 +62,7 @@ var itemConversion = {
    * @param aItem     The item to copy from.
    * @param aTarget   the item to copy to.
    */
-  copyItemBase: function(aItem, aTarget) {
+  copyItemBase(aItem, aTarget) {
     const copyProps = ["SUMMARY", "LOCATION", "DESCRIPTION", "URL", "CLASS", "PRIORITY"];
 
     for (let prop of copyProps) {
@@ -99,7 +99,7 @@ var itemConversion = {
    * @param aEvent    The event to copy from.
    * @return          The resulting task.
    */
-  taskFromEvent: function(aEvent) {
+  taskFromEvent(aEvent) {
     let item = cal.createTodo();
 
     this.copyItemBase(aEvent, item);
@@ -137,7 +137,7 @@ var itemConversion = {
    * @param aTask     The task to copy from.
    * @return          The resulting event.
    */
-  eventFromTask: function(aTask) {
+  eventFromTask(aTask) {
     let item = cal.createEvent();
 
     this.copyItemBase(aTask, item);
@@ -191,9 +191,9 @@ function calDNDBaseObserver() {
 
 calDNDBaseObserver.prototype = {
   // initialize this class's members
-  initBase: function() {},
+  initBase() {},
 
-  getSupportedFlavours: function() {
+  getSupportedFlavours() {
     let flavourSet = new FlavourSet();
     flavourSet.appendFlavour("text/calendar");
     flavourSet.appendFlavour("text/x-moz-url");
@@ -207,7 +207,7 @@ calDNDBaseObserver.prototype = {
    * Action to take when dropping the event.
    */
 
-  onDrop: function(aEvent, aTransferData, aDragSession) {
+  onDrop(aEvent, aTransferData, aDragSession) {
     let transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
     transferable.init(null);
     transferable.addDataFlavor("text/calendar");
@@ -289,7 +289,7 @@ calDNDBaseObserver.prototype = {
         let self = this;
 
         let listener = {
-          onStreamComplete: function(aLoader, aContext, aStatus, aResultLength, aResult) {
+          onStreamComplete(aLoader, aContext, aStatus, aResultLength, aResult) {
             let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
             let encoding = channel.contentCharset || "utf-8";
             let result = aResultLength
@@ -319,14 +319,14 @@ calDNDBaseObserver.prototype = {
     }
   },
 
-  onDragStart: function(aEvent, aTransferData, aDragAction) {},
-  onDragOver: function(aEvent, aFlavor, aDragSession) {},
-  onDragExit: function(aEvent, aDragSession) {},
+  onDragStart(aEvent, aTransferData, aDragAction) {},
+  onDragOver(aEvent, aFlavor, aDragSession) {},
+  onDragExit(aEvent, aDragSession) {},
 
-  onDropItems: function(aItems) {},
-  onDropMessage: function(aMessage) {},
+  onDropItems(aItems) {},
+  onDropMessage(aMessage) {},
 
-  retrieveURLFromData: function(aData, aFlavor) {
+  retrieveURLFromData(aData, aFlavor) {
     switch (aFlavor) {
       case "text/unicode": {
         let data = aData.toString();
@@ -365,7 +365,7 @@ calViewDNDObserver.prototype = {
    * on one of the calendar views. In this case we just
    * try to add these items to the currently selected calendar.
    */
-  onDropItems: function(aItems) {
+  onDropItems(aItems) {
     let destCal = getSelectedCalendar();
     startBatchTransaction();
     // we fall back explicitly to the popup to ask whether to send a
@@ -403,7 +403,7 @@ calMailButtonDNDObserver.prototype = {
    *
    * @param aItems        An array of items to handle.
    */
-  onDropItems: function(aItems) {
+  onDropItems(aItems) {
     if (aItems && aItems.length > 0) {
       let item = aItems[0];
       let identity = item.calendar.getProperty("imip.identity");
@@ -433,7 +433,7 @@ calMailButtonDNDObserver.prototype = {
    *
    * @param aMessage     The message to handle.
    */
-  onDropMessage: function(aMessage) {},
+  onDropMessage(aMessage) {},
 };
 
 /**
@@ -458,7 +458,7 @@ calCalendarButtonDNDObserver.prototype = {
    *
    * @param aItems        An array of items to handle.
    */
-  onDropItems: function(aItems) {
+  onDropItems(aItems) {
     for (let item of aItems) {
       let newItem = item;
       if (cal.item.isToDo(item)) {
@@ -478,7 +478,7 @@ calCalendarButtonDNDObserver.prototype = {
    *
    * @param aMessage     The message to handle.
    */
-  onDropMessage: function(aMessage) {
+  onDropMessage(aMessage) {
     let newItem = cal.createEvent();
     itemConversion.calendarItemFromMessage(newItem, aMessage);
     createEventWithDialog(null, null, null, null, newItem);
@@ -507,7 +507,7 @@ calTaskButtonDNDObserver.prototype = {
    *
    * @param aItems        An array of items to handle.
    */
-  onDropItems: function(aItems) {
+  onDropItems(aItems) {
     for (let item of aItems) {
       let newItem = item;
       if (cal.item.isEvent(item)) {
@@ -525,7 +525,7 @@ calTaskButtonDNDObserver.prototype = {
    *
    * @param aMessage     The message to handle.
    */
-  onDropMessage: function(aMessage) {
+  onDropMessage(aMessage) {
     let todo = cal.createTodo();
     itemConversion.calendarItemFromMessage(todo, aMessage);
     createTodoWithDialog(null, null, null, todo);
@@ -548,7 +548,7 @@ function invokeEventDragSession(aItem, aXULBox) {
     QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
     item: aItem,
-    getFlavorData: function(aInTransferable, aInFlavor, aOutData) {
+    getFlavorData(aInTransferable, aInFlavor, aOutData) {
       if (
         aInFlavor == "application/vnd.x-moz-cal-event" ||
         aInFlavor == "application/vnd.x-moz-cal-task"

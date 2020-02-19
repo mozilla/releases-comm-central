@@ -424,10 +424,9 @@
           prefix +
           PluralForm.get(dur.hours, cal.l10n.getCalString("dueInHours")).replace("#1", dur.hours)
         );
-      } else {
-        // Less than one hour.
-        return cal.l10n.getCalString("dueInLessThanOneHour");
       }
+      // Less than one hour.
+      return cal.l10n.getCalString("dueInLessThanOneHour");
     }
 
     /**

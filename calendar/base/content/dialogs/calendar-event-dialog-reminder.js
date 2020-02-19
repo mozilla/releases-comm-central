@@ -383,9 +383,8 @@ function updateReminder(event) {
 function getItemBundleStringName(aPrefix) {
   if (cal.item.isEvent(window.arguments[0].item)) {
     return aPrefix + "Event";
-  } else {
-    return aPrefix + "Task";
   }
+  return aPrefix + "Task";
 }
 
 /**

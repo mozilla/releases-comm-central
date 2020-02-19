@@ -23,13 +23,13 @@ var calendarTabMonitor = {
   monitorName: "lightning",
 
   // Unused, but needed functions
-  onTabTitleChanged: function() {},
-  onTabOpened: function() {},
-  onTabClosing: function() {},
-  onTabPersist: function() {},
-  onTabRestored: function() {},
+  onTabTitleChanged() {},
+  onTabOpened() {},
+  onTabClosing() {},
+  onTabPersist() {},
+  onTabRestored() {},
 
-  onTabSwitched: function(aNewTab, aOldTab) {
+  onTabSwitched(aNewTab, aOldTab) {
     // Unfortunately, tabmail doesn't provide a hideTab function on the tab
     // type definitions. To make sure the commands are correctly disabled,
     // we want to update calendar/task commands when switching away from
@@ -82,14 +82,14 @@ var calendarTabType = {
     calendar: {
       type: "calendar",
       maxTabs: 1,
-      openTab: function(aTab, aArgs) {
+      openTab(aTab, aArgs) {
         gLastShownCalendarView = getLastCalendarView();
         aTab.title = aArgs.title;
       },
-      showTab: function(tab) {},
-      closeTab: function(tab) {},
+      showTab(tab) {},
+      closeTab(tab) {},
 
-      persistTab: function(aTab) {
+      persistTab(aTab) {
         let tabmail = document.getElementById("tabmail");
         return {
           // Since we do strange tab switching logic in calSwitchToCalendarMode,
@@ -98,12 +98,12 @@ var calendarTabType = {
         };
       },
 
-      restoreTab: function(aTabmail, aState) {
+      restoreTab(aTabmail, aState) {
         aState.title = cal.l10n.getLtnString("tabTitleCalendar");
         aTabmail.openTab("calendar", aState);
       },
 
-      onTitleChanged: function(aTab) {
+      onTitleChanged(aTab) {
         aTab.title = cal.l10n.getLtnString("tabTitleCalendar");
       },
 
@@ -116,13 +116,13 @@ var calendarTabType = {
     tasks: {
       type: "tasks",
       maxTabs: 1,
-      openTab: function(aTab, aArgs) {
+      openTab(aTab, aArgs) {
         aTab.title = aArgs.title;
       },
-      showTab: function(tab) {},
-      closeTab: function(tab) {},
+      showTab(tab) {},
+      closeTab(tab) {},
 
-      persistTab: function(aTab) {
+      persistTab(aTab) {
         let tabmail = document.getElementById("tabmail");
         return {
           // Since we do strange tab switching logic in calSwitchToTaskMode,
@@ -131,12 +131,12 @@ var calendarTabType = {
         };
       },
 
-      restoreTab: function(aTabmail, aState) {
+      restoreTab(aTabmail, aState) {
         aState.title = cal.l10n.getLtnString("tabTitleTasks");
         aTabmail.openTab("tasks", aState);
       },
 
-      onTitleChanged: function(aTab) {
+      onTitleChanged(aTab) {
         aTab.title = cal.l10n.getLtnString("tabTitleTasks");
       },
 
@@ -147,7 +147,7 @@ var calendarTabType = {
     },
   },
 
-  saveTabState: function(tab) {},
+  saveTabState(tab) {},
 };
 
 /**
@@ -169,7 +169,7 @@ var calendarItemTabType = {
    * @param {Object} aTab   A tab info object
    * @param {Object} aArgs  Contains data about the event/task
    */
-  openTab: function(aTab, aArgs) {
+  openTab(aTab, aArgs) {
     // Create a clone to use for this tab. Remove the cloned toolbox
     // and move the original toolbox into its place. There is only
     // one toolbox/toolbar so its settings are the same for all item tabs.
@@ -228,7 +228,7 @@ var calendarItemTabType = {
    *
    * @param {Object} aTab  A tab info object
    */
-  saveTabState: function(aTab) {
+  saveTabState(aTab) {
     // save state
     aTab.itemTabConfig = {};
     Object.assign(aTab.itemTabConfig, gConfig);
@@ -248,7 +248,7 @@ var calendarItemTabType = {
    *
    * @param {Object} aTab  A tab info object
    */
-  showTab: function(aTab) {
+  showTab(aTab) {
     // move toolbox into place then load state
     moveEventToolbox(aTab.panel.firstElementChild);
     Object.assign(gConfig, aTab.itemTabConfig);
@@ -264,20 +264,19 @@ var calendarItemTabType = {
    *
    * @param {Object} aTab  A tab info object
    */
-  tryCloseTab: function(aTab) {
+  tryCloseTab(aTab) {
     if (aTab.allowTabClose) {
       return true;
-    } else {
-      onCancel(aTab.iframe.id);
-      return false;
     }
+    onCancel(aTab.iframe.id);
+    return false;
   },
   /**
    * Closes a tab.
    *
    * @param {Object} aTab  A tab info object
    */
-  closeTab: function(aTab) {
+  closeTab(aTab) {
     // Remove the iframe id from the array where they are stored.
     let index = gItemTabIds.indexOf(aTab.iframe.id);
     if (index != -1) {
@@ -300,7 +299,7 @@ var calendarItemTabType = {
    *
    * @param {Object} aTab  A tab info object
    */
-  persistTab: function(aTab) {
+  persistTab(aTab) {
     let args = aTab.iframe.contentWindow.arguments[0];
     // Serialize args, with manual handling of some properties.
     // persistTab is called even for new events/tasks in tabs that
@@ -328,10 +327,10 @@ var calendarItemTabType = {
     args.initialStartDateValue = null;
 
     return {
-      calendarId: calendarId,
-      itemId: itemId,
-      initialStartDate: initialStartDate,
-      args: args,
+      calendarId,
+      itemId,
+      initialStartDate,
+      args,
       tabType: aTab.mode.type,
     };
   },
@@ -342,7 +341,7 @@ var calendarItemTabType = {
    * @param {Object} aTabmail  The tabmail interface
    * @param {Object} aState    The state of the tab to restore
    */
-  restoreTab: function(aTabmail, aState) {
+  restoreTab(aTabmail, aState) {
     // Sometimes restoreTab is called for tabs that were never saved
     // and never meant to be persisted or restored. See persistTab.
     if (aState.args && aState.calendarId && aState.itemId) {
@@ -593,7 +592,7 @@ var gInvitationsOperationListener = {
   mCount: 0,
 
   QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-  onOperationComplete: function(aCalendar, aStatus, aOperationType, aId, aDetail) {
+  onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
     let invitationsBox = document.getElementById("calendar-invitations-panel");
     if (Components.isSuccessCode(aStatus)) {
       let value = cal.l10n.getLtnString("invitationsLink.label", [this.mCount]);
@@ -605,7 +604,7 @@ var gInvitationsOperationListener = {
     this.mCount = 0;
   },
 
-  onGetResult: function(aCalendar, aStatus, aItemType, aDetail, aItems) {
+  onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
     if (Components.isSuccessCode(aStatus)) {
       this.mCount += aItems.length;
     }
@@ -617,15 +616,15 @@ var gInvitationsCalendarManagerObserver = {
 
   QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
 
-  onCalendarRegistered: function(aCalendar) {
+  onCalendarRegistered(aCalendar) {
     this.mSideBar.rescheduleInvitationsUpdate(FIRST_DELAY_REGISTER);
   },
 
-  onCalendarUnregistering: function(aCalendar) {
+  onCalendarUnregistering(aCalendar) {
     this.mSideBar.rescheduleInvitationsUpdate(FIRST_DELAY_UNREGISTER);
   },
 
-  onCalendarDeleting: function(aCalendar) {},
+  onCalendarDeleting(aCalendar) {},
 };
 
 function scheduleInvitationsUpdate(firstDelay) {
@@ -752,7 +751,7 @@ function calSwitchToTaskMode() {
 }
 
 var gCalSetupMailContext = {
-  popup: function() {
+  popup() {
     let hasSelection = gFolderDisplay.selectedMessage != null;
     // Disable the convert menu altogether.
     setElementValue("mailContext-calendar-convert-menu", !hasSelection && "true", "hidden");

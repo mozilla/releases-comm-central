@@ -17,7 +17,7 @@ calDefaultACLManager.prototype = {
   mCalendarEntries: null,
 
   /* calICalendarACLManager */
-  _getCalendarEntryCached: function(aCalendar) {
+  _getCalendarEntryCached(aCalendar) {
     let calUri = aCalendar.uri.spec;
     if (!(calUri in this.mCalendarEntries)) {
       this.mCalendarEntries[calUri] = new calDefaultCalendarACLEntry(this, aCalendar);
@@ -25,11 +25,11 @@ calDefaultACLManager.prototype = {
 
     return this.mCalendarEntries[calUri];
   },
-  getCalendarEntry: function(aCalendar, aListener) {
+  getCalendarEntry(aCalendar, aListener) {
     let entry = this._getCalendarEntryCached(aCalendar);
     aListener.onOperationComplete(aCalendar, Cr.NS_OK, Ci.calIOperationListener.GET, null, entry);
   },
-  getItemEntry: function(aItem) {
+  getItemEntry(aItem) {
     let calEntry = this._getCalendarEntryCached(aItem.calendar);
     return new calDefaultItemACLEntry(calEntry);
   },
@@ -55,31 +55,30 @@ calDefaultCalendarACLEntry.prototype = {
   userCanAddItems: true,
   userCanDeleteItems: true,
 
-  _getIdentities: function() {
+  _getIdentities() {
     let identities = [];
     cal.email.iterateIdentities(id => identities.push(id));
     return identities;
   },
 
-  getUserAddresses: function() {
+  getUserAddresses() {
     let identities = this.getUserIdentities();
     let addresses = identities.map(id => id.email);
     return addresses;
   },
 
-  getUserIdentities: function() {
+  getUserIdentities() {
     let identity = cal.provider.getEmailIdentityOfCalendar(this.mCalendar);
     if (identity) {
       return [identity];
-    } else {
-      return this._getIdentities();
     }
+    return this._getIdentities();
   },
-  getOwnerIdentities: function() {
+  getOwnerIdentities() {
     return this._getIdentities();
   },
 
-  refresh: function() {},
+  refresh() {},
 };
 
 function calDefaultItemACLEntry(aCalendarEntry) {

@@ -21,7 +21,7 @@ function test_found() {
 
   let provider1 = {
     id: 1,
-    getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
+    getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       aListener.onResult(null, []);
     },
   };
@@ -29,7 +29,7 @@ function test_found() {
   let provider2 = {
     id: 2,
     called: false,
-    getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
+    getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       ok(!this.called);
       this.called = true;
 
@@ -54,7 +54,7 @@ function test_found() {
 
   let listener = {
     called: false,
-    onResult: function(request, result) {
+    onResult(request, result) {
       equal(result.length, 1);
       equal(result[0].interval.start.icalString, "20120101T010101");
       equal(result[0].interval.end.icalString, "20120102T010101");
@@ -81,7 +81,7 @@ function test_failure() {
 
   let provider = {
     called: false,
-    getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
+    getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       ok(!this.called);
       this.called = true;
       aListener.onResult({ status: Cr.NS_ERROR_FAILURE }, "notFound");
@@ -89,7 +89,7 @@ function test_failure() {
   };
 
   let listener = {
-    onResult: function(request, result) {
+    onResult(request, result) {
       ok(!this.called);
       equal(result.length, 0);
       equal(request.status, 0);
@@ -115,10 +115,10 @@ function test_cancel() {
 
   let provider = {
     QueryInterface: cal.generateQI([Ci.calIFreeBusyProvider, Ci.calIOperation]),
-    getFreeBusyIntervals: function(aCalId, aStart, aEnd, aTypes, aListener) {
+    getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       Services.tm.currentThread.dispatch(
         {
-          run: function() {
+          run() {
             dump("Cancelling freebusy query...");
             operation.cancel();
           },
@@ -134,14 +134,14 @@ function test_cancel() {
     isPending: true,
     cancelCalled: false,
     status: Cr.NS_OK,
-    cancel: function() {
+    cancel() {
       this.cancelCalled = true;
     },
   };
 
   let listener = {
     called: false,
-    onResult: function(request, result) {
+    onResult(request, result) {
       equal(result, null);
 
       // If an exception occurs, the operation is not added to the opgroup

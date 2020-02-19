@@ -25,7 +25,7 @@ add_task(async () => {
 
   let addedItemId = await new Promise(resolve => {
     storage.addItem(storageItem, {
-      onOperationComplete: function(calendar, status, opType, id, addedItem) {
+      onOperationComplete(calendar, status, opType, id, addedItem) {
         addedItem.QueryInterface(Ci.calIEvent);
         resolve(addedItem.id);
       },
@@ -38,7 +38,7 @@ add_task(async () => {
   await new Promise(resolve => {
     storage.getItem(addedItemId, {
       found: false,
-      onGetResult: function(calendar, status, type, detail, items) {
+      onGetResult(calendar, status, type, detail, items) {
         let item = items[0];
 
         // Check start date
@@ -96,7 +96,7 @@ add_task(async () => {
 
         this.found = true;
       },
-      onOperationComplete: function() {
+      onOperationComplete() {
         if (!this.found) {
           do_throw("Could not find item");
         }

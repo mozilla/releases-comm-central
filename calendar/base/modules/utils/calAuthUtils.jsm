@@ -100,9 +100,8 @@ class ContainerMap extends Map {
   getUserContextIdForUsername(username) {
     if (this.has(username)) {
       return this.get(username);
-    } else {
-      return this._add(username);
     }
+    return this._add(username);
   }
 
   /**
@@ -117,9 +116,8 @@ class ContainerMap extends Map {
   getUsernameForUserContextId(userContextId) {
     if (this.inverted.hasOwnProperty(userContextId)) {
       return this.inverted[userContextId];
-    } else {
-      return "";
     }
+    return "";
   }
 }
 
@@ -193,12 +191,11 @@ var calauth = {
 
           delete this.mReturnedLogins[keyStr];
           calauth.passwordManagerRemove(username, aPasswordRealm.prePath, aPasswordRealm.realm);
-          return { found: false, username: username };
-        } else {
-          this.mReturnedLogins[keyStr] = now;
+          return { found: false, username };
         }
+        this.mReturnedLogins[keyStr] = now;
       }
-      return { found: found, username: username, password: password };
+      return { found, username, password };
     }
 
     // boolean promptAuth(in nsIChannel aChannel,
@@ -225,34 +222,29 @@ var calauth = {
       if (pwInfo && pwInfo.found) {
         aAuthInfo.password = pwInfo.password;
         return true;
-      } else {
-        let savePasswordLabel = null;
-        if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
-          savePasswordLabel = cal.l10n.getAnyString(
-            "passwordmgr",
-            "passwordmgr",
-            "rememberPassword"
-          );
-        }
-        let savePassword = {};
-        let returnValue = Services.prompt.promptAuth(
-          null,
-          aChannel,
-          aLevel,
-          aAuthInfo,
-          savePasswordLabel,
-          savePassword
-        );
-        if (savePassword.value) {
-          calauth.passwordManagerSave(
-            aAuthInfo.username,
-            aAuthInfo.password,
-            hostRealm.prePath,
-            aAuthInfo.realm
-          );
-        }
-        return returnValue;
       }
+      let savePasswordLabel = null;
+      if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
+        savePasswordLabel = cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword");
+      }
+      let savePassword = {};
+      let returnValue = Services.prompt.promptAuth(
+        null,
+        aChannel,
+        aLevel,
+        aAuthInfo,
+        savePasswordLabel,
+        savePassword
+      );
+      if (savePassword.value) {
+        calauth.passwordManagerSave(
+          aAuthInfo.username,
+          aAuthInfo.password,
+          hostRealm.prePath,
+          aAuthInfo.realm
+        );
+      }
+      return returnValue;
     }
 
     // nsICancelable asyncPromptAuth(in nsIChannel aChannel,
@@ -263,11 +255,11 @@ var calauth = {
     asyncPromptAuth(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
       let self = this;
       let promptlistener = {
-        onPromptStartAsync: function(callback) {
+        onPromptStartAsync(callback) {
           callback.onAuthResult(this.onPromptStart());
         },
 
-        onPromptStart: function() {
+        onPromptStart() {
           let res = self.promptAuth(aChannel, aLevel, aAuthInfo);
           if (res) {
             gAuthCache.setAuthInfo(hostKey, aAuthInfo);
@@ -279,7 +271,7 @@ var calauth = {
           return false;
         },
 
-        onPromptAuthAvailable: function() {
+        onPromptAuthAvailable() {
           let authInfo = gAuthCache.retrieveAuthInfo(hostKey);
           if (authInfo) {
             aAuthInfo.username = authInfo.username;
@@ -288,7 +280,7 @@ var calauth = {
           aCallback.onAuthAvailable(aContext, aAuthInfo);
         },
 
-        onPromptCanceled: function() {
+        onPromptCanceled() {
           gAuthCache.retrieveAuthInfo(hostKey);
           aCallback.onAuthCancelled(aContext, true);
         },
@@ -330,14 +322,7 @@ var calauth = {
    * @param {Boolean} aFixedUsername          Whether the user name is fixed or editable
    * @return {Boolean}                        Could a password be retrieved?
    */
-  getCredentials: function(
-    aTitle,
-    aCalendarName,
-    aUsername,
-    aPassword,
-    aSavePassword,
-    aFixedUsername
-  ) {
+  getCredentials(aTitle, aCalendarName, aUsername, aPassword, aSavePassword, aFixedUsername) {
     if (
       typeof aUsername != "object" ||
       typeof aPassword != "object" ||
@@ -361,19 +346,18 @@ var calauth = {
         aCalendarName,
       ]);
       return prompter.promptPassword(aTitle, aText, aPassword, savepassword, aSavePassword);
-    } else {
-      aText = cal.l10n.getAnyString("global", "commonDialogs", "EnterUserPasswordFor2", [
-        aCalendarName,
-      ]);
-      return prompter.promptUsernameAndPassword(
-        aTitle,
-        aText,
-        aUsername,
-        aPassword,
-        savepassword,
-        aSavePassword
-      );
     }
+    aText = cal.l10n.getAnyString("global", "commonDialogs", "EnterUserPasswordFor2", [
+      aCalendarName,
+    ]);
+    return prompter.promptUsernameAndPassword(
+      aTitle,
+      aText,
+      aUsername,
+      aPassword,
+      savepassword,
+      aSavePassword
+    );
   },
 
   /**
@@ -384,7 +368,7 @@ var calauth = {
    * @param {String} aOrigin      The hostname or origin to check
    * @return {String}             The origin uri
    */
-  _ensureOrigin: function(aOrigin) {
+  _ensureOrigin(aOrigin) {
     try {
       let { prePath, spec } = Services.io.newURI(aOrigin);
       if (prePath == "oauth:") {
@@ -404,7 +388,7 @@ var calauth = {
    * @param {String} aOrigin      The corresponding origin
    * @param {String} aRealm       The password realm (unused on branch)
    */
-  passwordManagerSave: function(aUsername, aPassword, aOrigin, aRealm) {
+  passwordManagerSave(aUsername, aPassword, aOrigin, aRealm) {
     cal.ASSERT(aUsername);
     cal.ASSERT(aPassword);
 
@@ -447,7 +431,7 @@ var calauth = {
    * @param {String} aRealm       The password realm (unused on branch)
    * @return {Boolean}            True, if an entry exists in the password manager
    */
-  passwordManagerGet: function(aUsername, aPassword, aOrigin, aRealm) {
+  passwordManagerGet(aUsername, aPassword, aOrigin, aRealm) {
     cal.ASSERT(aUsername);
 
     if (typeof aPassword != "object") {
@@ -478,7 +462,7 @@ var calauth = {
    * @param {String} aRealm       The password realm (unused on branch)
    * @return {Boolean}            Could the user be removed?
    */
-  passwordManagerRemove: function(aUsername, aOrigin, aRealm) {
+  passwordManagerRemove(aUsername, aOrigin, aRealm) {
     cal.ASSERT(aUsername);
 
     let origin = this._ensureOrigin(aOrigin);
@@ -515,7 +499,7 @@ var calauth = {
 // the password in memory longer than needed.
 var gAuthCache = {
   _authInfoCache: new Map(),
-  planForAuthInfo: function(hostKey) {
+  planForAuthInfo(hostKey) {
     let authInfo = this._authInfoCache.get(hostKey);
     if (authInfo) {
       authInfo.refCnt++;
@@ -524,7 +508,7 @@ var gAuthCache = {
     }
   },
 
-  setAuthInfo: function(hostKey, aAuthInfo) {
+  setAuthInfo(hostKey, aAuthInfo) {
     let authInfo = this._authInfoCache.get(hostKey);
     if (authInfo) {
       authInfo.username = aAuthInfo.username;
@@ -532,7 +516,7 @@ var gAuthCache = {
     }
   },
 
-  retrieveAuthInfo: function(hostKey) {
+  retrieveAuthInfo(hostKey) {
     let authInfo = this._authInfoCache.get(hostKey);
     if (authInfo) {
       authInfo.refCnt--;

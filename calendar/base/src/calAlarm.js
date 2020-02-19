@@ -40,7 +40,7 @@ calAlarm.prototype = {
    * calIAlarm
    */
 
-  ensureMutable: function() {
+  ensureMutable() {
     if (this.mImmutable) {
       throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
     }
@@ -50,7 +50,7 @@ calAlarm.prototype = {
     return !this.mImmutable;
   },
 
-  makeImmutable: function() {
+  makeImmutable() {
     if (this.mImmutable) {
       return;
     }
@@ -72,7 +72,7 @@ calAlarm.prototype = {
     this.mImmutable = true;
   },
 
-  clone: function() {
+  clone() {
     let cloned = new calAlarm();
 
     cloned.mImmutable = false;
@@ -251,7 +251,7 @@ calAlarm.prototype = {
     return alarmDate;
   },
 
-  getAttendees: function() {
+  getAttendees() {
     let attendees;
     if (this.action == "AUDIO" || this.action == "DISPLAY") {
       attendees = [];
@@ -261,7 +261,7 @@ calAlarm.prototype = {
     return attendees;
   },
 
-  addAttendee: function(aAttendee) {
+  addAttendee(aAttendee) {
     // Make sure its not duplicate
     this.deleteAttendee(aAttendee);
 
@@ -274,7 +274,7 @@ calAlarm.prototype = {
     this.mAttendees.push(aAttendee);
   },
 
-  deleteAttendee: function(aAttendee) {
+  deleteAttendee(aAttendee) {
     let deleteId = aAttendee.id;
     for (let i = 0; i < this.mAttendees.length; i++) {
       if (this.mAttendees[i].id == deleteId) {
@@ -284,11 +284,11 @@ calAlarm.prototype = {
     }
   },
 
-  clearAttendees: function() {
+  clearAttendees() {
     this.mAttendees = [];
   },
 
-  getAttachments: function() {
+  getAttachments() {
     let attachments;
     if (this.action == "AUDIO") {
       attachments = this.mAttachments.length ? [this.mAttachments[0]] : [];
@@ -300,7 +300,7 @@ calAlarm.prototype = {
     return attachments;
   },
 
-  addAttachment: function(aAttachment) {
+  addAttachment(aAttachment) {
     // Make sure its not duplicate
     this.deleteAttachment(aAttachment);
 
@@ -315,7 +315,7 @@ calAlarm.prototype = {
     this.mAttachments.push(aAttachment);
   },
 
-  deleteAttachment: function(aAttachment) {
+  deleteAttachment(aAttachment) {
     let deleteHash = aAttachment.hashId;
     for (let i = 0; i < this.mAttachments.length; i++) {
       if (this.mAttachments[i].hashId == deleteHash) {
@@ -325,7 +325,7 @@ calAlarm.prototype = {
     }
   },
 
-  clearAttachments: function() {
+  clearAttachments() {
     this.mAttachments = [];
   },
 
@@ -553,25 +553,23 @@ calAlarm.prototype = {
     return aComp;
   },
 
-  hasProperty: function(aName) {
+  hasProperty(aName) {
     return this.getProperty(aName.toUpperCase()) != null;
   },
 
-  getProperty: function(aName) {
+  getProperty(aName) {
     let name = aName.toUpperCase();
     if (name in this.promotedProps) {
       if (this.promotedProps[name] === true) {
         // Complex promoted props will return undefined
         return undefined;
-      } else {
-        return this[this.promotedProps[name]];
       }
-    } else {
-      return this.mProperties.get(name);
+      return this[this.promotedProps[name]];
     }
+    return this.mProperties.get(name);
   },
 
-  setProperty: function(aName, aValue) {
+  setProperty(aName, aValue) {
     this.ensureMutable();
     let name = aName.toUpperCase();
     if (name in this.promotedProps) {
@@ -586,7 +584,7 @@ calAlarm.prototype = {
     return aValue;
   },
 
-  deleteProperty: function(aName) {
+  deleteProperty(aName) {
     this.ensureMutable();
     let name = aName.toUpperCase();
     if (name in this.promotedProps) {
@@ -600,15 +598,14 @@ calAlarm.prototype = {
     return this.mProperties.entries();
   },
 
-  toString: function(aItem) {
+  toString(aItem) {
     function alarmString(aPrefix) {
       if (!aItem || cal.item.isEvent(aItem)) {
         return aPrefix + "Event";
       } else if (cal.item.isToDo(aItem)) {
         return aPrefix + "Task";
-      } else {
-        return aPrefix;
       }
+      return aPrefix;
     }
 
     if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
@@ -666,10 +663,9 @@ calAlarm.prototype = {
         unitString,
         originString,
       ]);
-    } else {
-      // This is an incomplete alarm, but then again we should never reach
-      // this state.
-      return "[Incomplete calIAlarm]";
     }
+    // This is an incomplete alarm, but then again we should never reach
+    // this state.
+    return "[Incomplete calIAlarm]";
   },
 };

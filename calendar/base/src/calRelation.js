@@ -97,19 +97,19 @@ calRelation.prototype = {
     return val;
   },
 
-  getParameter: function(aName) {
+  getParameter(aName) {
     return this.mProperties.get(aName);
   },
 
-  setParameter: function(aName, aValue) {
+  setParameter(aName, aValue) {
     return this.mProperties.set(aName, aValue);
   },
 
-  deleteParameter: function(aName) {
+  deleteParameter(aName) {
     return this.mProperties.delete(aName);
   },
 
-  clone: function() {
+  clone() {
     let newRelation = new calRelation();
     newRelation.mId = this.mId;
     newRelation.mType = this.mType;

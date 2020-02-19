@@ -27,10 +27,10 @@ calPeriod.prototype = {
     this.innerObject = val;
   },
 
-  makeImmutable: function() {
+  makeImmutable() {
     this.isMutable = false;
   },
-  clone: function() {
+  clone() {
     return new calPeriod(this.innerObject.clone());
   },
 
@@ -78,7 +78,7 @@ calPeriod.prototype = {
     return val;
   },
 
-  toString: function() {
+  toString() {
     return this.innerObject.toString();
   },
 };

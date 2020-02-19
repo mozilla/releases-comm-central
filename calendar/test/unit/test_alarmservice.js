@@ -20,27 +20,27 @@ var alarmObserver = {
   expectedMap: {},
   pendingOps: {},
 
-  onAlarm: function(aItem, aAlarm) {
+  onAlarm(aItem, aAlarm) {
     this.firedMap[aItem.hashId] = this.firedMap[aItem.hashId] || {};
     this.firedMap[aItem.hashId][aAlarm.icalString] = true;
   },
 
-  onRemoveAlarmsByItem: function(aItem) {
+  onRemoveAlarmsByItem(aItem) {
     if (aItem.hashId in this.firedMap) {
       delete this.firedMap[aItem.hashId];
     }
   },
 
-  onRemoveAlarmsByCalendar: function() {},
+  onRemoveAlarmsByCalendar() {},
 
-  onAlarmsLoaded: function(aCalendar) {
+  onAlarmsLoaded(aCalendar) {
     this.checkLoadStatus();
     if (aCalendar.id in this.pendingOps) {
       this.pendingOps[aCalendar.id].call();
     }
   },
 
-  doOnAlarmsLoaded: function(aCalendar, aOperation) {
+  doOnAlarmsLoaded(aCalendar, aOperation) {
     this.checkLoadStatus();
     if (
       aCalendar.id in this.service.mLoadedCalendars &&
@@ -54,7 +54,7 @@ var alarmObserver = {
     }
   },
 
-  getTimer: function(aCalendarId, aItemId, aAlarmStr) {
+  getTimer(aCalendarId, aItemId, aAlarmStr) {
     return aCalendarId in this.service.mTimerMap &&
       aItemId in this.service.mTimerMap[aCalendarId] &&
       aAlarmStr in this.service.mTimerMap[aCalendarId][aItemId]
@@ -62,7 +62,7 @@ var alarmObserver = {
       : null;
   },
 
-  expectResult: function(aCalendar, aItem, aAlarm, aExpected) {
+  expectResult(aCalendar, aItem, aAlarm, aExpected) {
     let expectedAndTitle = {
       expected: aExpected,
       title: aItem.title,
@@ -73,7 +73,7 @@ var alarmObserver = {
     this.expectedMap[aCalendar.id][aItem.hashId][aAlarm.icalString] = expectedAndTitle;
   },
 
-  expectOccurrences: function(aCalendar, aItem, aAlarm, aExpectedArray) {
+  expectOccurrences(aCalendar, aItem, aAlarm, aExpectedArray) {
     // we need to be earlier than the first occurrence
     let date = aItem.startDate.clone();
     date.second -= 1;
@@ -86,7 +86,7 @@ var alarmObserver = {
     }
   },
 
-  checkExpected: function(aMessage) {
+  checkExpected(aMessage) {
     for (let calId in this.expectedMap) {
       for (let id in this.expectedMap[calId]) {
         for (let icalString in this.expectedMap[calId][id]) {
@@ -110,7 +110,7 @@ var alarmObserver = {
     }
   },
 
-  checkLoadStatus: function() {
+  checkLoadStatus() {
     for (let calId in this.service.mLoadedCalendars) {
       if (!this.service.mLoadedCalendars[calId]) {
         // at least one calendar hasn't finished loading alarms
@@ -121,7 +121,7 @@ var alarmObserver = {
     ok(!this.service.isLoading);
   },
 
-  clear: function() {
+  clear() {
     this.firedMap = {};
     this.pendingOps = {};
     this.expectedMap = {};

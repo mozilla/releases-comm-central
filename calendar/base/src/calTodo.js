@@ -35,13 +35,13 @@ calTodo.prototype = {
     interfaces: calTodoInterfaces,
   }),
 
-  cloneShallow: function(aNewParent) {
+  cloneShallow(aNewParent) {
     let cloned = new calTodo();
     this.cloneItemBaseInto(cloned, aNewParent);
     return cloned;
   },
 
-  createProxy: function(aRecurrenceId) {
+  createProxy(aRecurrenceId) {
     cal.ASSERT(!this.mIsProxy, "Tried to create a proxy for an existing proxy!", true);
 
     let proxy = new calTodo();
@@ -62,7 +62,7 @@ calTodo.prototype = {
     return proxy;
   },
 
-  makeImmutable: function() {
+  makeImmutable() {
     this.makeItemBaseImmutable();
   },
 
@@ -90,12 +90,11 @@ calTodo.prototype = {
     // between start and enddate
     if (dur) {
       return cal.createDuration(dur);
-    } else {
-      if (!this.entryDate || !this.dueDate) {
-        return null;
-      }
-      return this.dueDate.subtractDate(this.entryDate);
     }
+    if (!this.entryDate || !this.dueDate) {
+      return null;
+    }
+    return this.dueDate.subtractDate(this.entryDate);
   },
 
   set duration(value) {
@@ -186,7 +185,7 @@ calTodo.prototype = {
     this.mDirty = false;
   },
 
-  isPropertyPromoted: function(name) {
+  isPropertyPromoted(name) {
     // avoid strict undefined property warning
     return this.todoPromotedProps[name] || false;
   },

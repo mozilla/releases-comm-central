@@ -39,7 +39,7 @@ calItipEmailTransport.prototype = {
     return (this.mSenderAddress = aValue);
   },
 
-  sendItems: function(aRecipients, aItipItem) {
+  sendItems(aRecipients, aItipItem) {
     if (this.mHasXpcomMail) {
       cal.LOG("sendItems: Preparing to send an invitation email...");
       let items = this._prepareItems(aItipItem);
@@ -48,13 +48,12 @@ calItipEmailTransport.prototype = {
       }
 
       return this._sendXpcomMail(aRecipients, items.subject, items.body, aItipItem);
-    } else {
-      // sending xpcom mail is not available if no identity has been set
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
     }
+    // sending xpcom mail is not available if no identity has been set
+    throw Cr.NS_ERROR_NOT_AVAILABLE;
   },
 
-  _prepareItems: function(aItipItem) {
+  _prepareItems(aItipItem) {
     let item = aItipItem.getItemList()[0];
 
     // Get ourselves some default text - when we handle organizer properly
@@ -142,12 +141,12 @@ calItipEmailTransport.prototype = {
     }
 
     return {
-      subject: subject,
-      body: body,
+      subject,
+      body,
     };
   },
 
-  _initEmailTransport: function() {
+  _initEmailTransport() {
     this.mHasXpcomMail = true;
 
     try {
@@ -175,7 +174,7 @@ calItipEmailTransport.prototype = {
     }
   },
 
-  _sendXpcomMail: function(aToList, aSubject, aBody, aItipItem) {
+  _sendXpcomMail(aToList, aSubject, aBody, aItipItem) {
     let identity = null;
     let account;
     if (aItipItem.targetCalendar) {
@@ -320,7 +319,7 @@ calItipEmailTransport.prototype = {
     return false;
   },
 
-  _createTempImipFile: function(aToList, aSubject, aBody, aItipItem, aIdentity, aMessageId) {
+  _createTempImipFile(aToList, aSubject, aBody, aItipItem, aIdentity, aMessageId) {
     try {
       let itemList = aItipItem.getItemList();
       let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
