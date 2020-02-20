@@ -38,6 +38,7 @@ add_task(async () => {
       }
 
       let tabs = await browser.mailTabs.query({});
+      browser.test.assertEq(3, tabs.length);
       let tabIDs = tabs.map(t => t.id);
 
       await checkProperty("isEnabled", true, true, true, true);
@@ -97,14 +98,14 @@ add_task(async () => {
     },
   });
 
-  await extension.startup();
-
   let tabmail = document.getElementById("tabmail");
   tabmail.openTab("folder", { folder: rootFolder, background: false });
   tabmail.openTab("folder", { folder: rootFolder, background: false });
 
   let mailTabs = tabmail.tabInfo;
   is(mailTabs.length, 3);
+
+  await extension.startup();
 
   let button = document.getElementById(
     "test1_mochi_test-browserAction-toolbarbutton"
