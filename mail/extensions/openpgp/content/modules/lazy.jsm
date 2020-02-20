@@ -8,9 +8,8 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailLazy"];
 
-
 var EnigmailLazy = {
-  loader: function(component, name) {
+  loader(component, name) {
     let holder = null;
     return function() {
       if (holder === null) {
@@ -27,5 +26,5 @@ var EnigmailLazy = {
       }
       return holder;
     };
-  }
+  },
 };

@@ -8,20 +8,45 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailFilters"];
 
-const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailPersistentCrypto = ChromeUtils.import("chrome://openpgp/content/modules/persistentCrypto.jsm").EnigmailPersistentCrypto;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
-const EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
-const EnigmailStreams = ChromeUtils.import("chrome://openpgp/content/modules/streams.jsm").EnigmailStreams;
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
+const EnigmailLazy = ChromeUtils.import(
+  "chrome://openpgp/content/modules/lazy.jsm"
+).EnigmailLazy;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailCore = ChromeUtils.import(
+  "chrome://openpgp/content/modules/core.jsm"
+).EnigmailCore;
+const EnigmailPersistentCrypto = ChromeUtils.import(
+  "chrome://openpgp/content/modules/persistentCrypto.jsm"
+).EnigmailPersistentCrypto;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailFuncs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/funcs.jsm"
+).EnigmailFuncs;
+const EnigmailKeyRing = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+).EnigmailKeyRing;
+const EnigmailStreams = ChromeUtils.import(
+  "chrome://openpgp/content/modules/streams.jsm"
+).EnigmailStreams;
+const EnigmailConstants = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+).EnigmailConstants;
+const EnigmailData = ChromeUtils.import(
+  "chrome://openpgp/content/modules/data.jsm"
+).EnigmailData;
 const jsmime = ChromeUtils.import("resource:///modules/jsmime.jsm").jsmime;
-const NetUtil = ChromeUtils.import("resource://gre/modules/NetUtil.jsm").NetUtil;
-const EnigmailMime = ChromeUtils.import("chrome://openpgp/content/modules/mime.jsm").EnigmailMime;
-const EnigmailCompat = ChromeUtils.import("chrome://openpgp/content/modules/compat.jsm").EnigmailCompat;
+const NetUtil = ChromeUtils.import("resource://gre/modules/NetUtil.jsm")
+  .NetUtil;
+const EnigmailMime = ChromeUtils.import(
+  "chrome://openpgp/content/modules/mime.jsm"
+).EnigmailMime;
+const EnigmailCompat = ChromeUtils.import(
+  "chrome://openpgp/content/modules/compat.jsm"
+).EnigmailCompat;
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
@@ -33,9 +58,10 @@ var gNewMailListenerInitiated = false;
  */
 
 const filterActionMoveDecrypt = {
-  apply: function(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
-
-    EnigmailLog.DEBUG("filters.jsm: filterActionMoveDecrypt: Move to: " + aActionValue + "\n");
+  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: filterActionMoveDecrypt: Move to: " + aActionValue + "\n"
+    );
 
     var msgHdrs = [];
 
@@ -43,22 +69,30 @@ const filterActionMoveDecrypt = {
       msgHdrs.push(aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr));
     }
 
-    EnigmailPersistentCrypto.dispatchMessages(msgHdrs, aActionValue, aListener, true);
+    EnigmailPersistentCrypto.dispatchMessages(
+      msgHdrs,
+      aActionValue,
+      aListener,
+      true
+    );
   },
 
-  isValidForType: function(type, scope) {
+  isValidForType(type, scope) {
     return true;
   },
 
-  validateActionValue: function(value, folder, type) {
-    getDialog().alert(null, EnigmailLocale.getString("filter.decryptMove.warnExperimental"));
+  validateActionValue(value, folder, type) {
+    getDialog().alert(
+      null,
+      EnigmailLocale.getString("filter.decryptMove.warnExperimental")
+    );
 
     if (value === "") {
       return EnigmailLocale.getString("filter.folderRequired");
     }
 
     return null;
-  }
+  },
 };
 
 /**
@@ -66,8 +100,10 @@ const filterActionMoveDecrypt = {
  * message untouched
  */
 const filterActionCopyDecrypt = {
-  apply: function(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
-    EnigmailLog.DEBUG("filters.jsm: filterActionCopyDecrypt: Copy to: " + aActionValue + "\n");
+  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: filterActionCopyDecrypt: Copy to: " + aActionValue + "\n"
+    );
 
     var msgHdrs = [];
 
@@ -75,46 +111,60 @@ const filterActionCopyDecrypt = {
       msgHdrs.push(aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr));
     }
 
-    EnigmailPersistentCrypto.dispatchMessages(msgHdrs, aActionValue, aListener, false);
+    EnigmailPersistentCrypto.dispatchMessages(
+      msgHdrs,
+      aActionValue,
+      aListener,
+      false
+    );
   },
 
-  isValidForType: function(type, scope) {
-    EnigmailLog.DEBUG("filters.jsm: filterActionCopyDecrypt.isValidForType(" + type + ")\n");
+  isValidForType(type, scope) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: filterActionCopyDecrypt.isValidForType(" + type + ")\n"
+    );
 
     let r = true;
     return r;
   },
 
-  validateActionValue: function(value, folder, type) {
-    EnigmailLog.DEBUG("filters.jsm: filterActionCopyDecrypt.validateActionValue(" + value + ")\n");
+  validateActionValue(value, folder, type) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: filterActionCopyDecrypt.validateActionValue(" +
+        value +
+        ")\n"
+    );
 
     if (value === "") {
       return EnigmailLocale.getString("filter.folderRequired");
     }
 
     return null;
-  }
+  },
 };
 
 /**
  * filter action for to encrypt a mail to a specific key
  */
 const filterActionEncrypt = {
-  apply: function(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     // Ensure KeyRing is loaded.
     if (aMsgWindow) {
       EnigmailCore.getService(aMsgWindow.domWindow);
-    }
-    else {
+    } else {
       EnigmailCore.getService();
     }
     EnigmailKeyRing.getAllKeys();
 
-    EnigmailLog.DEBUG("filters.jsm: filterActionEncrypt: Encrypt to: " + aActionValue + "\n");
+    EnigmailLog.DEBUG(
+      "filters.jsm: filterActionEncrypt: Encrypt to: " + aActionValue + "\n"
+    );
     let keyObj = EnigmailKeyRing.getKeyById(aActionValue);
 
     if (keyObj === null) {
-      EnigmailLog.DEBUG("filters.jsm: failed to find key by id: " + aActionValue + "\n");
+      EnigmailLog.DEBUG(
+        "filters.jsm: failed to find key by id: " + aActionValue + "\n"
+      );
       let keyId = EnigmailKeyRing.getValidKeyForRecipient(aActionValue);
       if (keyId) {
         keyObj = EnigmailKeyRing.getKeyById(keyId);
@@ -130,7 +180,13 @@ const filterActionEncrypt = {
       return;
     }
 
-    EnigmailLog.DEBUG("filters.jsm: key to encrypt to: " + JSON.stringify(keyObj) + ", userId: " + keyObj.userId + "\n");
+    EnigmailLog.DEBUG(
+      "filters.jsm: key to encrypt to: " +
+        JSON.stringify(keyObj) +
+        ", userId: " +
+        keyObj.userId +
+        "\n"
+    );
 
     var msgHdrs = [];
     for (let i = 0; i < aMsgHdrs.length; i++) {
@@ -145,22 +201,29 @@ const filterActionEncrypt = {
     }
 
     if (msgHdrs.length) {
-      EnigmailPersistentCrypto.dispatchMessages(msgHdrs, null /* same folder */ , aListener,
-        true /* move */ , keyObj /* target key */ );
+      EnigmailPersistentCrypto.dispatchMessages(
+        msgHdrs,
+        null /* same folder */,
+        aListener,
+        true /* move */,
+        keyObj /* target key */
+      );
     }
   },
 
-  isValidForType: function(type, scope) {
+  isValidForType(type, scope) {
     return true;
   },
 
-  validateActionValue: function(value, folder, type) {
+  validateActionValue(value, folder, type) {
     // Initialize KeyRing. Ugly as it blocks the GUI but
     // we need it.
     EnigmailCore.getService();
     EnigmailKeyRing.getAllKeys();
 
-    EnigmailLog.DEBUG("filters.jsm: validateActionValue: Encrypt to: " + value + "\n");
+    EnigmailLog.DEBUG(
+      "filters.jsm: validateActionValue: Encrypt to: " + value + "\n"
+    );
     if (value === "") {
       return EnigmailLocale.getString("filter.keyRequired");
     }
@@ -168,7 +231,9 @@ const filterActionEncrypt = {
     let keyObj = EnigmailKeyRing.getKeyById(value);
 
     if (keyObj === null) {
-      EnigmailLog.DEBUG("filters.jsm: failed to find key by id. Looking for uid.\n");
+      EnigmailLog.DEBUG(
+        "filters.jsm: failed to find key by id. Looking for uid.\n"
+      );
       let keyId = EnigmailKeyRing.getValidKeyForRecipient(value);
       if (keyId) {
         keyObj = EnigmailKeyRing.getKeyById(keyId);
@@ -184,11 +249,14 @@ const filterActionEncrypt = {
       // thunderbird + enigmail is used as a gateway filter with
       // the secret not available on one machine and the decryption
       // is intended to happen on different systems.
-      getDialog().alert(null, EnigmailLocale.getString("filter.warn.keyNotSecret", [value]));
+      getDialog().alert(
+        null,
+        EnigmailLocale.getString("filter.warn.keyNotSecret", [value])
+      );
     }
 
     return null;
-  }
+  },
 };
 
 function isPGPEncrypted(data) {
@@ -203,24 +271,23 @@ function isPGPEncrypted(data) {
   // done through a filter
 
   var mimeTree = EnigmailMime.getMimeTree(data, true);
-  if (!(mimeTree.subParts.length)) {
+  if (!mimeTree.subParts.length) {
     // No subParts. Check for PGP Marker in Body
-    return mimeTree.body.indexOf('-----BEGIN PGP MESSAGE-----') >= 0;
+    return mimeTree.body.includes("-----BEGIN PGP MESSAGE-----");
   }
 
   // Check the type of the first subpart.
   var firstPart = mimeTree.subParts[0];
   var ct = firstPart.fullContentType;
-  if (typeof(ct) == "string") {
+  if (typeof ct == "string") {
     ct = ct.replace(/[\r\n]/g, " ");
     // Proper PGP/MIME ?
     if (ct.search(/application\/pgp-encrypted/i) >= 0) {
       return true;
     }
     // Look into text/plain pgp messages and text/html messages.
-    if (ct.search(/text\/plain/i) >= 0 ||
-      ct.search(/text\/html/i) >= 0) {
-      return firstPart.body.indexOf('-----BEGIN PGP MESSAGE-----') >= 0;
+    if (ct.search(/text\/plain/i) >= 0 || ct.search(/text\/html/i) >= 0) {
+      return firstPart.body.includes("-----BEGIN PGP MESSAGE-----");
     }
   }
   return false;
@@ -233,18 +300,20 @@ const filterTermPGPEncrypted = {
   id: EnigmailConstants.FILTER_TERM_PGP_ENCRYPTED,
   name: EnigmailLocale.getString("filter.term.pgpencrypted.label"),
   needsBody: true,
-  match: function(aMsgHdr, searchValue, searchOp) {
+  match(aMsgHdr, searchValue, searchOp) {
     var folder = aMsgHdr.folder;
     var stream = folder.getMsgInputStream(aMsgHdr, {});
 
-    var messageSize = folder.hasMsgOffline(aMsgHdr.messageKey) ? aMsgHdr.offlineMessageSize : aMsgHdr.messageSize;
-    var scriptInput = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance();
+    var messageSize = folder.hasMsgOffline(aMsgHdr.messageKey)
+      ? aMsgHdr.offlineMessageSize
+      : aMsgHdr.messageSize;
     var data;
     try {
       data = NetUtil.readInputStreamToString(stream, messageSize);
-    }
-    catch (ex) {
-      EnigmailLog.DEBUG("filters.jsm: filterTermPGPEncrypted: failed to get data.\n");
+    } catch (ex) {
+      EnigmailLog.DEBUG(
+        "filters.jsm: filterTermPGPEncrypted: failed to get data.\n"
+      );
       // If we don't know better to return false.
       stream.close();
       return false;
@@ -254,52 +323,37 @@ const filterTermPGPEncrypted = {
 
     stream.close();
 
-    return ((searchOp == Ci.nsMsgSearchOp.Is && isPGP) ||
-      (searchOp == Ci.nsMsgSearchOp.Isnt && !isPGP));
+    return (
+      (searchOp == Ci.nsMsgSearchOp.Is && isPGP) ||
+      (searchOp == Ci.nsMsgSearchOp.Isnt && !isPGP)
+    );
   },
 
-  getEnabled: function(scope, op) {
+  getEnabled(scope, op) {
     return true;
   },
 
-  getAvailable: function(scope, op) {
+  getAvailable(scope, op) {
     return true;
   },
 
-  getAvailableOperators: function(scope, length) {
+  getAvailableOperators(scope, length) {
     length.value = 2;
     return [Ci.nsMsgSearchOp.Is, Ci.nsMsgSearchOp.Isnt];
-  }
+  },
 };
-
-/**
- * Add a custom filter action. If the filter already exists, do nothing
- * (for example, if addon is disabled and re-enabled)
- *
- * @param filterObj - nsIMsgFilterCustomAction
- */
-function addFilterIfNotExists(filterObj) {
-  let filterService = Cc["@mozilla.org/messenger/services/filters;1"].getService(Ci.nsIMsgFilterService);
-
-  let foundFilter = null;
-  try {
-    foundFilter = filterService.getCustomAction(filterObj.id);
-  }
-  catch (ex) {}
-
-  if (!foundFilter) {
-    EnigmailLog.DEBUG("filters.jsm: addFilterIfNotExists: " + filterObj.id + "\n");
-    filterService.addCustomAction(filterObj);
-  }
-}
 
 function initNewMailListener() {
   EnigmailLog.DEBUG("filters.jsm: initNewMailListener()\n");
 
   if (!gNewMailListenerInitiated) {
-    let notificationService = Cc["@mozilla.org/messenger/msgnotificationservice;1"]
-      .getService(Ci.nsIMsgFolderNotificationService);
-    notificationService.addListener(newMailListener, notificationService.msgAdded);
+    let notificationService = Cc[
+      "@mozilla.org/messenger/msgnotificationservice;1"
+    ].getService(Ci.nsIMsgFolderNotificationService);
+    notificationService.addListener(
+      newMailListener,
+      notificationService.msgAdded
+    );
   }
   gNewMailListenerInitiated = true;
 }
@@ -308,15 +362,18 @@ function shutdownNewMailListener() {
   EnigmailLog.DEBUG("filters.jsm: shutdownNewMailListener()\n");
 
   if (gNewMailListenerInitiated) {
-    let notificationService = Cc["@mozilla.org/messenger/msgnotificationservice;1"]
-      .getService(Ci.nsIMsgFolderNotificationService);
+    let notificationService = Cc[
+      "@mozilla.org/messenger/msgnotificationservice;1"
+    ].getService(Ci.nsIMsgFolderNotificationService);
     notificationService.removeListener(newMailListener);
     gNewMailListenerInitiated = false;
   }
 }
 
 function getIdentityForSender(senderEmail, msgServer) {
-  let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+  let accountManager = Cc[
+    "@mozilla.org/messenger/account-manager;1"
+  ].getService(Ci.nsIMsgAccountManager);
 
   let identities = accountManager.getIdentitiesForServer(msgServer);
 
@@ -332,7 +389,6 @@ function getIdentityForSender(senderEmail, msgServer) {
 
 var consumerList = [];
 
-
 function JsmimeEmitter(requireBody) {
   this.requireBody = requireBody;
   this.mimeTree = {
@@ -340,44 +396,44 @@ function JsmimeEmitter(requireBody) {
     headers: null,
     body: "",
     parent: null,
-    subParts: []
+    subParts: [],
   };
   this.stack = [];
   this.currPartNum = "";
 }
 
 JsmimeEmitter.prototype = {
-
-  createPartObj: function(partNum, headers, parent) {
+  createPartObj(partNum, headers, parent) {
     return {
-      partNum: partNum,
-      headers: headers,
+      partNum,
+      headers,
       body: "",
-      parent: parent,
-      subParts: []
+      parent,
+      subParts: [],
     };
   },
 
-  getMimeTree: function() {
+  getMimeTree() {
     return this.mimeTree.subParts[0];
   },
 
   /** JSMime API **/
-  startMessage: function() {
+  startMessage() {
     this.currentPart = this.mimeTree;
   },
-  endMessage: function() {},
+  endMessage() {},
 
-  startPart: function(partNum, headers) {
-    EnigmailLog.DEBUG("filters.jsm: JsmimeEmitter.startPart: partNum=" + partNum + "\n");
+  startPart(partNum, headers) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: JsmimeEmitter.startPart: partNum=" + partNum + "\n"
+    );
     //this.stack.push(partNum);
     let newPart = this.createPartObj(partNum, headers, this.currentPart);
 
     if (partNum.indexOf(this.currPartNum) === 0) {
       // found sub-part
       this.currentPart.subParts.push(newPart);
-    }
-    else {
+    } else {
       // found same or higher level
       this.currentPart.subParts.push(newPart);
     }
@@ -385,22 +441,25 @@ JsmimeEmitter.prototype = {
     this.currentPart = newPart;
   },
 
-  endPart: function(partNum) {
-    EnigmailLog.DEBUG("filters.jsm: JsmimeEmitter.startPart: partNum=" + partNum + "\n");
+  endPart(partNum) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: JsmimeEmitter.startPart: partNum=" + partNum + "\n"
+    );
     this.currentPart = this.currentPart.parent;
   },
 
-  deliverPartData: function(partNum, data) {
-    EnigmailLog.DEBUG("filters.jsm: JsmimeEmitter.deliverPartData: partNum=" + partNum + "\n");
+  deliverPartData(partNum, data) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: JsmimeEmitter.deliverPartData: partNum=" + partNum + "\n"
+    );
     if (this.requireBody) {
-      if (typeof(data) === "string") {
+      if (typeof data === "string") {
         this.currentPart.body += data;
-      }
-      else {
+      } else {
         this.currentPart.body += EnigmailData.arrayBufferToString(data);
       }
     }
-  }
+  },
 };
 
 function processIncomingMail(url, requireBody, aMsgHdr) {
@@ -409,7 +468,7 @@ function processIncomingMail(url, requireBody, aMsgHdr) {
   let inputStream = EnigmailStreams.newStringStreamListener(msgData => {
     let opt = {
       strformat: "unicode",
-      bodyformat: "decode"
+      bodyformat: "decode",
     };
 
     try {
@@ -417,30 +476,36 @@ function processIncomingMail(url, requireBody, aMsgHdr) {
       let p = new jsmime.MimeParser(e, opt);
       p.deliverData(msgData);
 
-
       for (let c of consumerList) {
         try {
           c.consumeMessage(e.getMimeTree(), msgData, aMsgHdr);
-        }
-        catch (ex) {
-          EnigmailLog.DEBUG("filters.jsm: processIncomingMail: exception: " + ex.toString() + "\n");
+        } catch (ex) {
+          EnigmailLog.DEBUG(
+            "filters.jsm: processIncomingMail: exception: " +
+              ex.toString() +
+              "\n"
+          );
         }
       }
-    }
-    catch (ex) {}
+    } catch (ex) {}
   });
 
   try {
     let channel = EnigmailStreams.createChannel(url);
     channel.asyncOpen(inputStream, null);
-  }
-  catch (e) {
-    EnigmailLog.DEBUG("filters.jsm: processIncomingMail: open stream exception " + e.toString() + "\n");
+  } catch (e) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: processIncomingMail: open stream exception " +
+        e.toString() +
+        "\n"
+    );
   }
 }
 
 function getRequireMessageProcessing(aMsgHdr) {
-  let isInbox = aMsgHdr.folder.getFlag(Ci.nsMsgFolderFlags.CheckNew) || aMsgHdr.folder.getFlag(Ci.nsMsgFolderFlags.Inbox);
+  let isInbox =
+    aMsgHdr.folder.getFlag(Ci.nsMsgFolderFlags.CheckNew) ||
+    aMsgHdr.folder.getFlag(Ci.nsMsgFolderFlags.Inbox);
   let requireBody = false;
   let inboxOnly = true;
   let selfSentOnly = false;
@@ -461,8 +526,12 @@ function getRequireMessageProcessing(aMsgHdr) {
     }
   }
 
-  if (!processReadMail && aMsgHdr.isRead) return null;
-  if (inboxOnly && !isInbox) return null;
+  if (!processReadMail && aMsgHdr.isRead) {
+    return null;
+  }
+  if (inboxOnly && !isInbox) {
+    return null;
+  }
   if (selfSentOnly) {
     let sender = EnigmailFuncs.parseEmails(aMsgHdr.author, true);
     let id = null;
@@ -470,37 +539,49 @@ function getRequireMessageProcessing(aMsgHdr) {
       id = getIdentityForSender(sender[0].email, aMsgHdr.folder.server);
     }
 
-    if (!id) return null;
+    if (!id) {
+      return null;
+    }
   }
 
-  EnigmailLog.DEBUG("filters.jsm: getRequireMessageProcessing: author: " + aMsgHdr.author + "\n");
+  EnigmailLog.DEBUG(
+    "filters.jsm: getRequireMessageProcessing: author: " + aMsgHdr.author + "\n"
+  );
 
-  let u = EnigmailCompat.getUrlFromUriSpec(aMsgHdr.folder.getUriForMsg(aMsgHdr));
+  let u = EnigmailCompat.getUrlFromUriSpec(
+    aMsgHdr.folder.getUriForMsg(aMsgHdr)
+  );
 
-  if (! u) {
+  if (!u) {
     return null;
   }
 
-  let op = (u.spec.indexOf("?") > 0 ? "&" : "?");
+  let op = u.spec.indexOf("?") > 0 ? "&" : "?";
   let url = u.spec + op + "header=enigmailFilter";
 
   return {
-    url: url,
-    requireBody: requireBody
+    url,
+    requireBody,
   };
 }
 
 const newMailListener = {
-  msgAdded: function(aMsgHdr) {
-    EnigmailLog.DEBUG("filters.jsm: newMailListener.msgAdded() - got new mail in " + aMsgHdr.folder.prettiestName + "\n");
+  msgAdded(aMsgHdr) {
+    EnigmailLog.DEBUG(
+      "filters.jsm: newMailListener.msgAdded() - got new mail in " +
+        aMsgHdr.folder.prettiestName +
+        "\n"
+    );
 
-    if (consumerList.length === 0) return;
+    if (consumerList.length === 0) {
+      return;
+    }
 
     let ret = getRequireMessageProcessing(aMsgHdr);
     if (ret) {
       processIncomingMail(ret.url, ret.requireBody, aMsgHdr);
     }
-  }
+  },
 };
 
 /**
@@ -513,13 +594,15 @@ const newMailListener = {
  */
 
 var EnigmailFilters = {
-  onStartup: function() {
-    let filterService = Cc["@mozilla.org/messenger/services/filters;1"].getService(Ci.nsIMsgFilterService);
+  onStartup() {
+    let filterService = Cc[
+      "@mozilla.org/messenger/services/filters;1"
+    ].getService(Ci.nsIMsgFilterService);
     filterService.addCustomTerm(filterTermPGPEncrypted);
     initNewMailListener();
   },
 
-  onShutdown: function() {
+  onShutdown() {
     shutdownNewMailListener();
   },
 
@@ -534,16 +617,14 @@ var EnigmailFilters = {
    *   - selfSentOnly:     Boolean - only process mails with sender Email == Account Email
    *  - consumeMessage: function(messageStructure, rawMessageData, nsIMsgHdr)
    */
-  addNewMailConsumer: function(consumer) {
+  addNewMailConsumer(consumer) {
     EnigmailLog.DEBUG("filters.jsm: addNewMailConsumer()\n");
     consumerList.push(consumer);
   },
 
-  removeNewMailConsumer: function(consumer) {
-
-  },
+  removeNewMailConsumer(consumer) {},
 
   moveDecrypt: filterActionMoveDecrypt,
   copyDecrypt: filterActionCopyDecrypt,
-  encrypt: filterActionEncrypt
+  encrypt: filterActionEncrypt,
 };

@@ -8,23 +8,24 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailKeyserverURIs"];
 
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-const EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm").EnigmailOS;
+const EnigmailPrefs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+).EnigmailPrefs;
 
 const KEYSERVER_PREF = "keyserver";
 const AUTO_KEYSERVER_SELECTION_PREF = "autoKeyServerSelection";
 
 const supportedProtocols = {
-  "hkps": "443",
-  "hkp": "11371",
-  "ldap": "389"
+  hkps: "443",
+  hkp: "11371",
+  ldap: "389",
 };
 
 function buildUriFor(protocol, keyserver) {
   return {
-    protocol: protocol,
+    protocol,
     domain: keyserver,
-    port: supportedProtocols[protocol]
+    port: supportedProtocols[protocol],
   };
 }
 
@@ -42,15 +43,21 @@ function buildUriOptionsFor(keyserver) {
   const uris = [];
   const keyserverProtocolAndDomain = keyserver.split("://");
   const protocolIncluded = keyserverProtocolAndDomain.length === 2;
-  const isPoolKeyserver = ["hkps.pool.sks-keyservers.net", "pool.sks-keyservers.net"].indexOf(keyserver) > -1;
+  const isPoolKeyserver =
+    ["hkps.pool.sks-keyservers.net", "pool.sks-keyservers.net"].indexOf(
+      keyserver
+    ) > -1;
 
   if (isPoolKeyserver) {
     addUriOptionsForPoolKeyservers(keyserver, uris);
-  }
-  else if (protocolIncluded) {
-    uris.push(buildUriFor(keyserverProtocolAndDomain[0].toLowerCase(), keyserverProtocolAndDomain[1]));
-  }
-  else {
+  } else if (protocolIncluded) {
+    uris.push(
+      buildUriFor(
+        keyserverProtocolAndDomain[0].toLowerCase(),
+        keyserverProtocolAndDomain[1]
+      )
+    );
+  } else {
     uris.push(buildUriFor("hkps", keyserver));
     uris.push(buildUriFor("hkp", keyserver));
   }
@@ -65,7 +72,9 @@ function getDefaultKeyServer() {
 
 function getUserDefinedKeyserverURIs() {
   const keyservers = EnigmailPrefs.getPref(KEYSERVER_PREF).split(/\s*[,;]\s*/g);
-  return EnigmailPrefs.getPref(AUTO_KEYSERVER_SELECTION_PREF) ? [keyservers[0]] : keyservers;
+  return EnigmailPrefs.getPref(AUTO_KEYSERVER_SELECTION_PREF)
+    ? [keyservers[0]]
+    : keyservers;
 }
 
 function combineIntoURI(protocol, domain, port) {
@@ -77,7 +86,9 @@ function isValidProtocol(uri) {
 }
 
 function validProtocolsExist() {
-  const validKeyserverUris = getUserDefinedKeyserverURIs().filter(isValidProtocol);
+  const validKeyserverUris = getUserDefinedKeyserverURIs().filter(
+    isValidProtocol
+  );
   return validKeyserverUris.length > 0;
 }
 
@@ -89,11 +100,14 @@ function validProtocolsExist() {
  * @return array of all URIs to try refreshing keys over
  */
 function buildKeyserverUris() {
-  const uris = getUserDefinedKeyserverURIs().filter(isValidProtocol).map(function(keyserver) {
-    return buildUriOptionsFor(keyserver);
-  }).reduce(function(a, b) {
-    return a.concat(b);
-  });
+  const uris = getUserDefinedKeyserverURIs()
+    .filter(isValidProtocol)
+    .map(function(keyserver) {
+      return buildUriOptionsFor(keyserver);
+    })
+    .reduce(function(a, b) {
+      return a.concat(b);
+    });
 
   return uris.map(function(uri) {
     return combineIntoURI(uri.protocol, uri.domain, uri.port);
@@ -111,11 +125,13 @@ function buildKeyserverUris() {
  * @return true if keyservers exist and are valid, false otherwise.
  */
 function validKeyserversExist() {
-  return EnigmailPrefs.getPref(KEYSERVER_PREF).trim() !== "" && validProtocolsExist();
+  return (
+    EnigmailPrefs.getPref(KEYSERVER_PREF).trim() !== "" && validProtocolsExist()
+  );
 }
 
 var EnigmailKeyserverURIs = {
-  getDefaultKeyServer: getDefaultKeyServer,
-  buildKeyserverUris: buildKeyserverUris,
-  validKeyserversExist: validKeyserversExist
+  getDefaultKeyServer,
+  buildKeyserverUris,
+  validKeyserversExist,
 };

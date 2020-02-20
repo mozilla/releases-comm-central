@@ -8,18 +8,26 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailStreams"];
 
-const EnigmailCompat = ChromeUtils.import("chrome://openpgp/content/modules/compat.jsm").EnigmailCompat;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailTimer = ChromeUtils.import("chrome://openpgp/content/modules/timer.jsm").EnigmailTimer;
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
-const NetUtil = ChromeUtils.import("resource://gre/modules/NetUtil.jsm").NetUtil;
+const EnigmailCompat = ChromeUtils.import(
+  "chrome://openpgp/content/modules/compat.jsm"
+).EnigmailCompat;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailTimer = ChromeUtils.import(
+  "chrome://openpgp/content/modules/timer.jsm"
+).EnigmailTimer;
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
+const NetUtil = ChromeUtils.import("resource://gre/modules/NetUtil.jsm")
+  .NetUtil;
 
-const NS_STRING_INPUT_STREAM_CONTRACTID = "@mozilla.org/io/string-input-stream;1";
-const NS_INPUT_STREAM_CHNL_CONTRACTID = "@mozilla.org/network/input-stream-channel;1";
-const IOSERVICE_CONTRACTID = "@mozilla.org/network/io-service;1";
+const NS_STRING_INPUT_STREAM_CONTRACTID =
+  "@mozilla.org/io/string-input-stream;1";
+const NS_INPUT_STREAM_CHNL_CONTRACTID =
+  "@mozilla.org/network/input-stream-channel;1";
 
 var EnigmailStreams = {
-
   /**
    * Create a new channel from a URL or URI.
    *
@@ -27,15 +35,14 @@ var EnigmailStreams = {
    *
    * @return: channel
    */
-  createChannel: function(url) {
+  createChannel(url) {
     let c = NetUtil.newChannel({
       uri: url,
-      loadUsingSystemPrincipal: true
+      loadUsingSystemPrincipal: true,
     });
 
     return c;
   },
-
 
   /**
    * create an nsIStreamListener object to read String data from an nsIInputStream
@@ -45,29 +52,34 @@ var EnigmailStreams = {
    *
    * @return: the nsIStreamListener to pass to the stream
    */
-  newStringStreamListener: function(onStopCallback) {
+  newStringStreamListener(onStopCallback) {
     EnigmailLog.DEBUG("enigmailCommon.jsm: newStreamListener\n");
 
     let listener = {
       data: "",
-      inStream: Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream),
+      inStream: Cc["@mozilla.org/binaryinputstream;1"].createInstance(
+        Ci.nsIBinaryInputStream
+      ),
       _onStopCallback: onStopCallback,
-      QueryInterface: EnigmailCompat.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+      QueryInterface: EnigmailCompat.generateQI([
+        Ci.nsIStreamListener,
+        Ci.nsIRequestObserver,
+      ]),
 
-      onStartRequest: function(channel) {
+      onStartRequest(channel) {
         // EnigmailLog.DEBUG("enigmailCommon.jsm: stringListener.onStartRequest\n");
       },
 
-      onStopRequest: function(channel, status) {
+      onStopRequest(channel, status) {
         // EnigmailLog.DEBUG("enigmailCommon.jsm: stringListener.onStopRequest: "+ctxt+"\n");
         this.inStream = null;
         var cbFunc = this._onStopCallback;
         var cbData = this.data;
 
-        EnigmailTimer.setTimeout(function _cb() {
+        EnigmailTimer.setTimeout(function() {
           cbFunc(cbData);
         });
-      }
+      },
     };
 
     listener.onDataAvailable = function(req, stream, offset, count) {
@@ -90,44 +102,55 @@ var EnigmailStreams = {
    *
    * @return nsIChannel object
    */
-  newStringChannel: function(uri, contentType, contentCharset, data, loadInfo) {
+  newStringChannel(uri, contentType, contentCharset, data, loadInfo) {
     EnigmailLog.DEBUG("enigmailCommon.jsm: newStringChannel\n");
 
     if (!loadInfo) {
       loadInfo = createLoadInfo();
     }
 
-    const inputStream = Cc[NS_STRING_INPUT_STREAM_CONTRACTID].createInstance(Ci.nsIStringInputStream);
+    const inputStream = Cc[NS_STRING_INPUT_STREAM_CONTRACTID].createInstance(
+      Ci.nsIStringInputStream
+    );
     inputStream.setData(data, -1);
 
     if (!contentCharset || contentCharset.length === 0) {
-      const ioServ = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+      const ioServ = Services.io;
       const netUtil = ioServ.QueryInterface(Ci.nsINetUtil);
       const newCharset = {};
       const hadCharset = {};
-      let mimeType;
-      mimeType = netUtil.parseResponseContentType(contentType, newCharset, hadCharset);
+      netUtil.parseResponseContentType(contentType, newCharset, hadCharset);
       contentCharset = newCharset.value;
     }
 
-    let isc = Cc[NS_INPUT_STREAM_CHNL_CONTRACTID].createInstance(Ci.nsIInputStreamChannel);
+    let isc = Cc[NS_INPUT_STREAM_CHNL_CONTRACTID].createInstance(
+      Ci.nsIInputStreamChannel
+    );
     isc.QueryInterface(Ci.nsIChannel);
     isc.setURI(uri);
     isc.loadInfo = loadInfo;
     isc.contentStream = inputStream;
 
-    if (contentType && contentType.length) isc.contentType = contentType;
-    if (contentCharset && contentCharset.length) isc.contentCharset = contentCharset;
+    if (contentType && contentType.length) {
+      isc.contentType = contentType;
+    }
+    if (contentCharset && contentCharset.length) {
+      isc.contentCharset = contentCharset;
+    }
 
     EnigmailLog.DEBUG("enigmailCommon.jsm: newStringChannel - done\n");
 
     return isc;
   },
 
-  newFileChannel: function(uri, file, contentType, deleteOnClose) {
-    EnigmailLog.DEBUG("enigmailCommon.jsm: newFileChannel for '" + file.path + "'\n");
+  newFileChannel(uri, file, contentType, deleteOnClose) {
+    EnigmailLog.DEBUG(
+      "enigmailCommon.jsm: newFileChannel for '" + file.path + "'\n"
+    );
 
-    let inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
+    let inputStream = Cc[
+      "@mozilla.org/network/file-input-stream;1"
+    ].createInstance(Ci.nsIFileInputStream);
     let behaviorFlags = Ci.nsIFileInputStream.CLOSE_ON_EOF;
     if (deleteOnClose) {
       behaviorFlags |= Ci.nsIFileInputStream.DELETE_ON_CLOSE;
@@ -136,25 +159,29 @@ var EnigmailStreams = {
     const perm = 0;
     inputStream.init(file, ioFlags, perm, behaviorFlags);
 
-    let isc = Cc[NS_INPUT_STREAM_CHNL_CONTRACTID].createInstance(Ci.nsIInputStreamChannel);
+    let isc = Cc[NS_INPUT_STREAM_CHNL_CONTRACTID].createInstance(
+      Ci.nsIInputStreamChannel
+    );
     isc.QueryInterface(Ci.nsIChannel);
     isc.contentDisposition = Ci.nsIChannel.DISPOSITION_ATTACHMENT;
     isc.loadInfo = createLoadInfo();
     isc.setURI(uri);
     isc.contentStream = inputStream;
 
-    if (contentType && contentType.length) isc.contentType = contentType;
+    if (contentType && contentType.length) {
+      isc.contentType = contentType;
+    }
 
     EnigmailLog.DEBUG("enigmailCommon.jsm: newStringChannel - done\n");
 
     return isc;
-  }
+  },
 };
 
 function createLoadInfo() {
   let c = NetUtil.newChannel({
     uri: "chrome://openpgp/content/",
-    loadUsingSystemPrincipal: true
+    loadUsingSystemPrincipal: true,
   });
 
   return c.loadInfo;

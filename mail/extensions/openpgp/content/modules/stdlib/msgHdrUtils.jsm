@@ -11,22 +11,32 @@
 
 var EXPORTED_SYMBOLS = [
   // Low-level XPCOM boring stuff
-  'msgHdrToMessageBody', 'msgHdrToNeckoURL', 'msgHdrGetTags', 'msgUriToMsgHdr',
-  'msgHdrGetUri', 'msgHdrFromNeckoUrl', 'msgHdrSetTags',
+  "msgHdrToMessageBody",
+  "msgHdrToNeckoURL",
+  "msgHdrGetTags",
+  "msgUriToMsgHdr",
+  "msgHdrGetUri",
+  "msgHdrFromNeckoUrl",
+  "msgHdrSetTags",
   // Quickly identify a message
-  'msgHdrIsDraft', 'msgHdrIsSent', 'msgHdrIsArchive', 'msgHdrIsInbox',
-  'msgHdrIsRss', 'msgHdrIsNntp', 'msgHdrIsJunk',
+  "msgHdrIsDraft",
+  "msgHdrIsSent",
+  "msgHdrIsArchive",
+  "msgHdrIsInbox",
+  "msgHdrIsRss",
+  "msgHdrIsNntp",
+  "msgHdrIsJunk",
   // Actions on a set of message headers
-  'msgHdrsMarkAsRead', 'msgHdrsArchive', 'msgHdrsDelete',
+  "msgHdrsMarkAsRead",
+  "msgHdrsArchive",
+  "msgHdrsDelete",
   // Doesn't really belong here
-  'getMail3Pane',
+  "getMail3Pane",
   // Higher-level functions
-  'msgHdrGetHeaders',
+  "msgHdrGetHeaders",
   // Modify messages, raw.
-  'msgHdrsModifyRaw',
-]
-
-const Cr = Components.results;
+  "msgHdrsModifyRaw",
+];
 
 // from mailnews/base/public/nsMsgFolderFlags.idl
 const nsMsgFolderFlags_SentMail = 0x00000200;
@@ -36,51 +46,32 @@ const nsMsgFolderFlags_Inbox = 0x00001000;
 
 const PR_WRONLY = 0x02;
 
-const XPCOMUtils = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm").XPCOMUtils;
-const {
-  MsgHdrToMimeMessage,
-  MimeMessage, MimeContainer,
-  MimeBody, MimeUnknown,
-  MimeMessageAttachment
-} = ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm");
-const GlodaUtils = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm").GlodaUtils;
-const {
-  fixIterator, toXPCOMArray, toArray
-} =ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
-const EnigmailCompat = ChromeUtils.import("chrome://openpgp/content/modules/compat.jsm").EnigmailCompat;
+const XPCOMUtils = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
+  .XPCOMUtils;
+const { MsgHdrToMimeMessage, MimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/MimeMessage.jsm"
+);
+const { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
+const EnigmailCompat = ChromeUtils.import(
+  "chrome://openpgp/content/modules/compat.jsm"
+).EnigmailCompat;
 
 var MailServices;
 try {
-  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm").MailServices;
-}
-catch (x){
-  MailServices = ChromeUtils.import("resource:///modules/mailServices.js").MailServices;
+  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm")
+    .MailServices;
+} catch (x) {
+  MailServices = ChromeUtils.import("resource:///modules/mailServices.js")
+    .MailServices;
 }
 
-const {
-  gIdentities,
-  fillIdentities,
-  getIdentities,
-  getDefaultIdentity,
-  getIdentityForEmail,
-  hasConfiguredAccounts,
-  range,
-  MixIn,
-  combine,
-  entries,
-  dateAsInMessageList,
-  escapeHtml,
-  sanitize,
-  parseMimeLine,
-  encodeUrlParameters,
-  decodeUrlParameters,
-  systemCharset,
-  isOSX,
-  isWindows,
-  isAccel
-} = ChromeUtils.import("chrome://openpgp/content/modules/stdlib/misc.jsm");
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
+const { entries, NS_SUCCEEDED } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/stdlib/misc.jsm"
+);
 
 // Adding a messenger lazy getter to the MailServices even though it's not a service
 XPCOMUtils.defineLazyGetter(MailServices, "messenger", function() {
@@ -105,8 +96,7 @@ function msgUriToMsgHdr(aUri) {
   try {
     let messageService = MailServices.messenger.messageServiceFromURI(aUri);
     return messageService.messageURIToMsgHdr(aUri);
-  }
-  catch (e) {
+  } catch (e) {
     dump("Unable to get " + aUri + " — returning null instead");
     return null;
   }
@@ -164,10 +154,16 @@ function msgHdrFromNeckoUrl(aUrl) {
  * @return {string}
  */
 function msgHdrToMessageBody(aMessageHeader, aStripHtml, aLength) {
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-  let listener = Cc["@mozilla.org/network/sync-stream-listener;1"].createInstance(Ci.nsISyncStreamListener);
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+  let listener = Cc[
+    "@mozilla.org/network/sync-stream-listener;1"
+  ].createInstance(Ci.nsISyncStreamListener);
   let uri = aMessageHeader.folder.getUriForMsg(aMessageHeader);
-  messenger.messageServiceFromURI(uri).streamMessage(uri, listener, null, null, false, "");
+  messenger
+    .messageServiceFromURI(uri)
+    .streamMessage(uri, listener, null, null, false, "");
   let folder = aMessageHeader.folder;
   /*
    * AUTF8String getMsgTextFromStream(in nsIInputStream aStream, in ACString aCharset,
@@ -176,7 +172,14 @@ function msgHdrToMessageBody(aMessageHeader, aStripHtml, aLength) {
                                       out ACString aContentType);
   */
   return folder.getMsgTextFromStream(
-    listener.inputStream, aMessageHeader.Charset, 2 * aLength, aLength, false, aStripHtml, {});
+    listener.inputStream,
+    aMessageHeader.Charset,
+    2 * aLength,
+    aLength,
+    false,
+    aStripHtml,
+    {}
+  );
 }
 
 /**
@@ -202,7 +205,7 @@ function msgHdrToNeckoURL(aMsgHdr) {
  */
 function msgHdrGetTags(aMsgHdr) {
   let keywords = aMsgHdr.getStringProperty("keywords");
-  let keywordList = keywords.split(' ');
+  let keywordList = keywords.split(" ");
   let keywordMap = {};
   for (let keyword of keywordList) {
     keywordMap[keyword] = true;
@@ -222,13 +225,15 @@ function msgHdrGetTags(aMsgHdr) {
 function msgHdrSetTags(aMsgHdr, aTags) {
   let oldTagList = msgHdrGetTags(aMsgHdr);
   let oldTags = {}; // hashmap
-  for (let tag of oldTagList)
+  for (let tag of oldTagList) {
     oldTags[tag.key] = null;
+  }
 
   let newTags = {};
   let newTagList = aTags;
-  for (let tag of newTagList)
+  for (let tag of newTagList) {
     newTags[tag.key] = null;
+  }
 
   let toAdd = newTagList.filter(x => !(x.key in oldTags)).map(x => x.key);
   let toRemove = oldTagList.filter(x => !(x.key in newTags)).map(x => x.key);
@@ -248,19 +253,18 @@ function msgHdrSetTags(aMsgHdr, aTags) {
 function msgHdrsMarkAsRead(msgHdrs, read) {
   let pending = {};
   for (let msgHdr of msgHdrs) {
-    if (msgHdr.isRead == read)
+    if (msgHdr.isRead == read) {
       continue;
+    }
     if (!pending[msgHdr.folder.URI]) {
       pending[msgHdr.folder.URI] = {
         folder: msgHdr.folder,
-        msgs: Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray)
+        msgs: Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray),
       };
     }
-    pending[msgHdr.folder.URI].msgs.appendElement(msgHdr, false);
+    pending[msgHdr.folder.URI].msgs.appendElement(msgHdr);
   }
-  for (let [uri, {
-      folder, msgs
-    }] of entries(pending)) {
+  for (let [{ folder, msgs }] of entries(pending)) {
     folder.markMessagesRead(msgs, read);
     folder.msgDatabase = null; /* don't leak */
   }
@@ -276,15 +280,20 @@ function msgHdrsDelete(msgHdrs) {
     if (!pending[msgHdr.folder.URI]) {
       pending[msgHdr.folder.URI] = {
         folder: msgHdr.folder,
-        msgs: Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray)
+        msgs: Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray),
       };
     }
-    pending[msgHdr.folder.URI].msgs.appendElement(msgHdr, false);
+    pending[msgHdr.folder.URI].msgs.appendElement(msgHdr);
   }
-  for (let [uri, {
-      folder, msgs
-    }] of entries(pending)) {
-    folder.deleteMessages(msgs, getMail3Pane().msgWindow, false, false, null, true);
+  for (let [{ folder, msgs }] of entries(pending)) {
+    folder.deleteMessages(
+      msgs,
+      getMail3Pane().msgWindow,
+      false,
+      false,
+      null,
+      true
+    );
     folder.msgDatabase = null; /* don't leak */
   }
 }
@@ -295,9 +304,7 @@ function msgHdrsDelete(msgHdrs) {
  * @return The window object for the main window.
  */
 function getMail3Pane() {
-  return Cc["@mozilla.org/appshell/window-mediator;1"]
-    .getService(Ci.nsIWindowMediator)
-    .getMostRecentWindow("mail:3pane");
+  return Services.wm.getMostRecentWindow("mail:3pane");
 }
 
 /**
@@ -313,9 +320,13 @@ function msgHdrsArchive(msgHdrs) {
    * */
   let mail3PaneWindow = getMail3Pane();
   let batchMover = new mail3PaneWindow.BatchMessageMover();
-  batchMover.archiveMessages(msgHdrs.filter(
-    x => !msgHdrIsArchive(x) && getMail3Pane().getIdentityForHeader(x).archiveEnabled
-  ));
+  batchMover.archiveMessages(
+    msgHdrs.filter(
+      x =>
+        !msgHdrIsArchive(x) &&
+        getMail3Pane().getIdentityForHeader(x).archiveEnabled
+    )
+  );
 }
 
 /**
@@ -342,7 +353,9 @@ function msgHdrIsNntp(msgHdr) {
  * @return {Bool}
  */
 function msgHdrIsJunk(aMsgHdr) {
-  return aMsgHdr.getStringProperty("junkscore") == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
+  return (
+    aMsgHdr.getStringProperty("junkscore") == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
+  );
 }
 
 /**
@@ -365,29 +378,33 @@ function createStreamListener(k) {
     _data: "",
     _stream: null,
 
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+    QueryInterface: ChromeUtils.generateQI([
+      Ci.nsIStreamListener,
+      Ci.nsIRequestObserver,
+    ]),
 
     // nsIRequestObserver
-    onStartRequest: function(aRequest) {},
-    onStopRequest: function(aRequest, aStatusCode) {
+    onStartRequest(aRequest) {},
+    onStopRequest(aRequest, aStatusCode) {
       try {
         k(this._data);
-      }
-      catch (e) {
+      } catch (e) {
         dump("Error inside stream listener:\n" + e + "\n");
       }
     },
 
     // nsIStreamListener
-    onDataAvailable: function(aRequest, dummy, aInputStream, aOffset, aCount) {
+    onDataAvailable(aRequest, dummy, aInputStream, aOffset, aCount) {
       aInputStream = dummy;
       aCount = aOffset;
       if (this._stream == null) {
-        this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+        this._stream = Cc[
+          "@mozilla.org/scriptableinputstream;1"
+        ].createInstance(Ci.nsIScriptableInputStream);
         this._stream.init(aInputStream);
       }
       this._data += this._stream.read(aCount);
-    }
+    },
   };
 }
 
@@ -403,39 +420,50 @@ function msgHdrGetHeaders(aMsgHdr, k) {
   let messageService = MailServices.messenger.messageServiceFromURI(uri);
 
   let fallback = () =>
-    MsgHdrToMimeMessage(aMsgHdr, null, function(aMsgHdr, aMimeMsg) {
-      k(aMimeMsg);
-    }, true, {
-      partsOnDemand: true,
-    });
+    MsgHdrToMimeMessage(
+      aMsgHdr,
+      null,
+      function(aMsgHdr, aMimeMsg) {
+        k(aMimeMsg);
+      },
+      true,
+      {
+        partsOnDemand: true,
+      }
+    );
 
   // This is intentionally disabled because there's a bug in Thunderbird that
   // renders the supposedly-useful streamHeaders function unusable.
   if (false && "streamHeaders" in messageService) {
     try {
-      messageService.streamHeaders(uri, createStreamListener(aRawString => {
-        let re = /\r?\n\s+/g;
-        let str = aRawString.replace(re, " ");
-        let lines = str.split(/\r?\n/);
-        let obj = {};
-        for (let line of lines) {
-          let i = line.indexOf(":");
-          if (i < 0)
-            continue;
-          let k = line.substring(0, i).toLowerCase();
-          let v = line.substring(i + 1).trim();
-          if (!(k in obj))
-            obj[k] = [];
-          obj[k].push(v);
-        }
-        k(new HeaderHandler(obj));
-      }), null, true);
-    }
-    catch (e) {
+      messageService.streamHeaders(
+        uri,
+        createStreamListener(aRawString => {
+          let re = /\r?\n\s+/g;
+          let str = aRawString.replace(re, " ");
+          let lines = str.split(/\r?\n/);
+          let obj = {};
+          for (let line of lines) {
+            let i = line.indexOf(":");
+            if (i < 0) {
+              continue;
+            }
+            let k = line.substring(0, i).toLowerCase();
+            let v = line.substring(i + 1).trim();
+            if (!(k in obj)) {
+              obj[k] = [];
+            }
+            obj[k].push(v);
+          }
+          k(new HeaderHandler(obj));
+        }),
+        null,
+        true
+      );
+    } catch (e) {
       fallback();
     }
-  }
-  else {
+  } else {
     fallback();
   }
 }
@@ -456,29 +484,28 @@ function msgHdrsModifyRaw(aMsgHdrs, aTransformer) {
       return;
     }
 
-    let {
-      msgHdr, tempFile
-    } = obj;
+    let { msgHdr, tempFile } = obj;
 
     EnigmailCompat.copyFileToMailFolder(
       tempFile,
       msgHdr.folder,
       msgHdr.flags,
-      msgHdr.getStringProperty("keywords"), {
-        QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
+      msgHdr.getStringProperty("keywords"),
+      {
+        QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
 
-        OnStartCopy: function() {},
-        OnProgress: function(aProgress, aProgressMax) {},
-        SetMessageKey: function(aKey) {},
-        GetMessageId: function(aMessageId) {},
-        OnStopCopy: function(aStatus) {
+        OnStartCopy() {},
+        OnProgress(aProgress, aProgressMax) {},
+        SetMessageKey(aKey) {},
+        GetMessageId(aMessageId) {},
+        OnStopCopy(aStatus) {
           if (NS_SUCCEEDED(aStatus)) {
             dump("msgHdrModifyRaw: copied successfully\n");
             toDelete.push(msgHdr);
             tempFile.remove(false);
           }
           copyNext();
-        }
+        },
       },
       null
     );
@@ -486,37 +513,46 @@ function msgHdrsModifyRaw(aMsgHdrs, aTransformer) {
 
   let count = aMsgHdrs.length;
   let tick = function() {
-    if (--count == 0)
+    if (--count == 0) {
       copyNext();
-  }
+    }
+  };
 
   for (let aMsgHdr of aMsgHdrs) {
     let msgHdr = aMsgHdr;
     let uri = msgHdrGetUri(msgHdr);
     let messageService = MailServices.messenger.messageServiceFromURI(uri);
-    messageService.streamMessage(uri, createStreamListener(function(aRawString) {
-      let data = aTransformer(aRawString);
-      if (!data) {
-        dump("msgHdrModifyRaw: no data, aborting\n");
-        return;
-      }
+    messageService.streamMessage(
+      uri,
+      createStreamListener(function(aRawString) {
+        let data = aTransformer(aRawString);
+        if (!data) {
+          dump("msgHdrModifyRaw: no data, aborting\n");
+          return;
+        }
 
-      let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-      tempFile.append("rethread.eml");
-      tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
+        let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+        tempFile.append("rethread.eml");
+        tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
 
-      let stream = Cc["@mozilla.org/network/file-output-stream;1"]
-        .createInstance(Ci.nsIFileOutputStream);
-      stream.init(tempFile, PR_WRONLY, parseInt("0600", 8), 0);
-      stream.write(data, data.length);
-      stream.close();
+        let stream = Cc[
+          "@mozilla.org/network/file-output-stream;1"
+        ].createInstance(Ci.nsIFileOutputStream);
+        stream.init(tempFile, PR_WRONLY, parseInt("0600", 8), 0);
+        stream.write(data, data.length);
+        stream.close();
 
-      dump("msgHdrModifyRaw: wrote to file\n");
-      toCopy.push({
-        tempFile: tempFile,
-        msgHdr: msgHdr
-      });
-      tick();
-    }), null, null, false, "");
+        dump("msgHdrModifyRaw: wrote to file\n");
+        toCopy.push({
+          tempFile,
+          msgHdr,
+        });
+        tick();
+      }),
+      null,
+      null,
+      false,
+      ""
+    );
   }
 }

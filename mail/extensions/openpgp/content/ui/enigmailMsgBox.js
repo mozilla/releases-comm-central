@@ -6,14 +6,17 @@
 
 "use strict";
 
-var Cu = Components.utils;
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-
-var EnigmailClipboard = ChromeUtils.import("chrome://openpgp/content/modules/clipboard.jsm").EnigmailClipboard;
-var EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm").EnigmailOS;
-var EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-var EnigmailEvents = ChromeUtils.import("chrome://openpgp/content/modules/events.jsm").EnigmailEvents;
+var EnigmailClipboard = ChromeUtils.import(
+  "chrome://openpgp/content/modules/clipboard.jsm"
+).EnigmailClipboard;
+var EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm")
+  .EnigmailOS;
+var EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+var EnigmailEvents = ChromeUtils.import(
+  "chrome://openpgp/content/modules/events.jsm"
+).EnigmailEvents;
 
 function onLoad() {
   var dlg = document.getElementById("enigmailMsgBox");
@@ -32,7 +35,6 @@ function onLoad() {
   let button3 = args.button3;
   let buttonCancel = args.cancelButton;
   let checkboxLabel = args.checkboxLabel;
-  let iconType = args.iconType;
 
   if (args.iconType) {
     let icn = document.getElementById("infoImage");
@@ -104,14 +106,18 @@ function resizeDlg() {
     let dlgHeight = dlg.clientHeight;
 
     box.setAttribute("style", "overflow: auto;");
-    box.setAttribute("height", boxHeight - btnHeight - (dlgHeight - availHeight));
+    box.setAttribute(
+      "height",
+      boxHeight - btnHeight - (dlgHeight - availHeight)
+    );
     window.outerHeight = availHeight;
   }
 }
 
 function centerDialog() {
-  if (!EnigmailOS.isMac)
+  if (!EnigmailOS.isMac) {
     document.getElementById("enigmailMsgBox").centerWindowOnScreen();
+  }
 }
 
 function setButton(buttonId, label) {
@@ -163,14 +169,14 @@ function dlgClose(buttonId) {
   }
 
   window.arguments[1].value = buttonNumber;
-  window.arguments[1].checked = (document.getElementById("theCheckBox").getAttribute("checked") == "true");
+  window.arguments[1].checked =
+    document.getElementById("theCheckBox").getAttribute("checked") == "true";
   window.close();
 }
 
 function checkboxCb() {
   // do nothing
 }
-
 
 function copyToClipbrd() {
   let s = window.getSelection().toString();
@@ -186,5 +192,5 @@ function onKeyPress(event) {
 }
 
 document.addEventListener("dialogaccept", function(event) {
-  dlgClose('accept');
+  dlgClose("accept");
 });

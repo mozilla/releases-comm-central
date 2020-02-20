@@ -8,7 +8,6 @@
 
 var EXPORTED_SYMBOLS = ["newEnigmailKeyObj"];
 
-
 /**
  This module implements the EnigmailKeyObj class with the following members:
 
@@ -63,12 +62,24 @@ var EXPORTED_SYMBOLS = ["newEnigmailKeyObj"];
      * getVirtualKeySize
 */
 
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailKey = ChromeUtils.import("chrome://openpgp/content/modules/key.jsm").EnigmailKey;
-const EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
-const EnigmailTime = ChromeUtils.import("chrome://openpgp/content/modules/time.jsm").EnigmailTime;
-const EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailKey = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
+).EnigmailKey;
+const EnigmailFuncs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/funcs.jsm"
+).EnigmailFuncs;
+const EnigmailTime = ChromeUtils.import(
+  "chrome://openpgp/content/modules/time.jsm"
+).EnigmailTime;
+const EnigmailCryptoAPI = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+).EnigmailCryptoAPI;
 
 function newEnigmailKeyObj(keyData) {
   return new EnigmailKeyObj(keyData);
@@ -95,15 +106,28 @@ class EnigmailKeyObj {
     this._sigList = null;
 
     this.type = keyData.type;
-    if ("keyId" in keyData) this.keyId = keyData.keyId;
+    if ("keyId" in keyData) {
+      this.keyId = keyData.keyId;
+    }
     if ("expiryTime" in keyData) {
       this.expiryTime = keyData.expiryTime;
       this.expiry = EnigmailTime.getDateTime(keyData.expiryTime, true, false);
     }
 
     const ATTRS = [
-      "created", "keyCreated", "keyTrust", "keyUseFor", "ownerTrust", "algoSym", "keySize",
-      "userIds", "subKeys", "fpr", "secretAvailable", "photoAvailable", "userId"
+      "created",
+      "keyCreated",
+      "keyTrust",
+      "keyUseFor",
+      "ownerTrust",
+      "algoSym",
+      "keySize",
+      "userIds",
+      "subKeys",
+      "fpr",
+      "secretAvailable",
+      "photoAvailable",
+      "userId",
     ];
     for (let i of ATTRS) {
       if (i in keyData) {
@@ -142,8 +166,9 @@ class EnigmailKeyObj {
         if (typeof this[i] !== "function") {
           if (typeof this[i] === "object") {
             cp[i] = EnigmailFuncs.cloneObj(this[i]);
-          } else
+          } else {
             cp[i] = this[i];
+          }
         }
       }
     }
@@ -159,7 +184,9 @@ class EnigmailKeyObj {
   hasSubUserIds() {
     let nUid = 0;
     for (let i in this.userIds) {
-      if (this.userIds[i].type === "uid") ++nUid;
+      if (this.userIds[i].type === "uid") {
+        ++nUid;
+      }
     }
 
     return nUid >= 2;
@@ -173,7 +200,9 @@ class EnigmailKeyObj {
    */
   get fprFormatted() {
     let f = EnigmailKey.formatFpr(this.fpr);
-    if (f.length === 0) f = this.fpr;
+    if (f.length === 0) {
+      f = this.fpr;
+    }
     return f;
   }
 
@@ -185,8 +214,12 @@ class EnigmailKeyObj {
    * @return Boolean true if yes
    */
   isOwnerTrustUseful() {
-    if (this.secretAvailable) return true;
-    if (this.keyTrust.search(/^[fu]/) === 0) return true;
+    if (this.secretAvailable) {
+      return true;
+    }
+    if (this.keyTrust.search(/^[fu]/) === 0) {
+      return true;
+    }
 
     return false;
   }
@@ -201,27 +234,41 @@ class EnigmailKeyObj {
   getPubKeyValidity() {
     let retVal = {
       keyValid: false,
-      reason: ""
+      reason: "",
     };
     if (this.keyTrust.search(/r/i) >= 0) {
       // public key revoked
-      retVal.reason = EnigmailLocale.getString("keyRing.pubKeyRevoked", [this.userId, "0x" + this.keyId]);
+      retVal.reason = EnigmailLocale.getString("keyRing.pubKeyRevoked", [
+        this.userId,
+        "0x" + this.keyId,
+      ]);
     } else if (this.keyTrust.search(/e/i) >= 0) {
       // public key expired
-      retVal.reason = EnigmailLocale.getString("keyRing.pubKeyExpired", [this.userId, "0x" + this.keyId]);
-    } else if (this.keyTrust.search(/d/i) >= 0 || this.keyUseFor.search(/D/i) >= 0) {
+      retVal.reason = EnigmailLocale.getString("keyRing.pubKeyExpired", [
+        this.userId,
+        "0x" + this.keyId,
+      ]);
+    } else if (
+      this.keyTrust.search(/d/i) >= 0 ||
+      this.keyUseFor.search(/D/i) >= 0
+    ) {
       // public key disabled
-      retVal.reason = EnigmailLocale.getString("keyRing.keyDisabled", [this.userId, "0x" + this.keyId]);
+      retVal.reason = EnigmailLocale.getString("keyRing.keyDisabled", [
+        this.userId,
+        "0x" + this.keyId,
+      ]);
     } else if (this.keyTrust.search(/i/i) >= 0) {
       // public key invalid
-      retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid", [this.userId, "0x" + this.keyId]);
+      retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid", [
+        this.userId,
+        "0x" + this.keyId,
+      ]);
     } else {
       retVal.keyValid = true;
     }
 
     return retVal;
   }
-
 
   /**
    * Check whether a key can be used for signing and return a description of why not
@@ -233,17 +280,25 @@ class EnigmailKeyObj {
   getSigningValidity() {
     let retVal = this.getPubKeyValidity();
 
-    if (!retVal.keyValid) return retVal;
+    if (!retVal.keyValid) {
+      return retVal;
+    }
 
     if (!this.secretAvailable) {
-      retVal.reason = EnigmailLocale.getString("keyRing.noSecretKey", [this.userId, "0x" + this.keyId]);
+      retVal.reason = EnigmailLocale.getString("keyRing.noSecretKey", [
+        this.userId,
+        "0x" + this.keyId,
+      ]);
       retVal.keyValid = false;
     } else if (this.keyUseFor.search(/S/) < 0) {
       retVal.keyValid = false;
 
       if (this.keyTrust.search(/u/i) < 0) {
         // public key invalid
-        retVal.reason = EnigmailLocale.getString("keyRing.keyNotTrusted", [this.userId, "0x" + this.keyId]);
+        retVal.reason = EnigmailLocale.getString("keyRing.keyNotTrusted", [
+          this.userId,
+          "0x" + this.keyId,
+        ]);
       } else {
         let expired = 0,
           revoked = 0,
@@ -256,7 +311,10 @@ class EnigmailKeyObj {
               ++expired;
             } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
               ++revoked;
-            } else if (this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 || this.subKeys[sk].keyUseFor.search(/D/) >= 0) {
+            } else if (
+              this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 ||
+              this.subKeys[sk].keyUseFor.search(/D/) >= 0
+            ) {
               ++unusable;
             } else {
               // found subkey usable
@@ -267,13 +325,25 @@ class EnigmailKeyObj {
 
         if (!found) {
           if (expired) {
-            retVal.reason = EnigmailLocale.getString("keyRing.signSubKeysExpired", [this.userId, "0x" + this.keyId]);
+            retVal.reason = EnigmailLocale.getString(
+              "keyRing.signSubKeysExpired",
+              [this.userId, "0x" + this.keyId]
+            );
           } else if (revoked) {
-            retVal.reason = EnigmailLocale.getString("keyRing.signSubKeysRevoked", [this.userId, "0x" + this.keyId]);
+            retVal.reason = EnigmailLocale.getString(
+              "keyRing.signSubKeysRevoked",
+              [this.userId, "0x" + this.keyId]
+            );
           } else if (unusable) {
-            retVal.reason = EnigmailLocale.getString("keyRing.signSubKeysUnusable", [this.userId, "0x" + this.keyId]);
+            retVal.reason = EnigmailLocale.getString(
+              "keyRing.signSubKeysUnusable",
+              [this.userId, "0x" + this.keyId]
+            );
           } else {
-            retVal.reason = EnigmailLocale.getString("keyRing.pubKeyNotForSigning", [this.userId, "0x" + this.keyId]);
+            retVal.reason = EnigmailLocale.getString(
+              "keyRing.pubKeyNotForSigning",
+              [this.userId, "0x" + this.keyId]
+            );
           }
         } else {
           retVal.keyValid = true;
@@ -294,14 +364,19 @@ class EnigmailKeyObj {
    */
   getEncryptionValidity() {
     let retVal = this.getPubKeyValidity();
-    if (!retVal.keyValid) return retVal;
+    if (!retVal.keyValid) {
+      return retVal;
+    }
 
     if (this.keyUseFor.search(/E/) < 0) {
       retVal.keyValid = false;
 
       if (this.keyTrust.search(/u/i) < 0) {
         // public key invalid
-        retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid", [this.userId, "0x" + this.keyId]);
+        retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid", [
+          this.userId,
+          "0x" + this.keyId,
+        ]);
       } else {
         let expired = 0,
           revoked = 0,
@@ -315,7 +390,10 @@ class EnigmailKeyObj {
               ++expired;
             } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
               ++revoked;
-            } else if (this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 || this.subKeys[sk].keyUseFor.search(/D/) >= 0) {
+            } else if (
+              this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 ||
+              this.subKeys[sk].keyUseFor.search(/D/) >= 0
+            ) {
               ++unusable;
             } else {
               // found subkey usable
@@ -326,13 +404,25 @@ class EnigmailKeyObj {
 
         if (!found) {
           if (expired) {
-            retVal.reason = EnigmailLocale.getString("keyRing.encSubKeysExpired", [this.userId, "0x" + this.keyId]);
+            retVal.reason = EnigmailLocale.getString(
+              "keyRing.encSubKeysExpired",
+              [this.userId, "0x" + this.keyId]
+            );
           } else if (revoked) {
-            retVal.reason = EnigmailLocale.getString("keyRing.encSubKeysRevoked", [this.userId, "0x" + this.keyId]);
+            retVal.reason = EnigmailLocale.getString(
+              "keyRing.encSubKeysRevoked",
+              [this.userId, "0x" + this.keyId]
+            );
           } else if (unusable) {
-            retVal.reason = EnigmailLocale.getString("keyRing.encSubKeysUnusable", [this.userId, "0x" + this.keyId]);
+            retVal.reason = EnigmailLocale.getString(
+              "keyRing.encSubKeysUnusable",
+              [this.userId, "0x" + this.keyId]
+            );
           } else {
-            retVal.reason = EnigmailLocale.getString("keyRing.pubKeyNotForEncryption", [this.userId, "0x" + this.keyId]);
+            retVal.reason = EnigmailLocale.getString(
+              "keyRing.pubKeyNotForEncryption",
+              [this.userId, "0x" + this.keyId]
+            );
           }
         } else {
           retVal.keyValid = true;
@@ -356,7 +446,6 @@ class EnigmailKeyObj {
     let encryption = -1;
     let signing = -1;
 
-
     // check public key expiry date
     if (this.expiryTime > 0) {
       expiryDate = this.expiryTime;
@@ -365,11 +454,15 @@ class EnigmailKeyObj {
     for (let sk in this.subKeys) {
       if (this.subKeys[sk].keyUseFor.search(/[eE]/) >= 0) {
         let expiry = this.subKeys[sk].expiryTime;
-        if (expiry === 0) expiry = Number.MAX_VALUE;
+        if (expiry === 0) {
+          expiry = Number.MAX_VALUE;
+        }
         encryption = Math.max(encryption, expiry);
       } else if (this.subKeys[sk].keyUseFor.search(/[sS]/) >= 0) {
         let expiry = this.subKeys[sk].expiryTime;
-        if (expiry === 0) expiry = Number.MAX_VALUE;
+        if (expiry === 0) {
+          expiry = Number.MAX_VALUE;
+        }
         signing = Math.max(signing, expiry);
       }
     }
@@ -402,7 +495,9 @@ class EnigmailKeyObj {
    */
 
   getMinimalPubKey(emailAddr) {
-    EnigmailLog.DEBUG("keyObj.jsm: EnigmailKeyObj.getMinimalPubKey: " + this.keyId + "\n");
+    EnigmailLog.DEBUG(
+      "keyObj.jsm: EnigmailKeyObj.getMinimalPubKey: " + this.keyId + "\n"
+    );
 
     if (emailAddr) {
       try {
@@ -410,7 +505,6 @@ class EnigmailKeyObj {
       } catch (x) {
         emailAddr = emailAddr.toLowerCase();
       }
-
 
       let foundUid = false,
         uid = "";
@@ -426,7 +520,9 @@ class EnigmailKeyObj {
           break;
         }
       }
-      if (!foundUid) emailAddr = false;
+      if (!foundUid) {
+        emailAddr = false;
+      }
     }
 
     if (!emailAddr) {
@@ -445,14 +541,18 @@ class EnigmailKeyObj {
 
     // search for valid subkeys
     for (let sk in this.subKeys) {
-      if ("indDre".indexOf(this.subKeys[sk].keyTrust) < 0) {
+      if (!"indDre".includes(this.subKeys[sk].keyTrust)) {
         if (this.subKeys[sk].keyUseFor.search(/[sS]/) >= 0) {
           // found signing subkey
-          if (this.subKeys[sk].keyCreated > newestSigningKey) newestSigningKey = this.subKeys[sk].keyCreated;
+          if (this.subKeys[sk].keyCreated > newestSigningKey) {
+            newestSigningKey = this.subKeys[sk].keyCreated;
+          }
         }
         if (this.subKeys[sk].keyUseFor.search(/[eE]/) >= 0) {
           // found encryption subkey
-          if (this.subKeys[sk].keyCreated > newestEncryptionKey) newestEncryptionKey = this.subKeys[sk].keyCreated;
+          if (this.subKeys[sk].keyCreated > newestEncryptionKey) {
+            newestEncryptionKey = this.subKeys[sk].keyCreated;
+          }
         }
       }
     }
@@ -463,7 +563,9 @@ class EnigmailKeyObj {
 
     if (!(emailAddr in this.minimalKeyBlock)) {
       const cApi = EnigmailCryptoAPI();
-      this.minimalKeyBlock[emailAddr] = cApi.sync(cApi.getMinimalPubKey(this.fpr, emailAddr, subkeysArr));
+      this.minimalKeyBlock[emailAddr] = cApi.sync(
+        cApi.getMinimalPubKey(this.fpr, emailAddr, subkeysArr)
+      );
     }
     return this.minimalKeyBlock[emailAddr];
   }
@@ -476,7 +578,9 @@ class EnigmailKeyObj {
    * @return Number: a virtual size
    */
   getVirtualKeySize() {
-    EnigmailLog.DEBUG("keyObj.jsm: EnigmailKeyObj.getVirtualKeySize: " + this.keyId + "\n");
+    EnigmailLog.DEBUG(
+      "keyObj.jsm: EnigmailKeyObj.getVirtualKeySize: " + this.keyId + "\n"
+    );
 
     switch (this.algoSym) {
       case "DSA":
@@ -489,7 +593,6 @@ class EnigmailKeyObj {
         return this.keySize;
     }
   }
-
 
   /**
    * Get a file object holding the photo of a key

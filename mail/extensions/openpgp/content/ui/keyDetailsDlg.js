@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 /* global EnigmailLog: false, EnigmailLocale: false, EnigmailKey: false, EnigmailKeyRing: false */
 
 // from enigmailCommon.js:
@@ -18,9 +17,8 @@
 
 "use strict";
 
-var Cu = Components.utils;
-var Cc = Components.classes;
-var Ci = Components.interfaces;
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
 var gKeyId = null;
 var gUserId = null;
@@ -61,15 +59,9 @@ function reloadData() {
     window.close();
     return;
   }
-  var exitCodeObj = {};
-  var statusFlagsObj = {};
-  var errorMsgObj = {};
 
   gUserId = null;
 
-  var fingerprint = "";
-  var subKeyLen = "";
-  var subAlgo = "";
   var treeChildren = document.getElementById("keyListChildren");
   var uidList = document.getElementById("additionalUid");
   var photoImg = document.getElementById("photoIdImg");
@@ -80,7 +72,6 @@ function reloadData() {
 
   let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
   if (keyObj) {
-
     if (keyObj.secretAvailable) {
       setLabel("keyType", EnigmailLocale.getString("keyTypePair"));
       document.getElementById("ownKeyCommands").removeAttribute("hidden");
@@ -93,8 +84,7 @@ function reloadData() {
       let pFile = keyObj.getPhotoFile(0);
 
       if (pFile && pFile.isFile() && pFile.isReadable()) {
-        const photoUri = Cc["@mozilla.org/network/io-service;1"].
-        getService(Ci.nsIIOService).newFileURI(pFile).spec;
+        const photoUri = Services.io.newFileURI(pFile).spec;
 
         photoImg.setAttribute("src", photoUri);
         photoImg.removeAttribute("hidden");
@@ -106,7 +96,9 @@ function reloadData() {
     if (keyObj.isOwnerTrustUseful()) {
       document.getElementById("setOwnerTrust").removeAttribute("collapsed");
     } else {
-      document.getElementById("setOwnerTrust").setAttribute("collapsed", "true");
+      document
+        .getElementById("setOwnerTrust")
+        .setAttribute("collapsed", "true");
     }
 
     if (keyObj.hasSubUserIds()) {
@@ -141,7 +133,6 @@ function reloadData() {
     }
   }
 }
-
 
 function createUidData(listNode, keyDetails) {
   for (let i = 1; i < keyDetails.userIds.length; i++) {
@@ -191,7 +182,6 @@ function signKey() {
   }
 }
 
-
 function changeExpirationDate() {
   if (EnigEditKeyExpiry([gUserId], [gKeyId])) {
     enableRefresh();
@@ -199,9 +189,7 @@ function changeExpirationDate() {
   }
 }
 
-
 function setOwnerTrust() {
-
   if (EnigEditKeyTrust([gUserId], [gKeyId])) {
     enableRefresh();
     reloadData();
@@ -213,14 +201,19 @@ function manageUids() {
 
   var inputObj = {
     keyId: keyObj.keyId,
-    ownKey: keyObj.secretAvailable
+    ownKey: keyObj.secretAvailable,
   };
 
   var resultObj = {
-    refresh: false
+    refresh: false,
   };
-  window.openDialog("chrome://openpgp/content/ui/enigmailManageUidDlg.xhtml",
-    "", "dialog,modal,centerscreen,resizable=yes", inputObj, resultObj);
+  window.openDialog(
+    "chrome://openpgp/content/ui/enigmailManageUidDlg.xhtml",
+    "",
+    "dialog,modal,centerscreen,resizable=yes",
+    inputObj,
+    resultObj
+  );
   if (resultObj.refresh) {
     enableRefresh();
     reloadData();
@@ -232,7 +225,7 @@ function changePassword() {
 }
 
 function revokeKey() {
-  EnigRevokeKey(gKeyId, gUserId, function _revokeKeyCb(success) {
+  EnigRevokeKey(gKeyId, gUserId, function(success) {
     if (success) {
       enableRefresh();
       reloadData();
@@ -244,7 +237,6 @@ function genRevocationCert() {
   EnigCreateRevokeCert(gKeyId, gUserId);
 }
 
-
 function SigListView(keyObj) {
   this.keyObj = [];
 
@@ -255,7 +247,7 @@ function SigListView(keyObj) {
       fpr: sigObj[i].fpr,
       created: sigObj[i].created,
       expanded: true,
-      sigList: []
+      sigList: [],
     };
 
     for (let j in sigObj[i].sigList) {
@@ -266,7 +258,7 @@ function SigListView(keyObj) {
           uid: s.userId,
           created: s.created,
           fpr: sig ? sig.fpr : "",
-          sigType: s.sigType
+          sigType: s.sigType,
         });
       }
     }
@@ -281,8 +273,7 @@ function SigListView(keyObj) {
 
 // implements nsITreeView
 SigListView.prototype = {
-
-  updateRowCount: function() {
+  updateRowCount() {
     let rc = 0;
 
     for (let i in this.keyObj) {
@@ -292,13 +283,13 @@ SigListView.prototype = {
     this.rowCount = rc;
   },
 
-  setLastKeyObj: function(keyObj, row) {
+  setLastKeyObj(keyObj, row) {
     this.prevKeyObj = keyObj;
     this.prevRow = row;
     return keyObj;
   },
 
-  getSigAtIndex: function(row) {
+  getSigAtIndex(row) {
     if (this.lastIndex == row) {
       return this.lastKeyObj;
     }
@@ -307,7 +298,9 @@ SigListView.prototype = {
       l = 0;
 
     for (let i in this.keyObj) {
-      if (j === row) return this.setLastKeyObj(this.keyObj[i], row);
+      if (j === row) {
+        return this.setLastKeyObj(this.keyObj[i], row);
+      }
       j++;
 
       if (this.keyObj[i].expanded) {
@@ -315,16 +308,15 @@ SigListView.prototype = {
 
         if (j + l >= row && row - j < l) {
           return this.setLastKeyObj(this.keyObj[i].sigList[row - j], row);
-        } else {
-          j += l;
         }
+        j += l;
       }
     }
 
     return null;
   },
 
-  getCellText: function(row, column) {
+  getCellText(row, column) {
     let s = this.getSigAtIndex(row);
 
     if (s) {
@@ -341,37 +333,37 @@ SigListView.prototype = {
     return "";
   },
 
-  setTree: function(treebox) {
+  setTree(treebox) {
     this.treebox = treebox;
   },
 
-  isContainer: function(row) {
+  isContainer(row) {
     let s = this.getSigAtIndex(row);
-    return ("sigList" in s);
+    return "sigList" in s;
   },
 
-  isSeparator: function(row) {
+  isSeparator(row) {
     return false;
   },
 
-  isSorted: function() {
+  isSorted() {
     return false;
   },
 
-  getLevel: function(row) {
+  getLevel(row) {
     let s = this.getSigAtIndex(row);
-    return ("sigList" in s ? 0 : 1);
+    return "sigList" in s ? 0 : 1;
   },
 
-  cycleHeader: function(col, elem) {},
+  cycleHeader(col, elem) {},
 
-  getImageSrc: function(row, col) {
+  getImageSrc(row, col) {
     return null;
   },
 
-  getRowProperties: function(row, props) {},
+  getRowProperties(row, props) {},
 
-  getCellProperties: function(row, col) {
+  getCellProperties(row, col) {
     if (col.id === "sig_fingerprint_col") {
       return "fixedWidthFont";
     }
@@ -379,42 +371,41 @@ SigListView.prototype = {
     return "";
   },
 
-  canDrop: function(row, orientation, data) {
+  canDrop(row, orientation, data) {
     return false;
   },
 
-  getColumnProperties: function(colid, col, props) {},
+  getColumnProperties(colid, col, props) {},
 
-  isContainerEmpty: function(row) {
+  isContainerEmpty(row) {
     return false;
   },
 
-  getParentIndex: function(idx) {
+  getParentIndex(idx) {
     return -1;
   },
 
-  getProgressMode: function(row, col) {},
+  getProgressMode(row, col) {},
 
-  isContainerOpen: function(row) {
+  isContainerOpen(row) {
     let s = this.getSigAtIndex(row);
     return s.expanded;
   },
 
-  isSelectable: function(row, col) {
+  isSelectable(row, col) {
     return true;
   },
 
-  toggleOpenState: function(row) {
+  toggleOpenState(row) {
     let s = this.getSigAtIndex(row);
     s.expanded = !s.expanded;
     let r = this.rowCount;
     this.updateRowCount();
     gTreeFuncs.rowCountChanged(row, this.rowCount - r);
-  }
+  },
 };
 
 function createSubkeyItem(subkey) {
-
   // Get expiry state of this subkey
   let expire;
   if (subkey.keyTrust === "r") {
@@ -425,8 +416,10 @@ function createSubkeyItem(subkey) {
     expire = subkey.expiry;
   }
 
-  let subkeyType = subkey.type === "pub" ? EnigmailLocale.getString("keyTypePrimary") :
-    EnigmailLocale.getString("keyTypeSubkey");
+  let subkeyType =
+    subkey.type === "pub"
+      ? EnigmailLocale.getString("keyTypePrimary")
+      : EnigmailLocale.getString("keyTypeSubkey");
 
   let usagetext = "";
   let i;
@@ -462,7 +455,8 @@ function createSubkeyItem(subkey) {
         if (usagetext.length > 0) {
           usagetext = usagetext + ", ";
         }
-        usagetext = usagetext + EnigmailLocale.getString("keyUsageAuthentication");
+        usagetext =
+          usagetext + EnigmailLocale.getString("keyUsageAuthentication");
         break;
     } // * case *
   } // * for *
@@ -474,7 +468,7 @@ function createSubkeyItem(subkey) {
     size: subkey.keySize,
     creationDate: subkey.created,
     expiry: expire,
-    usage: usagetext
+    usage: usagetext,
   };
 
   return keyObj;
@@ -488,13 +482,11 @@ function SubkeyListView(keyObj) {
   for (let i = 0; i < keyObj.subKeys.length; i++) {
     this.subkeys.push(createSubkeyItem(keyObj.subKeys[i]));
   }
-
 }
 
 // implements nsITreeView
 SubkeyListView.prototype = {
-
-  getCellText: function(row, column) {
+  getCellText(row, column) {
     let s = this.subkeys[row];
 
     if (s) {
@@ -519,61 +511,61 @@ SubkeyListView.prototype = {
     return "";
   },
 
-  setTree: function(treebox) {
+  setTree(treebox) {
     this.treebox = treebox;
   },
 
-  isContainer: function(row) {
+  isContainer(row) {
     return false;
   },
 
-  isSeparator: function(row) {
+  isSeparator(row) {
     return false;
   },
 
-  isSorted: function() {
+  isSorted() {
     return false;
   },
 
-  getLevel: function(row) {
+  getLevel(row) {
     return 0;
   },
 
-  cycleHeader: function(col, elem) {},
+  cycleHeader(col, elem) {},
 
-  getImageSrc: function(row, col) {
+  getImageSrc(row, col) {
     return null;
   },
 
-  getRowProperties: function(row, props) {},
+  getRowProperties(row, props) {},
 
-  getCellProperties: function(row, col) {
+  getCellProperties(row, col) {
     return "";
   },
 
-  canDrop: function(row, orientation, data) {
+  canDrop(row, orientation, data) {
     return false;
   },
 
-  getColumnProperties: function(colid, col, props) {},
+  getColumnProperties(colid, col, props) {},
 
-  isContainerEmpty: function(row) {
+  isContainerEmpty(row) {
     return false;
   },
 
-  getParentIndex: function(idx) {
+  getParentIndex(idx) {
     return -1;
   },
 
-  getProgressMode: function(row, col) {},
+  getProgressMode(row, col) {},
 
-  isContainerOpen: function(row) {
+  isContainerOpen(row) {
     return false;
   },
 
-  isSelectable: function(row, col) {
+  isSelectable(row, col) {
     return true;
   },
 
-  toggleOpenState: function(row) {}
+  toggleOpenState(row) {},
 };

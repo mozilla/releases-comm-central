@@ -8,16 +8,15 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailHttpProxy"];
 
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
-
-
-
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-
-const NS_PREFS_SERVICE_CID = "@mozilla.org/preferences-service;1";
+const EnigmailPrefs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+).EnigmailPrefs;
 
 function getPasswdForHost(hostname, userObj, passwdObj) {
-  var loginmgr = Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
+  var loginmgr = Services.logins;
 
   // search HTTP password 1st
   var logins = loginmgr.findLogins({}, "http://" + hostname, "", "");
@@ -48,19 +47,27 @@ var EnigmailHttpProxy = {
    *  @return: String - proxy host URL to provide to GnuPG
    *                    null if no proxy required
    */
-  getHttpProxy: function(hostName) {
+  getHttpProxy(hostName) {
     var proxyHost = null;
-    if (((typeof hostName) !== 'undefined') && EnigmailPrefs.getPref("respectHttpProxy")) {
+    if (
+      typeof hostName !== "undefined" &&
+      EnigmailPrefs.getPref("respectHttpProxy")
+    ) {
       // determine proxy host
-      var prefsSvc = Cc[NS_PREFS_SERVICE_CID].getService(Ci.nsIPrefService);
+      var prefsSvc = Services.prefs;
       var prefRoot = prefsSvc.getBranch(null);
       var useProxy = prefRoot.getIntPref("network.proxy.type");
       if (useProxy == 1) {
         var proxyHostName = prefRoot.getCharPref("network.proxy.http");
         var proxyHostPort = prefRoot.getIntPref("network.proxy.http_port");
-        var noProxy = prefRoot.getCharPref("network.proxy.no_proxies_on").split(/[ ,]/);
+        var noProxy = prefRoot
+          .getCharPref("network.proxy.no_proxies_on")
+          .split(/[ ,]/);
         for (var i = 0; i < noProxy.length; i++) {
-          var proxySearch = new RegExp(noProxy[i].replace(/\./g, "\\.").replace(/\*/g, ".*") + "$", "i");
+          var proxySearch = new RegExp(
+            noProxy[i].replace(/\./g, "\\.").replace(/\*/g, ".*") + "$",
+            "i"
+          );
           if (noProxy[i] && hostName.search(proxySearch) >= 0) {
             i = noProxy.length + 1;
             proxyHostName = null;
@@ -71,7 +78,8 @@ var EnigmailHttpProxy = {
           var userObj = {};
           var passwdObj = {};
           if (getPasswdForHost(proxyHostName, userObj, passwdObj)) {
-            proxyHostName = userObj.value + ":" + passwdObj.value + "@" + proxyHostName;
+            proxyHostName =
+              userObj.value + ":" + passwdObj.value + "@" + proxyHostName;
           }
         }
         if (proxyHostName && proxyHostPort) {
@@ -81,5 +89,5 @@ var EnigmailHttpProxy = {
     }
 
     return proxyHost;
-  }
+  },
 };

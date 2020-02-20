@@ -6,17 +6,16 @@
 
 "use strict";
 
-var EXPORTED_SYMBOLS = ["EnigmailCryptoAPI"];
+var EXPORTED_SYMBOLS = ["EnigmailCryptoAPI", "EnigmailGnuPGAPI"];
 
 var gCurrentApi = null;
 var gGnuPGApi = null;
-var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 function EnigmailCryptoAPI() {
   if (!gCurrentApi) {
-    const {
-      getRNPAPI
-    } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/RNPCryptoAPI.jsm");
+    const { getRNPAPI } = ChromeUtils.import(
+      "chrome://openpgp/content/modules/cryptoAPI/RNPCryptoAPI.jsm"
+    );
     gCurrentApi = getRNPAPI();
   }
   return gCurrentApi;
@@ -24,9 +23,9 @@ function EnigmailCryptoAPI() {
 
 function EnigmailGnuPGAPI() {
   if (!gGnuPGApi) {
-    const {
-      getGnuPGAPI
-    } = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/GnuPGCryptoAPI.jsm");
+    const { getGnuPGAPI } = ChromeUtils.import(
+      "chrome://openpgp/content/modules/cryptoAPI/GnuPGCryptoAPI.jsm"
+    );
     gGnuPGApi = getGnuPGAPI();
   }
   return gGnuPGApi;

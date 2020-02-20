@@ -11,72 +11,202 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailWkdLookup"];
 
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
-const PromiseUtils = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm").PromiseUtils;
-const EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
-const EnigmailZBase32 = ChromeUtils.import("chrome://openpgp/content/modules/zbase32.jsm").EnigmailZBase32;
-const EnigmailOpenPGP = ChromeUtils.import("chrome://openpgp/content/modules/openpgp.jsm").EnigmailOpenPGP;
-const EnigmailKey = ChromeUtils.import("chrome://openpgp/content/modules/key.jsm").EnigmailKey;
-const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
-const EnigmailSqliteDb = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb.jsm").EnigmailSqliteDb;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailZBase32 = ChromeUtils.import(
+  "chrome://openpgp/content/modules/zbase32.jsm"
+).EnigmailZBase32;
+const EnigmailData = ChromeUtils.import(
+  "chrome://openpgp/content/modules/data.jsm"
+).EnigmailData;
+const EnigmailSqliteDb = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+).EnigmailSqliteDb;
 
-Components.utils.importGlobalProperties(["fetch"]);
+Cu.importGlobalProperties(["fetch"]);
 
 // Those domains are not expected to have WKD:
 var BLACKLIST_DOMAINS = [
   /* Default domains included */
-  "aol.com", "att.net", "comcast.net", "facebook.com", "gmail.com", "gmx.com", "googlemail.com",
-  "google.com", "hotmail.com", "hotmail.co.uk", "mac.com", "me.com", "mail.com", "msn.com",
-  "live.com", "sbcglobal.net", "verizon.net", "yahoo.com", "yahoo.co.uk",
+  "aol.com",
+  "att.net",
+  "comcast.net",
+  "facebook.com",
+  "gmail.com",
+  "gmx.com",
+  "googlemail.com",
+  "google.com",
+  "hotmail.com",
+  "hotmail.co.uk",
+  "mac.com",
+  "me.com",
+  "mail.com",
+  "msn.com",
+  "live.com",
+  "sbcglobal.net",
+  "verizon.net",
+  "yahoo.com",
+  "yahoo.co.uk",
 
   /* Other global domains */
-  "email.com", "games.com" /* AOL */ , "gmx.net", "icloud.com",
-  "iname.com", "inbox.com", "lavabit.com", "love.com" /* AOL */ , "outlook.com", "pobox.com", "tutanota.de", "tutanota.com", "tutamail.com", "tuta.io",
-  "keemail.me", "rocketmail.com" /* Yahoo */ , "safe-mail.net", "wow.com" /* AOL */ , "ygm.com" /* AOL */ ,
-  "ymail.com" /* Yahoo */ , "zoho.com", "yandex.com",
+  "email.com",
+  "games.com" /* AOL */,
+  "gmx.net",
+  "icloud.com",
+  "iname.com",
+  "inbox.com",
+  "lavabit.com",
+  "love.com" /* AOL */,
+  "outlook.com",
+  "pobox.com",
+  "tutanota.de",
+  "tutanota.com",
+  "tutamail.com",
+  "tuta.io",
+  "keemail.me",
+  "rocketmail.com" /* Yahoo */,
+  "safe-mail.net",
+  "wow.com" /* AOL */,
+  "ygm.com" /* AOL */,
+  "ymail.com" /* Yahoo */,
+  "zoho.com",
+  "yandex.com",
 
   /* United States ISP domains */
-  "bellsouth.net", "charter.net", "cox.net", "earthlink.net", "juno.com",
+  "bellsouth.net",
+  "charter.net",
+  "cox.net",
+  "earthlink.net",
+  "juno.com",
 
   /* British ISP domains */
-  "btinternet.com", "virginmedia.com", "blueyonder.co.uk", "freeserve.co.uk", "live.co.uk",
-  "ntlworld.com", "o2.co.uk", "orange.net", "sky.com", "talktalk.co.uk", "tiscali.co.uk",
-  "virgin.net", "wanadoo.co.uk", "bt.com",
+  "btinternet.com",
+  "virginmedia.com",
+  "blueyonder.co.uk",
+  "freeserve.co.uk",
+  "live.co.uk",
+  "ntlworld.com",
+  "o2.co.uk",
+  "orange.net",
+  "sky.com",
+  "talktalk.co.uk",
+  "tiscali.co.uk",
+  "virgin.net",
+  "wanadoo.co.uk",
+  "bt.com",
 
   /* Domains used in Asia */
-  "sina.com", "sina.cn", "qq.com", "naver.com", "hanmail.net", "daum.net", "nate.com", "yahoo.co.jp", "yahoo.co.kr", "yahoo.co.id", "yahoo.co.in", "yahoo.com.sg", "yahoo.com.ph", "163.com", "yeah.net", "126.com", "21cn.com", "aliyun.com", "foxmail.com",
+  "sina.com",
+  "sina.cn",
+  "qq.com",
+  "naver.com",
+  "hanmail.net",
+  "daum.net",
+  "nate.com",
+  "yahoo.co.jp",
+  "yahoo.co.kr",
+  "yahoo.co.id",
+  "yahoo.co.in",
+  "yahoo.com.sg",
+  "yahoo.com.ph",
+  "163.com",
+  "yeah.net",
+  "126.com",
+  "21cn.com",
+  "aliyun.com",
+  "foxmail.com",
 
   /* French ISP domains */
-  "hotmail.fr", "live.fr", "laposte.net", "yahoo.fr", "wanadoo.fr", "orange.fr", "gmx.fr", "sfr.fr", "neuf.fr", "free.fr",
+  "hotmail.fr",
+  "live.fr",
+  "laposte.net",
+  "yahoo.fr",
+  "wanadoo.fr",
+  "orange.fr",
+  "gmx.fr",
+  "sfr.fr",
+  "neuf.fr",
+  "free.fr",
 
   /* German ISP domains */
-  "gmx.de", "hotmail.de", "live.de", "online.de", "t-online.de" /* T-Mobile */ , "web.de", "yahoo.de",
+  "gmx.de",
+  "hotmail.de",
+  "live.de",
+  "online.de",
+  "t-online.de" /* T-Mobile */,
+  "web.de",
+  "yahoo.de",
 
   /* Italian ISP domains */
-  "libero.it", "virgilio.it", "hotmail.it", "aol.it", "tiscali.it", "alice.it", "live.it", "yahoo.it", "email.it", "tin.it", "poste.it", "teletu.it",
+  "libero.it",
+  "virgilio.it",
+  "hotmail.it",
+  "aol.it",
+  "tiscali.it",
+  "alice.it",
+  "live.it",
+  "yahoo.it",
+  "email.it",
+  "tin.it",
+  "poste.it",
+  "teletu.it",
 
   /* Russian ISP domains */
-  "mail.ru", "rambler.ru", "yandex.ru", "ya.ru", "list.ru",
+  "mail.ru",
+  "rambler.ru",
+  "yandex.ru",
+  "ya.ru",
+  "list.ru",
 
   /* Belgian ISP domains */
-  "hotmail.be", "live.be", "skynet.be", "voo.be", "tvcablenet.be", "telenet.be",
+  "hotmail.be",
+  "live.be",
+  "skynet.be",
+  "voo.be",
+  "tvcablenet.be",
+  "telenet.be",
 
   /* Argentinian ISP domains */
-  "hotmail.com.ar", "live.com.ar", "yahoo.com.ar", "fibertel.com.ar", "speedy.com.ar", "arnet.com.ar",
+  "hotmail.com.ar",
+  "live.com.ar",
+  "yahoo.com.ar",
+  "fibertel.com.ar",
+  "speedy.com.ar",
+  "arnet.com.ar",
 
   /* Domains used in Mexico */
-  "yahoo.com.mx", "live.com.mx", "hotmail.es", "hotmail.com.mx", "prodigy.net.mx",
+  "yahoo.com.mx",
+  "live.com.mx",
+  "hotmail.es",
+  "hotmail.com.mx",
+  "prodigy.net.mx",
 
   /* Domains used in Canada */
-  "yahoo.ca", "hotmail.ca", "bell.net", "shaw.ca", "sympatico.ca", "rogers.com",
+  "yahoo.ca",
+  "hotmail.ca",
+  "bell.net",
+  "shaw.ca",
+  "sympatico.ca",
+  "rogers.com",
 
   /* Domains used in Brazil */
-  "yahoo.com.br", "hotmail.com.br", "outlook.com.br", "uol.com.br", "bol.com.br", "terra.com.br", "ig.com.br", "itelefonica.com.br", "r7.com", "zipmail.com.br", "globo.com", "globomail.com", "oi.com.br"
+  "yahoo.com.br",
+  "hotmail.com.br",
+  "outlook.com.br",
+  "uol.com.br",
+  "bol.com.br",
+  "terra.com.br",
+  "ig.com.br",
+  "itelefonica.com.br",
+  "r7.com",
+  "zipmail.com.br",
+  "globo.com",
+  "globomail.com",
+  "oi.com.br",
 ];
 
 var EnigmailWkdLookup = {
-
   /**
    * Try to import keys using WKD. Found keys are automatically imported
    *
@@ -84,7 +214,7 @@ var EnigmailWkdLookup = {
    *
    * @return {Promise<Boolean>}: true - new keys found
    */
-  findKeys: function(emails) {
+  findKeys(emails) {
     return new Promise((resolve, reject) => {
       EnigmailLog.DEBUG("wkdLookup.jsm: findKeys(" + emails.join(",") + ")\n");
 
@@ -103,31 +233,37 @@ var EnigmailWkdLookup = {
         }
       }
 
-      Promise.all(emails.map(
-          function(mailAddr) {
-            return self.determineLastAttempt(mailAddr.trim().toLowerCase());
-          }))
+      Promise.all(
+        emails.map(function(mailAddr) {
+          return self.determineLastAttempt(mailAddr.trim().toLowerCase());
+        })
+      )
         .then(function(checks) {
           let toCheck = [];
 
-          EnigmailLog.DEBUG("wkdLookup.jsm: findKeys: checks " + checks.length + "\n");
+          EnigmailLog.DEBUG(
+            "wkdLookup.jsm: findKeys: checks " + checks.length + "\n"
+          );
 
           for (let i = 0; i < checks.length; i++) {
             if (checks[i]) {
-              EnigmailLog.DEBUG("wkdLookup.jsm: findKeys: recheck " + emails[i] + "\n");
+              EnigmailLog.DEBUG(
+                "wkdLookup.jsm: findKeys: recheck " + emails[i] + "\n"
+              );
               toCheck.push(emails[i]);
-            }
-            else {
-              EnigmailLog.DEBUG("wkdLookup.jsm: findKeys: skip check " + emails[i] + "\n");
+            } else {
+              EnigmailLog.DEBUG(
+                "wkdLookup.jsm: findKeys: skip check " + emails[i] + "\n"
+              );
             }
           }
 
           if (toCheck.length > 0) {
-
-            Promise.all(toCheck.map((email) => {
-              return self.downloadKey(email);
-            })).then((dataArr) => {
-
+            Promise.all(
+              toCheck.map(email => {
+                return self.downloadKey(email);
+              })
+            ).then(dataArr => {
               if (dataArr) {
                 let gotKeys = [];
                 for (let i = 0; i < dataArr.length; i++) {
@@ -139,16 +275,14 @@ var EnigmailWkdLookup = {
                 if (gotKeys.length > 0) {
                   importDownloadedKeys(gotKeys);
                   resolve(true);
-                }
-                else
+                } else {
                   resolve(false);
+                }
               }
             });
-          }
-          else {
+          } else {
             resolve(false);
           }
-
         })
         .catch(() => {
           resolve(false);
@@ -164,7 +298,7 @@ var EnigmailWkdLookup = {
    *
    * @return {Promise<Boolean>}: true if new WKD lookup required
    */
-  determineLastAttempt: async function(email) {
+  async determineLastAttempt(email) {
     EnigmailLog.DEBUG("wkdLookup.jsm: determineLastAttempt(" + email + ")\n");
 
     let conn;
@@ -173,11 +307,14 @@ var EnigmailWkdLookup = {
       let val = await timeForRecheck(conn, email);
       conn.close();
       return val;
-    }
-    catch (x) {
-      EnigmailLog.DEBUG("wkdLookup.jsm: determineLastAttempt: could not open database\n");
+    } catch (x) {
+      EnigmailLog.DEBUG(
+        "wkdLookup.jsm: determineLastAttempt: could not open database\n"
+      );
       if (conn) {
-        EnigmailLog.DEBUG("wkdLookup.jsm: error - closing connection: " + x + "\n");
+        EnigmailLog.DEBUG(
+          "wkdLookup.jsm: error - closing connection: " + x + "\n"
+        );
         conn.close();
       }
     }
@@ -193,32 +330,51 @@ var EnigmailWkdLookup = {
    * @return {Promise<String>}: URL (or null if not possible)
    */
 
-  getDownloadUrlFromEmail: async function(email, advancedMethod) {
+  async getDownloadUrlFromEmail(email, advancedMethod) {
     email = email.toLowerCase().trim();
 
     let url = await getSiteSpecificUrl(email);
-    if (url) return url;
+    if (url) {
+      return url;
+    }
 
     let at = email.indexOf("@");
 
     let domain = email.substr(at + 1);
     let user = email.substr(0, at);
 
-    var converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
+    var converter = Cc[
+      "@mozilla.org/intl/scriptableunicodeconverter"
+    ].createInstance(Ci.nsIScriptableUnicodeConverter);
     converter.charset = "UTF-8";
     var data = converter.convertToByteArray(user, {});
 
-    var ch = Components.classes["@mozilla.org/security/hash;1"].createInstance(Components.interfaces.nsICryptoHash);
+    var ch = Cc["@mozilla.org/security/hash;1"].createInstance(
+      Ci.nsICryptoHash
+    );
     ch.init(ch.SHA1);
     ch.update(data, data.length);
     let gotHash = ch.finish(false);
     let encodedHash = EnigmailZBase32.encode(gotHash);
 
     if (advancedMethod) {
-      url = "https://openpgpkey." + domain + "/.well-known/openpgpkey/" + domain + "/hu/" + encodedHash + "?l=" + escape(user);
-    }
-    else {
-      url = "https://" + domain + "/.well-known/openpgpkey/hu/" + encodedHash + "?l=" + escape(user);
+      url =
+        "https://openpgpkey." +
+        domain +
+        "/.well-known/openpgpkey/" +
+        domain +
+        "/hu/" +
+        encodedHash +
+        "?l=" +
+        escape(user);
+    } else {
+      url =
+        "https://" +
+        domain +
+        "/.well-known/openpgpkey/hu/" +
+        encodedHash +
+        "?l=" +
+        escape(user);
     }
 
     return url;
@@ -231,7 +387,7 @@ var EnigmailWkdLookup = {
    *
    * @return {Promise<String>}: Key data (or null if not possible)
    */
-  downloadKey: async function(email) {
+  async downloadKey(email) {
     EnigmailLog.DEBUG("wkdLookup.jsm: downloadKey(" + email + ")\n");
 
     if (!this.isWkdAvailable(email)) {
@@ -248,65 +404,80 @@ var EnigmailWkdLookup = {
     return keyData;
   },
 
-  doWkdKeyDownload: async function(email, advancedMethod) {
-    EnigmailLog.DEBUG(`wkdLookup.jsm: doWkdKeyDownload(${email}, ${advancedMethod})\n`);
+  async doWkdKeyDownload(email, advancedMethod) {
+    EnigmailLog.DEBUG(
+      `wkdLookup.jsm: doWkdKeyDownload(${email}, ${advancedMethod})\n`
+    );
 
-    let url = await EnigmailWkdLookup.getDownloadUrlFromEmail(email, advancedMethod);
+    let url = await EnigmailWkdLookup.getDownloadUrlFromEmail(
+      email,
+      advancedMethod
+    );
 
     let padLen = (url.length % 512) + 1;
     let hdrs = new Headers({
-      'Authorization': 'Basic ' + btoa("no-user:")
+      Authorization: "Basic " + btoa("no-user:"),
     });
-    hdrs.append('Content-Type', 'application/octet-stream');
-    hdrs.append('X-Enigmail-Padding', "x".padEnd(padLen, "x"));
+    hdrs.append("Content-Type", "application/octet-stream");
+    hdrs.append("X-Enigmail-Padding", "x".padEnd(padLen, "x"));
 
     let myRequest = new Request(url, {
-      method: 'GET',
+      method: "GET",
       headers: hdrs,
-      mode: 'cors',
+      mode: "cors",
       //redirect: 'error',
-      redirect: 'follow',
-      cache: 'default'
+      redirect: "follow",
+      cache: "default",
     });
 
     let response;
     try {
-      EnigmailLog.DEBUG("wkdLookup.jsm: doWkdKeyDownload: requesting " + url + "\n");
+      EnigmailLog.DEBUG(
+        "wkdLookup.jsm: doWkdKeyDownload: requesting " + url + "\n"
+      );
       response = await fetch(myRequest);
       if (!response.ok) {
         return null;
       }
-    }
-    catch (ex) {
-      EnigmailLog.DEBUG("wkdLookup.jsm: doWkdKeyDownload: error " + ex.toString() + "\n");
+    } catch (ex) {
+      EnigmailLog.DEBUG(
+        "wkdLookup.jsm: doWkdKeyDownload: error " + ex.toString() + "\n"
+      );
       return null;
     }
 
     try {
-      if (response.headers.has("content-type") && response.headers.get("content-type").search(/^text\/html/i) === 0) {
+      if (
+        response.headers.has("content-type") &&
+        response.headers.get("content-type").search(/^text\/html/i) === 0
+      ) {
         // if we get HTML output, we return nothing (for example redirects to error catching pages)
         return null;
       }
-      let keyData = EnigmailData.arrayBufferToString(Cu.cloneInto(await response.arrayBuffer(), this));
-      EnigmailLog.DEBUG(`wkdLookup.jsm: doWkdKeyDownload: got data for ${email}\n`);
+      let keyData = EnigmailData.arrayBufferToString(
+        Cu.cloneInto(await response.arrayBuffer(), this)
+      );
+      EnigmailLog.DEBUG(
+        `wkdLookup.jsm: doWkdKeyDownload: got data for ${email}\n`
+      );
       return {
-        email: email,
-        keyData: keyData
+        email,
+        keyData,
       };
-    }
-    catch (ex) {
-      EnigmailLog.DEBUG("wkdLookup.jsm: doWkdKeyDownload: error " + ex.toString() + "\n");
+    } catch (ex) {
+      EnigmailLog.DEBUG(
+        "wkdLookup.jsm: doWkdKeyDownload: error " + ex.toString() + "\n"
+      );
       return null;
     }
   },
 
-  isWkdAvailable: function(email) {
+  isWkdAvailable(email) {
     let domain = email.toLowerCase().replace(/^.*@/, "");
 
-    return (BLACKLIST_DOMAINS.indexOf(domain) < 0);
-  }
+    return !BLACKLIST_DOMAINS.includes(domain);
+  },
 };
-
 
 /**
  * Check if enough time has passed since we looked-up the key for "email".
@@ -320,26 +491,40 @@ function timeForRecheck(connection, email) {
   EnigmailLog.DEBUG("wkdLookup.jsm: timeForRecheck\n");
 
   let obj = {
-    email: email,
-    now: Date.now()
+    email,
+    now: Date.now(),
   };
 
-  return connection.execute(
-    "select count(*) from wkd_lookup_timestamp where email = :email and :now - last_seen < 60*60*24", obj
-  ).then(function(val) {
-    return connection.execute(
-      "insert or replace into wkd_lookup_timestamp values (:email, :now)", obj
-    ).then(function() {
-      return Promise.resolve(val);
-    });
-  }).then(function(rows) {
-    EnigmailLog.DEBUG("wkdLookup.jsm: timeForRecheck: " + rows.length + "\n");
+  return connection
+    .execute(
+      "select count(*) from wkd_lookup_timestamp where email = :email and :now - last_seen < 60*60*24",
+      obj
+    )
+    .then(function(val) {
+      return connection
+        .execute(
+          "insert or replace into wkd_lookup_timestamp values (:email, :now)",
+          obj
+        )
+        .then(function() {
+          return Promise.resolve(val);
+        });
+    })
+    .then(
+      function(rows) {
+        EnigmailLog.DEBUG(
+          "wkdLookup.jsm: timeForRecheck: " + rows.length + "\n"
+        );
 
-    return rows.length === 1 && rows[0].getResultByIndex(0) === 0;
-  }, function(error) {
-    EnigmailLog.DEBUG("wkdLookup.jsm: timeForRecheck - error" + error + "\n");
-    Promise.reject(error);
-  });
+        return rows.length === 1 && rows[0].getResultByIndex(0) === 0;
+      },
+      function(error) {
+        EnigmailLog.DEBUG(
+          "wkdLookup.jsm: timeForRecheck - error" + error + "\n"
+        );
+        Promise.reject(error);
+      }
+    );
 }
 
 /**
@@ -350,6 +535,9 @@ function timeForRecheck(connection, email) {
  * no return value
  */
 function importDownloadedKeys(keysArr) {
+  throw new Error("Not implemented");
+
+  /*
   EnigmailLog.DEBUG("wkdLookup.jsm: importDownloadedKeys(" + keysArr.length + ")\n");
 
   let keyData = "";
@@ -358,6 +546,7 @@ function importDownloadedKeys(keysArr) {
     if (keysArr[k]) {
       if (keysArr[k].keyData.search(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/) < 0) {
         try {
+          // TODO: need a MPL version of bytesToArmor
           keyData += EnigmailOpenPGP.enigmailFuncs.bytesToArmor(EnigmailOpenPGP.armor.public_key, keysArr[k].keyData);
         }
         catch (ex) {
@@ -379,6 +568,7 @@ function importDownloadedKeys(keysArr) {
   }
 
   EnigmailKeyRing.importKey(null, false, keyData, "", {}, {}, false, domainArr);
+  */
 }
 
 /**
@@ -397,12 +587,16 @@ async function getSiteSpecificUrl(emailAddr) {
     case "protonmail.ch":
     case "protonmail.com":
     case "pm.me":
-      url = "https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=" + escape(emailAddr);
+      url =
+        "https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=" +
+        escape(emailAddr);
       break;
   }
 
   if (!url) {
-    throw new Error("EnigmailWkdLookup getSiteSpecificUrl with DNS not implemented");
+    throw new Error(
+      "EnigmailWkdLookup getSiteSpecificUrl with DNS not implemented"
+    );
     /*
     try {
       let mxHosts = await EnigmailDns.lookup("MX", domain);

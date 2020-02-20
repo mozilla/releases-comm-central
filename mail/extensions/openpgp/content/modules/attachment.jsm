@@ -4,16 +4,17 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailAttachment"];
 
-const EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+const EnigmailCryptoAPI = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+).EnigmailCryptoAPI;
 
 var EnigmailAttachment = {
-  getFileName: function(parent, byteData) {
+  getFileName(parent, byteData) {
     const cApi = EnigmailCryptoAPI();
     return cApi.sync(cApi.getFileName(parent, byteData));
-  }
+  },
 };

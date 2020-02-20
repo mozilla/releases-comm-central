@@ -16,29 +16,14 @@ Services.scriptloader.loadSubScript(
   "chrome://openpgp/content/modules/cryptoAPI/interface.js",
   null,
   "UTF-8"
-);
-
-/* Globals loaded from openpgp-js.js: */
-/* global getOpenPGP: false, EnigmailLog: false */
+); /* global CryptoAPI */
 
 const EnigmailLog = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 ).EnigmailLog;
-const EnigmailFiles = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-).EnigmailFiles;
 const EnigmailConstants = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 ).EnigmailConstants;
-const EnigmailTime = ChromeUtils.import(
-  "chrome://openpgp/content/modules/time.jsm"
-).EnigmailTime;
-const EnigmailData = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
-const EnigmailLocale = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
 
 /**
  * RNP implementation of CryptoAPI
@@ -264,15 +249,15 @@ class RNPCryptoAPI extends CryptoAPI {
     RNP.saveKeyRings();
     return id;
   }
-  
+
   async deleteKey(keyFingerprint, deleteSecret) {
-    return RNP.deleteKey(keyId, deleteSecret);
+    return RNP.deleteKey(keyFingerprint, deleteSecret);
   }
 
   async encryptAndOrSign(plaintext, args, resultStatus) {
     return RNP.encryptAndOrSign(plaintext, args, resultStatus);
   }
-  
+
   async getPublicKey(id) {
     return RNP.getPublicKey(id);
   }

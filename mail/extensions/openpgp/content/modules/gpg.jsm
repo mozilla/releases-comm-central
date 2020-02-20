@@ -4,44 +4,18 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 const EXPORTED_SYMBOLS = ["EnigmailGpg"];
 
-
-
-
-
-const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm").EnigmailOS;
-const EnigmailVersioning = ChromeUtils.import("chrome://openpgp/content/modules/versioning.jsm").EnigmailVersioning;
-const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
-const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailVersioning = ChromeUtils.import(
+  "chrome://openpgp/content/modules/versioning.jsm"
+).EnigmailVersioning;
 
 const MINIMUM_GPG_VERSION = "2.0.14";
-const GPG_BATCH_OPT_LIST = ["--batch", "--no-tty", "--no-verbose", "--status-fd", "2"];
-
-function pushTrimmedStr(arr, str, splitStr) {
-  // Helper function for pushing a string without leading/trailing spaces
-  // to an array
-  str = str.replace(/^ */, "").replace(/ *$/, "");
-  if (str.length > 0) {
-    if (splitStr) {
-      const tmpArr = str.split(/[\t ]+/);
-      for (let i = 0; i < tmpArr.length; i++) {
-        arr.push(tmpArr[i]);
-      }
-    } else {
-      arr.push(str);
-    }
-  }
-  return (str.length > 0);
-}
 
 var EnigmailGpg = {
   agentVersion: "",
@@ -51,14 +25,14 @@ var EnigmailGpg = {
     return this._agentPath;
   },
 
-  setAgentPath: function(path) {
+  setAgentPath(path) {
     this._agentPath = path;
   },
 
   /**
    * return the minimum version of GnuPG that is supported by Enigmail
    */
-  getMinimumGpgVersion: function() {
+  getMinimumGpgVersion() {
     return MINIMUM_GPG_VERSION;
   },
 
@@ -86,10 +60,14 @@ var EnigmailGpg = {
    (true if feature is available / false otherwise)
    If the feature cannot be found, undefined is returned
    */
-  getGpgFeature: function(featureName) {
+  getGpgFeature(featureName) {
     let gpgVersion = EnigmailGpg.agentVersion;
 
-    if (!gpgVersion || typeof(gpgVersion) != "string" || gpgVersion.length === 0) {
+    if (
+      !gpgVersion ||
+      typeof gpgVersion != "string" ||
+      gpgVersion.length === 0
+    ) {
       return undefined;
     }
 
@@ -101,11 +79,17 @@ var EnigmailGpg = {
 
     switch (featureName) {
       case "version-supported":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, MINIMUM_GPG_VERSION);
+        return EnigmailVersioning.greaterThanOrEqual(
+          gpgVersion,
+          MINIMUM_GPG_VERSION
+        );
       case "supports-gpg-agent":
         return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.16");
       case "keygen-passphrase":
-        return EnigmailVersioning.lessThan(gpgVersion, "2.1") || EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.2");
+        return (
+          EnigmailVersioning.lessThan(gpgVersion, "2.1") ||
+          EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.2")
+        );
       case "genkey-no-protection":
         return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
       case "windows-photoid-bug":
@@ -118,8 +102,8 @@ var EnigmailGpg = {
         // returns a string
         if (EnigmailVersioning.greaterThan(gpgVersion, "2.1")) {
           return "save";
-        } else
-          return "quit";
+        }
+        return "quit";
       case "supports-sender":
         return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.15");
       case "export-result":
@@ -139,7 +123,7 @@ var EnigmailGpg = {
     return undefined;
   },
 
-  signingAlgIdToString: function(id) {
+  signingAlgIdToString(id) {
     // RFC 4880 Sec. 9.1, RFC 6637 Sec. 5 and draft-koch-eddsa-for-openpgp-03 Sec. 8
     switch (parseInt(id, 10)) {
       case 1:
@@ -159,11 +143,13 @@ var EnigmailGpg = {
       case 22:
         return "EDDSA";
       default:
-        return EnigmailLocale.getString("unknownSigningAlg", [parseInt(id, 10)]);
+        return EnigmailLocale.getString("unknownSigningAlg", [
+          parseInt(id, 10),
+        ]);
     }
   },
 
-  hashAlgIdToString: function(id) {
+  hashAlgIdToString(id) {
     // RFC 4880 Sec. 9.4
     switch (parseInt(id, 10)) {
       case 1:

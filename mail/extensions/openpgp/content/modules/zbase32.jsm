@@ -22,12 +22,14 @@ var EnigmailZBase32 = {
    *
    * @return String - econded string
    */
-  encode: function(str) {
+  encode(str) {
     let a = this.a;
     let pad = this.pad;
     let len = str.length;
     let o = "";
-    let w, c, r = 0,
+    let w,
+      c,
+      r = 0,
       sh = 0;
 
     for (let i = 0; i < len; i += 5) {
@@ -38,7 +40,7 @@ var EnigmailZBase32 = {
       r = 0x07 & c;
       sh = 2;
 
-      if ((i + 1) < len) {
+      if (i + 1 < len) {
         c = str.charCodeAt(i + 1);
         // mask top 2 bits
         w = 0xc0 & c;
@@ -48,7 +50,7 @@ var EnigmailZBase32 = {
         sh = 4;
       }
 
-      if ((i + 2) < len) {
+      if (i + 2 < len) {
         c = str.charCodeAt(i + 2);
         // mask top 4 bits
         w = 0xf0 & c;
@@ -57,7 +59,7 @@ var EnigmailZBase32 = {
         sh = 1;
       }
 
-      if ((i + 3) < len) {
+      if (i + 3 < len) {
         c = str.charCodeAt(i + 3);
         // mask top 1 bit
         w = 0x80 & c;
@@ -67,7 +69,7 @@ var EnigmailZBase32 = {
         sh = 3;
       }
 
-      if ((i + 4) < len) {
+      if (i + 4 < len) {
         c = str.charCodeAt(i + 4);
         // mask top 3 bits
         w = 0xe0 & c;
@@ -92,6 +94,15 @@ var EnigmailZBase32 = {
       return o + pad.repeat(padlen);
     }
 
-    throw 'there was some kind of error:\npadlen:' + padlen + ' ,r:' + r + ' ,sh:' + sh + ', w:' + w;
-  }
+    throw new Error(
+      "there was some kind of error:\npadlen:" +
+        padlen +
+        " ,r:" +
+        r +
+        " ,sh:" +
+        sh +
+        ", w:" +
+        w
+    );
+  },
 };

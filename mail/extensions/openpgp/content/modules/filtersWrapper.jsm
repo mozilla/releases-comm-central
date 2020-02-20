@@ -4,24 +4,18 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailFiltersWrapper"];
 
-
-
-
-
-var gNewMailListenerInitiated = false;
 var gEnigmailFilters = null;
 
-let {
-  EnigmailConstants
-} = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm");
-let {
-  EnigmailLocale
-} = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm");
+let { EnigmailConstants } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+);
+let { EnigmailLocale } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+);
 
 /**
  * filter action for creating a decrypted version of the mail and
@@ -32,31 +26,41 @@ const filterActionMoveDecrypt = {
   id: EnigmailConstants.FILTER_MOVE_DECRYPT,
   name: EnigmailLocale.getString("filter.decryptMove.label"),
   value: "movemessage",
-  apply: function(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
-
+  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
-      gEnigmailFilters.moveDecrypt.apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow);
-    }
-    else {
+      gEnigmailFilters.moveDecrypt.apply(
+        aMsgHdrs,
+        aActionValue,
+        aListener,
+        aType,
+        aMsgWindow
+      );
+    } else {
       aListener.OnStartCopy();
       aListener.OnStopCopy(0);
     }
   },
 
-  isValidForType: function(type, scope) {
-    return gEnigmailFilters ? gEnigmailFilters.moveDecrypt.isValidForType(type, scope) : false;
+  isValidForType(type, scope) {
+    return gEnigmailFilters
+      ? gEnigmailFilters.moveDecrypt.isValidForType(type, scope)
+      : false;
   },
 
-  validateActionValue: function(value, folder, type) {
+  validateActionValue(value, folder, type) {
     if (gEnigmailFilters) {
-      return gEnigmailFilters.moveDecrypt.validateActionValue(value, folder, type);
+      return gEnigmailFilters.moveDecrypt.validateActionValue(
+        value,
+        folder,
+        type
+      );
     }
     return null;
   },
 
   allowDuplicates: false,
   isAsync: true,
-  needsBody: true
+  needsBody: true,
 };
 
 /**
@@ -67,30 +71,41 @@ const filterActionCopyDecrypt = {
   id: EnigmailConstants.FILTER_COPY_DECRYPT,
   name: EnigmailLocale.getString("filter.decryptCopy.label"),
   value: "copymessage",
-  apply: function(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
-      gEnigmailFilters.copyDecrypt.apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow);
-    }
-    else {
+      gEnigmailFilters.copyDecrypt.apply(
+        aMsgHdrs,
+        aActionValue,
+        aListener,
+        aType,
+        aMsgWindow
+      );
+    } else {
       aListener.OnStartCopy();
       aListener.OnStopCopy(0);
     }
   },
 
-  isValidForType: function(type, scope) {
-    return gEnigmailFilters ? gEnigmailFilters.copyDecrypt.isValidForType(type, scope) : false;
+  isValidForType(type, scope) {
+    return gEnigmailFilters
+      ? gEnigmailFilters.copyDecrypt.isValidForType(type, scope)
+      : false;
   },
 
-  validateActionValue: function(value, folder, type) {
+  validateActionValue(value, folder, type) {
     if (gEnigmailFilters) {
-      return gEnigmailFilters.copyDecrypt.validateActionValue(value, folder, type);
+      return gEnigmailFilters.copyDecrypt.validateActionValue(
+        value,
+        folder,
+        type
+      );
     }
     return null;
   },
 
   allowDuplicates: false,
   isAsync: true,
-  needsBody: true
+  needsBody: true,
 };
 
 /**
@@ -100,33 +115,36 @@ const filterActionEncrypt = {
   id: EnigmailConstants.FILTER_ENCRYPT,
   name: EnigmailLocale.getString("filter.encrypt.label"),
   value: "encryptto",
-  apply: function(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
-      gEnigmailFilters.encrypt.apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow);
-    }
-    else {
+      gEnigmailFilters.encrypt.apply(
+        aMsgHdrs,
+        aActionValue,
+        aListener,
+        aType,
+        aMsgWindow
+      );
+    } else {
       aListener.OnStartCopy();
       aListener.OnStopCopy(0);
     }
   },
 
-  isValidForType: function(type, scope) {
+  isValidForType(type, scope) {
     return gEnigmailFilters ? gEnigmailFilters.encrypt.isValidForType() : false;
   },
 
-  validateActionValue: function(value, folder, type) {
+  validateActionValue(value, folder, type) {
     if (gEnigmailFilters) {
       return gEnigmailFilters.encrypt.validateActionValue(value, folder, type);
     }
     return null;
-
   },
 
   allowDuplicates: false,
   isAsync: true,
-  needsBody: true
+  needsBody: true,
 };
-
 
 /**
  * Add a custom filter action. If the filter already exists, do nothing
@@ -135,13 +153,14 @@ const filterActionEncrypt = {
  * @param filterObj - nsIMsgFilterCustomAction
  */
 function addFilterIfNotExists(filterObj) {
-  let filterService = Cc["@mozilla.org/messenger/services/filters;1"].getService(Ci.nsIMsgFilterService);
+  let filterService = Cc[
+    "@mozilla.org/messenger/services/filters;1"
+  ].getService(Ci.nsIMsgFilterService);
 
   let foundFilter = null;
   try {
     foundFilter = filterService.getCustomAction(filterObj.id);
-  }
-  catch (ex) {}
+  } catch (ex) {}
 
   if (!foundFilter) {
     filterService.addCustomAction(filterObj);
@@ -149,10 +168,10 @@ function addFilterIfNotExists(filterObj) {
 }
 
 var EnigmailFiltersWrapper = {
-  onStartup: function() {
-    let {
-      EnigmailFilters
-    } = ChromeUtils.import("chrome://openpgp/content/modules/filters.jsm");
+  onStartup() {
+    let { EnigmailFilters } = ChromeUtils.import(
+      "chrome://openpgp/content/modules/filters.jsm"
+    );
     gEnigmailFilters = EnigmailFilters;
 
     addFilterIfNotExists(filterActionMoveDecrypt);
@@ -162,8 +181,8 @@ var EnigmailFiltersWrapper = {
     gEnigmailFilters.onStartup();
   },
 
-  onShutdown: function() {
+  onShutdown() {
     gEnigmailFilters.onShutdown();
     gEnigmailFilters = null;
-  }
+  },
 };

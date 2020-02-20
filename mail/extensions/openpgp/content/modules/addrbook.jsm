@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailAddrbook"];
@@ -13,10 +12,6 @@ var EXPORTED_SYMBOLS = ["EnigmailAddrbook"];
  * Functionality related to the Thunderbird address book
  *
  */
-
-
-
-
 
 const ABMANAGER = "@mozilla.org/abmanager;1";
 
@@ -31,20 +26,21 @@ var EnigmailAddrbook = {
    *           - directory: nsIAbDirectory of found card
    *         NULL if not found
    */
-  lookupEmailAddress: function(emailAddr) {
+  lookupEmailAddress(emailAddr) {
     let abm = Cc[ABMANAGER].getService(Ci.nsIAbManager);
 
     for (let abd of abm.directories) {
       try {
         let crd = abd.cardForEmailAddress(emailAddr);
-        if (crd) return {
-          directory: abd,
-          card: crd
-        };
-      }
-      catch (x) {}
+        if (crd) {
+          return {
+            directory: abd,
+            card: crd,
+          };
+        }
+      } catch (x) {}
     }
 
     return null;
-  }
+  },
 };

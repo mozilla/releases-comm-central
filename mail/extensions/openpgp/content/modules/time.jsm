@@ -8,7 +8,9 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailTime"];
 
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
 
 const DATE_2DIGIT = "2-digit";
 const DATE_4DIGIT = "numeric";
@@ -23,7 +25,7 @@ var EnigmailTime = {
    *
    * @return: String - formatted date/time string
    */
-  getDateTime: function(dateNum, withDate, withTime) {
+  getDateTime(dateNum, withDate, withTime) {
     if (dateNum && dateNum !== 0) {
       let dat = new Date(dateNum * 1000);
       let appLocale = EnigmailLocale.get();
@@ -36,8 +38,7 @@ var EnigmailTime = {
         let year = dat.getFullYear();
         if (year > 2099) {
           options.year = DATE_4DIGIT;
-        }
-        else {
+        } else {
           options.year = DATE_2DIGIT;
         }
       }
@@ -54,9 +55,8 @@ var EnigmailTime = {
       } catch (ex) {
         return new Intl.DateTimeFormat("en-US", options).format(dat);
       }
-    }
-    else {
+    } else {
       return "";
     }
-  }
+  },
 };

@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailConstants"];
@@ -162,5 +161,5 @@ var EnigmailConstants = {
   ADDON_INSTALL: 5, // The add-on is being installed.
   ADDON_UNINSTALL: 6, // The add-on is being uninstalled.
   ADDON_UPGRADE: 7, // The add-on is being upgraded.
-  ADDON_DOWNGRADE: 8 // The add-on is being downgraded.
+  ADDON_DOWNGRADE: 8, // The add-on is being downgraded.
 };

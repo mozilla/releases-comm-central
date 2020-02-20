@@ -4,17 +4,26 @@
 
 "use strict";
 
-var Cu = Components.utils;
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-
-var EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-var EnigmailWindows = ChromeUtils.import("chrome://openpgp/content/modules/windows.jsm").EnigmailWindows;
-var EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
-var EnigmailDialog = ChromeUtils.import("chrome://openpgp/content/modules/dialog.jsm").EnigmailDialog;
-var EnigmailEvents = ChromeUtils.import("chrome://openpgp/content/modules/events.jsm").EnigmailEvents;
-var EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
-var EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm").EnigmailOS;
+var EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+var EnigmailWindows = ChromeUtils.import(
+  "chrome://openpgp/content/modules/windows.jsm"
+).EnigmailWindows;
+var EnigmailKeyRing = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+).EnigmailKeyRing;
+var EnigmailDialog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/dialog.jsm"
+).EnigmailDialog;
+var EnigmailEvents = ChromeUtils.import(
+  "chrome://openpgp/content/modules/events.jsm"
+).EnigmailEvents;
+var EnigmailData = ChromeUtils.import(
+  "chrome://openpgp/content/modules/data.jsm"
+).EnigmailData;
+var EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm")
+  .EnigmailOS;
 
 function onLoad() {
   var dlg = document.getElementById("enigmailKeyImportInfo");
@@ -51,7 +60,9 @@ function onLoad() {
     let keyObj = EnigmailKeyRing.getKeyById(keyId);
     if (keyObj && keyObj.fpr) {
       let keyGroupBox = buildKeyGroupBox(keyObj);
-      keyGroupBox.getElementsByClassName("enigmailKeyImportDetails")[0].addEventListener('click', onClickFunc, true);
+      keyGroupBox
+        .getElementsByClassName("enigmailKeyImportDetails")[0]
+        .addEventListener("click", onClickFunc, true);
       keys.push(keyGroupBox);
     }
   }
@@ -70,7 +81,7 @@ function onLoad() {
 
     let keysRow;
     for (i = 0; i < keys.length; i++) {
-      if ((i % 3) === 0) {
+      if (i % 3 === 0) {
         keysRow = document.createXULElement("row");
         keysRows.appendChild(keysRow);
       }
@@ -90,7 +101,6 @@ function onLoad() {
 }
 
 function buildKeyGroupBox(keyObj) {
-
   let i,
     groupBox = document.createXULElement("vbox"),
     vbox = document.createXULElement("hbox"),
@@ -122,11 +132,17 @@ function buildKeyGroupBox(keyObj) {
   vbox.setAttribute("align", "start");
   caption.setAttribute("class", "enigmailKeyImportCaption");
   infoLabelH1.setAttribute("value", EnigmailLocale.getString("importInfoBits"));
-  infoLabelH2.setAttribute("value", EnigmailLocale.getString("importInfoCreated"));
+  infoLabelH2.setAttribute(
+    "value",
+    EnigmailLocale.getString("importInfoCreated")
+  );
   infoLabelH3.setAttribute("value", "");
   infoLabelB1.setAttribute("value", keyObj.keySize);
   infoLabelB2.setAttribute("value", keyObj.created);
-  infoLabelB3.setAttribute("value", EnigmailLocale.getString("importInfoDetails"));
+  infoLabelB3.setAttribute(
+    "value",
+    EnigmailLocale.getString("importInfoDetails")
+  );
   infoLabelB3.setAttribute("keyid", keyObj.keyId);
   infoLabelB3.setAttribute("class", "enigmailKeyImportDetails");
 
@@ -172,10 +188,8 @@ function buildKeyGroupBox(keyObj) {
 }
 
 function resizeDlg() {
-
   var txt = document.getElementById("keyInfo");
   var box = document.getElementById("outerbox");
-  var dlg = document.getElementById("enigmailKeyImportInfo");
 
   var deltaWidth = window.outerWidth - box.clientWidth;
   var newWidth = txt.scrollWidth + deltaWidth + 20;
@@ -193,7 +207,6 @@ function resizeDlg() {
 
   var newHeight = textHeight + deltaHeight + 25;
 
-
   if (newHeight > window.screen.height - 100) {
     newHeight = window.screen.height - 100;
   }
@@ -202,10 +215,10 @@ function resizeDlg() {
 }
 
 function centerDialog() {
-  if (EnigmailOS.getOS() != "Darwin")
+  if (EnigmailOS.getOS() != "Darwin") {
     document.getElementById("enigmailKeyImportInfo").centerWindowOnScreen();
+  }
 }
-
 
 function dlgClose(buttonNumber) {
   window.arguments[1].value = buttonNumber;

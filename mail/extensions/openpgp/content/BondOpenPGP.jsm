@@ -38,8 +38,6 @@ const getEnigmailWindows = EnigmailLazy.loader(
   "EnigmailWindows"
 );
 
-/* global APP_SHUTDOWN: false */
-
 var BondOpenPGP = {
   logException(exc) {
     try {

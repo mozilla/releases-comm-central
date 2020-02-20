@@ -12,14 +12,16 @@
 
 var EXPORTED_SYMBOLS = ["GnuPG_importKeyFromFile", "GnuPG_extractSecretKey"];
 
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
 
 async function GnuPG_importKeyFromFile(inputFile) {
-  EnigmailLog.DEBUG("gnupg-key.jsm: importKeysFromFile: fileName=" + inputFile.path + "\n");
+  EnigmailLog.DEBUG(
+    "gnupg-key.jsm: importKeysFromFile: fileName=" + inputFile.path + "\n"
+  );
   throw new Error("Not implemented");
 }
-
 
 async function GnuPG_extractSecretKey(userId, minimalKey) {
   throw new Error("Not implemented");

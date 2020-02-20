@@ -2,19 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailConfigBackup"];
 
-
-
-
-
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailRules = ChromeUtils.import("chrome://openpgp/content/modules/rules.jsm").EnigmailRules;
-const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailRules = ChromeUtils.import(
+  "chrome://openpgp/content/modules/rules.jsm"
+).EnigmailRules;
+const EnigmailFiles = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+).EnigmailFiles;
+const EnigmailPrefs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+).EnigmailPrefs;
 
 const TYPE_BOOL = 1;
 const TYPE_CHAR = 2;
@@ -31,13 +34,14 @@ const IdentityPref = {
   openPgpUrlName: TYPE_CHAR,
   pgpMimeMode: TYPE_BOOL,
   attachPgpKey: TYPE_BOOL,
-  autoEncryptDrafts: TYPE_BOOL
+  autoEncryptDrafts: TYPE_BOOL,
 };
 
 var EnigmailConfigBackup = {
-
-  getAccountManager: function() {
-    let amService = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+  getAccountManager() {
+    let amService = Cc["@mozilla.org/messenger/account-manager;1"].getService(
+      Ci.nsIMsgAccountManager
+    );
     return amService;
   },
 
@@ -49,8 +53,7 @@ var EnigmailConfigBackup = {
    *                    callbackFunc(nsIMsgIdentity)
    * @return  - undefined
    */
-  forAllIdentitites: function(callbackFunc) {
-
+  forAllIdentitites(callbackFunc) {
     let amService = this.getAccountManager();
 
     amService.LoadAccounts(); // ensure accounts are really loaded
@@ -59,9 +62,12 @@ var EnigmailConfigBackup = {
       let id = a.queryElementAt(i, Ci.nsIMsgIdentity);
       try {
         callbackFunc(id);
-      }
-      catch (ex) {
-        EnigmailLog.DEBUG("configBackup.jsm: forAllIdentitites: exception " + ex.toString() + "\n");
+      } catch (ex) {
+        EnigmailLog.DEBUG(
+          "configBackup.jsm: forAllIdentitites: exception " +
+            ex.toString() +
+            "\n"
+        );
       }
     }
   },
@@ -73,22 +79,23 @@ var EnigmailConfigBackup = {
    *
    * @return 0: success, other values: failure
    */
-  backupPrefs: function(outputFile) {
+  backupPrefs(outputFile) {
     EnigmailLog.DEBUG("configBackup.jsm: backupPrefs\n");
 
     // user preference
     let prefObj = {
       enigmailPrefs: EnigmailPrefs.getAllPrefs(),
-      mailIdentities: {}
+      mailIdentities: {},
     };
 
     function getIdentityPrefs(identity) {
-
-      if (!identity.getBoolAttribute("enablePgp")) return; // do nothing if Enigmail disabled
+      if (!identity.getBoolAttribute("enablePgp")) {
+        return;
+      } // do nothing if Enigmail disabled
 
       let keyObj = {
         emailAddress: identity.email.toLowerCase(),
-        identityName: identity.identityName
+        identityName: identity.identityName,
       };
 
       for (let pref in IdentityPref) {
@@ -136,18 +143,25 @@ var EnigmailConfigBackup = {
    *     unmatchedIds: Array (String): keys of identities
    *   }
    */
-  restorePrefs: function(inputFile) {
+  restorePrefs(inputFile) {
     EnigmailLog.DEBUG("configBackup.jsm: restorePrefs\n");
     var prefObj;
     var returnObj = {
       retVal: -1,
-      unmatchedIds: []
+      unmatchedIds: [],
     };
 
     function setIdentityPref(identity) {
       for (let k in prefObj.mailIdentities) {
-        if (prefObj.mailIdentities[k].emailAddress === identity.email.toLowerCase()) {
-          EnigmailLog.DEBUG("configBackup.jsm: setIdentityPref: restoring values for " + identity.email + "\n");
+        if (
+          prefObj.mailIdentities[k].emailAddress ===
+          identity.email.toLowerCase()
+        ) {
+          EnigmailLog.DEBUG(
+            "configBackup.jsm: setIdentityPref: restoring values for " +
+              identity.email +
+              "\n"
+          );
           prefObj.mailIdentities[k].foundMatchingEmail = true;
           let keyObj = prefObj.mailIdentities[k];
           for (let pref in IdentityPref) {
@@ -167,16 +181,17 @@ var EnigmailConfigBackup = {
         }
       }
 
-      EnigmailLog.DEBUG("configBackup.jsm: setIdentityPref: no matching data for " + identity.email + "\n");
+      EnigmailLog.DEBUG(
+        "configBackup.jsm: setIdentityPref: no matching data for " +
+          identity.email +
+          "\n"
+      );
     }
 
     // Profile must be a single UTF-8 encoded JSON object.
     try {
       let jsonStr = EnigmailFiles.readFile(inputFile);
       prefObj = JSON.parse(jsonStr);
-
-      var nsIPB = Ci.nsIPrefBranch;
-      var branch = EnigmailPrefs.getPrefBranch();
 
       // Set all options recorded in the JSON file.
       for (let name in prefObj.enigmailPrefs) {
@@ -199,15 +214,14 @@ var EnigmailConfigBackup = {
         EnigmailRules.loadRulesFromString(prefObj.rules);
         EnigmailRules.saveRulesFile();
       }
-
-    }
-    catch (ex) {
-      EnigmailLog.ERROR("configBackup.jsm: restorePrefs - exception " + ex.toString() + "\n");
+    } catch (ex) {
+      EnigmailLog.ERROR(
+        "configBackup.jsm: restorePrefs - exception " + ex.toString() + "\n"
+      );
       return returnObj;
     }
 
     returnObj.retVal = 0;
     return returnObj;
-  }
-
+  },
 };

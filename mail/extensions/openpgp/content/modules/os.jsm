@@ -8,13 +8,14 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailOS"];
 
-const XPCOM_APPINFO = "@mozilla.org/xre/app-info;1";
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
 let operatingSystem = null;
 
 function getOS() {
   if (operatingSystem === null) {
-    operatingSystem = Cc[XPCOM_APPINFO].getService(Ci.nsIXULRuntime).OS;
+    operatingSystem = Services.appinfo.OS;
   }
   return operatingSystem;
 }
@@ -37,7 +38,7 @@ var EnigmailOS = {
    *
    * @return   String    - OS Identifier
    */
-  getOS: getOS,
+  getOS,
 
   /**
    * isDosLike identifies whether the host computer is MS-DOS based
@@ -69,26 +70,26 @@ var EnigmailOS = {
    *
    * @return String - the found registry value (or empty string if not found)
    */
-  getWinRegistryString: function(keyPath, keyName, rootKey) {
-    const registry = Cc["@mozilla.org/windows-registry-key;1"].createInstance(Ci.nsIWindowsRegKey);
+  getWinRegistryString(keyPath, keyName, rootKey) {
+    const registry = Cc["@mozilla.org/windows-registry-key;1"].createInstance(
+      Ci.nsIWindowsRegKey
+    );
 
     let retval = "";
     try {
       registry.open(rootKey, keyPath, registry.ACCESS_READ);
       retval = registry.readStringValue(keyName);
       registry.close();
-    }
-    catch (ex) {}
+    } catch (ex) {}
 
     return retval;
   },
 
-  getNullFile: function() {
+  getNullFile() {
     if (this.isDosLike) {
       return "NUL";
     }
-    else {
-      return "/dev/null";
-    }
-  }
+
+    return "/dev/null";
+  },
 };

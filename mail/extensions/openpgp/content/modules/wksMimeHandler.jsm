@@ -6,59 +6,72 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailWksMimeHandler"];
 
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
+
 /**
  *  Module for handling response messages from OpenPGP Web Key Service
  */
 
-const EnigmailCompat = ChromeUtils.import("chrome://openpgp/content/modules/compat.jsm").EnigmailCompat;
-const EnigmailVerify = ChromeUtils.import("chrome://openpgp/content/modules/mimeVerify.jsm").EnigmailVerify;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailDecryption = ChromeUtils.import("chrome://openpgp/content/modules/decryption.jsm").EnigmailDecryption;
-const EnigmailSingletons = ChromeUtils.import("chrome://openpgp/content/modules/singletons.jsm").EnigmailSingletons;
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-
-const APPSHELL_MEDIATOR_CONTRACTID = "@mozilla.org/appshell/window-mediator;1";
+const EnigmailCompat = ChromeUtils.import(
+  "chrome://openpgp/content/modules/compat.jsm"
+).EnigmailCompat;
+const EnigmailVerify = ChromeUtils.import(
+  "chrome://openpgp/content/modules/mimeVerify.jsm"
+).EnigmailVerify;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailDecryption = ChromeUtils.import(
+  "chrome://openpgp/content/modules/decryption.jsm"
+).EnigmailDecryption;
+const EnigmailSingletons = ChromeUtils.import(
+  "chrome://openpgp/content/modules/singletons.jsm"
+).EnigmailSingletons;
+const EnigmailConstants = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+).EnigmailConstants;
 
 var gDebugLog = false;
 
-
 var EnigmailWksMimeHandler = {
-
   /***
    * register a PGP/MIME verify object the same way PGP/MIME encrypted mail is handled
    */
-  registerContentTypeHandler: function() {
+  registerContentTypeHandler() {
     EnigmailLog.DEBUG("wksMimeHandler.jsm: registerContentTypeHandler()\n");
     let reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
 
-    let pgpMimeClass = Components.classes["@mozilla.org/mimecth;1?type=multipart/encrypted"];
+    let pgpMimeClass = Cc["@mozilla.org/mimecth;1?type=multipart/encrypted"];
 
     reg.registerFactory(
       pgpMimeClass,
       "Enigmail WKD Response Handler",
       "@mozilla.org/mimecth;1?type=application/vnd.gnupg.wks",
-      null);
+      null
+    );
   },
 
-  newHandler: function() {
+  newHandler() {
     EnigmailLog.DEBUG("wksMimeHandler.jsm: newHandler()\n");
 
     let v = new PgpWkdHandler();
     return v;
-  }
-
+  },
 };
 
 // MimeVerify Constructor
 function PgpWkdHandler(protocol) {
-  this.inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+  this.inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  );
 }
-
 
 // PgpWkdHandler implementation
 PgpWkdHandler.prototype = {
-
   data: "",
   mimePartNumber: "",
   uri: null,
@@ -66,22 +79,19 @@ PgpWkdHandler.prototype = {
 
   QueryInterface: EnigmailCompat.generateQI([Ci.nsIStreamListener]),
 
-  onStartRequest: function(request, ctxt) {
+  onStartRequest(request, ctxt) {
     EnigmailLog.DEBUG("wksMimeHandler.jsm: onStartRequest\n"); // always log this one
 
     this.mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
-    let uri = null;
     if ("messageURI" in this.mimeSvc) {
-      uri = this.mimeSvc.messageURI;
-    }
-    else {
-      uri = ctxt;
+      this.uri = this.mimeSvc.messageURI;
+    } else {
+      this.uri = ctxt;
     }
 
     if ("mimePart" in this.mimeSvc) {
       this.mimePartNumber = this.mimeSvc.mimePart;
-    }
-    else {
+    } else {
       this.mimePartNumber = "";
     }
     this.data = "";
@@ -89,12 +99,13 @@ PgpWkdHandler.prototype = {
     this.backgroundJob = false;
 
     if (this.uri) {
-      this.backgroundJob = (this.uri.spec.search(/[&?]header=(print|quotebody|enigmailConvert)/) >= 0);
+      this.backgroundJob =
+        this.uri.spec.search(/[&?]header=(print|quotebody|enigmailConvert)/) >=
+        0;
     }
-
   },
 
-  onDataAvailable: function(req, dummy, stream, offset, count) {
+  onDataAvailable(req, dummy, stream, offset, count) {
     if ("messageURI" in this.mimeSvc) {
       // TB >= 67
       stream = dummy;
@@ -109,7 +120,7 @@ PgpWkdHandler.prototype = {
     }
   },
 
-  onStopRequest: function() {
+  onStopRequest() {
     EnigmailLog.DEBUG("wksMimeHandler.jsm: onStopRequest\n");
 
     if (this.data.search(/-----BEGIN PGP MESSAGE-----/i) >= 0) {
@@ -119,10 +130,9 @@ PgpWkdHandler.prototype = {
     let jsonStr = this.requestToJsonString(this.data);
     let msg = "";
 
-    if (this.data.search(/^\s*type:\s+confirmation-request/mi) >= 0) {
+    if (this.data.search(/^\s*type:\s+confirmation-request/im) >= 0) {
       msg = EnigmailLocale.getString("wkdMessage.body.req");
-    }
-    else {
+    } else {
       msg = EnigmailLocale.getString("wkdMessage.body.process");
     }
 
@@ -130,27 +140,42 @@ PgpWkdHandler.prototype = {
     this.displayStatus(jsonStr);
   },
 
-  decryptChallengeData: function() {
+  decryptChallengeData() {
     EnigmailLog.DEBUG("wksMimeHandler.jsm: decryptChallengeData()\n");
-    let windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
+    let windowManager = Services.wm;
     let win = windowManager.getMostRecentWindow(null);
     let statusFlagsObj = {};
 
-    let res = EnigmailDecryption.decryptMessage(win,
+    let res = EnigmailDecryption.decryptMessage(
+      win,
       0,
-      this.data, {}, {}, statusFlagsObj, {}, {}, {}, {}, {}, {});
+      this.data,
+      {},
+      {},
+      statusFlagsObj,
+      {},
+      {},
+      {},
+      {},
+      {},
+      {}
+    );
 
     if (statusFlagsObj.value & EnigmailConstants.DECRYPTION_OKAY) {
       this.data = res;
     }
-    EnigmailLog.DEBUG("wksMimeHandler.jsm: decryptChallengeData: decryption result: " + res + "\n");
+    EnigmailLog.DEBUG(
+      "wksMimeHandler.jsm: decryptChallengeData: decryption result: " +
+        res +
+        "\n"
+    );
   },
 
   // convert request data into JSON-string and parse it
-  requestToJsonString: function() {
+  requestToJsonString() {
     // convert
     let lines = this.data.split(/\r?\n/);
-    let s = '{';
+    let s = "{";
     for (let l of lines) {
       let m = l.match(/^([^\s:]+)(:\s*)([^\s].+)$/);
       if (m && m.length >= 4) {
@@ -158,72 +183,85 @@ PgpWkdHandler.prototype = {
       }
     }
 
-    let o = {};
     s = s.substr(0, s.length - 1) + "}";
 
     return s;
   },
 
   // return data to libMime
-  returnData: function(message) {
+  returnData(message) {
     EnigmailLog.DEBUG("wksMimeHandler.jsm: returnData():\n");
 
-    let msg = 'Content-Type: text/plain; charset="utf-8"\r\n' +
-      'Content-Transfer-Encoding: 8bit\r\n\r\n' +
-      message + '\r\n';
+    let msg =
+      'Content-Type: text/plain; charset="utf-8"\r\n' +
+      "Content-Transfer-Encoding: 8bit\r\n\r\n" +
+      message +
+      "\r\n";
 
     if ("outputDecryptedData" in this.mimeSvc) {
       this.mimeSvc.outputDecryptedData(msg, msg.length);
-    }
-    else {
-      let gConv = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+    } else {
+      let gConv = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+        Ci.nsIStringInputStream
+      );
       gConv.setData(msg, msg.length);
       try {
         this.mimeSvc.onStartRequest(null);
         this.mimeSvc.onDataAvailable(null, gConv, 0, msg.length);
         this.mimeSvc.onStopRequest(null, 0);
-      }
-      catch (ex) {
-        EnigmailLog.ERROR("wksMimeHandler.jsm: returnData(): mimeSvc.onDataAvailable failed:\n" + ex.toString());
+      } catch (ex) {
+        EnigmailLog.ERROR(
+          "wksMimeHandler.jsm: returnData(): mimeSvc.onDataAvailable failed:\n" +
+            ex.toString()
+        );
       }
     }
   },
 
-  displayStatus: function(jsonStr) {
+  displayStatus(jsonStr) {
     EnigmailLog.DEBUG("wksMimeHandler.jsm: displayStatus\n");
-    if (this.msgWindow === null || this.backgroundJob)
+    if (this.msgWindow === null || this.backgroundJob) {
       return;
+    }
 
     try {
       LOCAL_DEBUG("wksMimeHandler.jsm: displayStatus displaying result\n");
       let headerSink = EnigmailSingletons.messageReader;
 
       if (headerSink) {
-        headerSink.processDecryptionResult(this.uri, "wksConfirmRequest", jsonStr, this.mimePartNumber);
+        headerSink.processDecryptionResult(
+          this.uri,
+          "wksConfirmRequest",
+          jsonStr,
+          this.mimePartNumber
+        );
       }
-
-    }
-    catch (ex) {
+    } catch (ex) {
       EnigmailLog.writeException("wksMimeHandler.jsm", ex);
     }
-  }
+  },
 };
-
 
 ////////////////////////////////////////////////////////////////////
 // General-purpose functions, not exported
 
 function LOCAL_DEBUG(str) {
-  if (gDebugLog) EnigmailLog.DEBUG(str);
+  if (gDebugLog) {
+    EnigmailLog.DEBUG(str);
+  }
 }
 
 function initModule() {
-  var env = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
+  var env = Cc["@mozilla.org/process/environment;1"].getService(
+    Ci.nsIEnvironment
+  );
   var nspr_log_modules = env.get("NSPR_LOG_MODULES");
   var matches = nspr_log_modules.match(/wksMimeHandler:(\d+)/);
 
-  if (matches && (matches.length > 1)) {
-    if (matches[1] > 2) gDebugLog = true;
+  if (matches && matches.length > 1) {
+    if (matches[1] > 2) {
+      gDebugLog = true;
+    }
   }
 }
 

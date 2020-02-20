@@ -8,22 +8,27 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailVerifyAttachment"];
 
-
-
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
-const EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
-
-
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailFiles = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+).EnigmailFiles;
+const EnigmailCryptoAPI = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+).EnigmailCryptoAPI;
 
 var EnigmailVerifyAttachment = {
-  attachment: function(verifyFile, sigFile) {
+  attachment(verifyFile, sigFile) {
     EnigmailLog.DEBUG("verify.jsm: EnigmailVerifyAttachment.attachment:\n");
 
-    const verifyFilePath = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(verifyFile.QueryInterface(Ci.nsIFile)));
-    const sigFilePath = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(sigFile.QueryInterface(Ci.nsIFile)));
+    const verifyFilePath = EnigmailFiles.getEscapedFilename(
+      EnigmailFiles.getFilePathReadonly(verifyFile.QueryInterface(Ci.nsIFile))
+    );
+    const sigFilePath = EnigmailFiles.getEscapedFilename(
+      EnigmailFiles.getFilePathReadonly(sigFile.QueryInterface(Ci.nsIFile))
+    );
     const cApi = EnigmailCryptoAPI();
     return cApi.verifyAttachment(verifyFilePath, sigFilePath);
-
-  }
+  },
 };

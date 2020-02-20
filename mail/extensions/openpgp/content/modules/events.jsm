@@ -4,13 +4,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailEvents"];
 
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailTimer = ChromeUtils.import("chrome://openpgp/content/modules/timer.jsm").EnigmailTimer;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailTimer = ChromeUtils.import(
+  "chrome://openpgp/content/modules/timer.jsm"
+).EnigmailTimer;
 
 /**** DEPRECATED - use EnigmailTimer instead *****/
 
@@ -23,11 +26,13 @@ var EnigmailEvents = {
    *                             (0 if not specified)
    * @arrayOfArgs:      Array - arguments to pass to callbackFunction
    */
-  dispatchEvent: function(callbackFunction, sleepTimeMs, arrayOfArgs) {
-    EnigmailLog.DEBUG("enigmailCommon.jsm: dispatchEvent f=" + callbackFunction.name + "\n");
+  dispatchEvent(callbackFunction, sleepTimeMs, arrayOfArgs) {
+    EnigmailLog.DEBUG(
+      "enigmailCommon.jsm: dispatchEvent f=" + callbackFunction.name + "\n"
+    );
 
     return EnigmailTimer.setTimeout(() => {
       callbackFunction(arrayOfArgs);
     }, sleepTimeMs);
-  }
+  },
 };

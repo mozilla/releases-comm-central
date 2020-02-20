@@ -4,14 +4,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailArmor"];
 
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-
+const EnigmailConstants = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+).EnigmailConstants;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
 
 // Locates STRing in TEXT occurring only at the beginning of a line
 function indexOfArmorDelimiter(text, str, offset) {
@@ -34,18 +36,16 @@ function searchBlankLine(str, then) {
   var offset = str.search(/\n\s*\r?\n/);
   if (offset === -1) {
     return "";
-  } else {
-    return then(offset);
   }
+  return then(offset);
 }
 
 function indexOfNewline(str, off, then) {
   var offset = str.indexOf("\n", off);
   if (offset === -1) {
     return "";
-  } else {
-    return then(offset);
   }
+  return then(offset);
 }
 
 var EnigmailArmor = {
@@ -63,13 +63,30 @@ var EnigmailArmor = {
    * @return String - type of block found (e.g. MESSAGE, PUBLIC KEY)
    *           If no block is found, an empty String is returned;
    */
-  locateArmoredBlock: function(text, offset, indentStr, beginIndexObj, endIndexObj, indentStrObj) {
-    EnigmailLog.DEBUG("armor.jsm: Enigmail.locateArmoredBlock: " + offset + ", '" + indentStr + "'\n");
+  locateArmoredBlock(
+    text,
+    offset,
+    indentStr,
+    beginIndexObj,
+    endIndexObj,
+    indentStrObj
+  ) {
+    EnigmailLog.DEBUG(
+      "armor.jsm: Enigmail.locateArmoredBlock: " +
+        offset +
+        ", '" +
+        indentStr +
+        "'\n"
+    );
 
     beginIndexObj.value = -1;
     endIndexObj.value = -1;
 
-    var beginIndex = indexOfArmorDelimiter(text, indentStr + "-----BEGIN PGP ", offset);
+    var beginIndex = indexOfArmorDelimiter(
+      text,
+      indentStr + "-----BEGIN PGP ",
+      offset
+    );
 
     if (beginIndex == -1) {
       var blockStart = text.indexOf("-----BEGIN PGP ");
@@ -77,23 +94,34 @@ var EnigmailArmor = {
         var indentStart = text.search(/\n.*-----BEGIN PGP /) + 1;
         indentStrObj.value = text.substring(indentStart, blockStart);
         indentStr = indentStrObj.value;
-        beginIndex = indexOfArmorDelimiter(text, indentStr + "-----BEGIN PGP ", offset);
+        beginIndex = indexOfArmorDelimiter(
+          text,
+          indentStr + "-----BEGIN PGP ",
+          offset
+        );
       }
     }
 
-    if (beginIndex == -1)
+    if (beginIndex == -1) {
       return "";
+    }
 
     // Locate newline at end of armor header
     offset = text.indexOf("\n", beginIndex);
 
-    if (offset == -1)
+    if (offset == -1) {
       return "";
+    }
 
-    var endIndex = indexOfArmorDelimiter(text, indentStr + "-----END PGP ", offset);
+    var endIndex = indexOfArmorDelimiter(
+      text,
+      indentStr + "-----END PGP ",
+      offset
+    );
 
-    if (endIndex == -1)
+    if (endIndex == -1) {
       return "";
+    }
 
     // Locate newline at end of PGP block
     endIndex = text.indexOf("\n", endIndex);
@@ -105,20 +133,30 @@ var EnigmailArmor = {
 
     var blockHeader = text.substr(beginIndex, offset - beginIndex + 1);
 
-    var blockRegex = new RegExp("^" + indentStr +
-      "-----BEGIN PGP (.{1,30})-----\\s*\\r?\\n");
+    var blockRegex = new RegExp(
+      "^" + indentStr + "-----BEGIN PGP (.{1,30})-----\\s*\\r?\\n"
+    );
 
     var matches = blockHeader.match(blockRegex);
 
     var blockType = "";
-    if (matches && (matches.length > 1)) {
+    if (matches && matches.length > 1) {
       blockType = matches[1];
-      EnigmailLog.DEBUG("armor.jsm: Enigmail.locateArmoredBlock: blockType=" + blockType + "\n");
+      EnigmailLog.DEBUG(
+        "armor.jsm: Enigmail.locateArmoredBlock: blockType=" + blockType + "\n"
+      );
     }
 
     if (blockType == "UNVERIFIED MESSAGE") {
       // Skip any unverified message block
-      return EnigmailArmor.locateArmoredBlock(text, endIndex + 1, indentStr, beginIndexObj, endIndexObj, indentStrObj);
+      return EnigmailArmor.locateArmoredBlock(
+        text,
+        endIndex + 1,
+        indentStr,
+        beginIndexObj,
+        endIndexObj,
+        indentStrObj
+      );
     }
 
     beginIndexObj.value = beginIndex;
@@ -140,7 +178,7 @@ var EnigmailArmor = {
    *
    *       if no block was found, an empty array is returned
    */
-  locateArmoredBlocks: function(text) {
+  locateArmoredBlocks(text) {
     var beginObj = {};
     var endObj = {};
     var indentStrObj = {};
@@ -148,40 +186,60 @@ var EnigmailArmor = {
     var i = 0;
     var b;
 
-    while ((b = EnigmailArmor.locateArmoredBlock(text, i, "", beginObj, endObj, indentStrObj)) !== "") {
+    while (
+      (b = EnigmailArmor.locateArmoredBlock(
+        text,
+        i,
+        "",
+        beginObj,
+        endObj,
+        indentStrObj
+      )) !== ""
+    ) {
       blocks.push({
         begin: beginObj.value,
         end: endObj.value,
         indent: indentStrObj.value ? indentStrObj.value : "",
-        blocktype: b
+        blocktype: b,
       });
 
       i = endObj.value;
     }
 
-    EnigmailLog.DEBUG("armor.jsm: locateArmorBlocks: Found " + blocks.length + " Blocks\n");
+    EnigmailLog.DEBUG(
+      "armor.jsm: locateArmorBlocks: Found " + blocks.length + " Blocks\n"
+    );
     return blocks;
   },
 
-  extractSignaturePart: function(signatureBlock, part) {
-    EnigmailLog.DEBUG("armor.jsm: Enigmail.extractSignaturePart: part=" + part + "\n");
+  extractSignaturePart(signatureBlock, part) {
+    EnigmailLog.DEBUG(
+      "armor.jsm: Enigmail.extractSignaturePart: part=" + part + "\n"
+    );
 
     return searchBlankLine(signatureBlock, function(offset) {
       return indexOfNewline(signatureBlock, offset + 1, function(offset) {
-        var beginIndex = signatureBlock.indexOf("-----BEGIN PGP SIGNATURE-----", offset + 1);
+        var beginIndex = signatureBlock.indexOf(
+          "-----BEGIN PGP SIGNATURE-----",
+          offset + 1
+        );
         if (beginIndex == -1) {
           return "";
         }
 
         if (part === EnigmailConstants.SIGNATURE_TEXT) {
-          return signatureBlock.substr(offset + 1, beginIndex - offset - 1).
-          replace(/^- -/, "-").
-          replace(/\n- -/g, "\n-").
-          replace(/\r- -/g, "\r-");
+          return signatureBlock
+            .substr(offset + 1, beginIndex - offset - 1)
+            .replace(/^- -/, "-")
+            .replace(/\n- -/g, "\n-")
+            .replace(/\r- -/g, "\r-");
         }
 
         return indexOfNewline(signatureBlock, beginIndex, function(offset) {
-          var endIndex = signatureBlock.indexOf("-----END PGP SIGNATURE-----", offset);
+          var endIndex = signatureBlock.indexOf(
+            "-----END PGP SIGNATURE-----",
+            offset
+          );
           if (endIndex == -1) {
             return "";
           }
@@ -193,13 +251,15 @@ var EnigmailArmor = {
               return signBlock.substr(1, armorIndex);
             }
 
-            return indexOfNewline(signBlock, armorIndex + 1, function(armorIndex) {
+            return indexOfNewline(signBlock, armorIndex + 1, function(
+              armorIndex
+            ) {
               if (part == EnigmailConstants.SIGNATURE_ARMOR) {
-                return signBlock.substr(armorIndex, endIndex - armorIndex).
-                replace(/\s*/g, "");
-              } else {
-                return "";
+                return signBlock
+                  .substr(armorIndex, endIndex - armorIndex)
+                  .replace(/\s*/g, "");
               }
+              return "";
             });
           });
         });
@@ -216,12 +276,13 @@ var EnigmailArmor = {
    *
    * @return String - new armored message
    */
-  replaceArmorHeaders: function(armorText, headers) {
-
+  replaceArmorHeaders(armorText, headers) {
     let text = armorText.replace(/\r\n/g, "\n");
     let i = text.search(/\n/);
 
-    if (i < 0) return armorText;
+    if (i < 0) {
+      return armorText;
+    }
     let m = text.substr(0, i + 1);
 
     for (let j in headers) {
@@ -229,7 +290,9 @@ var EnigmailArmor = {
     }
 
     i = text.search(/\n\n/);
-    if (i < 0) return armorText;
+    if (i < 0) {
+      return armorText;
+    }
     m += text.substr(i + 1);
 
     return m;
@@ -242,7 +305,7 @@ var EnigmailArmor = {
    *
    * @return Object: key/value pairs of headers. All keys are in lowercase.
    */
-  getArmorHeaders: function(text) {
+  getArmorHeaders(text) {
     let headers = {};
     let b = this.locateArmoredBlocks(text);
 
@@ -254,7 +317,9 @@ var EnigmailArmor = {
 
     let lx = new RegExp("\\n" + b[0].indent + "\\r?\\n");
     let hdrEnd = msg.search(lx);
-    if (hdrEnd < 0) return headers;
+    if (hdrEnd < 0) {
+      return headers;
+    }
 
     let lines = msg.substr(0, hdrEnd).split(/\r?\n/);
 
@@ -273,7 +338,7 @@ var EnigmailArmor = {
   /**
    * Split armored blocks into an array of strings
    */
-  splitArmoredBlocks: function(keyBlockStr) {
+  splitArmoredBlocks(keyBlockStr) {
     let myRe = /-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/g;
     let myArray;
     let retArr = [];
@@ -289,5 +354,5 @@ var EnigmailArmor = {
     retArr.push(keyBlockStr.substring(startIndex));
 
     return retArr;
-  }
+  },
 };

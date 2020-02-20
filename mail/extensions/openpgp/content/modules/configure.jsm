@@ -8,23 +8,45 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailConfigure"];
 
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-const EnigmailTimer = ChromeUtils.import("chrome://openpgp/content/modules/timer.jsm").EnigmailTimer;
-const EnigmailApp = ChromeUtils.import("chrome://openpgp/content/modules/app.jsm").EnigmailApp;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailDialog = ChromeUtils.import("chrome://openpgp/content/modules/dialog.jsm").EnigmailDialog;
-const EnigmailWindows = ChromeUtils.import("chrome://openpgp/content/modules/windows.jsm").EnigmailWindows;
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailStdlib = ChromeUtils.import("chrome://openpgp/content/modules/stdlib.jsm").EnigmailStdlib;
-const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
-const EnigmailAutoSetup = ChromeUtils.import("chrome://openpgp/content/modules/autoSetup.jsm").EnigmailAutoSetup;
-const EnigmailSqliteDb = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb.jsm").EnigmailSqliteDb;
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
-// Interfaces
-const nsIFolderLookupService = Ci.nsIFolderLookupService;
-const nsIMsgAccountManager = Ci.nsIMsgAccountManager;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailPrefs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+).EnigmailPrefs;
+const EnigmailTimer = ChromeUtils.import(
+  "chrome://openpgp/content/modules/timer.jsm"
+).EnigmailTimer;
+const EnigmailApp = ChromeUtils.import(
+  "chrome://openpgp/content/modules/app.jsm"
+).EnigmailApp;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailDialog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/dialog.jsm"
+).EnigmailDialog;
+const EnigmailWindows = ChromeUtils.import(
+  "chrome://openpgp/content/modules/windows.jsm"
+).EnigmailWindows;
+const EnigmailConstants = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+).EnigmailConstants;
+const EnigmailCore = ChromeUtils.import(
+  "chrome://openpgp/content/modules/core.jsm"
+).EnigmailCore;
+const EnigmailStdlib = ChromeUtils.import(
+  "chrome://openpgp/content/modules/stdlib.jsm"
+).EnigmailStdlib;
+const EnigmailLazy = ChromeUtils.import(
+  "chrome://openpgp/content/modules/lazy.jsm"
+).EnigmailLazy;
+const EnigmailAutoSetup = ChromeUtils.import(
+  "chrome://openpgp/content/modules/autoSetup.jsm"
+).EnigmailAutoSetup;
 
 /**
  * Upgrade sending prefs
@@ -36,7 +58,15 @@ function upgradePrefsSending() {
   var cbs = EnigmailPrefs.getPref("confirmBeforeSend");
   var ats = EnigmailPrefs.getPref("alwaysTrustSend");
   var ksfr = EnigmailPrefs.getPref("keepSettingsForReply");
-  EnigmailLog.DEBUG("enigmailCommon.jsm: upgradePrefsSending cbs=" + cbs + " ats=" + ats + " ksfr=" + ksfr + "\n");
+  EnigmailLog.DEBUG(
+    "enigmailCommon.jsm: upgradePrefsSending cbs=" +
+      cbs +
+      " ats=" +
+      ats +
+      " ksfr=" +
+      ksfr +
+      "\n"
+  );
 
   // Upgrade confirmBeforeSend (bool) to confirmBeforeSending (int)
   switch (cbs) {
@@ -61,11 +91,14 @@ function upgradePrefsSending() {
   // if all settings are default settings, use convenient encryption
   if (cbs === false && ats === true && ksfr === true) {
     EnigmailPrefs.setPref("encryptionModel", 0); // convenient
-    EnigmailLog.DEBUG("enigmailCommon.jsm: upgradePrefsSending() encryptionModel=0 (convenient)\n");
-  }
-  else {
+    EnigmailLog.DEBUG(
+      "enigmailCommon.jsm: upgradePrefsSending() encryptionModel=0 (convenient)\n"
+    );
+  } else {
     EnigmailPrefs.setPref("encryptionModel", 1); // manually
-    EnigmailLog.DEBUG("enigmailCommon.jsm: upgradePrefsSending() encryptionModel=1 (manually)\n");
+    EnigmailLog.DEBUG(
+      "enigmailCommon.jsm: upgradePrefsSending() encryptionModel=1 (manually)\n"
+    );
   }
 
   // clear old prefs
@@ -79,50 +112,58 @@ function upgradePrefsSending() {
  */
 function replaceKeyIdWithFpr() {
   try {
-    const GetKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
+    const GetKeyRing = EnigmailLazy.loader(
+      "enigmail/keyRing.jsm",
+      "EnigmailKeyRing"
+    );
 
-    var accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+    var accountManager = Cc[
+      "@mozilla.org/messenger/account-manager;1"
+    ].getService(Ci.nsIMsgAccountManager);
     for (var i = 0; i < accountManager.allIdentities.length; i++) {
-      var id = accountManager.allIdentities.queryElementAt(i, Ci.nsIMsgIdentity);
+      var id = accountManager.allIdentities.queryElementAt(
+        i,
+        Ci.nsIMsgIdentity
+      );
       if (id.getBoolAttribute("enablePgp")) {
         let keyId = id.getCharAttribute("pgpkeyId");
 
         if (keyId.search(/^(0x)?[a-fA-F0-9]{8}$/) === 0) {
-
           EnigmailCore.getService();
 
           let k = GetKeyRing().getKeyById(keyId);
           if (k) {
             id.setCharAttribute("pgpkeyId", "0x" + k.fpr);
-          }
-          else {
+          } else {
             id.setCharAttribute("pgpkeyId", "");
           }
         }
       }
     }
-  }
-  catch (ex) {
+  } catch (ex) {
     EnigmailDialog.alert("config upgrade: error" + ex.toString());
   }
 }
-
 
 /**
  * Change the default to PGP/MIME for all accounts, except nntp
  * (v1.8.x -> v1.9)
  */
 function defaultPgpMime() {
-  let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+  let accountManager = Cc[
+    "@mozilla.org/messenger/account-manager;1"
+  ].getService(Ci.nsIMsgAccountManager);
   let changedSomething = false;
 
   for (let acct = 0; acct < accountManager.accounts.length; acct++) {
     let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
     if (ac.incomingServer.type.search(/(pop3|imap|movemail)/) >= 0) {
-
       for (let i = 0; i < ac.identities.length; i++) {
         let id = ac.identities.queryElementAt(i, Ci.nsIMsgIdentity);
-        if (id.getBoolAttribute("enablePgp") && !id.getBoolAttribute("pgpMimeMode")) {
+        if (
+          id.getBoolAttribute("enablePgp") &&
+          !id.getBoolAttribute("pgpMimeMode")
+        ) {
           changedSomething = true;
         }
         id.setBoolAttribute("pgpMimeMode", true);
@@ -131,8 +172,10 @@ function defaultPgpMime() {
   }
 
   if (EnigmailPrefs.getPref("advancedUser") && changedSomething) {
-    EnigmailDialog.alert(null,
-      EnigmailLocale.getString("preferences.defaultToPgpMime"));
+    EnigmailDialog.alert(
+      null,
+      EnigmailLocale.getString("preferences.defaultToPgpMime")
+    );
   }
 }
 
@@ -142,8 +185,9 @@ function defaultPgpMime() {
  */
 function setAutocryptForOldAccounts() {
   try {
-    let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
-    let changedSomething = false;
+    let accountManager = Cc[
+      "@mozilla.org/messenger/account-manager;1"
+    ].getService(Ci.nsIMsgAccountManager);
 
     for (let acct = 0; acct < accountManager.accounts.length; acct++) {
       let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
@@ -151,8 +195,7 @@ function setAutocryptForOldAccounts() {
         ac.incomingServer.setIntValue("acPreferEncrypt", 1);
       }
     }
-  }
-  catch (ex) {}
+  } catch (ex) {}
 }
 
 function setDefaultKeyServer() {
@@ -168,16 +211,12 @@ function setDefaultKeyServer() {
   EnigmailPrefs.setPref("keyserver", ks);
 }
 
-
-
 function displayUpgradeInfo() {
   EnigmailLog.DEBUG("configure.jsm: displayUpgradeInfo()\n");
   try {
     EnigmailWindows.openMailTab("chrome://openpgp/content/ui/upgradeInfo.html");
-  }
-  catch (ex) {}
+  } catch (ex) {}
 }
-
 
 var EnigmailConfigure = {
   /**
@@ -191,44 +230,43 @@ var EnigmailConfigure = {
    *
    * @return {Promise<null>}
    */
-  configureEnigmail: async function(win, startingPreferences) {
+  async configureEnigmail(win, startingPreferences) {
     EnigmailLog.DEBUG("configure.jsm: configureEnigmail()\n");
 
     if (!EnigmailStdlib.hasConfiguredAccounts()) {
-      EnigmailLog.DEBUG("configure.jsm: configureEnigmail: no account configured. Waiting 60 seconds.\n");
+      EnigmailLog.DEBUG(
+        "configure.jsm: configureEnigmail: no account configured. Waiting 60 seconds.\n"
+      );
 
       // try again in 60 seconds
-      EnigmailTimer.setTimeout(
-        function _f() {
-          EnigmailConfigure.configureEnigmail(win, startingPreferences);
-        },
-        60000);
+      EnigmailTimer.setTimeout(function() {
+        EnigmailConfigure.configureEnigmail(win, startingPreferences);
+      }, 60000);
       return;
     }
 
     let oldVer = EnigmailPrefs.getPref("configuredVersion");
 
-    let vc = Cc["@mozilla.org/xpcom/version-comparator;1"].getService(Ci.nsIVersionComparator);
-
     if (oldVer === "") {
       try {
-        let setupResult = await EnigmailAutoSetup.determinePreviousInstallType();
+        await EnigmailAutoSetup.determinePreviousInstallType();
 
         switch (EnigmailAutoSetup.value) {
           case EnigmailConstants.AUTOSETUP_NOT_INITIALIZED:
           case EnigmailConstants.AUTOSETUP_NO_ACCOUNT:
             break;
           default:
-            EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
+            EnigmailPrefs.setPref(
+              "configuredVersion",
+              EnigmailApp.getVersion()
+            );
             EnigmailWindows.openSetupWizard(win);
         }
-      }
-      catch(x) {
+      } catch (x) {
         // ignore exceptions and proceed without setup wizard
       }
-    }
-    else {
-      if (vc.compare(oldVer, "1.7a1pre") < 0) {
+    } else {
+      if (Services.vc.compare(oldVer, "1.7a1pre") < 0) {
         // 1: rules only
         //     => assignKeysByRules true; rest false
         // 2: rules & email addresses (normal)
@@ -242,60 +280,66 @@ var EnigmailConfigure = {
 
         upgradePrefsSending();
       }
-      if (vc.compare(oldVer, "1.7") < 0) {
+      if (Services.vc.compare(oldVer, "1.7") < 0) {
         // open a modal dialog. Since this might happen during the opening of another
         // window, we have to do this asynchronously
-        EnigmailTimer.setTimeout(
-          function _cb() {
-            var doIt = EnigmailDialog.confirmDlg(win,
-              EnigmailLocale.getString("enigmailCommon.versionSignificantlyChanged"),
-              EnigmailLocale.getString("enigmailCommon.checkPreferences"),
-              EnigmailLocale.getString("dlg.button.close"));
-            if (!startingPreferences && doIt) {
-              // same as:
-              // - EnigmailWindows.openPrefWindow(window, true, 'sendingTab');
-              // but
-              // - without starting the service again because we do that right now
-              // - and modal (waiting for its end)
-              win.openDialog("chrome://openpgp/content/ui/pref-enigmail.xhtml",
-                "_blank", "chrome,resizable=yes,modal", {
-                  'showBasic': true,
-                  'clientType': 'thunderbird',
-                  'selectTab': 'sendingTab'
-                });
-            }
-          }, 100);
+        EnigmailTimer.setTimeout(function() {
+          var doIt = EnigmailDialog.confirmDlg(
+            win,
+            EnigmailLocale.getString(
+              "enigmailCommon.versionSignificantlyChanged"
+            ),
+            EnigmailLocale.getString("enigmailCommon.checkPreferences"),
+            EnigmailLocale.getString("dlg.button.close")
+          );
+          if (!startingPreferences && doIt) {
+            // same as:
+            // - EnigmailWindows.openPrefWindow(window, true, 'sendingTab');
+            // but
+            // - without starting the service again because we do that right now
+            // - and modal (waiting for its end)
+            win.openDialog(
+              "chrome://openpgp/content/ui/pref-enigmail.xhtml",
+              "_blank",
+              "chrome,resizable=yes,modal",
+              {
+                showBasic: true,
+                clientType: "thunderbird",
+                selectTab: "sendingTab",
+              }
+            );
+          }
+        }, 100);
       }
 
-      if (vc.compare(oldVer, "1.9a2pre") < 0) {
+      if (Services.vc.compare(oldVer, "1.9a2pre") < 0) {
         defaultPgpMime();
       }
-      if (vc.compare(oldVer, "2.0a1pre") < 0) {
+      if (Services.vc.compare(oldVer, "2.0a1pre") < 0) {
         this.upgradeTo20();
       }
-      if (vc.compare(oldVer, "2.0.1a2pre") < 0) {
+      if (Services.vc.compare(oldVer, "2.0.1a2pre") < 0) {
         this.upgradeTo201();
       }
-      if (vc.compare(oldVer, "2.1b2") < 0) {
+      if (Services.vc.compare(oldVer, "2.1b2") < 0) {
         this.upgradeTo21();
       }
-
     }
 
     EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
     EnigmailPrefs.savePrefs();
   },
 
-  upgradeTo20: function() {
+  upgradeTo20() {
     replaceKeyIdWithFpr();
     displayUpgradeInfo();
   },
 
-  upgradeTo201: function() {
+  upgradeTo201() {
     setAutocryptForOldAccounts();
   },
 
-  upgradeTo21: function() {
+  upgradeTo21() {
     setDefaultKeyServer();
-  }
+  },
 };

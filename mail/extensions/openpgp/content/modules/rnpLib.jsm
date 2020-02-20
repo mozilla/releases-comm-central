@@ -109,7 +109,7 @@ function enableRNPLibJS() {
     path: librnpPath,
 
     ffi: null,
-    
+
     getFilenames() {
       let names = {};
 
@@ -117,21 +117,21 @@ function enableRNPLibJS() {
       secFile.append("secring.gpg");
       let pubFile = EnigmailApp.getProfileDirectory();
       pubFile.append("pubring.gpg");
-      
+
       names.secring = secFile.path;
       names.pubring = pubFile.path;
 
       return names;
     },
-    
+
     init() {
       console.log("===> RNPLib.init()\n");
 
-      this.ffi = new rnp_ffi_t;
+      this.ffi = new rnp_ffi_t();
       if (this.rnp_ffi_create(this.ffi.address(), "GPG", "GPG")) {
         throw new Error("Couldn't initialize librnp.");
       }
-      
+
       this.rnp_ffi_set_log_fd(this.ffi, 2); // stderr
 
       this.keep_password_cb_alive = rnp_password_cb_t(
@@ -147,7 +147,7 @@ function enableRNPLibJS() {
 
       let filenames = this.getFilenames();
 
-      let input_from_path = new rnp_input_t;
+      let input_from_path = new rnp_input_t();
       this.rnp_input_from_path(input_from_path.address(), filenames.pubring);
       this.rnp_load_keys(
         this.ffi,
@@ -157,7 +157,7 @@ function enableRNPLibJS() {
       );
       this.rnp_input_destroy(input_from_path);
 
-      let in2 = new rnp_input_t;
+      let in2 = new rnp_input_t();
 
       this.rnp_input_from_path(in2.address(), filenames.secring);
       this.rnp_load_keys(this.ffi, "GPG", in2, this.RNP_LOAD_SAVE_SECRET_KEYS);
@@ -166,10 +166,10 @@ function enableRNPLibJS() {
       input_from_path = null;
       in2 = null;
 
-      let pubnum = new ctypes.size_t;
+      let pubnum = new ctypes.size_t();
       this.rnp_get_public_key_count(this.ffi, pubnum.address());
 
-      let secnum = new ctypes.size_t;
+      let secnum = new ctypes.size_t();
       this.rnp_get_secret_key_count(this.ffi, secnum.address());
 
       console.log("public keys: " + pubnum + ", secret keys: " + secnum);
@@ -184,25 +184,43 @@ function enableRNPLibJS() {
       */
       return true;
     },
-    
+
     saveKeys() {
       let filenames = this.getFilenames();
 
-      let rv;
-      let output_to_path = new rnp_output_t;
-      rv = this.rnp_output_to_path(output_to_path.address(), filenames.pubring);
-      rv = this.rnp_save_keys(
-        this.ffi,
-        "GPG",
-        output_to_path,
-        this.RNP_LOAD_SAVE_PUBLIC_KEYS
-      );
+      let output_to_path = new rnp_output_t();
+      if (
+        this.rnp_output_to_path(output_to_path.address(), filenames.pubring)
+      ) {
+        throw new Error("rnp_output_to_path failed");
+      }
+      if (
+        this.rnp_save_keys(
+          this.ffi,
+          "GPG",
+          output_to_path,
+          this.RNP_LOAD_SAVE_PUBLIC_KEYS
+        )
+      ) {
+        throw new Error("rnp_save_keys failed");
+      }
       this.rnp_output_destroy(output_to_path);
 
-      let out2 = new rnp_output_t;
+      let out2 = new rnp_output_t();
 
-      rv = this.rnp_output_to_path(out2.address(), filenames.secring);
-      rv = this.rnp_save_keys(this.ffi, "GPG", out2, this.RNP_LOAD_SAVE_SECRET_KEYS);
+      if (this.rnp_output_to_path(out2.address(), filenames.secring)) {
+        throw new Error("rnp_output_to_path failed");
+      }
+      if (
+        this.rnp_save_keys(
+          this.ffi,
+          "GPG",
+          out2,
+          this.RNP_LOAD_SAVE_SECRET_KEYS
+        )
+      ) {
+        throw new Error("rnp_save_keys failed");
+      }
       this.rnp_output_destroy(out2);
 
       output_to_path = null;
@@ -216,7 +234,7 @@ function enableRNPLibJS() {
         "in RNPLib.password_cb, context: " + pgp_context.readString()
       );
       console.log("max_len: " + buf_len);
-      
+
       let pass = OpenPGPMasterpass.retrieveOpenPGPPassword();
       var passCTypes = ctypes.char.array()(pass); // UTF-8
       let passLen = passCTypes.length;
@@ -252,7 +270,7 @@ function enableRNPLibJS() {
       rnp_result_t,
       rnp_ffi_t
     ),
-    
+
     rnp_ffi_set_log_fd: librnp.declare(
       "rnp_ffi_set_log_fd",
       abi,
@@ -372,7 +390,7 @@ function enableRNPLibJS() {
       rnp_password_cb_t,
       ctypes.void_t.ptr
     ),
-    
+
     rnp_identifier_iterator_create: librnp.declare(
       "rnp_identifier_iterator_create",
       abi,
@@ -389,14 +407,14 @@ function enableRNPLibJS() {
       rnp_identifier_iterator_t,
       ctypes.char.ptr.ptr
     ),
-    
+
     rnp_identifier_iterator_destroy: librnp.declare(
       "rnp_identifier_iterator_destroy",
       abi,
       rnp_result_t,
       rnp_identifier_iterator_t
     ),
-    
+
     rnp_locate_key: librnp.declare(
       "rnp_locate_key",
       abi,
@@ -406,14 +424,14 @@ function enableRNPLibJS() {
       ctypes.char.ptr,
       rnp_key_handle_t.ptr
     ),
-    
+
     rnp_key_handle_destroy: librnp.declare(
       "rnp_key_handle_destroy",
       abi,
       rnp_result_t,
       rnp_key_handle_t
     ),
-    
+
     rnp_key_allows_usage: librnp.declare(
       "rnp_key_allows_usage",
       abi,
@@ -422,7 +440,7 @@ function enableRNPLibJS() {
       ctypes.char.ptr,
       ctypes.bool.ptr
     ),
-    
+
     rnp_key_is_sub: librnp.declare(
       "rnp_key_is_sub",
       abi,
@@ -454,7 +472,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       ctypes.bool.ptr
     ),
-    
+
     rnp_key_get_fprint: librnp.declare(
       "rnp_key_get_fprint",
       abi,
@@ -470,7 +488,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       ctypes.char.ptr.ptr
     ),
-    
+
     rnp_key_get_alg: librnp.declare(
       "rnp_key_get_alg",
       abi,
@@ -494,7 +512,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       ctypes.char.ptr.ptr
     ),
-    
+
     rnp_key_is_revoked: librnp.declare(
       "rnp_key_is_revoked",
       abi,
@@ -503,13 +521,13 @@ function enableRNPLibJS() {
       ctypes.bool.ptr
     ),
 
-   rnp_buffer_destroy: librnp.declare(
+    rnp_buffer_destroy: librnp.declare(
       "rnp_buffer_destroy",
       abi,
       ctypes.void_t,
       ctypes.void_t.ptr
     ),
-    
+
     rnp_key_get_subkey_count: librnp.declare(
       "rnp_key_get_subkey_count",
       abi,
@@ -517,7 +535,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       ctypes.size_t.ptr
     ),
-    
+
     rnp_key_get_subkey_at: librnp.declare(
       "rnp_key_get_subkey_at",
       abi,
@@ -526,7 +544,7 @@ function enableRNPLibJS() {
       ctypes.size_t,
       rnp_key_handle_t.ptr
     ),
-    
+
     rnp_key_get_creation: librnp.declare(
       "rnp_key_get_creation",
       abi,
@@ -599,7 +617,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       ctypes.char.ptr
     ),
-    
+
     rnp_key_lock: librnp.declare(
       "rnp_key_lock",
       abi,
@@ -615,7 +633,7 @@ function enableRNPLibJS() {
       rnp_ffi_t,
       ctypes.char.ptr
     ),
-    
+
     rnp_op_generate_subkey_create: librnp.declare(
       "rnp_op_generate_subkey_create",
       abi,
@@ -625,7 +643,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       ctypes.char.ptr
     ),
-    
+
     rnp_op_generate_set_bits: librnp.declare(
       "rnp_op_generate_set_bits",
       abi,
@@ -670,7 +688,7 @@ function enableRNPLibJS() {
       "rnp_op_generate_execute",
       abi,
       rnp_result_t,
-      rnp_op_generate_t,
+      rnp_op_generate_t
     ),
 
     rnp_op_generate_get_key: librnp.declare(
@@ -685,9 +703,9 @@ function enableRNPLibJS() {
       "rnp_op_generate_destroy",
       abi,
       rnp_result_t,
-      rnp_op_generate_t,
+      rnp_op_generate_t
     ),
-    
+
     rnp_import_keys: librnp.declare(
       "rnp_import_keys",
       abi,
@@ -697,7 +715,7 @@ function enableRNPLibJS() {
       ctypes.uint32_t,
       ctypes.char.ptr.ptr
     ),
-    
+
     rnp_key_remove: librnp.declare(
       "rnp_key_remove",
       abi,
@@ -705,7 +723,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       ctypes.uint32_t
     ),
-    
+
     rnp_op_encrypt_create: librnp.declare(
       "rnp_op_encrypt_create",
       abi,
@@ -735,7 +753,7 @@ function enableRNPLibJS() {
       rnp_input_t,
       rnp_output_t
     ),
-        
+
     rnp_op_encrypt_add_recipient: librnp.declare(
       "rnp_op_encrypt_add_recipient",
       abi,
@@ -743,7 +761,7 @@ function enableRNPLibJS() {
       rnp_op_encrypt_t,
       rnp_key_handle_t
     ),
-    
+
     rnp_op_encrypt_add_signature: librnp.declare(
       "rnp_op_encrypt_add_signature",
       abi,
@@ -752,7 +770,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       rnp_op_sign_signature_t.ptr
     ),
-    
+
     rnp_op_sign_add_signature: librnp.declare(
       "rnp_op_sign_add_signature",
       abi,
@@ -761,7 +779,7 @@ function enableRNPLibJS() {
       rnp_key_handle_t,
       rnp_op_sign_signature_t.ptr
     ),
-    
+
     rnp_op_encrypt_set_armor: librnp.declare(
       "rnp_op_encrypt_set_armor",
       abi,
@@ -777,7 +795,7 @@ function enableRNPLibJS() {
       rnp_op_sign_t,
       ctypes.bool
     ),
-    
+
     rnp_op_encrypt_set_hash: librnp.declare(
       "rnp_op_encrypt_set_hash",
       abi,
@@ -801,28 +819,28 @@ function enableRNPLibJS() {
       rnp_op_encrypt_t,
       ctypes.char.ptr
     ),
-    
+
     rnp_op_sign_execute: librnp.declare(
       "rnp_op_sign_execute",
       abi,
       rnp_result_t,
       rnp_op_sign_t
     ),
-    
+
     rnp_op_sign_destroy: librnp.declare(
       "rnp_op_sign_destroy",
       abi,
       rnp_result_t,
       rnp_op_sign_t
     ),
-    
+
     rnp_op_encrypt_execute: librnp.declare(
       "rnp_op_encrypt_execute",
       abi,
       rnp_result_t,
       rnp_op_encrypt_t
     ),
-    
+
     rnp_op_encrypt_destroy: librnp.declare(
       "rnp_op_encrypt_destroy",
       abi,
@@ -851,20 +869,19 @@ function enableRNPLibJS() {
     rnp_op_encrypt_t,
     rnp_op_sign_t,
     rnp_op_sign_signature_t,
-    
+
     RNP_LOAD_SAVE_PUBLIC_KEYS: 1,
-    
+
     RNP_LOAD_SAVE_SECRET_KEYS: 2,
-    
+
     RNP_KEY_REMOVE_PUBLIC: 1,
-    
+
     RNP_KEY_REMOVE_SECRET: 2,
-    
+
     RNP_KEY_EXPORT_ARMORED: 1,
     RNP_KEY_EXPORT_PUBLIC: 2,
     RNP_KEY_EXPORT_SECRET: 4,
     RNP_KEY_EXPORT_SUBKEYS: 8,
-
   };
 }
 

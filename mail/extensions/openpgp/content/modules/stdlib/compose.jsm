@@ -9,100 +9,63 @@
  */
 
 var EXPORTED_SYMBOLS = [
-  'composeInIframe', 'getEditorForIframe',
-  'quoteMsgHdr', 'citeString',
-  'htmlToPlainText', 'simpleWrap',
-  'plainTextToHtml', 'replyAllParams',
-  'determineComposeHtml', 'composeMessageTo',
-  'getSignatureContentsForAccount',
-]
+  "composeInIframe",
+  "getEditorForIframe",
+  "quoteMsgHdr",
+  "citeString",
+  "htmlToPlainText",
+  "simpleWrap",
+  "plainTextToHtml",
+  "replyAllParams",
+  "determineComposeHtml",
+  "composeMessageTo",
+  "getSignatureContentsForAccount",
+];
 
-const {
-  results: Cr
-} = Components;
-
-const {
-  MsgHdrToMimeMessage,
-  MimeMessage, MimeContainer,
-  MimeBody, MimeUnknown,
-  MimeMessageAttachment
-} = ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm");
-
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
 var MailServices;
 try {
-  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm").MailServices;
-}
-catch (x){
-  MailServices = ChromeUtils.import("resource:///modules/mailServices.js").MailServices;
+  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm")
+    .MailServices;
+} catch (x) {
+  MailServices = ChromeUtils.import("resource:///modules/mailServices.js")
+    .MailServices;
 }
 
 const {
-  gIdentities,
-  fillIdentities,
   getIdentities,
   getDefaultIdentity,
-  getIdentityForEmail,
-  hasConfiguredAccounts,
-  range,
-  MixIn,
   combine,
-  entries,
-  dateAsInMessageList,
   escapeHtml,
-  sanitize,
-  parseMimeLine,
-  encodeUrlParameters,
-  decodeUrlParameters,
   systemCharset,
-  isOSX,
-  isWindows,
-  isAccel
 } = ChromeUtils.import("chrome://openpgp/content/modules/stdlib/misc.jsm");
 
-const {
-  msgHdrToMessageBody,
-  msgHdrToNeckoURL,
-  msgHdrGetTags,
-  msgUriToMsgHdr,
-  msgHdrGetUri,
-  msgHdrFromNeckoUrl,
-  msgHdrSetTags,
-  msgHdrIsDraft,
-  msgHdrIsSent,
-  msgHdrIsArchive,
-  msgHdrIsInbox,
-  msgHdrIsRss,
-  msgHdrIsNntp,
-  msgHdrIsJunk,
-  msgHdrsMarkAsRead,
-  msgHdrsArchive,
-  msgHdrsDelete,
-  getMail3Pane,
-  msgHdrGetHeaders,
-  msgHdrsModifyRaw
-} = ChromeUtils.import("chrome://openpgp/content/modules/stdlib/msgHdrUtils.jsm");
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-
+const { msgHdrGetUri, getMail3Pane, msgHdrGetHeaders } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/stdlib/msgHdrUtils.jsm"
+);
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
 
 function getEditorForIframe(aIframe) {
   let w = aIframe.contentWindow;
-  let s = w.QueryInterface(Ci.nsIInterfaceRequestor)
+  let s = w
+    .QueryInterface(Ci.nsIInterfaceRequestor)
     .getInterface(Ci.nsIWebNavigation)
     .QueryInterface(Ci.nsIInterfaceRequestor)
     .getInterface(Ci.nsIEditingSession);
   return s.getEditorForWindow(w);
 }
 
-function composeInIframe(aIframe, {
-  msgHdr,
-  compType,
-  identity,
-}) {
-  let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
-    .createInstance(Ci.nsIMsgCompFields);
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-    .createInstance(Ci.nsIMsgComposeParams);
+function composeInIframe(aIframe, { msgHdr, compType, identity }) {
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
   params.identity = identity;
   if (msgHdr) {
     params.origMsgHdr = msgHdr;
@@ -111,8 +74,18 @@ function composeInIframe(aIframe, {
   params.composeFields = fields;
   params.type = compType;
 
-  let compose = MailServices.compose.initCompose(params, getMail3Pane(), aIframe.docShell);
-  EnigmailLog.DEBUG("editor= " + getEditorForIframe(aIframe).toString() + ", iframe= " + aIframe.toString() + "\n");
+  let compose = MailServices.compose.initCompose(
+    params,
+    getMail3Pane(),
+    aIframe.docShell
+  );
+  EnigmailLog.DEBUG(
+    "editor= " +
+      getEditorForIframe(aIframe).toString() +
+      ", iframe= " +
+      aIframe.toString() +
+      "\n"
+  );
   compose.initEditor(getEditorForIframe(aIframe), aIframe.contentWindow);
 }
 
@@ -123,18 +96,25 @@ function composeInIframe(aIframe, {
  */
 function citeString(aStr) {
   let l = aStr.length;
-  return aStr.replace("\n", function(match, offset, str) {
-    // http://mxr.mozilla.org/comm-central/source/mozilla/editor/libeditor/text/nsInternetCiter.cpp#96
-    if (offset < l - 1) {
-      if (str[offset + 1] != ">" && str[offset + 1] != "\n" && str[offset + 1] != "\r")
-        return "\n> ";
-      else
+  return aStr.replace(
+    "\n",
+    function(match, offset, str) {
+      // http://mxr.mozilla.org/comm-central/source/mozilla/editor/libeditor/text/nsInternetCiter.cpp#96
+      if (offset < l - 1) {
+        if (
+          str[offset + 1] != ">" &&
+          str[offset + 1] != "\n" &&
+          str[offset + 1] != "\r"
+        ) {
+          return "\n> ";
+        }
         return "\n>";
-    }
-    else {
+      }
+
       return match;
-    }
-  }, "g");
+    },
+    "g"
+  );
 }
 
 /**
@@ -154,14 +134,15 @@ function citeString(aStr) {
  *  sending as format=flowed.
  */
 function simpleWrap(txt, width) {
-  if (!width)
+  if (!width) {
     width = 72;
+  }
 
   function maybeEscape(line) {
-    if (line.indexOf("From") === 0 || line.indexOf(">") === 0)
-      return (" " + line);
-    else
-      return line;
+    if (line.indexOf("From") === 0 || line.indexOf(">") === 0) {
+      return " " + line;
+    }
+    return line;
   }
 
   /**
@@ -174,42 +155,47 @@ function simpleWrap(txt, width) {
       // Start at the end of the line, and move back until we find a word
       // boundary.
       let i = width - 1;
-      while (remaining[i] != " " && i > 0)
+      while (remaining[i] != " " && i > 0) {
         i--;
+      }
       // We found a word boundary, break there
       if (i > 0) {
         // This includes the trailing space that indicates that we are wrapping
         //  a long line with format=flowed.
         soFar.push(maybeEscape(remaining.substring(0, i + 1)));
-        return splitLongLine(soFar, remaining.substring(i + 1, remaining.length));
+        return splitLongLine(
+          soFar,
+          remaining.substring(i + 1, remaining.length)
+        );
       }
-      else {
-        // No word boundary, break at the first space
-        let j = remaining.indexOf(" ");
-        if (j > 0) {
-          // Same remark about the trailing space.
-          soFar.push(maybeEscape(remaining.substring(0, j + 1)));
-          return splitLongLine(soFar, remaining.substring(j + 1, remaining.length));
-        }
-        else {
-          // Make sure no one interprets this as a line continuation.
-          soFar.push(remaining.trimRight());
-          return soFar.join("\n");
-        }
+
+      // No word boundary, break at the first space
+      let j = remaining.indexOf(" ");
+      if (j > 0) {
+        // Same remark about the trailing space.
+        soFar.push(maybeEscape(remaining.substring(0, j + 1)));
+        return splitLongLine(
+          soFar,
+          remaining.substring(j + 1, remaining.length)
+        );
       }
-    }
-    else {
-      // Same remark about the trailing space.
-      soFar.push(maybeEscape(remaining.trimRight()));
+
+      // Make sure no one interprets this as a line continuation.
+      soFar.push(remaining.trimRight());
       return soFar.join("\n");
     }
+
+    // Same remark about the trailing space.
+    soFar.push(maybeEscape(remaining.trimRight()));
+    return soFar.join("\n");
   }
 
   let lines = txt.split(/\r?\n/);
 
   lines.forEach(function(line, i) {
-    if (line.length > width && line[0] != ">")
+    if (line.length > width && line[0] != ">") {
       lines[i] = splitLongLine([], line);
+    }
   });
   return lines.join("\n");
 }
@@ -231,8 +217,9 @@ function htmlToPlainText(aHtml) {
   // Yes, this is ridiculous, we're instanciating composition fields just so
   //  that they call ConvertBufPlainText for us. But ConvertBufToPlainText
   //  really isn't easily scriptable, so...
-  let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
-    .createInstance(Ci.nsIMsgCompFields);
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
   fields.body = aHtml;
   fields.forcePlainText = true;
   fields.ConvertBodyToPlainText();
@@ -243,11 +230,12 @@ function htmlToPlainText(aHtml) {
  * @ignore
  */
 function citeLevel(line) {
-  let i;
-  for (i = 0; line[i] == ">" && i < line.length; ++i)
-  ; // nop
+  let i = 0;
+  while (line[i] == ">" && i < line.length) {
+    ++i;
+  } // nop
   return i;
-};
+}
 
 /**
  * Just try to convert quoted lines back to HTML markup (&lt;blockquote&gt;s).
@@ -260,13 +248,20 @@ function plainTextToHtml(txt) {
   let level = 0;
   for (let line of lines) {
     let newLevel = citeLevel(line);
-    if (newLevel > level)
-      for (let i = level; i < newLevel; ++i)
+    if (newLevel > level) {
+      for (let i = level; i < newLevel; ++i) {
         newLines.push('<blockquote type="cite">');
-    if (newLevel < level)
-      for (let i = newLevel; i < level; ++i)
-        newLines.push('</blockquote>');
-    let newLine = line[newLevel] == " " ? escapeHtml(line.substring(newLevel + 1, line.length)) : escapeHtml(line.substring(newLevel, line.length));
+      }
+    }
+    if (newLevel < level) {
+      for (let i = newLevel; i < level; ++i) {
+        newLines.push("</blockquote>");
+      }
+    }
+    let newLine =
+      line[newLevel] == " "
+        ? escapeHtml(line.substring(newLevel + 1, line.length))
+        : escapeHtml(line.substring(newLevel, line.length));
     newLines.push(newLine);
     level = newLevel;
   }
@@ -274,15 +269,18 @@ function plainTextToHtml(txt) {
 }
 
 function parse(aMimeLine) {
-  if (!aMimeLine)
-    return [
-      [],
-      []
-    ];
+  if (!aMimeLine) {
+    return [[], []];
+  }
   let emails = {};
   let fullNames = {};
   let names = {};
-  let numAddresses = MailServices.headerParser.parseHeadersWithArray(aMimeLine, emails, names, fullNames);
+  MailServices.headerParser.parseHeadersWithArray(
+    aMimeLine,
+    emails,
+    names,
+    fullNames
+  );
   return [names.value, emails.value];
 }
 
@@ -297,10 +295,7 @@ function parse(aMimeLine) {
  */
 function replyAllParams(aIdentity, aMsgHdr, k) {
   // Do the whole shebang to find out who to send to...
-  let [
-    [author],
-    [authorEmailAddress]
-  ] = parse(aMsgHdr.author);
+  let [[author], [authorEmailAddress]] = parse(aMsgHdr.author);
   let [recipients, recipientsEmailAddresses] = parse(aMsgHdr.recipients);
   let [ccList, ccListEmailAddresses] = parse(aMsgHdr.ccList);
   let [bccList, bccListEmailAddresses] = parse(aMsgHdr.bccList);
@@ -317,51 +312,57 @@ function replyAllParams(aIdentity, aMsgHdr, k) {
   let isReplyToOwnMsg = false;
   for (let currentIdentity of getIdentities()) {
     let email = currentIdentity.identity.email.toLowerCase();
-    if (email == authorEmailAddress)
+    if (email == authorEmailAddress) {
       isReplyToOwnMsg = true;
-    if (recipientsEmailAddresses.some(x => x == email))
+    }
+    if (recipientsEmailAddresses.some(x => x == email)) {
       isReplyToOwnMsg = false;
-    if (ccListEmailAddresses.some(x => x == email))
+    }
+    if (ccListEmailAddresses.some(x => x == email)) {
       isReplyToOwnMsg = false;
+    }
   }
 
   // Actually we are implementing the "Reply all" logic... that's better, no one
   //  wants to really use reply anyway
   if (isReplyToOwnMsg) {
     to = recipients.map((r, i) => [r, recipientsEmailAddresses[i]]);
+  } else {
+    to = [[author, authorEmailAddress]];
   }
-  else {
-    to = [
-      [author, authorEmailAddress]
-    ];
-  }
-  cc = ccList.map((cc, i) => [cc, ccListEmailAddresses[i]]).
-  filter((e, i) => e[1] != identityEmail);
+  cc = ccList
+    .map((cc, i) => [cc, ccListEmailAddresses[i]])
+    .filter((e, i) => e[1] != identityEmail);
   if (!isReplyToOwnMsg) {
-    cc = cc.concat(recipients.map((r, i) => [r, recipientsEmailAddresses[i]]).filter((e, i) => e[1] != identityEmail));
+    cc = cc.concat(
+      recipients
+        .map((r, i) => [r, recipientsEmailAddresses[i]])
+        .filter((e, i) => e[1] != identityEmail)
+    );
   }
   bcc = bccList.map((bcc, i) => [bcc, bccListEmailAddresses]);
 
   let finish = function(to, cc, bcc) {
     let hashMap = {};
-    for (let [name, email] of to)
+    for (let [email] of to) {
       hashMap[email] = null;
+    }
     cc = cc.filter(function([name, email]) {
-      let r = (email in hashMap);
+      let r = email in hashMap;
       hashMap[email] = null;
-      return !r
+      return !r;
     });
     bcc = bcc.filter(function([name, email]) {
-      let r = (email in hashMap);
+      let r = email in hashMap;
       hashMap[email] = null;
-      return !r
+      return !r;
     });
     k({
-      to: to,
-      cc: cc,
-      bcc: bcc
+      to,
+      cc,
+      bcc,
     });
-  }
+  };
 
   // Do we have a Reply-To header?
   msgHdrGetHeaders(aMsgHdr, function(aHeaders) {
@@ -388,18 +389,15 @@ function replyAllParams(aIdentity, aMsgHdr, k) {
  * @return a bool which is true if you should compose in HTML
  */
 function determineComposeHtml(aIdentity) {
-  if (!aIdentity)
+  if (!aIdentity) {
     aIdentity = getDefaultIdentity().identity;
+  }
 
   if (aIdentity) {
-    return (aIdentity.composeHtml == Ci.nsIMsgCompFormat.HTML);
+    return aIdentity.composeHtml == Ci.nsIMsgCompFormat.HTML;
   }
-  else {
-    return Cc["@mozilla.org/preferences-service;1"]
-      .getService(Ci.nsIPrefService)
-      .getBranch(null)
-      .getBoolPref("mail.compose_html");
-  }
+
+  return Services.prefs.getBranch(null).getBoolPref("mail.compose_html");
 }
 
 /**
@@ -408,16 +406,19 @@ function determineComposeHtml(aIdentity) {
  * @param aDisplayedFolder {nsIMsgFolder} pass gFolderDisplay.displayedFolder
  */
 function composeMessageTo(aEmail, aDisplayedFolder) {
-  let fields = Cc["@mozilla.org/messengercompose/composefields;1"]
-    .createInstance(Ci.nsIMsgCompFields);
-  let params = Cc["@mozilla.org/messengercompose/composeparams;1"]
-    .createInstance(Ci.nsIMsgComposeParams);
-  fields.to = aEmail
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  fields.to = aEmail;
   params.type = Ci.nsIMsgCompType.New;
   params.format = Ci.nsIMsgCompFormat.Default;
   if (aDisplayedFolder) {
-    params.identity = MailServices.accounts
-      .getFirstIdentityForServer(aDisplayedFolder.server);
+    params.identity = MailServices.accounts.getFirstIdentityForServer(
+      aDisplayedFolder.server
+    );
   }
   params.composeFields = fields;
   MailServices.compose.OpenComposeWindowWithParams(null, params);
@@ -431,25 +432,32 @@ function composeMessageTo(aEmail, aDisplayedFolder) {
  */
 function getSignatureContentsForAccount(aIdentity) {
   let signature = "";
-  if (!aIdentity)
+  if (!aIdentity) {
     return signature;
+  }
 
   if (aIdentity.attachSignature && aIdentity.signature) {
     let charset = systemCharset();
     const replacementChar =
       Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER;
-    let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-      .createInstance(Ci.nsIFileInputStream);
-    let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
-      .createInstance(Ci.nsIConverterInputStream);
+    let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+      Ci.nsIFileInputStream
+    );
+    let cstream = Cc[
+      "@mozilla.org/intl/converter-input-stream;1"
+    ].createInstance(Ci.nsIConverterInputStream);
     try {
       fstream.init(aIdentity.signature, -1, 0, 0);
       try {
         cstream.init(fstream, charset, 1024, replacementChar);
-      }
-      catch (e) {
-        EnigmailLog.ERROR("ConverterInputStream init error: " + e +
-          "\n charset: " + charset + "\n");
+      } catch (e) {
+        EnigmailLog.ERROR(
+          "ConverterInputStream init error: " +
+            e +
+            "\n charset: " +
+            charset +
+            "\n"
+        );
         cstream.init(fstream, "UTF-8", 1024, replacementChar);
       }
       let str = {};
@@ -459,17 +467,17 @@ function getSignatureContentsForAccount(aIdentity) {
       if (aIdentity.signature.path.match(/\.html?$/)) {
         signature = htmlToPlainText(signature);
       }
-    }
-    catch (e) {
+    } catch (e) {
       EnigmailLog.ERROR("Signature file stream error: " + e + "\n");
     }
     cstream.close();
     fstream.close();
     // required for stripSignatureIfNeeded working properly
     signature = signature.replace(/\r?\n/g, "\n");
-  }
-  else {
-    signature = aIdentity.htmlSigFormat ? htmlToPlainText(aIdentity.htmlSigText) : aIdentity.htmlSigText;
+  } else {
+    signature = aIdentity.htmlSigFormat
+      ? htmlToPlainText(aIdentity.htmlSigText)
+      : aIdentity.htmlSigText;
   }
   return signature;
 }

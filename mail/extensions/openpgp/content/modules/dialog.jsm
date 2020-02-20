@@ -4,27 +4,32 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailDialog"];
 
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailWindows = ChromeUtils.import("chrome://openpgp/content/modules/windows.jsm").EnigmailWindows;
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
-const BUTTON_POS_0 = 1;
-const BUTTON_POS_1 = 1 << 8;
-const BUTTON_POS_2 = 1 << 16;
-
-const gPromptSvc = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailWindows = ChromeUtils.import(
+  "chrome://openpgp/content/modules/windows.jsm"
+).EnigmailWindows;
+const EnigmailPrefs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+).EnigmailPrefs;
+const EnigmailConstants = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+).EnigmailConstants;
 
 const LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";
 
 var EnigmailDialog = {
-
   /***
    * Confirmation dialog with OK / Cancel buttons (both customizable)
    *
@@ -35,18 +40,22 @@ var EnigmailDialog = {
    *
    * @return:      Boolean   - true: OK pressed / false: Cancel or ESC pressed
    */
-  confirmDlg: function(win, mesg, okLabel, cancelLabel) {
-
-    let buttonPressed = EnigmailDialog.msgBox(win, {
+  confirmDlg(win, mesg, okLabel, cancelLabel) {
+    let buttonPressed = EnigmailDialog.msgBox(
+      win,
+      {
         msgtext: mesg,
         button1: okLabel ? okLabel : EnigmailLocale.getString("dlg.button.ok"),
-        cancelButton: cancelLabel ? cancelLabel : EnigmailLocale.getString("dlg.button.cancel"),
+        cancelButton: cancelLabel
+          ? cancelLabel
+          : EnigmailLocale.getString("dlg.button.cancel"),
         iconType: EnigmailConstants.ICONTYPE_QUESTION,
-        dialogTitle: EnigmailLocale.getString("enigConfirm")
+        dialogTitle: EnigmailLocale.getString("enigConfirm"),
       },
-      null);
+      null
+    );
 
-    return (buttonPressed === 0);
+    return buttonPressed === 0;
   },
 
   /**
@@ -57,14 +66,17 @@ var EnigmailDialog = {
    *
    * no return value
    */
-  alert: function(win, mesg) {
-    EnigmailDialog.msgBox(win, {
+  alert(win, mesg) {
+    EnigmailDialog.msgBox(
+      win,
+      {
         msgtext: mesg,
         button1: EnigmailLocale.getString("dlg.button.close"),
         iconType: EnigmailConstants.ICONTYPE_ALERT,
-        dialogTitle: EnigmailLocale.getString("enigAlert")
+        dialogTitle: EnigmailLocale.getString("enigAlert"),
       },
-      null);
+      null
+    );
   },
 
   /**
@@ -75,14 +87,17 @@ var EnigmailDialog = {
    *
    * no return value
    */
-  info: function(win, mesg) {
-    EnigmailDialog.msgBox(win, {
+  info(win, mesg) {
+    EnigmailDialog.msgBox(
+      win,
+      {
         msgtext: mesg,
         button1: EnigmailLocale.getString("dlg.button.close"),
         iconType: EnigmailConstants.ICONTYPE_INFO,
-        dialogTitle: EnigmailLocale.getString("enigInfo")
+        dialogTitle: EnigmailLocale.getString("enigInfo"),
       },
-      null);
+      null
+    );
   },
 
   /**
@@ -101,26 +116,38 @@ var EnigmailDialog = {
    *          -1: ESC or close window button pressed
    *
    */
-  longAlert: function(win, mesg, checkboxLabel, okLabel, labelButton2, labelButton3, checkedObj) {
+  longAlert(
+    win,
+    mesg,
+    checkboxLabel,
+    okLabel,
+    labelButton2,
+    labelButton3,
+    checkedObj
+  ) {
     var result = {
       value: -1,
-      checked: false
+      checked: false,
     };
 
     if (!win) {
       win = EnigmailWindows.getBestParentWin();
     }
 
-    win.openDialog("chrome://openpgp/content/ui/enigmailMsgBox.xhtml", "_blank",
-      "chrome,dialog,modal,centerscreen,resizable,titlebar", {
+    win.openDialog(
+      "chrome://openpgp/content/ui/enigmailMsgBox.xhtml",
+      "_blank",
+      "chrome,dialog,modal,centerscreen,resizable,titlebar",
+      {
         msgtext: mesg,
-        checkboxLabel: checkboxLabel,
+        checkboxLabel,
         iconType: EnigmailConstants.ICONTYPE_ALERT,
         button1: okLabel,
         button2: labelButton2,
-        button3: labelButton3
+        button3: labelButton3,
       },
-      result);
+      result
+    );
 
     if (checkboxLabel) {
       checkedObj.value = result.checked;
@@ -152,18 +179,23 @@ var EnigmailDialog = {
    *          -1: cancel button, ESC or close window button pressed
    *
    */
-  msgBox: function(win, argsObj, checkedObj) {
+  msgBox(win, argsObj, checkedObj) {
     var result = {
       value: -1,
-      checked: false
+      checked: false,
     };
 
     if (!win) {
       win = EnigmailWindows.getBestParentWin();
     }
 
-    win.openDialog("chrome://openpgp/content/ui/enigmailMsgBox.xhtml", "",
-      "chrome,dialog,modal,centerscreen,resizable", argsObj, result);
+    win.openDialog(
+      "chrome://openpgp/content/ui/enigmailMsgBox.xhtml",
+      "",
+      "chrome,dialog,modal,centerscreen,resizable",
+      argsObj,
+      result
+    );
 
     if (argsObj.checkboxLabel) {
       checkedObj.value = result.checked;
@@ -180,9 +212,15 @@ var EnigmailDialog = {
    *
    * @return:   Boolean - true if OK was pressed / false otherwise
    */
-  promptValue: function(win, mesg, valueObj) {
-    return gPromptSvc.prompt(win, EnigmailLocale.getString("enigPrompt"),
-      mesg, valueObj, "", {});
+  promptValue(win, mesg, valueObj) {
+    return Services.prompt(
+      win,
+      EnigmailLocale.getString("enigPrompt"),
+      mesg,
+      valueObj,
+      "",
+      {}
+    );
   },
 
   /**
@@ -195,23 +233,26 @@ var EnigmailDialog = {
    * @prefText: String    - the name of the Enigmail preference to read/store the
    *                        the future display status
    */
-  alertPref: function(win, mesg, prefText) {
+  alertPref(win, mesg, prefText) {
     const display = true;
     const dontDisplay = false;
 
     let prefValue = EnigmailPrefs.getPref(prefText);
     if (prefValue === display) {
       let checkBoxObj = {
-        value: false
+        value: false,
       };
 
-      let buttonPressed = EnigmailDialog.msgBox(win, {
+      let buttonPressed = EnigmailDialog.msgBox(
+        win,
+        {
           msgtext: mesg,
           dialogTitle: EnigmailLocale.getString("enigInfo"),
           iconType: EnigmailConstants.ICONTYPE_INFO,
-          checkboxLabel: EnigmailLocale.getString("dlgNoPrompt")
+          checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
         },
-        checkBoxObj);
+        checkBoxObj
+      );
 
       if (checkBoxObj.value && buttonPressed === 0) {
         EnigmailPrefs.setPref(prefText, dontDisplay);
@@ -230,20 +271,23 @@ var EnigmailDialog = {
    * @mesg:          String    - the localized message to display
    *
    */
-  alertCount: function(win, countPrefName, mesg) {
+  alertCount(win, countPrefName, mesg) {
     let alertCount = EnigmailPrefs.getPref(countPrefName);
 
-    if (alertCount <= 0)
+    if (alertCount <= 0) {
       return;
+    }
 
     alertCount--;
     EnigmailPrefs.setPref(countPrefName, alertCount);
 
     if (alertCount > 0) {
       mesg += EnigmailLocale.getString("repeatPrefix", [alertCount]) + " ";
-      mesg += (alertCount == 1) ? EnigmailLocale.getString("repeatSuffixSingular") : EnigmailLocale.getString("repeatSuffixPlural");
-    }
-    else {
+      mesg +=
+        alertCount == 1
+          ? EnigmailLocale.getString("repeatSuffixSingular")
+          : EnigmailLocale.getString("repeatSuffixPlural");
+    } else {
       mesg += EnigmailLocale.getString("noRepeat");
     }
 
@@ -269,7 +313,7 @@ var EnigmailDialog = {
    *  - if @prefText is type Boolean: return 1
    *  - if @prefText is type Number:  return the last choice of the user
    */
-  confirmPref: function(win, mesg, prefText, okLabel, cancelLabel) {
+  confirmPref(win, mesg, prefText, okLabel, cancelLabel) {
     const notSet = 0;
     const yes = 1;
     const no = 2;
@@ -278,28 +322,35 @@ var EnigmailDialog = {
 
     var prefValue = EnigmailPrefs.getPref(prefText);
 
-    if (typeof(prefValue) != "boolean") {
+    if (typeof prefValue != "boolean") {
       // number: remember user's choice
       switch (prefValue) {
-        case notSet:
-          {
-            let checkBoxObj = {
-              value: false
-            };
-            let buttonPressed = EnigmailDialog.msgBox(win, {
+        case notSet: {
+          let checkBoxObj = {
+            value: false,
+          };
+          let buttonPressed = EnigmailDialog.msgBox(
+            win,
+            {
               msgtext: mesg,
-              button1: okLabel ? okLabel : EnigmailLocale.getString("dlg.button.ok"),
-              cancelButton: cancelLabel ? cancelLabel : EnigmailLocale.getString("dlg.button.cancel"),
+              button1: okLabel
+                ? okLabel
+                : EnigmailLocale.getString("dlg.button.ok"),
+              cancelButton: cancelLabel
+                ? cancelLabel
+                : EnigmailLocale.getString("dlg.button.cancel"),
               checkboxLabel: EnigmailLocale.getString("dlgKeepSetting"),
               iconType: EnigmailConstants.ICONTYPE_QUESTION,
-              dialogTitle: EnigmailLocale.getString("enigConfirm")
-            }, checkBoxObj);
+              dialogTitle: EnigmailLocale.getString("enigConfirm"),
+            },
+            checkBoxObj
+          );
 
-            if (checkBoxObj.value) {
-              EnigmailPrefs.setPref(prefText, (buttonPressed === 0 ? yes : no));
-            }
-            return (buttonPressed === 0 ? 1 : 0);
+          if (checkBoxObj.value) {
+            EnigmailPrefs.setPref(prefText, buttonPressed === 0 ? yes : no);
           }
+          return buttonPressed === 0 ? 1 : 0;
+        }
         case yes:
           return 1;
         case no:
@@ -307,29 +358,35 @@ var EnigmailDialog = {
         default:
           return -1;
       }
-    }
-    else {
+    } else {
       // boolean: "do not show this dialog anymore" (and return default)
       switch (prefValue) {
-        case display:
-          {
-            let checkBoxObj = {
-              value: false
-            };
-            let buttonPressed = EnigmailDialog.msgBox(win, {
+        case display: {
+          let checkBoxObj = {
+            value: false,
+          };
+          let buttonPressed = EnigmailDialog.msgBox(
+            win,
+            {
               msgtext: mesg,
-              button1: okLabel ? okLabel : EnigmailLocale.getString("dlg.button.ok"),
-              cancelButton: cancelLabel ? cancelLabel : EnigmailLocale.getString("dlg.button.cancel"),
+              button1: okLabel
+                ? okLabel
+                : EnigmailLocale.getString("dlg.button.ok"),
+              cancelButton: cancelLabel
+                ? cancelLabel
+                : EnigmailLocale.getString("dlg.button.cancel"),
               checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
               iconType: EnigmailConstants.ICONTYPE_QUESTION,
-              dialogTitle: EnigmailLocale.getString("enigConfirm")
-            }, checkBoxObj);
+              dialogTitle: EnigmailLocale.getString("enigConfirm"),
+            },
+            checkBoxObj
+          );
 
-            if (checkBoxObj.value) {
-              EnigmailPrefs.setPref(prefText, false);
-            }
-            return (buttonPressed === 0 ? 1 : 0);
+          if (checkBoxObj.value) {
+            EnigmailPrefs.setPref(prefText, false);
           }
+          return buttonPressed === 0 ? 1 : 0;
+        }
         case dontDisplay:
           return 1;
         default:
@@ -352,7 +409,15 @@ var EnigmailDialog = {
    *
    *  return value:     nsIFile object representing the file to load or save
    */
-  filePicker: function(win, title, displayDir, save, defaultExtension, defaultName, filterPairs) {
+  filePicker(
+    win,
+    title,
+    displayDir,
+    save,
+    defaultExtension,
+    defaultName,
+    filterPairs
+  ) {
     EnigmailLog.DEBUG("enigmailCommon.jsm: filePicker: " + save + "\n");
 
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
@@ -368,8 +433,7 @@ var EnigmailDialog = {
       try {
         localFile.initWithPath(displayDir);
         filePicker.displayDirectory = localFile;
-      }
-      catch (ex) {}
+      } catch (ex) {}
     }
 
     if (defaultExtension) {
@@ -386,15 +450,23 @@ var EnigmailDialog = {
     }
 
     for (let index = 0; index < nfilters; index++) {
-      filePicker.appendFilter(filterPairs[2 * index], filterPairs[2 * index + 1]);
+      filePicker.appendFilter(
+        filterPairs[2 * index],
+        filterPairs[2 * index + 1]
+      );
     }
 
     filePicker.appendFilters(Ci.nsIFilePicker.filterAll);
 
-    let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+    let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(
+      Ci.nsIJSInspector
+    );
     let gotFile = null;
     filePicker.open(res => {
-      if (res != Ci.nsIFilePicker.returnOK && res != Ci.nsIFilePicker.returnReplace) {
+      if (
+        res != Ci.nsIFilePicker.returnOK &&
+        res != Ci.nsIFilePicker.returnReplace
+      ) {
         inspector.exitNestedEventLoop();
         return;
       }
@@ -419,30 +491,34 @@ var EnigmailDialog = {
    *          -1: ESC or close window button pressed
    *
    */
-  keyImportDlg: function(win, keyList) {
+  keyImportDlg(win, keyList) {
     var result = {
       value: -1,
-      checked: false
+      checked: false,
     };
 
     if (!win) {
       win = EnigmailWindows.getBestParentWin();
     }
 
-    win.openDialog("chrome://openpgp/content/ui/enigmailKeyImportInfo.xhtml", "",
-      "chrome,dialog,modal,centerscreen,resizable", {
-        keyList: keyList
+    win.openDialog(
+      "chrome://openpgp/content/ui/enigmailKeyImportInfo.xhtml",
+      "",
+      "chrome,dialog,modal,centerscreen,resizable",
+      {
+        keyList,
       },
-      result);
+      result
+    );
 
     return result.value;
   },
   /**
    * return a pre-initialized prompt service
    */
-  getPromptSvc: function() {
-    return gPromptSvc;
-  }
+  getPromptSvc() {
+    return Services.prompt;
+  },
 };
 
 EnigmailWindows.alert = EnigmailDialog.alert;

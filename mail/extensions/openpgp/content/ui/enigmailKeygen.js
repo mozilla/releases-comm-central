@@ -8,10 +8,6 @@
 
 "use strict";
 
-var Cu = Components.utils;
-var Cc = Components.classes;
-var Ci = Components.interfaces;
-
 // modules
 /* global EnigmailData: false, EnigmailLog: false, EnigmailLocale: false, EnigmailGpg: false, EnigmailKeyEditor: false */
 /* global EnigmailOS: false, EnigmailPrefs: false, EnigmailApp: false, EnigmailKeyRing: false */
@@ -26,7 +22,16 @@ var Ci = Components.interfaces;
 // Initialize enigmailCommon
 EnigInitCommon("enigmailKeygen");
 
-var gAccountManager = Components.classes[ENIG_ACCOUNT_MANAGER_CONTRACTID].getService(Components.interfaces.nsIMsgAccountManager);
+var gAccountManager = Cc[ENIG_ACCOUNT_MANAGER_CONTRACTID].getService(
+  Ci.nsIMsgAccountManager
+);
+
+const EnigmailCryptoAPI = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+).EnigmailCryptoAPI;
+var OpenPGPMasterpass = ChromeUtils.import(
+  "chrome://openpgp/content/modules/masterpass.jsm"
+).OpenPGPMasterpass;
 
 var gUserIdentityList;
 var gUserIdentityListPopup;
@@ -80,9 +85,15 @@ function updateKeySizeSel(selectedObj) {
 function enigmailOnClose() {
   var closeWin = true;
   if (gKeygenRequest) {
-    closeWin = EnigConfirm(EnigGetString("keyAbort"), EnigGetString("keyMan.button.generateKeyAbort"), EnigGetString("keyMan.button.generateKeyContinue"));
+    closeWin = EnigConfirm(
+      EnigGetString("keyAbort"),
+      EnigGetString("keyMan.button.generateKeyAbort"),
+      EnigGetString("keyMan.button.generateKeyContinue")
+    );
   }
-  if (closeWin) abortKeyGeneration();
+  if (closeWin) {
+    abortKeyGeneration();
+  }
   return closeWin;
 }
 
@@ -99,9 +110,10 @@ function enigmailKeygenTerminate(exitCode) {
 
   gKeygenRequest = null;
 
-  if ((!gGeneratedKey) || gGeneratedKey == KEYGEN_CANCELLED) {
-    if (!gGeneratedKey)
+  if (!gGeneratedKey || gGeneratedKey == KEYGEN_CANCELLED) {
+    if (!gGeneratedKey) {
       EnigAlert(EnigGetString("keyGenFailed"));
+    }
     return;
   }
 
@@ -118,25 +130,37 @@ function enigmailKeygenTerminate(exitCode) {
 
       EnigmailWindows.keyManReloadKeys();
 
-      if (EnigConfirm(EnigGetString("keygenComplete", curId.email) + "\n\n" + EnigGetString("revokeCertRecommended"), EnigGetString("keyMan.button.generateCert"))) {
+      if (
+        EnigConfirm(
+          EnigGetString("keygenComplete", curId.email) +
+            "\n\n" +
+            EnigGetString("revokeCertRecommended"),
+          EnigGetString("keyMan.button.generateCert")
+        )
+      ) {
         EnigCreateRevokeCert(gGeneratedKey, curId.email, closeAndReset);
       } else {
         closeAndReset();
       }
+    } else if (
+      EnigConfirm(
+        EnigGetString("genCompleteNoSign") +
+          "\n\n" +
+          EnigGetString("revokeCertRecommended"),
+        EnigGetString("keyMan.button.generateCert")
+      )
+    ) {
+      EnigCreateRevokeCert(gGeneratedKey, curId.email, closeAndReset);
+      genAndSaveRevCert(gGeneratedKey, curId.email).then(
+        function() {
+          closeAndReset();
+        },
+        function() {
+          // do nothing
+        }
+      );
     } else {
-      if (EnigConfirm(EnigGetString("genCompleteNoSign") + "\n\n" + EnigGetString("revokeCertRecommended"), EnigGetString("keyMan.button.generateCert"))) {
-        EnigCreateRevokeCert(gGeneratedKey, curId.email, closeAndReset);
-        genAndSaveRevCert(gGeneratedKey, curId.email).then(
-          function _resolve() {
-            closeAndReset();
-          },
-          function _reject() {
-            // do nothing
-          }
-        );
-      } else {
-        closeAndReset();
-      }
+      closeAndReset();
     }
   } else {
     EnigAlert(EnigGetString("keyGenFailed"));
@@ -159,13 +183,17 @@ function genAndSaveRevCert(keyId, uid) {
  *  create a copy of the revokation cert at a user defined location
  */
 function saveRevCert(inputKeyFile, keyId, uid, resolve, reject) {
-
   let defaultFileName = uid.replace(/[\\/<>]/g, "");
   defaultFileName += " (0x" + keyId + ") rev.asc";
 
-  let outFile = EnigFilePicker(EnigGetString("saveRevokeCertAs"),
-    "", true, "*.asc",
-    defaultFileName, [EnigGetString("asciiArmorFile"), "*.asc"]);
+  let outFile = EnigFilePicker(
+    EnigGetString("saveRevokeCertAs"),
+    "",
+    true,
+    "*.asc",
+    defaultFileName,
+    [EnigGetString("asciiArmorFile"), "*.asc"]
+  );
 
   if (outFile) {
     try {
@@ -199,7 +227,7 @@ function enigmailKeygenStart() {
   EnigmailLog.DEBUG("enigmailKeygen.js: Start\n");
 
   if (gKeygenRequest) {
-    let req = gKeygenRequest.QueryInterface(Components.interfaces.nsIRequest);
+    let req = gKeygenRequest.QueryInterface(Ci.nsIRequest);
     if (req.isPending()) {
       EnigmailDialog.info(window, EnigGetString("genGoing"));
       return;
@@ -257,12 +285,19 @@ function enigmailKeygenStart() {
 
   try {
     const cApi = EnigmailCryptoAPI();
-    let newId = cApi.sync(cApi.genKey(idString, keyType, keySize, expiryTime,
-                                      OpenPGPMasterpass.retrieveOpenPGPPassword()));
+    let newId = cApi.sync(
+      cApi.genKey(
+        idString,
+        keyType,
+        keySize,
+        expiryTime,
+        OpenPGPMasterpass.retrieveOpenPGPPassword()
+      )
+    );
     console.log("created new key with id: " + newId);
-  } catch(ex) {
+  } catch (ex) {
     console.log(ex);
-  } 
+  }
 
   EnigmailWindows.keyManReloadKeys();
   closeAndReset();
@@ -326,13 +361,21 @@ function enigmailKeygenCancel() {
   var closeWin = false;
 
   if (gKeygenRequest) {
-    closeWin = EnigConfirm(EnigGetString("keyAbort"), EnigGetString("keyMan.button.generateKeyAbort"), EnigGetString("keyMan.button.generateKeyContinue"));
-    if (closeWin) abortKeyGeneration();
+    closeWin = EnigConfirm(
+      EnigGetString("keyAbort"),
+      EnigGetString("keyMan.button.generateKeyAbort"),
+      EnigGetString("keyMan.button.generateKeyContinue")
+    );
+    if (closeWin) {
+      abortKeyGeneration();
+    }
   } else {
     closeWin = true;
   }
 
-  if (closeWin) window.close();
+  if (closeWin) {
+    window.close();
+  }
 }
 
 function onNoExpiry() {
@@ -343,7 +386,6 @@ function onNoExpiry() {
   expireInput.disabled = noExpiry.checked;
   timeScale.disabled = noExpiry.checked;
 }
-
 
 function queryISupArray(supportsArray, iid) {
   var result = [];
@@ -358,7 +400,7 @@ function queryISupArray(supportsArray, iid) {
 
 function getCurrentIdentity() {
   var item = gUserIdentityList.selectedItem;
-  var identityKey = item.getAttribute('id');
+  var identityKey = item.getAttribute("id");
 
   var identity = gAccountManager.getIdentity(identityKey);
 
@@ -370,49 +412,58 @@ function fillIdentityListPopup() {
 
   try {
     var idSupports = gAccountManager.allIdentities;
-    var identities = queryISupArray(idSupports,
-      Components.interfaces.nsIMsgIdentity);
+    var identities = queryISupArray(idSupports, Ci.nsIMsgIdentity);
 
-    EnigmailLog.DEBUG("enigmailKeygen.js: fillIdentityListPopup: " + identities + "\n");
+    EnigmailLog.DEBUG(
+      "enigmailKeygen.js: fillIdentityListPopup: " + identities + "\n"
+    );
 
     // Default identity
     let defIdentity = EnigmailFuncs.getDefaultIdentity();
 
-    EnigmailLog.DEBUG("enigmailKeygen.js: fillIdentityListPopup: default=" + defIdentity.key + "\n");
+    EnigmailLog.DEBUG(
+      "enigmailKeygen.js: fillIdentityListPopup: default=" +
+        defIdentity.key +
+        "\n"
+    );
 
     var selected = false;
     for (var i = 0; i < identities.length; i++) {
       var identity = identities[i];
 
       EnigmailLog.DEBUG("id.valid=" + identity.valid + "\n");
-      if (!identity.valid || !identity.email)
+      if (!identity.valid || !identity.email) {
         continue;
+      }
 
       var serverSupports, inServer;
       // Gecko >= 20
       serverSupports = gAccountManager.getServersForIdentity(identity);
       if (serverSupports.length > 0) {
-        inServer = serverSupports.queryElementAt(0, Components.interfaces.nsIMsgIncomingServer);
+        inServer = serverSupports.queryElementAt(0, Ci.nsIMsgIncomingServer);
       }
 
       if (inServer) {
         var accountName = " - " + inServer.prettyName;
 
-        EnigmailLog.DEBUG("enigmailKeygen.js: accountName=" + accountName + "\n");
+        EnigmailLog.DEBUG(
+          "enigmailKeygen.js: accountName=" + accountName + "\n"
+        );
         EnigmailLog.DEBUG("enigmailKeygen.js: email=" + identity.email + "\n");
 
-        var item = document.createXULElement('menuitem');
+        var item = document.createXULElement("menuitem");
         //      item.setAttribute('label', identity.identityName);
-        item.setAttribute('label', identity.identityName + accountName);
-        item.setAttribute('class', 'identity-popup-item');
-        item.setAttribute('accountname', accountName);
-        item.setAttribute('id', identity.key);
-        item.setAttribute('email', identity.email);
+        item.setAttribute("label", identity.identityName + accountName);
+        item.setAttribute("class", "identity-popup-item");
+        item.setAttribute("accountname", accountName);
+        item.setAttribute("id", identity.key);
+        item.setAttribute("email", identity.email);
 
         gUserIdentityListPopup.appendChild(item);
 
-        if (!selected)
+        if (!selected) {
           gUserIdentityList.selectedItem = item;
+        }
 
         if (identity.key == defIdentity.key) {
           gUserIdentityList.selectedItem = item;
@@ -420,8 +471,10 @@ function fillIdentityListPopup() {
         }
       }
     }
-  }
-  catch(ex) {
-    EnigmailLog.writeException("enigmailKeygen.js: fillIdentityListPopup: exception\n", ex);
+  } catch (ex) {
+    EnigmailLog.writeException(
+      "enigmailKeygen.js: fillIdentityListPopup: exception\n",
+      ex
+    );
   }
 }

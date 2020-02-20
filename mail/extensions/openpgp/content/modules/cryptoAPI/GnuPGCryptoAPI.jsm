@@ -4,39 +4,40 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["getGnuPGAPI"];
 
-var Services = Components.utils.import("resource://gre/modules/Services.jsm").Services;
+var Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
-Services.scriptloader.loadSubScript("chrome://openpgp/content/modules/cryptoAPI/interface.js",
-  null, "UTF-8"); /* global CryptoAPI */
+Services.scriptloader.loadSubScript(
+  "chrome://openpgp/content/modules/cryptoAPI/interface.js",
+  null,
+  "UTF-8"
+); /* global CryptoAPI */
 
-/* global getOpenPGP: false, EnigmailLog: false */
-
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
-const EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm").EnigmailGpg;
-const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailTime = ChromeUtils.import("chrome://openpgp/content/modules/time.jsm").EnigmailTime;
-const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailErrorHandling = ChromeUtils.import("chrome://openpgp/content/modules/errorHandling.jsm").EnigmailErrorHandling;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailConstants = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+).EnigmailConstants;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
 
 const {
   obtainKeyList,
   getPhotoFileFromGnuPG,
-  extractSignatures,
-  getGpgKeyData
-} = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm");
+  getGpgKeyData,
+} = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm"
+);
 
-const {
-  GnuPG_importKeyFromFile,
-  GnuPG_extractSecretKey
-} = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI/gnupg-key.jsm");
+const { GnuPG_importKeyFromFile, GnuPG_extractSecretKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI/gnupg-key.jsm"
+);
 
 /**
  * GnuPG implementation of CryptoAPI
@@ -71,7 +72,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
     EnigmailLog.DEBUG(`gnupg.js: getKeySignatures: ${keyId}\n`);
     throw new Error("Not implemented");
   }
-
 
   /**
    * Export the minimum key for the public key object:
@@ -142,7 +142,8 @@ class GnuPGCryptoAPI extends CryptoAPI {
     let ret = await GnuPG_extractSecretKey(keyId, minimalKey);
 
     if (ret.exitCode !== 0) {
-      ret.errorMsg = EnigmailLocale.getString("failKeyExtract") + "\n" + ret.errorMsg;
+      ret.errorMsg =
+        EnigmailLocale.getString("failKeyExtract") + "\n" + ret.errorMsg;
     }
     return ret;
   }
@@ -175,7 +176,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
-
   /**
    *
    * @param {Bytes}  encrypted     The encrypted data
@@ -191,7 +191,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
     EnigmailLog.DEBUG(`gnupg.js: decryptAttachment()\n`);
     throw new Error("Not implemented");
   }
-
 
   /**
    *
@@ -267,7 +266,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {
     throw new Error("GnuPG genKey() not implemented");
-    return null;
   }
 
   async deleteKey(keyFingerprint, deleteSecret) {

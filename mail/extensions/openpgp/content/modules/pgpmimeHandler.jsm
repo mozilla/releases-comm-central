@@ -9,27 +9,44 @@
  *  implemented as an XPCOM object
  */
 
-const {
-  manager: Cm,
-  results: Cr,
-  Constructor: CC
-} = Components;
+const { manager: Cm } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
 var EXPORTED_SYMBOLS = ["EnigmailPgpmimeHander"];
 
-const EnigmailCompat = ChromeUtils.import("chrome://openpgp/content/modules/compat.jsm").EnigmailCompat;
-const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailMimeDecrypt = ChromeUtils.import("chrome://openpgp/content/modules/mimeDecrypt.jsm").EnigmailMimeDecrypt;
-const EnigmailVerify = ChromeUtils.import("chrome://openpgp/content/modules/mimeVerify.jsm").EnigmailVerify;
-const EnigmailWksMimeHandler = ChromeUtils.import("chrome://openpgp/content/modules/wksMimeHandler.jsm").EnigmailWksMimeHandler;
-const EnigmailMime = ChromeUtils.import("chrome://openpgp/content/modules/mime.jsm").EnigmailMime;
-const EnigmailSingletons = ChromeUtils.import("chrome://openpgp/content/modules/singletons.jsm").EnigmailSingletons;
+const EnigmailCompat = ChromeUtils.import(
+  "chrome://openpgp/content/modules/compat.jsm"
+).EnigmailCompat;
+const EnigmailCore = ChromeUtils.import(
+  "chrome://openpgp/content/modules/core.jsm"
+).EnigmailCore;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailMimeDecrypt = ChromeUtils.import(
+  "chrome://openpgp/content/modules/mimeDecrypt.jsm"
+).EnigmailMimeDecrypt;
+const EnigmailVerify = ChromeUtils.import(
+  "chrome://openpgp/content/modules/mimeVerify.jsm"
+).EnigmailVerify;
+const EnigmailWksMimeHandler = ChromeUtils.import(
+  "chrome://openpgp/content/modules/wksMimeHandler.jsm"
+).EnigmailWksMimeHandler;
+const EnigmailMime = ChromeUtils.import(
+  "chrome://openpgp/content/modules/mime.jsm"
+).EnigmailMime;
+const EnigmailSingletons = ChromeUtils.import(
+  "chrome://openpgp/content/modules/singletons.jsm"
+).EnigmailSingletons;
 
-const PGPMIME_JS_DECRYPTOR_CONTRACTID = "@mozilla.org/mime/pgp-mime-js-decrypt;1";
-const PGPMIME_JS_DECRYPTOR_CID = Components.ID("{7514cbeb-2bfd-4b2c-829b-1a4691fa0ac8}");
+const PGPMIME_JS_DECRYPTOR_CONTRACTID =
+  "@mozilla.org/mime/pgp-mime-js-decrypt;1";
+const PGPMIME_JS_DECRYPTOR_CID = Components.ID(
+  "{7514cbeb-2bfd-4b2c-829b-1a4691fa0ac8}"
+);
 
 ////////////////////////////////////////////////////////////////////
 // handler for PGP/MIME encrypted and PGP/MIME signed messages
@@ -41,15 +58,15 @@ var inStream;
 var gLastEncryptedUri = "";
 
 const throwErrors = {
-  onDataAvailable: function() {
+  onDataAvailable() {
     throw new Error("error");
   },
-  onStartRequest: function() {
+  onStartRequest() {
     throw new Error("error");
   },
-  onStopRequest: function() {
+  onStopRequest() {
     throw new Error("error");
-  }
+  },
 };
 
 /**
@@ -58,16 +75,20 @@ const throwErrors = {
  */
 function UnknownProtoHandler() {
   if (!gConv) {
-    gConv = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+    gConv = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
+      Ci.nsIStringInputStream
+    );
   }
 
   if (!inStream) {
-    inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
+    inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+      Ci.nsIScriptableInputStream
+    );
   }
 }
 
 UnknownProtoHandler.prototype = {
-  onStartRequest: function(request, ctxt) {
+  onStartRequest(request, ctxt) {
     this.mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     if (!("outputDecryptedData" in this.mimeSvc)) {
       this.mimeSvc.onStartRequest(null, ctxt);
@@ -82,11 +103,11 @@ UnknownProtoHandler.prototype = {
     this.readMode = 0;
   },
 
-  onDataAvailable: function(p1, p2, p3, p4) {
+  onDataAvailable(p1, p2, p3, p4) {
     this.processData(p1, p2, p3, p4);
   },
 
-  processData: function (req, stream, offset, count) {
+  processData(req, stream, offset, count) {
     if (count > 0) {
       inStream.init(stream);
       let data = inStream.read(count);
@@ -105,8 +126,7 @@ UnknownProtoHandler.prototype = {
             ++this.readMode;
             if (this.readMode === 1) {
               startIndex = i + 1;
-            }
-            else if (this.readMode === 2) {
+            } else if (this.readMode === 2) {
               endIndex = i - 1;
             }
           }
@@ -118,8 +138,7 @@ UnknownProtoHandler.prototype = {
           if ("outputDecryptedData" in this.mimeSvc) {
             // TB >= 57
             this.mimeSvc.outputDecryptedData(out, out.length);
-          }
-          else {
+          } else {
             gConv.setData(out, out.length);
             this.mimeSvc.onDataAvailable(null, null, gConv, 0, out.length);
           }
@@ -128,17 +147,15 @@ UnknownProtoHandler.prototype = {
     }
   },
 
-  onStopRequest: function() {
+  onStopRequest() {
     if (!("outputDecryptedData" in this.mimeSvc)) {
       this.mimeSvc.onStopRequest(null, 0);
     }
-  }
+  },
 };
 
 function PgpMimeHandler() {
-
   EnigmailLog.DEBUG("pgpmimeHandler.js: PgpMimeHandler()\n"); // always log this one
-
 }
 
 PgpMimeHandler.prototype = {
@@ -146,17 +163,18 @@ PgpMimeHandler.prototype = {
   classID: PGPMIME_JS_DECRYPTOR_CID,
   contractID: PGPMIME_JS_DECRYPTOR_CONTRACTID,
   QueryInterface: EnigmailCompat.generateQI([Ci.nsIStreamListener]),
-  inStream: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream),
+  inStream: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    Ci.nsIScriptableInputStream
+  ),
 
-  onStartRequest: function(request, ctxt) {
+  onStartRequest(request, ctxt) {
     let mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     let ct = mimeSvc.contentType;
 
     let uri = null;
     if ("messageURI" in mimeSvc) {
       uri = mimeSvc.messageURI;
-    }
-    else {
+    } else {
       uri = ctxt;
     }
 
@@ -181,13 +199,11 @@ PgpMimeHandler.prototype = {
       // PGP/MIME encrypted message
 
       cth = EnigmailMimeDecrypt.newPgpMimeHandler();
-    }
-    else if (ct.search(/^multipart\/signed/i) === 0) {
+    } else if (ct.search(/^multipart\/signed/i) === 0) {
       if (ct.search(/application\/pgp-signature/i) > 0) {
         // PGP/MIME signed message
         cth = EnigmailVerify.newVerifier();
-      }
-      else if (ct.search(/application\/(x-)?pkcs7-signature/i) > 0) {
+      } else if (ct.search(/application\/(x-)?pkcs7-signature/i) > 0) {
         let lastUriSpec = "";
         if (uri) {
           let u = uri.QueryInterface(Ci.nsIURI);
@@ -198,18 +214,18 @@ PgpMimeHandler.prototype = {
           // if message is displayed then handle like S/MIME message
           return this.handleSmime(uri);
         }
-        else {
-          // otherwise just make sure message body is returned
-          cth = EnigmailVerify.newVerifier("application/(x-)?pkcs7-signature");
-        }
+
+        // otherwise just make sure message body is returned
+        cth = EnigmailVerify.newVerifier("application/(x-)?pkcs7-signature");
       }
-    }
-    else if (ct.search(/application\/vnd.gnupg.wks/i) === 0) {
+    } else if (ct.search(/application\/vnd.gnupg.wks/i) === 0) {
       cth = EnigmailWksMimeHandler.newHandler();
     }
 
     if (!cth) {
-      EnigmailLog.ERROR("pgpmimeHandler.js: unknown protocol for content-type: " + ct + "\n");
+      EnigmailLog.ERROR(
+        "pgpmimeHandler.js: unknown protocol for content-type: " + ct + "\n"
+      );
       cth = new UnknownProtoHandler();
     }
 
@@ -222,11 +238,11 @@ PgpMimeHandler.prototype = {
     return null;
   },
 
-  onDataAvailable: function(req, stream, offset, count) {},
+  onDataAvailable(req, stream, offset, count) {},
 
-  onStopRequest: function(request, status) {},
+  onStopRequest(request, status) {},
 
-  handleSmime: function(uri) {
+  handleSmime(uri) {
     this.contentHandler = throwErrors;
 
     if (uri) {
@@ -237,8 +253,8 @@ PgpMimeHandler.prototype = {
     headerSink.handleSMimeMessage(uri);
   },
 
-  getMessengerWindow: function() {
-    let windowManager = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+  getMessengerWindow() {
+    let windowManager = Services.wm;
 
     for (let win of windowManager.getEnumerator(null)) {
       if (win.location.href.search(/\/messenger.xhtml$/) > 0) {
@@ -247,9 +263,8 @@ PgpMimeHandler.prototype = {
     }
 
     return null;
-  }
+  },
 };
-
 
 class Factory {
   constructor(component) {
@@ -266,10 +281,12 @@ class Factory {
   }
 
   register() {
-    Cm.registerFactory(this.component.prototype.classID,
+    Cm.registerFactory(
+      this.component.prototype.classID,
       this.component.prototype.classDescription,
       this.component.prototype.contractID,
-      this);
+      this
+    );
   }
 
   unregister() {
@@ -277,18 +294,16 @@ class Factory {
   }
 }
 
-
 var EnigmailPgpmimeHander = {
-  startup: function(reason) {
+  startup(reason) {
     try {
       this.factory = new Factory(PgpMimeHandler);
-    }
-    catch (ex) {}
+    } catch (ex) {}
   },
 
-  shutdown: function(reason) {
+  shutdown(reason) {
     if (this.factory) {
       this.factory.unregister();
     }
-  }
+  },
 };

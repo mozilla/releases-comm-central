@@ -14,7 +14,7 @@ var dataCache = "";
 var gotNewData = false;
 
 var EnigmailConsole = {
-  write: function(data) {
+  write(data) {
     dataCache += data;
     if (dataCache.length > MAX_SIZE) {
       dataCache = dataCache.substr(-MAX_SIZE, MAX_SIZE);
@@ -22,12 +22,12 @@ var EnigmailConsole = {
     gotNewData = true;
   },
 
-  hasNewData: function() {
+  hasNewData() {
     return gotNewData;
   },
 
-  getData: function() {
+  getData() {
     gotNewData = false;
     return dataCache;
-  }
+  },
 };

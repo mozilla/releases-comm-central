@@ -8,22 +8,39 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailKeyServer"];
 
-Components.utils.importGlobalProperties(["XMLHttpRequest"]);
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
-const EnigmailKeyserverURIs = ChromeUtils.import("chrome://openpgp/content/modules/keyserverUris.jsm").EnigmailKeyserverURIs;
-const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm").EnigmailGpg;
-const EnigmailHttpProxy = ChromeUtils.import("chrome://openpgp/content/modules/httpProxy.jsm").EnigmailHttpProxy;
-const EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm").EnigmailOS;
-const EnigmailXhrUtils = ChromeUtils.import("chrome://openpgp/content/modules/xhrUtils.jsm").EnigmailXhrUtils;
-const EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
-const EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
-
-const IOSERVICE_CONTRACTID = "@mozilla.org/network/io-service;1";
+const EnigmailPrefs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+).EnigmailPrefs;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailKeyRing = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+).EnigmailKeyRing;
+const EnigmailKeyserverURIs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyserverUris.jsm"
+).EnigmailKeyserverURIs;
+const EnigmailData = ChromeUtils.import(
+  "chrome://openpgp/content/modules/data.jsm"
+).EnigmailData;
+const EnigmailConstants = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+).EnigmailConstants;
+const EnigmailGpg = ChromeUtils.import(
+  "chrome://openpgp/content/modules/gpg.jsm"
+).EnigmailGpg;
+const EnigmailXhrUtils = ChromeUtils.import(
+  "chrome://openpgp/content/modules/xhrUtils.jsm"
+).EnigmailXhrUtils;
+const EnigmailFuncs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/funcs.jsm"
+).EnigmailFuncs;
+const EnigmailCryptoAPI = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+).EnigmailCryptoAPI;
 
 const ENIG_DEFAULT_HKP_PORT = "11371";
 const ENIG_DEFAULT_HKPS_PORT = "443";
@@ -31,7 +48,8 @@ const ENIG_DEFAULT_LDAP_PORT = "389";
 
 const SKS_CACERT_URL = "https://sks-keyservers.net/sks-keyservers.netCA.pem";
 const HKPS_POOL_HOST = "hkps.pool.sks-keyservers.net";
-const SKS_CACERT_SUBJECTNAME = "CN=sks-keyservers.net CA,O=sks-keyservers.net CA,ST=Oslo,C=NO";
+const SKS_CACERT_SUBJECTNAME =
+  "CN=sks-keyservers.net CA,O=sks-keyservers.net CA,ST=Oslo,C=NO";
 
 /**
  KeySrvListener API
@@ -39,7 +57,6 @@ const SKS_CACERT_SUBJECTNAME = "CN=sks-keyservers.net CA,O=sks-keyservers.net CA
   - onProgress: function(percentComplete) [only implemented for download()]
   - onCancel: function() - the body will be set by the callee
 */
-
 
 function createError(errId) {
   let msg = "";
@@ -69,7 +86,7 @@ function createError(errId) {
 
   return {
     result: errId,
-    errorDetails: msg
+    errorDetails: msg,
   };
 }
 
@@ -84,7 +101,7 @@ function createError(errId) {
 function parseKeyserverUrl(keyserver) {
   if (keyserver.length > 1024) {
     // insane length of keyserver is forbidden
-    throw Components.results.NS_ERROR_FAILURE;
+    throw Cr.NS_ERROR_FAILURE;
   }
 
   keyserver = keyserver.toLowerCase().trim();
@@ -92,8 +109,7 @@ function parseKeyserverUrl(keyserver) {
   if (keyserver.search(/^[a-zA-Z0-9_.-]+:\/\//) === 0) {
     protocol = keyserver.replace(/^([a-zA-Z0-9_.-]+)(:\/\/.*)/, "$1");
     keyserver = keyserver.replace(/^[a-zA-Z0-9_.-]+:\/\//, "");
-  }
-  else {
+  } else {
     protocol = "hkp";
   }
 
@@ -127,12 +143,11 @@ function parseKeyserverUrl(keyserver) {
   }
 
   return {
-    protocol: protocol,
+    protocol,
     host: keyserver,
-    port: port
+    port,
   };
 }
-
 
 /**
  Object to handle HKP/HKPS requests via builtin XMLHttpRequest()
@@ -142,14 +157,16 @@ const accessHkpInternal = {
    * Create the payload of hkp requests (upload only)
    *
    */
-  buildHkpPayload: function(actionFlag, searchTerms) {
+  buildHkpPayload(actionFlag, searchTerms) {
     let payLoad = null,
       keyData = "";
 
     switch (actionFlag) {
       case EnigmailConstants.UPLOAD_KEY:
         keyData = EnigmailKeyRing.extractKey(false, searchTerms, null, {}, {});
-        if (keyData.length === 0) return null;
+        if (keyData.length === 0) {
+          return null;
+        }
 
         payLoad = "keytext=" + encodeURIComponent(keyData);
         return payLoad;
@@ -167,7 +184,7 @@ const accessHkpInternal = {
   /**
    * return the URL and the HTTP access method for a given action
    */
-  createRequestUrl: function(keyserver, actionFlag, searchTerm) {
+  createRequestUrl(keyserver, actionFlag, searchTerm) {
     let keySrv = parseKeyserverUrl(keyserver);
 
     let method = "GET";
@@ -178,8 +195,9 @@ const accessHkpInternal = {
         protocol = "http";
         break;
       case "ldap":
-        throw Components.results.NS_ERROR_FAILURE;
-      default: // equals to hkps
+        throw Cr.NS_ERROR_FAILURE;
+      default:
+        // equals to hkps
         protocol = "https";
     }
 
@@ -188,24 +206,24 @@ const accessHkpInternal = {
     if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
       url += "/pks/add";
       method = "POST";
-    }
-    else if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
+    } else if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
       if (searchTerm.indexOf("0x") !== 0) {
         searchTerm = "0x" + searchTerm;
       }
       url += "/pks/lookup?search=" + searchTerm + "&op=get&options=mr";
-    }
-    else if (actionFlag === EnigmailConstants.SEARCH_KEY) {
-      url += "/pks/lookup?search=" + escape(searchTerm) + "&fingerprint=on&op=index&options=mr";
-    }
-    else if (actionFlag === EnigmailConstants.GET_SKS_CACERT) {
+    } else if (actionFlag === EnigmailConstants.SEARCH_KEY) {
+      url +=
+        "/pks/lookup?search=" +
+        escape(searchTerm) +
+        "&fingerprint=on&op=index&options=mr";
+    } else if (actionFlag === EnigmailConstants.GET_SKS_CACERT) {
       url = SKS_CACERT_URL;
     }
 
     return {
-      url: url,
+      url,
       host: keySrv.host,
-      method: method
+      method,
     };
   },
 
@@ -218,17 +236,21 @@ const accessHkpInternal = {
    *
    * @return:   Promise<Number (Status-ID)>
    */
-  accessKeyServer: function(actionFlag, keyserver, keyId, listener) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.accessKeyServer(${keyserver})\n`);
+  accessKeyServer(actionFlag, keyserver, keyId, listener) {
+    EnigmailLog.DEBUG(
+      `keyserver.jsm: accessHkpInternal.accessKeyServer(${keyserver})\n`
+    );
     if (keyserver === null) {
       keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
     }
 
     return new Promise((resolve, reject) => {
       let xmlReq = null;
-      if (listener && typeof(listener) === "object") {
+      if (listener && typeof listener === "object") {
         listener.onCancel = function() {
-          EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.accessKeyServer - onCancel() called\n`);
+          EnigmailLog.DEBUG(
+            `keyserver.jsm: accessHkpInternal.accessKeyServer - onCancel() called\n`
+          );
           if (xmlReq) {
             xmlReq.abort();
           }
@@ -246,19 +268,24 @@ const accessHkpInternal = {
         return;
       }
 
-      let errorCode = 0;
-
       xmlReq = new XMLHttpRequest();
 
-      xmlReq.onload = function _onLoad() {
-        EnigmailLog.DEBUG("keyserver.jsm: accessHkpInternal: onload(): status=" + xmlReq.status + "\n");
+      xmlReq.onload = function() {
+        EnigmailLog.DEBUG(
+          "keyserver.jsm: accessHkpInternal: onload(): status=" +
+            xmlReq.status +
+            "\n"
+        );
         switch (actionFlag) {
           case EnigmailConstants.UPLOAD_KEY:
-            EnigmailLog.DEBUG("keyserver.jsm: accessHkpInternal: onload: " + xmlReq.responseText + "\n");
+            EnigmailLog.DEBUG(
+              "keyserver.jsm: accessHkpInternal: onload: " +
+                xmlReq.responseText +
+                "\n"
+            );
             if (xmlReq.status >= 400) {
               reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
-            }
-            else {
+            } else {
               resolve(0);
             }
             return;
@@ -268,11 +295,9 @@ const accessHkpInternal = {
             if (xmlReq.status === 404) {
               // key not found
               resolve("");
-            }
-            else if (xmlReq.status >= 400) {
+            } else if (xmlReq.status >= 400) {
               reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
-            }
-            else {
+            } else {
               resolve(xmlReq.responseText);
             }
             return;
@@ -281,21 +306,34 @@ const accessHkpInternal = {
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve(1);
-            }
-            else if (xmlReq.status >= 500) {
-              EnigmailLog.DEBUG("keyserver.jsm: accessHkpInternal: onload: " + xmlReq.responseText + "\n");
+            } else if (xmlReq.status >= 500) {
+              EnigmailLog.DEBUG(
+                "keyserver.jsm: accessHkpInternal: onload: " +
+                  xmlReq.responseText +
+                  "\n"
+              );
               reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
-            }
-            else {
+            } else {
               let errorMsgObj = {},
                 importedKeysObj = {};
-              let importMinimal = (xmlReq.responseText.length > 1024000 && (!EnigmailGpg.getGpgFeature("handles-huge-keys")));
-              let r = EnigmailKeyRing.importKey(null, false, xmlReq.responseText, "", errorMsgObj, importedKeysObj, importMinimal);
+              let importMinimal =
+                xmlReq.responseText.length > 1024000 &&
+                !EnigmailGpg.getGpgFeature("handles-huge-keys");
+              let r = EnigmailKeyRing.importKey(
+                null,
+                false,
+                xmlReq.responseText,
+                "",
+                errorMsgObj,
+                importedKeysObj,
+                importMinimal
+              );
               if (r === 0) {
                 resolve(importedKeysObj.value);
-              }
-              else {
-                reject(createError(EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR));
+              } else {
+                reject(
+                  createError(EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR)
+                );
               }
             }
             return;
@@ -304,52 +342,75 @@ const accessHkpInternal = {
       };
 
       xmlReq.onerror = function(e) {
-        EnigmailLog.DEBUG("keyserver.jsm: accessHkpInternal.accessKeyServer: onerror: " + e + "\n");
+        EnigmailLog.DEBUG(
+          "keyserver.jsm: accessHkpInternal.accessKeyServer: onerror: " +
+            e +
+            "\n"
+        );
         let err = EnigmailXhrUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
-          case 'SecurityCertificate':
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR));
+          case "SecurityCertificate":
+            reject(
+              createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR)
+            );
             break;
-          case 'SecurityProtocol':
+          case "SecurityProtocol":
             reject(createError(EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR));
             break;
-          case 'Network':
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
+          case "Network":
+            reject(
+              createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+            );
             break;
         }
         reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
       };
 
       xmlReq.onloadend = function() {
-        EnigmailLog.DEBUG("keyserver.jsm: accessHkpInternal.accessKeyServer: loadEnd\n");
+        EnigmailLog.DEBUG(
+          "keyserver.jsm: accessHkpInternal.accessKeyServer: loadEnd\n"
+        );
       };
 
-      let {
-        url,
-        host,
-        method
-      } = this.createRequestUrl(keyserver, actionFlag, keyId);
+      let { url, host, method } = this.createRequestUrl(
+        keyserver,
+        actionFlag,
+        keyId
+      );
 
-      if (host === HKPS_POOL_HOST && actionFlag !== EnigmailConstants.GET_SKS_CACERT) {
+      if (
+        host === HKPS_POOL_HOST &&
+        actionFlag !== EnigmailConstants.GET_SKS_CACERT
+      ) {
         this.getSksCACert().then(r => {
-          EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.accessKeyServer: getting ${url}\n`);
+          EnigmailLog.DEBUG(
+            `keyserver.jsm: accessHkpInternal.accessKeyServer: getting ${url}\n`
+          );
           xmlReq.open(method, url);
           xmlReq.send(payLoad);
         });
-      }
-      else {
-        EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`);
+      } else {
+        EnigmailLog.DEBUG(
+          `keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`
+        );
         xmlReq.open(method, url);
         xmlReq.send(payLoad);
       }
     });
   },
 
-  installSksCACert: async function() {
+  async installSksCACert() {
     EnigmailLog.DEBUG(`keyserver.jsm: installSksCACert()\n`);
-    let certDb = Cc["@mozilla.org/security/x509certdb;1"].getService(Ci.nsIX509CertDB);
+    let certDb = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
     try {
-      let certTxt = await this.accessKeyServer(EnigmailConstants.GET_SKS_CACERT, "", "", null);
+      let certTxt = await this.accessKeyServer(
+        EnigmailConstants.GET_SKS_CACERT,
+        "",
+        "",
+        null
+      );
       const BEGIN_CERT = "-----BEGIN CERTIFICATE-----";
       const END_CERT = "-----END CERTIFICATE-----";
 
@@ -359,8 +420,7 @@ const accessHkpInternal = {
       let certData = certTxt.substring(begin + BEGIN_CERT.length, end);
       let x509cert = certDb.addCertFromBase64(certData, "C,C,C", "");
       return x509cert;
-    }
-    catch (x) {
+    } catch (x) {
       return null;
     }
   },
@@ -368,13 +428,18 @@ const accessHkpInternal = {
   /**
    * Get the CA certificate for the HKPS sks-keyserver pool
    */
-  getSksCACert: async function() {
+  async getSksCACert() {
     EnigmailLog.DEBUG(`keyserver.jsm: getSksCACert()\n`);
-    let certDb = Cc["@mozilla.org/security/x509certdb;1"].getService(Ci.nsIX509CertDB);
+    let certDb = Cc["@mozilla.org/security/x509certdb;1"].getService(
+      Ci.nsIX509CertDB
+    );
     let cert = null;
 
     for (cert of certDb.getCerts().getEnumerator()) {
-      if (cert.subjectName === SKS_CACERT_SUBJECTNAME && cert.certType === Ci.nsIX509Cert.CA_CERT) {
+      if (
+        cert.subjectName === SKS_CACERT_SUBJECTNAME &&
+        cert.certType === Ci.nsIX509Cert.CA_CERT
+      ) {
         return cert;
       }
     }
@@ -391,40 +456,46 @@ const accessHkpInternal = {
    *
    * @return:   Promise<...>
    */
-  download: async function(keyIDs, keyserver, listener = null) {
+  async download(keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.download(${keyIDs})\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
       errorDetails: "",
-      keyList: []
+      keyList: [],
     };
 
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
-        let r = await this.accessKeyServer(EnigmailConstants.DOWNLOAD_KEY, keyserver, keyIdArr[i], listener);
+        let r = await this.accessKeyServer(
+          EnigmailConstants.DOWNLOAD_KEY,
+          keyserver,
+          keyIdArr[i],
+          listener
+        );
         if (Array.isArray(r)) {
           retObj.keyList = retObj.keyList.concat(r);
         }
-      }
-      catch (ex) {
+      } catch (ex) {
         retObj.result = ex.result;
         retObj.errorDetails = ex.errorDetails;
         throw retObj;
       }
 
       if (listener && "onProgress" in listener) {
-        listener.onProgress((i + 1) / keyIdArr.length * 100);
+        listener.onProgress(((i + 1) / keyIdArr.length) * 100);
       }
     }
 
     return retObj;
   },
 
-  refresh: function(keyServer, listener = null) {
-    let keyList = EnigmailKeyRing.getAllKeys().keyList.map(keyObj => {
-      return "0x" + keyObj.fpr;
-    }).join(" ");
+  refresh(keyServer, listener = null) {
+    let keyList = EnigmailKeyRing.getAllKeys()
+      .keyList.map(keyObj => {
+        return "0x" + keyObj.fpr;
+      })
+      .join(" ");
 
     return this.download(keyList, keyServer, listener);
   },
@@ -437,33 +508,36 @@ const accessHkpInternal = {
    *
    * @return:   Promise<...>
    */
-  upload: async function(keyIDs, keyserver, listener = null) {
+  async upload(keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.upload(${keyIDs})\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
       errorDetails: "",
-      keyList: []
+      keyList: [],
     };
 
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
-        let r = await this.accessKeyServer(EnigmailConstants.UPLOAD_KEY, keyserver, keyIdArr[i], listener);
+        let r = await this.accessKeyServer(
+          EnigmailConstants.UPLOAD_KEY,
+          keyserver,
+          keyIdArr[i],
+          listener
+        );
         if (r === 0) {
           retObj.keyList.push(keyIdArr[i]);
-        }
-        else {
+        } else {
           retObj.result = r;
         }
-      }
-      catch (ex) {
+      } catch (ex) {
         retObj.result = ex.result;
         retObj.errorDetails = ex.errorDetails;
         throw retObj;
       }
 
       if (listener && "onProgress" in listener) {
-        listener.onProgress((i + 1) / keyIdArr.length * 100);
+        listener.onProgress(((i + 1) / keyIdArr.length) * 100);
       }
     }
 
@@ -487,75 +561,80 @@ const accessHkpInternal = {
    *           - status: String: one of ''=valid, r=revoked, e=expired
    *           - uid: Array of Strings with UIDs
    */
-  search: async function(searchTerm, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.search(${searchTerm})\n`);
+  async search(searchTerm, keyserver, listener = null) {
+    EnigmailLog.DEBUG(
+      `keyserver.jsm: accessHkpInternal.search(${searchTerm})\n`
+    );
     let retObj = {
       result: 0,
       errorDetails: "",
-      pubKeys: []
+      pubKeys: [],
     };
     let key = null;
 
     let searchArr = searchTerm.split(/ +/);
 
-    try {
-      for (let k in searchArr) {
-        let r = await this.accessKeyServer(EnigmailConstants.SEARCH_KEY, keyserver, searchArr[k], listener);
+    for (let k in searchArr) {
+      let r = await this.accessKeyServer(
+        EnigmailConstants.SEARCH_KEY,
+        keyserver,
+        searchArr[k],
+        listener
+      );
 
-        let lines = r.split(/\r?\n/);
+      let lines = r.split(/\r?\n/);
 
-        for (var i = 0; i < lines.length; i++) {
-          let line = lines[i].split(/:/).map(unescape);
-          if (line.length <= 1) continue;
-
-          switch (line[0]) {
-            case "info":
-              if (line[1] !== "1") {
-                // protocol version not supported
-                throw {
-                  result: 7,
-                  errorDetails: EnigmailLocale.getString("keyserver.error.unsupported"),
-                  pubKeys: []
-                };
-              }
-              break;
-            case "pub":
-              if (line.length >= 6) {
-                if (key) {
-                  retObj.pubKeys.push(key);
-                  key = null;
-                }
-                let dat = new Date(line[4] * 1000);
-                let month = String(dat.getMonth() + 101).substr(1);
-                let day = String(dat.getDate() + 100).substr(1);
-                key = {
-                  keyId: line[1],
-                  keyLen: line[3],
-                  keyType: line[2],
-                  created: dat.getFullYear() + "-" + month + "-" + day,
-                  uid: [],
-                  status: line[6]
-                };
-              }
-              break;
-            case "uid":
-              key.uid.push(EnigmailData.convertToUnicode(line[1].trim(), "utf-8"));
-          }
+      for (var i = 0; i < lines.length; i++) {
+        let line = lines[i].split(/:/).map(unescape);
+        if (line.length <= 1) {
+          continue;
         }
 
-        if (key) {
-          retObj.pubKeys.push(key);
+        switch (line[0]) {
+          case "info":
+            if (line[1] !== "1") {
+              // protocol version not supported
+              retObj.result = 7;
+              retObj.errorDetails = EnigmailLocale.getString(
+                "keyserver.error.unsupported"
+              );
+              retObj.pubKeys = [];
+              return retObj;
+            }
+            break;
+          case "pub":
+            if (line.length >= 6) {
+              if (key) {
+                retObj.pubKeys.push(key);
+                key = null;
+              }
+              let dat = new Date(line[4] * 1000);
+              let month = String(dat.getMonth() + 101).substr(1);
+              let day = String(dat.getDate() + 100).substr(1);
+              key = {
+                keyId: line[1],
+                keyLen: line[3],
+                keyType: line[2],
+                created: dat.getFullYear() + "-" + month + "-" + day,
+                uid: [],
+                status: line[6],
+              };
+            }
+            break;
+          case "uid":
+            key.uid.push(
+              EnigmailData.convertToUnicode(line[1].trim(), "utf-8")
+            );
         }
       }
-    }
-    catch (ex) {
-      retObj.result = ex.result;
-      retObj.errorDetails = ex.errorDetails;
-      throw retObj;
+
+      if (key) {
+        retObj.pubKeys.push(key);
+      }
     }
 
     return retObj;
-  }
+  },
 };
 
 /**
@@ -565,28 +644,27 @@ const accessKeyBase = {
   /**
    * return the URL and the HTTP access method for a given action
    */
-  createRequestUrl: function(actionFlag, searchTerm) {
-    const method = "GET";
-
+  createRequestUrl(actionFlag, searchTerm) {
     let url = "https://keybase.io/_/api/1.0/user/";
 
     if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
       // not supported
-      throw Components.results.NS_ERROR_FAILURE;
-    }
-    else if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
+      throw Cr.NS_ERROR_FAILURE;
+    } else if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
       if (searchTerm.indexOf("0x") === 0) {
         searchTerm = searchTerm.substr(0, 40);
       }
-      url += "lookup.json?key_fingerprint=" + escape(searchTerm) + "&fields=public_keys";
-    }
-    else if (actionFlag === EnigmailConstants.SEARCH_KEY) {
+      url +=
+        "lookup.json?key_fingerprint=" +
+        escape(searchTerm) +
+        "&fields=public_keys";
+    } else if (actionFlag === EnigmailConstants.SEARCH_KEY) {
       url += "autocomplete.json?q=" + escape(searchTerm);
     }
 
     return {
-      url: url,
-      method: "GET"
+      url,
+      method: "GET",
     };
   },
 
@@ -598,14 +676,16 @@ const accessKeyBase = {
    *
    * @return:   Promise<Number (Status-ID)>
    */
-  accessKeyServer: function(actionFlag, keyId, listener) {
+  accessKeyServer(actionFlag, keyId, listener) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: accessKeyServer()\n`);
 
     return new Promise((resolve, reject) => {
       let xmlReq = null;
-      if (listener && typeof(listener) === "object") {
+      if (listener && typeof listener === "object") {
         listener.onCancel = function() {
-          EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: accessKeyServer - onCancel() called\n`);
+          EnigmailLog.DEBUG(
+            `keyserver.jsm: accessKeyBase: accessKeyServer - onCancel() called\n`
+          );
           if (xmlReq) {
             xmlReq.abort();
           }
@@ -617,18 +697,17 @@ const accessKeyBase = {
         actionFlag = EnigmailConstants.DOWNLOAD_KEY;
       }
 
-      let errorCode = 0;
-
       xmlReq = new XMLHttpRequest();
 
-      xmlReq.onload = function _onLoad() {
-        EnigmailLog.DEBUG("keyserver.jsm: onload(): status=" + xmlReq.status + "\n");
+      xmlReq.onload = function() {
+        EnigmailLog.DEBUG(
+          "keyserver.jsm: onload(): status=" + xmlReq.status + "\n"
+        );
         switch (actionFlag) {
           case EnigmailConstants.SEARCH_KEY:
             if (xmlReq.status >= 400) {
               reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
-            }
-            else {
+            } else {
               resolve(xmlReq.responseText);
             }
             return;
@@ -637,24 +716,33 @@ const accessKeyBase = {
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve([]);
-            }
-            else if (xmlReq.status >= 500) {
-              EnigmailLog.DEBUG("keyserver.jsm: onload: " + xmlReq.responseText + "\n");
+            } else if (xmlReq.status >= 500) {
+              EnigmailLog.DEBUG(
+                "keyserver.jsm: onload: " + xmlReq.responseText + "\n"
+              );
               reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
-            }
-            else {
+            } else {
               try {
                 let resp = JSON.parse(xmlReq.responseText);
                 let imported = [];
 
                 if (resp.status.code === 0) {
                   for (let hit in resp.them) {
-                    EnigmailLog.DEBUG(JSON.stringify(resp.them[hit].public_keys.primary) + "\n");
+                    EnigmailLog.DEBUG(
+                      JSON.stringify(resp.them[hit].public_keys.primary) + "\n"
+                    );
 
                     if (resp.them[hit] !== null) {
                       let errorMsgObj = {},
                         importedKeysObj = {};
-                      let r = EnigmailKeyRing.importKey(null, false, resp.them[hit].public_keys.primary.bundle, "", errorMsgObj, importedKeysObj);
+                      let r = EnigmailKeyRing.importKey(
+                        null,
+                        false,
+                        resp.them[hit].public_keys.primary.bundle,
+                        "",
+                        errorMsgObj,
+                        importedKeysObj
+                      );
                       if (r === 0) {
                         imported.push(importedKeysObj.value);
                       }
@@ -662,8 +750,7 @@ const accessKeyBase = {
                   }
                 }
                 resolve(imported);
-              }
-              catch (ex) {
+              } catch (ex) {
                 reject(createError(EnigmailConstants.KEYSERVER_ERR_UNKNOWN));
               }
             }
@@ -676,14 +763,18 @@ const accessKeyBase = {
         EnigmailLog.DEBUG("keyserver.jsm: accessKeyBase: onerror: " + e + "\n");
         let err = EnigmailXhrUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
-          case 'SecurityCertificate':
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR));
+          case "SecurityCertificate":
+            reject(
+              createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR)
+            );
             break;
-          case 'SecurityProtocol':
+          case "SecurityProtocol":
             reject(createError(EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR));
             break;
-          case 'Network':
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
+          case "Network":
+            reject(
+              createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+            );
             break;
         }
         reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
@@ -693,10 +784,7 @@ const accessKeyBase = {
         EnigmailLog.DEBUG("keyserver.jsm: accessKeyBase: loadEnd\n");
       };
 
-      let {
-        url,
-        method
-      } = this.createRequestUrl(actionFlag, keyId);
+      let { url, method } = this.createRequestUrl(actionFlag, keyId);
 
       EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: requesting ${url}\n`);
       xmlReq.open(method, url);
@@ -712,24 +800,26 @@ const accessKeyBase = {
    *
    * @return:   Promise<...>
    */
-  download: async function(keyIDs, keyserver, listener = null) {
+  async download(keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: download()\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
       errorDetails: "",
-      keyList: []
+      keyList: [],
     };
-
 
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
-        let r = await this.accessKeyServer(EnigmailConstants.DOWNLOAD_KEY, keyIdArr[i], listener);
+        let r = await this.accessKeyServer(
+          EnigmailConstants.DOWNLOAD_KEY,
+          keyIdArr[i],
+          listener
+        );
         if (r.length > 0) {
           retObj.keyList = retObj.keyList.concat(r);
         }
-      }
-      catch (ex) {
+      } catch (ex) {
         retObj.result = ex.result;
         retObj.errorDetails = ex.result;
         throw retObj;
@@ -761,41 +851,51 @@ const accessKeyBase = {
    *           - uid: Array of Strings with UIDs
 
    */
-  search: async function(searchTerm, keyserver, listener = null) {
+  async search(searchTerm, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: search()\n`);
     let retObj = {
       result: 0,
       errorDetails: "",
-      pubKeys: []
+      pubKeys: [],
     };
 
-    let key = {};
-
     try {
-      let r = await this.accessKeyServer(EnigmailConstants.SEARCH_KEY, searchTerm, listener);
+      let r = await this.accessKeyServer(
+        EnigmailConstants.SEARCH_KEY,
+        searchTerm,
+        listener
+      );
 
       let res = JSON.parse(r);
       let completions = res.completions;
 
       for (let hit in completions) {
-        if (completions[hit] && completions[hit].components.key_fingerprint !== undefined) {
+        if (
+          completions[hit] &&
+          completions[hit].components.key_fingerprint !== undefined
+        ) {
           let uid = completions[hit].components.username.val;
           if ("full_name" in completions[hit].components) {
             uid += " (" + completions[hit].components.full_name.val + ")";
           }
           let key = {
-            keyId: completions[hit].components.key_fingerprint.val.toUpperCase(),
-            keyLen: completions[hit].components.key_fingerprint.nbits.toString(),
-            keyType: completions[hit].components.key_fingerprint.algo.toString(),
+            keyId: completions[
+              hit
+            ].components.key_fingerprint.val.toUpperCase(),
+            keyLen: completions[
+              hit
+            ].components.key_fingerprint.nbits.toString(),
+            keyType: completions[
+              hit
+            ].components.key_fingerprint.algo.toString(),
             created: 0, //date.toDateString(),
             uid: [uid],
-            status: ""
+            status: "",
           };
           retObj.pubKeys.push(key);
         }
       }
-    }
-    catch (ex) {
+    } catch (ex) {
       retObj.result = ex.result;
       retObj.errorDetails = ex.errorDetails;
       throw retObj;
@@ -804,26 +904,26 @@ const accessKeyBase = {
     return retObj;
   },
 
-  upload: function() {
-    throw Components.results.NS_ERROR_FAILURE;
+  upload() {
+    throw Cr.NS_ERROR_FAILURE;
   },
 
-  refresh: function(keyServer, listener = null) {
+  refresh(keyServer, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: refresh()\n`);
-    let keyList = EnigmailKeyRing.getAllKeys().keyList.map(keyObj => {
-      return "0x" + keyObj.fpr;
-    }).join(" ");
+    let keyList = EnigmailKeyRing.getAllKeys()
+      .keyList.map(keyObj => {
+        return "0x" + keyObj.fpr;
+      })
+      .join(" ");
 
     return this.download(keyList, keyServer, listener);
-  }
+  },
 };
-
 
 /**
  Object to handle HKP/HKPS and LDAP/LDAPS requests via GnuPG
  */
 const accessGnuPG = {
-
   /**
    * Upload, search or download keys from a keyserver
    * @param actionFlag:  Number  - Keyserver Action Flags: from EnigmailConstants
@@ -833,8 +933,10 @@ const accessGnuPG = {
    *
    * @return Promise<Object> Object from execAsync
    */
-  accessKeyServer: function(actionFlag, keyserver, keyId, listener) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG: accessKeyServer(${keyserver})\n`);
+  accessKeyServer(actionFlag, keyserver, keyId, listener) {
+    EnigmailLog.DEBUG(
+      `keyserver.jsm: accessGnuPG: accessKeyServer(${keyserver})\n`
+    );
     throw new Error("Not implemented");
 
     /*
@@ -855,17 +957,19 @@ const accessGnuPG = {
     */
   },
 
-  parseStatusMsg: function(execResult) {
+  parseStatusMsg(execResult) {
     let errorCode = 0,
       errorType = null;
 
     // Find the 1st FAILURE message in the gpg status output
-    let m = execResult.stderrData.match(/^\[GNUPG:\] (FAILURE|ERROR) ([^ ]+ )(\d+)/m);
+    let m = execResult.stderrData.match(
+      /^\[GNUPG:\] (FAILURE|ERROR) ([^ ]+ )(\d+)/m
+    );
 
     if (m && m.length >= 4 && m[3].search(/^[0-9]+$/) === 0) {
       let errorNumber = Number(m[3]);
       //let sourceSystem = errorNumber >> 24;
-      errorCode = errorNumber & 0xFFFFFF;
+      errorCode = errorNumber & 0xffffff;
 
       switch (errorCode) {
         case 58: // no data
@@ -895,7 +999,9 @@ const accessGnuPG = {
     }
 
     if (errorType !== null) {
-      EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG.parseStatusMsg: got errorCode=${errorCode}\n`);
+      EnigmailLog.DEBUG(
+        `keyserver.jsm: accessGnuPG.parseStatusMsg: got errorCode=${errorCode}\n`
+      );
       return createError(errorType);
     }
 
@@ -909,17 +1015,22 @@ const accessGnuPG = {
    *
    * @return:   Promise<...>
    */
-  download: async function(keyIDs, keyserver, listener = null) {
+  async download(keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG.download(${keyIDs})\n`);
     let retObj = {
       result: 0,
       errorDetails: "",
-      keyList: []
+      keyList: [],
     };
     let keyIdArr = keyIDs.split(/ +/);
 
     for (let i = 0; i < keyIdArr.length; i++) {
-      let r = await this.accessKeyServer(EnigmailConstants.DOWNLOAD_KEY, keyserver, keyIdArr[i], listener);
+      let r = await this.accessKeyServer(
+        EnigmailConstants.DOWNLOAD_KEY,
+        keyserver,
+        keyIdArr[i],
+        listener
+      );
 
       let exitValue = this.parseStatusMsg(r);
       if (exitValue) {
@@ -931,24 +1042,26 @@ const accessGnuPG = {
 
       for (let j = 0; j < statusLines.length; j++) {
         let matches = statusLines[j].match(/IMPORT_OK ([0-9]+) (\w+)/);
-        if (matches && (matches.length > 2)) {
+        if (matches && matches.length > 2) {
           retObj.keyList.push(matches[2]);
           EnigmailKeyRing.updateKeys([matches[2]]);
         }
       }
 
       if (listener && "onProgress" in listener) {
-        listener.onProgress((i + 1) / keyIdArr.length * 100);
+        listener.onProgress(((i + 1) / keyIdArr.length) * 100);
       }
     }
 
     return retObj;
   },
 
-  refresh: function(keyServer, listener = null) {
-    let keyList = EnigmailKeyRing.getAllKeys().keyList.map(keyObj => {
-      return "0x" + keyObj.fpr;
-    }).join(" ");
+  refresh(keyServer, listener = null) {
+    let keyList = EnigmailKeyRing.getAllKeys()
+      .keyList.map(keyObj => {
+        return "0x" + keyObj.fpr;
+      })
+      .join(" ");
 
     return this.download(keyList, keyServer, listener);
   },
@@ -961,17 +1074,22 @@ const accessGnuPG = {
    *
    * @return:   Promise<...>
    */
-  upload: async function(keyIDs, keyserver, listener = null) {
+  async upload(keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG.upload(${keyIDs})\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
       errorDetails: "",
-      keyList: []
+      keyList: [],
     };
 
     for (let i = 0; i < keyIdArr.length; i++) {
-      let r = await this.accessKeyServer(EnigmailConstants.UPLOAD_KEY, keyserver, keyIdArr[i], listener);
+      let r = await this.accessKeyServer(
+        EnigmailConstants.UPLOAD_KEY,
+        keyserver,
+        keyIdArr[i],
+        listener
+      );
 
       let exitValue = this.parseStatusMsg(r);
       if (exitValue) {
@@ -984,7 +1102,7 @@ const accessGnuPG = {
       }
 
       if (listener && "onProgress" in listener) {
-        listener.onProgress((i + 1) / keyIdArr.length * 100);
+        listener.onProgress(((i + 1) / keyIdArr.length) * 100);
       }
     }
 
@@ -1008,85 +1126,86 @@ const accessGnuPG = {
    *           - status: String: one of ''=valid, r=revoked, e=expired
    *           - uid: Array of Strings with UIDs
    */
-  search: async function(searchTerm, keyserver, listener = null) {
+  async search(searchTerm, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG.search(${searchTerm})\n`);
     let retObj = {
       result: 0,
       errorDetails: "",
-      pubKeys: []
+      pubKeys: [],
     };
     let key = null;
 
-    try {
-      let r = await this.accessKeyServer(EnigmailConstants.SEARCH_KEY, keyserver, searchTerm, listener);
+    let r = await this.accessKeyServer(
+      EnigmailConstants.SEARCH_KEY,
+      keyserver,
+      searchTerm,
+      listener
+    );
 
-      let exitValue = this.parseStatusMsg(r);
-      if (exitValue) {
-        exitValue.pubKeys = [];
-        throw exitValue;
+    let exitValue = this.parseStatusMsg(r);
+    if (exitValue) {
+      retObj.result = exitValue.result;
+      retObj.errorDetails = exitValue.errorDetails;
+      retObj.pubKeys = [];
+      return retObj;
+    }
+
+    let lines = r.stdoutData.split(/\r?\n/);
+
+    for (var i = 0; i < lines.length; i++) {
+      let line = lines[i].split(/:/).map(unescape);
+      if (line.length <= 1) {
+        continue;
       }
 
-      let lines = r.stdoutData.split(/\r?\n/);
-
-      for (var i = 0; i < lines.length; i++) {
-        let line = lines[i].split(/:/).map(unescape);
-        if (line.length <= 1) continue;
-
-        switch (line[0]) {
-          case "info":
-            if (line[1] !== "1") {
-              // protocol version not supported
-              throw {
-                result: 7,
-                errorDetails: EnigmailLocale.getString("keyserver.error.unsupported"),
-                pubKeys: []
-              };
+      switch (line[0]) {
+        case "info":
+          if (line[1] !== "1") {
+            // protocol version not supported
+            retObj.result = 7;
+            retObj.errorDetails = EnigmailLocale.getString(
+              "keyserver.error.unsupported"
+            );
+            retObj.pubKeys = [];
+            return retObj;
+          }
+          break;
+        case "pub":
+          if (line.length >= 6) {
+            if (key) {
+              retObj.pubKeys.push(key);
+              key = null;
             }
-            break;
-          case "pub":
-            if (line.length >= 6) {
-              if (key) {
-                retObj.pubKeys.push(key);
-                key = null;
-              }
-              let dat = new Date(line[4] * 1000);
-              let month = String(dat.getMonth() + 101).substr(1);
-              let day = String(dat.getDate() + 100).substr(1);
-              key = {
-                keyId: line[1],
-                keyLen: line[3],
-                keyType: line[2],
-                created: dat.getFullYear() + "-" + month + "-" + day,
-                uid: [],
-                status: line[6]
-              };
-            }
-            break;
-          case "uid":
-            key.uid.push(EnigmailData.convertToUnicode(line[1].trim(), "utf-8"));
-        }
-      }
-
-      if (key) {
-        retObj.pubKeys.push(key);
+            let dat = new Date(line[4] * 1000);
+            let month = String(dat.getMonth() + 101).substr(1);
+            let day = String(dat.getDate() + 100).substr(1);
+            key = {
+              keyId: line[1],
+              keyLen: line[3],
+              keyType: line[2],
+              created: dat.getFullYear() + "-" + month + "-" + day,
+              uid: [],
+              status: line[6],
+            };
+          }
+          break;
+        case "uid":
+          key.uid.push(EnigmailData.convertToUnicode(line[1].trim(), "utf-8"));
       }
     }
-    catch (ex) {
-      retObj.result = ex.result;
-      retObj.errorDetails = ex.errorDetails;
-      throw retObj;
+
+    if (key) {
+      retObj.pubKeys.push(key);
     }
 
     return retObj;
-  }
+  },
 };
-
 
 function getAccessType(keyserver) {
   if (keyserver === null) {
     keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
   }
-
 
   let srv = parseKeyserverUrl(keyserver);
   switch (srv.protocol) {
@@ -1110,7 +1229,6 @@ function getAccessType(keyserver) {
   return accessHkpInternal;
 }
 
-
 /**
  Object to handle VKS requests (for example keys.openpgp.org)
  */
@@ -1119,17 +1237,19 @@ const accessVksServer = {
    * Create the payload of VKS requests (currently upload only)
    *
    */
-  buildJsonPayload: function(actionFlag, searchTerms, locale) {
+  buildJsonPayload(actionFlag, searchTerms, locale) {
     let payLoad = null,
       keyData = "";
 
     switch (actionFlag) {
       case EnigmailConstants.UPLOAD_KEY:
         keyData = EnigmailKeyRing.extractKey(false, searchTerms, null, {}, {});
-        if (keyData.length === 0) return null;
+        if (keyData.length === 0) {
+          return null;
+        }
 
         payLoad = JSON.stringify({
-          keytext: keyData
+          keytext: keyData,
         });
         return payLoad;
 
@@ -1137,7 +1257,7 @@ const accessVksServer = {
         payLoad = JSON.stringify({
           token: searchTerms.token,
           addresses: searchTerms.addresses,
-          locale: [locale]
+          locale: [locale],
         });
         return payLoad;
 
@@ -1154,7 +1274,7 @@ const accessVksServer = {
   /**
    * return the URL and the HTTP access method for a given action
    */
-  createRequestUrl: function(keyserver, actionFlag, searchTerm) {
+  createRequestUrl(keyserver, actionFlag, searchTerm) {
     let keySrv = parseKeyserverUrl(keyserver);
     let contentType = "text/plain;charset=UTF-8";
 
@@ -1166,29 +1286,33 @@ const accessVksServer = {
       url += "/vks/v1/upload";
       method = "POST";
       contentType = "application/json";
-    }
-    else if (actionFlag === EnigmailConstants.GET_CONFIRMATION_LINK) {
+    } else if (actionFlag === EnigmailConstants.GET_CONFIRMATION_LINK) {
       url += "/vks/v1/request-verify";
       method = "POST";
       contentType = "application/json";
-    }
-    else if (actionFlag === EnigmailConstants.DOWNLOAD_KEY || actionFlag === EnigmailConstants.SEARCH_KEY) {
+    } else if (
+      actionFlag === EnigmailConstants.DOWNLOAD_KEY ||
+      actionFlag === EnigmailConstants.SEARCH_KEY
+    ) {
       if (searchTerm) {
         let lookup = "/vks/";
         if (searchTerm.indexOf("0x") === 0) {
           searchTerm = searchTerm.substr(2);
-          if (searchTerm.length == 16 && searchTerm.search(/^[A-F0-9]+$/) === 0) {
+          if (
+            searchTerm.length == 16 &&
+            searchTerm.search(/^[A-F0-9]+$/) === 0
+          ) {
             lookup = "/vks/v1/by-keyid/" + searchTerm;
-          }
-          else if (searchTerm.length == 40 && searchTerm.search(/^[A-F0-9]+$/) === 0) {
+          } else if (
+            searchTerm.length == 40 &&
+            searchTerm.search(/^[A-F0-9]+$/) === 0
+          ) {
             lookup = "/vks/v1/by-fingerprint/" + searchTerm;
           }
-        }
-        else {
+        } else {
           try {
             searchTerm = EnigmailFuncs.stripEmail(searchTerm);
-          }
-          catch (x) {}
+          } catch (x) {}
           lookup = "/vks/v1/by-email/" + searchTerm;
         }
         url += lookup;
@@ -1196,10 +1320,9 @@ const accessVksServer = {
     }
 
     return {
-      url: url,
-      host: keySrv.host,
-      method: method,
-      contentType: contentType
+      url,
+      method,
+      contentType,
     };
   },
 
@@ -1212,17 +1335,21 @@ const accessVksServer = {
    *
    * @return:   Promise<Number (Status-ID)>
    */
-  accessKeyServer: function(actionFlag, keyserver, keyId, listener) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.accessKeyServer(${keyserver})\n`);
+  accessKeyServer(actionFlag, keyserver, keyId, listener) {
+    EnigmailLog.DEBUG(
+      `keyserver.jsm: accessVksServer.accessKeyServer(${keyserver})\n`
+    );
     if (keyserver === null) {
       keyserver = "keys.openpgp.org";
     }
 
     return new Promise((resolve, reject) => {
       let xmlReq = null;
-      if (listener && typeof(listener) === "object") {
+      if (listener && typeof listener === "object") {
         listener.onCancel = function() {
-          EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.accessKeyServer - onCancel() called\n`);
+          EnigmailLog.DEBUG(
+            `keyserver.jsm: accessVksServer.accessKeyServer - onCancel() called\n`
+          );
           if (xmlReq) {
             xmlReq.abort();
           }
@@ -1241,21 +1368,25 @@ const accessVksServer = {
         return;
       }
 
-      let errorCode = 0;
-
       xmlReq = new XMLHttpRequest();
 
-      xmlReq.onload = function _onLoad() {
-        EnigmailLog.DEBUG("keyserver.jsm: accessVksServer.onload(): status=" + xmlReq.status + "\n");
+      xmlReq.onload = function() {
+        EnigmailLog.DEBUG(
+          "keyserver.jsm: accessVksServer.onload(): status=" +
+            xmlReq.status +
+            "\n"
+        );
         switch (actionFlag) {
           case EnigmailConstants.UPLOAD_KEY:
           case EnigmailConstants.GET_CONFIRMATION_LINK:
-
-            EnigmailLog.DEBUG("keyserver.jsm: accessVksServer.onload: " + xmlReq.responseText + "\n");
+            EnigmailLog.DEBUG(
+              "keyserver.jsm: accessVksServer.onload: " +
+                xmlReq.responseText +
+                "\n"
+            );
             if (xmlReq.status >= 400) {
               reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
-            }
-            else {
+            } else {
               resolve(xmlReq.responseText);
             }
             return;
@@ -1264,11 +1395,9 @@ const accessVksServer = {
             if (xmlReq.status === 404) {
               // key not found
               resolve("");
-            }
-            else if (xmlReq.status >= 400) {
+            } else if (xmlReq.status >= 400) {
               reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
-            }
-            else {
+            } else {
               resolve(xmlReq.responseText);
             }
             return;
@@ -1277,20 +1406,30 @@ const accessVksServer = {
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve(1);
-            }
-            else if (xmlReq.status >= 500) {
-              EnigmailLog.DEBUG("keyserver.jsm: accessVksServer.onload: " + xmlReq.responseText + "\n");
+            } else if (xmlReq.status >= 500) {
+              EnigmailLog.DEBUG(
+                "keyserver.jsm: accessVksServer.onload: " +
+                  xmlReq.responseText +
+                  "\n"
+              );
               reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR));
-            }
-            else {
+            } else {
               let errorMsgObj = {},
                 importedKeysObj = {};
-              let r = EnigmailKeyRing.importKey(null, false, xmlReq.responseText, "", errorMsgObj, importedKeysObj);
+              let r = EnigmailKeyRing.importKey(
+                null,
+                false,
+                xmlReq.responseText,
+                "",
+                errorMsgObj,
+                importedKeysObj
+              );
               if (r === 0) {
                 resolve(importedKeysObj.value);
-              }
-              else {
-                reject(createError(EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR));
+              } else {
+                reject(
+                  createError(EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR)
+                );
               }
             }
             return;
@@ -1299,34 +1438,43 @@ const accessVksServer = {
       };
 
       xmlReq.onerror = function(e) {
-        EnigmailLog.DEBUG("keyserver.jsm: accessVksServer.accessKeyServer: onerror: " + e + "\n");
+        EnigmailLog.DEBUG(
+          "keyserver.jsm: accessVksServer.accessKeyServer: onerror: " + e + "\n"
+        );
         let err = EnigmailXhrUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
-          case 'SecurityCertificate':
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR));
+          case "SecurityCertificate":
+            reject(
+              createError(EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR)
+            );
             break;
-          case 'SecurityProtocol':
+          case "SecurityProtocol":
             reject(createError(EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR));
             break;
-          case 'Network':
-            reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
+          case "Network":
+            reject(
+              createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE)
+            );
             break;
         }
         reject(createError(EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE));
       };
 
       xmlReq.onloadend = function() {
-        EnigmailLog.DEBUG("keyserver.jsm: accessVksServer.accessKeyServer: loadEnd\n");
+        EnigmailLog.DEBUG(
+          "keyserver.jsm: accessVksServer.accessKeyServer: loadEnd\n"
+        );
       };
 
-      let {
-        url,
-        host,
-        method,
-        contentType
-      } = this.createRequestUrl(keyserver, actionFlag, keyId);
+      let { url, method, contentType } = this.createRequestUrl(
+        keyserver,
+        actionFlag,
+        keyId
+      );
 
-      EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.accessKeyServer: requesting ${method} for ${url}\n`);
+      EnigmailLog.DEBUG(
+        `keyserver.jsm: accessVksServer.accessKeyServer: requesting ${method} for ${url}\n`
+      );
       xmlReq.open(method, url);
       xmlReq.setRequestHeader("Content-Type", contentType);
       xmlReq.send(payLoad);
@@ -1341,46 +1489,54 @@ const accessVksServer = {
    *
    * @return:   Promise<...>
    */
-  download: async function(keyIDs, keyserver, listener = null) {
+  async download(keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.download(${keyIDs})\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
       errorDetails: "",
-      keyList: []
+      keyList: [],
     };
 
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
-        let r = await this.accessKeyServer(EnigmailConstants.DOWNLOAD_KEY, keyserver, keyIdArr[i], listener);
+        let r = await this.accessKeyServer(
+          EnigmailConstants.DOWNLOAD_KEY,
+          keyserver,
+          keyIdArr[i],
+          listener
+        );
         if (Array.isArray(r)) {
           retObj.keyList = retObj.keyList.concat(r);
         }
-      }
-      catch (ex) {
+      } catch (ex) {
         retObj.result = ex.result;
         retObj.errorDetails = ex.errorDetails;
         throw retObj;
       }
 
       if (listener && "onProgress" in listener) {
-        listener.onProgress((i + 1) / keyIdArr.length * 100);
+        listener.onProgress(((i + 1) / keyIdArr.length) * 100);
       }
     }
 
     return retObj;
   },
 
-  refresh: function(keyServer, listener = null) {
-    let keyList = EnigmailKeyRing.getAllKeys().keyList.map(keyObj => {
-      return "0x" + keyObj.fpr;
-    }).join(" ");
+  refresh(keyServer, listener = null) {
+    let keyList = EnigmailKeyRing.getAllKeys()
+      .keyList.map(keyObj => {
+        return "0x" + keyObj.fpr;
+      })
+      .join(" ");
 
     return this.download(keyList, keyServer, listener);
   },
 
-  requestConfirmationLink: async function(keyserver, jsonFragment) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.requestConfirmationLink()\n`);
+  async requestConfirmationLink(keyserver, jsonFragment) {
+    EnigmailLog.DEBUG(
+      `keyserver.jsm: accessVksServer.requestConfirmationLink()\n`
+    );
 
     let response = JSON.parse(jsonFragment);
 
@@ -1393,10 +1549,15 @@ const accessVksServer = {
     }
 
     if (addr.length > 0) {
-      let r = await this.accessKeyServer(EnigmailConstants.GET_CONFIRMATION_LINK, keyserver, {
-        token: response.token,
-        addresses: addr
-      }, null);
+      let r = await this.accessKeyServer(
+        EnigmailConstants.GET_CONFIRMATION_LINK,
+        keyserver,
+        {
+          token: response.token,
+          addresses: addr,
+        },
+        null
+      );
 
       if (typeof r === "string") {
         return addr.length;
@@ -1414,13 +1575,13 @@ const accessVksServer = {
    *
    * @return:   Promise<...>
    */
-  upload: async function(keyIDs, keyserver, listener = null) {
+  async upload(keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.upload(${keyIDs})\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
       result: 0,
       errorDetails: "",
-      keyList: []
+      keyList: [],
     };
 
     for (let i = 0; i < keyIdArr.length; i++) {
@@ -1434,7 +1595,12 @@ const accessVksServer = {
       }
 
       try {
-        let r = await this.accessKeyServer(EnigmailConstants.UPLOAD_KEY, keyserver, keyIdArr[i], listener);
+        let r = await this.accessKeyServer(
+          EnigmailConstants.UPLOAD_KEY,
+          keyserver,
+          keyIdArr[i],
+          listener
+        );
         if (typeof r === "string") {
           retObj.keyList.push(keyIdArr[i]);
           let req = await this.requestConfirmationLink(keyserver, r);
@@ -1443,19 +1609,17 @@ const accessVksServer = {
             retObj.result = 0;
             retObj.numEmails = req;
           }
-        }
-        else {
+        } else {
           retObj.result = r;
         }
-      }
-      catch (ex) {
+      } catch (ex) {
         retObj.result = ex.result;
         retObj.errorDetails = ex.errorDetails;
         throw retObj;
       }
 
       if (listener && "onProgress" in listener) {
-        listener.onProgress((i + 1) / keyIdArr.length * 100);
+        listener.onProgress(((i + 1) / keyIdArr.length) * 100);
       }
     }
 
@@ -1479,12 +1643,12 @@ const accessVksServer = {
    *           - status: String: one of ''=valid, r=revoked, e=expired
    *           - uid: Array of Strings with UIDs
    */
-  search: async function(searchTerm, keyserver, listener = null) {
+  async search(searchTerm, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.search(${searchTerm})\n`);
     let retObj = {
       result: 0,
       errorDetails: "",
-      pubKeys: []
+      pubKeys: [],
     };
     let key = null;
 
@@ -1492,7 +1656,12 @@ const accessVksServer = {
 
     try {
       for (let i in searchArr) {
-        let r = await this.accessKeyServer(EnigmailConstants.SEARCH_KEY, keyserver, searchArr[i], listener);
+        let r = await this.accessKeyServer(
+          EnigmailConstants.SEARCH_KEY,
+          keyserver,
+          searchArr[i],
+          listener
+        );
 
         const cApi = EnigmailCryptoAPI();
         let keyList = await cApi.getKeyListFromKeyBlock(r);
@@ -1504,7 +1673,7 @@ const accessVksServer = {
             keyType: "",
             created: keyList[k].created,
             uid: [keyList[k].name],
-            status: keyList[k].revoke ? "r" : ""
+            status: keyList[k].revoke ? "r" : "",
           };
 
           for (let uid of keyList[k].uids) {
@@ -1514,15 +1683,14 @@ const accessVksServer = {
           retObj.pubKeys.push(key);
         }
       }
-    }
-    catch (ex) {
+    } catch (ex) {
       retObj.result = ex.result;
       retObj.errorDetails = ex.errorDetails;
       throw retObj;
     }
 
     return retObj;
-  }
+  },
 };
 
 var EnigmailKeyServer = {
@@ -1536,7 +1704,7 @@ var EnigmailKeyServer = {
    *     Object: - result: Number           - result Code (0 = OK),
    *             - keyList: Array of String - imported key FPR
    */
-  download: function(keyIDs, keyserver = null, listener) {
+  download(keyIDs, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.download(keyIDs, keyserver, listener);
   },
@@ -1552,7 +1720,7 @@ var EnigmailKeyServer = {
    *             - keyList: Array of String - imported key FPR
    */
 
-  upload: function(keyIDs, keyserver = null, listener) {
+  upload(keyIDs, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.upload(keyIDs, keyserver, listener);
   },
@@ -1574,7 +1742,7 @@ var EnigmailKeyServer = {
    *           - status: String: one of ''=valid, r=revoked, e=expired
    *           - uid: Array of Strings with UIDs
    */
-  search: function(searchString, keyserver = null, listener) {
+  search(searchString, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.search(searchString, keyserver, listener);
   },
@@ -1587,8 +1755,8 @@ var EnigmailKeyServer = {
    *
    * @return:   Promise<resultStatus> (identical to download)
    */
-  refresh: function(keyserver = null, listener) {
+  refresh(keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.refresh(keyserver, listener);
-  }
+  },
 };

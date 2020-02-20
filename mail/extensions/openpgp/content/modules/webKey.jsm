@@ -14,17 +14,15 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailWks"];
 
-
-const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailStdlib = ChromeUtils.import("chrome://openpgp/content/modules/stdlib.jsm").EnigmailStdlib;
-const EnigmailMimeEncrypt = ChromeUtils.import("chrome://openpgp/content/modules/mimeEncrypt.jsm").EnigmailMimeEncrypt;
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-
-const GPG_WKS_CLIENT = "gpg-wks-client";
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailStdlib = ChromeUtils.import(
+  "chrome://openpgp/content/modules/stdlib.jsm"
+).EnigmailStdlib;
+const EnigmailFuncs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/funcs.jsm"
+).EnigmailFuncs;
 
 var EnigmailWks = {
   wksClientPath: null,
@@ -37,7 +35,7 @@ var EnigmailWks = {
    *                   retValue: nsIFile Object to gpg-wks-client executable or NULL
    * @return        : Object - NULL or a process handle
    */
-  getWksClientPathAsync: function(window, cb) {
+  getWksClientPathAsync(window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: getWksClientPathAsync\n");
     throw new Error("Not implemented");
   },
@@ -51,11 +49,12 @@ var EnigmailWks = {
    *                   retValue: Boolean: true if WKS is supported / false otherwise
    * @return      : Object - process handle
    */
-  isWksSupportedAsync: function(email, window, cb) {
-    EnigmailLog.DEBUG("webKey.jsm: isWksSupportedAsync: email = " + email + "\n");
+  isWksSupportedAsync(email, window, cb) {
+    EnigmailLog.DEBUG(
+      "webKey.jsm: isWksSupportedAsync: email = " + email + "\n"
+    );
     throw new Error("Not implemented");
   },
-
 
   /**
    * Submit a set of keys to the Web Key Server (WKD)
@@ -69,13 +68,13 @@ var EnigmailWks = {
    *
    * @return Promise<...>
    */
-  wksUpload: function(keys, win, observer = null) {
+  wksUpload(keys, win, observer = null) {
     EnigmailLog.DEBUG(`webKey.jsm: wksUpload(): keys = ${keys.length}\n`);
     let ids = getWkdIdentities(keys);
 
     if (observer === null) {
       observer = {
-        onProgress: function() {}
+        onProgress() {},
       };
     }
 
@@ -84,7 +83,9 @@ var EnigmailWks = {
       this.isCanceled = true;
     };
 
-    if (!ids) throw new Error("error");
+    if (!ids) {
+      throw new Error("error");
+    }
 
     if (ids.senderIdentities.length === 0) {
       return new Promise(resolve => {
@@ -106,7 +107,7 @@ var EnigmailWks = {
    * @return      : Object - process handle
    */
 
-  submitKey: function(ident, key, window, cb) {
+  submitKey(ident, key, window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: submitKey(): email = " + ident.email + "\n");
     throw new Error("Not implemented");
   },
@@ -123,10 +124,10 @@ var EnigmailWks = {
    * @return      : Object - process handle
    */
 
-  confirmKey: function(ident, body, window, cb) {
+  confirmKey(ident, body, window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: confirmKey: ident=" + ident.email + "\n");
     throw new Error("Not implemented");
-  }
+  },
 };
 
 /**
@@ -137,23 +138,6 @@ var EnigmailWks = {
  *
  * @return Object - nsIFile if file exists; NULL otherwise
  */
-
-function checkIfExists(path, execFileName) {
-  EnigmailLog.DEBUG("webKey.jsm checkIfExists() path=" + path + " execFileName=" + execFileName + "\n");
-
-  let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-
-  execFileName = EnigmailFiles.potentialWindowsExecutable(execFileName);
-  EnigmailFiles.initPath(file, path);
-  file.append(execFileName);
-  if (file.exists() && file.isExecutable()) {
-    return file;
-  }
-  else {
-    return null;
-  }
-}
-
 
 function getWkdIdentities(keys) {
   EnigmailLog.DEBUG(`webKey.jsm: getWkdIdentities(): keys = ${keys.length}\n`);
@@ -170,23 +154,22 @@ function getWkdIdentities(keys) {
         if (maybeIdent && maybeIdent.identity) {
           senderIdentities.push({
             identity: maybeIdent.identity,
-            fpr: key.fpr
+            fpr: key.fpr,
           });
         }
       }
       if (!found) {
         notFound.push(key);
       }
-    }
-    catch (ex) {
+    } catch (ex) {
       EnigmailLog.DEBUG(ex + "\n");
       return null;
     }
   }
 
   return {
-    senderIdentities: senderIdentities,
-    notFound
+    senderIdentities,
+    notFound,
   };
 }
 
@@ -206,7 +189,9 @@ function getWkdIdentities(keys) {
  *                       - isCanceled: Boolean - used to determine if process is canceled
  */
 function performWkdUpload(keyList, win, observer) {
-  EnigmailLog.DEBUG(`webKey.jsm: performWkdUpload: keyList.length=${keyList.length}\n`);
+  EnigmailLog.DEBUG(
+    `webKey.jsm: performWkdUpload: keyList.length=${keyList.length}\n`
+  );
 
   let uploads = [];
 
@@ -218,58 +203,78 @@ function performWkdUpload(keyList, win, observer) {
     let keyFpr = keyList[i].fpr;
     let senderIdent = keyList[i].identity;
 
-    let was_uploaded = new Promise(function _isSupported(resolve, reject) {
-      EnigmailLog.DEBUG("webKey.jsm: performWkdUpload: _isSupported(): ident=" + senderIdent.email + ", key=" + keyFpr + "\n");
-      EnigmailWks.isWksSupportedAsync(senderIdent.email, win, function(is_supported) {
+    let was_uploaded = new Promise(function(resolve, reject) {
+      EnigmailLog.DEBUG(
+        "webKey.jsm: performWkdUpload: _isSupported(): ident=" +
+          senderIdent.email +
+          ", key=" +
+          keyFpr +
+          "\n"
+      );
+      EnigmailWks.isWksSupportedAsync(senderIdent.email, win, function(
+        is_supported
+      ) {
         if (observer.isCanceled) {
           EnigmailLog.DEBUG("webKey.jsm: performWkdUpload: canceled by user\n");
           reject("canceled");
         }
 
-        EnigmailLog.DEBUG("webKey.jsm: performWkdUpload: ident=" + senderIdent.email + ", supported=" + is_supported + "\n");
+        EnigmailLog.DEBUG(
+          "webKey.jsm: performWkdUpload: ident=" +
+            senderIdent.email +
+            ", supported=" +
+            is_supported +
+            "\n"
+        );
         resolve(is_supported);
       });
-    }).then(function _submitKey(is_supported) {
-      EnigmailLog.DEBUG(`webKey.jsm: performWkdUpload: _submitKey ${is_supported}\n`);
+    }).then(function(is_supported) {
+      EnigmailLog.DEBUG(
+        `webKey.jsm: performWkdUpload: _submitKey ${is_supported}\n`
+      );
       if (is_supported) {
-
         return new Promise(function(resolve, reject) {
-          EnigmailWks.submitKey(senderIdent, {
-            'fpr': keyFpr
-          }, win, function(success) {
-            observer.onProgress((i + 1) / numKeys * 100);
-            if (success) {
-              resolve(senderIdent);
+          EnigmailWks.submitKey(
+            senderIdent,
+            {
+              fpr: keyFpr,
+            },
+            win,
+            function(success) {
+              observer.onProgress(((i + 1) / numKeys) * 100);
+              if (success) {
+                resolve(senderIdent);
+              } else {
+                reject("submitFailed");
+              }
             }
-            else {
-              reject("submitFailed");
-            }
-          });
+          );
         });
       }
-      else {
-        observer.onProgress((i + 1) / numKeys * 100);
-        return Promise.resolve(null);
-      }
+
+      observer.onProgress(((i + 1) / numKeys) * 100);
+      return Promise.resolve(null);
     });
 
     uploads.push(was_uploaded);
   }
 
-  return Promise.all(uploads).catch(function(reason) {
-    //let errorMsg = EnigmailLocale.getString("keyserverProgress.wksUploadFailed");
-    return [];
-  }).then(function(senders) {
-    let uploaded_uids = [];
-    if (senders) {
-      senders.forEach(function(val) {
-        if (val !== null) {
-          uploaded_uids.push(val.email);
-        }
-      });
-    }
-    observer.onProgress(100);
+  return Promise.all(uploads)
+    .catch(function(reason) {
+      //let errorMsg = EnigmailLocale.getString("keyserverProgress.wksUploadFailed");
+      return [];
+    })
+    .then(function(senders) {
+      let uploaded_uids = [];
+      if (senders) {
+        senders.forEach(function(val) {
+          if (val !== null) {
+            uploaded_uids.push(val.email);
+          }
+        });
+      }
+      observer.onProgress(100);
 
-    return uploaded_uids;
-  });
+      return uploaded_uids;
+    });
 }

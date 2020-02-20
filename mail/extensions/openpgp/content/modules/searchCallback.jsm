@@ -8,12 +8,13 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailSearchCallback"];
 
-const EnigmailTimer = ChromeUtils.import("chrome://openpgp/content/modules/timer.jsm").EnigmailTimer;
-
+const EnigmailTimer = ChromeUtils.import(
+  "chrome://openpgp/content/modules/timer.jsm"
+).EnigmailTimer;
 
 var EnigmailSearchCallback = {
   /**
-   * Set up a callback function on a textbox that tiggers an action. 
+   * Set up a callback function on a textbox that tiggers an action.
    * If ESC is pressed, the input field is emtpied; return triggers the action immediately.
    *
    * @param targetObj {XULElement}: the XUL element to observe
@@ -21,9 +22,7 @@ var EnigmailSearchCallback = {
    * @param actionCallback {function}: callback function that is called if something is typed
    * @param timeoutMs {number}: delay triggering the function (in miliseconds)
    */
-  setup: function(targetObj, timeoutObj, actionCallback, timeoutMs = 200) {
-
-
+  setup(targetObj, timeoutObj, actionCallback, timeoutMs = 200) {
     function applyActionImmediately() {
       if (timeoutObj.value) {
         EnigmailTimer.clearTimeout(timeoutObj.value);
@@ -38,33 +37,35 @@ var EnigmailSearchCallback = {
 
     timeoutObj.value = null;
 
+    targetObj.addEventListener(
+      "keypress",
+      function(event) {
+        if (event.type === "keypress") {
+          if (event.keyCode === 27) {
+            // Escape key
+            if (event.target.value !== "") {
+              event.target.value = "";
+              event.preventDefault();
+            }
+            applyActionImmediately();
 
-    targetObj.addEventListener('keypress', function onKeyPress(event) {
-      if (event.type === "keypress") {
-        if (event.keyCode === 27) {
-          // Escape key
-          if (event.target.value !== "") {
-            event.target.value = "";
+            return;
+          } else if (event.keyCode === 10 || event.keyCode === 13) {
+            // return key
+            applyActionImmediately();
             event.preventDefault();
+            return;
           }
-          applyActionImmediately();
-
-          return;
-        } else if (event.keyCode === 10 || event.keyCode === 13) {
-          // return key
-          applyActionImmediately();
-          event.preventDefault();
-          return;
         }
-      }
 
-      if (!timeoutObj.value) {
-        timeoutObj.value = EnigmailTimer.setTimeout(function() {
+        if (!timeoutObj.value) {
+          timeoutObj.value = EnigmailTimer.setTimeout(function() {
             timeoutObj.value = null;
             applyAction();
-          },
-          timeoutMs);
-      }
-    }, true);
-  }
+          }, timeoutMs);
+        }
+      },
+      true
+    );
+  },
 };

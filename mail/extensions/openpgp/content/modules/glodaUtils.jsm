@@ -17,11 +17,12 @@ var GlodaUtils = null;
 
 try {
   // TB with omnijar
-  GlodaUtils = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm").GlodaUtils;
-}
-catch (ex) {
+  GlodaUtils = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm")
+    .GlodaUtils;
+} catch (ex) {
   // "old style" TB
-  GlodaUtils = ChromeUtils.import("resource://app/modules/gloda/GlodaUtils.jsm").GlodaUtils;
+  GlodaUtils = ChromeUtils.import("resource://app/modules/gloda/GlodaUtils.jsm")
+    .GlodaUtils;
 }
 
 // We don't define the exported symbol here - that is on purpose

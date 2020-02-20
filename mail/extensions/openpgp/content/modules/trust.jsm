@@ -8,7 +8,9 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailTrust"];
 
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
 
 // trust flags according to GPG documentation:
 // - https://www.gnupg.org/documentation/manuals/gnupg.pdf
@@ -42,14 +44,14 @@ var EnigmailTrust = {
   /**
    * @return - |string| containing the order of trust/validity values
    */
-  trustLevelsSorted: function() {
+  trustLevelsSorted() {
     return TRUSTLEVELS_SORTED;
   },
 
   /**
    * @return - |boolean| whether the flag is invalid (neither unknown nor valid)
    */
-  isInvalid: function(flag) {
+  isInvalid(flag) {
     return TRUSTLEVELS_SORTED.indexOf(flag) < TRUSTLEVELS_SORTED_IDX_UNKNOWN;
   },
 
@@ -60,55 +62,54 @@ var EnigmailTrust = {
    *
    * @return - |string| containing the trust value or "D" for disabled keys
    */
-  getTrustCode: function(keyObj) {
-    if (keyObj.keyUseFor.indexOf("D") >= 0) {
+  getTrustCode(keyObj) {
+    if (keyObj.keyUseFor.includes("D")) {
       return "D";
     }
-    else {
-      return keyObj.keyTrust;
-    }
+
+    return keyObj.keyTrust;
   },
 
-  getTrustLabel: function(trustCode) {
+  getTrustLabel(trustCode) {
     let keyTrust;
     switch (trustCode) {
-      case 'q':
+      case "q":
         keyTrust = EnigmailLocale.getString("keyValid.unknown");
         break;
-      case 'i':
+      case "i":
         keyTrust = EnigmailLocale.getString("keyValid.invalid");
         break;
-      case 'd':
-      case 'D':
+      case "d":
+      case "D":
         keyTrust = EnigmailLocale.getString("keyValid.disabled");
         break;
-      case 'r':
+      case "r":
         keyTrust = EnigmailLocale.getString("keyValid.revoked");
         break;
-      case 'e':
+      case "e":
         keyTrust = EnigmailLocale.getString("keyValid.expired");
         break;
-      case 'n':
+      case "n":
         keyTrust = EnigmailLocale.getString("keyTrust.untrusted");
         break;
-      case 'm':
+      case "m":
         keyTrust = EnigmailLocale.getString("keyTrust.marginal");
         break;
-      case 'f':
+      case "f":
         keyTrust = EnigmailLocale.getString("keyTrust.full");
         break;
-      case 'u':
+      case "u":
         keyTrust = EnigmailLocale.getString("keyTrust.ultimate");
         break;
-      case 'g':
+      case "g":
         keyTrust = EnigmailLocale.getString("keyTrust.group");
         break;
-      case '-':
+      case "-":
         keyTrust = "-";
         break;
       default:
         keyTrust = "";
     }
     return keyTrust;
-  }
+  },
 };

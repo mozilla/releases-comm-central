@@ -8,20 +8,26 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailKey"];
 
-const KEY_BLOCK_UNKNOWN = 0;
-const KEY_BLOCK_KEY = 1;
-const KEY_BLOCK_REVOCATION = 2;
-
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailArmor = ChromeUtils.import("chrome://openpgp/content/modules/armor.jsm").EnigmailArmor;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailFiles = ChromeUtils.import("chrome://openpgp/content/modules/files.jsm").EnigmailFiles;
-const EnigmailFuncs = ChromeUtils.import("chrome://openpgp/content/modules/funcs.jsm").EnigmailFuncs;
-const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
-const getKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailFiles = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+).EnigmailFiles;
+const EnigmailLazy = ChromeUtils.import(
+  "chrome://openpgp/content/modules/lazy.jsm"
+).EnigmailLazy;
+const getKeyRing = EnigmailLazy.loader(
+  "enigmail/keyRing.jsm",
+  "EnigmailKeyRing"
+);
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
-const EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
-
+const EnigmailCryptoAPI = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+).EnigmailCryptoAPI;
 
 var EnigmailKey = {
   /**
@@ -30,11 +36,13 @@ var EnigmailKey = {
    *
    * @return |string| - formatted string
    */
-  formatFpr: function(fingerprint) {
+  formatFpr(fingerprint) {
     //EnigmailLog.DEBUG("key.jsm: EnigmailKey.formatFpr(" + fingerprint + ")\n");
     // format key fingerprint
     let r = "";
-    const fpr = fingerprint.match(/(....)(....)(....)(....)(....)(....)(....)(....)(....)?(....)?/);
+    const fpr = fingerprint.match(
+      /(....)(....)(....)(....)(....)(....)(....)(....)(....)?(....)?/
+    );
     if (fpr && fpr.length > 2) {
       fpr.shift();
       r = fpr.join(" ");
@@ -44,14 +52,17 @@ var EnigmailKey = {
   },
 
   // Extract public key from Status Message
-  extractPubkey: function(statusMsg) {
+  extractPubkey(statusMsg) {
     const matchb = statusMsg.match(/(^|\n)NO_PUBKEY (\w{8})(\w{8})/);
-    if (matchb && (matchb.length > 3)) {
-      EnigmailLog.DEBUG("enigmailCommon.jsm:: Enigmail.extractPubkey: NO_PUBKEY 0x" + matchb[3] + "\n");
+    if (matchb && matchb.length > 3) {
+      EnigmailLog.DEBUG(
+        "enigmailCommon.jsm:: Enigmail.extractPubkey: NO_PUBKEY 0x" +
+          matchb[3] +
+          "\n"
+      );
       return matchb[2] + matchb[3];
-    } else {
-      return null;
     }
+    return null;
   },
 
   /**
@@ -59,31 +70,42 @@ var EnigmailKey = {
    * Ask the user before importing the cert, and display an error
    * message in case of failures.
    */
-  importRevocationCert: function(keyId, keyBlockStr) {
-
+  importRevocationCert(keyId, keyBlockStr) {
     let key = getKeyRing().getKeyById(keyId);
 
     if (key) {
       if (key.keyTrust === "r") {
         // Key has already been revoked
-        getDialog().info(null, EnigmailLocale.getString("revokeKeyAlreadyRevoked", keyId));
+        getDialog().info(
+          null,
+          EnigmailLocale.getString("revokeKeyAlreadyRevoked", keyId)
+        );
       } else {
-
         let userId = key.userId + " - 0x" + key.keyId;
-        if (!getDialog().confirmDlg(null,
+        if (
+          !getDialog().confirmDlg(
+            null,
             EnigmailLocale.getString("revokeKeyQuestion", userId),
-            EnigmailLocale.getString("keyMan.button.revokeKey"))) {
+            EnigmailLocale.getString("keyMan.button.revokeKey")
+          )
+        ) {
           return;
         }
 
         let errorMsgObj = {};
-        if (getKeyRing().importKey(null, false, keyBlockStr, keyId, errorMsgObj) > 0) {
+        if (
+          getKeyRing().importKey(null, false, keyBlockStr, keyId, errorMsgObj) >
+          0
+        ) {
           getDialog().alert(null, errorMsgObj.value);
         }
       }
     } else {
       // Suitable key for revocation certificate is not present in keyring
-      getDialog().alert(null, EnigmailLocale.getString("revokeKeyNotPresent", keyId));
+      getDialog().alert(
+        null,
+        EnigmailLocale.getString("revokeKeyNotPresent", keyId)
+      );
     }
   },
 
@@ -100,7 +122,7 @@ var EnigmailKey = {
    *          - name (the UID of the key)
    *          - state (one of "old" [existing key], "new" [new key], "invalid" [key cannot not be imported])
    */
-  getKeyListFromKeyBlock: function(keyBlockStr, errorMsgObj, interactive = true) {
+  getKeyListFromKeyBlock(keyBlockStr, errorMsgObj, interactive = true) {
     EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
 
     const cApi = EnigmailCryptoAPI();
@@ -116,7 +138,6 @@ var EnigmailKey = {
       return [];
     }
 
-
     let retArr = [];
     for (let k in keyList) {
       retArr.push(keyList[k]);
@@ -124,7 +145,7 @@ var EnigmailKey = {
 
     if (interactive && retArr.length === 1) {
       key = retArr[0];
-      if (("revoke" in key) && (!("name" in key))) {
+      if ("revoke" in key && !("name" in key)) {
         this.importRevocationCert(key.id, blocks.join("\n"));
         return [];
       }
@@ -142,11 +163,10 @@ var EnigmailKey = {
    *
    * @return Array (same as for getKeyListFromKeyBlock())
    */
-  getKeyListFromKeyFile: function(path, errorMsgObj) {
+  getKeyListFromKeyFile(path, errorMsgObj) {
     var contents = EnigmailFiles.readFile(path);
     return this.getKeyListFromKeyBlock(contents, errorMsgObj);
   },
-
 
   /**
    * Compare 2 KeyIds of possible different length (short, long, FPR-length, with or without prefixed
@@ -157,7 +177,7 @@ var EnigmailKey = {
    *
    * @return true or false, given the comparison of the last minimum-length characters.
    */
-  compareKeyIds: function(keyId1, keyId2) {
+  compareKeyIds(keyId1, keyId2) {
     var keyId1Raw = keyId1.replace(/^0x/, "").toUpperCase();
     var keyId2Raw = keyId2.replace(/^0x/, "").toUpperCase();
 
@@ -173,6 +193,6 @@ var EnigmailKey = {
       keyId2Raw = keyId2Raw.substr(-minlength, minlength);
     }
 
-    return (keyId1Raw === keyId2Raw);
-  }
+    return keyId1Raw === keyId2Raw;
+  },
 };

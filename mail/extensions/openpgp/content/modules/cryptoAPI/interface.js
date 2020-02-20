@@ -33,21 +33,25 @@ class CryptoAPI {
     console.log("CryptoAPI.sync() starting");
 
     if (!inspector) {
-      inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+      inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(
+        Ci.nsIJSInspector
+      );
     }
 
     let res = null;
-    let p = promise.then(gotResult => {
-      console.log("CryptoAPI.sync() good result:");
-      console.log(gotResult);
-      res = gotResult;
-      inspector.exitNestedEventLoop();
-    }).catch(gotResult => {
-      console.log("CryptoAPI.sync() failed result:");
-      console.log(gotResult);
-      res = gotResult;
-      inspector.exitNestedEventLoop();
-    });
+    promise
+      .then(gotResult => {
+        console.log("CryptoAPI.sync() good result:");
+        console.log(gotResult);
+        res = gotResult;
+        inspector.exitNestedEventLoop();
+      })
+      .catch(gotResult => {
+        console.log("CryptoAPI.sync() failed result:");
+        console.log(gotResult);
+        res = gotResult;
+        inspector.exitNestedEventLoop();
+      });
 
     inspector.enterNestedEventLoop(0);
 
@@ -84,7 +88,7 @@ class CryptoAPI {
     return {
       exitCode: -1,
       errorMsg: "",
-      keyData: ""
+      keyData: "",
     };
   }
 

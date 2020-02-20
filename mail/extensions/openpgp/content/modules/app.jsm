@@ -8,19 +8,20 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailApp"];
 
-const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
-const getEnigmailLog = EnigmailLazy.loader("enigmail/log.jsm", "EnigmailLog");
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
-const DIR_SERV_CONTRACTID = "@mozilla.org/file/directory_service;1";
-const ENIG_EXTENSION_GUID = "{847b3a00-7ab1-11d4-8f02-006008948af5}";
-const XPCOM_APPINFO = "@mozilla.org/xre/app-info;1";
+const EnigmailLazy = ChromeUtils.import(
+  "chrome://openpgp/content/modules/lazy.jsm"
+).EnigmailLazy;
+const getEnigmailLog = EnigmailLazy.loader("enigmail/log.jsm", "EnigmailLog");
 
 var EnigmailApp = {
   /**
    * Platform application name (e.g. Thunderbird)
    */
-  getName: function() {
-    return Cc[XPCOM_APPINFO].getService(Ci.nsIXULAppInfo).name;
+  getName() {
+    return Services.appinfo.name;
   },
 
   /**
@@ -28,44 +29,45 @@ var EnigmailApp = {
    * The platform version for SeaMonkey and for Thunderbird are identical
    * (unlike the application version numbers)
    */
-  getPlatformVersion: function() {
-    return Cc[XPCOM_APPINFO].getService(Ci.nsIXULAppInfo).platformVersion;
+  getPlatformVersion() {
+    return Services.appinfo.platformVersion;
   },
 
   /**
    * Return the directory holding the current profile as nsIFile object
    */
-  getProfileDirectory: function() {
-    let ds = Cc[DIR_SERV_CONTRACTID].getService(Ci.nsIProperties);
-    return ds.get("ProfD", Ci.nsIFile);
+  getProfileDirectory() {
+    return Services.dirsvc.get("ProfD", Ci.nsIFile);
   },
 
   /**
    * Get Enigmail version
    */
-  getVersion: function() {
+  getVersion() {
     getEnigmailLog().DEBUG("app.jsm: getVersion\n");
-    getEnigmailLog().DEBUG("app.jsm: installed version: " + EnigmailApp._version + "\n");
+    getEnigmailLog().DEBUG(
+      "app.jsm: installed version: " + EnigmailApp._version + "\n"
+    );
     return EnigmailApp._version;
   },
 
   /**
    * Get Enigmail installation directory
    */
-  getInstallLocation: function() {
+  getInstallLocation() {
     return EnigmailApp._installLocation;
   },
 
-  setVersion: function(version) {
+  setVersion(version) {
     EnigmailApp._version = version;
   },
 
-  setInstallLocation: function(location) {
+  setInstallLocation(location) {
     EnigmailApp._installLocation = location;
   },
 
-  initAddon: function() {
+  initAddon() {
     EnigmailApp.setVersion(0);
     EnigmailApp.setInstallLocation(0);
-  }
+  },
 };

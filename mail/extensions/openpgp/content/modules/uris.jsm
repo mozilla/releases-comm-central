@@ -8,33 +8,48 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailURIs"];
 
-
-
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailData = ChromeUtils.import(
+  "chrome://openpgp/content/modules/data.jsm"
+).EnigmailData;
 
 const messageIdList = {};
 const encryptedUris = [];
 
 var EnigmailURIs = {
-  createMessageURI: function(originalUrl, contentType, contentCharset, contentData, persist) {
-    EnigmailLog.DEBUG("enigmail.js: Enigmail.createMessageURI: " + originalUrl +
-      ", " + contentType + ", " + contentCharset + "\n");
+  createMessageURI(
+    originalUrl,
+    contentType,
+    contentCharset,
+    contentData,
+    persist
+  ) {
+    EnigmailLog.DEBUG(
+      "enigmail.js: Enigmail.createMessageURI: " +
+        originalUrl +
+        ", " +
+        contentType +
+        ", " +
+        contentCharset +
+        "\n"
+    );
 
     const messageId = "msg" + Math.floor(Math.random() * 1.0e9);
 
     messageIdList[messageId] = {
-      originalUrl: originalUrl,
-      contentType: contentType,
-      contentCharset: contentCharset,
-      contentData: contentData,
-      persist: persist
+      originalUrl,
+      contentType,
+      contentCharset,
+      contentData,
+      persist,
     };
 
     return "enigmail:message/" + messageId;
   },
 
-  deleteMessageURI: function(uri) {
+  deleteMessageURI(uri) {
     EnigmailLog.DEBUG("enigmail.js: Enigmail.deleteMessageURI: " + uri + "\n");
 
     const messageId = EnigmailData.extractMessageId(uri);
@@ -42,12 +57,11 @@ var EnigmailURIs = {
     if (!messageId) {
       return false;
     }
-    else {
-      return (delete messageIdList[messageId]);
-    }
+
+    return delete messageIdList[messageId];
   },
 
-  getMessageURI: function(messageId) {
+  getMessageURI(messageId) {
     return messageIdList[messageId];
   },
 
@@ -58,9 +72,9 @@ var EnigmailURIs = {
    *
    * @return null
    */
-  rememberEncryptedUri: function(uri) {
+  rememberEncryptedUri(uri) {
     EnigmailLog.DEBUG("uris.jsm: rememberEncryptedUri: uri=" + uri + "\n");
-    if (encryptedUris.indexOf(uri) < 0) {
+    if (!encryptedUris.includes(uri)) {
       encryptedUris.push(uri);
     }
   },
@@ -72,7 +86,7 @@ var EnigmailURIs = {
    *
    * @return null
    */
-  forgetEncryptedUri: function(uri) {
+  forgetEncryptedUri(uri) {
     EnigmailLog.DEBUG("uris.jsm: forgetEncryptedUri: uri=" + uri + "\n");
     const pos = encryptedUris.indexOf(uri);
     if (pos >= 0) {
@@ -87,11 +101,10 @@ var EnigmailURIs = {
    *
    * @return: Boolean true if yes, false otherwise
    */
-  isEncryptedUri: function(uri) {
+  isEncryptedUri(uri) {
     EnigmailLog.DEBUG("uris.jsm: isEncryptedUri: uri=" + uri + "\n");
-    return encryptedUris.indexOf(uri) >= 0;
+    return encryptedUris.includes(uri);
   },
-
 
   /**
    * Determine message number and folder from mailnews URI
@@ -102,8 +115,7 @@ var EnigmailURIs = {
    *    - msgNum: String - the message number, or "" if no URI Scheme fits
    *    - folder: String - the folder (or newsgroup) name
    */
-  msgIdentificationFromUrl: function(url) {
-
+  msgIdentificationFromUrl(url) {
     // sample URLs in Thunderbird
     // Local folder: mailbox:///some/path/to/folder?number=359360
     // IMAP: imap://user@host:port/fetch>some>path>111
@@ -112,34 +124,44 @@ var EnigmailURIs = {
     // mailbox:///...?number=4455522&part=1.1.2&filename=test.eml&type=application/x-message-display&filename=test.eml
     // imap://user@host:port>UID>some>path>10?header=filter&emitter=js&examineEncryptedParts=true
 
-    if (!url) return null;
+    if (!url) {
+      return null;
+    }
 
-    EnigmailLog.DEBUG("uris.jsm: msgIdentificationFromUrl: url.pathQueryRef=" + ("path" in url ? url.path : url.pathQueryRef) + "\n");
+    EnigmailLog.DEBUG(
+      "uris.jsm: msgIdentificationFromUrl: url.pathQueryRef=" +
+        ("path" in url ? url.path : url.pathQueryRef) +
+        "\n"
+    );
 
     let msgNum = "";
     let msgFolder = "";
 
-    let pathQueryRef = ("path" in url ? url.path : url.pathQueryRef);
+    let pathQueryRef = "path" in url ? url.path : url.pathQueryRef;
 
     if (url.schemeIs("mailbox")) {
       msgNum = pathQueryRef.replace(/(.*[?&]number=)([0-9]+)([^0-9].*)?/, "$2");
       msgFolder = pathQueryRef.replace(/\?.*/, "");
-    }
-    else if (url.schemeIs("imap")) {
+    } else if (url.schemeIs("imap")) {
       let p = unescape(pathQueryRef);
       msgNum = p.replace(/(.*>)([0-9]+)([^0-9].*)?/, "$2");
       msgFolder = p.replace(/\?.*$/, "").replace(/>[^>]+$/, "");
-    }
-    else if (url.schemeIs("news")) {
+    } else if (url.schemeIs("news")) {
       msgNum = pathQueryRef.replace(/(.*[?&]key=)([0-9]+)([^0-9].*)?/, "$2");
       msgFolder = pathQueryRef.replace(/(.*[?&]group=)([^&]+)(&.*)?/, "$2");
     }
 
-    EnigmailLog.DEBUG("uris.jsm: msgIdentificationFromUrl: msgNum=" + msgNum + " / folder=" + msgFolder + "\n");
+    EnigmailLog.DEBUG(
+      "uris.jsm: msgIdentificationFromUrl: msgNum=" +
+        msgNum +
+        " / folder=" +
+        msgFolder +
+        "\n"
+    );
 
     return {
-      msgNum: msgNum,
-      folder: msgFolder.toLowerCase()
+      msgNum,
+      folder: msgFolder.toLowerCase(),
     };
-  }
+  },
 };

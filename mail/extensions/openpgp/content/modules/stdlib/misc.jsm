@@ -10,43 +10,64 @@
 
 var EXPORTED_SYMBOLS = [
   // Identity management helpers
-  'gIdentities', 'fillIdentities', 'getIdentities', 'getDefaultIdentity', 'getIdentityForEmail',
+  "gIdentities",
+  "fillIdentities",
+  "getIdentities",
+  "getDefaultIdentity",
+  "getIdentityForEmail",
   // Account management helpers:
-  'hasConfiguredAccounts',
+  "hasConfiguredAccounts",
   // JS programming helpers
-  'range', 'MixIn', 'combine', 'entries',
+  "range",
+  "MixIn",
+  "combine",
+  "entries",
   // XPCOM helpers
-  'NS_FAILED', 'NS_SUCCEEDED',
+  "NS_FAILED",
+  "NS_SUCCEEDED",
   // Various formatting helpers
-  'dateAsInMessageList', 'escapeHtml', 'sanitize', 'parseMimeLine',
+  "dateAsInMessageList",
+  "escapeHtml",
+  "sanitize",
+  "parseMimeLine",
   // Useful for web content
-  'encodeUrlParameters', 'decodeUrlParameters',
+  "encodeUrlParameters",
+  "decodeUrlParameters",
   // Character set helpers
-  'systemCharset',
+  "systemCharset",
   // Platform-specific idioms
-  'isOSX', 'isWindows', 'isAccel'
-]
+  "isOSX",
+  "isWindows",
+  "isAccel",
+];
 
-const fixIterator = ChromeUtils.import("resource:///modules/iteratorUtils.jsm").fixIterator;
-const XPCOMUtils = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm").XPCOMUtils;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
+const fixIterator = ChromeUtils.import("resource:///modules/iteratorUtils.jsm")
+  .fixIterator;
+const XPCOMUtils = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
+  .XPCOMUtils;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
 var MailServices;
 try {
-  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm").MailServices;
+  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm")
+    .MailServices;
+} catch (x) {
+  MailServices = ChromeUtils.import("resource:///modules/mailServices.js")
+    .MailServices;
 }
-catch (x){
-  MailServices = ChromeUtils.import("resource:///modules/mailServices.js").MailServices;
-}
 
-XPCOMUtils.defineLazyServiceGetter(MailServices, "i18nDateFormatter",
-  "@mozilla.org/intl/scriptabledateformat;1");
+XPCOMUtils.defineLazyServiceGetter(
+  MailServices,
+  "i18nDateFormatter",
+  "@mozilla.org/intl/scriptabledateformat;1"
+);
 
-
-let isOSX = ("nsILocalFileMac" in Ci);
-let isWindows = ("@mozilla.org/windows-registry-key;1" in Cc);
+let isOSX = "nsILocalFileMac" in Ci;
+let isWindows = "@mozilla.org/windows-registry-key;1" in Cc;
 
 function isAccel(event) {
-  return isOSX && event.metaKey || event.ctrlKey;
+  return (isOSX && event.metaKey) || event.ctrlKey;
 }
 
 /**
@@ -56,7 +77,7 @@ function isAccel(event) {
  * @return {Bool}
  */
 function NS_FAILED(v) {
-  return (v & 0x80000000);
+  return v & 0x80000000;
 }
 
 /**
@@ -101,10 +122,11 @@ function* entries(anObject) {
 function MixIn(aConstructor, aMixIn) {
   let proto = aConstructor.prototype;
   for (let [name, func] of entries(aMixIn)) {
-    if (name.substring(0, 4) == "get_")
+    if (name.substring(0, 4) == "get_") {
       proto.__defineGetter__(name.substring(4), func);
-    else
+    } else {
       proto[name] = func;
+    }
   }
 }
 
@@ -129,18 +151,22 @@ let gIdentities = {};
  * @deprecated Use getIdenties() instead
  */
 function fillIdentities(aSkipNntp) {
-  EnigmailLog.WARNING("fillIdentities is deprecated! Use getIdentities instead!\n");
-  EnigmailLog.DEBUG("Filling identities with skipnntp = " + aSkipNntp.toString() + "\n");
+  EnigmailLog.WARNING(
+    "fillIdentities is deprecated! Use getIdentities instead!\n"
+  );
+  EnigmailLog.DEBUG(
+    "Filling identities with skipnntp = " + aSkipNntp.toString() + "\n"
+  );
 
   for (let currentIdentity of getIdentities(aSkipNntp)) {
     gIdentities[currentIdentity.identity.email] = currentIdentity.identity;
     if (currentIdentity.isDefault) {
-      gIdentities["default"] = currentIdentity.identity;
+      gIdentities.default = currentIdentity.identity;
     }
   }
 
   if (!("default" in gIdentities)) {
-    gIdentities["default"] = getIdentities()[0].identity;
+    gIdentities.default = getIdentities()[0].identity;
   }
 }
 
@@ -159,29 +185,40 @@ function getDefaultIdentity() {
  */
 function getIdentities(aSkipNntpIdentities = true) {
   let identities = [];
-  for (let account of fixIterator(MailServices.accounts.accounts, Ci.nsIMsgAccount)) {
+  for (let account of fixIterator(
+    MailServices.accounts.accounts,
+    Ci.nsIMsgAccount
+  )) {
     let server = account.incomingServer;
-    if (aSkipNntpIdentities && (!server || server.type != "pop3" && server.type != "imap")) {
+    if (
+      aSkipNntpIdentities &&
+      (!server || (server.type != "pop3" && server.type != "imap"))
+    ) {
       continue;
     }
-    for (let currentIdentity of fixIterator(account.identities, Ci.nsIMsgIdentity)) {
+    for (let currentIdentity of fixIterator(
+      account.identities,
+      Ci.nsIMsgIdentity
+    )) {
       // We're only interested in identities that have a real email.
       if (currentIdentity.email) {
         identities.push({
-          isDefault: (currentIdentity == MailServices.accounts.defaultAccount ? MailServices.accounts.defaultAccount.defaultIdentity : false),
-          identity: currentIdentity
+          isDefault:
+            currentIdentity == MailServices.accounts.defaultAccount
+              ? MailServices.accounts.defaultAccount.defaultIdentity
+              : false,
+          identity: currentIdentity,
         });
       }
     }
   }
   if (identities.length == 0) {
     EnigmailLog.DEBUG("Didn't find any identities!\n");
-  }
-  else {
-    if (!identities.some(x => x.isDefault)) {
-      EnigmailLog.DEBUG("Didn't find any default key - mark the first identity as default!\n");
-      identities[0].isDefault = true;
-    }
+  } else if (!identities.some(x => x.isDefault)) {
+    EnigmailLog.DEBUG(
+      "Didn't find any default key - mark the first identity as default!\n"
+    );
+    identities[0].isDefault = true;
   }
   return identities;
 }
@@ -192,7 +229,9 @@ function getIdentities(aSkipNntpIdentities = true) {
  * @returns {{Boolean} isDefault, {{nsIMsgIdentity} identity} if found, otherwise undefined
  */
 function getIdentityForEmail(anEmailAddress) {
-  return getIdentities(false).find(ident => ident.identity.email.toLowerCase() == anEmailAddress.toLowerCase());
+  return getIdentities(false).find(
+    ident => ident.identity.email.toLowerCase() == anEmailAddress.toLowerCase()
+  );
 }
 
 /**
@@ -213,7 +252,7 @@ function dateAsInMessageList(aDate) {
 
   let options = {
     hour: DATE_2DIGIT,
-    minute: DATE_2DIGIT
+    minute: DATE_2DIGIT,
   };
 
   if (!isToday) {
@@ -222,8 +261,7 @@ function dateAsInMessageList(aDate) {
     let year = aDate.getFullYear();
     if (year > 2099) {
       options.year = DATE_4DIGIT;
-    }
-    else {
+    } else {
       options.year = DATE_2DIGIT;
     }
   }
@@ -231,8 +269,7 @@ function dateAsInMessageList(aDate) {
   return new Intl.DateTimeFormat([], options).format(aDate);
 }
 
-
-const RE_SANITIZE = /[\u0000-\u0008\u000b-\u000c\u000e-\u001f]/g;
+const RE_SANITIZE = /[\u0000-\u0008\u000b-\u000c\u000e-\u001f]/g; // eslint-disable-line no-control-regex
 
 /**
  * Helper function to remove non-printable characters from a string -- injecting
@@ -253,18 +290,20 @@ function sanitize(s) {
 function escapeHtml(s) {
   s += "";
   // stolen from selectionsummaries.js (thanks davida!)
-  return sanitize(s.replace(/[<>&]/g, function(s) {
-    switch (s) {
-      case "<":
-        return "&lt;";
-      case ">":
-        return "&gt;";
-      case "&":
-        return "&amp;";
-      default:
-        throw Error("Unexpected match");
-    }
-  }));
+  return sanitize(
+    s.replace(/[<>&]/g, function(s) {
+      switch (s) {
+        case "<":
+          return "&lt;";
+        case ">":
+          return "&gt;";
+        case "&":
+          return "&amp;";
+        default:
+          throw Error("Unexpected match");
+      }
+    })
+  );
 }
 
 /**
@@ -282,26 +321,30 @@ function parseMimeLine(aMimeLine, aDontFix) {
   let emails = {};
   let fullNames = {};
   let names = {};
-  let numAddresses = MailServices.headerParser.parseHeadersWithArray(aMimeLine,
+  let numAddresses = MailServices.headerParser.parseHeadersWithArray(
+    aMimeLine,
     emails,
     names,
-    fullNames);
-  if (numAddresses)
+    fullNames
+  );
+  if (numAddresses) {
     return [...range(0, numAddresses)].map(i => {
       return {
         email: emails.value[i],
         name: names.value[i],
-        fullName: fullNames.value[i]
+        fullName: fullNames.value[i],
       };
     });
-  else if (aDontFix)
+  } else if (aDontFix) {
     return [];
-  else
-    return [{
+  }
+  return [
+    {
       email: "",
       name: "-",
-      fullName: "-"
-    }];
+      fullName: "-",
+    },
+  ];
 }
 
 /**
@@ -347,20 +390,23 @@ function decodeUrlParameters(aStr) {
 function systemCharset() {
   let charset = "UTF-8";
   if ("@mozilla.org/windows-registry-key;1" in Cc) {
-    let registry = Cc["@mozilla.org/windows-registry-key;1"]
-      .createInstance(Ci.nsIWindowsRegKey);
-    registry.open(registry.ROOT_KEY_LOCAL_MACHINE,
+    let registry = Cc["@mozilla.org/windows-registry-key;1"].createInstance(
+      Ci.nsIWindowsRegKey
+    );
+    registry.open(
+      registry.ROOT_KEY_LOCAL_MACHINE,
       "SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage",
-      registry.ACCESS_READ);
+      registry.ACCESS_READ
+    );
     let codePage = registry.readStringValue("ACP");
     if (codePage) {
       charset = "CP" + codePage;
     }
     registry.close();
-  }
-  else {
-    let env = Cc["@mozilla.org/process/environment;1"]
-      .getService(Ci.nsIEnvironment);
+  } else {
+    let env = Cc["@mozilla.org/process/environment;1"].getService(
+      Ci.nsIEnvironment
+    );
     let lang = env.get("LANG").split(".");
     if (lang.length > 1) {
       charset = lang[1];
@@ -370,24 +416,28 @@ function systemCharset() {
 }
 
 function combine(a1, a2) {
-  if (a1.length != a2.length)
+  if (a1.length != a2.length) {
     throw new Error("combine: the given arrays have different lengths");
+  }
   return [...range(0, a1.length)].map(i => [a1[i], a2[i]]);
 }
-
 
 /**
  * Determine if at least one account / identity is configured
  * @return {Bool}
  */
 function hasConfiguredAccounts() {
-  let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+  let accountManager = Cc[
+    "@mozilla.org/messenger/account-manager;1"
+  ].getService(Ci.nsIMsgAccountManager);
 
   for (let acct = 0; acct < accountManager.accounts.length; acct++) {
     let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
 
     if (ac.incomingServer.type !== "none") {
-      if (ac.defaultIdentity.email.length > 0) return true;
+      if (ac.defaultIdentity.email.length > 0) {
+        return true;
+      }
     }
   }
 

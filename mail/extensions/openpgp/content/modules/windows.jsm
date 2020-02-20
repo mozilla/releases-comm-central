@@ -8,20 +8,27 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailWindows"];
 
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
-const EnigmailRules = ChromeUtils.import("chrome://openpgp/content/modules/rules.jsm").EnigmailRules;
-const EnigmailApp = ChromeUtils.import("chrome://openpgp/content/modules/app.jsm").EnigmailApp;
-const EnigmailCompat = ChromeUtils.import("chrome://openpgp/content/modules/compat.jsm").EnigmailCompat;
-const EnigmailStdlib = ChromeUtils.import("chrome://openpgp/content/modules/stdlib.jsm").EnigmailStdlib;
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
-const APPSHELL_MEDIATOR_CONTRACTID = "@mozilla.org/appshell/window-mediator;1";
-const APPSHSVC_CONTRACTID = "@mozilla.org/appshell/appShellService;1";
-
-const LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";
-const IOSERVICE_CONTRACTID = "@mozilla.org/network/io-service;1";
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailCore = ChromeUtils.import(
+  "chrome://openpgp/content/modules/core.jsm"
+).EnigmailCore;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailKeyRing = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+).EnigmailKeyRing;
+const EnigmailRules = ChromeUtils.import(
+  "chrome://openpgp/content/modules/rules.jsm"
+).EnigmailRules;
+const EnigmailStdlib = ChromeUtils.import(
+  "chrome://openpgp/content/modules/stdlib.jsm"
+).EnigmailStdlib;
 
 var EnigmailWindows = {
   /**
@@ -32,16 +39,21 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openSetupWizard: function(win, setupType) {
+  openSetupWizard(win, setupType) {
     EnigmailLog.DEBUG("windows.jsm: openSetupWizard()\n");
 
     if (!EnigmailStdlib.hasConfiguredAccounts()) {
-      EnigmailLog.DEBUG("windows.jsm: openSetupWizard: no configured accounts\n");
+      EnigmailLog.DEBUG(
+        "windows.jsm: openSetupWizard: no configured accounts\n"
+      );
       return;
     }
 
-    win.open("chrome://openpgp/content/ui/setupWizard2.xhtml",
-      "", "chrome,centerscreen,resizable");
+    win.open(
+      "chrome://openpgp/content/ui/setupWizard2.xhtml",
+      "",
+      "chrome,centerscreen,resizable"
+    );
   },
 
   /**
@@ -53,8 +65,8 @@ var EnigmailWindows = {
    * @optObj    : any    - an Object, Array, String, etc. that is passed as parameter
    *                       to the window
    */
-  openWin: function(winName, spec, winOptions, optObj) {
-    var windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
+  openWin(winName, spec, winOptions, optObj) {
+    var windowManager = Services.wm;
 
     var recentWin = null;
     for (let win of windowManager.getEnumerator(null)) {
@@ -66,19 +78,16 @@ var EnigmailWindows = {
         win.focus();
         break;
       }
-
     }
 
     if (recentWin) {
       recentWin.focus();
-    }
-    else {
-      var appShellSvc = Cc[APPSHSVC_CONTRACTID].getService(Ci.nsIAppShellService);
+    } else {
+      var appShellSvc = Services.appShell;
       var domWin = appShellSvc.hiddenDOMWindow;
       try {
         domWin.open(spec, winName, "chrome," + winOptions, optObj);
-      }
-      catch (ex) {
+      } catch (ex) {
         domWin = windowManager.getMostRecentWindow(null);
         domWin.open(spec, winName, "chrome," + winOptions, optObj);
       }
@@ -90,8 +99,8 @@ var EnigmailWindows = {
    *
    * @return: nsIWindow object
    */
-  getBestParentWin: function() {
-    var windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
+  getBestParentWin() {
+    var windowManager = Services.wm;
 
     var bestFit = null;
 
@@ -99,7 +108,10 @@ var EnigmailWindows = {
       if (win.location.href.search(/\/messenger.xhtml$/) > 0) {
         bestFit = win;
       }
-      if (!bestFit && win.location.href.search(/\/messengercompose.xhtml$/) > 0) {
+      if (
+        !bestFit &&
+        win.location.href.search(/\/messengercompose.xhtml$/) > 0
+      ) {
         bestFit = win;
       }
     }
@@ -121,7 +133,7 @@ var EnigmailWindows = {
    *
    * @return:    the frame object or null if not found
    */
-  getFrame: function(win, frameName) {
+  getFrame(win, frameName) {
     EnigmailLog.DEBUG("windows.jsm: getFrame: name=" + frameName + "\n");
     for (var j = 0; j < win.frames.length; j++) {
       if (win.frames[j].name == frameName) {
@@ -131,11 +143,10 @@ var EnigmailWindows = {
     return null;
   },
 
-  getMostRecentWindow: function() {
-    var windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
+  getMostRecentWindow() {
+    var windowManager = Services.wm;
     return windowManager.getMostRecentWindow(null);
   },
-
 
   /**
    * Display the key help window
@@ -145,10 +156,12 @@ var EnigmailWindows = {
    * no return value
    */
 
-  openHelpWindow: function(source) {
-    EnigmailWindows.openWin("enigmail:help",
+  openHelpWindow(source) {
+    EnigmailWindows.openWin(
+      "enigmail:help",
       "chrome://openpgp/content/ui/enigmailHelp.xhtml?src=" + source,
-      "centerscreen,resizable");
+      "centerscreen,resizable"
+    );
   },
 
   /**
@@ -156,8 +169,10 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openAboutWindow: function() {
-    EnigmailWindows.openMailTab("chrome://openpgp/content/ui/aboutEnigmail.html");
+  openAboutWindow() {
+    EnigmailWindows.openMailTab(
+      "chrome://openpgp/content/ui/aboutEnigmail.html"
+    );
   },
 
   /**
@@ -165,12 +180,16 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openEnigmailDocu: function(parent) {
+  openEnigmailDocu(parent) {
     if (!parent) {
       parent = this.getMostRecentWindow();
     }
 
-    parent.open("https://doesnotexist-openpgp-integration.thunderbird/faq/docu.php", "", "chrome,width=600,height=500,resizable");
+    parent.open(
+      "https://doesnotexist-openpgp-integration.thunderbird/faq/docu.php",
+      "",
+      "chrome,width=600,height=500,resizable"
+    );
   },
 
   /**
@@ -178,10 +197,12 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openRulesEditor: function() {
-    EnigmailWindows.openWin("enigmail:rulesEditor",
+  openRulesEditor() {
+    EnigmailWindows.openWin(
+      "enigmail:rulesEditor",
       "chrome://openpgp/content/ui/enigmailRulesEditor.xhtml",
-      "dialog,centerscreen,resizable");
+      "dialog,centerscreen,resizable"
+    );
   },
 
   /**
@@ -189,12 +210,14 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openKeyManager: function(win) {
+  openKeyManager(win) {
     EnigmailCore.getService(win);
 
-    EnigmailWindows.openWin("enigmail:KeyManager",
+    EnigmailWindows.openWin(
+      "enigmail:KeyManager",
       "chrome://openpgp/content/ui/enigmailKeyManager.xhtml",
-      "resizable");
+      "resizable"
+    );
   },
 
   /**
@@ -202,12 +225,14 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openImportSettings: function(win) {
+  openImportSettings(win) {
     EnigmailCore.getService(win);
 
-    EnigmailWindows.openWin("",
+    EnigmailWindows.openWin(
+      "",
       "chrome://openpgp/content/ui/importSettings.xhtml",
-      "chrome,dialog,centerscreen,resizable,modal");
+      "chrome,dialog,centerscreen,resizable,modal"
+    );
   },
 
   /**
@@ -215,21 +240,19 @@ var EnigmailWindows = {
    * manager to refresh the displayed keys
    */
 
-  keyManReloadKeys: function() {
-    let windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
+  keyManReloadKeys() {
+    let windowManager = Services.wm;
     const winName = "enigmail:KeyManager";
     const spec = "chrome://openpgp/content/ui/enigmailKeygen.xhtml";
 
-    let recentWin = null;
     for (let thisWin of windowManager.getEnumerator(null)) {
       if (thisWin.location.href == spec) {
-        recentWin = thisWin;
         break;
       }
       if (thisWin.name && thisWin.name == winName) {
         let evt = new thisWin.Event("reload-keycache", {
-          "bubbles": true,
-          "cancelable": false
+          bubbles: true,
+          cancelable: false,
         });
         thisWin.dispatchEvent(evt);
         break;
@@ -242,10 +265,12 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openKeyGen: function() {
-    EnigmailWindows.openWin("enigmail:generateKey",
+  openKeyGen() {
+    EnigmailWindows.openWin(
+      "enigmail:generateKey",
       "chrome://openpgp/content/ui/enigmailKeygen.xhtml",
-      "chrome,resizable=yes");
+      "chrome,resizable=yes"
+    );
   },
 
   /**
@@ -253,12 +278,13 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openCardDetails: function() {
-    EnigmailWindows.openWin("enigmail:cardDetails",
+  openCardDetails() {
+    EnigmailWindows.openWin(
+      "enigmail:cardDetails",
       "chrome://openpgp/content/ui/enigmailCardDetails.xhtml",
-      "centerscreen");
+      "centerscreen"
+    );
   },
-
 
   /**
    * Display the console log window
@@ -267,10 +293,12 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openConsoleWindow: function() {
-    EnigmailWindows.openWin("enigmail:console",
+  openConsoleWindow() {
+    EnigmailWindows.openWin(
+      "enigmail:console",
       "chrome://openpgp/content/ui/enigmailConsole.xhtml",
-      "resizable,centerscreen");
+      "resizable,centerscreen"
+    );
   },
 
   /**
@@ -280,10 +308,13 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openDebugLog: function(win) {
-    EnigmailWindows.openWin("enigmail:logFile",
-      "chrome://openpgp/content/ui/enigmailViewFile.xhtml?viewLog=1&title=" + escape(EnigmailLocale.getString("debugLog.title")),
-      "centerscreen");
+  openDebugLog(win) {
+    EnigmailWindows.openWin(
+      "enigmail:logFile",
+      "chrome://openpgp/content/ui/enigmailViewFile.xhtml?viewLog=1&title=" +
+        escape(EnigmailLocale.getString("debugLog.title")),
+      "centerscreen"
+    );
   },
 
   /**
@@ -296,7 +327,7 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  openPrefWindow: function(win, showBasic, selectTab) {
+  openPrefWindow(win, showBasic, selectTab) {
     EnigmailLog.DEBUG("windows.js: openPrefWindow\n");
 
     EnigmailCore.getService(win, true); // true: starting preferences dialog
@@ -304,12 +335,11 @@ var EnigmailWindows = {
     let url;
 
     url = "chrome://openpgp/content/ui/pref-enigmail.xhtml";
-    win.openDialog(url,
-      "_blank", "chrome,resizable=yes", {
-        'showBasic': showBasic,
-        'clientType': 'thunderbird',
-        'selectTab': selectTab
-      });
+    win.openDialog(url, "_blank", "chrome,resizable=yes", {
+      showBasic,
+      clientType: "thunderbird",
+      selectTab,
+    });
   },
 
   /**
@@ -320,7 +350,7 @@ var EnigmailWindows = {
    *
    * @return       - always true
    */
-  createNewRule: function(win, emailAddress) {
+  createNewRule(win, emailAddress) {
     // make sure the rules database is loaded
     const enigmailSvc = EnigmailCore.getService(win);
     if (!enigmailSvc) {
@@ -333,10 +363,15 @@ var EnigmailWindows = {
     const inputObj = {
       toAddress: "{" + emailAddress + "}",
       options: "",
-      command: "add"
+      command: "add",
     };
-    win.openDialog("chrome://openpgp/content/ui/enigmailSingleRcptSettings.xhtml", "",
-      "dialog,modal,centerscreen,resizable", inputObj, {});
+    win.openDialog(
+      "chrome://openpgp/content/ui/enigmailSingleRcptSettings.xhtml",
+      "",
+      "dialog,modal,centerscreen,resizable",
+      inputObj,
+      {}
+    );
     return true;
   },
 
@@ -349,16 +384,21 @@ var EnigmailWindows = {
    *
    * @return  Boolean - true if expiry date was changed; false otherwise
    */
-  editKeyExpiry: function(win, userIdArr, keyIdArr) {
+  editKeyExpiry(win, userIdArr, keyIdArr) {
     const inputObj = {
       keyId: keyIdArr,
-      userId: userIdArr
+      userId: userIdArr,
     };
     const resultObj = {
-      refresh: false
+      refresh: false,
     };
-    win.openDialog("chrome://openpgp/content/ui/enigmailEditKeyExpiryDlg.xhtml", "",
-      "dialog,modal,centerscreen,resizable", inputObj, resultObj);
+    win.openDialog(
+      "chrome://openpgp/content/ui/enigmailEditKeyExpiryDlg.xhtml",
+      "",
+      "dialog,modal,centerscreen,resizable",
+      inputObj,
+      resultObj
+    );
     return resultObj.refresh;
   },
 
@@ -371,19 +411,23 @@ var EnigmailWindows = {
    *
    * @return  Boolean - true if key trust was changed; false otherwise
    */
-  editKeyTrust: function(win, userIdArr, keyIdArr) {
+  editKeyTrust(win, userIdArr, keyIdArr) {
     const inputObj = {
       keyId: keyIdArr,
-      userId: userIdArr
+      userId: userIdArr,
     };
     const resultObj = {
-      refresh: false
+      refresh: false,
     };
-    win.openDialog("chrome://openpgp/content/ui/enigmailEditKeyTrustDlg.xhtml", "",
-      "dialog,modal,centerscreen,resizable", inputObj, resultObj);
+    win.openDialog(
+      "chrome://openpgp/content/ui/enigmailEditKeyTrustDlg.xhtml",
+      "",
+      "dialog,modal,centerscreen,resizable",
+      inputObj,
+      resultObj
+    );
     return resultObj.refresh;
   },
-
 
   /**
    * Display the dialog for signing a key
@@ -394,16 +438,21 @@ var EnigmailWindows = {
    *
    * @return  Boolean - true if key was signed; false otherwise
    */
-  signKey: function(win, userId, keyId) {
+  signKey(win, userId, keyId) {
     const inputObj = {
-      keyId: keyId,
-      userId: userId
+      keyId,
+      userId,
     };
     const resultObj = {
-      refresh: false
+      refresh: false,
     };
-    win.openDialog("chrome://openpgp/content/ui/enigmailSignKeyDlg.xhtml", "",
-      "dialog,modal,centerscreen,resizable", inputObj, resultObj);
+    win.openDialog(
+      "chrome://openpgp/content/ui/enigmailSignKeyDlg.xhtml",
+      "",
+      "dialog,modal,centerscreen,resizable",
+      inputObj,
+      resultObj
+    );
     return resultObj.refresh;
   },
 
@@ -416,43 +465,55 @@ var EnigmailWindows = {
    * @photoNumber - |number| UAT entry in the squence of appearance in the key listing, starting with 0
    * no return value
    */
-  showPhoto: function(win, keyId, userId, photoNumber) {
+  showPhoto(win, keyId, userId, photoNumber) {
     const enigmailSvc = EnigmailCore.getService(win);
     if (enigmailSvc) {
-      if (!photoNumber) photoNumber = 0;
+      if (!photoNumber) {
+        photoNumber = 0;
+      }
       let keyObj = EnigmailKeyRing.getKeyById(keyId);
       if (!keyObj) {
-        EnigmailWindows.alert(win, EnigmailLocale.getString("noPhotoAvailable"));
+        EnigmailWindows.alert(
+          win,
+          EnigmailLocale.getString("noPhotoAvailable")
+        );
       }
 
       let photoFile = keyObj.getPhotoFile(photoNumber);
 
       if (photoFile) {
         if (!(photoFile.isFile() && photoFile.isReadable())) {
-          EnigmailWindows.alert(win, EnigmailLocale.getString("error.photoPathNotReadable", photoFile.path));
-        }
-        else {
-          const photoUri = Cc[IOSERVICE_CONTRACTID].getService(Ci.nsIIOService).
-          newFileURI(photoFile).spec;
+          EnigmailWindows.alert(
+            win,
+            EnigmailLocale.getString(
+              "error.photoPathNotReadable",
+              photoFile.path
+            )
+          );
+        } else {
+          const photoUri = Services.io.newFileURI(photoFile).spec;
           const argsObj = {
-            photoUri: photoUri,
-            userId: userId,
-            keyId: keyId
+            photoUri,
+            userId,
+            keyId,
           };
 
-          win.openDialog("chrome://openpgp/content/ui/enigmailDispPhoto.xhtml",
+          win.openDialog(
+            "chrome://openpgp/content/ui/enigmailDispPhoto.xhtml",
             photoUri,
             "chrome,modal,resizable,dialog,centerscreen",
-            argsObj);
+            argsObj
+          );
           try {
             // delete the photo file
             photoFile.remove(false);
-          }
-          catch (ex) {}
+          } catch (ex) {}
         }
-      }
-      else {
-        EnigmailWindows.alert(win, EnigmailLocale.getString("noPhotoAvailable"));
+      } else {
+        EnigmailWindows.alert(
+          win,
+          EnigmailLocale.getString("noPhotoAvailable")
+        );
       }
     }
   },
@@ -467,9 +528,7 @@ var EnigmailWindows = {
    * @return  Boolean - true:  keylist needs to be refreshed
    *                  - false: no need to refresh keylist
    */
-  openKeyDetails: function(win, keyId, refresh) {
-    const keyListObj = {};
-
+  openKeyDetails(win, keyId, refresh) {
     if (!win) {
       win = this.getBestParentWin();
     }
@@ -481,13 +540,18 @@ var EnigmailWindows = {
     }
 
     const inputObj = {
-      keyId: keyId
+      keyId,
     };
     const resultObj = {
-      refresh: false
+      refresh: false,
     };
-    win.openDialog("chrome://openpgp/content/ui/keyDetailsDlg.xhtml", "",
-      "dialog,modal,centerscreen,resizable", inputObj, resultObj);
+    win.openDialog(
+      "chrome://openpgp/content/ui/keyDetailsDlg.xhtml",
+      "",
+      "dialog,modal,centerscreen,resizable",
+      inputObj,
+      resultObj
+    );
     if (resultObj.refresh) {
       EnigmailKeyRing.clearCache();
     }
@@ -504,12 +568,14 @@ var EnigmailWindows = {
    *
    * no return value
    */
-  downloadKeys: function(win, inputObj, resultObj) {
-    EnigmailLog.DEBUG("windows.jsm: downloadKeys: searchList=" + inputObj.searchList + "\n");
+  downloadKeys(win, inputObj, resultObj) {
+    EnigmailLog.DEBUG(
+      "windows.jsm: downloadKeys: searchList=" + inputObj.searchList + "\n"
+    );
 
     resultObj.importedKeys = 0;
 
-    const ioService = Cc[IOSERVICE_CONTRACTID].getService(Ci.nsIIOService);
+    const ioService = Services.io;
     if (ioService && ioService.offline) {
       EnigmailWindows.alert(win, EnigmailLocale.getString("needOnline"));
       return;
@@ -518,7 +584,7 @@ var EnigmailWindows = {
     let valueObj = {};
     if (inputObj.searchList) {
       valueObj = {
-        keyId: "<" + inputObj.searchList.join("> <") + ">"
+        keyId: "<" + inputObj.searchList.join("> <") + ">",
       };
     }
 
@@ -526,10 +592,14 @@ var EnigmailWindows = {
 
     if (inputObj.searchList && inputObj.autoKeyServer) {
       keysrvObj.value = inputObj.autoKeyServer;
-    }
-    else {
-      win.openDialog("chrome://openpgp/content/ui/enigmailKeyserverDlg.xhtml",
-        "", "dialog,modal,centerscreen", valueObj, keysrvObj);
+    } else {
+      win.openDialog(
+        "chrome://openpgp/content/ui/enigmailKeyserverDlg.xhtml",
+        "",
+        "dialog,modal,centerscreen",
+        valueObj,
+        keysrvObj
+      );
     }
 
     if (!keysrvObj.value) {
@@ -539,33 +609,43 @@ var EnigmailWindows = {
     inputObj.keyserver = keysrvObj.value;
 
     if (!inputObj.searchList) {
-      const searchval = keysrvObj.email.
-      replace(/^(\s*)(.*)/, "$2").
-      replace(/\s+$/, ""); // trim spaces
+      const searchval = keysrvObj.email
+        .replace(/^(\s*)(.*)/, "$2")
+        .replace(/\s+$/, ""); // trim spaces
       // special handling to convert fingerprints with spaces into fingerprint without spaces
-      if (searchval.length == 49 && searchval.match(/^[0-9a-fA-F ]*$/) &&
-        searchval[4] == ' ' && searchval[9] == ' ' && searchval[14] == ' ' &&
-        searchval[19] == ' ' && searchval[24] == ' ' && searchval[29] == ' ' &&
-        searchval[34] == ' ' && searchval[39] == ' ' && searchval[44] == ' ') {
+      if (
+        searchval.length == 49 &&
+        searchval.match(/^[0-9a-fA-F ]*$/) &&
+        searchval[4] == " " &&
+        searchval[9] == " " &&
+        searchval[14] == " " &&
+        searchval[19] == " " &&
+        searchval[24] == " " &&
+        searchval[29] == " " &&
+        searchval[34] == " " &&
+        searchval[39] == " " &&
+        searchval[44] == " "
+      ) {
         inputObj.searchList = ["0x" + searchval.replace(/ /g, "")];
-      }
-      else if (searchval.length == 40 && searchval.match(/^[0-9a-fA-F ]*$/)) {
+      } else if (searchval.length == 40 && searchval.match(/^[0-9a-fA-F ]*$/)) {
         inputObj.searchList = ["0x" + searchval];
-      }
-      else if (searchval.length == 8 && searchval.match(/^[0-9a-fA-F]*$/)) {
+      } else if (searchval.length == 8 && searchval.match(/^[0-9a-fA-F]*$/)) {
         // special handling to add the required leading 0x when searching for keys
         inputObj.searchList = ["0x" + searchval];
-      }
-      else if (searchval.length == 16 && searchval.match(/^[0-9a-fA-F]*$/)) {
+      } else if (searchval.length == 16 && searchval.match(/^[0-9a-fA-F]*$/)) {
         inputObj.searchList = ["0x" + searchval];
-      }
-      else {
+      } else {
         inputObj.searchList = searchval.split(/[,; ]+/);
       }
     }
 
-    win.openDialog("chrome://openpgp/content/ui/enigmailSearchKey.xhtml",
-      "", "dialog,modal,centerscreen", inputObj, resultObj);
+    win.openDialog(
+      "chrome://openpgp/content/ui/enigmailSearchKey.xhtml",
+      "",
+      "dialog,modal,centerscreen",
+      inputObj,
+      resultObj
+    );
   },
 
   /**
@@ -577,21 +657,27 @@ var EnigmailWindows = {
    *
    * @return String entered password (in input mode) or NULL
    */
-  autocryptSetupPasswd: function(window, dlgMode, passwdType = "numeric9x4", password) {
+  autocryptSetupPasswd(window, dlgMode, passwdType = "numeric9x4", password) {
     if (!window) {
       window = this.getBestParentWin();
     }
 
     let inputObj = {
       password: null,
-      passwdType: passwdType,
-      dlgMode: dlgMode
+      passwdType,
+      dlgMode,
     };
 
-    if (password) inputObj.initialPasswd = password;
+    if (password) {
+      inputObj.initialPasswd = password;
+    }
 
-    window.openDialog("chrome://openpgp/content/ui/autocryptSetupPasswd.xhtml",
-      "", "dialog,modal,centerscreen", inputObj);
+    window.openDialog(
+      "chrome://openpgp/content/ui/autocryptSetupPasswd.xhtml",
+      "",
+      "dialog,modal,centerscreen",
+      inputObj
+    );
 
     return inputObj.password;
   },
@@ -600,13 +686,16 @@ var EnigmailWindows = {
    * Display dialog to initiate the Autocrypt Setup Message.
    *
    */
-  inititateAcSetupMessage: function(window) {
+  inititateAcSetupMessage(window) {
     if (!window) {
       window = this.getBestParentWin();
     }
 
-    window.openDialog("chrome://openpgp/content/ui/autocryptInitiateBackup.xhtml",
-      "", "dialog,centerscreen");
+    window.openDialog(
+      "chrome://openpgp/content/ui/autocryptInitiateBackup.xhtml",
+      "",
+      "dialog,centerscreen"
+    );
   },
 
   /**
@@ -616,31 +705,37 @@ var EnigmailWindows = {
    * @param aURL:    String - the URL to open
    * @param winName: String - name of the window; used to identify if it is already open
    */
-  openMailTab: function(aURL, windowName) {
+  openMailTab(aURL, windowName) {
     let tabs = EnigmailStdlib.getMail3Pane().document.getElementById("tabmail");
 
     for (let i = 0; i < tabs.tabInfo.length; i++) {
-      if ("openedUrl" in tabs.tabInfo[i] && tabs.tabInfo[i].openedUrl.startsWith(aURL)) {
+      if (
+        "openedUrl" in tabs.tabInfo[i] &&
+        tabs.tabInfo[i].openedUrl.startsWith(aURL)
+      ) {
         tabs.switchToTab(i);
         return;
       }
     }
 
     let gotTab = tabs.openTab("chromeTab", {
-      chromePage: aURL
+      chromePage: aURL,
     });
     gotTab.openedUrl = aURL;
   },
 
-  shutdown: function(reason) {
+  shutdown(reason) {
     EnigmailLog.DEBUG("windows.jsm: shutdown()\n");
 
     let tabs = EnigmailStdlib.getMail3Pane().document.getElementById("tabmail");
 
     for (let i = tabs.tabInfo.length - 1; i >= 0; i--) {
-      if ("openedUrl" in tabs.tabInfo[i] && tabs.tabInfo[i].openedUrl.startsWith("chrome://openpgp/")) {
+      if (
+        "openedUrl" in tabs.tabInfo[i] &&
+        tabs.tabInfo[i].openedUrl.startsWith("chrome://openpgp/")
+      ) {
         tabs.closeTab(tabs.tabInfo[i]);
       }
     }
-  }
+  },
 };

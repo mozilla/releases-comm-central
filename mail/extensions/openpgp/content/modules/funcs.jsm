@@ -4,7 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailFuncs"];
@@ -14,10 +13,15 @@ var EXPORTED_SYMBOLS = ["EnigmailFuncs"];
  *
  */
 
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailData = ChromeUtils.import("chrome://openpgp/content/modules/data.jsm").EnigmailData;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailPrefs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+).EnigmailPrefs;
+const EnigmailData = ChromeUtils.import(
+  "chrome://openpgp/content/modules/data.jsm"
+).EnigmailData;
 
 var gTxtConverter = null;
 
@@ -29,12 +33,14 @@ var EnigmailFuncs = {
    *
    * @return |string|          - list of pure email addresses separated by ","
    */
-  stripEmail: function(mailAddresses) {
+  stripEmail(mailAddresses) {
     // EnigmailLog.DEBUG("funcs.jsm: stripEmail(): mailAddresses=" + mailAddresses + "\n");
 
     const SIMPLE = "[^<>,]+"; // RegExp for a simple email address (e.g. a@b.c)
     const COMPLEX = "[^<>,]*<[^<>, ]+>"; // RegExp for an address containing <...> (e.g. Name <a@b.c>)
-    const MatchAddr = new RegExp("^(" + SIMPLE + "|" + COMPLEX + ")(," + SIMPLE + "|," + COMPLEX + ")*$");
+    const MatchAddr = new RegExp(
+      "^(" + SIMPLE + "|" + COMPLEX + ")(," + SIMPLE + "|," + COMPLEX + ")*$"
+    );
 
     let mailAddrs = mailAddresses;
 
@@ -42,22 +48,36 @@ var EnigmailFuncs = {
     while ((qStart = mailAddrs.indexOf('"')) >= 0) {
       qEnd = mailAddrs.indexOf('"', qStart + 1);
       if (qEnd < 0) {
-        EnigmailLog.ERROR("funcs.jsm: stripEmail: Unmatched quote in mail address: '" + mailAddresses + "'\n");
-        throw Components.results.NS_ERROR_FAILURE;
+        EnigmailLog.ERROR(
+          "funcs.jsm: stripEmail: Unmatched quote in mail address: '" +
+            mailAddresses +
+            "'\n"
+        );
+        throw Cr.NS_ERROR_FAILURE;
       }
 
-      mailAddrs = mailAddrs.substring(0, qStart) + mailAddrs.substring(qEnd + 1);
+      mailAddrs =
+        mailAddrs.substring(0, qStart) + mailAddrs.substring(qEnd + 1);
     }
 
     // replace any ";" by ","; remove leading/trailing ","
-    mailAddrs = mailAddrs.replace(/[,;]+/g, ",").replace(/^,/, "").replace(/,$/, "");
+    mailAddrs = mailAddrs
+      .replace(/[,;]+/g, ",")
+      .replace(/^,/, "")
+      .replace(/,$/, "");
 
-    if (mailAddrs.length === 0) return "";
+    if (mailAddrs.length === 0) {
+      return "";
+    }
 
     // having two <..> <..> in one email, or things like <a@b.c,><d@e.f> is an error
     if (mailAddrs.search(MatchAddr) < 0) {
-      EnigmailLog.ERROR("funcs.jsm: stripEmail: Invalid <..> brackets in mail address: '" + mailAddresses + "'\n");
-      throw Components.results.NS_ERROR_FAILURE;
+      EnigmailLog.ERROR(
+        "funcs.jsm: stripEmail: Invalid <..> brackets in mail address: '" +
+          mailAddresses +
+          "'\n"
+      );
+      throw Cr.NS_ERROR_FAILURE;
     }
 
     // We know that the "," and the < > are at the right places, thus we can split by ","
@@ -65,11 +85,17 @@ var EnigmailFuncs = {
 
     for (let i in addrList) {
       // Extract pure e-mail address list (strip out anything before angle brackets and any whitespace)
-      addrList[i] = addrList[i].replace(/^([^<>]*<)([^<>]+)(>)$/, "$2").replace(/\s/g, "");
+      addrList[i] = addrList[i]
+        .replace(/^([^<>]*<)([^<>]+)(>)$/, "$2")
+        .replace(/\s/g, "");
     }
 
     // remove repeated, trailing and leading "," (again, as there may be empty addresses)
-    mailAddrs = addrList.join(",").replace(/,,/g, ",").replace(/^,/, "").replace(/,$/, "");
+    mailAddrs = addrList
+      .join(",")
+      .replace(/,,/g, ",")
+      .replace(/^,/, "")
+      .replace(/,$/, "");
 
     return mailAddrs;
   },
@@ -81,16 +107,16 @@ var EnigmailFuncs = {
    *
    * @return |array| of msgIAddressObject
    */
-  parseEmails: function(mailAddrs, encoded = true) {
-
+  parseEmails(mailAddrs, encoded = true) {
     try {
-      let hdr = Cc["@mozilla.org/messenger/headerparser;1"].createInstance(Ci.nsIMsgHeaderParser);
+      let hdr = Cc["@mozilla.org/messenger/headerparser;1"].createInstance(
+        Ci.nsIMsgHeaderParser
+      );
       if (encoded) {
         return hdr.parseEncodedHeader(mailAddrs, "utf-8");
       }
       return hdr.parseDecodedHeader(mailAddrs);
-    }
-    catch (ex) {}
+    } catch (ex) {}
 
     return [];
   },
@@ -107,8 +133,7 @@ var EnigmailFuncs = {
    * no return value
    */
 
-
-  collapseAdvanced: function(obj, attribute, dummy) {
+  collapseAdvanced(obj, attribute, dummy) {
     EnigmailLog.DEBUG("funcs.jsm: collapseAdvanced:\n");
 
     var advancedUser = EnigmailPrefs.getPref("advancedUser");
@@ -119,16 +144,13 @@ var EnigmailFuncs = {
         if (obj.getAttribute("advanced") == "true") {
           if (advancedUser) {
             obj.removeAttribute(attribute);
-          }
-          else {
+          } else {
             obj.setAttribute(attribute, "true");
           }
-        }
-        else if (obj.getAttribute("advanced") == "reverse") {
+        } else if (obj.getAttribute("advanced") == "reverse") {
           if (advancedUser) {
             obj.setAttribute(attribute, "true");
-          }
-          else {
+          } else {
             obj.removeAttribute(attribute);
           }
         }
@@ -146,9 +168,12 @@ var EnigmailFuncs = {
    * @ return HTML markup to display mssage
    */
 
-  formatPlaintextMsg: function(plainTxt) {
-    if (!gTxtConverter)
-      gTxtConverter = Cc["@mozilla.org/txttohtmlconv;1"].createInstance(Ci.mozITXTToHTMLConv);
+  formatPlaintextMsg(plainTxt) {
+    if (!gTxtConverter) {
+      gTxtConverter = Cc["@mozilla.org/txttohtmlconv;1"].createInstance(
+        Ci.mozITXTToHTMLConv
+      );
+    }
 
     var prefRoot = EnigmailPrefs.getPrefRoot();
     var fontStyle = "";
@@ -179,10 +204,12 @@ var EnigmailFuncs = {
     fontStyle += "color: " + prefRoot.getCharPref("mail.citation_color") + ";";
 
     var convFlags = Ci.mozITXTToHTMLConv.kURLs;
-    if (prefRoot.getBoolPref("mail.display_glyph"))
+    if (prefRoot.getBoolPref("mail.display_glyph")) {
       convFlags |= Ci.mozITXTToHTMLConv.kGlyphSubstitution;
-    if (prefRoot.getBoolPref("mail.display_struct"))
+    }
+    if (prefRoot.getBoolPref("mail.display_struct")) {
       convFlags |= Ci.mozITXTToHTMLConv.kStructPhrase;
+    }
 
     // start processing the message
 
@@ -192,52 +219,59 @@ var EnigmailFuncs = {
     var citeLevel = 0;
     var preface = "";
     var logLineStart = {
-      value: 0
+      value: 0,
     };
     var isSignature = false;
 
     for (var i = 0; i < lines.length; i++) {
       preface = "";
       oldCiteLevel = citeLevel;
-      if (lines[i].search(/^[> \t]*>$/) === 0)
+      if (lines[i].search(/^[> \t]*>$/) === 0) {
         lines[i] += " ";
+      }
 
       citeLevel = gTxtConverter.citeLevelTXT(lines[i], logLineStart);
 
       if (citeLevel > oldCiteLevel) {
-
-        preface = '</pre>';
+        preface = "</pre>";
         for (let j = 0; j < citeLevel - oldCiteLevel; j++) {
           preface += '<blockquote type="cite" style="' + fontStyle + '">';
         }
         preface += '<pre wrap="">\n';
-      }
-      else if (citeLevel < oldCiteLevel) {
-        preface = '</pre>';
-        for (let j = 0; j < oldCiteLevel - citeLevel; j++)
+      } else if (citeLevel < oldCiteLevel) {
+        preface = "</pre>";
+        for (let j = 0; j < oldCiteLevel - citeLevel; j++) {
           preface += "</blockquote>";
+        }
 
         preface += '<pre wrap="">\n';
       }
 
       if (logLineStart.value > 0) {
-        preface += '<span class="moz-txt-citetags">' +
-          gTxtConverter.scanTXT(lines[i].substr(0, logLineStart.value), convFlags) +
-          '</span>';
-      }
-      else if (lines[i] == "-- ") {
+        preface +=
+          '<span class="moz-txt-citetags">' +
+          gTxtConverter.scanTXT(
+            lines[i].substr(0, logLineStart.value),
+            convFlags
+          ) +
+          "</span>";
+      } else if (lines[i] == "-- ") {
         preface += '<div class="moz-txt-sig">';
         isSignature = true;
       }
-      lines[i] = preface + gTxtConverter.scanTXT(lines[i].substr(logLineStart.value), convFlags);
-
+      lines[i] =
+        preface +
+        gTxtConverter.scanTXT(lines[i].substr(logLineStart.value), convFlags);
     }
 
-    var r = '<pre wrap="">' + lines.join("\n") + (isSignature ? '</div>' : '') + '</pre>';
+    var r =
+      '<pre wrap="">' +
+      lines.join("\n") +
+      (isSignature ? "</div>" : "") +
+      "</pre>";
     //EnigmailLog.DEBUG("funcs.jsm: r='"+r+"'\n");
     return r;
   },
-
 
   /**
    * extract the data fields following a header.
@@ -246,12 +280,16 @@ var EnigmailFuncs = {
    *
    * @return |array| of |arrays| containing pairs of aa/b and cc/d
    */
-  getHeaderData: function(data) {
-    EnigmailLog.DEBUG("funcs.jsm: getHeaderData: " + data.substr(0, 100) + "\n");
+  getHeaderData(data) {
+    EnigmailLog.DEBUG(
+      "funcs.jsm: getHeaderData: " + data.substr(0, 100) + "\n"
+    );
     var a = data.split(/\n/);
     var res = [];
     for (let i = 0; i < a.length; i++) {
-      if (a[i].length === 0) break;
+      if (a[i].length === 0) {
+        break;
+      }
       let b = a[i].split(/;/);
 
       // extract "abc = xyz" tuples
@@ -260,11 +298,21 @@ var EnigmailFuncs = {
         if (m) {
           // m[2]: identifier / m[6]: data
           res[m[2].toLowerCase()] = m[6].replace(/\s*$/, "");
-          EnigmailLog.DEBUG("funcs.jsm: getHeaderData: " + m[2].toLowerCase() + " = " + res[m[2].toLowerCase()] + "\n");
+          EnigmailLog.DEBUG(
+            "funcs.jsm: getHeaderData: " +
+              m[2].toLowerCase() +
+              " = " +
+              res[m[2].toLowerCase()] +
+              "\n"
+          );
         }
       }
-      if (i === 0 && a[i].indexOf(";") < 0) break;
-      if (i > 0 && a[i].search(/^\s/) < 0) break;
+      if (i === 0 && !a[i].includes(";")) {
+        break;
+      }
+      if (i > 0 && a[i].search(/^\s/) < 0) {
+        break;
+      }
     }
     return res;
   },
@@ -272,16 +320,18 @@ var EnigmailFuncs = {
   /***
    * Get the text for the encrypted subject (either configured by user or default)
    */
-  getProtectedSubjectText: function() {
+  getProtectedSubjectText() {
     if (EnigmailPrefs.getPref("protectedSubjectText").length > 0) {
-      return EnigmailData.convertToUnicode(EnigmailPrefs.getPref("protectedSubjectText"), "utf-8");
+      return EnigmailData.convertToUnicode(
+        EnigmailPrefs.getPref("protectedSubjectText"),
+        "utf-8"
+      );
     }
-    else {
-      return "...";
-    }
+
+    return "...";
   },
 
-  cloneObj: function(orig) {
+  cloneObj(orig) {
     let newObj;
 
     if (typeof orig !== "object" || orig === null || orig === undefined) {
@@ -297,20 +347,18 @@ var EnigmailFuncs = {
       for (let i in orig) {
         if (typeof orig[i] === "object") {
           newObj.push(this.cloneObj(orig[i]));
-        }
-        else {
+        } else {
           newObj.push(orig[i]);
         }
       }
-    }
-    else {
+    } else {
       newObj = {};
       for (let i in orig) {
         if (typeof orig[i] === "object") {
           newObj[i] = this.cloneObj(orig[i]);
-        }
-        else
+        } else {
           newObj[i] = orig[i];
+        }
       }
     }
 
@@ -332,48 +380,43 @@ var EnigmailFuncs = {
    *
    *      Throws an error if mime1 or mime2 do not comply to the required format
    */
-  compareMimePartLevel: function(mime1, mime2) {
+  compareMimePartLevel(mime1, mime2) {
     let s = new RegExp("^[0-9]+(\\.[0-9]+)*$");
-    if (mime1.search(s) < 0) throw new Error("Invalid mime1");
-    if (mime2.search(s) < 0) throw new Error("Invalid mime2");
+    if (mime1.search(s) < 0) {
+      throw new Error("Invalid mime1");
+    }
+    if (mime2.search(s) < 0) {
+      throw new Error("Invalid mime2");
+    }
 
     let a1 = mime1.split(/\./);
     let a2 = mime2.split(/\./);
 
     for (let i = 0; i < Math.min(a1.length, a2.length); i++) {
-      if (Number(a1[i]) < Number(a2[i])) return -1;
-      if (Number(a1[i]) > Number(a2[i])) return 1;
+      if (Number(a1[i]) < Number(a2[i])) {
+        return -1;
+      }
+      if (Number(a1[i]) > Number(a2[i])) {
+        return 1;
+      }
     }
 
-    if (a2.length > a1.length) return -2;
-    if (a2.length < a1.length) return 2;
+    if (a2.length > a1.length) {
+      return -2;
+    }
+    if (a2.length < a1.length) {
+      return 2;
+    }
     return 0;
-  },
-
-
-  /**
-   * Determine the total number of certificates in the X.509 certificates store
-   *
-   * @return {Number}: number of Certificates
-   */
-  getNumOfX509Certs: function() {
-
-    let certDb = Cc["@mozilla.org/security/x509certdb;1"].getService(Ci.nsIX509CertDB);
-    let certs = certDb.getCerts();
-    let nCerts = 0;
-
-    if (certs) {
-      let nCerts = [...certs.getEnumerator()].length;
-    }
-
-    return nCerts;
   },
 
   /**
    * Get the nsIMsgAccount associated with a given nsIMsgIdentity
    */
-  getAccountForIdentity: function(identity) {
-    let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+  getAccountForIdentity(identity) {
+    let accountManager = Cc[
+      "@mozilla.org/messenger/account-manager;1"
+    ].getService(Ci.nsIMsgAccountManager);
 
     for (let acct = 0; acct < accountManager.accounts.length; acct++) {
       let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
@@ -391,18 +434,24 @@ var EnigmailFuncs = {
   /**
    * Get the default identity of the default account
    */
-  getDefaultIdentity: function() {
-    let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+  getDefaultIdentity() {
+    let accountManager = Cc[
+      "@mozilla.org/messenger/account-manager;1"
+    ].getService(Ci.nsIMsgAccountManager);
 
     try {
       let ac;
       if (accountManager.defaultAccount) {
         ac = accountManager.defaultAccount;
-      }
-      else {
+      } else {
         for (let i = 0; i < accountManager.accounts.length; i++) {
           ac = accountManager.accounts.queryElementAt(i, Ci.nsIMsgAccount);
-          if (ac.incomingServer.type === "imap" || ac.incomingServer.type === "pop3") break;
+          if (
+            ac.incomingServer.type === "imap" ||
+            ac.incomingServer.type === "pop3"
+          ) {
+            break;
+          }
         }
       }
 
@@ -410,8 +459,7 @@ var EnigmailFuncs = {
         return ac.defaultIdentity;
       }
       return ac.identities.queryElementAt(0, Ci.nsIMsgIdentity);
-    }
-    catch (x) {
+    } catch (x) {
       return null;
     }
   },
@@ -420,7 +468,7 @@ var EnigmailFuncs = {
    * Strip extended email parts such as "+xyz" from "abc+xyz@gmail.com" for known domains
    * Currently supported domains: gmail.com, googlemail.com
    */
-  getBaseEmail: function(emailAddr) {
+  getBaseEmail(emailAddr) {
     return emailAddr.replace(/\+.{1,999}@(gmail|googlemail).com$/i, "");
   },
 
@@ -428,23 +476,28 @@ var EnigmailFuncs = {
    * Get a list of all own email addresses, taken from all identities
    * and all reply-to addresses
    */
-  getOwnEmailAddresses: function() {
+  getOwnEmailAddresses() {
     let ownEmails = {};
 
-    let am = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+    let am = Cc["@mozilla.org/messenger/account-manager;1"].getService(
+      Ci.nsIMsgAccountManager
+    );
 
     // Determine all sorts of own email addresses
     for (let i = 0; i < am.allIdentities.length; i++) {
       let id = am.allIdentities.queryElementAt(i, Ci.nsIMsgIdentity);
-      if (id.email && id.email.length > 0) ownEmails[this.getBaseEmail(id.email.toLowerCase())] = 1;
+      if (id.email && id.email.length > 0) {
+        ownEmails[this.getBaseEmail(id.email.toLowerCase())] = 1;
+      }
       if (id.replyTo && id.replyTo.length > 0) {
         try {
-          let replyEmails = this.stripEmail(id.replyTo).toLowerCase().split(/,/);
+          let replyEmails = this.stripEmail(id.replyTo)
+            .toLowerCase()
+            .split(/,/);
           for (let j in replyEmails) {
             ownEmails[this.getBaseEmail(replyEmails[j])] = 1;
           }
-        }
-        catch (ex) {}
+        } catch (ex) {}
       }
     }
 
@@ -455,11 +508,15 @@ var EnigmailFuncs = {
    * Determine the distinct number of non-self recipients of a message.
    * Only To: and Cc: fields are considered.
    */
-  getNumberOfRecipients: function(msgCompField) {
+  getNumberOfRecipients(msgCompField) {
     let recipients = {},
       ownEmails = this.getOwnEmailAddresses();
 
-    let allAddr = (this.stripEmail(msgCompField.to) + "," + this.stripEmail(msgCompField.cc)).toLowerCase();
+    let allAddr = (
+      this.stripEmail(msgCompField.to) +
+      "," +
+      this.stripEmail(msgCompField.cc)
+    ).toLowerCase();
     let emails = allAddr.split(/,+/);
 
     for (let i = 0; i < emails.length; i++) {
@@ -469,31 +526,6 @@ var EnigmailFuncs = {
       }
     }
 
-    let numRecipients = 0;
-    for (let i in recipients) {
-      ++numRecipients;
-    }
-
-    return numRecipients;
+    return recipients.length;
   },
-
-  /**
-   * Synchronize a promise
-   */
-  syncPromise: function(promise) {
-    let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
-
-    let res = null;
-    let p = promise.then(gotResult => {
-      res = gotResult;
-      inspector.exitNestedEventLoop();
-    }).catch(gotResult => {
-      res = gotResult;
-      inspector.exitNestedEventLoop();
-    });
-
-    inspector.enterNestedEventLoop(0);
-
-    return res;
-  }
 };

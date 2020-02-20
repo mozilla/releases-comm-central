@@ -4,42 +4,43 @@
 
 "use strict";
 
-const {
-  manager: Cm,
-  results: Cr,
-  Constructor: CC
-} = Components;
+const { manager: Cm } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-const EnigmailCompat = ChromeUtils.import("chrome://openpgp/content/modules/compat.jsm").EnigmailCompat;
+const EnigmailCompat = ChromeUtils.import(
+  "chrome://openpgp/content/modules/compat.jsm"
+).EnigmailCompat;
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
 const CATEGORY = "mailnews-accountmanager-extensions";
 const CATEGORY_ENTRY = "openpgp-account-manager-extension";
-const PREF_SERVICE_NAME = "@mozilla.org/accountmanager/extension;1?name=enigprefs";
+const PREF_SERVICE_NAME =
+  "@mozilla.org/accountmanager/extension;1?name=enigprefs";
 
 var EXPORTED_SYMBOLS = ["EnigmailAmPrefsService"];
 
 var EnigmailAmPrefsService = {
-  startup: function(reason) {
+  startup(reason) {
     try {
-      var catMan = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);
-      catMan.addCategoryEntry(CATEGORY,
+      Services.catMan.addCategoryEntry(
+        CATEGORY,
         CATEGORY_ENTRY,
         PREF_SERVICE_NAME,
-        false, true);
+        false,
+        true
+      );
       this.factory = new Factory(EnigmailPrefService);
-    }
-    catch (ex) {}
+    } catch (ex) {}
   },
 
-  shutdown: function(reason) {
-    var catMan = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);
-    catMan.deleteCategoryEntry(CATEGORY, CATEGORY_ENTRY, false);
+  shutdown(reason) {
+    Services.catMan.deleteCategoryEntry(CATEGORY, CATEGORY_ENTRY, false);
 
     if (this.factory) {
       this.factory.unregister();
     }
-  }
+  },
 };
 
 function EnigmailPrefService() {}
@@ -52,7 +53,7 @@ EnigmailPrefService.prototype = {
   contractID: PREF_SERVICE_NAME,
   QueryInterface: EnigmailCompat.generateQI(["nsIMsgAccountManagerExtension"]),
 
-  showPanel: function(server) {
+  showPanel(server) {
     // show Enigmail panel for POP3, IMAP, NNTP and "movemail" (unix) account types
     switch (server.type) {
       case "nntp":
@@ -62,7 +63,7 @@ EnigmailPrefService.prototype = {
         return true;
     }
     return false;
-  }
+  },
 };
 
 class Factory {
@@ -80,10 +81,12 @@ class Factory {
   }
 
   register() {
-    Cm.registerFactory(this.component.prototype.classID,
+    Cm.registerFactory(
+      this.component.prototype.classID,
       this.component.prototype.classDescription,
       this.component.prototype.contractID,
-      this);
+      this
+    );
   }
 
   unregister() {

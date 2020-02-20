@@ -10,31 +10,25 @@ var EXPORTED_SYMBOLS = ["EnigmailClipboard"];
 
 // Import the Services module for future use, if we're not in
 // a browser window where it's already loaded.
-const Services = ChromeUtils.import('resource://gre/modules/Services.jsm').Services;
-
-
-// Create a constructor for the built-in supports-string class.
-const nsSupportsString = Components.Constructor("@mozilla.org/supports-string;1", "nsISupportsString");
-
-function SupportsString(str) {
-  // Create an instance of the supports-string class
-  var res = nsSupportsString();
-
-  // Store the JavaScript string that we want to wrap in the new nsISupportsString object
-  res.data = str;
-  return res;
-}
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
+  .Services;
 
 // Create a constructor for the built-in transferable class
-const nsTransferable = Components.Constructor("@mozilla.org/widget/transferable;1", "nsITransferable");
+const nsTransferable = Components.Constructor(
+  "@mozilla.org/widget/transferable;1",
+  "nsITransferable"
+);
 
 // Create a wrapper to construct an nsITransferable instance and set its source to the given window, when necessary
 function Transferable(source) {
   let res = nsTransferable();
-  if ('init' in res) {
+  if ("init" in res) {
     // When passed a Window object, find a suitable privacy context for it.
-    if (source instanceof Ci.nsIDOMWindow)
-      source = source.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation);
+    if (source instanceof Ci.nsIDOMWindow) {
+      source = source
+        .QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIWebNavigation);
+    }
 
     res.init(source);
   }
@@ -42,7 +36,6 @@ function Transferable(source) {
 }
 
 var EnigmailClipboard = {
-
   /**
    * Get the content string of a clipboard
    *
@@ -52,16 +45,19 @@ var EnigmailClipboard = {
    * @return String - content of clipBoard
    */
 
-  getClipboardContent: function(window, clipBoardType) {
+  getClipboardContent(window, clipBoardType) {
     if (!window) {
       throw new Error("window is a required parameter");
     }
 
-    let clipBoard = Cc["@mozilla.org/widget/clipboard;1"].getService(Ci.nsIClipboard);
+    let clipBoard = Services.clipboard;
     let data = {};
     let cBoardContent = "";
 
-    if (clipBoardType !== clipBoard.kSelectionClipboard || clipBoard.supportsSelectionClipboard()) {
+    if (
+      clipBoardType !== clipBoard.kSelectionClipboard ||
+      clipBoard.supportsSelectionClipboard()
+    ) {
       try {
         let transferable = Transferable(window);
         transferable.addDataFlavor("text/unicode");
@@ -69,8 +65,7 @@ var EnigmailClipboard = {
         let flavour = {};
         transferable.getAnyTransferData(flavour, data);
         cBoardContent = data.value.QueryInterface(Ci.nsISupportsString).data;
-      }
-      catch (ex) {}
+      } catch (ex) {}
     }
     return cBoardContent;
   },
@@ -84,23 +79,30 @@ var EnigmailClipboard = {
    *
    * @return Boolean: true - success / false - failure
    */
-  setClipboardContent: function(str, clipBoardType) {
+  setClipboardContent(str, clipBoardType) {
     let useClipboard = clipBoardType;
     if (clipBoardType === undefined) {
       useClipboard = Ci.nsIClipboard.kGlobalClipboard;
     }
     try {
-      let clipBoard = Cc["@mozilla.org/widget/clipboard;1"].getService(Ci.nsIClipboard);
-      let clipBoardHlp = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
+      let clipBoard = Services.clipboard;
+      let clipBoardHlp = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
+        Ci.nsIClipboardHelper
+      );
       clipBoardHlp.copyStringToClipboard(str, useClipboard);
-      if (clipBoard.supportsSelectionClipboard() &&
-        (useClipboard === Ci.nsIClipboard.kSelectionClipboard || clipBoardType === undefined)) {
-        clipBoardHlp.copyStringToClipboard(str, Ci.nsIClipboard.kSelectionClipboard);
+      if (
+        clipBoard.supportsSelectionClipboard() &&
+        (useClipboard === Ci.nsIClipboard.kSelectionClipboard ||
+          clipBoardType === undefined)
+      ) {
+        clipBoardHlp.copyStringToClipboard(
+          str,
+          Ci.nsIClipboard.kSelectionClipboard
+        );
       }
-    }
-    catch (ex) {
+    } catch (ex) {
       return false;
     }
     return true;
-  }
+  },
 };

@@ -4,21 +4,38 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["EnigmailKeyUsability"];
 
-const EnigmailLocale = ChromeUtils.import("chrome://openpgp/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailPrefs = ChromeUtils.import("chrome://openpgp/content/modules/prefs.jsm").EnigmailPrefs;
-const EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-const EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
-const EnigmailConstants = ChromeUtils.import("chrome://openpgp/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
+const EnigmailLocale = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+).EnigmailLocale;
+const EnigmailPrefs = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+).EnigmailPrefs;
+const EnigmailLog = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+).EnigmailLog;
+const EnigmailCore = ChromeUtils.import(
+  "chrome://openpgp/content/modules/core.jsm"
+).EnigmailCore;
+const EnigmailConstants = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+).EnigmailConstants;
+const EnigmailLazy = ChromeUtils.import(
+  "chrome://openpgp/content/modules/lazy.jsm"
+).EnigmailLazy;
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
-const getWindows = EnigmailLazy.loader("enigmail/windows.jsm", "EnigmailWindows");
-const getKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
+const getWindows = EnigmailLazy.loader(
+  "enigmail/windows.jsm",
+  "EnigmailWindows"
+);
+const getKeyRing = EnigmailLazy.loader(
+  "enigmail/keyRing.jsm",
+  "EnigmailKeyRing"
+);
 
 const DAY = 86400; // number of seconds of 1 day
 
@@ -32,22 +49,25 @@ var EnigmailKeyUsability = {
    * @return Array      - list of keys that will expire
    */
 
-  getExpiryForKeySpec: function(keySpecArr, numDays) {
+  getExpiryForKeySpec(keySpecArr, numDays) {
     EnigmailLog.DEBUG("keyUsability.jsm: getExpiryForKeySpec()\n");
     let now = Math.floor(Date.now() / 1000);
     let enigmailSvc = EnigmailCore.getService();
-    if (!enigmailSvc) return [];
+    if (!enigmailSvc) {
+      return [];
+    }
 
     let result = keySpecArr.reduce(function(p, keySpec) {
       let key;
 
       if (keySpec.search(/^(0x)?[0-9A-F]{8,40}$/i) === 0) {
         key = getKeyRing().getKeyById(keySpec);
-      }
-      else {
+      } else {
         key = getKeyRing().getSecretKeyByEmail(keySpec);
       }
-      if (!key) return p;
+      if (!key) {
+        return p;
+      }
 
       let maxExpiry = Number.MIN_VALUE;
       let maxKey = null;
@@ -58,7 +78,9 @@ var EnigmailKeyUsability = {
         maxKey = key;
       }
 
-      if (maxExpiry < now + (DAY * numDays) && maxExpiry >= now) p.push(maxKey);
+      if (maxExpiry < now + DAY * numDays && maxExpiry >= now) {
+        p.push(maxKey);
+      }
 
       return p;
     }, []);
@@ -73,9 +95,11 @@ var EnigmailKeyUsability = {
    *
    * @return  Array of Strings - list of keyId and email addresses
    */
-  getKeysSpecForIdentities: function() {
+  getKeysSpecForIdentities() {
     EnigmailLog.DEBUG("keyUsability.jsm: getKeysSpecForIdentities()\n");
-    let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+    let accountManager = Cc[
+      "@mozilla.org/messenger/account-manager;1"
+    ].getService(Ci.nsIMsgAccountManager);
 
     let keySpecList = [];
 
@@ -87,8 +111,7 @@ var EnigmailKeyUsability = {
         if (id.getBoolAttribute("enablePgp")) {
           if (id.getIntAttribute("pgpKeyMode") === 1) {
             keySpecList.push(id.getCharAttribute("pgpkeyId"));
-          }
-          else {
+          } else {
             keySpecList.push(id.email);
           }
         }
@@ -105,17 +128,19 @@ var EnigmailKeyUsability = {
    * @return  Array of keys - the keys that have expired since the last check
    *          null in case no check was performed
    */
-  getNewlyExpiredKeys: function() {
+  getNewlyExpiredKeys() {
     EnigmailLog.DEBUG("keyUsability.jsm: getNewlyExpiredKeys()\n");
 
     let numDays = EnigmailPrefs.getPref("warnKeyExpiryNumDays");
-    if (numDays < 1) return null;
+    if (numDays < 1) {
+      return null;
+    }
 
     let now = Date.now();
 
     let lastResult = {
       expiredList: [],
-      lastCheck: 0
+      lastCheck: 0,
     };
 
     let lastRes = EnigmailPrefs.getPref("keyCheckResult");
@@ -123,7 +148,9 @@ var EnigmailKeyUsability = {
       lastResult = JSON.parse(lastRes);
     }
 
-    if (now - lastResult.lastCheck < DAY * 1000) return null;
+    if (now - lastResult.lastCheck < DAY * 1000) {
+      return null;
+    }
 
     let keys = this.getKeysSpecForIdentities();
 
@@ -135,20 +162,20 @@ var EnigmailKeyUsability = {
 
     let expired = this.getExpiryForKeySpec(keys, numDays);
 
-    let expiredList = expired.reduce(function _f(p, key) {
+    let expiredList = expired.reduce(function(p, key) {
       p.push(key.keyId);
       return p;
     }, []);
 
     let newResult = {
-      expiredList: expiredList,
-      lastCheck: now
+      expiredList,
+      lastCheck: now,
     };
 
     EnigmailPrefs.setPref("keyCheckResult", JSON.stringify(newResult));
 
-    let warnList = expired.reduce(function _f(p, key) {
-      if (lastResult.expiredList.indexOf(key.keyId) < 0) {
+    let warnList = expired.reduce(function(p, key) {
+      if (!lastResult.expiredList.includes(key.keyId)) {
         p.push(key);
       }
       return p;
@@ -157,26 +184,32 @@ var EnigmailKeyUsability = {
     return warnList;
   },
 
-  keyExpiryCheck: function() {
+  keyExpiryCheck() {
     EnigmailLog.DEBUG("keyUsability.jsm: keyExpiryCheck()\n");
 
     let expiredKeys = this.getNewlyExpiredKeys();
-    if (!expiredKeys || expiredKeys.length === 0) return "";
+    if (!expiredKeys || expiredKeys.length === 0) {
+      return "";
+    }
 
     let numDays = EnigmailPrefs.getPref("warnKeyExpiryNumDays");
 
     if (expiredKeys.length === 1) {
-      return EnigmailLocale.getString("expiry.keyExpiresSoon", [getKeyDesc(expiredKeys[0]), numDays]);
+      return EnigmailLocale.getString("expiry.keyExpiresSoon", [
+        getKeyDesc(expiredKeys[0]),
+        numDays,
+      ]);
     }
-    else {
-      let keyDesc = "";
-      for (let i = 0; i < expiredKeys.length; i++) {
-        keyDesc += "- " + getKeyDesc(expiredKeys[i]) + "\n";
-      }
-      return EnigmailLocale.getString("expiry.keysExpireSoon", [numDays, keyDesc]);
-    }
-  },
 
+    let keyDesc = "";
+    for (let i = 0; i < expiredKeys.length; i++) {
+      keyDesc += "- " + getKeyDesc(expiredKeys[i]) + "\n";
+    }
+    return EnigmailLocale.getString("expiry.keysExpireSoon", [
+      numDays,
+      keyDesc,
+    ]);
+  },
 
   /**
    * Check whether some key pairs (i.e. key with a secret key) have an
@@ -187,25 +220,32 @@ var EnigmailKeyUsability = {
    * @return Array      - list of keys that have ownertrust below "ultimate"
    */
 
-  getOwnerTrustForKeySpec: function(keySpecArr) {
+  getOwnerTrustForKeySpec(keySpecArr) {
     EnigmailLog.DEBUG("keyUsability.jsm: getOwnerTrustForKeySpec()\n");
     let enigmailSvc = EnigmailCore.getService();
-    if (!enigmailSvc) return [];
+    if (!enigmailSvc) {
+      return [];
+    }
 
     let result = keySpecArr.reduce(function(p, keySpec) {
       let key;
 
       if (keySpec.search(/^(0x)?[0-9A-F]{8,40}$/i) === 0) {
         key = getKeyRing().getKeyById(keySpec);
-        if (!key) return p;
-      }
-      else {
+        if (!key) {
+          return p;
+        }
+      } else {
         key = getKeyRing().getSecretKeyByEmail(keySpec);
-        if (!key) return p;
+        if (!key) {
+          return p;
+        }
       }
 
       let ot = key.ownerTrust;
-      if (ot !== "u") p.push(key);
+      if (ot !== "u") {
+        p.push(key);
+      }
 
       return p;
     }, []);
@@ -213,7 +253,6 @@ var EnigmailKeyUsability = {
     result = uniqueKeyList(result);
     return result;
   },
-
 
   /**
    * Check if all keys of all configured identities have "ultimate" ownertrust
@@ -223,7 +262,7 @@ var EnigmailKeyUsability = {
    *          resultObj.KeyId: KeyId (only if a single key is concerned)
    */
 
-  keyOwnerTrustCheck: function(resultObj) {
+  keyOwnerTrustCheck(resultObj) {
     EnigmailLog.DEBUG("keyUsability.jsm: keyOwnerTrustCheck()\n");
     resultObj.Count = 0;
 
@@ -235,7 +274,9 @@ var EnigmailKeyUsability = {
 
     let keysMissingOwnertrust = this.getOwnerTrustForKeySpec(keys);
 
-    if (!keysMissingOwnertrust || keysMissingOwnertrust.length === 0) return "";
+    if (!keysMissingOwnertrust || keysMissingOwnertrust.length === 0) {
+      return "";
+    }
 
     resultObj.Count = keysMissingOwnertrust.length;
 
@@ -244,47 +285,52 @@ var EnigmailKeyUsability = {
       resultObj.keyId = keysMissingOwnertrust[0].keyId;
       return EnigmailLocale.getString("expiry.keyMissingOwnerTrust", keyDesc);
     }
-    else {
-      let keyDesc = "";
-      for (let i = 0; i < keysMissingOwnertrust.length; i++) {
-        keyDesc += "- " + getKeyDesc(keysMissingOwnertrust[i]) + "\n";
-      }
-      return EnigmailLocale.getString("expiry.keysMissingOwnerTrust", keyDesc);
+
+    let keyDesc = "";
+    for (let i = 0; i < keysMissingOwnertrust.length; i++) {
+      keyDesc += "- " + getKeyDesc(keysMissingOwnertrust[i]) + "\n";
     }
+    return EnigmailLocale.getString("expiry.keysMissingOwnerTrust", keyDesc);
   },
 
   /**
    * Run the check for Ownertrust ("You rely on certifications") and
    * Display a message if something needs to be done
    */
-  checkOwnertrust: function() {
+  checkOwnertrust() {
     EnigmailLog.DEBUG("keyUsability.jsm: checkOwnertrust\n");
 
     var resultObj = {};
     let msg = this.keyOwnerTrustCheck(resultObj);
 
-    if (msg && (msg.length > 0) && EnigmailPrefs.getPref("warnOnMissingOwnerTrust")) {
+    if (
+      msg &&
+      msg.length > 0 &&
+      EnigmailPrefs.getPref("warnOnMissingOwnerTrust")
+    ) {
       let actionButtonText = "";
 
       if (resultObj && resultObj.Count === 1) {
         // single key is concerned
         actionButtonText = EnigmailLocale.getString("expiry.OpenKeyProperties");
-      }
-      else {
+      } else {
         // Multiple keys concerned
         actionButtonText = EnigmailLocale.getString("expiry.OpenKeyManager");
       }
 
       let checkedObj = {};
-      let r = getDialog().msgBox(null, {
+      let r = getDialog().msgBox(
+        null,
+        {
           msgtext: msg,
           dialogTitle: EnigmailLocale.getString("enigInfo"),
           checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
           button1: EnigmailLocale.getString("dlg.button.close"),
           button2: actionButtonText,
-          iconType: EnigmailConstants.ICONTYPE_INFO
+          iconType: EnigmailConstants.ICONTYPE_INFO,
         },
-        checkedObj);
+        checkedObj
+      );
       if (r >= 0 && checkedObj.value) {
         // Do not show me this dialog again
         EnigmailPrefs.setPref("warnOnMissingOwnerTrust", false);
@@ -293,14 +339,13 @@ var EnigmailKeyUsability = {
         if (resultObj && resultObj.Count === 1) {
           // single key is concerned, open key details dialog
           getWindows().openKeyDetails(null, resultObj.keyId, false);
-        }
-        else {
+        } else {
           // Multiple keys concerned, open Key Manager
           getWindows().openKeyManager(null);
         }
       }
     }
-  }
+  },
 };
 
 /**
@@ -313,17 +358,17 @@ var EnigmailKeyUsability = {
 
 function uniqueKeyList(arr) {
   return arr.reduce(function(p, c) {
-
-    let r = p.find(function _f(e, i, a) {
+    let r = p.find(function(e, i, a) {
       return e.keyId === c.keyId;
     });
 
-    if (r === undefined) p.push(c);
+    if (r === undefined) {
+      p.push(c);
+    }
     return p;
   }, []);
 }
 
-
 function getKeyDesc(key) {
-  return '"' + key.userId + '" (key ID ' + key.fprFormatted + ')';
+  return '"' + key.userId + '" (key ID ' + key.fprFormatted + ")";
 }

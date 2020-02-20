@@ -10,20 +10,16 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailCompat"];
 
-const XPCOM_APPINFO = "@mozilla.org/xre/app-info;1";
-
 var MailUtils;
 
 MailUtils = ChromeUtils.import("resource:///modules/MailUtils.jsm").MailUtils;
 
-var gCompFields, gPgpMimeObj;
-
 var EnigmailCompat = {
-  generateQI: function(aCid) {
+  generateQI(aCid) {
     return ChromeUtils.generateQI(aCid);
   },
 
-  getExistingFolder: function(folderUri) {
+  getExistingFolder(folderUri) {
     return MailUtils.getExistingFolder(folderUri);
   },
 
@@ -34,12 +30,15 @@ var EnigmailCompat = {
    *
    * @return Object: nsIURL or nsIMsgMailNewsUrl object
    */
-  getUrlFromUriSpec: function(uriSpec) {
+  getUrlFromUriSpec(uriSpec) {
     try {
-      if (!uriSpec)
+      if (!uriSpec) {
         return null;
+      }
 
-      let messenger = Cc["@mozilla.org/messenger;1"].getService(Ci.nsIMessenger);
+      let messenger = Cc["@mozilla.org/messenger;1"].getService(
+        Ci.nsIMessenger
+      );
       let msgService = messenger.messageServiceFromURI(uriSpec);
 
       let url;
@@ -52,12 +51,9 @@ var EnigmailCompat = {
       if (url.scheme == "file") {
         return url;
       }
-      else {
-        return url.QueryInterface(Ci.nsIMsgMailNewsUrl);
-      }
 
-    }
-    catch (ex) {
+      return url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    } catch (ex) {
       return null;
     }
   },
@@ -70,10 +66,28 @@ var EnigmailCompat = {
    *   in nsIMsgCopyServiceListener listener,
    *   in nsIMsgWindow msgWindow
    */
-  copyFileToMailFolder: function(file, destFolder, msgFlags, msgKeywords, listener, msgWindow) {
-    let copySvc = Cc["@mozilla.org/messenger/messagecopyservice;1"].getService(Ci.nsIMsgCopyService);
+  copyFileToMailFolder(
+    file,
+    destFolder,
+    msgFlags,
+    msgKeywords,
+    listener,
+    msgWindow
+  ) {
+    let copySvc = Cc["@mozilla.org/messenger/messagecopyservice;1"].getService(
+      Ci.nsIMsgCopyService
+    );
 
-    return copySvc.CopyFileMessage(file, destFolder, null, false, msgFlags, msgKeywords, listener, msgWindow);
+    return copySvc.CopyFileMessage(
+      file,
+      destFolder,
+      null,
+      false,
+      msgFlags,
+      msgKeywords,
+      listener,
+      msgWindow
+    );
   },
 
   /**
@@ -84,20 +98,20 @@ var EnigmailCompat = {
    *
    * @return {Object}
    */
-  getTreeCompatibleFuncs: function(treeObj, listViewHolder) {
+  getTreeCompatibleFuncs(treeObj, listViewHolder) {
     return {
-      getCellAt: function(x,y) {
+      getCellAt(x, y) {
         return treeObj.getCellAt(x, y);
       },
-      rowCountChanged: function(a, b) {
+      rowCountChanged(a, b) {
         return treeObj.rowCountChanged(a, b);
       },
-      invalidate: function() {
+      invalidate() {
         return treeObj.invalidate();
       },
-      invalidateRow: function(r) {
+      invalidateRow(r) {
         return treeObj.invalidateRow(r);
-      }
+      },
     };
   },
 };

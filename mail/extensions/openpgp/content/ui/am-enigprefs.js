@@ -6,10 +6,15 @@
 
 "use strict";
 
-var EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm").EnigmailLog;
-var EnigmailCore = ChromeUtils.import("chrome://openpgp/content/modules/core.jsm").EnigmailCore;
+var EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm")
+  .EnigmailLog;
+var EnigmailCore = ChromeUtils.import(
+  "chrome://openpgp/content/modules/core.jsm"
+).EnigmailCore;
 
-if (!Enigmail) var Enigmail = {};
+if (!Enigmail) {
+  var Enigmail = {};
+}
 
 var gPref = null;
 
@@ -73,7 +78,6 @@ function enigmailOnAcceptEditor() {
 
   return true; // allow to close dialog in all cases
 }
-
 
 function saveChanges() {}
 
