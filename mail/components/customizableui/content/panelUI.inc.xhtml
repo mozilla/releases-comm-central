@@ -126,7 +126,7 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-messageView', this)"/>
         <toolbarbutton id="appmenu_Event_Task"
-                       class="subviewbutton subviewbutton-nav"
+                       class="subviewbutton subviewbutton-nav hide-when-calendar-deactivated"
                        label="&lightning.menu.eventtask.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appmenu_Event_Task_View', this)"/>
@@ -165,14 +165,15 @@
                        key="key_newMessage2"
                        command="cmd_newMessage"/>
         <toolbarbutton id="appmenu_calendar-new-event-menu-item"
-                       class="subviewbutton subviewbutton-iconic"
+                       class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
                        label="&lightning.menupopup.new.event.label;"
                        command="calendar_new_event_command"/>
         <toolbarbutton id="appmenu_calendar-new-task-menu-item"
-                       class="subviewbutton subviewbutton-iconic"
+                       class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
                        label="&lightning.menupopup.new.task.label;"
                        command="calendar_new_todo_command"/>
         <toolbarseparator id="appmenu_calendar-after-new-task-separator"
+                          class="hide-when-calendar-deactivated"
                           observes="appmenu_newFolder"/>
         <toolbarbutton id="appmenu_newFolder"
                        class="subviewbutton subviewbutton-iconic"
@@ -661,20 +662,21 @@
                        label="&folderView.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-foldersView', this)"/>
-        <toolbarseparator id="appmenu_calendar-view-menu-separator"/>
+        <toolbarseparator id="appmenu_calendar-view-menu-separator"
+                          class="hide-when-calendar-deactivated"/>
         <toolbarbutton id="appmenu_calendar-today-pane-menu"
-                      class="subviewbutton subviewbutton-nav"
+                      class="subviewbutton subviewbutton-nav hide-when-calendar-deactivated"
                       label="&calendar.context.button.label;"
                       closemenu="none"
                       oncommand="PanelUI.showSubView('appmenu_calendar-today-pane-view', this)"/>
         <toolbarbutton id="appmenu_calendar-calendar-menu"
-                      class="subviewbutton subviewbutton-nav"
+                      class="subviewbutton subviewbutton-nav hide-when-calendar-deactivated"
                       observes="calendar_in_foreground"
                       label="&lightning.menu.view.calendar.label;"
                       closemenu="none"
                       oncommand="PanelUI.showSubView('appmenu_calendar-calendar-view', this)"/>
         <toolbarbutton id="appmenu_calendar-tasks-menu"
-                      class="subviewbutton subviewbutton-nav"
+                      class="subviewbutton subviewbutton-nav hide-when-calendar-deactivated"
                       observes="calendar_mode_task"
                       label="&lightning.menu.view.tasks.label;"
                       closemenu="none"
@@ -1229,7 +1231,7 @@
                        command="cmd_goBack"/>
         <toolbarseparator id="appmenu_goNextSeparator"/>
         <toolbarbutton id="appmenu_calendar-go-to-today"
-                       class="subviewbutton subviewbutton-iconic"
+                       class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
                        label="&goTodayCmd.label;"
                        command="calendar_go_to_today_command"/>
         <toolbarbutton id="appmenu_goChat"
@@ -1285,12 +1287,13 @@
                        label="&nextUnreadThread.label;"
                        key="key_nextUnreadThread"
                        command="cmd_nextUnreadThread"/>
-        <toolbarseparator id="appmenu_GoNextAfterUnreadThreadSeparator"/>
+        <toolbarseparator id="appmenu_GoNextAfterUnreadThreadSeparator"
+                          class="hide-when-calendar-deactivated"/>
         <!-- Label is set up automatically using the view id. When writing a
              view extension, add a `label-<myviewtype>` attribute with the
              correct label. -->
         <toolbarbutton id="appmenu_calendar-go-menu-next"
-                       class="subviewbutton subviewbutton-iconic"
+                       class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
                        label=""
                        label-day="&lightning.toolbar.day.label;"
                        label-week="&lightning.toolbar.week.label;"
@@ -1320,12 +1323,13 @@
                        class="subviewbutton subviewbutton-iconic"
                        label="&prevStarredMsgCmd.label;"
                        command="cmd_previousFlaggedMsg"/>
-        <toolbarseparator id="appmenu_goPreviousAfterFlaggedSeparator"/>
+        <toolbarseparator id="appmenu_goPreviousAfterFlaggedSeparator"
+                          class="hide-when-calendar-deactivated"/>
         <!-- Label is set up automatically using the view id. When writing a
              view extension, add a `label-<myviewtype>` attribute with the
              correct label. -->
         <toolbarbutton id="appmenu_calendar-go-menu-previous"
-                       class="subviewbutton subviewbutton-iconic"
+                       class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
                        label=""
                        label-day="&lightning.toolbar.day.label;"
                        label-week="&lightning.toolbar.week.label;"

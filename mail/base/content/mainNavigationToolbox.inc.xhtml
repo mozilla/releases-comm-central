@@ -51,16 +51,19 @@
                         key="key_newMessage2"
                         command="cmd_newMessage"/>
               <menuitem id="calendar-new-event-menuitem"
+                        class="hide-when-calendar-deactivated"
                         label="&lightning.menupopup.new.event.label;"
                         accesskey="&lightning.menupopup.new.event.accesskey;"
                         key="calendar-new-event-key"
                         command="calendar_new_event_command"/>
               <menuitem id="calendar-new-task-menuitem"
+                        class="hide-when-calendar-deactivated"
                         label="&lightning.menupopup.new.task.label;"
                         accesskey="&lightning.menupopup.new.task.accesskey;"
                         key="calendar-new-todo-key"
                         command="calendar_new_todo_command"/>
               <menuseparator id="calendar-after-new-task-menuseparator"
+                             class="hide-when-calendar-deactivated"
                              observes="menu_newFolder"/>
               <menuitem id="menu_newFolder" label="&newFolderCmd.label;"
                         command="cmd_newFolder"
@@ -130,11 +133,13 @@
                     class="menuitem-iconic"/>
           <menuseparator id="fileMenuAfterCloseSeparator"/>
           <menuitem id="calendar-save-menuitem"
+                    class="hide-when-calendar-deactivated"
                     label="&event.menu.item.save.label;"
                     accesskey="&event.menu.item.save.tab.accesskey;"
                     key="save-key"
                     command="cmd_save"/>
           <menuitem id="calendar-save-and-close-menuitem"
+                    class="hide-when-calendar-deactivated"
                     label="&event.menu.item.saveandclose.label;"
                     accesskey="&event.menu.item.saveandclose.tab.accesskey;"
                     command="cmd_accept"/>
@@ -657,11 +662,13 @@
                         accesskey="&nextUnreadThread.accesskey;"
                         command="cmd_nextUnreadThread"
                         key="key_nextUnreadThread"/>
-              <menuseparator id="goNextAfterUnreadThreadSeparator"/>
+              <menuseparator id="goNextAfterUnreadThreadSeparator"
+                             class="hide-when-calendar-deactivated"/>
               <!-- Label is set up automatically using the view id. When writing
                    a view extension, add a `label-<myviewtype>` attribute with
                    the correct label. -->
               <menuitem id="calendar-go-menu-next"
+                        class="hide-when-calendar-deactivated"
                         label=""
                         label-day="&lightning.toolbar.day.label;"
                         label-week="&lightning.toolbar.week.label;"
@@ -690,11 +697,13 @@
                         label="&prevStarredMsgCmd.label;"
                         accesskey="&prevStarredMsgCmd.accesskey;"
                         command="cmd_previousFlaggedMsg"/>
-              <menuseparator id="goPreviousAfterFlaggedSeparator"/>
+              <menuseparator id="goPreviousAfterFlaggedSeparator"
+                             class="hide-when-calendar-deactivated"/>
               <!-- Label is set up automatically using the view id. When writing
                    a view extension, add a `label-<myviewtype>` attribute with
                    the correct label. -->
               <menuitem id="calendar-go-menu-previous"
+                        class="hide-when-calendar-deactivated"
                         label=""
                         label-day="&lightning.toolbar.day.label;"
                         label-week="&lightning.toolbar.week.label;"
@@ -717,6 +726,7 @@
                     class="menuitem-iconic"/>
           <menuseparator id="goNextSeparator"/>
           <menuitem id="calendar-go-to-today-menuitem"
+                    class="hide-when-calendar-deactivated"
                     label="&goTodayCmd.label;"
                     accesskey="&goTodayCmd.accesskey;"
                     command="calendar_go_to_today_command"

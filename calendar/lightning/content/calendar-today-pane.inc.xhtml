@@ -3,13 +3,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 <splitter id="today-splitter"
+          class="calendar-sidebar-splitter hide-when-calendar-deactivated"
           collapse="after"
           resizebefore="closest"
           state="collapsed"
-          class="calendar-sidebar-splitter"
           oncommand="TodayPane.onCommandTodaySplitter();">
 </splitter>
 <calendar-modevbox id="today-pane-panel"
+                   class="hide-when-calendar-deactivated"
                    mode="mail,calendar,task,chat,calendarEvent,calendarTask"
                    modewidths="200,200,200,200,200,200"
                    modesplitterstates="open,open,open,open,open,open"

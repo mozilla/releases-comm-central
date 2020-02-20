@@ -11,6 +11,9 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { calendarDeactivator } = ChromeUtils.import(
+  "resource:///modules/calendar/calCalendarDeactivator.jsm"
+);
 
 /* exported commonInitCalendar, commonFinishCalendar */
 
@@ -38,6 +41,9 @@ async function commonInitCalendar() {
 
   // Set up calendar menu items in the appmenu.
   setUpCalendarAppMenuItems();
+
+  // Set up calendar deactivation for this window.
+  calendarDeactivator.registerWindow(window);
 
   // Set up item and day selection listeners
   getViewDeck().addEventListener("dayselect", observeViewDaySelect);

@@ -2,8 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<menuseparator id="ltnViewMenuSeparator"/>
+<menuseparator id="ltnViewMenuSeparator"
+               class="hide-when-calendar-deactivated"/>
 <menu id="ltnTodayPaneMenu"
+      class="hide-when-calendar-deactivated"
       label="&calendar.context.button.label;"
       accesskey="&calendar.context.button.accesskey;">
   <menupopup id="ltnTodayPaneMenuPopup">
@@ -38,6 +40,7 @@
   </menupopup>
 </menu>
 <menu id="ltnCalendarMenu"
+      class="hide-when-calendar-deactivated"
       observes="calendar_in_foreground"
       label="&lightning.menu.view.calendar.label;"
       accesskey="&lightning.menu.view.calendar.accesskey;">
@@ -125,6 +128,7 @@
   </menupopup>
 </menu>
 <menu id="ltnTasksMenu"
+      class="hide-when-calendar-deactivated"
       observes="calendar_mode_task"
       label="&lightning.menu.view.tasks.label;"
       accesskey="&lightning.menu.view.tasks.accesskey;">
