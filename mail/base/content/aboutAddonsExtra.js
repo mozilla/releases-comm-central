@@ -27,15 +27,21 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
 
     // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
     let browser = document.getElementById("html-view-browser");
-    browser.contentWindow.setTimeout(() => {
-      let textbox = browser.contentDocument.getElementById("search-addons");
-      let placeholder = textbox.getAttribute("placeholder");
-      placeholder = placeholder.replace(
-        "addons.mozilla.org",
-        "addons.thunderbird.net"
+    if (!/(interactive|complete)/.test(browser.contentDocument.readyState)) {
+      await new Promise(resolve =>
+        browser.contentWindow.addEventListener("DOMContentLoaded", resolve, {
+          once: true,
+        })
       );
-      textbox.setAttribute("placeholder", placeholder);
-    });
+    }
+
+    let textbox = browser.contentDocument.getElementById("search-addons");
+    let placeholder = textbox.getAttribute("placeholder");
+    placeholder = placeholder.replace(
+      "addons.mozilla.org",
+      "addons.thunderbird.net"
+    );
+    textbox.setAttribute("placeholder", placeholder);
     return;
   }
 

@@ -371,8 +371,6 @@ var contentTabBaseType = {
   inContentOverlays: [
     // about:addons
     function(aDocument, aTab) {
-      // Switch off the context menu.
-      aTab.browser.removeAttribute("context");
       Services.scriptloader.loadSubScript(
         "chrome://messenger/content/aboutAddonsExtra.js",
         aDocument.defaultView
