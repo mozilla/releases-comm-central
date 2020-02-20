@@ -107,6 +107,14 @@
           "body": {
             "type": "string",
             "optional": true
+          },
+          "plainTextBody": {
+            "type": "string",
+            "optional": true
+          },
+          "isPlainText": {
+            "type": "boolean",
+            "optional": true
           }
         }
       }

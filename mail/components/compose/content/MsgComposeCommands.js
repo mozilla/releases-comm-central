@@ -3972,22 +3972,45 @@ function GetComposeDetails() {
  *
  * @param {Object} newValues - New values to use. Values that should not change
  *    should be null or not present.
- * @param {string} [fields.to]
- * @param {string} [fields.cc]
- * @param {string} [fields.bcc]
- * @param {string} [fields.replyTo]
- * @param {string} [fields.newsgroups]
- * @param {string} [fields.followupTo]
- * @param {string} [fields.subject]
+ * @param {string} [newValues.to]
+ * @param {string} [newValues.cc]
+ * @param {string} [newValues.bcc]
+ * @param {string} [newValues.replyTo]
+ * @param {string} [newValues.newsgroups]
+ * @param {string} [newValues.followupTo]
+ * @param {string} [newValues.subject]
+ * @param {string} [newValues.body]
+ * @param {string} [newValues.plainTextBody]
  */
 function SetComposeDetails(newValues) {
   CompFields2Recipients(newValues);
-  if (newValues.subject !== null) {
+  if (typeof newValues.subject == "string") {
     gMsgCompose.compFields.subject = document.getElementById(
       "msgSubject"
     ).value = newValues.subject;
     SetComposeWindowTitle();
   }
+  if (
+    typeof newValues.body == "string" &&
+    typeof newValues.plainTextBody == "string"
+  ) {
+    throw Cr.NS_ERROR_UNEXPECTED;
+  }
+
+  let editor = GetCurrentEditor();
+  if (typeof newValues.body == "string") {
+    if (!IsHTMLEditor()) {
+      throw Cr.NS_ERROR_UNEXPECTED;
+    }
+    editor.rebuildDocumentFromSource(newValues.body);
+    gMsgCompose.bodyModified = true;
+  }
+  if (typeof newValues.plainTextBody == "string") {
+    editor.selectAll();
+    editor.insertText(newValues.plainTextBody);
+    gMsgCompose.bodyModified = true;
+  }
+  gContentChanged = true;
 }
 
 /**

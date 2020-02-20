@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_task(async () => {
-  let account = createAccount();
-  addIdentity(account);
+let account = createAccount();
+addIdentity(account);
+
+add_task(async function testHeaders() {
   let rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("test", null);
   let folder = rootFolder.getChildNamed("test");
@@ -25,10 +26,10 @@ add_task(async () => {
         });
       }
 
-      async function checkWindow(expected) {
+      async function checkHeaders(expected) {
         let createdWindow = await createdWindowPromise;
         browser.test.assertEq("messageCompose", createdWindow.type);
-        browser.test.sendMessage("checkWindow", expected);
+        browser.test.sendMessage("checkHeaders", expected);
         await new Promise(resolve => {
           browser.test.onMessage.addListener(function listener() {
             browser.test.onMessage.removeListener(listener);
@@ -72,7 +73,7 @@ add_task(async () => {
 
       createdWindowPromise = waitForEvent("onCreated");
       await browser.compose.beginNew();
-      await checkWindow({});
+      await checkHeaders({});
 
       // Start a new message, with a subject and recipients as strings.
 
@@ -82,7 +83,7 @@ add_task(async () => {
         cc: "John Watson <john@bakerstreet.invalid>",
         subject: "Did you miss me?",
       });
-      await checkWindow({
+      await checkHeaders({
         to: ["Sherlock Holmes <sherlock@bakerstreet.invalid>"],
         cc: ["John Watson <john@bakerstreet.invalid>"],
         subject: "Did you miss me?",
@@ -96,7 +97,7 @@ add_task(async () => {
         cc: ["John Watson <john@bakerstreet.invalid>"],
         subject: "Did you miss me?",
       });
-      await checkWindow({
+      await checkHeaders({
         to: ["Sherlock Holmes <sherlock@bakerstreet.invalid>"],
         cc: ["John Watson <john@bakerstreet.invalid>"],
         subject: "Did you miss me?",
@@ -110,7 +111,7 @@ add_task(async () => {
         cc: [{ id: contacts.john, type: "contact" }],
         subject: "Did you miss me?",
       });
-      await checkWindow({
+      await checkHeaders({
         to: ["Sherlock Holmes <sherlock@bakerstreet.invalid>"],
         cc: ["John Watson <john@bakerstreet.invalid>"],
         subject: "Did you miss me?",
@@ -123,7 +124,7 @@ add_task(async () => {
         to: [{ id: list, type: "mailingList" }],
         subject: "Did you miss me?",
       });
-      await checkWindow({
+      await checkHeaders({
         to: ["Holmes and Watson <Tenants221B>"],
         subject: "Did you miss me?",
       });
@@ -132,7 +133,7 @@ add_task(async () => {
 
       createdWindowPromise = waitForEvent("onCreated");
       await browser.compose.beginReply(messages[0].id);
-      await checkWindow({
+      await checkHeaders({
         to: [messages[0].author.replace(/"/g, "")],
         subject: `Re: ${messages[0].subject}`,
       });
@@ -147,7 +148,7 @@ add_task(async () => {
           to: ["Mycroft Holmes <mycroft@bakerstreet.invalid>"],
         }
       );
-      await checkWindow({
+      await checkHeaders({
         to: ["Mycroft Holmes <mycroft@bakerstreet.invalid>"],
         subject: `Fwd: ${messages[1].subject}`,
       });
@@ -158,8 +159,168 @@ add_task(async () => {
     manifest: { permissions: ["accountsRead", "addressBooks", "messagesRead"] },
   });
 
-  extension.onMessage("checkWindow", async expected => {
+  extension.onMessage("checkHeaders", async expected => {
     await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+add_task(async function testBody() {
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      function waitForEvent(eventName) {
+        return new Promise(resolve => {
+          let listener = window => {
+            browser.windows[eventName].removeListener(listener);
+            resolve(window);
+          };
+          browser.windows[eventName].addListener(listener);
+        });
+      }
+
+      let emptyHTML = "<body>\n<p><br>\n</p>\n";
+
+      let tests = [
+        {
+          // No arguments.
+          expected: {
+            isHTML: true,
+            htmlIncludes: emptyHTML,
+            plainTextIs: "\n",
+          },
+        },
+        {
+          // Empty arguments.
+          arguments: {},
+          expected: {
+            isHTML: true,
+            htmlIncludes: emptyHTML,
+            plainTextIs: "\n",
+          },
+        },
+        {
+          // Empty HTML.
+          arguments: { body: "" },
+          expected: {
+            isHTML: true,
+            htmlIncludes: emptyHTML,
+            plainTextIs: "\n",
+          },
+        },
+        {
+          // Empty plain text.
+          arguments: { plainTextBody: "" },
+          expected: {
+            isHTML: true,
+            htmlIncludes: emptyHTML,
+            plainTextIs: "\n",
+          },
+        },
+        {
+          // Empty plain text and isPlainText.
+          arguments: { plainTextBody: "", isPlainText: true },
+          expected: { isHTML: false, plainTextIs: "" },
+        },
+        {
+          // Non-empty HTML.
+          arguments: { body: "<p>I'm an HTML message!</p>" },
+          expected: {
+            isHTML: true,
+            htmlIncludes: emptyHTML + "<p>I'm an HTML message!</p>",
+            plainTextIs: "\nI'm an HTML message!",
+          },
+        },
+        {
+          // Non-empty plain text.
+          arguments: { plainTextBody: "I'm a plain text message!" },
+          expected: {
+            isHTML: true,
+            htmlIncludes: emptyHTML + "I'm a plain text message!<",
+            plainTextIs: "\nI'm a plain text message!",
+          },
+        },
+        {
+          // Non-empty plain text and isPlainText.
+          arguments: {
+            plainTextBody: "I'm a plain text message!",
+            isPlainText: true,
+          },
+          expected: {
+            isHTML: false,
+            htmlIncludes: ">I'm a plain text message!<",
+            plainTextIs: "I'm a plain text message!",
+          },
+        },
+        {
+          // HTML and plain text. Invalid.
+          arguments: { body: "", plainTextBody: "" },
+          throws: true,
+        },
+        {
+          // HTML and isPlainText. Invalid.
+          arguments: { body: "", isPlainText: true },
+          throws: true,
+        },
+      ];
+
+      for (let test of tests) {
+        browser.test.log(JSON.stringify(test));
+        let createdWindowPromise = waitForEvent("onCreated");
+        try {
+          await browser.compose.beginNew(test.arguments);
+          if (test.throws) {
+            browser.test.fail(
+              "calling beginNew with these arguments should throw"
+            );
+          }
+        } catch (ex) {
+          if (test.throws) {
+            browser.test.succeed("expected exception thrown");
+          } else {
+            browser.test.fail(`unexpected exception thrown: ${ex.message}`);
+          }
+          continue;
+        }
+
+        let createdWindow = await createdWindowPromise;
+        browser.test.assertEq("messageCompose", createdWindow.type);
+        browser.test.sendMessage("checkBody", test.expected);
+        await new Promise(resolve => {
+          browser.test.onMessage.addListener(function listener() {
+            browser.test.onMessage.removeListener(listener);
+            resolve();
+          });
+        });
+        let removedWindowPromise = waitForEvent("onRemoved");
+        browser.windows.remove(createdWindow.id);
+        await removedWindowPromise;
+      }
+
+      browser.test.notifyPass("finished");
+    },
+  });
+
+  extension.onMessage("checkBody", async expected => {
+    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    is(composeWindows.length, 1);
+    await new Promise(resolve => composeWindows[0].setTimeout(resolve));
+
+    is(composeWindows[0].IsHTMLEditor(), expected.isHTML, "isHTML");
+
+    let editor = composeWindows[0].GetCurrentEditor();
+    let actualHTML = editor.outputToString("text/html", 0);
+    let actualPlainText = editor.outputToString("text/plain", 0);
+    if ("htmlIncludes" in expected) {
+      ok(actualHTML.includes(expected.htmlIncludes), "html");
+    }
+    if ("plainTextIs" in expected) {
+      is(actualPlainText, expected.plainTextIs, "plainText");
+    }
+
     extension.sendMessage();
   });
 

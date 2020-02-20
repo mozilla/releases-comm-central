@@ -95,6 +95,19 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
   }
   params.type = type;
   if (composeParams) {
+    if (composeParams.body !== null) {
+      if (composeParams.plainTextBody !== null) {
+        throw new ExtensionError(
+          "Only one of body and plainTextBody can be specified."
+        );
+      }
+      if (composeParams.isPlainText) {
+        throw new ExtensionError(
+          "Cannot specify body when isPlainText is true. Use plainTextBody instead."
+        );
+      }
+    }
+
     for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
       composeFields[field] = await parseComposeRecipientList(
         composeParams[field]
@@ -107,10 +120,17 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
         composeFields.newsgroups = composeParams.newsgroups;
       }
     }
-    for (let field of ["subject", "body"]) {
-      if (composeParams[field]) {
-        composeFields[field] = composeParams[field];
+    if (composeParams.subject !== null) {
+      composeFields.subject = composeParams.subject;
+    }
+    if (composeParams.body !== null) {
+      composeFields.body = composeParams.body;
+    }
+    if (composeParams.plainTextBody != null) {
+      if (composeParams.isPlainText) {
+        params.format = Ci.nsIMsgCompFormat.PlainText;
       }
+      composeFields.body = composeParams.plainTextBody;
     }
   }
 
@@ -123,6 +143,7 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
 
 function getComposeDetails(composeWindow) {
   let composeFields = composeWindow.GetComposeDetails();
+  let editor = composeWindow.GetCurrentEditor();
 
   let details = {
     to: composeFields.splitRecipients(composeFields.to, false),
@@ -134,11 +155,20 @@ function getComposeDetails(composeWindow) {
       ? composeFields.newsgroups.split(",")
       : [],
     subject: composeFields.subject,
+    isPlainText: !composeWindow.IsHTMLEditor(),
+    body: editor.outputToString("text/html", 0),
+    plainTextBody: editor.outputToString("text/plain", 0),
   };
   return details;
 }
 
 async function setComposeDetails(composeWindow, details) {
+  if (details.body && details.plainTextBody) {
+    throw new ExtensionError(
+      "Only one of body and plainTextBody can be specified."
+    );
+  }
+
   for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
     if (field in details) {
       details[field] = await parseComposeRecipientList(details[field]);

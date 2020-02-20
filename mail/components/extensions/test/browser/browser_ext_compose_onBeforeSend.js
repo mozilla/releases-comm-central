@@ -240,7 +240,11 @@ add_task(async function testChangeDetails() {
       let createdWindow = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
-      await checkWindow({ to: ["test@test.invalid"], subject: "Test" });
+      await checkWindow({
+        to: ["test@test.invalid"],
+        subject: "Test",
+        body: "Original body.",
+      });
 
       let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
@@ -252,6 +256,7 @@ add_task(async function testChangeDetails() {
             to: ["to@test5.invalid"],
             cc: ["cc@test5.invalid"],
             subject: "Changed by listener5",
+            body: "New body from listener5.",
           },
         };
       };
@@ -277,6 +282,7 @@ add_task(async function testChangeDetails() {
       await browser.compose.beginNew({
         to: ["test@test.invalid"],
         subject: "Test",
+        body: "Original body.",
       });
       createdWindow = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
@@ -311,6 +317,7 @@ add_task(async function testChangeDetails() {
           to: ["to@test6.invalid"],
           cc: ["cc@test6.invalid"],
           subject: "Changed by listener6",
+          body: "New body from listener6.",
         },
       });
       browser.compose.onBeforeSend.removeListener(listener6);
@@ -345,11 +352,25 @@ add_task(async function testChangeDetails() {
   is(sentMessage5.recipients, "to@test5.invalid", "to was changed");
   is(sentMessage5.ccList, "cc@test5.invalid", "cc was changed");
 
+  await new Promise(resolve => {
+    window.MsgHdrToMimeMessage(sentMessage5, null, (msgHdr, mimeMessage) => {
+      is(mimeMessage.parts[0].body, "New body from listener5.\n");
+      resolve();
+    });
+  });
+
   ok(outboxMessages.hasMoreElements());
   let sentMessage6 = outboxMessages.getNext();
   is(sentMessage6.subject, "Changed by listener6", "subject was changed");
   is(sentMessage6.recipients, "to@test6.invalid", "to was changed");
   is(sentMessage6.ccList, "cc@test6.invalid", "cc was changed");
+
+  await new Promise(resolve => {
+    window.MsgHdrToMimeMessage(sentMessage6, null, (msgHdr, mimeMessage) => {
+      is(mimeMessage.parts[0].body, "New body from listener6.\n");
+      resolve();
+    });
+  });
 
   ok(!outboxMessages.hasMoreElements());
 

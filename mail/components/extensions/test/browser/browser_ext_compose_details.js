@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_task(async () => {
-  addIdentity(createAccount());
+addIdentity(createAccount());
 
+add_task(async function testHeaders() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       function waitForEvent(eventName) {
@@ -252,4 +252,183 @@ add_task(async () => {
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
+});
+
+add_task(async function testBody() {
+  // Open an compose window with HTML body.
+
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  params.composeFields.body = "<p>This is some <i>HTML</i> text.</p>";
+
+  let htmlWindowPromise = BrowserTestUtils.domWindowOpened();
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  let htmlWindow = await htmlWindowPromise;
+  await BrowserTestUtils.waitForEvent(htmlWindow, "load");
+
+  // Open another compose window with plain text body.
+
+  params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(
+    Ci.nsIMsgComposeParams
+  );
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  params.format = Ci.nsIMsgCompFormat.PlainText;
+  params.composeFields.body = "This is some plain text.";
+
+  let plainTextComposeWindowPromise = BrowserTestUtils.domWindowOpened();
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  let plainTextWindow = await plainTextComposeWindowPromise;
+  await BrowserTestUtils.waitForEvent(plainTextWindow, "load");
+
+  // Run the extension.
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      let windows = await browser.windows.getAll({
+        populate: true,
+        windowTypes: ["messageCompose"],
+      });
+      let [htmlTabId, plainTextTabId] = windows.map(w => w.tabs[0].id);
+
+      // Get details, HTML message.
+
+      let htmlDetails = await browser.compose.getComposeDetails(htmlTabId);
+      browser.test.log(JSON.stringify(htmlDetails));
+      browser.test.assertTrue(!htmlDetails.isPlainText);
+      browser.test.assertTrue(
+        htmlDetails.body.includes(">This is some <i>HTML</i> text.<")
+      );
+      browser.test.assertEq(
+        "\nThis is some HTML text.",
+        htmlDetails.plainTextBody
+      );
+
+      // Set details, HTML message.
+
+      await browser.compose.setComposeDetails(htmlTabId, {
+        body: htmlDetails.body.replace("<i>HTML</i>", "<code>HTML</code>"),
+      });
+      htmlDetails = await browser.compose.getComposeDetails(htmlTabId);
+      browser.test.log(JSON.stringify(htmlDetails));
+      browser.test.assertTrue(!htmlDetails.isPlainText);
+      browser.test.assertTrue(
+        htmlDetails.body.includes(">This is some <code>HTML</code> text.<")
+      );
+      browser.test.assertTrue(
+        "This is some HTML text.",
+        htmlDetails.plainTextBody
+      );
+
+      // Get details, plain text message.
+
+      let plainTextDetails = await browser.compose.getComposeDetails(
+        plainTextTabId
+      );
+      browser.test.log(JSON.stringify(plainTextDetails));
+      browser.test.assertTrue(plainTextDetails.isPlainText);
+      browser.test.assertTrue(
+        plainTextDetails.body.includes(">This is some plain text.<")
+      );
+      browser.test.assertEq(
+        "This is some plain text.",
+        plainTextDetails.plainTextBody
+      );
+
+      // Set details, plain text message.
+
+      await browser.compose.setComposeDetails(plainTextTabId, {
+        plainTextBody:
+          plainTextDetails.plainTextBody + "\nIndeed, it is plain.",
+      });
+      plainTextDetails = await browser.compose.getComposeDetails(
+        plainTextTabId
+      );
+      browser.test.log(JSON.stringify(plainTextDetails));
+      browser.test.assertTrue(plainTextDetails.isPlainText);
+      browser.test.assertTrue(
+        plainTextDetails.body.includes(
+          ">This is some plain text.<br>Indeed, it is plain.<"
+        )
+      );
+      browser.test.assertEq(
+        "This is some plain text.\nIndeed, it is plain.",
+        plainTextDetails.plainTextBody
+      );
+
+      // Some things that should fail.
+
+      try {
+        await browser.compose.setComposeDetails(plainTextTabId, {
+          body: "Trying to set HTML in a plain text message",
+        });
+        browser.test.fail(
+          "calling setComposeDetails with these arguments should throw"
+        );
+      } catch (ex) {
+        browser.test.succeed(`expected exception thrown: ${ex.message}`);
+      }
+
+      try {
+        await browser.compose.setComposeDetails(htmlTabId, {
+          body: "Trying to set HTML",
+          plainTextBody: "and plain text at the same time",
+        });
+        browser.test.fail(
+          "calling setComposeDetails with these arguments should throw"
+        );
+      } catch (ex) {
+        browser.test.succeed(`expected exception thrown: ${ex.message}`);
+      }
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: ["compose"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  // Check the HTML message was edited.
+
+  ok(htmlWindow.gMsgCompose.composeHTML);
+  let htmlDocument = htmlWindow.GetCurrentEditor().document;
+  info(htmlDocument.body.innerHTML);
+  is(htmlDocument.querySelectorAll("i").length, 0, "<i> was removed");
+  is(htmlDocument.querySelectorAll("code").length, 1, "<code> was added");
+
+  // Close the HTML message.
+
+  let closePromises = [
+    // If the window is not marked as dirty, this Promise will never resolve.
+    BrowserTestUtils.promiseAlertDialog("extra1"),
+    BrowserTestUtils.domWindowClosed(htmlWindow),
+  ];
+  htmlWindow.DoCommandClose();
+  await Promise.all(closePromises);
+
+  // Check the plain text message was edited.
+
+  ok(!plainTextWindow.gMsgCompose.composeHTML);
+  let plainTextDocument = plainTextWindow.GetCurrentEditor().document;
+  info(plainTextDocument.body.innerHTML);
+  ok(/Indeed, it is plain\./.test(plainTextDocument.body.innerHTML));
+
+  // Close the plain text message.
+
+  closePromises = [
+    // If the window is not marked as dirty, this Promise will never resolve.
+    BrowserTestUtils.promiseAlertDialog("extra1"),
+    BrowserTestUtils.domWindowClosed(plainTextWindow),
+  ];
+  plainTextWindow.DoCommandClose();
+  await Promise.all(closePromises);
 });
