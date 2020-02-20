@@ -23,7 +23,9 @@ addEventListener("load", () => {
   });
 
   if (Services.prefs.getBoolPref("view_source.wrap_long_lines", false)) {
-    document.getElementById("cmd_wrapLongLines").setAttribute("checked", "true");
+    document
+      .getElementById("cmd_wrapLongLines")
+      .setAttribute("checked", "true");
   }
 
   gViewSourceUtils.viewSourceInBrowser({
@@ -41,7 +43,9 @@ var viewSourceChrome = {
   toggleWrapping() {
     let state = gBrowser.contentDocument.body.classList.toggle("wrap");
     if (state) {
-      document.getElementById("cmd_wrapLongLines").setAttribute("checked", "true");
+      document
+        .getElementById("cmd_wrapLongLines")
+        .setAttribute("checked", "true");
     } else {
       document.getElementById("cmd_wrapLongLines").removeAttribute("checked");
     }
