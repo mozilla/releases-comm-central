@@ -33,7 +33,7 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Create biweekly event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, event => {
     let { eid: eventid } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "bi.weekly", event);
@@ -41,6 +41,7 @@ add_task(async function testBiweeklyRecurrence() {
   });
 
   // Check day view.
+  switchToView(controller, "day");
   for (let i = 0; i < 4; i++) {
     controller.waitForElement(lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH));
     viewForward(controller, 14);
@@ -94,7 +95,7 @@ add_task(async function testBiweeklyRecurrence() {
   Assert.ok(true, "Test ran to completion");
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function teardownModule() {
   deleteCalendars(controller, CALENDARNAME);
   closeAllEventDialogs();
 });

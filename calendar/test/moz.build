@@ -9,7 +9,7 @@ BROWSER_CHROME_MANIFESTS += [
     'browser/invitations/browser.ini',
     'browser/preferences/browser.ini',
     'browser/recurrence/browser.ini',
-    'browser/recurrenceRotated/browser.ini',
+    'browser/recurrence/browser_rotated.ini',
     'browser/views/browser.ini',
 ]
 

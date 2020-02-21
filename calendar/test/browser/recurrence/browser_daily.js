@@ -80,7 +80,6 @@ add_task(async function testDailyRecurrence() {
       );
     }
   }
-
   // Check month view for all 5 weeks.
   switchToView(controller, "month");
   goToDate(controller, 2009, 1, 1);
@@ -104,7 +103,7 @@ add_task(async function testDailyRecurrence() {
   controller.waitForElementNotPresent(saturday);
 
   switchToView(controller, "multiweek");
-  controller.assertNodeNotExist(lookupEventBox("multiweek", EVENT_BOX, 1, 7, null, EVENTPATH));
+  controller.assertNodeNotExist(lookupEventBox("multiweek", CANVAS_BOX, 1, 7, null, EVENTPATH));
 
   switchToView(controller, "week");
   controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH));
@@ -117,7 +116,7 @@ add_task(async function testDailyRecurrence() {
 
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
   handleOccurrencePrompt(controller, eventBox, "modify", true);
-  await invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeEventDialog(controller, null, event => {
     let { eid: eventid, sleep: eventsleep } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "every.weekday", event);
@@ -154,9 +153,9 @@ add_task(async function testDailyRecurrence() {
 
   for (let i = 1; i <= 4; i++) {
     controller.waitForElementNotPresent(
-      lookupEventBox("multiweek", EVENT_BOX, i, 1, null, EVENTPATH)
+      lookupEventBox("multiweek", CANVAS_BOX, i, 1, null, EVENTPATH)
     );
-    controller.assertNodeNotExist(lookupEventBox("multiweek", EVENT_BOX, i, 7, null, EVENTPATH));
+    controller.assertNodeNotExist(lookupEventBox("multiweek", CANVAS_BOX, i, 7, null, EVENTPATH));
   }
 
   // Check month view for all 5 weeks.
@@ -164,8 +163,8 @@ add_task(async function testDailyRecurrence() {
   goToDate(controller, 2009, 1, 1);
 
   for (let i = 1; i <= 5; i++) {
-    controller.waitForElementNotPresent(lookupEventBox("month", EVENT_BOX, i, 1, null, EVENTPATH));
-    controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, i, 7, null, EVENTPATH));
+    controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, i, 1, null, EVENTPATH));
+    controller.assertNodeNotExist(lookupEventBox("month", CANVAS_BOX, i, 7, null, EVENTPATH));
   }
 
   // Delete event.
@@ -177,7 +176,7 @@ add_task(async function testDailyRecurrence() {
   Assert.ok(true, "Test ran to completion");
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function teardownModule() {
   deleteCalendars(controller, CALENDARNAME);
   closeAllEventDialogs();
 });

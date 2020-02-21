@@ -49,7 +49,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, event => {
     let { eid: eventid } = helpersForController(event);
 
     event.waitForElement(eventid("item-repeat"));
@@ -172,7 +172,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   switchToView(controller, "month");
   checkMultiWeekView("month");
 
-  // delete event
+  // Delete event.
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 12);
   path = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
@@ -246,9 +246,9 @@ function checkMultiWeekView(view) {
   };
 
   // Wait for the first items, then check the ones not to be present.
-  // ASssert exactly two.
+  // Assert exactly two.
   controller.waitForElement(lookupEventBox(view, EVENT_BOX, startWeek, 3, null, "/[0]"));
-  assertNodeLookup(view, EVENT_BOX, startWeek, 3, null, "/[1]");
+  assertNodeLookup(view, CANVAS_BOX, startWeek, 3, null, "/[1]");
   assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 3, null, "/[2]");
   // Then check no item on the 5th.
   assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 2, null, EVENTPATH);
@@ -267,7 +267,7 @@ function checkMultiWeekView(view) {
   assertNodeNotExistLookup(view, EVENT_BOX, startWeek + 1, 7, null, EVENTPATH);
 }
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function teardownModule() {
   deleteCalendars(controller, CALENDARNAME);
   closeAllEventDialogs();
 });

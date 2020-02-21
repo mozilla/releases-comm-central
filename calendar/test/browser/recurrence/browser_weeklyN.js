@@ -42,7 +42,7 @@ add_task(async function testWeeklyNRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, event => {
     let { eid: eventid } = helpersForController(event);
 
     plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);
@@ -143,7 +143,7 @@ function checkMultiWeekView(view) {
   controller.assertNodeNotExist(lookupEventBox(view, CANVAS_BOX, week, 7, null, EVENTPATH));
 }
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function teardownModule() {
   deleteCalendars(controller, CALENDARNAME);
   closeAllEventDialogs();
 });

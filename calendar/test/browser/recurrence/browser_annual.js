@@ -33,7 +33,7 @@ add_task(async function testAnnualRecurrence() {
 
   // Create yearly recurring all-day event.
   let eventBox = lookupEventBox("day", ALLDAY, null, 1, null);
-  await invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEventDialog(controller, eventBox, event => {
     let { eid: eventid } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "yearly", event);
@@ -64,8 +64,8 @@ add_task(async function testAnnualRecurrence() {
   }
 
   // Delete event.
-  switchToView(controller, "day");
   goToDate(controller, checkYears[0], 1, 1);
+  switchToView(controller, "day");
   const boxPath = getEventBoxPath("day", ALLDAY, null, 1, null) + EVENTPATH;
   const box = lookup(boxPath);
   controller.click(box);
@@ -75,7 +75,7 @@ add_task(async function testAnnualRecurrence() {
   Assert.ok(true, "Test ran to completion");
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(function teardownModule() {
   deleteCalendars(controller, CALENDARNAME);
   closeAllEventDialogs();
 });
