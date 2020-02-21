@@ -6,6 +6,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 // There are shutdown issues for which multiple rejections are left uncaught.
 // This bug should be fixed, but for the moment this directory is whitelisted.

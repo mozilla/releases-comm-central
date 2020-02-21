@@ -121,7 +121,7 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
   return newWindowPromise;
 }
 
-function getComposeState(composeWindow) {
+function getComposeDetails(composeWindow) {
   let composeFields = composeWindow.GetComposeDetails();
 
   let details = {
@@ -138,7 +138,7 @@ function getComposeState(composeWindow) {
   return details;
 }
 
-async function setComposeState(composeWindow, details) {
+async function setComposeDetails(composeWindow, details) {
   for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
     if (field in details) {
       details[field] = await parseComposeRecipientList(details[field]);
@@ -182,7 +182,7 @@ var composeEventTracker = new (class extends EventEmitter {
     let results = await this.emit(
       "compose-before-send",
       tabTracker.getId(composeWindow),
-      getComposeState(composeWindow)
+      getComposeDetails(composeWindow)
     );
     if (results) {
       for (let result of results) {
@@ -194,7 +194,8 @@ var composeEventTracker = new (class extends EventEmitter {
           return;
         }
         if (result.details) {
-          setComposeState(composeWindow, result.details);
+          await setComposeDetails(composeWindow, result.details);
+          composeWindow.GetComposeDetails();
         }
       }
     }
@@ -265,11 +266,11 @@ this.compose = class extends ExtensionAPI {
         },
         getComposeDetails(tabId) {
           let tab = getComposeTab(tabId);
-          return getComposeState(tab.nativeTab);
+          return getComposeDetails(tab.nativeTab);
         },
         setComposeDetails(tabId, details) {
           let tab = getComposeTab(tabId);
-          return setComposeState(tab.nativeTab, details);
+          return setComposeDetails(tab.nativeTab, details);
         },
       },
     };
