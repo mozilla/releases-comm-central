@@ -8,12 +8,11 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailLocale"];
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
+);
 
 var gEnigStringBundle = null;
 

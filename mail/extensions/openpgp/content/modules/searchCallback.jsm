@@ -8,9 +8,9 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailSearchCallback"];
 
-const EnigmailTimer = ChromeUtils.import(
+const { EnigmailTimer } = ChromeUtils.import(
   "chrome://openpgp/content/modules/timer.jsm"
-).EnigmailTimer;
+);
 
 var EnigmailSearchCallback = {
   /**

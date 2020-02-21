@@ -11,18 +11,18 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailWkdLookup"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailZBase32 = ChromeUtils.import(
+);
+const { EnigmailZBase32 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/zbase32.jsm"
-).EnigmailZBase32;
-const EnigmailData = ChromeUtils.import(
+);
+const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
-const EnigmailSqliteDb = ChromeUtils.import(
+);
+const { EnigmailSqliteDb } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
-).EnigmailSqliteDb;
+);
 
 Cu.importGlobalProperties(["fetch"]);
 

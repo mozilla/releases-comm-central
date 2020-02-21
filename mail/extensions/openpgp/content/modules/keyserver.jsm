@@ -8,39 +8,39 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailKeyServer"];
 
-const EnigmailPrefs = ChromeUtils.import(
+const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
-).EnigmailPrefs;
-const EnigmailLog = ChromeUtils.import(
+);
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-const EnigmailKeyRing = ChromeUtils.import(
+);
+const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
-const EnigmailKeyserverURIs = ChromeUtils.import(
+);
+const { EnigmailKeyserverURIs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyserverUris.jsm"
-).EnigmailKeyserverURIs;
-const EnigmailData = ChromeUtils.import(
+);
+const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
-const EnigmailGpg = ChromeUtils.import(
+);
+const { EnigmailGpg } = ChromeUtils.import(
   "chrome://openpgp/content/modules/gpg.jsm"
-).EnigmailGpg;
-const EnigmailXhrUtils = ChromeUtils.import(
+);
+const { EnigmailXhrUtils } = ChromeUtils.import(
   "chrome://openpgp/content/modules/xhrUtils.jsm"
-).EnigmailXhrUtils;
-const EnigmailFuncs = ChromeUtils.import(
+);
+const { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-const EnigmailCryptoAPI = ChromeUtils.import(
+);
+const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 
 const ENIG_DEFAULT_HKP_PORT = "11371";
 const ENIG_DEFAULT_HKPS_PORT = "443";

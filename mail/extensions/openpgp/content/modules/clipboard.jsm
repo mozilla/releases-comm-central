@@ -10,8 +10,7 @@ var EXPORTED_SYMBOLS = ["EnigmailClipboard"];
 
 // Import the Services module for future use, if we're not in
 // a browser window where it's already loaded.
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Create a constructor for the built-in transferable class
 const nsTransferable = Components.Constructor(

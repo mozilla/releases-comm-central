@@ -12,8 +12,9 @@ var EnigmailDialog = ChromeUtils.import(
 var EnigmailLocale = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
 ).EnigmailLocale;
-var EnigmailKey = ChromeUtils.import("chrome://openpgp/content/modules/key.jsm")
-  .EnigmailKey;
+var { EnigmailKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
+);
 var EnigmailKeyRing = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 ).EnigmailKeyRing;

@@ -7,12 +7,12 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var systemOS = Services.appinfo.OS.toLowerCase();
 const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var abi = ctypes.default_abi;
-const EnigmailApp = ChromeUtils.import(
+const { EnigmailApp } = ChromeUtils.import(
   "chrome://openpgp/content/modules/app.jsm"
-).EnigmailApp;
-var OpenPGPMasterpass = ChromeUtils.import(
+);
+var { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
-).OpenPGPMasterpass;
+);
 
 // Open librnp. Determine the path to the chrome directory and look for it
 // there first. If not, fallback to searching the standard locations.

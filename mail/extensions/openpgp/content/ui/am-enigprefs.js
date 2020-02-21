@@ -6,8 +6,9 @@
 
 "use strict";
 
-var EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm")
-  .EnigmailLog;
+var { EnigmailLog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+);
 var EnigmailCore = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
 ).EnigmailCore;

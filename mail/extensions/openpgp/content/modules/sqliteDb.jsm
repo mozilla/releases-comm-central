@@ -10,13 +10,13 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailSqliteDb"];
 
-const Sqlite = ChromeUtils.import("resource://gre/modules/Sqlite.jsm").Sqlite;
-const EnigmailTimer = ChromeUtils.import(
+const { Sqlite } = ChromeUtils.import("resource://gre/modules/Sqlite.jsm");
+const { EnigmailTimer } = ChromeUtils.import(
   "chrome://openpgp/content/modules/timer.jsm"
-).EnigmailTimer;
-const EnigmailLog = ChromeUtils.import(
+);
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
+);
 
 var EnigmailSqliteDb = {
   /**
@@ -117,9 +117,9 @@ async function checkAutocryptTable(connection) {
         {},
         function(row) {}
       );
-      let EnigmailAutocrypt = ChromeUtils.import(
+      let { EnigmailAutocrypt } = ChromeUtils.import(
         "chrome://openpgp/content/modules/autocrypt.jsm"
-      ).EnigmailAutocrypt;
+      );
       EnigmailAutocrypt.updateAllImportedKeys();
     }
   } catch (error) {

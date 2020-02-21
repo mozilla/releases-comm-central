@@ -8,45 +8,44 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailFilters"];
 
-const EnigmailLazy = ChromeUtils.import(
+const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
-).EnigmailLazy;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-const EnigmailCore = ChromeUtils.import(
+);
+const { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
-).EnigmailCore;
-const EnigmailPersistentCrypto = ChromeUtils.import(
+);
+const { EnigmailPersistentCrypto } = ChromeUtils.import(
   "chrome://openpgp/content/modules/persistentCrypto.jsm"
-).EnigmailPersistentCrypto;
-const EnigmailLog = ChromeUtils.import(
+);
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailFuncs = ChromeUtils.import(
+);
+const { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-const EnigmailKeyRing = ChromeUtils.import(
+);
+const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
-const EnigmailStreams = ChromeUtils.import(
+);
+const { EnigmailStreams } = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
-).EnigmailStreams;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
-const EnigmailData = ChromeUtils.import(
+);
+const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
-const jsmime = ChromeUtils.import("resource:///modules/jsmime.jsm").jsmime;
-const NetUtil = ChromeUtils.import("resource://gre/modules/NetUtil.jsm")
-  .NetUtil;
-const EnigmailMime = ChromeUtils.import(
+);
+const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+const { EnigmailMime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/mime.jsm"
-).EnigmailMime;
-const EnigmailCompat = ChromeUtils.import(
+);
+const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
-).EnigmailCompat;
+);
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 

@@ -22,17 +22,11 @@ var EXPORTED_SYMBOLS = [
   "getSignatureContentsForAccount",
 ];
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var MailServices;
-try {
-  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm")
-    .MailServices;
-} catch (x) {
-  MailServices = ChromeUtils.import("resource:///modules/mailServices.js")
-    .MailServices;
-}
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 const {
   getIdentities,
@@ -45,9 +39,9 @@ const {
 const { msgHdrGetUri, getMail3Pane, msgHdrGetHeaders } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib/msgHdrUtils.jsm"
 );
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
+);
 
 function getEditorForIframe(aIframe) {
   let w = aIframe.contentWindow;

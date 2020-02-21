@@ -13,43 +13,43 @@ var EXPORTED_SYMBOLS = ["EnigmailAutocrypt"];
 
 //Cu.importGlobalProperties(["crypto"]);
 
-const jsmime = ChromeUtils.import("resource:///modules/jsmime.jsm").jsmime;
-const EnigmailLog = ChromeUtils.import(
+const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailFuncs = ChromeUtils.import(
+);
+const { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-const EnigmailMime = ChromeUtils.import(
+);
+const { EnigmailMime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/mime.jsm"
-).EnigmailMime;
-const EnigmailSqliteDb = ChromeUtils.import(
+);
+const { EnigmailSqliteDb } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
-).EnigmailSqliteDb;
-const PromiseUtils = ChromeUtils.import(
+);
+const { PromiseUtils } = ChromeUtils.import(
   "resource://gre/modules/PromiseUtils.jsm"
-).PromiseUtils;
-const EnigmailKeyRing = ChromeUtils.import(
+);
+const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
-const EnigmailStreams = ChromeUtils.import(
+);
+const { EnigmailStreams } = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
-).EnigmailStreams;
-const EnigmailArmor = ChromeUtils.import(
+);
+const { EnigmailArmor } = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
-).EnigmailArmor;
-const EnigmailRules = ChromeUtils.import(
+);
+const { EnigmailRules } = ChromeUtils.import(
   "chrome://openpgp/content/modules/rules.jsm"
-).EnigmailRules;
-const EnigmailStdlib = ChromeUtils.import(
+);
+const { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
-).EnigmailStdlib;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
-const EnigmailCryptoAPI = ChromeUtils.import(
+);
+const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 
 var gCreatedSetupIds = [];
 

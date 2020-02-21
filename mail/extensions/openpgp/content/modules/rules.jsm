@@ -9,32 +9,33 @@
 var EXPORTED_SYMBOLS = ["EnigmailRules"];
 
 /*EnigmailFuncs: false, : false, : false, : false, : false */
-const EnigmailFuncs = ChromeUtils.import(
+const { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-const EnigmailLog = ChromeUtils.import(
+);
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm")
-  .EnigmailOS;
-const EnigmailFiles = ChromeUtils.import(
+);
+const { EnigmailOS } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/os.jsm"
+);
+const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
-).EnigmailFiles;
-const EnigmailApp = ChromeUtils.import(
+);
+const { EnigmailApp } = ChromeUtils.import(
   "chrome://openpgp/content/modules/app.jsm"
-).EnigmailApp;
-const EnigmailCore = ChromeUtils.import(
+);
+const { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
-).EnigmailCore;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
-const EnigmailDialog = ChromeUtils.import(
+);
+const { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
-).EnigmailDialog;
-const EnigmailLazy = ChromeUtils.import(
+);
+const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
-).EnigmailLazy;
+);
 
 const getKeyRing = EnigmailLazy.loader(
   "enigmail/keyRing.jsm",
@@ -740,9 +741,9 @@ var EnigmailRules = {
 };
 
 async function deleteAutocryptRule(emailAddr) {
-  const EnigmailAutocrypt = ChromeUtils.import(
+  const { EnigmailAutocrypt } = ChromeUtils.import(
     "chrome://openpgp/content/modules/autocrypt.jsm"
-  ).EnigmailAutocrypt;
+  );
 
   await EnigmailAutocrypt.deleteUser(emailAddr, "1");
   // make sure that gossip rule is marked as "imported"

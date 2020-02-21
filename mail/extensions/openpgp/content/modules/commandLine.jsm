@@ -8,11 +8,10 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailCommandLine"];
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
-const EnigmailCompat = ChromeUtils.import(
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
-).EnigmailCompat;
+);
 
 const NS_ENIGCLINE_SERVICE_CID = Components.ID(
   "{847b3ab1-7ab1-11d4-8f02-006008948af5}"

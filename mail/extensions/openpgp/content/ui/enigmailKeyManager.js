@@ -19,45 +19,44 @@
 /* global EnigmailLog: false, EnigmailEvents: false, EnigmailKeyRing: false, EnigmailKeyEditor: false */
 /* global EnigmailKey: false, EnigmailLocale: false, EnigmailPrefs: false, EnigmailConstants: false */
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Initialize enigmailCommon
 EnigInitCommon("enigmailKeyManager");
 
-var EnigmailCore = ChromeUtils.import(
+var { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
-).EnigmailCore;
-var EnigmailStreams = ChromeUtils.import(
+);
+var { EnigmailStreams } = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
-).EnigmailStreams;
-var EnigmailClipboard = ChromeUtils.import(
+);
+var { EnigmailClipboard } = ChromeUtils.import(
   "chrome://openpgp/content/modules/clipboard.jsm"
-).EnigmailClipboard;
-var EnigmailFuncs = ChromeUtils.import(
+);
+var { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-var EnigmailStdlib = ChromeUtils.import(
+);
+var { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
-).EnigmailStdlib;
-var EnigmailWindows = ChromeUtils.import(
+);
+var { EnigmailWindows } = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
-).EnigmailWindows;
-var EnigmailKeyServer = ChromeUtils.import(
+);
+var { EnigmailKeyServer } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyserver.jsm"
-).EnigmailKeyServer;
-var EnigmailWks = ChromeUtils.import(
+);
+var { EnigmailWks } = ChromeUtils.import(
   "chrome://openpgp/content/modules/webKey.jsm"
-).EnigmailWks;
-var EnigmailSearchCallback = ChromeUtils.import(
+);
+var { EnigmailSearchCallback } = ChromeUtils.import(
   "chrome://openpgp/content/modules/searchCallback.jsm"
-).EnigmailSearchCallback;
-var EnigmailCompat = ChromeUtils.import(
+);
+var { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
-).EnigmailCompat;
-const EnigmailCryptoAPI = ChromeUtils.import(
+);
+const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 
 const INPUT = 0;
 const RESULT = 1;

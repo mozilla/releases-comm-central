@@ -8,8 +8,7 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailVersioning"];
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function greaterThanOrEqual(versionWeHave, versionWeAreComparingWith) {
   return Services.vc.compare(versionWeHave, versionWeAreComparingWith) >= 0;

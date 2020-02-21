@@ -8,9 +8,9 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailPrefs"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
+);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const ENIGMAIL_PREFS_ROOT = "temp.openpgp.";

@@ -8,9 +8,9 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailAttachment"];
 
-const EnigmailCryptoAPI = ChromeUtils.import(
+const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 
 var EnigmailAttachment = {
   getFileName(parent, byteData) {

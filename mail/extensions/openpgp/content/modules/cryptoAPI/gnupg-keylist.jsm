@@ -17,21 +17,21 @@ var EXPORTED_SYMBOLS = [
   "getGpgKeyData",
 ];
 
-const EnigmailTime = ChromeUtils.import(
+const { EnigmailTime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/time.jsm"
-).EnigmailTime;
-const EnigmailLog = ChromeUtils.import(
+);
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailTrust = ChromeUtils.import(
+);
+const { EnigmailTrust } = ChromeUtils.import(
   "chrome://openpgp/content/modules/trust.jsm"
-).EnigmailTrust;
-const EnigmailData = ChromeUtils.import(
+);
+const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
+);
 
 // field ID's of key list (as described in the doc/DETAILS file in the GnuPG distribution)
 const ENTRY_ID = 0;

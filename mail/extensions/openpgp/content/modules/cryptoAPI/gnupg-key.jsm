@@ -12,9 +12,9 @@
 
 var EXPORTED_SYMBOLS = ["GnuPG_importKeyFromFile", "GnuPG_extractSecretKey"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
+);
 
 async function GnuPG_importKeyFromFile(inputFile) {
   EnigmailLog.DEBUG(

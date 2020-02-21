@@ -8,12 +8,12 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailGpg"];
 
-const EnigmailLocale = ChromeUtils.import(
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-const EnigmailVersioning = ChromeUtils.import(
+);
+const { EnigmailVersioning } = ChromeUtils.import(
   "chrome://openpgp/content/modules/versioning.jsm"
-).EnigmailVersioning;
+);
 
 const MINIMUM_GPG_VERSION = "2.0.14";
 

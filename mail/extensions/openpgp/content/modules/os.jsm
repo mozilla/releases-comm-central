@@ -8,8 +8,7 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailOS"];
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 let operatingSystem = null;
 

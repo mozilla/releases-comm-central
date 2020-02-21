@@ -9,9 +9,9 @@
 const { manager: Cm } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-const EnigmailLazy = ChromeUtils.import(
+const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
-).EnigmailLazy;
+);
 
 // load all modules lazily to avoid possible cross-reference errors
 const getEnigmailConsole = EnigmailLazy.loader(
@@ -73,8 +73,7 @@ const getOpenPGPMasterpass = EnigmailLazy.loader(
   "enigmail/masterpass.jsm",
   "OpenPGPMasterpass"
 );
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = ["EnigmailCore"];
 

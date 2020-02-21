@@ -7,11 +7,10 @@
 const { manager: Cm } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-const EnigmailCompat = ChromeUtils.import(
+const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
-).EnigmailCompat;
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const CATEGORY = "mailnews-accountmanager-extensions";
 const CATEGORY_ENTRY = "openpgp-account-manager-extension";

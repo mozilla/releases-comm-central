@@ -17,8 +17,7 @@
 
 "use strict";
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gKeyId = null;
 var gUserId = null;

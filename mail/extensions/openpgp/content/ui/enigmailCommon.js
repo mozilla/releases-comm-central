@@ -10,8 +10,7 @@
 
 "use strict";
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // enigmailCommon.js: shared JS functions for Enigmail
 
@@ -24,15 +23,18 @@ var EnigmailCore = ChromeUtils.import(
 var EnigmailFuncs = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
 ).EnigmailFuncs;
-var EnigmailKey = ChromeUtils.import("chrome://openpgp/content/modules/key.jsm")
-  .EnigmailKey;
-var EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm")
-  .EnigmailLog;
+var { EnigmailKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
+);
+var { EnigmailLog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+);
 var EnigmailPrefs = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
 ).EnigmailPrefs;
-var EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm")
-  .EnigmailOS;
+var { EnigmailOS } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/os.jsm"
+);
 var EnigmailLocale = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
 ).EnigmailLocale;
@@ -42,8 +44,9 @@ var EnigmailData = ChromeUtils.import(
 var EnigmailFiles = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 ).EnigmailFiles;
-var EnigmailApp = ChromeUtils.import("chrome://openpgp/content/modules/app.jsm")
-  .EnigmailApp;
+var { EnigmailApp } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/app.jsm"
+);
 var EnigmailDialog = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 ).EnigmailDialog;
@@ -74,8 +77,9 @@ var EnigmailKeyServer = ChromeUtils.import(
 var EnigmailEvents = ChromeUtils.import(
   "chrome://openpgp/content/modules/events.jsm"
 ).EnigmailEvents;
-var EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm")
-  .EnigmailGpg;
+var { EnigmailGpg } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/gpg.jsm"
+);
 var EnigmailStreams = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
 ).EnigmailStreams;
@@ -86,7 +90,7 @@ var EnigmailCryptoAPI = ChromeUtils.import(
 var OpenPGPMasterpass = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 ).OpenPGPMasterpass;
-var RNP = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm").RNP;
+var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm");
 
 // The compatible Enigmime version
 var gEnigmailSvc;

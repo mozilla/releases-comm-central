@@ -8,9 +8,9 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailKeyserverURIs"];
 
-const EnigmailPrefs = ChromeUtils.import(
+const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
-).EnigmailPrefs;
+);
 
 const KEYSERVER_PREF = "keyserver";
 const AUTO_KEYSERVER_SELECTION_PREF = "autoKeyServerSelection";

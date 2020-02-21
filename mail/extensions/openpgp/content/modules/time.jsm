@@ -8,9 +8,9 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailTime"];
 
-const EnigmailLocale = ChromeUtils.import(
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
+);
 
 const DATE_2DIGIT = "2-digit";
 const DATE_4DIGIT = "numeric";

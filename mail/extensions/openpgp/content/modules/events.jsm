@@ -8,12 +8,12 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailEvents"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailTimer = ChromeUtils.import(
+);
+const { EnigmailTimer } = ChromeUtils.import(
   "chrome://openpgp/content/modules/timer.jsm"
-).EnigmailTimer;
+);
 
 /**** DEPRECATED - use EnigmailTimer instead *****/
 

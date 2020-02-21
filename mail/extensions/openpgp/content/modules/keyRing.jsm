@@ -8,32 +8,31 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailKeyRing"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-const EnigmailFiles = ChromeUtils.import(
+);
+const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
-).EnigmailFiles;
-const EnigmailTrust = ChromeUtils.import(
+);
+const { EnigmailTrust } = ChromeUtils.import(
   "chrome://openpgp/content/modules/trust.jsm"
-).EnigmailTrust;
-const EnigmailArmor = ChromeUtils.import(
+);
+const { EnigmailArmor } = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
-).EnigmailArmor;
-const EnigmailLazy = ChromeUtils.import(
+);
+const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
-).EnigmailLazy;
-const newEnigmailKeyObj = ChromeUtils.import(
+);
+const { newEnigmailKeyObj } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyObj.jsm"
-).newEnigmailKeyObj;
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
-const EnigmailCryptoAPI = ChromeUtils.import(
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 const getWindows = EnigmailLazy.loader(

@@ -8,26 +8,26 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailKey"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-const EnigmailFiles = ChromeUtils.import(
+);
+const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
-).EnigmailFiles;
-const EnigmailLazy = ChromeUtils.import(
+);
+const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
-).EnigmailLazy;
+);
 const getKeyRing = EnigmailLazy.loader(
   "enigmail/keyRing.jsm",
   "EnigmailKeyRing"
 );
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
-const EnigmailCryptoAPI = ChromeUtils.import(
+const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 
 var EnigmailKey = {
   /**

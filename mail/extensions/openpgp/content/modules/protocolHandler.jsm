@@ -8,29 +8,27 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailProtocolHandler"];
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const EnigmailCompat = ChromeUtils.import(
+const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
-).EnigmailCompat;
-const EnigmailCore = ChromeUtils.import(
+);
+const { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
-).EnigmailCore;
-const EnigmailData = ChromeUtils.import(
+);
+const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
-const EnigmailLog = ChromeUtils.import(
+);
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailStreams = ChromeUtils.import(
+);
+const { EnigmailStreams } = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
-).EnigmailStreams;
-const EnigmailURIs = ChromeUtils.import(
+);
+const { EnigmailURIs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/uris.jsm"
-).EnigmailURIs;
-const NetUtil = ChromeUtils.import("resource://gre/modules/NetUtil.jsm")
-  .NetUtil;
+);
+const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 const NS_ENIGMAILPROTOCOLHANDLER_CONTRACTID =
   "@mozilla.org/network/protocol;1?name=enigmail";

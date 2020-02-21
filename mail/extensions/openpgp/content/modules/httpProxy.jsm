@@ -8,12 +8,11 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailHttpProxy"];
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const EnigmailPrefs = ChromeUtils.import(
+const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
-).EnigmailPrefs;
+);
 
 function getPasswdForHost(hostname, userObj, passwdObj) {
   var loginmgr = Services.logins;

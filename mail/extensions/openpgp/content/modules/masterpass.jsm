@@ -12,12 +12,11 @@ var EXPORTED_SYMBOLS = ["OpenPGPMasterpass"];
 
 Cu.importGlobalProperties(["crypto"]);
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
+);
 
 const PASS_URI = "chrome://openpgp-secret-key-password";
 const PASS_REALM = "DO NOT DELETE";

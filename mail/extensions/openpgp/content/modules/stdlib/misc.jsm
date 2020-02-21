@@ -41,21 +41,18 @@ var EXPORTED_SYMBOLS = [
   "isAccel",
 ];
 
-const fixIterator = ChromeUtils.import("resource:///modules/iteratorUtils.jsm")
-  .fixIterator;
-const XPCOMUtils = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
-  .XPCOMUtils;
-const EnigmailLog = ChromeUtils.import(
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-var MailServices;
-try {
-  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm")
-    .MailServices;
-} catch (x) {
-  MailServices = ChromeUtils.import("resource:///modules/mailServices.js")
-    .MailServices;
-}
+);
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 XPCOMUtils.defineLazyServiceGetter(
   MailServices,

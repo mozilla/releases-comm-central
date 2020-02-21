@@ -46,28 +46,23 @@ const nsMsgFolderFlags_Inbox = 0x00001000;
 
 const PR_WRONLY = 0x02;
 
-const XPCOMUtils = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
-  .XPCOMUtils;
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 const { MsgHdrToMimeMessage, MimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
 const { toXPCOMArray } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
-const EnigmailCompat = ChromeUtils.import(
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
-).EnigmailCompat;
+);
 
-var MailServices;
-try {
-  MailServices = ChromeUtils.import("resource:///modules/MailServices.jsm")
-    .MailServices;
-} catch (x) {
-  MailServices = ChromeUtils.import("resource:///modules/mailServices.js")
-    .MailServices;
-}
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 const { entries, NS_SUCCEEDED } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib/misc.jsm"

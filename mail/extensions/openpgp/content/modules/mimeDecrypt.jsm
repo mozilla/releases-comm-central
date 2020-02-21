@@ -11,51 +11,51 @@ var EXPORTED_SYMBOLS = ["EnigmailMimeDecrypt"];
  *  implemented as an XPCOM object
  */
 
-const EnigmailCore = ChromeUtils.import(
+const { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
-).EnigmailCore;
-const EnigmailVerify = ChromeUtils.import(
+);
+const { EnigmailVerify } = ChromeUtils.import(
   "chrome://openpgp/content/modules/mimeVerify.jsm"
-).EnigmailVerify;
-const EnigmailLog = ChromeUtils.import(
+);
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-const EnigmailData = ChromeUtils.import(
+);
+const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
-const EnigmailPrefs = ChromeUtils.import(
+);
+const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
-).EnigmailPrefs;
-const EnigmailDecryption = ChromeUtils.import(
+);
+const { EnigmailDecryption } = ChromeUtils.import(
   "chrome://openpgp/content/modules/decryption.jsm"
-).EnigmailDecryption;
-var EnigmailMime = ChromeUtils.import(
+);
+var { EnigmailMime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/mime.jsm"
-).EnigmailMime;
-const EnigmailURIs = ChromeUtils.import(
+);
+const { EnigmailURIs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/uris.jsm"
-).EnigmailURIs;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
-const EnigmailSingletons = ChromeUtils.import(
+);
+const { EnigmailSingletons } = ChromeUtils.import(
   "chrome://openpgp/content/modules/singletons.jsm"
-).EnigmailSingletons;
-const EnigmailHttpProxy = ChromeUtils.import(
+);
+const { EnigmailHttpProxy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/httpProxy.jsm"
-).EnigmailHttpProxy;
-const EnigmailCryptoAPI = ChromeUtils.import(
+);
+const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
-const EnigmailAutocrypt = ChromeUtils.import(
+);
+const { EnigmailAutocrypt } = ChromeUtils.import(
   "chrome://openpgp/content/modules/autocrypt.jsm"
-).EnigmailAutocrypt;
-const EnigmailCompat = ChromeUtils.import(
+);
+const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
-).EnigmailCompat;
+);
 
 const ENCODING_DEFAULT = 0;
 const ENCODING_BASE64 = 1;

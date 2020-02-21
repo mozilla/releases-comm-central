@@ -13,40 +13,40 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailAutoSetup"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailAutocrypt = ChromeUtils.import(
+);
+const { EnigmailAutocrypt } = ChromeUtils.import(
   "chrome://openpgp/content/modules/autocrypt.jsm"
-).EnigmailAutocrypt;
-const EnigmailFuncs = ChromeUtils.import(
+);
+const { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-const EnigmailDialog = ChromeUtils.import(
+);
+const { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
-).EnigmailDialog;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
-const EnigmailKeyRing = ChromeUtils.import(
+);
+const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
-const EnigmailMime = ChromeUtils.import(
+);
+const { EnigmailMime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/mime.jsm"
-).EnigmailMime;
-const jsmime = ChromeUtils.import("resource:///modules/jsmime.jsm").jsmime;
-const EnigmailWks = ChromeUtils.import(
+);
+const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
+const { EnigmailWks } = ChromeUtils.import(
   "chrome://openpgp/content/modules/webKey.jsm"
-).EnigmailWks;
-const EnigmailTimer = ChromeUtils.import(
+);
+const { EnigmailTimer } = ChromeUtils.import(
   "chrome://openpgp/content/modules/timer.jsm"
-).EnigmailTimer;
-const EnigmailStreams = ChromeUtils.import(
+);
+const { EnigmailStreams } = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
-).EnigmailStreams;
-const EnigmailGpg = ChromeUtils.import(
+);
+const { EnigmailGpg } = ChromeUtils.import(
   "chrome://openpgp/content/modules/gpg.jsm"
-).EnigmailGpg;
+);
 
 // Interfaces
 const nsIMsgAccountManager = Ci.nsIMsgAccountManager;

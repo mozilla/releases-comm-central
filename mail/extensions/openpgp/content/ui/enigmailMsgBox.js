@@ -9,8 +9,9 @@
 var EnigmailClipboard = ChromeUtils.import(
   "chrome://openpgp/content/modules/clipboard.jsm"
 ).EnigmailClipboard;
-var EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm")
-  .EnigmailOS;
+var { EnigmailOS } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/os.jsm"
+);
 var EnigmailLocale = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
 ).EnigmailLocale;

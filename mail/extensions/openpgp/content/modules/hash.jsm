@@ -8,27 +8,27 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailHash"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailWindows = ChromeUtils.import(
+);
+const { EnigmailWindows } = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
-).EnigmailWindows;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-const EnigmailPrefs = ChromeUtils.import(
+);
+const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
-).EnigmailPrefs;
-const EnigmailEncryption = ChromeUtils.import(
+);
+const { EnigmailEncryption } = ChromeUtils.import(
   "chrome://openpgp/content/modules/encryption.jsm"
-).EnigmailEncryption;
-const EnigmailDialog = ChromeUtils.import(
+);
+const { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
-).EnigmailDialog;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
+);
 
 const keyAlgorithms = [];
 const mimeHashAlgorithms = [

@@ -8,12 +8,12 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailURIs"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailData = ChromeUtils.import(
+);
+const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
+);
 
 const messageIdList = {};
 const encryptedUris = [];

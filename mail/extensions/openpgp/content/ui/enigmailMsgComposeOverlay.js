@@ -16,22 +16,21 @@
 /*global gSendEncrypted: true, gOptionalEncryption: true, gSendSigned: true, gSelectedTechnologyIsPGP: true */
 /*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
 
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
-
 var EnigmailCore = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
 ).EnigmailCore;
 var EnigmailFuncs = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
 ).EnigmailFuncs;
-var EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm")
-  .EnigmailLog;
+var { EnigmailLog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+);
 var EnigmailPrefs = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
 ).EnigmailPrefs;
-var EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm")
-  .EnigmailOS;
+var { EnigmailOS } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/os.jsm"
+);
 var EnigmailArmor = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 ).EnigmailArmor;
@@ -44,8 +43,9 @@ var EnigmailFiles = ChromeUtils.import(
 var EnigmailData = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 ).EnigmailData;
-var EnigmailApp = ChromeUtils.import("chrome://openpgp/content/modules/app.jsm")
-  .EnigmailApp;
+var { EnigmailApp } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/app.jsm"
+);
 var EnigmailDialog = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 ).EnigmailDialog;
@@ -88,7 +88,7 @@ var EnigmailMsgRead = ChromeUtils.import(
 var EnigmailMimeEncrypt = ChromeUtils.import(
   "chrome://openpgp/content/modules/mimeEncrypt.jsm"
 ).EnigmailMimeEncrypt;
-var jsmime = ChromeUtils.import("resource:///modules/jsmime.jsm").jsmime;
+var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 // Account encryption policy values:
 // const kEncryptionPolicy_Never = 0;

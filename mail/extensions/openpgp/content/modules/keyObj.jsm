@@ -62,24 +62,24 @@ var EXPORTED_SYMBOLS = ["newEnigmailKeyObj"];
      * getVirtualKeySize
 */
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-const EnigmailKey = ChromeUtils.import(
+);
+const { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
-).EnigmailKey;
-const EnigmailFuncs = ChromeUtils.import(
+);
+const { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-const EnigmailTime = ChromeUtils.import(
+);
+const { EnigmailTime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/time.jsm"
-).EnigmailTime;
-const EnigmailCryptoAPI = ChromeUtils.import(
+);
+const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 
 function newEnigmailKeyObj(keyData) {
   return new EnigmailKeyObj(keyData);

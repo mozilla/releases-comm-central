@@ -6,18 +6,18 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailConfigBackup"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailRules = ChromeUtils.import(
+);
+const { EnigmailRules } = ChromeUtils.import(
   "chrome://openpgp/content/modules/rules.jsm"
-).EnigmailRules;
-const EnigmailFiles = ChromeUtils.import(
+);
+const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
-).EnigmailFiles;
-const EnigmailPrefs = ChromeUtils.import(
+);
+const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
-).EnigmailPrefs;
+);
 
 const TYPE_BOOL = 1;
 const TYPE_CHAR = 2;

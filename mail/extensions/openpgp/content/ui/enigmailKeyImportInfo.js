@@ -22,8 +22,9 @@ var EnigmailEvents = ChromeUtils.import(
 var EnigmailData = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 ).EnigmailData;
-var EnigmailOS = ChromeUtils.import("chrome://openpgp/content/modules/os.jsm")
-  .EnigmailOS;
+var { EnigmailOS } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/os.jsm"
+);
 
 function onLoad() {
   var dlg = document.getElementById("enigmailKeyImportInfo");

@@ -17,8 +17,9 @@ EnigInitCommon("enigmailKeySelection");
 var EnigmailFuncs = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
 ).EnigmailFuncs;
-var EnigmailKey = ChromeUtils.import("chrome://openpgp/content/modules/key.jsm")
-  .EnigmailKey;
+var { EnigmailKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
+);
 var EnigmailSearchCallback = ChromeUtils.import(
   "chrome://openpgp/content/modules/searchCallback.jsm"
 ).EnigmailSearchCallback;

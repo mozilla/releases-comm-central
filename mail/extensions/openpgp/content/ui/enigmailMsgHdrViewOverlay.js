@@ -21,8 +21,9 @@ var EnigmailFuncs = ChromeUtils.import(
 var EnigmailVerify = ChromeUtils.import(
   "chrome://openpgp/content/modules/mimeVerify.jsm"
 ).EnigmailVerify;
-var EnigmailLog = ChromeUtils.import("chrome://openpgp/content/modules/log.jsm")
-  .EnigmailLog;
+var { EnigmailLog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+);
 var EnigmailPrefs = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
 ).EnigmailPrefs;
@@ -38,10 +39,12 @@ var EnigmailDialog = ChromeUtils.import(
 var EnigmailTime = ChromeUtils.import(
   "chrome://openpgp/content/modules/time.jsm"
 ).EnigmailTime;
-var EnigmailGpg = ChromeUtils.import("chrome://openpgp/content/modules/gpg.jsm")
-  .EnigmailGpg;
-var EnigmailKey = ChromeUtils.import("chrome://openpgp/content/modules/key.jsm")
-  .EnigmailKey;
+var { EnigmailGpg } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/gpg.jsm"
+);
+var { EnigmailKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
+);
 var EnigmailKeyRing = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 ).EnigmailKeyRing;

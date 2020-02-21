@@ -15,9 +15,9 @@ var { MailConstants } = ChromeUtils.import(
   "resource:///modules/MailConstants.jsm"
 );
 
-const EnigmailLazy = ChromeUtils.import(
+const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
-).EnigmailLazy;
+);
 
 const getEnigmailApp = EnigmailLazy.loader("enigmail/app.jsm", "EnigmailApp");
 const getEnigmailCore = EnigmailLazy.loader(

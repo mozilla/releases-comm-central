@@ -8,9 +8,8 @@
 
 var EXPORTED_SYMBOLS = ["getRNPAPI"];
 
-const RNP = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm").RNP;
-var Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Services.scriptloader.loadSubScript(
   "chrome://openpgp/content/modules/cryptoAPI/interface.js",
@@ -18,12 +17,12 @@ Services.scriptloader.loadSubScript(
   "UTF-8"
 ); /* global CryptoAPI */
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
+);
 
 /**
  * RNP implementation of CryptoAPI

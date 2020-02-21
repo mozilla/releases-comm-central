@@ -8,23 +8,22 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailSend"];
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailFiles = ChromeUtils.import(
+);
+const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
-).EnigmailFiles;
-const EnigmailStdlib = ChromeUtils.import(
+);
+const { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
-).EnigmailStdlib;
-const EnigmailFuncs = ChromeUtils.import(
+);
+const { EnigmailFuncs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-const Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
-const EnigmailRNG = ChromeUtils.import(
+);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { EnigmailRNG } = ChromeUtils.import(
   "chrome://openpgp/content/modules/rng.jsm"
-).EnigmailRNG;
+);
 
 var EnigmailSend = {
   /**

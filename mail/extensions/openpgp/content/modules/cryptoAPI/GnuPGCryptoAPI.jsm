@@ -8,8 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["getGnuPGAPI"];
 
-var Services = ChromeUtils.import("resource://gre/modules/Services.jsm")
-  .Services;
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Services.scriptloader.loadSubScript(
   "chrome://openpgp/content/modules/cryptoAPI/interface.js",
@@ -17,15 +16,15 @@ Services.scriptloader.loadSubScript(
   "UTF-8"
 ); /* global CryptoAPI */
 
-const EnigmailLog = ChromeUtils.import(
+const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
-).EnigmailLog;
-const EnigmailConstants = ChromeUtils.import(
+);
+const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
-const EnigmailLocale = ChromeUtils.import(
+);
+const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
+);
 
 const {
   obtainKeyList,
