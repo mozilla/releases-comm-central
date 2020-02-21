@@ -12,9 +12,12 @@
 /*global AddAttachments: false, AddAttachment: false, ChangeAttachmentBucketVisibility: false, GetResourceFromUri: false */
 /*global Recipients2CompFields: false, Attachments2CompFields: false, DetermineConvertibility: false, gWindowLocked: false */
 /*global CommandUpdate_MsgCompose: false, gSMFields: false, setSecuritySettings: false, getCurrentAccountKey: false */
-/*global Sendlater3Composing: false, MailServices: false */
+/*global Sendlater3Composing: false */
 /*global gSendEncrypted: true, gOptionalEncryption: true, gSendSigned: true, gSelectedTechnologyIsPGP: true */
 /*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var EnigmailCore = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
@@ -199,38 +202,35 @@ Enigmail.msg = {
     Enigmail.msg.msgComposeReset(false); // false => not closing => call setIdentityDefaults()
 
     // TODO this migration code needs to move to a better place, possibly configure.jsm
-    {
-      // Use a new pref identityEnigmailPrefsMigrated, default false.
-      // Only if we're doing this for the first time for an identity,
-      // try to read old prefs and if found, store as new prefs,
-      // then set identityEnigmailPrefsMigrated=true
+    // Use a new pref identityEnigmailPrefsMigrated, default false.
+    // Only if we're doing this for the first time for an identity,
+    // try to read old prefs and if found, store as new prefs,
+    // then set identityEnigmailPrefsMigrated=true
 
-      if (
-        Enigmail.msg.wasEnigmailAddOnInstalled() &&
-        Enigmail.msg.wasEnigmailEnabledForIdentity() &&
-        this.identity.getIntAttribute("mimePreferOpenPGP") > 0
-      ) {
-        // migrate old enigmail prefs
-        gSendEncrypted =
-          this.identity.getIntAttribute("defaultEncryptionPolicy") > 0;
-        gOptionalEncryption =
-          this.identity.getIntAttribute("autoSendEncrypted") > 0;
-        gSendSigned = this.identity.getIntAttribute("defaultSigningPolicy") > 0;
-        gSelectedTechnologyIsPGP = true;
-      } else if (Enigmail.msg.isSmimeEnabled()) {
-        gSendEncrypted = this.identity.getIntAttribute("encryptionpolicy") > 0;
-        gOptionalEncryption = false;
-        gSendSigned = this.identity.getBoolAttribute("sign_mail");
-      } else {
-        // if the user didn't yet configure s/mime, use PGP mode.
-        gSendEncrypted = false;
-        gOptionalEncryption = false;
-        gSendSigned = false;
-        gSelectedTechnologyIsPGP = true;
-      }
-
-      // TODO: If already migrated, set variables using new pres
+    if (
+      Enigmail.msg.wasEnigmailAddOnInstalled() &&
+      Enigmail.msg.wasEnigmailEnabledForIdentity() &&
+      this.identity.getIntAttribute("mimePreferOpenPGP") > 0
+    ) {
+      // migrate old enigmail prefs
+      gSendEncrypted =
+        this.identity.getIntAttribute("defaultEncryptionPolicy") > 0;
+      gOptionalEncryption =
+        this.identity.getIntAttribute("autoSendEncrypted") > 0;
+      gSendSigned = this.identity.getIntAttribute("defaultSigningPolicy") > 0;
+      gSelectedTechnologyIsPGP = true;
+    } else if (Enigmail.msg.isSmimeEnabled()) {
+      gSendEncrypted = this.identity.getIntAttribute("encryptionpolicy") > 0;
+      gOptionalEncryption = false;
+      gSendSigned = this.identity.getBoolAttribute("sign_mail");
+    } else {
+      // if the user didn't yet configure s/mime, use PGP mode.
+      gSendEncrypted = false;
+      gOptionalEncryption = false;
+      gSendSigned = false;
+      gSelectedTechnologyIsPGP = true;
     }
+    // TODO: If already migrated, set variables using new pres
 
     if (gIsRelatedToEncryptedOriginal) {
       gSendEncrypted = true;
