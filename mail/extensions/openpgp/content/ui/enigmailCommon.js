@@ -10,7 +10,7 @@
 
 "use strict";
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // enigmailCommon.js: shared JS functions for Enigmail
 

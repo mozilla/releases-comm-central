@@ -320,12 +320,14 @@ var EnigmailEncryption = {
       }
     } else if (detachedSig) {
       result.sigTypeDetached = true;
+      result.sign = true;
 
       if (isAscii != ENC_TYPE_ATTACH_BINARY) {
         result.armor = true;
       }
     } else if (signMsg) {
       result.sigTypeClear = true;
+      result.sign = true;
     }
 
     console.debug(`getCryptParams returning:`);

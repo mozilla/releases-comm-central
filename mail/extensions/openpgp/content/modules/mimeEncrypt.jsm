@@ -32,9 +32,6 @@ const { EnigmailEncryption } = ChromeUtils.import(
 const { EnigmailMime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/mime.jsm"
 );
-const { EnigmailHash } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/hash.jsm"
-);
 const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 );
@@ -237,7 +234,9 @@ PgpMimeEncrypt.prototype = {
           this.cryptoMode = MIME_ENCRYPTED;
         } else if (this.sendFlags & EnigmailConstants.SEND_SIGNED) {
           this.cryptoMode = MIME_SIGNED;
+          this.hashAlgorithm = "SHA256"; // TODO: coordinate with RNP.jsm
 
+          /*
           let hashAlgoObj = {};
           if (
             EnigmailHash.determineAlgorithm(
@@ -259,6 +258,7 @@ PgpMimeEncrypt.prototype = {
 
             throw Cr.NS_ERROR_FAILURE;
           }
+          */
         }
       } else {
         throw Cr.NS_ERROR_NOT_IMPLEMENTED;

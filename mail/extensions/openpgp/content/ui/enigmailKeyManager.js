@@ -19,7 +19,7 @@
 /* global EnigmailLog: false, EnigmailEvents: false, EnigmailKeyRing: false, EnigmailKeyEditor: false */
 /* global EnigmailKey: false, EnigmailLocale: false, EnigmailPrefs: false, EnigmailConstants: false */
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Initialize enigmailCommon
 EnigInitCommon("enigmailKeyManager");
@@ -54,7 +54,7 @@ var { EnigmailSearchCallback } = ChromeUtils.import(
 var { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
 );
-const { EnigmailCryptoAPI } = ChromeUtils.import(
+var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
 

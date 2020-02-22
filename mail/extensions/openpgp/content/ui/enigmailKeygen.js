@@ -26,7 +26,7 @@ var gAccountManager = Cc[ENIG_ACCOUNT_MANAGER_CONTRACTID].getService(
   Ci.nsIMsgAccountManager
 );
 
-const EnigmailCryptoAPI = ChromeUtils.import(
+var EnigmailCryptoAPI = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 ).EnigmailCryptoAPI;
 var OpenPGPMasterpass = ChromeUtils.import(
