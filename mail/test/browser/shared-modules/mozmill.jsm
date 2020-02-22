@@ -97,9 +97,7 @@ if (platform == "linux") {
 
 var appInfo = Services.appinfo;
 
-var locale = Cc["@mozilla.org/chrome/chrome-registry;1"]
-  .getService(Ci.nsIXULChromeRegistry)
-  .getSelectedLocale("global");
+var locale = Services.locale.requestedLocale;
 
 var applicationDictionary = {
   "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}": "SeaMonkey",
