@@ -1502,11 +1502,11 @@ var FeedSubscriptions = {
     if (isServer) {
       addFeedButton.disabled =
         addFeedButton != focusedElement &&
-        !locationValue.hasAttribute("focused") &&
+        locationValue != document.activeElement &&
         !locationValue.value;
     } else if (isFolder) {
       let disable =
-        !locationValue.hasAttribute("focused") && !locationValue.value;
+        locationValue != document.activeElement && !locationValue.value;
       // Summary is enabled for a folder with feeds or if adding a feed.
       quickMode.disabled =
         disable && !FeedUtils.getFeedUrlsInFolder(item.folder);
@@ -1522,7 +1522,7 @@ var FeedSubscriptions = {
 
       addFeedButton.disabled =
         addFeedButton != focusedElement &&
-        !locationValue.hasAttribute("focused") &&
+        locationValue != document.activeElement &&
         !locationValue.value;
     } else {
       // Summary is disabled; applied per folder to apply to all feeds in it.
@@ -1530,7 +1530,7 @@ var FeedSubscriptions = {
       // Ensure the current feed url is restored if the user did not update.
       if (
         locationValue.value != item.url &&
-        !locationValue.hasAttribute("focused") &&
+        locationValue != document.activeElement &&
         focusedElement != updateFeedButton &&
         focusedElement.id != "addCertException"
       ) {
@@ -1538,9 +1538,7 @@ var FeedSubscriptions = {
       }
       this.setPrefs(locationValue);
       // Set button state.
-      updateFeedButton.disabled =
-        (focusedElement != updateFeedButton || updateFeedButton.disabled) &&
-        !locationValue.hasAttribute("focused");
+      updateFeedButton.disabled = !locationValue.value;
     }
   },
 
