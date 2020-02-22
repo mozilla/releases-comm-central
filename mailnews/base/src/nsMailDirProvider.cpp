@@ -143,15 +143,6 @@ nsMailDirProvider::AppendingEnumerator::GetNext(nsISupports **aResult) {
     bool exists;
     nsresult rv = mNext->Exists(&exists);
     if (NS_SUCCEEDED(rv) && exists) {
-      if (!mLocale.IsEmpty()) {
-        mNext->Clone(getter_AddRefs(mNextWithLocale));
-        mNextWithLocale->AppendNative(mLocale);
-        rv = mNextWithLocale->Exists(&exists);
-        if (NS_FAILED(rv) || !exists) {
-          // Clear out mNextWithLocale, so we don't try to iterate over it.
-          mNextWithLocale = nullptr;
-        }
-      }
       break;
     }
 
@@ -164,11 +155,6 @@ nsMailDirProvider::AppendingEnumerator::GetNext(nsISupports **aResult) {
 nsMailDirProvider::AppendingEnumerator::AppendingEnumerator(
     nsISimpleEnumerator *aBase)
     : mBase(aBase) {
-  nsCOMPtr<nsIXULChromeRegistry> packageRegistry =
-      mozilla::services::GetXULChromeRegistryService();
-  if (packageRegistry)
-    packageRegistry->GetSelectedLocale(NS_LITERAL_CSTRING("global"), false,
-                                       mLocale);
   // Initialize mNext to begin
   GetNext(nullptr);
 }

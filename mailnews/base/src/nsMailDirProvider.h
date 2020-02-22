@@ -36,7 +36,6 @@ class nsMailDirProvider final : public nsIDirectoryServiceProvider2 {
     nsCOMPtr<nsISimpleEnumerator> mBase;
     nsCOMPtr<nsIFile> mNext;
     nsCOMPtr<nsIFile> mNextWithLocale;
-    nsCString mLocale;
   };
 };
 

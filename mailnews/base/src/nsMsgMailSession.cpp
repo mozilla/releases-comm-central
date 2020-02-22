@@ -372,39 +372,6 @@ nsMsgMailSession::ConvertMsgURIToMsgURL(const char *aURI,
 nsresult nsMsgMailSession::GetSelectedLocaleDataDir(nsIFile *defaultsDir) {
   NS_ENSURE_ARG_POINTER(defaultsDir);
 
-  bool baseDirExists = false;
-  nsresult rv = defaultsDir->Exists(&baseDirExists);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (baseDirExists) {
-    nsCOMPtr<nsIXULChromeRegistry> packageRegistry =
-        mozilla::services::GetXULChromeRegistryService();
-    if (packageRegistry) {
-      nsAutoCString localeName;
-      rv = packageRegistry->GetSelectedLocale(
-          NS_LITERAL_CSTRING("global-region"), false, localeName);
-
-      if (NS_SUCCEEDED(rv) && !localeName.IsEmpty()) {
-        bool localeDirExists = false;
-        nsCOMPtr<nsIFile> localeDataDir;
-
-        rv = defaultsDir->Clone(getter_AddRefs(localeDataDir));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        rv = localeDataDir->AppendNative(localeName);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        rv = localeDataDir->Exists(&localeDirExists);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        if (localeDirExists) {
-          // use locale provider instead
-          rv = defaultsDir->AppendNative(localeName);
-          NS_ENSURE_SUCCESS(rv, rv);
-        }
-      }
-    }
-  }
   return NS_OK;
 }
 
