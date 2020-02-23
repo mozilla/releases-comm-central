@@ -12,10 +12,10 @@
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&connectionsDialog.title;"
-        onbeforeaccept="return gConnectionsDialog.beforeAccept();"
         onload="gConnectionsDialog.checkForSystemProxy();"
 #ifdef XP_MACOSX
         style="width: &window.macWidth; !important;">
@@ -23,7 +23,6 @@
         style="width: &window.width; !important;">
 #endif
 <dialog id="ConnectionsDialog"
-        type="child"
         dlgbuttons="accept,cancel">
 
   <linkset>

@@ -824,10 +824,6 @@ var gGeneralPane = {
 
         var element = document.getElementById(prefs[i].element);
         if (element) {
-          // Make sure we have the font list ready for readFontSelection below to
-          // work. readFontSelection gets called at onsyncfrompreference, but the
-          // exact semantics of when it is called (whether during setAttribute or
-          // during setElementValue) aren't obvious.
           if (prefs[i].fonttype) {
             await FontBuilder.buildFontList(
               aLanguageGroup,

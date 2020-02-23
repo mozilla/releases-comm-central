@@ -312,10 +312,12 @@ var gMessengerLanguagesDialog = {
 
   beforeAccept() {
     this.selected = this.getSelectedLocales();
-    return true;
   },
 
   async onLoad() {
+    document.documentElement.addEventListener("beforeaccept", () =>
+      this.beforeAccept()
+    );
     // Maintain the previously selected locales even if we cancel out.
     let { selected, search } = window.arguments[0] || {};
     this.selectedLocales = selected;
