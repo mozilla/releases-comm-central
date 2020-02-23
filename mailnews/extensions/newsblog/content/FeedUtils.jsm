@@ -1152,20 +1152,20 @@ var FeedUtils = {
       // note: deleteFeed() calls saveSoon(), so we don't need to.
     } else if (aFolder.server == aOrigFolder.server) {
       // Staying in same account - just update destFolder as required
-      affectedSubs.forEach(function(sub) {
+      for (let sub of affectedSubs) {
         sub.destFolder = folderURI;
-      });
+      };
       origDS.saveSoon();
     } else {
-      // Moving between folders.
+      // Moving between accounts.
       let destDS = this.getSubscriptionsDS(aFolder.server);
-      affectedSubs.forEach(function(sub) {
+      for (let sub of affectedSubs) {
         // Move to the new subscription db (replacing any existing entry).
         origDS.data = origDS.data.filter(x => x.url != sub.url);
         destDS.data = destDS.data.filter(x => x.url != sub.url);
         sub.destFolder = folderURI;
-        destDS.push(sub);
-      });
+        destDS.data.push(sub);
+      };
       this.setFolderPaneProperty(aFolder, "favicon", null, "row");
       origDS.saveSoon();
       destDS.saveSoon();
