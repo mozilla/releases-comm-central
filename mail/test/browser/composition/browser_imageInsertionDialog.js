@@ -34,7 +34,8 @@ add_task(function test_image_insertion_dialog_persist() {
     let srcloc = mwc.window.document.getElementById("srcInput");
     srcloc.focus();
 
-    input_value(mwc, "whateverItDoesntMatterAnyway.png");
+    let file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
+    input_value(mwc, Services.io.newFileURI(file).spec);
     mwc.sleep(0);
 
     // Don't add alternate text
