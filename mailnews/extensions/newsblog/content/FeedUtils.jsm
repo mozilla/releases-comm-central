@@ -1154,7 +1154,7 @@ var FeedUtils = {
       // Staying in same account - just update destFolder as required
       for (let sub of affectedSubs) {
         sub.destFolder = folderURI;
-      };
+      }
       origDS.saveSoon();
     } else {
       // Moving between accounts.
@@ -1165,7 +1165,7 @@ var FeedUtils = {
         destDS.data = destDS.data.filter(x => x.url != sub.url);
         sub.destFolder = folderURI;
         destDS.data.push(sub);
-      };
+      }
       this.setFolderPaneProperty(aFolder, "favicon", null, "row");
       origDS.saveSoon();
       destDS.saveSoon();
