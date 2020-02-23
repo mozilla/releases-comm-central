@@ -274,7 +274,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString &line,
         eatThisLine = true;
       } else {
         // It is wrong to call ApplyTransformations() here since this will
-        // lead to the buffer being doubled-up at |buf.Append(line.get());|
+        // lead to the buffer being doubled-up at |buf.Append(line);|
         // below. ApplyTransformations(buf, buf.Length(), eatThisLine, buf);
         // Avoid spurious failures
         eatThisLine = false;
@@ -313,9 +313,18 @@ int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString &line,
 
   // Accumulate base64 parts and HTML parts for later decoding or tag stripping.
   if (m_base64part || m_partIsHtml) {
-    if (m_partIsHtml && !m_base64part)  // Replace newline in HTML with a space.
-      buf.Append(' ');
-    buf.Append(line.get());
+    if (m_partIsHtml && !m_base64part) {
+      size_t bufLength = buf.Length();
+      if (!m_partIsQP || bufLength == 0 ||
+          !StringEndsWith(buf, NS_LITERAL_CSTRING("="))) {
+        // Replace newline in HTML with a space.
+        buf.Append(' ');
+      } else {
+        // Strip the soft line break.
+        buf.SetLength(bufLength - 1);
+      }
+    }
+    buf.Append(line);
     eatThisLine = true;
     return buf.Length();
   }

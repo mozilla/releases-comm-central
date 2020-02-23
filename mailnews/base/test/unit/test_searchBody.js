@@ -132,6 +132,9 @@ var Tests = [
   // Message 22 contains Καλημέρα (good morning in Greek).
   { value: "Καλημέρα", op: Contains, count: 1 },
 
+  // Messages 21, 23 and 24 contain "softbreak" broken by a soft line break.
+  { value: "softbreak", op: Contains, count: 3 },
+
   // Messages 16, 17, 18, 20 contain "hähä" in the plaintext part.
   { value: "hähä", op: Contains, count: 4 },
 

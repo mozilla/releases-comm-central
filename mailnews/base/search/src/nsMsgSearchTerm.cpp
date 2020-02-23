@@ -859,7 +859,7 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm *scope,
       compare.Append(buf);
       // If this line ends with a soft line break, loop around
       // and get the next line before looking for the search string.
-      // This assumes the message can't end on a QP soft-line break.
+      // This assumes the message can't end on a QP soft line break.
       // That seems like a pretty safe assumption.
       if (softLineBreak) continue;
       if (!compare.IsEmpty()) {

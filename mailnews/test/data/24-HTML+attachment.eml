@@ -15,7 +15,10 @@ This is a multi-part message in MIME format.
 Content-Type: text/html; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
-<body>Search for <b>h=C3=B6h=C3=B6</b></body>
+<body>Search for <b>h=C3=B6h=C3=B6</b>
+Test that we ignore a soft=
+break correctly.
+</body>
 
 --------------BC006DD22051247571F398E0
 Content-Type: image/png;

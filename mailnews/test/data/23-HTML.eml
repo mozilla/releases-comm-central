@@ -10,5 +10,9 @@ Content-Type: text/html; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: quoted-printable
 Content-Language: en-GB
 
-<body>Search for <b>h=C3=B6h=C3=B6</b></body>
+<body>Search for <b>h=C3=B6h=C3=B6</b>
+Test that we assemble HTML bodies correctly when there is a
+<a href=3D"https://www.example.com">soft=
+break</a> involved.
+</body>
 
