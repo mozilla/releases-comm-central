@@ -223,6 +223,12 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin,
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Remove the folder listener if we added it, i.e. if mWindow is non-null.
+  if (mWindow) {
+    rv = mailSession->RemoveFolderListener(this);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   if (aWin) {
     mMsgWindow = aMsgWindow;
     mWindow = aWin;
@@ -255,12 +261,6 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy *aWin,
     // we do this so OpenURL() will work.
     if (!mDocShell) mDocShell = rootShell;
   } else {
-    // Remove the folder listener if we added it, i.e. if mWindow is non-null
-    if (mWindow) {
-      rv = mailSession->RemoveFolderListener(this);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-
     mWindow = nullptr;
   }
 
