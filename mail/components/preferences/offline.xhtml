@@ -12,11 +12,12 @@
   %offlineDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         onload="gOfflineDialog.dialogSetup();"
         title="&offlineDialog.title;">
 <dialog id="OfflineSettingsDialog"
-        type="child"
         dlgbuttons="accept,cancel">
 
   <prefpane id="OfflineSettingsDialogPane">

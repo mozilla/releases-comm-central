@@ -15,14 +15,15 @@
   %sanitizeDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&sanitizeDialog2.title;"
         noneverythingtitle="&sanitizeDialog2.title;"
         style="width: &dialog.width;"
         onload="gSanitizePromptDialog.init();">
 <dialog id="SanitizeDialog"
-        dlgbuttons="accept,cancel"
-        type="child">
+        dlgbuttons="accept,cancel">
 
   <vbox id="SanitizeDialogPane">
     <stringbundle id="bundleBrowser"
