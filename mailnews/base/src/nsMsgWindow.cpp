@@ -72,18 +72,16 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell **aDocShell) {
     // docshell
     nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
     if (rootShell) {
-      if (rootShell) {
-        RefPtr<mozilla::dom::Element> el =
-            rootShell->GetDocument()->GetElementById(
-                NS_LITERAL_STRING("messagepane"));
-        RefPtr<mozilla::dom::XULFrameElement> frame =
-            mozilla::dom::XULFrameElement::FromNodeOrNull(el);
-        NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
-        RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
-        NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
-        docShell = doc->GetDocShell();
-        NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
-      }
+      RefPtr<mozilla::dom::Element> el =
+          rootShell->GetDocument()->GetElementById(
+              NS_LITERAL_STRING("messagepane"));
+      RefPtr<mozilla::dom::XULFrameElement> frame =
+          mozilla::dom::XULFrameElement::FromNodeOrNull(el);
+      NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
+      RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
+      NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
+      docShell = doc->GetDocShell();
+      NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
 
       // we don't own mMessageWindowDocShell so don't try to keep a reference to
       // it!
