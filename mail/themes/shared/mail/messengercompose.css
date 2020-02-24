@@ -38,7 +38,6 @@
   color: inherit;
 }
 
-:root[lwt-default-theme-in-dark-mode] #msgIdentity,
 :root[lwt-default-theme-in-dark-mode] #msgSubject,
 :root[lwt-default-theme-in-dark-mode] .address-container {
   background-color: var(--lwt-toolbar-field-background-color);
@@ -52,6 +51,7 @@
 :root[lwt-default-theme-in-dark-mode] #msgSubject:focus {
   color: var(--lwt-toolbar-field-color);
   border-color: var(--lwt-toolbar-field-border-color);
+  background-color: var(--lwt-toolbar-field-background-color);
 }
 
 :root[lwt-default-theme-in-dark-mode] panel[type="autocomplete-richlistbox"]:-moz-lwtheme {
@@ -327,6 +327,12 @@
 .aw-firstColBox,
 #firstcol-addressingWidget {
   width: 21px;
+  flex-shrink: 0;
+}
+
+.addressingWidgetItem,
+#identityLabel-box {
+  flex-shrink: 0;
 }
 
 /* :::: Format toolbar :::: */
@@ -457,13 +463,29 @@
   -moz-appearance: none;
   -moz-box-align: center;
   font: inherit;
-  margin-inline-end: 0;
-  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  margin-inline-end: 10px;
+  border: 1px solid transparent;
   border-radius: 2px;
-  background-color: -moz-field;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 5px);
+  background-size: 9px 7px;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
   -moz-context-properties: fill;
   fill: currentColor;
-  transition: border .2s, box-shadow .2s;
+  transition: border .2s, box-shadow .2s, background-color .2s;
+}
+
+#msgIdentity:-moz-locale-dir(rtl) {
+  background-position: 5px;
+}
+
+#msgIdentity.addressingWidget-separator::after {
+  display: block;
+  content: '';
+  width: 32px;
+  border-inline-end: 1px solid var(--toolbarbutton-hover-bordercolor);
+  height: 14px;
 }
 
 #msgSubject {
@@ -618,6 +640,7 @@
 
 .address-identity-recipient {
   margin-inline-end: 8px;
+  display: flex;
 }
 
 .address-extra-recipients label {
@@ -627,6 +650,10 @@
   margin-inline: 12px 6px;
   transition: color 0.2s;
   line-height: 1;
+}
+
+.address-extra-recipients label:not([collapsed]) + label {
+  margin-inline-start: 5px;
 }
 
 .overflow-icon {
@@ -691,12 +718,14 @@ label.extra-recipients-label {
 #msgSubject:hover,
 .address-container:hover  {
   border-color: rgba(0,0,0,0.5);
+  background-color: -moz-field;
 }
 
 #MsgHeadersToolbar[brighttext] #msgIdentity:hover,
 #MsgHeadersToolbar[brighttext] #msgSubject:hover,
 #MsgHeadersToolbar[brighttext] .address-container:hover  {
   border-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--lwt-toolbar-field-background-color);
 }
 
 #msgIdentity:focus,
@@ -705,4 +734,13 @@ label.extra-recipients-label {
 #msgSubject:focus,
 .address-container[focused="true"] {
   border-color: Highlight !important;
+  background-color: -moz-field;
+}
+
+#MsgHeadersToolbar[brighttext] #msgIdentity:focus,
+#MsgHeadersToolbar[brighttext] #msgIdentity:focus-within,
+#MsgHeadersToolbar[brighttext] #msgIdentity[focused="true"],
+#MsgHeadersToolbar[brighttext] #msgSubject:focus,
+#MsgHeadersToolbar[brighttext] .address-container[focused="true"] {
+  background-color: var(--lwt-toolbar-field-background-color);
 }

@@ -214,14 +214,6 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   margin-block: 2px 0;
   padding-block: 4px;
   padding-inline: 2px 20px;
-  background-repeat: no-repeat;
-  background-position: calc(100% - 5px);
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-}
-
-#msgIdentity:-moz-locale-dir(rtl) {
-  background-position: 5px;
 }
 
 #msgIdentity > .menulist-label-box {
@@ -231,16 +223,18 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
 
 #msgIdentity > html|input.menulist-input {
   -moz-appearance: none;
-  padding-top: 1px;
-  padding-bottom: 2px;
-  padding-inline-start: 3px;
-  padding-inline-end: 12px;
+  padding-block: 1px 2px;
+  padding-inline: 3px 12px;
   background-color: transparent;
   color: inherit;
 }
 
 #msgIdentity[editable="true"] > .menulist-dropmarker {
   display: none;
+}
+
+#msgIdentity.addressingWidget-separator::after {
+  margin-inline-end: -32px;
 }
 
 /* ::::: format toolbar ::::: */

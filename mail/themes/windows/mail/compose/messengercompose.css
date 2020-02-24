@@ -121,26 +121,25 @@
 #msgIdentity {
   line-height: 1;
   box-shadow: none;
-  padding-inline-start: 3px !important;
+  padding-inline-end: 20px !important;
+}
+
+#msgIdentity.addressingWidget-separator::after {
+  margin-inline-end: -32px;
 }
 
 #msgIdentity:-moz-focusring:not([open="true"]) > .menulist-label-box {
   outline: none;
 }
 
+#msgIdentity > .menulist-dropmarker {
+  display: none;
+}
+
 @media (-moz-windows-default-theme: 0) {
   #msgIdentity > .menulist-label-box {
     background-color: transparent !important;
     color: inherit !important;
-  }
-
-  #msgIdentity > .menulist-dropmarker,
-  #msgIdentity > .menulist-dropmarker[disabled="true"] {
-    -moz-appearance: none;
-    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-    -moz-context-properties: fill;
-    fill: currentColor;
-    margin-top: 0;
   }
 
   .menulist-dropmarker::part(icon) {
@@ -152,7 +151,7 @@
 #msgIdentity > html|input.menulist-input {
   background-color: inherit;
   color: inherit;
-  margin: 2px 0;
+  margin-block: 2px;
 }
 
 .address-label-container {
@@ -180,10 +179,6 @@
   #msgIdentity,
   .address-container {
     border-radius: 0;
-  }
-
-  #msgIdentity[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
-    margin-inline: 3px -3px;
   }
 }
 

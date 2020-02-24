@@ -104,15 +104,11 @@ toolbar[nowindowdrag="true"] {
   margin-block: 2px 0;
   margin-inline-start: 4px;
   padding-block: 3px;
-  padding-inline-end: 20px;
-  background-repeat: no-repeat;
-  background-position: calc(100% - 5px);
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  padding-inline-end: 10px;
 }
 
-#msgIdentity:-moz-locale-dir(rtl) {
-  background-position: 3px center;
+#msgIdentity.addressingWidget-separator::after {
+  margin-inline-end: -22px;
 }
 
 #msgIdentity > html|input.menulist-input {

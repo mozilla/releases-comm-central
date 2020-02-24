@@ -1106,4 +1106,15 @@ function updateRecipientsPanelVisibility() {
     document
       .getElementById("extraRecipientsPanel")
       .querySelectorAll('label:not([collapsed="true"])').length == 0;
+
+  // Toggle the class to show/hide the pseudo element separator
+  // of the msgIdentity field.
+  document
+    .getElementById("msgIdentity")
+    .classList.toggle(
+      "addressingWidget-separator",
+      document
+        .getElementById("addressingWidgetLabels")
+        .querySelector('label:not([collapsed="true"])')
+    );
 }

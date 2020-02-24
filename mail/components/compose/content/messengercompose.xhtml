@@ -2129,13 +2129,13 @@
                      accesskey="&fromAddr.accesskey;" control="msgIdentity"/>
             </hbox>
             <menulist is="menulist-editable" id="msgIdentity"
-                      type="description" flex="1"
+                      type="description"
                       disableautoselect="true" onkeypress="fromKeyPress(event);"
                       oncommand="LoadIdentity(false);" disableonsend="true">
               <menupopup id="msgIdentityPopup"/>
             </menulist>
 
-            <hbox class="addressingWidgetItem">
+            <hbox class="addressingWidgetItem" flex="1">
               <hbox id="addressingWidgetLabels" class="address-extra-recipients"
                     flex="1" align="center">
                 <label id="addr_to" value="&toAddr2.label;" role="button"
