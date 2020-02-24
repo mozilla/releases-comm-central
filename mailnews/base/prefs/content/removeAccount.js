@@ -83,6 +83,7 @@ function openLocalDirectory() {
 }
 
 function showInfo() {
+  let removeAccountBox = document.getElementById("removeAccountBox");
   let descs = document.querySelectorAll("vbox.indent");
   for (let desc of descs) {
     desc.collapsed = false;
@@ -97,7 +98,7 @@ function showInfo() {
     document.getElementById("localAccount").collapsed = false;
   }
 
-  window.sizeToContent();
+  window.resizeBy(0, removeAccountBox.getBoundingClientRect().height);
   gDialog.getButton("disclosure").disabled = true;
   gDialog.getButton("disclosure").blur();
 }
