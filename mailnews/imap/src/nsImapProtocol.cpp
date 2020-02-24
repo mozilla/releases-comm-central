@@ -821,6 +821,9 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI *aURL, nsISupports *aConsumer) {
       GetMsgWindow(getter_AddRefs(msgWindow));
       if (!msgWindow) GetTopmostMsgWindow(getter_AddRefs(msgWindow));
       if (msgWindow) {
+        // Set up the MockChannel to attempt nsIProgressEventSink callbacks on
+        // the messageWindow, with fallback to the docShell (and the
+        // loadgroup).
         nsCOMPtr<nsIDocShell> docShell;
         msgWindow->GetMessageWindowDocShell(getter_AddRefs(docShell));
         nsCOMPtr<nsIInterfaceRequestor> ir(do_QueryInterface(docShell));
@@ -8007,6 +8010,7 @@ void nsImapProtocol::Check() {
 
 nsresult nsImapProtocol::GetMsgWindow(nsIMsgWindow **aMsgWindow) {
   nsresult rv;
+  *aMsgWindow = nullptr;
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl =
       do_QueryInterface(m_runningUrl, &rv);
   NS_ENSURE_SUCCESS(rv, rv);

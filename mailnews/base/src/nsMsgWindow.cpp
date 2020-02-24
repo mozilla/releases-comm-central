@@ -72,6 +72,15 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell **aDocShell) {
     // docshell
     nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
     if (rootShell) {
+      // There seem to be some issues with shutdown (see Bug 1610406).
+      // This workaround should prevent the GetElementById() call dying horribly
+      // but really, we shouldn't even get here in such cases.
+      bool doomed;
+      rootShell->IsBeingDestroyed(&doomed);
+      if (doomed) {
+        return NS_ERROR_ILLEGAL_DURING_SHUTDOWN;
+      }
+
       RefPtr<mozilla::dom::Element> el =
           rootShell->GetDocument()->GetElementById(
               NS_LITERAL_STRING("messagepane"));
