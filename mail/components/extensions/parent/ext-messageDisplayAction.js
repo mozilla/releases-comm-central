@@ -48,30 +48,6 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
     button.style.listStyleImage = "var(--webextension-menupanel-image)";
     return button;
   }
-
-  getAPI(context) {
-    let { extension } = context;
-    let { windowManager } = extension;
-
-    let action = this;
-    let api = super.getAPI(context);
-    api[this.manifestName].onClicked = new EventManager({
-      context,
-      name: `${this.manifestName}.onClicked`,
-      inputHandling: true,
-      register: fire => {
-        let listener = (event, window) => {
-          let win = windowManager.wrapWindow(window);
-          fire.sync(win.activeTab.id);
-        };
-        action.on("click", listener);
-        return () => {
-          action.off("click", listener);
-        };
-      },
-    }).api();
-    return api;
-  }
 };
 
 global.messageDisplayActionFor = this.messageDisplayAction.for;

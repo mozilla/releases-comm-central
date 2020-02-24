@@ -128,8 +128,13 @@ add_task(async function setup() {
 add_task(async function the_test() {
   async function background_nopopup() {
     browser.test.log("nopopup background script ran");
-    browser.composeAction.onClicked.addListener(async tabId => {
-      browser.test.log(`tabId is ${tabId}`);
+    browser.composeAction.onClicked.addListener(async (tab, info) => {
+      browser.test.assertEq("object", typeof tab);
+      browser.test.assertEq("object", typeof info);
+      browser.test.assertEq(0, info.button);
+      browser.test.assertTrue(Array.isArray(info.modifiers));
+      browser.test.assertEq(0, info.modifiers.length);
+      browser.test.log(`Tab ID is ${tab.id}`);
       await browser.composeAction.setTitle({ title: "New title" });
       await new Promise(setTimeout);
       browser.test.sendMessage("composeAction");

@@ -181,7 +181,7 @@ var composeEventTracker = new (class extends EventEmitter {
 
     let results = await this.emit(
       "compose-before-send",
-      tabTracker.getId(composeWindow),
+      composeWindow,
       getComposeDetails(composeWindow)
     );
     if (results) {
@@ -223,15 +223,19 @@ this.compose = class extends ExtensionAPI {
     }
 
     let { extension } = context;
-    let { tabManager } = extension;
+    let { tabManager, windowManager } = extension;
     return {
       compose: {
         onBeforeSend: new EventManager({
           context,
           name: "compose.onBeforeSend",
           register: fire => {
-            let listener = (event, tabId, details) => {
-              return fire.async(tabId, details);
+            let listener = (event, window, details) => {
+              let win = windowManager.wrapWindow(window);
+              return fire.async(
+                tabManager.convert(win.activeTab.nativeTab),
+                details
+              );
             };
 
             composeEventTracker.on("compose-before-send", listener);

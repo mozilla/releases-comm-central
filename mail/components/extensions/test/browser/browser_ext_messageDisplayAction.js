@@ -72,8 +72,13 @@ add_task(async () => {
   }
 
   async function background_nopopup() {
-    browser.messageDisplayAction.onClicked.addListener(async tabId => {
-      browser.test.log(`tabId is ${tabId}`);
+    browser.messageDisplayAction.onClicked.addListener(async (tab, info) => {
+      browser.test.assertEq("object", typeof tab);
+      browser.test.assertEq("object", typeof info);
+      browser.test.assertEq(0, info.button);
+      browser.test.assertTrue(Array.isArray(info.modifiers));
+      browser.test.assertEq(0, info.modifiers.length);
+      browser.test.log(`Tab ID is ${tab.id}`);
       await browser.messageDisplayAction.setTitle({ title: "New title" });
       browser.test.sendMessage("messageDisplayAction");
     });

@@ -65,28 +65,4 @@ this.composeAction = class extends ToolbarButtonAPI {
       );
     }
   }
-
-  getAPI(context) {
-    let { extension } = context;
-    let { windowManager } = extension;
-
-    let action = this;
-    let api = super.getAPI(context);
-    api.composeAction.onClicked = new EventManager({
-      context,
-      name: "composeAction.onClicked",
-      inputHandling: true,
-      register: fire => {
-        let listener = (event, window) => {
-          let win = windowManager.wrapWindow(window);
-          fire.sync(win.activeTab.id);
-        };
-        action.on("click", listener);
-        return () => {
-          action.off("click", listener);
-        };
-      },
-    }).api();
-    return api;
-  }
 };

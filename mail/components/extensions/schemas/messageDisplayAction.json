@@ -50,7 +50,7 @@
   },
   {
     "namespace": "messageDisplayAction",
-    "description": "Use toolbar actions to put icons in the mail window toolbar. In addition to its icon, a toolbar action can also have a tooltip, a badge, and a popup. This namespace is called browserAction for compatibility with browser WebExtensions.",
+    "description": "Use toolbar actions to put icons in the message display toolbar. In addition to its icon, a toolbar action can also have a tooltip, a badge, and a popup.",
     "permissions": ["manifest:message_display_action"],
     "types": [
       {
@@ -90,6 +90,26 @@
         "additionalProperties": { "type": "any" },
         "postprocess": "convertImageDataToURL",
         "description": "Pixel data for an image. Must be an ImageData object (for example, from a <code>canvas</code> element)."
+      },
+      {
+        "id": "OnClickData",
+        "type": "object",
+        "description": "Information sent when a message display action is clicked.",
+        "properties": {
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["Shift", "Alt", "Command", "Ctrl", "MacCtrl"]
+            },
+            "description": "An array of keyboard modifiers that were held while the menu item was clicked."
+          },
+          "button": {
+            "type": "integer",
+            "optional": true,
+            "description": "An integer value of button by which menu item was clicked."
+          }
+        }
       }
     ],
     "functions": [
@@ -411,9 +431,13 @@
         "description": "Fired when a toolbar action icon is clicked.  This event will not fire if the toolbar action has a popup.",
         "parameters": [
           {
-            "name": "tabId",
-            "type": "integer",
-            "minimum": 1
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "info",
+            "$ref": "OnClickData",
+            "optional": true
           }
         ]
       }

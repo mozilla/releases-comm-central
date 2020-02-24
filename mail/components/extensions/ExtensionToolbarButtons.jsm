@@ -253,7 +253,11 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
         this.getPopup(window, popupURL);
       popup.viewNode.openPopup(button, "bottomcenter topleft", 0, 0);
     } else {
+      if (!this.lastClickInfo) {
+        this.lastClickInfo = { button: 0, modifiers: [] };
+      }
       this.emit("click", window);
+      delete this.lastClickInfo;
     }
   }
 
@@ -268,6 +272,10 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
     switch (event.type) {
       case "mousedown":
         if (event.button == 0) {
+          this.lastClickInfo = {
+            button: 0,
+            modifiers: this.global.clickModifiersFromEvent(event),
+          };
           this.triggerAction(window);
         }
         break;
@@ -571,6 +579,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
    */
   getAPI(context) {
     let { extension } = context;
+    let { tabManager, windowManager } = extension;
 
     let action = this;
 
@@ -581,8 +590,12 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
           name: `${this.manifestName}.onClicked`,
           inputHandling: true,
           register: fire => {
-            let listener = event => {
-              fire.sync();
+            let listener = (event, window) => {
+              let win = windowManager.wrapWindow(window);
+              fire.sync(
+                tabManager.convert(win.activeTab.nativeTab),
+                this.lastClickInfo
+              );
             };
             action.on("click", listener);
             return () => {

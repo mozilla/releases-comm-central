@@ -121,9 +121,8 @@
         ],
         "parameters": [
           {
-            "type": "integer",
-            "name": "tabId",
-            "minimum": 0
+            "name": "tab",
+            "$ref": "tabs.Tab"
           },
           {
             "name": "details",
