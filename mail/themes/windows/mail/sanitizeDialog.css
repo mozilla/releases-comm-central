@@ -11,7 +11,6 @@
   margin-inline-start: 3px;
 }
 
-
 /* Hide the duration dropdown suffix label if it's empty.  Otherwise it
    takes up a little space, causing the end of the dropdown to not be aligned
    with the warning box. */
@@ -38,7 +37,6 @@
   margin: 0;
 }
 
-
 /* Progressive disclosure button */
 #detailsExpanderWrapper {
   padding: 0;
@@ -64,7 +62,6 @@
   list-style-image: url("chrome://global/skin/icons/expand.png");
 }
 
-
 /* Make the item list the same width as the warning box */
 #itemList {
   margin-inline-start: 0;
@@ -72,13 +69,4 @@
   border: 1px solid ThreeDShadow;
   background-color: -moz-Field;
   color: -moz-FieldText;
-}
-
-
-/* Align the last dialog button with the end of the warning box */
-.prefWindow-dlgbuttons {
-  margin-inline-end: 0;
-}
-.dialog-button[dlgtype="cancel"] {
-  margin-inline-end: 0;
 }
