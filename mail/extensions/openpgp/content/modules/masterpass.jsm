@@ -4,34 +4,48 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-/*global Components: false */
-
 "use strict";
 
 var EXPORTED_SYMBOLS = ["OpenPGPMasterpass"];
 
 Cu.importGlobalProperties(["crypto"]);
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
+var { EnigmailApp } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/app.jsm"
+);
+const { EnigmailFiles } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+);
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
 
-const PASS_URI = "chrome://openpgp-secret-key-password";
-const PASS_REALM = "DO NOT DELETE";
-const PASS_USER = "openpgp";
+const DEFAULT_FILE_PERMS = 0o600;
 
 var OpenPGPMasterpass = {
-  getLoginManager() {
-    if (!this.loginManager) {
+  getSDR() {
+    if (!this.sdr) {
       try {
-        this.loginManager = Services.logins;
+        this.sdr = Cc["@mozilla.org/security/sdr;1"].getService(
+          Ci.nsISecretDecoderRing
+        );
       } catch (ex) {
         EnigmailLog.writeException("masterpass.jsm", ex);
       }
     }
-    return this.loginManager;
+    return this.sdr;
+  },
+
+  getPassPath() {
+    let path = EnigmailApp.getProfileDirectory();
+    path.append("encrypted-openpgp-passphrase.txt");
+    return path;
+  },
+
+  getOpenPGPSecretRingAlreadyExists() {
+    let path = EnigmailApp.getProfileDirectory();
+    path.append("secring.gpg");
+    return path.exists();
   },
 
   ensureMasterPassword() {
@@ -40,27 +54,23 @@ var OpenPGPMasterpass = {
       return;
     }
 
+    if (this.getOpenPGPSecretRingAlreadyExists()) {
+      throw new Error(
+        "Error, secring.gpg exists, but cannot obtain password from encrypted-openpgp-passphrase.txt"
+      );
+    }
+
+    EnigmailLog.DEBUG("masterpass.jsm: ensureMasterPassword()\n");
     try {
       let pass = this.generatePassword();
+      let sdr = this.getSDR();
+      let encryptedPass = sdr.encryptString(pass);
 
-      EnigmailLog.DEBUG("masterpass.jsm: ensureMasterPassword()\n");
-      let nsLoginInfo = new Components.Constructor(
-        "@mozilla.org/login-manager/loginInfo;1",
-        Ci.nsILoginInfo,
-        "init"
+      EnigmailFiles.writeFileContents(
+        this.getPassPath(),
+        encryptedPass,
+        DEFAULT_FILE_PERMS
       );
-      // parameters: aHostname, aFormSubmitURL, aHttpRealm, aUsername, aPassword, aUsernameField, aPasswordField
-      let loginInfo = new nsLoginInfo(
-        PASS_URI,
-        null,
-        PASS_REALM,
-        PASS_USER,
-        pass,
-        "",
-        ""
-      );
-
-      this.getLoginManager().addLogin(loginInfo);
     } catch (ex) {
       EnigmailLog.writeException("masterpass.jsm", ex);
       throw ex;
@@ -82,19 +92,21 @@ var OpenPGPMasterpass = {
 
   retrieveOpenPGPPassword() {
     EnigmailLog.DEBUG("masterpass.jsm: retrieveMasterPassword()\n");
-    try {
-      var logins = this.getLoginManager().findLogins(
-        PASS_URI,
-        null,
-        PASS_REALM
-      );
 
-      for (let i = 0; i < logins.length; i++) {
-        if (logins[i].username == PASS_USER) {
-          EnigmailLog.DEBUG("masterpass.jsm: retrieveOpenPGPPassword(): ok\n");
-          return logins[i].password;
-        }
+    let path = this.getPassPath();
+    if (!path.exists()) {
+      return null;
+    }
+
+    try {
+      var encryptedPass = EnigmailFiles.readFile(path).trim();
+      if (!encryptedPass) {
+        return null;
       }
+      let sdr = this.getSDR();
+      let pass = sdr.decryptString(encryptedPass);
+      //console.debug("your secring.gpg is protected with the following passphrase: " + pass);
+      return pass;
     } catch (ex) {
       EnigmailLog.writeException("masterpass.jsm", ex);
     }

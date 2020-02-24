@@ -87,9 +87,6 @@ var EnigmailCryptoAPI = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 ).EnigmailCryptoAPI;
 
-var OpenPGPMasterpass = ChromeUtils.import(
-  "chrome://openpgp/content/modules/masterpass.jsm"
-).OpenPGPMasterpass;
 var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm");
 
 // The compatible Enigmime version
