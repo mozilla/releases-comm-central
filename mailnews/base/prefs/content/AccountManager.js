@@ -28,6 +28,7 @@
 /* import-globals-from accountUtils.js */
 /* import-globals-from am-prefs.js */
 /* import-globals-from amUtils.js */
+/* globals gSubDialog */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { BrowserUtils } = ChromeUtils.import(
@@ -920,32 +921,34 @@ function onRemoveAccount(event) {
     result: false,
   };
 
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  let onCloseDialog = function() {
+    // If result is true, the account was removed.
+    if (!removeArgs.result) {
+      return;
+    }
+
+    // clear cached data out of the account array
+    currentAccount = currentPageId = null;
+    if (serverId in accountArray) {
+      delete accountArray[serverId];
+    }
+
+    if (serverIndex >= 0 && serverIndex < serverList.length) {
+      selectServer(serverList[serverIndex], null);
+    }
+
+    // Either the default account was deleted so there is a new one
+    // or the default account was not changed. Either way, there is
+    // no need to unmark the old one.
+    markDefaultServer(MailServices.accounts.defaultAccount, null);
+  };
+
+  gSubDialog.open(
     "chrome://messenger/content/removeAccount.xhtml",
-    "removeAccount",
-    "chrome,titlebar,modal,centerscreen,resizable=no",
-    removeArgs
+    "resizable=no",
+    removeArgs,
+    onCloseDialog
   );
-
-  // If result is true, the account was removed.
-  if (!removeArgs.result) {
-    return;
-  }
-
-  // clear cached data out of the account array
-  currentAccount = currentPageId = null;
-  if (serverId in accountArray) {
-    delete accountArray[serverId];
-  }
-
-  if (serverIndex >= 0 && serverIndex < serverList.length) {
-    selectServer(serverList[serverIndex], null);
-  }
-
-  // Either the default account was deleted so there is a new one
-  // or the default account was not changed. Either way, there is
-  // no need to unmark the old one.
-  markDefaultServer(MailServices.accounts.defaultAccount, null);
 }
 
 function saveAccount(accountValues, account) {
