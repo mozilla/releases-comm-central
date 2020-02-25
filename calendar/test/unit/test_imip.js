@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var calItipEmailTransport = {};
-Services.scriptloader.loadSubScript(
-  "resource:///components/calItipEmailTransport.js",
-  calItipEmailTransport
-);
+var { CalItipEmailTransport } = ChromeUtils.import("resource:///modules/CalItipEmailTransport.jsm");
 
 function itipItemForTest(title, seq) {
   let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
@@ -25,7 +21,7 @@ function itipItemForTest(title, seq) {
   return itipItem;
 }
 
-let transport = new calItipEmailTransport.calItipEmailTransport();
+let transport = new CalItipEmailTransport();
 
 add_task(function test_title_in_subject() {
   Services.prefs.setBoolPref("calendar.itip.useInvitationSubjectPrefixes", false);

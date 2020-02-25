@@ -3,21 +3,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-EXTRA_COMPONENTS += [
-    'calImportExportModule.js',
-    'calImportExportModule.manifest',
-]
-
 JAR_MANIFESTS += ['jar.mn']
 
-# These files go in components so they can be packaged correctly.
-FINAL_TARGET_FILES.components += [
-    'calHtmlExport.js',
-    'calIcsImportExport.js',
-    'calListFormatter.js',
-    'calMonthGridPrinter.js',
-    'calOutlookCSVImportExport.js',
-    'calWeekPrinter.js',
+EXTRA_JS_MODULES += [
+    'CalHtmlExport.jsm',
+    'CalIcsImportExport.jsm',
+    'CalListFormatter.jsm',
+    'CalMonthGridPrinter.jsm',
+    'CalOutlookCSVImportExport.jsm',
+    'CalWeekPrinter.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
 
 with Files('**'):

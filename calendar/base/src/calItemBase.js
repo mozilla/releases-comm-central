@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from calItemModule.js */
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { CalAttendee } = ChromeUtils.import("resource:///modules/CalAttendee.jsm");
+var { CalRelation } = ChromeUtils.import("resource:///modules/CalRelation.jsm");
+var { CalAttachment } = ChromeUtils.import("resource:///modules/CalAttachment.jsm");
 
 /**
  * calItemBase prototype definition
@@ -801,21 +802,21 @@ calItemBase.prototype = {
 
     this.mAttendees = []; // don't inherit anything from parent
     for (let attprop of cal.iterate.icalProperty(icalcomp, "ATTENDEE")) {
-      let att = new calAttendee();
+      let att = new CalAttendee();
       att.icalProperty = attprop;
       this.addAttendee(att);
     }
 
     this.mAttachments = []; // don't inherit anything from parent
     for (let attprop of cal.iterate.icalProperty(icalcomp, "ATTACH")) {
-      let att = new calAttachment();
+      let att = new CalAttachment();
       att.icalProperty = attprop;
       this.addAttachment(att);
     }
 
     this.mRelations = []; // don't inherit anything from parent
     for (let relprop of cal.iterate.icalProperty(icalcomp, "RELATED-TO")) {
-      let rel = new calRelation();
+      let rel = new CalRelation();
       rel.icalProperty = relprop;
       this.addRelation(rel);
     }
@@ -823,7 +824,7 @@ calItemBase.prototype = {
     let org = null;
     let orgprop = icalcomp.getFirstProperty("ORGANIZER");
     if (orgprop) {
-      org = new calAttendee();
+      org = new CalAttendee();
       org.icalProperty = orgprop;
       org.isOrganizer = true;
     }

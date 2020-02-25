@@ -5,9 +5,12 @@
 
 DIRS += ['public']
 
-EXTRA_COMPONENTS += [
-    'calDavCalendar.js',
-    'calDavCalendar.manifest',
+EXTRA_JS_MODULES += [
+    'CalDavCalendar.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
 
 # These files go in components so they can be packaged correctly.

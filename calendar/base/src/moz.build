@@ -9,45 +9,44 @@ XPIDL_SOURCES += [
 
 XPIDL_MODULE = 'calbaseinternal'
 
-EXTRA_COMPONENTS += [
-    'calDefaultACLManager.js',
-    'calDefaultACLManager.manifest',
-    'calItemModule.js',
-    'calItemModule.manifest',
-    'calSleepMonitor.js',
-    'calSleepMonitor.manifest',
-    'calTimezoneService.js',
-    'calTimezoneService.manifest',
+EXTRA_JS_MODULES += [
+    'CalAlarm.jsm',
+    'CalAlarmMonitor.jsm',
+    'CalAlarmService.jsm',
+    'CalAttachment.jsm',
+    'CalAttendee.jsm',
+    'CalCalendarManager.jsm',
+    'CalCalendarSearchService.jsm',
+    'CalDateTimeFormatter.jsm',
+    'CalDefaultACLManager.jsm',
+    'CalDeletedItems.jsm',
+    'CalEvent.jsm',
+    'CalFreeBusyService.jsm',
+    'CalIcsParser.jsm',
+    'CalIcsSerializer.jsm',
+    'CalItipItem.jsm',
+    'CalProtocolHandler.jsm',
+    'CalRecurrenceDate.jsm',
+    'CalRecurrenceInfo.jsm',
+    'CalRelation.jsm',
+    'CalSleepMonitor.jsm',
+    'CalStartupService.jsm',
+    'CalTimezoneService.jsm',
+    'CalTodo.jsm',
+    'CalTransactionManager.jsm',
+    'CalWeekInfoService.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
 ]
 
 # These files go in components so they can be packaged correctly.
 FINAL_TARGET_FILES.components += [
-    'calAlarm.js',
-    'calAlarmMonitor.js',
-    'calAlarmService.js',
-    'calAttachment.js',
-    'calAttendee.js',
     'calCachedCalendar.js',
-    'calCalendarManager.js',
-    'calCalendarSearchService.js',
-    'calDateTimeFormatter.js',
-    'calDeletedItems.js',
-    'calEvent.js',
     'calFilter.js',
-    'calFreeBusyService.js',
-    'calIcsParser.js',
-    'calIcsSerializer.js',
     'calItemBase.js',
-    'calItipItem.js',
-    'calProtocolHandler.js',
-    'calRecurrenceDate.js',
-    'calRecurrenceInfo.js',
-    'calRelation.js',
-    'calStartupService.js',
     'calTimezone.js',
-    'calTodo.js',
-    'calTransactionManager.js',
-    'calWeekInfoService.js',
 ]
 
 with Files('**'):
