@@ -93,7 +93,10 @@ calEvent.prototype = {
 
     for (let [name, value] of this.properties) {
       try {
-        if (!this.eventPromotedProps[name]) {
+        // When deleting a property of an occurrence, the property is not deleted
+        // but instead set to null, so we need to prevent adding those properties.
+        let wasReset = this.mIsProxy && value === null;
+        if (!this.eventPromotedProps[name] && !wasReset) {
           let icalprop = icssvc.createIcalProperty(name);
           icalprop.value = value;
           let propBucket = this.mPropertyParams[name];

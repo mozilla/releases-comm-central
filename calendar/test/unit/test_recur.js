@@ -20,6 +20,7 @@ function really_run_test() {
   test_idchange();
   test_rrule_icalstring();
   test_immutable();
+  test_icalComponent();
 }
 
 function test_rules() {
@@ -1272,4 +1273,71 @@ function test_rrule_icalstring() {
   );
   deepEqual(recRule.getComponent("BYMONTH"), [4]);
   deepEqual(recRule.getComponent("BYDAY"), [-22]);
+}
+
+function test_icalComponent() {
+  let duration = "PT3600S";
+  let eventString =
+    "DESCRIPTION:Repeat every Thursday starting Tue 2nd April 2002\n" +
+    "RRULE:FREQ=WEEKLY;INTERVAL=1;COUNT=6;BYDAY=TH\n" +
+    "DTSTART:20020402T114500\n" +
+    `DURATION:${duration}\n`;
+
+  let firstOccurrenceDate = createDate(2002, 4, 4, true, 11, 45, 0);
+
+  // Test each of these cases from the conditional in the icalComponent getter.
+  // * mIsProxy = true, value === null
+  // * mIsProxy = true, value !== null
+  // * mIsProxy = false, value === null
+  // * mIsProxy = false, value !== null
+  //
+  // Create a proxy for a given occurrence, modify properties on the proxy
+  // (checking before and after), then call the icalComponent getter to see
+  // whether both parent item and proxy item have the correct properties.
+
+  let parent = makeEvent(eventString);
+  let proxy = parent.recurrenceInfo.getOccurrenceFor(firstOccurrenceDate);
+
+  equal(parent.getProperty("DURATION"), duration);
+  equal(proxy.getProperty("DURATION"), duration);
+
+  equal(parent.getProperty("LOCATION"), null);
+  equal(proxy.getProperty("LOCATION"), null);
+
+  let newDuration = "PT2200S";
+  let location = "Sherwood Forest";
+
+  proxy.setProperty("DURATION", newDuration);
+  proxy.setProperty("LOCATION", location);
+
+  equal(parent.getProperty("DURATION"), duration);
+  equal(proxy.getProperty("DURATION"), newDuration);
+
+  equal(parent.getProperty("LOCATION"), null);
+  equal(proxy.getProperty("LOCATION"), location);
+
+  equal(parent.icalComponent.duration.toString(), duration);
+  equal(proxy.icalComponent.duration.toString(), newDuration);
+
+  equal(parent.icalComponent.location, null);
+  equal(proxy.icalComponent.location, location);
+
+  // Test for bug 580896.
+
+  let event = makeEvent(eventString);
+  equal(event.getProperty("DURATION"), duration, "event has correct DURATION");
+
+  let occurrence = event.recurrenceInfo.getOccurrenceFor(firstOccurrenceDate);
+
+  equal(occurrence.getProperty("DURATION"), duration, "occurrence has correct DURATION");
+  equal(Boolean(occurrence.getProperty("DTEND")), true, "occurrence has DTEND");
+
+  ok(!occurrence.icalComponent.duration, "occurrence icalComponent does not have DURATION");
+
+  // Changing the end date causes the duration to be set to null.
+  occurrence.endDate = createDate(2002, 4, 3);
+
+  equal(occurrence.getProperty("DURATION"), null, "occurrence DURATION has been set to null");
+
+  ok(!occurrence.icalComponent.duration, "occurrence icalComponent still does not have DURATION");
 }
