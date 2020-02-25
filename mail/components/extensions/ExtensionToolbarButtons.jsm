@@ -680,8 +680,10 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
         },
 
         openPopup() {
-          let window = action.global.windowTracker.topWindow;
-          action.triggerAction(window);
+          let window = Services.wm.getMostRecentWindow("");
+          if (action.windowURLs.includes(window.location.href)) {
+            action.triggerAction(window);
+          }
         },
       },
     };

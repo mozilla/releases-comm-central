@@ -229,6 +229,7 @@ this.compose = class extends ExtensionAPI {
         onBeforeSend: new EventManager({
           context,
           name: "compose.onBeforeSend",
+          inputHandling: true,
           register: fire => {
             let listener = (event, window, details) => {
               let win = windowManager.wrapWindow(window);
