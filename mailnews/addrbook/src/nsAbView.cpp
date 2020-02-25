@@ -179,10 +179,8 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
   mSortColumn.AssignLiteral("");
   mSortDirection.AssignLiteral("");
 
-  nsCString uri = EmptyCString();
-  if (aAddressBook) {
-    aAddressBook->GetURI(uri);
-  }
+  nsCString uri;
+  aAddressBook->GetURI(uri);
   int32_t searchBegin = uri.FindChar('?');
   nsCString searchQuery(Substring(uri, searchBegin));
   // This is a special case, a workaround basically, to just have all ABs.
@@ -190,7 +188,7 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
     searchQuery.AssignLiteral("");
   }
 
-  if (!aAddressBook) {
+  if (Substring(uri, 0, searchBegin).EqualsLiteral("moz-abdirectory://")) {
     mIsAllDirectoryRootView = true;
     // We have special request case to search all addressbooks, so we need
     // to iterate over all addressbooks.

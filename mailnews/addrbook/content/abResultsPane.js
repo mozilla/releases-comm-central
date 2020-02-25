@@ -76,6 +76,17 @@ function SetAbView(aURI) {
   }
 
   var directory = GetDirectoryFromURI(aURI);
+  if (!directory && aURI.startsWith("moz-abdirectory://?")) {
+    // This is an obsolete reference to the root directory, which isn't a thing
+    // any more. Fortunately all we need is a way to get the URI to gAbView, so
+    // we can pretend we have a real directory.
+    directory = {
+      QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirectory]),
+      get URI() {
+        return aURI;
+      },
+    };
+  }
 
   if (!gAbView) {
     gAbView = Cc["@mozilla.org/addressbook/abview;1"].createInstance(
@@ -91,6 +102,7 @@ function SetAbView(aURI) {
   );
 
   gAbResultsTree.view = gAbView.QueryInterface(Ci.nsITreeView);
+  window.dispatchEvent(new CustomEvent("viewchange"));
 
   UpdateSortIndicators(actualSortColumn, sortDirection);
 
