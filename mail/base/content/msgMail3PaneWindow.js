@@ -578,12 +578,6 @@ function OnLoadMessenger() {
   // accountProvisionerTabType is defined in accountProvisionerTab.js
   tabmail.registerTabType(accountProvisionerTabType);
 
-  // verifyAccounts returns true if the callback won't be called
-  // We also don't want the account wizard to open if any sort of account exists
-  if (verifyAccounts(LoadPostAccountWizard, false, AutoConfigWizard)) {
-    LoadPostAccountWizard();
-  }
-
   // Set up the summary frame manager to handle loading pages in the
   // multi-message pane
   gSummaryFrameManager = new SummaryFrameManager(
@@ -597,6 +591,47 @@ function OnLoadMessenger() {
 
   // Load the periodic filter timer.
   PeriodicFilterManager.setupFiltering();
+
+  let pService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
+    Ci.nsIToolkitProfileService
+  );
+  if (pService.createdAlternateProfile) {
+    // Show on a timeout so the main window has time to open. Otherwise
+    // the dialog would be confusingly showing out of context.
+    setTimeout(() => _showNewInstallModal());
+  } else if (verifyAccounts(LoadPostAccountWizard, false, AutoConfigWizard)) {
+    // verifyAccounts returns true if the callback won't be called
+    // We also don't want the account wizard to open if any sort of account exists
+    LoadPostAccountWizard();
+  }
+}
+
+function _showNewInstallModal() {
+  Services.ww.openWindow(
+    null,
+    "chrome://messenger/content/newInstall.xhtml",
+    "_blank",
+    "chrome,modal,resizable=no,centerscreen",
+    null
+  );
+
+  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  if (mail3PaneWindow) {
+    let tabmail = mail3PaneWindow.document.getElementById("tabmail");
+    let monitor = {
+      onTabTitleChanged() {},
+      onTabSwitched() {},
+      onTabClosing() {
+        AutoConfigWizard();
+        tabmail.unregisterTabMonitor(monitor);
+      },
+    };
+    tabmail.registerTabMonitor(monitor);
+    tabmail.openTab("contentTab", {
+      contentPage: "about:newinstall",
+      clickHandler: "specialTabs.aboutClickHandler(event);",
+    });
+  }
 }
 
 function LoadPostAccountWizard() {
