@@ -251,7 +251,13 @@ OAuth2.prototype = {
               result
             )}`
           );
-          this.connectFailureCallback(result);
+          // Typically in production this would be {"error": "invalid_grant"}.
+          // That is, the token expired or was revoked (user changed password?).
+          // Reset the tokens we have and call success so that the auth flow
+          // will be re-triggered.
+          this.accessToken = null;
+          this.refreshToken = null;
+          this.connectSuccessCallback();
           return;
         }
 
