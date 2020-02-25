@@ -27,9 +27,11 @@ add_task(async () => {
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
     abWindow.close();
+    let deletePromise = promiseDirectoryRemoved();
     MailServices.ab.deleteAddressBook(book.URI);
+    await deletePromise;
     LDAPServer.close();
   });
 

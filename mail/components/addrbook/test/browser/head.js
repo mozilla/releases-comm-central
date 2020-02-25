@@ -56,3 +56,18 @@ async function createNewAddressBook(abWindow, abName) {
 
   return addressBook;
 }
+
+function promiseDirectoryRemoved() {
+  return new Promise(resolve => {
+    let observer = {
+      onItemRemoved() {
+        MailServices.ab.removeAddressBookListener(this);
+        resolve();
+      },
+    };
+    MailServices.ab.addAddressBookListener(
+      observer,
+      Ci.nsIAbListener.directoryRemoved
+    );
+  });
+}

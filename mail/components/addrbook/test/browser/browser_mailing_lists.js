@@ -30,10 +30,17 @@ let global = {};
  * Set up: create a new address book to hold the mailing list.
  */
 add_task(async () => {
+  let bookPrefName = MailServices.ab.newAddressBook(inputs.abName, null, 101);
+  let addressBook = MailServices.ab.getDirectoryFromId(bookPrefName);
+
   let abWindow = await openAddressBookWindow();
-  let addressBook = await createNewAddressBook(abWindow, inputs.abName);
 
   let dirTree = abWindow.document.getElementById("dirTree");
+  is(
+    dirTree.view.getCellText(2, dirTree.columns[0]),
+    inputs.abName,
+    `address book ("${inputs.abName}") is displayed in the address book list`
+  );
 
   /**
    * Click a row in the address book list (tree).
@@ -116,12 +123,6 @@ add_task(async () => {
 
       mlDocElement.getButton("accept").click();
     }
-  );
-
-  is(
-    global.dirTree.view.getCellText(2, global.dirTree.columns[0]),
-    inputs.abName,
-    `address book ("${inputs.abName}") is displayed in the address book list`
   );
 
   // Select the address book.
@@ -461,6 +462,7 @@ add_task(async () => {
     "accept",
     "chrome://global/content/commonDialog.xhtml"
   );
+  let deletePromise = promiseDirectoryRemoved();
 
   is(
     global.dirTree.view.getCellText(2, global.dirTree.columns[0]),
@@ -471,7 +473,7 @@ add_task(async () => {
   global.dirTreeClick(2, 1);
   EventUtils.sendKey("DELETE", global.abWindow);
 
-  await mailingListWindowPromise;
+  await Promise.all([mailingListWindowPromise, deletePromise]);
 
   let addressBook = [...MailServices.ab.directories].find(
     directory => directory.dirName == inputs.abName
