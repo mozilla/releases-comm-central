@@ -1104,7 +1104,7 @@ bool nsIMAPBodyShellCache::AddShellToCache(nsIMAPBodyShell *shell) {
   // Add the new one to the cache
   m_shellList->AppendElement(shell);
 
-  m_shellHash.Put(shell->GetUID_validity(), shell);
+  m_shellHash.Put(shell->GetUID_validity(), RefPtr{shell});
   shell->SetIsCached(true);
 
   // while we're not over our size limit, eject entries
