@@ -164,6 +164,7 @@ abDirTreeItem.prototype = {
 function directoryTreeView() {}
 directoryTreeView.prototype = {
   __proto__: new PROTO_TREE_VIEW(),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView, Ci.nsIAbListener]),
 
   hasRemoteAB: false,
 
