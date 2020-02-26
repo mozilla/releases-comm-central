@@ -8,7 +8,6 @@ group-by: chunk-locales
 
 transforms:
     - taskgraph.transforms.name_sanity:transforms
-    - taskgraph.transforms.upstream_artifact_task:transforms
     - taskgraph.transforms.shippable_l10n_signing:transforms
     - taskgraph.transforms.signing:transforms
     - taskgraph.transforms.task:transforms
@@ -16,12 +15,13 @@ transforms:
 
 kind-dependencies:
     - shippable-l10n
-    - shippable-l10n-notarization-part-1
-    - shippable-l10n-notarization-poller
 
-primary-dependency:
-    - shippable-l10n
+only-for-build-platforms:
+    - macosx64-shippable/opt
+    - macosx64-nightly/opt
 
-only-for-attributes:
-    - nightly
-    - shippable
+job-template:
+    treeherder:
+        symbol: BN
+    attributes:
+        shipping_phase: promote

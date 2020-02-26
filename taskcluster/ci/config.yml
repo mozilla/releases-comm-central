@@ -140,12 +140,17 @@ workers:
                     staging: comm-t-signing
         mac-depsigning:
             provisioner: scriptworker-prov-v1
-            implementation: scriptworker-iscript
+            implementation: scriptworker-signing
             os: macosx
             worker-type: tb-depsigning-mac-v1
+        mac-notarization-poller:
+            provisioner: scriptworker-prov-v1
+            implementation: notarization-poller
+            os: macosx
+            worker-type: tb-mac-notarization-poller
         mac-signing:
             provisioner: scriptworker-prov-v1
-            implementation: scriptworker-iscript
+            implementation: scriptworker-signing
             os: macosx
             worker-type:
                 by-release-level:
@@ -192,10 +197,8 @@ workers:
 
 mac-notarization:
     mac-behavior:
-        by-release-type:
-            nightly.*: mac_notarize
-            beta.*: mac_notarize
-            release.*: mac_notarize
+        by-project:
+            comm-(central|beta|esr.*): mac_notarize
             default: mac_sign_and_pkg
     mac-entitlements:
         by-platform:
