@@ -17,6 +17,7 @@ macosx64/debug:
         env:
             # We just use the browser manifest, since we don't need anything different
             TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true
@@ -60,6 +61,7 @@ macosx64/opt:
         env:
             # We just use the browser manifest, since we don't need anything different
             TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true
@@ -108,6 +110,7 @@ macosx64-shippable/opt:
         env:
             # We just use the browser manifest, since we don't need anything different
             TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true

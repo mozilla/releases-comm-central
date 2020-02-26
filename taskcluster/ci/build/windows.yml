@@ -36,6 +36,7 @@ win32/opt:
         max-run-time: 7200
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win32/releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -72,6 +73,7 @@ win32-shippable/opt:
         max-run-time: 10800
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win32/releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -100,6 +102,7 @@ win32/debug:
         max-run-time: 7200
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win32/releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -130,6 +133,7 @@ win64/opt:
         max-run-time: 7200
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -166,6 +170,7 @@ win64-shippable/opt:
         max-run-time: 10800
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -194,6 +199,7 @@ win64/debug:
         max-run-time: 7200
         env:
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]

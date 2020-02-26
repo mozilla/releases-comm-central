@@ -14,6 +14,8 @@ linux64/opt:
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
         max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true
@@ -55,6 +57,8 @@ linux64-shippable/opt:
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
         max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true
@@ -89,6 +93,8 @@ linux64/debug:
     worker:
         docker-image: {in-tree: "debian7-amd64-build"}
         max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true
@@ -125,6 +131,8 @@ linux/opt:
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
         max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true
@@ -166,6 +174,8 @@ linux-shippable/opt:
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
         max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true
@@ -200,6 +210,8 @@ linux/debug:
     worker:
         docker-image: {in-tree: "debian7-i386-build"}
         max-run-time: 7200
+        env:
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         using: mozharness
         comm-checkout: true
