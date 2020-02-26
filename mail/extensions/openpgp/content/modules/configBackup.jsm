@@ -9,9 +9,6 @@ var EXPORTED_SYMBOLS = ["EnigmailConfigBackup"];
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailRules } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/rules.jsm"
-);
 const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 );
@@ -117,12 +114,6 @@ var EnigmailConfigBackup = {
 
     this.forAllIdentitites(getIdentityPrefs);
 
-    // per-recipient rules (aka pgpRules.xml)
-    var rulesFile = EnigmailRules.getRulesFile();
-    if (rulesFile.exists()) {
-      prefObj.rules = EnigmailFiles.readFile(rulesFile);
-    }
-
     let jsonStr = JSON.stringify(prefObj);
 
     // serialize everything to UTF-8 encoded JSON.
@@ -209,11 +200,6 @@ var EnigmailConfigBackup = {
       let am = this.getAccountManager();
       am.saveAccountInfo();
       EnigmailPrefs.savePrefs();
-
-      if ("rules" in prefObj) {
-        EnigmailRules.loadRulesFromString(prefObj.rules);
-        EnigmailRules.saveRulesFile();
-      }
     } catch (ex) {
       EnigmailLog.ERROR(
         "configBackup.jsm: restorePrefs - exception " + ex.toString() + "\n"

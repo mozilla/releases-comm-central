@@ -17,6 +17,9 @@ Services.scriptloader.loadSubScript(
   "UTF-8"
 ); /* global CryptoAPI */
 
+const { EnigmailFiles } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+);
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
@@ -86,9 +89,9 @@ class RNPCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
-  async importKeyBlock(keyBlock) {
+  async importKeyBlock(keyBlock, pubkey, seckey) {
     // TODO: get status results
-    let res = RNP.importKeyBlock(keyBlock);
+    let res = RNP.importKeyBlock(null, null, keyBlock, pubkey, seckey);
     RNP.saveKeyRings();
     return res;
   }
@@ -102,11 +105,10 @@ class RNPCryptoAPI extends CryptoAPI {
    *   - {Number}          exitCode:        result code (0: OK)
    *   - {Array of String) importedKeys:    imported fingerprints
    *   - {String}          errorMsg:        human readable error message
-   *   - {Number}          importSum:       total number of processed keys
-   *   - {Number}          importUnchanged: number of unchanged keys
    */
-  async importKeyFromFile(inputFile) {
-    throw new Error("Not implemented");
+  async importKeyFromFile(win, passCB, inputFile, pubkey, seckey) {
+    var contents = EnigmailFiles.readFile(inputFile);
+    return RNP.importKeyBlock(win, passCB, contents, pubkey, seckey);
   }
 
   /**
@@ -239,8 +241,8 @@ class RNPCryptoAPI extends CryptoAPI {
     return this.decrypt(signed, options);
   }
 
-  async getKeyListFromKeyBlock(keyBlockStr) {
-    return RNP.getKeyListFromKeyBlock(keyBlockStr);
+  async getKeyListFromKeyBlock(keyBlockStr, pubkey, seckey) {
+    return RNP.getKeyListFromKeyBlock(keyBlockStr, pubkey, seckey);
   }
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {

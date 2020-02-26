@@ -80,11 +80,8 @@ var EnigmailKeyRing = {
    * @return keyListObj    - |object| { keyList, keySortList } (see above)
    */
   getAllKeys(win, sortColumn, sortDirection) {
-    console.debug("keyring.getAllKeys");
     if (gKeyListObj.keySortList.length === 0) {
-      console.debug("keyring.getAllKeys - loadkeylist");
       loadKeyList(win, sortColumn, sortDirection);
-      console.debug("keyring.getAllKeys - keymanreloadkeys");
       //getWindows().keyManReloadKeys();
       /* TODO: do we need something similar with TB's future trust behavior?
       if (!gKeyCheckDone) {
@@ -317,17 +314,32 @@ var EnigmailKeyRing = {
     return ret;
   },
 
-  importKeyFromFile(inputFile, errorMsgObj, importedKeysObj) {
+  /**
+   * win: context/parent window
+   * passCB: a callback function that will be called if the user needs
+   *         to enter a passphrase to unlock a secret key.
+   *         For the current API, see passphrasePromptCallback
+   */
+  importKeyFromFile(
+    win,
+    passCB,
+    inputFile,
+    errorMsgObj,
+    importedKeysObj,
+    pubkey,
+    seckey
+  ) {
     EnigmailLog.DEBUG(
       "keyRing.jsm: EnigmailKeyRing.importKeyFromFile: fileName=" +
         inputFile.path +
         "\n"
     );
-
     const cApi = EnigmailCryptoAPI();
-    let res = cApi.sync(cApi.importKeyFromFile(inputFile));
+    let res = cApi.sync(
+      cApi.importKeyFromFile(win, passCB, inputFile, pubkey, seckey)
+    );
     if (importedKeysObj) {
-      importedKeysObj.value = res.importedKeys.join(";");
+      importedKeysObj.keys = res.importedKeys;
     }
 
     if (!res) {
@@ -336,9 +348,8 @@ var EnigmailKeyRing = {
 
     if (res.importedKeys.length > 0) {
       EnigmailKeyRing.updateKeys(res.importedKeys);
-    } else if (res.importSum > res.importUnchanged) {
-      EnigmailKeyRing.clearCache();
     }
+    EnigmailKeyRing.clearCache();
 
     return res.exitCode;
   },
@@ -447,14 +458,14 @@ var EnigmailKeyRing = {
       return "";
     }
 
-    if (id.length > 1) {
+    if (id.includes(" ")) {
       throw new Error(
         "keyRing.jsm: EnigmailKeyRing.extractKey: multiple IDs not yet implemented"
       );
     }
 
     const cApi = EnigmailCryptoAPI();
-    let keyBlock = cApi.sync(cApi.getPublicKey(id[0]));
+    let keyBlock = cApi.sync(cApi.getPublicKey(id));
     if (!keyBlock) {
       errorMsgObj.value = EnigmailLocale.getString("failKeyExtract");
       return "";
@@ -599,7 +610,7 @@ var EnigmailKeyRing = {
     }
 
     const cApi = EnigmailCryptoAPI();
-    cApi.sync(cApi.importKeyBlock(pgpBlock));
+    cApi.sync(cApi.importKeyBlock(pgpBlock, true, false)); // public only
 
     if (!importedKeysObj) {
       importedKeysObj = {};

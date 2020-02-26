@@ -100,9 +100,6 @@ function enigmailKeyManagerLoad() {
   }
 
   gUserList.addEventListener("click", onListClick, true);
-  document
-    .getElementById("bcEnableKey")
-    .setAttribute("label", EnigGetString("keyMan.disableKey"));
   //document.getElementById("pleaseWait").showPopup(gSearchInput, -1, -1, "tooltip", "after_end", "");
   document.getElementById("statusText").value = EnigGetString(
     "keyMan.loadingKeys"
@@ -158,7 +155,7 @@ function reloadKeys() {
   // detect recursion and don't continue if too much recursion
   // this can happen if the key list is empty
   if (i < 4) {
-    buildKeyList(false);
+    buildKeyList(true);
   }
 }
 
@@ -241,22 +238,6 @@ function enigmailKeyMenu() {
     document.getElementById("bcClipbrd").setAttribute("disabled", "true");
   }
 
-  if (keyList.length >= 1) {
-    document.getElementById("bcEnableKey").removeAttribute("disabled");
-    if (
-      gKeyList[keyList[0]].keyUseFor.indexOf("D") > 0 ||
-      gKeyList[keyList[0]].keyTrust.includes(ENIG_KEY_DISABLED)
-    ) {
-      document
-        .getElementById("bcEnableKey")
-        .setAttribute("label", EnigGetString("keyMan.enableKey"));
-    } else {
-      document
-        .getElementById("bcEnableKey")
-        .setAttribute("label", EnigGetString("keyMan.disableKey"));
-    }
-  }
-
   if (keyList.length == 1 && gKeyList[keyList[0]].isOwnerTrustUseful()) {
     document.getElementById("bcSetTrust").removeAttribute("collapsed");
   } else {
@@ -271,7 +252,6 @@ function enigmailKeyMenu() {
   } else {
     if (keyList.length === 0) {
       document.getElementById("bcNoKey").setAttribute("disabled", "true");
-      document.getElementById("bcEnableKey").setAttribute("disabled", "true");
     } else {
       document.getElementById("bcNoKey").removeAttribute("disabled");
     }
@@ -405,10 +385,6 @@ function enigmailDeleteKey() {
   clearKeyCache();
 }
 
-function enigmailEnableKey() {
-  throw new Error("Not implemented");
-}
-
 function enigShowPhoto() {
   var keyList = getSelectedKeys();
   var keyType = "";
@@ -443,11 +419,6 @@ function enigShowSpecificPhoto(uatNumber) {
     gKeyList[keyList[0]].userId,
     uatNumber
   );
-}
-
-function enigmailAddPhoto() {
-  var keyList = getSelectedKeys();
-  keyMgrAddPhoto(gKeyList[keyList[0]].userId, gKeyList[keyList[0]].keyId);
 }
 
 function keyMgrAddPhoto(userId, keyId) {
@@ -1092,30 +1063,6 @@ function enigmailReceiveKeyCb(exitCode, errorMsg, msgBox) {
     );
   }
   return "";
-}
-
-function addToPRRule() {
-  var keyList = getSelectedKeys();
-  if (keyList.length === 0) {
-    EnigmailDialog.info(window, EnigGetString("noKeySelected"));
-    return;
-  }
-
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    return;
-  }
-
-  var inputObj = {
-    keyId: gKeyList[keyList[0]].keyId,
-    userId: gKeyList[keyList[0]].userId,
-  };
-  window.openDialog(
-    "chrome://openpgp/content/ui/enigmailSelectRule.xhtml",
-    "",
-    "dialog,modal,centerscreen",
-    inputObj
-  );
 }
 
 function enigmailImportKeysFromUrl() {

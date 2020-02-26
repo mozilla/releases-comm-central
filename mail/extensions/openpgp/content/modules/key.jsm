@@ -122,7 +122,13 @@ var EnigmailKey = {
    *          - name (the UID of the key)
    *          - state (one of "old" [existing key], "new" [new key], "invalid" [key cannot not be imported])
    */
-  getKeyListFromKeyBlock(keyBlockStr, errorMsgObj, interactive = true) {
+  getKeyListFromKeyBlock(
+    keyBlockStr,
+    errorMsgObj,
+    interactive = true,
+    pubkey,
+    seckey
+  ) {
     EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
 
     const cApi = EnigmailCryptoAPI();
@@ -132,7 +138,9 @@ var EnigmailKey = {
     errorMsgObj.value = "";
 
     try {
-      keyList = cApi.sync(cApi.getKeyListFromKeyBlock(keyBlockStr));
+      keyList = cApi.sync(
+        cApi.getKeyListFromKeyBlock(keyBlockStr, pubkey, seckey)
+      );
     } catch (ex) {
       errorMsgObj.value = ex.toString();
       return [];
@@ -163,9 +171,15 @@ var EnigmailKey = {
    *
    * @return Array (same as for getKeyListFromKeyBlock())
    */
-  getKeyListFromKeyFile(path, errorMsgObj) {
+  getKeyListFromKeyFile(path, errorMsgObj, pubkey, seckey) {
     var contents = EnigmailFiles.readFile(path);
-    return this.getKeyListFromKeyBlock(contents, errorMsgObj);
+    return this.getKeyListFromKeyBlock(
+      contents,
+      errorMsgObj,
+      true,
+      pubkey,
+      seckey
+    );
   },
 
   /**

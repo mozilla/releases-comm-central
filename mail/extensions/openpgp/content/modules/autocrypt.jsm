@@ -38,14 +38,8 @@ const { EnigmailStreams } = ChromeUtils.import(
 const { EnigmailArmor } = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 );
-const { EnigmailRules } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/rules.jsm"
-);
 const { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
-);
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
 );
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
@@ -421,15 +415,6 @@ var EnigmailAutocrypt = {
           rows.push(record.getResultByName("email"));
         }
       );
-
-      for (let i in rows) {
-        let r = EnigmailRules.getRuleByEmail(
-          `${EnigmailConstants.AC_RULE_PREFIX}${rows[i]}`
-        );
-        if (r) {
-          await this.setKeyImported(conn, rows[i], "1");
-        }
-      }
       EnigmailLog.DEBUG(`autocrypt.jsm: updateAllImportedKeys done\n`);
 
       conn.close();
@@ -1051,39 +1036,14 @@ async function updateUser(connection, paramsArr, resultRows, autoCryptEnabled) {
  * @return {Promise<Boolean>} - key updated
  */
 async function updateKeyIfNeeded(email, keydata, fpr, keyType, autocryptState) {
-  let ruleNode = EnigmailRules.getRuleByEmail(
-    EnigmailConstants.AC_RULE_PREFIX + email
+  await EnigmailAutocrypt.applyKeyFromKeydata(
+    atob(keydata),
+    email,
+    autocryptState,
+    keyType
   );
-  if (!ruleNode) {
-    return false;
-  }
 
-  let doImport = false;
-
-  let currentKeyId = ruleNode.getAttribute("keyList");
-  if (`0x${fpr}` === currentKeyId || keyType === "1") {
-    doImport = true;
-  } else {
-    // Gossip keys
-    let keyObj = EnigmailKeyRing.getKeyById(currentKeyId);
-    let encOk = keyObj.getEncryptionValidity().keyValid;
-
-    if (!encOk) {
-      // current key is not valid anymore
-      doImport = true;
-    }
-  }
-
-  if (doImport) {
-    await EnigmailAutocrypt.applyKeyFromKeydata(
-      atob(keydata),
-      email,
-      autocryptState,
-      keyType
-    );
-  }
-
-  return doImport;
+  return true;
 }
 
 /**

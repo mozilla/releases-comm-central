@@ -19,10 +19,34 @@ var EnigmailKeyRing = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 ).EnigmailKeyRing;
 
+
+/**
+ * opens a prompt, asking the user to enter passphrase for given key id
+ * returns: the passphrase if entered (empty string is allowed)
+ * resultFlags.canceled is set to true if the user clicked cancel
+ */
+function passphrasePromptCallback(win, keyId, resultFlags) {
+  let p = {};
+  p.value = "";
+  let dummy = {};
+  if (!Services.prompt.promptPassword(win,
+    "",
+    EnigmailLocale.getString("passphrasePrompt", [keyId]),
+    p,
+    null,
+    dummy)) {
+    resultFlags.canceled = true;
+    return "";
+  }
+
+  resultFlags.canceled = false;
+  return p.value;
+}
+
 /**
  * import OpenPGP keys from file
  */
-function EnigmailCommon_importKeysFromFile() {
+function EnigmailCommon_importKeysFromFile(secret) {
   let inFile = EnigmailDialog.filePicker(
     window,
     EnigmailLocale.getString("importKeyFile"),
@@ -38,7 +62,7 @@ function EnigmailCommon_importKeysFromFile() {
 
   let errorMsgObj = {};
   // preview
-  let preview = EnigmailKey.getKeyListFromKeyFile(inFile, errorMsgObj);
+  let preview = EnigmailKey.getKeyListFromKeyFile(inFile, errorMsgObj, !secret, secret);
 
   if (errorMsgObj.value && errorMsgObj.value.length > 0) {
     EnigmailDialog.alert(window, errorMsgObj.value);
@@ -70,7 +94,8 @@ function EnigmailCommon_importKeysFromFile() {
 
     if (exitStatus) {
       // import
-      let exitCode = EnigmailKeyRing.importKeyFromFile(inFile, errorMsgObj);
+      let resultKeys = {};
+      let exitCode = EnigmailKeyRing.importKeyFromFile(window, passphrasePromptCallback, inFile, errorMsgObj, resultKeys, !secret, secret);
       if (exitCode !== 0) {
         EnigmailDialog.alert(
           window,
@@ -79,10 +104,8 @@ function EnigmailCommon_importKeysFromFile() {
             errorMsgObj.value
         );
       } else {
-        var keyList = preview.map(function(a) {
-          return a.id;
-        });
-        EnigmailDialog.keyImportDlg(window, keyList);
+        console.debug("import final resultKeys: %o", resultKeys.keys);
+        EnigmailDialog.keyImportDlg(window, resultKeys.keys);
         return true;
       }
     }

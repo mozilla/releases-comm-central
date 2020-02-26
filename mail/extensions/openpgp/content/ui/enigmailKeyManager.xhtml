@@ -72,7 +72,6 @@
     <broadcaster id="bcOneKey" disabled="false"/>
     <broadcaster id="bcDeleteKey" disabled="false"/>
     <broadcaster id="bcClipbrd" disabled="false"/>
-    <broadcaster id="bcEnableKey" disabled="false" label=""/>
     <broadcaster id="bcUploadToWkd" disabled="false"/>
   </broadcasterset>
 
@@ -82,10 +81,13 @@
           accesskey="&enigmail.keyMan.fileMenu.accesskey;">
       <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu()">
 
-        <menuitem label="&enigmail.keyMan.importFromFile.label;"
+        <menuitem label="&enigmail.keyMan.importPublicFromFile.label;"
           id="importFromFile"
-          accesskey="&enigmail.keyMan.importFromFile.accesskey;"
-          oncommand="EnigmailCommon_importKeysFromFile()"/>
+          accesskey="&enigmail.keyMan.importPublicFromFile.accesskey;"
+          oncommand="EnigmailCommon_importKeysFromFile(false)"/>
+        <menuitem label="&enigmail.keyMan.importSecretFromFile.label;"
+          id="importFromFile"
+          oncommand="EnigmailCommon_importKeysFromFile(true)"/>
         <menuitem label="&enigmail.keyMan.exportToFile.label;"
           id="exportKey"
           observes="bcNoKey"
@@ -103,20 +105,6 @@
           observes="bcNoKey"
           accesskey="&enigmail.keyMan.createMail.accesskey;"
           oncommand="createNewMail()"/>
-
-        <menuseparator/>
-
-        <menuitem label="&enigmail.keyMan.initiateAcBackup.label;"
-          id="initiateAcBackup"
-          accesskey="&enigmail.keyMan.initiateAcBackup.accesskey;"
-          oncommand="initiateAcKeyTransfer()"/>
-
-        <menuseparator/>
-
-        <menuitem label="&enigmail.adminSmartCard.label;"
-                id="cardData"
-                accesskey="&enigmail.adminSmartCard.accesskey;"
-                oncommand="EngmailCardDetails()"/>
 
         <menuseparator/>
 
@@ -166,10 +154,6 @@
 
         <menuseparator/>
 
-        <menuitem id="enableKey"
-          observes="bcEnableKey"
-          accesskey="&enigmail.keyMan.enableKey.accesskey;"
-          oncommand="enigmailEnableKey()"/>
         <menuitem label="&enigmail.keyMan.revokeKey.label;"
           id="revokeKey"
           observes="bcRevoke"
@@ -202,17 +186,6 @@
                   observes="bcEditKey"
                   accesskey="&enigmail.keyMan.changePwd.accesskey;"
                   oncommand="enigmailChangePwd()"/>
-
-        <menuitem id="addPhoto"
-                  label="&enigmail.keyMan.addPhoto.label;"
-                  observes="bcRevoke"
-                  accesskey="&enigmail.keyMan.addPhoto.accesskey;"
-                  oncommand="enigmailAddPhoto()"/>
-
-        <menuitem id="addToRule"
-                  label="&enigmail.keyMan.addToPRRule.label;"
-                  observes="bcSignKey"
-                  oncommand="addToPRRule()"/>
 
         <menuseparator/>
 
@@ -355,7 +328,6 @@
       <menuseparator/>
 
 
-      <menuitem id="ctxEnableKey" observes="bcEnableKey" oncommand="enigmailEnableKey()"/>
       <menuitem id="ctxRevokeKey" observes="bcRevoke" label="&enigmail.keyMan.revokeKey.label;" oncommand="enigmailRevokeKey()"/>
       <menuitem id="ctxDeleteKey" label="&enigmail.keyMan.delKey.label;" oncommand="enigmailDeleteKey()"/>
 
@@ -365,7 +337,6 @@
       <menuitem id="ctxChangeExpiry" observes="bcEditKey" label="&enigmail.keyMan.changeExpiry.label;" oncommand="enigEditKeyExpiry()"/>
       <menuitem id="ctxChangePwd" observes="bcEditKey" label="&enigmail.keyMan.changePwd.label;" oncommand="enigmailChangePwd()"/>
       <menuitem id="ctxRevokationCert" observes="bcRevoke" label="&enigmail.keyMan.ctxGenRevoke.label;" oncommand="enigCreateRevokeCert()"/>
-      <menuitem id="ctxAddPhoto" observes="bcRevoke" label="&enigmail.keyMan.addPhoto.label;" oncommand="enigmailAddPhoto()"/>
 
       <menuseparator observes="bcEditKey"/>
 

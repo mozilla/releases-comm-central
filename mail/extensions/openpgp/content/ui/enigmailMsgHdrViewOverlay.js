@@ -1159,21 +1159,6 @@ Enigmail.hdrView = {
     EnigmailWindows.openKeyDetails(window, key.keyId, false);
   },
 
-  createRuleFromAddress(emailAddressNode) {
-    if (emailAddressNode) {
-      if (typeof findEmailNodeFromPopupNode == "function") {
-        emailAddressNode = findEmailNodeFromPopupNode(
-          emailAddressNode,
-          "emailAddressPopup"
-        );
-      }
-      EnigmailWindows.createNewRule(
-        window,
-        emailAddressNode.getAttribute("emailAddress")
-      );
-    }
-  },
-
   forgetEncryptedMsgKey() {
     if (Enigmail.hdrView.lastEncryptedMsgKey) {
       EnigmailURIs.forgetEncryptedUri(Enigmail.hdrView.lastEncryptedMsgKey);

@@ -477,7 +477,8 @@
 <!ENTITY enigmail.keyMan.keyserverMenu.accesskey   "K">
 <!ENTITY enigmail.keyMan.generateMenu.accesskey    "G">
 
-<!ENTITY enigmail.keyMan.importFromFile.label      "Import Keys from File">
+<!ENTITY enigmail.keyMan.importPublicFromFile.label      "Import Public Key(s) from File">
+<!ENTITY enigmail.keyMan.importSecretFromFile.label      "Import Secret Keys from File">
 <!ENTITY enigmail.keyMan.importFromServer.label    "Search for Keys">
 <!ENTITY enigmail.keyMan.importFromClipbrd.label   "Import Keys from Clipboard">
 <!ENTITY enigmail.keyMan.importFromUrl.label       "Import Keys from URL">
@@ -497,7 +498,6 @@
 <!ENTITY enigmail.keyMan.initiateAcBackup.label    "Create Autocrypt Setup Message">
 
 <!ENTITY enigmail.keyMan.reload.label              "Reload Key Cache">
-<!ENTITY enigmail.keyMan.addPhoto.label            "Add Photo">
 <!ENTITY enigmail.keyMan.manageUid.label           "Manage User IDs">
 <!ENTITY enigmail.keyMan.changeExpiry.label        "Change Expiration Date">
 <!ENTITY enigmail.keyMan.changePwd.label           "Change Passphrase">
@@ -530,12 +530,11 @@
 <!ENTITY enigmail.keyMan.genRevoke.accesskey         "R">
 <!ENTITY enigmail.keyMan.delKey.accesskey            "D">
 <!ENTITY enigmail.keyMan.revokeKey.accesskey         "R">
-<!ENTITY enigmail.keyMan.importFromFile.accesskey    "I">
+<!ENTITY enigmail.keyMan.importPublicFromFile.accesskey    "I">
 <!ENTITY enigmail.keyMan.exportToFile.accesskey      "E">
 <!ENTITY enigmail.keyMan.importFromServer.accesskey  "S">
 <!ENTITY enigmail.keyMan.uploadToServer.accesskey    "U">
 <!ENTITY enigmail.keyMan.reload.accesskey            "R">
-<!ENTITY enigmail.keyMan.addPhoto.accesskey          "P">
 <!ENTITY enigmail.keyMan.manageUid.accesskey         "M">
 <!ENTITY enigmail.keyMan.changeExpiry.accesskey      "E">
 <!ENTITY enigmail.keyMan.changePwd.accesskey         "P">
@@ -548,7 +547,6 @@
 <!ENTITY enigmail.keyMan.copyToClipbrd.accesskey     "C">
 <!ENTITY enigmail.keyMan.keyDetails.accesskey        "K">
 <!ENTITY enigmail.keyMan.showAllKeys.accesskey       "D">
-<!ENTITY enigmail.keyMan.enableKey.accesskey         "B">
 <!ENTITY enigmail.keyMan.refreshSelKeys.accesskey    "R">
 <!ENTITY enigmail.keyMan.refreshAllKeys.accesskey    "A">
 <!ENTITY enigmail.keyMan.selectAll.accesskey         "A">

@@ -625,6 +625,26 @@ function enableRNPLibJS() {
       rnp_key_handle_t
     ),
 
+    rnp_key_unprotect: librnp.declare(
+      "rnp_key_unprotect",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr
+    ),
+
+    rnp_key_protect: librnp.declare(
+      "rnp_key_protect",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr,
+      ctypes.char.ptr,
+      ctypes.char.ptr,
+      ctypes.char.ptr,
+      ctypes.size_t
+    ),
+
     rnp_op_generate_create: librnp.declare(
       "rnp_op_generate_create",
       abi,
@@ -882,6 +902,45 @@ function enableRNPLibJS() {
     RNP_KEY_EXPORT_PUBLIC: 2,
     RNP_KEY_EXPORT_SECRET: 4,
     RNP_KEY_EXPORT_SUBKEYS: 8,
+
+    RNP_SUCCESS: 0x00000000,
+
+    /* Common error codes */
+    RNP_ERROR_GENERIC: 0x10000000, // 268435456
+    RNP_ERROR_BAD_FORMAT: 0x10000001, // 268435457
+    RNP_ERROR_BAD_PARAMETERS: 0x10000002, // 268435458
+    RNP_ERROR_NOT_IMPLEMENTED: 0x10000003, // 268435459
+    RNP_ERROR_NOT_SUPPORTED: 0x10000004, // 268435460
+    RNP_ERROR_OUT_OF_MEMORY: 0x10000005, // 268435461
+    RNP_ERROR_SHORT_BUFFER: 0x10000006, // 268435462
+    RNP_ERROR_NULL_POINTER: 0x10000007, // 268435463
+
+    /* Storage */
+    RNP_ERROR_ACCESS: 0x11000000, // 285212672
+    RNP_ERROR_READ: 0x11000001, // 285212673
+    RNP_ERROR_WRITE: 0x11000002, // 285212674
+
+    /* Crypto */
+    RNP_ERROR_BAD_STATE: 0x12000000, // 301989888
+    RNP_ERROR_MAC_INVALID: 0x12000001, // 301989889
+    RNP_ERROR_SIGNATURE_INVALID: 0x12000002, // 301989890
+    RNP_ERROR_KEY_GENERATION: 0x12000003, // 301989891
+    RNP_ERROR_BAD_PASSWORD: 0x12000004, // 301989892
+    RNP_ERROR_KEY_NOT_FOUND: 0x12000005, // 301989893
+    RNP_ERROR_NO_SUITABLE_KEY: 0x12000006, // 301989894
+    RNP_ERROR_DECRYPT_FAILED: 0x12000007, // 301989895
+    RNP_ERROR_RNG: 0x12000008, // 301989896
+    RNP_ERROR_SIGNING_FAILED: 0x12000009, // 301989897
+    RNP_ERROR_NO_SIGNATURES_FOUND: 0x1200000a, // 301989898
+
+    RNP_ERROR_SIGNATURE_EXPIRED: 0x1200000b, // 301989899
+
+    /* Parsing */
+    RNP_ERROR_NOT_ENOUGH_DATA: 0x13000000, // 318767104
+    RNP_ERROR_UNKNOWN_TAG: 0x13000001, // 318767105
+    RNP_ERROR_PACKET_NOT_CONSUMED: 0x13000002, // 318767106
+    RNP_ERROR_NO_USERID: 0x13000003, // 318767107
+    RNP_ERROR_EOF: 0x13000004, // 318767108
   };
 }
 

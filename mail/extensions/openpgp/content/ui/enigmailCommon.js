@@ -535,11 +535,6 @@ function EnigDownloadKeys(inputObj, resultObj) {
   return EnigmailWindows.downloadKeys(window, inputObj, resultObj);
 }
 
-// create new PGP Rule
-function EnigNewRule(emailAddress) {
-  return EnigmailWindows.createNewRule(window, emailAddress);
-}
-
 function EnigGetTrustCode(keyObj) {
   return EnigmailTrust.getTrustCode(keyObj);
 }

@@ -22,9 +22,6 @@ const { EnigmailLocale } = ChromeUtils.import(
 const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 );
-const { EnigmailRules } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/rules.jsm"
-);
 const { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
 );
@@ -192,19 +189,6 @@ var EnigmailWindows = {
   },
 
   /**
-   * Display the Per-Recipient Rules editor window
-   *
-   * no return value
-   */
-  openRulesEditor() {
-    EnigmailWindows.openWin(
-      "enigmail:rulesEditor",
-      "chrome://openpgp/content/ui/enigmailRulesEditor.xhtml",
-      "dialog,centerscreen,resizable"
-    );
-  },
-
-  /**
    * Display the OpenPGP key manager window
    *
    * no return value
@@ -339,39 +323,6 @@ var EnigmailWindows = {
       clientType: "thunderbird",
       selectTab,
     });
-  },
-
-  /**
-   * Display the dialog for creating a new per-recipient rule
-   *
-   * @win          - |object| holding the parent window for the dialog
-   * @emailAddress - |string| containing the email address for the rule
-   *
-   * @return       - always true
-   */
-  createNewRule(win, emailAddress) {
-    // make sure the rules database is loaded
-    const enigmailSvc = EnigmailCore.getService(win);
-    if (!enigmailSvc) {
-      return false;
-    }
-
-    // open rule dialog
-    EnigmailRules.getRulesData({});
-
-    const inputObj = {
-      toAddress: "{" + emailAddress + "}",
-      options: "",
-      command: "add",
-    };
-    win.openDialog(
-      "chrome://openpgp/content/ui/enigmailSingleRcptSettings.xhtml",
-      "",
-      "dialog,modal,centerscreen,resizable",
-      inputObj,
-      {}
-    );
-    return true;
   },
 
   /**

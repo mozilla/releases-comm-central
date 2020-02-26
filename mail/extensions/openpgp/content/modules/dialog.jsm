@@ -212,7 +212,7 @@ var EnigmailDialog = {
    * @return:   Boolean - true if OK was pressed / false otherwise
    */
   promptValue(win, mesg, valueObj) {
-    return Services.prompt(
+    return Services.prompt.prompt(
       win,
       EnigmailLocale.getString("enigPrompt"),
       mesg,
