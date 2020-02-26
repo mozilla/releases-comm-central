@@ -4,9 +4,21 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+from taskgraph.util.signed_artifacts import is_notarization_kind
+
 from taskgraph.transforms.base import TransformSequence
 
 transforms = TransformSequence()
+
+
+def check_notarization(dependencies):
+    """
+    Determine whether a signing job is the last step of a notarization
+    by looking at its dependencies.
+    """
+    for dep in dependencies:
+        if is_notarization_kind(dep):
+            return True
 
 
 @transforms.add
@@ -49,11 +61,27 @@ def no_sign_langpacks(config, jobs):
                 if 'autograph_langpack' in artifact.get('formats', []):
                     artifact['formats'].remove('autograph_langpack')
 
-                if 'formats' in artifact:
-                    if not artifact['formats']:  # length zero list is False
+        yield job
+
+
+@transforms.add
+def check_for_no_formats(config, jobs):
+    """
+    Check for signed artifacts without signature formats and remove them to
+    avoid scriptworker errors.
+    Signing jobs that use macOS notarization do not have formats, so keep
+    those.
+    """
+    for job in jobs:
+        if not check_notarization(job['dependencies']):
+            task = job['task']
+            payload = task['payload']
+
+            if 'upstreamArtifacts' in payload:
+                for artifact in payload['upstreamArtifacts']:
+                    if 'formats' in artifact and not artifact['formats']:
                         for remove_path in artifact['paths']:
                             job['release-artifacts'].remove(remove_path)
 
                         payload['upstreamArtifacts'].remove(artifact)
-
         yield job
