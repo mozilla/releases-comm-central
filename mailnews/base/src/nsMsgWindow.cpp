@@ -51,14 +51,6 @@ nsMsgWindow::nsMsgWindow() {
 nsMsgWindow::~nsMsgWindow() { CloseWindow(); }
 
 nsresult nsMsgWindow::Init() {
-  // register ourselves as a content listener with the uri dispatcher service
-  nsresult rv;
-  nsCOMPtr<nsIURILoader> dispatcher = mozilla::components::URILoader::Service();
-  NS_ENSURE_TRUE(dispatcher, NS_ERROR_UNEXPECTED);
-
-  rv = dispatcher->RegisterContentListener(this);
-  if (NS_FAILED(rv)) return rv;
-
   // create Undo/Redo Transaction Manager
   mTransactionManager = new mozilla::TransactionManager();
   return mTransactionManager->SetMaxTransactionCount(-1);
@@ -103,10 +95,6 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell **aDocShell) {
 }
 
 NS_IMETHODIMP nsMsgWindow::CloseWindow() {
-  nsCOMPtr<nsIURILoader> dispatcher = mozilla::components::URILoader::Service();
-  if (dispatcher)  // on shut down it's possible dispatcher will be null.
-    dispatcher->UnRegisterContentListener(this);
-
   mMsgWindowCommands = nullptr;
   mStatusFeedback = nullptr;
 
@@ -405,6 +393,8 @@ NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString &aContentType,
 NS_IMETHODIMP
 nsMsgWindow::IsPreferred(const char *aContentType, char **aDesiredContentType,
                          bool *aCanHandleContent) {
+  // We don't want to handle opening any attachments inside the
+  // message pane, but want to let nsIExternalHelperAppService take care.
   *aCanHandleContent = false;
   return NS_OK;
 }
