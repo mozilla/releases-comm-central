@@ -846,19 +846,13 @@ function getMailToolbox() {
 
 var kOSXDirectoryURI = "moz-abosxdirectory:///";
 var kOSXPrefBase = "ldap_2.servers.osx";
+var MAPI_DIRECTORY_TYPE = 3; // From AddrBookManager.jsm.
 
 function AbOSXAddressBookExists() {
-  // I hate doing it this way - until we redo how we manage address books
-  // I can't think of a better way though.
-
-  // See if the pref exists, if so, then we need to delete the address book
-  var uriPresent =
-    Services.prefs.getStringPref(kOSXPrefBase + ".uri", null) ==
-    kOSXDirectoryURI;
-  var position = Services.prefs.getIntPref(kOSXPrefBase + ".position", 1);
-
-  // Address book exists if the uri is correct and the position is not zero.
-  return uriPresent && position != 0;
+  return (
+    Services.prefs.getIntPref(kOSXPrefBase + ".dirType", 0) ==
+    MAPI_DIRECTORY_TYPE
+  );
 }
 
 function AbShowHideOSXAddressBook() {

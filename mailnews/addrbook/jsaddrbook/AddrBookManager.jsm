@@ -319,10 +319,9 @@ AddrBookManager.prototype = {
           return;
         }
       }
-      throw Cr.NS_ERROR_UNEXPECTED;
     }
 
-    let dir = this.getDirectory(uri);
+    let dir = store.get(uri);
     if (!dir) {
       return;
     }
@@ -331,7 +330,15 @@ AddrBookManager.prototype = {
     fileName = dir.fileName;
 
     Services.prefs.clearUserPref(`${prefName}.description`);
-    Services.prefs.clearUserPref(`${prefName}.dirType`);
+    if (
+      Services.prefs.getIntPref(`${prefName}.dirType`, 0) == MAPI_DIRECTORY_TYPE
+    ) {
+      // The prefs for this directory type are defaults. Setting the dirType
+      // to -1 ensures the directory is ignored.
+      Services.prefs.setIntPref(`${prefName}.dirType`, -1);
+    } else {
+      Services.prefs.clearUserPref(`${prefName}.dirType`);
+    }
     Services.prefs.clearUserPref(`${prefName}.filename`);
     Services.prefs.clearUserPref(`${prefName}.uid`);
     Services.prefs.clearUserPref(`${prefName}.uri`);
