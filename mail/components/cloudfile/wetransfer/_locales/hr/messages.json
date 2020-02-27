@@ -1,6 +1,6 @@
 {
   "extensionDescription": {
-    "message": "Dijelite svoje privitke putem WeTransfer"
+    "message": "Dijeli svoje privitke putem WeTransfer"
   },
   "extensionName": {
     "message": "FileLink za WeTransfer"
@@ -9,9 +9,9 @@
     "message": "WeTransfer"
   },
   "moments_privacyPolicy": {
-    "message": "Politika privatnosti"
+    "message": "Pravila o privatnosti"
   },
   "moments_tagline": {
-    "message": "WeTransfer je najjednostavniji način za slanje vaših datoteka diljem svijeta."
+    "message": "WeTransfer je najjednostavniji način za slanje vlastitih datoteka diljem svijeta."
   }
 }
