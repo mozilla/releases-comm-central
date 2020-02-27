@@ -101,7 +101,7 @@ nsWabAddressBook::nsWabAddressBook(void) : nsAbWinHelper() {
 }
 
 nsWabAddressBook::~nsWabAddressBook(void) {
-  MutexAutoLock guard(*mMutex);
+  StaticMutexAutoLock guard(sMutex);
   FreeWabLibrary();
   MOZ_COUNT_DTOR(nsWabAddressBook);
 }
@@ -110,7 +110,7 @@ BOOL nsWabAddressBook::Initialize(void) {
   if (mAddressBook) {
     return TRUE;
   }
-  MutexAutoLock guard(*mMutex);
+  StaticMutexAutoLock guard(sMutex);
 
   if (!LoadWabLibrary()) {
     PRINTF(("Cannot load library.\n"));

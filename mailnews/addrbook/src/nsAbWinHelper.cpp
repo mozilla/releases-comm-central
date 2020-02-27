@@ -211,8 +211,8 @@ void nsMapiEntryArray::CleanUp(void) {
 
 using namespace mozilla;
 
-uint32_t nsAbWinHelper::mEntryCounter = 0;
-mozilla::StaticAutoPtr<mozilla::Mutex> nsAbWinHelper::mMutex;
+uint32_t nsAbWinHelper::sEntryCounter = 0;
+mozilla::StaticMutex nsAbWinHelper::sMutex;
 // There seems to be a deadlock/auto-destruction issue
 // in MAPI when multiple threads perform init/release
 // operations at the same time. So I've put a mutex
@@ -602,7 +602,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
 
   displayName.ulPropTag = PR_DISPLAY_NAME_W;
   tempName.AssignLiteral("__MailUser__");
-  tempName.AppendInt(mEntryCounter++);
+  tempName.AppendInt(sEntryCounter++);
   const wchar_t* tempNameValue = tempName.get();
   displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);
   mLastError = newEntry->SetProps(1, &displayName, &problems);
@@ -666,7 +666,7 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent,
 
   displayName.ulPropTag = PR_DISPLAY_NAME_W;
   tempName.AssignLiteral("__MailList__");
-  tempName.AppendInt(mEntryCounter++);
+  tempName.AppendInt(sEntryCounter++);
   const wchar_t* tempNameValue = tempName.get();
   displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);
   mLastError = newEntry->SetProps(1, &displayName, &problems);

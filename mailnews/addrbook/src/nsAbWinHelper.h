@@ -9,8 +9,7 @@
 #include <mapix.h>
 
 #include "nsString.h"
-#include "mozilla/Mutex.h"
-#include "mozilla/StaticPtr.h"
+#include "mozilla/StaticMutex.h"
 
 struct nsMapiEntry {
   ULONG mByteCount;
@@ -101,8 +100,8 @@ class nsAbWinHelper {
  protected:
   HRESULT mLastError;
   LPADRBOOK mAddressBook;
-  static uint32_t mEntryCounter;
-  static mozilla::StaticAutoPtr<mozilla::Mutex> mMutex;
+  static uint32_t sEntryCounter;
+  static mozilla::StaticMutex sMutex;
 
   // Retrieve the contents of a container, with an optional restriction
   BOOL GetContents(const nsMapiEntry& aParent, LPSRestriction aRestriction,
