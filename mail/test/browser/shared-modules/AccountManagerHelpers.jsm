@@ -176,37 +176,35 @@ function remove_account(
   let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
   click_account_tree_row(tab, accountRow);
 
-  wh.plan_for_modal_dialog("Mailnews:removeAccount", function(cdc) {
-    // Account removal confirmation dialog. Select what to remove.
-    if (removeAccount) {
-      cdc.click(
-        new elib.Elem(cdc.window.document.getElementById("removeAccount"))
-      );
-    }
-    if (removeData) {
-      cdc.click(
-        new elib.Elem(cdc.window.document.getElementById("removeData"))
-      );
-    }
-
-    cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
-    cdc.waitFor(
-      () =>
-        !cdc.window.document.querySelector("dialog").getButton("accept")
-          .disabled,
-      "Timeout waiting for finish of account removal",
-      5000,
-      100
-    );
-    cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
-  });
-
   account = null;
   // Use the Remove item in the Account actions menu.
   mc.click(content_tab_eid(tab, "accountActionsButton"));
-  mc.click_menus_in_sequence(content_tab_e(tab, "accountActionsDropdown"), [
-    { id: "accountActionsDropdownRemove" },
-  ]);
-  wh.wait_for_modal_dialog("Mailnews:removeAccount");
-  // TODO: For unknown reason this also closes the whole account manager.
+  mc.click(content_tab_eid(tab, "accountActionsDropdownRemove"));
+
+  let cdc = wh.wait_for_frame_load(
+    tab.browser.contentDocument
+      .getElementById("dialogOverlay-0")
+      .querySelector("browser"),
+    "chrome://messenger/content/removeAccount.xhtml"
+  );
+
+  // Account removal confirmation dialog. Select what to remove.
+  if (removeAccount) {
+    cdc.click(
+      new elib.Elem(cdc.window.document.getElementById("removeAccount"))
+    );
+  }
+  if (removeData) {
+    cdc.click(new elib.Elem(cdc.window.document.getElementById("removeData")));
+  }
+
+  cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
+  cdc.waitFor(
+    () =>
+      !cdc.window.document.querySelector("dialog").getButton("accept").disabled,
+    "Timeout waiting for finish of account removal",
+    5000,
+    100
+  );
+  cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
 }
