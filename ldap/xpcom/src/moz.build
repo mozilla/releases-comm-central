@@ -22,13 +22,16 @@ if CONFIG['MOZ_PREF_EXTENSIONS']:
     SOURCES += ['nsLDAPSyncQuery.cpp']
     DEFINES['MOZ_PREF_EXTENSIONS'] = True
 
-EXTRA_COMPONENTS += [
-    'ldapComponents.manifest',
-    'nsLDAPProtocolHandler.js',
-]
-
 USE_LIBS += [
     'ldapsdks',
+]
+
+EXTRA_JS_MODULES += [
+  'LDAPProtocolHandler.jsm',
+]
+
+XPCOM_MANIFESTS += [
+  'components.conf',
 ]
 
 Library('mozldap')

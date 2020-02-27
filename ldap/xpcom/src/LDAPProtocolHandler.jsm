@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
+var EXPORTED_SYMBOLS = ["LDAPProtocolHandler", "LDAPSProtocolHandler"];
 
-const kNetworkProtocolCIDPrefix = "@mozilla.org/network/protocol;1?name=";
 const nsIProtocolHandler = Ci.nsIProtocolHandler;
 
 function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
@@ -40,23 +37,18 @@ function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
   };
 }
 
-function nsLDAPProtocolHandler() {}
+function LDAPProtocolHandler() {}
 
-nsLDAPProtocolHandler.prototype = makeProtocolHandler(
+LDAPProtocolHandler.prototype = makeProtocolHandler(
   "{b3de9249-b0e5-4c12-8d91-c9a434fd80f5}",
   "ldap",
   389
 );
 
-function nsLDAPSProtocolHandler() {}
+function LDAPSProtocolHandler() {}
 
-nsLDAPSProtocolHandler.prototype = makeProtocolHandler(
+LDAPSProtocolHandler.prototype = makeProtocolHandler(
   "{c85a5ef2-9c56-445f-b029-76889f2dd29b}",
   "ldaps",
   636
 );
-
-const NSGetFactory = XPCOMUtils.generateNSGetFactory([
-  nsLDAPProtocolHandler,
-  nsLDAPSProtocolHandler,
-]);
