@@ -45,8 +45,8 @@ var calendarTabMonitor = {
     } else if (window.calItemSaveControls) {
       // we need to reset the labels of the menu controls for saving if we
       // are not switching to an item tab and displayed an item tab before
-      let saveMenu = document.getElementById("ltnSave");
-      let saveandcloseMenu = document.getElementById("ltnSaveAndClose");
+      let saveMenu = document.getElementById("calendar-save-menuitem");
+      let saveandcloseMenu = document.getElementById("calendar-save-and-close-menuitem");
       saveMenu.label = window.calItemSaveControls.saveMenu.label;
       saveandcloseMenu.label = window.calItemSaveControls.saveandcloseMenu.label;
     }

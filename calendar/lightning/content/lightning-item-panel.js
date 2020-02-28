@@ -1098,10 +1098,11 @@ function updateSaveControls(aSendNotSave) {
   let saveBtn = document.getElementById("button-save");
   let saveandcloseBtn = document.getElementById("button-saveandclose");
   let saveMenu =
-    document.getElementById("item-save-menuitem") || document.getElementById("ltnSave");
+    document.getElementById("item-save-menuitem") ||
+    document.getElementById("calendar-save-menuitem");
   let saveandcloseMenu =
     document.getElementById("item-saveandclose-menuitem") ||
-    document.getElementById("ltnSaveAndClose");
+    document.getElementById("calendar-save-and-close-menuitem");
 
   // we store the initial label and tooltip values to be able to reset later
   if (!window.calItemSaveControls) {
