@@ -5,6 +5,7 @@
 loader: taskgraph.loader.transform:loader
 
 kind-dependencies:
+    - fetch
     - toolchain
     - thirdparty
 
@@ -19,6 +20,7 @@ jobs-from:
     - linux.yml
     - macosx.yml
     - windows.yml
+    - windows-cross.yml
 
 job-defaults:
     when:

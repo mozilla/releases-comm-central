@@ -16,6 +16,7 @@ reference-jobs:
     - debian7-i386-raw
     - debian7-packages
     - debian7-raw
+    - debian9-amd64-build
     - debian9-base
     - debian9-packages
     - debian9-raw
