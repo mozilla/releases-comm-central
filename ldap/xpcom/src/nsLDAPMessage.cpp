@@ -15,6 +15,7 @@
 #include "nsILDAPErrors.h"
 #include "nsIClassInfoImpl.h"
 #include "nsLDAPUtils.h"
+#include "mozilla/Utf8.h"
 
 NS_IMPL_CLASSINFO(nsLDAPMessage, NULL, nsIClassInfo::THREADSAFE,
                   NS_LDAPMESSAGE_CID)
