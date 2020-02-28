@@ -14,7 +14,7 @@ MIDL_GENERATED_FILES = \
 $(MIDL_GENERATED_FILES): done_gen ;
 
 done_gen: $(srcdir)/msgMapi.idl
-	$(MIDL) $(MIDL_FLAGS) -I $(srcdir) -Oicf $(srcdir)/msgMapi.idl
+	$(call WINEWRAP,$(MIDL)) $(MIDL_FLAGS) -I $(srcdir_rel) -Oicf $(srcdir_rel)/msgMapi.idl
 	touch $@
 
 export:: done_gen

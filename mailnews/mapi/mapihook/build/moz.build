@@ -25,7 +25,7 @@ GENERATED_FILES += [
 for var in ('REGISTER_PROXY_DLL', 'UNICODE', '_UNICODE'):
     DEFINES[var] = True
 
-DEFFILE = SRCDIR + '/MapiProxy.def'
+DEFFILE = 'MapiProxy.def'
 
 # The Windows MIDL code generator creates things like:
 #

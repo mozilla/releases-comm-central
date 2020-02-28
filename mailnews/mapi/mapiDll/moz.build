@@ -19,4 +19,4 @@ OS_LIBS += [
 DEFINES['UNICODE'] = True
 DEFINES['_UNICODE'] = True
 
-DEFFILE = SRCDIR + '/Mapi32.def'
+DEFFILE = 'Mapi32.def'
