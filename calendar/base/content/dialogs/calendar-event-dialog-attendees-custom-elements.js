@@ -531,7 +531,7 @@
      */
     set ratio(val) {
       let rowcount = this.getRowCount();
-      this.scrollToIndex(Math.floor(rowcount * val));
+      this.ensureElementIsVisible(this.getItemAtIndex(Math.floor(rowcount * val)), true);
       return val;
     }
 
@@ -2662,7 +2662,7 @@
      * @returns {Number}        Element index
      */
     set firstVisibleRow(val) {
-      this.scrollToIndex(val);
+      this.ensureElementIsVisible(this.getItemAtIndex(val), true);
       return val;
     }
 
@@ -2683,7 +2683,7 @@
      */
     set ratio(val) {
       let rowcount = this.getRowCount();
-      this.scrollToIndex(Math.floor(rowcount * val));
+      this.ensureElementIsVisible(this.getItemAtIndex(Math.floor(rowcount * val)), true);
       return val;
     }
 

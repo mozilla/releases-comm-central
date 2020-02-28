@@ -865,8 +865,11 @@ function updateViewPosition(firstVisibleRowIndex) {
 
   // Restore to the extent possible the scroll position.
   if (firstVisibleRowIndex && gFilterListbox.itemCount) {
-    gFilterListbox.scrollToIndex(
-      Math.min(firstVisibleRowIndex, gFilterListbox.itemCount - 1)
+    gFilterListbox.ensureElementIsVisible(
+      gFilterListbox.getItemAtIndex(
+        Math.min(firstVisibleRowIndex, gFilterListbox.itemCount - 1)
+      ),
+      true
     );
   }
 
