@@ -4,10 +4,12 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-views.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-attendees.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-event-dialog.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-event-dialog-attendees.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/datetimepickers.css"?>
 
 <!DOCTYPE window [
@@ -15,142 +17,57 @@
   <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %dtd2;
 ]>
 
-<window title="&invite.title.label;"
+<window id="calendar-event-dialog-attendees-v2"
+        title="&invite.title.label;"
         windowtype="Calendar:EventDialog:Attendees"
-        onload="onLoad()"
         height="500"
         persist="screenX screenY height width"
         orient="vertical"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog id="calendar-event-dialog-attendees-v2"
-        defaultButton="none">
+<dialog defaultButton="none">
 
   <!-- Javascript includes -->
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://calendar/content/calendar-event-dialog-attendees-custom-elements.js"/>
   <script src="chrome://calendar/content/calendar-event-dialog-attendees.js"/>
-  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <script src="chrome://calendar/content/calendar-statusbar.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
 
   <hbox align="center" pack="end">
     <spacer flex="1"/>
-    <label value="&event.freebusy.suggest.slot;"/>
-    <button id="previous-slot"
-            label="&event.freebusy.button.previous.slot;"
-            class="left-icon"
-            oncommand="onPreviousSlot();"/>
-    <button id="next-slot"
-            label="&event.freebusy.button.next.slot;"
-            class="right-icon"
-            oncommand="onNextSlot();"/>
-    <spacer style="width: 10em"/>
     <label value="&event.freebusy.zoom;" control="zoom-menulist"/>
     <toolbarbutton id="zoom-out-button"
-                   class="zoom-out-icon"
-                   oncommand="zoomWithButtons(true);"/>
-    <menulist id="zoom-menulist"
-              oncommand="setZoomFactor(this.value);"
-              persist="value">
-      <menupopup>
-        <menuitem label="400%" value="25"/>
-        <menuitem label="200%" value="50"/>
-        <menuitem label="100%" value="100"/>
-        <menuitem label="50%" value="200"/>
-        <menuitem label="25%" value="400"/>
-      </menupopup>
-    </menulist>
+                   class="zoom-out-icon"/>
     <toolbarbutton id="zoom-in-button"
-                   class="zoom-in-icon"
-                   oncommand="zoomWithButtons(false);"/>
+                   class="zoom-in-icon"/>
   </hbox>
-  <hbox flex="1">
-    <vbox id="attendees-container" flex="1" width="250" persist="width">
-      <box class="attendee-spacer-top"/>
-      <calendar-event-attendees-list flex="1" id="attendees-list" class="listbox-noborder" orient="vertical">
-        <richlistitem class="addressingWidgetItem" allowevents="true">
-          <hbox class="addressingWidgetCell" width="27" align="center" pack="center">
-            <image class="status-icon"/>
-          </hbox>
-          <hbox class="addressingWidgetCell" width="16">
-            <image class="usertype-icon"/>
-          </hbox>
-          <hbox class="addressingWidgetCell" flex="1" role="combobox">
-            <html:input is="autocomplete-input" id="attendeesInput"
-                        class="plain textbox-addressingWidget uri-element"
-                        autocompletesearch="addrbook ldap"
-                        autocompletesearchparam="{}"
-                        timeout="300"
-                        maxrows="4"
-                        completedefaultindex="true"
-                        forcecomplete="true"
-                        completeselectedindex="true"
-                        minresultsforpopup="1"
-                        onblur="onAttendeesInputBlur(this);"
-                        ignoreblurwhilesearching="true"
-                        oninput="this.setAttribute('dirty', 'true');"
-                        onkeypress="onAttendeesInputKeyPress(event, this);"/>
-          </hbox>
-        </richlistitem>
-      </calendar-event-attendees-list>
-      <box class="attendee-spacer-bottom"/>
+  <hbox id="outer"
+        flex="1">
+    <vbox width="250">
+      <box id="spacer"></box>
+      <vbox id="attendee-list" flex="1"></vbox>
     </vbox>
-    <splitter id="splitter"/>
-    <vbox id="freebusy-container" width="750" persist="width">
-      <stack flex="1">
-        <vbox flex="1">
-          <calendar-event-freebusy-timebar id="timebar"
-                                           class="listbox-noborder"
-                                           seltype="multiple"
-                                           rows="1"
-                                           disabled="true"
-                                           range="16">
-            <richlistitem class="freebusy-listitem"
-                          allowevents="true">
-              <hbox flex="1">
-                <calendar-event-scroll-container flex="1">
-                  <calendar-event-freebusy-day/>
-                </calendar-event-scroll-container>
-              </hbox>
-            </richlistitem>
-          </calendar-event-freebusy-timebar>
-          <calendar-event-freebusy-grid id="freebusy-grid"
-                                        flex="1"
-                                        orient="vertical"
-                                        range="16"
-                                        class="listbox-noborder"
-                                        seltype="multiple"
-                                        disabled="true">
-            <richlistitem class="addressingWidgetItem"
-                          allowevents="true">
-              <hbox class="addressingWidgetCell">
-                <calendar-event-freebusy-row dirty="true"/>
-              </hbox>
-            </richlistitem>
-          </calendar-event-freebusy-grid>
-        </vbox>
-        <calendar-event-selection-bar id="selection-bar"
-                                      range="16"/>
-      </stack>
-      <scrollbar orient="horizontal"
-                 id="horizontal-scrollbar"
-                 maxpos="100"/>
-    </vbox>
-    <vbox id="vertical-scrollbar-box"
-          collapsed="true">
-      <box class="attendee-spacer-top"/>
-      <scrollbar orient="vertical"
-                 flex="1"
-                 id="vertical-scrollbar"
-                 maxpos="100"/>
-      <box class="attendee-spacer-bottom"/>
+    <splitter/>
+    <vbox flex="1">
+      <box id="day-header-outer">
+        <stack>
+          <hbox id="day-header-inner"></hbox>
+          <html:div id="event-bar-top" draggable="true"></html:div>
+        </stack>
+      </box>
+      <vbox id="freebusy-grid"
+            flex="1">
+        <stack>
+          <html:div id="freebusy-grid-background"></html:div>
+          <html:div id="freebusy-grid-inner"></html:div>
+          <html:div id="event-bar-bottom" draggable="true"></html:div>
+        </stack>
+      </vbox>
     </vbox>
   </hbox>
-  <hbox flex="1">
+  <hbox>
     <hbox flex="1">
       <hbox flex="1">
         <table xmlns="http://www.w3.org/1999/xhtml">
@@ -163,41 +80,37 @@
             <td>&event.attendee.role.optional;</td>
           </tr>
           <tr>
-            <td><xul:image class="role-icon" role="CHAIR"/></td>
-            <td>&event.attendee.role.chair;</td>
-          </tr>
-          <tr>
             <td><xul:image class="role-icon" role="NON-PARTICIPANT"/></td>
             <td>&event.attendee.role.nonparticipant;</td>
+          </tr>
+          <tr>
+            <td><xul:image class="role-icon" role="CHAIR"/></td>
+            <td>&event.attendee.role.chair;</td>
           </tr>
         </table>
       </hbox>
       <hbox flex="1">
         <table xmlns="http://www.w3.org/1999/xhtml">
           <tr>
-            <td><xul:image class="usertype-icon" cutype="INDIVIDUAL"/></td>
+            <td><xul:image class="usertype-icon" usertype="INDIVIDUAL"/></td>
             <td>&event.attendee.usertype.individual;</td>
           </tr>
           <tr>
-            <td><xul:image class="usertype-icon" cutype="GROUP"/></td>
+            <td><xul:image class="usertype-icon" usertype="GROUP"/></td>
             <td>&event.attendee.usertype.group;</td>
           </tr>
           <tr>
-            <td><xul:image class="usertype-icon" cutype="RESOURCE"/></td>
+            <td><xul:image class="usertype-icon" usertype="RESOURCE"/></td>
             <td>&event.attendee.usertype.resource;</td>
           </tr>
           <tr>
-            <td><xul:image class="usertype-icon" cutype="ROOM"/></td>
+            <td><xul:image class="usertype-icon" usertype="ROOM"/></td>
             <td>&event.attendee.usertype.room;</td>
           </tr>
         </table>
       </hbox>
       <hbox flex="1">
         <table xmlns="http://www.w3.org/1999/xhtml">
-          <tr>
-            <td><xul:box class="legend" status="FREE"/></td>
-            <td>&event.freebusy.legend.free;</td>
-          </tr>
           <tr>
             <td><xul:box class="legend" status="BUSY_TENTATIVE"/></td>
             <td>&event.freebusy.legend.busy_tentative;</td>
@@ -223,39 +136,35 @@
           <td></td>
           <td>
             <xul:checkbox id="all-day"
-                          oncommand="changeAllDay();"
                           label="&event.alldayevent.label;"/>
           </td>
         </tr>
         <tr>
           <td>&newevent.from.label;</td>
           <td>
-            <xul:datetimepicker id="event-starttime"
-                                onchange="updateStartTime();"/>
+            <xul:datetimepicker id="event-starttime"/>
           </td>
-          <td id="timezone-starttime"
-              class="text-link"
-              collapsed="true"
-              hyperlink="true"
-              onclick="editStartTimezone()">
+          <td id="timezone-starttime-cell"
+              hidden="true">
+            <xul:label id="timezone-starttime"
+                       class="text-link"
+                       hyperlink="true"/>
           </td>
         </tr>
         <tr>
           <td>&newevent.to.label;</td>
           <td>
-            <xul:datetimepicker id="event-endtime"
-                                onchange="updateEndTime();"/>
+            <xul:datetimepicker id="event-endtime"/>
           </td>
-          <td id="timezone-endtime"
-              class="text-link"
-              collapsed="true"
-              hyperlink="true"
-              onclick="editEndTimezone()">
+          <td id="timezone-endtime-cell"
+              hidden="true">
+            <xul:label id="timezone-endtime"
+                       class="text-link"
+                       hyperlink="true"/>
           </td>
         </tr>
       </table>
     </vbox>
   </hbox>
-  <separator class="groove"/>
 </dialog>
 </window>

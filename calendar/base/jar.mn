@@ -46,7 +46,7 @@ calendar.jar:
     content/calendar-dialog-utils.js                            (content/dialogs/calendar-dialog-utils.js)
     content/calendar-error-prompt.xhtml                         (content/dialogs/calendar-error-prompt.xhtml)
     content/calendar-error-prompt.js                            (content/dialogs/calendar-error-prompt.js)
-    content/calendar-event-dialog-attendees-custom-elements.js  (content/dialogs/calendar-event-dialog-attendees-custom-elements.js)
+    content/calendar-event-dialog-attendees.css                 (content/dialogs/calendar-event-dialog-attendees.css)
     content/calendar-event-dialog-attendees.js                  (content/dialogs/calendar-event-dialog-attendees.js)
     content/calendar-event-dialog-attendees.xhtml               (content/dialogs/calendar-event-dialog-attendees.xhtml)
     content/calendar-event-dialog-recurrence.js                 (content/dialogs/calendar-event-dialog-recurrence.js)

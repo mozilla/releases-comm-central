@@ -519,13 +519,9 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
           await sleep(attendeesWindow);
           let attendeesDocument = attendeesWindow.document;
 
-          // As starting point is always the last entered Attendee, we have
-          // to advance to not overwrite it.
           await sleep(attendeesWindow);
-          Assert.equal(attendeesDocument.activeElement.getAttribute("is"), "autocomplete-input");
-          synthesizeKey("VK_TAB", {}, attendeesWindow);
-          Assert.equal(attendeesDocument.activeElement.getAttribute("is"), "autocomplete-input");
-          Assert.equal(attendeesDocument.activeElement.getAttribute("value"), null);
+          Assert.equal(attendeesDocument.activeElement.localName, "input");
+          Assert.equal(attendeesDocument.activeElement.value, "");
           sendString(attendee, attendeesWindow);
           synthesizeMouseAtCenter(
             attendeesDocument.querySelector("dialog").getButton("accept"),

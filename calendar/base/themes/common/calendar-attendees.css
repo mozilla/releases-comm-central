@@ -115,27 +115,6 @@ html|span.ac-emphasize-text {
   font-weight: bold;
 }
 
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url,
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
-  display: -moz-box;
-}
-
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-url {
-  -moz-box-ordinal-group: 1;
-}
-
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-separator {
-  -moz-box-ordinal-group: 2;
-}
-
-.autocomplete-richlistitem:not([ac-comment=""]) > .ac-title {
-  -moz-box-ordinal-group: 3;
-}
-
-.ac-url-text {
-  max-width: unset !important;
-}
-
 /* the following will get obsolete once porting to new itip icons is complete */
 
 .status-icon > .menu-iconic-left,
@@ -221,34 +200,34 @@ html|span.ac-emphasize-text {
 }
 
 .usertype-icon,
-.usertype-icon[cutype="INDIVIDUAL"] {
+.usertype-icon[usertype="INDIVIDUAL"] {
     margin: 0 3px;
     list-style-image: url(chrome://calendar/skin/shared/attendee-icons.png);
     -moz-image-region: rect(0px 16px 16px 0px);
 }
 .usertype-icon[disabled="true"],
-.usertype-icon[cutype="INDIVIDUAL"][disabled="true"] {
+.usertype-icon[usertype="INDIVIDUAL"][disabled="true"] {
     -moz-image-region: rect(16px 16px 32px 0px);
 }
 
-.usertype-icon[cutype="GROUP"] {
+.usertype-icon[usertype="GROUP"] {
     -moz-image-region: rect(0px 32px 16px 16px);
 }
-.usertype-icon[cutype="GROUP"][disabled="true"] {
+.usertype-icon[usertype="GROUP"][disabled="true"] {
     -moz-image-region: rect(16px 32px 32px 16px);
 }
 
-.usertype-icon[cutype="RESOURCE"] {
+.usertype-icon[usertype="RESOURCE"] {
     -moz-image-region: rect(0px 48px 16px 32px);
 }
-.usertype-icon[cutype="RESOURCE"][disabled="true"] {
+.usertype-icon[usertype="RESOURCE"][disabled="true"] {
     -moz-image-region: rect(16px 48px 32px 32px);
 }
 
-.usertype-icon[cutype="ROOM"] {
+.usertype-icon[usertype="ROOM"] {
     -moz-image-region: rect(0px 64px 16px 48px);
 }
-.usertype-icon[cutype="ROOM"][disabled="true"] {
+.usertype-icon[usertype="ROOM"][disabled="true"] {
     -moz-image-region: rect(16px 64px 32px 48px);
 }
 

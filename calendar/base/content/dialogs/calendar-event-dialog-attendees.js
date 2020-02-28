@@ -1,1121 +1,855 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported onLoad, onAccept, onCancel, zoomWithButtons, updateStartTime,
- *          endWidget, updateEndTime, editStartTimezone, editEndTimezone,
- *          changeAllDay, onNextSlot, onPreviousSlot, onFreebusyTimebarInit,
- *          setFreebusyTimebarTime, onAttendeesInputKeyPress, onAttendeesInputBlur
- */
+/* global MozXULElement */
+/* import-globals-from ../calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-var gStartDate = null;
-var gEndDate = null;
-var gStartTimezone = null;
-var gEndTimezone = null;
-var gDuration = null;
-var gStartHour = 0;
-var gEndHour = 24;
-var gIsReadOnly = false;
-var gIsInvitation = false;
-var gIgnoreUpdate = true;
-var gDisplayTimezone = true;
-var gUndoStack = [];
-var gForce24Hours = false;
-var gZoomFactor = 100;
+var freeBusyService = cal.getFreeBusyService();
+var timezoneService = cal.getTimezoneService();
 
-/**
- * Sets up the attendee dialog
- */
-function onLoad() {
-  // set calendar-event-freebusy-timebar date and time properties
-  setFreebusyTimebarTime();
+var readOnly = false;
 
-  // set up some calendar-event-freebusy-timebar properties
-  onFreebusyTimebarInit();
+// The UI elements in this dialog. Initialised in the DOMContentLoaded handler.
+var attendeeList;
+var dayHeaderInner;
+var dayHeaderOuter;
+var freebusyGrid;
+var freebusyGridBackground;
+var freebusyGridInner;
 
-  onCalendarEventAttendeesListLoad();
+// displayStartTime is midnight before the first displayed date, in the default timezone.
+// displayEndTime is midnight after the last displayed date, in the default timezone.
+// Initialised in the load event handler.
+var displayStartTime;
+var displayEndTime;
 
-  // first of all, attach all event handlers
-  window.addEventListener("resize", onResize, true);
-  window.addEventListener("rowchange", onRowChange, true);
-  window.addEventListener("DOMAttrModified", onAttrModified, true);
-  window.addEventListener("timebar", onTimebar, true);
-  window.addEventListener("timechange", onTimeChange, true);
-
-  // As long as DOMMouseScroll is still implemented, we need to keep it
-  // around to make sure scrolling is blocked.
-  window.addEventListener("wheel", onMouseScroll, true);
-  window.addEventListener("DOMMouseScroll", onMouseScroll, true);
-
-  let args = window.arguments[0];
-  let startTime = args.startTime;
-  let endTime = args.endTime;
-  let calendar = args.calendar;
-
-  gDisplayTimezone = args.displayTimezone;
-
-  onChangeCalendar(calendar);
-
-  let zoom = document.getElementById("zoom-menulist");
-  let zoomOut = document.getElementById("zoom-out-button");
-  let zoomIn = document.getElementById("zoom-in-button");
-
-  // Make sure zoom factor is set up correctly (from persisted value)
-  setZoomFactor(zoom.value);
-  if (gZoomFactor == 100) {
-    // if zoom factor was not changed, make sure it is applied at least once
-    applyCurrentZoomFactor();
-  }
-
-  initTimeRange();
-
-  // Check if an all-day event has been passed in (to adapt endDate).
-  if (startTime.isDate) {
-    startTime = startTime.clone();
-    endTime = endTime.clone();
-
-    endTime.day--;
-
-    // for all-day events we expand to 24hrs, set zoom-factor to 25%
-    // and disable the zoom-control.
-    setForce24Hours(true);
-    zoom.value = "400";
-    zoom.setAttribute("disabled", "true");
-    zoomOut.setAttribute("disabled", "true");
-    zoomIn.setAttribute("disabled", "true");
-    setZoomFactor(zoom.value);
-  }
-
-  loadDateTime(startTime, endTime);
-  propagateDateTime();
-  onResize();
-  // Set the scroll bar at where the event is
-  scrollToCurrentTime();
-  updateButtons();
-
-  // attach an observer to get notified of changes
-  // that are relevant to this dialog.
-  let prefObserver = {
-    observe(aSubject, aTopic, aPrefName) {
-      switch (aPrefName) {
-        case "calendar.view.daystarthour":
-        case "calendar.view.dayendhour":
-          initTimeRange();
-          propagateDateTime();
-          break;
-      }
+var zoom = {
+  zoomInButton: null,
+  zoomOutButton: null,
+  levels: [
+    {
+      columnCount: 6,
+      columnDuration: cal.createDuration("PT4H"),
+      multiplier: 300 / 24 / 3600,
     },
-  };
-  Services.prefs.addObserver("calendar.", prefObserver);
-  window.addEventListener("unload", () => {
-    Services.prefs.removeObserver("calendar.", prefObserver);
-  });
+    {
+      columnCount: 12,
+      columnDuration: cal.createDuration("PT2H"),
+      multiplier: 600 / 24 / 3600,
+    },
+    {
+      columnCount: 24,
+      columnDuration: cal.createDuration("PT1H"),
+      multiplier: 1200 / 24 / 3600,
+    },
+    {
+      columnCount: 48,
+      columnDuration: cal.createDuration("PT30M"),
+      multiplier: 2400 / 24 / 3600,
+    },
+  ],
+  currentLevel: 0,
 
-  opener.setCursor("auto");
-  self.focus();
-}
+  init() {
+    this.zoomInButton = document.getElementById("zoom-in-button");
+    this.zoomOutButton = document.getElementById("zoom-out-button");
 
-/**
- * This function should be called when the accept button was pressed on the
- * attendee dialog. Calls the accept function specified in the window arguments.
- */
-document.addEventListener("dialogaccept", () => {
-  let attendees = document.getElementById("attendees-list");
-  window.arguments[0].onOk(
-    attendees.attendees,
-    attendees.organizer,
-    gStartDate.getInTimezone(gStartTimezone),
-    gEndDate.getInTimezone(gEndTimezone)
-  );
-});
+    this.zoomInButton.addEventListener("command", () => this.level++);
+    this.zoomOutButton.addEventListener("command", () => this.level--);
+  },
+  get level() {
+    return this.currentLevel;
+  },
+  set level(newZoomLevel) {
+    if (newZoomLevel < 0) {
+      newZoomLevel = 0;
+    } else if (newZoomLevel >= this.levels.length) {
+      newZoomLevel = this.levels.length - 1;
+    }
+    this.zoomInButton.disabled = newZoomLevel == this.levels.length - 1;
+    this.zoomOutButton.disabled = newZoomLevel == 0;
+    if (newZoomLevel == this.currentLevel) {
+      return;
+    }
+    this.currentLevel = newZoomLevel;
+    displayEndTime = displayStartTime.clone();
 
-/**
- * Function called when zoom buttons (+/-) are clicked.
- *
- * @param aZoomOut      true -> zoom out; false -> zoom in.
- */
-function zoomWithButtons(aZoomOut) {
-  let zoom = document.getElementById("zoom-menulist");
-  if (aZoomOut && zoom.selectedIndex < 4) {
-    zoom.selectedIndex++;
-  } else if (!aZoomOut && zoom.selectedIndex > 0) {
-    zoom.selectedIndex--;
-  }
-  setZoomFactor(zoom.value);
-}
-
-/**
- * Loads the passed start and end dates, fills global variables that give
- * information about the state of the dialog.
- *
- * @param aStartDate        The date/time the grid should start at.
- * @param aEndDate          The date/time the grid should end at.
- */
-function loadDateTime(aStartDate, aEndDate) {
-  gDuration = aEndDate.subtractDate(aStartDate);
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
-  gStartTimezone = aStartDate.timezone;
-  gEndTimezone = aEndDate.timezone;
-  gStartDate = aStartDate.getInTimezone(kDefaultTimezone);
-  gEndDate = aEndDate.getInTimezone(kDefaultTimezone);
-  gStartDate.makeImmutable();
-  gEndDate.makeImmutable();
-}
-
-/**
- * Sets up the time grid using the global start and end dates.
- */
-function propagateDateTime() {
-  // Fill the controls
-  updateDateTime();
-
-  // Tell the timebar about the new start/enddate
-  let timebar = document.getElementById("timebar");
-  timebar.startDate = gStartDate;
-  timebar.endDate = gEndDate;
-  timebar.refresh();
-
-  // Tell the selection-bar about the new start/enddate
-  let selectionbar = document.getElementById("selection-bar");
-  selectionbar.startDate = gStartDate;
-  selectionbar.endDate = gEndDate;
-  selectionbar.update();
-
-  // Tell the freebusy grid about the new start/enddate
-  let grid = document.getElementById("freebusy-grid");
-
-  let refresh =
-    grid.startDate == null ||
-    grid.startDate.compare(gStartDate) != 0 ||
-    grid.endDate == null ||
-    grid.endDate.compare(gEndDate) != 0;
-  grid.startDate = gStartDate;
-  grid.endDate = gEndDate;
-  if (refresh) {
-    grid.forceRefresh();
-  }
-
-  // Expand to 24hrs if the new range is outside of the default range.
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
-  let startTime = gStartDate.getInTimezone(kDefaultTimezone);
-  let endTime = gEndDate.getInTimezone(kDefaultTimezone);
-  if (
-    startTime.hour < gStartHour ||
-    startTime.hour >= gEndHour ||
-    endTime.hour >= gEndHour ||
-    startTime.day != endTime.day ||
-    startTime.isDate
-  ) {
-    setForce24Hours(true);
-  }
-}
-
-/**
- * This function requires gStartDate and gEndDate and the respective timezone
- * variables to be initialized. It updates the date/time information displayed in
- * the dialog from the above noted variables.
- */
-function updateDateTime() {
-  // Convert to default timezone if the timezone option
-  // is *not* checked, otherwise keep the specific timezone
-  // and display the labels in order to modify the timezone.
-  if (gDisplayTimezone) {
-    let startTime = gStartDate.getInTimezone(gStartTimezone);
-    let endTime = gEndDate.getInTimezone(gEndTimezone);
-
-    if (startTime.isDate) {
-      document.getElementById("all-day").setAttribute("checked", "true");
+    emptyGrid();
+    for (let attendee of attendeeList.getElementsByTagName("event-attendee")) {
+      attendee.clearFreeBusy();
     }
 
-    // In the case where the timezones are different but
-    // the timezone of the endtime is "UTC", we convert
-    // the endtime into the timezone of the starttime.
-    if (startTime && endTime) {
-      if (!cal.data.compareObjects(startTime.timezone, endTime.timezone)) {
-        if (endTime.timezone.isUTC) {
-          endTime = endTime.getInTimezone(startTime.timezone);
-        }
+    fillGrid();
+    eventBar.update(true);
+  },
+  get columnCount() {
+    return this.levels[this.currentLevel].columnCount;
+  },
+  get columnDuration() {
+    return this.levels[this.currentLevel].columnDuration;
+  },
+  get multiplier() {
+    return this.levels[this.currentLevel].multiplier;
+  },
+};
+
+var eventBar = {
+  dragDistance: 0,
+  dragStartX: null,
+  eventBarBottom: "event-bar-bottom",
+  eventBarTop: "event-bar-top",
+
+  init() {
+    this.eventBarBottom = document.getElementById("event-bar-bottom");
+    this.eventBarTop = document.getElementById("event-bar-top");
+
+    let outer = document.getElementById("outer");
+    outer.addEventListener("dragstart", this);
+    outer.addEventListener("dragover", this);
+    outer.addEventListener("dragend", this);
+  },
+  handleEvent(event) {
+    switch (event.type) {
+      case "dragstart": {
+        this.dragStartX = event.clientX;
+        let img = document.createElement("img");
+        img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        event.dataTransfer.setDragImage(img, 0, 0);
+        event.dataTransfer.effectAllowed = "move";
+        break;
+      }
+      case "dragover": {
+        this.dragDistance = Math.round((event.clientX - this.dragStartX) / 12.5) * 12.5;
+        this.eventBarTop.style.transform = this.eventBarBottom.style.transform = `translateX(${this.dragDistance}px)`;
+        break;
+      }
+      case "dragend": {
+        this.dragStartX = null;
+        this.eventBarTop.style.transform = this.eventBarBottom.style.transform = null;
+
+        let duration = cal.createDuration();
+        duration.inSeconds = this.dragDistance / zoom.multiplier;
+
+        let { startValue, endValue } = dateTimePickerUI;
+        startValue.addDuration(duration);
+        dateTimePickerUI.startValue = startValue;
+        endValue.addDuration(duration);
+        dateTimePickerUI.endValue = endValue;
+
+        setLeftAndWidth(this.eventBarTop, startValue, endValue);
+        setLeftAndWidth(this.eventBarBottom, startValue, endValue);
+        break;
       }
     }
-
-    // Before feeding the date/time value into the control we need
-    // to set the timezone to 'floating' in order to avoid the
-    // automatic conversion back into the OS timezone.
-    startTime.timezone = cal.dtz.floating;
-    endTime.timezone = cal.dtz.floating;
-
-    document.getElementById("event-starttime").value = cal.dtz.dateTimeToJsDate(startTime);
-    document.getElementById("event-endtime").value = cal.dtz.dateTimeToJsDate(endTime);
-  } else {
-    let kDefaultTimezone = cal.dtz.defaultTimezone;
-
-    let startTime = gStartDate.getInTimezone(kDefaultTimezone);
-    let endTime = gEndDate.getInTimezone(kDefaultTimezone);
-
-    if (startTime.isDate) {
-      document.getElementById("all-day").setAttribute("checked", "true");
+  },
+  update(shouldScroll) {
+    let { startValueForDisplay, endValueForDisplay } = dateTimePickerUI;
+    if (dateTimePickerUI.allDay.checked) {
+      endValueForDisplay.day++;
     }
-
-    // Before feeding the date/time value into the control we need
-    // to set the timezone to 'floating' in order to avoid the
-    // automatic conversion back into the OS timezone.
-    startTime.timezone = cal.dtz.floating;
-    endTime.timezone = cal.dtz.floating;
-
-    document.getElementById("event-starttime").value = cal.dtz.dateTimeToJsDate(startTime);
-    document.getElementById("event-endtime").value = cal.dtz.dateTimeToJsDate(endTime);
-  }
-
-  updateTimezone();
-  updateAllDay();
-}
-
-/**
- * This function requires gStartDate and gEndDate and the respective timezone
- * variables to be initialized. It updates the timezone information displayed in
- * the dialog from the above noted variables.
- */
-function updateTimezone() {
-  gIgnoreUpdate = true;
-
-  if (gDisplayTimezone) {
-    let startTimezone = gStartTimezone;
-    let endTimezone = gEndTimezone;
-    let equalTimezones = false;
-    if (
-      startTimezone &&
-      endTimezone &&
-      (cal.data.compareObjects(startTimezone, endTimezone) || endTimezone.isUTC)
-    ) {
-      equalTimezones = true;
-    }
-
-    let tzStart = document.getElementById("timezone-starttime");
-    let tzEnd = document.getElementById("timezone-endtime");
-    if (startTimezone) {
-      tzStart.removeAttribute("collapsed");
-      tzStart.value = startTimezone.displayName || startTimezone.tzid;
-    } else {
-      tzStart.setAttribute("collapsed", "true");
-    }
-
-    // we never display the second timezone if both are equal
-    if (endTimezone != null && !equalTimezones) {
-      tzEnd.removeAttribute("collapsed");
-      tzEnd.value = endTimezone.displayName || endTimezone.tzid;
-    } else {
-      tzEnd.setAttribute("collapsed", "true");
-    }
-  } else {
-    document.getElementById("timezone-starttime").setAttribute("collapsed", "true");
-    document.getElementById("timezone-endtime").setAttribute("collapsed", "true");
-  }
-
-  gIgnoreUpdate = false;
-}
-
-/**
- * Updates gStartDate from the start time picker "event-starttime"
- */
-function updateStartTime() {
-  if (gIgnoreUpdate) {
-    return;
-  }
-
-  let startWidgetId = "event-starttime";
-
-  let startWidget = document.getElementById(startWidgetId);
-
-  // jsDate is always in OS timezone, thus we create a calIDateTime
-  // object from the jsDate representation and simply set the new
-  // timezone instead of converting.
-  let timezone = gDisplayTimezone ? gStartTimezone : cal.dtz.defaultTimezone;
-  let start = cal.dtz.jsDateToDateTime(startWidget.value, timezone);
-
-  gStartDate = start.clone();
-  start.addDuration(gDuration);
-  gEndDate = start.getInTimezone(gEndTimezone);
-
-  let allDayElement = document.getElementById("all-day");
-  let allDay = allDayElement.getAttribute("checked") == "true";
-  if (allDay) {
-    gStartDate.isDate = true;
-    gEndDate.isDate = true;
-  }
-
-  propagateDateTime();
-}
-
-/**
- * Updates gEndDate from the end time picker "event-endtime"
- */
-function updateEndTime() {
-  if (gIgnoreUpdate) {
-    return;
-  }
-
-  let startWidgetId = "event-starttime";
-  let endWidgetId = "event-endtime";
-
-  let startWidget = document.getElementById(startWidgetId);
-  let endWidget = document.getElementById(endWidgetId);
-
-  let saveStartTime = gStartDate;
-  let saveEndTime = gEndDate;
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
-
-  gStartDate = cal.dtz.jsDateToDateTime(
-    startWidget.value,
-    gDisplayTimezone ? gStartTimezone : cal.dtz.defaultTimezone
-  );
-
-  let timezone = gEndTimezone;
-  if (timezone.isUTC && gStartDate && !cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
-    timezone = gStartTimezone;
-  }
-  gEndDate = cal.dtz.jsDateToDateTime(
-    endWidget.value,
-    gDisplayTimezone ? timezone : kDefaultTimezone
-  );
-
-  let allDayElement = document.getElementById("all-day");
-  let allDay = allDayElement.getAttribute("checked") == "true";
-  if (allDay) {
-    gStartDate.isDate = true;
-    gEndDate.isDate = true;
-  }
-
-  // Calculate the new duration of start/end-time.
-  // don't allow for negative durations.
-  let warning = false;
-  if (gEndDate.compare(gStartDate) >= 0) {
-    gDuration = gEndDate.subtractDate(gStartDate);
-  } else {
-    gStartDate = saveStartTime;
-    gEndDate = saveEndTime;
-    warning = true;
-  }
-
-  propagateDateTime();
-
-  if (warning) {
-    let callback = function() {
-      Services.prompt.alert(null, document.title, cal.l10n.getCalString("warningEndBeforeStart"));
-    };
-    setTimeout(callback, 1);
-  }
-}
-
-/**
- * Prompts the user to pick a new timezone for the starttime. The dialog is
- * opened modally.
- */
-function editStartTimezone() {
-  let tzStart = document.getElementById("timezone-starttime");
-  if (tzStart.hasAttribute("disabled")) {
-    return;
-  }
-
-  let self = this;
-  let args = {};
-  args.calendar = window.arguments[0].calendar;
-  args.time = gStartDate.getInTimezone(gStartTimezone);
-  args.onOk = function(datetime) {
-    let equalTimezones = false;
-    if (gStartTimezone && gEndTimezone && cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
-      equalTimezones = true;
-    }
-    gStartTimezone = datetime.timezone;
-    if (equalTimezones) {
-      gEndTimezone = datetime.timezone;
-    }
-    self.propagateDateTime();
-  };
-
-  // Open the dialog modally
-  openDialog(
-    "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
-    "_blank",
-    "chrome,titlebar,modal,resizable",
-    args
-  );
-}
-
-/**
- * Prompts the user to pick a new timezone for the endtime. The dialog is
- * opened modally.
- */
-function editEndTimezone() {
-  let tzStart = document.getElementById("timezone-endtime");
-  if (tzStart.hasAttribute("disabled")) {
-    return;
-  }
-
-  let self = this;
-  let args = {};
-  args.calendar = window.arguments[0].calendar;
-  args.time = gEndDate.getInTimezone(gEndTimezone);
-  args.onOk = function(datetime) {
-    if (gStartTimezone && gEndTimezone && cal.data.compareObjects(gStartTimezone, gEndTimezone)) {
-      gStartTimezone = datetime.timezone;
-    }
-    gEndTimezone = datetime.timezone;
-    self.propagateDateTime();
-  };
-
-  // Open the dialog modally
-  openDialog(
-    "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
-    "_blank",
-    "chrome,titlebar,modal,resizable",
-    args
-  );
-}
-
-/**
- * Updates the dialog controls in case the window's event is an allday event, or
- * was set to one in the attendee dialog.
- *
- * This for example disables the timepicker since its not needed.
- */
-function updateAllDay() {
-  if (gIgnoreUpdate) {
-    return;
-  }
-
-  let allDayElement = document.getElementById("all-day");
-  let allDay = allDayElement.getAttribute("checked") == "true";
-  let startpicker = document.getElementById("event-starttime");
-  let endpicker = document.getElementById("event-endtime");
-
-  let tzStart = document.getElementById("timezone-starttime");
-  let tzEnd = document.getElementById("timezone-endtime");
-
-  // Disable the timezone links if 'allday' is checked OR the
-  // calendar of this item is read-only. In any other case we
-  // enable the links.
-  if (allDay) {
-    startpicker.setAttribute("timepickerdisabled", "true");
-    endpicker.setAttribute("timepickerdisabled", "true");
-
-    tzStart.setAttribute("disabled", "true");
-    tzEnd.setAttribute("disabled", "true");
-    tzStart.classList.remove("text-link");
-    tzEnd.classList.remove("text-link");
-  } else {
-    startpicker.removeAttribute("timepickerdisabled");
-    endpicker.removeAttribute("timepickerdisabled");
-
-    tzStart.removeAttribute("disabled");
-    tzEnd.removeAttribute("disabled");
-    tzStart.classList.add("text-link");
-    tzEnd.classList.add("text-link");
-  }
-}
-
-/**
- * Changes the global variables to adapt for the change of the allday checkbox.
- *
- * XXX Function names are all very similar here. This needs some consistency!
- */
-function changeAllDay() {
-  let allDayElement = document.getElementById("all-day");
-  let allDay = allDayElement.getAttribute("checked") == "true";
-
-  gStartDate = gStartDate.clone();
-  gEndDate = gEndDate.clone();
-
-  gStartDate.isDate = allDay;
-  gEndDate.isDate = allDay;
-
-  propagateDateTime();
-
-  // After propagating the modified times we enforce some constraints
-  // on the zoom-factor. In case this events is now said to be all-day,
-  // we automatically enforce a 25% zoom-factor and disable the control.
-  let zoom = document.getElementById("zoom-menulist");
-  let zoomOut = document.getElementById("zoom-out-button");
-  let zoomIn = document.getElementById("zoom-in-button");
-  if (allDay) {
-    zoom.value = "400";
-    zoom.setAttribute("disabled", "true");
-    zoomOut.setAttribute("disabled", "true");
-    zoomIn.setAttribute("disabled", "true");
-    setZoomFactor(zoom.value);
-    setForce24Hours(true);
-  } else {
-    zoom.removeAttribute("disabled");
-    zoomOut.removeAttribute("disabled");
-    zoomIn.removeAttribute("disabled");
-  }
-}
-
-/**
- * Handler function used when the window is resized.
- */
-function onResize() {
-  // Don't do anything if we haven't been initialized.
-  if (!gStartDate || !gEndDate) {
-    return;
-  }
-
-  let grid = document.getElementById("freebusy-grid");
-  grid.fitDummyRows();
-
-  let gridScrollbar = document.getElementById("horizontal-scrollbar");
-  gridScrollbar.setAttribute("maxpos", grid.scrollWidth - grid.clientWidth);
-  gridScrollbar.setAttribute("pageincrement", grid.clientWidth);
-
-  let selectionbar = document.getElementById("selection-bar");
-  selectionbar.padTo(grid.scrollWidth);
-
-  let attendees = document.getElementById("attendees-list");
-  let attendeesScrollbar = document.getElementById("vertical-scrollbar");
-  let box = document.getElementById("vertical-scrollbar-box");
-  attendees.fitDummyRows();
-  let attRatio = attendees.getBoundingClientRect().height / attendees.documentSize;
-  let attMaxpos = attendeesScrollbar.getAttribute("maxpos");
-  if (attRatio < 1) {
-    box.removeAttribute("collapsed");
-    let attInc = (attMaxpos * attRatio) / (1 - attRatio);
-    attendeesScrollbar.setAttribute("pageincrement", attInc);
-  } else {
-    box.setAttribute("collapsed", "true");
-  }
-}
-
-/**
- * Handler function to call when changing the calendar used in this dialog.
- *
- * @param calendar      The calendar to change to.
- */
-function onChangeCalendar(calendar) {
-  let args = window.arguments[0];
-
-  // set 'mIsReadOnly' if the calendar is read-only
-  if (calendar && calendar.readOnly) {
-    gIsReadOnly = true;
-  }
-
-  // assume we're the organizer [in case that the calendar
-  // does not support the concept of identities].
-  gIsInvitation = false;
-  calendar = cal.wrapInstance(args.item.calendar, Ci.calISchedulingSupport);
-  if (calendar) {
-    gIsInvitation = calendar.isInvitation(args.item);
-  }
-
-  if (gIsReadOnly || gIsInvitation) {
-    document.getElementById("next-slot").setAttribute("disabled", "true");
-    document.getElementById("previous-slot").setAttribute("disabled", "true");
-  }
-
-  let freebusy = document.getElementById("freebusy-grid");
-  freebusy.onChangeCalendar(calendar);
-}
-
-/**
- * Updates the slot buttons.
- */
-function updateButtons() {
-  let previousButton = document.getElementById("previous-slot");
-  if (gUndoStack.length > 0) {
-    previousButton.removeAttribute("disabled");
-  } else {
-    previousButton.setAttribute("disabled", "true");
-  }
-}
-
-/**
- * Handler function called to advance to the next slot.
- */
-function onNextSlot() {
-  // Store the current setting in the undo-stack.
-  let currentSlot = {};
-  currentSlot.startTime = gStartDate;
-  currentSlot.endTime = gEndDate;
-  gUndoStack.push(currentSlot);
-
-  // Ask the grid for the next possible timeslot.
-  let grid = document.getElementById("freebusy-grid");
-  let duration = gEndDate.subtractDate(gStartDate);
-  let start = grid.nextSlot();
-  let end = start.clone();
-  end.addDuration(duration);
-  if (start.isDate) {
-    end.day++;
-  }
-  gStartDate = start.clone();
-  gEndDate = end.clone();
-  let endDate = gEndDate.clone();
-
-  // Check if an all-day event has been passed in (to adapt endDate).
-  if (gStartDate.isDate) {
-    gEndDate.day--;
-  }
-  gStartDate.makeImmutable();
-  gEndDate.makeImmutable();
-  endDate.makeImmutable();
-
-  propagateDateTime();
-
-  // Scroll the grid/timebar such that the current time is visible
-  scrollToCurrentTime();
-
-  updateButtons();
-}
-
-/**
- * Handler function called to advance to the previous slot.
- */
-function onPreviousSlot() {
-  let previousSlot = gUndoStack.pop();
-  if (!previousSlot) {
-    return;
-  }
-
-  // In case the new starttime happens to be scheduled
-  // on a different day, we also need to update the
-  // complete freebusy information and appropriate
-  // underlying arrays holding the information.
-  let refresh = previousSlot.startTime.day != gStartDate.day;
-
-  gStartDate = previousSlot.startTime.clone();
-  gEndDate = previousSlot.endTime.clone();
-
-  propagateDateTime();
-
-  // scroll the grid/timebar such that the current time is visible
-  scrollToCurrentTime();
-
-  updateButtons();
-
-  if (refresh) {
-    let grid = document.getElementById("freebusy-grid");
-    grid.forceRefresh();
-  }
-}
-
-/**
- * Scrolls the time grid to a position where the time of the item in question is
- * visible.
- */
-function scrollToCurrentTime() {
-  let timebar = document.getElementById("timebar");
-  let ratio = (gStartDate.hour - gStartHour - 1) * timebar.step;
-  if (ratio <= 0.0) {
-    ratio = 0.0;
-  }
-  if (ratio >= 1.0) {
-    ratio = 1.0;
-  }
-  let scrollbar = document.getElementById("horizontal-scrollbar");
-  let maxpos = scrollbar.getAttribute("maxpos");
-  scrollbar.setAttribute("curpos", ratio * maxpos);
-}
-
-/**
- * Sets the zoom factor for the time grid
- *
- * @param aValue        The zoom factor to set.
- * @return              aValue (for chaining)
- */
-function setZoomFactor(aValue) {
-  // Correct zoom factor, if needed
-  aValue = parseInt(aValue, 10) || 100;
-
-  if (gZoomFactor == aValue) {
-    return aValue;
-  }
-
-  gZoomFactor = aValue;
-  applyCurrentZoomFactor();
-  return aValue;
-}
-
-/**
- * applies the current zoom factor for the time grid
- */
-function applyCurrentZoomFactor() {
-  let timebar = document.getElementById("timebar");
-  timebar.zoomFactor = gZoomFactor;
-  // After sepearating window.arguments logic from custom element
-  // it is necessary to call this method to set up some properties of
-  // calendar-event-freebusy-timebar element.
-  onFreebusyTimebarInit();
-  let selectionbar = document.getElementById("selection-bar");
-  selectionbar.zoomFactor = gZoomFactor;
-  let grid = document.getElementById("freebusy-grid");
-  grid.zoomFactor = gZoomFactor;
-
-  // Calling onResize() will update the scrollbars and everything else
-  // that needs to adopt the previously made changes. We need to call
-  // this after the changes have actually been made...
-  onResize();
-}
-
-/**
- * Force the time grid to show 24 hours.
- *
- * @param aValue        If true, the view will be forced to 24 hours.
- * @return              aValue (for chaining)
- */
-function setForce24Hours(aValue) {
-  if (gForce24Hours == aValue) {
-    return aValue;
-  }
-
-  gForce24Hours = aValue;
-  initTimeRange();
-  let timebar = document.getElementById("timebar");
-  timebar.force24Hours = gForce24Hours;
-  // After sepearating window.arguments logic from custom element
-  // it is necessary to call this method to set up some properties of
-  // calendar-event-freebusy-timebar element.
-  onFreebusyTimebarInit();
-  let selectionbar = document.getElementById("selection-bar");
-  selectionbar.force24Hours = gForce24Hours;
-  let grid = document.getElementById("freebusy-grid");
-  grid.force24Hours = gForce24Hours;
-
-  // Calling onResize() will update the scrollbars and everything else
-  // that needs to adopt the previously made changes. We need to call
-  // this after the changes have actually been made...
-  onResize();
-
-  return aValue;
-}
-
-/**
- * Initialize the time range, setting the start and end hours from the prefs, or
- * to 24 hrs if gForce24Hours is set.
- */
-function initTimeRange() {
-  if (gForce24Hours) {
-    gStartHour = 0;
-    gEndHour = 24;
-  } else {
-    gStartHour = Services.prefs.getIntPref("calendar.view.daystarthour", 8);
-    gEndHour = Services.prefs.getIntPref("calendar.view.dayendhour", 19);
-  }
-}
-
-/**
- * Handler function for the "modify" event, emitted from the calendar-event-attendees-list
- * binding. event.details is an array of objects containing the user's email
- * (calid) and a flag that tells if the user has entered text before the last
- * onModify was called (dirty).
- *
- * @param event     The DOM event that caused the modification.
- */
-function onModify(event) {
-  onResize();
-  document.getElementById("freebusy-grid").onModify(event);
-}
-
-/**
- * Handler function for the "rowchange" event, emitted from the calendar-event-attendees-list
- * binding. event.details is the row that was changed to.
- *
- * @param event     The DOM event caused by the row change.
- */
-function onRowChange(event) {
-  let scrollbar = document.getElementById("vertical-scrollbar");
-  let attendees = document.getElementById("attendees-list");
-  let maxpos = scrollbar.getAttribute("maxpos");
-  scrollbar.setAttribute("curpos", (event.details / attendees.mMaxAttendees) * maxpos);
-}
-
-/**
- * Handler function to take care of mouse scrolling on the window
- *
- * @param event     The wheel event caused by scrolling.
- */
-function onMouseScroll(event) {
-  // ignore mouse scrolling for now...
-  event.stopPropagation();
-}
-
-/**
- * Handler function to take care of attribute changes on the window
- *
- * @param event     The DOMAttrModified event caused by this change.
- */
-function onAttrModified(event) {
-  if (event.attrName == "width") {
-    let selectionbar = document.getElementById("selection-bar");
-    selectionbar.setWidth(selectionbar.getBoundingClientRect().width);
-    return;
-  }
-
-  // Synchronize grid and attendee list
-  let target = event.originalTarget;
-  if (target.classList.contains("textbox-addressingWidget") && event.attrName == "focused") {
-    let attendees = document.getElementById("attendees-list");
-    if (event.newValue == "true") {
-      let grid = document.getElementById("freebusy-grid");
-      if (grid.firstVisibleRow != attendees.firstVisibleRow) {
-        grid.firstVisibleRow = attendees.firstVisibleRow;
+    setLeftAndWidth(this.eventBarTop, startValueForDisplay, endValueForDisplay);
+    setLeftAndWidth(this.eventBarBottom, startValueForDisplay, endValueForDisplay);
+
+    if (shouldScroll) {
+      let scrollPoint =
+        this.eventBarBottom.offsetLeft -
+        (dayHeaderOuter.clientWidthDouble - this.eventBarBottom.clientWidthDouble) / 2;
+      if (scrollPoint < 0) {
+        scrollPoint = 0;
       }
-    }
-    if (!target.lastListCheckedValue || target.lastListCheckedValue != target.value) {
-      attendees.resolvePotentialList(target);
-      target.lastListCheckedValue = target.value;
-    }
-  }
-
-  if (event.originalTarget.localName == "scrollbar") {
-    let scrollbar = event.originalTarget;
-    if (scrollbar.hasAttribute("maxpos")) {
-      if (scrollbar.getAttribute("id") == "vertical-scrollbar") {
-        let attendees = document.getElementById("attendees-list");
-        let grid = document.getElementById("freebusy-grid");
-        if (event.attrName == "curpos") {
-          let maxpos = scrollbar.getAttribute("maxpos");
-          attendees.ratio = event.newValue / maxpos;
-        }
-        grid.firstVisibleRow = attendees.firstVisibleRow;
-      } else if (scrollbar.getAttribute("id") == "horizontal-scrollbar") {
-        if (event.attrName == "curpos") {
-          let timebar = document.getElementById("timebar");
-          let grid = document.getElementById("freebusy-grid");
-          let selectionbar = document.getElementById("selection-bar");
-          timebar.scrollTo(event.newValue, 0);
-          grid.scrollTo(event.newValue, grid.scrollTop);
-          selectionbar.scrollTo(event.newValue, 0);
-        }
-      }
-    }
-  }
-}
-
-/**
- * Handler function for initializing the selection bar, event usually emitted
- * from the freebusy-timebar binding.
- *
- * @param event     The "timebar" event with details and height property.
- */
-function onTimebar(event) {
-  document.getElementById("selection-bar").init(event.details, event.height);
-
-  // we need to enforce several layout constraints which can't be modelled
-  // with plain xul and css, at least as far as i know.
-  let timebar = document.getElementById("timebar");
-  let scrollbar = document.getElementById("horizontal-scrollbar");
-  let dialog = document.getElementById("calendar-event-dialog-attendees-v2");
-  dialog.style.setProperty("--spacer-top-height", timebar.getBoundingClientRect().height + "px");
-  dialog.style.setProperty(
-    "--spacer-bottom-height",
-    scrollbar.getBoundingClientRect().height + "px"
-  );
-}
-
-/**
- * Handler function to update controls when the time has changed on the
- * selection bar.
- *
- * @param event     The "timechange" event with startDate and endDate
- *                    properties.
- */
-function onTimeChange(event) {
-  let start = event.startDate.getInTimezone(gStartTimezone);
-  let end = event.endDate.getInTimezone(gEndTimezone);
-
-  loadDateTime(start, end);
-
-  // fill the controls
-  updateDateTime();
-
-  // tell the timebar about the new start/enddate
-  let timebar = document.getElementById("timebar");
-  timebar.startDate = gStartDate;
-  timebar.endDate = gEndDate;
-  timebar.refresh();
-
-  // tell the freebusy grid about the new start/enddate
-  let grid = document.getElementById("freebusy-grid");
-
-  let refresh =
-    grid.startDate == null ||
-    grid.startDate.compare(gStartDate) != 0 ||
-    grid.endDate == null ||
-    grid.endDate.compare(gEndDate) != 0;
-  grid.startDate = gStartDate;
-  grid.endDate = gEndDate;
-  if (refresh) {
-    grid.forceRefresh();
-  }
-}
-
-/**
- * This listener is used in calendar-event-dialog-attendees-custom-elements.js inside the
- * calendar-event-freebusy-grid custom element.
- */
-function calFreeBusyListener(aFbElement, aBinding) {
-  this.mFbElement = aFbElement;
-  this.mBinding = aBinding;
-}
-
-calFreeBusyListener.prototype = {
-  onResult(aRequest, aEntries) {
-    if (aRequest && !aRequest.isPending) {
-      // Find request in list of pending requests and remove from queue:
-      this.mBinding.mPendingRequests = this.mBinding.mPendingRequests.filter(
-        aOp => aRequest.id != aOp.id
-      );
-    }
-    if (aEntries) {
-      this.mFbElement.onFreeBusy(aEntries);
+      dayHeaderOuter.scrollTo(scrollPoint, 0);
+      freebusyGrid.scrollTo(scrollPoint, freebusyGrid.scrollTop);
     }
   },
 };
 
-function setFreebusyTimebarTime() {
-  const timebar = document.getElementById("timebar");
-  let args = window.arguments[0];
-  let startTime = args.startTime;
-  let endTime = args.endTime;
+var dateTimePickerUI = {
+  allDay: "all-day",
+  start: "event-starttime",
+  startZone: "timezone-starttime",
+  end: "event-endtime",
+  endZone: "timezone-endtime",
 
-  timebar.initTimeRange();
-
-  // The basedate is the date/time from which the display
-  // of the timebar starts. The range is the number of days
-  // we should be able to show. The start- and enddate
-  // is the time the event is scheduled for.
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
-  timebar.startDate = startTime.getInTimezone(kDefaultTimezone);
-  timebar.endDate = endTime.getInTimezone(kDefaultTimezone);
-  timebar.mRange = Number(timebar.getAttribute("range"));
-}
-
-function onFreebusyTimebarInit() {
-  const timebar = document.getElementById("timebar");
-  let args = window.arguments[0];
-  let startTime = args.startTime;
-  let endTime = args.endTime;
-
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
-  timebar.mStartDate = startTime.getInTimezone(kDefaultTimezone);
-  timebar.mEndDate = endTime.getInTimezone(kDefaultTimezone);
-
-  // Set the number of 'calendar-event-freebusy-day'-elements
-  // we need to fill up the content box.
-  // TODO: hardcoded value
-  timebar.mNumDays = (4 * timebar.mZoomFactor) / 100;
-  if (timebar.mNumDays < 2) {
-    timebar.mNumDays = 2;
-  }
-
-  // Now create those elements and set their date property.
-  let date = timebar.mStartDate.clone();
-  let template = timebar.getElementsByTagName("calendar-event-freebusy-day")[0];
-  template.force24Hours = timebar.mForce24Hours;
-  template.zoomFactor = timebar.mZoomFactor;
-  template.startDate = timebar.mStartDate;
-  template.endDate = timebar.mEndDate;
-  template.date = date;
-  let parent = template.parentNode;
-  if (parent.children.length <= 1) {
-    let count = timebar.mNumDays - 1;
-    if (count > 0) {
-      for (let i = 0; i < count; i++) {
-        date.day++;
-        let newNode = template.cloneNode(false);
-        parent.appendChild(newNode);
-        newNode.force24Hours = timebar.mForce24Hours;
-        newNode.zoomFactor = timebar.mZoomFactor;
-        newNode.startDate = timebar.mStartDate;
-        newNode.endDate = timebar.mEndDate;
-        newNode.date = date;
-      }
+  init() {
+    for (let key of ["allDay", "start", "startZone", "end", "endZone"]) {
+      this[key] = document.getElementById(this[key]);
     }
-  }
+  },
+  addListeners() {
+    this.allDay.addEventListener("command", () => this.changeAllDay());
+    this.start.addEventListener("change", () => eventBar.update(false));
+    this.startZone.addEventListener("click", () => this.editTimezone(this.startZone));
+    this.end.addEventListener("change", () => eventBar.update(false));
+    this.endZone.addEventListener("click", () => this.editTimezone(this.endZone));
+  },
 
-  timebar.dispatchTimebarEvent();
-}
+  get startValue() {
+    return cal.dtz.jsDateToDateTime(this.start.value, this.startZone._zone);
+  },
+  set startValue(value) {
+    // Set the zone first, because the change in time will trigger an update.
+    this.startZone._zone = value.timezone;
+    this.startZone.value = value.timezone.displayName || value.timezone.tzid;
+    this.start.value = cal.dtz.dateTimeToJsDate(value.getInTimezone(cal.dtz.floating));
+  },
+  get startValueForDisplay() {
+    return this.startValue.getInTimezone(cal.dtz.defaultTimezone);
+  },
+  get endValue() {
+    return cal.dtz.jsDateToDateTime(this.end.value, this.endZone._zone);
+  },
+  set endValue(value) {
+    // Set the zone first, because the change in time will trigger an update.
+    this.endZone._zone = value.timezone;
+    this.endZone.value = value.timezone.displayName || value.timezone.tzid;
+    this.end.value = cal.dtz.dateTimeToJsDate(value.getInTimezone(cal.dtz.floating));
+  },
+  get endValueForDisplay() {
+    return this.endValue.getInTimezone(cal.dtz.defaultTimezone);
+  },
 
-function onCalendarEventAttendeesListLoad() {
-  let attendeesList = document.getElementById("attendees-list");
-  let args = window.arguments[0];
-  let organizer = args.organizer;
-  let attendees = args.attendees;
-  let calendar = args.calendar;
+  changeAllDay() {
+    let allDay = this.allDay.checked;
+    setElementValue("event-starttime", allDay, "timepickerdisabled");
+    setElementValue("event-endtime", allDay, "timepickerdisabled");
 
-  attendeesList.isReadOnly = calendar.readOnly;
+    if (allDay) {
+      // Store date-times and related timezones so we can restore
+      // if the user unchecks the "all day" checkbox.
+      this.start._oldValue = new Date(this.start.value);
+      this.end._oldValue = new Date(this.end.value);
 
-  // assume we're the organizer [in case that the calendar
-  // does not support the concept of identities].
-  let organizerID = organizer && organizer.id ? organizer.id : calendar.getProperty("organizerId");
+      let { startValue, endValue } = this;
 
-  calendar = cal.wrapInstance(calendar, Ci.calISchedulingSupport);
-  attendeesList.isInvitation = calendar && calendar.isInvitation(args.item);
-
-  let template = attendeesList.querySelector(".addressingWidgetItem");
-  template.focus();
-
-  if (attendeesList.isReadOnly || attendeesList.isInvitation) {
-    attendeesList.setAttribute("disabled", "true");
-  }
-
-  // TODO: the organizer should show up in the attendee list, but this information
-  // should be based on the organizer contained in the appropriate field of calIItemBase.
-  // This is currently not supported, since we're still missing calendar identities.
-  if (organizerID && organizerID != "") {
-    if (organizer) {
-      if (!organizer.id) {
-        organizer.id = organizerID;
+      // When events that end at 0:00 become all-day events, we need to
+      // subtract a day from the end date because the real end is midnight.
+      if (endValue.hour == 0 && endValue.minute == 0) {
+        let tempStartValue = startValue.clone();
+        let tempEndValue = endValue.clone();
+        tempStartValue.isDate = true;
+        tempEndValue.isDate = true;
+        tempStartValue.day++;
+        if (tempEndValue.compare(tempStartValue) >= 0) {
+          endValue.day--;
+        }
       }
-      if (!organizer.role) {
-        organizer.role = "CHAIR";
-      }
-      if (!organizer.participationStatus) {
-        organizer.participationStatus = "ACCEPTED";
-      }
+
+      startValue.isDate = true;
+      endValue.isDate = true;
+      this.startValue = startValue;
+      this.endValue = endValue;
+    } else if (this.start._oldValue && this.end._oldValue) {
+      // Restore date-times previously stored.
+      this.start.value = this.start._oldValue;
+      this.end.value = this.end._oldValue;
     } else {
-      organizer = attendeesList.createAttendee();
-      organizer.id = organizerID;
-      organizer.role = "CHAIR";
-      organizer.participationStatus = "ACCEPTED";
+      // The checkbox has been unchecked for the first time, the event
+      // was an "All day" type, so we have to set default values.
+      let startValue = cal.dtz.getDefaultStartDate(window.initialStartDateValue);
+      let endValue = startValue.clone();
+      endValue.minute += Services.prefs.getIntPref("calendar.event.defaultlength", 60);
+      this.startValue = startValue;
+      this.endValue = endValue;
     }
-    if (!organizer.commonName || !organizer.commonName.length) {
-      organizer.commonName = calendar.getProperty("organizerCN");
-    }
-    organizer.isOrganizer = true;
-    attendeesList.appendAttendee(organizer, template, true);
-  }
+  },
+  editTimezone(target) {
+    let field = target == this.startZone ? "startValue" : "endValue";
+    let originalValue = this[field];
 
-  let numRowsAdded = 0;
-  if (attendees.length > 0) {
+    let args = {
+      calendar: window.arguments[0].calendar,
+      time: originalValue,
+      onOk: newValue => {
+        this[field] = newValue;
+      },
+    };
+
+    // Open the dialog modally
+    openDialog(
+      "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
+      "_blank",
+      "chrome,titlebar,modal,resizable",
+      args
+    );
+  },
+};
+
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    attendeeList = document.getElementById("attendee-list");
+    dayHeaderInner = document.getElementById("day-header-inner");
+    dayHeaderOuter = document.getElementById("day-header-outer");
+    freebusyGrid = document.getElementById("freebusy-grid");
+    freebusyGridBackground = document.getElementById("freebusy-grid-background");
+    freebusyGridInner = document.getElementById("freebusy-grid-inner");
+
+    eventBar.init();
+    dateTimePickerUI.init();
+    zoom.init();
+
+    attendeeList.addEventListener("scroll", () => {
+      if (freebusyGrid._mouseIsOver) {
+        return;
+      }
+      freebusyGrid.scrollTop = attendeeList.scrollTop;
+    });
+    attendeeList.addEventListener("keypress", event => {
+      if (event.target.popupOpen) {
+        return;
+      }
+      let row = event.target.closest("event-attendee");
+      if (event.key == "ArrowUp" && row.previousElementSibling) {
+        event.preventDefault();
+        row.previousElementSibling.focus();
+      } else if (["ArrowDown", "Enter"].includes(event.key) && row.nextElementSibling) {
+        event.preventDefault();
+        row.nextElementSibling.focus();
+      }
+    });
+
+    freebusyGrid.addEventListener("mouseenter", () => {
+      freebusyGrid._mouseIsOver = true;
+    });
+    freebusyGrid.addEventListener("mouseleave", () => {
+      freebusyGrid._mouseIsOver = false;
+    });
+    freebusyGrid.addEventListener("scroll", () => {
+      if (!freebusyGrid._mouseIsOver) {
+        return;
+      }
+      dayHeaderOuter.scrollLeft = freebusyGrid.scrollLeft;
+      attendeeList.scrollTop = freebusyGrid.scrollTop;
+    });
+  },
+  { once: true }
+);
+
+window.addEventListener(
+  "load",
+  () => {
+    let [
+      { startTime, endTime, displayTimezone, calendar, organizer, attendees },
+    ] = window.arguments;
+    dateTimePickerUI.allDay.checked = startTime.isDate;
+    dateTimePickerUI.startValue = startTime;
+
+    // When events that end at 0:00 become all-day events, we need to
+    // subtract a day from the end date because the real end is midnight.
+    if (startTime.isDate && endTime.hour == 0 && endTime.minute == 0) {
+      let tempStartTime = startTime.clone();
+      let tempEndTime = endTime.clone();
+      tempStartTime.isDate = true;
+      tempEndTime.isDate = true;
+      tempStartTime.day++;
+      if (tempEndTime.compare(tempStartTime) >= 0) {
+        endTime.day--;
+      }
+    }
+    dateTimePickerUI.endValue = endTime;
+
+    if (displayTimezone) {
+      dateTimePickerUI.startZone.parentNode.hidden = false;
+      dateTimePickerUI.endZone.parentNode.hidden = false;
+    }
+
+    displayStartTime = cal.dtz.now();
+    displayStartTime.isDate = true;
+    displayStartTime.icalString; // BUG in icaljs
+
+    // Choose the days to display. We always display at least 5 days, more if
+    // the window is large enough. If the event is in the past, use the day of
+    // the event as the first day. If it's today, tomorrow, or the next day,
+    // use today as the first day, otherwise show two days before the event
+    // (and therefore also two days after it).
+    let difference = startTime.subtractDate(displayStartTime);
+    if (difference.isNegative) {
+      displayStartTime = startTime.clone();
+      displayStartTime.isDate = true;
+      displayStartTime.icalString; // BUG in icaljs
+    } else if (difference.compare(cal.createDuration("P2D")) > 0) {
+      displayStartTime = startTime.clone();
+      displayStartTime.isDate = true;
+      displayStartTime.icalString; // BUG in icaljs
+      displayStartTime.day -= 2;
+    }
+    displayEndTime = displayStartTime.clone();
+
+    if (organizer) {
+      let organizerElement = attendeeList.appendChild(document.createXULElement("event-attendee"));
+      organizerElement.attendee = organizer;
+    } else {
+      let organizerId = calendar.getProperty("organizerId");
+      if (organizerId) {
+        let organizerElement = attendeeList.appendChild(
+          document.createXULElement("event-attendee")
+        );
+        organizerElement.value = organizerId.replace(/^mailto:/, "");
+        organizerElement.isOrganizer = true;
+      }
+    }
     for (let attendee of attendees) {
-      attendeesList.appendAttendee(attendee, template, false);
-      numRowsAdded++;
+      let attendeeElement = attendeeList.appendChild(document.createXULElement("event-attendee"));
+      attendeeElement.attendee = attendee;
+    }
+
+    readOnly = calendar.isReadOnly;
+    zoom.level = 0;
+    layout();
+    eventBar.update(true);
+    dateTimePickerUI.addListeners();
+    addEventListener("resize", layout);
+
+    attendeeList.appendChild(document.createXULElement("event-attendee")).focus();
+  },
+  { once: true }
+);
+
+window.addEventListener("dialogaccept", () => {
+  let attendees = [];
+  let attendeeElements = attendeeList.getElementsByTagName("event-attendee");
+  let organizer = attendeeElements[0].attendee;
+  for (let i = 1; i < attendeeElements.length; i++) {
+    let attendee = attendeeElements[i].attendee;
+    if (attendee) {
+      attendees.push(attendee);
     }
   }
-  if (numRowsAdded == 0) {
-    attendeesList.appendAttendee(null, template, false);
+  let { startValue, endValue } = dateTimePickerUI;
+  if (dateTimePickerUI.allDay.checked) {
+    startValue.isDate = true;
+    endValue.isDate = true;
   }
+  window.arguments[0].onOk(attendees, organizer, startValue, endValue);
+});
 
-  // detach the template item from the listbox, but hold the reference.
-  // until this function returns we add at least a single copy of this template back again.
-  template.remove();
-
-  attendeesList.setFocus(attendeesList.mMaxAttendees);
-
-  window.addEventListener("modify", onModify, true);
-  attendeesList.init();
+/**
+ * Lays out the window on load or resize. Fills the grid and sets the size of some elements that
+ * can't easily be done with a stylesheet.
+ */
+function layout() {
+  fillGrid();
+  let spacer = document.getElementById("spacer");
+  spacer.style.height = dayHeaderOuter.clientHeight + "px";
+  freebusyGridInner.style.minHeight = freebusyGrid.clientHeight + "px";
 }
 
-function onAttendeesInputKeyPress(event, element) {
-  if (event.key == "Enter" && element.value != "") {
-    element.closest("calendar-event-attendees-list").returnHit(element);
+/**
+ * Clears the grid.
+ */
+function emptyGrid() {
+  while (dayHeaderInner.lastChild) {
+    dayHeaderInner.lastChild.remove();
   }
 }
 
-function onAttendeesInputBlur(element) {
-  if (element.localName == "input") {
-    element.closest("calendar-event-attendees-list").returnHit(element, true);
+/**
+ * Ensures at least five days are represented on the grid. If the window is wide enough, more days
+ * are shown.
+ */
+function fillGrid() {
+  let oldEndTime = displayEndTime.clone();
+
+  while (
+    dayHeaderInner.childElementCount < 5 ||
+    dayHeaderOuter.scrollWidth <= dayHeaderOuter.clientWidth
+  ) {
+    dayHeaderInner.appendChild(document.createXULElement("calendar-day")).date = displayEndTime;
+    displayEndTime.addDuration(cal.createDuration("P1D"));
   }
+
+  freebusyGridInner.style.width = dayHeaderInner.childElementCount * zoom.columnCount * 50 + "px";
+  if (displayEndTime.compare(oldEndTime) > 0) {
+    for (let attendee of attendeeList.getElementsByTagName("event-attendee")) {
+      attendee.updateFreeBusy(oldEndTime, displayEndTime);
+    }
+  }
+}
+
+/**
+ * Aligns element horizontally on the grid to match the time period it represents.
+ *
+ * @param {Element} element - The element to align.
+ * @param {calIDateTime} startTime - The start time to be represented.
+ * @param {calIDateTime} endTime - The end time to be represented.
+ */
+function setLeftAndWidth(element, startTime, endTime) {
+  element.style.left = startTime.subtractDate(displayStartTime).inSeconds * zoom.multiplier + "px";
+  element.style.width = endTime.subtractDate(startTime).inSeconds * zoom.multiplier + "px";
+}
+
+// Wrap in a block to prevent leaking to window scope.
+{
+  /**
+   * Represents a row on the grid for a single attendee. The element itself is the row header, and
+   * this class holds reference to any elements on the grid itself that represent the free/busy
+   * status for this row's attendee. The free/busy elements are removed automatically if this
+   * element is removed.
+   */
+  class EventAttendee extends MozXULElement {
+    connectedCallback() {
+      this.roleIcon = this.appendChild(document.createXULElement("image"));
+      this.roleIcon.classList.add("role-icon");
+      this.roleIcon.setAttribute("role", "REQ-PARTICIPANT");
+      this._updateTooltip(this.roleIcon);
+      this.roleIcon.addEventListener("click", this);
+
+      this.userTypeIcon = this.appendChild(document.createXULElement("image"));
+      this.userTypeIcon.classList.add("usertype-icon");
+      this.userTypeIcon.setAttribute("usertype", "INDIVIDUAL");
+      this._updateTooltip(this.userTypeIcon);
+      this.userTypeIcon.addEventListener("click", this);
+
+      // Don't display the status icon for now.
+      // this.statusIcon = this.appendChild(document.createXULElement("image"));
+      // this.statusIcon.classList.add("status-icon");
+      // this.statusIcon.setAttribute("status", "ACCEPTED");
+      // this._updateTooltip(this.statusIcon);
+      // this.statusIcon.addEventListener("click", this);
+
+      this.input = this.appendChild(document.createElement("input", { is: "autocomplete-input" }));
+      this.input.classList.add("plain");
+      this.input.setAttribute("autocompletesearch", "addrbook ldap");
+      this.input.setAttribute("autocompletesearchparam", "{}");
+      this.input.setAttribute("forcecomplete", "true");
+      this.input.setAttribute("completedefaultindex", "true");
+      this.input.setAttribute("completeselectedindex", "true");
+      this.input.setAttribute("minresultsforpopup", "1");
+      this.input.addEventListener("change", this);
+
+      this.freeBusyDiv = freebusyGridInner.appendChild(document.createElement("div"));
+      this.freeBusyDiv.classList.add("freebusy-row");
+    }
+    disconnectedCallback() {
+      this.freeBusyDiv.remove();
+    }
+
+    /** @return {calIAttendee} - Attendee object for this row. */
+    get attendee() {
+      if (!this.value) {
+        return null;
+      }
+
+      let address = MailServices.headerParser.makeFromDisplayAddress(this.value)[0];
+
+      let attendee = cal.createAttendee();
+      attendee.id = cal.email.prependMailTo(address.email);
+      if (address.name && address.name != address.email) {
+        attendee.commonName = address.name;
+      }
+      attendee.isOrganizer = this.isOrganizer;
+      attendee.role = this.roleIcon.getAttribute("role");
+      let userType = this.userTypeIcon.getAttribute("usertype");
+      attendee.userType = userType == "INDIVIDUAL" ? null : userType; // INDIVIDUAL is the default
+
+      return attendee;
+    }
+    /** @param {calIAttendee} value - Attendee object for this row. */
+    set attendee(value) {
+      if (value.commonName) {
+        this.value = MailServices.headerParser.makeMimeHeader([
+          { name: value.commonName, email: value.id.replace(/^mailto:/, "") },
+        ]);
+      } else {
+        this.value = value.id.replace(/^mailto:/, "");
+      }
+      this.isOrganizer = value.isOrganizer;
+      this.roleIcon.setAttribute("role", value.role);
+      this._updateTooltip(this.roleIcon);
+      this.userTypeIcon.setAttribute("usertype", value.userType || "INDIVIDUAL");
+      this._updateTooltip(this.userTypeIcon);
+      // this.statusIcon.setAttribute("status", value.participationStatus);
+      // this._updateTooltip(this.statusIcon);
+    }
+
+    /** @return {String} - The user-visible string representing this row's attendee. */
+    get value() {
+      return this.input.value;
+    }
+    /** @param {String} value - The user-visible string representing this row's attendee. */
+    set value(value) {
+      this.input.value = value;
+    }
+
+    /** Removes all free/busy information from this row. */
+    clearFreeBusy() {
+      while (this.freeBusyDiv.lastChild) {
+        this.freeBusyDiv.lastChild.remove();
+      }
+    }
+    /**
+     * Queries the free/busy service for information about this row's attendee, and displays the
+     * information on the grid if there is any.
+     *
+     * @param {calIDateTime} from - The start of a time period to query.
+     * @param {calIDateTime} to - The end of a time period to query.
+     */
+    updateFreeBusy(from, to) {
+      let addresses = MailServices.headerParser.parseEncodedHeader(this.input.value);
+      if (!addresses || addresses.length === 0) {
+        return;
+      }
+
+      let calendar = `mailto:${addresses[0].email}`;
+
+      let pendingDiv = this.freeBusyDiv.appendChild(document.createElement("div"));
+      pendingDiv.classList.add("pending");
+      setLeftAndWidth(pendingDiv, from, to);
+
+      freeBusyService.getFreeBusyIntervals(calendar, from, to, Ci.calIFreeBusyInterval.BUSY_ALL, {
+        onResult: (operation, results) => {
+          for (let result of results) {
+            let freeBusyType = Number(result.freeBusyType); // For some reason this is a string.
+            if (freeBusyType == Ci.calIFreeBusyInterval.FREE) {
+              continue;
+            }
+
+            let block = this.freeBusyDiv.appendChild(document.createElement("div"));
+            switch (freeBusyType) {
+              case Ci.calIFreeBusyInterval.BUSY_TENTATIVE:
+                block.classList.add("tentative");
+                break;
+              case Ci.calIFreeBusyInterval.BUSY_UNAVAILABLE:
+                block.classList.add("unavailable");
+                break;
+              case Ci.calIFreeBusyInterval.UNKNOWN:
+                block.classList.add("unknown");
+                break;
+              default:
+                block.classList.add("busy");
+                break;
+            }
+            setLeftAndWidth(block, result.interval.start, result.interval.end);
+          }
+          if (!operation.isPending) {
+            this.dispatchEvent(new CustomEvent("freebusy-update-finished"));
+            pendingDiv.remove();
+          }
+        },
+      });
+      this.dispatchEvent(new CustomEvent("freebusy-update-started"));
+    }
+
+    focus() {
+      this.scrollIntoView();
+      this.input.focus();
+    }
+    handleEvent(event) {
+      if (event.type == "change") {
+        let nextElement = this.nextElementSibling;
+        if (this.value) {
+          let entries = MailServices.headerParser.makeFromDisplayAddress(this.value);
+          let expandedEntries = new Set();
+
+          let expandEntry = entry => {
+            let list = MailUtils.findListInAddressBooks(entry.name);
+            if (list) {
+              for (let card of list.childCards) {
+                card.QueryInterface(Ci.nsIAbCard);
+                expandEntry({ name: card.displayName, email: card.primaryEmail });
+              }
+            } else {
+              expandedEntries.add(
+                MailServices.headerParser.makeMimeAddress(entry.name, entry.email)
+              );
+            }
+          };
+
+          for (let entry of entries) {
+            expandEntry(entry);
+          }
+          if (expandedEntries.size == 1) {
+            this.value = expandedEntries.values().next().value;
+          } else {
+            this.remove();
+            for (let entry of expandedEntries) {
+              let memberElement = attendeeList.insertBefore(
+                document.createXULElement("event-attendee"),
+                nextElement
+              );
+              memberElement.value = entry;
+              memberElement.updateFreeBusy(displayStartTime, displayEndTime);
+            }
+          }
+          if (!nextElement) {
+            attendeeList.appendChild(document.createXULElement("event-attendee")).focus();
+            freebusyGrid.scrollTop = attendeeList.scrollTop;
+          }
+        }
+
+        if (this.parentNode) {
+          this.clearFreeBusy();
+          this.updateFreeBusy(displayStartTime, displayEndTime);
+        }
+      } else if (event.type == "click") {
+        if (event.button != 0 || readOnly) {
+          return;
+        }
+
+        const cycle = (values, current) => {
+          let nextIndex = (values.indexOf(current) + 1) % values.length;
+          return values[nextIndex];
+        };
+
+        let target = event.target;
+        if (target == this.roleIcon) {
+          let nextValue = cycle(EventAttendee.roleCycle, target.getAttribute("role"));
+          target.setAttribute("role", nextValue);
+          this._updateTooltip(target);
+          // } else if (target == this.statusIcon) {
+          //   let nextValue = cycle(EventAttendee.statusCycle, target.getAttribute("status"));
+          //   target.setAttribute("status", nextValue);
+          //   this._updateTooltip(target);
+        } else if (target == this.userTypeIcon) {
+          if (!this.isOrganizer) {
+            let nextValue = cycle(EventAttendee.userTypeCycle, target.getAttribute("usertype"));
+            target.setAttribute("usertype", nextValue);
+            this._updateTooltip(target);
+          }
+        }
+      }
+    }
+    _updateTooltip(targetIcon) {
+      if (targetIcon == this.roleIcon) {
+        let role = targetIcon.getAttribute("role");
+        const roleMap = {
+          "REQ-PARTICIPANT": "required",
+          "OPT-PARTICIPANT": "optional",
+          "NON-PARTICIPANT": "nonparticipant",
+          CHAIR: "chair",
+        };
+
+        let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
+        let tooltip = cal.l10n.getString(
+          "calendar-event-dialog-attendees",
+          roleNameString,
+          role in roleMap ? [] : [role]
+        );
+        targetIcon.setAttribute("tooltiptext", tooltip);
+      } else if (targetIcon == this.userTypeIcon) {
+        let userType = targetIcon.getAttribute("usertype");
+        const userTypeMap = {
+          INDIVIDUAL: "individual",
+          GROUP: "group",
+          RESOURCE: "resource",
+          ROOM: "room",
+          // UNKNOWN is not handled.
+        };
+
+        let userTypeString =
+          "event.attendee.usertype." +
+          (userType in userTypeMap ? userTypeMap[userType] : "unknown");
+        let tooltip = cal.l10n.getString(
+          "calendar-event-dialog-attendees",
+          userTypeString,
+          userType in userTypeMap ? [] : [userType]
+        );
+        targetIcon.setAttribute("tooltiptext", tooltip);
+      }
+    }
+  }
+  EventAttendee.roleCycle = ["REQ-PARTICIPANT", "OPT-PARTICIPANT", "NON-PARTICIPANT", "CHAIR"];
+  EventAttendee.statusCycle = ["ACCEPTED", "DECLINED", "TENTATIVE"];
+  EventAttendee.userTypeCycle = ["INDIVIDUAL", "GROUP", "RESOURCE", "ROOM"];
+  customElements.define("event-attendee", EventAttendee);
+
+  /**
+   * Represents a group of columns for a single day on the grid. The element itself is the column
+   * header, and this class holds reference to elements on the grid that provide the background
+   * coloring for the day. The elements are removed automatically if this element is removed.
+   */
+  class CalendarDay extends MozXULElement {
+    connectedCallback() {
+      let dayLabelContainer = this.appendChild(document.createXULElement("box"));
+      dayLabelContainer.setAttribute("pack", "center");
+
+      this.dayLabel = dayLabelContainer.appendChild(document.createXULElement("label"));
+      this.dayLabel.classList.add("day-label");
+
+      let columnContainer = this.appendChild(document.createXULElement("box"));
+
+      columnContainer.appendChild(document.createXULElement("box")).setAttribute("width", "25");
+
+      let column = displayEndTime.clone();
+      column.isDate = false;
+      for (let i = 1; i < zoom.columnCount; i++) {
+        column.addDuration(zoom.columnDuration);
+
+        let columnBox = columnContainer.appendChild(document.createXULElement("box"));
+        columnBox.setAttribute("width", "50");
+        columnBox.setAttribute("align", "center");
+
+        let columnLabel = columnBox.appendChild(document.createXULElement("label"));
+        columnLabel.classList.add("hour-label");
+        columnLabel.setAttribute("flex", "1");
+        columnLabel.setAttribute("value", cal.dtz.formatter.formatTime(column));
+      }
+
+      columnContainer.appendChild(document.createXULElement("box")).setAttribute("width", "24");
+    }
+
+    disconnectedCallback() {
+      if (this.dayColumn) {
+        this.dayColumn.remove();
+      }
+    }
+
+    /** @return {calIDateTime} - The day this group of columns represents. */
+    get date() {
+      return this.mDate;
+    }
+    /** @param {calIDateTime} value - The day this group of columns represents. */
+    set date(value) {
+      this.mDate = value.clone();
+      this.dayLabel.value = cal.dtz.formatter.formatDateShort(this.mDate);
+
+      let datePlus1 = value.clone();
+      datePlus1.addDuration(cal.createDuration("P1D"));
+      let dayOffPref = [
+        "calendar.week.d0sundaysoff",
+        "calendar.week.d1mondaysoff",
+        "calendar.week.d2tuesdaysoff",
+        "calendar.week.d3wednesdaysoff",
+        "calendar.week.d4thursdaysoff",
+        "calendar.week.d5fridaysoff",
+        "calendar.week.d6saturdaysoff",
+      ][this.mDate.weekday];
+
+      this.dayColumn = freebusyGridBackground.appendChild(document.createElement("div"));
+      this.dayColumn.classList.add("day-column");
+      setLeftAndWidth(this.dayColumn, this.mDate, datePlus1);
+      if (Services.prefs.getBoolPref(dayOffPref)) {
+        this.dayColumn.classList.add("day-off");
+      }
+
+      let dayStartHour = Services.prefs.getIntPref("calendar.view.daystarthour");
+      let dayEndHour = Services.prefs.getIntPref("calendar.view.dayendhour");
+
+      if (dayStartHour > 0) {
+        let dayStart = value.clone();
+        dayStart.isDate = false;
+        dayStart.hour = dayStartHour;
+        let beforeStartDiv = this.dayColumn.appendChild(document.createElement("div"));
+        beforeStartDiv.classList.add("time-off");
+        setLeftAndWidth(beforeStartDiv, this.mDate, dayStart);
+        beforeStartDiv.style.left = "0";
+      }
+      if (dayEndHour < 24) {
+        let dayEnd = value.clone();
+        dayEnd.isDate = false;
+        dayEnd.hour = dayEndHour;
+        let afterEndDiv = this.dayColumn.appendChild(document.createElement("div"));
+        afterEndDiv.classList.add("time-off");
+        setLeftAndWidth(afterEndDiv, dayEnd, datePlus1);
+        afterEndDiv.style.left = null;
+        afterEndDiv.style.right = "0";
+      }
+    }
+  }
+  customElements.define("calendar-day", CalendarDay);
 }

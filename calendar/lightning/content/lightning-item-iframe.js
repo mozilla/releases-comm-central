@@ -352,8 +352,6 @@ function onLoad() {
     };
   }
 
-  window.fbWrapper = args.fbWrapper;
-
   // the most important attribute we expect from the
   // arguments is the item we'll edit in the dialog.
   let item = args.calendarEvent;
@@ -2061,7 +2059,6 @@ function editAttendees() {
   args.calendar = calendar;
   args.item = window.calendarItem;
   args.onOk = callback;
-  args.fbWrapper = window.fbWrapper;
 
   // open the dialog modally
   openDialog(
