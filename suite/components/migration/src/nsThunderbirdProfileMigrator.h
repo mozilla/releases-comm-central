@@ -20,7 +20,7 @@ class nsIPrefService;
 class nsThunderbirdProfileMigrator final : public nsSuiteProfileMigratorBase
 {
 public:
-  NS_DECL_ISUPPORTS
+  NS_DECL_ISUPPORTS_INHERITED
 
   nsThunderbirdProfileMigrator();
 
