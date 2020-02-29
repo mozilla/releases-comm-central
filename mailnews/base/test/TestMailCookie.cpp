@@ -14,8 +14,8 @@
 #include "nsNetUtil.h"
 #include "nsNetCID.h"
 #include "nsIPrefBranch.h"
-#include "nsIPrefService.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/Unused.h"
 #include "nsIURI.h"
 
@@ -103,6 +103,9 @@ void InitPrefsMail(nsIPrefBranch *aPrefBranch) {
   aPrefBranch->SetBoolPref(kCookiesAskPermission, false);
   // Set the base domain limit to 50 so we have a known value.
   aPrefBranch->SetIntPref(kCookiesMaxPerHost, 50);
+
+  // XXX TODO: We need to follow bug 1617611 for the real fix.
+  mozilla::Preferences::SetBool("network.cookie.sameSite.laxByDefault", false);
 }
 
 TEST(TestMailCookie, TestMailCookieMain)
