@@ -90,3 +90,7 @@ if CONFIG['MOZ_LINUX_32_SSE2_STARTUP_ERROR']:
 JS_PREFERENCE_PP_FILES += [
     'profile/all-thunderbird.js',
 ]
+
+for icon in ('messengerWindow', 'newmail', 'writeMessage', 'addressbook'):
+    DEFINES[icon.upper() + '_ICO'] = '"%s/%s/%s.ico"' % (
+        TOPSRCDIR, CONFIG['MOZ_BRANDING_DIRECTORY'], icon)
