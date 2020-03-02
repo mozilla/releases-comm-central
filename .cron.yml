@@ -55,17 +55,3 @@ jobs:
       run-on-projects:
           - comm-central
       when: []  # never (hook only)
-
-    - name: periodic-update
-      job:
-          type: decision-task
-          treeherder-symbol: Nfile
-          target-tasks-method: file_update
-      run-on-projects:
-          - comm-central
-      when:
-          by-project:
-              # No default branch
-              comm-central:
-                  - {weekday: 'Monday', hour: 11, minute: 0}
-                  - {weekday: 'Thursday', hour: 11, minute: 0}
