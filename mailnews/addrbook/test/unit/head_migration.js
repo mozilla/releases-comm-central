@@ -13,9 +13,6 @@ var { MailServices } = ChromeUtils.import(
 // Ensure the profile directory is set up
 var profileDir = do_get_profile();
 
-// OSX Address Book deactivation (Bug 955842)
-Services.prefs.deleteBranch("ldap_2.servers.osx.");
-
 registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });
