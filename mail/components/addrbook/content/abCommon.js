@@ -425,7 +425,7 @@ function AbDelete() {
       confirmDeleteTitleID = "confirmDelete2orMoreMailingListsTitle";
       break;
     case kCardsOnly:
-      if (selectedDir.isMailList) {
+      if (selectedDir && selectedDir.isMailList) {
         // Contact(s) in mailing lists will be removed from the list, not deleted.
         if (numSelectedItems == 1) {
           confirmDeleteMessageID = "confirmRemoveThisContact";
@@ -491,7 +491,7 @@ function AbDelete() {
     return;
   }
 
-  if (selectedDir.URI == kAllDirectoryRoot + "?") {
+  if (selectedDir === null) {
     // Delete cards from "All Address Books" view.
     let cards = GetSelectedAbCards();
     for (let i = 0; i < cards.length; i++) {
