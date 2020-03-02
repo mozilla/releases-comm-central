@@ -88,3 +88,42 @@ popupnotification {
 .popup-notification-closeitem {
   list-style-image: url("chrome://global/skin/icons/closebox.gif");
 }
+
+.popup-notification-button-container {
+  background-color: transparent;
+  display: flex;
+}
+
+.popup-notification-button-container > toolbarseparator {
+  display: none;
+}
+
+.popup-notification-button {
+  flex: 1;
+  min-width: 0;
+}
+
+.popup-notification-button[anonid="secondarybutton"][hidden="true"] ~ .popup-notification-button[default] {
+  flex: 1;
+}
+
+.popup-notification-button > .button-box {
+  padding: 0;
+}
+
+.popup-notification-dropmarker {
+  flex: none;
+  padding: 0 15px;
+}
+
+.popup-notification-dropmarker > .button-box > hbox {
+  display: none;
+}
+
+.popup-notification-dropmarker > .button-box > .button-menu-dropmarker {
+  /* This is to override the linux !important */
+  -moz-appearance: none !important;
+  display: -moz-box;
+  padding: 0;
+  margin: 0;
+}
