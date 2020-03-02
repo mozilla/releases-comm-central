@@ -119,6 +119,13 @@ function ensureInitialized() {
             if (env.exists("MOZ_AUTOMATION")) {
               break;
             }
+            if (Services.prefs.getIntPref(`${prefName}.position`, 1) < 1) {
+              // Migration: the previous address book manager set the position
+              // value to 0 to indicate the removal of an address book.
+              Services.prefs.clearUserPref(`${prefName}.position`);
+              Services.prefs.setIntPref(pref, -1);
+              break;
+            }
             if (AppConstants.platform == "macosx") {
               createDirectoryObject(uri, true);
             } else if (AppConstants.platform == "win") {
