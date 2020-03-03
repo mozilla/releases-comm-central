@@ -20,10 +20,10 @@ chrome/classic/skin/classic/navigator/icons/close.gif
 chrome/toolkit/skin/classic/global/icons/Restore.gif
 chrome/classic/skin/classic/navigator/icons/restore.gif
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/mac/tree/sort-asc.gif
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/unix/tree/sort-dsc.gif
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/gtk/tree/sort-dsc.gif
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/win/tree/sort-asc.gif
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/mac/tree/sort-dsc.gif
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/unix/tree/sort-asc.gif
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/gtk/tree/sort-asc.gif
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/win/tree/sort-dsc.gif
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/menu/menu-radio-dis.gif
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/menu/menu-radio.gif
