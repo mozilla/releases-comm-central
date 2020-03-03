@@ -64,6 +64,9 @@ release-promotion:
             version-bump: true
             partial-updates: true
 
+merge-automation:
+    flavors: {}
+
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
 
