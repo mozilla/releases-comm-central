@@ -213,32 +213,35 @@ AbAutoCompleteSearch.prototype = {
     var commentColumn = this._commentColumn == 1 ? directory.dirName : "";
 
     // Now iterate through all the cards.
-    for (let card of childCards) {
-      if (card.isMailList) {
-        this._addToResult(commentColumn, directory, card, "", true, result);
-      } else {
-        let email = card.primaryEmail;
-        if (email) {
-          this._addToResult(
-            commentColumn,
-            directory,
-            card,
-            email,
-            true,
-            result
-          );
-        }
+    while (childCards.hasMoreElements()) {
+      var card = childCards.getNext();
+      if (card instanceof Ci.nsIAbCard) {
+        if (card.isMailList) {
+          this._addToResult(commentColumn, directory, card, "", true, result);
+        } else {
+          let email = card.primaryEmail;
+          if (email) {
+            this._addToResult(
+              commentColumn,
+              directory,
+              card,
+              email,
+              true,
+              result
+            );
+          }
 
-        email = card.getProperty("SecondEmail", "");
-        if (email) {
-          this._addToResult(
-            commentColumn,
-            directory,
-            card,
-            email,
-            false,
-            result
-          );
+          email = card.getProperty("SecondEmail", "");
+          if (email) {
+            this._addToResult(
+              commentColumn,
+              directory,
+              card,
+              email,
+              false,
+              result
+            );
+          }
         }
       }
     }
