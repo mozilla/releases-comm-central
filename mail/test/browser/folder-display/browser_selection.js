@@ -179,8 +179,7 @@ add_task(function test_enter_scroll_to_new() {
   enter_folder(folder);
   // make sure it (which must be the last row) is visible
   assert_visible(-1);
-}).__skipMe =
-  AppConstants.platform == "linux" || AppConstants.platform == "macosx";
+}).skip(); // Bug 1602436.
 
 /**
  * Test that the last selected message persists through folder changes.
