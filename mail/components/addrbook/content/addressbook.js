@@ -5,7 +5,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../mailnews/addrbook/content/abResultsPane.js */
 /* import-globals-from ../../../../mailnews/base/content/msgPrintEngine.js */
 /* import-globals-from abCardView.js */
 /* import-globals-from abCommon.js */

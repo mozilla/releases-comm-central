@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../../mailnews/addrbook/content/abResultsPane.js */
 /* import-globals-from ../../../mailnews/base/content/dateFormat.js */
 /* import-globals-from ../../../mailnews/base/search/content/searchTerm.js */
 /* import-globals-from ../../components/addrbook/content/abCommon.js */
