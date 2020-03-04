@@ -205,7 +205,7 @@ statuspanel {
   left: 0;
   z-index: 20;
   max-width: 50%;
-  transition: opacity 100ms ease-out;
+  transition: opacity 120ms ease-out, visibility 120ms;
 }
 
 statuspanel:-moz-locale-dir(ltr)[mirror],
@@ -218,6 +218,7 @@ statuspanel[label=""],
 statuspanel:not([label]) {
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
 }
 
 .statuspanel-inner {
