@@ -183,7 +183,8 @@ add_task(async function testBody() {
       }
 
       let emptyHTML = "<body>\n<p><br>\n</p>\n";
-
+      let plainTextBodyTag =
+        '<body style="font-family: -moz-fixed; white-space: pre-wrap; width: 72ch;">';
       let tests = [
         {
           // No arguments.
@@ -230,8 +231,8 @@ add_task(async function testBody() {
           arguments: { body: "<p>I'm an HTML message!</p>" },
           expected: {
             isHTML: true,
-            htmlIncludes: emptyHTML + "<p>I'm an HTML message!</p>",
-            plainTextIs: "\nI'm an HTML message!",
+            htmlIncludes: "<body>\n<p>I'm an HTML message!</p>\n</body>",
+            plainTextIs: "I'm an HTML message!",
           },
         },
         {
@@ -239,8 +240,8 @@ add_task(async function testBody() {
           arguments: { plainTextBody: "I'm a plain text message!" },
           expected: {
             isHTML: true,
-            htmlIncludes: emptyHTML + "I'm a plain text message!<",
-            plainTextIs: "\nI'm a plain text message!",
+            htmlIncludes: "<body>I'm a plain text message!</body>",
+            plainTextIs: "I'm a plain text message!",
           },
         },
         {
@@ -251,7 +252,7 @@ add_task(async function testBody() {
           },
           expected: {
             isHTML: false,
-            htmlIncludes: ">I'm a plain text message!<",
+            htmlIncludes: plainTextBodyTag + "I'm a plain text message!</body>",
             plainTextIs: "I'm a plain text message!",
           },
         },
@@ -309,16 +310,17 @@ add_task(async function testBody() {
     is(composeWindows.length, 1);
     await new Promise(resolve => composeWindows[0].setTimeout(resolve));
 
-    is(composeWindows[0].IsHTMLEditor(), expected.isHTML, "isHTML");
+    is(composeWindows[0].IsHTMLEditor(), expected.isHTML, "composition mode");
 
     let editor = composeWindows[0].GetCurrentEditor();
     let actualHTML = editor.outputToString("text/html", 0);
     let actualPlainText = editor.outputToString("text/plain", 0);
     if ("htmlIncludes" in expected) {
-      ok(actualHTML.includes(expected.htmlIncludes), "html");
+      info(actualHTML);
+      ok(actualHTML.includes(expected.htmlIncludes), "HTML content is correct");
     }
     if ("plainTextIs" in expected) {
-      is(actualPlainText, expected.plainTextIs, "plainText");
+      is(actualPlainText, expected.plainTextIs, "plainText content is correct");
     }
 
     extension.sendMessage();

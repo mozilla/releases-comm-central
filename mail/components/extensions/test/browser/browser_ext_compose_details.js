@@ -296,16 +296,19 @@ add_task(async function testBody() {
       });
       let [htmlTabId, plainTextTabId] = windows.map(w => w.tabs[0].id);
 
+      let plainTextBodyTag =
+        '<body style="font-family: -moz-fixed; white-space: pre-wrap; width: 72ch;">';
+
       // Get details, HTML message.
 
       let htmlDetails = await browser.compose.getComposeDetails(htmlTabId);
       browser.test.log(JSON.stringify(htmlDetails));
       browser.test.assertTrue(!htmlDetails.isPlainText);
       browser.test.assertTrue(
-        htmlDetails.body.includes(">This is some <i>HTML</i> text.<")
+        htmlDetails.body.includes("<p>This is some <i>HTML</i> text.</p>")
       );
       browser.test.assertEq(
-        "\nThis is some HTML text.",
+        "This is some HTML text.",
         htmlDetails.plainTextBody
       );
 
@@ -318,7 +321,7 @@ add_task(async function testBody() {
       browser.test.log(JSON.stringify(htmlDetails));
       browser.test.assertTrue(!htmlDetails.isPlainText);
       browser.test.assertTrue(
-        htmlDetails.body.includes(">This is some <code>HTML</code> text.<")
+        htmlDetails.body.includes("<p>This is some <code>HTML</code> text.</p>")
       );
       browser.test.assertTrue(
         "This is some HTML text.",
@@ -333,7 +336,9 @@ add_task(async function testBody() {
       browser.test.log(JSON.stringify(plainTextDetails));
       browser.test.assertTrue(plainTextDetails.isPlainText);
       browser.test.assertTrue(
-        plainTextDetails.body.includes(">This is some plain text.<")
+        plainTextDetails.body.includes(
+          plainTextBodyTag + "This is some plain text.</body>"
+        )
       );
       browser.test.assertEq(
         "This is some plain text.",
@@ -353,7 +358,8 @@ add_task(async function testBody() {
       browser.test.assertTrue(plainTextDetails.isPlainText);
       browser.test.assertTrue(
         plainTextDetails.body.includes(
-          ">This is some plain text.<br>Indeed, it is plain.<"
+          plainTextBodyTag +
+            "This is some plain text.<br>Indeed, it is plain.</body>"
         )
       );
       browser.test.assertEq(

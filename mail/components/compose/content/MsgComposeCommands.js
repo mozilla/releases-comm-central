@@ -515,17 +515,23 @@ var stateListener = {
       // Check for "empty" body before allowing paragraph to be inserted.
       // Non-empty bodies in a new message can occur when clicking on a
       // mailto link or when using the command line option -compose.
-      // An "empty" body can be one of these two cases:
+      // An "empty" body can be one of these three cases:
       // 1) <br> and nothing follows (no next sibling)
       // 2) <div/pre class="moz-signature">
+      // 3) No elements, just text
       // Note that <br><div/pre class="moz-signature"> doesn't happen in
       // paragraph mode.
+      let firstChild = mailBody.firstChild;
       let firstElementChild = mailBody.firstElementChild;
-      if (
-        (firstElementChild.nodeName != "BR" ||
-          firstElementChild.nextElementSibling) &&
-        !isSignature(firstElementChild)
-      ) {
+      if (firstElementChild) {
+        if (
+          (firstElementChild.nodeName != "BR" ||
+            firstElementChild.nextElementSibling) &&
+          !isSignature(firstElementChild)
+        ) {
+          insertParagraph = false;
+        }
+      } else if (firstChild && firstChild.nodeType == Node.TEXT_NODE) {
         insertParagraph = false;
       }
     }
@@ -3038,6 +3044,7 @@ function ComposeStartup(aParams) {
     try {
       if (window.arguments[0] instanceof Ci.nsIMsgComposeParams) {
         params = window.arguments[0];
+        gBodyFromArgs = params.composeFields && params.composeFields.body;
       } else {
         params = handleMailtoArgs(window.arguments[0]);
       }
