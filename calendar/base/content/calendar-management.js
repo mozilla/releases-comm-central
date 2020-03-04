@@ -410,6 +410,8 @@ function initHomeCalendar() {
   let url = Services.io.newURI("moz-storage-calendar://");
   let homeCalendar = calMgr.createCalendar("storage", url);
   homeCalendar.name = cal.l10n.getCalString("homeCalendarName");
+  homeCalendar.setProperty("disabled", true);
+
   calMgr.registerCalendar(homeCalendar);
   Services.prefs.setStringPref("calendar.list.sortOrder", homeCalendar.id);
   composite.addCalendar(homeCalendar);
