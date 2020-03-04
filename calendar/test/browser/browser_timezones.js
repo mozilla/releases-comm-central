@@ -7,8 +7,11 @@ requestLongerTimeout(3);
 var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 
 var {
+  CALENDARNAME,
   CANVAS_BOX,
+  createCalendar,
   DAY_VIEW,
+  deleteCalendars,
   helpersForController,
   invokeEventDialog,
   switchToView,
@@ -52,6 +55,7 @@ add_task(async function testTimezones1_SetGMT() {
 });
 
 add_task(async function testTimezones2_CreateEvents() {
+  createCalendar(controller, CALENDARNAME);
   goToDate(controller, 2009, 1, 1);
 
   // Create weekly recurring events in all TIMEZONES.
@@ -891,5 +895,6 @@ function verify(dates, timezones, times) {
 }
 
 registerCleanupFunction(() => {
+  deleteCalendars(controller, CALENDARNAME);
   Services.prefs.clearUserPref("calendar.timezone.local");
 });

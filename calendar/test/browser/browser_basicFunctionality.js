@@ -27,7 +27,14 @@ var controller = mozmill.getMail3PaneController();
 var { eid, lookup } = helpersForController(controller);
 
 add_task(function testBasicFunctionality() {
-  let dateFormatter = cal.getDateFormatter();
+  // Create test calendar.
+  plan_for_modal_dialog("Calendar:NewCalendarWizard", wizard => {
+    handleNewCalendarWizard(wizard, CALENDARNAME);
+  });
+  let calendarList = lookup(CALENDARLIST);
+  // This double-click must be inside the list but below the list items.
+  controller.doubleClick(calendarList);
+  wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
 
   // Check for minimonth.
   controller.waitForElement(eid("calMinimonth"));
@@ -52,7 +59,7 @@ add_task(function testBasicFunctionality() {
   // Default view is day view which should have 09:00 label and box.
   let someTime = cal.createDateTime();
   someTime.resetTo(someTime.year, someTime.month, someTime.day, 9, 0, 0, someTime.timezone);
-  let label = dateFormatter.formatTime(someTime);
+  let label = cal.getDateFormatter().formatTime(someTime);
   controller.assertNode(
     lookup(`
         ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
@@ -79,15 +86,6 @@ add_task(function testBasicFunctionality() {
         id("calendar-task-tree")/{"class":"calendar-task-treechildren"}
     `)
   );
-
-  // Create test calendar.
-  plan_for_modal_dialog("Calendar:NewCalendarWizard", wizard => {
-    handleNewCalendarWizard(wizard, CALENDARNAME);
-  });
-  let calendarList = lookup(CALENDARLIST);
-  // This double-click must be inside the list but below the list items.
-  controller.doubleClick(calendarList);
-  wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
 });
 
 registerCleanupFunction(function teardownModule() {

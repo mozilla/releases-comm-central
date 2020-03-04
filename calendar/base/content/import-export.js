@@ -22,7 +22,7 @@ var MODE_TRUNCATE = 0x20;
  *                              into the calendar
  */
 function loadEventsFromFile(aCalendar) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     picker.init(window, cal.l10n.getCalString("filepickerTitleImport"), Ci.nsIFilePicker.modeOpen);
     picker.defaultExtension = "ics";
@@ -54,6 +54,7 @@ function loadEventsFromFile(aCalendar) {
 
     picker.open(async returnValue => {
       if (returnValue != Ci.nsIFilePicker.returnOK || !picker.file || !picker.file.path) {
+        reject();
         return;
       }
 
@@ -92,6 +93,7 @@ function loadEventsFromFile(aCalendar) {
         // the ics did not contain any events, so there's no need to proceed. But we should
         // notify the user about it, if we haven't before.
         cal.showError(cal.l10n.getCalString("noItemsInCalendarFile", [filePath]), window);
+        reject();
         return;
       }
 
@@ -104,7 +106,9 @@ function loadEventsFromFile(aCalendar) {
       let calendars = cal.getCalendarManager().getCalendars();
       calendars = calendars.filter(cal.acl.isCalendarWritable);
 
-      if (calendars.length == 1) {
+      if (calendars.length == 0) {
+        reject();
+      } else if (calendars.length == 1) {
         // There's only one calendar, so it's silly to ask what calendar
         // the user wants to import into.
         await putItemsIntoCal(calendars[0], items, filePath);

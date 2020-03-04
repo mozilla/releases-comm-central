@@ -9,6 +9,9 @@
 var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 
 var {
+  CALENDARNAME,
+  createCalendar,
+  deleteCalendars,
   helpersForController,
   invokeEventDialog,
   openLightningPrefs,
@@ -33,6 +36,7 @@ var controller = mozmill.getMail3PaneController();
 var prefTab = null;
 
 add_task(async function testDefaultAlarms() {
+  createCalendar(controller, CALENDARNAME);
   let localeUnitString = cal.l10n.getCalString("unitDays");
   let unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
   let alarmString = (...args) => cal.l10n.getString("calendar-alarms", ...args);
@@ -143,4 +147,8 @@ registerCleanupFunction(function teardownModule(module) {
   if (prefTab) {
     closeLightningPrefs(prefTab);
   }
+});
+
+registerCleanupFunction(() => {
+  deleteCalendars(controller, CALENDARNAME);
 });

@@ -7,10 +7,19 @@
    openTasksTab, selectCalendarEventTab, selectCalendarTaskTab,
    selectFolderTab */
 
+var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarUtils.jsm"
+);
+
+var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
+var controller = mozmill.getMail3PaneController();
+
 // Test that today pane is visible/collapsed correctly for various tab types.
 // In all cases today pane should not be visible in preferences or addons tab.
 // Also test that the today pane button is visible/hidden for various tab types.
 add_task(async () => {
+  createCalendar(controller, CALENDARNAME);
+
   const todayPane = document.getElementById("today-pane-panel");
   const todayPaneButton = document.getElementById("calendar-status-todaypane-button");
 
@@ -155,4 +164,8 @@ add_task(async () => {
   is(BrowserTestUtils.is_visible(button), false, "today pane button is hidden in preferences tab");
   await openAddonsTab();
   is(BrowserTestUtils.is_visible(button), false, "today pane button is hidden in addons tab");
+});
+
+registerCleanupFunction(() => {
+  deleteCalendars(controller, CALENDARNAME);
 });

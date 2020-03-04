@@ -2,15 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Services.prefs.setIntPref("calendar.week.start", 1);
-registerCleanupFunction(() => {
-  Services.prefs.clearUserPref("calendar.week.start");
-});
+var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarUtils.jsm"
+);
 
-let calendar = cal.async.promisifyCalendar(cal.getCalendarManager().getCalendars()[0]);
+var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
+var controller = mozmill.getMail3PaneController();
+
+var calendarId = createCalendar(controller, CALENDARNAME);
+var calendar = cal.async.promisifyCalendar(cal.getCalendarManager().getCalendarById(calendarId));
+
 let formatter = cal.getDateFormatter();
 let startTime = formatter.formatTime(cal.createDateTime("20190403T123400"));
 let endTime = formatter.formatTime(cal.createDateTime("20190403T234500"));
+
+Services.prefs.setIntPref("calendar.week.start", 1);
 
 /**
  * Test an event that occurs within one day, in the day view.
@@ -532,4 +538,9 @@ add_task(async function testOutsideMonthView() {
 
   await closeCalendarTab();
   await calendar.deleteItem(event);
+});
+
+registerCleanupFunction(() => {
+  Services.prefs.clearUserPref("calendar.week.start");
+  deleteCalendars(controller, CALENDARNAME);
 });
