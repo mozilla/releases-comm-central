@@ -63,7 +63,10 @@ function createMessages(folder, count) {
   const { MessageGenerator } = ChromeUtils.import(
     "resource://testing-common/mailnews/MessageGenerator.jsm"
   );
-  let messages = new MessageGenerator().makeMessages({
+  if (!createMessages.messageGenerator) {
+    createMessages.messageGenerator = new MessageGenerator();
+  }
+  let messages = createMessages.messageGenerator.makeMessages({
     count,
     age_incr: { days: 2 },
   });

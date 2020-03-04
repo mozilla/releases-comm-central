@@ -47,6 +47,26 @@
         }
       }
     ],
+    "events": [
+      {
+        "name": "onNewMailReceived",
+        "type": "function",
+        "description": "Fired when a new message is received, and has been through junk classification and message filters.",
+        "permissions": [
+          "accountsRead"
+        ],
+        "parameters": [
+          {
+            "name": "folder",
+            "$ref": "folders.MailFolder"
+          },
+          {
+            "name": "messages",
+            "$ref": "messages.MessageList"
+          }
+        ]
+      }
+    ],
     "functions": [
       {
         "name": "list",

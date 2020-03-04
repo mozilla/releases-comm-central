@@ -61,6 +61,43 @@ function convertMessagePart(part) {
   return partObject;
 }
 
+/**
+ * Listens to the folder notification service for new messages, which are
+ * passed to the onNewMailReceived event.
+ *
+ * @implements {nsIMsgFolderListener}
+ */
+let newMailEventTracker = new (class extends EventEmitter {
+  constructor() {
+    super();
+    this.listenerCount = 0;
+  }
+  on(event, listener) {
+    super.on(event, listener);
+
+    if (++this.listenerCount == 1) {
+      MailServices.mfn.addListener(this, MailServices.mfn.msgsClassified);
+    }
+  }
+  off(event, listener) {
+    super.off(event, listener);
+
+    if (--this.listenerCount == 0) {
+      MailServices.mfn.removeListener(this);
+    }
+  }
+
+  msgsClassified(messages, junkProcessed, traitProcessed) {
+    if (messages.length > 0) {
+      this.emit(
+        "new-mail-received",
+        messages.queryElementAt(0, Ci.nsIMsgDBHdr).folder,
+        messages.enumerate()
+      );
+    }
+  }
+})();
+
 this.messages = class extends ExtensionAPI {
   getAPI(context) {
     function collectMessagesInFolders(messageIds) {
@@ -131,6 +168,23 @@ this.messages = class extends ExtensionAPI {
 
     return {
       messages: {
+        onNewMailReceived: new EventManager({
+          context,
+          name: "messageDisplay.onNewMailReceived",
+          register: fire => {
+            let listener = (event, folder, newMessages) => {
+              fire.async(
+                convertFolder(folder),
+                messageListTracker.startList(newMessages, context.extension)
+              );
+            };
+
+            newMailEventTracker.on("new-mail-received", listener);
+            return () => {
+              newMailEventTracker.off("new-mail-received", listener);
+            };
+          },
+        }).api(),
         async list({ accountId, path }) {
           let uri = folderPathToURI(accountId, path);
           let folder = MailServices.folderLookup.getFolderForURL(uri);
