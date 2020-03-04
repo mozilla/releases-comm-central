@@ -61,6 +61,10 @@ def no_sign_langpacks(config, jobs):
                 if 'autograph_langpack' in artifact.get('formats', []):
                     artifact['formats'].remove('autograph_langpack')
 
+                # Make sure that there are no .xpi files in the artifact list
+                if all([p.endswith('target.langpack.xpi') for p in artifact['paths']]):
+                    payload['upstreamArtifacts'].remove(artifact)
+
         yield job
 
 
