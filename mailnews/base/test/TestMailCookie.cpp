@@ -41,7 +41,7 @@ void SetACookieMail(nsICookieService *aCookieService, const char *aSpec1,
   if (aSpec2) NS_NewURI(getter_AddRefs(uri2), aSpec2);
 
   nsresult rv = aCookieService->SetCookieStringFromHttp(
-      uri1, uri2, nullptr, nsDependentCString(aCookieString),
+      uri1, uri2, nsDependentCString(aCookieString),
       aServerTime ? nsDependentCString(aServerTime) : VoidCString(), nullptr);
   EXPECT_TRUE(NS_SUCCEEDED(rv));
 }
