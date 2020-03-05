@@ -1597,32 +1597,43 @@ var gApplicationsPane = {
     }
   },
 
-  chooseApp() {
-    var handlerApp;
-    let onSelectionDone = function() {
-      // Rebuild the actions menu whether the user picked an app or canceled.
-      // If they picked an app, we want to add the app to the menu and select it.
-      // If they canceled, we want to go back to their previous selection.
-      this.rebuildActionsMenu();
+  handlerApp: null,
 
-      // If the user picked a new app from the menu, select it.
-      if (handlerApp) {
-        let typeItem = this._list.selectedItem;
-        var actionsCell =
-          document.getAnonymousElementByAttribute(typeItem, "anonid", "action-cell");
-        var actionsMenu =
-          document.getAnonymousElementByAttribute(actionsCell, "anonid", "action-menu");
-        let menuItems = actionsMenu.menupopup.childNodes;
-        for (let i = 0; i < menuItems.length; i++) {
-          let menuItem = menuItems[i];
-          if (menuItem.handlerApp && menuItem.handlerApp.equals(handlerApp)) {
-            actionsMenu.selectedIndex = i;
-            this.onSelectAction(menuItem);
-            break;
-          }
+  finishChooseApp() {
+    if (this.handlerApp) {
+      // Add the app to the type's list of possible handlers.
+      let handlerInfo = this._handledTypes[this._list.selectedItem.type];
+      handlerInfo.addPossibleApplicationHandler(this.handlerApp);
+    }
+
+    // Rebuild the actions menu whether the user picked an app or canceled.
+    // If they picked an app, we want to add the app to the menu and select it.
+    // If they canceled, we want to go back to their previous selection.
+    this.rebuildActionsMenu();
+
+    // If the user picked a new app from the menu, select it.
+    if (this.handlerApp) {
+      var actionsCell =
+        document.getAnonymousElementByAttribute(this._list.selectedItem,
+                                               "anonid", "action-cell");
+      var actionsMenu =
+        document.getAnonymousElementByAttribute(actionsCell,
+                                                "anonid", "action-menu");
+      let menuItems = actionsMenu.menupopup.childNodes;
+      for (let i = 0; i < menuItems.length; i++) {
+        let menuItem = menuItems[i];
+        if (menuItem.handlerApp &&
+            menuItem.handlerApp.equals(this.handlerApp)) {
+          actionsMenu.selectedIndex = i;
+          this.onSelectAction(menuItem);
+          break;
         }
       }
-    }.bind(this);
+    }
+  },
+
+  chooseApp() {
+    this.handlerApp = null;
 
     if (AppConstants.platform == "win") {
       let params = {};
@@ -1647,12 +1658,33 @@ var gApplicationsPane = {
                         params);
 
       if (this.isValidHandlerApp(params.handlerApp)) {
-        handlerApp = params.handlerApp;
-
-        // Add the app to the type's list of possible handlers.
-        handlerInfo.addPossibleApplicationHandler(handlerApp);
+        this.handlerApp = params.handlerApp;
       }
-      onSelectionDone();
+      this.finishChooseApp();
+    } else if (Services.prefs.getBoolPref("browser.download.useAppChooser", true) && ("@mozilla.org/applicationchooser;1" in Cc)) {
+      let mimeInfo;
+      let handlerInfo = this._handledTypes[this._list.selectedItem.type];
+      if (isFeedType(handlerInfo.type)) {
+        // MIME info will be null, create a temp object.
+        mimeInfo =
+            gMIMEService.getFromTypeAndExtension(handlerInfo.type,
+                                                 handlerInfo.primaryExtension);
+      } else {
+        mimeInfo = handlerInfo.wrappedHandlerInfo;
+      }
+
+      var appChooser = Cc["@mozilla.org/applicationchooser;1"]
+                         .createInstance(Ci.nsIApplicationChooser);
+      appChooser.init(window, this._prefsBundle.getString("fpTitleChooseApp"));
+      var contentTypeDialogObj = this;
+      let appChooserCallback = function appChooserCallback_done(aResult) {
+        if (aResult) {
+          contentTypeDialogObj.handlerApp = aResult.QueryInterface(Ci.nsILocalHandlerApp);
+        }
+        contentTypeDialogObj.finishChooseApp();
+      };
+      appChooser.open(mimeInfo.MIMEType, appChooserCallback);
+      // The finishChooseApp is called from appChooserCallback
     } else {
       let fp = Cc["@mozilla.org/filepicker;1"]
                  .createInstance(Ci.nsIFilePicker);
@@ -1665,16 +1697,13 @@ var gApplicationsPane = {
       fp.open(rv => {
         if (rv == Ci.nsIFilePicker.returnOK && fp.file &&
             this._isValidHandlerExecutable(fp.file)) {
-          handlerApp = Cc["@mozilla.org/uriloader/local-handler-app;1"]
-                         .createInstance(Ci.nsILocalHandlerApp);
+          let handlerApp = Cc["@mozilla.org/uriloader/local-handler-app;1"]
+                             .createInstance(Ci.nsILocalHandlerApp);
           handlerApp.name = getFileDisplayName(fp.file);
           handlerApp.executable = fp.file;
-
-          // Add the app to the type's list of possible handlers.
-          let handlerInfo = this._handledTypes[this._list.selectedItem.type];
-          handlerInfo.addPossibleApplicationHandler(handlerApp);
+          this.handlerApp = handlerApp;
         }
-        onSelectionDone();
+        this.finishChooseApp();
       });
     }
   },

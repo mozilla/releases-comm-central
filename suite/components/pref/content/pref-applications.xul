@@ -59,6 +59,9 @@
       <preference id="pref.downloads.disable_button.edit_actions"
                   name="pref.downloads.disable_button.edit_actions"
                   type="bool"/>
+      <preference id="browser.download.useAppChooser"
+                  name="browser.download.useAppChooser"
+                  type="bool"/>
     </preferences>
 
     <stringbundleset id="appBundleset">
@@ -96,5 +99,15 @@
                     onclick="gApplicationsPane.sort(event);"/>
       </listhead>
     </listbox>
+#ifdef XP_LINUX
+    <separator class="thin"/>
+
+    <hbox align="center">
+      <checkbox id="downloadUseAppChooser"
+                label="&useAppChooser.label;"
+                accesskey="&useAppChooser.accesskey;"
+                preference="browser.download.useAppChooser"/>
+    </hbox>
+#endif
   </prefpane>
 </overlay>
