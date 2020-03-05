@@ -311,3 +311,21 @@ statusbarpanel:not(.statusbar-resizerpanel):-moz-lwtheme {
   padding: 0px 1px;
   -moz-box-align: center;
 }
+
+/* colorpicker button */
+
+colorpicker[type="button"] {
+  -moz-appearance: button;
+  width: 56px;
+  height: 24px;
+}
+
+/* filefield */
+
+.fileFieldContentBox {
+  padding-inline-start: 3px;
+  margin-inline-start: -4px;
+  margin-inline-end: -4px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
