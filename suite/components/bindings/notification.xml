@@ -480,10 +480,6 @@
                   if (!Services.prefs.getBoolPref(aData))
                     return;
 
-                  var missingNotification = this.getNotificationWithValue("missing-plugins");
-                  if (missingNotification)
-                    this.removeNotification(missingNotification);
-
                   var disabledNotification = this.getNotificationWithValue("disabled-plugins");
                   if (disabledNotification)
                     this.removeNotification(disabledNotification);
@@ -594,7 +590,6 @@
             var notifications = [
               "blocked-plugins",
               "disabled-plugins",
-              "missing-plugins",
               "outdated-plugins",
             ];
 
@@ -625,24 +620,22 @@
         <parameter name="aSkipFallbackType"/>
         <body>
           <![CDATA[
-            const nsIObjectLoadingContent = Ci.nsIObjectLoadingContent;
-            var objLoadingContent = aPlugin.QueryInterface(nsIObjectLoadingContent);
+            var objLoadingContent = aPlugin.QueryInterface(Ci.nsIObjectLoadingContent);
             var actualType = objLoadingContent.actualType;
-            if (objLoadingContent.getContentTypeForMIMEType(actualType) != nsIObjectLoadingContent.TYPE_PLUGIN ||
+            if (objLoadingContent.getContentTypeForMIMEType(actualType) != Ci.nsIObjectLoadingContent.TYPE_PLUGIN ||
                 objLoadingContent.activated ||
                 (!aSkipFallbackType &&
-                 (objLoadingContent.pluginFallbackType < nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY ||
-                  objLoadingContent.pluginFallbackType > nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE)))
+                 (objLoadingContent.pluginFallbackType < Ci.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY ||
+                  objLoadingContent.pluginFallbackType > Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE)))
               return false;
 
             var ph = Cc["@mozilla.org/plugin/host;1"]
                        .getService(Ci.nsIPluginHost);
             var permissionString = ph.getPermissionStringForType(actualType);
-            const nsIPermissionManager = Ci.nsIPermissionManager;
             var pm = Cc["@mozilla.org/permissionmanager;1"]
-                       .getService(nsIPermissionManager);
+                       .getService(Ci.nsIPermissionManager);
             var pluginPermission = pm.testPermission(this.activeBrowser.currentURI, permissionString);
-            return pluginPermission != nsIPermissionManager.DENY_ACTION;
+            return pluginPermission != Ci.nsIPermissionManager.DENY_ACTION;
           ]]>
         </body>
       </method>
@@ -653,9 +646,8 @@
           <![CDATA[
             var ph = Cc["@mozilla.org/plugin/host;1"]
                        .getService(Ci.nsIPluginHost);
-            const nsIPermissionManager = Ci.nsIPermissionManager;
             var pm = Cc["@mozilla.org/permissionmanager;1"]
-                       .getService(nsIPermissionManager);
+                       .getService(Ci.nsIPermissionManager);
             for (var type of this.clickToPlayTypes) {
               var permissionString = ph.getPermissionStringForType(type);
               pm.add(this.activeBrowser.currentURI, permissionString, aPermission);
@@ -2029,11 +2021,10 @@
 
       <handler event="PluginBindingAttached" phase="capturing" allowuntrusted="true">
         <![CDATA[
-          var nsIObjectLoadingContent = Ci.nsIObjectLoadingContent;
           var plugin = event.target;
           // Since we are expecting also untrusted events, make sure
           // that the target is a plugin
-          if (!(plugin instanceof nsIObjectLoadingContent))
+          if (!(plugin instanceof Ci.nsIObjectLoadingContent))
             return;
 
           var closeIcon = this.getPluginUI(plugin, "closeIcon");
@@ -2041,23 +2032,11 @@
 
           var notification, message, buttons, pref;
           switch (plugin.pluginFallbackType) {
-            case nsIObjectLoadingContent.PLUGIN_UNSUPPORTED:
-              notification = "missing-plugins";
-              message = this._stringBundle.GetStringFromName("missingpluginsMessage.title");
-              if ("goPreferences" in window) {
-                buttons = [{
-                  label: this._stringBundle.GetStringFromName("missingpluginsMessage.button.label"),
-                  accessKey: this._stringBundle.GetStringFromName("missingpluginsMessage.button.accesskey"),
-                  popup: null,
-                  callback: function() {
-                    goPreferences("scripts_pane");
-                    return true;
-                  }
-                }];
-              }
-              break;
+            case Ci.nsIObjectLoadingContent.PLUGIN_UNSUPPORTED:
+              // NOP. Plugin finder service (PFS) is dead.
+              return;
 
-            case nsIObjectLoadingContent.PLUGIN_DISABLED:
+            case Ci.nsIObjectLoadingContent.PLUGIN_DISABLED:
               if (!this.canActivatePlugin(plugin, true))
                 return;
 
@@ -2078,7 +2057,7 @@
               }
               break;
 
-            case nsIObjectLoadingContent.PLUGIN_BLOCKLISTED:
+            case Ci.nsIObjectLoadingContent.PLUGIN_BLOCKLISTED:
               notification = "blocked-plugins";
               message = this._stringBundle.GetStringFromName("blockedpluginsMessage.title");
               buttons = [{
@@ -2089,34 +2068,32 @@
               }];
               break;
 
-            case nsIObjectLoadingContent.PLUGIN_OUTDATED:
+            case Ci.nsIObjectLoadingContent.PLUGIN_OUTDATED:
               notification = "outdated-plugins";
               message = this._stringBundle.GetStringFromName("outdatedpluginsMessage.title");
               buttons = [{
                 label: this._stringBundle.GetStringFromName("outdatedpluginsMessage.button.label"),
                 accessKey: this._stringBundle.GetStringFromName("outdatedpluginsMessage.button.accesskey"),
                 popup: null,
-                callback: this.openURLPref.bind(this, "plugins.update.url")
+                callback: null,
               }];
               pref = "plugins.hide_infobar_for_outdated_plugin";
               break;
 
-            case nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE:
-              var updateLink = this.getPluginUI(plugin, "checkForUpdatesLink");
-              this.addLinkClickCallback(updateLink, this.openURLPref, "plugins.update.url");
+            case Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE:
               // fall through
-            case nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE:
+            case Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE:
               var eventType = this.getBindingType(plugin);
               // When we got here, we deal with a vulnerable plugin object, so setup UI elements for this case
               var vulnerabilityString = this._stringBundle.GetStringFromName(eventType);
               var vulnerabilityText = this.getPluginUI(plugin, "vulnerabilityStatus");
               vulnerabilityText.textContent = vulnerabilityString;
               // fall through
-            case nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY:
+            case Ci.nsIObjectLoadingContent.PLUGIN_CLICK_TO_PLAY:
               this.setupPluginClickToPlay(plugin, true);
               return;
 
-            case nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW:
+            case Ci.nsIObjectLoadingContent.PLUGIN_PLAY_PREVIEW:
               this.handlePlayPreviewEvent(plugin);
               return;
 
@@ -2414,13 +2391,9 @@
 
               if (plugin.pluginFallbackType) {
                 if (plugin.pluginFallbackType ==
-                      Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE) {
-                  updateLink = this._urlFormatter.formatURLPref("plugins.update.url");
-                  warn = true;
-                  warningText = this._stringBundle.GetStringFromName("vulnerableUpdatablePluginWarning");
-                }
-                else if (plugin.pluginFallbackType ==
-                           Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE) {
+                      Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_UPDATABLE ||
+                    plugin.pluginFallbackType ==
+                      Ci.nsIObjectLoadingContent.PLUGIN_VULNERABLE_NO_UPDATE) {
                   warn = true;
                   warningText = this._stringBundle.GetStringFromName("vulnerableNoUpdatePluginWarning");
                 }
