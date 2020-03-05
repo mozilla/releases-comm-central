@@ -1,0 +1,162 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#ifdef MOZ_OPENPGP
+<script src="chrome://openpgp/content/BondOpenPGP.jsm"/>
+#endif
+
+    <vbox id="e2eEditing">
+
+      <stringbundle id="bundle_e2e" src="chrome://messenger/locale/am-smime.properties"/>
+      <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
+
+      <label hidden="true" wsm_persist="true" id="identity_encryptionpolicy"/>
+      <label hidden="true" wsm_persist="true" id="identity_e2etechpref"/>
+
+      <vbox>
+        <description flex="1">&e2eIntro.description;</description>
+        <label is="text-link" id="acceptLearnMoreE2E"
+               href="https://support.mozilla.org/kb/introduction-to-e2e-encryption"
+               value="&e2eLearnMore.label;"/>
+      </vbox>
+
+#ifdef MOZ_OPENPGP
+      <html:fieldset id="openpgpOptions">
+        <html:legend>&openpgpKeys.label;</html:legend>
+
+        <label id="identity_openpgp_key_nameLabel"
+               value="&openpgpKey.message;" control="identity_openpgp_key_id"/>
+        <hbox align="center" class="input-container">
+          <html:input id="identity_openpgp_key_id" type="text"
+                      class="input-inline"
+                      readonly="readonly"
+                      disabled="disabled"
+                      aria-labelledby="identity_openpgp_key_nameLabel"
+                      wsm_persist="true"
+                      prefstring="mail.identity.%identitykey%.openpgp_key_id"/>
+
+          <button id="openpgpKeySelectButton"
+                  label="&openpgpKey.button;"
+                  accesskey="&openpgpKey.accesskey;"
+                  oncommand="pgpSelectKey('identity_openpgp_key_id')"/>
+          <button id="openpgpKeyClearButton"
+                  label="&encryption.certificate_clear.button;"
+                  oncommand="pgpClearKey('identity_openpgp_key_id')"/>
+        </hbox>
+
+        <hbox align="right">
+          <button id="openOpenPGPKeyManagerButton" oncommand="BondOpenPGP.openKeyManager(window);"
+                  label="&manageKeys.label;"/>
+        </hbox>
+      </html:fieldset>
+#endif
+
+      <html:fieldset id="smimeOptions">
+        <html:legend>&certificates2.label;</html:legend>
+
+        <label id="identity_signing_cert_nameLabel"
+               value="&signingCert2.message;" control="identity_signing_cert_name"
+               prefstring="mail.identity.%identitykey%.encryptionpolicy"/>
+
+        <hbox align="center" class="input-container">
+          <html:input id="identity_signing_cert_name" type="text"
+                      class="input-inline"
+                      readonly="readonly"
+                      disabled="disabled"
+                      aria-labelledby="identity_signing_cert_nameLabel"
+                      wsm_persist="true"
+                      prefstring="mail.identity.%identitykey%.signing_cert_name"/>
+
+          <button id="signingCertSelectButton"
+                  label="&digitalSign.certificate.button;"
+                  accesskey="&digitalSign.certificate.accesskey;"
+                  oncommand="smimeSelectCert('identity_signing_cert_name')"/>
+
+          <button id="signingCertClearButton"
+                  label="&digitalSign.certificate_clear.button;"
+                  accesskey="&digitalSign.certificate_clear.accesskey;"
+                  oncommand="smimeClearCert('identity_signing_cert_name')"/>
+        </hbox>
+
+        <label value="&encryptionCert2.message;"
+               control="identity_encryption_cert_name"/>
+
+        <hbox align="center" class="input-container">
+          <html:input id="identity_encryption_cert_name" type="text"
+                      class="input-inline"
+                      readonly="readonly"
+                      disabled="disabled"
+                      wsm_persist="true"
+                      prefstring="mail.identity.%identitykey%.encryption_cert_name"/>
+
+          <button id="encryptionCertSelectButton"
+                  label="&encryption.certificate.button;"
+                  accesskey="&encryption.certificate.accesskey;"
+                  oncommand="smimeSelectCert('identity_encryption_cert_name')"/>
+
+          <button id="encryptionCertClearButton"
+                  label="&encryption.certificate_clear.button;"
+                  accesskey="&encryption.certificate_clear.accesskey;"
+                  oncommand="smimeClearCert('identity_encryption_cert_name')"/>
+        </hbox>
+
+        <hbox align="right">
+          <button id="openCertManagerButton" oncommand="openCertManager();"
+                  label="&manageCerts3.label;" accesskey="&manageCerts3.accesskey;"/>
+          <button id="openDeviceManagerButton" oncommand="openDeviceManager();"
+                  label="&manageDevices2.label;" accesskey="&manageDevices2.accesskey;"/>
+        </hbox>
+
+      </html:fieldset>
+
+      <html:legend>&sendingDefaults.label;</html:legend>
+
+      <html:fieldset id="encryption_titlebox">
+        <description flex="1">&e2eEnc.description;</description>
+
+        <separator class="thin"/>
+
+        <radiogroup id="encryptionChoices">
+          <radio id="encrypt_no" wsm_persist="true" value="0"
+                 label="&doNotEncrypt.label;"
+                 accesskey="&doNotEncrypt.accesskey;"/>
+          <!--
+          <radio id="encrypt_allow" wsm_persist="true" value="1"
+                 label=""/>
+          -->
+          <radio id="encrypt_require" wsm_persist="true" value="2"
+                 label="&requireEncryptMessage.label;"
+                 accesskey="&requireEncryptMessage.accesskey;"/>
+        </radiogroup>
+
+        <description flex="1">&e2eeReqWarning.description;</description>
+      </html:fieldset>
+
+      <separator/>
+      <separator/>
+
+      <html:fieldset id="signing_titlebox">
+        <description flex="1">&e2eSigning.description;</description>
+        <checkbox id="identity_sign_mail" wsm_persist="true"
+                  prefstring="mail.identity.%identitykey%.sign_mail"
+                  label="&signMessage2.label;" accesskey="&signMessage.accesskey;"/>
+      </html:fieldset>
+
+#ifdef MOZ_OPENPGP
+      <separator/>
+      <html:fieldset id="technology_titlebox">
+        <description>&e2eTechPref.description;</description>
+        <radiogroup id="technologyChoices">
+          <radio id="technology_automatic" wsm_persist="true" value="0"
+                 label="&technologyAutomatic.label;"/>
+
+          <radio id="technology_prefer_openpgp" wsm_persist="true" value="2"
+                 label="&technologyOpenPGP.label;"/>
+
+          <radio id="technology_prefer_smime" wsm_persist="true" value="1"
+                 label="&technologySMIME.label;"/>
+        </radiogroup>
+      </html:fieldset>
+#endif
+    </vbox>

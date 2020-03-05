@@ -3,12 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["SMIMEService"];
+var EXPORTED_SYMBOLS = ["E2EService"];
 
-function SMIMEService() {}
+function E2EService() {}
 
-SMIMEService.prototype = {
-  name: "smime",
+E2EService.prototype = {
+  name: "e2e",
   chromePackageName: "messenger",
   showPanel(server) {
     // don't show the panel for news, rss, or local accounts

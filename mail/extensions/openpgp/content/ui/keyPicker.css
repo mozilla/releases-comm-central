@@ -1,0 +1,30 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.info-name {
+  overflow: hidden; /* Allows equal sizing combined with width="0" */
+  padding-inline-start: 7px;
+  -moz-box-align: center;
+}
+
+#keyPickerDialog {
+  width: 45em;
+}
+
+#keyIDBox {
+  min-height: 18em;
+}
+
+#userID,
+#keyID,
+#keyCreated,
+#keyExpiration,
+#keyIDBox > richlistitem {
+  min-height: 35px;
+}
+
+.website-status {
+  margin: 1px;
+  margin-inline-end: 5px;
+}

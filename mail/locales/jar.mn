@@ -75,6 +75,7 @@
   locale/@AB_CD@/messenger/smtpEditOverlay.dtd                          (%chrome/messenger/smtpEditOverlay.dtd)
   locale/@AB_CD@/messenger/am-smime.dtd                                 (%chrome/messenger/am-smime.dtd)
   locale/@AB_CD@/messenger/am-smime.properties                          (%chrome/messenger/am-smime.properties)
+  locale/@AB_CD@/messenger/am-e2e.properties                            (%chrome/messenger/am-e2e.properties)
   locale/@AB_CD@/messenger/removeAccount.dtd                            (%chrome/messenger/removeAccount.dtd)
   locale/@AB_CD@/messenger/removeAccount.properties                     (%chrome/messenger/removeAccount.properties)
   locale/@AB_CD@/messenger/messenger.properties                         (%chrome/messenger/messenger.properties)
@@ -241,7 +242,6 @@
   locale/@AB_CD@/messenger-newsblog/am-newsblog.dtd                     (%chrome/messenger-newsblog/am-newsblog.dtd)
 % locale messenger-smime @AB_CD@ %locale/@AB_CD@/messenger-smime/
   locale/@AB_CD@/messenger-smime/msgCompSMIMEOverlay.dtd                (%chrome/messenger-smime/msgCompSMIMEOverlay.dtd)
-  locale/@AB_CD@/messenger-smime/msgCompSMIMEOverlay.properties         (%chrome/messenger-smime/msgCompSMIMEOverlay.properties)
   locale/@AB_CD@/messenger-smime/msgReadSMIMEOverlay.dtd                (%chrome/messenger-smime/msgReadSMIMEOverlay.dtd)
   locale/@AB_CD@/messenger-smime/msgReadSMIMEOverlay.properties         (%chrome/messenger-smime/msgReadSMIMEOverlay.properties)
   locale/@AB_CD@/messenger-smime/msgCompSecurityInfo.dtd                (%chrome/messenger-smime/msgCompSecurityInfo.dtd)

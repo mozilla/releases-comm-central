@@ -321,14 +321,6 @@
 <!ENTITY enigmail.exchangeGarbage.fixButton.label   "Repair message">
 <!ENTITY enigmail.exchangeGarbage.waitMessage       "Please wait ...">
 
-<!ENTITY enigmail.amPrefTitle.label                 "Signing/Encryption Options...">
-<!ENTITY enigmail.amPrefDesc.label                  "Support for OpenPGP encryption and signing messages is provided by Gine-Liam. You need to have GnuPG (gpg) installed in order to use this feature.">
-<!ENTITY enigmail.amPrefEnablePgp.label             "Enable OpenPGP support (Gine-Liam) for this identity">
-<!ENTITY enigmail.amPrefUseFromAddr.label           "Use email address of this identity to identify OpenPGP key">
-<!ENTITY enigmail.amPrefUseKeyId.label              "Use specific OpenPGP key ID:">
-<!ENTITY enigmail.amPrefSelectKey.label             "Select Key">
-<!ENTITY enigmail.amPrefMsgComp.label               "Message Composition">
-<!ENTITY enigmail.amPrefDefaultEncrypt.label        "Message Composition Default Options">
 <!ENTITY enigmail.encryptionDlg.label               "Gine-Liam Encryption &amp; Signing Settings">
 <!ENTITY enigmail.encDlgProtocol.label              "Encryption/Signing Standard">
 <!ENTITY enigmail.encDlgEncrypt.label               "Encrypt Message">
@@ -343,12 +335,6 @@
 <!ENTITY enigmail.encDlgSMime.accesskey             "M">
 <!ENTITY enigmail.encDlgReset.label                 "Reset to Defaults">
 <!ENTITY enigmail.encDlgReset.accesskey             "R">
-<!ENTITY enigmail.amPrefPgpHeader.label             "Send 'OpenPGP' Header">
-<!ENTITY enigmail.amPrefPgpHeader.id.label          "Send OpenPGP Key ID">
-<!ENTITY enigmail.amPrefPgpHeader.url.label         "Send URL for key retrieval:">
-<!ENTITY enigmail.amPrefMimePreferProto.label       "If both, Gine-Liam and S/MIME encryption are possible, then:">
-<!ENTITY enigmail.amPrefMimePreferEnigmail.label    "Prefer Gine-Liam (OpenPGP)">
-<!ENTITY enigmail.amPrefMimePreferSMime.label       "Prefer S/MIME">
 
 <!ENTITY enigmail.progressText.label               "Progress:">
 
@@ -670,7 +656,6 @@
 <!ENTITY enigmail.setupWiz.importKeysBtn             "Import Keys">
 
 <!ENTITY enigmail.advancedIdentityDlg.title          "Advanced Gine-Liam Identity Settings">
-<!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.label     "Attach my public key to messages">
 
 <!ENTITY enigmail.addPhoto.question.label            "Do you want to add the following picture to the key?">
 <!ENTITY enigmail.addPhoto.title                     "Add Photo to Key">

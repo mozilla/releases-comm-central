@@ -4,7 +4,3 @@
 #% locale openpgp @AB_CD@ %
 #  locale/openpgp/enigmail.properties  (%enigmail.properties)
 #  locale/openpgp/enigmail.dtd         (%enigmail.dtd)
-
-
-#@AB_CD@.jar:
-#  locale/@AB_CD@/messenger/am-enigprefs.properties  (%am-enigprefs.properties)

@@ -1,6 +1,16 @@
+# vim: set filetype=python:
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-## S/MIME mail compose window error strings.
-NeedSetup=You need to set up one or more personal certificates before you can use this security feature. Would you like to do so now?
+EXTRA_JS_MODULES += [
+    'AME2E.jsm',
+]
+
+XPCOM_MANIFESTS += [
+    'components.conf',
+]
+
+JS_PREFERENCE_FILES += [
+    'prefs/e2e-prefs.js',
+]

@@ -1556,22 +1556,22 @@ function InitFileSaveAsMenu() {
     .setAttribute("checked", defaultSaveOperation == "template");
 }
 
+function isSmimeSigningConfigured() {
+  return !!gCurrentIdentity.getUnicharAttribute("signing_cert_name");
+}
+
+function isSmimeEncryptionConfigured() {
+  return !!gCurrentIdentity.getUnicharAttribute("encryption_cert_name");
+}
+
+function isPgpConfigured() {
+  return !!gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
+}
+
 function toggleGlobalSignMessage() {
   gSendSigned = !gSendSigned;
   gUserTouchedSendSigned = true;
   setEncSigStatusUI();
-
-  /*
-  if (gSMFields.signMessage) // make sure we have a cert name...
-  {
-    if (!gCurrentIdentity.getUnicharAttribute("signing_cert_name"))
-    {
-      gSMFields.signMessage = false;
-      showSMNeedSetupInfo();
-      return;
-    }
-  }
-  */
 }
 
 function setGlobalEncryptMessage(mode) {
@@ -1600,19 +1600,6 @@ function setGlobalEncryptMessage(mode) {
   }
 
   setEncSigStatusUI();
-
-  /*
-  if (gSMFields.requireEncryptMessage)
-  {
-    // Make sure we have a cert.
-    if (!gCurrentIdentity.getUnicharAttribute("encryption_cert_name"))
-    {
-      gSMFields.requireEncryptMessage = false;
-      showSMNeedSetupInfo();
-      return;
-    }
-  }
-  */
 }
 
 function toggleAttachMyPublicKey() {
@@ -1621,36 +1608,69 @@ function toggleAttachMyPublicKey() {
 }
 
 function setSecuritySettings(menu_id) {
-  document
-    .getElementById("menu_securityEncryptDisable" + menu_id)
-    .setAttribute("checked", !gSendEncrypted && !gOptionalEncryption);
+  let enc0Item = document.getElementById(
+    "menu_securityEncryptDisable" + menu_id
+  );
+  enc0Item.checked = !gSendEncrypted && !gOptionalEncryption;
   /*
-  document
-    .getElementById("menu_securityEncryptOptional" + menu_id)
-    .setAttribute("checked", gSendEncrypted && gOptionalEncryption);
+  let enc1Item = document
+    .getElementById("menu_securityEncryptOptional" + menu_id);
+  enc1Item.checked = (gSendEncrypted && gOptionalEncryption);
   */
-  document
-    .getElementById("menu_securityEncryptRequire" + menu_id)
-    .setAttribute("checked", gSendEncrypted && !gOptionalEncryption);
+  let enc2Item = document.getElementById(
+    "menu_securityEncryptRequire" + menu_id
+  );
+  enc2Item.checked = gSendEncrypted && !gOptionalEncryption;
 
-  document
-    .getElementById("menu_securitySign" + menu_id)
-    .setAttribute("checked", gSendSigned);
+  let sigItem = document.getElementById("menu_securitySign" + menu_id);
+  sigItem.checked = gSendSigned;
+
+  let disableSig = false;
+  let disableEnc = false;
+
+  if (MailConstants.MOZ_OPENPGP && gSelectedTechnologyIsPGP) {
+    if (!isPgpConfigured()) {
+      disableSig = true;
+      disableEnc = true;
+    }
+  } else {
+    if (!isSmimeSigningConfigured()) {
+      disableSig = true;
+    }
+    if (!isSmimeEncryptionConfigured()) {
+      disableEnc = true;
+    }
+  }
+
+  enc0Item.disabled = disableEnc;
+  //enc1Item.disabled = disableEnc;
+  enc2Item.disabled = disableEnc;
+
+  sigItem.disabled = disableSig;
 
   if (MailConstants.MOZ_OPENPGP) {
-    document
-      .getElementById("encTech_OpenPGP" + menu_id)
-      .setAttribute("checked", gSelectedTechnologyIsPGP);
-    document
-      .getElementById("encTech_SMIME" + menu_id)
-      .setAttribute("checked", !gSelectedTechnologyIsPGP);
+    let pgpItem = document.getElementById("encTech_OpenPGP" + menu_id);
+
+    let smimeItem = document.getElementById("encTech_SMIME" + menu_id);
+
+    pgpItem.checked = gSelectedTechnologyIsPGP;
+    smimeItem.checked = !gSelectedTechnologyIsPGP;
+
+    smimeItem.disabled =
+      !isSmimeSigningConfigured() && !isSmimeEncryptionConfigured();
+
+    pgpItem.disabled = !isPgpConfigured();
 
     let sep = document.getElementById("myPublicKeySeparator" + menu_id);
     let box = document.getElementById("menu_securityMyPublicKey" + menu_id);
 
     sep.setAttribute("hidden", !gSelectedTechnologyIsPGP);
     box.setAttribute("hidden", !gSelectedTechnologyIsPGP);
-    box.setAttribute("checked", gAttachMyPublicPGPKey);
+    box.checked = gAttachMyPublicPGPKey;
+
+    if (gSelectedTechnologyIsPGP) {
+      box.disabled = disableEnc;
+    }
   }
 }
 
@@ -1672,31 +1692,6 @@ function showMessageComposeSecurityStatus() {
       currentIdentity: gCurrentIdentity,
     }
   );
-}
-
-function showSMNeedSetupInfo() {
-  let compSmimeBundle = document.getElementById("bundle_comp_smime");
-  let brandBundle = document.getElementById("brandBundle");
-  if (!compSmimeBundle || !brandBundle) {
-    return;
-  }
-
-  let buttonPressed = Services.prompt.confirmEx(
-    window,
-    brandBundle.getString("brandShortName"),
-    compSmimeBundle.getString("NeedSetup"),
-    Services.prompt.STD_YES_NO_BUTTONS,
-    0,
-    0,
-    0,
-    null,
-    {}
-  );
-  if (buttonPressed == 0) {
-    let servers = MailServices.accounts.getServersForIdentity(gCurrentIdentity);
-    let server = servers.queryElementAt(0, Ci.nsIMsgIncomingServer);
-    MsgAccountManager("am-smime.xhtml", server);
-  }
 }
 
 function openEditorContextMenu(popup) {

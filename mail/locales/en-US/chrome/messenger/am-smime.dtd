@@ -2,16 +2,21 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!ENTITY securityTitle.label "Security">
-<!ENTITY securityTab.label "Security">
-<!ENTITY securityHeading.label "To send and receive signed or encrypted messages, you should specify both a digital signing certificate and an encryption certificate.">
-<!ENTITY encryptionGroupTitle.label "Encryption">
-<!ENTITY encryptionChoiceLabel.label "Default encryption setting when sending messages:">
-<!ENTITY neverEncrypt.label "Never (do not use encryption)">
-<!ENTITY neverEncrypt.accesskey "N">
-<!ENTITY alwaysEncryptMessage.label "Required (can't send message unless all recipients have certificates)">
-<!ENTITY alwaysEncryptMessage.accesskey "u">
-<!ENTITY encryptionCert.message "Use this certificate to encrypt &amp; decrypt messages sent to you:">
+<!ENTITY e2eTitle.label "End-To-End Encryption">
+<!ENTITY e2eIntro.description "To send encrypted or digitally signed messages, you need to configure an encryption technology, either OpenPGP or S/MIME.">
+<!ENTITY e2eLearnMore.label "Learn more">
+
+<!ENTITY e2eEnc.description "Without end-to-end encryption the contents of messages are easily exposed to your email provider and to mass surveillance.">
+<!ENTITY e2eeReqWarning.description "If you require encryption, to send a message you must have the public key or certificate of every recipient.">
+
+<!ENTITY e2eSigning.description "A digital signature allows recipients to verify the message was sent by you, and that the content has not been changed.">
+<!ENTITY e2eTechPref.description "Preferred encryption technology:">
+
+<!ENTITY doNotEncrypt.label "Do not enable encryption by default">
+<!ENTITY doNotEncrypt.accesskey "N">
+<!ENTITY requireEncryptMessage.label "Require encryption by default">
+<!ENTITY requireEncryptMessage.accesskey "u">
+<!ENTITY encryptionCert2.message "Personal certificate for encryption:">
 <!ENTITY digitalSign.certificate.button "Select…">
 <!ENTITY digitalSign.certificate.accesskey "S">
 <!ENTITY digitalSign.certificate_clear.button "Clear">
@@ -21,17 +26,32 @@
 <!ENTITY encryption.certificate_clear.button "Clear">
 <!ENTITY encryption.certificate_clear.accesskey "e">
 <!ENTITY signingGroupTitle.label "Digital Signing">
-<!ENTITY signMessage.label "Digitally sign messages (by default)">
+<!ENTITY signMessage2.label "Add my digital signature by default">
 <!ENTITY signMessage.accesskey "D">
-<!ENTITY signingCert.message "Use this certificate to digitally sign messages you send:">
+<!ENTITY signingCert2.message "Personal certificate for digital signing:">
 
-<!ENTITY certificates.label "Certificates">
-<!ENTITY manageCerts2.label "Manage Certificates">
-<!ENTITY manageCerts2.accesskey "M">
-<!ENTITY manageDevices.label "Security Devices">
-<!ENTITY manageDevices.accesskey "y">
+<!ENTITY sendingDefaults.label "Default settings for sending messages">
+
+<!ENTITY technologyAutomatic.label "Select automatically based on available keys or certificates">
+
+<!ENTITY certificates2.label "S/MIME">
+<!ENTITY manageCerts3.label "Manage S/MIME Certificates">
+<!ENTITY manageCerts3.accesskey "M">
+<!ENTITY manageDevices2.label "S/MIME Security Devices">
+<!ENTITY manageDevices2.accesskey "y">
+
+<!ENTITY technologySMIME.label "Prefer S/MIME">
+<!ENTITY technologyOpenPGP.label "Prefer OpenPGP">
+
+<!ENTITY openpgpKeys.label "OpenPGP">
+<!ENTITY manageKeys.label "Manage OpenPGP Keys">
+<!ENTITY manageKeys.accesskey "K">
 
 <!-- Strings for the cert picker dialog -->
 <!ENTITY certPicker.title "Select Certificate">
 <!ENTITY certPicker.info  "Certificate:">
 <!ENTITY certPicker.detailsLabel "Details of selected certificate:">
+
+<!ENTITY openpgpKey.message "Personal key for encryption and digital signing:">
+<!ENTITY openpgpKey.button "Set Personal Key…">
+<!ENTITY openpgpKey.accesskey "o">

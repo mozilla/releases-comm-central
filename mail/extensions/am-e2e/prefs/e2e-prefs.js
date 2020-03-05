@@ -6,8 +6,24 @@
  */
 
 /**
- * Default pref values for Enigmail
+ * Prefs shared by OpenPGP and S/MIME
  */
+
+pref("mail.identity.default.encryptionpolicy", 0);
+pref("mail.identity.default.sign_mail", false);
+
+/**
+ * S/MIME prefs
+*/
+
+pref("mail.identity.default.encryption_cert_name", "");
+pref("mail.identity.default.signing_cert_name", "");
+
+/**
+ * OpenPGP prefs
+ */
+
+pref("mail.identity.default.openpgp_key_id", "");
 
 
 // the last configured Enigmail version
@@ -248,13 +264,6 @@ pref("mail.identity.default.attachPgpKey", false);
 pref("mail.identity.default.autoEncryptDrafts", true);
 pref("mail.identity.default.protectSubject", true);
 pref("mail.identity.default.warnWeakReply", false);
-
-/*
-   Default pref values for the enigmail per-account
-   settings
-*/
-pref("mail.server.default.enableAutocrypt", false); // see https://autocrypt.org
-pref("mail.server.default.acPreferEncrypt", 0);
 
 // prefer S/MIME or PGP/MIME (0: S/MIME, 1: PGP/MIME)
 pref("mail.identity.default.mimePreferOpenPGP", 1);

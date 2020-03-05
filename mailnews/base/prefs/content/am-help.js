@@ -22,7 +22,7 @@ var pageTagPairs = {
   "chrome://messenger/content/am-junk.xhtml": "mail-account-junk",
   "chrome://messenger/content/am-offline.xhtml": "mail-offline-accounts",
   "chrome://messenger/content/am-smtp.xhtml": "mail_smtp",
-  "chrome://messenger/content/am-smime.xhtml": "mail_security_settings",
+  "chrome://messenger/content/am-e2e.xhtml": "mail_security_settings",
   "chrome://messenger/content/am-serverwithnoidentities.xhtml":
     "mail_local_folders_settings",
   "chrome://messenger/content/am-mdn.xhtml": "mail-account-receipts",

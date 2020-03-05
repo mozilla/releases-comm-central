@@ -199,13 +199,11 @@ var EnigmailKeyRing = {
     if (searchTerm === "") {
       return res;
     }
-    console.debug(gKeyListObj.keyList);
     for (let i in gKeyListObj.keyList) {
       let k = gKeyListObj.keyList[i];
 
       for (let j in k.userIds) {
         if (k.userIds[j].type === "uid" && k.userIds[j].userId.search(s) >= 0) {
-          console.debug("found " + k.userIds[j].userId);
           if (
             !onlyValidUid ||
             !EnigmailTrust.isInvalid(k.userIds[j].keyTrust)
@@ -216,7 +214,6 @@ var EnigmailKeyRing = {
         }
       }
     }
-    console.debug("getKeysByUserId result: %o", res);
     return res;
   },
 
@@ -230,13 +227,19 @@ var EnigmailKeyRing = {
    * @return KeyObject with the found key, or null if no key found
    */
   getSecretKeyByEmail(emailAddr) {
+    let result = {};
+    this.getAllSecretKeysByEmail(emailAddr, result);
+    return result.best;
+  },
+
+  getAllSecretKeysByEmail(emailAddr, result) {
     // sanitize email address
     emailAddr = emailAddr.replace(/([\.\[\]\-\\])/g, "\\$1");
 
     let searchTerm =
       "(<" + emailAddr + ">| " + emailAddr + "$|^" + emailAddr + "$)";
 
-    return this.getSecretKeyByUserId(searchTerm);
+    this.getAllSecretKeysByUserId(searchTerm, result);
   },
 
   /**
@@ -247,16 +250,19 @@ var EnigmailKeyRing = {
    * @return KeyObject with the found key, or null if no key found
    */
   getSecretKeyByUserId(searchTerm) {
+    let result = {};
+    this.getAllSecretKeysByUserId(searchTerm, result);
+    return result.best;
+  },
+
+  getAllSecretKeysByUserId(searchTerm, result) {
     EnigmailLog.DEBUG(
       "keyRing.jsm: getSecretKeyByUserId: '" + searchTerm + "'\n"
     );
     let keyList = this.getKeysByUserId(searchTerm, true);
-    console.debug(
-      "getSecretKeyByUserId, got result from getKeysByUserId: %o",
-      keyList
-    );
 
-    let foundKey = null;
+    result.all = [];
+    result.best = null;
 
     for (let key of keyList) {
       if (
@@ -264,28 +270,27 @@ var EnigmailKeyRing = {
         key.getEncryptionValidity().keyValid &&
         key.getSigningValidity().keyValid
       ) {
-        if (!foundKey) {
-          foundKey = key;
+        result.all.push(key);
+        if (!result.best) {
+          result.best = key;
         } else if (
-          foundKey.algoSym === key.algoSym &&
-          foundKey.keySize === key.keySize
+          result.best.algoSym === key.algoSym &&
+          result.best.keySize === key.keySize
         ) {
-          if (key.expiryTime > foundKey.expiryTime) {
-            foundKey = key;
+          if (key.expiryTime > result.best.expiryTime) {
+            result.best = key;
           }
         } else if (
-          foundKey.algoSym.search(/^(DSA|RSA)$/) < 0 &&
+          result.best.algoSym.search(/^(DSA|RSA)$/) < 0 &&
           key.algoSym.search(/^(DSA|RSA)$/) === 0
         ) {
           // prefer RSA or DSA over ECC (long-term: change this once ECC keys are widely supported)
-          foundKey = key;
-        } else if (key.getVirtualKeySize() > foundKey.getVirtualKeySize()) {
-          foundKey = key;
+          result.best = key;
+        } else if (key.getVirtualKeySize() > result.best.getVirtualKeySize()) {
+          result.best = key;
         }
       }
     }
-    console.debug("getSecretKeyByUserId, foundKey: %o", foundKey);
-    return foundKey;
   },
 
   /**
@@ -443,12 +448,6 @@ var EnigmailKeyRing = {
   extractKey(includeSecretKey, id, outputFile, exitCodeObj, errorMsgObj) {
     EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.extractKey: " + id + "\n");
     exitCodeObj.value = -1;
-
-    console.debug(
-      "keyRing.jsm: EnigmailKeyRing.extractKey: type of parameter id:"
-    );
-    console.debug(typeof id);
-    console.debug(id);
 
     if (includeSecretKey) {
       throw new Error("extractKey with secret key not implemented");

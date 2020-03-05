@@ -4,6 +4,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailConstants } = ChromeUtils.import(
+  "resource:///modules/MailConstants.jsm"
+);
+
+if (MailConstants.MOZ_OPENPGP) {
+  var { EnigmailKeyRing } = ChromeUtils.import(
+    "chrome://openpgp/content/modules/keyRing.jsm"
+  );
+}
 
 var nsIX509CertDB = Ci.nsIX509CertDB;
 var nsX509CertDBContractID = "@mozilla.org/security/x509certdb;1";
@@ -13,42 +22,53 @@ var email_signing_cert_usage = 4; // SECCertUsage.certUsageEmailSigner
 var email_recipient_cert_usage = 5; // SECCertUsage.certUsageEmailRecipient
 
 var gIdentity;
-var gPref = null;
 var gEncryptionCertName = null;
 var gHiddenEncryptionPolicy = null;
 var gEncryptionChoices = null;
 var gSignCertName = null;
+var gTechChoices = null;
+var gHiddenTechPref = null;
 var gSignMessages = null;
-var gEncryptAlways = null;
-var gNeverEncrypt = null;
+var gRequireEncrypt = null;
+var gDoNotEncrypt = null;
+var gKeyId = null;
 var gBundle = null;
 var gBrandBundle;
 var gSmimePrefbranch;
-var gEncryptionChoicesLocked;
-var gSigningChoicesLocked;
-var kEncryptionCertPref = "identity.encryption_cert_name";
-var kSigningCertPref = "identity.signing_cert_name";
+var kEncryptionCertPref = "identity_encryption_cert_name";
+var kSigningCertPref = "identity_signing_cert_name";
+var kOpenPGPKeyPref = "identity_openpgp_key_id";
+
+var gTechAuto = null;
+var gTechPrefOpenPGP = null;
+var gTechPrefSMIME = null;
 
 function onInit() {
-  smimeInitializeFields();
+  e2eInitializeFields();
 }
 
-function smimeInitializeFields() {
+function e2eInitializeFields() {
   // initialize all of our elements based on the current identity values....
   gEncryptionCertName = document.getElementById(kEncryptionCertPref);
   gHiddenEncryptionPolicy = document.getElementById(
-    "identity.encryptionpolicy"
+    "identity_encryptionpolicy"
   );
+  gHiddenTechPref = document.getElementById("identity_e2etechpref");
   gEncryptionChoices = document.getElementById("encryptionChoices");
   gSignCertName = document.getElementById(kSigningCertPref);
-  gSignMessages = document.getElementById("identity.sign_mail");
-  gEncryptAlways = document.getElementById("encrypt_mail_always");
-  gNeverEncrypt = document.getElementById("encrypt_mail_never");
-  gBundle = document.getElementById("bundle_smime");
+  gSignMessages = document.getElementById("identity_sign_mail");
+  gRequireEncrypt = document.getElementById("encrypt_require");
+  gDoNotEncrypt = document.getElementById("encrypt_no");
+  gBundle = document.getElementById("bundle_e2e");
   gBrandBundle = document.getElementById("bundle_brand");
 
-  gEncryptionChoicesLocked = false;
-  gSigningChoicesLocked = false;
+  if (MailConstants.MOZ_OPENPGP) {
+    gTechChoices = document.getElementById("technologyChoices");
+    gKeyId = document.getElementById(kOpenPGPKeyPref);
+    gTechAuto = document.getElementById("technology_automatic");
+    gTechPrefOpenPGP = document.getElementById("technology_prefer_openpgp");
+    gTechPrefSMIME = document.getElementById("technology_prefer_smime");
+  }
 
   if (!gIdentity) {
     // The user is going to create a new identity.
@@ -64,16 +84,24 @@ function smimeInitializeFields() {
     gSignCertName.displayName = "";
     gSignCertName.dbKey = "";
 
-    gEncryptAlways.setAttribute("disabled", true);
-    gNeverEncrypt.setAttribute("disabled", true);
-    gSignMessages.setAttribute("disabled", true);
+    gKeyId.value = "";
+
+    gRequireEncrypt.disabled = true;
+    gDoNotEncrypt.disabled = true;
+    gSignMessages.disabled = true;
 
     gSignMessages.checked = false;
     gEncryptionChoices.value = 0;
+    if (MailConstants.MOZ_OPENPGP) {
+      gTechChoices.value = 0;
+    }
   } else {
     var certdb = Cc[nsX509CertDBContractID].getService(nsIX509CertDB);
     var x509cert = null;
 
+    if (MailConstants.MOZ_OPENPGP) {
+      gKeyId.value = gIdentity.getUnicharAttribute("openpgp_key_id");
+    }
     gEncryptionCertName.value = gIdentity.getUnicharAttribute(
       "encryption_cert_name"
     );
@@ -96,13 +124,14 @@ function smimeInitializeFields() {
     } catch (e) {}
 
     gEncryptionChoices.value = gIdentity.getIntAttribute("encryptionpolicy");
-
-    if (!gEncryptionCertName.value) {
-      gEncryptAlways.setAttribute("disabled", true);
-      gNeverEncrypt.setAttribute("disabled", true);
-    } else {
-      enableEncryptionControls(true);
+    if (MailConstants.MOZ_OPENPGP) {
+      gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
     }
+
+    let enableEnc = gEncryptionCertName.value || gKeyId.value;
+    gRequireEncrypt.disabled = !enableEnc;
+    gDoNotEncrypt.disabled = !enableEnc;
+    enableEncryptionControls(enableEnc);
 
     gSignCertName.value = gIdentity.getUnicharAttribute("signing_cert_name");
     gSignCertName.dbKey = gIdentity.getCharAttribute("signing_cert_dbkey");
@@ -121,22 +150,17 @@ function smimeInitializeFields() {
     } catch (e) {}
 
     gSignMessages.checked = gIdentity.getBoolAttribute("sign_mail");
-    if (!gSignCertName.value) {
-      gSignMessages.setAttribute("disabled", true);
-    } else {
-      enableSigningControls(true);
-    }
+
+    let enableSig = gSignCertName.value || gKeyId.value;
+    gSignMessages.disabled = !enableSig;
+    enableSigningControls(enableSig);
   }
 
-  // Always start with enabling signing and encryption cert select buttons.
+  // Always start with enabling select buttons.
   // This will keep the visibility of buttons in a sane state as user
   // jumps from security panel of one account to another.
-  enableCertSelectButtons();
-
-  // Disable all locked elements on the panel
-  if (gIdentity) {
-    onLockPreference();
-  }
+  enableSelectButtons();
+  updateTechPref();
 }
 
 function onPreInit(account, accountValues) {
@@ -144,15 +168,25 @@ function onPreInit(account, accountValues) {
 }
 
 function onSave() {
-  smimeSave();
+  e2eSave();
   window.dispatchEvent(new CustomEvent("prefchange"));
 }
 
-function smimeSave() {
+function e2eSave() {
   // find out which radio for the encryption radio group is selected and set that on our hidden encryptionChoice pref....
   var newValue = gEncryptionChoices.value;
   gHiddenEncryptionPolicy.setAttribute("value", newValue);
   gIdentity.setIntAttribute("encryptionpolicy", newValue);
+
+  if (MailConstants.MOZ_OPENPGP) {
+    newValue = gTechChoices.value;
+    gHiddenTechPref.setAttribute("value", newValue);
+    gIdentity.setIntAttribute("e2etechpref", newValue);
+  }
+
+  if (MailConstants.MOZ_OPENPGP) {
+    gIdentity.setUnicharAttribute("openpgp_key_id", gKeyId.value);
+  }
   gIdentity.setUnicharAttribute(
     "encryption_cert_name",
     gEncryptionCertName.displayName || gEncryptionCertName.value
@@ -170,72 +204,8 @@ function smimeSave() {
   gIdentity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
 }
 
-function smimeOnAcceptEditor(event) {
-  smimeSave();
-}
-
-function onLockPreference() {
-  var initPrefString = "mail.identity";
-  var finalPrefString;
-
-  var allPrefElements = [
-    { prefstring: "signingCertSelectButton", id: "signingCertSelectButton" },
-    {
-      prefstring: "encryptionCertSelectButton",
-      id: "encryptionCertSelectButton",
-    },
-    { prefstring: "sign_mail", id: "identity.sign_mail" },
-    { prefstring: "encryptionpolicy", id: "encryptionChoices" },
-  ];
-
-  finalPrefString = initPrefString + "." + gIdentity.key + ".";
-  gSmimePrefbranch = Services.prefs.getBranch(finalPrefString);
-
-  disableIfLocked(allPrefElements);
-}
-
-// Does the work of disabling an element given the array which contains xul id/prefstring pairs.
-// Also saves the id/locked state in an array so that other areas of the code can avoid
-// stomping on the disabled state indiscriminately.
-function disableIfLocked(prefstrArray) {
-  for (let i = 0; i < prefstrArray.length; i++) {
-    var id = prefstrArray[i].id;
-    var element = document.getElementById(id);
-    if (gSmimePrefbranch.prefIsLocked(prefstrArray[i].prefstring)) {
-      // If encryption choices radio group is locked, make sure the individual
-      // choices in the group are locked. Set a global (gEncryptionChoicesLocked)
-      // indicating the status so that locking can be maintained further.
-      if (id == "encryptionChoices") {
-        document
-          .getElementById("encrypt_mail_never")
-          .setAttribute("disabled", "true");
-        document
-          .getElementById("encrypt_mail_always")
-          .setAttribute("disabled", "true");
-        gEncryptionChoicesLocked = true;
-      }
-      // If option to sign mail is locked (with true/false set in config file), disable
-      // the corresponding checkbox and set a global (gSigningChoicesLocked) in order to
-      // honor the locking as user changes other elements on the panel.
-      if (id == "identity.sign_mail") {
-        document
-          .getElementById("identity.sign_mail")
-          .setAttribute("disabled", "true");
-        gSigningChoicesLocked = true;
-      } else {
-        element.setAttribute("disabled", "true");
-        if (id == "signingCertSelectButton") {
-          document
-            .getElementById("signingCertClearButton")
-            .setAttribute("disabled", "true");
-        } else if (id == "encryptionCertSelectButton") {
-          document
-            .getElementById("encryptionCertClearButton")
-            .setAttribute("disabled", "true");
-        }
-      }
-    }
-  }
+function e2eOnAcceptEditor(event) {
+  e2eSave();
 }
 
 function alertUser(message) {
@@ -313,6 +283,48 @@ function checkOtherCert(
   }
 }
 
+function pgpSelectKey(pgp_key) {
+  if (!MailConstants.MOZ_OPENPGP) {
+    return;
+  }
+
+  var keyInfo = document.getElementById(pgp_key);
+  if (!keyInfo) {
+    return;
+  }
+
+  let result = {};
+  EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result);
+
+  let params = {
+    keys: result.all,
+    identity: gIdentity.fullAddress,
+    canceled: true,
+    index: -1,
+  };
+
+  window.docShell.rootTreeItem.domWindow.openDialog(
+    "chrome://openpgp/content/ui/keyPicker.xhtml",
+    "",
+    "dialog,close,titlebar,modal,resizable",
+    params
+  );
+
+  if (params.canceled) {
+    return;
+  }
+
+  keyInfo.value = result.all[params.index].keyId;
+  keyInfo.displayName = result.all[params.index].keyId;
+
+  enableEncryptionControls(true);
+  enableSigningControls(true);
+
+  updateTechPref();
+  enableSelectButtons();
+  onSave();
+}
+
 function smimeSelectCert(smime_cert) {
   var certInfo = document.getElementById(smime_cert);
   if (!certInfo) {
@@ -369,7 +381,7 @@ function smimeSelectCert(smime_cert) {
         );
       }
     } else {
-      certInfo.removeAttribute("disabled");
+      certInfo.disabled = false;
       certInfo.value =
         x509cert.displayName + " [" + x509cert.serialNumber + "]";
       certInfo.displayName = x509cert.displayName;
@@ -403,69 +415,67 @@ function smimeSelectCert(smime_cert) {
     }
   }
 
-  enableCertSelectButtons();
+  updateTechPref();
+  enableSelectButtons();
+  onSave();
 }
 
 function enableEncryptionControls(do_enable) {
-  if (gEncryptionChoicesLocked) {
-    return;
-  }
-
-  if (do_enable) {
-    gEncryptAlways.removeAttribute("disabled");
-    gNeverEncrypt.removeAttribute("disabled");
-    gEncryptionCertName.removeAttribute("disabled");
-  } else {
-    gEncryptAlways.setAttribute("disabled", "true");
-    gNeverEncrypt.setAttribute("disabled", "true");
-    gEncryptionCertName.setAttribute("disabled", "true");
+  gRequireEncrypt.disabled = !do_enable;
+  gDoNotEncrypt.disabled = !do_enable;
+  if (!do_enable) {
     gEncryptionChoices.value = 0;
   }
 }
 
 function enableSigningControls(do_enable) {
-  if (gSigningChoicesLocked) {
-    return;
-  }
-
-  if (do_enable) {
-    gSignMessages.removeAttribute("disabled");
-    gSignCertName.removeAttribute("disabled");
-  } else {
-    gSignMessages.setAttribute("disabled", "true");
-    gSignCertName.setAttribute("disabled", "true");
+  gSignMessages.disabled = !do_enable;
+  if (!do_enable) {
     gSignMessages.checked = false;
   }
 }
 
-function enableCertSelectButtons() {
-  document
-    .getElementById("signingCertSelectButton")
-    .removeAttribute("disabled");
+function enableSelectButtons() {
+  gSignCertName.disabled = !gSignCertName.value;
+  document.getElementById(
+    "signingCertClearButton"
+  ).disabled = !gSignCertName.value;
 
-  if (document.getElementById("identity.signing_cert_name").value.length) {
-    document
-      .getElementById("signingCertClearButton")
-      .removeAttribute("disabled");
-  } else {
-    document
-      .getElementById("signingCertClearButton")
-      .setAttribute("disabled", "true");
+  gEncryptionCertName.disabled = !gEncryptionCertName.value;
+  document.getElementById(
+    "encryptionCertClearButton"
+  ).disabled = !gEncryptionCertName.value;
+
+  if (MailConstants.MOZ_OPENPGP) {
+    gKeyId.disabled = !gKeyId.value;
+    document.getElementById("openpgpKeyClearButton").disabled = !gKeyId.value;
+  }
+}
+
+function pgpClearKey(pgp_key) {
+  if (!MailConstants.MOZ_OPENPGP) {
+    return;
+  }
+  var keyInfo = document.getElementById(pgp_key);
+  if (!keyInfo) {
+    return;
   }
 
-  document
-    .getElementById("encryptionCertSelectButton")
-    .removeAttribute("disabled");
+  keyInfo.disabled = true;
+  keyInfo.value = "";
 
-  if (document.getElementById("identity.encryption_cert_name").value.length) {
-    document
-      .getElementById("encryptionCertClearButton")
-      .removeAttribute("disabled");
-  } else {
-    document
-      .getElementById("encryptionCertClearButton")
-      .setAttribute("disabled", "true");
+  let stillHaveOtherSigning = gSignCertName && gSignCertName.value;
+  let stillHaveOtherEncryption =
+    gEncryptionCertName && gEncryptionCertName.value;
+
+  if (!stillHaveOtherEncryption) {
+    enableEncryptionControls(false);
   }
+  if (!stillHaveOtherSigning) {
+    enableSigningControls(false);
+  }
+  updateTechPref();
+  enableSelectButtons();
   onSave();
 }
 
@@ -475,18 +485,46 @@ function smimeClearCert(smime_cert) {
     return;
   }
 
-  certInfo.setAttribute("disabled", "true");
+  certInfo.disabled = true;
   certInfo.value = "";
   certInfo.displayName = "";
   certInfo.dbKey = "";
 
-  if (smime_cert == kEncryptionCertPref) {
-    enableEncryptionControls(false);
-  } else if (smime_cert == kSigningCertPref) {
-    enableSigningControls(false);
+  let stillHaveOther = gKeyId && gKeyId.value;
+
+  if (!stillHaveOther) {
+    if (smime_cert == kEncryptionCertPref) {
+      enableEncryptionControls(false);
+    } else if (smime_cert == kSigningCertPref) {
+      enableSigningControls(false);
+    }
   }
 
-  enableCertSelectButtons();
+  updateTechPref();
+  enableSelectButtons();
+  onSave();
+}
+
+function updateTechPref() {
+  if (!MailConstants.MOZ_OPENPGP) {
+    return;
+  }
+
+  let haveSigCert = gSignCertName && gSignCertName.value;
+  let haveEncCert = gEncryptionCertName && gEncryptionCertName.value;
+  let havePgpkey = gKeyId && gKeyId.value;
+
+  let enable = (haveSigCert || haveEncCert) && havePgpkey;
+
+  gTechAuto.disabled = !enable;
+  gTechPrefOpenPGP.disabled = !enable;
+  gTechPrefSMIME.disabled = !enable;
+
+  if (!enable) {
+    gIdentity.setIntAttribute("e2etechpref", 0);
+    gHiddenTechPref.setAttribute("value", 0);
+    gTechChoices.value = 0;
+  }
 }
 
 function openCertManager() {
@@ -497,6 +535,6 @@ function openDeviceManager() {
   parent.gSubDialog.open("chrome://pippki/content/device_manager.xhtml");
 }
 
-function smimeOnLoadEditor() {
-  smimeInitializeFields();
+function e2eOnLoadEditor() {
+  e2eInitializeFields();
 }

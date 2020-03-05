@@ -24,10 +24,6 @@ const getEnigmailCore = EnigmailLazy.loader(
   "enigmail/core.jsm",
   "EnigmailCore"
 );
-const getEnigmailAmPrefsService = EnigmailLazy.loader(
-  "enigmail/amPrefsService.jsm",
-  "EnigmailAmPrefsService"
-);
 const getEnigmailPgpmimeHander = EnigmailLazy.loader(
   "enigmail/pgpmimeHandler.jsm",
   "EnigmailPgpmimeHander"
@@ -61,7 +57,6 @@ var BondOpenPGP = {
       //TODO: check RNP.libLoaded
 
       getEnigmailApp().initAddon();
-      getEnigmailAmPrefsService().startup(0);
       getEnigmailCore().startup(0);
       getEnigmailPgpmimeHander().startup(0);
 

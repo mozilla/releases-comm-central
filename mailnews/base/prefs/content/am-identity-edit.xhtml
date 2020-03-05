@@ -16,8 +16,8 @@
 %copiesDTD;
 <!ENTITY % addressingDTD SYSTEM "chrome://messenger/locale/am-addressing.dtd" >
 %addressingDTD;
-<!ENTITY % smimeDTD SYSTEM "chrome://messenger/locale/am-smime.dtd" >
-%smimeDTD;
+<!ENTITY % e2eDTD SYSTEM "chrome://messenger/locale/am-smime.dtd" >
+%e2eDTD;
 ]>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
@@ -37,10 +37,10 @@
   <script src="chrome://messenger/content/amUtils.js"/>
   <script src="chrome://messenger/content/am-copies.js"/>
   <script src="chrome://messenger/content/am-addressing.js"/>
-  <script src="chrome://messenger/content/am-smime.js"/>
+  <script src="chrome://messenger/content/am-e2e.js"/>
   <script>
   <![CDATA[
-    window.addEventListener("load", smimeOnLoadEditor, false);
+    window.addEventListener("load", e2eOnLoadEditor, false);
   ]]>
   </script>
 
@@ -52,7 +52,7 @@
       <tab label="&settingsTab.label;"/>
       <tab label="&copiesFoldersTab.label;"/>
       <tab label="&addressingTab.label;"/>
-      <tab label="&securityTab.label;"/>
+      <tab label="&e2eTitle.label;"/>
     </tabs>
 
     <tabpanels id="identityTabsPanels" flex="1">
@@ -210,7 +210,7 @@
 #include am-addressing.inc.xhtml
 
       <!-- Security Tab -->
-#include ../../../extensions/smime/content/am-smime.inc.xhtml
+#include ../../../../mail/extensions/am-e2e/am-e2e.inc.xhtml
 
     </tabpanels>
   </tabbox>

@@ -9,19 +9,19 @@
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         class="color-dialog"
-        onload="parent.onPanelLoaded('am-smime.xhtml');">
+        onload="parent.onPanelLoaded('am-e2e.xhtml');">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/AccountManager.js"/>
-  <script src="chrome://messenger/content/am-smime.js"/>
+  <script src="chrome://messenger/content/am-e2e.js"/>
 
   <vbox flex="1" style="overflow: auto;">
     <hbox class="dialogheader">
-      <label class="dialogheader-title" value="&securityTitle.label;"/>
+      <label class="dialogheader-title" value="&e2eTitle.label;"/>
     </hbox>
 
-#include am-smime.inc.xhtml
+#include am-e2e.inc.xhtml
   </vbox>
 
 </window>

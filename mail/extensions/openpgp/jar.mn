@@ -1,3 +1,4 @@
+#filter substitution
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -11,13 +12,15 @@ openpgp.jar:
   content/openpgp/strings/enigmail.properties  (content/strings/enigmail.properties)
   content/openpgp/strings/enigmail.dtd         (content/strings/enigmail.dtd)
   content/openpgp/strings/bond.dtd             (content/strings/bond.dtd)
-  content/openpgp/ui                           (content/ui/*)
+  content/openpgp/ui                           (content/ui/*.js)
+  content/openpgp/ui                           (content/ui/*.xhtml)
+  content/openpgp/ui                           (content/ui/*.css)
 % skin openpgp classic/1.0 %skin/tb-mac/ os=Darwin
 % skin openpgp classic/1.0 %skin/tb-win/ os=WINNT
 % skin openpgp classic/1.0 %skin/tb-linux/
   skin/tb-mac                                  (skin/tb-mac/*)
   skin/tb-win                                  (skin/tb-win/*)
   skin/tb-linux                                (skin/tb-linux/*)
-  am-enigprefs.properties                      (content/strings/am-enigprefs.properties)
-  content/openpgp/am-enigprefs.xhtml           (content/am-enigprefs.xhtml)
 
+[localization] @AB_CD@.jar:
+  openpgp/content/ui/keyPicker.ftl             (content/ui/keyPicker.ftl)

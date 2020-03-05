@@ -64,7 +64,6 @@ editor/ui/texzilla/**
 mailnews/mailnews.js
 mailnews/extensions/dsn/content/dsn.js
 mailnews/extensions/mdn/content/mdn.js
-mailnews/extensions/smime/content/smime.js
 
 # mail exclusions
 mail/app/profile/all-thunderbird.js
@@ -77,7 +76,7 @@ mail/branding/thunderbird/thunderbird-branding.js
 # code as a .jsm (schema.jsm)
 mail/components/enterprisepolicies/schemas/schema.jsm
 mail/components/im/all-im.js
-mail/extensions/openpgp/prefs/openpgp-prefs.js
+mail/extensions/am-e2e/prefs/e2e-prefs.js
 mail/locales/en-US/all-l10n.js
 mail/components/compose/texzilla/**
 mail/components/compose/composer.js
