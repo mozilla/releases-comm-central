@@ -2306,7 +2306,7 @@ function ComposeCanClose()
               (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_2),
               null,
               null,
-              getComposeBundle().getString("discardButtonLabel"),
+              sComposeMsgsBundle.getString("discardButtonLabel"),
               null, {value:0}))
     {
       case 0: //Save
