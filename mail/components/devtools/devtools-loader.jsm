@@ -35,11 +35,11 @@ DevToolsStartup.prototype = {
     let { loader, require, DevToolsLoader } = ChromeUtils.import(
       "resource://devtools/shared/Loader.jsm"
     );
-    let { DebuggerServer } = require("devtools/server/debugger-server");
+    let { DevToolsServer } = require("devtools/server/devtools-server");
     let { gDevTools } = require("devtools/client/framework/devtools");
 
     // Set up the client and server chrome window type, make sure it can't be set
-    Object.defineProperty(DebuggerServer, "chromeWindowType", {
+    Object.defineProperty(DevToolsServer, "chromeWindowType", {
       get: () => "mail:3pane",
       set: () => {},
       configurable: true,
@@ -51,16 +51,16 @@ DevToolsStartup.prototype = {
     });
 
     // Make sure our root actor is always registered, no matter how devtools are called.
-    let devtoolsRegisterActors = DebuggerServer.registerActors.bind(
-      DebuggerServer
+    let devtoolsRegisterActors = DevToolsServer.registerActors.bind(
+      DevToolsServer
     );
-    DebuggerServer.registerActors = function(options) {
+    DevToolsServer.registerActors = function(options) {
       devtoolsRegisterActors(options);
       if (options.root) {
         const {
           createRootActor,
         } = require("resource:///modules/tb-root-actor.js");
-        DebuggerServer.setRootActor(createRootActor);
+        DevToolsServer.setRootActor(createRootActor);
       }
     };
 
@@ -69,12 +69,12 @@ DevToolsStartup.prototype = {
     // chrome debugging, which uses its own separate loader instance.
     DevToolsLoader.prototype.invisibleToDebugger = false;
     loader.invisibleToDebugger = false;
-    DebuggerServer.allowChromeProcess = true;
+    DevToolsServer.allowChromeProcess = true;
 
     // Initialize and load the toolkit/browser actors. This will also call above function to set the
     // Thunderbird root actor
-    DebuggerServer.init();
-    DebuggerServer.registerAllActors();
+    DevToolsServer.init();
+    DevToolsServer.registerAllActors();
   },
 };
 
