@@ -125,11 +125,13 @@
                        label="&msgMenu.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-messageView', this)"/>
+#ifdef MAIN_WINDOW
         <toolbarbutton id="appmenu_Event_Task"
                        class="subviewbutton subviewbutton-nav hide-when-calendar-deactivated"
                        label="&lightning.menu.eventtask.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appmenu_Event_Task_View', this)"/>
+#endif
         <toolbarbutton id="appmenu_tasksMenu"
                        class="subviewbutton subviewbutton-nav"
                        label="&tasksMenu.label;"
@@ -164,6 +166,7 @@
                        label="&newNewMsgCmd.label;"
                        key="key_newMessage2"
                        command="cmd_newMessage"/>
+#ifdef MAIN_WINDOW
         <toolbarbutton id="appmenu_calendar-new-event-menu-item"
                        class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
                        label="&lightning.menupopup.new.event.label;"
@@ -175,6 +178,7 @@
         <toolbarseparator id="appmenu_calendar-after-new-task-separator"
                           class="hide-when-calendar-deactivated"
                           observes="appmenu_newFolder"/>
+#endif
         <toolbarbutton id="appmenu_newFolder"
                        class="subviewbutton subviewbutton-iconic"
                        label="&newFolderCmd.label;"
@@ -205,10 +209,12 @@
                        class="subviewbutton subviewbutton-iconic"
                        label="&newOtherAccountsCmd.label;"
                        oncommand="MsgAccountWizard();"/>
+#ifdef MAIN_WINDOW
         <toolbarbutton id="appmenu_calendar-new-calendar-menu-item"
                        class="subviewbutton subviewbutton-iconic"
                        label="&lightning.menupopup.new.calendar.label;"
                        command="calendar_new_calendar_command"/>
+#endif
         <toolbarseparator id="appmenu_newPopupMenuSeparator"/>
         <toolbarbutton id="appmenu_newCard"
                        class="subviewbutton subviewbutton-iconic"
@@ -662,6 +668,7 @@
                        label="&folderView.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-foldersView', this)"/>
+#ifdef MAIN_WINDOW
         <toolbarseparator id="appmenu_calendar-view-menu-separator"
                           class="hide-when-calendar-deactivated"/>
         <toolbarbutton id="appmenu_calendar-today-pane-menu"
@@ -681,6 +688,7 @@
                       label="&lightning.menu.view.tasks.label;"
                       closemenu="none"
                       oncommand="PanelUI.showSubView('appmenu_calendar-tasks-view', this)"/>
+#endif
         <toolbarseparator id="appmenu_viewSortMenuSeparator"/>
         <toolbarbutton id="appmenu_viewSortMenu"
                        class="subviewbutton subviewbutton-nav"
@@ -1230,10 +1238,12 @@
                        key="key_goBack"
                        command="cmd_goBack"/>
         <toolbarseparator id="appmenu_goNextSeparator"/>
+#ifdef MAIN_WINDOW
         <toolbarbutton id="appmenu_calendar-go-to-today"
                        class="subviewbutton subviewbutton-iconic hide-when-calendar-deactivated"
                        label="&goTodayCmd.label;"
                        command="calendar_go_to_today_command"/>
+#endif
         <toolbarbutton id="appmenu_goChat"
                        class="subviewbutton subviewbutton-iconic"
                        label="&goChatCmd.label;"
@@ -1287,6 +1297,7 @@
                        label="&nextUnreadThread.label;"
                        key="key_nextUnreadThread"
                        command="cmd_nextUnreadThread"/>
+#ifdef MAIN_WINDOW
         <toolbarseparator id="appmenu_GoNextAfterUnreadThreadSeparator"
                           class="hide-when-calendar-deactivated"/>
         <!-- Label is set up automatically using the view id. When writing a
@@ -1300,6 +1311,7 @@
                        label-multiweek="&lightning.toolbar.week.label;"
                        label-month="&lightning.toolbar.month.label;"
                        command="calendar_view_next_command"/>
+#endif
       </vbox>
     </panelview>
 
@@ -1323,6 +1335,7 @@
                        class="subviewbutton subviewbutton-iconic"
                        label="&prevStarredMsgCmd.label;"
                        command="cmd_previousFlaggedMsg"/>
+#ifdef MAIN_WINDOW
         <toolbarseparator id="appmenu_goPreviousAfterFlaggedSeparator"
                           class="hide-when-calendar-deactivated"/>
         <!-- Label is set up automatically using the view id. When writing a
@@ -1336,6 +1349,7 @@
                        label-multiweek="&lightning.toolbar.week.label;"
                        label-month="&lightning.toolbar.month.label;"
                        command="calendar_view_prev_command"/>
+#endif
       </vbox>
     </panelview>
 
@@ -1818,7 +1832,9 @@
       </vbox>
     </panelview>
 
+#ifdef MAIN_WINDOW
 #include ../../../../calendar/lightning/content/calendar-appmenu-panelviews.inc.xhtml
+#endif
 
   </panelmultiview>
 </panel>

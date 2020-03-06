@@ -50,6 +50,7 @@
                         accesskey="&newNewMsgCmd.accesskey;"
                         key="key_newMessage2"
                         command="cmd_newMessage"/>
+#ifdef MAIN_WINDOW
               <menuitem id="calendar-new-event-menuitem"
                         class="hide-when-calendar-deactivated"
                         label="&lightning.menupopup.new.event.label;"
@@ -65,6 +66,7 @@
               <menuseparator id="calendar-after-new-task-menuseparator"
                              class="hide-when-calendar-deactivated"
                              observes="menu_newFolder"/>
+#endif
               <menuitem id="menu_newFolder" label="&newFolderCmd.label;"
                         command="cmd_newFolder"
                         accesskey="&newFolderCmd.accesskey;"
@@ -94,10 +96,12 @@
                         label="&newOtherAccountsCmd.label;"
                         accesskey="&newOtherAccountsCmd.accesskey;"
                         oncommand="MsgAccountWizard();"/>
+#ifdef MAIN_WINDOW
               <menuitem id="calendar-new-calendar-menuitem"
                         label="&lightning.menupopup.new.calendar.label;"
                         command="calendar_new_calendar_command"
                         accesskey="&lightning.menupopup.new.calendar.accesskey;"/>
+#endif
               <menuseparator id="newPopupMenuSeparator"/>
               <menuitem id="menu_newCard"
                         label="&newContactCmd.label;"
@@ -119,10 +123,12 @@
                         class="menuitem-iconic"
                         accesskey="&openMessageFileCmd.accesskey;"
                         oncommand="MsgOpenFromFile();"/>
+#ifdef MAIN_WINDOW
               <menuitem id="calendar-open-calendar-file-menuitem"
                         label="&lightning.menupopup.open.calendar.label;"
                         accesskey="&lightning.menupopup.open.calendar.accesskey;"
                         oncommand="openLocalCalendar();"/>
+#endif
             </menupopup>
           </menu>
           <menuitem id="menu_close"
@@ -132,6 +138,7 @@
                     command="cmd_close"
                     class="menuitem-iconic"/>
           <menuseparator id="fileMenuAfterCloseSeparator"/>
+#ifdef MAIN_WINDOW
           <menuitem id="calendar-save-menuitem"
                     class="hide-when-calendar-deactivated"
                     label="&event.menu.item.save.label;"
@@ -143,6 +150,7 @@
                     label="&event.menu.item.saveandclose.label;"
                     accesskey="&event.menu.item.saveandclose.tab.accesskey;"
                     command="cmd_accept"/>
+#endif
           <menu id="menu_saveAs" class="menu-iconic menuitem-iconic"
                 label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
             <menupopup id="menu_SavePopup">
@@ -351,10 +359,12 @@
         <menuitem id="menu_properties" label="&folderPropsCmd2.label;"
                   accesskey="&folderPropsCmd.accesskey;"
                   command="cmd_properties"/>
+#ifdef MAIN_WINDOW
         <menuitem id="calendar-properties-menuitem"
                   label="&calendar.properties.label;"
                   accesskey="&calendar.properties.accesskey;"
                   command="calendar_edit_calendar_command"/>
+#endif
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
         <menuitem id="menu_accountmgr"
@@ -453,7 +463,9 @@
           </menupopup>
         </menu>
 
+#ifdef MAIN_WINDOW
 #include ../../../calendar/lightning/content/calendar-view-menu.inc.xhtml
+#endif
 
         <menuseparator id="viewSortMenuSeparator"/>
         <menu id="viewSortMenu" accesskey="&sortMenu.accesskey;" label="&sortMenu.label;">
@@ -662,6 +674,7 @@
                         accesskey="&nextUnreadThread.accesskey;"
                         command="cmd_nextUnreadThread"
                         key="key_nextUnreadThread"/>
+#ifdef MAIN_WINDOW
               <menuseparator id="goNextAfterUnreadThreadSeparator"
                              class="hide-when-calendar-deactivated"/>
               <!-- Label is set up automatically using the view id. When writing
@@ -679,6 +692,7 @@
                         accesskey-multiweek="&lightning.toolbar.week.accesskey;"
                         accesskey-month="&lightning.toolbar.month.accesskey;"
                         command="calendar_view_next_command"/>
+#endif
             </menupopup>
           </menu>
           <menu id="goPreviousMenu" label="&prevMenu.label;" accesskey="&prevMenu.accesskey;">
@@ -697,6 +711,7 @@
                         label="&prevStarredMsgCmd.label;"
                         accesskey="&prevStarredMsgCmd.accesskey;"
                         command="cmd_previousFlaggedMsg"/>
+#ifdef MAIN_WINDOW
               <menuseparator id="goPreviousAfterFlaggedSeparator"
                              class="hide-when-calendar-deactivated"/>
               <!-- Label is set up automatically using the view id. When writing
@@ -714,6 +729,7 @@
                         accesskey-multiweek="&lightning.toolbar.week.accesskey;"
                         accesskey-month="&lightning.toolbar.month.accesskey;"
                         command="calendar_view_prev_command"/>
+#endif
             </menupopup>
           </menu>
           <menuitem id="menu_goForward" label="&goForwardCmd.label;"
@@ -725,12 +741,14 @@
                     key="key_goBack"
                     class="menuitem-iconic"/>
           <menuseparator id="goNextSeparator"/>
+#ifdef MAIN_WINDOW
           <menuitem id="calendar-go-to-today-menuitem"
                     class="hide-when-calendar-deactivated"
                     label="&goTodayCmd.label;"
                     accesskey="&goTodayCmd.accesskey;"
                     command="calendar_go_to_today_command"
                     key="calendar-go-to-today-key"/>
+#endif
           <menuitem id="menu_goChat" label="&goChatCmd.label;"
                     accesskey="&goChatCmd.accesskey;"
                     command="cmd_chat"
@@ -1013,7 +1031,9 @@
       </menupopup>
     </menu>
 
+#ifdef MAIN_WINDOW
 #include ../../../calendar/lightning/content/calendar-menu-events-tasks.inc.xhtml
+#endif
 
     <!-- Tools -->
     <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
