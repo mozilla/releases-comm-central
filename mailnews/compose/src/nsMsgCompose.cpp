@@ -2528,7 +2528,8 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
           }
         }
       }
-      if (type == nsIMsgCompType::ReplyToSender ||
+      if (type == nsIMsgCompType::ReplyToSenderAndGroup ||
+          type == nsIMsgCompType::ReplyToSender ||
           type == nsIMsgCompType::Reply) {
         if (isReplyToSelf) {
           // Cast to concrete class. We *only* what to change m_identity, not
