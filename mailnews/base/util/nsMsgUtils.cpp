@@ -1503,35 +1503,6 @@ NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB,
   return rv;
 }
 
-NS_MSG_BASE nsresult MsgGetHdrsFromKeys(nsIMsgDatabase *aDB, nsMsgKey *aMsgKeys,
-                                        uint32_t aNumKeys,
-                                        nsIMutableArray **aHeaders) {
-  NS_ENSURE_ARG_POINTER(aDB);
-  NS_ENSURE_ARG_POINTER(aMsgKeys);
-  NS_ENSURE_ARG_POINTER(aHeaders);
-
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> messages(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t kindex = 0; kindex < aNumKeys; kindex++) {
-    nsMsgKey key = aMsgKeys[kindex];
-    bool hasKey;
-    rv = aDB->ContainsKey(key, &hasKey);
-    // This function silently skips when the key is not found. This is an
-    // expected case.
-    if (NS_SUCCEEDED(rv) && hasKey) {
-      nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      rv = aDB->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-      if (NS_SUCCEEDED(rv)) messages->AppendElement(msgHdr);
-    }
-  }
-
-  messages.forget(aHeaders);
-  return NS_OK;
-}
-
 bool MsgAdvanceToNextLine(const char *buffer, uint32_t &bufferOffset,
                           uint32_t maxBufferOffset) {
   bool result = false;
