@@ -64,10 +64,24 @@ Outlook2003Registry.prototype = {
 
 var expectedPop3Account = {
   incomingServer: {
+    prettyName: "POP3 Account Name",
     type: "pop3",
-    hostName: "pop.invalid.host",
+    hostName: "pop.host.invalid",
     username: "pop3user",
     leaveMessagesOnServer: true,
+
+    // These are account default values, not imported from Outlook.
+    // They should probably be omitted, but the check functions in
+    // import_helper.js expect to find them.
+    deleteMailLeftOnServer: false,
+    deleteByAgeFromServer: false,
+    numDaysToLeaveOnServer: 7,
+    port: 110,
+    isSecure: false,
+    authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    socketType: Ci.nsMsgSocketType.plain,
+    doBiff: true,
+    biffMinutes: 10,
   },
   identity: {
     fullName: "SMTP Display Name",
@@ -76,16 +90,30 @@ var expectedPop3Account = {
     organization: "SMTP Organization Name",
   },
   smtpServer: {
-    hostname: "smtp.invalid.host",
+    hostname: "smtp.host.invalid",
     username: "smtpuser",
+    port: 0, // default port
+    authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    socketType: Ci.nsMsgSocketType.plain,
   },
 };
 
 var expectedImapAccount = {
   incomingServer: {
+    prettyName: "IMAP Account Name",
     type: "imap",
-    hostName: "imap.invalid.host",
+    hostName: "imap.host.invalid",
     username: "imapuser",
+
+    // These are account default values, not imported from Outlook.
+    // They should probably be omitted, but the check functions in
+    // import_helper.js expect to find them.
+    port: 143,
+    isSecure: false,
+    authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    socketType: Ci.nsMsgSocketType.plain,
+    doBiff: true,
+    biffMinutes: 10,
   },
   identity: {
     fullName: "SMTP Display Name",
@@ -94,8 +122,11 @@ var expectedImapAccount = {
     organization: "SMTP Organization Name",
   },
   smtpServer: {
-    hostname: "smtp.invalid.host",
+    hostname: "smtp.host.invalid",
     username: "smtpuser",
+    port: 0, // default port
+    authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    socketType: Ci.nsMsgSocketType.plain,
   },
 };
 

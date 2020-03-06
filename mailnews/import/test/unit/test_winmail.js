@@ -105,7 +105,7 @@ var expectedDonHallImapAccount = {
     biffMinutes: 2,
     username: "don",
     authMethod: Ci.nsMsgAuthMethod.secure,
-    socketType: 0,
+    socketType: Ci.nsMsgSocketType.SSL,
   },
   identity: {
     fullName: "Don Hall",
