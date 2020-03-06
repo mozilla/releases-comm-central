@@ -305,10 +305,12 @@ var gGeneralPane = {
     if (AppConstants.MOZ_UPDATER) {
       this.updateReadPrefs();
       gAppUpdater = new appUpdater(); // eslint-disable-line no-global-assign
-      if (Services.policies && !Services.policies.isAllowed("appUpdate")) {
+      let updateDisabled =
+        Services.policies && !Services.policies.isAllowed("appUpdate");
+      if (updateDisabled || UpdateUtils.appUpdateAutoSettingIsLocked()) {
         document.getElementById("updateAllowDescription").hidden = true;
-        document.getElementById("updateRadioGroup").hidden = true;
-        if (AppConstants.MOZ_MAINTENANCE_SERVICE) {
+        document.getElementById("updateSettingsContainer").hidden = true;
+        if (updateDisabled && AppConstants.MOZ_MAINTENANCE_SERVICE) {
           document.getElementById("useService").hidden = true;
         }
       } else {

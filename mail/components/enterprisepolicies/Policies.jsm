@@ -64,6 +64,18 @@ var EXPORTED_SYMBOLS = ["Policies"];
  * The callbacks will be bound to their parent policy object.
  */
 var Policies = {
+  AppAutoUpdate: {
+    onBeforeUIStartup(manager, param) {
+      // Logic feels a bit reversed here, but it's correct. If AppAutoUpdate is
+      // true, we disallow turning off auto updating, and visa versa.
+      if (param) {
+        manager.disallowFeature("app-auto-updates-off");
+      } else {
+        manager.disallowFeature("app-auto-updates-on");
+      }
+    },
+  },
+
   AppUpdateURL: {
     onBeforeAddons(manager, param) {
       setDefaultPref("app.update.url", param.href);
