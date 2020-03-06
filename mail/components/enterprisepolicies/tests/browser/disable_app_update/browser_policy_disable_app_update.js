@@ -43,9 +43,9 @@ add_task(async function test_update_preferences_ui() {
   }
   await new Promise(resolve => setTimeout(resolve));
 
-  let updateRadioGroup = prefsDocument.getElementById("updateRadioGroup");
+  let setting = prefsDocument.getElementById("updateSettingsContainer");
   is(
-    updateRadioGroup.hidden,
+    setting.hidden,
     true,
     "Update choices should be disabled when app update is locked by policy"
   );
