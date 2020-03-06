@@ -845,7 +845,10 @@ var gGeneralPane = {
    * configured.
    */
   configureFonts() {
-    gSubDialog.open("chrome://messenger/content/preferences/fonts.xhtml");
+    gSubDialog.open(
+      "chrome://messenger/content/preferences/fonts.xhtml",
+      "resizable=no"
+    );
   },
 
   /**
