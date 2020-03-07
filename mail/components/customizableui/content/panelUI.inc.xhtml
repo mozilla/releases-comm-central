@@ -60,7 +60,6 @@
                          oncommand="PanelUI.showSubView('appMenu-editView', this)"/>
         </toolbaritem>
         <toolbarseparator/>
-
         <toolbarbutton id="appmenu_find"
                        class="subviewbutton subviewbutton-nav subviewbutton-iconic"
                        label="&findMenu.label;"
@@ -81,29 +80,29 @@
                        label="&emptyTrashCmd.label;"
                        command="cmd_emptyTrash"/>
         <toolbarseparator/>
-        <toolbarbutton id="appmenu_activityManager"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&activitymanager.label;"
-                       oncommand="openActivityMgr();"/>
-        <toolbarbutton id="appmenu_filters"
-                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
-                       label="&filtersCmd2.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-filtersView', this)"/>
         <toolbarbutton id="appmenu_addons"
-                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       class="subviewbutton subviewbutton-iconic"
                        label="&addons.label;"
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-addonsView', this)"/>
-        <toolbarbutton id="appmenu_customize"
-                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       oncommand="openAddonsMgr();"/>
+        <toolbarbutton id="appmenu_accountmgr"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&accountManagerCmd2.label;"
+                       oncommand="MsgAccountManager(null);"/>
+        <toolbarbutton id="appmenu_preferences"
+                       class="subviewbutton subviewbutton-iconic"
 #ifdef XP_WIN
                        label="&preferencesCmd2.label;"
 #else
                        label="&preferencesCmdUnix.label;"
 #endif
                        closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-preferencesView', this)"/>
+                       oncommand="openOptionsDialog();"/>
+        <toolbarbutton id="appmenu_customize"
+                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
+                       label="&customizeCmd.label;"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-customizeView', this)"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_File"
                        class="subviewbutton subviewbutton-nav"
@@ -388,74 +387,16 @@
       </vbox>
     </panelview>
 
-    <!-- Message Filters -->
-    <panelview id="appMenu-filtersView"
-               title="&filtersCmd2.label;"
+    <!-- Customize -->
+    <panelview id="appMenu-customizeView"
+               title="&customizeCmd.label;"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_filtersCmd"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&filtersCmd2.label;"
-                       command="cmd_displayMsgFilters"/>
-        <toolbarbutton id="appmenu_applyFilters"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&filtersApply.label;"
-                       command="cmd_applyFilters"/>
-        <toolbarbutton id="appmenu_applyFiltersToSelection"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&filtersApplyToMessage.label;"
-                       command="cmd_applyFiltersToSelection"/>
-      </vbox>
-    </panelview>
-
-    <!-- Add-ons -->
-    <panelview id="appMenu-addonsView"
-               title="&addons.label;"
-               class="PanelUI-subView"
-               oncommand="openAddonPrefs(event.target.getAttribute('value'), event.target.getAttribute('optionsType'));">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_Add-Ons"
-                       label="&addons.label;"
-                       class="subviewbutton subviewbutton-iconic"
-                       oncommand="openAddonsMgr(); event.stopPropagation();"/>
-        <toolbarseparator/>
-        <label
-#ifdef XP_UNIX
-               value="&addonPrefsUnix.label;"
-#else
-               value="&addonPrefs.label;"
-#endif
-               class="subview-subheader"/>
-        <!-- This message is shown when there are no addon items to show. -->
-        <toolbarbutton label="&addonNoPrefs.label;"
-                       class="subviewbutton subviewbutton-iconic"
-                       disabled="true"/>
-        <!-- One toolbarbutton per addon that has prefs is added here when the
-             view is shown. -->
-      </vbox>
-    </panelview>
-
-    <!-- Preferences -->
-    <panelview id="appMenu-preferencesView"
-#ifdef XP_WIN
-               title="&preferencesCmd2.label;"
-#else
-               title="&preferencesCmdUnix.label;"
-#endif
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_preferences"
-                       class="subviewbutton subviewbutton-iconic"
-#ifdef XP_WIN
-                       label="&preferencesCmd2.label;"
-#else
-                       label="&preferencesCmdUnix.label;"
-#endif
-                       oncommand="openOptionsDialog();"/>
-        <toolbarbutton id="appmenu_accountmgr"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&accountManagerCmd2.label;"
-                       oncommand="MsgAccountManager(null);"/>
+        <toolbarbutton id="appmenu_MessagePaneLayout"
+                       class="subviewbutton subviewbutton-nav"
+                       label="&messagePaneLayoutStyle.label;"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-preferencesLayoutView', this)"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_quickFilterBar"
                        class="subviewbutton subviewbutton-iconic"
@@ -474,12 +415,6 @@
                        class="subviewbutton subviewbutton-iconic"
                        label="&appmenuToolbarLayout.label;"
                        command="cmd_CustomizeMailToolbar"/>
-        <toolbarseparator id="appmenu_paneViewSeparator"/>
-        <toolbarbutton id="appmenu_MessagePaneLayout"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&messagePaneLayoutStyle.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-preferencesLayoutView', this)"/>
       </vbox>
     </panelview>
 
@@ -1682,6 +1617,28 @@
                        key="key_addressbook"
                        oncommand="toOpenWindowByType('mail:addressbook', 'chrome://messenger/content/addressbook/addressbook.xhtml');"/>
         <toolbarseparator id="devToolsSeparator"/>
+        <toolbarbutton id="appmenu_filtersCmd"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&filtersCmd2.label;"
+                       command="cmd_displayMsgFilters"/>
+        <toolbarbutton id="appmenu_applyFilters"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&filtersApply.label;"
+                       command="cmd_applyFilters"/>
+        <toolbarbutton id="appmenu_applyFiltersToSelection"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&filtersApplyToMessage.label;"
+                       command="cmd_applyFiltersToSelection"/>
+        <toolbarseparator/>
+        <toolbarbutton id="appmenu_runJunkControls"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&runJunkControls.label;"
+                       command="cmd_runJunkControls"/>
+        <toolbarbutton id="appmenu_deleteJunk"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&deleteJunk.label;"
+                       command="cmd_deleteJunk"/>
+        <toolbarseparator id="tasksMenuAfterDeleteSeparator"/>
         <toolbarbutton id="appmenu_openSavedFilesWnd"
                        class="subviewbutton subviewbutton-iconic"
                        label="&savedFiles.label;"
@@ -1692,21 +1649,11 @@
                        label="&imAccountsStatus.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-toolsChatStatusView', this)"/>
-
         <toolbarbutton id="appmenu_joinChatMenuItem"
                        class="subviewbutton subviewbutton-iconic"
                        label="&joinChatCmd.label;"
                        command="cmd_joinChat"/>
         <toolbarseparator id="appmenu_afterChatSeparator"/>
-        <toolbarbutton id="appmenu_runJunkControls"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&runJunkControls.label;"
-                       command="cmd_runJunkControls"/>
-        <toolbarbutton id="appmenu_deleteJunk"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&deleteJunk.label;"
-                       command="cmd_deleteJunk"/>
-        <toolbarseparator id="tasksMenuAfterDeleteSeparator"/>
         <toolbarbutton id="appmenu_import"
                        class="subviewbutton subviewbutton-iconic"
                        label="&importCmd.label;"
@@ -1722,6 +1669,11 @@
                        label="&clearRecentHistory.label;"
                        key="key_sanitizeHistory"
                        oncommand="toSanitize();"/>
+        <toolbarseparator/>
+        <toolbarbutton id="appmenu_activityManager"
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&activitymanager.label;"
+                       oncommand="openActivityMgr();"/>
       </vbox>
     </panelview>
 

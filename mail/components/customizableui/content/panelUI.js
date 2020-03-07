@@ -407,7 +407,7 @@ const PanelUI = {
           "subviewbutton subviewbutton-iconic"
         );
         break;
-      case "appMenu-preferencesView":
+      case "appMenu-customizeView":
         onViewToolbarsPopupShowing(
           event,
           "mail-toolbox",

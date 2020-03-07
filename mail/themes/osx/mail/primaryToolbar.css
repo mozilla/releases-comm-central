@@ -297,7 +297,11 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu_activityManager {
-  list-style-image: url("chrome://global/skin/icons/performance.svg");
+  list-style-image: url("chrome://messenger/skin/icons/file-item.svg");
+}
+
+#appmenu_accountmgr {
+  list-style-image: url("chrome://messenger/skin/icons/sidebar-left.svg");
 }
 
 #appmenu_filters,
@@ -305,7 +309,10 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   list-style-image: url("chrome://messenger/skin/icons/filter.svg");
 }
 
-#appmenu_customize,
+#appmenu_customize {
+  list-style-image: url("chrome://mozapps/skin/extensions/category-themes.svg");
+}
+
 #appmenu_preferences {
   list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg");
 }

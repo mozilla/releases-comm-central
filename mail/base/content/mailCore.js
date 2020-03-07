@@ -603,28 +603,6 @@ function openAddonsMgr(aView) {
   });
 }
 
-/**
- * Open a dialog with addon preferences.
- *
- * @option aURL  Chrome URL for the preferences XUL file of the addon.
- */
-function openAddonPrefs(aURL, aOptionsType) {
-  if (aOptionsType == "addons") {
-    openAddonsMgr(aURL);
-  } else if (aOptionsType == "tab") {
-    switchToTabHavingURI(aURL, true);
-  } else {
-    let instantApply = Services.prefs.getBoolPref(
-      "browser.preferences.instantApply"
-    );
-    let features =
-      "chrome,titlebar,toolbar,centerscreen" +
-      (instantApply ? ",dialog=no" : ",modal");
-
-    window.openDialog(aURL, "addonPrefs", features);
-  }
-}
-
 function openActivityMgr() {
   Cc["@mozilla.org/activity-manager-ui;1"]
     .getService(Ci.nsIActivityManagerUI)

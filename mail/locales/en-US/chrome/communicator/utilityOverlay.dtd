@@ -21,6 +21,8 @@
 <!ENTITY preferencesCmd2.accesskey "O">
 <!ENTITY preferencesCmdUnix.label       "Preferences">
 <!ENTITY preferencesCmdUnix.accesskey     "n">
+<!ENTITY customizeCmd.label "Customize">
+<!ENTITY customizeCmd.accesskey "t">
 
 <!ENTITY viewMenu.label          "View">
 <!ENTITY viewMenu.accesskey        "V">

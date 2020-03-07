@@ -1055,20 +1055,6 @@
                   oncommand="openSavedFilesWnd();"/>
         <menuitem id="addonsManager" label="&addons.label;" accesskey="&addons.accesskey;"
                   oncommand="openAddonsMgr();"/>
-        <menu id="addonsManager_prefs"
-#ifdef XP_UNIX
-              label="&addonPrefsUnix.label;"
-              accesskey="&addonPrefsUnix.accesskey;">
-#else
-              label="&addonPrefs.label;"
-              accesskey="&addonPrefs.accesskey;">
-#endif
-          <menupopup id="addonPrefs"
-                     onpopupshowing="initAddonPrefsMenu(this);"
-                     oncommand="openAddonPrefs(event.target.getAttribute('value'), event.target.getAttribute('optionsType'));">
-            <menuitem label="&addonNoPrefs.label;" disabled="true"/>
-          </menupopup>
-        </menu>
         <menuitem id="activityManager" label="&activitymanager.label;"
                   accesskey="&activitymanager.accesskey;"
                   oncommand="openActivityMgr();"/>
