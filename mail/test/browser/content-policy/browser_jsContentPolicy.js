@@ -122,7 +122,6 @@ function checkJsInMail() {
 
   assert_selected_and_displayed(gMsgNo);
 
-  let mc = mozmill.getMail3PaneController();
   // This works because messagepane is type=content-primary in these tests.
   if (typeof mc.window.content.wrappedJSObject.jsIsTurnedOn != "undefined") {
     throw new Error("JS is turned on in mail - it shouldn't be.");
@@ -144,8 +143,6 @@ function checkJsInMail() {
 function checkJsInNonMessageContent() {
   // Deselect everything so we can load our content
   select_none();
-
-  let mc = mozmill.getMail3PaneController();
 
   // load something non-message-like in the message pane
   mc.window.GetMessagePaneFrame().location.href =
@@ -195,7 +192,6 @@ function checkJsInFeedContent() {
 
   // The above just ensures local "inline" content have loaded. We need to wait
   // for the remote content to load too before we check anything.
-  let mc = mozmill.getMail3PaneController();
   let feedUrl = url + "remote-noscript.html";
   mc.waitFor(
     () =>
@@ -298,7 +294,6 @@ function checkJsInRemoteContent() {
   // Deselect everything so we can load our content
   select_none();
 
-  let mc = mozmill.getMail3PaneController();
   // load something non-message-like in the message pane
   mc.window.GetMessagePaneFrame().location.href = url + "remote-noscript.html";
   wait_for_message_display_completion();

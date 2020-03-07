@@ -509,9 +509,7 @@ function checkAllowForHostsWithPerms(test) {
   // Now check that the content hasn't been blocked.
   if (
     !test.checkForAllowed(
-      mozmill
-        .getMail3PaneController()
-        .window.content.document.getElementById("testelement")
+      mc.window.content.document.getElementById("testelement")
     )
   ) {
     throw new Error(

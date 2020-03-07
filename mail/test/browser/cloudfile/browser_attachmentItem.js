@@ -31,7 +31,7 @@ var {
   close_compose_window,
   open_compose_new_mail,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { close_popup } = ChromeUtils.import(
+var { close_popup, mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
@@ -39,7 +39,6 @@ var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
 
-var controller = mozmill.getMail3PaneController();
 var kAttachmentItemContextID = "msgComposeAttachmentItemContext";
 
 add_task(function setupModule(module) {
@@ -66,7 +65,7 @@ add_task(function test_upload_cancel_repeat() {
 
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = open_compose_new_mail(controller);
+  let cw = open_compose_new_mail(mc);
 
   // We've got a compose window open, and our mock Filelink provider
   // ready.  Let's attach a file...
