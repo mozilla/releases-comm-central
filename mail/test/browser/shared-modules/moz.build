@@ -21,7 +21,6 @@ TESTING_JS_MODULES.mozmill += [
     'FolderDisplayHelpers.jsm',
     'frame.jsm',
     'httpd.jsm',
-    'init.jsm',
     'jum.jsm',
     'JunkHelpers.jsm',
     'KeyboardHelpers.jsm',

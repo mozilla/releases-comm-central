@@ -40,7 +40,6 @@ var EXPORTED_SYMBOLS = ["getMail3PaneController"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-ChromeUtils.import("resource://testing-common/mozmill/init.jsm");
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
@@ -56,3 +55,105 @@ function getMail3PaneController() {
 
   return new controller.MozMillController(mail3PaneWindow);
 }
+
+/**
+ * Attach event listeners
+ */
+function attachEventListeners(aWindow) {
+  aWindow.addEventListener("load", function(event) {
+    controller.windowMap.update(utils.getWindowId(aWindow), "loaded", true);
+
+    if ("gBrowser" in aWindow) {
+      // Page is ready
+      aWindow.gBrowser.addEventListener(
+        "load",
+        function(event) {
+          var doc = event.originalTarget;
+
+          // Only update the flag if we have a document as target
+          if ("defaultView" in doc) {
+            var id = utils.getWindowId(doc.defaultView);
+            controller.windowMap.update(id, "loaded", true);
+            // dump("*** load event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
+          }
+        },
+        true
+      );
+
+      // Note: Error pages will never fire a "load" event. For those we
+      // have to wait for the "DOMContentLoaded" event. That's the final state.
+      // Error pages will always have a baseURI starting with
+      // "about:" followed by "error" or "blocked".
+      aWindow.gBrowser.addEventListener(
+        "DOMContentLoaded",
+        function(event) {
+          var doc = event.originalTarget;
+
+          var errorRegex = /about:.+(error)|(blocked)\?/;
+          if (errorRegex.exec(doc.baseURI)) {
+            // Wait about 1s to be sure the DOM is ready
+            utils.sleep(1000);
+
+            // Only update the flag if we have a document as target
+            if ("defaultView" in doc) {
+              var id = utils.getWindowId(doc.defaultView);
+              controller.windowMap.update(id, "loaded", true);
+              // dump("*** load event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
+            }
+          }
+        },
+        true
+      );
+
+      // Page is about to get unloaded
+      aWindow.gBrowser.addEventListener(
+        "beforeunload",
+        function(event) {
+          var doc = event.originalTarget;
+
+          // Only update the flag if we have a document as target
+          if ("defaultView" in doc) {
+            var id = utils.getWindowId(doc.defaultView);
+            controller.windowMap.update(id, "loaded", false);
+            // dump("*** beforeunload event: " + id + ", " + doc.location + ", baseURI=" + doc.baseURI + "\n");
+          }
+        },
+        true
+      );
+    }
+  });
+}
+
+/**
+ * Initialize Mozmill
+ */
+function initialize() {
+  // Observer when a new top-level window is ready
+  var windowReadyObserver = {
+    observe(subject, topic, data) {
+      attachEventListeners(subject);
+    },
+  };
+
+  // Observer when a top-level window is closed
+  var windowCloseObserver = {
+    observe(subject, topic, data) {
+      controller.windowMap.remove(utils.getWindowId(subject));
+    },
+  };
+
+  // Activate observer for new top level windows
+  Services.obs.addObserver(windowReadyObserver, "toplevel-window-ready");
+  Services.obs.addObserver(windowCloseObserver, "outer-window-destroyed");
+
+  // Attach event listeners to all open windows
+  for (let win of Services.wm.getEnumerator("")) {
+    attachEventListeners(win);
+
+    // For windows or dialogs already open we have to explicitly set the property
+    // otherwise windows which load really quick on startup never gets the
+    // property set and we fail to create the controller
+    controller.windowMap.update(utils.getWindowId(win), "loaded", true);
+  }
+}
+initialize();
