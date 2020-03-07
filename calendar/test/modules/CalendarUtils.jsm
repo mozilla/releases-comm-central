@@ -310,13 +310,13 @@ async function invokeEventDialog(mainWindowController, clickBox, body) {
 
   mainWindowController.waitFor(
     () => {
-      return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;
+      return utils.getWindows("Calendar:EventDialog").length > 0;
     },
     "event-dialog did not load in time",
     MID_SLEEP
   );
 
-  let eventWindow = mozmill.utils.getWindows("Calendar:EventDialog")[0];
+  let eventWindow = utils.getWindows("Calendar:EventDialog")[0];
   let eventController = new controller.MozMillController(eventWindow);
   let iframe = eventController.window.document.getElementById("lightning-item-panel-iframe");
 
@@ -335,7 +335,7 @@ async function invokeEventDialog(mainWindowController, clickBox, body) {
   await body(eventController, mockIframeController);
 
   // Wait for close.
-  mainWindowController.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
+  mainWindowController.waitFor(() => utils.getWindows("Calendar:EventDialog").length == 0);
 }
 
 /**
@@ -469,7 +469,7 @@ function viewBack(controller, n) {
  * Closes all EventDialogs that may remain open after a failed test
  */
 function closeAllEventDialogs() {
-  for (let win of mozmill.utils.getWindows("Calendar:EventDialog")) {
+  for (let win of utils.getWindows("Calendar:EventDialog")) {
     close_window(win);
   }
 }

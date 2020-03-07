@@ -36,7 +36,7 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["utils", "getMail3PaneController"];
+var EXPORTED_SYMBOLS = ["getMail3PaneController"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

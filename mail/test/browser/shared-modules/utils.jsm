@@ -129,7 +129,7 @@ function getWindowId(aWindow) {
 
 function tempfile(appention) {
   if (appention == undefined) {
-    appention = "mozmill.utils.tempfile";
+    appention = "utils.tempfile";
   }
   var tempfile = Services.dirsvc.get("TmpD", Ci.nsIFile);
   tempfile.append(
