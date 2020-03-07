@@ -209,7 +209,7 @@ function test_restore_single_3pane_persistence() {
   let abwc = openAddressBook();
 
   // close the 3pane window
-  close_window(new mozmill.controller.MozMillController(mail3PaneWindow));
+  close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
   controller.sleep(asyncFileWriteDelayMS);
 
@@ -278,7 +278,7 @@ add_task(function test_message_pane_height_persistence() {
   let abwc = openAddressBook();
 
   // The 3pane window is closed.
-  close_window(new mozmill.controller.MozMillController(mail3PaneWindow));
+  close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
   controller.sleep(asyncFileWriteDelayMS);
 
@@ -386,7 +386,7 @@ add_task(function test_message_pane_width_persistence() {
   let abwc = openAddressBook();
 
   // The 3pane window is closed.
-  close_window(new mozmill.controller.MozMillController(mail3PaneWindow));
+  close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
   controller.sleep(asyncFileWriteDelayMS);
 
@@ -541,7 +541,7 @@ add_task(function test_clean_shutdown_session_persistence_simple() {
       lastWindowState = window.getWindowStateForSessionPersistence();
     }
 
-    close_window(new mozmill.controller.MozMillController(window));
+    close_window(new controller.MozMillController(window));
   }
 
   // Wait for session file to be created (removed in prior test) after

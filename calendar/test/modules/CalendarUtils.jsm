@@ -49,6 +49,7 @@ this.EXPORTED_SYMBOLS = [
 var elementslib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
+var controller = ChromeUtils.import("resource://testing-common/mozmill/controller.jsm");
 
 var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/PrefTabHelpers.jsm"
@@ -297,17 +298,17 @@ function goToDate(controller, year, month, day) {
  * Opens the event dialog by clicking on the (optional) box and executing the
  * body. The event dialog must be closed in the body function.
  *
- * @param controller    Main window controller
+ * @param mainWindowController - Main window controller
  * @param clickBox      The box to click on, or null if no box to click on.
  * @param body          The function to execute while the event dialog is open.
  */
-async function invokeEventDialog(controller, clickBox, body) {
+async function invokeEventDialog(mainWindowController, clickBox, body) {
   if (clickBox) {
-    controller.waitForElement(clickBox);
-    controller.doubleClick(clickBox, 1, 1);
+    mainWindowController.waitForElement(clickBox);
+    mainWindowController.doubleClick(clickBox, 1, 1);
   }
 
-  controller.waitFor(
+  mainWindowController.waitFor(
     () => {
       return mozmill.utils.getWindows("Calendar:EventDialog").length > 0;
     },
@@ -316,7 +317,7 @@ async function invokeEventDialog(controller, clickBox, body) {
   );
 
   let eventWindow = mozmill.utils.getWindows("Calendar:EventDialog")[0];
-  let eventController = new mozmill.controller.MozMillController(eventWindow);
+  let eventController = new controller.MozMillController(eventWindow);
   let iframe = eventController.window.document.getElementById("lightning-item-panel-iframe");
 
   eventController.waitFor(
@@ -334,7 +335,7 @@ async function invokeEventDialog(controller, clickBox, body) {
   await body(eventController, mockIframeController);
 
   // Wait for close.
-  controller.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
+  mainWindowController.waitFor(() => mozmill.utils.getWindows("Calendar:EventDialog").length == 0);
 }
 
 /**
