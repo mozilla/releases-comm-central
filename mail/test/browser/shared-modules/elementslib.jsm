@@ -50,9 +50,12 @@ var EXPORTED_SYMBOLS = [
 ];
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var strings = ChromeUtils.import(
-  "resource://testing-common/mozmill/strings.jsm"
-);
+
+var vslice = function(str, svalue, evalue) {
+  var sindex = str.indexOf(svalue);
+  var eindex = str.lastIndexOf(evalue);
+  return str.slice(sindex + 1, eindex);
+};
 
 var countQuotes = function(str) {
   var count = 0;
@@ -401,18 +404,15 @@ Lookup.prototype.getNode = function() {
 
     // Handle ending index before any of the expression gets mangled
     if (exp.endsWith("]")) {
-      var expIndex = JSON.parse(strings.vslice(exp, "[", "]"));
+      var expIndex = JSON.parse(vslice(exp, "[", "]"));
     }
     if (exp.startsWith("[")) {
       let obj;
       try {
-        obj = JSON.parse(strings.vslice(exp, "[", "]"));
+        obj = JSON.parse(vslice(exp, "[", "]"));
       } catch (err) {
         throw new Error(
-          err +
-            ". String to be parsed was || " +
-            strings.vslice(exp, "[", "]") +
-            " ||"
+          err + ". String to be parsed was || " + vslice(exp, "[", "]") + " ||"
         );
       }
       var r = cases.index(_document, parent, obj);
@@ -426,12 +426,12 @@ Lookup.prototype.getNode = function() {
       if (exp.startsWith(c)) {
         let obj;
         try {
-          obj = JSON.parse(strings.vslice(exp, "(", ")"));
+          obj = JSON.parse(vslice(exp, "(", ")"));
         } catch (err) {
           throw new Error(
             err +
               ". String to be parsed was || " +
-              strings.vslice(exp, "(", ")") +
+              vslice(exp, "(", ")") +
               "  ||"
           );
         }
