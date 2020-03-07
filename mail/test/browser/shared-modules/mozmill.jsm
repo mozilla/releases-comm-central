@@ -36,33 +36,7 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = [
-  "controller",
-  "events",
-  "utils",
-  "elementslib",
-  "os",
-  "getBrowserController",
-  "newBrowserController",
-  "getAddonsController",
-  "getPreferencesController",
-  "newMail3PaneController",
-  "getMail3PaneController",
-  "wm",
-  "platform",
-  "getAddrbkController",
-  "getMsgComposeController",
-  "getDownloadsController",
-  "Application",
-  "MozMillAsyncTest",
-  "cleanQuit",
-  "getPlacesController",
-  "isMac",
-  "isLinux",
-  "isWindows",
-  "appInfo",
-  "locale",
-];
+var EXPORTED_SYMBOLS = ["controller", "utils", "getMail3PaneController"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -70,143 +44,15 @@ ChromeUtils.import("resource://testing-common/mozmill/init.jsm");
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
-var events = ChromeUtils.import("resource://testing-common/mozmill/events.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var elementslib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
-
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
-var platform = os.getPlatform();
-
-var isMac = false;
-var isWindows = false;
-var isLinux = false;
-
-if (platform == "darwin") {
-  isMac = true;
-}
-if (platform == "winnt") {
-  isWindows = true;
-}
-if (platform == "linux") {
-  isLinux = true;
-}
-
-var appInfo = Services.appinfo;
-
-var locale = Services.locale.requestedLocale;
-
-var applicationDictionary = {
-  "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}": "SeaMonkey",
-  "{3550f703-e582-4d05-9a08-453d09bdfdc6}": "Thunderbird",
-};
-var Application = applicationDictionary[appInfo.ID];
-
-function cleanQuit() {
-  utils.getMethodInWindows("goQuitApplication")();
-}
-
-function newBrowserController() {
-  return new controller.MozMillController(
-    utils.getMethodInWindows("OpenBrowserWindow")()
-  );
-}
-
-function getBrowserController() {
-  var browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
-  if (browserWindow == null) {
-    return newBrowserController();
-  }
-
-  return new controller.MozMillController(browserWindow);
-}
-
-function getPlacesController() {
-  utils
-    .getMethodInWindows("PlacesCommandHook")
-    .showPlacesOrganizer("AllBookmarks");
-  return new controller.MozMillController(Services.wm.getMostRecentWindow(""));
-}
-
-function getAddonsController() {
-  if (Application == "SeaMonkey") {
-    utils.getMethodInWindows("toEM")();
-  } else if (Application == "Thunderbird") {
-    utils.getMethodInWindows("openAddonsMgr")();
-  } else {
-    utils.getMethodInWindows("BrowserOpenAddonsMgr")();
-  }
-  return new controller.MozMillController(Services.wm.getMostRecentWindow(""));
-}
-
-function getDownloadsController() {
-  utils.getMethodInWindows("BrowserDownloadsUI")();
-  return new controller.MozMillController(Services.wm.getMostRecentWindow(""));
-}
-
-function getPreferencesController() {
-  if (Application == "Thunderbird") {
-    utils.getMethodInWindows("openOptionsDialog")();
-  } else {
-    utils.getMethodInWindows("openPreferences")();
-  }
-  // utils.sleep(1000)
-  return new controller.MozMillController(Services.wm.getMostRecentWindow(""));
-}
-
-// Thunderbird functions
-function newMail3PaneController() {
-  return new controller.MozMillController(
-    utils.getMethodInWindows("toMessengerWindow")()
-  );
-}
 
 function getMail3PaneController() {
   var mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
   if (mail3PaneWindow == null) {
-    return newMail3PaneController();
+    return new controller.MozMillController(
+      utils.getMethodInWindows("toMessengerWindow")()
+    );
   }
 
   return new controller.MozMillController(mail3PaneWindow);
 }
-
-// Thunderbird - Address book window
-function newAddrbkController() {
-  utils.getMethodInWindows("toAddressBook")();
-  utils.sleep(2000);
-  var addyWin = Services.wm.getMostRecentWindow("mail:addressbook");
-  return new controller.MozMillController(addyWin);
-}
-
-function getAddrbkController() {
-  var addrbkWindow = Services.wm.getMostRecentWindow("mail:addressbook");
-  if (addrbkWindow == null) {
-    return newAddrbkController();
-  }
-
-  return new controller.MozMillController(addrbkWindow);
-}
-
-var MozMillAsyncTest = controller.MozMillAsyncTest;
-
-function timer(name) {
-  this.name = name;
-  this.timers = {};
-  frame.timers.push(this);
-  this.actions = [];
-}
-timer.prototype.start = function(name) {
-  this.timers[name].startTime = new Date().getTime();
-};
-timer.prototype.stop = function(name) {
-  var t = this.timers[name];
-  t.endTime = new Date().getTime();
-  t.totalTime = t.endTime - t.startTime;
-};
-timer.prototype.end = function() {
-  frame.events.fireEvent("timer", this);
-  frame.timers.remove(this);
-};

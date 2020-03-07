@@ -60,8 +60,15 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var securableModule = ChromeUtils.import(
   "resource://testing-common/mozmill/securable-module.jsm"
 );
-
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+var mozmill = ChromeUtils.import(
+  "resource://testing-common/mozmill/mozmill.jsm"
+);
+var elementslib = ChromeUtils.import(
+  "resource://testing-common/mozmill/elementslib.jsm"
+);
+
 var systemPrincipal = Services.scriptSecurityManager.getSystemPrincipal();
 
 var backstage = this;
@@ -78,22 +85,7 @@ var arrayRemove = function(array, from, to) {
   return array.push.apply(array, rest);
 };
 
-var mozmill = undefined;
-var elementslib = undefined;
 var modules = undefined;
-
-var loadTestResources = function() {
-  if (mozmill == undefined) {
-    mozmill = ChromeUtils.import(
-      "resource://testing-common/mozmill/mozmill.jsm"
-    );
-  }
-  if (elementslib == undefined) {
-    elementslib = ChromeUtils.import(
-      "resource://testing-common/mozmill/elementslib.jsm"
-    );
-  }
-};
 
 var loadFile = function(path, collector) {
   var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
@@ -105,7 +97,7 @@ var loadFile = function(path, collector) {
   });
   module.registeredFunctions = registeredFunctions;
   module.collector = collector;
-  loadTestResources();
+
   module.mozmill = mozmill;
   module.elementslib = elementslib;
   module.persisted = persisted;
@@ -489,16 +481,6 @@ Collector.prototype.initTestModule = function(filename) {
     }
   }
 
-  if (
-    test_module.MODULE_REQUIRES != undefined &&
-    test_module.RELATIVE_ROOT == undefined
-  ) {
-    for (var t of test_module.__tests__) {
-      t.__force_skip__ =
-        "RELATIVE ROOT is not defined and test requires another module.";
-    }
-  }
-
   test_module.collector = this;
   test_module.status = "loaded";
   this.test_modules_by_filename[filename] = test_module;
@@ -553,10 +535,6 @@ function Runner(collector, invokedFromIDE) {
   this.collector = collector;
   this.invokedFromIDE = invokedFromIDE;
   events.fireEvent("startRunner", true);
-  // var logging = ChromeUtils.import("resource://testing-common/mozmill/logging.jsm");
-  // this.logger = new logging.Logger('Runner');
-  var m = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-  this.platform = m.platform;
 }
 Runner.prototype.runTestDirectory = function(directory) {
   this.collector.initTestDirectory(directory);
@@ -588,16 +566,6 @@ Runner.prototype.end = function() {
 Runner.prototype.wrapper = function(func, arg) {
   thread = Services.tm.currentThread;
 
-  if (func.EXCLUDED_PLATFORMS != undefined) {
-    if (func.EXCLUDED_PLATFORMS.includes(this.platform)) {
-      events.skip("Platform exclusion");
-      return;
-    }
-  }
-  if (func.__force_skip__ != undefined) {
-    events.skip(func.__force_skip__);
-    return;
-  }
   try {
     if (arg) {
       func(arg);
@@ -632,10 +600,7 @@ Runner.prototype.wrapper = function(func, arg) {
 };
 
 Runner.prototype._runTestModule = function(module) {
-  if (
-    module.__requirements__ != undefined &&
-    module.__force_skip__ == undefined
-  ) {
+  if (module.__requirements__ != undefined) {
     for (var req of module.__requirements__) {
       module[req] = this.collector.getModule(req);
     }
@@ -715,10 +680,7 @@ Runner.prototype._runTestModule = function(module) {
 };
 
 Runner.prototype.runTestModule = function(module) {
-  if (
-    module.__requirements__ != undefined &&
-    module.__force_skip__ == undefined
-  ) {
+  if (module.__requirements__ != undefined) {
     if (!this.collector.loaded_directories.includes(module.__root_path__)) {
       if (module.__root_path__ != undefined) {
         this.collector.initTestDirectory(module.__root_path__);
