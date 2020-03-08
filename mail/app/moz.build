@@ -37,6 +37,10 @@ if CONFIG['MOZ_SANDBOX'] and CONFIG['OS_ARCH'] == 'WINNT':
         '/%s/security/sandbox/chromium-shim' % CONFIG['mozreltopsrcdir'],
     ]
 
+    OS_LIBS += [
+        'version',
+    ]
+
     USE_LIBS += [
         'sandbox_s',
     ]
