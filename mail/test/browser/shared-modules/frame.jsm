@@ -62,9 +62,6 @@ var securableModule = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
 var elementslib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
@@ -98,6 +95,9 @@ var loadFile = function(path, collector) {
   module.registeredFunctions = registeredFunctions;
   module.collector = collector;
 
+  var mozmill = ChromeUtils.import(
+    "resource://testing-common/mozmill/mozmill.jsm"
+  );
   module.mozmill = mozmill;
   module.elementslib = elementslib;
   module.persisted = persisted;
