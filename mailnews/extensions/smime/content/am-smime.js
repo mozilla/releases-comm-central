@@ -145,6 +145,7 @@ function onPreInit(account, accountValues) {
 
 function onSave() {
   smimeSave();
+  window.dispatchEvent(new CustomEvent("prefchange"));
 }
 
 function smimeSave() {
@@ -465,6 +466,7 @@ function enableCertSelectButtons() {
       .getElementById("encryptionCertClearButton")
       .setAttribute("disabled", "true");
   }
+  onSave();
 }
 
 function smimeClearCert(smime_cert) {
@@ -497,6 +499,4 @@ function openDeviceManager() {
 
 function smimeOnLoadEditor() {
   smimeInitializeFields();
-  document.addEventListener("dialogaccept", smimeOnAcceptEditor);
-  window.dispatchEvent(new CustomEvent("prefchange"));
 }
