@@ -594,7 +594,6 @@ nsWindowsShellService::SetDesktopBackground(dom::Element* aElement,
                                             int32_t aPosition,
                                             const nsACString& aImageName)
 {
-  nsCOMPtr<nsIContent> content(do_QueryInterface(aElement));
   if (!aElement || !aElement->IsHTMLElement(nsGkAtoms::img)) {
     // XXX write background loading stuff!
     return NS_ERROR_NOT_AVAILABLE;
