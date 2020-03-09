@@ -3,9 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-
-<?xul-overlay href="chrome://navigator/content/platformMailOverlay.xul"?>
-
 <!DOCTYPE overlay SYSTEM "chrome://navigator/locale/mailNavigatorOverlay.dtd" >
 
 <overlay id="mailNavigatorOverlay"
@@ -22,7 +19,13 @@
     <command id="Browser:SendLink" oncommand="sendLink();"/>
   </commandset>
   <keyset id="tasksKeys">
-    <key id="key_newMessage" key="&newMessageCmd.key;" command="cmd_newMessage" modifiers="accel"/>
+#ifdef XP_MACOSX
+    <key id="key_newMessage" key="&newMessageCmd.key;"
+         modifiers="accel,shift" command="cmd_newMessage"/>
+#else
+    <key id="key_newMessage" key="&newMessageCmd.key;"
+         modifiers="accel" command="cmd_newMessage"/>
+#endif
   </keyset>
 
   <!-- navigator specific UI items -->

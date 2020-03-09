@@ -14,7 +14,7 @@ comm.jar:
    content/navigator/linkToolbarOverlay.js
    content/navigator/linkToolbarOverlay.xul
    content/navigator/mailNavigatorOverlay.js
-   content/navigator/mailNavigatorOverlay.xul
+*  content/navigator/mailNavigatorOverlay.xul
    content/navigator/metadata.js
    content/navigator/metadata.xul
    content/navigator/navigator.css
@@ -33,14 +33,11 @@ comm.jar:
    content/navigator/webDeveloperOverlay.xul
 #ifdef XP_MACOSX
    content/navigator/platformNavigationBindings.xul                 (mac/platformNavigationBindings.xul)
-   content/navigator/platformMailOverlay.xul                        (mac/platformMailOverlay.xul)
 #else
 #ifdef XP_WIN
    content/navigator/platformNavigationBindings.xul                 (win/platformNavigationBindings.xul)
-   content/navigator/platformMailOverlay.xul                        (win/platformMailOverlay.xul)
 #else
    content/navigator/platformNavigationBindings.xul                 (unix/platformNavigationBindings.xul)
-   content/navigator/platformMailOverlay.xul                        (unix/platformMailOverlay.xul)
 #endif
 #endif
    content/navigator/pageinfo/feeds.js                              (pageinfo/feeds.js)

@@ -363,7 +363,9 @@
   <key id="key_findTypeLinks"/>
   <key id="key_stop" keycode="VK_ESCAPE" command="cmd_stop"/>
   <keyset id="viewZoomKeys"/>
-  <key id="key_reload"/>
+#ifndef XP_MACOSX
+  <key id="key_reload" keycode="VK_F5" oncommand="ReloadMessage();"/>
+#endif
 
   <!-- View Toggle Keys -->
   <key id="key_toggleFolderPane"

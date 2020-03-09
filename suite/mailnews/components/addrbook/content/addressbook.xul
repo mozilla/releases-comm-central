@@ -11,7 +11,6 @@
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/addressbook/abResultsPaneOverlay.xul"?>
-<?xul-overlay href="chrome://navigator/content/platformMailOverlay.xul"?>
 
 <!DOCTYPE window [
 <!ENTITY % abMainWindowDTD SYSTEM "chrome://messenger/locale/addressbook/abMainWindow.dtd" >
@@ -112,10 +111,13 @@
   <key id="key_newNavigator"/>
   <key id="key_newPrivateWindow"/>
   <key id="key_newBlankPage"/>
-  <key id="key_newMessage"
-       key="&newMessageCmd.key;"
-       command="cmd_newMessage"
-       modifiers="accel"/>
+#ifdef XP_MACOSX
+  <key id="key_newMessage" key="&newMessageCmd.key;"
+       modifiers="accel,shift" command="cmd_newMessage"/>
+#else
+  <key id="key_newMessage" key="&newMessageCmd.key;"
+       modifiers="accel" command="cmd_newMessage"/>
+#endif
   <key id="key_printCard" key="&printContactViewCmd.key;"
        command="cmd_printcard" modifiers="accel"/>
   <key id="key_close"/>

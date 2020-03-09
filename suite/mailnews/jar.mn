@@ -29,9 +29,9 @@ messenger.jar:
     content/messenger/mailCommands.js                                          (content/mailCommands.js)
     content/messenger/mailContextMenus.js                                      (content/mailContextMenus.js)
     content/messenger/mailEditorOverlay.xul                                    (content/mailEditorOverlay.xul)
-    content/messenger/mailKeysOverlay.xul                                      (content/mailKeysOverlay.xul)
+*   content/messenger/mailKeysOverlay.xul                                      (content/mailKeysOverlay.xul)
     content/messenger/mailOverlay.js                                           (content/mailOverlay.js)
-    content/messenger/mailOverlay.xul                                          (content/mailOverlay.xul)
+*   content/messenger/mailOverlay.xul                                          (content/mailOverlay.xul)
     content/messenger/mailTasksOverlay.js                                      (content/mailTasksOverlay.js)
     content/messenger/mailTasksOverlay.xul                                     (content/mailTasksOverlay.xul)
     content/messenger/mailViewList.js                                          (content/mailViewList.js)
@@ -41,7 +41,7 @@ messenger.jar:
     content/messenger/mailWidgets.xml                                          (content/mailWidgets.xml)
     content/messenger/mailWindow.js                                            (content/mailWindow.js)
     content/messenger/mailWindowOverlay.js                                     (content/mailWindowOverlay.js)
-    content/messenger/mailWindowOverlay.xul                                    (content/mailWindowOverlay.xul)
+*   content/messenger/mailWindowOverlay.xul                                    (content/mailWindowOverlay.xul)
     content/messenger/messageWindow.js                                         (content/messageWindow.js)
     content/messenger/messageWindow.xul                                        (content/messageWindow.xul)
     content/messenger/messenger.css                                            (content/messenger.css)
@@ -75,13 +75,3 @@ messenger.jar:
     content/messenger/addressbook/abEditCardDialog.xul                         (addrbook/content/abEditCardDialog.xul)
     content/messenger/addressbook/abNewCardDialog.xul                          (addrbook/content/abNewCardDialog.xul)
     content/messenger/addressbook/abResultsPaneOverlay.xul                     (addrbook/content/abResultsPaneOverlay.xul)
-
-#ifdef XP_MACOSX
-    content/messenger/platformMailnewsOverlay.xul                              (content/mac/platformMailnewsOverlay.xul)
-#else
-#ifdef XP_WIN
-    content/messenger/platformMailnewsOverlay.xul                              (content/win/platformMailnewsOverlay.xul)
-#else
-    content/messenger/platformMailnewsOverlay.xul                              (content/unix/platformMailnewsOverlay.xul)
-#endif
-#endif

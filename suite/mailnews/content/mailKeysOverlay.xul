@@ -3,8 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xul-overlay href="chrome://messenger/content/platformMailnewsOverlay.xul"?>
-
 <!DOCTYPE overlay SYSTEM "chrome://messenger/locale/mailKeysOverlay.dtd">
 
 <overlay id="mailKeysOverlay"
@@ -12,9 +10,18 @@
 
   <keyset id="mailKeys">
     <key id="key_delete"/>
-    <key id="key_shiftDelete"/>
     <key id="key_delete2"/> <!-- secondary delete key -->
-    <key id="key_shiftDelete2"/>
+#ifdef XP_MACOSX
+    <!-- not all Mac keyboards have a VK_DELETE key, so we use VK_BACK as
+         the primary and provide VK_DELETE as a secondary key definition -->
+    <key id="key_shiftDelete" keycode="VK_BACK"
+         modifiers="shift" command="cmd_shiftDelete"/>
+    <key id="key_shiftDelete2" keycode="VK_DELETE"
+         modifiers="shift" command="cmd_shiftDelete"/>
+#else
+    <key id="key_shiftDelete" keycode="VK_DELETE"
+         modifiers="shift" command="cmd_shiftDelete"/>
+#endif
     <key id="key_selectAll"/>
 
     <key id="key_toggleRead" key="&markAsReadCmd.key;"
