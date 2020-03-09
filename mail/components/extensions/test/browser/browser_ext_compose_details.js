@@ -364,7 +364,8 @@ add_task(async function testBody() {
       );
       browser.test.assertEq(
         "This is some plain text.\nIndeed, it is plain.",
-        plainTextDetails.plainTextBody
+        // Fold Windows line-endings \r\n to \n.
+        plainTextDetails.plainTextBody.replaceAll("\r", "")
       );
 
       // Some things that should fail.

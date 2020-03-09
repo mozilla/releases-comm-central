@@ -354,7 +354,11 @@ add_task(async function testChangeDetails() {
 
   await new Promise(resolve => {
     window.MsgHdrToMimeMessage(sentMessage5, null, (msgHdr, mimeMessage) => {
-      is(mimeMessage.parts[0].body, "New body from listener5.\n");
+      is(
+        // Fold Windows line-endings \r\n to \n.
+        mimeMessage.parts[0].body.replaceAll("\r", ""),
+        "New body from listener5.\n"
+      );
       resolve();
     });
   });
@@ -367,7 +371,11 @@ add_task(async function testChangeDetails() {
 
   await new Promise(resolve => {
     window.MsgHdrToMimeMessage(sentMessage6, null, (msgHdr, mimeMessage) => {
-      is(mimeMessage.parts[0].body, "New body from listener6.\n");
+      is(
+        // Fold Windows line-endings \r\n to \n.
+        mimeMessage.parts[0].body.replaceAll("\r", ""),
+        "New body from listener6.\n"
+      );
       resolve();
     });
   });
