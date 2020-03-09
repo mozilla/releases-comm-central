@@ -2,6 +2,7 @@
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
+. "$topsrcdir/comm/mail/config/mozconfigs/win32/common-win32"
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-jemalloc
@@ -20,8 +21,3 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
-
-. $topsrcdir/build/win32/mozconfig.vs-latest
-
-# Set up mapi includes (must be done after visual studio setup)
-export INCLUDE=$INCLUDE:$(cd "$TOOLTOOL_DIR" && pwd)/mapiheader
