@@ -17,6 +17,9 @@ win64-cross/opt:
     index:
         product: thunderbird
         job-name: win64-cross-opt
+    attributes:
+            enable-build-signing: true
+            enable-full-crashsymbols: true
     treeherder:
         platform: windows2012-64/opt
         symbol: Bx
@@ -28,6 +31,7 @@ win64-cross/opt:
         env:
             PERFHERDER_EXTRA_OPTIONS: cross
             TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+            # MOZ_AUTOMATION_PACKAGE_TESTS: "1"
     run:
         actions: [build]
         options: [append-env-variables-from-configs]
@@ -36,18 +40,15 @@ win64-cross/opt:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
         extra-config:
-            disable_package_metrics: true
+            stage_platform: win64
             mozconfig_platform: win64
             env:
-                # Setting LD_PRELOAD at the worker level would set it during
-                # fetch-content, which can fail randomly when a tar/unzip subprocess
-                # of fetch-content starts while the library is being extracted by
-                # another.
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/workspace/build/src/vs2017_15.8.4/:/builds/worker/workspace/build/src/mapiheader/"
-    run-on-projects: ['try']
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+    run-on-projects: ['try-comm-central']
     dependencies:
         win64-clang-cl: toolchain-win64-clang-cl
+        thirdparty-libotr-win64: thirdparty-libotr-win64
     fetches:
         toolchain:
             - linux64-binutils
@@ -58,6 +59,7 @@ win64-cross/opt:
             - linux64-nasm
             - linux64-node
             - linux64-rust-cross-1.41
+            - linux64-rust-size
             - linux64-sccache
             - linux64-wine
         fetch:
@@ -67,3 +69,5 @@ win64-cross/opt:
             - artifact: clang.tar.bz2
               extract: true
               dest: clang-cl
+        thirdparty-libotr-win64:
+            - libotr.tar.xz

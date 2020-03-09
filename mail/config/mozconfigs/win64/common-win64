@@ -6,7 +6,7 @@ if test -z "$USE_ARTIFACT"; then
 . $topsrcdir/build/win64/mozconfig.vs-latest
 
 # Set up mapi includes (must be done after visual studio setup)
-export INCLUDE=$INCLUDE:${TOOLTOOL_DIR}/mapiheader
+export INCLUDE=${TOOLTOOL_DIR}/mapiheader
 fi
 
 if test `uname -s` = Linux; then
