@@ -5,7 +5,7 @@ ac_add_options --target=i686-pc-mingw32
 . $topsrcdir/build/win32/mozconfig.vs-latest
 
 # Set up mapi includes (must be done after visual studio setup)
-export INCLUDE=$INCLUDE:${TOOLTOOL_DIR}/mapiheader
+export INCLUDE=${TOOLTOOL_DIR}/mapiheader
 
 if test `uname -s` = Linux; then
 
