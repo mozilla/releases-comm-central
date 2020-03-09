@@ -1281,9 +1281,6 @@ var GlodaIndexer = {
         // kick off the commit
         GlodaDatastore._commitTransaction();
         yield this.kWorkAsync;
-        // Let's do the GC after the commit completes just so we can avoid
-        //  having any ugly interactions.
-        GlodaUtils.forceGarbageCollection(false);
         this._lastCommitTime = Date.now();
         // Restart the transaction if we still have work.
         if (haveMoreWork) {

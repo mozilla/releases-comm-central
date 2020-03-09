@@ -1117,11 +1117,6 @@ var GlodaMsgIndexer = {
    */
   HEADER_CHECK_SYNC_BLOCK_SIZE: 25,
 
-  /**
-   * The number of headers to look at before calling
-   */
-  HEADER_CHECK_GC_BLOCK_SIZE: 256,
-
   FOLDER_COMPACTION_PASS_BATCH_SIZE: 512,
   /**
    * Special indexing pass for (local) folders than have been compacted.  The
@@ -1199,7 +1194,6 @@ var GlodaMsgIndexer = {
     this._indexerGetEnumerator(this.kEnumIndexedMsgs);
 
     const HEADER_CHECK_SYNC_BLOCK_SIZE = this.HEADER_CHECK_SYNC_BLOCK_SIZE;
-    const HEADER_CHECK_GC_BLOCK_SIZE = this.HEADER_CHECK_GC_BLOCK_SIZE;
     const FOLDER_COMPACTION_PASS_BATCH_SIZE = this
       .FOLDER_COMPACTION_PASS_BATCH_SIZE;
 
@@ -1248,10 +1242,6 @@ var GlodaMsgIndexer = {
         numHeadersSeen++;
         if (numHeadersSeen % HEADER_CHECK_SYNC_BLOCK_SIZE == 0) {
           yield this.kWorkSync;
-        }
-
-        if (numHeadersSeen % HEADER_CHECK_GC_BLOCK_SIZE == 0) {
-          GlodaUtils.considerHeaderBasedGC(HEADER_CHECK_GC_BLOCK_SIZE);
         }
 
         // There is no need to check with PendingCommitTracker.  If a message
@@ -1417,7 +1407,6 @@ var GlodaMsgIndexer = {
     // there is of course a cost to all this header investigation even if we
     //  don't do something.  so we will yield with kWorkSync for every block.
     const HEADER_CHECK_SYNC_BLOCK_SIZE = this.HEADER_CHECK_SYNC_BLOCK_SIZE;
-    const HEADER_CHECK_GC_BLOCK_SIZE = this.HEADER_CHECK_GC_BLOCK_SIZE;
 
     // we can safely presume if we are here that this folder has been selected
     //  for offline processing...
@@ -1444,10 +1433,6 @@ var GlodaMsgIndexer = {
         // we still need to avoid locking up the UI, pause periodically...
         if (++count % HEADER_CHECK_SYNC_BLOCK_SIZE == 0) {
           yield this.kWorkSync;
-        }
-
-        if (count % HEADER_CHECK_GC_BLOCK_SIZE == 0) {
-          GlodaUtils.considerHeaderBasedGC(HEADER_CHECK_GC_BLOCK_SIZE);
         }
 
         let glodaMessageId = msgHdr.getUint32Property(
@@ -1513,10 +1498,6 @@ var GlodaMsgIndexer = {
         // this header traversal/investigation.
         if (++count % HEADER_CHECK_SYNC_BLOCK_SIZE == 0) {
           yield this.kWorkSync;
-        }
-
-        if (count % HEADER_CHECK_GC_BLOCK_SIZE == 0) {
-          GlodaUtils.considerHeaderBasedGC(HEADER_CHECK_GC_BLOCK_SIZE);
         }
 
         // To keep our counts more accurate, increment the offset before
