@@ -7,7 +7,6 @@ messenger.jar:
     content/messenger/extension.svg                (extension.svg)
 
     content/messenger/child/ext-mail.js            (child/ext-mail.js)
-    content/messenger/child/ext-menus-child.js     (child/ext-menus-child.js)
     content/messenger/child/ext-menus.js           (child/ext-menus.js)
     content/messenger/child/ext-tabs.js            (child/ext-tabs.js)
 

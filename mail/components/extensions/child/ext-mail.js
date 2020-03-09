@@ -10,11 +10,6 @@ extensions.registerModules({
     scopes: ["addon_child"],
     paths: [["menus"]],
   },
-  menusChild: {
-    url: "chrome://messenger/content/child/ext-menus-child.js",
-    scopes: ["addon_child", "devtools_child"],
-    paths: [["menus"]],
-  },
   tabs: {
     url: "chrome://messenger/content/child/ext-tabs.js",
     scopes: ["addon_child"],
