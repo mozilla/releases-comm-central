@@ -356,7 +356,7 @@ add_task(async function testChangeDetails() {
     window.MsgHdrToMimeMessage(sentMessage5, null, (msgHdr, mimeMessage) => {
       is(
         // Fold Windows line-endings \r\n to \n.
-        mimeMessage.parts[0].body.replaceAll("\r", ""),
+        mimeMessage.parts[0].body.replace(/\r/g, ""),
         "New body from listener5.\n"
       );
       resolve();
@@ -373,7 +373,7 @@ add_task(async function testChangeDetails() {
     window.MsgHdrToMimeMessage(sentMessage6, null, (msgHdr, mimeMessage) => {
       is(
         // Fold Windows line-endings \r\n to \n.
-        mimeMessage.parts[0].body.replaceAll("\r", ""),
+        mimeMessage.parts[0].body.replace(/\r/g, ""),
         "New body from listener6.\n"
       );
       resolve();

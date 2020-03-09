@@ -314,10 +314,10 @@ add_task(async function testBody() {
 
     let editor = composeWindows[0].GetCurrentEditor();
     // Get the actual message body. Fold Windows line-endings \r\n to \n.
-    let actualHTML = editor.outputToString("text/html", 0).replaceAll("\r", "");
+    let actualHTML = editor.outputToString("text/html", 0).replace(/\r/g, "");
     let actualPlainText = editor
       .outputToString("text/plain", 0)
-      .replaceAll("\r", "");
+      .replace(/\r/g, "");
     if ("htmlIncludes" in expected) {
       info(actualHTML);
       ok(actualHTML.includes(expected.htmlIncludes), "HTML content is correct");
