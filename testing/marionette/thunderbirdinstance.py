@@ -30,9 +30,4 @@ thunderbird_prefs = {
     # Do not open start page
     "mailnews.start_page.override_url": "about:blank",
     "mailnews.start_page.url": "about:blank",
-
-    # Fix MacOS startup by disabling Mac address book integration.
-    "ldap_2.servers.osx.description": "",
-    "ldap_2.servers.osx.dirType": -1,
-    "ldap_2.servers.osx.uri": "",
 }
