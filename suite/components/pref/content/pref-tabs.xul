@@ -3,12 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE overlay [
-<!ENTITY % platformCommunicationDTD SYSTEM "chrome://communicator-platform/locale/pref/platformPrefOverlay.dtd">
-%platformCommunicationDTD;
-<!ENTITY % tabsDTD SYSTEM "chrome://communicator/locale/pref/pref-tabs.dtd">
-%tabsDTD;
-]>
+<!DOCTYPE overlay SYSTEM "chrome://communicator/locale/pref/pref-tabs.dtd">
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -68,12 +63,22 @@
       <groupbox id="useTabPreferences" align="start">
         <caption label="&openTabs.label;"/>
           <checkbox id="middleClick"
+#ifndef XP_MACOSX
                     label="&middleClick.label;"
                     accesskey="&middleClick.accesskey;"
+#else
+                    label="&middleClickMac.label;"
+                    accesskey="&middleClickMac.accesskey;"
+#endif
                     preference="browser.tabs.opentabfor.middleclick"/>
           <checkbox id="urlBar"
+#ifndef XP_MACOSX
                     label="&urlbar.label;"
                     accesskey="&urlbar.accesskey;"
+#else
+                    label="&urlbarMac.label;"
+                    accesskey="&urlbarMac.accesskey;"
+#endif
                     preference="browser.tabs.opentabfor.urlbar"/>
       </groupbox>
 

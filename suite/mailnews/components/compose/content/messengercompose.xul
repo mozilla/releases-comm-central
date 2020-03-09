@@ -28,9 +28,6 @@
 %brandDTD;
 <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
 %utilityDTD;
-<!ENTITY % platformCommunicatorDTD SYSTEM
-  "chrome://communicator-platform/locale/platformCommunicatorOverlay.dtd">
-%platformCommunicatorDTD;
 ]>
 
 <window id="msgcomposeWindow"

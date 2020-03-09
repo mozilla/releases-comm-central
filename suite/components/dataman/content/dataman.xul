@@ -6,12 +6,11 @@
 <?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://communicator/content/dataman/dataman.css" type="text/css"?>
 <?xml-stylesheet href="chrome://communicator/skin/dataman/dataman.css" type="text/css"?>
+<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
 <!DOCTYPE page [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
-<!ENTITY % platformCommunicatorDTD SYSTEM "chrome://communicator-platform/locale/platformCommunicatorOverlay.dtd">
-%platformCommunicatorDTD;
 <!ENTITY % datamanDTD SYSTEM "chrome://communicator/locale/dataman/dataman.dtd">
 %datamanDTD;
 ]>
@@ -48,14 +47,8 @@
   </commandset>
 
   <keyset id="datamanKeys">
-    <key id="key_close"
-         command="cmd_close"
-         key="&closeCmd.key;"
-         modifiers="accel"/>
-    <key id="key_selectAll"
-         command="cmd_selectAll"
-         key="&selectAll.key;"
-         modifiers="accel"/>
+    <key id="key_close"/>
+    <key id="key_selectAll"/>
     <key id="key_search_domain"
          command="cmd_search_domain"
          key="&domain.search.key;"

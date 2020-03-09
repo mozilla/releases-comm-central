@@ -13,4 +13,4 @@ comm.jar:
    content/communicator/sidebar/sidebarBindings.xml                 (content/sidebarBindings.xml)
    content/communicator/sidebar/sidebarOverlay.css                  (content/sidebarOverlay.css)
    content/communicator/sidebar/sidebarOverlay.js                   (content/sidebarOverlay.js)
-   content/communicator/sidebar/sidebarOverlay.xul                  (content/sidebarOverlay.xul)
+*  content/communicator/sidebar/sidebarOverlay.xul                  (content/sidebarOverlay.xul)

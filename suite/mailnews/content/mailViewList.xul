@@ -4,11 +4,10 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xul-overlay href="chrome://communicator/content/platformCommunicatorOverlay.xul"?>
-
 <?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
 <!-- Mac needs dialog.css to correctly style the moved Help button -->
 <?xml-stylesheet href="chrome://global/skin/dialog.css" type="text/css"?>
+<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
 <!DOCTYPE dialog [
 <!ENTITY % mailViewLisDTD SYSTEM "chrome://messenger/locale/mailViewList.dtd">

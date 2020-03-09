@@ -3,13 +3,16 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!-- extracted from tasksOverlay.xul -->
+<!ENTITY minimizeWindowCmd.label "Minimize">
+<!ENTITY minimizeWindowCmd.key "M">
+<!ENTITY zoomWindowCmd.label "Zoom">
 <!ENTITY navigatorCmd.label "Browser">
 <!ENTITY navigatorCmd.accesskey "B">
 <!ENTITY navigatorCmd.commandkey "1">
 
 <!-- LOCALIZATION NOTE (editorCmd.label): DONT_TRANSLATE -->
 <!ENTITY editorCmd.label "Composer">
-<!ENTITY editorCmd.accesskey "c">
+<!ENTITY editorCmd.accesskey "C">
 <!ENTITY editorCmd.commandkey "4">
 
 <!ENTITY errorConsoleCmd.label "Error Console">

@@ -359,8 +359,6 @@
        oncommand="goDoCommand('cmd_getMsgsForAuthAccounts');"
        modifiers="accel, shift"/>
   <keyset id="findKeys"/>
-  <key id="key_findTypeText"/>
-  <key id="key_findTypeLinks"/>
   <key id="key_stop" keycode="VK_ESCAPE" command="cmd_stop"/>
   <keyset id="viewZoomKeys"/>
 #ifndef XP_MACOSX
@@ -368,9 +366,18 @@
 #endif
 
   <!-- View Toggle Keys -->
+#ifndef XP_MACOSX
   <key id="key_toggleFolderPane"
+       keycode="VK_F9"
        oncommand="MsgToggleFolderPane(true);"
        observes="mailDisableKeys"/>
+#else
+  <key id="key_toggleFolderPane"
+       key="&toggleFolderPaneCmd.key;"
+       modifiers="accel,alt"
+       oncommand="MsgToggleFolderPane(true);"
+       observes="mailDisableKeys"/>
+#endif
   <key id="key_toggleThreadPane"
        keycode="VK_F8"
        modifiers="shift"
@@ -661,10 +668,12 @@
     <menuitem id="mailContext-delete"
               command="cmd_delete"/>
     <menuseparator id="mailContext-sep-print"/>
+#ifndef XP_MACOSX
     <menuitem id="mailContext-printpreview"
               label="&contextPrintPreview.label;"
               accesskey="&contextPrintPreview.accesskey;"
               oncommand="PrintEnginePrintPreview();"/>
+#endif
     <menuitem id="mailContext-print"
               label="&contextPrint.label;"
               accesskey="&contextPrint.accesskey;"

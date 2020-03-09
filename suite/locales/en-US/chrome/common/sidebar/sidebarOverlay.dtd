@@ -19,6 +19,10 @@
 <!ENTITY sidebar.loading.stop.label     "Stop">
 <!ENTITY sidebar.loading.stop.accesskey "S">
 
+<!-- LOCALIZATION NOTE (showHideSidebarCmd.key): This is only used on the
+     mac platform, other platforms use VK_F9. -->
+<!ENTITY showHideSidebarCmd.key         "S">
+
 <!ENTITY sidebar.no-panels.state     "The sidebar is currently empty.">
 <!ENTITY sidebar.no-panels.add       'You may add tabs by clicking on the "Tabs" button above.'>
 <!ENTITY sidebar.no-panels.hide      'If you would like to completely hide the Sidebar, click on the "View" menu above, and select "Sidebar" from the "Show/Hide" sub-menu.'>

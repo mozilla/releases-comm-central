@@ -25,6 +25,9 @@
 <!ENTITY newPrivateWindowCmd.label "Private Window">
 <!ENTITY newPrivateWindowCmd.key "B">
 <!ENTITY newPrivateWindowCmd.accesskey "W">
+<!ENTITY closeCmd.label "Close">
+<!ENTITY closeCmd.key "W">
+<!ENTITY closeCmd.accesskey "C">
 <!ENTITY printSetupCmd.label "Page Setup…">
 <!ENTITY printSetupCmd.accesskey "u">
 <!ENTITY printPreviewCmd.label "Print Preview">
@@ -33,6 +36,33 @@
 <!ENTITY printCmd.accesskey "P">
 <!ENTITY printCmd.key "P">
 
+<!-- LOCALIZATION NOTE (.modifiers): The following entites are for the
+     application menu. Never change the modifiers unless you are 100% sure that
+     they are different on your locale (should be very rare). -->
+<!ENTITY preferencesCmdMac.label          "Preferences…">
+<!ENTITY preferencesCmdMac.key            ",">
+<!ENTITY preferencesCmdMac.modifiers      "accel">
+<!ENTITY servicesMenu.label               "Services">
+<!ENTITY hideThisAppCmd.label             "Hide &brandShortName;">
+<!ENTITY hideThisAppCmd.key               "H">
+<!ENTITY hideThisAppCmd.modifiers         "accel">
+<!ENTITY hideOtherAppsCmd.label           "Hide Others">
+<!ENTITY hideOtherAppsCmd.key             "H">
+<!ENTITY hideOtherAppsCmd.modifiers       "accel,alt">
+<!ENTITY showAllAppsCmd.label             "Show All">
+<!ENTITY openHelpCmdMac.label             "&brandShortName; Help">
+<!ENTITY openHelpCmdMac.accesskey         "H">
+<!ENTITY openHelpCmdMac.key               "?">
+<!ENTITY openHelpCmdMac.modifiers         "accel">
+
+<!ENTITY quitApplicationCmd.label         "Exit">
+<!ENTITY quitApplicationCmd.key           "Q">
+<!ENTITY quitApplicationCmd.accesskey     "x">
+<!ENTITY quitApplicationCmdMac.label      "Quit &brandShortName;">
+<!ENTITY quitApplicationCmdMac.accesskey  "Q">
+<!ENTITY quitApplicationCmdUnix.label     "Quit">
+<!ENTITY quitApplicationCmdUnix.accesskey "Q">
+
 <!ENTITY editMenu.label                   "Edit">
 <!ENTITY editMenu.accesskey               "E">
 <!ENTITY undoCmd.label                    "Undo">
@@ -40,6 +70,7 @@
 <!ENTITY undoCmd.accesskey                "U">
 <!ENTITY redoCmd.label                    "Redo">
 <!ENTITY redoCmd.key                      "Y">
+<!ENTITY redoCmdMac.key                   "Z">
 <!ENTITY redoCmd.accesskey                "R">
 <!ENTITY cutCmd.label                     "Cut">
 <!ENTITY cutCmd.key                       "X">
@@ -74,6 +105,9 @@
      findBarCmd.label found in editorOverlay.dtd, findCmd.label in messenger.dtd
      and messengercompose.dtd and findOnCmd.label found in navigatorOverlay.dtd -->
 <!ENTITY findBarCmd.accesskey "F">
+<!ENTITY findCmd.key2 "VK_F19">
+<!ENTITY findReplaceCmd.key "H">
+<!ENTITY findReplaceCmdMac.key "F">
 <!ENTITY findReplaceCmd.accesskey "l">
 <!ENTITY findAgainCmd.label "Find Again">
 <!ENTITY findAgainCmd.key "G">
@@ -84,8 +118,10 @@
 <!ENTITY findPrevCmd.key2 "VK_F3">
 <!ENTITY findPrevCmd.accesskey "v">
 <!ENTITY findTypeTextCmd.label "Find Text As You Type">
+<!ENTITY findTypeTextCmd.key "/">
 <!ENTITY findTypeTextCmd.accesskey "x">
 <!ENTITY findTypeLinksCmd.label "Find Links As You Type">
+<!ENTITY findTypeLinksCmd.key "'">
 <!ENTITY findTypeLinksCmd.accesskey "k">
 
 <!ENTITY viewMenu.label                   "View">
@@ -96,8 +132,17 @@
 <!ENTITY showTaskbarCmd.accesskey         "S">
 
 <!ENTITY helpMenu.label                   "Help">
-<!ENTITY helpMenu.accesskey               "h">
+<!ENTITY helpMenu.accesskey               "H">
+<!-- LOCALIZATION NOTE some localizations of Windows use "?"
+     for the help button in the menubar. -->
+<!ENTITY helpMenuWin.label                "Help">
+<!ENTITY helpMenuWin.accesskey            "H">
+<!ENTITY openHelpCmd.label                "Help Contents">
+<!ENTITY openHelpCmd.accesskey            "H">
+<!ENTITY openHelpCmd.key                  "VK_F1">
 
+<!ENTITY helpForIEUsers.label               "For Internet Explorer Users">
+<!ENTITY helpForIEUsers.accesskey           "I">
 <!ENTITY helpTroubleshootingInfo.label      "Troubleshooting Information">
 <!ENTITY helpTroubleshootingInfo.accesskey  "T">
 <!ENTITY releaseCmd.label                   "Release Notes">
@@ -128,6 +173,9 @@
 <!ENTITY bidiSwitchTextDirectionItem.label        "Switch Text Direction">
 <!ENTITY bidiSwitchTextDirectionItem.accesskey    "w">
 <!ENTITY bidiSwitchTextDirectionItem.commandkey   "X">
+
+<!ENTITY menubarCmd.label                         "Menu Bar">
+<!ENTITY menubarCmd.accesskey                     "e">
 
 <!ENTITY customizeToolbarContext.label            "Customize…">
 <!ENTITY customizeToolbarContext.accesskey        "C">

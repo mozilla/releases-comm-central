@@ -266,7 +266,7 @@ function toProfileManager()
   // that was returned in the param block.
 }
 
-// This function is used by mac's platformCommunicatorOverlay
+// This function is only used by macs.
 function ZoomCurrentWindow()
 {
   if (window.windowState == STATE_NORMAL)

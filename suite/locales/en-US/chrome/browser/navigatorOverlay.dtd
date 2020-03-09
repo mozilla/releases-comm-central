@@ -19,9 +19,6 @@
 <!ENTITY uploadFile.label "Upload File…">
 <!ENTITY uploadFile.accesskey "F">
 
-<!ENTITY printSetupCmd.label "Page Setup…">
-<!ENTITY printSetupCmd.accesskey "u">
-
 <!-- Edit Menu -->
 <!ENTITY findOnCmd.label "Find in This Page…">
 
@@ -62,6 +59,10 @@
 <!ENTITY goHomeCmd.accesskey "H">
 <!ENTITY historyCmd.label "History">
 <!ENTITY historyCmd.accesskey "s">
+<!-- LOCALIZATION NOTE (historyCmd.key): This is used only on the mac. -->
+<!ENTITY historyCmd.key "H">
+<!-- LOCALIZATION NOTE (history.commandKey): This is used on platforms other
+     than the mac instead of historyCmd.key. -->
 <!ENTITY history.commandKey "h">
 <!ENTITY recentTabs.label "Recently Closed Tabs">
 <!ENTITY recentTabs.accesskey "C">

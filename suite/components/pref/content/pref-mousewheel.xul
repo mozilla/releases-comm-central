@@ -3,12 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE overlay [
-<!ENTITY % platformCommunicatorDTD SYSTEM "chrome://communicator-platform/locale/platformCommunicatorOverlay.dtd" >
-%platformCommunicatorDTD;
-<!ENTITY % prefMousewheelDTD SYSTEM "chrome://communicator/locale/pref/pref-mousewheel.dtd" >
-%prefMousewheelDTD;
-]>
+<!DOCTYPE overlay SYSTEM "chrome://communicator/locale/pref/pref-mousewheel.dtd" >
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <prefpane id="mousewheel_pane"
@@ -71,9 +66,13 @@
     <tabbox class="spaced">
       <tabs>
         <tab label="&usingJustTheWheel.label;"/>
-        <tab label="&usingWheelAndAlt.label;"/>
-        <tab label="&usingWheelAndCtrl.label;"/>
-        <tab label="&usingWheelAndShft.label;"/>
+#ifndef XP_MACOSX
+        <tab label="&usingWheelAndAlt.label2;"/>
+#else
+        <tab label="&usingWheelAndOption.label;"/>
+#endif
+        <tab label="&usingWheelAndCtrl.label2;"/>
+        <tab label="&usingWheelAndShft.label2;"/>
       </tabs>
 
       <tabpanels>

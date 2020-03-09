@@ -10,15 +10,20 @@
 <?xml-stylesheet type="text/css" href="chrome://communicator/skin/prefpanels.css"?>
 <?xml-stylesheet type="text/css" href="chrome://communicator/skin/preferences.css"?>
 
-<!DOCTYPE prefwindow [
-  <!ENTITY % dtdPrefs    SYSTEM "chrome://communicator/locale/pref/preferences.dtd"> %dtdPrefs;
-  <!ENTITY % dtdPlatform SYSTEM "chrome://communicator-platform/locale/pref/platformPrefOverlay.dtd"> %dtdPlatform;
-]>
+<!DOCTYPE prefwindow SYSTEM "chrome://communicator/locale/pref/preferences.dtd">
 
 <prefwindow id="prefDialog"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             title="&prefWindow.title;"
+#ifndef XP_WIN
+#ifndef XP_MACOSX
             style="&prefWindow.size;"
+#else
+            style="&prefWindowMac.size;"
+#endif
+#else
+            style="&prefWindowWin.size;"
+#endif
             overflow="auto"
             onload="OnLoad();"
             windowtype="mozilla:preferences"

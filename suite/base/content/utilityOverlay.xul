@@ -3,15 +3,10 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-
-<?xul-overlay href="chrome://communicator/content/platformCommunicatorOverlay.xul"?>
-
 <!DOCTYPE overlay [
 
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
-<!ENTITY % platformCommunicatorDTD SYSTEM "chrome://communicator-platform/locale/platformCommunicatorOverlay.dtd">
-%platformCommunicatorDTD;
 <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
 %utilityDTD;
 <!ENTITY % customizeToolbarDTD SYSTEM "chrome://communicator/locale/customizeToolbar.dtd">
@@ -144,7 +139,28 @@
             observes="Communicator:WorkMode"/>
 
   <keyset id="tasksKeys">
-    <key id="key_quit"/>
+#ifndef XP_MACOSX
+    <key id="key_openHelp"
+         keycode="&openHelpCmd.key;"
+         command="cmd_openHelp"/>
+#else
+    <key id="key_openHelp"
+         key="&openHelpCmdMac.key;"
+         command="cmd_openHelp"/>
+    <key id="key_preferencesMac"
+         key="&preferencesCmdMac.key;"
+         modifiers="&preferencesCmdMac.modifiers;"/>
+    <key id="key_hideThisApp"
+         key="&hideThisAppCmd.key;"
+         modifiers="&hideThisAppCmd.modifiers;"/>
+    <key id="key_hideOtherApps"
+         key="&hideOtherAppsCmd.key;"
+         modifiers="&hideOtherAppsCmd.modifiers;"/>
+#endif
+    <key id="key_quit"
+         key="&quitApplicationCmd.key;"
+         command="cmd_quit"
+         modifiers="accel"/>
   </keyset>
 
   <!-- File Menu -->
@@ -197,14 +213,21 @@
             accesskey="&newPrivateWindowCmd.accesskey;"
             key="key_newPrivateWindow"
             command="cmd_newPrivateWindow"/>
+  <menuitem id="menu_close"
+            label="&closeCmd.label;"
+            accesskey="&closeCmd.accesskey;"
+            key="key_close"
+            command="cmd_close"/>
   <menuitem id="menu_printSetup"
             label="&printSetupCmd.label;"
             accesskey="&printSetupCmd.accesskey;"
             command="cmd_printSetup"/>
+#ifndef XP_MACOSX
   <menuitem id="menu_printPreview"
             label="&printPreviewCmd.label;"
             accesskey="&printPreviewCmd.accesskey;"
             command="cmd_printpreview"/>
+#endif
   <menuitem id="menu_print"
             label="&printCmd.label;"
             accesskey="&printCmd.accesskey;"
@@ -223,6 +246,14 @@
        key="&newPrivateWindowCmd.key;"
        command="cmd_newPrivateWindow"
        modifiers="accel, shift"/>
+  <key id="key_close"
+       key="&closeCmd.key;"
+       command="cmd_close"
+       modifiers="accel"/>
+  <key id="key_closeWindow"
+       key="&closeCmd.key;"
+       command="cmd_closeWindow"
+       modifiers="accel,shift"/>
   <key id="key_print"
        key="&printCmd.key;"
        command="cmd_print"
@@ -230,11 +261,58 @@
   <key id="printKb"
        key="&printCmd.key;"/>
 
+  <menupopup id="menu_FilePopup">
+#ifdef XP_MACOSX
+    <menuitem id="menu_mac_services"
+              label="&servicesMenu.label;"/>
+    <menuitem id="menu_mac_hide_app"
+              label="&hideThisAppCmd.label;"
+              key="key_hideThisApp"/>
+    <menuitem id="menu_mac_hide_others"
+              label="&hideOtherAppsCmd.label;"
+              key="key_hideOtherApps"/>
+    <menuitem id="menu_mac_show_all"
+              label="&showAllAppsCmd.label;"/>
+#else
+    <menuseparator id="menu_FileQuitSeparator"/>
+#endif
+    <menuitem id="menu_FileQuitItem"
+#ifdef XP_WIN
+              label="&quitApplicationCmd.label;"
+              accesskey="&quitApplicationCmd.accesskey;"
+#else
+#ifdef XP_MACOSX
+              label="&quitApplicationCmdMac.label;"
+              accesskey="&quitApplicationCmdMac.accesskey;"
+#else
+              label="&quitApplicationCmdUnix.label;"
+              accesskey="&quitApplicationCmdUnix.accesskey;"
+#endif
+#endif
+              key="key_quit"
+              command="cmd_quit"/>
+  </menupopup>
+
   <keyset id="findKeys">
     <key id="key_find"
          key="&findBarCmd.key;"
          command="cmd_find"
          modifiers="accel"/>
+#ifndef XP_MACOSX
+#ifdef XP_UNIX
+    <key keycode="&findCmd.key2;"
+         command="cmd_find"/>
+#endif
+    <key id="key_findReplace"
+         key="&findReplaceCmd.key;"
+         modifiers="accel"
+         command="cmd_findReplace"/>
+#else
+    <key id="key_findReplace"
+         key="&findReplaceCmdMac.key;"
+         modifiers="accel,alt"
+         command="cmd_findReplace"/>
+#endif
     <key id="key_findNext"
          key="&findAgainCmd.key;"
          command="cmd_findNext"
@@ -248,6 +326,12 @@
     <key keycode="&findPrevCmd.key2;"
          command="cmd_findPrev"
          modifiers="shift"/>
+#ifndef XP_MACOSX
+    <key id="key_findTypeText"
+         key="&findTypeTextCmd.key;"/>
+    <key id="key_findTypeLinks"
+         key="&findTypeLinksCmd.key;"/>
+#endif
   </keyset>
 
   <!-- Edit Menu -->
@@ -361,6 +445,39 @@
        key="&bidiSwitchTextDirectionItem.commandkey;"
        modifiers="accel,shift"/>
 
+#ifndef XP_MACOSX
+  <key id="key_redo"
+       key="&redoCmd.key;"
+       modifiers="accel"/>
+  <key id="key_delete"
+       keycode="VK_DELETE"
+       command="cmd_delete"/>
+#ifdef XP_WIN
+  <key id="key_selectAll"
+       key="&selectAllCmd.key;"
+       modifiers="accel"/>
+#else
+  <key id="key_selectAll"
+       key="&selectAllCmd.key;"
+       modifiers="alt"/>
+#endif
+#else
+  <key id="key_redo"
+       key="&redoCmdMac.key;"
+       modifiers="shift, accel"/>
+  <!-- not all Mac keyboards have a VK_DELETE key, so we use VK_BACK as
+       the primary and provide VK_DELETE as a secondary key definition -->
+  <key id="key_delete"
+       keycode="VK_BACK"
+       command="cmd_delete"/>
+  <key id="key_delete2"
+       keycode="VK_DELETE"
+       command="cmd_delete"/>
+  <key id="key_selectAll"
+       key="&selectAllCmd.key;"
+       modifiers="accel"/>
+#endif
+
   <commandset id="globalEditMenuItems"
               commandupdater="true"
               events="focus"
@@ -433,10 +550,15 @@
   <!-- Not needed yet, window will need this: -->
   <!-- broadcaster id="cmd_preferences"/ -->
 
+#ifndef XP_MACOSX
   <menuitem id="menu_preferences"
             label="&preferencesCmd.label;"
-            key="key_preferences"
             accesskey="&preferencesCmd.accesskey;"/>
+#else
+  <menuitem id="menu_preferences"
+            label="&preferencesCmdMac.label;"
+            key="key_preferencesMac"/>
+#endif
 
   <!-- View Menu -->
   <menu id="menu_View"
@@ -454,16 +576,34 @@
             checked="true"/>
 
   <!-- Help Menu -->
+#ifndef XP_WIN
   <menu id="menu_Help"
         label="&helpMenu.label;"
         accesskey="&helpMenu.accesskey;">
+#else
+  <menu id="menu_Help"
+        label="&helpMenuWin.label;"
+        accesskey="&helpMenuWin.accesskey;">
+#endif
     <menupopup id="helpPopup" onpopupshowing="updateCheckUpdatesItem();">
+#ifndef XP_MACOSX
       <menuitem label="&openHelpCmd.label;"
                 accesskey="&openHelpCmd.accesskey;"
                 id="help"
                 key="key_openHelp"
                 command="cmd_openHelp"/>
-      <!-- For Internet Explorer Users is inserted here on Windows -->
+#else
+      <menuitem label="&openHelpCmdMac.label;"
+                accesskey="&openHelpCmdMac.accesskey;"
+                id="help"
+                key="key_openHelp"
+                command="cmd_openHelp"/>
+#endif
+#ifdef XP_WIN
+      <menuitem label="&helpForIEUsers.label;"
+                accesskey="&helpForIEUsers.accesskey;"
+                oncommand="openHelp('ieusers', 'chrome://communicator/locale/help/suitehelp.rdf');"/>
+#endif
       <menuitem id="troubleShooting"
                 accesskey="&helpTroubleshootingInfo.accesskey;"
                 label="&helpTroubleshootingInfo.label;"
@@ -512,6 +652,38 @@
     <!-- Additional items are generated, see popupNotificationMenuShowing() -->
   </menupopup>
 
+#ifndef XP_MACOSX
+  <toolbar id="toolbar-menubar"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="addrbook-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="compose-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="mail-toolbar-menubar2"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+
+  <toolbar id="placesToolbar"
+           toolbarname="&menubarCmd.label;"
+           accesskey="&menubarCmd.accesskey;"/>
+#else
+  <!-- Title bar elements -->
+  <vbox id="titlebar">
+    <hbox id="titlebar-content">
+      <spacer id="titlebar-spacer" flex="1"/>
+      <hbox id="titlebar-buttonbox-container">
+        <hbox id="titlebar-buttonbox"/>
+      </hbox>
+    </hbox>
+  </vbox>
+#endif
+
   <toolbarbutton id="print-button"
                  type="menu-button"
                  class="toolbarbutton-1 chromeclass-toolbar-additional"
@@ -522,10 +694,16 @@
                 accesskey="&printCmd.accesskey;"
                 default="true"
                 command="cmd_print"/>
+#ifndef XP_MACOSX
       <menuitem id="printPreviewMenuItemToolbar"
                 label="&printPreviewCmd.label;"
                 accesskey="&printPreviewCmd.accesskey;"
                 command="cmd_printpreview"/>
+#endif
+      <menuitem id="printSetupToolbar"
+                label="&printSetupCmd.label;"
+                accesskey="&printSetupCmd.accesskey;"
+                command="cmd_printSetup"/>
     </menupopup>
   </toolbarbutton>
 

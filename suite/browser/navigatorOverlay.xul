@@ -83,8 +83,6 @@
 
     <!-- Search Menu -->
     <keyset id="findKeys"/>
-    <key id="key_findTypeText"/>
-    <key id="key_findTypeLinks"/>
 
     <!-- Go Menu -->
     <key keycode="VK_BACK" command="cmd_handleBackspace"/>
@@ -103,9 +101,14 @@
     <key key="f" modifiers=",control,alt" oncommand="loadURI('http://www.fishcam.com/');"/>
     <key id="goUpKb" keycode="VK_UP" command="Browser:Up" modifiers="alt"/>
     <key id="key_gotoHistory"
+#ifndef XP_MACOSX
          key="&history.commandKey;"
-         oncommand="PlacesCommandHook.showPlacesOrganizer('History');"
-         modifiers="accel"/>
+         modifiers="accel"
+#else
+         key="&historyCmd.key;"
+         modifiers="accel,shift"
+#endif
+         oncommand="PlacesCommandHook.showPlacesOrganizer('History');"/>
     <keyset id="viewZoomKeys"/>
     <keyset id="navigationKeys">
 #ifndef XP_MACOSX

@@ -135,6 +135,9 @@
 <!ENTITY showThreadPaneCmd.accesskey "T">
 <!ENTITY showFolderPaneCmd.label "Folder Pane">
 <!ENTITY showFolderPaneCmd.accesskey "F">
+<!-- LOCALIZATION NOTE (toggleFolderPaneCmd.key): This is only used on the
+     mac platform, other platforms use VK_F9. -->
+<!ENTITY toggleFolderPaneCmd.key "S">
 
 <!-- sortMenu is also used by addressbook -->
 <!ENTITY sortMenu.label "Sort by">

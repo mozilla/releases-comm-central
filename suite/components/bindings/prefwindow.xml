@@ -57,7 +57,6 @@
 
 <!DOCTYPE bindings [
   <!ENTITY % dtdPrefs       SYSTEM "chrome://communicator/locale/pref/preferences.dtd"> %dtdPrefs;
-  <!ENTITY % dtdPlatform    SYSTEM "chrome://communicator-platform/locale/pref/platformPrefOverlay.dtd"> %dtdPlatform;
   <!ENTITY % dtdGlobalPrefs SYSTEM "chrome://global/locale/preferences.dtd"> %dtdGlobalPrefs;
 ]>
 

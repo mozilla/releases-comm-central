@@ -7,9 +7,6 @@
 @AB_CD@.jar:
 % locale branding @AB_CD@ %locale/@AB_CD@/branding/
 % locale communicator @AB_CD@ %locale/@AB_CD@/communicator/
-% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/gtk/ os=LikeUnix
-% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/mac/ os=Darwin
-% locale communicator-platform @AB_CD@ %locale/@AB_CD@/communicator-platform/win/ os=WINNT
 % locale communicator-region @AB_CD@ %locale/@AB_CD@/communicator-region/
 % locale help @AB_CD@ %locale/@AB_CD@/helpviewer/
 % locale messenger @AB_CD@ %locale/@AB_CD@/messenger/
@@ -194,9 +191,6 @@
   locale/@AB_CD@/communicator/pref/pref-smartupdate.dtd                     (%chrome/common/pref/pref-smartupdate.dtd)
   locale/@AB_CD@/communicator/pref/pref-spelling.dtd                        (%chrome/common/pref/pref-spelling.dtd)
   locale/@AB_CD@/communicator/pref/pref-tabs.dtd                            (%chrome/common/pref/pref-tabs.dtd)
-  locale/@AB_CD@/communicator-platform/mac/pref/platformPrefOverlay.dtd     (%chrome/common/pref/mac/platformPrefOverlay.dtd)
-  locale/@AB_CD@/communicator-platform/gtk/pref/platformPrefOverlay.dtd     (%chrome/common/pref/unix/platformPrefOverlay.dtd)
-  locale/@AB_CD@/communicator-platform/win/pref/platformPrefOverlay.dtd     (%chrome/common/pref/win/platformPrefOverlay.dtd)
   locale/@AB_CD@/communicator/profile/profileSelection.dtd                  (%chrome/common/profile/profileSelection.dtd)
   locale/@AB_CD@/communicator/profile/profileSelection.properties           (%chrome/common/profile/profileSelection.properties)
   locale/@AB_CD@/communicator/safeMode.dtd                                  (%chrome/common/safeMode.dtd)
@@ -211,9 +205,6 @@
   locale/@AB_CD@/communicator/sidebar/preview.dtd                           (%chrome/common/sidebar/preview.dtd)
   locale/@AB_CD@/communicator/sidebar/sidebar.properties                    (%chrome/common/sidebar/sidebar.properties)
   locale/@AB_CD@/communicator/sidebar/sidebarOverlay.dtd                    (%chrome/common/sidebar/sidebarOverlay.dtd)
-  locale/@AB_CD@/communicator-platform/win/platformCommunicatorOverlay.dtd  (%chrome/common/win/platformCommunicatorOverlay.dtd)
-  locale/@AB_CD@/communicator-platform/gtk/platformCommunicatorOverlay.dtd  (%chrome/common/unix/platformCommunicatorOverlay.dtd)
-  locale/@AB_CD@/communicator-platform/mac/platformCommunicatorOverlay.dtd  (%chrome/common/mac/platformCommunicatorOverlay.dtd)
   locale/@AB_CD@/communicator-region/region.properties                      (%chrome/common/region.properties)
   locale/@AB_CD@/messenger/AccountManager.dtd                               (%chrome/mailnews/pref/AccountManager.dtd)
   locale/@AB_CD@/messenger/AccountWizard.dtd                                (%chrome/mailnews/pref/AccountWizard.dtd)

@@ -18,6 +18,12 @@
 
 
 <keyset id="tasksKeys">
+#ifdef XP_MACOSX
+  <key id="key_minimizeWindow"
+       command="cmd_minimizeWindow"
+       key="&minimizeWindowCmd.key;"
+       modifiers="accel"/>
+#endif
   <key id="key_navigator"    key="&navigatorCmd.commandkey;"   command="Tasks:Navigator" modifiers="accel"/>
   <key id="key_downloadManager" key="&downloadManagerCmd.commandkey;"
        command="downloadmgr" modifiers="accel"/>
@@ -27,6 +33,10 @@
        command="Tasks:ErrorConsole" modifiers="accel,alt"/>
 </keyset>
 <commandset id="tasksCommands">
+#ifdef XP_MACOSX
+  <command id="cmd_minimizeWindow" oncommand="window.minimize();"/>
+  <command id="cmd_zoomWindow" oncommand="ZoomCurrentWindow();"/>
+#endif
   <command id="Tasks:DataMan" oncommand="toDataManager();"/>
   <command id="Tasks:Navigator" oncommand="toNavigator();"/>
   <command id="Tasks:ErrorConsole" oncommand="toJavaScriptConsole();"/>
@@ -91,6 +101,16 @@
       <menu id="windowMenu" label="&windowMenu.label;" accesskey="&windowMenu.accesskey;"
             onpopupshowing="checkFocusedWindow();" onpopuphidden="windowMenuDidHide();">
         <menupopup id="windowPopup">
+#ifdef XP_MACOSX
+          <menuitem command="cmd_minimizeWindow"
+                    label="&minimizeWindowCmd.label;"
+                    key="key_minimizeWindow"
+                    position="1"/>
+          <menuitem command="cmd_zoomWindow"
+                    label="&zoomWindowCmd.label;"
+                    position="2"/>
+          <menuseparator position="3"/>
+#endif
           <menuitem label="&navigatorCmd.label;" accesskey="&navigatorCmd.accesskey;" key="key_navigator" command="Tasks:Navigator" id="tasksMenuNavigator" class="menuitem-iconic icon-navigator16"/>
 
           <!-- Overlays get stuffed in here. -->

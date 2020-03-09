@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 comm.jar:
-   content/communicator/pref/preferences.xul                        (content/preferences.xul)
+*  content/communicator/pref/preferences.xul                        (content/preferences.xul)
    content/communicator/pref/preferences.js                         (content/preferences.js)
    content/communicator/pref/prefpanels.css                         (content/prefpanels.css)
    content/communicator/pref/prefpanels.xml                         (content/prefpanels.xml)
@@ -46,7 +46,7 @@ comm.jar:
    content/communicator/pref/pref-locationbar.xul                   (content/pref-locationbar.xul)
 *  content/communicator/pref/pref-media.xul                         (content/pref-media.xul)
    content/communicator/pref/pref-mousewheel.js                     (content/pref-mousewheel.js)
-   content/communicator/pref/pref-mousewheel.xul                    (content/pref-mousewheel.xul)
+*  content/communicator/pref/pref-mousewheel.xul                    (content/pref-mousewheel.xul)
    content/communicator/pref/pref-navigator.js                      (content/pref-navigator.js)
    content/communicator/pref/pref-navigator.xul                     (content/pref-navigator.xul)
    content/communicator/pref/pref-offlineapps.js                    (content/pref-offlineapps.js)
@@ -69,4 +69,4 @@ comm.jar:
    content/communicator/pref/pref-smartupdate.xul                   (content/pref-smartupdate.xul)
    content/communicator/pref/pref-spelling.js                       (content/pref-spelling.js)
    content/communicator/pref/pref-spelling.xul                      (content/pref-spelling.xul)
-   content/communicator/pref/pref-tabs.xul                          (content/pref-tabs.xul)
+*  content/communicator/pref/pref-tabs.xul                          (content/pref-tabs.xul)
