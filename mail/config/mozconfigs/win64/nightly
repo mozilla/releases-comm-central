@@ -4,6 +4,7 @@
 . "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
 . "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
+. "$topsrcdir/comm/mail/config/mozconfigs/win64/cross"
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-profiling
