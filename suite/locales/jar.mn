@@ -19,9 +19,6 @@
 % locale messenger-newsblog @AB_CD@ %locale/@AB_CD@/messenger-newsblog/
 % locale mozldap @AB_CD@ %locale/@AB_CD@/mozldap/
 % locale navigator @AB_CD@ %locale/@AB_CD@/navigator/
-% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/gtk/ os=LikeUnix
-% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/mac/ os=Darwin
-% locale navigator-platform @AB_CD@ %locale/@AB_CD@/navigator-platform/win/ os=WINNT
 % locale navigator-region @AB_CD@ %locale/@AB_CD@/navigator-region/
   locale/@AB_CD@/branding/aboutRights.dtd                                   (%chrome/branding/aboutRights.dtd)
   locale/@AB_CD@/branding/aboutRights.properties                            (%chrome/branding/aboutRights.properties)
@@ -364,9 +361,6 @@
   locale/@AB_CD@/navigator/tabbrowser.properties                            (%chrome/browser/tabbrowser.properties)
   locale/@AB_CD@/navigator/taskbar.properties                               (%chrome/browser/taskbar.properties)
   locale/@AB_CD@/navigator/webDeveloper.dtd                                 (%chrome/browser/webDeveloper.dtd)
-  locale/@AB_CD@/navigator-platform/mac/platformNavigationBindings.dtd      (%chrome/browser/mac/platformNavigationBindings.dtd)
-  locale/@AB_CD@/navigator-platform/gtk/platformNavigationBindings.dtd      (%chrome/browser/unix/platformNavigationBindings.dtd)
-  locale/@AB_CD@/navigator-platform/win/platformNavigationBindings.dtd      (%chrome/browser/win/platformNavigationBindings.dtd)
   locale/@AB_CD@/navigator-region/region.properties                         (%chrome/browser/region.properties)
   locale/@AB_CD@/pippki/pref-certs.dtd                                      (%chrome/common/pref/pref-certs.dtd)
   locale/@AB_CD@/pippki/pref-masterpass.dtd                                 (%chrome/common/pref/pref-masterpass.dtd)

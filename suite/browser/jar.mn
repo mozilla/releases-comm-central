@@ -21,7 +21,7 @@ comm.jar:
    content/navigator/navigator.js
    content/navigator/navigator.xul
    content/navigator/navigatorDD.js
-   content/navigator/navigatorOverlay.xul
+*  content/navigator/navigatorOverlay.xul
    content/navigator/nsBrowserContentListener.js
    content/navigator/nsBrowserStatusHandler.js
    content/navigator/sessionHistoryUI.js
@@ -31,15 +31,7 @@ comm.jar:
    content/navigator/urlbarBindings.xml
    content/navigator/webDeveloperOverlay.js
    content/navigator/webDeveloperOverlay.xul
-#ifdef XP_MACOSX
-   content/navigator/platformNavigationBindings.xul                 (mac/platformNavigationBindings.xul)
-#else
-#ifdef XP_WIN
-   content/navigator/platformNavigationBindings.xul                 (win/platformNavigationBindings.xul)
-#else
-   content/navigator/platformNavigationBindings.xul                 (unix/platformNavigationBindings.xul)
-#endif
-#endif
+
    content/navigator/pageinfo/feeds.js                              (pageinfo/feeds.js)
    content/navigator/pageinfo/feeds.xml                             (pageinfo/feeds.xml)
    content/navigator/pageinfo/pageInfo.css                          (pageinfo/pageInfo.css)

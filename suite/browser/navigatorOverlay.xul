@@ -10,7 +10,6 @@
 <?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://navigator/content/mailNavigatorOverlay.xul"?>
-<?xul-overlay href="chrome://navigator/content/platformNavigationBindings.xul"?>
 
 <!DOCTYPE overlay [
 <!ENTITY % navigatorDTD SYSTEM "chrome://navigator/locale/navigator.dtd" >
@@ -108,9 +107,60 @@
          oncommand="PlacesCommandHook.showPlacesOrganizer('History');"
          modifiers="accel"/>
     <keyset id="viewZoomKeys"/>
-    <keyset id="navigationKeys"/>
+    <keyset id="navigationKeys">
+#ifndef XP_MACOSX
+      <key id="goBackKb" keycode="VK_LEFT"
+           command="Browser:Back" modifiers="alt"/>
+      <key id="goForwardKb" keycode="VK_RIGHT"
+           command="Browser:Forward" modifiers="alt"/>
+#else
+      <key id="goBackKb" keycode="VK_LEFT"
+           command="Browser:Back" modifiers="accel"/>
+      <key id="goForwardKb" keycode="VK_RIGHT"
+           command="Browser:Forward" modifiers="accel"/>
+#endif
+#ifndef XP_WIN
+      <key id="goBackKb2" key="&goBackCmd.commandKey;"
+           command="Browser:Back" modifiers="accel"/>
+      <key id="goForwardKb2" key="&goForwardCmd.commandKey;"
+           command="Browser:Forward" modifiers="accel"/>
+#endif
+      <key id="key_stop" keycode="VK_ESCAPE" oncommand="BrowserStop();"/>
+#ifdef XP_MACOSX
+      <key id="key_stop_mac" key="&stopCmd.macCommandKey;"
+           oncommand="BrowserStop();" modifiers="accel"/>
+#endif
+
+#ifndef XP_MACOSX
+      <key keycode="VK_F5" oncommand="BrowserReload();"/>
+      <key keycode="VK_F5"
+           oncommand="BrowserReloadSkipCache();" modifiers="control"/>
+      <key id="goHome" keycode="VK_HOME"
+           oncommand="BrowserHome();" modifiers="alt"/>
+#else
+      <key id="goHome" keycode="VK_HOME"
+           oncommand="BrowserHome();" modifiers="meta"/>
+#endif
+
+#ifdef XP_MACOSX
+      <key keycode="VK_F11" command="View:FullScreen"/>
+      <key id="key_fullScreen" key="&fullScreenCmd.commandKey;"
+           command="View:FullScreen" modifiers="accel,shift"/>
+#else
+      <key id="key_fullScreen" keycode="VK_F11" command="View:FullScreen"/>
+      <key id="key_newTabWithTargetBg" keycode="VK_INSERT"
+           command="cmd_newTabWithTarget"/>
+#endif
+      <key id="key_newTabWithTargetFg" keycode="VK_INSERT"
+           modifiers="alt" command="cmd_newTabWithTarget"/>
+    </keyset>
     <keyset id="tasksKeys"/>
-    <key id="key_sanitize" command="Tools:Sanitize" keycode="VK_DELETE" modifiers="accel,shift"/>
+    <key id="key_sanitize" keycode="VK_DELETE"
+         command="Tools:Sanitize" modifiers="accel,shift"/>
+#ifdef XP_MACOSX
+    <key id="key_sanitize_mac" keycode="VK_BACK"
+         command="Tools:Sanitize" modifiers="accel,shift"/>
+#endif
   </keyset>
 
   <commandset id="commands">
