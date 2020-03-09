@@ -111,9 +111,7 @@ var EnigmailAutoSetup = {
           var account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
           var accountMsgServer = account.incomingServer;
           EnigmailLog.DEBUG(
-            `autoSetup.jsm: determinePreviousInstallType: scanning account "${
-              accountMsgServer.prettyName
-            }"\n`
+            `autoSetup.jsm: determinePreviousInstallType: scanning account "${accountMsgServer.prettyName}"\n`
           );
 
           let msgFolderArr = [];
@@ -146,9 +144,7 @@ var EnigmailAutoSetup = {
             }
 
             EnigmailLog.DEBUG(
-              `autoSetup.jsm: determinePreviousInstallType: scanning folder "${
-                msgFolder.name
-              }"\n`
+              `autoSetup.jsm: determinePreviousInstallType: scanning folder "${msgFolder.name}"\n`
             );
 
             // Iterating through each message in the Folder
@@ -238,9 +234,7 @@ var EnigmailAutoSetup = {
 
           gDeterminedSetupType = returnMsgValue;
           EnigmailLog.DEBUG(
-            `autoSetup.jsm: determinePreviousInstallType: found type: ${
-              returnMsgValue.value
-            }\n`
+            `autoSetup.jsm: determinePreviousInstallType: found type: ${returnMsgValue.value}\n`
           );
           resolve(returnMsgValue);
         }

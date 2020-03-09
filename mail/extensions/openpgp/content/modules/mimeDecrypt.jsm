@@ -510,9 +510,7 @@ MimeDecryptHandler.prototype = {
 
     let spec = this.uri ? this.uri.spec : null;
     EnigmailLog.DEBUG(
-      `mimeDecrypt.jsm: checking MIME structure for ${
-        this.mimePartNumber
-      } / ${spec}\n`
+      `mimeDecrypt.jsm: checking MIME structure for ${this.mimePartNumber} / ${spec}\n`
     );
 
     if (
@@ -870,9 +868,7 @@ MimeDecryptHandler.prototype = {
 
     let gossip = hdr.getHeader("autocrypt-gossip") || [];
     EnigmailLog.DEBUG(
-      `mimeDecrypt.jsm: extractAutocryptGossip: found ${
-        gossip.length
-      } headers\n`
+      `mimeDecrypt.jsm: extractAutocryptGossip: found ${gossip.length} headers\n`
     );
 
     let msgDate = null;

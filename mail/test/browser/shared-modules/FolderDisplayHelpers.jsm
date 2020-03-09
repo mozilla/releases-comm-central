@@ -885,9 +885,7 @@ function assert_tab_titled_from(aTab, aWhat) {
 
   mc.waitFor(
     () => aTab.title.includes(text),
-    `Tab title should include '${text}' but does not. (Current title: '${
-      aTab.title
-    }')`
+    `Tab title should include '${text}' but does not. (Current title: '${aTab.title}')`
   );
 }
 
@@ -2009,9 +2007,7 @@ function wait_for_blank_content_pane(aController) {
         true,
         undefined,
         undefined,
-        `Timeout waiting for blank content pane. Current location: ${
-          aController.window.content.location.href
-        }`
+        `Timeout waiting for blank content pane. Current location: ${aController.window.content.location.href}`
       );
     } else {
       throw e;

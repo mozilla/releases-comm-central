@@ -158,9 +158,7 @@ OAuth2Module.prototype = {
           () => {
             aListener.onSuccess(
               btoa(
-                `user=${this._username}\x01auth=Bearer ${
-                  oauth.accessToken
-                }\x01\x01`
+                `user=${this._username}\x01auth=Bearer ${oauth.accessToken}\x01\x01`
               )
             );
             if (callback) {

@@ -1913,9 +1913,7 @@ CalStorageCalendar.prototype = {
             }
           } else {
             cal.WARN(
-              `[calStorageCalendar] Skipping invalid attendee for item '${item.title}' (${
-                item.id
-              }).`
+              `[calStorageCalendar] Skipping invalid attendee for item '${item.title}' (${item.id}).`
             );
           }
         });

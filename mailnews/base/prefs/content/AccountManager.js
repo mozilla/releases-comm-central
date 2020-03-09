@@ -689,9 +689,7 @@ function checkUserServerChanges(showAlert) {
   if (!checkDirectoryIsUsable(dir)) {
     //          return false; // Temporarily disable this. Just show warning but do not block. See bug 921371.
     Cu.reportError(
-      `Local directory ${dir.path} of account ${
-        currentAccount.key
-      } is not safe to use. Consider changing it.`
+      `Local directory ${dir.path} of account ${currentAccount.key} is not safe to use. Consider changing it.`
     );
   }
 

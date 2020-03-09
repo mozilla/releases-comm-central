@@ -106,9 +106,7 @@ add_task(async function() {
           .replace(/(.*) <.*>/, "$1")
           .padEnd(16, " ");
         browser.test.log(
-          `[${m.id}] ${date} From: ${author} To: ${recipients} Subject: ${
-            m.subject
-          }`
+          `[${m.id}] ${date} From: ${author} To: ${recipients} Subject: ${m.subject}`
         );
       }
 

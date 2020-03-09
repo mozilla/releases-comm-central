@@ -2958,9 +2958,7 @@ function getIconForAttachment(attachment) {
   if (attachment.isDeleted) {
     return "chrome://messenger/skin/icons/attachment-deleted.png";
   }
-  return `moz-icon://${attachment.name}?size=16&amp;contentType=${
-    attachment.contentType
-  }`;
+  return `moz-icon://${attachment.name}?size=16&amp;contentType=${attachment.contentType}`;
 }
 
 /**

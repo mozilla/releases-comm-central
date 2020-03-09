@@ -825,9 +825,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
         true,
         undefined,
         undefined,
-        `Timeout waiting for content page to load. Current URL is: ${
-          aDetails.currentURI.spec
-        }`
+        `Timeout waiting for content page to load. Current URL is: ${aDetails.currentURI.spec}`
       );
     } else {
       throw e;

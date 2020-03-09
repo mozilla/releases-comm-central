@@ -77,9 +77,7 @@
             : "";
 
           throw new Error(
-            `toolbar ID ${
-              this.id
-            }${tbName}: toolboxid attribute '${toolboxId}' points to a toolbox that doesn't exist`
+            `toolbar ID ${this.id}${tbName}: toolboxid attribute '${toolboxId}' points to a toolbox that doesn't exist`
           );
         }
         this._toolbox = toolbox;

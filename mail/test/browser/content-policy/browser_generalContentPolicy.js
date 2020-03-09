@@ -460,9 +460,7 @@ function checkAllowForSenderWithPerms(test) {
     )
   ) {
     throw new Error(
-      `${
-        test.type
-      } has been unexpectedly blocked for sender=${authorEmailAddress}`
+      `${test.type} has been unexpectedly blocked for sender=${authorEmailAddress}`
     );
   }
 

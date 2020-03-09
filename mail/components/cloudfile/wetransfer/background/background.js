@@ -94,9 +94,7 @@ class WeTransferSession {
       partNumber++
     ) {
       let uploadURL = await this._request(
-        `/v2/transfers/${transfer.id}/files/${
-          file.id
-        }/upload-url/${partNumber}`,
+        `/v2/transfers/${transfer.id}/files/${file.id}/upload-url/${partNumber}`,
         {
           method: "GET",
           signal,

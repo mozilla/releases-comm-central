@@ -269,9 +269,7 @@ var EnigmailAutocrypt = {
       }
       if (!acceptGossipKeys && keyArr[i].type === "1g") {
         EnigmailLog.DEBUG(
-          `autocrypt.jsm: importAutocryptKeys: skipping gossip key for ${
-            keyArr[i].email
-          }\n`
+          `autocrypt.jsm: importAutocryptKeys: skipping gossip key for ${keyArr[i].email}\n`
         );
         continue;
       }
