@@ -44,7 +44,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var messenger;
 var folder;
 var epsilon;
-var isWindows;
 var filePrefix;
 
 var rawAttachment =
@@ -65,8 +64,6 @@ add_task(function setupModule(module) {
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
-  isWindows = "@mozilla.org/windows-registry-key;1" in Cc;
-
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
    * counts the trailing newline for an attachment MIME part. Most of the time,
    * assuming attachment has N bytes (no matter what's inside, newlines or
@@ -75,8 +72,8 @@ add_task(function setupModule(module) {
    * inline text), libmime will return N + 2 bytes. Since we're dealing with
    * forwarded message data here, the bonus byte(s) appear twice.
    */
-  epsilon = isWindows ? 4 : 2;
-  filePrefix = isWindows ? "file:///C:/" : "file:///";
+  epsilon = AppConstants.platform == "win" ? 4 : 2;
+  filePrefix = AppConstants.platform == "win" ? "file:///C:/" : "file:///";
 
   // create some messages that have various types of attachments
   let messages = [

@@ -106,7 +106,7 @@ function internal_check_delivery_format(editDraft) {
   );
 
   // Select our wanted format.
-  if (!mc.mozmillModule.isMac) {
+  if (["linux", "win"].includes(AppConstants.platform)) {
     cwc.click(cwc.eid("optionsMenu"));
     cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
       { id: "outputFormatMenu" },
@@ -130,7 +130,7 @@ function internal_check_delivery_format(editDraft) {
    * @param aValue       A value of nsIMsgCompSendFormat constants of the expected selected format.
    */
   function assert_format_value(aMenuItemId, aValue) {
-    if (!mc.mozmillModule.isMac) {
+    if (["linux", "win"].includes(AppConstants.platform)) {
       cwc.click(cwc.eid("optionsMenu"));
       let formatMenu = cwc.click_menus_in_sequence(
         cwc.e("optionsMenuPopup"),

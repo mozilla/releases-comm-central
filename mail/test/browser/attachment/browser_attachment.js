@@ -565,7 +565,7 @@ add_task(function test_attachments_compose_menu() {
     let element = cwc.e(aId);
     element.focus();
 
-    if (!mc.mozmillModule.isWindows) {
+    if (["linux", "macosx"].includes(AppConstants.platform)) {
       // First, call the window's default controller's function.
       cwc.window.defaultController.isCommandEnabled("cmd_delete");
 

@@ -92,7 +92,7 @@ function assert_mode_selected(aMode) {
   let baseMode = tree.baseMode();
   assert_compact_state(baseMode != tree.mode);
   // We need to open the menu because only then the right mode is set in them.
-  if (!mc.mozmillModule.isMac) {
+  if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from mozmill.
     mc.click(view_menu);
     let popuplist = mc.click_menus_in_sequence(
