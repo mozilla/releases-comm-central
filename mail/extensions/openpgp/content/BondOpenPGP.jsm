@@ -19,14 +19,9 @@ const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
 );
 
-const getEnigmailApp = EnigmailLazy.loader("enigmail/app.jsm", "EnigmailApp");
 const getEnigmailCore = EnigmailLazy.loader(
   "enigmail/core.jsm",
   "EnigmailCore"
-);
-const getEnigmailPgpmimeHander = EnigmailLazy.loader(
-  "enigmail/pgpmimeHandler.jsm",
-  "EnigmailPgpmimeHander"
 );
 const getRNP = EnigmailLazy.loader("enigmail/rnp.jsm", "RNP");
 const getEnigmailWindows = EnigmailLazy.loader(
@@ -56,9 +51,8 @@ var BondOpenPGP = {
       getRNP().init({});
       //TODO: check RNP.libLoaded
 
-      getEnigmailApp().initAddon();
-      getEnigmailCore().startup(0);
-      getEnigmailPgpmimeHander().startup(0);
+      // trigger service init
+      getEnigmailCore().getService();
 
       Services.console.logStringMessage("OpenPGP bootstrap completed");
     } catch (ex) {

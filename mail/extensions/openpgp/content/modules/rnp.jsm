@@ -1371,6 +1371,71 @@ var RNP = {
     RNPLib.rnp_key_handle_destroy(key);
     return result;
   },
+
+  getNewRevocation(id) {
+    let result = "";
+    let key = this.getKeyHandleByIdentifier(RNPLib.ffi, id);
+
+    if (key.isNull()) {
+      return result;
+    }
+
+    let out_final = new RNPLib.rnp_output_t();
+    RNPLib.rnp_output_to_memory(out_final.address(), 0);
+
+    let out_binary = new RNPLib.rnp_output_t();
+    let rv;
+    if (
+      (rv = RNPLib.rnp_output_to_armor(
+        out_final,
+        out_binary.address(),
+        "public key"
+      ))
+    ) {
+      throw new Error("rnp_output_to_armor failed:" + rv);
+    }
+
+    if (
+      (rv = RNPLib.rnp_key_export_revocation(
+        key,
+        out_binary,
+        0,
+        null,
+        null,
+        null
+      ))
+    ) {
+      throw new Error("rnp_key_export_revocation failed: " + rv);
+    }
+
+    if ((rv = RNPLib.rnp_output_finish(out_binary))) {
+      throw new Error("rnp_output_finish failed: " + rv);
+    }
+
+    let result_buf = new ctypes.uint8_t.ptr();
+    let result_len = new ctypes.size_t();
+    let exitCode = RNPLib.rnp_output_memory_get_buf(
+      out_final,
+      result_buf.address(),
+      result_len.address(),
+      false
+    );
+
+    console.debug(exitCode);
+
+    if (!exitCode) {
+      let char_array = ctypes.cast(
+        result_buf,
+        ctypes.char.array(result_len.value).ptr
+      ).contents;
+      result = char_array.readString();
+    }
+
+    RNPLib.rnp_output_destroy(out_binary);
+    RNPLib.rnp_output_destroy(out_final);
+    RNPLib.rnp_key_handle_destroy(key);
+    return result;
+  },
 };
 
 // exports

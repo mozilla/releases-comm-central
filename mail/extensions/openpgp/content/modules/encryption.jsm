@@ -605,6 +605,7 @@ var EnigmailEncryption = {
         "\n"
     );
 
+    /*
     if (retStatusObj.statusFlags & EnigmailConstants.DISPLAY_MESSAGE) {
       if (retStatusObj.extendedStatus.search(/\bdisp:/) >= 0) {
         retStatusObj.errorMsg = retStatusObj.statusMsg;
@@ -634,6 +635,7 @@ var EnigmailEncryption = {
     } else if (exitCode !== 0) {
       retStatusObj.errorMsg = EnigmailLocale.getString("badCommand");
     }
+    */
 
     return exitCode;
   },

@@ -64,6 +64,10 @@ const getEnigmailWksMimeHandler = EnigmailLazy.loader(
   "enigmail/wksMimeHandler.jsm",
   "EnigmailWksMimeHandler"
 );
+const getEnigmailPgpmimeHander = EnigmailLazy.loader(
+  "enigmail/pgpmimeHandler.jsm",
+  "EnigmailPgpmimeHander"
+);
 //const getEnigmailOverlays = EnigmailLazy.loader("enigmail/enigmailOverlays.jsm", "EnigmailOverlays");
 const getEnigmailSqlite = EnigmailLazy.loader(
   "enigmail/sqliteDb.jsm",
@@ -460,8 +464,10 @@ Enigmail.prototype = {
 
       try {
         // Initialize enigmail
-        EnigmailCore.init(getEnigmailApp().getVersion());
-        this.initialize(win, getEnigmailApp().getVersion());
+        let app = getEnigmailApp();
+        app.initAddon();
+        EnigmailCore.init(app.getVersion());
+        this.initialize(win, app.getVersion());
 
         try {
           // Reset alert count to default value
@@ -524,6 +530,8 @@ Enigmail.prototype = {
       }
     }
 
+    EnigmailCore.startup(0);
+    getEnigmailPgpmimeHander().startup(0);
     return this.initialized ? this : null;
   },
 }; // Enigmail.prototype

@@ -3,7 +3,6 @@
 
 <!ENTITY enigmail.keyUserId.label         "Account / User ID">
 <!ENTITY enigmail.keygenTitle.label       "Generate OpenPGP Key">
-<!ENTITY enigmail.useForSigning.label     "Use generated key for the selected identity">
 <!ENTITY enigmail.keyNoPassphrase.label   "No passphrase">
 <!ENTITY enigmail.keyPassphrase.label     "Passphrase">
 <!ENTITY enigmail.keyPassphraseRepeat.label "Passphrase (repeat)">

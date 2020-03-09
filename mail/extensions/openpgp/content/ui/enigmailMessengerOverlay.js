@@ -93,9 +93,6 @@ var EnigmailAttachment = ChromeUtils.import(
 var EnigmailConstants = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 ).EnigmailConstants;
-var EnigmailKeyUsability = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyUsability.jsm"
-).EnigmailKeyUsability;
 var EnigmailURIs = ChromeUtils.import(
   "chrome://openpgp/content/modules/uris.jsm"
 ).EnigmailURIs;
@@ -582,10 +579,6 @@ Enigmail.msg = {
       let maybeIdent = EnigmailStdlib.getIdentityForEmail(email);
 
       if (maybeIdent && maybeIdent.identity) {
-        if (!maybeIdent.identity.getBoolAttribute("enablePgp")) {
-          return false;
-        }
-
         let acct = EnigmailFuncs.getAccountForIdentity(maybeIdent.identity);
         return acct.incomingServer.getBoolValue("enableAutocrypt");
       }

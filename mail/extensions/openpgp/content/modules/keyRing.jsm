@@ -264,12 +264,18 @@ var EnigmailKeyRing = {
     result.all = [];
     result.best = null;
 
+    var nowDate = new Date();
+    var nowSecondsSinceEpoch = nowDate.valueOf() / 1000;
+
     for (let key of keyList) {
       if (
         key.secretAvailable &&
         key.getEncryptionValidity().keyValid &&
         key.getSigningValidity().keyValid
       ) {
+        if (key.expiryTime < nowSecondsSinceEpoch) {
+          continue;
+        }
         result.all.push(key);
         if (!result.best) {
           result.best = key;
@@ -445,26 +451,28 @@ var EnigmailKeyRing = {
    *
    * @return String - if outputFile is NULL, the key block data; "" if a file is written
    */
-  extractKey(includeSecretKey, id, outputFile, exitCodeObj, errorMsgObj) {
-    EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.extractKey: " + id + "\n");
+  extractKey(includeSecretKey, idArray, outputFile, exitCodeObj, errorMsgObj) {
+    EnigmailLog.DEBUG(
+      "keyRing.jsm: EnigmailKeyRing.extractKey: " + idArray + "\n"
+    );
     exitCodeObj.value = -1;
 
     if (includeSecretKey) {
       throw new Error("extractKey with secret key not implemented");
     }
 
-    if (!id.length) {
+    if (!idArray.length) {
       return "";
     }
 
-    if (id.includes(" ")) {
+    if (idArray.length > 1) {
       throw new Error(
         "keyRing.jsm: EnigmailKeyRing.extractKey: multiple IDs not yet implemented"
       );
     }
 
     const cApi = EnigmailCryptoAPI();
-    let keyBlock = cApi.sync(cApi.getPublicKey(id));
+    let keyBlock = cApi.sync(cApi.getPublicKey(idArray[0]));
     if (!keyBlock) {
       errorMsgObj.value = EnigmailLocale.getString("failKeyExtract");
       return "";

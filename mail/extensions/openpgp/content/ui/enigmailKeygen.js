@@ -29,13 +29,16 @@ var gAccountManager = Cc[ENIG_ACCOUNT_MANAGER_CONTRACTID].getService(
 var EnigmailCryptoAPI = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 ).EnigmailCryptoAPI;
+var { EnigmailFiles } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+);
 var OpenPGPMasterpass = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 ).OpenPGPMasterpass;
+var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm");
 
 var gUserIdentityList;
 var gUserIdentityListPopup;
-var gUseForSigning;
 
 var gKeygenRequest;
 var gAllData = "";
@@ -43,13 +46,29 @@ var gGeneratedKey = null;
 var gUsedId;
 
 const KEYGEN_CANCELLED = "cancelled";
+const DEFAULT_FILE_PERMS = 0o600;
+
+let revocationFilePrefix1 =
+  "This is a revocation certificate for the OpenPGP key:";
+let revocationFilePrefix2 = `
+A revocation certificate is a kind of "kill switch" to publicly
+declare that a key shall no longer be used.  It is not possible
+to retract such a revocation certificate once it has been published.
+
+Use it to revoke this key in case of a secret key compromise, or loss of
+the secret key, or loss of passphrase of the secret key.
+
+To avoid an accidental use of this file, a colon has been inserted
+before the 5 dashes below.  Remove this colon with a text editor
+before importing and publishing this revocation certificate.
+
+:`;
 
 function enigmailKeygenLoad() {
   EnigmailLog.DEBUG("enigmailKeygen.js: Load\n");
 
   gUserIdentityList = document.getElementById("userIdentity");
   gUserIdentityListPopup = document.getElementById("userIdentityPopup");
-  gUseForSigning = document.getElementById("useForSigning");
 
   //if (EnigmailGpg.getGpgFeature("supports-ecc-keys"))
   let eccElem = document.getElementById("keyType_ecc");
@@ -101,82 +120,6 @@ function enigmailKeygenUnload() {
   EnigmailLog.DEBUG("enigmailKeygen.js: Unload\n");
 
   enigmailKeygenCloseRequest();
-}
-
-function enigmailKeygenTerminate(exitCode) {
-  EnigmailLog.DEBUG("enigmailKeygen.js: Terminate:\n");
-
-  var curId = gUsedId;
-
-  gKeygenRequest = null;
-
-  if (!gGeneratedKey || gGeneratedKey == KEYGEN_CANCELLED) {
-    if (!gGeneratedKey) {
-      EnigAlert(EnigGetString("keyGenFailed"));
-    }
-    return;
-  }
-
-  var progMeter = document.getElementById("keygenProgress");
-  progMeter.setAttribute("value", 100);
-
-  if (gGeneratedKey) {
-    if (gUseForSigning.checked) {
-      curId.setBoolAttribute("enablePgp", true);
-      curId.setIntAttribute("pgpKeyMode", 1);
-      curId.setCharAttribute("pgpkeyId", "0x" + gGeneratedKey);
-
-      EnigSavePrefs();
-
-      EnigmailWindows.keyManReloadKeys();
-
-      if (
-        EnigConfirm(
-          EnigGetString("keygenComplete", curId.email) +
-            "\n\n" +
-            EnigGetString("revokeCertRecommended"),
-          EnigGetString("keyMan.button.generateCert")
-        )
-      ) {
-        EnigCreateRevokeCert(gGeneratedKey, curId.email, closeAndReset);
-      } else {
-        closeAndReset();
-      }
-    } else if (
-      EnigConfirm(
-        EnigGetString("genCompleteNoSign") +
-          "\n\n" +
-          EnigGetString("revokeCertRecommended"),
-        EnigGetString("keyMan.button.generateCert")
-      )
-    ) {
-      EnigCreateRevokeCert(gGeneratedKey, curId.email, closeAndReset);
-      genAndSaveRevCert(gGeneratedKey, curId.email).then(
-        function() {
-          closeAndReset();
-        },
-        function() {
-          // do nothing
-        }
-      );
-    } else {
-      closeAndReset();
-    }
-  } else {
-    EnigAlert(EnigGetString("keyGenFailed"));
-    window.close();
-  }
-}
-
-/**
- * generate and save a revokation certificate.
- *
- * return: Promise object
- */
-
-function genAndSaveRevCert(keyId, uid) {
-  EnigmailLog.DEBUG("enigmailKeygen.js: genAndSaveRevCert\n");
-  throw new Error("Not implemented");
 }
 
 /**
@@ -284,8 +227,9 @@ function enigmailKeygenStart() {
   }
 
   try {
+    let newId = null;
     const cApi = EnigmailCryptoAPI();
-    let newId = cApi.sync(
+    newId = cApi.sync(
       cApi.genKey(
         idString,
         keyType,
@@ -295,60 +239,46 @@ function enigmailKeygenStart() {
       )
     );
     console.log("created new key with id: " + newId);
+    gGeneratedKey = newId;
   } catch (ex) {
     console.log(ex);
   }
 
   EnigmailWindows.keyManReloadKeys();
+
+  gKeygenRequest = null;
+
+  var progMeter = document.getElementById("keygenProgress");
+  progMeter.setAttribute("value", 100);
+
+  if (!gGeneratedKey || gGeneratedKey == KEYGEN_CANCELLED) {
+    EnigAlert(EnigGetString("keyGenFailed"));
+  } else {
+    console.debug("saving new key id " + gGeneratedKey);
+    curId.setCharAttribute("openpgp_key_id", gGeneratedKey);
+    EnigSavePrefs();
+  }
+
   closeAndReset();
 
-  /*
-  var proc = null;
-
-  var listener = {
-    onStartRequest: function() {},
-    onStopRequest: function(status) {
-      enigmailKeygenTerminate(status);
-    },
-    onDataAvailable: function(data) {
-      EnigmailLog.DEBUG("enigmailKeygen.js: onDataAvailable() " + data + "\n");
-
-      gAllData += data;
-      var keyCreatedIndex = gAllData.indexOf("[GNUPG:] KEY_CREATED");
-      if (keyCreatedIndex > 0) {
-        gGeneratedKey = gAllData.substr(keyCreatedIndex);
-        gGeneratedKey = gGeneratedKey.replace(/(.*\[GNUPG:\] KEY_CREATED . )([a-fA-F0-9]+)([\n\r].*)* /{{{remove-space-between-*-and-/-to-unconfuse-syntax-highlighting-editor}}}, "$2");
-        gAllData = gAllData.replace(/\[GNUPG:\] KEY_CREATED . [a-fA-F0-9]+[\n\r]/, "");
-      }
-      gAllData = gAllData.replace(/[\r\n]*\[GNUPG:\] GOOD_PASSPHRASE/g, "").replace(/([\r\n]*\[GNUPG:\] PROGRESS primegen )(.)( \d+ \d+)/g, "$2");
-      var progMeter = document.getElementById("keygenProgress");
-      var progValue = Number(progMeter.value);
-      progValue += (1 + (100 - progValue) / 200);
-      if (progValue >= 95) progValue = 10;
-      progMeter.setAttribute("value", progValue);
-    }
-  };
-
-  try {
-    gKeygenRequest = EnigmailKeyRing.generateKey(
-      EnigmailData.convertFromUnicode(userName),
-      "", // user id comment
-      EnigmailData.convertFromUnicode(userEmail),
-      expiryTime,
-      keySize,
-      keyType,
-      EnigmailData.convertFromUnicode(passphrase),
-      listener);
-  } catch (ex) {
-    EnigmailLog.DEBUG("enigmailKeygen.js: generateKey() failed with " + ex.toString() + "\n" + ex.stack + "\n");
+  let rev = RNP.getNewRevocation("0x" + gGeneratedKey);
+  if (!rev) {
+    throw new Error("failed to obtain revocation for key " + gGeneratedKey);
   }
 
-  if (!gKeygenRequest) {
-    EnigAlert(EnigGetString("keyGenFailed"));
-  }
+  let revFull =
+    revocationFilePrefix1 +
+    "\n\n" +
+    gGeneratedKey +
+    "\n" +
+    revocationFilePrefix2 +
+    rev;
 
-  EnigmailLog.WRITE("enigmailKeygen.js: Start: gKeygenRequest = " + gKeygenRequest + "\n");
-  */
+  let revFile = EnigmailApp.getProfileDirectory();
+  revFile.append("0x" + gGeneratedKey + "_rev.asc");
+
+  // create a revokation cert in the TB profile directoy
+  EnigmailFiles.writeFileContents(revFile, revFull, DEFAULT_FILE_PERMS);
 }
 
 function abortKeyGeneration() {

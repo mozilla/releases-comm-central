@@ -877,6 +877,34 @@ function enableRNPLibJS() {
       ctypes.uint32_t
     ),
 
+    rnp_key_export_revocation: librnp.declare(
+      "rnp_key_export_revocation",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      rnp_output_t,
+      ctypes.uint32_t,
+      ctypes.char.ptr,
+      ctypes.char.ptr,
+      ctypes.char.ptr
+    ),
+
+    rnp_output_to_armor: librnp.declare(
+      "rnp_output_to_armor",
+      abi,
+      rnp_result_t,
+      rnp_output_t,
+      rnp_output_t.ptr,
+      ctypes.char.ptr
+    ),
+
+    rnp_output_finish: librnp.declare(
+      "rnp_output_finish",
+      abi,
+      rnp_result_t,
+      rnp_output_t
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,

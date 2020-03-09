@@ -235,30 +235,6 @@ PgpMimeEncrypt.prototype = {
         } else if (this.sendFlags & EnigmailConstants.SEND_SIGNED) {
           this.cryptoMode = MIME_SIGNED;
           this.hashAlgorithm = "SHA256"; // TODO: coordinate with RNP.jsm
-
-          /*
-          let hashAlgoObj = {};
-          if (
-            EnigmailHash.determineAlgorithm(
-              this.win,
-              this.UIFlags,
-              this.senderEmailAddr,
-              hashAlgoObj
-            ) === 0
-          ) {
-            this.hashAlgorithm = hashAlgoObj.value;
-          } else {
-            if (
-              "statusFlags" in hashAlgoObj &&
-              hashAlgoObj.statusFlags !== 0 &&
-              hashAlgoObj.errorMsg
-            ) {
-              EnigmailDialog.alert(this.win, hashAlgoObj.errorMsg);
-            }
-
-            throw Cr.NS_ERROR_FAILURE;
-          }
-          */
         }
       } else {
         throw Cr.NS_ERROR_NOT_IMPLEMENTED;
@@ -530,7 +506,6 @@ PgpMimeEncrypt.prototype = {
 
     let statusFlagsObj = {};
     let errorMsgObj = {};
-    //let proc =
     EnigmailEncryption.encryptMessageStart(
       this.win,
       this.UIFlags,
