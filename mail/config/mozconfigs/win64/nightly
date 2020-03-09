@@ -30,6 +30,4 @@ if test -z "$USE_ARTIFACT"; then
 
 # Set up mapi includes (must be done after visual studio setup)
 export INCLUDE=$INCLUDE:$(cd "$TOOLTOOL_DIR" && pwd)/mapiheader
-
-mk_add_options "export SOCORRO_SYMBOL_UPLOAD_TOKEN_FILE=c:/builds/crash-stats-api.token"
 fi
