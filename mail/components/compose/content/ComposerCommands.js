@@ -2078,10 +2078,8 @@ var nsPrintCommand = {
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    try {
-      let browser = GetCurrentEditorElement();
-      PrintUtils.printWindow(browser.outerWindowID, browser);
-    } catch (e) {}
+    let browser = GetCurrentEditorElement();
+    PrintUtils.printWindow(browser.browsingContext);
   },
 };
 
@@ -2095,9 +2093,7 @@ var nsPrintPreviewCommand = {
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    try {
-      PrintUtils.printPreview(PrintPreviewListener);
-    } catch (e) {}
+    PrintUtils.printPreview(PrintPreviewListener);
   },
 };
 

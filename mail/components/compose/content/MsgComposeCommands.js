@@ -2409,20 +2409,12 @@ function DoCommandClose() {
 }
 
 function DoCommandPrint() {
-  try {
-    let editor = GetCurrentEditorElement();
-    PrintUtils.printWindow(editor.outerWindowID, editor);
-  } catch (ex) {
-    dump("#PRINT ERROR: " + ex + "\n");
-  }
+  let browser = GetCurrentEditorElement();
+  PrintUtils.printWindow(browser.browsingContext);
 }
 
 function DoCommandPrintPreview() {
-  try {
-    PrintUtils.printPreview(PrintPreviewListener);
-  } catch (ex) {
-    Cu.reportError(ex);
-  }
+  PrintUtils.printPreview(PrintPreviewListener);
 }
 
 /**

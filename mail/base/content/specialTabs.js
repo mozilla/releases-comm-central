@@ -597,7 +597,7 @@ var contentTabBaseType = {
         break;
       case "cmd_print":
         let browser = this.getBrowser(aTab);
-        PrintUtils.printWindow(browser.outerWindowID, browser);
+        PrintUtils.printWindow(browser.browsingContext);
         break;
       // XXX print preview not currently supported - bug 497994 to implement.
       // case "cmd_printpreview":
@@ -1583,7 +1583,7 @@ var specialTabs = {
           break;
         case "cmd_print":
           let browser = this.getBrowser(aTab);
-          PrintUtils.printWindow(browser.outerWindowID, browser);
+          PrintUtils.printWindow(browser.browsingContext);
           break;
         // XXX print preview not currently supported - bug 497994 to implement.
         // case "cmd_printpreview":
