@@ -1,0 +1,251 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+:root {
+  --button-background: rgba(128, 128, 128, .2);
+  --button-background-hover: rgba(128, 128, 128, .35);
+  --button-background-active: rgba(128, 128, 128, .5);
+  --box-text-color: MenuText;
+  --box-background-color: Menu;
+  --box-border-color: ThreeDDarkShadow;
+  --field-text-color: -moz-FieldText;
+  --field-background-color: -moz-Field;
+  --field-border-color: rgba(128, 128, 128, .6);
+  --field-border-hover-color: rgba(128, 128, 128, .8);
+  --highlight-color: Highlight;
+  --popup-item-hover: rgba(128, 128, 128, .2);
+  --popup-item-hover-text: MenuText;
+  --popup-item-selected: Highlight;
+  --popup-selected-text: HighlightText;
+}
+
+:root:-moz-lwtheme {
+  --button-background: #d2d2d3;
+  --button-background-hover: #c2c2c3;
+  --button-background-active: #b2b2b3;
+  --box-text-color: #0c0c0d;
+  --box-background-color: #fff;
+  --box-border-color: #adadae;
+  --field-text-color: #181920;
+  --field-background-color: #fff;
+  --field-border-color: rgba(0, 0, 0, .3);
+  --field-border-hover-color: rgba(0, 0, 0, .4);
+  --highlight-color: Highlight;
+  --popup-item-hover: rgba(69, 161, 255, 0.2);
+  --popup-item-hover-text: var(--box-text-color);
+  --popup-item-selected: #0a84ff;
+  --popup-selected-text: #fff;
+}
+
+:root:-moz-lwtheme-brighttext {
+  --button-background: #4c4c4e;
+  --button-background-hover: #575758;
+  --button-background-active: #626263;
+  --box-text-color: rgb(249, 249, 250);
+  --box-background-color: #202023;
+  --box-border-color: rgba(249, 249, 250, 0.2);
+  --field-text-color: #f9f9fa;
+  --field-background-color: #353537;
+  --field-border-color: hsla(0, 0%, 70%, 0.4);
+  --field-border-hover-color: hsla(0, 0%, 70%, 0.5);
+  --highlight-color: #0a84ff;
+  --highlight-background: #fff;
+}
+
+html|input {
+  -moz-appearance: none;
+  background-color: var(--field-background-color);
+  border: 1px solid var(--field-border-color);
+  border-radius: 2px;
+  color: var(--field-text-color);
+  margin: 2px 4px;
+}
+
+html|input:not(:focus):hover {
+  border-color: var(--field-border-hover-color);
+}
+
+html|input:focus {
+  border-color: var(--highlight-color);
+  outline: 1px solid var(--highlight-color);
+  /* Make outline-radius slightly bigger than the border-radius set above,
+   * to make the thicker outline corners look smooth */
+  -moz-outline-radius: 3px;
+}
+
+:root[lwt-tree-brighttext] html|input::selection,
+:root[lwt-default-theme-in-dark-mode] html|input::selection {
+  background-color: var(--highlight-background);
+  color: var(--highlight-color);
+}
+
+button,
+menulist {
+  -moz-appearance: none;
+  /* !important overrides button.css for disabled and default XUL buttons: */
+  color: inherit !important;
+  border: 1px solid transparent; /* needed for high-contrast mode, where it'll show up */
+  border-radius: 2px;
+  background-color: var(--button-background);
+  padding: 0 8px;
+  text-decoration: none;
+  margin: 4px;
+  /* Ensure font-size isn't overridden by widget styling (e.g. in forms.css) */
+  font-size: 1em;
+}
+
+menulist {
+  padding-inline: 4px;
+}
+
+button:-moz-focusring,
+menulist:-moz-focusring {
+  outline: 2px solid var(--highlight-color);
+  /* offset outline to align with 1px border-width set for buttons/menulists above. */
+  outline-offset: -1px;
+  /* Make outline-radius slightly bigger than the border-radius set above,
+   * to make the thicker outline corners look smooth */
+  -moz-outline-radius: 3px;
+}
+
+button:not([disabled="true"]):hover,
+menulist:not([disabled="true"]):hover,
+menulist[open="true"]:not([disabled="true"]) {
+  background-color: var(--button-background-hover);
+}
+
+button[open],
+button[open]:hover,
+button:not([disabled="true"]):hover:active {
+  background-color: var(--button-background-active);
+}
+
+button[disabled="true"],
+menulist[disabled="true"] {
+  opacity: 0.4;
+}
+
+.menulist-label-box {
+  padding-block: 3px;
+}
+
+menulist:-moz-focusring > .menulist-label-box,
+menulist:-moz-focusring:not([open="true"]) > .menulist-label-box {
+  outline: none;
+}
+
+.menulist-dropmarker {
+  -moz-appearance: none;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.menulist-dropmarker::part(icon) {
+  width: 12px;
+  height: 12px;
+}
+
+menulist[is="menulist-editable"][editable="true"] .menulist-input {
+  background-color: var(--field-background-color);
+  color: var(--field-text-color);
+  border: 1px solid var(--field-border-color);
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+  margin-block: -1px;
+  margin-inline: -1px 4px;
+}
+
+menulist[is="menulist-editable"][editable="true"] .menulist-input:focus {
+  border-color: var(--highlight-color);
+}
+
+menulist > menupopup {
+  -moz-appearance: none;
+  border: 1px solid var(--box-border-color);
+  border-radius: 2px;
+  background-color: var(--box-background-color);
+}
+
+menulist > menupopup menu,
+menulist > menupopup menuitem {
+  -moz-appearance: none;
+  color: var(--box-text-color);
+  padding-block: 0.2em;
+  padding-inline: 10px 30px;
+}
+
+menulist > menupopup > menu:not([disabled="true"])[_moz-menuactive="true"],
+menulist > menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
+  color: var(--popup-item-hover-text);
+  background-color: var(--popup-item-hover);
+}
+
+menulist > menupopup > menu:not([disabled="true"])[selected="true"],
+menulist > menupopup > menuitem:not([disabled="true"])[selected="true"] {
+  color: var(--popup-selected-text);
+  background-color: var(--popup-item-selected);
+}
+
+menulist > menupopup > menu[disabled="true"],
+menulist > menupopup > menuitem[disabled="true"] {
+  color: #999;
+  /* override the [_moz-menuactive="true"] background color from
+     global/menu.css */
+  background-color: transparent;
+}
+
+menulist > menupopup menuseparator {
+  -moz-appearance: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--box-border-color);
+  border-bottom: none;
+}
+
+radio,
+checkbox {
+  -moz-appearance: none;
+}
+
+.radio-check,
+.checkbox-check {
+  -moz-appearance: none;
+  width: 16px;
+  height: 16px;
+  padding: 1px;
+  border: 1px solid var(--field-border-color);
+  border-radius: 2px;
+  margin: 0;
+  margin-inline-end: 6px;
+  background-color: var(--field-background-color);
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.radio-check {
+  border-radius: 50%;
+}
+
+radio:not([disabled="true"]):hover > .radio-check,
+checkbox:not([disabled="true"]):hover > .checkbox-check {
+  border-color: var(--highlight-color);
+}
+
+.radio-check[selected] {
+  list-style-image: url("chrome://global/skin/in-content/radio.svg");
+  -moz-context-properties: fill;
+  fill: var(--highlight-color);
+}
+
+checkbox[checked] > .checkbox-check {
+  list-style-image: url("chrome://global/skin/icons/check.svg");
+  -moz-context-properties: fill;
+  fill: var(--highlight-color);
+}

@@ -4,6 +4,10 @@
 
 @import url("chrome://messenger/skin/shared/creationDialog.css");
 
+:root {
+  --bg-color: #f2f2f2;
+}
+
 tabbox {
   margin: 0 !important;
 }
@@ -11,9 +15,4 @@ tabbox {
 tabs {
   padding: 0 !important;
   margin-bottom: 0 !important;
-}
-
-.input-field {
-  padding-top: 0;
-  padding-bottom: 0;
 }

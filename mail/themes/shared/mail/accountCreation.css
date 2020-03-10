@@ -4,6 +4,10 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+.important-button {
+  font-weight: bold;
+}
+
 .warningicon {
   width: 16px;
   height: 16px;
@@ -224,7 +228,7 @@ checkbox.acknowledge_checkbox {
   font-weight: bold;
   border-radius: 2px;
   line-height: 1rem;
-  background-color: var(--tab-color);
+  background-color: var(--result-bg-color);
   color: var(--bg-color);
 }
 

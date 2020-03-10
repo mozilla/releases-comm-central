@@ -6,6 +6,7 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountCreation.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/creationDialog.css" type="text/css"?>
 
@@ -24,7 +25,8 @@
         onload="gEmailConfigWizard.onLoad();"
         onkeypress="gEmailConfigWizard.onKeyDown(event);"
         onclose="gEmailConfigWizard.onWizardShutdown();"
-        onunload="gEmailConfigWizard.onWizardShutdown();">
+        onunload="gEmailConfigWizard.onWizardShutdown();"
+        lightweightthemes="true">
 
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="strings" src="chrome://messenger/locale/accountCreation.properties"/>

@@ -7,10 +7,6 @@
 
 /* ::::: BUTTONS ::::: */
 
-.important-button {
-  font-weight: bold;
-}
-
 /* Set the order of the buttons to: (stop|test), (continue|create account), cancel */
 #stop_button, #half-manual-test_button {
   -moz-box-ordinal-group: 1;

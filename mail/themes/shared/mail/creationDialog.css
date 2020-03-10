@@ -5,46 +5,33 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
-  --bg-color: #f2f2f2;
-  --text-color: #36385A;
-  --tab-bg: rgba(255, 255, 255, 0.6);
-  --tab-color: #5E5F7A;
-  --config-bg: rgba(0, 0, 0, 0.05);
+  --bg-color: -moz-Dialog;
+  --config-bg: rgba(128, 128, 128, 0.1);
   --primary-color: #0a84ff;
   --primary-color-hover: #0060df;
-  --warning-color: #FF9400;
+  --result-bg-color: -moz-DialogText;
+  --text-color: -moz-DialogText;
+  --warning-color: #ff9400;
   --warning-bg: #ac0808;
-  --btn-bg: #FFFFFF;
-  --btn-bg-hover: #FFFFFF;
-  --btn-shadow-hover: rgba(0, 0, 0, 0.25);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #2E2F30;
-    --text-color: #f2f2f2;
-    --tab-bg: rgba(0, 0, 0, 0.6);
-    --tab-color: #f2f2f2;
-    --config-bg: rgba(255, 255, 255, 0.05);
-    --primary-color: #0a84ff;
-    --primary-color-hover: #0a84ff;
-    --btn-bg: #efefef;
-    --btn-bg-hover: #FFFFFF;
-    --btn-shadow-hover: rgba(0, 110, 255, 0.25);
-  }
+:root:-moz-lwtheme {
+  --bg-color: #f2f2f2;
+  --config-bg: rgba(0, 0, 0, 0.05);
+  --result-bg-color: #5e5f7a;
+  --text-color: #36385a;
 }
 
-:root[lwt-tree-brighttext] {
-  --bg-color: #2E2F30;
-  --text-color: #f2f2f2;
-  --tab-bg: rgba(0, 0, 0, 0.6);
-  --tab-color: #f2f2f2;
+:root:-moz-lwtheme-brighttext {
+  --bg-color: #2e2f30;
   --config-bg: rgba(255, 255, 255, 0.05);
-  --primary-color: #0a84ff;
   --primary-color-hover: #0a84ff;
-  --btn-bg: #efefef;
-  --btn-bg-hover: #FFFFFF;
-  --btn-shadow-hover: rgba(0, 110, 255, 0.25);
+  --result-bg-color:  #f2f2f2;
+  --text-color: #f2f2f2;
+}
+
+:root[lwtheme-image] .hub-container {
+  text-shadow: none;
 }
 
 .hub-container {
@@ -64,85 +51,11 @@
   padding: 30px 20px;
 }
 
-.hub-title {
-  font-size: x-large;
-}
-
 .hub-subtitle {
   font-size: large;
   margin: 0 0 5px;
   text-align: center;
 }
-
-.hub-description {
-  font-size: medium;
-}
-
-/* Custom tabbox style =================================== */
-.hub-tabs {
-  background-color: var(--tab-bg);
-}
-
-.hub-tabs .tabs-right,
-.hub-tabs .tabs-left {
-  display: none;
-}
-
-.hub-tabs tab,
-.hub-tabs tab[visuallyselected="true"] {
-  color: var(--tab-color);
-  -moz-appearance: none;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  padding: 10px 5px;
-  text-align: center;
-  cursor: pointer;
-  -moz-context-properties: fill, stroke-opacity;
-  fill: currentColor;
-  stroke-opacity: 0;
-}
-
-.hub-tabs > tab label {
-  cursor: pointer !important;
-}
-
-.hub-tabs tab > .tab-middle {
-  position: relative;
-}
-
-.hub-tabs tab > .tab-middle:after,
-.hub-tabs tab[visuallyselected="true"] > .tab-middle:after {
-  transition: transform 280ms ease, opacity 280ms ease;
-  position: absolute;
-  display: block;
-  content: '';
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--primary-color);
-  border-radius: 2px;
-  bottom: -12px;
-  opacity: 0;
-  transform: scaleX(0);
-}
-
-.hub-tabs tab[visuallyselected="true"] > .tab-middle:after {
-  transform: scaleX(1);
-  opacity: 1;
-}
-
-.hub-tabs tab[visuallyselected="true"] {
-  color: var(--primary-color);
-}
-
-.hub-tabs tab + tab {
-  margin-inline-start: 0px;
-}
-
-.hub-tabpanels {
-  -moz-appearance: none;
-}
-/* END Custom tabbox style =================================== */
 
 /* Footer style =================================== */
 .hub-footer {
@@ -150,8 +63,11 @@
 }
 
 .btn-link {
-  color: var(--primary-color);
   -moz-appearance: none;
+  background-color: transparent !important;
+  color: var(--primary-color) !important;
+  outline-width: 1px !important;
+  padding: 0;
   font-size: 0.95rem;
   cursor: pointer;
 }
@@ -160,70 +76,6 @@
   color: var(--primary-color-hover) !important;
   text-decoration: underline;
 }
-
-.footer-links {
-  margin-top: 20px;
-}
-
-.footer-links a {
-  color: var(--text-color);
-  -moz-margin-start: 4px;
-  -moz-margin-end: 4px;
-}
-
-separator.dot {
-  background: var(--text-color);
-  height: 2px;
-  width: 2px;
-  border-radius: 2px;
-  -moz-margin-end: 2px;
-  -moz-margin-start: 2px;
-  vertical-align: middle;
-}
-/* END Footer style =================================== */
-
-/* Custom buttons style =================================== */
-.btn-hub {
-  transition: background-color 280ms ease,
-              color 280ms ease,
-              box-shadow 280ms ease,
-              transform 280ms ease;
-  -moz-appearance: none;
-  font-size: 15px;
-  color: var(--primary-color);
-  background-color: var(--btn-bg);
-  -moz-context-properties: fill;
-  fill: currentColor;
-  padding: 15px 25px;
-  border-radius: 2px;
-  margin: 10px 0;
-  cursor: pointer;
-  box-shadow: 0 5px 5px -5px var(--btn-shadow-hover);
-  transform: translateY(0px);
-}
-
-.btn-hub:hover {
-  color: var(--primary-color-hover) !important;
-  background-color: var(--btn-bg-hover);
-  box-shadow: 0 14px 16px -12px rgba(0,0,0,0.2);
-  transform: translateY(-5px);
-}
-
-.btn-hub image {
-  margin-inline-end: 10px;
-}
-
-.btn-hub-primary {
-  background-image: linear-gradient(45deg, #007FFE 0%, #005CE3 100%);
-  background-color: var(--primary-color);
-  color: #FFFFFF;
-}
-
-.btn-hub-primary:hover {
-  background-color: var(--primary-color-hover);
-  color: #FFFFFF !important;
-}
-/* END Custom buttons style =================================== */
 
 /* Form Fields style =================================== */
 .form-control {
@@ -240,17 +92,14 @@ separator.dot {
   align-items: stretch;
 }
 
-.hub-field {
-  padding: 5px 30px 5px 6px;
-  flex-grow: 1;
-  margin: 2px 4px;
+.hub-field,
+.input-field {
   width: 4rem;
+  flex-grow: 1;
 }
 
-.input-field {
-  margin: 2px 4px;
-  flex-grow: 1;
-  width: 4rem;
+.hub-field {
+  padding: 5px 30px 5px 6px;
 }
 
 .hub-field[error="true"] {
@@ -286,8 +135,9 @@ separator.dot {
 
 .config-area {
   background-color: var(--config-bg);
+  border-style: none;
   padding: 10px 20px;
-  margin-top: 10px;
+  margin: 10px 0 5px;
 }
 
 .manual-config-table {
@@ -326,10 +176,6 @@ separator.dot {
   text-align: center;
   font-size: 10px;
   font-weight: 600;
-}
-
-.manual-row {
-  margin-bottom: 5px;
 }
 
 .link-row {
