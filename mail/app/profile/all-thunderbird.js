@@ -1264,3 +1264,6 @@ pref("datareporting.healthreport.uploadEnabled", true);
 
 pref("toolkit.telemetry.infoURL", "https://www.mozilla.org/thunderbird/legal/privacy/#telemetry");
 
+#ifdef XP_WIN
+pref("mail.minimizeToTray", false);
+#endif

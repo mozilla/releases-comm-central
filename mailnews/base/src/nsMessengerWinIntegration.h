@@ -11,7 +11,7 @@
 // shellapi.h is needed to build with WIN32_LEAN_AND_MEAN
 #include <shellapi.h>
 
-#include "nsIMessengerOSIntegration.h"
+#include "nsIMessengerWindowsIntegration.h"
 #include "nsIFolderListener.h"
 #include "nsITimer.h"
 #include "nsCOMPtr.h"
@@ -28,7 +28,7 @@
 
 class nsIStringBundle;
 
-class nsMessengerWinIntegration : public nsIMessengerOSIntegration,
+class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration,
                                   public nsIFolderListener,
                                   public nsIObserver {
  public:
@@ -36,7 +36,7 @@ class nsMessengerWinIntegration : public nsIMessengerOSIntegration,
   virtual nsresult Init();
 
   NS_DECL_ISUPPORTS
-  NS_DECL_NSIMESSENGEROSINTEGRATION
+  NS_DECL_NSIMESSENGERWINDOWSINTEGRATION
   NS_DECL_NSIFOLDERLISTENER
   NS_DECL_NSIOBSERVER
 

@@ -42,3 +42,6 @@
 <!ENTITY addSearchEngine.accesskey        "A">
 <!ENTITY removeSearchEngine.label         "Remove">
 <!ENTITY removeSearchEngine.accesskey     "v">
+
+<!ENTITY minimizeToTray.label             "When &brandShortName; is minimized, move it to the tray">
+<!ENTITY minimizeToTray.accesskey         "m">

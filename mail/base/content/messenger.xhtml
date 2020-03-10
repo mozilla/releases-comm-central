@@ -211,6 +211,9 @@
 <script src="chrome://messenger/content/macMessengerMenu.js"/>
 <script src="chrome://global/content/macWindowMenu.js"/>
 #endif
+#ifdef XP_WIN
+<script src="chrome://messenger/content/minimizeToTray.js"></script>
+#endif
 
 <!-- move needed functions into a single js file -->
 <script src="chrome://messenger/content/threadPane.js"/>

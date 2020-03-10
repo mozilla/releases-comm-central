@@ -63,6 +63,11 @@ XPIDL_SOURCES += [
     'nsMsgMessageFlags.idl',
 ]
 
+if CONFIG['OS_ARCH'] == 'WINNT':
+    XPIDL_SOURCES += [
+        'nsIMessengerWindowsIntegration.idl',
+    ]
+
 XPIDL_MODULE = 'msgbase'
 
 EXPORTS += [

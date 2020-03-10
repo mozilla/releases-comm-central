@@ -88,6 +88,13 @@
                 oncommand="gGeneralPane.checkDefaultNow();"
                 preference="pref.general.disable_button.default_mail"/>
       </hbox>
+#ifdef XP_WIN
+      <hbox align="start">
+        <checkbox label="&minimizeToTray.label;"
+                  accesskey="&minimizeToTray.accesskey;"
+                  preference="mail.minimizeToTray"/>
+      </hbox>
+#endif
       <hbox id="searchIntegrationContainer">
         <checkbox id="searchIntegration"
                   preference="searchintegration.enable"

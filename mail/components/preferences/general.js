@@ -91,6 +91,9 @@ Preferences.addAll([
   { id: "layers.acceleration.disabled", type: "bool", inverted: true },
   { id: "searchintegration.enable", type: "bool" },
 ]);
+if (AppConstants.platform == "win") {
+  Preferences.add({ id: "mail.minimizeToTray", type: "bool" });
+}
 if (AppConstants.platform != "macosx") {
   Preferences.add({ id: "mail.biff.show_alert", type: "bool" });
 }
