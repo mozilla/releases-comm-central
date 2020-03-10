@@ -1920,6 +1920,18 @@ bool nsImapProtocol::RetryUrl() {
     m_imapServerSink->RemoveServerConnection(this);
     m_imapServerSink->RetryUrl(kungFuGripImapUrl, saveMockChannel);
   }
+
+  // Hack for Bug 1586494.
+  // (this is a workaround to try and prevent a specific crash, and
+  // does nothing clarify the threading mess!)
+  // RetryUrl() is only ever called from the imap thread.
+  // Mockchannel dtor insists upon being run on the main thread.
+  // So make sure we don't accidentally cause the mockchannel to die right now.
+  if (saveMockChannel) {
+    NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol::RetryUrl",
+                                      saveMockChannel.forget());
+  }
+
   return (m_imapServerSink != nullptr);  // we're running a url (the same url)
 }
 
