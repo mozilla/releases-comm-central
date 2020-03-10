@@ -63,6 +63,10 @@ state-finished-label = Finished
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
+verify-request = { $name } requested the verification of your identity.
+
+# Variables:
+#   $name (String) - the screen name of a chat contact person
 afterauth-private = You have verified the identity of { $name }.
 
 # Variables:

@@ -407,14 +407,14 @@ var chatTabType = {
 
 var chatHandler = {
   get msgNotificationBar() {
-    delete this.msgNotificationBar;
+    delete this._msgNotificationBar;
 
     let newNotificationBox = new MozElements.NotificationBox(element => {
       element.setAttribute("notificationside", "top");
       document.getElementById("chat-notification-top").prepend(element);
     });
 
-    return (this.msgNotificationBar = newNotificationBox);
+    return (this._msgNotificationBar = newNotificationBox);
   },
 
   _addConversation(aConv) {
@@ -476,26 +476,32 @@ var chatHandler = {
       return;
     }
 
-    let [unreadTargettedCount, unreadTotalCount] = this.countUnreadMessages();
-    chatButton.badgeCount = unreadTargettedCount;
+    let [
+      unreadTargettedCount,
+      unreadTotalCount,
+      unreadOTRNotificationCount,
+    ] = this.countUnreadMessages();
+    let unreadMsgAndNotificationCount =
+      unreadTargettedCount + unreadOTRNotificationCount;
+    chatButton.badgeCount = unreadMsgAndNotificationCount;
 
-    if (unreadTotalCount) {
+    if (unreadTotalCount || unreadOTRNotificationCount) {
       chatButton.setAttribute("unreadMessages", "true");
     } else {
       chatButton.removeAttribute("unreadMessages");
     }
 
-    if (unreadTargettedCount != this._notifiedUnreadCount) {
+    if (unreadMsgAndNotificationCount != this._notifiedUnreadCount) {
       let unreadInt = Cc["@mozilla.org/supports-PRInt32;1"].createInstance(
         Ci.nsISupportsPRInt32
       );
-      unreadInt.data = unreadTargettedCount;
+      unreadInt.data = unreadMsgAndNotificationCount;
       Services.obs.notifyObservers(
         unreadInt,
         "unread-im-count-changed",
-        unreadTargettedCount
+        unreadMsgAndNotificationCount
       );
-      this._notifiedUnreadCount = unreadTargettedCount;
+      this._notifiedUnreadCount = unreadMsgAndNotificationCount;
     }
   },
 
@@ -503,11 +509,13 @@ var chatHandler = {
     let convs = imServices.conversations.getUIConversations();
     let unreadTargettedCount = 0;
     let unreadTotalCount = 0;
+    let unreadOTRNotificationCount = 0;
     for (let conv of convs) {
       unreadTargettedCount += conv.unreadTargetedMessageCount;
       unreadTotalCount += conv.unreadIncomingMessageCount;
+      unreadOTRNotificationCount += conv.unreadOTRNotificationCount;
     }
-    return [unreadTargettedCount, unreadTotalCount];
+    return [unreadTargettedCount, unreadTotalCount, unreadOTRNotificationCount];
   },
 
   updateTitle() {

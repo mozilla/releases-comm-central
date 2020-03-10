@@ -170,7 +170,9 @@
         this.removeAttribute("unread");
         this.removeAttribute("attention");
       } else {
-        let unreadCount = this.conv.unreadIncomingMessageCount;
+        let unreadCount =
+          this.conv.unreadIncomingMessageCount +
+          this.conv.unreadOTRNotificationCount;
         let directedMessages = unreadCount;
         if (unreadCount) {
           this.setAttribute("unread", "true");

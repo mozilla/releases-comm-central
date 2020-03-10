@@ -257,6 +257,7 @@ var OTRUI = {
     }
 
     this.enabled = true;
+    this.notificationbox = null;
 
     OTR.addObserver(OTRUI);
     OTR.loadFiles()
@@ -479,9 +480,52 @@ var OTRUI = {
       return;
     }
 
-    let window = this.globalDoc.defaultView;
     let name = uiConv.target.normalizedName;
-    OTRUI.openAuth(window, name, "ask", uiConv, aObject);
+    let msg = _strArgs("verify-request", { name });
+    // Trigger the udpate of the unread message counter.
+    uiConv.notificationOTR(msg);
+    Services.obs.notifyObservers(uiConv, "new-otr-verification-request");
+
+    // Trigger the inline notification.
+    let window = this.globalDoc.defaultView;
+    let buttons = [
+      {
+        label: _str("finger-verify"),
+        accessKey: _str("finger-verify-accessKey"),
+        callback() {
+          OTRUI.openAuth(window, name, "ask", uiConv, aObject);
+          // prevent closing of notification bar when the button is hit
+          return true;
+        },
+      },
+    ];
+
+    let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+    this.notificationbox = mainWindow.chatHandler.msgNotificationBar;
+
+    let priority = this.globalBox.PRIORITY_WARNING_MEDIUM;
+    this.notificationbox.appendNotification(
+      msg,
+      name,
+      null,
+      priority,
+      buttons,
+      null
+    );
+  },
+
+  closeAskAuthNotification(aObject) {
+    if (!this.notificationbox) {
+      return;
+    }
+
+    let name = aObject.context.username;
+    let notification = this.notificationbox.getNotificationWithValue(name);
+    if (!notification) {
+      return;
+    }
+
+    this.notificationbox.removeNotification(notification);
   },
 
   closeUnverified(context) {
@@ -630,7 +674,7 @@ var OTRUI = {
     }
   },
 
-  notifyVerification(context, key, cancelable) {
+  notifyVerification(context, key, cancelable, verifiable) {
     let uiConv = OTR.getUIConvFromContext(context);
     if (!uiConv) {
       return;
@@ -656,6 +700,23 @@ var OTRUI = {
       ];
     }
 
+    if (verifiable) {
+      let window = this.globalDoc.defaultView;
+
+      buttons = [
+        {
+          label: _str("finger-verify"),
+          accessKey: _str("finger-verify-accessKey"),
+          callback() {
+            let name = uiConv.target.normalizedName;
+            OTRUI.openAuth(window, name, "start", uiConv);
+            // prevent closing of notification bar when the button is hit
+            return true;
+          },
+        },
+      ];
+    }
+
     // higher priority to overlay the current notifyUnverified
     let priority = this.globalBox.PRIORITY_WARNING_HIGH;
     OTRUI.closeUnverified(context);
@@ -675,15 +736,17 @@ var OTRUI = {
     // let uiConv = OTR.getUIConvFromContext(aObj.context);
     if (!aObj.progress) {
       OTRUI.closeAuth(aObj.context);
-      OTRUI.notifyVerification(aObj.context, "otr:auth-error", false);
+      OTRUI.notifyVerification(aObj.context, "otr:auth-error", false, false);
     } else if (aObj.progress === 100) {
       let key;
+      let verifiable = false;
       if (aObj.success) {
         if (aObj.context.trust) {
           key = "otr:auth-success";
           OTR.notifyTrust(aObj.context);
         } else {
           key = "otr:auth-successThem";
+          verifiable = true;
         }
       } else {
         key = "otr:auth-fail";
@@ -691,12 +754,13 @@ var OTRUI = {
           OTR.notifyTrust(aObj.context);
         }
       }
-      OTRUI.notifyVerification(aObj.context, key, false);
+      OTRUI.notifyVerification(aObj.context, key, false, verifiable);
     } else {
       // TODO: show the aObj.progress to the user with a
       //   <progressmeter mode="determined" value="10" />
-      OTRUI.notifyVerification(aObj.context, "otr:auth-waiting", true);
+      OTRUI.notifyVerification(aObj.context, "otr:auth-waiting", true, false);
     }
+    OTRUI.closeAskAuthNotification(aObj);
   },
 
   onAccountCreated(acc) {
@@ -828,6 +892,9 @@ var OTRUI = {
         break;
       case "otr:auth-update":
         OTRUI.updateAuth(aObject);
+        break;
+      case "otr:cancel-ask-auth":
+        OTRUI.closeAskAuthNotification(aObject);
         break;
     }
   },

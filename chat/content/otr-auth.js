@@ -169,6 +169,13 @@ var otrAuth = {
     if (mode === "ask") {
       let context = OTR.getContext(uiConv.target);
       OTR.abortSMP(context);
+      // Close the ask-auth notification if it was previously triggered.
+      OTR.notifyObservers(
+        {
+          context,
+        },
+        "otr:cancel-ask-auth"
+      );
     }
   },
 

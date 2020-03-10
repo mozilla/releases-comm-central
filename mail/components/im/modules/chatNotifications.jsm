@@ -189,62 +189,80 @@ var Notifications = {
   },
 
   init() {
+    Services.obs.addObserver(Notifications, "new-otr-verification-request");
     Services.obs.addObserver(Notifications, "new-directed-incoming-message");
     Services.obs.addObserver(Notifications, "alertclickcallback");
   },
 
   _notificationPrefName: "mail.chat.show_desktop_notifications",
   observe(aSubject, aTopic, aData) {
-    if (
-      aTopic == "new-directed-incoming-message" &&
-      Services.prefs.getBoolPref(this._notificationPrefName)
-    ) {
-      // If this is the first message, we show the notification and
-      // store the sender's name.
-      let sender = aSubject.who || aSubject.alias;
-      if (this._lastMessageSender == null) {
-        this._lastMessageSender = sender;
-        this._lastMessageTime = aSubject.time;
-        this._showMessageNotification(aSubject);
-      } else if (
-        this._lastMessageSender != sender ||
-        aSubject.time > this._lastMessageTime + kTimeToWaitForMoreMsgs
-      ) {
-        // If the sender is not the same as the previous sender or the
-        // time elapsed since the last message is greater than kTimeToWaitForMoreMsgs,
-        // we show the held notification and set timeout for the message just arrived.
-        if (this._heldMessage) {
-          // if the time for the current message is greater than _lastMessageTime by
-          // more than kTimeToWaitForMoreMsgs, this will not happen since the notification will
-          // have already been dispatched.
+    if (!Services.prefs.getBoolPref(this._notificationPrefName)) {
+      return;
+    }
+
+    switch (aTopic) {
+      case "new-directed-incoming-message":
+        // If this is the first message, we show the notification and
+        // store the sender's name.
+        let sender = aSubject.who || aSubject.alias;
+        if (this._lastMessageSender == null) {
+          this._lastMessageSender = sender;
+          this._lastMessageTime = aSubject.time;
+          this._showMessageNotification(aSubject);
+        } else if (
+          this._lastMessageSender != sender ||
+          aSubject.time > this._lastMessageTime + kTimeToWaitForMoreMsgs
+        ) {
+          // If the sender is not the same as the previous sender or the
+          // time elapsed since the last message is greater than kTimeToWaitForMoreMsgs,
+          // we show the held notification and set timeout for the message just arrived.
+          if (this._heldMessage) {
+            // if the time for the current message is greater than _lastMessageTime by
+            // more than kTimeToWaitForMoreMsgs, this will not happen since the notification will
+            // have already been dispatched.
+            clearTimeout(this._timeoutId);
+            this._showMessageNotification(this._heldMessage, this._msgCounter);
+          }
+          this._lastMessageSender = sender;
+          this._lastMessageTime = aSubject.time;
+          this._showMessageNotification(aSubject);
+        } else if (
+          this._lastMessageSender == sender &&
+          this._lastMessageTime + kTimeToWaitForMoreMsgs >= aSubject.time
+        ) {
+          // If the sender is same as the previous sender and the time elapsed since the
+          // last held message is less than kTimeToWaitForMoreMsgs, we increase the held messages
+          // counter and update the last message's arrival time.
+          this._lastMessageTime = aSubject.time;
+          if (!this._heldMessage) {
+            this._heldMessage = aSubject;
+          } else {
+            this._msgCounter++;
+          }
+
           clearTimeout(this._timeoutId);
-          this._showMessageNotification(this._heldMessage, this._msgCounter);
+          this._timeoutId = setTimeout(() => {
+            this._showMessageNotification(this._heldMessage, this._msgCounter);
+          }, kTimeToWaitForMoreMsgs * 1000);
         }
-        this._lastMessageSender = sender;
-        this._lastMessageTime = aSubject.time;
-        this._showMessageNotification(aSubject);
-      } else if (
-        this._lastMessageSender == sender &&
-        this._lastMessageTime + kTimeToWaitForMoreMsgs >= aSubject.time
-      ) {
-        // If the sender is same as the previous sender and the time elapsed since the
-        // last held message is less than kTimeToWaitForMoreMsgs, we increase the held messages
-        // counter and update the last message's arrival time.
-        this._lastMessageTime = aSubject.time;
-        if (!this._heldMessage) {
-          this._heldMessage = aSubject;
-        } else {
-          this._msgCounter++;
+        break;
+
+      case "new-otr-verification-request":
+        // If the Chat tab is not focused, play the sounds and update the icon
+        // counter, and show the counter in the buddy richlistitem.
+        let win = Services.wm.getMostRecentWindow("mail:3pane");
+        if (
+          !Services.focus.activeWindow ||
+          win.document.getElementById("tabmail").currentTabInfo.mode.name !=
+            "chat"
+        ) {
+          Services.obs.notifyObservers(
+            aSubject,
+            "play-chat-notification-sound"
+          );
         }
 
-        clearTimeout(this._timeoutId);
-        this._timeoutId = setTimeout(function() {
-          Notifications._showMessageNotification(
-            Notifications._heldMessage,
-            Notifications._msgCounter
-          );
-        }, kTimeToWaitForMoreMsgs * 1000);
-      }
+        break;
     }
   },
 };

@@ -249,10 +249,15 @@ UIConversation.prototype = {
   get unreadIncomingMessageCount() {
     return this._unreadIncomingMessageCount;
   },
+  _unreadOTRNotificationCount: 0,
+  get unreadOTRNotificationCount() {
+    return this._unreadOTRNotificationCount;
+  },
   markAsRead() {
     delete this._unreadMessageCount;
     delete this._unreadTargetedMessageCount;
     delete this._unreadIncomingMessageCount;
+    delete this._unreadOTRNotificationCount;
     this._notifyUnreadCountChanged();
   },
   _lastNotifiedUnreadCount: 0,
@@ -443,6 +448,18 @@ UIConversation.prototype = {
   systemMessage(aText, aIsError) {
     let flags = { system: true, noLog: true, error: !!aIsError };
     new Message("system", aText, flags).conversation = this;
+  },
+
+  notificationOTR(aText) {
+    this._unreadOTRNotificationCount++;
+    this.systemMessage(aText);
+    for (let observer of this._observers) {
+      observer.observe(
+        this,
+        "unread-message-count-changed",
+        this._unreadOTRNotificationCount.toString()
+      );
+    }
   },
 
   // prplIConversation

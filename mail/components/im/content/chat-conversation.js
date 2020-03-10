@@ -173,15 +173,11 @@
       this.setAttribute("flex", "1");
       this.classList.add("convBox");
 
-      this.convTop = document.createXULElement("hbox");
+      this.convTop = document.createXULElement("vbox");
       this.convTop.setAttribute("flex", "1");
       this.convTop.classList.add("conv-top");
 
-      this.notification = document.createXULElement("hbox");
-      this.notification.setAttribute("flex", "1");
-
-      let nbox = document.createXULElement("vbox");
-      nbox.setAttribute("flex", "1");
+      this.notification = document.createXULElement("vbox");
 
       this.convBrowser = document.createXULElement("browser", {
         is: "conversation-browser",
@@ -198,11 +194,10 @@
       this.findbar = document.createXULElement("findbar");
       this.findbar.setAttribute("reversed", "true");
 
-      nbox.appendChild(this.convBrowser);
-      nbox.appendChild(this.progressBar);
-      nbox.appendChild(this.findbar);
-      this.notification.appendChild(nbox);
       this.convTop.appendChild(this.notification);
+      this.convTop.appendChild(this.convBrowser);
+      this.convTop.appendChild(this.progressBar);
+      this.convTop.appendChild(this.findbar);
 
       this.splitter = document.createXULElement("splitter");
       this.splitter.setAttribute("orient", "vertical");
@@ -295,15 +290,15 @@
     }
 
     get msgNotificationBar() {
-      delete this.msgNotificationBar;
+      delete this._msgNotificationBar;
 
       let newNotificationBox = new MozElements.NotificationBox(element => {
         element.setAttribute("flex", "1");
         element.setAttribute("notificationside", "top");
-        this.notification.append(element);
+        this.notification.prepend(element);
       });
 
-      return (this.msgNotificationBar = newNotificationBox);
+      return (this._msgNotificationBar = newNotificationBox);
     }
 
     destroy() {

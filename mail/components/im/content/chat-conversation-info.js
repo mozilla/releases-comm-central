@@ -82,8 +82,7 @@
             </stack>
           </hbox>
           <hbox class="otr-container"
-                align="start"
-                valign="middle"
+                align="middle"
                 hidden="true">
             <label class="otr-label"
                    crop="end"
