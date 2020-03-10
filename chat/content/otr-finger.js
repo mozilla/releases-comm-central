@@ -2,101 +2,109 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
-const { Localization } = ChromeUtils.import(
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
+var { Localization } = ChromeUtils.import(
   "resource://gre/modules/Localization.jsm"
 );
 
-const syncL10n = new Localization(["messenger/otr/finger.ftl"], true);
-
-var [account] = window.arguments.account;
+var l10n = new Localization(["messenger/otr/finger-sync.ftl"], true);
 
 var gFingers;
 var fingerTreeView = {
   selection: null,
   rowCount: 0,
+
   setTree(tree) {},
   getImageSrc(row, column) {},
   getProgressMode(row, column) {},
   getCellValue(row, column) {},
+
   getCellText(row, column) {
     let finger = gFingers[row];
     switch (column.id) {
       case "verified": {
         let id = finger.trust ? "finger-yes" : "finger-no";
-        return syncL10n.formatValueSync(id);
+        return l10n.formatValueSync(id);
       }
       default:
         return finger[column.id] || "";
     }
   },
+
   isSeparator(index) {
     return false;
   },
+
   isSorted() {
     return false;
   },
+
   isContainer(index) {
     return false;
   },
+
   cycleHeader(column) {},
+
   getRowProperties(row) {
     return "";
   },
+
   getColumnProperties(column) {
     return "";
   },
+
   getCellProperties(row, column) {
     return "";
   },
 };
 
-function getSelections(tree) {
-  let selections = [];
-  let selection = tree.view.selection;
-  if (selection) {
-    let count = selection.getRangeCount();
-    let min = {};
-    let max = {};
-    for (let i = 0; i < count; i++) {
-      selection.getRangeAt(i, min, max);
-      for (let k = min.value; k <= max.value; k++) {
-        if (k != -1) {
-          selections[selections.length] = k;
-        }
-      }
-    }
-  }
-  return selections;
-}
-
 var fingerTree;
 var otrFinger = {
   onload() {
     fingerTree = document.getElementById("fingerTree");
-    gFingers = OTR.knownFingerprints(account);
+    gFingers = OTR.knownFingerprints(window.arguments[0].account);
     fingerTreeView.rowCount = gFingers.length;
     fingerTree.view = fingerTreeView;
+    document.getElementById("remove-all").disabled = !gFingers.length;
+  },
+
+  getSelections(tree) {
+    let selections = [];
+    let selection = tree.view.selection;
+    if (selection) {
+      let count = selection.getRangeCount();
+      let min = {};
+      let max = {};
+      for (let i = 0; i < count; i++) {
+        selection.getRangeAt(i, min, max);
+        for (let k = min.value; k <= max.value; k++) {
+          if (k != -1) {
+            selections.push(k);
+          }
+        }
+      }
+    }
+    return selections;
   },
 
   select() {
-    let selections = getSelections(fingerTree);
+    let selections = this.getSelections(fingerTree);
     document.getElementById("remove").disabled = !selections.length;
   },
 
   remove() {
     fingerTreeView.selection.selectEventsSuppressed = true;
     // mark fingers for removal
-    getSelections(fingerTree).forEach(function(sel) {
+    for (let sel of this.getSelections(fingerTree)) {
       gFingers[sel].purge = true;
-    });
+    }
     this.commonRemove();
   },
 
   removeAll() {
-    let confirmAllTitle = syncL10n.formatValueSync("finger-remove-all-title");
-    let confirmAllText = syncL10n.formatValueSync("finger-remove-all-message");
+    let confirmAllTitle = l10n.formatValueSync("finger-remove-all-title");
+    let confirmAllText = l10n.formatValueSync("finger-remove-all-message");
 
     let buttonPressed = Services.prompt.confirmEx(
       window,
@@ -136,10 +144,13 @@ var otrFinger = {
       }
     }
     fingerTreeView.selection.selectEventsSuppressed = false;
+
     if (!removalComplete) {
-      let infoTitle = syncL10n.formatValueSync("finger-subset-title");
-      let infoText = syncL10n.formatValueSync("finger-subset-message");
+      let infoTitle = l10n.formatValueSync("finger-subset-title");
+      let infoText = l10n.formatValueSync("finger-subset-message");
       Services.prompt.alert(window, infoTitle, infoText);
     }
+
+    document.getElementById("remove-all").disabled = !gFingers.length;
   },
 };

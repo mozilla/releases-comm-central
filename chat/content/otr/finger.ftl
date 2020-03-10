@@ -20,12 +20,3 @@ finger-remove =
 
 finger-remove-all =
     .label = Remove All
-
-finger-yes = Verified
-finger-no = Unverified
-
-finger-subset-title = Removing fingerprints
-finger-subset-message = At least one fingerprint couldn't be removed, because you have an active conversation with the respective conversation partner.
-
-finger-remove-all-title = Removing all fingerprints
-finger-remove-all-message = Are you sure you want to remove all previously seen fingerprints? As a consequence, all previous OTR identity verifications will be lost. This operation cannot be undone.
