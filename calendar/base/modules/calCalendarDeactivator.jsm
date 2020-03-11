@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-
 this.EXPORTED_SYMBOLS = ["calendarDeactivator"];
+
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { Localization } = ChromeUtils.import("resource://gre/modules/Localization.jsm");
+
+const syncL10n = new Localization(["calendar/calendar-widgets.ftl"], true);
 
 /**
  * Handles deactivation of calendar UI and background processes/services (such
@@ -52,6 +55,8 @@ var calendarDeactivator = {
 
     if (this.isCalendarActivated) {
       window.document.documentElement.removeAttribute("calendar-deactivated");
+    } else {
+      this.refreshNotificationBoxes(window, false);
     }
   },
 
@@ -86,6 +91,7 @@ var calendarDeactivator = {
       } else {
         window.document.documentElement.setAttribute("calendar-deactivated", "");
       }
+      this.refreshNotificationBoxes(window, someCalsEnabled);
     }
 
     if (someCalsEnabled) {
@@ -93,6 +99,40 @@ var calendarDeactivator = {
     }
 
     this.isCalendarActivated = someCalsEnabled;
+  },
+
+  /**
+   * Show or hide the notification boxes that appear at the top of the calendar
+   * and tasks tabs when calendar functionality is deactivated.
+   *
+   * @param {ChromeWindow} window - A ChromeWindow object.
+   * @param {boolean} calendarIsActivated - Whether any calendars are enabled.
+   */
+  refreshNotificationBoxes(window, calendarIsActivated) {
+    let value = "calendarDeactivated";
+    let notificationboxes = [
+      [
+        window.calendarTabType.modes.calendar.notificationbox,
+        "calendar-deactivated-notification-events",
+      ],
+      [
+        window.calendarTabType.modes.tasks.notificationbox,
+        "calendar-deactivated-notification-tasks",
+      ],
+    ];
+
+    for (let [notificationbox, messageName] of notificationboxes) {
+      let existingNotification = notificationbox.getNotificationWithValue(value);
+
+      if (calendarIsActivated) {
+        notificationbox.removeNotification(existingNotification);
+      } else if (!existingNotification) {
+        let message = syncL10n.formatValueSync(messageName);
+        let priority = notificationbox.PRIORITY_WARNING_MEDIUM;
+
+        notificationbox.appendNotification(message, value, null, priority, null);
+      }
+    }
   },
 
   // calICalendarManagerObserver methods

@@ -29,8 +29,8 @@ add_task(async function setupModule(module) {
   let CALENDARID = createCalendar(controller, CALENDARNAME);
 
   // paths
-  let treeChildren = `${TASK_VIEW}/[1]/id("calendar-task-tree")/{"class":"calendar-task-treechildren"}`;
-  let taskTree = TASK_VIEW + '[1]/id("calendar-task-tree")';
+  let treeChildren = `${TASK_VIEW}/[2]/id("calendar-task-tree")/{"class":"calendar-task-treechildren"}`;
+  let taskTree = TASK_VIEW + '[2]/id("calendar-task-tree")';
   let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("taskTreeTooltip")';
   let toolTipTable = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderTable"}/';
 

@@ -82,7 +82,7 @@ add_task(function testBasicFunctionality() {
   // Check for filtered tasks list.
   controller.assertNode(
     lookup(`
-        ${CALENDAR_PANEL}/id("calendarDisplayDeck")/id("calendar-task-box")/[1]/
+        ${CALENDAR_PANEL}/id("calendarDisplayDeck")/id("calendar-task-box")/[2]/
         id("calendar-task-tree")/{"class":"calendar-task-treechildren"}
     `)
   );
