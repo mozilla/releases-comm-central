@@ -166,6 +166,10 @@
     list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
 }
 
+.imipGoToCalendarButton {
+    list-style-image: url(chrome://calendar/skin/shared/icons/icon32.svg);
+}
+
 .imipAcceptLabel {
     font-weight: bold;
     font-style: italic;

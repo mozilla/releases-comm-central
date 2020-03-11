@@ -82,6 +82,9 @@ pref("calendar.itip.useInvitationSubjectPrefixes", true);
 // whether separate invitation actions to more separate buttons or integrate into few buttons
 pref("calendar.itip.separateInvitationButtons", true);
 
+// Whether to show the imip bar.
+pref("calendar.itip.showImipBar", true);
+
 // whether CalDAV (experimental) scheduling is enabled or not.
 pref("calendar.caldav.sched.enabled", false);
 

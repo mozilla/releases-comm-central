@@ -361,7 +361,7 @@
 <!ENTITY calendarproperties.readonly.label                 "Read Only">
 <!ENTITY calendarproperties.firealarms.label               "Show Reminders">
 <!ENTITY calendarproperties.cache3.label                   "Offline Support">
-<!ENTITY calendarproperties.enabled.label                  "Switch this calendar on">
+<!ENTITY calendarproperties.enabled2.label                 "Enable This Calendar">
 <!ENTITY calendarproperties.forceDisabled.label            "The provider for this calendar could not be found. This often happens if you have disabled or uninstalled certain addons.">
 <!ENTITY calendarproperties.unsubscribe.label              "Unsubscribe">
 <!ENTITY calendarproperties.unsubscribe.accesskey          "U">

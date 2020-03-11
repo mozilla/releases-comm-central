@@ -100,6 +100,14 @@
                              oncommand="ltnImipBar.executeAction()"
                              hidden="true"/>
 
+              <!-- go to calendar tab -->
+              <toolbarbutton id="imipGoToCalendarButton"
+                             label="&lightning.imipbar.btnGoToCalendar.label;"
+                             tooltiptext="&lightning.imipbar.btnGoToCalendar.tooltiptext;"
+                             class="toolbarbutton-1 msgHeaderView-button imipGoToCalendarButton"
+                             oncommand="ltnImipBar.goToCalendar();"
+                             hidden="true"/>
+
               <!-- accept -->
               <toolbarbutton is="toolbarbutton-menu-button" id="imipAcceptButton"
                              tooltiptext="&lightning.imipbar.btnAccept2.tooltiptext;"
@@ -274,6 +282,9 @@
                             tooltiptext="&lightning.imipbar.btnSaveCopy.tooltiptext;"
                             label="&lightning.imipbar.btnSaveCopy.label;"
                             oncommand="ltnImipBar.executeAction('X-SAVECOPY'); event.stopPropagation();"/>
+                  <menuitem id="imipMoreButton_DoNotShowImipBar"
+                            label="&lightning.imipbar.btnDoNotShowImipBar.label;"
+                            oncommand="ltnImipBar.doNotShowImipBar();"/>
                   <!-- add here a menuitem as needed -->
                 </menupopup>
               </toolbarbutton>

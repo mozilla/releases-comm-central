@@ -4,6 +4,9 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { calendarDeactivator } = ChromeUtils.import(
+  "resource:///modules/calendar/calCalendarDeactivator.jsm"
+);
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
 
@@ -279,8 +282,8 @@ var calitip = {
    *
    * {
    *    label: "This is a desciptive text about the itip item",
-   *    buttons: ["imipXXXButton", ...],
-   *    hideMenuItem: ["imipXXXButton_Option", ...]
+   *    showItems: ["imipXXXButton", ...],
+   *    hideItems: ["imipXXXButton_Option", ...]
    * }
    *
    * @see processItipItem   This takes the same parameters as its optionFunc.
@@ -307,9 +310,16 @@ var calitip = {
       let disallow = foundItems[0].getProperty("X-MICROSOFT-DISALLOW-COUNTER");
       disallowedCounter = disallow && disallow == "TRUE";
     }
-    if (rc == Ci.calIErrors.CAL_IS_READONLY) {
+    if (!calendarDeactivator.isCalendarActivated) {
+      // Calendar is deactivated (no calendars are enabled).
+      data.label = cal.l10n.getLtnString("imipBarCalendarDeactivated");
+      data.showItems.push("imipGoToCalendarButton", "imipMoreButton");
+      data.hideItems.push("imipMoreButton_SaveCopy");
+    } else if (rc == Ci.calIErrors.CAL_IS_READONLY) {
       // No writable calendars, tell the user about it
       data.label = cal.l10n.getLtnString("imipBarNotWritable");
+      data.showItems.push("imipGoToCalendarButton", "imipMoreButton");
+      data.hideItems.push("imipMoreButton_SaveCopy");
     } else if (Components.isSuccessCode(rc) && !actionFunc) {
       // This case, they clicked on an old message that has already been
       // added/updated, we want to tell them that.
@@ -432,7 +442,7 @@ var calitip = {
           }
           data.showItems.push("imipMoreButton");
           // Use data.hideItems.push("idOfMenuItem") to hide specific menuitems
-          // from the dropdown menu of a button.  This might be useful to to remove
+          // from the dropdown menu of a button.  This might be useful to remove
           // a generally available option for a specific invitation, because the
           // respective feature is not available for the calendar, the invitation
           // is in or the feature is prohibited by the organizer

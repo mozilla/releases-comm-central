@@ -66,9 +66,9 @@ var ltnImipBar = {
     // message header pane. Otherwise, the imip bar will still be shown when
     // changing folders.
     ltnImipBar.tbHideMessageHeaderPane = HideMessageHeaderPane;
-    HideMessageHeaderPane = function() {
+    HideMessageHeaderPane = function(...args) {
       ltnImipBar.resetBar();
-      ltnImipBar.tbHideMessageHeaderPane.apply(null, arguments);
+      ltnImipBar.tbHideMessageHeaderPane(...args);
     };
 
     // Set up our observers
@@ -89,6 +89,11 @@ var ltnImipBar = {
 
   observe(subject, topic, state) {
     if (topic == "onItipItemCreation") {
+      if (!Services.prefs.getBoolPref("calendar.itip.showImipBar", true)) {
+        // Do not show the imip bar if the user has opted out of seeing it.
+        return;
+      }
+
       let itipItem = null;
       let msgOverlay = null;
       try {
@@ -532,6 +537,56 @@ var ltnImipBar = {
       );
     }
     return false;
+  },
+
+  /**
+   * Hide the imip bar in all windows and set a pref to prevent it from being
+   * shown again. Called when clicking the imip bar's "do not show..." menu item.
+   */
+  doNotShowImipBar() {
+    Services.prefs.setBoolPref("calendar.itip.showImipBar", false);
+    for (let window of Services.ww.getWindowEnumerator()) {
+      if (window.ltnImipBar) {
+        window.ltnImipBar.resetBar();
+      }
+    }
+  },
+
+  /**
+   * Open (or focus if already open) the calendar tab, even if the imip bar is
+   * in a message window, and even if there is no main three pane Thunderbird
+   * window open. Called when clicking the imip bar's calendar button.
+   */
+  goToCalendar() {
+    let openCal = mainWindow => {
+      mainWindow.focus();
+      mainWindow.document.getElementById("tabmail").openTab("calendar", {
+        title: mainWindow.document.getElementById("calendar-tab-button").getAttribute("title"),
+      });
+    };
+
+    let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+
+    if (mainWindow) {
+      openCal(mainWindow);
+    } else {
+      mainWindow = Services.ww.openWindow(
+        null,
+        "chrome://messenger/content/messenger.xhtml",
+        "_blank",
+        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
+        null
+      );
+
+      // Wait until calendar is set up in the new window.
+      let calStartupObserver = {
+        observe(subject, topic, data) {
+          openCal(mainWindow);
+          Services.obs.removeObserver(calStartupObserver, "lightning-startup-done");
+        },
+      };
+      Services.obs.addObserver(calStartupObserver, "lightning-startup-done");
+    }
   },
 };
 
