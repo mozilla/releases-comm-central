@@ -28,7 +28,6 @@ GENERATED_FILES += [
 ]
 charsetalias = GENERATED_FILES['charsetalias.properties.h']
 charsetalias.script = '/%s/intl/locale/props2arrays.py' % CONFIG['mozreltopsrcdir']
-charsetalias.py2 = True
 charsetalias.inputs = ['charsetalias.properties']
 
 FINAL_LIBRARY = 'mail'
