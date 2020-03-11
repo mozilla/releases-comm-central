@@ -7,7 +7,9 @@
 .lightning-notification-bar {
     background-color: #baeeff;
     color: #000;
-    border-bottom: 1px solid ThreeDDarkShadow;
+    /* border color matches the border color of `notification[type="warning"]` in
+       mozilla-central/toolkit/themes/shared/notification.inc.css */
+    border-bottom: 1px solid ThreeDShadow;
     padding: 3px;
 }
 

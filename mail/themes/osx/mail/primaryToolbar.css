@@ -230,6 +230,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 .msgNotificationBarText {
   font: icon;
   font-weight: bold;
+  margin-bottom: 0;
   padding: 0;
 }
 

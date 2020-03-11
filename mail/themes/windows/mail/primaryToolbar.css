@@ -168,6 +168,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 .msgNotificationBarText {
   font-weight: bold;
+  margin-bottom: 0;
 }
 
 .msgNotificaton-smallText {

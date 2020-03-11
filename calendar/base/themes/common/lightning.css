@@ -118,6 +118,7 @@
   -moz-context-properties: fill;
   fill: currentColor;
   list-style-image: url(chrome://calendar/skin/shared/icons/imip-bar.svg);
+  width: 20px;
 }
 
 .imipMoreButton > .toolbarbutton-icon {
