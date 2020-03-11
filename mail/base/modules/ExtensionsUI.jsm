@@ -685,13 +685,14 @@ var gXPInstallObserver = {
         break;
       }
       case "webextension-update-permissions": {
-        let { info } = subject.wrappedJSObject;
+        let info = subject.wrappedJSObject;
         info.type = "update";
         let strings = this._buildStrings(info);
 
         // If we don't prompt for any new permissions, just apply it.
         if (strings.msgs.length == 0) {
           info.resolve();
+          return;
         }
 
         this.showPermissionsPrompt(browser, strings, info.addon.iconURL).then(
