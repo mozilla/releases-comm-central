@@ -52,15 +52,19 @@ xpcshell:
         toolchain:
             by-test-platform:
                 linux.*:
+                    - linux64-fix-stacks
                     - linux64-node
                     - linux64-minidump-stackwalk
                 macosx.*:
+                    - macosx64-fix-stacks
                     - macosx64-node
                     - macosx64-minidump-stackwalk
                 win.*64.*:
+                    - win32-fix-stacks
                     - win64-node
                     - win32-minidump-stackwalk
                 win.*32.*:
+                    - win32-fix-stacks
                     - win32-node
                     - win32-minidump-stackwalk
                 default: []
