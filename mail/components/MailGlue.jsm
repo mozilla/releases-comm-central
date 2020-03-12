@@ -263,7 +263,7 @@ MailGlue.prototype = {
     const { ExtensionsUI } = ChromeUtils.import(
       "resource:///modules/ExtensionsUI.jsm"
     );
-    ExtensionsUI.checkForSideloadedExtensions();
+    ExtensionsUI.init();
 
     // If the application has been updated, look for any extensions that may
     // have been disabled by the update, and check for newer versions of those

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+%filter substitution
+
 :root {
   --menu-panel-width: 22.35em;
   --wide-menu-panel-width: 29em;
@@ -1329,4 +1331,155 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .subviewbutton.download:-moz-any([canShow],[canRetry]) > .action-button:not([disabled]):-moz-any([open],:hover:active) {
   background-color: var(--arrowpanel-dimmed-even-further);
+}
+
+%define menuPanelWidth 22.35em
+%define appmenuWarningBackgroundColor #FFEFBF
+%define appmenuWarningBackgroundColorHover #FFE8A2
+%define appmenuWarningBackgroundColorActive #FFE38F
+%define appmenuWarningColor black
+%define appmenuWarningBorderColor hsl(45,100%,77%)
+
+%define appmenuWarningBackgroundColorBrightText hsla(55,100%,50%,.1)
+%define appmenuWarningBackgroundColorHoverBrightText hsla(55,100%,50%,.15)
+%define appmenuWarningBackgroundColorActiveBrightText hsla(55,100%,50%,.2)
+%define appmenuWarningColorBrightText #F9F9FA
+
+.button-appmenu[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+  display: -moz-box;
+  height: 10px;
+  width: 10px;
+  background-size: contain;
+  border: none;
+}
+
+.button-appmenu[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+  height: 13px;
+  background: url(chrome://browser/skin/warning.svg) center / contain no-repeat transparent;
+  box-shadow: none;
+  border-radius: 0;
+  /* Use the included fallbacks defined in the SVG file instead of inheriting from .toolbarbutton-1. */
+  -moz-context-properties: none;
+}
+
+.button-appmenu[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge:-moz-window-inactive {
+  filter: grayscale(100%);
+}
+
+#nav-bar[brighttext] .button-appmenu[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
+  -moz-context-properties: fill, stroke;
+  fill: #FFE900;
+  stroke: transparent;
+}
+
+.addon-banner-item::after,
+.panel-banner-item::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  margin-inline-start: 10px;
+  margin-inline-end: 12px;
+  display: -moz-box;
+}
+
+.addon-banner-item {
+  background-color: @appmenuWarningBackgroundColor@;
+  color: @appmenuWarningColor@;
+  /* Force border to override `.addon-banner-item` selector below */
+  border-top: 1px solid @appmenuWarningBorderColor@ !important;
+  display: flex;
+  flex: 1 1 0%;
+  width: calc(@menuPanelWidth@ + 30px);
+  padding-inline-start: 15px;
+  border-inline-start-style: none;
+  -moz-image-region: rect(0, 16px, 16px, 0);
+}
+
+.addon-banner-item:last-child {
+  border-bottom: 1px solid @appmenuWarningBorderColor@;
+}
+
+.addon-banner-item:focus,
+.addon-banner-item:hover {
+  background-color: @appmenuWarningBackgroundColorHover@;
+}
+
+.addon-banner-item:hover:active {
+  background-color: @appmenuWarningBackgroundColorActive@;
+}
+
+.addon-banner-item > .toolbarbutton-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.addon-banner-item::after {
+  background: url(chrome://browser/skin/warning.svg) no-repeat center;
+}
+
+:root[lwt-popup-brighttext] .addon-banner-item::after {
+  -moz-context-properties: fill, stroke;
+  fill: #FFE900;
+  stroke: transparent;
+}
+
+.addon-banner-item {
+  margin: 0;
+  padding: 11px 0;
+  box-sizing: border-box;
+  min-height: 40px;
+  -moz-appearance: none;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  transition: background-color;
+  -moz-box-orient: horizontal;
+}
+
+#appMenu-addon-banners:not(:empty) + .panel-banner-item {
+  /* Overlap the .addon-banner-item border so there's one border. */
+  margin-top: -1px;
+}
+
+#appMenu-addon-banners > .addon-banner-item {
+  padding-inline-start: 12px;
+}
+
+.addon-banner-item > .toolbarbutton-text,
+.panel-banner-item > .toolbarbutton-text {
+  margin: 0;
+  padding: 0 6px;
+  text-align: start;
+}
+
+.addon-banner-item > .toolbarbutton-icon,
+.panel-banner-item > .toolbarbutton-icon {
+  margin-inline-end: 0;
+}
+
+.addon-banner-item {
+  flex: 1;
+  padding-inline-start: 15px;
+  border-inline-start-style: none;
+}
+
+:root[lwt-popup-brighttext] .addon-banner-item {
+  color: @appmenuWarningColorBrightText@;
+  background: @appmenuWarningBackgroundColorBrightText@;
+  /* override `.addon-banner-item` border-top !important defined above */
+  border: 0 !important;
+}
+
+:root[lwt-popup-brighttext] .addon-banner-item:hover,
+:root[lwt-popup-brighttext] .addon-banner-item:focus {
+  background: @appmenuWarningBackgroundColorHoverBrightText@;
+}
+
+:root[lwt-popup-brighttext] .addon-banner-item:hover:active,
+:root[lwt-popup-brighttext] .addon-banner-item:focus:active {
+  background: @appmenuWarningBackgroundColorActiveBrightText@;
+}
+
+.addon-banner-item > .toolbarbutton-text {
+  padding-inline-start: 8px; /* See '.subviewbutton-iconic > .toolbarbutton-text' rule above. */
 }

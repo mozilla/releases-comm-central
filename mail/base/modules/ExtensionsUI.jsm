@@ -5,18 +5,19 @@
 
 const EXPORTED_SYMBOLS = ["ExtensionsUI"];
 
-const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";
-const BRAND_PROPERTIES = "chrome://branding/locale/brand.properties";
-const DEFAULT_EXTENSION_ICON =
-  "chrome://mozapps/skin/extensions/extensionGeneric.svg";
-const HTML_NS = "http://www.w3.org/1999/xhtml";
-
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+const { EventEmitter } = ChromeUtils.import(
+  "resource://gre/modules/EventEmitter.jsm"
+);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
+  AMTelemetry: "resource://gre/modules/AddonManager.jsm",
+  AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.jsm",
+  BrowserUtils: "resource://gre/modules/BrowserUtils.jsm",
   ExtensionData: "resource://gre/modules/Extension.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -24,12 +25,28 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   StringBundle: "resource:///modules/StringBundle.jsm",
 });
 
+const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";
+
 XPCOMUtils.defineLazyGetter(this, "addonsBundle", function() {
   return new StringBundle(ADDONS_PROPERTIES);
 });
-XPCOMUtils.defineLazyGetter(this, "brandBundle", function() {
-  return new StringBundle(BRAND_PROPERTIES);
+XPCOMUtils.defineLazyGetter(this, "brandShortName", function() {
+  return new StringBundle(
+    "chrome://branding/locale/brand.properties"
+  ).getString("brandShortName");
 });
+
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "WEBEXT_PERMISSION_PROMPTS",
+  "extensions.webextPermissionPrompts",
+  false
+);
+
+const DEFAULT_EXTENSION_ICON =
+  "chrome://mozapps/skin/extensions/extensionGeneric.svg";
+
+const HTML_NS = "http://www.w3.org/1999/xhtml";
 
 function getTopWindow() {
   return Services.wm.getMostRecentWindow("mail:3pane");
@@ -37,6 +54,16 @@ function getTopWindow() {
 
 function getNotification(id, browser) {
   return getTopWindow().PopupNotifications.getNotification(id, browser);
+}
+
+function getTabBrowser(browser) {
+  while (browser.ownerGlobal.docShell.itemType !== Ci.nsIDocShell.typeChrome) {
+    browser = browser.ownerGlobal.docShell.chromeEventHandler;
+  }
+  if (browser.getAttribute("webextension-view-type") == "popup") {
+    browser = browser.ownerGlobal.gBrowser.selectedBrowser;
+  }
+  return { browser, window: browser.ownerGlobal };
 }
 
 function showNotification(
@@ -90,9 +117,15 @@ function removeNotificationOnEnd(notification, installs) {
   }
 }
 
+/**
+ * This object is Thunderbird's version of the same object in
+ * browser/base/content/browser-addons.js. Firefox has one of these objects
+ * per window but Thunderbird has only one total, because we simply pick the
+ * most recent window for notifications, rather than the window related to a
+ * particular tab.
+ */
 var gXPInstallObserver = {
   pendingInstalls: new WeakMap(),
-  pendingNotifications: new WeakMap(),
 
   showInstallConfirmation(browser, installInfo, height = undefined) {
     let document = getTopWindow().document;
@@ -138,6 +171,12 @@ var gXPInstallObserver = {
         install.install();
       }
       installInfo = null;
+
+      Services.telemetry
+        .getHistogramById("SECURITY_UI")
+        .add(
+          Ci.nsISecurityUITelemetry.WARNING_CONFIRM_ADDON_INSTALL_CLICK_THROUGH
+        );
     };
 
     let cancelInstallation = () => {
@@ -194,8 +233,6 @@ var gXPInstallObserver = {
     notification.removeAttribute("warning");
     options.learnMoreURL += "find-and-install-add-ons";
 
-    let brandShortName = brandBundle.getString("brandShortName");
-
     messageString = PluralForm.get(installInfo.installs.length, messageString);
     messageString = messageString.replace("#1", brandShortName);
     messageString = messageString.replace("#2", installInfo.installs.length);
@@ -226,140 +263,12 @@ var gXPInstallObserver = {
       options
     );
     removeNotificationOnEnd(popup, installInfo.installs);
+
+    Services.telemetry
+      .getHistogramById("SECURITY_UI")
+      .add(Ci.nsISecurityUITelemetry.WARNING_CONFIRM_ADDON_INSTALL);
   },
 
-  async showPermissionsPrompt(browser, strings, icon) {
-    let window = getTopWindow();
-
-    // Wait for any pending prompts in this window to complete before
-    // showing the next one.
-    let pending;
-    while ((pending = this.pendingNotifications.get(window))) {
-      await pending;
-    }
-
-    let promise = new Promise(resolve => {
-      function eventCallback(topic) {
-        let doc = window.document;
-        if (topic == "showing") {
-          let textEl = doc.getElementById("addon-webext-perm-text");
-          textEl.textContent = strings.text;
-          textEl.hidden = !strings.text;
-
-          let listIntroEl = doc.getElementById("addon-webext-perm-intro");
-          listIntroEl.textContent = strings.listIntro;
-          listIntroEl.hidden = strings.msgs.length == 0;
-
-          let list = doc.getElementById("addon-webext-perm-list");
-          while (list.lastChild) {
-            list.lastChild.remove();
-          }
-
-          for (let msg of strings.msgs) {
-            let item = doc.createElementNS(HTML_NS, "li");
-            item.textContent = msg;
-            list.appendChild(item);
-          }
-        } else if (topic == "swapping") {
-          return true;
-        }
-        if (topic == "removed") {
-          Services.tm.dispatchToMainThread(() => {
-            resolve(false);
-          });
-        }
-        return false;
-      }
-
-      let popupOptions = {
-        hideClose: true,
-        popupIconURL: icon || DEFAULT_EXTENSION_ICON,
-        persistent: true,
-        eventCallback,
-        name: strings.addonName,
-        removeOnDismissal: true,
-      };
-
-      let action = {
-        label: strings.acceptText,
-        accessKey: strings.acceptKey,
-        callback: () => {
-          resolve(true);
-        },
-      };
-      let secondaryActions = [
-        {
-          label: strings.cancelText,
-          accessKey: strings.cancelKey,
-          callback: () => {
-            resolve(false);
-          },
-        },
-      ];
-
-      showNotification(
-        browser,
-        "addon-webext-permissions",
-        strings.header,
-        "addons-notification-icon",
-        action,
-        secondaryActions,
-        popupOptions
-      );
-    });
-
-    this.pendingNotifications.set(window, promise);
-    promise.finally(() => this.pendingNotifications.delete(window));
-    return promise;
-  },
-
-  async showInstallNotification(browser, addon) {
-    let window = getTopWindow();
-    let document = window.document;
-
-    let brandBundle = document.getElementById("bundle_brand");
-    let appName = brandBundle.getString("brandShortName");
-
-    let message = addonsBundle.getFormattedString("addonPostInstall.message1", [
-      "<>",
-      appName,
-    ]);
-
-    let icon = DEFAULT_EXTENSION_ICON;
-    if (addon.isWebExtension) {
-      icon = AddonManager.getPreferredIconURL(addon, 32, window) || icon;
-    }
-
-    let options = {
-      hideClose: true,
-      timeout: Date.now() + 30000,
-      popupIconURL: icon,
-      name: addon.name,
-    };
-
-    let list = document.getElementById("addon-installed-list");
-    list.hidden = true;
-
-    this._showInstallNotification(browser, message, options);
-  },
-
-  _showInstallNotification(browser, message, options) {
-    showNotification(
-      browser,
-      "addon-installed",
-      message,
-      "addons-notification-icon",
-      {
-        label: addonsBundle.getString("addonPostInstall.okay.label"),
-        accessKey: addonsBundle.getString("addonPostInstall.okay.accesskey"),
-        callback: () => {},
-      },
-      null,
-      options
-    );
-  },
-
-  /* eslint-disable complexity */
   observe(subject, topic, data) {
     let installInfo = subject.wrappedJSObject;
     let browser = installInfo.browser || installInfo.target;
@@ -367,7 +276,6 @@ var gXPInstallObserver = {
 
     const anchorID = "addons-notification-icon";
     var messageString, action;
-    var brandShortName = brandBundle.getString("brandShortName");
 
     var notificationID = topic;
     // Make notifications persistent
@@ -428,9 +336,23 @@ var gXPInstallObserver = {
           [brandShortName]
         );
 
+        if (Services.policies) {
+          let extensionSettings = Services.policies.getExtensionSettings("*");
+          if (
+            extensionSettings &&
+            "blocked_install_message" in extensionSettings
+          ) {
+            messageString += " " + extensionSettings.blocked_install_message;
+          }
+        }
+
         options.removeOnDismissal = true;
         options.persistent = false;
 
+        let secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
+        secHistogram.add(
+          Ci.nsISecurityUITelemetry.WARNING_ADDON_ASKING_PREVENTED
+        );
         let popup = showNotification(
           browser,
           notificationID,
@@ -444,21 +366,69 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-blocked": {
-        messageString = addonsBundle.getFormattedString(
-          "xpinstallPromptMessage",
-          [brandShortName]
-        );
+        let hasHost = !!options.displayURI;
+        if (hasHost) {
+          messageString = addonsBundle.getFormattedString(
+            "xpinstallPromptMessage.header",
+            ["<>"]
+          );
+          options.name = options.displayURI.displayHost;
+        } else {
+          messageString = addonsBundle.getString(
+            "xpinstallPromptMessage.header.unknown"
+          );
+        }
+        // displayURI becomes it's own label, so we unset it for this panel.
+        // It will become part of the messageString above.
+        options.displayURI = undefined;
 
+        options.eventCallback = topic => {
+          if (topic !== "showing") {
+            return;
+          }
+          let doc = browser.ownerDocument;
+          let message = doc.getElementById("addon-install-blocked-message");
+          // We must remove any prior use of this panel message in this window.
+          while (message.firstChild) {
+            message.firstChild.remove();
+          }
+          if (hasHost) {
+            let text = addonsBundle.getString("xpinstallPromptMessage.message");
+            let b = doc.createElementNS("http://www.w3.org/1999/xhtml", "b");
+            b.textContent = options.name;
+            let fragment = BrowserUtils.getLocalizedFragment(doc, text, b);
+            message.appendChild(fragment);
+          } else {
+            message.textContent = addonsBundle.getString(
+              "xpinstallPromptMessage.message.unknown"
+            );
+          }
+          let learnMore = doc.getElementById("addon-install-blocked-info");
+          learnMore.textContent = addonsBundle.getString(
+            "xpinstallPromptMessage.learnMore"
+          );
+          learnMore.setAttribute(
+            "href",
+            Services.urlFormatter.formatURLPref("app.support.baseURL") +
+              "unlisted-extensions-risks"
+          );
+        };
+
+        let secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
         action = {
-          label: addonsBundle.getString("xpinstallPromptAllowButton"),
+          label: addonsBundle.getString("xpinstallPromptMessage.install"),
           accessKey: addonsBundle.getString(
-            "xpinstallPromptAllowButton.accesskey"
+            "xpinstallPromptMessage.install.accesskey"
           ),
           callback() {
+            secHistogram.add(
+              Ci.nsISecurityUITelemetry
+                .WARNING_ADDON_ASKING_PREVENTED_CLICK_THROUGH
+            );
             installInfo.install();
           },
         };
-        let secondaryAction = {
+        let dontAllowAction = {
           label: addonsBundle.getString("xpinstallPromptMessage.dontAllow"),
           accessKey: addonsBundle.getString(
             "xpinstallPromptMessage.dontAllow.accesskey"
@@ -472,13 +442,16 @@ var gXPInstallObserver = {
           },
         };
 
+        secHistogram.add(
+          Ci.nsISecurityUITelemetry.WARNING_ADDON_ASKING_PREVENTED
+        );
         let popup = showNotification(
           browser,
           notificationID,
           messageString,
           anchorID,
           action,
-          [secondaryAction],
+          [dontAllowAction],
           options
         );
         removeNotificationOnEnd(popup, installInfo.installs);
@@ -508,14 +481,6 @@ var gXPInstallObserver = {
         options.sourceURI = browser.currentURI;
         options.eventCallback = function(event) {
           switch (event) {
-            case "shown":
-              let notificationElement = [...this.owner.panel.children].find(
-                n => n.notification == this
-              );
-              if (notificationElement) {
-                notificationElement.setAttribute("mainactiondisabled", "true");
-              }
-              break;
             case "removed":
               options.contentWindow = null;
               options.sourceURI = null;
@@ -527,6 +492,7 @@ var gXPInstallObserver = {
           accessKey: addonsBundle.getString(
             "addonInstall.acceptButton2.accesskey"
           ),
+          disabled: true,
           callback: () => {},
         };
         let secondaryAction = {
@@ -578,8 +544,6 @@ var gXPInstallObserver = {
               ? "addonInstallError"
               : "addonLocalInstallError";
           let args;
-
-          // Temporarily replace the usual warning message with this more-likely one.
           if (install.error < 0) {
             error += install.error;
             args = [brandShortName, install.name];
@@ -591,6 +555,31 @@ var gXPInstallObserver = {
           } else {
             error += "Incompatible";
             args = [brandShortName, Services.appinfo.version, install.name];
+          }
+
+          if (
+            install.addon &&
+            !Services.policies.mayInstallAddon(install.addon)
+          ) {
+            error = "addonInstallBlockedByPolicy";
+            let extensionSettings = Services.policies.getExtensionSettings(
+              install.addon.id
+            );
+            let message = "";
+            if (
+              extensionSettings &&
+              "blocked_install_message" in extensionSettings
+            ) {
+              message = " " + extensionSettings.blocked_install_message;
+            }
+            args = [install.name, install.addon.id, message];
+          }
+
+          // Add Learn More link when refusing to install an unsigned add-on
+          if (install.error == AddonManager.ERROR_SIGNEDSTATE_REQUIRED) {
+            options.learnMoreURL =
+              Services.urlFormatter.formatURLPref("app.support.baseURL") +
+              "unsigned-addons";
           }
 
           messageString = addonsBundle.getFormattedString(error, args);
@@ -628,16 +617,16 @@ var gXPInstallObserver = {
         let progressNotification = getNotification("addon-progress", browser);
         if (progressNotification) {
           let downloadDuration = Date.now() - progressNotification._startTime;
-          let securityDelay = Services.prefs.getIntPref(
-            "security.dialog_enable_delay"
-          );
-          if (securityDelay > downloadDuration) {
+          let securityDelay =
+            Services.prefs.getIntPref("security.dialog_enable_delay") -
+            downloadDuration;
+          if (securityDelay > 0) {
             setTimeout(() => {
               // The download may have been cancelled during the security delay
               if (getNotification("addon-progress", browser)) {
                 showNotification();
               }
-            }, securityDelay - downloadDuration);
+            }, securityDelay);
             break;
           }
         }
@@ -645,102 +634,35 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-complete": {
-        this.showInstallNotification(browser, installInfo.installs[0].addon);
-        break;
-      }
-      case "webextension-permission-prompt": {
-        let { info } = subject.wrappedJSObject;
+        let secondaryActions = null;
+        let numAddons = installInfo.installs.length;
 
-        // Dismiss the progress notification.  Note that this is bad if
-        // there are multiple simultaneous installs happening, see
-        // bug 1329884 for a longer explanation.
-        let progressNotification = getNotification("addon-progress", browser);
-        if (progressNotification) {
-          progressNotification.remove();
+        if (numAddons == 1) {
+          messageString = addonsBundle.getFormattedString("addonInstalled", [
+            installInfo.installs[0].name,
+          ]);
+        } else {
+          messageString = addonsBundle.getString("addonsGenericInstalled");
+          messageString = PluralForm.get(numAddons, messageString);
+          messageString = messageString.replace("#1", numAddons);
         }
+        action = null;
 
-        // This is where we should check for unsigned extensions, but Thunderbird
-        // doesn't require signing, so we just skip checking.
-        info.unsigned = false;
+        options.removeOnDismissal = true;
+        options.persistent = false;
 
-        let strings = this._buildStrings(info);
-
-        // If this is an update with no promptable permissions, just apply it
-        if (info.type == "update" && strings.msgs.length == 0) {
-          info.resolve();
-          return;
-        }
-
-        let icon = info.unsigned
-          ? "chrome://global/skin/icons/warning.svg"
-          : info.icon;
-
-        this.showPermissionsPrompt(browser, strings, icon).then(answer => {
-          if (answer) {
-            info.resolve();
-          } else {
-            info.reject();
-          }
-        });
-        break;
-      }
-      case "webextension-update-permissions": {
-        let info = subject.wrappedJSObject;
-        info.type = "update";
-        let strings = this._buildStrings(info);
-
-        // If we don't prompt for any new permissions, just apply it.
-        if (strings.msgs.length == 0) {
-          info.resolve();
-          return;
-        }
-
-        this.showPermissionsPrompt(browser, strings, info.addon.iconURL).then(
-          answer => {
-            if (answer) {
-              info.resolve();
-            } else {
-              info.reject();
-            }
-          }
+        showNotification(
+          browser,
+          notificationID,
+          messageString,
+          anchorID,
+          action,
+          secondaryActions,
+          options
         );
         break;
       }
-      case "webextension-install-notify": {
-        let { addon } = subject.wrappedJSObject;
-        this.showInstallNotification(browser, addon);
-        break;
-      }
-      case "webextension-optional-permission-prompt": {
-        let { name, icon, permissions, resolve } = subject.wrappedJSObject;
-        let strings = this._buildStrings({
-          type: "optional",
-          addon: { name },
-          permissions,
-        });
-
-        // If we don't have any promptable permissions, just proceed
-        if (strings.msgs.length == 0) {
-          resolve(true);
-          return;
-        }
-        resolve(this.showPermissionsPrompt(browser, strings, icon));
-        break;
-      }
     }
-  },
-  /* eslint-enable complexity */
-
-  // Create a set of formatted strings for a permission prompt
-  _buildStrings(info) {
-    // This bundle isn't the same as addonsBundle.
-    let bundle = Services.strings.createBundle(ADDONS_PROPERTIES);
-    let appName = brandBundle.getString("brandShortName");
-    let info2 = Object.assign({ appName }, info);
-
-    let strings = ExtensionData.formatPermissionStrings(info2, bundle);
-    strings.addonName = info.addon.name;
-    return strings;
   },
 
   _removeProgressNotification(browser) {
@@ -748,74 +670,6 @@ var gXPInstallObserver = {
     if (notification) {
       notification.remove();
     }
-  },
-
-  async _checkForSideloaded(browser) {
-    let sideloaded = await AddonManagerPrivate.getNewSideloads();
-    if (sideloaded.length == 0) {
-      return;
-    }
-
-    // Check if the user wants any sideloaded add-ons installed.
-
-    let enabled = [];
-    for (let addon of sideloaded) {
-      let strings = this._buildStrings({
-        addon,
-        permissions: addon.userPermissions,
-        type: "sideload",
-      });
-      let answer = await this.showPermissionsPrompt(
-        browser,
-        strings,
-        addon.iconURL
-      );
-      if (answer) {
-        await addon.enable();
-        enabled.push(addon);
-      }
-    }
-
-    if (enabled.length == 0) {
-      return;
-    }
-
-    // Confirm sideloaded add-ons were installed and ask to restart if necessary.
-
-    if (enabled.length == 1) {
-      this.showInstallNotification(browser, enabled[0]);
-      return;
-    }
-
-    let document = getTopWindow().document;
-
-    let brandBundle = document.getElementById("bundle_brand");
-    let appName = brandBundle.getString("brandShortName");
-
-    let message = addonsBundle.getFormattedString(
-      "addonPostInstall.multiple.message",
-      [appName]
-    );
-
-    let list = document.getElementById("addon-installed-list");
-    list.hidden = false;
-    while (list.lastChild) {
-      list.lastChild.remove();
-    }
-
-    for (let addon of enabled) {
-      let item = document.createElementNS(HTML_NS, "li");
-      item.textContent = addon.name;
-      list.appendChild(item);
-    }
-
-    let options = {
-      popupIconURL: DEFAULT_EXTENSION_ICON,
-      hideClose: true,
-      timeout: Date.now() + 30000,
-    };
-
-    this._showInstallNotification(browser, message, options);
   },
 };
 
@@ -826,18 +680,486 @@ Services.obs.addObserver(gXPInstallObserver, "addon-install-started");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-failed");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-confirmation");
 Services.obs.addObserver(gXPInstallObserver, "addon-install-complete");
-Services.obs.addObserver(gXPInstallObserver, "webextension-permission-prompt");
-Services.obs.addObserver(gXPInstallObserver, "webextension-update-permissions");
-Services.obs.addObserver(gXPInstallObserver, "webextension-install-notify");
-Services.obs.addObserver(
-  gXPInstallObserver,
-  "webextension-optional-permission-prompt"
-);
 
+/**
+ * This object is Thunderbird's version of the same object in
+ * browser/modules/ExtensionsUI.jsm
+ */
 var ExtensionsUI = {
-  checkForSideloadedExtensions() {
-    let win = Services.wm.getMostRecentWindow("mail:3pane");
-    let tabmail = win.document.getElementById("tabmail");
-    gXPInstallObserver._checkForSideloaded(tabmail.selectedBrowser);
+  sideloaded: new Set(),
+  updates: new Set(),
+  sideloadListener: null,
+  histogram: null,
+
+  pendingNotifications: new WeakMap(),
+
+  async init() {
+    this.histogram = Services.telemetry.getHistogramById(
+      "EXTENSION_INSTALL_PROMPT_RESULT"
+    );
+
+    Services.obs.addObserver(this, "webextension-permission-prompt");
+    Services.obs.addObserver(this, "webextension-update-permissions");
+    Services.obs.addObserver(this, "webextension-install-notify");
+    Services.obs.addObserver(this, "webextension-optional-permission-prompt");
+    Services.obs.addObserver(this, "webextension-defaultsearch-prompt");
+
+    this._checkForSideloaded();
+  },
+
+  async _checkForSideloaded() {
+    let sideloaded = await AddonManagerPrivate.getNewSideloads();
+
+    if (!sideloaded.length) {
+      // No new side-loads. We're done.
+      return;
+    }
+
+    // The ordering shouldn't matter, but tests depend on notifications
+    // happening in a specific order.
+    sideloaded.sort((a, b) => a.id.localeCompare(b.id));
+
+    if (WEBEXT_PERMISSION_PROMPTS) {
+      if (!this.sideloadListener) {
+        this.sideloadListener = {
+          onEnabled: addon => {
+            if (!this.sideloaded.has(addon)) {
+              return;
+            }
+
+            this.sideloaded.delete(addon);
+            this._updateNotifications();
+
+            if (this.sideloaded.size == 0) {
+              AddonManager.removeAddonListener(this.sideloadListener);
+              this.sideloadListener = null;
+            }
+          },
+        };
+        AddonManager.addAddonListener(this.sideloadListener);
+      }
+
+      for (let addon of sideloaded) {
+        this.sideloaded.add(addon);
+      }
+      this._updateNotifications();
+    }
+  },
+
+  _updateNotifications() {
+    if (this.sideloaded.size + this.updates.size == 0) {
+      AppMenuNotifications.removeNotification("addon-alert");
+    } else {
+      AppMenuNotifications.showBadgeOnlyNotification("addon-alert");
+    }
+    this.emit("change");
+  },
+
+  showSideloaded(tabbrowser, addon) {
+    addon.markAsSeen();
+    this.sideloaded.delete(addon);
+    this._updateNotifications();
+
+    let strings = this._buildStrings({
+      addon,
+      permissions: addon.userPermissions,
+      type: "sideload",
+    });
+
+    AMTelemetry.recordManageEvent(addon, "sideload_prompt", {
+      num_strings: strings.msgs.length,
+    });
+
+    this.showPermissionsPrompt(
+      tabbrowser,
+      strings,
+      addon.iconURL,
+      "sideload"
+    ).then(async answer => {
+      if (answer) {
+        await addon.enable();
+        this._updateNotifications();
+      }
+      this.emit("sideload-response");
+    });
+  },
+
+  showUpdate(browser, info) {
+    AMTelemetry.recordInstallEvent(info.install, {
+      step: "permissions_prompt",
+      num_strings: info.strings.msgs.length,
+    });
+
+    this.showPermissionsPrompt(
+      browser,
+      info.strings,
+      info.addon.iconURL,
+      "update"
+    ).then(answer => {
+      if (answer) {
+        info.resolve();
+      } else {
+        info.reject();
+      }
+      // At the moment, this prompt will re-appear next time we do an update
+      // check.  See bug 1332360 for proposal to avoid this.
+      this.updates.delete(info);
+      this._updateNotifications();
+    });
+  },
+
+  observe(subject, topic, data) {
+    if (topic == "webextension-permission-prompt") {
+      let { target, info } = subject.wrappedJSObject;
+
+      let { browser } = getTabBrowser(target);
+
+      // Dismiss the progress notification.  Note that this is bad if
+      // there are multiple simultaneous installs happening, see
+      // bug 1329884 for a longer explanation.
+      let progressNotification = getNotification("addon-progress", browser);
+      if (progressNotification) {
+        progressNotification.remove();
+      }
+
+      info.unsigned =
+        info.addon.signedState <= AddonManager.SIGNEDSTATE_MISSING;
+      if (
+        info.unsigned &&
+        Cu.isInAutomation &&
+        Services.prefs.getBoolPref("extensions.ui.ignoreUnsigned", false)
+      ) {
+        info.unsigned = false;
+      }
+
+      let strings = this._buildStrings(info);
+
+      // If this is an update with no promptable permissions, just apply it
+      if (info.type == "update" && !strings.msgs.length) {
+        info.resolve();
+        return;
+      }
+
+      let histkey;
+      if (info.type == "sideload") {
+        histkey = "sideload";
+      } else if (info.type == "update") {
+        histkey = "update";
+      } else if (info.source == "AMO") {
+        histkey = "installAmo";
+      } else if (info.source == "local") {
+        histkey = "installLocal";
+      } else {
+        histkey = "installWeb";
+      }
+
+      if (info.type == "sideload") {
+        AMTelemetry.recordManageEvent(info.addon, "sideload_prompt", {
+          num_strings: strings.msgs.length,
+        });
+      } else {
+        AMTelemetry.recordInstallEvent(info.install, {
+          step: "permissions_prompt",
+          num_strings: strings.msgs.length,
+        });
+      }
+
+      this.showPermissionsPrompt(browser, strings, info.icon, histkey).then(
+        answer => {
+          if (answer) {
+            info.resolve();
+          } else {
+            info.reject();
+          }
+        }
+      );
+    } else if (topic == "webextension-update-permissions") {
+      let info = subject.wrappedJSObject;
+      info.type = "update";
+      let strings = this._buildStrings(info);
+
+      // If we don't prompt for any new permissions, just apply it
+      if (!strings.msgs.length) {
+        info.resolve();
+        return;
+      }
+
+      let update = {
+        strings,
+        permissions: info.permissions,
+        install: info.install,
+        addon: info.addon,
+        resolve: info.resolve,
+        reject: info.reject,
+      };
+
+      this.updates.add(update);
+      this._updateNotifications();
+    } else if (topic == "webextension-install-notify") {
+      let { target, addon, callback } = subject.wrappedJSObject;
+      this.showInstallNotification(target, addon).then(() => {
+        if (callback) {
+          callback();
+        }
+      });
+    } else if (topic == "webextension-optional-permission-prompt") {
+      let {
+        browser,
+        name,
+        icon,
+        permissions,
+        resolve,
+      } = subject.wrappedJSObject;
+      let strings = this._buildStrings({
+        type: "optional",
+        addon: { name },
+        permissions,
+      });
+
+      // If we don't have any promptable permissions, just proceed
+      if (!strings.msgs.length) {
+        resolve(true);
+        return;
+      }
+      resolve(this.showPermissionsPrompt(browser, strings, icon));
+    } else if (topic == "webextension-defaultsearch-prompt") {
+      let {
+        browser,
+        name,
+        icon,
+        respond,
+        currentEngine,
+        newEngine,
+      } = subject.wrappedJSObject;
+
+      let bundle = Services.strings.createBundle(ADDONS_PROPERTIES);
+
+      let strings = {};
+      strings.acceptText = bundle.GetStringFromName(
+        "webext.defaultSearchYes.label"
+      );
+      strings.acceptKey = bundle.GetStringFromName(
+        "webext.defaultSearchYes.accessKey"
+      );
+      strings.cancelText = bundle.GetStringFromName(
+        "webext.defaultSearchNo.label"
+      );
+      strings.cancelKey = bundle.GetStringFromName(
+        "webext.defaultSearchNo.accessKey"
+      );
+      strings.addonName = name;
+      strings.text = bundle.formatStringFromName(
+        "webext.defaultSearch.description",
+        ["<>", currentEngine, newEngine]
+      );
+
+      this.showDefaultSearchPrompt(browser, strings, icon).then(respond);
+    }
+  },
+
+  // Create a set of formatted strings for a permission prompt
+  _buildStrings(info) {
+    let bundle = Services.strings.createBundle(ADDONS_PROPERTIES);
+    let info2 = Object.assign({ appName: brandShortName }, info);
+
+    let strings = ExtensionData.formatPermissionStrings(info2, bundle, {
+      collapseOrigins: true,
+    });
+    // Silence the unsigned add-on warning. We can't stop
+    // formatPermissionStrings returning this string without changing it in
+    // addons.properties, and it might be wanted in future.
+    if (
+      strings.text == bundle.GetStringFromName("webextPerms.unsignedWarning")
+    ) {
+      strings.text = "";
+    }
+    strings.addonName = info.addon.name;
+    strings.learnMore = addonsBundle.getString("webextPerms.learnMore");
+    return strings;
+  },
+
+  async showPermissionsPrompt(target, strings, icon, histkey) {
+    let { browser, window } = getTabBrowser(target);
+
+    // Wait for any pending prompts in this window to complete before
+    // showing the next one.
+    let pending;
+    while ((pending = this.pendingNotifications.get(window))) {
+      await pending;
+    }
+
+    let promise = new Promise(resolve => {
+      function eventCallback(topic) {
+        let doc = window.document;
+        if (topic == "showing") {
+          let textEl = doc.getElementById("addon-webext-perm-text");
+          textEl.textContent = strings.text;
+          textEl.hidden = !strings.text;
+
+          let listIntroEl = doc.getElementById("addon-webext-perm-intro");
+          listIntroEl.textContent = strings.listIntro;
+          listIntroEl.hidden = !strings.msgs.length;
+
+          let listInfoEl = doc.getElementById("addon-webext-perm-info");
+          listInfoEl.textContent = strings.learnMore;
+          listInfoEl.href =
+            Services.urlFormatter.formatURLPref("app.support.baseURL") +
+            "extension-permissions";
+          listInfoEl.hidden = !strings.msgs.length;
+
+          let list = doc.getElementById("addon-webext-perm-list");
+          while (list.firstChild) {
+            list.firstChild.remove();
+          }
+
+          for (let msg of strings.msgs) {
+            let item = doc.createElementNS(HTML_NS, "li");
+            item.textContent = msg;
+            list.appendChild(item);
+          }
+        } else if (topic == "swapping") {
+          return true;
+        }
+        if (topic == "removed") {
+          Services.tm.dispatchToMainThread(() => {
+            resolve(false);
+          });
+        }
+        return false;
+      }
+
+      let popupOptions = {
+        hideClose: true,
+        popupIconURL: icon || DEFAULT_EXTENSION_ICON,
+        persistent: true,
+        eventCallback,
+        name: strings.addonName,
+        removeOnDismissal: true,
+      };
+
+      let action = {
+        label: strings.acceptText,
+        accessKey: strings.acceptKey,
+        callback: () => {
+          if (histkey) {
+            this.histogram.add(histkey + "Accepted");
+          }
+          resolve(true);
+        },
+      };
+      let secondaryActions = [
+        {
+          label: strings.cancelText,
+          accessKey: strings.cancelKey,
+          callback: () => {
+            if (histkey) {
+              this.histogram.add(histkey + "Rejected");
+            }
+            resolve(false);
+          },
+        },
+      ];
+
+      showNotification(
+        browser,
+        "addon-webext-permissions",
+        strings.header,
+        "addons-notification-icon",
+        action,
+        secondaryActions,
+        popupOptions
+      );
+    });
+
+    this.pendingNotifications.set(window, promise);
+    promise.finally(() => this.pendingNotifications.delete(window));
+    return promise;
+  },
+
+  showDefaultSearchPrompt(target, strings, icon) {
+    return new Promise(resolve => {
+      let popupOptions = {
+        hideClose: true,
+        popupIconURL: icon || DEFAULT_EXTENSION_ICON,
+        persistent: true,
+        removeOnDismissal: true,
+        eventCallback(topic) {
+          if (topic == "removed") {
+            resolve(false);
+          }
+        },
+        name: strings.addonName,
+      };
+
+      let action = {
+        label: strings.acceptText,
+        accessKey: strings.acceptKey,
+        disableHighlight: true,
+        callback: () => {
+          resolve(true);
+        },
+      };
+      let secondaryActions = [
+        {
+          label: strings.cancelText,
+          accessKey: strings.cancelKey,
+          callback: () => {
+            resolve(false);
+          },
+        },
+      ];
+
+      let { browser } = getTabBrowser(target);
+      showNotification(
+        browser,
+        "addon-webext-defaultsearch",
+        strings.text,
+        "addons-notification-icon",
+        action,
+        secondaryActions,
+        popupOptions
+      );
+    });
+  },
+
+  async showInstallNotification(target, addon) {
+    let { browser, window } = getTabBrowser(target);
+    let document = window.document;
+
+    let message = addonsBundle.getFormattedString("addonPostInstall.message1", [
+      "<>",
+      brandShortName,
+    ]);
+
+    let icon = DEFAULT_EXTENSION_ICON;
+    if (addon.isWebExtension) {
+      icon = AddonManager.getPreferredIconURL(addon, 32, window) || icon;
+    }
+
+    let options = {
+      hideClose: true,
+      timeout: Date.now() + 30000,
+      popupIconURL: icon,
+      name: addon.name,
+    };
+
+    let list = document.getElementById("addon-installed-list");
+    list.hidden = true;
+
+    showNotification(
+      browser,
+      "addon-installed",
+      message,
+      "addons-notification-icon",
+      {
+        label: addonsBundle.getString("addonPostInstall.okay.label"),
+        accessKey: addonsBundle.getString("addonPostInstall.okay.accesskey"),
+        callback: () => {},
+      },
+      null,
+      options
+    );
   },
 };
+
+EventEmitter.decorate(ExtensionsUI);
