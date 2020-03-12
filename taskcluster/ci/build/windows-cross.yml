@@ -57,7 +57,7 @@ win64-cross/opt:
             - linux64-liblowercase
             - linux64-nasm
             - linux64-node
-            - linux64-rust-cross-1.41
+            - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
             - linux64-wine
@@ -113,7 +113,7 @@ win32-cross/opt:
             - linux64-liblowercase
             - linux64-nasm
             - linux64-node
-            - linux64-rust-cross-1.41
+            - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
             - linux64-wine
