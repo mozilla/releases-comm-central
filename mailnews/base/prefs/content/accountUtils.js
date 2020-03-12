@@ -327,7 +327,7 @@ function MsgAccountManager(selectPage, aServer) {
       tab.tabNode.setAttribute("type", "accountManager");
       break;
     }
-  };
+  }
 }
 
 function loadInboxForNewAccount() {
