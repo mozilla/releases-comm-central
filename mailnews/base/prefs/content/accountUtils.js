@@ -316,6 +316,18 @@ function MsgAccountManager(selectPage, aServer) {
     clickHandler: "specialTabs.aboutClickHandler(event);",
     onLoad,
   });
+
+  for (let tabInfo of tabmail.tabInfo) {
+    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+    if (
+      tab &&
+      tab.urlbar &&
+      tab.urlbar.textContent == "about:accountsettings"
+    ) {
+      tab.tabNode.setAttribute("type", "accountManager");
+      break;
+    }
+  };
 }
 
 function loadInboxForNewAccount() {

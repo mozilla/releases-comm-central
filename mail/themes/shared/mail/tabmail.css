@@ -49,6 +49,10 @@
   -moz-image-region: auto;
 }
 
+.tabmail-tab[type="accountManager"] {
+  list-style-image: url("chrome://messenger/skin/icons/sidebar-left.svg");
+}
+
 .tabmail-tab[type="preferencesTab"] {
   list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg");
 }

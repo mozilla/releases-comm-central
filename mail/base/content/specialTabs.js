@@ -1025,6 +1025,9 @@ var specialTabs = {
         tab.browser.droppedLinkHandler = event =>
           tab.browser.contentWindow.gDragDrop.onDrop(event);
       }
+      if (aPersistedState.tabURI == "about:accountsettings") {
+        tab.tabNode.setAttribute("type", "accountManager");
+      }
     },
   },
 
