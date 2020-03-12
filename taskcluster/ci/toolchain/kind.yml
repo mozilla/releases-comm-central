@@ -17,6 +17,7 @@ jobs:
     - linux64-clang-macosx-cross
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
+    - linux64-clang-win-cross
     - linux64-dump-syms
     - linux64-gcc
     - linux64-gcc-7

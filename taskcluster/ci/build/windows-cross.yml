@@ -47,13 +47,12 @@ win64-cross/opt:
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
     run-on-projects: ['try-comm-central']
     dependencies:
-        win64-clang-cl: toolchain-win64-clang-cl
         thirdparty-libotr-win64: thirdparty-libotr-win64
     fetches:
         toolchain:
             - linux64-binutils
             - linux64-cbindgen
-            - linux64-clang
+            - linux64-clang-win-cross
             - linux64-dump-syms
             - linux64-liblowercase
             - linux64-nasm
@@ -65,10 +64,6 @@ win64-cross/opt:
         fetch:
             - nsis-3.01-win
             - upx-3.95-win
-        win64-clang-cl:
-            - artifact: clang.tar.bz2
-              extract: true
-              dest: clang-cl
         thirdparty-libotr-win64:
             - libotr.tar.xz
 
@@ -108,13 +103,12 @@ win32-cross/opt:
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
     run-on-projects: ['try-comm-central']
     dependencies:
-        win64-clang-cl: toolchain-win64-clang-cl
         thirdparty-libotr-win32: thirdparty-libotr-win32
     fetches:
         toolchain:
             - linux64-binutils
             - linux64-cbindgen
-            - linux64-clang
+            - linux64-clang-win-cross
             - linux64-dump-syms
             - linux64-liblowercase
             - linux64-nasm
@@ -126,9 +120,5 @@ win32-cross/opt:
         fetch:
             - nsis-3.01-win
             - upx-3.95-win
-        win64-clang-cl:
-            - artifact: clang.tar.bz2
-              extract: true
-              dest: clang-cl
         thirdparty-libotr-win32:
             - libotr.tar.xz
