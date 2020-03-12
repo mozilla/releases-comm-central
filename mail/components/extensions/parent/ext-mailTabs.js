@@ -124,22 +124,6 @@ var uiListener = new (class extends EventEmitter {
   }
 })();
 
-class PermissionedEventManager extends EventManager {
-  constructor({ permission, context, name, register }) {
-    super({ context, name, register });
-    this.permission = permission;
-  }
-  addListener(callback) {
-    let { extension } = this.context;
-    if (!extension.hasPermission(this.permission)) {
-      throw new ExtensionError(
-        `The "${this.permission}" permission is required to use ${this.name}.`
-      );
-    }
-    return super.addListener(callback);
-  }
-}
-
 this.mailTabs = class extends ExtensionAPI {
   getAPI(context) {
     let { extension } = context;
@@ -284,12 +268,6 @@ this.mailTabs = class extends ExtensionAPI {
         },
 
         async getSelectedMessages(tabId) {
-          if (!extension.hasPermission("messagesRead")) {
-            throw new ExtensionError(
-              `The "messagesRead" permission is required to use mailTabs.getSelectedMessages.`
-            );
-          }
-
           let tab = getTabOrActive(tabId);
           let { folderDisplay } = tab.nativeTab;
           let messageList = folderDisplay.view.dbView.getSelectedMsgHdrs();
@@ -368,8 +346,7 @@ this.mailTabs = class extends ExtensionAPI {
           // Inactive tabs are updated when they become active, except the search doesn't. :(
         },
 
-        onDisplayedFolderChanged: new PermissionedEventManager({
-          permission: "accountsRead",
+        onDisplayedFolderChanged: new EventManager({
           context,
           name: "mailTabs.onDisplayedFolderChanged",
           register: fire => {
@@ -386,8 +363,7 @@ this.mailTabs = class extends ExtensionAPI {
           },
         }).api(),
 
-        onSelectedMessagesChanged: new PermissionedEventManager({
-          permission: "messagesRead",
+        onSelectedMessagesChanged: new EventManager({
           context,
           name: "mailTabs.onSelectedMessagesChanged",
           register: fire => {
