@@ -146,11 +146,10 @@ var OTRUI = {
     OTRUI.removeBuddyContextMenu(doc);
   },
 
-  addBuddyContextMenu(buddyContextMenu, doc) {
+  addBuddyContextMenu(buddyContextMenu, doc, contact) {
     if (!buddyContextMenu || !OTR.libLoaded) {
       return; // Not the buddy list context menu
     }
-    OTRUI.removeBuddyContextMenu(doc);
 
     let sep = doc.createXULElement("menuseparator");
     sep.setAttribute("id", "otrsep");
@@ -158,20 +157,16 @@ var OTRUI = {
     menuitem.setAttribute("label", _str("buddycontextmenu-label"));
     menuitem.setAttribute("id", "otrcont");
     menuitem.addEventListener("command", () => {
-      let target = buddyContextMenu.triggerNode;
-      if (target.localName == "richlistitem") {
-        let contact = target.contact;
-        let args = OTRUI.contactWrapper(contact);
-        args.wrappedJSObject = args;
-        let features = "chrome,modal,centerscreen,resizable=no,minimizable=no";
-        Services.ww.openWindow(
-          null,
-          OTR_ADD_FINGER_DIALOG_URL,
-          "",
-          features,
-          args
-        );
-      }
+      let args = OTRUI.contactWrapper(contact);
+      args.wrappedJSObject = args;
+      let features = "chrome,modal,centerscreen,resizable=no,minimizable=no";
+      Services.ww.openWindow(
+        null,
+        OTR_ADD_FINGER_DIALOG_URL,
+        "",
+        features,
+        args
+      );
     });
 
     buddyContextMenu.addEventListener("popupshowing", e => {

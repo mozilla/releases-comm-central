@@ -90,11 +90,15 @@ function enableInlineSpellCheck(aEnableInlineSpellCheck) {
 }
 
 function buddyListContextMenu(aXulMenu) {
+  // Clear the context menu from OTR related entries.
+  OTRUI.removeBuddyContextMenu(document);
+
   this.target = aXulMenu.triggerNode.closest("richlistitem");
   if (!this.target) {
     this.shouldDisplay = false;
     return;
   }
+
   this.menu = aXulMenu;
   let localName = this.target.localName;
   this.onContact =
@@ -119,8 +123,18 @@ function buddyListContextMenu(aXulMenu) {
   document.getElementById("context-openconversation").disabled =
     !hide && !this.target.canOpenConversation();
 
-  if (gOtrEnabled) {
-    OTRUI.addBuddyContextMenu(this.menu, document);
+  // Show OTR related context menu items if:
+  // - The OTR feature is currently enabled.
+  // - The target's status is not currently offline or unknown.
+  // - The target can send messages.
+  if (
+    gOtrEnabled &&
+    this.target.contact &&
+    this.target.contact.statusType != Ci.imIStatusInfo.STATUS_UNKNOWN &&
+    this.target.contact.statusType != Ci.imIStatusInfo.STATUS_OFFLINE &&
+    this.target.contact.canSendMessage
+  ) {
+    OTRUI.addBuddyContextMenu(this.menu, document, this.target.contact);
   }
 }
 
