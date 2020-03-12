@@ -144,9 +144,8 @@
                      onfocus="agendaListbox.onFocus();"
                      onkeypress="agendaListbox.onKeyPress(event);"
                      ondblclick="agendaListbox.createNewEvent(event);"
-                     ondragstart="nsDragAndDrop.startDrag(event, calendarCalendarButtonDNDObserver);"
-                     ondragover="nsDragAndDrop.dragOver(event, calendarCalendarButtonDNDObserver);"
-                     ondrop="nsDragAndDrop.drop(event, calendarCalendarButtonDNDObserver);">
+                     ondragover="calendarCalendarButtonDNDObserver.onDragOver(event);"
+                     ondrop="calendarCalendarButtonDNDObserver.onDrop(event);">
           <menupopup id="agenda-menupopup" onpopupshowing="return agendaListbox.setupContextMenu(event.target)">
             <menuitem label="&calendar.context.modifyorviewitem.label;"
                       accesskey="&calendar.context.modifyorviewitem.accesskey;"
@@ -358,9 +357,8 @@
                        mode="mail,calendar,chat,calendarEvent,calendarTask"
                        collapsedinmodes="mail,task,chat,calendarEvent,calendarTask"
                        persist="height collapsedinmodes"
-                       ondragstart="nsDragAndDrop.startDrag(event, calendarTaskButtonDNDObserver);"
-                       ondragover="nsDragAndDrop.dragOver(event, calendarTaskButtonDNDObserver);"
-                       ondrop="nsDragAndDrop.drop(event, calendarTaskButtonDNDObserver);">
+                       ondragover="calendarTaskButtonDNDObserver.onDragOver(event);"
+                       ondrop="calendarTaskButtonDNDObserver.onDrop(event);">
       <!-- This second vbox means all of this is added to the DOM at once,
            so the label's binding doesn't complain about not having a control. -->
       <vbox flex="1">

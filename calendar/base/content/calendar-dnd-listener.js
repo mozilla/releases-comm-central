@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../mail/base/content/nsDragAndDrop.js */
 /* import-globals-from calendar-item-editing.js */
 /* import-globals-from calendar-management.js */
 /* import-globals-from import-export.js */
@@ -191,21 +190,14 @@ function calDNDBaseObserver() {
 }
 
 calDNDBaseObserver.prototype = {
-  getSupportedFlavours() {
-    let flavourSet = new FlavourSet();
-    flavourSet.appendFlavour("text/calendar");
-    flavourSet.appendFlavour("text/x-moz-url");
-    flavourSet.appendFlavour("text/x-moz-message");
-    flavourSet.appendFlavour("text/unicode");
-    flavourSet.appendFlavour("application/x-moz-file");
-    return flavourSet;
-  },
-
   /**
    * Action to take when dropping the event.
    */
 
-  onDrop(event, transferData, dragSession) {
+  onDrop(event) {
+    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
+      .getService(Ci.nsIDragService)
+      .getCurrentSession();
     // Handles text/x-moz-message, text/x-moz-address and text/x-moz-url flavours.
     if (this.onDropEventData(event.dataTransfer)) {
       return;
@@ -274,12 +266,14 @@ calDNDBaseObserver.prototype = {
     }
   },
 
-  onDragStart(aEvent, aTransferData, aDragAction) {},
-  onDragOver(aEvent, aFlavor, aDragSession) {},
-  onDragExit(aEvent, aDragSession) {},
+  onDragStart(event) {},
+  onDragOver(event) {
+    event.preventDefault();
+  },
+  onDragExit(event) {},
 
-  onDropItems(aItems) {},
-  onDropMessage(aMessage) {},
+  onDropItems(items) {},
+  onDropMessage(message) {},
 
   /**
    * Extract the data of dataTransfer object in the drop event if presents. It will
