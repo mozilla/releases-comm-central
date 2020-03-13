@@ -165,7 +165,7 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
     button.id = this.id;
     button.classList.add("toolbarbutton-1");
     button.classList.add("webextension-action");
-    button.classList.add("badged-button");
+    button.setAttribute("badged", "true");
     button.setAttribute("data-extensionid", this.extension.id);
     button.addEventListener("mousedown", this);
     this.updateButton(button, this.globals);
