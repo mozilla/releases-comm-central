@@ -10,7 +10,7 @@
             "optional": true,
             "additionalProperties": { "$ref": "UnrecognizedProperty" },
             "properties": {
-             "search_provider": {
+              "search_provider": {
                 "type": "object",
                 "optional": true,
                 "additionalProperties": { "$ref": "UnrecognizedProperty" },

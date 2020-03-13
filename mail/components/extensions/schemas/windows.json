@@ -349,8 +349,7 @@
                 "optional": true,
                 "description": "A string to add to the beginning of the window title."
               }
-            },
-            "optional": true
+            }
           },
           {
             "type": "function",

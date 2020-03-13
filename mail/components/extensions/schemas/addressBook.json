@@ -222,7 +222,6 @@
         "id": "ContactNode",
         "type": "object",
         "description": "A node representing a contact in an address book.",
-        "type": "object",
         "properties": {
           "id": {
             "type": "string",
