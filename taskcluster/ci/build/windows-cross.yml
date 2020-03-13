@@ -18,8 +18,8 @@ win64-cross/opt:
         product: thunderbird
         job-name: win64-cross-opt
     attributes:
-            enable-build-signing: true
-            enable-full-crashsymbols: true
+        enable-build-signing: true
+        enable-full-crashsymbols: true
     treeherder:
         platform: windows2012-64/opt
         symbol: Bx
