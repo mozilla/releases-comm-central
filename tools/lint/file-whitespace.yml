@@ -1,0 +1,18 @@
+---
+file-whitespace:
+    description: File content sanity check
+    include:
+        - .
+    exclude:
+        - calendar/libical/src/**
+    extensions:
+        - .c
+        - .cc
+        - .cpp
+        - .h
+        - .py
+        - .rs
+    support-files:
+        - 'tools/lint/file-whitespace/**'
+    type: external
+    payload: file-whitespace:lint

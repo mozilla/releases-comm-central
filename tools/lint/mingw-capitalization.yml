@@ -1,0 +1,9 @@
+---
+mingw-capitalization:
+    description: >
+      "A Windows include file is not lowercase, and may break the MinGW build"
+    extensions: ['h', 'cpp', 'cc', 'c']
+    include: ['.']
+    type: external
+    level: error
+    payload: cpp.mingw-capitalization:lint

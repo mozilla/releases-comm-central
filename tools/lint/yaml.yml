@@ -1,0 +1,11 @@
+---
+yamllint:
+    description: YAML linter
+    include:
+        - .
+    extensions: ['yml', 'yaml']
+    support-files:
+        - '**/.yamllint'
+        - 'tools/lint/yamllint_/**'
+    type: external
+    payload: yamllint_:lint

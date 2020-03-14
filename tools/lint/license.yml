@@ -1,0 +1,30 @@
+---
+license:
+    description: License Check
+    include:
+        - .
+    extensions:
+        - .c
+        - .cc
+        - .cpp
+        - .css
+        - .dtd
+        - .ftl
+        - .h
+        - .html
+        - .js
+        - .jsm
+        - .jsx
+        - .m
+        - .mm
+        - .properties
+        - .py
+        - .rs
+        # - .svg
+        - .xhtml
+        - .xml
+        - .xul
+    support-files:
+        - 'tools/lint/license/**'
+    type: external
+    payload: license:lint

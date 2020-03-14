@@ -1,0 +1,20 @@
+---
+lintpref:
+    description: Linter for static prefs.
+    include:
+        - 'comm/calendar/lightning/content/lightning.js'
+        - 'comm/chat/chat-prefs.js'
+        - 'comm/mail/app/profile/'
+        - 'comm/mail/branding/'
+        - 'comm/mail/components/compose/composer.js'
+        - 'comm/mail/components/im/all-im.js'
+        - 'comm/mail/locales/en-US/all-l10n.js'
+        - 'comm/mailnews/extensions/dsn/content/dsn.js'
+        - 'comm/mailnews/extensions/mdn/content/mdn.js'
+        - 'comm/mailnews/mailnews.js'
+    exclude: []
+    extensions: ['js']
+    type: external
+    payload: libpref:checkdupes
+    support-files:
+        - 'modules/libpref/init/StaticPrefList.yaml'

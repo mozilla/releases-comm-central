@@ -1,0 +1,10 @@
+---
+py2:
+    description: Python 2 compatibility check
+    include: ['.']
+    extensions: ['py']
+    support-files:
+        - 'tools/lint/python/*compat*'
+    type: external
+    payload: python.compat:lintpy2
+    setup: python.compat:setuppy2

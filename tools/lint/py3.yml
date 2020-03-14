@@ -1,0 +1,10 @@
+---
+py3:
+    description: Python 3 compatibility check
+    include: ['.']
+    extensions: ['py']
+    support-files:
+        - 'tools/lint/python/*compat*'
+    type: external
+    payload: python.compat:lintpy3
+    setup: python.compat:setuppy3

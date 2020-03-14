@@ -1,0 +1,4 @@
+comm/chat/protocols/matrix/lib
+comm/third_party/libgpg-error
+comm/third_party/libgcrypt
+comm/third_party/libotr
