@@ -108,7 +108,7 @@ var RNP = {
     keyObj.created = EnigmailTime.getDateTime(keyObj.keyCreated, true, false);
 
     if (RNPLib.rnp_key_get_expiration(handle, key_expiration.address())) {
-      throw new Error("rnp_key_get_creation failed");
+      throw new Error("rnp_key_get_expiration failed");
     }
     if (key_expiration.value > 0) {
       keyObj.expiryTime = keyObj.keyCreated + key_expiration.value;
@@ -365,16 +365,6 @@ var RNP = {
   decrypt(encrypted, options) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
-    /*
-    let uint8_array_type = ctypes.ArrayType(ctypes.uint8_t);
-    let encrypted_array = uint8_array_type(encrypted.length + 1);
-    
-    for (let i = 0; i < encrypted.length; i++) {
-      encrypted_array[i] = encrypted.charCodeAt(i);
-    }
-    encrypted_array[encrypted.length] = 0;
-    */
-
     var tmp_array = ctypes.char.array()(encrypted);
     var encrypted_array = ctypes.cast(
       tmp_array,
@@ -397,12 +387,18 @@ var RNP = {
     result.decryptedData = "";
     result.statusFlags = 0;
 
-    result.exitCode = RNPLib.rnp_decrypt(
+    result.userId = "";
+    result.keyId = "";
+
+    let verify_op = new RNPLib.rnp_op_verify_t();
+    result.exitCode = RNPLib.rnp_op_verify_create(
+      verify_op.address(),
       RNPLib.ffi,
       input_from_memory,
       output_to_memory
     );
-    console.debug("decrypt exit code: " + result.exitCode);
+
+    result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
 
     if (!result.exitCode) {
       let result_buf = new ctypes.uint8_t.ptr();
@@ -413,30 +409,166 @@ var RNP = {
         result_len.address(),
         false
       );
-      console.debug("decrypt get buffer result code: " + result.exitCode);
 
       if (!result.exitCode) {
-        console.debug("decrypt result len: " + result_len.value);
-        //let buf_array = ctypes.cast(result_buf, ctypes.uint8_t.array(result_len.value).ptr).contents;
-        //let char_array = ctypes.cast(buf_array, ctypes.char.array(result_len.value));
-
         let char_array = ctypes.cast(
           result_buf,
           ctypes.char.array(result_len.value).ptr
         ).contents;
 
-        result.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
         result.decryptedData = char_array.readString();
         console.debug(result.decryptedData);
-      }
-    }
 
-    if (!(result.statusFlags & EnigmailConstants.DECRYPTION_OKAY)) {
-      result.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
+        // ignore "no signature" result, that's ok
+        this.getVerifyDetails(verify_op, result);
+      }
     }
 
     RNPLib.rnp_input_destroy(input_from_memory);
     RNPLib.rnp_output_destroy(output_to_memory);
+    RNPLib.rnp_op_verify_destroy(verify_op);
+
+    return result;
+  },
+
+  getVerifyDetails(verify_op, result) {
+    let sig_count = new ctypes.size_t();
+    if (
+      RNPLib.rnp_op_verify_get_signature_count(verify_op, sig_count.address())
+    ) {
+      throw new Error("rnp_op_verify_get_signature_count failed");
+    }
+
+    // TODO: How should handle (sig_count.value > 1) ?
+    if (sig_count.value == 0) {
+      // !sig_count.value didn't work, === also doesn't work
+      return false;
+    }
+
+    let sig = new RNPLib.rnp_op_verify_signature_t();
+    if (RNPLib.rnp_op_verify_get_signature_at(verify_op, 0, sig.address())) {
+      throw new Error("rnp_op_verify_get_signature_at failed");
+    }
+
+    let sig_status = RNPLib.rnp_op_verify_signature_get_status(sig);
+
+    if (sig_status != RNPLib.RNP_SUCCESS && !result.exitCode) {
+      /* Don't allow a good exit code. Keep existing bad code. */
+      result.exitCode = -1;
+    }
+
+    let query_times = true;
+    let query_signer = true;
+
+    switch (sig_status) {
+      case RNPLib.RNP_SUCCESS:
+        // TODO: set EnigmailConstants.TRUSTED_IDENTITY based on key trust status
+        result.statusFlags |= EnigmailConstants.GOOD_SIGNATURE;
+        break;
+      case RNPLib.RNP_ERROR_KEY_NOT_FOUND:
+        result.statusFlags |= EnigmailConstants.UNVERIFIED_SIGNATURE;
+        query_signer = false;
+        break;
+      case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
+        result.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
+        break;
+      case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
+        result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+        break;
+      default:
+        result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+        query_times = false;
+        query_signer = false;
+        break;
+    }
+
+    if (query_times) {
+      let created = new ctypes.uint32_t();
+      let expires = new ctypes.uint32_t(); //relative
+
+      if (
+        RNPLib.rnp_op_verify_signature_get_times(
+          sig,
+          created.address(),
+          expires.address()
+        )
+      ) {
+        throw new Error("rnp_op_verify_signature_get_times failed");
+      }
+    }
+
+    if (query_signer) {
+      let key = new RNPLib.rnp_key_handle_t();
+      if (RNPLib.rnp_op_verify_signature_get_key(sig, key.address())) {
+        throw new Error("rnp_op_verify_signature_get_key");
+      }
+
+      let keyInfo = {};
+      let ok = this.getKeyInfoFromHandle(key, keyInfo, false);
+      if (!ok) {
+        console.debug("TODO: use primary key for signature made with a sub key!");
+      }
+
+      result.keyId = keyInfo.keyId;
+
+      RNPLib.rnp_key_handle_destroy(key);
+    }
+
+    return true;
+  },
+
+  verifyDetached(data, options) {
+    let input_from_memory = new RNPLib.rnp_input_t();
+
+    var tmp_array = ctypes.char.array()(data);
+    var data_array = ctypes.cast(tmp_array, ctypes.uint8_t.array(data.length));
+
+    RNPLib.rnp_input_from_memory(
+      input_from_memory.address(),
+      data_array,
+      data.length,
+      false
+    );
+
+    let input_from_file = new RNPLib.rnp_input_t();
+    RNPLib.rnp_input_from_path(
+      input_from_file.address(),
+      options.mimeSignatureFile
+    );
+
+    let result = {};
+    result.decryptedData = "";
+    result.statusFlags = 0;
+
+    result.userId = "";
+    result.keyId = "";
+
+    let verify_op = new RNPLib.rnp_op_verify_t();
+    if (
+      RNPLib.rnp_op_verify_detached_create(
+        verify_op.address(),
+        RNPLib.ffi,
+        input_from_memory,
+        input_from_file
+      )
+    ) {
+      throw new Error("rnp_op_verify_detached_create failed");
+    }
+
+    result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
+
+    let haveSignature = this.getVerifyDetails(verify_op, result);
+    if (!haveSignature) {
+      if (!result.exitCode) {
+        /* Don't allow a good exit code. Keep existing bad code. */
+        result.exitCode = -1;
+      }
+      result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+    }
+
+    RNPLib.rnp_input_destroy(input_from_memory);
+    RNPLib.rnp_input_destroy(input_from_file);
+    RNPLib.rnp_op_verify_destroy(verify_op);
 
     return result;
   },
@@ -935,29 +1067,7 @@ var RNP = {
       if (RNPLib.rnp_key_get_subkey_at(primary, i, sub_handle.address())) {
         throw new Error("rnp_key_get_subkey_at failed");
       }
-      let expiration = new ctypes.uint32_t();
-      if (RNPLib.rnp_key_get_expiration(sub_handle, expiration.address())) {
-        throw new Error("rnp_key_get_expiration failed");
-      }
-      let skip = false;
-      if (expiration.value != 0) {
-        let now_seconds = Math.floor(Date.now() / 1000);
-        let creation = new ctypes.uint32_t();
-        if (RNPLib.rnp_key_get_creation(sub_handle, creation.address())) {
-          throw new Error("rnp_key_get_expiration failed");
-        }
-        let expiration_seconds = creation.value + expiration.value;
-        console.debug(
-          "now: " +
-            now_seconds +
-            " vs. subkey creation+expiration in seconds: " +
-            expiration_seconds
-        );
-        if (now_seconds > expiration_seconds) {
-          console.debug("skipping expired subkey");
-          skip = true;
-        }
-      }
+      let skip = this.isKeyExpired(sub_handle);
       if (!skip) {
         let key_revoked = new ctypes.bool();
         if (RNPLib.rnp_key_is_revoked(sub_handle, key_revoked.address())) {
@@ -1226,6 +1336,24 @@ var RNP = {
     return result;
   },
 
+  isKeyExpired(handle) {
+    let expiration = new ctypes.uint32_t();
+    if (RNPLib.rnp_key_get_expiration(handle, expiration.address())) {
+      throw new Error("rnp_key_get_expiration failed");
+    }
+    if (!expiration.value) {
+      return false;
+    }
+    let nowSeconds = Math.floor(Date.now() / 1000);
+    let creation = new ctypes.uint32_t();
+    if (RNPLib.rnp_key_get_creation(handle, creation.address())) {
+      throw new Error("rnp_key_get_creation failed");
+    }
+    let expirationSeconds = creation.value + expiration.value;
+    let isExpired = nowSeconds > expirationSeconds;
+    return isExpired;
+  },
+
   findKeyByEmail(id) {
     if (!id.startsWith("<") || !id.endsWith(">")) {
       throw new Error("invalid parameter given to findKeyByEmail");
@@ -1278,6 +1406,10 @@ var RNP = {
         }
 
         if (key_revoked.value) {
+          continue;
+        }
+
+        if (this.isKeyExpired(handle)) {
           continue;
         }
 

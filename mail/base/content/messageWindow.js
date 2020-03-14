@@ -28,6 +28,9 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { MailConstants } = ChromeUtils.import(
+  "resource:///modules/MailConstants.jsm"
+);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -392,6 +395,13 @@ function OnLoadMessageWindow() {
 
   ToolbarIconColor.init();
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
+
+  if (MailConstants.MOZ_OPENPGP) {
+    Enigmail.msg.messengerStartup.bind(Enigmail.msg);
+    Enigmail.msg.messengerStartup();
+    Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
+    Enigmail.hdrView.hdrViewLoad();
+  }
 }
 
 function delayedOnLoadMessageWindow() {

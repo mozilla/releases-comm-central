@@ -53,6 +53,9 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { MailConstants } = ChromeUtils.import(
+  "resource:///modules/MailConstants.jsm"
+);
 var { Color } = ChromeUtils.import("resource://gre/modules/Color.jsm");
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 var { PeriodicFilterManager } = ChromeUtils.import(
@@ -607,6 +610,13 @@ function OnLoadMessenger() {
     // verifyAccounts returns true if the callback won't be called
     // We also don't want the account wizard to open if any sort of account exists
     LoadPostAccountWizard();
+  }
+
+  if (MailConstants.MOZ_OPENPGP) {
+    Enigmail.msg.messengerStartup.bind(Enigmail.msg);
+    Enigmail.msg.messengerStartup();
+    Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
+    Enigmail.hdrView.hdrViewLoad();
   }
 }
 

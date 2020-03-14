@@ -126,6 +126,8 @@ classic.jar:
   skin/classic/messenger/smime/icons/sbSignOk.png                (mail/smime/sbSignOk.png)
   skin/classic/messenger/smime/icons/sbCryptoOk.png              (mail/smime/sbCryptoOk.png)
   skin/classic/messenger/smime/icons/hdrSignOk.png               (mail/smime/hdrSignOk.png)
+  skin/classic/messenger/smime/icons/hdrSignOkVerified.png       (mail/smime/hdrSignOkVerified.png)
+  skin/classic/messenger/smime/icons/hdrSignOkUnverified.png     (mail/smime/hdrSignOkUnverified.png)
   skin/classic/messenger/smime/icons/hdrSignUnknown.png          (mail/smime/hdrSignUnknown.png)
   skin/classic/messenger/smime/icons/hdrSignNotOk.png            (mail/smime/hdrSignNotOk.png)
   skin/classic/messenger/smime/icons/hdrCryptoOk.png             (mail/smime/hdrCryptoOk.png)

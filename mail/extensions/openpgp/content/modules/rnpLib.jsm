@@ -90,6 +90,8 @@ const rnp_op_generate_t = ctypes.void_t.ptr;
 const rnp_op_encrypt_t = ctypes.void_t.ptr;
 const rnp_op_sign_t = ctypes.void_t.ptr;
 const rnp_op_sign_signature_t = ctypes.void_t.ptr;
+const rnp_op_verify_t = ctypes.void_t.ptr;
+const rnp_op_verify_signature_t = ctypes.void_t.ptr;
 
 const rnp_password_cb_t = ctypes.FunctionType(abi, ctypes.bool, [
   rnp_ffi_t,
@@ -905,6 +907,81 @@ function enableRNPLibJS() {
       rnp_output_t
     ),
 
+    rnp_op_verify_create: librnp.declare(
+      "rnp_op_verify_create",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t.ptr,
+      rnp_ffi_t,
+      rnp_input_t,
+      rnp_output_t
+    ),
+
+    rnp_op_verify_detached_create: librnp.declare(
+      "rnp_op_verify_detached_create",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t.ptr,
+      rnp_ffi_t,
+      rnp_input_t,
+      rnp_input_t
+    ),
+
+    rnp_op_verify_execute: librnp.declare(
+      "rnp_op_verify_execute",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t
+    ),
+
+    rnp_op_verify_destroy: librnp.declare(
+      "rnp_op_verify_destroy",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t
+    ),
+
+    rnp_op_verify_get_signature_count: librnp.declare(
+      "rnp_op_verify_get_signature_count",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      ctypes.size_t.ptr
+    ),
+
+    rnp_op_verify_get_signature_at: librnp.declare(
+      "rnp_op_verify_get_signature_at",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      ctypes.size_t,
+      rnp_op_verify_signature_t.ptr
+    ),
+
+    rnp_op_verify_signature_get_status: librnp.declare(
+      "rnp_op_verify_signature_get_status",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_signature_t
+    ),
+
+    rnp_op_verify_signature_get_key: librnp.declare(
+      "rnp_op_verify_signature_get_key",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_signature_t,
+      rnp_key_handle_t.ptr
+    ),
+
+    rnp_op_verify_signature_get_times: librnp.declare(
+      "rnp_op_verify_signature_get_times",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_signature_t,
+      ctypes.uint32_t.ptr,
+      ctypes.uint32_t.ptr
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -917,6 +994,8 @@ function enableRNPLibJS() {
     rnp_op_encrypt_t,
     rnp_op_sign_t,
     rnp_op_sign_signature_t,
+    rnp_op_verify_t,
+    rnp_op_verify_signature_t,
 
     RNP_LOAD_SAVE_PUBLIC_KEYS: 1,
 

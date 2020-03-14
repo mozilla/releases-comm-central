@@ -59,7 +59,6 @@ function PgpMimeEncrypt(sMimeSecurityInfo) {
   console.debug(`in PgpMimeEncrypt: wrappedJSObject:`);
   console.debug(this);
 
-  // nsIMsgSMIMECompFields
   this.signMessage = false;
   this.requireEncryptMessage = false;
 
@@ -72,15 +71,8 @@ function PgpMimeEncrypt(sMimeSecurityInfo) {
   this.originalSubject = null;
   this.keyMap = {};
 
-  this.onDataAvailable = this.onDataAvailable68;
-
   try {
     if (sMimeSecurityInfo) {
-      if ("nsIMsgSMIMECompFields" in Ci) {
-        sMimeSecurityInfo = sMimeSecurityInfo.QueryInterface(
-          Ci.nsIMsgSMIMECompFields
-        );
-      }
       this.signMessage = sMimeSecurityInfo.signMessage;
       this.requireEncryptMessage = sMimeSecurityInfo.requireEncryptMessage;
     }
@@ -140,7 +132,7 @@ PgpMimeEncrypt.prototype = {
     this.encHeader = null;
   },
 
-  onDataAvailable68(req, stream, offset, count) {
+  onDataAvailable(req, stream, offset, count) {
     LOCAL_DEBUG("mimeEncrypt.js: onDataAvailable\n");
     this.inStream.init(stream);
     //var data = this.inStream.read(count);

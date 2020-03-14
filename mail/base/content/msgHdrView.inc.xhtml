@@ -8,6 +8,16 @@
                           <!-- the message pane consists of 3 'boxes'. Box #2 is the expanded headers view (the default view) -->
                           <vbox id="expandedHeaderView" flex="1">
 
+#ifdef MOZ_OPENPGP
+                            <vbox flex="1" pack="start">
+                              <hbox flex="1" align="center">
+                                <label id="enigmailStatusText" flex="1"
+                                       class="enigmailHeaderValue">...
+                                </label>
+                              </hbox>
+                            </vbox>
+#endif
+
                             <!-- a convenience box for ease of extension overlaying -->
                             <vbox id="expandedHeadersBox" flex="1">
 

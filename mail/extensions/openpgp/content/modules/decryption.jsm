@@ -160,8 +160,8 @@ var EnigmailDecryption = {
       return "";
     }
 
-    var interactive = uiFlags & EnigmailConstants.UI_INTERACTIVE;
-    var allowImport = uiFlags & EnigmailConstants.UI_ALLOW_KEY_IMPORT;
+    //var interactive = uiFlags & EnigmailConstants.UI_INTERACTIVE;
+    var allowImport = false; // uiFlags & EnigmailConstants.UI_ALLOW_KEY_IMPORT;
     var unverifiedEncryptedOK =
       uiFlags & EnigmailConstants.UI_UNVERIFIED_ENC_OK;
     var oldSignature = signatureObj.value;
@@ -196,6 +196,14 @@ var EnigmailDecryption = {
     var publicKey = blockType == "PUBLIC KEY BLOCK";
 
     var verifyOnly = blockType == "SIGNED MESSAGE";
+    var isEncrypted = blockType == "MESSAGE";
+
+    if (verifyOnly) {
+      statusFlagsObj.value |= EnigmailConstants.PGP_MIME_SIGNED;
+    }
+    if (isEncrypted) {
+      statusFlagsObj.value |= EnigmailConstants.PGP_MIME_ENCRYPTED;
+    }
 
     var pgpBlock = cipherText.substr(
       beginIndexObj.value,
@@ -226,6 +234,7 @@ var EnigmailDecryption = {
     );
 
     if (publicKey) {
+      // TODO: import key into our scratch area for new, unknown keys
       if (!allowImport) {
         errorMsgObj.value = EnigmailLocale.getString("keyInMessageBody");
         statusFlagsObj.value |= EnigmailConstants.DISPLAY_MESSAGE;
@@ -277,11 +286,13 @@ var EnigmailDecryption = {
       return "";
     }
 
+    /*
     if (EnigmailKeyRing.isGeneratingKey()) {
       errorMsgObj.value = EnigmailLocale.getString("notComplete");
       statusFlagsObj.value |= EnigmailConstants.DISPLAY_MESSAGE;
       return "";
     }
+    */
 
     // limit output to 100 times message size to avoid DoS attack
     var maxOutput = pgpBlock.length * 100;
@@ -386,6 +397,8 @@ var EnigmailDecryption = {
       pubKeyId &&
       statusFlagsObj.value & EnigmailConstants.UNVERIFIED_SIGNATURE
     ) {
+      // TODO: import into scratch area
+      /*
       var innerKeyBlock;
       if (verifyOnly) {
         // Search for indented public key block in signed message
@@ -412,48 +425,47 @@ var EnigmailDecryption = {
         }
       }
 
-      if (allowImport) {
-        var importedKey = false;
+      var importedKey = false;
 
-        if (innerKeyBlock) {
-          var importErrorMsgObj = {};
-          var exitStatus = EnigmailKeyRing.importKey(
+      if (innerKeyBlock) {
+        var importErrorMsgObj = {};
+        var exitStatus = EnigmailKeyRing.importKey(
+          parent,
+          true,
+          innerKeyBlock,
+          pubKeyId,
+          importErrorMsgObj
+        );
+
+        importedKey = exitStatus === 0;
+
+        if (exitStatus > 0) {
+          EnigmailDialog.alert(
             parent,
-            true,
-            innerKeyBlock,
-            pubKeyId,
-            importErrorMsgObj
-          );
-
-          importedKey = exitStatus === 0;
-
-          if (exitStatus > 0) {
-            EnigmailDialog.alert(
-              parent,
-              EnigmailLocale.getString("cantImport") + importErrorMsgObj.value
-            );
-          }
-        }
-
-        if (importedKey) {
-          // Recursive call; note that EnigmailConstants.UI_ALLOW_KEY_IMPORT is unset
-          // to break the recursion
-          var uiFlagsDeep = interactive ? EnigmailConstants.UI_INTERACTIVE : 0;
-          signatureObj.value = "";
-          return EnigmailDecryption.decryptMessage(
-            parent,
-            uiFlagsDeep,
-            pgpBlock,
-            signatureObj,
-            exitCodeObj,
-            statusFlagsObj,
-            keyIdObj,
-            userIdObj,
-            sigDetailsObj,
-            errorMsgObj
+            EnigmailLocale.getString("cantImport") + importErrorMsgObj.value
           );
         }
       }
+
+      if (importedKey) {
+        // Recursive call; note that EnigmailConstants.UI_ALLOW_KEY_IMPORT is unset
+        // to break the recursion
+        var uiFlagsDeep = interactive ? EnigmailConstants.UI_INTERACTIVE : 0;
+        signatureObj.value = "";
+        return EnigmailDecryption.decryptMessage(
+          parent,
+          uiFlagsDeep,
+          pgpBlock,
+          signatureObj,
+          exitCodeObj,
+          statusFlagsObj,
+          keyIdObj,
+          userIdObj,
+          sigDetailsObj,
+          errorMsgObj
+        );
+      }
+      */
 
       if (plainText && !unverifiedEncryptedOK) {
         // Append original PGP block to unverified message

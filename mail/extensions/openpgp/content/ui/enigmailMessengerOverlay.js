@@ -99,18 +99,22 @@ var EnigmailURIs = ChromeUtils.import(
 var EnigmailProtocolHandler = ChromeUtils.import(
   "chrome://openpgp/content/modules/protocolHandler.jsm"
 ).EnigmailProtocolHandler;
+/*
 var EnigmailAutocrypt = ChromeUtils.import(
   "chrome://openpgp/content/modules/autocrypt.jsm"
 ).EnigmailAutocrypt;
+*/
 var EnigmailMime = ChromeUtils.import(
   "chrome://openpgp/content/modules/mime.jsm"
 ).EnigmailMime;
 var EnigmailArmor = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 ).EnigmailArmor;
+/*
 var EnigmailWks = ChromeUtils.import(
   "chrome://openpgp/content/modules/webKey.jsm"
 ).EnigmailWks;
+*/
 var EnigmailStdlib = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
 ).EnigmailStdlib;
@@ -143,7 +147,7 @@ Enigmail.msg = {
     "content-transfer-encoding",
     "x-enigmail-version",
     "x-pgp-encoding-format",
-    "autocrypt-setup-message",
+    //"autocrypt-setup-message",
   ],
   buggyExchangeEmailContent: null, // for HACK for MS-EXCHANGE-Server Problem
   buggyMailType: null,
@@ -217,8 +221,8 @@ Enigmail.msg = {
     );
 
     //Enigmail.msg.overrideLayoutChange();
-    Enigmail.msg.prepareAppMenu();
-    Enigmail.msg.setMainMenuLabel();
+    //Enigmail.msg.prepareAppMenu();
+    //Enigmail.msg.setMainMenuLabel();
 
     let statusCol = document.getElementById("enigmailStatusCol");
     if (statusCol) {
@@ -294,9 +298,11 @@ Enigmail.msg = {
   messageListener: {
     onStartHeaders() {
       Enigmail.msg.mimeParts = null;
+      /*
       if ("autocrypt" in gExpandedHeaderView) {
         delete gExpandedHeaderView.autocrypt;
       }
+      */
       if ("openpgp" in gExpandedHeaderView) {
         delete gExpandedHeaderView.openpgp;
       }
@@ -571,6 +577,7 @@ Enigmail.msg = {
   /**
    * Determine if Autocrypt is enabled for the currently selected message
    */
+  /*
   isAutocryptEnabled() {
     try {
       let email = EnigmailFuncs.stripEmail(
@@ -586,6 +593,7 @@ Enigmail.msg = {
 
     return false;
   },
+  */
 
   messageImport() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageImport:\n");
@@ -758,9 +766,10 @@ Enigmail.msg = {
 
       // Copy selected headers
       Enigmail.msg.savedHeaders = {
-        autocrypt: [],
+        //autocrypt: [],
       };
 
+      /*
       for (let h in currentHeaderData) {
         if (h.search(/^autocrypt\d*$/) === 0) {
           Enigmail.msg.savedHeaders.autocrypt.push(
@@ -768,6 +777,7 @@ Enigmail.msg = {
           );
         }
       }
+      */
 
       if (!mimeMsg.fullContentType) {
         mimeMsg.fullContentType = "text/plain";
@@ -798,6 +808,7 @@ Enigmail.msg = {
         );
       }
 
+      /*
       if (
         "autocrypt" in Enigmail.msg.savedHeaders &&
         Enigmail.msg.savedHeaders.autocrypt.length > 0 &&
@@ -817,6 +828,7 @@ Enigmail.msg = {
       } else {
         Enigmail.msg.createArtificialAutocryptHeader();
       }
+      */
 
       var msgSigned =
         mimeMsg.fullContentType.search(/^multipart\/signed/i) === 0 &&
@@ -846,6 +858,7 @@ Enigmail.msg = {
         msgSigned = msgSigned || resultObj.signed.length > 0;
         msgEncrypted = msgEncrypted || resultObj.encrypted.length > 0;
 
+        /*
         if (
           "autocrypt-setup-message" in Enigmail.msg.savedHeaders &&
           Enigmail.msg.savedHeaders["autocrypt-setup-message"].toLowerCase() ===
@@ -860,6 +873,7 @@ Enigmail.msg = {
             return;
           }
         }
+        */
 
         // HACK for Zimbra OpenPGP Zimlet
         // Zimbra illegally changes attachment content-type to application/pgp-encrypted which interfers with below
@@ -885,7 +899,9 @@ Enigmail.msg = {
             );
             return;
           }
-        } catch (ex) {}
+        } catch (ex) {
+          console.debug(ex);
+        }
 
         // HACK for MS-EXCHANGE-Server Problem:
         // check for possible bad mime structure due to buggy exchange server:
@@ -1183,13 +1199,15 @@ Enigmail.msg = {
     }
 
     var charset = msgWindow ? msgWindow.mailCharacterSet : "";
-
-    // Encode ciphertext to charset from unicode
-    msgText = EnigmailData.convertFromUnicode(msgText, charset);
+    if (charset != "UTF-8") {
+      // Encode ciphertext to charset from unicode
+      msgText = EnigmailData.convertFromUnicode(msgText, charset);
+    }
 
     if (isAuto) {
-      let ht = this.determineHeadAndTail(msgText);
+      let ht = this.hasHeadOrTailBesidesInlinePGP(msgText);
       if (ht) {
+        /*
         Enigmail.hdrView.updateHdrIcons(
           0,
           ht,
@@ -1201,9 +1219,11 @@ Enigmail.msg = {
           "",
           "process-manually"
         );
+        */
         return;
       }
     }
+
     var mozPlainText = bodyElement.innerHTML.search(/class="moz-text-plain"/);
 
     if (mozPlainText >= 0 && mozPlainText < 40) {
@@ -1263,7 +1283,7 @@ Enigmail.msg = {
     return EnigmailMsgRead.searchQuotedPgp(node);
   },
 
-  determineHeadAndTail(msgText) {
+  hasHeadOrTailBesidesInlinePGP(msgText) {
     let startIndex = msgText.search(/-----BEGIN PGP (SIGNED )?MESSAGE-----/m);
     let endIndex = msgText.indexOf("-----END PGP");
     let hasHead = false;
@@ -1299,15 +1319,8 @@ Enigmail.msg = {
     let bodyElement = null;
 
     // Thunderbird
-    let msgFrame = EnigmailWindows.getFrame(window, "messagepane");
-    if (msgFrame) {
-      // TB < 69
-      bodyElement = msgFrame.document.getElementsByTagName("body")[0];
-    } else {
-      // TB >= 69
-      msgFrame = document.getElementById("messagepane");
-      bodyElement = msgFrame.contentDocument.getElementsByTagName("body")[0];
-    }
+    let msgFrame = document.getElementById("messagepane");
+    bodyElement = msgFrame.contentDocument.getElementsByTagName("body")[0];
     return bodyElement;
   },
 
@@ -1392,7 +1405,7 @@ Enigmail.msg = {
 
     var uiFlags = interactive
       ? EnigmailConstants.UI_INTERACTIVE |
-        EnigmailConstants.UI_ALLOW_KEY_IMPORT |
+        // EnigmailConstants.UI_ALLOW_KEY_IMPORT |
         EnigmailConstants.UI_UNVERIFIED_ENC_OK
       : 0;
 
@@ -1547,6 +1560,8 @@ Enigmail.msg = {
       );
     }
 
+    // TODO: what is blockSeparation ? How to emulate with RNP?
+    /*
     if (blockSeparationObj.value.includes(" ")) {
       var blocks = blockSeparationObj.value.split(/ /);
       var blockInfo = blocks[0].split(/:/);
@@ -1560,6 +1575,7 @@ Enigmail.msg = {
         "\n\n" +
         EnigmailLocale.getString("noteCutMessage");
     }
+    */
 
     // Save decrypted message status, headers, and content
     var headerList = {
@@ -3039,6 +3055,7 @@ Enigmail.msg = {
    * Create an artificial Autocrypt: header if there was no such header on the message
    * and the message was signed
    */
+  /*
   createArtificialAutocryptHeader() {
     EnigmailLog.DEBUG(
       "enigmailMessengerOverlay.js: createArtificialAutocryptHeader\n"
@@ -3101,7 +3118,9 @@ Enigmail.msg = {
       );
     }
   },
+  */
 
+  /*
   flexActionRequest() {
     switch (Enigmail.msg.securityInfo.xtraStatus) {
       case "wks-request":
@@ -3115,7 +3134,9 @@ Enigmail.msg = {
         break;
     }
   },
+  */
 
+  /*
   confirmWksRequest() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: confirmWksRequest()\n");
     try {
@@ -3155,6 +3176,7 @@ Enigmail.msg = {
       EnigmailLog.DEBUG(e + "\n");
     }
   },
+  */
 
   performAutocryptSetup(passwd = null) {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: performAutocryptSetup()\n");

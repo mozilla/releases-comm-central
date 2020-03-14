@@ -57,9 +57,6 @@ pref("temp.openpgp.composeHtmlAlertCount", 3);
 // show warning message when clicking on sign icon
 pref("temp.openpgp.displaySignWarn", true);
 
-// display warning as info for partially signed message
-pref("temp.openpgp.displayPartiallySigned", true);
-
 // try to match secondary uid to from address
 pref("temp.openpgp.displaySecondaryUid", true);
 

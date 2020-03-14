@@ -182,8 +182,6 @@ class RNPCryptoAPI extends CryptoAPI {
 
   async decrypt(encrypted, options) {
     EnigmailLog.DEBUG(`rnp-cryptoAPI.js: decrypt()\n`);
-    console.log("rnp decrypt() options:");
-    console.log(options);
 
     let result = RNP.decrypt(encrypted, options);
 
@@ -203,7 +201,6 @@ class RNPCryptoAPI extends CryptoAPI {
    */
 
   decryptMime(encrypted, options) {
-    console.log("RNPCryptoAPI.jsm: decryptMime()");
     EnigmailLog.DEBUG(`rnp-cryptoAPI.js: decryptMime()\n`);
 
     // write something to gpg such that the process doesn't get stuck
@@ -231,14 +228,16 @@ class RNPCryptoAPI extends CryptoAPI {
    */
 
   async verifyMime(signed, options) {
-    console.log("RNPCryptoAPI.jsm: verifyMime()");
     EnigmailLog.DEBUG(`rnp-cryptoAPI.js: verifyMime()\n`);
 
-    options.noOutput = true;
-    options.verifyOnly = true;
-    options.uiFlags = EnigmailConstants.UI_PGP_MIME;
+    //options.noOutput = true;
+    //options.verifyOnly = true;
+    //options.uiFlags = EnigmailConstants.UI_PGP_MIME;
 
-    return this.decrypt(signed, options);
+    if (!options.mimeSignatureFile) {
+      throw new Error("inline verify not yet implemented");
+    }
+    return RNP.verifyDetached(signed, options);
   }
 
   async getKeyListFromKeyBlock(keyBlockStr, pubkey, seckey) {

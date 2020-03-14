@@ -175,8 +175,6 @@ function MimeDecryptHandler() {
   this.mimePartNumber = "";
   this.dataIsBase64 = null;
   this.base64Cache = "";
-
-  this.onDataAvailable = this.onDataAvailable68;
 }
 
 MimeDecryptHandler.prototype = {
@@ -287,10 +285,7 @@ MimeDecryptHandler.prototype = {
     }
   },
 
-  /**
-   * onDataAvailable for TB >= 68
-   */
-  onDataAvailable68(req, stream, offset, count) {
+  onDataAvailable(req, stream, offset, count) {
     // get data from libmime
     if (!this.initOk) {
       return;
@@ -560,17 +555,27 @@ MimeDecryptHandler.prototype = {
           statusFlags: EnigmailConstants.DECRYPTION_FAILED,
         };
       }
+
+      this.returnStatus.statusFlags |= EnigmailConstants.PGP_MIME_ENCRYPTED;
+
+      if (this.returnStatus.exitCode) {
+        this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
+      } else if (
+        !(this.returnStatus.statusFlags & EnigmailConstants.DECRYPTION_FAILED)
+      ) {
+        this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
+      }
+
       this.decryptedData = this.returnStatus.decryptedData;
       this.handleResult(this.returnStatus.exitCode);
 
-      let mdcError =
-        this.returnStatus.statusFlags & EnigmailConstants.DECRYPTION_FAILED ||
-        !(this.returnStatus.statusFlags & EnigmailConstants.DECRYPTION_OKAY);
+      let decError =
+        this.returnStatus.statusFlags & EnigmailConstants.DECRYPTION_FAILED;
 
       if (!this.isUrlEnigmailConvert()) {
         // don't return decrypted data if decryption failed (because it's likely an MDC error),
         // unless we are called for permanent decryption
-        if (mdcError) {
+        if (decError) {
           this.decryptedData = "";
         }
       }
@@ -600,7 +605,7 @@ MimeDecryptHandler.prototype = {
         this.decryptedData.search(
           /^Content-Type:[\t ]+multipart\/encrypted/im
         ) < 0 &&
-        !mdcError
+        !decError
       ) {
         LAST_MSG.lastMessageData = this.decryptedData;
         LAST_MSG.lastMessageURI = currMsg;

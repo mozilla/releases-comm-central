@@ -9,6 +9,16 @@
   visibility: visible;
 }
 
+#signedHdrIcon[signed="verified"] {
+  list-style-image: url("chrome://messenger/skin/smime/icons/hdrSignOkVerified.png");
+  visibility: visible;
+}
+
+#signedHdrIcon[signed="unverified"] {
+  list-style-image: url("chrome://messenger/skin/smime/icons/hdrSignOkUnverified.png");
+  visibility: visible;
+}
+
 #signedHdrIcon[signed="ok"] {
   list-style-image: url("chrome://messenger/skin/smime/icons/hdrSignOk.png");
   visibility: visible;

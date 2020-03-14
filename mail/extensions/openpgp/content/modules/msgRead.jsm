@@ -255,7 +255,9 @@ var EnigmailMsgRead = {
 
     try {
       fromAddr = EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
-    } catch (ex) {}
+    } catch (ex) {
+      console.debug(ex);
+    }
 
     let keyObj = EnigmailKeyRing.getKeyById(keyId);
     if (!keyObj) {
@@ -270,7 +272,8 @@ var EnigmailMsgRead = {
           fromAddr ==
           EnigmailFuncs.stripEmail(userIdList[i].userId).toLowerCase()
         ) {
-          return EnigmailFuncs.stripEmail(userIdList[i].userId);
+          let result = EnigmailFuncs.stripEmail(userIdList[i].userId);
+          return result;
         }
       }
 
@@ -281,7 +284,9 @@ var EnigmailMsgRead = {
       //     return fromAddr;
       //   }
       // }
-    } catch (ex) {}
+    } catch (ex) {
+      console.debug(ex);
+    }
     return null;
   },
 
