@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-basepath = "../.."
+basepath = "../../.."
 
 locales = [
     "af",
@@ -72,46 +72,35 @@ locales = [
 
 [env]
     l = "{l10n_base}/{locale}/"
-    mozilla = "mozilla"
-
 
 [[paths]]
-    reference = "mail/locales/en-US/**"
+    reference = "comm/mail/locales/en-US/**"
     l10n = "{l}mail/**"
 
 [[paths]]
-    reference = "chat/locales/en-US/**"
+    reference = "comm/chat/locales/en-US/**"
     l10n = "{l}chat/**"
 
 [[paths]]
-    reference = "editor/ui/locales/en-US/**"
-    l10n = "{l}editor/ui/**"
-
-[[paths]]
-    reference = "other-licenses/branding/thunderbird/locales/en-US/**"
+    reference = "comm/other-licenses/branding/thunderbird/locales/en-US/**"
     l10n = "{l}other-licenses/branding/thunderbird/**"
 
 [[paths]]
-    reference = "mail/branding/thunderbird/locales/en-US/**"
+    reference = "comm/mail/branding/thunderbird/locales/en-US/**"
     l10n = "{l}mail/branding/thunderbird/**"
 
 [[includes]]
-    path = "{mozilla}/devtools/client/locales/l10n.toml"
+    path = "devtools/client/locales/l10n.toml"
 
 [[includes]]
-    path = "{mozilla}/toolkit/locales/l10n.toml"
+    path = "toolkit/locales/l10n.toml"
 
 [[includes]]
-    path = "calendar/locales/l10n.toml"
+    path = "comm/calendar/locales/l10n.toml"
 
 [[paths]]
-    reference = "{mozilla}/devtools/startup/locales/en-US/**"
+    reference = "devtools/startup/locales/en-US/**"
     l10n = "{l}devtools/startup/**"
-
-# for Gecko 60 and older and cross-channel
-[[paths]]
-    reference = "{mozilla}/devtools/shim/locales/en-US/**"
-    l10n = "{l}devtools/shim/**"
 
 # ignore MOZ_LANGPACK_CONTRIBUTORS
 [[filters]]
