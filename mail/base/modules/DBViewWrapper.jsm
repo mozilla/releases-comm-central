@@ -1402,8 +1402,8 @@ DBViewWrapper.prototype = {
     if (this.isVirtual) {
       if (
         this.isMultiFolder &&
-        (changedFlags & Ci.nsMsgViewFlagsType.kThreadedDisplay &&
-          !(changedFlags & Ci.nsMsgViewFlagsType.kGroupBySort))
+        changedFlags & Ci.nsMsgViewFlagsType.kThreadedDisplay &&
+        !(changedFlags & Ci.nsMsgViewFlagsType.kGroupBySort)
       ) {
         reSort = true;
       }

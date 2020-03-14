@@ -69,10 +69,16 @@ function test_sort_items() {
   });
 
   cal.unifinder.sortItems(items, "title", 1);
-  deepEqual(items.map(item => item.title), ["a", "b", null]);
+  deepEqual(
+    items.map(item => item.title),
+    ["a", "b", null]
+  );
 
   cal.unifinder.sortItems(items, "title", -1);
-  deepEqual(items.map(item => item.title), [null, "b", "a"]);
+  deepEqual(
+    items.map(item => item.title),
+    [null, "b", "a"]
+  );
 
   // date comparison
   let dates = ["20180101T000002Z", "20180101T000000Z", "20180101T000001Z"];
@@ -85,18 +91,16 @@ function test_sort_items() {
   });
 
   cal.unifinder.sortItems(items, "startDate", 1);
-  deepEqual(items.map(item => item.startDate.icalString), [
-    "20180101T000000Z",
-    "20180101T000001Z",
-    "20180101T000002Z",
-  ]);
+  deepEqual(
+    items.map(item => item.startDate.icalString),
+    ["20180101T000000Z", "20180101T000001Z", "20180101T000002Z"]
+  );
 
   cal.unifinder.sortItems(items, "startDate", -1);
-  deepEqual(items.map(item => item.startDate.icalString), [
-    "20180101T000002Z",
-    "20180101T000001Z",
-    "20180101T000000Z",
-  ]);
+  deepEqual(
+    items.map(item => item.startDate.icalString),
+    ["20180101T000002Z", "20180101T000001Z", "20180101T000000Z"]
+  );
 
   // number comparison
   let percents = [3, 1, 2];
@@ -109,8 +113,14 @@ function test_sort_items() {
   });
 
   cal.unifinder.sortItems(items, "percentComplete", 1);
-  deepEqual(items.map(item => item.percentComplete), [1, 2, 3]);
+  deepEqual(
+    items.map(item => item.percentComplete),
+    [1, 2, 3]
+  );
 
   cal.unifinder.sortItems(items, "percentComplete", -1);
-  deepEqual(items.map(item => item.percentComplete), [3, 2, 1]);
+  deepEqual(
+    items.map(item => item.percentComplete),
+    [3, 2, 1]
+  );
 }

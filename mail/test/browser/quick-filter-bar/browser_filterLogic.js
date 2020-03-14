@@ -69,10 +69,17 @@ add_task(function test_filter_starred() {
 
 add_task(function test_filter_simple_intersection_unread_and_starred() {
   let folder = create_folder("QuickFilterBarFilterUnreadAndStarred");
-  let [, readUnstarred, unreadStarred, readStarred] = make_new_sets_in_folder(
-    folder,
-    [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
-  );
+  let [
+    ,
+    readUnstarred,
+    unreadStarred,
+    readStarred,
+  ] = make_new_sets_in_folder(folder, [
+    { count: 1 },
+    { count: 1 },
+    { count: 1 },
+    { count: 1 },
+  ]);
   readUnstarred.setRead(true);
   unreadStarred.setStarred(true);
   readStarred.setRead(true);
@@ -153,10 +160,19 @@ add_task(function test_filter_tags() {
   const tagA = "$label1",
     tagB = "$label2",
     tagC = "$label3";
-  let [setNoTag, setTagA, setTagB, setTagAB, setTagC] = make_new_sets_in_folder(
-    folder,
-    [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
-  );
+  let [
+    setNoTag,
+    setTagA,
+    setTagB,
+    setTagAB,
+    setTagC,
+  ] = make_new_sets_in_folder(folder, [
+    { count: 1 },
+    { count: 1 },
+    { count: 1 },
+    { count: 1 },
+    { count: 1 },
+  ]);
   setTagA.addTag(tagA);
   setTagB.addTag(tagB);
   setTagAB.addTag(tagA);

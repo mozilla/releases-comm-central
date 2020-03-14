@@ -74,7 +74,10 @@ CalEvent.prototype = {
     return this.startDate;
   },
 
-  icsEventPropMap: [{ cal: "DTSTART", ics: "startTime" }, { cal: "DTEND", ics: "endTime" }],
+  icsEventPropMap: [
+    { cal: "DTSTART", ics: "startTime" },
+    { cal: "DTEND", ics: "endTime" },
+  ],
 
   set icalString(value) {
     this.icalComponent = cal.getIcsService().parseICS(value, null);

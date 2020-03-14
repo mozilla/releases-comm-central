@@ -54,7 +54,10 @@ var intlPhrases = [
     encodings: {
       "utf-8": ["=?utf-8?q?aa_bbb?=", "aa bbb"],
     },
-    searchPhrases: [{ body: "aa", match: false }, { body: "bbb", match: true }],
+    searchPhrases: [
+      { body: "aa", match: false },
+      { body: "bbb", match: true },
+    ],
   },
 ];
 

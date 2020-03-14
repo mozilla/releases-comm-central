@@ -255,7 +255,10 @@ function test_getIncomingTryOrder() {
 
   ssl = SSL;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder, [[IMAP, SSL, 993], [POP, SSL, 995]]);
+  assert_equal_try_orders(tryOrder, [
+    [IMAP, SSL, 993],
+    [POP, SSL, 995],
+  ]);
 
   ssl = UNKNOWN;
   port = 31337;
@@ -271,7 +274,10 @@ function test_getIncomingTryOrder() {
 
   ssl = SSL;
   tryOrder = getIncomingTryOrder(domain, protocol, ssl, port);
-  assert_equal_try_orders(tryOrder, [[IMAP, SSL, port], [POP, SSL, port]]);
+  assert_equal_try_orders(tryOrder, [
+    [IMAP, SSL, port],
+    [POP, SSL, port],
+  ]);
 }
 
 /**

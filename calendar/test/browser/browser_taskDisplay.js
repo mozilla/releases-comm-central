@@ -51,7 +51,10 @@ add_task(async () => {
     // Although the order of expectedTasks matches the observed behaviour when
     // this test was written, order is NOT checked here. The order of the list
     // is not well defined (particularly when changing the filter text).
-    ok(expectedTasks.every(task => actualTasks.includes(task)), "All expected tasks found");
+    ok(
+      expectedTasks.every(task => actualTasks.includes(task)),
+      "All expected tasks found"
+    );
   }
 
   let today = cal.dtz.now();

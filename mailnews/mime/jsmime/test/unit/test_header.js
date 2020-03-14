@@ -454,7 +454,10 @@ define(function(require) {
         ],
         [
           '" "@a a;b',
-          [{ name: "", email: '" "@a a' }, { name: "b", email: "" }],
+          [
+            { name: "", email: '" "@a a' },
+            { name: "b", email: "" },
+          ],
         ],
         [
           "Undisclosed recipients:;\0:; foo <ghj@veryveryveryverylongveryveryver" +
@@ -472,7 +475,10 @@ define(function(require) {
         // XXX: test_nsIMsgHeaderParser2 has an empty one here...
         [
           "<a;a@invalid",
-          [{ name: "", email: "a" }, { name: "", email: "a@invalid" }],
+          [
+            { name: "", email: "a" },
+            { name: "", email: "a@invalid" },
+          ],
         ],
         ["me@foo.invalid", [{ name: "", email: "me@foo.invalid" }]],
         [

@@ -839,7 +839,7 @@
               // doesn't keep the window alive.
               browser.permanentKey = new (Cu.getGlobalForObject(
                 Services
-              )).Object();
+              ).Object)();
             }
             return browser;
           },

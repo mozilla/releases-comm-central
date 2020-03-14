@@ -487,7 +487,10 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
     }
     if (!this._successfulCall) {
       // all failed
-      errorCallback(this._calls[0].e, this._calls.map(call => call.e)); // see docs above
+      errorCallback(
+        this._calls[0].e,
+        this._calls.map(call => call.e)
+      ); // see docs above
     }
   });
 }

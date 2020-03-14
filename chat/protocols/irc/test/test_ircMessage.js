@@ -308,7 +308,11 @@ function testTags() {
       origin: "quux",
       user: undefined,
       host: undefined,
-      tags: new Map([["c", undefined], ["h", ""], ["a", "b"]]),
+      tags: new Map([
+        ["c", undefined],
+        ["h", ""],
+        ["a", "b"],
+      ]),
       source: "",
     },
     "@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan": {

@@ -625,11 +625,13 @@ var snapshotFormatters = {
       apzInfo.length
         ? [
             new Text(
-              (await document.l10n.formatValues(
-                apzInfo.map(id => {
-                  return { id };
-                })
-              )).join("; ")
+              (
+                await document.l10n.formatValues(
+                  apzInfo.map(id => {
+                    return { id };
+                  })
+                )
+              ).join("; ")
             ),
           ]
         : "apz-none"

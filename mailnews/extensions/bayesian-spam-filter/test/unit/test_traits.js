@@ -83,7 +83,12 @@ var tests = [
     // spam1 trained as "pro" for first pro/anti pair
     // spam4 trained as "anti" for second pro/anti pair
     // others are partials
-    percents: [[100, 50], [81, 0], [98, 50], [81, 0]],
+    percents: [
+      [100, 50],
+      [81, 0],
+      [98, 50],
+      [81, 0],
+    ],
   },
   // reset the plugin, read in data, and retest the classification
   // this tests the trait file writing
@@ -109,7 +114,12 @@ var tests = [
     fileName: "spam1.eml,spam2.eml,spam3.eml,spam4.eml",
     traitIds: [4, 6],
     traitAntiIds: [3, 5],
-    percents: [[100, 50], [81, 0], [98, 50], [81, 0]],
+    percents: [
+      [100, 50],
+      [81, 0],
+      [98, 50],
+      [81, 0],
+    ],
   },
 ];
 

@@ -4230,11 +4230,9 @@ function displayCounterProposal() {
 
   if (idCounter > 0) {
     if (partStat && attendeeId.length) {
-      document.getElementById("counter-proposal-summary").value = cal.l10n.getString(
-        "calendar-event-dialog",
-        partStat,
-        [attendeeId]
-      );
+      document.getElementById(
+        "counter-proposal-summary"
+      ).value = cal.l10n.getString("calendar-event-dialog", partStat, [attendeeId]);
       document.getElementById("counter-proposal-summary").removeAttribute("collapsed");
     }
     if (comment) {

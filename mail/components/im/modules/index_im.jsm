@@ -521,9 +521,9 @@ var GlodaIMIndexer = {
           : logFiles;
       for (let logFile of currentLogFiles) {
         let fileName = OS.Path.basename(logFile);
-        let lastModifiedTime = (await OS.File.stat(
-          logFile
-        )).lastModificationDate.valueOf();
+        let lastModifiedTime = (
+          await OS.File.stat(logFile)
+        ).lastModificationDate.valueOf();
         if (
           Object.prototype.hasOwnProperty.call(conv.convObj, fileName) &&
           conv.convObj[fileName] == lastModifiedTime

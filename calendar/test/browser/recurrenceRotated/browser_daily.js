@@ -135,7 +135,10 @@ add_task(async function testDailyRecurrence() {
 
   // Check day view for 7 days.
   let day = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  let dates = [[2009, 1, 3], [2009, 1, 4]];
+  let dates = [
+    [2009, 1, 3],
+    [2009, 1, 4],
+  ];
   for (let [y, m, d] of dates) {
     goToDate(controller, y, m, d);
     controller.assertNodeNotExist(day);

@@ -174,7 +174,10 @@ var TopComponent = React.createClass({
       initialAttachments: {},
 
       tabs: ["Description", "More", "Reminders", "Attachments", "Attendees"],
-      calendarList: [[0, "Home"], [1, "Work"]],
+      calendarList: [
+        [0, "Home"],
+        [1, "Work"],
+      ],
       privacyList: [
         ["NONE", "Not Specified"],
         ["PUBLIC", "Public Event"],
@@ -194,7 +197,10 @@ var TopComponent = React.createClass({
         [5, "Normal"],
         [1, "High"],
       ],
-      showTimeAsList: [["OPAQUE", true], ["TRANSPARENT", false]],
+      showTimeAsList: [
+        ["OPAQUE", true],
+        ["TRANSPARENT", false],
+      ],
       repeatList: [
         ["none", "Does Not Repeat"],
         ["daily", "Daily"],

@@ -16,7 +16,10 @@ function run_test() {
     },
     {
       displayString: "test@foo.invalid, test2@foo.invalid",
-      addresses: [["", "test@foo.invalid"], ["", "test2@foo.invalid"]],
+      addresses: [
+        ["", "test@foo.invalid"],
+        ["", "test2@foo.invalid"],
+      ],
     },
     {
       displayString: "John Doe <test@foo.invalid>",

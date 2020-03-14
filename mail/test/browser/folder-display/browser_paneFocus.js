@@ -49,9 +49,12 @@ add_task(function setupModule(module) {
  * @return the focused pane
  */
 function get_focused_pane() {
-  let panes = ["threadTree", "folderTree", "messagepane", "multimessage"].map(
-    id => mc.e(id)
-  );
+  let panes = [
+    "threadTree",
+    "folderTree",
+    "messagepane",
+    "multimessage",
+  ].map(id => mc.e(id));
 
   let currentNode = mc.window.top.document.activeElement;
 

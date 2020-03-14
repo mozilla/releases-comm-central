@@ -195,7 +195,10 @@ var test_queueFileOperation = async function() {
   let p2 = qFO("path2", dummyRejectedOperation);
   equal(gFP.get("path2"), p2);
   // This should throw since p2 rejected. Drop the error.
-  await p2.then(() => do_throw(), () => {});
+  await p2.then(
+    () => do_throw(),
+    () => {}
+  );
   ok(!gFP.has("path2"));
 
   let onPromiseComplete = (aPromise, aHandler) => {

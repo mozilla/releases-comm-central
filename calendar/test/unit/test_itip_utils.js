@@ -546,8 +546,14 @@ function test_getAttendeesBySender() {
     cal.itip.getAttendeesBySender(attendees, test.input.sender).forEach(att => {
       detected.push(att.id);
     });
-    ok(detected.every(aId => test.expected.includes(aId)), "(test #" + i + " ok1)");
-    ok(test.expected.every(aId => detected.includes(aId)), "(test #" + i + " ok2)");
+    ok(
+      detected.every(aId => test.expected.includes(aId)),
+      "(test #" + i + " ok1)"
+    );
+    ok(
+      test.expected.every(aId => detected.includes(aId)),
+      "(test #" + i + " ok2)"
+    );
   }
 }
 

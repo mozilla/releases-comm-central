@@ -797,7 +797,10 @@ Account.prototype = {
     this.signAndSend(url, null, [], aOnSent, aOnError, aThis);
   },
   directMessage(aMsg, aName, aOnSent, aOnError, aThis) {
-    let POSTData = [["text", aMsg], ["screen_name", aName]];
+    let POSTData = [
+      ["text", aMsg],
+      ["screen_name", aName],
+    ];
     this.signAndSend(
       "1.1/direct_messages/new.json",
       null,

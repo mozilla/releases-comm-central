@@ -62,13 +62,19 @@ add_task(async function test_recording_state() {
   events.forEach(e => Telemetry.recordEvent(...e));
   TelemetryTestUtils.assertEvents([]);
   // But still expect a non-zero summary count.
-  checkEventSummary(events.map(e => ["parent", e, 1]), true);
+  checkEventSummary(
+    events.map(e => ["parent", e, 1]),
+    true
+  );
 
   // Once again, with recording on.
   Telemetry.setEventRecordingEnabled("tb.test", true);
   events.forEach(e => Telemetry.recordEvent(...e));
   TelemetryTestUtils.assertEvents(events);
-  checkEventSummary(events.map(e => ["parent", e, 1]), true);
+  checkEventSummary(
+    events.map(e => ["parent", e, 1]),
+    true
+  );
 });
 
 /**

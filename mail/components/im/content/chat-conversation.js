@@ -1161,9 +1161,9 @@
 
       if (
         event.charCode == 0 && // it's not a character, it's a command key
-        (event.keyCode != 13 && // Return
+        event.keyCode != 13 && // Return
         event.keyCode != 8 && // Backspace
-          event.keyCode != 46)
+        event.keyCode != 46
       ) {
         // Delete
         return;

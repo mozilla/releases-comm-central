@@ -27,7 +27,10 @@ function test_setter_getter() {
 }
 
 function test_constructor() {
-  let k = new NormalizedMap(aStr => aStr.toLowerCase(), [["A", 2], ["b", 3]]);
+  let k = new NormalizedMap(aStr => aStr.toLowerCase(), [
+    ["A", 2],
+    ["b", 3],
+  ]);
   Assert.equal(k.get("b"), 3);
   Assert.equal(k.get("a"), 2);
   Assert.equal(k.get("B"), 3);

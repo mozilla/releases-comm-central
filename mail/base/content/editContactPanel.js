@@ -75,7 +75,7 @@ var editContactInlineUI = {
     }
 
     // Only handle the read-only cases here.
-    if (aHandleOnlyReadOnly && (this._writeable && !aEvent.target.readOnly)) {
+    if (aHandleOnlyReadOnly && this._writeable && !aEvent.target.readOnly) {
       return;
     }
 

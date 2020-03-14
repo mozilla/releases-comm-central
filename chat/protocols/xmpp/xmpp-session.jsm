@@ -66,8 +66,8 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
   // RFC 6120 (Section 3.2.3): When Not to Use SRV.
   if (
     Services.prefs.getBoolPref("chat.dns.srv.disable") ||
-    (this._account.prefs.prefHasUserValue("server") ||
-      this._account.prefs.prefHasUserValue("port"))
+    this._account.prefs.prefHasUserValue("server") ||
+    this._account.prefs.prefHasUserValue("port")
   ) {
     this.connect(this._host, this._port, this._security);
     return;

@@ -41,11 +41,17 @@ define(function(require) {
           "John Doe <a@example.com>",
         ],
         [
-          [{ name: "", email: "a@b.c" }, { name: "", email: "b@b.c" }],
+          [
+            { name: "", email: "a@b.c" },
+            { name: "", email: "b@b.c" },
+          ],
           "a@b.c, b@b.c",
         ],
         [
-          [{ name: "JD", email: "a@a.c" }, { name: "SD", email: "b@b.c" }],
+          [
+            { name: "JD", email: "a@a.c" },
+            { name: "SD", email: "b@b.c" },
+          ],
           "JD <a@a.c>, SD <b@b.c>",
         ],
         [

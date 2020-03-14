@@ -80,8 +80,14 @@ function run_test() {
     [
       // This used to cause memory read overruns.
       '" "@a a;b',
-      [{ name: "", email: '" "@a a' }, { name: "b", email: "" }],
-      [{ name: "", email: "@a a" }, { name: "b", email: "" }],
+      [
+        { name: "", email: '" "@a a' },
+        { name: "b", email: "" },
+      ],
+      [
+        { name: "", email: "@a a" },
+        { name: "b", email: "" },
+      ],
     ],
   ];
 
