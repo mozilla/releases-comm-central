@@ -235,4 +235,10 @@ add_task(async function checkBuildMimeText() {
   Assert.equal(mimeHeaders.getHeader("To")[0].email, "user@☃.invalid");
   Assert.equal(mimeHeaders.buildMimeText(), mimeText);
   Assert.equal(mimeHeaders.allHeaders, utf8Text);
+
+  // Check date header sanitization
+  headers = new StructuredHeaders();
+  headers.setHeader("Date", new Date("Fri, 6 Mar 2020 00:12:34 +0100"));
+  mimeText = "Date: Thu, 5 Mar 2020 23:12:00 +0000\r\n";
+  Assert.equal(headers.buildMimeText(true), mimeText);
 });

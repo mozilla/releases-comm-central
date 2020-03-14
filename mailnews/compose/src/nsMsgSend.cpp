@@ -716,7 +716,8 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
 
     // Convert the blocks of headers into a single string for emission.
     nsAutoCString headers;
-    outputHeaders->BuildMimeText(headers);
+    outputHeaders->BuildMimeText(
+        Preferences::GetBool("mail.sanitize_date_header", false), headers);
 
     // If we converted HTML into plaintext, the plaintext part (plainpart)
     // already has its content-type and content-transfer-encoding ("other")

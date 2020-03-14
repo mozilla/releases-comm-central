@@ -127,13 +127,14 @@ MimeStructuredHeaders.prototype = {
     return new StringEnumerator(this._headers.keys());
   },
 
-  buildMimeText() {
+  buildMimeText(sanitizeDate) {
     if (this._headers.size == 0) {
       return "";
     }
     let handler = new HeaderHandler();
     let emitter = jsmime.headeremitter.makeStreamingEmitter(handler, {
       useASCII: true,
+      sanitizeDate,
     });
     for (let [value, header] of this._headers) {
       emitter.addStructuredHeader(value, header);

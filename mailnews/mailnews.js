@@ -23,6 +23,11 @@ pref("mail.override_list_reply_to", true);
 // hidden pref for controlling if the Content-Language header
 // should be set.
 pref("mail.suppress_content_language", false);
+// Pref for controlling if the Date header is sanitized, by:
+// 1. Converting the date to UTC, to prevent leaking the local time zone.
+// 2. Rounding the date down to the most recent whole minute, to prevent
+//    fingerprinting of small clock offsets.
+pref("mail.sanitize_date_header", false);
 
 // hidden pref for controlling if the user agent string
 // is displayed in the message pane or not...

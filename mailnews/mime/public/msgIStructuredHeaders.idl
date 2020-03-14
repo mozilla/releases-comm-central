@@ -106,8 +106,10 @@ interface msgIStructuredHeaders : nsISupports {
    * This accessor is provided mainly for the benefit of C++ consumers of this
    * interface, since the JSMime headeremitter functionality allows more
    * fine-grained customization of the results.
+   *
+   * @param sanitizeDate    If true convert the date to UTC and round to closest minute.
    */
-   AUTF8String buildMimeText();
+   AUTF8String buildMimeText([optional] in boolean sanitizeDate);
 
 };
 

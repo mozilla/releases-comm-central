@@ -2854,6 +2854,8 @@
     function HeaderEmitter(handler, options) {
       // The inferred value of options.useASCII
       this._useASCII = options.useASCII === undefined ? true : options.useASCII;
+      this._sanitizeDate =
+        options.sanitizeDate === undefined ? false : options.sanitizeDate;
       // The handler to use.
       this._handler = handler;
       /**
@@ -3458,9 +3460,40 @@
         throw new Error("Cannot encode an invalid date");
       }
 
+      let fullYear,
+        month,
+        dayOfMonth,
+        dayOfWeek,
+        hours,
+        minutes,
+        seconds,
+        tzOffset;
+
+      if (this._sanitizeDate) {
+        fullYear = date.getUTCFullYear();
+        month = date.getUTCMonth();
+        dayOfMonth = date.getUTCDate();
+        dayOfWeek = date.getUTCDay();
+        hours = date.getUTCHours();
+        minutes = date.getUTCMinutes();
+        // To reduce the chance of fingerprinting the clock offset,
+        // round the time down to the nearest minute.
+        seconds = 0;
+        tzOffset = 0;
+      } else {
+        fullYear = date.getFullYear();
+        month = date.getMonth();
+        dayOfMonth = date.getDate();
+        dayOfWeek = date.getDay();
+        hours = date.getHours();
+        minutes = date.getMinutes();
+        seconds = date.getSeconds();
+        tzOffset = date.getTimezoneOffset();
+      }
+
       // RFC 5322 says years can't be before 1900. The after 9999 is a bit that
       // derives from the specification saying that years have 4 digits.
-      if (date.getFullYear() < 1900 || date.getFullYear() > 9999) {
+      if (fullYear < 1900 || fullYear > 9999) {
         throw new Error("Date year is out of encodable range");
       }
 
@@ -3468,7 +3501,6 @@
       // the the 0-padding is done by hand. Note that the tzoffset we output is in
       // the form ±hhmm, so we need to separate the offset (in minutes) into an hour
       // and minute pair.
-      let tzOffset = date.getTimezoneOffset();
       let tzOffHours = Math.abs(Math.trunc(tzOffset / 60));
       let tzOffMinutes = Math.abs(tzOffset) % 60;
       let tzOffsetStr =
@@ -3479,15 +3511,15 @@
       // Convert the day-time figure into a single value to avoid unwanted line
       // breaks in the middle.
       let dayTime = [
-        kDaysOfWeek[date.getDay()] + ",",
-        date.getDate(),
-        mimeutils.kMonthNames[date.getMonth()],
-        date.getFullYear(),
-        padTo2Digits(date.getHours()) +
+        kDaysOfWeek[dayOfWeek] + ",",
+        dayOfMonth,
+        mimeutils.kMonthNames[month],
+        fullYear,
+        padTo2Digits(hours) +
           ":" +
-          padTo2Digits(date.getMinutes()) +
+          padTo2Digits(minutes) +
           ":" +
-          padTo2Digits(date.getSeconds()),
+          padTo2Digits(seconds),
         tzOffsetStr,
       ].join(" ");
       this.addText(dayTime, false);
