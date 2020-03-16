@@ -30,6 +30,17 @@ interface ImapOnlineCopyStateType : nsISupports
    const long kFailedMove = 9;
 };
 
+/**
+ * nsIImapMailFolderSink provides a way for the IMAP system to communicate
+ * with the local folder representation.
+ *
+ * The IMAP system could poke folders directly, but going through this
+ * interface has a couple of benefits:
+ *
+ * 1. It better defines the public coupling between the two systems.
+ * 2. It's easier to wrap with a proxy class so the IMAP system can safely
+ *    call the methods across thread boundaries (see ImapMailFolderSinkProxy).
+ */
 [scriptable, uuid(525e1278-a39d-46d6-9dbc-b48c7e1d4faa)]
 interface nsIImapMailFolderSink : nsISupports {
   attribute boolean folderNeedsACLListed;

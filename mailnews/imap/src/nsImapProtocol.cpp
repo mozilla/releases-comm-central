@@ -566,7 +566,6 @@ nsImapProtocol::nsImapProtocol()
 
   // m_dataOutputBuf is used by Send Data
   m_dataOutputBuf = (char *)PR_CALLOC(sizeof(char) * OUTPUT_BUFFER_SIZE);
-  m_allocatedSize = OUTPUT_BUFFER_SIZE;
 
   // used to buffer incoming data by ReadNextLine
   m_inputStreamBuffer = new nsMsgLineStreamBuffer(

@@ -20,6 +20,15 @@ class nsIImapUrl;
 class nsIMsgFolder;
 class nsIMsgIncomingServer;
 
+/**
+ * nsImapService implements the IMAP protocol.
+ * So, whenever someone opens an "imap://" url, the resultant nsIChannel
+ * is created here (via newChannel()).
+ *
+ * It also provides a bunch of methods to provide more egonomic ways to
+ * initiate IMAP operations, rather than manually composing an "imap://..."
+ * URL. See nsIImapService for these.
+ */
 class nsImapService : public nsIImapService,
                       public nsIMsgMessageService,
                       public nsIMsgMessageFetchPartService,

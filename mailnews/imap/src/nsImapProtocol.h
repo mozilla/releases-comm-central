@@ -142,6 +142,36 @@ class nsIMAPMailboxInfo {
 #define IMAP_EMPTY_STRING_INDEX         3
 // clang-format on
 
+/**
+ * nsImapProtocol is, among other things, the underlying nsIChannel
+ * implementation for the IMAP protocol. However, it's usually hidden away
+ * behind nsImapMockChannel objects. It also represents the 'real' connection
+ * to the IMAP server - it maintains the nsISocketTransport.
+ * Because there can be multiple IMAP requests queued up, NS_NewChannel()
+ * will return nsImapMockChannel objects instead, to keep the request in a
+ * holding pattern until the connection is free. At which time the mock
+ * channel will just forward calls onward to the nsImapProtocol.
+ *
+ * The url scheme we implement here encodes various IMAP commands as URLs.
+ * Some URLs are just traditional I/O based nsIChannel transactions, but
+ * many others have side effects. For example, an IMAP folder discovery
+ * command might cause the creation of the nsImapMailFolder hierarchy under
+ * the the nsImapIncomingServer.
+ * Such side effects are communicated via the various "Sink" interfaces. This
+ * helps decouple the IMAP code from the rest of the system:
+ *
+ * - nsIImapServerSink      (implemented by nsImapIncomingServer)
+ * - nsIImapMailFolderSink  (implemented by nsImapMailFolder)
+ * - nsIImapMessageSink     (implemented by nsImapMailFolder)
+ *
+ * Internal to nsImapProtocol, these sink classes all have corresponding proxy
+ * implementations (ImapServerSinkProxy, ImapMailFolderSinkProxy and
+ * ImapMessageSinkProxy). These allow us to safely call the sink objects, in
+ * a synchronous fashion, from I/O threads (threads other than the main one).
+ * When an IMAP routine calls a member function of one of these sink proxies,
+ * it dispatches a call to the real sink object on the main thread, then
+ * blocks until the call is completed.
+ */
 class nsImapProtocol : public nsIImapProtocol,
                        public nsIRunnable,
                        public nsIInputStreamCallback,
@@ -353,11 +383,12 @@ class nsImapProtocol : public nsIImapProtocol,
   // It is cleared when we finish processng a url and it is set whenever we call
   // Load on a url
   bool m_urlInProgress;
-  nsCOMPtr<nsIImapUrl>
-      m_runningUrl;  // the nsIImapURL that is currently running
+
+  /** The nsIImapURL that is currently running. */
+  nsCOMPtr<nsIImapUrl> m_runningUrl;
   nsCOMPtr<nsIImapUrl> m_runningUrlLatest;
-  nsImapAction
-      m_imapAction;  // current imap action associated with this connection...
+  /** Current imap action associated with this connection. */
+  nsImapAction m_imapAction;
 
   nsCString m_hostName;
   nsCString m_userName;
@@ -365,19 +396,20 @@ class nsImapProtocol : public nsIImapProtocol,
   nsCString m_realHostName;
   char *m_dataOutputBuf;
   RefPtr<nsMsgLineStreamBuffer> m_inputStreamBuffer;
-  uint32_t m_allocatedSize;  // allocated size
-  uint32_t m_totalDataSize;  // total data size
-  uint32_t m_curReadIndex;   // current read index
   nsCString m_trashFolderPath;
 
-  // Output stream for writing commands to the socket
+  /** The socket connection to the IMAP server. */
   nsCOMPtr<nsISocketTransport> m_transport;
+
+  /** Stream to handle data coming in from the IMAP server. */
   nsCOMPtr<nsIInputStream> m_inputStream;
 
   nsCOMPtr<nsIAsyncInputStream> m_channelInputStream;
   nsCOMPtr<nsIAsyncOutputStream> m_channelOutputStream;
-  nsCOMPtr<nsIImapMockChannel>
-      m_mockChannel;  // this is the channel we should forward to people
+
+  /** The currently running request. */
+  nsCOMPtr<nsIImapMockChannel> m_mockChannel;
+
   uint32_t m_bytesToChannel;
   bool m_fetchingWholeMessage;
   // nsCOMPtr<nsIRequest> mAsyncReadRequest; // we're going to cancel this when

@@ -11,6 +11,17 @@ interface nsIFile;
 
 [scriptable, uuid(6ffb6a92-e43a-405f-92ea-92cf81a5e17b)]
 
+/**
+ * nsIImapMessageSink provides a way for the IMAP system to exchange
+ * message-related information with the local folder representation.
+ *
+ * The IMAP system could poke folders directly, but going through this
+ * interface has a couple of benefits:
+ *
+ * 1. It better defines the public coupling between the two systems.
+ * 2. It's easier to wrap with a proxy class so the IMAP system can safely
+ *    call the methods across thread boundaries (see ImapMessageSinkProxy).
+ */
 interface nsIImapMessageSink : nsISupports {
   // set up message download output stream
   void setupMsgWriteStream(in nsIFile aFile, in boolean aAppendDummyEnvelope);

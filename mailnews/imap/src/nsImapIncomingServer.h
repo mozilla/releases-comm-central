@@ -107,7 +107,14 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
                           nsCString &existingUri);
 
   nsCOMArray<nsIImapProtocol> m_connectionCache;
+
+  /**
+   * All requests waiting for a real connection.
+   * Each URL object holds a reference to the nsIImapMockChannel that
+   * represents the request.
+   */
   nsCOMArray<nsIImapUrl> m_urlQueue;
+
   nsCOMPtr<nsIStringBundle> m_stringBundle;
   nsCOMArray<nsIMsgFolder>
       m_subscribeFolders;  // used to keep folder resources around while
