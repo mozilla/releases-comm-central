@@ -270,7 +270,7 @@ NS_IMETHODIMP nsImapService::OpenAttachment(
 
   nsAutoCString uri(aMessageUri);
   nsAutoCString urlString(aUrl);
-  MsgReplaceSubstring(urlString, "/;section", "?section");
+  urlString.ReplaceSubstring("/;section", "?section");
 
   // more stuff i don't understand
   int32_t sectionPos = urlString.Find("?section");
@@ -486,8 +486,8 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char *aMessageURI,
       int32_t keySeparator = uriStr.RFindChar('#');
       if (keySeparator != -1) {
         int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "/?&", keySeparator);
-        int32_t mpodFetchPos = MsgFind(uriStr, "fetchCompleteMessage=true",
-                                       false, keyEndSeparator);
+        int32_t mpodFetchPos =
+            uriStr.Find("fetchCompleteMessage=true", false, keyEndSeparator);
         if (mpodFetchPos != -1) useMimePartsOnDemand = false;
       }
 

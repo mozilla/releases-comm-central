@@ -685,8 +685,8 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char *string) {
                                                 &exploded, dateValue);
 
   nsCString timestampString(LOG_ENTRY_TIMESTAMP);
-  MsgReplaceSubstring(timestampString, "$S",
-                      NS_ConvertUTF16toUTF8(dateValue).get());
+  timestampString.ReplaceSubstring("$S",
+                                   NS_ConvertUTF16toUTF8(dateValue).get());
 
   nsCOMPtr<nsIOutputStream> logStream;
   rv = GetLogStream(getter_AddRefs(logStream));

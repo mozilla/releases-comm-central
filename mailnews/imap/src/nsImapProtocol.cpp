@@ -730,7 +730,7 @@ static void SetSecurityCallbacksFromChannel(nsISocketTransport *aTrans,
   aChannel->GetLoadGroup(getter_AddRefs(loadGroup));
 
   nsCOMPtr<nsIInterfaceRequestor> securityCallbacks;
-  MsgNewNotificationCallbacksAggregation(callbacks, loadGroup,
+  NS_NewNotificationCallbacksAggregation(callbacks, loadGroup,
                                          getter_AddRefs(securityCallbacks));
   if (securityCallbacks) aTrans->SetSecurityCallbacks(securityCallbacks);
 }
@@ -830,7 +830,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI *aURL, nsISupports *aConsumer) {
         nsCOMPtr<nsIInterfaceRequestor> interfaceRequestor;
         msgWindow->GetNotificationCallbacks(getter_AddRefs(interfaceRequestor));
         nsCOMPtr<nsIInterfaceRequestor> aggregateIR;
-        MsgNewInterfaceRequestorAggregation(interfaceRequestor, ir,
+        NS_NewInterfaceRequestorAggregation(interfaceRequestor, ir,
                                             getter_AddRefs(aggregateIR));
         m_mockChannel->SetNotificationCallbacks(aggregateIR);
       }
@@ -4483,7 +4483,7 @@ void nsImapProtocol::Log(const char *logSubName, const char *extraInfo,
     // break up buffers > 400 bytes on line boundaries.
     if (logDataLen > kLogDataChunkSize) {
       logDataLines.Assign(logData);
-      lastLineEnd = MsgRFindChar(logDataLines, '\n', kLogDataChunkSize);
+      lastLineEnd = logDataLines.RFindChar('\n', kLogDataChunkSize);
       // null terminate the last line
       if (lastLineEnd == kNotFound) lastLineEnd = kLogDataChunkSize - 1;
 
@@ -4532,7 +4532,7 @@ void nsImapProtocol::Log(const char *logSubName, const char *extraInfo,
           lastLineEnd + 2);  // + 2 to account for the LF and the '\0' we added
       logDataLen = logDataLines.Length();
       lastLineEnd = (logDataLen > kLogDataChunkSize)
-                        ? MsgRFindChar(logDataLines, '\n', kLogDataChunkSize)
+                        ? logDataLines.RFindChar('\n', kLogDataChunkSize)
                         : kNotFound;
       // null terminate the last line
       if (lastLineEnd == kNotFound) lastLineEnd = kLogDataChunkSize - 1;

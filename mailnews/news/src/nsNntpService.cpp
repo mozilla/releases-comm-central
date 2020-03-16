@@ -46,6 +46,7 @@
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 #include "mozilla/LoadInfo.h"
+#include "mozilla/Utf8.h"
 
 #include "../../base/src/MailnewsLoadContextInfo.h"
 
@@ -613,7 +614,7 @@ nsresult nsNntpService::FindServerWithNewsgroup(nsCString &host,
   rv = accountManager->GetAllServers(getter_AddRefs(servers));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NS_ASSERTION(MsgIsUTF8(groupName), "newsgroup is not in UTF-8");
+  NS_ASSERTION(mozilla::IsUtf8(groupName), "newsgroup is not in UTF-8");
 
   // XXX TODO
   // this only looks at the list of subscribed newsgroups.

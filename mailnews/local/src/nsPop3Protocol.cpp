@@ -502,7 +502,7 @@ nsresult nsPop3Protocol::InitializeInternal(nsIProxyInfo *aProxyInfo) {
       msgwin->GetNotificationCallbacks(getter_AddRefs(notificationCallbacks));
       if (notificationCallbacks) {
         nsCOMPtr<nsIInterfaceRequestor> aggregrateIR;
-        MsgNewInterfaceRequestorAggregation(notificationCallbacks, ir,
+        NS_NewInterfaceRequestorAggregation(notificationCallbacks, ir,
                                             getter_AddRefs(aggregrateIR));
         ir = aggregrateIR;
       }
@@ -3892,7 +3892,7 @@ nsresult nsPop3Protocol::GetApopTimestamp() {
 
   while (true) {
     // search for previous <
-    if ((startMark = MsgRFindChar(m_commandResponse, '<', startMark - 1)) < 0)
+    if ((startMark = m_commandResponse.RFindChar('<', startMark - 1)) < 0)
       return NS_ERROR_FAILURE;
 
     // search for next >

@@ -341,7 +341,7 @@ nsresult nsMsgComposeAndSend::GetNotificationCallbacks(
     msgWindow->GetNotificationCallbacks(getter_AddRefs(notificationCallbacks));
     if (notificationCallbacks) {
       nsCOMPtr<nsIInterfaceRequestor> aggregrateIR;
-      MsgNewInterfaceRequestorAggregation(notificationCallbacks, ir,
+      NS_NewInterfaceRequestorAggregation(notificationCallbacks, ir,
                                           getter_AddRefs(aggregrateIR));
       ir = aggregrateIR;
     }
@@ -1842,8 +1842,8 @@ nsresult nsMsgComposeAndSend::AddCompFieldLocalAttachments() {
                       // rtf and vcs files may look like text to sniffers,
                       // but they're not human readable.
                       if (type.IsEmpty() && !fileExt.IsEmpty() &&
-                          (MsgLowerCaseEqualsLiteral(fileExt, "rtf") ||
-                           MsgLowerCaseEqualsLiteral(fileExt, "vcs")))
+                          (fileExt.LowerCaseEqualsLiteral("rtf") ||
+                           fileExt.LowerCaseEqualsLiteral("vcs")))
                         m_attachments[newLoc]->m_type =
                             APPLICATION_OCTET_STREAM;
                     }
@@ -2374,7 +2374,7 @@ nsresult nsMsgComposeAndSend::InitCompositionFields(
         nsCString uri;
         GetFolderURIFromUserPrefs(nsMsgDeliverNow, mUserIdentity, uri);
         mCompFields->SetFcc(
-            MsgLowerCaseEqualsLiteral(uri, "nocopy://") ? "" : uri.get());
+            uri.LowerCaseEqualsLiteral("nocopy://") ? "" : uri.get());
       }
     }
   }

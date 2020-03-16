@@ -685,8 +685,8 @@ nsresult nsOutlookMail::CreateList(const nsString &pName,
 }
 
 void nsOutlookMail::SanitizeValue(nsString &val) {
-  MsgReplaceSubstring(val, NS_LITERAL_STRING("\r\n"), NS_LITERAL_STRING(", "));
-  MsgReplaceChar(val, "\r\n", ',');
+  val.ReplaceSubstring(NS_LITERAL_STRING("\r\n"), NS_LITERAL_STRING(", "));
+  val.ReplaceChar("\r\n", ',');
 }
 
 void nsOutlookMail::SplitString(nsString &val1, nsString &val2) {

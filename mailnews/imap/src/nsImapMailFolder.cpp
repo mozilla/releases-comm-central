@@ -1875,7 +1875,7 @@ nsImapMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo,
       rv = nsImapURI2FullName(kImapRootURI, hostname.get(), uri.get(),
                               getter_Copies(onlineCName));
       if (m_hierarchyDelimiter != '/')
-        MsgReplaceChar(onlineCName, '/', m_hierarchyDelimiter);
+        onlineCName.ReplaceChar('/', m_hierarchyDelimiter);
       m_onlineFolderName.Assign(onlineCName);
       CopyASCIItoUTF16(onlineCName, autoOnlineName);
     }
@@ -8890,7 +8890,7 @@ NS_IMETHODIMP nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
                                                 getter_AddRefs(subMsgFolder));
           if (labelNames[i].Find("[Imap]/", /* ignoreCase = */ true) !=
               kNotFound) {
-            MsgReplaceSubstring(labelNames[i], "[Imap]/", "");
+            labelNames[i].ReplaceSubstring("[Imap]/", "");
             imapRootFolder->FindOnlineSubFolder(labelNames[i],
                                                 getter_AddRefs(subFolder));
             subMsgFolder = do_QueryInterface(subFolder);

@@ -116,7 +116,7 @@ static void ConvertAndSanitizeFileName(const nsACString &displayName,
 
   // replace platform specific path separator and illegale characters to avoid
   // any confusion
-  MsgReplaceChar(aResult, FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS, '-');
+  aResult.ReplaceChar(FILE_PATH_SEPARATOR FILE_ILLEGAL_CHARACTERS, '-');
 }
 
 // ***************************************************
@@ -637,7 +637,7 @@ nsresult nsMessenger::SaveAttachment(nsIFile *aFile, const nsACString &aURL,
     if (firstPartIndex != kNotFound) urlString.SetCharAt('?', firstPartIndex);
   }
 
-  MsgReplaceSubstring(urlString, "/;section", "?section");
+  urlString.ReplaceSubstring("/;section", "?section");
   nsCOMPtr<nsIURI> URL;
   nsresult rv = NS_NewURI(getter_AddRefs(URL), urlString);
 

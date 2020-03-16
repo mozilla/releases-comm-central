@@ -232,8 +232,7 @@ nsURLFetcher::OnStopRequest(nsIRequest *request, nsresult aStatus) {
 
     /* In case of multipart/x-mixed-replace, we need to truncate the file to the
      * current part size */
-    if (MsgLowerCaseEqualsLiteral(mConverterContentType,
-                                  MULTIPART_MIXED_REPLACE)) {
+    if (mConverterContentType.LowerCaseEqualsLiteral(MULTIPART_MIXED_REPLACE)) {
       mLocalFile->SetFileSize(mTotalWritten);
     }
   }
@@ -383,8 +382,8 @@ NS_IMETHODIMP nsURLFetcherStreamConsumer::OnStartRequest(nsIRequest *aRequest) {
 
   /* In case of multipart/x-mixed-replace, we need to erase the output file
    * content */
-  if (MsgLowerCaseEqualsLiteral(mURLFetcher->mConverterContentType,
-                                MULTIPART_MIXED_REPLACE)) {
+  if (mURLFetcher->mConverterContentType.LowerCaseEqualsLiteral(
+          MULTIPART_MIXED_REPLACE)) {
     nsCOMPtr<nsISeekableStream> seekStream =
         do_QueryInterface(mURLFetcher->mOutStream);
     if (seekStream) seekStream->Seek(nsISeekableStream::NS_SEEK_SET, 0);

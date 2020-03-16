@@ -293,8 +293,8 @@ nsresult nsStreamConverter::DetermineOutputFormat(const char *aUrl,
       // %2F strings with the slash character
       const char *nextField = PL_strpbrk(format, "&; ");
       mOutputFormat.Assign(format, nextField ? nextField - format : -1);
-      MsgReplaceSubstring(mOutputFormat, "%2F", "/");
-      MsgReplaceSubstring(mOutputFormat, "%2f", "/");
+      mOutputFormat.ReplaceSubstring("%2F", "/");
+      mOutputFormat.ReplaceSubstring("%2f", "/");
 
       // Don't muck with this data!
       *aNewType = nsMimeOutput::nsMimeMessageRaw;

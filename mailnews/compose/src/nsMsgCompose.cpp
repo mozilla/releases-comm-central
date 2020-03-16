@@ -70,6 +70,7 @@
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "mozilla/dom/Selection.h"
+#include "mozilla/Utf8.h"
 #include "nsStreamConverter.h"
 #include "nsIObserverService.h"
 #include "nsIProtocolHandler.h"
@@ -1385,7 +1386,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
         else {
           // Replace any dot with underscore to stop vCards
           // generating false positives with some heuristic scanners
-          MsgReplaceChar(userid, '.', '_');
+          userid.ReplaceChar('.', '_');
           userid.AppendLiteral(".vcf");
           attachment->SetName(NS_ConvertASCIItoUTF16(userid));
         }
@@ -2052,7 +2053,7 @@ nsresult nsMsgCompose::CreateMessage(const char *originalMsgURI,
             attachment->SetSize(messageSize);
 
             // change all '.' to '_'  see bug #271211
-            MsgReplaceChar(sanitizedSubj, ".", '_');
+            sanitizedSubj.ReplaceChar(".", '_');
             if (addExtension) sanitizedSubj.AppendLiteral(".eml");
             attachment->SetName(sanitizedSubj);
             attachment->SetUrl(nsDependentCString(uri));
@@ -3855,7 +3856,7 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile *file, nsString &sigData,
   bool removeSigCharset = !sigEncoding.IsEmpty() && m_composeHTML;
 
   if (sigEncoding.IsEmpty()) {
-    if (aAllowUTF8 && MsgIsUTF8(nsDependentCString(readBuf))) {
+    if (aAllowUTF8 && mozilla::IsUtf8(nsDependentCString(readBuf))) {
       sigEncoding.AssignLiteral("UTF-8");
     } else if (sigEncoding.IsEmpty() && aAllowUTF16 && readSize % 2 == 0 &&
                readSize >= 2 &&
@@ -4294,8 +4295,7 @@ nsresult nsMsgCompose::BuildBodyMessageAndSignature() {
   // mailtourl, do the same.
   if (m_composeHTML &&
       (mType == nsIMsgCompType::New || mType == nsIMsgCompType::MailToUrl))
-    MsgReplaceSubstring(body, NS_LITERAL_STRING("\n"),
-                        NS_LITERAL_STRING("<br>"));
+    body.ReplaceSubstring(NS_LITERAL_STRING("\n"), NS_LITERAL_STRING("<br>"));
 
   // Restore flowed text wrapping for Drafts/Templates.
   // Look for unquoted lines - if we have an unquoted line
@@ -4387,7 +4387,7 @@ nsresult nsMsgCompose::AttachmentPrettyName(const nsACString &scheme,
                                             nsACString &_retval) {
   nsresult rv;
 
-  if (MsgLowerCaseEqualsLiteral(StringHead(scheme, 5), "file:")) {
+  if (StringHead(scheme, 5).LowerCaseEqualsLiteral("file:")) {
     nsCOMPtr<nsIFile> file;
     rv = NS_GetFileFromURLSpec(scheme, getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -4413,8 +4413,7 @@ nsresult nsMsgCompose::AttachmentPrettyName(const nsACString &scheme,
   } else {
     _retval.Assign(scheme);
   }
-  if (MsgLowerCaseEqualsLiteral(StringHead(scheme, 5), "http:"))
-    _retval.Cut(0, 7);
+  if (StringHead(scheme, 5).LowerCaseEqualsLiteral("http:")) _retval.Cut(0, 7);
 
   return NS_OK;
 }

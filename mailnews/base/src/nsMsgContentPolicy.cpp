@@ -439,9 +439,9 @@ bool nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation) {
   // admitted purely based on their scheme.
   // news, snews, nntp, imap and mailbox are checked before the call
   // to this function by matching content location and requesting location.
-  if (MsgLowerCaseEqualsLiteral(contentScheme, "mailto") ||
-      MsgLowerCaseEqualsLiteral(contentScheme, "addbook") ||
-      MsgLowerCaseEqualsLiteral(contentScheme, "about"))
+  if (contentScheme.LowerCaseEqualsLiteral("mailto") ||
+      contentScheme.LowerCaseEqualsLiteral("addbook") ||
+      contentScheme.LowerCaseEqualsLiteral("about"))
     return true;
 
   // check if customized exposed scheme

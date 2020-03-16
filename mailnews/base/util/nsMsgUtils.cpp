@@ -82,6 +82,7 @@
 #include "mozilla/Encoding.h"
 #include "mozilla/EncodingDetector.h"
 #include "mozilla/UniquePtr.h"
+#include "mozilla/Utf8.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -476,7 +477,7 @@ nsresult NS_MsgCreatePathStringFromFolderURI(const char *aFolderURI,
   // A file name has to be in native charset. Here we convert
   // to UTF-16 and check for 'unsafe' characters before converting
   // to native charset.
-  NS_ENSURE_TRUE(MsgIsUTF8(nsDependentCString(aFolderURI)),
+  NS_ENSURE_TRUE(mozilla::IsUtf8(nsDependentCString(aFolderURI)),
                  NS_ERROR_UNEXPECTED);
   NS_ConvertUTF8toUTF16 oldPath(aFolderURI);
 

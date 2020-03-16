@@ -41,6 +41,7 @@
 #include "nsCRTGlue.h"
 #include "mozilla/Services.h"
 #include "nsNetUtil.h"
+#include "mozilla/Utf8.h"
 
 using namespace mozilla;
 
@@ -1031,7 +1032,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
     parentUri.Append('/');
     parentUri.Append(parentName);
   }
-  if (MsgLowerCaseEqualsLiteral(folderPath, "inbox") &&
+  if (folderPath.LowerCaseEqualsLiteral("inbox") &&
       hierarchyDelimiter == kOnlineHierarchySeparatorNil) {
     hierarchyDelimiter = '/';  // set to default in this case (as in 4.x)
     hostFolder->SetHierarchyDelimiter(hierarchyDelimiter);
@@ -1042,7 +1043,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
   // nsCString possibleName(aSpec->allocatedPathName);
   uri.Append('/');
   uri.Append(dupFolderPath);
-  bool caseInsensitive = MsgLowerCaseEqualsLiteral(dupFolderPath, "inbox");
+  bool caseInsensitive = dupFolderPath.LowerCaseEqualsLiteral("inbox");
   a_nsIFolder->GetChildWithURI(uri, true, caseInsensitive,
                                getter_AddRefs(child));
   // if we couldn't find this folder by URI, tell the imap code it's a new
@@ -1054,7 +1055,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
     if (haveParent) {
       nsCOMPtr<nsIMsgFolder> parent;
       bool parentIsNew;
-      caseInsensitive = MsgLowerCaseEqualsLiteral(parentName, "inbox");
+      caseInsensitive = parentName.LowerCaseEqualsLiteral("inbox");
       a_nsIFolder->GetChildWithURI(parentUri, true, caseInsensitive,
                                    getter_AddRefs(parent));
       if (!parent /* || parentFolder->GetFolderNeedsAdded()*/) {
@@ -1069,7 +1070,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
     rv = hostFolder->CreateClientSubfolderInfo(
         dupFolderPath, hierarchyDelimiter, boxFlags, false);
     NS_ENSURE_SUCCESS(rv, rv);
-    caseInsensitive = MsgLowerCaseEqualsLiteral(dupFolderPath, "inbox");
+    caseInsensitive = dupFolderPath.LowerCaseEqualsLiteral("inbox");
     a_nsIFolder->GetChildWithURI(uri, true, caseInsensitive,
                                  getter_AddRefs(child));
   }
@@ -1093,7 +1094,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
 
       // online name needs to use the correct hierarchy delimiter (I think...)
       // or the canonical path - one or the other, but be consistent.
-      MsgReplaceChar(dupFolderPath, '/', hierarchyDelimiter);
+      dupFolderPath.ReplaceChar('/', hierarchyDelimiter);
       if (hierarchyDelimiter != '/')
         nsImapUrl::UnescapeSlashes(dupFolderPath.BeginWriting());
 
@@ -2271,7 +2272,7 @@ nsImapIncomingServer::AddTo(const nsACString &aName, bool addAsSubscribed,
   // RFC 3501 allows UTF-8 in addition to modified UTF-7
   // If it's not UTF-8, it cannot be MUTF7, either. We just ignore it.
   // (otherwise we'll crash. see #63186)
-  if (!MsgIsUTF8(aName)) return NS_OK;
+  if (!mozilla::IsUtf8(aName)) return NS_OK;
 
   if (!NS_IsAscii(aName.BeginReading(), aName.Length())) {
     nsAutoCString name;
@@ -2923,16 +2924,16 @@ nsImapIncomingServer::GetUriWithNamespacePrefixIfNecessary(
         if (onlineDir.Equals(namespacePrefix)) return NS_OK;
       }
 
-      MsgReplaceChar(namespacePrefix, ns->GetDelimiter(),
-                     '/');  // use canonical format
+      namespacePrefix.ReplaceChar(ns->GetDelimiter(),
+                                  '/');  // use canonical format
       nsCString uri(originalUri);
       int32_t index = uri.Find("//");        // find scheme
       index = uri.FindChar('/', index + 2);  // find '/' after scheme
       // it may be the case that this is the INBOX uri, in which case
       // we don't want to prepend the namespace. In that case, the uri ends with
       // "INBOX", but the namespace is "INBOX/", so they don't match.
-      if (MsgFind(uri, namespacePrefix, false, index + 1) != index + 1 &&
-          !MsgLowerCaseEqualsLiteral(Substring(uri, index + 1), "inbox"))
+      if (uri.Find(namespacePrefix, false, index + 1) != index + 1 &&
+          !Substring(uri, index + 1).LowerCaseEqualsLiteral("inbox"))
         uri.Insert(namespacePrefix, index + 1);  // insert namespace prefix
       convertedUri = uri;
     }

@@ -2154,7 +2154,7 @@ nsMsgDBView::Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType,
 
     // I'm not sure this is correct, because XF virtual folders with mixed news
     // and mail can have this set.
-    mIsNews = MsgLowerCaseEqualsLiteral(type, "nntp");
+    mIsNews = type.LowerCaseEqualsLiteral("nntp");
 
     // Default to a virtual folder if folder not set, since synthetic search
     // views may not have a folder.
@@ -2162,7 +2162,7 @@ nsMsgDBView::Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType,
     if (folder) folder->GetFlags(&folderFlags);
 
     mIsXFVirtual = folderFlags & nsMsgFolderFlags::Virtual;
-    if (!mIsXFVirtual && MsgLowerCaseEqualsLiteral(type, "rss")) mIsRss = true;
+    if (!mIsXFVirtual && type.LowerCaseEqualsLiteral("rss")) mIsRss = true;
 
     // Special case nntp --> news since we'll break themes if we try to be
     // consistent.
@@ -7524,8 +7524,8 @@ bool nsMsgDBView::JunkControlsEnabled(nsMsgViewIndex aViewIndex) {
       nsAutoCString type;
       if (server) server->GetType(type);
 
-      if (!(MsgLowerCaseEqualsLiteral(type, "nntp") ||
-            MsgLowerCaseEqualsLiteral(type, "rss")))
+      if (!(type.LowerCaseEqualsLiteral("nntp") ||
+            type.LowerCaseEqualsLiteral("rss")))
         return true;
     }
 

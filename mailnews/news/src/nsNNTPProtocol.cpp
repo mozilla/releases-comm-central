@@ -28,6 +28,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/SlicedInputStream.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/Utf8.h"
 #include "nsContentUtils.h"
 #include "nsIURIMutator.h"
 
@@ -887,7 +888,7 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
   NS_ASSERTION(NS_SUCCEEDED(rv), "failed to parse news url");
   // if (NS_FAILED(rv)) return rv;
   // XXX group returned from ParseURL is assumed to be in UTF-8
-  NS_ASSERTION(MsgIsUTF8(group), "newsgroup name is not in UTF-8");
+  NS_ASSERTION(mozilla::IsUtf8(group), "newsgroup name is not in UTF-8");
   NS_ASSERTION(m_nntpServer, "Parsing must result in an m_nntpServer");
 
   MOZ_LOG(NNTP, LogLevel::Info,

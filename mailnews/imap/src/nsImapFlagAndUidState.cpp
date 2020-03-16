@@ -241,8 +241,8 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(
            (oldValue.CharAt(existingCustomFlagPos - 1) == ' ')))
         return NS_OK;
       // else, advance to next flag
-      existingCustomFlagPos = MsgFind(oldValue, customFlagString, false,
-                                      existingCustomFlagPos + customFlagLen);
+      existingCustomFlagPos = oldValue.Find(
+          customFlagString, false, existingCustomFlagPos + customFlagLen);
     }
     ourCustomFlags.Assign(oldValue);
     ourCustomFlags.Append(' ');

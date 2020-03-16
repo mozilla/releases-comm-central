@@ -224,6 +224,6 @@ nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI,
 void nsEscapeNativePath(nsCString& nativePath) {
 #if defined(XP_WIN)
   nativePath.Insert('/', 0);
-  MsgReplaceChar(nativePath, '\\', '/');
+  nativePath.ReplaceChar('\\', '/');
 #endif
 }

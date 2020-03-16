@@ -627,7 +627,7 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(
         char delimiter = ns->GetDelimiter();
         if (delimiter && delimiter != kOnlineHierarchySeparatorUnknown) {
           // try to change the canonical online dir name to real dir name first
-          MsgReplaceChar(onlineDirWithDelimiter, '/', delimiter);
+          onlineDirWithDelimiter.ReplaceChar('/', delimiter);
           // make sure the last character is the delimiter
           if (onlineDirWithDelimiter.Last() != delimiter)
             onlineDirWithDelimiter += delimiter;
@@ -817,7 +817,7 @@ NS_IMETHODIMP nsImapUrl::AllocateCanonicalPath(const char *serverPath,
     // By definition, the online dir must be at the root.
     if (delimiterToUse && delimiterToUse != kOnlineHierarchySeparatorUnknown) {
       // try to change the canonical online dir name to real dir name first
-      MsgReplaceChar(onlineDir, '/', delimiterToUse);
+      onlineDir.ReplaceChar('/', delimiterToUse);
       // Add the delimiter
       if (onlineDir.Last() != delimiterToUse) onlineDir += delimiterToUse;
     }

@@ -48,7 +48,7 @@ nsresult nsImapMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
     rv = srcDB->GetMsgHdrForKey(m_srcKeyArray[i], getter_AddRefs(srcHdr));
     if (NS_SUCCEEDED(rv)) {
       // ** jt -- only do this for mailbox protocol
-      if (MsgLowerCaseEqualsLiteral(protocolType, "mailbox")) {
+      if (protocolType.LowerCaseEqualsLiteral("mailbox")) {
         m_srcIsPop3 = true;
         uint32_t msgSize;
         rv = srcHdr->GetMessageSize(&msgSize);

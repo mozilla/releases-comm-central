@@ -229,11 +229,6 @@ NS_MSG_BASE nsresult MsgGetLocalFileFromURI(const nsACString &aUTF8Path,
 NS_MSG_BASE void MsgStripQuotedPrintable(nsCString &aSrc);
 
 /*
- * Utility function copied from nsReadableUtils
- */
-NS_MSG_BASE bool MsgIsUTF8(const nsACString &aString);
-
-/*
  * Utility functions that call functions from nsINetUtil
  */
 
@@ -338,27 +333,6 @@ NS_MSG_BASE nsresult ConvertBufToPlainText(nsString &aConBuf, bool formatFlowed,
                                            bool disallowBreaks);
 
 #include "nsEscape.h"
-
-/**
- * The following methods are not exposed to the external API, but when we're
- * using the internal API we can simply redirect the calls appropriately.
- */
-#define MsgLowerCaseEqualsLiteral(str, l) (str).LowerCaseEqualsLiteral(l)
-#define MsgRFindChar(str, ch, len) (str).RFindChar(ch, len)
-#define MsgCompressWhitespace(str) (str).CompressWhitespace()
-#define MsgReplaceSubstring(str, what, replacement) \
-  (str).ReplaceSubstring(what, replacement)
-#define MsgIsUTF8(str) mozilla::IsUtf8(str)
-#define MsgNewInterfaceRequestorAggregation(aFirst, aSecond, aResult) \
-  NS_NewInterfaceRequestorAggregation(aFirst, aSecond, aResult)
-#define MsgNewNotificationCallbacksAggregation(aCallbacks, aLoadGroup, \
-                                               aResult)                \
-  NS_NewNotificationCallbacksAggregation(aCallbacks, aLoadGroup, aResult)
-#define MsgReplaceChar(aString, aNeedle, aReplacement) \
-  (aString).ReplaceChar(aNeedle, aReplacement)
-#define MsgFind(str, what, ignore_case, offset) \
-  (str).Find(what, ignore_case, offset)
-#define MsgCountChar(aString, aChar) (aString).CountChar(aChar)
 
 /**
  * Converts a hex string into an integer.

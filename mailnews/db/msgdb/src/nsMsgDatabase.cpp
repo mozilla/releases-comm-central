@@ -939,7 +939,7 @@ class MsgDBReporter final : public nsIMemoryReporter {
       else {
         nsAutoCString folderURL;
         folder->GetFolderURL(folderURL);
-        MsgReplaceChar(folderURL, '/', '\\');
+        folderURL.ReplaceChar('/', '\\');
         memoryPath += folderURL;
       }
     } else {

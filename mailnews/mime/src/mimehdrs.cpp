@@ -528,12 +528,12 @@ int MimeHeaders_write_all_headers(MimeHeaders *hdrs, MimeDisplayOptions *opt,
     }
 
     // MW Fixme: more?
-    bool convert_charset_only = MsgLowerCaseEqualsLiteral(name, "to") ||
-                                MsgLowerCaseEqualsLiteral(name, "from") ||
-                                MsgLowerCaseEqualsLiteral(name, "cc") ||
-                                MsgLowerCaseEqualsLiteral(name, "bcc") ||
-                                MsgLowerCaseEqualsLiteral(name, "reply-to") ||
-                                MsgLowerCaseEqualsLiteral(name, "sender");
+    bool convert_charset_only = name.LowerCaseEqualsLiteral("to") ||
+                                name.LowerCaseEqualsLiteral("from") ||
+                                name.LowerCaseEqualsLiteral("cc") ||
+                                name.LowerCaseEqualsLiteral("bcc") ||
+                                name.LowerCaseEqualsLiteral("reply-to") ||
+                                name.LowerCaseEqualsLiteral("sender");
     MimeHeaders_convert_header_value(opt, hdr_value, convert_charset_only);
     // if we're saving as html, we need to convert headers from utf8 to message
     // charset, if any

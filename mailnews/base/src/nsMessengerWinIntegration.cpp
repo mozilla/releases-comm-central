@@ -595,18 +595,17 @@ static void EscapeAmpersands(nsString &aToolTip) {
   if (pos == kNotFound) return;
 
   // Next, see if we only have bare ampersands.
-  pos = MsgFind(aToolTip, "&&", false, pos);
+  pos = aToolTip.Find("&&", false, pos);
 
   // Windows tooltip code removes one ampersand from each run,
   // then collapses pairs of amperands. This means that in the easy case,
   // we need to replace each ampersand with three.
-  MsgReplaceSubstring(aToolTip, NS_LITERAL_STRING("&"),
-                      NS_LITERAL_STRING("&&&"));
+  aToolTip.ReplaceSubstring(NS_LITERAL_STRING("&"), NS_LITERAL_STRING("&&&"));
   if (pos == kNotFound) return;
 
   // We inserted too many ampersands. Remove some.
   for (;;) {
-    pos = MsgFind(aToolTip, "&&&&&&", false, pos);
+    pos = aToolTip.Find("&&&&&&", false, pos);
     if (pos == kNotFound) return;
 
     aToolTip.Cut(pos, 1);

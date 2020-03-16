@@ -71,6 +71,7 @@
 #include "mozilla/intl/LocaleService.h"
 #include "mozilla/Logging.h"
 #include "mozilla/UniquePtr.h"
+#include "mozilla/Utf8.h"
 
 using namespace mozilla;
 
@@ -2891,7 +2892,7 @@ nsresult nsMsgDBFolder::parseURI(bool needServer) {
       // XXX conversion to unicode here? is fileName in UTF8?
       // yes, let's say it is in utf8
       MsgUnescapeString(escapedFileName, 0, fileName);
-      NS_ASSERTION(MsgIsUTF8(fileName), "fileName is not in UTF-8");
+      NS_ASSERTION(mozilla::IsUtf8(fileName), "fileName is not in UTF-8");
       CopyUTF8toUTF16(fileName, mName);
     }
   }
@@ -2965,7 +2966,7 @@ nsresult nsMsgDBFolder::parseURI(bool needServer) {
         // I hope this is temporary - Ultimately,
         // NS_MsgCreatePathStringFromFolderURI will need to be fixed.
 #if defined(XP_WIN)
-        MsgReplaceChar(newPath, '/', '\\');
+        newPath.ReplaceChar('/', '\\');
 #endif
         rv = serverPath->AppendRelativeNativePath(newPath);
         NS_ASSERTION(NS_SUCCEEDED(rv), "failed to append to the serverPath");
@@ -3440,19 +3441,19 @@ NS_IMETHODIMP nsMsgDBFolder::AddSubfolder(const nsAString &name,
   rv = GetRootFolder(getter_AddRefs(rootFolder));
   if (NS_SUCCEEDED(rv) && rootFolder &&
       (rootFolder.get() == (nsIMsgFolder *)this)) {
-    if (MsgLowerCaseEqualsLiteral(escapedName, "inbox"))
+    if (escapedName.LowerCaseEqualsLiteral("inbox"))
       uri += "Inbox";
-    else if (MsgLowerCaseEqualsLiteral(escapedName, "unsent%20messages"))
+    else if (escapedName.LowerCaseEqualsLiteral("unsent%20messages"))
       uri += "Unsent%20Messages";
-    else if (MsgLowerCaseEqualsLiteral(escapedName, "drafts"))
+    else if (escapedName.LowerCaseEqualsLiteral("drafts"))
       uri += "Drafts";
-    else if (MsgLowerCaseEqualsLiteral(escapedName, "trash"))
+    else if (escapedName.LowerCaseEqualsLiteral("trash"))
       uri += "Trash";
-    else if (MsgLowerCaseEqualsLiteral(escapedName, "sent"))
+    else if (escapedName.LowerCaseEqualsLiteral("sent"))
       uri += "Sent";
-    else if (MsgLowerCaseEqualsLiteral(escapedName, "templates"))
+    else if (escapedName.LowerCaseEqualsLiteral("templates"))
       uri += "Templates";
-    else if (MsgLowerCaseEqualsLiteral(escapedName, "archives"))
+    else if (escapedName.LowerCaseEqualsLiteral("archives"))
       uri += "Archives";
     else
       uri += escapedName.get();
@@ -5163,13 +5164,12 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
  */
 void nsMsgDBFolder::decodeMsgSnippet(const nsACString &aEncodingType,
                                      bool aIsComplete, nsCString &aMsgSnippet) {
-  if (MsgLowerCaseEqualsLiteral(aEncodingType, ENCODING_BASE64)) {
+  if (aEncodingType.LowerCaseEqualsLiteral(ENCODING_BASE64)) {
     int32_t base64Len = aMsgSnippet.Length();
     if (aIsComplete) base64Len -= base64Len % 4;
     char *decodedBody = PL_Base64Decode(aMsgSnippet.get(), base64Len, nullptr);
     if (decodedBody) aMsgSnippet.Adopt(decodedBody);
-  } else if (MsgLowerCaseEqualsLiteral(aEncodingType,
-                                       ENCODING_QUOTED_PRINTABLE)) {
+  } else if (aEncodingType.LowerCaseEqualsLiteral(ENCODING_QUOTED_PRINTABLE)) {
     MsgStripQuotedPrintable(aMsgSnippet);
   }
 }
@@ -5241,7 +5241,7 @@ nsresult nsMsgDBFolder::GetMsgPreviewTextFromStream(nsIMsgDBHdr *msgHdr,
                                      contentType, msgBody);
   // replaces all tabs and line returns with a space,
   // then trims off leading and trailing white space
-  MsgCompressWhitespace(msgBody);
+  msgBody.CompressWhitespace();
   msgHdr->SetStringProperty("preview", msgBody.get());
   return rv;
 }

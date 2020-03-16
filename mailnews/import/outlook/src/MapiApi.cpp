@@ -1442,8 +1442,8 @@ void CMapiApi::ListPropertyValue(LPSPropValue pVal, nsCString &s) {
         strVal.SetLength(60);
         strVal += "...";
       }
-      MsgReplaceSubstring(strVal, "\r", "\\r");
-      MsgReplaceSubstring(strVal, "\n", "\\n");
+      strVal.ReplaceSubstring("\r", "\\r");
+      strVal.ReplaceSubstring("\n", "\\n");
       s += strVal;
       break;
     case PT_LONG:

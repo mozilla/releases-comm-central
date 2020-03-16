@@ -34,6 +34,7 @@
 #include "mozilla/dom/XULTreeElement.h"
 #include "mozilla/dom/DataTransfer.h"
 #include "mozilla/LoadInfo.h"
+#include "mozilla/Utf8.h"
 
 #define INVALID_VERSION 0
 #define VALID_VERSION 2
@@ -1025,7 +1026,7 @@ nsNntpIncomingServer::UpdateSubscribed() {
 NS_IMETHODIMP
 nsNntpIncomingServer::AddTo(const nsACString &aName, bool addAsSubscribed,
                             bool aSubscribable, bool changeIfExists) {
-  NS_ASSERTION(MsgIsUTF8(aName), "Non-UTF-8 newsgroup name");
+  NS_ASSERTION(mozilla::IsUtf8(aName), "Non-UTF-8 newsgroup name");
   nsresult rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1122,7 +1123,7 @@ nsresult nsNntpIncomingServer::HandleLine(const char *line,
 
       // newsrc entries are all in UTF-8
 #ifdef DEBUG_jungshik
-    NS_ASSERTION(MsgIsUTF8(nsDependentCString(line)),
+    NS_ASSERTION(mozilla::IsUtf8(nsDependentCString(line)),
                  "newsrc line is not utf-8");
 #endif
     nsresult rv = AddTo(nsDependentCString(line), false, true, true);
@@ -1508,7 +1509,7 @@ nsNntpIncomingServer::GetCanCreateFoldersOnServer(
 NS_IMETHODIMP
 nsNntpIncomingServer::SetSearchValue(const nsAString &aSearchValue) {
   nsCString searchValue = NS_ConvertUTF16toUTF8(aSearchValue);
-  MsgCompressWhitespace(searchValue);
+  searchValue.CompressWhitespace();
 
   if (mTree) {
     mTree->BeginUpdateBatch();
@@ -1525,8 +1526,7 @@ nsNntpIncomingServer::SetSearchValue(const nsAString &aSearchValue) {
     // check that all parts of the search string occur
     bool found = true;
     for (uint32_t j = 0; j < searchStringParts.Length(); ++j) {
-      if (MsgFind(mGroupsOnServer[i], searchStringParts[j], true, 0) ==
-          kNotFound) {
+      if (mGroupsOnServer[i].Find(searchStringParts[j], true, 0) == kNotFound) {
         found = false;
         break;
       }

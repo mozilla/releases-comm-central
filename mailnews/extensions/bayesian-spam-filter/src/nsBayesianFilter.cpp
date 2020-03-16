@@ -742,10 +742,10 @@ void Tokenizer::tokenize(const char* aText) {
   // to RSS
 
   if (mIframeToDiv) {
-    MsgReplaceSubstring(text, NS_LITERAL_STRING("<iframe"),
-                        NS_LITERAL_STRING("<div"));
-    MsgReplaceSubstring(text, NS_LITERAL_STRING("/iframe>"),
-                        NS_LITERAL_STRING("/div>"));
+    text.ReplaceSubstring(NS_LITERAL_STRING("<iframe"),
+                          NS_LITERAL_STRING("<div"));
+    text.ReplaceSubstring(NS_LITERAL_STRING("/iframe>"),
+                          NS_LITERAL_STRING("/div>"));
   }
 
   stripHTML(text, strippedUCS2);

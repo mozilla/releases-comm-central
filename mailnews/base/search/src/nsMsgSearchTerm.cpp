@@ -983,7 +983,7 @@ nsresult nsMsgSearchTerm::MatchString(const nsACString &stringToMatch,
     }
     if (NS_FAILED(rv)) {
       // No charset or conversion failed, maybe due to a bad charset, try UTF-8.
-      if (MsgIsUTF8(stringToMatch)) {
+      if (mozilla::IsUtf8(stringToMatch)) {
         CopyUTF8toUTF16(stringToMatch, utf16StrToMatch);
       } else {
         // Bad luck, let's assume ASCII/windows-1252 then.

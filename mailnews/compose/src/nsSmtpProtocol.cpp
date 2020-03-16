@@ -852,7 +852,7 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream *inputStream,
         Substring(m_responseText, startPos,
                   (endPos >= 0 ? endPos : responseLength) - startPos));
 
-    MsgCompressWhitespace(responseLine);
+    responseLine.CompressWhitespace();
     if (responseLine.LowerCaseEqualsLiteral("starttls")) {
       SetFlag(SMTP_EHLO_STARTTLS_ENABLED);
     } else if (responseLine.LowerCaseEqualsLiteral("dsn")) {

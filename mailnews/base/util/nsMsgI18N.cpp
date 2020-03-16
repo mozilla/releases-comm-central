@@ -3,9 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// as does this
 #include "nsICharsetConverterManager.h"
 #include "mozilla/dom/FallbackEncoding.h"
+#include "mozilla/Utf8.h"
 #include "nsIServiceManager.h"
 
 #include "nsISupports.h"
@@ -327,7 +327,7 @@ nsresult nsMsgI18NShrinkUTF8Str(const nsCString& inString, uint32_t aMaxLength,
     outString.Assign(inString);
     return NS_OK;
   }
-  NS_ASSERTION(MsgIsUTF8(inString), "Invalid UTF-8 string is inputted");
+  NS_ASSERTION(mozilla::IsUtf8(inString), "Invalid UTF-8 string is inputted");
   const char* start = inString.get();
   const char* end = start + inString.Length();
   const char* last = start + aMaxLength;
@@ -350,7 +350,7 @@ nsresult nsMsgI18NShrinkUTF8Str(const nsCString& inString, uint32_t aMaxLength,
 void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
                                      const nsACString& charset,
                                      nsAString& outString) {
-  if (MsgIsUTF8(inString)) {
+  if (mozilla::IsUtf8(inString)) {
     CopyUTF8toUTF16(inString, outString);
     return;
   }
@@ -373,7 +373,7 @@ void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
 void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
                                     const nsACString& charset,
                                     nsACString& outString) {
-  if (MsgIsUTF8(inString)) {
+  if (mozilla::IsUtf8(inString)) {
     outString.Assign(inString);
     return;
   }

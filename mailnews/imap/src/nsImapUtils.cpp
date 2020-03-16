@@ -49,7 +49,7 @@ nsresult nsParseImapMessageURI(const char *uri, nsCString &folderURI,
   if (StringBeginsWith(uriStr, NS_LITERAL_CSTRING("imap-message")))
     folderEnd = uriStr.Find("imap://");
 
-  int32_t keySeparator = MsgRFindChar(uriStr, '#', folderEnd);
+  int32_t keySeparator = uriStr.RFindChar('#', folderEnd);
   if (keySeparator != -1) {
     int32_t keyEndSeparator = MsgFindCharInSet(uriStr, "/?&", keySeparator);
     nsAutoString folderPath;
@@ -80,7 +80,7 @@ nsresult nsParseImapMessageURI(const char *uri, nsCString &folderURI,
     *key = strtoul(keyStr.get(), nullptr, 10);
 
     if (part && keyEndSeparator != -1) {
-      int32_t partPos = MsgFind(uriStr, "part=", false, keyEndSeparator);
+      int32_t partPos = uriStr.Find("part=", false, keyEndSeparator);
       if (partPos != -1) {
         *part = ToNewCString(Substring(uriStr, keyEndSeparator));
       }

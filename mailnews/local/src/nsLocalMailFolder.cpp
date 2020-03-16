@@ -1323,8 +1323,8 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
   // If we're offline and the source folder is imap or news, to do the
   // copy the message bodies MUST reside in offline storage.
   bool needOfflineBodies =
-      (WeAreOffline() && (MsgLowerCaseEqualsLiteral(protocolType, "imap") ||
-                          MsgLowerCaseEqualsLiteral(protocolType, "news")));
+      (WeAreOffline() && (protocolType.LowerCaseEqualsLiteral("imap") ||
+                          protocolType.LowerCaseEqualsLiteral("news")));
   int64_t totalMsgSize = 0;
   uint32_t numMessages = 0;
   bool allMsgsHaveOfflineStore = true;
@@ -1443,7 +1443,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
     return rv;
   }
 
-  if (!MsgLowerCaseEqualsLiteral(protocolType, "mailbox")) {
+  if (!protocolType.LowerCaseEqualsLiteral("mailbox")) {
     mCopyState->m_dummyEnvelopeNeeded = true;
     nsParseMailMessageState *parseMsgState = new nsParseMailMessageState();
     if (parseMsgState) {
@@ -1472,9 +1472,9 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
     }
   }
 
-  if (numMsgs > 1 && ((MsgLowerCaseEqualsLiteral(protocolType, "imap") &&
+  if (numMsgs > 1 && ((protocolType.LowerCaseEqualsLiteral("imap") &&
                        !allMsgsHaveOfflineStore) ||
-                      MsgLowerCaseEqualsLiteral(protocolType, "mailbox"))) {
+                      protocolType.LowerCaseEqualsLiteral("mailbox"))) {
     // For an imap source folder with more than one message to be copied that
     // are not all in offline storage, this fetches all the messages from the
     // imap server to do the copy. When source folder is "mailbox", this is not

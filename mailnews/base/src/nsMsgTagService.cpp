@@ -210,7 +210,7 @@ NS_IMETHODIMP nsMsgTagService::AddTag(const nsAString &tag,
   // make it unique by appending A, AA, etc.
   // Should we use an iterator?
   nsAutoString transformedTag(tag);
-  MsgReplaceChar(transformedTag, " ()/{%*<>\\\"", '_');
+  transformedTag.ReplaceChar(" ()/{%*<>\\\"", '_');
   nsAutoCString key;
   CopyUTF16toMUTF7(transformedTag, key);
   // We have an imap server that converts keys to upper case so we're going
