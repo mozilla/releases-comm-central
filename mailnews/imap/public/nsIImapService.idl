@@ -25,6 +25,11 @@ interface nsIMsgMailNewsUrl;
 interface nsIImapIncomingServer;
 interface nsICacheStorage;
 
+/**
+ * Most of the nsIImapService methods are friendly front ends for composing and
+ * issuing "imap://" protocol operations. Usually a nsImapUrl will be returned.
+ * This url object is stateful and tracks the issued request.
+ */
 [scriptable, uuid(aba44b3d-7a0f-4987-8794-96d2de66d966)]
 interface nsIImapService : nsISupports
 {

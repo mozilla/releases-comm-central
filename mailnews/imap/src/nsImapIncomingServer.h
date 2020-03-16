@@ -115,13 +115,19 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
    */
   nsCOMArray<nsIImapUrl> m_urlQueue;
 
+  /**
+   * Consumers for the queued urls. The number of elements here should match
+   * that of m_urlQueue. So requests with no consumer should have a nullptr
+   * entry here.
+   */
+  nsTArray<nsISupports *> m_urlConsumers;
+
   nsCOMPtr<nsIStringBundle> m_stringBundle;
   nsCOMArray<nsIMsgFolder>
       m_subscribeFolders;  // used to keep folder resources around while
                            // subscribe UI is up.
   nsCOMArray<nsIMsgImapMailFolder>
       m_foldersToStat;  // folders to check for new mail with Status
-  nsTArray<nsISupports *> m_urlConsumers;
   eIMAPCapabilityFlags m_capability;
   nsCString m_manageMailAccountUrl;
   bool m_userAuthenticated;

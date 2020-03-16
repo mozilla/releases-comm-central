@@ -20,19 +20,28 @@ class nsIImapHostSessionList;
 
 [scriptable, uuid(6ef189e5-8711-4845-9625-d1c74c22c4b5)]
 interface nsIImapProtocol : nsISupports {
+  /**
+   * Set up this connection to run a URL.
+   * Called by nsImapIncomingServer to process a queued URL when it spots a
+   * free connection.
+   * Because nsImapProtocol is really a connection and doesn't follow the
+   * usual nsIChannel lifecycle, this function is provided to allow reuse.
+   * Over and over again.
+   */
   void LoadImapUrl(in nsIURI aUrl, in nsISupports aConsumer);
 
   /**
-   * IsBusy returns true if the connection is currently processing a url
+   * IsBusy returns true if the connection is currently processing a URL
    * and false otherwise.
    */
   void IsBusy(out boolean aIsConnectionBusy,
               out boolean isInboxConnection);
 
-  /** Protocol instance examines the url, looking at the host name,
+  /**
+   * Protocol instance examines the URL, looking at the host name,
    * user name and folder the action would be on in order to figure out
-   * if it can process this url. I decided to push the semantics about
-   * whether a connection can handle a url down into the connection level
+   * if it can process this URL. I decided to push the semantics about
+   * whether a connection can handle a URL down into the connection level
    * instead of in the connection cache.
    */
   void CanHandleUrl(in nsIImapUrl aImapUrl, out boolean aCanRunUrl,

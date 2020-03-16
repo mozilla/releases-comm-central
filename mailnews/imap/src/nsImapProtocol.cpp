@@ -737,8 +737,9 @@ static void SetSecurityCallbacksFromChannel(nsISocketTransport *aTrans,
 // Setup With Url is intended to set up data which is held on a PER URL basis
 // and not a per connection basis. If you have data which is independent of the
 // url we are currently running, then you should put it in Initialize(). This is
-// only ever called from the UI thread. It is called from LoadUrl, right before
-// the url gets run - i.e., the url is next in line to run.
+// only ever called from the UI thread. It is called from LoadImapUrl, right
+// before the url gets run - i.e., the url is next in line to run.
+// See also ReleaseUrlState(), which frees a bunch of the things set up in here.
 nsresult nsImapProtocol::SetupWithUrl(nsIURI *aURL, nsISupports *aConsumer) {
   nsresult rv = NS_ERROR_FAILURE;
   NS_ASSERTION(aURL, "null URL passed into Imap Protocol");
@@ -2123,10 +2124,12 @@ bool nsImapProtocol::TryToRunUrlLocally(nsIURI *aURL, nsISupports *aConsumer) {
 }
 
 // LoadImapUrl takes a url, initializes all of our url specific data by calling
-// SetupUrl. If we don't have a connection yet, we open the connection. Finally,
-// we signal the url to run monitor to let the imap main thread loop process the
-// current url (it is waiting on this monitor). There is a contract that the
-// imap thread has already been started b4 we attempt to load a url....
+// SetupUrl. Finally, we signal the url to run monitor to let the imap main
+// thread loop process the current url (it is waiting on this monitor). There
+// is a contract that the imap thread has already been started before we
+// attempt to load a url...
+// LoadImapUrl() is called by nsImapIncomingServer to run a queued url on a free
+// connection.
 NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI *aURL,
                                           nsISupports *aConsumer) {
   nsresult rv = NS_ERROR_FAILURE;
@@ -2134,6 +2137,8 @@ NS_IMETHODIMP nsImapProtocol::LoadImapUrl(nsIURI *aURL,
 #ifdef DEBUG_bienvenu
     printf("loading url %s\n", aURL->GetSpecOrDefault().get());
 #endif
+    // We might be able to fulfil the request locally (e.g. fetching a message
+    // which is already stored offline).
     if (TryToRunUrlLocally(aURL, aConsumer)) return NS_OK;
     m_urlInProgress = true;
     m_imapMailFolderSink = nullptr;

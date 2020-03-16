@@ -20,6 +20,13 @@ interface nsICacheEntry;
 #include "MailNewsTypes.h"
 %}
 
+/**
+ * nsIMsgMessageService provides higher-level, UI-oriented calls for
+ * dealing with messages in a protocol-agnostic way.
+ * Things the user would recognise as actions they initiated.
+ * This covers things like displaying messages, copying them, saving them
+ * to disk, saving attachments...
+ */
 [scriptable, uuid(3aa7080a-73ac-4394-9636-fc00e182319b)]
 interface nsIMsgMessageService : nsISupports {
 
