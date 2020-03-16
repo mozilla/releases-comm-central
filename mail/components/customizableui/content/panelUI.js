@@ -58,13 +58,14 @@ const PanelUI = {
     return {
       mainView: "appMenu-mainView",
       multiView: "appMenu-multiView",
-      menuButtonMail: "button-appmenu",
-      menuButtonChat: "button-chat-appmenu",
+      menuButton: "button-appmenu",
       panel: "appMenu-popup",
       addonNotificationContainer: "appMenu-addon-banners",
       navbar: "mail-bar3",
     };
   },
+
+  kAppMenuButtons: new Set(),
 
   /**
    * Used for the View / Text Encoding view.
@@ -137,14 +138,8 @@ const PanelUI = {
 
   init() {
     this._initElements();
-
-    [this.menuButtonMail, this.menuButtonChat].forEach(button => {
-      // There's no chat button in the messageWindow.xhtml context.
-      if (button) {
-        button.addEventListener("mousedown", this);
-        button.addEventListener("keypress", this);
-      }
-    });
+    this.initAppMenuButton("button-appmenu", "mail-toolbox");
+    this.initAppMenuButton("button-chat-appmenu", "chat-view-toolbox");
 
     this.menuButton = this.menuButtonMail;
 
@@ -206,6 +201,25 @@ const PanelUI = {
         // eslint-disable-next-line consistent-return
         return (this[getKey] = document.getElementById(id));
       });
+    }
+  },
+
+  initAppMenuButton(id, toolboxId) {
+    let button = document.getElementById(id);
+    if (!button) {
+      // If not in the document, the button should be in the toolbox palette,
+      // which isn't part of the document.
+      let toolbox = document.getElementById(toolboxId);
+      if (toolbox) {
+        button = toolbox.palette.querySelector(`#${id}`);
+      }
+    }
+
+    if (button) {
+      button.addEventListener("mousedown", PanelUI);
+      button.addEventListener("keypress", PanelUI);
+
+      this.kAppMenuButtons.add(button);
     }
   },
 
@@ -1137,7 +1151,9 @@ const PanelUI = {
 
   _showBadge(notification) {
     let badgeStatus = this._getBadgeStatus(notification);
-    this.menuButton.setAttribute("badge-status", badgeStatus);
+    for (let menuButton of this.kAppMenuButtons) {
+      menuButton.setAttribute("badge-status", badgeStatus);
+    }
   },
 
   // "Banner item" here refers to an item in the hamburger panel menu. They will
@@ -1158,7 +1174,9 @@ const PanelUI = {
   },
 
   _clearBadge() {
-    this.menuButton.removeAttribute("badge-status");
+    for (let menuButton of this.kAppMenuButtons) {
+      menuButton.removeAttribute("badge-status");
+    }
   },
 
   _clearBannerItem() {

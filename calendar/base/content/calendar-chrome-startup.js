@@ -158,24 +158,9 @@ var calendarWindowPrefs = {
  * Set up calendar appmenu buttons by adding event listeners to the buttons.
  */
 function setUpCalendarAppMenuButtons() {
-  function setUpButton(id, toolboxId) {
-    let button = document.getElementById(id);
-    if (!button) {
-      // If not in the document, the button should be in the toolbox palette,
-      // which isn't part of the document.
-      let toolbox = document.getElementById(toolboxId);
-      button = toolbox.palette.querySelector(`#${id}`);
-    }
-
-    if (button) {
-      button.addEventListener("mousedown", PanelUI);
-      button.addEventListener("keypress", PanelUI);
-    }
-  }
-
-  setUpButton("calendar-appmenu-button", "calendar-toolbox");
-  setUpButton("task-appmenu-button", "task-toolbox");
-  setUpButton("calendar-item-appmenu-button", "event-toolbox");
+  PanelUI.initAppMenuButton("calendar-appmenu-button", "calendar-toolbox");
+  PanelUI.initAppMenuButton("task-appmenu-button", "task-toolbox");
+  PanelUI.initAppMenuButton("calendar-item-appmenu-button", "event-toolbox");
 }
 
 /**
