@@ -1,2 +1,1 @@
 . "$topsrcdir/comm/mail/config/mozconfigs/l10n-common"
-. "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
