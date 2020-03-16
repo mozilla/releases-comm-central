@@ -350,6 +350,10 @@ toolbarpaletteitem toolbarbutton {
   border-top: 1px solid var(--tabs-border-color);
 }
 
+#status-bar:-moz-lwtheme-brighttext {
+  border-top-color: var(--lwt-accent-color);
+}
+
 #status-bar:-moz-lwtheme toolbarbutton {
   color: var(--lwt-text-color, inherit);
 }

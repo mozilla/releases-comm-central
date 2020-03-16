@@ -463,6 +463,10 @@ function AutoConfigWizard(okCallback) {
     return;
   }
 
+  // Collapse the Folder Pane since no account is currently present.
+  document.getElementById("folderPaneBox").collapsed = true;
+  document.getElementById("folderpane_splitter").collapsed = true;
+
   NewMailAccount(msgWindow, okCallback);
 }
 

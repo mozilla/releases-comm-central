@@ -11,6 +11,7 @@ var {
   enter_folder,
   select_click_folder,
   select_no_folders,
+  show_folder_pane,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -25,6 +26,7 @@ var {
 
 var folderA, folderB;
 add_task(function setupModule(module) {
+  show_folder_pane();
   folderA = create_folder("RightClickToOpenSearchWindowA");
   folderB = create_folder("RightClickToOpenSearchWindowB");
 });

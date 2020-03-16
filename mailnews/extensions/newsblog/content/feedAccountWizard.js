@@ -40,6 +40,7 @@ var FeedAccountWizard = {
     if ("gFolderTreeView" in window.opener.top) {
       // Opened from 3pane File->New or Appmenu New Message, or
       // Account Central link.
+      window.opener.top.updateMailPaneUI();
       window.opener.top.gFolderTreeView.selectFolder(
         account.incomingServer.rootMsgFolder
       );

@@ -90,7 +90,7 @@ add_task(async function test_update() {
     browser.mailTabs.update({ displayedFolder: folders[0] });
     state.sortType = "date";
     state.sortOrder = "ascending";
-    state.folderPaneVisible = true;
+    state.folderPaneVisible = false;
     state.messagePaneVisible = true;
     state.displayedFolder = folders[0];
     delete state.displayedFolder.subFolders;

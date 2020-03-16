@@ -28,10 +28,6 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   background-color: -moz-OddTreeRow;
 }
 
-#folderTree:not(:-moz-lwtheme) {
-  border-bottom: 1px solid ThreeDShadow;
-}
-
 #threadTree {
   border-bottom: 1px solid ThreeDShadow;
 }
@@ -71,7 +67,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 #folderpane_splitter {
   border-inline-start: 1px solid var(--splitter-color);
   /* make only the splitter border visible */
-  margin-inline-end: -5px;
+  margin-inline-end: -4px;
 }
 
 #folderpane_splitter[state="collapsed"]:hover {
@@ -128,24 +124,6 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 #threadpane-splitter[state="collapsed"]:hover,
 #attachment-splitter[state="collapsed"]:hover {
   border-bottom: 4px solid highlight;
-}
-
-#messagesBox {
-  /* For some reason, the thread/message panes overlap the folder pane splitter
-     by 1px because of the CSS above. Fix this. */
-  margin-inline-start: 1px;
-}
-
-/* ..... tree adjustments ..... */
-
-#accountCentralBox {
-  border-bottom: 1px solid ThreeDShadow;
-}
-
-/* ..... message pane adjustments ..... */
-
-#messagepanebox:not(:-moz-lwtheme) {
-  border-bottom: 1px solid ThreeDShadow;
 }
 
 /* ..... status bar adjustments ..... */

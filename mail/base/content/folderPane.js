@@ -144,19 +144,21 @@ var gFolderTreeView = {
   messengerBundle: null,
 
   /**
-   * Called when the window is initially loaded.  This function initializes the
+   * Called when the window is initially loaded. This function initializes the
    * folder-pane to the view last shown before the application was closed.
    */
   load(aTree, aJSONFile) {
     this._treeElement = aTree;
     this.messengerBundle = document.getElementById("bundle_messenger");
 
-    // the folder pane can be used for other trees which may not have these elements.
+    // The folder pane can be used for other trees which may not have these
+    // elements. Collapse them if no account is currently available.
+    let hasAccounts = MailServices.accounts.accounts.length > 0;
     if (document.getElementById("folderpane_splitter")) {
-      document.getElementById("folderpane_splitter").collapsed = false;
+      document.getElementById("folderpane_splitter").collapsed = !hasAccounts;
     }
     if (document.getElementById("folderPaneBox")) {
-      document.getElementById("folderPaneBox").collapsed = false;
+      document.getElementById("folderPaneBox").collapsed = !hasAccounts;
     }
 
     try {

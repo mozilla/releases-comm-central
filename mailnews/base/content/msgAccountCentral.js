@@ -7,6 +7,10 @@
 /* import-globals-from ../prefs/content/accountUtils.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var l10n = new Localization(["messenger/accountCentral.ftl"], true);
 
 var gSelectedServer = null;
 var gSelectedFolder = null;
@@ -51,19 +55,49 @@ function OnInit() {
       ]);
       // Display and collapse items presented to the user based on account type
       ArrangeAccountCentralItems();
+      document.getElementById("accountCentral").hidden = true;
+      document.getElementById("acctCentralLayout").hidden = false;
     } else {
       // If there is no gSelectedServer, we are in a brand new profile with
       // no accounts - show the create account rows.
       title = brandName;
+      document.getElementById("accountCentral").hidden = false;
+      document.getElementById("acctCentralLayout").hidden = true;
+
       SetItemDisplay("accountsHeader", true);
       SetItemDisplay("createAccount", true);
       SetItemDisplay("createAccounts", true);
+
+      document.getElementById("version").textContent = Services.appinfo.version;
     }
     // Set the title for the document
     document.getElementById("accountCentralTitle").setAttribute("value", title);
   } catch (ex) {
     Cu.reportError("Error getting selected account: " + ex + "\n");
   }
+
+  // Append the donation link at the end of the second paragraph.
+  let donationLink = document.createElement("a");
+  donationLink.setAttribute(
+    "href",
+    "https://give.thunderbird.net/en-US/?utm_source=start_page_tb_release&utm_medium=referral&utm_content=paragraph_text"
+  );
+  donationLink.classList.add("donation-link");
+  donationLink.setAttribute("tabindex", 0);
+  donationLink.addEventListener("click", () => {
+    openLink(donationLink.href);
+  });
+  donationLink.addEventListener("keypress", event => {
+    if (event.key == "Enter") {
+      openLink(donationLink.href);
+    }
+  });
+  donationLink.textContent = l10n.formatValueSync("about-donation");
+
+  let donationParagraph = document.getElementById("donationParagraph");
+  donationParagraph.append(" ");
+  donationParagraph.appendChild(donationLink);
+  donationParagraph.append(".");
 }
 
 /**
@@ -313,25 +347,16 @@ function CreateNewAccount() {
   window.parent.msgOpenAccountWizard();
 }
 
-function CreateNewAccountTB(type) {
-  if (type == "mail") {
-    AddMailAccount();
-    return;
-  }
-
-  if (type == "feeds") {
-    AddFeedAccount();
-    return;
-  }
-
+function CreateNewsgroups() {
   window.parent.msgOpenAccountWizard(function(state) {
+    updateMailPaneUI();
     let win = getMostRecentMailWindow();
     if (state && win && win.gFolderTreeView && this.gCurrentAccount) {
       win.gFolderTreeView.selectFolder(
         this.gCurrentAccount.incomingServer.rootMsgFolder
       );
     }
-  }, type);
+  });
 }
 
 // Bring up search interface for selected account
@@ -360,4 +385,12 @@ function Subscribe() {
 function JunkSettings() {
   // TODO: function does not exist yet, will throw an exception if exposed
   window.parent.MsgJunkMail();
+}
+
+function openLink(url) {
+  let m =
+    "messenger" in window
+      ? window.messenger
+      : Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+  m.launchExternalURL(url);
 }

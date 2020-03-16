@@ -1768,7 +1768,7 @@ FolderDisplayWidget.prototype = {
       this._restoreColumnStates();
 
       // the tab mode knows whether we are folder or message display, which
-      //  impacts the legal modes
+      // impacts the legal modes
       if (this._tabInfo) {
         mailTabType._setPaneStates(this._tabInfo.mode.legalPanes, {
           folder: folderPaneVisible,

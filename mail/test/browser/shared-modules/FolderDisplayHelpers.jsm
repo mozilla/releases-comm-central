@@ -134,6 +134,7 @@ const EXPORTED_SYMBOLS = [
   "set_open_message_behavior",
   "set_pane_layout",
   "set_show_unread_only",
+  "show_folder_pane",
   "smimeUtils_ensureNSS",
   "smimeUtils_loadCertificateAndKey",
   "smimeUtils_loadPEMCertificate",
@@ -2233,6 +2234,14 @@ function toggle_message_pane() {
   if (expectMessageDisplay) {
     wait_for_message_display_completion(mc, true);
   }
+}
+
+/**
+ * Make the folder pane visible in order to run tests.
+ * This is necessary as the FolderPane is collpased if no account is available.
+ */
+function show_folder_pane() {
+  mc.e("folderPaneBox").collapsed = false;
 }
 
 /**

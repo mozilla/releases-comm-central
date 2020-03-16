@@ -4,7 +4,7 @@
 
 @import url("chrome://messenger/skin/");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 :root {
   --body-background-color: -moz-Field;
@@ -28,10 +28,15 @@
   }
 }
 
+html {
+  height: 100%;
+}
+
 #acctCentralLayout {
   overflow: auto;
   background-color: var(--body-background-color);
   color: var(--body-text-color);
+  height: 100vh;
 }
 
 spacer {
@@ -131,4 +136,361 @@ spacer.big {
 #subscribeRSS label:-moz-locale-dir(rtl),
 #junkSettingsMail label:-moz-locale-dir(rtl) {
   background-position: right center;
+}
+
+
+/* New layout */
+
+:root {
+  --bg-color: #ffffff;
+  --bg-watermark: url("chrome://messenger/skin/images/account-watermark.png");
+  --header-bg-color: rgba(0, 0, 0, 0.05);
+  --text-color: #36385A;
+  --title-color: #002275;
+  --primary-color: #0a84ff;
+  --primary-color-hover: #0060df;
+  --btn-color: #36385A;
+  --btn-color-hover: #FFFFFF;
+  --btn-bg: #FFFFFF;
+  --btn-bg-hover: #0060df;
+  --btn-shadow-hover: rgba(0, 0, 0, 0.3);
+  --popup-bg: #EDEDF0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #2E2F30;
+    --bg-watermark: url("chrome://messenger/skin/images/account-watermark-light.png");
+    --header-bg-color: rgba(255, 255, 255, 0.05);
+    --text-color: #f9f9fa;
+    --title-color: #b1b1b3;
+    --primary-color: #0a84ff;
+    --primary-color-hover: #0a84ff;
+    --btn-color: #FFFFFF;
+    --btn-color-hover: #FFFFFF;
+    --btn-bg: #38383d;
+    --btn-bg-hover: #0060df;
+    --btn-shadow-hover: rgba(0, 0, 0, 0.3);
+    --popup-bg: #474749;
+  }
+}
+
+:root[lwt-tree-brighttext] {
+  --bg-color: #2E2F30;
+  --bg-watermark: url("chrome://messenger/skin/images/account-watermark-light.png");
+  --header-bg-color: rgba(255, 255, 255, 0.05);
+  --text-color: #f9f9fa;
+  --title-color: #b1b1b3;
+  --primary-color: #0a84ff;
+  --primary-color-hover: #0a84ff;
+  --btn-color: #FFFFFF;
+  --btn-color-hover: #FFFFFF;
+  --btn-bg: #38383d;
+  --btn-bg-hover: #0060df;
+  --btn-shadow-hover: rgba(0, 0, 0, 0.3);
+  --popup-bg: #474749;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  background-color: var(--body-background-color);
+}
+
+#accountCentral {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color);
+  background-image: var(--bg-watermark);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  color: var(--text-color);
+  overflow: auto;
+  height: 100vh;
+}
+
+#accountCentral[hidden] {
+  display: none;
+}
+
+#brandLogo {
+  width: 64px;
+  height: 64px;
+  margin-inline-end: 20px;
+  flex-shrink: 0;
+}
+
+.account-central-header {
+  display: flex;
+  align-items: center;
+  background-color: var(--header-bg-color);
+  padding: 20px 30px;
+}
+
+.account-central-header > aside {
+  display: flex;
+  align-items: center;
+  width: 160px;
+  flex: 1 1 auto;
+}
+
+.account-central-title {
+  font-size: x-large;
+  margin-inline-end: 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.account-central-version {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: small;
+  margin-top: 10px;
+  line-height: 1em;
+}
+
+.account-central-version > label {
+  margin-inline: 0 1px;
+}
+
+#releasenotes {
+  cursor: pointer;
+}
+
+#releasenotes img {
+  -moz-context-properties: fill, fill-opacity;
+  color: var(--primary-color);
+  fill: currentColor;
+  fill-opacity: 1;
+  width: 16px;
+  height: 16px;
+}
+
+#releasenotes img:hover,
+#releasenotes img:focus {
+  color: var(--primary-color-hover);
+}
+
+.account-central-section {
+  display: flex;
+  flex-direction: column;
+  padding-inline: 30px;
+  padding-block: 10px;
+  position: relative;
+}
+
+.account-central-section.setup-section {
+  padding-block-end: 30px;
+}
+
+.section-title {
+  font-size: larger;
+  font-weight: 600;
+  color: var(--title-color);
+  margin-block: 10px 20px;
+}
+
+.row-container {
+  margin-inline: -10px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.row-container > p {
+  flex: 1;
+  display: block;
+  min-width: 300px;
+  margin-inline: 10px;
+  margin-block: 0 20px;
+}
+
+/* Custom buttons style =================================== */
+.btn-hub {
+  transition: background-color 280ms ease,
+              color 280ms ease,
+              box-shadow 280ms ease;
+  -moz-appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  color: var(--btn-color);
+  background-color: var(--btn-bg);
+  -moz-context-properties: fill, stroke-opacity;
+  fill: currentColor;
+  stroke-opacity: 0;
+  min-width: 110px;
+  height: 90px;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  margin-inline: 10px;
+  margin-block-end: 10px;
+  cursor: pointer;
+  box-shadow: 0 5px 20px -5px var(--btn-shadow-hover);
+}
+
+.btn-hub:hover {
+  color: var(--btn-color-hover) !important;
+  background-color: var(--btn-bg-hover);
+  box-shadow: 0 14px 16px -12px var(--btn-shadow-hover),
+              inset 20px 20px 50px -30px rgba(255, 255, 255, .35);
+}
+
+.btn-hub.btn-inline {
+  flex-direction: row;
+  width: auto;
+  height: auto;
+  padding: 10px 14px;
+}
+
+.btn-hub:focus:not(:hover) {
+  color: var(--primary-color);
+}
+
+.btn-hub::before {
+  position: relative;
+  display: block;
+  content: '';
+  margin-block-end: 10px;
+  margin-inline-end: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--primary-color);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  transition: color 280ms ease;
+}
+
+.btn-hub.btn-inline::before {
+  margin-block-end: 0;
+  margin-inline-end: 10px;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-hub:hover::before {
+  color: var(--btn-color-hover) !important;
+}
+
+#setupEmail::before {
+  background-image: url("chrome://messenger/skin/icons/message.svg");
+}
+
+#setupCalendar::before {
+  background-image: url("chrome://messenger/skin/shared/in-content/calendar.svg");
+}
+
+#setupAddressBook::before {
+  background-image: url("chrome://messenger/skin/icons/address.svg");
+}
+
+#setupChat::before {
+  background-image: url("chrome://messenger/skin/icons/chat.svg");
+}
+
+#setupFilelink::before {
+  background-image: url("chrome://messenger/skin/icons/link.svg");
+}
+
+#setupFeeds::before {
+  background-image: url("chrome://messenger/skin/icons/subscribe.svg");
+}
+
+#setupNewsgroups::before {
+  background-image: url("chrome://messenger/skin/icons/reader-mode.svg");
+}
+
+#importButton::before {
+  background-image: url("chrome://messenger/skin/icons/import.svg");
+}
+
+.account-description {
+  position: absolute;
+  opacity: 0;
+  top: 100%;
+  margin-top: -30px;
+  width: 90vw;
+  left: 30px;
+  text-align: left;
+  transition: opacity 280ms ease;
+  z-index: 1;
+}
+
+.account-description > p {
+  display: inline-block;
+  background-color: var(--popup-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.btn-hub:hover + .account-description,
+.btn-hub:focus + .account-description {
+  opacity: 1;
+}
+
+/* Custom link style =================================== */
+.donation-link {
+  color: var(--primary-color);
+  font-style: italic;
+  font-weight: 600;
+  transition: color .2s;
+  cursor: pointer;
+}
+
+.donation-link:hover {
+  color: var(--primary-color-hover);
+}
+
+.donation-link:focus:not(:hover) {
+  outline: 1px dotted Highlight;
+}
+
+.resource-link {
+  color: var(--text-color);
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin-block-end: 10px;
+  margin-inline: 10px 30px;
+  transition: color .2s;
+  cursor: pointer;
+}
+
+.resource-link:before {
+  position: relative;
+  display: inline-block;
+  content: '';
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  margin-inline-end: 5px;
+  vertical-align: sub;
+}
+
+.resource-link:hover {
+  color: var(--primary-color-hover);
+}
+
+.resource-link:focus:not(:hover) {
+  outline: 1px dotted Highlight;
+}
+
+#featuresLink:before {
+  background-image: url("chrome://messenger/skin/icons/highlights.svg");
+}
+
+#supportLink:before {
+  background-image: url("chrome://messenger/skin/icons/help.svg");
+}
+
+#involvedLink:before {
+  background-image: url("chrome://messenger/skin/icons/globe.svg");
+}
+
+#developerLink:before {
+  background-image: url("chrome://messenger/skin/icons/developer.svg");
 }

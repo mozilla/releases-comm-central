@@ -242,7 +242,7 @@ function initAccountWizardTB(args) {
 }
 
 function AddMailAccount() {
-  NewMailAccount(MailServices.mailSession.topmostMsgWindow);
+  NewMailAccount(MailServices.mailSession.topmostMsgWindow, updateMailPaneUI);
 }
 
 function AddIMAccount() {
@@ -258,6 +258,14 @@ function AddFeedAccount() {
     "chrome://messenger-newsblog/content/feedAccountWizard.xhtml",
     "",
     "chrome,modal,titlebar,centerscreen"
+  );
+}
+
+function AddAddressBook() {
+  window.docShell.rootTreeItem.domWindow.openDialog(
+    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml",
+    "",
+    "chrome,modal,resizable=no,centerscreen"
   );
 }
 
@@ -531,4 +539,20 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
       { msgWindow, okCallback, extraData }
     );
   }
+}
+
+/**
+ * Reveal the Folder Pane and Today Pane after a successful account creation
+ * callback.
+ */
+function updateMailPaneUI() {
+  // Nothing to update since no account has been created.
+  if (MailServices.accounts.accounts.length == 0) {
+    return;
+  }
+
+  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  // Show the folder pane.
+  mail3Pane.document.getElementById("folderPaneBox").collapsed = false;
+  mail3Pane.document.getElementById("folderpane_splitter").collapsed = false;
 }
