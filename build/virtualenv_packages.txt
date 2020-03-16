@@ -1,2 +1,1 @@
 comm.pth:comm/testing/marionette
-comm.pth:comm/python/l10n
