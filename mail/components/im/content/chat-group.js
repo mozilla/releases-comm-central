@@ -131,7 +131,7 @@
       return contactElt;
     }
 
-    updateContactPosition(subject) {
+    updateContactPosition(subject, tagName) {
       let contactElt = this.contactsById[subject.id];
       let index = this.contacts.indexOf(contactElt);
       if (index == -1) {
@@ -152,10 +152,11 @@
             this.contacts[index + 1].contact
           ) > 0)
       ) {
-        let oldItem = this.removeContact(subject);
-        let newItem = this.addContact(subject);
         let list = this.parentNode;
-        if (list.selectedItem == oldItem) {
+        let selectedItem = list.selectedItem;
+        let oldItem = this.removeContact(subject);
+        let newItem = this.addContact(subject, tagName);
+        if (selectedItem == oldItem) {
           list.selectedItem = newItem;
         }
       }

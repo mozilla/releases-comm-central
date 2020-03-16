@@ -81,7 +81,7 @@
 
             case "target-prpl-conversation-changed":
             case "update-conv-title":
-              if (this.tab) {
+              if (this.tab && this.conv) {
                 this.tab.setAttribute("label", this.conv.title);
               }
               break;

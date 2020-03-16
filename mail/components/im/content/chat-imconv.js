@@ -114,7 +114,10 @@
             this.update();
           }
           if (topic == "update-conv-title") {
-            this.group.updateContactPosition(this.conv);
+            this.group.updateContactPosition(
+              this.conv,
+              "chat-imconv-richlistitem"
+            );
           }
         }.bind(this),
       };
