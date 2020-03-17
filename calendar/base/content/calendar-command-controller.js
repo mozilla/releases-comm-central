@@ -33,91 +33,89 @@ var CalendarNewTasksCommandEnabled = false;
 var calendarController = {
   defaultController: null,
 
-  commands: {
+  commands: new Set([
     // Common commands
-    calendar_new_event_command: true,
-    calendar_new_event_context_command: true,
-    calendar_modify_event_command: true,
-    calendar_delete_event_command: true,
+    "calendar_new_event_command",
+    "calendar_new_event_context_command",
+    "calendar_modify_event_command",
+    "calendar_delete_event_command",
 
-    calendar_modify_focused_item_command: true,
-    calendar_delete_focused_item_command: true,
+    "calendar_modify_focused_item_command",
+    "calendar_delete_focused_item_command",
 
-    calendar_new_todo_command: true,
-    calendar_new_todo_context_command: true,
-    calendar_new_todo_todaypane_command: true,
-    calendar_modify_todo_command: true,
-    calendar_modify_todo_todaypane_command: true,
-    calendar_delete_todo_command: true,
+    "calendar_new_todo_command",
+    "calendar_new_todo_context_command",
+    "calendar_new_todo_todaypane_command",
+    "calendar_modify_todo_command",
+    "calendar_modify_todo_todaypane_command",
+    "calendar_delete_todo_command",
 
-    calendar_new_calendar_command: true,
-    calendar_edit_calendar_command: true,
-    calendar_delete_calendar_command: true,
+    "calendar_new_calendar_command",
+    "calendar_edit_calendar_command",
+    "calendar_delete_calendar_command",
 
-    calendar_import_command: true,
-    calendar_export_command: true,
-    calendar_export_selection_command: true,
+    "calendar_import_command",
+    "calendar_export_command",
+    "calendar_export_selection_command",
 
-    calendar_publish_selected_calendar_command: true,
-    calendar_publish_calendar_command: true,
-    calendar_publish_selected_events_command: true,
+    "calendar_publish_selected_calendar_command",
+    "calendar_publish_calendar_command",
+    "calendar_publish_selected_events_command",
 
-    calendar_view_next_command: true,
-    calendar_view_prev_command: true,
+    "calendar_view_next_command",
+    "calendar_view_prev_command",
 
-    calendar_toggle_orientation_command: true,
-    calendar_toggle_workdays_only_command: true,
+    "calendar_toggle_orientation_command",
+    "calendar_toggle_workdays_only_command",
 
-    "calendar_day-view_command": true,
-    "calendar_week-view_command": true,
-    "calendar_multiweek-view_command": true,
-    "calendar_month-view_command": true,
+    "calendar_day-view_command",
+    "calendar_week-view_command",
+    "calendar_multiweek-view_command",
+    "calendar_month-view_command",
 
-    calendar_task_filter_command: true,
-    calendar_task_filter_todaypane_command: true,
-    calendar_reload_remote_calendars: true,
-    calendar_show_unifinder_command: true,
-    calendar_toggle_completed_command: true,
-    "calendar_percentComplete-0_command": true,
-    "calendar_percentComplete-25_command": true,
-    "calendar_percentComplete-50_command": true,
-    "calendar_percentComplete-75_command": true,
-    "calendar_percentComplete-100_command": true,
-    "calendar_priority-0_command": true,
-    "calendar_priority-9_command": true,
-    "calendar_priority-5_command": true,
-    "calendar_priority-1_command": true,
-    "calendar_general-priority_command": true,
-    "calendar_general-progress_command": true,
-    "calendar_general-postpone_command": true,
-    "calendar_postpone-1hour_command": true,
-    "calendar_postpone-1day_command": true,
-    "calendar_postpone-1week_command": true,
-    calendar_task_category_command: true,
+    "calendar_task_filter_command",
+    "calendar_task_filter_todaypane_command",
+    "calendar_reload_remote_calendars",
+    "calendar_show_unifinder_command",
+    "calendar_toggle_completed_command",
+    "calendar_percentComplete-0_command",
+    "calendar_percentComplete-25_command",
+    "calendar_percentComplete-50_command",
+    "calendar_percentComplete-75_command",
+    "calendar_percentComplete-100_command",
+    "calendar_priority-0_command",
+    "calendar_priority-9_command",
+    "calendar_priority-5_command",
+    "calendar_priority-1_command",
+    "calendar_general-priority_command",
+    "calendar_general-progress_command",
+    "calendar_general-postpone_command",
+    "calendar_postpone-1hour_command",
+    "calendar_postpone-1day_command",
+    "calendar_postpone-1week_command",
+    "calendar_task_category_command",
 
-    calendar_attendance_command: true,
+    "calendar_attendance_command",
 
     // for events/tasks in a tab
-    cmd_save: true,
-    cmd_accept: true,
+    "cmd_save",
+    "cmd_accept",
 
     // Pseudo commands
-    calendar_in_foreground: true,
-    calendar_in_background: true,
-    calendar_mode_calendar: true,
-    calendar_mode_task: true,
+    "calendar_in_foreground",
+    "calendar_in_background",
+    "calendar_mode_calendar",
+    "calendar_mode_task",
 
-    cmd_selectAll: true,
-  },
+    "cmd_selectAll",
+  ]),
 
   updateCommands() {
-    for (let command in this.commands) {
-      goUpdateCommand(command);
-    }
+    this.commands.forEach(goUpdateCommand);
   },
 
   supportsCommand(aCommand) {
-    if (aCommand in this.commands) {
+    if (this.commands.has(aCommand)) {
       return true;
     }
     if (this.defaultContoller) {
@@ -274,7 +272,7 @@ var calendarController = {
             return this.defaultController.isCommandEnabled(aCommand);
           }
         }
-        if (aCommand in this.commands) {
+        if (this.commands.has(aCommand)) {
           // All other commands we support should be enabled by default
           return true;
         }
@@ -691,27 +689,27 @@ var calendarController = {
 var calendarController2 = {
   defaultController: null,
 
-  commands: {
-    cmd_cut: true,
-    cmd_copy: true,
-    cmd_paste: true,
-    cmd_undo: true,
-    cmd_redo: true,
-    cmd_print: true,
-    cmd_pageSetup: true,
+  commands: new Set([
+    "cmd_cut",
+    "cmd_copy",
+    "cmd_paste",
+    "cmd_undo",
+    "cmd_redo",
+    "cmd_print",
+    "cmd_pageSetup",
 
-    cmd_printpreview: true,
-    button_print: true,
-    button_delete: true,
-    cmd_delete: true,
-    cmd_properties: true,
-    cmd_goForward: true,
-    cmd_goBack: true,
-    cmd_fullZoomReduce: true,
-    cmd_fullZoomEnlarge: true,
-    cmd_fullZoomReset: true,
-    cmd_showQuickFilterBar: true,
-  },
+    "cmd_printpreview",
+    "button_print",
+    "button_delete",
+    "cmd_delete",
+    "cmd_properties",
+    "cmd_goForward",
+    "cmd_goBack",
+    "cmd_fullZoomReduce",
+    "cmd_fullZoomEnlarge",
+    "cmd_fullZoomReset",
+    "cmd_showQuickFilterBar",
+  ]),
 
   // These functions can use the same from the calendar controller for now.
   updateCommands: calendarController.updateCommands,
@@ -919,15 +917,12 @@ function calendarUpdateDeleteCommand(selectedItems) {
   }
 
   if (CalendarDeleteCommandEnabled != oldValue) {
-    let commands = [
+    [
       "calendar_delete_event_command",
       "calendar_delete_todo_command",
       "calendar_delete_focused_item_command",
       "button_delete",
       "cmd_delete",
-    ];
-    for (let command of commands) {
-      goUpdateCommand(command);
-    }
+    ].forEach(goUpdateCommand);
   }
 }
