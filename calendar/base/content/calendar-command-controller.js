@@ -880,31 +880,23 @@ function deleteSelectedItems() {
 }
 
 function calendarUpdateNewItemsCommand() {
-  // define command set to update
-  let eventCommands = ["calendar_new_event_command", "calendar_new_event_context_command"];
-  let taskCommands = [
-    "calendar_new_todo_command",
-    "calendar_new_todo_context_command",
-    "calendar_new_todo_todaypane_command",
-  ];
-
-  // re-calculate command status
-  CalendarNewEventsCommandEnabled = false;
-  CalendarNewTasksCommandEnabled = false;
+  // Re-calculate command status.
   let calendars = cal
     .getCalendarManager()
     .getCalendars()
     .filter(cal.acl.isCalendarWritable)
     .filter(cal.acl.userCanAddItemsToCalendar);
-  if (calendars.some(cal.item.isEventCalendar)) {
-    CalendarNewEventsCommandEnabled = true;
-  }
-  if (calendars.some(cal.item.isTaskCalendar)) {
-    CalendarNewTasksCommandEnabled = true;
-  }
 
-  eventCommands.forEach(goUpdateCommand);
-  taskCommands.forEach(goUpdateCommand);
+  CalendarNewEventsCommandEnabled = calendars.some(cal.item.isEventCalendar);
+  CalendarNewTasksCommandEnabled = calendars.some(cal.item.isTaskCalendar);
+
+  [
+    "calendar_new_event_command",
+    "calendar_new_event_context_command",
+    "calendar_new_todo_command",
+    "calendar_new_todo_context_command",
+    "calendar_new_todo_todaypane_command",
+  ].forEach(goUpdateCommand);
 }
 
 function calendarUpdateDeleteCommand(selectedItems) {

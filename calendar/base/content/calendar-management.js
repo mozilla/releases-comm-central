@@ -614,17 +614,25 @@ var compositeObserver = {
 
   onStartBatch() {},
   onEndBatch() {},
-  onAddItem() {},
-  onModifyItem() {},
-  onDeleteItem() {},
-  onError() {},
-  onPropertyChanged() {},
-  onPropertyDeleting() {},
 
   onLoad() {
     calendarUpdateNewItemsCommand();
     document.commandDispatcher.updateCommands("calendar_commands");
   },
+
+  onAddItem() {},
+  onModifyItem() {},
+  onDeleteItem() {},
+  onError() {},
+
+  onPropertyChanged(calendar, name, value, oldValue) {
+    // Update commands when a calendar is enabled or disabled.
+    if (name == "disabled") {
+      calendarUpdateNewItemsCommand();
+    }
+  },
+
+  onPropertyDeleting() {},
 
   onCalendarAdded(aCalendar) {
     // Update the calendar commands for number of remote calendars and for
