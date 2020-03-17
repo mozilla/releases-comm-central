@@ -626,9 +626,10 @@ var compositeObserver = {
   onError() {},
 
   onPropertyChanged(calendar, name, value, oldValue) {
-    // Update commands when a calendar is enabled or disabled.
     if (name == "disabled") {
+      // Update commands when a calendar has been enabled or disabled.
       calendarUpdateNewItemsCommand();
+      document.commandDispatcher.updateCommands("calendar_commands");
     }
   },
 

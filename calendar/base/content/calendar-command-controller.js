@@ -197,8 +197,8 @@ var calendarController = {
       case "calendar_publish_selected_events_command":
         return this.item_selected;
 
-      case "calendar_reload_remote_calendar":
-        return !this.no_network_calendars && !this.offline;
+      case "calendar_reload_remote_calendars":
+        return this.has_enabled_network_calendars && !this.offline;
       case "calendar_attendance_command": {
         let attendSel = false;
         if (this.todo_tasktree_focused) {
@@ -568,10 +568,17 @@ var calendarController = {
   },
 
   /**
-   * Returns a boolean indicating if all calendars are local
+   * Returns a boolean indicating whether there is at least one enabled
+   * calendar that requires network access.
    */
-  get no_network_calendars() {
-    return cal.getCalendarManager().networkCalendarCount == 0;
+  get has_enabled_network_calendars() {
+    return cal
+      .getCalendarManager()
+      .getCalendars()
+      .some(
+        calendar =>
+          !calendar.getProperty("disabled") && calendar.getProperty("requiresNetwork") !== false
+      );
   },
 
   /**
