@@ -37,6 +37,7 @@ Var InstallMaintenanceService
 Var InstallOptionalExtensions
 Var PageName
 Var PreventRebootRequired
+Var RegisterDefaultAgent
 
 ; By defining NO_STARTMENU_DIR an installer that doesn't provide an option for
 ; an application's Start Menu PROGRAMS directory and doesn't define the
