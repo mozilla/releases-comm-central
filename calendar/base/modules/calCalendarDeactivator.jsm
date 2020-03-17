@@ -50,8 +50,8 @@ var calendarDeactivator = {
     this.windows.add(window);
     window.addEventListener("unload", () => this.windows.delete(window));
 
-    if (this.isCalendarActivated) {
-      window.document.documentElement.removeAttribute("calendar-deactivated");
+    if (!this.isCalendarActivated) {
+      window.document.documentElement.setAttribute("calendar-deactivated", "");
     }
   },
 
