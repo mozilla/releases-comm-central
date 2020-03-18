@@ -10,7 +10,9 @@
 @import url("chrome://messenger/skin/shared/addressbook.css");
 
 #ab-bar2 {
-  padding: 0 4px;
+  /* Cover the titlebar with the toolbox background */
+  margin-top: -22px;
+  padding: 22px 4px 0;
 }
 
 #ab-toolbox:-moz-lwtheme {
@@ -199,7 +201,7 @@
 }
 
 #titlebar {
-  display: none;
+  height: 22px;
 }
 
 #titlebar-buttonbox-container {
@@ -207,6 +209,12 @@
   margin-inline-start: 7px;
 }
 
-#titlebar-spacer {
-  display: -moz-box;
+#titlebar-buttonbox {
+  margin-inline: 0;
+}
+
+#titlebar-title {
+  text-align: center;
+  /* Equalize  the titlebar-buttonbox width */
+  padding-inline-end: 60px;
 }

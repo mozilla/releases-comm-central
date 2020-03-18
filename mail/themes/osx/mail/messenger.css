@@ -576,14 +576,12 @@ treecol.treecol-image:hover:active {
  * doesn't reverse the order of the items in the titlebar in RTL mode. */
 .titlebar-placeholder[type="caption-buttons"],
 #titlebar-buttonbox {
-  margin-right: 12px;
-  margin-left: 12px;
+  margin-inline: 12px;
 }
 
 .titlebar-placeholder[type="fullscreen-button"],
 #titlebar-fullscreen-button {
-  margin-right: 7px;
-  margin-left: 7px;
+  margin-inline: 7px;
 }
 
 #titlebar-fullscreen-button {

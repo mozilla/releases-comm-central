@@ -5185,6 +5185,9 @@ function SetComposeWindowTitle(isPrintPreview = false) {
     brandShortName,
   ]);
   document.title = newTitle;
+  if (AppConstants.platform == "macosx") {
+    document.getElementById("titlebar-title-label").value = newTitle;
+  }
 }
 
 // Check for changes to document and allow saving before closing

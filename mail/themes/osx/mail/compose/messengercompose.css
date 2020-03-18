@@ -53,7 +53,9 @@
 }
 
 #composeToolbar2 {
-  padding: 0 4px;
+  /* Cover the titlebar with the toolbox background */
+  margin-top: -22px;
+  padding: 22px 4px 0;
 }
 
 toolbar[nowindowdrag="true"] {
@@ -929,12 +931,22 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon)
 }
 
 #titlebar {
-  display: none;
+  height: 22px;
 }
 
 #titlebar-buttonbox-container {
   margin-top: 3px;
   margin-inline-start: 7px;
+}
+
+#titlebar-buttonbox {
+  margin-inline: 0;
+}
+
+#titlebar-title {
+  text-align: center;
+  /* Equalize  the titlebar-buttonbox width */
+  padding-inline-end: 60px;
 }
 
 /* Styles for the default system dark theme */

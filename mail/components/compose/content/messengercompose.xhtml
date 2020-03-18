@@ -44,10 +44,13 @@
         onfocus="EditorOnFocus()"
         title="&msgComposeWindow.title;"
         windowtype="msgcompose"
-        macanimationtype="document"
         toggletoolbar="true"
         persist="screenX screenY width height sizemode"
         lightweightthemes="true"
+#ifdef XP_MACOSX
+        macanimationtype="document"
+        chromemargin="0,-1,-1,-1"
+#endif
         fullscreenbutton="true">
 
   <stringbundle id="bundle_composeMsgs" src="chrome://messenger/locale/messengercompose/composeMsgs.properties"/>
@@ -800,22 +803,6 @@
             oncommand="moveSelectedPills(document.popupNode, 'addr_bcc')"/>
 </menupopup>
 
-#ifdef XP_MACOSX
-  <vbox id="titlebar">
-    <hbox id="titlebar-content">
-      <spacer id="titlebar-spacer" flex="1"/>
-      <hbox id="titlebar-buttonbox-container" align="start">
-        <hbox id="titlebar-buttonbox">
-          <toolbarbutton class="titlebar-button" id="titlebar-min" oncommand="window.minimize();"/>
-          <toolbarbutton class="titlebar-button" id="titlebar-max" oncommand="onTitlebarMaxClick();"/>
-          <toolbarbutton class="titlebar-button" id="titlebar-close" oncommand="window.close()"/>
-        </hbox>
-      </hbox>
-      <hbox id="titlebar-fullscreen-button"/>
-    </hbox>
-  </vbox>
-#endif
-
   <toolbox id="compose-toolbox"
            class="toolbox-top"
            mode="full"
@@ -826,6 +813,23 @@
 #endif
            labelalign="end"
            defaultlabelalign="end">
+#ifdef XP_MACOSX
+  <vbox id="titlebar">
+    <hbox id="titlebar-content">
+      <hbox id="titlebar-buttonbox-container" align="start">
+        <hbox id="titlebar-buttonbox">
+          <toolbarbutton class="titlebar-button" id="titlebar-min" oncommand="window.minimize();"/>
+          <toolbarbutton class="titlebar-button" id="titlebar-max" oncommand="onTitlebarMaxClick();"/>
+          <toolbarbutton class="titlebar-button" id="titlebar-close" oncommand="window.close()"/>
+        </hbox>
+      </hbox>
+      <hbox id="titlebar-title" align="center" flex="1">
+        <label id="titlebar-title-label" value="&msgComposeWindow.title;" flex="1"/>
+      </hbox>
+      <hbox id="titlebar-fullscreen-button"/>
+    </hbox>
+  </vbox>
+#endif
 
   <!-- Menu -->
   <!-- if you change the id of the menubar, be sure to update mailCore.js::CustomizeMailToolbar and MailToolboxCustomizeDone -->
