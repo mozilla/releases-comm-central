@@ -46,6 +46,11 @@
                           tbattr="tabbrowser-multiple tabbrowser-tab"
                           oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
                                      tabbrowser.removeAllTabsBut(tabbrowser.mContextTab);"/>
+            <xul:menuitem label="&closeTabsToTheEnd.label;"
+                          accesskey="&closeTabsToTheEnd.accesskey;"
+                          tbattr="tabbrowser-totheend tabbrowser-tab"
+                          oncommand="var tabbrowser = this.parentNode.parentNode.parentNode.parentNode;
+                                     tabbrowser.removeTabsToTheEndFrom(tabbrowser.mContextTab);"/>
             <xul:menuseparator/>
             <xul:menuitem label="&newTab.label;" accesskey="&newTab.accesskey;"
                           xbl:inherits="oncommand=onnewtab"/>
@@ -97,6 +102,9 @@
       <children/>
     </content>
     <implementation implements="nsIDOMEventListener, nsIObserver">
+      <field name="closingTabsEnum" readonly="true">
+        ({ ALL: 0, OTHER: 1, TO_END: 2 });
+      </field>
       <field name="mSessionStore" readonly="true">
         Cc["@mozilla.org/suite/sessionstore;1"].getService(Ci.nsISessionStore);
       </field>
@@ -1106,6 +1114,7 @@
             // The user might right-click on a tab or an empty part of the tabbar.
             var isTab = this.mContextTab.localName == "tab";
             var isMultiple = this.tabs.length > 1;
+            var isAtEnd = this.getTabsToTheEndFrom(this.mContextTab).length == 0;
             var menuItems = aPopupMenu.getElementsByAttribute("tbattr", "*");
             for (let menuitem of menuItems) {
               let tbattr = menuitem.getAttribute("tbattr");
@@ -1120,6 +1129,7 @@
               }
               else
                 menuitem.disabled =
+                    (tbattr.includes("tabbrowser-totheend") && isAtEnd) ||
                     (tbattr.includes("tabbrowser-multiple") && !isMultiple) ||
                     (tbattr.includes("tabbrowser-tab") && !isTab);
             }
@@ -1707,48 +1717,133 @@
         </body>
       </method>
 
+      <method name="warnAboutClosingTabs">
+        <parameter name="aCloseTabs"/>
+        <parameter name="aTab"/>
+        <body>
+          <![CDATA[
+            var tabsToClose;
+            switch (aCloseTabs) {
+              case this.closingTabsEnum.ALL:
+                tabsToClose = this.tabs.length;
+                break;
+              case this.closingTabsEnum.OTHER:
+                tabsToClose = this.tabs.length - 1;
+                break;
+              case this.closingTabsEnum.TO_END:
+                if (!aTab)
+                  throw new Error("Required argument missing: aTab");
+
+                tabsToClose = this.getTabsToTheEndFrom(aTab).length;
+                break;
+              default:
+                throw new Error("Invalid argument: " + aCloseTabs);
+            }
+
+            if (tabsToClose <= 1)
+              return true;
+
+            const pref = aCloseTabs == this.closingTabsEnum.ALL ?
+                         "browser.tabs.warnOnClose" :
+                         "browser.tabs.warnOnCloseOther";
+            if (!Services.prefs.getBoolPref(pref))
+              return true;
+
+            //default to true: if it were false, we wouldn't get this far
+            var warnOnClose = { value:true };
+            var bundle = this.mStringBundle;
+
+            // Focus the window before prompting. This will raise any minimized
+            // window, which will make it obvious which window the prompt is
+            // for and will solve the problem of windows "obscuring" the
+            // prompt. See bug #350299 for more details.
+            window.focus();
+            var warningTitle;
+            var warningMessage;
+            var closeButton;
+            var promptMessage;
+            switch (aCloseTabs) {
+              case this.closingTabsEnum.ALL:
+                warningTitle = "tabs.closeWarningTitleAll";
+                warningMessage =
+                  PluralForm.get(tabsToClose,
+                                 bundle.getString("tabs.closeWarningAll"));
+                closeButton = "tabs.closeButtonAll";
+                promptMessage = "tabs.closeWarningPromptMeAll";
+                break;
+              case this.closingTabsEnum.OTHER:
+                // fall through
+              case this.closingTabsEnum.TO_END:
+                // fall through
+              default:
+                warningTitle = "tabs.closeWarningTitle";
+                warningMessage =
+                  PluralForm.get(tabsToClose,
+                                 bundle.getString("tabs.closeWarningOther"));
+                closeButton = "tabs.closeButton";
+                promptMessage = "tabs.closeWarningPromptMe";
+                break;
+            }
+
+            var ps = Services.prompt;
+            var buttonPressed =
+              ps.confirmEx(window,
+                           bundle.getString(warningTitle),
+                           warningMessage.replace("#1", tabsToClose),
+                           (ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0)
+                           + (ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1),
+                           bundle.getString(closeButton),
+                           null, null,
+                           bundle.getString(promptMessage),
+                           warnOnClose);
+            var reallyClose = (buttonPressed == 0);
+            // Don't set the pref unless they press OK and it's false
+            if (reallyClose && !warnOnClose.value)
+              Services.prefs.setBoolPref(pref, false);
+
+            return reallyClose;
+          ]]>
+        </body>
+      </method>
+
+      <method name="getTabsToTheEndFrom">
+        <parameter name="aTab"/>
+        <body>
+          <![CDATA[
+            let tabsToEnd = [];
+            let tabs = this.tabs;
+            for (let i = tabs.length - 1; tabs[i] != aTab && i >= 0; --i) {
+              tabsToEnd.push(tabs[i]);
+            }
+            return tabsToEnd.reverse();
+          ]]>
+        </body>
+      </method>
+
+      <method name="removeTabsToTheEndFrom">
+        <parameter name="aTab"/>
+        <body>
+          <![CDATA[
+            if (this.warnAboutClosingTabs(this.closingTabsEnum.TO_END, aTab)) {
+              let tabs = this.getTabsToTheEndFrom(aTab);
+              for (let i = tabs.length - 1; i >= 0; --i) {
+                this.removeTab(tabs[i]);
+              }
+            }
+          ]]>
+        </body>
+      </method>
+
       <method name="removeAllTabsBut">
         <parameter name="aTab"/>
         <body>
           <![CDATA[
-            var numTabs = this.tabs.length;
+            if (this.warnAboutClosingTabs(this.closingTabsEnum.OTHER)) {
+              this.selectedTab = aTab;
 
-            if (numTabs > 1) {
-              const closeOtherTabsPref = "browser.tabs.warnOnCloseOther";
-              var shouldPrompt = Services.prefs.getBoolPref(closeOtherTabsPref);
-              var reallyClose = true;
-
-              if (shouldPrompt) {
-                var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
-                                      .getService(Ci.nsIPromptService);
-
-                //default to true: if it were false, we wouldn't get this far
-                var warnOnClose = { value:true };
-                var bundle = this.mStringBundle;
-                var tabsToClose = numTabs - 1; //number of tabs to be removed
-
-                var buttonPressed = promptService.confirmEx(window,
-                                                            bundle.getString('tabs.closeWarningTitle'),
-                                                            bundle.getFormattedString("tabs.closeWarning", [tabsToClose]),
-                                                            (promptService.BUTTON_TITLE_IS_STRING * promptService.BUTTON_POS_0)
-                                                            + (promptService.BUTTON_TITLE_CANCEL * promptService.BUTTON_POS_1),
-                                                            bundle.getString('tabs.closeButton'),
-                                                            null, null,
-                                                            bundle.getString('tabs.closeWarningPromptMe'),
-                                                            warnOnClose);
-                reallyClose = (buttonPressed == 0);
-                //don't set the pref unless they press OK and it's false
-                if (reallyClose && !warnOnClose.value)
-                  Services.prefs.setBoolPref(closeOtherTabsPref, false);
-              }
-
-              if (reallyClose) {
-                this.selectedTab = aTab;
-
-                for (var i = this.tabs.length - 1; i >= 0; --i) {
-                  if (this.tabs[i] != aTab)
-                    this.removeTab(this.tabs[i]);
-                }
+              for (let i = this.tabs.length - 1; i >= 0; --i) {
+                if (this.tabs[i] != aTab)
+                  this.removeTab(this.tabs[i]);
               }
             }
           ]]>

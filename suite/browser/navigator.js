@@ -1924,10 +1924,16 @@ function updateCloseItems()
     closeItem.setAttribute("accesskey", gNavigatorBundle.getString("tabs.closeTab.accesskey"));
   }
 
-  var hideCloseOtherTabs = !browser || !browser.getStripVisibility();
-  document.getElementById("menu_closeOtherTabs").hidden = hideCloseOtherTabs;
-  if (!hideCloseOtherTabs)
-    document.getElementById("cmd_closeOtherTabs").setAttribute("disabled", hideCloseWindow);
+  var hideClose = !browser || !browser.getStripVisibility();
+  document.getElementById("menu_closeOtherTabs").hidden = hideClose;
+  if (!hideClose)
+    document.getElementById("cmd_closeOtherTabs").disabled = hideCloseWindow;
+
+  hideClose = !browser ||
+              (browser.getTabsToTheEndFrom(browser.mCurrentTab).length == 0);
+  document.getElementById("menu_closeTabsToTheEnd").hidden = hideClose;
+  if (!hideClose)
+    document.getElementById("cmd_closeTabsToTheEnd").disabled = hideClose;
 }
 
 function updateRecentMenuItems()
@@ -2019,6 +2025,12 @@ function BrowserCloseOtherTabs()
 {
   var browser = getBrowser();
   browser.removeAllTabsBut(browser.mCurrentTab);
+}
+
+function BrowserCloseTabsToTheEnd()
+{
+  var browser = getBrowser();
+  browser.removeTabsToTheEndFrom(browser.mCurrentTab);
 }
 
 function BrowserCloseTabOrWindow()
@@ -2921,7 +2933,6 @@ function WindowIsClosing()
   var browser = getBrowser();
   var cn = browser.tabContainer.childNodes;
   var numtabs = cn.length;
-  var reallyClose = true;
 
   if (!gPrivate && AppConstants.platform != "macosx" && isClosingLastBrowser()) {
     let closingCanceled = Cc["@mozilla.org/supports-PRBool;1"]
@@ -2935,28 +2946,8 @@ function WindowIsClosing()
     return true;
   }
 
-  if (!gPrivate && numtabs > 1) {
-    var shouldPrompt = Services.prefs.getBoolPref("browser.tabs.warnOnClose");
-    if (shouldPrompt) {
-      //default to true: if it were false, we wouldn't get this far
-      var warnOnClose = {value:true};
-
-       var buttonPressed = Services.prompt.confirmEx(window,
-         gNavigatorBundle.getString('tabs.closeWarningTitle'),
-         gNavigatorBundle.getFormattedString("tabs.closeWarning", [numtabs]),
-         (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0)
-            + (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1),
-            gNavigatorBundle.getString('tabs.closeButton'),
-            null, null,
-            gNavigatorBundle.getString('tabs.closeWarningPromptMe'),
-            warnOnClose);
-      reallyClose = (buttonPressed == 0);
-      //don't set the pref unless they press OK and it's false
-      if (reallyClose && !warnOnClose.value) {
-        Services.prefs.setBoolPref("browser.tabs.warnOnClose", false);
-      }
-    } //if the warn-me pref was true
-  } //if multiple tabs are open
+  var reallyClose = gPrivate ||
+                    browser.warnAboutClosingTabs(browser.closingTabsEnum.ALL);
 
   for (var i = 0; reallyClose && i < numtabs; ++i) {
     var ds = browser.getBrowserForTab(cn[i]).docShell;

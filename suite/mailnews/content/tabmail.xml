@@ -164,6 +164,7 @@
       <stylesheet src="chrome://navigator/skin/tabbrowser.css"/>
     </resources>
     <content>
+      <xul:stringbundle anonid="tmstringbundle" src="chrome://messenger/locale/tabmail.properties"/>
       <xul:tabbox anonid="tabbox"
                   flex="1"
                   eventnode="document"
@@ -265,7 +266,12 @@
       <field name="panelContainer" readonly="true">
         document.getElementById(this.getAttribute("panelcontainer"));
       </field>
-
+      <field name="tabs" readonly="true">
+        this.tabContainer.childNodes
+      </field>
+      <field name="mStringBundle">
+        document.getAnonymousElementByAttribute(this, "anonid", "tmstringbundle");
+      </field>
       <field name="mContextTab">
         null
       </field>

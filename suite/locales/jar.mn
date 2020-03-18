@@ -315,6 +315,7 @@
   locale/@AB_CD@/messenger/start.dtd                                        (%chrome/mailnews/start.dtd)
   locale/@AB_CD@/messenger/subscribe.dtd                                    (%chrome/mailnews/subscribe.dtd)
   locale/@AB_CD@/messenger/subscribe.properties                             (%chrome/mailnews/subscribe.properties)
+  locale/@AB_CD@/messenger/tabmail.properties                               (%chrome/mailnews/tabmail.properties)
   locale/@AB_CD@/messenger/textImportMsgs.properties                        (%chrome/mailnews/textImportMsgs.properties)
   locale/@AB_CD@/messenger/threadpane.dtd                                   (%chrome/mailnews/threadpane.dtd)
   locale/@AB_CD@/messenger/vCardImportMsgs.properties                       (%chrome/mailnews/vCardImportMsgs.properties)

@@ -835,32 +835,8 @@ function MailWindowIsClosing(aCancelQuit, aTopic, aData)
       aCancelQuit.data)
     return false;
 
-  let reallyClose = true;
-  let numtabs = GetTabMail().tabInfo.length;
-  if (numtabs > 1)
-  {
-    let shouldPrompt = Services.prefs.getBoolPref("browser.tabs.warnOnClose");
-    if (shouldPrompt)
-    {
-      // default to true: if it were false, we wouldn't get this far
-      let warnOnClose = {value: true};
-      let buttonPressed = Services.prompt.confirmEx(
-        window,
-        gMessengerBundle.getString('tabs.closeWarningTitle'),
-        gMessengerBundle.getFormattedString("tabs.closeWarning", [numtabs], 1),
-        (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0) +
-        (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1),
-        gMessengerBundle.getString('tabs.closeButton'),
-        null,
-        null,
-        gMessengerBundle.getString('tabs.closeWarningPromptMe'),
-        warnOnClose);
-      reallyClose = (buttonPressed == 0);
-      // don't set the pref unless OK was pressed and it's false
-      if (reallyClose && !warnOnClose.value)
-        Services.prefs.setBoolPref("browser.tabs.warnOnClose", false);
-    }
-  }
+  let tabmail = GetTabMail();
+  let reallyClose = tabmail.warnAboutClosingTabs(tabmail.closingTabsEnum.ALL);
 
   if (!reallyClose && aTopic == "quit-application-requested")
     aCancelQuit.data = true;

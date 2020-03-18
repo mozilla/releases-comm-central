@@ -188,6 +188,8 @@
     <command id="cmd_printpreview" oncommand="BrowserPrintPreview();"/>
     <command id="cmd_close" oncommand="BrowserCloseTabOrWindow()"/>
     <command id="cmd_closeOtherTabs" oncommand="BrowserCloseOtherTabs()"/>
+    <command id="cmd_closeTabsToTheEnd"
+             oncommand="BrowserCloseTabsToTheEnd();"/>
     <command id="cmd_closeWindow" oncommand="BrowserTryToCloseWindow()"/>
 
     <!-- Edit Menu -->
@@ -303,6 +305,10 @@
                   command="Browser:OpenFile"/>
         <menuitem id="menu_close"/>
         <menuitem id="menu_closeOtherTabs" command="cmd_closeOtherTabs" label="&closeOtherTabs.label;" accesskey="&closeOtherTabs.accesskey;"/>
+        <menuitem id="menu_closeTabsToTheEnd"
+                  label="&closeTabsToTheEnd.label;"
+                  accesskey="&closeTabsToTheEnd.accesskey;"
+                  command="cmd_closeTabsToTheEnd"/>
         <menuitem id="menu_closeWindow" hidden="true" command="cmd_closeWindow" key="key_closeWindow" label="&closeWindow.label;" accesskey="&closeWindow.accesskey;"/>
         <menuseparator/>
         <menuitem id="savepage" valueSaveAs="&savePageAsCmd.label;" valueSave="&savePageCmd.label;"
