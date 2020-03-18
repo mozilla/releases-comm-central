@@ -1843,7 +1843,7 @@
               { bubbles: true, cancelable: false }));
 
             if (savedData.pos < position)
-              this.moveTabTo(position, savedData.pos);
+              this.moveTabTo(t, savedData.pos);
 
             if (this.tabs.length == 2 && this.isBrowserEmpty(this))
               this.removeCurrentTab({ disableUndo: true });
@@ -2381,14 +2381,12 @@
             aEvent.stopPropagation();
 
             var newIndex = this.getDropIndex(aEvent);
-            var tabIndex;
             var dt = aEvent.dataTransfer;
             var draggedTab = dt.mozSourceNode;
             if (draggedTab && draggedTab.parentNode == this.tabContainer) {
-              tabIndex = this.getTabIndex(draggedTab);
-              if (newIndex > tabIndex)
+              if (newIndex > this.getTabIndex(draggedTab))
                 newIndex--;
-              this.moveTabTo(tabIndex, newIndex);
+              this.moveTabTo(draggedTab, newIndex);
               return;
             }
 
@@ -2434,8 +2432,7 @@
                   triggeringPrincipal,
                 });
 
-                if (newIndex != this.tabs.length - 1)
-                  this.moveTabTo(this.tabs.length - 1, newIndex);
+                this.moveTabTo(tab, newIndex);
               }
               else {
                 // We're adding a new tab, but do not want parent-tab tracking.
@@ -2444,8 +2441,7 @@
                   triggeringPrincipal,
                 });
 
-                if (newIndex != this.tabs.length - 1)
-                  this.moveTabTo(this.tabs.length - 1, newIndex);
+                this.moveTabTo(tab, newIndex);
                 if (this.mCurrentTab != tab && !bgLoad)
                   this.selectedTab = tab;
               }
@@ -2474,30 +2470,39 @@
       </method>
 
       <method name="moveTabTo">
-        <parameter name="aSrcIndex"/>
-        <parameter name="aDestIndex"/>
+        <parameter name="aTab"/>
+        <parameter name="aIndex"/>
         <body>
           <![CDATA[
             // for compatibility with extensions
-            if (typeof(aSrcIndex) != "number")
-              aSrcIndex = this.getTabIndex(aSrcIndex);
+            if (typeof(aTab) == "number") {
+              oldPosition = aTab;
+              aTab = this.tabs[oldPosition];
+            } else {
+              oldPosition = this.getTabIndex(aTab);
+            }
 
-            if (aSrcIndex == aDestIndex)
+            if (oldPosition == aIndex)
               return;
 
-            this._browsers = null; // invalidate cache
             this.mLastRelatedIndex = 0;
 
-            this.mTabFilters.splice(aDestIndex, 0, this.mTabFilters.splice(aSrcIndex, 1)[0]);
-            this.mTabListeners.splice(aDestIndex, 0, this.mTabListeners.splice(aSrcIndex, 1)[0]);
+            this.mTabFilters.splice(aIndex, 0, this.mTabFilters.splice(oldPosition, 1)[0]);
+            this.mTabListeners.splice(aIndex, 0, this.mTabListeners.splice(oldPosition, 1)[0]);
 
             let wasFocused = (document.activeElement == this.mCurrentTab);
 
+            if (aIndex >= oldPosition)
+              ++aIndex;
             this.mCurrentTab._selected = false;
 
-            if (aDestIndex >= aSrcIndex)
-              ++aDestIndex;
-            var tab = this.tabContainer.insertBefore(this.tabs[aSrcIndex], this.tabs.item(aDestIndex));
+            // invalidate cache
+            this._browsers = null;
+
+            // Use .item() instead of [] because dragging to the end of the
+            // strip goes out of bounds: .item() returns null (so it acts like
+            // appendChild), but [] throws.
+            var tab = this.tabContainer.insertBefore(aTab, this.tabs.item(aIndex));
 
             this.mCurrentTab._selected = true;
 
@@ -2508,7 +2513,7 @@
 
             tab.dispatchEvent(new UIEvent("TabMove",
               { bubbles: true, cancelable: false, view: window,
-                detail: aSrcIndex }));
+                detail: oldPosition }));
           ]]>
         </body>
       </method>
@@ -2579,7 +2584,7 @@
           <![CDATA[
             var tabPos = this.tabContainer.selectedIndex;
             if (tabPos < this.browsers.length - 1) {
-              this.moveTabTo(tabPos, tabPos + 1);
+              this.moveTabTo(this.mCurrentTab, tabPos + 1);
             }
             else if (this.arrowKeysShouldWrap)
               this.moveTabToStart();
@@ -2592,7 +2597,7 @@
           <![CDATA[
             var tabPos = this.tabContainer.selectedIndex;
             if (tabPos > 0) {
-              this.moveTabTo(tabPos, tabPos - 1);
+              this.moveTabTo(this.mCurrentTab, tabPos - 1);
             }
             else if (this.arrowKeysShouldWrap)
               this.moveTabToEnd();
@@ -2603,9 +2608,8 @@
       <method name="moveTabToStart">
         <body>
           <![CDATA[
-            var tabPos = this.tabContainer.selectedIndex;
-            if (tabPos > 0) {
-              this.moveTabTo(tabPos, 0);
+            if (this.tabContainer.selectedIndex > 0) {
+              this.moveTabTo(this.mCurrentTab, 0);
             }
           ]]>
         </body>
@@ -2614,9 +2618,8 @@
       <method name="moveTabToEnd">
         <body>
           <![CDATA[
-            var tabPos = this.tabContainer.selectedIndex;
-            if (tabPos < this.browsers.length - 1) {
-              this.moveTabTo(tabPos, this.browsers.length - 1);
+            if (this.tabContainer.selectedIndex < this.browsers.length - 1) {
+              this.moveTabTo(this.mCurrentTab, this.browsers.length - 1);
             }
           ]]>
         </body>
