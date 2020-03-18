@@ -779,6 +779,7 @@ var ExtensionsUI = {
       if (answer) {
         await addon.enable();
         this._updateNotifications();
+        this.showInstallNotification(tabbrowser.selectedBrowser, addon);
       }
       this.emit("sideload-response");
     });
