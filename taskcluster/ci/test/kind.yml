@@ -47,11 +47,8 @@ job-defaults:
         toolchain:
             by-test-platform:
                 win.*:
-                    - win32-fix-stacks
                     - win32-minidump-stackwalk
                 macosx.*:
-                    - macosx64-fix-stacks
                     - macosx64-minidump-stackwalk
                 default:
-                    - linux64-fix-stacks
                     - linux64-minidump-stackwalk
