@@ -1111,16 +1111,17 @@
               let tbattr = menuitem.getAttribute("tbattr");
 
               if (tbattr.includes("tabbrowser-undoclosetab")) {
-                menuitem.setAttribute("disabled", (this.usePrivateBrowsing ?
+                menuitem.disabled = (this.usePrivateBrowsing ?
                     this.savedBrowsers.length :
-                    this.mSessionStore.getClosedTabCount(window)) == 0);
+                    this.mSessionStore.getClosedTabCount(window)) == 0;
                 menuitem.hidden = (this.usePrivateBrowsing ||
                                    Services.prefs.getIntPref("browser.sessionstore.max_tabs_undo") <= 0) &&
                                   Services.prefs.getIntPref("browser.tabs.max_tabs_undo") <= 0;
               }
               else
-                menuitem.setAttribute("disabled", tbattr.includes("tabbrowser-multiple") && !isMultiple ||
-                                                  tbattr.includes("tabbrowser-tab") && !isTab)
+                menuitem.disabled =
+                    (tbattr.includes("tabbrowser-multiple") && !isMultiple) ||
+                    (tbattr.includes("tabbrowser-tab") && !isTab);
             }
           ]]>
         </body>
@@ -1742,10 +1743,7 @@
               }
 
               if (reallyClose) {
-                if (aTab.localName != "tab")
-                  aTab = this.mCurrentTab;
-                else
-                  this.tabContainer.selectedItem = aTab;
+                this.selectedTab = aTab;
 
                 for (var i = this.tabs.length - 1; i >= 0; --i) {
                   if (this.tabs[i] != aTab)
@@ -1864,9 +1862,6 @@
         <body>
           <![CDATA[
             this.mLastRelatedIndex = 0;
-
-            if (aTab.localName != "tab")
-              aTab = this.mCurrentTab;
 
             if (!aParams) {
               aParams = {
@@ -2077,10 +2072,7 @@
         <parameter name="aTab"/>
         <body>
           <![CDATA[
-            if (aTab.localName != "tab")
-              aTab = this.mCurrentTab;
-
-            aTab.linkedBrowser.reload();
+            this.getBrowserForTab(aTab).reload();
           ]]>
         </body>
       </method>
@@ -2184,8 +2176,6 @@
         <parameter name="aTab"/>
         <body>
           <![CDATA[
-            if (aTab.localName != "tab")
-              return null;
             return aTab.linkedBrowser;
           ]]>
         </body>
