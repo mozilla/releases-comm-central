@@ -1076,7 +1076,7 @@ pref("devtools.webconsole.input.context", false);
 
 // Set to true to eagerly show the results of webconsole terminal evaluations
 // when they don't have side effects.
-pref("devtools.webconsole.input.eagerEvaluation", false);
+pref("devtools.webconsole.input.eagerEvaluation", true);
 
 // Browser console filters
 pref("devtools.browserconsole.filter.error", true);
