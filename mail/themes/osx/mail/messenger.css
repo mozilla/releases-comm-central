@@ -394,7 +394,7 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
   box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
 }
 
-.toolbarbutton-1[disabled="true"] > .toolbarbutton-icon,
+.toolbarbutton-1[disabled="true"] .toolbarbutton-icon,
 .toolbarbutton-1[type="menu-button"]
   > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
 .toolbarbutton-1[disabled="true"] > .toolbarbutton-menu-dropmarker,
