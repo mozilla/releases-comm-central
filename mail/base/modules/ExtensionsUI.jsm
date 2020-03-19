@@ -575,13 +575,6 @@ var gXPInstallObserver = {
             args = [install.name, install.addon.id, message];
           }
 
-          // Add Learn More link when refusing to install an unsigned add-on
-          if (install.error == AddonManager.ERROR_SIGNEDSTATE_REQUIRED) {
-            options.learnMoreURL =
-              Services.urlFormatter.formatURLPref("app.support.baseURL") +
-              "unsigned-addons";
-          }
-
           messageString = addonsBundle.getFormattedString(error, args);
 
           showNotification(
@@ -809,7 +802,7 @@ var ExtensionsUI = {
     });
   },
 
-  observe(subject, topic, data) {
+  async observe(subject, topic, data) {
     if (topic == "webextension-permission-prompt") {
       let { target, info } = subject.wrappedJSObject;
 
@@ -823,17 +816,22 @@ var ExtensionsUI = {
         progressNotification.remove();
       }
 
-      info.unsigned =
-        info.addon.signedState <= AddonManager.SIGNEDSTATE_MISSING;
-      if (
-        info.unsigned &&
-        Cu.isInAutomation &&
-        Services.prefs.getBoolPref("extensions.ui.ignoreUnsigned", false)
-      ) {
-        info.unsigned = false;
-      }
-
       let strings = this._buildStrings(info);
+      let data = new ExtensionData(info.addon.getResourceURI());
+      await data.loadManifest();
+      if (data.manifest.experiment_apis) {
+        strings.msgs = [
+          addonsBundle.getFormattedString(
+            "webextPerms.description.experiment",
+            [brandShortName]
+          ),
+        ];
+        if (info.source != "AMO") {
+          strings.experimentWarning = addonsBundle.getString(
+            "webextPerms.experimentWarning"
+          );
+        }
+      }
 
       // If this is an update with no promptable permissions, just apply it
       if (info.type == "update" && !strings.msgs.length) {
@@ -966,14 +964,6 @@ var ExtensionsUI = {
     let strings = ExtensionData.formatPermissionStrings(info2, bundle, {
       collapseOrigins: true,
     });
-    // Silence the unsigned add-on warning. We can't stop
-    // formatPermissionStrings returning this string without changing it in
-    // addons.properties, and it might be wanted in future.
-    if (
-      strings.text == bundle.GetStringFromName("webextPerms.unsignedWarning")
-    ) {
-      strings.text = "";
-    }
     strings.addonName = info.addon.name;
     strings.learnMore = addonsBundle.getString("webextPerms.learnMore");
     return strings;
@@ -1018,6 +1008,12 @@ var ExtensionsUI = {
             item.textContent = msg;
             list.appendChild(item);
           }
+
+          let experimentsEl = doc.getElementById(
+            "addon-webext-experiment-warning"
+          );
+          experimentsEl.textContent = strings.experimentWarning;
+          experimentsEl.hidden = !strings.experimentWarning;
         } else if (topic == "swapping") {
           return true;
         }

@@ -11,7 +11,6 @@ AddonTestUtils.initMochitest(this);
 const ID = "update2@tests.mozilla.org";
 const ID_ICON = "update_icon2@tests.mozilla.org";
 const ID_PERMS = "update_perms@tests.mozilla.org";
-const ID_LEGACY = "legacy_update@tests.mozilla.org";
 const FAKE_INSTALL_TELEMETRY_SOURCE = "fake-install-source";
 
 requestLongerTimeout(2);
@@ -41,6 +40,23 @@ function promiseViewLoaded(tab, viewid) {
 function getBadgeStatus() {
   let menuButton = document.getElementById("button-appmenu");
   return menuButton.getAttribute("badge-status");
+}
+
+function promiseBadgeChange() {
+  return new Promise(resolve => {
+    let menuButton = document.getElementById("button-appmenu");
+    new MutationObserver((mutationsList, observer) => {
+      for (let mutation of mutationsList) {
+        if (mutation.attributeName == "badge-status") {
+          observer.disconnect();
+          resolve();
+          return;
+        }
+      }
+    }).observe(menuButton, {
+      attributes: true,
+    });
+  });
 }
 
 // Set some prefs that apply to all the tests in this file
@@ -84,9 +100,10 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
   // Trigger an update check and wait for the update for this addon
   // to be downloaded.
   let updatePromise = promiseInstallEvent(addon, "onDownloadEnded");
+  let badgePromise = promiseBadgeChange();
 
   AddonManagerPrivate.backgroundUpdateCheck();
-  await updatePromise;
+  await Promise.all([updatePromise, badgePromise]);
 
   is(getBadgeStatus(), "addon-alert", "Should have addon alert badge");
 
@@ -129,8 +146,9 @@ async function backgroundUpdateTest(url, id, checkIconFn) {
 
   // Re-check for an update
   updatePromise = promiseInstallEvent(addon, "onDownloadEnded");
+  badgePromise = promiseBadgeChange();
   await AddonManagerPrivate.backgroundUpdateCheck();
-  await updatePromise;
+  await Promise.all([updatePromise, badgePromise]);
 
   is(getBadgeStatus(), "addon-alert", "Should have addon alert badge");
 

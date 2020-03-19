@@ -221,10 +221,13 @@ function checkPermissionString(string, key, param, msg) {
  *        for the item (e.g., "webextPerms.description.foo") and an
  *        optional formatting parameter.
  */
-function checkNotification(panel, checkIcon, permissions) {
+function checkNotification(panel, checkIcon, permissions, warning = false) {
   let icon = panel.getAttribute("icon");
   let ul = document.getElementById("addon-webext-perm-list");
   let header = document.getElementById("addon-webext-perm-intro");
+  let experimentWarning = document.getElementById(
+    "addon-webext-experiment-warning"
+  );
   let learnMoreLink = document.getElementById("addon-webext-perm-info");
 
   if (checkIcon instanceof RegExp) {
@@ -266,6 +269,20 @@ function checkNotification(panel, checkIcon, permissions) {
       key,
       param,
       `Permission number ${i + 1} is correct`
+    );
+  }
+
+  if (warning) {
+    is(
+      experimentWarning.getAttribute("hidden"),
+      "",
+      "Experiments warning is visible"
+    );
+  } else {
+    is(
+      experimentWarning.getAttribute("hidden"),
+      "true",
+      "Experiments warning is hidden"
     );
   }
 }

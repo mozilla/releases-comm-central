@@ -192,6 +192,10 @@ html|ul.addon-installed-list {
   margin-top: 0;
 }
 
+html|ul.addon-webext-perm-list:empty {
+  display: none;
+}
+
 #tabbar-toolbar {
   -moz-appearance: none;
   padding: 0;
