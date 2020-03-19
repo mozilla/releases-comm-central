@@ -480,7 +480,7 @@ man/*
 ; [MailNews Default Preferences]
 @RESPATH@/@PREF_DIR@/mailnews.js
 @RESPATH@/@PREF_DIR@/mdn.js
-@RESPATH@/@PREF_DIR@/smime.js
+; @RESPATH@/@PREF_DIR@/e2e-prefs.js
 
 #ifdef MOZ_MAPI_SUPPORT
 @BINPATH@/MapiProxy.dll

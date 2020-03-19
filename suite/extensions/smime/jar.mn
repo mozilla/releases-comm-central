@@ -7,8 +7,6 @@ messenger.jar:
 % overlay chrome://messenger/content/messengercompose/messengercompose.xul     chrome://messenger-smime/content/msgCompSMIMEOverlay.xul
 % overlay chrome://messenger/content/msgHdrViewOverlay.xul                     chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.xul
 % overlay chrome://messenger/content/mailWindowOverlay.xul                     chrome://messenger-smime/content/msgReadSMIMEOverlay.xul
-*   content/messenger/am-smime.xhtml                                 (../../../mailnews/extensions/smime/content/am-smime.xhtml)
-    content/messenger/am-smime.js                                    (../../../mailnews/extensions/smime/content/am-smime.js)
     content/messenger/certpicker.js                                  (../../../mailnews/extensions/smime/content/certpicker.js)
     content/messenger/certpicker.xhtml                               (../../../mailnews/extensions/smime/content/certpicker.xhtml)
     content/messenger-smime/msgHdrViewSMIMEOverlay.js                (content/msgHdrViewSMIMEOverlay.js)
