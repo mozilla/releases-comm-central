@@ -89,13 +89,9 @@ function XMPPSession(aHost, aPort, aSecurity, aJID, aPassword, aAccount) {
         );
         this._account.reportDisconnected();
         return;
-      } else if (aError === this.SRV_ERROR_LOOKUP_FAILED) {
-        // An error happened during SRV lookup (e.g. user is offline,
-        // network error, DNS name does not exist, etc.).
-        this.WARN("Error during SRV: Lookup failed.");
-      } else {
-        this.ERROR("Error during SRV lookup:", aError);
       }
+
+      this.ERROR("Error during SRV lookup:", aError);
 
       // Since we don't receive a response to SRV query, we SHOULD attempt the
       // fallback process (use normal connect without SRV lookup).
@@ -161,16 +157,11 @@ XMPPSession.prototype = {
   _encrypted: false,
 
   // DNS SRV errors in XMPP.
-  SRV_ERROR_LOOKUP_FAILED: -1,
   SRV_ERROR_XMPP_NOT_SUPPORTED: -2,
 
   // Handles result of DNS SRV query and saves sorted results if it's OK in _srvRecords,
   // otherwise throws error.
   _handleSrvQuery(aResult) {
-    if (typeof aResult == "number" && aResult == -1) {
-      throw this.SRV_ERROR_LOOKUP_FAILED;
-    }
-
     this.LOG("SRV lookup: " + JSON.stringify(aResult));
     if (aResult.length == 0) {
       // RFC 6120 (Section 3.2.1) and RFC 2782 (Usage rules): No SRV records,

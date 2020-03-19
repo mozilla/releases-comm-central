@@ -201,7 +201,7 @@ load_libresolv.prototype = {
 
     // There is an error.
     if (length < 0) {
-      return -1;
+      return [];
     }
 
     let results = [];
@@ -367,7 +367,7 @@ load_dnsapi.prototype = {
 
     // There is an error.
     if (ctypes.Int64.compare(dnsStatus, this.ERROR_SUCCESS) != 0) {
-      return -1;
+      return [];
     }
 
     let results = [];
