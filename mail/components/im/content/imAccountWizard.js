@@ -313,22 +313,22 @@ var accountWizard = {
         continue;
       }
       switch (opt.type) {
-        case opt.typeBool:
+        case Ci.prplIPref.typeBool:
           if (val != opt.getBool()) {
             this.prefs.push({ opt, name, value: !!val });
           }
           break;
-        case opt.typeInt:
+        case Ci.prplIPref.typeInt:
           if (val != opt.getInt()) {
             this.prefs.push({ opt, name, value: val });
           }
           break;
-        case opt.typeString:
+        case Ci.prplIPref.typeString:
           if (val != opt.getString()) {
             this.prefs.push({ opt, name, value: val });
           }
           break;
-        case opt.typeList:
+        case Ci.prplIPref.typeList:
           if (val != opt.getListDefault()) {
             this.prefs.push({ opt, name, value: val });
           }
