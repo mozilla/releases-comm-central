@@ -94,13 +94,6 @@ var TEST_DATA = [
     output: [new dns.SRVRecord(5, 30, "xmpp.instantbird.com", 5222)],
     isConnectNextRecord: true,
   },
-
-  // Tests error happened during SRV lookup.
-  {
-    input: -1,
-    output: XMPPSession.prototype.SRV_ERROR_LOOKUP_FAILED,
-    isConnectNextRecord: false,
-  },
 ];
 
 function run_test() {
