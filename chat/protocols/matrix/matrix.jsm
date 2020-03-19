@@ -83,7 +83,23 @@ function MatrixConversation(aAccount, aName, aNick) {
 MatrixConversation.prototype = {
   __proto__: GenericConvChatPrototype,
   sendMsg(aMsg) {
-    this._account._client.sendTextMessage(this._roomId, aMsg);
+    let content = {
+      body: aMsg,
+      msgtype: "m.text",
+    };
+    this._account._client.sendEvent(
+      this._roomId,
+      "m.room.message",
+      content,
+      "",
+      (err, res) => {
+        if (err) {
+          this._account.ERROR("Failed to send message to: " + this._roomId);
+        } else {
+          // If there's no error, display the message to the user.
+        }
+      }
+    );
   },
   get room() {
     return this._account._client.getRoom(this._roomId);
