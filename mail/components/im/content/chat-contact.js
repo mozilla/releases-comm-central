@@ -26,6 +26,7 @@
         ".protoIcon": "src=iconPrpl,status",
         ".statusIcon": "status",
         ".contactDisplayName": "value=displayname,status",
+        ".contactDisplayNameInput": "value=displayname",
         ".contactStatusText": "value=statusTextWithDash",
       };
     }
@@ -100,10 +101,15 @@
             <image class="statusIcon"></image>
           </stack>
           <hbox flex="1" class="contact-hbox">
-            <label crop="end"
-                   flex="1"
-                   class="contactDisplayName blistDisplayName">
-            </label>
+            <stack>
+              <label crop="end"
+                     flex="1"
+                     class="contactDisplayName blistDisplayName">
+              </label>
+              <html:input type="text"
+                          class="contactDisplayNameInput"
+                          hidden="hidden"/>
+            </stack>
             <label crop="end"
                    flex="100000"
                    class="contactStatusText">
@@ -164,9 +170,16 @@
       }
 
       this.setAttribute("aliasing", "true");
-      let textbox = this.querySelector(".contactDisplayName");
-      textbox.getBoundingClientRect(); // force binding attachmant by forcing layout
-      textbox.select();
+      let input = this.querySelector(".contactDisplayNameInput");
+      let label = this.querySelector(".contactDisplayName");
+      input.removeAttribute("hidden");
+      label.setAttribute("hidden", "true");
+      input.focus();
+
+      this._inputBlurListener = function(event) {
+        this.finishAliasing(true);
+      }.bind(this);
+      input.addEventListener("blur", this._inputBlurListener);
 
       // Some keys (home/end for example) can make the selected item
       // of the richlistbox change without producing a blur event on
@@ -184,11 +197,16 @@
       // trigger a re-order (and a removeContact call), which sets
       // this.parentNode to undefined.
       let listbox = this.parentNode;
+      let input = this.querySelector(".contactDisplayNameInput");
+      let label = this.querySelector(".contactDisplayName");
+      input.setAttribute("hidden", "hidden");
+      label.removeAttribute("hidden");
       if (save) {
-        this.contact.alias = this.querySelector(".contactDisplayName").value;
+        this.contact.alias = input.value;
       }
       this.removeAttribute("aliasing");
       listbox.removeEventListener("select", this._parentSelectListener);
+      input.removeEventListener("blur", this._inputBlurListener);
       delete this._parentSelectListener;
       listbox.focus();
     }

@@ -208,8 +208,13 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
 
 .convUnreadCount,
 .contactDisplayName,
-.convDisplayName {
+.convDisplayName,
+.contactDisplayNameInput {
   margin-inline-end: 0;
+}
+
+.contactDisplayNameInput {
+  margin: 0;
 }
 
 .convUnreadCount {
