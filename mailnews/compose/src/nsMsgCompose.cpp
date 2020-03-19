@@ -4398,15 +4398,12 @@ nsresult nsMsgCompose::AttachmentPrettyName(const nsACString &scheme,
     return rv;
   }
 
-  // To work around a mysterious bug in VC++ 6.
-  const char *cset = (!charset || !*charset) ? "UTF-8" : charset;
-
   nsCOMPtr<nsITextToSubURI> textToSubURI =
       do_GetService(NS_ITEXTTOSUBURI_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoString retUrl;
-  rv = textToSubURI->UnEscapeURIForUI(nsDependentCString(cset), scheme, retUrl);
+  rv = textToSubURI->UnEscapeURIForUI(scheme, retUrl);
 
   if (NS_SUCCEEDED(rv)) {
     CopyUTF16toUTF8(retUrl, _retval);

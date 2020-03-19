@@ -54,7 +54,7 @@ var gPrefObserver = {
 };
 
 function getSmileRealURI(aSmile) {
-  aSmile = Services.textToSubURI.unEscapeURIForUI("UTF-8", aSmile);
+  aSmile = Services.textToSubURI.unEscapeURIForUI(aSmile);
   if (aSmile in gTheme.iconsHash) {
     return gTheme.baseUri + gTheme.iconsHash[aSmile].filename;
   }

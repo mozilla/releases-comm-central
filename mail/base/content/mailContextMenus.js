@@ -755,8 +755,7 @@ function getEmail(url) {
   }
   // Let's try to unescape it using a character set
   try {
-    var characterSet = gContextMenu.target.ownerDocument.characterSet;
-    addresses = Services.textToSubURI.unEscapeURIForUI(characterSet, addresses);
+    addresses = Services.textToSubURI.unEscapeURIForUI(addresses);
   } catch (ex) {
     // Do nothing.
   }
