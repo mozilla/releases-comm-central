@@ -216,7 +216,6 @@ add_task(function test_add_tag_with_really_long_label() {
  *                            with the data.
  * @param expectedName  Function returning the expected value of
  *                      nsIAccessible.name for the DOM element in question
- * @param expectedRole the expected value for nsIAccessible.role
  */
 let headersToTest = [
   {
@@ -231,13 +230,12 @@ let headersToTest = [
         headerValueElement.textContent
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
   },
   {
     headerName: "Content-Base",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandedcontent-baseBox > .headerValue.text-link.headerValueUrl"
+        "#expandedcontent-baseBox.headerValue.text-link.headerValueUrl"
       );
     },
     expectedName(mc, headerValueElement) {
@@ -247,110 +245,101 @@ let headersToTest = [
         headerValueElement.textContent
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
   },
   {
     headerName: "From",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandedfromBox > mail-emailaddress.emailDisplayButton"
+        "#expandedfromBox > .headerValueBox > .headerValue > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
       return (
         mc.e("expandedfromLabel").value +
         ": " +
-        headerValueElement.parentNode.getAttribute("fullAddress")
+        headerValueElement.getAttribute("fullAddress")
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
   },
   {
     headerName: "To",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandedtoBox > mail-emailaddress.emailDisplayButton"
+        "#expandedtoBox > .headerValueBox > .headerValue > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
       return (
         mc.e("expandedtoLabel").value +
         ": " +
-        headerValueElement.parentNode.getAttribute("fullAddress")
+        headerValueElement.getAttribute("fullAddress")
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
   },
   {
     headerName: "Cc",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandedccBox > mail-emailaddress.emailDisplayButton"
+        "#expandedccBox > .headerValueBox > .headerValue > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
       return (
         mc.e("expandedccLabel").value +
         ": " +
-        headerValueElement.parentNode.getAttribute("fullAddress")
+        headerValueElement.getAttribute("fullAddress")
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
   },
   {
     headerName: "Bcc",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandedbccBox > mail-emailaddress.emailDisplayButton"
+        "#expandedbccBox > .headerValueBox > .headerValue > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
       return (
         mc.e("expandedbccLabel").value +
         ": " +
-        headerValueElement.parentNode.getAttribute("fullAddress")
+        headerValueElement.getAttribute("fullAddress")
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
   },
   {
     headerName: "Reply-To",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandedreply-toBox > mail-emailaddress.emailDisplayButton"
+        "#expandedreply-toBox > .headerValueBox > .headerValue > mail-emailaddress.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
       return (
         mc.e("expandedreply-toLabel").value +
         ": " +
-        headerValueElement.parentNode.getAttribute("fullAddress")
+        headerValueElement.getAttribute("fullAddress")
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
   },
   {
     headerName: "Newsgroups",
     headerValueElement(mc) {
       return mc.window.document.querySelector(
-        "#expandednewsgroupsBox > mail-newsgroup.newsgrouplabel"
+        "#expandednewsgroupsBox > mail-newsgroup.emailDisplayButton"
       );
     },
     expectedName(mc, headerValueElement) {
       return (
         mc.e("expandednewsgroupsLabel").value +
         ": " +
-        headerValueElement.parentNode.parentNode.getAttribute("newsgroup")
+        headerValueElement.getAttribute("newsgroup")
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_ENTRY,
   },
   {
     headerName: "Tags",
     headerValueElement(mc) {
-      return mc.window.document.querySelector(
-        "#expandedtagsBox > .tagvalue.blc-FF0000"
-      );
+      return mc.window.document.querySelector("#expandedtagsBox > .tagvalue");
     },
     expectedName(mc, headerValueElement) {
       return (
@@ -359,7 +348,6 @@ let headersToTest = [
         headerValueElement.getAttribute("value")
       );
     },
-    expectedRole: Ci.nsIAccessibleRole.ROLE_LABEL,
   },
 ];
 
@@ -390,13 +378,6 @@ function verify_header_a11y(aHeaderInfo) {
       (headerAccessible = gAccService.getAccessibleFor(headerValueElement)) !=
       null,
     `didn't find accessible element for header '${aHeaderInfo.headerName}'`
-  );
-
-  Assert.equal(
-    headerAccessible.role,
-    aHeaderInfo.expectedRole,
-    `role for ${aHeaderInfo.headerName} was ${headerAccessible.role}; ` +
-      `should have been ${aHeaderInfo.expectedRole}`
   );
 
   let expectedName = aHeaderInfo.expectedName(mc, headerValueElement);
@@ -437,7 +418,7 @@ add_task(function test_a11y_attrs() {
   assert_selected_and_displayed(mc, curMessage);
 
   headersToTest.forEach(verify_header_a11y);
-}).skip(); // disabled for now, see bug 1489748
+});
 
 add_task(function test_more_button_with_many_recipients() {
   // Start on the interesting message.

@@ -49,6 +49,16 @@
     }
 
     set headerValue(val) {
+      // Solve the accessibility problem by manually fetching the translated
+      // string from the label and updating the attribute. Bug 1493608
+      if (this.getAttribute("aria-labelledby")) {
+        let ariaLabel = document.getElementById(
+          this.getAttribute("aria-labelledby")
+        );
+        this.setAttribute("aria-label", `${ariaLabel.value}: ${val}`);
+        this.removeAttribute("aria-labelledby");
+      }
+
       return (this.textContent = val);
     }
   }
@@ -119,6 +129,14 @@
           "color: " + textColor + "; background-color: " + color + ";"
         );
 
+        // Solve the accessibility problem by manually fetching the translated
+        // string from the label and updating the attribute. Bug 1493608
+        let ariaLabel = document.getElementById(
+          this.getAttribute("aria-labelledby")
+        );
+        label.setAttribute("aria-label", `${ariaLabel.value}: ${tagName}`);
+        label.removeAttribute("aria-labelledby");
+
         this.appendChild(label);
       }
     }
@@ -130,6 +148,17 @@
       this.classList.add("emailDisplayButton");
       this.setAttribute("context", "newsgroupPopup");
       this.setAttribute("popup", "newsgroupPopup");
+
+      // Solve the accessibility problem by manually fetching the translated
+      // string from the label and updating the attribute. Bug 1493608
+      let ariaLabel = document.getElementById(
+        this.getAttribute("aria-labelledby")
+      );
+      this.setAttribute(
+        "aria-label",
+        `${ariaLabel.value}: ${this.getAttribute("newsgroup")}`
+      );
+      this.removeAttribute("aria-labelledby");
     }
   }
   customElements.define("mail-newsgroup", MozMailNewsgroup);
@@ -156,6 +185,11 @@
 
         newNode.textContent = this.mNewsgroups[i];
         newNode.setAttribute("newsgroup", this.mNewsgroups[i]);
+        newNode.setAttribute(
+          "aria-labelledby",
+          this.getAttribute("aria-labelledby")
+        );
+        this.removeAttribute("aria-labelledby");
         this.appendChild(newNode);
       }
     }
@@ -443,6 +477,11 @@
       this._mailEmailAddress = document.createXULElement("mail-emailaddress");
       this._mailEmailAddress.classList.add("headerValue");
       this._mailEmailAddress.setAttribute("containsEmail", "true");
+      this._mailEmailAddress.setAttribute(
+        "aria-labelledby",
+        this.getAttribute("aria-labelledby")
+      );
+      this._mailEmailAddress.removeAttribute("aria-labelledby");
 
       this.appendChild(this._mailEmailAddress);
     }
@@ -914,14 +953,14 @@
       this.longEmailAddresses.setAttribute("align", "baseline");
 
       this.emailAddresses = document.createXULElement("description");
-      this.emailAddresses.classList.add("class", "headerValue");
+      this.emailAddresses.classList.add("headerValue");
       this.emailAddresses.setAttribute("containsEmail", "true");
       this.emailAddresses.setAttribute("flex", "1");
       this.emailAddresses.setAttribute("orient", "vertical");
       this.emailAddresses.setAttribute("pack", "start");
 
       this.more = document.createXULElement("label");
-      this.more.classList.add("class", "moreIndicator");
+      this.more.classList.add("moreIndicator");
       this.more.addEventListener("click", this.toggleWrap.bind(this));
       this.more.setAttribute("collapsed", "true");
 
@@ -1008,6 +1047,20 @@
         // Stash the headerName somewhere that UpdateEmailNodeDetails will be
         // able to find it.
         newAddressNode.setAttribute("headerName", this.headerName);
+
+        // Solve the accessibility problem by manually fetching the translated
+        // string from the label and updating the attribute. Bug 1493608
+        let ariaLabel = document.getElementById(
+          this.getAttribute("aria-labelledby")
+        );
+        newAddressNode.setAttribute(
+          "aria-label",
+          `${ariaLabel.value}: ${this.addresses[i].fullAddress ||
+            this.addresses[i].displayName ||
+            ""}`
+        );
+        newAddressNode.removeAttribute("aria-labelledby");
+
         this._updateEmailAddressNode(newAddressNode, this.addresses[i]);
         newAddressNode = this.emailAddresses.appendChild(newAddressNode);
         addrCount++;
@@ -2252,6 +2305,7 @@
         "aria-labelledby",
         element.getAttribute("aria-labelledby")
       );
+      element.removeAttribute("aria-labelledby");
 
       let params = JSON.parse(
         pill.emailInput.getAttribute("autocompletesearchparam")
