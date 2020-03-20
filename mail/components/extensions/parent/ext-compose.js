@@ -226,6 +226,7 @@ var composeEventTracker = new (class extends EventEmitter {
         if (result.details) {
           await setComposeDetails(composeWindow, result.details);
           composeWindow.GetComposeDetails();
+          composeWindow.expandRecipients();
         }
       }
     }

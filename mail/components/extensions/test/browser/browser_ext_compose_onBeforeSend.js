@@ -137,7 +137,7 @@ add_task(async function testCancel() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "compose", "messagesRead"] },
+    manifest: { permissions: ["compose"] },
   });
 
   // We can't allow sending to actually happen, this is a test. For every
@@ -145,7 +145,7 @@ add_task(async function testCancel() {
   // sending with one that only records when it has been called.
   let didTryToSendMessage = false;
   let windowListenerRemoved = false;
-  ExtensionSupport.registerWindowListener("xpcshell", {
+  ExtensionSupport.registerWindowListener("mochitest", {
     chromeURLs: [
       "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     ],
@@ -157,7 +157,7 @@ add_task(async function testCancel() {
   });
   registerCleanupFunction(() => {
     if (!windowListenerRemoved) {
-      ExtensionSupport.unregisterWindowListener("xpcshell");
+      ExtensionSupport.unregisterWindowListener("mochitest");
     }
   });
 
@@ -191,7 +191,7 @@ add_task(async function testCancel() {
   await extension.awaitFinish("finished");
   await extension.unload();
 
-  ExtensionSupport.unregisterWindowListener("xpcshell");
+  ExtensionSupport.unregisterWindowListener("mochitest");
   windowListenerRemoved = true;
 });
 
@@ -228,14 +228,16 @@ add_task(async function testChangeDetails() {
         });
       }
 
-      // Add a listener that changes the headers. Sending should continue and
-      // the headers should change. This is largely the same code as tested in
-      // browser_ext_compose_details.js, so just test that the changes happen.
+      // Add a listener that changes the headers and body. Sending should
+      // continue and the headers should change. This is largely the same code
+      // as tested in browser_ext_compose_details.js, so just test that the
+      // changes happen.
 
       let createdWindowPromise = waitForEvent("onCreated");
       await browser.compose.beginNew({
         to: ["test@test.invalid"],
         subject: "Test",
+        body: "Original body.",
       });
       let createdWindow = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
@@ -287,7 +289,11 @@ add_task(async function testChangeDetails() {
       createdWindow = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
-      await checkWindow({ to: ["test@test.invalid"], subject: "Test" });
+      await checkWindow({
+        to: ["test@test.invalid"],
+        subject: "Test",
+        body: "Original body.",
+      });
 
       [tab] = await browser.tabs.query({ windowId: createdWindow.id });
 
@@ -324,7 +330,7 @@ add_task(async function testChangeDetails() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "compose", "messagesRead"] },
+    manifest: { permissions: ["compose"] },
   });
 
   extension.onMessage("beginSend", async () => {
@@ -337,6 +343,11 @@ add_task(async function testChangeDetails() {
 
   extension.onMessage("checkWindow", async expected => {
     await checkComposeHeaders(expected);
+
+    let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
+    let body = composeWindow.GetCurrentEditor().outputToString("text/plain", 0);
+    is(body, expected.body);
+
     extension.sendMessage();
   });
 
@@ -385,6 +396,157 @@ add_task(async function testChangeDetails() {
   await new Promise(resolve => {
     outbox.deleteMessages(
       toXPCOMArray([sentMessage5, sentMessage6], Ci.nsIMutableArray),
+      null,
+      true,
+      false,
+      { OnStopCopy: resolve },
+      false
+    );
+  });
+});
+
+add_task(async function testListExpansion() {
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      function waitForEvent(eventName) {
+        return new Promise(resolve => {
+          let listener = window => {
+            browser.windows[eventName].removeListener(listener);
+            resolve(window);
+          };
+          browser.windows[eventName].addListener(listener);
+        });
+      }
+
+      async function beginSend() {
+        await new Promise(resolve => {
+          browser.test.onMessage.addListener(function listener() {
+            browser.test.onMessage.removeListener(listener);
+            resolve();
+          });
+          browser.test.sendMessage("beginSend");
+        });
+      }
+
+      function checkWindow(expected) {
+        return new Promise(resolve => {
+          browser.test.onMessage.addListener(function listener() {
+            browser.test.onMessage.removeListener(listener);
+            resolve();
+          });
+          browser.test.sendMessage("checkWindow", expected);
+        });
+      }
+
+      let addressBook = await browser.addressBooks.create({
+        name: "Baker Street",
+      });
+      let contacts = {
+        sherlock: await browser.contacts.create(addressBook, {
+          DisplayName: "Sherlock Holmes",
+          PrimaryEmail: "sherlock@bakerstreet.invalid",
+        }),
+        john: await browser.contacts.create(addressBook, {
+          DisplayName: "John Watson",
+          PrimaryEmail: "john@bakerstreet.invalid",
+        }),
+      };
+      let list = await browser.mailingLists.create(addressBook, {
+        name: "Holmes and Watson",
+        description: "Tenants221B",
+      });
+      await browser.mailingLists.addMember(list, contacts.sherlock);
+      await browser.mailingLists.addMember(list, contacts.john);
+
+      // Add a listener that changes the headers. Sending should continue and
+      // the headers should change. The mailing list should be expanded in both
+      // the To: and Bcc: headers.
+
+      let createdWindowPromise = waitForEvent("onCreated");
+      await browser.compose.beginNew({
+        to: [{ id: list, type: "mailingList" }],
+        subject: "Test",
+      });
+      let createdWindow = await createdWindowPromise;
+      browser.test.assertEq("messageCompose", createdWindow.type);
+
+      await checkWindow({
+        to: ["Holmes and Watson <Tenants221B>"],
+        subject: "Test",
+      });
+
+      let [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+
+      let listener7 = (tab, details) => {
+        listener7.tab = tab;
+        listener7.details = details;
+        return {
+          details: {
+            bcc: details.to,
+            subject: "Changed by listener7",
+          },
+        };
+      };
+      browser.compose.onBeforeSend.addListener(listener7);
+      await beginSend();
+      browser.test.assertEq(tab.id, listener7.tab.id, "listener7 was fired");
+      browser.test.assertEq(1, listener7.details.to.length);
+      browser.test.assertEq(
+        "Holmes and Watson <Tenants221B>",
+        listener7.details.to[0],
+        "listener7 recipient correct"
+      );
+      browser.test.assertEq(
+        "Test",
+        listener7.details.subject,
+        "listener7 subject correct"
+      );
+      browser.compose.onBeforeSend.removeListener(listener7);
+
+      await browser.addressBooks.delete(addressBook);
+      browser.test.notifyPass("finished");
+    },
+    manifest: { permissions: ["addressBooks", "compose"] },
+  });
+
+  extension.onMessage("beginSend", async () => {
+    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    is(composeWindows.length, 1);
+
+    composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkWindow", async expected => {
+    await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  let outbox = account.incomingServer.rootFolder.getChildNamed("outbox");
+  let outboxMessages = outbox.messages;
+  ok(outboxMessages.hasMoreElements());
+  let sentMessage7 = outboxMessages.getNext();
+  is(sentMessage7.subject, "Changed by listener7", "subject was changed");
+  is(
+    sentMessage7.recipients,
+    "Sherlock Holmes <sherlock@bakerstreet.invalid>, John Watson <john@bakerstreet.invalid>",
+    "list in unchanged field was expanded"
+  );
+  is(
+    sentMessage7.bccList,
+    "Sherlock Holmes <sherlock@bakerstreet.invalid>, John Watson <john@bakerstreet.invalid>",
+    "list in changed field was expanded"
+  );
+
+  ok(!outboxMessages.hasMoreElements());
+
+  await new Promise(resolve => {
+    outbox.deleteMessages(
+      toXPCOMArray([sentMessage7], Ci.nsIMutableArray),
       null,
       true,
       false,
