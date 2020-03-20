@@ -274,6 +274,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
     // getting smaller. We don't know the minimum size of the content unless
     // it's overflowing, so don't attempt to enforce what we don't know.
     let overflowListener = () => {
+      let docEl = document.documentElement;
       let { scrollWidth, scrollHeight } = iframe.contentDocument.documentElement;
       let { clientWidth, clientHeight } = iframe;
 
@@ -285,13 +286,13 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
       // greater than 1 here, not 0.
       if (diffX > 1) {
         window.resizeBy(diffX, 0);
-        dialog.setAttribute("minwidth", dialog.getAttribute("width"));
+        docEl.setAttribute("minwidth", docEl.getAttribute("width"));
       }
       if (diffY > 1) {
         window.resizeBy(0, diffY);
-        dialog.setAttribute("minheight", dialog.getAttribute("height"));
+        docEl.setAttribute("minheight", docEl.getAttribute("height"));
       }
-      if (dialog.hasAttribute("minwidth") && dialog.hasAttribute("minheight")) {
+      if (docEl.hasAttribute("minwidth") && docEl.hasAttribute("minheight")) {
         iframe.contentWindow.removeEventListener("resize", overflowListener);
       }
     };
