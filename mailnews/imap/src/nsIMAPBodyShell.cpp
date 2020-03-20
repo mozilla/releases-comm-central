@@ -181,8 +181,7 @@ int32_t nsIMAPBodyShell::Generate(char *partNum) {
     NS_ASSERTION(GetIsValid());
 #endif
     m_generatingWholeMessage = true;
-    uint32_t messageSize =
-        m_protocolConnection->GetMessageSize(GetUID().get(), true);
+    uint32_t messageSize = m_protocolConnection->GetMessageSize(GetUID());
     MOZ_LOG(IMAPCache, LogLevel::Debug,
             ("Generate(): Set IMAP_CONTENT_NOT MODIFIED"));
     m_protocolConnection->SetContentModified(

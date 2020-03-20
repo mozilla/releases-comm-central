@@ -259,7 +259,7 @@ class nsImapProtocol : public nsIImapProtocol,
   bool GetPseudoInterrupted();
   void PseudoInterrupt(bool the_interrupt);
 
-  uint32_t GetMessageSize(const char *messageId, bool idsAreUids);
+  uint32_t GetMessageSize(const nsACString &messageId);
   bool GetSubscribingNow();
 
   bool DeathSignalReceived();

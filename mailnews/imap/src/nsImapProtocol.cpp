@@ -2667,8 +2667,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             } else {
               // downloading a single message: try to do it by bodystructure,
               // and/or do it by chunks
-              uint32_t messageSize =
-                  GetMessageSize(messageIdString.get(), bMessageIdsAreUids);
+              uint32_t messageSize = GetMessageSize(messageIdString);
               // We need to check the format_out bits to see if we are allowed
               // to leave out parts, or if we are required to get the whole
               // thing.  Some instances where we are allowed to do it by parts:
@@ -4545,33 +4544,12 @@ void nsImapProtocol::Log(const char *logSubName, const char *extraInfo,
 // In 4.5, this posted an event back to libmsg and blocked until it got a
 // response. We may still have to do this.It would be nice if we could preflight
 // this value, but we may not always know when we'll need it.
-uint32_t nsImapProtocol::GetMessageSize(const char *messageId,
-                                        bool idsAreUids) {
-  const char *folderFromParser =
-      GetServerStateParser().GetSelectedMailboxName();
-  if (!folderFromParser || !messageId || !m_runningUrl || !m_hostSessionList)
-    return 0;
-
-  char *folderName = nullptr;
-  uint32_t size;
-
-  nsIMAPNamespace *nsForMailbox = nullptr;
-  m_hostSessionList->GetNamespaceForMailboxForHost(
-      GetImapServerKey(), folderFromParser, nsForMailbox);
-
-  m_runningUrl->AllocateCanonicalPath(folderFromParser,
-                                      nsForMailbox
-                                          ? nsForMailbox->GetDelimiter()
-                                          : kOnlineHierarchySeparatorUnknown,
-                                      &folderName);
-
-  if (folderName && m_imapMessageSink)
-    m_imapMessageSink->GetMessageSizeFromDB(messageId, &size);
-
-  PR_FREEIF(folderName);
-
+uint32_t nsImapProtocol::GetMessageSize(const nsACString &messageId) {
+  uint32_t size = 0;
+  if (m_imapMessageSink)
+    m_imapMessageSink->GetMessageSizeFromDB(PromiseFlatCString(messageId).get(),
+                                            &size);
   if (DeathSignalReceived()) size = 0;
-
   return size;
 }
 
