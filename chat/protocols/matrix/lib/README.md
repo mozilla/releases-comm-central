@@ -88,5 +88,5 @@ currently integrated is the "full browser" distribution. It can be found under:
 
 ### Updating unhomoglyph
 
-This is simlar to the single file dependencies, but also has a JSON data file.
+This is similar to the single file dependencies, but also has a JSON data file.
 Both of these files should be copied to the unhomoglyph directory.
