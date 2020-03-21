@@ -217,7 +217,18 @@ class nsIMAPBodypartMessage : public nsIMAPBodypartLeaf {
   bool m_topLevelMessage;  // Whether or not this is the top-level message
 };
 
-class nsIMAPMessagePartID;
+// MessagePartID and an array of them are used for pipelining prefetches.
+
+class nsIMAPMessagePartID {
+ public:
+  nsIMAPMessagePartID(nsIMAPeFetchFields fields, const char *partNumberString);
+  nsIMAPeFetchFields GetFields() { return m_fields; }
+  const char *GetPartNumberString() { return m_partNumberString; }
+
+ protected:
+  const char *m_partNumberString;
+  nsIMAPeFetchFields m_fields;
+};
 
 // We will refer to a Body "Shell" as a hierarchical object representation of a
 // parsed BODYSTRUCTURE response.  A shell contains representations of Shell
@@ -355,19 +366,6 @@ class nsIMAPBodyShellCache {
   nsTArray<nsIMAPBodyShell *> *m_shellList;  // For maintenance
   // For quick lookup based on UID
   nsRefPtrHashtable<nsCStringHashKey, nsIMAPBodyShell> m_shellHash;
-};
-
-// MessagePartID and an array of them are used for pipelining prefetches.
-
-class nsIMAPMessagePartID {
- public:
-  nsIMAPMessagePartID(nsIMAPeFetchFields fields, const char *partNumberString);
-  nsIMAPeFetchFields GetFields() { return m_fields; }
-  const char *GetPartNumberString() { return m_partNumberString; }
-
- protected:
-  const char *m_partNumberString;
-  nsIMAPeFetchFields m_fields;
 };
 
 #endif  // IMAPBODY_H
