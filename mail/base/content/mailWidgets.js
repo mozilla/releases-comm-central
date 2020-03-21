@@ -189,7 +189,6 @@
           "aria-labelledby",
           this.getAttribute("aria-labelledby")
         );
-        this.removeAttribute("aria-labelledby");
         this.appendChild(newNode);
       }
     }
