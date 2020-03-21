@@ -1,0 +1,87 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.release_version_bump:transforms
+    - taskgraph.transforms.task:transforms
+
+
+job-defaults:
+    worker-type: tree
+    worker:
+        implementation: treescript
+        tags: []
+        bump: false
+        dontbuild: true
+        ignore-closed-tree: false
+        push:
+            by-project:
+                comm-(central|beta|esr.*): true
+                default: false
+        source-repo:
+            by-release-type:
+                release: https://hg.mozilla.org/releases/comm-esr68
+                beta: https://hg.mozilla.org/releases/comm-beta
+                default: https://hg.mozilla.org/comm-central
+        l10n-bump-info:
+            by-release-type:
+                beta|release:
+                    name: Thunderbird l10n changesets
+                    path: mail/locales/l10n-changesets.json
+                    version-path: mail/config/version.txt
+                    revision-url: "https://l10n.mozilla.org/shipping/l10n-changesets?av=tb%(MAJOR_VERSION)s"
+                    ignore-config:
+                        ja:
+                            - macosx64
+                        ja-JP-mac:
+                            - linux
+                            - linux64
+                            - win32
+                            - win64
+                    platform-configs: [{
+                        "platforms": [
+                            "linux",
+                            "linux64",
+                            "macosx64",
+                            "win32",
+                            "win64",
+                        ],
+                        "path": "mail/locales/shipped-locales",
+                        "format": "shipped-locales",
+                    }]
+                default:
+                    name: Thunderbird l10n changesets
+                    path: mail/locales/l10n-changesets.json
+                    version-path: mail/config/version.txt
+                    ignore-config:
+                        ja:
+                            - macosx64
+                        ja-JP-mac:
+                            - linux
+                            - linux64
+                            - win32
+                            - win64
+                    platform-configs: [{
+                        "platforms": [
+                            "linux",
+                            "linux64",
+                            "macosx64",
+                            "win32",
+                            "win64",
+                        ],
+                        "path": "mail/locales/all-locales",
+                    }]
+
+jobs:
+    l10n-bumper:
+        name: l10n_bumper
+        description: l10n changesets bumper (action/cron)
+        run-on-projects: []
+        treeherder:
+            kind: build
+            platform: linux64/opt
+            symbol: l10n-bump(lb)
+            tier: 1

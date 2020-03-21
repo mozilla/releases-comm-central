@@ -22,6 +22,7 @@ treeherder:
         'Fetch': 'Fetch and store content'
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
+        'l10n-bump': 'L10n Bumper'
         'M': 'Mochitests'
         'p': 'Partial generation'
         'ps': 'Partials signing'
