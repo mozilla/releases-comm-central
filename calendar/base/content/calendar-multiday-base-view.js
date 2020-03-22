@@ -28,14 +28,16 @@
       }
       this.hasConnected = true;
 
-      const stack = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
-      const topbox = stack.cloneNode();
-      const indicator = stack.cloneNode();
+      const stack = document.createXULElement("stack");
+      const topbox = document.createXULElement("box");
+      const indicator = document.createXULElement("box");
 
       stack.setAttribute("class", "timebarboxstack");
       stack.setAttribute("style", "display: block; position: relative;");
+      stack.setAttribute("flex", "1");
 
       topbox.setAttribute("class", "topbox");
+      topbox.setAttribute("flex", "1");
 
       indicator.setAttribute("class", "timeIndicator-timeBar");
       indicator.setAttribute("hidden", "true");
