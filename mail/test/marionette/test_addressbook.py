@@ -4,7 +4,7 @@
 
 """Test the behavior of the address book UI"""
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import
 
 from marionette_driver import By, Wait
 from marionette_driver.keys import Keys
