@@ -31,6 +31,7 @@
 
 /* special treatment because these boxes are on themable toolbars */
 .gloda-search:-moz-lwtheme,
+#searchBox:-moz-lwtheme,
 #peopleSearchInput:-moz-lwtheme,
 .themeableSearchBox:-moz-lwtheme,
 .remote-gloda-search:-moz-lwtheme {
@@ -39,6 +40,7 @@
 }
 
 .gloda-search:not(:focus):-moz-lwtheme,
+#searchBox:not([focused="true"]):-moz-lwtheme,
 #peopleSearchInput:not([focused="true"]):-moz-lwtheme,
 .themeableSearchBox:not([focused="true"]):-moz-lwtheme,
 .remote-gloda-search:not([focused="true"]):-moz-lwtheme {
@@ -46,6 +48,7 @@
 }
 
 .gloda-search:-moz-lwtheme:hover,
+#searchBox:-moz-lwtheme:hover,
 #peopleSearchInput:-moz-lwtheme:hover,
 .themeableSearchBox:-moz-lwtheme:not([disabled]):hover,
 .remote-gloda-search:-moz-lwtheme:hover {
@@ -53,6 +56,7 @@
 }
 
 .gloda-search:-moz-lwtheme:focus,
+#searchBox:-moz-lwtheme[focused="true"],
 #peopleSearchInput:-moz-lwtheme[focused="true"],
 .themeableSearchBox:-moz-lwtheme[focused="true"],
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
@@ -62,6 +66,7 @@
 }
 
 :root[lwt-selection] .gloda-search::selection,
+:root[lwt-selection] #searchBox .textbox-input:-moz-lwtheme::selection,
 :root[lwt-selection] #peopleSearchInput .textbox-input:-moz-lwtheme::selection,
 :root[lwt-selection] .themeableSearchBox .textbox-input:-moz-lwtheme::selection,
 :root[lwt-selection] .remote-gloda-search .textbox-input:-moz-lwtheme::selection {

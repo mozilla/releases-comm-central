@@ -35,3 +35,17 @@ menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
   margin-block: 0;
   margin-inline-end: 3px;
 }
+
+menulist menupopup menu,
+menulist menupopup menuitem {
+  padding-block: 3px;
+}
+
+.menu-right {
+  height: 1em;
+  margin-inline-end: 3px;
+}
+
+.menu-right:-moz-locale-dir(ltr) {
+  transform: scaleX(-1);
+}

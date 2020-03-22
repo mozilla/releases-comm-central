@@ -37,3 +37,15 @@ menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
   margin-block: 0;
   margin-inline-end: 3px;
 }
+
+.menu-right {
+  transform: scale(0.7);
+}
+
+.menu-right:-moz-locale-dir(ltr) {
+  transform: scaleX(-1) scale(0.7);
+}
+
+:root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] {
+  outline-offset: -1px;
+}

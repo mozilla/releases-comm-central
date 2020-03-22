@@ -2,28 +2,68 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace html url("http://www.w3.org/1999/xhtml");
+
 #aboutDownloads {
-  background-color: #f9f9fa;
-  color: #0c0c0d;
-  padding: 18px;
+  background: transparent !important;
+}
+
+#downloadTopBox {
+  background-color: var(--toolbar-bgcolor);
+  background-image: var(--toolbar-bgimage);
+  color: -moz-DialogText;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--chrome-content-separator-color);
+}
+
+#downloadTopBox:-moz-lwtheme {
+  color: var(--lwt-text-color);
+}
+
+#downloadBottomBox {
+  padding: 15px 18px;
+  background-color: -moz-Dialog;
+}
+
+#downloadBottomBox:-moz-lwtheme {
+  text-shadow: none;
+}
+
+:root:not([lwtheme-image="true"]) #downloadBottomBox {
+  background-color: var(--toolbar-bgcolor);
 }
 
 #msgDownloadsListEmptyDescription {
+  display: none;
   margin: 1em;
   text-align: center;
-  color: GrayText;
+  color: #888;
+}
+
+#msgDownloadsRichListBox:empty + #msgDownloadsListEmptyDescription {
+  display: -moz-box;
 }
 
 #msgDownloadsRichListBox {
   /** The default listbox appearance comes with an unwanted margin. **/
   -moz-appearance: none;
   margin: 0;
-  border: 1px solid hsla(210,4%,10%,.14);
+  border: 1px solid hsla(0, 0%, 50%, .3);
+  color: -moz-DialogText
 }
 
-#msgDownloadsRichListBox > richlistitem.download {
-  height: 6em;
-  border-bottom: 1px solid #f1f1f1;
+:root[lwt-tree] #msgDownloadsRichListBox {
+  color: inherit;
+}
+
+#msgDownloadsRichListBox > .download {
+  min-height: 5em;
+  border-bottom: 1px solid hsla(0, 0%, 50%, .3);
+}
+
+#msgDownloadsRichListBox > .download > vbox {
+  display: flex;
+  flex-direction: column;
 }
 
 #clearDownloads {
@@ -31,39 +71,49 @@
 }
 
 #searchBox {
+  width: 22em;
   margin-inline-end: 0;
   padding-inline-start: 5px;
+}
+
+#searchBox html|input {
+  border-style: none;
+  outline: none;
 }
 
 .fileTypeIcon {
   margin-inline-start: 8px;
   margin-inline-end: 8px;
-  margin-top: 12px;
   /* explicitly size the icon, so size doesn't vary on hidpi systems */
   max-height: 32px;
   width: 32px;
 }
 
+.sender,
 .fileName {
-  margin-bottom: 3px;
-  cursor: inherit;
+  margin-block: 3px;
+  font-weight: 600;
+}
+
+.sender[value=""] {
+  display: none;
 }
 
 .size,
 .startDate {
   opacity: 0.7;
-  font-size: 95%;
-  cursor: inherit;
+  margin-block: 3px;
 }
 
 .downloadButton {
   -moz-appearance: none;
   -moz-box-align: center;
-  background: transparent;
+  background: transparent !important;
   min-width: 0;
   min-height: 0;
   margin: 0;
-  border: none;
+  border: none !important;
+  outline: none !important;
   color: inherit;
   padding: 0 18px;
 }
@@ -77,6 +127,7 @@
   width: 16px;
   height: 16px;
   margin: 0;
+  list-style-image: url("chrome://messenger/skin/icons/panel-icon-folder.svg");
   -moz-context-properties: fill;
   fill: currentColor;
 }

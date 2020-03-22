@@ -4,11 +4,17 @@
 
 @import url("chrome://messenger/skin/shared/aboutDownloads.css");
 
-.downloadIconShow > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/panel-icon-folder.svg");
+@media (-moz-windows-glass) {
+  #downloadTopBox:not(:-moz-lwtheme) {
+    --chrome-content-separator-color: #aabccf;
+  }
 }
 
 @media (-moz-windows-default-theme) {
+  #downloadTopBox:not(:-moz-lwtheme) {
+    --chrome-content-separator-color: #c2c2c2;
+  }
+
   /*
   -moz-appearance: menuitem is almost right, but the hover effect is not
   transparent and is lighter than desired.
@@ -18,7 +24,7 @@
 
   This styling should be kept in sync with the style from the above file.
   */
-  #msgDownloadsRichListBox > richlistitem.download[selected] {
+  :root:not([lwt-tree]) #msgDownloadsRichListBox > .download[selected] {
     color: inherit;
     background-color: transparent;
     /* four gradients for the bevel highlights on each edge, one for blue background */

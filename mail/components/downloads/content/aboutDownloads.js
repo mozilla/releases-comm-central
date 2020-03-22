@@ -245,6 +245,7 @@ DownloadItem.prototype = {
   createXULElement() {
     let element = document.createXULElement("richlistitem");
     element.classList.add("download");
+    element.setAttribute("align", "center");
 
     let image = document.createXULElement("image");
     image.setAttribute("validate", "always");
@@ -253,6 +254,9 @@ DownloadItem.prototype = {
     let vbox = document.createXULElement("vbox");
     vbox.setAttribute("pack", "center");
     vbox.setAttribute("flex", "1");
+
+    let hbox = document.createXULElement("hbox");
+    let hbox2 = document.createXULElement("hbox");
 
     let sender = document.createXULElement("description");
     sender.classList.add("sender");
@@ -268,12 +272,15 @@ DownloadItem.prototype = {
     startDate.setAttribute("crop", "end");
     startDate.classList.add("startDate");
 
-    vbox.appendChild(fileName);
-    vbox.appendChild(size);
-    vbox.appendChild(startDate);
+    hbox.appendChild(fileName);
+    hbox.appendChild(size);
+    hbox2.appendChild(sender);
+    hbox2.appendChild(startDate);
+
+    vbox.appendChild(hbox);
+    vbox.appendChild(hbox2);
 
     let vbox2 = document.createXULElement("vbox");
-    vbox2.appendChild(sender);
 
     let downloadButton = document.createXULElement("button");
     downloadButton.classList.add("downloadButton", "downloadIconShow");
@@ -281,8 +288,8 @@ DownloadItem.prototype = {
     vbox2.appendChild(downloadButton);
 
     element.appendChild(image);
-    element.appendChild(vbox);
     element.appendChild(vbox2);
+    element.appendChild(vbox);
 
     // launch the download if double clicked
     vbox.addEventListener("dblclick", aEvent => this.launch());

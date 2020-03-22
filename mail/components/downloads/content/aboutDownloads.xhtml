@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/downloads/aboutDownloads.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/downloads/aboutDownloads.css" type="text/css"?>
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
   - License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,6 +17,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         title="&aboutDownloads.title;"
+        lightweightthemes="true"
         onload="DownloadsView.init();">
   <xhtml:link rel="shortcut icon"
               href="chrome://messenger/skin/downloads/download.svg"/>
@@ -58,18 +60,17 @@
                     placeholder="&cmd.searchDownloads.label;"/>
   </hbox>
 
-  <separator class="thin"/>
-
-  <stack flex="1">
-    <richlistbox id="msgDownloadsRichListBox"
-                 flex="1"
-                 seltype="multiple"
-                 context="msgDownloadsContextMenu"
-                 oncontextmenu="DownloadsView.onDownloadContextMenu();"/>
-    <description id="msgDownloadsListEmptyDescription"
-                 value="&aboutDownloads.empty;"/>
-  </stack>
-
+  <hbox id="downloadBottomBox" flex="1">
+    <stack flex="1">
+      <richlistbox id="msgDownloadsRichListBox"
+                   flex="1"
+                   seltype="multiple"
+                   context="msgDownloadsContextMenu"
+                   oncontextmenu="DownloadsView.onDownloadContextMenu();"/>
+      <description id="msgDownloadsListEmptyDescription"
+                   value="&aboutDownloads.empty;"/>
+    </stack>
+  </hbox>
 
   <menupopup id="msgDownloadsContextMenu">
     <menuitem command="msgDownloadsCmd_remove"
