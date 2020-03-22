@@ -975,9 +975,9 @@ richlistitem[is="agenda-richlistitem"][status="CANCELLED"] {
 }
 
 calendar-month-day-box-item[status="CANCELLED"] .calendar-color-box,
-calendar-event-box[status="CANCELLED"] .calendar-color-box,
+calendar-event-box[status="CANCELLED"] .calendar-event-details-core,
 calendar-editable-item[status="CANCELLED"] .calendar-color-box,
-richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-container-box {
+richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-event-start {
     text-decoration: line-through;
 }
 
