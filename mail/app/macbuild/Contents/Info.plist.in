@@ -55,14 +55,16 @@
 	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
-        <key>LSMinimumSystemVersion</key>
-        <string>10.9.0</string>
-        <key>NSSupportsAutomaticGraphicsSwitching</key>
-        <true/>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.9.0</string>
+	<key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
+	<key>NSRequiresAquaSystemAppearance</key>
+	<true/>
 	<key>NSDisablePersistence</key>
 	<true/>
-        <key>NSPrincipalClass</key>
-        <string>GeckoNSApplication</string>
+	<key>NSPrincipalClass</key>
+	<string>GeckoNSApplication</string>
 	<key>SMPrivilegedExecutables</key>
 	<dict>
 		<key>org.mozilla.updater</key>
