@@ -18,12 +18,6 @@ window[systemcolors] > dialog {
 }
 
 #calendar-event-dialog,
-#calendar-task-dialog {
-  min-width: 444px;
-  min-height: 476px;
-}
-
-#calendar-event-dialog,
 #calendar-task-dialog,
 #calendar-event-dialog-inner,
 #calendar-task-dialog-inner {
