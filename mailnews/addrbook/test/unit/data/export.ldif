@@ -1,0 +1,36 @@
+dn: cn=new list
+objectclass: top
+objectclass: groupOfNames
+cn: new list
+member: cn=contact number one,mail=contact1@invalid
+
+dn: cn=contact number one,mail=contact1@invalid
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: contact
+sn: one
+cn: contact number one
+mail: contact1@invalid
+modifytimestamp: 0
+
+dn: cn=contact number two,mail=contact2@invalid
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+objectclass: mozillaAbPersonAlpha
+givenName: contact
+sn: two
+cn: contact number two
+mail: contact2@invalid
+modifytimestamp: 0
+title: "worker"
+mozillaCustom1: custom, 1
+mozillaCustom2: custom	2
+mozillaCustom3:: Y3VzdG9tDTM=
+mozillaCustom4:: Y3VzdG9tCjQ=
+description:: aGVyZSdzIHNvbWUgdW5pY29kZSB0ZXh04oCm
+

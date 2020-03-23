@@ -68,15 +68,6 @@ interface nsIAbManager : nsISupports
   void deleteAddressBook(in ACString aURI);
 
   /**
-   * Exports an address book, it will provide a dialog to the user for the
-   * location to save the file to and will then save the address book to media.
-   *
-   * @param  aParentWin Parent Window for the file save dialog to use.
-   * @param  aDirectory The directory to export.
-   */
-  void exportAddressBook(in mozIDOMWindowProxy aParentWin, in nsIAbDirectory aDirectory);
-
-  /**
    * Adds a nsIAbListener to receive notifications of address book updates
    * according to the specified notifyFlags.
    *

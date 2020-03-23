@@ -1,0 +1,16 @@
+begin:vcard
+fn:contact number one
+n:one;contact
+email;internet:contact1@invalid
+version:2.1
+end:vcard
+
+begin:vcard
+fn:contact number two
+n:two;contact
+email;internet:contact2@invalid
+title:"worker"
+note;quoted-printable:here's some unicode text=E2=80=A6
+version:2.1
+end:vcard
+

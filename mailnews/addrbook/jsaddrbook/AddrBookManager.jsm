@@ -364,9 +364,6 @@ AddrBookManager.prototype = {
       this.notifyDirectoryDeleted(null, dir);
     }
   },
-  exportAddressBook(parentWin, directory) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
-  },
   addAddressBookListener(listener, notifyFlags) {
     listeners.set(listener, notifyFlags);
   },
