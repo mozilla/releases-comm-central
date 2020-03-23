@@ -56,8 +56,6 @@ CalCalendarManager.prototype = {
     this.mReadonlyCalendarCount = 0;
     this.mCalendarCount = 0;
 
-    Services.obs.addObserver(this, "http-on-modify-request");
-
     // We only add the observer if the pref is set and only check for the
     // pref on startup to avoid checking for every http request
     if (Services.prefs.getBoolPref("calendar.network.multirealm", false)) {
@@ -74,8 +72,6 @@ CalCalendarManager.prototype = {
     }
 
     this.cleanupOfflineObservers();
-
-    Services.obs.removeObserver(this, "http-on-modify-request");
 
     AddonManager.removeAddonListener(gCalendarManagerAddonListener);
 
@@ -143,33 +139,6 @@ CalCalendarManager.prototype = {
           // - Its not a http channel (wtf? Oh well)
           // - The owner is not a calICalendar (looks like its not our deal)
           // - The WWW-Authenticate header is missing (that's ok)
-        }
-        break;
-      }
-      case "http-on-modify-request": {
-        // Unfortunately, the ability to do this with a general pref has
-        // been removed. Calendar servers might still want to know what
-        // client is used for access, so add our UA String to each
-        // request.
-        let httpChannel = aSubject.QueryInterface(Ci.nsIHttpChannel);
-        try {
-          // NOTE: For some reason, this observer call doesn't have
-          // the "cal" namespace defined
-          let userAgent = httpChannel.getRequestHeader("User-Agent");
-          let calUAString = Services.prefs.getStringPref("calendar.useragent.extra", "").trim();
-
-          // Don't add an empty string or an already included token.
-          if (calUAString && !userAgent.includes(calUAString)) {
-            // User-Agent is not a mergeable header. We need to
-            // merge the user agent ourselves.
-            httpChannel.setRequestHeader("User-Agent", userAgent + " " + calUAString, false);
-          }
-        } catch (e) {
-          if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
-            throw e;
-          }
-          // We swallow this error since it means the User Agent
-          // header is not set. We don't want to force it to be set.
         }
         break;
       }
