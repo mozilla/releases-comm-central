@@ -6720,13 +6720,13 @@ function hideIrrelevantAddressingOptions(accountKey, prevKey) {
 }
 
 function LoadIdentity(startup) {
-  var identityElement = document.getElementById("msgIdentity");
-  var prevIdentity = gCurrentIdentity;
+  let identityElement = document.getElementById("msgIdentity");
+  let prevIdentity = gCurrentIdentity;
 
   if (identityElement) {
     let idKey = null;
     let accountKey = null;
-    let currKey = getCurrentAccountKey();
+    let prevKey = getCurrentAccountKey();
     if (identityElement.selectedItem) {
       // Set the identity key value on the menu list.
       idKey = identityElement.selectedItem.getAttribute("identitykey");
@@ -6738,8 +6738,8 @@ function LoadIdentity(startup) {
       identityElement.setAttribute("accountkey", accountKey);
 
       // Update the addressing options only if a new account was selected.
-      if (currKey != getCurrentAccountKey()) {
-        hideIrrelevantAddressingOptions(accountKey, currKey);
+      if (prevKey != getCurrentAccountKey()) {
+        hideIrrelevantAddressingOptions(accountKey, prevKey);
       }
     }
 
@@ -6751,37 +6751,39 @@ function LoadIdentity(startup) {
     }
 
     if (!startup && prevIdentity && idKey != prevIdentity.key) {
-      var prevReplyTo = prevIdentity.replyTo;
-      var prevCc = "";
-      var prevBcc = "";
-      var prevReceipt = prevIdentity.requestReturnReceipt;
-      var prevDSN = prevIdentity.DSN;
-      var prevAttachVCard = prevIdentity.attachVCard;
+      let prevReplyTo = prevIdentity.replyTo;
+      let prevCc = "";
+      let prevBcc = "";
+      let prevReceipt = prevIdentity.requestReturnReceipt;
+      let prevDSN = prevIdentity.DSN;
+      let prevAttachVCard = prevIdentity.attachVCard;
 
-      if (prevIdentity.doCc) {
+      if (prevIdentity.doCc && prevIdentity.doCcList) {
         prevCc += prevIdentity.doCcList;
       }
 
-      if (prevIdentity.doBcc) {
+      if (prevIdentity.doBcc && prevIdentity.doBccList) {
         prevBcc += prevIdentity.doBccList;
       }
 
-      var newReplyTo = gCurrentIdentity.replyTo;
-      var newCc = "";
-      var newBcc = "";
-      var newReceipt = gCurrentIdentity.requestReturnReceipt;
-      var newDSN = gCurrentIdentity.DSN;
-      var newAttachVCard = gCurrentIdentity.attachVCard;
+      let newReplyTo = gCurrentIdentity.replyTo;
+      let newCc = "";
+      let newBcc = "";
+      let newReceipt = gCurrentIdentity.requestReturnReceipt;
+      let newDSN = gCurrentIdentity.DSN;
+      let newAttachVCard = gCurrentIdentity.attachVCard;
 
-      if (gCurrentIdentity.doCc) {
+      if (gCurrentIdentity.doCc && gCurrentIdentity.doCcList) {
         newCc += gCurrentIdentity.doCcList;
       }
 
-      if (gCurrentIdentity.doBcc) {
+      if (gCurrentIdentity.doBcc && gCurrentIdentity.doBccList) {
         newBcc += gCurrentIdentity.doBccList;
       }
 
-      var msgCompFields = gMsgCompose.compFields;
+      let msgCompFields = gMsgCompose.compFields;
+      // Update recipients in msgCompFields to match pills currently in the UI.
+      Recipients2CompFields(msgCompFields);
 
       if (
         !gReceiptOptionChanged &&
@@ -6825,34 +6827,46 @@ function LoadIdentity(startup) {
         }
       }
 
-      let toAddrs = new Set(
-        msgCompFields.splitRecipients(msgCompFields.to, true)
-      );
-      let ccAddrs = new Set(
-        msgCompFields.splitRecipients(msgCompFields.cc, true)
-      );
+      let toCcAddrs = new Set([
+        ...msgCompFields.splitRecipients(msgCompFields.to, true),
+        ...msgCompFields.splitRecipients(msgCompFields.cc, true),
+      ]);
 
       if (newCc != prevCc) {
         if (prevCc) {
           awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
         }
         if (newCc) {
-          // Ensure none of the Ccs are already in To.
-          let cc2 = msgCompFields.splitRecipients(newCc, true);
-          newCc = cc2.filter(x => !toAddrs.has(x)).join(", ");
+          // Add only Auto-Cc recipients whose email is not already in To or CC.
+          newCc = msgCompFields
+            .splitRecipients(newCc, false)
+            .filter(
+              x => !toCcAddrs.has(...msgCompFields.splitRecipients(x, true))
+            )
+            .join(", ");
           awAddRecipients(msgCompFields, "addr_cc", newCc);
         }
       }
 
       if (newBcc != prevBcc) {
+        let toCcBccAddrs = new Set([
+          ...toCcAddrs,
+          ...msgCompFields.splitRecipients(newCc, true),
+          ...msgCompFields.splitRecipients(msgCompFields.bcc, true),
+        ]);
+
         if (prevBcc) {
           awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
         }
         if (newBcc) {
-          // Ensure none of the Bccs are already in To or Cc.
-          let bcc2 = msgCompFields.splitRecipients(newBcc, true);
-          let toCcAddrs = new Set([...toAddrs, ...ccAddrs]);
-          newBcc = bcc2.filter(x => !toCcAddrs.has(x)).join(", ");
+          // Add only Auto-Bcc recipients whose email is not already in To, Cc,
+          // Bcc, or added as Auto-CC from newCc declared above.
+          newBcc = msgCompFields
+            .splitRecipients(newBcc, false)
+            .filter(
+              x => !toCcBccAddrs.has(...msgCompFields.splitRecipients(x, true))
+            )
+            .join(", ");
           awAddRecipients(msgCompFields, "addr_bcc", newBcc);
         }
       }
@@ -6863,7 +6877,7 @@ function LoadIdentity(startup) {
         dump("### Cannot change the identity: " + ex + "\n");
       }
 
-      var event = document.createEvent("Events");
+      let event = document.createEvent("Events");
       event.initEvent("compose-from-changed", false, true);
       document.getElementById("msgcomposeWindow").dispatchEvent(event);
 

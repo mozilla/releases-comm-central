@@ -307,50 +307,64 @@ function updateUIforIMAPAccount() {
 }
 
 /**
- * Clear a specific recipient row if is visible and pills are present. This is
- * commonly used when loading a new identity.
+ * Remove recipient pills from a specific addressing field based on full address
+ * matching. This is commonly used to clear previous Auto-CC/BCC recipients when
+ * loading a new identity.
  *
- * @param {Array} msgCompFields - The array containing all the recipient fields.
- * @param {string} recipientType - Which recipient needs to be cleared.
- * @param {Array} recipientsList - The array containing the old recipients.
+ * @param {Object} msgCompFields - gMsgCompose.compFields, for helper functions.
+ * @param {string} recipientType - The type of recipients to remove,
+ *   e.g. "addr_to" (recipient label id).
+ * @param {string} recipientsList - Comma-separated string containing recipients
+ *   to be removed. May contain display names, and other commas therein. We only
+ *   remove first exact match (full address).
  */
 function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
-  if (!msgCompFields || !recipientsList) {
+  if (!recipientType || !recipientsList) {
     return;
   }
 
-  let element;
+  let container;
   switch (recipientType) {
     case "addr_cc":
-      element = document.getElementById("ccAddrInput");
+      container = document.getElementById("ccAddrContainer");
       break;
     case "addr_bcc":
-      element = document.getElementById("bccAddrInput");
+      container = document.getElementById("bccAddrContainer");
       break;
     case "addr_reply":
-      element = document.getElementById("replyAddrInput");
+      container = document.getElementById("replyAddrContainer");
       break;
     case "addr_to":
-    default:
-      element = document.getElementById("toAddrInput");
+      container = document.getElementById("toAddrContainer");
       break;
   }
 
-  let container = element.closest(".address-container");
-  for (let pill of container.querySelectorAll("mail-address-pill")) {
-    pill.remove();
+  // Convert csv string of recipients to be deleted into full addresses array.
+  let recipientsArray = msgCompFields.splitRecipients(recipientsList, false);
+
+  // Remove first instance of specified recipients from specified container.
+  for (let recipientFullAddress of recipientsArray) {
+    let pill = container.querySelector(
+      `mail-address-pill[fullAddress="${recipientFullAddress}"]`
+    );
+    if (pill) {
+      pill.remove();
+    }
   }
 
-  // Reset the original input.
-  let input = container.querySelector(`input[is="autocomplete-input"]`);
-  input.value = "";
+  let addressRow = container.closest(`.address-row`);
 
-  if (recipientType != "addr_to") {
-    container.classList.add("hidden");
+  // Remove entire address row if empty, no user input, and not type "addr_to".
+  if (
+    recipientType != "addr_to" &&
+    !container.querySelector(`mail-address-pill`) &&
+    !container.querySelector(`input[is="autocomplete-input"]`).value
+  ) {
+    addressRow.classList.add("hidden");
     document.getElementById(recipientType).removeAttribute("collapsed");
   }
 
-  udpateAddressingInputAriaLabel(element.closest(".address-row"));
+  udpateAddressingInputAriaLabel(addressRow);
 }
 
 /**
