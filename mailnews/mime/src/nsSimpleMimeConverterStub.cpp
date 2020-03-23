@@ -58,7 +58,7 @@ static int GatherLine(const char *line, int32_t length, MimeObject *obj) {
   if (!obj->options->write_html_p)
     return MimeObject_write(obj, line, length, true);
 
-  ssobj->buffer->Append(line);
+  ssobj->buffer->Append(line, length);
   return 0;
 }
 
@@ -80,6 +80,10 @@ static int EndGather(MimeObject *obj, bool abort_p) {
     channel->GetURI(getter_AddRefs(uri));
     ssobj->innerScriptable->SetUri(uri);
   }
+  // Remove possible embedded NULL bytes.
+  // Parsers can't handle this but e.g. calendar invitation might contain such
+  // as fillers.
+  ssobj->buffer->StripChar('\0');
   nsCString asHTML;
   nsresult rv = ssobj->innerScriptable->ConvertToHTML(
       nsDependentCString(obj->content_type), *ssobj->buffer, asHTML);
@@ -89,7 +93,7 @@ static int EndGather(MimeObject *obj, bool abort_p) {
   }
 
   // MimeObject_write wants a non-const string for some reason, but it doesn't
-  // mutate it
+  // mutate it.
   status = MimeObject_write(obj, asHTML.get(), asHTML.Length(), true);
   if (status < 0) return status;
   return 0;
