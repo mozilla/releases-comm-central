@@ -143,7 +143,7 @@ description.error {
 }
 
 .addons-icon {
-  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
+  list-style-image: url("chrome://mozapps/skin/extensions/extension.svg");
 }
 
 .popup-notification-icon[popupid="xpinstall-disabled"],

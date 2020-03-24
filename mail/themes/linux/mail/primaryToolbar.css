@@ -154,7 +154,7 @@
 }
 
 #button-addons {
-  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
+  list-style-image: url("chrome://mozapps/skin/extensions/extension.svg");
 }
 
 .button-appmenu {
@@ -302,7 +302,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 
 #appmenu_addons,
 #appmenu_Add-Ons {
-  list-style-image: url("chrome://mozapps/skin/extensions/extensionGeneric-16.svg");
+  list-style-image: url("chrome://mozapps/skin/extensions/extension.svg");
 }
 
 #appmenu_help,
