@@ -32,6 +32,7 @@
 <!ENTITY imapLong.label                  "IMAP (remote folders)">
 <!ENTITY pop3Long.label                  "POP3 (keep mail on your computer)">
 
+<!ENTITY manualConfigTable.summary       "Server settings">
 <!ENTITY incoming.label                  "Incoming:">
 <!ENTITY incomingColumn.label            "Incoming">
 <!ENTITY outgoing.label                  "Outgoing:">

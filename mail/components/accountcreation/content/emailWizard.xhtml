@@ -312,19 +312,27 @@
       <html:fieldset id="manual-edit_area" class="hub-wrapper config-area"
                      hidden="hidden">
 
-        <html:table class="manual-config-table">
+        <html:table class="manual-config-table"
+                    summary="&manualConfigTable.summary;">
           <html:tr>
-            <html:th class="config-label"></html:th>
-            <html:th class="column-title">&incomingColumn.label;</html:th>
-            <html:th class="column-title">&outgoingColumn.label;</html:th>
+            <html:th scope="col" class="config-label"></html:th>
+            <html:th id="incomingColumnLabel" scope="col" class="column-title">
+              &incomingColumn.label;
+            </html:th>
+            <html:th id="outgoingColumnLabel" scope="col" class="column-title">
+              &outgoingColumn.label;
+            </html:th>
           </html:tr>
 
           <html:tr>
-            <html:th class="config-label">&protocol.label;</html:th>
+            <html:th id="protocolRowLabel" scope="row" class="config-label">
+              &protocol.label;
+            </html:th>
             <html:td>
               <menulist id="incoming_protocol"
                         oncommand="gEmailConfigWizard.onChangedProtocolIncoming();"
-                        sizetopopup="always">
+                        sizetopopup="always"
+                        aria-labelledby="incomingColumnLabel protocolRowLabel">
                 <menupopup>
                   <menuitem label="&imap.label;" value="1"/>
                   <menuitem label="&pop3.label;" value="2"/>
@@ -337,13 +345,16 @@
           </html:tr>
 
           <html:tr>
-            <html:th class="config-label">&serverRow.label;</html:th>
+            <html:th id="serverRowLabel" scope="row" class="config-label">
+              &serverRow.label;
+            </html:th>
             <html:td>
               <hbox class="input-control" align="center" flex="1">
                 <html:input id="incoming_hostname"
                             type="text"
                             oninput="gEmailConfigWizard.onInputHostname();"
-                            class="host uri-element input-field"/>
+                            class="host uri-element input-field"
+                            aria-labelledby="incomingColumnLabel serverRowLabel"/>
               </hbox>
             </html:td>
             <html:td>
@@ -354,21 +365,25 @@
                         oncommand="gEmailConfigWizard.onChangedOutgoingDropdown();"
                         onpopupshowing="gEmailConfigWizard.onOpenOutgoingDropdown();"
                         class="host uri-element"
-                        flex="1">
+                        flex="1"
+                        aria-labelledby="outgoingColumnLabel serverRowLabel">
                 <menupopup id="outgoing_hostname_popup"/>
               </menulist>
             </html:td>
           </html:tr>
 
           <html:tr>
-            <html:th class="config-label">&portRow.label;</html:th>
+            <html:th id="portRowLabel" scope="row" class="config-label">
+              &portRow.label;
+            </html:th>
             <html:td>
               <menulist is="menulist-editable" id="incoming_port"
                         editable="true"
                         oninput="gEmailConfigWizard.onChangedPortIncoming();"
                         oncommand="gEmailConfigWizard.onChangedPortIncoming();"
                         class="port"
-                        flex="1">
+                        flex="1"
+                        aria-labelledby="incomingColumnLabel portRowLabel">
                 <menupopup/>
               </menulist>
             </html:td>
@@ -378,20 +393,24 @@
                         oninput="gEmailConfigWizard.onChangedPortOutgoing();"
                         oncommand="gEmailConfigWizard.onChangedPortOutgoing();"
                         class="port"
-                        flex="1">
+                        flex="1"
+                        aria-labelledby="outgoingColumnLabel portRowLabel">
                 <menupopup/>
               </menulist>
             </html:td>
           </html:tr>
 
           <html:tr>
-            <html:th class="config-label">&sslRow.label;</html:th>
+            <html:th id="sslRowLabel" scope="row" class="config-label">
+              &sslRow.label;
+            </html:th>
             <html:td>
               <menulist id="incoming_ssl"
                         class="security"
                         oncommand="gEmailConfigWizard.onChangedSSLIncoming();"
                         sizetopopup="none"
-                        flex="1">
+                        flex="1"
+                        aria-labelledby="incomingColumnLabel sslRowLabel">
                 <menupopup>
                   <!-- values defined in nsMsgSocketType -->
                   <menuitem label="&autodetect.label;" value="0"/>
@@ -406,7 +425,8 @@
                         class="security"
                         oncommand="gEmailConfigWizard.onChangedSSLOutgoing();"
                         sizetopopup="none"
-                        flex="1">
+                        flex="1"
+                        aria-labelledby="outgoingColumnLabel sslRowLabel">
                 <menupopup>
                   <!-- @see incoming -->
                   <menuitem label="&autodetect.label;" value="0"/>
@@ -419,13 +439,16 @@
           </html:tr>
 
           <html:tr>
-            <html:th class="config-label">&auth.label;:</html:th>
+            <html:th id="authRowLabel" scope="row" class="config-label">
+              &auth.label;:
+            </html:th>
             <html:td>
               <menulist id="incoming_authMethod"
                         class="auth"
                         oncommand="gEmailConfigWizard.onChangedInAuth();"
                         sizetopopup="none"
-                        flex="1">
+                        flex="1"
+                        aria-labelledby="incomingColumnLabel authRowLabel">
                 <menupopup>
                   <menuitem label="&autodetect.label;" value="0"/>
                   <!-- values defined in nsMsgAuthMethod -->
@@ -444,7 +467,8 @@
                         class="auth"
                         oncommand="gEmailConfigWizard.onChangedOutAuth(this.selectedItem);"
                         sizetopopup="none"
-                        flex="1">
+                        flex="1"
+                        aria-labelledby="outgoingColumnLabel authRowLabel">
                 <menupopup>
                   <menuitem label="&autodetect.label;" value="0"/>
                   <!-- @see incoming -->
@@ -460,13 +484,16 @@
           </html:tr>
 
           <html:tr>
-            <html:th class="config-label">&username.label;</html:th>
+            <html:th id="usernameRowLabel" scope="row" class="config-label">
+              &username.label;
+            </html:th>
             <html:td>
               <hbox class="input-control" align="center" flex="1" equalsize="never">
                 <html:input id="incoming_username"
                             type="text"
                             oninput="gEmailConfigWizard.onInputInUsername();"
-                            class="username input-field"/>
+                            class="username input-field"
+                            aria-labelledby="incomingColumnLabel usernameRowLabel"/>
               </hbox>
             </html:td>
             <html:td>
@@ -474,7 +501,8 @@
                 <html:input id="outgoing_username"
                             type="text"
                             oninput="gEmailConfigWizard.onInputOutUsername();"
-                            class="username input-field"/>
+                            class="username input-field"
+                            aria-labelledby="outgoingColumnLabel usernameRowLabel"/>
               </hbox>
             </html:td>
           </html:tr>
