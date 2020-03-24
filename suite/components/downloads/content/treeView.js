@@ -100,7 +100,7 @@ DownloadTreeView.prototype = {
   },
 
   getCellText: function(aRow, aColumn) {
-    var dl = this._dlList[aRow];
+    let dl = this._dlList[aRow];
     switch (aColumn.id) {
       case "Name":
         return dl.displayName;
@@ -113,62 +113,14 @@ DownloadTreeView.prototype = {
       case "ProgressPercent":
         return dl.succeeded ? 100 : dl.progress;
       case "TimeRemaining":
-        if (!dl.stopped) {
-          var lastSec = (dl.lastSec == null) ? Infinity : dl.lastSec;
-          // Calculate the time remaining if we have valid values
-          var seconds = (dl.speed > 0) && (dl.totalBytes > 0)
-                        ? (dl.totalBytes - dl.currentBytes) / dl.speed
-                        : -1;
-          var [timeLeft, newLast] = DownloadUtils.getTimeLeft(seconds, lastSec);
-          this._dlList[aRow].lastSec = newLast;
-          return timeLeft;
-        }
-        return "";
+        return DownloadsCommon.getTimeRemaining(dl);
       case "Transferred":
-        let currentBytes;
-        let totalBytes;
-        // Download in progress.
-        // Download paused / canceled and has partial data.
-        if (!dl.stopped ||
-            (dl.canceled && dl.hasPartialData)) {
-          currentBytes = dl.currentBytes,
-          totalBytes = dl.hasProgress ? dl.totalBytes : -1;
-        // Download done but file missing.
-        } else if (dl.succeeded && !dl.exists) {
-          currentBytes = dl.totalBytes ? dl.totalBytes : -1;
-          totalBytes = -1;
-        // For completed downloads, show the file size
-        } else if (dl.succeeded && dl.target.size !== undefined) {
-           currentBytes = dl.target.size;
-           totalBytes = -1;
-        // Some local files saves e.g. from attachments also have no size.
-        // They only have a target in downloads.json but no target.path.
-        // FIX ME later.
-        } else {
-          currentBytes = -1;
-          totalBytes = -1;
-        }
-
-        // We do not want to show 0 of xxx bytes.
-        if (currentBytes == 0) {
-          currentBytes = -1;
-        }
-
-        if (totalBytes == 0) {
-          totalBytes = -1;
-        }
-
-        // We tried everything.
-        if (currentBytes == -1 && totalBytes == -1) {
-          return "";
-        }
-
-        return DownloadUtils.getTransferTotal(currentBytes, totalBytes);
+        return DownloadsCommon.getTransferredBytes(dl);
       case "TransferRate":
         let state = DownloadsCommon.stateOfDownload(dl);
         switch (state) {
           case DownloadsCommon.DOWNLOAD_DOWNLOADING:
-            var [rate, unit] = DownloadUtils.convertByteUnits(dl.speed);
+            let [rate, unit] = DownloadUtils.convertByteUnits(dl.speed);
             return this._dlbundle.getFormattedString("speedFormat", [rate, unit]);
           case DownloadsCommon.DOWNLOAD_PAUSED:
             return this._dlbundle.getString("statePaused");

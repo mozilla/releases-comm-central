@@ -281,6 +281,71 @@ var DownloadsCommon = {
   },
 
   /**
+   * Returns the transfer progress text for the provided Download object.
+   */
+  getTransferredBytes(download) {
+    let currentBytes;
+    let totalBytes;
+    // Download in progress.
+    // Download paused / canceled and has partial data.
+    if (!download.stopped ||
+        (download.canceled && download.hasPartialData)) {
+      currentBytes = download.currentBytes,
+      totalBytes = download.hasProgress ? download.totalBytes : -1;
+    // Download done but file missing.
+    } else if (download.succeeded && !download.exists) {
+      currentBytes = download.totalBytes ? download.totalBytes : -1;
+      totalBytes = -1;
+    // For completed downloads, show the file size
+    } else if (download.succeeded && download.target.size !== undefined) {
+       currentBytes = download.target.size;
+       totalBytes = -1;
+    // Some local files saves e.g. from attachments also have no size.
+    // They only have a target in downloads.json but no target.path.
+    // FIX ME later.
+    } else {
+      currentBytes = -1;
+      totalBytes = -1;
+    }
+
+    // We do not want to show 0 of xxx bytes.
+    if (currentBytes == 0) {
+      currentBytes = -1;
+    }
+
+    if (totalBytes == 0) {
+      totalBytes = -1;
+    }
+
+    // We tried everything.
+    if (currentBytes == -1 && totalBytes == -1) {
+      return "";
+    }
+
+    return DownloadUtils.getTransferTotal(currentBytes, totalBytes);
+  },
+
+  /**
+   * Returns the time remaining text for the provided Download object.
+   * For calculation a variable is stored in it.
+   */
+  getTimeRemaining(download) {
+    // If you do changes here please check progressDialog.js.
+    if (!download.stopped) {
+      let lastSec = (download.lastSec == null) ? Infinity : download.lastSec;
+      // Calculate the time remaining if we have valid values
+      let seconds = (download.speed > 0) && (download.totalBytes > 0)
+                    ? (download.totalBytes - download.currentBytes) / download.speed
+                    : -1;
+      let [timeLeft, newLast] = DownloadUtils.getTimeLeft(seconds, lastSec);
+      // Store it back for next calculation.
+      download.lastSec = newLast;
+      return timeLeft;
+    }
+    return "";
+  },
+
+  /**
    * Opens a downloaded file.
    *
    * @param aFile

@@ -26,8 +26,6 @@
   <stringbundleset id="stringbundleset">
     <stringbundle id="dmBundle"
                   src="chrome://communicator/locale/downloads/downloadmanager.properties"/>
-    <stringbundle id="tkdlBundle"
-                  src="chrome://global/locale/mozapps/downloads/downloads.properties"/>
   </stringbundleset>
 
   <commandset id="dlProgressCommands">
@@ -90,7 +88,7 @@
         </menupopup>
       </button>
       <label id="dlSize" value=""/>
-      <label id="timeElapsed" value=""/>
+      <label id="timeLeft" value=""/>
       <label id="dlStatus" value=""/>
     </vbox>
     <button id="pauseButton" class="mini-button"

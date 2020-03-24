@@ -12,19 +12,15 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 var gDownload;
 var gDownloadBundle;
-var gTkDlBundle;
 
 var gDlList;
 var gDlStatus;
 var gDlListener;
 var gDlSize;
-var gTimeElapsed;
+var gTimeLeft;
 var gProgressMeter;
 var gProgressText;
 var gCloseWhenDone;
-
-var gLastSec = Infinity;
-var gDlActive = false;
 
 function progressStartup() {
   gDownload = window.arguments[0].wrappedJSObject;
@@ -36,10 +32,9 @@ function progressAsyncStartup(aList) {
 
   // cache elements to save .getElementById() calls
   gDownloadBundle = document.getElementById("dmBundle");
-  gTkDlBundle = document.getElementById("tkdlBundle");
   gDlStatus = document.getElementById("dlStatus");
   gDlSize = document.getElementById("dlSize");
-  gTimeElapsed = document.getElementById("timeElapsed");
+  gTimeLeft = document.getElementById("timeLeft");
   gProgressMeter = document.getElementById("progressMeter");
   gProgressText = document.getElementById("progressText");
   gCloseWhenDone = document.getElementById("closeWhenDone");
@@ -106,7 +101,7 @@ function updateDownload() {
     gProgressMeter.style.opacity = 1;
   }
   // Update window title
-  let statusString = DownloadsCommon.stateOfDownloadText(gDownloadBundle);
+  let statusString = DownloadsCommon.stateOfDownloadText(gDownload);
 
   if (gDownload.hasProgress) {
     document.title = gDownloadBundle.getFormattedString("progressTitlePercent",
@@ -120,61 +115,15 @@ function updateDownload() {
                                                          statusString]);
   }
 
-  // download size
-  var transfer = DownloadUtils.getTransferTotal(gDownload.currentBytes,
-                                                gDownload.totalBytes);
-  if (!gDownload.stopped) {
-    var [rate, unit] = DownloadUtils.convertByteUnits(gDownload.speed);
-    var dlSpeed = gDownloadBundle.getFormattedString("speedFormat", [rate, unit]);
-    gDlSize.value = gDownloadBundle.getFormattedString("sizeSpeed",
-                                                       [transfer, dlSpeed]);
-  }
-  else
-    gDlSize.value = transfer;
+  // download size / transferred bytes
+  gDlSize.value = DownloadsCommon.getTransferredBytes(gDownload);
+
+  // time remaining
+  gTimeLeft.value = DownloadsCommon.getTimeRemaining(gDownload);
 
   // download status
-  if (!gDownload.stopped) {
-    // Calculate the time remaining if we have valid values
-    var seconds = (gDownload.speed > 0) && (gDownload.totalBytes > 0)
-                  ? (gDownload.totalBytes - gDownload.currentBytes) / gDownload.speed
-                  : -1;
-    var [timeLeft, newLast] = DownloadUtils.getTimeLeft(seconds, gLastSec);
-    gLastSec = newLast;
-  }
+  gDlStatus.value = statusString;
 
-  let state = DownloadsCommon.stateOfDownload(gDownload);
-  switch (state) {
-    case DownloadsCommon.DOWNLOAD_BLOCKED_PARENTAL: // Parental Controls
-      gDlStatus.value = gTkDlBundle.getString("stateBlocked");
-      break;
-    case DownloadsCommon.DOWNLOAD_BLOCKED_POLICY:   // Security Zone Policy
-      gDlStatus.value = gTkDlBundle.getString("stateBlockedPolicy");
-      break;
-    case DownloadsCommon.DOWNLOAD_DIRTY:            // possible virus/spyware
-      gDlStatus.value = gTkDlBundle.getString("stateDirty");
-      break;
-    default:
-      if (gDlActive)
-        gDlStatus.value = gDownloadBundle.getFormattedString("statusActive",
-                                                             [statusString, timeLeft]);
-      else
-        gDlStatus.value = statusString;
-      break;
-  }
-
-  // time elapsed
-  if (gDownload.startTime && gDownload.endTime && (gDownload.endTime > gDownload.startTime)) {
-    var seconds = (gDownload.endTime - gDownload.startTime) / 1000;
-    var [time1, unit1, time2, unit2] =
-      DownloadUtils.convertTimeUnits(seconds);
-    if (seconds < 3600 || time2 == 0)
-      gTimeElapsed.value = gDownloadBundle.getFormattedString("timeElapsedSingle", [time1, unit1]);
-    else
-      gTimeElapsed.value = gDownloadBundle.getFormattedString("timeElapsedDouble", [time1, unit1, time2, unit2]);
-  }
-  else {
-    gTimeElapsed.value = "";
-  }
 }
 
 function updateButtons() {
