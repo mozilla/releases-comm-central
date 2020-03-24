@@ -84,7 +84,9 @@ function e2eInitializeFields() {
     gSignCertName.displayName = "";
     gSignCertName.dbKey = "";
 
-    gKeyId.value = "";
+    if (MailConstants.MOZ_OPENPGP) {
+      gKeyId.value = "";
+    }
 
     gRequireEncrypt.disabled = true;
     gDoNotEncrypt.disabled = true;
@@ -128,7 +130,11 @@ function e2eInitializeFields() {
       gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
     }
 
-    let enableEnc = gEncryptionCertName.value || gKeyId.value;
+    let enableEnc = !!gEncryptionCertName.value;
+    if (MailConstants.MOZ_OPENPGP) {
+      enableEnc = enableEnc || !!gKeyId.value;
+    }
+
     gRequireEncrypt.disabled = !enableEnc;
     gDoNotEncrypt.disabled = !enableEnc;
     enableEncryptionControls(enableEnc);
@@ -151,7 +157,11 @@ function e2eInitializeFields() {
 
     gSignMessages.checked = gIdentity.getBoolAttribute("sign_mail");
 
-    let enableSig = gSignCertName.value || gKeyId.value;
+    let enableSig = gSignCertName.value;
+    if (MailConstants.MOZ_OPENPGP) {
+      enableSig = enableSig || !!gKeyId.value;
+    }
+
     gSignMessages.disabled = !enableSig;
     enableSigningControls(enableSig);
   }
@@ -490,7 +500,10 @@ function smimeClearCert(smime_cert) {
   certInfo.displayName = "";
   certInfo.dbKey = "";
 
-  let stillHaveOther = gKeyId && gKeyId.value;
+  let stillHaveOther = false;
+  if (MailConstants.MOZ_OPENPGP) {
+    stillHaveOther = gKeyId && gKeyId.value;
+  }
 
   if (!stillHaveOther) {
     if (smime_cert == kEncryptionCertPref) {
