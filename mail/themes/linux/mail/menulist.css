@@ -25,3 +25,7 @@ menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
 menulist[is="menulist-editable"][editable="true"] html|*.menulist-input {
   margin-inline-end: 6px;
 }
+
+menulist[open="true"] html|*.textbox-input {
+  color: -moz-FieldText;
+}
