@@ -1,0 +1,38 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+loader: taskgraph.loader.transform:loader
+
+transforms:
+    - taskgraph.transforms.bouncer_submission:transforms
+    - taskgraph.transforms.task:transforms
+
+job-defaults:
+    description: release bouncer submission job
+    worker-type: bouncer
+    worker:
+        implementation: bouncer-submission
+    scopes:
+        by-release-level:
+            production:
+                - project:comm:thunderbird:releng:bouncer:action:submission
+                - project:comm:thunderbird:releng:bouncer:server:production-nazgul
+            staging:
+                - project:comm:thunderbird:releng:bouncer:action:submission
+                - project:comm:thunderbird:releng:bouncer:server:staging-nazgul
+    run-on-projects: []
+    shipping-phase: promote
+    locales-file: comm/mail/locales/shipped-locales
+    treeherder:
+        symbol: Rel(BncSub)
+        kind: test
+        tier: 1
+
+jobs:
+    thunderbird:
+        bouncer-platforms: ['linux', 'linux64', 'osx', 'win', 'win64']
+        bouncer-products: ['complete-mar', 'installer', 'installer-ssl', 'partial-mar', 'msi']
+        shipping-product: thunderbird
+        treeherder:
+            platform: thunderbird-release/opt
