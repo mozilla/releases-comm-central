@@ -41,6 +41,13 @@ treeherder:
         'rs': 'Repackage signing'
         'UV': 'Update verify'
 
+        # mozlint
+        'js': 'JavaScript checks'
+        'misc': 'Misc checks'
+        'pedantic': 'pedantic checks'
+        'py': 'Python checks'
+        'text': 'Check on texts'
+
         # Tests
         'X': 'Xpcshell tests'
         'M': 'Mochitests'
