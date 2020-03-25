@@ -21,4 +21,5 @@ file-perm:
     support-files:
         - 'tools/lint/file-perm/**'
     type: external
-    payload: file-perm:lint
+    payload: commlint:lint_wrapper
+    wraps: file-perm:lint

@@ -6,5 +6,6 @@ py2:
     support-files:
         - 'tools/lint/python/*compat*'
     type: external
-    payload: python.compat:lintpy2
+    payload: commlint:lint_wrapper
+    wraps: python.compat:lintpy2
     setup: python.compat:setuppy2

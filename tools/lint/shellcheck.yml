@@ -11,4 +11,5 @@ shellcheck:
         - 'tools/lint/shell/**'
     excludecodes: ['1090', '1091']
     type: external
-    payload: shell:lint
+    payload: commlint:lint_wrapper
+    wraps: shell:lint

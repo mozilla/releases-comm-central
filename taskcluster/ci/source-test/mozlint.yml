@@ -12,6 +12,8 @@ job-defaults:
     worker:
         docker-image: {in-tree: "lint"}
         max-run-time: 1800
+        env:
+            MOZLINT_NO_SUITE: '1'
     run:
         using: mach
         comm-checkout: true

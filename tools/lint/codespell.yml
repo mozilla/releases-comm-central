@@ -28,4 +28,5 @@ codespell:
         - 'tools/lint/spell/**'
     type: external
     setup: spell:setup
-    payload: spell:lint
+    payload: commlint:lint_wrapper
+    wraps: spell:lint

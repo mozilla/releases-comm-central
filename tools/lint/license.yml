@@ -27,4 +27,5 @@ license:
     support-files:
         - 'tools/lint/license/**'
     type: external
-    payload: license:lint
+    payload: commlint:lint_wrapper
+    wraps: license:lint

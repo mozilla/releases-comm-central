@@ -6,4 +6,5 @@ mingw-capitalization:
     include: ['.']
     type: external
     level: error
-    payload: cpp.mingw-capitalization:lint
+    payload: commlint:lint_wrapper
+    wraps: cpp.mingw-capitalization:lint

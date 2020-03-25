@@ -15,6 +15,7 @@ lintpref:
     exclude: []
     extensions: ['js']
     type: external
-    payload: libpref:checkdupes
+    payload: commlint:lint_wrapper
+    wraps: libpref:checkdupes
     support-files:
         - 'modules/libpref/init/StaticPrefList.yaml'

@@ -15,4 +15,5 @@ file-whitespace:
     support-files:
         - 'tools/lint/file-whitespace/**'
     type: external
-    payload: file-whitespace:lint
+    payload: commlint:lint_wrapper
+    wraps: file-whitespace:lint

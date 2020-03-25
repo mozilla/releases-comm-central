@@ -8,4 +8,5 @@ yamllint:
         - '**/.yamllint'
         - 'tools/lint/yamllint_/**'
     type: external
-    payload: yamllint_:lint
+    payload: commlint:lint_wrapper
+    wraps: yamllint_:lint
