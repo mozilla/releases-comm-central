@@ -636,12 +636,17 @@ calendar-event-freebusy-day > box {
      the attendee-list always have the same height,
      regardless of the font size.
   */
-  height: 17px;
+  height: 1.2em;
 }
 
 .addressingWidgetCell {
   border-bottom: 1px solid var(--eventWidgetBorderColor);
   padding: 0px;
+}
+
+.addressingWidgetCell > image {
+  height: 16px;
+  margin-block: auto;
 }
 
 .addressingWidgetCell:first-child {
@@ -742,12 +747,13 @@ calendar-event-freebusy-day > box {
 
 #attendees-list {
   -moz-user-focus: normal;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #attendees-list > richlistitem {
-  max-height: 17px;
-  min-height: 17px;
+  max-height: 1.2em;
+  min-height: 1.2em;
   flex: 1;
   display: flex;
 }
