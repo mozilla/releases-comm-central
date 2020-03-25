@@ -8,37 +8,42 @@ product-dir: comm/mail
 
 treeherder:
     group-names:
-        'X': 'Xpcshell tests'
+        # Images/Packages/Toolchain
+        'Deb7': 'Packages for Debian 7'
+        'Deb7-32': 'Packages for Debian 7 32-bits'
+        'Deb9': 'Packages for Debian 9'
+        'Deb10': 'Packages for Debian 10'
+        'Fetch': 'Fetch and store content'
         'I': 'Docker Image Builds'
         'TL': 'Toolchain builds for Linux 64-bits'
         'TM': 'Toolchain builds for OSX'
         'TMW': 'Toolchain builds for Windows MinGW'
         'TW32': 'Toolchain builds for Windows 32-bits'
         'TW64': 'Toolchain builds for Windows 64-bits'
-        'Deb7': 'Packages for Debian 7'
-        'Deb7-32': 'Packages for Debian 7 32-bits'
-        'Deb9': 'Packages for Debian 9'
-        'Deb10': 'Packages for Debian 10'
-        'Fetch': 'Fetch and store content'
-        'L10n': 'Localised Repacks'
-        'L10n-Rpk': 'Localized Repackaged Repacks'
-        'l10n-bump': 'L10n Bumper'
-        'M': 'Mochitests'
-        'p': 'Partial generation'
-        'ps': 'Partials signing'
-        'ms': 'Complete MAR signing'
-        'MSI': 'Repack installers into MSIs'
-        'MSIs': 'Signing of Repacked installers of MSIs'
-        'rs': 'Repackage signing'
+
+        # Release promotion
         'BM': 'Beetmover'
+        'BMcs': 'Beetmover checksums,'
+        'BMcss': 'Beetmover checksums for source'
         'BMR': 'Beetmover repackages'
         'c-Up': 'Balrog submission of complete updates'
         'cs': 'Checksum signing'
-        'BMcs': 'Beetmover checksums,'
-        'Rel': 'Release promotion'
         'css': 'Checksum signing for source'
-        'BMcss': 'Beetmover checksums for source'
+        'L10n': 'Localised Repacks'
+        'L10n-Rpk': 'Localized Repackaged Repacks'
+        'l10n-bump': 'L10n Bumper'
+        'ms': 'Complete MAR signing'
+        'MSI': 'Repack installers into MSIs'
+        'MSIs': 'Signing of Repacked installers of MSIs'
+        'p': 'Partial generation'
+        'ps': 'Partials signing'
+        'Rel': 'Release promotion'
+        'rs': 'Repackage signing'
         'UV': 'Update verify'
+
+        # Tests
+        'X': 'Xpcshell tests'
+        'M': 'Mochitests'
 
 index:
     products:
