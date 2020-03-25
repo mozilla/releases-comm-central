@@ -386,6 +386,7 @@
       this.classList.add("emailDisplayButton");
       this.setAttribute("context", "emailAddressPopup");
       this.setAttribute("popup", "emailAddressPopup");
+      this.setAttribute("align", "center");
 
       const label = document.createXULElement("label");
       label.classList.add("emaillabel");
