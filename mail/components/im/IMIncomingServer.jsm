@@ -203,13 +203,13 @@ IMIncomingServer.prototype = {
     this._defaultOptionValues = {};
     for (let opt of this.imAccount.protocol.getOptions()) {
       let type = opt.type;
-      if (type == opt.typeBool) {
+      if (type == Ci.prplIPref.typeBool) {
         this._defaultOptionValues[opt.name] = opt.getBool();
-      } else if (type == opt.typeInt) {
+      } else if (type == Ci.prplIPref.typeInt) {
         this._defaultOptionValues[opt.name] = opt.getInt();
-      } else if (type == opt.typeString) {
+      } else if (type == Ci.prplIPref.typeString) {
         this._defaultOptionValues[opt.name] = opt.getString();
-      } else if (type == opt.typeList) {
+      } else if (type == Ci.prplIPref.typeList) {
         this._defaultOptionValues[opt.name] = opt.getListDefault();
       }
     }

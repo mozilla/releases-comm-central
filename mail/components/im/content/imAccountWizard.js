@@ -358,14 +358,14 @@ var accountWizard = {
       let option = this.prefs[i];
       let opt = option.opt;
       switch (opt.type) {
-        case opt.typeBool:
+        case Ci.prplIPref.typeBool:
           acc.setBool(option.name, option.value);
           break;
-        case opt.typeInt:
+        case Ci.prplIPref.typeInt:
           acc.setInt(option.name, option.value);
           break;
-        case opt.typeString:
-        case opt.typeList:
+        case Ci.prplIPref.typeString:
+        case Ci.prplIPref.typeList:
           acc.setString(option.name, option.value);
           break;
         default:
