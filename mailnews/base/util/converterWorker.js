@@ -171,10 +171,7 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
   OS.File.makeDir(curDirPath);
   OS.File.makeDir(tmpDirPath);
 
-  let decoder = new TextDecoder();
-  let encoder = new TextEncoder();
-
-  const CHUNK_SIZE = 10000000;
+  const CHUNK_SIZE = 1000000;
   // SAFE_MARGIN is how much to keep back between chunks in order to
   // cope with separator lines which might span chunks.
   const SAFE_MARGIN = 100;
@@ -196,18 +193,58 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
   let ident = Date.now();
   let outFile = null;
 
-  let writeToMsg = function(text) {
+  /**
+   * Helper. Convert a string into a Uint8Array, using no encoding. The low
+   * byte of each 16 bit character will be used, the high byte discarded.
+   *
+   * @param {string} s - Input string with chars in 0-255 range.
+   * @returns {Uint8Array} The output bytes.
+   */
+  let stringToBytes = function(str) {
+    var bytes = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+      bytes[i] = str.charCodeAt(i);
+    }
+    return bytes;
+  };
+
+  /**
+   * Helper. Convert a Uint8Array directly into a string, using each byte
+   * directly as a character code. So all characters in the resulting string
+   * will range from 0 to 255, even though they are 16 bit values.
+   *
+   * @param {Uint8Array} bytes - The bytes to convert.
+   * @returns {string} The byte values in string form.
+   */
+  let bytesToString = function(bytes) {
+    return bytes.reduce(function(str, b) {
+      return str + String.fromCharCode(b);
+    }, "");
+  };
+
+  /**
+   * Helper. Write out a block of bytes to the current message file, starting
+   * a new file if required.
+   *
+   * @param {string} str - The bytes to append (as chars in range 0-255).
+   */
+  let writeToMsg = function(str) {
     if (!outFile) {
       let outPath = OS.Path.join(curDirPath, ident.toString() + ".eml");
       ident += 1;
       outFile = OS.File.open(outPath, { write: true, create: true }, {});
     }
-    let raw = encoder.encode(text);
+    // We know that str is really raw 8-bit data, not UTF-16. So we can
+    // discard the upper byte and just keep the low byte of each char.
+    let raw = stringToBytes(str);
     outFile.write(raw);
-    // for mbox->maildir conversion, progress measured in bytes
+    // For mbox->maildir conversion, progress is measured in bytes.
     progressFn(raw.byteLength);
   };
 
+  /**
+   * Helper. Close the current message file, if any.
+   */
   let closeExistingMsg = function() {
     if (outFile) {
       outFile.close();
@@ -219,9 +256,12 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
   let buf = "";
   let eof = false;
   while (!eof) {
-    let raw = mboxFile.read(CHUNK_SIZE);
-    buf = buf + decoder.decode(raw);
-    eof = raw.byteLength < CHUNK_SIZE;
+    let rawBytes = mboxFile.read(CHUNK_SIZE);
+    // We're using JavaScript strings (which hold 16bit characters) to store
+    // 8 bit data. This sucks, but is faster than trying to operate directly
+    // upon Uint8Arrays. A lot of work goes into optimising JavaScript strings.
+    buf += bytesToString(rawBytes);
+    eof = rawBytes.byteLength < CHUNK_SIZE;
 
     let pos = 0;
     sepRE.lastIndex = 0; // start at beginning of buf

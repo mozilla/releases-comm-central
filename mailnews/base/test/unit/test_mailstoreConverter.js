@@ -26,11 +26,9 @@ let testEmails = [
   "../../../data/09-(HTML+embedded-image)+attachment.eml",
   "../../../data/10-plaintext+(HTML+embedded-image)+attachment.eml",
 
-  // XXX TODO: 12 and 20 get screwed up! Bug 1515254
-
   // Bodies with non-ASCII characters in UTF-8 and other charsets.
   "../../../data/11-plaintext.eml",
-  // "../../../data/12-plaintext+attachment.eml",  // using ISO-8859-7 (Greek)
+  "../../../data/12-plaintext+attachment.eml", // using ISO-8859-7 (Greek)
   "../../../data/13-HTML.eml",
   "../../../data/14-HTML+attachment.eml",
   "../../../data/15-HTML+embedded-image.eml",
@@ -38,7 +36,7 @@ let testEmails = [
   "../../../data/17-plaintext+(HTML+embedded-image).eml", // HTML part is base64 encoded
   "../../../data/18-plaintext+HTML+attachment.eml",
   "../../../data/19-(HTML+embedded-image)+attachment.eml",
-  // "../../../data/20-plaintext+(HTML+embedded-image)+attachment.eml",  // using windows-1252
+  "../../../data/20-plaintext+(HTML+embedded-image)+attachment.eml", // using windows-1252
 
   // Bodies with non-ASCII characters in UTF-8 and other charsets, all encoded with quoted printable.
   "../../../data/21-plaintext.eml",
