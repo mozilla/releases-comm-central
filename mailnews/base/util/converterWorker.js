@@ -176,17 +176,21 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
   // cope with separator lines which might span chunks.
   const SAFE_MARGIN = 100;
 
-  // A regexp to match mbox separator lines.
-  // We support lines like:
+  // A regexp to match mbox separator lines. Separator lines in the wild can
+  // have all sorts of forms, for example:
+  //
   // "From "
   // "From MAILER-DAEMON Fri Jul  8 12:08:34 2011"
   // "From - Mon Jul 11 12:08:34 2011"
   // "From bob@example.com Fri Jul  8 12:08:34 2011"
-  // we also require a message header on the next line, in order
+  //
+  // So we accept any line beginning with "From " and ignore the rest of it.
+  //
+  // We also require a message header on the next line, in order
   // to better cope with unescaped "From " lines in the message body.
   // note: the first subexpression matches the separator line, so
-  // it can be removed from the input.
-  let sepRE = /^((?:From \r?\n)|(?:From [\S]+ \S{3} \S{3} [ \d]\d \d\d:\d\d:\d\d \d{4}\r?\n))[\x21-\x7E]+:/gm;
+  // that it can be removed from the input.
+  let sepRE = /^(From (?:.*?)\r?\n)[\x21-\x7E]+:/gm;
 
   // Use timestamp as starting name for output messages, incrementing
   // by one for each.
