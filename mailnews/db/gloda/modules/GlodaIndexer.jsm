@@ -14,9 +14,6 @@ this.EXPORTED_SYMBOLS = ["GlodaIndexer", "IndexingJob"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-const { GlodaUtils } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaUtils.jsm"
-);
 const { GlodaDatastore } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );
