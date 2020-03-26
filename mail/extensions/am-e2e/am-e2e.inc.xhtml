@@ -15,10 +15,12 @@
       <label hidden="true" wsm_persist="true" id="identity_e2etechpref"/>
 
       <vbox>
-        <description flex="1">&e2eIntro.description;</description>
-        <label is="text-link" id="acceptLearnMoreE2E"
-               href="https://support.mozilla.org/kb/introduction-to-e2e-encryption"
-               value="&e2eLearnMore.label;"/>
+        <description flex="1">
+          <html:span class="tail-with-learn-more">&e2eIntro.description;</html:span>
+          <label is="text-link" id="acceptLearnMoreE2E"
+                 href="https://support.mozilla.org/kb/introduction-to-e2e-encryption"
+                 value="&e2eLearnMore.label;"/>
+        </description>
       </vbox>
 
 #ifdef MOZ_OPENPGP
@@ -115,9 +117,7 @@
       <html:fieldset id="encryption_titlebox">
         <description flex="1">&e2eEnc.description;</description>
 
-        <separator class="thin"/>
-
-        <radiogroup id="encryptionChoices">
+        <radiogroup id="encryptionChoices" class="indent">
           <radio id="encrypt_no" wsm_persist="true" value="0"
                  label="&doNotEncrypt.label;"
                  accesskey="&doNotEncrypt.accesskey;"/>
@@ -130,24 +130,22 @@
                  accesskey="&requireEncryptMessage.accesskey;"/>
         </radiogroup>
 
-        <description flex="1">&e2eeReqWarning.description;</description>
-      </html:fieldset>
+        <description flex="1" class="indent">
+          &e2eeReqWarning.description;
+        </description>
 
-      <separator/>
-      <separator/>
+        <separator/>
 
-      <html:fieldset id="signing_titlebox">
         <description flex="1">&e2eSigning.description;</description>
         <checkbox id="identity_sign_mail" wsm_persist="true"
                   prefstring="mail.identity.%identitykey%.sign_mail"
                   label="&signMessage2.label;" accesskey="&signMessage.accesskey;"/>
-      </html:fieldset>
 
 #ifdef MOZ_OPENPGP
-      <separator/>
-      <html:fieldset id="technology_titlebox">
+        <separator/>
+
         <description>&e2eTechPref.description;</description>
-        <radiogroup id="technologyChoices">
+        <radiogroup id="technologyChoices" class="indent">
           <radio id="technology_automatic" wsm_persist="true" value="0"
                  label="&technologyAutomatic.label;"/>
 
@@ -157,6 +155,6 @@
           <radio id="technology_prefer_smime" wsm_persist="true" value="1"
                  label="&technologySMIME.label;"/>
         </radiogroup>
-      </html:fieldset>
 #endif
+      </html:fieldset>
     </vbox>
