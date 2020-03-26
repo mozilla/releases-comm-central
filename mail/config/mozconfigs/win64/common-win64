@@ -2,12 +2,10 @@
 
 ac_add_options --target=x86_64-pc-mingw32
 
-if test -z "$USE_ARTIFACT"; then
 . $topsrcdir/build/win64/mozconfig.vs-latest
 
 # Set up mapi includes (must be done after visual studio setup)
 export INCLUDE=${TOOLTOOL_DIR}/mapiheader
-fi
 
 if test `uname -s` = Linux; then
 
@@ -28,10 +26,7 @@ export UPX="${MOZ_FETCHES_DIR}/upx-3.95-win64/upx.exe"
 if [ -f "${UPX}" ]; then
     chmod +x "${UPX}"
 fi
-
 export WINE=${MOZ_FETCHES_DIR}/wine/bin/wine64
-export RC=rc.exe
-export MIDL=midl.exe
 mk_add_options "export PATH=${VSPATH}/VC/bin/Hostx64/x64:${MOZ_FETCHES_DIR}/nsis-3.01:${PATH}"
 
 unset VC_PATH

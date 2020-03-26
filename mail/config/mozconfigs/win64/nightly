@@ -2,17 +2,10 @@
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
-. "$topsrcdir/comm/mail/config/mozconfigs/common"
 . "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
 ac_add_options --enable-profiling
-if test -z "$USE_ARTIFACT"; then
-ac_add_options --enable-jemalloc
-fi
-if test -n "$USE_ARTIFACT"; then
-ac_add_options --disable-mapi
-fi
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
@@ -24,3 +17,13 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
+
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
+
+if test -z "$USE_ARTIFACT"; then
+ac_add_options --enable-jemalloc
+fi
+
+if test -n "$USE_ARTIFACT"; then
+ac_add_options --disable-mapi
+fi
