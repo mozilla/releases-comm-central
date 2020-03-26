@@ -2052,7 +2052,9 @@ Enigmail.msg = {
         if (EnigmailMimeEncrypt.isEnigmailCompField(p)) {
           p.wrappedJSObject.sendFlags = 0;
         }
-      } catch (ex) {}
+      } catch (ex) {
+        console.debug(ex);
+      }
 
       return true;
     }
@@ -2171,58 +2173,6 @@ Enigmail.msg = {
     }
 
     Enigmail.msg.setSecurityParams(newSecurityInfo);
-  },
-
-  compileFromAndTo() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.compileFromAndTo\n"
-    );
-    let compFields = gMsgCompose.compFields;
-    let toAddrList = [];
-
-    if (!Enigmail.msg.composeBodyReady) {
-      compFields = Cc[
-        "@mozilla.org/messengercompose/composefields;1"
-      ].createInstance(Ci.nsIMsgCompFields);
-    }
-    Recipients2CompFields(compFields);
-    gMsgCompose.expandMailingLists();
-
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: to='" + compFields.to + "'\n"
-    );
-    if (compFields.to.length > 0) {
-      toAddrList = EnigmailFuncs.parseEmails(compFields.to, false);
-    }
-
-    if (compFields.cc.length > 0) {
-      toAddrList = toAddrList.concat(
-        EnigmailFuncs.parseEmails(compFields.cc, false)
-      );
-    }
-
-    if (compFields.bcc.length > 0) {
-      toAddrList = toAddrList.concat(
-        EnigmailFuncs.parseEmails(compFields.bcc, false)
-      );
-    }
-
-    for (let addr of toAddrList) {
-      // determine incomplete addresses --> do not attempt pEp encryption
-      if (addr.email.search(/.@./) < 0) {
-        return null;
-      }
-    }
-
-    this.identity = getCurrentIdentity();
-    let from = {
-      email: this.identity.email,
-      name: this.identity.fullName,
-    };
-    return {
-      from,
-      toAddrList,
-    };
   },
 
   /*
@@ -3996,6 +3946,7 @@ Enigmail.msg = {
    * import them via WKD or Autocrypt.
    */
   async findMissingKeys() {
+    /*
     try {
       EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: findMissingKeys()\n");
 
@@ -4020,7 +3971,6 @@ Enigmail.msg = {
           try {
             let foundKeys;
 
-            /*
             if (this.isAutocryptEnabled()) {
               foundKeys = await EnigmailAutocrypt.importAutocryptKeys(lookupList, this.encryptForced === EnigmailConstants.ENIG_ALWAYS);
               EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: findMissingKeys: got " + foundKeys.length + " autocrypt keys\n");
@@ -4028,7 +3978,6 @@ Enigmail.msg = {
                 this.determineSendFlags();
               }
             }
-            */
 
             if (EnigmailPrefs.getPref("autoWkdLookup") === 0) {
               return;
@@ -4056,6 +4005,7 @@ Enigmail.msg = {
         }
       }
     } catch (ex) {}
+    */
   },
 };
 

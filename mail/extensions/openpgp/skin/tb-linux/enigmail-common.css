@@ -201,7 +201,7 @@
   -moz-user-select: text;
   cursor: text !important;
   white-space: pre-wrap;
-  unicode-bidi: -moz-plaintext;
+  unicode-bidi: plaintext;
 }
 
 /***************************************************
@@ -219,7 +219,7 @@
   -moz-user-select: text;
   cursor: text !important;
   white-space: pre-wrap;
-  unicode-bidi: -moz-plaintext;
+  unicode-bidi: plaintext;
 }
 
 .enigmailDialogInfoBox {
@@ -337,18 +337,6 @@ treechildren::-moz-tree-cell-text(STYLE) {}
 /******************************
  *  Rules for filter actions
  ******************************/
-
-.ruleactiontarget[type="enigmail@enigmail.net#filterActionMoveDecrypt"] {
-  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-folder") !important;
-}
-
-.ruleactiontarget[type="enigmail@enigmail.net#filterActionCopyDecrypt"] {
-  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-folder") !important;
-}
-
-.ruleactiontarget[type="enigmail@enigmail.net#filterActionEncrypt"] {
-  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-forwardto") !important;
-}
 
 .enigmailPassphraseQuality {
   margin: 2px 4px;

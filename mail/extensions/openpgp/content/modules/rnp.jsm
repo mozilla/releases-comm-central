@@ -1033,7 +1033,7 @@ var RNP = {
       }
     }
 
-    if (key.isNull()) {
+    if (!key || key.isNull()) {
       console.debug("getKeyHandleByIdentifier nothing found");
     } else {
       console.debug("getKeyHandleByIdentifier found!");
@@ -1244,7 +1244,7 @@ var RNP = {
     if (args.encrypt) {
       for (let id in args.to) {
         let toKey = this.getKeyHandleByIdentifier(RNPLib.ffi, args.to[id]);
-        if (toKey.isNull()) {
+        if (!toKey || toKey.isNull()) {
           resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
           return null;
         }

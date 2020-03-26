@@ -528,7 +528,9 @@ var EnigmailEncryption = {
     );
     console.debug(`encryptAndOrSign returned: ${encrypted}`);
 
-    listener.addEncryptedOutput(encrypted);
+    if (encrypted) {
+      listener.addEncryptedOutput(encrypted);
+    }
 
     if (pgpMime && errorMsgObj.value) {
       EnigmailDialog.alert(win, errorMsgObj.value);
