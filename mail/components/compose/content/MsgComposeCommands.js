@@ -6485,18 +6485,14 @@ function attachmentBucketOnKeyPress(aEvent) {
 }
 
 function attachmentBucketOnClick(aEvent) {
-  // Handle click on attachment pane whitespace:
-  // - With selected attachments, clear selection first.
-  // - Otherwise, e.g. on a plain empty bucket, show 'Attach File(s)' dialog.
-  if (attachmentsSelectedCount() == 0) {
-    let boundTarget = aEvent.originalTarget;
-    if (
-      aEvent.button == 0 &&
-      boundTarget &&
-      boundTarget.getAttribute("is") == "attachment-list"
-    ) {
-      goDoCommand("cmd_attachFile");
-    }
+  // Handle click on attachment pane whitespace normally clear selection.
+  // If there are no attachments in the bucket, show 'Attach File(s)' dialog.
+  if (
+    aEvent.button == 0 &&
+    aEvent.originalTarget.getAttribute("is") == "attachment-list" &&
+    !aEvent.originalTarget.firstElementChild
+  ) {
+    goDoCommand("cmd_attachFile");
   }
 }
 
