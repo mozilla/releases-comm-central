@@ -35,6 +35,11 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
       );
     }
 
+    // Wait for custom elements and L10n.
+    await new Promise(resolve =>
+      browser.contentWindow.requestAnimationFrame(resolve)
+    );
+
     let textbox = browser.contentDocument.getElementById("search-addons");
     let placeholder = textbox.getAttribute("placeholder");
     placeholder = placeholder.replace(
