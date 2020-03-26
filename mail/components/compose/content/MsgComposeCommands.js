@@ -1611,19 +1611,19 @@ function setSecuritySettings(menu_id) {
   let enc0Item = document.getElementById(
     "menu_securityEncryptDisable" + menu_id
   );
-  enc0Item.checked = !gSendEncrypted && !gOptionalEncryption;
+  enc0Item.setAttribute("checked", !gSendEncrypted && !gOptionalEncryption);
   /*
   let enc1Item = document
     .getElementById("menu_securityEncryptOptional" + menu_id);
-  enc1Item.checked = (gSendEncrypted && gOptionalEncryption);
+  enc1Item.setAttribute("checked", (gSendEncrypted && gOptionalEncryption));
   */
   let enc2Item = document.getElementById(
     "menu_securityEncryptRequire" + menu_id
   );
-  enc2Item.checked = gSendEncrypted && !gOptionalEncryption;
+  enc2Item.setAttribute("checked", gSendEncrypted && !gOptionalEncryption);
 
   let sigItem = document.getElementById("menu_securitySign" + menu_id);
-  sigItem.checked = gSendSigned;
+  sigItem.setAttribute("checked", gSendSigned);
 
   let disableSig = false;
   let disableEnc = false;
@@ -1653,8 +1653,8 @@ function setSecuritySettings(menu_id) {
 
     let smimeItem = document.getElementById("encTech_SMIME" + menu_id);
 
-    pgpItem.checked = gSelectedTechnologyIsPGP;
-    smimeItem.checked = !gSelectedTechnologyIsPGP;
+    pgpItem.setAttribute("checked", gSelectedTechnologyIsPGP);
+    smimeItem.setAttribute("checked", !gSelectedTechnologyIsPGP);
 
     smimeItem.disabled =
       !isSmimeSigningConfigured() && !isSmimeEncryptionConfigured();
@@ -1666,7 +1666,7 @@ function setSecuritySettings(menu_id) {
 
     sep.setAttribute("hidden", !gSelectedTechnologyIsPGP);
     box.setAttribute("hidden", !gSelectedTechnologyIsPGP);
-    box.checked = gAttachMyPublicPGPKey;
+    box.setAttribute("checked", gAttachMyPublicPGPKey);
 
     if (gSelectedTechnologyIsPGP) {
       box.disabled = disableEnc;
