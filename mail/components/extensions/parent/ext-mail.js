@@ -1301,6 +1301,25 @@ class WindowManager extends WindowManagerBase {
 }
 
 /**
+ * Converts an nsIMsgIdentity to a simple object for use in messages.
+ * @param {nsIMsgAccount} account
+ * @param {nsIMsgIdentity} identity
+ * @return {Object}
+ */
+function convertMailIdentity(account, identity) {
+  identity = identity.QueryInterface(Ci.nsIMsgIdentity);
+  return {
+    accountId: account.key,
+    id: identity.key,
+    label: identity.label,
+    name: identity.fullName,
+    email: identity.email,
+    replyTo: identity.replyTo,
+    organization: identity.organization,
+  };
+}
+
+/**
  * The following functions turn nsIMsgFolder references into more human-friendly forms.
  * A folder can be referenced with the account key, and the path to the folder in that account.
  */

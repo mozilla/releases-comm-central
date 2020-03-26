@@ -40,6 +40,7 @@ module.exports = {
     TabmailWindow: true,
     clickModifiersFromEvent: true,
     convertFolder: true,
+    convertMailIdentity: true,
     convertMessage: true,
     folderPathToURI: true,
     folderURIToPath: true,

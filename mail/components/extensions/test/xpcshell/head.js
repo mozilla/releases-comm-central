@@ -48,6 +48,7 @@ function addIdentity(account, email = "xpcshell@localhost") {
     account.defaultIdentity = identity;
   }
   info(`Created identity ${identity.toString()}`);
+  return identity;
 }
 
 function createMessages(folder, count) {

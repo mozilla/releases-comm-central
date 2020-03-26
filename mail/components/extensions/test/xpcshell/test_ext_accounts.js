@@ -249,3 +249,67 @@ add_task(async function test_accounts() {
   cleanUpAccount(account1);
   cleanUpAccount(account2);
 });
+
+add_task(async function test_identities() {
+  let account = createAccount();
+  let identity0 = addIdentity(account, "id0@invalid");
+  let identity1 = addIdentity(account, "id1@invalid");
+  let identity2 = addIdentity(account, "id2@invalid");
+  identity2.label = "A label";
+  identity2.fullName = "Identity 2!";
+  identity2.organization = "Dis Organization";
+  identity2.replyTo = "reply@invalid";
+
+  equal(account.defaultIdentity.key, identity0.key);
+
+  let extension = ExtensionTestUtils.loadExtension({
+    async background() {
+      let accounts = await browser.accounts.list();
+      browser.test.assertEq(1, accounts.length);
+
+      const [{ id: accountId, identities }] = accounts;
+      const identityIds = identities.map(i => i.id);
+      browser.test.assertEq(3, identities.length);
+
+      browser.test.assertEq(accountId, identities[0].accountId);
+      browser.test.assertEq("id0@invalid", identities[0].email);
+      browser.test.assertEq(accountId, identities[1].accountId);
+      browser.test.assertEq("id1@invalid", identities[1].email);
+      browser.test.assertEq(accountId, identities[2].accountId);
+      browser.test.assertEq("id2@invalid", identities[2].email);
+      browser.test.assertEq("A label", identities[2].label);
+      browser.test.assertEq("Identity 2!", identities[2].name);
+      browser.test.assertEq("Dis Organization", identities[2].organization);
+      browser.test.assertEq("reply@invalid", identities[2].replyTo);
+
+      await browser.accounts.setDefaultIdentity(accountId, identityIds[2]);
+
+      let { identities: newIdentities } = await browser.accounts.get(accountId);
+      browser.test.assertEq(3, newIdentities.length);
+      browser.test.assertEq(identityIds[2], newIdentities[0].id);
+      browser.test.assertEq(identityIds[0], newIdentities[1].id);
+      browser.test.assertEq(identityIds[1], newIdentities[2].id);
+
+      await browser.accounts.setDefaultIdentity(accountId, identityIds[1]);
+
+      ({ identities: newIdentities } = await browser.accounts.get(accountId));
+      browser.test.assertEq(3, newIdentities.length);
+      browser.test.assertEq(identityIds[1], newIdentities[0].id);
+      browser.test.assertEq(identityIds[2], newIdentities[1].id);
+      browser.test.assertEq(identityIds[0], newIdentities[2].id);
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: ["accountsRead"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  equal(account.defaultIdentity.key, identity1.key);
+
+  cleanUpAccount(account);
+});
