@@ -220,30 +220,6 @@ mapping:
         destinations:
             - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
             - latest-${branch}/mar-tools/${stage_platform}
-    mar.exe:
-        <<: *default
-        description: "Alongside `mbsdiff.exe`, a tool used to generate partials for Windows platforms"
-        source_path_modifier: 'host/bin'
-        pretty_name: mar.exe
-        checksums_path: mar.exe
-        only_for_platforms:
-            - win32-shippable
-            - win64-shippable
-        destinations:
-            - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
-            - latest-${branch}/mar-tools/${stage_platform}
-    mbsdiff.exe:
-        <<: *default
-        description: "Alongside `mar.exe`, a tool used to generate partials for Windows platforms"
-        source_path_modifier: 'host/bin'
-        pretty_name: mbsdiff.exe
-        checksums_path: mbsdiff.exe
-        only_for_platforms:
-            - win32-shippable
-            - win64-shippable
-        destinations:
-            - ${year}/${month}/${upload_date}-${branch}/mar-tools/${stage_platform}
-            - latest-${branch}/mar-tools/${stage_platform}
     target.tar.bz2:
         <<: *default
         description: "Main installer for Linux platforms"
