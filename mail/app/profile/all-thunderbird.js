@@ -748,9 +748,6 @@ pref("privacy.sanitize.timeSpan", 1);
 // Enable Contextual Identity Containers
 pref("privacy.userContext.enabled", false);
 
-// PgpMime Proxy
-pref("mail.pgpmime.addon_url", "https://addons.thunderbird.net/thunderbird/addon/enigmail/");
-
 // If set to true, Thunderbird will collapse the main menu for new profiles
 // (or, more precisely, profiles that start with no accounts created).
 pref("mail.main_menu.collapse_by_default", true);

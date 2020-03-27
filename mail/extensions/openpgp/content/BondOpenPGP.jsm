@@ -46,22 +46,24 @@ var BondOpenPGP = {
       return;
     }
     this.initDone = true;
-    console.log("loading OpenPGP");
-    try {
-      getRNP().init({});
-      //TODO: check RNP.libLoaded
-
-      // trigger service init
-      getEnigmailCore().getService();
-
-      Services.console.logStringMessage("OpenPGP bootstrap completed");
-    } catch (ex) {
-      this.logException(ex);
+    if (!getRNP().init({})) {
+      return;
     }
+
+    // trigger service init
+    getEnigmailCore().getService();
+    //Services.console.logStringMessage("OpenPGP bootstrap completed");
+  },
+
+  allDependenciesLoaded() {
+    this.init();
+    return getRNP().allDependenciesLoaded();
   },
 
   openKeyManager(window) {
-    getEnigmailWindows().openKeyManager(window);
+    if (this.allDependenciesLoaded()) {
+      getEnigmailWindows().openKeyManager(window);
+    }
   },
 };
 

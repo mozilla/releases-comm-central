@@ -51,9 +51,11 @@ var RNP = {
       this.once();
     }
 
-    if (!RNP.libLoaded) {
-      console.log("failed to load RNP library");
-    }
+    return RNP.libLoaded;
+  },
+
+  allDependenciesLoaded() {
+    return RNP.libLoaded;
   },
 
   addKeyAttributes(handle, meta, keyObj, is_subkey, forListing) {

@@ -75,8 +75,7 @@ static void MimePgpe_free(void *);
 static nsCString determineMimePart(MimeObject *obj);
 
 #define PGPMIME_PROPERTIES_URL "chrome://messenger/locale/pgpmime.properties"
-#define PGPMIME_STR_NOT_SUPPORTED_ID "pgpMimeNeedsAddon"
-#define PGPMIME_URL_PREF "mail.pgpmime.addon_url"
+#define PGPMIME_STR_NOT_SUPPORTED_ID "pgpNotAvailable"
 
 static void PgpMimeGetNeedsAddonString(nsCString &aResult) {
   aResult.AssignLiteral("???");
@@ -92,15 +91,9 @@ static void PgpMimeGetNeedsAddonString(nsCString &aResult) {
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv)) return;
 
-  nsCString url;
-  if (NS_FAILED(prefs->GetCharPref("mail.pgpmime.addon_url", url))) return;
-
-  AutoTArray<nsString, 1> formatStrings;
-  CopyUTF8toUTF16(url, *formatStrings.AppendElement());
-
   nsString result;
-  rv = stringBundle->FormatStringFromName(PGPMIME_STR_NOT_SUPPORTED_ID,
-                                          formatStrings, result);
+  rv = stringBundle->GetStringFromName(PGPMIME_STR_NOT_SUPPORTED_ID,
+                                       result);
   if (NS_FAILED(rv)) return;
   aResult = NS_ConvertUTF16toUTF8(result);
 }

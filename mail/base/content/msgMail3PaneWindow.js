@@ -21,6 +21,7 @@
 /* import-globals-from searchBar.js */
 /* import-globals-from specialTabs.js */
 /* import-globals-from toolbarIconColor.js */
+/* import-globals-from ../../extensions/openpgp/content/BondOpenPGP.jsm */
 /* globals PanelUI */
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
@@ -612,7 +613,7 @@ function OnLoadMessenger() {
     LoadPostAccountWizard();
   }
 
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     Enigmail.msg.messengerStartup.bind(Enigmail.msg);
     Enigmail.msg.messengerStartup();
     Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);

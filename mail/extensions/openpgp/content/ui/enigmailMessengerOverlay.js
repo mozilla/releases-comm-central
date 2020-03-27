@@ -15,6 +15,8 @@
 /* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
 /* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView */
 
+/* import-globals-from ../BondOpenPGP.jsm */
+
 var EnigmailCompat = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
 ).EnigmailCompat;
@@ -155,6 +157,10 @@ Enigmail.msg = {
   lastSMimeReloadURI: "",
 
   messengerStartup() {
+    if (!BondOpenPGP.allDependenciesLoaded()) {
+      return;
+    }
+
     let self = this;
 
     // private function to overwrite attributes
@@ -2469,6 +2475,10 @@ Enigmail.msg = {
 
   // handle a selected attachment (decrypt & open or save)
   handleAttachmentSel(actionType, selectedItem = null) {
+    if (!BondOpenPGP.allDependenciesLoaded()) {
+      return;
+    }
+
     EnigmailLog.DEBUG(
       "enigmailMessengerOverlay.js: handleAttachmentSel: actionType=" +
         actionType +

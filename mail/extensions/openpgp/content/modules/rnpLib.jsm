@@ -24,23 +24,29 @@ function tryLoadRNP(name, suffix) {
   let binDir = OS.Path.dirname(binPath);
   librnpPath = OS.Path.join(binDir, filename);
 
+  let loadFromInfo;
+
   try {
-    console.log("===> trying to load " + librnpPath);
+    loadFromInfo = librnpPath;
     librnp = ctypes.open(librnpPath);
   } catch (e) {}
 
   if (!librnp) {
     try {
+      loadFromInfo = "system's standard library locations";
       // look in standard locations
       librnpPath = filename;
-      console.log(
-        "===> trying to load " +
-          librnpPath +
-          " from system's standard locations"
-      );
       librnp = ctypes.open(librnpPath);
-      console.log("===> successfully loaded " + librnpPath);
     } catch (e) {}
+  }
+
+  if (librnp) {
+    console.debug(
+      "Successfully loaded OpenPGP library " +
+        filename +
+        " from " +
+        loadFromInfo
+    );
   }
 }
 
@@ -66,6 +72,10 @@ function loadExternalRNPLib() {
 
   if (!librnp) {
     tryLoadRNP("rnp", "");
+  }
+
+  if (!librnp) {
+    throw new Error("Cannot load required RNP library");
   }
 }
 
@@ -127,8 +137,6 @@ function enableRNPLibJS() {
     },
 
     init() {
-      console.log("===> RNPLib.init()\n");
-
       this.ffi = new rnp_ffi_t();
       if (this.rnp_ffi_create(this.ffi.address(), "GPG", "GPG")) {
         throw new Error("Couldn't initialize librnp.");
@@ -174,8 +182,7 @@ function enableRNPLibJS() {
       let secnum = new ctypes.size_t();
       this.rnp_get_secret_key_count(this.ffi, secnum.address());
 
-      console.log("public keys: " + pubnum + ", secret keys: " + secnum);
-      console.log(
+      console.debug(
         "public keys: " + pubnum.value + ", secret keys: " + secnum.value
       );
 

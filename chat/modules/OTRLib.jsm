@@ -23,22 +23,26 @@ function tryLoadOTR(name, suffix) {
   let binDir = OS.Path.dirname(binPath);
   libotrPath = OS.Path.join(binDir, filename);
 
+  let loadFromInfo;
+
   try {
-    console.log("===> trying to load " + libotrPath);
+    loadFromInfo = libotrPath;
     libotr = ctypes.open(libotrPath);
   } catch (e) {}
 
   if (!libotr) {
     try {
+      loadFromInfo = "system's standard library locations";
       // look in standard locations
       libotrPath = filename;
-      console.log(
-        "===> trying to load " +
-          libotrPath +
-          " from system's standard locations"
-      );
       libotr = ctypes.open(libotrPath);
     } catch (e) {}
+  }
+
+  if (libotr) {
+    console.debug(
+      "Successfully loaded OTR library " + filename + " from " + loadFromInfo
+    );
   }
 }
 
@@ -65,6 +69,10 @@ function loadExternalOTRLib() {
 
   if (!libotr) {
     tryLoadOTR("otr", "");
+  }
+
+  if (!libotr) {
+    throw new Error("Cannot load required OTR library");
   }
 }
 
@@ -454,7 +462,6 @@ function enableOTRLibJS() {
     otrl_version,
 
     init() {
-      // console.log("===> OTRLib.init()\n");
       // apply version array as arguments to the init function
       if (this.otrl_init.apply(this, this.otrl_version)) {
         throw new Error("Couldn't initialize libotr.");

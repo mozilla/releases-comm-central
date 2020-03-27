@@ -1631,7 +1631,11 @@ function setSecuritySettings(menu_id) {
   let disableSig = false;
   let disableEnc = false;
 
-  if (MailConstants.MOZ_OPENPGP && gSelectedTechnologyIsPGP) {
+  if (
+    MailConstants.MOZ_OPENPGP &&
+    BondOpenPGP.allDependenciesLoaded() &&
+    gSelectedTechnologyIsPGP
+  ) {
     if (!isPgpConfigured()) {
       disableSig = true;
       disableEnc = true;
@@ -1653,26 +1657,35 @@ function setSecuritySettings(menu_id) {
 
   if (MailConstants.MOZ_OPENPGP) {
     let pgpItem = document.getElementById("encTech_OpenPGP" + menu_id);
-
     let smimeItem = document.getElementById("encTech_SMIME" + menu_id);
-
-    pgpItem.setAttribute("checked", gSelectedTechnologyIsPGP);
-    smimeItem.setAttribute("checked", !gSelectedTechnologyIsPGP);
 
     smimeItem.disabled =
       !isSmimeSigningConfigured() && !isSmimeEncryptionConfigured();
 
-    pgpItem.disabled = !isPgpConfigured();
-
     let sep = document.getElementById("myPublicKeySeparator" + menu_id);
     let box = document.getElementById("menu_securityMyPublicKey" + menu_id);
 
-    sep.setAttribute("hidden", !gSelectedTechnologyIsPGP);
-    box.setAttribute("hidden", !gSelectedTechnologyIsPGP);
-    box.setAttribute("checked", gAttachMyPublicPGPKey);
+    if (!BondOpenPGP.allDependenciesLoaded()) {
+      pgpItem.setAttribute("checked", false);
+      smimeItem.setAttribute("checked", true);
+      pgpItem.disabled = true;
+      sep.setAttribute("hidden", true);
+      box.setAttribute("hidden", true);
+      box.setAttribute("checked", false);
+      box.disabled = true;
+    } else {
+      pgpItem.setAttribute("checked", gSelectedTechnologyIsPGP);
+      smimeItem.setAttribute("checked", !gSelectedTechnologyIsPGP);
 
-    if (gSelectedTechnologyIsPGP) {
-      box.disabled = disableEnc;
+      pgpItem.disabled = !isPgpConfigured();
+
+      sep.setAttribute("hidden", !gSelectedTechnologyIsPGP);
+      box.setAttribute("hidden", !gSelectedTechnologyIsPGP);
+      box.setAttribute("checked", gAttachMyPublicPGPKey);
+
+      if (gSelectedTechnologyIsPGP) {
+        box.disabled = disableEnc;
+      }
     }
   }
 }
@@ -3713,7 +3726,7 @@ function setEncSigStatusUI() {
     .getElementById("encryption-status")
     .classList.toggle("encrypting-msg", gSendEncrypted);
 
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     let techStatus = top.document.getElementById("encryption-tech");
     if (gSelectedTechnologyIsPGP) {
       techStatus.value = "OpenPGP";

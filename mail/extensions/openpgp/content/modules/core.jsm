@@ -151,7 +151,9 @@ var EnigmailCore = {
     continueStartup(1);
 
     let myName = getEnigmailLocale().getString("Enigmail");
-    console.log("core.jsm: loaded string from properties " + myName);
+    if (!myName) {
+      console.log("core.jsm: couldn't load string from properties " + myName);
+    }
   },
 
   shutdown(reason) {

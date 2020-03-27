@@ -12,6 +12,8 @@
 /* global gExpandedHeaderView: false, CanDetachAttachments: true, gEncryptedURIService: false, FillAttachmentListPopup: false */
 /* global attachmentList: false, MailOfflineMgr: false, currentHeaderData: false, ContentTypeIsSMIME: false */
 
+/* import-globals-from ../BondOpenPGP.jsm */
+
 var EnigmailCore = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
 ).EnigmailCore;
@@ -1104,7 +1106,7 @@ Enigmail.hdrView = {
     var importMenu = document.getElementById("enigmail_ctxImportKey");
     var verifyMenu = document.getElementById("enigmail_ctxVerifyAtt");
 
-    if (selectedAttachments.length > 0) {
+    if (BondOpenPGP.allDependenciesLoaded() && selectedAttachments.length > 0) {
       this.enableContextMenuEntries(
         selectedAttachments[0],
         decryptOpenMenu,
@@ -1113,8 +1115,8 @@ Enigmail.hdrView = {
         verifyMenu
       );
     } else {
-      openMenu.setAttribute("disabled", true); /* global openMenu: false */
-      saveMenu.setAttribute("disabled", true); /* global saveMenu: false */
+      //openMenu.setAttribute("disabled", true); /* global openMenu: false */
+      //saveMenu.setAttribute("disabled", true); /* global saveMenu: false */
       decryptOpenMenu.setAttribute("disabled", true);
       decryptSaveMenu.setAttribute("disabled", true);
       importMenu.setAttribute("disabled", true);

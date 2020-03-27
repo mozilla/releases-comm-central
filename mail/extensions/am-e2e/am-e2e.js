@@ -7,8 +7,11 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailConstants } = ChromeUtils.import(
   "resource:///modules/MailConstants.jsm"
 );
+var { BondOpenPGP } = ChromeUtils.import(
+  "chrome://openpgp/content/BondOpenPGP.jsm"
+);
 
-if (MailConstants.MOZ_OPENPGP) {
+if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
   var { EnigmailKeyRing } = ChromeUtils.import(
     "chrome://openpgp/content/modules/keyRing.jsm"
   );
@@ -62,7 +65,7 @@ function e2eInitializeFields() {
   gBundle = document.getElementById("bundle_e2e");
   gBrandBundle = document.getElementById("bundle_brand");
 
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     gTechChoices = document.getElementById("technologyChoices");
     gKeyId = document.getElementById(kOpenPGPKeyPref);
     gTechAuto = document.getElementById("technology_automatic");
@@ -84,7 +87,7 @@ function e2eInitializeFields() {
     gSignCertName.displayName = "";
     gSignCertName.dbKey = "";
 
-    if (MailConstants.MOZ_OPENPGP) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       gKeyId.value = "";
     }
 
@@ -94,14 +97,14 @@ function e2eInitializeFields() {
 
     gSignMessages.checked = false;
     gEncryptionChoices.value = 0;
-    if (MailConstants.MOZ_OPENPGP) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       gTechChoices.value = 0;
     }
   } else {
     var certdb = Cc[nsX509CertDBContractID].getService(nsIX509CertDB);
     var x509cert = null;
 
-    if (MailConstants.MOZ_OPENPGP) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       gKeyId.value = gIdentity.getUnicharAttribute("openpgp_key_id");
     }
     gEncryptionCertName.value = gIdentity.getUnicharAttribute(
@@ -126,12 +129,12 @@ function e2eInitializeFields() {
     } catch (e) {}
 
     gEncryptionChoices.value = gIdentity.getIntAttribute("encryptionpolicy");
-    if (MailConstants.MOZ_OPENPGP) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
     }
 
     let enableEnc = !!gEncryptionCertName.value;
-    if (MailConstants.MOZ_OPENPGP) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       enableEnc = enableEnc || !!gKeyId.value;
     }
 
@@ -158,7 +161,7 @@ function e2eInitializeFields() {
     gSignMessages.checked = gIdentity.getBoolAttribute("sign_mail");
 
     let enableSig = gSignCertName.value;
-    if (MailConstants.MOZ_OPENPGP) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       enableSig = enableSig || !!gKeyId.value;
     }
 
@@ -188,13 +191,13 @@ function e2eSave() {
   gHiddenEncryptionPolicy.setAttribute("value", newValue);
   gIdentity.setIntAttribute("encryptionpolicy", newValue);
 
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     newValue = gTechChoices.value;
     gHiddenTechPref.setAttribute("value", newValue);
     gIdentity.setIntAttribute("e2etechpref", newValue);
   }
 
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     gIdentity.setUnicharAttribute("openpgp_key_id", gKeyId.value);
   }
   gIdentity.setUnicharAttribute(
@@ -294,7 +297,7 @@ function checkOtherCert(
 }
 
 function pgpSelectKey(pgp_key) {
-  if (!MailConstants.MOZ_OPENPGP) {
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
     return;
   }
 
@@ -456,14 +459,14 @@ function enableSelectButtons() {
     "encryptionCertClearButton"
   ).disabled = !gEncryptionCertName.value;
 
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     gKeyId.disabled = !gKeyId.value;
     document.getElementById("openpgpKeyClearButton").disabled = !gKeyId.value;
   }
 }
 
 function pgpClearKey(pgp_key) {
-  if (!MailConstants.MOZ_OPENPGP) {
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
     return;
   }
   var keyInfo = document.getElementById(pgp_key);
@@ -501,7 +504,7 @@ function smimeClearCert(smime_cert) {
   certInfo.dbKey = "";
 
   let stillHaveOther = false;
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     stillHaveOther = gKeyId && gKeyId.value;
   }
 
@@ -519,7 +522,7 @@ function smimeClearCert(smime_cert) {
 }
 
 function updateTechPref() {
-  if (!MailConstants.MOZ_OPENPGP) {
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
     return;
   }
 
