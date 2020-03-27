@@ -433,3 +433,31 @@ add_task(function test_no_attachment_renamed_on_blank() {
   close_compose_window(cw);
   gMockPromptService.unregister();
 });
+
+/**
+ * Test that toggling attachments pane works.
+ */
+add_task(function test_attachments_pane_toggle() {
+  // Open the compose window.
+  let cw = open_compose_new_mail(mc);
+
+  // Use the hotkey to toggle attachments-box open.
+
+  cw.keypress(
+    null,
+    "m",
+    AppConstants.platform == "macosx" ? { ctrlKey: true } : { altKey: true }
+  );
+  let attachmentsBox = cw.window.document.getElementById("attachments-box");
+  Assert.ok(!attachmentsBox.collapsed);
+
+  // Press again, should toggle to closed.
+  cw.keypress(
+    null,
+    "m",
+    AppConstants.platform == "macosx" ? { ctrlKey: true } : { altKey: true }
+  );
+  Assert.ok(attachmentsBox.collapsed);
+
+  close_compose_window(cw);
+});

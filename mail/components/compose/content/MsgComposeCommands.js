@@ -788,13 +788,6 @@ var defaultController = {
 
     cmd_toggleAttachmentPane: {
       isEnabled() {
-        let cmdToggleAttachmentPane = document.getElementById(
-          "cmd_toggleAttachmentPane"
-        );
-        let paneShown = !document.getElementById("attachments-box").collapsed;
-        cmdToggleAttachmentPane.setAttribute("checked", paneShown);
-
-        // Enable this command when the compose window isn't locked.
         return !gWindowLocked;
       },
       doCommand() {
@@ -6194,15 +6187,6 @@ function moveSelectedAttachments(aDirection) {
 }
 /* eslint-enable complexity */
 
-function keyToggleAttachmentPaneOnCommand() {
-  // For easy and efficient UX with (access key == command key), remember that
-  // we're coming from key_toggleAttachmentPane before going into command handling.
-  document
-    .getElementById("cmd_toggleAttachmentPane")
-    .setAttribute("eventsource", "key");
-  goDoCommand("cmd_toggleAttachmentPane");
-}
-
 /**
  * Toggle attachment pane view state: show or hide it.
  * If aAction parameter is omitted, toggle current view state.
@@ -6214,30 +6198,10 @@ function keyToggleAttachmentPaneOnCommand() {
 function toggleAttachmentPane(aAction = "toggle") {
   let bucket = GetMsgAttachmentElement();
   let attachmentsBox = document.getElementById("attachments-box");
-  let bucketHasFocus = document.activeElement == bucket;
-  let cmdToggleAttachmentPane = document.getElementById(
-    "cmd_toggleAttachmentPane"
-  );
-  let eventSource = cmdToggleAttachmentPane.getAttribute("eventsource");
-  cmdToggleAttachmentPane.removeAttribute("eventsource"); // reset eventsource
   let attachmentBucketSizer = document.getElementById("attachmentbucket-sizer");
 
   if (aAction == "toggle") {
-    if (!attachmentsBox.collapsed) {
-      // If attachment pane is currently shown:
-      if (!bucketHasFocus && eventSource == "key") {
-        // If we get here via key_toggleAttachmentPane, here's where we mimic
-        // access key functionality: First focus the pane if it isn't focused yet.
-        bucket.focus();
-      } else {
-        // If bucket has focus, or if we get here via menu-click or header-click,
-        // just toggle.
-        aAction = "hide";
-      }
-    } else {
-      // If attachment pane is currently hidden, show it.
-      aAction = "show";
-    }
+    aAction = attachmentsBox.collapsed ? "show" : "hide";
   }
 
   switch (aAction) {
@@ -6245,21 +6209,20 @@ function toggleAttachmentPane(aAction = "toggle") {
       attachmentsBox.collapsed = false;
       attachmentBucketSizer.collapsed = false;
       attachmentBucketSizer.setAttribute("state", "");
-      if (!bucketHasFocus && eventSource == "key") {
-        bucket.focus();
-      }
+      bucket.focus();
       break;
 
     case "hide":
-      if (bucketHasFocus) {
-        SetMsgBodyFrameFocus();
-      }
+      SetMsgBodyFrameFocus();
       attachmentsBox.collapsed = true;
       attachmentBucketSizer.setAttribute("state", "collapsed");
       break;
   }
-
-  goUpdateCommand("cmd_toggleAttachmentPane");
+  for (let menuitem of document.querySelectorAll(
+    'menuitem[command="cmd_toggleAttachmentPane"]'
+  )) {
+    menuitem.checked = aAction == "show";
+  }
 }
 
 function showReorderAttachmentsPanel() {
@@ -6453,34 +6416,6 @@ function attachmentBucketOnKeyPress(aEvent) {
     // Enter on empty bucket to add file attachments, convenience
     // keyboard equivalent of single-click on bucket whitespace.
     goDoCommand("cmd_attachFile");
-  }
-
-  // Every locale has a dedicated access key for attachment pane on the
-  // "N attachments" label (Windows and Linux). For users' convenience and
-  // high mnemonic value, we want the access key combo (e.g. Alt+M) to also work
-  // as a shortcut key to toggle the pane (keyboard equivalent of clicking
-  // "N attachments" label or pane header).
-  // Unfortunately access key intercepts the identical shortcut key, so we have
-  // to trigger the shortcut key action here.
-  // And we can't use the shortcut key only because removing the control
-  // attribute of the label breaks screen readers. Sigh.
-  if (AppConstants.platform == "macosx") {
-    // Mac does not have localized access keys, so here we're reconstructing the
-    // typically non-localized shortcut key, Ctrl+M.
-    let attachmentsCommandKeyMac = document
-      .getElementById("key_toggleAttachmentPane")
-      .getAttribute("key");
-    if (aEvent.key == attachmentsCommandKeyMac && aEvent.ctrlKey) {
-      goDoCommand("cmd_toggleAttachmentPane");
-    }
-  } else {
-    let attachmentsAccessKey = document.getElementById("attachmentBucketCount")
-      .accessKey;
-    // We can get away with hardcoding the access key modifier key as aEvent.altKey
-    // because it's ALT for Windows and Linux.
-    if (aEvent.key == attachmentsAccessKey && aEvent.altKey) {
-      goDoCommand("cmd_toggleAttachmentPane");
-    }
   }
 }
 

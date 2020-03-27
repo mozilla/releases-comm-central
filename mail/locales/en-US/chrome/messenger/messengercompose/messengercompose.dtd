@@ -83,15 +83,8 @@
 <!ENTITY reorderAttachmentsCmd.accesskey "s">
 <!ENTITY reorderAttachmentsCmd.key "x">
 <!ENTITY toggleAttachmentPaneCmd.label "Attachment Pane">
-<!-- LOCALIZATION NOTE (toggleAttachmentPaneCmd.accesskey):
-     For better mnemonics, toggleAttachmentPaneCmd.accesskey should be the same
-     as attachments.accesskey. -->
 <!ENTITY toggleAttachmentPaneCmd.accesskey "m">
-<!-- LOCALIZATION NOTE (toggleAttachmentPaneCmd.key):
-     As Mac does not have access keys, this key defines a Mac-only, cross-l10n
-     shortcut key (Ctrl+M). Typically, this key should not be translated unless
-     otherwise required by specific needs of the localization. -->
-<!ENTITY toggleAttachmentPaneCmd.key "m">
+<!ENTITY toggleAttachmentPaneCmd.key "M">
 <!ENTITY selectAllCmd.accesskey "a">
 <!ENTITY findBarCmd.label "Find…">
 <!ENTITY findBarCmd.accesskey "F">
@@ -261,13 +254,6 @@
 <!ENTITY followupAddr2.label "Followup-To">
 <!ENTITY subject2.label "Subject">
 <!ENTITY subject.accesskey "S">
-<!-- LOCALIZATION NOTE (attachments.accesskey) This access key character should
-     be taken from the strings of attachmentCount in composeMsgs.properties.
-     Please ensure that this access key is unique: Do not duplicate any other
-     first-level access keys of the compose window, e.g. those of main menu,
-     buttons, or labels (message headers, contacts side bar, attachment reminder
-     bar). -->
-<!ENTITY attachments.accesskey "m">
 <!ENTITY attachmentBucketHeader.tooltip "Attachment Pane">
 <!ENTITY attachmentBucketCloseButton.tooltip "Hide the attachment pane">
 
