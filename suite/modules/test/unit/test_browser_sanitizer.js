@@ -329,7 +329,6 @@ add_task(async function test_browser_sanitizer()
     await test.setup();
     await test.check(false);
 
-    Assert.ok(Sanitizer.items[testName].canClear);
     Sanitizer.items[testName].clear();
     info(test.desc + " data cleared");
 

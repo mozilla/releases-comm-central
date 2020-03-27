@@ -12,10 +12,6 @@ var gSanitizePromptDialog = {
     for (var pref of preferences) {
       var name = pref.getAttribute("name");
       pref.checked = Sanitizer.willClearItem(name);
-      Sanitizer.canClearItem(name, function canClearCallback(aItem, aCanClear, aPrefItem) {
-        if (!aCanClear)
-          aPrefItem.disabled = true;
-      }, pref);
     }
   },
 

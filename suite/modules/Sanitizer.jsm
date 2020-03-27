@@ -64,7 +64,7 @@ var Sanitizer = {
     var errors = null;
     for (var itemName in this.items) {
       var item = this.items[itemName];
-      if ("clear" in item && item.willClear && item.canClear) {
+      if ("clear" in item && item.willClear) {
         // Some of these clear() may raise exceptions (see bug #265028)
         // to sanitize as much as possible, we catch and store them,
         // rather than fail fast.
@@ -85,8 +85,7 @@ var Sanitizer = {
 
   // warning to the caller: this one may raise an exception (e.g. bug #265028)
   clearItem: function(aItemName) {
-    if (this.items[aItemName].canClear)
-      this.items[aItemName].clear();
+    this.items[aItemName].clear();
   },
 
   setClearItem: function(aItemName, aWillClear) {
@@ -95,17 +94,6 @@ var Sanitizer = {
 
   willClearItem: function(aItemName) {
     return this.items[aItemName].willClear;
-  },
-
-  canClearItem: function(aItemName, aCallback, aArg) {
-    var canClear = this.items[aItemName].canClear;
-    if (typeof canClear == "function") {
-      canClear(aCallback, aArg);
-      return false;
-    }
-
-    aCallback(aItemName, canClear, aArg);
-    return canClear;
   },
 
   // this is called on startup and shutdown, to perform pending sanitizations
@@ -150,8 +138,6 @@ var Sanitizer = {
           .getImgCacheForDocument(null)
           .clearCache(false); // true=chrome, false=content
       },
-
-      canClear: true
     },
 
     offlineApps: {
@@ -163,8 +149,6 @@ var Sanitizer = {
                   .asyncEvictStorage(null);
         } catch(ex) {}
       },
-
-      canClear: true
     },
 
     cookies: {
@@ -180,8 +164,6 @@ var Sanitizer = {
           Services.prefs.deleteBranch("geo.wifi.access_token.");
         } catch (e) {}
       },
-
-      canClear: true
     },
 
     history: {
@@ -195,10 +177,6 @@ var Sanitizer = {
           Services.obs.notifyObservers(null, "browser:purge-session-history");
         } catch(ex) {}
       },
-
-        // bug 347231: Always allow clearing history due to dependencies on
-        // the browser:purge-session-history notification. (like error console)
-      canClear: true
     },
 
     urlbar: {
@@ -214,16 +192,6 @@ var Sanitizer = {
         if (file.exists())
           file.remove(false);
       },
-
-      get canClear() {
-        if (!Services.prefs.prefIsLocked("general.open_location.last_url") &&
-            Services.prefs.prefHasUserValue("general.open_location.last_url"))
-          return true;
-
-        var file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-        file.append("urlbarhistory.sqlite");
-        return file.exists();
-      }
     },
 
     formdata: {
@@ -248,56 +216,9 @@ var Sanitizer = {
         var change = { op: "remove" };
         FormHistory.update(change);
       },
-
-      canClear: function(aCallback, aArg) {
-        var windows = Services.wm.getEnumerator("navigator:browser");
-        while (windows.hasMoreElements()) {
-          var win = windows.getNext();
-          var currentDocument = win.document;
-
-          var findBar = currentDocument.getElementById("FindToolbar");
-          if (findBar && findBar.hasTransactions) {
-            aCallback("formdata", true, aArg);
-            return false;
-          }
-          var searchBar = currentDocument.getElementById("searchbar");
-          if (searchBar && searchBar.textbox && searchBar.textbox.editor) {
-            var transactionMgr = searchBar.textbox.editor.transactionManager;
-            if (searchBar.value ||
-                transactionMgr.numberOfUndoItems ||
-                transactionMgr.numberOfRedoItems) {
-              aCallback("formdata", true, aArg);
-              return false;
-            }
-          }
-          var sideSearchBar = win.BrowserSearch.searchSidebar;
-          if (sideSearchBar) {
-            var sidebarTm = sideSearchBar.editor.transactionManager;
-            if (sideSearchBar.value ||
-                sidebarTm.numberOfUndoItems ||
-                sidebarTm.numberOfRedoItems) {
-              aCallback("formdata", true, aArg);
-              return false;
-            }
-          }
-        }
-
-        var count = 0;
-        var countDone = {
-          handleResult: aResult => count = aResult,
-          handleError: aError => Cu.reportError(aError),
-          handleCompletion(aReason) {
-            aCallback("formdata", !aReason && count, aArg);
-          }
-        };
-        FormHistory.count({}, countDone);
-        return false;
-      }
     },
 
     downloads: {
-      // Just say yes to avoid adding some async logic.
-      canClear: true,
       async clear() {
         try {
           // Clear all completed/cancelled downloads.
@@ -312,11 +233,6 @@ var Sanitizer = {
       clear: function() {
         Services.logins.removeAllLogins();
       },
-
-      get canClear() {
-        var count = Services.logins.countLogins("", "", ""); // count all logins
-        return (count > 0);
-      }
     },
 
     sessions: {
@@ -332,8 +248,6 @@ var Sanitizer = {
                         .getService(Ci.nsIHttpAuthManager);
         authMgr.clearAll();
       },
-
-      canClear: true
-    }
-  }
+    },
+  },
 };
