@@ -668,10 +668,17 @@ Enigmail.msg = {
         return;
       }
 
-      gMsgCompose.compFields.subject = prefix + subject;
-      subjElem.value = prefix + subject;
-      if (typeof subjElem.oninput === "function") {
-        subjElem.oninput();
+      let newSubj = prefix + subject;
+
+      if (
+        newSubj !== subjElem.value ||
+        newSubj !== gMsgCompose.compFields.subject
+      ) {
+        gMsgCompose.compFields.subject = newSubj;
+        subjElem.value = newSubj;
+        if (typeof subjElem.oninput === "function") {
+          subjElem.oninput();
+        }
       }
     }
   },
