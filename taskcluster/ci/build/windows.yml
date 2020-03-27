@@ -9,6 +9,9 @@ job-defaults:
         config-paths:
             - comm/mozharness
         tooltool-downloads: internal
+    fetches:
+        toolchain:
+            - win64-winchecksec
 
 win32/opt:
     description: "Win32 Opt (Cross)"
