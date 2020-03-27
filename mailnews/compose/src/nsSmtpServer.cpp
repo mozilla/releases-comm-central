@@ -375,28 +375,21 @@ nsSmtpServer::GetPassword(nsAString &aPassword) {
           if (!incomingServerToUse && useMatchingDomainServer &&
               (dotPos = hostName.FindChar('.')) != kNotFound) {
             hostName.Cut(0, dotPos);
-            nsCOMPtr<nsIArray> allServers;
-            accountManager->GetAllServers(getter_AddRefs(allServers));
-            if (allServers) {
-              uint32_t count = 0;
-              allServers->GetLength(&count);
-              uint32_t i;
-              for (i = 0; i < count; i++) {
-                nsCOMPtr<nsIMsgIncomingServer> server =
-                    do_QueryElementAt(allServers, i);
-                if (server) {
-                  nsCString serverUserName;
-                  nsCString serverHostName;
-                  server->GetRealUsername(serverUserName);
-                  server->GetRealHostName(serverHostName);
-                  if (serverUserName.Equals(userName)) {
-                    int32_t serverDotPos = serverHostName.FindChar('.');
-                    if (serverDotPos != kNotFound) {
-                      serverHostName.Cut(0, serverDotPos);
-                      if (serverHostName.Equals(hostName)) {
-                        incomingServerToUse = server;
-                        break;
-                      }
+            nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+            accountManager->GetAllServers(allServers);
+            for (auto server : allServers) {
+              if (server) {
+                nsCString serverUserName;
+                nsCString serverHostName;
+                server->GetRealUsername(serverUserName);
+                server->GetRealHostName(serverHostName);
+                if (serverUserName.Equals(userName)) {
+                  int32_t serverDotPos = serverHostName.FindChar('.');
+                  if (serverDotPos != kNotFound) {
+                    serverHostName.Cut(0, serverDotPos);
+                    if (serverHostName.Equals(hostName)) {
+                      incomingServerToUse = server;
+                      break;
                     }
                   }
                 }

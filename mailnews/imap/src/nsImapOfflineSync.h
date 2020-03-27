@@ -65,7 +65,7 @@ class nsImapOfflineSync : public nsIUrlListener,
   nsCOMPtr<nsIMsgFolder> m_currentFolder;
   nsCOMPtr<nsIMsgFolder> m_singleFolderToUpdate;
   nsCOMPtr<nsIMsgWindow> m_window;
-  nsCOMPtr<nsIArray> m_allServers;
+  nsTArray<RefPtr<nsIMsgIncomingServer>> m_allServers;
   nsCOMPtr<nsIArray> m_allFolders;
   nsCOMPtr<nsIMsgIncomingServer> m_currentServer;
   nsCOMPtr<nsISimpleEnumerator> m_serverEnumerator;

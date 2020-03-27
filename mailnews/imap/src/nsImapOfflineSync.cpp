@@ -111,7 +111,7 @@ nsImapOfflineSync::OnStopRunningUrl(nsIURI *url, nsresult exitCode) {
 bool nsImapOfflineSync::AdvanceToNextServer() {
   nsresult rv = NS_OK;
 
-  if (!m_allServers) {
+  if (m_allServers.IsEmpty()) {
     NS_ASSERTION(!m_currentServer, "this shouldn't be set");
     m_currentServer = nullptr;
     nsCOMPtr<nsIMsgAccountManager> accountManager =
@@ -120,25 +120,24 @@ bool nsImapOfflineSync::AdvanceToNextServer() {
                  "couldn't get account mgr");
     if (!accountManager || NS_FAILED(rv)) return false;
 
-    rv = accountManager->GetAllServers(getter_AddRefs(m_allServers));
+    rv = accountManager->GetAllServers(m_allServers);
     NS_ENSURE_SUCCESS(rv, false);
   }
   uint32_t serverIndex = 0;
   if (m_currentServer) {
-    rv = m_allServers->IndexOf(0, m_currentServer, &serverIndex);
-    if (NS_FAILED(rv)) serverIndex = -1;
-
-    // Move to the next server
-    ++serverIndex;
+    serverIndex = m_allServers.IndexOf(m_currentServer);
+    if (serverIndex == m_allServers.NoIndex) {
+      serverIndex = 0;
+    } else {
+      // Move to the next server
+      ++serverIndex;
+    }
   }
   m_currentServer = nullptr;
-  uint32_t numServers;
-  m_allServers->GetLength(&numServers);
   nsCOMPtr<nsIMsgFolder> rootFolder;
 
-  while (serverIndex < numServers) {
-    nsCOMPtr<nsIMsgIncomingServer> server(
-        do_QueryElementAt(m_allServers, serverIndex));
+  while (serverIndex < m_allServers.Length()) {
+    nsCOMPtr<nsIMsgIncomingServer> server(m_allServers[serverIndex]);
     serverIndex++;
 
     nsCOMPtr<nsINntpIncomingServer> newsServer = do_QueryInterface(server);
@@ -997,24 +996,16 @@ nsImapOfflineDownloader::~nsImapOfflineDownloader() {}
 
 nsresult nsImapOfflineDownloader::ProcessNextOperation() {
   nsresult rv = NS_OK;
-  if (!m_mailboxupdatesStarted) {
-    m_mailboxupdatesStarted = true;
-    // Update the INBOX first so the updates on the remaining
-    // folders pickup the results of any filter moves.
-    nsCOMPtr<nsIMsgAccountManager> accountManager =
-        do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) return rv;
+  m_mailboxupdatesStarted = true;
 
-    nsCOMPtr<nsIArray> servers;
-    rv = accountManager->GetAllServers(getter_AddRefs(servers));
-    if (NS_FAILED(rv)) return rv;
-  }
   if (!m_mailboxupdatesFinished) {
     if (AdvanceToNextServer()) {
       nsCOMPtr<nsIMsgFolder> rootMsgFolder;
       m_currentServer->GetRootFolder(getter_AddRefs(rootMsgFolder));
       nsCOMPtr<nsIMsgFolder> inbox;
       if (rootMsgFolder) {
+        // Update the INBOX first so the updates on the remaining
+        // folders pickup the results of any filter moves.
         rootMsgFolder->GetFolderWithFlags(nsMsgFolderFlags::Inbox,
                                           getter_AddRefs(inbox));
         if (inbox) {
@@ -1053,7 +1044,7 @@ nsresult nsImapOfflineDownloader::ProcessNextOperation() {
       }
       return ProcessNextOperation();  // recurse and do next server.
     }
-    m_allServers = nullptr;
+    m_allServers.Clear();
     m_mailboxupdatesFinished = true;
   }
 

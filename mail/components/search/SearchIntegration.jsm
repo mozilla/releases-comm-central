@@ -302,13 +302,11 @@ var SearchSupport = {
    * once iteration across all folders is complete.
    */
   *_foldersToIndexGenerator() {
-    let servers = MailServices.accounts.allServers;
-
     // Stores whether we're after the last folder indexed or before that --
     // if the last folder indexed is empty, this needs to be true initially
     let afterLastFolderIndexed = this._lastFolderIndexedUri.length == 0;
 
-    for (var server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
+    for (let server of MailServices.accounts.allServers) {
       let allFolders = server.rootFolder.descendants;
       this._log.debug(
         "in find next folder, lastFolderIndexedUri = " +

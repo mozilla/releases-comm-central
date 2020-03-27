@@ -127,13 +127,11 @@ nsresult nsMsgPurgeService::PerformPurge() {
   NS_ENSURE_SUCCESS(rv, rv);
   bool keepApplyingRetentionSettings = true;
 
-  nsCOMPtr<nsIArray> allServers;
-  rv = accountManager->GetAllServers(getter_AddRefs(allServers));
-  if (NS_SUCCEEDED(rv) && allServers) {
-    uint32_t numServers;
-    rv = allServers->GetLength(&numServers);
+  nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+  rv = accountManager->GetAllServers(allServers);
+  if (NS_SUCCEEDED(rv)) {
     MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
-            ("%d servers", numServers));
+            ("%d servers", (int)allServers.Length()));
     nsCOMPtr<nsIMsgFolder> folderToPurge;
     PRIntervalTime startTime = PR_IntervalNow();
     int32_t purgeIntervalToUse = 0;
@@ -147,10 +145,10 @@ nsresult nsMsgPurgeService::PerformPurge() {
     // to apply retention settings, and since
     // nsIMsgFolder::ApplyRetentionSettings will close any db's it opens, this
     // code won't leave db's open.
-    for (uint32_t serverIndex = 0; serverIndex < numServers; serverIndex++) {
-      nsCOMPtr<nsIMsgIncomingServer> server =
-          do_QueryElementAt(allServers, serverIndex, &rv);
-      if (NS_SUCCEEDED(rv) && server) {
+    for (uint32_t serverIndex = 0; serverIndex < allServers.Length();
+         serverIndex++) {
+      nsCOMPtr<nsIMsgIncomingServer> server(allServers[serverIndex]);
+      if (server) {
         if (keepApplyingRetentionSettings) {
           nsCOMPtr<nsIMsgFolder> rootFolder;
           rv = server->GetRootFolder(getter_AddRefs(rootFolder));

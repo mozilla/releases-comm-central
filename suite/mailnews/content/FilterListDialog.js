@@ -523,13 +523,8 @@ function getServerThatCanHaveFilters()
 
     // if it cannot, check all accounts to find a server
     // that can have filters
-    var allServers = MailServices.accounts.allServers;
-    var numServers = allServers.length;
-    for (var index = 0; index < numServers; index++)
+    for (let currentServer of MailServices.accounts.allServers)
     {
-        var currentServer =
-          allServers.queryElementAt(index, Ci.nsIMsgIncomingServer);
-
         if (currentServer.canHaveFilters)
             return currentServer;
     }

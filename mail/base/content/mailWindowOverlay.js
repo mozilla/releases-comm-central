@@ -1863,38 +1863,30 @@ function MsgPauseUpdates(aMenuitem) {
 function MsgGetMessagesForAllServers(defaultServer) {
   // now log into any server
   try {
-    var allServers = accountManager.allServers;
     // Array of arrays of servers for a particular folder.
     var pop3DownloadServersArray = [];
     // Parallel array of folders to download to...
     var localFoldersToDownloadTo = [];
     var pop3Server;
-    for (let i = 0; i < allServers.length; ++i) {
-      var currentServer = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
-      if (
-        currentServer.protocolInfo.canLoginAtStartUp &&
-        currentServer.loginAtStartUp
-      ) {
+    for (let server of accountManager.allServers) {
+      if (server.protocolInfo.canLoginAtStartUp && server.loginAtStartUp) {
         if (
           defaultServer &&
-          defaultServer.equals(currentServer) &&
+          defaultServer.equals(server) &&
           !defaultServer.isDeferredTo &&
           defaultServer.rootFolder == defaultServer.rootMsgFolder
         ) {
           // skip, already opened
-        } else if (
-          currentServer.type == "pop3" &&
-          currentServer.downloadOnBiff
-        ) {
+        } else if (server.type == "pop3" && server.downloadOnBiff) {
           CoalesceGetMsgsForPop3ServersByDestFolder(
-            currentServer,
+            server,
             pop3DownloadServersArray,
             localFoldersToDownloadTo
           );
-          pop3Server = currentServer.QueryInterface(Ci.nsIPop3IncomingServer);
+          pop3Server = server.QueryInterface(Ci.nsIPop3IncomingServer);
         } else {
           // Check to see if there are new messages on the server
-          currentServer.performBiff(msgWindow);
+          server.performBiff(msgWindow);
         }
       }
     }
@@ -2725,9 +2717,7 @@ function IsMailFolderSelected() {
 }
 
 function IsGetNewMessagesEnabled() {
-  let allServers = accountManager.allServers;
-  for (let i = 0; i < allServers.length; ++i) {
-    let server = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
+  for (let server of accountManager.allServers) {
     if (server.type == "none") {
       continue;
     }
@@ -2951,29 +2941,27 @@ function CoalesceGetMsgsForPop3ServersByDestFolder(
 function GetMessagesForAllAuthenticatedAccounts() {
   // now log into any server
   try {
-    var allServers = accountManager.allServers;
     // Array of arrays of servers for a particular folder.
     var pop3DownloadServersArray = [];
     // parallel array of folders to download to...
     var localFoldersToDownloadTo = [];
     var pop3Server;
 
-    for (let i = 0; i < allServers.length; ++i) {
-      var currentServer = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
+    for (let server of accountManager.allServers) {
       if (
-        currentServer.protocolInfo.canGetMessages &&
-        !currentServer.passwordPromptRequired
+        server.protocolInfo.canGetMessages &&
+        !server.passwordPromptRequired
       ) {
-        if (currentServer.type == "pop3") {
+        if (server.type == "pop3") {
           CoalesceGetMsgsForPop3ServersByDestFolder(
-            currentServer,
+            server,
             pop3DownloadServersArray,
             localFoldersToDownloadTo
           );
-          pop3Server = currentServer.QueryInterface(Ci.nsIPop3IncomingServer);
+          pop3Server = server.QueryInterface(Ci.nsIPop3IncomingServer);
         } else {
           // get new messages on the server for imap or rss
-          GetMessagesForInboxOnServer(currentServer);
+          GetMessagesForInboxOnServer(server);
         }
       }
     }

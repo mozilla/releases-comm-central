@@ -114,22 +114,17 @@ NewMailNotificationService.prototype = {
 
   _initUnreadCount() {
     let total = 0;
-    let allServers = MailServices.accounts.allServers;
-    for (let i = 0; i < allServers.length; i++) {
-      let currentServer = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
+    for (let server of MailServices.accounts.allServers) {
       this._log.debug(
-        "NMNS_initUnread: server " +
-          currentServer.prettyName +
-          " type " +
-          currentServer.type
+        "NMNS_initUnread: server " + server.prettyName + " type " + server.type
       );
       // Don't bother counting RSS or NNTP servers
-      let type = currentServer.type;
+      let type = server.type;
       if (type == "rss" || type == "nntp") {
         continue;
       }
 
-      let rootFolder = currentServer.rootFolder;
+      let rootFolder = server.rootFolder;
       if (rootFolder) {
         total += this._countUnread(rootFolder);
       }

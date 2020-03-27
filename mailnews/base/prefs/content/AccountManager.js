@@ -516,9 +516,7 @@ function checkDirectoryIsUsable(aLocalPath) {
   }
 
   // Check that no other account has this same or dependent local directory.
-  let allServers = MailServices.accounts.allServers;
-
-  for (let server of fixIterator(allServers, Ci.nsIMsgIncomingServer)) {
+  for (let server of MailServices.accounts.allServers) {
     if (server.key == currentAccount.incomingServer.key) {
       continue;
     }

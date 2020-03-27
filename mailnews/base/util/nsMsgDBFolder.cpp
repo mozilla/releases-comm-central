@@ -1694,12 +1694,10 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIArray> allServers;
-    rv = accountMgr->GetAllServers(getter_AddRefs(allServers));
+    nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+    rv = accountMgr->GetAllServers(allServers);
     NS_ENSURE_SUCCESS(rv, rv);
-    uint32_t numServers = 0, serverIndex = 0;
-    rv = allServers->GetLength(&numServers);
-    int32_t offlineSupportLevel;
+    uint32_t numServers = allServers.Length();
     if (numServers > 0) {
       nsCOMPtr<nsIMutableArray> folderArray =
           do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
@@ -1710,10 +1708,9 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
       int64_t totalExpungedBytes = 0;
       int64_t offlineExpungedBytes = 0;
       int64_t localExpungedBytes = 0;
+      uint32_t serverIndex = 0;
       do {
-        nsCOMPtr<nsIMsgIncomingServer> server =
-            do_QueryElementAt(allServers, serverIndex, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<nsIMsgIncomingServer> server(allServers[serverIndex]);
         nsCOMPtr<nsIMsgPluggableStore> msgStore;
         rv = server->GetMsgStore(getter_AddRefs(msgStore));
         NS_ENSURE_SUCCESS(rv, rv);
@@ -1724,6 +1721,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
         nsCOMPtr<nsIMsgFolder> rootFolder;
         rv = server->GetRootFolder(getter_AddRefs(rootFolder));
         if (NS_SUCCEEDED(rv) && rootFolder) {
+          int32_t offlineSupportLevel;
           rv = server->GetOfflineSupportLevel(&offlineSupportLevel);
           NS_ENSURE_SUCCESS(rv, rv);
           nsCOMPtr<nsIArray> allDescendents;
@@ -1933,15 +1931,11 @@ nsMsgDBFolder::MatchOrChangeFilterDestination(nsIMsgFolder *newFolder,
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIArray> allServers;
-  rv = accountMgr->GetAllServers(getter_AddRefs(allServers));
+  nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+  rv = accountMgr->GetAllServers(allServers);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t numServers;
-  rv = allServers->GetLength(&numServers);
-  for (uint32_t serverIndex = 0; serverIndex < numServers; serverIndex++) {
-    nsCOMPtr<nsIMsgIncomingServer> server =
-        do_QueryElementAt(allServers, serverIndex);
+  for (auto server : allServers) {
     if (server) {
       bool canHaveFilters;
       rv = server->GetCanHaveFilters(&canHaveFilters);

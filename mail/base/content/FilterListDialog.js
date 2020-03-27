@@ -6,9 +6,6 @@
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -969,14 +966,7 @@ function getServerThatCanHaveFilters() {
 
   // If it cannot, check all accounts to find a server
   // that can have filters.
-  let allServers = MailServices.accounts.allServers;
-  for (let currentServer of fixIterator(allServers, Ci.nsIMsgIncomingServer)) {
-    if (currentServer.canHaveFilters) {
-      return currentServer;
-    }
-  }
-
-  return null;
+  return MailServices.accounts.allServers.find(server => server.canHaveFilters);
 }
 
 function onFilterClick(event) {

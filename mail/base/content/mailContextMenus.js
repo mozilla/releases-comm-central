@@ -206,23 +206,20 @@ function OpenMessageForMessageId(messageId) {
 
   // if message id not found in current folder search in all folders
   if (!messageHeader) {
-    let allServers = MailServices.accounts.allServers;
-
     messageHeader = SearchForMessageIdInSubFolder(
       startServer.rootFolder,
       messageId
     );
 
-    for (let i = 0; i < allServers.length && !messageHeader; i++) {
-      let currentServer = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
+    for (let server of MailServices.accounts.allServers) {
       if (
-        currentServer &&
-        startServer != currentServer &&
-        currentServer.canSearchMessages &&
-        !currentServer.isDeferredTo
+        server &&
+        startServer != server &&
+        server.canSearchMessages &&
+        !server.isDeferredTo
       ) {
         messageHeader = SearchForMessageIdInSubFolder(
-          currentServer.rootFolder,
+          server.rootFolder,
           messageId
         );
       }

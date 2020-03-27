@@ -48,11 +48,9 @@ add_task(async function() {
 
   // Setup done. Now check that things are as we expect.
 
-  let allServers = [...fixIterator(mgr.allServers, Ci.nsIMsgIncomingServer)];
-
   // At this point we should have 3 accounts and servers (imap, pop, local).
   Assert.equal(mgr.accounts.length, 3);
-  Assert.equal(allServers.length, 3);
+  Assert.equal(mgr.allServers.length, 3);
 
   // The identities we explicitly created.
   Assert.equal(mgr.allIdentities.length, 3);

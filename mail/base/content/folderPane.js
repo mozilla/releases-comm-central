@@ -2315,10 +2315,7 @@ var gFolderTreeView = {
   get _enumerateFolders() {
     let folders = [];
 
-    for (let server of fixIterator(
-      MailServices.accounts.allServers,
-      Ci.nsIMsgIncomingServer
-    )) {
+    for (let server of MailServices.accounts.allServers) {
       // Skip deferred accounts
       if (
         server instanceof Ci.nsIPop3IncomingServer &&

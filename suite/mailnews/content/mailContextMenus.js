@@ -570,14 +570,11 @@ function OpenMessageForMessageId(messageId)
   {
     var accountManager = Cc["@mozilla.org/messenger/account-manager;1"]
                            .getService(Ci.nsIMsgAccountManager);
-    var allServers = accountManager.allServers;
 
     messageHeader = SearchForMessageIdInSubFolder(startServer.rootFolder, messageId);
 
-    for (var i = 0; i < allServers.length && !messageHeader; i++)
+    for (let currentServer of accountManager.allServers)
     {
-      var currentServer =
-        allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       if (currentServer && startServer != currentServer &&
           currentServer.canSearchMessages && !currentServer.isDeferredTo)
       {

@@ -1349,8 +1349,7 @@ function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
 function IsSubscribeEnabled() {
   // If there are any IMAP or News servers, we can show the dialog any time and
   // it will properly show those.
-  let servers = MailServices.accounts.allServers;
-  for (let server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
+  for (let server of MailServices.accounts.allServers) {
     if (server.type == "imap" || server.type == "nntp") {
       return true;
     }
@@ -1496,11 +1495,8 @@ function CanRenameDeleteJunkMail(aFolderUri) {
 
   // Go through junk mail settings for all servers and see if the folder is set/used by anyone.
   try {
-    var allServers = accountManager.allServers;
-
-    for (var i = 0; i < allServers.length; i++) {
-      var currentServer = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
-      var settings = currentServer.spamSettings;
+    for (let server of MailServices.accounts.allServers) {
+      var settings = server.spamSettings;
       // If junk mail control or move junk mail to folder option is disabled then
       // allow the folder to be removed/renamed since the folder is not used in this case.
       if (!settings.level || !settings.moveOnSpam) {

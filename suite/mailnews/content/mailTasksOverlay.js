@@ -67,9 +67,8 @@ function MailTasksGetMessagesForAllServers(aBiff, aMsgWindow, aDefaultServer)
     // parallel array of folders to download to...
     var localFoldersToDownloadTo = [];
     var pop3Server = null;
-    for (let i = 0; i < allServers.length; ++i)
+    for (let currentServer of allServers)
     {
-      let currentServer = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
       if (currentServer)
       {
         if (aBiff)

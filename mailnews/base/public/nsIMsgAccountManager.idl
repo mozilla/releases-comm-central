@@ -95,7 +95,7 @@ interface nsIMsgAccountManager : nsISupports {
   /* list of all servers in all accounts, except for hidden and IM servers
    * array of nsIMsgIncomingServer
    */
-  readonly attribute nsIArray allServers;
+  readonly attribute Array<nsIMsgIncomingServer> allServers;
 
   /* summary of summary files folder cache */
   readonly attribute nsIMsgFolderCache folderCache;

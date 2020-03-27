@@ -327,31 +327,31 @@ nsMsgDownloadAllNewsgroups::OnStopRunningUrl(nsIURI *url, nsresult exitCode) {
 bool nsMsgDownloadAllNewsgroups::AdvanceToNextServer() {
   nsresult rv;
 
-  if (!m_allServers) {
+  if (m_allServers.IsEmpty()) {
     nsCOMPtr<nsIMsgAccountManager> accountManager =
         do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
     NS_ASSERTION(accountManager && NS_SUCCEEDED(rv),
                  "couldn't get account mgr");
     if (!accountManager || NS_FAILED(rv)) return false;
 
-    rv = accountManager->GetAllServers(getter_AddRefs(m_allServers));
+    rv = accountManager->GetAllServers(m_allServers);
     NS_ENSURE_SUCCESS(rv, false);
   }
   uint32_t serverIndex = 0;
   if (m_currentServer) {
-    rv = m_allServers->IndexOf(0, m_currentServer, &serverIndex);
-    if (NS_FAILED(rv)) serverIndex = -1;
-
-    ++serverIndex;
+    serverIndex = m_allServers.IndexOf(m_currentServer);
+    if (serverIndex == m_allServers.NoIndex) {
+      serverIndex = 0;
+    } else {
+      ++serverIndex;
+    }
   }
   m_currentServer = nullptr;
-  uint32_t numServers;
-  m_allServers->GetLength(&numServers);
+  uint32_t numServers = m_allServers.Length();
   nsCOMPtr<nsIMsgFolder> rootFolder;
 
   while (serverIndex < numServers) {
-    nsCOMPtr<nsIMsgIncomingServer> server =
-        do_QueryElementAt(m_allServers, serverIndex);
+    nsCOMPtr<nsIMsgIncomingServer> server(m_allServers[serverIndex]);
     serverIndex++;
 
     nsCOMPtr<nsINntpIncomingServer> newsServer = do_QueryInterface(server);

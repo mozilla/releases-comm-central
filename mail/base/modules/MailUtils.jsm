@@ -30,8 +30,7 @@ var MailUtils = {
    * open (the folder tree wouldn't have been initialized yet).
    */
   discoverFolders() {
-    let servers = MailServices.accounts.allServers;
-    for (let server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
+    for (let server of MailServices.accounts.allServers) {
       // Bug 466311 Sometimes this can throw file not found, we're unsure
       // why, but catch it and log the fact.
       try {

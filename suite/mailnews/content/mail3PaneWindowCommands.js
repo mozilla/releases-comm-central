@@ -847,9 +847,7 @@ function IsSubscribeEnabled()
 {
   // If there are any IMAP or News servers, we can show the dialog any time and
   // it will properly show those.
-  let servers = accountManager.allServers;
-  for (let server of fixIterator(servers,
-                                 Ci.nsIMsgIncomingServer)) {
+  for (let server of accountManager.allServers) {
     if (server.type == "imap" || server.type == "nntp")
       return true;
   }

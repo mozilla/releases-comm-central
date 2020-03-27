@@ -895,12 +895,10 @@ nsMsgAccountManager::GetAllIdentities(
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::GetAllServers(nsIArray **_retval) {
+nsMsgAccountManager::GetAllServers(
+    nsTArray<RefPtr<nsIMsgIncomingServer>> &servers) {
+  servers.Clear();
   nsresult rv = LoadAccounts();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIMutableArray> servers(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto iter = m_incomingServers.Iter(); !iter.Done(); iter.Next()) {
@@ -918,12 +916,10 @@ nsMsgAccountManager::GetAllServers(nsIArray **_retval) {
     }
 
     if (!type.EqualsLiteral("im")) {
-      servers->AppendElement(server);
+      servers.AppendElement(server);
     }
   }
-
-  servers.forget(_retval);
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsMsgAccountManager::LoadAccounts() {
@@ -2946,21 +2942,15 @@ nsresult nsMsgAccountManager::RemoveVFListenerForVF(nsIMsgFolder *virtualFolder,
 NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(nsIArray **aAllFolders) {
   NS_ENSURE_ARG_POINTER(aAllFolders);
 
-  nsCOMPtr<nsIArray> servers;
-  nsresult rv = GetAllServers(getter_AddRefs(servers));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t numServers = 0;
-  rv = servers->GetLength(&numServers);
+  nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+  nsresult rv = GetAllServers(allServers);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMutableArray> allFolders(
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t i;
-  for (i = 0; i < numServers; i++) {
-    nsCOMPtr<nsIMsgIncomingServer> server = do_QueryElementAt(servers, i);
+  for (auto server : allServers) {
     if (server) {
       nsCOMPtr<nsIMsgFolder> rootFolder;
       server->GetRootFolder(getter_AddRefs(rootFolder));

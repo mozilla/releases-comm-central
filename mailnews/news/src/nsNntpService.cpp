@@ -610,8 +610,8 @@ nsresult nsNntpService::FindServerWithNewsgroup(nsCString &host,
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIArray> servers;
-  rv = accountManager->GetAllServers(getter_AddRefs(servers));
+  nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
+  rv = accountManager->GetAllServers(servers);
   NS_ENSURE_SUCCESS(rv, rv);
 
   NS_ASSERTION(mozilla::IsUtf8(groupName), "newsgroup is not in UTF-8");
@@ -620,21 +620,15 @@ nsresult nsNntpService::FindServerWithNewsgroup(nsCString &host,
   // this only looks at the list of subscribed newsgroups.
   // fix to use the hostinfo.dat information
 
-  uint32_t length;
-  rv = servers->GetLength(&length);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t i = 0; i < length; ++i) {
-    nsCOMPtr<nsINntpIncomingServer> newsserver(
-        do_QueryElementAt(servers, i, &rv));
-    if (NS_FAILED(rv)) continue;
+  for (auto server : servers) {
+    nsCOMPtr<nsINntpIncomingServer> newsserver = do_QueryInterface(server);
+    if (!newsserver) {
+      continue;
+    }
 
     bool containsGroup = false;
     rv = newsserver->ContainsNewsgroup(groupName, &containsGroup);
     if (containsGroup) {
-      nsCOMPtr<nsIMsgIncomingServer> server(do_QueryInterface(newsserver, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-
       return server->GetHostName(host);
     }
   }
@@ -951,8 +945,8 @@ nsresult nsNntpService::GetServerForUri(nsIURI *aUri,
   // Grab all servers for if this is a no-authority URL. This also loads
   // accounts if they haven't been loaded, i.e., we're running this straight
   // from the command line
-  nsCOMPtr<nsIArray> servers;
-  rv = accountManager->GetAllServers(getter_AddRefs(servers));
+  nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
+  rv = accountManager->GetAllServers(servers);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(aUri, &rv);

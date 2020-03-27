@@ -11,9 +11,6 @@
 
 const EXPORTED_SYMBOLS = ["PeriodicFilterManager"];
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -50,8 +47,7 @@ var PeriodicFilterManager = {
   init() {
     log.info("PeriodicFilterManager init()");
     // set the next filter time
-    let servers = MailServices.accounts.allServers;
-    for (let server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
+    for (let server of MailServices.accounts.allServers) {
       let nowTime = parseInt(Date.now() / 60000);
       // Make sure that the last filter time of all servers was in the past.
       let lastFilterTime = server.getIntValue("lastFilterTime");
@@ -89,9 +85,8 @@ var PeriodicFilterManager = {
       return;
     }
     this._running = true;
-    let servers = MailServices.accounts.allServers;
     let nowTime = parseInt(Date.now() / 60000);
-    for (let server of fixIterator(servers, Ci.nsIMsgIncomingServer)) {
+    for (let server of MailServices.accounts.allServers) {
       if (!server.canHaveFilters) {
         continue;
       }

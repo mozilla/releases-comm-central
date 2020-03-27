@@ -1471,13 +1471,9 @@ function MigrateFolderViews() {
     "mail.folder.views.version"
   );
   if (!folderViewsVersion) {
-    var servers = accountManager.allServers;
-    var server;
-    var inbox;
-    for (var index = 0; index < servers.length; index++) {
-      server = servers.queryElementAt(index, Ci.nsIMsgIncomingServer);
+    for (let server of accountManager.allServers) {
       if (server) {
-        inbox = MailUtils.getInboxFolder(server);
+        let inbox = MailUtils.getInboxFolder(server);
         if (inbox) {
           inbox.setFlag(Ci.nsMsgFolderFlags.Favorite);
         }

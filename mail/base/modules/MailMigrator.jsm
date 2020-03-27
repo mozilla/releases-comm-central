@@ -501,9 +501,7 @@ var MailMigrator = {
   _migrateRSS() {
     // Find all the RSS IncomingServers.
     let rssServers = [];
-    let allServers = MailServices.accounts.allServers;
-    for (let i = 0; i < allServers.length; i++) {
-      let server = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
+    for (let server of MailServices.accounts.allServers) {
       if (server && server.type == "rss") {
         rssServers.push(server);
       }

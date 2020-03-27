@@ -1983,22 +1983,17 @@ nsresult nsMsgIncomingServer::GetDeferredServers(
   nsCOMPtr<nsIMsgAccount> thisAccount;
   accountManager->FindAccountForServer(destServer, getter_AddRefs(thisAccount));
   if (thisAccount) {
-    nsCOMPtr<nsIArray> allServers;
     nsCString accountKey;
     thisAccount->GetKey(accountKey);
-    accountManager->GetAllServers(getter_AddRefs(allServers));
-    if (allServers) {
-      uint32_t serverCount;
-      allServers->GetLength(&serverCount);
-      for (uint32_t i = 0; i < serverCount; i++) {
-        nsCOMPtr<nsIPop3IncomingServer> server(
-            do_QueryElementAt(allServers, i));
-        if (server) {
-          nsCString deferredToAccount;
-          server->GetDeferredToAccount(deferredToAccount);
-          if (deferredToAccount.Equals(accountKey))
-            aServers.AppendElement(server);
-        }
+    nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+    accountManager->GetAllServers(allServers);
+    for (auto server : allServers) {
+      nsCOMPtr<nsIPop3IncomingServer> popServer(do_QueryInterface(server));
+      if (!popServer) {
+        nsCString deferredToAccount;
+        popServer->GetDeferredToAccount(deferredToAccount);
+        if (deferredToAccount.Equals(accountKey))
+          aServers.AppendElement(popServer);
       }
     }
   }
@@ -2013,23 +2008,17 @@ NS_IMETHODIMP nsMsgIncomingServer::GetIsDeferredTo(bool *aIsDeferredTo) {
     nsCOMPtr<nsIMsgAccount> thisAccount;
     accountManager->FindAccountForServer(this, getter_AddRefs(thisAccount));
     if (thisAccount) {
-      nsCOMPtr<nsIArray> allServers;
       nsCString accountKey;
       thisAccount->GetKey(accountKey);
-      accountManager->GetAllServers(getter_AddRefs(allServers));
-      if (allServers) {
-        uint32_t serverCount;
-        allServers->GetLength(&serverCount);
-        for (uint32_t i = 0; i < serverCount; i++) {
-          nsCOMPtr<nsIMsgIncomingServer> server(
-              do_QueryElementAt(allServers, i));
-          if (server) {
-            nsCString deferredToAccount;
-            server->GetCharValue("deferred_to_account", deferredToAccount);
-            if (deferredToAccount.Equals(accountKey)) {
-              *aIsDeferredTo = true;
-              return NS_OK;
-            }
+      nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+      accountManager->GetAllServers(allServers);
+      for (auto server : allServers) {
+        if (server) {
+          nsCString deferredToAccount;
+          server->GetCharValue("deferred_to_account", deferredToAccount);
+          if (deferredToAccount.Equals(accountKey)) {
+            *aIsDeferredTo = true;
+            return NS_OK;
           }
         }
       }

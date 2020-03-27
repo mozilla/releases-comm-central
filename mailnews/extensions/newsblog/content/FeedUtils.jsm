@@ -123,9 +123,7 @@ var FeedUtils = {
    */
   getAllRssServerRootFolders() {
     let rssRootFolders = [];
-    let allServers = MailServices.accounts.allServers;
-    for (let i = 0; i < allServers.length; i++) {
-      let server = allServers.queryElementAt(i, Ci.nsIMsgIncomingServer);
+    for (let server of MailServices.accounts.allServers) {
       if (server && server.type == "rss") {
         rssRootFolders.push(server.rootFolder);
       }
