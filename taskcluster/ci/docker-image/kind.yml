@@ -24,6 +24,7 @@ reference-jobs:
     - debian10-base
     - debian10-packages
     - debian10-raw
+    - deb10-toolchain-build
     - desktop1604-test
     - fetch
     - funsize-update-generator
