@@ -6205,18 +6205,25 @@ function toggleAttachmentPane(aAction = "toggle") {
   }
 
   switch (aAction) {
-    case "show":
+    case "show": {
+      let shown = !attachmentsBox.collapsed;
       attachmentsBox.collapsed = false;
       attachmentBucketSizer.collapsed = false;
       attachmentBucketSizer.setAttribute("state", "");
-      bucket.focus();
+      if (shown) {
+        bucket.focus();
+      }
       break;
+    }
 
-    case "hide":
-      SetMsgBodyFrameFocus();
+    case "hide": {
+      if (document.activeElement == bucket) {
+        SetMsgBodyFrameFocus();
+      }
       attachmentsBox.collapsed = true;
       attachmentBucketSizer.setAttribute("state", "collapsed");
       break;
+    }
   }
   for (let menuitem of document.querySelectorAll(
     'menuitem[command="cmd_toggleAttachmentPane"]'
