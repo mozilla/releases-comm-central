@@ -1862,6 +1862,8 @@ EmailConfigWizard.prototype = {
     gEmailWizardLogger.info("creating account in backend");
     let newAccount = createAccountInBackend(configFilledIn);
 
+    window.close();
+    updateMailPaneUI();
     MsgAccountManager("am-server.xhtml", newAccount.incomingServer);
   },
 
