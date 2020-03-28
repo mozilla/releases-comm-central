@@ -8,19 +8,8 @@
 
 @import url("chrome://messenger/skin/shared/searchDialog.css");
 
-@namespace html url("http://www.w3.org/1999/xhtml");
-
-html|input.search-value-textbox {
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
 menulist {
   width: 12em;
-}
-
-menulist > menupopup > menuitem {
-  padding-inline-end: 2px;
 }
 
 .small-button {
@@ -37,27 +26,15 @@ treechildren::-moz-tree-cell-text(subjectCol) {
   padding-inline-start: 0;
 }
 
+#checkSearchSubFolders,
+#checkSearchOnline {
+  margin-inline-start: 6px;
+}
+
+#booleanAndGroup {
+  margin-inline-start: 2px;
+}
+
 #gray_horizontal_splitter {
   -moz-appearance: none;
-}
-
-:root[lwt-tree] #searchTermList button,
-:root[lwt-tree] #searchTermList menulist {
-  padding: 3px 0;
-}
-
-:root[lwt-tree] #searchTermList menulist > .menulist-label-box {
-  -moz-appearance: none;
-  padding-inline-end: 12px;
-  background-repeat: no-repeat;
-  background-position: right;
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-:root[lwt-tree] #searchTermList menulist:-moz-locale-dir(rtl) >
-  .menulist-label-box {
-  background-position: left;
 }

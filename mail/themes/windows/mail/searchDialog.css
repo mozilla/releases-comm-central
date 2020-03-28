@@ -8,11 +8,6 @@
 
 @import url("chrome://messenger/skin/shared/searchDialog.css");
 
-:root[lwt-tree]:not([lwt-tree-brighttext]) {
-  --toolbarbutton-hover-background: #bbb;
-  --toolbarbutton-active-background: #aaa;
-}
-
 :root:not([lwt-tree]) #threadTree,
 :root:not([lwt-tree]) #abResultsTree {
   -moz-appearance: listbox;
@@ -22,23 +17,12 @@ menulist {
   width: 12em;
 }
 
-menulist > menupopup > menuitem {
-  padding-inline-end: 2px;
-}
-
 .small-button {
   min-width: 3em;
-  margin: 1px 2px;
+  margin: 2px;
 }
 
 .small-button + .small-button {
   margin-inline-start: 0;
   margin-inline-end: 4px;
-}
-
-:root[lwt-tree] #searchTermList menulist > .menulist-dropmarker {
-  -moz-appearance: none;
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
 }

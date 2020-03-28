@@ -55,7 +55,7 @@ var gSearchAbViewListener = {
       ).replace("#1", aTotal);
     }
 
-    gStatusText.setAttribute("label", statusText);
+    gStatusText.setAttribute("value", statusText);
   },
 };
 
@@ -125,7 +125,7 @@ function onAbSearchReset(event) {
   CloseAbView();
 
   onReset(event);
-  gStatusText.setAttribute("label", "");
+  gStatusText.setAttribute("value", "");
 }
 
 function SelectDirectory(aURI) {
@@ -177,7 +177,7 @@ function onEnterInSearchTerm() {
 }
 
 function onSearch() {
-  gStatusText.setAttribute("label", "");
+  gStatusText.setAttribute("value", "");
   disableCommands();
 
   gSearchSession.clearScopes();

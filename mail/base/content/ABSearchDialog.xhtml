@@ -5,6 +5,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/abResultsPane.css" type="text/css"?>
 
 <!DOCTYPE window [
@@ -181,9 +182,6 @@
 
   <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
     <label id="statusText" class="statusbarpanel" crop="end" flex="1"/>
-    <hbox id="statusbar-progresspanel" class="statusbarpanel statusbarpanel-progress">
-      <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
-    </hbox>
   </hbox>
 
 </window>

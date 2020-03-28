@@ -20,6 +20,7 @@
   --popup-item-hover-text: MenuText;
   --popup-item-selected: Highlight;
   --popup-selected-text: HighlightText;
+  --richlist-button-background: -moz-Dialog;
 }
 
 :root:-moz-lwtheme {
@@ -53,6 +54,10 @@
   --field-border-hover-color: hsla(0, 0%, 70%, 0.5);
   --highlight-color: #0a84ff;
   --highlight-background: #fff;
+}
+
+:root[lwt-tree] {
+  --richlist-button-background: var(--sidebar-background-color);
 }
 
 html|input {
@@ -273,13 +278,19 @@ checkbox[checked] > .checkbox-check {
 }
 
 richlistbox > richlistitem[selected="true"] {
-  background-color: hsla(0,0%,50%,.25);
+  background-color: hsla(0,0%,50%,.15);
   color: inherit;
 }
 
 :root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] {
   background-color: var(--sidebar-highlight-background-color, hsla(0,0%,50%,.35));
   outline: 1px solid var(--highlight-color) !important;
+  outline-offset: -1px;
+}
+
+:root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] button,
+:root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] menulist {
+  color: var(--sidebar-text-color) !important;
 }
 
 richlistbox > richlistitem {
@@ -288,6 +299,29 @@ richlistbox > richlistitem {
 
 richlistbox > richlistitem menulist {
   margin-block: 2px;
+}
+
+richlistitem button,
+richlistitem menulist {
+  background-color: var(--richlist-button-background);
+  background-image: linear-gradient(var(--button-background),
+                                    var(--button-background));
+}
+
+richlistitem button:not([disabled="true"]):hover,
+richlistitem menulist:not([disabled="true"]):hover,
+richlistitem menulist[open="true"]:not([disabled="true"]) {
+  background-color: var(--richlist-button-background);
+  background-image: linear-gradient(var(--button-background-hover),
+                                    var(--button-background-hover));
+}
+
+richlistitem button[open],
+richlistitem button[open]:hover,
+richlistitem button:not([disabled="true"]):hover:active {
+  background-color: var(--richlist-button-background);
+  background-image: linear-gradient(var(--button-background-active),
+                                    var(--button-background-active));
 }
 
 :root[lwt-tree] richlistbox > richlistitem button,
@@ -304,4 +338,8 @@ richlistbox > richlistitem menulist {
 :root[lwt-tree] richlistbox > richlistitem button:hover:active,
 :root[lwt-tree] richlistbox > richlistitem menulist[open="true"] {
   box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+:root[lwt-tree] tree {
+  border: 1px solid var(--sidebar-border-color);
 }

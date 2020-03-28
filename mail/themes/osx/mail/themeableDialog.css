@@ -38,14 +38,16 @@ menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
   margin-inline-end: 3px;
 }
 
+menulist > menupopup:not([position]) {
+  margin-inline-start: 0;
+  margin-top: 0;
+}
+
 .menu-right {
-  transform: scale(0.7);
+  -moz-image-region: auto;
+  margin-top: 3px;
 }
 
 .menu-right:-moz-locale-dir(ltr) {
-  transform: scaleX(-1) scale(0.7);
-}
-
-:root[lwt-tree] richlistbox:focus > richlistitem[selected="true"] {
-  outline-offset: -1px;
+  transform: scaleX(-1);
 }

@@ -12,6 +12,15 @@
   font: menu;
 }
 
+#checkSearchSubFolders,
+#checkSearchOnline {
+  margin-inline-start: 6px;
+}
+
+#booleanAndGroup {
+  margin-inline-start: 4px;
+}
+
 :root:not([lwt-tree]) #searchResultListBox {
   -moz-appearance: listbox;
 }
@@ -30,7 +39,7 @@ menulist {
   padding: 0;
   padding-inline-end: 1px;
   padding-bottom: 1px;
-  margin: 4px 0;
+  margin: 2px 0;
 }
 
 .small-button:first-child {
@@ -46,26 +55,4 @@ menulist {
 #status-bar {
   font: message-box;
   margin-top: 8px;
-}
-
-:root[lwt-tree] #searchTermList button:hover,
-:root[lwt-tree] #searchTermList menulist:hover,
-:root[lwt-tree] #searchTermList menulist[open="true"] {
-  background-color: rgba(230, 230, 230, .7) !important;
-}
-
-:root[lwt-tree] #searchTermList menulist > .menulist-label-box {
-  -moz-appearance: none;
-  padding-inline-end: 12px;
-  background-repeat: no-repeat;
-  background-position: right;
-  background-size: 9px 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-:root[lwt-tree] #searchTermList menulist:-moz-locale-dir(rtl) >
-  .menulist-label-box {
-  background-position: left;
 }

@@ -21,3 +21,8 @@ menulist[is="menulist-editable"][editable="true"] .menulist-input {
 .menu-right:-moz-locale-dir(ltr) {
   transform: scaleX(-1) scale(0.7);
 }
+
+.radio-label-box {
+  margin-inline-start: 0;
+  padding-inline-start: 0;
+}
