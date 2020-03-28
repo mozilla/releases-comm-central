@@ -506,7 +506,9 @@ var RNP = {
       let keyInfo = {};
       let ok = this.getKeyInfoFromHandle(key, keyInfo, false);
       if (!ok) {
-        console.debug("TODO: use primary key for signature made with a sub key!");
+        console.debug(
+          "TODO: use primary key for signature made with a sub key!"
+        );
       }
 
       result.keyId = keyInfo.keyId;
