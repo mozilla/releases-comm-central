@@ -61,9 +61,12 @@
 }
 
 #reminder-actions-caption,
-#reminder-details-caption,
-#calendar-event-dialog-reminder > .dialog-button-box {
+#reminder-details-caption {
     padding-top: 20px;
+}
+
+#reminder-actions-menulist {
+    margin-bottom: 20px;
 }
 
 .reminder-icon > .menu-iconic-left > .menu-iconic-icon {

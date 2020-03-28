@@ -2,6 +2,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this file,
    - You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace html url("http://www.w3.org/1999/xhtml");
+
 dialog,
 window,
 prefpane,
@@ -21,13 +23,14 @@ prefpane {
   margin: 0;
 }
 
-.contentPane {
-  /* This allows the focus ring to display fully when scrolling is enabled.
-    Note: dialog.js CE have a matching style for dialog-content-box */
+.contentPane,
+dialog::part(content-box) {
+  /* This allows the focus ring to display fully when scrolling is enabled. */
   padding: 4px;
 }
 
-.contentPane.doScroll {
+.contentPane.doScroll,
+dialog.doScroll::part(content-box) {
   overflow-y: auto;
 }
 
@@ -52,7 +55,7 @@ tree {
 }
 
 .actionButtons {
-  margin: 3px 0 0;
+  margin: 3px 4px 0;
 }
 
 caption {
@@ -81,8 +84,10 @@ menulist label {
   display: none;
 }
 
-#ReturnReceiptsDialogPane {
-  margin-inline: 4px;
+menulist,
+button:not([dlgtype]),
+html|input[type="number"] {
+  margin-inline-end: 0;
 }
 
 #configDeck {
@@ -105,4 +110,9 @@ textbox.tree-input {
 #logView {
   border: 1px solid var(--in-content-box-border-color);
   margin: 0 4px 5px;
+}
+
+#cookieInfoSettings {
+  margin-top: 8px;
+  margin-inline-end: -4px;
 }

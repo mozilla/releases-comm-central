@@ -29,7 +29,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-smtp) {
   }
 }
 
-button:not(.dialog-button) {
+button {
   min-height: 19px; /* aqua size for small buttons */
 }
 
