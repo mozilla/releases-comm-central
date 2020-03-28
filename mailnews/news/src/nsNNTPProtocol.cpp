@@ -4405,14 +4405,14 @@ void nsNNTPProtocol::SetProgressBarPercent(uint32_t aProgress,
                                            uint32_t aProgressMax) {
   // XXX 64-bit
   if (mProgressEventSink)
-    mProgressEventSink->OnProgress(this, nullptr, uint64_t(aProgress),
+    mProgressEventSink->OnProgress(this, uint64_t(aProgress),
                                    uint64_t(aProgressMax));
 }
 
 nsresult nsNNTPProtocol::SetProgressStatus(const char16_t *aMessage) {
   nsresult rv = NS_OK;
   if (mProgressEventSink)
-    rv = mProgressEventSink->OnStatus(this, nullptr, NS_OK, aMessage);
+    rv = mProgressEventSink->OnStatus(this, NS_OK, aMessage);
   return rv;
 }
 

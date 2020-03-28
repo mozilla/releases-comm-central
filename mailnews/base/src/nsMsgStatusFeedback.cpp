@@ -219,7 +219,6 @@ NS_IMETHODIMP nsMsgStatusFeedback::SetWrappedStatusFeedback(
 }
 
 NS_IMETHODIMP nsMsgStatusFeedback::OnProgress(nsIRequest* request,
-                                              nsISupports* ctxt,
                                               int64_t aProgress,
                                               int64_t aProgressMax) {
   // XXX: What should the nsIWebProgress be?
@@ -231,7 +230,7 @@ NS_IMETHODIMP nsMsgStatusFeedback::OnProgress(nsIRequest* request,
 }
 
 NS_IMETHODIMP nsMsgStatusFeedback::OnStatus(nsIRequest* request,
-                                            nsISupports* ctxt, nsresult aStatus,
+                                            nsresult aStatus,
                                             const char16_t* aStatusArg) {
   nsresult rv;
   nsCOMPtr<nsIURI> uri;

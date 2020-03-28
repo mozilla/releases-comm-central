@@ -1055,8 +1055,8 @@ httpHooks.prototype = {
   },
 
   // nsIProgressEventSink
-  onProgress(aRequest, aContext, aProgress, aProgressMax) {},
-  onStatus(aRequest, aContext, aStatus, aStatusArg) {},
+  onProgress(aRequest, aProgress, aProgressMax) {},
+  onStatus(aRequest, aStatus, aStatusArg) {},
 
   getInterface(aIid) {
     if (aIid.equals(Ci.nsIProgressEventSink)) {

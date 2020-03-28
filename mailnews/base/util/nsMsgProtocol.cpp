@@ -712,8 +712,7 @@ nsMsgProtocol::OnTransportStatus(nsITransport *transport, nsresult status,
     mailnewsUrl->GetServer(getter_AddRefs(server));
     if (server) server->GetRealHostName(host);
   }
-  mProgressEventSink->OnStatus(this, nullptr, status,
-                               NS_ConvertUTF8toUTF16(host).get());
+  mProgressEventSink->OnStatus(this, status, NS_ConvertUTF8toUTF16(host).get());
 
   return NS_OK;
 }

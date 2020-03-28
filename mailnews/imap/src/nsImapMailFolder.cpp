@@ -6099,7 +6099,7 @@ nsresult nsImapMailFolder::DisplayStatusMsg(nsIImapUrl *aImapUrl,
     nsCOMPtr<nsIProgressEventSink> progressSink;
     mockChannel->GetProgressEventSink(getter_AddRefs(progressSink));
     if (progressSink) {
-      progressSink->OnStatus(mockChannel, nullptr, NS_OK,
+      progressSink->OnStatus(mockChannel, NS_OK,
                              PromiseFlatString(msg).get());  // XXX i18n message
     }
   }
@@ -6152,10 +6152,9 @@ nsImapMailFolder::PercentProgress(nsIImapProtocol *aProtocol,
         nsCOMPtr<nsIProgressEventSink> progressSink;
         mockChannel->GetProgressEventSink(getter_AddRefs(progressSink));
         if (progressSink) {
-          progressSink->OnProgress(mockChannel, nullptr, aCurrentProgress,
-                                   aMaxProgress);
+          progressSink->OnProgress(mockChannel, aCurrentProgress, aMaxProgress);
           if (aMessage)
-            progressSink->OnStatus(mockChannel, nullptr, NS_OK,
+            progressSink->OnStatus(mockChannel, NS_OK,
                                    aMessage);  // XXX i18n message
         }
       }

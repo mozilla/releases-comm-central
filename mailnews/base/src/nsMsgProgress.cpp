@@ -228,8 +228,7 @@ NS_IMETHODIMP nsMsgProgress::GetMsgWindow(nsIMsgWindow **aMsgWindow) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest *request, nsISupports *ctxt,
-                                        int64_t aProgress,
+NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest *request, int64_t aProgress,
                                         int64_t aProgressMax) {
   // XXX: What should the nsIWebProgress be?
   // XXX: This truncates 64-bit to 32-bit
@@ -239,8 +238,7 @@ NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest *request, nsISupports *ctxt,
                           int32_t(aProgressMax) /* max total progress */);
 }
 
-NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest *request, nsISupports *ctxt,
-                                      nsresult aStatus,
+NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest *request, nsresult aStatus,
                                       const char16_t *aStatusArg) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> sbs =

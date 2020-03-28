@@ -627,8 +627,7 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream *inputStream,
     int64_t maxProgress;
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(do_QueryInterface(m_runningUrl));
     mailnewsUrl->GetMaxProgress(&maxProgress);
-    mProgressEventSink->OnProgress(this, nullptr, mCurrentProgress,
-                                   maxProgress);
+    mProgressEventSink->OnProgress(this, mCurrentProgress, maxProgress);
   }
 
   if (NS_FAILED(rv)) return -1;
