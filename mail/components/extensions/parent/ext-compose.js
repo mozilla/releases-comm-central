@@ -44,7 +44,7 @@ async function parseComposeRecipientList(list) {
   return list;
 }
 
-async function openComposeWindow(relatedMessageId, type, details) {
+async function openComposeWindow(relatedMessageId, type, details, extension) {
   function waitForWindow() {
     return new Promise(resolve => {
       function observer(subject, topic, data) {
@@ -108,6 +108,21 @@ async function openComposeWindow(relatedMessageId, type, details) {
       }
     }
 
+    if (details.identityId !== null) {
+      if (!extension.hasPermission("accountsRead")) {
+        throw new ExtensionError(
+          'Using identities requires the "accountsRead" permission'
+        );
+      }
+
+      let identity = MailServices.accounts.allIdentities.find(
+        i => i.key == details.identityId
+      );
+      if (!identity) {
+        throw new ExtensionError(`Identity not found: ${details.identityId}`);
+      }
+      params.identity = identity;
+    }
     for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
       composeFields[field] = await parseComposeRecipientList(details[field]);
     }
@@ -139,7 +154,7 @@ async function openComposeWindow(relatedMessageId, type, details) {
   return newWindowPromise;
 }
 
-function getComposeDetails(composeWindow) {
+function getComposeDetails(composeWindow, extension) {
   let composeFields = composeWindow.GetComposeDetails();
   let editor = composeWindow.GetCurrentEditor();
 
@@ -157,16 +172,34 @@ function getComposeDetails(composeWindow) {
     body: editor.outputToString("text/html", 0),
     plainTextBody: editor.outputToString("text/plain", 0),
   };
+  if (extension.hasPermission("accountsRead")) {
+    details.identityId = composeWindow.getCurrentIdentityKey();
+  }
   return details;
 }
 
-async function setComposeDetails(composeWindow, details) {
+async function setComposeDetails(composeWindow, details, extension) {
   if (details.body && details.plainTextBody) {
     throw new ExtensionError(
       "Only one of body and plainTextBody can be specified."
     );
   }
 
+  if (details.identityId) {
+    if (!extension.hasPermission("accountsRead")) {
+      throw new ExtensionError(
+        'Using identities requires the "accountsRead" permission'
+      );
+    }
+
+    let identity = MailServices.accounts.allIdentities.find(
+      i => i.key == details.identityId
+    );
+    if (!identity) {
+      throw new ExtensionError(`Identity not found: ${details.identityId}`);
+    }
+    details.identityKey = details.identityId;
+  }
   for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
     if (field in details) {
       details[field] = await parseComposeRecipientList(details[field]);
@@ -178,9 +211,10 @@ async function setComposeDetails(composeWindow, details) {
   composeWindow.SetComposeDetails(details);
 }
 
-var composeEventTracker = new (class extends EventEmitter {
-  constructor() {
+class ComposeEventTracker extends EventEmitter {
+  constructor(extension) {
     super();
+    this.extension = extension;
     this.listenerCount = 0;
   }
   on(event, listener) {
@@ -210,7 +244,7 @@ var composeEventTracker = new (class extends EventEmitter {
     let results = await this.emit(
       "compose-before-send",
       composeWindow,
-      getComposeDetails(composeWindow)
+      getComposeDetails(composeWindow, this.extension)
     );
     if (results) {
       for (let result of results) {
@@ -222,7 +256,11 @@ var composeEventTracker = new (class extends EventEmitter {
           return;
         }
         if (result.details) {
-          await setComposeDetails(composeWindow, result.details);
+          await setComposeDetails(
+            composeWindow,
+            result.details,
+            this.extension
+          );
           composeWindow.GetComposeDetails();
           composeWindow.expandRecipients();
         }
@@ -232,7 +270,7 @@ var composeEventTracker = new (class extends EventEmitter {
     composeWindow.ToggleWindowLock(false);
     composeWindow.CompleteGenericSendMessage(msgType);
   }
-})();
+}
 
 this.compose = class extends ExtensionAPI {
   getAPI(context) {
@@ -253,6 +291,8 @@ this.compose = class extends ExtensionAPI {
 
     let { extension } = context;
     let { tabManager, windowManager } = extension;
+    this.eventTracker = new ComposeEventTracker(extension);
+
     return {
       compose: {
         onBeforeSend: new EventManager({
@@ -268,23 +308,28 @@ this.compose = class extends ExtensionAPI {
               );
             };
 
-            composeEventTracker.on("compose-before-send", listener);
+            this.eventTracker.on("compose-before-send", listener);
             return () => {
-              composeEventTracker.off("compose-before-send", listener);
+              this.eventTracker.off("compose-before-send", listener);
             };
           },
         }).api(),
         beginNew(details) {
-          return openComposeWindow(null, Ci.nsIMsgCompType.New, details);
+          return openComposeWindow(
+            null,
+            Ci.nsIMsgCompType.New,
+            details,
+            extension
+          );
         },
-        beginReply(messageId, replyType) {
+        beginReply(messageId, replyType, details) {
           let type = Ci.nsIMsgCompType.Reply;
           if (replyType == "replyToList") {
             type = Ci.nsIMsgCompType.ReplyToList;
           } else if (replyType == "replyToAll") {
             type = Ci.nsIMsgCompType.ReplyAll;
           }
-          return openComposeWindow(messageId, type);
+          return openComposeWindow(messageId, type, details, extension);
         },
         beginForward(messageId, forwardType, details) {
           let type = Ci.nsIMsgCompType.ForwardInline;
@@ -296,15 +341,15 @@ this.compose = class extends ExtensionAPI {
           ) {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
           }
-          return openComposeWindow(messageId, type, details);
+          return openComposeWindow(messageId, type, details, extension);
         },
         getComposeDetails(tabId) {
           let tab = getComposeTab(tabId);
-          return getComposeDetails(tab.nativeTab);
+          return getComposeDetails(tab.nativeTab, extension);
         },
         setComposeDetails(tabId, details) {
           let tab = getComposeTab(tabId);
-          return setComposeDetails(tab.nativeTab, details);
+          return setComposeDetails(tab.nativeTab, details, extension);
         },
       },
     };

@@ -64,6 +64,11 @@
         "type": "object",
         "description": "Used by various functions to represent the state of a message being composed. Note that functions using this type may have a partial implementation.",
         "properties": {
+          "identityId": {
+            "type": "string",
+            "description": "The ID of an identity from the :doc:`accounts` API. The settings from the identity will be used in the composed message. If ``from`` is also specified, the ``name`` and ``email`` properties of the identity are overridden. If ``replyTo`` is also specified, the ``replyTo`` property of the identity is overridden.",
+            "optional": true
+          },
           "to": {
             "$ref": "ComposeRecipientList",
             "optional": true
@@ -187,6 +192,11 @@
               "replyToList",
               "replyToAll"
             ],
+            "optional": true
+          },
+          {
+            "name": "details",
+            "$ref": "ComposeDetails",
             "optional": true
           }
         ]

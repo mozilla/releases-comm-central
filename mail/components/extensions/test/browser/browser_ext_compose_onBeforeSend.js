@@ -7,7 +7,8 @@ var { ExtensionSupport } = ChromeUtils.import(
 );
 
 let account = createAccount();
-addIdentity(account);
+let defaultIdentity = addIdentity(account);
+let nonDefaultIdentity = addIdentity(account, "nondefault@invalid");
 
 add_task(async function testCancel() {
   let extension = ExtensionTestUtils.loadExtension({
@@ -228,6 +229,9 @@ add_task(async function testChangeDetails() {
         });
       }
 
+      let [account] = await browser.accounts.list();
+      let [defaultIdentity, nonDefaultIdentity] = account.identities;
+
       // Add a listener that changes the headers and body. Sending should
       // continue and the headers should change. This is largely the same code
       // as tested in browser_ext_compose_details.js, so just test that the
@@ -255,6 +259,7 @@ add_task(async function testChangeDetails() {
         listener5.details = details;
         return {
           details: {
+            identityId: nonDefaultIdentity.id,
             to: ["to@test5.invalid"],
             cc: ["cc@test5.invalid"],
             subject: "Changed by listener5",
@@ -265,6 +270,7 @@ add_task(async function testChangeDetails() {
       browser.compose.onBeforeSend.addListener(listener5);
       await beginSend();
       browser.test.assertEq(tab.id, listener5.tab.id, "listener5 was fired");
+      browser.test.assertEq(defaultIdentity.id, listener5.details.identityId);
       browser.test.assertEq(1, listener5.details.to.length);
       browser.test.assertEq(
         "test@test.invalid",
@@ -307,6 +313,7 @@ add_task(async function testChangeDetails() {
       browser.compose.onBeforeSend.addListener(listener6);
       await beginSend();
       browser.test.assertEq(tab.id, listener6.tab.id, "listener6 was fired");
+      browser.test.assertEq(defaultIdentity.id, listener6.details.identityId);
       browser.test.assertEq(1, listener6.details.to.length);
       browser.test.assertEq(
         "test@test.invalid",
@@ -320,6 +327,7 @@ add_task(async function testChangeDetails() {
       );
       listener6.resolve({
         details: {
+          identityId: nonDefaultIdentity.id,
           to: ["to@test6.invalid"],
           cc: ["cc@test6.invalid"],
           subject: "Changed by listener6",
@@ -330,7 +338,7 @@ add_task(async function testChangeDetails() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["compose"] },
+    manifest: { permissions: ["accountsRead", "compose"] },
   });
 
   extension.onMessage("beginSend", async () => {
@@ -359,6 +367,7 @@ add_task(async function testChangeDetails() {
   let outboxMessages = outbox.messages;
   ok(outboxMessages.hasMoreElements());
   let sentMessage5 = outboxMessages.getNext();
+  is(sentMessage5.author, "nondefault@invalid", "author was changed");
   is(sentMessage5.subject, "Changed by listener5", "subject was changed");
   is(sentMessage5.recipients, "to@test5.invalid", "to was changed");
   is(sentMessage5.ccList, "cc@test5.invalid", "cc was changed");
@@ -376,6 +385,7 @@ add_task(async function testChangeDetails() {
 
   ok(outboxMessages.hasMoreElements());
   let sentMessage6 = outboxMessages.getNext();
+  is(sentMessage6.author, "nondefault@invalid", "author was changed");
   is(sentMessage6.subject, "Changed by listener6", "subject was changed");
   is(sentMessage6.recipients, "to@test6.invalid", "to was changed");
   is(sentMessage6.ccList, "cc@test6.invalid", "cc was changed");

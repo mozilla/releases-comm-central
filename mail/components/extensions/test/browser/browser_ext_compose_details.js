@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-addIdentity(createAccount());
+let account = createAccount();
+let defaultIdentity = addIdentity(account);
+let nonDefaultIdentity = addIdentity(account);
 
 add_task(async function testHeaders() {
   let extension = ExtensionTestUtils.loadExtension({
@@ -59,6 +61,9 @@ add_task(async function testHeaders() {
         });
       }
 
+      let [account] = await browser.accounts.list();
+      let [defaultIdentity, nonDefaultIdentity] = account.identities;
+
       let addressBook = await browser.addressBooks.create({
         name: "Baker Street",
       });
@@ -88,9 +93,24 @@ add_task(async function testHeaders() {
         windowId: createdWindow.id,
       });
 
-      await checkWindow({});
+      await checkWindow({ identityId: defaultIdentity.id });
 
       let tests = [
+        {
+          // Change the identity.
+          input: { identityId: nonDefaultIdentity.id },
+          expected: { identityId: nonDefaultIdentity.id },
+        },
+        {
+          // Don't change the identity.
+          input: {},
+          expected: { identityId: nonDefaultIdentity.id },
+        },
+        {
+          // Change the identity back again.
+          input: { identityId: defaultIdentity.id },
+          expected: { identityId: defaultIdentity.id },
+        },
         {
           // Single input, string.
           input: { to: "Greg Lestrade <greg@bakerstreet.invalid>" },

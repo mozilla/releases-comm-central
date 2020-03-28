@@ -3970,6 +3970,16 @@ function GetComposeDetails() {
  * @param {string} [newValues.plainTextBody]
  */
 function SetComposeDetails(newValues) {
+  if (newValues.identityKey !== null) {
+    let identityList = document.getElementById("msgIdentity");
+    for (let menuItem of identityList.menupopup.children) {
+      if (menuItem.getAttribute("identitykey") == newValues.identityKey) {
+        identityList.selectedItem = menuItem;
+        LoadIdentity(false);
+        break;
+      }
+    }
+  }
   CompFields2Recipients(newValues);
   if (typeof newValues.subject == "string") {
     gMsgCompose.compFields.subject = document.getElementById(

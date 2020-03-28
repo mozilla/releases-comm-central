@@ -48,12 +48,15 @@ function cleanUpAccount(account) {
   MailServices.accounts.removeAccount(account, true);
 }
 
-function addIdentity(account) {
+function addIdentity(account, email = "mochitest@localhost") {
   let identity = MailServices.accounts.createIdentity();
-  identity.email = "mochitest@localhost";
+  identity.email = email;
   account.addIdentity(identity);
-  account.defaultIdentity = identity;
+  if (!account.defaultIdentity) {
+    account.defaultIdentity = identity;
+  }
   info(`Created identity ${identity.toString()}`);
+  return identity;
 }
 
 function createMessages(folder, count) {
@@ -201,6 +204,10 @@ async function checkComposeHeaders(expected) {
   is(composeWindows.length, 1);
   let composeDocument = composeWindows[0].document;
   await new Promise(resolve => composeWindows[0].setTimeout(resolve));
+
+  if ("identityId" in expected) {
+    is(composeWindows[0].getCurrentIdentityKey(), expected.identityId);
+  }
 
   let checkField = (fieldName, elementId) => {
     let pills = composeDocument

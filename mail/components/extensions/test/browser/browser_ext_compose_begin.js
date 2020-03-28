@@ -3,17 +3,85 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let account = createAccount();
-addIdentity(account);
+let defaultIdentity = addIdentity(account);
+let nonDefaultIdentity = addIdentity(account);
+let rootFolder = account.incomingServer.rootFolder;
+rootFolder.createSubfolder("test", null);
+let folder = rootFolder.getChildNamed("test");
+createMessages(folder, 3);
 
-add_task(async function testHeaders() {
-  let rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test", null);
-  let folder = rootFolder.getChildNamed("test");
-  createMessages(folder, 3);
-
+add_task(async () => {
   window.gFolderTreeView.selectFolder(folder);
   await new Promise(resolve => executeSoon(resolve));
+});
 
+add_task(async function testIdentity() {
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      let [account] = await browser.accounts.list();
+      let [defaultIdentity, nonDefaultIdentity] = account.identities;
+      let folder = account.folders.find(f => f.name == "test");
+      let { messages } = await browser.messages.list(folder);
+      browser.test.assertEq(3, messages.length);
+
+      browser.test.log(defaultIdentity.id);
+      browser.test.log(nonDefaultIdentity.id);
+
+      let funcs = [
+        { name: "beginNew", args: [] },
+        { name: "beginReply", args: [messages[0].id] },
+        { name: "beginForward", args: [messages[1].id, "forwardAsAttachment"] },
+      ];
+      let tests = [
+        { args: [], isDefault: true },
+        {
+          args: [{ identityId: defaultIdentity.id }],
+          isDefault: true,
+        },
+        {
+          args: [{ identityId: nonDefaultIdentity.id }],
+          isDefault: false,
+        },
+      ];
+      for (let func of funcs) {
+        browser.test.log(func.name);
+        for (let test of tests) {
+          browser.test.log(JSON.stringify(test.args));
+          await browser.compose[func.name](...func.args.concat(test.args));
+          browser.test.sendMessage("checkIdentity", test.isDefault);
+          await new Promise(resolve => {
+            browser.test.onMessage.addListener(function listener() {
+              browser.test.onMessage.removeListener(listener);
+              resolve();
+            });
+          });
+        }
+      }
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: { permissions: ["accountsRead", "messagesRead"] },
+  });
+
+  extension.onMessage("checkIdentity", async isDefault => {
+    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    is(composeWindows.length, 1);
+    await new Promise(resolve => composeWindows[0].setTimeout(resolve));
+
+    is(
+      composeWindows[0].getCurrentIdentityKey(),
+      isDefault ? defaultIdentity.key : nonDefaultIdentity.key
+    );
+    composeWindows[0].close();
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+add_task(async function testHeaders() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       function waitForEvent(eventName) {
