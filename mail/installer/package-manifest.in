@@ -285,10 +285,6 @@
 @RESPATH@/defaults/settings/main
 @RESPATH@/greprefs.js
 
-#ifdef MOZ_OPENPGP
-@RESPATH@/defaults/pref/openpgp-prefs.js
-#endif
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; App extensions to Mail
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
