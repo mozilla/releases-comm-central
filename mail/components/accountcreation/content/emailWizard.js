@@ -698,7 +698,7 @@ EmailConfigWizard.prototype = {
         (e, allErrors) => {
           // Must call error callback in any case to stop the discover mode.
           let errorCallback = call.errorCallback();
-          if (allErrors.some(e => e.code == 401)) {
+          if (allErrors && allErrors.some(e => e.code == 401)) {
             // Auth failed.
             // Ask user for username.
             this.onStartOver();

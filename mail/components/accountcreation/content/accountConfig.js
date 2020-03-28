@@ -309,6 +309,27 @@ AccountConfig.prototype = {
     }
     return result;
   },
+
+  /**
+   * Sort the config alternatives such that exchange is the last of the
+   * alternatives.
+   */
+  preferStandardProtocols() {
+    let alternatives = this.incomingAlternatives;
+    // Add default incoming as one alternative.
+    alternatives.unshift(this.incoming);
+    alternatives.sort((a, b) => {
+      if (a.type == "exchange") {
+        return 1;
+      }
+      if (b.type == "exchange") {
+        return -1;
+      }
+      return 0;
+    });
+    this.incomingAlternatives = alternatives;
+    this.incoming = alternatives.shift();
+  },
 };
 
 // enum consts

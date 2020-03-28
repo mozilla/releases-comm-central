@@ -178,7 +178,7 @@ function readAutoDiscoverResponse(
     );
     let domain = redirectEmailAddress.split("@").pop();
     if (++gLoopCounter > 2) {
-      throw new Exception("Too many redirects in XML response");
+      throw new Error("Too many redirects in XML response; domain=" + domain);
     }
     successive.current = fetchConfigFromExchange(
       domain,
@@ -191,7 +191,6 @@ function readAutoDiscoverResponse(
   }
 
   let config = readAutoDiscoverXML(autoDiscoverXML, username);
-
   if (config.isComplete()) {
     successCallback(config);
   } else {
@@ -299,7 +298,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
         server.socketType = 1; // plain
         if (
           "SSL" in protocolX &&
-          sanitize.enum(protocolX.SSL, ["on", "off"]) == "on"
+          protocolX.SSL.toLowerCase() == "on" // "On" or "Off"
         ) {
           // SSL is too unspecific. Do they mean STARTTLS or normal TLS?
           // For now, assume normal TLS, unless it's a standard plain port.
@@ -319,12 +318,13 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
               break;
           }
         }
+        server.auth = Ci.nsMsgAuthMethod.passwordCleartext;
         if (
           "SPA" in protocolX &&
-          sanitize.enum(protocolX.SPA, ["on", "off"]) == "on"
+          protocolX.SPA.toLowerCase() == "on" // "On" or "Off"
         ) {
           // Secure Password Authentication = NTLM or GSSAPI/Kerberos
-          server.auth = 8; // secure (not really, but this is MS...)
+          server.auth = Ci.nsMsgAuthMethod.secure;
         }
         if ("LoginName" in protocolX) {
           server.username = sanitize.nonemptystring(protocolX.LoginName);
@@ -521,6 +521,7 @@ function detectStandardProtocols(config, domain, successCallback) {
   if (alts.find(alt => alt.type == "imap" || alt.type == "pop3")) {
     // Autodiscover found an exchange server with advertized IMAP and/or
     // POP3 support. We're done then.
+    config.preferStandardProtocols();
     successCallback(config);
     return;
   }
