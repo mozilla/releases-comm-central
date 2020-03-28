@@ -107,6 +107,7 @@ toolbar[nowindowdrag="true"] {
   margin-inline-start: 4px;
   padding-block: 3px;
   padding-inline-end: 10px;
+  color: inherit;
 }
 
 #msgIdentity.addressingWidget-separator::after {
