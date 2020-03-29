@@ -853,6 +853,9 @@ function GenerateAddressFromCard(card) {
 }
 
 function GetDirectoryFromURI(uri) {
+  if (uri.startsWith("moz-abdirectory://")) {
+    return null;
+  }
   return MailServices.ab.getDirectory(uri);
 }
 
@@ -891,7 +894,7 @@ function DirPaneHasFocus() {
 function getSelectedDirectory() {
   // Contacts Sidebar
   if (abList) {
-    return MailServices.ab.getDirectory(abList.value);
+    return GetDirectoryFromURI(abList.value);
   }
 
   // Main Address Book

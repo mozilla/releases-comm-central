@@ -178,7 +178,7 @@ AddrBookManager.prototype = {
   },
   getDirectory(uri) {
     if (uri.startsWith("moz-abdirectory://")) {
-      return null;
+      throw Cr.NS_ERROR_FAILURE;
     }
 
     ensureInitialized();
@@ -196,7 +196,7 @@ AddrBookManager.prototype = {
       // Both of these will be handled differently in future.
       return createDirectoryObject(uri);
     }
-    return null;
+    throw Cr.NS_ERROR_FAILURE;
   },
   getDirectoryFromId(dirPrefId) {
     ensureInitialized();

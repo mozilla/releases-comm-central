@@ -409,7 +409,9 @@ add_task(async function deleteAddressBook() {
   dbFile.append(FILE_NAME);
   ok(!dbFile.exists());
   equal([...MailServices.ab.directories].length, 2);
-  ok(!MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`));
+  Assert.throws(() => {
+    MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`);
+  }, /NS_ERROR_FAILURE/);
 });
 
 add_task(async function cleanUp() {

@@ -188,7 +188,7 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
     searchQuery.AssignLiteral("");
   }
 
-  if (Substring(uri, 0, searchBegin).EqualsLiteral("moz-abdirectory://")) {
+  if (Substring(uri, 0, searchBegin).EqualsLiteral(kAllDirectoryRoot)) {
     mIsAllDirectoryRootView = true;
     // We have special request case to search all addressbooks, so we need
     // to iterate over all addressbooks.
