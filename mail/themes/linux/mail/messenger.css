@@ -288,35 +288,8 @@ menulist > menupopup >
 
 /* ::::: Toolbar customization ::::: */
 
-toolbarpaletteitem[type="spacer"] toolbarspacer,
-toolbarpaletteitem[type="spring"] toolbarspring {
-  border: 1px solid #808080;
-  background-color: #fff !important;
-}
-
 toolbarpaletteitem[place="toolbar"] > toolbarspacer {
   width: 11px;
-}
-
-toolbarpaletteitem[type="spacer"][place="toolbar"] toolbarspacer,
-toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  margin-inline-start: 0;
-  margin-inline-end: 2px;
-}
-
-toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer,
-toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
-  margin-bottom: 2px;
-}
-
-toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
-  background: url("chrome://messenger/skin/icons/spring.png") no-repeat center;
-}
-
-toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
-  width: 2px;
 }
 
 /* ::::: toolbarbutton menu-button ::::: */

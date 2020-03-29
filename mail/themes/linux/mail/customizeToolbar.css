@@ -2,21 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-window,
-dialog {
-  padding: 6px;
-}
-
-#instructions {
-  font-weight: bold;
-  font-size: larger;
-}
-
 #palette-box {
-  -moz-appearance: listbox;
-  margin: 0 0 10px;
+  margin: 0 4px 10px;
 }
 
-#palette-box > toolbarpaletteitem {
-  padding: 8px 2px;
+#titlebarSettings {
+  margin-inline-start: 4px;
+}
+
+#CustomizeToolbarWindow menulist {
+  background-image: none;
+}
+
+#CustomizeToolbarWindow menulist > .menulist-label-box {
+  background: none;
 }

@@ -550,17 +550,6 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 }
 
-@media (-moz-windows-default-theme) {
-
-  /* Let the Customize window's menulist stay a system menulist */
-  #modelist {
-    -moz-appearance: menulist;
-    margin: 2px 4px;
-    padding: 0 !important;
-  }
-
-}
-
 @media (-moz-windows-default-theme: 0) {
   #messengerWindow[tabsintitlebar] #mail-menubar > menu {
     -moz-appearance: none;

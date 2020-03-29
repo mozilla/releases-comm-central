@@ -547,3 +547,34 @@ html|input[type="number"].size5 {
 #print-preview-toolbar {
   max-height: 2.5em;
 }
+
+/* ::::: Toolbar customization ::::: */
+
+toolbarpaletteitem[type="spacer"] toolbarspacer,
+toolbarpaletteitem[type="spring"] toolbarspring {
+  border: 1px solid currentColor;
+  background-color: hsla(0, 0%, 100%, .3) !important;
+}
+
+toolbarpaletteitem[type="spacer"][place="toolbar"] toolbarspacer,
+toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
+  margin: 2px;
+}
+
+toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
+  -moz-appearance: none;
+  width: 1px;
+  height: 50px;
+  background-color: currentColor;
+}
+
+toolbarpaletteitem[type="spacer"][place="palette"] toolbarspacer,
+toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
+  margin-bottom: 2px;
+}
+
+toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
+  background: url("chrome://messenger/skin/icons/spring.svg") no-repeat center;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}

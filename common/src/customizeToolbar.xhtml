@@ -28,6 +28,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/chat.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/addressbook.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messengercompose/messengercompose.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 #endif
 <?xml-stylesheet href="chrome://calendar/skin/calendar-task-view.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css" type="text/css"?>
@@ -38,13 +39,15 @@
 #ifdef MOZ_SUITE
         onload="onLoad();"
 #else
+        lightweightthemes="true"
         windowtype="mailnews:customizeToolbar"
         onload="overlayOnLoad();"
 #endif
         onunload="onUnload();"
         style="&dialog.dimensions;"
         persist="width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
 #ifdef MOZ_SUITE
 <script src="chrome://communicator/content/customizeToolbar.js"/>
@@ -70,8 +73,14 @@
         ondragover="onPaletteDragOver(event)"
         ondrop="onPaletteDrop(event)"/>
 
-  <box align="center">
-    <label value="&show.label;"/>
+  <hbox id="buttonBox" align="center">
+#ifndef MOZ_SUITE
+    <hbox id="titlebarSettings" hidden="true">
+      <checkbox id="showTitlebar" oncommand="updateTitlebar();" label="&showTitlebar2.label;"/>
+      <checkbox id="showDragSpace" oncommand="updateDragSpace();" label="&extraDragSpace2.label;"/>
+    </hbox>
+#endif
+    <label id="modelistLabel" value="&show.label;" control="modelist"/>
     <menulist id="modelist"
               value="icons"
 #ifdef MOZ_SUITE
@@ -88,21 +97,11 @@
 #endif
       </menupopup>
     </menulist>
-
     <checkbox id="smallicons" oncommand="updateIconSize(this.checked ? 'small' : 'large');" label="&useSmallIcons.label;"/>
-
+    <spacer flex="1"/>
     <button id="restoreDefault" label="&restoreDefaultSet.label;" oncommand="restoreDefaultSet();"/>
-#ifndef MOZ_SUITE
-    <vbox id="titlebarSettings" hidden="true">
-      <checkbox id="showTitlebar" oncommand="updateTitlebar();" label="&showTitlebar.label;"/>
-      <checkbox id="showDragSpace" oncommand="updateDragSpace();" label="&extraDragSpace.label;"/>
-    </vbox>
-#endif
-  </box>
-
-  <separator class="groove"/>
-
-  <hbox align="center" pack="end">
+    </hbox>
+    <hbox align="center" pack="end">
     <button id="donebutton" label="&saveChanges.label;" oncommand="onClose();"
             default="true"/>
   </hbox>

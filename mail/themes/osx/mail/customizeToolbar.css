@@ -3,29 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #palette-box {
-  margin-top: 2px;
-  -moz-appearance: listbox;
-  margin: 0 0 10px;
+  margin: 2px 6px 10px;
 }
 
-#palette-box > toolbarpaletteitem {
-  padding: 8px 2px;
-  margin: 0 8px;
-}
-
-#main-box {
-  padding: 12px;
-}
-
-#main-box > separator {
-  -moz-appearance: none;
-  border-bottom: none;
-}
-
-#instructions {
-  font: menu;
-  font-weight: bold;
-  line-height: 16pt;
+#titlebarSettings {
+  margin-inline-start: 6px;
 }
 
 hbox button {
@@ -33,7 +15,6 @@ hbox button {
 }
 
 #main-box > box > button {
-  min-height: 19px; /* aqua size for small buttons */
   font: message-box;
 }
 

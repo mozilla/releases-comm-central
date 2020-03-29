@@ -117,7 +117,7 @@ menulist:-moz-focusring {
 }
 
 button:not([disabled="true"]):hover,
-menulist:not([disabled="true"]):hover,
+menulist:not([disabled="true"]):not([open="true"]):hover,
 menulist[open="true"]:not([disabled="true"]) {
   background-color: var(--button-background-hover);
 }
