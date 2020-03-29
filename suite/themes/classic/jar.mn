@@ -76,7 +76,6 @@ classic.jar:
   skin/classic/communicator/communicator.css                            (linux/communicator/communicator.css)
   skin/classic/communicator/numberbox.css                               (linux/communicator/numberbox.css)
   skin/classic/communicator/preferences.css                             (linux/communicator/preferences.css)
-  skin/classic/communicator/scrollbars.css                              (linux/communicator/scrollbars.css)
   skin/classic/communicator/spinbuttons.css                             (linux/communicator/spinbuttons.css)
 #else
   skin/classic/communicator/communicator.css                            (communicator/communicator.css)
@@ -508,7 +507,3 @@ classic.jar:
 % override chrome://global/skin/config.css                        chrome://communicator/skin/config.css
 % override chrome://global/skin/in-content/info-pages.css         chrome://communicator/skin/communicator.css
 % override chrome://mozapps/skin/places/defaultFavicon.svg        chrome://communicator/skin/places/bookmark-item.svg
-
-#ifdef MOZ_WIDGET_GTK
-% override chrome://global/skin/scrollbars.css                    chrome://communicator/skin/scrollbars.css
-#endif
