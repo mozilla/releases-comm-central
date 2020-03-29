@@ -71,62 +71,10 @@ panelview {
 
 /* This section is to anchor all the drop down panels at the same height, shift the
   panel`s top margin according to its positioning and the uidensity of the window. */
-#downloadsPanel,
 #widget-overflow,
 #appMenu-popup,
 #customizationui-widget-panel {
   margin-top: -6px;
-}
-
-/* The difference between the toolbar buttons` padding and the urlbar-icons` padding,
-   then subtract 6px. */
-#pageActionActivatedActionPanel,
-#pageActionPanel,
-#editBookmarkPanel,
-.browser-extension-panel {
-  margin-top: calc(var(--toolbarbutton-inner-padding) - var(--urlbar-icon-padding) - 6px)
-}
-
-/* The identity popup does not have any padding of its own,
-   otherwise would use the same formula as above. */
-#identity-popup {
-  margin-top: calc(var(--toolbarbutton-inner-padding) - 6px);
-}
-
-/* The bookmarks toolbar is too thin to have the panels overlap 6px. */
-#downloadsPanel.bookmarks-toolbar,
-#widget-overflow.bookmarks-toolbar,
-#appMenu-popup.bookmarks-toolbar,
-#customizationui-widget-panel.bookmarks-toolbar {
-  margin-top: -1px;
-}
-
-/* The BMB_bookmarksPopup is unique because it is built into the
-   bookmarks-menu-button, resulting in many edge cases. */
-#BMB_bookmarksPopup {
-  margin-top: -8px;
-}
-
-:root:not([uidensity]) #nav-bar #BMB_bookmarksPopup {
-  margin-top: -11px;
-}
-
-:root[uidensity=touch] #nav-bar #BMB_bookmarksPopup,
-:root[uidensity=touch] #TabsToolbar #BMB_bookmarksPopup,
-:root[uidensity=compact] #BMB_bookmarksPopup {
-  margin-top: -9px;
-}
-
-:root[uidensity=compact] #TabsToolbar #BMB_bookmarksPopup {
-  margin-top: -7px;
-}
-
-#PersonalToolbar #BMB_bookmarksPopup  {
-  margin-top: -2px
-}
-
-:root[uidensity=touch] #PersonalToolbar #BMB_bookmarksPopup {
-  margin-top: -5px;
 }
 
 .panel-subview-body {
@@ -154,8 +102,7 @@ panelview {
   -moz-box-flex: 1;
 }
 
-#wrapper-edit-controls:-moz-any([place="palette"],[place="menu-panel"]) > #edit-controls,
-#wrapper-zoom-controls:-moz-any([place="palette"],[place="menu-panel"]) > #zoom-controls {
+#wrapper-edit-controls:-moz-any([place="palette"],[place="menu-panel"]) > #edit-controls {
   margin-inline-start: 0;
 }
 
@@ -167,102 +114,6 @@ panelview {
 
 #appmenu-edit-button::after {
   margin-inline-start: 0;
-}
-
-#BMB_bookmarksPopup {
-  max-width: var(--standalone-subview-width);
-}
-
-#confirmation-hint {
-  --arrowpanel-background: #0060df;
-  --arrowpanel-border-color: #0060df;
-  --arrowpanel-color: #fff;
-}
-
-#confirmation-hint[hidearrow] > .panel-arrowcontainer > .panel-arrowbox {
-  /* Don't display the arrow but keep the popup at the same vertical
-     offset as other arrow panels. */
-  visibility: hidden;
-}
-
-#confirmation-hint::part(arrowcontent) {
-  font-weight: 400;
-  font-size: 1.1rem;
-  -moz-box-align: center;
-  padding: 6px 10px;
-}
-
-#confirmation-hint-checkmark-animation-container {
-  position: relative;
-  overflow: hidden;
-  width: 14px;
-  height: 14px;
-}
-
-/* Don't show the checkmark if there is a description */
-#confirmation-hint.with-description #confirmation-hint-checkmark-animation-container  {
-  display: none;
-}
-
-#confirmation-hint-checkmark-animation-container[animate] > #confirmation-hint-checkmark-image {
-  position: absolute;
-  display: block;
-  background-image: url(chrome://browser/skin/check-animation.svg);
-  background-repeat: no-repeat;
-  min-width: 266px;
-  max-width: 266px;
-  min-height: 14px;
-  max-height: 14px;
-  animation-name: confirmation-hint-checkmark-animation;
-  animation-duration: 300ms;
-  animation-delay: 60ms;
-  animation-fill-mode: forwards;
-  animation-timing-function: steps(18);
-}
-
-#confirmation-hint-checkmark-animation-container[animate] > #confirmation-hint-checkmark-image:-moz-locale-dir(rtl) {
-  animation-name: confirmation-hint-checkmark-animation-rtl;
-  transform: translateX(252px);
-}
-
-@keyframes confirmation-hint-checkmark-animation {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-252px);
-  }
-}
-
-@keyframes confirmation-hint-checkmark-animation-rtl {
-  from {
-    transform: translateX(252px);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-#confirmation-hint-message {
-  margin-inline-start: 7px;
-  margin-inline-end: 0;
-}
-
-#confirmation-hint.with-description #confirmation-hint-message {
-  font-size: 1.2em;
-  font-weight: 600;
-}
-
-#confirmation-hint-message-container {
-  transform: scale(.8);
-  opacity: 0;
-  transition: transform 120ms cubic-bezier(.25,1.27,.35,1.18),
-              opacity 60ms linear;
-}
-
-#confirmation-hint-checkmark-animation-container[animate] + #confirmation-hint-message-container {
-  transform: scale(1);
-  opacity: 1;
 }
 
 panelview[id^=PanelUI-webext-] {
@@ -287,7 +138,6 @@ panelview:not([mainview]) .toolbarbutton-text,
 }
 
 #customizationui-widget-multiview #appMenu-libraryView,
-#pageActionPanel panelview,
 #widget-overflow panelview {
   min-width: var(--wide-menu-panel-width);
   max-width: var(--wide-menu-panel-width);
@@ -385,118 +235,6 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
 
 #appMenu-tp-category {
   margin-inline-end: 0;
-}
-
-#PanelUI-sendTabToDevice > .panel-subview-body:not([state]) > #PanelUI-sendTabToDevice-syncingDevices {
-  display: none;
-}
-
-#PanelUI-remotetabs {
-  --panel-ui-sync-illustration-height: 91px;
-}
-
-.PanelUI-remotetabs-instruction-label {
-  /* If you change the margin here, the min-height of the synced tabs panel
-    (e.g. #PanelUI-remotetabs[mainview] #PanelUI-remotetabs-setupsync, etc) may
-    need adjusting (see bug 1248506) */
-  margin: 0;
-  text-align: center;
-  text-shadow: none;
-  max-width: 15em;
-}
-
-.PanelUI-remotetabs-instruction-label {
-  color: var(--panel-disabled-color);
-}
-
-/* The boxes with "instructions" get extra top and bottom padding for space
-   around the illustration and buttons */
-.PanelUI-remotetabs-instruction-box {
-  /* If you change the padding here, the min-height of the synced tabs panel
-    (e.g. #PanelUI-remotetabs[mainview] #PanelUI-remotetabs-setupsync, etc) may
-    need adjusting (see bug 1248506) */
-  padding-bottom: 30px;
-}
-
-.PanelUI-remotetabs-button {
-  -moz-appearance: none;
-  background-color: #0060df;
-  /* !important for the color as an OSX specific rule when a lightweight theme
-     is used for buttons in the toolbox overrides. See bug 1238531 for details */
-  color: white !important;
-  border-radius: 2px;
-  /* If you change the margin or padding below, the min-height of the synced tabs
-     panel (e.g. #PanelUI-remotetabs[mainview] #PanelUI-remotetabs-setupsync,
-     etc) may need adjusting (see bug 1248506) */
-  margin-top: 15px;
-  margin-bottom: 15px;
-  padding: 8px;
-  text-shadow: none;
-  min-width: 200px;
-}
-
-.PanelUI-remotetabs-button:hover {
-  background-color: #003eaa;
-}
-
-.PanelUI-remotetabs-button:hover:active {
-  background-color: #002275;
-}
-
-.remotetabs-promo-link {
-  margin: 0;
-}
-
-.PanelUI-remotetabs-notabsforclient-label {
-  color: var(--panel-disabled-color);
-  /* This margin is to line this label up with the labels in toolbarbuttons. */
-  margin-left: 28px;
-}
-
-#PanelUI-remotetabs[mainview] .PanelUI-remotetabs-notabsforclient-label {
-  margin-left: 32px;
-}
-
-.PanelUI-remotetabs-button > .toolbarbutton-text {
-  /* !important to override ".cui-widget-panel toolbarbutton > .toolbarbutton-text" above. */
-  text-align: center !important;
-  text-shadow: none;
-}
-
-#PanelUI-remotetabs[mainview] { /* panel anchored to toolbar button might be too skinny */
-  min-width: 19em;
-}
-
-/* Work around bug 1224412 - these boxes will cause scrollbars to appear when
-   the panel is anchored to a toolbar button.
-*/
-#PanelUI-remotetabs[mainview] #PanelUI-remotetabs-setupsync,
-#PanelUI-remotetabs[mainview] #PanelUI-remotetabs-reauthsync,
-#PanelUI-remotetabs[mainview] #PanelUI-remotetabs-unverified,
-#PanelUI-remotetabs[mainview] #PanelUI-remotetabs-nodevicespane,
-#PanelUI-remotetabs[mainview] #PanelUI-remotetabs-tabsdisabledpane {
-  min-height: calc(var(--panel-ui-sync-illustration-height) +
-                   53px + /* margin of .fxaSyncIllustration */
-                   30px + /* margin of .PanelUI-remotetabs-button */
-                   16px + /* padding of .PanelUI-remotetabs-button */
-                   30px + /* padding of .PanelUI-remotetabs-instruction-box */
-                   11em);
-}
-
-#PanelUI-remotetabs-tabslist > label[itemtype="client"] {
-  color: var(--panel-disabled-color);
-}
-
-/* Collapse the non-active vboxes in the remotetabs deck to use only the
-   height the active box needs */
-#PanelUI-remotetabs-deck:not([selectedIndex="1"]) > #PanelUI-remotetabs-tabsdisabledpane,
-#PanelUI-remotetabs-deck:not([selectedIndex="2"]) > #PanelUI-remotetabs-fetching,
-#PanelUI-remotetabs-deck:not([selectedIndex="3"]) > #PanelUI-remotetabs-nodevicespane {
-  visibility: collapse;
-}
-
-#PanelUI-remotetabs-main[devices-status="single"] > #PanelUI-remotetabs-buttons {
-  display: none;
 }
 
 .panel-banner-item {
@@ -736,36 +474,6 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   padding: 4px 5px;
 }
 
-#appMenu-zoom-controls > .subviewbutton {
-  margin-inline-start: 10px;
-}
-
-/* Unset the min-height constraint, because that works better for a text-only button. */
-#appMenu-zoomReset-button {
-  min-height: unset;
-  border: 1px solid var(--panel-separator-color);
-  border-radius: 10000px;
-  padding: 1px 8px;
-  background-color: var(--arrowpanel-dimmed);
-}
-
-#appMenu-zoomReset-button:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus) {
-  background-color: var(--arrowpanel-dimmed-further);
-}
-
-#appMenu-zoomReset-button:not([disabled]):-moz-any([open],:hover:active) {
-  background-color: var(--arrowpanel-dimmed-even-further);
-}
-
-#appMenu-zoomReset-button > .toolbarbutton-text {
-  min-width: calc(3ch + 8px);
-  text-align: center;
-}
-
-#appMenu-zoom-controls > toolbarseparator[orient="vertical"] + .subviewbutton {
-  margin-inline-start: 0;
-}
-
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic > .toolbarbutton-text,
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-icon {
   display: none;
@@ -824,46 +532,6 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
   box-shadow: 0 1px 0 hsla(210,4%,10%,.05) inset;
 }
 
-#BMB_bookmarksPopup .subviewbutton:not([disabled="true"]) {
-  color: inherit;
-}
-
-#BMB_bookmarksPopup .subviewbutton > .menu-iconic-left {
-  margin-inline-end: 3px;
-}
-
-#BMB_bookmarksPopup .panel-arrowcontainer > .panel-arrowcontent > .popup-internal-box > .scrollbutton-up,
-#BMB_bookmarksPopup .panel-arrowcontainer > .panel-arrowcontent > .popup-internal-box > .scrollbutton-down {
-  -moz-appearance: none;
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-/* Remove padding on xul:arrowscrollbox to avoid extra padding on footer */
-#BMB_bookmarksPopup arrowscrollbox {
-  padding-bottom: 0px;
-}
-
-#BMB_bookmarksPopup menupopup > .bookmarks-actions-menuseparator {
-  /* Hide bottom separator as the styled footer includes a top border serving the same purpose */
-  display: none;
-}
-
-/* Popups with only one item don't have a footer */
-#BMB_bookmarksPopup menupopup[placespopup=true][singleitempopup=true] > hbox > .popup-internal-box > .arrowscrollbox-scrollbox,
-/* These popups never have a footer */
-#BMB_bookmarksToolbarPopup > hbox > .popup-internal-box > .arrowscrollbox-scrollbox,
-#BMB_unsortedBookmarksPopup > hbox > .popup-internal-box > .arrowscrollbox-scrollbox,
-#BMB_mobileBookmarksPopup > hbox > .popup-internal-box > .arrowscrollbox-scrollbox {
-  /* And so they need some bottom padding: */
-  padding-bottom: 4px;
-}
-
-/* Disabled (empty) item is always alone and never has an icon, so fix its left padding */
-#BMB_bookmarksPopup menupopup[emptyplacesresult] .bookmark-item.subviewbutton {
-  padding-left: 6px;
-}
-
 #widget-overflow-mainView > .panel-subview-body > toolbarseparator,
 .PanelUI-subView menuseparator,
 .PanelUI-subView toolbarseparator,
@@ -913,25 +581,7 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
   margin-inline-end: auto;
 }
 
-#PanelUI-remotetabs-tabslist > toolbarbutton[itemtype="tab"],
-#PanelUI-historyItems > toolbarbutton {
-  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-#PanelUI-containersItems > .subviewbutton > .toolbarbutton-icon,
-#PanelUI-remotetabs-tabslist > toolbarbutton[itemtype="tab"] > .toolbarbutton-icon,
-#PanelUI-recentlyClosedWindows > toolbarbutton > .toolbarbutton-icon,
-#PanelUI-recentlyClosedTabs > toolbarbutton > .toolbarbutton-icon,
-#PanelUI-historyItems > toolbarbutton > .toolbarbutton-icon {
-  width: 16px;
-  height: 16px;
-}
-
-toolbarpaletteitem[place="palette"] > .toolbarbutton-1 > .toolbarbutton-menu-dropmarker,
-#bookmarks-menu-button[cui-areatype="menu-panel"] > .toolbarbutton-menu-dropmarker,
-#bookmarks-menu-button[overflowedItem] > .toolbarbutton-menu-dropmarker {
+toolbarpaletteitem[place="palette"] > .toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
   display: none;
 }
 
@@ -966,14 +616,6 @@ toolbarpaletteitem[place="menu-panel"] > .toolbaritem-combined-buttons > toolbar
   opacity: 0.4;
   /* Override toolbarbutton.css which sets the color to GrayText */
   color: inherit;
-}
-
-#zoom-controls[cui-areatype="toolbar"] > #zoom-reset-button > .toolbarbutton-text {
-%ifdef XP_MACOSX
-  min-width: 6ch;
-%else
-  min-width: 7ch;
-%endif
 }
 
 .toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) > separator {
@@ -1048,42 +690,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   margin-inline-end: 0;
 }
 
-#PanelUI-panicView > .panel-subview-body,
-#PanelUI-panicView {
-  overflow: visible;
-}
-
-#PanelUI-panicView.cui-widget-panelview {
-  min-width: 280px;
-}
-
-#PanelUI-panic-timeframe {
-  padding: 15px;
-  border-bottom: 1px solid var(--panel-separator-color);
-}
-
-#panic-button-success-icon,
-#PanelUI-panic-timeframe-icon {
-  background-color: transparent;
-  margin-inline-end: 10px;
-}
-
-#panic-button-success-icon,
-#PanelUI-panic-timeframe-icon {
-  list-style-image: url(chrome://browser/skin/panic-panel/header.png);
-  max-height: 48px;
-  width: 48px;
-}
-
-#panic-button-success-header {
-  -moz-box-align: center;
-  margin-bottom: 5px;
-}
-
-#PanelUI-panic-timeframe-icon:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
-}
-
 .subviewradio {
   -moz-appearance: none;
   -moz-box-align: center;
@@ -1122,121 +728,9 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border: 4px solid #177ee6;
 }
 
-#PanelUI-panic-explanations {
-  padding: 10px 10px 0;
-}
-
-#PanelUI-panic-actionlist-main-label {
-  color: var(--panel-disabled-color);
-  font-size: 0.9em;
-}
-
-.PanelUI-panic-actionlist {
-  padding-inline-start: 20px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  background-size: 16px 16px;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  background-position: center left;
-}
-
-.PanelUI-panic-actionlist:-moz-locale-dir(rtl) {
-  background-position: center right;
-}
-
-#PanelUI-panic-actionlist-cookies {
-  background-image: -moz-image-rect(url(chrome://browser/skin/panic-panel/icons.png), 0, 16, 16, 0);
-}
-
-#PanelUI-panic-actionlist-history {
-  background-image: -moz-image-rect(url(chrome://browser/skin/panic-panel/icons.png), 0, 32, 16, 16);
-}
-
-#PanelUI-panic-actionlist-windows {
-  background-image: -moz-image-rect(url(chrome://browser/skin/panic-panel/icons.png), 0, 48, 16, 32);
-}
-
-#PanelUI-panic-actionlist-newwindow {
-  background-image: -moz-image-rect(url(chrome://browser/skin/panic-panel/icons.png), 0, 64, 16, 48);
-}
-
-#PanelUI-panic-warning {
-  color: #C11F14;
-  text-align: center;
-  width: 100%;
-  margin-top: 20px;
-}
-
-#PanelUI-panic-view-button {
-  -moz-appearance: none;
-  background-color: #d92316;
-  color: white;
-  margin: 5px 15px 11px;
-  border: 1px solid #c92014;
-  border-radius: 3px;
-  padding: 10px;
-}
-
-#PanelUI-panic-view-button:hover {
-  background-color: #bf1f13;
-  border-color: #b81d12;
-}
-
-#PanelUI-panic-view-button:hover:active {
-  background-color: #99180f;
-  border-color: #91170f;
-}
-
-#PanelUI-panic-view-button > .toolbarbutton-text {
-  text-align: center;
-  text-shadow: none;
-}
-
-#panic-button-success-closebutton {
-  background-color: #e5e5e5;
-  color: black;
-  margin: 5px 0 0;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  padding: 10px;
-  -moz-appearance: none;
-}
-
-#panic-button-success-closebutton:hover {
-  background-color: #dedede;
-  border-color: #bbb;
-}
-
-#panic-button-success-closebutton:hover:active {
-  background-color: #d0d0d0;
-  border-color: #aaa;
-}
-
 @media (min-resolution: 1.1dppx) {
   .panel-banner-item[notificationid^=update] {
     list-style-image: url(chrome://branding/content/icon32.png);
-  }
-
-  #panic-button-success-icon,
-  #PanelUI-panic-timeframe-icon {
-    list-style-image: url(chrome://browser/skin/panic-panel/header@2x.png);
-  }
-
-  #PanelUI-panic-actionlist-cookies {
-    background-image: -moz-image-rect(url(chrome://browser/skin/panic-panel/icons@2x.png), 0, 32, 32, 0);
-  }
-
-  #PanelUI-panic-actionlist-history {
-    background-image: -moz-image-rect(url(chrome://browser/skin/panic-panel/icons@2x.png), 0, 64, 32, 32);
-  }
-
-  #PanelUI-panic-actionlist-windows {
-    background-image: -moz-image-rect(url(chrome://browser/skin/panic-panel/icons@2x.png), 0, 96, 32, 64);
-  }
-
-  #PanelUI-panic-actionlist-newwindow {
-    background-image: -moz-image-rect(url(chrome://browser/skin/panic-panel/icons@2x.png), 0, 128, 32, 96);
   }
 }
 

@@ -24,20 +24,6 @@ panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
   display: none;
 }
 
-#BMB_bookmarksPopup menupopup[placespopup=true]:-moz-lwtheme {
-  -moz-appearance: none;
-  background: transparent;
-}
-
-#BMB_bookmarksPopup menupopup[placespopup=true] > hbox:-moz-lwtheme {
-  background: var(--arrowpanel-background);
-  border-radius: var(--arrowpanel-border-radius);
-  box-shadow: 0 0 0 1px var(--arrowpanel-border-color);
-  color: var(--arrowpanel-color);
-  border: none;
-  margin: 1px;
-}
-
 /* Override OSX-specific toolkit styles for the bookmarks panel */
 menu.subviewbutton > .menu-right {
   margin-inline-end: -4px;
@@ -47,23 +33,6 @@ menu.subviewbutton > .menu-right {
 .PanelUI-subView menuseparator,
 .cui-widget-panelview menuseparator {
   padding: 0 !important;
-}
-
-#PanelUI-remotetabs-tabslist > label[itemtype="client"] {
-  padding-inline-start: 6px;
-}
-
-.PanelUI-remotetabs-notabsforclient-label {
-  margin-left: 19px;
-  font-size: 13px;
-}
-
-#PanelUI-remotetabs[mainview] .PanelUI-remotetabs-notabsforclient-label {
-  margin-left: 23px;
-}
-
-#PanelUI-remotetabs-tabslist {
-  padding-bottom: 4px;
 }
 
 .panel-button {
