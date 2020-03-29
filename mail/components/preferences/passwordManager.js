@@ -9,6 +9,10 @@ var { AppConstants } = ChromeUtils.import(
 );
 /* eslint-disable-next-line no-var */
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+/* eslint-disable-next-line no-var */
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -20,6 +24,17 @@ ChromeUtils.defineModuleGetter(
   "PlacesUtils",
   "resource://gre/modules/PlacesUtils.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "OSKeyStore",
+  "resource://gre/modules/OSKeyStore.jsm"
+);
+XPCOMUtils.defineLazyGetter(this, "L10n", () => {
+  return new Localization([
+    "branding/brand.ftl",
+    "messenger/preferences/passwordManager.ftl",
+  ]);
+});
 
 // Default value for signon table sorting
 let lastSignonSortColumn = "origin";
@@ -794,6 +809,35 @@ async function masterPasswordLogin(noPasswordCallback) {
 
   // If there is no master password, still give the user a chance to opt-out of displaying passwords
   if (token.checkPassword("")) {
+    // The OS re-authentication on Linux isn't working (Bug 1527745),
+    // still add the confirm dialog for Linux.
+    if (AppConstants.platform !== "linux") {
+      // Require OS authentication before the user can show the passwords or copy them.
+      let messageId = "password-os-auth-dialog-message";
+      if (AppConstants.platform == "macosx") {
+        // MacOS requires a special format of this dialog string.
+        // See preferences.ftl for more information.
+        messageId += "-macosx";
+      }
+      let [messageText, captionText] = await L10n.formatMessages([
+        {
+          id: messageId,
+        },
+        {
+          id: "password-os-auth-dialog-caption",
+        },
+      ]);
+      let loggedIn = await OSKeyStore.ensureLoggedIn(
+        messageText.value,
+        captionText.value,
+        window,
+        false
+      );
+      if (!loggedIn) {
+        return false;
+      }
+      return true;
+    }
     return noPasswordCallback ? noPasswordCallback() : true;
   }
 

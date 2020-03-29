@@ -796,6 +796,8 @@ pref("browser.in-content.dark-mode", true);
 // if true, use full page zoom instead of text zoom
 pref("browser.zoom.full", true);
 
+pref("browser.osKeyStore.loglevel", "Warn");
+
 // Developer Tools related preferences
 pref("devtools.debugger.log", false);
 pref("devtools.chrome.enabled", true);

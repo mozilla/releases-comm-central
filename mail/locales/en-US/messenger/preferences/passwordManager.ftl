@@ -69,3 +69,17 @@ remove-all-shown =
 remove-all-passwords-prompt = Are you sure you wish to remove all passwords?
 remove-all-passwords-title = Remove all passwords
 no-master-password-prompt = Are you sure you wish to show your passwords?
+
+## OS Authentication dialog
+
+# This message can be seen by trying to show or copy the passwords.
+password-os-auth-dialog-message = Verify your identity to reveal the saved passwords.
+
+# This message can be seen by trying to show or copy the passwords.
+# The macOS strings are preceded by the operating system with "Thunderbird is trying to "
+# and includes subtitle of "Enter password for the user "xxx" to allow this." These
+# notes are only valid for English. Please test in your locale.
+password-os-auth-dialog-message-macosx = reveal the saved passwords
+
+# Don't change this label.
+password-os-auth-dialog-caption = { -brand-full-name }
