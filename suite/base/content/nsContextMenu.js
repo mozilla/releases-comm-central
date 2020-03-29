@@ -357,9 +357,9 @@ nsContextMenu.prototype = {
     this.showItem("context-sep-popup", this.popupPrincipal);
 
     // BiDi UI
-    this.showItem("context-sep-bidi", !this.onNumeric && top.gBidiUI);
+    this.showItem("context-sep-bidi", !this.onNumeric && gShowBiDi);
     this.showItem("context-bidi-text-direction-toggle",
-                  this.onTextInput && !this.onNumeric && top.gBidiUI);
+                  this.onTextInput && !this.onNumeric && gShowBiDi);
     this.showItem("context-bidi-page-direction-toggle",
                   !this.onTextInput && gShowBiDi);
   },
