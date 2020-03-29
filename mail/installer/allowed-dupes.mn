@@ -36,6 +36,7 @@ chrome/devtools/modules/devtools/client/themes/splitters.css
 chrome/devtools/skin/splitters.css
 chrome/icons/default/default48.png
 chrome/icons/default/default64.png
+chrome/icons/default/default128.png
 
 # calendar
 components/calFilter.js
