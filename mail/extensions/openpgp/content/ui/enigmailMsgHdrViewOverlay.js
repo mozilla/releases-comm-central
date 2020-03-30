@@ -193,6 +193,7 @@ Enigmail.hdrView = {
   updateHdrIcons(
     exitCode,
     statusFlags,
+    extStatusFlags,
     keyId,
     userId,
     sigDetails,
@@ -207,6 +208,8 @@ Enigmail.hdrView = {
         exitCode +
         ", statusFlags=" +
         statusFlags +
+        ", extStatusFlags=" +
+        extStatusFlags +
         ", keyId=" +
         keyId +
         ", userId=" +
@@ -299,7 +302,7 @@ Enigmail.hdrView = {
 
     if (statusFlags & EnigmailConstants.NODATA) {
       if (statusFlags & EnigmailConstants.PGP_MIME_SIGNED) {
-        statusFlags |= EnigmailConstants.UNVERIFIED_SIGNATURE;
+        statusFlags |= EnigmailConstants.UNCERTAIN_SIGNATURE;
       }
 
       if (statusFlags & EnigmailConstants.PGP_MIME_ENCRYPTED) {
@@ -330,7 +333,7 @@ Enigmail.hdrView = {
         EnigmailConstants.GOOD_SIGNATURE |
         EnigmailConstants.EXPIRED_KEY_SIGNATURE |
         EnigmailConstants.EXPIRED_SIGNATURE |
-        EnigmailConstants.UNVERIFIED_SIGNATURE |
+        EnigmailConstants.UNCERTAIN_SIGNATURE |
         EnigmailConstants.REVOKED_KEY |
         EnigmailConstants.EXPIRED_KEY_SIGNATURE |
         EnigmailConstants.EXPIRED_SIGNATURE);
@@ -368,8 +371,8 @@ Enigmail.hdrView = {
       } else {
         statusInfo = EnigmailLocale.getString("failedDecrypt");
       }
-    } else if (statusFlags & EnigmailConstants.UNVERIFIED_SIGNATURE) {
-      statusInfo = EnigmailLocale.getString("unverifiedSig");
+    } else if (statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) {
+      statusInfo = EnigmailLocale.getString("uncertainSig");
     } else if (statusFlags & EnigmailConstants.GOOD_SIGNATURE) {
       statusInfo = EnigmailLocale.getString("goodSig", [keyId]);
     } else if (
@@ -378,7 +381,7 @@ Enigmail.hdrView = {
         EnigmailConstants.EXPIRED_SIGNATURE |
         EnigmailConstants.EXPIRED_KEY_SIGNATURE)
     ) {
-      statusInfo = EnigmailLocale.getString("unverifiedSig");
+      statusInfo = EnigmailLocale.getString("badSig");
     } else if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
       statusInfo = EnigmailLocale.getString("decryptedMsg");
     } else if (statusFlags & EnigmailConstants.DECRYPTION_INCOMPLETE) {
@@ -389,15 +392,11 @@ Enigmail.hdrView = {
     }
     // add key infos if available
     if (keyId) {
-      var si = EnigmailLocale.getString("unverifiedSig"); // "Unverified signature"
+      var si = EnigmailLocale.getString("uncertainSig"); // "Uncertain signature"
       if (statusInfo === "") {
         statusInfo += si;
       }
-      if (statusFlags & EnigmailConstants.UNVERIFIED_SIGNATURE) {
-        statusInfo += "\n" + EnigmailLocale.getString("keyNeeded", [keyId]); // "public key ... needed"
-      } else {
-        statusInfo += "\n" + EnigmailLocale.getString("keyUsed", [keyId]); // "public key ... used"
-      }
+      statusInfo += "\n" + EnigmailLocale.getString("signatureFrom", [keyId]);
     }
     //statusInfo += "\n\n" + errorMsg;
 
@@ -428,7 +427,7 @@ Enigmail.hdrView = {
     /*
     if (xtraStatus === "process-manually") {
       let buttonLabel = "";
-      if (statusFlags & EnigmailConstants.UNVERIFIED_SIGNATURE) {
+      if (statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) {
         statusLine = EnigmailLocale.getString("msgPart", [
           EnigmailLocale.getString("msgSigned"),
         ]);
@@ -450,6 +449,7 @@ Enigmail.hdrView = {
 
     let tmp = {
       statusFlags,
+      extStatusFlags,
       keyId,
       userId,
       msgSigned,
@@ -464,7 +464,7 @@ Enigmail.hdrView = {
     //Enigmail.msg.createArtificialAutocryptHeader();
 
     /*
-    if (statusFlags & EnigmailConstants.UNVERIFIED_SIGNATURE) {
+    if (statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) {
       this.tryImportAutocryptHeader();
     }
     */
@@ -565,7 +565,7 @@ Enigmail.hdrView = {
   */
 
   /**
-   * Try to import an autocrypt header from an unverified signature
+   * Try to import an autocrypt header from an uncertain signature
    * (i.e. the sender's key is not available)
    */
   /*
@@ -642,6 +642,8 @@ Enigmail.hdrView = {
 
     let secInfo = Enigmail.msg.securityInfo;
     let statusFlags = secInfo.statusFlags;
+    let extStatusFlags =
+      "extStatusFlags" in secInfo ? secInfo.extStatusFlags : 0;
     let sMimeContainer, encryptedUINode, signedUINode;
 
     if (secInfo.statusInfo) {
@@ -651,7 +653,7 @@ Enigmail.hdrView = {
       /*
       if (
         (secInfo.keyId &&
-          statusFlags & EnigmailConstants.UNVERIFIED_SIGNATURE) ||
+          statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) ||
         statusFlags & EnigmailConstants.INLINE_KEY
       ) {
         document.getElementById("enigmail_importKey").removeAttribute("hidden");
@@ -709,10 +711,14 @@ Enigmail.hdrView = {
             EnigmailConstants.EXPIRED_SIGNATURE)
         )
       ) {
-        let val =
-          statusFlags & EnigmailConstants.TRUSTED_IDENTITY
-            ? "verified"
-            : "unverified";
+        let val;
+        if (extStatusFlags & EnigmailConstants.EXT_SELF_IDENTITY) {
+          val = "ok";
+        } else if (statusFlags & EnigmailConstants.TRUSTED_IDENTITY) {
+          val = "verified";
+        } else {
+          val = "unverified";
+        }
 
         // Display trusted good signature icon
         signedUINode.setAttribute("signed", val);
@@ -724,8 +730,8 @@ Enigmail.hdrView = {
         */
         this.isSigned = val;
         bodyElement.setAttribute("enigSigned", val);
-      } else if (statusFlags & EnigmailConstants.UNVERIFIED_SIGNATURE) {
-        // Display unverified signature icon
+      } else if (statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) {
+        // Display uncertain signature icon
         signedUINode.setAttribute("signed", "unknown");
         /*
         this.enigmailBox.setAttribute(
@@ -740,7 +746,6 @@ Enigmail.hdrView = {
           EnigmailConstants.EXPIRED_KEY_SIGNATURE |
           EnigmailConstants.EXPIRED_SIGNATURE)
       ) {
-        // Display unverified signature icon
         signedUINode.setAttribute("signed", "notok");
         /*
         this.enigmailBox.setAttribute(
@@ -889,7 +894,7 @@ Enigmail.hdrView = {
             Enigmail.msg.securityInfo.statusFlags &
             (EnigmailConstants.REVOKED_KEY |
               EnigmailConstants.EXPIRED_KEY_SIGNATURE |
-              EnigmailConstants.UNVERIFIED_SIGNATURE)
+              EnigmailConstants.UNCERTAIN_SIGNATURE)
           )
         ) {
           sign = true;
@@ -900,7 +905,7 @@ Enigmail.hdrView = {
 
         if (
           Enigmail.msg.securityInfo.statusFlags &
-          EnigmailConstants.UNVERIFIED_SIGNATURE
+          EnigmailConstants.UNCERTAIN_SIGNATURE
         ) {
           unknown = true;
         }
@@ -1457,6 +1462,7 @@ Enigmail.hdrView = {
       unusedUriSpec,
       exitCode,
       statusFlags,
+      extStatusFlags,
       keyId,
       userId,
       sigDetails,
@@ -1513,6 +1519,7 @@ Enigmail.hdrView = {
         Enigmail.hdrView.updateHdrIcons(
           exitCode,
           statusFlags,
+          extStatusFlags,
           keyId,
           userId,
           sigDetails,

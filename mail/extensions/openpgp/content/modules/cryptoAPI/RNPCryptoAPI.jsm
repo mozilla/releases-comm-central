@@ -56,7 +56,7 @@ class RNPCryptoAPI extends CryptoAPI {
    * @return {Promise<Array of Object>} - see extractSignatures()
    */
   async getKeySignatures(keyId, ignoreUnknownUid = false) {
-    throw new Error("Not implemented");
+    return RNP.getKeySignatures(keyId, ignoreUnknownUid);
   }
 
   /**
@@ -91,7 +91,7 @@ class RNPCryptoAPI extends CryptoAPI {
 
   async importKeyBlock(keyBlock, pubkey, seckey) {
     // TODO: get status results
-    let res = RNP.importKeyBlock(null, null, keyBlock, pubkey, seckey);
+    let res = await RNP.importKeyBlock(null, null, keyBlock, pubkey, seckey);
     RNP.saveKeyRings();
     return res;
   }
@@ -183,9 +183,7 @@ class RNPCryptoAPI extends CryptoAPI {
   async decrypt(encrypted, options) {
     EnigmailLog.DEBUG(`rnp-cryptoAPI.js: decrypt()\n`);
 
-    let result = RNP.decrypt(encrypted, options);
-
-    return result;
+    return RNP.decrypt(encrypted, options);
   }
 
   /**
@@ -200,7 +198,7 @@ class RNPCryptoAPI extends CryptoAPI {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  decryptMime(encrypted, options) {
+  async decryptMime(encrypted, options) {
     EnigmailLog.DEBUG(`rnp-cryptoAPI.js: decryptMime()\n`);
 
     // write something to gpg such that the process doesn't get stuck
@@ -256,6 +254,10 @@ class RNPCryptoAPI extends CryptoAPI {
 
   async encryptAndOrSign(plaintext, args, resultStatus) {
     return RNP.encryptAndOrSign(plaintext, args, resultStatus);
+  }
+
+  async getNewRevocation(id) {
+    return RNP.getNewRevocation(id);
   }
 
   async getPublicKey(id) {

@@ -664,6 +664,7 @@ MimeVerify.prototype = {
           this.lastMsgUri,
           this.exitCode,
           this.returnStatus.statusFlags,
+          this.returnStatus.extStatusFlags,
           this.returnStatus.keyId,
           this.returnStatus.userId,
           this.returnStatus.sigDetails,

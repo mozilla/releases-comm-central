@@ -101,8 +101,22 @@ var EnigmailDecryption = {
 
   getFromAddr(win) {
     var fromAddr;
-    if (win && win.gFolderDisplay && win.gFolderDisplay.selectedMessage) {
-      fromAddr = win.gFolderDisplay.selectedMessage.author;
+    if (
+      win &&
+      win.gFolderDisplay &&
+      win.gFolderDisplay.messageDisplay &&
+      win.gFolderDisplay.messageDisplay.displayedMessage
+    ) {
+      fromAddr = win.gFolderDisplay.messageDisplay.displayedMessage.author;
+    } else if (
+      win &&
+      win.gFolderDisplay &&
+      win.gFolderDisplay.selectedMessage
+    ) {
+      fromAddr =
+        win && win.gFolderDisplay && win.gFolderDisplay.selectedMessage.author;
+    }
+    if (fromAddr) {
       try {
         fromAddr = EnigmailFuncs.stripEmail(fromAddr);
         if (fromAddr.search(/[a-zA-Z0-9]@.*[\(\)]/) >= 0) {
@@ -112,6 +126,7 @@ var EnigmailDecryption = {
         fromAddr = false;
       }
     }
+
     return fromAddr;
   },
 
@@ -173,6 +188,7 @@ var EnigmailDecryption = {
     signatureObj.value = "";
     exitCodeObj.value = -1;
     statusFlagsObj.value = 0;
+    statusFlagsObj.ext = 0;
     keyIdObj.value = "";
     userIdObj.value = "";
     errorMsgObj.value = "";
@@ -395,7 +411,7 @@ var EnigmailDecryption = {
       signatureObj.value = newSignature;
     } else if (
       pubKeyId &&
-      statusFlagsObj.value & EnigmailConstants.UNVERIFIED_SIGNATURE
+      statusFlagsObj.value & EnigmailConstants.UNCERTAIN_SIGNATURE
     ) {
       // TODO: import into scratch area
       /*
@@ -590,6 +606,7 @@ var EnigmailDecryption = {
         exitCodeObj.value = 0;
         statusFlagsObj.value = EnigmailConstants.DISPLAY_MESSAGE;
       }
+      statusFlagsObj.ext = 0;
       return true;
     }
 

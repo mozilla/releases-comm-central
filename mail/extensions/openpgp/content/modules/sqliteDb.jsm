@@ -8,7 +8,7 @@
  *  Module that provides generic functions for the Enigmail SQLite database
  */
 
-var EXPORTED_SYMBOLS = ["EnigmailSqliteDb"];
+var EXPORTED_SYMBOLS = ["EnigmailSqliteDb", "PgpSqliteDb2"];
 
 const { Sqlite } = ChromeUtils.import("resource://gre/modules/Sqlite.jsm");
 const { EnigmailTimer } = ChromeUtils.import(
@@ -18,6 +18,155 @@ const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
 
+var PgpSqliteDb2 = {
+  openDatabase() {
+    EnigmailLog.DEBUG("sqliteDb.jsm: PgpSqliteDb2 openDatabase()\n");
+    return new Promise((resolve, reject) => {
+      openDatabaseConn(
+        "openpgp.sqlite",
+        resolve,
+        reject,
+        100,
+        Date.now() + 10000
+      );
+    });
+  },
+
+  async checkDatabaseStructure() {
+    EnigmailLog.DEBUG(`sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure()\n`);
+    let conn;
+    try {
+      conn = await this.openDatabase();
+      await checkAcceptanceTable(conn);
+      conn.close();
+      EnigmailLog.DEBUG(
+        `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure - success\n`
+      );
+    } catch (ex) {
+      EnigmailLog.ERROR(
+        `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure: ERROR: ${ex}\n`
+      );
+      if (conn) {
+        conn.close();
+      }
+    }
+  },
+
+  async getFingerprintAcceptance(conn, fingerprint, rv) {
+    let myConn = false;
+
+    try {
+      if (!conn) {
+        myConn = true;
+        conn = await this.openDatabase();
+      }
+
+      let qObj = { fpr: fingerprint.toLowerCase() };
+      await conn
+        .execute(
+          "select decision from acceptance_decision where fpr = :fpr",
+          qObj
+        )
+        .then(result => {
+          if (result.length) {
+            rv.fingerprintAcceptance = result[0].getResultByName("decision");
+          }
+        });
+    } catch (ex) {
+      console.debug(ex);
+    }
+
+    if (myConn && conn) {
+      conn.close();
+    }
+  },
+
+  async getAcceptance(fingerprint, email, rv) {
+    rv.emailDecided = false;
+    rv.fingerprintAcceptance = "";
+
+    let conn;
+    try {
+      conn = await this.openDatabase();
+
+      await this.getFingerprintAcceptance(conn, fingerprint, rv);
+
+      if (rv.fingerprintAcceptance) {
+        let qObj = {
+          fpr: fingerprint.toLowerCase(),
+          email: email.toLowerCase(),
+        };
+        await conn
+          .execute(
+            "select count(*) from acceptance_email where fpr = :fpr and email = :email",
+            qObj
+          )
+          .then(result => {
+            if (result.length) {
+              let count = result[0].getResultByName("count(*)");
+              rv.emailDecided = count > 0;
+            }
+          });
+      }
+      conn.close();
+    } catch (ex) {
+      console.debug(ex);
+      if (conn) {
+        conn.close();
+      }
+    }
+  },
+
+  async updateAcceptance(fingerprint, emailArray, decision) {
+    let conn;
+    try {
+      conn = await this.openDatabase();
+
+      await conn.executeTransaction(async function() {
+        fingerprint = fingerprint.toLowerCase();
+
+        let delObj = { fpr: fingerprint };
+        await conn.execute(
+          "delete from acceptance_decision where fpr = :fpr",
+          delObj
+        );
+        await conn.execute(
+          "delete from acceptance_email where fpr = :fpr",
+          delObj
+        );
+
+        if (decision !== "undecided") {
+          let decisionObj = {
+            fpr: fingerprint,
+            decision,
+          };
+          await conn.execute(
+            "insert into acceptance_decision values (:fpr, :decision)",
+            decisionObj
+          );
+
+          let insertObj = {
+            fpr: fingerprint,
+          };
+          for (let email of emailArray) {
+            insertObj.email = email.toLowerCase();
+            await conn.execute(
+              "insert into acceptance_email values (:fpr, :email)",
+              insertObj
+            );
+          }
+        }
+      });
+      conn.close();
+    } catch (ex) {
+      console.debug(ex);
+      if (conn) {
+        conn.close();
+      }
+    }
+  },
+};
+
 var EnigmailSqliteDb = {
   /**
    * Provide an sqlite conection object asynchronously, retrying if needed
@@ -26,13 +175,16 @@ var EnigmailSqliteDb = {
    */
 
   openDatabase() {
+    /*
     EnigmailLog.DEBUG("sqliteDb.jsm: openDatabase()\n");
     return new Promise((resolve, reject) => {
-      openDatabaseConn(resolve, reject, 100, Date.now() + 10000);
+      openDatabaseConn("enigmail.sqlite", resolve, reject, 100, Date.now() + 10000);
     });
+    */
   },
 
   async checkDatabaseStructure() {
+    /*
     EnigmailLog.DEBUG(`sqliteDb.jsm: checkDatabaseStructure()\n`);
     let conn;
     try {
@@ -47,6 +199,7 @@ var EnigmailSqliteDb = {
         conn.close();
       }
     }
+    */
   },
 };
 
@@ -61,10 +214,10 @@ var EnigmailSqliteDb = {
  * @param {Number}   waitms:  Integer - number of milliseconds to wait before trying again in case of NS_ERROR_STORAGE_BUSY
  * @param {Number}   maxtime: Integer - unix epoch (in milliseconds) of the point at which we should give up.
  */
-function openDatabaseConn(resolve, reject, waitms, maxtime) {
+function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
   EnigmailLog.DEBUG("sqliteDb.jsm: openDatabaseConn()\n");
   Sqlite.openConnection({
-    path: "enigmail.sqlite",
+    path: filename,
     sharedMemoryCache: false,
   })
     .then(connection => {
@@ -77,9 +230,55 @@ function openDatabaseConn(resolve, reject, waitms, maxtime) {
         return;
       }
       EnigmailTimer.setTimeout(function() {
-        openDatabaseConn(resolve, reject, waitms, maxtime);
+        openDatabaseConn(filename, resolve, reject, waitms, maxtime);
       }, waitms);
     });
+}
+
+async function checkAcceptanceTable(connection) {
+  try {
+    let exists = await connection.tableExists("acceptance_email");
+    let exists2 = await connection.tableExists("acceptance_decision");
+    EnigmailLog.DEBUG("sqliteDB.jsm: checkAcceptanceTable - success\n");
+    if (!exists || !exists2) {
+      await createAcceptanceTable(connection);
+    }
+  } catch (error) {
+    EnigmailLog.DEBUG(`sqliteDB.jsm: checkAcceptanceTable - error ${error}\n`);
+    throw error;
+  }
+
+  return true;
+}
+
+async function createAcceptanceTable(connection) {
+  EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable()\n");
+
+  await connection.execute(
+    "create table acceptance_email (" +
+      "fpr text not null, " +
+      "email text not null, " +
+      "unique(fpr, email));"
+  );
+
+  await connection.execute(
+    "create table acceptance_decision (" +
+      "fpr text not null, " +
+      "decision text not null, " +
+      "unique(fpr));"
+  );
+
+  EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable - index1\n");
+  await connection.execute(
+    "create unique index acceptance_email_i1 on acceptance_email(fpr, email);"
+  );
+
+  EnigmailLog.DEBUG("sqliteDB.jsm: createAcceptanceTable - index2\n");
+  await connection.execute(
+    "create unique index acceptance__decision_i1 on acceptance_decision(fpr);"
+  );
+
+  return null;
 }
 
 /**
@@ -90,6 +289,7 @@ function openDatabaseConn(resolve, reject, waitms, maxtime) {
  *
  * @return {Promise<Boolean>}
  */
+/*
 async function checkAutocryptTable(connection) {
   try {
     let exists = await connection.tableExists("autocrypt_keydata");
@@ -129,6 +329,8 @@ async function checkAutocryptTable(connection) {
 
   return true;
 }
+*/
+
 /**
  * Create the "autocrypt_keydata" table and the corresponding index
  *
@@ -136,6 +338,7 @@ async function checkAutocryptTable(connection) {
  *
  * @return {Promise}
  */
+/*
 async function createAutocryptTable(connection) {
   EnigmailLog.DEBUG("sqliteDB.jsm: createAutocryptTable()\n");
 
@@ -158,6 +361,7 @@ async function createAutocryptTable(connection) {
 
   return null;
 }
+*/
 
 /**
  * Ensure that the database has the wkd_lookup_timestamp table.
@@ -166,6 +370,7 @@ async function createAutocryptTable(connection) {
  *
  * @return Promise
  */
+/*
 async function checkWkdTable(connection) {
   EnigmailLog.DEBUG("sqliteDB.jsm: checkWkdTable()\n");
 
@@ -180,6 +385,7 @@ async function checkWkdTable(connection) {
     throw error;
   }
 }
+*/
 
 /**
  * Create the "wkd_lookup_timestamp" table.
@@ -188,6 +394,7 @@ async function checkWkdTable(connection) {
  *
  * @return Promise
  */
+/*
 function createWkdTable(connection) {
   EnigmailLog.DEBUG("sqliteDB.jsm: createWkdTable()\n");
 
@@ -197,3 +404,4 @@ function createWkdTable(connection) {
       "last_seen integer);"
   ); // timestamp of last mail received for the email/type combination
 }
+*/

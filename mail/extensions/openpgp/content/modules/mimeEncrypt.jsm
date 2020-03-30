@@ -52,12 +52,10 @@ const maxBufferLen = 102400;
 const MIME_SIGNED = 1;
 const MIME_ENCRYPTED = 2;
 
-var gDebugLogLevel = 0;
+var gDebugLogLevel = 1;
 
 function PgpMimeEncrypt(sMimeSecurityInfo) {
   this.wrappedJSObject = this;
-  console.debug(`in PgpMimeEncrypt: wrappedJSObject:`);
-  console.debug(this);
 
   this.signMessage = false;
   this.requireEncryptMessage = false;
@@ -163,6 +161,7 @@ PgpMimeEncrypt.prototype = {
         0
       );
     } catch (ex) {
+      console.debug(ex);
       EnigmailLog.writeException("mimeEncrypt.js", ex);
       throw ex;
     }
@@ -235,6 +234,7 @@ PgpMimeEncrypt.prototype = {
       this.cryptoBoundary = EnigmailMime.createBoundary();
       this.startCryptoHeaders();
     } catch (ex) {
+      console.debug(ex);
       EnigmailLog.writeException("mimeEncrypt.js", ex);
       throw ex;
     }
@@ -534,7 +534,7 @@ PgpMimeEncrypt.prototype = {
           "\n"
       );
       if (this.exitCode !== 0) {
-        throw Cr.NS_ERROR_FAILURE;
+        throw new Error("failure in finishCryptoEncapsulation");
       }
 
       if (this.cryptoMode == MIME_SIGNED) {
@@ -548,6 +548,7 @@ PgpMimeEncrypt.prototype = {
       this.finishCryptoHeaders();
       this.flushOutput();
     } catch (ex) {
+      console.debug(ex);
       EnigmailLog.writeException("mimeEncrypt.js", ex);
       throw ex;
     }
@@ -639,6 +640,7 @@ PgpMimeEncrypt.prototype = {
         }
       }
     } catch (ex) {
+      console.debug(ex);
       EnigmailLog.writeException("mimeEncrypt.js", ex);
       throw ex;
     }
@@ -782,7 +784,9 @@ PgpMimeEncrypt.prototype = {
     );
 
     if (this.exitCode !== 0) {
-      EnigmailDialog.alert(this.win, retStatusObj.errorMsg);
+      if (retStatusObj.errorMsg.length) {
+        EnigmailDialog.alert(this.win, retStatusObj.errorMsg);
+      }
     }
   },
 };

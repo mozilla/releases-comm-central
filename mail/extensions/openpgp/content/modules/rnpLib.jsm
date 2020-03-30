@@ -102,6 +102,7 @@ const rnp_op_sign_t = ctypes.void_t.ptr;
 const rnp_op_sign_signature_t = ctypes.void_t.ptr;
 const rnp_op_verify_t = ctypes.void_t.ptr;
 const rnp_op_verify_signature_t = ctypes.void_t.ptr;
+const rnp_signature_handle_t = ctypes.void_t.ptr;
 
 const rnp_password_cb_t = ctypes.FunctionType(abi, ctypes.bool, [
   rnp_ffi_t,
@@ -586,6 +587,14 @@ function enableRNPLibJS() {
       ctypes.size_t.ptr
     ),
 
+    rnp_key_get_primary_uid: librnp.declare(
+      "rnp_key_get_primary_uid",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
     rnp_key_get_uid_at: librnp.declare(
       "rnp_key_get_uid_at",
       abi,
@@ -989,6 +998,54 @@ function enableRNPLibJS() {
       ctypes.uint32_t.ptr
     ),
 
+    rnp_uid_get_signature_count: librnp.declare(
+      "rnp_uid_get_signature_count",
+      abi,
+      rnp_result_t,
+      rnp_uid_handle_t,
+      ctypes.size_t.ptr
+    ),
+
+    rnp_uid_get_signature_at: librnp.declare(
+      "rnp_uid_get_signature_at",
+      abi,
+      rnp_result_t,
+      rnp_uid_handle_t,
+      ctypes.size_t,
+      rnp_signature_handle_t.ptr
+    ),
+
+    rnp_signature_get_creation: librnp.declare(
+      "rnp_signature_get_creation",
+      abi,
+      rnp_result_t,
+      rnp_signature_handle_t,
+      ctypes.uint32_t.ptr
+    ),
+
+    rnp_signature_get_keyid: librnp.declare(
+      "rnp_signature_get_keyid",
+      abi,
+      rnp_result_t,
+      rnp_signature_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_signature_get_signer: librnp.declare(
+      "rnp_signature_get_signer",
+      abi,
+      rnp_result_t,
+      rnp_signature_handle_t,
+      rnp_key_handle_t.ptr
+    ),
+
+    rnp_signature_handle_destroy: librnp.declare(
+      "rnp_signature_handle_destroy",
+      abi,
+      rnp_result_t,
+      rnp_signature_handle_t
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -1003,6 +1060,7 @@ function enableRNPLibJS() {
     rnp_op_sign_signature_t,
     rnp_op_verify_t,
     rnp_op_verify_signature_t,
+    rnp_signature_handle_t,
 
     RNP_LOAD_SAVE_PUBLIC_KEYS: 1,
 

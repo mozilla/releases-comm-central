@@ -51,10 +51,6 @@
          oncommand="enigmailKeyDetails()" modifiers="accel"
          observes="bcOneKey"/>
 
-    <key id="key_refreshKey" key="&enigmail.keyMan.refreshKey.key;"
-         oncommand="enigmailReceiveKey()" modifiers="accel"
-         observes="bcNoKey"/>
-
     <key id="key_enigDelete"
          keycode="VK_DELETE"
          command="cmd_enigmailDeleteKey"/>
@@ -64,15 +60,12 @@
 
   <broadcasterset>
     <broadcaster id="bcNoKey" disabled="false"/>
-    <broadcaster id="bcSignKey" disabled="false"/>
-    <broadcaster id="bcSetTrust" disabled="false"/>
     <broadcaster id="bcViewPhoto" disabled="false"/>
     <broadcaster id="bcEditKey" disabled="false"/>
     <broadcaster id="bcRevoke" disabled="false"/>
     <broadcaster id="bcOneKey" disabled="false"/>
     <broadcaster id="bcDeleteKey" disabled="false"/>
     <broadcaster id="bcClipbrd" disabled="false"/>
-    <broadcaster id="bcUploadToWkd" disabled="false"/>
   </broadcasterset>
 
   <menubar id="main-menubar" grippyhidden="true">
@@ -113,8 +106,6 @@
                 accesskey="&enigmail.keyMan.reload.accesskey;"
                 oncommand="clearKeyCache();"/>
 
-        <menuseparator/>
-
         <!-- add Close and Exit menu items -->
         <menuitem id="menu_close"/>
       </menupopup>
@@ -141,24 +132,13 @@
 
         <menuseparator/>
 
-        <menuitem label="&enigmail.keyMan.sign.label;"
-                  id="signKey"
-                  observes="bcSignKey"
-                  accesskey="&enigmail.keyMan.sign.accesskey;"
-                  oncommand="enigSignKey()"/>
-        <menuitem label="&enigmail.keyMan.setTrust.label;"
-                  id="setTrust"
-                  observes="bcSetTrust"
-                  accesskey="&enigmail.keyMan.setTrust.accesskey;"
-                  oncommand="enigEditKeyTrust()"/>
-
-        <menuseparator/>
-
+        <!--
         <menuitem label="&enigmail.keyMan.revokeKey.label;"
           id="revokeKey"
           observes="bcRevoke"
           accesskey="&enigmail.keyMan.revokeKey.accesskey;"
           oncommand="enigmailRevokeKey()"/>
+        -->
 
         <menuitem label="&enigmail.keyMan.delKey.label;"
           id="deleteKey"
@@ -167,25 +147,14 @@
           accesskey="&enigmail.keyMan.delKey.accesskey;"
           oncommand="enigmailDeleteKey()"/>
 
+        <!--
         <menuseparator/>
-
-        <menuitem id="manageUid"
-                  label="&enigmail.keyMan.manageUid.label;"
-                  observes="bcEditKey"
-                  accesskey="&enigmail.keyMan.manageUid.accesskey;"
-                  oncommand="enigmailManageUids()"/>
-
         <menuitem id="changeExpiry"
                   label="&enigmail.keyMan.changeExpiry.label;"
                   observes="bcEditKey"
                   accesskey="&enigmail.keyMan.changeExpiry.accesskey;"
                   oncommand="enigEditKeyExpiry()"/>
-
-        <menuitem id="changePwd"
-                  label="&enigmail.keyMan.changePwd.label;"
-                  observes="bcEditKey"
-                  accesskey="&enigmail.keyMan.changePwd.accesskey;"
-                  oncommand="enigmailChangePwd()"/>
+        -->
 
         <menuseparator/>
 
@@ -239,42 +208,6 @@
       </menupopup>
     </menu>
 
-    <menu id="keyserverMenu"
-          label="&enigmail.keyMan.keyserverMenu.label;"
-          accesskey="&enigmail.keyMan.keyserverMenu.accesskey;">
-      <menupopup onpopupshowing="enigmailKeyMenu()"> <!-- keyserverMenu menu -->
-
-        <menuitem label="&enigmail.keyMan.refreshSelKeys.label;"
-                  id="refreshKey"
-                  observes="bcNoKey"
-                  accesskey="&enigmail.keyMan.refreshSelKeys.accesskey;"
-                  key="key_refreshKey"
-                  oncommand="enigmailReceiveKey()"/>
-        <menuitem label="&enigmail.keyMan.importFromServer.label;"
-                  id="importFromServer"
-                  accesskey="&enigmail.keyMan.importFromServer.accesskey;"
-                  oncommand="enigmailSearchKey()"/>
-        <menuitem label="&enigmail.keyMan.uploadToServer.label;"
-                  id="uploadToServer"
-                  observes="bcNoKey"
-                  accesskey="&enigmail.keyMan.uploadToServer.accesskey;"
-                  oncommand="enigmailUploadKeys()"/>
-        <menuitem label="&enigmail.keyMan.uploadToWkd.label;"
-                  id="uploadToWkd"
-                  observes="bcUploadToWkd"
-                  oncommand="enigmailUploadToWkd()"/>
-        <menuseparator/>
-        <menuitem label="&enigmail.keyMan.refreshAllKeys.label;"
-                  id="refreshAllKeys"
-                  accesskey="&enigmail.keyMan.refreshAllKeys.accesskey;"
-                  oncommand="enigmailRefreshAllKeys()"/>
-        <menuitem label="&enigmail.keyMan.downloadContactKeys.label;"
-                  accesskey="&enigmail.keyMan.downloadContactKeys.accesskey;"
-                  id="downloadContactKeys"
-                  oncommand="enigmailDownloadContactKeys()"/>
-      </menupopup>
-    </menu>
-
     <menu id="generateMenu"
           label="&enigmail.keyMan.generateMenu.label;"
           accesskey="&enigmail.keyMan.generateMenu.accesskey;">
@@ -283,11 +216,13 @@
                   id="genKey"
                   accesskey="&enigmail.keyMan.generate.accesskey;"
                   oncommand="EnigKeygen();"/>
+        <!--
         <menuitem label="&enigmail.keyMan.genRevoke.label;"
                   id="revokationCertificate"
                   observes="bcRevoke"
                   accesskey="&enigmail.keyMan.genRevoke.accesskey;"
                   oncommand="enigCreateRevokeCert()"/>
+        -->
       </menupopup>
     </menu>
 
@@ -308,35 +243,16 @@
 
       <menuseparator/>
 
-      <menuitem label="&enigmail.keyMan.ctxUploadToServer.label;"
-                id="ctxUpload"
-                oncommand="enigmailUploadKeys()"/>
-      <menuitem label="&enigmail.keyMan.ctxRefreshKey.label;"
-                id="ctxRefreshKey"
-                oncommand="enigmailReceiveKey()"/>
-      <menuitem label="&enigmail.keyMan.uploadToWkd.label;"
-                id="ctxUploadToWkd"
-                observes="bcUploadToWkd"
-                oncommand="enigmailUploadToWkd()"/>
-
-      <menuseparator/>
-
-      <menuitem id="ctxSign" observes="bcSignKey" label="&enigmail.keyMan.sign.label;" oncommand="enigSignKey()"/>
-      <menuitem id="ctxTrust" observes="bcSetTrust" label="&enigmail.keyMan.setTrust.label;" oncommand="enigEditKeyTrust()"/>
-      <menuitem id="ctxAddToRule" observes="bcSignKey" label="&enigmail.keyMan.addToPRRule.label;" oncommand="addToPRRule()"/>
-
-      <menuseparator/>
-
-
+      <!--
       <menuitem id="ctxRevokeKey" observes="bcRevoke" label="&enigmail.keyMan.revokeKey.label;" oncommand="enigmailRevokeKey()"/>
+      -->
       <menuitem id="ctxDeleteKey" label="&enigmail.keyMan.delKey.label;" oncommand="enigmailDeleteKey()"/>
 
+      <!--
       <menuseparator/>
-
-      <menuitem id="ctxManageUid" observes="bcEditKey" label="&enigmail.keyMan.manageUid.label;" oncommand="enigmailManageUids()"/>
       <menuitem id="ctxChangeExpiry" observes="bcEditKey" label="&enigmail.keyMan.changeExpiry.label;" oncommand="enigEditKeyExpiry()"/>
-      <menuitem id="ctxChangePwd" observes="bcEditKey" label="&enigmail.keyMan.changePwd.label;" oncommand="enigmailChangePwd()"/>
       <menuitem id="ctxRevokationCert" observes="bcRevoke" label="&enigmail.keyMan.ctxGenRevoke.label;" oncommand="enigCreateRevokeCert()"/>
+      -->
 
       <menuseparator observes="bcEditKey"/>
 
@@ -377,38 +293,14 @@
                   class="sortDirectionIndicator"
                   onclick="sortTree(this)"
                   label="&enigmail.keyMan.userId.label;"
-                  style="width: 50px"
+                  style="width: 400px"
                   persist="width ordinal hidden"/>
           <splitter class="tree-splitter"/>
-          <treecol id="keyCol" style="width:90px"
+          <treecol id="keyCol" style="width:100px"
                    label="&enigmail.keyId.label;"
                    flex="1"
                    class="sortDirectionIndicator"
                    onclick="sortTree(this)"
-                   persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="typeCol" style="width:70px"
-                   label="&enigmail.keyMan.keyType.label;"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   hidden="true"
-                   persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="validityCol" style="width:70px"
-                   label="&enigmail.keyMan.calcTrust.label;"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   hidden="true"
-                   persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="trustCol" style="width:70px"
-                   label="&enigmail.keyMan.ownerTrust.label;"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   hidden="true"
                    persist="width ordinal hidden"/>
           <splitter class="tree-splitter"/>
           <treecol id="expCol" style="width:70px"

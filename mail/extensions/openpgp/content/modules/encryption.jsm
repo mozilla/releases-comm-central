@@ -456,8 +456,6 @@ var EnigmailEncryption = {
       return null;
     }
 
-    var pgpMime = uiFlags & EnigmailConstants.UI_PGP_MIME;
-
     var hashAlgo =
       gMimeHashAlgorithms[EnigmailPrefs.getPref("mimeHashAlgorithm")];
 
@@ -526,19 +524,16 @@ var EnigmailEncryption = {
         resultStatus
       )
     );
-    console.debug(`encryptAndOrSign returned: ${encrypted}`);
 
-    if (encrypted) {
+    if (resultStatus.exitCode) {
+      if (resultStatus.errorMsg.length) {
+        EnigmailDialog.alert(win, resultStatus.errorMsg);
+      }
+    } else if (encrypted) {
       listener.addEncryptedOutput(encrypted);
     }
 
-    if (pgpMime && errorMsgObj.value) {
-      EnigmailDialog.alert(win, errorMsgObj.value);
-    }
-
     listener.done(resultStatus.exitCode);
-
-    //return proc;
     return null;
   },
 

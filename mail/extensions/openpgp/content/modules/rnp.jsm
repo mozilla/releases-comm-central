@@ -15,11 +15,18 @@ const { EnigmailTime } = ChromeUtils.import(
 var { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 );
+const { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
+var { uidHelper } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/uidHelper.jsm"
+);
 
 const str_encrypt = "encrypt";
 const str_sign = "sign";
 const str_certify = "certify";
 const str_authenticate = "authenticate";
+const RNP_PHOTO_USERID_ID = "(photo)"; // string is harcoded inside RNP
 
 // rnp module
 
@@ -152,23 +159,32 @@ var RNP = {
     }
   },
 
-  getKeys(onlyKeys = null) {
+  async getKeys(onlyKeys = null) {
     return this.getKeysFromFFI(RNPLib.ffi, false, onlyKeys);
   },
 
   /* Some consumers want a different listing of keys, and expect
    * slightly different attribute names...
-   * If forListing is true, we'll set those additional attributes. */
-  getKeysFromFFI(ffi, forListing, onlyKeys = null) {
+   * If forListing is true, we'll set those additional attributes
+   * If onlyKeys is given: only returns keys in that array
+   */
+  async getKeysFromFFI(ffi, forListing, onlyKeys = null) {
     let keys = [];
 
     if (onlyKeys) {
       for (let ki = 0; ki < onlyKeys.length; ki++) {
-        let handle = this.getKeyHandleByIdentifier(onlyKeys[ki]);
+        let handle = await this.getKeyHandleByIdentifier(onlyKeys[ki]);
 
         let keyObj = {};
         try {
-          let ok = this.getKeyInfoFromHandle(handle, keyObj, forListing);
+          // Parameter false: skip if this is a primary key, it will be processed together with primary key later.
+          let ok = this.getKeyInfoFromHandle(
+            ffi,
+            handle,
+            keyObj,
+            false,
+            forListing
+          );
           if (!ok) {
             continue;
           }
@@ -208,7 +224,14 @@ var RNP = {
 
         let keyObj = {};
         try {
-          let ok = this.getKeyInfoFromHandle(handle, keyObj, forListing);
+          // Parameter false: skip if this is a primary key, it will be processed together with primary key later.
+          let ok = this.getKeyInfoFromHandle(
+            ffi,
+            handle,
+            keyObj,
+            false,
+            forListing
+          );
           if (!ok) {
             continue;
           }
@@ -233,7 +256,7 @@ var RNP = {
   },
 
   // return false if handle refers to subkey and should be ignored
-  getKeyInfoFromHandle(handle, keyObj, forListing) {
+  getKeyInfoFromHandle(ffi, handle, keyObj, usePrimaryIfSubkey, forListing) {
     keyObj.ownerTrust = null;
     keyObj.userId = null;
     keyObj.userIds = [];
@@ -252,10 +275,32 @@ var RNP = {
       if (RNPLib.rnp_key_get_primary_grip(handle, primary_grip.address())) {
         throw new Error("rnp_key_get_primary_grip failed");
       }
-      /* Skip if we have primary key. Subkey will be processed together with primary */
       if (!primary_grip.isNull()) {
+        let rv = false;
+        if (usePrimaryIfSubkey) {
+          let newHandle = new RNPLib.rnp_key_handle_t();
+          if (
+            RNPLib.rnp_locate_key(
+              ffi,
+              "grip",
+              primary_grip,
+              newHandle.address()
+            )
+          ) {
+            throw new Error("rnp_locate_key failed");
+          }
+          // recursively call ourselves to get primary key info
+          rv = this.getKeyInfoFromHandle(
+            ffi,
+            newHandle,
+            keyObj,
+            false,
+            forListing
+          );
+          RNPLib.rnp_key_handle_destroy(newHandle);
+        }
         RNPLib.rnp_buffer_destroy(primary_grip);
-        return false;
+        return rv;
       }
     }
 
@@ -307,27 +352,37 @@ var RNP = {
           if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
             throw new Error("rnp_key_get_uid_at failed");
           }
-
-          if (!primary_uid_set) {
-            keyObj.userId = uid_str.readString();
-            if (forListing) {
-              keyObj.name = keyObj.userId;
+          let userIdStr = uid_str.readString();
+          if (userIdStr !== RNP_PHOTO_USERID_ID) {
+            if (!primary_uid_set) {
+              keyObj.userId = userIdStr;
+              if (forListing) {
+                keyObj.name = keyObj.userId;
+              }
+              primary_uid_set = true;
             }
-            primary_uid_set = true;
+
+            let uidObj = {};
+            uidObj.userId = uid_str.readString();
+            uidObj.type = "uid";
+            uidObj.keyTrust = keyObj.keyTrust;
+            uidObj.uidFpr = "??fpr??";
+
+            keyObj.userIds.push(uidObj);
           }
-
-          let uidObj = {};
-          uidObj.userId = uid_str.readString();
-          uidObj.type = "uid";
-          uidObj.keyTrust = keyObj.keyTrust;
-          uidObj.uidFpr = "??fpr??";
-
-          keyObj.userIds.push(uidObj);
 
           RNPLib.rnp_buffer_destroy(uid_str);
         }
 
         RNPLib.rnp_uid_handle_destroy(uid_handle);
+      }
+
+      if (!keyObj.userId) {
+        let prim_uid_str = new ctypes.char.ptr();
+        if (RNPLib.rnp_key_get_primary_uid(handle, prim_uid_str.address())) {
+          throw new Error("rnp_key_get_primary_uid failed");
+        }
+        keyObj.userId = prim_uid_str.readString();
       }
 
       if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
@@ -364,7 +419,152 @@ var RNP = {
     return true;
   },
 
-  decrypt(encrypted, options) {
+  getKeySignatures(keyId, ignoreUnknownUid) {
+    let handle = this.getKeyHandleByKeyIdOrFingerprint(
+      RNPLib.ffi,
+      "0x" + keyId
+    );
+    let mainKeyObj = {};
+    this.getKeyInfoFromHandle(RNPLib.ffi, handle, mainKeyObj, false, true);
+
+    let rList = {};
+
+    try {
+      let uid_count = new ctypes.size_t();
+      if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
+        throw new Error("rnp_key_get_uid_count failed");
+      }
+      let outputIndex = 0;
+      for (let i = 0; i < uid_count.value; i++) {
+        let uid_handle = new RNPLib.rnp_uid_handle_t();
+        let is_revoked = new ctypes.bool();
+
+        if (RNPLib.rnp_key_get_uid_handle_at(handle, i, uid_handle.address())) {
+          throw new Error("rnp_key_get_uid_handle_at failed");
+        }
+
+        if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
+          throw new Error("rnp_uid_is_revoked failed");
+        }
+
+        if (!is_revoked.value) {
+          let uid_str = new ctypes.char.ptr();
+          if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
+            throw new Error("rnp_key_get_uid_at failed");
+          }
+          let userIdStr = uid_str.readString();
+
+          if (userIdStr !== RNP_PHOTO_USERID_ID) {
+            let id = outputIndex;
+            ++outputIndex;
+
+            rList[id] = {};
+            rList[id].created = mainKeyObj.created;
+            rList[id].fpr = mainKeyObj.fpr;
+            rList[id].keyId = mainKeyObj.keyId;
+
+            rList[id].userId = userIdStr;
+            rList[id].sigList = [];
+
+            let sig_count = new ctypes.size_t();
+            if (
+              RNPLib.rnp_uid_get_signature_count(
+                uid_handle,
+                sig_count.address()
+              )
+            ) {
+              throw new Error("rnp_uid_get_signature_count failed");
+            }
+
+            for (let j = 0; j < sig_count.value; j++) {
+              let sigObj = {};
+
+              let sig_handle = new RNPLib.rnp_signature_handle_t();
+              if (
+                RNPLib.rnp_uid_get_signature_at(
+                  uid_handle,
+                  j,
+                  sig_handle.address()
+                )
+              ) {
+                throw new Error("rnp_uid_get_signature_at failed");
+              }
+
+              let creation = new ctypes.uint32_t();
+              if (
+                RNPLib.rnp_signature_get_creation(
+                  sig_handle,
+                  creation.address()
+                )
+              ) {
+                throw new Error("rnp_signature_get_creation failed");
+              }
+              sigObj.created = EnigmailTime.getDateTime(
+                creation.value,
+                true,
+                false
+              );
+              sigObj.sigType = "?";
+
+              let sig_id_str = new ctypes.char.ptr();
+              if (
+                RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())
+              ) {
+                throw new Error("rnp_signature_get_keyid failed");
+              }
+
+              let sigIdStr = sig_id_str.readString();
+              sigObj.signerKeyId = sigIdStr;
+
+              let signerHandle = new RNPLib.rnp_key_handle_t();
+
+              if (
+                RNPLib.rnp_signature_get_signer(
+                  sig_handle,
+                  signerHandle.address()
+                )
+              ) {
+                throw new Error("rnp_signature_get_signer failed");
+              }
+
+              if (signerHandle.isNull()) {
+                if (!ignoreUnknownUid) {
+                  sigObj.userId = "?";
+                  sigObj.sigKnown = false;
+                  rList[id].sigList.push(sigObj);
+                }
+              } else {
+                let signer_uid_str = new ctypes.char.ptr();
+                if (
+                  RNPLib.rnp_key_get_primary_uid(
+                    signerHandle,
+                    signer_uid_str.address()
+                  )
+                ) {
+                  throw new Error("rnp_key_get_uid_at failed");
+                }
+                sigObj.userId = signer_uid_str.readString();
+                sigObj.sigKnown = true;
+                rList[id].sigList.push(sigObj);
+                RNPLib.rnp_key_handle_destroy(signerHandle);
+              }
+              RNPLib.rnp_signature_handle_destroy(sig_handle);
+            }
+          }
+          RNPLib.rnp_buffer_destroy(uid_str);
+        }
+
+        RNPLib.rnp_uid_handle_destroy(uid_handle);
+      }
+    } catch (ex) {
+      console.log(ex);
+    } finally {
+      RNPLib.rnp_key_handle_destroy(handle);
+    }
+    return rList;
+  },
+
+  async decrypt(encrypted, options) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
     var tmp_array = ctypes.char.array()(encrypted);
@@ -388,6 +588,7 @@ var RNP = {
     let result = {};
     result.decryptedData = "";
     result.statusFlags = 0;
+    result.extStatusFlags = 0;
 
     result.userId = "";
     result.keyId = "";
@@ -419,10 +620,15 @@ var RNP = {
         ).contents;
 
         result.decryptedData = char_array.readString();
-        console.debug(result.decryptedData);
+        //console.debug(result.decryptedData);
 
         // ignore "no signature" result, that's ok
-        this.getVerifyDetails(verify_op, result);
+        await this.getVerifyDetails(
+          RNPLib.ffi,
+          options.fromAddr,
+          verify_op,
+          result
+        );
       }
     }
 
@@ -433,7 +639,11 @@ var RNP = {
     return result;
   },
 
-  getVerifyDetails(verify_op, result) {
+  async getVerifyDetails(ffi, fromAddr, verify_op, result) {
+    if (!fromAddr) {
+      throw new Error("RNPgetVerifyDetails no fromAddr");
+    }
+
     let sig_count = new ctypes.size_t();
     if (
       RNPLib.rnp_op_verify_get_signature_count(verify_op, sig_count.address())
@@ -464,11 +674,10 @@ var RNP = {
 
     switch (sig_status) {
       case RNPLib.RNP_SUCCESS:
-        // TODO: set EnigmailConstants.TRUSTED_IDENTITY based on key trust status
         result.statusFlags |= EnigmailConstants.GOOD_SIGNATURE;
         break;
       case RNPLib.RNP_ERROR_KEY_NOT_FOUND:
-        result.statusFlags |= EnigmailConstants.UNVERIFIED_SIGNATURE;
+        result.statusFlags |= EnigmailConstants.UNCERTAIN_SIGNATURE;
         query_signer = false;
         break;
       case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
@@ -506,14 +715,88 @@ var RNP = {
       }
 
       let keyInfo = {};
-      let ok = this.getKeyInfoFromHandle(key, keyInfo, false);
+      let ok = this.getKeyInfoFromHandle(ffi, key, keyInfo, true, false);
       if (!ok) {
-        console.debug(
-          "TODO: use primary key for signature made with a sub key!"
-        );
+        throw new Error("getKeyInfoFromHandle failed");
       }
 
       result.keyId = keyInfo.keyId;
+
+      let fromMatchesAnyUid = false;
+      let fromLower = fromAddr ? fromAddr.toLowerCase() : "";
+
+      for (let uid of keyInfo.userIds) {
+        if (uid.type !== "uid") {
+          continue;
+        }
+        let split = {};
+        if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
+          let uidEmail = split.email.toLowerCase();
+          if (uidEmail === fromLower) {
+            fromMatchesAnyUid = true;
+            break;
+          }
+        }
+      }
+
+      let useUndecided = true;
+
+      if (keyInfo.secretAvailable) {
+        if (fromMatchesAnyUid) {
+          result.extStatusFlags |= EnigmailConstants.EXT_SELF_IDENTITY;
+          useUndecided = false;
+        }
+      } else if (result.statusFlags & EnigmailConstants.GOOD_SIGNATURE) {
+        let acceptanceResult = {};
+        try {
+          await PgpSqliteDb2.getAcceptance(
+            keyInfo.fpr,
+            fromLower,
+            acceptanceResult
+          );
+        } catch (ex) {
+          console.debug("getAcceptance failed: " + ex);
+        }
+
+        // unverified key acceptance means, we consider the signature OK,
+        //   but it's not a trusted identity.
+        // unverified signature means, we cannot decide if the signature
+        //   is ok.
+
+        if (
+          "emailDecided" in acceptanceResult &&
+          acceptanceResult.emailDecided &&
+          "fingerprintAcceptance" in acceptanceResult &&
+          acceptanceResult.fingerprintAcceptance != "undecided"
+        ) {
+          if (acceptanceResult.fingerprintAcceptance == "rejected") {
+            result.statusFlags &= ~EnigmailConstants.GOOD_SIGNATURE;
+            result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+            useUndecided = false;
+          } else if (!fromMatchesAnyUid) {
+            /* At the time the user had accepted the key,
+             * a different set of email addresses might have been
+             * contained inside the key. In the meantime, we might
+             * have refreshed the key, a email addresses
+             * might have been removed or revoked.
+             * If the current from was removed/revoked, we'd still
+             * get an acceptance match, but the from is no longer found
+             * in the key's UID list. That should get "undecided".
+             */
+            useUndecided = true;
+          } else if (acceptanceResult.fingerprintAcceptance == "verified") {
+            result.statusFlags |= EnigmailConstants.TRUSTED_IDENTITY;
+            useUndecided = false;
+          } else if (acceptanceResult.fingerprintAcceptance == "unverified") {
+            useUndecided = false;
+          }
+        }
+      }
+
+      if (useUndecided) {
+        result.statusFlags &= ~EnigmailConstants.GOOD_SIGNATURE;
+        result.statusFlags |= EnigmailConstants.UNCERTAIN_SIGNATURE;
+      }
 
       RNPLib.rnp_key_handle_destroy(key);
     }
@@ -521,7 +804,7 @@ var RNP = {
     return true;
   },
 
-  verifyDetached(data, options) {
+  async verifyDetached(data, options) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
     var tmp_array = ctypes.char.array()(data);
@@ -543,6 +826,7 @@ var RNP = {
     let result = {};
     result.decryptedData = "";
     result.statusFlags = 0;
+    result.extStatusFlags = 0;
 
     result.userId = "";
     result.keyId = "";
@@ -561,7 +845,12 @@ var RNP = {
 
     result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
 
-    let haveSignature = this.getVerifyDetails(verify_op, result);
+    let haveSignature = await this.getVerifyDetails(
+      RNPLib.ffi,
+      options.fromAddr,
+      verify_op,
+      result
+    );
     if (!haveSignature) {
       if (!result.exitCode) {
         /* Don't allow a good exit code. Keep existing bad code. */
@@ -792,7 +1081,7 @@ var RNP = {
     return true;
   },
 
-  getKeyListFromKeyBlock(keyBlockStr, pubkey = true, seckey = false) {
+  async getKeyListFromKeyBlock(keyBlockStr, pubkey = true, seckey = false) {
     // Create a separate, temporary RNP storage area (FFI),
     // import the key block into it, then get the listing.
     if (!this.isSimpleASCII(keyBlockStr)) {
@@ -807,13 +1096,20 @@ var RNP = {
     // check result
     this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey);
 
-    let keys = this.getKeysFromFFI(tempFFI, true);
+    let keys = await this.getKeysFromFFI(tempFFI, true);
 
     RNPLib.rnp_ffi_destroy(tempFFI);
     return keys;
   },
 
-  importKeyBlock(win, passCB, keyBlockStr, pubkey, seckey, password = null) {
+  async importKeyBlock(
+    win,
+    passCB,
+    keyBlockStr,
+    pubkey,
+    seckey,
+    password = null
+  ) {
     /*
      * Import strategy:
      * - import file into a temporary space, in-memory only (ffi)
@@ -824,7 +1120,6 @@ var RNP = {
      * - export all keys from the temporary space, and import them
      *   into our permanent space.
      */
-
     let userFlags = { canceled: false };
 
     let result = {};
@@ -840,14 +1135,14 @@ var RNP = {
     // TODO: check result
     this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey);
 
-    let keys = this.getKeysFromFFI(tempFFI, true);
+    let keys = await this.getKeysFromFFI(tempFFI, true);
 
     let recentPass = "";
 
     // Prior to importing, ensure we can unprotect all keys
     for (let ki = 0; ki < keys.length; ki++) {
       let k = keys[ki];
-      let impKey = this.getKeyHandleByIdentifier(tempFFI, "0x" + k.fpr);
+      let impKey = await this.getKeyHandleByIdentifier(tempFFI, "0x" + k.fpr);
       if (impKey.isNull()) {
         throw new Error("cannot get key handle for imported key: " + k.fpr);
       }
@@ -877,7 +1172,7 @@ var RNP = {
     if (!userFlags.canceled) {
       for (let ki = 0; ki < keys.length; ki++) {
         let k = keys[ki];
-        let impKey = this.getKeyHandleByIdentifier(tempFFI, "0x" + k.fpr);
+        let impKey = await this.getKeyHandleByIdentifier(tempFFI, "0x" + k.fpr);
 
         if (
           k.secretAvailable &&
@@ -1000,7 +1295,31 @@ var RNP = {
     this.saveKeyRings();
   },
 
-  getKeyHandleByIdentifier(ffi, id) {
+  getKeyHandleByKeyIdOrFingerprint(ffi, id) {
+    if (!id.startsWith("0x")) {
+      throw new Error("unexpected identifier " + id);
+    } else {
+      // remove 0x
+      id = id.substring(2);
+    }
+
+    let type = null;
+    if (id.length == 16) {
+      type = "keyid";
+    } else if (id.length == 40 || id.length == 32) {
+      type = "fingerprint";
+    } else {
+      throw new Error("key/fingerprint identifier of unexpected length: " + id);
+    }
+
+    let key = new RNPLib.rnp_key_handle_t();
+    if (RNPLib.rnp_locate_key(ffi, type, id, key.address())) {
+      throw new Error("rnp_locate_key failed, " + type + ", " + id);
+    }
+    return key;
+  },
+
+  async getKeyHandleByIdentifier(ffi, id) {
     console.debug("getKeyHandleByIdentifier searching for: " + id);
     let key = null;
 
@@ -1011,44 +1330,10 @@ var RNP = {
           "if search identifier starts with < then it must end with > : " + id
         );
       }
-      key = this.findKeyByEmail(id);
+      key = await this.findKeyByEmail(id);
     } else {
-      if (!id.startsWith("0x")) {
-        throw new Error("unexpected identifier " + id);
-      } else {
-        // remove 0x
-        id = id.substring(2);
-      }
-
-      let type = null;
-      if (id.length == 16) {
-        type = "keyid";
-      } else if (id.length == 40 || id.length == 32) {
-        type = "fingerprint";
-      } else {
-        throw new Error(
-          "key/fingerprint identifier of unexpected length: " + id
-        );
-      }
-
-      key = new RNPLib.rnp_key_handle_t();
-      if (RNPLib.rnp_locate_key(ffi, type, id, key.address())) {
-        throw new Error("rnp_locate_key failed, " + type + ", " + id);
-      }
+      key = this.getKeyHandleByKeyIdOrFingerprint(ffi, id);
     }
-
-    if (!key || key.isNull()) {
-      console.debug("getKeyHandleByIdentifier nothing found");
-    } else {
-      console.debug("getKeyHandleByIdentifier found!");
-      let is_subkey = new ctypes.bool();
-      let res = RNPLib.rnp_key_is_sub(key, is_subkey.address());
-      if (res) {
-        throw new Error("rnp_key_is_sub failed: " + res);
-      }
-      console.debug("is_primary? " + !is_subkey.value);
-    }
-
     return key;
   },
 
@@ -1130,7 +1415,7 @@ var RNP = {
     }
   },
 
-  encryptAndOrSign(plaintext, args, resultStatus) {
+  async encryptAndOrSign(plaintext, args, resultStatus) {
     resultStatus.exitCode = -1;
     resultStatus.statusFlags = 0;
     resultStatus.statusMsg = "";
@@ -1204,8 +1489,8 @@ var RNP = {
 
     let senderKey = null;
     if (args.sign || args.encryptToSender) {
-      senderKey = this.getKeyHandleByIdentifier(RNPLib.ffi, args.sender);
-      if (senderKey.isNull()) {
+      senderKey = await this.getKeyHandleByIdentifier(RNPLib.ffi, args.sender);
+      if (!senderKey || senderKey.isNull()) {
         return null;
       }
       if (args.encryptToSender) {
@@ -1247,7 +1532,7 @@ var RNP = {
 
     if (args.encrypt) {
       for (let id in args.to) {
-        let toKey = this.getKeyHandleByIdentifier(RNPLib.ffi, args.to[id]);
+        let toKey = await this.findKeyByEmail(args.to[id], true);
         if (!toKey || toKey.isNull()) {
           resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
           return null;
@@ -1257,7 +1542,7 @@ var RNP = {
       }
 
       for (let id in args.bcc) {
-        let bccKey = this.getKeyHandleByIdentifier(RNPLib.ffi, args.bcc[id]);
+        let bccKey = await this.findKeyByEmail(args.bcc[id], true);
         if (bccKey.isNull()) {
           resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
           return null;
@@ -1313,8 +1598,6 @@ var RNP = {
       )
     ) {
       console.debug("encrypt result len: " + result_len.value);
-      //let buf_array = ctypes.cast(result_buf, ctypes.uint8_t.array(result_len.value).ptr).contents;
-      //let char_array = ctypes.cast(buf_array, ctypes.char.array(result_len.value));
 
       let char_array = ctypes.cast(
         result_buf,
@@ -1322,7 +1605,6 @@ var RNP = {
       ).contents;
 
       result = char_array.readString();
-      console.debug(result);
     }
 
     RNPLib.rnp_output_destroy(output);
@@ -1358,26 +1640,25 @@ var RNP = {
     return isExpired;
   },
 
-  findKeyByEmail(id) {
-    if (!id.startsWith("<") || !id.endsWith(">")) {
+  async findKeyByEmail(id, onlyAcceptableAsPublic = false) {
+    if (!id.startsWith("<") || !id.endsWith(">") || id.includes(" ")) {
       throw new Error("invalid parameter given to findKeyByEmail");
     }
 
-    let rv;
+    let emailWithoutBrackets = id.substring(1, id.length - 1);
 
     let iter = new RNPLib.rnp_identifier_iterator_t();
     let grip = new ctypes.char.ptr();
 
-    rv = RNPLib.rnp_identifier_iterator_create(
-      RNPLib.ffi,
-      iter.address(),
-      "grip"
-    );
-    if (rv) {
-      return null;
+    if (
+      RNPLib.rnp_identifier_iterator_create(RNPLib.ffi, iter.address(), "grip")
+    ) {
+      throw new Error("rnp_identifier_iterator_create failed");
     }
 
     let foundHandle = null;
+    let tentativeUnverifiedHandle = null;
+
     while (
       !foundHandle &&
       !RNPLib.rnp_identifier_iterator_next(iter, grip.address())
@@ -1417,10 +1698,45 @@ var RNP = {
           continue;
         }
 
+        let acceptance = "";
+
+        if (onlyAcceptableAsPublic) {
+          let fingerprint = new ctypes.char.ptr();
+          if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
+            throw new Error("rnp_key_get_fprint failed");
+          }
+          let fpr = fingerprint.readString();
+
+          let acceptanceResult = {};
+          try {
+            await PgpSqliteDb2.getAcceptance(
+              fpr,
+              emailWithoutBrackets,
+              acceptanceResult
+            );
+          } catch (ex) {
+            console.debug("getAcceptance failed: " + ex);
+          }
+
+          if (!acceptanceResult.emailDecided) {
+            continue;
+          }
+          acceptance = acceptanceResult.fingerprintAcceptance;
+          let isAcceptable =
+            acceptance == "unverified" || acceptance == "verified";
+          if (!isAcceptable) {
+            continue;
+          }
+        }
+
+        /* Ensure the desired email is still contained in the set of
+         * valid UIDs, hasn't been removed, nor revoked. */
         if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
           throw new Error("rnp_key_get_uid_count failed");
         }
-        for (let i = 0; i < uid_count.value; i++) {
+
+        let foundUid = false;
+        for (let i = 0; i < uid_count.value && !foundUid; i++) {
           let uid_handle = new RNPLib.rnp_uid_handle_t();
           let is_revoked = new ctypes.bool();
 
@@ -1441,9 +1757,28 @@ var RNP = {
             }
 
             let userId = uid_str.readString();
-
             if (userId.includes(id)) {
-              foundHandle = handle;
+              foundUid = true;
+
+              if (onlyAcceptableAsPublic) {
+                if (acceptance == "unverified") {
+                  /* keep searching for a better, verified key */
+                  if (!tentativeUnverifiedHandle) {
+                    tentativeUnverifiedHandle = handle;
+                    have_handle = false;
+                  }
+                } else if (acceptance == "verified") {
+                  foundHandle = handle;
+                  have_handle = false;
+                  if (tentativeUnverifiedHandle) {
+                    RNPLib.rnp_key_handle_destroy(tentativeUnverifiedHandle);
+                    tentativeUnverifiedHandle = null;
+                  }
+                }
+              } else {
+                foundHandle = handle;
+                have_handle = false;
+              }
             }
 
             RNPLib.rnp_buffer_destroy(uid_str);
@@ -1454,20 +1789,24 @@ var RNP = {
       } catch (ex) {
         console.log(ex);
       } finally {
-        if (!foundHandle && have_handle) {
+        if (have_handle) {
           RNPLib.rnp_key_handle_destroy(handle);
         }
       }
     }
 
-    RNPLib.rnp_identifier_iterator_destroy(iter);
+    if (!foundHandle && tentativeUnverifiedHandle) {
+      foundHandle = tentativeUnverifiedHandle;
+      tentativeUnverifiedHandle = null;
+    }
 
+    RNPLib.rnp_identifier_iterator_destroy(iter);
     return foundHandle;
   },
 
-  getPublicKey(id) {
+  async getPublicKey(id) {
     let result = "";
-    let key = this.getKeyHandleByIdentifier(RNPLib.ffi, id);
+    let key = await this.getKeyHandleByIdentifier(RNPLib.ffi, id);
 
     if (key.isNull()) {
       return result;
@@ -1508,9 +1847,9 @@ var RNP = {
     return result;
   },
 
-  getNewRevocation(id) {
+  async getNewRevocation(id) {
     let result = "";
-    let key = this.getKeyHandleByIdentifier(RNPLib.ffi, id);
+    let key = await this.getKeyHandleByIdentifier(RNPLib.ffi, id);
 
     if (key.isNull()) {
       return result;

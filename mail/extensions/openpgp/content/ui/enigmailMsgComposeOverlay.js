@@ -808,7 +808,7 @@ Enigmail.msg = {
             msgFlags &
             (EnigmailConstants.GOOD_SIGNATURE |
               EnigmailConstants.BAD_SIGNATURE |
-              EnigmailConstants.UNVERIFIED_SIGNATURE)
+              EnigmailConstants.UNCERTAIN_SIGNATURE)
           ) {
             //this.setSendMode('sign');
             gIsRelatedToSignedOriginal = true;

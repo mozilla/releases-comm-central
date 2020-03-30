@@ -65,7 +65,12 @@
 
 <!ENTITY enigmail.backupRestore.desc       "Export (backup) and Restore your Gine-Liam settings including your OpenPGP keys.">
 
-<!ENTITY enigmail.basic.label            "Basic">
+<!ENTITY enigmail.acceptance.label            "Your Acceptance">
+<!ENTITY enigmail.acceptance.rejected.label   "No, never use this key. (rejected)">
+<!ENTITY enigmail.acceptance.undecided.label  "Not yet, maybe later. (undecided)">
+<!ENTITY enigmail.acceptance.unverified.label "Yes, but I don't know if it is the correct key. (unverified)">
+<!ENTITY enigmail.acceptance.verified.label   "Yes, I've verified in person this key has the correct fingerprint. (verified)">
+
 <!ENTITY enigmail.sending.label          "Sending">
 <!ENTITY enigmail.keySel.label           "Key Selection">
 <!ENTITY enigmail.pgpMime.label          "PGP/MIME">
@@ -445,47 +450,33 @@
 <!ENTITY enigmail.keyMan.title                     "Gine-Liam Key Management">
 <!ENTITY enigmail.keyMan.close.label               "Close Window">
 <!ENTITY enigmail.keyMan.generate.label            "New Key Pair">
-<!ENTITY enigmail.keyMan.sign.label                "Sign Key">
-<!ENTITY enigmail.keyMan.setTrust.label            "Set Owner Trust">
 <!ENTITY enigmail.keyMan.genRevoke.label           "Revocation Certificate">
 <!ENTITY enigmail.keyMan.ctxGenRevoke.label        "Generate &amp; Save Revocation Certificate">
 
 <!ENTITY enigmail.keyMan.fileMenu.label            "File">
 <!ENTITY enigmail.keyMan.editMenu.label            "Edit">
 <!ENTITY enigmail.keyMan.viewMenu.label            "View">
-<!ENTITY enigmail.keyMan.keyserverMenu.label       "Keyserver">
 <!ENTITY enigmail.keyMan.generateMenu.label        "Generate">
 
 <!ENTITY enigmail.keyMan.fileMenu.accesskey        "F">
 <!ENTITY enigmail.keyMan.editMenu.accesskey        "E">
 <!ENTITY enigmail.keyMan.viewMenu.accesskey        "V">
-<!ENTITY enigmail.keyMan.keyserverMenu.accesskey   "K">
 <!ENTITY enigmail.keyMan.generateMenu.accesskey    "G">
 
 <!ENTITY enigmail.keyMan.importPublicFromFile.label      "Import Public Key(s) from File">
 <!ENTITY enigmail.keyMan.importSecretFromFile.label      "Import Secret Keys from File">
-<!ENTITY enigmail.keyMan.importFromServer.label    "Search for Keys">
 <!ENTITY enigmail.keyMan.importFromClipbrd.label   "Import Keys from Clipboard">
 <!ENTITY enigmail.keyMan.importFromUrl.label       "Import Keys from URL">
 <!ENTITY enigmail.keyMan.exportToFile.label        "Export Keys to File">
 <!ENTITY enigmail.keyMan.sendKeys.label            "Send Public Keys by Email">
 <!ENTITY enigmail.keyMan.createMail.label          "Compose Email to Selected Keys">
-<!ENTITY enigmail.keyMan.uploadToServer.label      "Upload Public Keys">
-<!ENTITY enigmail.keyMan.uploadToWkd.label         "Upload to your provider's Web Key Directory">
 <!ENTITY enigmail.keyMan.copyToClipbrd.label       "Copy Public Keys to Clipboard">
 <!ENTITY enigmail.keyMan.ctxExportToFile.label     "Export Keys to File">
-<!ENTITY enigmail.keyMan.ctxUploadToServer.label   "Upload Public Keys to Keyserver">
 <!ENTITY enigmail.keyMan.ctxCopyToClipbrd.label    "Copy Public Keys to Clipboard">
-<!ENTITY enigmail.keyMan.refreshSelKeys.label      "Refresh Selected Public Keys">
-<!ENTITY enigmail.keyMan.refreshAllKeys.label      "Refresh All Public Keys">
-<!ENTITY enigmail.keyMan.downloadContactKeys.label "Find keys for all contacts">
-<!ENTITY enigmail.keyMan.ctxRefreshKey.label       "Refresh Public Keys From Keyserver">
 <!ENTITY enigmail.keyMan.initiateAcBackup.label    "Create Autocrypt Setup Message">
 
 <!ENTITY enigmail.keyMan.reload.label              "Reload Key Cache">
-<!ENTITY enigmail.keyMan.manageUid.label           "Manage User IDs">
 <!ENTITY enigmail.keyMan.changeExpiry.label        "Change Expiration Date">
-<!ENTITY enigmail.keyMan.changePwd.label           "Change Passphrase">
 <!ENTITY enigmail.keyMan.delKey.label              "Delete Key">
 <!ENTITY enigmail.keyMan.revokeKey.label           "Revoke Key">
 <!ENTITY enigmail.keyMan.keyProps.label            "Key Properties">
@@ -496,12 +487,8 @@
 <!ENTITY enigmail.keyMan.showUntrustedKeys.label   "Display untrusted keys">
 <!ENTITY enigmail.keyMan.showOthersKeys.label      "Display keys from other people">
 <!ENTITY enigmail.keyMan.userId.label              "Name">
-<!ENTITY enigmail.keyMan.keyType.label             "Type">
-<!ENTITY enigmail.keyMan.calcTrust.label           "Key Validity">
-<!ENTITY enigmail.keyMan.ownerTrust.label          "Owner Trust">
 <!ENTITY enigmail.keyMan.fingerprint.label         "Fingerprint">
 <!ENTITY enigmail.keyMan.selectAll.label           "Select all Keys">
-<!ENTITY enigmail.keyMan.addToPRRule.label         "Add to Per-Recipient Rule">
 <!ENTITY enigmail.keyMan.emptyTree.tooltip         "Enter search terms in the box above">
 <!ENTITY enigmail.keyMan.nothingFound.tooltip      "No keys match your search terms">
 <!ENTITY enigmail.keyMan.pleaseWait.tooltip        "Please wait while keys are being loaded ...">
@@ -510,19 +497,13 @@
 
 <!ENTITY enigmail.keyMan.close.accesskey             "C">
 <!ENTITY enigmail.keyMan.generate.accesskey          "K">
-<!ENTITY enigmail.keyMan.sign.accesskey              "S">
-<!ENTITY enigmail.keyMan.setTrust.accesskey          "T">
 <!ENTITY enigmail.keyMan.genRevoke.accesskey         "R">
 <!ENTITY enigmail.keyMan.delKey.accesskey            "D">
 <!ENTITY enigmail.keyMan.revokeKey.accesskey         "R">
 <!ENTITY enigmail.keyMan.importPublicFromFile.accesskey    "I">
 <!ENTITY enigmail.keyMan.exportToFile.accesskey      "E">
-<!ENTITY enigmail.keyMan.importFromServer.accesskey  "S">
-<!ENTITY enigmail.keyMan.uploadToServer.accesskey    "U">
 <!ENTITY enigmail.keyMan.reload.accesskey            "R">
-<!ENTITY enigmail.keyMan.manageUid.accesskey         "M">
 <!ENTITY enigmail.keyMan.changeExpiry.accesskey      "E">
-<!ENTITY enigmail.keyMan.changePwd.accesskey         "P">
 <!ENTITY enigmail.keyMan.showInvalidKeys.accesskey   "D">
 <!ENTITY enigmail.keyMan.showUntrustedKeys.accesskey "U">
 <!ENTITY enigmail.keyMan.showOthersKeys.accesskey    "O">
@@ -532,12 +513,9 @@
 <!ENTITY enigmail.keyMan.copyToClipbrd.accesskey     "C">
 <!ENTITY enigmail.keyMan.keyDetails.accesskey        "K">
 <!ENTITY enigmail.keyMan.showAllKeys.accesskey       "D">
-<!ENTITY enigmail.keyMan.refreshSelKeys.accesskey    "R">
-<!ENTITY enigmail.keyMan.refreshAllKeys.accesskey    "A">
 <!ENTITY enigmail.keyMan.selectAll.accesskey         "A">
 <!ENTITY enigmail.keyMan.sendKeys.accesskey          "S">
 <!ENTITY enigmail.keyMan.createMail.accesskey        "C">
-<!ENTITY enigmail.keyMan.downloadContactKeys.accesskey "F">
 <!ENTITY enigmail.keyMan.initiateAcBackup.accesskey  "A">
 
 
@@ -558,7 +536,7 @@
 <!ENTITY enigmail.keyDetails.signaturesTab           "Certifications">
 <!ENTITY enigmail.keyDetails.structureTab            "Structure">
 <!ENTITY enigmail.keyDetails.uidCertifiedCol         "User ID / Certified by">
-<!ENTITY enigmail.keyDetails.userId.label            "Primary User ID">
+<!ENTITY enigmail.keyDetails.userId2.label            "Alleged Key Owner">
 <!ENTITY enigmail.keyDetails.ID.label                "ID">
 <!ENTITY enigmail.keyDetails.keyType.label           "Type">
 <!ENTITY enigmail.keyDetails.keyPart.label           "Key Part">
@@ -570,11 +548,7 @@
 <!ENTITY enigmail.keyDetails.fingerprint.label       "Fingerprint">
 <!ENTITY enigmail.keyDetails.selAction.label         "Select action ...">
 <!ENTITY enigmail.keyDetails.selAction.accesskey     "S">
-<!ENTITY enigmail.keyDetails.change.label            "Change">
-<!ENTITY enigmail.keyDetails.signKey.label           "Certify">
-<!ENTITY enigmail.keyDetails.trustStatus.label       "You rely on certifications">
-<!ENTITY enigmail.keyDetails.keyValidity.label       "Validity">
-<!ENTITY enigmail.keyDetails.alsoKnown.label         "Also known as">
+<!ENTITY enigmail.keyDetails.alsoKnown.label         "Alleged Alternative Identities of the Key Owner:">
 
 <!ENTITY enigmail.cardDetails.title                  "OpenPGP SmartCard Details">
 <!ENTITY enigmail.cardDetails.cardMenu.label         "SmartCard">

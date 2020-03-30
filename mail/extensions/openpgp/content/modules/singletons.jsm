@@ -12,6 +12,7 @@ var EnigmailSingletons = {
 
   // information about the last PGP/MIME decrypted message (mimeDecrypt)
   lastDecryptedMessage: {},
+  lastMessageDecryptTime: 0,
 
   clearLastDecryptedMessage() {
     let lm = this.lastDecryptedMessage;

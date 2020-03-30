@@ -225,9 +225,10 @@ function enigmailKeygenStart() {
     return;
   }
 
+  var cApi;
   try {
     let newId = null;
-    const cApi = EnigmailCryptoAPI();
+    cApi = EnigmailCryptoAPI();
     newId = cApi.sync(
       cApi.genKey(
         idString,
@@ -260,7 +261,7 @@ function enigmailKeygenStart() {
 
   closeAndReset();
 
-  let rev = RNP.getNewRevocation("0x" + gGeneratedKey);
+  let rev = cApi.sync(cApi.getNewRevocation("0x" + gGeneratedKey));
   if (!rev) {
     throw new Error("failed to obtain revocation for key " + gGeneratedKey);
   }

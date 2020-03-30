@@ -41,14 +41,11 @@ class CryptoAPI {
     let res = null;
     promise
       .then(gotResult => {
-        console.log("CryptoAPI.sync() good result:");
-        console.log(gotResult);
         res = gotResult;
         inspector.exitNestedEventLoop();
       })
       .catch(gotResult => {
-        console.log("CryptoAPI.sync() failed result:");
-        console.log(gotResult);
+        console.log("CryptoAPI.sync() failed result: %o", gotResult);
         res = gotResult;
         inspector.exitNestedEventLoop();
       });
@@ -287,6 +284,10 @@ class CryptoAPI {
   }
 
   async encryptAndOrSign(plaintext, args, resultStatus) {
+    return null;
+  }
+
+  async getNewRevocation(id) {
     return null;
   }
 }

@@ -19,13 +19,29 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+var { uidHelper } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/uidHelper.jsm"
+);
+const { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
+
 var gKeyId = null;
 var gUserId = null;
 var gKeyList = null;
 var gTreeFuncs = null;
 
-function onLoad() {
+var gAllEmails = [];
+var gFingerprint = "";
+
+var gAcceptanceRadio = null;
+var gOriginalAcceptance;
+var gUpdateAllowed = false;
+
+async function onLoad() {
   window.arguments[1].refresh = false;
+
+  gAcceptanceRadio = document.getElementById("acceptanceRadio");
 
   gKeyId = window.arguments[0].keyId;
 
@@ -34,7 +50,7 @@ function onLoad() {
     .getButton("accept");
   accept.focus();
 
-  reloadData();
+  await reloadData();
 }
 
 /***
@@ -51,7 +67,7 @@ function setLabel(elementId, label) {
   node.setAttribute("value", label);
 }
 
-function reloadData() {
+async function reloadData() {
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
     EnigAlert(EnigmailLocale.getString("accessError"));
@@ -63,7 +79,6 @@ function reloadData() {
 
   var treeChildren = document.getElementById("keyListChildren");
   var uidList = document.getElementById("additionalUid");
-  var photoImg = document.getElementById("photoIdImg");
 
   // clean lists
   EnigCleanGuiList(treeChildren);
@@ -71,33 +86,47 @@ function reloadData() {
 
   let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
   if (keyObj) {
+    let keyIsExpired =
+      keyObj.expiryTime && keyObj.expiryTime < Math.floor(Date.now() / 1000);
+
+    let acceptanceIntroText = "";
     if (keyObj.secretAvailable) {
-      setLabel("keyType", EnigmailLocale.getString("keyTypePair"));
+      setLabel("keyType", EnigmailLocale.getString("keyTypePair2"));
       document.getElementById("ownKeyCommands").removeAttribute("hidden");
+      acceptanceIntroText = EnigmailLocale.getString("keyAutoAcceptPersonal");
     } else {
       document.getElementById("ownKeyCommands").setAttribute("hidden", "true");
       setLabel("keyType", EnigmailLocale.getString("keyTypePublic"));
-    }
 
-    if (keyObj.photoAvailable === true) {
-      let pFile = keyObj.getPhotoFile(0);
+      let isStillValid = !(
+        keyObj.keyTrust == "r" ||
+        keyObj.keyTrust == "e" ||
+        keyIsExpired
+      );
+      if (isStillValid) {
+        document
+          .getElementById("acceptanceRadio")
+          .setAttribute("hidden", "false");
+        acceptanceIntroText = EnigmailLocale.getString("keyDoYouAccept");
+        gUpdateAllowed = true;
 
-      if (pFile && pFile.isFile() && pFile.isReadable()) {
-        const photoUri = Services.io.newFileURI(pFile).spec;
+        let acceptanceResult = {};
+        await PgpSqliteDb2.getFingerprintAcceptance(
+          null,
+          keyObj.fpr,
+          acceptanceResult
+        );
 
-        photoImg.setAttribute("src", photoUri);
-        photoImg.removeAttribute("hidden");
+        if (
+          "fingerprintAcceptance" in acceptanceResult &&
+          acceptanceResult.fingerprintAcceptance != "undecided"
+        ) {
+          gOriginalAcceptance = acceptanceResult.fingerprintAcceptance;
+        } else {
+          gOriginalAcceptance = "undecided";
+        }
+        gAcceptanceRadio.value = gOriginalAcceptance;
       }
-    } else {
-      photoImg.setAttribute("hidden", "true");
-    }
-
-    if (keyObj.isOwnerTrustUseful()) {
-      document.getElementById("setOwnerTrust").removeAttribute("collapsed");
-    } else {
-      document
-        .getElementById("setOwnerTrust")
-        .setAttribute("collapsed", "true");
     }
 
     if (keyObj.hasSubUserIds()) {
@@ -118,16 +147,33 @@ function reloadData() {
     document.getElementById("subkeyList").view = subkeyListViewObj;
 
     gUserId = keyObj.userId;
-    let expiryDate = keyObj.expiry;
-    if (expiryDate.length === 0) {
-      expiryDate = EnigmailLocale.getString("keyDoesNotExpire");
+
+    let splitUid = {};
+    uidHelper.getPartsFromUidStr(keyObj.userId, splitUid);
+    if (splitUid.email) {
+      gAllEmails.push(splitUid.email);
     }
+
     setLabel("userId", gUserId);
-    setText("keyValidity", getTrustLabel(keyObj.keyTrust));
-    setText("ownerTrust", getTrustLabel(keyObj.ownerTrust));
-    setText("keyCreated", keyObj.created);
-    setText("keyExpiry", expiryDate);
+    setLabel("keyCreated", keyObj.created);
+
+    let expiryInfo;
+    if (keyObj.keyTrust == "r") {
+      expiryInfo = EnigmailLocale.getString("keyRevoked");
+      acceptanceIntroText = expiryInfo;
+    } else if (keyObj.keyTrust == "e" || keyIsExpired) {
+      expiryInfo = EnigmailLocale.getString("keyExpired", keyObj.expiry);
+      acceptanceIntroText = expiryInfo;
+    } else if (keyObj.expiry.length === 0) {
+      expiryInfo = EnigmailLocale.getString("keyDoesNotExpire");
+    } else {
+      expiryInfo = keyObj.expiry;
+    }
+
+    setText("acceptanceIntro", acceptanceIntroText);
+    setLabel("keyExpiry", expiryInfo);
     if (keyObj.fpr) {
+      gFingerprint = keyObj.fpr;
       setLabel("fingerprint", EnigmailKey.formatFpr(keyObj.fpr));
     }
   }
@@ -140,6 +186,12 @@ function createUidData(listNode, keyDetails) {
       item.setAttribute("label", keyDetails.userIds[i].userId);
       if ("dre".search(keyDetails.userIds[i].keyTrust) >= 0) {
         item.setAttribute("class", "enigmailDisabled");
+      }
+
+      let splitUid = {};
+      uidHelper.getPartsFromUidStr(keyDetails.userIds[i].userId, splitUid);
+      if (splitUid.email) {
+        gAllEmails.push(splitUid.email);
       }
     }
   }
@@ -166,14 +218,7 @@ function enableRefresh() {
 
 // ------------------ onCommand Functions  -----------------
 
-function showPhoto() {
-  EnigShowPhoto(gKeyId, gUserId, 0);
-}
-
-function keyDetailsAddPhoto() {
-  keyMgrAddPhoto(gUserId, gKeyId);
-}
-
+/*
 function signKey() {
   if (EnigSignKey(gUserId, gKeyId, null)) {
     enableRefresh();
@@ -187,14 +232,9 @@ function changeExpirationDate() {
     reloadData();
   }
 }
+*/
 
-function setOwnerTrust() {
-  if (EnigEditKeyTrust([gUserId], [gKeyId])) {
-    enableRefresh();
-    reloadData();
-  }
-}
-
+/*
 function manageUids() {
   let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
 
@@ -218,18 +258,23 @@ function manageUids() {
     reloadData();
   }
 }
+*/
 
+/*
 function changePassword() {
   EnigChangeKeyPwd(gKeyId, gUserId);
 }
+*/
 
-function revokeKey() {
+async function revokeKey() {
+  /*
   EnigRevokeKey(gKeyId, gUserId, function(success) {
     if (success) {
       enableRefresh();
-      reloadData();
+      await reloadData();
     }
   });
+  */
 }
 
 function genRevocationCert() {
@@ -243,7 +288,7 @@ function SigListView(keyObj) {
   for (let i in sigObj) {
     let k = {
       uid: sigObj[i].userId,
-      fpr: sigObj[i].fpr,
+      keyId: sigObj[i].keyId,
       created: sigObj[i].created,
       expanded: true,
       sigList: [],
@@ -251,15 +296,12 @@ function SigListView(keyObj) {
 
     for (let j in sigObj[i].sigList) {
       let s = sigObj[i].sigList[j];
-      if (s.sigKnown) {
-        let sig = EnigmailKeyRing.getKeyById(s.signerKeyId);
-        k.sigList.push({
-          uid: s.userId,
-          created: s.created,
-          fpr: sig ? sig.fpr : "",
-          sigType: s.sigType,
-        });
-      }
+      k.sigList.push({
+        uid: s.userId,
+        created: s.created,
+        keyId: s.signerKeyId,
+        sigType: s.sigType,
+      });
     }
     this.keyObj.push(k);
   }
@@ -322,8 +364,8 @@ SigListView.prototype = {
       switch (column.id) {
         case "sig_uid_col":
           return s.uid;
-        case "sig_fingerprint_col":
-          return EnigmailKey.formatFpr(s.fpr);
+        case "sig_keyid_col":
+          return s.keyId;
         case "sig_created_col":
           return s.created;
       }
@@ -363,7 +405,7 @@ SigListView.prototype = {
   getRowProperties(row, props) {},
 
   getCellProperties(row, col) {
-    if (col.id === "sig_fingerprint_col") {
+    if (col.id === "sig_keyid_col") {
       return "fixedWidthFont";
     }
 
@@ -568,3 +610,22 @@ SubkeyListView.prototype = {
 
   toggleOpenState(row) {},
 };
+
+function sigHandleDblClick(event) {}
+
+function onAccept() {
+  if (gUpdateAllowed && gAcceptanceRadio.value != gOriginalAcceptance) {
+    PgpSqliteDb2.updateAcceptance(
+      gFingerprint,
+      gAllEmails,
+      gAcceptanceRadio.value
+    );
+  }
+  return true;
+}
+
+document.addEventListener("dialogaccept", function(event) {
+  if (!onAccept()) {
+    event.preventDefault();
+  } // Prevent the dialog closing.
+});

@@ -990,6 +990,7 @@ Enigmail.msg = {
             Enigmail.hdrView.updateHdrIcons(
               EnigmailConstants.POSSIBLE_PGPMIME,
               0, // exitCode, statusFlags
+              0,
               "",
               "", // keyId, userId
               "", // sigDetails
@@ -1031,6 +1032,7 @@ Enigmail.msg = {
     let uri = ph.newURI(uriStr);
     Enigmail.hdrView.headerPane.updateSecurityStatus(
       "",
+      0,
       0,
       0,
       "",
@@ -1217,6 +1219,7 @@ Enigmail.msg = {
         Enigmail.hdrView.updateHdrIcons(
           0,
           ht,
+          0,
           "",
           "",
           "",
@@ -1299,7 +1302,7 @@ Enigmail.msg = {
     if (startIndex > 0) {
       let pgpMsg = msgText.match(/(-----BEGIN PGP (SIGNED )?MESSAGE-----)/m)[0];
       if (pgpMsg.search(/SIGNED/) > 0) {
-        crypto = EnigmailConstants.UNVERIFIED_SIGNATURE;
+        crypto = EnigmailConstants.UNCERTAIN_SIGNATURE;
       } else {
         crypto = EnigmailConstants.DECRYPTION_FAILED;
       }
@@ -1376,6 +1379,7 @@ Enigmail.msg = {
     var exitCode;
     var newSignature = "";
     var statusFlags = 0;
+    var extStatusFlags = 0;
 
     var errorMsgObj = {
       value: "",
@@ -1440,6 +1444,7 @@ Enigmail.msg = {
     }
 
     statusFlags = statusFlagsObj.value;
+    extStatusFlags = statusFlagsObj.ext;
 
     EnigmailLog.DEBUG(
       "enigmailMessengerOverlay.js: messageParseCallback: newSignature='" +
@@ -1464,6 +1469,7 @@ Enigmail.msg = {
       Enigmail.hdrView.updateHdrIcons(
         exitCode,
         statusFlags,
+        extStatusFlags,
         keyIdObj.value,
         userIdObj.value,
         sigDetailsObj.value,
@@ -1737,6 +1743,7 @@ Enigmail.msg = {
             Enigmail.hdrView.updateHdrIcons(
               exitCode,
               statusFlags,
+              extStatusFlags,
               keyIdObj.value,
               userIdObj.value,
               sigDetailsObj.value,
@@ -2845,7 +2852,7 @@ Enigmail.msg = {
       exitStatus = false;
       if (
         statusFlagsObj.value & EnigmailConstants.DECRYPTION_OKAY &&
-        statusFlagsObj.value & EnigmailConstants.UNVERIFIED_SIGNATURE
+        statusFlagsObj.value & EnigmailConstants.UNCERTAIN_SIGNATURE
       ) {
         if (callbackArg.actionType == "openAttachment") {
           exitStatus = EnigmailDialog.confirmDlg(

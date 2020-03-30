@@ -1141,7 +1141,7 @@ function updateSortList() {
   for (let i = 0; i < gKeyListObj.keyList.length; i++) {
     let keyObj = gKeyListObj.keyList[i];
     gKeyListObj.keySortList.push({
-      userId: keyObj.userId.toLowerCase(),
+      userId: keyObj.userId ? keyObj.userId.toLowerCase() : "",
       keyId: keyObj.keyId,
       fpr: keyObj.fpr,
       keyNum: i,

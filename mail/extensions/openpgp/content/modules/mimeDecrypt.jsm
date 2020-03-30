@@ -11,6 +11,8 @@ var EXPORTED_SYMBOLS = ["EnigmailMimeDecrypt"];
  *  implemented as an XPCOM object
  */
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 const { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
 );
@@ -63,7 +65,7 @@ const ENCODING_QP = 2;
 
 const LAST_MSG = EnigmailSingletons.lastDecryptedMessage;
 
-var gDebugLogLevel = 5;
+var gDebugLogLevel = 3;
 
 var gNumProc = 0;
 
@@ -137,7 +139,9 @@ Content-Type: text/html
         if (dbHdr.ccList) {
           msg += `Cc: ${dbHdr.ccList}\r\n`;
         }
-      } catch (x) {}
+      } catch (x) {
+        console.debug(x);
+      }
     }
 
     return msg;
@@ -242,8 +246,13 @@ MimeDecryptHandler.prototype = {
     this.xferEncoding = ENCODING_DEFAULT;
     this.boundary = EnigmailMime.getBoundary(this.mimeSvc.contentType);
 
-    if (!this.isReloadingLastMessage()) {
+    let now = Date.now();
+    let timeoutReached =
+      EnigmailSingletons.lastMessageDecryptTime &&
+      now - EnigmailSingletons.lastMessageDecryptTime > 10000;
+    if (timeoutReached || !this.isReloadingLastMessage()) {
       EnigmailSingletons.clearLastDecryptedMessage();
+      EnigmailSingletons.lastMessageDecryptTime = now;
     }
   },
 
@@ -334,6 +343,7 @@ MimeDecryptHandler.prototype = {
         ret = true;
       } catch (ex) {
         // not a base64 encoded
+        console.debug(ex);
       }
     }
 
@@ -356,6 +366,7 @@ MimeDecryptHandler.prototype = {
       this.base64Cache = EnigmailData.decodeBase64(this.base64Cache);
     } catch (ex) {
       // if decoding failed, try non-encoded version
+      console.debug(ex);
     }
 
     let lines = this.base64Cache.replace(/\r\n/g, "\n").split(/\n/);
@@ -496,6 +507,7 @@ MimeDecryptHandler.prototype = {
           }
         }
       } catch (ex) {
+        console.debug(ex);
         EnigmailLog.writeException("mimeDecrypt.js", ex);
         EnigmailLog.DEBUG(
           "mimeDecrypt.jsm: error while processing " + this.msgUriSpec + "\n"
@@ -536,7 +548,7 @@ MimeDecryptHandler.prototype = {
       let maxOutput = this.outQueue.length * 100;
 
       EnigmailLog.DEBUG("mimeDecryp.jsm: starting decryption\n");
-      EnigmailLog.DEBUG(this.outQueue + "\n");
+      //EnigmailLog.DEBUG(this.outQueue + "\n");
 
       let keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
       let options = {
@@ -545,6 +557,12 @@ MimeDecryptHandler.prototype = {
         fromAddr: EnigmailDecryption.getFromAddr(win),
         maxOutputLength: maxOutput,
       };
+
+      if (!options.fromAddr) {
+        var win2 = Services.wm.getMostRecentWindow(null);
+        options.fromAddr = EnigmailDecryption.getFromAddr(win2);
+      }
+
       const cApi = EnigmailCryptoAPI();
       EnigmailLog.DEBUG("mimeDecrypt.jsm: got API: " + cApi.api_name + "\n");
       this.returnStatus = cApi.sync(cApi.decryptMime(this.outQueue, options));
@@ -558,7 +576,26 @@ MimeDecryptHandler.prototype = {
 
       this.returnStatus.statusFlags |= EnigmailConstants.PGP_MIME_ENCRYPTED;
 
-      if (this.returnStatus.exitCode) {
+      if (
+        this.returnStatus.exitCode &&
+        this.returnStatus.decryptedData.length
+      ) {
+        // We got a failure return, however, we got decrypted data.
+        // Did we get any verification failure flags?
+        // If yes, then conclude only verification failed.
+
+        if (
+          this.returnStatus.statusFlags &
+          (EnigmailConstants.BAD_SIGNATURE |
+            EnigmailConstants.UNCERTAIN_SIGNATURE |
+            EnigmailConstants.EXPIRED_SIGNATURE |
+            EnigmailConstants.EXPIRED_KEY_SIGNATURE)
+        ) {
+          this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
+        } else {
+          this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
+        }
+      } else if (this.returnStatus.exitCode) {
         this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
       } else if (
         !(this.returnStatus.statusFlags & EnigmailConstants.DECRYPTION_FAILED)
@@ -662,6 +699,7 @@ MimeDecryptHandler.prototype = {
           this.msgUriSpec,
           this.exitCode,
           this.returnStatus.statusFlags,
+          this.returnStatus.extStatusFlags,
           this.returnStatus.keyId,
           this.returnStatus.userId,
           this.returnStatus.sigDetails,
@@ -678,6 +716,7 @@ MimeDecryptHandler.prototype = {
       }
       this.statusDisplayed = true;
     } catch (ex) {
+      console.debug(ex);
       EnigmailLog.writeException("mimeDecrypt.jsm", ex);
     }
     LOCAL_DEBUG("mimeDecrypt.jsm: displayStatus done\n");
@@ -700,7 +739,9 @@ MimeDecryptHandler.prototype = {
     try {
       this.extractEncryptedHeaders();
       this.extractAutocryptGossip();
-    } catch (ex) {}
+    } catch (ex) {
+      console.debug(ex);
+    }
 
     let i = this.decryptedData.search(/\n\r?\n/);
     if (i > 0) {
@@ -796,6 +837,7 @@ MimeDecryptHandler.prototype = {
         this.mimeSvc.onStopRequest(null, null, 0);
       }
     } catch (ex) {
+      console.debug(ex);
       EnigmailLog.ERROR(
         "mimeDecrypt.jsm: returnData(): mimeSvc.onDataAvailable failed:\n" +
           ex.toString()
@@ -812,6 +854,7 @@ MimeDecryptHandler.prototype = {
           this.msgUriSpec,
           EnigmailConstants.POSSIBLE_PGPMIME,
           0,
+          0,
           "",
           "",
           "",
@@ -822,7 +865,9 @@ MimeDecryptHandler.prototype = {
           ""
         );
       }
-    } catch (ex) {}
+    } catch (ex) {
+      console.debug(ex);
+    }
 
     return 0;
   },
@@ -843,7 +888,9 @@ MimeDecryptHandler.prototype = {
           this.decryptedHeaders.subject,
           "utf-8"
         );
-      } catch (x) {}
+      } catch (x) {
+        console.debug(x);
+      }
     }
   },
 
@@ -880,7 +927,9 @@ MimeDecryptHandler.prototype = {
     try {
       msgDate = this.uri.QueryInterface(Ci.nsIMsgMessageUrl).messageHeader
         .dateInSeconds;
-    } catch (x) {}
+    } catch (x) {
+      console.debug(x);
+    }
 
     for (let i in gossip) {
       let addr = EnigmailMime.getParameter(gossip[i], "addr");
@@ -894,6 +943,7 @@ MimeDecryptHandler.prototype = {
         );
         EnigmailLog.DEBUG(`mimeDecrypt.jsm: extractAutocryptGossip: r=${r}\n`);
       } catch (x) {
+        console.debug(x);
         EnigmailLog.DEBUG(
           `mimeDecrypt.jsm: extractAutocryptGossip: Error: ${x}\n`
         );

@@ -42,7 +42,7 @@
         </columns>
         <rows>
           <row>
-            <label value="&enigmail.keyDetails.userId.label;" control="userId"/>
+            <label value="&enigmail.keyDetails.userId2.label;" control="userId"/>
             <html:input id="userId" class="plain" style="white-space: pre;"
               readonly="true" value="?" multiline="false" size="60"/>
           </row>
@@ -56,6 +56,16 @@
             <html:input id="fingerprint" class="plain" style="white-space: pre;"
               readonly="true" value="?" multiline="false" size="60"/>
           </row>
+          <row>
+            <label value="&enigmail.keyDetails.created.label;"/>
+            <html:input id="keyCreated" class="plain" style="white-space: pre;"
+              readonly="true" value="?" multiline="false" size="60"/>
+          </row>
+          <row>
+            <label value="&enigmail.keyDetails.expiry.label;"/>
+            <html:input id="keyExpiry" class="plain" style="white-space: pre;"
+              readonly="true" value="?" multiline="false" size="60"/>
+          </row>
         </rows>
       </grid>
       <vbox class="enigmailCaptionbox" id="alsoknown" flex="1">
@@ -63,63 +73,32 @@
         <richlistbox id="additionalUid" style="height: 4em;" flex="1"/>
       </vbox>
     </vbox>
-    <vbox flex="1" align="end">
-      <hbox flex="1" align="end">
-        <image src="" id="photoIdImg" style="display: block; height: auto; width: auto; max-width: 100px; max-height: 120px;"/>
-      </hbox>
-    </vbox>
   </hbox>
 
   <tabbox flex="1" style="margin:5px" id="mainTabs">
     <tabs id="mainTabBox">
-      <tab id="basicTab"       label="&enigmail.basic.label;"/>
+      <tab id="acceptanceTab"  label="&enigmail.acceptance.label;"/>
       <tab id="signaturesTab"  label="&enigmail.keyDetails.signaturesTab;"/>
       <tab id="structureTab"   label="&enigmail.keyDetails.structureTab;"/>
     </tabs>
 
     <tabpanels flex="1" id="mainTabPanel">
-       <!-- Basic Tab -->
-      <vbox id="basicPanel">
-        <html:table style="width: 100%;">
-          <html:colgroup>
-            <html:col/>
-            <html:col style="width: 100%;"/>
-            <html:col style="text-align: right;"/>
-          </html:colgroup>
-          <html:tr>
-            <html:td style="white-space: nowrap; padding: 0 15px 0 0;">
-              &enigmail.keyDetails.created.label;
-            </html:td>
-            <html:td id="keyCreated"/>
-          </html:tr>
-          <html:tr>
-            <html:td style="white-space: nowrap; padding: 0 15px 0 0;">
-              &enigmail.keyDetails.expiry.label;
-            </html:td>
-            <html:td id="keyExpiry"/>
-            <html:td>
-              <button observes="ownKeyCommands" label="&enigmail.keyDetails.change.label;" oncommand="changeExpirationDate()"/>
-            </html:td>
-          </html:tr>
-          <html:tr>
-            <html:td>
-              &enigmail.keyDetails.keyValidity.label;
-            </html:td>
-            <html:td id="keyValidity"/>
-            <html:td>
-              <button label="&enigmail.keyDetails.signKey.label;" oncommand="signKey()"/>
-            </html:td>
-          </html:tr>
-          <html:tr>
-            <html:td style="white-space: nowrap; padding: 0 15px 0 0;">
-              &enigmail.keyDetails.trustStatus.label;
-            </html:td>
-            <html:td id="ownerTrust"/>
-            <html:td>
-              <button id="setOwnerTrust" label="&enigmail.keyDetails.change.label;" oncommand="setOwnerTrust()"/>
-            </html:td>
-          </html:tr>
-        </html:table>
+       <!-- Acceptance Tab -->
+      <vbox id="acceptancePanel">
+        <description id="acceptanceIntro"/>
+        <radiogroup id="acceptanceRadio" hidden="true">
+          <radio id="acceptRejected" value="rejected"
+                 label="&enigmail.acceptance.rejected.label;"/>
+
+          <radio id="acceptUndecided" value="undecided"
+                 label="&enigmail.acceptance.undecided.label;"/>
+
+          <radio id="acceptUnverified" value="unverified"
+                 label="&enigmail.acceptance.unverified.label;"/>
+
+          <radio id="acceptVerified" value="verified"
+                 label="&enigmail.acceptance.verified.label;"/>
+        </radiogroup>
       </vbox>
 
       <!-- certifications tab -->
@@ -134,8 +113,8 @@
                 primary="true"/>
             <splitter class="tree-splitter"/>
             <splitter class="tree-splitter"/>
-            <treecol id="sig_fingerprint_col"
-                     label="&enigmail.keyDetails.fingerprint.label;"
+            <treecol id="sig_keyid_col"
+                     label="&enigmail.keyId.label;"
                      persist="width"/>
             <treecol id="sig_created_col"
                      label="&enigmail.keyDetails.created.label;"
@@ -193,19 +172,19 @@
     </tabpanels>
   </tabbox>
 
+  <!--
   <separator/>
 
   <hbox flex="0" observes="ownKeyCommands">
     <button id="actions" label="&enigmail.keyDetails.selAction.label;"
             accesskey="&enigmail.keyDetails.selAction.accesskey;" type="menu">
       <menupopup id="actionPopup">
-        <menuitem label="&enigmail.keyMan.manageUid.label;" oncommand="manageUids()"/>
-        <menuitem label="&enigmail.keyMan.changePwd.label;" oncommand="changePassword()"/>
         <menuitem label="&enigmail.keyMan.revokeKey.label;" oncommand="revokeKey()"/>
         <menuitem label="&enigmail.keyMan.ctxGenRevoke.label;" oncommand="genRevocationCert()"/>
       </menupopup>
     </button>
   </hbox>
+  -->
 
 </dialog>
 </window>
