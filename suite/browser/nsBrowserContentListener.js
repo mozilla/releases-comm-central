@@ -73,11 +73,6 @@ nsBrowserContentListener.prototype =
 
         throw Cr.NS_ERROR_NO_INTERFACE;
     },
-    onStartURIOpen: function(uri)
-    {
-        // ignore and don't abort
-        return false;
-    },
 
     doContent: function(contentType, isContentPreferred, request, contentHandler)
     {

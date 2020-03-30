@@ -354,9 +354,6 @@ NS_IMETHODIMP nsMsgWindow::StopUrls() {
 }
 
 // nsIURIContentListener support
-NS_IMETHODIMP nsMsgWindow::OnStartURIOpen(nsIURI *aURI, bool *aAbortOpen) {
-  return NS_OK;
-}
 
 NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString &aContentType,
                                      bool aIsContentPreferred,

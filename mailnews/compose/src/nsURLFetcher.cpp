@@ -70,8 +70,6 @@ NS_IMETHODIMP nsURLFetcher::GetInterface(const nsIID &aIID,
 }
 
 // nsIURIContentListener support
-NS_IMETHODIMP
-nsURLFetcher::OnStartURIOpen(nsIURI *aURI, bool *aAbortOpen) { return NS_OK; }
 
 NS_IMETHODIMP
 nsURLFetcher::IsPreferred(const char *aContentType, char **aDesiredContentType,

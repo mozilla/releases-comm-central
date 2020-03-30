@@ -6537,10 +6537,6 @@ nsAttachmentOpener.prototype = {
     "nsIInterfaceRequestor",
   ]),
 
-  onStartURIOpen(uri) {
-    return false;
-  },
-
   doContent(contentType, isContentPreferred, request, contentHandler) {
     // If we came here to display an attached message, make sure we provide a type.
     if (/[?&]part=/i.test(request.URI.query)) {

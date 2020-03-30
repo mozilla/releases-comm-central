@@ -848,9 +848,6 @@ function toggleZLevel(element)
 }
 
 var helpContentListener = {
-  onStartURIOpen: function(aURI) {
-    return false;
-  },
   doContent: function(aContentType, aIsContentPreferred, aRequest, aContentHandler) {
     throw Cr.NS_ERROR_UNEXPECTED;
   },

@@ -2668,11 +2668,6 @@ nsAttachmentOpener.prototype =
     throw Cr.NS_NOINTERFACE;
   },
 
-  onStartURIOpen: function(uri)
-  {
-    return false;
-  },
-
   doContent: function(contentType, isContentPreferred, request, contentHandler)
   {
     return false;

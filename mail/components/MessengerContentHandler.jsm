@@ -110,9 +110,6 @@ function openURI(uri) {
   loadgroup.groupObserver = loadlistener;
 
   var listener = {
-    onStartURIOpen(uri) {
-      return false;
-    },
     doContent(ctype, preferred, request, handler) {
       var newHandler = Cc[
         "@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"
