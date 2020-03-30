@@ -57,11 +57,11 @@ SessionStartup.prototype = {
    */
   init: function sss_init() {
     // get file references
-    let sessionFile = Services.dirsvc.get("ProfD",
-                                          Ci.nsIFile);
+    let sessionFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
     sessionFile.append("sessionstore.json");
 
-    let doResumeSession = Services.prefs.getBoolPref("browser.sessionstore.resume_session_once") ||
+    let doResumeSessionOnce = Services.prefs.getBoolPref("browser.sessionstore.resume_session_once");
+    let doResumeSession = doResumeSessionOnce ||
                           Services.prefs.getIntPref("browser.startup.page") == 3;
 
     var resumeFromCrash = Services.prefs.getBoolPref("browser.sessionstore.resume_from_crash");
@@ -83,6 +83,10 @@ SessionStartup.prototype = {
       doResumeSession = false;
       debug("The session file is invalid: " + ex);
     }
+
+    // If this is a normal restore then throw away any previous session
+    if (!doResumeSessionOnce && this._initialState)
+      delete this._initialState.lastSessionState;
 
     let lastSessionCrashed =
       this._initialState && this._initialState.session &&
