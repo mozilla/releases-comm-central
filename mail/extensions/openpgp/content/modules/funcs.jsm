@@ -471,12 +471,8 @@ var EnigmailFuncs = {
   getOwnEmailAddresses() {
     let ownEmails = {};
 
-    let am = Cc["@mozilla.org/messenger/account-manager;1"].getService(
-      Ci.nsIMsgAccountManager
-    );
-
     // Determine all sorts of own email addresses
-    for (let id of am.allIdentities) {
+    for (let id of MailServices.accounts.allIdentities) {
       if (id.email && id.email.length > 0) {
         ownEmails[this.getBaseEmail(id.email.toLowerCase())] = 1;
       }

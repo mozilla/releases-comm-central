@@ -15,16 +15,12 @@
 
 // from enigmailCommon.js:
 /* global EnigGetWindowOptions: false, EnigConfirm: false, EnigGetString: false, GetEnigmailSvc: false */
-/* global EnigLongAlert: false, EnigAlert: false, EnigInitCommon: false, ENIG_ACCOUNT_MANAGER_CONTRACTID: false */
+/* global EnigLongAlert: false, EnigAlert: false, EnigInitCommon: false */
 /* global EnigGetPref: false, EnigSetPref: false, EnigSavePrefs: false, EnigFilePicker: false, EnigGetFilePath: false */
 /* global EnigmailWindows: false, EnigCreateRevokeCert: false */
 
 // Initialize enigmailCommon
 EnigInitCommon("enigmailKeygen");
-
-var gAccountManager = Cc[ENIG_ACCOUNT_MANAGER_CONTRACTID].getService(
-  Ci.nsIMsgAccountManager
-);
 
 var EnigmailCryptoAPI = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
@@ -36,6 +32,9 @@ var OpenPGPMasterpass = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 ).OpenPGPMasterpass;
 var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm");
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var gUserIdentityList;
 var gUserIdentityListPopup;
@@ -321,7 +320,7 @@ function getCurrentIdentity() {
   var item = gUserIdentityList.selectedItem;
   var identityKey = item.getAttribute("id");
 
-  var identity = gAccountManager.getIdentity(identityKey);
+  var identity = MailServices.accounts.getIdentity(identityKey);
 
   return identity;
 }
@@ -330,7 +329,7 @@ function fillIdentityListPopup() {
   EnigmailLog.DEBUG("enigmailKeygen.js: fillIdentityListPopup\n");
 
   try {
-    var identities = gAccountManager.allIdentities;
+    var identities = MailServices.accounts.allIdentities;
 
     EnigmailLog.DEBUG(
       "enigmailKeygen.js: fillIdentityListPopup: " + identities + "\n"
@@ -356,7 +355,7 @@ function fillIdentityListPopup() {
 
       var serverSupports, inServer;
       // Gecko >= 20
-      serverSupports = gAccountManager.getServersForIdentity(identity);
+      serverSupports = MailServices.accounts.getServersForIdentity(identity);
       if (serverSupports.length > 0) {
         inServer = serverSupports.queryElementAt(0, Ci.nsIMsgIncomingServer);
       }

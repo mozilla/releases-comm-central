@@ -47,9 +47,11 @@ const { EnigmailStreams } = ChromeUtils.import(
 const { EnigmailGpg } = ChromeUtils.import(
   "chrome://openpgp/content/modules/gpg.jsm"
 );
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 // Interfaces
-const nsIMsgAccountManager = Ci.nsIMsgAccountManager;
 const nsIMessenger = Ci.nsIMessenger;
 const nsIMsgMessageService = Ci.nsIMsgMessageService;
 
@@ -87,14 +89,11 @@ var EnigmailAutoSetup = {
       EnigmailLog.DEBUG("autoSetup.jsm: determinePreviousInstallType()\n");
 
       try {
-        let msgAccountManager = Cc[
-          "@mozilla.org/messenger/account-manager;1"
-        ].getService(nsIMsgAccountManager);
         let returnMsgValue = {
           value: EnigmailConstants.AUTOSETUP_NO_HEADER,
         };
 
-        var accounts = msgAccountManager.accounts;
+        let accounts = MailServices.accounts.accounts;
 
         let msgHeaders = [];
 
@@ -107,9 +106,8 @@ var EnigmailAutoSetup = {
 
         // Iterate through each account
 
-        for (var i = 0; i < accounts.length; i++) {
-          var account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
-          var accountMsgServer = account.incomingServer;
+        for (let account of accounts) {
+          let accountMsgServer = account.incomingServer;
           EnigmailLog.DEBUG(
             `autoSetup.jsm: determinePreviousInstallType: scanning account "${accountMsgServer.prettyName}"\n`
           );
@@ -371,14 +369,9 @@ var EnigmailAutoSetup = {
     let self = this;
 
     EnigmailTimer.setTimeout(async function() {
-      let msgAccountManager = Cc[
-        "@mozilla.org/messenger/account-manager;1"
-      ].getService(nsIMsgAccountManager);
-      let accounts = msgAccountManager.accounts;
       let createdKeys = [];
 
-      for (let i = 0; i < accounts.length; i++) {
-        let account = accounts.queryElementAt(i, Ci.nsIMsgAccount);
+      for (let account of MailServices.accounts.accounts) {
         let id = account.defaultIdentity;
 
         if (id && id.email) {
@@ -467,12 +460,7 @@ var EnigmailAutoSetup = {
    * Configure Enigmail to use existing keys
    */
   applyExistingKeys() {
-    let msgAccountManager = Cc[
-      "@mozilla.org/messenger/account-manager;1"
-    ].getService(nsIMsgAccountManager);
-    let identities = msgAccountManager.allIdentities;
-
-    for (let id of identities) {
+    for (let id of MailServices.accounts.allIdentities) {
       if (id.email) {
         let keyObj = EnigmailKeyRing.getSecretKeyByEmail(id.email);
         if (keyObj) {

@@ -46,6 +46,9 @@ const { EnigmailMime } = ChromeUtils.import(
 const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
 );
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
@@ -370,11 +373,7 @@ function shutdownNewMailListener() {
 }
 
 function getIdentityForSender(senderEmail, msgServer) {
-  let accountManager = Cc[
-    "@mozilla.org/messenger/account-manager;1"
-  ].getService(Ci.nsIMsgAccountManager);
-
-  let identities = accountManager.getIdentitiesForServer(msgServer);
+  let identities = MailServices.accounts.getIdentitiesForServer(msgServer);
 
   for (let i = 0; i < identities.length; i++) {
     let id = identities.queryElementAt(i, Ci.nsIMsgIdentity);

@@ -15,6 +15,9 @@ const { EnigmailFiles } = ChromeUtils.import(
 const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
 );
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 const TYPE_BOOL = 1;
 const TYPE_CHAR = 2;
@@ -35,13 +38,6 @@ const IdentityPref = {
 };
 
 var EnigmailConfigBackup = {
-  getAccountManager() {
-    let amService = Cc["@mozilla.org/messenger/account-manager;1"].getService(
-      Ci.nsIMsgAccountManager
-    );
-    return amService;
-  },
-
   /**
    * itereate over all identities and execute a callback function for each found element
    *
@@ -51,10 +47,8 @@ var EnigmailConfigBackup = {
    * @return  - undefined
    */
   forAllIdentitites(callbackFunc) {
-    let amService = this.getAccountManager();
-
-    amService.LoadAccounts(); // ensure accounts are really loaded
-    for (let id of amService.allIdentities) {
+    MailServices.accounts.LoadAccounts(); // ensure accounts are really loaded
+    for (let id of MailServices.accounts.allIdentities) {
       try {
         callbackFunc(id);
       } catch (ex) {
@@ -195,8 +189,7 @@ var EnigmailConfigBackup = {
         }
       }
 
-      let am = this.getAccountManager();
-      am.saveAccountInfo();
+      MailServices.accounts.saveAccountInfo();
       EnigmailPrefs.savePrefs();
     } catch (ex) {
       EnigmailLog.ERROR(

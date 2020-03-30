@@ -105,8 +105,6 @@ const ENIG_WMEDIATOR_CONTRACTID =
 const ENIG_ASS_CONTRACTID = "@mozilla.org/appshell/appShellService;1";
 const ENIG_LOCALE_SVC_CONTRACTID = "@mozilla.org/intl/nslocaleservice;1";
 const ENIG_DATE_FORMAT_CONTRACTID = "@mozilla.org/intl/scriptabledateformat;1";
-const ENIG_ACCOUNT_MANAGER_CONTRACTID =
-  "@mozilla.org/messenger/account-manager;1";
 const ENIG_THREAD_MANAGER_CID = "@mozilla.org/thread-manager;1";
 const ENIG_SIMPLEURI_CONTRACTID = "@mozilla.org/network/simple-uri;1";
 
