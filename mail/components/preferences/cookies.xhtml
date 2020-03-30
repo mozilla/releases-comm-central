@@ -94,15 +94,15 @@
   </vbox>
   <hbox align="end">
     <hbox class="actionButtons" flex="1">
-      <button id="removeSelectedCookies" disabled="true" icon="remove"
+      <button id="removeSelectedCookies" disabled="true"
               label="&button.removecookie.label;" accesskey="&button.removecookie.accesskey;"
               oncommand="gCookiesWindow.deleteCookie();"/>
-      <button id="removeAllCookies" disabled="true" icon="clear"
+      <button id="removeAllCookies" disabled="true"
               label="&button.removeallcookies.label;" accesskey="&button.removeallcookies.accesskey;"
               oncommand="gCookiesWindow.deleteAllCookies();"/>
       <spacer flex="1"/>
 #ifndef XP_MACOSX
-      <button oncommand="window.close();" icon="close"
+      <button oncommand="window.close();"
               label="&button.close.label;" accesskey="&button.close.accesskey;"/>
 #endif
     </hbox>

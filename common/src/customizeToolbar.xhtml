@@ -91,7 +91,7 @@
 
     <checkbox id="smallicons" oncommand="updateIconSize(this.checked ? 'small' : 'large');" label="&useSmallIcons.label;"/>
 
-    <button id="restoreDefault" label="&restoreDefaultSet.label;" oncommand="restoreDefaultSet();" icon="revert"/>
+    <button id="restoreDefault" label="&restoreDefaultSet.label;" oncommand="restoreDefaultSet();"/>
 #ifndef MOZ_SUITE
     <vbox id="titlebarSettings" hidden="true">
       <checkbox id="showTitlebar" oncommand="updateTitlebar();" label="&showTitlebar.label;"/>
@@ -104,7 +104,7 @@
 
   <hbox align="center" pack="end">
     <button id="donebutton" label="&saveChanges.label;" oncommand="onClose();"
-            default="true" icon="close"/>
+            default="true"/>
   </hbox>
 </vbox>
 
