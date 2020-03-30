@@ -173,7 +173,6 @@ case "${_TARGET_OS}" in
 
         LDFLAGS_otr="-Wl,-no-undefined,-L${_PREFIX}/lib,-lgcrypt,-lgpg-error,-lssp"
         _TARGET_LIBS="bin/libotr-5.dll bin/libgcrypt-20.dll bin/libgpg-error-0.dll"
-        EXE=.exe
         ;;
     win64)
         export PATH="${MOZ_FETCHES_DIR}/mingw32/bin:$PATH"
@@ -186,7 +185,6 @@ case "${_TARGET_OS}" in
 
         LDFLAGS_otr="-Wl,-no-undefined,-L${_PREFIX}/lib,-lgcrypt,-lgpg-error,-lssp"
         _TARGET_LIBS="bin/libotr-5.dll bin/libgcrypt-20.dll bin/libgpg-error6-0.dll"
-        EXE=.exe
         ;;
     macosx64)
         for _t in cctools/bin clang/bin binutils/bin; do
@@ -211,7 +209,6 @@ case "${_TARGET_OS}" in
         LDFLAGS_otr="-shared"
 
         _TARGET_LIBS="lib/libotr.5.dylib"
-        EXE=
         ;;
     linux32)
         for _t in clang/bin binutils/bin; do
@@ -237,7 +234,6 @@ case "${_TARGET_OS}" in
         _GCRYPT_CONF_FLAGS="--disable-asm"
         _CONF_STATIC="--enable-static --disable-shared"
         _TARGET_LIBS='lib/libotr.so.5'
-        EXE=
         ;;
     linux64)
         for _t in clang/bin binutils/bin; do
@@ -259,7 +255,6 @@ case "${_TARGET_OS}" in
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
         _CONF_STATIC="--enable-static --disable-shared"
         _TARGET_LIBS='lib/libotr.so.5'
-        EXE=
         ;;
     *)
         echo "Invalid target platform: ${_TARGET_OS}"
