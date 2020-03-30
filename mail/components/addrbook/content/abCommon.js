@@ -1170,6 +1170,7 @@ var gImageDownloader = (function() {
         null,
         null,
         tempFile,
+        Ci.nsIContentPolicy.TYPE_IMAGE,
         privacy
       );
     } catch (e) {
@@ -1334,6 +1335,7 @@ var gImageDownloader = (function() {
       null,
       null,
       target,
+      Ci.nsIContentPolicy.TYPE_IMAGE,
       privacy
     );
   }

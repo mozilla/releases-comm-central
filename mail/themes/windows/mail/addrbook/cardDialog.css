@@ -108,6 +108,12 @@
   border: 1px dashed #CACAFF;
 }
 
+#PhotoFile {
+  background-position: 2px center;
+  background-repeat: no-repeat;
+  padding-inline-start: 20px;
+}
+
 #ProgressContainer {
   max-height: 0;
   transition: all .5s ease-out;
