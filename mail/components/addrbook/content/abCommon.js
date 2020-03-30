@@ -530,7 +530,9 @@ function AbEditCard(card) {
   if (card.isMailList) {
     goEditListDialog(card, card.mailListURI);
   } else {
-    goEditCardDialog(getSelectedDirectoryURI(), card);
+    let dirId = card.directoryId.split("&")[0];
+    let directory = MailServices.ab.getDirectoryFromId(dirId);
+    goEditCardDialog(directory.URI, card);
   }
 }
 
