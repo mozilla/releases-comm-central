@@ -75,10 +75,8 @@ def make_base_task(config, name, job, script, command):
     """
     Common config for thirdparty build tasks
     """
-    if config.params['level'] == '3':
-        expires = '1 year'
-    else:
-        expires = '28 days'
+    # When the task expires, so do the artifacts. Try defaults to 28 days
+    expires = '1 year'
 
     # To be consistent with how files-changed is used elsewhere, the
     # path must be relative to GECKO,
