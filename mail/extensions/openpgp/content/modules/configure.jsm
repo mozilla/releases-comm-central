@@ -119,14 +119,7 @@ function replaceKeyIdWithFpr() {
       "EnigmailKeyRing"
     );
 
-    var accountManager = Cc[
-      "@mozilla.org/messenger/account-manager;1"
-    ].getService(Ci.nsIMsgAccountManager);
-    for (var i = 0; i < accountManager.allIdentities.length; i++) {
-      var id = accountManager.allIdentities.queryElementAt(
-        i,
-        Ci.nsIMsgIdentity
-      );
+    for (let id of MailServices.accounts.allIdentities) {
       if (id.getBoolAttribute("enablePgp")) {
         let keyId = id.getCharAttribute("pgpkeyId");
 

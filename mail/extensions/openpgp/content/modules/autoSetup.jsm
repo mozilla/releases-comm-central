@@ -472,10 +472,8 @@ var EnigmailAutoSetup = {
     ].getService(nsIMsgAccountManager);
     let identities = msgAccountManager.allIdentities;
 
-    for (let i = 0; i < identities.length; i++) {
-      let id = identities.queryElementAt(i, Ci.nsIMsgIdentity);
-
-      if (id && id.email) {
+    for (let id of identities) {
+      if (id.email) {
         let keyObj = EnigmailKeyRing.getSecretKeyByEmail(id.email);
         if (keyObj) {
           EnigmailLog.DEBUG(

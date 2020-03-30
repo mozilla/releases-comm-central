@@ -90,7 +90,7 @@ interface nsIMsgAccountManager : nsISupports {
   /* list of all identities in all accounts
    * array of nsIMsgIdentity
    */
-  readonly attribute nsIArray allIdentities;
+  readonly attribute Array<nsIMsgIdentity> allIdentities;
 
   /* list of all servers in all accounts, except for hidden and IM servers
    * array of nsIMsgIncomingServer

@@ -2256,13 +2256,11 @@ function SendUnsentMessages()
 {
   var msgSendlater = Cc["@mozilla.org/messengercompose/sendlater;1"]
                .getService(Ci.nsIMsgSendLater);
-  var identitiesCount, allIdentities, currentIdentity, numMessages, msgFolder;
+  var allIdentities, numMessages, msgFolder;
 
   if (accountManager) {
     allIdentities = accountManager.allIdentities;
-    identitiesCount = allIdentities.length;
-    for (var i = 0; i < identitiesCount; i++) {
-      currentIdentity = allIdentities.queryElementAt(i, Ci.nsIMsgIdentity);
+    for (let currentIdentity of allIdentities) {
       msgFolder = msgSendlater.getUnsentMessagesFolder(currentIdentity);
       if(msgFolder) {
         numMessages = msgFolder.getTotalMessages(false /* include subfolders */);

@@ -317,17 +317,6 @@ function onNoExpiry() {
   timeScale.disabled = noExpiry.checked;
 }
 
-function queryISupArray(supportsArray, iid) {
-  var result = [];
-  var i;
-  // Gecko > 20
-  for (i = 0; i < supportsArray.length; i++) {
-    result.push(supportsArray.queryElementAt(i, iid));
-  }
-
-  return result;
-}
-
 function getCurrentIdentity() {
   var item = gUserIdentityList.selectedItem;
   var identityKey = item.getAttribute("id");
@@ -341,8 +330,7 @@ function fillIdentityListPopup() {
   EnigmailLog.DEBUG("enigmailKeygen.js: fillIdentityListPopup\n");
 
   try {
-    var idSupports = gAccountManager.allIdentities;
-    var identities = queryISupArray(idSupports, Ci.nsIMsgIdentity);
+    var identities = gAccountManager.allIdentities;
 
     EnigmailLog.DEBUG(
       "enigmailKeygen.js: fillIdentityListPopup: " + identities + "\n"

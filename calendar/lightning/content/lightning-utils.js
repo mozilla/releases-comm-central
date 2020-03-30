@@ -51,11 +51,11 @@ function ltnInitMailIdentitiesRow() {
   addMenuItem(menuPopup, cal.l10n.getLtnString("imipNoIdentity"), "none");
   let identities;
   if (gCalendar && gCalendar.aclEntry && gCalendar.aclEntry.hasAccessControl) {
-    identities = gCalendar.aclEntry.getOwnerIdentities();
+    identities = [...fixIterator(gCalendar.aclEntry.getOwnerIdentities(), Ci.nsIMsgIdentity)];
   } else {
     identities = MailServices.accounts.allIdentities;
   }
-  for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
+  for (let identity of identities) {
     addMenuItem(menuPopup, identity.identityName, identity.key);
   }
   try {

@@ -417,12 +417,12 @@ var MailUtils = {
 
   /**
    * Get the identity that most likely is the best one to use, given the hint.
-   * @param identities    nsIArray<nsIMsgIdentity> of identities
-   * @param optionalHint  string containing comma separated mailboxes
-   * @param useDefault    If true, use the default identity of the default
-   *                      account as last choice. This is useful when all
-   *                      identities are passed in. Otherwise, use the first
-   *                      entity in the list.
+   * @param {nsIMsgIdentity[]} identities - The candidates to pick from.
+   * @param {String} [optionalHint] - String containing comma separated mailboxes.
+   * @param {Boolean} useDefault - If true, use the default identity of the
+   *   account as last choice. This is useful when all default account as last
+   *   choice. This is useful when all identities are passed in. Otherwise, use
+   *   the first entity in the list.
    */
   getBestIdentity(identities, optionalHint, useDefault = false) {
     let identityCount = identities.length;
@@ -438,7 +438,7 @@ var MailUtils = {
       let hints = optionalHint.toLowerCase().split(",");
 
       for (let i = 0; i < hints.length; i++) {
-        for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
+        for (let identity of identities) {
           if (!identity.email) {
             continue;
           }
@@ -460,12 +460,15 @@ var MailUtils = {
       }
     }
 
-    return identities.queryElementAt(0, Ci.nsIMsgIdentity);
+    return identities[0];
   },
 
   getIdentityForServer(server, optionalHint) {
     var identities = MailServices.accounts.getIdentitiesForServer(server);
-    return this.getBestIdentity(identities, optionalHint);
+    return this.getBestIdentity(
+      [...fixIterator(identities, Ci.nsIMsgIdentity)],
+      optionalHint
+    );
   },
 
   /**

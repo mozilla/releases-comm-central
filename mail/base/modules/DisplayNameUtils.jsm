@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -52,10 +49,7 @@ function getCardForEmail(aEmailAddress) {
 
 function _getIdentityForAddress(aEmailAddress) {
   let emailAddress = aEmailAddress.toLowerCase();
-  for (let identity of fixIterator(
-    MailServices.accounts.allIdentities,
-    Ci.nsIMsgIdentity
-  )) {
+  for (let identity of MailServices.accounts.allIdentities) {
     if (!identity.email) {
       continue;
     }

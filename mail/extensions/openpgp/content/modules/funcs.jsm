@@ -476,8 +476,7 @@ var EnigmailFuncs = {
     );
 
     // Determine all sorts of own email addresses
-    for (let i = 0; i < am.allIdentities.length; i++) {
-      let id = am.allIdentities.queryElementAt(i, Ci.nsIMsgIdentity);
+    for (let id of am.allIdentities) {
       if (id.email && id.email.length > 0) {
         ownEmails[this.getBaseEmail(id.email.toLowerCase())] = 1;
       }

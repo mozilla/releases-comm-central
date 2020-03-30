@@ -158,7 +158,7 @@ CalItipEmailTransport.prototype = {
         // identity.
         let allIdentities = MailServices.accounts.allIdentities;
         if (allIdentities.length > 0) {
-          this.mDefaultIdentity = allIdentities.queryElementAt(0, Ci.nsIMsgIdentity);
+          this.mDefaultIdentity = allIdentities[0];
         } else {
           // If there are no identities, then we are in the same
           // situation as if we didn't have Xpcom Mail.

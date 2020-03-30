@@ -69,10 +69,7 @@ function ComposeMessage(type, format, folder, messageArray) {
     deliveredTos.reverse();
 
     for (let i = 0; i < deliveredTos.length; i++) {
-      for (let identity of fixIterator(
-        MailServices.accounts.allIdentities,
-        Ci.nsIMsgIdentity
-      )) {
+      for (let identity of MailServices.accounts.allIdentities) {
         if (!identity.email) {
           continue;
         }

@@ -2181,14 +2181,11 @@ nsMsgDBView::Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType,
     }
   }
 
-  nsCOMPtr<nsIArray> identities;
-  rv = accountManager->GetAllIdentities(getter_AddRefs(identities));
-  if (!identities) return rv;
+  nsTArray<RefPtr<nsIMsgIdentity>> identities;
+  rv = accountManager->GetAllIdentities(identities);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count;
-  identities->GetLength(&count);
-  for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgIdentity> identity(do_QueryElementAt(identities, i));
+  for (auto identity : identities) {
     if (!identity) continue;
 
     nsCString email;

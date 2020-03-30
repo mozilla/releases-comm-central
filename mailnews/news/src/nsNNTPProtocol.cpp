@@ -3377,18 +3377,15 @@ nsresult nsNNTPProtocol::DoCancel() {
     nsCOMPtr<nsIMsgAccountManager> accountManager =
         do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
     if (NS_SUCCEEDED(rv) && accountManager) {
-      nsCOMPtr<nsIArray> identities;
-      rv = accountManager->GetAllIdentities(getter_AddRefs(identities));
+      nsTArray<RefPtr<nsIMsgIdentity>> identities;
+      rv = accountManager->GetAllIdentities(identities);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      uint32_t length;
-      rv = identities->GetLength(&length);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      for (uint32_t i = 0; i < length && from.IsEmpty(); ++i) {
-        nsCOMPtr<nsIMsgIdentity> identity(
-            do_QueryElementAt(identities, i, &rv));
-        if (NS_SUCCEEDED(rv)) CheckIfAuthor(identity, oldFrom, from);
+      for (auto identity : identities) {
+        CheckIfAuthor(identity, oldFrom, from);
+        if (!from.IsEmpty()) {
+          break;
+        }
       }
     }
 

@@ -533,7 +533,7 @@ var calitip = {
         // identity.
         let allIdentities = actMgr.allIdentities;
         if (allIdentities.length > 0) {
-          identity = allIdentities.queryElementAt(0, Ci.nsIMsgIdentity);
+          identity = allIdentities[0];
         } else {
           // If there are no identities at all, we cannot get a recipient.
           return null;

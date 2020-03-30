@@ -850,17 +850,17 @@ nsMsgAccountManager::GetAccounts(nsTArray<RefPtr<nsIMsgAccount>> &accounts) {
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::GetAllIdentities(nsIArray **_retval) {
+nsMsgAccountManager::GetAllIdentities(
+    nsTArray<RefPtr<nsIMsgIdentity>> &result) {
   nsresult rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMutableArray> result(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  result.Clear();
 
   nsCOMPtr<nsIArray> identities;
 
-  for (uint32_t i = 0; i < m_accounts.Length(); ++i) {
-    rv = m_accounts[i]->GetIdentities(getter_AddRefs(identities));
+  for (auto account : m_accounts) {
+    rv = account->GetIdentities(getter_AddRefs(identities));
     if (NS_FAILED(rv)) continue;
 
     uint32_t idCount;
@@ -871,31 +871,26 @@ nsMsgAccountManager::GetAllIdentities(nsIArray **_retval) {
       nsCOMPtr<nsIMsgIdentity> identity(do_QueryElementAt(identities, j, &rv));
       if (NS_FAILED(rv)) continue;
 
+      // Have we already got this identity?
       nsAutoCString key;
       rv = identity->GetKey(key);
       if (NS_FAILED(rv)) continue;
 
-      uint32_t resultCount;
-      rv = result->GetLength(&resultCount);
-      if (NS_FAILED(rv)) continue;
-
       bool found = false;
-      for (uint32_t k = 0; k < resultCount && !found; ++k) {
-        nsCOMPtr<nsIMsgIdentity> thisIdentity(
-            do_QueryElementAt(result, k, &rv));
-        if (NS_FAILED(rv)) continue;
-
+      for (auto thisIdentity : result) {
         nsAutoCString thisKey;
         rv = thisIdentity->GetKey(thisKey);
         if (NS_FAILED(rv)) continue;
 
-        if (key == thisKey) found = true;
+        if (key == thisKey) {
+          found = true;
+          break;
+        }
       }
 
-      if (!found) result->AppendElement(identity);
+      if (!found) result.AppendElement(identity);
     }
   }
-  result.forget(_retval);
   return rv;
 }
 
@@ -1308,22 +1303,13 @@ nsMsgAccountManager::ReactivateAccounts() {
 // and makes sure the folder flags are set there, too
 NS_IMETHODIMP
 nsMsgAccountManager::SetSpecialFolders() {
-  nsCOMPtr<nsIArray> identities;
-  GetAllIdentities(getter_AddRefs(identities));
+  nsTArray<RefPtr<nsIMsgIdentity>> identities;
+  GetAllIdentities(identities);
 
-  uint32_t idCount = 0;
-  identities->GetLength(&idCount);
-
-  uint32_t id;
-  nsCString identityKey;
-
-  for (id = 0; id < idCount; id++) {
+  for (auto thisIdentity : identities) {
     nsresult rv;
-    nsCOMPtr<nsIMsgIdentity> thisIdentity(
-        do_QueryElementAt(identities, id, &rv));
-    if (NS_FAILED(rv)) continue;
 
-    if (NS_SUCCEEDED(rv) && thisIdentity) {
+    if (thisIdentity) {
       nsCString folderUri;
       nsCOMPtr<nsIMsgFolder> folder;
 

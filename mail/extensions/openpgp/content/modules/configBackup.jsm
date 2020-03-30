@@ -54,9 +54,7 @@ var EnigmailConfigBackup = {
     let amService = this.getAccountManager();
 
     amService.LoadAccounts(); // ensure accounts are really loaded
-    let a = amService.allIdentities;
-    for (let i = 0; i < a.length; i++) {
-      let id = a.queryElementAt(i, Ci.nsIMsgIdentity);
+    for (let id of amService.allIdentities) {
       try {
         callbackFunc(id);
       } catch (ex) {

@@ -564,7 +564,7 @@ var Gloda = {
       return;
     }
 
-    for (let msgIdentity of fixIterator(allIdentities, Ci.nsIMsgIdentity)) {
+    for (let msgIdentity of allIdentities) {
       let emailAddress = msgIdentity.email;
       let replyTo = msgIdentity.replyTo;
       let msgIdentityDescription = msgIdentity.fullName || msgIdentity.email;

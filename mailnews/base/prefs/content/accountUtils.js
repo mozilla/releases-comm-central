@@ -375,10 +375,7 @@ function migrateGlobalQuotingPrefs(allIdentities) {
     } catch (ex) {}
 
     if (!auto_quote || reply_on_top) {
-      let numIdentities = allIdentities.length;
-      var identity = null;
-      for (var j = 0; j < numIdentities; j++) {
-        identity = allIdentities.queryElementAt(j, Ci.nsIMsgIdentity);
+      for (let identity of allIdentities) {
         if (identity.valid) {
           identity.autoQuote = auto_quote;
           identity.replyOnTop = reply_on_top;

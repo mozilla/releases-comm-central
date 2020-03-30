@@ -201,17 +201,12 @@ bool nsMapiHook::VerifyUserName(const nsCString &aUsername, nsCString &aIdKey) {
   nsCOMPtr<nsIMsgAccountManager> accountManager(
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv));
   if (NS_FAILED(rv)) return false;
-  nsCOMPtr<nsIArray> identities;
-  rv = accountManager->GetAllIdentities(getter_AddRefs(identities));
+  nsTArray<RefPtr<nsIMsgIdentity>> identities;
+  rv = accountManager->GetAllIdentities(identities);
   if (NS_FAILED(rv)) return false;
 
-  uint32_t numIndentities = 0;
-  identities->GetLength(&numIndentities);
-
-  for (uint32_t i = 0; i < numIndentities; i++) {
-    nsCOMPtr<nsIMsgIdentity> thisIdentity(
-        do_QueryElementAt(identities, i, &rv));
-    if (NS_SUCCEEDED(rv) && thisIdentity) {
+  for (auto thisIdentity : identities) {
+    if (thisIdentity) {
       nsCString email;
       rv = thisIdentity->GetEmail(email);
       if (NS_FAILED(rv)) continue;

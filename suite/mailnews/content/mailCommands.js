@@ -24,8 +24,8 @@ function GetNewMessages(selectedFolders, server)
 
 /**
  * Get the identity that most likely is the best one to use, given the hint.
- * @param identities nsIArray<nsIMsgIdentity> of identities
- * @param optionalHint string containing comma separated mailboxes
+ * @param {Array<nsIMsgIdentity> identities  The candidates to pick from.
+ * @param {String} optionalHint  String containing comma separated mailboxes
  */
 function getBestIdentity(identities, optionalHint)
 {
@@ -40,8 +40,7 @@ function getBestIdentity(identities, optionalHint)
     let hints = optionalHint.toLowerCase().split(",");
 
     for (let i = 0 ; i < hints.length; i++) {
-      for (let identity of fixIterator(identities,
-                  Ci.nsIMsgIdentity)) {
+      for (let identity of identities) {
         if (!identity.email)
           continue;
         if (hints[i].trim() == identity.email.toLowerCase() ||
@@ -51,13 +50,13 @@ function getBestIdentity(identities, optionalHint)
     }
   }
   // Return only found identity or pick the first one from list if no matches found.
-  return identities.queryElementAt(0, Ci.nsIMsgIdentity);
+  return identities[0];
 }
 
 function getIdentityForServer(server, optionalHint)
 {
   var identities = accountManager.getIdentitiesForServer(server);
-  return getBestIdentity(identities, optionalHint);
+  return getBestIdentity(fixIterator(identities, nsIMsgAccount), optionalHint);
 }
 
 /**
@@ -82,8 +81,7 @@ function GetIdentityForHeader(aMsgHdr, aType)
     // Reverse the array so that the last delivered-to header will show at front.
     deliveredTos.reverse();
     for (let i = 0; i < deliveredTos.length; i++) {
-      for (let identity of fixIterator(accountManager.allIdentities,
-                                  Ci.nsIMsgIdentity)) {
+      for (let identity of accountManager.allIdentities) {
         if (!identity.email)
           continue;
         // If the deliver-to header contains the defined identity, that's it.

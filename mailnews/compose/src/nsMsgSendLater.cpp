@@ -1268,17 +1268,9 @@ nsresult nsMsgSendLater::GetIdentityFromKey(const char *aKey,
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aKey) {
-    nsCOMPtr<nsIArray> identities;
-    if (NS_SUCCEEDED(
-            accountManager->GetAllIdentities(getter_AddRefs(identities)))) {
-      nsCOMPtr<nsIMsgIdentity> lookupIdentity;
-      uint32_t count = 0;
-
-      identities->GetLength(&count);
-      for (uint32_t i = 0; i < count; i++) {
-        lookupIdentity = do_QueryElementAt(identities, i, &rv);
-        if (NS_FAILED(rv)) continue;
-
+    nsTArray<RefPtr<nsIMsgIdentity>> identities;
+    if (NS_SUCCEEDED(accountManager->GetAllIdentities(identities))) {
+      for (auto lookupIdentity : identities) {
         nsCString key;
         lookupIdentity->GetKey(key);
         if (key.Equals(aKey)) {

@@ -2908,17 +2908,14 @@ function SendUnsentMessages() {
     Ci.nsIMsgSendLater
   );
 
-  let allIdentities = MailServices.accounts.allIdentities;
-  let identitiesCount = allIdentities.length;
-  for (let i = 0; i < identitiesCount; i++) {
-    let currentIdentity = allIdentities.queryElementAt(i, Ci.nsIMsgIdentity);
-    let msgFolder = msgSendlater.getUnsentMessagesFolder(currentIdentity);
+  for (let identity of MailServices.accounts.allIdentities) {
+    let msgFolder = msgSendlater.getUnsentMessagesFolder(identity);
     if (msgFolder) {
       let numMessages = msgFolder.getTotalMessages(
         false /* include subfolders */
       );
       if (numMessages > 0) {
-        msgSendlater.sendUnsentMessages(currentIdentity);
+        msgSendlater.sendUnsentMessages(identity);
         // Right now, all identities point to the same unsent messages
         // folder, so to avoid sending multiple copies of the
         // unsent messages, we only call messenger.SendUnsentMessages() once.

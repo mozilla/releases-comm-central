@@ -236,7 +236,7 @@ var ltnImipBar = {
       let isSentFolder = aMsgHdr.folder && aMsgHdr.folder.flags & Ci.nsMsgFolderFlags.SentMail;
       if (author && isSentFolder) {
         let accounts = MailServices.accounts;
-        for (let identity of fixIterator(accounts.allIdentities, Ci.nsIMsgIdentity)) {
+        for (let identity of accounts.allIdentities) {
           if (author.includes(identity.email) && !identity.fccReplyFollowsParent) {
             return true;
           }

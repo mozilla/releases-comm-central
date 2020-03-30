@@ -165,19 +165,15 @@ nsresult nsMsgOfflineManager::SendUnsentMessages() {
   // if so, add them to the list of identities to send unsent messages from.
   // However, I think there's only ever one unsent messages folder at the
   // moment, so I think we'll go with that for now.
-  nsCOMPtr<nsIArray> identities;
+  nsTArray<RefPtr<nsIMsgIdentity>> identities;
 
   if (NS_SUCCEEDED(rv) && accountManager) {
-    rv = accountManager->GetAllIdentities(getter_AddRefs(identities));
+    rv = accountManager->GetAllIdentities(identities);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   nsCOMPtr<nsIMsgIdentity> identityToUse;
-  uint32_t numIndentities;
-  identities->GetLength(&numIndentities);
-  for (uint32_t i = 0; i < numIndentities; i++) {
-    nsCOMPtr<nsIMsgIdentity> thisIdentity(
-        do_QueryElementAt(identities, i, &rv));
-    if (NS_SUCCEEDED(rv) && thisIdentity) {
+  for (auto thisIdentity : identities) {
+    if (thisIdentity) {
       nsCOMPtr<nsIMsgFolder> outboxFolder;
       pMsgSendLater->GetUnsentMessagesFolder(thisIdentity,
                                              getter_AddRefs(outboxFolder));

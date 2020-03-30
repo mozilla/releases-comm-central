@@ -2445,19 +2445,32 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
           do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIArray> identities;
+      nsTArray<RefPtr<nsIMsgIdentity>> identities;
       nsCString accountKey;
       mOrigMsgHdr->GetAccountKey(getter_Copies(accountKey));
       if (replyToSelfCheckAll) {
         // Check all available identities if the pref was set.
-        accountManager->GetAllIdentities(getter_AddRefs(identities));
+        accountManager->GetAllIdentities(identities);
       } else if (!accountKey.IsEmpty()) {
         // Check headers to see which account the message came in from
         // (only works for pop3).
         nsCOMPtr<nsIMsgAccount> account;
         accountManager->GetAccount(accountKey, getter_AddRefs(account));
-
-        if (account) account->GetIdentities(getter_AddRefs(identities));
+        if (account) {
+          // TODO: Bug 1614846 - stopgap until nsIAccount.getIdentities() takes
+          // nsTArray<>.
+          nsCOMPtr<nsIArray> tmp;
+          rv = account->GetIdentities(getter_AddRefs(tmp));
+          NS_ENSURE_SUCCESS(rv, rv);
+          uint32_t numElements;
+          rv = tmp->GetLength(&numElements);
+          NS_ENSURE_SUCCESS(rv, rv);
+          for (uint32_t i = 0; i < numElements; i++) {
+            nsCOMPtr<nsIMsgIdentity> ident = do_QueryElementAt(tmp, i, &rv);
+            NS_ENSURE_SUCCESS(rv, rv);
+            identities.AppendElement(ident);
+          }
+        }
       } else {
         // Check identities only for the server of the folder that the message
         // is in.
@@ -2468,26 +2481,33 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
           nsCOMPtr<nsIMsgIncomingServer> nsIMsgIncomingServer;
           rv = msgFolder->GetServer(getter_AddRefs(nsIMsgIncomingServer));
 
-          if (NS_SUCCEEDED(rv) && nsIMsgIncomingServer)
-            accountManager->GetIdentitiesForServer(nsIMsgIncomingServer,
-                                                   getter_AddRefs(identities));
+          if (NS_SUCCEEDED(rv) && nsIMsgIncomingServer) {
+            // TODO: Bug 1614846 - stopgap until
+            // nsIAccountManager.getIdentitiesForServer(). takes nsTArray<>.
+            nsCOMPtr<nsIArray> tmp;
+            rv = accountManager->GetIdentitiesForServer(nsIMsgIncomingServer,
+                                                        getter_AddRefs(tmp));
+            NS_ENSURE_SUCCESS(rv, rv);
+            uint32_t numElements;
+            rv = tmp->GetLength(&numElements);
+            NS_ENSURE_SUCCESS(rv, rv);
+            for (uint32_t i = 0; i < numElements; i++) {
+              nsCOMPtr<nsIMsgIdentity> ident = do_QueryElementAt(tmp, i, &rv);
+              NS_ENSURE_SUCCESS(rv, rv);
+              identities.AppendElement(ident);
+            }
+          }
         }
       }
 
       bool isReplyToSelf = false;
       nsCOMPtr<nsIMsgIdentity> selfIdentity;
-      if (identities) {
+      if (!identities.IsEmpty()) {
         // Go through the identities to see if any of them is the author of
         // the email.
         nsCOMPtr<nsIMsgIdentity> lookupIdentity;
 
-        uint32_t count = 0;
-        identities->GetLength(&count);
-
-        for (uint32_t i = 0; i < count; i++) {
-          lookupIdentity = do_QueryElementAt(identities, i, &rv);
-          if (NS_FAILED(rv)) continue;
-
+        for (auto lookupIdentity : identities) {
           selfIdentity = lookupIdentity;
 
           nsCString curIdentityEmail;
@@ -2502,11 +2522,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
             // have multiple identities set and sometimes *uses* the other
             // identity and sometimes *mails* the other identity.
             // E.g. husband+wife or own-email+company-role-mail.
-            for (uint32_t j = 0; j < count; j++) {
-              nsCOMPtr<nsIMsgIdentity> lookupIdentity2 =
-                  do_QueryElementAt(identities, j, &rv);
-              if (NS_FAILED(rv)) continue;
-
+            for (auto lookupIdentity2 : identities) {
               nsCString curIdentityEmail2;
               lookupIdentity2->GetEmail(curIdentityEmail2);
               if (toEmailAddresses.Contains(curIdentityEmail2)) {
@@ -3206,7 +3222,7 @@ nsresult nsMsgCompose::ProcessReplyFlags() {
 }
 NS_IMETHODIMP nsMsgCompose::OnStartSending(const char *aMsgID,
                                            uint32_t aMsgSize) {
-  nsTObserverArray<nsCOMPtr<nsIMsgSendListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
   nsCOMPtr<nsIMsgSendListener> externalSendListener;
 
@@ -3219,7 +3235,7 @@ NS_IMETHODIMP nsMsgCompose::OnStartSending(const char *aMsgID,
 
 NS_IMETHODIMP nsMsgCompose::OnProgress(const char *aMsgID, uint32_t aProgress,
                                        uint32_t aProgressMax) {
-  nsTObserverArray<nsCOMPtr<nsIMsgSendListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
   nsCOMPtr<nsIMsgSendListener> externalSendListener;
 
@@ -3231,7 +3247,7 @@ NS_IMETHODIMP nsMsgCompose::OnProgress(const char *aMsgID, uint32_t aProgress,
 }
 
 NS_IMETHODIMP nsMsgCompose::OnStatus(const char *aMsgID, const char16_t *aMsg) {
-  nsTObserverArray<nsCOMPtr<nsIMsgSendListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
   nsCOMPtr<nsIMsgSendListener> externalSendListener;
 
@@ -3245,7 +3261,7 @@ NS_IMETHODIMP nsMsgCompose::OnStatus(const char *aMsgID, const char16_t *aMsg) {
 NS_IMETHODIMP nsMsgCompose::OnStopSending(const char *aMsgID, nsresult aStatus,
                                           const char16_t *aMsg,
                                           nsIFile *returnFile) {
-  nsTObserverArray<nsCOMPtr<nsIMsgSendListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
   nsCOMPtr<nsIMsgSendListener> externalSendListener;
 
@@ -3258,7 +3274,7 @@ NS_IMETHODIMP nsMsgCompose::OnStopSending(const char *aMsgID, nsresult aStatus,
 
 NS_IMETHODIMP nsMsgCompose::OnSendNotPerformed(const char *aMsgID,
                                                nsresult aStatus) {
-  nsTObserverArray<nsCOMPtr<nsIMsgSendListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
   nsCOMPtr<nsIMsgSendListener> externalSendListener;
 
@@ -3271,7 +3287,7 @@ NS_IMETHODIMP nsMsgCompose::OnSendNotPerformed(const char *aMsgID,
 
 NS_IMETHODIMP nsMsgCompose::OnGetDraftFolderURI(const char *aFolderURI) {
   m_folderName = aFolderURI;
-  nsTObserverArray<nsCOMPtr<nsIMsgSendListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
       mExternalSendListeners);
   nsCOMPtr<nsIMsgSendListener> externalSendListener;
 
@@ -4349,7 +4365,7 @@ nsresult nsMsgCompose::NotifyStateListeners(int32_t aNotificationType,
   if (aNotificationType == nsIMsgComposeNotificationType::SaveInFolderDone)
     ResetUrisForEmbeddedObjects();
 
-  nsTObserverArray<nsCOMPtr<nsIMsgComposeStateListener> >::ForwardIterator iter(
+  nsTObserverArray<nsCOMPtr<nsIMsgComposeStateListener>>::ForwardIterator iter(
       mStateListeners);
   nsCOMPtr<nsIMsgComposeStateListener> thisListener;
 
