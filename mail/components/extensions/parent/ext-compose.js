@@ -44,7 +44,7 @@ async function parseComposeRecipientList(list) {
   return list;
 }
 
-async function openComposeWindow(relatedMessageId, type, composeParams) {
+async function openComposeWindow(relatedMessageId, type, details) {
   function waitForWindow() {
     return new Promise(resolve => {
       function observer(subject, topic, data) {
@@ -94,14 +94,14 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
     params.originalMsgURI = msgHdr.folder.getUriForMsg(msgHdr);
   }
   params.type = type;
-  if (composeParams) {
-    if (composeParams.body !== null) {
-      if (composeParams.plainTextBody !== null) {
+  if (details) {
+    if (details.body !== null) {
+      if (details.plainTextBody !== null) {
         throw new ExtensionError(
           "Only one of body and plainTextBody can be specified."
         );
       }
-      if (composeParams.isPlainText) {
+      if (details.isPlainText) {
         throw new ExtensionError(
           "Cannot specify body when isPlainText is true. Use plainTextBody instead."
         );
@@ -109,28 +109,26 @@ async function openComposeWindow(relatedMessageId, type, composeParams) {
     }
 
     for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
-      composeFields[field] = await parseComposeRecipientList(
-        composeParams[field]
-      );
+      composeFields[field] = await parseComposeRecipientList(details[field]);
     }
-    if (composeParams.newsgroups) {
-      if (Array.isArray(composeParams.newsgroups)) {
-        composeFields.newsgroups = composeParams.newsgroups.join(",");
+    if (details.newsgroups) {
+      if (Array.isArray(details.newsgroups)) {
+        composeFields.newsgroups = details.newsgroups.join(",");
       } else {
-        composeFields.newsgroups = composeParams.newsgroups;
+        composeFields.newsgroups = details.newsgroups;
       }
     }
-    if (composeParams.subject !== null) {
-      composeFields.subject = composeParams.subject;
+    if (details.subject !== null) {
+      composeFields.subject = details.subject;
     }
-    if (composeParams.body !== null) {
-      composeFields.body = composeParams.body;
+    if (details.body !== null) {
+      composeFields.body = details.body;
     }
-    if (composeParams.plainTextBody != null) {
-      if (composeParams.isPlainText) {
+    if (details.plainTextBody != null) {
+      if (details.isPlainText) {
         params.format = Ci.nsIMsgCompFormat.PlainText;
       }
-      composeFields.body = composeParams.plainTextBody;
+      composeFields.body = details.plainTextBody;
     }
   }
 
@@ -276,8 +274,8 @@ this.compose = class extends ExtensionAPI {
             };
           },
         }).api(),
-        beginNew(composeParams) {
-          return openComposeWindow(null, Ci.nsIMsgCompType.New, composeParams);
+        beginNew(details) {
+          return openComposeWindow(null, Ci.nsIMsgCompType.New, details);
         },
         beginReply(messageId, replyType) {
           let type = Ci.nsIMsgCompType.Reply;
@@ -288,7 +286,7 @@ this.compose = class extends ExtensionAPI {
           }
           return openComposeWindow(messageId, type);
         },
-        beginForward(messageId, forwardType, composeParams) {
+        beginForward(messageId, forwardType, details) {
           let type = Ci.nsIMsgCompType.ForwardInline;
           if (forwardType == "forwardAsAttachment") {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
@@ -298,7 +296,7 @@ this.compose = class extends ExtensionAPI {
           ) {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
           }
-          return openComposeWindow(messageId, type, composeParams);
+          return openComposeWindow(messageId, type, details);
         },
         getComposeDetails(tabId) {
           let tab = getComposeTab(tabId);
