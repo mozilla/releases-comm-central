@@ -150,6 +150,7 @@ pref("extensions.getAddons.search.url", "https://services.addons.thunderbird.net
 pref("extensions.webservice.discoverURL", "https://services.addons.thunderbird.net/%LOCALE%/%APP%/discovery/pane/%VERSION%/%OS%");
 pref("extensions.getAddons.siteRegExp", "^https://.*addons\\.thunderbird\\.net");
 pref("extensions.getAddons.langpacks.url", "https://services.addons.thunderbird.net/api/v3/addons/language-tools/?app=thunderbird&type=language&appversion=%VERSION%");
+pref("extensions.getAddons.discovery.api_url", "https://services.addons.thunderbird.net/api/v4/discovery/?lang=%LOCALE%&edition=%DISTRIBUTION%");
 
 // Blocklist preferences
 pref("extensions.blocklist.detailsURL", "https://blocked.cdn.mozilla.net/");
