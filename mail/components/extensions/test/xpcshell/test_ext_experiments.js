@@ -254,4 +254,18 @@ add_task(async function test_managers() {
   await extension.unload();
 
   Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
+
+  await new Promise(resolve => {
+    let observer = {
+      onItemRemoved() {
+        MailServices.ab.removeAddressBookListener(this);
+        resolve();
+      },
+    };
+    MailServices.ab.addAddressBookListener(
+      observer,
+      Ci.nsIAbListener.directoryRemoved
+    );
+    MailServices.ab.deleteAddressBook(book.URI);
+  });
 });
