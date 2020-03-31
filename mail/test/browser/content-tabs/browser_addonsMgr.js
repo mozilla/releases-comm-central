@@ -16,6 +16,7 @@ var { mc } = ChromeUtils.import(
 );
 var {
   plan_for_modal_dialog,
+  wait_for_browser_load,
   wait_for_modal_dialog,
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
@@ -26,8 +27,15 @@ add_task(function test_open_addons_with_url() {
 
   let tab = mc.tabmail.currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 10000);
-  Assert.ok(
-    content_tab_e(tab, "category-theme").selected,
+  let innerBrowser = content_tab_e(tab, "html-view-browser");
+  wait_for_browser_load(
+    innerBrowser,
+    "chrome://mozapps/content/extensions/aboutaddons.html"
+  );
+  let categoriesBox = innerBrowser.contentDocument.getElementById("categories");
+  Assert.equal(
+    categoriesBox.selectedChild.getAttribute("viewid"),
+    "addons://list/theme",
     "Themes category should be selected!"
   );
 
