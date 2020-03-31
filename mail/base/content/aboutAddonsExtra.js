@@ -40,7 +40,9 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
       browser.contentWindow.requestAnimationFrame(resolve)
     );
 
-    let textbox = browser.contentDocument.getElementById("search-addons");
+    let textbox = browser.contentDocument.querySelector(
+      "search-addons > search-textbox"
+    );
     let placeholder = textbox.getAttribute("placeholder");
     placeholder = placeholder.replace(
       "addons.mozilla.org",
