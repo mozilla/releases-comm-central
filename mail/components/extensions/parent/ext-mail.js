@@ -1637,6 +1637,25 @@ extensions.on("startup", (type, extension) => {
       () => new FolderManager(extension)
     );
   }
+  if (extension.hasPermission("addressBooks")) {
+    defineLazyGetter(extension, "addressBookManager", () => {
+      if (!("addressBookCache" in this)) {
+        extensions.loadModule("addressBook");
+      }
+      return {
+        findAddressBookById: this.addressBookCache.findAddressBookById.bind(
+          this.addressBookCache
+        ),
+        findContactById: this.addressBookCache.findContactById.bind(
+          this.addressBookCache
+        ),
+        findMailingListById: this.addressBookCache.findMailingListById.bind(
+          this.addressBookCache
+        ),
+        convert: this.addressBookCache.convert.bind(this.addressBookCache),
+      };
+    });
+  }
   if (extension.hasPermission("messagesRead")) {
     defineLazyGetter(
       extension,

@@ -58,10 +58,30 @@ add_task(async function test_managers() {
         testMessage.subject != messageList.messages[0].subject
       );
 
+      let [bookUID, contactUID, listUID] = await new Promise(resolve => {
+        browser.test.onMessage.addListener(function listener(...args) {
+          browser.test.onMessage.removeListener(listener);
+          resolve(args);
+        });
+        browser.test.sendMessage("get UIDs");
+      });
+      let [
+        foundBook,
+        foundContact,
+        foundList,
+      ] = await browser.testapi.testCanFindAddressBookItems(
+        bookUID,
+        contactUID,
+        listUID
+      );
+      browser.test.assertEq("new book", foundBook.name);
+      browser.test.assertEq("new contact", foundContact.properties.DisplayName);
+      browser.test.assertEq("new list", foundList.name);
+
       browser.test.notifyPass("finished");
     },
     files: {
-      "schema.json": JSON.stringify([
+      "schema.json": [
         {
           namespace: "testapi",
           functions: [
@@ -105,45 +125,93 @@ add_task(async function test_managers() {
               async: true,
               parameters: [],
             },
+            {
+              name: "testCanFindAddressBookItems",
+              type: "function",
+              async: true,
+              parameters: [
+                { name: "bookUID", type: "string" },
+                { name: "contactUID", type: "string" },
+                { name: "listUID", type: "string" },
+              ],
+            },
           ],
         },
-      ]),
-      "implementation.js": `
-        var { ExtensionCommon } = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
-        var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-        var testapi = class extends ExtensionCommon.ExtensionAPI {
+      ],
+      "implementation.js": () => {
+        var { ExtensionCommon } = ChromeUtils.import(
+          "resource://gre/modules/ExtensionCommon.jsm"
+        );
+        var { MailServices } = ChromeUtils.import(
+          "resource:///modules/MailServices.jsm"
+        );
+        this.testapi = class extends ExtensionCommon.ExtensionAPI {
           getAPI(context) {
             return {
               testapi: {
-                async testCanGetFolder({accountId, path}) {
-                  let realFolder = context.extension.folderManager.get(accountId, path);
+                async testCanGetFolder({ accountId, path }) {
+                  let realFolder = context.extension.folderManager.get(
+                    accountId,
+                    path
+                  );
                   return realFolder.getTotalMessages(false);
                 },
                 async testCanConvertFolder() {
-                  let realFolder = [...MailServices.accounts.allFolders.enumerate()].find(f => f.name == "test1");
+                  let realFolder = [
+                    ...MailServices.accounts.allFolders.enumerate(),
+                  ].find(f => f.name == "test1");
                   return context.extension.folderManager.convert(realFolder);
                 },
                 async testCanGetMessage(messageId) {
-                  let realMessage = context.extension.messageManager.get(messageId);
+                  let realMessage = context.extension.messageManager.get(
+                    messageId
+                  );
                   return realMessage.subject;
                 },
                 async testCanConvertMessage() {
-                  let realFolder = [...MailServices.accounts.allFolders.enumerate()].find(f => f.name == "test1");
+                  let realFolder = [
+                    ...MailServices.accounts.allFolders.enumerate(),
+                  ].find(f => f.name == "test1");
                   let realMessage = realFolder.messages.getNext();
                   return context.extension.messageManager.convert(realMessage);
                 },
                 async testCanStartMessageList() {
-                  let realFolder = [...MailServices.accounts.allFolders.enumerate()].find(f => f.name == "test1");
-                  return context.extension.messageManager.startMessageList(realFolder.messages);
+                  let realFolder = [
+                    ...MailServices.accounts.allFolders.enumerate(),
+                  ].find(f => f.name == "test1");
+                  return context.extension.messageManager.startMessageList(
+                    realFolder.messages
+                  );
+                },
+                async testCanFindAddressBookItems(
+                  bookUID,
+                  contactUID,
+                  listUID
+                ) {
+                  let foundBook = context.extension.addressBookManager.findAddressBookById(
+                    bookUID
+                  );
+                  let foundContact = context.extension.addressBookManager.findContactById(
+                    contactUID
+                  );
+                  let foundList = context.extension.addressBookManager.findMailingListById(
+                    listUID
+                  );
+
+                  return [
+                    context.extension.addressBookManager.convert(foundBook),
+                    context.extension.addressBookManager.convert(foundContact),
+                    context.extension.addressBookManager.convert(foundList),
+                  ];
                 },
               },
             };
           }
         };
-      `,
+      },
     },
     manifest: {
-      permissions: ["accountsRead", "messagesRead"],
+      permissions: ["accountsRead", "addressBooks", "messagesRead"],
       experiment_apis: {
         testapi: {
           schema: "schema.json",
@@ -156,9 +224,34 @@ add_task(async function test_managers() {
       },
     },
   });
+
+  let dirPrefId = MailServices.ab.newAddressBook("new book", "", 101);
+  let book = MailServices.ab.getDirectoryFromId(dirPrefId);
+
+  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+    Ci.nsIAbCard
+  );
+  contact.displayName = "new contact";
+  contact.firstName = "new";
+  contact.lastName = "contact";
+  contact.primaryEmail = "new.contact@invalid";
+  contact = book.addCard(contact);
+
+  let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
+    Ci.nsIAbDirectory
+  );
+  list.isMailList = true;
+  list.dirName = "new list";
+  list = book.addMailList(list);
+  list.addCard(contact);
+
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 4);
+
   await extension.startup();
+  await extension.awaitMessage("get UIDs");
+  extension.sendMessage(book.UID, contact.UID, list.UID);
   await extension.awaitFinish("finished");
   await extension.unload();
+
   Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
 });
