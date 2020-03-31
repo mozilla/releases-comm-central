@@ -4,147 +4,15 @@
 
 @import url("chrome://messenger/skin/");
 
-@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
-:root {
-  --body-background-color: -moz-Field;
-  --body-text-color: -moz-FieldText;
-  --head-background-color: ButtonFace;
-  --head-text-color: -moz-DialogText;
-  --head-border-color: ThreeDDarkShadow;
-  --link-color-hover: -moz-nativehyperlinktext;
-  --link-color-active: -moz-activehyperlinktext;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --body-background-color: #2a2a2e;
-    --body-text-color: rgb(249, 249, 250);
-    --head-background-color: #4a4a4f;
-    --head-text-color: var(--body-text-color);
-    --head-border-color: #737373;
-    --link-color-hover: #0060df;
-    --link-color-active: #003eaa;
-  }
-}
-
 html {
   height: 100%;
 }
-
-#acctCentralLayout {
-  overflow: auto;
-  background-color: var(--body-background-color);
-  color: var(--body-text-color);
-  height: 100vh;
-}
-
-spacer {
-  max-height: .4em;
-}
-
-spacer.big {
-  max-height: 3em;
-}
-
-#acctCentralHeaderRow {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-inline-start: 10px;
-  padding-inline-end: 0;
-  font-size: 160%;
-  font-weight: bold;
-}
-
-.acctCentralTitleRow {
-  padding-left: 10px;
-}
-.acctCentralRowTitleBox {
-  background-color: var(--head-background-color);
-  border: 1px solid var(--head-border-color);
-  margin: 15px 6px 0;
-  border-radius: 3px;
-  color: var(--head-text-color);
-  padding-top: 2px;
-  padding-bottom: 0;
-  padding-inline-start: 8px;
-  padding-inline-end: 4px;
-  font-size: 150%;
-  font-weight: bold;
-}
-
-.acctCentralRow {
-  margin-inline-start: 10px;
-  font-size: 125%;
-}
-
-.acctCentralRow > hbox {
-  margin-inline-start: 6px;
-}
-
-.row-iconic-icon {
-  list-style-image: inherit;
-  margin-inline-end: 10px;
-}
-
-.acctCentralText {
-  padding-inline-start: 45px;
-  margin-top: .5em;
-  margin-bottom: .5em;
-  min-height: 24px; /* icon height */
-}
-
-.acctCentralNewAcctText {
-  padding-inline-start: 20px;
-  padding-inline-end: 10px;
-}
-
-.acctCentralLinkText {
-  cursor: pointer;
-}
-
-.acctCentralLinkText:hover,
-.acctCentralLinkText:focus {
-  color: var(--link-color-hover);
-  text-decoration: underline;
-}
-
-.acctCentralLinkText:active {
-  color: var(--link-color-active);
-}
-
-#createAccountsList {
-  display: block;
-  padding-inline-start: 45px;
-  margin-bottom: .6em;
-}
-
-#readMessages label:-moz-locale-dir(rtl),
-#composeMessage label:-moz-locale-dir(rtl),
-#accountSettings label:-moz-locale-dir(rtl),
-#createAccount label:-moz-locale-dir(rtl),
-#searchMessages label:-moz-locale-dir(rtl),
-#createFilters label:-moz-locale-dir(rtl),
-#offlineSettings label:-moz-locale-dir(rtl),
-#createAccountMail:-moz-locale-dir(rtl),
-#createAccountMovemail:-moz-locale-dir(rtl),
-#createAccountChat:-moz-locale-dir(rtl),
-#createAccountNewsgroups:-moz-locale-dir(rtl),
-#createAccountRSS:-moz-locale-dir(rtl),
-#subscribeImapFolders label:-moz-locale-dir(rtl),
-#subscribeNewsgroups label:-moz-locale-dir(rtl),
-#subscribeRSS label:-moz-locale-dir(rtl),
-#junkSettingsMail label:-moz-locale-dir(rtl) {
-  background-position: right center;
-}
-
-
-/* New layout */
 
 :root {
   --bg-color: #ffffff;
   --bg-watermark: url("chrome://messenger/skin/images/account-watermark.png");
   --header-bg-color: rgba(0, 0, 0, 0.05);
+  --accounts-bg-color: rgba(0, 0, 0, 0.03);
   --text-color: #36385A;
   --title-color: #002275;
   --primary-color: #0a84ff;
@@ -159,11 +27,12 @@ spacer.big {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-color: #2E2F30;
+    --bg-color: #2f2f33;
     --bg-watermark: url("chrome://messenger/skin/images/account-watermark-light.png");
     --header-bg-color: rgba(255, 255, 255, 0.05);
+    --accounts-bg-color: rgba(255, 255, 255, 0.03);
     --text-color: #f9f9fa;
-    --title-color: #b1b1b3;
+    --title-color: #fefefe;
     --primary-color: #0a84ff;
     --primary-color-hover: #0a84ff;
     --btn-color: #FFFFFF;
@@ -176,11 +45,12 @@ spacer.big {
 }
 
 :root[lwt-tree-brighttext] {
-  --bg-color: #2E2F30;
+  --bg-color: #2f2f33;
   --bg-watermark: url("chrome://messenger/skin/images/account-watermark-light.png");
   --header-bg-color: rgba(255, 255, 255, 0.05);
+  --accounts-bg-color: rgba(255, 255, 255, 0.03);
   --text-color: #f9f9fa;
-  --title-color: #b1b1b3;
+  --title-color: #fefefe;
   --primary-color: #0a84ff;
   --primary-color-hover: #0a84ff;
   --btn-color: #FFFFFF;
@@ -209,15 +79,39 @@ body {
   height: 100vh;
 }
 
-#accountCentral[hidden] {
-  display: none;
-}
-
 #brandLogo {
   width: 64px;
   height: 64px;
   margin-inline-end: 20px;
   flex-shrink: 0;
+}
+
+#accountLogo {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  color: var(--primary-color);
+  width: 18px;
+  height: 18px;
+  margin-inline-end: 10px;
+  flex-shrink: 0;
+  background: url("chrome://messenger/skin/icons/message.svg") center no-repeat;
+  background-size: contain;
+  display: block;
+}
+
+#accountLogo[type="none"] {
+  background-image: url("chrome://messenger/skin/icons/folder.svg");
+}
+
+#accountLogo[type="rss"],
+#setupFeeds::before,
+#rssSubscriptionButton:before,
+#nntpSubscriptionButton:before {
+  background-image: url("chrome://messenger/skin/icons/subscribe.svg");
+}
+
+#accountLogo[type="nntp"] {
+  background-image: url("chrome://messenger/skin/icons/reader-mode.svg");
 }
 
 .account-central-header {
@@ -227,11 +121,23 @@ body {
   padding: 20px 30px;
 }
 
+.account-central-header.summary-header {
+  padding-block: 16px;
+}
+
+[hidden] {
+  display: none !important; /* Ensure flex items obey hidden="hidden". */
+}
+
 .account-central-header > aside {
   display: flex;
   align-items: center;
   width: 160px;
   flex: 1 1 auto;
+}
+
+aside.settings-btn-container {
+  justify-content: end;
 }
 
 .account-central-title {
@@ -240,6 +146,18 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  margin-block: 0;
+}
+
+#accountName {
+  font-size: 1.2em;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-block: 0;
+  /* Prevents UI jumping when dinamically changing the content. */
+  min-height: 21px;
 }
 
 .account-central-version {
@@ -285,11 +203,21 @@ body {
   padding-block-end: 30px;
 }
 
+.account-central-section.zebra {
+  background-color: var(--accounts-bg-color);
+}
+
+#accountFeaturesSection {
+  margin-block-start: 20px;
+}
+
 .section-title {
   font-size: larger;
   font-weight: 600;
   color: var(--title-color);
   margin-block: 10px 20px;
+  /* Prevents UI jumping when dinamically changing the content. */
+  min-height: 21px;
 }
 
 .row-container {
@@ -302,8 +230,17 @@ body {
   flex: 1;
   display: block;
   min-width: 300px;
+  max-width: 550px;
   margin-inline: 10px;
   margin-block: 0 20px;
+}
+
+.row-container.account-options {
+  max-width: 800px;
+}
+
+.row-container.account-options > .btn-link {
+  margin-inline: 10px 20px;
 }
 
 /* Custom buttons style =================================== */
@@ -344,7 +281,9 @@ body {
   flex-direction: row;
   width: auto;
   height: auto;
-  padding: 10px 14px;
+  padding: 8px 12px;
+  justify-content: flex-start;
+  min-width: 140px;
 }
 
 .btn-hub:focus:not(:hover) {
@@ -397,10 +336,6 @@ body {
   background-image: url("chrome://messenger/skin/icons/link.svg");
 }
 
-#setupFeeds::before {
-  background-image: url("chrome://messenger/skin/icons/subscribe.svg");
-}
-
 #setupNewsgroups::before {
   background-image: url("chrome://messenger/skin/icons/reader-mode.svg");
 }
@@ -426,6 +361,7 @@ body {
   background-color: var(--popup-bg);
   padding: 4px 8px;
   border-radius: 4px;
+  box-shadow: 0 2px 5px -4px rgba(0, 0, 0, 0.8);
 }
 
 .btn-hub:hover + .account-description,
@@ -450,6 +386,25 @@ body {
   outline: 1px dotted Highlight;
 }
 
+.btn-link {
+  -moz-appearance: none;
+  display: flex;
+  background-color: transparent;
+  color: var(--text-color);
+  -moz-context-properties: fill;
+  fill: currentColor;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1em;
+  align-items: center;
+  transition: color .2s;
+}
+
+.btn-link.btn-inline {
+  margin-block-end: 20px;
+}
+
 .resource-link {
   color: var(--text-color);
   -moz-context-properties: fill;
@@ -460,6 +415,7 @@ body {
   cursor: pointer;
 }
 
+.btn-link:before,
 .resource-link:before {
   position: relative;
   display: inline-block;
@@ -471,6 +427,7 @@ body {
   vertical-align: sub;
 }
 
+.btn-link:hover,
 .resource-link:hover {
   color: var(--primary-color-hover);
 }
@@ -493,4 +450,28 @@ body {
 
 #developerLink:before {
   background-image: url("chrome://messenger/skin/icons/developer.svg");
+}
+
+#settingsButton:before {
+  background-image: url("chrome://mozapps/skin/extensions/utilities.svg");
+}
+
+#readButton:before {
+  background-image: url("chrome://messenger/skin/icons/inbox.svg");
+}
+
+#composeButton:before {
+  background-image: url("chrome://messenger/skin/icons/newmsg.svg");
+}
+
+#searchButton:before {
+  background-image: url("chrome://messenger/skin/icons/search-glass.svg");
+}
+
+#filterButton:before {
+  background-image: url("chrome://messenger/skin/icons/filter.svg");
+}
+
+#e2eButton:before {
+  background-image: url("chrome://messenger/skin/icons/encryption-key.svg");
 }

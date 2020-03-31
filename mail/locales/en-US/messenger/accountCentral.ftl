@@ -3,8 +3,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 account-central-title = Welcome to { -brand-full-name }
+account-settings = Account Settings
 
-setup-title = Choose What to Set Up
+#   $accounts (Number) - the number of configured accounts
+setup-title = { $accounts ->
+    [0]      Choose What to Set Up
+    *[other] Set Up Another Account
+}
 about-title = About { -brand-full-name }
 resources-title = Resources
 
@@ -54,3 +59,11 @@ explore-link = Explore Features
 support-link = Support
 involved-link = Get Involved
 developer-link = Developer Documentation
+
+read = Read messages
+compose = Write a new message
+search = Search messages
+filter = Manage message filters
+nntp-subscription = Manage newsgroup subscriptions
+rss-subscription = Manage feed subscriptions
+e2e = End-to-end Encryption

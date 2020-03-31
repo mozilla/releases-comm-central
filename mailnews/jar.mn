@@ -71,7 +71,7 @@ messenger.jar:
     content/messenger/folder-menupopup.js                                      (base/content/folder-menupopup.js)
     content/messenger/newFolderDialog.xhtml                                    (base/content/newFolderDialog.xhtml)
     content/messenger/newFolderDialog.js                                       (base/content/newFolderDialog.js)
-*   content/messenger/msgAccountCentral.xhtml                                  (base/content/msgAccountCentral.xhtml)
+    content/messenger/msgAccountCentral.xhtml                                  (base/content/msgAccountCentral.xhtml)
     content/messenger/msgAccountCentral.js                                     (base/content/msgAccountCentral.js)
     content/messenger/renameFolderDialog.xhtml                                 (base/content/renameFolderDialog.xhtml)
     content/messenger/renameFolderDialog.js                                    (base/content/renameFolderDialog.js)
