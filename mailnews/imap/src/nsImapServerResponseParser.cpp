@@ -387,6 +387,11 @@ void nsImapServerResponseParser::ProcessOkCommand(const char *commandToken) {
 
       fZeroLengthMessageUidString.Truncate();
     }
+  } else if (!PL_strcasecmp(commandToken, "GETQUOTAROOT")) {
+    if (LastCommandSuccessful()) {
+      nsCString str;
+      fServerConnection.UpdateFolderQuotaData(kValidateQuota, str, 0, 0);
+    }
   }
   if (GetFillingInShell()) {
     // There is a BODYSTRUCTURE response.  Now let's generate the stream...
@@ -2575,50 +2580,62 @@ nsIMAPBodypart *nsImapServerResponseParser::bodystructure_multipart(
 //           quota_response = "QUOTA" SP astring SP quota_list
 //           quota_list     = "(" [quota_resource *(SP quota_resource)] ")"
 //           quota_resource = atom SP number SP number
-// Only the STORAGE resource is considered.  The current implementation is
-// slightly broken because it assumes that STORAGE is the first resource;
-// a response   QUOTA (MESSAGE 5 100 STORAGE 10 512)   would be ignored.
+// draft-melnikov-extra-quota-00 proposes some additions to RFC2087 and
+// improves the documentation. We still only support RFC2087 capability QUOTA
+// and command GETQUOTAROOT and its untagged QUOTAROOT and QUOTA responses.
 void nsImapServerResponseParser::quota_data() {
   if (!PL_strcasecmp(fNextToken, "QUOTAROOT")) {
-    // ignore QUOTAROOT response
+    // Ignore QUOTAROOT response (except to invalidate previously stored data).
     nsCString quotaroot;
     AdvanceToNextToken();
     while (ContinueParse() && !fAtEndOfLine) {
       quotaroot.Adopt(CreateAstring());
       AdvanceToNextToken();
     }
+    // Invalidate any previously stored quota data. Updated QUOTA data follows.
+    fServerConnection.UpdateFolderQuotaData(kInvalidateQuota, quotaroot, 0, 0);
   } else if (!PL_strcasecmp(fNextToken, "QUOTA")) {
-    uint32_t used, max;
-    char *parengroup;
-
+    // Should have one QUOTA response per QUOTAROOT.
+    uint32_t usage, limit;
     AdvanceToNextToken();
     if (ContinueParse()) {
       nsCString quotaroot;
       quotaroot.Adopt(CreateAstring());
-
-      if (ContinueParse() && !fAtEndOfLine) {
-        AdvanceToNextToken();
-        if (fNextToken) {
-          if (!PL_strcasecmp(fNextToken, "(STORAGE")) {
-            parengroup = CreateParenGroup();
-            if (parengroup && (PR_sscanf(parengroup, "(STORAGE %lu %lu)", &used,
-                                         &max) == 2)) {
-              fServerConnection.UpdateFolderQuotaData(quotaroot, used, max);
-              skip_to_CRLF();
-            } else
-              SetSyntaxError(true);
-
-            PR_Free(parengroup);
-          } else
-            // Ignore other limits, we just check STORAGE for now
-            skip_to_CRLF();
-        } else
-          SetSyntaxError(true);
-      } else
-        HandleMemoryFailure();
+      nsCString resource;
+      AdvanceToNextToken();
+      if (fNextToken) {
+        if (fNextToken[0] == '(') fNextToken++;
+        // Should have zero or more "resource|usage|limit" triplet per quotaroot
+        // name. See draft-melnikov-extra-quota-00 for specific examples. Well
+        // known resources are STORAGE (in Kbytes), number of MESSAGEs and
+        // number of MAILBOXes. However, servers typically only set a quota on
+        // STORAGE in KBytes. A mailbox can have multiple quotaroots but
+        // typically only one and with a single resource.
+        while (ContinueParse() && !fAtEndOfLine) {
+          resource.Adopt(CreateAstring());
+          AdvanceToNextToken();
+          usage = atoi(fNextToken);
+          AdvanceToNextToken();
+          nsAutoCString limitToken(fNextToken);
+          if (fNextToken[strlen(fNextToken) - 1] == ')')
+            limitToken.SetLength(strlen(fNextToken) - 1);
+          limit = atoi(limitToken.get());
+          // Some servers don't define a quotaroot name which we displays as
+          // blank.
+          nsCString quotaRootResource(quotaroot);
+          if (!quotaRootResource.IsEmpty()) {
+            quotaRootResource.AppendLiteral(" / ");
+          }
+          quotaRootResource.Append(resource);
+          fServerConnection.UpdateFolderQuotaData(
+              kStoreQuota, quotaRootResource, usage, limit);
+          AdvanceToNextToken();
+        }
+      }
     }
-  } else
+  } else {
     SetSyntaxError(true);
+  }
 }
 
 void nsImapServerResponseParser::id_data() {

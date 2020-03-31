@@ -154,6 +154,54 @@ static nsresult RecursiveCopy(nsIFile *srcDir, nsIFile *destDir) {
   return rv;
 }
 
+//
+//  nsMsgQuota
+//
+NS_IMPL_ISUPPORTS(nsMsgQuota, nsIMsgQuota)
+
+nsMsgQuota::nsMsgQuota(const nsACString &aName, const uint32_t &aUsage,
+                       const uint32_t &aLimit)
+    : mName(aName), mUsage(aUsage), mLimit(aLimit) {}
+
+nsMsgQuota::~nsMsgQuota() {}
+
+/**
+ * Note: These quota access function are not called but still must be defined
+ * for the linker.
+ */
+NS_IMETHODIMP nsMsgQuota::GetName(nsACString &aName) {
+  aName = mName;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgQuota::SetName(const nsACString &aName) {
+  mName = aName;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgQuota::GetUsage(uint32_t *aUsage) {
+  *aUsage = mUsage;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgQuota::SetUsage(uint32_t aUsage) {
+  mUsage = aUsage;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgQuota::GetLimit(uint32_t *aLimit) {
+  *aLimit = mLimit;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgQuota::SetLimit(uint32_t aLimit) {
+  mLimit = aLimit;
+  return NS_OK;
+}
+
+//
+//  nsImapMailFolder
+//
 nsImapMailFolder::nsImapMailFolder()
     : m_initialized(false),
       m_haveDiscoveredAllFolders(false),
@@ -167,16 +215,14 @@ nsImapMailFolder::nsImapMailFolder()
       m_folderNeedsAdded(false),
       m_folderNeedsACLListed(true),
       m_performingBiff(false),
-      m_folderQuotaCommandIssued(false),
-      m_folderQuotaDataIsValid(false),
       m_updatingFolder(false),
       m_compactingOfflineStore(false),
       m_expunging(false),
       m_applyIncomingFilters(false),
       m_downloadingFolderForOfflineUse(false),
       m_filterListRequiresBody(false),
-      m_folderQuotaUsedKB(0),
-      m_folderQuotaMaxKB(0) {
+      m_folderQuotaCommandIssued(false),
+      m_folderQuotaDataIsValid(false) {
   m_boxFlags = 0;
   m_uidValidity = kUidUnknown;
   m_numServerRecentMessages = 0;
@@ -5520,33 +5566,39 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps *aFolderProps) {
   nsresult rv = IMAPGetStringBundle(getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // get the host session list and get server capabilities.
-  eIMAPCapabilityFlags capability = kCapabilityUndefined;
-
   nsCOMPtr<nsIImapIncomingServer> imapServer;
   rv = GetImapIncomingServer(getter_AddRefs(imapServer));
   // if for some bizarre reason this fails, we'll still fall through to the
   // normal sharing code
   if (NS_SUCCEEDED(rv)) {
-    bool haveACL = false;
-    bool haveQuota = false;
-    imapServer->GetCapabilityACL(&haveACL);
-    imapServer->GetCapabilityQuota(&haveQuota);
+    // get the latest committed imap capabilities bit mask.
+    eIMAPCapabilityFlags capability = kCapabilityUndefined;
+    imapServer->GetCapability(&capability);
+    bool haveACL = capability & kACLCapability;
+    bool haveQuota = capability & kQuotaCapability;
 
     // Figure out what to display in the Quota tab of the folder properties.
-    // Does the server support quotas?
+    // Does the server support quotas? This depends on the latest imap
+    // CAPABILITY response.
     if (haveQuota) {
-      // Have we asked the server for quota information?
+      // Have quota capability. Have we asked the server for quota information?
       if (m_folderQuotaCommandIssued) {
-        // Has the server replied with storage quota info?
+        // Has the server replied with all the quota info?
         if (m_folderQuotaDataIsValid) {
-          // If so, set quota data
-          folderQuotaStatusStringID = nullptr;
-          aFolderProps->SetQuotaData(m_folderQuotaRoot, m_folderQuotaUsedKB,
-                                     m_folderQuotaMaxKB);
+          if (!m_folderQuota.IsEmpty()) {
+            // If so, set quota data to show in the quota tab
+            folderQuotaStatusStringID = nullptr;
+            aFolderProps->SetQuotaData(m_folderQuota);
+          } else {
+            // The server reported no quota limits on this folder.
+            folderQuotaStatusStringID = "imapQuotaStatusNoQuota2";
+          }
         } else {
-          // If not, there is no storage quota set on this folder
-          folderQuotaStatusStringID = "imapQuotaStatusNoQuota";
+          // The getquotaroot command was sent to the server but the complete
+          // response was not yet received when the folder properties were
+          // requested. This is rare. Request the folder properties again to
+          // obtain the quota data.
+          folderQuotaStatusStringID = "imapQuotaStatusInProgress";
         }
       } else {
         // The folder is not open, so no quota information is available
@@ -5556,7 +5608,7 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps *aFolderProps) {
       // Either the server doesn't support quotas, or we don't know if it does
       // (e.g., because we don't have a connection yet). If the latter, we fall
       // back to saying that no information is available because the folder is
-      // not open.
+      // not yet open.
       folderQuotaStatusStringID = (capability == kCapabilityUndefined)
                                       ? "imapQuotaStatusFolderNotOpen"
                                       : "imapQuotaStatusNotSupported";
@@ -7927,23 +7979,41 @@ NS_IMETHODIMP nsImapMailFolder::SetFolderQuotaCommandIssued(bool aCmdIssued) {
 }
 
 NS_IMETHODIMP nsImapMailFolder::SetFolderQuotaData(
-    const nsACString &aFolderQuotaRoot, uint32_t aFolderQuotaUsedKB,
-    uint32_t aFolderQuotaMaxKB) {
-  m_folderQuotaDataIsValid = true;
-  m_folderQuotaRoot = aFolderQuotaRoot;
-  m_folderQuotaUsedKB = aFolderQuotaUsedKB;
-  m_folderQuotaMaxKB = aFolderQuotaMaxKB;
+    uint32_t aAction, const nsACString &aFolderQuotaRoot,
+    uint32_t aFolderQuotaUsage, uint32_t aFolderQuotaLimit) {
+  switch (aAction) {
+    case kInvalidateQuota:
+      // Reset to initialize evaluation of a new quotaroot imap response. This
+      // clears any previous array data and marks the quota data for this folder
+      // invalid.
+      m_folderQuotaDataIsValid = false;
+      m_folderQuota.Clear();
+      break;
+    case kStoreQuota:
+      // Store folder's quota data to an array. This will occur zero or more
+      // times for a folder.
+      m_folderQuota.AppendElement(new nsMsgQuota(
+          aFolderQuotaRoot, aFolderQuotaUsage, aFolderQuotaLimit));
+      break;
+    case kValidateQuota:
+      // GETQUOTAROOT command was successful and OK response has occcured. This
+      // indicates that all the untagged QUOTA responses have occurred so mark
+      // as valid.
+      m_folderQuotaDataIsValid = true;
+      break;
+    default:
+      // Called with undefined aAction parameter.
+      NS_ASSERTION(false, "undefined action");
+  }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetQuota(bool *aValid, uint32_t *aUsed,
-                                         uint32_t *aMax) {
-  NS_ENSURE_ARG_POINTER(aValid);
-  NS_ENSURE_ARG_POINTER(aUsed);
-  NS_ENSURE_ARG_POINTER(aMax);
-  *aValid = m_folderQuotaDataIsValid;
-  *aUsed = m_folderQuotaUsedKB;
-  *aMax = m_folderQuotaMaxKB;
+// Provide the quota array for status bar notification.
+NS_IMETHODIMP nsImapMailFolder::GetQuota(
+    nsTArray<RefPtr<nsIMsgQuota>> &aArray) {
+  if (m_folderQuotaDataIsValid) {
+    aArray = m_folderQuota;
+  }
   return NS_OK;
 }
 

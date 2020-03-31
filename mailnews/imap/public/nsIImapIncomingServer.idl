@@ -45,8 +45,6 @@ interface nsIImapIncomingServer : nsISupports {
   attribute boolean mimePartsOnDemand;
   attribute boolean sendID;
   attribute boolean isAOLServer;
-  attribute boolean capabilityACL;
-  attribute boolean capabilityQuota;
   attribute boolean useIdle;
   attribute boolean checkAllFoldersForNew;
 
@@ -90,6 +88,8 @@ interface nsIImapIncomingServer : nsISupports {
                                         in nsIMsgWindow aWindow,
                                         in boolean forceAllFolders,
                                         in boolean performingBiff);
+  void getCapability(out unsigned long long capability);
+
   /**
    * Get the password from the nsIMsgIncomingServer. May prompt the user
    * if there's no password in the password manager or cached in the

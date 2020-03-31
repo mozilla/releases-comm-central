@@ -56,13 +56,18 @@ interface nsIImapMailFolderSink : nsISupports {
 
   /**
    * Set FolderQuotaData information
-   * @param aFolderQuotaRoot    The IMAP quota root for this folder,
-   *                            as returned by the GETQUOTAROOT IMAP command.
-   * @param aFolderQuotaUsedKB  Used space, in KB, on this folder's quota root.
-   * @param aFolderQuotaMaxKB   Size, in KB, of this folder's quota root.
+   * @param aAction             Invalidate, store or validate the quota data.
+   *                            Remaining params are relevant only for store.
+   * @param aFolderQuotaRoot    The IMAP quotaroot and resource names for this
+   *                            folder separted by a slash as obtained from the
+   *                            GETQUOTAROOT IMAP command response.
+   * @param aFolderQuotaUsage   Amount of resourse in use, in KB for STORAGE
+   *                            resource.
+   * @param aFolderQuotaLimit   Maximum usage allowed for this resource.
    **/
-  void setFolderQuotaData(in ACString aFolderQuotaRoot, in unsigned long aFolderQuotaUsedKB,
-                          in unsigned long aFolderQuotaMaxKB);
+  void setFolderQuotaData(
+      in unsigned long aAction, in ACString aFolderQuotaRoot,
+      in unsigned long aFolderQuotaUsed, in unsigned long aFolderQuotaLimit);
 
   /// Should we download all the rfc822 headers of messages, instead of subset.
   readonly attribute boolean shouldDownloadAllHeaders;

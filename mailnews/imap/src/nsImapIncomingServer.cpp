@@ -379,10 +379,6 @@ NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, MimePartsOnDemand,
 
 NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, SendID, "send_client_info")
 
-NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, CapabilityACL, "cacheCapa.acl")
-NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, CapabilityQuota,
-                        "cacheCapa.quota")
-
 NS_IMETHODIMP
 nsImapIncomingServer::GetIsAOLServer(bool *aBool) {
   NS_ENSURE_ARG_POINTER(aBool);
@@ -1979,8 +1975,6 @@ nsImapIncomingServer::AsyncGetPassword(nsIImapProtocol *aProtocol,
 NS_IMETHODIMP
 nsImapIncomingServer::PromptPassword(nsIMsgWindow *aMsgWindow,
                                      nsAString &aPassword) {
-  NS_ENSURE_STATE(m_stringBundle);
-
   nsAutoCString userName;
   GetRealUsername(userName);
 
@@ -2017,8 +2011,13 @@ NS_IMETHODIMP nsImapIncomingServer::SetCapability(
     eIMAPCapabilityFlags capability) {
   m_capability = capability;
   SetIsGMailServer((capability & kGmailImapCapability) != 0);
-  SetCapabilityACL(capability & kACLCapability);
-  SetCapabilityQuota(capability & kQuotaCapability);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::GetCapability(eIMAPCapabilityFlags *capability) {
+  NS_ENSURE_ARG_POINTER(capability);
+  *capability = m_capability;
   return NS_OK;
 }
 

@@ -129,74 +129,59 @@ function UpdateStatusMessageCounts(folder) {
   }
 }
 
-var gQuotaUICache;
 function UpdateStatusQuota(folder) {
-  if (
-    !(folder && folder instanceof Ci.nsIMsgImapMailFolder) // no folder selected
-  ) {
-    // POP etc.
-    if (typeof gQuotaUICache == "object") {
-      // ever shown quota
-      gQuotaUICache.panel.hidden = true;
-    }
+  if (!document.getElementById("quotaPanel")) {
+    // No quotaPanel in here, like for the search window.
     return;
   }
-  folder = folder.QueryInterface(Ci.nsIMsgImapMailFolder);
 
-  // get element references and prefs
-  if (typeof gQuotaUICache != "object") {
-    gQuotaUICache = {};
-    gQuotaUICache.meter = document.getElementById("quotaMeter");
-    gQuotaUICache.panel = document.getElementById("quotaPanel");
-    gQuotaUICache.label = document.getElementById("quotaLabel");
-    const kBranch = "mail.quota.mainwindow_threshold.";
-    gQuotaUICache.showTreshold = Services.prefs.getIntPref(kBranch + "show");
-    gQuotaUICache.warningTreshold = Services.prefs.getIntPref(
-      kBranch + "warning"
-    );
-    gQuotaUICache.criticalTreshold = Services.prefs.getIntPref(
-      kBranch + "critical"
-    );
+  if (!(folder && folder instanceof Ci.nsIMsgImapMailFolder)) {
+    document.getElementById("quotaPanel").hidden = true;
+    return;
   }
 
-  var valid = { value: null };
-  var used = { value: null };
-  var max = { value: null };
-  try {
-    // get data from backend
-    folder.getQuota(valid, used, max);
-  } catch (e) {
-    dump(e + "\n");
-  }
-  if (valid.value && max.value > 0) {
-    var percent = Math.round((used.value / max.value) * 100);
-
-    // show in UI
-    if (percent < gQuotaUICache.showTreshold) {
-      gQuotaUICache.panel.hidden = true;
+  let folderQuota = folder.getQuota();
+  // If folderQuota not empty, find the index of the element with highest
+  //  percent usage and determine if it is above the panel display threshold.
+  if (folderQuota.length > 0) {
+    let highest = folderQuota.reduce((acc, current) =>
+      acc.usage / acc.limit > current.usage / current.limit ? acc : current
+    );
+    let percent = Math.round((100 * highest.usage) / highest.limit);
+    if (
+      percent <
+      Services.prefs.getIntPref("mail.quota.mainwindow_threshold.show")
+    ) {
+      document.getElementById("quotaPanel").hidden = true;
     } else {
-      gQuotaUICache.panel.hidden = false;
-      gQuotaUICache.meter.setAttribute("value", percent);
-      // do not use value property, because that is imprecise (3%)
-      // for optimization that we don't need here
+      document.getElementById("quotaPanel").hidden = false;
+      document.getElementById("quotaMeter").setAttribute("value", percent);
       var bundle = document.getElementById("bundle_messenger");
-      var label = bundle.getFormattedString("percent", [percent]);
-      var tooltip = bundle.getFormattedString("quotaTooltip", [
-        used.value,
-        max.value,
+      document.getElementById(
+        "quotaLabel"
+      ).value = bundle.getFormattedString("percent", [percent]);
+      document.getElementById(
+        "quotaLabel"
+      ).tooltipText = bundle.getFormattedString("quotaTooltip2", [
+        highest.usage,
+        highest.limit,
       ]);
-      gQuotaUICache.label.value = label;
-      gQuotaUICache.label.tooltipText = tooltip;
-      if (percent < gQuotaUICache.warningTreshold) {
-        gQuotaUICache.panel.removeAttribute("alert");
-      } else if (percent < gQuotaUICache.criticalTreshold) {
-        gQuotaUICache.panel.setAttribute("alert", "warning");
+      if (
+        percent <
+        Services.prefs.getIntPref("mail.quota.mainwindow_threshold.warning")
+      ) {
+        document.getElementById("quotaPanel").removeAttribute("alert");
+      } else if (
+        percent <
+        Services.prefs.getIntPref("mail.quota.mainwindow_threshold.critical")
+      ) {
+        document.getElementById("quotaPanel").classList.add("alert-warning");
       } else {
-        gQuotaUICache.panel.setAttribute("alert", "critical");
+        document.getElementById("quotaPanel").classList.add("alert-critical");
       }
     }
   } else {
-    gQuotaUICache.panel.hidden = true;
+    document.getElementById("quotaPanel").hidden = true;
   }
 }
 

@@ -17,9 +17,36 @@ interface nsIMsgParseMailMsgState;
 interface nsIAutoSyncState;
 
 /**
- * This is a simple interface which allows the IMAP folder to update some
- * values that the folder props js code will use to update the sharing and
- * quota tabs in the folder properties.
+ * nsIMsgQuota defines the quota for a resource within a quota root.
+ * @see RFC 2087
+ */
+[scriptable, uuid(9db60f97-45c1-45c2-8ab1-395690228f3f)]
+interface nsIMsgQuota : nsISupports {
+  /**
+   * If quota root name not empty, the concatenation of the quota root name
+   * and the resource name separated by a slash , e.g.,
+   * "User Quota / MESSAGE" or with empty quota root name, just resource
+   * name, e.g., "STORAGE".
+   */
+  attribute ACString name;
+
+  /**
+   * Amount of resource in use for this quota root. E.g., number of messages
+   * or storage in KB (1024 octets).
+   */
+
+  attribute unsigned long usage;
+  /**
+   * Maximum amount of usage permitted by the server for this quota root
+   * resource.
+   */
+  attribute unsigned long limit;
+};
+
+/**
+ * nsIMsgImapFolderProps is a simple interface which allows the IMAP folder to
+ * update some values that the folder props js code will use to update the
+ *  sharing and quota tabs in the folder properties.
  */
 [scriptable, uuid(09D99F2C-3E23-4f8c-A536-5C277BAA9585)]
 interface nsIMsgImapFolderProps : nsISupports {
@@ -45,9 +72,10 @@ interface nsIMsgImapFolderProps : nsISupports {
     void setQuotaStatus(in AString folderQuotaStatus);
 
     /**
-     * Updates the quota data displayed in the Quota tab.
+     * Sets the quota data displayed in the folder properties Quota tab. An
+     * array of quota items is passed in.
      */
-    void setQuotaData(in ACString quotaroot, in unsigned long usedKB, in unsigned long maxKB);
+    void setQuotaData(in Array<nsIMsgQuota> quotaArray);
 };
 
 [scriptable, uuid(fea0f455-7adf-4683-bf2f-c95c3fff03df)]
@@ -158,18 +186,14 @@ interface nsIMsgImapMailFolder : nsISupports {
   /** @} */
 
   /**
-   * Quota
-   * |valid| indicates whether the server has provided quota information on
-   * this folder. This can be false
+   * Return an array of quota items of type nsIMsgQuota defined above.
+   * A not-empty array indicates that the server has provided one or more
+   * sets of quota information on this folder. The array will be empty
    * - if the server does not supports quotas,
-   * - if there are no storage quotas on this folder, or
-   * - if the folder has never been opened.
-   * If it is true and maxKB > 0, the folder has a storage quota and
-   * the usedKB and maxKB attributes are set to the values provided by
-   * the server (in kilobytes), for this quota root.
-   * Lotus Notes sends us maxKB = 0, usedKB > 0 for unlimited quota.
+   * - if there are no resource quotas on this folder, or
+   * - if the folder has yet to be opened (selected) by the user.
    */
-  void getQuota(out boolean valid, out unsigned long usedKB, out unsigned long maxKB);
+  Array<nsIMsgQuota> getQuota();
 
   /**
    * List all (human) users apart from the current user who have access to

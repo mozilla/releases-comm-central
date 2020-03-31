@@ -64,40 +64,45 @@ var gFolderPropsSink = {
     }
   },
 
-  setQuotaData(root, usedKB, maxKB) {
-    var quotaRoot = document.getElementById("quotaRoot");
-    if (quotaRoot) {
-      quotaRoot.setAttribute("value", '"' + root + '"');
-    }
+  setQuotaData(folderQuota) {
+    let quotaDetails = document.getElementById("quotaDetails");
+    let bundle = document.getElementById("bundle_messenger");
+    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      Ci.nsIMessenger
+    );
 
-    var percentage = maxKB != 0 ? Math.round((usedKB / maxKB) * 100) : 0;
+    for (let quota of folderQuota) {
+      let li = document.createElement("li");
+      let name = document.createElement("span");
+      name.textContent = quota.name;
+      li.appendChild(name);
 
-    var quotaPercentageBar = document.getElementById("quotaPercentageBar");
-    if (quotaPercentageBar) {
-      quotaPercentageBar.setAttribute("value", percentage);
-    }
+      let progress = document.createElement("progress");
+      progress.classList.add("quota-percentage");
+      progress.setAttribute("value", quota.usage);
+      progress.setAttribute("max", quota.limit);
 
-    var bundle = document.getElementById("bundle_messenger");
-    if (bundle) {
-      var usedFreeCaption = bundle.getFormattedString(
-        "quotaUsedFree",
-        [usedKB, maxKB],
-        2
-      );
-      var quotaCaption = document.getElementById("quotaUsedFree");
-      if (quotaCaption) {
-        quotaCaption.setAttribute("value", usedFreeCaption);
+      li.appendChild(progress);
+
+      let percentage = document.createElement("span");
+      percentage.textContent = bundle.getFormattedString("quotaPercentUsed", [
+        Math.round((100 * quota.usage) / quota.limit),
+      ]);
+      li.appendChild(percentage);
+
+      li.appendChild(document.createTextNode(" — "));
+
+      let details = document.createElement("span");
+      if (/STORAGE/i.test(quota.name)) {
+        let usage = messenger.formatFileSize(quota.usage * 1024);
+        let limit = messenger.formatFileSize(quota.limit * 1024);
+        details.textContent = `${usage} / ${limit}`;
+      } else {
+        details.textContent = `${quota.usage} / ${quota.limit}`;
       }
+      li.appendChild(details);
 
-      var percentUsedCaption = bundle.getFormattedString(
-        "quotaPercentUsed",
-        [percentage],
-        1
-      );
-      var percentUsed = document.getElementById("quotaPercentUsed");
-      if (percentUsed) {
-        percentUsed.setAttribute("value", percentUsedCaption);
-      }
+      quotaDetails.appendChild(li);
     }
   },
 };

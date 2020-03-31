@@ -330,7 +330,7 @@ NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, FolderNeedsAdded, bool)
 NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, AclFlags, uint32_t)
 NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, UidValidity, int32_t)
 NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, FolderQuotaCommandIssued, bool)
-NS_SYNCRUNNABLEMETHOD3(ImapMailFolderSink, SetFolderQuotaData,
+NS_SYNCRUNNABLEMETHOD4(ImapMailFolderSink, SetFolderQuotaData, uint32_t,
                        const nsACString &, uint32_t, uint32_t)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, GetShouldDownloadAllHeaders, bool *)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, GetOnlineDelimiter, char *)

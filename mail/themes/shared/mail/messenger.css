@@ -400,11 +400,11 @@ toolbarpaletteitem toolbarbutton {
   opacity: .75;
 }
 
-#quotaPanel[alert="warning"] ::-moz-progress-bar {
+#quotaPanel.alert-warning ::-moz-progress-bar {
   background-color: orange;
 }
 
-#quotaPanel[alert="critical"] ::-moz-progress-bar {
+#quotaPanel.alert-critical ::-moz-progress-bar {
   background-color: red;
   opacity: .6;
 }

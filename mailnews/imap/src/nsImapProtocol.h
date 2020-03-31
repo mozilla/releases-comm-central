@@ -368,8 +368,8 @@ class nsImapProtocol : public nsIImapProtocol,
   void SetCopyResponseUid(const char *msgIdString);
 
   // Quota support
-  void UpdateFolderQuotaData(nsCString &aQuotaRoot, uint32_t aUsed,
-                             uint32_t aMax);
+  void UpdateFolderQuotaData(nsImapQuotaAction aAction, nsCString &aQuotaRoot,
+                             uint32_t aUsed, uint32_t aMax);
 
   bool GetPreferPlainText() { return m_preferPlainText; }
 

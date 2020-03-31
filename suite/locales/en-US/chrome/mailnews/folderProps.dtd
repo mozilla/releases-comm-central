@@ -59,7 +59,6 @@
 <!ENTITY folderType.label                        "Folder Type:">
 
 <!ENTITY folderQuotaTab.label                    "Quota">
-<!ENTITY folderQuotaRoot.label                   "Quota Root:">
 <!ENTITY folderQuotaUsage.label                  "Usage:">
 <!ENTITY folderQuotaStatus.label                 "Status:">
 

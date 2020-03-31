@@ -181,5 +181,11 @@ typedef enum {
   eCancelled
 } EMailboxDiscoverStatus;
 
+typedef enum {
+  kInvalidateQuota,
+  kStoreQuota,
+  kValidateQuota
+} nsImapQuotaAction;
+
 #endif
 // clang-format on

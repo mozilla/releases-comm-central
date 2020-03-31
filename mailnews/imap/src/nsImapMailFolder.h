@@ -104,7 +104,7 @@ class nsImapMailFolder;
 #define IMAP_ACL_READ_FLAG             0x0000001 // SELECT, CHECK, FETCH, PARTIAL, SEARCH, COPY from folder
 #define IMAP_ACL_STORE_SEEN_FLAG       0x0000002 // STORE SEEN flag
 #define IMAP_ACL_WRITE_FLAG            0x0000004 // STORE flags other than SEEN and DELETED
-#define IMAP_ACL_INSERT_FLAG           0x0000008 // APPEND, COPY into folder */
+#define IMAP_ACL_INSERT_FLAG           0x0000008 // APPEND, COPY into folder
 #define IMAP_ACL_POST_FLAG             0x0000010 // Can I send mail to the submission address for folder?
 #define IMAP_ACL_CREATE_SUBFOLDER_FLAG 0x0000020 // Can I CREATE a subfolder of this folder?
 #define IMAP_ACL_DELETE_FLAG           0x0000040 // STORE DELETED flag
@@ -193,6 +193,21 @@ struct nsPlaybackRequest {
       : SrcFolder(srcFolder), MsgWindow(msgWindow) {}
   nsImapMailFolder *SrcFolder;
   nsCOMPtr<nsIMsgWindow> MsgWindow;
+};
+
+class nsMsgQuota final : public nsIMsgQuota {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIMSGQUOTA
+
+  nsMsgQuota(const nsACString &aName, const uint32_t &aUsage,
+             const uint32_t &aLimit);
+
+ protected:
+  ~nsMsgQuota();
+
+  nsCString mName;
+  uint32_t mUsage, mLimit;
 };
 
 class nsImapMailFolder : public nsMsgDBFolder,
@@ -532,8 +547,6 @@ class nsImapMailFolder : public nsMsgDBFolder,
   bool m_folderNeedsAdded;
   bool m_folderNeedsACLListed;
   bool m_performingBiff;
-  bool m_folderQuotaCommandIssued;
-  bool m_folderQuotaDataIsValid;
   bool m_updatingFolder;
   // These two vars are used to keep track of compaction state so we can know
   // when to send a done notification.
@@ -554,15 +567,15 @@ class nsImapMailFolder : public nsMsgDBFolder,
   // auto-sync (automatic message download) support
   RefPtr<nsAutoSyncState> m_autoSyncStateObj;
 
-  // Quota support
-  nsCString m_folderQuotaRoot;
-  uint32_t m_folderQuotaUsedKB;
-  uint32_t m_folderQuotaMaxKB;
+  // Quota support.
+  nsTArray<RefPtr<nsIMsgQuota>> m_folderQuota;
+  bool m_folderQuotaCommandIssued;
+  bool m_folderQuotaDataIsValid;
 
   // Pseudo-Offline Playback support
   nsPlaybackRequest *m_pendingPlaybackReq;
   nsCOMPtr<nsITimer> m_playbackTimer;
-  nsTArray<RefPtr<nsImapMoveCopyMsgTxn> > m_pendingOfflineMoves;
+  nsTArray<RefPtr<nsImapMoveCopyMsgTxn>> m_pendingOfflineMoves;
   // hash table of mapping between messageids and message keys
   // for pseudo hdrs.
   nsDataHashtable<nsCStringHashKey, nsMsgKey> m_pseudoHdrs;

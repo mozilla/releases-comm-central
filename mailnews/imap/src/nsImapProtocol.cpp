@@ -8363,11 +8363,12 @@ bool nsImapProtocol::TryToLogon() {
   return loginSucceeded;
 }
 
-void nsImapProtocol::UpdateFolderQuotaData(nsCString &aQuotaRoot,
+void nsImapProtocol::UpdateFolderQuotaData(nsImapQuotaAction aAction,
+                                           nsCString &aQuotaRoot,
                                            uint32_t aUsed, uint32_t aMax) {
   NS_ASSERTION(m_imapMailFolderSink, "m_imapMailFolderSink is null!");
 
-  m_imapMailFolderSink->SetFolderQuotaData(aQuotaRoot, aUsed, aMax);
+  m_imapMailFolderSink->SetFolderQuotaData(aAction, aQuotaRoot, aUsed, aMax);
 }
 
 void nsImapProtocol::GetQuotaDataIfSupported(const char *aBoxName) {

@@ -1,0 +1,19 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#quotaDetails {
+  padding-inline-start: 6px;
+  list-style: none;
+}
+
+#quotaDetails > li {
+  margin-block-end: 4px;
+}
+
+progress.quota-percentage {
+  border-color: ThreeDDarkShadow;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-inline: 1em;
+}
