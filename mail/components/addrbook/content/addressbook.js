@@ -671,7 +671,7 @@ function WhichPaneHasFocus() {
   var searchBox = document.getElementById("search-container");
   var dirTree = GetDirTree();
 
-  var currentNode = top.document.commandDispatcher.focusedElement;
+  var currentNode = top.document.activeElement;
   while (currentNode) {
     if (
       currentNode == gAbResultsTree ||
