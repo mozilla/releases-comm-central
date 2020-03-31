@@ -73,6 +73,9 @@
         "type": "function",
         "description": "Gets all messages in a folder.",
         "async": true,
+        "permissions": [
+          "accountsRead"
+        ],
         "parameters": [
           {
             "name": "folder",
@@ -191,7 +194,7 @@
               "folder": {
                 "$ref": "folders.MailFolder",
                 "optional": true,
-                "description": "Returns only messages from the specified folder."
+                "description": "Returns only messages from the specified folder. The ``accountsRead`` permission is required."
               },
               "fromDate": {
                 "$ref": "extensionTypes.Date",
@@ -255,6 +258,7 @@
         "description": "Moves messages to a specified folder.",
         "async": true,
         "permissions": [
+          "accountsRead",
           "messagesMove"
         ],
         "parameters": [
@@ -280,6 +284,7 @@
         "description": "Copies messages to a specified folder.",
         "async": true,
         "permissions": [
+          "accountsRead",
           "messagesMove"
         ],
         "parameters": [

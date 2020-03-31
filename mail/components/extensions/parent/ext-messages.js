@@ -280,6 +280,11 @@ this.messages = class extends ExtensionAPI {
             query.starred(queryInfo.flagged);
           }
           if (queryInfo.folder) {
+            if (!context.extension.hasPermission("accountsRead")) {
+              throw new ExtensionError(
+                'Querying by folder requires the "accountsRead" permission'
+              );
+            }
             let folder = MailServices.folderLookup.getFolderForURL(
               folderPathToURI(queryInfo.folder.accountId, queryInfo.folder.path)
             );

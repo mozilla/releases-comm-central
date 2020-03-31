@@ -181,7 +181,7 @@ add_task(async function test_update() {
       browser.test.notifyPass("finished");
     },
     manifest: {
-      permissions: ["messagesRead"],
+      permissions: ["accountsRead", "messagesRead"],
     },
   });
 
