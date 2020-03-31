@@ -13,6 +13,8 @@
 !define AppRegNameMail        "SeaMonkey (Mail)"
 !define AppRegNameNews        "SeaMonkey (News)"
 
+!define BrandProductName      "@MOZ_APP_DISPLAYNAME@"
+
 !define BrandShortName        "@MOZ_APP_DISPLAYNAME@"
 !define BrandFullName         "${BrandFullNameInternal}"
 
