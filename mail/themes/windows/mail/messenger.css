@@ -530,6 +530,20 @@ button[type="menu-button"] > .button-box > button {
   margin-inline-end: 6px;
 }
 
+button.button-menu-list > .button-box {
+  padding-inline-end: 12px;
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: 12px;
+  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+button.button-menu-list:-moz-locale-dir(rtl) > .button-box {
+  background-position: left;
+}
+
 @media (-moz-windows-default-theme: 0) {
   button[type="menu-button"] > .button-box {
     padding: 0;
