@@ -25,9 +25,9 @@ job-defaults:
     shipping-phase: promote
     locales-file: comm/mail/locales/shipped-locales
     treeherder:
-        symbol: Rel(BncSub)
+        symbol: Rel(BncSubNazgul)
         kind: test
-        tier: 1
+        tier: 3
 
 jobs:
     thunderbird:

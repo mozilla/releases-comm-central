@@ -28,9 +28,9 @@ job-defaults:
     run-on-projects: []
     shipping-phase: ship
     treeherder:
-        symbol: Rel(BncAlias)
+        symbol: Rel(BncAliasNazgul)
         kind: test
-        tier: 1
+        tier: 3
 
 jobs:
     thunderbird:
