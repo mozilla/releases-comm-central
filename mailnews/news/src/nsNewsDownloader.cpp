@@ -337,7 +337,7 @@ bool nsMsgDownloadAllNewsgroups::AdvanceToNextServer() {
     rv = accountManager->GetAllServers(m_allServers);
     NS_ENSURE_SUCCESS(rv, false);
   }
-  uint32_t serverIndex = 0;
+  size_t serverIndex = 0;
   if (m_currentServer) {
     serverIndex = m_allServers.IndexOf(m_currentServer);
     if (serverIndex == m_allServers.NoIndex) {
