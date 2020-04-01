@@ -187,10 +187,13 @@ toolbar[nowindowdrag="true"] {
   padding: 1px 4px;
 }
 
-#msgSubject,
 #msgIdentity,
 .address-container {
   min-height: 26px;
+}
+
+#msgSubject {
+  min-height: 24px;
 }
 
 .address-pill {

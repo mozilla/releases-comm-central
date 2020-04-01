@@ -495,7 +495,7 @@
   background-color: -moz-field;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: 2px;
-  padding-block: 5px;
+  padding-block: 0;
   padding-inline: 4px 2px;
   transition: border .2s, box-shadow .2s;
 }

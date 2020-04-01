@@ -192,10 +192,13 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   padding-top: 6px;
 }
 
-#msgSubject,
 #msgIdentity,
 .address-container {
   min-height: 30px;
+}
+
+#msgSubject {
+  min-height: 28px;
 }
 
 .address-pill {

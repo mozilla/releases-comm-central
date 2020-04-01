@@ -162,15 +162,14 @@
   padding: 0 4px;
 }
 
-#msgSubject,
 #msgIdentity,
 .address-container {
   min-height: 28px;
 }
 
 #msgSubject {
+  min-height: 26px;
   margin-top: 0;
-  padding: 2px;
   padding-inline-start: 5px;
 }
 
