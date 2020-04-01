@@ -99,5 +99,5 @@ jobs:
             tier: 1
         optimization:
             skip-unless-changed:
-                - mail/config/version.txt
-                - .gecko_rev.yml
+                - comm/mail/config/version.txt
+                - comm/.gecko_rev.yml
