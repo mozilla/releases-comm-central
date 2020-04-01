@@ -214,29 +214,6 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
   display: none;
 }
 
-/* Tracking Protection Button & Toggle */
-
-#appMenu-tp-label {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  -moz-box-flex: 1;
-  padding: 0;
-  padding-inline-start: 8px;
-  margin: 0;
-}
-
-#appMenu-tp-icon {
-  list-style-image: url(chrome://browser/skin/tracking-protection.svg);
-}
-
-#appMenu-tp-button {
-  -moz-box-flex: 1;
-}
-
-#appMenu-tp-category {
-  margin-inline-end: 0;
-}
-
 .panel-banner-item {
   color: black !important /* !important overrides the toolbarbutton:hover default style on Linux */;
   background-color: hsla(96,65%,75%,.5);
@@ -320,31 +297,6 @@ panelview .toolbarbutton-1,
   padding-inline-start: 24px; /* This is 16px for the icon + 8px for the padding as defined below. */
 }
 
-.subviewbutton > .menu-right {
-  -moz-appearance: none;
-  list-style-image: url(chrome://browser/skin/customizableui/menu-arrow.svg);
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  /* Reset the rect we inherit from the button */
-  -moz-image-region: auto;
-}
-
-.subviewbutton[disabled="true"] > .menu-right {
-  fill-opacity: 0.6;
-}
-
-.subviewbutton > .menu-right:-moz-locale-dir(rtl) {
-  transform: scaleX(-1);
-}
-
-.subviewbutton > .menu-right,
-.subviewbutton > .menu-accel-container > .menu-iconic-accel,
-.subviewbutton > .menu-iconic-left,
-.subviewbutton > .menu-iconic-text {
-  padding-bottom: 0;
-  padding-top: 0;
-}
-
 .subviewbutton-iconic > .toolbarbutton-text,
 .subviewbutton[image] > .toolbarbutton-text,
 .subviewbutton[targetURI] > .toolbarbutton-text,
@@ -385,15 +337,6 @@ panelview .toolbarbutton-1,
   padding-inline-start: 0;
 }
 
-.subviewbutton.panel-subview-footer > .menu-accel-container {
-  padding-inline-start: 6px;
-}
-
-.subviewbutton > .menu-accel-container > .menu-iconic-accel,
-.subviewbutton > .menu-accel-container > .menu-accel {
-  margin-inline-end: 0 !important; /* to override menu.css on Windows */
-}
-
 .subviewbutton[shortcut]::after {
   content: attr(shortcut);
   float: inline-end;
@@ -416,24 +359,6 @@ panelview .toolbarbutton-1,
 .subviewbutton[shortcut]::after,
 .PanelUI-subView .subviewbutton-nav::after {
   margin-inline-start: 10px;
-}
-
-.subviewbutton[type="highlight-bookmark"]::after {
-  content: url("chrome://browser/skin/bookmark-hollow.svg");
-}
-
-.subviewbutton[type="highlight-history"]::after {
-  content: url("chrome://browser/skin/history.svg");
-}
-
-.subviewbutton[type="highlight-bookmark"]::after,
-.subviewbutton[type="highlight-history"]::after {
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: 0.4;
-  float: inline-end;
-  /* Centers the icon and resizes it to 12px square. */
-  transform: translateY(2px) scaleX(.75);
 }
 
 .subviewbutton[checked="true"] {
@@ -575,12 +500,6 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
   margin-inline-end: 7px;
 }
 
-.subviewbutton > .menu-accel-container {
-  -moz-box-pack: end;
-  margin-inline-start: 10px;
-  margin-inline-end: auto;
-}
-
 toolbarpaletteitem[place="palette"] > .toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
   display: none;
 }
@@ -670,7 +589,7 @@ toolbaritem[overflowedItem=true],
 .widget-overflow-list .subviewbutton-nav::after {
   margin-inline-start: 10px;
   -moz-context-properties: fill, fill-opacity;
-  content: url(chrome://browser/skin/back-12.svg);
+  content: url(chrome://messenger/skin/icons/back-12.svg);
   fill: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
@@ -683,11 +602,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 .widget-overflow-list .toolbarbutton-1:not(.toolbarbutton-combined) > .toolbarbutton-text {
   text-align: start;
   padding-inline-start: .5em;
-}
-
-.subviewbutton > .menu-iconic-left {
-  -moz-appearance: none;
-  margin-inline-end: 0;
 }
 
 .subviewradio {
@@ -793,40 +707,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   font-size: .9em;
 }
 
-.subviewbutton.download > .action-button {
-  -moz-appearance: none; /* To avoid native Windows hover styling */
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: 1;
-
-%ifdef XP_MACOSX
-  list-style-image: url("chrome://browser/skin/search-glass.svg");
-%else
-  list-style-image: url("chrome://browser/skin/folder.svg");
-%endif
-
-/* Measurement to vertically center this button: 1 line of text minus half of 4px top margin. */
-  margin: calc(1em - 2px) 0 0;
-  padding: 4px;
-}
-
-.subviewbutton.download[canRetry] > .action-button {
-  list-style-image: url("chrome://browser/skin/reload.svg");
-}
-
-.subviewbutton.download:not([canShow]):not([canRetry]) > .action-button {
-  fill: currentColor;
-  fill-opacity: 0.4;
-}
-
-.subviewbutton.download:-moz-any([canShow],[canRetry]) > .action-button:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus) {
-  background-color: var(--arrowpanel-dimmed-further);
-}
-
-.subviewbutton.download:-moz-any([canShow],[canRetry]) > .action-button:not([disabled]):-moz-any([open],:hover:active) {
-  background-color: var(--arrowpanel-dimmed-even-further);
-}
-
 %define menuPanelWidth 22.35em
 %define appmenuWarningBackgroundColor #FFEFBF
 %define appmenuWarningBackgroundColorHover #FFE8A2
@@ -849,7 +729,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 
 .button-appmenu[badge-status="addon-alert"] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
   height: 13px;
-  background: url(chrome://browser/skin/warning.svg) center / contain no-repeat transparent;
+  background: url(chrome://global/skin/icons/warning.svg) center / contain no-repeat transparent;
   box-shadow: none;
   border-radius: 0;
   /* Use the included fallbacks defined in the SVG file instead of inheriting from .toolbarbutton-1. */
@@ -908,7 +788,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .addon-banner-item::after {
-  background: url(chrome://browser/skin/warning.svg) no-repeat center;
+  background: url(chrome://global/skin/icons/warning.svg) no-repeat center;
 }
 
 :root[lwt-popup-brighttext] .addon-banner-item::after {

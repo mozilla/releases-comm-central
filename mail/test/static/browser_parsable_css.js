@@ -146,10 +146,6 @@ let thunderbirdWhitelist = [
     sourceName: /^chrome:\/\/calendar\/skin\/shared\/suite/,
     isFromDevTools: false,
   },
-  {
-    sourceName: /^chrome:\/\/messenger\/skin\/shared\/customizableui\/panelUI.css/,
-    isFromDevTools: false,
-  },
 ];
 
 // Add suffix to stylesheets' URI so that we always load them here and
