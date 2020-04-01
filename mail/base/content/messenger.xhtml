@@ -808,6 +808,7 @@
                                    primary="true"
                                    src="about:blank"
                                    disablesecurity="true"
+                                   messagemanagergroup="browsers"
                                    onclick="return contentAreaClick(event);"
                                    oncontextmenu="return mailContextOnContextMenu(event);"
                                    onresize="return messagePaneOnResize(event);"/>
@@ -862,6 +863,7 @@
                    autocompletepopup="PopupAutoComplete"
                    datetimepicker="DateTimePickerPanel"
                    context="mailContext"
+                   messagemanagergroup="browsers"
                    oncontextmenu="return mailContextOnContextMenu(event);"/>
         </stack>
       </vbox>
@@ -874,7 +876,8 @@
         </vbox>
         <browser id="dummychromebrowser" flex="1"
                  disablesecurity="true" disablehistory="true"
-                 autocompletepopup="PopupAutoComplete"/>
+                 autocompletepopup="PopupAutoComplete"
+                 messagemanagergroup="browsers"/>
       </vbox>
     </vbox>
 
@@ -911,6 +914,7 @@
                    type="content"
                    flex="1"
                    disablehistory="true"
+                   messagemanagergroup="browsers"
                    onclick="specialTabs.defaultClickHandler(event);"/>
         </hbox>
         <findbar browserid="preferencesbrowser"/>

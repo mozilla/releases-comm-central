@@ -299,12 +299,19 @@
   </box>
   <vbox id="appcontent" flex="1">
 
-    <browser id="content" type="content" name="content" src="about:blank" flex="1"
+    <browser id="content"
+             type="content"
+             name="content"
+             src="about:blank"
+             flex="1"
              primary="true"
 #ifndef MOZ_SUITE
              disableglobalhistory="true"
 #endif
-             context="viewSourceContextMenu" showcaret="true" tooltip="aHTMLTooltip" />
+             context="viewSourceContextMenu"
+             showcaret="true"
+             tooltip="aHTMLTooltip"
+             messagemanagergroup="browsers"/>
     <findbar id="FindToolbar" browserid="content"/>
   </vbox>
 
