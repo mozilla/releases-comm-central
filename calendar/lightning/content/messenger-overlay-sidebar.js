@@ -13,11 +13,11 @@
 /* import-globals-from ../../base/content/today-pane.js */
 /* import-globals-from lightning-item-panel.js */
 
+/* globals gLastShownCalendarView */
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-
-var gLastShownCalendarView = null;
 
 var calendarTabMonitor = {
   monitorName: "lightning",
@@ -83,7 +83,7 @@ var calendarTabType = {
       type: "calendar",
       maxTabs: 1,
       openTab(aTab, aArgs) {
-        gLastShownCalendarView = getLastCalendarView();
+        gLastShownCalendarView.get();
         aTab.title = aArgs.title;
       },
       showTab(tab) {},
@@ -535,7 +535,7 @@ function updateTodayPaneButtonDate() {
  *                    already there.
  */
 function switchCalendarView(aType, aShow) {
-  gLastShownCalendarView = aType;
+  gLastShownCalendarView.set(aType);
 
   if (aShow && gCurrentMode != "calendar") {
     // This function in turn calls switchToView(), so return afterwards.
@@ -732,7 +732,7 @@ function calSwitchToCalendarMode() {
     deck.selectedPanel = document.getElementById("calendar-view-box");
 
     // show the last displayed type of calendar view
-    switchToView(gLastShownCalendarView);
+    switchToView(gLastShownCalendarView.get());
     document.getElementById("calMinimonth").setAttribute("freebusy", "true");
 
     document.commandDispatcher.updateCommands("calendar_commands");

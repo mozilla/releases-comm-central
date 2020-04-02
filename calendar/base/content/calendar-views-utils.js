@@ -5,7 +5,7 @@
 /* exported switchToView, getSelectedDay, scheduleMidnightUpdate, minimonthPick,
  *          observeViewDaySelect, toggleOrientation,
  *          toggleWorkdaysOnly, toggleTasksInView, toggleShowCompletedInView,
- *          goToDate, getLastCalendarView, deleteSelectedEvents,
+ *          goToDate, gLastShownCalendarView, deleteSelectedEvents,
  *          editSelectedEvents, selectAllEvents, calendarNavigationBar
  */
 
@@ -513,27 +513,38 @@ function goToDate(date) {
   currentView().goToDay(date);
 }
 
-/**
- * Returns the calendar view that was selected before restart, or the current
- * calendar view if it has already been set in this session
- *
- * @return          The last calendar view.
- */
-function getLastCalendarView() {
-  if (Services.xulStore.hasValue(document.location.href, "view-deck", "selectedIndex")) {
-    let deck = getViewDeck();
-    let selectedIndex = Services.xulStore.getValue(
-      document.location.href,
-      "view-deck",
-      "selectedIndex"
-    );
-    let viewNode = deck.children[selectedIndex];
-    return viewNode.id.replace(/-view/, "");
-  }
+var gLastShownCalendarView = {
+  _lastView: null,
 
-  // No deck item was selected beforehand, default to week view.
-  return "week";
-}
+  /**
+   * Returns the calendar view that was selected before restart, or the current
+   * calendar view if it has already been set in this session.
+   *
+   * @return {string} The last calendar view.
+   */
+  get() {
+    if (!this._lastView) {
+      if (Services.xulStore.hasValue(document.location.href, "view-deck", "selectedIndex")) {
+        let deck = getViewDeck();
+        let selectedIndex = Services.xulStore.getValue(
+          document.location.href,
+          "view-deck",
+          "selectedIndex"
+        );
+        let viewNode = deck.children[selectedIndex];
+        this._lastView = viewNode.id.replace(/-view/, "");
+      } else {
+        // No deck item was selected beforehand, default to week view.
+        this._lastView = "week";
+      }
+    }
+    return this._lastView;
+  },
+
+  set(view) {
+    this._lastView = view;
+  },
+};
 
 /**
  * Deletes items currently selected in the view and clears selection.
