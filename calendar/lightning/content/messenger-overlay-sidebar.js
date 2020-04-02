@@ -22,52 +22,6 @@ var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.j
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
- * Loads the calendar component. Called once at startup as the application
- * window is loaded, before tabs are restored.
- */
-async function loadCalendarComponent() {
-  await uninstallLightningAddon();
-
-  // Check if the binary component was loaded
-  checkCalendarBinaryComponent();
-
-  document
-    .getElementById("calendarDisplayDeck")
-    .addEventListener("select", LtnObserveDisplayDeckChange, true);
-
-  // Take care of common initialization
-  await commonInitCalendar();
-
-  // Add an unload function to the window so we don't leak any listeners
-  window.addEventListener("unload", ltnFinish);
-
-  setUpInvitationsManager();
-
-  let filter = document.getElementById("task-tree-filtergroup");
-  filter.value = filter.value || "all";
-  changeMode();
-
-  let mailContextPopup = document.getElementById("mailContext");
-  if (mailContextPopup) {
-    mailContextPopup.addEventListener("popupshowing", gCalSetupMailContext.popup);
-  }
-
-  // Setup customizeDone handlers for our toolbars
-  let toolbox = document.getElementById("calendar-toolbox");
-  toolbox.customizeDone = function(aEvent) {
-    MailToolboxCustomizeDone(aEvent, "CustomizeCalendarToolbar");
-  };
-  toolbox = document.getElementById("task-toolbox");
-  toolbox.customizeDone = function(aEvent) {
-    MailToolboxCustomizeDone(aEvent, "CustomizeTaskToolbar");
-  };
-
-  updateTodayPaneButton();
-
-  Services.obs.notifyObservers(window, "lightning-startup-done");
-}
-
-/**
  * Uninstall the Lightning calendar addon, now that calendar is in Thunderbird.
  */
 async function uninstallLightningAddon() {
@@ -194,19 +148,6 @@ function LtnObserveDisplayDeckChange(event) {
   ) {
     calSwitchToMode("mail");
   }
-}
-
-function ltnFinish() {
-  tearDownInvitationsManager();
-
-  // Remove listener for mailContext.
-  let mailContextPopup = document.getElementById("mailContext");
-  if (mailContextPopup) {
-    mailContextPopup.removeEventListener("popupshowing", gCalSetupMailContext.popup);
-  }
-
-  // Common finish steps
-  commonFinishCalendar();
 }
 
 var gCalSetupMailContext = {

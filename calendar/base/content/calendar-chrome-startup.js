@@ -7,7 +7,10 @@
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-views-utils.js */
-/* globals PanelUI */
+
+/* globals calSwitchToMode, changeMode, PanelUI, setUpInvitationsManager,
+ *         tearDownInvitationsManager,
+ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
@@ -18,9 +21,19 @@ var { calendarDeactivator } = ChromeUtils.import(
 /* exported commonInitCalendar, commonFinishCalendar */
 
 /**
- * Common initialization steps for calendar chrome windows.
+ * Does calendar initialization steps for a given chrome window. Called at
+ * startup as the application window is loaded, before tabs are restored.
  */
-async function commonInitCalendar() {
+async function loadCalendarComponent() {
+  await uninstallLightningAddon();
+
+  // Check if the binary component was loaded.
+  checkCalendarBinaryComponent();
+
+  document
+    .getElementById("calendarDisplayDeck")
+    .addEventListener("select", LtnObserveDisplayDeckChange, true);
+
   // load locale specific default values for preferences
   setLocaleDefaultPreferences();
 
@@ -84,13 +97,49 @@ async function commonInitCalendar() {
   calendarUpdateNewItemsCommand();
 
   // Prepare the Today Pane, and if it is ready, display it.
-  TodayPane.onLoad();
+  await TodayPane.onLoad();
+
+  // Add an unload function to the window so we don't leak any listeners.
+  window.addEventListener("unload", unloadCalendarComponent);
+
+  setUpInvitationsManager();
+
+  let filter = document.getElementById("task-tree-filtergroup");
+  filter.value = filter.value || "all";
+  changeMode();
+
+  let mailContextPopup = document.getElementById("mailContext");
+  if (mailContextPopup) {
+    mailContextPopup.addEventListener("popupshowing", gCalSetupMailContext.popup);
+  }
+
+  // Set up customizeDone handlers for our toolbars.
+  let toolbox = document.getElementById("calendar-toolbox");
+  toolbox.customizeDone = function(aEvent) {
+    MailToolboxCustomizeDone(aEvent, "CustomizeCalendarToolbar");
+  };
+  toolbox = document.getElementById("task-toolbox");
+  toolbox.customizeDone = function(aEvent) {
+    MailToolboxCustomizeDone(aEvent, "CustomizeTaskToolbar");
+  };
+
+  updateTodayPaneButton();
+
+  Services.obs.notifyObservers(window, "lightning-startup-done");
 }
 
 /**
- * Common unload steps for calendar chrome windows.
+ * Does unload steps for a given calendar chrome window.
  */
-function commonFinishCalendar() {
+function unloadCalendarComponent() {
+  tearDownInvitationsManager();
+
+  // Remove listener for mailContext.
+  let mailContextPopup = document.getElementById("mailContext");
+  if (mailContextPopup) {
+    mailContextPopup.removeEventListener("popupshowing", gCalSetupMailContext.popup);
+  }
+
   // Unload the calendar manager
   unloadCalendarManager();
 
