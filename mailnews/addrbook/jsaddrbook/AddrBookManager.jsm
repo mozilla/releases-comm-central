@@ -74,7 +74,7 @@ if (AppConstants.platform == "macosx") {
 function createDirectoryObject(uri, shouldStore = false) {
   let uriParts = URI_REGEXP.exec(uri);
   if (!uriParts) {
-    throw Cr.NS_ERROR_UNEXPECTED;
+    throw Cr.NS_ERROR_MALFORMED_URI;
   }
 
   let [, scheme] = uriParts;
@@ -178,7 +178,10 @@ AddrBookManager.prototype = {
   },
   getDirectory(uri) {
     if (uri.startsWith("moz-abdirectory://")) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw new Components.Exception(
+        "The root address book no longer exists",
+        Cr.NS_ERROR_FAILURE
+      );
     }
 
     ensureInitialized();
@@ -188,7 +191,7 @@ AddrBookManager.prototype = {
 
     let uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_MALFORMED_URI;
     }
     let [, scheme, , tail] = uriParts;
     if (tail && types.includes(scheme)) {
@@ -223,7 +226,10 @@ AddrBookManager.prototype = {
     }
 
     if (!dirName) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw new Components.Exception(
+        "dirName must be specified",
+        Cr.NS_ERROR_INVALID_ARG
+      );
     }
 
     ensureInitialized();
@@ -313,7 +319,7 @@ AddrBookManager.prototype = {
   deleteAddressBook(uri) {
     let uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Cr.NS_ERROR_MALFORMED_URI;
     }
 
     let [, scheme, fileName, tail] = uriParts;
@@ -330,11 +336,22 @@ AddrBookManager.prototype = {
 
     let dir = store.get(uri);
     if (!dir) {
-      return;
+      throw new Components.Exception(
+        `Address book not found: ${uri}`,
+        Cr.NS_ERROR_UNEXPECTED
+      );
     }
 
     let prefName = dir.dirPrefId;
     fileName = dir.fileName;
+
+    // Deleting the built-in address books is very bad.
+    if (["ldap_2.servers.pab", "ldap_2.servers.history"].includes(prefName)) {
+      throw new Components.Exception(
+        "Refusing to delete a built-in address book",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
 
     Services.prefs.clearUserPref(`${prefName}.description`);
     if (
@@ -350,6 +367,11 @@ AddrBookManager.prototype = {
     Services.prefs.clearUserPref(`${prefName}.uid`);
     Services.prefs.clearUserPref(`${prefName}.uri`);
     store.delete(uri);
+
+    // Clear this reference to the deleted address book.
+    if (Services.prefs.getStringPref("mail.collect_addressbook") == uri) {
+      Services.prefs.clearUserPref("mail.collect_addressbook");
+    }
 
     if (fileName) {
       let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
