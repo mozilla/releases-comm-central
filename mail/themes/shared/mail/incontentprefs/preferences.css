@@ -10,14 +10,12 @@
   --in-content-item-selected-unfocused: var(--grey-20);
 }
 
-@supports -moz-bool-pref("browser.in-content.dark-mode") {
 @media (prefers-color-scheme: dark) {
   :root {
     --in-content-categories-background: rgba(249,249,250,0.1);
     --in-content-warning-container: var(--grey-90-a30);
     --in-content-item-selected-unfocused: rgba(249,249,250,0.05);
   }
-}
 }
 
 #MailPreferences {

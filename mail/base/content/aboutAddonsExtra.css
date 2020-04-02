@@ -6,11 +6,9 @@
   --in-content-categories-background: #ebebef;
 }
 
-@supports -moz-bool-pref("browser.in-content.dark-mode") {
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --in-content-categories-background: rgba(249,249,250,0.1);
-    }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --in-content-categories-background: rgba(249,249,250,0.1);
   }
 }
 
