@@ -183,7 +183,7 @@ function CycleWindow(aType) {
     return topWindowOfType;
   }
 
-  let foundTop = false;
+  let topFound = false;
   let enumerator = Services.wm.getEnumerator(aType);
   let iWindow;
   let firstWindow;
