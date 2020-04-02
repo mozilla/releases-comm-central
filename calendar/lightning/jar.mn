@@ -29,7 +29,6 @@ lightning.jar:
     content/lightning-item-iframe.xhtml                    (content/lightning-item-iframe.xhtml)
     content/lightning-item-iframe.js                       (content/lightning-item-iframe.js)
     content/lightning-utils.js                             (content/lightning-utils.js)
-    content/messenger-overlay-sidebar.js                   (content/messenger-overlay-sidebar.js)
     content/messenger-overlay-preferences.js               (content/messenger-overlay-preferences.js)
 *   content/messenger-overlay-preferences.inc.xhtml        (content/messenger-overlay-preferences.inc.xhtml)
     content/caldav-lightning-calendar-creation.js          (../providers/caldav/content/caldav-lightning-calendar-creation.js)

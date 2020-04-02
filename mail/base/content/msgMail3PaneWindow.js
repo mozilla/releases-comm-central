@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/modules/PageMenu.jsm */
-/* import-globals-from ../../../calendar/lightning/content/messenger-overlay-sidebar.js */
+/* import-globals-from ../../../calendar/base/content/calendar-chrome-startup.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../../mailnews/base/util/MailnewsMigrator.jsm */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */

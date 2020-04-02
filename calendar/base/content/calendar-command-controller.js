@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../lightning/content/messenger-overlay-sidebar.js */
 /* import-globals-from ../../resources/content/publish.js */
 /* import-globals-from agenda-listbox-utils.js */
+/* import-globals-from calendar-chrome-startup.js */
 /* import-globals-from calendar-clipboard.js */
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-modes.js */
