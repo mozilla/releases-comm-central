@@ -5,7 +5,11 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-/* exported getInvitationsManager */
+/* exported getInvitationsManager, openInvitationsDialog, setUpInvitationsManager,
+ *          tearDownInvitationsManager
+ */
+
+/* globals setElementValue */
 
 /**
  * This object contains functions to take care of manipulating requests.
@@ -51,6 +55,80 @@ function getInvitationsManager() {
     gInvitationsManager = new InvitationsManager();
   }
   return gInvitationsManager;
+}
+
+// Listeners, observers, set up, tear down, opening dialog, etc. This code kept
+// separate from the InvitationsManager class itself for separation of concerns.
+
+// == invitations link
+const FIRST_DELAY_STARTUP = 100;
+const FIRST_DELAY_RESCHEDULE = 100;
+const FIRST_DELAY_REGISTER = 10000;
+const FIRST_DELAY_UNREGISTER = 0;
+
+var gInvitationsOperationListener = {
+  mCount: 0,
+  QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+
+  onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
+    let invitationsBox = document.getElementById("calendar-invitations-panel");
+    if (Components.isSuccessCode(aStatus)) {
+      let value = cal.l10n.getLtnString("invitationsLink.label", [this.mCount]);
+      document.getElementById("calendar-invitations-label").value = value;
+      setElementValue(invitationsBox, this.mCount < 1 && "true", "hidden");
+    } else {
+      invitationsBox.setAttribute("hidden", "true");
+    }
+    this.mCount = 0;
+  },
+
+  onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
+    if (Components.isSuccessCode(aStatus)) {
+      this.mCount += aItems.length;
+    }
+  },
+};
+
+var gInvitationsCalendarManagerObserver = {
+  mStoredThis: this,
+  QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
+
+  onCalendarRegistered(aCalendar) {
+    this.mStoredThis.rescheduleInvitationsUpdate(FIRST_DELAY_REGISTER);
+  },
+
+  onCalendarUnregistering(aCalendar) {
+    this.mStoredThis.rescheduleInvitationsUpdate(FIRST_DELAY_UNREGISTER);
+  },
+
+  onCalendarDeleting(aCalendar) {},
+};
+
+function scheduleInvitationsUpdate(firstDelay) {
+  gInvitationsOperationListener.mCount = 0;
+  getInvitationsManager().scheduleInvitationsUpdate(firstDelay, gInvitationsOperationListener);
+}
+
+function rescheduleInvitationsUpdate(firstDelay) {
+  getInvitationsManager().cancelInvitationsUpdate();
+  scheduleInvitationsUpdate(firstDelay);
+}
+
+function openInvitationsDialog() {
+  getInvitationsManager().cancelInvitationsUpdate();
+  gInvitationsOperationListener.mCount = 0;
+  getInvitationsManager().openInvitationsDialog(gInvitationsOperationListener, () =>
+    scheduleInvitationsUpdate(FIRST_DELAY_RESCHEDULE)
+  );
+}
+
+function setUpInvitationsManager() {
+  scheduleInvitationsUpdate(FIRST_DELAY_STARTUP);
+  cal.getCalendarManager().addObserver(gInvitationsCalendarManagerObserver);
+}
+
+function tearDownInvitationsManager() {
+  cal.getCalendarManager().removeObserver(gInvitationsCalendarManagerObserver);
 }
 
 /**

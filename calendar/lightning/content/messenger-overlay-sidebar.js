@@ -5,7 +5,7 @@
 /* exported calendarOnToolbarsPopupShowing, customizeMailToolbarForTabType,
  *          gCurrentMode, InitViewCalendarPaneMenu, loadCalendarComponent,
  *          onToolbarsPopupShowingWithMode, openInvitationsDialog, refreshUIBits,
- *          rescheduleInvitationsUpdate, switchCalendarView
+ *          switchCalendarView,
  */
 
 /* import-globals-from ../../base/content/calendar-command-controller.js */
@@ -13,7 +13,9 @@
 /* import-globals-from ../../base/content/today-pane.js */
 /* import-globals-from lightning-item-panel.js */
 
-/* globals calSwitchToMode, changeMode, */
+/* globals calSwitchToMode, changeMode, setUpInvitationsManager,
+ *         tearDownInvitationsManager,
+ */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
@@ -39,9 +41,7 @@ async function loadCalendarComponent() {
   // Add an unload function to the window so we don't leak any listeners
   window.addEventListener("unload", ltnFinish);
 
-  // Set up invitations manager
-  scheduleInvitationsUpdate(FIRST_DELAY_STARTUP);
-  cal.getCalendarManager().addObserver(gInvitationsCalendarManagerObserver);
+  setUpInvitationsManager();
 
   let filter = document.getElementById("task-tree-filtergroup");
   filter.value = filter.value || "all";
@@ -197,7 +197,7 @@ function LtnObserveDisplayDeckChange(event) {
 }
 
 function ltnFinish() {
-  cal.getCalendarManager().removeObserver(gInvitationsCalendarManagerObserver);
+  tearDownInvitationsManager();
 
   // Remove listener for mailContext.
   let mailContextPopup = document.getElementById("mailContext");
@@ -207,69 +207,6 @@ function ltnFinish() {
 
   // Common finish steps
   commonFinishCalendar();
-}
-
-// == invitations link
-var FIRST_DELAY_STARTUP = 100;
-var FIRST_DELAY_RESCHEDULE = 100;
-var FIRST_DELAY_REGISTER = 10000;
-var FIRST_DELAY_UNREGISTER = 0;
-
-var gInvitationsOperationListener = {
-  mCount: 0,
-
-  QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
-  onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
-    let invitationsBox = document.getElementById("calendar-invitations-panel");
-    if (Components.isSuccessCode(aStatus)) {
-      let value = cal.l10n.getLtnString("invitationsLink.label", [this.mCount]);
-      document.getElementById("calendar-invitations-label").value = value;
-      setElementValue(invitationsBox, this.mCount < 1 && "true", "hidden");
-    } else {
-      invitationsBox.setAttribute("hidden", "true");
-    }
-    this.mCount = 0;
-  },
-
-  onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
-    if (Components.isSuccessCode(aStatus)) {
-      this.mCount += aItems.length;
-    }
-  },
-};
-
-var gInvitationsCalendarManagerObserver = {
-  mSideBar: this,
-
-  QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
-
-  onCalendarRegistered(aCalendar) {
-    this.mSideBar.rescheduleInvitationsUpdate(FIRST_DELAY_REGISTER);
-  },
-
-  onCalendarUnregistering(aCalendar) {
-    this.mSideBar.rescheduleInvitationsUpdate(FIRST_DELAY_UNREGISTER);
-  },
-
-  onCalendarDeleting(aCalendar) {},
-};
-
-function scheduleInvitationsUpdate(firstDelay) {
-  gInvitationsOperationListener.mCount = 0;
-  getInvitationsManager().scheduleInvitationsUpdate(firstDelay, gInvitationsOperationListener);
-}
-
-function rescheduleInvitationsUpdate(firstDelay) {
-  getInvitationsManager().cancelInvitationsUpdate();
-  scheduleInvitationsUpdate(firstDelay);
-}
-
-function openInvitationsDialog() {
-  getInvitationsManager().cancelInvitationsUpdate();
-  gInvitationsOperationListener.mCount = 0;
-  getInvitationsManager().openInvitationsDialog(gInvitationsOperationListener, () =>
-    scheduleInvitationsUpdate(FIRST_DELAY_RESCHEDULE)
-  );
 }
 
 var gCalSetupMailContext = {
