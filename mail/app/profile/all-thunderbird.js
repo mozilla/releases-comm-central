@@ -188,7 +188,6 @@ pref("lightweightThemes.update.enabled", true);
 // Built-in default permissions.
 pref("permissions.manager.defaultsUrl", "resource://app/defaults/permissions");
 
-pref("general.smoothScroll", true);
 #ifdef UNIX_BUT_NOT_MAC
 pref("general.autoScroll", false);
 #else
@@ -275,10 +274,6 @@ pref("mail.threadpane.padding.bottom_percent", 10);
 
 // Use correspondents column instead of from/recipient columns.
 pref("mail.threadpane.use_correspondents", true);
-
-// only affects cookies from RSS articles
-// 0-Accept, 1-dontAcceptForeign, 2-dontUse
-pref("network.cookie.cookieBehavior", 0);
 
 // To allow images to be inserted into a composition with an auth prompt, we
 // need the following two.
@@ -386,7 +381,6 @@ pref("view_source.syntax_highlight", false);
 /////////////////////////////////////////////////////////////////
 pref("browser.send_pings", false);
 pref("browser.chrome.toolbar_tips",         true);
-pref("browser.xul.error_pages.enabled", true);
 pref("browser.xul.error_pages.expert_bad_cert", false);
 
 // Attachment download manager settings
@@ -755,15 +749,6 @@ pref("mail.main_menu.collapse_by_default", true);
 // If set to true, when saving a message to a file, use underscore
 // instead of space in the file name.
 pref("mail.save_msg_filename_underscores_for_space", false);
-
-#ifdef MOZ_SANDBOX
-// This controls the strength of the Windows content process sandbox for testing
-// purposes. This will require a restart.
-// On windows these levels are:
-// See - security/sandbox/win/src/sandboxbroker/sandboxBroker.cpp
-// SetSecurityLevelForContentProcess() for what the different settings mean.
-pref("security.sandbox.content.level", 0);
-#endif
 
 #ifdef NIGHTLY_BUILD
 // See bug 1572568 for details. Disallow eval() with system principal.
