@@ -29,6 +29,7 @@ calendar.jar:
     content/calendar-multiday-base-view.js                      (content/calendar-multiday-base-view.js)
     content/calendar-multiday-view.js                           (content/calendar-multiday-view.js)
     content/calendar-statusbar.js                               (content/calendar-statusbar.js)
+    content/calendar-tabs.js                                    (content/calendar-tabs.js)
     content/calendar-task-editing.js                            (content/calendar-task-editing.js)
     content/calendar-task-tree-utils.js                         (content/calendar-task-tree-utils.js)
     content/calendar-task-tree-view.js                          (content/calendar-task-tree-view.js)

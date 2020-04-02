@@ -7,6 +7,8 @@
 /* import-globals-from calendar-chrome-startup.js */
 /* import-globals-from calendar-views-utils.js */
 
+/* globals switchCalendarView */
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
