@@ -27,8 +27,6 @@ Preferences.addAll([
   { id: "pref.advanced.proxies.disable_button.reload", type: "bool" },
   { id: "network.proxy.backup.ssl", type: "string" },
   { id: "network.proxy.backup.ssl_port", type: "int" },
-  { id: "network.proxy.backup.socks", type: "string" },
-  { id: "network.proxy.backup.socks_port", type: "int" },
   { id: "network.trr.mode", type: "int" },
   { id: "network.trr.uri", type: "string" },
   { id: "network.trr.resolvers", type: "string" },
@@ -330,12 +328,13 @@ var gConnectionsDialog = {
         );
         return pref.value;
       }
-    }
 
-    var backupPref = Preferences.get(
-      "network.proxy.backup." + aProtocol + (aIsPort ? "_port" : "")
-    );
-    return backupPref.hasUserValue ? backupPref.value : undefined;
+      var backupPref = Preferences.get(
+        "network.proxy.backup." + aProtocol + (aIsPort ? "_port" : "")
+      );
+      return backupPref.hasUserValue ? backupPref.value : undefined;
+    }
+    return undefined;
   },
 
   reloadPAC() {

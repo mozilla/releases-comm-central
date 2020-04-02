@@ -116,7 +116,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 19;
+    const UI_VERSION = 20;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -469,6 +469,29 @@ var MailMigrator = {
               Services.prefs.getIntPref("network.proxy.backup.socks_port", 0)
             );
           }
+        }
+      }
+
+      // Clear unused socks proxy backup values - see bug 1625773.
+      if (currentUIVersion < 20) {
+        let backup = Services.prefs.getCharPref(
+          "network.proxy.backup.socks",
+          ""
+        );
+        let backupPort = Services.prefs.getIntPref(
+          "network.proxy.backup.socks_port",
+          0
+        );
+        let socksProxy = Services.prefs.getCharPref("network.proxy.socks", "");
+        let socksPort = Services.prefs.getIntPref(
+          "network.proxy.socks_port",
+          0
+        );
+        if (backup == socksProxy) {
+          Services.prefs.clearUserPref("network.proxy.backup.socks");
+        }
+        if (backupPort == socksPort) {
+          Services.prefs.clearUserPref("network.proxy.backup.socks_port");
         }
       }
 
