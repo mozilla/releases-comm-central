@@ -8701,23 +8701,16 @@ NS_IMETHODIMP nsImapMailFolder::GetCustomIdentity(nsIMsgIdentity **aIdentity) {
         GetFolderOwnerUserName(otherUsersEmailAddress);
         otherUsersEmailAddress.Append(
             Substring(ourEmailAddress, atPos, ourEmailAddress.Length()));
-        nsCOMPtr<nsIArray> identities;
-        rv = accountManager->GetIdentitiesForServer(server,
-                                                    getter_AddRefs(identities));
+        nsTArray<RefPtr<nsIMsgIdentity>> identities;
+        rv = accountManager->GetIdentitiesForServer(server, identities);
         NS_ENSURE_SUCCESS(rv, rv);
-        uint32_t numIdentities;
-        rv = identities->GetLength(&numIdentities);
-        NS_ENSURE_SUCCESS(rv, rv);
-        for (uint32_t identityIndex = 0; identityIndex < numIdentities;
-             identityIndex++) {
-          nsCOMPtr<nsIMsgIdentity> identity =
-              do_QueryElementAt(identities, identityIndex);
+
+        for (auto identity : identities) {
           if (!identity) continue;
           nsCString identityEmail;
           identity->GetEmail(identityEmail);
           if (identityEmail.Equals(otherUsersEmailAddress)) {
             retIdentity = identity;
-            ;
             break;
           }
         }

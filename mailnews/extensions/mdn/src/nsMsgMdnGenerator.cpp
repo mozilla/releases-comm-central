@@ -792,45 +792,37 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool *needToAskUser) {
         nsCString mailCC;
         m_headers->ExtractHeader(HEADER_TO, true, mailTo);
         m_headers->ExtractHeader(HEADER_CC, true, mailCC);
-        nsCOMPtr<nsIArray> servIdentities;
-        accountManager->GetIdentitiesForServer(m_server,
-                                               getter_AddRefs(servIdentities));
-        if (servIdentities) {
-          nsCOMPtr<nsIMsgIdentity> ident;
+        nsTArray<RefPtr<nsIMsgIdentity>> servIdentities;
+        accountManager->GetIdentitiesForServer(m_server, servIdentities);
+
+        // First check in the "To:" header
+        for (auto ident : servIdentities) {
           nsCString identEmail;
-          uint32_t count = 0;
-          servIdentities->GetLength(&count);
-          // First check in the "To:" header
-          for (uint32_t i = 0; i < count; i++) {
-            ident = do_QueryElementAt(servIdentities, i, &rv);
-            if (NS_FAILED(rv)) continue;
+          ident->GetEmail(identEmail);
+          if (!mailTo.IsEmpty() && !identEmail.IsEmpty() &&
+              mailTo.Find(identEmail, /* ignoreCase = */ true) != kNotFound) {
+            m_identity = ident;
+            break;
+          }
+        }
+        // If no match, check the "Cc:" header
+        if (!m_identity) {
+          for (auto ident : servIdentities) {
+            nsCString identEmail;
             ident->GetEmail(identEmail);
-            if (!mailTo.IsEmpty() && !identEmail.IsEmpty() &&
-                mailTo.Find(identEmail, /* ignoreCase = */ true) != kNotFound) {
+            if (!mailCC.IsEmpty() && !identEmail.IsEmpty() &&
+                mailCC.Find(identEmail, /* ignoreCase = */ true) != kNotFound) {
               m_identity = ident;
               break;
             }
           }
-          // If no match, check the "Cc:" header
-          if (!m_identity) {
-            for (uint32_t i = 0; i < count; i++) {
-              ident = do_QueryElementAt(servIdentities, i, &rv);
-              if (NS_FAILED(rv)) continue;
-              ident->GetEmail(identEmail);
-              if (!mailCC.IsEmpty() && !identEmail.IsEmpty() &&
-                  mailCC.Find(identEmail, /* ignoreCase = */ true) !=
-                      kNotFound) {
-                m_identity = ident;
-                break;
-              }
-            }
-          }
         }
 
-        // If no match again, use the first identity
-        if (!m_identity)
+        // If still no match, use the first identity
+        if (!m_identity) {
           rv = accountManager->GetFirstIdentityForServer(
               m_server, getter_AddRefs(m_identity));
+        }
       }
     }
     NS_ENSURE_SUCCESS(rv, rv);

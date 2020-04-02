@@ -1390,11 +1390,8 @@
        *                      a value.
        */
       findTemplates() {
-        let identitiesRaw = MailServices.accounts.getIdentitiesForServer(
+        let identities = MailServices.accounts.getIdentitiesForServer(
           gFilterList.folder.server
-        );
-        let identities = Array.from(
-          fixIterator(identitiesRaw, Ci.nsIMsgIdentity)
         );
         // Typically if this is Local Folders.
         if (identities.length == 0) {

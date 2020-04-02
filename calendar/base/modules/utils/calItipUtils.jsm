@@ -7,6 +7,7 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
+const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
 
@@ -512,7 +513,10 @@ var calitip = {
     if (aMsgHdr.accountKey) {
       // First, check if the message has an account key. If so, we can use the
       // account identities to find the correct recipient
-      identities = actMgr.getAccount(aMsgHdr.accountKey).identities;
+      // Note: fixIterator here is a stopgap, to be removed (see Bug 1612239).
+      identities = [
+        ...fixIterator(actMgr.getAccount(aMsgHdr.accountKey).identities, Ci.nsIMsgIdentity),
+      ];
     } else if (aMsgHdr.folder) {
       // Without an account key, we have to revert back to using the server
       identities = actMgr.getIdentitiesForServer(aMsgHdr.folder.server);
@@ -542,8 +546,7 @@ var calitip = {
       emailMap[identity.email.toLowerCase()] = true;
     } else {
       // Build a map of usable email addresses
-      for (let i = 0; i < identities.length; i++) {
-        let identity = identities.queryElementAt(i, Ci.nsIMsgIdentity);
+      for (let identity of identities) {
         emailMap[identity.email.toLowerCase()] = true;
       }
     }

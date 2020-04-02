@@ -86,13 +86,13 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
 
   bool m_accountsLoaded;
   nsCOMPtr<nsIMsgFolderCache> m_msgFolderCache;
-  nsTArray<nsCOMPtr<nsIMsgAccount> > m_accounts;
+  nsTArray<nsCOMPtr<nsIMsgAccount>> m_accounts;
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgIdentity> m_identities;
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgIncomingServer>
       m_incomingServers;
   nsCOMPtr<nsIMsgAccount> m_defaultAccount;
   nsCOMArray<nsIIncomingServerListener> m_incomingServerListeners;
-  nsTObserverArray<RefPtr<VirtualFolderChangeListener> >
+  nsTObserverArray<RefPtr<VirtualFolderChangeListener>>
       m_virtualFolderListeners;
   nsCOMPtr<nsIMsgFolder> m_folderDoingEmptyTrash;
   nsCOMPtr<nsIMsgFolder> m_folderDoingCleanupInbox;
@@ -210,7 +210,7 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   //    should be added to the new server
   // When a new listener is added, it should be added to all root folders.
   // similar for when servers are deleted or listeners removed
-  nsTObserverArray<nsCOMPtr<nsIFolderListener> > mFolderListeners;
+  nsTObserverArray<nsCOMPtr<nsIFolderListener>> mFolderListeners;
 
   void removeListenersFromFolder(nsIMsgFolder *aFolder);
 };

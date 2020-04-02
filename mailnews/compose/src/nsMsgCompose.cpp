@@ -2482,20 +2482,9 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
           rv = msgFolder->GetServer(getter_AddRefs(nsIMsgIncomingServer));
 
           if (NS_SUCCEEDED(rv) && nsIMsgIncomingServer) {
-            // TODO: Bug 1614846 - stopgap until
-            // nsIAccountManager.getIdentitiesForServer(). takes nsTArray<>.
-            nsCOMPtr<nsIArray> tmp;
             rv = accountManager->GetIdentitiesForServer(nsIMsgIncomingServer,
-                                                        getter_AddRefs(tmp));
+                                                        identities);
             NS_ENSURE_SUCCESS(rv, rv);
-            uint32_t numElements;
-            rv = tmp->GetLength(&numElements);
-            NS_ENSURE_SUCCESS(rv, rv);
-            for (uint32_t i = 0; i < numElements; i++) {
-              nsCOMPtr<nsIMsgIdentity> ident = do_QueryElementAt(tmp, i, &rv);
-              NS_ENSURE_SUCCESS(rv, rv);
-              identities.AppendElement(ident);
-            }
           }
         }
       }
@@ -2505,8 +2494,6 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
       if (!identities.IsEmpty()) {
         // Go through the identities to see if any of them is the author of
         // the email.
-        nsCOMPtr<nsIMsgIdentity> lookupIdentity;
-
         for (auto lookupIdentity : identities) {
           selfIdentity = lookupIdentity;
 

@@ -54,4 +54,9 @@ add_task(async function() {
 
   // The identities we explicitly created.
   Assert.equal(mgr.allIdentities.length, 3);
+
+  // Check we find the right number of identities associated with each server.
+  Assert.equal(mgr.getIdentitiesForServer(acc1.incomingServer).length, 2);
+  Assert.equal(mgr.getIdentitiesForServer(acc2.incomingServer).length, 2);
+  Assert.equal(mgr.getIdentitiesForServer(mgr.localFoldersServer).length, 0);
 });

@@ -463,11 +463,8 @@ var MailUtils = {
   },
 
   getIdentityForServer(server, optionalHint) {
-    var identities = MailServices.accounts.getIdentitiesForServer(server);
-    return this.getBestIdentity(
-      [...fixIterator(identities, Ci.nsIMsgIdentity)],
-      optionalHint
-    );
+    let identities = MailServices.accounts.getIdentitiesForServer(server);
+    return this.getBestIdentity(identities, optionalHint);
   },
 
   /**

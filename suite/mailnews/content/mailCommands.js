@@ -55,8 +55,8 @@ function getBestIdentity(identities, optionalHint)
 
 function getIdentityForServer(server, optionalHint)
 {
-  var identities = accountManager.getIdentitiesForServer(server);
-  return getBestIdentity(fixIterator(identities, nsIMsgAccount), optionalHint);
+  let identities = accountManager.getIdentitiesForServer(server);
+  return getBestIdentity(identities, optionalHint);
 }
 
 /**

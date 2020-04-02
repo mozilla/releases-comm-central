@@ -374,15 +374,9 @@ function shutdownNewMailListener() {
 
 function getIdentityForSender(senderEmail, msgServer) {
   let identities = MailServices.accounts.getIdentitiesForServer(msgServer);
-
-  for (let i = 0; i < identities.length; i++) {
-    let id = identities.queryElementAt(i, Ci.nsIMsgIdentity);
-    if (id.email.toLowerCase() === senderEmail.toLowerCase()) {
-      return id;
-    }
-  }
-
-  return null;
+  return identities.find(
+    id => id.email.toLowerCase() === senderEmail.toLowerCase()
+  );
 }
 
 var consumerList = [];

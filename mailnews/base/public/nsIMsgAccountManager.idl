@@ -148,7 +148,7 @@ interface nsIMsgAccountManager : nsISupports {
   /* given a server, return all identities in accounts that have this server
    * returns an array of nsIMsgIdentity
    */
-  nsIArray getIdentitiesForServer(in nsIMsgIncomingServer server);
+  Array<nsIMsgIdentity> getIdentitiesForServer(in nsIMsgIncomingServer server);
 
   /**
    * given a server, return the first identity in accounts that have this server

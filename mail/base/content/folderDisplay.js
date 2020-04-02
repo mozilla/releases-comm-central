@@ -2277,19 +2277,14 @@ FolderDisplayWidget.prototype = {
           this.displayedFolder.server
         );
 
-        const nsIMsgIdentity = Ci.nsIMsgIdentity;
-        let allEnabled = undefined;
-        for (let identity of fixIterator(serverIdentities, nsIMsgIdentity)) {
-          if (allEnabled === undefined) {
-            allEnabled = identity.archiveEnabled;
-          } else if (identity.archiveEnabled != allEnabled) {
-            allEnabled = undefined;
-            break;
-          }
+        // Do all identities have the same archiveEnabled setting?
+        if (serverIdentities.every(id => id.archiveEnabled)) {
+          return true;
         }
-        if (allEnabled !== undefined) {
-          return allEnabled;
+        if (serverIdentities.every(id => !id.archiveEnabled)) {
+          return false;
         }
+        // If we get here it's a mixture, so have to examine all the messages.
       }
     }
 

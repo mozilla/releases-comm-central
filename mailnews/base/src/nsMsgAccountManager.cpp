@@ -1862,44 +1862,35 @@ nsMsgAccountManager::GetFirstIdentityForServer(nsIMsgIncomingServer *aServer,
   NS_ENSURE_ARG_POINTER(aServer);
   NS_ENSURE_ARG_POINTER(aIdentity);
 
-  nsCOMPtr<nsIArray> identities;
-  nsresult rv = GetIdentitiesForServer(aServer, getter_AddRefs(identities));
+  nsTArray<RefPtr<nsIMsgIdentity>> identities;
+  nsresult rv = GetIdentitiesForServer(aServer, identities);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // not all servers have identities
   // for example, Local Folders
-  uint32_t numIdentities;
-  rv = identities->GetLength(&numIdentities);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (numIdentities > 0) {
-    nsCOMPtr<nsIMsgIdentity> identity(do_QueryElementAt(identities, 0, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    identity.forget(aIdentity);
-  } else
+  if (identities.IsEmpty()) {
     *aIdentity = nullptr;
+  } else {
+    NS_IF_ADDREF(*aIdentity = identities[0]);
+  }
   return rv;
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::GetIdentitiesForServer(nsIMsgIncomingServer *server,
-                                            nsIArray **_retval) {
+nsMsgAccountManager::GetIdentitiesForServer(
+    nsIMsgIncomingServer *server,
+    nsTArray<RefPtr<nsIMsgIdentity>> &identities) {
   NS_ENSURE_ARG_POINTER(server);
-  NS_ENSURE_ARG_POINTER(_retval);
   nsresult rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMutableArray> identities(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  identities.Clear();
 
   nsAutoCString serverKey;
   rv = server->GetKey(serverKey);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  for (uint32_t i = 0; i < m_accounts.Length(); ++i) {
-    nsCOMPtr<nsIMsgAccount> account(m_accounts[i]);
-
+  for (auto account : m_accounts) {
     nsCOMPtr<nsIMsgIncomingServer> thisServer;
     rv = account->GetIncomingServer(getter_AddRefs(thisServer));
     if (NS_FAILED(rv) || !thisServer) continue;
@@ -1914,16 +1905,14 @@ nsMsgAccountManager::GetIdentitiesForServer(nsIMsgIncomingServer *server,
         rv = theseIdentities->GetLength(&theseLength);
         if (NS_SUCCEEDED(rv)) {
           for (uint32_t j = 0; j < theseLength; ++j) {
-            nsCOMPtr<nsISupports> id(
+            nsCOMPtr<nsIMsgIdentity> id(
                 do_QueryElementAt(theseIdentities, j, &rv));
-            if (NS_SUCCEEDED(rv)) identities->AppendElement(id);
+            if (NS_SUCCEEDED(rv)) identities.AppendElement(id);
           }
         }
       }
     }
   }
-
-  identities.forget(_retval);
   return NS_OK;
 }
 
