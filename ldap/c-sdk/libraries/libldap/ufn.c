@@ -43,7 +43,7 @@
  */
 
 #if 0
-#  ifndef lint 
+#  ifndef lint
 static char copyright[] = "@(#) Copyright (c) 1993 Regents of the University of Michigan.\nAll rights reserved.\n";
 #  endif
 #endif

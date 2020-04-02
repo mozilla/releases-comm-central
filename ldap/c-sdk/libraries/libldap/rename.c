@@ -43,7 +43,7 @@
  */
 
 #if 0
-#  ifndef lint 
+#  ifndef lint
 static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of Michigan.\nAll rights reserved.\n";
 #  endif
 #endif
@@ -133,7 +133,7 @@ ldap_rename(LDAP *ld, const char *dn, const char *newrdn, const char *newparent,
       LDAP_MUTEX_LOCK(ld, LDAP_CACHE_LOCK);
       if ((rc = (ld->ld_cache_rename)(ld, *msgidp,
                  LDAP_REQ_MODDN, dn, newrdn, newparent,
-                 deleteoldrdn )) != 0) {   
+                 deleteoldrdn )) != 0) {
         *msgidp = rc;
         return(LDAP_SUCCESS);
       }

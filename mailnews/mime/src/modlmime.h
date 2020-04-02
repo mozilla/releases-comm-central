@@ -37,7 +37,7 @@ typedef struct MimeHeaders {
                         to the beginning of each distinct header:
                         just after the newline which terminated
                         the previous one.  This is to speed search.
-      
+
                         This is not initialized until all the
                         headers have been read.
                       */
