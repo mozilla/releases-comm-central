@@ -688,8 +688,7 @@ var NotAnInlineParent = [
 ];
 
 function nodeIsBreak(editor, node) {
-  // XXX This doesn't work because .localName is lowercase (see bug 1306060).
-  return !node || node.localName == "BR" || editor.nodeIsBlock(node);
+  return !node || node.localName == 'br' || editor.nodeIsBlock(node);
 }
 
 function InsertElementAroundSelection(element) {
@@ -723,27 +722,27 @@ function InsertElementAroundSelection(element) {
       while (!IsBlockParent.includes(range.commonAncestorContainer.localName)) {
         range.selectNode(range.commonAncestorContainer);
       }
-    } else if (!nodeIsBreak(editor, range.commonAncestorContainer)) {
-      // Fail if we're not inserting a block (use setInlineProperty instead)
-      return false;
-    } else if (
-      NotAnInlineParent.includes(range.commonAncestorContainer.localName)
-    ) {
-      // Inline element parent must not be an invalid block
-      do {
-        range.selectNode(range.commonAncestorContainer);
-      } while (
-        NotAnInlineParent.includes(range.commonAncestorContainer.localName)
-      );
     } else {
-      // Further insert block check
-      for (var i = range.startOffset; ; i++) {
-        if (i == range.endOffset) {
-          return false;
-        } else if (
-          nodeIsBreak(editor, range.commonAncestorContainer.childNodes[i])
-        ) {
-          break;
+      if (!nodeIsBreak(editor, range.commonAncestorContainer)) {
+        // Fail if we're not inserting a block (use setInlineProperty instead)
+        return false;
+      }
+      if (NotAnInlineParent.includes(range.commonAncestorContainer.localName)) {
+        // Inline element parent must not be an invalid block
+        do {
+          range.selectNode(range.commonAncestorContainer);
+        } while (
+          NotAnInlineParent.includes(range.commonAncestorContainer.localName)
+        );
+      } else {
+        // Further insert block check
+        for (var i = range.startOffset; ; i++) {
+          if (i == range.endOffset) {
+            return false;
+          }
+          if (nodeIsBreak(editor, range.commonAncestorContainer.childNodes[i])) {
+            break;
+          }
         }
       }
     }
@@ -784,8 +783,7 @@ function InsertElementAroundSelection(element) {
       editor.setShouldTxnSetSelection(true);
     } else {
       // Also move a trailing <br>
-      // XXX This doesn't work because .localName is lowercase (see bug 1306060).
-      if (start && start.localName == "BR") {
+      if (start && start.localName == "br") {
         editor.deleteNode(start);
         editor.insertNode(start, element, element.childNodes.length);
         empty = false;
