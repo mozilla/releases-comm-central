@@ -135,10 +135,12 @@ radio[pane] {
   border-right-width: 0;
   border-left-width: 0;
   border-radius: 2px;
+  border-end-end-radius: 0;
+  border-start-end-radius: 0;
   margin-block: 0;
   margin-inline: 34px 0;
   padding: 5px 10px;
-  min-height: 40px;
+  min-height: 42px;
   outline-offset: -1px;
   transition: background-color 150ms;
 }
@@ -159,6 +161,12 @@ radio[pane][selected]:hover {
 radio[pane]:hover:active {
   color: var(--in-content-category-text-selected-active);
   background-color: var(--in-content-category-background-selected-active);
+}
+
+.sidebar-footer-link:hover,
+.sidebar-footer-button > .text-link:hover {
+  border-end-end-radius: 0;
+  border-start-end-radius: 0;
 }
 
 .paneSelector[focused="true"][keyboard-navigation="true"] > radio[pane][focused="true"] {
