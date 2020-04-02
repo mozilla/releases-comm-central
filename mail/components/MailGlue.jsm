@@ -211,11 +211,11 @@ MailGlue.prototype = {
     this._sanitizer.sanitize(aParentWindow);
   },
 
-  async _onProfileStartup() {
+  _onProfileStartup() {
     TBDistCustomizer.applyPrefDefaults();
 
     // handle any migration work that has to happen at profile startup
-    await MailMigrator.migrateAtProfileStartup();
+    MailMigrator.migrateAtProfileStartup();
 
     // check if we're in safe mode
     if (Services.appinfo.inSafeMode) {

@@ -897,8 +897,16 @@ var MailMigrator = {
    * Perform any migration work that needs to occur once the user profile has
    * been loaded.
    */
-  async migrateAtProfileStartup() {
-    await this._migrateAddressBooks();
+  migrateAtProfileStartup() {
+    // Migration has to finish before the application starts up, so we block
+    // the main thread to prevent start-up continuing until we are ready.
+    // Being an async function (that is, returning a Promise) just won't work.
+    let done = false;
+    this._migrateAddressBooks().then(
+      () => (done = true),
+      () => (done = true)
+    );
+    Services.tm.spinEventLoopUntil(() => done);
     this._migrateUI();
     this._migrateRSS();
   },
