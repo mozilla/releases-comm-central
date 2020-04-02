@@ -13,7 +13,7 @@
 /* import-globals-from ../../base/content/today-pane.js */
 /* import-globals-from lightning-item-panel.js */
 
-/* globals gLastShownCalendarView */
+/* globals calSwitchToMode, changeMode, */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
@@ -270,111 +270,6 @@ function openInvitationsDialog() {
   getInvitationsManager().openInvitationsDialog(gInvitationsOperationListener, () =>
     scheduleInvitationsUpdate(FIRST_DELAY_RESCHEDULE)
   );
-}
-
-/**
- * The current mode defining the current mode we're in. Allowed values are:
- *  - 'mail'
- *  - 'calendar'
- *  - 'task'
- *  - 'chat'
- *  - 'calendarEvent'
- *  - 'calendarTask'
- *  - 'special' - For special tabs like preferences, add-ons manager, about:xyz, etc.
- * @global
- */
-var gCurrentMode = "mail";
-
-/**
- * Changes the mode (gCurrentMode) and adapts the UI to the new mode.
- * @param {string} [mode="mail"] - the new mode: 'mail', 'calendar', 'task', etc.
- */
-function changeMode(mode = "mail") {
-  gCurrentMode = mode; // eslint-disable-line no-global-assign
-
-  document
-    .querySelectorAll(
-      `menuitem[command="switch2calendar"],menuitem[command="switch2task"],
-       toolbarbutton[command="switch2calendar"],toolbarbutton[command="switch2task"]`
-    )
-    .forEach(elem => {
-      elem.setAttribute("checked", elem.getAttribute("value") == gCurrentMode);
-    });
-
-  document.querySelectorAll("calendar-modebox,calendar-modevbox").forEach(elem => {
-    elem.setAttribute("current", gCurrentMode);
-  });
-
-  TodayPane.onModeModified();
-  if (gCurrentMode != "calendar") {
-    timeIndicator.cancel();
-  }
-}
-
-/**
- * For switching to modes like "mail", "chat", "calendarEvent", "calendarTask", or "special".
- * (For "calendar" and "task" modes use calSwitchToCalendarMode and calSwitchToTaskMode.)
- *
- * @param {string} mode  The mode to switch to.
- */
-function calSwitchToMode(mode) {
-  if (!["mail", "chat", "calendarEvent", "calendarTask", "special"].includes(mode)) {
-    cal.WARN("Attempted to switch to unknown mode: " + mode);
-    return;
-  }
-  if (gCurrentMode != mode) {
-    const previousMode = gCurrentMode;
-    changeMode(mode);
-
-    if (previousMode == "calendar" || previousMode == "task") {
-      document.commandDispatcher.updateCommands("calendar_commands");
-    }
-    window.setCursor("auto");
-  }
-}
-
-/**
- * Switches to the calendar mode.
- */
-function calSwitchToCalendarMode() {
-  if (gCurrentMode != "calendar") {
-    changeMode("calendar");
-
-    // display the calendar panel on the display deck
-    let deck = document.getElementById("calendarDisplayDeck");
-    deck.selectedPanel = document.getElementById("calendar-view-box");
-
-    // show the last displayed type of calendar view
-    switchToView(gLastShownCalendarView.get());
-    document.getElementById("calMinimonth").setAttribute("freebusy", "true");
-
-    document.commandDispatcher.updateCommands("calendar_commands");
-    window.setCursor("auto");
-
-    // make sure the view is sized correctly
-    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
-
-    // Load the unifinder if it isn't already loaded.
-    ensureUnifinderLoaded();
-  }
-}
-
-/**
- * Switches to the task mode.
- */
-function calSwitchToTaskMode() {
-  if (gCurrentMode != "task") {
-    changeMode("task");
-
-    // display the task panel on the display deck
-    let deck = document.getElementById("calendarDisplayDeck");
-    deck.selectedPanel = document.getElementById("calendar-task-box");
-
-    document.getElementById("calMinimonth").setAttribute("freebusy", "true");
-
-    document.commandDispatcher.updateCommands("calendar_commands");
-    window.setCursor("auto");
-  }
 }
 
 var gCalSetupMailContext = {

@@ -24,6 +24,7 @@ calendar.jar:
     content/calendar-management.js                              (content/calendar-management.js)
     content/calendar-menus.js                                   (content/calendar-menus.js)
     content/calendar-migration.js                               (content/calendar-migration.js)
+    content/calendar-modes.js                                   (content/calendar-modes.js)
     content/calendar-month-base-view.js                         (content/calendar-month-base-view.js)
     content/calendar-month-view.js                              (content/calendar-month-view.js)
     content/calendar-multiday-base-view.js                      (content/calendar-multiday-base-view.js)

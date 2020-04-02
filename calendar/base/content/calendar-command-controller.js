@@ -8,6 +8,7 @@
 /* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-clipboard.js */
 /* import-globals-from calendar-management.js */
+/* import-globals-from calendar-modes.js */
 /* import-globals-from calendar-task-tree-utils.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-unifinder.js */

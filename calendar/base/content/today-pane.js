@@ -5,6 +5,7 @@
 /* import-globals-from ../../lightning/content/messenger-overlay-sidebar.js */
 /* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-chrome-startup.js */
+/* import-globals-from calendar-modes.js */
 /* import-globals-from calendar-views-utils.js */
 
 /* globals switchCalendarView */
