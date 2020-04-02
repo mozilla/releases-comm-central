@@ -361,34 +361,23 @@ nsresult LocateMessageFolder(nsIMsgIdentity *userIdentity,
     return server->GetMsgFolderFromURI(folder, nsDependentCString(aFolderURI),
                                        msgFolder);
   } else {
-    uint32_t cnt = 0;
-    uint32_t i;
-
     if (!userIdentity) return NS_ERROR_INVALID_ARG;
 
     // get the account manager
     nsCOMPtr<nsIMsgAccountManager> accountManager =
         do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) return rv;
+    NS_ENSURE_SUCCESS(rv, rv);
 
     // If any folder will do, go look for one.
-    nsCOMPtr<nsIArray> retval;
-    accountManager->GetServersForIdentity(userIdentity, getter_AddRefs(retval));
-    if (!retval) return NS_ERROR_FAILURE;
+    nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
+    rv = accountManager->GetServersForIdentity(userIdentity, servers);
+    NS_ENSURE_SUCCESS(rv, rv);
 
     // Ok, we have to look through the servers and try to find the server that
     // has a valid folder of the type that interests us...
-    rv = retval->GetLength(&cnt);
-    if (NS_FAILED(rv)) return rv;
-
-    for (i = 0; i < cnt; i++) {
+    for (auto inServer : servers) {
       // Now that we have the server...we need to get the named message folder
-      nsCOMPtr<nsIMsgIncomingServer> inServer;
 
-      inServer = do_QueryElementAt(retval, i, &rv);
-      if (NS_FAILED(rv) || (!inServer)) continue;
-
-      //
       // If aFolderURI is passed in, then the user has chosen a specific
       // mail folder to save the message, but if it is null, just find the
       // first one and make that work. The folder is specified as a URI, like

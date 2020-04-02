@@ -159,7 +159,7 @@ interface nsIMsgAccountManager : nsISupports {
    * this identity
    * returns an array of nsIMsgIncomingServer
    */
-  nsIArray getServersForIdentity(in nsIMsgIdentity identity);
+  Array<nsIMsgIncomingServer> getServersForIdentity(in nsIMsgIdentity identity);
 
   /* there is a special server "Local Folders" that is guaranteed to exist.
    * this will allow you to get */

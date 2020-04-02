@@ -1917,22 +1917,19 @@ nsMsgAccountManager::GetIdentitiesForServer(
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::GetServersForIdentity(nsIMsgIdentity *aIdentity,
-                                           nsIArray **_retval) {
+nsMsgAccountManager::GetServersForIdentity(
+    nsIMsgIdentity *aIdentity,
+    nsTArray<RefPtr<nsIMsgIncomingServer>> &servers) {
   NS_ENSURE_ARG_POINTER(aIdentity);
+  servers.Clear();
 
   nsresult rv;
   rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMutableArray> servers(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t i = 0; i < m_accounts.Length(); ++i) {
+  for (auto account : m_accounts) {
     nsCOMPtr<nsIArray> identities;
-    if (NS_FAILED(m_accounts[i]->GetIdentities(getter_AddRefs(identities))))
-      continue;
+    if (NS_FAILED(account->GetIdentities(getter_AddRefs(identities)))) continue;
 
     uint32_t idCount = 0;
     if (NS_FAILED(identities->GetLength(&idCount))) continue;
@@ -1949,16 +1946,15 @@ nsMsgAccountManager::GetServersForIdentity(nsIMsgIdentity *aIdentity,
 
         if (NS_SUCCEEDED(rv) && identityKey.Equals(thisIdentityKey)) {
           nsCOMPtr<nsIMsgIncomingServer> thisServer;
-          rv = m_accounts[i]->GetIncomingServer(getter_AddRefs(thisServer));
+          rv = account->GetIncomingServer(getter_AddRefs(thisServer));
           if (thisServer && NS_SUCCEEDED(rv)) {
-            servers->AppendElement(thisServer);
+            servers.AppendElement(thisServer);
             break;
           }
         }
       }
     }
   }
-  servers.forget(_retval);
   return NS_OK;
 }
 

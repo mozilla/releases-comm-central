@@ -9,10 +9,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
-
 add_task(async function() {
   let mgr = MailServices.accounts;
 
@@ -59,4 +55,10 @@ add_task(async function() {
   Assert.equal(mgr.getIdentitiesForServer(acc1.incomingServer).length, 2);
   Assert.equal(mgr.getIdentitiesForServer(acc2.incomingServer).length, 2);
   Assert.equal(mgr.getIdentitiesForServer(mgr.localFoldersServer).length, 0);
+
+  // id1 and id2 are on separate accounts (and servers)
+  Assert.equal(mgr.getServersForIdentity(id1).length, 1);
+  Assert.equal(mgr.getServersForIdentity(id2).length, 1);
+  // id3 is shared
+  Assert.equal(mgr.getServersForIdentity(id3).length, 2);
 });

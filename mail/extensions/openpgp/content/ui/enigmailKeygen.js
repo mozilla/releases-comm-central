@@ -345,47 +345,38 @@ function fillIdentityListPopup() {
     );
 
     var selected = false;
-    for (var i = 0; i < identities.length; i++) {
-      var identity = identities[i];
-
+    for (let identity of identities) {
       EnigmailLog.DEBUG("id.valid=" + identity.valid + "\n");
       if (!identity.valid || !identity.email) {
         continue;
       }
 
-      var serverSupports, inServer;
-      // Gecko >= 20
-      serverSupports = MailServices.accounts.getServersForIdentity(identity);
-      if (serverSupports.length > 0) {
-        inServer = serverSupports.queryElementAt(0, Ci.nsIMsgIncomingServer);
+      let servers = MailServices.accounts.getServersForIdentity(identity);
+      if (servers.length == 0) {
+        continue;
+      }
+      let accountName = " - " + servers[0].prettyName;
+
+      EnigmailLog.DEBUG("enigmailKeygen.js: accountName=" + accountName + "\n");
+      EnigmailLog.DEBUG("enigmailKeygen.js: email=" + identity.email + "\n");
+
+      let item = document.createXULElement("menuitem");
+      //      item.setAttribute('label', identity.identityName);
+      item.setAttribute("label", identity.identityName + accountName);
+      item.setAttribute("class", "identity-popup-item");
+      item.setAttribute("accountname", accountName);
+      item.setAttribute("id", identity.key);
+      item.setAttribute("email", identity.email);
+
+      gUserIdentityListPopup.appendChild(item);
+
+      if (!selected) {
+        gUserIdentityList.selectedItem = item;
       }
 
-      if (inServer) {
-        var accountName = " - " + inServer.prettyName;
-
-        EnigmailLog.DEBUG(
-          "enigmailKeygen.js: accountName=" + accountName + "\n"
-        );
-        EnigmailLog.DEBUG("enigmailKeygen.js: email=" + identity.email + "\n");
-
-        var item = document.createXULElement("menuitem");
-        //      item.setAttribute('label', identity.identityName);
-        item.setAttribute("label", identity.identityName + accountName);
-        item.setAttribute("class", "identity-popup-item");
-        item.setAttribute("accountname", accountName);
-        item.setAttribute("id", identity.key);
-        item.setAttribute("email", identity.email);
-
-        gUserIdentityListPopup.appendChild(item);
-
-        if (!selected) {
-          gUserIdentityList.selectedItem = item;
-        }
-
-        if (identity.key == defIdentity.key) {
-          gUserIdentityList.selectedItem = item;
-          selected = true;
-        }
+      if (identity.key == defIdentity.key) {
+        gUserIdentityList.selectedItem = item;
+        selected = true;
       }
     }
   } catch (ex) {

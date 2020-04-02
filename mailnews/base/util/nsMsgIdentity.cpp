@@ -296,33 +296,34 @@ nsresult nsMsgIdentity::getFolderPref(const char *prefname, nsCString &retval,
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIArray> servers;
-  rv = accountManager->GetServersForIdentity(this, getter_AddRefs(servers));
+  nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
+  rv = accountManager->GetServersForIdentity(this, servers);
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMsgIncomingServer> server(do_QueryElementAt(servers, 0, &rv));
-  if (NS_SUCCEEDED(rv)) {
-    bool defaultToServer;
-    server->GetDefaultCopiesAndFoldersPrefsToServer(&defaultToServer);
-    // if we should default to special folders on the server,
-    // use the local folders server
-    if (!defaultToServer) {
-      rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-    nsCOMPtr<nsIMsgFolder> rootFolder;
-    // this will get the deferred to server's root folder, if "server"
-    // is deferred, e.g., using the pop3 global inbox.
-    rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (rootFolder) {
-      rv = rootFolder->GetURI(retval);
-      NS_ENSURE_SUCCESS(rv, rv);
-      retval.Append('/');
-      retval.Append(folderName);
-      return setFolderPref(prefname, retval, folderflag);
-    }
+  if (servers.IsEmpty()) {
+    // if there are no servers for this identity, return generic failure.
+    return NS_ERROR_FAILURE;
   }
-  // if there are no servers for this identity, return generic failure.
+  nsCOMPtr<nsIMsgIncomingServer> server(servers[0]);
+  bool defaultToServer;
+  server->GetDefaultCopiesAndFoldersPrefsToServer(&defaultToServer);
+  // if we should default to special folders on the server,
+  // use the local folders server
+  if (!defaultToServer) {
+    rv = accountManager->GetLocalFoldersServer(getter_AddRefs(server));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  nsCOMPtr<nsIMsgFolder> rootFolder;
+  // this will get the deferred to server's root folder, if "server"
+  // is deferred, e.g., using the pop3 global inbox.
+  rv = server->GetRootMsgFolder(getter_AddRefs(rootFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (rootFolder) {
+    rv = rootFolder->GetURI(retval);
+    NS_ENSURE_SUCCESS(rv, rv);
+    retval.Append('/');
+    retval.Append(folderName);
+    return setFolderPref(prefname, retval, folderflag);
+  }
   return NS_ERROR_FAILURE;
 }
 
@@ -342,17 +343,12 @@ nsresult nsMsgIdentity::setFolderPref(const char *prefname,
         do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIArray> servers;
-    rv = accountManager->GetServersForIdentity(this, getter_AddRefs(servers));
+    nsTArray<RefPtr<nsIMsgIncomingServer>> servers;
+    rv = accountManager->GetServersForIdentity(this, servers);
     NS_ENSURE_SUCCESS(rv, rv);
-    uint32_t cnt = 0;
-    servers->GetLength(&cnt);
-    if (cnt > 0) {
-      nsCOMPtr<nsIMsgIncomingServer> server(do_QueryElementAt(servers, 0, &rv));
-      if (NS_SUCCEEDED(rv))
-        server
-            ->ClearTemporaryReturnReceiptsFilter();  // okay to fail; no need to
-                                                     // check for return code
+    if (!servers.IsEmpty()) {
+      servers[0]->ClearTemporaryReturnReceiptsFilter();
+      // okay to fail; no need to check for return code
     }
   }
 
