@@ -277,9 +277,19 @@ function updateEditableFields(aDisable) {
     gMsgCompose.editor.flags &= ~Ci.nsIEditor.eEditorReadonlyMask;
   }
 
-  let elements = document.querySelectorAll('[disableonsend="true"]');
-  for (let i = 0; i < elements.length; i++) {
-    elements[i].disabled = aDisable;
+  // Disable all the input fields nad labels.
+  for (let element of document.querySelectorAll('[disableonsend="true"]')) {
+    element.disabled = aDisable;
+  }
+
+  // Update the UI of the addressing rows.
+  for (let row of document.querySelectorAll(".address-container")) {
+    row.classList.toggle("disable-container", aDisable);
+  }
+
+  // Prevent any interaction with the addressing pills.
+  for (let pill of document.querySelectorAll("mail-address-pill")) {
+    pill.toggleAttribute("disabled", aDisable);
   }
 }
 
@@ -3840,6 +3850,7 @@ function createRecipientLabel(labelID) {
   label.setAttribute("id", labelID);
   label.classList.add("recipient-label");
   label.setAttribute("role", "button");
+  label.setAttribute("disableonsend", true);
   label.setAttribute("value", labelID);
 
   label.addEventListener("click", () => {

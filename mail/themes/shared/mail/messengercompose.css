@@ -480,6 +480,11 @@
   transition: border .2s, box-shadow .2s, background-color .2s;
 }
 
+/* XUL element needs the full [disabled="true"] attribute. */
+#msgIdentity[disabled="true"] {
+  opacity: 0.6;
+}
+
 #msgIdentity:-moz-locale-dir(rtl) {
   background-position: 5px;
 }
@@ -546,6 +551,10 @@
   background-color: -moz-field;
   transition: border .2s, box-shadow .2s;
   cursor: text;
+}
+
+.address-container.disable-container {
+  opacity: 0.9;
 }
 
 .address-input {

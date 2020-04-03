@@ -888,6 +888,10 @@ function showAddressRowKeyPress(event, rowID) {
  * @param {string} rowID - The ID of the container to reveal.
  */
 function showAddressRow(label, rowID) {
+  if (label.hasAttribute("disabled")) {
+    return;
+  }
+
   let container = document.getElementById(rowID);
   let input = container.querySelector(`input[is="autocomplete-input"]`);
 
@@ -907,6 +911,15 @@ function showAddressRow(label, rowID) {
  */
 function hideAddressRow(element, labelID) {
   let container = element.closest(".address-row");
+
+  if (
+    container
+      .querySelector(".address-container")
+      .classList.contains("disable-container")
+  ) {
+    return;
+  }
+
   let fieldName = container.querySelector(".address-label-container > label");
   let confirmTitle = getComposeBundle().getFormattedString(
     "confirmRemoveRecipientRowTitle2",
@@ -1067,6 +1080,10 @@ function extraRecipientsLabelOnKeyPress(event) {
  * @param {Event} event - The DOM event.
  */
 function showExtraRecipients(event) {
+  if (event.currentTarget.hasAttribute("disabled")) {
+    return;
+  }
+
   let panel = document.getElementById("extraRecipientsPanel");
   // If panel was opened with keyboard, focus first recipient label;
   // otherwise focus the panel [tabindex=0] to enable keyboard navigation.

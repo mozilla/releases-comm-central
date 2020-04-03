@@ -1903,6 +1903,9 @@
 
     _setupEventListeners() {
       this.emailInput.addEventListener("keypress", event => {
+        if (this.hasAttribute("disabled")) {
+          return;
+        }
         this.finishEditing(event);
       });
 
@@ -2273,16 +2276,29 @@
       );
 
       pill.addEventListener("click", event => {
+        if (pill.hasAttribute("disabled")) {
+          return;
+        }
         this.checkSelected(pill, event);
       });
       pill.addEventListener("dblclick", event => {
+        if (pill.hasAttribute("disabled")) {
+          return;
+        }
         this.startEditing(pill, event);
       });
       pill.addEventListener("keypress", event => {
+        if (pill.hasAttribute("disabled")) {
+          return;
+        }
         this.handleKeyPress(pill, event);
       });
 
       pill.addEventListener("contextmenu", event => {
+        if (pill.hasAttribute("disabled")) {
+          event.preventDefault();
+          return;
+        }
         // Update the context menu options only if opened via the context menu
         // keyboard button.
         if (event.buttons == 0) {
