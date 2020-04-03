@@ -71,7 +71,7 @@ release-promotion:
             partial-updates: true
 
 merge-automation:
-    flavors: {}
+    behaviors: {}
 
 scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
