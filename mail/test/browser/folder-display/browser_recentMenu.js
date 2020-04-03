@@ -28,9 +28,6 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 var folder1, folder2;
 var gInitRecentMenuCount;
@@ -38,8 +35,7 @@ var gInitRecentMenuCount;
 add_task(function setupModule(module) {
   // Ensure that there are no updated folders to ensure the recent folder
   // is empty.
-  let allFolders = MailServices.accounts.allFolders;
-  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+  for (let folder of MailServices.accounts.allFolders) {
     folder.setStringProperty("MRMTime", "0");
   }
 

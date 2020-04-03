@@ -56,9 +56,7 @@ var MailUtils = {
    *          isn't found
    */
   getFolderForFileInProfile(aFile) {
-    let folders = MailServices.accounts.allFolders;
-
-    for (let folder of fixIterator(folders, Ci.nsIMsgFolder)) {
+    for (let folder of MailServices.accounts.allFolders) {
       if (folder.filePath.equals(aFile)) {
         return folder;
       }

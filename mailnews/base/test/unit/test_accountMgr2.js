@@ -56,9 +56,14 @@ add_task(async function() {
   Assert.equal(mgr.getIdentitiesForServer(acc2.incomingServer).length, 2);
   Assert.equal(mgr.getIdentitiesForServer(mgr.localFoldersServer).length, 0);
 
-  // id1 and id2 are on separate accounts (and servers)
+  // id1 and id2 are on separate accounts (and servers).
   Assert.equal(mgr.getServersForIdentity(id1).length, 1);
   Assert.equal(mgr.getServersForIdentity(id2).length, 1);
-  // id3 is shared
+  // id3 is shared.
   Assert.equal(mgr.getServersForIdentity(id3).length, 2);
+
+  // Does allFolders return the default folders we'd expect?
+  // IMAP has Inbox only.
+  // POP3 and local accounts both have Inbox and Trash.
+  Assert.equal(mgr.allFolders.length, 1 + 2 + 2);
 });

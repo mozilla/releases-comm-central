@@ -1048,8 +1048,7 @@ var GlodaMsgIndexer = {
       //  sort them by their indexing priority.
       let foldersToProcess = (aJob.foldersToProcess = []);
 
-      let allFolders = MailServices.accounts.allFolders;
-      for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+      for (let folder of MailServices.accounts.allFolders) {
         if (this.shouldIndexFolder(folder)) {
           foldersToProcess.push(Gloda.getFolderForFolder(folder));
         }

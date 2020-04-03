@@ -2924,9 +2924,9 @@ nsresult nsMsgAccountManager::RemoveVFListenerForVF(nsIMsgFolder *virtualFolder,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(nsIArray **aAllFolders) {
-  NS_ENSURE_ARG_POINTER(aAllFolders);
-
+NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(
+    nsTArray<RefPtr<nsIMsgFolder>> &aAllFolders) {
+  aAllFolders.Clear();
   nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
   nsresult rv = GetAllServers(allServers);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2943,7 +2943,12 @@ NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(nsIArray **aAllFolders) {
     }
   }
 
-  allFolders.forget(aAllFolders);
+  uint32_t length;
+  allFolders->GetLength(&length);
+  for (uint32_t i = 0; i < length; ++i) {
+    nsCOMPtr<nsIMsgFolder> folder = do_QueryElementAt(allFolders, i);
+    aAllFolders.AppendElement(folder);
+  }
   return NS_OK;
 }
 
@@ -3274,18 +3279,11 @@ nsMsgAccountManager::FolderUriForPath(nsIFile *aLocalPath,
     aMailboxUri = m_lastFolderURIForPath;
     return NS_OK;
   }
-  nsCOMPtr<nsIArray> folderArray;
-  nsresult rv = GetAllFolders(getter_AddRefs(folderArray));
+  nsTArray<RefPtr<nsIMsgFolder>> folders;
+  nsresult rv = GetAllFolders(folders);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count;
-  rv = folderArray->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgFolder> folder(do_QueryElementAt(folderArray, i, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
+  for (auto folder : folders) {
     nsCOMPtr<nsIFile> folderPath;
     rv = folder->GetFilePath(getter_AddRefs(folderPath));
     NS_ENSURE_SUCCESS(rv, rv);

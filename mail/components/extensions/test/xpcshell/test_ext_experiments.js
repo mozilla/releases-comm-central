@@ -157,9 +157,9 @@ add_task(async function test_managers() {
                   return realFolder.getTotalMessages(false);
                 },
                 async testCanConvertFolder() {
-                  let realFolder = [
-                    ...MailServices.accounts.allFolders.enumerate(),
-                  ].find(f => f.name == "test1");
+                  let realFolder = MailServices.accounts.allFolders.find(
+                    f => f.name == "test1"
+                  );
                   return context.extension.folderManager.convert(realFolder);
                 },
                 async testCanGetMessage(messageId) {
@@ -169,16 +169,16 @@ add_task(async function test_managers() {
                   return realMessage.subject;
                 },
                 async testCanConvertMessage() {
-                  let realFolder = [
-                    ...MailServices.accounts.allFolders.enumerate(),
-                  ].find(f => f.name == "test1");
+                  let realFolder = MailServices.accounts.allFolders.find(
+                    f => f.name == "test1"
+                  );
                   let realMessage = realFolder.messages.getNext();
                   return context.extension.messageManager.convert(realMessage);
                 },
                 async testCanStartMessageList() {
-                  let realFolder = [
-                    ...MailServices.accounts.allFolders.enumerate(),
-                  ].find(f => f.name == "test1");
+                  let realFolder = MailServices.accounts.allFolders.find(
+                    f => f.name == "test1"
+                  );
                   return context.extension.messageManager.startMessageList(
                     realFolder.messages
                   );

@@ -563,9 +563,7 @@
         }
 
         // Iterate through all folders in all accounts matching the current filter.
-        let specialFolders = toArray(
-          fixIterator(MailServices.accounts.allFolders, Ci.nsIMsgFolder)
-        );
+        let specialFolders = MailServices.accounts.allFolders;
         if (this._listener._filterFunction) {
           specialFolders = specialFolders.filter(
             this._listener._filterFunction

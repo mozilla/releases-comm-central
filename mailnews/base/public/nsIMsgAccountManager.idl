@@ -221,7 +221,7 @@ interface nsIMsgAccountManager : nsISupports {
   ACString getChromePackageName(in ACString aExtensionName);
 
   /// Enumerate all incoming servers and their folders and return in an array.
-  readonly attribute nsIArray allFolders;
+  readonly attribute Array<nsIMsgFolder> allFolders;
 
   /**
    * Iterates over all folders looking for one with the passed in path,
