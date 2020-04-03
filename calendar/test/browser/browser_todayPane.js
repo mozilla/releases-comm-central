@@ -2,195 +2,153 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
-var {
-  AGENDA_LISTBOX,
-  CALENDARNAME,
-  CANVAS_BOX,
-  DAY_VIEW,
-  LABELDAYBOX,
-  TODAY_BUTTON,
-  TODAY_PANE,
-  createCalendar,
-  deleteCalendars,
-  helpersForController,
-  invokeEventDialog,
-  viewForward,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+/* globals agendaListbox */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var controller = mozmill.getMail3PaneController();
-var { eid, lookup, lookupEventBox, sleep } = helpersForController(controller);
-
 add_task(async function testTodayPane() {
-  createCalendar(controller, CALENDARNAME);
-  await setCalendarView("day");
+  // Add a calendar to work with.
+  let manager = cal.getCalendarManager();
+  let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  calendar.name = "Mochitest";
+  manager.registerCalendar(calendar);
+  let pCalendar = cal.async.promisifyCalendar(calendar);
 
-  let createEvent = async (hour, name) => {
-    let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, hour);
-    await invokeEventDialog(controller, eventBox, async (event, iframe) => {
-      let { eid: eventid } = helpersForController(event);
+  registerCleanupFunction(async () => {
+    manager.unregisterCalendar(calendar);
+  });
 
-      await setData(event, iframe, { title: name });
-      event.click(eventid("button-saveandclose"));
-    });
-  };
+  // Let the UI respond to the registration of the calendar.
+  await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => setTimeout(resolve));
 
-  // Go to today and verify date.
-  let dayPath = `${DAY_VIEW}/${LABELDAYBOX}/{"flex":"1"}`;
-  controller.waitThenClick(lookup(TODAY_BUTTON));
-  controller.assert(() => lookup(dayPath).getNode().mDate.icalString == getIsoDate());
+  let todayPanePanel = document.getElementById("today-pane-panel");
+  let todayPaneStatusButton = document.getElementById("calendar-status-todaypane-button");
 
-  // Create event 6 hours from now, if this is tomorrow then at 23 today.
-  // Double-click only triggers new event dialog on visible boxes, so scrolling
-  // may be needed by default visible time is 08:00 - 17:00, box of 17th hour
-  // is out of view.
-  let hour = new Date().getHours();
-  let startHour = hour < 18 ? hour + 6 : 23;
-  let view = lookup(DAY_VIEW).getNode();
-
-  if (startHour < 8 || startHour > 16) {
-    view.scrollToMinute(60 * startHour);
-  }
-
-  await createEvent(startHour, "Today's Event");
-
-  // Reset view.
-  view.scrollToMinute(60 * 8);
-
-  // Go to tomorrow and add an event.
-  viewForward(controller, 1);
-  await createEvent(9, "Tomorrow's Event");
-
-  // Go 5 days forward and add an event.
-  viewForward(controller, 5);
-  await createEvent(9, "Future Event");
+  let today = cal.dtz.now();
+  let startHour = today.hour;
+  today.hour = today.minute = today.second = 0;
 
   // Go to mail tab.
-  controller.click(
-    lookup(`
-        /id("messengerWindow")/id("navigation-toolbox")/id("tabs-toolbar")/id("tabmail-tabs")/[1]/[0]
-    `)
-  );
-  sleep();
+  selectFolderTab();
 
   // Verify today pane open.
-  controller.assertNotDOMProperty(lookup(TODAY_PANE), "collapsed");
+  if (todayPanePanel.hasAttribute("collapsed")) {
+    EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
+  }
+  Assert.ok(!todayPanePanel.hasAttribute("collapsed"));
 
   // Verify today pane's date.
-  controller.assertValue(eid("datevalue-label"), new Date().getDate());
+  Assert.equal(document.getElementById("datevalue-label").value, today.day);
 
-  let expandArrow = `
-        {"class":"agenda-checkbox treenode-checkbox"}/{"class":"checkbox-check"}
-    `;
-  // Tomorrow and soon are collapsed by default.
-  controller.click(lookup(`${AGENDA_LISTBOX}/id("tomorrow-header")/${expandArrow}`));
-  sleep();
-  controller.click(lookup(`${AGENDA_LISTBOX}/id("nextweek-header")/${expandArrow}`));
-  sleep();
+  // Tomorrow and soon are collapsed by default. Expand them.
+  for (let headerId of ["today-header", "tomorrow-header", "nextweek-header"]) {
+    let header = document.getElementById(headerId);
+    if (header.getAttribute("checked") != "true") {
+      EventUtils.synthesizeMouseAtCenter(header.firstElementChild.firstElementChild, {});
+    }
+    Assert.equal(header.getAttribute("checked"), "true");
+  }
+
+  // Create some events.
+  let todaysEvent = cal.createEvent();
+  todaysEvent.title = "Today's Event";
+  todaysEvent.startDate = today.clone();
+  todaysEvent.startDate.hour = Math.min(startHour + 6, 23);
+  todaysEvent.endDate = todaysEvent.startDate.clone();
+  todaysEvent.endDate.hour++;
+
+  let tomorrowsEvent = cal.createEvent();
+  tomorrowsEvent.title = "Tomorrow's Event";
+  tomorrowsEvent.startDate = today.clone();
+  tomorrowsEvent.startDate.day++;
+  tomorrowsEvent.startDate.hour = 9;
+  tomorrowsEvent.endDate = tomorrowsEvent.startDate.clone();
+  tomorrowsEvent.endDate.hour++;
+
+  let futureEvent = cal.createEvent();
+  futureEvent.id = "this is what we're waiting for";
+  futureEvent.title = "Future Event";
+  futureEvent.startDate = today.clone();
+  futureEvent.startDate.day += 3;
+  futureEvent.startDate.hour = 11;
+  futureEvent.endDate = futureEvent.startDate.clone();
+  futureEvent.endDate.hour++;
+
+  let promiseFutureEventAdded = new Promise(resolve => {
+    calendar.addObserver({
+      onAddItem(item) {
+        if (item.hasSameIds(futureEvent)) {
+          calendar.removeObserver(this);
+          resolve();
+        }
+      },
+    });
+  });
+
+  await Promise.all([
+    pCalendar.addItem(todaysEvent),
+    pCalendar.addItem(tomorrowsEvent),
+    pCalendar.addItem(futureEvent),
+    promiseFutureEventAdded,
+  ]);
+
+  // Let the UI respond to the new events.
+  await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => setTimeout(resolve));
+
+  // There should be a menupopup child and six list items.
+  let listChildren = agendaListbox.agendaListboxControl.children;
+  Assert.equal(listChildren.length, 7);
+  Assert.equal(listChildren[0].localName, "menupopup");
+  Assert.equal(listChildren[1].id, "today-header");
+  Assert.equal(listChildren[3].id, "tomorrow-header");
+  Assert.equal(listChildren[5].id, "nextweek-header");
 
   // Verify events shown in today pane.
-  let now = new Date();
-  now.setHours(startHour);
-  now.setMinutes(0);
-  let dtz = cal.dtz.defaultTimezone;
-  let probeDate = cal.dtz.jsDateToDateTime(now, dtz);
   let dateFormatter = cal.getDateFormatter();
-  let startTime = dateFormatter.formatTime(probeDate);
 
-  let eventStart = `
-        {"class":"agenda-container-box"}/{"class":"agenda-description"}/[0]/
-        {"class":"agenda-event-start"}
-    `;
-  controller.assertText(
-    lookup(`${AGENDA_LISTBOX}/[2]/${eventStart}`),
-    startTime + " Today's Event"
+  let startString = dateFormatter.formatTime(todaysEvent.startDate, cal.dtz.defaultTimezone);
+  Assert.equal(
+    listChildren[2].querySelector(".agenda-event-start").textContent,
+    `${startString} Today's Event`
   );
 
-  let tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 9, 0);
-  probeDate = cal.dtz.jsDateToDateTime(tomorrow, dtz);
-  startTime = dateFormatter.formatTime(probeDate);
-  controller.assertText(
-    lookup(`${AGENDA_LISTBOX}/[4]/${eventStart}`),
-    startTime + " Tomorrow's Event"
+  startString = dateFormatter.formatTime(tomorrowsEvent.startDate, cal.dtz.defaultTimezone);
+  Assert.equal(
+    listChildren[4].querySelector(".agenda-event-start").textContent,
+    `${startString} Tomorrow's Event`
   );
 
-  let future = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 6, 9, 0);
-  probeDate = cal.dtz.jsDateToDateTime(future, dtz);
-  startTime = dateFormatter.formatDateTime(probeDate);
-
-  // Future event's start time.
-  controller.assertText(lookup(`${AGENDA_LISTBOX}/[6]/${eventStart}`), startTime);
-
-  // Future event's title.
-  controller.assertText(
-    lookup(`
-        ${AGENDA_LISTBOX}/[6]/{"class":"agenda-container-box"}/
-        {"class":"agenda-description"}/{"class":"agenda-event-title"}
-    `),
-    "Future Event"
-  );
+  startString = dateFormatter.formatDateTime(futureEvent.startDate, cal.dtz.defaultTimezone);
+  Assert.equal(listChildren[6].querySelector(".agenda-event-start").textContent, startString);
+  Assert.equal(listChildren[6].querySelector(".agenda-event-title").textContent, "Future Event");
 
   // Delete events.
-  controller.click(lookup(`${AGENDA_LISTBOX}/[2]`));
+  EventUtils.synthesizeMouseAtCenter(listChildren[2], {});
+  EventUtils.synthesizeKey("VK_DELETE");
+  Assert.equal(listChildren.length, 6);
 
-  controller.keypress(eid("agenda-listbox"), "VK_DELETE", {});
-  controller.waitForElementNotPresent(lookup(`${AGENDA_LISTBOX}/[6]`));
+  EventUtils.synthesizeMouseAtCenter(listChildren[3], {});
+  EventUtils.synthesizeKey("VK_DELETE");
+  Assert.equal(listChildren.length, 5);
 
-  controller.click(lookup(`${AGENDA_LISTBOX}/[3]`));
-  controller.keypress(eid("agenda-listbox"), "VK_DELETE", {});
-  controller.waitForElementNotPresent(lookup(`${AGENDA_LISTBOX}/[5]`));
-
-  controller.click(lookup(`${AGENDA_LISTBOX}/[4]`));
-  controller.keypress(eid("agenda-listbox"), "VK_DELETE", {});
-  controller.waitForElementNotPresent(lookup(`${AGENDA_LISTBOX}/[4]`));
+  EventUtils.synthesizeMouseAtCenter(listChildren[4], {});
+  EventUtils.synthesizeKey("VK_DELETE");
+  Assert.equal(listChildren.length, 4);
 
   // Hide and verify today pane hidden.
-  controller.click(eid("calendar-status-todaypane-button"));
-  controller.assertNode(
-    lookup(`
-        /id("messengerWindow")/id("tabmail-container")/{"collapsed":"true"}
-    `)
-  );
+  EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
+  Assert.ok(todayPanePanel.hasAttribute("collapsed"));
 
   // Reset today pane.
-  controller.click(eid("calendar-status-todaypane-button"));
-  controller.assertNotDOMProperty(lookup(TODAY_PANE), "collapsed");
-  controller.click(lookup(`${AGENDA_LISTBOX}/id("tomorrow-header")/${expandArrow}`));
-  controller.click(lookup(`${AGENDA_LISTBOX}/id("nextweek-header")/${expandArrow}`));
-  sleep();
+  EventUtils.synthesizeMouseAtCenter(todayPaneStatusButton, {});
+  Assert.ok(!todayPanePanel.hasAttribute("collapsed"));
 
-  // Verify tomorrow and soon collapsed.
-  tomorrow = lookup(`
-        ${AGENDA_LISTBOX}/[1]/{"class":"agenda-checkbox treenode-checkbox"}
-    `).getNode();
-
-  let soon = lookup(`
-        ${AGENDA_LISTBOX}/[2]/{"class":"agenda-checkbox treenode-checkbox"}
-    `).getNode();
-
-  // TODO This is failing, which might actually be an error in our code!
-  // controller.assert(() => {
-  //     return !tomorrow.hasAttribute("checked") || tomorrow.getAttribute("checked") != "true";
-  // });
-  controller.assert(() => {
-    return !soon.hasAttribute("checked") || soon.getAttribute("checked") != "true";
-  });
-});
-
-function getIsoDate() {
-  let currDate = new Date();
-  let month = (currDate.getMonth() + 1).toString().padStart(2, "0");
-  let day = currDate
-    .getDate()
-    .toString()
-    .padStart(2, "0");
-  return `${currDate.getFullYear()}${month}${day}`;
-}
-
-registerCleanupFunction(function teardownModule(module) {
-  deleteCalendars(controller, "Mozmill");
+  // Collapse tomorrow and soon sections.
+  for (let headerId of ["tomorrow-header", "nextweek-header"]) {
+    let header = document.getElementById(headerId);
+    EventUtils.synthesizeMouseAtCenter(header.firstElementChild.firstElementChild, {});
+    Assert.ok(!header.getAttribute("checked"));
+  }
 });
