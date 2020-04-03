@@ -1989,7 +1989,7 @@ nsresult nsMsgIncomingServer::GetDeferredServers(
     accountManager->GetAllServers(allServers);
     for (auto server : allServers) {
       nsCOMPtr<nsIPop3IncomingServer> popServer(do_QueryInterface(server));
-      if (!popServer) {
+      if (popServer) {
         nsCString deferredToAccount;
         popServer->GetDeferredToAccount(deferredToAccount);
         if (deferredToAccount.Equals(accountKey))
