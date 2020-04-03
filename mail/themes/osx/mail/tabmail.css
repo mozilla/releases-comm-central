@@ -109,45 +109,45 @@ tabmail > tabbox > tabpanels {
  * Tab Scrollbox Arrow Buttons
  */
 
-.tabmail-arrowscrollbox::part(scrollbutton-up),
-.tabmail-arrowscrollbox::part(scrollbutton-down) {
+#tabmail-arrowscrollbox::part(scrollbutton-up),
+#tabmail-arrowscrollbox::part(scrollbutton-down) {
   padding: 0 4px !important;
   margin: 0 0 1px !important;
 }
 
-.tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover,
-.tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover {
+#tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover,
+#tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover {
   background-image: linear-gradient(transparent, rgba(0,0,0,0.15));
 }
 
-.tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover:active,
-.tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover:active {
+#tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover:active,
+#tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover:active {
   background-image: linear-gradient(transparent, rgba(0,0,0,0.3));
 }
 
 #tabs-toolbar[brighttext]
-  .tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover,
+  #tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover,
 #tabs-toolbar[brighttext]
-  .tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover {
+  #tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover {
   background-image: linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.25));
 }
 
 #tabs-toolbar[brighttext]
-  .tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover:active,
+  #tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover:active,
 #tabs-toolbar[brighttext]
-  .tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover:active {
+  #tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover:active {
   background-image: linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.35));
 }
 
-.tabmail-arrowscrollbox[scrolledtostart=true]::part(scrollbutton-up),
-.tabmail-arrowscrollbox[scrolledtoend=true]::part(scrollbutton-down) {
+#tabmail-arrowscrollbox[scrolledtostart=true]::part(scrollbutton-up),
+#tabmail-arrowscrollbox[scrolledtoend=true]::part(scrollbutton-down) {
   --toolbarbutton-icon-fill-opacity: .5;
   background-image: none;
 }
 
 /* Tab Overflow */
-.tabmail-arrowscrollbox:not([scrolledtostart])::part(arrowscrollbox-overflow-start-indicator),
-.tabmail-arrowscrollbox:not([scrolledtoend])::part(arrowscrollbox-overflow-end-indicator) {
+#tabmail-arrowscrollbox:not([scrolledtostart])::part(arrowscrollbox-overflow-start-indicator),
+#tabmail-arrowscrollbox:not([scrolledtoend])::part(arrowscrollbox-overflow-end-indicator) {
   margin-bottom: 0;
 }
 

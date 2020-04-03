@@ -153,8 +153,8 @@
     }
 
     #tabs-toolbar .toolbarbutton-1,
-    .tabmail-arrowscrollbox::part(scrollbutton-up),
-    .tabmail-arrowscrollbox::part(scrollbutton-down) {
+    #tabmail-arrowscrollbox::part(scrollbutton-up),
+    #tabmail-arrowscrollbox::part(scrollbutton-down) {
       fill: CaptionText;
     }
   }

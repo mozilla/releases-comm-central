@@ -16,7 +16,7 @@
                     transparent 1px);
 }
 
-.tabmail-arrowscrollbox {
+#tabmail-arrowscrollbox {
   min-height: var(--tab-min-height);
 }
 
@@ -255,15 +255,15 @@
  * Tab Scrollbox Arrow Buttons
  */
 
-.tabmail-arrowscrollbox::part(scrollbutton-up),
-.tabmail-arrowscrollbox::part(scrollbutton-down) {
+#tabmail-arrowscrollbox::part(scrollbutton-up),
+#tabmail-arrowscrollbox::part(scrollbutton-down) {
   fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 /* Tab Overflow */
-.tabmail-arrowscrollbox:not([scrolledtostart])::part(overflow-start-indicator),
-.tabmail-arrowscrollbox:not([scrolledtoend])::part(overflow-end-indicator) {
+#tabmail-arrowscrollbox:not([scrolledtostart])::part(overflow-start-indicator),
+#tabmail-arrowscrollbox:not([scrolledtoend])::part(overflow-end-indicator) {
   width: 18px;
   background-image: url("chrome://messenger/skin/icons/overflow-indicator.png");
   background-size: 17px 100%;
@@ -279,28 +279,28 @@
   z-index: 3; /* the selected tab's z-index + 1 */
 }
 
-.tabmail-arrowscrollbox:-moz-locale-dir(rtl)::part(overflow-start-indicator),
-.tabmail-arrowscrollbox:-moz-locale-dir(ltr)::part(overflow-end-indicator) {
+#tabmail-arrowscrollbox:-moz-locale-dir(rtl)::part(overflow-start-indicator),
+#tabmail-arrowscrollbox:-moz-locale-dir(ltr)::part(overflow-end-indicator) {
   transform: scaleX(-1);
 }
 
-.tabmail-arrowscrollbox:not([scrolledtostart])::part(overflow-start-indicator) {
+#tabmail-arrowscrollbox:not([scrolledtostart])::part(overflow-start-indicator) {
   margin-inline-start: -1px;
   margin-inline-end: -17px;
 }
 
-.tabmail-arrowscrollbox:not([scrolledtoend])::part(overflow-end-indicator) {
+#tabmail-arrowscrollbox:not([scrolledtoend])::part(overflow-end-indicator) {
   margin-inline-start: -17px;
   margin-inline-end: -1px;
 }
 
-.tabmail-arrowscrollbox[scrolledtostart]::part(overflow-start-indicator),
-.tabmail-arrowscrollbox[scrolledtoend]::part(overflow-end-indicator) {
+#tabmail-arrowscrollbox[scrolledtostart]::part(overflow-start-indicator),
+#tabmail-arrowscrollbox[scrolledtoend]::part(overflow-end-indicator) {
   opacity: 0;
 }
 
-.tabmail-arrowscrollbox::part(overflow-start-indicator),
-.tabmail-arrowscrollbox::part(overflow-end-indicator) {
+#tabmail-arrowscrollbox::part(overflow-start-indicator),
+#tabmail-arrowscrollbox::part(overflow-end-indicator) {
   transition: opacity 150ms ease;
 }
 

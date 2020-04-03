@@ -81,8 +81,8 @@
    * border forces the scrollbox button borders to terminate a pixel early, working
    * around the issue.
    */
-  :root[tabsintitlebar] .tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-up),
-  :root[tabsintitlebar] .tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-down) {
+  :root[tabsintitlebar] #tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-up),
+  :root[tabsintitlebar] #tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-down) {
     border-bottom: 1px solid transparent;
   }
 
