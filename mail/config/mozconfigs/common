@@ -4,3 +4,6 @@ ac_add_options --enable-application=comm/mail
 MOZ_REQUIRE_SIGNING=0
 
 . "$topsrcdir/build/mozconfig.common.override"
+
+# Temporarily disable CLANG_PLUGIN - Bug 1627437
+unset ENABLE_CLANG_PLUGIN

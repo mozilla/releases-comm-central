@@ -16,3 +16,6 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
+
+# Temporarily disable CLANG_PLUGIN - Bug 1627437
+ac_add_options --disable-clang-plugin
