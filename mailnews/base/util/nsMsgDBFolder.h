@@ -178,8 +178,9 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult GetPurgeThreshold(int32_t *aThreshold);
   nsresult ApplyRetentionSettings(bool deleteViaFolder);
   bool VerifyOfflineMessage(nsIMsgDBHdr *msgHdr, nsIInputStream *fileStream);
-  nsresult AddMarkAllReadUndoAction(nsIMsgWindow *msgWindow,
-                                    nsMsgKey *thoseMarked, uint32_t numMarked);
+  MOZ_CAN_RUN_SCRIPT nsresult AddMarkAllReadUndoAction(nsIMsgWindow *msgWindow,
+                                                       nsMsgKey *thoseMarked,
+                                                       uint32_t numMarked);
 
   nsresult PerformBiffNotifications(
       void);  // if there are new, non spam messages, do biff
