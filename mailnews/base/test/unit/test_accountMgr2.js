@@ -66,4 +66,13 @@ add_task(async function() {
   // IMAP has Inbox only.
   // POP3 and local accounts both have Inbox and Trash.
   Assert.equal(mgr.allFolders.length, 1 + 2 + 2);
+
+  // Let's ditch the IMAP account.
+  mgr.removeAccount(acc1);
+
+  Assert.equal(mgr.accounts.length, 2);
+  Assert.equal(mgr.allServers.length, 2);
+
+  // It should have taken the imap-specific identity with it.
+  Assert.equal(mgr.allIdentities.length, 2);
 });

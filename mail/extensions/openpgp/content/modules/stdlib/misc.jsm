@@ -41,9 +41,6 @@ var EXPORTED_SYMBOLS = [
   "isAccel",
 ];
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -190,10 +187,7 @@ function getIdentities(aSkipNntpIdentities = true) {
     ) {
       continue;
     }
-    for (let currentIdentity of fixIterator(
-      account.identities,
-      Ci.nsIMsgIdentity
-    )) {
+    for (let currentIdentity of account.identities) {
       // We're only interested in identities that have a real email.
       if (currentIdentity.email) {
         identities.push({

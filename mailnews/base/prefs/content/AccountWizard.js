@@ -302,7 +302,7 @@ function AccountDataToPageData(accountData, pageData) {
     dump("This is an accountdata\n");
     identity = accountData.identity;
   } else if (accountData.identities) {
-    identity = accountData.identities.queryElementAt(0, Ci.nsIMsgIdentity);
+    identity = accountData.identities[0];
     dump("this is an account, id= " + identity + "\n");
   }
 
@@ -520,9 +520,7 @@ function finishAccount(account, accountData) {
   }
 
   // copy identity info
-  var destIdentity = account.identities.length
-    ? account.identities.queryElementAt(0, nsIMsgIdentity)
-    : null;
+  var destIdentity = account.identities.length ? account.identities[0] : null;
 
   if (destIdentity) {
     // does this account have an identity?
@@ -667,7 +665,7 @@ function setupCopiesAndFoldersServer(account, accountIsDeferred, accountData) {
     if (server.type == "rss" || account.identities.length == 0) {
       return false;
     }
-    let identity = account.identities.queryElementAt(0, Ci.nsIMsgIdentity);
+    let identity = account.identities[0];
     // For this server, do we default the folder prefs to this server, or to the "Local Folders" server
     // If it's deferred, we use the local folders account.
     var defaultCopiesAndFoldersPrefsToServer =
@@ -800,10 +798,7 @@ function checkForInvalidAccounts() {
 
     var accountData = {};
     accountData.incomingServer = firstInvalidAccount.incomingServer;
-    accountData.identity = firstInvalidAccount.identities.queryElementAt(
-      0,
-      nsIMsgIdentity
-    );
+    accountData.identity = firstInvalidAccount.identities[0];
     accountData.smtp = MailServices.smtp.defaultServer;
     AccountDataToPageData(accountData, pageData);
 

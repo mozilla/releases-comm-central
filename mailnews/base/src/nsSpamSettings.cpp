@@ -376,15 +376,9 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer *aServer) {
       // account itself.
       if (accountKey.Equals(deferredToAccountKey) ||
           accountKey.Equals(loopAccountKey)) {
-        nsCOMPtr<nsIArray> identities;
-        loopAccount->GetIdentities(getter_AddRefs(identities));
-        if (!identities) continue;
-        uint32_t identityCount = 0;
-        identities->GetLength(&identityCount);
-        for (uint32_t j = 0; j < identityCount; ++j) {
-          nsCOMPtr<nsIMsgIdentity> identity(
-              do_QueryElementAt(identities, j, &rv));
-          if (NS_FAILED(rv) || !identity) continue;
+        nsTArray<RefPtr<nsIMsgIdentity>> identities;
+        loopAccount->GetIdentities(identities);
+        for (auto identity : identities) {
           nsAutoCString email;
           identity->GetEmail(email);
           if (!email.IsEmpty()) mEmails.AppendElement(email);

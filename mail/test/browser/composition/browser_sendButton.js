@@ -219,10 +219,7 @@ add_task(function test_send_enabled_prefilled_address_from_identity() {
 
   // Switch to the second identity that has no CC. Send should be disabled.
   Assert.ok(account.identities.length >= 2);
-  let identityWithoutCC = account.identities.queryElementAt(
-    1,
-    Ci.nsIMsgIdentity
-  );
+  let identityWithoutCC = account.identities[1];
   Assert.ok(!identityWithoutCC.doCc);
   cwc.click(cwc.eid("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [

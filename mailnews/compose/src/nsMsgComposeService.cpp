@@ -829,8 +829,8 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   rv = accountManager->FindAccountForServer(aServer, getter_AddRefs(account));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIArray> identities;
-  rv = account->GetIdentities(getter_AddRefs(identities));
+  nsTArray<RefPtr<nsIMsgIdentity>> identities;
+  rv = account->GetIdentities(identities);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString recipients;
@@ -843,12 +843,7 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   // In case we get no match, this is likely a list/bulk/bcc/spam mail and we
   // shouldn't reply. RFC 3834 2.
   nsCOMPtr<nsIMsgIdentity> identity;  // identity to reply from
-  uint32_t count = 0;
-  identities->GetLength(&count);
-  for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgIdentity> anIdentity(do_QueryElementAt(identities, i, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
+  for (auto anIdentity : identities) {
     nsAutoCString identityEmail;
     anIdentity->GetEmail(identityEmail);
 

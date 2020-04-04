@@ -584,11 +584,13 @@ NS_IMETHODIMP
 nsMsgAccountManager::RemoveAccount(nsIMsgAccount *aAccount,
                                    bool aRemoveFiles = false) {
   NS_ENSURE_ARG_POINTER(aAccount);
+  // Hold account in scope while we tidy up potentially-shared identities.
   nsresult rv = LoadAccounts();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool accountRemoved = m_accounts.RemoveElement(aAccount);
-  if (!accountRemoved) return NS_ERROR_INVALID_ARG;
+  if (!m_accounts.RemoveElement(aAccount)) {
+    return NS_ERROR_INVALID_ARG;
+  }
 
   rv = OutputAccountsPref();
   // If we couldn't write out the pref, restore the account.
@@ -598,7 +600,7 @@ nsMsgAccountManager::RemoveAccount(nsIMsgAccount *aAccount,
   }
 
   // If it's the default, choose a new default account.
-  if (m_defaultAccount.get() == aAccount) AutosetDefaultAccount();
+  if (m_defaultAccount == aAccount) AutosetDefaultAccount();
 
   // XXX - need to figure out if this is the last time this server is
   // being used, and only send notification then.
@@ -607,34 +609,22 @@ nsMsgAccountManager::RemoveAccount(nsIMsgAccount *aAccount,
   rv = aAccount->GetIncomingServer(getter_AddRefs(server));
   if (NS_SUCCEEDED(rv) && server) RemoveIncomingServer(server, aRemoveFiles);
 
-  nsCOMPtr<nsIArray> identityArray;
-  rv = aAccount->GetIdentities(getter_AddRefs(identityArray));
+  nsTArray<RefPtr<nsIMsgIdentity>> identities;
+  rv = aAccount->GetIdentities(identities);
   if (NS_SUCCEEDED(rv)) {
-    uint32_t count = 0;
-    identityArray->GetLength(&count);
-    uint32_t i;
-    for (i = 0; i < count; i++) {
-      nsCOMPtr<nsIMsgIdentity> identity(
-          do_QueryElementAt(identityArray, i, &rv));
+    for (auto identity : identities) {
       bool identityStillUsed = false;
-      // for each identity, see if any existing account still uses it,
+      // for each identity, see if any remaining account still uses it,
       // and if not, clear it.
       // Note that we are also searching here accounts with missing servers from
       //  unloaded extension types.
-      if (NS_SUCCEEDED(rv)) {
-        uint32_t index;
-        for (index = 0; index < m_accounts.Length() && !identityStillUsed;
-             index++) {
-          nsCOMPtr<nsIArray> existingIdentitiesArray;
-
-          rv = m_accounts[index]->GetIdentities(
-              getter_AddRefs(existingIdentitiesArray));
-          uint32_t pos;
-          if (NS_SUCCEEDED(
-                  existingIdentitiesArray->IndexOf(0, identity, &pos))) {
-            identityStillUsed = true;
-            break;
-          }
+      for (auto account : m_accounts) {
+        nsTArray<RefPtr<nsIMsgIdentity>> existingIdentities;
+        account->GetIdentities(existingIdentities);
+        auto pos = existingIdentities.IndexOf(identity);
+        if (pos != existingIdentities.NoIndex) {
+          identityStillUsed = true;
+          break;
         }
       }
       // clear out all identity information if no other account uses it.
@@ -857,20 +847,12 @@ nsMsgAccountManager::GetAllIdentities(
 
   result.Clear();
 
-  nsCOMPtr<nsIArray> identities;
-
   for (auto account : m_accounts) {
-    rv = account->GetIdentities(getter_AddRefs(identities));
+    nsTArray<RefPtr<nsIMsgIdentity>> identities;
+    rv = account->GetIdentities(identities);
     if (NS_FAILED(rv)) continue;
 
-    uint32_t idCount;
-    rv = identities->GetLength(&idCount);
-    if (NS_FAILED(rv)) continue;
-
-    for (uint32_t j = 0; j < idCount; ++j) {
-      nsCOMPtr<nsIMsgIdentity> identity(do_QueryElementAt(identities, j, &rv));
-      if (NS_FAILED(rv)) continue;
-
+    for (auto identity : identities) {
       // Have we already got this identity?
       nsAutoCString key;
       rv = identity->GetKey(key);
@@ -1104,8 +1086,8 @@ nsresult nsMsgAccountManager::LoadAccounts() {
     m_prefs->GetIntPref(toLeavePref.get(), &secondsToLeave);
 
     // force load of accounts (need to find a better way to do this)
-    nsCOMPtr<nsIArray> identities;
-    account->GetIdentities(getter_AddRefs(identities));
+    nsTArray<RefPtr<nsIMsgIdentity>> unused;
+    account->GetIdentities(unused);
 
     rv = account->CreateServer();
     bool deleteAccount = NS_FAILED(rv);
@@ -1898,19 +1880,10 @@ nsMsgAccountManager::GetIdentitiesForServer(
     nsAutoCString thisServerKey;
     rv = thisServer->GetKey(thisServerKey);
     if (serverKey.Equals(thisServerKey)) {
-      nsCOMPtr<nsIArray> theseIdentities;
-      rv = account->GetIdentities(getter_AddRefs(theseIdentities));
-      if (NS_SUCCEEDED(rv)) {
-        uint32_t theseLength;
-        rv = theseIdentities->GetLength(&theseLength);
-        if (NS_SUCCEEDED(rv)) {
-          for (uint32_t j = 0; j < theseLength; ++j) {
-            nsCOMPtr<nsIMsgIdentity> id(
-                do_QueryElementAt(theseIdentities, j, &rv));
-            if (NS_SUCCEEDED(rv)) identities.AppendElement(id);
-          }
-        }
-      }
+      nsTArray<RefPtr<nsIMsgIdentity>> theseIdentities;
+      rv = account->GetIdentities(theseIdentities);
+      NS_ENSURE_SUCCESS(rv, rv);
+      identities.AppendElements(theseIdentities);
     }
   }
   return NS_OK;
@@ -1928,29 +1901,21 @@ nsMsgAccountManager::GetServersForIdentity(
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto account : m_accounts) {
-    nsCOMPtr<nsIArray> identities;
-    if (NS_FAILED(account->GetIdentities(getter_AddRefs(identities)))) continue;
+    nsTArray<RefPtr<nsIMsgIdentity>> identities;
+    if (NS_FAILED(account->GetIdentities(identities))) continue;
 
-    uint32_t idCount = 0;
-    if (NS_FAILED(identities->GetLength(&idCount))) continue;
-
-    uint32_t id;
     nsCString identityKey;
-    rv = aIdentity->GetKey(identityKey);
-    for (id = 0; id < idCount; id++) {
-      nsCOMPtr<nsIMsgIdentity> thisIdentity(
-          do_QueryElementAt(identities, id, &rv));
-      if (NS_SUCCEEDED(rv)) {
-        nsCString thisIdentityKey;
-        rv = thisIdentity->GetKey(thisIdentityKey);
+    aIdentity->GetKey(identityKey);
+    for (auto thisIdentity : identities) {
+      nsCString thisIdentityKey;
+      rv = thisIdentity->GetKey(thisIdentityKey);
 
-        if (NS_SUCCEEDED(rv) && identityKey.Equals(thisIdentityKey)) {
-          nsCOMPtr<nsIMsgIncomingServer> thisServer;
-          rv = account->GetIncomingServer(getter_AddRefs(thisServer));
-          if (thisServer && NS_SUCCEEDED(rv)) {
-            servers.AppendElement(thisServer);
-            break;
-          }
+      if (NS_SUCCEEDED(rv) && identityKey.Equals(thisIdentityKey)) {
+        nsCOMPtr<nsIMsgIncomingServer> thisServer;
+        rv = account->GetIncomingServer(getter_AddRefs(thisServer));
+        if (thisServer && NS_SUCCEEDED(rv)) {
+          servers.AppendElement(thisServer);
+          break;
         }
       }
     }

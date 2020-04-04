@@ -53,7 +53,7 @@ add_task(function setupModule(module) {
 
   // 2) Delete all identities except for one
   for (let i = localAccount.identities.length - 1; i >= 0; i--) {
-    let identity = localAccount.identities.queryElementAt(i, Ci.nsIMsgIdentity);
+    let identity = localAccount.identities[i];
     if (identity.email != myEmail) {
       localAccount.removeIdentity(identity);
     }

@@ -104,8 +104,7 @@ var EnigmailKeyUsability = {
     let keySpecList = [];
 
     for (let ac of MailServices.accounts.accounts) {
-      for (let i = 0; i < ac.identities.length; i++) {
-        let id = ac.identities.queryElementAt(i, Ci.nsIMsgIdentity);
+      for (let id of ac.identities) {
         if (id.getBoolAttribute("enablePgp")) {
           if (id.getIntAttribute("pgpKeyMode") === 1) {
             keySpecList.push(id.getCharAttribute("pgpkeyId"));

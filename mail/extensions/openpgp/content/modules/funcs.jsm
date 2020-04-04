@@ -418,8 +418,7 @@ var EnigmailFuncs = {
    */
   getAccountForIdentity(identity) {
     for (let ac of MailServices.accounts.accounts) {
-      for (let i = 0; i < ac.identities.length; i++) {
-        let id = ac.identities.queryElementAt(i, Ci.nsIMsgIdentity);
+      for (let id of ac.identities) {
         if (id.key === identity.key) {
           return ac;
         }
@@ -450,7 +449,7 @@ var EnigmailFuncs = {
       if (ac.defaultIdentity) {
         return ac.defaultIdentity;
       }
-      return ac.identities.queryElementAt(0, Ci.nsIMsgIdentity);
+      return ac.identities[0];
     } catch (x) {
       return null;
     }

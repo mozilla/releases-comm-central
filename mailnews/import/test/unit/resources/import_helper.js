@@ -529,7 +529,7 @@ SettingsImportHelper.prototype = {
     this._checkIncomingServer(expected.incomingServer, actual.incomingServer);
 
     Assert.equal(1, actual.identities.length);
-    let actualIdentity = actual.identities.queryElementAt(0, Ci.nsIMsgIdentity);
+    let actualIdentity = actual.identities[0];
     this._checkIdentity(expected.identity, actualIdentity);
 
     if (expected.incomingServer.type != "nntp") {

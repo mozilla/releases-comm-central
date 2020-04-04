@@ -22,13 +22,13 @@ class nsMsgAccount : public nsIMsgAccount {
   nsCOMPtr<nsIPrefBranch> m_prefs;
   nsCOMPtr<nsIMsgIncomingServer> m_incomingServer;
 
-  nsCOMPtr<nsIMutableArray> m_identities;
+  bool m_identitiesValid;
+  nsTArray<nsCOMPtr<nsIMsgIdentity>> m_identities;
 
   nsresult getPrefService();
   nsresult createIncomingServer();
   nsresult createIdentities();
   nsresult saveIdentitiesPref();
-  nsresult addIdentityInternal(nsIMsgIdentity* identity);
 
   // Have we tried to get the server yet?
   bool mTriedToGetServer;

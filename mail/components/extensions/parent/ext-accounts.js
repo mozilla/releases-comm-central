@@ -40,9 +40,7 @@ function convertAccount(account) {
     name: account.incomingServer.prettyName,
     type: account.incomingServer.type,
     folders,
-    identities: Array.from(account.identities.enumerate(), identity =>
-      convertMailIdentity(account, identity)
-    ),
+    identities: account.identities.map(id => convertMailIdentity(account, id)),
   };
 }
 
@@ -72,8 +70,7 @@ this.accounts = class extends ExtensionAPI {
           if (!account) {
             throw new ExtensionError(`Account not found: ${accountId}`);
           }
-          for (let identity of account.identities.enumerate()) {
-            identity = identity.QueryInterface(Ci.nsIMsgIdentity);
+          for (let identity of account.identities) {
             if (identity.key == identityId) {
               account.defaultIdentity = identity;
               return;

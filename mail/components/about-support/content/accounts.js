@@ -9,9 +9,6 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Platform-specific includes
@@ -65,11 +62,10 @@ var AboutSupport = {
    *          about one SMTP server.
    */
   _getSMTPDetails(aAccount) {
-    let identities = aAccount.identities;
     let defaultIdentity = aAccount.defaultIdentity;
     let smtpDetails = [];
 
-    for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
+    for (let identity of aAccount.identities) {
       let isDefault = identity == defaultIdentity;
       let smtpServer = {};
       MailServices.smtp.getServerByIdentity(identity, smtpServer);

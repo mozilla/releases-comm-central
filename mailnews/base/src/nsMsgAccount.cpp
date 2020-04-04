@@ -157,11 +157,10 @@ nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer *aIncomingServer) {
 }
 
 NS_IMETHODIMP
-nsMsgAccount::GetIdentities(nsIArray **_retval) {
-  NS_ENSURE_ARG_POINTER(_retval);
-  NS_ENSURE_TRUE(m_identities, NS_ERROR_FAILURE);
-
-  NS_IF_ADDREF(*_retval = m_identities);
+nsMsgAccount::GetIdentities(nsTArray<RefPtr<nsIMsgIdentity>> &identities) {
+  NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_FAILURE);
+  identities.Clear();
+  identities.AppendElements(m_identities);
   return NS_OK;
 }
 
@@ -170,19 +169,21 @@ nsMsgAccount::GetIdentities(nsIArray **_retval) {
  * do not call this more than once or we'll leak.
  */
 nsresult nsMsgAccount::createIdentities() {
-  NS_ENSURE_FALSE(m_identities, NS_ERROR_FAILURE);
+  NS_ENSURE_FALSE(m_identitiesValid, NS_ERROR_FAILURE);
 
   nsresult rv;
-  m_identities = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  m_identities.Clear();
 
   nsCString identityKey;
   rv = getPrefService();
   NS_ENSURE_SUCCESS(rv, rv);
 
   m_prefs->GetCharPref("identities", identityKey);
-  if (identityKey.IsEmpty())  // not an error if no identities, but
-    return NS_OK;             // strtok will be unhappy
+  if (identityKey.IsEmpty()) {
+    // not an error if no identities, but strtok will be unhappy.
+    m_identitiesValid = true;
+    return NS_OK;
+  }
   // get the server from the account manager
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -203,15 +204,14 @@ nsresult nsMsgAccount::createIdentities() {
     // create the account
     rv = accountManager->GetIdentity(key, getter_AddRefs(identity));
     if (NS_SUCCEEDED(rv)) {
-      // ignore error from addIdentityInternal() - if it fails, it fails.
-      rv = addIdentityInternal(identity);
-      NS_ASSERTION(NS_SUCCEEDED(rv), "Couldn't create identity");
+      m_identities.AppendElement(identity);
     }
 
     // advance to next key, if any
     token = NS_strtok(",", &newStr);
   }
 
+  m_identitiesValid = true;
   return rv;
 }
 
@@ -219,50 +219,38 @@ nsresult nsMsgAccount::createIdentities() {
 NS_IMETHODIMP
 nsMsgAccount::GetDefaultIdentity(nsIMsgIdentity **aDefaultIdentity) {
   NS_ENSURE_ARG_POINTER(aDefaultIdentity);
-  NS_ENSURE_TRUE(m_identities, NS_ERROR_NOT_INITIALIZED);
+  NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_NOT_INITIALIZED);
 
-  *aDefaultIdentity = nullptr;
-  uint32_t count;
-  nsresult rv = m_identities->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (count == 0) return NS_OK;
-
-  nsCOMPtr<nsIMsgIdentity> identity = do_QueryElementAt(m_identities, 0, &rv);
-  identity.forget(aDefaultIdentity);
-  return rv;
+  // Default identity is the first in the list.
+  if (m_identities.IsEmpty()) {
+    *aDefaultIdentity = nullptr;
+  } else {
+    NS_IF_ADDREF(*aDefaultIdentity = m_identities[0]);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgAccount::SetDefaultIdentity(nsIMsgIdentity *aDefaultIdentity) {
-  NS_ENSURE_TRUE(m_identities, NS_ERROR_FAILURE);
+  NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_FAILURE);
 
-  uint32_t position = 0;
-  nsresult rv = m_identities->IndexOf(0, aDefaultIdentity, &position);
-  NS_ENSURE_SUCCESS(rv, rv);
+  auto position = m_identities.IndexOf(aDefaultIdentity);
+  if (position == m_identities.NoIndex) {
+    return NS_ERROR_FAILURE;
+  }
 
-  rv = m_identities->RemoveElementAt(position);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // The passed in identity is in the list, so we have at least one element.
-  rv = m_identities->InsertElementAt(aDefaultIdentity, 0);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // Move it to the front of the list.
+  m_identities.RemoveElementAt(position);
+  m_identities.InsertElementAt(0, aDefaultIdentity);
 
   return saveIdentitiesPref();
-}
-
-// add the identity to m_identities, but don't fiddle with the
-// prefs. The assumption here is that the pref for this identity is
-// already set.
-nsresult nsMsgAccount::addIdentityInternal(nsIMsgIdentity *identity) {
-  NS_ENSURE_TRUE(m_identities, NS_ERROR_FAILURE);
-
-  return m_identities->AppendElement(identity);
 }
 
 /* void addIdentity (in nsIMsgIdentity identity); */
 NS_IMETHODIMP
 nsMsgAccount::AddIdentity(nsIMsgIdentity *identity) {
   NS_ENSURE_ARG_POINTER(identity);
+  NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_FAILURE);
 
   // hack hack - need to add this to the list of identities.
   // for now just treat this as a Setxxx accessor
@@ -308,30 +296,24 @@ nsMsgAccount::AddIdentity(nsIMsgIdentity *identity) {
   }
 
   // now add it to the in-memory list
-  return addIdentityInternal(identity);
+  m_identities.AppendElement(identity);
+  return NS_OK;
 }
 
 /* void removeIdentity (in nsIMsgIdentity identity); */
 NS_IMETHODIMP
 nsMsgAccount::RemoveIdentity(nsIMsgIdentity *aIdentity) {
   NS_ENSURE_ARG_POINTER(aIdentity);
-  NS_ENSURE_TRUE(m_identities, NS_ERROR_FAILURE);
+  NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_FAILURE);
 
-  uint32_t count = 0;
-  m_identities->GetLength(&count);
   // At least one identity must stay after the delete.
-  NS_ENSURE_TRUE(count > 1, NS_ERROR_FAILURE);
+  NS_ENSURE_TRUE(m_identities.Length() > 1, NS_ERROR_FAILURE);
 
-  uint32_t pos = 0;
-  nsresult rv = m_identities->IndexOf(0, aIdentity, &pos);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // remove our identity
-  m_identities->RemoveElementAt(pos);
-
+  if (!m_identities.RemoveElement(aIdentity)) {
+    return NS_ERROR_FAILURE;
+  }
   // clear out the actual pref values associated with the identity
   aIdentity->ClearAllValues();
-
   return saveIdentitiesPref();
 }
 
@@ -340,23 +322,17 @@ nsresult nsMsgAccount::saveIdentitiesPref() {
 
   // Iterate over the existing identities and build the pref value,
   // a string of identity keys: id1, id2, idX...
-  uint32_t count;
-  nsresult rv = m_identities->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCString key;
-  for (uint32_t index = 0; index < count; index++) {
-    nsCOMPtr<nsIMsgIdentity> identity =
-        do_QueryElementAt(m_identities, index, &rv);
-    if (identity) {
-      identity->GetKey(key);
+  bool first = true;
+  for (auto identity : m_identities) {
+    identity->GetKey(key);
 
-      if (!index) {
-        newIdentityList = key;
-      } else {
-        newIdentityList.Append(',');
-        newIdentityList.Append(key);
-      }
+    if (first) {
+      newIdentityList = key;
+      first = false;
+    } else {
+      newIdentityList.Append(',');
+      newIdentityList.Append(key);
     }
   }
 
@@ -375,7 +351,8 @@ NS_IMETHODIMP
 nsMsgAccount::SetKey(const nsACString &accountKey) {
   m_accountKey = accountKey;
   m_prefs = nullptr;
-  m_identities = nullptr;
+  m_identitiesValid = false;
+  m_identities.Clear();
   return createIdentities();
 }
 

@@ -50,8 +50,7 @@ function refreshIdentityList(aSelectIndex) {
   }
 
   // Build the list from the identities array.
-  let identities = gAccount.identities;
-  for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
+  for (let identity of gAccount.identities) {
     if (identity.valid) {
       let label = document.createXULElement("label");
       label.setAttribute("value", identity.identityName);
@@ -105,15 +104,10 @@ function getSelectedIdentity() {
     return null;
   }
 
-  var identityKey = gIdentityListBox.selectedItems[0].getAttribute("key");
-  let identities = gAccount.identities;
-  for (let identity of fixIterator(identities, Ci.nsIMsgIdentity)) {
-    if (identity.valid && identity.key == identityKey) {
-      return identity;
-    }
-  }
-
-  return null; // no identity found
+  let identityKey = gIdentityListBox.selectedItems[0].getAttribute("key");
+  return (
+    gAccount.identities.find(id => id.valid && id.key == identityKey) || null
+  );
 }
 
 function onEdit(event) {

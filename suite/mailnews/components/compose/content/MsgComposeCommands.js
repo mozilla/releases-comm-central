@@ -8,7 +8,6 @@ var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm
 const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-const {fixIterator, toArray} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 /**
@@ -1254,7 +1253,7 @@ function ComposeStartup(aParams)
     if (defaultAccount)
       identities = defaultAccount.identities;
     if (identities && identities.length > 0) {
-      params.identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
+      params.identity = identities[0];
     } else {
       // Get the first identity we have in the list.
       let identitykey = identityList.getItemAtIndex(0).getAttribute("identitykey");
@@ -2189,8 +2188,7 @@ function FillIdentityList(menulist)
   for (let acc = 0; acc < accounts.length; acc++)
   {
     let account = accounts[acc];
-    let identities = toArray(fixIterator(account.identities,
-                                         Ci.nsIMsgIdentity));
+    let identities = account.identities;
 
     if (identities.length == 0)
       continue;

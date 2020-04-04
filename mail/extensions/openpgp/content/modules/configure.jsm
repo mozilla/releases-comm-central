@@ -149,8 +149,7 @@ function defaultPgpMime() {
 
   for (let ac of MailServices.accounts.accounts) {
     if (ac.incomingServer.type.search(/(pop3|imap|movemail)/) >= 0) {
-      for (let i = 0; i < ac.identities.length; i++) {
-        let id = ac.identities.queryElementAt(i, Ci.nsIMsgIdentity);
+      for (let id of ac.identities) {
         if (
           id.getBoolAttribute("enablePgp") &&
           !id.getBoolAttribute("pgpMimeMode")

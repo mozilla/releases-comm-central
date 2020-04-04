@@ -2457,19 +2457,8 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
         nsCOMPtr<nsIMsgAccount> account;
         accountManager->GetAccount(accountKey, getter_AddRefs(account));
         if (account) {
-          // TODO: Bug 1614846 - stopgap until nsIAccount.getIdentities() takes
-          // nsTArray<>.
-          nsCOMPtr<nsIArray> tmp;
-          rv = account->GetIdentities(getter_AddRefs(tmp));
+          rv = account->GetIdentities(identities);
           NS_ENSURE_SUCCESS(rv, rv);
-          uint32_t numElements;
-          rv = tmp->GetLength(&numElements);
-          NS_ENSURE_SUCCESS(rv, rv);
-          for (uint32_t i = 0; i < numElements; i++) {
-            nsCOMPtr<nsIMsgIdentity> ident = do_QueryElementAt(tmp, i, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
-            identities.AppendElement(ident);
-          }
         }
       } else {
         // Check identities only for the server of the folder that the message

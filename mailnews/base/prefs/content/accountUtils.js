@@ -22,11 +22,10 @@ var gNewAccountToLoad = null; // used to load new messages if we come from the m
 
 function getInvalidAccounts(accounts) {
   let invalidAccounts = [];
-  let numIdentities = 0;
   for (let account of accounts) {
     try {
       if (!account.incomingServer.valid) {
-        invalidAccounts[invalidAccounts.length] = account;
+        invalidAccounts.push(account);
         // skip to the next account
         continue;
       }
@@ -35,15 +34,11 @@ function getInvalidAccounts(accounts) {
       continue;
     }
 
-    var identities = account.identities;
-    numIdentities = identities.length;
-
-    for (var j = 0; j < numIdentities; j++) {
-      let identity = identities.queryElementAt(j, Ci.nsIMsgIdentity);
+    for (let identity of account.identities) {
       if (identity.valid) {
         gAnyValidIdentity = true;
       } else {
-        invalidAccounts[invalidAccounts.length] = account;
+        invalidAccounts.push(account);
       }
     }
   }

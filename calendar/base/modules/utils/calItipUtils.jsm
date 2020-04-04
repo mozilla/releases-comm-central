@@ -7,7 +7,6 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
-const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
 
@@ -509,17 +508,13 @@ var calitip = {
     }
 
     let identities;
-    let actMgr = MailServices.accounts;
     if (aMsgHdr.accountKey) {
       // First, check if the message has an account key. If so, we can use the
       // account identities to find the correct recipient
-      // Note: fixIterator here is a stopgap, to be removed (see Bug 1612239).
-      identities = [
-        ...fixIterator(actMgr.getAccount(aMsgHdr.accountKey).identities, Ci.nsIMsgIdentity),
-      ];
+      identities = MailServices.accounts.getAccount(aMsgHdr.accountKey).identities;
     } else if (aMsgHdr.folder) {
       // Without an account key, we have to revert back to using the server
-      identities = actMgr.getIdentitiesForServer(aMsgHdr.folder.server);
+      identities = MailServices.accounts.getIdentitiesForServer(aMsgHdr.folder.server);
     }
 
     let emailMap = {};
@@ -527,7 +522,7 @@ var calitip = {
       let identity;
       // If we were not able to retrieve identities above, then we have no
       // choice but to revert to the default identity.
-      let defaultAccount = actMgr.defaultAccount;
+      let defaultAccount = MailServices.accounts.defaultAccount;
       if (defaultAccount) {
         identity = defaultAccount.defaultIdentity;
       }
@@ -535,7 +530,7 @@ var calitip = {
         // If there isn't a default identity (i.e Local Folders is your
         // default identity), then go ahead and use the first available
         // identity.
-        let allIdentities = actMgr.allIdentities;
+        let allIdentities = MailServices.accounts.allIdentities;
         if (allIdentities.length > 0) {
           identity = allIdentities[0];
         } else {

@@ -5061,11 +5061,8 @@ function FillIdentityList(menulist) {
 
   let accountHadSeparator = false;
   let firstAccountWithIdentities = true;
-  for (let acc = 0; acc < accounts.length; acc++) {
-    let account = accounts[acc];
-    let identities = toArray(
-      fixIterator(account.identities, Ci.nsIMsgIdentity)
-    );
+  for (let account of accounts) {
+    let identities = account.identities;
 
     if (identities.length == 0) {
       continue;

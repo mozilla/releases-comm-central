@@ -54,9 +54,7 @@ var calemail = {
    */
   iterateIdentities(aFunc) {
     for (let account of MailServices.accounts.accounts) {
-      let identities = account.identities;
-      for (let j = 0; j < identities.length; ++j) {
-        let identity = identities.queryElementAt(j, Ci.nsIMsgIdentity);
+      for (let identity of account.identities) {
         if (!aFunc(identity, account)) {
           break;
         }

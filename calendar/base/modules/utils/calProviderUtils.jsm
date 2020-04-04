@@ -257,7 +257,7 @@ var calprovider = {
       // take default account/identity:
       let findIdentity = function(account) {
         if (account && account.identities.length) {
-          return account.defaultIdentity || account.identities.queryElementAt(0, Ci.nsIMsgIdentity);
+          return account.defaultIdentity || account.identities[0];
         }
         return null;
       };
