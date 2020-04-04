@@ -42,6 +42,7 @@ add_task(async function test_request_permissions_without_prompt() {
 
   let tab = openContentTab(url);
   await extension.awaitMessage("pageReady");
+  await new Promise(resolve => requestAnimationFrame(resolve));
   await BrowserTestUtils.synthesizeMouseAtCenter(tab.browser, {}, tab.browser);
   await BrowserTestUtils.synthesizeKey("a", {}, tab.browser);
   await extension.awaitMessage("permsGranted");
