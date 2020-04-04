@@ -238,14 +238,32 @@
         "type": "function",
         "description": "Fired when the displayed folder changes in any mail tab.",
         "permissions": ["accountsRead"],
-        "parameters": []
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "displayedFolder",
+            "$ref": "folders.MailFolder"
+          }
+        ]
       },
       {
         "name": "onSelectedMessagesChanged",
         "type": "function",
         "description": "Fired when the selected messages change in any mail tab.",
         "permissions": ["messagesRead"],
-        "parameters": []
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "selectedMessages",
+            "$ref": "messages.MessageList"
+          }
+        ]
       }
     ]
   }

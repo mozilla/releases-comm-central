@@ -5,7 +5,7 @@
 this.messageDisplay = class extends ExtensionAPI {
   getAPI(context) {
     let { extension } = context;
-    let { tabManager } = extension;
+    let { tabManager, windowManager } = extension;
     return {
       messageDisplay: {
         onMessageDisplayed: new EventManager({
@@ -14,9 +14,9 @@ this.messageDisplay = class extends ExtensionAPI {
           register: fire => {
             let listener = {
               handleEvent(event) {
-                let window = extension.windowManager.wrapWindow(event.target);
+                let win = windowManager.wrapWindow(event.target);
                 fire.async(
-                  window.activeTab.id,
+                  tabManager.convert(win.activeTab.nativeTab),
                   convertMessage(event.detail, extension)
                 );
               },

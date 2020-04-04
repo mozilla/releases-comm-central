@@ -26,31 +26,31 @@ add_task(async () => {
       // Test that selecting a different message fires the event.
       let eventListener = waitForEvent();
       browser.test.sendMessage("show message 1");
-      let [tabId, message] = await eventListener;
-      browser.test.assertEq(firstTabId, tabId);
+      let [tab, message] = await eventListener;
+      browser.test.assertEq(firstTabId, tab.id);
       browser.test.assertEq(messages[1].subject, message.subject);
 
-      message = await browser.messageDisplay.getDisplayedMessage(tabId);
+      message = await browser.messageDisplay.getDisplayedMessage(tab.id);
       browser.test.assertEq(messages[1].subject, message.subject);
 
       // ... and again, for good measure.
       eventListener = waitForEvent();
       browser.test.sendMessage("show message 2");
-      [tabId, message] = await eventListener;
-      browser.test.assertEq(firstTabId, tabId);
+      [tab, message] = await eventListener;
+      browser.test.assertEq(firstTabId, tab.id);
       browser.test.assertEq(messages[2].subject, message.subject);
 
-      message = await browser.messageDisplay.getDisplayedMessage(tabId);
+      message = await browser.messageDisplay.getDisplayedMessage(tab.id);
       browser.test.assertEq(messages[2].subject, message.subject);
 
       // Test that opening a message in a new tab fires the event.
       eventListener = waitForEvent();
       browser.test.sendMessage("open message tab");
-      [tabId, message] = await eventListener;
-      browser.test.assertTrue(firstTabId != tabId);
+      [tab, message] = await eventListener;
+      browser.test.assertTrue(firstTabId != tab.id);
       browser.test.assertEq(messages[2].subject, message.subject);
 
-      message = await browser.messageDisplay.getDisplayedMessage(tabId);
+      message = await browser.messageDisplay.getDisplayedMessage(tab.id);
       browser.test.assertEq(messages[2].subject, message.subject);
 
       // Test that the first tab is not displaying a message.
@@ -60,26 +60,26 @@ add_task(async () => {
       // Closing the tab should return us to the first tab, and fires the
       // event. It doesn't have to be this way, it just is.
       eventListener = waitForEvent();
-      browser.tabs.remove(tabId);
-      [tabId, message] = await eventListener;
-      browser.test.assertEq(firstTabId, tabId);
+      browser.tabs.remove(tab.id);
+      [tab, message] = await eventListener;
+      browser.test.assertEq(firstTabId, tab.id);
       browser.test.assertEq(messages[2].subject, message.subject);
 
-      message = await browser.messageDisplay.getDisplayedMessage(tabId);
+      message = await browser.messageDisplay.getDisplayedMessage(tab.id);
       browser.test.assertEq(messages[2].subject, message.subject);
 
       // Test that opening a message in a new window fires the event.
       eventListener = waitForEvent();
       browser.test.sendMessage("open message window");
-      [tabId, message] = await eventListener;
-      browser.test.assertTrue(firstTabId != tabId);
+      [tab, message] = await eventListener;
+      browser.test.assertTrue(firstTabId != tab.id);
       browser.test.assertEq(messages[2].subject, message.subject);
 
-      message = await browser.messageDisplay.getDisplayedMessage(tabId);
+      message = await browser.messageDisplay.getDisplayedMessage(tab.id);
       browser.test.assertEq(messages[2].subject, message.subject);
 
       // Close the window.
-      browser.tabs.remove(tabId);
+      browser.tabs.remove(tab.id);
 
       browser.test.notifyPass("finished");
     },

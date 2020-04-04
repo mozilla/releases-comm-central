@@ -351,7 +351,7 @@ this.mailTabs = class extends ExtensionAPI {
           name: "mailTabs.onDisplayedFolderChanged",
           register: fire => {
             let listener = (event, tab, folder) => {
-              fire.sync(tabTracker.getId(tab), convertFolder(folder));
+              fire.sync(tabManager.convert(tab), convertFolder(folder));
             };
 
             uiListener.on("folder-changed", listener);
@@ -369,7 +369,7 @@ this.mailTabs = class extends ExtensionAPI {
           register: fire => {
             let listener = (event, tab, messages) => {
               fire.sync(
-                tabTracker.getId(tab),
+                tabManager.convert(tab),
                 messageListTracker.startList(messages, extension)
               );
             };

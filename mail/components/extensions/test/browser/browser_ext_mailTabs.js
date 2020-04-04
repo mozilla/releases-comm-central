@@ -206,11 +206,11 @@ add_task(async function test_displayedFolderChanged() {
     async function selectFolder(newFolderPath) {
       return new Promise(resolve => {
         browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(
-          tabId,
+          tab,
           folder
         ) {
           browser.mailTabs.onDisplayedFolderChanged.removeListener(listener);
-          browser.test.assertEq(current.id, tabId);
+          browser.test.assertEq(current.id, tab.id);
           browser.test.assertEq(accountId, folder.accountId);
           browser.test.assertEq(newFolderPath, folder.path);
           resolve();
@@ -225,11 +225,11 @@ add_task(async function test_displayedFolderChanged() {
     async function selectFolderByUpdate(newFolderPath) {
       return new Promise(resolve => {
         browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(
-          tabId,
+          tab,
           folder
         ) {
           browser.mailTabs.onDisplayedFolderChanged.removeListener(listener);
-          browser.test.assertEq(current.id, tabId);
+          browser.test.assertEq(current.id, tab.id);
           browser.test.assertEq(accountId, folder.accountId);
           browser.test.assertEq(newFolderPath, folder.path);
           resolve();
@@ -292,7 +292,7 @@ add_task(async function test_selectedMessagesChanged() {
     async function selectMessages(...newMessages) {
       return new Promise(resolve => {
         browser.mailTabs.onSelectedMessagesChanged.addListener(
-          function listener(tabId, messageList) {
+          function listener(tab, messageList) {
             browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
             resolve(messageList);
           }
