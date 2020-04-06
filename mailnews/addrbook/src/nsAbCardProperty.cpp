@@ -845,44 +845,43 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr) {
     rv = abManager->GetDirectory(m_MailListURI, getter_AddRefs(mailList));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIMutableArray> addresses;
-    rv = mailList->GetAddressLists(getter_AddRefs(addresses));
-    if (addresses) {
-      uint32_t total = 0;
-      addresses->GetLength(&total);
-      if (total) {
-        uint32_t i;
-        nsAutoString displayName;
-        nsAutoString primaryEmail;
-        for (i = 0; i < total; i++) {
-          nsCOMPtr<nsIAbCard> listCard = do_QueryElementAt(addresses, i, &rv);
-          NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsISimpleEnumerator> mailListAddresses;
+    rv = mailList->GetChildCards(getter_AddRefs(mailListAddresses));
+    NS_ENSURE_SUCCESS(rv, rv);
 
-          xmlStr.AppendLiteral("<PrimaryEmail>\n");
+    bool hasMore = false;
+    nsCOMPtr<nsISupports> support;
+    nsCOMPtr<nsIAbCard> listCard;
+    nsAutoString displayName;
+    nsAutoString primaryEmail;
+    while (NS_SUCCEEDED(mailListAddresses->HasMoreElements(&hasMore)) &&
+           hasMore) {
+      rv = mailListAddresses->GetNext(getter_AddRefs(support));
+      NS_ENSURE_SUCCESS(rv, rv);
+      listCard = do_QueryInterface(support, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
 
-          rv = listCard->GetDisplayName(displayName);
-          NS_ENSURE_SUCCESS(rv, rv);
+      xmlStr.AppendLiteral("<PrimaryEmail>\n");
 
-          // use ScanTXT to convert < > & to safe values.
-          nsString safeText;
-          rv = conv->ScanTXT(displayName, mozITXTToHTMLConv::kEntities,
-                             safeText);
-          NS_ENSURE_SUCCESS(rv, rv);
-          xmlStr.Append(safeText);
+      rv = listCard->GetDisplayName(displayName);
+      NS_ENSURE_SUCCESS(rv, rv);
 
-          xmlStr.AppendLiteral(" &lt;");
+      // use ScanTXT to convert < > & to safe values.
+      nsString safeText;
+      rv = conv->ScanTXT(displayName, mozITXTToHTMLConv::kEntities, safeText);
+      NS_ENSURE_SUCCESS(rv, rv);
+      xmlStr.Append(safeText);
 
-          listCard->GetPrimaryEmail(primaryEmail);
+      xmlStr.AppendLiteral(" &lt;");
 
-          // use ScanTXT to convert < > & to safe values.
-          rv = conv->ScanTXT(primaryEmail, mozITXTToHTMLConv::kEntities,
-                             safeText);
-          NS_ENSURE_SUCCESS(rv, rv);
-          xmlStr.Append(safeText);
+      listCard->GetPrimaryEmail(primaryEmail);
 
-          xmlStr.AppendLiteral("&gt;</PrimaryEmail>\n");
-        }
-      }
+      // use ScanTXT to convert < > & to safe values.
+      rv = conv->ScanTXT(primaryEmail, mozITXTToHTMLConv::kEntities, safeText);
+      NS_ENSURE_SUCCESS(rv, rv);
+      xmlStr.Append(safeText);
+
+      xmlStr.AppendLiteral("&gt;</PrimaryEmail>\n");
     }
     xmlStr.AppendLiteral("</section>");
   }

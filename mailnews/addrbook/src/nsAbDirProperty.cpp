@@ -219,23 +219,6 @@ NS_IMETHODIMP nsAbDirProperty::SetIsMailList(bool aIsMailList) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetAddressLists(
-    nsIMutableArray **aAddressLists) {
-  if (!m_AddressList) {
-    nsresult rv;
-    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  NS_ADDREF(*aAddressLists = m_AddressList);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAbDirProperty::SetAddressLists(nsIMutableArray *aAddressLists) {
-  m_AddressList = aAddressLists;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsAbDirProperty::CopyMailList(nsIAbDirectory *srcList) {
   SetIsMailList(true);
 
@@ -251,9 +234,6 @@ NS_IMETHODIMP nsAbDirProperty::CopyMailList(nsIAbDirectory *srcList) {
   srcList->GetUID(uid);
   SetUID(uid);
 
-  nsCOMPtr<nsIMutableArray> pAddressLists;
-  srcList->GetAddressLists(getter_AddRefs(pAddressLists));
-  SetAddressLists(pAddressLists);
   return NS_OK;
 }
 
@@ -320,16 +300,12 @@ nsAbDirProperty::HasMailListWithName(const char16_t *aName, bool *aHasList) {
 
   if (m_IsMailList) return NS_OK;
 
-  nsCOMPtr<nsIMutableArray> addressLists;
-  rv = GetAddressLists(getter_AddRefs(addressLists));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   uint32_t listCount = 0;
-  rv = addressLists->GetLength(&listCount);
+  rv = m_AddressList->GetLength(&listCount);
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (uint32_t i = 0; i < listCount; i++) {
-    nsCOMPtr<nsIAbDirectory> listDir(do_QueryElementAt(addressLists, i, &rv));
+    nsCOMPtr<nsIAbDirectory> listDir(do_QueryElementAt(m_AddressList, i, &rv));
     if (NS_SUCCEEDED(rv) && listDir) {
       nsAutoString listName;
       rv = listDir->GetDirName(listName);

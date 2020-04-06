@@ -78,12 +78,12 @@ add_task(async function() {
   // Check the lists have the right members.
 
   let personalLists = [
-    ...fixIterator(personalBook.addressLists.enumerate(), Ci.nsIAbDirectory),
+    ...fixIterator(personalBook.childNodes, Ci.nsIAbDirectory),
   ];
   equal(personalLists.length, 3);
 
   let listCards = [
-    ...fixIterator(personalLists[0].addressLists.enumerate(), Ci.nsIAbCard),
+    ...fixIterator(personalLists[0].childCards, Ci.nsIAbCard),
   ].map(c => c.primaryEmail);
   Assert.deepEqual(listCards, [
     "test1@foo.invalid",
@@ -91,14 +91,14 @@ add_task(async function() {
     "test3@foo.invalid",
   ]);
 
-  listCards = [
-    ...fixIterator(personalLists[1].addressLists.enumerate(), Ci.nsIAbCard),
-  ].map(c => c.primaryEmail);
+  listCards = [...fixIterator(personalLists[1].childCards, Ci.nsIAbCard)].map(
+    c => c.primaryEmail
+  );
   Assert.deepEqual(listCards, ["test4@foo.invalid"]);
 
-  listCards = [
-    ...fixIterator(personalLists[2].addressLists.enumerate(), Ci.nsIAbCard),
-  ].map(c => c.primaryEmail);
+  listCards = [...fixIterator(personalLists[2].childCards, Ci.nsIAbCard)].map(
+    c => c.primaryEmail
+  );
   Assert.deepEqual(listCards, ["test5@foo.invalid"]);
 
   // Check the history book, which should be empty.
@@ -106,6 +106,6 @@ add_task(async function() {
   let historyCards = [...historyBook.childCards];
   equal(historyCards.length, 0);
 
-  let historyLists = [...historyBook.addressLists.enumerate()];
+  let historyLists = [...historyBook.childNodes];
   equal(historyLists.length, 0);
 });

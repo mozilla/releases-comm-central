@@ -145,7 +145,6 @@ add_task(async function createAddressBook() {
   equal(book.dirPrefId, "ldap_2.servers.newbook");
 
   // Check enumerations.
-  equal(Array.from(book.addressLists.enumerate()).length, 0);
   equal(Array.from(book.childNodes).length, 0);
   equal(Array.from(book.childCards).length, 0);
 
@@ -253,11 +252,6 @@ add_task(async function createMailingList() {
   // Skip checking events temporarily, until listCard is defined.
 
   // Check enumerations.
-  let addressLists = Array.from(book.addressLists.enumerate(), al =>
-    al.QueryInterface(Ci.nsIAbDirectory)
-  );
-  equal(addressLists.length, 1);
-  equal(addressLists[0].UID, list.UID); // TODO Object equality doesn't work because of XPCOM.
   let childNodes = Array.from(book.childNodes, cn =>
     cn.QueryInterface(Ci.nsIAbDirectory)
   );
@@ -291,7 +285,6 @@ add_task(async function createMailingList() {
   equal(list.supportsMailingLists, false);
 
   // Check list enumerations.
-  equal(Array.from(list.addressLists.enumerate()).length, 0);
   equal(Array.from(list.childNodes).length, 0);
   equal(Array.from(list.childCards).length, 0);
 
@@ -322,14 +315,8 @@ add_task(async function addMailingListMember() {
     ["onItemAdded", list, contact]
     // ["addrbook-list-member-added", contact, list.UID] // MDB fires this on dropcard but not addcard?!
   );
-  equal(1, list.addressLists.Count());
 
   // Check list enumerations.
-  let addressLists = Array.from(list.addressLists.enumerate(), al =>
-    al.QueryInterface(Ci.nsIAbCard)
-  );
-  equal(addressLists.length, 1);
-  ok(addressLists[0].equals(contact));
   equal(Array.from(list.childNodes).length, 0);
   let childCards = Array.from(list.childCards, cc =>
     cc.QueryInterface(Ci.nsIAbCard)
@@ -342,11 +329,9 @@ add_task(async function removeMailingListMember() {
   let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   cardArray.appendElement(contact);
   list.deleteCards(cardArray);
-  equal(0, list.addressLists.Count());
   observer.checkEvents(["onItemRemoved", list, contact]);
 
   // Check list enumerations.
-  equal(Array.from(list.addressLists.enumerate()).length, 0);
   equal(Array.from(list.childNodes).length, 0);
   equal(Array.from(list.childCards).length, 0);
 });
@@ -367,7 +352,6 @@ add_task(async function deleteContact() {
   observer.checkEvents(["onItemRemoved", book, contact]);
 
   // Check enumerations.
-  equal(Array.from(book.addressLists.enumerate()).length, 0);
   equal(Array.from(book.childNodes).length, 0);
   equal(Array.from(book.childCards).length, 0);
 });

@@ -156,11 +156,8 @@ var editContactInlineUI = {
           continue;
         }
 
-        for (let card of fixIterator(list.addressLists)) {
-          if (
-            card instanceof Ci.nsIAbCard &&
-            card.primaryEmail == this._cardDetails.card.primaryEmail
-          ) {
+        for (let card of fixIterator(list.childCards, Ci.nsIAbCard)) {
+          if (card.primaryEmail == this._cardDetails.card.primaryEmail) {
             inMailList = true;
             break;
           }

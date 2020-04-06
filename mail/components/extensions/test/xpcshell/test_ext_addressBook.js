@@ -610,7 +610,7 @@ add_task(async function test_addressBooks() {
       return null;
     }
     function findMailingList(id) {
-      for (let list of fixIterator(parent.addressLists, Ci.nsIAbDirectory)) {
+      for (let list of fixIterator(parent.childNodes, Ci.nsIAbDirectory)) {
         if (list.UID == id) {
           return list;
         }
@@ -718,7 +718,7 @@ add_task(async function test_addressBooks() {
 
         if (list && contact) {
           list.addCard(contact);
-          equal(1, list.addressLists.Count());
+          equal(1, [...list.childCards].length);
           extension.sendMessage();
           return;
         }
@@ -734,7 +734,7 @@ add_task(async function test_addressBooks() {
           );
           cardArray.appendElement(contact);
           list.deleteCards(cardArray);
-          equal(0, list.addressLists.Count());
+          equal(0, [...list.childCards].length);
           ok(findContact(args[1]), "Contact was not removed");
           extension.sendMessage();
           return;

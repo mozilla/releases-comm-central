@@ -164,21 +164,9 @@ function OnLoadCardView() {
 // some similar code (in spirit) already exists, see OnLoadEditList()
 // perhaps we could combine and put in abCommon.js?
 function GetAddressesFromURI(uri) {
-  var addresses = "";
-
-  var editList = GetDirectoryFromURI(uri);
-  var addressList = editList.addressLists;
-  if (addressList) {
-    var total = addressList.length;
-    if (total > 0) {
-      addresses = addressList.queryElementAt(0, Ci.nsIAbCard).primaryEmail;
-    }
-    for (let i = 1; i < total; i++) {
-      addresses +=
-        ", " + addressList.queryElementAt(i, Ci.nsIAbCard).primaryEmail;
-    }
-  }
-  return addresses;
+  return Array.from(GetDirectoryFromURI(uri).childCards, card =>
+    card.QueryInterface(Ci.nsIAbCard)
+  ).join(", ");
 }
 
 /* eslint-disable complexity */
@@ -577,36 +565,29 @@ function cvAddAddressNodes(node, uri) {
 
   if (node) {
     var editList = GetDirectoryFromURI(uri);
-    var addressList = editList.addressLists;
 
-    if (addressList) {
-      var total = addressList.length;
-      if (total > 0) {
-        while (node.hasChildNodes()) {
-          node.lastChild.remove();
-        }
-        for (let i = 0; i < total; i++) {
-          var descNode = document.createXULElement("description");
-          var card = addressList.queryElementAt(i, Ci.nsIAbCard);
+    while (node.hasChildNodes()) {
+      node.lastChild.remove();
+    }
+    let i = 0;
+    for (let card of fixIterator(editList.childCards, Ci.nsIAbCard)) {
+      var descNode = document.createXULElement("description");
+      descNode.setAttribute("class", "CardViewLink");
+      node.appendChild(descNode);
 
-          descNode.setAttribute("class", "CardViewLink");
-          node.appendChild(descNode);
+      var linkNode = document.createElementNS(
+        "http://www.w3.org/1999/xhtml",
+        "a"
+      );
+      linkNode.setAttribute("id", "addr#" + i++);
+      linkNode.setAttribute("href", "mailto:" + card.primaryEmail);
+      descNode.appendChild(linkNode);
 
-          var linkNode = document.createElementNS(
-            "http://www.w3.org/1999/xhtml",
-            "a"
-          );
-          linkNode.setAttribute("id", "addr#" + i);
-          linkNode.setAttribute("href", "mailto:" + card.primaryEmail);
-          descNode.appendChild(linkNode);
-
-          var textNode = document.createTextNode(
-            card.displayName + " <" + card.primaryEmail + ">"
-          );
-          linkNode.appendChild(textNode);
-        }
-        visible = true;
-      }
+      var textNode = document.createTextNode(
+        card.displayName + " <" + card.primaryEmail + ">"
+      );
+      linkNode.appendChild(textNode);
+      visible = true;
     }
     cvSetVisible(node, visible);
   }

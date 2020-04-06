@@ -271,15 +271,6 @@ interface nsIAbDirectory : nsISupports {
    */
   readonly attribute boolean supportsMailingLists;
 
-  /**
-   * This attribute serves two purposes
-   *  1. If this directory is not a mail list, directories are stored here
-   *  2. If it is a mail list card entries are stored here
-   *
-   * @note This is a *live* array and not a static copy
-   */
-  attribute nsIMutableArray addressLists;
-
   // Specific to a directory which stores mail lists
 
   /**

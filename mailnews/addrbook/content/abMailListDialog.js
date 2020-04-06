@@ -129,7 +129,7 @@ function updateMailListMembers(mailList, parentDirectory) {
   let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
     addresses
   );
-  let existingCards = [...fixIterator(mailList.addressLists, Ci.nsIAbCard)];
+  let existingCards = [...fixIterator(mailList.childCards, Ci.nsIAbCard)];
 
   // Work out which addresses need to be added...
   let existingCardAddresses = existingCards.map(card => card.primaryEmail);
@@ -289,23 +289,19 @@ function OnLoadEditList() {
     [gOldListName]
   );
 
-  if (gEditList.addressLists) {
-    let total = gEditList.addressLists.length;
-    if (total) {
-      let listbox = document.getElementById("addressingWidget");
-      let newListBoxNode = listbox.cloneNode(false);
-      let templateNode = listbox.querySelector("richlistitem");
+  if (gEditList.childCards) {
+    let listbox = document.getElementById("addressingWidget");
+    let newListBoxNode = listbox.cloneNode(false);
+    let templateNode = listbox.querySelector("richlistitem");
 
-      top.MAX_RECIPIENTS = 0;
-      for (let i = 0; i < total; i++) {
-        let card = gEditList.addressLists.queryElementAt(i, Ci.nsIAbCard);
-        let address = MailServices.headerParser
-          .makeMailboxObject(card.displayName, card.primaryEmail)
-          .toString();
-        SetInputValue(address, newListBoxNode, templateNode);
-      }
-      listbox.parentNode.replaceChild(newListBoxNode, listbox);
+    top.MAX_RECIPIENTS = 0;
+    for (let card of fixIterator(gEditList.childCards, Ci.nsIAbCard)) {
+      let address = MailServices.headerParser
+        .makeMailboxObject(card.displayName, card.primaryEmail)
+        .toString();
+      SetInputValue(address, newListBoxNode, templateNode);
     }
+    listbox.parentNode.replaceChild(newListBoxNode, listbox);
   }
 
   // Is this directory read-only? If so, we now need to set all the fields to

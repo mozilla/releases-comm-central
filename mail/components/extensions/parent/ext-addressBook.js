@@ -60,7 +60,7 @@ var addressBookCache = new (class extends EventEmitter {
   }
   _populateListContacts(mailingList) {
     mailingList.contacts = new Map();
-    for (let contact of mailingList.item.addressLists.enumerate()) {
+    for (let contact of mailingList.item.childCards) {
       let newNode = this._makeContactNode(contact, mailingList.item);
       mailingList.contacts.set(newNode.id, newNode);
     }
@@ -89,7 +89,7 @@ var addressBookCache = new (class extends EventEmitter {
   }
   _populateMailingLists(parent) {
     parent.mailingLists = new Map();
-    for (let mailingList of parent.item.addressLists.enumerate()) {
+    for (let mailingList of parent.item.childNodes) {
       let newNode = this._makeDirectoryNode(mailingList, parent.item);
       this._mailingLists.set(newNode.id, newNode);
       parent.mailingLists.set(newNode.id, newNode);

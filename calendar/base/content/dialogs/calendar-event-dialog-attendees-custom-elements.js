@@ -8,6 +8,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  const { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
   const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
   const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
@@ -776,9 +777,7 @@
      * @returns {calIAttendee[]}                List entries found
      */
     _getListEntriesInt(mailingList, attendees, allListsUri) {
-      let addressLists = mailingList.addressLists;
-      for (let i = 0; i < addressLists.length; i++) {
-        let abCard = addressLists.queryElementAt(i, Ci.nsIAbCard);
+      for (let abCard of fixIterator(mailingList.childCards, Ci.nsIAbCard)) {
         let thisId = abCard.primaryEmail;
         if (abCard.displayName.length > 0) {
           let rCn = abCard.displayName;

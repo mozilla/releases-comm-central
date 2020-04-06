@@ -60,7 +60,7 @@ add_task(async function() {
     "John Doe",
   ]);
 
-  let personalLists = [...personalBook.addressLists.enumerate()];
+  let personalLists = [...personalBook.childNodes];
   equal(personalLists.length, 0);
 
   // More detailed check.
@@ -79,6 +79,6 @@ add_task(async function() {
   // .sqlite file. It's not wrong, but we don't use them any more.
   equal(historyCards[0].getProperty("LowercasePrimaryEmail", "bad"), "bad");
 
-  let historyLists = [...historyBook.addressLists.enumerate()];
+  let historyLists = [...historyBook.childNodes];
   equal(historyLists.length, 0);
 });

@@ -24,11 +24,6 @@ ChromeUtils.defineModuleGetter(
   "SimpleEnumerator",
   "resource:///modules/AddrBookUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "toXPCOMArray",
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 /* Prototype for mailing lists. A mailing list can appear as nsIAbDirectory
  * or as nsIAbCard. Here we keep all relevant information in the class itself
@@ -123,20 +118,6 @@ AddrBookMailingList.prototype = {
       },
       get supportsMailingLists() {
         return false;
-      },
-      get addressLists() {
-        let selectStatement = self._parent._dbConnection.createStatement(
-          "SELECT card FROM list_cards WHERE list = :list ORDER BY oid"
-        );
-        selectStatement.params.list = self._uid;
-        let results = [];
-        while (selectStatement.executeStep()) {
-          results.push(
-            self._parent._getCard({ uid: selectStatement.row.card })
-          );
-        }
-        selectStatement.finalize();
-        return toXPCOMArray(results, Ci.nsIMutableArray);
       },
 
       addCard(card) {

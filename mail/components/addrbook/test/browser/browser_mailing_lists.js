@@ -181,7 +181,7 @@ add_task(async () => {
     "mailing list description was saved"
   );
 
-  let listCards = [...fixIterator(mailList.addressLists, Ci.nsIAbCard)];
+  let listCards = [...fixIterator(mailList.childCards, Ci.nsIAbCard)];
 
   ok(
     listCards[0].hasEmailAddress(inputs.addresses[0]),
@@ -347,7 +347,7 @@ add_task(async () => {
     "modified mailing list description was saved"
   );
 
-  let listCards = [...fixIterator(mailList.addressLists, Ci.nsIAbCard)];
+  let listCards = [...fixIterator(mailList.childCards, Ci.nsIAbCard)];
 
   ok(
     listCards[0].hasEmailAddress(inputs.addresses[0]),

@@ -226,49 +226,15 @@ function EditCardOKButton(event) {
     return;
   }
 
-  // See if this card is in any mailing list
-  // if so then we need to update the addresslists of those mailing lists
   let directory = getContainingDirectory();
-
-  // if the directory is a mailing list we need to search all the mailing lists
-  // in the parent directory if the card exists.
   if (directory.isMailList) {
     var parentURI = GetParentDirectoryFromMailingListURI(gEditCard.abURI);
     directory = GetDirectoryFromURI(parentURI);
   }
 
-  let listDirectoriesCount = directory.addressLists.length;
-  let foundDirectories = [];
-
-  // create a list of mailing lists and the index where the card is at.
-  for (let i = 0; i < listDirectoriesCount; i++) {
-    let subdir = directory.addressLists.queryElementAt(i, Ci.nsIAbDirectory);
-    if (subdir.isMailList) {
-      // See if any card in this list is the one we edited.
-      // Must compare card contents using .equals() instead of .indexOf()
-      // because gEditCard is not really a member of the .addressLists array.
-      let listCardsCount = subdir.addressLists.length;
-      for (let index = 0; index < listCardsCount; index++) {
-        let card = subdir.addressLists.queryElementAt(index, Ci.nsIAbCard);
-        if (card.equals(gEditCard.card)) {
-          foundDirectories.push({ directory: subdir, cardIndex: index });
-        }
-      }
-    }
-  }
-
   CheckAndSetCardValues(gEditCard.card, document, false);
 
   directory.modifyCard(gEditCard.card);
-
-  while (foundDirectories.length) {
-    // Update the addressLists item for this card
-    let foundItem = foundDirectories.pop();
-    foundItem.directory.addressLists.replaceElementAt(
-      gEditCard.card,
-      foundItem.cardIndex
-    );
-  }
 
   NotifySaveListeners(directory);
 

@@ -4555,15 +4555,18 @@ nsresult nsMsgCompose::ResolveMailList(
     nsTArray<nsMsgRecipient> &aListMembers) {
   nsresult rv = NS_OK;
 
-  nsCOMPtr<nsIMutableArray> mailListAddresses;
-  rv = aMailList->GetAddressLists(getter_AddRefs(mailListAddresses));
+  nsCOMPtr<nsISimpleEnumerator> mailListAddresses;
+  rv = aMailList->GetChildCards(getter_AddRefs(mailListAddresses));
   if (NS_FAILED(rv)) return rv;
 
-  uint32_t nbrAddresses = 0;
-  mailListAddresses->GetLength(&nbrAddresses);
-  for (uint32_t i = 0; i < nbrAddresses; i++) {
-    nsCOMPtr<nsIAbCard> existingCard(
-        do_QueryElementAt(mailListAddresses, i, &rv));
+  bool hasMore = false;
+  nsCOMPtr<nsISupports> support;
+  nsCOMPtr<nsIAbCard> existingCard;
+  while (NS_SUCCEEDED(mailListAddresses->HasMoreElements(&hasMore)) &&
+         hasMore) {
+    rv = mailListAddresses->GetNext(getter_AddRefs(support));
+    NS_ENSURE_SUCCESS(rv, rv);
+    existingCard = do_QueryInterface(support, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsMsgRecipient newRecipient;

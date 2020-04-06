@@ -44,18 +44,13 @@ ChromeUtils.defineModuleGetter(
   "newUID",
   "resource:///modules/AddrBookUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "toXPCOMArray",
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 /* This is where the address book manager creates an nsIAbDirectory. We want
  * to do things differently depending on whether or not the directory is a
  * mailing list, so we do this by abusing javascript prototypes.
  * A non-list directory has bookPrototype, a list directory has a
  * AddrBookMailingList prototype, ultimately created by getting the owner
- * directory and calling addressLists on it. This will make more sense and be
+ * directory and calling childNodes on it. This will make more sense and be
  * a lot neater once we stop using one XPCOM interface for two jobs. */
 
 function AddrBookDirectory() {}
@@ -77,7 +72,7 @@ AddrBookDirectory.prototype = {
       let parent = MailServices.ab.getDirectory(
         uri.substring(0, uri.lastIndexOf("/"))
       );
-      for (let list of parent.addressLists.enumerate()) {
+      for (let list of parent.childNodes) {
         list.QueryInterface(Ci.nsIAbDirectory);
         if (list.URI == uri) {
           this.__proto__ = list;
@@ -698,21 +693,6 @@ AddrBookDirectoryInner.prototype = {
   },
   get supportsMailingLists() {
     return true;
-  },
-  get addressLists() {
-    let lists = Array.from(
-      this._lists.values(),
-      list =>
-        new AddrBookMailingList(
-          list.uid,
-          this,
-          list.localId,
-          list.name,
-          list.nickName,
-          list.description
-        ).asDirectory
-    );
-    return toXPCOMArray(lists, Ci.nsIMutableArray);
   },
 
   generateName(generateFormat, bundle) {

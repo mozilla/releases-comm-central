@@ -65,12 +65,13 @@ add_task(function test_contact_in_mailing_list_updated() {
 
   // Ensure that the primary email address for the contact changed
   // in the mailing list as well.
+  let mlCards = [...ml.childCards];
   Assert.equal(
     1,
-    ml.addressLists.length,
+    mlCards.length,
     "There should only be one contact in the mailing list"
   );
-  let mlContact = ml.addressLists.queryElementAt(0, Ci.nsIAbCard);
+  let mlContact = mlCards[0].QueryInterface(Ci.nsIAbCard);
   Assert.equal(kNewAddress, mlContact.primaryEmail);
 
   // Destroy the address book that we created.

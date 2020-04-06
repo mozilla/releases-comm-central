@@ -613,12 +613,11 @@ function GetSelectedAddressesFromDirTree() {
     return "";
   }
 
-  let listCardsCount = selectedDir.addressLists.length;
-  let cards = new Array(listCardsCount);
-  for (let i = 0; i < listCardsCount; ++i) {
-    cards[i] = selectedDir.addressLists.queryElementAt(i, Ci.nsIAbCard);
-  }
-  return GetAddressesForCards(cards);
+  return GetAddressesForCards(
+    Array.from(selectedDir.childCards, card =>
+      card.QueryInterface(Ci.nsIAbCard)
+    )
+  );
 }
 
 // Generate a comma separated list of addresses from a given

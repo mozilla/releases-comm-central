@@ -1287,16 +1287,18 @@ NS_IMETHODIMP nsAbView::GetSelectedAddresses(nsIArray **_retval) {
       rv = abManager->GetDirectory(mailListURI, getter_AddRefs(mailList));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIMutableArray> mailListAddresses;
-      rv = mailList->GetAddressLists(getter_AddRefs(mailListAddresses));
+      nsCOMPtr<nsISimpleEnumerator> mailListAddresses;
+      rv = mailList->GetChildCards(getter_AddRefs(mailListAddresses));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      uint32_t mailListCount = 0;
-      mailListAddresses->GetLength(&mailListCount);
-
-      for (uint32_t j = 0; j < mailListCount; j++) {
-        nsCOMPtr<nsIAbCard> mailListCard =
-            do_QueryElementAt(mailListAddresses, j, &rv);
+      bool hasMore = false;
+      nsCOMPtr<nsISupports> support;
+      nsCOMPtr<nsIAbCard> mailListCard;
+      while (NS_SUCCEEDED(mailListAddresses->HasMoreElements(&hasMore)) &&
+             hasMore) {
+        rv = mailListAddresses->GetNext(getter_AddRefs(support));
+        NS_ENSURE_SUCCESS(rv, rv);
+        mailListCard = do_QueryInterface(support, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
 
         rv = mailListCard->GetPrimaryEmail(primaryEmail);
