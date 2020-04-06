@@ -250,14 +250,18 @@
   * use left/right margins of -3px. We make up for this by adding 3px
   * of padding instead.
   */
-  margin-right: -3px;
-  margin-left: -3px;
-  padding-right: 3px;
-  padding-left: 3px;
+  margin-inline: -3px;
+  padding-inline: 3px;
 }
 
 #appcontent {
   border-top: 1px solid var(--splitter-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  #appcontent {
+    background-color: #2a2a2e;
+  }
 }
 
 /* :::: primary toolbar buttons :::: */
