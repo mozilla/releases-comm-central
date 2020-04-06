@@ -79,6 +79,8 @@ class nsAbOSXDirectory final : public nsAbDirProperty,
                                   nsISimpleEnumerator **aResult) override;
   NS_IMETHOD CardForEmailAddress(const nsACString &aEmailAddress,
                                  nsIAbCard **aResult) override;
+  NS_IMETHOD Search(const nsAString &query,
+                    nsIAbDirSearchListener *listener) override;
 
   // nsIAbOSXDirectory
   nsresult AssertChildNodes() override;
@@ -101,8 +103,6 @@ class nsAbOSXDirectory final : public nsAbDirProperty,
 
  private:
   ~nsAbOSXDirectory();
-  nsresult FallbackSearch(nsIAbBooleanExpression *aExpression,
-                          nsISimpleEnumerator **aCards);
 
   // This is a list of nsIAbCards, kept separate from m_AddressList because:
   // - nsIAbDirectory items that are mailing lists, must keep a list of

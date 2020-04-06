@@ -27,18 +27,6 @@ var inputs = [
   ],
 ];
 
-function acObserver() {}
-
-acObserver.prototype = {
-  _search: null,
-  _result: null,
-
-  onSearchResult(aSearch, aResult) {
-    this._search = aSearch;
-    this._result = aResult;
-  },
-};
-
 var PAB_CARD_DATA = [
   {
     FirstName: "Tomas",
@@ -102,7 +90,7 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   });
 }
 
-function run_test() {
+add_task(async () => {
   // Set up addresses for in the personal address book.
   setupAddressBookData(kPABData.URI, PAB_CARD_DATA, []);
 
@@ -117,10 +105,12 @@ function run_test() {
   let param = JSON.stringify({ type: "addr_to" });
 
   // Now check multiple matches
-  function checkInputItem(element, index, array) {
+  async function checkInputItem(element, index) {
     let prevRes = obs._result;
     print("Search #" + index + ": search=" + element.search);
+    let resultPromise = obs.waitForResult();
     acs.startSearch(element.search, param, prevRes, obs);
+    await resultPromise;
 
     for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
@@ -157,9 +147,10 @@ function run_test() {
       Assert.equal(obs._result.getImageAt(i), "");
     }
   }
-  function checkInputSet(element, index, array) {
-    element.forEach(checkInputItem);
-  }
 
-  inputs.forEach(checkInputSet);
-}
+  for (let inputSet of inputs) {
+    for (let i = 0; i < inputSet.length; i++) {
+      await checkInputItem(inputSet[i], i);
+    }
+  }
+});

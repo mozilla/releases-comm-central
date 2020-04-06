@@ -145,6 +145,9 @@ var gAddressBookAbViewListener = {
     ResultsPaneSelectionChanged();
   },
   onCountChanged(total) {
+    // For some unknown reason the tree needs this before the changes show up.
+    // The view is already gAbView but setting it again works.
+    gAbResultsTree.view = gAbView;
     SetStatusText(total);
     window.dispatchEvent(new CustomEvent("countchange"));
   },
@@ -737,6 +740,7 @@ function onEnterInSearchBar() {
   }
 
   let searchURI = getSelectedDirectoryURI();
+  let searchQuery;
   if (!searchURI) {
     return;
   }
@@ -751,7 +755,7 @@ function onEnterInSearchBar() {
   // query against multiple fields.
   if (searchInput) {
     let searchWords = getSearchTokens(searchInput.value);
-    searchURI += generateQueryURI(gQueryURIFormat, searchWords);
+    searchQuery = generateQueryURI(gQueryURIFormat, searchWords);
   }
 
   if (searchURI == kAllDirectoryRoot) {
@@ -765,7 +769,7 @@ function onEnterInSearchBar() {
       !gDirectoryTreeView.hasRemoteAB || searchURI != kAllDirectoryRoot + "?"
     );
 
-  SetAbView(searchURI);
+  SetAbView(searchURI, searchQuery);
 
   // XXX todo
   // this works for synchronous searches of local addressbooks,

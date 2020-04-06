@@ -80,19 +80,7 @@ var duplicates = [
   { search: "(bracket)", expected: [7, 8] },
 ];
 
-function acObserver() {}
-
-acObserver.prototype = {
-  _search: null,
-  _result: null,
-
-  onSearchResult(aSearch, aResult) {
-    this._search = aSearch;
-    this._result = aResult;
-  },
-};
-
-function run_test() {
+add_task(async () => {
   // We set up the cards for this test manually as it is easier to set the
   // popularity index and we don't need many.
 
@@ -124,14 +112,16 @@ function run_test() {
 
   var obs = new acObserver();
 
-  function checkInputItem(element, index, array) {
+  async function checkInputItem(element, index) {
     print("Search #" + index + ": search=" + element.search);
+    let resultPromise = obs.waitForResult();
     acs.startSearch(
       element.search,
       JSON.stringify({ type: "addr_to" }),
       null,
       obs
     );
+    await resultPromise;
 
     for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
@@ -168,5 +158,7 @@ function run_test() {
     }
   }
 
-  duplicates.forEach(checkInputItem);
-}
+  for (let i = 0; i < duplicates.length; i++) {
+    await checkInputItem(duplicates[i], i);
+  }
+});

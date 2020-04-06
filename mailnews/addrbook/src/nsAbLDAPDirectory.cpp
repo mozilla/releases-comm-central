@@ -134,10 +134,6 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator **result) {
 
     rv = directory->GetChildCards(result);
   } else {
-    // Start the search
-    rv = StartSearch();
-    NS_ENSURE_SUCCESS(rv, rv);
-
     rv = NS_NewEmptyEnumerator(result);
   }
 
@@ -248,10 +244,42 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL *aUrl) {
   return NS_OK;
 }
 
-nsresult nsAbLDAPDirectory::StartSearch() {
-  if (!mIsQueryURI || mQueryString.IsEmpty()) return NS_OK;
+NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString &query,
+                                        nsIAbDirSearchListener *listener) {
+  // When offline, get the child cards from the local, replicated directory.
+  bool offline;
+  nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
+  NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
+  nsresult rv = ioService->GetOffline(&offline);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsresult rv = Initiate();
+  if (offline) {
+    nsCString fileName;
+    rv = GetReplicationFileName(fileName);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // If there is no fileName, bail out now.
+    if (fileName.IsEmpty()) {
+      listener->OnSearchFinished(1, EmptyString());
+      return NS_OK;
+    }
+
+    // Get the local directory.
+    nsAutoCString localDirectoryURI(NS_LITERAL_CSTRING(kJSDirectoryRoot));
+    localDirectoryURI.Append(fileName);
+
+    nsCOMPtr<nsIAbDirectory> directory =
+        do_CreateInstance(NS_ABJSDIRECTORY_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = directory->Init(localDirectoryURI.get());
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Perform the query.
+    return directory->Search(query, listener);
+  }
+
+  rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = StopSearch();
@@ -262,7 +290,7 @@ nsresult nsAbLDAPDirectory::StartSearch() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbBooleanExpression> expression;
-  rv = nsAbQueryStringToExpression::Convert(mQueryString,
+  rv = nsAbQueryStringToExpression::Convert(NS_ConvertUTF16toUTF8(query),
                                             getter_AddRefs(expression));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -272,13 +300,13 @@ nsresult nsAbLDAPDirectory::StartSearch() {
   rv = arguments->SetQuerySubDirectories(true);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Get the max hits to return
+  // Get the max hits to return.
   int32_t maxHits;
   rv = GetMaxHits(&maxHits);
   if (NS_FAILED(rv)) maxHits = kDefaultMaxHits;
 
-  // get the appropriate ldap attribute map, and pass it in via the
-  // TypeSpecificArgument
+  // Get the appropriate ldap attribute map, and pass it in via the
+  // TypeSpecificArgument.
   nsCOMPtr<nsIAbLDAPAttributeMap> attrMap;
   rv = GetAttributeMap(getter_AddRefs(attrMap));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -286,22 +314,12 @@ nsresult nsAbLDAPDirectory::StartSearch() {
   rv = arguments->SetTypeSpecificArg(attrMap);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!mDirectoryQuery) {
-    mDirectoryQuery =
-        do_CreateInstance(NS_ABLDAPDIRECTORYQUERY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Perform the query
-  rv = mDirectoryQuery->DoQuery(this, arguments, this, maxHits, 0, &mContext);
+  mDirectoryQuery = do_CreateInstance(NS_ABLDAPDIRECTORYQUERY_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Enter lock
-  MutexAutoLock lock(mLock);
-  mPerformingQuery = true;
-  mCache.Clear();
-
-  return rv;
+  // Perform the query.
+  return mDirectoryQuery->DoQuery(this, arguments, listener, maxHits, 0,
+                                  &mContext);
 }
 
 nsresult nsAbLDAPDirectory::StopSearch() {

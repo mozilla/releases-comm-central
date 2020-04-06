@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../mail/components/addrbook/content/abCommon.js */
+/* import-globals-from abView.js */
 /* globals GetAbViewListener */
 // gCurFrame is SeaMonkey-only */
 /* globals gCurFrame */
@@ -41,7 +42,7 @@ var gAbView = null;
 // set up by SetAbView.
 var gAbResultsTree = null;
 
-function SetAbView(aURI) {
+function SetAbView(aURI, aSearchQuery) {
   // If we don't have a URI, just clear the view and leave everything else
   // alone.
   if (!aURI) {
@@ -75,36 +76,16 @@ function SetAbView(aURI) {
     }
   }
 
-  var directory = GetDirectoryFromURI(aURI);
-  if (!directory && aURI.startsWith("moz-abdirectory://?")) {
-    // This is an obsolete reference to the root directory, which isn't a thing
-    // any more. Fortunately all we need is a way to get the URI to gAbView, so
-    // we can pretend we have a real directory.
-    directory = {
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirectory]),
-      get URI() {
-        return aURI;
-      },
-    };
-  }
-
-  if (!gAbView) {
-    gAbView = Cc["@mozilla.org/addressbook/abview;1"].createInstance(
-      Ci.nsIAbView
-    );
-  }
-
-  var actualSortColumn = gAbView.setView(
-    directory,
+  gAbView = gAbResultsTree.view = new ABView(
+    GetDirectoryFromURI(aURI),
+    aSearchQuery,
     GetAbViewListener(),
     sortColumn,
     sortDirection
-  );
-
-  gAbResultsTree.view = gAbView.QueryInterface(Ci.nsITreeView);
+  ).QueryInterface(Ci.nsITreeView);
   window.dispatchEvent(new CustomEvent("viewchange"));
 
-  UpdateSortIndicators(actualSortColumn, sortDirection);
+  UpdateSortIndicators(sortColumn, sortDirection);
 
   // If the selected address book is LDAP and the search box is empty,
   // inform the user of the empty results pane.
@@ -113,7 +94,7 @@ function SetAbView(aURI) {
   let blankResultsPaneMessageBox = document.getElementById(
     "blankResultsPaneMessageBox"
   );
-  if (aURI.startsWith("moz-abldapdirectory://") && !aURI.includes("?")) {
+  if (aURI.startsWith("moz-abldapdirectory://") && !aSearchQuery) {
     if (abResultsTree) {
       abResultsTree.hidden = true;
     }
@@ -137,9 +118,7 @@ function SetAbView(aURI) {
 }
 
 function CloseAbView() {
-  if (gAbView) {
-    gAbView.clearView();
-  }
+  gAbView = gAbResultsTree.view = null;
 }
 
 function GetOneOrMoreCardsSelected() {
@@ -242,7 +221,7 @@ function GetSelectedAbCards() {
     }
   }
 
-  if (!abView) {
+  if (!abView || !abView.selection) {
     return [];
   }
 
@@ -387,6 +366,11 @@ function UpdateSortIndicators(colID, sortDirection) {
     if (currCol != sortedColumn && currCol.localName == "treecol") {
       currCol.removeAttribute("sortDirection");
     }
+    // Change the column header's border colour to force it to redraw.
+    // Otherwise redrawing doesn't happen until something else causes it to.
+    currCol.style.borderColor = currCol.style.borderColor
+      ? null
+      : "transparent";
     currCol = currCol.nextElementSibling;
   }
 }
@@ -426,6 +410,8 @@ var ResultsPaneController = {
         if (gAbView && gAbView.selection) {
           if (gAbView.directory) {
             enabled = !gAbView.directory.readOnly;
+          } else {
+            enabled = true;
           }
           numSelected = gAbView.selection.count;
         } else {

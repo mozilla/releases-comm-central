@@ -35,7 +35,8 @@ add_task(async () => {
     is(resultsTree.view.rowCount, expectedCards.length, "rowCount correct");
     for (let i = 0; i < expectedCards.length; i++) {
       is(
-        resultsTree.view.getCardFromRow(i).displayName,
+        resultsTree.view.QueryInterface(Ci.nsIAbView).getCardFromRow(i)
+          .displayName,
         expectedCards[i].displayName,
         `row ${i} has the right contact`
       );

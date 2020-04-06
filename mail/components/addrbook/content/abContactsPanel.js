@@ -224,16 +224,17 @@ function onEnterInSearchBar() {
   }
 
   let searchURI = getSelectedDirectoryURI();
+  let searchQuery;
   let searchInput = document.getElementById("peopleSearchInput");
 
   // Use helper method to split up search query to multi-word search
   // query against multiple fields.
   if (searchInput) {
     let searchWords = getSearchTokens(searchInput.value);
-    searchURI += generateQueryURI(gQueryURIFormat, searchWords);
+    searchQuery = generateQueryURI(gQueryURIFormat, searchWords);
   }
 
-  SetAbView(searchURI);
+  SetAbView(searchURI, searchQuery);
 }
 
 /**

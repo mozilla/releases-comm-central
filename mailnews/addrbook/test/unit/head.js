@@ -31,3 +31,22 @@ function promiseDirectoryRemoved() {
     );
   });
 }
+
+function acObserver() {}
+acObserver.prototype = {
+  _search: null,
+  _result: null,
+  _resolve: null,
+
+  onSearchResult(aSearch, aResult) {
+    this._search = aSearch;
+    this._result = aResult;
+    this._resolve();
+  },
+
+  waitForResult() {
+    return new Promise(resolve => {
+      this._resolve = resolve;
+    });
+  },
+};

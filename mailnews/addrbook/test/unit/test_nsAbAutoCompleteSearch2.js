@@ -113,19 +113,7 @@ var lastNames = [
 
 var inputs = [firstNames, lastNames];
 
-function acObserver() {}
-
-acObserver.prototype = {
-  _search: null,
-  _result: null,
-
-  onSearchResult(aSearch, aResult) {
-    this._search = aSearch;
-    this._result = aResult;
-  },
-};
-
-function run_test() {
+add_task(async () => {
   // Test - Create a new search component
 
   var acs = Cc["@mozilla.org/autocomplete/search;1?name=addrbook"].getService(
@@ -155,13 +143,15 @@ function run_test() {
   // Test - Matches
 
   // Now check multiple matches
-  function checkInputItem(element, index, array) {
+  async function checkInputItem(element, index) {
+    let resultPromise = obs.waitForResult();
     acs.startSearch(
       element.search,
       JSON.stringify({ type: "addr_to", idKey: "" }),
       lastResult,
       obs
     );
+    await resultPromise;
 
     Assert.equal(obs._search, acs);
     Assert.equal(obs._result.searchString, element.search);
@@ -186,9 +176,10 @@ function run_test() {
       Assert.equal(obs._result.getImageAt(i), "");
     }
   }
-  function checkInputSet(element, index, array) {
-    element.forEach(checkInputItem);
-  }
 
-  inputs.forEach(checkInputSet);
-}
+  for (let inputSet of inputs) {
+    for (let i = 0; i < inputSet.length; i++) {
+      await checkInputItem(inputSet[i], i);
+    }
+  }
+});

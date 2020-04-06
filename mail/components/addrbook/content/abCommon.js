@@ -525,7 +525,7 @@ function AbDelete() {
         directory.deleteCards(cardArray);
       }
     }
-    SetAbView(kAllDirectoryRoot + "?");
+    SetAbView();
   } else {
     // Delete cards from address books or mailing lists.
     gAbView.deleteSelectedCards();

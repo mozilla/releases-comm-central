@@ -347,7 +347,7 @@ var abDirTreeObserver = {
     }
 
     if (srcURI == kAllDirectoryRoot + "?") {
-      SetAbView(srcURI);
+      SetAbView();
     }
 
     document.getElementById("statusText").label = cardsTransferredText;

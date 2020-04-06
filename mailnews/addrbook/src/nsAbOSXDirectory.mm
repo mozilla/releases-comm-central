@@ -216,208 +216,6 @@ static nsresult Sync(NSString *aUid) {
 }
 @end
 
-static nsresult MapConditionString(nsIAbBooleanConditionString *aCondition, bool aNegate,
-                                   bool &aCanHandle, ABSearchElement **aResult) {
-  aCanHandle = false;
-
-  nsAbBooleanConditionType conditionType = 0;
-  nsresult rv = aCondition->GetCondition(&conditionType);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  ABSearchComparison comparison;
-  switch (conditionType) {
-    case nsIAbBooleanConditionTypes::Contains: {
-      if (!aNegate) {
-        comparison = kABContainsSubString;
-        aCanHandle = true;
-      }
-      break;
-    }
-    case nsIAbBooleanConditionTypes::DoesNotContain: {
-      if (aNegate) {
-        comparison = kABContainsSubString;
-        aCanHandle = true;
-      }
-      break;
-    }
-    case nsIAbBooleanConditionTypes::Is: {
-      comparison = aNegate ? kABNotEqual : kABEqual;
-      aCanHandle = true;
-      break;
-    }
-    case nsIAbBooleanConditionTypes::IsNot: {
-      comparison = aNegate ? kABEqual : kABNotEqual;
-      aCanHandle = true;
-      break;
-    }
-    case nsIAbBooleanConditionTypes::BeginsWith: {
-      if (!aNegate) {
-        comparison = kABPrefixMatch;
-        aCanHandle = true;
-      }
-      break;
-    }
-    case nsIAbBooleanConditionTypes::EndsWith: {
-      // comparison = kABSuffixMatch;
-      break;
-    }
-    case nsIAbBooleanConditionTypes::LessThan: {
-      comparison = aNegate ? kABGreaterThanOrEqual : kABLessThan;
-      aCanHandle = true;
-      break;
-    }
-    case nsIAbBooleanConditionTypes::GreaterThan: {
-      comparison = aNegate ? kABLessThanOrEqual : kABGreaterThan;
-      aCanHandle = true;
-      break;
-    }
-  }
-
-  if (!aCanHandle) return NS_OK;
-
-  nsCString name;
-  rv = aCondition->GetName(getter_Copies(name));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsString value;
-  rv = aCondition->GetValue(getter_Copies(value));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t length = value.Length();
-
-  uint32_t i;
-  for (i = 0; i < nsAbOSXUtils::kPropertyMapSize; ++i) {
-    if (name.Equals(nsAbOSXUtils::kPropertyMap[i].mPropertyName)) {
-      *aResult = [ABPerson
-          searchElementForProperty:nsAbOSXUtils::kPropertyMap[i].mOSXProperty
-                             label:nsAbOSXUtils::kPropertyMap[i].mOSXLabel
-                               key:nsAbOSXUtils::kPropertyMap[i].mOSXKey
-                             value:[NSString stringWithCharacters:reinterpret_cast<const unichar *>(
-                                                                      value.get())
-                                                           length:length]
-                        comparison:comparison];
-
-      return NS_OK;
-    }
-  }
-
-  if (name.EqualsLiteral("DisplayName") && comparison == kABContainsSubString) {
-    ABSearchElement *first = [ABPerson
-        searchElementForProperty:kABFirstNameProperty
-                           label:nil
-                             key:nil
-                           value:[NSString stringWithCharacters:reinterpret_cast<const unichar *>(
-                                                                    value.get())
-                                                         length:length]
-                      comparison:comparison];
-    ABSearchElement *second = [ABPerson
-        searchElementForProperty:kABLastNameProperty
-                           label:nil
-                             key:nil
-                           value:[NSString stringWithCharacters:reinterpret_cast<const unichar *>(
-                                                                    value.get())
-                                                         length:length]
-                      comparison:comparison];
-    ABSearchElement *third = [ABGroup
-        searchElementForProperty:kABGroupNameProperty
-                           label:nil
-                             key:nil
-                           value:[NSString stringWithCharacters:reinterpret_cast<const unichar *>(
-                                                                    value.get())
-                                                         length:length]
-                      comparison:comparison];
-
-    *aResult = [ABSearchElement
-        searchElementForConjunction:kABSearchOr
-                           children:[NSArray arrayWithObjects:first, second, third, nil]];
-
-    return NS_OK;
-  }
-
-  aCanHandle = false;
-
-  return NS_OK;
-}
-
-static nsresult BuildSearchElements(nsIAbBooleanExpression *aExpression, bool &aCanHandle,
-                                    ABSearchElement **aResult) {
-  aCanHandle = true;
-
-  nsCOMPtr<nsIArray> expressions;
-  nsresult rv = aExpression->GetExpressions(getter_AddRefs(expressions));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsAbBooleanOperationType operation;
-  rv = aExpression->GetOperation(&operation);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t count;
-  rv = expressions->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  NS_ASSERTION(count > 1 && operation != nsIAbBooleanOperationTypes::NOT,
-               "This doesn't make sense!");
-
-  NSMutableArray *array = nullptr;
-  if (count > 1) array = [[NSMutableArray alloc] init];
-
-  uint32_t i;
-  nsCOMPtr<nsIAbBooleanConditionString> condition;
-  nsCOMPtr<nsIAbBooleanExpression> subExpression;
-  for (i = 0; i < count; ++i) {
-    ABSearchElement *element = nullptr;
-
-    condition = do_QueryElementAt(expressions, i);
-    if (condition) {
-      rv = MapConditionString(condition, operation == nsIAbBooleanOperationTypes::NOT, aCanHandle,
-                              &element);
-      if (NS_FAILED(rv)) break;
-    } else {
-      subExpression = do_QueryElementAt(expressions, i);
-      if (subExpression) {
-        rv = BuildSearchElements(subExpression, aCanHandle, &element);
-        if (NS_FAILED(rv)) break;
-      }
-    }
-
-    if (!aCanHandle) {
-      // remember to free the array when returning early
-      [array release];
-      return NS_OK;
-    }
-
-    if (element) {
-      if (array)
-        [array addObject:element];
-      else
-        *aResult = element;
-    }
-  }
-
-  if (array) {
-    if (NS_SUCCEEDED(rv)) {
-      ABSearchConjunction conjunction =
-          operation == nsIAbBooleanOperationTypes::AND ? kABSearchAnd : kABSearchOr;
-      *aResult = [ABSearchElement searchElementForConjunction:conjunction children:array];
-    }
-    [array release];
-  }
-
-  return rv;
-}
-
-static bool Search(nsIAbBooleanExpression *aExpression, NSArray **aResult) {
-  bool canHandle = false;
-  ABSearchElement *searchElement;
-  nsresult rv = BuildSearchElements(aExpression, canHandle, &searchElement);
-  NS_ENSURE_SUCCESS(rv, false);
-
-  if (canHandle)
-    *aResult = [[ABAddressBook sharedAddressBook] recordsMatchingSearchElement:searchElement];
-
-  return canHandle;
-}
-
 static uint32_t sObserverCount = 0;
 static ABChangedMonitor *sObserver = nullptr;
 
@@ -837,51 +635,8 @@ nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator **aCards) {
 
   NS_ENSURE_ARG_POINTER(aCards);
 
-  nsresult rv;
-  NSArray *cards;
-  if (mIsQueryURI) {
-    nsCOMPtr<nsIAbBooleanExpression> expression;
-    rv = nsAbQueryStringToExpression::Convert(mQueryString, getter_AddRefs(expression));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    bool canHandle = !m_IsMailList && Search(expression, &cards);
-    if (!canHandle) return FallbackSearch(expression, aCards);
-
-    if (!mCardList)
-      mCardList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    else
-      mCardList->Clear();
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // The uuid for initializing cards
-    nsAutoCString ourUuid;
-    GetUuid(ourUuid);
-
-    // Fill the results array and update the card list
-    unsigned int nbCards = [cards count];
-
-    unsigned int i;
-    nsCOMPtr<nsIAbCard> card;
-    nsCOMPtr<nsIAbOSXDirectory> rootOSXDirectory;
-    rv = GetRootOSXDirectory(getter_AddRefs(rootOSXDirectory));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    for (i = 0; i < nbCards; ++i) {
-      rv = GetCard([cards objectAtIndex:i], getter_AddRefs(card), rootOSXDirectory);
-
-      if (NS_FAILED(rv)) rv = CreateCard([cards objectAtIndex:i], getter_AddRefs(card));
-
-      NS_ENSURE_SUCCESS(rv, rv);
-      card->SetDirectoryId(ourUuid);
-
-      mCardList->AppendElement(card);
-    }
-
-    return NS_NewArrayEnumerator(aCards, mCardList, NS_GET_IID(nsIAbCard));
-  }
-
   // Not a search, so just return the appropriate list of items.
-  return m_IsMailList ? NS_NewArrayEnumerator(aCards, m_AddressList, NS_GET_IID(nsIAbDirectory))
+  return m_IsMailList ? NS_NewArrayEnumerator(aCards, m_AddressList, NS_GET_IID(nsIAbCard))
                       : NS_NewArrayEnumerator(aCards, mCardList, NS_GET_IID(nsIAbCard));
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
@@ -1092,28 +847,20 @@ nsAbOSXDirectory::OnSearchFoundCard(nsIAbCard *aCard) {
   return NS_OK;
 }
 
-nsresult nsAbOSXDirectory::FallbackSearch(nsIAbBooleanExpression *aExpression,
-                                          nsISimpleEnumerator **aCards) {
+NS_IMETHODIMP
+nsAbOSXDirectory::Search(const nsAString &query, nsIAbDirSearchListener *listener) {
   nsresult rv;
 
-  if (mCardList)
-    rv = mCardList->Clear();
-  else
-    mCardList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+  nsCOMPtr<nsIAbBooleanExpression> expression;
+  rv = nsAbQueryStringToExpression::Convert(NS_ConvertUTF16toUTF8(query),
+                                            getter_AddRefs(expression));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  if (m_AddressList) {
-    m_AddressList->Clear();
-  } else {
-    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
 
   nsCOMPtr<nsIAbDirectoryQueryArguments> arguments =
       do_CreateInstance(NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = arguments->SetExpression(aExpression);
+  rv = arguments->SetExpression(expression);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Don't search the subdirectories. If the current directory is a mailing
@@ -1122,14 +869,6 @@ nsresult nsAbOSXDirectory::FallbackSearch(nsIAbBooleanExpression *aExpression,
   // lists), will yield duplicate results because every entry in a mailing
   // list will be an entry in the parent addressbook.
   rv = arguments->SetQuerySubDirectories(false);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Get the directory without the query
-  nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIAbDirectory> directory;
-  rv = abManager->GetDirectory(mURINoQuery, getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Initiate the proxy query with the no query directory
@@ -1141,10 +880,10 @@ nsresult nsAbOSXDirectory::FallbackSearch(nsIAbBooleanExpression *aExpression,
   NS_ENSURE_SUCCESS(rv, rv);
 
   int32_t context = 0;
-  rv = queryProxy->DoQuery(directory, arguments, this, -1, 0, &context);
+  rv = queryProxy->DoQuery(this, arguments, listener, -1, 0, &context);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return NS_NewArrayEnumerator(aCards, m_AddressList, NS_GET_IID(nsIAbDirectory));
+  return NS_OK;
 }
 
 nsresult nsAbOSXDirectory::DeleteUid(const nsACString &aUid) {

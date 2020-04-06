@@ -696,6 +696,139 @@ AddrBookDirectoryInner.prototype = {
     return true;
   },
 
+  search(query, listener) {
+    if (!listener) {
+      return;
+    }
+    if (!query) {
+      listener.onSearchFinished(
+        Ci.nsIAbDirectoryQueryResultListener.queryResultStopped,
+        "No query specified."
+      );
+      return;
+    }
+    if (query[0] == "?") {
+      query = query.substring(1);
+    }
+
+    let results = Array.from(
+      this._lists.values(),
+      list =>
+        new AddrBookMailingList(
+          list.uid,
+          this,
+          list.localId,
+          list.name,
+          list.nickName,
+          list.description
+        ).asCard
+    ).concat(Array.from(this._cards.values(), card => this._getCard(card)));
+
+    // Process the query string into a tree of conditions to match.
+    let lispRegexp = /^\((and|or|not|([^\)]*)(\)+))/;
+    let index = 0;
+    let rootQuery = { children: [], op: "or" };
+    let currentQuery = rootQuery;
+
+    while (true) {
+      let match = lispRegexp.exec(query.substring(index));
+      if (!match) {
+        break;
+      }
+      index += match[0].length;
+
+      if (["and", "or", "not"].includes(match[1])) {
+        // For the opening bracket, step down a level.
+        let child = {
+          parent: currentQuery,
+          children: [],
+          op: match[1],
+        };
+        currentQuery.children.push(child);
+        currentQuery = child;
+      } else {
+        currentQuery.children.push(match[2]);
+
+        // For each closing bracket except the first, step up a level.
+        for (let i = match[3].length - 1; i > 0; i--) {
+          currentQuery = currentQuery.parent;
+        }
+      }
+    }
+
+    results = results.filter(card => {
+      let properties;
+      if (card.isMailList) {
+        properties = new Map([
+          ["DisplayName", card.displayName],
+          ["NickName", card.getProperty("NickName")],
+          ["Notes", card.getProperty("Notes")],
+        ]);
+      } else {
+        properties = this._loadCardProperties(card.UID);
+      }
+      let matches = b => {
+        if (typeof b == "string") {
+          let [name, condition, value] = b.split(",");
+          if (name == "IsMailList" && condition == "=") {
+            return card.isMailList == (value == "TRUE");
+          }
+
+          if (!properties.has(name)) {
+            return condition == "!ex";
+          }
+          if (condition == "ex") {
+            return true;
+          }
+
+          value = decodeURIComponent(value).toLowerCase();
+          let cardValue = properties.get(name).toLowerCase();
+          switch (condition) {
+            case "=":
+              return cardValue == value;
+            case "!=":
+              return cardValue != value;
+            case "lt":
+              return cardValue < value;
+            case "gt":
+              return cardValue > value;
+            case "bw":
+              return cardValue.startsWith(value);
+            case "ew":
+              return cardValue.endsWith(value);
+            case "c":
+              return cardValue.includes(value);
+            case "!c":
+              return !cardValue.includes(value);
+            case "~=":
+            case "regex":
+            default:
+              return false;
+          }
+        }
+        if (b.op == "or") {
+          return b.children.some(bb => matches(bb));
+        }
+        if (b.op == "and") {
+          return b.children.every(bb => matches(bb));
+        }
+        if (b.op == "not") {
+          return !matches(b.children[0]);
+        }
+        return false;
+      };
+
+      return matches(rootQuery);
+    }, this);
+
+    for (let card of results) {
+      listener.onSearchFoundCard(card);
+    }
+    listener.onSearchFinished(
+      Ci.nsIAbDirectoryQueryResultListener.queryResultComplete,
+      ""
+    );
+  },
   generateName(generateFormat, bundle) {
     return this.dirName;
   },

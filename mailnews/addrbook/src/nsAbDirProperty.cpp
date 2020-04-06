@@ -562,3 +562,8 @@ NS_IMETHODIMP nsAbDirProperty::SetLocalizedStringValue(
   return m_DirectoryPrefs->SetComplexValue(
       aName, NS_GET_IID(nsIPrefLocalizedString), locStr);
 }
+
+NS_IMETHODIMP nsAbDirProperty::Search(const nsAString &query,
+                                      nsIAbDirSearchListener *listener) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}

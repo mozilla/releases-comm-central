@@ -140,19 +140,7 @@ var reductionExpectedResults = [
   ["boo2@test.invalid"],
 ];
 
-function acObserver() {}
-
-acObserver.prototype = {
-  _search: null,
-  _result: null,
-
-  onSearchResult(aSearch, aResult) {
-    this._search = aSearch;
-    this._result = aResult;
-  },
-};
-
-function run_test() {
+add_task(async () => {
   // We set up the cards for this test manually as it is easier to set the
   // popularity index and we don't need many.
 
@@ -189,14 +177,16 @@ function run_test() {
 
   print("Checking Initial Searches");
 
-  function checkSearch(element, index, array) {
+  async function checkSearch(element, index) {
     print("Search #" + index + ": search=" + element);
+    let resultPromise = obs.waitForResult();
     acs.startSearch(
       element,
       JSON.stringify({ type: "addr_to", idKey: "" }),
       null,
       obs
     );
+    await resultPromise;
 
     for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
@@ -218,19 +208,23 @@ function run_test() {
     }
   }
 
-  searches.forEach(checkSearch);
+  for (let i = 0; i < searches.length; i++) {
+    await checkSearch(searches[i], i);
+  }
 
   print("Checking Reduction of Search Results");
 
   var lastResult = null;
 
-  function checkReductionSearch(element, index, array) {
+  async function checkReductionSearch(element, index) {
+    let resultPromise = obs.waitForResult();
     acs.startSearch(
       element,
       JSON.stringify({ type: "addr_to", idKey: "" }),
       lastResult,
       obs
     );
+    await resultPromise;
 
     Assert.equal(obs._search, acs);
     Assert.equal(obs._result.searchString, element);
@@ -257,5 +251,8 @@ function run_test() {
     }
     lastResult = obs._result;
   }
-  reductionSearches.forEach(checkReductionSearch);
-}
+
+  for (let i = 0; i < reductionSearches.length; i++) {
+    await checkReductionSearch(reductionSearches[i], i);
+  }
+});

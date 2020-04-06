@@ -101,18 +101,6 @@ var inputs = [
   bothNames,
 ];
 
-function acObserver() {}
-
-acObserver.prototype = {
-  _search: null,
-  _result: null,
-
-  onSearchResult(aSearch, aResult) {
-    this._search = aSearch;
-    this._result = aResult;
-  },
-};
-
 var PAB_CARD_DATA = [
   {
     FirstName: "firs",
@@ -238,7 +226,7 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
   });
 }
 
-function run_test() {
+add_task(async () => {
   // Set up addresses for in the personal address book.
   setupAddressBookData(kPABData.URI, PAB_CARD_DATA, PAB_LIST_DATA);
   // ... and collected addresses address book.
@@ -262,7 +250,9 @@ function run_test() {
   let paramNews = JSON.stringify({ type: "addr_newsgroups" });
   let paramFollowup = JSON.stringify({ type: "addr_followup" });
 
+  let resultPromise = obs.waitForResult();
   acs.startSearch("abc", param, null, obs);
+  await resultPromise;
 
   Assert.equal(obs._search, acs);
   Assert.equal(obs._result.searchString, "abc");
@@ -274,7 +264,9 @@ function run_test() {
 
   Services.prefs.setBoolPref("mail.enable_autocomplete", true);
 
+  resultPromise = obs.waitForResult();
   acs.startSearch(null, param, null, obs);
+  await resultPromise;
 
   Assert.equal(obs._search, acs);
   Assert.equal(obs._result.searchString, null);
@@ -285,7 +277,9 @@ function run_test() {
 
   // Test - Check ignoring result with comma
 
+  resultPromise = obs.waitForResult();
   acs.startSearch("a,b", param, null, obs);
+  await resultPromise;
 
   Assert.equal(obs._search, acs);
   Assert.equal(obs._result.searchString, "a,b");
@@ -296,7 +290,9 @@ function run_test() {
 
   // Test - No matches
 
+  resultPromise = obs.waitForResult();
   acs.startSearch("asjdkljdgfjglkfg", param, null, obs);
+  await resultPromise;
 
   Assert.equal(obs._search, acs);
   Assert.equal(obs._result.searchString, "asjdkljdgfjglkfg");
@@ -308,7 +304,9 @@ function run_test() {
   // Test - Matches
 
   // Basic quick-check
+  resultPromise = obs.waitForResult();
   acs.startSearch("email", param, null, obs);
+  await resultPromise;
 
   Assert.equal(obs._search, acs);
   Assert.equal(obs._result.searchString, "email");
@@ -324,17 +322,23 @@ function run_test() {
   Assert.equal(obs._result.getImageAt(0), "");
 
   // quick-check that nothing is found for addr_newsgroups
+  resultPromise = obsNews.waitForResult();
   acs.startSearch("email", paramNews, null, obsNews);
+  await resultPromise;
   Assert.ok(obsNews._result == null || obsNews._result.matchCount == 0);
 
   // quick-check that nothing is found for  addr_followup
+  resultPromise = obsFollowup.waitForResult();
   acs.startSearch("a@b", paramFollowup, null, obsFollowup);
+  await resultPromise;
   Assert.ok(obsFollowup._result == null || obsFollowup._result.matchCount == 0);
 
   // Now quick-check with the address book name in the comment column.
   Services.prefs.setIntPref("mail.autoComplete.commentColumn", 1);
 
+  resultPromise = obs.waitForResult();
   acs.startSearch("email", param, null, obs);
+  await resultPromise;
 
   Assert.equal(obs._search, acs);
   Assert.equal(obs._result.searchString, "email");
@@ -350,7 +354,9 @@ function run_test() {
   Assert.equal(obs._result.getImageAt(0), "");
 
   // Check input with different case
+  resultPromise = obs.waitForResult();
   acs.startSearch("EMAIL", param, null, obs);
+  await resultPromise;
 
   Assert.equal(obs._search, acs);
   Assert.equal(obs._result.searchString, "EMAIL");
@@ -366,10 +372,12 @@ function run_test() {
   Assert.equal(obs._result.getImageAt(0), "");
 
   // Now check multiple matches
-  function checkInputItem(element, index, array) {
+  async function checkInputItem(element, index) {
     let prevRes = obs._result;
     print("Search #" + index + ": search=" + element.search);
+    resultPromise = obs.waitForResult();
     acs.startSearch(element.search, param, prevRes, obs);
+    await resultPromise;
 
     for (let i = 0; i < obs._result.matchCount; i++) {
       print("... got " + i + ": " + obs._result.getValueAt(i));
@@ -410,11 +418,12 @@ function run_test() {
       Assert.equal(obs._result.getImageAt(i), "");
     }
   }
-  function checkInputSet(element, index, array) {
-    element.forEach(checkInputItem);
-  }
 
-  inputs.forEach(checkInputSet);
+  for (let inputSet of inputs) {
+    for (let i = 0; i < inputSet.length; i++) {
+      await checkInputItem(inputSet[i], i);
+    }
+  }
 
   // Test - Popularity Index
   print("Checking by popularity index:");
@@ -455,5 +464,7 @@ function run_test() {
     { search: "displa", expected: [5] },
   ];
 
-  popularitySearch.forEach(checkInputItem);
-}
+  for (let i = 0; i < popularitySearch.length; i++) {
+    await checkInputItem(popularitySearch[i], i);
+  }
+});

@@ -263,6 +263,7 @@ add_task(function test_deleting_contacts_causes_confirm_prompt() {
   select_address_book(addrBook1);
 
   let totalEntries = abController.window.gAbView.rowCount;
+  Assert.equal(totalEntries, 4);
 
   // Set the mock prompt to return false, so that the
   // contact should not be deleted.

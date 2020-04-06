@@ -198,53 +198,48 @@ AbAutoCompleteSearch.prototype = {
    * @param result       The result element to append results to.
    */
   _searchCards(searchQuery, directory, result) {
-    let childCards;
-    try {
-      childCards = this._abManager.getDirectory(directory.URI + searchQuery)
-        .childCards;
-    } catch (e) {
-      Cu.reportError(
-        "Error running addressbook query '" + searchQuery + "': " + e
-      );
-      return;
-    }
-
     // Cache this values to save going through xpconnect each time
-    var commentColumn = this._commentColumn == 1 ? directory.dirName : "";
+    let commentColumn = this._commentColumn == 1 ? directory.dirName : "";
 
-    // Now iterate through all the cards.
-    while (childCards.hasMoreElements()) {
-      var card = childCards.getNext();
-      if (card instanceof Ci.nsIAbCard) {
-        if (card.isMailList) {
-          this._addToResult(commentColumn, directory, card, "", true, result);
-        } else {
-          let email = card.primaryEmail;
-          if (email) {
-            this._addToResult(
-              commentColumn,
-              directory,
-              card,
-              email,
-              true,
-              result
-            );
-          }
-
-          email = card.getProperty("SecondEmail", "");
-          if (email) {
-            this._addToResult(
-              commentColumn,
-              directory,
-              card,
-              email,
-              false,
-              result
-            );
-          }
-        }
-      }
+    if (searchQuery[0] == "?") {
+      searchQuery = searchQuery.substring(1);
     }
+    return new Promise(resolve => {
+      this._abManager.getDirectory(directory.URI).search(searchQuery, {
+        onSearchFoundCard: card => {
+          if (card.isMailList) {
+            this._addToResult(commentColumn, directory, card, "", true, result);
+          } else {
+            let email = card.primaryEmail;
+            if (email) {
+              this._addToResult(
+                commentColumn,
+                directory,
+                card,
+                email,
+                true,
+                result
+              );
+            }
+
+            email = card.getProperty("SecondEmail", "");
+            if (email) {
+              this._addToResult(
+                commentColumn,
+                directory,
+                card,
+                email,
+                false,
+                result
+              );
+            }
+          }
+        },
+        onSearchFinished(result, errorMsg) {
+          resolve();
+        },
+      });
+    });
   },
 
   /**
@@ -379,7 +374,7 @@ AbAutoCompleteSearch.prototype = {
    * It is expected that aSearchParam contains the identity (if any) to use
    * for determining if an address book should be autocompleted against.
    */
-  startSearch(aSearchString, aSearchParam, aPreviousResult, aListener) {
+  async startSearch(aSearchString, aSearchParam, aPreviousResult, aListener) {
     let params = aSearchParam ? JSON.parse(aSearchParam) : {};
     var result = new nsAbAutoCompleteResult(aSearchString);
     if ("type" in params && !this.applicableHeaders.has(params.type)) {
@@ -470,7 +465,7 @@ AbAutoCompleteSearch.prototype = {
       // just going to find duplicates.
       for (let dir of this._abManager.directories) {
         if (dir.useForAutocomplete("idKey" in params ? params.idKey : null)) {
-          this._searchCards(searchQuery, dir, result);
+          await this._searchCards(searchQuery, dir, result);
         }
       }
 

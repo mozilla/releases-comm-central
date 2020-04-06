@@ -33,6 +33,8 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD GetChildNodes(nsISimpleEnumerator **result) override;
   NS_IMETHOD GetChildCards(nsISimpleEnumerator **result) override;
   NS_IMETHOD GetIsQuery(bool *aResult) override;
+  NS_IMETHOD Search(const nsAString &query,
+                    nsIAbDirSearchListener *listener) override;
   NS_IMETHOD HasCard(nsIAbCard *cards, bool *hasCard) override;
   NS_IMETHOD GetSupportsMailingLists(bool *aSupportsMailingsLists) override;
   NS_IMETHOD GetReadOnly(bool *aReadOnly) override;
@@ -51,7 +53,6 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
   virtual ~nsAbLDAPDirectory();
   nsresult Initiate();
 
-  nsresult StartSearch();
   nsresult StopSearch();
 
   bool mPerformingQuery;
