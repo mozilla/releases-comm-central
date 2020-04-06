@@ -7,7 +7,7 @@ This README will try and give you the basics that you need to get started, more 
 ### Mozilla Code Base
 Thunderbird is built on the Mozilla platform, the same base that Firefox is built from. As such the two projects share a lot of code and much of the documentation for one will apply, in many ways, to the other.
 
-In order to be able to build Thunderbird - you will need the mozilla-central repository as well as the comm-central repository (where this README lives). Check out our [Getting Started documentation](https://developer.thunderbird.net/the-basics/getting-started) for instructions on how and where to get the source code.
+In order to be able to build Thunderbird - you will need the mozilla-central repository as well as the comm-central repository (where this README lives). Check out our [Getting Started documentation](https://developer.thunderbird.net/thunderbird-development/getting-started) for instructions on how and where to get the source code.
 
 ### mozilla-central vs. comm-central
 
@@ -19,9 +19,9 @@ The mozilla-central repostitory contains the Firefox codebase and all of the pla
 
 This README assumes that you already have the prerequisite software required to build Thunderbird. If you have not already done so, please complete the instructions for your operating system and then continue following this guide:
 
-- [Windows Build Prerequisites](https://developer.thunderbird.net/the-basics/building-thunderbird/windows-build-prerequisites)
-- [Linux Build Prerequisites](https://developer.thunderbird.net/the-basics/building-thunderbird/linux-build-prerequisites)
-- [macOS Build Prerequisites](https://developer.thunderbird.net/the-basics/building-thunderbird/macos-build-prerequisites)
+- [Windows Build Prerequisites](https://developer.thunderbird.net/thunderbird-development/building-thunderbird/windows-build-prerequisites)
+- [Linux Build Prerequisites](https://developer.thunderbird.net/thunderbird-development/building-thunderbird/linux-build-prerequisites)
+- [macOS Build Prerequisites](https://developer.thunderbird.net/thunderbird-development/building-thunderbird/macos-build-prerequisites)
 
 ### Build Configuration
 
