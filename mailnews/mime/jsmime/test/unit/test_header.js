@@ -709,6 +709,28 @@ define(function(require) {
             },
           ],
         ],
+        [
+          "<attacker@example.com> <friend@example.com>,friend2@example.com<attacker2@example.com>",
+          [
+            {
+              name: "",
+              email: "attacker@example.com",
+            },
+            {
+              name: "friend2@example.com",
+              email: "attacker2@example.com",
+            },
+          ],
+        ],
+        [
+          'My "XX ><<friend2@example.com>" YY <attacker@example.com> <friend@example.com> ("mr ><x")',
+          [
+            {
+              name: "My XX ><<friend2@example.com> YY (mr ><x)",
+              email: "attacker@example.com",
+            },
+          ],
+        ],
       ];
       header_tests.forEach(function(data) {
         arrayTest(data, function() {

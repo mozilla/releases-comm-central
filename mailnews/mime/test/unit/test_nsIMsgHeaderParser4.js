@@ -94,7 +94,7 @@ function run_test() {
     },
     {
       displayString: '"Yatter King6 <a@a.a.a>"',
-      addresses: [['"Yatter King6', "a@a.a.a"]],
+      addresses: [["Yatter King6", "a@a.a.a"]],
     },
     {
       displayString: '"Yatter King7 <a@a.a.a>" <b@b.b.b>',
@@ -111,10 +111,25 @@ function run_test() {
         ["Marge", "marge@example.com"],
       ],
     },
+    // Junk after a bracketed email address to be ignored.
     {
       displayString: "<attacker@example.com>friend@example.com",
       addresses: [["", "attacker@example.com"]],
     },
+    {
+      displayString:
+        "<attacker2@example.com><friend2@example.com>,foo <attacker3@example.com><friend3@example.com>",
+      addresses: [
+        ["", "attacker2@example.com"],
+        ["foo", "attacker3@example.com"],
+      ],
+    },
+    {
+      displayString:
+        'jay "bad" ass <name@evil.com> <someone-else@bad.com> <name@evil.commercial.org>',
+      addresses: [['jay "bad" ass', "name@evil.com"]],
+    },
+
     {
       displayString:
         'me "you" (via foo@example.com) <attacker2@example.com> friend@example.com,',
@@ -129,10 +144,10 @@ function run_test() {
       checks[i].displayString
     );
     let checkaddrs = checks[i].addresses;
-    Assert.equal(addrs.length, checkaddrs.length);
+    Assert.equal(addrs.length, checkaddrs.length, "Number of parsed addresses");
     for (let j = 0; j < addrs.length; j++) {
-      Assert.equal(addrs[j].name, checkaddrs[j][0]);
-      Assert.equal(addrs[j].email, checkaddrs[j][1]);
+      Assert.equal(addrs[j].name, checkaddrs[j][0], "Parsed name");
+      Assert.equal(addrs[j].email, checkaddrs[j][1], "Parsed email");
     }
   }
 }

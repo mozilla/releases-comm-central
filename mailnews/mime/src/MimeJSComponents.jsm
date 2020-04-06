@@ -428,17 +428,37 @@ MimeAddressParser.prototype = {
     return output;
   },
 
-  // Construct a single email address from a name <local@domain> token.
-  _makeSingleAddress(aDisplayName) {
-    if (aDisplayName.includes("<")) {
-      let lbracket = aDisplayName.lastIndexOf("<");
-      let rbracket = aDisplayName.lastIndexOf(">");
+  /**
+   * Construct a single email address from an |name <local@domain>| token.
+   * @param {string} aInput - a string to be parsed to a mailbox object.
+   * @returns {msgIAddressObject} the mailbox parsed from the input.
+   */
+  _makeSingleAddress(aInput) {
+    // If the whole string is within quotes, unquote it first.
+    aInput = aInput.trim().replace(/^"(.*)"$/, "$1");
+
+    if (aInput.includes("<")) {
+      // We don't want to look for the address within quotes.
+      let cleanedInput = aInput.replace(/".+"/g, "").trim();
+      if (!cleanedInput) {
+        // all quoted
+        return this.makeMailboxObject(aInput, "");
+      }
+      if (!/<.+>/.test(cleanedInput)) {
+        // no proper address
+        return this.makeMailboxObject(aInput, "");
+      }
+      let addr = cleanedInput.slice(
+        cleanedInput.indexOf("<") + 1,
+        cleanedInput.indexOf(">")
+      );
+      let addrIdx = aInput.indexOf("<" + addr + ">");
       return this.makeMailboxObject(
-        lbracket == 0 ? "" : aDisplayName.slice(0, lbracket).trim(),
-        aDisplayName.slice(lbracket + 1, rbracket)
+        addrIdx == 0 ? "" : aInput.slice(0, addrIdx).trim(),
+        addr
       );
     }
-    return this.makeMailboxObject("", aDisplayName);
+    return this.makeMailboxObject("", aInput);
   },
 
   extractHeaderAddressMailboxes(aLine) {
