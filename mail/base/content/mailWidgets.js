@@ -1929,11 +1929,14 @@
       this.emailInput.removeAttribute("hidden");
       this.emailInput.focus();
 
+      // Account for pill padding.
+      let inputWidth = this.emailInput.clientWidth + 15;
+
       // In case the original address is shorter than the input field child node
       // force resize the pill container to prevent overflows.
-      if (this.emailInput.clientWidth > this.clientWidth) {
-        this.style.setProperty("max-width", `${this.emailInput.clientWidth}px`);
-        this.style.setProperty("min-width", `${this.emailInput.clientWidth}px`);
+      if (inputWidth > this.clientWidth) {
+        this.style.setProperty("max-width", `${inputWidth}px`);
+        this.style.setProperty("min-width", `${inputWidth}px`);
       }
     }
 
