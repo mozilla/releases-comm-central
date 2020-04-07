@@ -17,15 +17,12 @@
 
 /* ::::: primary toolbar buttons ::::: */
 
-.toolbarbutton-1 {
-  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
-}
-
 .toolbarseparator-primary {
   width: 9px !important;
 }
 
 #newButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(136px 49px 169px 0);
 }
 
@@ -42,6 +39,7 @@
 }
 
 #openButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(170px 49px 203px 0);
 }
 
@@ -58,6 +56,7 @@
 }
 
 #saveButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(238px 49px 271px 0);
 }
 
@@ -74,6 +73,7 @@
 }
 
 #publishButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(340px 49px 373px 0);
 }
 
@@ -90,6 +90,7 @@
 }
 
 #previewButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(204px 49px 237px 0);
 }
 
@@ -123,6 +124,7 @@
 }
 
 #linkButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(102px 49px 135px 0);
 }
 
@@ -139,6 +141,7 @@
 }
 
 #imageButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(68px 49px 101px 0);
 }
 
@@ -155,6 +158,7 @@
 }
 
 #namedAnchorButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(0 49px 33px 0);
 }
 
@@ -171,6 +175,7 @@
 }
 
 #hlineButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(34px 49px 67px 0);
 }
 
@@ -187,6 +192,7 @@
 }
 
 #tableButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(306px 49px 339px 0);
 }
 
@@ -203,6 +209,7 @@
 }
 
 #spellingButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(272px 49px 305px 0);
 }
 
@@ -218,8 +225,8 @@
   -moz-image-region: rect(272px 199px 305px 150px) !important;
 }
 
-
 #cutButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(374px 49px 407px 0);
 }
 
@@ -236,6 +243,7 @@
 }
 
 #copyButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(408px 49px 441px 0);
 }
 
@@ -252,6 +260,7 @@
 }
 
 #pasteButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(442px 49px 475px 0);
 }
 
@@ -268,6 +277,7 @@
 }
 
 #findButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
   -moz-image-region: rect(476px 49px 509px 0);
 }
 
@@ -282,4 +292,3 @@
 #findButton[disabled="true"] {
   -moz-image-region: rect(476px 199px 509px 150px) !important;
 }
-

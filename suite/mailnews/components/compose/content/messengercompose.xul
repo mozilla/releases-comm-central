@@ -155,11 +155,8 @@
 
   <popupset id="contentAreaContextSet"/>
 
-  <popupset id="msgComposePopupSet">
+  <popupset id="editorPopupSet">
     <menupopup id="sidebarPopup"/>
-    <menupopup id="popupNotificationMenu"/>
-    <menupopup id="toolbar-context-menu"/>
-    <panel id="customizeToolbarSheetPopup"/>
 
     <menupopup id="msgComposeAttachmentContext"
                onpopupshowing="updateEditItems();">

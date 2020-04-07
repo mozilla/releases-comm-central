@@ -191,6 +191,12 @@ function EditorStartup(aUrl, aCharset)
     contentViewer.forceCharacterSet = aCharset;
   } catch (e) {}
   EditorLoadUrl(aUrl);
+
+  // Before and after callbacks for the customizeToolbar code.
+  var editorToolbox = getEditorToolbox();
+  editorToolbox.customizeInit = EditorToolboxCustomizeInit;
+  editorToolbox.customizeDone = EditorToolboxCustomizeDone;
+  editorToolbox.customizeChange = EditorToolboxCustomizeChange;
 }
 
 function EditorShutdown()
@@ -351,3 +357,38 @@ var FullZoom = {
   reset: function() { ZoomManager.zoom = 1; },
   setOther: function() { openZoomDialog(); }
 };
+
+function hideEditorUI(aHide) {
+  for (let id of ["EditModeToolbar", "content-source", "content-frame"]) {
+    let element = document.getElementById(id);
+    if (!element)
+      continue;
+
+    if (aHide) {
+      element.setAttribute("moz-collapsed", true);
+    } else {
+      element.removeAttribute("moz-collapsed");
+    }
+  }
+}
+
+function getEditorToolbox() {
+  return document.getElementById("EditorToolbox");
+}
+
+function EditorToolboxCustomizeInit() {
+  if (document.commandDispatcher.focusedWindow == content)
+    window.focus();
+  hideEditorUI(true);
+  toolboxCustomizeInit("main-menubar");
+}
+
+function EditorToolboxCustomizeDone(aToolboxChanged) {
+  toolboxCustomizeDone("main-menubar", getEditorToolbox(), aToolboxChanged);
+  hideEditorUI(false);
+  gContentWindow.focus();
+}
+
+function EditorToolboxCustomizeChange(aEvent) {
+  toolboxCustomizeChange(getEditorToolbox(), aEvent);
+}

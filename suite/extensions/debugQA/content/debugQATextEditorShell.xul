@@ -80,10 +80,28 @@
   </keyset>
 
   <popupset id="contentAreaContextSet"/>
+  <popupset id="editorPopupSet"/>
 
   <vbox id="titlebar"/>
 
-  <toolbox id="EditorToolbox">
+  <toolbox id="EditorToolbox"
+           mode="full"
+           defaultmode="full">
+    <toolbar id="toolbar-menubar"
+             type="menubar"
+             class="chromeclass-menubar"
+             persist="collapsed"
+             grippytooltiptext="&menuBar.tooltip;"
+             customizable="true"
+             defaultset="menubar-items"
+             mode="icons"
+             iconsize="small"
+             defaultmode="icons"
+             defaulticonsize="small"
+             context="toolbar-context-menu">
+      <toolbaritem id="menubar-items"
+                   class="menubar-items"
+                   align="center">
     <menubar id="main-menubar" class="chromeclass-menubar">
       <menu id="menu_File"/>
       <menu id="menu_Edit"/>
@@ -92,12 +110,9 @@
         <!-- id pulls in "Show Sidebar" item from sidebarOverlay -->
         <menupopup id="menu_View_Popup">
           <menu id="menu_Toolbars">
-            <menupopup id="view_toolbars_popup">
-              <menuitem id="viewComposerToolbar"
-                        type="checkbox"
-                        label="&compositionToolbarCmd.label;"
-                        accesskey="&compositionToolbarCmd.accesskey;"
-                        command="cmd_viewCompToolbar"/>
+            <menupopup id="view_toolbars_popup"
+                       onpopupshowing="onViewToolbarsPopupShowing(event);"
+                       oncommand="onViewToolbarCommand(event);">
               <menuitem id="menu_showTaskbar"/>
             </menupopup>
           </menu>
@@ -127,23 +142,35 @@
 
       <spacer flex="1"/>
     </menubar>
+      </toolbaritem>
+    </toolbar>
+
 
      <!-- toolbar filled out from editorOverlay -->
     <toolbar id="EditToolbar"
              class="chromeclass-toolbar toolbar-primary"
              persist="collapsed"
-             grippytooltiptext="&compositionToolbar.tooltip;">
+             grippytooltiptext="&compositionToolbar.tooltip;"
+             toolbarname="&compositionToolbarCmd.label;"
+             accesskey="&compositionToolbarCmd.accesskey;"
+             customizable="true"
+             defaultset="newButton,openButton,saveButton,print-button,separator,spellingButton"
+             context="toolbar-context-menu">
       <toolbarbutton id="newButton"/>
       <toolbarbutton id="openButton"/>
       <toolbarbutton id="saveButton"/>
+      <toolbarbutton id="cutButton"/>
+      <toolbarbutton id="copyButton"/>
+      <toolbarbutton id="pasteButton"/>
       <toolbarbutton id="print-button"/>
-      <toolbarseparator class="toolbarseparator-primary"/>
+      <toolbarbutton id="findButton"/>
       <toolbarbutton id="spellingButton"/>
-      <spacer flex="1"/>
     </toolbar>
-  </toolbox>
 
-  <menupopup id="popupNotificationMenu"/>
+    <toolbarset id="customToolbars" context="toolbar-context-menu"/>
+
+    <toolbarpalette id="EditToolbarPalette"/>
+  </toolbox>
 
   <hbox id="sidebar-parent" flex="1">
     <!-- From sidebarOverlay.xul -->

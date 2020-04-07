@@ -66,6 +66,8 @@
   </commandset>
 
   <commandset id="editorCommands">
+    <command id="cmd_CustomizeToolbars"
+             oncommand="goCustomizeToolbar(getEditorToolbox());"/>
     <commandset id="viewZoomCommands"/>
   </commandset>
 
@@ -158,19 +160,23 @@
   <toolbarbutton id="newButton"
                  class="toolbarbutton-1"
                  label="&newToolbarCmd.label;"
+                 removable="true"
                  command="cmd_newEditor"
                  tooltiptext="&newToolbarCmd.tooltip;"/>
   <toolbarbutton id="openButton"
                  class="toolbarbutton-1"
                  label="&openToolbarCmd.label;"
+                 removable="true"
                  command="cmd_open"
                  tooltiptext="&openToolbarCmd.tooltip;"/>
   <toolbarbutton id="saveButton"
                  class="toolbarbutton-1"
+                 removable="true"
                  command="cmd_save"
                  tooltiptext="&saveToolbarCmd.tooltip;"/>
   <toolbarbutton id="publishButton"
                  class="toolbarbutton-1"
+                 removable="true"
                  command="cmd_publish"
                  tooltiptext="&publishToolbarCmd.tooltip;"/>
 </overlay>

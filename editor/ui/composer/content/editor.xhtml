@@ -55,9 +55,10 @@
   <script src="chrome://global/content/nsDragAndDrop.js"/>
 
   <popupset id="contentAreaContextSet"/>
-  <menupopup id="structToolbarContext"/>
-  <menupopup id="sidebarPopup"/>
-  <menupopup id="popupNotificationMenu"/>
+  <popupset id="editorPopupSet">
+    <menupopup id="structToolbarContext"/>
+    <menupopup id="sidebarPopup"/>
+  </popupset>
 
   <commandset id="editorCommands">
     <commandset id="commonEditorMenuItems"/>
@@ -123,8 +124,26 @@
 
   <vbox id="titlebar"/>
 
-  <toolbox class="toolbox-top" id="EditorToolbox">
-  <menubar id="main-menubar" class="chromeclass-menubar" persist="collapsed" grippytooltiptext="&menuBar.tooltip;">
+<toolbox id="EditorToolbox"
+         class="toolbox-top"
+         mode="full"
+         defaultmode="full">
+  <toolbar id="toolbar-menubar"
+           type="menubar"
+           class="chromeclass-menubar"
+           persist="collapsed"
+           grippytooltiptext="&menuBar.tooltip;"
+           customizable="true"
+           defaultset="menubar-items"
+           mode="icons"
+           iconsize="small"
+           defaultmode="icons"
+           defaulticonsize="small"
+           context="toolbar-context-menu">
+    <toolbaritem id="menubar-items"
+                 class="menubar-items"
+                 align="center">
+  <menubar id="main-menubar">
     <menu id="menu_File"/>
     <menu id="menu_Edit"/>
 
@@ -132,10 +151,19 @@
     <!-- id pulls in "Show Sidebar" item from sidebarOverlay -->
     <menupopup id="menu_View_Popup">
       <menu id="menu_Toolbars">
-        <menupopup id="view_toolbars_popup">
-          <menuitem id="viewComposerToolbar" label="&compositionToolbarCmd.label;" type="checkbox" accesskey="&compositionToolbarCmd.accesskey;" command="cmd_viewCompToolbar"  />
-          <menuitem id="viewFormatToolbar"   label="&formattingToolbarCmd.label;"  type="checkbox" accesskey="&formattingToolbarCmd.accesskey;"  command="cmd_viewFormatToolbar" />
-          <menuitem id="viewEditModeToolbar" label="&editmodeToolbarCmd.label;"    type="checkbox" accesskey="&editmodeToolbarCmd.accesskey;"    command="cmd_viewEditModeToolbar" />
+        <menupopup id="view_toolbars_popup"
+                   onpopupshowing="onViewToolbarsPopupShowing(event);"
+                   oncommand="onViewToolbarCommand(event);">
+          <menuitem id="viewFormatToolbar"
+                    label="&formattingToolbarCmd.label;"
+                    accesskey="&formattingToolbarCmd.accesskey;"
+                    type="checkbox"
+                    command="cmd_viewFormatToolbar"/>
+          <menuitem id="viewEditModeToolbar"
+                    label="&editmodeToolbarCmd.label;"
+                    accesskey="&editmodeToolbarCmd.accesskey;"
+                    type="checkbox"
+                    command="cmd_viewEditModeToolbar"/>
           <menuitem id="menu_showTaskbar"/>
         </menupopup>
       </menu>
@@ -174,12 +202,14 @@
 
     <menu id="insertMenu"/>
 
-    <menu id="formatMenu" label="&formatMenu.label;" accesskey="&formatMenu.accesskey;">
+    <menu id="formatMenu"
+          label="&formatMenu.label;"
+          accesskey="&formatMenu.accesskey;">
       <menupopup id="formatMenuPopup">
         <menuitem id="snapToGrid"
                   label="&grid.label;"
                   accesskey="&grid.accesskey;"
-                  oncommand="goDoCommand('cmd_grid')"
+                  oncommand="goDoCommand('cmd_grid');"
                   observes="cmd_renderedHTMLEnabler"/>
         <menuseparator/>
         <menuitem id="objectProperties"/>
@@ -188,7 +218,7 @@
         <menuitem id="pageProperties"
                   label="&pageProperties.label;"
                   accesskey="&pageProperties.accesskey;"
-                  oncommand="goDoCommand('cmd_pageProperties')"
+                  oncommand="goDoCommand('cmd_pageProperties');"
                   observes="cmd_renderedHTMLEnabler"/>
       </menupopup>
     </menu>
@@ -210,14 +240,21 @@
 
     <!-- help menu filled from globalOverlay -->
     <menu id="menu_Help"/>
-
-    <spacer flex="1"/>
   </menubar>
+    </toolbaritem>
+  </toolbar>
 
   <!-- toolbar mostly filled out from editorOverlay -->
-  <!-- add  class="standard" for dark blue background (icons need rework first) -->
-  <toolbar class="chromeclass-toolbar toolbar-primary" id="EditToolbar" persist="collapsed"
-           grippytooltiptext="&compositionToolbar.tooltip;">
+  <!-- add class="standard" for dark blue background, icons need rework first -->
+  <toolbar id="EditToolbar"
+           class="chromeclass-toolbar toolbar-primary"
+           persist="collapsed"
+           grippytooltiptext="&compositionToolbar.tooltip;"
+           toolbarname="&compositionToolbarCmd.label;"
+           accesskey="&compositionToolbarCmd.accesskey;"
+           customizable="true"
+           defaultset="newButton,openButton,saveButton,publishButton,previewButton,print-button,separator,linkButton,imageButton,tableButton,spellingButton,spring,throbber-box"
+           context="toolbar-context-menu">
     <toolbarbutton id="newButton"/>
     <toolbarbutton id="openButton"/>
     <toolbarbutton id="saveButton"/>
@@ -225,6 +262,7 @@
     <toolbarbutton id="previewButton"
                    class="toolbarbutton-1"
                    label="&previewToolbarCmd.label;"
+                   removable="true"
                    command="cmd_preview"
                    tooltiptext="&previewToolbarCmd.tooltip;"/>
     <toolbarbutton id="cutButton"/>
@@ -232,22 +270,28 @@
     <toolbarbutton id="pasteButton"/>
     <toolbarbutton id="print-button"/>
     <toolbarbutton id="findButton"/>
-    <toolbarseparator class="toolbarseparator-primary"/>
     <toolbarbutton id="linkButton"/>
     <toolbarbutton id="namedAnchorButton"/>
     <toolbarbutton id="imageButton"/>
     <toolbarbutton id="hlineButton"/>
     <toolbarbutton id="tableButton"/>
     <toolbarbutton id="spellingButton"/>
-    <spacer flex="1"/>
-    <hbox id="throbber-box" align="center" class="toolbaritem-noline">
+    <toolbaritem id="throbber-box"
+                 class="toolbaritem-noline"
+                 removable="true"
+                 align="center">
       <button id="navigator-throbber"
-              oncommand="goClickThrobber('editor.throbber.url', event)"
+              oncommand="goClickThrobber('editor.throbber.url', event);"
               onclick="checkForMiddleClick(this, event);"
               tooltiptext="&throbber.tooltip2;"
               busy="false"/>
-    </hbox>
+    </toolbaritem>
   </toolbar>
+
+  <toolbarset id="customToolbars" context="toolbar-context-menu"/>
+
+  <toolbarpalette id="EditToolbarPalette"/>
+
   <toolbar id="FormatToolbar"
            class="chromeclass-toolbar"
            persist="collapsed"
@@ -255,7 +299,8 @@
            nowindowdrag="true">
     <!-- from editorOverlay -->
     <toolbaritem id="paragraph-select-container"/>
-    <toolbaritem id="color-buttons-container"/>
+    <toolbaritem id="color-buttons-container"
+                 disableoncustomize="true"/>
     <toolbarbutton id="HighlightColorButton"/>
 
     <toolbarseparator class="toolbarseparator-standard"/>

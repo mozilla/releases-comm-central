@@ -13,6 +13,7 @@ classic.jar:
 % style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/messengercompose/messengercompose.css
 % style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/smime/msgCompSMIMEOverlay.css
 % style chrome://communicator/content/customizeToolbar.xul chrome://messenger/skin/addressbook/addressbook.css
+% style chrome://communicator/content/customizeToolbar.xul chrome://editor/skin/editorPrimaryToolbar.css
 #ifdef XP_MACOSX
   skin/classic/communicator/aboutPrivateBrowsing.css                    (mac/communicator/aboutPrivateBrowsing.css)
   skin/classic/communicator/aboutSessionRestore.css                     (mac/communicator/aboutSessionRestore.css)

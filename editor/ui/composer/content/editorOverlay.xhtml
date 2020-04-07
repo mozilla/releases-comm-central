@@ -283,9 +283,14 @@
     <command id="cmd_newEditorTemplate"/>
     <command id="cmd_newEditorDraft"/>
     <!-- view menu -->
-    <command id="cmd_viewCompToolbar"     oncommand="goToggleToolbar('EditToolbar','cmd_viewCompToolbar');"         checked="true"/>
     <command id="cmd_viewFormatToolbar"   oncommand="goToggleToolbar('FormatToolbar','cmd_viewFormatToolbar');"     checked="true"/>
   </commandset>
+
+  <popupset id="editorPopupSet">
+    <menupopup id="popupNotificationMenu"/>
+    <menupopup id="toolbar-context-menu"/>
+    <panel id="customizeToolbarSheetPopup"/>
+  </popupset>
 
   <menu id="menu_Edit">
     <menupopup id="menu_EditPopup">
@@ -977,52 +982,63 @@
   <!-- Editor toolbar items -->
   <!-- note that we override the submenu item label "Blank Window" with "New" used for the menu -->
   <toolbarbutton id="cutButton" class="toolbarbutton-1"
+                 removable="true"
                  command="cmd_cut"
                  tooltiptext="&cutToolbarCmd.tooltip;"/>
   <toolbarbutton id="copyButton" class="toolbarbutton-1"
+                 removable="true"
                  command="cmd_copy"
                  tooltiptext="&copyToolbarCmd.tooltip;"/>
   <toolbarbutton id="pasteButton" class="toolbarbutton-1"
+                 removable="true"
                  command="cmd_paste"
                  tooltiptext="&pasteToolbarCmd.tooltip;"/>
 
   <toolbarbutton id="print-button"
                  label="&printToolbarCmd.label;"
+                 removable="true"
                  tooltiptext="&printToolbarCmd.tooltip;"/>
       <!-- 'printSetupToolbar' is merged in here from platformGlobalOverlay.xhtml -->
 
   <toolbarbutton id="findButton"
                  class="toolbarbutton-1"
                  label="&findToolbarCmd.label;"
+                 removable="true"
                  command="cmd_find"
                  tooltiptext="&findToolbarCmd.tooltip;"/>
   <toolbarbutton id="spellingButton"
                  class="toolbarbutton-1"
                  label="&spellToolbarCmd.label;"
+                 removable="true"
                  command="cmd_spelling"
                  tooltiptext="&spellToolbarCmd.tooltip;"/>
   <toolbarbutton id="imageButton"
                  class="toolbarbutton-1"
+                 removable="true"
                  label="&imageToolbarCmd.label;"
                  command="cmd_image"
                  tooltiptext="&imageToolbarCmd.tooltip;"/>
   <toolbarbutton id="hlineButton"
                  class="toolbarbutton-1"
+                 removable="true"
                  label="&hruleToolbarCmd.label;"
                  command="cmd_hline"
                  tooltiptext="&hruleToolbarCmd.tooltip;"/>
   <toolbarbutton id="tableButton"
                  class="toolbarbutton-1"
+                 removable="true"
                  label="&tableToolbarCmd.label;"
                  command="cmd_table"
                  tooltiptext="&tableToolbarCmd.tooltip;"/>
   <toolbarbutton id="linkButton"
                  class="toolbarbutton-1"
+                 removable="true"
                  label="&linkToolbarCmd.label;"
                  command="cmd_link"
                  tooltiptext="&linkToolbarCmd.tooltip;"/>
   <toolbarbutton id="namedAnchorButton"
                  class="toolbarbutton-1"
+                 removable="true"
                  label="&anchorToolbarCmd.label;"
                  command="cmd_anchor"
                  tooltiptext="&anchorToolbarCmd.tooltip;"/>

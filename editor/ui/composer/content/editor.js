@@ -135,7 +135,6 @@ function ShowHideToolbarButtons() {
       button.hidden = !Services.prefs.getBoolPref(prefName);
     }
   }
-  ShowHideToolbarSeparators(document.getElementById("EditToolbar"));
   ShowHideToolbarSeparators(document.getElementById("FormatToolbar"));
 }
 

@@ -6,11 +6,8 @@
 
 /* ::::: primary toolbar buttons ::::: */
 
-.toolbarbutton-1 {
-  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
-}
-
 #newButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(120px 29px 149px 0);
 }
 
@@ -23,6 +20,7 @@
 }
 
 #openButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(150px 29px 179px 0);
 }
 
@@ -35,6 +33,7 @@
 }
 
 #saveButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(210px 29px 239px 0);
 }
 
@@ -47,6 +46,7 @@
 }
 
 #publishButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(300px 29px 329px 0);
 }
 
@@ -59,6 +59,7 @@
 }
 
 #previewButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(180px 29px 209px 0);
 }
 
@@ -71,6 +72,7 @@
 }
 
 #linkButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(90px 29px 119px 0);
 }
 
@@ -83,6 +85,7 @@
 }
 
 #imageButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(60px 29px 89px 0);
 }
 
@@ -95,6 +98,7 @@
 }
 
 #namedAnchorButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(0 29px 29px 0);
 }
 
@@ -107,6 +111,7 @@
 }
 
 #hlineButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(30px 29px 59px 0);
 }
 
@@ -119,6 +124,7 @@
 }
 
 #tableButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(270px 29px 299px 0);
 }
 
@@ -131,6 +137,7 @@
 }
 
 #spellingButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(240px 29px 269px 0);
 }
 
@@ -143,6 +150,7 @@
 }
 
 #cutButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(330px 29px 359px 0);
 }
 
@@ -155,6 +163,7 @@
 }
 
 #copyButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(360px 29px 389px 0);
 }
 
@@ -167,6 +176,7 @@
 }
 
 #pasteButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(390px 29px 419px 0);
 }
 
@@ -179,6 +189,7 @@
 }
 
 #findButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(420px 29px 449px 0);
 }
 
@@ -190,3 +201,214 @@
   -moz-image-region: rect(420px 89px 449px 60px) !important;
 }
 
+/* ::::: small primary toolbar buttons ::::: */
+
+toolbar[iconsize="small"] > #newButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #newButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(80px 19px 99px 0);
+}
+
+toolbar[iconsize="small"] > #newButton:hover:active {
+  -moz-image-region: rect(80px 39px 99px 20px);
+}
+
+toolbar[iconsize="small"] > #newButton[disabled="true"] {
+  -moz-image-region: rect(80px 59px 99px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #openButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #openButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(100px 19px 119px 0);
+}
+
+toolbar[iconsize="small"] > #openButton:hover:active {
+  -moz-image-region: rect(100px 39px 119px 20px);
+}
+
+toolbar[iconsize="small"] > #openButton[disabled="true"] {
+  -moz-image-region: rect(100px 59px 119px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #saveButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #saveButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(140px 19px 159px 0);
+}
+
+toolbar[iconsize="small"] > #saveButton:hover:active {
+  -moz-image-region: rect(140px 39px 159px 20px);
+}
+
+toolbar[iconsize="small"] > #saveButton[disabled="true"] {
+  -moz-image-region: rect(140px 59px 159px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #publishButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #publishButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(200px 19px 219px 0);
+}
+
+toolbar[iconsize="small"] > #publishButton:hover:active {
+  -moz-image-region: rect(200px 39px 219px 20px);
+}
+
+toolbar[iconsize="small"] > #publishButton[disabled="true"] {
+  -moz-image-region: rect(200px 59px 219px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #previewButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #previewButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(120px 19px 139px 0);
+}
+
+toolbar[iconsize="small"] > #previewButton:hover:active {
+  -moz-image-region: rect(120px 39px 139px 20px);
+}
+
+toolbar[iconsize="small"] > #previewButton[disabled="true"] {
+  -moz-image-region: rect(120px 59px 139px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #linkButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #linkButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(60px 19px 79px 0);
+}
+
+toolbar[iconsize="small"] > #linkButton:hover:active {
+  -moz-image-region: rect(60px 39px 79px 20px);
+}
+
+toolbar[iconsize="small"] > #linkButton[disabled="true"] {
+  -moz-image-region: rect(60px 59px 79px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #imageButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #imageButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(40px 19px 59px 0);
+}
+
+toolbar[iconsize="small"] > #imageButton:hover:active {
+  -moz-image-region: rect(40px 39px 59px 20px);
+}
+
+toolbar[iconsize="small"] > #imageButton[disabled="true"] {
+  -moz-image-region: rect(40px 59px 59px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #namedAnchorButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #namedAnchorButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(0 19px 19px 0);
+}
+
+toolbar[iconsize="small"] > #namedAnchorButton:hover:active {
+  -moz-image-region: rect(0 39px 19px 20px);
+}
+
+toolbar[iconsize="small"] > #namedAnchorButton[disabled="true"] {
+  -moz-image-region: rect(0 59px 19px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #hlineButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #hlineButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(20px 19px 39px 0);
+}
+
+toolbar[iconsize="small"] > #hlineButton:hover:active {
+  -moz-image-region: rect(20px 39px 39px 20px);
+}
+
+toolbar[iconsize="small"] > #hlineButton[disabled="true"] {
+  -moz-image-region: rect(20px 59px 39px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #tableButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #tableButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(180px 19px 199px 0);
+}
+
+toolbar[iconsize="small"] > #tableButton:hover:active {
+  -moz-image-region: rect(180px 39px 199px 20px);
+}
+
+toolbar[iconsize="small"] > #tableButton[disabled="true"] {
+  -moz-image-region: rect(180px 59px 199px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #spellingButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #spellingButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(160px 19px 179px 0);
+}
+
+toolbar[iconsize="small"] > #spellingButton:hover:active {
+  -moz-image-region: rect(160px 39px 179px 20px);
+}
+
+toolbar[iconsize="small"] > #spellingButton[disabled="true"] {
+  -moz-image-region: rect(160px 59px 179px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #cutButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #cutButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(220px 19px 239px 0);
+}
+
+toolbar[iconsize="small"] > #cutButton:hover:active {
+  -moz-image-region: rect(220px 39px 239px 20px);
+}
+
+toolbar[iconsize="small"] > #cutButton[disabled="true"] {
+  -moz-image-region: rect(220px 59px 239px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #copyButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #copyButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(240px 19px 259px 0);
+}
+
+toolbar[iconsize="small"] > #copyButton:hover:active {
+  -moz-image-region: rect(240px 39px 259px 20px);
+}
+
+toolbar[iconsize="small"] > #copyButton[disabled="true"] {
+  -moz-image-region: rect(240px 59px 259px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #pasteButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #pasteButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(260px 19px 279px 0);
+}
+
+toolbar[iconsize="small"] > #pasteButton:hover:active {
+  -moz-image-region: rect(260px 39px 279px 20px);
+}
+
+toolbar[iconsize="small"] > #pasteButton[disabled="true"] {
+  -moz-image-region: rect(260px 59px 279px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #findButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #findButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(280px 19px 299px 0);
+}
+
+toolbar[iconsize="small"] > #findButton:hover:active {
+  -moz-image-region: rect(280px 39px 299px 20px);
+}
+
+toolbar[iconsize="small"] > #findButton[disabled="true"] {
+  -moz-image-region: rect(280px 59px 299px 40px) !important;
+}
