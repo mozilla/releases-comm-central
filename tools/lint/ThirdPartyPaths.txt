@@ -1,3 +1,4 @@
+comm/calendar/libical/src/libical
 comm/chat/protocols/matrix/lib
 comm/third_party/libgpg-error
 comm/third_party/libgcrypt
