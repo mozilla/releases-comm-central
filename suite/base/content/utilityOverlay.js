@@ -351,7 +351,9 @@ function onViewToolbarsPopupShowing(aEvent, aInsertPoint)
   var externalToolbars = Array.from(toolbox.externalToolbars)
                               .filter(function(toolbar) {
                                         return toolbar.hasAttribute("toolbarname")});
-  var toolbars = Array.from(toolbox.getElementsByAttribute("toolbarname", "*"));
+  var toolbars = Array.from(toolbox.getElementsByAttribute("toolbarname", "*"))
+                      .filter(function(toolbar) {
+                                return !toolbar.hasAttribute("hideinmenu")});
   toolbars = toolbars.concat(externalToolbars);
   var menusep = document.getElementById("toolbarmode-sep");
 

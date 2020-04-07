@@ -288,8 +288,6 @@
     <command id="cmd_newEditor"/>
     <command id="cmd_newEditorTemplate"/>
     <command id="cmd_newEditorDraft"/>
-    <!-- view menu -->
-    <command id="cmd_viewFormatToolbar"   oncommand="goToggleToolbar('FormatToolbar','cmd_viewFormatToolbar');"     checked="true"/>
   </commandset>
 
   <popupset id="editorPopupSet">
@@ -1002,6 +1000,8 @@
 
   <toolbarbutton id="AlignPopupButton"
                  class="formatting-button"
+                 label="&AlignPopupButton.label;"
+                 removable="true"
                  tooltiptext="&AlignPopupButton.tooltip;"
                  type="menu"
                  observes="cmd_align">
@@ -1023,6 +1023,8 @@
 
   <toolbarbutton id="InsertPopupButton"
                  class="formatting-button"
+                 label="&InsertPopupButton.label;"
+                 removable="true"
                  tooltiptext="&InsertPopupButton.tooltip;"
                  type="menu"
                  observes="cmd_renderedHTMLEnabler">
@@ -1074,7 +1076,7 @@
                  label="&printToolbarCmd.label;"
                  removable="true"
                  tooltiptext="&printToolbarCmd.tooltip;"/>
-      <!-- 'printSetupToolbar' is merged in here from platformGlobalOverlay.xhtml -->
+  <!-- 'print-button' is merged in here from utilityOverlay.xhtml -->
 
   <toolbarbutton id="findButton"
                  class="toolbarbutton-1"
@@ -1122,6 +1124,9 @@
   <!-- Formatting toolbar items. "value" are HTML tagnames, don't translate -->
 <toolbaritem id="paragraph-select-container"
              class="formatting-button"
+             title="&ParagraphSelect.title;"
+             align="center"
+             removable="true"
              tooltiptext="&ParagraphSelect.tooltip;"
              observes="cmd_renderedHTMLEnabler">
   <menulist id="ParagraphSelect"
@@ -1147,6 +1152,9 @@
   <!-- "value" are HTML tagnames, don't translate -->
 <toolbaritem id="font-face-select-container"
              class="formatting-button"
+             title="&FontFaceSelect.title;"
+             align="center"
+             removable="true"
              tooltiptext="&FontFaceSelect.tooltip;"
              observes="cmd_renderedHTMLEnabler">
   <menulist id="FontFaceSelect"
@@ -1180,6 +1188,9 @@
 
 <toolbaritem id="font-size-select-container"
              class="formatting-button"
+             title="&FontSizeSelect.title;"
+             align="center"
+             removable="true"
              tooltiptext="&FontSizeSelect.tooltip;">
   <menulist id="FontSizeSelect"
             class="toolbar-focustarget"
@@ -1200,6 +1211,8 @@
 
 <toolbaritem id="color-buttons-container"
              align="center"
+             title="&colorButtons.title;"
+             removable="true"
              class="formatting-button">
   <stack id="ColorButtons" align="center">
     <observes element="cmd_fontColor"       attribute="state" onbroadcast="onFontColorChange()"/>
@@ -1214,6 +1227,8 @@
 </toolbaritem>
   <toolbarbutton id="HighlightColorButton"
                  class="formatting-button"
+                 label="&HighlightColorButton.label;"
+                 removable="true"
                  tooltiptext="&HighlightColorButton.tooltip;"
                  command="cmd_highlight">
     <observes element="cmd_highlight" attribute="state" onbroadcast="onHighlightColorChange()"/>
@@ -1222,6 +1237,8 @@
 
   <toolbarbutton id="AbsoluteFontSizeButton"
                  class="formatting-button"
+                 label="&absoluteFontSize.label;"
+                 removable="true"
                  tooltiptext="&absoluteFontSizeToolbarCmd.tooltip;"
                  type="menu"
                  observes="cmd_renderedHTMLEnabler">
@@ -1259,14 +1276,20 @@
   </toolbarbutton>
   <toolbarbutton id="DecreaseFontSizeButton"
                  class="formatting-button"
+                 label="&smaller.label;"
+                 removable="true"
                  tooltiptext="&decreaseFontSizeToolbarCmd.tooltip;"
                  command="cmd_decreaseFontStep"/>
   <toolbarbutton id="IncreaseFontSizeButton"
                  class="formatting-button"
+                 label="&larger.label;"
+                 removable="true"
                  tooltiptext="&increaseFontSizeToolbarCmd.tooltip;"
                  command="cmd_increaseFontStep"/>
   <toolbarbutton id="boldButton"
                  class="formatting-button"
+                 label="&bold.label;"
+                 removable="true"
                  tooltiptext="&boldToolbarCmd.tooltip;"
                  type="checkbox"
                  autoCheck="false"
@@ -1275,6 +1298,8 @@
   </toolbarbutton>
   <toolbarbutton id="italicButton"
                  class="formatting-button"
+                 label="&italic.label;"
+                 removable="true"
                  tooltiptext="&italicToolbarCmd.tooltip;"
                  type="checkbox"
                  autoCheck="false"
@@ -1283,6 +1308,8 @@
   </toolbarbutton>
   <toolbarbutton id="underlineButton"
                  class="formatting-button"
+                 label="&underline.label;"
+                 removable="true"
                  tooltiptext="&underlineToolbarCmd.tooltip;"
                  type="checkbox"
                  autoCheck="false"
@@ -1292,6 +1319,8 @@
 
   <toolbarbutton id="ulButton"
                  class="formatting-button"
+                 label="&bullets.label;"
+                 removable="true"
                  tooltiptext="&bulletListToolbarCmd.tooltip;"
                  type="radio"
                  group="lists"
@@ -1302,6 +1331,8 @@
 
   <toolbarbutton id="olButton"
                  class="formatting-button"
+                 label="&numbers.label;"
+                 removable="true"
                  tooltiptext="&numberListToolbarCmd.tooltip;"
                  type="radio"
                  group="lists"
@@ -1312,16 +1343,22 @@
 
   <toolbarbutton id="outdentButton"
                  class="formatting-button"
+                 label="&outdent.label;"
+                 removable="true"
                  tooltiptext="&outdentToolbarCmd.tooltip;"
                  command="cmd_outdent"/>
   <toolbarbutton id="indentButton"
                  class="formatting-button"
+                 label="&indent.label;"
+                 removable="true"
                  tooltiptext="&indentToolbarCmd.tooltip;"
                  command="cmd_indent"/>
 
   <!-- alignment buttons -->
   <toolbarbutton id="align-left-button"
                  class="formatting-button"
+                 label="&alignLeftButton.label;"
+                 removable="true"
                  tooltiptext="&alignLeftButton.tooltip;"
                  type="radio"
                  group="align"
@@ -1332,6 +1369,8 @@
   </toolbarbutton>
   <toolbarbutton id="align-center-button"
                  class="formatting-button"
+                 label="&alignCenterButton.label;"
+                 removable="true"
                  tooltiptext="&alignCenterButton.tooltip;"
                  type="radio"
                  group="align"
@@ -1342,6 +1381,8 @@
   </toolbarbutton>
   <toolbarbutton id="align-right-button"
                  class="formatting-button"
+                 label="&alignRightButton.label;"
+                 removable="true"
                  tooltiptext="&alignRightButton.tooltip;"
                  type="radio"
                  group="align"
@@ -1352,6 +1393,8 @@
   </toolbarbutton>
   <toolbarbutton id="align-justify-button"
                  class="formatting-button"
+                 label="&alignJustifyButton.label;"
+                 removable="true"
                  tooltiptext="&alignJustifyButton.tooltip;"
                  type="radio"
                  group="align"
@@ -1363,6 +1406,8 @@
 
   <toolbarbutton id="absolutePositionButton"
                  class="formatting-button"
+                 label="&absolutePosition.label;"
+                 removable="true"
                  tooltiptext="&layer.tooltip;"
                  type="checkbox"
                  command="cmd_absPos">
@@ -1370,16 +1415,22 @@
   </toolbarbutton>
   <toolbarbutton id="decreaseZIndexButton"
                  class="formatting-button"
+                 label="&decreaseZIndex.label;"
+                 removable="true"
                  tooltiptext="&layerSendToBack.tooltip;"
                  command="cmd_decreaseZIndex"/>
   <toolbarbutton id="increaseZIndexButton"
                  class="formatting-button"
+                 label="&increaseZIndex.label;"
+                 removable="true"
                  tooltiptext="&layerBringToFront.tooltip;"
                  command="cmd_increaseZIndex"/>
 
   <!-- smiley menu -->
   <toolbarbutton id="smileButtonMenu"
                  class="formatting-button"
+                 label="&SmileButton.label;"
+                 removable="true"
                  tooltiptext="&SmileButton.tooltip;"
                  type="menu"
                  observes="cmd_smiley">

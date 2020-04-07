@@ -154,11 +154,6 @@
         <menupopup id="view_toolbars_popup"
                    onpopupshowing="onViewToolbarsPopupShowing(event);"
                    oncommand="onViewToolbarCommand(event);">
-          <menuitem id="viewFormatToolbar"
-                    label="&formattingToolbarCmd.label;"
-                    accesskey="&formattingToolbarCmd.accesskey;"
-                    type="checkbox"
-                    command="cmd_viewFormatToolbar"/>
           <menuitem id="viewEditModeToolbar"
                     label="&editmodeToolbarCmd.label;"
                     accesskey="&editmodeToolbarCmd.accesskey;"
@@ -287,41 +282,37 @@
            class="chromeclass-toolbar"
            persist="collapsed"
            grippytooltiptext="&formatToolbar.tooltip;"
+           toolbarname="&formattingToolbarCmd.label;"
+           accesskey="&formattingToolbarCmd.accesskey;"
+           customizable="true"
+           defaultset="paragraph-select-container,color-buttons-container,HighlightColorButton,separator,DecreaseFontSizeButton,IncreaseFontSizeButton,separator,boldButton,italicButton,underlineButton,separator,ulButton,olButton,outdentButton,indentButton,separator,align-left-button,align-center-button,align-right-button,align-justify-button,absolutePositionButton,decreaseZIndexButton,increaseZIndexButton"
+           mode="icons"
+           iconsize="small"
+           defaultmode="icons"
+           defaulticonsize="small"
+           context="toolbar-context-menu"
            nowindowdrag="true">
     <!-- from editorOverlay -->
     <toolbaritem id="paragraph-select-container"/>
     <toolbaritem id="color-buttons-container"
                  disableoncustomize="true"/>
     <toolbarbutton id="HighlightColorButton"/>
-
-    <toolbarseparator class="toolbarseparator-standard"/>
-
     <!-- Enable if required for SeaMonkey.
     <toolbarbutton id="AbsoluteFontSizeButton"/>
     -->
     <toolbarbutton id="DecreaseFontSizeButton"/>
     <toolbarbutton id="IncreaseFontSizeButton"/>
-
-    <toolbarseparator class="toolbarseparator-standard"/>
-
     <toolbarbutton id="boldButton"/>
     <toolbarbutton id="italicButton"/>
     <toolbarbutton id="underlineButton"/>
-
-    <toolbarseparator class="toolbarseparator-standard"/>
-
     <toolbarbutton id="ulButton"/>
     <toolbarbutton id="olButton"/>
     <toolbarbutton id="outdentButton"/>
     <toolbarbutton id="indentButton"/>
-
-    <toolbarseparator class="toolbarseparator-standard"/>
-
     <toolbarbutton id="align-left-button"/>
     <toolbarbutton id="align-center-button"/>
     <toolbarbutton id="align-right-button"/>
     <toolbarbutton id="align-justify-button"/>
-
     <toolbarbutton id="absolutePositionButton"/>
     <toolbarbutton id="decreaseZIndexButton"/>
     <toolbarbutton id="increaseZIndexButton"/>

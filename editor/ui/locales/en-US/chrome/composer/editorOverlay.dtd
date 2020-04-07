@@ -11,8 +11,6 @@
 <!ENTITY pasteNoFormatting.label "Paste Without Formatting">
 <!ENTITY pasteNoFormatting.accesskey "n">
 <!ENTITY pasteNoFormatting.key "V">
-<!ENTITY pasteAs.label "Paste As">
-<!ENTITY pasteAs.accesskey "a">
 <!ENTITY pasteAsQuotationCmd.label "Paste As Quotation">
 <!ENTITY pasteAsQuotationCmd.accesskey "Q">
 <!ENTITY pasteAsQuotationCmd.key "o">
@@ -54,6 +52,7 @@
 <!ENTITY editLinkCmd.accesskey "i">
 
 <!-- Font Face SubMenu -->
+<!ENTITY FontFaceSelect.title "Font">
 <!ENTITY FontFaceSelect.tooltip "Choose a font">
 <!ENTITY fontfaceMenu.label "Font">
 <!ENTITY fontfaceMenu.accesskey "F">
@@ -70,6 +69,7 @@
 <!ENTITY fontCourier.accesskey "C">
 
 <!-- Font Size SubMenu -->
+<!ENTITY FontSizeSelect.title "Font Size">
 <!ENTITY FontSizeSelect.tooltip "Choose a font size">
 <!ENTITY decreaseFontSize.label "Smaller">
 <!ENTITY decreaseFontSize.accesskey "r">
@@ -180,6 +180,7 @@
 <!ENTITY listPropsCmd.label "List Properties…">
 <!ENTITY listPropsCmd.accesskey "L">
 
+<!ENTITY ParagraphSelect.title "Paragraph">
 <!ENTITY ParagraphSelect.tooltip "Choose a paragraph format">
 <!-- Shared in Paragraph, and Toolbar menulist -->
 <!ENTITY bodyTextCmd.label "Body Text">
@@ -205,8 +206,11 @@
 <!ENTITY alignJustify.tooltip "Align Justified">
 
 <!-- Layer toolbar items -->
+<!ENTITY absolutePosition.label "Positioning">
 <!ENTITY layer.tooltip "Layer">
+<!ENTITY decreaseZIndex.label "Send to Back">
 <!ENTITY layerSendToBack.tooltip "Send to Back">
+<!ENTITY increaseZIndex.label "Bring to Front">
 <!ENTITY layerBringToFront.tooltip "Bring to Front">
 
 <!ENTITY increaseIndent.label "Increase Indent">
@@ -304,26 +308,44 @@
 <!ENTITY linkToolbarCmd.tooltip "Insert new link or edit selected link's properties">
 <!ENTITY anchorToolbarCmd.label "Anchor">
 <!ENTITY anchorToolbarCmd.tooltip "Insert new named anchor or edit selected anchor's properties">
+<!ENTITY colorButtons.title "Colors">
 <!ENTITY TextColorButton.tooltip "Choose color for text">
 <!ENTITY BackgroundColorButton.tooltip "Choose color for background">
+<!ENTITY HighlightColorButton.label "Highlighter">
 <!ENTITY HighlightColorButton.tooltip "Choose highlight color for text">
 
 <!-- Editor toolbar -->
+<!ENTITY absoluteFontSize.label "Font Size">
 <!ENTITY absoluteFontSizeToolbarCmd.tooltip "Set font size">
+<!ENTITY smaller.label "Smaller">
 <!ENTITY decreaseFontSizeToolbarCmd.tooltip "Smaller font size">
+<!ENTITY larger.label "Larger">
 <!ENTITY increaseFontSizeToolbarCmd.tooltip "Larger font size">
+<!ENTITY bold.label "Bold">
 <!ENTITY boldToolbarCmd.tooltip "Bold">
+<!ENTITY italic.label "Italic">
 <!ENTITY italicToolbarCmd.tooltip "Italic">
+<!ENTITY underline.label "Underline">
 <!ENTITY underlineToolbarCmd.tooltip "Underline">
+<!ENTITY bullets.label "Bullets">
 <!ENTITY bulletListToolbarCmd.tooltip "Apply or remove bulleted list">
+<!ENTITY numbers.label "Numbers">
 <!ENTITY numberListToolbarCmd.tooltip "Apply or remove numbered list">
+<!ENTITY outdent.label "Outdent">
 <!ENTITY outdentToolbarCmd.tooltip "Outdent text (move left)">
+<!ENTITY indent.label "Indent">
 <!ENTITY indentToolbarCmd.tooltip "Indent text (move right)">
+<!ENTITY AlignPopupButton.label "Alignment">
 <!ENTITY AlignPopupButton.tooltip "Choose text alignment">
+<!ENTITY InsertPopupButton.label "Insert">
 <!ENTITY InsertPopupButton.tooltip "Insert a Link, Anchor, Image, Horizontal Line, or Table">
+<!ENTITY alignLeftButton.label "Align Left">
 <!ENTITY alignLeftButton.tooltip "Align text along left margin">
+<!ENTITY alignCenterButton.label "Align Center">
 <!ENTITY alignCenterButton.tooltip "Align text centered">
+<!ENTITY alignRightButton.label "Align Right">
 <!ENTITY alignRightButton.tooltip "Align text along right margin">
+<!ENTITY alignJustifyButton.label "Align Justify">
 <!ENTITY alignJustifyButton.tooltip "Align text along left and right margins">
 
 <!-- Structure Toolbar Context Menu items -->

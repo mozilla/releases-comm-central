@@ -561,3 +561,14 @@ toolbarbutton.formatting-button {
 #decreaseZIndexButton[disabled="true"] {
   list-style-image: url("chrome://editor/content/images/sendtoback-disabled.gif");
 }
+
+/* Force the folder location and mail view items to fit in the available width
+   in the Customize Toolbar dialog. */
+#palette-box #paragraph-select-container,
+#palette-box #ParagraphSelect,
+#palette-box #font-face-select-container,
+#palette-box #FontFaceSelect,
+#palette-box #font-size-select-container,
+#palette-box #FontSizeSelect {
+  -moz-box-flex: 1;
+}

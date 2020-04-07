@@ -287,11 +287,6 @@
                 <menupopup id="view_toolbars_popup"
                            onpopupshowing="onViewToolbarsPopupShowing(event)"
                            oncommand="onViewToolbarCommand(event);">
-                  <menuitem id="menu_showFormatToolbar"
-                            type="checkbox"
-                            label="&showFormatToolbarCmd.label;"
-                            accesskey="&showFormatToolbarCmd.accesskey;"
-                            command="cmd_viewFormatToolbar"/>
                   <menuitem id="menu_showTaskbar"/>
                 </menupopup>
               </menu>
@@ -636,6 +631,15 @@
              class="chromeclass-toolbar"
              persist="collapsed"
              grippytooltiptext="&formatToolbar.tooltip;"
+             toolbarname="&showFormatToolbarCmd.label;"
+             accesskey="&showFormatToolbarCmd.accesskey;"
+             customizable="true"
+             defaultset="paragraph-select-container,font-face-select-container,color-buttons-container,DecreaseFontSizeButton,IncreaseFontSizeButton,separator,boldButton,italicButton,underlineButton,separator,ulButton,olButton,outdentButton,indentButton,separator,AlignPopupButton,InsertPopupButton,smileButtonMenu"
+             mode="icons"
+             iconsize="small"
+             defaultmode="icons"
+             defaulticonsize="small"
+             context="toolbar-context-menu"
              nowindowdrag="true">
       <toolbaritem id="paragraph-select-container"/>
       <toolbaritem id="font-face-select-container"/>
@@ -643,20 +647,16 @@
                    disableoncustomize="true"/>
       <toolbarbutton id="DecreaseFontSizeButton"/>
       <toolbarbutton id="IncreaseFontSizeButton"/>
-      <toolbarseparator class="toolbarseparator-standard"/>
       <toolbarbutton id="boldButton"/>
       <toolbarbutton id="italicButton"/>
       <toolbarbutton id="underlineButton"/>
-      <toolbarseparator class="toolbarseparator-standard"/>
       <toolbarbutton id="ulButton"/>
       <toolbarbutton id="olButton"/>
       <toolbarbutton id="outdentButton"/>
       <toolbarbutton id="indentButton"/>
-      <toolbarseparator class="toolbarseparator-standard"/>
       <toolbarbutton id="AlignPopupButton"/>
       <toolbarbutton id="InsertPopupButton"/>
       <toolbarbutton id="smileButtonMenu"/>
-      <spacer flex="1"/>
     </toolbar>
 
     <toolbarpalette id="MsgComposeToolbarPalette">

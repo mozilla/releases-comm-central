@@ -91,7 +91,6 @@ comm.jar:
       content/editor/editorOverlay.xhtml                       (composer/content/editorOverlay.xhtml)
       content/editor/editingOverlay.xhtml                      (composer/content/editingOverlay.xhtml)
       content/editor/composerOverlay.xhtml                     (composer/content/composerOverlay.xhtml)
-      content/editor/pref-toolbars.xhtml                       (composer/content/pref-toolbars.xhtml)
       content/editor/pref-editing.xhtml                        (composer/content/pref-editing.xhtml)
       content/editor/pref-editing.js                           (composer/content/pref-editing.js)
       content/editor/pref-composer.xhtml                       (composer/content/pref-composer.xhtml)

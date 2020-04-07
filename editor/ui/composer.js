@@ -32,20 +32,6 @@ pref("editor.table.maintain_structure", true);
 
 pref("editor.prettyprint", true);
 
-pref("editor.toolbars.showbutton.bold", true);
-pref("editor.toolbars.showbutton.italic", true);
-pref("editor.toolbars.showbutton.underline", true);
-pref("editor.toolbars.showbutton.DecreaseFontSize", true);
-pref("editor.toolbars.showbutton.IncreaseFontSize", true);
-pref("editor.toolbars.showbutton.ul", true);
-pref("editor.toolbars.showbutton.ol", true);
-pref("editor.toolbars.showbutton.outdent", true);
-pref("editor.toolbars.showbutton.indent", true);
-
-pref("editor.toolbars.showbutton.absolutePosition", true);
-pref("editor.toolbars.showbutton.decreaseZIndex", true);
-pref("editor.toolbars.showbutton.increaseZIndex", true);
-
 pref("editor.history.url_maximum", 10);
 
 pref("editor.publish.",                      "");

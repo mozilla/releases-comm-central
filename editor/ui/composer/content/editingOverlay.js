@@ -46,7 +46,6 @@ function EditorOnLoad()
   // XUL elements we use when switching from normal editor to edit source.
   gContentWindowDeck = document.getElementById("ContentWindowDeck");
   gFormatToolbar = document.getElementById("FormatToolbar");
-  gViewFormatToolbar = document.getElementById("viewFormatToolbar");
 
   // Continue with normal startup.
   EditorStartup(url, charset);
@@ -177,9 +176,6 @@ function EditorStartup(aUrl, aCharset)
   //  such as file-related commands, HTML Source editing, Edit Modes...
   SetupComposerWindowCommands();
 
-  ShowHideToolbarButtons();
-  gEditorToolbarPrefListener = new nsPrefListener(kEditorToolbarPrefs);
-
   gCSSPrefListener = new nsPrefListener(kUseCssPref);
   gReturnInParagraphPrefListener = new nsPrefListener(kCRInParagraphsPref);
   Services.obs.addObserver(EditorCanClose, "quit-application-requested");
@@ -203,7 +199,6 @@ function EditorShutdown()
 {
   Services.obs.removeObserver(EditorCanClose, "quit-application-requested");
 
-  gEditorToolbarPrefListener.shutdown();
   gCSSPrefListener.shutdown();
   gReturnInParagraphPrefListener.shutdown();
 

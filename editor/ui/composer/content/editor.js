@@ -55,7 +55,6 @@ var gSourceTextEditor = null;
 var gContentWindowDeck;
 var gFormatToolbar;
 var gFormatToolbarHidden = false;
-var gViewFormatToolbar;
 var gChromeState;
 var gColorObj = {
   LastTextColor: "",
@@ -75,7 +74,6 @@ var gColorObj = {
 var gDefaultTextColor = "";
 var gDefaultBackgroundColor = "";
 var gCSSPrefListener;
-var gEditorToolbarPrefListener;
 var gReturnInParagraphPrefListener;
 var gLocalFonts = null;
 
@@ -95,48 +93,8 @@ var gFontSizeNames = [
 
 var nsIFilePicker = Ci.nsIFilePicker;
 
-var kEditorToolbarPrefs = "editor.toolbars.showbutton.";
 var kUseCssPref = "editor.use_css";
 var kCRInParagraphsPref = "editor.CR_creates_new_p";
-
-function ShowHideToolbarSeparators(toolbar) {
-  // Make sure the toolbar actually exists.
-  if (!toolbar) {
-    return;
-  }
-  var childNodes = toolbar.childNodes;
-  var separator = null;
-  var hideSeparator = true;
-  for (var i = 0; childNodes[i].localName != "spacer"; i++) {
-    if (childNodes[i].localName == "toolbarseparator") {
-      if (separator) {
-        separator.hidden = true;
-      }
-      separator = childNodes[i];
-    } else if (!childNodes[i].hidden) {
-      if (separator) {
-        separator.hidden = hideSeparator;
-      }
-      separator = null;
-      hideSeparator = false;
-    }
-  }
-}
-
-function ShowHideToolbarButtons() {
-  let array = Services.prefs.getChildList(kEditorToolbarPrefs);
-  for (let i in array) {
-    let prefName = array[i];
-    let id = prefName.substr(kEditorToolbarPrefs.length);
-    let button =
-      document.getElementById(id + "Button") ||
-      document.getElementById(id + "-button");
-    if (button) {
-      button.hidden = !Services.prefs.getBoolPref(prefName);
-    }
-  }
-  ShowHideToolbarSeparators(document.getElementById("FormatToolbar"));
-}
 
 function nsPrefListener(prefName) {
   this.startup(prefName);
@@ -188,13 +146,6 @@ nsPrefListener.prototype = {
         if (editor) {
           editor.isCSSEnabled = useCSS;
         }
-      }
-    } else if (prefName.startsWith(kEditorToolbarPrefs)) {
-      let id = prefName.substr(kEditorToolbarPrefs.length) + "Button";
-      let button = document.getElementById(id);
-      if (button) {
-        button.hidden = !Services.prefs.getBoolPref(prefName);
-        ShowHideToolbarSeparators(button.parentNode);
       }
     } else if (editor && prefName == kCRInParagraphsPref) {
       editor.returnInParagraphCreatesNewParagraph = Services.prefs.getBoolPref(
@@ -369,7 +320,6 @@ var gEditorDocumentObserver = {
        currently does), then this item shouldn't be hidden: */
             HideItem("menu_pasteNoFormatting");
 
-            HideItem("cmd_viewFormatToolbar");
             HideItem("cmd_viewEditModeToolbar");
 
             HideItem("viewSep1");
@@ -2007,7 +1957,7 @@ function SetDisplayMode(mode) {
     // Hide the formatting toolbar if not already hidden
     gFormatToolbarHidden = gFormatToolbar.hidden;
     gFormatToolbar.hidden = true;
-    gViewFormatToolbar.hidden = true;
+    gFormatToolbar.setAttribute("hideinmenu", "true");
 
     gSourceContentWindow.contentWindow.focus();
   } else {
@@ -2053,7 +2003,7 @@ function SetDisplayMode(mode) {
 
     // Restore menus and toolbars
     gFormatToolbar.hidden = gFormatToolbarHidden;
-    gViewFormatToolbar.hidden = false;
+    gFormatToolbar.removeAttribute("hideinmenu");
 
     gContentWindow.focus();
   }
@@ -2686,7 +2636,6 @@ function RemoveInapplicableUIElements() {
     HideItem("insertHTML");
     HideItem("insertFormMenu");
     HideItem("fileExportToText");
-    HideItem("viewFormatToolbar");
     HideItem("viewEditModeToolbar");
   }
 }

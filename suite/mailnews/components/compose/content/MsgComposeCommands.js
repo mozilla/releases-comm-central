@@ -70,6 +70,7 @@ var gMsgSubjectElement;
 var gMsgAttachmentElement;
 var gMsgHeadersToolbarElement;
 var gComposeType;
+var gFormatToolbarHidden = false;
 
 // i18n globals
 var gCharsetConvertManager;
@@ -1309,11 +1310,12 @@ function ComposeStartup(aParams)
       else
       {
         //Remove HTML toolbar, format and insert menus as we are editing in plain text mode
+        let toolbar = document.getElementById("FormatToolbar");
+        toolbar.hidden = true;
+        toolbar.setAttribute("hideinmenu", "true");
         document.getElementById("outputFormatMenu").setAttribute("hidden", true);
-        document.getElementById("FormatToolbar").setAttribute("hidden", true);
         document.getElementById("formatMenu").setAttribute("hidden", true);
         document.getElementById("insertMenu").setAttribute("hidden", true);
-        document.getElementById("menu_showFormatToolbar").setAttribute("hidden", true);
       }
 
       // Do setup common to Message Composer and Web Composer
@@ -1937,7 +1939,6 @@ function OutputFormatMenuSelect(target)
     var toolbar = document.getElementById("FormatToolbar");
     var format_menubar = document.getElementById("formatMenu");
     var insert_menubar = document.getElementById("insertMenu");
-    var show_menuitem = document.getElementById("menu_showFormatToolbar");
 
     if (msgCompFields)
       switch (target.getAttribute('id'))
@@ -1950,9 +1951,14 @@ function OutputFormatMenuSelect(target)
     gHideMenus = (gSendFormat == nsIMsgCompSendFormat.PlainText);
     format_menubar.hidden = gHideMenus;
     insert_menubar.hidden = gHideMenus;
-    show_menuitem.hidden = gHideMenus;
-    toolbar.hidden = gHideMenus ||
-      (show_menuitem.getAttribute("checked") == "false");
+    if (gHideMenus) {
+      gFormatToolbarHidden = toolbar.hidden;
+      toolbar.hidden = true;
+      toolbar.setAttribute("hideinmenu", "true");
+    } else {
+      toolbar.hidden = gFormatToolbarHidden;
+      toolbar.removeAttribute("hideinmenu");
+    }
   }
 }
 
