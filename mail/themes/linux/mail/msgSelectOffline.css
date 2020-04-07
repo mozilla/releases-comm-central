@@ -6,7 +6,7 @@
    == The dialog where you select which folders to enable for offline use.
    ========================================================================== */
 
-@import url("chrome://messenger/skin/");
+@import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/folderPane.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");

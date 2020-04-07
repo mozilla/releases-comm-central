@@ -6,7 +6,7 @@
   == Styles for the main Messenger Compose window.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/");
+@import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/shared/messengercompose.css");
 
 @namespace html url("http://www.w3.org/1999/xhtml");

@@ -6,7 +6,7 @@
   == Styles for the main Mail window in the default layout scheme.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/");
+@import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/primaryToolbar.css");
 @import url("chrome://messenger/skin/folderMenus.css");
 @import url("chrome://messenger/skin/folderPane.css");

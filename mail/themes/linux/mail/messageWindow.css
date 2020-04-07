@@ -6,7 +6,7 @@
   == Styles for the message window.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/");
+@import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/primaryToolbar.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
