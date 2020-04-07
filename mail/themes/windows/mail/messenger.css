@@ -6,7 +6,7 @@
   == Styles shared throughout the Messenger application.
   ======================================================================= */
 
-@import url("chrome://global/skin/");
+@import url("chrome://global/skin/global.css");
 @import url("chrome://messenger/content/messenger.css");
 @import url("chrome://messenger/skin/shared/messenger.css");
 
