@@ -26,10 +26,10 @@ const getEnigmailProtocolHandler = EnigmailLazy.loader(
   "enigmail/protocolHandler.jsm",
   "EnigmailProtocolHandler"
 );
-const getEnigmailFiltersWrapper = EnigmailLazy.loader(
-  "enigmail/filtersWrapper.jsm",
-  "EnigmailFiltersWrapper"
-);
+//const getEnigmailFiltersWrapper = EnigmailLazy.loader(
+//  "enigmail/filtersWrapper.jsm",
+//  "EnigmailFiltersWrapper"
+//);
 const getEnigmailLog = EnigmailLazy.loader("enigmail/log.jsm", "EnigmailLog");
 const getEnigmailLocale = EnigmailLazy.loader(
   "enigmail/locale.jsm",
@@ -60,10 +60,10 @@ const getEnigmailConfigure = EnigmailLazy.loader(
   "EnigmailConfigure"
 );
 const getEnigmailApp = EnigmailLazy.loader("enigmail/app.jsm", "EnigmailApp");
-const getEnigmailWksMimeHandler = EnigmailLazy.loader(
-  "enigmail/wksMimeHandler.jsm",
-  "EnigmailWksMimeHandler"
-);
+//const getEnigmailWksMimeHandler = EnigmailLazy.loader(
+//  "enigmail/wksMimeHandler.jsm",
+//  "EnigmailWksMimeHandler"
+//);
 const getEnigmailPgpmimeHander = EnigmailLazy.loader(
   "enigmail/pgpmimeHandler.jsm",
   "EnigmailPgpmimeHander"
@@ -153,8 +153,8 @@ var EnigmailCore = {
     }
 
     getEnigmailVerify().registerContentTypeHandler();
-    getEnigmailWksMimeHandler().registerContentTypeHandler();
-    getEnigmailFiltersWrapper().onStartup();
+    //getEnigmailWksMimeHandler().registerContentTypeHandler();
+    //getEnigmailFiltersWrapper().onStartup();
     continueStartup(1);
 
     let myName = getEnigmailLocale().getString("Enigmail");
@@ -179,7 +179,7 @@ var EnigmailCore = {
       }
     }
 
-    getEnigmailFiltersWrapper().onShutdown();
+    //getEnigmailFiltersWrapper().onShutdown();
     getEnigmailVerify().unregisterContentTypeHandler();
 
     getEnigmailLocale().shutdown();

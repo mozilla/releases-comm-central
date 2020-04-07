@@ -23,6 +23,9 @@ function converter(charset) {
 
 var EnigmailData = {
   getUnicodeData(data) {
+    if (!data) {
+      throw new Error("EnigmailData.getUnicodeData invalid parameter");
+    }
     // convert output to Unicode
     var tmpStream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
       Ci.nsIStringInputStream

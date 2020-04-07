@@ -94,16 +94,19 @@ var RNP = {
     if (forListing) {
       keyObj.id = keyObj.keyId;
     }
+    RNPLib.rnp_buffer_destroy(key_id);
 
     if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
       throw new Error("rnp_key_get_fprint failed");
     }
     keyObj.fpr = fingerprint.readString();
+    RNPLib.rnp_buffer_destroy(fingerprint);
 
     if (RNPLib.rnp_key_get_alg(handle, algo.address())) {
       throw new Error("rnp_key_get_alg failed");
     }
     keyObj.algoSym = algo.readString();
+    RNPLib.rnp_buffer_destroy(algo);
 
     if (RNPLib.rnp_key_get_bits(handle, bits.address())) {
       throw new Error("rnp_key_get_bits failed");
@@ -353,6 +356,7 @@ var RNP = {
             throw new Error("rnp_key_get_uid_at failed");
           }
           let userIdStr = uid_str.readString();
+          RNPLib.rnp_buffer_destroy(uid_str);
           if (userIdStr !== RNP_PHOTO_USERID_ID) {
             if (!primary_uid_set) {
               keyObj.userId = userIdStr;
@@ -363,15 +367,13 @@ var RNP = {
             }
 
             let uidObj = {};
-            uidObj.userId = uid_str.readString();
+            uidObj.userId = userIdStr;
             uidObj.type = "uid";
             uidObj.keyTrust = keyObj.keyTrust;
             uidObj.uidFpr = "??fpr??";
 
             keyObj.userIds.push(uidObj);
           }
-
-          RNPLib.rnp_buffer_destroy(uid_str);
         }
 
         RNPLib.rnp_uid_handle_destroy(uid_handle);
@@ -383,6 +385,7 @@ var RNP = {
           throw new Error("rnp_key_get_primary_uid failed");
         }
         keyObj.userId = prim_uid_str.readString();
+        RNPLib.rnp_buffer_destroy(prim_uid_str);
       }
 
       if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
@@ -453,6 +456,7 @@ var RNP = {
             throw new Error("rnp_key_get_uid_at failed");
           }
           let userIdStr = uid_str.readString();
+          RNPLib.rnp_buffer_destroy(uid_str);
 
           if (userIdStr !== RNP_PHOTO_USERID_ID) {
             let id = outputIndex;
@@ -515,6 +519,7 @@ var RNP = {
 
               let sigIdStr = sig_id_str.readString();
               sigObj.signerKeyId = sigIdStr;
+              RNPLib.rnp_buffer_destroy(sig_id_str);
 
               let signerHandle = new RNPLib.rnp_key_handle_t();
 
@@ -544,6 +549,7 @@ var RNP = {
                   throw new Error("rnp_key_get_uid_at failed");
                 }
                 sigObj.userId = signer_uid_str.readString();
+                RNPLib.rnp_buffer_destroy(signer_uid_str);
                 sigObj.sigKnown = true;
                 rList[id].sigList.push(sigObj);
                 RNPLib.rnp_key_handle_destroy(signerHandle);
@@ -551,7 +557,6 @@ var RNP = {
               RNPLib.rnp_signature_handle_destroy(sig_handle);
             }
           }
-          RNPLib.rnp_buffer_destroy(uid_str);
         }
 
         RNPLib.rnp_uid_handle_destroy(uid_handle);
@@ -943,6 +948,7 @@ var RNP = {
       throw new Error("rnp_key_get_keyid failed");
     }
     newKeyId = ctypes_key_id.readString();
+    RNPLib.rnp_buffer_destroy(ctypes_key_id);
 
     if (
       RNPLib.rnp_op_generate_subkey_create(
@@ -1382,6 +1388,7 @@ var RNP = {
         console.debug(
           "found suitable subkey, fingerprint: " + fingerprint.readString()
         );
+        RNPLib.rnp_buffer_destroy(fingerprint);
         break;
       }
     }
@@ -1698,39 +1705,6 @@ var RNP = {
           continue;
         }
 
-        let acceptance = "";
-
-        if (onlyAcceptableAsPublic) {
-          let fingerprint = new ctypes.char.ptr();
-          if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
-            throw new Error("rnp_key_get_fprint failed");
-          }
-          let fpr = fingerprint.readString();
-
-          let acceptanceResult = {};
-          try {
-            await PgpSqliteDb2.getAcceptance(
-              fpr,
-              emailWithoutBrackets,
-              acceptanceResult
-            );
-          } catch (ex) {
-            console.debug("getAcceptance failed: " + ex);
-          }
-
-          if (!acceptanceResult.emailDecided) {
-            continue;
-          }
-          acceptance = acceptanceResult.fingerprintAcceptance;
-          let isAcceptable =
-            acceptance == "unverified" || acceptance == "verified";
-          if (!isAcceptable) {
-            continue;
-          }
-        }
-
-        /* Ensure the desired email is still contained in the set of
-         * valid UIDs, hasn't been removed, nor revoked. */
         if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
           throw new Error("rnp_key_get_uid_count failed");
         }
@@ -1757,17 +1731,51 @@ var RNP = {
             }
 
             let userId = uid_str.readString();
+            RNPLib.rnp_buffer_destroy(uid_str);
             if (userId.includes(id)) {
               foundUid = true;
 
+              let haveSecret;
               if (onlyAcceptableAsPublic) {
-                if (acceptance == "unverified") {
+                // if secret key is available, any usage is allowed
+                let have_secret = new ctypes.bool();
+                if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
+                  throw new Error("rnp_key_have_secret failed");
+                }
+                haveSecret = have_secret.value;
+              }
+
+              if (onlyAcceptableAsPublic && !haveSecret) {
+                let fingerprint = new ctypes.char.ptr();
+                if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
+                  throw new Error("rnp_key_get_fprint failed");
+                }
+                let fpr = fingerprint.readString();
+                RNPLib.rnp_buffer_destroy(fingerprint);
+
+                let acceptanceResult = {};
+                try {
+                  await PgpSqliteDb2.getAcceptance(
+                    fpr,
+                    emailWithoutBrackets,
+                    acceptanceResult
+                  );
+                } catch (ex) {
+                  console.debug("getAcceptance failed: " + ex);
+                }
+
+                if (!acceptanceResult.emailDecided) {
+                  continue;
+                }
+                if (acceptanceResult.fingerprintAcceptance == "unverified") {
                   /* keep searching for a better, verified key */
                   if (!tentativeUnverifiedHandle) {
                     tentativeUnverifiedHandle = handle;
                     have_handle = false;
                   }
-                } else if (acceptance == "verified") {
+                } else if (
+                  acceptanceResult.fingerprintAcceptance == "verified"
+                ) {
                   foundHandle = handle;
                   have_handle = false;
                   if (tentativeUnverifiedHandle) {
@@ -1780,10 +1788,7 @@ var RNP = {
                 have_handle = false;
               }
             }
-
-            RNPLib.rnp_buffer_destroy(uid_str);
           }
-
           RNPLib.rnp_uid_handle_destroy(uid_handle);
         }
       } catch (ex) {
