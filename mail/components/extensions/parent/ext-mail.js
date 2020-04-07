@@ -129,6 +129,26 @@ global.clickModifiersFromEvent = event => {
   return modifiers;
 };
 
+global.openOptionsPage = extension => {
+  let window = windowTracker.topWindow;
+  if (!window) {
+    return Promise.reject({ message: "No browser window available" });
+  }
+
+  if (extension.manifest.options_ui.open_in_tab) {
+    window.switchToTabHavingURI(extension.manifest.options_ui.page, true, {
+      triggeringPrincipal: extension.principal,
+    });
+    return Promise.resolve();
+  }
+
+  let viewId = `addons://detail/${encodeURIComponent(
+    extension.id
+  )}/preferences`;
+
+  return window.openAddonsMgr(viewId);
+};
+
 global.makeWidgetId = id => {
   id = id.toLowerCase();
   // FIXME: This allows for collisions.
