@@ -259,7 +259,7 @@ var NetworkTestUtils = {
       );
       let filter = {
         QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolProxyFilter]),
-        applyFilter(aProxyService, aURI, aProxyInfo, aCallback) {
+        applyFilter(aURI, aProxyInfo, aCallback) {
           if (aURI.host != "localhost" && aURI.host != "127.0.0.1") {
             aCallback.onProxyFilterResult(
               pps.newProxyInfo(
