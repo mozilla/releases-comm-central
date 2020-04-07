@@ -149,7 +149,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
   else
     aRequestingContext = aLoadInfo->LoadingNode();
   nsCOMPtr<nsIPrincipal> aRequestPrincipal = aLoadInfo->TriggeringPrincipal();
-  nsCOMPtr<nsIPrincipal> loadingPrincipal = aLoadInfo->LoadingPrincipal();
+  nsCOMPtr<nsIPrincipal> loadingPrincipal = aLoadInfo->GetLoadingPrincipal();
   nsCOMPtr<nsIURI> aRequestingLocation;
   if (loadingPrincipal) {
     loadingPrincipal->GetURI(getter_AddRefs(aRequestingLocation));
