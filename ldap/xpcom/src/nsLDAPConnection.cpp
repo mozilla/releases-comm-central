@@ -603,8 +603,8 @@ nsLDAPConnectionRunnable::nsLDAPConnectionRunnable(
 
 nsLDAPConnectionRunnable::~nsLDAPConnectionRunnable() {
   if (mConnection) {
-    NS_ReleaseOnMainThreadSystemGroup("nsLDAPConnectionRunnable::mConnection",
-                                      mConnection.forget());
+    NS_ReleaseOnMainThread("nsLDAPConnectionRunnable::mConnection",
+                           mConnection.forget());
   }
 }
 

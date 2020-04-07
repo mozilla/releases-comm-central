@@ -106,8 +106,8 @@ class AutoProxyReleaseMsgWindow {
  public:
   AutoProxyReleaseMsgWindow() : mMsgWindow() {}
   ~AutoProxyReleaseMsgWindow() {
-    NS_ReleaseOnMainThreadSystemGroup("AutoProxyReleaseMsgWindow::mMsgWindow",
-                                      dont_AddRef(mMsgWindow));
+    NS_ReleaseOnMainThread("AutoProxyReleaseMsgWindow::mMsgWindow",
+                           dont_AddRef(mMsgWindow));
   }
   nsIMsgWindow **StartAssignment() {
     MOZ_ASSERT(!mMsgWindow);
@@ -1019,8 +1019,8 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
       if (m_mockChannel) {
         // Proxy the release of the channel to the main thread.  This is
         // something that the xpcom proxy system should do for us!
-        NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol::m_mockChannel",
-                                          m_mockChannel.forget());
+        NS_ReleaseOnMainThread("nsImapProtocol::m_mockChannel",
+                               m_mockChannel.forget());
       }
     }
   }
@@ -1033,8 +1033,8 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
     // grab a lock so the m_channelListener doesn't get cleared.
     MutexAutoLock mon(mLock);
     if (m_channelListener) {
-      NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol::m_channelListener",
-                                        m_channelListener.forget());
+      NS_ReleaseOnMainThread("nsImapProtocol::m_channelListener",
+                             m_channelListener.forget());
     }
   }
   m_channelInputStream = nullptr;
@@ -1063,8 +1063,8 @@ void nsImapProtocol::ReleaseUrlState(bool rerunning) {
   // released back on the UI thread. This ensures that the objects the imap url
   // hangs on to properly get released back on the UI thread.
   if (mailnewsurl) {
-    NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol::m_runningUrl",
-                                      mailnewsurl.forget());
+    NS_ReleaseOnMainThread("nsImapProtocol::m_runningUrl",
+                           mailnewsurl.forget());
   }
   saveFolderSink = nullptr;
 }
@@ -1119,8 +1119,8 @@ NS_IMETHODIMP nsImapProtocol::Run() {
   }
 
   if (m_runningUrl) {
-    NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol::m_runningUrl",
-                                      m_runningUrl.forget());
+    NS_ReleaseOnMainThread("nsImapProtocol::m_runningUrl",
+                           m_runningUrl.forget());
   }
 
   // close streams via UI thread if it's not already done
@@ -1138,8 +1138,7 @@ NS_IMETHODIMP nsImapProtocol::Run() {
   // Release protocol object on the main thread to avoid destruction of 'this'
   // on the IMAP thread, which causes grief for weak references.
   nsCOMPtr<nsIImapProtocol> releaseOnMain(this);
-  NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol::this",
-                                    releaseOnMain.forget());
+  NS_ReleaseOnMainThread("nsImapProtocol::this", releaseOnMain.forget());
   return NS_OK;
 }
 
@@ -1864,8 +1863,7 @@ bool nsImapProtocol::ProcessCurrentURL() {
                 ("CopyNextStreamMessage failed: %" PRIx32,
                  static_cast<uint32_t>(rv)));
 
-      NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol, copyState",
-                                        copyState.forget());
+      NS_ReleaseOnMainThread("nsImapProtocol, copyState", copyState.forget());
     }
     // we might need this to stick around for IDLE support
     m_imapMailFolderSink = imapMailFolderSink;
@@ -1928,8 +1926,8 @@ bool nsImapProtocol::RetryUrl() {
   // Mockchannel dtor insists upon being run on the main thread.
   // So make sure we don't accidentally cause the mockchannel to die right now.
   if (saveMockChannel) {
-    NS_ReleaseOnMainThreadSystemGroup("nsImapProtocol::RetryUrl",
-                                      saveMockChannel.forget());
+    NS_ReleaseOnMainThread("nsImapProtocol::RetryUrl",
+                           saveMockChannel.forget());
   }
 
   return (m_imapServerSink != nullptr);  // we're running a url (the same url)

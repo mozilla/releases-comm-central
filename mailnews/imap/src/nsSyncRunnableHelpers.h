@@ -34,8 +34,8 @@ class StreamListenerProxy final : public nsIStreamListener {
 
  private:
   ~StreamListenerProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("StreamListenerProxy::mReceiver",
-                                      mReceiver.forget());
+    NS_ReleaseOnMainThread("StreamListenerProxy::mReceiver",
+                           mReceiver.forget());
   }
   nsCOMPtr<nsIStreamListener> mReceiver;
 };
@@ -53,8 +53,8 @@ class ImapMailFolderSinkProxy final : public nsIImapMailFolderSink {
 
  private:
   ~ImapMailFolderSinkProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("ImapMailFolderSinkProxy::mReceiver",
-                                      mReceiver.forget());
+    NS_ReleaseOnMainThread("ImapMailFolderSinkProxy::mReceiver",
+                           mReceiver.forget());
   }
   nsCOMPtr<nsIImapMailFolderSink> mReceiver;
 };
@@ -72,8 +72,8 @@ class ImapServerSinkProxy final : public nsIImapServerSink {
 
  private:
   ~ImapServerSinkProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("ImapServerSinkProxy::mReceiver",
-                                      mReceiver.forget());
+    NS_ReleaseOnMainThread("ImapServerSinkProxy::mReceiver",
+                           mReceiver.forget());
   }
   nsCOMPtr<nsIImapServerSink> mReceiver;
 };
@@ -91,8 +91,8 @@ class ImapMessageSinkProxy final : public nsIImapMessageSink {
 
  private:
   ~ImapMessageSinkProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("ImapMessageSinkProxy::mReceiver",
-                                      mReceiver.forget());
+    NS_ReleaseOnMainThread("ImapMessageSinkProxy::mReceiver",
+                           mReceiver.forget());
   }
   nsCOMPtr<nsIImapMessageSink> mReceiver;
 };
@@ -110,8 +110,8 @@ class ImapProtocolSinkProxy final : public nsIImapProtocolSink {
 
  private:
   ~ImapProtocolSinkProxy() {
-    NS_ReleaseOnMainThreadSystemGroup("ImapProtocolSinkProxy::mReceiver",
-                                      mReceiver.forget());
+    NS_ReleaseOnMainThread("ImapProtocolSinkProxy::mReceiver",
+                           mReceiver.forget());
   }
   nsCOMPtr<nsIImapProtocolSink> mReceiver;
 };
