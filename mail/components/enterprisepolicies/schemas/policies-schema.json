@@ -99,6 +99,10 @@
       }
     },
 
+    "DisableSystemAddonUpdate": {
+      "type": "boolean"
+    },
+
     "Extensions": {
       "type": "object",
       "properties": {

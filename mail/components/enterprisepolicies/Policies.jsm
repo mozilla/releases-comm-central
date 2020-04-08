@@ -299,6 +299,14 @@ var Policies = {
     },
   },
 
+  DisableSystemAddonUpdate: {
+    onBeforeAddons(manager, param) {
+      if (param) {
+        manager.disallowFeature("SysAddonUpdate");
+      }
+    },
+  },
+
   Extensions: {
     onBeforeUIStartup(manager, param) {
       let uninstallingPromise = Promise.resolve();
