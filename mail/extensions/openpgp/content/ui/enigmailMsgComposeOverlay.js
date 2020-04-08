@@ -12,7 +12,7 @@
 /*global AddAttachments: false, AddAttachment: false, ChangeAttachmentBucketVisibility: false, GetResourceFromUri: false */
 /*global Recipients2CompFields: false, Attachments2CompFields: false, DetermineConvertibility: false, gWindowLocked: false */
 /*global CommandUpdate_MsgCompose: false, gSMFields: false, setSecuritySettings: false, getCurrentAccountKey: false */
-/*global Sendlater3Composing: false */
+/*global Sendlater3Composing: false, gCurrentIdentity: false */
 /*global gSendEncrypted: true, gOptionalEncryption: true, gSendSigned: true, gSelectedTechnologyIsPGP: true */
 /*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
 
@@ -209,45 +209,19 @@ Enigmail.msg = {
 
     Enigmail.msg.msgComposeReset(false); // false => not closing => call setIdentityDefaults()
 
-    // TODO this migration code needs to move to a better place, possibly configure.jsm
+    // TODO implement migration code for old prefs, possibly in configure.jsm
     // Use a new pref identityEnigmailPrefsMigrated, default false.
     // Only if we're doing this for the first time for an identity,
     // try to read old prefs and if found, store as new prefs,
     // then set identityEnigmailPrefsMigrated=true
-
-    if (
-      Enigmail.msg.wasEnigmailAddOnInstalled() &&
-      Enigmail.msg.wasEnigmailEnabledForIdentity() &&
-      this.identity.getIntAttribute("mimePreferOpenPGP") > 0
-    ) {
-      // migrate old enigmail prefs
-      gSendEncrypted =
-        this.identity.getIntAttribute("defaultEncryptionPolicy") > 0;
-      gOptionalEncryption =
-        this.identity.getIntAttribute("autoSendEncrypted") > 0;
-      gSendSigned = this.identity.getIntAttribute("defaultSigningPolicy") > 0;
-      gSelectedTechnologyIsPGP = true;
-    } else if (Enigmail.msg.isSmimeEnabled()) {
-      gSendEncrypted = this.identity.getIntAttribute("encryptionpolicy") > 0;
-      gOptionalEncryption = false;
-      gSendSigned = this.identity.getBoolAttribute("sign_mail");
-    } else {
-      // if the user didn't yet configure s/mime, use PGP mode.
-      gSendEncrypted = false;
-      gOptionalEncryption = false;
-      gSendSigned = false;
-      gSelectedTechnologyIsPGP = true;
-    }
-    // TODO: If already migrated, set variables using new pres
-
-    if (gIsRelatedToEncryptedOriginal) {
-      gSendEncrypted = true;
-    }
-
-    if (!gSelectedTechnologyIsPGP) {
-      gSMFields.requireEncryptMessage = gSendEncrypted;
-      gSMFields.signMessage = gSendSigned;
-    }
+    // Enigmail account prefs that need to be handled:
+    // - defaultEncryptionPolicy
+    // - autoSendEncrypted
+    // - defaultSigningPolicy
+    // possible values to check:
+    // - Enigmail.msg.wasEnigmailAddOnInstalled()
+    // - Enigmail.msg.wasEnigmailEnabledForIdentity
+    // - this.identity.getIntAttribute("mimePreferOpenPGP") > 0
 
     Enigmail.msg.composeOpen();
     //Enigmail.msg.processFinalState();
@@ -919,13 +893,6 @@ Enigmail.msg = {
     //this.sendMode = 0;
     //this.sendModeDirty = false;
 
-    // here ???
-    gSendSigned = false;
-    gSendEncrypted = false;
-    gOptionalEncryption = false;
-    gIsRelatedToEncryptedOriginal = false;
-    gIsRelatedToSignedOriginal = false;
-
     this.statusEncryptedStr = "???";
     this.statusSignedStr = "???";
     //this.statusPGPMimeStr = "???";
@@ -1050,7 +1017,11 @@ Enigmail.msg = {
 
     if (!this.attachOwnKeyObj.attachedKey) {
       let hex = "0x" + id;
-      var attachedObj = this.extractAndAttachKey([hex], true);
+      var attachedObj = this.extractAndAttachKey(
+        [hex],
+        gCurrentIdentity.email,
+        true
+      );
       if (attachedObj) {
         this.attachOwnKeyObj.attachedObj = attachedObj;
         this.attachOwnKeyObj.attachedKey = hex;
@@ -1081,13 +1052,13 @@ Enigmail.msg = {
       if (resultObj.cancelled) {
         return;
       }
-      this.extractAndAttachKey(resultObj.userList, true);
+      this.extractAndAttachKey(resultObj.userList, null, true);
     } catch (ex) {
       // cancel pressed -> do nothing
     }
   },
 
-  extractAndAttachKey(uidArray, warnOnError) {
+  extractAndAttachKey(uidArray, emailForFilename, warnOnError) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.extractAndAttachKey: \n"
     );
@@ -1147,6 +1118,9 @@ Enigmail.msg = {
       if (keyAttachment.name.search(/^0x/) < 0) {
         keyAttachment.name = "0x" + keyAttachment.name;
       }
+      // let normalizedEmail = emailForFilename.replace(" ", "_");
+      // emailForFilename is currently unused
+      keyAttachment.name = "OpenPGP_" + keyAttachment.name;
     } else {
       keyAttachment.name = "pgpkeys.asc";
     }

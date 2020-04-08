@@ -110,11 +110,22 @@ var gBodyFromArgs;
 var gSMFields = null;
 var gSelectedTechnologyIsPGP = false;
 
+// The initial flags store the value we used at composer open time.
+// Some flags might be automatically changed as a consequence of other
+// changes. When reverting automatic actions, the initial flags help
+// us know what value we should use for restoring.
+
 var gSendSigned = false;
+var gSendSignedInitial = false;
+
 var gAttachMyPublicPGPKey = false;
+var gAttachMyPublicPGPKeyInitial = false;
 
 var gSendEncrypted = false;
+var gSendEncryptedInitial = false;
+
 var gOptionalEncryption = false; // Only encrypt if possible. Ignored if !gSendEncrypted.
+var gOptionalEncryptionInitial = false;
 
 var gUserTouchedSendEncrypted = false;
 var gUserTouchedSendSigned = false;
@@ -1571,12 +1582,23 @@ function isPgpConfigured() {
 function toggleGlobalSignMessage() {
   gSendSigned = !gSendSigned;
   gUserTouchedSendSigned = true;
+
+  if (!gUserTouchedAttachMyPubKey) {
+    if (gSendSigned) {
+      gAttachMyPublicPGPKey = true;
+    } else {
+      gAttachMyPublicPGPKey = gAttachMyPublicPGPKeyInitial;
+    }
+  }
+
   setEncSigStatusUI();
 }
 
 function setGlobalEncryptMessage(mode) {
   let oldSendEnc = gSendEncrypted;
   let oldOptEnc = gOptionalEncryption;
+
+  let enableSig = false;
 
   switch (mode) {
     case 0:
@@ -1585,10 +1607,12 @@ function setGlobalEncryptMessage(mode) {
       break;
     case 1:
       gSendEncrypted = true;
+      enableSig = true;
       gOptionalEncryption = true;
       break;
     case 2:
       gSendEncrypted = true;
+      enableSig = true;
       gOptionalEncryption = false;
       break;
     default:
@@ -1597,6 +1621,22 @@ function setGlobalEncryptMessage(mode) {
 
   if (oldSendEnc != gSendEncrypted || oldOptEnc != gOptionalEncryption) {
     gUserTouchedSendEncrypted = true;
+  }
+
+  if (!gUserTouchedSendSigned) {
+    if (enableSig) {
+      gSendSigned = true;
+    } else {
+      gSendSigned = gSendSignedInitial;
+    }
+  }
+
+  if (!gUserTouchedAttachMyPubKey) {
+    if (gSendSigned) {
+      gAttachMyPublicPGPKey = true;
+    } else {
+      gAttachMyPublicPGPKey = gAttachMyPublicPGPKeyInitial;
+    }
   }
 
   setEncSigStatusUI();
@@ -3652,7 +3692,47 @@ function ComposeLoad() {
     gMsgCompose.compFields.composeSecure = gSMFields;
   }
 
-  // TODO: call code to get default settings for gSendEncrypted etc.
+  let configuredSMIME =
+    isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
+  let configuredOpenPGP = false;
+
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+    configuredOpenPGP = isPgpConfigured();
+  }
+
+  gSelectedTechnologyIsPGP = false;
+
+  if (configuredOpenPGP) {
+    if (!configuredSMIME) {
+      gSelectedTechnologyIsPGP = true;
+    } else {
+      // both are configured
+      let techPref = gCurrentIdentity.getIntAttribute("e2etechpref");
+      gSelectedTechnologyIsPGP = techPref != 1;
+
+      // TODO: if !techPref, we might set another flag, and
+      // decide dynamically which one to use, based on the
+      // availability of recipient keys etc.
+    }
+  }
+
+  if (configuredOpenPGP || configuredSMIME) {
+    gSendEncrypted = gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0;
+    gOptionalEncryption = false;
+    gSendSigned = gCurrentIdentity.getBoolAttribute("sign_mail");
+  }
+
+  gSendSignedInitial = gSendSigned;
+  gAttachMyPublicPGPKeyInitial = gAttachMyPublicPGPKey;
+  gSendEncryptedInitial = gSendEncrypted;
+  gOptionalEncryptionInitial = gOptionalEncryption;
+
+  // automatic changes after this line
+
+  if (gSendSigned && gSelectedTechnologyIsPGP) {
+    gAttachMyPublicPGPKey = true;
+  }
+
   if (
     gEncryptedURIService &&
     gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
@@ -3662,6 +3742,11 @@ function ComposeLoad() {
 
   if (gIsRelatedToEncryptedOriginal) {
     gSendEncrypted = true;
+  }
+
+  if (gSMFields && !gSelectedTechnologyIsPGP) {
+    gSMFields.requireEncryptMessage = gSendEncrypted;
+    gSMFields.signMessage = gSendSigned;
   }
 
   setEncSigStatusUI();
