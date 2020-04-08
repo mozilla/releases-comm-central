@@ -757,27 +757,6 @@ var specialTabs = {
 
   // This will open any special tabs if necessary on startup.
   openSpecialTabsOnStartup() {
-    let browser = document.getElementById("dummycontentbrowser");
-
-    // Manually hook up session and global history for the first browser
-    // so that we don't have to load global history before bringing up a
-    // window.
-    // Wire up session and global history before any possible
-    // progress notifications for back/forward button updating
-    browser.docShell.initSessionHistory();
-    Services.obs.addObserver(browser.observer, "browser:purge-session-history");
-
-    // remove the disablehistory attribute so the browser cleans up, as
-    // though it had done this work itself
-    browser.removeAttribute("disablehistory");
-
-    // enable global history
-    try {
-      browser.docShell.useGlobalHistory = true;
-    } catch (ex) {
-      Cu.reportError("Places database may be locked: " + ex);
-    }
-
     let tabmail = document.getElementById("tabmail");
 
     tabmail.registerTabType(this.contentTabType);
@@ -838,7 +817,7 @@ var specialTabs = {
      *
      * @param aArgs The options that content tabs accept.
      * @param aArgs.contentPage A string that holds the URL that is to be opened
-     * @param aArgs.opener The opener window
+     * @param aArgs.openWindowInfo The opener window
      * @param aArgs.clickHandler The click handler for that content tab. See the
      *  "Content Tabs" article on MDC.
      * @param aArgs.onLoad A function that takes an Event and a DOMNode. It is
@@ -857,16 +836,6 @@ var specialTabs = {
         .getElementById("contentTab")
         .firstElementChild.cloneNode(true);
 
-      if ("opener" in aArgs && aArgs.opener) {
-        clone.querySelector("browser").presetOpenerWindow(aArgs.opener);
-      }
-
-      const findbar = document.createXULElement("findbar");
-      // Adding browserid to findbar so that browser property can be set
-      // in findbar custom element.
-      findbar.setAttribute("browserid", "dummycontentbrowser");
-      clone.appendChild(findbar);
-
       clone.setAttribute("id", "contentTab" + this.lastBrowserId);
       clone.setAttribute("collapsed", false);
 
@@ -877,6 +846,21 @@ var specialTabs = {
         "contentTabToolbar" + this.lastBrowserId
       );
 
+      aTab.linkedBrowser = aTab.browser = document.createXULElement("browser");
+      aTab.browser.setAttribute("id", "contentTabBrowser" + this.lastBrowserId);
+      aTab.browser.setAttribute("type", "content");
+      aTab.browser.setAttribute("flex", "1");
+      aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
+      aTab.browser.setAttribute("datetimepicker", "DateTimePickerPanel");
+      aTab.browser.setAttribute("context", "mailContext");
+      aTab.browser.setAttribute("messagemanagergroup", "browsers");
+      aTab.browser.setAttribute(
+        "oncontextmenu",
+        "return mailContextOnContextMenu(event);"
+      );
+      aTab.browser.openWindowInfo = aArgs.openWindowInfo || null;
+      clone.querySelector("stack").appendChild(aTab.browser);
+
       if (aArgs.skipLoad) {
         clone.querySelector("browser").setAttribute("nodefaultsrc", "true");
       }
@@ -885,7 +869,6 @@ var specialTabs = {
       aTab.root = clone;
 
       // Start setting up the browser.
-      aTab.linkedBrowser = aTab.browser = aTab.panel.querySelector("browser");
       aTab.toolbar = aTab.panel.querySelector(".contentTabToolbar");
       aTab.backButton = aTab.toolbar.querySelector(".back-btn");
       aTab.backButton.addEventListener("command", () => aTab.browser.goBack());
@@ -912,8 +895,6 @@ var specialTabs = {
         aTab.browser.setAttribute("primary", "true");
       }
 
-      aTab.browser.setAttribute("id", "contentTabBrowser" + this.lastBrowserId);
-
       aTab.clickHandler =
         "clickHandler" in aArgs && aArgs.clickHandler
           ? aArgs.clickHandler
@@ -927,11 +908,12 @@ var specialTabs = {
       aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
 
       // Now initialise the find bar.
-      aTab.findbar = aTab.panel.querySelector("findbar");
+      aTab.findbar = document.createXULElement("findbar");
       aTab.findbar.setAttribute(
         "browserid",
         "contentTabBrowser" + this.lastBrowserId
       );
+      clone.appendChild(aTab.findbar);
 
       // Default to reload being disabled.
       aTab.reloadEnabled = false;

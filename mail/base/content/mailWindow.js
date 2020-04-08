@@ -699,7 +699,7 @@ nsBrowserAccess.prototype = {
   // the test browser_newmailaccount.js::test_window_open_link_opening_behaviour.
   createContentWindow(
     aURI,
-    aOpener,
+    aOpenWindowInfo,
     aWhere,
     aFlags,
     aTriggeringPrincipal = null,
@@ -707,7 +707,7 @@ nsBrowserAccess.prototype = {
   ) {
     return this.getContentWindowOrOpenURI(
       null,
-      aOpener,
+      aOpenWindowInfo,
       aWhere,
       aFlags,
       aTriggeringPrincipal,
@@ -741,7 +741,7 @@ nsBrowserAccess.prototype = {
 
   getContentWindowOrOpenURI(
     aURI,
-    aOpener,
+    aOpenWindowInfo,
     aWhere,
     aFlags,
     aTriggeringPrincipal,
@@ -796,7 +796,7 @@ nsBrowserAccess.prototype = {
     let newTab = tabmail.openTab("contentTab", {
       contentPage: "about:blank",
       background: loadInBackground,
-      opener: aOpener,
+      openWindowInfo: aOpenWindowInfo,
       clickHandler,
       skipLoad: aSkipLoad,
     });
@@ -807,8 +807,8 @@ nsBrowserAccess.prototype = {
     try {
       if (aURI) {
         let referrer = null;
-        if (aOpener) {
-          let location = aOpener.location;
+        if (aOpenWindowInfo) {
+          let location = aOpenWindowInfo.parent.window.location;
           referrer = Services.io.newURI(location);
         }
         newWindow
