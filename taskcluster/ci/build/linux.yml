@@ -123,6 +123,7 @@ linux64/debug:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
+            - linux64-fix-stacks  # see bug 1614626
             - linux64-nasm
             - linux64-node
             - linux64-rust
@@ -252,6 +253,7 @@ linux/debug:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-clang
+            - linux64-fix-stacks  # see bug 1614626
             - linux64-nasm
             - linux64-node
             - linux64-rust
