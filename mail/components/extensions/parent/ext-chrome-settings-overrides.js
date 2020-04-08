@@ -110,21 +110,42 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     ]);
   }
 
+  static async onEnabling(id) {
+    chrome_settings_overrides.processDefaultSearchSetting("enable", id);
+  }
+
   static async onUninstall(id) {
     let searchStartupPromise = pendingSearchSetupTasks.get(id);
     if (searchStartupPromise) {
       await searchStartupPromise;
     }
-    return Promise.all([this.removeSearchSettings(id)]);
+    // Note: We do not have to deal with homepage here as it is managed by
+    // the ExtensionPreferencesManager.
+    return this.removeSearchSettings(id);
   }
 
-  static onUpdate(id, manifest) {
+  static async onUpdate(id, manifest) {
     let haveSearchProvider =
       manifest &&
       manifest.chrome_settings_overrides &&
       manifest.chrome_settings_overrides.search_provider;
+
     if (!haveSearchProvider) {
       this.removeSearchSettings(id);
+    } else if (
+      !!haveSearchProvider.is_default &&
+      (await ExtensionSettingsStore.initialize()) &&
+      ExtensionSettingsStore.hasSetting(
+        id,
+        DEFAULT_SEARCH_STORE_TYPE,
+        DEFAULT_SEARCH_SETTING_NAME
+      )
+    ) {
+      // is_default has been removed, but we still have a setting. Remove it.
+      chrome_settings_overrides.processDefaultSearchSetting(
+        "removeSetting",
+        id
+      );
     }
   }
 
@@ -136,8 +157,6 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
   async onManifestEntry(entryName) {
     let { extension } = this;
     let { manifest } = extension;
-
-    await ExtensionSettingsStore.initialize();
 
     if (manifest.chrome_settings_overrides.search_provider) {
       // Registering a search engine can potentially take a long while,
@@ -175,11 +194,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     let engineName = searchProvider.name.trim();
     if (searchProvider.is_default) {
       let engine = Services.search.getEngineByName(engineName);
-      let defaultEngines = await Services.search.getDefaultEngines();
-      if (
-        engine &&
-        defaultEngines.some(defaultEngine => defaultEngine.name == engineName)
-      ) {
+      if (engine && engine.isAppProvided) {
         // Needs to be called every time to handle reenabling, but
         // only sets default for install or enable.
         await this.setDefault(engineName);
@@ -204,8 +219,9 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
               icon: this.extension.iconURL,
               currentEngine: defaultEngine.name,
               newEngine: engineName,
-              respond(allow) {
+              async respond(allow) {
                 if (allow) {
+                  await ExtensionSettingsStore.initialize();
                   ExtensionSettingsStore.addSetting(
                     extension.id,
                     DEFAULT_SEARCH_STORE_TYPE,
@@ -230,18 +246,6 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
         // only sets default for install or enable.
         this.setDefault(engineName);
       }
-    } else if (
-      ExtensionSettingsStore.hasSetting(
-        extension.id,
-        DEFAULT_SEARCH_STORE_TYPE,
-        DEFAULT_SEARCH_SETTING_NAME
-      )
-    ) {
-      // is_default has been removed, but we still have a setting. Remove it.
-      chrome_settings_overrides.processDefaultSearchSetting(
-        "removeSetting",
-        extension.id
-      );
     }
   }
 
@@ -249,6 +253,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
     let { extension } = this;
     if (extension.startupReason === "ADDON_INSTALL") {
       let defaultEngine = await Services.search.getDefault();
+      await ExtensionSettingsStore.initialize();
       let item = await ExtensionSettingsStore.addSetting(
         extension.id,
         DEFAULT_SEARCH_STORE_TYPE,
@@ -269,50 +274,16 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
 
   async addSearchEngine() {
     let { extension } = this;
-    let isCurrent = false;
-    let index = -1;
-    if (
-      extension.startupReason === "ADDON_UPGRADE" &&
-      !extension.addonData.builtIn
-    ) {
-      let engines = await Services.search.getEnginesByExtensionID(extension.id);
-      if (engines.length > 0) {
-        let firstEngine = engines[0];
-        let firstEngineName = firstEngine.name;
-        // There can be only one engine right now
-        isCurrent =
-          (await Services.search.getDefault()).name == firstEngineName;
-        // Get position of engine and store it
-        index = (await Services.search.getEngines())
-          .map(engine => engine.name)
-          .indexOf(firstEngineName);
-        await Services.search.removeEngine(firstEngine);
-      }
-    }
     try {
       let engines = await Services.search.addEnginesFromExtension(extension);
       if (engines.length > 0) {
+        await ExtensionSettingsStore.initialize();
         await ExtensionSettingsStore.addSetting(
           extension.id,
           DEFAULT_SEARCH_STORE_TYPE,
           ENGINE_ADDED_SETTING_NAME,
           engines[0].name
         );
-      }
-      if (
-        extension.startupReason === "ADDON_UPGRADE" &&
-        !extension.addonData.builtIn
-      ) {
-        let engines = await Services.search.getEnginesByExtensionID(
-          extension.id
-        );
-        let engine = Services.search.getEngineByName(engines[0].name);
-        if (isCurrent) {
-          await Services.search.setDefault(engine);
-        }
-        if (index != -1) {
-          await Services.search.moveEngine(engine, index);
-        }
       }
     } catch (e) {
       Cu.reportError(e);
