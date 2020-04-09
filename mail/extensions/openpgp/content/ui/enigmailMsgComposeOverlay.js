@@ -724,7 +724,7 @@ Enigmail.msg = {
     this.determineSendFlagId = null;
     //this.disableSmime = false;
     this.saveDraftError = 0;
-    this.protectHeaders = EnigmailPrefs.getPref("protectedHeaders") === 2;
+    this.protectHeaders = EnigmailPrefs.getPref("protectedHeaders") !== 0;
     //this.enableUndoEncryption(false);
 
     this.displayProtectHeadersStatus();
@@ -2661,9 +2661,11 @@ Enigmail.msg = {
         sendFlags & EnigmailConstants.SEND_PGP_MIME &&
         sendFlags & (ENCRYPT | SIGN);
 
+      /*
       if (!this.checkProtectHeaders(sendFlags)) {
         return false;
       }
+      */
 
       // ----------------------- Rewrapping code, taken from function "encryptInline"
 
@@ -2779,6 +2781,7 @@ Enigmail.msg = {
     return true;
   },
 
+  /*
   checkProtectHeaders(sendFlags) {
     if (!(sendFlags & EnigmailConstants.SEND_PGP_MIME)) {
       return true;
@@ -2819,6 +2822,7 @@ Enigmail.msg = {
 
     return true;
   },
+  */
 
   encryptInline(sendInfo) {
     // sign/encrypt message using inline-PGP

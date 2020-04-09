@@ -206,7 +206,7 @@ pref("temp.openpgp.wrapHtmlBeforeSend", true);
 
 // enable encryption/signing of headers like subject, from, to
 // 1: default: ask user at 1st time use / 0: off /  2: on
-pref("temp.openpgp.protectedHeaders", 1);
+pref("temp.openpgp.protectedHeaders", 2);
 pref("temp.openpgp.protectedSubjectText", "");
 
 // do reset the "references" and "in-reply-to" headers?
