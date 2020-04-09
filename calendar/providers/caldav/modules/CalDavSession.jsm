@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource://gre/modules/Timer.jsm");
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
-ChromeUtils.import("resource:///modules/OAuth2.jsm");
+var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
 
-ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
  * Session and authentication tools for the caldav provider
@@ -27,6 +27,7 @@ class CalDavGoogleOAuth extends OAuth2 {
    * @param {String} name         The user-readable description of this session
    */
   constructor(sessionId, name) {
+    // eslint-disable-next-line no-undef
     super(OAUTH_BASE_URI, OAUTH_SCOPE, OAUTH_CLIENT_ID, OAUTH_HASH);
 
     this.id = sessionId;
@@ -199,9 +200,9 @@ class CalDavGoogleOAuth extends OAuth2 {
   /**
    * Check for OAuth auth errors and restart the request without a token if necessary
    *
-   * @param {CalDavResponse} aResponse    The response to inspect for completion
-   * @return {Promise}                    A promise resolved when complete, with
-   *                                        CalDavSession.RESTART_REQUEST or null
+   * @param {CalDavResponseBase} aResponse    The response to inspect for completion
+   * @return {Promise}                        A promise resolved when complete, with
+   *                                            CalDavSession.RESTART_REQUEST or null
    */
   async completeRequest(aResponse) {
     // Check for OAuth errors
@@ -312,9 +313,9 @@ class CalDavSession {
    * Complete the request based on the results from the response. Allows restarting the session if
    * |CalDavSession.RESTART_REQUEST| is returned.
    *
-   * @param {CalDavResponse} aResponse    The response to inspect for completion
-   * @return {Promise}                    A promise resolved when complete, with
-   *                                        CalDavSession.RESTART_REQUEST or null
+   * @param {CalDavResponseBase} aResponse    The response to inspect for completion
+   * @return {Promise}                        A promise resolved when complete, with
+   *                                            CalDavSession.RESTART_REQUEST or null
    */
   async completeRequest(aResponse) {
     return this._callAdapter(aResponse.request.uri.host, "completeRequest", aResponse);

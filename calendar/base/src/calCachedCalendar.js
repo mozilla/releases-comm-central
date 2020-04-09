@@ -345,7 +345,7 @@ calCachedCalendar.prototype = {
             if (!Components.isSuccessCode(status)) {
               cal.ERROR(
                 "[calCachedCalendar] replay action failed: " +
-                  (operation ? operation.id : "<unknown>") +
+                  (operation && operation.id ? operation.id : "<unknown>") +
                   ", uri=" +
                   self.uri.spec +
                   ", result=" +

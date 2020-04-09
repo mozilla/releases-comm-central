@@ -2,23 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-ChromeUtils.import("resource:///modules/caldav/calDavUtils.jsm");
-ChromeUtils.import("resource:///modules/caldav/calDavSession.jsm");
+var { CalDavTagsToXmlns, CalDavNsUnresolver } = ChromeUtils.import(
+  "resource:///modules/caldav/CalDavUtils.jsm"
+);
 
-/* exported GenericRequest, LegacySAXRequest, ItemRequest, DeleteItemRequest, PropfindRequest,
-            DAVHeaderRequest, PrincipalPropertySearchRequest, OutboxRequest, FreeBusyRequest */
+var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
+
+/* exported CalDavGenericRequest, CalDavLegacySAXRequest, CalDavItemRequest,
+            CalDavDeleteItemRequest, CalDavPropfindRequest, CalDavHeaderRequest,
+            CalDavPrincipalPropertySearchRequest, CalDavOutboxRequest, CalDavFreeBusyRequest */
+
 this.EXPORTED_SYMBOLS = [
-  "GenericRequest",
-  "LegacySAXRequest",
-  "ItemRequest",
-  "DeleteItemRequest",
-  "PropfindRequest",
-  "DAVHeaderRequest",
-  "PrincipalPropertySearchRequest",
-  "OutboxRequest",
-  "FreeBusyRequest",
+  "CalDavGenericRequest",
+  "CalDavLegacySAXRequest",
+  "CalDavItemRequest",
+  "CalDavDeleteItemRequest",
+  "CalDavPropfindRequest",
+  "CalDavHeaderRequest",
+  "CalDavPrincipalPropertySearchRequest",
+  "CalDavOutboxRequest",
+  "CalDavFreeBusyRequest",
 ];
 
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -28,7 +33,7 @@ const MIME_TEXT_XML = "text/xml; charset=utf-8";
 /**
  * Base class for a caldav request.
  */
-class CalDavRequest {
+class CalDavRequestBase {
   QueryInterface(aIID) {
     return cal.generateClassQI(this, aIID, [Ci.nsIChannelEventSink, Ci.nsIInterfaceRequestor]);
   }
@@ -98,8 +103,8 @@ class CalDavRequest {
   /**
    * Executes the request with the configuration set up in the constructor
    *
-   * @return {Promise}        A promise that resolves with the CalDavResponse, or a subclass
-   *                            thereof based on |responseClass|
+   * @return {Promise}        A promise that resolves with a subclass of CalDavResponseBase
+   *                            which is based on |responseClass|.
    */
   async commit() {
     await this.session.prepareRequest(this.channel);
@@ -228,11 +233,11 @@ class CalDavRequest {
  * The caldav response base class. Should be subclassed, and works with xpcom network code that uses
  * nsIRequest.
  */
-class CalDavResponse {
+class CalDavResponseBase {
   /**
    * Constructs a new caldav response
    *
-   * @param {CalDavRequest} aRequest      The request that initiated the response
+   * @param {CalDavRequestBase} aRequest      The request that initiated the response
    */
   constructor(aRequest) {
     this.request = aRequest;
@@ -311,6 +316,7 @@ class CalDavResponse {
    * Raise an exception if one of the handled 4xx and 5xx occured
    */
   raiseForStatus() {
+    /* eslint-disable no-undef */
     if (this.authError) {
       throw new HttpUnauthorizedError(this);
     } else if (this.conflict) {
@@ -320,6 +326,7 @@ class CalDavResponse {
     } else if (this.serverError) {
       throw new HttpServerError(this);
     }
+    /* eslint-enable no-undef */
   }
 
   /** The text response of the request */
@@ -358,7 +365,7 @@ class CalDavResponse {
 /**
  * A simple caldav response using nsIStreamLoader
  */
-class CalDavSimpleResponse extends CalDavResponse {
+class CalDavSimpleResponse extends CalDavResponseBase {
   QueryInterface(aIID) {
     return cal.generateClassQI(this, aIID, [Ci.nsIStreamLoaderObserver]);
   }
@@ -397,7 +404,7 @@ class CalDavSimpleResponse extends CalDavResponse {
 /**
  * A generic request method that uses the CalDavRequest/CalDavResponse infrastructure
  */
-class GenericRequest extends CalDavRequest {
+class CalDavGenericRequest extends CalDavRequestBase {
   /**
    * Constructs the generic caldav request
    *
@@ -405,7 +412,7 @@ class GenericRequest extends CalDavRequest {
    * @param {calICalendar} aCalendar                  The calendar this request belongs to
    * @param {String} aMethod                          The HTTP method to use
    * @param {nsIURI} aUri                             The uri to request
-   * @param {Object} aHeaders                         An object with headers to set
+   * @param {?Object} aHeaders                        An object with headers to set
    * @param {?String} aUploadData                     Optional data to upload
    * @param {?String} aUploadType                     Content type for upload data
    */
@@ -433,7 +440,7 @@ class GenericRequest extends CalDavRequest {
  * because once I started refactoring calDavRequestHandlers.js I was on the verge of refactoring the
  * whole caldav provider. Too risky right now.
  */
-class LegacySAXRequest extends CalDavRequest {
+class CalDavLegacySAXRequest extends CalDavRequestBase {
   /**
    * Constructs the legacy caldav request
    *
@@ -470,12 +477,14 @@ class LegacySAXRequest extends CalDavRequest {
  * Response class for legacy requests. Contains a listener that proxies the external handler to run
  * the promises we use.
  */
-class LegacySAXResponse extends CalDavResponse {
+class LegacySAXResponse extends CalDavResponseBase {
   /** @return {nsIStreamListener} The listener passed to the channel's asyncOpen */
   get listener() {
     if (!this._listener) {
+      let self = this;
+
       this._listener = new Proxy(this.request._handler, {
-        get: function(aTarget, aProp, aReceiver) {
+        get(aTarget, aProp, aReceiver) {
           if (aProp == "OnStartRequest") {
             return function(...args) {
               try {
@@ -498,9 +507,8 @@ class LegacySAXResponse extends CalDavResponse {
                 return null;
               }
             };
-          } else {
-            return Reflect.get(...arguments);
           }
+          return Reflect.get(...arguments);
         },
       });
     }
@@ -516,7 +524,7 @@ class LegacySAXResponse extends CalDavResponse {
 /**
  * Upload an item to the caldav server
  */
-class ItemRequest extends CalDavRequest {
+class CalDavItemRequest extends CalDavRequestBase {
   /**
    * Constructs an item request
    *
@@ -568,7 +576,7 @@ class ItemResponse extends CalDavSimpleResponse {
 /**
  * A request for deleting an item from the server
  */
-class DeleteItemRequest extends CalDavRequest {
+class CalDavDeleteItemRequest extends CalDavRequestBase {
   /**
    * Constructs an delete item request
    *
@@ -609,7 +617,7 @@ class DeleteItemResponse extends ItemResponse {
 /**
  * A dav PROPFIND request to retrieve specific properties of a dav resource
  */
-class PropfindRequest extends CalDavRequest {
+class CalDavPropfindRequest extends CalDavRequestBase {
   /**
    * Constructs a propfind request
    *
@@ -623,7 +631,7 @@ class PropfindRequest extends CalDavRequest {
   constructor(aSession, aCalendar, aUri, aProps, aDepth = 0) {
     let xml =
       XML_HEADER +
-      `<D:propfind ${tagsToXmlns("D", ...aProps)}><D:prop>` +
+      `<D:propfind ${CalDavTagsToXmlns("D", ...aProps)}><D:prop>` +
       aProps.map(prop => `<${prop}/>`).join("") +
       "</D:prop></D:propfind>";
 
@@ -690,7 +698,7 @@ class PropfindResponse extends CalDavSimpleResponse {
     function nodeNames(path, parent) {
       return new Set(
         [...parent.querySelectorAll(path)].map(node => {
-          let prefix = caldavNSUnresolver(node.namespaceURI) || node.prefix;
+          let prefix = CalDavNsUnresolver(node.namespaceURI) || node.prefix;
           return prefix + ":" + node.localName;
         })
       );
@@ -753,7 +761,7 @@ class PropfindResponse extends CalDavSimpleResponse {
         // This will throw 200's and 400's in one pot, but since 400's are empty that is ok
         // for our needs.
         for (let prop of response.querySelectorAll(":scope > propstat > prop > *")) {
-          let prefix = caldavNSUnresolver(prop.namespaceURI) || prop.prefix;
+          let prefix = CalDavNsUnresolver(prop.namespaceURI) || prop.prefix;
           let qname = prefix + ":" + prop.localName;
           if (qname in this.decorators) {
             this._data[href][qname] = this.decorators[qname](prop) || null;
@@ -782,7 +790,7 @@ class PropfindResponse extends CalDavSimpleResponse {
 /**
  * An OPTIONS request for retrieving the DAV header
  */
-class DAVHeaderRequest extends CalDavRequest {
+class CalDavHeaderRequest extends CalDavRequestBase {
   /**
    * Constructs the options request
    *
@@ -833,7 +841,7 @@ class DAVHeaderResponse extends CalDavSimpleResponse {
 /**
  * Request class for principal-property-search queries
  */
-class PrincipalPropertySearchRequest extends CalDavRequest {
+class CalDavPrincipalPropertySearchRequest extends CalDavRequestBase {
   /**
    * Constructs a principal-property-search query.
    *
@@ -848,7 +856,7 @@ class PrincipalPropertySearchRequest extends CalDavRequest {
   constructor(aSession, aCalendar, aUri, aMatch, aSearchProp, aProps, aDepth = 1) {
     let xml =
       XML_HEADER +
-      `<D:principal-property-search ${tagsToXmlns("D", aSearchProp, ...aProps)}>` +
+      `<D:principal-property-search ${CalDavTagsToXmlns("D", aSearchProp, ...aProps)}>` +
       "<D:property-search>" +
       "<D:prop>" +
       `<${aSearchProp}/>` +
@@ -877,7 +885,7 @@ class PrincipalPropertySearchRequest extends CalDavRequest {
 /**
  * Request class for calendar outbox queries, to send or respond to invitations
  */
-class OutboxRequest extends CalDavRequest {
+class CalDavOutboxRequest extends CalDavRequestBase {
   /**
    * Constructs an outbox request
    *
@@ -953,7 +961,7 @@ class OutboxResponse extends CalDavSimpleResponse {
 /**
  * Request class for freebusy queries
  */
-class FreeBusyRequest extends CalDavRequest {
+class CalDavFreeBusyRequest extends CalDavRequestBase {
   /**
    * Creates a freebusy request, for the specified range
    *

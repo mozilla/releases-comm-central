@@ -3,22 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from calDavRequestHandlers.js */
-/* globals OAUTH_BASE_URI, OAUTH_SCOPE, OAUTH_CLIENT_ID, OAUTH_HASH */
+/* globals etagsHandler multigetSyncHandler webDavSyncHandler */
 
 var EXPORTED_SYMBOLS = ["CalDavCalendar"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-
-var { OAuth2 } = ChromeUtils.import("resource:///modules/OAuth2.jsm");
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 Services.scriptloader.loadSubScript("resource:///components/calDavRequestHandlers.js");
 
-ChromeUtils.import("resource:///modules/caldav/calDavRequest.jsm");
-ChromeUtils.import("resource:///modules/caldav/calDavSession.jsm");
-ChromeUtils.import("resource:///modules/caldav/calDavUtils.jsm");
+var {
+  CalDavGenericRequest,
+  CalDavLegacySAXRequest,
+  CalDavItemRequest,
+  CalDavDeleteItemRequest,
+  CalDavPropfindRequest,
+  CalDavHeaderRequest,
+  CalDavPrincipalPropertySearchRequest,
+  CalDavOutboxRequest,
+  CalDavFreeBusyRequest,
+} = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
+
+var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
 
 var XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 var MIME_TEXT_XML = "text/xml; charset=utf-8";
@@ -592,7 +598,7 @@ CalDavCalendar.prototype = {
     let serializedItem = this.getSerializedItem(aItem);
 
     let sendEtag = aIgnoreEtag ? null : "*";
-    let request = new ItemRequest(this.session, this, itemUri, aItem, sendEtag);
+    let request = new CalDavItemRequest(this.session, this, itemUri, aItem, sendEtag);
 
     request.commit().then(
       response => {
@@ -693,7 +699,7 @@ CalDavCalendar.prototype = {
     let modifiedItemICS = this.getSerializedItem(aNewItem);
 
     let sendEtag = aIgnoreEtag ? null : this.mItemInfoCache[aNewItem.id].etag;
-    let request = new ItemRequest(this.session, this, eventUri, aNewItem, sendEtag);
+    let request = new CalDavItemRequest(this.session, this, eventUri, aNewItem, sendEtag);
 
     request.commit().then(
       response => {
@@ -810,7 +816,7 @@ CalDavCalendar.prototype = {
     }
 
     let sendEtag = aIgnoreEtag ? null : this.mItemInfoCache[aItem.id].etag;
-    let request = new DeleteItemRequest(this.session, this, eventUri, sendEtag);
+    let request = new CalDavDeleteItemRequest(this.session, this, eventUri, sendEtag);
 
     request.commit().then(
       response => {
@@ -833,7 +839,7 @@ CalDavCalendar.prototype = {
         } else if (response.conflict) {
           // item has either been modified or deleted by someone else check to see which
           cal.LOG("CalDAV: Item has been modified on server, checking if it has been deleted");
-          let headrequest = new GenericRequest(this.session, this, "HEAD", eventUri);
+          let headrequest = new CalDavGenericRequest(this.session, this, "HEAD", eventUri);
 
           return headrequest.commit().then(headresponse => {
             if (headresponse.notFound) {
@@ -1216,7 +1222,7 @@ CalDavCalendar.prototype = {
       this.getUpdatedItems(this.calendarUri, aChangeLogListener);
       return;
     }
-    let request = new PropfindRequest(this.session, this, this.makeUri(), ["CS:getctag"]);
+    let request = new CalDavPropfindRequest(this.session, this, this.makeUri(), ["CS:getctag"]);
 
     request.commit().then(response => {
       cal.LOG(`CalDAV: Status ${response.status} checking ctag for calendar ${this.name}`);
@@ -1324,17 +1330,19 @@ CalDavCalendar.prototype = {
 
     let requestUri = this.makeUri(null, aUri);
     let handler = new etagsHandler(this, aUri, aChangeLogListener);
-    let request = new LegacySAXRequest(
+
+    let onSetupChannel = channel => {
+      channel.requestMethod = "PROPFIND";
+      channel.setRequestHeader("Depth", "1", false);
+    };
+    let request = new CalDavLegacySAXRequest(
       this.session,
       this,
       requestUri,
       queryXml,
       MIME_TEXT_XML,
       handler,
-      channel => {
-        channel.requestMethod = "PROPFIND";
-        channel.setRequestHeader("Depth", "1", false);
-      }
+      onSetupChannel
     );
 
     request.commit().catch(() => {
@@ -1393,90 +1401,13 @@ CalDavCalendar.prototype = {
 
   /**
    * Helper to check if the given response has had its url redirected, and if so prompt the user
-   * if they want to adapt the URL
+   * if they want to adapt the URL.
    *
-   * @param {CalDavResponse} aResponse            The response to check
+   * @param {CalDavResponseBase} response         The response to check.
    * @return {Boolean}                            False, if the calendar should be disabled
    */
-  setupAuthentication(aChangeLogListener) {
-    let self = this;
-    function authSuccess() {
-      self.checkDavResourceType(aChangeLogListener);
-    }
-    function authFailed() {
-      self.setProperty("disabled", "true");
-      self.setProperty("auto-enabled", "true");
-      self.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE);
-    }
-    if (this.mUri.host == "apidata.googleusercontent.com") {
-      if (!this.oauth) {
-        let sessionId = this.id;
-        let pwMgrId = "Google CalDAV v2";
-        let authTitle = cal.l10n.getAnyString("global", "commonDialogs", "EnterUserPasswordFor2", [
-          this.name,
-        ]);
-        this.oauth = new OAuth2(OAUTH_BASE_URI, OAUTH_SCOPE, OAUTH_CLIENT_ID, OAUTH_HASH);
-        this.oauth.requestWindowTitle = authTitle;
-        this.oauth.requestWindowFeatures = "chrome,private,centerscreen,width=430,height=750";
-
-        Object.defineProperty(this.oauth, "refreshToken", {
-          get() {
-            if (!this.mRefreshToken) {
-              let pass = { value: null };
-              try {
-                let origin = "oauth:" + sessionId;
-                cal.auth.passwordManagerGet(sessionId, pass, origin, pwMgrId);
-              } catch (e) {
-                // User might have cancelled the master password prompt, that's ok
-                if (e.result != Cr.NS_ERROR_ABORT) {
-                  throw e;
-                }
-              }
-              this.mRefreshToken = pass.value;
-            }
-            return this.mRefreshToken;
-          },
-          set(val) {
-            try {
-              let origin = "oauth:" + sessionId;
-              if (val) {
-                cal.auth.passwordManagerSave(sessionId, val, origin, pwMgrId);
-              } else {
-                cal.auth.passwordManagerRemove(sessionId, origin, pwMgrId);
-              }
-            } catch (e) {
-              // User might have cancelled the master password prompt, or password saving
-              // could be disabled. That is ok, throw for everything else.
-              if (e.result != Cr.NS_ERROR_ABORT && e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
-                throw e;
-              }
-            }
-            return (this.mRefreshToken = val);
-          },
-          enumerable: true,
-        });
-      }
-
-      if (this.oauth.accessToken) {
-        authSuccess();
-      } else {
-        // bug 901329: If the calendar window isn't loaded yet the
-        // master password prompt will show just the buttons and
-        // possibly hang. If we postpone until the window is loaded,
-        // all is well.
-        setTimeout(function postpone() {
-          // eslint-disable-line func-names
-          let win = cal.window.getCalendarWindow();
-          if (!win || win.document.readyState != "complete") {
-            setTimeout(postpone, 0);
-          } else {
-            self.oauthConnect(authSuccess, authFailed);
-          }
-        }, 0);
-      }
-    } else {
-      authSuccess();
-    }
+  checkRedirect(response) {
+    return response.redirected;
   },
 
   /**
@@ -1493,7 +1424,7 @@ CalDavCalendar.prototype = {
   checkDavResourceType(aChangeLogListener) {
     this.ensureTargetCalendar();
 
-    let request = new PropfindRequest(this.session, this, this.makeUri(), [
+    let request = new CalDavPropfindRequest(this.session, this, this.makeUri(), [
       "D:resourcetype",
       "D:owner",
       "D:current-user-principal",
@@ -1628,9 +1559,7 @@ CalDavCalendar.prototype = {
         } else {
           // Something else?
           cal.LOG(
-            `CalDAV: No resource type received, ${
-              this.name
-            } doesn't seem to point to a DAV resource`
+            `CalDAV: No resource type received, ${this.name} doesn't seem to point to a DAV resource`
           );
           this.completeCheckServerInfo(aChangeLogListener, Ci.calIErrors.DAV_NOT_DAV);
         }
@@ -1652,7 +1581,7 @@ CalDavCalendar.prototype = {
    * completeCheckServerInfo
    */
   checkServerCaps(aChangeLogListener, calHomeSetUrlRetry) {
-    let request = new DAVHeaderRequest(this.session, this, this.makeUri(null, this.mCalHomeSet));
+    let request = new CalDavHeaderRequest(this.session, this, this.makeUri(null, this.mCalHomeSet));
 
     request.commit().then(
       response => {
@@ -1709,7 +1638,7 @@ CalDavCalendar.prototype = {
           this.completeCheckServerInfo(aChangeLogListener);
         }
       },
-      () => {
+      e => {
         cal.LOG(`CalDAV: Error checking server capabilities for calendar ${this.name}: ${e}`);
         this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_FAILURE);
       }
@@ -1734,7 +1663,9 @@ CalDavCalendar.prototype = {
     }
 
     let homeSet = this.makeUri(null, this.mCalHomeSet);
-    let request = new PropfindRequest(this.session, this, homeSet, ["D:principal-collection-set"]);
+    let request = new CalDavPropfindRequest(this.session, this, homeSet, [
+      "D:principal-collection-set",
+    ]);
 
     request.commit().then(
       response => {
@@ -1804,10 +1735,10 @@ CalDavCalendar.prototype = {
 
     let request;
     if (this.mPrincipalUrl) {
-      request = new PropfindRequest(this.session, this, requestUri, requestProps);
+      request = new CalDavPropfindRequest(this.session, this, requestUri, requestProps);
     } else {
       let homePath = this.ensureEncodedPath(this.mCalHomeSet.spec.replace(/\/$/, ""));
-      request = new PrincipalPropertySearchRequest(
+      request = new CalDavPrincipalPropertySearchRequest(
         this.session,
         this,
         requestUri,
@@ -2025,7 +1956,7 @@ CalDavCalendar.prototype = {
     let recipient = aCalIdParts.join(":");
     let fbUri = this.makeUri(null, this.outboxUrl);
 
-    let request = new FreeBusyRequest(
+    let request = new CalDavFreeBusyRequest(
       this.session,
       this,
       fbUri,
@@ -2339,7 +2270,7 @@ CalDavCalendar.prototype = {
 
     for (let item of aItipItem.getItemList()) {
       let requestUri = this.makeUri(null, this.outboxUrl);
-      let request = new OutboxRequest(
+      let request = new CalDavOutboxRequest(
         this.session,
         this,
         requestUri,

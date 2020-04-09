@@ -2,19 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+
 /**
  * Various utility functions for the caldav provider
  */
 
-/* exported xmlns, tagsToXmlns, caldavNSUnresolver, caldavNSResolver, caldavXPath,
- *          caldavXPathFirst */
+/* exported CalDavXmlns, CalDavTagsToXmlns, CalDavNsUnresolver, CalDavNsResolver, CalDavXPath,
+ *          CalDavXPathFirst */
 this.EXPORTED_SYMBOLS = [
-  "xmlns",
-  "tagsToXmlns",
-  "caldavNSUnresolver",
-  "caldavNSResolver",
-  "caldavXPath",
-  "caldavXPathFirst",
+  "CalDavXmlns",
+  "CalDavTagsToXmlns",
+  "CalDavNsUnresolver",
+  "CalDavNsResolver",
+  "CalDavXPath",
+  "CalDavXPathFirst",
 ];
 
 /**
@@ -23,10 +25,10 @@ this.EXPORTED_SYMBOLS = [
  * @param {...String} aRequested        The requested namespace prefixes
  * @return {String}                     An xmlns string that can be inserted into xml documents
  */
-function xmlns(...aRequested) {
+function CalDavXmlns(...aRequested) {
   let namespaces = [];
   for (let namespace of aRequested) {
-    let nsUri = caldavNSResolver(namespace);
+    let nsUri = CalDavNsResolver(namespace);
     if (namespace) {
       namespaces.push(`xmlns:${namespace}='${nsUri}'`);
     }
@@ -42,9 +44,9 @@ function xmlns(...aRequested) {
  * @param {...String} aTags     Either QNames, or just namespace prefixes to be resolved.
  * @return {String}             The complete namespace string
  */
-function tagsToXmlns(...aTags) {
+function CalDavTagsToXmlns(...aTags) {
   let namespaces = new Set(aTags.map(tag => tag.split(":")[0]));
-  return xmlns(...namespaces.values());
+  return CalDavXmlns(...namespaces.values());
 }
 
 /**
@@ -53,7 +55,7 @@ function tagsToXmlns(...aTags) {
  * @param {String} aNamespace       The namespace URI to resolve
  * @return {?String}                The namespace prefix we use
  */
-function caldavNSUnresolver(aNamespace) {
+function CalDavNsUnresolver(aNamespace) {
   const prefixes = {
     "http://apple.com/ns/ical/": "A",
     "DAV:": "D",
@@ -69,7 +71,7 @@ function caldavNSUnresolver(aNamespace) {
  * @param {String} aPrefix          The namespace prefix we use
  * @return {?String}                The namespace URI for the prefix
  */
-function caldavNSResolver(aPrefix) {
+function CalDavNsResolver(aPrefix) {
   /* eslint-disable id-length */
   const namespaces = {
     A: "http://apple.com/ns/ical/",
@@ -90,8 +92,8 @@ function caldavNSResolver(aPrefix) {
  * @param {?XPathResult} aType      (optional) Force a result type, must be an XPathResult constant
  * @return {Element[]}              Array of found elements
  */
-function caldavXPath(aNode, aExpr, aType) {
-  return cal.xml.evalXPath(aNode, aExpr, caldavNSResolver, aType);
+function CalDavXPath(aNode, aExpr, aType) {
+  return cal.xml.evalXPath(aNode, aExpr, CalDavNsResolver, aType);
 }
 
 /**
@@ -103,6 +105,6 @@ function caldavXPath(aNode, aExpr, aType) {
  * @param {?XPathResult} aType      (optional) Force a result type, must be an XPathResult constant
  * @return {?Element}               The found element, or null.
  */
-function caldavXPathFirst(aNode, aExpr, aType) {
-  return cal.xml.evalXPathFirst(aNode, aExpr, caldavNSResolver, aType);
+function CalDavXPathFirst(aNode, aExpr, aType) {
+  return cal.xml.evalXPathFirst(aNode, aExpr, CalDavNsResolver, aType);
 }

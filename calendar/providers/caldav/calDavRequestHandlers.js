@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals XML_HEADER MIME_TEXT_XML */
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
-ChromeUtils.import("resource:///modules/caldav/calDavRequest.jsm");
+var { CalDavLegacySAXRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
 
 /**
  * This is a handler for the etag request in calDavCalendar.js' getUpdatedItem.
@@ -340,21 +342,23 @@ webDavSyncHandler.prototype = {
       cal.LOG("CalDAV: send(" + requestUri.spec + "): " + queryXml);
     }
     cal.LOG("CalDAV: webdav-sync Token: " + this.calendar.mWebdavSyncToken);
-    let request = new LegacySAXRequest(
+
+    let onSetupChannel = channel => {
+      // The depth header adheres to an older version of the webdav-sync
+      // spec and has been replaced by the <sync-level> tag above.
+      // Unfortunately some servers still depend on the depth header,
+      // therefore we send both (yuck).
+      channel.setRequestHeader("Depth", "1", false);
+      channel.requestMethod = "REPORT";
+    };
+    let request = new CalDavLegacySAXRequest(
       this.calendar.session,
       this.calendar,
       requestUri,
       queryXml,
       MIME_TEXT_XML,
       this,
-      channel => {
-        // The depth header adheres to an older version of the webdav-sync
-        // spec and has been replaced by the <sync-level> tag above.
-        // Unfortunately some servers still depend on the depth header,
-        // therefore we send both (yuck).
-        channel.setRequestHeader("Depth", "1", false);
-        channel.requestMethod = "REPORT";
-      }
+      onSetupChannel
     );
 
     request.commit().catch(() => {
@@ -742,17 +746,19 @@ multigetSyncHandler.prototype = {
     if (this.calendar.verboseLogging()) {
       cal.LOG("CalDAV: send(" + requestUri.spec + "): " + queryXml);
     }
-    let request = new LegacySAXRequest(
+
+    let onSetupChannel = channel => {
+      channel.requestMethod = "REPORT";
+      channel.setRequestHeader("Depth", "1", false);
+    };
+    let request = new CalDavLegacySAXRequest(
       this.calendar.session,
       this.calendar,
       requestUri,
       queryXml,
       MIME_TEXT_XML,
       this,
-      channel => {
-        channel.requestMethod = "REPORT";
-        channel.setRequestHeader("Depth", "1", false);
-      }
+      onSetupChannel
     );
 
     request.commit().catch(() => {
