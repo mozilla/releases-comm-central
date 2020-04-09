@@ -60,10 +60,10 @@ var PERCENT_COMPLETE_INPUT = `
 
 // To be appended to the path for a date- or timepicker.
 var DATE_INPUT = `
-    {"class":"datepicker-menulist"}/{"class":"menulist-input"}
+    {"class":"datepicker-menulist"}/shadow/{"part":"text-input"}
 `;
 var TIME_INPUT = `
-    {"class":"timepicker-menulist"}/{"class":"menulist-input"}
+    {"class":"timepicker-menulist"}/shadow/{"part":"text-input"}
 `;
 
 // The following can be used as is.
@@ -80,7 +80,7 @@ var REC_DLG_UNTIL_INPUT = `
     /{"windowtype":"Calendar:EventDialog:Recurrence"}/id("calendar-event-dialog-recurrence")
     /id("recurrence-range-groupbox")/[1]/id("recurrence-duration")
     /id("recurrence-range-until-box")/id("repeat-until-date")/
-    {"class":"datepicker-menulist"}/{"class":"menulist-input"}
+    ${DATE_INPUT}
 `;
 
 function sleep(window) {
