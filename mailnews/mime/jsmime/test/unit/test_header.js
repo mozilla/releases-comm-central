@@ -842,6 +842,40 @@ define(function(require) {
             },
           ],
         ],
+        // Collapse multiple consecutive "special" spaces, like zero width space
+        // etc.
+        // \u00AD is soft hypen. \u200B is zero width space.
+        [
+          `invisiblespaceA@friend.example.com B \u200B\u00AD \u200B \u200B A. <foeA@example.com>`,
+          [
+            {
+              name: "invisiblespaceA@friend.example.com B A.",
+              email: "foeA@example.com",
+            },
+          ],
+        ],
+
+        // Collapse multiple consecutive "special" spaces, like zero width space
+        // etc. also when encoded.
+        // \u00AD is soft hypen. \u200B is zero width space.
+        // btoa takes a binary string to encode. unescape(encodeURIComponent(source))
+        // does UTF-8 to binary conversion. See bug 1551746 for other ways.
+        [
+          //"=?UTF-8?B?IMKgIGJsw7YgPGludmlzaWJsZXNwYWNlQGZyaWVuZC5leGFtcGxlLmNvbT4g4oCLIOKAiyDigIsu=?= <foe@example.com>"
+          `=?UTF-8?B?${btoa(
+            unescape(
+              encodeURIComponent(
+                " \u00AD blö <invisiblespace@friend.example.com> \u200B \u200B \u200B."
+              )
+            )
+          )}?= <foe@example.com>`,
+          [
+            {
+              name: "blö <invisiblespace@friend.example.com> .",
+              email: "foe@example.com",
+            },
+          ],
+        ],
       ];
       header_tests.forEach(function(data) {
         arrayTest(data, function() {
