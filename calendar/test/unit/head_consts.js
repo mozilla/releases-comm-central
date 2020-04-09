@@ -196,26 +196,36 @@ function ics_unfoldline(aLine) {
  */
 function dedent(strings, ...values) {
   let parts = [];
-
   // Perform variable interpolation
+  let minIndent = Infinity;
   for (let [i, string] of strings.entries()) {
-    parts.push(string);
-    if (i < values.length) {
-      parts.push(values[i]);
+    let innerparts = string.split("\n");
+    if (i == 0) {
+      innerparts.shift();
     }
+    if (i == strings.length - 1) {
+      innerparts.pop();
+    }
+    for (let [j, ip] of innerparts.entries()) {
+      let match = ip.match(/^(\s*)\S*/);
+      if (j != 0) {
+        minIndent = Math.min(minIndent, match[1].length);
+      }
+    }
+    parts.push(innerparts);
   }
-  let lines = parts.join("").split("\n");
 
-  // The first and last line is empty as in above example.
-  lines.shift();
-  lines.pop();
-
-  let minIndent = lines.reduce((min, line) => {
-    let match = line.match(/^(\s*)\S*/);
-    return Math.min(min, match[1].length);
-  }, Infinity);
-
-  return lines.map(line => line.substr(minIndent)).join("\n");
+  return parts
+    .map((part, i) => {
+      return (
+        part
+          .map((line, j) => {
+            return j == 0 && i > 0 ? line : line.substr(minIndent);
+          })
+          .join("\n") + (i < values.length ? values[i] : "")
+      );
+    })
+    .join("");
 }
 
 /**
@@ -279,4 +289,28 @@ function do_calendar_startup(callback) {
       do_get_profile(true);
     }
   }
+}
+
+/**
+ * Monkey patch the function with the name x on obj and overwrite it with func.
+ * The first parameter of this function is the original function that can be
+ * called at any time.
+ *
+ * @param obj           The object the function is on.
+ * @param name          The string name of the function.
+ * @param func          The function to monkey patch with.
+ */
+function monkeyPatch(obj, x, func) {
+  let old = obj[x];
+  obj[x] = function() {
+    let parent = old.bind(obj);
+    let args = Array.from(arguments);
+    args.unshift(parent);
+    try {
+      return func.apply(obj, args);
+    } catch (e) {
+      Cu.reportError(e);
+      throw e;
+    }
+  };
 }

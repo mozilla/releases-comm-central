@@ -13,6 +13,12 @@ XPCOM_MANIFESTS += [
     'components.conf',
 ]
 
+EXTRA_JS_MODULES.caldav += [
+    'modules/calDavRequest.jsm',
+    'modules/calDavSession.jsm',
+    'modules/calDavUtils.jsm',
+]
+
 # These files go in components so they can be packaged correctly.
 FINAL_TARGET_FILES.components += [
     'calDavRequestHandlers.js',

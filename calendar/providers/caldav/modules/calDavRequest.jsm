@@ -1,0 +1,1111 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+
+ChromeUtils.import("resource:///modules/caldav/calDavUtils.jsm");
+ChromeUtils.import("resource:///modules/caldav/calDavSession.jsm");
+
+/* exported GenericRequest, LegacySAXRequest, ItemRequest, DeleteItemRequest, PropfindRequest,
+            DAVHeaderRequest, PrincipalPropertySearchRequest, OutboxRequest, FreeBusyRequest */
+this.EXPORTED_SYMBOLS = [
+  "GenericRequest",
+  "LegacySAXRequest",
+  "ItemRequest",
+  "DeleteItemRequest",
+  "PropfindRequest",
+  "DAVHeaderRequest",
+  "PrincipalPropertySearchRequest",
+  "OutboxRequest",
+  "FreeBusyRequest",
+];
+
+const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
+const MIME_TEXT_CALENDAR = "text/calendar; charset=utf-8";
+const MIME_TEXT_XML = "text/xml; charset=utf-8";
+
+/**
+ * Base class for a caldav request.
+ */
+class CalDavRequest {
+  QueryInterface(aIID) {
+    return cal.generateClassQI(this, aIID, [Ci.nsIChannelEventSink, Ci.nsIInterfaceRequestor]);
+  }
+
+  /**
+   * Creates a new base response, this should mainly be done using the subclass constructor
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {?calICalendar} aCalendar                 The calendar this request belongs to (can be null)
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {?String} aUploadData                     The data to upload
+   * @param {?String} aContentType                    The MIME content type for the upload data
+   * @param {?Function<nsIChannel>} aOnSetupChannel   The function to call to set up the channel
+   */
+  constructor(
+    aSession,
+    aCalendar,
+    aUri,
+    aUploadData = null,
+    aContentType = null,
+    aOnSetupChannel = null
+  ) {
+    if (typeof aUploadData == "function") {
+      aOnSetupChannel = aUploadData;
+      aUploadData = null;
+      aContentType = null;
+    }
+
+    this.session = aSession;
+    this.calendar = aCalendar;
+    this.uri = aUri;
+    this.uploadData = aUploadData;
+    this.contentType = aContentType;
+    this.onSetupChannel = aOnSetupChannel;
+    this.response = null;
+    this.reset();
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return CalDavSimpleResponse;
+  }
+
+  /**
+   * Resets the channel for this request
+   */
+  reset() {
+    this.channel = cal.provider.prepHttpChannel(this.uri, this.uploadData, this.contentType, this);
+  }
+
+  /**
+   * Retrieves the given request header. Requires the request to be committed.
+   *
+   * @param {String} aHeader      The header to retrieve
+   * @return {?String}            The requested header, or null if unavailable
+   */
+  getHeader(aHeader) {
+    try {
+      return this.response.nsirequest.getRequestHeader(aHeader);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Executes the request with the configuration set up in the constructor
+   *
+   * @return {Promise}        A promise that resolves with the CalDavResponse, or a subclass
+   *                            thereof based on |responseClass|
+   */
+  async commit() {
+    await this.session.prepareRequest(this.channel);
+
+    if (this.onSetupChannel) {
+      this.onSetupChannel(this.channel);
+    }
+
+    if (cal.verboseLogEnabled && this.uploadData) {
+      let method = this.channel.requestMethod;
+      cal.LOGverbose(`CalDAV: send (${method} ${this.uri.spec}): ${this.uploadData}`);
+    }
+
+    let ResponseClass = this.responseClass;
+    this.response = new ResponseClass(this);
+    this.response.lastRedirectStatus = null;
+    this.channel.asyncOpen(this.response.listener, this.channel);
+
+    await this.response.responded;
+
+    let action = await this.session.completeRequest(this.response);
+    if (action == CalDavSession.RESTART_REQUEST) {
+      this.reset();
+      return this.commit();
+    }
+
+    if (cal.verboseLogEnabled) {
+      let text = this.response.text;
+      if (text) {
+        cal.LOGverbose("CalDAV: recv: " + text);
+      }
+    }
+
+    return this.response;
+  }
+
+  /** Implement nsIInterfaceRequestor */
+  /* eslint-disable-next-line valid-jsdoc */
+  getInterface(aIID) {
+    /**
+     * Attempt to call nsIInterfaceRequestor::getInterface on the given object, and return null
+     * if it fails.
+     *
+     * @param {Object} aObj     The object to call on.
+     * @return {?*}             The requested interface object, or null.
+     */
+    function tryGetInterface(aObj) {
+      try {
+        let requestor = aObj.QueryInterface(Ci.nsIInterfaceRequestor);
+        return requestor.getInterface(aIID);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Special case our nsIChannelEventSink, can't use tryGetInterface due to recursion errors
+    if (aIID.equals(Ci.nsIChannelEventSink)) {
+      return this.QueryInterface(Ci.nsIChannelEventSink);
+    }
+
+    // First check if the session has what we need. It may have an auth prompt implementation
+    // that should go first. Ideally we should move the auth prompt to the session anyway, but
+    // this is a task for another day (tm).
+    return tryGetInterface(this.session) || tryGetInterface(this.calendar);
+  }
+
+  /** Implement nsIChannelEventSink */
+  /* eslint-disable-next-line valid-jsdoc */
+  asyncOnChannelRedirect(aOldChannel, aNewChannel, aFlags, aCallback) {
+    /**
+     * Copy the given header from the old channel to the new one, ignoring missing headers
+     *
+     * @param {String} aHdr         The header to copy
+     */
+    function copyHeader(aHdr) {
+      try {
+        let hdrValue = aOldChannel.getRequestHeader(aHdr);
+        if (hdrValue) {
+          aNewChannel.setRequestHeader(aHdr, hdrValue, false);
+        }
+      } catch (e) {
+        if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
+          // The header could possibly not be availible, ignore that
+          // case but throw otherwise
+          throw e;
+        }
+      }
+    }
+
+    let uploadData, uploadContent;
+    let oldUploadChannel = cal.wrapInstance(aOldChannel, Ci.nsIUploadChannel);
+    let oldHttpChannel = cal.wrapInstance(aOldChannel, Ci.nsIHttpChannel);
+    if (oldUploadChannel && oldHttpChannel && oldUploadChannel.uploadStream) {
+      uploadData = oldUploadChannel.uploadStream;
+      uploadContent = oldHttpChannel.getRequestHeader("Content-Type");
+    }
+
+    cal.provider.prepHttpChannel(null, uploadData, uploadContent, this, aNewChannel);
+
+    // Make sure we can get/set headers on both channels.
+    aNewChannel.QueryInterface(Ci.nsIHttpChannel);
+    aOldChannel.QueryInterface(Ci.nsIHttpChannel);
+
+    try {
+      this.response.lastRedirectStatus = oldHttpChannel.responseStatus;
+    } catch (e) {
+      this.response.lastRedirectStatus = null;
+    }
+
+    // If any other header is used, it should be added here. We might want
+    // to just copy all headers over to the new channel.
+    copyHeader("Depth");
+    copyHeader("Originator");
+    copyHeader("Recipient");
+    copyHeader("If-None-Match");
+    copyHeader("If-Match");
+
+    aNewChannel.requestMethod = oldHttpChannel.requestMethod;
+    this.session.prepareRedirect(aOldChannel, aNewChannel).then(() => {
+      aCallback.onRedirectVerifyCallback(Cr.NS_OK);
+    });
+  }
+}
+
+/**
+ * The caldav response base class. Should be subclassed, and works with xpcom network code that uses
+ * nsIRequest.
+ */
+class CalDavResponse {
+  /**
+   * Constructs a new caldav response
+   *
+   * @param {CalDavRequest} aRequest      The request that initiated the response
+   */
+  constructor(aRequest) {
+    this.request = aRequest;
+
+    this.responded = new Promise((resolve, reject) => {
+      this._onresponded = resolve;
+      this._onrespondederror = reject;
+    });
+    this.completed = new Promise((resolve, reject) => {
+      this._oncompleted = resolve;
+      this._oncompleteerror = reject;
+    });
+  }
+
+  /** The listener passed to the channel's asyncOpen */
+  get listener() {
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  }
+
+  /** @return {nsIURI} The request URI **/
+  get uri() {
+    return this.nsirequest.URI;
+  }
+
+  /** @return {Boolean} True, if the request was redirected */
+  get redirected() {
+    return this.uri.spec != this.nsirequest.originalURI.spec;
+  }
+
+  /** @return {Number} The http response status of the request */
+  get status() {
+    try {
+      return this.nsirequest.responseStatus;
+    } catch (e) {
+      return -1;
+    }
+  }
+
+  /** The http status category, i.e. the first digit */
+  get statusCategory() {
+    return (this.status / 100) | 0;
+  }
+
+  /** If the response has a success code */
+  get ok() {
+    return this.statusCategory == 2;
+  }
+
+  /** If the response has a client error (4xx) */
+  get clientError() {
+    return this.statusCategory == 4;
+  }
+
+  /** If the response had an auth error */
+  get authError() {
+    // 403 is technically "Forbidden", but for our terms it is the same
+    return this.status == 401 || this.status == 403;
+  }
+
+  /** If the respnse has a conflict code */
+  get conflict() {
+    return this.status == 409 || this.status == 412;
+  }
+
+  /** If the response indicates the resource was not found */
+  get notFound() {
+    return this.status == 404;
+  }
+
+  /** If the response has a server error (5xx) */
+  get serverError() {
+    return this.statusCategory == 5;
+  }
+
+  /**
+   * Raise an exception if one of the handled 4xx and 5xx occured
+   */
+  raiseForStatus() {
+    if (this.authError) {
+      throw new HttpUnauthorizedError(this);
+    } else if (this.conflict) {
+      throw new HttpConflictError(this);
+    } else if (this.notFound) {
+      throw new HttpNotFoundError(this);
+    } else if (this.serverError) {
+      throw new HttpServerError(this);
+    }
+  }
+
+  /** The text response of the request */
+  get text() {
+    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  }
+
+  /** @return {DOMDocument} A DOM document with the response xml */
+  get xml() {
+    if (this.text && !this._responseXml) {
+      try {
+        this._responseXml = cal.xml.parseString(this.text);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    return this._responseXml;
+  }
+
+  /**
+   * Retrieve a request header
+   *
+   * @param {String} aHeader      The header to retrieve
+   * @return {String}             The header value
+   */
+  getHeader(aHeader) {
+    try {
+      return this.nsirequest.getResponseHeader(aHeader);
+    } catch (e) {
+      return null;
+    }
+  }
+}
+
+/**
+ * A simple caldav response using nsIStreamLoader
+ */
+class CalDavSimpleResponse extends CalDavResponse {
+  QueryInterface(aIID) {
+    return cal.generateClassQI(this, aIID, [Ci.nsIStreamLoaderObserver]);
+  }
+
+  get listener() {
+    if (!this._listener) {
+      this._listener = cal.provider.createStreamLoader();
+      this._listener.init(this);
+    }
+    return this._listener;
+  }
+
+  get text() {
+    if (!this._responseText) {
+      this._responseText = new TextDecoder().decode(Uint8Array.from(this.result)) || "";
+    }
+    return this._responseText;
+  }
+
+  /** Implement nsIStreamLoaderObserver */
+  /* eslint-disable-next-line valid-jsdoc */
+  onStreamComplete(aLoader, aContext, aStatus, aResultLength, aResult) {
+    this.resultLength = aResultLength;
+    this.result = aResult;
+
+    this.nsirequest = aLoader.request.QueryInterface(Ci.nsIHttpChannel);
+
+    if (Components.isSuccessCode(aStatus)) {
+      this._onresponded(this);
+    } else {
+      this._onrespondederror(this);
+    }
+  }
+}
+
+/**
+ * A generic request method that uses the CalDavRequest/CalDavResponse infrastructure
+ */
+class GenericRequest extends CalDavRequest {
+  /**
+   * Constructs the generic caldav request
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {String} aMethod                          The HTTP method to use
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {Object} aHeaders                         An object with headers to set
+   * @param {?String} aUploadData                     Optional data to upload
+   * @param {?String} aUploadType                     Content type for upload data
+   */
+  constructor(
+    aSession,
+    aCalendar,
+    aMethod,
+    aUri,
+    aHeaders = {},
+    aUploadData = null,
+    aUploadType = null
+  ) {
+    super(aSession, aCalendar, aUri, aUploadData, aUploadType, channel => {
+      channel.requestMethod = aMethod;
+
+      for (let [name, value] of Object.entries(aHeaders)) {
+        channel.setRequestHeader(name, value, false);
+      }
+    });
+  }
+}
+
+/**
+ * Legacy request handlers request that uses an external request listener. Used for transitioning
+ * because once I started refactoring calDavRequestHandlers.js I was on the verge of refactoring the
+ * whole caldav provider. Too risky right now.
+ */
+class LegacySAXRequest extends CalDavRequest {
+  /**
+   * Constructs the legacy caldav request
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {?String} aUploadData                     Optional data to upload
+   * @param {?String} aUploadType                     Content type for upload data
+   * @param {?Object} aHandler                        The external request handler
+   * @param {?Function<nsIChannel>} aOnSetupChannel   The function to call to set up the channel
+   */
+  constructor(
+    aSession,
+    aCalendar,
+    aUri,
+    aUploadData = null,
+    aUploadType = null,
+    aHandler = null,
+    aOnSetupChannel = null
+  ) {
+    super(aSession, aCalendar, aUri, aUploadData, aUploadType, aOnSetupChannel);
+    this._handler = aHandler;
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return LegacySAXResponse;
+  }
+}
+
+/**
+ * Response class for legacy requests. Contains a listener that proxies the external handler to run
+ * the promises we use.
+ */
+class LegacySAXResponse extends CalDavResponse {
+  /** @return {nsIStreamListener} The listener passed to the channel's asyncOpen */
+  get listener() {
+    if (!this._listener) {
+      this._listener = new Proxy(this.request._handler, {
+        get: function(aTarget, aProp, aReceiver) {
+          if (aProp == "OnStartRequest") {
+            return function(...args) {
+              try {
+                let result = aTarget[aProp].apply(this, args);
+                self._onresponded();
+                return result;
+              } catch (e) {
+                self._onrespondederror(e);
+                return null;
+              }
+            };
+          } else if (aProp == "OnStopRequest") {
+            return function(...args) {
+              try {
+                let result = aTarget[aProp].apply(this, args);
+                self._oncompleted();
+                return result;
+              } catch (e) {
+                self._oncompletederror(e);
+                return null;
+              }
+            };
+          } else {
+            return Reflect.get(...arguments);
+          }
+        },
+      });
+    }
+    return this._listener;
+  }
+
+  /** @return {String} The text response of the request */
+  get text() {
+    return this.request._handler.logXML;
+  }
+}
+
+/**
+ * Upload an item to the caldav server
+ */
+class ItemRequest extends CalDavRequest {
+  /**
+   * Constructs an item request
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {calIItemBase} aItem                      The item to send
+   * @param {?String} aEtag                           The etag to check. The special value "*"
+   *                                                    sets the If-None-Match header, otherwise
+   *                                                    If-Match is set to the etag.
+   */
+  constructor(aSession, aCalendar, aUri, aItem, aEtag = null) {
+    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+      Ci.calIIcsSerializer
+    );
+    serializer.addItems([aItem], 1);
+    let serializedItem = serializer.serializeToString();
+
+    super(aSession, aCalendar, aUri, serializedItem, MIME_TEXT_CALENDAR, channel => {
+      if (aEtag == "*") {
+        channel.setRequestHeader("If-None-Match", "*", false);
+      } else if (aEtag) {
+        channel.setRequestHeader("If-Match", aEtag, false);
+      }
+    });
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return ItemResponse;
+  }
+}
+
+/**
+ * The response for uploading an item to the server
+ */
+class ItemResponse extends CalDavSimpleResponse {
+  /** If the response has a success code */
+  get ok() {
+    // We should not accept a 201 status here indefinitely: it indicates a server error of some
+    // kind that we want to know about. It's convenient to accept it for now since a number of
+    // server impls don't get this right yet.
+    return this.status == 204 || this.status == 201 || this.status == 200;
+  }
+}
+
+/**
+ * A request for deleting an item from the server
+ */
+class DeleteItemRequest extends CalDavRequest {
+  /**
+   * Constructs an delete item request
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {?String} aEtag                           The etag to check, or null to
+   *                                                    unconditionally delete
+   */
+  constructor(aSession, aCalendar, aUri, aEtag = null) {
+    super(aSession, aCalendar, aUri, channel => {
+      if (aEtag) {
+        channel.setRequestHeader("If-Match", aEtag, false);
+      }
+      channel.requestMethod = "DELETE";
+    });
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return DeleteItemResponse;
+  }
+}
+
+/**
+ * The response class to deleting an item
+ */
+class DeleteItemResponse extends ItemResponse {
+  /** If the response has a success code */
+  get ok() {
+    // Accepting 404 as success because then the item is already deleted
+    return this.status == 204 || this.status == 200 || this.status == 404;
+  }
+}
+
+/**
+ * A dav PROPFIND request to retrieve specific properties of a dav resource
+ */
+class PropfindRequest extends CalDavRequest {
+  /**
+   * Constructs a propfind request
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {String[]} aProps                         The properties to request, including
+   *                                                    namespace prefix.
+   * @param {Number} aDepth                           The depth for the request, defaults to 0
+   */
+  constructor(aSession, aCalendar, aUri, aProps, aDepth = 0) {
+    let xml =
+      XML_HEADER +
+      `<D:propfind ${tagsToXmlns("D", ...aProps)}><D:prop>` +
+      aProps.map(prop => `<${prop}/>`).join("") +
+      "</D:prop></D:propfind>";
+
+    super(aSession, aCalendar, aUri, xml, MIME_TEXT_XML, channel => {
+      channel.setRequestHeader("Depth", aDepth, false);
+      channel.requestMethod = "PROPFIND";
+    });
+
+    this.depth = aDepth;
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return PropfindResponse;
+  }
+}
+
+/**
+ * The response for a PROPFIND request
+ */
+class PropfindResponse extends CalDavSimpleResponse {
+  get decorators() {
+    /**
+     * Retrieves the trimmed text content of the node, or null if empty
+     *
+     * @param {Element} node        The node to get the text content of
+     * @return {?String}            The text content, or null if empty
+     */
+    function textContent(node) {
+      let text = node.textContent;
+      return text ? text.trim() : null;
+    }
+
+    /**
+     * Returns an array of string with each href value within the node scope
+     *
+     * @param {Element} parent      The node to get the href values in
+     * @return {String[]}           The array with trimmed text content values
+     */
+    function href(parent) {
+      return [...parent.querySelectorAll(":scope > href")].map(node => node.textContent.trim());
+    }
+
+    /**
+     * Returns the single href value within the node scope
+     *
+     * @param {Element} node        The node to get the href value in
+     * @return {?String}            The trimmed text content
+     */
+    function singleHref(node) {
+      let hrefval = node.querySelector(":scope > href");
+      return hrefval ? hrefval.textContent.trim() : null;
+    }
+
+    /**
+     * Returns a Set with the respective element local names in the path
+     *
+     * @param {String} path         The css path to search
+     * @param {Element} parent      The parent element to search in
+     * @return {Set<String>}        A set with the element names
+     */
+    function nodeNames(path, parent) {
+      return new Set(
+        [...parent.querySelectorAll(path)].map(node => {
+          let prefix = caldavNSUnresolver(node.namespaceURI) || node.prefix;
+          return prefix + ":" + node.localName;
+        })
+      );
+    }
+
+    /**
+     * Returns a Set with the respective attribute values in the path
+     *
+     * @param {String} path         The css path to search
+     * @param {String} attribute    The attribute name to retrieve for each node
+     * @param {Element} parent      The parent element to search in
+     * @return {Set<String>}        A set with the attribute values
+     */
+    function attributeValue(path, attribute, parent) {
+      return new Set(
+        [...parent.querySelectorAll(path)].map(node => {
+          return node.getAttribute(attribute);
+        })
+      );
+    }
+
+    /**
+     * Return the result of either function a or function b, passing the node
+     *
+     * @param {Function} a      The first function to call
+     * @param {Function} b      The second function to call
+     * @param {Element} node    The node to call the functions with
+     * @return {*}              The return value of either a() or b()
+     */
+    function either(a, b, node) {
+      return a(node) || b(node);
+    }
+
+    return {
+      "D:principal-collection-set": href,
+      "C:calendar-home-set": href,
+      "C:calendar-user-address-set": href,
+      "D:current-user-principal": singleHref,
+      "D:owner": singleHref,
+      "D:supported-report-set": nodeNames.bind(null, ":scope > supported-report > report > *"),
+      "D:resourcetype": nodeNames.bind(null, ":scope > *"),
+      "C:supported-calendar-component-set": attributeValue.bind(null, ":scope > comp", "name"),
+      "C:schedule-inbox-URL": either.bind(null, singleHref, textContent),
+      "C:schedule-outbox-URL": either.bind(null, singleHref, textContent),
+    };
+  }
+  /**
+   * Quick access to the properties of the PROPFIND request. Returns an object with the hrefs as
+   * keys, and an object with the normalized properties as the value.
+   *
+   * @return {Object}    The object
+   */
+  get data() {
+    if (!this._data) {
+      this._data = {};
+      for (let response of this.xml.querySelectorAll(":scope > response")) {
+        let href = response.querySelector(":scope > href").textContent;
+        this._data[href] = {};
+
+        // This will throw 200's and 400's in one pot, but since 400's are empty that is ok
+        // for our needs.
+        for (let prop of response.querySelectorAll(":scope > propstat > prop > *")) {
+          let prefix = caldavNSUnresolver(prop.namespaceURI) || prop.prefix;
+          let qname = prefix + ":" + prop.localName;
+          if (qname in this.decorators) {
+            this._data[href][qname] = this.decorators[qname](prop) || null;
+          } else {
+            this._data[href][qname] = prop.textContent.trim() || null;
+          }
+        }
+      }
+    }
+    return this._data;
+  }
+
+  /**
+   * Shortcut for the properties of the first response, useful for depth=0
+   */
+  get firstProps() {
+    return Object.values(this.data)[0];
+  }
+
+  /** If the response has a success code */
+  get ok() {
+    return this.status == 207 && this.xml;
+  }
+}
+
+/**
+ * An OPTIONS request for retrieving the DAV header
+ */
+class DAVHeaderRequest extends CalDavRequest {
+  /**
+   * Constructs the options request
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {nsIURI} aUri                             The uri to request
+   */
+  constructor(aSession, aCalendar, aUri) {
+    super(aSession, aCalendar, aUri, channel => {
+      channel.requestMethod = "OPTIONS";
+    });
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return DAVHeaderResponse;
+  }
+}
+
+/**
+ * The response class for the dav header request
+ */
+class DAVHeaderResponse extends CalDavSimpleResponse {
+  /**
+   * Returns a Set with the DAV features, not including the version
+   */
+  get features() {
+    if (!this._features) {
+      let dav = this.getHeader("dav") || "";
+      let features = dav.split(/,\s*/);
+      features.shift();
+      this._features = new Set(features);
+    }
+    return this._features;
+  }
+
+  /**
+   * The version from the DAV header
+   */
+  get version() {
+    let dav = this.getHeader("dav");
+    return parseInt(dav.substr(0, dav.indexOf(",")), 10);
+  }
+}
+
+/**
+ * Request class for principal-property-search queries
+ */
+class PrincipalPropertySearchRequest extends CalDavRequest {
+  /**
+   * Constructs a principal-property-search query.
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {String} aMatch                           The href to search in
+   * @param {String} aSearchProp                      The property to search for
+   * @param {String[]} aProps                         The properties to retieve
+   * @param {Number} aDepth                           The depth of the query, defaults to 1
+   */
+  constructor(aSession, aCalendar, aUri, aMatch, aSearchProp, aProps, aDepth = 1) {
+    let xml =
+      XML_HEADER +
+      `<D:principal-property-search ${tagsToXmlns("D", aSearchProp, ...aProps)}>` +
+      "<D:property-search>" +
+      "<D:prop>" +
+      `<${aSearchProp}/>` +
+      "</D:prop>" +
+      `<D:match>${cal.xml.escapeString(aMatch)}</D:match>` +
+      "</D:property-search>" +
+      "<D:prop>" +
+      aProps.map(prop => `<${prop}/>`).join("") +
+      "</D:prop>" +
+      "</D:principal-property-search>";
+
+    super(aSession, aCalendar, aUri, xml, MIME_TEXT_XML, channel => {
+      channel.setRequestHeader("Depth", aDepth, false);
+      channel.requestMethod = "REPORT";
+    });
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return PropfindResponse;
+  }
+}
+
+/**
+ * Request class for calendar outbox queries, to send or respond to invitations
+ */
+class OutboxRequest extends CalDavRequest {
+  /**
+   * Constructs an outbox request
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {String} aOrganizer                       The organizer of the request
+   * @param {String} aRecipients                      The recipients of the request
+   * @param {String} aResponseMethod                  The itip resonse method, e.g. REQUEST,REPLY
+   * @param {calIItemBase} aItem                      The item to send
+   */
+  constructor(aSession, aCalendar, aUri, aOrganizer, aRecipients, aResponseMethod, aItem) {
+    let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+      Ci.calIIcsSerializer
+    );
+    serializer.addItems([aItem], 1);
+
+    let method = cal.getIcsService().createIcalProperty("METHOD");
+    method.value = aResponseMethod;
+    serializer.addProperty(method);
+
+    super(
+      aSession,
+      aCalendar,
+      aUri,
+      serializer.serializeToString(),
+      MIME_TEXT_CALENDAR,
+      channel => {
+        channel.requestMethod = "POST";
+        channel.setRequestHeader("Originator", aOrganizer, false);
+        for (let recipient of aRecipients) {
+          channel.setRequestHeader("Recipient", recipient, true);
+        }
+      }
+    );
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return OutboxResponse;
+  }
+}
+
+/**
+ * Response class for the caldav outbox request
+ */
+class OutboxResponse extends CalDavSimpleResponse {
+  /**
+   * An object with the recipients as keys, and the request status as values
+   */
+  get data() {
+    if (!this._data) {
+      this._data = {};
+      // TODO The following queries are currently untested code, as I don't have
+      // a caldav-sched server available. If you find someone who does, please test!
+      for (let response of this.xml.querySelectorAll(":scope > response")) {
+        let recipient = response.querySelector(":scope > recipient > href").textContent;
+        let status = response.querySelector(":scope > request-status").textContent;
+        this.data[recipient] = status;
+      }
+    }
+    return this._data;
+  }
+
+  /** If the response has a success code */
+  get ok() {
+    return this.status == 200 && this.xml;
+  }
+}
+
+/**
+ * Request class for freebusy queries
+ */
+class FreeBusyRequest extends CalDavRequest {
+  /**
+   * Creates a freebusy request, for the specified range
+   *
+   * @param {CalDavSession} aSession                  The session to use for this request
+   * @param {calICalendar} aCalendar                  The calendar this request belongs to
+   * @param {nsIURI} aUri                             The uri to request
+   * @param {String} aOrganizer                       The organizer of the request
+   * @param {String} aRecipient                       The attendee to look up
+   * @param {calIDateTime} aRangeStart                The start of the range
+   * @param {calIDateTime} aRangeEnd                  The end of the range
+   */
+  constructor(aSession, aCalendar, aUri, aOrganizer, aRecipient, aRangeStart, aRangeEnd) {
+    let ics = cal.getIcsService();
+    let vcalendar = ics.createIcalComponent("VCALENDAR");
+    cal.item.setStaticProps(vcalendar);
+
+    let method = ics.createIcalProperty("METHOD");
+    method.value = "REQUEST";
+    vcalendar.addProperty(method);
+
+    let freebusy = ics.createIcalComponent("VFREEBUSY");
+    freebusy.uid = cal.getUUID();
+    freebusy.stampTime = cal.dtz.now().getInTimezone(cal.dtz.UTC);
+    freebusy.startTime = aRangeStart.getInTimezone(cal.dtz.UTC);
+    freebusy.endTime = aRangeEnd.getInTimezone(cal.dtz.UTC);
+    vcalendar.addSubcomponent(freebusy);
+
+    let organizer = ics.createIcalProperty("ORGANIZER");
+    organizer.value = aOrganizer;
+    freebusy.addProperty(organizer);
+
+    let attendee = ics.createIcalProperty("ATTENDEE");
+    attendee.setParameter("PARTSTAT", "NEEDS-ACTION");
+    attendee.setParameter("ROLE", "REQ-PARTICIPANT");
+    attendee.setParameter("CUTYPE", "INDIVIDUAL");
+    attendee.value = aRecipient;
+    freebusy.addProperty(attendee);
+
+    super(aSession, aCalendar, aUri, vcalendar.serializeToICS(), MIME_TEXT_CALENDAR, channel => {
+      channel.requestMethod = "POST";
+      channel.setRequestHeader("Originator", aOrganizer, false);
+      channel.setRequestHeader("Recipient", aRecipient, false);
+    });
+
+    this._rangeStart = aRangeStart;
+    this._rangeEnd = aRangeEnd;
+  }
+
+  /**
+   * @return {Object}  The class of the response for this request
+   */
+  get responseClass() {
+    return FreeBusyResponse;
+  }
+}
+
+/**
+ * Response class for the freebusy request
+ */
+class FreeBusyResponse extends CalDavSimpleResponse {
+  /**
+   * Quick access to the freebusy response data. An object is returned with the keys being
+   * recipients:
+   *
+   * {
+   *   "mailto:user@example.com": {
+   *     status: "HTTP/1.1 200 OK",
+   *     intervals: [
+   *       { type: "BUSY", begin: ({calIDateTime}), end: ({calIDateTime or calIDuration}) },
+   *       { type: "FREE", begin: ({calIDateTime}), end: ({calIDateTime or calIDuration}) }
+   *     ]
+   *   }
+   * }
+   */
+  get data() {
+    /**
+     * Helper to get the trimmed text content
+     *
+     * @param {Element} aParent     The parent node to search in
+     * @param {String} aPath        The css query path to serch
+     * @return {String}             The trimmed text content
+     */
+    function querySelectorText(aParent, aPath) {
+      let node = aParent.querySelector(aPath);
+      return node ? node.textContent.trim() : "";
+    }
+
+    if (!this._data) {
+      let icssvc = cal.getIcsService();
+      this._data = {};
+      for (let response of this.xml.querySelectorAll(":scope > response")) {
+        let recipient = querySelectorText(response, ":scope > recipient > href");
+        let status = querySelectorText(response, ":scope > request-status");
+        let caldata = querySelectorText(response, ":scope > calendar-data");
+        let intervals = [];
+        if (caldata) {
+          let component;
+          try {
+            component = icssvc.parseICS(caldata, null);
+          } catch (e) {
+            cal.LOG("CalDAV: Could not parse freebusy data: " + e);
+            continue;
+          }
+
+          for (let fbcomp of cal.iterate.icalComponent(component, "VFREEBUSY")) {
+            let fbstart = fbcomp.startTime;
+            if (fbstart && this.request._rangeStart.compare(fbstart) < 0) {
+              intervals.push({
+                type: "UNKNOWN",
+                begin: this.request._rangeStart,
+                end: fbstart,
+              });
+            }
+
+            for (let fbprop of cal.iterate.icalProperty(fbcomp, "FREEBUSY")) {
+              let type = fbprop.getParameter("FBTYPE");
+
+              let parts = fbprop.value.split("/");
+              let begin = cal.createDateTime(parts[0]);
+              let end;
+              if (parts[1].startsWith("P")) {
+                // this is a duration
+                end = begin.clone();
+                end.addDuration(cal.createDuration(parts[1]));
+              } else {
+                // This is a date string
+                end = cal.createDateTime(parts[1]);
+              }
+
+              intervals.push({ type, begin, end });
+            }
+
+            let fbend = fbcomp.endTime;
+            if (fbend && this.request._rangeEnd.compare(fbend) > 0) {
+              intervals.push({
+                type: "UNKNOWN",
+                begin: fbend,
+                end: this.request._rangeEnd,
+              });
+            }
+          }
+        }
+        this._data[recipient] = { status, intervals };
+      }
+    }
+    return this._data;
+  }
+
+  /**
+   * The data for the first recipient, useful if just one recipient was requested
+   */
+  get firstRecipient() {
+    return Object.values(this.data)[0];
+  }
+}
