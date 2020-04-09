@@ -615,7 +615,7 @@ class DeleteItemResponse extends ItemResponse {
 }
 
 /**
- * A dav PROPFIND request to retrieve specific properties of a dav resource
+ * A dav PROPFIND request to retrieve specific properties of a dav resource.
  */
 class CalDavPropfindRequest extends CalDavRequestBase {
   /**

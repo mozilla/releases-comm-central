@@ -78,6 +78,8 @@ calendar.jar:
     content/calendar-summary-dialog.js                          (content/dialogs/calendar-summary-dialog.js)
     content/calendar-summary-dialog.xhtml                       (content/dialogs/calendar-summary-dialog.xhtml)
     content/calendar-summary-dialog.css                         (content/dialogs/calendar-summary-dialog.css)
+    content/calendar-uri-redirect-dialog.xhtml                  (content/dialogs/calendar-uri-redirect-dialog.xhtml)
+    content/calendar-uri-redirect-dialog.js                     (content/dialogs/calendar-uri-redirect-dialog.js)
     content/chooseCalendarDialog.js                             (content/dialogs/chooseCalendarDialog.js)
     content/chooseCalendarDialog.xhtml                          (content/dialogs/chooseCalendarDialog.xhtml)
     content/import-export.js                                    (content/import-export.js)

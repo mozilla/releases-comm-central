@@ -1397,15 +1397,39 @@ CalDavCalendar.prototype = {
   },
 
   /**
-   * Helper to check if the given response has had its url redirected, and if so prompt the user
-   * if they want to adapt the URL.
+   * Called when a response has had its URL redirected. Shows a dialog
+   * to allow the user to accept or reject the redirect. If they accept,
+   * change the calendar's URI to the target URI of the redirect.
    *
-   * @param {CalDavResponseBase} response         The response to check.
-   * @return {Boolean}                            False, if the calendar should be disabled
+   * @param {PropfindResponse} response - Response to handle. Typically a
+   *                                      PropfindResponse but could be any
+   *                                      subclass of CalDavResponseBase.
+   * @return {boolean} True if the user accepted the redirect.
+   *                   False, if the calendar should be disabled.
    */
-  checkRedirect(response) {
-    // TODO: the following is temporary just to help with debugging tests.
-    return true;
+  openUriRedirectDialog(response) {
+    let args = {
+      calendarName: this.name,
+      originalURI: response.nsirequest.originalURI.spec,
+      targetURI: response.uri.spec,
+      returnValue: false,
+    };
+
+    cal.window
+      .getCalendarWindow()
+      .openDialog(
+        "chrome://calendar/content/calendar-uri-redirect-dialog.xhtml",
+        "Calendar:URIRedirectDialog",
+        "chrome,modal,titlebar,resizable,centerscreen",
+        args
+      );
+
+    if (args.returnValue) {
+      this.uri = response.uri;
+      this.setProperty("uri", response.uri.spec);
+    }
+
+    return args.returnValue;
   },
 
   /**
@@ -1435,8 +1459,8 @@ CalDavCalendar.prototype = {
       response => {
         cal.LOG(`CalDAV: Status ${response.status} on initial PROPFIND for calendar ${this.name}`);
 
-        // Follow redirects if they happend, otherwise disable the calendar
-        if (!this.checkRedirect(response)) {
+        // If the URI was redirected, and the user rejects the redirect, disable the calendar.
+        if (response.redirected && !this.openUriRedirectDialog(response)) {
           this.setProperty("disabled", "true");
           this.completeCheckServerInfo(aChangeLogListener, Cr.NS_ERROR_ABORT);
           return;
