@@ -50,6 +50,11 @@ if CONFIG['MOZ_SANDBOX'] and CONFIG['OS_ARCH'] == 'WINNT':
         'user32.dll',
     ]
 
+if CONFIG['OS_ARCH'] == 'WINNT':
+    OS_LIBS += [
+        'ntdll',
+    ]
+
 if CONFIG['CC_TYPE'] in ('msvc', 'clang-cl'):
     # Always enter a Windows program through wmain, whether or not we're
     # a console application.
