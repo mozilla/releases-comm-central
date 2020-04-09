@@ -210,16 +210,16 @@ toolbarpaletteitem > #button-delete {
   width: 22em;
 }
 
-toolbarpaletteitem[place="palette"] > #folder-location-container > #locationFolders {
-  max-width: 11em;
-}
-
-toolbarpaletteitem[place="palette"] > #search-container > #searchInput {
-  max-width: 11em;
-}
-
-toolbarpaletteitem[place="palette"] > #mailviews-container > #viewPicker {
-  max-width: 11em;
+/* Force the folder location and mail view items to fit in the available width
+   in the Customize Toolbar dialog. */
+#palette-box #locationFolders,
+#palette-box #folder-location-container,
+#palette-box #searchInput,
+#palette-box #button-search-container,
+#palette-box #button-search,
+#palette-box #mailviews-container,
+#palette-box #viewPicker {
+  -moz-box-flex: 1;
 }
 
 /* ::::: small primary toolbar buttons ::::: */
