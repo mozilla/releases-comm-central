@@ -355,6 +355,8 @@ function cleanUpItemForPalette(aItem, aWrapper) {
   aItem.removeAttribute("observes");
   aItem.removeAttribute("type");
   aItem.removeAttribute("width");
+  aItem.removeAttribute("checked");
+  aItem.removeAttribute("collapsed");
 
   aWrapper.querySelectorAll("[disabled]").forEach(function(aNode) {
     aNode.removeAttribute("disabled");
@@ -374,6 +376,11 @@ function cleanupItemForToolbar(aItem, aWrapper) {
   if (aItem.hasAttribute("command")) {
     aWrapper.setAttribute("itemcommand", aItem.getAttribute("command"));
     aItem.removeAttribute("command");
+  }
+
+  if (aItem.hasAttribute("collapsed")) {
+    aWrapper.setAttribute("itemcollapsed", aItem.getAttribute("collapsed"));
+    aItem.removeAttribute("collapsed");
   }
 
   if (aItem.checked) {
@@ -397,6 +404,11 @@ function restoreItemForToolbar(aItem, aWrapper) {
 
   if (aWrapper.hasAttribute("itemchecked")) {
     aItem.checked = true;
+  }
+
+  if (aWrapper.hasAttribute("itemcollapsed")) {
+    let collapsed = aWrapper.getAttribute("itemcollapsed");
+    aItem.setAttribute("collapsed", collapsed);
   }
 
   if (aWrapper.hasAttribute("itemcommand")) {
