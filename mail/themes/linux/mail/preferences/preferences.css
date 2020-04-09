@@ -19,7 +19,7 @@ radio[pane] > .radio-label-box {
   -moz-appearance: none;
 }
 
-menulist.actionsMenu > .menulist-dropmarker {
+menulist.actionsMenu::part(dropmarker) {
   margin-block: 11px;
 }
 

@@ -5,8 +5,8 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-menulist[is="menulist-editable"]:not([editable="true"]) html|input.menulist-input,
-menulist[is="menulist-editable"][editable="true"] .menulist-label-box {
+menulist[is="menulist-editable"]:not([editable="true"])::part(text-input),
+menulist[is="menulist-editable"][editable="true"]::part(label-box) {
   display: none;
 }
 
@@ -14,7 +14,7 @@ menulist > html|input {
   margin: 0;
 }
 
-menulist html|*.textbox-input {
+menulist::part(text-input) {
   -moz-appearance: none;
   background: transparent;
   -moz-box-flex: 1;

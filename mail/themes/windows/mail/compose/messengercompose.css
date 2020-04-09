@@ -128,27 +128,27 @@
   margin-inline-end: -32px;
 }
 
-#msgIdentity:-moz-focusring:not([open="true"]) > .menulist-label-box {
+#msgIdentity:-moz-focusring:not([open="true"])::part(label-box) {
   outline: none;
 }
 
-#msgIdentity > .menulist-dropmarker {
+#msgIdentity::part(dropmarker) {
   display: none;
 }
 
 @media (-moz-windows-default-theme: 0) {
-  #msgIdentity > .menulist-label-box {
+  #msgIdentity::part(label-box) {
     background-color: transparent !important;
     color: inherit !important;
   }
 
-  .menulist-dropmarker::part(icon) {
+  menulist::part(dropmarker-icon) {
     width: 9px;
     height: 7px;
   }
 }
 
-#msgIdentity > html|input.menulist-input {
+#msgIdentity::part(text-input) {
   background-color: inherit;
   color: inherit;
   margin-block: 2px;
@@ -585,8 +585,7 @@ toolbar:not(:-moz-lwtheme) {
     box-shadow: var(--toolbarbutton-active-boxshadow);
   }
 
-  .menulist-dropmarker,
-  .menulist-dropmarker[disabled="true"] {
+  menulist::part(dropmarker) {
     -moz-appearance: none;
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
     -moz-context-properties: fill;
@@ -594,7 +593,7 @@ toolbar:not(:-moz-lwtheme) {
     margin-top: 0;
   }
 
-  .menulist-dropmarker::part(icon) {
+  menulist::part(dropmarker-icon) {
     width: 9px;
     height: 7px;
   }

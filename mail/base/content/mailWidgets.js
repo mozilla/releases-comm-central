@@ -720,23 +720,40 @@
      * @extends {MozMenuList}
      */
     class MozMenulistEditable extends customElements.get("menulist") {
+      static get markup() {
+        // Accessibility information of these nodes will be
+        // presented on XULComboboxAccessible generated from <menulist>;
+        // hide these nodes from the accessibility tree.
+        return `
+        <html:link rel="stylesheet" href="chrome://global/skin/menulist.css"/>
+        <html:input part="text-input" type="text" allowevents="true"/>
+        <hbox id="label-box" part="label-box" flex="1" role="none">
+          <image part="icon" role="none"/>
+          <label id="label" part="label" crop="right" flex="1" role="none"/>
+          <label id="highlightable-label" part="label" crop="right" flex="1" role="none"/>
+        </hbox>
+        <dropmarker part="dropmarker" exportparts="icon: dropmarker-icon" type="menu" role="none"/>
+        <html:slot/>
+      `;
+      }
+
       connectedCallback() {
         if (this.delayConnectedCallback()) {
           return;
         }
 
-        this.prepend(MozMenulistEditable.fragment.cloneNode(true));
-        this._inputField = this.querySelector(".menulist-input");
-        this._labelBox = this.querySelector(".menulist-label-box");
-        this._dropmarker = this.querySelector(".menulist-dropmarker");
+        this.shadowRoot.appendChild(this.constructor.fragment);
+        this._inputField = this.shadowRoot.querySelector("input");
+        this._labelBox = this.shadowRoot.getElementById("label-box");
+        this._dropmarker = this.shadowRoot.querySelector("dropmarker");
 
         if (this.getAttribute("type") == "description") {
           this._description = document.createXULElement("label");
-          this._description.classList.add("menulist-description");
+          this._description.id = this._description.part = "description";
           this._description.setAttribute("crop", "right");
           this._description.setAttribute("flex", "10000");
           this._description.setAttribute("role", "none");
-          this.querySelector(".menulist-label").after(this._description);
+          this.shadowRoot.getElementById("label").after(this._description);
         }
 
         this.initializeAttributeInheritance();
@@ -801,34 +818,10 @@
         }
       }
 
-      static get fragment() {
-        // Accessibility information of these nodes will be
-        // presented on XULComboboxAccessible generated from <menulist>;
-        // hide these nodes from the accessibility tree.
-        return document.importNode(
-          MozXULElement.parseXULToFragment(`
-            <html:input type="text" class="menulist-input textbox-input" allowevents="true"/>
-            <hbox class="menulist-label-box" flex="1" role="none">
-              <image class="menulist-icon" role="none"/>
-              <label class="menulist-label"
-                     crop="right"
-                     flex="1"
-                     role="none"/>
-              <label class="menulist-highlightable-label"
-                     crop="right"
-                     flex="1"
-                     role="none"/>
-            </hbox>
-            <dropmarker class="menulist-dropmarker" type="menu" role="none"/>
-          `),
-          true
-        );
-      }
-
       static get inheritedAttributes() {
         let attrs = super.inheritedAttributes;
-        attrs[".menulist-input"] = "value,disabled";
-        attrs[".menulist-description"] = "value=description";
+        attrs.input = "value,disabled";
+        attrs["#description"] = "value=description";
         return attrs;
       }
 

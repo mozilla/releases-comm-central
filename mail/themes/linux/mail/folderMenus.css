@@ -106,7 +106,7 @@
   visibility: visible;
 }
 
-menulist.folderMenuItem > .menulist-label-box > .menulist-icon {
+menulist.folderMenuItem::part(icon) {
   width: 16px;
   height: 16px;
 }

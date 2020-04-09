@@ -114,7 +114,7 @@ toolbar[nowindowdrag="true"] {
   margin-inline-end: -22px;
 }
 
-#msgIdentity > html|input.menulist-input {
+#msgIdentity::part(text-input) {
   color: inherit;
   padding-inline-start: 3px;
 }
@@ -237,7 +237,7 @@ toolbar[nowindowdrag="true"] {
   -moz-image-region: rect(0 160px 16px 144px);
 }
 
-.menulist-description {
+menulist::part(description) {
   color: #999;
 }
 

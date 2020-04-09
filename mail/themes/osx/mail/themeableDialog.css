@@ -14,7 +14,7 @@ menulist {
   padding-inline-end: 0;
 }
 
-.menulist-dropmarker {
+menulist::part(dropmarker) {
   display: -moz-box;
 }
 
@@ -26,11 +26,11 @@ menulist[is="menulist-editable"][editable="true"] {
   padding: 0;
 }
 
-menulist[is="menulist-editable"][editable="true"] .menulist-input {
+menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   padding: 4px;
 }
 
-menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
+menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
   display: -moz-box;
   width: initial;
   min-width: 0;

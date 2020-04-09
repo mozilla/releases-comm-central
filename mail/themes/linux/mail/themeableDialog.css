@@ -11,7 +11,7 @@ button > .button-box {
   padding-block: 4px;
 }
 
-.menulist-dropmarker {
+menulist::part(dropmarker) {
   display: -moz-box;
 }
 
@@ -25,11 +25,11 @@ menulist[is="menulist-editable"][editable="true"] {
   padding: 0;
 }
 
-menulist[is="menulist-editable"][editable="true"] .menulist-input {
+menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   padding: 4px;
 }
 
-menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
+menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
   width: initial;
   min-width: 0;
   margin-block: 0;

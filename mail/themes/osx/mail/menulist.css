@@ -28,11 +28,6 @@ menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem[selecte
   margin-inline-start: 0;
 }
 
-menulist[is="menulist-editable"][editable="true"] > .menulist-dropmarker {
+menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
   display: none;
-}
-
-menulist > textbox {
-  -moz-appearance: none;
-  background-color: transparent;
 }

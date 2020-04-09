@@ -5,7 +5,7 @@
 @import url("chrome://messenger/content/menulist.css");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-menulist html|*.textbox-input {
+menulist::part(text-input) {
   padding: 2px 2px 3px;
 }
 
@@ -14,7 +14,7 @@ menulist[is="menulist-editable"][editable="true"] {
   margin-inline-end: 2.4em;
 }
 
-menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
+menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
   display: -moz-box;
   width: 2em;
   margin-top: -2px;
@@ -22,10 +22,10 @@ menulist[is="menulist-editable"][editable="true"] .menulist-dropmarker {
   margin-inline-end: -2.4em;
 }
 
-menulist[is="menulist-editable"][editable="true"] html|*.menulist-input {
+menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   margin-inline-end: 6px;
 }
 
-menulist[open="true"] html|*.textbox-input {
+menulist[open="true"]::part(text-input) {
   color: -moz-FieldText;
 }

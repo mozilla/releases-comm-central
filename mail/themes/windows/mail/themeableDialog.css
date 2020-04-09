@@ -10,7 +10,7 @@ html|input {
   padding: 2px 4px;
 }
 
-menulist[is="menulist-editable"][editable="true"] .menulist-input {
+menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   padding: 2px 4px;
 }
 

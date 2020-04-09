@@ -20,8 +20,8 @@
   margin-inline-end: 2.4em;
 }
 
-#todo-entrydate .menulist-dropmarker,
-#todo-duedate .menulist-dropmarker {
+#todo-entrydate::part(dropmarker),
+#todo-duedate::part(dropmarker) {
   display: block !important;
 }
 

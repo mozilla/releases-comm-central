@@ -14,6 +14,6 @@
   background-image: none;
 }
 
-#CustomizeToolbarWindow menulist > .menulist-label-box {
+#CustomizeToolbarWindow menulist::part(label-box) {
   background: none;
 }

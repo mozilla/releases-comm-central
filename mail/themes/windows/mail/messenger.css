@@ -521,7 +521,7 @@ menupopup[is="folder-menupopup"] > menuitem {
   -moz-appearance: menuitem !important;
 }
 
-menulist.folderMenuItem > .menulist-label-box > .menulist-label {
+menulist.folderMenuItem::part(label) {
   margin-inline-start: 2px !important;
 }
 

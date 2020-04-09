@@ -133,16 +133,16 @@ menulist[disabled="true"] {
   opacity: 0.4;
 }
 
-.menulist-label-box {
+menulist::part(label-box) {
   padding-block: 3px;
 }
 
-menulist:-moz-focusring > .menulist-label-box,
-menulist:-moz-focusring:not([open="true"]) > .menulist-label-box {
+menulist:-moz-focusring::part(label-box),
+menulist:-moz-focusring:not([open="true"])::part(label-box) {
   outline: none;
 }
 
-.menulist-dropmarker {
+menulist::part(dropmarker) {
   -moz-appearance: none;
   padding: 0;
   border: none;
@@ -152,16 +152,16 @@ menulist:-moz-focusring:not([open="true"]) > .menulist-label-box {
   fill: currentColor;
 }
 
-.menulist-dropmarker::part(icon) {
+menulist::part(dropmarker-icon) {
   width: 12px;
   height: 12px;
 }
 
-menulist.folderMenuItem > .menulist-dropmarker {
+menulist.folderMenuItem::part(dropmarker) {
   -moz-image-region: auto;
 }
 
-menulist[is="menulist-editable"][editable="true"] .menulist-input {
+menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   background-color: var(--field-background-color);
   color: var(--field-text-color);
   border: 1px solid var(--field-border-color);
@@ -171,7 +171,7 @@ menulist[is="menulist-editable"][editable="true"] .menulist-input {
   margin-inline: -1px 4px;
 }
 
-menulist[is="menulist-editable"][editable="true"] .menulist-input:focus {
+menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
   border-color: var(--highlight-color);
 }
 

@@ -49,7 +49,7 @@ radio[pane][selected] {
   border-image: none;
 }
 
-.actionsMenu > .menulist-label-box > .menulist-icon {
+.actionsMenu::part(icon) {
   margin-top: 2px;
 }
 

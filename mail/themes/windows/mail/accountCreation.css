@@ -39,9 +39,7 @@ menulist[disabled="true"] {
   color: -moz-DialogText;
 }
 
-menulist[disabled="true"] > .menulist-editable-box,
-menulist[disabled="true"] > .menulist-editable-box > .menulist-editable-input,
-menulist[disabled="true"] > .menulist-dropmarker {
+menulist[disabled="true"]::part(dropmarker) {
   -moz-appearance: none;
   color: -moz-DialogText;
 }
@@ -64,20 +62,14 @@ menulist[disabled="true"] > .menulist-dropmarker {
   padding-bottom: 1px;
 }
 
-.menulist-editable-box {
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-inline-start: 5px;
-}
-
 @media (-moz-windows-default-theme: 0) {
-  .menulist-label-box {
+  menulist::part(label-box) {
     padding-top: 2px;
     padding-bottom: 2px;
   }
 }
 
-.menulist-dropmarker[disabled="true"] {
+menulist[disabled="true"]::part(dropmarker) {
   visibility: hidden;
 }
 

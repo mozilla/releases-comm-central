@@ -9,7 +9,7 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 /* Don't apply the here needless -moz-image-region to the dropmarker. */
-.menulist-dropmarker {
+menulist::part(dropmarker) {
   -moz-image-region: unset;
 }
 

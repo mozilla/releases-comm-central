@@ -79,7 +79,7 @@
   list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
 }
 
-.menulist-icon {
+menulist::part(icon) {
   margin-inline-end: 2px;
 }
 
@@ -141,7 +141,7 @@
     list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic-tiny@2x.png");
   }
 
-  #GenericPhotoList .menulist-icon {
+  #GenericPhotoList::part(icon) {
     width: 16px;
     height: 16px;
   }

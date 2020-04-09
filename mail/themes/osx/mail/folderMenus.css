@@ -106,7 +106,7 @@
 
 @media (min-resolution: 2dppx) {
   .folderMenuItem > .menu-iconic-left > .menu-iconic,
-  .folderMenuItem > .menulist-label-box > .menulist-icon {
+  .folderMenuItem::part(icon) {
     width: 16px;
     height: 16px;
   }

@@ -98,7 +98,7 @@ fieldset:last-of-type {
   margin-inline-end: 14px;
 }
 
-.folderMenuItem > .menulist-dropmarker {
+.folderMenuItem::part(dropmarker) {
   -moz-image-region: auto;
 }
 

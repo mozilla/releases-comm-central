@@ -322,7 +322,7 @@
   margin-inline-start: 1ex !important;
 }
 
-.menulist-description {
+menulist::part(description) {
   font-style: italic;
   color: GrayText;
   margin-inline-start: 1ex !important;

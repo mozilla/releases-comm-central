@@ -545,7 +545,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     opacity: .6;
   }
 
-  .menulist-dropmarker {
+  menulist::part(dropmarker) {
     -moz-appearance: none;
     -moz-box-align: center;
     -moz-box-pack: center;
@@ -556,7 +556,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     margin-top: 0;
   }
 
-  .menulist-dropmarker::part(icon) {
+  menulist::part(dropmarker-icon) {
     width: 9px;
     height: 7px;
   }
@@ -592,15 +592,15 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     border-color: -moz-DialogText;
   }
 
-  #viewPicker > .menulist-label-box > .menulist-label,
-  #locationFolders > .menulist-label-box > .menulist-label {
+  #viewPicker::part(label),
+  #locationFolders::part(label) {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
   }
 }
 
-#viewPicker > .menulist-label-box > .menulist-icon,
-#locationFolders > .menulist-label-box > .menulist-icon {
+#viewPicker::part(icon),
+#locationFolders::part(icon) {
   min-height: 16px;
 }
 
@@ -715,8 +715,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-#viewPicker > .menulist-label-box > .menulist-icon,
-#locationFolders > .menulist-label-box > .menulist-icon {
+#viewPicker::part(icon),
+#locationFolders::part(icon) {
   min-height: 16px;
 }
 

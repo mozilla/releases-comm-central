@@ -101,7 +101,7 @@ menulist[disabled="true"] {
   opacity: .6;
 }
 
-menulist > .menulist-label-box {
+menulist::part(label-box) {
   -moz-appearance: none;
   padding-inline-end: 12px;
   background-repeat: no-repeat;
@@ -112,7 +112,7 @@ menulist > .menulist-label-box {
   fill: currentColor;
 }
 
-menulist:-moz-locale-dir(rtl) > .menulist-label-box {
+menulist:-moz-locale-dir(rtl)::part(label-box) {
   background-position: left;
 }
 
@@ -219,12 +219,12 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   padding-inline: 2px 20px;
 }
 
-#msgIdentity > .menulist-label-box {
+#msgIdentity::part(label-box) {
   background: none;
   padding-inline-end: initial;
 }
 
-#msgIdentity > html|input.menulist-input {
+#msgIdentity::part(text-input) {
   -moz-appearance: none;
   padding-block: 1px 2px;
   padding-inline: 3px 12px;
@@ -232,7 +232,7 @@ menulist:-moz-locale-dir(rtl) > .menulist-label-box {
   color: inherit;
 }
 
-#msgIdentity[editable="true"] > .menulist-dropmarker {
+#msgIdentity[editable="true"]::part(dropmarker) {
   display: none;
 }
 
