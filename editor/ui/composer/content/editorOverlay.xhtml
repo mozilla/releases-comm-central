@@ -3,7 +3,13 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE overlay SYSTEM "chrome://editor/locale/editorOverlay.dtd">
+<!DOCTYPE overlay [
+<!ENTITY % editorOverlayDTD SYSTEM "chrome://editor/locale/editorOverlay.dtd">
+%editorOverlayDTD;
+<!ENTITY % editorSmileyOverlayDTD SYSTEM
+  "chrome://editor/locale/editorSmileyOverlay.dtd">
+%editorSmileyOverlayDTD;
+]>
 
 <overlay id="editorOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
@@ -379,6 +385,76 @@
                     label="&removeTOC.label;"
                     accesskey="&removeTOC.accesskey;"
                     oncommand="RemoveTOC()"/>
+        </menupopup>
+      </menu>
+      <menu id="insertSmiley"
+            label="&insertSmiley.label;"
+            accesskey="&insertSmiley.accesskey;">
+        <menupopup id="smilyMenuPopup">
+          <menuitem class="smiley insert-smile menuitem-iconic"
+                    label="&smiley1Cmd.label;"
+                    accesskey="&smiley1Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-)');"/>
+          <menuitem class="smiley insert-frown menuitem-iconic"
+                    label="&smiley2Cmd.label;"
+                    accesskey="&smiley2Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-(');"/>
+          <menuitem class="smiley insert-wink menuitem-iconic"
+                    label="&smiley3Cmd.label;"
+                    accesskey="&smiley3Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ';-)');"/>
+          <menuitem class="smiley insert-tongue menuitem-iconic"
+                    label="&smiley4Cmd.label;"
+                    accesskey="&smiley4Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-P');"/>
+          <menuitem class="smiley insert-laughing menuitem-iconic"
+                    label="&smiley5Cmd.label;"
+                    accesskey="&smiley5Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-D');"/>
+          <menuitem class="smiley insert-embarrassed menuitem-iconic"
+                    label="&smiley6Cmd.label;"
+                    accesskey="&smiley6Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-[');"/>
+          <menuitem class="smiley insert-undecided menuitem-iconic"
+                    label="&smiley7Cmd.label;"
+                    accesskey="&smiley7Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-\\');"/>
+          <menuitem class="smiley insert-surprise menuitem-iconic"
+                    label="&smiley8Cmd.label;"
+                    accesskey="&smiley8Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', '=-O');"/>
+          <menuitem class="smiley insert-kiss menuitem-iconic"
+                    label="&smiley9Cmd.label;"
+                    accesskey="&smiley9Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-*');"/>
+          <menuitem class="smiley insert-yell menuitem-iconic"
+                    label="&smiley10Cmd.label;"
+                    accesskey="&smiley10Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', '>:o');"/>
+          <menuitem class="smiley insert-cool menuitem-iconic"
+                    label="&smiley11Cmd.label;"
+                    accesskey="&smiley11Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', '8-)');"/>
+          <menuitem class="smiley insert-money menuitem-iconic"
+                    label="&smiley12Cmd.label;"
+                    accesskey="&smiley12Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-$');"/>
+          <menuitem class="smiley insert-foot menuitem-iconic"
+                    label="&smiley13Cmd.label;"
+                    accesskey="&smiley13Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-!');"/>
+          <menuitem class="smiley insert-innocent menuitem-iconic"
+                    label="&smiley14Cmd.label;"
+                    accesskey="&smiley14Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', 'O:-)');"/>
+          <menuitem class="smiley insert-cry menuitem-iconic"
+                    label="&smiley15Cmd.label;"
+                    accesskey="&smiley15Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':\'(');"/>
+          <menuitem class="smiley insert-sealed menuitem-iconic"
+                    label="&smiley16Cmd.label;"
+                    accesskey="&smiley16Cmd.accesskey;"
+                    oncommand="doStatefulCommand('cmd_smiley', ':-X');"/>
         </menupopup>
       </menu>
       <menuseparator id="insertMenuSeparator"/>
@@ -1300,4 +1376,78 @@
                  class="formatting-button"
                  tooltiptext="&layerBringToFront.tooltip;"
                  command="cmd_increaseZIndex"/>
+
+  <!-- smiley menu -->
+  <toolbarbutton id="smileButtonMenu"
+                 class="formatting-button"
+                 tooltiptext="&SmileButton.tooltip;"
+                 type="menu"
+                 observes="cmd_smiley">
+    <menupopup id="smilyPopup">
+      <menuitem class="smiley insert-smile menuitem-iconic"
+                label="&smiley1Cmd.label;"
+                tooltiptext="&smiley1Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-)');"/>
+      <menuitem class="smiley insert-frown menuitem-iconic"
+                label="&smiley2Cmd.label;"
+                tooltiptext="&smiley2Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-(');"/>
+      <menuitem class="smiley insert-wink menuitem-iconic"
+                label="&smiley3Cmd.label;"
+                tooltiptext="&smiley3Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ';-)');"/>
+      <menuitem class="smiley insert-tongue menuitem-iconic"
+                label="&smiley4Cmd.label;"
+                tooltiptext="&smiley4Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-P');"/>
+      <menuitem class="smiley insert-laughing menuitem-iconic"
+                label="&smiley5Cmd.label;"
+                tooltiptext="&smiley5Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-D');"/>
+      <menuitem class="smiley insert-embarrassed menuitem-iconic"
+                label="&smiley6Cmd.label;"
+                tooltiptext="&smiley6Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-[');"/>
+      <menuitem class="smiley insert-undecided menuitem-iconic"
+                label="&smiley7Cmd.label;"
+                tooltiptext="&smiley7Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-\\');"/>
+      <menuitem class="smiley insert-surprise menuitem-iconic"
+                label="&smiley8Cmd.label;"
+                tooltiptext="&smiley8Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', '=-O');"/>
+      <menuitem class="smiley insert-kiss menuitem-iconic"
+                label="&smiley9Cmd.label;"
+                tooltiptext="&smiley9Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-*');"/>
+      <menuitem class="smiley insert-yell menuitem-iconic"
+                label="&smiley10Cmd.label;"
+                tooltiptext="&smiley10Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', '>:o');"/>
+      <menuitem class="smiley insert-cool menuitem-iconic"
+                label="&smiley11Cmd.label;"
+                tooltiptext="&smiley11Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', '8-)');"/>
+      <menuitem class="smiley insert-money menuitem-iconic"
+                label="&smiley12Cmd.label;"
+                tooltiptext="&smiley12Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-$');"/>
+      <menuitem class="smiley insert-foot menuitem-iconic"
+                label="&smiley13Cmd.label;"
+                tooltiptext="&smiley13Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-!');"/>
+      <menuitem class="smiley insert-innocent menuitem-iconic"
+                label="&smiley14Cmd.label;"
+                tooltiptext="&smiley14Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', 'O:-)');"/>
+      <menuitem class="smiley insert-cry menuitem-iconic"
+                label="&smiley15Cmd.label;"
+                tooltiptext="&smiley15Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':\'(');"/>
+      <menuitem class="smiley insert-sealed menuitem-iconic"
+                label="&smiley16Cmd.label;"
+                tooltiptext="&smiley16Cmd.tooltip;"
+                oncommand="doStatefulCommand('cmd_smiley', ':-X');"/>
+    </menupopup>
+  </toolbarbutton>
 </overlay>

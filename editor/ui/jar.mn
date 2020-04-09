@@ -81,7 +81,6 @@ comm.jar:
 #ifdef MOZ_SUITE
       content/editor/editor.xhtml                              (composer/content/editor.xhtml)
       content/editor/editingOverlay.js                         (composer/content/editingOverlay.js)
-      content/editor/editorSmileyOverlay.xhtml                 (composer/content/editorSmileyOverlay.xhtml)
       content/editor/editorApplicationOverlay.js               (composer/content/editorApplicationOverlay.js)
       content/editor/publishprefs.js                           (composer/content/publishprefs.js)
       content/editor/EditorContextMenu.js                      (composer/content/EditorContextMenu.js)
