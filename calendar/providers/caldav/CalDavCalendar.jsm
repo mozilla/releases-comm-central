@@ -2,15 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from calDavRequestHandlers.js */
-/* globals etagsHandler multigetSyncHandler webDavSyncHandler */
-
 var EXPORTED_SYMBOLS = ["CalDavCalendar"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-
-Services.scriptloader.loadSubScript("resource:///components/calDavRequestHandlers.js");
 
 var {
   CalDavGenericRequest,
@@ -23,6 +18,10 @@ var {
   CalDavOutboxRequest,
   CalDavFreeBusyRequest,
 } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
+
+var { CalDavEtagsHandler, CalDavWebDavSyncHandler, CalDavMultigetSyncHandler } = ChromeUtils.import(
+  "resource:///modules/caldav/CalDavRequestHandlers.jsm"
+);
 
 var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
 
@@ -458,12 +457,11 @@ CalDavCalendar.prototype = {
    * Builds a correctly encoded nsIURI based on the baseUri and the insert
    * string. The returned uri is basically the baseURI + aInsertString
    *
-   * @param aInsertString  String to append to the base uri, for example,
-   *                       when creating an event this would be the
-   *                       event file name (event.ics), if null, an empty
-   *                       string is used.
-   * @param aBaseUri       base uri (nsIURI object), if null, this.calendarUri
-   *                       will be used.
+   * @param {string} aInsertString - String to append to the base uri, for example,
+   *                                 when creating an event this would be the
+   *                                 event file name (event.ics). If null, an empty
+   *                                 string is used.
+   * @param {nsIURI} aBaseUri - Base uri, if null, this.calendarUri will be used.
    */
   makeUri(aInsertString, aBaseUri) {
     let baseUri = aBaseUri || this.calendarUri;
@@ -1116,7 +1114,7 @@ CalDavCalendar.prototype = {
     let locationPath = this.getItemLocationPath(aItem);
     let itemUri = this.makeUri(locationPath);
 
-    let multiget = new multigetSyncHandler(
+    let multiget = new CalDavMultigetSyncHandler(
       [this.ensureDecodedPath(itemUri.pathQueryRef)],
       this,
       this.makeUri(),
@@ -1298,12 +1296,11 @@ CalDavCalendar.prototype = {
   /**
    * Get updated items
    *
-   * @param aUri                  The uri to request the items from.
-   *                                NOTE: This must be the uri without any uri
-   *                                     params. They will be appended in this
-   *                                     function.
-   * @param aChangeLogListener    (optional) The listener to notify for cached
-   *                                         calendars.
+   * @param {nsIURI} aUri - The uri to request the items from.
+   *                        NOTE: This must be the uri without any uri
+   *                        params. They will be appended in this function.
+   * @param aChangeLogListener - (optional) The listener to notify for cached
+   *                             calendars.
    */
   getUpdatedItems(aUri, aChangeLogListener) {
     if (this.mDisabled) {
@@ -1313,7 +1310,7 @@ CalDavCalendar.prototype = {
     }
 
     if (this.mHasWebdavSyncSupport) {
-      let webDavSync = new webDavSyncHandler(this, aUri, aChangeLogListener);
+      let webDavSync = new CalDavWebDavSyncHandler(this, aUri, aChangeLogListener);
       webDavSync.doWebDAVSync();
       return;
     }
@@ -1329,7 +1326,7 @@ CalDavCalendar.prototype = {
       "</D:propfind>";
 
     let requestUri = this.makeUri(null, aUri);
-    let handler = new etagsHandler(this, aUri, aChangeLogListener);
+    let handler = new CalDavEtagsHandler(this, aUri, aChangeLogListener);
 
     let onSetupChannel = channel => {
       channel.requestMethod = "PROPFIND";
@@ -2045,8 +2042,9 @@ CalDavCalendar.prototype = {
   /**
    * This is called to get a decoded path from an encoded path or uri spec.
    *
-   * @param aString {string} Represents either a path
-   * or a full uri that needs to be decoded.
+   * @param {string} aString - Represents either a path
+   *                           or a full uri that needs to be decoded.
+   * @return {string} A decoded path.
    */
   ensureDecodedPath(aString) {
     if (aString.charAt(0) != "/") {

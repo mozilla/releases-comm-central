@@ -2,25 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals XML_HEADER MIME_TEXT_XML */
-
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 var { CalDavLegacySAXRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
 
+/* exported CalDavEtagsHandler, CalDavWebDavSyncHandler, CalDavMultigetSyncHandler */
+
+this.EXPORTED_SYMBOLS = [
+  "CalDavEtagsHandler",
+  "CalDavWebDavSyncHandler",
+  "CalDavMultigetSyncHandler",
+];
+
+const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
+const MIME_TEXT_XML = "text/xml; charset=utf-8";
+
 /**
  * This is a handler for the etag request in calDavCalendar.js' getUpdatedItem.
  * It uses the SAX parser to incrementally parse the items and compose the
  * resulting multiget.
  *
- * @param aCalendar             The (unwrapped) calendar this request belongs to
- * @param aBaseUri              The URI requested (i.e inbox or collection)
- * @param aChangeLogListener    (optional) for cached calendars, the listener to
- *                                notify.
+ * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
+ * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
+ * @param {*=} aChangeLogListener - (optional) for cached calendars, the listener to notify.
  */
-function etagsHandler(aCalendar, aBaseUri, aChangeLogListener) {
+function CalDavEtagsHandler(aCalendar, aBaseUri, aChangeLogListener) {
   this.calendar = aCalendar;
   this.baseUri = aBaseUri;
   this.changeLogListener = aChangeLogListener;
@@ -33,7 +41,7 @@ function etagsHandler(aCalendar, aBaseUri, aChangeLogListener) {
   this.itemsNeedFetching = [];
 }
 
-etagsHandler.prototype = {
+CalDavEtagsHandler.prototype = {
   skipIndex: -1,
   currentResponse: null,
   tag: null,
@@ -53,7 +61,7 @@ etagsHandler.prototype = {
   ]),
 
   /**
-   * @see nsIStreamListener
+   * @see nsIRequestObserver
    */
   onStartRequest(request) {
     let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
@@ -130,7 +138,7 @@ etagsHandler.prototype = {
     // Avoid sending empty multiget requests update views if something has
     // been deleted server-side.
     if (this.itemsNeedFetching.length) {
-      let multiget = new multigetSyncHandler(
+      let multiget = new CalDavMultigetSyncHandler(
         this.itemsNeedFetching,
         this.calendar,
         this.baseUri,
@@ -156,6 +164,9 @@ etagsHandler.prototype = {
     }
   },
 
+  /**
+   * @see nsIStreamListener
+   */
   onDataAvailable(request, inputStream, offset, count) {
     if (this._reader) {
       // No reader means request error
@@ -272,12 +283,11 @@ etagsHandler.prototype = {
  * It uses the SAX parser to incrementally parse the items and compose the
  * resulting multiget.
  *
- * @param aCalendar             The (unwrapped) calendar this request belongs to
- * @param aBaseUri              The URI requested (i.e inbox or collection)
- * @param aChangeLogListener    (optional) for cached calendars, the listener to
- *                                notify.
+ * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
+ * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
+ * @param {*=} aChangeLogListener - (optional) for cached calendars, the listener to notify.
  */
-function webDavSyncHandler(aCalendar, aBaseUri, aChangeLogListener) {
+function CalDavWebDavSyncHandler(aCalendar, aBaseUri, aChangeLogListener) {
   this.calendar = aCalendar;
   this.baseUri = aBaseUri;
   this.changeLogListener = aChangeLogListener;
@@ -290,7 +300,7 @@ function webDavSyncHandler(aCalendar, aBaseUri, aChangeLogListener) {
   this.itemsNeedFetching = [];
 }
 
-webDavSyncHandler.prototype = {
+CalDavWebDavSyncHandler.prototype = {
   currentResponse: null,
   tag: null,
   calendar: null,
@@ -373,7 +383,7 @@ webDavSyncHandler.prototype = {
   },
 
   /**
-   * @see nsIStreamListener
+   * @see nsIRequestObserver
    */
   onStartRequest(request) {
     let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
@@ -430,6 +440,9 @@ webDavSyncHandler.prototype = {
     }
   },
 
+  /**
+   * @see nsIStreamListener
+   */
   onDataAvailable(request, inputStream, offset, count) {
     if (this._reader) {
       // No reader means request error
@@ -484,7 +497,7 @@ webDavSyncHandler.prototype = {
     this.calendar.superCalendar.endBatch();
 
     if (this.itemsNeedFetching.length) {
-      let multiget = new multigetSyncHandler(
+      let multiget = new CalDavMultigetSyncHandler(
         this.itemsNeedFetching,
         this.calendar,
         this.baseUri,
@@ -661,19 +674,19 @@ webDavSyncHandler.prototype = {
  * It uses the SAX parser to incrementally parse the items and compose the
  * resulting multiget.
  *
- * @param aItemsNeedFetching    The array of items to fetch, this must be an
- *                              array of un-encoded paths.
- * @param aCalendar             The (unwrapped) calendar this request belongs to
- * @param aBaseUri              The URI requested (i.e inbox or collection)
- * @param aAdditionalSyncNeeded (optional) If true, the passed sync token is not the
- *                                latest, another webdav sync run should be
- *                                done after completion.
- * @param aNewSyncToken         (optional) new Sync token to set if operation successful
- * @param aListener             (optional) The listener to notify
- * @param aChangeLogListener    (optional) for cached calendars, the listener to
- *                                notify.
+ * @param {String[]} aItemsNeedFetching - Array of items to fetch, an array of
+ *                                        un-encoded paths.
+ * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
+ * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
+ * @param {*=} aNewSyncToken - (optional) New Sync token to set if operation successful.
+ * @param {Boolean=} aAdditionalSyncNeeded - (optional) If true, the passed sync token is not the
+ *                                           latest, another webdav sync run should be
+ *                                           done after completion.
+ * @param {*=} aListener - (optional) The listener to notify.
+ * @param {*=} aChangeLogListener - (optional) For cached calendars, the listener to
+ *                                  notify.
  */
-function multigetSyncHandler(
+function CalDavMultigetSyncHandler(
   aItemsNeedFetching,
   aCalendar,
   aBaseUri,
@@ -694,7 +707,7 @@ function multigetSyncHandler(
   this.itemsNeedFetching = aItemsNeedFetching;
   this.additionalSyncNeeded = aAdditionalSyncNeeded;
 }
-multigetSyncHandler.prototype = {
+CalDavMultigetSyncHandler.prototype = {
   currentResponse: null,
   tag: null,
   calendar: null,
@@ -773,7 +786,7 @@ multigetSyncHandler.prototype = {
   },
 
   /**
-   * @see nsIStreamListener
+   * @see nsIRequestObserver
    */
   onStartRequest(request) {
     let httpchannel = request.QueryInterface(Ci.nsIHttpChannel);
@@ -821,7 +834,11 @@ multigetSyncHandler.prototype = {
 
       if (this.additionalSyncNeeded) {
         setTimeout(() => {
-          let wds = new webDavSyncHandler(this.calendar, this.baseUri, this.changeLogListener);
+          let wds = new CalDavWebDavSyncHandler(
+            this.calendar,
+            this.baseUri,
+            this.changeLogListener
+          );
           wds.doWebDAVSync();
         }, 0);
       } else {
@@ -857,6 +874,9 @@ multigetSyncHandler.prototype = {
     }
   },
 
+  /**
+   * @see nsIStreamListener
+   */
   onDataAvailable(request, inputStream, offset, count) {
     if (this._reader) {
       // No reader means request error
