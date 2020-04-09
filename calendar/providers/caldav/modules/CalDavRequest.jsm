@@ -297,7 +297,7 @@ class CalDavResponseBase {
     return this.status == 401 || this.status == 403;
   }
 
-  /** If the respnse has a conflict code */
+  /** If the response has a conflict code */
   get conflict() {
     return this.status == 409 || this.status == 412;
   }
@@ -313,10 +313,9 @@ class CalDavResponseBase {
   }
 
   /**
-   * Raise an exception if one of the handled 4xx and 5xx occured
+   * Raise an exception if one of the handled 4xx and 5xx occured.
    */
   raiseForStatus() {
-    /* eslint-disable no-undef */
     if (this.authError) {
       throw new HttpUnauthorizedError(this);
     } else if (this.conflict) {
@@ -326,7 +325,6 @@ class CalDavResponseBase {
     } else if (this.serverError) {
       throw new HttpServerError(this);
     }
-    /* eslint-enable no-undef */
   }
 
   /** The text response of the request */
@@ -359,6 +357,46 @@ class CalDavResponseBase {
     } catch (e) {
       return null;
     }
+  }
+}
+
+/**
+ * Thrown when the response had an authorization error (status 401 or 403).
+ */
+class HttpUnauthorizedError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "HttpUnauthorizedError";
+  }
+}
+
+/**
+ * Thrown when the response has a conflict code (status 409 or 412).
+ */
+class HttpConflictError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "HttpConflictError";
+  }
+}
+
+/**
+ * Thrown when the response indicates the resource was not found (status 404).
+ */
+class HttpNotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "HttpNotFoundError";
+  }
+}
+
+/**
+ * Thrown when the response has a server error (status 5xx).
+ */
+class HttpServerError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "HttpServerError";
   }
 }
 

@@ -1435,7 +1435,7 @@ CalDavCalendar.prototype = {
   /**
    * Checks that the calendar URI exists and is a CalDAV calendar. This is the beginning of a
    * chain of asynchronous calls. This function will, when done, call the next function related to
-   * checking resource type, server capabilties, etc.
+   * checking resource type, server capabilities, etc.
    *
    * checkDavResourceType                        * You are here
    * checkServerCaps
