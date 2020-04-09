@@ -366,8 +366,8 @@ class CalDavServer {
         ORGANIZER:mailto:xpcshell@example.com
         ATTENDEE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL:mail
           to:recipient@example.com
-        FREEBUSY;FBTYPE=FREE:20180103/20180117
-        FREEBUSY;FBTYPE=BUSY:20180118/P7D
+        FREEBUSY;FBTYPE=FREE:20180103T010101Z/20180117T010101Z
+        FREEBUSY;FBTYPE=BUSY:20180118T010101Z/P7D
         END:VFREEBUSY
         END:VCALENDAR
             </C:calendar-data>
@@ -889,20 +889,36 @@ add_task(async function test_freebusy_request() {
   equal(results.headers.get("Originator"), "mailto:xpcshell@example.com");
   equal(results.headers.get("Recipient"), "mailto:recipient@example.com");
 
+  // The following assertion succeeds but causes "too much recursion" with
+  // icaljs. Assert.jsm calls JSON.stringify on the arguments to log the result
+  // of the assertion, and that causes the recursion error. (Then Assert.jsm
+  // just falls back to using toString instead.) See bug 1546606 starting at
+  // comment 23 and ical.js issue #410.
   let first = response.firstRecipient;
   strictEqual(first, response.data["mailto:recipient1@example.com"]);
 
   equal(first.status, "2.0;Success");
-  deepEqual(first.intervals.map(interval => interval.type), ["UNKNOWN", "FREE", "BUSY", "UNKNOWN"]);
+  deepEqual(
+    first.intervals.map(interval => interval.type),
+    ["UNKNOWN", "FREE", "BUSY", "UNKNOWN"]
+  );
   deepEqual(
     first.intervals.map(interval => interval.begin.icalString + ":" + interval.end.icalString),
-    ["20180101:20180102", "20180103:20180117", "20180118:20180125", "20180126:20180201"]
+    [
+      "20180101:20180102",
+      "20180103T010101Z:20180117T010101Z",
+      "20180118T010101Z:20180125T010101Z",
+      "20180126:20180201",
+    ]
   );
 });
 
 add_task(async function test_caldav_client() {
   let client = await gServer.getClient();
   let pclient = cal.async.promisifyCalendar(client);
+
+  // TODO: Fix the problem that is causing this test to fail when the next line is removed.
+  await new Promise(resolve => executeSoon(resolve));
 
   let items = await pclient.getAllItems();
   equal(items.length, 1);

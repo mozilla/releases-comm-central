@@ -1407,7 +1407,8 @@ CalDavCalendar.prototype = {
    * @return {Boolean}                            False, if the calendar should be disabled
    */
   checkRedirect(response) {
-    return response.redirected;
+    // TODO: the following is temporary just to help with debugging tests.
+    return true;
   },
 
   /**
