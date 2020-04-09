@@ -51,6 +51,11 @@ function tryLoadRNP(name, suffix) {
 }
 
 function loadExternalRNPLib() {
+  if (!librnp) {
+    // Try loading librnp.so, librnp.dylib, or rnp.dll first
+    tryLoadRNP("rnp", "");
+  }
+
   if (!librnp && (systemOS === "winnt" || systemOS === "darwin")) {
     // rnp.0.dll or rnp.0.dylib
     tryLoadRNP("rnp.0", "");
@@ -68,10 +73,6 @@ function loadExternalRNPLib() {
   if (!librnp && !(systemOS === "winnt") && !(systemOS === "darwin")) {
     // librnp.so.0
     tryLoadRNP("rnp", ".0");
-  }
-
-  if (!librnp) {
-    tryLoadRNP("rnp", "");
   }
 
   if (!librnp) {
