@@ -10,7 +10,6 @@ comm.jar:
 % overlay chrome://communicator/content/pref/preferences.xhtml chrome://editor/content/editorPrefsOverlay.xhtml
 % overlay chrome://communicator/content/pref/pref-appearance.xhtml chrome://editor/content/editorPrefsOverlay.xhtml
 % overlay chrome://navigator/content/navigatorOverlay.xhtml chrome://editor/content/editorNavigatorOverlay.xhtml
-% content editor-region %content/editor-region/
 #endif
       content/editor/editor.js                                 (composer/content/editor.js)
       content/editor/editorUtilities.js                        (composer/content/editorUtilities.js)

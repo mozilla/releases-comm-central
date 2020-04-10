@@ -186,9 +186,6 @@ pref("mail.addr_book.mapit_url.5.name", "chrome://messenger-region/locale/region
 pref("mail.addr_book.mapit_url.5.format", "chrome://messenger-region/locale/region.properties");
 #ifdef MOZ_SUITE
 pref("mailnews.start_page.url", "chrome://messenger-region/locale/region.properties");
-pref("messenger.throbber.url", "chrome://messenger-region/locale/region.properties");
-pref("compose.throbber.url", "chrome://messenger-region/locale/region.properties");
-pref("addressbook.throbber.url", "chrome://messenger-region/locale/region.properties");
 pref("mail.accountwizard.deferstorage", false);
 // |false|: Show both name and address, even for people in my addressbook.
 pref("mail.showCondensedAddresses", false);

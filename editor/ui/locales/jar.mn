@@ -39,7 +39,6 @@
 
 #ifdef MOZ_SUITE
 @AB_CD@.jar:
-% locale editor-region @AB_CD@ %locale/@AB_CD@/editor-region/
   locale/@AB_CD@/editor/editor.dtd                           (%chrome/composer/editor.dtd)
   locale/@AB_CD@/editor/editingOverlay.dtd                   (%chrome/composer/editingOverlay.dtd)
   locale/@AB_CD@/editor/editorPrefsOverlay.dtd               (%chrome/composer/editorPrefsOverlay.dtd)
@@ -52,5 +51,4 @@
   locale/@AB_CD@/editor/EditorSaveAsCharset.dtd              (%chrome/dialogs/EditorSaveAsCharset.dtd)
   locale/@AB_CD@/editor/EditorPublish.dtd                    (%chrome/dialogs/EditorPublish.dtd)
   locale/@AB_CD@/editor/EditorPublishProgress.dtd            (%chrome/dialogs/EditorPublishProgress.dtd)
-  locale/@AB_CD@/editor-region/region.properties             (%chrome/region/region.properties)
 #endif

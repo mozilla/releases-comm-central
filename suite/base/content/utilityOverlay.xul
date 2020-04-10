@@ -707,6 +707,17 @@
     </menupopup>
   </toolbarbutton>
 
+  <toolbaritem id="throbber-box"
+               class="toolbaritem-noline"
+               title="&throbber.title;"
+               removable="true"
+               align="center">
+    <button id="navigator-throbber"
+            onclick="checkForMiddleClick(this, event);"
+            oncommand="goClickThrobber('browser.throbber.url', event);"
+            tooltiptext="&throbber.tooltip2;"/>
+  </toolbaritem>
+
   <!-- Sync toolbar button
   <toolbarbutton id="sync-button"
                  class="toolbarbutton-1 chromeclass-toolbar-additional"

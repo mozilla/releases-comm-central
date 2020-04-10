@@ -379,7 +379,6 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("mailnews.wraplength",                     Int),
 
   MAKESAMETYPEPREFTRANSFORM("messenger.save.dir",                      String),
-  MAKESAMETYPEPREFTRANSFORM("messenger.throbber.url",                  String),
 
   MAKESAMETYPEPREFTRANSFORM("msgcompose.background_color",             String),
   MAKESAMETYPEPREFTRANSFORM("msgcompose.font_face",                    String),

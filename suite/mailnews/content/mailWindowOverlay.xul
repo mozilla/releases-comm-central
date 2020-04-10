@@ -13,6 +13,8 @@
 <?xul-overlay href="chrome://messenger/content/msgHdrViewOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/mailOverlay.xul"?>
 <?xul-overlay href="chrome://messenger/content/mailKeysOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
+<?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 
 <!DOCTYPE overlay [
   <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
@@ -1840,14 +1842,7 @@
               observes="button_search"
               oncommand="goDoCommand('button_search')"/>
     </toolbaritem>
-    <toolbaritem id="throbber-box"
-                 class="toolbaritem-noline"
-                 align="center">
-        <button id="navigator-throbber"
-                oncommand="goClickThrobber('messenger.throbber.url', event)"
-                onclick="checkForMiddleClick(this, event);"
-                tooltiptext="&throbber.tooltip2;"/>
-    </toolbaritem>
+    <toolbaritem id="throbber-box"/>
     <!-- see utilityOverlay.xul
     <toolbarbutton id="sync-button"/> -->
   </toolbarpalette>

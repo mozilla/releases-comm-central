@@ -409,12 +409,7 @@
                      label="&printButton.label;"
                      tooltiptext="&printButton.tooltip;"/>
 
-      <toolbaritem id="throbber-box" align="center">
-        <button id="navigator-throbber"
-                oncommand="goClickThrobber('browser.throbber.url', event)"
-                onclick="checkForMiddleClick(this, event);"
-                tooltiptext="&throbber.tooltip2;"/>
-      </toolbaritem>
+      <toolbaritem id="throbber-box"/>
 
       <!-- "Bookmarks" button on Bookmarks Toolbar -->
       <toolbarbutton type="menu" id="bookmarks-button"

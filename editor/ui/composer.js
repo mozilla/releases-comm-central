@@ -32,8 +32,6 @@ pref("editor.table.maintain_structure", true);
 
 pref("editor.prettyprint", true);
 
-pref("editor.throbber.url","chrome://editor-region/locale/region.properties");
-
 pref("editor.toolbars.showbutton.bold", true);
 pref("editor.toolbars.showbutton.italic", true);
 pref("editor.toolbars.showbutton.underline", true);

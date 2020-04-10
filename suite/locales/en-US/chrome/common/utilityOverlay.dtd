@@ -202,4 +202,7 @@
 <!ENTITY dontShowMessage.label        "Don't show this message when popups are blocked">
 <!ENTITY dontShowMessage.accesskey    "D">
 
+<!ENTITY throbber.title "Throbber">
+<!ENTITY throbber.tooltip2 "Go to the &brandShortName; home page">
+
 <!ENTITY syncToolbarButton.label "Sync">
