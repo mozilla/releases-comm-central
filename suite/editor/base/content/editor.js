@@ -3201,7 +3201,7 @@ function UpdateStructToolbar() {
 
     tmp = element;
     element = element.parentNode;
-  } while (tmp != bodyElement);
+  } while (element && tmp != bodyElement);
 }
 
 function SelectFocusNodeAncestor(element) {
