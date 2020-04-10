@@ -858,8 +858,10 @@ define(function(require) {
         // Collapse multiple consecutive "special" spaces, like zero width space
         // etc. also when encoded.
         // \u00AD is soft hypen. \u200B is zero width space.
-        // btoa takes a binary string to encode. unescape(encodeURIComponent(source))
-        // does UTF-8 to binary conversion. See bug 1551746 for other ways.
+        // unescape(encodeURIComponent(source)) encodes the JavaScript UTF-16 representation
+        // of the string into UTF-8. Example: encodeURIComponent("ö") returns %C3%B6,
+        // unescape("%C3%B6") returns the bytes 0xC3B6 which is the UTF-8 encoding of "ö".
+        // See bug 1551746 for other ways.
         [
           //"=?UTF-8?B?IMKgIGJsw7YgPGludmlzaWJsZXNwYWNlQGZyaWVuZC5leGFtcGxlLmNvbT4g4oCLIOKAiyDigIsu=?= <foe@example.com>"
           `=?UTF-8?B?${btoa(
