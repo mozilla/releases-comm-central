@@ -663,6 +663,22 @@ function enableRNPLibJS() {
       ctypes.size_t
     ),
 
+    rnp_key_is_protected: librnp.declare(
+      "rnp_key_is_protected",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.bool.ptr
+    ),
+
+    rnp_key_is_locked: librnp.declare(
+      "rnp_key_is_locked",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      ctypes.bool.ptr
+    ),
+
     rnp_op_generate_create: librnp.declare(
       "rnp_op_generate_create",
       abi,

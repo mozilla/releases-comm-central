@@ -1139,7 +1139,9 @@ var RNP = {
     }
 
     // TODO: check result
-    this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey);
+    if (this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey)) {
+      throw new Error("RNP.importToFFI failed");
+    }
 
     let keys = await this.getKeysFromFFI(tempFFI, true);
 
@@ -1158,6 +1160,22 @@ var RNP = {
           let rv = RNPLib.rnp_key_unprotect(impKey, recentPass);
 
           if (rv == 0) {
+            let sub_count = new ctypes.size_t();
+            if (RNPLib.rnp_key_get_subkey_count(impKey, sub_count.address())) {
+              throw new Error("rnp_key_get_subkey_count failed");
+            }
+            for (let i = 0; i < sub_count.value; i++) {
+              let sub_handle = new RNPLib.rnp_key_handle_t();
+              if (
+                RNPLib.rnp_key_get_subkey_at(impKey, i, sub_handle.address())
+              ) {
+                throw new Error("rnp_key_get_subkey_at failed");
+              }
+              if (RNPLib.rnp_key_unprotect(sub_handle, recentPass)) {
+                throw new Error("rnp_key_unprotect failed");
+              }
+              RNPLib.rnp_key_handle_destroy(sub_handle);
+            }
             break;
           }
 
@@ -1179,20 +1197,6 @@ var RNP = {
       for (let ki = 0; ki < keys.length; ki++) {
         let k = keys[ki];
         let impKey = await this.getKeyHandleByIdentifier(tempFFI, "0x" + k.fpr);
-
-        if (
-          k.secretAvailable &&
-          RNPLib.rnp_key_protect(
-            impKey,
-            OpenPGPMasterpass.retrieveOpenPGPPassword(),
-            null,
-            null,
-            null,
-            0
-          )
-        ) {
-          throw new Error("rnp_key_protect failed");
-        }
 
         let exportFlags =
           RNPLib.RNP_KEY_EXPORT_ARMORED | RNPLib.RNP_KEY_EXPORT_SUBKEYS;
@@ -1256,6 +1260,37 @@ var RNP = {
           )
         ) {
           throw new Error("rnp_import_keys failed");
+        }
+
+        let impKey2 = await this.getKeyHandleByIdentifier(
+          RNPLib.ffi,
+          "0x" + k.fpr
+        );
+
+        if (k.secretAvailable) {
+          let newPass = OpenPGPMasterpass.retrieveOpenPGPPassword();
+          if (RNPLib.rnp_key_protect(impKey2, newPass, null, null, null, 0)) {
+            throw new Error("rnp_key_protect failed");
+          }
+
+          let sub_count = new ctypes.size_t();
+          if (RNPLib.rnp_key_get_subkey_count(impKey2, sub_count.address())) {
+            throw new Error("rnp_key_get_subkey_count failed");
+          }
+          for (let i = 0; i < sub_count.value; i++) {
+            let sub_handle = new RNPLib.rnp_key_handle_t();
+            if (
+              RNPLib.rnp_key_get_subkey_at(impKey2, i, sub_handle.address())
+            ) {
+              throw new Error("rnp_key_get_subkey_at failed");
+            }
+            if (
+              RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)
+            ) {
+              throw new Error("rnp_key_protect failed");
+            }
+            RNPLib.rnp_key_handle_destroy(sub_handle);
+          }
         }
 
         result.importedKeys.push("0x" + k.id);
