@@ -585,69 +585,84 @@
 
       // @implements {nsIWebProgressListener}
       this.progressListener = {
-        onProgressChange: (
-          aWebProgress,
-          aRequest,
-          aCurSelf,
-          aMaxSelf,
-          aCurTotal,
-          aMaxTotal
-        ) => {
+        onProgressChange: (aWebProgress, ...args) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
             .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onProgressChange", [browser, ...arguments]);
+          this._callTabListeners("onProgressChange", [
+            browser,
+            aWebProgress,
+            ...args,
+          ]);
         },
 
-        onProgressChange64: (
-          aWebProgress,
-          aRequest,
-          aCurSelf,
-          aMaxSelf,
-          aCurTotal,
-          aMaxTotal
-        ) => {
+        onProgressChange64: (aWebProgress, ...args) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
             .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onProgressChange64", [browser, ...arguments]);
+          this._callTabListeners("onProgressChange64", [
+            browser,
+            aWebProgress,
+            ...args,
+          ]);
         },
 
-        onLocationChange: (aWebProgress, aRequest, aLocationURI, aFlags) => {
+        onLocationChange: (aWebProgress, ...args) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
             .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onLocationChange", [browser, ...arguments]);
+          this._callTabListeners("onLocationChange", [
+            browser,
+            aWebProgress,
+            ...args,
+          ]);
         },
 
-        onStateChange: (aWebProgress, aRequest, aStateFlags, aStatus) => {
+        onStateChange: (aWebProgress, ...args) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
             .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onStateChange", [browser, ...arguments]);
+          this._callTabListeners("onStateChange", [
+            browser,
+            aWebProgress,
+            ...args,
+          ]);
         },
 
-        onStatusChange: (aWebProgress, aRequest, aStatus, aMessage) => {
+        onStatusChange: (aWebProgress, ...args) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
             .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onStatusChange", [browser, ...arguments]);
+          this._callTabListeners("onStatusChange", [
+            browser,
+            aWebProgress,
+            ...args,
+          ]);
         },
 
-        onSecurityChange: (aWebProgress, aRequest, aState) => {
+        onSecurityChange: (aWebProgress, ...args) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
             .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onSecurityChange", [browser, ...arguments]);
+          this._callTabListeners("onSecurityChange", [
+            browser,
+            aWebProgress,
+            ...args,
+          ]);
         },
 
-        onContentBlockingEvent: (aWebProgress, aRequest, aEvent) => {
+        onContentBlockingEvent: (aWebProgress, ...args) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
             .sameTypeRootTreeItem.chromeEventHandler;
           this._callTabListeners("onContentBlockingEvent", [
             browser,
-            ...arguments,
+            aWebProgress,
+            ...args,
           ]);
         },
 
-        onRefreshAttempted: (aWebProgress, aURI, aDelay, aSameURI) => {
+        onRefreshAttempted: (aWebProgress, ...args) => {
           let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
             .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onRefreshAttempted", [browser, ...arguments]);
+          this._callTabListeners("onRefreshAttempted", [
+            browser,
+            aWebProgress,
+            ...args,
+          ]);
         },
 
         QueryInterface: ChromeUtils.generateQI([
@@ -1600,6 +1615,15 @@
     }
 
     getTabForBrowser(aBrowser) {
+      // Tabs from the "mail" type share the same browser. Return the active
+      // one, if possible.
+      if (
+        aBrowser &&
+        aBrowser.id == "messagepane" &&
+        this.selectedTab.mode.tabType.name == "mail"
+      ) {
+        return this.currentTabInfo;
+      }
       for (let tabInfo of this.tabInfo) {
         if (this.getBrowserForTab(tabInfo) == aBrowser) {
           return tabInfo;

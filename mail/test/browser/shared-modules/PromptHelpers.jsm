@@ -67,6 +67,15 @@ var gMockPromptService = {
   _origFactory: null,
   _promptCb: null,
 
+  alert(aParent, aDialogTitle, aText) {
+    this._promptState = {
+      method: "alert",
+      parent: aParent,
+      dialogTitle: aDialogTitle,
+      text: aText,
+    };
+  },
+
   confirm(aParent, aDialogTitle, aText) {
     this._promptState = {
       method: "confirm",

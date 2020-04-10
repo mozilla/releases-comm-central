@@ -156,6 +156,28 @@ global.makeWidgetId = id => {
 };
 
 /**
+ * Gets the window for a tabmail tabInfo.
+ *
+ * @param {NativeTabInfo} nativeTabInfo - The tabInfo object to get the browser for
+ * @return {Window} - The browser element for the tab
+ */
+function getTabWindow(nativeTabInfo) {
+  return Cu.getGlobalForObject(nativeTabInfo);
+}
+global.getTabWindow = getTabWindow;
+
+/**
+ * Gets the tabmail for a tabmail tabInfo.
+ *
+ * @param {NativeTabInfo} nativeTabInfo - The tabInfo object to get the browser for
+ * @return {?XULElement} - The browser element for the tab
+ */
+function getTabTabmail(nativeTabInfo) {
+  return getTabWindow(nativeTabInfo).document.getElementById("tabmail");
+}
+global.getTabTabmail = getTabTabmail;
+
+/**
  * Gets the tab browser for the tabmail tabInfo.
  *
  * @param {NativeTabInfo} nativeTabInfo     The tabInfo object to get the browser for
@@ -480,10 +502,6 @@ class TabTracker extends TabTrackerBase {
    */
   handleEvent(event) {
     let nativeTabInfo = event.detail.tabInfo;
-    if (!getTabBrowser(nativeTabInfo)) {
-      // We don't care about events for tabs that don't have a browser
-      return;
-    }
 
     switch (event.type) {
       case "TabOpen": {
@@ -575,11 +593,9 @@ class TabTracker extends TabTrackerBase {
    * @param {NativeTabInfo} nativeTabInfo   The tab info which has been activated.
    */
   emitActivated(nativeTabInfo) {
-    let browser = getTabBrowser(nativeTabInfo);
-
     this.emit("tab-activated", {
       tabId: this.getId(nativeTabInfo),
-      windowId: windowTracker.getId(browser.ownerGlobal),
+      windowId: windowTracker.getId(getTabWindow(nativeTabInfo)),
     });
   }
 
@@ -641,14 +657,10 @@ class TabTracker extends TabTrackerBase {
    * @param {Boolean} isWindowClosing       If true, the window with these tabs is closing
    */
   emitRemoved(nativeTabInfo, isWindowClosing) {
-    let browser = getTabBrowser(nativeTabInfo);
-    let windowId = windowTracker.getId(browser.ownerGlobal);
-    let tabId = this.getId(nativeTabInfo);
-
     this.emit("tab-removed", {
       nativeTabInfo,
-      tabId,
-      windowId,
+      tabId: this.getId(nativeTabInfo),
+      windowId: windowTracker.getId(getTabWindow(nativeTabInfo)),
       isWindowClosing,
     });
   }
@@ -886,7 +898,7 @@ class TabmailTab extends Tab {
 
   /** Returns the tabmail element for the tab. */
   get tabmail() {
-    return this.browser.ownerDocument.getElementById("tabmail");
+    return getTabTabmail(this.nativeTab);
   }
 
   /** Returns true if this tab is a 3-pane tab. */
@@ -896,9 +908,7 @@ class TabmailTab extends Tab {
 
   /** Returns the tab index. */
   get index() {
-    return this.tabmail.tabInfo
-      .filter(info => getTabBrowser(info))
-      .indexOf(this.nativeTab);
+    return this.tabmail.tabInfo.indexOf(this.nativeTab);
   }
 
   /** Returns the active state of the tab. */

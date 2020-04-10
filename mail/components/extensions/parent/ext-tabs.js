@@ -442,8 +442,7 @@ this.tabs = class extends ExtensionAPI {
               nativeTabInfo.close();
               continue;
             }
-            let browser = getTabBrowser(nativeTabInfo);
-            let tabmail = browser.ownerDocument.getElementById("tabmail");
+            let tabmail = getTabTabmail(nativeTabInfo);
             tabmail.closeTab(nativeTabInfo);
           }
         },
@@ -455,10 +454,13 @@ this.tabs = class extends ExtensionAPI {
               "tabs.update is not applicable to this tab."
             );
           }
-          let browser = getTabBrowser(nativeTabInfo);
-          let tabmail = browser.ownerDocument.getElementById("tabmail");
+          let tabmail = getTabTabmail(nativeTabInfo);
 
           if (updateProperties.url) {
+            let browser = getTabBrowser(nativeTabInfo);
+            if (!browser) {
+              throw new ExtensionError("Cannot set a URL for this tab.");
+            }
             let url = context.uri.resolve(updateProperties.url);
 
             if (!context.checkLoadURL(url, { dontReportErrors: true })) {

@@ -23,6 +23,9 @@ var {
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
+var { gMockPromptService } = ChromeUtils.import(
+  "resource://testing-common/mozmill/PromptHelpers.jsm"
+);
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -239,17 +242,13 @@ function subtest_check_account_name(account, newHostname, newUsername, tab) {
   }
 
   if (newUsername) {
-    // If username has changed, we get a confirmation dialog.
-    plan_for_modal_dialog("commonDialogWindow", function(cdc) {
-      // Just dismiss it.
-      cdc.window.document.documentElement
-        .querySelector("dialog")
-        .acceptDialog();
-    });
+    gMockPromptService.register();
   }
+
   tab.browser.contentWindow.onAccept(true);
   if (newUsername) {
-    wait_for_modal_dialog("commonDialogWindow");
+    Assert.equal("alert", gMockPromptService.promptState.method);
+    gMockPromptService.unregister();
   }
 }
 
