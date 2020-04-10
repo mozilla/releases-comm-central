@@ -819,6 +819,7 @@ function subtest_converting_filelink_updates_urls() {
     let url = urls[i];
     select_attachments(cw, i);
     cw.window.convertSelectedToCloudAttachment(providerB);
+    gMockCloudfileManager.resolveUploads();
     [, , urls] = wait_for_attachment_urls(cw, kFiles.length);
 
     let newUrl = urls[i];

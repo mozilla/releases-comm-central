@@ -38,6 +38,9 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var folderDisplayHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { gMockCloudfileManager } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+);
 var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -480,6 +483,7 @@ function add_cloud_attachments(aController, aProvider, aWaitUploaded = true) {
     "Couldn't attach attachments for upload"
   );
   if (aWaitUploaded) {
+    gMockCloudfileManager.resolveUploads();
     aController.waitFor(
       () => attachmentCount == 0,
       "Attachments uploading didn't finish"

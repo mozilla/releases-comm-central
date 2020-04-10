@@ -73,16 +73,18 @@ MockCloudfileAccount.prototype = {
   },
 
   uploadFile(aFile) {
-    return new Promise(resolve =>
-      fdh.mc.window.setTimeout(() => {
-        resolve({
+    return new Promise((resolve, reject) => {
+      gMockCloudfileManager.inProgressUploads.add({
+        resolve,
+        reject,
+        resolveData: {
           id: this.nextId++,
           url: this.urlForFile(aFile),
           path: aFile.path,
           leafName: aFile.leafName,
-        });
-      })
-    );
+        },
+      });
+    });
   },
 
   urlForFile(aFile) {
@@ -141,5 +143,19 @@ var gMockCloudfileManager = {
     }
 
     cloudFileAccounts.unregisterProvider(aID);
+  },
+
+  inProgressUploads: new Set(),
+  resolveUploads() {
+    for (let upload of this.inProgressUploads.values()) {
+      upload.resolve(upload.resolveData);
+    }
+    this.inProgressUploads.clear();
+  },
+  rejectUploads() {
+    for (let upload of this.inProgressUploads.values()) {
+      upload.reject(cloudFileAccounts.constants.uploadErr);
+    }
+    this.inProgressUploads.clear();
   },
 };
