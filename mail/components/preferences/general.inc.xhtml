@@ -363,17 +363,19 @@
 
       <separator class="thin"/>
 
-      <listheader equalsize="always">
-        <treecol id="typeColumn" label="&typeColumn.label;" value="type"
-                 accesskey="&typeColumn.accesskey;" persist="sortDirection"
-                 flex="1" onclick="gGeneralPane.sort(event);"
-                 sortDirection="ascending" sort="typeDescription"/>
-        <treecol id="actionColumn" label="&actionColumn2.label;" value="action"
-                 accesskey="&actionColumn2.accesskey;" persist="sortDirection"
-                 flex="1" onclick="gGeneralPane.sort(event);"/>
-      </listheader>
-      <richlistbox id="handlersView" height="180px"
-                   preference="pref.downloads.disable_button.edit_actions"/>
+      <vbox>
+        <listheader equalsize="always">
+          <treecol id="typeColumn" label="&typeColumn.label;" value="type"
+                   accesskey="&typeColumn.accesskey;" persist="sortDirection"
+                   flex="1" onclick="gGeneralPane.sort(event);"
+                   sortDirection="ascending" sort="typeDescription"/>
+          <treecol id="actionColumn" label="&actionColumn2.label;" value="action"
+                   accesskey="&actionColumn2.accesskey;" persist="sortDirection"
+                   flex="1" onclick="gGeneralPane.sort(event);"/>
+        </listheader>
+        <richlistbox id="handlersView" height="180px"
+                     preference="pref.downloads.disable_button.edit_actions"/>
+      </vbox>
 
       <separator class="thin"/>
 
