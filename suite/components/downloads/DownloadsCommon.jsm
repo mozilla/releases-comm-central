@@ -756,9 +756,8 @@ DownloadsDataCtor.prototype = {
       if (!this._sound)
         this._sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
       try {
-        let url = Services.prefs.getComplexValue("browser.download.finished_sound_url",
-                                                 Ci.nsISupportsString);
-        this._sound.play(Services.io.newURI(url.data));
+        let url = Services.prefs.getStringPref("browser.download.finished_sound_url");
+        this._sound.play(Services.io.newURI(url));
       } catch (e) {
         this._sound.beep();
       }
