@@ -33,9 +33,6 @@ var { calendarDeactivator } = ChromeUtils.import(
 async function loadCalendarComponent() {
   await uninstallLightningAddon();
 
-  // Check if the binary component was loaded.
-  checkCalendarBinaryComponent();
-
   document
     .getElementById("calendarDisplayDeck")
     .addEventListener("select", calObserveDisplayDeckChange, true);
@@ -168,58 +165,6 @@ async function uninstallLightningAddon() {
   } catch (err) {
     console.error("Error while attempting to uninstall Lightning addon:", err);
   }
-}
-
-/**
- * Checks if the calendar binary component was successfully loaded.
- */
-function checkCalendarBinaryComponent() {
-  // Don't even get started if we are running ical.js or the binary component
-  // was successfully loaded.
-  if (
-    "@mozilla.org/calendar/datetime;1" in Cc ||
-    Services.prefs.getBoolPref("calendar.icaljs", false)
-  ) {
-    return;
-  }
-
-  const THUNDERBIRD_GUID = "{3550f703-e582-4d05-9a08-453d09bdfdc6}";
-  const SEAMONKEY_GUID = "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}";
-  const LIGHTNING_GUID = "{e2fda1a4-762b-4020-b5ad-a41df1933103}";
-
-  AddonManager.getAddonByID(LIGHTNING_GUID, ext => {
-    if (!ext) {
-      return;
-    }
-
-    let version;
-    let appversion = Services.appinfo.version;
-    let versionparts = appversion.split(".");
-    let extbrand = cal.l10n.getLtnString("brandShortName");
-
-    switch (Services.appinfo.ID) {
-      case THUNDERBIRD_GUID: // e.g. 31.4.0 -> 3.3
-        version = ((parseInt(versionparts[0], 10) + 2) / 10).toFixed(1);
-        break;
-      case SEAMONKEY_GUID: // e.g. 2.28.4 -> 3.3
-        version = ((parseInt(versionparts[1], 10) + 5) / 10).toFixed(1);
-        break;
-    }
-
-    let text;
-    if (version && version != ext.version) {
-      let args = [extbrand, ext.version, version];
-      text = cal.l10n.getLtnString("binaryComponentKnown", args);
-    } else {
-      let brand = cal.l10n.getAnyString("branding", "brand", "brandShortName");
-      let args = [extbrand, brand, appversion, ext.version];
-      text = cal.l10n.getLtnString("binaryComponentUnknown", args);
-    }
-
-    let title = cal.l10n.getLtnString("binaryComponentTitle", [extbrand]);
-    openAddonsMgr("addons://detail/" + encodeURIComponent(LIGHTNING_GUID));
-    Services.prompt.alert(window, title, text);
-  });
 }
 
 /**
