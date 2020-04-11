@@ -3143,7 +3143,6 @@ nsMsgLocalMailFolder::NotifyCompactCompleted() {
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::Shutdown(bool shutdownChildren) {
-  mInitialized = false;
   return nsMsgDBFolder::Shutdown(shutdownChildren);
 }
 
