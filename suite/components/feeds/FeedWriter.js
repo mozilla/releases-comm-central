@@ -94,21 +94,8 @@ function getPrefReaderForType(t) {
 }
 
 function LOG(str) {
-  try {
-    if (Services.prefs.getBoolPref("feeds.log"))
-      dump("*** Feeds: " + str + "\n");
-  }
-  catch (ex) {
-  }
-}
-
-function safeGetCharPref(pref, defaultValue) {
-  try {
-    return Services.prefs.getCharPref(pref);
-  }
-  catch (e) {
-  }
-  return defaultValue;
+  if (Services.prefs.getBoolPref("feeds.log", false))
+    dump("*** Feeds: " + str + "\n");
 }
 
 /**
@@ -676,7 +663,7 @@ FeedWriter.prototype = {
   _setAlwaysUseCheckedState: function setAlwaysUseCheckedState(feedType) {
     var checkbox = this._getUIElement("alwaysUse");
     if (checkbox) {
-      var alwaysUse = (safeGetCharPref(getPrefActionForType(feedType), "ask") != "ask");
+      var alwaysUse = (Services.prefs.getCharPref(getPrefActionForType(feedType), "ask") != "ask");
       this._setCheckboxCheckedState(checkbox, alwaysUse);
     }
   },
@@ -763,7 +750,7 @@ FeedWriter.prototype = {
   },
 
   _setSelectedHandler: function setSelectedHandler(feedType) {
-    var handler = safeGetCharPref(getPrefReaderForType(feedType), "messenger");
+    var handler = Services.prefs.getCharPref(getPrefReaderForType(feedType), "messenger");
 
     switch (handler) {
       case "web":

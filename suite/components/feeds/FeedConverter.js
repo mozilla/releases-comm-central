@@ -81,21 +81,8 @@ function getPrefReaderForType(t) {
 }
 
 function LOG(str) {
-  try {
-    if (Services.prefs.getBoolPref("feeds.log"))
-      dump("*** Feeds: " + str + "\n");
-  }
-  catch (ex) {
-  }
-}
-
-function safeGetCharPref(pref, defaultValue) {
-  try {
-    return Services.prefs.getCharPref(pref);
-  }
-  catch (e) {
-  }
-  return defaultValue;
+  if (Services.prefs.getBoolPref("feeds.log", false))
+    dump("*** Feeds: " + str + "\n");
 }
 
 function FeedConverter() {
@@ -197,11 +184,11 @@ FeedConverter.prototype = {
                           .getService(Ci.nsIFeedResultService);
       if (!this._forcePreviewPage && result.doc) {
         var feed = result.doc.QueryInterface(Ci.nsIFeed);
-        var handler = safeGetCharPref(getPrefActionForType(feed.type), "ask");
+        var handler = Services.prefs.getCharPref(getPrefActionForType(feed.type), "ask");
 
         if (handler != "ask") {
           if (handler == "reader")
-            handler = safeGetCharPref(getPrefReaderForType(feed.type), "messenger");
+            handler = Services.prefs.getCharPref(getPrefReaderForType(feed.type), "messenger");
           switch (handler) {
             case "web":
               var wccr = Cc["@mozilla.org/embeddor.implemented/web-content-handler-registrar;1"]
@@ -353,9 +340,9 @@ FeedResultService.prototype = {
    * See nsIFeedResultService.idl
    */
   addToClientReader: function addToClientReader(spec, title, subtitle, feedType) {
-    var handler = safeGetCharPref(getPrefActionForType(feedType), "reader");
+    var handler = Services.prefs.getCharPref(getPrefActionForType(feedType), "reader");
     if (handler == "ask" || handler == "reader")
-      handler = safeGetCharPref(getPrefReaderForType(feedType), "messenger");
+      handler = Services.prefs.getCharPref(getPrefReaderForType(feedType), "messenger");
 
     switch (handler) {
     case "client":
