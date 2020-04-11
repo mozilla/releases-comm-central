@@ -7,7 +7,7 @@
 }
 
 .attachmentList {
-  -moz-appearance: listbox;
+  -moz-appearance: none;
   -moz-user-focus: normal;
   margin: 0;
   padding: 3px;

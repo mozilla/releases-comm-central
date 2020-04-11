@@ -34,8 +34,7 @@
   --composer-header-border-color: #aaa;
 }
 
-#headers-box,
-#msgHeaderView {
+#headers-box {
   background-color: var(--toolbar-bgcolor) !important;
   background-image: none !important;
   color: var(--lwt-text-color);

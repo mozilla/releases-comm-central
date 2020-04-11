@@ -31,35 +31,8 @@
 /* ::::: attachment view ::::: */
 
 #attachmentList {
-  -moz-appearance: none;
   background-color: -moz-Field;
   color: -moz-FieldText;
-}
-
-#attachmentToggle {
-  /* Override button appearance */
-  -moz-appearance: none;
-  min-width: 0;
-  margin: 0;
-  border: 0;
-  background-color: transparent;
-  -moz-user-focus: normal;
-  list-style-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: 1;
-}
-
-#attachmentToggle[checked="true"] {
-  list-style-image: url("chrome://global/skin/icons/twisty-expanded.svg");
-}
-
-#attachmentToggle:hover {
-  fill: #4ed0f9;
-}
-
-#attachmentToggle:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
 }
 
 #attachmentName:hover,
@@ -195,11 +168,6 @@ mail-headerfield.headerValue:focus {
   max-height: 7px; /* the height of the image */
   margin: 0.2em 2px 0; /* 0.2em just to move it off the top of the text */
   list-style-image: url("chrome://messenger/skin/icons/arrow-dn-grey.png");
-}
-
-#attachmentView,
-#attachmentList {
-  border-top: 1px solid #a9b7c9; /* The same color as the splitters */
 }
 
 @media (-moz-windows-default-theme: 0) {
@@ -399,4 +367,10 @@ mail-headerfield.headerValue:focus {
     box-shadow: 0 0 1px hsla(210, 54%, 20%, .1),
                 0 0 2px hsla(210, 54%, 20%, .1);
   }
+}
+
+:root[lwt-tree] #attachmentList .attachmentItem:hover {
+  background-color: hsla(0, 0%, 50%, .15);
+  border-color: hsla(0, 0%, 50%, .15);
+  color: inherit;
 }

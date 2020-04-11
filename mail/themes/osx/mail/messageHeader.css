@@ -43,19 +43,6 @@
   color: -moz-FieldText;
 }
 
-#attachmentToggle {
-  -moz-appearance: treetwisty;
-  -moz-user-focus: normal;
-}
-
-#attachmentToggle[checked="true"] {
-  -moz-appearance: treetwistyopen;
-}
-
-#attachmentToggle:focus {
-  outline: 1px dotted Highlight;
-}
-
 #attachmentIcon {
   list-style-image: url("chrome://messenger/skin/icons/attach.svg");
   margin-inline-start: 5px;
@@ -80,10 +67,6 @@
 #attachmentSaveAllMultiple > .toolbarbutton-menubutton-button {
   /* Make sure that the icon is vertically centered */
   padding-bottom: 0px !important;
-}
-
-#attachmentView {
-  border-top: 1px solid ThreeDShadow;
 }
 
 #attachmentBar {
