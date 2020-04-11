@@ -923,7 +923,10 @@
       <!-- notificationbox will be added here lazily. -->
   </hbox>
   <statuspanel id="statusbar-display"/>
-  <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
+  <hbox id="status-bar"
+        class="statusbar chromeclass-status"
+        role="status"
+        aria-live="off">
 #include mainStatusbar.inc.xhtml
     <hbox id="calendar-invitations-panel"
           class="statusbarpanel"
