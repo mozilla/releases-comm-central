@@ -183,24 +183,32 @@ menupopup[is="folder-menupopup"] {
   background-color: var(--box-background-color);
 }
 
+button menupopup menu,
+button menupopup menuitem,
 menulist menupopup menu,
 menulist menupopup menuitem {
   -moz-appearance: none;
   color: var(--box-text-color);
 }
 
+button menupopup > menu:not([disabled="true"])[_moz-menuactive="true"],
+button menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"],
 menulist menupopup > menu:not([disabled="true"])[_moz-menuactive="true"],
 menulist menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
   color: var(--popup-item-hover-text);
   background-color: var(--popup-item-hover);
 }
 
+button menupopup > menu:not([disabled="true"])[selected="true"],
+button menupopup > menuitem:not([disabled="true"])[selected="true"],
 menulist menupopup > menu:not([disabled="true"])[selected="true"],
 menulist menupopup > menuitem:not([disabled="true"])[selected="true"] {
   color: var(--popup-selected-text);
   background-color: var(--popup-item-selected);
 }
 
+button menupopup > menu[disabled="true"],
+button menupopup > menuitem[disabled="true"],
 menulist menupopup > menu[disabled="true"],
 menulist menupopup > menuitem[disabled="true"] {
   color: #999;
@@ -216,6 +224,7 @@ menulist menupopup > menuitem[disabled="true"] {
   fill: currentColor;
 }
 
+button menupopup menuseparator,
 menulist menupopup menuseparator {
   -moz-appearance: none;
   margin: 0;

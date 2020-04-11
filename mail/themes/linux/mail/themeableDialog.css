@@ -11,6 +11,16 @@ button > .button-box {
   padding-block: 4px;
 }
 
+.button-menu-dropmarker {
+  -moz-appearance: none;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 menulist::part(dropmarker) {
   display: -moz-box;
 }
@@ -38,7 +48,12 @@ menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
 
 menulist menupopup menu,
 menulist menupopup menuitem {
-  padding-block: 3px;
+  padding-block: 5px;
+}
+
+button menupopup menu,
+button menupopup menuitem {
+  padding: 5px;
 }
 
 .menu-right {

@@ -10,6 +10,10 @@ button > .button-box {
   padding-block: 3px;
 }
 
+.button-menu-dropmarker {
+  display: -moz-box;
+}
+
 menulist {
   padding-inline-end: 0;
 }
