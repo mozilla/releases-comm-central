@@ -317,8 +317,10 @@ function buildPalette() {
   var currentItems = getCurrentItemIds();
   templateNode = gToolbox.palette.firstElementChild;
   while (templateNode) {
-    // Check if the item is already in a toolbar before adding it to the palette.
-    if (!(templateNode.id in currentItems)) {
+    // Check if the item is already in a toolbar before adding it to the
+    // palette, but do not add back separators, springs and spacers - we do
+    // not want them duplicated.
+    if (!isSpecialItem(templateNode) && !(templateNode.id in currentItems)) {
       var paletteItem = document.importNode(templateNode, true);
       wrapPaletteItem(paletteItem);
     }
