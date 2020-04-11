@@ -163,7 +163,6 @@
   locale/@AB_CD@/messenger/messengercompose/sendProgress.properties     (%chrome/messenger/messengercompose/sendProgress.properties)
   locale/@AB_CD@/messenger/messengercompose/composeMsgs.properties      (%chrome/messenger/messengercompose/composeMsgs.properties)
   locale/@AB_CD@/messenger/messengercompose/mailComposeEditorOverlay.dtd (%chrome/messenger/messengercompose/mailComposeEditorOverlay.dtd)
-  locale/@AB_CD@/messenger/messengercompose/editorSmileyOverlay.dtd     (%chrome/messenger/messengercompose/editorSmileyOverlay.dtd)
   locale/@AB_CD@/messenger/messengercompose/editorOverlay.dtd           (%chrome/messenger/messengercompose/editorOverlay.dtd)
   locale/@AB_CD@/messenger/messengercompose/editor.properties           (%chrome/messenger/messengercompose/editor.properties)
   locale/@AB_CD@/messenger/messengercompose/EditorHLineProperties.dtd   (%chrome/messenger/messengercompose/EditorHLineProperties.dtd)
