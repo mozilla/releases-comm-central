@@ -273,7 +273,7 @@ var EnigmailKeyRing = {
         key.getEncryptionValidity().keyValid &&
         key.getSigningValidity().keyValid
       ) {
-        if (key.expiryTime < nowSecondsSinceEpoch) {
+        if (key.expiryTime != 0 && (key.expiryTime < nowSecondsSinceEpoch)) {
           continue;
         }
         result.all.push(key);
@@ -283,7 +283,7 @@ var EnigmailKeyRing = {
           result.best.algoSym === key.algoSym &&
           result.best.keySize === key.keySize
         ) {
-          if (key.expiryTime > result.best.expiryTime) {
+          if (!key.expiryTime || (key.expiryTime > result.best.expiryTime)) {
             result.best = key;
           }
         } else if (
