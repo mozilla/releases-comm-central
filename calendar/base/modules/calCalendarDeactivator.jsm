@@ -9,6 +9,8 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { Localization } = ChromeUtils.import("resource://gre/modules/Localization.jsm");
 
 const syncL10n = new Localization(["calendar/calendar-widgets.ftl"], true);
+syncL10n.setIsSync(true);
+syncL10n.init();
 
 /**
  * Handles deactivation of calendar UI and background processes/services (such

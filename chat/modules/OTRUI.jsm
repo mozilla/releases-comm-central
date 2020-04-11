@@ -10,7 +10,9 @@ const { Localization } = ChromeUtils.import(
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 
-const syncL10n = new Localization(["messenger/otr/otrUI.ftl"], true);
+const syncL10n = new Localization(["messenger/otr/otrUI.ftl"]);
+syncL10n.setIsSync(true);
+syncL10n.init();
 
 function _str(id) {
   return syncL10n.formatValueSync(id);

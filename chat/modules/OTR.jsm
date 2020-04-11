@@ -16,7 +16,9 @@ const { OTRLibLoader } = ChromeUtils.import("resource:///modules/OTRLib.jsm");
 var workerPath = "chrome://chat/content/otrWorker.js";
 const { OTRHelpers } = ChromeUtils.import("resource:///modules/OTRHelpers.jsm");
 
-const syncL10n = new Localization(["messenger/otr/otr.ftl"], true);
+const syncL10n = new Localization(["messenger/otr/otr.ftl"]);
+syncL10n.setIsSync(true);
+syncL10n.init();
 
 function _str(id) {
   return syncL10n.formatValueSync(id);

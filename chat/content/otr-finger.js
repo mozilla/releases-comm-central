@@ -8,7 +8,9 @@ var { Localization } = ChromeUtils.import(
   "resource://gre/modules/Localization.jsm"
 );
 
-var l10n = new Localization(["messenger/otr/finger-sync.ftl"], true);
+var l10n = new Localization(["messenger/otr/finger-sync.ftl"]);
+l10n.setIsSync(true);
+l10n.init();
 
 var gFingers;
 var fingerTreeView = {
