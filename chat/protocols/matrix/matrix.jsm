@@ -263,15 +263,26 @@ MatrixAccount.prototype = {
 
     this._client.startClient();
 
+    this._client.on("Room.name", room => {
+      // Update the title to the human readable version.
+      let conv = this._roomList[room.roomId];
+      if (
+        conv &&
+        room.summary &&
+        room.summary.info &&
+        room.summary.info.title &&
+        conv._name != room.summary.info.title
+      ) {
+        conv._name = room.summary.info.title;
+        conv.notifyObservers(null, "update-conv-title");
+      }
+    });
+
     // Get the list of joined rooms on the server and create those conversations.
     this._client.getJoinedRooms().then(response => {
       for (let roomId of response.joined_rooms) {
         let conv = new MatrixConversation(this, roomId, this.userId);
         this._roomList[roomId] = conv;
-        let room = this._client.getRoom(roomId);
-        if (room) {
-          conv.initRoom(room);
-        }
       }
     });
   },
