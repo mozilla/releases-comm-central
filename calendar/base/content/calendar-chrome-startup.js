@@ -26,8 +26,6 @@ var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
 
-/* exported commonInitCalendar, commonFinishCalendar */
-
 /**
  * Does calendar initialization steps for a given chrome window. Called at
  * startup as the application window is loaded, before tabs are restored.

@@ -21,7 +21,7 @@ calBackendLoader.prototype = {
   loaded: false,
 
   observe() {
-    // Nothing to do here, just need the entry so this is instantiated
+    // Nothing to do here, just need the entry so this is instantiated.
   },
 
   loadBackend() {
@@ -51,9 +51,13 @@ calBackendLoader.prototype = {
         registrar.registerFactory(newClassID, "", contractID, newFactory);
       }
 
-      dump("[calBackendLoader] Using Lightning's icaljs backend\n");
+      // Set up ical.js to use non-strict (lenient) mode.
+      let { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+      ICAL.design.strict = false;
+
+      dump("[calBackendLoader] Using Thunderbird's ical.js backend\n");
     } else {
-      dump("[calBackendLoader] Using Thunderbird's builtin libical backend\n");
+      dump("[calBackendLoader] Using Thunderbird's libical backend\n");
     }
 
     this.loaded = true;
