@@ -8,7 +8,8 @@
   initAppMenuPopup InitAppmenuViewBodyMenu InitAppMessageMenu
   InitAppmenuViewMessagesMenu InitAppFolderViewsMenu InitAppViewSortByMenu
   InitMessageTags InitRecentlyClosedTabsPopup InitViewFolderViewsMenu
-  InitViewHeadersMenu InitViewLayoutStyleMenu MozXULElement msgWindow
+  InitViewHeadersMenu InitViewLayoutStyleMenu initSearchMessagesMenu
+  MozXULElement msgWindow
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName Services ShortcutUtils
   StringBundle UpdateCharsetMenu updateEditUIVisibility UpdateFullZoomMenu
