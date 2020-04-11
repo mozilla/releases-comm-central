@@ -180,6 +180,9 @@ function file_init() {
   document.commandDispatcher.updateCommands("create-menu-file");
 }
 
+/**
+ * Update the menu items visibility in the Edit submenu.
+ */
 function InitEditMessagesMenu() {
   goSetMenuValue("cmd_delete", "valueDefault");
   goSetAccessKey("cmd_delete", "valueDefaultAccessKey");
@@ -200,6 +203,18 @@ function InitEditMessagesMenu() {
       favoriteFolderMenu.hidden = true;
     }
   }
+}
+
+/**
+ * Update the menu items visibility in the Find submenu.
+ */
+function initSearchMessagesMenu() {
+  // Show 'Global Search' menu item only when global search is enabled.
+  let glodaEnabled = Services.prefs.getBoolPref(
+    "mailnews.database.global.indexer.enabled"
+  );
+  document.getElementById("glodaSearchCmd").hidden = !glodaEnabled;
+  document.getElementById("appmenu_glodaSearchCmd").hidden = !glodaEnabled;
 }
 
 function InitAppFolderViewsMenu() {
@@ -3820,6 +3835,13 @@ function QuickSearchFocus() {
     // Open a new global search tab (with focus on its global search box)
     tabmail.openTab("glodaFacet");
   }
+}
+
+/**
+ * Open a new gloda search tab, with its search box focused.
+ */
+function openGlodaSearchTab() {
+  document.getElementById("tabmail").openTab("glodaFacet");
 }
 
 /**

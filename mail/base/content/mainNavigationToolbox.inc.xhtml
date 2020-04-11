@@ -328,7 +328,8 @@
         <menuseparator id="editMenuAfterSelectSeparator"/>
         <menu id="menu_find" class="menu-iconic"
               label="&findMenu.label;" accesskey="&findMenu.accesskey;">
-          <menupopup id="menu_FindPopup">
+          <menupopup id="menu_FindPopup"
+                     onpopupshowing="initSearchMessagesMenu()">
             <menuitem id="menu_findCmd"
                       label="&findCmd.label;"
                       key="key_find"
@@ -344,6 +345,10 @@
                       key="key_searchMail"
                       accesskey="&searchMailCmd.accesskey;"
                       command="cmd_search"/>
+            <menuitem id="glodaSearchCmd"
+                      label="&glodaSearchCmd.label;"
+                      accesskey="&glodaSearchCmd.accesskey;"
+                      oncommand="openGlodaSearchTab()"/>
             <menuitem id="searchAddressesCmd" label="&searchAddressesCmd.label;"
                       accesskey="&searchAddressesCmd.accesskey;"
                       oncommand="MsgSearchAddresses()"/>

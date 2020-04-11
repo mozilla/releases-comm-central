@@ -484,6 +484,9 @@ const PanelUI = {
       case "appMenu-messageTagView":
         PanelUI._refreshDynamicView(event, InitMessageTags);
         break;
+      case "appMenu-findView":
+        initSearchMessagesMenu();
+        break;
     }
   },
 
