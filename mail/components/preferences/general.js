@@ -976,7 +976,8 @@ var gGeneralPane = {
     }
     return new Localization(
       ["messenger/preferences/preferences.ftl", "branding/brand.ftl"],
-      generateBundles
+      false,
+      { generateBundles }
     );
   },
 
