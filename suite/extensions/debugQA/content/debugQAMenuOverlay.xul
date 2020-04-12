@@ -196,10 +196,16 @@
                   oncommand="openQAUrl('https://hg.mozilla.org/comm-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
         <menuitem label="Recent mozilla-central Checkins"
                   oncommand="openQAUrl('https://hg.mozilla.org/mozilla-central/pushloghtml?startdate=24+hours+ago&amp;enddate=now');"/>
-        <menuitem label="Recent comm-esr60 Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr60/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
-        <menuitem label="Recent mozilla-esr60 Checkins"
-                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr60/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
+        <menuitem label="Recent comm-esr68 Checkins"
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/comm-esr68/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
+        <menuitem label="Recent mozilla-esr68 Checkins"
+                  oncommand="openQAUrl('https://hg.mozilla.org/releases/mozilla-esr68/pushloghtml?startdate=96+hours+ago&amp;enddate=now');"/>
+        <menuitem label="Recent gitlab 2.53 comm Activity"
+                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-comm/activity');"/>
+        <menuitem label="Recent gitlab 2.53 mozilla Activity"
+                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-mozilla/activity');"/>
+        <menuitem label="Recent gitlab 2.53 l10n Activity"
+                  oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-l10n/activity');"/>
        <menuitem label="Tree Status"
                   oncommand="openQAUrl('https://treestatus.mozilla-releng.net/static/ui/treestatus/');"/>
 
