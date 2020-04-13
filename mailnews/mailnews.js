@@ -152,7 +152,11 @@ pref("mail.strict_threading",               true);  // if true, don't thread by 
 pref("mail.correct_threading",              true);  // if true, makes sure threading works correctly always (see bug 181446)
 pref("mail.pop3.deleteFromServerOnMove",    false);
 pref("mail.fixed_width_messages",           true);
+#ifdef MOZ_SUITE
 pref("mail.citation_color",                 "#000000"); // quoted color
+#else
+pref("mail.citation_color",                 "#007cff"); // quoted color
+#endif
 pref("mail.strip_sig_on_reply", true); // If true, remove the everything after the "-- \n" signature delimiter when replying.
 pref("mail.quoted_style",                   0); // 0=plain, 1=bold, 2=italic, 3=bolditalic
 pref("mail.quoted_size",                    0); // 0=normal, 1=big, 2=small

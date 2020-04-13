@@ -130,3 +130,9 @@ treechildren::-moz-tree-image(correspondentCol) {
 #multimessage {
   background-color: -moz-Field;
 }
+
+@media (prefers-color-scheme: dark) {
+  #messagepanewrapper {
+    background-color: #2a2a2e;
+  }
+}

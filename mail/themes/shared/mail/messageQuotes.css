@@ -28,34 +28,43 @@ body {
 }
 
 /* ::::: Turn on borders and padding for quotes. ::::: */
-
-body blockquote[type=cite] {
-  padding: 0.4ex 1ex;
-  margin-block-start: 1ex;
-  margin-block-end: 1ex;
-  border-width: 0 2px;
-  border-style: none solid;
-}
-
 /* ::::: Colorize block quote borders. We only go 5 levels deep. ::::: */
 
 body blockquote[type=cite] {
-  border-color: rgb(114,159,207); /* Sky Blue 1 */
+  margin-block: 1ex;
+  padding: 0.4ex 1ex;
+  border-inline-start: 2px solid rgb(114, 159, 207); /* Sky Blue 1 */
 }
 
 blockquote[type=cite] blockquote[type=cite] {
-  border-color: rgb(173,127,168); /* Plum 1 */
+  border-inline-start-color: rgb(173, 127, 168); /* Plum 1 */
 }
 
 blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] {
-  border-color: rgb(138,226,52); /* Chameleon 1 */
+  border-inline-start-color: rgb(138, 226, 52); /* Chameleon 1 */
 }
 
 blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] {
-  border-color: rgb(252,175,62); /* Orange 1 */
+  border-inline-start-color: rgb(252, 175, 62); /* Orange 1 */
 }
 
 blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] {
-  border-color: rgb(233,185,110); /* Chocolate 1 */
+  border-inline-start-color: rgb(233, 185, 110); /* Chocolate 1 */
+}
+
+/* Styles for the dark mode */
+@media (prefers-color-scheme: dark) {
+  html {
+    scrollbar-color: rgba(249, 249, 250, .4) rgba(20, 20, 25, .3);
+  }
+
+  body {
+    color: #f9f9fa;
+    background-color: #2a2a2e;
+  }
+
+  span[_moz_quote="true"] {
+    color: #009fff;
+  }
 }
 

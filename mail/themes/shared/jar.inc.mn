@@ -9,6 +9,7 @@
 
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
+  skin/classic/messenger/messageQuotes.css                    (../shared/mail/messageQuotes.css)
   skin/classic/messenger/addressbook/icons/menu.svg           (../shared/mail/icons/menu.svg)
   skin/classic/messenger/downloads/download.svg               (../shared/mail/icons/download.svg)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
