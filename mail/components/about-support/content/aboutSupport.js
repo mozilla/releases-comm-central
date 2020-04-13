@@ -425,7 +425,14 @@ var snapshotFormatters = {
     let apzInfo = [];
     let formatApzInfo = function(info) {
       let out = [];
-      for (let type of ["Wheel", "Touch", "Drag", "Keyboard", "Autoscroll"]) {
+      for (let type of [
+        "Wheel",
+        "Touch",
+        "Drag",
+        "Keyboard",
+        "Autoscroll",
+        "Zooming",
+      ]) {
         let key = "Apz" + type + "Input";
 
         if (!(key in info)) {
