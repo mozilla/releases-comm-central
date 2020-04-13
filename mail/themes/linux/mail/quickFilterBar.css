@@ -30,7 +30,7 @@
 
 /* Style for the default system dark theme */
 
-:root[lwt-default-theme-in-dark-mode] #quick-filter-bar-expando {
+:root[lwt-tree] #quick-filter-bar-expando {
   border-bottom-color: var(--chrome-content-separator-color);
 }
 

@@ -136,3 +136,43 @@ treechildren::-moz-tree-image(correspondentCol) {
     background-color: #2a2a2e;
   }
 }
+
+/* Quick-Filter-Bar */
+:root[lwt-tree] #quick-filter-bar:-moz-lwtheme {
+  background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
+}
+
+:root[lwt-tree-brighttext] #quick-filter-bar {
+  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
+  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
+
+  --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background);
+
+  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
+  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
+}
+
+:root[lwt-tree] #qfb-qs-textbox {
+  background-color: var(--lwt-toolbar-field-background-color, hsla(0, 0%, 100%, .8));
+  color: var(--lwt-toolbar-field-color, black);
+}
+
+:root[lwt-tree] #qfb-qs-textbox:not([focused="true"]) {
+  border-color: var(--lwt-toolbar-field-border-color, hsla(240, 5%, 5%, .25));
+}
+
+:root[lwt-tree] #qfb-qs-textbox:hover {
+  background-color: var(--lwt-toolbar-field-background-color, white);
+}
+
+:root[lwt-tree-brighttext] #qfb-qs-textbox:hover {
+  box-shadow: 0 1px 3px rgba(255, 255, 255, .15);
+}
+
+:root[lwt-tree] #qfb-qs-textbox[focused="true"] {
+  background-color: var(--lwt-toolbar-field-focus, var(--lwt-toolbar-field-background-color, white));
+  color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
+  border-color: var(--toolbar-field-focus-border-color);
+}

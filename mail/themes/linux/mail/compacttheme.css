@@ -4,11 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/compacttheme.css");
 
-/* Quick-Filter-Bar */
-#quick-filter-bar {
-  border-bottom-color: var(--chrome-content-separator-color);
-}
-
 #MsgHeadersToolbar {
   background-image: none;
 }

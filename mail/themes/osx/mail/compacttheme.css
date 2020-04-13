@@ -22,16 +22,6 @@
   -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-light;
 }
 
-/* Quick-Filter-Bar */
-#quick-filter-bar-main-bar:-moz-lwtheme {
-  background: transparent;
-}
-
-#quick-filter-bar-expando:-moz-lwtheme {
-  border-bottom-color: var(--chrome-content-separator-color);
-  background: transparent;
-}
-
 #headers-box {
   -moz-appearance: none;
 }

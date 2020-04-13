@@ -170,8 +170,3 @@
   box-shadow: none !important;
   padding-top: 0 !important;
 }
-
-/* Quick-Filter-Bar */
-#quick-filter-bar-expando {
-  border-bottom-color: var(--chrome-content-separator-color);
-}
