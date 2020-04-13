@@ -688,7 +688,7 @@ var NotAnInlineParent = [
 ];
 
 function nodeIsBreak(editor, node) {
-  return !node || node.localName == 'br' || editor.nodeIsBlock(node);
+  return !node || node.localName == "br" || editor.nodeIsBlock(node);
 }
 
 function InsertElementAroundSelection(element) {
@@ -740,7 +740,9 @@ function InsertElementAroundSelection(element) {
           if (i == range.endOffset) {
             return false;
           }
-          if (nodeIsBreak(editor, range.commonAncestorContainer.childNodes[i])) {
+          if (
+            nodeIsBreak(editor, range.commonAncestorContainer.childNodes[i])
+          ) {
             break;
           }
         }
