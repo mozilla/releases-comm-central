@@ -83,13 +83,12 @@
 .invitation-table .description {
        width: 9em;
        text-align: right;
-       border-inline-end: 1px solid rgba(255, 255, 255, 0.2);
-       background-color: rgba(0, 0, 0, 0.2);
+       border-inline-end: 1px solid hsla(0, 0%, 50%, .2);
+       background-color: hsla(0, 0%, 50%, .2);
        vertical-align: top;
 }
 .invitation-table .content {
        width: 29em;
-       background-color: -moz-default-background-color;
 }
 .invitation-table .content p {
        white-space: pre-wrap;
@@ -98,7 +97,7 @@
        color: rgb(255, 0, 0);
 }
 .invitation-table .added[systemcolors] {
-       color: -moz-DialogText;
+       color: currentColor;
        font-weight: bold;
 }
 .invitation-table .modified {
@@ -106,12 +105,12 @@
        font-style: italic;
 }
 .invitation-table .modified[systemcolors] {
-       color: -moz-DialogText;
+       color: currentColor;
 }
 .invitation-table .removed {
        color: rgb(125, 125, 125);
        text-decoration: line-through;
 }
 .invitation-table .removed[systemcolors] {
-       color: -moz-DialogText;
+       color: currentColor;
 }
