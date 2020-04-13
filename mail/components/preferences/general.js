@@ -30,9 +30,6 @@ var { AppConstants } = ChromeUtils.import(
 var { L10nRegistry } = ChromeUtils.import(
   "resource://gre/modules/L10nRegistry.jsm"
 );
-var { Localization } = ChromeUtils.import(
-  "resource://gre/modules/Localization.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { UpdateUtils } = ChromeUtils.import(
   "resource://gre/modules/UpdateUtils.jsm"

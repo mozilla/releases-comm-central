@@ -21,9 +21,6 @@ var { StringBundle } = ChromeUtils.import(
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
-var { Localization } = ChromeUtils.import(
-  "resource://gre/modules/Localization.jsm"
-);
 
 function tabProgressListener(aTab, aStartsBlank) {
   this.mTab = aTab;
@@ -384,9 +381,7 @@ var contentTabBaseType = {
     function(aDocument, aTab) {
       // Need a timeout to let the script run to create the needed buttons.
       setTimeout(() => {
-        let l10n = new Localization(["messenger/aboutProfilesExtra.ftl"]);
-        l10n.setIsSync(true);
-        l10n.init();
+        let l10n = new Localization(["messenger/aboutProfilesExtra.ftl"], true);
         for (let button of aDocument.querySelectorAll(
           `[data-l10n-id="profiles-launch-profile"]`
         )) {

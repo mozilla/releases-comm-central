@@ -6,11 +6,8 @@ this.EXPORTED_SYMBOLS = ["calendarDeactivator"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-const { Localization } = ChromeUtils.import("resource://gre/modules/Localization.jsm");
 
-const syncL10n = new Localization(["calendar/calendar-widgets.ftl"], true);
-syncL10n.setIsSync(true);
-syncL10n.init();
+var l10n = new Localization(["calendar/calendar-widgets.ftl"], true);
 
 /**
  * Handles deactivation of calendar UI and background processes/services (such
@@ -129,7 +126,7 @@ var calendarDeactivator = {
       if (calendarIsActivated) {
         notificationbox.removeNotification(existingNotification);
       } else if (!existingNotification) {
-        let message = syncL10n.formatValueSync(messageName);
+        let message = l10n.formatValueSync(messageName);
         let priority = notificationbox.PRIORITY_WARNING_MEDIUM;
 
         notificationbox.appendNotification(message, value, null, priority, null);

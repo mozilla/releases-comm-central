@@ -4,22 +4,17 @@
 
 this.EXPORTED_SYMBOLS = ["OTRUI"];
 
-const { Localization } = ChromeUtils.import(
-  "resource://gre/modules/Localization.jsm"
-);
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
 
-const syncL10n = new Localization(["messenger/otr/otrUI.ftl"]);
-syncL10n.setIsSync(true);
-syncL10n.init();
+var l10n = new Localization(["messenger/otr/otrUI.ftl"], true);
 
 function _str(id) {
-  return syncL10n.formatValueSync(id);
+  return l10n.formatValueSync(id);
 }
 
 function _strArgs(id, args) {
-  return syncL10n.formatValueSync(id, args);
+  return l10n.formatValueSync(id, args);
 }
 
 const OTR_AUTH_DIALOG_URL = "chrome://chat/content/otr-auth.xhtml";
@@ -427,9 +422,9 @@ var OTRUI = {
         let id = "state-" + trust.class;
         let msg;
         if (OTR.trust(context) == OTR.trustState.TRUST_NOT_PRIVATE) {
-          msg = syncL10n.formatValueSync(id);
+          msg = l10n.formatValueSync(id);
         } else {
-          msg = syncL10n.formatValueSync(id, { name: context.username });
+          msg = l10n.formatValueSync(id, { name: context.username });
         }
         uiConv.systemMessage(msg);
       }
@@ -599,7 +594,7 @@ var OTRUI = {
       null
     );
 
-    let verifyTitle = syncL10n.formatValueSync("verify-title");
+    let verifyTitle = l10n.formatValueSync("verify-title");
     this.updateNotificationUI(
       context,
       verifyTitle,

@@ -53,14 +53,10 @@ var { MailConstants } = ChromeUtils.import(
   "resource:///modules/MailConstants.jsm"
 );
 
-var { Localization } = ChromeUtils.import(
-  "resource://gre/modules/Localization.jsm"
+var l10n = new Localization(
+  ["messenger/messengercompose/messengercompose.ftl"],
+  true
 );
-var l10n = new Localization([
-  "messenger/messengercompose/messengercompose.ftl",
-]);
-l10n.setIsSync(true);
-l10n.init();
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(

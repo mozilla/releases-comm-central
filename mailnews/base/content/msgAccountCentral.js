@@ -10,9 +10,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var l10n = new Localization(["messenger/accountCentral.ftl"]);
-l10n.setIsSync(true);
-l10n.init();
+var l10n = new Localization(["messenger/accountCentral.ftl"], true);
 
 var gSelectedServer = null;
 var gSelectedFolder = null;

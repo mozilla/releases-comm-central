@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Localization } = ChromeUtils.import(
-  "resource://gre/modules/Localization.jsm"
-);
 const { BasePromiseWorker } = ChromeUtils.import(
   "resource://gre/modules/PromiseWorker.jsm"
 );
@@ -13,19 +10,16 @@ const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { CLib } = ChromeUtils.import("resource:///modules/CLib.jsm");
 const { OTRLibLoader } = ChromeUtils.import("resource:///modules/OTRLib.jsm");
-var workerPath = "chrome://chat/content/otrWorker.js";
 const { OTRHelpers } = ChromeUtils.import("resource:///modules/OTRHelpers.jsm");
 
-const syncL10n = new Localization(["messenger/otr/otr.ftl"]);
-syncL10n.setIsSync(true);
-syncL10n.init();
+var l10n = new Localization(["messenger/otr/otr.ftl"], true);
 
 function _str(id) {
-  return syncL10n.formatValueSync(id);
+  return l10n.formatValueSync(id);
 }
 
 function _strArgs(id, args) {
-  return syncL10n.formatValueSync(id, args);
+  return l10n.formatValueSync(id, args);
 }
 
 // some helpers
@@ -237,7 +231,7 @@ var OTR = {
       );
     }
 
-    let worker = new BasePromiseWorker(workerPath);
+    let worker = new BasePromiseWorker("chrome://chat/content/otrWorker.js");
     return worker
       .post("generateKey", [OTRLib.path, OTRLib.otrl_version, address])
       .then(function() {
