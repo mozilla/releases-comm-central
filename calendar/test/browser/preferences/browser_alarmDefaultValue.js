@@ -6,37 +6,22 @@
  * Test default alarm settings for events and tasks
  */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
-var {
-  CALENDARNAME,
-  createCalendar,
-  deleteCalendars,
-  helpersForController,
-  invokeEventDialog,
-  openLightningPrefs,
-  closeLightningPrefs,
-  menulistSelect,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { content_tab_e, content_tab_eid } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
-);
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const DEFVALUE = 43;
 
-var controller = mozmill.getMail3PaneController();
-
-var prefTab = null;
-
 add_task(async function testDefaultAlarms() {
-  createCalendar(controller, CALENDARNAME);
+  let manager = cal.getCalendarManager();
+  let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  calendar.name = "Mochitest";
+  manager.registerCalendar(calendar);
+
+  registerCleanupFunction(async () => {
+    manager.unregisterCalendar(calendar);
+  });
+
   let localeUnitString = cal.l10n.getCalString("unitDays");
   let unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
   let alarmString = (...args) => cal.l10n.getString("calendar-alarms", ...args);
@@ -45,110 +30,151 @@ add_task(async function testDefaultAlarms() {
   let expectedEventReminder = alarmString("reminderCustomTitle", [unitString, originStringEvent]);
   let expectedTaskReminder = alarmString("reminderCustomTitle", [unitString, originStringTask]);
 
-  let detailPath = `
-        //*[@id="reminder-details"]/*[local-name()="label" and (not(@hidden) or @hidden="false")]
-    `;
-
   // Configure the lightning preferences.
-  openLightningPrefs(handlePrefTab, controller);
+  let { prefsWindow, prefsDocument } = await openNewPrefsTab(
+    "paneLightning",
+    "defaultsnoozelength"
+  );
+  await handlePrefTab(prefsWindow, prefsDocument);
 
   // Create New Event.
-  controller.keypress(null, "i", { shiftKey: false, accelKey: true });
-  // Set up the event dialog controller.
-  await invokeEventDialog(controller, null, (event, iframe) => {
-    let { xpath: eventpath, eid: eventid } = helpersForController(event);
-
-    // Check if the "custom" item was selected.
-    event.assertDOMProperty(eventid("item-alarm"), "value", "custom");
-    let reminderDetailsVisible = eventpath(detailPath);
-    event.assertDOMProperty(reminderDetailsVisible, "value", expectedEventReminder);
-
-    plan_for_modal_dialog("Calendar:EventDialog:Reminder", handleReminderDialog);
-    event.click(reminderDetailsVisible);
-    wait_for_modal_dialog("Calendar:EventDialog:Reminder");
-
-    // Close the event dialog.
-    event.window.close();
+  let eventDialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
+    await BrowserTestUtils.waitForEvent(win, "load");
+    return win.document.documentURI == "chrome://calendar/content/calendar-event-dialog.xhtml";
   });
+  EventUtils.synthesizeKey("i", { accelKey: true });
+  let eventDialogWindow = await eventDialogPromise;
+  let eventDialogDocument = eventDialogWindow.document;
+
+  let eventDialogIframe = eventDialogDocument.getElementById("lightning-item-panel-iframe");
+  let iframeWindow = eventDialogIframe.contentWindow;
+  if (eventDialogIframe.contentDocument.readyState != "complete") {
+    await BrowserTestUtils.waitForEvent(iframeWindow, "load");
+  }
+  let iframeDocument = iframeWindow.document;
+  await new Promise(r => iframeWindow.setTimeout(r));
+
+  Assert.equal(iframeDocument.getElementById("item-alarm").value, "custom");
+  let reminderDetails = iframeDocument.getElementById("reminder-single-alarms-label");
+  Assert.equal(reminderDetails.value, expectedEventReminder);
+
+  let reminderDialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-event-dialog-reminder.xhtml",
+    handleReminderDialog
+  );
+  EventUtils.synthesizeMouseAtCenter(reminderDetails, {}, iframeWindow);
+  await reminderDialogPromise;
+
+  eventDialogWindow.close();
 
   // Create New Task.
-  controller.keypress(null, "d", { shiftKey: false, accelKey: true });
-  await invokeEventDialog(controller, null, (task, iframe) => {
-    let { xpath: taskpath, eid: taskid } = helpersForController(task);
-
-    // Check if the "custom" item was selected.
-    task.assertDOMProperty(taskid("item-alarm"), "value", "custom");
-    let reminderDetailsVisible = taskpath(detailPath);
-    task.assertDOMProperty(reminderDetailsVisible, "value", expectedTaskReminder);
-
-    plan_for_modal_dialog("Calendar:EventDialog:Reminder", handleReminderDialog);
-    task.click(reminderDetailsVisible);
-    wait_for_modal_dialog("Calendar:EventDialog:Reminder");
-
-    // Close the task dialog.
-    task.window.close();
+  let taskDialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
+    await BrowserTestUtils.waitForEvent(win, "load");
+    return win.document.documentURI == "chrome://calendar/content/calendar-event-dialog.xhtml";
   });
+  EventUtils.synthesizeKey("d", { accelKey: true });
+  let taskDialogWindow = await taskDialogPromise;
+  let taskDialogDocument = taskDialogWindow.document;
+
+  let taskDialogIframe = taskDialogDocument.getElementById("lightning-item-panel-iframe");
+  iframeWindow = taskDialogIframe.contentWindow;
+  if (taskDialogIframe.contentDocument.readyState != "complete") {
+    await BrowserTestUtils.waitForEvent(iframeWindow, "load");
+  }
+  iframeDocument = iframeWindow.document;
+  await new Promise(r => iframeWindow.setTimeout(r));
+
+  Assert.equal(iframeDocument.getElementById("item-alarm").value, "custom");
+  reminderDetails = iframeDocument.getElementById("reminder-single-alarms-label");
+  Assert.equal(reminderDetails.value, expectedTaskReminder);
+
+  reminderDialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-event-dialog-reminder.xhtml",
+    handleReminderDialog
+  );
+  EventUtils.synthesizeMouseAtCenter(reminderDetails, {}, iframeWindow);
+  await reminderDialogPromise;
+
+  taskDialogWindow.close();
 });
 
-function handlePrefTab(tab) {
-  prefTab = tab;
-
-  let { replaceText } = helpersForController(controller);
-  // Scroll to the reminder groupbox
-  content_tab_e(tab, "defaultsnoozelength").scrollIntoView();
-
+async function handlePrefTab(prefsWindow, prefsDocument) {
+  function menuList(id, value) {
+    let list = prefsDocument.getElementById(id);
+    list.click();
+    list.querySelector(`menuitem[value="${value}"]`).click();
+  }
   // Turn on alarms for events and tasks.
-  menulistSelect(content_tab_eid(tab, "eventdefalarm"), "1", controller);
-  menulistSelect(content_tab_eid(tab, "tododefalarm"), "1", controller);
+  menuList("eventdefalarm", "1");
+  menuList("tododefalarm", "1");
 
   // Selects "days" as a unit.
-  menulistSelect(content_tab_eid(tab, "tododefalarmunit"), "days", controller);
-  menulistSelect(content_tab_eid(tab, "eventdefalarmunit"), "days", controller);
+  menuList("tododefalarmunit", "days");
+  menuList("eventdefalarmunit", "days");
 
+  function text(id, value) {
+    let input = prefsDocument.getElementById(id);
+    EventUtils.synthesizeMouseAtCenter(input, {}, prefsWindow);
+    EventUtils.synthesizeKey("a", { accelKey: true }, prefsWindow);
+    EventUtils.sendString(value, prefsWindow);
+  }
   // Sets default alarm length for events to DEFVALUE.
-  let eventdefalarmlen = content_tab_eid(tab, "eventdefalarmlen");
-  replaceText(eventdefalarmlen, DEFVALUE.toString());
+  text("eventdefalarmlen", DEFVALUE.toString());
+  text("tododefalarmlen", DEFVALUE.toString());
 
-  let tododefalarmlen = content_tab_eid(tab, "tododefalarmlen");
-  replaceText(tododefalarmlen, DEFVALUE.toString());
+  Assert.equal(Services.prefs.getIntPref("calendar.alarms.onforevents"), 1);
+  Assert.equal(Services.prefs.getIntPref("calendar.alarms.eventalarmlen"), DEFVALUE);
+  Assert.equal(Services.prefs.getStringPref("calendar.alarms.eventalarmunit"), "days");
+  Assert.equal(Services.prefs.getIntPref("calendar.alarms.onfortodos"), 1);
+  Assert.equal(Services.prefs.getIntPref("calendar.alarms.todoalarmlen"), DEFVALUE);
+  Assert.equal(Services.prefs.getStringPref("calendar.alarms.todoalarmunit"), "days");
 }
 
-function handleReminderDialog(reminders) {
-  let { eid: remindersid, replaceText } = helpersForController(reminders);
+async function handleReminderDialog(remindersWindow) {
+  await new Promise(remindersWindow.setTimeout);
+  let remindersDocument = remindersWindow.document;
 
-  let listbox = remindersid("reminder-listbox");
-  let listboxElement = remindersid("reminder-listbox").getNode();
-  reminders.waitFor(() => listboxElement.selectedCount == 1);
-  Assert.equal(listboxElement.selectedItem.reminder.offset.days, DEFVALUE);
+  let listbox = remindersDocument.getElementById("reminder-listbox");
+  Assert.equal(listbox.selectedCount, 1);
+  Assert.equal(listbox.selectedItem.reminder.offset.days, DEFVALUE);
 
-  reminders.click(remindersid("reminder-new-button"));
-  reminders.waitFor(() => listboxElement.itemCount == 2);
-  Assert.equal(listboxElement.selectedCount, 1);
-  Assert.equal(listboxElement.selectedItem.reminder.offset.days, DEFVALUE);
+  EventUtils.synthesizeMouseAtCenter(
+    remindersDocument.getElementById("reminder-new-button"),
+    {},
+    remindersWindow
+  );
+  Assert.equal(listbox.itemCount, 2);
+  Assert.equal(listbox.selectedCount, 1);
+  Assert.equal(listbox.selectedItem.reminder.offset.days, DEFVALUE);
 
-  replaceText(remindersid("reminder-length"), "20");
-  Assert.equal(listboxElement.selectedItem.reminder.offset.days, 20);
+  function text(id, value) {
+    let input = remindersDocument.getElementById(id);
+    EventUtils.synthesizeMouseAtCenter(input, {}, remindersWindow);
+    EventUtils.synthesizeKey("a", { accelKey: true }, remindersWindow);
+    EventUtils.sendString(value, remindersWindow);
+  }
+  text("reminder-length", "20");
+  Assert.equal(listbox.selectedItem.reminder.offset.days, 20);
 
-  reminders.click(listbox);
-  reminders.keypress(listbox, "VK_UP", {});
-  reminders.waitFor(() => listboxElement.selectedIndex == 0);
+  EventUtils.synthesizeMouseAtCenter(listbox, {}, remindersWindow);
+  EventUtils.synthesizeKey("VK_UP", {}, remindersWindow);
+  Assert.equal(listbox.selectedIndex, 0);
 
-  Assert.equal(listboxElement.selectedItem.reminder.offset.days, DEFVALUE);
+  Assert.equal(listbox.selectedItem.reminder.offset.days, DEFVALUE);
 
-  reminders.window.close();
+  remindersDocument
+    .querySelector("dialog")
+    .getButton("accept")
+    .click();
 }
 
 registerCleanupFunction(function teardownModule(module) {
+  Services.prefs.clearUserPref("calendar.alarms.onforevents");
   Services.prefs.clearUserPref("calendar.alarms.eventalarmlen");
   Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");
+  Services.prefs.clearUserPref("calendar.alarms.onfortodos");
   Services.prefs.clearUserPref("calendar.alarms.todoalarmlen");
   Services.prefs.clearUserPref("calendar.alarms.todoalarmunit");
-
-  if (prefTab) {
-    closeLightningPrefs(prefTab);
-  }
-});
-
-registerCleanupFunction(() => {
-  deleteCalendars(controller, CALENDARNAME);
 });
