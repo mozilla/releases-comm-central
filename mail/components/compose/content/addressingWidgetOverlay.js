@@ -569,12 +569,10 @@ function recipientKeyPress(event, element) {
       }
       break;
     case "Enter":
-      // No address entered, trim input and move focus to the next available
-      // element.
-      if (!element.value.trim()) {
+      // If no address entered, trim input and move focus to the next available
+      // element, but not for Ctrl+[Shift]+Enter keyboard shortcuts for sending.
+      if (!element.value.trim() && !event.ctrlKey) {
         element.value = "";
-        event.stopPropagation();
-        event.preventDefault();
         SetFocusOnNextAvailableElement(element);
       }
       break;
