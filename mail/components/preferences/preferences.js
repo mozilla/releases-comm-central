@@ -120,12 +120,11 @@ function showPane(paneID) {
 /**
  * Selects the specified preferences pane
  *
- * @param prefWindow          the prefwindow element to operate on
  * @param paneID              ID of prefpane to select
  * @param scrollPaneTo        ID of the element to scroll into view
  * @param otherArgs.subdialog ID of button to activate, opening a subdialog
  */
-function selectPrefPane(prefWindow, paneID, scrollPaneTo, otherArgs) {
+function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
   if (paneID) {
     let prefPane = document.getElementById(paneID);
     if (getCurrentPaneID() != paneID) {

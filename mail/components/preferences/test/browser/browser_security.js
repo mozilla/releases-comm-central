@@ -28,7 +28,7 @@ add_task(async () => {
   });
 
   await testCheckboxes("paneSecurity", "antiVirusTab", {
-    checkboxID: "enableAntiVirusQuaruntine",
+    checkboxID: "enableAntiVirusQuarantine",
     pref: "mailnews.downloadToTempFile",
   });
 });

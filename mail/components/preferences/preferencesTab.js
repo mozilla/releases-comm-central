@@ -52,11 +52,7 @@ var preferencesTabType = {
     if (!gPrefTab) {
       return -1;
     }
-    let prefWindow = gPrefTab.browser.contentDocument.getElementById(
-      "MailPreferences"
-    );
     gPrefTab.browser.contentWindow.selectPrefPane(
-      prefWindow,
       aArgs.paneID,
       aArgs.scrollPaneTo,
       aArgs.otherArgs
@@ -122,7 +118,10 @@ var preferencesTabType = {
           // Let selection of the initial pane complete before selecting another.
           // Otherwise we can end up with two panes selected at once.
           setTimeout(() => {
-            aArgs.onLoad(event, aTab.browser);
+            // By now, the tab could already be closed. Check that it isn't.
+            if (aTab.panel) {
+              aArgs.onLoad(event, aTab.browser);
+            }
           }, 0);
         }
       },

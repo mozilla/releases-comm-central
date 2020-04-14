@@ -314,15 +314,7 @@ function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
     scrollPaneTo,
     otherArgs,
     onLoad(aEvent, aBrowser) {
-      let prefWindow = aBrowser.contentDocument.getElementById(
-        "MailPreferences"
-      );
-      aBrowser.contentWindow.selectPrefPane(
-        prefWindow,
-        paneID,
-        scrollPaneTo,
-        otherArgs
-      );
+      aBrowser.contentWindow.selectPrefPane(paneID, scrollPaneTo, otherArgs);
     },
   };
   openTab("preferencesTab", params);

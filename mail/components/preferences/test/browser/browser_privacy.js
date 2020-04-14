@@ -53,8 +53,8 @@ add_task(async () => {
     pref: "mail.phishing.detection.enabled",
   });
 
-  await testCheckboxes("panePrivacy", "enableAntiVirusQuaruntine", {
-    checkboxID: "enableAntiVirusQuaruntine",
+  await testCheckboxes("panePrivacy", "enableAntiVirusQuarantine", {
+    checkboxID: "enableAntiVirusQuarantine",
     pref: "mailnews.downloadToTempFile",
   });
 });
