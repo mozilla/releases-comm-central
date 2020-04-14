@@ -15,7 +15,6 @@
 
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
-<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
 
 <!DOCTYPE window [
@@ -43,12 +42,12 @@
           src="chrome://communicator/content/places/places.js"/>
   <script type="application/javascript"
           src="chrome://communicator/content/places/editBookmarkOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
 
   <stringbundleset id="placesStringSet">
     <stringbundle id="brandStrings" src="chrome://branding/locale/brand.properties"/>
   </stringbundleset>
 
-  <commandset id="editMenuCommands"/>
   <commandset id="placesCommands"/>
   <commandset id="tasksCommands"/>
 
@@ -95,11 +94,13 @@
          modifiers="accel"/>
   </keyset>
 
-  <keyset id="editMenuKeys">
+#include ../../../../../toolkit/content/editMenuKeys.inc.xul
 #ifdef XP_MACOSX
+  <keyset id="editMenuKeysExtra">
     <key id="key_delete2" keycode="VK_BACK" command="cmd_delete"/>
-#endif
   </keyset>
+#endif
+
   <keyset id="tasksKeys">
     <key id="key_close2" disabled="true"/>
   </keyset>

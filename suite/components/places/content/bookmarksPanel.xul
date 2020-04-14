@@ -8,7 +8,6 @@
 <?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
 <?xml-stylesheet href="chrome://communicator/skin/places/bookmarks.css"?>
 
-<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
@@ -24,9 +23,10 @@
           src="chrome://communicator/content/bookmarks/sidebarUtils.js"/>
   <script type="application/javascript"
           src="chrome://communicator/content/bookmarks/bookmarksPanel.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
+  
 
   <commandset id="placesCommands"/>
-  <commandset id="editMenuCommands"/>
   <menupopup id="placesContext"/>
 
   <!-- Bookmarks and history tooltip -->

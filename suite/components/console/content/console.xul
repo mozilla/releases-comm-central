@@ -8,13 +8,10 @@
 <?xml-stylesheet href="chrome://communicator/skin/console/console.css" type="text/css"?>
 <?xml-stylesheet href="chrome://communicator/content/console/console.css" type="text/css"?>
 
-<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
 
-<!DOCTYPE window [
-  <!ENTITY % console SYSTEM "chrome://communicator/locale/console/console.dtd"> %console;
-]>
+<!DOCTYPE window SYSTEM "chrome://communicator/locale/console/console.dtd" >
 
 <window id="JSConsoleWindow"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -30,10 +27,9 @@
   <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/javascript" src="chrome://communicator/content/console/console.js"/>
   <script type="application/javascript" src="chrome://global/content/viewSourceUtils.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
 
   <stringbundle id="ConsoleBundle" src="chrome://communicator/locale/console/console.properties"/>
-
-  <commandset id="editMenuCommands"/>
 
   <commandset id="consoleCommands">
     <commandset id="tasksCommands"/>

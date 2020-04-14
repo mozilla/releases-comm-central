@@ -8,13 +8,14 @@
 <?xml-stylesheet href="chrome://communicator/content/places/places.css"?>
 <?xml-stylesheet href="chrome://communicator/skin/places/bookmarks.css"?>
 
-<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/places/placesOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xul"?>
 
 <!DOCTYPE page [
 <!ENTITY % placesDTD SYSTEM "chrome://communicator/locale/places/places.dtd">
 %placesDTD;
+<!ENTITY % editMenuOverlayDTD SYSTEM "chrome://global/locale/editMenuOverlay.dtd">
+%editMenuOverlayDTD;
 ]>
 
 <!-- we need to keep id="history-panel" for upgrade and switching
@@ -29,15 +30,16 @@
           src="chrome://communicator/content/bookmarks/sidebarUtils.js"/>
   <script type="application/javascript"
           src="chrome://communicator/content/places/history-panel.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
 
-  <commandset id="editMenuCommands"/>
   <commandset id="placesCommands"/>
 
-  <keyset id="editMenuKeys">
+#include ../../../../../toolkit/content/editMenuKeys.inc.xul
 #ifdef XP_MACOSX
+  <keyset id="editMenuKeysExtra">
     <key id="key_delete2" keycode="VK_BACK" command="cmd_delete"/>
-#endif
   </keyset>
+#endif
 
   <!-- required to overlay the context menu -->
   <menupopup id="placesContext"/>
