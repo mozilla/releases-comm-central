@@ -1,1 +1,2 @@
 comm.pth:comm/testing/marionette
+comm.pth:comm/python/thirdroc

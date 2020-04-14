@@ -1,0 +1,58 @@
+= RNP
+
+image:https://github.com/rnpgp/rnp/workflows/macos/badge.svg["macOS Build Status", link="https://github.com/rnpgp/rnp/actions?workflow=macos"]
+image:https://github.com/rnpgp/rnp/workflows/ubuntu/badge.svg["Ubuntu Build Status", link="https://github.com/rnpgp/rnp/actions?workflow=ubuntu"]
+image:https://github.com/rnpgp/rnp/workflows/centos7/badge.svg["CentOS 7 Build Status", link="https://github.com/rnpgp/rnp/actions?workflow=centos7"]
+
+image:https://img.shields.io/coverity/scan/12616.svg["Coverity Scan Build Status", link="https://scan.coverity.com/projects/rnpgp-rnp"]
+image:https://codecov.io/gh/rnpgp/rnp/branch/master/graph/badge.svg["Code coverage", link="https://codecov.io/gh/rnpgp/rnp"]
+
+== Introduction
+
+RNP is a set of OpenPGP (RFC4880) tools that works on Linux, macOS, Windows and
+*BSD built with C++.
+
+`librnp` is the library used by RNP for all OpenPGP functions, useful
+for developers to build against, different from GPGME.
+
+
+== Supported Platforms
+
+Currently supported platforms:
+
+* Fedora 25
+* RHEL/CentOS 7
+* Ubuntu 14.04 LTS, 16.04 LTS, 18.04
+
+Upcoming supported platforms:
+
+* Debian 8, 9
+* OpenSUSE Leap 42.2, 42.3
+* SLES 12
+
+== link:docs/installation.adoc[Installation]
+
+== link:docs/cli-usage.adoc[Using CLI tool]
+
+== link:docs/c-usage.adoc[Using RNP’s C API in your projects]
+
+== Versioning
+
+RNP follows the http://semver.org/[semantic versioning] syntax.
+
+=== Checking versions
+
+The output of `rnp --version` contains the `git` hash of
+the version the binary was built from, which value is generated when
+`cmake` runs. Consequently, a release tarball generated with `make
+dist` will contain this hash version.
+
+=== Historic information
+
+The first version of rnp started at `0.8.0` to indicate its development
+completeness (or lack thereof).
+
+RNP originated as an attempt to modernize the NetPGP codebase originally
+created by Alistair Crooks of NetBSD in 2016. RNP has been heavily rewritten,
+and carries minimal if any code from the original codebase.
+

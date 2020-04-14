@@ -1,0 +1,38 @@
+Directory ./rnp contains a copy of rnp which has been obtained from:
+https://github.com/rnpgp/rnp
+
+[commit 5f41ee12433d070d96d75b715d81b7af60104856]
+
+For licensing information, please refer to the included documentation.
+
+To update this copy, run "update_rnp.sh" in this directory from this directory
+within a complete build tree (including mozilla-central) as "mach python" is
+used.
+
+update_rnp.sh will generate rnp/src/lib/version.h from rnp/src/lib/version.h.in
+and modify rnp/src/lib/config.h.in so it can be processed by mozbuild at
+build time.
+
+You may pass a git revision to update_rnp.sh to update to that revision. Running
+without parameters updates to the latest master.
+
+The following files and directories are removed by update_rnp.sh:
+ci
+cmake
+git-hooks
+.github
+.cirrus.yml
+.clang-format
+.gitignore
+_config.yml
+docker.sh
+travis.sh
+Brewfile
+CMakeLists.txt
+
+
+The following files were added to the source's root by MZLA Technologies:
+Makefile.in
+moz.build
+module.ver
+rnp.symbols
