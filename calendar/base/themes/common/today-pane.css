@@ -397,6 +397,7 @@ richlistitem[is="agenda-allday-richlistitem"] {
 .agenda-calendar-image {
   margin-top: 0.35em;
   margin-inline-start: 4px;
+  border-radius: 5px;
   width: 10px;
   height: 10px;
 }

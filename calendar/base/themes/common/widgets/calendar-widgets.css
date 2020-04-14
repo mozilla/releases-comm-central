@@ -182,8 +182,9 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 #calendar-list > richlistitem > .calendar-color {
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
 }
 
 #calendar-list > richlistitem[calendar-disabled="true"] > .calendar-color {
