@@ -1,0 +1,12 @@
+<defines>
+SHA2_32_X86_BMI2 -> 20180526
+</defines>
+
+<isa>
+bmi2
+</isa>
+
+<cc>
+gcc
+clang
+</cc>

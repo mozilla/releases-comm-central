@@ -1,0 +1,14 @@
+<defines>
+THREEFISH_512_AVX2 -> 20160903
+</defines>
+
+<isa>
+avx2
+</isa>
+
+<cc>
+gcc
+clang
+msvc
+icc
+</cc>

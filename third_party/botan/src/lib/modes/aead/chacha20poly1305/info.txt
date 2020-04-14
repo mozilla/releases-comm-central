@@ -1,0 +1,8 @@
+<defines>
+AEAD_CHACHA20_POLY1305 -> 20180807
+</defines>
+
+<requires>
+chacha
+poly1305
+</requires>

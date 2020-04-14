@@ -1,0 +1,20 @@
+<defines>
+SHACAL2_X86 -> 20170814
+</defines>
+
+<requires>
+shacal2
+</requires>
+
+<isa>
+sha
+sse2
+ssse3
+</isa>
+
+<cc>
+gcc:5.0
+clang:3.9
+msvc:19.0 # MSVS 2015
+</cc>
+

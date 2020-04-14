@@ -1,0 +1,16 @@
+<defines>
+SHA1_X86_SHA_NI -> 20170518
+</defines>
+
+<isa>
+sha
+sse2
+ssse3
+sse41
+</isa>
+
+<cc>
+clang:3.9
+gcc:5.0
+msvc:19.0 # MSVS 2015
+</cc>

@@ -1,0 +1,9 @@
+<defines>
+AEAD_SIV -> 20131202
+</defines>
+
+<requires>
+cmac
+ctr
+poly_dbl
+</requires>

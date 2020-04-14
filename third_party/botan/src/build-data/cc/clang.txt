@@ -1,0 +1,85 @@
+macro_name CLANG
+
+binary_name clang++
+
+lang_flags "-std=c++11 -D_REENTRANT"
+
+warning_flags "-Wall -Wextra -Wpedantic -Wshadow -Wstrict-aliasing -Wstrict-overflow=5 -Wcast-align -Wmissing-declarations -Wpointer-arith -Wcast-qual"
+
+werror_flags "-Werror -Wno-error=unused-parameter -Wno-error=unreachable-code -Wno-error=unused-lambda-capture"
+
+maintainer_warning_flags "-Wunreachable-code -Wdocumentation -Qunused-arguments"
+
+optimization_flags "-O3"
+sanitizer_optimization_flags "-O1 -fno-optimize-sibling-calls -fno-omit-frame-pointer"
+size_optimization_flags "-Os"
+
+add_sysroot_option "--sysroot="
+
+<sanitizers>
+default   -> address,undefined
+
+address   -> "-fsanitize=address"
+undefined -> "-fsanitize=undefined -fno-sanitize-recover=undefined"
+coverage  -> "-fsanitize=fuzzer-no-link"
+memory    -> "-fsanitize=memory"
+</sanitizers>
+
+shared_flags "-fPIC"
+coverage_flags "--coverage"
+stack_protector_flags "-fstack-protector"
+
+visibility_build_flags "-fvisibility=hidden"
+visibility_attribute '__attribute__((visibility("default")))'
+
+<so_link_commands>
+macos         -> "$(CXX) -dynamiclib -fPIC -install_name $(INSTALLED_LIB_DIR)/{soname_abi} -current_version {macos_so_current_ver} -compatibility_version {macos_so_compat_ver}"
+
+# The default works for GNU ld and several other Unix linkers
+default       -> "$(CXX) -shared -fPIC -Wl,-soname,{soname_abi}"
+</so_link_commands>
+
+<binary_link_commands>
+macos         -> "$(LINKER) -headerpad_max_install_names"
+linux         -> "$(LINKER) -Wl,-rpath=\$$ORIGIN"
+freebsd       -> "$(LINKER) -Wl,-rpath=\$$ORIGIN"
+default       -> "$(LINKER)"
+llvm          -> "llvm-link"
+emscripten    -> "em++"
+</binary_link_commands>
+
+<isa_flags>
+sse2   -> "-msse2"
+ssse3  -> "-mssse3"
+sse41  -> "-msse4.1"
+sse42  -> "-msse4.2"
+avx2   -> "-mavx2"
+bmi2   -> "-mbmi -mbmi2"
+aesni  -> "-maes -mpclmul"
+rdrand -> "-mrdrnd"
+rdseed -> "-mrdseed"
+sha    -> "-msha"
+altivec -> "-maltivec"
+
+arm64:armv8crypto -> "-march=armv8+crypto"
+
+arm32:neon    -> "-mfpu=neon"
+arm64:neon    -> ""
+</isa_flags>
+
+<cpu_flags>
+llvm    -> "-emit-llvm -fno-use-cxa-atexit"
+</cpu_flags>
+
+<mach_abi_linking>
+all!haiku,llvm -> "-pthread"
+
+openmp  -> "-fopenmp"
+
+x86_32  -> "-m32"
+x86_64  -> "-m64"
+ppc64   -> "-m64"
+
+macos   -> "-stdlib=libc++"
+ios     -> "-stdlib=libc++"
+</mach_abi_linking>

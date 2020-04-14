@@ -1,0 +1,14 @@
+<defines>
+THREAD_UTILS -> 20190922
+</defines>
+
+<header:internal>
+rwlock.h
+barrier.h
+semaphore.h
+thread_pool.h
+</header:internal>
+
+<os_features>
+threads
+</os_features>

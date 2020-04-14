@@ -1,0 +1,9 @@
+<defines>
+AES_NI -> 20131128
+</defines>
+
+<isa>
+sse2
+ssse3
+aesni
+</isa>

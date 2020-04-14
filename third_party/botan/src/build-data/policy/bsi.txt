@@ -1,0 +1,189 @@
+<required>
+# block
+aes
+
+# modes
+ccm
+gcm
+cbc
+mode_pad
+
+# stream
+ctr
+
+# hash
+sha2_32
+sha2_64
+sha3
+
+# mac
+cmac
+hmac
+gmac
+
+# kdf
+kdf1_iso18033
+sp800_108
+sp800_56c
+
+# pk_pad
+eme_oaep
+emsa_pssr
+emsa1
+iso9796
+
+# pubkey
+dlies
+dh
+rsa
+dsa
+ecdsa
+ecgdsa
+ecies
+eckcdsa
+ecdh
+xmss
+
+# rng
+auto_rng
+hmac_drbg
+</required>
+
+<if_available>
+# block
+aes_ni
+aes_vperm
+aes_armv8
+aes_power8
+
+# modes
+clmul_cpu
+clmul_ssse3
+
+# hash
+sha2_32_x86
+sha2_32_armv8
+sha2_32_bmi2
+sha2_64_bmi2
+sha3_bmi2
+
+# entropy sources
+dev_random
+proc_walk
+rdrand
+rdseed
+win32_stats
+
+# rng
+rdrand_rng
+system_rng
+
+# utils
+http_util # needed by x509 for OCSP online checks
+locking_allocator
+simd
+</if_available>
+
+<prohibited>
+# block
+aria
+blowfish
+camellia
+cascade
+cast128
+cast256
+des
+gost_28147
+idea
+idea_sse2
+kasumi
+lion
+misty1
+noekeon
+noekeon_simd
+seed
+serpent
+serpent_simd
+serpent_avx2
+shacal2
+shacal2_x86
+shacal2_simd
+sm4
+threefish_512
+threefish_512_avx2
+twofish
+xtea
+
+# modes
+chacha20poly1305
+eax
+ocb
+siv
+cfb
+
+# stream
+chacha
+chacha_simd32
+chacha_avx2
+ofb
+rc4
+salsa20
+shake_cipher
+
+# kdf
+hkdf
+kdf1
+kdf2
+prf_x942
+sp800_56a
+
+# pubkey
+cecpq1
+curve25519
+ed25519
+elgamal
+gost_3410
+mce
+mceies
+rfc6979
+newhope
+sm2
+
+# pk_pad
+#eme_pkcs1 // needed for tls
+#emsa_pkcs1 // needed for tls
+emsa_raw
+emsa_x931
+
+# hash
+blake2
+comb4p
+gost_3411
+md4
+md5
+rmd160
+shake
+skein
+#sha1 // needed for x509
+sm3
+streebog
+tiger
+whirlpool
+keccak
+
+# rng
+chacha_rng
+
+# mac
+cbc_mac
+poly1305
+siphash
+x919_mac
+
+# misc
+bcrypt
+
+# tls
+tls_10
+
+</prohibited>

@@ -1,0 +1,15 @@
+<defines>
+RDRAND_RNG -> 20160619
+</defines>
+
+<isa>
+rdrand
+</isa>
+
+<cc>
+gcc
+clang
+icc
+msvc
+</cc>
+

@@ -1,0 +1,10 @@
+
+release_major = 2
+release_minor = 13
+release_patch = 0
+release_so_abi_rev = 13
+
+# These are set by the distribution script
+release_vc_rev = 'git:ed360ab268544fd801b8ea68ff08b07610680052'
+release_datestamp = 20200106
+release_type = 'release'

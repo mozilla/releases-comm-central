@@ -1,0 +1,16 @@
+endian big
+
+family ppc
+wordsize 64
+
+<aliases>
+powerpc64
+powerpc64le
+ppc64le
+ppc64el
+</aliases>
+
+<isa_extensions>
+altivec
+powercrypto
+</isa_extensions>

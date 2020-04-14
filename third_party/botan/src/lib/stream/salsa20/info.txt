@@ -1,0 +1,3 @@
+<defines>
+SALSA20 -> 20171114
+</defines>

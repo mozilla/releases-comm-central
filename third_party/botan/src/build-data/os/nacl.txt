@@ -1,0 +1,6 @@
+
+
+<target_features>
+threads
+thread_local
+</target_features>
