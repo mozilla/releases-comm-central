@@ -1,0 +1,32 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# We allow warnings for third-party code that can be updated from upstream.
+AllowCompilerWarnings()
+DisableStlWrapping()
+NoVisibilityFlags()
+
+
+rnp_dist_info = '{} {} rnp'.format(
+    CONFIG['MOZ_APP_DISPLAYNAME'],
+    CONFIG['MOZ_APP_VERSION_DISPLAY']
+)
+
+COMPILE_FLAGS['OS_CFLAGS'] = []
+COMPILE_FLAGS['OS_CXXFLAGS'] = []
+COMPILE_FLAGS['OS_INCLUDES'] = []
+COMPILE_FLAGS['CLANG_PLUGIN'] = []
+COMPILE_FLAGS['MOZ_HARDENING_CFLAGS'] = []
+
+if CONFIG['CC_TYPE'] == 'clang-cl':
+    CFLAGS += [
+        '-Wno-inconsistent-dllimport',
+        '-Wno-macro-redefined', # 'WIN32_LEAN_AND_MEAN' macro redefined
+    ]
+    USE_STATIC_LIBS = True
+
+if CONFIG['MOZ_LIBSTDCXX_TARGET_VERSION']:
+    DEFINES['_GLIBCXX_USE_CXX11_ABI'] = 0

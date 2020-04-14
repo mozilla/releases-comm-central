@@ -1,0 +1,155 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
+#  This Source Code Form is subject to the terms of the Mozilla Public
+#  License, v. 2.0. If a copy of the MPL was not distributed with this
+#  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+
+@template
+def noset_check_header(header, language='C++', flags=None, includes=None, when=None,
+                 onerror=lambda: None):
+    if when is None:
+        when = always
+
+    if includes:
+        includes = includes[:]
+    else:
+        includes = []
+    includes.append(header)
+
+    return try_compile(includes=includes, language=language, flags=flags,
+                       check_msg='for %s' % header, when=when, onerror=onerror)
+
+
+@template
+def check_symbol_exists(symbol, header, language='C', flags=None, includes=None,
+                        when=None, onerror=lambda: None):
+    if when is None:
+        when = always
+
+    if includes:
+        includes = includes[:]
+    else:
+        includes = []
+    includes.append('stdio.h')
+    includes.append(header)
+
+    body = '''#ifndef %s
+(void) %s;
+#endif
+''' % (symbol, symbol)
+
+    return try_compile(includes, body, language=language, flags=flags,
+                       check_msg='for %s' % symbol, when=when, onerror=onerror)
+
+
+have_fcntl_h = check_header('fcntl.h')
+have_stdlib_h = check_header('stdlib.h')
+have_locale_h = check_header('locale.h')
+have_string_h = check_header('string.h')
+have_strings_h = check_header('strings.h')
+
+check_headers(
+    'stdarg.h',
+    'dlfcn.h',
+    'endian.h',
+    'limits.h',
+    'memory.h',
+    'sys/auxv.h',
+    'sys/cdefs.h',
+    'sys/resource.h',
+    'sys/param.h',
+    'sys/stat.h',
+    'sys/wait.h',
+    'xlocale.h'
+)
+
+set_define('JSON_C_HAVE_INTTYPES_H', noset_check_header('inttypes.h'))
+
+set_define('HAVE_DECL__ISNAN', check_symbol_exists('_isnan', 'float.h'))
+
+set_define('HAVE_DECL__FINITE', check_symbol_exists('_finite', 'float.h'))
+set_define('HAVE_DECL_INFINITY', check_symbol_exists('INFINITY', 'math.h'))
+set_define('HAVE_DECL_ISINF', check_symbol_exists('isinf', 'math.h'))
+set_define('HAVE_DECL_ISNAN', check_symbol_exists('isnan', 'math.h'))
+set_define('HAVE_DECL_NAN', check_symbol_exists('nan', 'math.h'))
+
+set_define('HAVE_DOPRNT', check_symbol_exists('_doprnt', 'stdio.h'))
+set_define('HAVE_SNPRINTF', check_symbol_exists('snprintf', 'stdio.h'))
+set_define('HAVE_VASPRINTF', check_symbol_exists('vasprintf', 'stdio.h', flags=['-D_GNU_SOURCE']))
+set_define('HAVE_VSNPRINTF', check_symbol_exists('vsnprintf', 'stdio.h'))
+set_define('HAVE_VPRINTF', check_symbol_exists('vprintf', 'stdio.h'))
+
+set_define('HAVE_OPEN', check_symbol_exists('open', 'fcntl.h', when=have_fcntl_h))
+set_define('HAVE_REALLOC', check_symbol_exists('realloc', 'stdlib.h', when=have_stdlib_h))
+set_define('HAVE_SETLOCALE', check_symbol_exists('setlocale', 'locale.h', when=have_locale_h))
+set_define('HAVE_USELOCALE', check_symbol_exists('uselocale', 'locale.h', when=have_locale_h))
+set_define('HAVE_STRCASECMP', check_symbol_exists('strcasecmp', 'strings.h', when=have_strings_h))
+set_define('HAVE_STRNCASECMP', check_symbol_exists('strncasecmp', 'strings.h', when=have_strings_h))
+set_define('HAVE_STRDUP', check_symbol_exists('strdup', 'string.h', when=have_string_h))
+
+set_define('HAVE_MKDTEMP', check_symbol_exists('mkdtemp', ['stdlib.h','unistd.h']))
+set_define('HAVE_REALPATH', check_symbol_exists('realpath', 'stdlib.h'))
+set_define('HAVE_O_BINARY', check_symbol_exists('O_BINARY', 'fcntl.h'))
+set_define('HAVE__O_BINARY', check_symbol_exists('_O_BINARY', 'fcntl.h'))
+
+
+@depends(c_compiler, target)
+@checking('for clang_rt.builtins path', lambda x: x if x is None else x.clang_rt_lib)
+@imports(_from='os', _import='pathsep')
+@imports(_from='os.path', _import='isdir')
+@imports(_from='os.path', _import='exists')
+@imports(_from='os.path', _import='join')
+def clang_rt_builtins(compiler_info, target):
+    if compiler_info.type == 'clang-cl':
+        if target.raw_cpu in ['i686']:
+            rt_arch = 'i386'
+        else:
+            rt_arch = target.raw_cpu
+
+        clang_rt_builtins = 'clang_rt.builtins-{}'.format(rt_arch)
+        clang_cl = compiler_info.compiler
+        flags = []
+        flags.extend(compiler_info.flags)
+        flags.append('-clang:-print-search-dirs')
+        clang_search_dirs = check_cmd_output(clang_cl, *flags)
+        for line in clang_search_dirs.splitlines():
+            name, _, value = line.partition(': =')
+            if name == 'libraries':
+                for dir in value.split(pathsep):
+                    if dir.endswith(compiler_info.version.vstring):
+                        clang_rt_dir = join(dir, 'lib/windows')
+                        clang_rt_lib = join(clang_rt_dir, clang_rt_builtins)
+                        if isdir(clang_rt_dir):
+                            if exists('{}.lib'.format(clang_rt_lib)):
+                                return namespace(
+                                    clang_rt_path=clang_rt_dir,
+                                    clang_rt_lib=clang_rt_lib
+                                )
+        die('Cannot find clang_rt.builtins path.')
+
+
+set_config('COMPILER_RT_BUILTIN_PATH', clang_rt_builtins.clang_rt_path, when=is_windows)
+set_config('COMPILER_RT_BUILTIN_LIB', clang_rt_builtins.clang_rt_lib, when=is_windows)
+
+
+@depends(c_compiler, cxx_compiler)
+def rnp_compiler(c_compiler, cxx_compiler):
+    _cflags = [f for f in c_compiler.flags if f not in ('-Xclang', '-std=gnu99')]
+    _cxxflags = [f for f in cxx_compiler.flags if f not in ('-Xclang', '-std=c++17', '-std=gnu17')]
+
+    rnp_cc = ' '.join(list(c_compiler.wrapper) + [c_compiler.compiler] + _cflags)
+    rnp_cxx = ' '.join(list(cxx_compiler.wrapper) + [cxx_compiler.compiler] + _cxxflags)
+
+    return namespace(rnp_cc=rnp_cc,
+                     rnp_cxx=rnp_cxx)
+
+set_config('MZLA_RNP_CC', rnp_compiler.rnp_cc)
+set_config('MZLA_RNP_CXX', rnp_compiler.rnp_cxx)
+
+@depends('MOZ_AUTOMATION')
+def tb_is_automation(automation):
+    if automation:
+        return True
+
+set_config('TB_IS_AUTOMATION', tb_is_automation)
