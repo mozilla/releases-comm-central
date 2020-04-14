@@ -9,11 +9,13 @@ file-perm:
         - .cpp
         - .h
         - .html
+        - .idl
         - .js
         - .jsm
         - .jsx
         - .m
         - .mm
+        - .py
         - .rs
         - .xhtml
         - .xml
