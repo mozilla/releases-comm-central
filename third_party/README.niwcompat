@@ -1,0 +1,6 @@
+Directory ./niwcompat contains header files and some functionality used
+to compile RNP with Clang-cl for Windows.
+
+niwcompat = wincompat where "win" is spelled backwards
+
+For licensing information, please refer to the files within.
