@@ -474,6 +474,9 @@ var statusMessageReplacements = {
     if (aMsg.noFormat) {
       msgClass.push("monospaced");
     }
+    if (aMsg.noCollapse) {
+      msgClass.push("no-collapse");
+    }
 
     return msgClass.join(" ");
   },

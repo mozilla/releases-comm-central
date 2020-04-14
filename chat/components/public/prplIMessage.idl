@@ -65,6 +65,8 @@ interface prplIMessage: nsISupports {
   readonly attribute boolean notification;
   /*  PURPLE_MESSAGE_NO_LINKIFY  = 0x4000  /**< Message should not be auto-linkified */
   readonly attribute boolean noLinkification;
+  /* Do not collapse the message. */
+  readonly attribute boolean noCollapse;
 
   /**
    * Get an array of actions the user may perform on this message.

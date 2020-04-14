@@ -593,6 +593,7 @@ var GenericMessagePrototype = {
   containsImages: false,
   notification: false,
   noLinkification: false,
+  noCollapse: false,
 
   getActions() {
     return [];

@@ -16,12 +16,14 @@ interface imIConversation: prplIConversation {
 
   // Write a system message into the conversation.
   // Note: this will not be logged.
-  void systemMessage(in AUTF8String aMessage, [optional] in boolean aIsError);
+  void systemMessage(in AUTF8String aMessage,
+                     [optional] in boolean aIsError,
+                     [optional] in boolean aNoCollapse);
 
   // Write a system message into the conversation and trigger the udpate of the
   // notification counter during an off-the-record authentication request.
   // Note: this will not be logged.
-  void notificationOTR(in AUTF8String aMessage);
+  void notifyVerifyOTR(in AUTF8String aMessage);
 
   attribute prplIConversation target;
 

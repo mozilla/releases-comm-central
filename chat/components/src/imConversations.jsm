@@ -114,6 +114,9 @@ imMessage.prototype = {
   get noLinkification() {
     return this.prplMessage.noLinkification;
   },
+  get noCollapse() {
+    return this.prplMessage.noCollapse;
+  },
   get originalMessage() {
     return this.prplMessage.originalMessage;
   },
@@ -445,14 +448,25 @@ UIConversation.prototype = {
     this.notifyObservers(aSubject, aTopic, aData);
   },
 
-  systemMessage(aText, aIsError) {
-    let flags = { system: true, noLog: true, error: !!aIsError };
+  systemMessage(aText, aIsError, aNoCollapse) {
+    let flags = {
+      system: true,
+      noLog: true,
+      error: !!aIsError,
+      noCollapse: !!aNoCollapse,
+    };
     new Message("system", aText, flags).conversation = this;
   },
 
-  notificationOTR(aText) {
+  /**
+   * Emit a notification sound for a new chat message and trigger the
+   * global notificationbox to prompt the user with the verifiation request.
+   *
+   * @param String aText - The system message.
+   */
+  notifyVerifyOTR(aText) {
     this._unreadOTRNotificationCount++;
-    this.systemMessage(aText);
+    this.systemMessage(aText, false, true);
     for (let observer of this._observers) {
       observer.observe(
         this,

@@ -1132,7 +1132,7 @@ var OTR = {
   },
 
   sendAlert(context, msg) {
-    this.getUIConvFromContext(context).systemMessage(msg);
+    this.getUIConvFromContext(context).systemMessage(msg, false, true);
   },
 
   observe(aObject, aTopic, aMsg) {

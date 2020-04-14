@@ -328,7 +328,11 @@ var OTRUI = {
   },
 
   sendSystemAlert(uiConv, conv, bundleId) {
-    uiConv.systemMessage(_strArgs(bundleId, { name: conv.normalizedName }));
+    uiConv.systemMessage(
+      _strArgs(bundleId, { name: conv.normalizedName }),
+      false,
+      true
+    );
   },
 
   setNotificationBox(notificationbox) {
@@ -426,7 +430,7 @@ var OTRUI = {
         } else {
           msg = l10n.formatValueSync(id, { name: context.username });
         }
-        uiConv.systemMessage(msg);
+        uiConv.systemMessage(msg, false, true);
       }
     } catch (e) {
       OTRUI.noOtrPossible(otrContainer, context);
@@ -457,7 +461,9 @@ var OTRUI = {
     let uiConv = OTR.getUIConvFromContext(context);
     let trust = OTRUI.getTrustSettings(context);
     uiConv.systemMessage(
-      _strArgs("afterauth-" + trust.class, { name: context.username })
+      _strArgs("afterauth-" + trust.class, { name: context.username }),
+      false,
+      true
     );
   },
 
@@ -475,7 +481,7 @@ var OTRUI = {
     let name = uiConv.target.normalizedName;
     let msg = _strArgs("verify-request", { name });
     // Trigger the udpate of the unread message counter.
-    uiConv.notificationOTR(msg);
+    uiConv.notifyVerifyOTR(msg);
     Services.obs.notifyObservers(uiConv, "new-otr-verification-request");
 
     // Trigger the inline notification.
