@@ -1,0 +1,41 @@
+Directory ./json-c contains a copy of version 0.13.1 of the json-c library,
+which has been obtained from  https://s3.amazonaws.com/json-c_releases/releases/json-c-0.13.1-nodoc.tar.gz .
+(Link at https://github.com/json-c/json-c/wiki).
+
+For licensing information, please refer to the included documentation.
+
+The SHA256SUM of the imported file is:
+94a26340c0785fcff4f46ff38609cf84ebcd670df0c8efd75d039cc951d80132  json-c-0.13.1-nodoc.tar.gz
+
+The following files and directories were removed from the source distribution's root:
+autoconf-archive/
+fuzz/
+tests/
+.editorconfig
+.gitignore
+.travis.yml
+Android.configure.mk
+CMakeLists.txt
+Doxyfile
+Makefile.am
+Makefile.in
+README
+aclocal.m4
+appveyor.yml
+autogen.sh
+compile
+config.guess
+config.sub
+configure
+configure.ac
+depcomp
+install-sh
+json-c-uninstalled.pc.in
+json-c.pc.in
+ltmain.sh
+missing
+test-driver
+
+The following files were added to the source's root by MZLA Technologies:
+moz.build
+
