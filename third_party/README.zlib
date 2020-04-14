@@ -1,0 +1,45 @@
+Directory ./zlib contains a copy of version 1.2.11 of the Zlib library,
+which has been obtained from http://zlib.net/zlib-1.2.11.tar.gz .
+
+For licensing information, please refer to the included documentation.
+
+The SHA256SUM of the imported file is:
+c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1  zlib-1.2.11.tar.gz
+
+The following files and directories were removed from the source distribution's root:
+amiga
+contrib
+doc
+examples
+msdos
+nintendods
+old
+os400
+qnx
+test
+watcom
+win32
+CMakeLists.txt
+Makefile
+Makefile.in
+configure
+make_vms.com
+treebuild.xml
+zconf.h.cmakein
+zconf.h.in
+zlib.3
+zlib.3.pdf
+zlib.map
+zlib.pc.cmakein
+zlib.pc.in
+zlib2ansi
+
+
+The following files were added to the source's root by MZLA Technologies:
+Changelog.mzla
+moz.build
+zlib.def (copied from above removed zlib/win32 directory)
+
+
+Use of this distribution is not required to build Thunderbird's OpenPGP support.
+You may set --enable-system-zlib at build time to dynamically link to another zlib.

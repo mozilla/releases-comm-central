@@ -1,0 +1,7 @@
+MZLA Technologies Changelog for zlib
+
+- 2020-Apr-15
+  Based on 1.2.1 release.
+  Removed unneeded files and directories.
+  bug #1621782
+
