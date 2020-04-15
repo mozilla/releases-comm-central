@@ -145,42 +145,6 @@ CalCalendarManager.prototype = {
     }
   },
 
-  alertAndQuit() {
-    // We want to include the extension name in the error message rather
-    // than blaming Thunderbird.
-    let hostAppName = cal.l10n.getAnyString("branding", "brand", "brandShortName");
-    let calAppName = cal.l10n.getLtnString("brandShortName");
-    let errorBoxTitle = cal.l10n.getCalString("tooNewSchemaErrorBoxTitle", [calAppName]);
-    let errorBoxText = cal.l10n.getCalString("tooNewSchemaErrorBoxTextLightning", [
-      calAppName,
-      hostAppName,
-    ]);
-    let errorBoxButtonLabel = cal.l10n.getCalString("tooNewSchemaButtonRestart", [hostAppName]);
-
-    let promptSvc = Services.prompt;
-
-    let errorBoxButtonFlags =
-      promptSvc.BUTTON_POS_0 * promptSvc.BUTTON_TITLE_IS_STRING + promptSvc.BUTTON_POS_0_DEFAULT;
-
-    promptSvc.confirmEx(
-      null,
-      errorBoxTitle,
-      errorBoxText,
-      errorBoxButtonFlags,
-      errorBoxButtonLabel,
-      null, // No second button text
-      null, // No third button text
-      null, // No checkbox
-      { value: false }
-    ); // Unnecessary checkbox state
-
-    // Disable Lightning
-    AddonManager.getAddonByID("{e2fda1a4-762b-4020-b5ad-a41df1933103}", aAddon => {
-      aAddon.userDisabled = true;
-      Services.startup.quit(Ci.nsIAppStartup.eRestart | Ci.nsIAppStartup.eForceQuit);
-    });
-  },
-
   /**
    * calICalendarManager interface
    */
@@ -198,20 +162,12 @@ CalCalendarManager.prototype = {
       return calendar;
     } catch (ex) {
       let rc = ex;
-      let uiMessage = ex;
       if (ex instanceof Ci.nsIException) {
         rc = ex.result;
-        uiMessage = ex.message;
       }
-      switch (rc) {
-        case Ci.calIErrors.STORAGE_UNKNOWN_SCHEMA_ERROR:
-          // For now we alert and quit on schema errors like we've done before:
-          this.alertAndQuit();
-          return null;
-        default:
-          uiMessage = cal.l10n.getCalString("unableToCreateProvider", [uri.spec]);
-          break;
-      }
+
+      let uiMessage = cal.l10n.getCalString("unableToCreateProvider", [uri.spec]);
+
       // Log the original exception via error console to provide more debug info
       cal.ERROR(ex);
 

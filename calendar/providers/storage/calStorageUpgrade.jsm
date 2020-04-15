@@ -213,34 +213,91 @@ function backupDB(db, currentVersion) {
 /**
  * Upgrade the passed database.
  *
- * @param db        The database to bring up to date.
+ * @param storageCalendar - An instance of CalStorageCalendar.
  */
-function upgradeDB(db) {
+function upgradeDB(storageCalendar) {
+  let db = storageCalendar.db;
   cal.ASSERT(db, "Database has not been opened!", true);
+
   if (db.tableExists("cal_calendar_schema_version")) {
     let version = getVersion(db);
-    if (version < DB_SCHEMA_VERSION) {
-      // First, create a backup
-      backupDB(db, version);
 
-      // Then start the latest upgrader
-      cal.LOG("Storage: Preparing to upgrade v" + version + " to v" + DB_SCHEMA_VERSION);
-      upgrade["v" + DB_SCHEMA_VERSION](db, version);
+    if (version < DB_SCHEMA_VERSION) {
+      upgradeExistingDB(db, version);
     } else if (version > DB_SCHEMA_VERSION) {
-      throw Ci.calIErrors.STORAGE_UNKNOWN_SCHEMA_ERROR;
+      handleTooNewSchema(storageCalendar);
+      return;
     }
   } else {
-    cal.LOG("Storage: Creating tables from scratch");
-    beginTransaction(db);
-    try {
-      executeSimpleSQL(db, getAllSql());
-      setDbVersionAndCommit(db, DB_SCHEMA_VERSION);
-    } catch (e) {
-      reportErrorAndRollback(db, e);
-    }
+    upgradeBrandNewDB(db);
   }
 
   ensureUpdatedTimezones(db);
+  storageCalendar.afterUpgradeDB();
+}
+
+/**
+ * Upgrade a brand new database.
+ *
+ * @param {mozIStorageAsyncConnection} db - New database to upgrade.
+ */
+function upgradeBrandNewDB(db) {
+  cal.LOG("Storage: Creating tables from scratch");
+  beginTransaction(db);
+  try {
+    executeSimpleSQL(db, getAllSql());
+    setDbVersionAndCommit(db, DB_SCHEMA_VERSION);
+  } catch (e) {
+    reportErrorAndRollback(db, e);
+  }
+}
+
+/**
+ * Upgrade an existing database.
+ *
+ * @param {mozIStorageAsyncConnection} db - Existing database to upgrade.
+ * @param {number} version - Version of the database before upgrading.
+ */
+function upgradeExistingDB(db, version) {
+  // First, create a backup
+  backupDB(db, version);
+
+  // Then start the latest upgrader
+  cal.LOG("Storage: Preparing to upgrade v" + version + " to v" + DB_SCHEMA_VERSION);
+  upgrade["v" + DB_SCHEMA_VERSION](db, version);
+}
+
+/**
+ * Called when the user has downgraded Thunderbird and the older version of
+ * Thunderbird does not know about the newer schema of their calendar data.
+ * Log an error, make a backup copy of the data by renaming the data file, and
+ * restart the database initialization process, which will create a new data
+ * file that will have the correct schema.
+ *
+ * The user will find that their calendar events/tasks are gone. They should
+ * have exported them to an ICS file before downgrading, and then they can
+ * import them to get them back.
+ *
+ * @param storageCalendar - An instance of CalStorageCalendar.
+ */
+function handleTooNewSchema(storageCalendar) {
+  // Create a string like this: "2020-05-11T21-30-17".
+  let dateTime = new Date()
+    .toISOString()
+    .split(".")[0]
+    .replace(/:/g, "-");
+
+  let copyFileName = `local-${dateTime}.sqlite`;
+
+  storageCalendar.db.databaseFile.renameTo(null, copyFileName);
+
+  storageCalendar.db.close();
+
+  let appName = cal.l10n.getAnyString("branding", "brand", "brandShortName");
+  let errorText = cal.l10n.getCalString("tooNewSchemaErrorText", [appName, copyFileName]);
+  cal.ERROR(errorText);
+
+  storageCalendar.prepareInitDB();
 }
 
 /**

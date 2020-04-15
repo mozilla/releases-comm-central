@@ -162,30 +162,45 @@ CalStorageCalendar.prototype = {
     return uri;
   },
 
+  // attribute mozIStorageAsyncConnection db;
+  get db() {
+    return this.mDB;
+  },
+
   /**
-   * Initialize the Database. This should only be called from the uri or id
-   * setter and requires those two attributes to be set.
+   * Initialize the Database. This should generally only be called from the
+   * uri or id setter and requires those two attributes to be set. It may also
+   * be called again when the schema version of the database is newer than
+   * the version expected by this version of Thunderbird.
    */
   prepareInitDB() {
     if (this.uri.schemeIs("file")) {
       let fileURL = this.uri.QueryInterface(Ci.nsIFileURL);
+
       if (!fileURL) {
         throw new Components.Exception("Invalid file", Cr.NS_ERROR_NOT_IMPLEMENTED);
       }
       // open the database
       this.mDB = Services.storage.openDatabase(fileURL.file);
-      upgradeDB(this.mDB);
     } else if (this.uri.schemeIs("moz-storage-calendar")) {
       // New style uri, no need for migration here
       let localDB = cal.provider.getCalendarDirectory();
       localDB.append("local.sqlite");
 
+      if (!localDB.exists()) {
+        // This can happen with a database upgrade and the "too new schema" situation.
+        localDB.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o700);
+      }
+
       this.mDB = Services.storage.openDatabase(localDB);
-      upgradeDB(this.mDB);
     } else {
       throw new Components.Exception("Invalid Scheme " + this.uri.spec);
     }
 
+    upgradeDB(this);
+  },
+
+  afterUpgradeDB() {
     this.initDB();
     Services.obs.addObserver(this, "profile-before-change");
   },
@@ -966,7 +981,7 @@ CalStorageCalendar.prototype = {
   //
 
   // database initialization
-  // assumes m0DB is valid
+  // assumes this.mDB is valid
 
   initDB() {
     cal.ASSERT(this.mDB, "Database has not been opened!", true);
