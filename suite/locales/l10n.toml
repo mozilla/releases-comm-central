@@ -99,6 +99,12 @@ locales = [
     key = "re:browser\\.contentHandlers\\.types\\.[0-5].*"
     action = "ignore"
 
+# map service prefs don't have the same number for all locales
+[[filters]]
+    path = "{l}suite/chrome/mailnews/region.properties"
+    key = "re:mail\\.addr_book\\.mapit_url\\.[1-5].*"
+    action = "ignore"
+
 # search plugins are different per locale, ignore file difference
 [[filters]]
     path = "{l}suite/searchplugins/*.xml"

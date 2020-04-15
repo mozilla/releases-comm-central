@@ -19,7 +19,8 @@ def test(mod, path, entity=None):
     return "ignore"
 
   if path == "chrome/messenger-region/region.properties":
-    return ("ignore" if (re.match(r"browser\.search\.order\.[1-9]", entity))
+    return ("ignore" if (re.match(r"browser\.search\.order\.[1-9]", entity) or
+                         re.match(r"mail\.addr_book\.mapit_url\.[1-5]", entity))
             else "error")
 
   return "error"

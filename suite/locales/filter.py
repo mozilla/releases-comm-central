@@ -37,6 +37,10 @@ def test(mod, path, entity=None):
     return ("ignore" if (re.match(r"browser\.search\.order\.[1-9]", entity))
             else "error")
 
+  if path == "chrome/mailnews/region.properties":
+    return ("ignore" if (re.match(r"mail\.addr_book\.mapit_url\.[1-5]", entity))
+            else "error")
+
   if path != "chrome/browser/region.properties":
     # only region.properties exceptions remain, compare all others
     return "error"

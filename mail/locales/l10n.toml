@@ -132,3 +132,9 @@ locales = [
     path = "{l}mail/chrome/messenger-region/region.properties"
     key = "re:browser\\.search\\.order\\.[1-9].*"
     action = "ignore"
+
+# map service prefs don't have the same number for all locales
+[[filters]]
+    path = "{l}mail/chrome/messenger-region/region.properties"
+    key = "re:mail\\.addr_book\\.mapit_url\\.[1-5].*"
+    action = "ignore"
