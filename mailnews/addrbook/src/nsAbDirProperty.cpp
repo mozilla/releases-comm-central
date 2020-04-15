@@ -300,6 +300,12 @@ nsAbDirProperty::HasMailListWithName(const char16_t *aName, bool *aHasList) {
 
   if (m_IsMailList) return NS_OK;
 
+  if (!m_AddressList) {
+    nsresult rv;
+    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   uint32_t listCount = 0;
   rv = m_AddressList->GetLength(&listCount);
   NS_ENSURE_SUCCESS(rv, rv);
