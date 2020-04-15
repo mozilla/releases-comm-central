@@ -1675,7 +1675,10 @@ Enigmail.msg = {
       ].createInstance(Ci.nsIMsgCompFields);
     }
     Recipients2CompFields(compFields);
-    gMsgCompose.expandMailingLists();
+
+    // disabled, see bug 1625135
+    // gMsgCompose.expandMailingLists();
+
 
     if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
       // process list of to/cc email addresses
