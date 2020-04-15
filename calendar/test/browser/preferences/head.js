@@ -41,6 +41,13 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
   registerCleanupOnce();
 
   await new Promise(resolve => prefsWindow.setTimeout(resolve));
+  if (scrollPaneTo) {
+    Assert.greater(
+      prefsDocument.getElementById("preferencesContainer").scrollTop,
+      0,
+      "Prefs page did scroll when it was supposed to"
+    );
+  }
   return { prefsDocument, prefsWindow };
 }
 

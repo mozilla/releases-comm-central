@@ -14,7 +14,7 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
     Services.obs.addObserver(function documentLoaded(subject) {
       if (subject.URL == "about:preferences") {
         Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
-        resolve(subject);
+        subject.ownerGlobal.setTimeout(() => resolve(subject));
       }
     }, "chrome-document-loaded");
     openPreferencesTab(paneID, scrollPaneTo, otherArgs);
@@ -41,6 +41,13 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
   registerCleanupOnce();
 
   await new Promise(resolve => prefsWindow.setTimeout(resolve));
+  if (scrollPaneTo) {
+    Assert.greater(
+      prefsDocument.getElementById("preferencesContainer").scrollTop,
+      0,
+      "Prefs page did scroll when it was supposed to"
+    );
+  }
   return { prefsDocument, prefsWindow };
 }
 
@@ -64,6 +71,14 @@ async function openExistingPrefsTab(paneID, scrollPaneTo, otherArgs) {
 
   await new Promise(resolve => prefsWindow.setTimeout(resolve));
   is(prefsWindow.getCurrentPaneID(), paneID, `Selected pane is ${paneID}`);
+
+  if (scrollPaneTo) {
+    Assert.greater(
+      prefsDocument.getElementById("preferencesContainer").scrollTop,
+      0,
+      "Prefs page did scroll when it was supposed to"
+    );
+  }
 
   registerCleanupOnce();
 
@@ -221,7 +236,7 @@ async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
         for (let state of states) {
           let isCurrentState = state == currentState;
           let radio = prefsDocument.getElementById(state.id);
-          is(radio.selected, isCurrentState);
+          is(radio.selected, isCurrentState, `${state.id}.selected`);
 
           if (state.enabledElements) {
             for (let selector of state.enabledElements) {
