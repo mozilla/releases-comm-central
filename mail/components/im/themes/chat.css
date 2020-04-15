@@ -753,8 +753,8 @@ richlistitem[state="disconnected"] .accountStateIcon {
 /* from instantbird/themes/blist.css */
 richlistitem[is="chat-group-richlistitem"] .twisty {
   padding-top: 1px;
-  width: 8px; /* The image's width is 8 pixels */
-  height: 8px;
+  width: 10px;
+  height: 10px;
 %ifndef XP_MACOSX
   margin-inline-end: 3px;
 %else
@@ -762,16 +762,17 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 %endif
   margin-inline-start: 5px;
   background: url("chrome://global/skin/icons/twisty-expanded.svg") no-repeat center;
+  background-size: contain;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
 richlistitem[is="chat-group-richlistitem"].closed .twisty {
-  background: url("chrome://global/skin/icons/twisty-collapsed.svg") no-repeat center;
+  background-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
 }
 
 richlistitem[is="chat-group-richlistitem"].closed:-moz-locale-dir(rtl) .twisty {
-  background: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+  background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
 }
 
 .prplBuddyIcon {
