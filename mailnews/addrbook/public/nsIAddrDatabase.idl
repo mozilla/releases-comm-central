@@ -7,7 +7,7 @@
 #include "nsIAbDirectory.idl"
 
 interface nsIFile;
-[ptr] native nsIMdbRow (nsIMdbRow);
+[ptr] native nsIMdbRow(nsIMdbRow);
 %{C++
 class nsIMdbRow;
 %}

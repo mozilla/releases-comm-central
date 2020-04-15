@@ -13,7 +13,7 @@ interface nsIMsgFolder;
 interface nsIMsgWindow;
 interface nsIImapFlagAndUidState;
 
-[ptr] native nsIImapHostSessionList (nsIImapHostSessionList);
+[ptr] native nsIImapHostSessionList(nsIImapHostSessionList);
 %{C++
 class nsIImapHostSessionList;
 %}

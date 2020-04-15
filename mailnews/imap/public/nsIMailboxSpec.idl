@@ -7,7 +7,7 @@
 
 interface nsIImapFlagAndUidState;
 
-[ptr] native nsIMAPNamespace (nsIMAPNamespace);
+[ptr] native nsIMAPNamespace(nsIMAPNamespace);
 %{C++
 class nsIMAPNamespace;
 %}
