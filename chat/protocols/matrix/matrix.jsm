@@ -139,6 +139,39 @@ MatrixConversation.prototype = {
         "chat-buddy-add"
       );
     }
+
+    if (aRoom.currentState.getStateEvents("m.room.topic").length) {
+      let event = aRoom.currentState.getStateEvents("m.room.topic")[0];
+      this.setTopic(event.getContent().topic, event.getSender().name, true);
+    }
+
+    if (
+      aRoom.summary &&
+      aRoom.summary.info &&
+      aRoom.summary.info.title &&
+      this._name != aRoom.summary.info.title
+    ) {
+      this._name = aRoom.summary.info.title;
+      this.notifyObservers(null, "update-conv-title");
+    }
+  },
+
+  get topic() {
+    return this._topic;
+  },
+
+  set topic(aTopic) {
+    // Check if our user has the permissions to set the topic.
+    if (this.topicSettable) {
+      this._account._client.setRoomTopic(this._roomId, aTopic);
+    }
+  },
+
+  get topicSettable() {
+    return (
+      this.room &&
+      this.room.currentState.maySendEvent("m.room.topic", this._account.userId)
+    );
   },
 };
 
@@ -231,16 +264,31 @@ MatrixAccount.prototype = {
           return;
         }
         if (room.roomId in this._roomList) {
-          let body;
-          if (event.getType() === "m.room.message") {
-            body = event.getContent().body;
-          } else {
-            // TODO Any event that is not understood gets the raw content added to the conversation.
-            body = JSON.stringify(event.getContent());
+          let conv = this._roomList[room.roomId];
+          // If this room was never initialized, do it now.
+          if (conv && !conv._roomId) {
+            conv.initRoom(room);
           }
-          this._roomList[room.roomId].writeMessage(event.getSender(), body, {
-            incoming: true,
-          });
+          if (event.getType() === "m.room.message") {
+            conv.writeMessage(event.sender.name, event.getContent().body, {
+              incoming: true,
+            });
+          } else if (event.getType() == "m.room.topic") {
+            conv.setTopic(event.getContent().topic, event.sender.name);
+          } else if (conv && event.getType() == "m.room.power_levels") {
+            conv.notifyObservers(null, "chat-update-topic");
+          } else {
+            // This is an unhandled event type, for now just put it in the room as
+            // the JSON body. This will need to be updated once (most) events are
+            // handled.
+            conv.writeMessage(
+              event.sender.name,
+              event.getType() + ": " + JSON.stringify(event.getContent()),
+              {
+                system: true,
+              }
+            );
+          }
         }
       }
     );
@@ -283,6 +331,10 @@ MatrixAccount.prototype = {
       for (let roomId of response.joined_rooms) {
         let conv = new MatrixConversation(this, roomId, this.userId);
         this._roomList[roomId] = conv;
+        let room = this._client.getRoom(roomId);
+        if (room && !conv._roomId) {
+          conv.initRoom(room);
+        }
       }
     });
   },
@@ -296,6 +348,7 @@ MatrixAccount.prototype = {
       if (participant) {
         participant._roomMember = member;
         conv.notifyObservers(participant, "chat-buddy-update");
+        conv.notifyObservers(null, "chat-update-topic");
       }
     }
   },
@@ -347,6 +400,10 @@ MatrixAccount.prototype = {
         this._roomList[room.roomId] = conv;
         conv.initRoom(room);
         conv.joining = false;
+        conv.setTopic(
+          room.currentState.getStateEvents("m.room.topic", "").getContent()
+            .topic
+        );
       })
       .catch(error => {
         // TODO: Handle errors?
