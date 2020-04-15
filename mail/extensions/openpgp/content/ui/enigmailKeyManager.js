@@ -770,7 +770,7 @@ function enigmailCopyToClipbrd() {
   var errorMsgObj = {};
   var keyData = EnigmailKeyRing.extractKey(
     0,
-    "0x" + keyList.join(" 0x"),
+    ["0x" + keyList.join(" 0x")],
     null,
     exitCodeObj,
     errorMsgObj

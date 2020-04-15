@@ -1679,7 +1679,6 @@ Enigmail.msg = {
     // disabled, see bug 1625135
     // gMsgCompose.expandMailingLists();
 
-
     if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
       // process list of to/cc email addresses
       // - bcc email addresses are ignored, when processing whether to sign/encrypt

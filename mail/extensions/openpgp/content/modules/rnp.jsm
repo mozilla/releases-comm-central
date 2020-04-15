@@ -646,7 +646,9 @@ var RNP = {
 
   async getVerifyDetails(ffi, fromAddr, verify_op, result) {
     if (!fromAddr) {
-      throw new Error("RNPgetVerifyDetails no fromAddr");
+      // We cannot correctly verify without knowing the fromAddr.
+      // This scenario is reached when quoting an encrypted MIME part.
+      return false;
     }
 
     let sig_count = new ctypes.size_t();
