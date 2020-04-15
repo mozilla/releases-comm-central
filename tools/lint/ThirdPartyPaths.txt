@@ -1,5 +1,10 @@
 comm/calendar/libical/src/libical
 comm/chat/protocols/matrix/lib
+comm/third_party/bzip2
+comm/third_party/botan
+comm/third_party/json-c
 comm/third_party/libgpg-error
 comm/third_party/libgcrypt
 comm/third_party/libotr
+comm/third_party/rnp
+comm/third_party/zlib
