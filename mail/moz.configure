@@ -104,5 +104,7 @@ include('../build/moz.configure/gecko_source.configure')
 
 include('../mailnews/moz.configure')
 
+include('../third_party/openpgp.configure', when='--enable-openpgp')
+
 imply_option('--enable-app-system-headers', True)
 include('../../toolkit/moz.configure')
