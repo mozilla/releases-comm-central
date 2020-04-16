@@ -458,6 +458,11 @@
         operation: null,
 
         onOperationComplete(opCalendar, status, operationType, id, dateTime) {
+          if (!this.tree.mTreeView.tree) {
+            // Looks like we've been disconnected from the DOM, there's no point in continuing.
+            return;
+          }
+
           if (opCalendar.id in this.tree.mPendingRefreshJobs) {
             delete this.tree.mPendingRefreshJobs[opCalendar.id];
           }
