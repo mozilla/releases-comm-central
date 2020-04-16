@@ -47,7 +47,11 @@ add_task(async function testIdentity() {
         browser.test.log(func.name);
         for (let test of tests) {
           browser.test.log(JSON.stringify(test.args));
-          await browser.compose[func.name](...func.args.concat(test.args));
+          let tab = await browser.compose[func.name](
+            ...func.args.concat(test.args)
+          );
+          browser.test.assertEq("object", typeof tab);
+          browser.test.assertEq("number", typeof tab.id);
           browser.test.sendMessage("checkIdentity", test.isDefault);
           await new Promise(resolve => {
             browser.test.onMessage.addListener(function listener() {

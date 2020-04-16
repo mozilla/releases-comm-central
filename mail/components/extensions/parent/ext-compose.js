@@ -53,7 +53,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
           "chrome://messenger/content/messengercompose/messengercompose.xhtml"
         ) {
           Services.obs.removeObserver(observer, "chrome-document-loaded");
-          resolve();
+          resolve(subject.ownerGlobal);
         }
       }
       Services.obs.addObserver(observer, "chrome-document-loaded");
@@ -314,24 +314,31 @@ this.compose = class extends ExtensionAPI {
             };
           },
         }).api(),
-        beginNew(details) {
-          return openComposeWindow(
+        async beginNew(details) {
+          let composeWindow = await openComposeWindow(
             null,
             Ci.nsIMsgCompType.New,
             details,
             extension
           );
+          return tabManager.convert(composeWindow);
         },
-        beginReply(messageId, replyType, details) {
+        async beginReply(messageId, replyType, details) {
           let type = Ci.nsIMsgCompType.Reply;
           if (replyType == "replyToList") {
             type = Ci.nsIMsgCompType.ReplyToList;
           } else if (replyType == "replyToAll") {
             type = Ci.nsIMsgCompType.ReplyAll;
           }
-          return openComposeWindow(messageId, type, details, extension);
+          let composeWindow = await openComposeWindow(
+            messageId,
+            type,
+            details,
+            extension
+          );
+          return tabManager.convert(composeWindow);
         },
-        beginForward(messageId, forwardType, details) {
+        async beginForward(messageId, forwardType, details) {
           let type = Ci.nsIMsgCompType.ForwardInline;
           if (forwardType == "forwardAsAttachment") {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
@@ -341,7 +348,13 @@ this.compose = class extends ExtensionAPI {
           ) {
             type = Ci.nsIMsgCompType.ForwardAsAttachment;
           }
-          return openComposeWindow(messageId, type, details, extension);
+          let composeWindow = await openComposeWindow(
+            messageId,
+            type,
+            details,
+            extension
+          );
+          return tabManager.convert(composeWindow);
         },
         getComposeDetails(tabId) {
           let tab = getComposeTab(tabId);
