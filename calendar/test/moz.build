@@ -10,6 +10,7 @@ BROWSER_CHROME_MANIFESTS += [
     'browser/preferences/browser.ini',
     'browser/recurrence/browser.ini',
     'browser/recurrence/browser_rotated.ini',
+    'browser/timezones/browser.ini',
     'browser/views/browser.ini',
 ]
 

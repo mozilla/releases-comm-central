@@ -49,9 +49,8 @@ var TIMEZONES = [
   "Australia/Adelaide",
 ];
 
-add_task(async function testTimezones1_SetGMT() {
+add_task(function testTimezones1_SetGMT() {
   Services.prefs.setStringPref("calendar.timezone.local", "Europe/London");
-  await setCalendarView("day");
 });
 
 add_task(async function testTimezones2_CreateEvents() {
