@@ -12,21 +12,18 @@ var { OAuth2Providers } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-function OAuth2Module() {
-  this._refreshToken = "";
-}
+/**
+ * OAuth2Module is the glue layer that gives XPCOM access to an OAuth2
+ * bearer token it can use to authenticate in SASL steps.
+ * It also takes care of persising the refreshToken for later usage.
+ *
+ * @implements {msgIOAuth2Module}
+ */
+function OAuth2Module() {}
 OAuth2Module.prototype = {
   // XPCOM registration stuff
   QueryInterface: ChromeUtils.generateQI([Ci.msgIOAuth2Module]),
 
-  _loadOAuthClientDetails(aIssuer) {
-    let details = OAuth2Providers.getIssuerDetails(aIssuer);
-    if (details) {
-      [this._appKey, this._appSecret, this._authURI, this._tokenURI] = details;
-    } else {
-      throw Cr.NS_ERROR_INVALID_ARGUMENT;
-    }
-  },
   initFromSmtp(aServer) {
     return this._initPrefs(
       "mail.smtpserver." + aServer.key + ".",
@@ -63,7 +60,15 @@ OAuth2Module.prototype = {
     // Find the app key we need for the OAuth2 string. Eventually, this should
     // be using dynamic client registration, but there are no current
     // implementations that we can test this with.
-    this._loadOAuthClientDetails(issuer);
+    let [
+      clientId,
+      clientSecret,
+      authorizationEndpoint,
+      tokenEndpoint,
+    ] = OAuth2Providers.getIssuerDetails(issuer);
+    if (!clientId) {
+      return false;
+    }
 
     // Username is needed to generate the XOAUTH2 string.
     this._username = aUsername;
@@ -74,13 +79,12 @@ OAuth2Module.prototype = {
 
     // Define the OAuth property and store it.
     this._oauth = new OAuth2(
-      this._authURI,
+      authorizationEndpoint,
+      tokenEndpoint,
       scope,
-      this._appKey,
-      this._appSecret
+      clientId,
+      clientSecret
     );
-    this._oauth.authURI = this._authURI;
-    this._oauth.tokenURI = this._tokenURI;
 
     // Try hinting the username...
     this._oauth.extraAuthParams = [["login_hint", aUsername]];

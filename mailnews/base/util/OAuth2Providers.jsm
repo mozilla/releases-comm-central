@@ -7,7 +7,9 @@
  */
 var EXPORTED_SYMBOLS = ["OAuth2Providers"];
 
-// map of hostnames to [issuer, scope]
+/**
+ * Map of hostnames to [issuer, scope].
+ */
 var kHostnames = new Map([
   ["imap.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
   ["smtp.googlemail.com", ["accounts.google.com", "https://mail.google.com/"]],
@@ -31,13 +33,17 @@ var kHostnames = new Map([
   ["smtp.aol.com", ["login.aol.com", "mail-w"]],
 ]);
 
-// map of issuers to appKey, appSecret, authURI, tokenURI
-
-// For the moment, these details are hard-coded, since Google does not
-// provide dynamic client registration. Don't copy these values for your
-// own application--register it yourself. This code (and possibly even the
-// registration itself) will disappear when this is switched to dynamic
-// client registration.
+/**
+ * Map of issuers to clientId, clientSecret, authorizationEndpoint, tokenEndpoint.
+ * Issuer is a unique string for the organization that a Thunderbird account
+ * was registered at.
+ *
+ * For the moment these details are hard-coded, since dynamic client
+ * registration is not yet supported. Don't copy these values for your
+ * own application - register one for yourself! This code (and possibly even the
+ * registration itself) will disappear when this is switched to dynamic
+ * client registration.
+ */
 var kIssuers = new Map([
   [
     "accounts.google.com",
@@ -87,38 +93,38 @@ var kIssuers = new Map([
 ]);
 
 /**
- *  OAuth2Providers: Methods to lookup OAuth2 parameters for supported
- *                   email providers.
+ * OAuth2Providers: Methods to lookup OAuth2 parameters for supported OAuth2
+ * providers.
  */
 var OAuth2Providers = {
   /**
    * Map a hostname to the relevant issuer and scope.
    *
-   * @param aHostname  String representing the url for an imap or smtp
-   *                   server (example "imap.googlemail.com").
+   * @param {string} hostname - The hostname of the server. For example
+   *  "imap.googlemail.com".
    *
-   * @returns          Array with [issuer, scope] for the hostname if found,
-   *                   else undefined. issuer is a string representing the
-   *                   organization, scope is an oauth parameter describing\
-   *                   the required access level.
+   * @returns {Array} An array containing [issuer, scope] for the hostname, or
+   *   undefined if not found.
+   *   - issuer is a string representing the organization
+   *   - scope is an OAuth2 parameter describing the required access level
    */
-  getHostnameDetails(aHostname) {
-    return kHostnames.get(aHostname);
+  getHostnameDetails(hostname) {
+    return kHostnames.get(hostname);
   },
 
   /**
    * Map an issuer to OAuth2 account details.
    *
-   * @param aIssuer    The organization issuing oauth2 parameters, example
-   *                   "accounts.google.com".
+   * @param {string} issuer - The organization issuing OAuth2 parameters, e.g.
+   *   "accounts.google.com".
    *
-   * @return           Array containing [appKey, appSecret, authURI, tokenURI]
-   *                   where appKey and appDetails are strings representing the
-   *                   account registered for Thunderbird with the organization,
-   *                   authURI and tokenURI are url strings representing
-   *                   endpoints to access OAuth2 authentication.
+   * @returns {Array} An array containing [clientId, clientSecret, authorizationEndpoint, tokenEndpoint].
+   *   clientId and clientSecret are strings representing the account registered
+   *   for Thunderbird with the organization.
+   *   authorizationEndpoint and tokenEndpoint are url strings representing
+   *   endpoints to access OAuth2 authentication.
    */
-  getIssuerDetails(aIssuer) {
-    return kIssuers.get(aIssuer);
+  getIssuerDetails(issuer) {
+    return kIssuers.get(issuer);
   },
 };

@@ -27,8 +27,15 @@ class CalDavGoogleOAuth extends OAuth2 {
    * @param {String} name         The user-readable description of this session
    */
   constructor(sessionId, name) {
-    // eslint-disable-next-line no-undef
-    super(OAUTH_BASE_URI, OAUTH_SCOPE, OAUTH_CLIENT_ID, OAUTH_HASH);
+    /* eslint-disable no-undef */
+    super(
+      OAUTH_BASE_URI + "oauth2/auth",
+      OAUTH_BASE_URI + "oauth2/token",
+      OAUTH_SCOPE,
+      OAUTH_CLIENT_ID,
+      OAUTH_HASH
+    );
+    /*  eslint-enable no-undef */
 
     this.id = sessionId;
     this.pwMgrId = "Google CalDAV v2";
@@ -43,7 +50,7 @@ class CalDavGoogleOAuth extends OAuth2 {
   }
 
   /**
-   * Returns true if the token has expired, or will expire within the grace time
+   * Returns true if the token has expired, or will expire within the grace time.
    */
   get tokenExpired() {
     let now = new Date().getTime();

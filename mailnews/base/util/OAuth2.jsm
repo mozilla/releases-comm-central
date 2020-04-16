@@ -20,31 +20,39 @@ var gConnecting = {};
  * Constructor for the OAuth2 object.
  *
  * @constructor
- * @param {string} aBaseURI - The base URI for authentication and token
- *   requests, oauth2/auth or oauth2/token will be added for the actual
- *   requests.
- * @param {?string} aScope - The scope as specified by RFC 6749 Section 3.3.
+ * @param {string} authorizationEndpoint - The authorization endpoint as
+ *   defined by RFC 6749 Section 3.1.
+ * @param {string} tokenEndpoint - The token endpoint as defined by
+ *   RFC 6749 Section 3.2.
+ * @param {?string} scope - The scope as specified by RFC 6749 Section 3.3.
  *   Will not be included in the requests if falsy.
- * @param {string} aAppKey - The client_id as specified by RFC 6749 Section
+ * @param {string} clientId - The client_id as specified by RFC 6749 Section
  *   2.3.1.
- * @param {string} [aAppSecret=null] - The client_secret as specified in
+ * @param {string} [clientSecret=null] - The client_secret as specified in
  *    RFC 6749 section 2.3.1. Will not be included in the requests if null.
  */
-function OAuth2(aBaseURI, aScope, aAppKey, aAppSecret = null) {
-  this.authURI = aBaseURI + "oauth2/auth";
-  this.tokenURI = aBaseURI + "oauth2/token";
-  this.consumerKey = aAppKey;
-  this.consumerSecret = aAppSecret;
-  this.scope = aScope;
+function OAuth2(
+  authorizationEndpoint,
+  tokenEndpoint,
+  scope,
+  clientId,
+  clientSecret = null
+) {
+  this.authorizationEndpoint = authorizationEndpoint;
+  this.tokenEndpoint = tokenEndpoint;
+  this.scope = scope;
+  this.clientId = clientId;
+  this.consumerSecret = clientSecret;
+
   this.extraAuthParams = [];
 
   this.log = Log4Moz.getConfiguredLogger("TBOAuth");
 }
 
 OAuth2.prototype = {
-  consumerKey: null,
+  clientId: null,
   consumerSecret: null,
-  completionURI: "http://localhost",
+  redirectionEndpoint: "http://localhost",
   requestWindowURI: "chrome://messenger/content/browserRequest.xhtml",
   requestWindowFeatures: "chrome,private,centerscreen,width=980,height=750",
   requestWindowTitle: "",
@@ -67,7 +75,7 @@ OAuth2.prototype = {
         aFailure('{ "error": "auth_noui" }');
         return;
       }
-      if (gConnecting[this.authURI]) {
+      if (gConnecting[this.authorizationEndpoint]) {
         aFailure("Window already open");
         return;
       }
@@ -78,8 +86,8 @@ OAuth2.prototype = {
   requestAuthorization() {
     let params = new URLSearchParams({
       response_type: "code",
-      client_id: this.consumerKey,
-      redirect_uri: this.completionURI,
+      client_id: this.clientId,
+      redirect_uri: this.redirectionEndpoint,
     });
 
     // The scope is optional.
@@ -91,7 +99,7 @@ OAuth2.prototype = {
       params.append(name, value);
     }
 
-    let authEndpointURI = this.authURI + "?" + params.toString();
+    let authEndpointURI = this.authorizationEndpoint + "?" + params.toString();
     this.log.info(
       "Interacting with the resource owner to obtain an authorization grant " +
         "from the authorization endpoint: " +
@@ -136,13 +144,13 @@ OAuth2.prototype = {
             delete this.window;
           },
 
-          _checkForRedirect(aURL) {
-            if (aURL.indexOf(this._parent.completionURI) != 0) {
+          _checkForRedirect(url) {
+            if (!url.startsWith(this._parent.redirectionEndpoint)) {
               return;
             }
 
             this._parent.finishAuthorizationRequest();
-            this._parent.onAuthorizationReceived(aURL);
+            this._parent.onAuthorizationReceived(url);
           },
 
           onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
@@ -167,7 +175,7 @@ OAuth2.prototype = {
     };
 
     this.wrappedJSObject = this._browserRequest;
-    gConnecting[this.authURI] = true;
+    gConnecting[this.authorizationEndpoint] = true;
     Services.ww.openWindow(
       null,
       this.requestWindowURI,
@@ -177,7 +185,7 @@ OAuth2.prototype = {
     );
   },
   finishAuthorizationRequest() {
-    gConnecting[this.authURI] = false;
+    gConnecting[this.authorizationEndpoint] = false;
     if (!("_browserRequest" in this)) {
       return;
     }
@@ -214,7 +222,7 @@ OAuth2.prototype = {
     // @see RFC 6749 section 6. Refreshing an Access Token
 
     let data = new URLSearchParams();
-    data.append("client_id", this.consumerKey);
+    data.append("client_id", this.clientId);
     if (this.consumerSecret !== null) {
       // Section 2.3.1. of RFC 6749 states that empty secrets MAY be omitted
       // by the client. This OAuth implementation delegates this decission to
@@ -224,32 +232,31 @@ OAuth2.prototype = {
 
     if (aRefresh) {
       this.log.info(
-        `Making a refresh request to the token endpoint: ${this.tokenURI}`
+        `Making a refresh request to the token endpoint: ${this.tokenEndpoint}`
       );
       data.append("grant_type", "refresh_token");
       data.append("refresh_token", aCode);
     } else {
       this.log.info(
-        `Making access token request to the token endpoint: ${this.tokenURI}`
+        `Making access token request to the token endpoint: ${this.tokenEndpoint}`
       );
       data.append("grant_type", "authorization_code");
       data.append("code", aCode);
-      data.append("redirect_uri", this.completionURI);
+      data.append("redirect_uri", this.redirectionEndpoint);
     }
 
-    fetch(this.tokenURI, {
+    fetch(this.tokenEndpoint, {
       method: "POST",
       cache: "no-cache",
       body: data,
     })
       .then(response => response.json())
       .then(result => {
+        let resultStr = JSON.stringify(result, null, 2);
         if ("error" in result) {
           // RFC 6749 section 5.2. Error Response
           this.log.info(
-            `The authorization server returned an error response: ${JSON.stringify(
-              result
-            )}`
+            `The authorization server returned an error response: ${resultStr}`
           );
           // Typically in production this would be {"error": "invalid_grant"}.
           // That is, the token expired or was revoked (user changed password?).
@@ -262,7 +269,9 @@ OAuth2.prototype = {
         }
 
         // RFC 6749 section 5.1. Successful Response
-        this.log.info("The authorization server issued an access token.");
+        this.log.info(
+          `Successful response from the authorization server: ${resultStr}`
+        );
         this.accessToken = result.access_token;
         if ("refresh_token" in result) {
           this.refreshToken = result.refresh_token;
