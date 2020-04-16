@@ -3,7 +3,7 @@
 messenger.jar:
 % content messagebody %content/messagebody/ contentaccessible=yes
 % content messenger %content/messenger/ contentaccessible=yes
-% override chrome://browser/skin/preferences/in-content/general.svg chrome://mozapps/skin/extensions/utilities.svg
+% override chrome://browser/skin/preferences/general.svg chrome://mozapps/skin/extensions/utilities.svg
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
 #ifndef MOZILLA_OFFICIAL
 % override chrome://browser/content/browser-development-helpers.js chrome://messenger/content/browser-development-helpers.js
@@ -144,6 +144,6 @@ browser.jar:
 % skin browser classic/1.0 %skin/
     skin/illustrations/error-malformed-url.svg         (../../../browser/themes/shared/illustrations/error-malformed-url.svg)
     skin/controlcenter/trackers.svg                    (../../../browser/themes/shared/controlcenter/trackers.svg)
-    skin/preferences/in-content/no-search-results.svg  (../../../browser/themes/shared/incontentprefs/no-search-results.svg)
+    skin/preferences/no-search-results.svg             (../../../browser/themes/shared/preferences/no-search-results.svg)
     skin/private-browsing.svg                          (../../../browser/themes/shared/icons/private-browsing.svg)
     skin/warning.svg                                   (../../../browser/themes/shared/warning.svg)
