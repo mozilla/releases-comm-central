@@ -8380,6 +8380,8 @@ function InitEditor() {
   if (AppConstants.platform != "macosx") {
     AutoHideMenubar.init();
   }
+
+  window.dispatchEvent(new CustomEvent("compose-editor-ready"));
 }
 
 // This is used as event listener to spellcheck-changed event to update

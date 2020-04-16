@@ -4,12 +4,14 @@
 
 addIdentity(createAccount());
 
-async function checkComposeBody(expected) {
+async function checkComposeBody(expected, waitForEvent) {
   let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
   Assert.equal(composeWindows.length, 1);
 
   let composeWindow = composeWindows[0];
-  await new Promise(resolve => composeWindow.setTimeout(resolve));
+  if (waitForEvent) {
+    await BrowserTestUtils.waitForEvent(composeWindow, "compose-scripts-added");
+  }
 
   let composeEditor = composeWindow.GetCurrentEditorElement();
   let composeBody = composeEditor.contentDocument.body;
@@ -42,6 +44,7 @@ var utilityFunctions = () => {
   };
 };
 
+/** Tests browser.tabs.insertCSS and browser.tabs.removeCSS. */
 add_task(async function testInsertRemoveCSS() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -103,6 +106,7 @@ add_task(async function testInsertRemoveCSS() {
   await extension.unload();
 });
 
+/** Tests browser.tabs.insertCSS fails without the "compose" permission. */
 add_task(async function testInsertRemoveCSSNoPermissions() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -150,6 +154,7 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
   await extension.unload();
 });
 
+/** Tests browser.tabs.executeScript. */
 add_task(async function testExecuteScript() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -200,6 +205,7 @@ add_task(async function testExecuteScript() {
   await extension.unload();
 });
 
+/** Tests browser.tabs.executeScript fails without the "compose" permission. */
 add_task(async function testExecuteScriptNoPermissions() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
@@ -240,6 +246,145 @@ add_task(async function testExecuteScriptNoPermissions() {
 
   await extension.awaitMessage();
   await checkComposeBody({ foo: null, textContent: "" });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+/**
+ * Tests browser.composeScripts.register correctly adds CSS and JavaScript to
+ * message composition windows opened after it was called. Also tests calling
+ * `unregister` on the returned object.
+ */
+add_task(async function testRegisterBeforeCompose() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        let registeredScript = await browser.composeScripts.register({
+          css: [{ code: "body { color: white }" }, { file: "test.css" }],
+          js: [
+            { code: `document.body.setAttribute("foo", "bar");` },
+            { file: "test.js" },
+          ],
+        });
+
+        let tab = await browser.compose.beginNew();
+        await this.sendMessageGetReply();
+
+        await registeredScript.unregister();
+        await this.sendMessageGetReply();
+
+        await browser.tabs.remove(tab.id);
+        browser.test.notifyPass("finished");
+      },
+      "test.css": "body { background-color: green; }",
+      "test.js": () => {
+        document.body.textContent = "Hey look, the script ran!";
+      },
+      "utils.js": utilityFunctions,
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose"],
+    },
+  });
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkComposeBody(
+    {
+      backgroundColor: "rgb(0, 128, 0)",
+      color: "rgb(255, 255, 255)",
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    true
+  );
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    color: "rgb(0, 0, 0)",
+    foo: "bar",
+    textContent: "Hey look, the script ran!",
+  });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
+/**
+ * Tests browser.composeScripts.register correctly adds CSS and JavaScript to
+ * message composition windows already open when it was called. Also tests
+ * calling `unregister` on the returned object.
+ */
+add_task(async function testRegisterDuringCompose() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        let tab = await browser.compose.beginNew();
+        await this.sendMessageGetReply();
+
+        let registeredScript = await browser.composeScripts.register({
+          css: [{ code: "body { color: white }" }, { file: "test.css" }],
+          js: [
+            { code: `document.body.setAttribute("foo", "bar");` },
+            { file: "test.js" },
+          ],
+        });
+
+        await this.sendMessageGetReply();
+
+        await registeredScript.unregister();
+        await this.sendMessageGetReply();
+
+        await browser.tabs.remove(tab.id);
+        browser.test.notifyPass("finished");
+      },
+      "test.css": "body { background-color: green; }",
+      "test.js": () => {
+        document.body.textContent = "Hey look, the script ran!";
+      },
+      "utils.js": utilityFunctions,
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose"],
+    },
+  });
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkComposeBody({
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    textContent: "",
+  });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody(
+    {
+      backgroundColor: "rgb(0, 128, 0)",
+      color: "rgb(255, 255, 255)",
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    true
+  );
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    color: "rgb(0, 0, 0)",
+    foo: "bar",
+    textContent: "Hey look, the script ran!",
+  });
   extension.sendMessage();
 
   await extension.awaitFinish("finished");

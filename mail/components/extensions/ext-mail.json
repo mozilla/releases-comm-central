@@ -69,6 +69,14 @@
       ["composeAction"]
     ]
   },
+  "composeScripts": {
+    "url": "chrome://messenger/content/parent/ext-composeScripts.js",
+    "schema": "chrome://messenger/content/schemas/composeScripts.json",
+    "scopes": ["addon_parent"],
+    "paths": [
+      ["composeScripts"]
+    ]
+  },
   "folders": {
     "url": "chrome://messenger/content/parent/ext-folders.js",
     "schema": "chrome://messenger/content/schemas/folders.json",

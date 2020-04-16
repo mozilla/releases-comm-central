@@ -5,6 +5,11 @@
 "use strict";
 
 extensions.registerModules({
+  composeScripts: {
+    url: "chrome://messenger/content/child/ext-composeScripts.js",
+    scopes: ["addon_child"],
+    paths: [["composeScripts"]],
+  },
   menus: {
     url: "chrome://messenger/content/child/ext-menus.js",
     scopes: ["addon_child"],

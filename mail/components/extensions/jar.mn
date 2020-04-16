@@ -6,6 +6,7 @@ messenger.jar:
     content/messenger/ext-mail.json                (ext-mail.json)
     content/messenger/extension.svg                (extension.svg)
 
+    content/messenger/child/ext-composeScripts.js  (child/ext-composeScripts.js)
     content/messenger/child/ext-mail.js            (child/ext-mail.js)
     content/messenger/child/ext-menus.js           (child/ext-menus.js)
     content/messenger/child/ext-tabs.js            (child/ext-tabs.js)
@@ -18,6 +19,7 @@ messenger.jar:
     content/messenger/parent/ext-commands.js       (../../../../browser/components/extensions/parent/ext-commands.js)
     content/messenger/parent/ext-compose.js        (parent/ext-compose.js)
     content/messenger/parent/ext-composeAction.js  (parent/ext-composeAction.js)
+    content/messenger/parent/ext-composeScripts.js (parent/ext-composeScripts.js)
     content/messenger/parent/ext-folders.js        (parent/ext-folders.js)
     content/messenger/parent/ext-mail.js           (parent/ext-mail.js)
     content/messenger/parent/ext-mailTabs.js       (parent/ext-mailTabs.js)
@@ -37,6 +39,7 @@ messenger.jar:
     content/messenger/schemas/commands.json        (../../../../browser/components/extensions/schemas/commands.json)
     content/messenger/schemas/compose.json         (schemas/compose.json)
     content/messenger/schemas/composeAction.json   (schemas/composeAction.json)
+    content/messenger/schemas/composeScripts.json  (schemas/composeScripts.json)
     content/messenger/schemas/folders.json         (schemas/folders.json)
     content/messenger/schemas/mailTabs.json        (schemas/mailTabs.json)
     content/messenger/schemas/menus.json           (schemas/menus.json)
