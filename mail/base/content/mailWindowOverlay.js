@@ -1516,7 +1516,13 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
     );
 
     var menuText = "";
-    var msgHdr = messenger.msgHdrFromURI(historyArray[i]);
+    var msgHdr;
+    try {
+      msgHdr = messenger.msgHdrFromURI(historyArray[i]);
+    } catch (ex) {
+      // Let's just ignore this history entry.
+      continue;
+    }
     var msgSubject = msgHdr.mime2DecodedSubject;
     var msgAuthor = msgHdr.mime2DecodedAuthor;
 
