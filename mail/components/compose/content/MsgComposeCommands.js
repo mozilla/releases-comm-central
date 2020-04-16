@@ -3911,14 +3911,27 @@ function updateStringsOfAddressingFields() {
  */
 function udpateAddressingInputAriaLabel(row) {
   let type = row.querySelector(".address-label-container > label").value;
-  let count = row.querySelectorAll("mail-address-pill").length;
+  let pills = row.querySelectorAll("mail-address-pill");
   let input = row.querySelector(
     `input[is="autocomplete-input"][recipienttype]`
   );
   input.setAttribute(
     "aria-label",
-    l10n.formatValueSync("address-input-type", { type, count })
+    l10n.formatValueSync("address-input-type-aria-label", {
+      type,
+      count: pills.length,
+    })
   );
+
+  for (let pill of pills) {
+    pill.setAttribute(
+      "aria-label",
+      l10n.formatValueSync("pill-aria-label", {
+        email: pill.fullAddress,
+        count: pills.length,
+      })
+    );
+  }
 }
 
 /**

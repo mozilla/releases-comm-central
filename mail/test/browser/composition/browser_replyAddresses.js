@@ -153,15 +153,21 @@ function checkToAddresses(replyWinController, expectedFields) {
 
     switch (pillCount) {
       case 0:
-        Assert.equal(ariaLabel, "Empty " + addrLabel + " input field");
+        Assert.equal(ariaLabel, addrLabel);
         break;
       case 1:
-        Assert.equal(ariaLabel, addrLabel + " input field with one address");
+        Assert.equal(
+          ariaLabel,
+          addrLabel + " with one address, use left arrow key to focus on it."
+        );
         break;
       default:
         Assert.equal(
           ariaLabel,
-          addrLabel + " input field with " + pillCount + " addresses"
+          addrLabel +
+            " with " +
+            pillCount +
+            " addresses, use left arrow key to focus on them."
         );
         break;
     }
