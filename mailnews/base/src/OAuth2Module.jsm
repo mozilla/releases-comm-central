@@ -72,9 +72,9 @@ OAuth2Module.prototype = {
 
     // Username is needed to generate the XOAUTH2 string.
     this._username = aUsername;
-    // LoginURL is needed to save the refresh token in the password manager.
-    this._loginUrl = "oauth://" + issuer;
-    // We use the scope to indicate the realm.
+    // loginOrigin is needed to save the refresh token in the password manager.
+    this._loginOrigin = "oauth://" + issuer;
+    // We use the scope to indicate realm when storing in the password manager.
     this._scope = scope;
 
     // Define the OAuth property and store it.
@@ -104,7 +104,11 @@ OAuth2Module.prototype = {
   },
 
   get refreshToken() {
-    let logins = Services.logins.findLogins(this._loginUrl, null, this._scope);
+    let logins = Services.logins.findLogins(
+      this._loginOrigin,
+      null,
+      this._scope
+    );
     for (let login of logins) {
       if (login.username == this._username) {
         return login.password;
@@ -115,7 +119,11 @@ OAuth2Module.prototype = {
   set refreshToken(token) {
     // Check if we already have a login with this username, and modify the
     // password on that, if we do.
-    let logins = Services.logins.findLogins(this._loginUrl, null, this._scope);
+    let logins = Services.logins.findLogins(
+      this._loginOrigin,
+      null,
+      this._scope
+    );
     for (let login of logins) {
       if (login.username == this._username) {
         if (token) {
@@ -137,7 +145,7 @@ OAuth2Module.prototype = {
         Ci.nsILoginInfo
       );
       login.init(
-        this._loginUrl,
+        this._loginOrigin,
         null,
         this._scope,
         this._username,
@@ -188,7 +196,7 @@ OAuth2Module.prototype = {
     let asyncprompter = Cc[
       "@mozilla.org/messenger/msgAsyncPrompter;1"
     ].getService(Ci.nsIMsgAsyncPrompter);
-    let promptkey = this._loginUrl + "/" + this._username;
+    let promptkey = this._loginOrigin + "/" + this._username;
     asyncprompter.queueAsyncAuthPrompt(promptkey, false, promptlistener);
   },
 };
