@@ -289,7 +289,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu_preferences {
-  list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg");
+  list-style-image: url("chrome://global/skin/icons/settings.svg");
 }
 
 #appmenu-quit {

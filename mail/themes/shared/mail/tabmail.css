@@ -54,7 +54,7 @@
 }
 
 .tabmail-tab[type="preferencesTab"] {
-  list-style-image: url("chrome://mozapps/skin/extensions/utilities.svg");
+  list-style-image: url("chrome://global/skin/icons/settings.svg");
 }
 
 .tabmail-tab[type="glodaSearch"] {

@@ -453,7 +453,7 @@ aside.settings-btn-container {
 }
 
 #settingsButton:before {
-  background-image: url("chrome://mozapps/skin/extensions/utilities.svg");
+  background-image: url("chrome://global/skin/icons/settings.svg");
 }
 
 #readButton:before {

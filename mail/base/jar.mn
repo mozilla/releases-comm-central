@@ -3,7 +3,6 @@
 messenger.jar:
 % content messagebody %content/messagebody/ contentaccessible=yes
 % content messenger %content/messenger/ contentaccessible=yes
-% override chrome://browser/skin/preferences/general.svg chrome://mozapps/skin/extensions/utilities.svg
 % override chrome://messagebody/skin/messageBody.css chrome://messenger/skin/messageBody.css
 #ifndef MOZILLA_OFFICIAL
 % override chrome://browser/content/browser-development-helpers.js chrome://messenger/content/browser-development-helpers.js
