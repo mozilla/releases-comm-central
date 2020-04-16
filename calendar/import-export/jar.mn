@@ -4,6 +4,6 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 calendar.jar:
-    skin/common/printing/calHtmlExport.html              (calHtmlExport.html)
-    skin/common/printing/calMonthGridPrinter.html        (calMonthGridPrinter.html)
-    skin/common/printing/calWeekPrinter.html             (calWeekPrinter.html)
+  content/printing/calHtmlExport.html              (calHtmlExport.html)
+  content/printing/calMonthGridPrinter.html        (calMonthGridPrinter.html)
+  content/printing/calWeekPrinter.html             (calWeekPrinter.html)
