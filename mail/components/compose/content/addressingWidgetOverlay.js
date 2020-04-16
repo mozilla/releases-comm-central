@@ -390,9 +390,9 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
  * Adds a batch of new recipient pill matching recipientType
  * and drops in the array of addresses.
  *
- * @param aRecipientType  Type of recipient, e.g. "addr_to".
- * @param aAddressArray   An array of recipient addresses (strings) to add.
- * @param {boolean} select - If the newly generated pills should be selected.
+ * @param {string} aRecipientType - Type of recipient, e.g. "addr_to".
+ * @param {string[]} aAddressArray - Recipient addresses (strings) to add.
+ * @param {boolean=false} select - If the newly generated pills should be selected.
  */
 function awAddRecipientsArray(aRecipientType, aAddressArray, select = false) {
   let label = document.getElementById(aRecipientType);

@@ -1020,9 +1020,10 @@ function _normalize_view_index(aViewIndex, aController) {
 /**
  * Generic method to simulate a left click on a row in a <tree> element.
  *
- * @param aTree        The the element.
- * @param aRowIndex    Index of a row in the tree to click on.
- * @param aController  Controller object
+ * @param {XULTreeElement} aTree - The tree element.
+ * @param {Number} aRowIndex - Index of a row in the tree to click on.
+ * @param {MozMillController} aController - Controller object.
+ * @see mailTestUtils.treeClick for another way.
  */
 function click_tree_row(aTree, aRowIndex, aController) {
   if (aRowIndex < 0 || aRowIndex >= aTree.view.rowCount) {

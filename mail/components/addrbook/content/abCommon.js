@@ -631,7 +631,7 @@ function GetAddressesForCards(cards) {
   }
 
   // We do not handle the case where there is one or more null-ish
-  // element in the Array.  Always non-null element is pushed into
+  // element in the Array. Always non-null element is pushed into
   // cards[] array.
 
   let generatedAddresses = cards
@@ -850,7 +850,9 @@ function GenerateAddressFromCard(card) {
     email = card.primaryEmail;
   }
 
-  return MailServices.headerParser.makeMimeAddress(card.displayName, email);
+  return MailServices.headerParser
+    .makeMailboxObject(card.displayName, email)
+    .toString();
 }
 
 function GetDirectoryFromURI(uri) {

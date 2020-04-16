@@ -7884,16 +7884,6 @@ function toggleAddressPicker(aFocus = true) {
   }
 }
 
-// Public method called by addons.
-function AddRecipient(aRecipientType, aAddress) {
-  awAddRecipientsArray(aRecipientType, [aAddress]);
-}
-
-// Public method called by the contacts sidebar.
-function AddRecipientsArray(aRecipientType, aAddressArray) {
-  awAddRecipientsArray(aRecipientType, aAddressArray);
-}
-
 function loadHTMLMsgPrefs() {
   let fontFace = Services.prefs.getStringPref("msgcompose.font_face", "");
   if (fontFace) {

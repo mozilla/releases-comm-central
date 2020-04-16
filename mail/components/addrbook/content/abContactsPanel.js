@@ -100,7 +100,7 @@ function addSelectedAddresses(aRecipientType) {
   var addressArray = cards
     .map(GenerateAddressFromCard)
     .filter(addr => addr != "");
-  parent.AddRecipientsArray(aRecipientType, addressArray);
+  parent.awAddRecipientsArray(aRecipientType, addressArray);
 }
 
 function AddressBookMenuListChange(aValue) {
