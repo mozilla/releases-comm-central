@@ -798,7 +798,7 @@ async function masterPasswordLogin(noPasswordCallback) {
         window,
         false
       );
-      if (!loggedIn) {
+      if (!loggedIn.authenticated) {
         return false;
       }
       return true;
