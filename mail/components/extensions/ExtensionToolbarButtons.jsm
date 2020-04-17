@@ -468,8 +468,13 @@ this.ToolbarButtonAPI = class extends ExtensionAPI {
   async updateOnChange(target) {
     if (target) {
       let window = Cu.getGlobalForObject(target);
-      if (target === window || target.selected) {
+      if (target === window) {
         await this.updateWindow(window);
+      } else {
+        let tabmail = window.document.getElementById("tabmail");
+        if (tabmail && target == tabmail.selectedTab) {
+          await this.updateWindow(window);
+        }
       }
     } else {
       let promises = [];

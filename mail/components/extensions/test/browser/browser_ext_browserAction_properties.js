@@ -33,13 +33,15 @@ add_task(async () => {
             browser.test.onMessage.removeListener(listener);
             resolve();
           });
-          browser.test.sendMessage("checkProperty", property, expected);
+          browser.test.sendMessage(whichTest, property, expected);
         });
       }
 
       let tabs = await browser.mailTabs.query({});
       browser.test.assertEq(3, tabs.length);
       let tabIDs = tabs.map(t => t.id);
+
+      let whichTest = "checkProperty";
 
       await checkProperty("isEnabled", true, true, true, true);
       await browser.browserAction.disable();
@@ -81,7 +83,55 @@ add_task(async () => {
         "default"
       );
 
-      await browser.tabs.remove(tabIDs[0]);
+      // Check that properties are updated without switching tabs. We might be
+      // relying on the tab switch to update the properties.
+
+      // Tab 0's enabled state doesn't reflect the default any more, so we
+      // can't just run the code above again.
+
+      browser.test.log("checkPropertyCurrent");
+      whichTest = "checkPropertyCurrent";
+
+      await checkProperty("isEnabled", true, false, true, true);
+      await browser.browserAction.disable();
+      await checkProperty("isEnabled", false, false, false, false);
+      await browser.browserAction.enable(tabIDs[0]);
+      await checkProperty("isEnabled", false, true, false, false);
+      await browser.browserAction.enable();
+      await checkProperty("isEnabled", true, true, true, true);
+      await browser.browserAction.disable();
+      await checkProperty("isEnabled", false, true, false, false);
+      await browser.browserAction.disable(tabIDs[0]);
+      await checkProperty("isEnabled", false, false, false, false);
+      await browser.browserAction.enable();
+      await checkProperty("isEnabled", true, false, true, true);
+
+      await checkProperty(
+        "getTitle",
+        "default",
+        "default",
+        "default",
+        "default"
+      );
+      await browser.browserAction.setTitle({ tabId: tabIDs[0], title: "tab0" });
+      await checkProperty("getTitle", "default", "tab0", "default", "default");
+      await browser.browserAction.setTitle({ title: "new" });
+      await checkProperty("getTitle", "new", "tab0", "new", "new");
+      await browser.browserAction.setTitle({ tabId: tabIDs[1], title: "tab1" });
+      await checkProperty("getTitle", "new", "tab0", "tab1", "new");
+      await browser.browserAction.setTitle({ tabId: tabIDs[0], title: null });
+      await checkProperty("getTitle", "new", "new", "tab1", "new");
+      await browser.browserAction.setTitle({ title: null });
+      await checkProperty("getTitle", "default", "default", "tab1", "default");
+      await browser.browserAction.setTitle({ tabId: tabIDs[1], title: null });
+      await checkProperty(
+        "getTitle",
+        "default",
+        "default",
+        "default",
+        "default"
+      );
+
       await browser.tabs.remove(tabIDs[1]);
       await browser.tabs.remove(tabIDs[2]);
       browser.test.notifyPass("finished");
@@ -104,6 +154,7 @@ add_task(async () => {
 
   let mailTabs = tabmail.tabInfo;
   is(mailTabs.length, 3);
+  tabmail.switchToTab(mailTabs[0]);
 
   await extension.startup();
 
@@ -123,6 +174,21 @@ add_task(async () => {
           is(button.getAttribute("label"), expected[i], `button ${i} label`);
           break;
       }
+    }
+
+    tabmail.switchToTab(mailTabs[0]);
+    extension.sendMessage();
+  });
+
+  extension.onMessage("checkPropertyCurrent", async (property, expected) => {
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    switch (property) {
+      case "isEnabled":
+        is(button.disabled, !expected[0], `button 0 enabled state`);
+        break;
+      case "getTitle":
+        is(button.getAttribute("label"), expected[0], `button 0 label`);
+        break;
     }
 
     extension.sendMessage();
