@@ -246,6 +246,7 @@ class ComposeEventTracker extends EventEmitter {
       composeWindow,
       getComposeDetails(composeWindow, this.extension)
     );
+    let didSetDetails = false;
     if (results) {
       for (let result of results) {
         if (!result) {
@@ -261,12 +262,17 @@ class ComposeEventTracker extends EventEmitter {
             result.details,
             this.extension
           );
-          composeWindow.GetComposeDetails();
-          composeWindow.expandRecipients();
+          didSetDetails = true;
         }
       }
     }
 
+    if (didSetDetails) {
+      // Load the new details into gMsgCompose.compFields for sending.
+      composeWindow.GetComposeDetails();
+    }
+    // Calling getComposeDetails collapses mailing lists. Expand them again.
+    composeWindow.expandRecipients();
     composeWindow.ToggleWindowLock(false);
     composeWindow.CompleteGenericSendMessage(msgType);
   }

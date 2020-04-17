@@ -513,6 +513,43 @@ add_task(async function testListExpansion() {
       );
       browser.compose.onBeforeSend.removeListener(listener7);
 
+      // Return nothing from the listener. The mailing list should be expanded.
+
+      createdWindowPromise = waitForEvent("onCreated");
+      await browser.compose.beginNew({
+        to: [{ id: list, type: "mailingList" }],
+        subject: "Test",
+      });
+      createdWindow = await createdWindowPromise;
+      browser.test.assertEq("messageCompose", createdWindow.type);
+
+      await checkWindow({
+        to: ["Holmes and Watson <Tenants221B>"],
+        subject: "Test",
+      });
+
+      [tab] = await browser.tabs.query({ windowId: createdWindow.id });
+
+      let listener8 = (tab, details) => {
+        listener8.tab = tab;
+        listener8.details = details;
+      };
+      browser.compose.onBeforeSend.addListener(listener8);
+      await beginSend();
+      browser.test.assertEq(tab.id, listener8.tab.id, "listener8 was fired");
+      browser.test.assertEq(1, listener8.details.to.length);
+      browser.test.assertEq(
+        "Holmes and Watson <Tenants221B>",
+        listener8.details.to[0],
+        "listener8 recipient correct"
+      );
+      browser.test.assertEq(
+        "Test",
+        listener8.details.subject,
+        "listener8 subject correct"
+      );
+      browser.compose.onBeforeSend.removeListener(listener8);
+
       await browser.addressBooks.delete(addressBook);
       browser.test.notifyPass("finished");
     },
@@ -552,11 +589,20 @@ add_task(async function testListExpansion() {
     "list in changed field was expanded"
   );
 
+  ok(outboxMessages.hasMoreElements());
+  let sentMessage8 = outboxMessages.getNext();
+  is(sentMessage8.subject, "Test", "subject was not changed");
+  is(
+    sentMessage8.recipients,
+    "Sherlock Holmes <sherlock@bakerstreet.invalid>, John Watson <john@bakerstreet.invalid>",
+    "list in unchanged field was expanded"
+  );
+
   ok(!outboxMessages.hasMoreElements());
 
   await new Promise(resolve => {
     outbox.deleteMessages(
-      toXPCOMArray([sentMessage7], Ci.nsIMutableArray),
+      toXPCOMArray([sentMessage7, sentMessage8], Ci.nsIMutableArray),
       null,
       true,
       false,
