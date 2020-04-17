@@ -1246,3 +1246,5 @@ pref("toolkit.telemetry.infoURL", "https://www.mozilla.org/thunderbird/legal/pri
 #ifdef XP_WIN
 pref("mail.minimizeToTray", false);
 #endif
+
+pref("prompts.defaultModalType", 3);

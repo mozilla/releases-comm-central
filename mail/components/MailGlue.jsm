@@ -47,7 +47,15 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/ActorManagerParent.jsm"
 );
 
-let ACTORS = {};
+let ACTORS = {
+  Prompt: {
+    parent: {
+      moduleURI: "resource:///actors/PromptParent.jsm",
+    },
+    includeChrome: true,
+    allFrames: true,
+  },
+};
 
 /**
  * Glue code that should be executed before any windows are opened. Any

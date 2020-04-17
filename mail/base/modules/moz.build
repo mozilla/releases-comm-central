@@ -35,7 +35,10 @@ if CONFIG['MOZ_UPDATER']:
         'AppUpdateUI.jsm',
     ]
 
+FINAL_TARGET_FILES.actors += [
+    'PromptParent.jsm',
+]
+
 FINAL_TARGET_FILES.modules += [
     'ThemeVariableMap.jsm'
 ]
-
