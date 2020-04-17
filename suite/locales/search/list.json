@@ -1,0 +1,171 @@
+{
+  "default": {
+    "visibleDefaultEngines": [
+      "duckduckgo", "google", "wikipedia", "yahoo"
+    ]
+  },
+  "regionOverrides": {},
+  "locales": {
+    "en-US": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo", "google", "wikipedia", "yahoo"
+        ]
+      }
+    },
+    "cs": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "seznam-cz", "duckduckgo-cz", "heureka-cz", "mapy-cz", "wikipedia-cz"
+        ]
+      }
+    },
+    "de": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo", "google", "wikipedia-de", "yahoo"
+        ]
+      }
+    },
+    "en-GB": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo", "google", "wikipedia", "yahoo-en-GB"
+        ]
+      }
+    },
+    "es-AR": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo", "google", "yahoo", "wikipedia"
+        ]
+      }
+    },
+    "es-ES": {
+      "default": {
+        "visibleDefaultEngines": [
+          "drae", "duckduckgo", "google", "wikipedia-es", "yahoo"
+        ]
+      }
+    },
+    "fi": {
+      "default": {
+        "visibleDefaultEngines": [
+          "bookplus-fi", "duckduckgo", "huuto-fi", "google", "wikipedia-fi", "yahoo-fi"
+        ]
+      }
+    },
+    "fr": {
+      "default": {
+        "visibleDefaultEngines": [
+          "cnrtl-tlfi-fr", "duckduckgo", "google", "wikipedia-fr", "yahoo-france"
+        ]
+      }
+    },
+    "hu": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo", "google", "sztaki-en-hu", "vatera", "wikipedia-hu"
+        ]
+      }
+    },
+    "it": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "hoepli", "wikipedia-it", "yahoo-it", "duckduckgo"
+        ]
+      }
+    },
+    "ja-JP-mac": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google-jp", "yahoo-jp", "amazon-jp", "wikipedia-ja", "duckduckgo"
+        ]
+      }
+    },
+    "ja": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google-jp", "yahoo-jp", "amazon-jp", "wikipedia-ja", "duckduckgo"
+        ]
+      }
+    },
+    "ka": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "duckduckgo", "wikipedia-ka"
+        ]
+      }
+    },
+    "nb-NO": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo", "google", "wikipedia-NO", "yahoo"
+        ]
+      }
+    },
+    "nl": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "duckduckgo", "bolcom-nl", "wikipedia-nl", "marktplaats-nl", "yahoo"
+        ]
+      }
+    },
+    "pl": {
+      "default": {
+        "visibleDefaultEngines": [
+          "allegro-pl", "ddg-pl", "google", "pwn-pl", "startpage-pl", "wikipedia-pl", "wolnelektury-pl"
+        ]
+      }
+    },
+    "pt-BR": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "duckduckgo"
+        ]
+      }
+    },
+    "pt-PT": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo", "google", "sapo", "priberam", "wikipedia-ptpt"
+        ]
+      }
+    },
+    "ru": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo-ru", "google", "wikipedia-ru"
+        ]
+      }
+    },
+    "sk": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "azet-sk", "atlas-sk", "slovnik-sk", "zoznam-sk", "wikipedia-sk", "duckduckgo"
+        ]
+      }
+    },
+    "sv-SE": {
+      "default": {
+        "visibleDefaultEngines": [
+          "duckduckgo-sv-se", "google", "prisjakt-sv-SE", "tyda-sv-SE", "wikipedia-sv-SE", "yahoo-sv-SE"
+        ]
+      }
+    },
+    "zh-CN": {
+      "default": {
+        "visibleDefaultEngines": [
+          "google", "duckduckgo", "wikipedia", "yahoo"
+        ]
+      }
+    },
+    "zh-TW": {
+      "default": {
+        "visibleDefaultEngines": [
+          "yahoo-zh-TW", "google", "duckduckgo", "yahoo-bid-zh-TW", "chunghwapost-zh-TW", "wikipedia-zh-TW"
+        ]
+      }
+    }
+  }
+}

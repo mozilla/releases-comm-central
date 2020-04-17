@@ -1,4 +1,0 @@
-duckduckgo
-google
-wikipedia
-yahoo
