@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://calendar/content/calendar-ics-file-dialog.css" type="text/css"?>
+
+<window windowtype="Calendar:ICSFile"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="onLoad()"
+        data-l10n-id="calendar-ics-file-window">
+
+  <dialog buttons="accept,cancel"
+          data-l10n-id="calendar-ics-file-dialog"
+          data-l10n-attrs="buttonlabelaccept">
+
+    <html:link rel="localization" href="calendar/calendar-ics-file-dialog.ftl"/>
+
+    <script src="chrome://calendar/content/calendar-ics-file-dialog.js"></script>
+    <script src="chrome://calendar/content/import-export.js"></script>
+
+    <vbox>
+      <description id="calendar-ics-file-dialog-message"></description>
+      <description id="calendar-ics-file-dialog-error-message"></description>
+    </vbox>
+
+  </dialog>
+</window>

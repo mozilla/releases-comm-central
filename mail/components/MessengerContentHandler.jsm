@@ -427,6 +427,18 @@ MailDefaultHandler.prototype = {
             }
           );
         }
+      } else if (uri.toLowerCase().endsWith(".ics")) {
+        // An .ics calendar file! Open the ics file dialog.
+        let file = cmdLine.resolveFile(uri);
+        if (file.exists() && file.fileSize > 0) {
+          Services.ww.openWindow(
+            null,
+            "chrome://calendar/content/calendar-ics-file-dialog.xhtml",
+            "_blank",
+            "chrome,titlebar,modal,centerscreen",
+            file
+          );
+        }
       } else {
         // This must be a regular filename. Use it to create a new message with attachment.
         let msgParams = Cc[
