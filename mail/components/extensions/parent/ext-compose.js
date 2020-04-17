@@ -211,28 +211,21 @@ async function setComposeDetails(composeWindow, details, extension) {
   composeWindow.SetComposeDetails(details);
 }
 
-class ComposeEventTracker extends EventEmitter {
-  constructor(extension) {
-    super();
-    this.extension = extension;
-    this.listenerCount = 0;
-  }
-  on(event, listener) {
-    super.on(event, listener);
+var composeEventTracker = {
+  listeners: new Set(),
 
-    this.listenerCount++;
-    if (this.listenerCount == 1) {
+  addListener(listener) {
+    this.listeners.add(listener);
+    if (this.listeners.size == 1) {
       windowTracker.addListener("beforesend", this);
     }
-  }
-  off(event, listener) {
-    super.off(event, listener);
-
-    this.listenerCount--;
-    if (this.listenerCount == 0) {
+  },
+  removeListener(listener) {
+    this.listeners.delete(listener);
+    if (this.listeners.size == 0) {
       windowTracker.removeListener("beforesend", this);
     }
-  }
+  },
   async handleEvent(event) {
     event.preventDefault();
 
@@ -240,30 +233,23 @@ class ComposeEventTracker extends EventEmitter {
     let composeWindow = event.target;
 
     composeWindow.ToggleWindowLock(true);
-
-    let results = await this.emit(
-      "compose-before-send",
-      composeWindow,
-      getComposeDetails(composeWindow, this.extension)
-    );
     let didSetDetails = false;
-    if (results) {
-      for (let result of results) {
-        if (!result) {
-          continue;
-        }
-        if (result.cancel) {
-          composeWindow.ToggleWindowLock(false);
-          return;
-        }
-        if (result.details) {
-          await setComposeDetails(
-            composeWindow,
-            result.details,
-            this.extension
-          );
-          didSetDetails = true;
-        }
+
+    for (let { handler, extension } of this.listeners) {
+      let result = await handler(
+        composeWindow,
+        getComposeDetails(composeWindow, extension)
+      );
+      if (!result) {
+        continue;
+      }
+      if (result.cancel) {
+        composeWindow.ToggleWindowLock(false);
+        return;
+      }
+      if (result.details) {
+        await setComposeDetails(composeWindow, result.details, extension);
+        didSetDetails = true;
       }
     }
 
@@ -275,8 +261,8 @@ class ComposeEventTracker extends EventEmitter {
     composeWindow.expandRecipients();
     composeWindow.ToggleWindowLock(false);
     composeWindow.CompleteGenericSendMessage(msgType);
-  }
-}
+  },
+};
 
 this.compose = class extends ExtensionAPI {
   getAPI(context) {
@@ -297,7 +283,6 @@ this.compose = class extends ExtensionAPI {
 
     let { extension } = context;
     let { tabManager, windowManager } = extension;
-    this.eventTracker = new ComposeEventTracker(extension);
 
     return {
       compose: {
@@ -306,17 +291,20 @@ this.compose = class extends ExtensionAPI {
           name: "compose.onBeforeSend",
           inputHandling: true,
           register: fire => {
-            let listener = (event, window, details) => {
-              let win = windowManager.wrapWindow(window);
-              return fire.async(
-                tabManager.convert(win.activeTab.nativeTab),
-                details
-              );
+            let listener = {
+              handler(window, details) {
+                let win = windowManager.wrapWindow(window);
+                return fire.async(
+                  tabManager.convert(win.activeTab.nativeTab),
+                  details
+                );
+              },
+              extension,
             };
 
-            this.eventTracker.on("compose-before-send", listener);
+            composeEventTracker.addListener(listener);
             return () => {
-              this.eventTracker.off("compose-before-send", listener);
+              composeEventTracker.removeListener(listener);
             };
           },
         }).api(),

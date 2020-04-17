@@ -9,6 +9,7 @@ var { ExtensionSupport } = ChromeUtils.import(
 let account = createAccount();
 let defaultIdentity = addIdentity(account);
 let nonDefaultIdentity = addIdentity(account, "nondefault@invalid");
+let outbox = account.incomingServer.rootFolder.getChildNamed("outbox");
 
 add_task(async function testCancel() {
   let extension = ExtensionTestUtils.loadExtension({
@@ -84,6 +85,7 @@ add_task(async function testCancel() {
       await beginSend(true);
       browser.test.assertEq(tab.id, listener1.tab.id, "listener1 was fired");
       browser.compose.onBeforeSend.removeListener(listener1);
+      delete listener1.tab;
 
       // Add a cancelling listener. Sending should not continue.
 
@@ -95,6 +97,7 @@ add_task(async function testCancel() {
       await beginSend(false, false);
       browser.test.assertEq(tab.id, listener2.tab.id, "listener2 was fired");
       browser.compose.onBeforeSend.removeListener(listener2);
+      delete listener2.tab;
       await beginSend(true); // Removing the listener worked.
 
       // Add a listener returning a Promise. Resolve the Promise to unblock.
@@ -112,6 +115,7 @@ add_task(async function testCancel() {
       listener3.resolve({ cancel: false });
       await checkIfSent(true);
       browser.compose.onBeforeSend.removeListener(listener3);
+      delete listener3.tab;
 
       // Add a listener returning a Promise. Resolve the Promise to cancel.
       // Sending should not continue.
@@ -128,6 +132,7 @@ add_task(async function testCancel() {
       listener4.resolve({ cancel: true });
       await checkIfSent(false, false);
       browser.compose.onBeforeSend.removeListener(listener4);
+      delete listener4.tab;
       await beginSend(true); // Removing the listener worked.
 
       // Clean up.
@@ -135,6 +140,23 @@ add_task(async function testCancel() {
       let removedWindowPromise = waitForEvent("onRemoved");
       browser.windows.remove(createdWindow.id);
       await removedWindowPromise;
+
+      browser.test.assertTrue(
+        !listener1.tab,
+        "listener1 was not fired after removal"
+      );
+      browser.test.assertTrue(
+        !listener2.tab,
+        "listener2 was not fired after removal"
+      );
+      browser.test.assertTrue(
+        !listener3.tab,
+        "listener3 was not fired after removal"
+      );
+      browser.test.assertTrue(
+        !listener4.tab,
+        "listener4 was not fired after removal"
+      );
 
       browser.test.notifyPass("finished");
     },
@@ -283,6 +305,7 @@ add_task(async function testChangeDetails() {
         "listener5 subject correct"
       );
       browser.compose.onBeforeSend.removeListener(listener5);
+      delete listener5.tab;
 
       // Do the same thing, but this time with a Promise.
 
@@ -335,6 +358,16 @@ add_task(async function testChangeDetails() {
         },
       });
       browser.compose.onBeforeSend.removeListener(listener6);
+      delete listener6.tab;
+
+      browser.test.assertTrue(
+        !listener5.tab,
+        "listener5 was not fired after removal"
+      );
+      browser.test.assertTrue(
+        !listener6.tab,
+        "listener6 was not fired after removal"
+      );
 
       browser.test.notifyPass("finished");
     },
@@ -363,10 +396,9 @@ add_task(async function testChangeDetails() {
   await extension.awaitFinish("finished");
   await extension.unload();
 
-  let outbox = account.incomingServer.rootFolder.getChildNamed("outbox");
   let outboxMessages = outbox.messages;
   ok(outboxMessages.hasMoreElements());
-  let sentMessage5 = outboxMessages.getNext();
+  let sentMessage5 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   is(sentMessage5.author, "nondefault@invalid", "author was changed");
   is(sentMessage5.subject, "Changed by listener5", "subject was changed");
   is(sentMessage5.recipients, "to@test5.invalid", "to was changed");
@@ -384,7 +416,7 @@ add_task(async function testChangeDetails() {
   });
 
   ok(outboxMessages.hasMoreElements());
-  let sentMessage6 = outboxMessages.getNext();
+  let sentMessage6 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   is(sentMessage6.author, "nondefault@invalid", "author was changed");
   is(sentMessage6.subject, "Changed by listener6", "subject was changed");
   is(sentMessage6.recipients, "to@test6.invalid", "to was changed");
@@ -573,10 +605,9 @@ add_task(async function testListExpansion() {
   await extension.awaitFinish("finished");
   await extension.unload();
 
-  let outbox = account.incomingServer.rootFolder.getChildNamed("outbox");
   let outboxMessages = outbox.messages;
   ok(outboxMessages.hasMoreElements());
-  let sentMessage7 = outboxMessages.getNext();
+  let sentMessage7 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   is(sentMessage7.subject, "Changed by listener7", "subject was changed");
   is(
     sentMessage7.recipients,
@@ -590,7 +621,7 @@ add_task(async function testListExpansion() {
   );
 
   ok(outboxMessages.hasMoreElements());
-  let sentMessage8 = outboxMessages.getNext();
+  let sentMessage8 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
   is(sentMessage8.subject, "Test", "subject was not changed");
   is(
     sentMessage8.recipients,
@@ -603,6 +634,144 @@ add_task(async function testListExpansion() {
   await new Promise(resolve => {
     outbox.deleteMessages(
       toXPCOMArray([sentMessage7, sentMessage8], Ci.nsIMutableArray),
+      null,
+      true,
+      false,
+      { OnStopCopy: resolve },
+      false
+    );
+  });
+});
+
+add_task(async function testMultipleListeners() {
+  let extensionA = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      let listener9 = (tab, details) => {
+        browser.test.log("listener9 was fired");
+        browser.test.sendMessage("listener9", details);
+        browser.compose.onBeforeSend.removeListener(listener9);
+        return {
+          details: {
+            to: ["recipient2@invalid"],
+            subject: "Changed by listener9",
+          },
+        };
+      };
+      browser.compose.onBeforeSend.addListener(listener9);
+
+      await browser.compose.beginNew({
+        to: "recipient1@invalid",
+        subject: "Initial subject",
+      });
+      browser.test.sendMessage("ready");
+    },
+    manifest: { permissions: ["compose"] },
+  });
+
+  let extensionB = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      let listener10 = (tab, details) => {
+        browser.test.log("listener10 was fired");
+        browser.test.sendMessage("listener10", details);
+        browser.compose.onBeforeSend.removeListener(listener10);
+        return {
+          details: {
+            to: ["recipient3@invalid"],
+            subject: "Changed by listener10",
+          },
+        };
+      };
+      browser.compose.onBeforeSend.addListener(listener10);
+
+      let listener11 = (tab, details) => {
+        browser.test.log("listener11 was fired");
+        browser.test.sendMessage("listener11", details);
+        browser.compose.onBeforeSend.removeListener(listener11);
+        return {
+          details: {
+            to: ["recipient4@invalid"],
+            subject: "Changed by listener11",
+          },
+        };
+      };
+      browser.compose.onBeforeSend.addListener(listener11);
+      browser.test.sendMessage("ready");
+    },
+    manifest: { permissions: ["compose"] },
+  });
+
+  await extensionA.startup();
+  await extensionB.startup();
+
+  await extensionA.awaitMessage("ready");
+  await extensionB.awaitMessage("ready");
+
+  let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+  Assert.equal(composeWindows.length, 1);
+  Assert.equal(composeWindows[0].document.readyState, "complete");
+  composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+
+  let listener9Details = await extensionA.awaitMessage("listener9");
+  Assert.equal(listener9Details.to.length, 1);
+  Assert.equal(
+    listener9Details.to[0],
+    "recipient1@invalid",
+    "listener9 recipient correct"
+  );
+  Assert.equal(
+    listener9Details.subject,
+    "Initial subject",
+    "listener9 subject correct"
+  );
+
+  let listener10Details = await extensionB.awaitMessage("listener10");
+  Assert.equal(listener10Details.to.length, 1);
+  Assert.equal(
+    listener10Details.to[0],
+    "recipient2@invalid",
+    "listener10 recipient correct"
+  );
+  Assert.equal(
+    listener10Details.subject,
+    "Changed by listener9",
+    "listener10 subject correct"
+  );
+
+  let listener11Details = await extensionB.awaitMessage("listener11");
+  Assert.equal(listener11Details.to.length, 1);
+  Assert.equal(
+    listener11Details.to[0],
+    "recipient3@invalid",
+    "listener11 recipient correct"
+  );
+  Assert.equal(
+    listener11Details.subject,
+    "Changed by listener10",
+    "listener11 subject correct"
+  );
+
+  await extensionA.unload();
+  await extensionB.unload();
+
+  let outboxMessages = outbox.messages;
+  Assert.ok(outboxMessages.hasMoreElements());
+  let sentMessage = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  Assert.equal(
+    sentMessage.subject,
+    "Changed by listener11",
+    "subject was changed"
+  );
+  Assert.equal(
+    sentMessage.recipients,
+    "recipient4@invalid",
+    "recipient was changed"
+  );
+
+  Assert.ok(!outboxMessages.hasMoreElements());
+
+  await new Promise(resolve => {
+    outbox.deleteMessages(
+      toXPCOMArray([sentMessage], Ci.nsIMutableArray),
       null,
       true,
       false,
