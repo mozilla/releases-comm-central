@@ -44,7 +44,7 @@ def get_cmd_output(*args, **kwargs):
 
 def _run_configure(argv):
     """Call Botan's configure.py. Arguments are passed "shell-style"."""
-    args = [configure] + list(argv)  # passed as a tuple
+    args = [sys.executable] + [configure] + list(argv)  # passed as a tuple
     botan_modules_arg = '--enable-modules={}'.format(botan_modules)
     args.append(botan_modules_arg)
 
