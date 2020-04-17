@@ -16,28 +16,56 @@ var MODE_CREATE = 0x08;
 var MODE_TRUNCATE = 0x20;
 
 /**
- * Shows a file dialog, reads the selected file(s) and tries to parse events from it.
+ * Loads events from a file into a given calendar. If called without arguments,
+ * the user is asked to pick a file and pick a calendar to import the events into.
  *
- * @param aCalendar  (optional) If specified, the items will be imported directly
- *                              into the calendar
+ * @param {nsIFile} [fileArg] - Optional, a file to load events from.
+ * @param {calICalendar} [calendar] - Optional, a calendar to import events into.
+ * @return {Promise<boolean>} True if the import succeeded, false if not (e.g.
+ *                            user canceled the file picker dialog).
  */
-function loadEventsFromFile(aCalendar) {
-  return new Promise((resolve, reject) => {
+async function loadEventsFromFile(fileArg, calendar) {
+  let file = fileArg;
+  if (!file) {
+    file = await pickFileToImport();
+    if (!file) {
+      // Probably the user clicked "cancel" (no file and the promise was not
+      // rejected in pickFileToImport).
+      return false;
+    }
+  }
+
+  let targetCalendar = calendar || (await getCalendarToImportInto());
+
+  if (targetCalendar) {
+    let items = getItemsFromFile(file);
+    await putItemsIntoCal(targetCalendar, items, file.path);
+    return true;
+  }
+  // Probably the user clicked "cancel" on the pick calendar dialog.
+  return false;
+}
+
+/**
+ * Show a file picker dialog and return the file.
+ *
+ * @return {Promise<nsIFile | undefined>} The picked file or undefined if the
+ *                                        user cancels the dialog.
+ */
+function pickFileToImport() {
+  return new Promise(resolve => {
     let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     picker.init(window, cal.l10n.getCalString("filepickerTitleImport"), Ci.nsIFilePicker.modeOpen);
     picker.defaultExtension = "ics";
 
-    // Get a list of importers
-    let contractids = [];
     let currentListLength = 0;
-    let defaultCIDIndex = 0;
     for (let { data } of Services.catMan.enumerateCategory("cal-importers")) {
-      let contractid = Services.catMan.getCategoryEntry("cal-importers", data);
+      let contractId = Services.catMan.getCategoryEntry("cal-importers", data);
       let importer;
       try {
-        importer = Cc[contractid].getService(Ci.calIImporter);
+        importer = Cc[contractId].getService(Ci.calIImporter);
       } catch (e) {
-        cal.WARN("Could not initialize importer: " + contractid + "\nError: " + e);
+        cal.WARN("Could not initialize importer: " + contractId + "\nError: " + e);
         continue;
       }
       let types = importer.getFileTypes();
@@ -45,92 +73,112 @@ function loadEventsFromFile(aCalendar) {
         picker.appendFilter(type.description, type.extensionFilter);
         if (type.extensionFilter == "*." + picker.defaultExtension) {
           picker.filterIndex = currentListLength;
-          defaultCIDIndex = currentListLength;
         }
-        contractids.push(contractid);
         currentListLength++;
       }
     }
 
-    picker.open(async returnValue => {
-      if (returnValue != Ci.nsIFilePicker.returnOK || !picker.file || !picker.file.path) {
-        reject();
-        return;
-      }
-
-      let filterIndex = picker.filterIndex;
-      if (picker.filterIndex < 0 || picker.filterIndex > contractids.length) {
-        // For some reason the wrong filter was selected, assume default extension
-        filterIndex = defaultCIDIndex;
-      }
-
-      let filePath = picker.file.path;
-      let importer = Cc[contractids[filterIndex]].getService(Ci.calIImporter);
-
-      let inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
-        Ci.nsIFileInputStream
-      );
-      let items = [];
-      let exception;
-
-      try {
-        inputStream.init(picker.file, MODE_RDONLY, parseInt("0444", 8), {});
-        items = importer.importFromStream(inputStream);
-      } catch (ex) {
-        exception = ex;
-        switch (ex.result) {
-          case Ci.calIErrors.INVALID_TIMEZONE:
-            cal.showError(cal.l10n.getCalString("timezoneError", [filePath]), window);
-            break;
-          default:
-            cal.showError(cal.l10n.getCalString("unableToRead") + filePath + "\n" + ex, window);
-        }
-      } finally {
-        inputStream.close();
-      }
-
-      if (!items.length && !exception) {
-        // the ics did not contain any events, so there's no need to proceed. But we should
-        // notify the user about it, if we haven't before.
-        cal.showError(cal.l10n.getCalString("noItemsInCalendarFile", [filePath]), window);
-        reject();
-        return;
-      }
-
-      if (aCalendar) {
-        await putItemsIntoCal(aCalendar, items);
+    picker.open(returnValue => {
+      if (returnValue == Ci.nsIFilePicker.returnCancel) {
         resolve();
-        return;
       }
-
-      let calendars = cal.getCalendarManager().getCalendars();
-      calendars = calendars.filter(cal.acl.isCalendarWritable);
-
-      if (calendars.length == 0) {
-        reject();
-      } else if (calendars.length == 1) {
-        // There's only one calendar, so it's silly to ask what calendar
-        // the user wants to import into.
-        await putItemsIntoCal(calendars[0], items, filePath);
-        resolve();
-      } else if (calendars.length > 1) {
-        // Ask what calendar to import into
-        let args = {};
-        args.onOk = async aCal => {
-          await putItemsIntoCal(aCal, items, filePath);
-          resolve();
-        };
-        args.calendars = calendars;
-        args.promptText = cal.l10n.getCalString("importPrompt");
-        openDialog(
-          "chrome://calendar/content/chooseCalendarDialog.xhtml",
-          "_blank",
-          "chrome,titlebar,modal,resizable",
-          args
-        );
-      }
+      resolve(picker.file);
     });
   });
+}
+
+/**
+ * Given a file, return the contractId for an importer for the file type.
+ *
+ * @param {nsIFile} file - A file.
+ * @return {string} A contract ID.
+ */
+function getContractIdForImportingFile(file) {
+  let fileNameLower = file.leafName.toLowerCase();
+  let contractId = "@mozilla.org/calendar/import;1?type=";
+
+  if (fileNameLower.endsWith(".ics")) {
+    return contractId + "ics";
+  } else if (fileNameLower.endsWith(".csv")) {
+    return contractId + "csv";
+  }
+  throw new Error("No importer for this type of file: " + file.leafName);
+}
+
+/**
+ * Given a file (e.g. an ICS or CSV file), return an array of calendar items
+ * parsed from it.
+ *
+ * @param {nsIFile} file - File to get items from.
+ * @return {calIItemBase[]} Array of calendar items.
+ */
+function getItemsFromFile(file) {
+  let contractId = getContractIdForImportingFile(file);
+  let importer = Cc[contractId].getService(Ci.calIImporter);
+
+  let inputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+    Ci.nsIFileInputStream
+  );
+  let items = [];
+  let exception;
+
+  try {
+    inputStream.init(file, MODE_RDONLY, 0o444, {});
+    items = importer.importFromStream(inputStream);
+  } catch (ex) {
+    exception = ex;
+    switch (ex.result) {
+      case Ci.calIErrors.INVALID_TIMEZONE:
+        cal.showError(cal.l10n.getCalString("timezoneError", [file.path]), window);
+        break;
+      default:
+        cal.showError(cal.l10n.getCalString("unableToRead") + file.path + "\n" + ex, window);
+    }
+  } finally {
+    inputStream.close();
+  }
+
+  if (!items.length && !exception) {
+    // The ics did not contain any events, so we should
+    // notify the user about it, if we haven't before.
+    cal.showError(cal.l10n.getCalString("noItemsInCalendarFile", [file.path]), window);
+  }
+
+  return items;
+}
+
+/**
+ * Returns a calendar to import events into. If only one calendar exists, just
+ * return that calendar, otherwise ask the user to select a calendar.
+ *
+ * @return {calICalendar | null} A calendar or null.
+ */
+function getCalendarToImportInto() {
+  let targetCalendar;
+  let calendars = cal
+    .getCalendarManager()
+    .getCalendars()
+    .filter(cal.acl.isCalendarWritable);
+
+  if (calendars.length == 0) {
+    return null;
+  } else if (calendars.length == 1) {
+    return calendars[0];
+  } else if (calendars.length > 1) {
+    let args = {
+      onOk: aCal => (targetCalendar = aCal),
+      calendars,
+      promptText: cal.l10n.getCalString("importPrompt"),
+    };
+    openDialog(
+      "chrome://calendar/content/chooseCalendarDialog.xhtml",
+      "_blank",
+      "chrome,titlebar,modal,resizable",
+      args
+    );
+  }
+
+  return targetCalendar;
 }
 
 /**

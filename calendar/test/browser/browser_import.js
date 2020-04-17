@@ -6,6 +6,8 @@
 // import, loadEventsFromFile is called directly, so that we can be sure it
 // has finished by waiting on the returned Promise.
 
+/* globals loadEventsFromFile */
+
 var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
@@ -23,12 +25,18 @@ add_task(async () => {
 
   MockFilePicker.init(window);
   MockFilePicker.setFiles([file]);
-  MockFilePicker.returnValue = MockFilePicker.returnOK;
+  MockFilePicker.returnValue = MockFilePicker.returnCancel;
 
   let calendarId = createCalendar(controller, CALENDARNAME);
   let calendar = cal.getCalendarManager().getCalendarById(calendarId);
 
-  await loadEventsFromFile();
+  let cancelReturn = await loadEventsFromFile();
+  ok(!cancelReturn, "loadEventsFromFile returns false on cancel");
+
+  MockFilePicker.returnValue = MockFilePicker.returnOK;
+
+  let acceptReturn = await loadEventsFromFile();
+  ok(acceptReturn, "loadEventsFromFile returns true on accept");
 
   let promiseCalendar = cal.async.promisifyCalendar(calendar);
   let result = await promiseCalendar.getItems(
@@ -37,7 +45,7 @@ add_task(async () => {
     cal.createDateTime("20190101T000000"),
     cal.createDateTime("20190102T000000")
   );
-  is(result.length, 4);
+  is(result.length, 4, "all items that were imported were in fact imported");
 
   for (let item of result) {
     await promiseCalendar.deleteItem(item);
