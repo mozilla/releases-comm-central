@@ -330,6 +330,7 @@ LogWriter.prototype = {
           "containsImages",
           "notification",
           "noLinkification",
+          "isEncrypted",
         ].filter(f => aMessage[f]),
       };
       let alias = aMessage.alias;

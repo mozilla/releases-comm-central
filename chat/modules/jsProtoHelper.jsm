@@ -594,6 +594,7 @@ var GenericMessagePrototype = {
   notification: false,
   noLinkification: false,
   noCollapse: false,
+  isEncrypted: false,
 
   getActions() {
     return [];

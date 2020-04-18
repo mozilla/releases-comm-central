@@ -117,6 +117,9 @@ imMessage.prototype = {
   get noCollapse() {
     return this.prplMessage.noCollapse;
   },
+  get isEncrypted() {
+    return this.prplMessage.isEncrypted;
+  },
   get originalMessage() {
     return this.prplMessage.originalMessage;
   },

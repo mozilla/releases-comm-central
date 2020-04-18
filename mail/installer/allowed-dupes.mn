@@ -22,14 +22,6 @@ chrome/messenger/content/messenger/extension.svg
 chrome/messenger/skin/classic/messenger/messages/simple/Variants/Normal.css
 chrome/messenger/skin/classic/messenger/messages/simple/Incoming/Context.html
 chrome/messenger/skin/classic/messenger/messages/simple/Incoming/NextContext.html
-chrome/messenger/skin/classic/messenger/messages/bubbles/Bitmaps/plus.png
-chrome/messenger/skin/classic/messenger/messages/mail/Bitmaps/plus.png
-chrome/messenger/skin/classic/messenger/messages/bubbles/Bitmaps/plus-hover.png
-chrome/messenger/skin/classic/messenger/messages/mail/Bitmaps/plus-hover.png
-chrome/messenger/skin/classic/messenger/messages/bubbles/Bitmaps/minus.png
-chrome/messenger/skin/classic/messenger/messages/mail/Bitmaps/minus.png
-chrome/messenger/skin/classic/messenger/messages/bubbles/Bitmaps/minus-hover.png
-chrome/messenger/skin/classic/messenger/messages/mail/Bitmaps/minus-hover.png
 chrome/messenger/skin/classic/messenger/messages/mail/Incoming/buddy_icon.png
 chrome/messenger/skin/classic/messenger/messages/mail/Outgoing/buddy_icon.png
 chrome/devtools/modules/devtools/client/themes/splitters.css

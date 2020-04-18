@@ -51,6 +51,10 @@ XPCOMUtils.defineLazyGetter(this, "gTimeFormatter", () => {
   });
 });
 
+XPCOMUtils.defineLazyGetter(this, "bundle", () =>
+  Services.strings.createBundle("chrome://chat/locale/conversations.properties")
+);
+
 ChromeUtils.defineModuleGetter(
   this,
   "ToLocaleFormat",
@@ -479,6 +483,12 @@ var statusMessageReplacements = {
     }
 
     return msgClass.join(" ");
+  },
+  encryptedClass(aMsg) {
+    return aMsg.encrypted ? "show" : "";
+  },
+  encryptedMessage(aMsg) {
+    return bundle.GetStringFromName("message.status");
   },
 };
 

@@ -7,31 +7,73 @@
 }
 
 /* The "#chat " is required to override "#Chat *" from conv.css */
-#Chat .pseudo {
-  overflow-x: hidden !important;
-}
 
 .message {
-  clear: both;
+  display: flex;
+  align-items: flex-start;
+  margin-block: 5px;
+  padding: 5px 6px;
+  border-radius: 4px;
+}
+
+#Chat .event {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0;
+  clear: none;
+  padding-inline: 6px;
+}
+
+.event-row {
+  display: flex;
+  align-items: start;
+}
+
+#Chat .event p {
+  margin: 0;
+  margin-block-end: 5px;
+  color: GrayText;
+}
+
+#Chat #unread-ruler {
+  margin: 4px;
+  border-top: 1px solid #30e60b;
+}
+
+.message:hover,
+.message:focus {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.sidebar {
+  display: flex;
+  justify-content: end;
+  margin-inline-end: 10px;
+  margin-block-start: 2px;
+  width: 4.5em;
+  flex-wrap: wrap;
+  text-align: right;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .pseudo {
+  font-size: 0.9em;
   font-weight: bold;
-  float: inline-start;
-  width: calc(15% - 3px);
-  text-align: right;
-  padding-bottom: 5px;
-  display: block;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  letter-spacing: 0.01em;
+  margin-block-end: 0;
 }
 
-.outgoing > .pseudo {
-  color: rgb(80, 80, 200);
+.outgoing .pseudo {
+  color: #0060DF;
 }
 
-.incoming > .pseudo {
-  color: rgb(200, 80, 80);
+.incoming .pseudo {
+  color: #B5007F;
 }
 
 .message:not(.action) > .next {
@@ -39,30 +81,35 @@
 }
 
 .date {
+  font-size: 0.75em;
+  text-transform: uppercase;
   font-style: normal;
   font-weight: normal;
-  float: inline-end;
   color: GrayText;
+  white-space: nowrap;
 }
 
-.message > .ib-msg-txt,
-.event {
-  display: block;
-  margin-left: 15%;
-  padding-bottom: 5px;
+.encrypted {
+  display: none;
+  width: 11px;
+  height: 11px;
+  opacity: 0.35;
+  background: url("chrome://messenger/skin/icons/connection-secure.svg") no-repeat center;
+  background-size: contain;
+  margin-top: 1px;
+  margin-inline-end: 2px;
 }
 
-p.event {
-  margin-left: 0;
+.encrypted:hover {
+  opacity: 0.75;
+}
+
+.encrypted.show {
+  display: inline-block;
 }
 
 .usericon {
   display: none;
-}
-
-.event {
-  color: GrayText;
-  clear: both;
 }
 
 .nick {
@@ -85,10 +132,6 @@ p.event {
   opacity: 0.7;
 }
 
-p {
-  margin: 0px auto;
-}
-
 p *:any-link img {
   margin-bottom: 1px;
   border-bottom: solid 1px;
@@ -98,86 +141,44 @@ p *:any-link img {
   margin: 8px 0 12px;
   width: 100%;
   border: none;
-  border-top: 1px dashed GrayText;
+  border-top: 1px solid ThreeDDarkShadow;
 }
-
 
 /* used by javascript */
 .eventToggle {
-  cursor: pointer;
-  min-height: 22px;
-  margin-inline-start: -20px;
-  padding-inline-start: 20px;
-  background: url('Bitmaps/minus.png') no-repeat left center;
+  background: url("chrome://global/skin/icons/twisty-expanded.svg") no-repeat left center;
   margin-bottom: -22px;
-  width: 0px;
+  cursor: pointer;
+  height: 22px;
+  width: 20px;
+  z-index: 1;
+  opacity: 0.5;
 }
 
 .eventToggle:hover {
-  background: url('Bitmaps/minus-hover.png') no-repeat left center;
+  opacity: 1;
 }
 
-.hide-children > .eventToggle {
-  width: 100%;
-  margin-bottom: -5px;
-  background-image: url('Bitmaps/plus.png');
-}
-
-.hide-children > .eventToggle:hover {
-  background-image: url('Bitmaps/plus-hover.png');
-}
-
-.hide-children > .eventToggle:after {
-  content: "\2026"; /* &hellip; */
-  color: GrayText;
-}
-
-.hide-children > :-moz-any(p.event, hr):not(:first-of-type):not(:last-of-type):not(.no-collapse) {
+.hide-children > :-moz-any(p.event.row, hr):not(:first-of-type):not(:last-of-type):not(.no-collapse) {
   display: none;
 }
 
 /* We style Twitter differently from other types of chat */
 
 .message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) {
-  background-color: hsl(0, 0%, 99%);
-  border-radius: 5px;
-  border: 1px solid hsl(0, 0%, 85%);
-  min-height: 48px;
-  padding: 6px;
-  margin-left: 0px;
-  margin-bottom: 6px;
+  background-color: rgba(69, 161, 255, 0.1);
+  border: 1px solid #45a1ff;
+  margin-bottom: 10px;
 }
 
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) > .pseudo {
-  float: none;
-  text-align: left;
-  display: block;
-  width: auto;
-  padding-left: 64px;
-}
-
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) > .next {
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) .next {
   visibility: visible;
 }
 
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) > .ib-msg-txt {
-  margin-left: 0px;
-  padding-left: 64px;
-}
-
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) > .usericon {
-  position: absolute;
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) .usericon {
   display: block;
-  max-width: 48px;
-  max-height: 48px;
-  margin-right: 6px;
-  border-radius: 5px;
-}
-
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) ~ .event {
-  margin-left: 71px;
-}
-
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) ~ .event > .date {
-  margin-right: 7px;
+  max-width: 42px;
+  max-height: 42px;
+  border-radius: 9999px;
+  margin-block-end: 8px;
 }

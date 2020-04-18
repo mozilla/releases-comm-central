@@ -25,10 +25,6 @@ messenger.jar:
     content/messenger/chat/chat-conversation-info.js     (content/chat-conversation-info.js)
     content/messenger/chat/toolbarbutton-badge-button.js (content/toolbarbutton-badge-button.js)
 % skin messenger-messagestyles classic/1.0 %skin/classic/messenger/messages/
-	skin/classic/messenger/messages/mail/Bitmaps/minus-hover.png          (messages/mail/Bitmaps/minus-hover.png)
-	skin/classic/messenger/messages/mail/Bitmaps/minus.png                (messages/mail/Bitmaps/minus.png)
-	skin/classic/messenger/messages/mail/Bitmaps/plus-hover.png           (messages/mail/Bitmaps/plus-hover.png)
-	skin/classic/messenger/messages/mail/Bitmaps/plus.png                 (messages/mail/Bitmaps/plus.png)
 	skin/classic/messenger/messages/mail/Footer.html                      (messages/mail/Footer.html)
 	skin/classic/messenger/messages/mail/Incoming/buddy_icon.png          (messages/mail/Incoming/buddy_icon.png)
 	skin/classic/messenger/messages/mail/Outgoing/buddy_icon.png          (messages/mail/Incoming/buddy_icon.png)
