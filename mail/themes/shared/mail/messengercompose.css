@@ -16,14 +16,13 @@
 
 /* Styles for the default system dark theme */
 
-:root[lwt-default-theme-in-dark-mode] #headers-box,
-:root[lwt-default-theme-in-dark-mode] #msgHeaderView {
+:root[lwt-tree] #headers-box {
   background-color: var(--toolbar-bgcolor) !important;
   background-image: none !important;
   color: var(--lwt-text-color);
 }
 
-:root[lwt-default-theme-in-dark-mode] #headers-box {
+:root[lwt-tree] #headers-box {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
 
@@ -34,27 +33,27 @@
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-:root[lwt-default-theme-in-dark-mode] #MsgHeadersToolbar {
+:root[lwt-tree] #MsgHeadersToolbar {
   color: inherit;
 }
 
-:root[lwt-default-theme-in-dark-mode] #msgSubject,
-:root[lwt-default-theme-in-dark-mode] .address-container {
+:root[lwt-tree] #msgSubject,
+:root[lwt-tree] .address-container {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-text-color);
 }
 
-:root[lwt-default-theme-in-dark-mode] #msgIdentity:hover,
-:root[lwt-default-theme-in-dark-mode] #msgIdentity:focus,
-:root[lwt-default-theme-in-dark-mode] #msgIdentity:focus-within,
-:root[lwt-default-theme-in-dark-mode] #msgSubject:hover,
-:root[lwt-default-theme-in-dark-mode] #msgSubject:focus {
+:root[lwt-tree] #msgIdentity:hover,
+:root[lwt-tree] #msgIdentity:focus,
+:root[lwt-tree] #msgIdentity:focus-within,
+:root[lwt-tree] #msgSubject:hover,
+:root[lwt-tree] #msgSubject:focus {
   color: var(--lwt-toolbar-field-color);
   border-color: var(--lwt-toolbar-field-border-color);
   background-color: var(--lwt-toolbar-field-background-color);
 }
 
-:root[lwt-default-theme-in-dark-mode] panel[type="autocomplete-richlistbox"]:-moz-lwtheme {
+:root[lwt-tree] panel[type="autocomplete-richlistbox"]:-moz-lwtheme {
   margin-top: -1px;
   padding: 2px 0;
   background: var(--autocomplete-popup-background);
@@ -63,12 +62,12 @@
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-:root[lwt-default-theme-in-dark-mode] .autocomplete-richlistbox {
+:root[lwt-tree] .autocomplete-richlistbox {
   color: inherit;
   background-color: inherit;
 }
 
-:root[lwt-default-theme-in-dark-mode] .autocomplete-richlistitem[selected] {
+:root[lwt-tree] .autocomplete-richlistitem[selected] {
   background: #0a84ff;
   color: #fff;
 }
@@ -349,6 +348,10 @@ menulist::part(description) {
   -moz-user-focus: ignore !important;
 }
 
+#FormatToolbar > toolbaritem > menulist {
+  margin-block: 1px;
+}
+
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {
   display: none;
 }
@@ -497,6 +500,11 @@ menulist::part(description) {
   height: 14px;
 }
 
+#msgIdentity::part(text-input) {
+  border-style: none;
+  margin-inline-start: 1px;
+}
+
 #msgSubject {
   -moz-appearance: none;
   margin-top: 0;
@@ -563,6 +571,10 @@ menulist::part(description) {
 
 .address-container > .address-input {
   padding-block: 4px;
+}
+
+.address-container > .address-input:focus {
+  outline: none;
 }
 
 .address-pill {
@@ -748,6 +760,7 @@ label.extra-recipients-label {
 .address-container[focused="true"] {
   border-color: Highlight !important;
   background-color: -moz-field;
+  outline: none;
 }
 
 #MsgHeadersToolbar[brighttext] #msgIdentity:focus,

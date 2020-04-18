@@ -22,46 +22,6 @@
   -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-light;
 }
 
-#headers-box {
-  -moz-appearance: none;
-}
-
-#FormatToolbar {
-  background-image: none;
-  background-color: transparent !important;
-}
-
-#compose-toolbar-sizer {
-  background-image: none;
-  background-color: var(--lwt-accent-color);
-}
-
 .tabmail-tab[selected="true"]:-moz-lwtheme-darktext {
   -moz-font-smoothing-background-color: var(--toolbar-bgcolor);
-}
-
-#FormatToolbar:not(:-moz-window-inactive):-moz-lwtheme-brighttext >
-toolbarbutton.formatting-button[checked="true"]:after {
-  content: "";
-  display: -moz-box;
-  width: 29px;
-  height: 20px;
-  margin-top: -1px;
-  margin-inline-start: -24px;
-  margin-inline-end: -5px;
-  background-color: #888;
-}
-
-#underlineButton:-moz-locale-dir(rtl):after,
-#boldButton:-moz-locale-dir(ltr):after,
-#ulButton:-moz-locale-dir(ltr):after {
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-}
-
-#underlineButton:-moz-locale-dir(ltr):after,
-#boldButton:-moz-locale-dir(rtl):after,
-#ulButton:-moz-locale-dir(rtl):after {
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
 }

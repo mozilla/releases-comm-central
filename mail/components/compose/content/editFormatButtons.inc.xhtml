@@ -61,8 +61,9 @@
 
         <toolbaritem id="color-buttons-container"
                      class="formatting-button"
+                     align="center"
                      disableoncustomize="true">
-          <stack id="ColorButtons" align="center">
+          <stack id="ColorButtons">
             <box class="color-button" id="BackgroundColorButton"
                  onclick="if (!this.hasAttribute('disabled') || this.getAttribute('disabled') != 'true') { EditorSelectColor('', event); }"
                  tooltiptext="&BackgroundColorButton.tooltip;"

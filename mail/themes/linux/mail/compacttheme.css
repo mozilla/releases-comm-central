@@ -4,16 +4,3 @@
 
 @import url("chrome://messenger/skin/shared/compacttheme.css");
 
-#MsgHeadersToolbar {
-  background-image: none;
-}
-
-#headers-box {
-  -moz-appearance: none;
-}
-
-#FormatToolbar {
-  color: inherit;
-  background-image: none;
-}
-

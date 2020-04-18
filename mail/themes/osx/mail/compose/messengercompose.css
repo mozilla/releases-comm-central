@@ -955,21 +955,21 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon)
 
 /* Styles for the default system dark theme */
 
-:root[lwt-default-theme-in-dark-mode] #headers-box {
+:root[lwt-tree] #headers-box {
   -moz-appearance: none;
 }
 
-:root[lwt-default-theme-in-dark-mode] #FormatToolbar {
+:root[lwt-tree] #FormatToolbar {
   background-image: none;
   background-color: transparent !important;
 }
 
-:root[lwt-default-theme-in-dark-mode] #compose-toolbar-sizer {
+:root[lwt-tree] #compose-toolbar-sizer {
   background-image: none;
   background-color: var(--lwt-accent-color);
 }
 
-:root[lwt-default-theme-in-dark-mode]
+:root[lwt-tree]
   #FormatToolbar:not(:-moz-window-inactive):-moz-lwtheme-brighttext >
   toolbarbutton.formatting-button[checked="true"]:after {
   content: "";
@@ -982,16 +982,16 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon)
   background-color: #888;
 }
 
-:root[lwt-default-theme-in-dark-mode] #underlineButton:-moz-locale-dir(rtl):after,
-:root[lwt-default-theme-in-dark-mode] #boldButton:-moz-locale-dir(ltr):after,
-:root[lwt-default-theme-in-dark-mode] #ulButton:-moz-locale-dir(ltr):after {
+:root[lwt-tree] #underlineButton:-moz-locale-dir(rtl):after,
+:root[lwt-tree] #boldButton:-moz-locale-dir(ltr):after,
+:root[lwt-tree] #ulButton:-moz-locale-dir(ltr):after {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
-:root[lwt-default-theme-in-dark-mode] #underlineButton:-moz-locale-dir(ltr):after,
-:root[lwt-default-theme-in-dark-mode] #boldButton:-moz-locale-dir(rtl):after,
-:root[lwt-default-theme-in-dark-mode] #ulButton:-moz-locale-dir(rtl):after {
+:root[lwt-tree] #underlineButton:-moz-locale-dir(ltr):after,
+:root[lwt-tree] #boldButton:-moz-locale-dir(rtl):after,
+:root[lwt-tree] #ulButton:-moz-locale-dir(rtl):after {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
 }
