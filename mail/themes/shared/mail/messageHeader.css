@@ -311,21 +311,21 @@ mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
 
 .emailToggleHeaderfield {
   padding-top: 1px;
-  width: 8px; /* The image's width is 8 pixels */
-  height: 8px;
+  width: 10px;
   margin-inline-end: 2px;
   margin-inline-start: 4px;
-  background: url("chrome://global/skin/icons/twisty-collapsed.svg") no-repeat left 7px;
+  background: url("chrome://global/skin/icons/twisty-collapsed.svg") no-repeat center;
+  background-size: contain;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
 .emailToggleHeaderfield:-moz-locale-dir(rtl) {
-  background: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+  background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
 }
 
 .emailToggleHeaderfield.open {
-  background: url("chrome://global/skin/icons/twisty-expanded.svg") no-repeat left 6px;
+  background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
 }
 
 /* ::::: view expand and collapse twisties  ::::: */
