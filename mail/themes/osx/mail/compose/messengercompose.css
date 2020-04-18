@@ -132,6 +132,10 @@ toolbar[nowindowdrag="true"] {
   margin-inline-start: initial;
 }
 
+:root[lwt-tree] #msgIdentityPopup > menuitem {
+  padding-block: 5px;
+}
+
 #attachments-header-box {
   min-height: 28px;
 }

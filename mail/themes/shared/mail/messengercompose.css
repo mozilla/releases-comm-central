@@ -68,8 +68,35 @@
 }
 
 :root[lwt-tree] .autocomplete-richlistitem[selected] {
-  background: #0a84ff;
-  color: #fff;
+  background-color: var(--autocomplete-popup-highlight-background);
+  color: var(--autocomplete-popup-highlight-color);
+}
+
+:root[lwt-tree] #msgIdentityPopup {
+  -moz-appearance: none;
+  border: 1px solid var(--autocomplete-popup-border-color);
+  border-radius: 2px;
+  background-color: var(--autocomplete-popup-background);
+}
+
+:root[lwt-tree] #msgIdentityPopup > menuitem {
+  -moz-appearance: none;
+  color: var(--autocomplete-popup-color);
+}
+
+:root[lwt-tree] #msgIdentityPopup >  menuitem[_moz-menuactive="true"] {
+  background-color: var(--arrowpanel-dimmed);
+}
+
+:root[lwt-tree] #msgIdentityPopup >  menuitem[selected="true"] {
+  background-color: var(--autocomplete-popup-highlight-background);
+  color: var(--autocomplete-popup-highlight-color);
+}
+
+:root[lwt-tree] #msgIdentityPopup > menuseparator {
+  -moz-appearance: none;
+  border-top: 1px solid var(--autocomplete-popup-color);
+  opacity: 0.5;
 }
 
 /* Rules to help integrate WebExtension buttons */
@@ -310,20 +337,10 @@
   list-style-image: url("chrome://messenger/skin/icons/print.svg");
 }
 
-#msgIdentityPopup > menuitem[_moz-menuactive="true"] > .menu-description {
-  color: HighlightText;
-  opacity: .7;
-}
-
-.menu-description {
-  font-style: italic;
-  color: GrayText;
-  margin-inline-start: 1ex !important;
-}
-
+.menu-description,
 menulist::part(description) {
   font-style: italic;
-  color: GrayText;
+  opacity: 0.55;
   margin-inline-start: 1ex !important;
 }
 

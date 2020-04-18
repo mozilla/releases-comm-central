@@ -244,6 +244,14 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
   color: -moz-FieldText;
 }
 
+:root[lwt-tree] #msgIdentity[open="true"] {
+  color: var(--lwt-toolbar-field-color);
+}
+
+:root[lwt-tree] #msgIdentityPopup > menuitem {
+  padding-block: 5px;
+}
+
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {
