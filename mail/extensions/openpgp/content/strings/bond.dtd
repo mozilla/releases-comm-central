@@ -9,3 +9,6 @@
 <!ENTITY enigmail.ctxDecryptSave.accesskey          "C">
 <!ENTITY enigmail.ctxImportKey.accesskey            "I">
 <!ENTITY enigmail.ctxVerifyAtt.accesskey            "V">
+
+<!ENTITY enigmail.hasSenderKey.label                "This message claims to contain the sender's OpenPGP public key.">
+<!ENTITY enigmail.importSenderKey.label             "Import…">

@@ -745,7 +745,14 @@ function enigmailImportFromClipbrd() {
 
     if (exitStatus) {
       // import
-      EnigmailKeyRing.importKey(window, false, cBoardContent, "", errorMsgObj);
+      EnigmailKeyRing.importKey(
+        window,
+        false,
+        cBoardContent,
+        false,
+        "",
+        errorMsgObj
+      );
       var keyList = preview.map(function(a) {
         return a.id;
       });
@@ -1055,7 +1062,14 @@ function enigmailImportKeysFromUrl() {
           }
 
           if (exitStatus) {
-            EnigmailKeyRing.importKey(window, false, data, "", errorMsgObj);
+            EnigmailKeyRing.importKey(
+              window,
+              false,
+              data,
+              false,
+              "",
+              errorMsgObj
+            );
             errorMsgObj.preview = preview;
             resolve(errorMsgObj);
           }

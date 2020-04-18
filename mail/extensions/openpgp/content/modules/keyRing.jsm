@@ -518,6 +518,7 @@ var EnigmailKeyRing = {
     parent,
     isInteractive,
     keyBlock,
+    isBinary,
     keyId,
     errorMsgObj,
     importedKeysObj,
@@ -530,6 +531,7 @@ var EnigmailKeyRing = {
         parent,
         isInteractive,
         keyBlock,
+        isBinary,
         keyId,
         errorMsgObj,
         importedKeysObj,
@@ -560,6 +562,7 @@ var EnigmailKeyRing = {
     parent,
     isInteractive,
     keyBlock,
+    isBinary,
     keyId,
     errorMsgObj,
     importedKeysObj,
@@ -570,30 +573,33 @@ var EnigmailKeyRing = {
       `keyRing.jsm: EnigmailKeyRing.importKeyAsync('${keyId}', ${isInteractive}, ${minimizeKey})\n`
     );
 
-    const beginIndexObj = {};
-    const endIndexObj = {};
-    const blockType = EnigmailArmor.locateArmoredBlock(
-      keyBlock,
-      0,
-      "",
-      beginIndexObj,
-      endIndexObj,
-      {}
-    );
-    if (!blockType) {
-      errorMsgObj.value = EnigmailLocale.getString("noPGPblock");
-      return 1;
-    }
+    var pgpBlock;
+    if (!isBinary) {
+      const beginIndexObj = {};
+      const endIndexObj = {};
+      const blockType = EnigmailArmor.locateArmoredBlock(
+        keyBlock,
+        0,
+        "",
+        beginIndexObj,
+        endIndexObj,
+        {}
+      );
+      if (!blockType) {
+        errorMsgObj.value = EnigmailLocale.getString("noPGPblock");
+        return 1;
+      }
 
-    if (blockType.search(/^(PUBLIC|PRIVATE) KEY BLOCK$/) !== 0) {
-      errorMsgObj.value = EnigmailLocale.getString("notFirstBlock");
-      return 1;
-    }
+      if (blockType.search(/^(PUBLIC|PRIVATE) KEY BLOCK$/) !== 0) {
+        errorMsgObj.value = EnigmailLocale.getString("notFirstBlock");
+        return 1;
+      }
 
-    const pgpBlock = keyBlock.substr(
-      beginIndexObj.value,
-      endIndexObj.value - beginIndexObj.value + 1
-    );
+      pgpBlock = keyBlock.substr(
+        beginIndexObj.value,
+        endIndexObj.value - beginIndexObj.value + 1
+      );
+    }
 
     if (isInteractive) {
       if (
@@ -617,7 +623,11 @@ var EnigmailKeyRing = {
     }
 
     const cApi = EnigmailCryptoAPI();
-    cApi.sync(cApi.importKeyBlock(pgpBlock, true, false)); // public only
+    if (isBinary) {
+      cApi.sync(cApi.importKeyBlock(keyBlock, true, false)); // public only
+    } else {
+      cApi.sync(cApi.importKeyBlock(pgpBlock, true, false)); // public only
+    }
 
     if (!importedKeysObj) {
       importedKeysObj = {};

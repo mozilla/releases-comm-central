@@ -1019,11 +1019,15 @@ var RNP = {
   importToFFI(ffi, keyBlockStr, usePublic, useSecret) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
-    var tmp_array = ctypes.char.array()(keyBlockStr);
-    var key_array = ctypes.cast(
-      tmp_array,
-      ctypes.uint8_t.array(keyBlockStr.length)
-    );
+    if (!keyBlockStr) {
+      throw new Error("no keyBlockStr parameter in importToFFI");
+    }
+
+    let arr = [];
+    for (let i = 0; i < keyBlockStr.length; i++) {
+      arr[i] = keyBlockStr.charCodeAt(i);
+    }
+    var key_array = ctypes.uint8_t.array()(arr);
 
     if (
       RNPLib.rnp_input_from_memory(
@@ -1057,11 +1061,13 @@ var RNP = {
     // as seen in keyRing.importKeyAsync.
     // (should prevent the incorrect popup "no keys imported".)
 
-    console.debug(
-      "result key listing, rv= %s, result= %s",
-      rv,
-      jsonInfo.readString()
-    );
+    if (!rv) {
+      console.debug(
+        "result key listing, rv= %s, result= %s",
+        rv,
+        jsonInfo.readString()
+      );
+    }
 
     RNPLib.rnp_buffer_destroy(jsonInfo);
     RNPLib.rnp_input_destroy(input_from_memory);
@@ -1092,9 +1098,9 @@ var RNP = {
   async getKeyListFromKeyBlock(keyBlockStr, pubkey = true, seckey = false) {
     // Create a separate, temporary RNP storage area (FFI),
     // import the key block into it, then get the listing.
-    if (!this.isSimpleASCII(keyBlockStr)) {
-      return null;
-    }
+    //if (!this.isSimpleASCII(keyBlockStr)) {
+    //  return null;
+    //}
 
     let tempFFI = new RNPLib.rnp_ffi_t();
     if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {

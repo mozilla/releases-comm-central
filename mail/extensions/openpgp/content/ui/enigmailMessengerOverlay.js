@@ -101,11 +101,9 @@ var EnigmailURIs = ChromeUtils.import(
 var EnigmailProtocolHandler = ChromeUtils.import(
   "chrome://openpgp/content/modules/protocolHandler.jsm"
 ).EnigmailProtocolHandler;
-/*
 var EnigmailAutocrypt = ChromeUtils.import(
   "chrome://openpgp/content/modules/autocrypt.jsm"
 ).EnigmailAutocrypt;
-*/
 var EnigmailMime = ChromeUtils.import(
   "chrome://openpgp/content/modules/mime.jsm"
 ).EnigmailMime;
@@ -304,6 +302,9 @@ Enigmail.msg = {
   messageListener: {
     onStartHeaders() {
       Enigmail.msg.mimeParts = null;
+      let b = document.getElementById("openpgpKeyBox");
+      b.setAttribute("hidden", true);
+      b.removeAttribute("keydata");
       /*
       if ("autocrypt" in gExpandedHeaderView) {
         delete gExpandedHeaderView.autocrypt;
@@ -772,10 +773,9 @@ Enigmail.msg = {
 
       // Copy selected headers
       Enigmail.msg.savedHeaders = {
-        //autocrypt: [],
+        autocrypt: [],
       };
 
-      /*
       for (let h in currentHeaderData) {
         if (h.search(/^autocrypt\d*$/) === 0) {
           Enigmail.msg.savedHeaders.autocrypt.push(
@@ -783,7 +783,6 @@ Enigmail.msg = {
           );
         }
       }
-      */
 
       if (!mimeMsg.fullContentType) {
         mimeMsg.fullContentType = "text/plain";
@@ -814,12 +813,13 @@ Enigmail.msg = {
         );
       }
 
-      /*
+      let senderAutocryptKey = null;
       if (
         "autocrypt" in Enigmail.msg.savedHeaders &&
         Enigmail.msg.savedHeaders.autocrypt.length > 0 &&
         "from" in currentHeaderData
       ) {
+        /*
         let dateValue = "";
         if ("date" in currentHeaderData) {
           dateValue = currentHeaderData.date.headerValue;
@@ -831,10 +831,20 @@ Enigmail.msg = {
           dateValue,
           Enigmail.msg.isAutocryptEnabled()
         );
+        */
+
+        senderAutocryptKey = EnigmailAutocrypt.getKeyFromHeader(
+          currentHeaderData.from.headerValue,
+          Enigmail.msg.savedHeaders.autocrypt
+        );
+        if (senderAutocryptKey) {
+          let b = document.getElementById("openpgpKeyBox");
+          b.setAttribute("hidden", false);
+          b.setAttribute("keydata", senderAutocryptKey);
+        }
       } else {
-        Enigmail.msg.createArtificialAutocryptHeader();
+        //Enigmail.msg.createArtificialAutocryptHeader();
       }
-      */
 
       var msgSigned =
         mimeMsg.fullContentType.search(/^multipart\/signed/i) === 0 &&
@@ -1764,6 +1774,26 @@ Enigmail.msg = {
     );
   },
 
+  importAutocryptKeydata() {
+    let keyDataB64 = document
+      .getElementById("openpgpKeyBox")
+      .getAttribute("keydata");
+    if (!keyDataB64) {
+      return;
+    }
+    let keyData = EnigmailData.decodeBase64(keyDataB64);
+    let errorMsgObj = {};
+    let preview = EnigmailKey.getKeyListFromKeyBlock(keyData, errorMsgObj);
+    if (errorMsgObj.value === "") {
+      this.importKeyDataWithConfirmation(preview, keyData, true);
+    } else {
+      EnigmailDialog.alert(
+        window,
+        EnigmailLocale.getString("previewFailed") + "\n" + errorMsgObj.value
+      );
+    }
+  },
+
   importKeyFromMsgBody(msgData) {
     let beginIndexObj = {};
     let endIndexObj = {};
@@ -1785,7 +1815,7 @@ Enigmail.msg = {
     let errorMsgObj = {};
     let preview = EnigmailKey.getKeyListFromKeyBlock(keyData, errorMsgObj);
     if (errorMsgObj.value === "") {
-      this.importKeyDataWithConfirmation(preview, keyData);
+      this.importKeyDataWithConfirmation(preview, keyData, false);
     } else {
       EnigmailDialog.alert(
         window,
@@ -1794,7 +1824,7 @@ Enigmail.msg = {
     }
   },
 
-  importKeyDataWithConfirmation(preview, keyData) {
+  importKeyDataWithConfirmation(preview, keyData, isBinary) {
     let exitStatus = -1,
       errorMsgObj = {};
     if (preview.length > 0) {
@@ -1825,6 +1855,7 @@ Enigmail.msg = {
             window,
             false,
             keyData,
+            isBinary,
             "",
             errorMsgObj
           );
@@ -2827,7 +2858,7 @@ Enigmail.msg = {
       }
 
       if (errorMsgObj.value === "") {
-        this.importKeyDataWithConfirmation(preview, callbackArg.data);
+        this.importKeyDataWithConfirmation(preview, callbackArg.data, false);
       } else {
         EnigmailDialog.alert(
           window,

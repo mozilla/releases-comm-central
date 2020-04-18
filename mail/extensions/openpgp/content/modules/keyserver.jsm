@@ -323,6 +323,7 @@ const accessHkpInternal = {
                 null,
                 false,
                 xmlReq.responseText,
+                false,
                 "",
                 errorMsgObj,
                 importedKeysObj,
@@ -739,6 +740,7 @@ const accessKeyBase = {
                         null,
                         false,
                         resp.them[hit].public_keys.primary.bundle,
+                        false,
                         "",
                         errorMsgObj,
                         importedKeysObj
@@ -1420,6 +1422,7 @@ const accessVksServer = {
                 null,
                 false,
                 xmlReq.responseText,
+                false,
                 "",
                 errorMsgObj,
                 importedKeysObj

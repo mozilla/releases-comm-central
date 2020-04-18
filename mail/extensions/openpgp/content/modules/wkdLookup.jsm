@@ -567,7 +567,7 @@ function importDownloadedKeys(keysArr) {
     EnigmailLog.DEBUG("wkdLookup.jsm: importDownloadedKeys: fpr=" + keyList[k].fpr + "\n");
   }
 
-  EnigmailKeyRing.importKey(null, false, keyData, "", {}, {}, false, domainArr);
+  EnigmailKeyRing.importKey(null, false, keyData, false, "", {}, {}, false, domainArr);
   */
 }
 

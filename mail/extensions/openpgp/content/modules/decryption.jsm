@@ -264,6 +264,7 @@ var EnigmailDecryption = {
         parent,
         true,
         pgpBlock,
+        false,
         "",
         errorMsgObj
       );
@@ -449,6 +450,7 @@ var EnigmailDecryption = {
           parent,
           true,
           innerKeyBlock,
+          false,
           pubKeyId,
           importErrorMsgObj
         );
@@ -592,6 +594,7 @@ var EnigmailDecryption = {
                 parent,
                 false,
                 byteData,
+                false,
                 "",
                 errorMsgObj
               );

@@ -267,6 +267,11 @@
       <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
       </vbox>
+#ifdef MOZ_OPENPGP
+      <vbox>
+#include msgOpenPGPKey.inc.xhtml
+      </vbox>
+#endif
       <findbar id="FindToolbar" browserid="messagepane"/>
     </vbox>
   </hbox>

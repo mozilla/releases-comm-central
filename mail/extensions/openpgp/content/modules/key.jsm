@@ -94,8 +94,14 @@ var EnigmailKey = {
 
         let errorMsgObj = {};
         if (
-          getKeyRing().importKey(null, false, keyBlockStr, keyId, errorMsgObj) >
-          0
+          getKeyRing().importKey(
+            null,
+            false,
+            keyBlockStr,
+            false,
+            keyId,
+            errorMsgObj
+          ) > 0
         ) {
           getDialog().alert(null, errorMsgObj.value);
         }

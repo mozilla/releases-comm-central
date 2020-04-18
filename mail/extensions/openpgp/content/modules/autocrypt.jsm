@@ -48,6 +48,98 @@ const { EnigmailCryptoAPI } = ChromeUtils.import(
 var gCreatedSetupIds = [];
 
 var EnigmailAutocrypt = {
+  getKeyFromHeader(fromAddr, headerDataArr) {
+    // critical parameters: {param: mandatory}
+    const CRITICAL = {
+      addr: true,
+      keydata: true,
+      type: false, // That's actually oboslete according to the Level 1 spec.
+    };
+
+    try {
+      fromAddr = EnigmailFuncs.stripEmail(fromAddr).toLowerCase();
+    } catch (ex) {
+      throw new Error("getKeyFromHeader error " + ex);
+    }
+    let foundTypes = {};
+    let paramArr = [];
+
+    for (let hdrNum = 0; hdrNum < headerDataArr.length; hdrNum++) {
+      let hdr = headerDataArr[hdrNum].replace(/[\r\n \t]/g, "");
+      let k = hdr.search(/keydata=/);
+      if (k > 0) {
+        let d = hdr.substr(k);
+        if (d.search(/"/) < 0) {
+          hdr = hdr.replace(/keydata=/, 'keydata="') + '"';
+        }
+      }
+
+      paramArr = EnigmailMime.getAllParameters(hdr);
+
+      for (let i in CRITICAL) {
+        if (CRITICAL[i]) {
+          // found mandatory parameter
+          if (!(i in paramArr)) {
+            EnigmailLog.DEBUG(
+              "autocrypt.jsm: getKeyFromHeader: cannot find param '" + i + "'\n"
+            );
+            return null; // do nothing if not all mandatory parts are present
+          }
+        }
+      }
+
+      paramArr.addr = paramArr.addr.toLowerCase();
+
+      if (fromAddr !== paramArr.addr) {
+        EnigmailLog.DEBUG(
+          "autocrypt.jsm: getKeyFromHeader: from Addr " +
+            fromAddr +
+            " != " +
+            paramArr.addr.toLowerCase() +
+            "\n"
+        );
+
+        return null;
+      }
+
+      if (!("type" in paramArr)) {
+        paramArr.type = "1";
+      } else {
+        paramArr.type = paramArr.type.toLowerCase();
+        if (paramArr.type !== "1") {
+          EnigmailLog.DEBUG(
+            "autocrypt.jsm: getKeyFromHeader: unknown type " +
+              paramArr.type +
+              "\n"
+          );
+          return null; // we currently only support 1 (=OpenPGP)
+        }
+      }
+
+      try {
+        atob(paramArr.keydata); // don't need result
+      } catch (ex) {
+        EnigmailLog.DEBUG(
+          "autocrypt.jsm: getKeyFromHeader: key is not base64-encoded\n"
+        );
+        return null;
+      }
+
+      if (paramArr.type in foundTypes) {
+        EnigmailLog.DEBUG(
+          "autocrypt.jsm: getKeyFromHeader: duplicate header for type=" +
+            paramArr.type +
+            "\n"
+        );
+        return null; // do not process anything if more than one Autocrypt header for the same type is found
+      }
+
+      foundTypes[paramArr.type] = 1;
+    }
+
+    return paramArr.keydata;
+  },
+
   /**
    * Process the "Autocrypt:" header and if successful store the update in the database
    *
@@ -322,7 +414,7 @@ var EnigmailAutocrypt = {
       EnigmailOpenPGP.armor.public_key,
       keyData
     );
-    await EnigmailKeyRing.importKeyAsync(null, false, pubkey, "", {}, keysObj);
+    await EnigmailKeyRing.importKeyAsync(null, false, pubkey, false, "", {}, keysObj);
 
     if (keysObj.value) {
       importedKeys = importedKeys.concat(keysObj.value);
@@ -1166,7 +1258,7 @@ function importSetupKey(keyData) {
       preferEncrypt = headers["autocrypt-prefer-encrypt"];
     }
 
-    let r = EnigmailKeyRing.importKey(null, false, keyData, "", {}, keyObj);
+    let r = EnigmailKeyRing.importKey(null, false, keyData, false, "", {}, keyObj);
 
     if (r === 0 && keyObj.value && keyObj.value.length > 0) {
       return {
