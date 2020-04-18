@@ -183,16 +183,21 @@ var gEditorDocumentObserver = {
           window.InsertCharWindow = null;
         }
 
-        try {
-          editor.QueryInterface(nsIEditorStyleSheets);
+        let domWindowUtils = GetCurrentEditorElement().contentWindow
+          .windowUtils;
+        // And extra styles for showing anchors, table borders, smileys, etc.
+        domWindowUtils.loadSheetUsingURIString(
+          kNormalStyleSheet,
+          domWindowUtils.AGENT_SHEET
+        );
 
-          //  and extra styles for showing anchors, table borders, smileys, etc
-          editor.addOverrideStyleSheet(kNormalStyleSheet);
+        // Remove contenteditable stylesheets if they were applied by the
+        // editingSession.
+        domWindowUtils.removeSheetUsingURIString(
+          kContentEditableStyleSheet,
+          domWindowUtils.AGENT_SHEET
+        );
 
-          // remove contenteditable stylesheets if they were applied by the
-          // editingSession
-          editor.removeOverrideStyleSheet(kContentEditableStyleSheet);
-        } catch (e) {}
         // Add mouse click watcher if right type of editor
         if (IsHTMLEditor()) {
           // Force color widgets to update

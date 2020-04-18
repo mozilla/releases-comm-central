@@ -170,7 +170,6 @@ function GetSelectionAsText() {
 /** *********** Get Current Editor and associated interfaces or info ***************/
 const nsIHTMLEditor = Ci.nsIHTMLEditor;
 const nsITableEditor = Ci.nsITableEditor;
-const nsIEditorStyleSheets = Ci.nsIEditorStyleSheets;
 const nsIEditingSession = Ci.nsIEditingSession;
 
 function GetCurrentEditor() {

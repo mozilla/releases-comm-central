@@ -3586,15 +3586,6 @@ var gMsgEditorCreationObserver = {
     if (aTopic == "obs_documentCreated") {
       var editor = GetCurrentEditor();
       if (editor && GetCurrentCommandManager() == aSubject) {
-        var editorStyle = editor.QueryInterface(Ci.nsIEditorStyleSheets);
-        // We use addOverrideStyleSheet rather than addStyleSheet so that we get
-        // a synchronous load, rather than having a late-finishing async load
-        // mark our editor as modified when the user hasn't typed anything yet,
-        // but that means the sheet must not @import slow things, especially
-        // not over the network.
-        editorStyle.addOverrideStyleSheet(
-          "chrome://messenger/skin/messageQuotes.css"
-        );
         InitEditor();
       }
       // Now that we know this document is an editor, update commands now if
@@ -8226,15 +8217,20 @@ function InitEditor() {
     editor.QueryInterface(Ci.nsIHTMLObjectResizer).objectResizingEnabled = true;
   }
 
-  editor.QueryInterface(Ci.nsIEditorStyleSheets);
-  // We use addOverrideStyleSheet rather than addStyleSheet so that we get
-  // a synchronous load, rather than having a late-finishing async load
-  // mark our editor as modified when the user hasn't typed anything yet,
-  // but that means the sheet must not @import slow things, especially
-  // not over the network.
-  editor.addOverrideStyleSheet(
-    "chrome://messenger/content/composerOverlay.css"
+  // We use loadSheetUsingURIString so that we get a synchronous load, rather
+  // than having a late-finishing async load mark our editor as modified when
+  // the user hasn't typed anything yet, but that means the sheet must not
+  // @import slow things, especially not over the network.
+  let domWindowUtils = GetCurrentEditorElement().contentWindow.windowUtils;
+  domWindowUtils.loadSheetUsingURIString(
+    "chrome://messenger/skin/messageQuotes.css",
+    domWindowUtils.AGENT_SHEET
   );
+  domWindowUtils.loadSheetUsingURIString(
+    "chrome://messenger/content/composerOverlay.css",
+    domWindowUtils.AGENT_SHEET
+  );
+
   gMsgCompose.initEditor(editor, window.content);
 
   // We always go through this function every time we init an editor.
