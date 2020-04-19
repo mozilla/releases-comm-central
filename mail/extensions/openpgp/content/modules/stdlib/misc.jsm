@@ -15,8 +15,6 @@ var EXPORTED_SYMBOLS = [
   "getIdentities",
   "getDefaultIdentity",
   "getIdentityForEmail",
-  // Account management helpers:
-  "hasConfiguredAccounts",
   // JS programming helpers
   "range",
   "MixIn",
@@ -408,20 +406,4 @@ function combine(a1, a2) {
     throw new Error("combine: the given arrays have different lengths");
   }
   return [...range(0, a1.length)].map(i => [a1[i], a2[i]]);
-}
-
-/**
- * Determine if at least one account / identity is configured
- * @return {Bool}
- */
-function hasConfiguredAccounts() {
-  for (let ac of MailServices.accounts.accounts) {
-    if (ac.incomingServer.type !== "none") {
-      if (ac.defaultIdentity.email.length > 0) {
-        return true;
-      }
-    }
-  }
-
-  return false;
 }

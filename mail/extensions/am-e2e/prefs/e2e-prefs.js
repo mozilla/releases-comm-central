@@ -26,9 +26,6 @@ pref("mail.identity.default.signing_cert_name", "");
 pref("mail.identity.default.openpgp_key_id", "");
 
 
-// the last configured Enigmail version
-pref("temp.openpgp.configuredVersion", "");
-
 // Hide prefs and menu entries from non-advanced users
 pref("temp.openpgp.advancedUser", false);
 
@@ -74,9 +71,6 @@ pref("temp.openpgp.handleDoubleClick", true);
 
 // disable '<' and '>' around email addresses
 pref("temp.openpgp.hushMailSupport", false);
-
-// display alert for 'failed to initialize enigmime'
-pref("temp.openpgp.initAlert", true);
 
 // use -a for encrypting attachments for inline PGP
 pref("temp.openpgp.inlineAttachAsciiArmor", false);

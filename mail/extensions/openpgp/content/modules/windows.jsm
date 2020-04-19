@@ -28,31 +28,6 @@ const { EnigmailStdlib } = ChromeUtils.import(
 
 var EnigmailWindows = {
   /**
-   * Display the OpenPGP setup wizard window
-   *
-   * win      : nsIWindow - the parent window
-   * skipIntro: Boolean   - optional, if true, skip the introduction page
-   *
-   * no return value
-   */
-  openSetupWizard(win, setupType) {
-    EnigmailLog.DEBUG("windows.jsm: openSetupWizard()\n");
-
-    if (!EnigmailStdlib.hasConfiguredAccounts()) {
-      EnigmailLog.DEBUG(
-        "windows.jsm: openSetupWizard: no configured accounts\n"
-      );
-      return;
-    }
-
-    win.open(
-      "chrome://openpgp/content/ui/setupWizard2.xhtml",
-      "",
-      "chrome,centerscreen,resizable"
-    );
-  },
-
-  /**
    * Open a window, or focus it if it is already open
    *
    * @winName   : String - name of the window; used to identify if it is already open
@@ -157,17 +132,6 @@ var EnigmailWindows = {
       "enigmail:help",
       "chrome://openpgp/content/ui/enigmailHelp.xhtml?src=" + source,
       "centerscreen,resizable"
-    );
-  },
-
-  /**
-   * Display the "About Enigmail" window
-   *
-   * no return value
-   */
-  openAboutWindow() {
-    EnigmailWindows.openMailTab(
-      "chrome://openpgp/content/ui/aboutEnigmail.html"
     );
   },
 
@@ -298,31 +262,6 @@ var EnigmailWindows = {
         escape(EnigmailLocale.getString("debugLog.title")),
       "centerscreen"
     );
-  },
-
-  /**
-   * Display the preferences dialog
-   *
-   * @win       - |object| holding the parent window for the dialog
-   * @showBasic - |boolean| true if only the 1st page of the preferences window
-   *              should be displayed / false otherwise
-   * @selectTab - |string| ID of the tab element (in XUL) to display when opening
-   *
-   * no return value
-   */
-  openPrefWindow(win, showBasic, selectTab) {
-    EnigmailLog.DEBUG("windows.js: openPrefWindow\n");
-
-    EnigmailCore.getService(win, true); // true: starting preferences dialog
-
-    let url;
-
-    url = "chrome://openpgp/content/ui/pref-enigmail.xhtml";
-    win.openDialog(url, "_blank", "chrome,resizable=yes", {
-      showBasic,
-      clientType: "thunderbird",
-      selectTab,
-    });
   },
 
   /**
