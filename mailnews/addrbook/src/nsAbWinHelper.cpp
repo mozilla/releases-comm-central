@@ -35,7 +35,7 @@ struct nsMapiInterfaceWrapper {
   operator LPUNKNOWN*(void) {
     return reinterpret_cast<LPUNKNOWN*>(&mInterface);
   }
-  tInterface operator->(void)const { return mInterface; }
+  tInterface operator->(void) const { return mInterface; }
   operator tInterface*(void) { return &mInterface; }
 };
 
