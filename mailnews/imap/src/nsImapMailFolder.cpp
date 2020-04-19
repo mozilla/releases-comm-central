@@ -2001,6 +2001,16 @@ nsresult nsImapMailFolder::MarkMessagesImapDeleted(nsTArray<nsMsgKey> *keyArray,
 NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     nsIArray *messages, nsIMsgWindow *msgWindow, bool deleteStorage,
     bool isMove, nsIMsgCopyServiceListener *listener, bool allowUndo) {
+  // Stopgap. Build a parallel array of message headers while we complete
+  // removal of nsIArray usage (Bug 1583030).
+  uint32_t messageCount;
+  messages->GetLength(&messageCount);
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
+  msgHeaders.SetCapacity(messageCount);
+  for (uint32_t i = 0; i < messageCount; ++i) {
+    msgHeaders.AppendElement(do_QueryElementAt(messages, i));
+  }
+
   // *** jt - assuming delete is move to the trash folder for now
   nsAutoCString uri;
   bool deleteImmediatelyNoTrash = false;
@@ -2094,9 +2104,9 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
           if (!isMove) {
             nsCOMPtr<nsIMsgFolderNotificationService> notifier(
                 do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-            if (notifier) notifier->NotifyMsgsDeleted(messages);
+            if (notifier) notifier->NotifyMsgsDeleted(msgHeaders);
           }
-          DeleteStoreMessages(messages);
+          DeleteStoreMessages(msgHeaders);
           database->DeleteMessages(srcKeyArray, nullptr);
           EnableNotifications(allMessageCountNotifications, true);
         }
@@ -2114,8 +2124,6 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
   if (trashFolder) {
     nsCOMPtr<nsIMsgFolder> srcFolder;
     nsCOMPtr<nsISupports> srcSupport;
-    uint32_t count = 0;
-    rv = messages->GetLength(&count);
 
     rv = QueryInterface(NS_GET_IID(nsIMsgFolder), getter_AddRefs(srcFolder));
     nsCOMPtr<nsIMsgCopyService> copyService =
@@ -2566,14 +2574,11 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   }
   m_totalKeysToFetch = m_keysToFetch.Length();
   if (!keysToDelete.IsEmpty() && mDatabase) {
-    nsCOMPtr<nsIMutableArray> hdrsToDelete(
-        do_CreateInstance(NS_ARRAY_CONTRACTID));
-    MsgGetHeadersFromKeys(mDatabase, keysToDelete, hdrsToDelete);
+    nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToDelete;
+    MsgGetHeadersFromKeys2(mDatabase, keysToDelete, hdrsToDelete);
     // Notify nsIMsgFolderListeners of a mass delete, but only if we actually
     // have headers
-    uint32_t numHdrs;
-    hdrsToDelete->GetLength(&numHdrs);
-    if (numHdrs) {
+    if (!hdrsToDelete.IsEmpty()) {
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
           do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
       if (notifier) notifier->NotifyMsgsDeleted(hdrsToDelete);
@@ -4938,8 +4943,20 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
         else if (imapAction == nsIImapUrl::nsImapOnlineCopy)
           notifier->NotifyMsgsMoveCopyCompleted(false, m_copyState->m_messages,
                                                 this, nullptr);
-        else if (imapAction == nsIImapUrl::nsImapDeleteMsg)
-          notifier->NotifyMsgsDeleted(m_copyState->m_messages);
+        else if (imapAction == nsIImapUrl::nsImapDeleteMsg) {
+          // Stopgap. Build a parallel array of message headers while we
+          // complete removal of nsIArray usage (Bug 1583030).
+          uint32_t messageCount;
+          m_copyState->m_messages->GetLength(&messageCount);
+          nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
+          msgHeaders.SetCapacity(messageCount);
+          for (uint32_t i = 0; i < messageCount; ++i) {
+            msgHeaders.AppendElement(
+                do_QueryElementAt(m_copyState->m_messages, i));
+          }
+
+          notifier->NotifyMsgsDeleted(msgHeaders);
+        }
       }
 
       switch (imapAction) {
@@ -5077,22 +5094,18 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
                 // For pluggable stores that do not support compaction, we need
                 // to delete the messages now.
                 bool supportsCompaction = false;
-                uint32_t numHdrs = 0;
                 nsCOMPtr<nsIMsgPluggableStore> offlineStore;
                 (void)GetMsgStore(getter_AddRefs(offlineStore));
                 if (offlineStore)
                   offlineStore->GetSupportsCompaction(&supportsCompaction);
 
-                nsCOMPtr<nsIMutableArray> msgHdrs;
+                nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
                 if (notifier || !supportsCompaction) {
-                  msgHdrs = do_CreateInstance(NS_ARRAY_CONTRACTID);
-                  NS_ENSURE_STATE(msgHdrs);
-                  MsgGetHeadersFromKeys(db, keyArray, msgHdrs);
-                  msgHdrs->GetLength(&numHdrs);
+                  MsgGetHeadersFromKeys2(db, keyArray, msgHdrs);
                 }
 
                 // Notify listeners of delete.
-                if (notifier && numHdrs) {
+                if (notifier && !msgHdrs.IsEmpty()) {
                   // XXX Currently, the DeleteMessages below gets executed twice
                   // on deletes. Once in DeleteMessages, once here. The second
                   // time, it silently fails to delete. This is why we're also
@@ -5100,7 +5113,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
                   notifier->NotifyMsgsDeleted(msgHdrs);
                 }
 
-                if (!supportsCompaction && numHdrs)
+                if (!supportsCompaction && !msgHdrs.IsEmpty())
                   DeleteStoreMessages(msgHdrs);
 
                 db->DeleteMessages(keyArray, nullptr);
@@ -9029,7 +9042,8 @@ NS_IMETHODIMP nsImapMailFolder::GetIncomingServerType(nsACString &serverType) {
   return NS_OK;
 }
 
-void nsImapMailFolder::DeleteStoreMessages(nsIArray *aMessages) {
+void nsImapMailFolder::DeleteStoreMessages(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages) {
   // Delete messages for pluggable stores that do not support compaction.
   nsCOMPtr<nsIMsgPluggableStore> offlineStore;
   (void)GetMsgStore(getter_AddRefs(offlineStore));
@@ -9041,11 +9055,12 @@ void nsImapMailFolder::DeleteStoreMessages(nsIArray *aMessages) {
   }
 }
 
-void nsImapMailFolder::DeleteStoreMessages(nsTArray<nsMsgKey> &aMessages) {
+void nsImapMailFolder::DeleteStoreMessages(
+    const nsTArray<nsMsgKey> &aMessages) {
   DeleteStoreMessages(aMessages, this);
 }
 
-void nsImapMailFolder::DeleteStoreMessages(nsTArray<nsMsgKey> &aMessages,
+void nsImapMailFolder::DeleteStoreMessages(const nsTArray<nsMsgKey> &aMessages,
                                            nsIMsgFolder *aFolder) {
   // Delete messages for pluggable stores that do not support compaction.
   NS_ASSERTION(aFolder, "Missing Source Folder");
@@ -9058,9 +9073,8 @@ void nsImapMailFolder::DeleteStoreMessages(nsTArray<nsMsgKey> &aMessages,
       nsCOMPtr<nsIMsgDatabase> db;
       aFolder->GetMsgDatabase(getter_AddRefs(db));
       nsresult rv = NS_ERROR_FAILURE;
-      nsCOMPtr<nsIMutableArray> messages(
-          do_CreateInstance(NS_ARRAY_CONTRACTID));
-      if (db) rv = MsgGetHeadersFromKeys(db, aMessages, messages);
+      nsTArray<RefPtr<nsIMsgDBHdr>> messages;
+      if (db) rv = MsgGetHeadersFromKeys2(db, aMessages, messages);
       if (NS_SUCCEEDED(rv))
         offlineStore->DeleteMessages(messages);
       else

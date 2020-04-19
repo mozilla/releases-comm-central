@@ -31,7 +31,7 @@ class nsMsgBrkMBoxStore final : public nsMsgLocalStoreUtils,
   nsresult AddSubFolders(nsIMsgFolder *parent, nsCOMPtr<nsIFile> &path,
                          bool deep);
   nsresult CreateDirectoryForFolder(nsIFile *path);
-  nsresult GetOutputStream(nsIArray *aHdrArray,
+  nsresult GetOutputStream(nsIMsgDBHdr *aHdr,
                            nsCOMPtr<nsIOutputStream> &outputStream,
                            nsCOMPtr<nsISeekableStream> &seekableStream,
                            int64_t &restorePos);

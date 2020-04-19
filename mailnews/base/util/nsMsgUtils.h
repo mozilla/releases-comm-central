@@ -247,6 +247,12 @@ NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB,
                                            const nsTArray<nsMsgKey> &aKeys,
                                            nsIMutableArray *aHeaders);
 
+// Stopgap while we complete removal of nsIArray usage (Bug 1583030).
+// Then this function can replace MsgGetHeadersFromKeys().
+NS_MSG_BASE nsresult
+MsgGetHeadersFromKeys2(nsIMsgDatabase *aDB, const nsTArray<nsMsgKey> &aKeys,
+                       nsTArray<RefPtr<nsIMsgDBHdr>> &aHeaders);
+
 NS_MSG_BASE nsresult MsgExamineForProxyAsync(nsIChannel *channel,
                                              nsIProtocolProxyCallback *listener,
                                              nsICancelable **result);

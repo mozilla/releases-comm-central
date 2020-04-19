@@ -590,9 +590,9 @@ class nsImapMailFolder : public nsMsgDBFolder,
    *       (or an array of message keys)
    * @parm aSrcFolder the folder containing the messages (optional)
    */
-  void DeleteStoreMessages(nsIArray *aMessages);
-  void DeleteStoreMessages(nsTArray<nsMsgKey> &aMessages);
-  static void DeleteStoreMessages(nsTArray<nsMsgKey> &aMessages,
+  void DeleteStoreMessages(const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages);
+  void DeleteStoreMessages(const nsTArray<nsMsgKey> &aMessages);
+  static void DeleteStoreMessages(const nsTArray<nsMsgKey> &aMessages,
                                   nsIMsgFolder *aFolder);
 };
 #endif

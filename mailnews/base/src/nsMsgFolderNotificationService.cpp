@@ -71,7 +71,7 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsClassified(
 }
 
 NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsDeleted(
-    nsIArray *aMsgs) {
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMsgs) {
   NOTIFY_MSGFOLDER_LISTENERS(msgsDeleted, MsgsDeleted, (aMsgs));
   return NS_OK;
 }

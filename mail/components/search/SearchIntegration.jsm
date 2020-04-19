@@ -607,11 +607,8 @@ var SearchSupport = {
 
     msgsDeleted(aMsgs) {
       SearchIntegration._log.info("in msgsDeleted");
-      let count = aMsgs.length;
-      for (let i = 0; i < count; i++) {
-        let file = SearchIntegration._getSupportFile(
-          aMsgs.queryElementAt(i, Ci.nsIMsgDBHdr)
-        );
+      for (let msgHdr of aMsgs) {
+        let file = SearchIntegration._getSupportFile(msgHdr);
         if (file.exists()) {
           file.remove(false);
         }

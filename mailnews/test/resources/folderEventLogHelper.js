@@ -70,14 +70,10 @@ var _folderEventLogHelper_msgFolderListener = {
   },
 
   /**
-   * @param {nsIArray} aMsgs
+   * @param {Array<nsIMsgDBHdr>} aMsgs
    */
   msgsDeleted(aMsgs) {
-    let args = [];
-    for (let msgHdr of fixIterator(aMsgs, Ci.nsIMsgDBHdr)) {
-      args.push(msgHdr);
-    }
-    mark_action("msgEvent", "msgsDeleted", args);
+    mark_action("msgEvent", "msgsDeleted", aMsgs);
   },
 
   /**

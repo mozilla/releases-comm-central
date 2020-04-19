@@ -62,7 +62,7 @@ interface nsIMsgFolderNotificationService : nsISupports {
   void notifyMsgsClassified(in nsIArray aMsgs,
                             in boolean aJunkProcessed,
                             in boolean aTraitProcessed);
-  void notifyMsgsDeleted(in nsIArray aMsgs);
+  void notifyMsgsDeleted(in Array<nsIMsgDBHdr> aMsgs);
   void notifyMsgsMoveCopyCompleted(in boolean aMove,
                                    in nsIArray aSrcMsgs,
                                    in nsIMsgFolder aDestFolder,

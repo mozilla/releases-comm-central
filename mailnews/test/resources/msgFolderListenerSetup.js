@@ -243,6 +243,16 @@ function hasExactlyElements(array, elements) {
         -1
       );
     }
+  } else if (Array.isArray(elements)) {
+    Assert.equal(elements.length, array.length);
+    for (let el of elements) {
+      Assert.equal(typeof el, "object");
+      Assert.equal(
+        el instanceof Ci.nsIMsgDBHdr || el instanceof Ci.nsIMsgFolder,
+        true
+      );
+      Assert.notEqual(mailTestUtils.non_strict_index_of(array, el), -1);
+    }
   } else if (
     elements instanceof Ci.nsIMsgDBHdr ||
     elements instanceof Ci.nsIMsgFolder

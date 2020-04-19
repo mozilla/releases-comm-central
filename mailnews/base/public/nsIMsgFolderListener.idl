@@ -82,7 +82,7 @@ interface nsIMsgFolderListener : nsISupports {
    * later) for an IMAP account, this notification will not take place on the delete. This will only
    * take place on the purge.
    */
-  void msgsDeleted(in nsIArray aMsgs);
+  void msgsDeleted(in Array<nsIMsgDBHdr> aMsgs);
 
   /**
    * Notified after a command to move or copy a group of messages completes. In

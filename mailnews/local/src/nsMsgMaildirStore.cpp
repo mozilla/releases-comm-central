@@ -932,18 +932,14 @@ nsMsgMaildirStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
   return NS_NewLocalFileInputStream(aResult, path);
 }
 
-NS_IMETHODIMP nsMsgMaildirStore::DeleteMessages(nsIArray *aHdrArray) {
-  uint32_t messageCount;
-  nsresult rv = aHdrArray->GetLength(&messageCount);
-  NS_ENSURE_SUCCESS(rv, rv);
+NS_IMETHODIMP nsMsgMaildirStore::DeleteMessages(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray) {
   nsCOMPtr<nsIMsgFolder> folder;
 
-  for (uint32_t i = 0; i < messageCount; i++) {
-    nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(aHdrArray, i, &rv);
-    if (NS_FAILED(rv)) continue;
+  for (auto msgHdr : aHdrArray) {
     msgHdr->GetFolder(getter_AddRefs(folder));
     nsCOMPtr<nsIFile> path;
-    rv = folder->GetFilePath(getter_AddRefs(path));
+    nsresult rv = folder->GetFilePath(getter_AddRefs(path));
     NS_ENSURE_SUCCESS(rv, rv);
     nsAutoCString fileName;
     msgHdr->GetStringProperty("storeToken", getter_Copies(fileName));
@@ -1285,19 +1281,13 @@ NS_IMETHODIMP nsMsgMaildirStore::RebuildIndex(nsIMsgFolder *aFolder,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMaildirStore::ChangeFlags(nsIArray *aHdrArray,
-                                             uint32_t aFlags, bool aSet) {
-  NS_ENSURE_ARG_POINTER(aHdrArray);
-
-  uint32_t messageCount;
-  nsresult rv = aHdrArray->GetLength(&messageCount);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t i = 0; i < messageCount; i++) {
-    nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(aHdrArray, i, &rv);
+NS_IMETHODIMP nsMsgMaildirStore::ChangeFlags(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray, uint32_t aFlags,
+    bool aSet) {
+  for (auto msgHdr : aHdrArray) {
     // get output stream for header
     nsCOMPtr<nsIOutputStream> outputStream;
-    rv = GetOutputStream(msgHdr, outputStream);
+    nsresult rv = GetOutputStream(msgHdr, outputStream);
     NS_ENSURE_SUCCESS(rv, rv);
     // Seek to x-mozilla-status offset and rewrite value.
     rv = UpdateFolderFlag(msgHdr, aSet, aFlags, outputStream);
@@ -1343,7 +1333,7 @@ NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(nsIArray *aHdrArray,
   NS_ENSURE_SUCCESS(rv, rv);
   if (!messageCount) return NS_ERROR_INVALID_ARG;
 
-  mozilla::UniquePtr<nsLineBuffer<char> > lineBuffer(new nsLineBuffer<char>);
+  mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
 
   nsTArray<nsCString> keywordArray;
   ParseString(aKeywords, ' ', keywordArray);

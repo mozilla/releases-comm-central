@@ -2366,8 +2366,7 @@ var GlodaMsgIndexer = {
       this.indexer._log.debug("msgsDeleted notification");
       let glodaMessageIds = [];
 
-      for (let iMsgHdr = 0; iMsgHdr < aMsgHdrs.length; iMsgHdr++) {
-        let msgHdr = aMsgHdrs.queryElementAt(iMsgHdr, Ci.nsIMsgDBHdr);
+      for (let msgHdr of aMsgHdrs) {
         let [glodaId, glodaDirty] = PendingCommitTracker.getGlodaState(msgHdr);
         if (
           glodaId >= GLODA_FIRST_VALID_MESSAGE_ID &&
@@ -2438,7 +2437,7 @@ var GlodaMsgIndexer = {
           // If the destination folder is not indexed, it's like these messages
           //  are being deleted.
           if (!GlodaMsgIndexer.shouldIndexFolder(aDestFolder)) {
-            this.msgsDeleted(aSrcMsgHdrs);
+            this.msgsDeleted([...fixIterator(aSrcMsgHdrs, Ci.nsIMsgDBHdr)]);
             return;
           }
 

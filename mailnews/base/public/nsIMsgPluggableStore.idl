@@ -196,7 +196,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * same folder.
    * @param aHdrArray array of nsIMsgDBHdr's.
    */
-  void deleteMessages(in nsIArray aHdrArray);
+  void deleteMessages(in Array<nsIMsgDBHdr> aHdrArray);
 
   /**
    * This allows the store to handle a msg move/copy if it wants. This lets
@@ -309,7 +309,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * @param aFlags flags to set/clear
    * @param aSet true to set the flag(s), false to clear.
    */
-  void changeFlags(in nsIArray aHdrArray, in unsigned long aFlags,
+  void changeFlags(in Array<nsIMsgDBHdr> aHdrArray, in unsigned long aFlags,
                    in boolean aSet);
   /**
    *Sets/Clears the passed keywords on the passed messages.

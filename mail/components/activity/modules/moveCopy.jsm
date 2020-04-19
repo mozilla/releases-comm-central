@@ -59,14 +59,13 @@ var moveCopyModule = {
   msgsDeleted(aMsgList) {
     this.log.info("in msgsDeleted");
 
-    let count = aMsgList.length;
-    if (count <= 0) {
+    if (aMsgList.length <= 0) {
       return;
     }
 
-    let displayCount = count;
+    let displayCount = aMsgList.length;
     // get the folder of the deleted messages
-    let folder = aMsgList.queryElementAt(0, Ci.nsIMsgDBHdr).folder;
+    let folder = aMsgList[0].folder;
 
     let activities = this.activityMgr.getActivities();
     if (
@@ -103,8 +102,7 @@ var moveCopyModule = {
     event.iconClass = "deleteMail";
     this.lastMessage.type = event.iconClass;
 
-    for (let i = 0; i < count; i++) {
-      let msgHdr = aMsgList.queryElementAt(i, Ci.nsIMsgDBHdr);
+    for (let msgHdr of aMsgList) {
       event.addSubject(msgHdr.messageId);
     }
 

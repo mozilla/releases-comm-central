@@ -164,7 +164,8 @@ NS_IMETHODIMP nsRssIncomingServer::MsgsClassified(nsIArray *aMsgs,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::MsgsDeleted(nsIArray *aMsgs) {
+NS_IMETHODIMP nsRssIncomingServer::MsgsDeleted(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMsgs) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

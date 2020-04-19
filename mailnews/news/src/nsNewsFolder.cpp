@@ -702,10 +702,20 @@ nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
   NS_ENSURE_ARG_POINTER(messages);
   NS_ENSURE_ARG_POINTER(aMsgWindow);
 
+  // Stopgap. Build a parallel array of message headers while we complete
+  // removal of nsIArray usage (Bug 1583030).
+  uint32_t messageCount;
+  messages->GetLength(&messageCount);
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
+  msgHeaders.SetCapacity(messageCount);
+  for (uint32_t i = 0; i < messageCount; ++i) {
+    msgHeaders.AppendElement(do_QueryElementAt(messages, i));
+  }
+
   if (!isMove) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-    if (notifier) notifier->NotifyMsgsDeleted(messages);
+    if (notifier) notifier->NotifyMsgsDeleted(msgHeaders);
   }
 
   rv = GetDatabase();
@@ -713,13 +723,11 @@ nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
 
   rv = EnableNotifications(allMessageCountNotifications, false);
   if (NS_SUCCEEDED(rv)) {
-    uint32_t count = 0;
-    rv = messages->GetLength(&count);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    for (uint32_t i = 0; i < count && NS_SUCCEEDED(rv); i++) {
-      nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i, &rv);
-      if (msgHdr) rv = mDatabase->DeleteHeader(msgHdr, nullptr, true, true);
+    for (auto msgHdr : msgHeaders) {
+      rv = mDatabase->DeleteHeader(msgHdr, nullptr, true, true);
+      if (!NS_FAILED(rv)) {
+        break;
+      }
     }
     EnableNotifications(allMessageCountNotifications, true);
   }
@@ -1372,11 +1380,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessage(nsMsgKey key) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = mDatabase->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMutableArray> msgHdrs(do_CreateInstance(NS_ARRAY_CONTRACTID));
-    msgHdrs->AppendElement(msgHdr);
-
-    notifier->NotifyMsgsDeleted(msgHdrs);
+    notifier->NotifyMsgsDeleted({msgHdr.get()});
   }
   return mDatabase->DeleteMessage(key, nullptr, false);
 }
@@ -1391,10 +1395,9 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(nsTArray<nsMsgKey> &aMsgKeys) {
       do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
 
   if (notifier) {
-    nsCOMPtr<nsIMutableArray> msgHdrs(do_CreateInstance(NS_ARRAY_CONTRACTID));
-    rv = MsgGetHeadersFromKeys(mDatabase, aMsgKeys, msgHdrs);
+    nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
+    rv = MsgGetHeadersFromKeys2(mDatabase, aMsgKeys, msgHdrs);
     NS_ENSURE_SUCCESS(rv, rv);
-
     notifier->NotifyMsgsDeleted(msgHdrs);
   }
 

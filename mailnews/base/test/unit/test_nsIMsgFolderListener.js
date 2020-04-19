@@ -118,7 +118,7 @@ gMFListener.prototype = {
 function NotifyMsgFolderListeners() {
   MailServices.mfn.notifyMsgAdded(null);
   MailServices.mfn.notifyMsgsClassified(null, null, null);
-  MailServices.mfn.notifyMsgsDeleted(null);
+  MailServices.mfn.notifyMsgsDeleted([]);
   MailServices.mfn.notifyMsgsMoveCopyCompleted(null, null, null, null);
   MailServices.mfn.notifyMsgKeyChanged(null, null);
   MailServices.mfn.notifyFolderAdded(null);

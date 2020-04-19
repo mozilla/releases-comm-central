@@ -1504,6 +1504,31 @@ NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase *aDB,
   return rv;
 }
 
+// Stopgap while we complete removal of nsIArray usage (Bug 1583030).
+// Then this function can replace MsgGetHeadersFromKeys().
+NS_MSG_BASE nsresult
+MsgGetHeadersFromKeys2(nsIMsgDatabase *aDB, const nsTArray<nsMsgKey> &aMsgKeys,
+                       nsTArray<RefPtr<nsIMsgDBHdr>> &aHeaders) {
+  NS_ENSURE_ARG_POINTER(aDB);
+  aHeaders.Clear();
+  aHeaders.SetCapacity(aMsgKeys.Length());
+
+  for (auto key : aMsgKeys) {
+    // This function silently skips when the key is not found. This is an
+    // expected case.
+    bool hasKey;
+    nsresult rv = aDB->ContainsKey(key, &hasKey);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (hasKey) {
+      nsCOMPtr<nsIMsgDBHdr> msgHdr;
+      rv = aDB->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+      NS_ENSURE_SUCCESS(rv, rv);
+      aHeaders.AppendElement(msgHdr);
+    }
+  }
+  return NS_OK;
+}
+
 bool MsgAdvanceToNextLine(const char *buffer, uint32_t &bufferOffset,
                           uint32_t maxBufferOffset) {
   bool result = false;

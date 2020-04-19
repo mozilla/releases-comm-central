@@ -694,7 +694,8 @@ nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
   return NS_NewLocalFileInputStream(aResult, mboxFile);
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteMessages(nsIArray *aHdrArray) {
+NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteMessages(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray) {
   return ChangeFlags(aHdrArray, nsMsgMessageFlags::Expunged, true);
 }
 
@@ -770,13 +771,10 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder *aFolder,
 }
 
 nsresult nsMsgBrkMBoxStore::GetOutputStream(
-    nsIArray *aHdrArray, nsCOMPtr<nsIOutputStream> &outputStream,
+    nsIMsgDBHdr *aHdr, nsCOMPtr<nsIOutputStream> &outputStream,
     nsCOMPtr<nsISeekableStream> &seekableStream, int64_t &restorePos) {
-  nsresult rv;
-  nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(aHdrArray, 0, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgFolder> folder;
-  msgHdr->GetFolder(getter_AddRefs(folder));
+  nsresult rv = aHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString URI;
   folder->GetURI(URI);
@@ -810,25 +808,21 @@ void nsMsgBrkMBoxStore::SetDBValid(nsIMsgDBHdr *aHdr) {
   }
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(nsIArray *aHdrArray,
-                                             uint32_t aFlags, bool aSet) {
-  NS_ENSURE_ARG_POINTER(aHdrArray);
+NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray, uint32_t aFlags,
+    bool aSet) {
   nsCOMPtr<nsIOutputStream> outputStream;
   nsCOMPtr<nsISeekableStream> seekableStream;
   int64_t restoreStreamPos;
 
-  uint32_t messageCount;
-  nsresult rv = aHdrArray->GetLength(&messageCount);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!messageCount) return NS_ERROR_INVALID_ARG;
+  if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
-  rv = GetOutputStream(aHdrArray, outputStream, seekableStream,
-                       restoreStreamPos);
+  nsresult rv = GetOutputStream(aHdrArray[0], outputStream, seekableStream,
+                                restoreStreamPos);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  for (uint32_t i = 0; i < messageCount; i++) {
-    msgHdr = do_QueryElementAt(aHdrArray, i, &rv);
+  for (auto msgHdr : aHdrArray) {
     // Seek to x-mozilla-status offset and rewrite value.
     rv = UpdateFolderFlag(msgHdr, aSet, aFlags, outputStream);
     if (NS_FAILED(rv)) {
@@ -840,10 +834,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(nsIArray *aHdrArray,
     seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, restoreStreamPos);
   else if (outputStream)
     outputStream->Close();
-  if (messageCount > 0) {
-    msgHdr = do_QueryElementAt(aHdrArray, 0);
-    SetDBValid(msgHdr);
-  }
+  SetDBValid(aHdrArray[0]);
   return NS_OK;
 }
 
@@ -859,9 +850,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(nsIArray *aHdrArray,
   nsresult rv = aHdrArray->GetLength(&messageCount);
   NS_ENSURE_SUCCESS(rv, rv);
   if (!messageCount) return NS_ERROR_INVALID_ARG;
-
-  rv = GetOutputStream(aHdrArray, outputStream, seekableStream,
-                       restoreStreamPos);
+  nsCOMPtr<nsIMsgDBHdr> firstHdr = do_QueryElementAt(aHdrArray, 0);
+  rv =
+      GetOutputStream(firstHdr, outputStream, seekableStream, restoreStreamPos);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(outputStream, &rv);

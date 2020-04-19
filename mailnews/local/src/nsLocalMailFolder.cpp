@@ -996,6 +996,14 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
   nsresult rv = messages->GetLength(&messageCount);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  // Stopgap. Build a parallel array of message headers while we complete
+  // removal of nsIArray usage (Bug 1583030).
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
+  msgHeaders.SetCapacity(messageCount);
+  for (uint32_t i = 0; i < messageCount; ++i) {
+    msgHeaders.AppendElement(do_QueryElementAt(messages, i));
+  }
+
   // shift delete case - (delete to trash is handled in EndMove)
   // this is also the case when applying retention settings.
   if (deleteStorage && !isMove) {
@@ -1013,7 +1021,7 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
         listener->OnStartCopy();
         listener->OnStopCopy(NS_OK);
       }
-      notifier->NotifyMsgsDeleted(messages);
+      notifier->NotifyMsgsDeleted(msgHeaders);
     }
   }
 
@@ -1040,11 +1048,9 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
         nsCOMPtr<nsIMsgPluggableStore> msgStore;
         rv = GetMsgStore(getter_AddRefs(msgStore));
         if (NS_SUCCEEDED(rv)) {
-          rv = msgStore->DeleteMessages(messages);
-          nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
-          for (uint32_t i = 0; i < messageCount; ++i) {
-            msgDBHdr = do_QueryElementAt(messages, i, &rv);
-            rv = msgDB->DeleteHeader(msgDBHdr, nullptr, false, true);
+          rv = msgStore->DeleteMessages(msgHeaders);
+          for (auto hdr : msgHeaders) {
+            rv = msgDB->DeleteHeader(hdr, nullptr, false, true);
           }
         }
       } else if (rv == NS_MSG_FOLDER_BUSY)
@@ -1094,21 +1100,28 @@ nsMsgLocalMailFolder::AddMessageDispositionState(
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsIMutableArray> messages(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  messages->AppendElement(aMessage);
-  return msgStore->ChangeFlags(messages, msgFlag, true);
+  return msgStore->ChangeFlags({aMessage}, msgFlag, true);
 }
 
 NS_IMETHODIMP
 nsMsgLocalMailFolder::MarkMessagesRead(nsIArray *aMessages, bool aMarkRead) {
   nsresult rv = nsMsgDBFolder::MarkMessagesRead(aMessages, aMarkRead);
   NS_ENSURE_SUCCESS(rv, rv);
+
+  // Stopgap. Build a parallel array of message headers while we complete
+  // removal of nsIArray usage (Bug 1583030).
+  uint32_t messageCount;
+  aMessages->GetLength(&messageCount);
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
+  msgHeaders.SetCapacity(messageCount);
+  for (uint32_t i = 0; i < messageCount; ++i) {
+    msgHeaders.AppendElement(do_QueryElementAt(aMessages, i));
+  }
+
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->ChangeFlags(aMessages, nsMsgMessageFlags::Read, aMarkRead);
+  return msgStore->ChangeFlags(msgHeaders, nsMsgMessageFlags::Read, aMarkRead);
 }
 
 NS_IMETHODIMP
@@ -1119,7 +1132,18 @@ nsMsgLocalMailFolder::MarkMessagesFlagged(nsIArray *aMessages,
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->ChangeFlags(aMessages, nsMsgMessageFlags::Marked,
+
+  // Stopgap. Build a parallel array of message headers while we complete
+  // removal of nsIArray usage (Bug 1583030).
+  uint32_t messageCount;
+  aMessages->GetLength(&messageCount);
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
+  msgHeaders.SetCapacity(messageCount);
+  for (uint32_t i = 0; i < messageCount; ++i) {
+    msgHeaders.AppendElement(do_QueryElementAt(aMessages, i));
+  }
+
+  return msgStore->ChangeFlags(msgHeaders, nsMsgMessageFlags::Marked,
                                aMarkFlagged);
 }
 
@@ -1138,8 +1162,8 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) {
     return NS_OK;
   }
 
-  nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
-  rv = MsgGetHeadersFromKeys(mDatabase, thoseMarked, messages);
+  nsTArray<RefPtr<nsIMsgDBHdr>> messages;
+  rv = MsgGetHeadersFromKeys2(mDatabase, thoseMarked, messages);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
@@ -1170,8 +1194,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread *thread) {
     return NS_OK;
   }
 
-  nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
-  rv = MsgGetHeadersFromKeys(mDatabase, thoseMarked, messages);
+  nsTArray<RefPtr<nsIMsgDBHdr>> messages;
+  rv = MsgGetHeadersFromKeys2(mDatabase, thoseMarked, messages);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
