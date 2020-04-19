@@ -23,6 +23,13 @@ const { EnigmailData } = ChromeUtils.import(
 const { EnigmailSqliteDb } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
+var { EnigmailKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
+);
+var EnigmailKeyRing = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+).EnigmailKeyRing;
+var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 
 Cu.importGlobalProperties(["fetch"]);
 
@@ -273,7 +280,11 @@ var EnigmailWkdLookup = {
                 }
 
                 if (gotKeys.length > 0) {
-                  importDownloadedKeys(gotKeys);
+                  if (gotKeys.length == 1) {
+                    importOneDownloadedKey(gotKeys[0]);
+                  } else {
+                    importDownloadedKeys(gotKeys);
+                  }
                   resolve(true);
                 } else {
                   resolve(false);
@@ -535,25 +546,32 @@ function timeForRecheck(connection, email) {
  * no return value
  */
 function importDownloadedKeys(keysArr) {
-  throw new Error("Not implemented");
-
-  /*
-  EnigmailLog.DEBUG("wkdLookup.jsm: importDownloadedKeys(" + keysArr.length + ")\n");
+  EnigmailLog.DEBUG(
+    "wkdLookup.jsm: importDownloadedKeys(" + keysArr.length + ")\n"
+  );
 
   let keyData = "";
   let domainArr = [];
   for (let k in keysArr) {
     if (keysArr[k]) {
-      if (keysArr[k].keyData.search(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/) < 0) {
+      if (
+        keysArr[k].keyData.search(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/) < 0
+      ) {
         try {
           // TODO: need a MPL version of bytesToArmor
-          keyData += EnigmailOpenPGP.enigmailFuncs.bytesToArmor(EnigmailOpenPGP.armor.public_key, keysArr[k].keyData);
+          throw new Error("WKD importDownloadedKeys dont' have bytesToArmor");
+          /*
+          keyData += EnigmailOpenPGP.enigmailFuncs.bytesToArmor(
+            EnigmailOpenPGP.armor.public_key,
+            keysArr[k].keyData
+          );
+          */
+        } catch (ex) {
+          EnigmailLog.DEBUG(
+            "wkdLookup.jsm: importDownloadedKeys: exeption=" + ex + "\n"
+          );
         }
-        catch (ex) {
-          EnigmailLog.DEBUG("wkdLookup.jsm: importDownloadedKeys: exeption=" + ex + "\n");
-        }
-      }
-      else {
+      } else {
         keyData += keysArr[k].keyData;
       }
 
@@ -564,11 +582,28 @@ function importDownloadedKeys(keysArr) {
   let keyList = EnigmailKey.getKeyListFromKeyBlock(keyData, {}, false);
 
   for (let k in keyList) {
-    EnigmailLog.DEBUG("wkdLookup.jsm: importDownloadedKeys: fpr=" + keyList[k].fpr + "\n");
+    EnigmailLog.DEBUG(
+      "wkdLookup.jsm: importDownloadedKeys: fpr=" + keyList[k].fpr + "\n"
+    );
   }
 
-  EnigmailKeyRing.importKey(null, false, keyData, false, "", {}, {}, false, domainArr);
-  */
+  EnigmailKeyRing.importKey(
+    null,
+    false,
+    keyData,
+    false,
+    "",
+    {},
+    {},
+    false,
+    domainArr
+  );
+}
+
+function importOneDownloadedKey(key) {
+  EnigmailLog.DEBUG("wkdLookup.jsm: importOneDownloadedKey\n");
+  //let keyList = EnigmailKey.getKeyListFromKeyBlock(key.keyData, {}, false);
+  EnigmailKeyRing.importKey(null, true, key.keyData, true, "", {}, {}, false);
 }
 
 /**
@@ -592,22 +627,20 @@ async function getSiteSpecificUrl(emailAddr) {
         escape(emailAddr);
       break;
   }
-
   if (!url) {
-    throw new Error(
-      "EnigmailWkdLookup getSiteSpecificUrl with DNS not implemented"
-    );
-    /*
-    try {
-      let mxHosts = await EnigmailDns.lookup("MX", domain);
-      if (mxHosts & mxHosts.indexOf("mail.protonmail.ch") >= 0 ||
-        mxHosts.indexOf("mailsec.protonmail.ch") >= 0) {
-        url = "https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=" + escape(emailAddr);
-      }
-    }
-    catch (ex) {}
-    */
-  }
+    let records = await DNS.mx(domain);
+    const mxHosts = records.filter(record => record.host);
+    console.debug(mxHosts);
 
+    if (
+      mxHosts &&
+      (mxHosts.includes("mail.protonmail.ch") ||
+        mxHosts.includes("mailsec.protonmail.ch"))
+    ) {
+      url =
+        "https://api.protonmail.ch/pks/lookup?op=get&options=mr&search=" +
+        escape(emailAddr);
+    }
+  }
   return url;
 }

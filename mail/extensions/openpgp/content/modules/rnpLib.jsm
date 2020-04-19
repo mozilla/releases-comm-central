@@ -991,6 +991,14 @@ function enableRNPLibJS() {
       rnp_op_verify_signature_t.ptr
     ),
 
+    rnp_op_verify_signature_get_handle: librnp.declare(
+      "rnp_op_verify_signature_get_handle",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_signature_t,
+      rnp_signature_handle_t.ptr
+    ),
+
     rnp_op_verify_signature_get_status: librnp.declare(
       "rnp_op_verify_signature_get_status",
       abi,

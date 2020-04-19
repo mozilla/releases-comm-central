@@ -615,7 +615,9 @@ var EnigmailKeyRing = {
     }
 
     if (limitedUids.length > 0) {
-      throw new Error("importKeyAsync with limitedUids: not implemented");
+      throw new Error(
+        "importKeyAsync with limitedUids: not implemented " + limitedUids
+      );
     }
 
     if (minimizeKey) {

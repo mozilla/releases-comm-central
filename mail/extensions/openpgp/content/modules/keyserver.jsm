@@ -172,6 +172,7 @@ const accessHkpInternal = {
         return payLoad;
 
       case EnigmailConstants.DOWNLOAD_KEY:
+      case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
       case EnigmailConstants.SEARCH_KEY:
       case EnigmailConstants.GET_SKS_CACERT:
         return "";
@@ -206,7 +207,10 @@ const accessHkpInternal = {
     if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
       url += "/pks/add";
       method = "POST";
-    } else if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
+    } else if (
+      actionFlag === EnigmailConstants.DOWNLOAD_KEY ||
+      actionFlag === EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT
+    ) {
       if (searchTerm.indexOf("0x") !== 0) {
         searchTerm = "0x" + searchTerm;
       }
@@ -303,6 +307,7 @@ const accessHkpInternal = {
             return;
 
           case EnigmailConstants.DOWNLOAD_KEY:
+          case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve(1);
@@ -457,7 +462,7 @@ const accessHkpInternal = {
    *
    * @return:   Promise<...>
    */
-  async download(keyIDs, keyserver, listener = null) {
+  async download(autoImport, keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.download(${keyIDs})\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
@@ -469,7 +474,9 @@ const accessHkpInternal = {
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
         let r = await this.accessKeyServer(
-          EnigmailConstants.DOWNLOAD_KEY,
+          autoImport
+            ? EnigmailConstants.DOWNLOAD_KEY
+            : EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
           keyserver,
           keyIdArr[i],
           listener
@@ -498,7 +505,7 @@ const accessHkpInternal = {
       })
       .join(" ");
 
-    return this.download(keyList, keyServer, listener);
+    return this.download(true, keyList, keyServer, listener);
   },
 
   /**
@@ -651,7 +658,10 @@ const accessKeyBase = {
     if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
       // not supported
       throw Cr.NS_ERROR_FAILURE;
-    } else if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
+    } else if (
+      actionFlag === EnigmailConstants.DOWNLOAD_KEY ||
+      actionFlag === EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT
+    ) {
       if (searchTerm.indexOf("0x") === 0) {
         searchTerm = searchTerm.substr(0, 40);
       }
@@ -714,6 +724,7 @@ const accessKeyBase = {
             return;
 
           case EnigmailConstants.DOWNLOAD_KEY:
+          case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve([]);
@@ -802,7 +813,7 @@ const accessKeyBase = {
    *
    * @return:   Promise<...>
    */
-  async download(keyIDs, keyserver, listener = null) {
+  async download(autoImport, keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: download()\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
@@ -814,7 +825,9 @@ const accessKeyBase = {
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
         let r = await this.accessKeyServer(
-          EnigmailConstants.DOWNLOAD_KEY,
+          autoImport
+            ? EnigmailConstants.DOWNLOAD_KEY
+            : EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
           keyIdArr[i],
           listener
         );
@@ -918,7 +931,7 @@ const accessKeyBase = {
       })
       .join(" ");
 
-    return this.download(keyList, keyServer, listener);
+    return this.download(true, keyList, keyServer, listener);
   },
 };
 
@@ -952,6 +965,7 @@ const accessGnuPG = {
       case EnigmailConstants.SEARCH_KEY:
         break;
       case EnigmailConstants.DOWNLOAD_KEY:
+      case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
         break;
       case EnigmailConstants.UPLOAD_KEY:
         break;
@@ -1017,7 +1031,7 @@ const accessGnuPG = {
    *
    * @return:   Promise<...>
    */
-  async download(keyIDs, keyserver, listener = null) {
+  async download(autoImport, keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG.download(${keyIDs})\n`);
     let retObj = {
       result: 0,
@@ -1028,7 +1042,9 @@ const accessGnuPG = {
 
     for (let i = 0; i < keyIdArr.length; i++) {
       let r = await this.accessKeyServer(
-        EnigmailConstants.DOWNLOAD_KEY,
+        autoImport
+          ? EnigmailConstants.DOWNLOAD_KEY
+          : EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
         keyserver,
         keyIdArr[i],
         listener
@@ -1065,7 +1081,7 @@ const accessGnuPG = {
       })
       .join(" ");
 
-    return this.download(keyList, keyServer, listener);
+    return this.download(true, keyList, keyServer, listener);
   },
 
   /**
@@ -1264,6 +1280,7 @@ const accessVksServer = {
         return payLoad;
 
       case EnigmailConstants.DOWNLOAD_KEY:
+      case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
       case EnigmailConstants.SEARCH_KEY:
       case EnigmailConstants.GET_SKS_CACERT:
         return "";
@@ -1294,6 +1311,7 @@ const accessVksServer = {
       contentType = "application/json";
     } else if (
       actionFlag === EnigmailConstants.DOWNLOAD_KEY ||
+      actionFlag === EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT ||
       actionFlag === EnigmailConstants.SEARCH_KEY
     ) {
       if (searchTerm) {
@@ -1405,6 +1423,7 @@ const accessVksServer = {
             return;
 
           case EnigmailConstants.DOWNLOAD_KEY:
+          case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
             if (xmlReq.status >= 400 && xmlReq.status < 500) {
               // key not found
               resolve(1);
@@ -1418,21 +1437,26 @@ const accessVksServer = {
             } else {
               let errorMsgObj = {},
                 importedKeysObj = {};
-              let r = EnigmailKeyRing.importKey(
-                null,
-                false,
-                xmlReq.responseText,
-                false,
-                "",
-                errorMsgObj,
-                importedKeysObj
-              );
-              if (r === 0) {
-                resolve(importedKeysObj.value);
-              } else {
-                reject(
-                  createError(EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR)
+              if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
+                let r = EnigmailKeyRing.importKey(
+                  null,
+                  false,
+                  xmlReq.responseText,
+                  false,
+                  "",
+                  errorMsgObj,
+                  importedKeysObj
                 );
+                if (r === 0) {
+                  resolve(importedKeysObj.value);
+                } else {
+                  reject(
+                    createError(EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR)
+                  );
+                }
+              } else {
+                // DOWNLOAD_KEY_NO_IMPORT
+                resolve(xmlReq.responseText);
               }
             }
             return;
@@ -1492,7 +1516,7 @@ const accessVksServer = {
    *
    * @return:   Promise<...>
    */
-  async download(keyIDs, keyserver, listener = null) {
+  async download(autoImport, keyIDs, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.download(${keyIDs})\n`);
     let keyIdArr = keyIDs.split(/ +/);
     let retObj = {
@@ -1504,13 +1528,21 @@ const accessVksServer = {
     for (let i = 0; i < keyIdArr.length; i++) {
       try {
         let r = await this.accessKeyServer(
-          EnigmailConstants.DOWNLOAD_KEY,
+          autoImport
+            ? EnigmailConstants.DOWNLOAD_KEY
+            : EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
           keyserver,
           keyIdArr[i],
           listener
         );
-        if (Array.isArray(r)) {
-          retObj.keyList = retObj.keyList.concat(r);
+        if (autoImport) {
+          if (Array.isArray(r)) {
+            retObj.keyList = retObj.keyList.concat(r);
+          }
+        } else if (typeof r == "string") {
+          retObj.keyData = r;
+        } else {
+          retObj.result = r;
         }
       } catch (ex) {
         retObj.result = ex.result;
@@ -1533,7 +1565,7 @@ const accessVksServer = {
       })
       .join(" ");
 
-    return this.download(keyList, keyServer, listener);
+    return this.download(true, keyList, keyServer, listener);
   },
 
   async requestConfirmationLink(keyserver, jsonFragment) {
@@ -1709,7 +1741,12 @@ var EnigmailKeyServer = {
    */
   download(keyIDs, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
-    return acc.download(keyIDs, keyserver, listener);
+    return acc.download(true, keyIDs, keyserver, listener);
+  },
+
+  downloadNoImport(keyIDs, keyserver = null, listener) {
+    let acc = getAccessType(keyserver);
+    return acc.download(false, keyIDs, keyserver, listener);
   },
 
   /**

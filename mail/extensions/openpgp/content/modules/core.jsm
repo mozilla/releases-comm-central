@@ -69,12 +69,10 @@ const getEnigmailPgpmimeHander = EnigmailLazy.loader(
   "EnigmailPgpmimeHander"
 );
 //const getEnigmailOverlays = EnigmailLazy.loader("enigmail/enigmailOverlays.jsm", "EnigmailOverlays");
-/*
 const getEnigmailSqlite = EnigmailLazy.loader(
   "enigmail/sqliteDb.jsm",
   "EnigmailSqliteDb"
 );
-*/
 const getPgpSqlite2 = EnigmailLazy.loader(
   "enigmail/sqliteDb.jsm",
   "PgpSqliteDb2"
@@ -118,7 +116,7 @@ var EnigmailCore = {
 
     logger.DEBUG("core.jsm: startup()\n");
 
-    //getEnigmailSqlite().checkDatabaseStructure();
+    getEnigmailSqlite().checkDatabaseStructure();
     getPgpSqlite2().checkDatabaseStructure();
     getEnigmailPrefs().startup(reason);
 

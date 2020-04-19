@@ -27,6 +27,11 @@
     <menuitem id="copyNameAndEmailAddressItem" label="&CopyNameAndEmailAddress.label;"
               accesskey="&CopyNameAndEmailAddress.accesskey;"
               oncommand="CopyEmailNewsAddress(document.popupNode, true)"/>
+#ifdef MOZ_OPENPGP
+    <menuseparator/>
+    <menuitem id="searchKeysOpenPGP" label="&searchKeysOpenPGP.label;"
+              oncommand="Enigmail.msg.searchKeysOnInternet(document.popupNode)"/>
+#endif
     <menuseparator/>
     <menuitem id="createFilterFromItem" label="&CreateFilterFrom.label;"
               accesskey="&CreateFilterFrom.accesskey;"

@@ -23,6 +23,10 @@ var uidHelper = {
     // No characters are allowed between a closing ) and opening <.
     // All characters after a trailing > are ignored.
 
+    if (!uid) {
+      return false;
+    }
+
     let result = uid.match(/^ *([^(<]*)? *(\([^)]*\))? *(<[^>]*>)?/);
     if (result.length != 4) {
       return false;

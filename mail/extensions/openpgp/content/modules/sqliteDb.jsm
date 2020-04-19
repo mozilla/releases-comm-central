@@ -175,21 +175,24 @@ var EnigmailSqliteDb = {
    */
 
   openDatabase() {
-    /*
     EnigmailLog.DEBUG("sqliteDb.jsm: openDatabase()\n");
     return new Promise((resolve, reject) => {
-      openDatabaseConn("enigmail.sqlite", resolve, reject, 100, Date.now() + 10000);
+      openDatabaseConn(
+        "enigmail.sqlite",
+        resolve,
+        reject,
+        100,
+        Date.now() + 10000
+      );
     });
-    */
   },
 
   async checkDatabaseStructure() {
-    /*
     EnigmailLog.DEBUG(`sqliteDb.jsm: checkDatabaseStructure()\n`);
     let conn;
     try {
       conn = await this.openDatabase();
-      await checkAutocryptTable(conn);
+      //await checkAutocryptTable(conn);
       await checkWkdTable(conn);
       conn.close();
       EnigmailLog.DEBUG(`sqliteDb.jsm: checkDatabaseStructure - success\n`);
@@ -199,7 +202,6 @@ var EnigmailSqliteDb = {
         conn.close();
       }
     }
-    */
   },
 };
 
@@ -370,7 +372,6 @@ async function createAutocryptTable(connection) {
  *
  * @return Promise
  */
-/*
 async function checkWkdTable(connection) {
   EnigmailLog.DEBUG("sqliteDB.jsm: checkWkdTable()\n");
 
@@ -385,7 +386,6 @@ async function checkWkdTable(connection) {
     throw error;
   }
 }
-*/
 
 /**
  * Create the "wkd_lookup_timestamp" table.
@@ -394,7 +394,6 @@ async function checkWkdTable(connection) {
  *
  * @return Promise
  */
-/*
 function createWkdTable(connection) {
   EnigmailLog.DEBUG("sqliteDB.jsm: createWkdTable()\n");
 
@@ -404,4 +403,3 @@ function createWkdTable(connection) {
       "last_seen integer);"
   ); // timestamp of last mail received for the email/type combination
 }
-*/

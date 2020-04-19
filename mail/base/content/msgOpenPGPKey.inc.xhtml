@@ -8,4 +8,9 @@
                                          label="&enigmail.importSenderKey.label;"
                                          oncommand="Enigmail.msg.importAutocryptKeydata();"/>
                         </hbox>
-
+                        <hbox id="signatureKeyBox" hidden="true">
+                          <label id="missingSignatureKey" value="&enigmail.missingSignatureKey.label;"/>
+                          <toolbarbutton id="searchSignatureKeyButton"
+                                         label="&enigmail.searchSignatureKey.label;"
+                                         oncommand="Enigmail.msg.searchSignatureKey();"/>
+                        </hbox>

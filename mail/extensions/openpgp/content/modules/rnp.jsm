@@ -382,10 +382,15 @@ var RNP = {
       if (!keyObj.userId) {
         let prim_uid_str = new ctypes.char.ptr();
         if (RNPLib.rnp_key_get_primary_uid(handle, prim_uid_str.address())) {
-          throw new Error("rnp_key_get_primary_uid failed");
+          // Seen with some stripped keys from keys.openpgp.org
+          // if an essential key is distributed, but the owner didn't
+          // agree to ship their user id.
+          keyObj.userId = "?";
+          console.debug("rnp_key_get_primary_uid failed");
+        } else {
+          keyObj.userId = prim_uid_str.readString();
+          RNPLib.rnp_buffer_destroy(prim_uid_str);
         }
-        keyObj.userId = prim_uid_str.readString();
-        RNPLib.rnp_buffer_destroy(prim_uid_str);
       }
 
       if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
@@ -462,13 +467,15 @@ var RNP = {
             let id = outputIndex;
             ++outputIndex;
 
-            rList[id] = {};
-            rList[id].created = mainKeyObj.created;
-            rList[id].fpr = mainKeyObj.fpr;
-            rList[id].keyId = mainKeyObj.keyId;
+            let subList = {};
 
-            rList[id].userId = userIdStr;
-            rList[id].sigList = [];
+            subList = {};
+            subList.created = mainKeyObj.created;
+            subList.fpr = mainKeyObj.fpr;
+            subList.keyId = mainKeyObj.keyId;
+
+            subList.userId = userIdStr;
+            subList.sigList = [];
 
             let sig_count = new ctypes.size_t();
             if (
@@ -479,7 +486,6 @@ var RNP = {
             ) {
               throw new Error("rnp_uid_get_signature_count failed");
             }
-
             for (let j = 0; j < sig_count.value; j++) {
               let sigObj = {};
 
@@ -536,7 +542,7 @@ var RNP = {
                 if (!ignoreUnknownUid) {
                   sigObj.userId = "?";
                   sigObj.sigKnown = false;
-                  rList[id].sigList.push(sigObj);
+                  subList.sigList.push(sigObj);
                 }
               } else {
                 let signer_uid_str = new ctypes.char.ptr();
@@ -551,11 +557,12 @@ var RNP = {
                 sigObj.userId = signer_uid_str.readString();
                 RNPLib.rnp_buffer_destroy(signer_uid_str);
                 sigObj.sigKnown = true;
-                rList[id].sigList.push(sigObj);
+                subList.sigList.push(sigObj);
                 RNPLib.rnp_key_handle_destroy(signerHandle);
               }
               RNPLib.rnp_signature_handle_destroy(sig_handle);
             }
+            rList[id] = subList;
           }
         }
 
@@ -669,8 +676,20 @@ var RNP = {
       throw new Error("rnp_op_verify_get_signature_at failed");
     }
 
-    let sig_status = RNPLib.rnp_op_verify_signature_get_status(sig);
+    let sig_handle = new RNPLib.rnp_signature_handle_t();
+    if (RNPLib.rnp_op_verify_signature_get_handle(sig, sig_handle.address())) {
+      throw new Error("rnp_op_verify_signature_get_handle failed");
+    }
 
+    let sig_id_str = new ctypes.char.ptr();
+    if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
+      throw new Error("rnp_signature_get_keyid failed");
+    }
+    result.keyId = sig_id_str.readString();
+    RNPLib.rnp_buffer_destroy(sig_id_str);
+    RNPLib.rnp_signature_handle_destroy(sig_handle);
+
+    let sig_status = RNPLib.rnp_op_verify_signature_get_status(sig);
     if (sig_status != RNPLib.RNP_SUCCESS && !result.exitCode) {
       /* Don't allow a good exit code. Keep existing bad code. */
       result.exitCode = -1;
@@ -684,7 +703,8 @@ var RNP = {
         result.statusFlags |= EnigmailConstants.GOOD_SIGNATURE;
         break;
       case RNPLib.RNP_ERROR_KEY_NOT_FOUND:
-        result.statusFlags |= EnigmailConstants.UNCERTAIN_SIGNATURE;
+        result.statusFlags |=
+          EnigmailConstants.UNCERTAIN_SIGNATURE | EnigmailConstants.NO_PUBKEY;
         query_signer = false;
         break;
       case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
@@ -726,8 +746,6 @@ var RNP = {
       if (!ok) {
         throw new Error("getKeyInfoFromHandle failed");
       }
-
-      result.keyId = keyInfo.keyId;
 
       let fromMatchesAnyUid = false;
       let fromLower = fromAddr ? fromAddr.toLowerCase() : "";
@@ -1023,6 +1041,13 @@ var RNP = {
       throw new Error("no keyBlockStr parameter in importToFFI");
     }
 
+    if (typeof keyBlockStr != "string") {
+      throw new Error(
+        "keyBlockStr of unepected type importToFFI: %o",
+        keyBlockStr
+      );
+    }
+
     let arr = [];
     for (let i = 0; i < keyBlockStr.length; i++) {
       arr[i] = keyBlockStr.charCodeAt(i);
@@ -1033,7 +1058,7 @@ var RNP = {
       RNPLib.rnp_input_from_memory(
         input_from_memory.address(),
         key_array,
-        keyBlockStr.length,
+        key_array.length,
         false
       )
     ) {

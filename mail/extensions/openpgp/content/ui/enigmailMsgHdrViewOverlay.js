@@ -184,9 +184,9 @@ Enigmail.hdrView = {
   },
 
   setStatusText(txt) {
-    let s = document.getElementById("enigmailStatusText");
-    if (s) {
-      s.firstChild.data = txt;
+    // TODO: replace with other information display, tracker bug 1595227
+    if (txt) {
+      console.debug(txt);
     }
   },
 
@@ -373,6 +373,11 @@ Enigmail.hdrView = {
       }
     } else if (statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) {
       statusInfo = EnigmailLocale.getString("uncertainSig");
+      if (statusFlags & EnigmailConstants.NO_PUBKEY) {
+        let b = document.getElementById("signatureKeyBox");
+        b.setAttribute("hidden", false);
+        b.setAttribute("keyid", keyId);
+      }
     } else if (statusFlags & EnigmailConstants.GOOD_SIGNATURE) {
       statusInfo = EnigmailLocale.getString("goodSig", [keyId]);
     } else if (
@@ -636,8 +641,6 @@ Enigmail.hdrView = {
   */
 
   displayStatusBar() {
-    //let statusText = document.getElementById("enigmailStatusText");
-    //let icon = document.getElementById("enigToggleHeaderView2");
     let bodyElement = document.getElementById("messagepanebox");
 
     let secInfo = Enigmail.msg.securityInfo;

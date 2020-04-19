@@ -127,6 +127,7 @@ var EnigmailConstants = {
   GET_SKS_CACERT: 5,
   UPLOAD_WKD: 6,
   GET_CONFIRMATION_LINK: 7,
+  DOWNLOAD_KEY_NO_IMPORT: 8,
 
   /* attachment handling */
 

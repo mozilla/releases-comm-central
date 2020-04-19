@@ -86,6 +86,12 @@ var EnigmailEvents = ChromeUtils.import(
 var EnigmailKeyRing = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 ).EnigmailKeyRing;
+var EnigmailKeyServer = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyserver.jsm"
+).EnigmailKeyServer;
+var { EnigmailKeyserverURIs } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyserverUris.jsm"
+);
 var EnigmailDecryption = ChromeUtils.import(
   "chrome://openpgp/content/modules/decryption.jsm"
 ).EnigmailDecryption;
@@ -115,6 +121,9 @@ var EnigmailWks = ChromeUtils.import(
   "chrome://openpgp/content/modules/webKey.jsm"
 ).EnigmailWks;
 */
+var EnigmailWkdLookup = ChromeUtils.import(
+  "chrome://openpgp/content/modules/wkdLookup.jsm"
+).EnigmailWkdLookup;
 var EnigmailStdlib = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
 ).EnigmailStdlib;
@@ -305,6 +314,11 @@ Enigmail.msg = {
       let b = document.getElementById("openpgpKeyBox");
       b.setAttribute("hidden", true);
       b.removeAttribute("keydata");
+
+      let b2 = document.getElementById("signatureKeyBox");
+      b2.setAttribute("hidden", true);
+      b2.removeAttribute("keyid");
+
       /*
       if ("autocrypt" in gExpandedHeaderView) {
         delete gExpandedHeaderView.autocrypt;
@@ -1794,6 +1808,39 @@ Enigmail.msg = {
     }
   },
 
+  async searchSignatureKey() {
+    let keyId = document
+      .getElementById("signatureKeyBox")
+      .getAttribute("keyid");
+    if (!keyId) {
+      return;
+    }
+
+    let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
+    // We don't have great code yet to handle multiple results,
+    // or poisoned results. So avoid SKS.
+    // Let's start with verifying keyservers, only, which return only
+    // one result.
+    if (!defKs.startsWith("vks://")) {
+      console.debug("Not using " + defKs + " in searchSignatureKey");
+      return;
+    }
+
+    let vks = await EnigmailKeyServer.downloadNoImport("0x" + keyId, defKs);
+    if ("keyData" in vks) {
+      let keyList = EnigmailKey.getKeyListFromKeyBlock(
+        vks.keyData,
+        {},
+        false,
+        true,
+        false
+      );
+      this.importKeyDataWithConfirmation(keyList, vks.keyData, true);
+    } else {
+      console.debug("searchKeysOnInternet no data in keys.openpgp.org");
+    }
+  },
+
   importKeyFromMsgBody(msgData) {
     let beginIndexObj = {};
     let endIndexObj = {};
@@ -3057,6 +3104,53 @@ Enigmail.msg = {
     }
 
     return keyFound;
+  },
+
+  async searchKeysOnInternet(aHeaderNode) {
+    let address = aHeaderNode
+      .closest("mail-emailaddress")
+      .getAttribute("emailAddress");
+
+    let foundKeys = null;
+    foundKeys = await EnigmailWkdLookup.downloadKey(address);
+    if (!foundKeys) {
+      console.debug("searchKeysOnInternet no wkd data");
+    } else {
+      let keyList = EnigmailKey.getKeyListFromKeyBlock(
+        foundKeys.keyData,
+        {},
+        false
+      );
+      this.importKeyDataWithConfirmation(keyList, foundKeys.keyData, true);
+    }
+
+    if (foundKeys) {
+      return;
+    }
+
+    let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
+    // We don't have great code yet to handle multiple results,
+    // or poisoned results. So avoid SKS.
+    // Let's start with verifying keyservers, only, which return only
+    // one result.
+    if (!defKs.startsWith("vks://")) {
+      console.debug("Not using " + defKs + " in searchKeysOnInternet");
+      return;
+    }
+
+    let vks = await EnigmailKeyServer.downloadNoImport(address, defKs);
+    if ("keyData" in vks) {
+      let keyList = EnigmailKey.getKeyListFromKeyBlock(
+        vks.keyData,
+        {},
+        false,
+        true,
+        false
+      );
+      this.importKeyDataWithConfirmation(keyList, vks.keyData, true);
+    } else {
+      console.debug("searchKeysOnInternet no data in keys.openpgp.org");
+    }
   },
 
   importKeyFromKeyserver() {

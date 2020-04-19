@@ -12,3 +12,8 @@
 
 <!ENTITY enigmail.hasSenderKey.label                "This message claims to contain the sender's OpenPGP public key.">
 <!ENTITY enigmail.importSenderKey.label             "Import…">
+
+<!ENTITY searchKeysOpenPGP.label                    "Discover OpenPGP Key">
+
+<!ENTITY enigmail.missingSignatureKey.label         "Message was signed with a key that you don't have yet">
+<!ENTITY enigmail.searchSignatureKey.label          "Discover…">
