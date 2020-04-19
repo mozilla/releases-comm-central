@@ -452,17 +452,15 @@ var EnigmailKeyRing = {
    * @return String - if outputFile is NULL, the key block data; "" if a file is written
    */
   extractKey(includeSecretKey, idArray, outputFile, exitCodeObj, errorMsgObj) {
-    EnigmailLog.DEBUG(
-      "keyRing.jsm: EnigmailKeyRing.extractKey: " + idArray + "\n"
-    );
+    EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.extractKey: %o\n", idArray);
     exitCodeObj.value = -1;
 
     if (includeSecretKey) {
       throw new Error("extractKey with secret key not implemented");
     }
 
-    if (!idArray.length) {
-      return "";
+    if (!Array.isArray(idArray) || !idArray.length) {
+      throw new Error("invalid parameter given to EnigmailKeyRing.extractKey");
     }
 
     if (idArray.length > 1) {

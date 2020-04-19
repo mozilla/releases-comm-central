@@ -384,9 +384,15 @@ function enigCreateKeyMsg() {
   // save file
   var exitCodeObj = {};
   var errorMsgObj = {};
+
+  var keyIdArray = [];
+  for (let id of keyList) {
+    keyIdArray.push("0x" + id);
+  }
+
   EnigmailKeyRing.extractKey(
     false,
-    "0x" + keyList.join(" 0x"),
+    keyIdArray,
     tmpFile,
     exitCodeObj,
     errorMsgObj
@@ -647,12 +653,18 @@ function enigmailExportKeys() {
     return;
   }
 
-  var keyListStr = "0x" + getSelectedKeyIds().join(" 0x");
   var exitCodeObj = {};
   var errorMsgObj = {};
+
+  let keyList2 = getSelectedKeyIds();
+  var keyIdArray = [];
+  for (let id of keyList2) {
+    keyIdArray.push("0x" + id);
+  }
+
   EnigmailKeyRing.extractKey(
     exportSecretKey,
-    keyListStr,
+    keyIdArray,
     outFile,
     exitCodeObj,
     errorMsgObj
@@ -775,9 +787,15 @@ function enigmailCopyToClipbrd() {
   }
   var exitCodeObj = {};
   var errorMsgObj = {};
+
+  var keyIdArray = [];
+  for (let id of keyList) {
+    keyIdArray.push("0x" + id);
+  }
+
   var keyData = EnigmailKeyRing.extractKey(
     0,
-    ["0x" + keyList.join(" 0x")],
+    keyIdArray,
     null,
     exitCodeObj,
     errorMsgObj
