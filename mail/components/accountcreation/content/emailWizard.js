@@ -795,96 +795,12 @@ EmailConfigWizard.prototype = {
     let successCallback = () => {
       this._abortable = null;
       e("status-area").setAttribute("status", "result");
-      // For Office365, do a pre-verification of whether IMAP works. If it fails
-      // due to wrong password, make the user aware. If it fails due to other
-      // reasons (mainly MFA enforced), make Exchange the default.
-      // We do this since the account may have MFA enabled and that can't yet be
-      // used with IMAP/POP.
-      if (
-        config.incoming.hostname == "outlook.office365.com" &&
-        (config.incoming.type == "imap" || config.incoming.type == "pop3") &&
-        config.incomingAlternatives.some(i => i.type == "exchange")
-      ) {
-        this.startSpinner("looking_up_settings_exchange");
-        this._currentConfig = config;
-        let configFilledIn = this.getConcreteConfig();
-        this.checkOffice365Creds(
-          configFilledIn,
-          () => {
-            // Password valid: check whether IMAP works.
-            verifyConfig(
-              configFilledIn,
-              false,
-              this._parentMsgWindow,
-              testedConfig => {
-                // IMAP worked
-                this.stopSpinner("found_settings_exchange");
-                this.displayConfigResult(testedConfig);
-              },
-              ex => {
-                // IMAP failed: make Exchange the default.
-                config.incomingAlternatives.unshift(config.incoming);
-                config.incoming = config.incomingAlternatives.find(
-                  alt => alt.type == "exchange"
-                );
-                config.incomingAlternatives = config.incomingAlternatives.filter(
-                  alt => alt != config.incoming
-                );
-                this.stopSpinner("found_settings_exchange");
-                this.displayConfigResult(config);
-              }
-            );
-          },
-          () => {
-            // Invalid password: show the error and let user correct it.
-            this.onStartOver();
-            _show("status-area");
-            this.showErrorStatus("user_pass_invalid");
-          }
-        );
-      } else {
-        this.displayConfigResult(config);
-      }
+      this.displayConfigResult(config);
     };
     this._abortable = getAddonsList(config, successCallback, e => {
       successCallback();
       this.showErrorMsg(e);
     });
-  },
-
-  /**
-   * Office365 AutoDiscover gives us specific error codes for
-   * invalid password and MFA enforced, so we can differentiate that.
-   * @param {Function} successCallback - function to be called in case the
-   *   credentials were not explicitedly invalid.
-   * @param {Function} invalidPassword - function to be called in case the
-   *   credentials were explicitely invalid.
-   */
-  checkOffice365Creds(configFilledIn, successCallback, invalidPassword) {
-    let fetch = new FetchHTTP(
-      "https://autodiscover-s.outlook.com/Autodiscover/Autodiscover.xml",
-      {
-        username: configFilledIn.incoming.username,
-        password: configFilledIn.incoming.password,
-        allowAuthPrompt: false,
-        allowCache: false,
-        headers: {
-          Cookie: "",
-        },
-        timeout: 10000,
-      },
-      successCallback,
-      ex => {
-        let err = fetch._request.getResponseHeader("X-AutoDiscovery-Error");
-        gEmailWizardLogger.info("O365 X-AutoDiscovery-Error: " + err);
-        if (err && err.includes(":InvalidCreds:")) {
-          invalidPassword();
-        } else {
-          successCallback();
-        }
-      }
-    );
-    fetch.start();
   },
 
   /**
