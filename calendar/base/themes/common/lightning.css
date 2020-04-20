@@ -10,7 +10,7 @@
 /* ::: new tab buttons ::: */
 #calendar-tab-button,
 #newMsgButton-calendar-menuitem {
-    list-style-image: url(chrome://messenger/skin/shared/in-content/calendar.svg);
+    list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
     -moz-image-region: auto;
 }
 
@@ -23,7 +23,7 @@
 /* ::: tab icons ::: */
 .icon-holder[type="calendar"],
 .tabmail-tab[type="calendar"] {
-    list-style-image: url(chrome://messenger/skin/shared/in-content/calendar.svg);
+    list-style-image: url(chrome://messenger/skin/shared/preferences/calendar.svg);
     -moz-image-region: auto;
 }
 

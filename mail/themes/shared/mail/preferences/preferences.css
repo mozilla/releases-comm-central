@@ -231,11 +231,11 @@ radio[pane][selected] > .radio-check {
 }
 
 radio[pane=paneGeneral] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/general.svg");
+  list-style-image: url("chrome://messenger/skin/shared/preferences/general.svg");
 }
 
 radio[pane=panePrivacy] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/security.svg");
+  list-style-image: url("chrome://messenger/skin/shared/preferences/security.svg");
 }
 
 radio[pane=paneCompose] > .radio-check {
@@ -243,11 +243,11 @@ radio[pane=paneCompose] > .radio-check {
 }
 
 radio[pane=paneChat] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/chat.svg");
+  list-style-image: url("chrome://messenger/skin/shared/preferences/chat.svg");
 }
 
 radio[pane=paneLightning] > .radio-check {
-  list-style-image: url("chrome://messenger/skin/shared/in-content/calendar.svg");
+  list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
 }
 
 html|input[type="number"] {

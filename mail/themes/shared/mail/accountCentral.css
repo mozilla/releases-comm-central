@@ -321,7 +321,7 @@ aside.settings-btn-container {
 }
 
 #setupCalendar::before {
-  background-image: url("chrome://messenger/skin/shared/in-content/calendar.svg");
+  background-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
 }
 
 #setupAddressBook::before {
