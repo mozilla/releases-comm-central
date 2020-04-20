@@ -76,8 +76,11 @@ function createAccountInBackend(config) {
   }
 
   if (inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
-    inServer.setCharValue("oauth2.scope", config.oauthSettings.scope);
-    inServer.setCharValue("oauth2.issuer", config.oauthSettings.issuer);
+    inServer.setCharValue("oauth2.scope", config.incoming.oauthSettings.scope);
+    inServer.setCharValue(
+      "oauth2.issuer",
+      config.incoming.oauthSettings.issuer
+    );
   }
 
   // SSL
@@ -164,11 +167,11 @@ function createAccountInBackend(config) {
       let prefBranch = "mail.smtpserver." + outServer.key + ".";
       Services.prefs.setCharPref(
         prefBranch + "oauth2.scope",
-        config.oauthSettings.scope
+        config.outgoing.oauthSettings.scope
       );
       Services.prefs.setCharPref(
         prefBranch + "oauth2.issuer",
-        config.oauthSettings.issuer
+        config.outgoing.oauthSettings.issuer
       );
     }
 

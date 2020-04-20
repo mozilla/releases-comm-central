@@ -235,7 +235,6 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
   config.incoming.port = 443;
   config.incoming.auth = Ci.nsMsgAuthMethod.passwordCleartext;
   config.incoming.authAlternatives = [Ci.nsMsgAuthMethod.OAuth2];
-  config.oauthSettings = {};
   config.outgoing.addThisServer = false;
   config.outgoing.useGlobalPreferredServer = true;
 
@@ -354,7 +353,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
   // OAuth2 settings, so that createInBackend() doesn't bail out
   if (config.incoming.owaURL || config.incoming.ewsURL) {
-    config.oauthSettings = {
+    config.incoming.oauthSettings = {
       issuer: config.incoming.hostname,
       scope: config.incoming.owaURL || config.incoming.ewsURL,
     };
@@ -546,8 +545,6 @@ function detectStandardProtocols(config, domain, successCallback) {
   if (config.outgoing.hostname) {
     config2.outgoingAlternatives.push(config.outgoing);
   }
-
-  config2.oauthSettings = config.oauthSettings;
 
   guessConfig(
     domain,

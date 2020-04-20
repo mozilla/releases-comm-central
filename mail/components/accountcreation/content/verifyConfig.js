@@ -97,41 +97,22 @@ function verifyConfig(
 
   try {
     // Lookup issuer if needed.
-    if (
-      config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 ||
-      config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2
-    ) {
-      if (!config.oauthSettings) {
-        config.oauthSettings = {};
-      }
-      if (!config.oauthSettings.issuer || !config.oauthSettings.scope) {
-        // lookup issuer or scope from hostname
-        let hostname =
-          config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2
-            ? config.incoming.hostname
-            : config.outgoing.hostname;
-        let hostDetails = OAuth2Providers.getHostnameDetails(hostname);
-        if (hostDetails) {
-          [
-            config.oauthSettings.issuer,
-            config.oauthSettings.scope,
-          ] = hostDetails;
-        }
-        if (!config.oauthSettings.issuer || !config.oauthSettings.scope) {
-          throw new Error("Could not get issuer for oauth2 authentication");
-        }
+    if (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      let [issuer, scope] = OAuth2Providers.getHostnameDetails(
+        config.incoming.hostname,
+        config.incoming.port
+      );
+      if (!issuer || !scope) {
+        throw new Error(
+          `Could not get OAuth2 details for hostname=${config.incoming.hostname}:${config.incoming.port}`
+        );
       }
       gEmailWizardLogger.info(
-        "Saving oauth parameters for issuer " + config.oauthSettings.issuer
+        `Saving incoming server OAuth2 details for hostname=${config.incoming.hostname}: issuer=${issuer}, scope=${scope}`
       );
-      inServer.setCharValue("oauth2.scope", config.oauthSettings.scope);
-      inServer.setCharValue("oauth2.issuer", config.oauthSettings.issuer);
-      gEmailWizardLogger.info(
-        "OAuth2 issuer, scope is " +
-          config.oauthSettings.issuer +
-          ", " +
-          config.oauthSettings.scope
-      );
+      inServer.setCharValue("oauth2.scope", scope);
+      inServer.setCharValue("oauth2.issuer", issuer);
+      config.incoming.oauthSettings = { issuer, scope };
     }
     if (config.incoming.owaURL) {
       inServer.setUnicharValue("owa_url", config.incoming.owaURL);

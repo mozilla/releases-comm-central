@@ -155,7 +155,7 @@ function readFromXML(clientConfigXML) {
         } catch (e) {
           logException(e);
         }
-        d.oauthSettings = {
+        iO.oauthSettings = {
           issuer: iO.hostname,
           scope: iO.owaURL || iO.ewsURL || iO.easURL,
         };
