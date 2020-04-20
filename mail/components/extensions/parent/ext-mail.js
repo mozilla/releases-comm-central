@@ -29,6 +29,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Schemas: "resource://gre/modules/Schemas.jsm",
 });
 
+const COMPOSE_WINDOW_URI =
+  "chrome://messenger/content/messengercompose/messengercompose.xhtml";
+
 // Inject the |messenger| object as an alias to |browser| in all known contexts. This is a bit
 // fragile since it uses monkeypatching. If a test fails, the best way to debug is to search for
 // Schemas.exportLazyGetter where it does the injections, add |messenger| alias to those files until
@@ -36,6 +39,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 (function() {
   let loadContentScript = ExtensionProcessScript.loadContentScript;
   let initExtensionContext = ExtensionContent.initExtensionContext;
+  let handleExtensionExecute = ExtensionContent.handleExtensionExecute;
   let initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
 
   // This patches constructor of ContentScriptContextChild adding the object to the sandbox
@@ -58,6 +62,31 @@ XPCOMUtils.defineLazyModuleGetters(this, {
     Schemas.exportLazyGetter(window, "messenger", () => context.chromeObj);
 
     return initExtensionContext.apply(ExtensionContent, arguments);
+  };
+
+  ExtensionContent.handleExtensionExecute = function(
+    global,
+    target,
+    options,
+    script
+  ) {
+    if (
+      script.extension.hasPermission("compose") &&
+      target.chromeOuterWindowID
+    ) {
+      let outerWindow = Services.wm.getOuterWindowWithId(
+        target.chromeOuterWindowID
+      );
+      if (outerWindow && outerWindow.location.href == COMPOSE_WINDOW_URI) {
+        script.matchesWindow = () => true;
+      }
+    }
+    return handleExtensionExecute.apply(ExtensionContent, [
+      global,
+      target,
+      options,
+      script,
+    ]);
   };
 
   // This patches privileged pages such as the background script
@@ -726,20 +755,28 @@ Object.assign(global, { tabTracker, windowTracker });
  */
 class Tab extends TabBase {
   /** Returns true if this tab is a 3-pane tab. */
-  get mailTab() {
+  get isMailTab() {
     return false;
+  }
+
+  /** Returns true if this tab is a compose window "tab". */
+  get isComposeTab() {
+    return (
+      this.nativeTab.location &&
+      this.nativeTab.location.href == COMPOSE_WINDOW_URI
+    );
   }
 
   /** Overrides the matches function to enable querying for 3-pane tabs. */
   matches(queryInfo, context) {
     let result = super.matches(queryInfo, context);
-    return result && (!queryInfo.mailTab || this.mailTab);
+    return result && (!queryInfo.mailTab || this.isMailTab);
   }
 
   /** Adds the mailTab property and removes some useless properties from a tab object. */
   convert(fallback) {
     let result = super.convert(fallback);
-    result.mailTab = this.mailTab;
+    result.mailTab = this.isMailTab;
 
     // These properties are not useful to Thunderbird extensions and are not returned.
     for (let key of [
@@ -769,7 +806,17 @@ class Tab extends TabBase {
 
   /** Returns the XUL browser for the tab. */
   get browser() {
+    if (this.isComposeTab) {
+      return this.nativeTab.GetCurrentEditorElement();
+    }
     return null;
+  }
+
+  get innerWindowID() {
+    if (this.isComposeTab) {
+      return this.browser.contentWindow.windowUtils.currentInnerWindowID;
+    }
+    return super.innerWindowID;
   }
 
   /** Returns the frame loader for the tab. */
@@ -781,6 +828,9 @@ class Tab extends TabBase {
 
   /** Returns the current URL of this tab, without permission checks. */
   get _url() {
+    if (this.isComposeTab) {
+      return undefined;
+    }
     return this.browser ? this.browser.currentURI.spec : null;
   }
 
@@ -928,7 +978,7 @@ class TabmailTab extends Tab {
   }
 
   /** Returns true if this tab is a 3-pane tab. */
-  get mailTab() {
+  get isMailTab() {
     return ["folder", "glodaList"].includes(this.nativeTab.mode.name);
   }
 

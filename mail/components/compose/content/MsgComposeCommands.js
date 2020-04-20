@@ -52,6 +52,9 @@ var { AppConstants } = ChromeUtils.import(
 var { MailConstants } = ChromeUtils.import(
   "resource:///modules/MailConstants.jsm"
 );
+var { ExtensionParent } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionParent.jsm"
+);
 
 var l10n = new Localization(
   ["messenger/messengercompose/messengercompose.ftl"],
@@ -3747,6 +3750,11 @@ function ComposeLoad() {
   }
 
   setEncSigStatusUI();
+
+  ExtensionParent.apiManager.emit(
+    "extension-browser-inserted",
+    GetCurrentEditorElement()
+  );
 }
 
 function ComposeUnload() {
