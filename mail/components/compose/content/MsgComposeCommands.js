@@ -184,6 +184,7 @@ const inputObserver = {
       if (!element || element.classList.contains("input-pill")) {
         return;
       }
+
       // Trigger the pill creation.
       recipientAddPill(element);
     }
@@ -3673,6 +3674,11 @@ function ComposeLoad() {
   updateAttachmentPane();
   attachmentBucketMarkEmptyBucket();
   updateStringsOfAddressingFields();
+
+  for (let input of document.querySelectorAll(".address-input")) {
+    input.onBeforeHandleKeyDown = event =>
+      recipientOnBeforeKeyDown(event, input);
+  }
 
   top.controllers.appendController(SecurityController);
   gMsgCompose.compFields.composeSecure = null;

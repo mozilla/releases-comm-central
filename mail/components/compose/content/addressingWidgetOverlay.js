@@ -526,13 +526,13 @@ function getLoadContext() {
 }
 
 /**
- * Handles keypress events for the email address inputs (that auto-fill)
- * in the Message Compose window.
+ * Handles keydown events for the autocomplete email address inputs in the
+ * Message Compose window.
  *
- * @param {Event} event - The DOM keypress event.
- * @param {HTMLElement} element - The element that triggered the keypress event.
+ * @param {Event} event - The DOM keydown event.
+ * @param {HTMLElement} element - The element that triggered the keydown event.
  */
-function recipientKeyPress(event, element) {
+function recipientOnBeforeKeyDown(event, element) {
   switch (event.key) {
     case "a":
       // Select all the pills if the input is empty.
@@ -555,6 +555,11 @@ function recipientKeyPress(event, element) {
     case "Home":
     case "ArrowLeft":
     case "Backspace":
+      // Stop the propagation of these events to not trigger a pill keypress
+      // event when the focus moves on it.
+      event.preventDefault();
+      event.stopPropagation();
+
       if (!element.value && !event.repeat) {
         let pills = element
           .closest(".address-container")
@@ -573,6 +578,9 @@ function recipientKeyPress(event, element) {
       // element, but not for Ctrl+[Shift]+Enter keyboard shortcuts for sending.
       if (!element.value.trim() && !event.ctrlKey) {
         element.value = "";
+        // Block the default focus ring change since we're handling it with a
+        // dedicated method.
+        event.preventDefault();
         SetFocusOnNextAvailableElement(element);
       }
       break;

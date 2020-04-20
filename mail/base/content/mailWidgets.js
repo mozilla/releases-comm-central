@@ -2215,14 +2215,14 @@
       input.addEventListener("blur", () => {
         resetAddressContainer(input);
       });
-      input.addEventListener("keypress", event => {
-        recipientKeyPress(event, input);
+      input.onBeforeHandleKeyDown = event => {
+        recipientOnBeforeKeyDown(event, input);
         if (event.key != "Tab" || !event.shiftKey) {
           return;
         }
         event.preventDefault();
         this.moveFocusToPreviousElement(input);
-      });
+      };
 
       input.setAttribute("recipienttype", recipient.type);
       input.setAttribute("size", 1);
