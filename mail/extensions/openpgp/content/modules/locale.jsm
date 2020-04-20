@@ -18,30 +18,6 @@ var gEnigStringBundle = null;
 
 var EnigmailLocale = {
   /**
-   * Get the application locale. Discrecommended - use getUILocale instead!
-   */
-  get() {
-    try {
-      return Cc["@mozilla.org/intl/nslocaleservice;1"]
-        .getService(Ci.nsILocaleService)
-        .getApplicationLocale();
-    } catch (ex) {
-      return {
-        getCategory(whatever) {
-          // always return the application locale
-          try {
-            // TB < 64
-            return Services.locale.getAppLocaleAsBCP47();
-          } catch (x) {
-            let a = Services.locale.appLocalesAsBCP47;
-            return a.length > 0 ? a[0] : "";
-          }
-        },
-      };
-    }
-  },
-
-  /**
    * Retrieve a localized string from the enigmail.properties stringbundle
    *
    * @param aStr:       String                     - properties key
@@ -103,23 +79,6 @@ var EnigmailLocale = {
    * @return String  Locale (xx-YY)
    */
   getUILocale() {
-    let ps = Services.prefs;
-    let uaPref = ps.getBranch("general.useragent.");
-
-    try {
-      return uaPref.getComplexValue("locale", Ci.nsISupportsString).data;
-    } catch (e) {}
-    return this.get()
-      .getCategory("NSILOCALE_MESSAGES")
-      .substr(0, 5);
-  },
-
-  shutdown(reason) {
-    // flush string bundles on shutdown of the addon, such that it's no longer cached
-    try {
-      gEnigStringBundle = null;
-      let strBundleService = Services.strings;
-      strBundleService.flushBundles();
-    } catch (e) {}
+    return Services.locale.appLocalesAsBCP47[0];
   },
 };

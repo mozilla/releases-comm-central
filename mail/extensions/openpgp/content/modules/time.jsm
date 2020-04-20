@@ -8,9 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailTime"];
 
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const DATE_2DIGIT = "2-digit";
 const DATE_4DIGIT = "numeric";
@@ -25,38 +23,45 @@ var EnigmailTime = {
    *
    * @return: String - formatted date/time string
    */
+
+  loc: null,
+
+  initLocaleInfo() {
+    let useOsLocale = Services.prefs.getBoolPref(
+      "intl.regional_prefs.use_os_locales",
+      false
+    );
+    if (useOsLocale) {
+      this.loc = Cc["@mozilla.org/intl/ospreferences;1"].getService(
+        Ci.mozIOSPreferences
+      ).regionalPrefsLocales[0];
+    } else {
+      this.loc = Services.locale.appLocalesAsBCP47[0];
+    }
+  },
+
   getDateTime(dateNum, withDate, withTime) {
+    if (!this.loc) {
+      this.initLocaleInfo();
+    }
+
     if (dateNum && dateNum !== 0) {
       let dat = new Date(dateNum * 1000);
-      let appLocale = EnigmailLocale.get();
 
       var options = {};
 
       if (withDate) {
         options.day = DATE_2DIGIT;
         options.month = DATE_2DIGIT;
-        let year = dat.getFullYear();
-        if (year > 2099) {
-          options.year = DATE_4DIGIT;
-        } else {
-          options.year = DATE_2DIGIT;
-        }
+        options.year = DATE_4DIGIT;
       }
       if (withTime) {
         options.hour = DATE_2DIGIT;
         options.minute = DATE_2DIGIT;
       }
 
-      let useLocale = appLocale.getCategory("NSILOCALE_TIME").substr(0, 5);
-      useLocale = useLocale.replace(/_/g, "-");
-
-      try {
-        return new Intl.DateTimeFormat(useLocale, options).format(dat);
-      } catch (ex) {
-        return new Intl.DateTimeFormat("en-US", options).format(dat);
-      }
-    } else {
-      return "";
+      return new Intl.DateTimeFormat(this.loc, options).format(dat);
     }
+    return "";
   },
 };
