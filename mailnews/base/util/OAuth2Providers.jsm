@@ -31,6 +31,21 @@ var kHostnames = new Map([
   ["imap.aol.com", ["login.aol.com", "mail-w"]],
   ["pop.aol.com", ["login.aol.com", "mail-w"]],
   ["smtp.aol.com", ["login.aol.com", "mail-w"]],
+
+  [
+    "outlook.office365.com",
+    [
+      "login.microsoftonline.com",
+      "https://outlook.office365.com/IMAP.AccessAsUser.All https://outlook.office365.com/POP.AccessAsUser.All https://outlook.office365.com/SMTP.Send offline_access",
+    ],
+  ],
+  [
+    "smtp.office365.com",
+    [
+      "login.microsoftonline.com",
+      "https://outlook.office365.com/IMAP.AccessAsUser.All https://outlook.office365.com/POP.AccessAsUser.All https://outlook.office365.com/SMTP.Send offline_access",
+    ],
+  ],
 ]);
 
 /**
@@ -88,6 +103,17 @@ var kIssuers = new Map([
       "79c1c11991d148ddd02a919000d69879942fc278",
       "https://api.login.aol.com/oauth2/request_auth",
       "https://api.login.aol.com/oauth2/get_token",
+    ],
+  ],
+
+  [
+    "login.microsoftonline.com",
+    [
+      "08162f7c-0fd2-4200-a84a-f25a4db0b584", // Application (client) ID
+      "TxRBilcHdC6WGBee]fs?QR:SJ8nI[g82", // @see App registrations | Certificates & secrets
+      // https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
+      "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+      "https://login.microsoftonline.com/common/oauth2/v2.0/token",
     ],
   ],
 ]);
