@@ -346,33 +346,33 @@ this.messages = class extends ExtensionAPI {
           if (!msgHdr) {
             return;
           }
+          const msgs = Cc["@mozilla.org/array;1"].createInstance(
+            Ci.nsIMutableArray
+          );
+          msgs.appendElement(msgHdr);
+
           if (newProperties.read !== null) {
-            msgHdr.markRead(newProperties.read);
+            msgHdr.folder.markMessagesRead(msgs, newProperties.read);
           }
           if (newProperties.flagged !== null) {
-            msgHdr.markFlagged(newProperties.flagged);
+            msgHdr.folder.markMessagesFlagged(msgs, newProperties.flagged);
           }
           if (newProperties.junk !== null) {
-            let messages = Cc["@mozilla.org/array;1"].createInstance(
-              Ci.nsIMutableArray
-            );
             let score = newProperties.junk
               ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
               : Ci.nsIJunkMailPlugin.IS_HAM_SCORE;
-            messages.appendElement(msgHdr);
-            msgHdr.folder.setJunkScoreForMessages(messages, score);
+            msgHdr.folder.setJunkScoreForMessages(msgs, score);
           }
           if (Array.isArray(newProperties.tags)) {
             let currentTags = msgHdr.getStringProperty("keywords").split(" ");
-            let msgHdrArray = toXPCOMArray([msgHdr], Ci.nsIMutableArray);
 
             for (let { key: tagKey } of MailServices.tags.getAllTags()) {
               if (newProperties.tags.includes(tagKey)) {
                 if (!currentTags.includes(tagKey)) {
-                  msgHdr.folder.addKeywordsToMessages(msgHdrArray, tagKey);
+                  msgHdr.folder.addKeywordsToMessages(msgs, tagKey);
                 }
               } else if (currentTags.includes(tagKey)) {
-                msgHdr.folder.removeKeywordsFromMessages(msgHdrArray, tagKey);
+                msgHdr.folder.removeKeywordsFromMessages(msgs, tagKey);
               }
             }
           }
