@@ -5038,8 +5038,8 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
               m_copyState->m_msgWindow->GetTransactionManager(
                   getter_AddRefs(txnMgr));
               if (txnMgr) {
-                mozilla::DebugOnly<nsresult> rv2 =
-                    txnMgr->DoTransaction(m_copyState->m_undoMsgTxn);
+                RefPtr<nsImapMoveCopyMsgTxn> txn = m_copyState->m_undoMsgTxn;
+                mozilla::DebugOnly<nsresult> rv2 = txnMgr->DoTransaction(txn);
                 NS_ASSERTION(NS_SUCCEEDED(rv2), "doing transaction failed");
               }
             }
@@ -5142,7 +5142,11 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
                   nsCOMPtr<nsITransactionManager> txnMgr;
                   m_copyState->m_msgWindow->GetTransactionManager(
                       getter_AddRefs(txnMgr));
-                  if (txnMgr) txnMgr->DoTransaction(m_copyState->m_undoMsgTxn);
+                  if (txnMgr) {
+                    RefPtr<nsImapMoveCopyMsgTxn> txn =
+                        m_copyState->m_undoMsgTxn;
+                    txnMgr->DoTransaction(txn);
+                  }
                 }
                 (void)OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
                 if (folderOpen ||

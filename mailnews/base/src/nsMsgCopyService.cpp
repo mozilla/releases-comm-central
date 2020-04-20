@@ -361,11 +361,10 @@ nsCopyRequest* nsMsgCopyService::FindRequest(nsISupports* aSupport,
 
 NS_IMPL_ISUPPORTS(nsMsgCopyService, nsIMsgCopyService)
 
-NS_IMETHODIMP
-nsMsgCopyService::CopyMessages(nsIMsgFolder* srcFolder, /* UI src folder */
-                               nsIArray* messages, nsIMsgFolder* dstFolder,
-                               bool isMove, nsIMsgCopyServiceListener* listener,
-                               nsIMsgWindow* window, bool allowUndo) {
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
+    nsIMsgFolder* srcFolder, /* UI src folder */
+    nsIArray* messages, nsIMsgFolder* dstFolder, bool isMove,
+    nsIMsgCopyServiceListener* listener, nsIMsgWindow* window, bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcFolder);
   NS_ENSURE_ARG_POINTER(messages);
   NS_ENSURE_ARG_POINTER(dstFolder);
@@ -451,8 +450,10 @@ nsMsgCopyService::CopyMessages(nsIMsgFolder* srcFolder, /* UI src folder */
 
   // undo stuff
   if (NS_SUCCEEDED(rv) && copyRequest->m_allowUndo &&
-      copyRequest->m_copySourceArray.Length() > 1 && copyRequest->m_txnMgr)
-    copyRequest->m_txnMgr->BeginBatch(nullptr);
+      copyRequest->m_copySourceArray.Length() > 1 && copyRequest->m_txnMgr) {
+    nsCOMPtr<nsITransactionManager> txnMgr = copyRequest->m_txnMgr;
+    txnMgr->BeginBatch(nullptr);
+  }
 
 done:
 

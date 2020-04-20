@@ -2111,7 +2111,8 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
   destHdr->SetLabel(label);
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
+nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   if (!mCopyState) return NS_OK;
 
   // we are the destination folder for a move/copy
@@ -2323,7 +2324,10 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           nsCOMPtr<nsITransactionManager> txnMgr;
           mCopyState->m_msgWindow->GetTransactionManager(
               getter_AddRefs(txnMgr));
-          if (txnMgr) txnMgr->DoTransaction(mCopyState->m_undoMsgTxn);
+          if (txnMgr) {
+            RefPtr<nsLocalMoveCopyMsgTxn> txn = mCopyState->m_undoMsgTxn;
+            txnMgr->DoTransaction(txn);
+          }
         }
 
         // enable the dest folder
@@ -2376,7 +2380,8 @@ bool nsMsgLocalMailFolder::GetDeleteFromServerOnMove() {
   return gDeleteFromServerOnMove;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
+nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
   nsresult rv;
   if (!mCopyState) return NS_OK;
 
@@ -2434,7 +2439,10 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
         mCopyState->m_undoMsgTxn) {
       nsCOMPtr<nsITransactionManager> txnMgr;
       mCopyState->m_msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
-      if (txnMgr) txnMgr->DoTransaction(mCopyState->m_undoMsgTxn);
+      if (txnMgr) {
+        RefPtr<nsLocalMoveCopyMsgTxn> txn = mCopyState->m_undoMsgTxn;
+        txnMgr->DoTransaction(txn);
+      }
     }
     (void)OnCopyCompleted(
         mCopyState->m_srcSupport,

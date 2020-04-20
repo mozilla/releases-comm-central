@@ -1395,7 +1395,7 @@ NS_IMETHODIMP nsMessenger::CanRedo(bool *bValue) {
   return rv;
 }
 
-NS_IMETHODIMP
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 nsMessenger::Undo(nsIMsgWindow *msgWindow) {
   nsresult rv = NS_OK;
   if (mTxnMgr) {
@@ -1408,13 +1408,14 @@ nsMessenger::Undo(nsIMsgWindow *msgWindow) {
         static_cast<nsMsgTxn *>(static_cast<nsITransaction *>(txn.get()))
             ->SetMsgWindow(msgWindow);
       }
-      mTxnMgr->UndoTransaction();
+      nsCOMPtr<nsITransactionManager> txnMgr = mTxnMgr;
+      txnMgr->UndoTransaction();
     }
   }
   return rv;
 }
 
-NS_IMETHODIMP
+MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP
 nsMessenger::Redo(nsIMsgWindow *msgWindow) {
   nsresult rv = NS_OK;
   if (mTxnMgr) {
@@ -1427,7 +1428,8 @@ nsMessenger::Redo(nsIMsgWindow *msgWindow) {
         static_cast<nsMsgTxn *>(static_cast<nsITransaction *>(txn.get()))
             ->SetMsgWindow(msgWindow);
       }
-      mTxnMgr->RedoTransaction();
+      nsCOMPtr<nsITransactionManager> txnMgr = mTxnMgr;
+      txnMgr->RedoTransaction();
     }
   }
   return rv;

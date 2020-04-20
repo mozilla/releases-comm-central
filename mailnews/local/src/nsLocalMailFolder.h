@@ -149,10 +149,10 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
                             bool deleteStorage, bool isMove,
                             nsIMsgCopyServiceListener *listener,
                             bool allowUndo) override;
-  NS_IMETHOD CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
-                          bool isMove, nsIMsgWindow *msgWindow,
-                          nsIMsgCopyServiceListener *listener, bool isFolder,
-                          bool allowUndo) override;
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHOD
+  CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages, bool isMove,
+               nsIMsgWindow *msgWindow, nsIMsgCopyServiceListener *listener,
+               bool isFolder, bool allowUndo) override;
   NS_IMETHOD CopyFolder(nsIMsgFolder *srcFolder, bool isMoveFolder,
                         nsIMsgWindow *msgWindow,
                         nsIMsgCopyServiceListener *listener) override;

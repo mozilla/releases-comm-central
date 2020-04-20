@@ -285,10 +285,10 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo,
                                   nsIMsgDatabase **db) override;
-  NS_IMETHOD DeleteMessages(nsIArray *messages, nsIMsgWindow *msgWindow,
-                            bool deleteStorage, bool isMove,
-                            nsIMsgCopyServiceListener *listener,
-                            bool allowUndo) override;
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHOD
+  DeleteMessages(nsIArray *messages, nsIMsgWindow *msgWindow,
+                 bool deleteStorage, bool isMove,
+                 nsIMsgCopyServiceListener *listener, bool allowUndo) override;
   NS_IMETHOD CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
                           bool isMove, nsIMsgWindow *msgWindow,
                           nsIMsgCopyServiceListener *listener, bool isFolder,
@@ -341,7 +341,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   // nsIUrlListener methods
   NS_IMETHOD OnStartRunningUrl(nsIURI *aUrl) override;
-  NS_IMETHOD OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) override;
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHOD
+  OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) override;
 
   NS_DECL_NSIMSGFILTERHITNOTIFY
   NS_DECL_NSIJUNKMAILCLASSIFICATIONLISTENER
@@ -477,9 +478,9 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsresult GetOriginalOp(nsIMsgOfflineImapOperation *op,
                          nsIMsgOfflineImapOperation **originalOp,
                          nsIMsgDatabase **originalDB);
-  nsresult CopyMessagesOffline(nsIMsgFolder *srcFolder, nsIArray *messages,
-                               bool isMove, nsIMsgWindow *msgWindow,
-                               nsIMsgCopyServiceListener *listener);
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult CopyMessagesOffline(
+      nsIMsgFolder *srcFolder, nsIArray *messages, bool isMove,
+      nsIMsgWindow *msgWindow, nsIMsgCopyServiceListener *listener);
   void SetPendingAttributes(nsIArray *messages, bool aIsMove, bool aSetOffline);
 
   nsresult CopyOfflineMsgBody(nsIMsgFolder *srcFolder, nsIMsgDBHdr *destHdr,
