@@ -42,10 +42,6 @@
   -moz-font-smoothing-background-color: -moz-mac-source-list;
 }
 
-.focusring > .tree-stack > .tree-rows > .tree-bodybox {
-  border: 0;
-}
-
 #folderTree treechildren::-moz-tree-indentation {
  background-color: black !important;
 }
