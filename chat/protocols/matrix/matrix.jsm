@@ -19,6 +19,8 @@ var {
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
+Cu.importGlobalProperties(["indexedDB"]);
+
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
@@ -194,34 +196,51 @@ function MatrixAccount(aProtocol, aImAccount) {
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
   observe(aSubject, aTopic, aData) {},
-  remove() {},
+  remove() {
+    for (let room of Object.values(this._roomList)) {
+      room.close();
+    }
+    delete this._roomList;
+    // We want to clear data stored for syncing in indexedDB so when
+    // user logins again, one gets the fresh start.
+    this._client.clearStores();
+  },
   unInit() {},
   connect() {
     this.reportConnecting();
+    let dbName = "chat:matrix:" + this.imAccount.id;
     let baseURL = this.getString("server") + ":" + this.getInt("port");
 
-    this._client = MatrixSDK.createClient(baseURL);
+    const opts = {
+      useAuthorizationHeader: true,
+      baseUrl: baseURL,
+      store: new MatrixSDK.IndexedDBStore({
+        indexedDB,
+        dbName,
+      }),
+    };
 
-    // Send the login request to the server.
-    // See https://matrix-org.github.io/matrix-js-sdk/2.4.1/module-client-MatrixClient.html#loginWithPassword
-    this._client
-      .loginWithPassword(this.name, this.imAccount.password)
-      .then(data => {
-        // TODO: Check data.errcode to pass more accurate value as the first
-        // parameter of reportDisconnecting.
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        this.startClient();
-      })
-      .catch(error => {
-        this.reportDisconnecting(
-          Ci.prplIAccount.ERROR_OTHER_ERROR,
-          error.message
-        );
-        this._client = null;
-        this.reportDisconnected();
-      });
+    opts.store.startup().then(() => {
+      this._client = MatrixSDK.createClient(opts);
+      this._client
+        .loginWithPassword(this.name, this.imAccount.password)
+        .then(data => {
+          // TODO: Check data.errcode to pass more accurate value as the first
+          // parameter of reportDisconnecting.
+          if (data.error) {
+            throw new Error(data.error);
+          }
+          this.startClient();
+        })
+        .catch(error => {
+          this.reportDisconnecting(
+            Ci.prplIAccount.ERROR_OTHER_ERROR,
+            error.message
+          );
+          this._client = null;
+          this.reportDisconnected();
+        });
+    });
   },
   /*
    * Hook up the Matrix Client to callbacks to handle various events.
@@ -236,7 +255,6 @@ MatrixAccount.prototype = {
           this.reportConnected();
           break;
         case "STOPPED":
-          // XXX Report disconnecting here?
           this._client.logout().then(() => {
             this.reportDisconnected();
             this._client = null;
@@ -277,6 +295,13 @@ MatrixAccount.prototype = {
             conv.setTopic(event.getContent().topic, event.sender.name);
           } else if (conv && event.getType() == "m.room.power_levels") {
             conv.notifyObservers(null, "chat-update-topic");
+            conv.writeMessage(
+              event.sender.name,
+              event.getType() + ": " + JSON.stringify(event.getContent()),
+              {
+                system: true,
+              }
+            );
           } else {
             // This is an unhandled event type, for now just put it in the room as
             // the JSON body. This will need to be updated once (most) events are
@@ -329,6 +354,12 @@ MatrixAccount.prototype = {
     // Get the list of joined rooms on the server and create those conversations.
     this._client.getJoinedRooms().then(response => {
       for (let roomId of response.joined_rooms) {
+        // If we re-connect and _roomList has a conversation with given room ID
+        // that means we have created the associated conversation previously
+        // and we don't need to create it again.
+        if (this._roomList[roomId]) {
+          return;
+        }
         let conv = new MatrixConversation(this, roomId, this.userId);
         this._roomList[roomId] = conv;
         let room = this._client.getRoom(roomId);
@@ -357,6 +388,7 @@ MatrixAccount.prototype = {
     if (this._client) {
       this._client.stopClient();
     }
+    this.reportDisconnected();
   },
 
   get canJoinChat() {
