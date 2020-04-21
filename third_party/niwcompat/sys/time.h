@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 /* MS Win SDK Headers */
+#include <errno.h>
 #include <sys/timeb.h> /* For _ftime_s */
 #include <time.h>
 
