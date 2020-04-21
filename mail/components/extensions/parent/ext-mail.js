@@ -554,6 +554,18 @@ class TabTracker extends TabTrackerBase {
    * @param {DOMWindow} window      The window being opened.
    */
   _handleWindowOpen(window) {
+    if (
+      ["mail:addressbook", "msgcompose", "mail:messageWindow"].includes(
+        window.document.documentElement.getAttribute("windowtype")
+      )
+    ) {
+      this.emit("tab-created", {
+        nativeTabInfo: window,
+        currentTab: window,
+      });
+      return;
+    }
+
     let tabmail = window.document.getElementById("tabmail");
     if (!tabmail) {
       return;
@@ -574,6 +586,20 @@ class TabTracker extends TabTrackerBase {
    * @param {DOMWindow} window      The window being closed.
    */
   _handleWindowClose(window) {
+    if (
+      ["mail:addressbook", "msgcompose", "mail:messageWindow"].includes(
+        window.document.documentElement.getAttribute("windowtype")
+      )
+    ) {
+      this.emit("tab-removed", {
+        window,
+        tabId: this.getId(window),
+        windowId: windowTracker.getId(getTabWindow(window)),
+        isWindowClosing: true,
+      });
+      return;
+    }
+
     let tabmail = window.document.getElementById("tabmail");
     if (!tabmail) {
       return;

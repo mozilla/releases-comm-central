@@ -872,6 +872,13 @@
           }
           tabMonitor.onTabSwitched(firstTab, null);
         }
+
+        // Dispatch tab opening event
+        let evt = new CustomEvent("TabOpen", {
+          bubbles: true,
+          detail: { tabInfo: firstTab, moving: false },
+        });
+        document.querySelector("#tabmail-tabs tab").dispatchEvent(evt);
       }
     }
 
