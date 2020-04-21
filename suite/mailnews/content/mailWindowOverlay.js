@@ -1748,6 +1748,23 @@ function MsgCanFindAgain()
   return canFindAgainInPage();
 }
 
+/**
+ * Go through each selected server and mark all its folders read.
+ */
+function MsgMarkAllFoldersRead() {
+  const selectedFolders = GetSelectedMsgFolders();
+  if (selectedFolders) {
+    const selectedServers = selectedFolders.filter(folder => folder.isServer);
+
+    selectedServers.forEach(function(server) {
+      const folders = server.rootFolder.descendants;
+      for (let folder of fixIterator(folders, Ci.nsIMsgFolder)) {
+        folder.markAllMessagesRead(msgWindow);
+      }
+    });
+  }
+}
+
 function MsgFilters(emailAddress, folder)
 {
     if (!folder)

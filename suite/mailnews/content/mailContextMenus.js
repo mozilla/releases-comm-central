@@ -255,6 +255,9 @@ function FillFolderPaneContextMenu()
   ShowMenuItem("folderPaneContext-getMessages", (numSelected <= 1) && canGetMessages);
   EnableMenuItem("folderPaneContext-getMessages", true);
 
+  ShowMenuItem("folderPaneContext-sep4", (numSelected <= 1) && isServer);
+  ShowMenuItem("folderPaneContext-markAllFoldersRead", (numSelected <= 1) && isServer);
+
   ShowMenuItem("folderPaneContext-openNewWindow", (numSelected <= 1));
   EnableMenuItem("folderPaneContext-openNewWindow", true);
 

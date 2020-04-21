@@ -478,9 +478,14 @@
               checked="false"
               oncommand="ToggleFavoriteFolderFlag();"/>
     <menuitem id="folderPaneContext-properties"
-        label="&folderContextProperties.label;"
-        accesskey="&folderContextProperties.accesskey;"
-        oncommand="gFolderTreeController.editFolder();"/>
+              label="&folderContextProperties.label;"
+              accesskey="&folderContextProperties.accesskey;"
+              oncommand="gFolderTreeController.editFolder();"/>
+    <menuitem id="folderPaneContext-markAllFoldersRead"
+              label="&folderContextMarkAllFoldersRead.label;"
+              accesskey="&folderContextMarkAllFoldersRead.accesskey;"
+              oncommand="MsgMarkAllFoldersRead();"/>
+    <menuseparator id="folderPaneContext-sep4"/>
     <menuitem id="folderPaneContext-settings"
               label="&folderContextSettings.label;"
               accesskey="&folderContextSettings.accesskey;"
