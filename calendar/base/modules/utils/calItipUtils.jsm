@@ -270,7 +270,8 @@ var calitip = {
         return cal.l10n.getLtnString("imipBarDeclineCounterText");
       default:
         cal.ERROR("Unknown iTIP method: " + method);
-        return cal.l10n.getLtnString("imipBarUnsupportedText");
+        let appName = cal.l10n.getAnyString("branding", "brand", "brandShortName");
+        return cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
     }
   },
 
@@ -465,11 +466,13 @@ var calitip = {
           break;
         }
         default:
-          data.label = cal.l10n.getLtnString("imipBarUnsupportedText");
+          let appName = cal.l10n.getAnyString("branding", "brand", "brandShortName");
+          data.label = cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
           break;
       }
     } else {
-      data.label = cal.l10n.getLtnString("imipBarUnsupportedText");
+      let appName = cal.l10n.getAnyString("branding", "brand", "brandShortName");
+      data.label = cal.l10n.getLtnString("imipBarUnsupportedText2", [appName]);
     }
 
     return data;
