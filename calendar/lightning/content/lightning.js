@@ -9,14 +9,6 @@ pref("calendar.debug.log", false);
 // Turns on verbose calendar logging.
 pref("calendar.debug.log.verbose", false);
 
-// addon description
-pref("extensions.{e2fda1a4-762b-4020-b5ad-a41df1933103}.description",
-     "chrome://lightning/locale/lightning.properties");
-pref("extensions.{e2fda1a4-762b-4020-b5ad-a41df1933103}.name",
-     "chrome://lightning/locale/lightning.properties");
-pref("extensions.{e2fda1a4-762b-4020-b5ad-a41df1933103}.creator",
-     "chrome://lightning/locale/lightning.properties");
-
 // general settings
 pref("calendar.date.format", 0);
 pref("calendar.event.defaultlength", 60);
