@@ -220,22 +220,6 @@ toolbar[nowindowdrag="true"] {
   margin: 2px 5px;
 }
 
-@media (min-resolution: 2dppx) {
-  .autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
-    width: 16px;
-    height: 16px;
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 32px 32px 0px);
-  }
-
-  .autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
-    width: 16px;
-    height: 16px;
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 96px 32px 64px);
-  }
-}
-
 .autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
   -moz-image-region: rect(0 160px 16px 144px);

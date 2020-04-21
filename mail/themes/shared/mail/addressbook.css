@@ -77,19 +77,20 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
 
 treechildren::-moz-tree-image(DirCol) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
+  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+  opacity: 0.85;
 }
 
 treechildren::-moz-tree-image(DirCol, IsMailList-true) {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/ablist.png");
+  list-style-image: url("chrome://messenger/skin/icons/ablist.svg");
 }
 
 treechildren::-moz-tree-image(DirCol, IsRemote-true) {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
+  list-style-image: url("chrome://messenger/skin/icons/globe.svg");
 }
 
 treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/secure-remote-addrbook.png");
+  list-style-image: url("chrome://messenger/skin/icons/globe-secure.svg");
 }
 
 /* ::::: results pane ::::: */
@@ -102,16 +103,13 @@ treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
 
 treechildren::-moz-tree-image(GeneratedName) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
+  list-style-image: url("chrome://messenger/skin/icons/contact.svg");
+  opacity: 0.85;
 }
 
 treechildren::-moz-tree-image(GeneratedName, MailList) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/ablist.png");
-}
-
-treechildren::-moz-tree-cell-text(GeneratedName) {
-  padding-inline-start: 0;
+  list-style-image: url("chrome://messenger/skin/icons/ablist.svg");
 }
 
 /* ::::: card view pane ::::: */

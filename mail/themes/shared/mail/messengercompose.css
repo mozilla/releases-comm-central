@@ -441,16 +441,20 @@ menulist::part(description) {
 
 /* :::: autocomplete icons :::: */
 
+.autocomplete-richlistitem > .ac-site-icon {
+  opacity: 0.85;
+}
+
 .autocomplete-richlistitem[type="local-abook"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
+  list-style-image: url("chrome://messenger/skin/icons/address.svg");
 }
 
 .autocomplete-richlistitem[type="remote-abook"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
+  list-style-image: url("chrome://messenger/skin/icons/globe.svg");
 }
 
 .autocomplete-richlistitem[type="remote-err"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
+  list-style-image: url("chrome://global/skin/icons/error.svg");
 }
 
 /* :::: attachment notification :::: */

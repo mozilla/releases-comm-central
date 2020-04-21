@@ -77,7 +77,7 @@
 
 .person-icon {
   margin: 0 3px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
+  list-style-image: url("chrome://messenger/skin/icons/contact.svg");
 }
 
 menulist::part(icon) {

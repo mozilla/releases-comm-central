@@ -56,13 +56,15 @@
   -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
-@media not all and (-moz-mac-yosemite-theme) {
+@media (-moz-mac-yosemite-theme: 0) {
   :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-row(selected, focus) {
     -moz-appearance: -moz-mac-active-source-list-selection;
     -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
   }
 
-  #dirTree treechildren::-moz-tree-cell-text(selected) {
+  :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-image(selected),
+  :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-twisty(selected),
+  :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-cell-text(selected) {
     color: white;
   }
 }
@@ -74,32 +76,10 @@
     font-weight: 400;
   }
 
-  #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
+  :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-image(selected, focus),
+  :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-twisty(selected, focus),
+  :root:not([lwt-tree]) #dirTree treechildren::-moz-tree-cell-text(selected, focus) {
     color: #282828;
-  }
-}
-
-@media (min-resolution: 2dppx) {
-  treechildren::-moz-tree-image(DirCol) {
-    width: 16px;
-    height: 16px;
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 32px 32px 0px);
-  }
-
-  treechildren::-moz-tree-image(DirCol, IsMailList-true) {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 64px 32px 32px);
-  }
-
-  treechildren::-moz-tree-image(DirCol, IsRemote-true) {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 96px 32px 64px);
-  }
-
-  treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 128px 32px 96px);
   }
 }
 
@@ -133,20 +113,6 @@
   padding-inline-start: 42px;
 }
 
-@media (min-resolution: 2dppx) {
-  treechildren::-moz-tree-image(GeneratedName) {
-    width: 16px;
-    height: 16px;
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 160px 32px 128px);
-  }
-
-  treechildren::-moz-tree-image(GeneratedName, MailList) {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 64px 32px 32px);
-  }
-}
-
 /* ::::: card view pane ::::: */
 
 #blankResultsPaneMessageBox {
@@ -155,16 +121,16 @@
 
 #CardViewOuterBox {
   color: -moz-DialogText;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 #CardViewInnerBox {
-  background-color: #FFFFFF;
+  background-color: #fff;
 }
 
 #CardViewInnerBox > hbox {
-  background-color: #FFFFFF;
+  background-color: #fff;
 }
 
 #CardTitle {
@@ -176,7 +142,7 @@
 }
 
 .cardViewGroup {
-  margin: 0px;
+  margin: 0;
   padding: 6px;
   min-width: 50px;
 }

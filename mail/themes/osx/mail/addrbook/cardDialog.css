@@ -76,7 +76,7 @@
 
 .person-icon {
   margin: 0 3px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/abcard.png");
+  list-style-image: url("chrome://messenger/skin/icons/contact.svg");
 }
 
 menulist::part(icon) {
@@ -126,13 +126,6 @@ menulist::part(icon) {
 }
 
 @media (min-resolution: 2dppx) {
-  .person-icon {
-    width: 16px;
-    height: 16px;
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/addressbook@2x.png");
-    -moz-image-region: rect(0px 160px 32px 128px);
-  }
-
   #photo {
     list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic@2x.png");
   }
