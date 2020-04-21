@@ -1,0 +1,19 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/">
+<ShortName>Startpage</ShortName>
+<Description>Prywatne wyszukiwanie za pomocą Startpage.com</Description>
+<InputEncoding>UTF-8</InputEncoding>
+<Image width="16" height="16">resource://search-plugins/images/startpage.ico</Image>
+<Url type="text/html"
+     method="GET"
+     template="https://startpage.com/do/search"
+     resultDomain="startpage.com">
+  <Param name="query" value="{searchTerms}"/>
+  <Param name="cat" value="web"/>
+  <Param name="pl" value="ff"/>
+  <Param name="language" value="polski"/>
+</Url>
+</SearchPlugin>

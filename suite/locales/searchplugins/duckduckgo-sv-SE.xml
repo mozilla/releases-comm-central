@@ -1,0 +1,25 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/">
+<ShortName>DuckDuckGo</ShortName>
+<Description>DuckDuckGo provides a privacy-aware search engine for the web</Description>
+<InputEncoding>UTF-8</InputEncoding>
+<Image width="16" height="16">resource://search-plugins/images/duckduckgo.ico</Image>
+<Url type="application/x-suggestions+json"
+     method="GET"
+     template="https://ac.duckduckgo.com/ac/">
+  <Param name="kl" value="se-sv"/>
+  <Param name="q" value="{searchTerms}"/>
+  <Param name="type" value="list"/>
+</Url>
+<Url type="text/html"
+     method="GET"
+     template="https://duckduckgo.com/"
+     rel="searchform">
+  <Param name="kl" value="se-sv"/>
+  <Param name="q" value="{searchTerms}"/>
+  <Param name="t" value="seamonkey"/>
+</Url>
+</SearchPlugin>
