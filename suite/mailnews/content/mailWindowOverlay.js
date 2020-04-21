@@ -1752,6 +1752,12 @@ function MsgCanFindAgain()
  * Go through each selected server and mark all its folders read.
  */
 function MsgMarkAllFoldersRead() {
+  if (!Services.prompt.confirm(window,
+                               gMessengerBundle.getString("confirmMarkAllFoldersReadTitle"),
+                               gMessengerBundle.getString("confirmMarkAllFoldersReadMessage"))) {
+    return;
+  }
+
   const selectedFolders = GetSelectedMsgFolders();
   if (selectedFolders) {
     const selectedServers = selectedFolders.filter(folder => folder.isServer);
