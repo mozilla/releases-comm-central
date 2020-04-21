@@ -309,6 +309,10 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       list-style-image: url(chrome://messenger/skin/window-controls/restore.svg);
     }
 
+    :root[sizemode="maximized"] #titlebar-max:-moz-locale-dir(rtl) {
+      transform: scaleX(-1);
+    }
+
     #titlebar-close {
       list-style-image: url(chrome://messenger/skin/window-controls/close.svg);
     }
