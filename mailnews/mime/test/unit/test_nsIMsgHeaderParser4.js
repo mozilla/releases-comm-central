@@ -1,8 +1,9 @@
 /* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/*
- * Test suite for nsIMsgHeaderParser::makeFromDisplayAddress
- */
 
+/**
+ * Test suite for nsIMsgHeaderParser::makeFromDisplayAddress.
+ * This is what is used to parse in the user input from addressing fields.
+ */
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -134,6 +135,48 @@ function run_test() {
       displayString:
         'me "you" (via foo@example.com) <attacker2@example.com> friend@example.com,',
       addresses: [['me "you" (via foo@example.com)', "attacker2@example.com"]],
+    },
+
+    // An uncompleted autocomplete...
+    {
+      displayString: "me >> test <joe@examp.com>",
+      addresses: [["me >> test", "joe@examp.com"]],
+    },
+
+    // A mail list.
+    {
+      displayString: "Holmes and Watson <Tenants221B>",
+      addresses: [["Holmes and Watson", "Tenants221B"]],
+    },
+
+    // A mail list with a space in the name.
+    {
+      displayString: 'Watson and Holmes <"Quoted Tenants221B">',
+      addresses: [["Watson and Holmes", '"Quoted Tenants221B"']],
+    },
+
+    // Mail Merge template
+    {
+      displayString: "{{PrimaryEmail}} <>",
+      addresses: [["{{PrimaryEmail}}", ""]],
+    },
+
+    // Quoted heart.
+    {
+      displayString: 'Marge "<3" S <qheart@example.com>',
+      addresses: [['Marge "<3" S', "qheart@example.com"]],
+    },
+
+    // Heart.
+    {
+      displayString: "Maggie <3 S <heart@example.com>",
+      addresses: [["Maggie <3 S", "heart@example.com"]],
+    },
+
+    // Unbalanced quotes.
+    {
+      displayString: 'Homer <3 "B>" "J <unb@example.com>',
+      addresses: [['Homer <3 "B>" "J', "unb@example.com"]],
     },
   ];
 

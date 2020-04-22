@@ -437,26 +437,17 @@ MimeAddressParser.prototype = {
     // If the whole string is within quotes, unquote it first.
     aInput = aInput.trim().replace(/^"(.*)"$/, "$1");
 
-    if (aInput.includes("<")) {
-      // We don't want to look for the address within quotes.
-      let cleanedInput = aInput.replace(/".+"/g, "").trim();
-      if (!cleanedInput) {
-        // all quoted
-        return this.makeMailboxObject(aInput, "");
-      }
-      if (!/<.+>/.test(cleanedInput)) {
-        // no proper address
-        return this.makeMailboxObject(aInput, "");
-      }
-      let addr = cleanedInput.slice(
-        cleanedInput.indexOf("<") + 1,
-        cleanedInput.indexOf(">")
-      );
+    if (/<.*>/.test(aInput)) {
+      // We don't want to look for the address within quotes, so first remove
+      // all quoted strings containing angle chars.
+      let cleanedInput = aInput.replace(/".*[<>]+.*"/g, "");
+
+      // Extract the address from within the quotes.
+      let addrMatch = cleanedInput.match(/<([^><]*)>/);
+
+      let addr = addrMatch ? addrMatch[1] : "";
       let addrIdx = aInput.indexOf("<" + addr + ">");
-      return this.makeMailboxObject(
-        addrIdx == 0 ? "" : aInput.slice(0, addrIdx).trim(),
-        addr
-      );
+      return this.makeMailboxObject(aInput.slice(0, addrIdx).trim(), addr);
     }
     return this.makeMailboxObject("", aInput);
   },
