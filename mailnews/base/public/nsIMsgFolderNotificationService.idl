@@ -59,7 +59,7 @@ interface nsIMsgFolderNotificationService : nsISupports {
   // message-specific functions
   // single message for added, array for delete/move/copy
   void notifyMsgAdded(in nsIMsgDBHdr aMsg);
-  void notifyMsgsClassified(in nsIArray aMsgs,
+  void notifyMsgsClassified(in Array<nsIMsgDBHdr> aMsgs,
                             in boolean aJunkProcessed,
                             in boolean aTraitProcessed);
   void notifyMsgsDeleted(in Array<nsIMsgDBHdr> aMsgs);

@@ -56,16 +56,14 @@ var _folderEventLogHelper_msgFolderListener = {
   },
 
   /**
-   * @param {nsIArray} aMsgs
+   * @param {Array<nsIMsgDBHdr>} aMsgs
    */
   msgsClassified(aMsgs, aJunkProcessed, aTraitProcessed) {
     let args = [
       aJunkProcessed ? "junk processed" : "did not junk process",
       aTraitProcessed ? "trait processed" : "did not trait process",
     ];
-    for (let msgHdr of fixIterator(aMsgs, Ci.nsIMsgDBHdr)) {
-      args.push(msgHdr);
-    }
+    args.push(...aMsgs);
     mark_action("msgEvent", "msgsClassified", args);
   },
 

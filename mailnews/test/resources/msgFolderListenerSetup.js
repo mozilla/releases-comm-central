@@ -67,11 +67,7 @@ var gMFListener = {
   },
 
   msgsClassified(aMsgs, aJunkProcessed, aTraitProcessed) {
-    dump(
-      "classified id: " +
-        aMsgs.queryElementAt(0, Ci.nsIMsgDBHdr).messageId +
-        "\n"
-    );
+    dump("classified id: " + aMsgs[0].messageId + "\n");
     verify([
       MailServices.mfn.msgsClassified,
       aMsgs,
@@ -312,10 +308,7 @@ function verify(event) {
         }
         let ignoreCount = event[1].length - expected[1].length;
         for (let i = 0; i < expected[1].length; i++) {
-          let eventHeader = event[1].queryElementAt(
-            i + ignoreCount,
-            Ci.nsIMsgDBHdr
-          );
+          let eventHeader = event[1][i + ignoreCount];
           Assert.equal(expected[1][i], eventHeader.messageId);
         }
       } else {

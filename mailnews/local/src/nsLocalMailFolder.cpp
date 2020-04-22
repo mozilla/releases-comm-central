@@ -2352,10 +2352,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
         notifier->NotifyMsgAdded(newHdr);
         // We do not appear to trigger classification in this case, so let's
         // paper over the abyss by just sending the classification notification.
-        nsCOMPtr<nsIMutableArray> oneHeaderArray =
-            do_CreateInstance(NS_ARRAY_CONTRACTID);
-        oneHeaderArray->AppendElement(newHdr);
-        notifier->NotifyMsgsClassified(oneHeaderArray, false, false);
+        notifier->NotifyMsgsClassified({&*newHdr}, false, false);
         // (We do not add the NotReportedClassified processing flag since we
         // just reported it!)
       }

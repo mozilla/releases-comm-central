@@ -60,7 +60,7 @@ interface nsIMsgFolderListener : nsISupports {
    * @param aTraitProcessed Were the messages processed for trait
    *     classification?
    */
-  void msgsClassified(in nsIArray aMsgs, in boolean aJunkProcessed,
+  void msgsClassified(in Array<nsIMsgDBHdr> aMsgs, in boolean aJunkProcessed,
                       in boolean aTraitProcessed);
 
   /**

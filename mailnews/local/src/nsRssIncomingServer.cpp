@@ -158,9 +158,9 @@ NS_IMETHODIMP nsRssIncomingServer::MsgAdded(nsIMsgDBHdr *aMsg) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::MsgsClassified(nsIArray *aMsgs,
-                                                  bool aJunkProcessed,
-                                                  bool aTraitProcessed) {
+NS_IMETHODIMP nsRssIncomingServer::MsgsClassified(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMsgs, bool aJunkProcessed,
+    bool aTraitProcessed) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

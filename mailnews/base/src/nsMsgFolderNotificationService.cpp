@@ -64,7 +64,8 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgAdded(
 }
 
 NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsClassified(
-    nsIArray *aMsgs, bool aJunkProcessed, bool aTraitProcessed) {
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMsgs, bool aJunkProcessed,
+    bool aTraitProcessed) {
   NOTIFY_MSGFOLDER_LISTENERS(msgsClassified, MsgsClassified,
                              (aMsgs, aJunkProcessed, aTraitProcessed));
   return NS_OK;

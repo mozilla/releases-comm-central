@@ -3605,7 +3605,6 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey> &aMsgKeys,
   if (imapFolder) {
     nsImapMailFolder *destImapFolder =
         static_cast<nsImapMailFolder *>(aDstFolder);
-    nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
     nsCOMPtr<nsIMsgDatabase> dstFolderDB;
     aDstFolder->GetMsgDatabase(getter_AddRefs(dstFolderDB));
     if (dstFolderDB) {
@@ -3618,6 +3617,7 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey> &aMsgKeys,
       // from the dest db.
       nsTArray<nsMsgKey> offlineOps;
       if (NS_SUCCEEDED(dstFolderDB->ListAllOfflineOpIds(&offlineOps))) {
+        nsTArray<RefPtr<nsIMsgDBHdr>> messages;
         nsCString srcFolderUri;
         GetURI(srcFolderUri);
         nsCOMPtr<nsIMsgOfflineImapOperation> currentOp;
@@ -3635,7 +3635,7 @@ nsImapMailFolder::ReplayOfflineMoveCopy(const nsTArray<nsMsgKey> &aMsgKeys,
                   nsCOMPtr<nsIMsgDBHdr> fakeDestHdr;
                   dstFolderDB->GetMsgHdrForKey(offlineOps[opIndex],
                                                getter_AddRefs(fakeDestHdr));
-                  if (fakeDestHdr) messages->AppendElement(fakeDestHdr);
+                  if (fakeDestHdr) messages.AppendElement(fakeDestHdr);
                   break;
                 }
               }
@@ -6838,8 +6838,9 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
   return rv;
 }
 
-void nsImapMailFolder::SetPendingAttributes(nsIArray *messages, bool aIsMove,
-                                            bool aSetOffline) {
+void nsImapMailFolder::SetPendingAttributes(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &messages, bool aIsMove,
+    bool aSetOffline) {
   GetDatabase();
   if (!mDatabase) return;
 
@@ -6877,83 +6878,73 @@ void nsImapMailFolder::SetPendingAttributes(nsIArray *messages, bool aIsMove,
   // custom IMAP flags, or managed directly through the flags
   dontPreserveEx.AppendLiteral("keywords label ");
 
-  uint32_t i, count;
-
-  rv = messages->GetLength(&count);
-  NS_ENSURE_SUCCESS_VOID(rv);
-
   // check if any msg hdr has special flags or properties set
   // that we need to set on the dest hdr
-  for (i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgDBHdr> msgDBHdr = do_QueryElementAt(messages, i, &rv);
-    if (mDatabase && msgDBHdr) {
-      if (!(supportedUserFlags & kImapMsgSupportUserFlag)) {
-        nsMsgLabelValue label;
-        msgDBHdr->GetLabel(&label);
-        if (label != 0) {
-          nsAutoCString labelStr;
-          labelStr.AppendInt(label);
-          mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "label",
-                                              labelStr.get());
-        }
-        nsCString keywords;
-        msgDBHdr->GetStringProperty("keywords", getter_Copies(keywords));
-        if (!keywords.IsEmpty())
-          mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "keywords",
-                                              keywords.get());
+  for (auto msgDBHdr : messages) {
+    if (!(supportedUserFlags & kImapMsgSupportUserFlag)) {
+      nsMsgLabelValue label;
+      msgDBHdr->GetLabel(&label);
+      if (label != 0) {
+        nsAutoCString labelStr;
+        labelStr.AppendInt(label);
+        mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "label", labelStr.get());
       }
+      nsCString keywords;
+      msgDBHdr->GetStringProperty("keywords", getter_Copies(keywords));
+      if (!keywords.IsEmpty())
+        mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "keywords",
+                                            keywords.get());
+    }
 
-      // do this even if the server supports user-defined flags.
-      nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator;
-      nsresult rv =
-          msgDBHdr->GetPropertyEnumerator(getter_AddRefs(propertyEnumerator));
-      NS_ENSURE_SUCCESS_VOID(rv);
+    // do this even if the server supports user-defined flags.
+    nsCOMPtr<nsIUTF8StringEnumerator> propertyEnumerator;
+    nsresult rv =
+        msgDBHdr->GetPropertyEnumerator(getter_AddRefs(propertyEnumerator));
+    NS_ENSURE_SUCCESS_VOID(rv);
 
-      nsAutoCString property;
+    nsAutoCString property;
+    nsCString sourceString;
+    bool hasMore;
+    while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
+      propertyEnumerator->GetNext(property);
+      nsAutoCString propertyEx(NS_LITERAL_CSTRING(" "));
+      propertyEx.Append(property);
+      propertyEx.Append(' ');
+      if (dontPreserveEx.Find(propertyEx) != kNotFound) continue;
+
       nsCString sourceString;
-      bool hasMore;
-      while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
-        propertyEnumerator->GetNext(property);
-        nsAutoCString propertyEx(NS_LITERAL_CSTRING(" "));
-        propertyEx.Append(property);
-        propertyEx.Append(' ');
-        if (dontPreserveEx.Find(propertyEx) != kNotFound) continue;
+      msgDBHdr->GetStringProperty(property.get(), getter_Copies(sourceString));
+      mDatabase->SetAttributeOnPendingHdr(msgDBHdr, property.get(),
+                                          sourceString.get());
+    }
 
-        nsCString sourceString;
-        msgDBHdr->GetStringProperty(property.get(),
-                                    getter_Copies(sourceString));
-        mDatabase->SetAttributeOnPendingHdr(msgDBHdr, property.get(),
-                                            sourceString.get());
-      }
-
-      uint32_t messageSize;
-      uint64_t messageOffset;
-      nsCString storeToken;
-      msgDBHdr->GetMessageOffset(&messageOffset);
-      msgDBHdr->GetOfflineMessageSize(&messageSize);
-      msgDBHdr->GetStringProperty("storeToken", getter_Copies(storeToken));
-      if (messageSize) {
-        mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "offlineMsgSize",
-                                                  messageSize);
-        mDatabase->SetUint64AttributeOnPendingHdr(msgDBHdr, "msgOffset",
-                                                  messageOffset);
-        // Not always setting "flags" attribute to nsMsgMessageFlags::Offline
-        // here because it can cause missing parts (inline or attachments)
-        // when messages are moved or copied manually or by filter action.
-        if (aSetOffline)
-          mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "flags",
-                                                    nsMsgMessageFlags::Offline);
-        mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
-                                            storeToken.get());
-      }
-      nsMsgPriorityValue priority;
-      msgDBHdr->GetPriority(&priority);
-      if (priority != 0) {
-        nsAutoCString priorityStr;
-        priorityStr.AppendInt(priority);
-        mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "priority",
-                                            priorityStr.get());
-      }
+    uint32_t messageSize;
+    uint64_t messageOffset;
+    nsCString storeToken;
+    msgDBHdr->GetMessageOffset(&messageOffset);
+    msgDBHdr->GetOfflineMessageSize(&messageSize);
+    msgDBHdr->GetStringProperty("storeToken", getter_Copies(storeToken));
+    if (messageSize) {
+      mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "offlineMsgSize",
+                                                messageSize);
+      mDatabase->SetUint64AttributeOnPendingHdr(msgDBHdr, "msgOffset",
+                                                messageOffset);
+      // Not always setting "flags" attribute to nsMsgMessageFlags::Offline
+      // here because it can cause missing parts (inline or attachments)
+      // when messages are moved or copied manually or by filter action.
+      if (aSetOffline)
+        mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "flags",
+                                                  nsMsgMessageFlags::Offline);
+      mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
+                                          storeToken.get());
+    }
+    nsMsgPriorityValue priority;
+    msgDBHdr->GetPriority(&priority);
+    if (priority != 0) {
+      nsAutoCString priorityStr;
+      priorityStr.AppendInt(priority);
+      mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "priority",
+                                          priorityStr.get());
     }
   }
 }
@@ -7049,6 +7040,17 @@ nsImapMailFolder::CopyMessages(
     rv = MessagesInKeyOrder(keyArray, srcFolder, sortedMsgs);
     NS_ENSURE_SUCCESS(rv, rv);
 
+    // Stopgap. Build a parallel nsTArray while the nsIArray-removal
+    // is completed (see Bug 1612239).
+    sortedMsgs->GetLength(&numMsgs);
+    nsTArray<RefPtr<nsIMsgDBHdr>> sortedHdrs;
+    sortedHdrs.SetCapacity(numMsgs);
+    for (uint32_t i = 0; i < numMsgs; i++) {
+      nsCOMPtr<nsIMsgDBHdr> hdr = do_QueryElementAt(sortedMsgs, i, &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      sortedHdrs.AppendElement(hdr);
+    }
+
     if (WeAreOffline())
       return CopyMessagesOffline(srcFolder, sortedMsgs, isMove, msgWindow,
                                  listener);
@@ -7058,7 +7060,7 @@ nsImapMailFolder::CopyMessages(
     NS_ENSURE_SUCCESS(rv, rv);
 
     // 3rd parameter: Do not set offline flag.
-    SetPendingAttributes(sortedMsgs, isMove, false);
+    SetPendingAttributes(sortedHdrs, isMove, false);
 
     // if the folders aren't on the same server, do a stream base copy
     if (!sameServer) {
@@ -7460,7 +7462,7 @@ nsImapMailFolder::CopyFileMessage(nsIFile *file, nsIMsgDBHdr *msgToReplace,
       // clear the offline message flag.
       msgToReplace->SetOfflineMessageSize(0);
       messages->AppendElement(msgToReplace);
-      SetPendingAttributes(messages, false, false);
+      SetPendingAttributes({msgToReplace}, false, false);
     }
   }
 
@@ -7764,18 +7766,13 @@ nsresult nsImapMailFolder::CopyFileToOfflineStore(nsIFile *srcFile,
       if (msgStore) msgStore->FinishNewMessage(offlineStore, fakeHdr);
     }
 
-    nsCOMPtr<nsIMutableArray> messages(
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    messages->AppendElement(fakeHdr);
-
     // We are copying from a file to offline store so set offline flag.
-    SetPendingAttributes(messages, false, true);
+    SetPendingAttributes({&*fakeHdr}, false, true);
 
     // Gloda needs this notification to index the fake message.
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-    if (notifier) notifier->NotifyMsgsClassified(messages, false, false);
+    if (notifier) notifier->NotifyMsgsClassified({&*fakeHdr}, false, false);
     inputStream->Close();
     inputStream = nullptr;
   }

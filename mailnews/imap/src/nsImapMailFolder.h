@@ -481,7 +481,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
   MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult CopyMessagesOffline(
       nsIMsgFolder *srcFolder, nsIArray *messages, bool isMove,
       nsIMsgWindow *msgWindow, nsIMsgCopyServiceListener *listener);
-  void SetPendingAttributes(nsIArray *messages, bool aIsMove, bool aSetOffline);
+  void SetPendingAttributes(const nsTArray<RefPtr<nsIMsgDBHdr>> &messages,
+                            bool aIsMove, bool aSetOffline);
 
   nsresult CopyOfflineMsgBody(nsIMsgFolder *srcFolder, nsIMsgDBHdr *destHdr,
                               nsIMsgDBHdr *origHdr, nsIInputStream *inputStream,

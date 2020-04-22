@@ -13,6 +13,17 @@
  * - Adding new folders
  * - Copying messages from files to mailboxes
  * - Adding new messages directly to mailboxes
+ *
+ * NOTE (See Bug 1632022):
+ * Running this test by itself...
+ *
+ * $ ./mach xpcshell-test comm/mailnews/imap/test/unit/test_nsIMsgFolderListenerIMAP.js
+ * ...will fail.
+ *
+ * This is because all the IMAP tests run twice - once with mbox storage and
+ * once with maildir storage. For this test, the two parallel instances
+ * interact badly.
+ *
  */
 
 /* import-globals-from ../../../test/resources/msgFolderListenerSetup.js */
@@ -313,9 +324,10 @@ function run_test() {
 
 function doTest(test) {
   // eslint-disable-line no-unused-vars
-  dump("Doing test " + test + "\n");
   if (test <= gTestArray.length) {
     let testFn = gTestArray[test - 1];
+
+    dump(`Doing test ${test} (${testFn.name})\n`);
 
     // Set a limit of ten seconds; if the notifications haven't arrived by then there's a problem.
     do_timeout(10000, function() {

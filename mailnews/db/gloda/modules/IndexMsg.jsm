@@ -2149,8 +2149,7 @@ var GlodaMsgIndexer = {
    *  new-to-us case, it works out to be cleaner to just treat them the same
    *  and take a very small performance hit.
    *
-   * @param aMsgHdrs Something fixIterator will work on to return an iterator
-   *     on the set of messages that we should treat as potentially changed.
+   * @param aMsgHdrs array of messages to treat as potentially changed.
    * @param aDirtyingEvent Is this event inherently dirtying?  Receiving a
    *     msgsClassified notification is not inherently dirtying because it is
    *     just telling us that a message exists.  We use this knowledge to
@@ -2168,7 +2167,7 @@ var GlodaMsgIndexer = {
     let glodaIdsNeedingDeletion = null;
     let messageKeyChangedIds = null,
       messageKeyChangedNewKeys = null;
-    for (let msgHdr of fixIterator(aMsgHdrs, Ci.nsIMsgDBHdr)) {
+    for (let msgHdr of aMsgHdrs) {
       // -- Index this folder?
       let msgFolder = msgHdr.folder;
       if (!this.shouldIndexFolder(msgFolder)) {
@@ -2343,7 +2342,7 @@ var GlodaMsgIndexer = {
     msgsClassified(aMsgHdrs, aJunkClassified, aTraitClassified) {
       this.indexer._log.debug("msgsClassified notification");
       try {
-        GlodaMsgIndexer._reindexChangedMessages(aMsgHdrs.enumerate(), false);
+        GlodaMsgIndexer._reindexChangedMessages(aMsgHdrs, false);
       } catch (ex) {
         this.indexer._log.error("Explosion in msgsClassified handling:", ex);
       }
@@ -2474,7 +2473,9 @@ var GlodaMsgIndexer = {
               // Since we are moving messages from a folder where they were
               //  effectively not indexed, it is up to us to make sure the
               //  messages now get indexed.
-              this.indexer._reindexChangedMessages(aDestMsgHdrs.enumerate());
+              this.indexer._reindexChangedMessages(
+                fixIterator(aDestMsgHdrs, Ci.nsIMsgDBHdr)
+              );
               return;
             }
 
@@ -2929,7 +2930,10 @@ var GlodaMsgIndexer = {
       } else if (aEvent == "JunkStatusChanged") {
         this.indexer._log.debug("JunkStatusChanged notification");
         aItem.QueryInterface(Ci.nsIArray);
-        GlodaMsgIndexer._reindexChangedMessages(aItem.enumerate(), true);
+        GlodaMsgIndexer._reindexChangedMessages(
+          fixIterator(aItem, Ci.nsIMsgDBHdr),
+          true
+        );
       }
     },
   },

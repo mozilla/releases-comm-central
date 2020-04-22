@@ -89,11 +89,7 @@ let newMailEventTracker = new (class extends EventEmitter {
 
   msgsClassified(messages, junkProcessed, traitProcessed) {
     if (messages.length > 0) {
-      this.emit(
-        "new-mail-received",
-        messages.queryElementAt(0, Ci.nsIMsgDBHdr).folder,
-        messages.enumerate()
-      );
+      this.emit("new-mail-received", messages[0].folder, messages);
     }
   }
 })();

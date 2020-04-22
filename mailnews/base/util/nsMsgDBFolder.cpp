@@ -2124,38 +2124,17 @@ nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
       mPostBayesMessagesToFilter->Clear();
     }
 
-    // Bail if we didn't actually classify any messages.
-    if (mClassifiedMsgKeys.IsEmpty()) return rv;
-
-    // Notify that we classified some messages.
-    nsCOMPtr<nsIMsgFolderNotificationService> notifier(
-        do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &rv));
+    // If we classified any messages, send out a notification.
+    nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+    rv = MsgGetHeadersFromKeys2(mDatabase, mClassifiedMsgKeys, hdrs);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMutableArray> classifiedMsgHdrs =
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    uint32_t numKeys = mClassifiedMsgKeys.Length();
-    for (uint32_t i = 0; i < numKeys; ++i) {
-      nsMsgKey msgKey = mClassifiedMsgKeys[i];
-      bool hasKey;
-      // It is very possible for a message header to no longer be around because
-      // a filter moved it.
-      rv = mDatabase->ContainsKey(msgKey, &hasKey);
-      if (!NS_SUCCEEDED(rv) || !hasKey) continue;
-      nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(msgHdr));
-      if (!NS_SUCCEEDED(rv)) continue;
-      classifiedMsgHdrs->AppendElement(msgHdr);
-    }
-
-    // only generate the notification if there are some classified messages
-    if (NS_SUCCEEDED(classifiedMsgHdrs->GetLength(&length)) && length)
-      notifier->NotifyMsgsClassified(classifiedMsgHdrs, mBayesJunkClassifying,
+    if (!hdrs.IsEmpty()) {
+      nsCOMPtr<nsIMsgFolderNotificationService> notifier(
+          do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID, &rv));
+      NS_ENSURE_SUCCESS(rv, rv);
+      notifier->NotifyMsgsClassified(hdrs, mBayesJunkClassifying,
                                      mBayesTraitClassifying);
-    mClassifiedMsgKeys.Clear();
-
+    }
     return rv;
   }
 
@@ -2593,17 +2572,15 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun) {
  * nsIMsgFolderNotificationService notification.
  */
 nsresult nsMsgDBFolder::NotifyHdrsNotBeingClassified() {
-  nsCOMPtr<nsIMutableArray> msgHdrsNotBeingClassified;
-
   if (mProcessingFlag[5].keys) {
     nsTArray<nsMsgKey> keys;
     mProcessingFlag[5].keys->ToMsgKeyArray(keys);
     if (keys.Length()) {
-      msgHdrsNotBeingClassified = do_CreateInstance(NS_ARRAY_CONTRACTID);
-      if (!msgHdrsNotBeingClassified) return NS_ERROR_OUT_OF_MEMORY;
       nsresult rv = GetDatabase();
       NS_ENSURE_SUCCESS(rv, rv);
-      MsgGetHeadersFromKeys(mDatabase, keys, msgHdrsNotBeingClassified);
+      nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrsNotBeingClassified;
+      rv = MsgGetHeadersFromKeys2(mDatabase, keys, msgHdrsNotBeingClassified);
+      NS_ENSURE_SUCCESS(rv, rv);
 
       // Since we know we've handled all the NotReportedClassified messages,
       // we clear the set by deleting and recreating it.
