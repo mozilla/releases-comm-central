@@ -11,6 +11,8 @@ job-defaults:
         tooltool-downloads: internal
     fetches:
         toolchain:
+            - win64-dump-syms
+            - win64-pdbstr
             - win64-winchecksec
 
 win32/opt:
@@ -346,5 +348,86 @@ win64/debug:
         fetch:
             - nsis-3.01-win
             - upx-3.95-win
+        thirdparty-libotr-win64:
+            - libotr.tar.xz
+
+
+win64-plain/debug:
+    description: "Win64 Debug Plain"
+    index:
+        product: thunderbird
+        job-name: win64-plain-debug
+    dependencies:
+        thirdparty-libotr-win64: thirdparty-libotr-win64
+    treeherder:
+        platform: windows2012-64/debug
+        symbol: Bp
+        tier: 2
+    worker-type: b-win2012
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: plain
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/taskcluster_base_windows.py
+            - builds/taskcluster_base_win64.py
+        extra-config:
+            disable_package_metrics: true
+            stage_platform: win64
+        mozconfig-variant: plain-debug
+    run-on-projects: ['comm-central']
+    fetches:
+        toolchain:
+            - win64-clang-cl
+            - win64-rust
+            - win64-node
+            - win64-nasm
+            - win64-cbindgen
+        thirdparty-libotr-win64:
+            - libotr.tar.xz
+
+win64-plain/opt:
+    description: "Win64 Opt Plain"
+    index:
+        product: thunderbird
+        job-name: win64-plain-opt
+    dependencies:
+        thirdparty-libotr-win64: thirdparty-libotr-win64
+    treeherder:
+        platform: windows2012-64/opt
+        symbol: Bp
+        tier: 2
+    worker-type: b-win2012
+    worker:
+        max-run-time: 7200
+        env:
+            PERFHERDER_EXTRA_OPTIONS: plain
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/taskcluster_base_windows.py
+            - builds/taskcluster_base_win64.py
+        extra-config:
+            disable_package_metrics: true
+            stage_platform: win64
+        mozconfig-variant: plain-opt
+    run-on-projects: ['comm-central']
+    fetches:
+        toolchain:
+            - win64-clang-cl
+            - win64-rust
+            - win64-node
+            - win64-nasm
+            - win64-cbindgen
         thirdparty-libotr-win64:
             - libotr.tar.xz
