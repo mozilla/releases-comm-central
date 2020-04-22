@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "gtest/gtest.h"
+#include "nsContentUtils.h"
 #include "nsIServiceManager.h"
 #include "nsICookieService.h"
 #include "nsICookieManager.h"
@@ -38,8 +39,15 @@ void SetACookieMail(nsICookieService *aCookieService, const char *aSpec,
   nsCOMPtr<nsIURI> uri;
   NS_NewURI(getter_AddRefs(uri), aSpec);
 
+  nsCOMPtr<nsIIOService> service = do_GetIOService();
+  nsCOMPtr<nsIChannel> channel;
+  Unused << service->NewChannelFromURI(
+      uri, nullptr, nsContentUtils::GetSystemPrincipal(),
+      nsContentUtils::GetSystemPrincipal(), 0, nsIContentPolicy::TYPE_DOCUMENT,
+      getter_AddRefs(channel));
+
   nsresult rv = aCookieService->SetCookieStringFromHttp(
-      uri, nsDependentCString(aCookieString), nullptr);
+      uri, nsDependentCString(aCookieString), channel);
   EXPECT_TRUE(NS_SUCCEEDED(rv));
 }
 
@@ -50,7 +58,14 @@ bool GetACookieMail(nsICookieService *aCookieService, const char *aSpec,
   nsCOMPtr<nsIURI> uri;
   NS_NewURI(getter_AddRefs(uri), aSpec);
 
-  Unused << aCookieService->GetCookieStringFromHttp(uri, nullptr, aCookie);
+  nsCOMPtr<nsIIOService> service = do_GetIOService();
+  nsCOMPtr<nsIChannel> channel;
+  Unused << service->NewChannelFromURI(
+      uri, nullptr, nsContentUtils::GetSystemPrincipal(),
+      nsContentUtils::GetSystemPrincipal(), 0, nsIContentPolicy::TYPE_DOCUMENT,
+      getter_AddRefs(channel));
+
+  Unused << aCookieService->GetCookieStringFromHttp(uri, channel, aCookie);
   return !aCookie.IsEmpty();
 }
 
@@ -101,6 +116,9 @@ void InitPrefsMail(nsIPrefBranch *aPrefBranch) {
 
   // XXX TODO: We need to follow bug 1617611 for the real fix.
   mozilla::Preferences::SetBool("network.cookie.sameSite.laxByDefault", false);
+
+  mozilla::Preferences::SetBool(
+      "network.cookieJarSettings.unblocked_for_testing", true);
 }
 
 TEST(TestMailCookie, TestMailCookieMain)
