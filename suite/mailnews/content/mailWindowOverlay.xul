@@ -500,6 +500,10 @@
               label="&openLinkCmd.label;"
               accesskey="&openLinkCmd.accesskey;"
               oncommand="gContextMenu.openLinkInWindow();"/>
+    <menuitem id="context-openlinkinprivatewindow"
+              label="&openLinkCmdInPrivateWindow.label;"
+              accesskey="&openLinkCmdInPrivateWindow.accesskey;"
+              oncommand="gContextMenu.openLinkInPrivateWindow();"/>
     <menuseparator id="mailContext-sep-link"/>
     <menuitem id="context-selectall"/>
     <menuitem id="context-copy"/>
