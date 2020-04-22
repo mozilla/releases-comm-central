@@ -1568,7 +1568,7 @@ nsresult nsPop3Protocol::ChooseAuthMethod() {
 
   MOZ_LOG(
       POP3LOGMODULE, LogLevel::Debug,
-      (POP3LOG("(Ehabled - GSSAPI=%d, CRAM=%d, APOP=%d, NTLM=%d, "
+      (POP3LOG("(Enabled - GSSAPI=%d, CRAM=%d, APOP=%d, NTLM=%d, "
                "MSN=%d, PLAIN=%d, LOGIN=%d, USER/PASS=%d, "
                "XOAUTH2=%d)"),
        !!(POP3_HAS_AUTH_GSSAPI & availCaps),
@@ -1748,6 +1748,30 @@ int32_t nsPop3Protocol::AuthOAuth2Response() {
   return 0;
 }
 
+int32_t nsPop3Protocol::OAuth2AuthStep() {
+  MOZ_ASSERT(mOAuth2Support, "Can't do anything without OAuth2 support");
+
+  if (!m_pop3ConData->command_succeeded) {
+    m_OAuth2String.Truncate();
+    m_pop3ConData->next_state = POP3_ERROR_DONE;
+    return -1;
+  }
+
+  nsAutoCString cmdLine2;
+  cmdLine2 += m_OAuth2String;
+  cmdLine2 += CRLF;
+
+  m_pop3ConData->next_state_after_response = POP3_NEXT_AUTH_STEP;
+  m_password_already_sent = true;
+  m_OAuth2String.Truncate();
+  if (Pop3SendData(cmdLine2.get(), true)) {
+    MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
+            (POP3LOG("POP: XOAUTH2 authentication (second step) failed")));
+    m_pop3ConData->next_state = POP3_ERROR_DONE;
+  }
+  return 0;
+}
+
 /** msgIOAuth2ModuleListener implementation */
 nsresult nsPop3Protocol::OnSuccess(const nsACString &aOAuth2String) {
   MOZ_ASSERT(mOAuth2Support, "Can't do anything without OAuth2 support");
@@ -1757,14 +1781,34 @@ nsresult nsPop3Protocol::OnSuccess(const nsACString &aOAuth2String) {
   cmd.AppendLiteral("AUTH XOAUTH2 ");
   cmd += aOAuth2String;
   cmd += CRLF;
-  m_pop3ConData->next_state = POP3_WAIT_FOR_RESPONSE;
-  m_pop3ConData->next_state_after_response = POP3_NEXT_AUTH_STEP;
-  m_pop3ConData->pause_for_read = true;
-  m_password_already_sent = true;
-  if (Pop3SendData(cmd.get(), true)) {
-    MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
-            (POP3LOG("POP: XOAUTH2 authentication failed")));
-    m_pop3ConData->next_state = POP3_ERROR_DONE;
+  // RFC 2449 limits command length to 255 octets. If our command is over that,
+  // send AUTH XOAUTH2 on one line, and the actual data on the next.
+  // The second line is treated as a blob allowing arbitrary size content.
+  if (cmd.Length() <= 255) {
+    m_pop3ConData->next_state_after_response = POP3_NEXT_AUTH_STEP;
+    m_password_already_sent = true;
+    if (Pop3SendData(cmd.get(), true)) {
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
+              (POP3LOG("POP: XOAUTH2 authentication failed")));
+      m_pop3ConData->next_state = POP3_ERROR_DONE;
+    }
+  } else {
+    // Stash the string away, in POP3_AUTH_OAUTH2_AUTH_STEP we'll send this too.
+    m_OAuth2String.Assign(aOAuth2String);
+
+    nsAutoCString cmdLine1;
+    cmdLine1.AppendLiteral("AUTH XOAUTH2");
+    cmdLine1 += CRLF;
+    m_pop3ConData->next_state = POP3_WAIT_FOR_RESPONSE;
+    m_pop3ConData->pause_for_read = true;
+    m_pop3ConData->next_state_after_response = POP3_AUTH_OAUTH2_AUTH_STEP;
+    if (Pop3SendData(cmdLine1.get(), false)) {
+      MOZ_LOG(POP3LOGMODULE, LogLevel::Error,
+              (POP3LOG("POP: XOAUTH2 authentication (line1) failed")));
+      m_pop3ConData->next_state = POP3_ERROR_DONE;
+      ProcessProtocolState(nullptr, nullptr, 0, 0);
+      return NS_ERROR_FAILURE;
+    }
   }
   ProcessProtocolState(nullptr, nullptr, 0, 0);
   return NS_OK;
@@ -3600,6 +3644,10 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI *url,
 
       case POP3_AUTH_GSSAPI_STEP:
         status = AuthGSSAPIResponse(false);
+        break;
+
+      case POP3_AUTH_OAUTH2_AUTH_STEP:
+        status = OAuth2AuthStep();
         break;
 
       case POP3_AUTH_OAUTH2_RESPONSE:
