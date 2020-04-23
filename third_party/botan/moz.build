@@ -43,7 +43,7 @@ botan_generated = [
     'CMakeLists.txt',
     ]
 
-if not CONFIG['MOZ_ARTIFACT_BUILDS']:
+if CONFIG['COMPILE_ENVIRONMENT']:
     GENERATED_FILES += botan_generated
     botan_build = GENERATED_FILES['build/build.h']
     botan_build.script = 'botan_configure.py'
