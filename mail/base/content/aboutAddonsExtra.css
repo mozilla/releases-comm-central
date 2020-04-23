@@ -8,26 +8,30 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --in-content-categories-background: rgba(249,249,250,0.1);
+    --in-content-categories-background: rgba(249, 249, 250, 0.1);
   }
 }
 
-#category-box {
+#sidebar {
   background-color: var(--in-content-categories-background);
 }
 
-#preferencesButton {
-  margin-bottom: 36px;
-}
-
-.sidebar-footer-button.help-button {
+/* Hide Plugins category */
+button[name="plugin"] {
   display: none;
 }
 
-#nav-header {
-  height: 50px;
+.sidebar-footer-list {
+  margin-bottom: 36px;
 }
 
-#category-plugin {
+/* Hide the help button */
+#help-button {
+  display: none;
+}
+
+/* Hide in extension details the private browsing section */
+section > .addon-detail-row-private-browsing,
+.addon-detail-row-private-browsing + .addon-detail-row.addon-detail-help-row {
   display: none;
 }

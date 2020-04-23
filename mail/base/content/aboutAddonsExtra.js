@@ -19,12 +19,6 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
  * and the inner window which is the list of add-ons or the detail view. */
 (async function() {
   if (window.location.href == "about:addons") {
-    let contentStylesheet = document.createProcessingInstruction(
-      "xml-stylesheet",
-      'href="chrome://messenger/content/aboutAddonsExtra.css" type="text/css"'
-    );
-    document.insertBefore(contentStylesheet, document.documentElement);
-
     // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
     let browser = document.getElementById("html-view-browser");
     if (!/(interactive|complete)/.test(browser.contentDocument.readyState)) {
@@ -51,6 +45,12 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
     textbox.setAttribute("placeholder", placeholder);
     return;
   }
+
+  let contentStylesheet = document.createProcessingInstruction(
+    "xml-stylesheet",
+    'href="chrome://messenger/content/aboutAddonsExtra.css" type="text/css"'
+  );
+  document.insertBefore(contentStylesheet, document.documentElement);
 
   window.isCorrectlySigned = function() {
     return true;
