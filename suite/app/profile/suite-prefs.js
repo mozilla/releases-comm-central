@@ -89,16 +89,8 @@ pref("browser.doorhanger.enabled", true);
 // search engines URL
 pref("browser.search.searchEnginesURL", "https://addons.thunderbird.net/%LOCALE%/%APP%/search/?atype=4");
 
-// pointer to the default engine name
-pref("browser.search.defaultenginename", "chrome://communicator-region/locale/region.properties");
-
 // Disable logging for the search service by default.
 pref("browser.search.log", false);
-
-// Ordering of Search Engines in the Engine list.
-pref("browser.search.order.1", "chrome://communicator-region/locale/region.properties");
-pref("browser.search.order.2", "chrome://communicator-region/locale/region.properties");
-pref("browser.search.order.3", "chrome://communicator-region/locale/region.properties");
 
 // Search (side)bar results always open in a new tab.
 pref("browser.search.openintab", false);
