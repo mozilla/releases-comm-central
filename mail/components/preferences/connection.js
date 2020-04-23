@@ -493,12 +493,21 @@ var gConnectionsDialog = {
     }
 
     if (!menu.disabled && isCustom) {
-      customContainer.setAttribute("style", "visibility: visible;");
+      customContainer.hidden = false;
       customInput.disabled = false;
     } else {
-      customContainer.setAttribute("style", "visibility: hidden;");
+      customContainer.hidden = true;
       customInput.disabled = true;
     }
+
+    // The height has likely changed, find our SubDialog and tell it to resize.
+    requestAnimationFrame(() => {
+      let dialogs = window.opener.gSubDialog._dialogs;
+      let dialog = dialogs.find(d => d._frame.contentDocument == document);
+      if (dialog) {
+        dialog.resizeVertically();
+      }
+    });
   },
 
   getDnsOverHttpsControls() {

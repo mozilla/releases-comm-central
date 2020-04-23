@@ -563,3 +563,29 @@ richlistbox:focus > richlistitem[selected="true"] {
 /**
  * End Dialog
  */
+
+
+/**
+ * Connection dialog
+ */
+
+#proxy-grid,
+#dnsOverHttps-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.proxy-grid-row:not([hidden]),
+.dnsOverHttps-grid-row:not([hidden]) {
+  display: contents;
+}
+
+#proxy-grid > .thin {
+  grid-column: span 2;
+  height: 20px;
+}
+
+/**
+ * End connection dialog
+ */

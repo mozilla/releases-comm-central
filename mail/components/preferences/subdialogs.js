@@ -260,10 +260,9 @@ SubDialog.prototype = {
     }
 
     // Provide the ability for the dialog to know that it is being loaded "in-content".
-    this._frame.contentDocument.documentElement.setAttribute(
-      "subdialog",
-      "true"
-    );
+    for (let dialog of this._frame.contentDocument.querySelectorAll("dialog")) {
+      dialog.setAttribute("subdialog", "true");
+    }
 
     this._frame.contentWindow.addEventListener("dialogclosing", this);
 
@@ -318,6 +317,14 @@ SubDialog.prototype = {
       await aEvent.target.contentDocument.l10n.ready;
     }
 
+    // Some subdialogs may want to perform additional, asynchronous steps during initializations.
+    //
+    // In that case, we expect them to define a Promise which will delay measuring
+    // until the promise is fulfilled.
+    if (aEvent.target.contentDocument.mozSubdialogReady) {
+      await aEvent.target.contentDocument.mozSubdialogReady;
+    }
+
     await this.resizeDialog();
   },
 
@@ -325,37 +332,15 @@ SubDialog.prototype = {
     // Do this on load to wait for the CSS to load and apply before calculating the size.
     let docEl = this._frame.contentDocument.documentElement;
 
-    let titleBarHeight =
-      this._titleBar.clientHeight +
-      parseFloat(getComputedStyle(this._titleBar).borderBottomWidth);
-
     // These are deduced from styles which we don't change, so it's safe to get them now:
     let boxHorizontalBorder =
       2 * parseFloat(getComputedStyle(this._box).borderLeftWidth);
-    let boxVerticalBorder =
-      2 * parseFloat(getComputedStyle(this._box).borderTopWidth);
     let frameHorizontalMargin =
       2 * parseFloat(getComputedStyle(this._frame).marginLeft);
-    let frameVerticalMargin =
-      2 * parseFloat(getComputedStyle(this._frame).marginTop);
-
-    // The difference between the frame and box shouldn't change, either:
-    let boxRect = this._box.getBoundingClientRect();
-    let frameRect = this._frame.getBoundingClientRect();
-    let frameSizeDifference =
-      frameRect.top - boxRect.top + (boxRect.bottom - frameRect.bottom);
 
     // Then determine and set a bunch of width stuff:
-    let frameMinWidth = docEl.style.width;
-    if (!frameMinWidth) {
-      if (docEl.ownerDocument.body) {
-        // HTML documents have a body but XUL documents don't
-        frameMinWidth = docEl.ownerDocument.body.scrollWidth;
-      } else {
-        frameMinWidth = docEl.scrollWidth;
-      }
-      frameMinWidth += "px";
-    }
+    let { scrollWidth } = docEl.ownerDocument.body || docEl;
+    let frameMinWidth = docEl.style.width || scrollWidth + "px";
     let frameWidth = docEl.getAttribute("width")
       ? docEl.getAttribute("width") + "px"
       : frameMinWidth;
@@ -367,10 +352,48 @@ SubDialog.prototype = {
       frameMinWidth +
       ")";
 
+    this.resizeVertically();
+
+    this._overlay.dispatchEvent(
+      new CustomEvent("dialogopen", {
+        bubbles: true,
+        detail: { dialog: this },
+      })
+    );
+    this._overlay.style.visibility = "visible";
+    this._overlay.style.opacity = ""; // XXX: focus hack continued from _onContentLoaded
+
+    if (this._box.getAttribute("resizable") == "true") {
+      this._onResize = this._onResize.bind(this);
+      this._resizeObserver = new MutationObserver(this._onResize);
+      this._resizeObserver.observe(this._box, { attributes: true });
+    }
+
+    this._trapFocus();
+  },
+
+  resizeVertically() {
+    let docEl = this._frame.contentDocument.documentElement;
+
+    let titleBarHeight =
+      this._titleBar.clientHeight +
+      parseFloat(getComputedStyle(this._titleBar).borderBottomWidth);
+    let boxVerticalBorder =
+      2 * parseFloat(getComputedStyle(this._box).borderTopWidth);
+    let frameVerticalMargin =
+      2 * parseFloat(getComputedStyle(this._frame).marginTop);
+
+    // The difference between the frame and box shouldn't change, either:
+    let boxRect = this._box.getBoundingClientRect();
+    let frameRect = this._frame.getBoundingClientRect();
+    let frameSizeDifference =
+      frameRect.top - boxRect.top + (boxRect.bottom - frameRect.bottom);
+
     // Now do the same but for the height. We need to do this afterwards because otherwise
     // XUL assumes we'll optimize for height and gives us "wrong" values which then are no
     // longer correct after we set the width:
-    let frameMinHeight = docEl.style.height || docEl.scrollHeight + "px";
+    let { scrollHeight } = docEl.ownerDocument.body || docEl;
+    let frameMinHeight = docEl.style.height || scrollHeight + "px";
     let frameHeight = docEl.getAttribute("height")
       ? docEl.getAttribute("height") + "px"
       : frameMinHeight;
@@ -409,7 +432,13 @@ SubDialog.prototype = {
       let contentPane =
         this._frame.contentDocument.querySelector(".contentPane") ||
         this._frame.contentDocument.querySelector("dialog");
-      contentPane.classList.add("doScroll");
+      if (contentPane) {
+        // There are also instances where the subdialog is neither implemented
+        // using a content pane, nor a <dialog> (such as manageAddresses.xhtml)
+        // so make sure to check that we actually got a contentPane before we
+        // use it.
+        contentPane.classList.add("doScroll");
+      }
     }
 
     this._frame.style.height = frameHeight;
@@ -419,23 +448,6 @@ SubDialog.prototype = {
       "px + " +
       frameMinHeight +
       ")";
-
-    this._overlay.dispatchEvent(
-      new CustomEvent("dialogopen", {
-        bubbles: true,
-        detail: { dialog: this },
-      })
-    );
-    this._overlay.style.visibility = "visible";
-    this._overlay.style.opacity = ""; // XXX: focus hack continued from _onContentLoaded
-
-    if (this._box.getAttribute("resizable") == "true") {
-      this._onResize = this._onResize.bind(this);
-      this._resizeObserver = new MutationObserver(this._onResize);
-      this._resizeObserver.observe(this._box, { attributes: true });
-    }
-
-    this._trapFocus();
   },
 
   _onResize(mutations) {
@@ -607,7 +619,7 @@ var gSubDialog = {
   _preloadDialog: null,
   _topLevelPrevActiveElement: null,
   get _topDialog() {
-    return this._dialogs.length > 0
+    return this._dialogs.length
       ? this._dialogs[this._dialogs.length - 1]
       : undefined;
   },
