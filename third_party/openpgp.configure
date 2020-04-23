@@ -43,58 +43,59 @@ def check_symbol_exists(symbol, header, language='C', flags=None, includes=None,
                        check_msg='for %s' % symbol, when=when, onerror=onerror)
 
 
-have_fcntl_h = check_header('fcntl.h')
-have_stdlib_h = check_header('stdlib.h')
-have_locale_h = check_header('locale.h')
-have_string_h = check_header('string.h')
-have_strings_h = check_header('strings.h')
+with only_when('--enable-compile-environment'):
+    have_fcntl_h = check_header('fcntl.h')
+    have_stdlib_h = check_header('stdlib.h')
+    have_locale_h = check_header('locale.h')
+    have_string_h = check_header('string.h')
+    have_strings_h = check_header('strings.h')
 
-check_headers(
-    'stdarg.h',
-    'dlfcn.h',
-    'endian.h',
-    'limits.h',
-    'memory.h',
-    'sys/auxv.h',
-    'sys/cdefs.h',
-    'sys/resource.h',
-    'sys/param.h',
-    'sys/stat.h',
-    'sys/wait.h',
-    'xlocale.h'
-)
+    check_headers(
+        'stdarg.h',
+        'dlfcn.h',
+        'endian.h',
+        'limits.h',
+        'memory.h',
+        'sys/auxv.h',
+        'sys/cdefs.h',
+        'sys/resource.h',
+        'sys/param.h',
+        'sys/stat.h',
+        'sys/wait.h',
+        'xlocale.h'
+    )
 
-set_define('JSON_C_HAVE_INTTYPES_H', noset_check_header('inttypes.h'))
+    set_define('JSON_C_HAVE_INTTYPES_H', noset_check_header('inttypes.h'))
 
-set_define('HAVE_DECL__ISNAN', check_symbol_exists('_isnan', 'float.h'))
+    set_define('HAVE_DECL__ISNAN', check_symbol_exists('_isnan', 'float.h'))
 
-set_define('HAVE_DECL__FINITE', check_symbol_exists('_finite', 'float.h'))
-set_define('HAVE_DECL_INFINITY', check_symbol_exists('INFINITY', 'math.h'))
-set_define('HAVE_DECL_ISINF', check_symbol_exists('isinf', 'math.h'))
-set_define('HAVE_DECL_ISNAN', check_symbol_exists('isnan', 'math.h'))
-set_define('HAVE_DECL_NAN', check_symbol_exists('nan', 'math.h'))
+    set_define('HAVE_DECL__FINITE', check_symbol_exists('_finite', 'float.h'))
+    set_define('HAVE_DECL_INFINITY', check_symbol_exists('INFINITY', 'math.h'))
+    set_define('HAVE_DECL_ISINF', check_symbol_exists('isinf', 'math.h'))
+    set_define('HAVE_DECL_ISNAN', check_symbol_exists('isnan', 'math.h'))
+    set_define('HAVE_DECL_NAN', check_symbol_exists('nan', 'math.h'))
 
-set_define('HAVE_DOPRNT', check_symbol_exists('_doprnt', 'stdio.h'))
-set_define('HAVE_SNPRINTF', check_symbol_exists('snprintf', 'stdio.h'))
-set_define('HAVE_VASPRINTF', check_symbol_exists('vasprintf', 'stdio.h', flags=['-D_GNU_SOURCE']))
-set_define('HAVE_VSNPRINTF', check_symbol_exists('vsnprintf', 'stdio.h'))
-set_define('HAVE_VPRINTF', check_symbol_exists('vprintf', 'stdio.h'))
+    set_define('HAVE_DOPRNT', check_symbol_exists('_doprnt', 'stdio.h'))
+    set_define('HAVE_SNPRINTF', check_symbol_exists('snprintf', 'stdio.h'))
+    set_define('HAVE_VASPRINTF', check_symbol_exists('vasprintf', 'stdio.h', flags=['-D_GNU_SOURCE']))
+    set_define('HAVE_VSNPRINTF', check_symbol_exists('vsnprintf', 'stdio.h'))
+    set_define('HAVE_VPRINTF', check_symbol_exists('vprintf', 'stdio.h'))
 
-set_define('HAVE_OPEN', check_symbol_exists('open', 'fcntl.h', when=have_fcntl_h))
-set_define('HAVE_REALLOC', check_symbol_exists('realloc', 'stdlib.h', when=have_stdlib_h))
-set_define('HAVE_SETLOCALE', check_symbol_exists('setlocale', 'locale.h', when=have_locale_h))
-set_define('HAVE_USELOCALE', check_symbol_exists('uselocale', 'locale.h', when=have_locale_h))
-set_define('HAVE_STRCASECMP', check_symbol_exists('strcasecmp', 'strings.h', when=have_strings_h))
-set_define('HAVE_STRNCASECMP', check_symbol_exists('strncasecmp', 'strings.h', when=have_strings_h))
-set_define('HAVE_STRDUP', check_symbol_exists('strdup', 'string.h', when=have_string_h))
+    set_define('HAVE_OPEN', check_symbol_exists('open', 'fcntl.h', when=have_fcntl_h))
+    set_define('HAVE_REALLOC', check_symbol_exists('realloc', 'stdlib.h', when=have_stdlib_h))
+    set_define('HAVE_SETLOCALE', check_symbol_exists('setlocale', 'locale.h', when=have_locale_h))
+    set_define('HAVE_USELOCALE', check_symbol_exists('uselocale', 'locale.h', when=have_locale_h))
+    set_define('HAVE_STRCASECMP', check_symbol_exists('strcasecmp', 'strings.h', when=have_strings_h))
+    set_define('HAVE_STRNCASECMP', check_symbol_exists('strncasecmp', 'strings.h', when=have_strings_h))
+    set_define('HAVE_STRDUP', check_symbol_exists('strdup', 'string.h', when=have_string_h))
 
-set_define('HAVE_MKDTEMP', check_symbol_exists('mkdtemp', ['stdlib.h','unistd.h']))
-set_define('HAVE_REALPATH', check_symbol_exists('realpath', 'stdlib.h'))
-set_define('HAVE_O_BINARY', check_symbol_exists('O_BINARY', 'fcntl.h'))
-set_define('HAVE__O_BINARY', check_symbol_exists('_O_BINARY', 'fcntl.h'))
+    set_define('HAVE_MKDTEMP', check_symbol_exists('mkdtemp', ['stdlib.h','unistd.h']))
+    set_define('HAVE_REALPATH', check_symbol_exists('realpath', 'stdlib.h'))
+    set_define('HAVE_O_BINARY', check_symbol_exists('O_BINARY', 'fcntl.h'))
+    set_define('HAVE__O_BINARY', check_symbol_exists('_O_BINARY', 'fcntl.h'))
 
 
-@depends(c_compiler, target)
+@depends(c_compiler, target, when=compile_environment)
 @checking('for clang_rt.builtins path', lambda x: x if x is None else x.clang_rt_lib)
 @imports(_from='os', _import='pathsep')
 @imports(_from='os.path', _import='isdir')
@@ -133,7 +134,7 @@ set_config('COMPILER_RT_BUILTIN_PATH', clang_rt_builtins.clang_rt_path, when=is_
 set_config('COMPILER_RT_BUILTIN_LIB', clang_rt_builtins.clang_rt_lib, when=is_windows)
 
 
-@depends(c_compiler, cxx_compiler)
+@depends(c_compiler, cxx_compiler, when=compile_environment)
 def rnp_compiler(c_compiler, cxx_compiler):
     _cflags = [f for f in c_compiler.flags if f not in ('-Xclang', '-std=gnu99')]
     _cxxflags = [f for f in cxx_compiler.flags if f not in ('-Xclang', '-std=c++17', '-std=gnu17')]

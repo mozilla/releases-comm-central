@@ -42,29 +42,31 @@ botan_generated = [
     'build/build_config.json',
     'CMakeLists.txt',
     ]
-GENERATED_FILES += botan_generated
-botan_build = GENERATED_FILES['build/build.h']
-botan_build.script = 'botan_configure.py'
-botan_build.flags = [
-    '--cc-bin={}'.format(CONFIG['MZLA_RNP_CXX']),
-    '--cpu={}'.format(CONFIG['target_cpu']),
-    '--os={}'.format(botan_os),
-    '--with-build-dir={}'.format(OBJDIR),
-    '--minimized-build',
-    '--disable-shared-library',
-    '--link-method=copy',
-    '--without-sphinx',
-    '--distribution-info={}'.format(rnp_dist_info),
-    '--without-rst2man',
-    '--with-cmake',
-]
 
-# Botan assumes this file exists on Linux, but it is not present on Taskcluster.
-if not CONFIG['HAVE_SYS_AUXV_H']:
-    botan_build.flags.append('--without-os-features=getauxval')
-# clock_gettime is not part of OSX until 10.12 sdk, Taskcluster builds with 10.11
-if CONFIG['OS_ARCH'] == 'Darwin':
-    botan_build.flags.append('--without-os-features=clock_gettime')
+if not CONFIG['MOZ_ARTIFACT_BUILDS']:
+    GENERATED_FILES += botan_generated
+    botan_build = GENERATED_FILES['build/build.h']
+    botan_build.script = 'botan_configure.py'
+    botan_build.flags = [
+        '--cc-bin={}'.format(CONFIG['MZLA_RNP_CXX']),
+        '--cpu={}'.format(CONFIG['target_cpu']),
+        '--os={}'.format(botan_os),
+        '--with-build-dir={}'.format(OBJDIR),
+        '--minimized-build',
+        '--disable-shared-library',
+        '--link-method=copy',
+        '--without-sphinx',
+        '--distribution-info={}'.format(rnp_dist_info),
+        '--without-rst2man',
+        '--with-cmake',
+    ]
+
+    # Botan assumes this file exists on Linux, but it is not present on Taskcluster.
+    if not CONFIG['HAVE_SYS_AUXV_H']:
+        botan_build.flags.append('--without-os-features=getauxval')
+    # clock_gettime is not part of OSX until 10.12 sdk, Taskcluster builds with 10.11
+    if CONFIG['OS_ARCH'] == 'Darwin':
+        botan_build.flags.append('--without-os-features=clock_gettime')
 
 LOCAL_INCLUDES = ['!build/include']
 
